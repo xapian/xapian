@@ -1,3 +1,7 @@
+Wed Dec 05 14:46:05 GMT 2001  Olly Betts <olly@survex.com>
+
+	* indexnasty: parsing terms from text is now twice as fast.
+
 Thu Nov 22 17:39:59 GMT 2001  Olly Betts <olly@survex.com>
 
 	* querygui: fixed compiler warnings.

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -100,7 +101,7 @@ int main(int argc, char *argv[])
         }
 
     }
-    catch(OmError &error) {
+    catch (OmError &error) {
 	std::cout << "Exception: "  << error.get_msg() << std::endl;
     }
 }
@@ -115,23 +116,36 @@ lowercase_term(om_termname &term)
     }
 } 
 
+inline static bool
+p_alpha(unsigned int c)
+{
+    return ((c | 32) - 'a') <= ('z' - 'a');
+}
+
+inline static bool
+p_notalnum(unsigned int c)
+{
+    return !isalnum(c);
+}
+
+inline static bool
+p_notplusminus(unsigned int c)
+{
+    return c != '+' && c != '-';
+}
+
 static om_termpos
 index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
 {
-    size_t i, j = 0, k;
-    while ((i = s.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                "abcdefghijklmnopqrstuvwxyz", j))
-           != string::npos) {
- 
-        j = s.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                "abcdefghijklmnopqrstuvwxyz"
-                                "0123456789", i);
-        k = s.find_first_not_of("+-", j);
-        if (k == string::npos || !isalnum(s[k])) j = k;
-        om_termname term = s.substr(i, j - i);
+    std::string::const_iterator i, j = s.begin(), k;
+    while ((i = find_if(j, s.end(), p_alpha)) != s.end()) {
+        j = find_if(i, s.end(), p_notalnum);
+        k = find_if(j, s.end(), p_notplusminus);
+        if (k == s.end() || !isalnum(*k)) j = k;
+        om_termname term = s.substr(i - s.begin(), j - i);
         lowercase_term(term);
-        if (isupper(s[i]) || isdigit(s[i])) {
-          doc.add_posting(term, pos);
+        if (isupper(*i) || isdigit(*i)) {
+	    doc.add_posting(term, pos);
         }
  
         term = stemmer.stem_word(term);
@@ -206,8 +220,8 @@ IndexNastyFile(string Filepath, OmWritableDatabase &database, OmStem &stemmer)
         cursor++; // skip past '='
         string text=line.substr(cursor);
 
-        if (!field.empty() && !text.empty()) data+=field+'='+text+'\n';
-        if (!key.empty() && !text.empty()) newdocument.add_key(atoi(key.c_str()),text);
+	if (!field.empty() && !text.empty()) data+=field+'='+text+'\n';
+	if (!key.empty() && !text.empty()) newdocument.add_key(atoi(key.c_str()),text);
 
         // now index field if required
         if (term) {
