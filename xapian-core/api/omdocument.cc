@@ -63,6 +63,15 @@ OmDocument::get_data() const
 }
 
 void
+OmDocument::set_data(const OmData &data)
+{
+    DEBUGAPICALL(void, "OmDocument::set_data", data);
+    // FIXME: locking???
+    internal->data = data;
+    internal->data_here = true;
+}
+
+void
 OmDocument::operator=(const OmDocument &other)
 {
     // pointers are reference counted.

@@ -1,3 +1,7 @@
+Tue Nov 28 17:13:56 GMT 2000 Olly Betts
+
+	* Added OmDocument::set_data()
+
 Tue Nov 28 16:47:06 GMT 2000 Olly Betts
 
 	* Started to alter OmDocument to be a general purpose document class

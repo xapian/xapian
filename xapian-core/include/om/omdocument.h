@@ -112,6 +112,9 @@ class OmDocument {
 	 */
 	OmData get_data() const;
 
+	/// Set data stored in a document.
+	void set_data(const OmData &data);
+
 	void add_key(om_keyno keyno, const OmKey &key);
 
 	/** Add an occurrence of a term to the document.
