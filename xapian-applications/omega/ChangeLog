@@ -1,3 +1,10 @@
+Mon Dec 09 17:11:26 GMT 2002  Olly Betts <olly@survex.com>
+
+	* query.cc,docs/omegascript.txt,templates/query: Added $dbsize
+	  to return the number of documents in the database being searched.
+	  Use this in the default query template on the "front page" shown
+	  when there's no search.
+
 Mon Dec 09 02:55:46 GMT 2002  Olly Betts <olly@survex.com>
 
 	* query.cc,docs/omegascript.txt,templates/query: Added $msizeexact

@@ -705,6 +705,7 @@ CMD_cgi,
 CMD_cgilist,
 CMD_date,
 CMD_dbname,
+CMD_dbsize,
 CMD_def,
 CMD_defaultop,
 CMD_div,
@@ -797,6 +798,7 @@ static struct func_desc func_tab[] = {
 {T(cgilist),	1, 1, N, 0, 0}}, // return list of values for cgi parameter
 {T(date),	1, 2, N, 1, 0}}, // convert time_t to strftime format (default: YYYY-MM-DD)
 {T(dbname),	0, 0, N, 0, 0}}, // database name
+{T(dbsize),	0, 0, N, 0, 1}}, // database size (# of documents)
 {T(def),	2, 2, 1, 0, 0}}, // define a macro
 {T(defaultop),	0, 0, N, 0, 0}}, // default operator: "and" or "or"
 {T(div),	2, 2, N, 0, 0}}, // integer divide
@@ -1041,6 +1043,9 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_dbname:
 		value = dbname;
+		break;
+	    case CMD_dbsize:
+		value = int_to_string(omdb.get_doccount());
 		break;
 	    case CMD_def: {
 		func_attrib *fa = new func_attrib;

@@ -65,6 +65,10 @@ $date{TIME_T[,FMT]}
 $dbname
 	database name (multiple names are returned separated by "/").
 
+$dbsize
+	number of documents in the database (if multiple databases are being
+	searched, this gives the total number).
+
 $def{MACRONAME,VALUE}
 	define a macro which can take 0 to 9 arguments.  You can call it with
 	$MACRONAME (if it take 0 arguments) or $MACRONAME{ARG1,ARG2,ARG3} is

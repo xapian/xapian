@@ -50,7 +50,9 @@ $if{$opt{topterms},
  <hr>
 }
 $if{$eq{$msize,0},
-$if{$query,$or{$html{$error},No documents match your query}},
+$if{$query,$or{$html{$error},No documents match your query},
+<hr>Searching $nice{$dbsize} documents
+},
 $if{$not{$msizeexact},
  $nice{$add{$topdoc,1}}-$nice{$last} of about $nice{$msize} matches,
  $if{$and{$eq{$last,$msize},$eq{$topdoc,0}},
