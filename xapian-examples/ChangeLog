@@ -1,3 +1,8 @@
+Fri Jun 28 03:03:50 BST 2002  Olly Betts <olly@survex.com>
+
+	* Use auto pseudo-backend rather than explicitly requesting quartz
+	  databases; std:: cleansing; minor fettling.
+
 Thu Jun 27 21:36:47 BST 2002  Olly Betts <olly@survex.com>
 
 	* AUTHORS, README, TODO: updated.

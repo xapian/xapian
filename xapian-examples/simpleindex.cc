@@ -1,8 +1,9 @@
-/* simpleindex.cc: Simplest possible indexer
+/* simpleindex.cc: Index each paragraph in a textfile as a document
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,8 +71,8 @@ int main(int argc, char *argv[])
     try {
 	// Open the database
 	OmSettings settings;
-	settings.set("backend", "quartz");
-	settings.set("quartz_dir", argv[1]);
+	settings.set("backend", "auto");
+	settings.set("auto_dir", argv[1]);
 	database = new OmWritableDatabase(settings);
     }
     catch (const OmError &error) {

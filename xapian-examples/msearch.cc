@@ -1,8 +1,12 @@
-/* msearch.cc
+/* msearch.cc - command line search example - implements a probabilistic and
+ *   boolean searching (boolean uses reverse polish notation)
+ *
+ * Note: for a simpler example, see simplesearch.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +31,8 @@
 #include <stack>
 #include <memory>
 
+using namespace std;
+
 #include "getopt.h"
 
 int
@@ -35,7 +41,7 @@ main(int argc, char *argv[])
     int msize = 10;
     int mfirst = 0;
     OmRSet rset;
-    std::vector<OmSettings *> dbs;
+    vector<OmSettings *> dbs;
     bool showmset = true;
     bool applystem = false;
     OmQuery::op default_op = OmQuery::OP_OR;
@@ -126,7 +132,7 @@ main(int argc, char *argv[])
     }
 	
     if (syntax_error || dbs.empty() || argv[optind] == NULL) {
-	std::cout << "Syntax: " << argv[0] << " [OPTIONS] TERM...\n" <<
+	cout << "Syntax: " << argv[0] << " [OPTIONS] TERM...\n" <<
 		"\t--msize <msize>\n" <<
 		"\t--mfirst <first mitem to return>\n" <<
 		"\t--key <key to collapse mset on>\n" <<
@@ -146,7 +152,7 @@ main(int argc, char *argv[])
     try {
         OmDatabase mydbs;
 
-	std::vector<OmSettings *>::const_iterator p;
+	vector<OmSettings *>::const_iterator p;
 	for (p = dbs.begin(); p != dbs.end(); p++) {
 	    mydbs.add_database(**p);
 	    delete *p;
@@ -159,11 +165,11 @@ main(int argc, char *argv[])
 	OmQuery query;
 	bool query_defined = false;
 
-	std::stack<OmQuery> boolquery;
+	stack<OmQuery> boolquery;
 	// Parse query into OmQuery object
 	bool boolean = false;
         for (char **p = argv + optind; *p; p++) {
-	    std::string term = *p;
+	    string term = *p;
 	    if (term == "B") {
 		boolean = true;
 		continue;
@@ -203,7 +209,7 @@ main(int argc, char *argv[])
 //		    }
 		    if (doop) {
 			if (boolquery.size() < 2) {
-			    std::cout << "Syntax error: boolean operands need 2 arguments\n(NB: query should be in reverse polish notation).\n";
+			    cout << "Syntax error: boolean operands need 2 arguments\n(NB: query should be in reverse polish notation).\n";
 			    exit(1);
 			}
 			OmQuery boolq_right(boolquery.top());
@@ -230,7 +236,7 @@ main(int argc, char *argv[])
         }
 	if (boolean) {
 	    if (boolquery.size() == 0) {
-		std::cout << "Syntax error: Empty boolean query.\n";
+		cout << "Syntax error: Empty boolean query.\n";
 		exit(1);
 	    }
 	    while (boolquery.size() > 1) {
@@ -259,14 +265,13 @@ main(int argc, char *argv[])
 	if (showmset) {
 	    for (OmMSetIterator i = mset.begin(); i != mset.end(); i++) {
 		OmDocument doc = i.get_document();
-		std::string p = doc.get_data();
-		std::cout << *i << ":[" << p << "] " << i.get_weight()
-			<< std::endl << std::endl;
+		string p = doc.get_data();
+		cout << *i << ":[" << p << "] " << i.get_weight() << "\n\n";
 	    }
-	    std::cout << std::endl;
+	    cout << endl;
 	}
     }
     catch (const OmError &e) {
-	std::cout << e.get_msg() << std::endl;
+	cout << e.get_msg() << endl;
     }
 }

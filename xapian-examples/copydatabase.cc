@@ -1,4 +1,4 @@
-/* copydatabase.cc: Document-by-document copy of quartz databases
+/* copydatabase.cc: Document-by-document copy of one or more Xapian databases
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -67,16 +67,16 @@ main(int argc, char **argv)
 
 	// Create the destination database
 	OmSettings dest_settings;
-	dest_settings.set("backend", "quartz");
+	dest_settings.set("backend", "auto");
 	dest_settings.set("database_create", true);
-	dest_settings.set("quartz_dir", dest);
+	dest_settings.set("auto_dir", dest);
 	OmWritableDatabase dest_database(dest_settings);
 
 	for (int i = 1; i < argc - 1; ++i) {
 	    // Open the source database
 	    OmSettings src_settings;
-	    src_settings.set("backend", "quartz");
-	    src_settings.set("quartz_dir", argv[i]);
+	    src_settings.set("backend", "auto");
+	    src_settings.set("auto_dir", argv[i]);
 	    OmDatabase src_database(src_settings);
 
 	    // Copy each document across

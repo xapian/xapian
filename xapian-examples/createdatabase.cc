@@ -1,8 +1,9 @@
-/* createdatabase.cc: Create an empty quartz database.
+/* createdatabase.cc: Create an empty Xapian database.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,9 +63,9 @@ main(int argc, char **argv)
 
 	// Create the database
 	OmSettings settings;
-	settings.set("backend", "quartz");
+	settings.set("backend", "auto");
 	settings.set("database_create", true);
-	settings.set("quartz_dir", argv[1]);
+	settings.set("auto_dir", argv[1]);
 	OmWritableDatabase database(settings);
     }
     catch (const OmError &error) {
