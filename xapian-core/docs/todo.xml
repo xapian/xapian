@@ -42,13 +42,6 @@ Make all errors return a context if appropriate.
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
 
-Add ability to specify a match cutoff by weight (rather than percentage
-weight) - useful in cases where the kind of weights expected from the query
-are known, eg filtering.
-
-</todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
-
 API cleanup.  Classes should hide implementation in internals, and should
 not use STL containers as parameters or return types.
 
@@ -66,13 +59,6 @@ OmIndexerMessage::OmIndexerMessage()
 OmIndexerMessage::set_vector()
 OmIndexerDesc::nodes
 OmIndexerBuilder::NodeType
-
-</todoitem>
-<todoitem priority="L" difficulty="3" owner="" area="Quartz" release="">
-
-Make quartz database autoflush when enough changes have been performed based
-on the memory used up as a proportion of that available, rather than simply
-when a count of changes is reached.  Remove hardcoded count of 1000 changes.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="API" release="1.0">
@@ -248,6 +234,19 @@ branch is boolean and the right probabilistic.
 
 max_or_terms should probably work in a more local way.  Should be a new
 query operator rather than a hack on OM_MOP_OR.
+
+</todoitem>
+<todoitem priority="L" difficulty="3" owner="" area="Quartz" release="">
+
+Clean up interaction of AllTermsIterator for quartz with QuartzPostList.
+Need QuartzPostListTermsIterator class?  (But with a snappier name. ;-) )
+
+</todoitem>
+<todoitem priority="L" difficulty="3" owner="" area="Quartz" release="">
+
+Make quartz database autoflush when enough changes have been performed based
+on the memory used up as a proportion of that available, rather than simply
+when a count of changes is reached.  Remove hardcoded count of 1000 changes.
 
 </todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="API" release="">

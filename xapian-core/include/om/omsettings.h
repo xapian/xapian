@@ -90,6 +90,11 @@
  *      matches which contain all the terms in the query, then consider using
  *      OmQuery::OP_AND instead of OmQuery::OP_OR in the query).
  *      (default -1 => no cut-off)
+ *    - match_cutoff :  Minimum weight for a document to be returned.  If a
+ *      document has a lower score that this, it will not appear in the mset.
+ *      It is usually only possible to choose an appropriate weight for cutoff
+ *      based on the results of a previous run of the same query; this is thus
+ *      mainly useful for alerting operations.
  *    - match_max_or_terms : Maximum number of terms which will be used if
  *      the query contains a large number of terms which are ORed together.
  *      Only the terms with the match_max_or_terms highest termweights will be

@@ -281,6 +281,15 @@ MultiMatch::get_mset_2(PostList *pl,
 	}
     }
 
+    {
+	om_weight val = opts.get_real("match_cutoff", 0);
+	if (val > 0) {
+	    if (min_item.wt < val) {
+		min_item.wt = val;
+	    }
+	}
+    }
+
     // Table of keys which have been seen already, for collapsing.
     std::map<OmKey, OmMSetItem> collapse_tab;
 
