@@ -1,3 +1,7 @@
+Wed Aug  2 12:45:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added instructions for compiling with STLport to INSTALL.
+
 Wed Aug  2 12:13:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* If a test appears to have had a memory leak, the testsuite runs the

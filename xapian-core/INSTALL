@@ -9,6 +9,7 @@ should be:
  2) Run make
  3) Run make install to install Muscat
 
+
 Options to give to configure:
 =============================
 
@@ -31,6 +32,42 @@ ie: mkdir BUILD; cd BUILD; ../configure
 	access methods.)  Use "./configure --help" to get a full list of
 	the backends.  By default, all backends for which the appropriate
 	libraries are available will be enabled.
+
+
+Compiling with STLport
+======================
+
+If your native C++ standard library and STL is not suitable for your needs,
+you should use an alternative library.  For example, you may wish to run
+Muscat in a multithreaded situation and have the GNU libstdc++, which
+doesn't work properly with multithreaded access.
+
+One freely available option is STLport, downloadable from
+http://www.stlport.org/
+
+To compile with STLport:
+
+ 1) Download, build, and optionally install STLport.
+ 2) Configure muscat, by running ./configure, supplying the following
+    arguments.
+
+    --with-stlport=<path>, where <path> is the path to the STLport
+        software.  The directory pointed to by <path> should contain
+        stlport/ and lib/ subdirectories.
+
+    --with-stlport-compiler=<name>, where <name> is the name of the
+        compiler you are using.  This must correspond to the compiler
+        name in the name of the STLport library.  For example, with
+        GCC, the STLport library would be called libstlport_gcc, and
+        you should give --with-stlport-compiler=gcc.
+
+ 3) Compile and use muscat as normal, by running make.
+
+Note that, unless you compile statically, you must make sure that the
+STLport library is on the library path at runtime: on Linux you could
+do this by setting the LD_LIBRARY_PATH environment variable to point
+to the directory containing the library.
+
 
 Developers:
 ===========
