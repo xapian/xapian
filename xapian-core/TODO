@@ -49,6 +49,10 @@ Priority | Area            | Task
          |                 | configure options.  Make sure linking (-lpthread)
 	 |                 | gets sorted out, too.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Matcher         | Make boolmatch support decision functors.
+         |                 | This could perhaps be done by making boolmatch
+	 |                 | use same code, but a zero weighting scheme.
+---------+-----------------+--------------------------------------------------
  Low     |cBackends        | Use pthread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Use pthread locks around database methods
