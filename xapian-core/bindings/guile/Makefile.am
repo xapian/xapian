@@ -9,7 +9,7 @@ target: omstem.so
 omstem_wrap.cc: ../swig/omstem.i ../swig/om_util.i ../swig/om_util_guile.i
 	swig $(SWIG_INCLUDES) -c++ -guile -o $@ $<
 
-omsee_wrap.cc: ../swig/omsee.i ../swig/omstem.i ../swig/om_util.i ../swig/om_util_guile.i
+omseek_wrap.cc: ../swig/omsee.i ../swig/omstem.i ../swig/om_util.i ../swig/om_util_guile.i
 	swig $(SWIG_INCLUDES) -c++ -guile -shadow -o $@ $<
 
 omstem_wrap.o: omstem_wrap.cc

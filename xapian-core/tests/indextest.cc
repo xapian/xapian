@@ -1,4 +1,4 @@
-/* indextest.cc: test of the Omsee indexing system
+/* indextest.cc: test of the Omseek indexing system
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

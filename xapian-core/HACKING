@@ -1,8 +1,10 @@
-Instructions for hacking on Omsee
-=================================
+Instructions for hacking on Omseek
+==================================
 
 This file is aimed to help developers get started with working on
-Omsee.
+Omseek. The Omseek SourceForge project page is at
+<http://sourceforge.net/projects/omseek/>, and contains various tools
+that help support us.
 
 Extra options to give to configure:
 ===================================
@@ -10,7 +12,7 @@ Extra options to give to configure:
 Note: Non-developer configure options are described in INSTALL
 
 You will probably want to use some of these if you're going to be developing
-Omsee.
+Omseek.
 
 --enable-debug
 	This enables compiling of assertion code, to produce warnings if
@@ -96,9 +98,11 @@ See "buildall --help" for more information.
 Submitting Patches:
 ===================
 
-If you have a patch to fix a problem in Omsee, or to add a new feature, feel
-free to submit it to us via the mailing list <bugs@omsee.com>
-(Subscription information is at http://lists.omsee.com/)
+If you have a patch to fix a problem in Omseek, or to add a new
+feature, feel free to submit it to us via the SourceForge patch
+management system. Any major changes should be discussed on the
+omseek-devel mailing list first (see
+<http://lists.sourceforge.net/mailman/listinfo/omseek-devel>
 
 We find patches generated with "diff -puN" easiest to read.  If you are
 working from a CVS copy of the code, you can use "cvs diff -puN" to generate

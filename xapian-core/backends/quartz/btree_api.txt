@@ -618,7 +618,7 @@ static struct Btree * reopen(struct Btree * B)
         /* the revision number ought to have gone up from last time,
            so if we arrive here, something has gone badly wrong ...
         */
-        printf("Possible database corruption - complain to Omsee\n");
+        printf("Possible database corruption - complain to Omseek\n");
         exit(1);
     }
     return B;

@@ -32,7 +32,7 @@
  *
  * For a more faithful version of the Porter algorithm, see
  *
- *     http://www.omsee.com/~martin/stem.html
+ *     http://tartarus.org/~martin/PorterStemmer/index.html
  *
  */
 

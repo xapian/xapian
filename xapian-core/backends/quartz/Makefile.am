@@ -55,7 +55,7 @@ check_PROGRAMS = btreetest \
 quartztest_SOURCES = quartztest.cc
 quartztest_LDADD = libquartz.la \
                    ../../testsuite/libtest.la \
-		   ../../libomsee.la
+		   ../../libomseek.la
 
 btreetest_SOURCES = btreetest.cc btree.cc bcursor.cc btree_base.cc
 btreetest_LDADD = ../../testsuite/libtest.la \
@@ -64,7 +64,7 @@ btreetest_LDADD = ../../testsuite/libtest.la \
 
 quartzdump_SOURCES = quartzdump.cc
 quartzdump_LDADD = libquartz.la \
-		   ../../libomsee.la
+		   ../../libomseek.la
 
 run-quartztest:
 	@rm -f run-quartztest

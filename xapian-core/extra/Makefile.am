@@ -11,4 +11,4 @@ TESTS = parsequerytest
 
 libomqueryparser_la_SOURCES = parsequery.yy
 parsequerytest_SOURCES = parsequerytest.cc parsequery.yy
-parsequerytest_LDADD = ../libomsee.la # ../testsuite/libtest.la
+parsequerytest_LDADD = ../libomseek.la # ../testsuite/libtest.la

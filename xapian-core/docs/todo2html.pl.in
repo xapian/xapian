@@ -84,11 +84,11 @@ if ($ARGV[0] eq '--text') {
 <META NAME="Created" CONTENT="17/10/00">
 <META NAME="Created By" CONTENT="|l|e|n|s|i|s|">
 <META NAME="Resource Type" CONTENT="Document">
-<META NAME="Copyright" CONTENT="(c)2000 omsee">
-<META NAME="Description" CONTENT="OMSEE developers zone to do list">
-<META NAME="Keywords" CONTENT="OMSEE open muscat to do list required tasks">
-<TITLE>omsee developers zone - to do list</TITLE>
-<LINK rel=stylesheet type="text/css" HREF="http://www.omsee.com/omseeweb.css">
+<META NAME="Copyright" CONTENT="(c)2001 omseek">
+<META NAME="Description" CONTENT="OMSEEK developers zone to do list">
+<META NAME="Keywords" CONTENT="OMSEEK to do list required tasks">
+<TITLE>omseek developers zone - to do list</TITLE>
+<!--LINK rel=stylesheet type="text/css" HREF="omseekweb.css"-->
 </HEAD>
 
 <!--#set var="menupos_1" value="developers" -->

@@ -1,4 +1,4 @@
-/* threadtest.cc: test of the Omsee in the multithreaded case
+/* threadtest.cc: test of the Omseek in the multithreaded case
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

@@ -16,9 +16,9 @@ stamp-h
 stamp-h.in
 .deps
 .libs
-omsee-config
-omsee-config.nodep
-libomsee.la
+omseek-config
+omseek-config.nodep
+libomseek.la
 om-*.tar.gz
 TODO
 TODO.release

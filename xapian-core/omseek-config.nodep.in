@@ -1,7 +1,7 @@
 #! /bin/sh
 # @configure_input@
-# omsee-config.in: This file is processed by configure to
-# generate omsee-config
+# omseek-config.in: This file is processed by configure to
+# generate omseek-config
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -13,11 +13,11 @@ stlport_cflags="@STLPORT_CFLAGS@"
 usage()
 {
     cat <<EOF
-Usage: omsee-config [OPTION]
+Usage: omseek-config [OPTION]
 
 Known values for OPTION are:
 
-  --check		check for existence of omsee
+  --check		check for existence of omseek
   --libs		print library linking information
   --cflags		print pre-processor and compiler flags
   --prefix              set prefix
@@ -65,7 +65,7 @@ while test $# -gt 0; do
 	;;
 
     --version)
-	echo omsee @VERSION@
+	echo omseek @VERSION@
 	exit 0
 	;;
 
@@ -126,7 +126,7 @@ if test "$echo_cflags" = "yes"; then
 fi
 
 if test "$echo_libs" = "yes"; then
-    echo -L$libdir -lomsee $dependency_libs
+    echo -L$libdir -lomseek $dependency_libs
 fi
 
 exit 0

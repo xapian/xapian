@@ -1,4 +1,4 @@
-/* apitest.h: tests the Omsee API
+/* apitest.h: tests the Omseek API
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC

@@ -1,5 +1,5 @@
 This file is intended to document the coding policy when working on
-Omsee code.  A failure to follow the policy is considered a
+Omseek code.  A failure to follow the policy is considered a
 bug, although a relatively low priority one at this stage in
 development.
 

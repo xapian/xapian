@@ -1,20 +1,20 @@
-Email about this project should be directed first to
-<maintainer@omsee.com>
+Email about this project should be directed first to the
+omseek-discuss mailing list (see
+<http://lists.sourceforge.net/mailman/listinfo/omseek-discuss>).
 
-Current maintainers:
-Richard Boulton <richard.boulton@omsee.com>
-Chris Emerson <chris.emerson@omsee.com>
-Olly Betts
+Prior to moving to SourceForge, the Omseek codebase was developed by a
+team at Brightstation PLC:
 
-Other developers:
-Martin Porter
-
-Past contributors:
-Graham Simms
+Brightstation developers:
+	Richard Boulton
+	Chris Emerson
+	Olly Betts
+	Martin Porter
+	Graham Simms
 
 Helpful comments, bug reports, small patches:
-James Aylett
-Hiranmay Ghosh (stemming algorithms)
-Barry Wilkins (stemming algorithms)
-Jonathan Fielder
-Tom Mortimer
+	Hiranmay Ghosh (stemming algorithms)
+	Barry Wilkins (stemming algorithms)
+	James Aylett
+	Jonathan Fielder
+	Tom Mortimer

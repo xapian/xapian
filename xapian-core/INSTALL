@@ -1,13 +1,13 @@
-Welcome to Omsee
+Welcome to Omseek
 =================
 
-Omsee uses a standard GNU automake / autoconf / libtool / etc setup.
+Omseek uses a standard GNU automake / autoconf / libtool / etc setup.
 This means that all you need to do to compile a standard distribution
 should be:
 
  1) Run ./configure, possibly with some extra arguments (see below)
  2) Run make
- 3) Run make install to install Omsee
+ 3) Run make install to install Omseek
 
 
 Options to give to configure:
@@ -20,9 +20,9 @@ source, change to the build directory, and run the configure script
 ie: mkdir BUILD; cd BUILD; ../configure
 
 --enable-debug
-	You should use this to build a version of Omsee with debugging
+	You should use this to build a version of Omseek with debugging
 	symbols and assertions to help with debugging.  Recommended for
-	initial development with Omsee - this helps to ensure that you
+	initial development with Omseek - this helps to ensure that you
 	are using the API correctly.
 
 --enable-backend-*
@@ -37,7 +37,7 @@ Compiling with STLport
 
 If your native C++ standard library and STL is not suitable for your needs,
 you should use an alternative library.  For example, you may wish to run
-Omsee in a multithreaded situation and have the GNU libstdc++, which
+Omseek in a multithreaded situation and have the GNU libstdc++, which
 doesn't work properly with multithreaded access.
 
 One freely available option is STLport, downloadable from
@@ -46,7 +46,7 @@ http://www.stlport.org/
 To compile with STLport:
 
  1) Download, build, and optionally install STLport.
- 2) Configure Omsee, by running ./configure, supplying the following
+ 2) Configure Omseek, by running ./configure, supplying the following
     arguments.
 
     --with-stlport=<path>, where <path> is the path to the STLport
@@ -59,7 +59,7 @@ To compile with STLport:
         GCC, the STLport library would be called libstlport_gcc, and
         you should give --with-stlport-compiler=gcc.
 
- 3) Compile and use Omsee as normal, by running make.
+ 3) Compile and use Omseek as normal, by running make.
 
 Note that, unless you compile statically, you must make sure that the
 STLport library is on the library path at runtime: on Linux you could

@@ -6,3 +6,4 @@ Makefile
 .libs
 parsequery.cc
 parsequerytest
+libomqueryparser.la

@@ -611,7 +611,7 @@ AC_OUTPUT(
  autoconf/Makefile
  net/Makefile
  netprogs/Makefile
- omsee-config.nodep
+ omseek-config.nodep
  docs/mkdoc.pl
  docs/todo2html.pl
  docs/doxygen_api_conf

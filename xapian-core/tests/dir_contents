@@ -2,7 +2,7 @@
 
 <Description>
 This directory contains various test programs which use various parts
-of the Omsee software.
+of the Omseek software.
 
 At some future stage, these will be replaced by test harnesses designed to
 ensure that all parts of the software are working, to be run after building
