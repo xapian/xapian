@@ -33,9 +33,7 @@ omindex_LDADD = $(XAPIAN_LIBS)
 
 if HAVE_LIBXML2
 omindex_config_SOURCES = omindex-config.cc
-#per-target CXXFLAGS not supported in older versions of automake
-#omindex_config_CXXFLAGS = $(LIBXML_CFLAGS)
-AM_CXXFLAGS = $(LIBXML_CFLAGS)
+omindex_config_CXXFLAGS = $(LIBXML_CFLAGS)
 omindex_config_LDADD = $(LIBXML_LIBS)
 endif
 

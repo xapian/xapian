@@ -1,3 +1,10 @@
+Tue Apr 23 15:10:42 BST 2002  Olly Betts <olly@survex.com>
+
+        * Make buildall smart enough to generate aclocal.m4 properly and
+          remove acinclude.m4.  It now also extracts the package name from
+          configure.in so we can use the same buildall everywhere; fixed
+	  problem with double use of AM_CXXFLAGS in Makefile.am.
+
 Tue Apr 23 14:27:29 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated for xapian-config and xapian.m4 changes.
