@@ -1,3 +1,8 @@
+Fri Nov 17 15:49:20 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change an OmUnimplementedError into an OmInvalidOperationError
+	  in MSetPostList
+
 Fri Nov 17 15:39:29 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fixes to check key length when searching for a key or adding an

@@ -50,7 +50,7 @@ MSetPostList::skip_to(om_docid did, om_weight w_min)
 {
     // MSetPostList doesn't return documents in docid order, so skip_to
     // isn't a meaningful operation.
-    throw OmUnimplementedError("MSetPostList doesn't support skip_to");
+    throw OmInvalidOperationError("MSetPostList doesn't support skip_to");
 }
 
 PendingMSetPostList::~PendingMSetPostList()
