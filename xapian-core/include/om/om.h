@@ -29,12 +29,12 @@
 
 /* Data access */
 #include "omdocument.h"
+#include "omdatabase.h"
 
 /* Searching */
 #include "omenquire.h"
 
 /* Indexing */
-#include "omindexer.h"
 
 /* Stemming */
 #include "omstem.h"

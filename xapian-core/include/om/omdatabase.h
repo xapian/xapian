@@ -24,6 +24,7 @@
 #define OM_HGUARD_OMDATABASE_H
 
 #include <vector>
+#include "omindexdoc.h"
 
 ///////////////////////////////////////////////////////////////////
 // OmDatabaseGroup class
@@ -76,4 +77,72 @@ class OmDatabaseGroup {
 			  const vector<string> & params);
 };
 
+///////////////////////////////////////////////////////////////////
+// OmWritableDatabase class
+// ========================
+
+/** This class provides writable access to a database.
+ *
+ *  NOTE: this class is still under heavy development, and the interface
+ *  is liable to change in the near future.
+ */
+class OmWritableDatabase {
+    private:
+	class Internal;
+
+	/** Reference counted internals. */
+	Internal *internal;
+    public:
+	/** Open a database for writing.
+	 *
+	 *  @param type    a string describing the database type.
+	 *  @param params  a vector of parameters to be used to open the
+	 *                 database: meaning and number required depends
+	 *                 on database type.
+	 *
+	 *  @exception OmInvalidArgumentError will be thrown if an invalid
+	 *             argument is supplied, for example, an unknown database
+	 *             type.
+	 *  @exception OmOpeningError may be thrown if the database cannot
+	 *             be opened.
+	 */
+	OmWritableDatabase(const string & type,
+			   const vector<string> & params);
+
+	/** Destroy this handle on the database.
+	 *  If there are no copies of this object remaining, the database
+	 *  will be closed.
+	 *
+	 *  Calling this method will ensure that all changes made are
+	 *  flushed to the database.
+	 */
+	~OmWritableDatabase();
+
+        /** Copying is allowed.  The internals are reference counted, so
+	 *  copying is also cheap.
+	 */
+	OmWritableDatabase(const OmWritableDatabase &other);
+
+        /** Assignment is allowed.  The internals are reference counted,
+	 *  so assignment is also cheap.
+	 */
+	void operator=(const OmWritableDatabase &other);
+
+	/** Add a new document to the database.
+	 *
+	 *  This method atomically adds the document: the result is either
+	 *  that the document is added, or that the document fails to be
+	 *  added and an exception is thrown.
+	 *
+	 *  @param document The new document to be added.
+	 *
+	 *  @return         The document ID of the newly added document.
+	 *
+	 *  @exception OmDatabaseError will be thrown if a problem occurs
+	 *             while writing to the database.
+	 */
+	om_docid add_document(const OmDocumentContents & document);
+};
+
 #endif /* OM_HGUARD_OMDATABASE_H */
+
