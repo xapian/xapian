@@ -38,21 +38,21 @@ class OpeningError : public OmError {
 class PostListIterator {
     private:
     public:
-	docid  get_docid();     // Gets current docid
-	void   next();          // Moves to next docid
-	void   skip_to(docid);  // Moves to next docid >= specified docid
-	bool   at_end();        // True if iterator is off the end of the list
-	void   close();
+	virtual docid  get_docid() = 0;     // Gets current docid
+	virtual void   next() = 0;          // Moves to next docid
+	virtual void   skip_to(docid) = 0;  // Moves to next docid >= specified docid
+	virtual bool   at_end() = 0;        // True if iterator is off the end of the list
+	virtual void   close() = 0;
 };
 
 class TermListIterator {
     private:
     public:
-	termid get_termid();    // Gets current termid
-	void   next();          // Moves to next termid
-	void   skip_to(termid); // Moves to next termid >= specified termid
-	bool   at_end();        // True if iterator is off the end of the list
-	void   close();
+	virtual termid get_termid() = 0;    // Gets current termid
+	virtual void   next() = 0;          // Moves to next termid
+	virtual void   skip_to(termid) = 0; // Moves to next termid >= specified termid
+	virtual bool   at_end() = 0;        // True if iterator is off the end of the list
+	virtual void   close() = 0;
 };
 
 class IRDatabase {
