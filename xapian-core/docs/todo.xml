@@ -27,7 +27,7 @@ info in the target since that can be created atomically) and check the details
 Or touch the lock periodically to keep it?
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="Documentation" release="0.6">
+<todoitem priority=" " difficulty="" owner="Olly" area="Documentation" release="0.8">
 
 Finish reading through generated docs to ensure they read well in collated form.
 
@@ -79,7 +79,7 @@ Put Om into its own namespace, to ensure lack of symbol conflicts.
 Write (speed) performance test suite.
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="General" release="0.6">
+<todoitem priority="M" difficulty="2" owner="" area="General" release="0.8">
 
 Check for zero byte cleanness wherever strings are used.  There are a
 number of c_str()s in the code, but I believe all in the core library
@@ -114,10 +114,11 @@ Make all errors return a context if appropriate.
 Produce Microsoft Windows version, probably cross-compiling to mingw.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="API" release="0.6">
+<todoitem priority="M" difficulty="3" owner="Olly" area="API" release="0.8">
 
-Implement methods to iterate through all the documents in the database.
-Possibly via a special term which indexes all documents.
+Implement methods to iterate through all the documents in the database,
+probably by making the empty term index all documents (or rather act as
+if it does).  Have patch which mostly implements this for the InMemory backend.
 
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Matcher" release="">
@@ -150,7 +151,7 @@ Make exceptions work with shared libs on solaris / find an alternative. (gcc
 =&gt; DISABLE_SHARED on Solaris)
 
 </todoitem>
-<todoitem priority="M" difficulty="2" owner="" area="OmQuery" release="0.6">
+<todoitem priority="M" difficulty="2" owner="" area="OmQuery" release="0.8">
 
 Move all serialisation of OmQuery into OmQuery (out of socketcommon.cc and
 localmatch): modification of omquery requires changes in 3 separate parts
@@ -188,7 +189,7 @@ Allow negative relevance judgements?  Will need to check that this doesn't
 cause assumptions to be violated. (eg, unsigned integers going negative.)
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Databases" release="0.6">
+<todoitem priority="M" difficulty="3" owner="" area="Databases" release="0.8">
 
 Change all internal references to net/network backend to remote backend (in
 step with external naming)
@@ -213,16 +214,11 @@ Clean up interaction of AllTermsIterator for quartz with QuartzPostList.
 Need QuartzPostListTermsIterator class?  (But with a snappier name. ;-) )
 
 </todoitem>
-<todoitem priority="L" difficulty="3" owner="" area="Quartz" release="0.6">
+<todoitem priority="L" difficulty="3" owner="" area="Quartz" release="0.8">
 
 Make quartz database autoflush when enough changes have been performed based
 on the memory used up as a proportion of that available, rather than simply
 when a count of changes is reached.  Remove hardcoded count of 1000 changes.
-
-</todoitem>
-<todoitem priority="L" difficulty="4" owner="" area="API" release="0.6">
-
-Allow custom weighting functions.
 
 </todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="API" release="">
@@ -295,12 +291,33 @@ Clustering algorithms.
 Improve performance using SIMD instructions
 
 </todoitem>
-<todoitem priority="V" difficulty="4" owner="" area="General" release="0.6">
+<todoitem priority="L" difficulty="" owner="Olly" area="" release="0.7">
+
+Replace all uses of OmSettings.
+The arguments for OmSettings are not as compelling as we
+originally thought, and it has definite drawbacks - one major one being
+that there's no easy way to check for typos which can lead to users of
+the library spending hours trying to sort out a bug which is just a
+typo in an OmSettings value.  Another argument for it was to allow passing
+values to user weighting objects, etc, but I think it's best just to
+implement these with a clone() method, and pass an example one in.  And
+we might as well make built-in weighting objects work the same way rather
+than being a special case.  Backends can be done similarly, though an
+explicit factory is needed as there's more than one class to build.
+Also remove docs/omsettings.
+
+</todoitem>
+<todoitem priority="L" difficulty="4" owner="" area="General" release="0.7">
 
 Make backends / weighting schemes / indexer modules register themselves
 automatically.  At runtime / linktime? (ie, replace current conditional
 compilation scheme) - actually, we can use sub-classing
 and factory classes to do this more cleanly.
+
+</todoitem>
+<todoitem priority="L" difficulty="4" owner="" area="API" release="0.7">
+
+Allow custom weighting functions.
 
 </todoitem>
 <todoitem priority="V" difficulty="3" owner="" area="Backends" release="">
@@ -412,9 +429,10 @@ bindings are actually released.
 Ensure that (Java in particular) bindings throw correct exception types.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="0.6">
+<todoitem priority=" " difficulty="" owner="James" area="" release="0.8">
 
-indexgraph -> extra (needs to build as a support library?)
+indexgraph -> extra (needs to build as a support library?)  [James
+expressed an interest in this as dbtools needs it]
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">
@@ -442,11 +460,15 @@ to deal with that, which can be done in the bindings although it's
 a little fiddly in some languages I believe.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.6">
+<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.8">
 
-Fix up examples and make sure they are actually instructive.
+Fix up examples and make sure they are actually instructive.  Add a comment
+to each describing what it demonstrates.
 I've made a start.  delve is a reasonable example.  msearch probably needs
 simplifying to just do a probabilistic search, or to use OmQueryParser.
+Add example to copy quartz database as "Full compaction with revision 1"
+(and perhaps delete/rename the bitmaps) as described in the quartz docs.
+This should produce a small fast database optimised for fast searching.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="" release="">
@@ -495,22 +517,6 @@ make sure the non-autogenerated docs are kept up-to-date
 
 Use valgrind in the testsuite - waiting for Julian Seward to add the hooks
 needed.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.6">
-
-Replace all uses of OmSettings.
-The arguments for OmSettings are not as compelling as we
-originally thought, and it has definite drawbacks - one major one being
-that there's no easy way to check for typos which can lead to users of
-the library spending hours trying to sort out a bug which is just a
-typo in an OmSettings value.  Another argument for it was to allow passing
-values to user weighting objects, etc, but I think it's best just to
-implement these with a clone() method, and pass an example one in.  And
-we might as well make built-in weighting objects work the same way rather
-than being a special case.  Backends can be done similarly, though an
-explicit factory is needed as there's more than one class to build.
-Also remove docs/omsettings.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="James" area="" release="">

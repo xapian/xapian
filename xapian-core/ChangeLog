@@ -1,3 +1,8 @@
+Mon Nov 18 02:51:55 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Retargetted 0.6 tasks for 0.7 or 0.8; updated a few
+	  entries.
+
 Mon Nov 18 02:28:55 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/quartzdesign.html,backends/quartz/: We can just store the term
