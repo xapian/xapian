@@ -168,7 +168,7 @@ check_tname_in_key_lite(const char **keypos, const char *keyend, const string &t
     // This should only fail if the postlist doesn't exist at all.
     return tname_in_key == tname;
 }
- 
+
 static bool
 check_tname_in_key(const char **keypos, const char *keyend, const string &tname)
 {
@@ -495,16 +495,7 @@ PostlistChunkWriter::write_to_disk(QuartzBufferedTable *table)
 		// Make sure this is a chunk with the right term attached.
 		const char * keypos = cursor->current_key.data();
 		const char * keyend = keypos + cursor->current_key.size();
-		string tname_in_key;
-
-		// Read the termname.
-		if (keypos != keyend) {
-		    if (!get_tname_from_key(&keypos, keyend, tname_in_key)) {
-			report_read_error(keypos);
-		    }
-		}
-
-		if (tname_in_key != tname) {
+		if (!check_tname_in_key(&keypos, keyend, tname)) {
 		    throw Xapian::DatabaseCorruptError("Couldn't find chunk before delete chunk");
 		}
 
@@ -803,13 +794,8 @@ QuartzPostList::next_chunk()
     }
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
-    string tname_in_key;
-
     // Check we're still in same postlist
-    if (!get_tname_from_key(&keypos, keyend, tname_in_key)) {
-	report_read_error(keypos);
-    }
-    if (tname_in_key != tname) {
+    if (!check_tname_in_key_lite(&keypos, keyend, tname)) {
 	is_at_end = true;
 	throw Xapian::DatabaseCorruptError("Unexpected end of posting list for `" +
 				     tname + "'");
@@ -900,13 +886,8 @@ QuartzPostList::move_to_chunk_containing(Xapian::docid desired_did)
 
     const char * keypos = cursor->current_key.data();
     const char * keyend = keypos + cursor->current_key.size();
-    string tname_in_key;
-
     // Check we're still in same postlist
-    if (!get_tname_from_key(&keypos, keyend, tname_in_key)) {
-	report_read_error(keypos);
-    }
-    if (tname_in_key != tname) {
+    if (!check_tname_in_key_lite(&keypos, keyend, tname)) {
 	// This should only happen if the postlist doesn't exist at all.
 	is_at_end = true;
 	is_last_chunk = true;
@@ -1028,21 +1009,22 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 	map<Xapian::docid, pair<char, Xapian::termcount> >::const_iterator j;
 	for (j = i->second.begin(); j != i->second.end(); ++j) {
 	    Xapian::docid did = j->first;
+
+	    // Get chunk containing entry
+	    string key;
+	    make_key(tname, did, key);
+
+	    // Find the right chunk
+	    AutoPtr<QuartzCursor> cursor(bufftable->cursor_get());
+
+	    cursor->find_entry(key);
+	    Assert(!cursor->after_end());
+
+	    const char * keypos = cursor->current_key.data();
+	    const char * keyend = keypos + cursor->current_key.size();
+
 	    switch (j->second.first) {
 		case 'M': {
-		    // Get chunk containing entry
-		    string key;
-		    make_key(tname, did, key);
-
-		    // Find the right chunk
-		    AutoPtr<QuartzCursor> cursor(bufftable->cursor_get());
-
-		    cursor->find_entry(key);
-		    Assert(!cursor->after_end());
-
-		    const char * keypos = cursor->current_key.data();
-		    const char * keyend = keypos + cursor->current_key.size();
-
 		    if (!check_tname_in_key(&keypos, keyend, tname)) {
 			// Postlist for this termname doesn't exist.
 			break;
@@ -1068,6 +1050,10 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 			from.next();
 		    }
 		    to.write_to_disk(bufftable);
+
+		    // FIXME: fudge these for falling into next case...
+		    keypos = cursor->current_key.data();
+		    keyend = keypos + cursor->current_key.size();
 		    /* FALL THRU */
 		}
 		case 'A': {
@@ -1076,29 +1062,14 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 		    Xapian::termcount new_doclen = k->second;
 		    Xapian::termcount new_wdf = j->second.second;
 
-		    // How big should chunks in the posting list be?  (They will grow
-		    // slightly bigger than this, but not more than a few bytes extra)
+ 		    // How big should chunks in the posting list be?  (They
+ 		    // will grow slightly bigger than this, but not more than a
+ 		    // few bytes extra) - FIXME: tune this value to try to
+ 		    // maximise how well blocks are used.
 		    const unsigned int CHUNKSIZE = 2048;
 
-		    string key;
-		    make_key(tname, did, key);
-		    AutoPtr<QuartzCursor> cursor(bufftable->cursor_get());
-
-		    cursor->find_entry(key);
-		    Assert(!cursor->after_end());
-
-		    DEBUGLINE(DB, "cursor->current_key=`" << cursor->current_key <<
-			      "', length=" << cursor->current_key.size());
-		    const char * keypos = cursor->current_key.data();
-		    const char * keyend = keypos + cursor->current_key.size();
-		    string tname_in_key;
-
 		    // Read the termname.
-		    if (keypos != keyend)
-			if (!get_tname_from_key(&keypos, keyend, tname_in_key))
-			    report_read_error(keypos);
-
-		    if (tname_in_key != tname) {
+		    if (!check_tname_in_key(&keypos, keyend, tname)) {
 			// This should only happen if the postlist doesn't exist at all.
 			new_postlist(bufftable, tname, did, new_wdf, new_doclen);
 		    } else {
@@ -1136,8 +1107,8 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 			    keypos = cursor->current_key.data();
 			    keyend = keypos + cursor->current_key.size();
 			    if (!check_tname_in_key(&keypos, keyend, tname)) {
-			       // Postlist for this termname doesn't exist.
-			       break;
+				// Postlist for this termname doesn't exist.
+				break;
 			    }
 			    PostlistChunkReader from(keypos, keyend, *tag);
 			    PostlistChunkWriter to(cursor->current_key, (keypos == keyend),
@@ -1189,19 +1160,6 @@ QuartzPostList::merge_changes(QuartzBufferedTable * bufftable,
 		    break;
 		}
 		case 'D': {
-		    // Get chunk containing entry
-		    string key;
-		    make_key(tname, did, key);
-
-		    // Find the right chunk
-		    AutoPtr<QuartzCursor> cursor(bufftable->cursor_get());
-
-		    cursor->find_entry(key);
-		    Assert(!cursor->after_end());
-
-		    const char * keypos = cursor->current_key.data();
-		    const char * keyend = keypos + cursor->current_key.size();
-
 		    if (!check_tname_in_key(&keypos, keyend, tname)) {
 			// Postlist for this termname doesn't exist.
 			break;
