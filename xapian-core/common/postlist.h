@@ -50,7 +50,7 @@ PostList::skip_to(docid id, weight w_min)
 // (in some sense)  Nice description, eh -- Richard
 class DBPostList : public virtual PostList {
     protected:
-	IRWeight own_wt;
+        BM25Weight own_wt;
 	const IRWeight * ir_wt;
     public:
 	DBPostList() : ir_wt(&own_wt) { return; }

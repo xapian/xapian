@@ -10,7 +10,7 @@ class IRDatabase;
 class RSet;
 
 class IRWeight {
-    private:
+    protected:
 	const IRDatabase *root;
 	doccount termfreq;
 	termid tid;
@@ -24,10 +24,17 @@ class IRWeight {
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
 	void set_stats(const IRDatabase *, doccount, termid, const RSet *);
-	void calc_termweight() const;
-	weight get_weight(doccount wdf, doclength len) const;
+	virtual void calc_termweight() const;
+	virtual weight get_weight(doccount wdf, doclength len) const;
 	weight get_maxweight() const;
 };
+
+class BM25Weight : public IRWeight {
+    public:
+	void calc_termweight() const;
+	weight get_weight(doccount wdf, doclength len) const;
+};
+
 
 inline void
 IRWeight::set_stats(const IRDatabase *root_new,
