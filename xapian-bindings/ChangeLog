@@ -1,3 +1,8 @@
+Wed Sep 15 17:38:02 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: Use swig's -modern switch for
+	  Python 2.2 and up - it gives cleaner, leaner, faster wrapper code.
+
 Tue Sep 14 03:37:55 BST 2004  Olly Betts <olly@survex.com>
 
 	* guile/Makefile.am,guile/extra.i: Added empty extra.i which

@@ -80,13 +80,26 @@ if test no != "$with_swig" ; then
       dnl  been out for a long time, and 2.0 wasn't around for all that long as
       dnl  I remember.
       case "`$PYTHON -c 'import sys;print sys.version[[:3]]' 2>/dev/null`" in
+      2.1)
+	SWIG_PYTHON_FLAGS=
+	;;
       [2.[1-9]*|[3-9].*])
+	dnl Call swig -modern for Python 2.2 and up for cleaner, leaner, faster
+	dnl wrapper code.
+	SWIG_PYTHON_FLAGS=-modern
+	;;
+      *)
+	PYTHON=
+	;;
+      esac
+      if test -n "$PYTHON" ; then
+	AC_SUBST(SWIG_PYTHON_FLAGS)
 	PYTHON_INC="`$PYTHON -c 'import sys;print sys.prefix + "/include/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_INC)
 	PYTHON_LIB="`$PYTHON -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_LIB)
-	BINDINGS="$BINDINGS python" ;;
-      esac
+	BINDINGS="$BINDINGS python"
+      fi
     fi
   fi
 
