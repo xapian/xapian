@@ -36,8 +36,7 @@ QuartzLexicon::parse_entry(const std::string & data, om_doccount * termfreq)
     const char * pos = data.data();
     const char * end = pos + data.size();
 
-    if (!unpack_uint(&pos, end, termfreq)) {
-	if (pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termfreq from lexicon.");
+    if (!unpack_uint_last(&pos, end, termfreq)) {
 	throw OmRangeError("Size of termfreq out of range, in lexicon.");
     }
 }
@@ -46,7 +45,7 @@ void
 QuartzLexicon::make_entry(std::string & data, om_doccount termfreq)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzLexicon::make_entry", data << ", " << termfreq);
-    data = pack_uint(termfreq);
+    data = pack_uint_last(termfreq);
 }
 
 void

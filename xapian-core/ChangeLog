@@ -1,3 +1,8 @@
+Sun Nov 17 20:19:23 GMT 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_lexicon.cc,backends/quartz/quartz_values.cc:
+	  Use new pack_uint_last() and unpack_uint_last() where appropriate.
+
 Sun Nov 17 20:03:24 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_record.cc,backends/quartz/quartz_utils.h:
