@@ -30,8 +30,6 @@
 #include "quartz_database.h"
 #include "om/autoptr.h"
 
-class QuartzTermListIterator;
-
 /** A termlist in a quartz database.
  */
 class QuartzTermList : public LeafTermList {
