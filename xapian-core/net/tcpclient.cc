@@ -55,7 +55,7 @@ TcpClient::get_remote_socket(string hostname, int port)
     struct sockaddr_in remaddr;
     remaddr.sin_family = AF_INET;
     remaddr.sin_port = htons(port);
-    remaddr.sin_addr.s_addr = *(host->h_addr);
+    memcpy(&remaddr.sin_addr, host->h_addr, sizeof(remaddr.sin_addr));
 
     int retval = connect(socketfd,
 			 reinterpret_cast<sockaddr *>(&remaddr),
