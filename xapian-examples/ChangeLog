@@ -1,3 +1,7 @@
+Mon Dec 11 13:37:17 GMT 2000 Olly Betts
+
+	* Updated to reflect OmRSet encapsulation.
+
 Sun Dec 10 17:28:21 GMT 2000 Olly Betts
 
 	* OmDocumentContents -> OmDocument.

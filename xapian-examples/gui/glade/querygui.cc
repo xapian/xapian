@@ -191,7 +191,7 @@ static void do_topterms() {
 	    next = next->next;
 	}
 
-	if (!rset.items.size()) {
+	if (!rset.size()) {
 	    // invent an rset
 	    gint msize = results_widget->rows;
 	    for (index = std::min(4, msize - 1); index >= 0; index--) {

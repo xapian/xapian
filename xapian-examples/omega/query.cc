@@ -855,7 +855,7 @@ eval(const string &fmt)
 		    OmESet eset;
 		    ExpandDeciderOmega decider;
 		    
-		    if (!rset->items.empty()) {
+		    if (rset->size()) {
 			eset = enquire->get_eset(howmany, *rset, 0, &decider);
 		    } else {
 			// invent an rset
