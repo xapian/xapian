@@ -1,3 +1,8 @@
+Mon Oct 14 02:45:20 BST 2002  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Updated to reflect new naming of stemming test
+	  data.
+
 Sun Oct 13 17:06:26 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Updated.

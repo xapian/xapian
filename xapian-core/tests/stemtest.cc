@@ -124,17 +124,17 @@ test_stemjunk()
 static bool
 test_stemdict()
 {
-    string dir = srcdir + "/../../xapian-data/stemming/" + language + "/data";
+    string dir = srcdir + "/../../xapian-data/stemming/";
 
-    ifstream txt((dir + "/voc.txt").c_str());
+    ifstream txt((dir + language + ".voc").c_str());
     if (!txt.is_open()) {
-	SKIP_TEST("voc.txt not found for language " + language);
+	SKIP_TEST(language + ".voc not found");
     }
 
-    ifstream st((dir + "/voc.st").c_str());
+    ifstream st((dir + language + ".st").c_str());
     if (!st.is_open()) {
 	txt.close();
-	SKIP_TEST("voc.st not found for language " + language);
+	SKIP_TEST(language + ".st not found");
     }
  
     int wordcount = 0;
