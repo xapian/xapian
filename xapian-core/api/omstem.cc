@@ -122,7 +122,7 @@ class OmStem::Internal {
     public:
 	/** Initialise the state based on the specified language.
 	 */
-	Internal(std::string language);
+	Internal(const std::string &language);
 
 	/** Destructor.
 	 */
@@ -138,7 +138,7 @@ class OmStem::Internal {
 
 	/** Stem the given word.
 	 */
-	std::string stem_word(std::string word) const;
+	std::string stem_word(const std::string &word) const;
     private:
 
 	/** Function pointer to setup the stemmer.
@@ -164,10 +164,10 @@ class OmStem::Internal {
 	/** Return a stemmer_language enum value from a language
 	 *  string.
 	 */
-	stemmer_language get_stemtype(std::string language);
+	stemmer_language get_stemtype(const std::string &language);
 };
 
-OmStem::Internal::Internal(std::string language)
+OmStem::Internal::Internal(const std::string &language)
 	: stemmer_data(0)
 {
     langcode = get_stemtype(language);
@@ -258,14 +258,14 @@ OmStem::Internal::set_language(stemmer_language langcode_)
 }
 
 stemmer_language
-OmStem::Internal::get_stemtype(std::string language)
+OmStem::Internal::get_stemtype(const std::string &language)
 {
     return static_cast<stemmer_language> (
 		map_string_to_value(language_strings, language));
 }
 
 std::string
-OmStem::Internal::stem_word(std::string word) const
+OmStem::Internal::stem_word(const std::string &word) const
 {
     int len = word.length();
     if(len == 0) return "";
@@ -276,7 +276,7 @@ OmStem::Internal::stem_word(std::string word) const
 // Methods of OmStem //
 ///////////////////////
 
-OmStem::OmStem(std::string language)
+OmStem::OmStem(const std::string &language)
 	: internal(0)
 {
     DEBUGAPICALL("OmStem::OmStem", language);
@@ -306,7 +306,7 @@ OmStem::operator=(const OmStem &other)
 }
 
 std::string
-OmStem::stem_word(std::string word) const
+OmStem::stem_word(const std::string &word) const
 {
     DEBUGAPICALL("OmStem::stem_word", word);
     OmLockSentry locksentry(internal->mutex);

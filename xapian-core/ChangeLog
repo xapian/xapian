@@ -1,3 +1,8 @@
+Tue Jul 11 13:04:00 BST 2000 Olly Betts
+
+	* Changed various OmStem methods to take "const string &" instead of
+	  "string"
+
 Tue Jul 11 12:56:57 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Restored automake dependency checking for C files.
