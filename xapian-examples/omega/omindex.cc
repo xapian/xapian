@@ -139,7 +139,7 @@ index_text(const string &s, OmDocument &doc, OmStem &stemmer, om_termpos pos)
 {    
     size_t i, j = 0, k;
     while ((i = s.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-				"aabcdefghijklmnopqrstuvwxyz", j))
+				"abcdefghijklmnopqrstuvwxyz", j))
 	   != string::npos) {
 	
 	j = s.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
