@@ -180,14 +180,17 @@ main(int argc, char **argv)
     std::sort(recnos.begin(), recnos.end());
     
     Database db;
-    try {
+    {
 	vector<string>::const_iterator i;
 	for (i = dbs.begin(); i != dbs.end(); i++) {
-	    db.add_database(Auto::open(*i));
+	    try {
+		db.add_database(Auto::open(*i));
+	    } catch (const Error &e) {
+		cout << "Error opening database `" << *i << "': " << e.get_msg()
+		     << endl;
+		return 1;
+	    }
 	}
-    } catch (const Error &e) {
-	cout << "Error opening database: " << e.get_msg() << endl;
-	return 1;
     }
 
     try {

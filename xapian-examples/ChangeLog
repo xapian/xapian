@@ -1,3 +1,7 @@
+Wed Aug 18 12:43:44 BST 2004  Olly Betts <olly@survex.com>
+
+	* delve.cc: Report name of database in the "failed to open" message.
+
 Wed Jun 30 18:11:06 BST 2004  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.in: Version 0.8.1.
