@@ -1808,23 +1808,13 @@ bool test_multiexpand1()
     OmESet eset1 = enquire1.get_eset(1000, rset1);
     OmESet eset2 = enquire2.get_eset(1000, rset2);
 
-    if (eset1.items.size() != eset2.items.size()) {
-	if (verbose) {
-	    cout << "Expand sets are of different size: "
-		    << eset1.items.size() << "vs." << eset1.items.size()
-		    << endl;
-	}
-	return false;
-    }
+    TEST_EQUAL(eset1.items.size(), eset2.items.size());
+
     vector<OmESetItem>::const_iterator i;
     vector<OmESetItem>::const_iterator j;
     for(i = eset1.items.begin(), j = eset2.items.begin();
 	i != eset1.items.end(), j != eset2.items.end();
 	i++, j++) {
-	if (verbose) {
-	    cout << "(" << i->tname << ", " << i->wt << ") vs. " <<
-		    "(" << j->tname << ", " << j->wt << ")" << endl;
-	}
 	TEST_EQUAL(i->wt, j->wt);
 	TEST_EQUAL(i->tname, j->tname);
     }
