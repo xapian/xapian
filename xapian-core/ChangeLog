@@ -1,3 +1,7 @@
+Thu Oct 02 14:39:49 BST 2003  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated.
+
 Thu Oct 02 13:35:46 BST 2003  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Don't hardcode the shared library versioning info.

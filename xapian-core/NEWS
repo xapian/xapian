@@ -1,3 +1,119 @@
+Xapian 0.7.4 (2003-10-02):
+
+API:
+
+* Fixed small memory leak if Xapian::Enquire::set_query() is called more than
+  once.
+
+* Xapian::ESet now has reference counted internals (library interface version
+  bumped because of this).
+
+* Removed unused OmDocumentTerm::termfreq member variable.
+
+* OmDocumentTerm ctor now takes wdf, and replaced set_wdf() with inc_wdf() and
+  dec_wdf().
+
+* Removed unused open_document() method from SubMatch and derived classes.
+
+* Calls made by the matcher to Document::Internal::open_document() now use the
+  lazy flag provided for precisely this purpose, but apparently never used -
+  this should give quite a speed boost to any matcher options which use values
+  (e.g. sort, collapse).
+
+testsuite:
+
+* Finished off support for running tests under valgrind to check for memory
+  leaks and access to uninitialised variables.
+
+* apitest: Sped up deldoc4.
+
+* btreetest: Removed superfluous `/'s from constructed paths.
+
+* quartztest: adddoc2 now checks that there weren't any extra values created.
+
+backends:
+
+* quartz: don't start the document's TermIterator from scratch on every
+  iteration in replace_document().  Should be a small performance win.
+
+* quartz: Pass 0 for the lexicon/postlist table when creating a termlist just
+  to find the doc length.
+
+* quartz: quartz_table_entries.cc: Removed rather unnecessary use of
+  const_cast.
+
+* quartz: quartz_table.cc: Removed unused variable.
+
+* quartz: Improved encapsulation of class Btree.
+
+build system:
+
+* libbtreecheck.la now has an explicit dependency on libxapian.la.
+
+* We now set the dependencies for libxapian correctly so that linking
+  applications will pull in other required libraries.
+
+* matcher/Makefile.am: Ship networkmatch.cc even if "make dist" is run from a
+  tree with the remote backend disabled.
+
+* configure.in: Sorted out tests for gethostbyname and gethostbyaddr using
+  standard autoconf macros.
+
+* configure.in: If fork is found, but socketpair isn't, automatically disable
+  the remote backend rather than configure dying with an error.
+
+* autoconf/: Removed various unused autoconf macros.
+
+portability:
+
+* xapian-config.in: Link with libxapianqueryparser before libxapian, since
+  that's the dependency order.
+
+* Removed or replaced uses of <iostream> and <iosfwd> in the library sources
+  - we don't need or want the library to pull in cin and friends.
+
+* extra/queryparser.yy: Fixed to build with Sun's C++ compiler.
+
+* Make the dummy source file C++ rather than C so that automake tells libtool
+  that this is a C++ library - vital for correct linking on some platforms.
+  
+* Makefile.am: Pass -no-undefined to libtool so that we can build build a DLL
+  on MS Windows.
+
+* configure.in: Fixed check for socketpair - we were automatically disabling
+  the remote backend on platforms where socketpair is in libsocket
+  (such as Solaris).
+
+* Use O_BINARY for binary I/O if it exists.
+
+* common/utils.h: mkdir() only takes one argument on mingw.
+
+* common/utils.h,testsuite/backendmanager.cc: Touch file using open() rather
+  than system().
+
+* common/utils.cc: Fixed to compile if snprintf isn't available.
+
+documentation:
+
+* docs/scalability.html: Fixed slip (32GB should be 32TB);  Added note about
+  Linux 2.4 and ext2 filesize limits.
+
+* PLATFORMS: Updated.
+
+* NEWS: Fixed a few typos.
+
+bindings:
+
+* xapian.i: using namespace std in SWIG parsed segment to sort out typemaps.
+
+packaging:
+
+* Updated RPM packaging.
+
+omega:
+
+* omega: Fixed to build with Sun's C++ compiler.
+
 Xapian 0.7.3 (2003-08-08):
 
 API:
