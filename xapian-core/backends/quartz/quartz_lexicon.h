@@ -38,10 +38,6 @@
  */
 class QuartzLexicon {
     private:
-	/** Make a key for accessing a given entry in the lexicon.
-	 */
-	static void make_key(string & key, const om_termname & tname);
-
 	/** Parse an entry from the lexicon.
 	 *
 	 *  @param data     The data stored in the tag in the lexicon table.

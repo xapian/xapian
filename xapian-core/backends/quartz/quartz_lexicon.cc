@@ -29,15 +29,6 @@
 #include "omdebug.h"
 
 void
-QuartzLexicon::make_key(string & key, const om_termname & tname)
-{
-    DEBUGCALL_STATIC(DB, void, "QuartzLexicon::make_key", "string( " << key << "), " << tname);
-    if (tname.empty())
-	throw OmInvalidArgumentError("QuartzLexicon: Term names must not be null.");
-    key = pack_string(tname);
-}
-
-void
 QuartzLexicon::parse_entry(const std::string & data, om_doccount * termfreq)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzLexicon::parse_entry", data << ", " << termfreq);
@@ -62,9 +53,7 @@ QuartzLexicon::increment_termfreq(QuartzBufferedTable * table,
 				  const om_termname & tname)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzLexicon::increment_termfreq", table << ", " << tname);
-    string key;
-    make_key(key, tname);
-    string * tag = table->get_or_make_tag(key);
+    string * tag = table->get_or_make_tag(tname);
 
     om_doccount termfreq;
 
@@ -75,7 +64,7 @@ QuartzLexicon::increment_termfreq(QuartzBufferedTable * table,
 	parse_entry(*tag, &termfreq);
 
 	// Do the increment
-	termfreq += 1;
+	++termfreq;
     }
 
     // Store modified tag
@@ -86,10 +75,9 @@ void
 QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
 				  const om_termname & tname)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzLexicon::decrement_termfreq", table << ", " << tname);
-    string key;
-    make_key(key, tname);
-    string * tag = table->get_or_make_tag(key);
+    DEBUGCALL_STATIC(DB, void, "QuartzLexicon::decrement_termfreq",
+		     table << ", " << tname);
+    string * tag = table->get_or_make_tag(tname);
 
     om_doccount termfreq;
     if (tag->empty()) {
@@ -103,11 +91,11 @@ QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
     parse_entry(*tag, &termfreq);
 
     // Do the decrement
-    termfreq -= 1;
+    --termfreq;
 
     if (termfreq == 0) {
 	// Delete the tag
-	table->delete_tag(key);
+	table->delete_tag(tname);
     } else {
 	// Store modified tag
 	make_entry(*tag, termfreq);
@@ -119,16 +107,14 @@ QuartzLexicon::get_entry(const QuartzTable * table,
 			 const om_termname & tname,
 			 om_doccount * termfreq)
 {
-    DEBUGCALL_STATIC(DB, bool, "QuartzLexicon::get_entry", table << ", " << tname << ", " << termfreq);
+    DEBUGCALL_STATIC(DB, bool, "QuartzLexicon::get_entry",
+		     table << ", " << tname << ", " << termfreq);
     // This may be called internally.
     string tag;
-    string key;
-    make_key(key, tname);
-    bool found = table->get_exact_entry(key, tag);
+    bool found = table->get_exact_entry(tname, tag);
     if (!found) RETURN(false);
 
     parse_entry(tag, termfreq);
 
     RETURN(true);
 }
-

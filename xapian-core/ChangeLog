@@ -1,3 +1,12 @@
+Sun Oct 13 02:16:31 BST 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/{quartz_lexicon.cc,quartz_lexicon.h}: key to lexicon
+	  is now simply the termname - no need to encode the length there too
+	  since the Btree knows how long the key is.
+	* backends/quartz/{quartz_table_manager.cc,quartz_values.cc}: finished
+	  the terminology change from "attribute" to "value" (including
+	  renaming the btree files, which is why it wasn't done before).
+
 Sun Oct 13 02:09:00 BST 2002  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Snowball stems "this" to "this" rather than "thi",

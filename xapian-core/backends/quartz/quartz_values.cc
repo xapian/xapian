@@ -33,9 +33,7 @@ using std::make_pair;
 #include "omdebug.h"
 
 void
-QuartzValueManager::make_key(string & key,
-				om_docid did,
-				om_valueno valueno)
+QuartzValueManager::make_key(string & key, om_docid did, om_valueno valueno)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::make_key",
 		     key << ", " << did << ", " << valueno);
@@ -46,11 +44,11 @@ QuartzValueManager::make_key(string & key,
 void
 QuartzValueManager::unpack_entry(const char ** pos,
 				 const char * end,
-				 om_valueno * this_attrib_no,
+				 om_valueno * this_value_no,
 				 string & this_value)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::unpack_entry", pos << ", " << end << ", " << this_attrib_no << ", " << this_value);
-    if (!unpack_uint(pos, end, this_attrib_no)) {
+    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::unpack_entry", pos << ", " << end << ", " << this_value_no << ", " << this_value);
+    if (!unpack_uint(pos, end, this_value_no)) {
 	if (*pos == 0) throw OmDatabaseCorruptError("Incomplete item in value table");
 	else throw OmRangeError("Value number in value table is too large");
     }
@@ -60,8 +58,8 @@ QuartzValueManager::unpack_entry(const char ** pos,
 	else throw OmRangeError("Item in value table is too large");
     }
 
-    DEBUGLINE(DB, "QuartzValueManager::unpack_entry(): attrib no " <<
-	      this_attrib_no << " is `" << this_value << "'");
+    DEBUGLINE(DB, "QuartzValueManager::unpack_entry(): value no " <<
+	      this_value_no << " is `" << this_value << "'");
 }
 
 void
@@ -82,12 +80,12 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
     bool have_added = false;
     
     while (pos && pos != end) {
-	om_valueno this_attrib_no;
+	om_valueno this_value_no;
 	string this_value;
 
-	unpack_entry(&pos, end, &this_attrib_no, this_value);
+	unpack_entry(&pos, end, &this_value_no, this_value);
 
-	if (this_attrib_no > valueno && !have_added) {
+	if (this_value_no > valueno && !have_added) {
 	    DEBUGLINE(DB, "Adding value (number, value) = (" <<
 		      valueno << ", " << value << ")");
 	    have_added = true;
@@ -95,7 +93,7 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
 	    newvalue += pack_string(value);
 	}
 
-	newvalue += pack_uint(this_attrib_no);
+	newvalue += pack_uint(this_value_no);
 	newvalue += pack_string(this_value);
     }
     if (!have_added) {
@@ -110,9 +108,9 @@ QuartzValueManager::add_value(QuartzBufferedTable & table,
 
 void
 QuartzValueManager::get_value(const QuartzTable & table,
-				       string & value,
-				       om_docid did,
-				       om_valueno valueno)
+			      string & value,
+			      om_docid did,
+			      om_valueno valueno)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzValueManager::get_value", "[table], " << value << ", " << did << ", " << valueno);
     string key;
