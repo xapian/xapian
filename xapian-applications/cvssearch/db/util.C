@@ -902,7 +902,7 @@ void readTags( const string& fn, set<string>& S ) {
       symbol += "()";
     }
     S.insert(symbol);
-    cerr << "** found symbol -" << symbol << "-" << endl;
+    //    cerr << "** found symbol -" << symbol << "-" << endl;
   } 
   in.close();
 }

@@ -19,6 +19,9 @@
 // should have another command for classes/functions that look
 // at their contents 
 
+#define MAX_FROM_APP 1
+
+
 #warning "requires ctags from http://ctags.sourceforge.net/"
 #warning "should generate unique file for tags"
 #warning "ctags contains inheritance information; this can help if (t,S) does not occur in class declaration say or where member variable is declared"
@@ -305,6 +308,7 @@ int main(int argc, char *argv[]) {
 
 
       set<string> app_symbols;
+      map<string, int> lib_symbol_app_count;
       readTags( "/home/amichail/temp/tags", app_symbols );
 
 
@@ -377,11 +381,20 @@ int main(int argc, char *argv[]) {
 	  }
 
 	  if ( lib_symbols.find(*i) != lib_symbols.end() ) {
-	    lib_symbol_count[*i]++; // count number of lines that contain symbol
 
-	    for( list<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
-	      lib_symbol_terms[*i].push_back(*t);
+	    if ( lib_symbol_app_count[*i] < MAX_FROM_APP ) {
+	      
+	      lib_symbol_count[*i]++; // count number of lines that contain symbol
+	      
+	      for( list<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
+		lib_symbol_terms[*i].push_back(*t);
+	      }
+	      //	      cerr << "** NOT ignoring " << (*i) << endl;
+	      lib_symbol_app_count[*i]++;
+	    } else {
+	      //	      cerr << "** ignoring " << (*i) << endl;
 	    }
+
 	  }
 
 
