@@ -61,7 +61,7 @@ EXTRACT_ALL          = NO
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
 
-EXTRACT_PRIVATE      = YES
+EXTRACT_PRIVATE      = NO
 
 # If the HIDE_UNDOC_MEMBERS tag is set to YES, Doxygen will hide all
 # undocumented members inside documented classes or files.
@@ -322,7 +322,7 @@ COLS_IN_ALPHA_INDEX  = 3
 # The IGNORE_PREFIX tag can be used to specify one or more prefixes that
 # should be ignored while generating the index headers.
 
-IGNORE_PREFIX        = 
+IGNORE_PREFIX        = Om
 
 #---------------------------------------------------------------------------
 # configuration options related to the LaTeX output

@@ -51,12 +51,12 @@ WARNINGS             = YES
 # top of each HTML page. The value NO (the default) enables the index and
 # the value YES disables it.
 
-DISABLE_INDEX        = NO
+DISABLE_INDEX        = YES
 
 # If the EXTRACT_ALL tag is set to YES all classes and functions will be
 # included in the documentation, even if no documentation was available.
 
-EXTRACT_ALL          = YES
+EXTRACT_ALL          = NO
 
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class
 # will be included in the documentation.
@@ -111,7 +111,7 @@ STRIP_FROM_PATH      = @TOP_SRCDIR@
 # to NO (the default) then the documentation will be excluded.
 # Set it to YES to include the internal documentation.
 
-INTERNAL_DOCS        = NO
+INTERNAL_DOCS        = YES
 
 # If the CLASS_DIAGRAMS tag is set to YES (the default) Doxygen will
 # generate a class diagram (in Html and LaTeX) for classes with base or
