@@ -45,7 +45,7 @@ using namespace std;
 #ifdef SNPRINTF
 #define CONVERT_TO_STRING(FMT) \
     char buf[BUFSIZE];\
-    int len = SNPRINTF(BUF, BUFSIZE, (FMT), val);\
+    int len = SNPRINTF(buf, BUFSIZE, (FMT), val);\
     if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);\
     return string(buf, len);
 #else

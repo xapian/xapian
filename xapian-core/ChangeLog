@@ -1,3 +1,7 @@
+Wed Nov 03 19:37:32 GMT 2004  Olly Betts <olly@survex.com>
+
+	* common/utils.cc: Fixed typo.
+
 Wed Nov 03 19:27:22 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac,common/utils.cc: Improved snprintf checking.
