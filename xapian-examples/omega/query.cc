@@ -664,7 +664,7 @@ eval(const string &fmt)
 		value = int_to_string(last);
 		break;
 	    case CMD_lastpage:
-		value = int_to_string((mset.matches_lower_bound - 1) /
+		value = int_to_string((mset.get_matches_lower_bound() - 1) /
 				      list_size + 1);
 		break;
 	    case CMD_list: {
@@ -747,9 +747,9 @@ eval(const string &fmt)
 	    }
 	    case CMD_msize:
 		// number of matches
-		value = int_to_string(mset.matches_estimated);
+		value = int_to_string(mset.get_matches_estimated());
 		break;
-	    case CMD_ne:
+            case CMD_ne:
 		if (args[0] != args[1]) value = "true";
 		break;
 	    case CMD_not:
@@ -851,7 +851,7 @@ eval(const string &fmt)
 		if (howmany < 0) howmany = 0;
 		    
 		// Present a clickable list of expand terms
-		if (mset.matches_lower_bound) {
+		if (mset.size()) {
 		    OmESet eset;
 		    ExpandDeciderOmega decider;
 		    
@@ -861,9 +861,13 @@ eval(const string &fmt)
 			// invent an rset
 			OmRSet tmp;
 			
+			int c = 5;
 			// FIXME: what if mset does not start at first match?
-			for (int m = std::min(std::min(4u, int(mset.matches_lower_bound) - 1u), mset.items.size() - 1u); m >= 0; m--)
-			    tmp.add_document(mset.items[m].did);
+			OmMSetIterator m = mset.begin();
+			for ( ; m != mset.end(); ++m) {
+			    tmp.add_document(*m);
+			    if (--c == 0) break;
+			}
 			
 			eset = enquire->get_eset(howmany, tmp, 0, &decider);
 		    }
@@ -929,7 +933,7 @@ print_caption(om_docid m, const string &fmt)
 {
     relevant_cached = false;
 
-    q0 = mset.items[m].did;
+    q0 = *(mset.items[m]);
 
     static double scale = -1;
     if (scale < 0) {
@@ -937,15 +941,15 @@ print_caption(om_docid m, const string &fmt)
 	list<om_termname>::const_iterator i;
 	for (i = qp.termlist.begin(); i != qp.termlist.end(); i++)
 	    denom += mset.get_termweight(*i);
-	denom *= mset.items[0].wt;
+	denom *= mset.items[0].get_weight();
 	scale = 0;
 	om_termname_list matching =
-	    enquire->get_matching_terms(mset.items[0].did);
+	    enquire->get_matching_terms(*(mset.items[0]));
 	for (i = matching.begin(); i != matching.end(); i++)
 	    scale += mset.get_termweight(*i);
 	if (denom > 0) scale /= denom;
     }
-    percent = percentage(mset.items[m].wt * scale);
+    percent = percentage(mset.items[m].get_weight() * scale);
     // percent = mset.convert_to_percent(mset.items[m]);
 
     OmDocument doc = enquire->get_doc(q0);
@@ -985,7 +989,7 @@ om_doccount
 do_match()
 {
     print_query_page(fmtname);
-    return mset.matches_estimated;
+    return mset.get_matches_estimated();
 }
 
 // run query if we haven't already
@@ -996,10 +1000,11 @@ ensure_match()
     
     run_query();
     done_query = true;
-    if (topdoc > mset.matches_lower_bound) topdoc = 0;
+    // FIXME: size()?
+    if (topdoc > mset.get_matches_lower_bound()) topdoc = 0;
     
-    if (topdoc + list_size < mset.matches_lower_bound)
+    if (topdoc + list_size < mset.get_matches_lower_bound())
 	last = topdoc + list_size;
     else
-	last = mset.matches_lower_bound;
+	last = mset.get_matches_lower_bound();
 }

@@ -242,19 +242,16 @@ main(int argc, char *argv[])
 	OmMSet mset = enquire.get_mset(mfirst, msize, &rset, &opts);
 	
 	if (showmset) {
-	    std::vector<OmMSetItem>::const_iterator i;
-	    for(i = mset.items.begin();
-		i != mset.items.end();
-		i++) {
-		OmDocument doc(enquire.get_doc(*i));
+	    for (OmMSetIterator i = mset.begin(); i != mset.end(); i++) {
+		OmDocument doc(enquire.get_doc(i));
 		std::string p = doc.get_data().value;
-		std::cout << i->did << ":[" << p << "] " << i->wt
+		std::cout << *i << ":[" << p << "] " << i.get_weight()
 			<< std::endl << std::endl;
 	    }
 	    std::cout << std::endl;
 	}
     }
-    catch (OmError &e) {
+    catch (const OmError &e) {
 	std::cout << e.get_msg() << std::endl;
     }
 }

@@ -158,12 +158,14 @@ result_destroy_notify(gpointer data)
 
 static void do_resultdisplay(gint row) {
     try {
-	om_docid did = mset.items[row].did;
+	OmMSetIterator i = mset.begin();
+	while (row > 0) i++; // FIXME: use [] once implemented
+	om_docid did = *i;
 	
-	OmDocument doc(enquire->get_doc(mset.items[row]));
+	OmDocument doc(enquire->get_doc(i));
 	std::string fulltext = doc.get_data().value;
 	
-	std::string score = inttostring(mset.convert_to_percent(mset.items[row]));
+	std::string score = inttostring(mset.convert_to_percent(i));
 
 	gtk_text_freeze(result_text);
 	gtk_text_backward_delete(result_text, gtk_text_get_length(result_text));
@@ -269,15 +271,14 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
 	gtk_clist_freeze(results_widget);
 	gtk_clist_clear(results_widget);
-	cout << "matches_lower_bound: " << mset.matches_lower_bound <<
-		" matches_estimated: " << mset.matches_estimated <<
-		" matches_upper_bound: " << mset.matches_upper_bound <<
-	        " max_possible: " << mset.max_possible <<
-	        " max_attained: " << mset.max_attained << endl;
+	cout << "matches_lower_bound: " << mset.get_matches_lower_bound() <<
+		" matches_estimated: " << mset.get_matches_estimated() <<
+		" matches_upper_bound: " << mset.get_matches_upper_bound() <<
+	        " max_possible: " << mset.get_max_possible() <<
+	        " max_attained: " << mset.get_max_attained() << endl;
 
-	std::vector<OmMSetItem>::const_iterator j;
-	for (j = mset.items.begin(); j != mset.items.end(); j++) {
-	    om_termname_list mterms = enquire->get_matching_terms(*j);
+	for (OmMSetIterator j = mset.begin(); j != mset.end(); j++) {
+	    om_termname_list mterms = enquire->get_matching_terms(j);
 	    std::vector<std::string> sorted_mterms(mterms.begin(), mterms.end());
 	    std::string message;
 	    for (std::vector<std::string>::const_iterator i = sorted_mterms.begin();
@@ -288,8 +289,8 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 		message += *i;
 	    }
 
-	    ResultItemGTK * item = new ResultItemGTK(j->did,
-		mset.convert_to_percent(*j), message);
+	    ResultItemGTK * item = new ResultItemGTK(*j,
+		mset.convert_to_percent(j), message);
 	    gint index = gtk_clist_append(results_widget, item->data);
 
 	    // Make sure it gets freed when item is removed from result list
