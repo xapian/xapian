@@ -1,3 +1,47 @@
+Tue Jan 23 19:01:29 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove OmBatchEnquire from system: it may return at a later date,
+	  but for now it is simply out of date and a maintainance liability,
+	  and gives no significant advantage.  Code now exists in
+	  ombatchenquire.h in CVS, but is not part of build process.
+
+	* Make OmEnquire and OmMSet have reference counted internals: this
+	  introduces a further layer of indirection, but tidies up things
+	  greatly.
+
+	* Remove get_docs() and get_doc() methods from OmEnquire.
+	  get_doc(docid) is catered for by OmDatabase::get_document(docid).
+	  Added OmMSetIterator::get_document() to replace get_doc on a 
+	  MSetIterator.  Added OmMSet::fetch_items() to replace get_docs():
+	  it prefetches the documents (or just those specified by some
+	  MSetIterators into a cache in the Mset).
+
+	* OmMSet internals now have a reference to the creating OmEnquire
+	  object: this is set up after the mset returns from the matcher.
+	  If the reference is null, the Mset was created standalone, and 
+	  get_doc methods will fail.
+
+	* OmMSetIterators now have a reference to the MSet, instead of a
+	  percent_factor stored.  This allows the percent_factor to be
+	  lazily calculated, and also allows get_doc to work.
+
+	* Add get_rank() method to OmMSetIterators.
+
+	* Improve introspection on OmDocument, and fix a bug with assignment
+	  of OmDocument (wasn't assigning most of the internals).
+
+	* Add a missing std:: on a string in omstopwordnode.
+
+	* Fixed several documentation comments.
+
+	* Add some more debugging to quartz.
+
+	* Update TODO.
+
+	* Add test_fetchdocs1 to apitest.  Disable test_batchquery1.
+
+	* Remove sign comparison error in VectorTermList.
+
 Tue Jan 23 16:24:04 GMT 2001 Olly Betts
 
 	* No longer compile with -ansi under gcc - it causes problems by

@@ -159,7 +159,7 @@ MultiMatch::prepare_matchers()
 
 PostList *
 MultiMatch::get_postlist(om_doccount first, om_doccount maxitems,
-			 std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> & termfreqandwts,
+			 std::map<om_termname, OmMSet::Internal::Data::Data::TermFreqAndWeight> & termfreqandwts,
 			 OmErrorHandler * errorhandler)
 {
     Assert(!leaves.empty());
@@ -224,14 +224,15 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     OmErrorHandler * errorhandler,
 		     void (*snooper)(const OmMSetItem &))
 {
-    std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> termfreqandwts;
+    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
     PostList *pl = get_postlist(first, maxitems, termfreqandwts, errorhandler);
-    get_mset_2(pl, termfreqandwts, first, maxitems, mset, mdecider, snooper);
+    get_mset_2(pl, termfreqandwts,
+	       first, maxitems, mset, mdecider, snooper);
 }
 
 void
 MultiMatch::get_mset_2(PostList *pl, 
-		       std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> & termfreqandwts,
+		       std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> & termfreqandwts,
 		       om_doccount first, om_doccount maxitems,
 		       OmMSet & mset, const OmMatchDecider *mdecider,
 		       void (*snooper)(const OmMSetItem &))
@@ -257,12 +258,13 @@ MultiMatch::get_mset_2(PostList *pl,
     // maxweight)
     if (maxitems == 0) {
 	delete pl;
-	mset = OmMSet(new OmMSet::Internal(first,
+	mset = OmMSet(new OmMSet::Internal(new OmMSet::Internal::Data(
+					   first,
 					   matches_upper_bound,
 					   matches_lower_bound,
 					   matches_estimated,
 					   max_weight, greatest_wt, items,
-					   termfreqandwts));
+					   termfreqandwts)));
 	return;
     }
 
@@ -581,12 +583,13 @@ MultiMatch::get_mset_2(PostList *pl,
 	matches_estimated = docs_matched;
     }
 
-    mset = OmMSet(new OmMSet::Internal(first,
+    mset = OmMSet(new OmMSet::Internal(new OmMSet::Internal::Data(
+				       first,
 				       matches_upper_bound,
 				       matches_lower_bound,
 				       matches_estimated,
 				       max_weight, greatest_wt, items,
-				       termfreqandwts));
+				       termfreqandwts)));
 }
 
 // This method is called by branch postlists when they rebalance

@@ -9,6 +9,12 @@ Pass around partially created postlist as an auto_ptr, for exception safety.
 Put Om into its own namespace, to ensure lack of symbol conflicts.
 
 </todoitem>
+<todoitem priority="H" difficulty="2" owner="C" area="Iterators" release="0.9">
+
+Check that the OmMSetIterators compare equality correctly: not just comparing
+equal to same iterator or if at end.
+
+</todoitem>
 <todoitem priority="H" difficulty="5" owner="C" area="API" release="">
 
 Write bindings for other languages (Java, C, perl, python, etc.). [In

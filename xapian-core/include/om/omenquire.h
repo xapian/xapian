@@ -30,7 +30,6 @@
 #include <string>
 #include <vector>
 #include <set>
-#include <map>
 
 class OmQuery;
 class OmErrorHandler;
@@ -40,15 +39,18 @@ class OmErrorHandler;
 // =============
 // Representaton of a match result set
 
+/** An iterator pointing to items in an MSet.
+ *  This is used for access to individual results of a match.
+ */
 class OmMSetIterator {
     private:
 	friend class OmMSet; // So OmMSet can construct us
 
 	class Internal;
-
 	Internal *internal; // reference counted internals
 
-        friend bool operator==(const OmMSetIterator &a, const OmMSetIterator &b);
+        friend bool operator==(const OmMSetIterator &a,
+			       const OmMSetIterator &b);
 
 	OmMSetIterator(Internal *internal_);
 
@@ -61,12 +63,41 @@ class OmMSetIterator {
         /// Assignment is allowed (and is cheap).
 	void operator=(const OmMSetIterator &other);
 
+	/// Advance the iterator
 	OmMSetIterator & operator++();
 
 	void operator++(int);
 
-	/// Get the term for the current position
+	/// Get the document ID for the current position.
 	om_docid operator *() const;
+
+	/** Get an OmDocument object for the current position.
+	 *
+	 *  This method returns an OmDocument object which provides the
+	 *  information about the document pointed to by the MSetIterator.
+	 *
+	 *  If the underlying database has suitable support, using this call
+	 *  (rather than asking the database for a document based on its
+	 *  document ID) will enable the system to ensure that the correct
+	 *  data is returned, and that the document has not been deleted
+	 *  or changed since the query was performed.
+	 *
+	 *  @param it   The OmMSetIterator for which to retrieve the data.
+	 *
+	 *  @return      An OmDocument object containing the document data.
+	 *
+	 *  @exception OmDocNotFoundError  The document specified could not
+	 *                                 be found in the database.
+	 */
+	OmDocument get_document() const;
+
+	/** Get the rank of the document at the current position.
+	 * 
+	 *  The rank is the position that this document is at in the ordered
+	 *  list of results of the query.  The document judged "most relevant"
+	 *  will have rank of 0.
+	 */
+        om_doccount get_rank() const;
 
 	/// Get the weight of the document at the current position
         om_weight get_weight() const;
@@ -108,10 +139,11 @@ class OmMSet {
 
     public:
 	// FIXME: public for now, private would be better
+	/// Constructor for internal use
 	OmMSet(OmMSet::Internal * internal_);
 
 	// FIXME: public for now, private would be better
-	/// reference counted internals
+	/// reference counted internals - do not modify externally
 	Internal *internal;
 
 	/// Create an empty OmMSet
@@ -125,6 +157,28 @@ class OmMSet {
 
         /// Assignment is allowed (and is cheap).
 	void operator=(const OmMSet &other);
+
+	/** Fetch the the document info for a set of items in the MSet.
+	 *
+	 *  This method causes the documents in the range specified by the
+	 *  iterators to be fetched from the database, and cached in the
+	 *  OmMSet object.  This has little effect when performing a search
+	 *  across a local database, but will greatly speed up subsequent
+	 *  access to the document contents when the documents are stored
+	 *  in a remote database.
+	 *
+	 *  The iterators must be over this OmMSet item: undefined behaviour
+	 *  will result otherwise.
+	 *
+	 *  @param begin   OmMSetIterator for first item to fetch.
+	 *  @param end     OmMSetIterator for last item to fetch.
+	 */
+	void fetch_items(const OmMSetIterator &begin,
+			 const OmMSetIterator &end) const;
+
+	/** Fetch all the items in the MSet.
+	 */
+	void fetch_items() const;
 
 	/** This converts the weight supplied to a percentage score.
 	 *  The return value will be in the range 0 to 100, and will be 0 if
@@ -222,12 +276,19 @@ class OmMSet {
 
 	OmMSetIterator end() const;
 
-	// FIXME: should this be an offset into the mset or into
-	// the range of the mset that was requested?
-	OmMSetIterator operator[](om_doccount i) const;
-
 	OmMSetIterator back() const;
 	
+	/** This returns the document at position i in this MSet object.
+	 *
+	 *  Note that this is not the same as the document at rank i in the
+	 *  query, unless the "first" parameter to OmEnquire::get_mset was
+	 *  0.  Rather, it is the document at rank i + first.
+	 *
+	 *  In other words, the offset is into the documents represented by
+	 *  this object, not into the set of documents matching the query.
+	 */
+	OmMSetIterator operator[](om_doccount i) const;
+
 	/// Allow use as an STL container
 	//@{	
 	typedef std::input_iterator_tag iterator_category;
@@ -350,10 +411,14 @@ class OmESet {
  */
 
 class OmRSet {
-    public: // FIXME: public Internals not ideal
+    public:
+	/// Class holding details of OmRSet
 	class Internal;
-	
-	Internal *internal; // reference counted internals
+
+	// FIXME: public for now, private would be better
+	/// reference counted internals - do not modify externally
+	Internal *internal;
+
     public:
 	/// Copy constructor
 	OmRSet(const OmRSet &rset);
@@ -461,18 +526,20 @@ class OmExpandDeciderAnd : public OmExpandDecider {
  *  be opened (for example, a required file cannot be found).
  */
 class OmEnquire {
-    public:
-	class Internal;
     private:
-	/// Internals, where most of the work is performed.
-	Internal *internal;
-
 	/// Copies are not allowed.
 	OmEnquire(const OmEnquire &);
 
 	/// Assignment is not allowed.
 	void operator=(const OmEnquire &);
     public:
+	/// Class holding details of OmEnquire
+	class Internal;
+
+	// FIXME: public for now, private would be better
+	/// reference counted internals - do not modify externally
+	Internal *internal;
+
 	/** Create an OmEnquire object.
 	 *
 	 *  This specification cannot be changed once the OmEnquire is
@@ -565,77 +632,6 @@ class OmEnquire {
 			const OmSettings * eoptions = 0,
 			const OmExpandDecider * edecider = 0) const;
 
-
-	/** Get the document info by document id.
-	 *
-	 *  This method returns an OmDocument object
-	 *  which provides the information about a document.
-	 *
-	 *  It is possible for the document to have been removed from the
-	 *  database between the time it is returned in an mset, and the
-	 *  time that this call is made.  If possible, you should specify
-	 *  an OmMSetIterator instead of an om_docid, since this will enable
-	 *  database backends with suitable support to prevent this
-	 *  occurring.
-	 *
-	 *  Note that a query does not need to have been run in order to
-	 *  make this call.
-	 *
-	 *  @param did   The document id for which to retrieve the data.
-	 *
-	 *  @return      An OmDocument object containing the document data
-	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
-	 *  @exception OmDocNotFoundError      The document specified could not
-	 *                                     be found in the database.
-	 */
-	const OmDocument get_doc(om_docid did) const;
-
-	/** Get the document info via an OmMSetIterator
-	 *
-	 *  This method returns an OmDocument object
-	 *  which provides the information about a document.
-	 *
-	 *  If the underlying database has suitable support, using this call
-	 *  (rather than passing an om_docid) will enable the system to
-	 *  ensure that the correct data is returned, and that the document
-	 *  has not been deleted or changed since the query was performed.
-	 *
-	 *  @param it   The OmMSetIterator for which to retrieve the data.
-	 *
-	 *  @return      An OmDocument object containing the
-	 *  document data.
-	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
-	 *  @exception OmDocNotFoundError  The document specified could not
-	 *  be found in the database.
-	 */
-	const OmDocument get_doc(const OmMSetIterator &it) const;
-
-	/** Get the document info for multiple documents.
-	 *
-	 *  This method returns a vector of OmDocument objects.
-	 *
-	 *  This call may be more efficient that a series of calls
-	 *  to get_doc() - for example, a match across multiple remote
-	 *  databases may fetch documents in parallel.
-	 *
-	 *  @param begin   OmMSetIterator for first to fetch.
-	 *  @param end     End OmMSetIterator.
-	 *
-	 *  @return      A vector of OmDocument objects containing the
-	 *  document data.
-	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
-	 *  @exception OmDocNotFoundError  The document specified could not
-	 *  be found in the database.
-	 */
-	const std::vector<OmDocument> get_docs(const OmMSetIterator &begin,
-					       const OmMSetIterator &end) const;
-
 	/** Get terms which match a given document, by document id.
 	 *
 	 *  This method returns the terms in the current query which match
@@ -710,12 +706,13 @@ class OmEnquire {
  *  Queries are represented as a hierarchy of classes.
  */
 class OmQuery {
-    private:
-	friend class OmEnquire::Internal;
-
-	/// Internals of query class
+    public:
+	/// Class holding details of OmQuery
 	class Internal;
-    	Internal *internal;
+
+	// FIXME: public for now, private would be better
+	/// reference counted internals - do not modify externally
+	Internal *internal;
 
     public:
 	/// Enum of possible query operations
@@ -833,173 +830,6 @@ class OmQuery {
 	OmTermIterator get_terms_end() const;
 
 	/** Returns a string representing the query.
-	 *  Introspection method.
-	 */
-	std::string get_description() const;
-};
-
-///////////////////////////////////////////////////////////////////
-// OmBatchEnquire class
-// ====================
-
-/** This class provides an interface to submit batches of queries.
- *
- *  Using this class will be no more expensive than simply using an
- *  OmEnquire object multiple times, and this is how it is currently
- *  implemented.  In future it may be reimplemented such that significant
- *  performance advantages result from running multiple queries using this
- *  class rather than running them as individual queries using OmEnquire.
- *
- *  If you are producing a system which will run batches of queries
- *  together (such as a nightly alerting system), we recommend use
- *  of this class.
- *
- *  @exception OmInvalidArgumentError will be thrown if an invalid
- *  argument is supplied, for example, an unknown database type.
- *
- *  @exception OmOpeningError will be thrown if the database cannot
- *  be opened (for example, a required file cannot be found).
- *
- */
-class OmBatchEnquire {
-    public:
-	class Internal;
-    private:
-	Internal *internal;
-
-	// disallow copies
-	OmBatchEnquire(const OmBatchEnquire &);
-	void operator=(const OmBatchEnquire &);
-    public:
-        OmBatchEnquire(const OmDatabase &databases);
-        ~OmBatchEnquire();
-
-	/** This class stores a set of queries to be performed as a batch.
-	 */
-	struct query_desc {
-	    /// The query to be executed
-	    OmQuery query;
-
-	    /// The first match to return
-	    om_doccount first;
-
-	    /// The maximum number of hits to be returned
-	    om_doccount maxitems;
-
-	    /// A pointer to the RSet for the query
-	    const OmRSet * omrset;
-
-	    /** A pointer to the match options for this query,
-	     *  if any.
-	     */
-	    const OmSettings * moptions;
-
-	    /** A pointer to the match decider function, or
-	     *  0 for no decision functor.
-	     */
-	    const OmMatchDecider * mdecider;
-
-	    /// Default constructor
-	    query_desc() :
-		    first(0), maxitems(10), omrset(0), moptions(0), mdecider(0)
-		    {}
-
-	    /// Constructor allowing initialisation with curly brace notation
-	    query_desc(const OmQuery & query_,
-		       om_doccount first_,
-		       om_doccount maxitems_,
-		       const OmRSet * omrset_ = 0,
-		       const OmSettings * moptions_ = 0,
-		       const OmMatchDecider * mdecider_ = 0)
-		    : query(query_),
-		      first(first_),
-		      maxitems(maxitems_),
-		      omrset(omrset_),
-		      moptions(moptions_),
-		      mdecider(mdecider_) {}
-	};
-
-	/** Type used to store a batch of queries to be performed.
-	 *  This is essentially an array of query_desc objects.
-	 */
-	typedef std::vector<query_desc> query_batch;
-
-	/** Set up the queries to run.
-	 *
-	 *  @param queries_  A set of structures describing each query
-	 *  to be performed.  See OmEnquire::set_query and
-	 *  OmEnquire::get_mset for details of the meaning of each
-	 *  member.
-	 *
-	 *  @exception OmInvalidArgumentError  See class documentation.
-	 *  @exception OmOpeningError          See class documentation.
-	 */
-	void set_queries(const query_batch &queries_);
-
-	/** This class stores the result of one of the queries in a
-	 *  batch of queries.
-	 */
-	class batch_result {	    
-	    private:
-		friend class OmBatchEnquire::Internal;
-		bool isvalid;
-		OmMSet result;
-
-		/** Create a batch result.  This is used by
-		 *  OmBatchEnquire::Internal.
-		 */
-		batch_result(const OmMSet &mset, bool isvalid_);
-	    public:
-		/** Return the OmMSet, if valid.
-		 *  If not, then an OmInvalidResultError exception
-		 *  is thrown.
-		 */
-		OmMSet value() const;
-
-		/** Check to see if the result is valid without
-		 *  causing an exception.  Returns true if the
-		 *  result is valid.
-		 */
-		bool is_valid() const { return isvalid; }
-	};
-
-	/** Type used to store the results of a query batch.
-	 */
-	typedef std::vector<batch_result> mset_batch;
-
-	/** Get (a portion of) the match sets for the current queries.
-	 *
-	 *  @return An collection of type OmBatchEnquire::mset_batch.
-	 *          Each element is a batch_result object.  The actual OmMSet
-	 *          result will be returned by batch_result::value().  If that
-	 *          query failed, then value() will throw an exception.  The
-	 *          validity can be checked with the is_valid() member.
-	 *
-	 *  @exception OmOpeningError          See class documentation.
-	 */
-	mset_batch get_msets() const;
-
-	/** Get the document info by document id.
-	 *  See OmEnquire::get_doc() for details.
-	 */
-	const OmDocument get_doc(om_docid did) const;
-
-	/** Get the document info by match set iterator.
-	 *  See OmEnquire::get_doc() for details
-	 */
-	const OmDocument get_doc(const OmMSetIterator &it) const;
-
-	/** Get terms which match a given document, by document id.
-	 *  See OmEnquire::get_matching_terms for details.
-	 */
-	OmTermIterator get_matching_terms(om_docid did) const;
-
-	/** Get terms which match a given document, by match set iterator.
-	 *  See OmEnquire::get_matching_terms for details.
-	 */
-	OmTermIterator get_matching_terms(const OmMSetIterator &it) const;
-
-	/** Returns a string representing the batchenquire object.
 	 *  Introspection method.
 	 */
 	std::string get_description() const;

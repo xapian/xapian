@@ -267,7 +267,7 @@ SocketServer::run_match(const std::string &firstmessage)
 	snooper_do_collapse = (moptions.get_int("match_collapse_key", -1) >= 0);
 	PostList *pl;
 	{
-	    std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> terminfo;
+	    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
 	    pl = match.get_postlist(first, maxitems, terminfo, 0);
 	    buf->writeline(om_tostring(pl->get_termfreq_max()) + " " +
 			   om_tostring(pl->get_termfreq_min()) + " " +
@@ -284,7 +284,7 @@ SocketServer::run_match(const std::string &firstmessage)
 #else
 	PostList *pl;
 	{
-	    std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> terminfo;
+	    std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> terminfo;
 	    // not sure we really need these numbers...
 	    pl = match.get_postlist(first, maxitems, terminfo, 0);
 	    buf->writeline(om_tostring(pl->get_termfreq_max()) + " " +

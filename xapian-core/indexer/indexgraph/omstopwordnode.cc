@@ -104,7 +104,7 @@ class OmStopWordNode : public OmIndexerNode {
 
 	    set_output("out", output);
 	}
-	void split_stopwords(std::vector<string> &vec,
+	void split_stopwords(std::vector<std::string> &vec,
 			     const std::string &s) {
 	    std::string::const_iterator i = s.begin();
 	    std::string accum;

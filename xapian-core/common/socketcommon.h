@@ -153,13 +153,13 @@ OmMSet string_to_ommset(const std::string &s);
  *  @param terminfo		The terminfo map to serialise.
  */
 std::string ommset_termfreqwts_to_string(const std::map<om_termname,
-					 OmMSet::Internal::TermFreqAndWeight> &terminfo);
+					 OmMSet::Internal::Data::TermFreqAndWeight> &terminfo);
 
 /** Convert a serialised terminfo string back into a map.
  *
  *  @param s		The seralised map as a string.
  */
-std::map<om_termname, OmMSet::Internal::TermFreqAndWeight>
+std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight>
 string_to_ommset_termfreqwts(const std::string &s);
 
 /** Convert an OmKey object into a string representation.

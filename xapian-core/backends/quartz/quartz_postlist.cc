@@ -78,6 +78,12 @@ static void new_postlist(QuartzBufferedTable * bufftable,
 			 om_termcount new_wdf,
 			 om_termcount new_doclen)
 {
+    DEBUGCALL_STATIC(DB, void, "QuartzPostList::new_postlist",
+		     bufftable << ", " <<
+		     tname << ", " <<
+		     new_did << ", " <<
+		     new_wdf << ", " <<
+		     new_doclen);
     QuartzDbKey key;
     make_key(tname, key);
     QuartzDbTag * tag = bufftable->get_or_make_tag(key);
@@ -214,14 +220,23 @@ static void read_start_of_first_chunk(const char ** posptr,
 				      om_termcount * collection_freq_ptr,
 				      om_docid * did_ptr)
 {
+    DEBUGCALL_STATIC(DB, void, "read_start_of_first_chunk",
+		     (void *)posptr << ", " <<
+		     (void *)end << ", " <<
+		     (void *)number_of_entries_ptr << ", " <<
+		     (void *)collection_freq_ptr << ", " <<
+		     (void *)did_ptr);
+
     QuartzPostList::read_number_of_entries(posptr, end,
 			   number_of_entries_ptr, collection_freq_ptr);
-    read_first_docid(posptr, end, did_ptr);
+    if (number_of_entries_ptr)
+	DEBUGLINE(DB, "number_of_entries = " << *number_of_entries_ptr);
+    if (collection_freq_ptr)
+	DEBUGLINE(DB, "collection_freq = " << *collection_freq_ptr);
 
-    DEBUGLINE(DB, "QuartzPostList: read start of first chunk: "
-	      "number_of_entries = " << *number_of_entries_ptr <<
-	      "collection_freq = " << *collection_freq_ptr <<
-	      "firstdid = " << *did_ptr);
+    read_first_docid(posptr, end, did_ptr);
+    if (did_ptr)
+	DEBUGLINE(DB, "did = " << *did_ptr);
 }
 
 static void read_did_increase(const char ** posptr,
@@ -250,20 +265,26 @@ static void read_start_of_chunk(const char ** posptr,
 				bool * is_last_chunk_ptr,
 				om_docid * last_did_in_chunk_ptr)
 {
+    DEBUGCALL_STATIC(DB, void, "read_start_of_chunk",
+		     (void *)posptr << ", " <<
+		     (void *)end << ", " <<
+		     first_did_in_chunk << ", " <<
+		     (void *)is_last_chunk_ptr << ", " <<
+		     (void *)last_did_in_chunk_ptr);
+
     // Read whether this is the last chunk
     if (!unpack_bool(posptr, end, is_last_chunk_ptr))
 	report_read_error(*posptr);
+    if (is_last_chunk_ptr)
+	DEBUGLINE(DB, "is_last_chunk = " << *is_last_chunk_ptr);
 
     // Read what the final document ID in this chunk is.
     om_docid increase_to_last;
     if (!unpack_uint(posptr, end, &increase_to_last))
 	report_read_error(*posptr);
     *last_did_in_chunk_ptr = first_did_in_chunk + increase_to_last;
-
-    DEBUGLINE(DB, "QuartzPostList: read start of chunk: "
-	      "first_did_in_chunk = " << first_did_in_chunk <<
-	      "is_last_chunk = " << *is_last_chunk_ptr <<
-	      "last_did_in_chunk = " << *last_did_in_chunk_ptr);
+    if (last_did_in_chunk_ptr)
+	DEBUGLINE(DB, "last_did_in_chunk = " << *last_did_in_chunk_ptr);
 }
 
 /** The format of a postlist is:
@@ -606,6 +627,8 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
     cursor->find_entry(key);
     Assert(!cursor->after_end());
 
+    DEBUGLINE(DB, "cursor->current_key.value=`" << cursor->current_key.value <<
+	      "', length=" << cursor->current_key.value.size());
     const char * keypos = cursor->current_key.value.data();
     const char * keyend = keypos + cursor->current_key.value.size();
     std::string tname_in_key;
@@ -627,6 +650,8 @@ QuartzPostList::add_entry(QuartzBufferedTable * bufftable,
 
 	// Determine whether we're adding to the end of the chunk
 
+	DEBUGLINE(DB, "tag->value=`" << tag->value <<
+		  "', length=" << tag->value.size());
 	const char * tagpos = tag->value.data();
 	const char * tagend = tagpos + tag->value.size();
 

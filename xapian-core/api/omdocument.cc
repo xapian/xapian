@@ -93,7 +93,7 @@ void
 OmDocument::operator=(const OmDocument &other)
 {
     // pointers are reference counted.
-    internal->ptr = other.internal->ptr;
+    *internal = *(other.internal);
 }
 
 OmDocument::OmDocument(const OmDocument &other)
@@ -110,13 +110,19 @@ OmDocument::~OmDocument()
 std::string
 OmDocument::get_description() const
 {
-    // FIXME - return document contents
-    return "OmDocument()";
-//    description = "OmDocument(" +
-//	    data.get_description() +
-//	    ", keys[" + om_tostring(keys.size()) + "]" +
-//	    ", terms[" + om_tostring(terms.size()) + "]" +
-//	    ")";
+    std::string description = "OmDocument(data=";
+    if (internal->data_here)  description += "`" + internal->data.value + "'";
+    else                      description += "[not fetched]";
+
+    description += " keys=";
+    if (internal->keys_here)  description += om_tostring(internal->keys.size());
+    else                      description += "[not fetched]";
+
+    description += " terms=";
+    if (internal->terms_here) description += om_tostring(internal->terms.size());
+    else                      description += "[not fetched]";
+
+    return description + ")";
 }
 
 void
@@ -147,11 +153,8 @@ void
 OmDocument::clear_keys()
 {
     DEBUGAPICALL(void, "OmDocument::clear_keys", "");
-    if (internal->keys_here) {
-	internal->keys.clear();
-    } else {
-	internal->keys_here = true;
-    }
+    internal->keys.clear();
+    internal->keys_here = true;
 }
 
 void

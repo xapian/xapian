@@ -87,7 +87,7 @@ class SubMatch : public RefCntBase {
 
 	virtual Document * open_document(om_docid did) const = 0;
 
-	virtual const std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> get_term_info() const = 0;
+	virtual const std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> get_term_info() const = 0;
 };
 
 #endif /* OM_HGUARD_MATCH_H */

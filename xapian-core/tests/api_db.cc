@@ -532,7 +532,7 @@ static bool test_matchfunctor1()
     TEST(i != mymset.end());
     TEST_EQUAL(mymset.size(), 3);
     for ( ; i != mymset.end(); ++i) {
-	const OmDocument doc(enquire.get_doc(i));
+	const OmDocument doc(i.get_document());
         TEST(myfunctor(doc));
     }
 
@@ -874,8 +874,7 @@ static bool test_collapsekey1()
 	std::map<string, om_docid> keys;
 	OmMSetIterator i = mymset.begin();
 	for ( ; i != mymset.end(); ++i) {
-	    OmKey key = enquire.get_doc(i).get_key(key_no);
-// no longer provided...	    TEST_EQUAL(key.value, i->collapse_key.value);
+	    OmKey key = i.get_document().get_key(key_no);
 	    TEST(keys[key.value] == 0 || key.value == "");
 	    keys[key.value] = *i;
 	}
@@ -1089,6 +1088,7 @@ static bool test_poscollapse2()
     return true;
 }
 
+#if 0
 // test that the batch query functionality works
 static bool test_batchquery1()
 {
@@ -1113,6 +1113,7 @@ static bool test_batchquery1()
 
     return true;
 }
+#endif
 
 // test that running a query twice returns the same results
 static bool test_repeatquery1()
@@ -1129,33 +1130,63 @@ static bool test_repeatquery1()
     return true;
 }
 
+// test that prefetching documents works (at least, gives same results)
+static bool test_fetchdocs1()
+{
+    OmEnquire enquire(get_simple_database());
+    init_simple_enquire(enquire);
+
+    enquire.set_query(query(OmQuery::OP_OR, "this", "word"));
+
+    OmMSet mymset1 = enquire.get_mset(0, 10);
+    OmMSet mymset2 = enquire.get_mset(0, 10);
+    TEST_EQUAL(mymset1, mymset2);
+    mymset2.fetch_items();
+
+    OmMSetIterator it1 = mymset1.begin();
+    OmMSetIterator it2 = mymset2.begin();
+
+    while(it1 != mymset1.end() && it2 != mymset2.end()) {
+	TEST_EQUAL(it1.get_document().get_data().value,
+		   it2.get_document().get_data().value);
+	TEST_NOT_EQUAL(it1.get_document().get_data().value, "");
+	TEST_NOT_EQUAL(it2.get_document().get_data().value, "");
+	it1++;
+	it2++;
+    }
+    TEST_EQUAL(it1, mymset1.end());
+    TEST_EQUAL(it1, mymset2.end());
+
+    return true;
+}
+
 // test that searching for a term with a space or backslash in it works
 static bool test_spaceterms1()
 {
     OmEnquire enquire(get_database("apitest_space"));
     OmMSet mymset;
-    std::vector<OmDocument> docs;
+    std::vector<om_docid> docs;
     OmStem stemmer("english");
 
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("space man")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = enquire.get_docs(mymset.begin(), mymset.end());
+    docs = std::vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
     for (int key_no = 1; key_no < 7; ++key_no) {
-	OmKey key = enquire.get_doc(mymset.begin()).get_key(key_no);
-	TEST_NOT_EQUAL(key.value, "");
+	TEST_NOT_EQUAL(mymset.begin().get_document().get_data().value, "");
+	TEST_NOT_EQUAL(mymset.begin().get_document().get_key(key_no).value, "");
     }
 
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("tab\tby")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = enquire.get_docs(mymset.begin(), mymset.end());
+    docs = std::vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
     for (int key_no = 1; key_no < 7; ++key_no) {
-	OmKey key = enquire.get_doc(mymset.begin()).get_key(key_no);
+	OmKey key = mymset.begin().get_document().get_key(key_no);
 	TEST_NOT_EQUAL(key.value, "");
 	if (key_no == 0) {
 	    TEST(key.value.size() > 262);
@@ -1166,7 +1197,7 @@ static bool test_spaceterms1()
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("back\\slash")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = enquire.get_docs(mymset.begin(), mymset.end());
+    docs = std::vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
     return true;
@@ -1293,17 +1324,17 @@ static bool test_specialterms1()
 {
     OmEnquire enquire(get_database("apitest_space"));
     OmMSet mymset;
-    std::vector<OmDocument> docs;
+    std::vector<om_docid> docs;
     OmStem stemmer("english");
 
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("new\nline")));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = enquire.get_docs(mymset.begin(), mymset.end());
+    docs = std::vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
     for (int key_no = 0; key_no < 7; ++key_no) {
-	OmKey key = enquire.get_doc(mymset.begin()).get_key(key_no);
+	OmKey key = mymset.begin().get_document().get_key(key_no);
 	TEST_NOT_EQUAL(key.value, "");
 	if (key_no == 0) {
 	    TEST(key.value.size() > 262);
@@ -1318,7 +1349,7 @@ static bool test_specialterms1()
 			OmQuery(stemmer.stem_word(std::string("big\0zero", 8))));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
-    docs = enquire.get_docs(mymset.begin(), mymset.end());
+    docs = std::vector<om_docid>(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
 
     return true;
@@ -2207,8 +2238,9 @@ test_desc db_tests[] = {
     {"absentfile1",	   test_absentfile1},
     {"poscollapse1",	   test_poscollapse1},
     {"poscollapse2",	   test_poscollapse2},
-    {"batchquery1",	   test_batchquery1},
+    //{"batchquery1",	   test_batchquery1}, OmBatchEnquire temporarily removed
     {"repeatquery1",	   test_repeatquery1},
+    {"fetchdocs1",	   test_fetchdocs1},
     {"absentterm1",	   test_absentterm1},
     {"absentterm2",	   test_absentterm2},
     {"rset1",              test_rset1},

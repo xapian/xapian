@@ -100,7 +100,7 @@ class NetClient : public RefCntBase {
 			   om_doccount &termfreq_min,
 			   om_doccount &termfreq_est,
 			   om_weight &maxw,
-			   std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> &term_info) = 0;
+			   std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> &term_info) = 0;
 
 	virtual void next(om_weight w_min, om_docid &did, om_weight &w, OmKey &key) = 0;
 	virtual void skip_to(om_docid new_did, om_weight w_min, om_docid &did,

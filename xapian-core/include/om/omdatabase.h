@@ -160,13 +160,27 @@ class OmDatabase {
 	OmPositionListIterator positionlist_begin(om_docid did, const om_termname &tname) const;
 	OmPositionListIterator positionlist_end(om_docid did, const om_termname &tname) const;
 
-	/// Return iterator across all terms in the database.
+	/** An iterator which runs across all terms in the database.
+	 */
+	//@{
 	OmTermIterator allterms_begin() const;
 	OmTermIterator allterms_end() const;
+	//@}
 
+	/// Get the number of documents in the database.
 	om_doccount get_doccount() const;
+	
+	/// Get the average length of the documents in the database.
 	om_doclength get_avlength() const;
+
+	/// Get the number of documents in the database indexed by a given term.
 	om_doccount get_termfreq(const om_termname & tname) const;
+
+	/** Return true if and only if the term exists in the database.
+	 *  This is the same as (get_termfreq(tname) != 0), but will often be
+	 *  more efficient.
+	 */
+	bool term_exists(const om_termname & tname) const;
 
 	/** Return the total number of occurrences of the given term.  This
 	 *  is the sum of the number of ocurrences of the term in each
@@ -178,14 +192,23 @@ class OmDatabase {
 	 */
 	om_termcount get_collection_freq(const om_termname & tname) const;
 
+	/** Get the length of a document.
+	 */
 	om_doclength get_doclength(om_docid did) const;
 
-	/** Get a document from the database.
-	 *  FIXME: document more.
+	/** Get a document from the database, given its document id.
+	 *
+	 *  This method returns an OmDocument object which provides the
+	 *  information about a document.
+	 *
+	 *  @param did   The document id for which to retrieve the data.
+	 *
+	 *  @return      An OmDocument object containing the document data
+	 *
+	 *  @exception OmDocNotFoundError      The document specified could not
+	 *                                     be found in the database.
 	 */
 	OmDocument get_document(om_docid did) const;
-
-	bool term_exists(const om_termname & tname) const;
 };
 
 ///////////////////////////////////////////////////////////////////

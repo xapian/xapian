@@ -93,12 +93,13 @@ class OmTermIterator::Internal {
 class VectorTermList : public TermList {
     private:
 	std::vector<om_termname> terms;
-	int offset;
+	std::vector<om_termname>::size_type offset;
+	bool before_start;
 
     public:
 	VectorTermList(std::vector<om_termname>::const_iterator begin,
 		       std::vector<om_termname>::const_iterator end)
-	    : terms(begin, end), offset(-1)
+	    : terms(begin, end), offset(0), before_start(true)
 	{
 	}
 
@@ -114,13 +115,13 @@ class VectorTermList : public TermList {
 	    
 	// Gets current termname
 	om_termname get_termname() const {
-	    Assert(offset >= 0 && offset < terms.size());
+	    Assert(!before_start && offset < terms.size());
 	    return terms[offset];
 	}
 
 	// Get wdf of current term
 	om_termcount get_wdf() const {
-	    Assert(offset >= 0 && offset < terms.size());
+	    Assert(!before_start && offset < terms.size());
 	    return 1; // FIXME: or is OmInvalidOperationError better?
 	}
 
@@ -138,7 +139,10 @@ class VectorTermList : public TermList {
 	 */
 	TermList * next() {
 	    Assert(!at_end());
-	    offset++;
+	    if(before_start)
+		before_start = false;
+	    else
+		offset++;
 	    return NULL;
 	}
 
@@ -150,7 +154,7 @@ class VectorTermList : public TermList {
 	
 	// True if we're off the end of the list
 	bool at_end() const {
-	    return offset == terms.size();
+	    return !before_start && offset == terms.size();
 	}
 };
 

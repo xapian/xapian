@@ -57,7 +57,6 @@ class OmESetItem {
 class OmESetIterator::Internal {
     private:
 	friend class OmESetIterator; // allow access to it
-        friend bool operator==(const OmESetIterator &a, const OmESetIterator &b);
 
 	std::vector<OmESetItem>::const_iterator it;
 	std::vector<OmESetItem>::const_iterator end;
@@ -68,8 +67,14 @@ class OmESetIterator::Internal {
 	    : it(it_), end(end_)
 	{ }
 
-        Internal(const Internal &other) : it(other.it), end(other.end)
+        Internal(const Internal &other)
+	    : it(other.it), end(other.end)
 	{ }
+
+	bool operator==(const OmESetIterator::Internal & other)
+	{
+	    return (it == other.it);
+	}
 };
 
 /** An item resulting from a query.
@@ -112,27 +117,6 @@ class OmMSetItem {
 	std::string get_description() const;
 };
 
-class OmMSetIterator::Internal {
-    private:
-	friend class OmMSetIterator; // allow access to it
-        friend bool operator==(const OmMSetIterator &a, const OmMSetIterator &b);
-
-	std::vector<OmMSetItem>::const_iterator it;
-	std::vector<OmMSetItem>::const_iterator end;
-
-	double percent_factor;
-    public:
-        Internal(std::vector<OmMSetItem>::const_iterator it_,
-		 std::vector<OmMSetItem>::const_iterator end_,
-		 double percent_factor_)
-	    : it(it_), end(end_), percent_factor(percent_factor_)
-	{ }
-
-        Internal(const Internal &other)
-	    : it(other.it), end(other.end), percent_factor(other.percent_factor)
-	{ }
-};
-
 /** Internals of enquire system.
  *  This allows the implementation of OmEnquire to be hidden, allows
  *  cleaner pthread locking by separating the API calls from the internals,
@@ -140,6 +124,22 @@ class OmMSetIterator::Internal {
  *  OmBatchEnquire::Internal.
  */
 class OmEnquire::Internal {
+    public:
+	/// Class holding the contents of the OmEnquire object.
+	class Data;
+
+	/// Constructor.
+	Internal(RefCntPtr<Data> data_);
+
+	// Default destructor, copy constructor and assignment.
+
+	/** The contents of the omenquire object.  This pointer may never be
+	 *  null.
+	 */
+	RefCntPtr<Data> data;
+};
+
+class OmEnquire::Internal::Data : public RefCntBase {
     private:
 	/// The database which this enquire object uses.
 	const OmDatabase db;
@@ -153,22 +153,29 @@ class OmEnquire::Internal {
 	/// pthread mutex, used if available.
 	OmLock mutex;
 
-	/** Read a document from the database.
-	 *  This method does the work for get_doc().
-	 */
-	const OmDocument read_doc(om_docid did) const;
-
 	/** Calculate the matching terms.
 	 *  This method does the work for get_matching_terms().
 	 */
 	OmTermIterator calc_matching_terms(om_docid did) const;
+
+	/// Copy not allowed
+	Data(const Data &);
+	/// Assignment not allowed
+	void operator=(const Data &);
     public:
 	/** The error handler, if set.  (0 if not set).
 	 */
 	OmErrorHandler * errorhandler;
 
-	Internal(const OmDatabase &databases, OmErrorHandler * errorhandler_);
-	~Internal();
+	Data(const OmDatabase &databases,
+	     OmErrorHandler * errorhandler_);
+	~Data();
+
+	/** Read a set of documents from the database.
+	 */
+	const std::vector<OmDocument> read_docs(
+		std::vector<OmMSetItem>::const_iterator begin,
+		std::vector<OmMSetItem>::const_iterator end) const;
 
 	void set_query(const OmQuery & query_);
 	const OmQuery & get_query();
@@ -181,11 +188,6 @@ class OmEnquire::Internal {
 			const OmRSet & omrset,
 			const OmSettings *eoptions,
 			const OmExpandDecider *edecider) const;
-	const OmDocument get_doc(om_docid did) const;
-	const OmDocument get_doc(const OmMSetIterator &it) const;
-
-	const std::vector<OmDocument> get_docs(const OmMSetIterator & begin,
-					       const OmMSetIterator & end) const;
 
 	OmTermIterator get_matching_terms(om_docid did) const;
 	OmTermIterator get_matching_terms(const OmMSetIterator &it) const;
@@ -195,16 +197,45 @@ class OmEnquire::Internal {
 class OmExpand;
 
 class OmMSet::Internal {
-    friend class OmMSet;
-    friend class MSetPostList;
-    friend class RemoteSubMatch;
-    friend std::string ommset_to_string(const OmMSet &ommset);
+    public:
+	/// Class holding the actual data in the MSet.
+	class Data;
+
+	/// Constructor: makes a new empty mset.
+	Internal();
+
+	/// Constructor: makes a new mset from a pointer.
+	Internal(RefCntPtr<Data> data_);
+
+	// Default destructor, copy constructor and assignment.
+
+	/** The actual data stored in the mset.  This pointer may never be
+	 *  null.
+	 */
+	RefCntPtr<Data> data;
+};
+
+class OmMSet::Internal::Data : public RefCntBase {
     private:
 	/// Factor to multiply weights by to convert them to percentages.
 	mutable double percent_factor;
 
 	/// True if percent factor has been calculated.
 	mutable bool have_percent_factor;
+
+	/// (Lazily) calcualates factor for converting weights to percentages.
+	void calc_percent_factor() const;
+
+	/// Cache of documents, indexed by rank.
+	mutable std::map<om_doccount, OmDocument> rankeddocs;
+
+	/// Copy not allowed
+	Data(const Data &);
+	/// Assignment not allowed
+	void operator=(const Data &);
+    public:
+	/// OmEnquire reference, for getting documents.
+	RefCntPtr<const OmEnquire::Internal::Data> enquire;
 
 	/** A structure containing the term frequency and weight for a
 	 *  given query term.
@@ -217,11 +248,12 @@ class OmMSet::Internal {
 	/** The term frequencies and weights returned by the match process.
 	 *  This map will contain information for each term which was in                 *  the query.
 	 */
-	std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> termfreqandwts;
+	std::map<om_termname, TermFreqAndWeight> termfreqandwts;
 
 	/// A list of items comprising the (selected part of the) mset.
 	std::vector<OmMSetItem> items;
 
+	/// Rank of first item in Mset.
 	om_doccount firstitem;
 
 	om_doccount matches_lower_bound;
@@ -234,8 +266,7 @@ class OmMSet::Internal {
 
 	om_weight max_attained;
 
-    public:
-	Internal()
+	Data()
 		: percent_factor(0),
 		  have_percent_factor(false),
 		  firstitem(0),
@@ -245,14 +276,14 @@ class OmMSet::Internal {
 		  max_possible(0),
 		  max_attained(0) {}
 
-	Internal(om_doccount firstitem_,
-		 om_doccount matches_upper_bound_,
-		 om_doccount matches_lower_bound_,
-		 om_doccount matches_estimated_,
-		 om_weight max_possible_,
-		 om_weight max_attained_,
-		 const std::vector<OmMSetItem> &items_,
-		 const std::map<om_termname, TermFreqAndWeight> &termfreqandwts_)
+	Data(om_doccount firstitem_,
+	     om_doccount matches_upper_bound_,
+	     om_doccount matches_lower_bound_,
+	     om_doccount matches_estimated_,
+	     om_weight max_possible_,
+	     om_weight max_attained_,
+	     const std::vector<OmMSetItem> &items_,
+	     const std::map<om_termname, TermFreqAndWeight> &termfreqandwts_)
 		: have_percent_factor(false),
 		  termfreqandwts(termfreqandwts_),
 		  items(items_),
@@ -263,16 +294,51 @@ class OmMSet::Internal {
 		  max_possible(max_possible_),
 		  max_attained(max_attained_) {}
 
-	/// (Lazily) calcualates factor for converting weights to percentages.
-	void calc_percent_factor() const;
-		  
+	/// get a document by rank, via the cache.
+	OmDocument get_doc_by_rank(om_doccount rank) const;
+
 	/// Converts a weight to a percentage weight
-	int convert_to_percent_internal(om_weight wt) const;
+	om_percent convert_to_percent_internal(om_weight wt) const;
 
 	/** Returns a string representing the mset.
 	 *  Introspection method.
 	 */
 	std::string get_description() const;
+
+	/** Fetch items specified into the document cache.
+	 */
+	void fetch_items(om_doccount rank,
+			 std::vector<OmMSetItem>::const_iterator begin,
+			 std::vector<OmMSetItem>::const_iterator end) const;
+};
+
+class OmMSetIterator::Internal {
+    private:
+	friend class OmMSetIterator; // allow access to it
+	friend class OmMSet;
+
+	std::vector<OmMSetItem>::const_iterator it;
+	std::vector<OmMSetItem>::const_iterator end;
+
+	om_doccount currrank;
+	RefCntPtr<OmMSet::Internal::Data> msetdata;
+    public:
+        Internal(std::vector<OmMSetItem>::const_iterator it_,
+		 std::vector<OmMSetItem>::const_iterator end_,
+		 om_doccount currrank_,
+		 RefCntPtr<OmMSet::Internal::Data> msetdata_)
+	    : it(it_), end(end_), currrank(currrank_), msetdata(msetdata_)
+	{ }
+
+        Internal(const Internal &other)
+	    : it(other.it), end(other.end),
+	      currrank(other.currrank), msetdata(other.msetdata)
+	{ }
+
+	bool operator==(const OmMSetIterator::Internal & other)
+	{
+	    return (it == other.it);
+	}
 };
 
 class OmESet::Internal {
@@ -316,5 +382,22 @@ class OmRSet::Internal {
 	 */
 	std::string get_description() const;
 };
+
+
+
+inline
+OmEnquire::Internal::Internal(RefCntPtr<Data> data_)
+	: data(data_)
+{}
+
+inline
+OmMSet::Internal::Internal()
+	: data(new OmMSet::Internal::Data())
+{}
+
+inline
+OmMSet::Internal::Internal(RefCntPtr<Data> data_)
+	: data(data_)
+{}
 
 #endif // OM_HGUARD_OMENQUIREINTERNAL_H

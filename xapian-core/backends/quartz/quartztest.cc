@@ -1897,9 +1897,9 @@ static bool test_overwrite2()
     OmKey key_out;
 
     doc_out = OmData();
-    doc_out = enquire.get_doc(last_doc).get_data();
+    doc_out = writer.get_document(last_doc).get_data();
     TEST(doc_out.value == "Foobar rising");
-    key_out = enquire.get_doc(last_doc).get_key(7);
+    key_out = writer.get_document(last_doc).get_key(7);
     TEST(key_out.value == "Key7");
 
     for (int i=0; i<1000; ++i) {
@@ -1911,7 +1911,7 @@ static bool test_overwrite2()
     writer.flush();
 
     doc_out = OmData();
-    doc_out = enquire.get_doc(last_doc).get_data();
+    doc_out = writer.get_document(last_doc).get_data();
     TEST(doc_out.value == "Foobar rising");
 
     for (int i=0; i<1000; ++i) {
@@ -1923,7 +1923,7 @@ static bool test_overwrite2()
     writer.flush();
 
     key_out = OmKey();
-    key_out = enquire.get_doc(last_doc).get_key(7);
+    key_out = writer.get_document(last_doc).get_key(7);
     TEST(key_out.value == "Key7");
 
     for (int i=0; i<1000; ++i) {

@@ -89,21 +89,21 @@ MSetPostList::get_docid() const
 {
     DEBUGCALL(MATCH, om_docid, "MSetPostList::get_docid", "");
     Assert(current != -1);
-    RETURN(mset.internal->items[current].did);
+    RETURN(mset.internal->data->items[current].did);
 }
 
 inline om_weight
 MSetPostList::get_weight() const
 {
     Assert(current != -1);
-    return mset.internal->items[current].wt;
+    return mset.internal->data->items[current].wt;
 }
 
 inline const OmKey *
 MSetPostList::get_collapse_key() const
 {
     Assert(current != -1);
-    return &(mset.internal->items[current].collapse_key);
+    return &(mset.internal->data->items[current].collapse_key);
 }
 
 inline om_weight
@@ -115,7 +115,7 @@ MSetPostList::get_maxweight() const
     if (current == -1) return mset.get_max_possible();
     if (mset.empty()) return 0;
     // mset.max_attained is bigger than this if firstitem != 0
-    return mset.internal->items[current].wt;
+    return mset.internal->data->items[current].wt;
 }
 
 inline om_weight
@@ -142,7 +142,7 @@ MSetPostList::get_doclength() const
 {
     Assert(current != -1);
     return 1; // FIXME: this info is unused with present weights
-//    return db->get_doclength(mset.internal->items[current].did);
+//    return db->get_doclength(mset.internal->data->items[current].did);
 }
 
 inline PositionList *
@@ -253,7 +253,7 @@ class RemotePostList : public PostList {
 	om_doccount termfreq_est;
 	om_weight maxw;
 
-	std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> term_info;
+	std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> term_info;
 
     public:
 	om_doccount get_termfreq_max() const { return termfreq_max; }
@@ -282,7 +282,7 @@ class RemotePostList : public PostList {
 	virtual PositionList * read_position_list();
 	virtual AutoPtr<PositionList> open_position_list() const;
 
-	const std::map<om_termname, OmMSet::Internal::TermFreqAndWeight> get_terminfo() const {
+	const std::map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> get_terminfo() const {
 	    return term_info;
 	}
 
@@ -378,7 +378,7 @@ RemotePostList::get_doclength() const
 {
     Assert(did != 0);
     return 1; // FIXME: this info is unused with present weights
-//    return db->get_doclength(mset.internal->items[current].did);
+//    return db->get_doclength(mset.internal->data->items[current].did);
 }
 
 inline PositionList *

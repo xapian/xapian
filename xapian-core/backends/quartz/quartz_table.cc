@@ -640,6 +640,8 @@ QuartzBufferedTable::cursor_get() const
 bool
 QuartzBufferedCursor::find_entry(const QuartzDbKey &key)
 {
+    DEBUGCALL(DB, bool, "QuartzBufferedCursor::find_entry",
+	      "QuartzDbKey(" << key.value << ")");
     Assert(key.value != "");
 
     // Whether we have an exact match.
@@ -662,13 +664,13 @@ QuartzBufferedCursor::find_entry(const QuartzDbKey &key)
 	    // Have an exact match in the cache, and it's not a deletion.
 	    current_key.value = keyptr->value;
 	    current_tag.value = tagptr->value;
-	    return true;
+	    RETURN(true);
 	}
     } else if (diskcursor->current_key.value == key.value) {
 	// Have an exact match on disk, and it's not shadowed by the cache.
 	current_key.value = diskcursor->current_key.value;
 	current_tag.value = diskcursor->current_tag.value;
-	return true;
+	RETURN(true);
     }
 
     // No exact match.  Move backwards until match isn't a deletion.
@@ -677,7 +679,7 @@ QuartzBufferedCursor::find_entry(const QuartzDbKey &key)
 	    // diskcursor must also point to a null key - we're done.
 	    current_key.value = "";
 	    current_tag.value = "";
-	    return false;
+	    RETURN(false);
 	}
 	if (keyptr->value == diskcursor->current_key.value) {
 	    diskcursor->prev();
@@ -697,7 +699,7 @@ QuartzBufferedCursor::find_entry(const QuartzDbKey &key)
 	current_tag.value = diskcursor->current_tag.value;
     }
 
-    return false;
+    RETURN(false);
 }
 
 bool
