@@ -1,3 +1,8 @@
+Wed Dec 08 15:32:46 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Make sure that --libs output doesn't include
+	  libxapian.la (from libxapianqueryparser.la's dependencies).
+
 Tue Dec 07 18:18:26 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_log.cc: Fixed to compile on mingw.
