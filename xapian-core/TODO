@@ -31,6 +31,12 @@ Priority | Area            | Task
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Exceptions      | Make exceptoins threadsafe: see
+	 |                 | http://metalab.unc.edu/pub/Linux/docs/faqs/SMP-FAQ
+	 |                 | GCC (and EGCS) need existence of exceptions to
+	 |                 | be protected by a mutex - will need to cope with
+	 |                 | exception being copied.
+---------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Patch doxygen, so that todo items in the body of
          |                 | methods get displayed.
 ---------+-----------------+--------------------------------------------------
