@@ -19,8 +19,8 @@ int main(int argc, char *argv[]) {
 
 	tid = database.add_term("thou");
 	printf("Added term, new tid is %d\n", tid);
-	did = database.add_doc("cheese tasting");
-	printf("Added doc, new did is %d\n", did);
+
+	database.add(tid, 1);
 	
 	tid = database.term_name_to_id("thou");
 	printf("tid is %d\n", tid);
@@ -67,5 +67,8 @@ int main(int argc, char *argv[]) {
     }
     catch (OmError e) {
 	cout << e.get_msg() << endl;
+    }
+    catch (exception e) {
+	cout << "Exception" << endl;
     }
 }

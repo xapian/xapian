@@ -13,7 +13,6 @@ typedef double weight;
 
 #ifdef __cplusplus
 typedef string termname;
-typedef string docname;
 #endif
 
 #endif /* _omtypes_h_ */

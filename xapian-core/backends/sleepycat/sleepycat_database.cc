@@ -216,11 +216,9 @@ SleepyDatabase::add_term(const termname &tname) {
     newid = term_name_to_id(tname);
     if(newid) return newid;
 
-    termid id = 0;
-
     try {
 	// FIXME - currently no transactions
-	Dbt key(&id, sizeof(id));
+	Dbt key(&newid, sizeof(newid));
 	Dbt data((void *)tname.data(), tname.size());
 	int found;
 
@@ -238,18 +236,58 @@ SleepyDatabase::add_term(const termname &tname) {
 	throw OmError("SleepyDatabase::add_term(): " + string(e.what()));
     }
 
-    return id;
+    return newid;
 }
 
 docid
-SleepyDatabase::add_doc(const docname &dname) {
-    return 0;
+SleepyDatabase::add_doc(IRDocument &doc) {
     throw OmError("SleepyDatabase.add_doc() not implemented");
 }
 
 void
-SleepyDatabase::add(termid, docid) {
-    throw OmError("SleepyDatabase.add() not implemented");
+SleepyDatabase::add(termid tid, docid did) {
+    // Add to Postlist
+    try {
+	// First see if appropriate postlist already exists
+	Dbt key(&tid, sizeof(tid));
+	Dbt data;
+	data.set_flags(DB_DBT_MALLOC);
+	docid * postlist = NULL;
+	size_t postlist_size = 0;
+	int found;
+
+	found = internals->postlist_db->get(NULL, &key, &data, 0);
+	if(found != DB_NOTFOUND) {
+	    Assert(found == 0); // Any other errors should cause an exception.
+
+	    postlist = (docid *)data.get_data();
+	    postlist_size = data.get_size();
+	}
+
+	// Look through postlist for doc id
+
+	// Add doc id to postlist
+	postlist_size += sizeof(docid);
+	docid * postlist_new = (docid *) realloc(postlist, postlist_size);
+	if(postlist_new == NULL) {
+	    free(postlist);
+	    throw std::bad_alloc();
+	}
+	postlist = postlist_new;
+	postlist[postlist_size / sizeof(docid) - 1] = did;
+
+	// Save new postlist
+	data.set_data(postlist);
+	data.set_size(postlist_size);
+	data.set_flags(0);
+	found = internals->postlist_db->put(NULL, &key, &data, 0);
+	Assert(found == 0); // Any errors should cause an exception.
+
+	free(postlist);
+    }
+    catch (DbException e) {
+	throw OmError("PostlistDb error:" + string(e.what()));
+    }
 }
 
 termid

@@ -53,6 +53,13 @@ class TermList {
         virtual ~TermList() { return; }
 };
 
+// A document in the database
+class IRDocument {
+    private:
+    public:
+	// FIXME - holds keys and records
+};
+
 class IRDatabase {
     private:
     public:
@@ -62,7 +69,7 @@ class IRDatabase {
 	virtual termname term_id_to_name(termid) const = 0;
     
 	virtual termid add_term(const termname &) = 0;
-	virtual docid add_doc(const docname &) = 0;
+	virtual docid add_doc(IRDocument &) = 0;
 	virtual void add(termid, docid) = 0;
 
         virtual void open(const string &pathname, bool readonly) = 0;

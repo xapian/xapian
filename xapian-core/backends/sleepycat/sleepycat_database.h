@@ -134,7 +134,7 @@ class SleepyDatabase : public virtual IRDatabase {
 	termname term_id_to_name(termid) const;
 
 	termid add_term(const termname &);
-	docid add_doc(const docname &);
+	docid add_doc(IRDocument &);
 	void add(termid, docid);
 
 	void open(const string &pathname, bool readonly);
