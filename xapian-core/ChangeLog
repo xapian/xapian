@@ -1,3 +1,8 @@
+Thu Aug  3 14:39:58 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Java automatically converted apitest now runs 25 tests (and fails
+	  14 of those).
+
 Wed Aug  2 18:36:03 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Some more improvements to the apitest converter for Java.

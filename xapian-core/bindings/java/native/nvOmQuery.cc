@@ -165,3 +165,41 @@ JNIEXPORT jstring JNICALL Java_com_muscat_om_OmQuery_get_1description
     }
     return NULL;
 }
+
+/*
+ * Class:     com_muscat_om_OmQuery
+ * Method:    get_length
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_muscat_om_OmQuery_get_1length
+  (JNIEnv *env, jobject obj)
+{
+    OmQuery* query = (OmQuery*) tryGetLongField (env, obj, "nativePtr");
+    try {
+	return query->get_length();
+    }
+    catch (OmError& err) {
+	handleNativeError (env, err);
+    }
+    return NULL;
+}
+
+/*
+ * Class:     com_muscat_om_OmQuery
+ * Method:    set_bool
+ * Signature: (Z)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_muscat_om_OmQuery_set_1bool
+  (JNIEnv *env, jobject obj, jboolean isbool_)
+{
+    OmQuery* query = (OmQuery*) tryGetLongField (env, obj, "nativePtr");
+    try {
+	return (jboolean)query->set_bool((bool)isbool_);
+    }
+    catch (OmError& err) {
+	handleNativeError (env, err);
+    }
+    return NULL;
+}
+
+

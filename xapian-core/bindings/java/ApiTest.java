@@ -24,12 +24,15 @@ import java.util.*;
 import java.io.*;
 
 public class ApiTest {
-    public static void main(String[] args) throws Throwable {
+    public static void init() throws Throwable {
         backendmanager = new BackendManager();
 
 	backendmanager.set_datadir(System.getProperty("srcdir", ".") +
 	                           "/../../tests/testdata/" );
+    }
 
+    public static void main(String[] args) throws Throwable {
+        init();
         System.out.println("pctcutoff1: " + test_pctcutoff1());
         //System.out.println("collapsekey1: " + test_collapsekey1());
     }
@@ -202,6 +205,18 @@ public class ApiTest {
 
     public static OmDatabase get_database(String dbname1, String dbname2) throws Throwable {
         return backendmanager.get_database(dbname1, dbname2);
+    }
+
+    public static OmDatabaseGroup make_dbgrp(OmDatabase db1,
+                 			     OmDatabase db2,
+					     OmDatabase db3) throws Throwable {
+        OmDatabaseGroup result = new OmDatabaseGroup();
+
+	result.add_database(db1);
+	result.add_database(db2);
+	result.add_database(db3);
+
+	return result;
     }
 
     public static OmDatabaseGroup make_dbgrp(OmDatabase db1,

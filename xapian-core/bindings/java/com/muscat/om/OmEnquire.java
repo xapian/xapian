@@ -26,6 +26,10 @@ public class OmEnquire extends OmObject {
     {
 	return get_mset (first, maxitems, rset, moptions, null);
     }
+    public OmMSet get_mset (int first, int maxitems, OmRSet rset)
+    {
+	return get_mset (first, maxitems, rset, null, null);
+    }
     public OmMSet get_mset (int first, int maxitems) {
 	return get_mset (first, maxitems, null, null, null);
     }
@@ -38,6 +42,9 @@ public class OmEnquire extends OmObject {
     /** get an expand set of terms */
     public OmESet get_eset (int maxitems, OmRSet rset) {
 	return get_eset (maxitems, rset, null, null);
+    }
+    public OmESet get_eset (int maxitems, OmRSet rset, OmExpandOptions eopts) {
+	return get_eset (maxitems, rset, eopts, null);
     }
     public native OmESet get_eset (int maxitems, OmRSet rset, 
 				   OmExpandOptions eopts, OmExpandDecider edecider);

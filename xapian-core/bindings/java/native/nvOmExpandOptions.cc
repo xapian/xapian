@@ -35,7 +35,7 @@ JNIEXPORT void JNICALL Java_com_muscat_om_OmExpandOptions_deleteNativeObject
  * Method:    set_use_query_terms
  * Signature: (Z)V
  */
-JNIEXPORT void JNICALL Java_com_muscat_om_OmExpandOptions_use_1query_1terms
+JNIEXPORT void JNICALL Java_com_muscat_om_OmExpandOptions_set_1use_1query_1terms
   (JNIEnv *env, jobject obj, jboolean use)
 {
     OmExpandOptions* eoptions = (OmExpandOptions*) tryGetLongField (env, obj, "nativePtr");

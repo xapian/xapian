@@ -43,7 +43,7 @@ BEGIN {
 
 sub new {
     my $class = shift;
-    return bless { tests => [], func => ""}, $class;
+    return bless { tests => "", func => ""}, $class;
 }
 
 sub get_value {
@@ -79,6 +79,11 @@ class ApiTestFuncs {
                                         OmDatabase db2) throws Throwable {
         return new OmEnquire(ApiTest.make_dbgrp(db1, db2));
     }
+    private static OmEnquire make_dbgrp(OmDatabase db1,
+                                        OmDatabase db2,
+					OmDatabase db3) throws Throwable {
+        return new OmEnquire(ApiTest.make_dbgrp(db1, db2, db3));
+    }
     private static OmMSet do_get_simple_query_mset(OmQuery query,
                                                int maxitems,
 					       int first) throws Throwable {
@@ -111,10 +116,85 @@ class ApiTestFuncs {
 	}
 	return false;
     }
+    private static boolean mset_equal(OmMSet first, OmMSet second) throws Throwable {
+        if ((first.get_mbound() != second.get_mbound()) ||
+	    (first.get_max_possible() != second.get_max_possible()) ||
+	    (first.get_items().size() != second.get_items().size())) {
+	    return false;
+	}
+	if (first.get_items().size() == 0) {
+	    return true;
+	}
+	return mset_range_is_same(first, 0, second, 0, first.get_items().size());
+    }
     private static void TEST_AND_EXPLAIN(boolean test, String message) throws Throwable {
         if (!test) {
 	    throw new TestFail();
 	}
+    }
+    private static void TEST_EQUAL(OmMSet mset1, OmMSet mset2) throws Throwable {
+        TEST_AND_EXPLAIN(mset_equal(mset1, mset2),
+	                 "Expected msets to be equal: were " +
+			 mset1.get_description() + " and " +
+			 mset2.get_description() + "\n");
+    }
+    private static void TEST_EQUAL(double d1, double d2) throws Throwable {
+        TEST_AND_EXPLAIN(d1 == d2,
+	                 "Expected doubles to be equal: were " +
+			 d1 + " and " + d2 + "\n");
+    }
+    private static boolean TEST_EXPECTED_DOCS(OmMSet A,
+    					      int d1,
+					      int d2,
+					      int d3) throws Throwable {
+	int[] expect = new int[3];
+	int expsize = 3;
+	expect[0] = d1;
+	expect[1] = d2;
+	expect[2] = d3;
+
+        return do_TEST_EXPECTED_DOCS(A, expect, expsize);
+    }
+    private static boolean TEST_EXPECTED_DOCS(OmMSet A,
+    					      int d1,
+					      int d2,
+					      int d3,
+					      int d4) throws Throwable {
+	int[] expect = new int[4];
+	int expsize = 4;
+	expect[0] = d1;
+	expect[1] = d2;
+	expect[2] = d3;
+	expect[3] = d4;
+
+        return do_TEST_EXPECTED_DOCS(A, expect, expsize);
+    }
+    private static boolean do_TEST_EXPECTED_DOCS(OmMSet A,
+    						 int[] expect,
+						 int expsize) throws Throwable {
+	OmVector A_items = A.get_items();
+	if (A_items.size() != expsize) {
+	    if (verbose) {
+	        System.out.println("Match set is of wrong size: was " +
+		                   A_items.size() + " - expected " + expsize);
+		System.out.println("Full mset was: " + A.get_description());
+	    }
+	    return false;
+	} else {
+	    for (int i=0; i<A_items.size(); ++i) {
+	        if (expect[i] != ((OmMSetItem)A_items.elementAt(i)).get_did()) {
+		    if (verbose) {
+			System.out.println("Match set didn't contain expected result:");
+			System.out.println("Found docid " +
+			                   ((OmMSetItem)A_items.elementAt(i)).get_did()
+					   + " expected " + expect[i]);
+			System.out.println("Full mset was: " + A.get_description());
+		    }
+		    return false;
+		}
+	    }
+	}
+	return true;
     }
     private static boolean mset_range_is_same_weights(OmMSet mset1, int first1,
     						      OmMSet mset2, int first2,
@@ -161,7 +241,7 @@ class ApiTestFuncs {
 	}
 	return true;
     }
-    private static boolean verbose = true;
+    private static boolean verbose = false;
     private static String endl = "\n";
 EOF
 }
@@ -169,28 +249,41 @@ EOF
 sub prologue() {
     my $self = shift;
     my $result = <<MAINSTART;
-    public static void main() throws Throwable {
+    public static void main(String[] argv) throws Throwable {
+        ApiTest.init();
+
+	int succeeded = 0;
+	int failed = 0;
 MAINSTART
     my $name;
-    foreach $name (@{$self->{tests}}) {
+    foreach $name (split(/ +/, $self->{tests})) {
+        next if $name eq "";
         $result .= <<TESTEND;
     System.out.print("${name}... ");
     try {
         boolean result = ${name}();
-	System.out.println(result? "ok." : "FAIL");
+	if (result) {
+	    System.out.println("ok.");
+	    succeeded++;
+	} else {
+	    System.out.println("FAIL");
+	    failed++;
+	}
     } catch (TestFail foo) {
         System.out.println("FAIL");
     }
 TESTEND
     }
     $result .= <<MAINEND
+        System.out.println(succeeded + " tests passed, " +
+	                   failed + " tests failed.");
     }
 }
 MAINEND
 }
 
 sub make_comment($) {
-    my $text = shift;
+    my ($self, $text) = @_;
 
     return "/* $text */\n";
 }
@@ -201,9 +294,10 @@ sub func_start($) {
     if ($orig =~ /^bool ([a-z0-9_]+)\(\)/) {
         my $name = $1;
 	$self->{func} = "    public static boolean $name() throws Throwable \n    {\n";
-	my @testlist = @{$self->{tests}};
-	$testlist[$#testlist + 1] = $name;
-	$self->{tests} = \@testlist;
+	if (defined($self->{indent_level}) and $self->{indent_level} != 4) {
+	    $self->{tests} =~ s/test_[a-z0-9]+$//;
+	}
+	$self->{tests} .= " $name";
 	$self->{indent_level} = 8;
 	return $self->{func};
     } else {
@@ -241,9 +335,10 @@ sub addtext($) {
     $text =~ s/(myeset[a-z0-9]*)\.(items)/$1_$2/g;
     $text =~ s/(myeset[a-z0-9]*_items)\[([^\]])+\]\.([a-z_]+)/((OmESetItem)($1.elementAt($2))).get_$3()/g;
     $text =~ s/(myeset[a-z0-9]*_items)\[([^\]])+\](?!\.)/((OmESetItem)($1.elementAt($2)))/g;
-    # change OM_MOP_FOO into "FOO"
-    # change OM_MOP_FOO into "FOO"
+    # Change OM_MOP_FOO into "FOO"
     $text =~ s/OM_MOP_([A-Z_]+)/"$1"/g;
+    # Change NULL into null
+    $text =~ s/\bNULL\b/null/g;
     $self->{func} .= (" " x $self->{indent_level}) . $text;
 }
 
@@ -461,7 +556,7 @@ sub getline() {
 $main::func_start_regex = '^bool (test_[a-z_]*[0-9]*)\(\) *$';
 $main::type = "\\b(?:bool|(?:unsigned )?int|unsigned|size_t|Om[A-Z][A-Za-z]+|om_[a-z]+)";
 $main::identifier = "(?:[a-zA-Z_0-9]+)";
-$main::func = "(?:(?:$main::identifier).$main::identifier)";
+$main::func = "(?:(?:$main::identifier\.)?$main::identifier)";
 $main::commentstart = '(?:\/\/|\/\*)';
 
 my (@succeeded, @failed);
@@ -484,8 +579,9 @@ while (@ARGV) {
 }
 
 open(OUTPUT, ">ApiTestFuncs.java") or die "Can't open apitest_converted.java";
-print OUTPUT ToJava::make_comment("*** This file was autogenerated from apitest.cc by apitest_to_java.pl ***");
-print OUTPUT ToJava::preamble();
+my $parser = new apitest_parser();
+print OUTPUT $parser->make_comment("*** This file was autogenerated from apitest.cc by apitest_to_java.pl ***");
+print OUTPUT $parser->preamble();
 
 while (<STDIN>) {
     chomp;
@@ -494,7 +590,6 @@ while (<STDIN>) {
 	if ($want_allnames || exists($want_name{$name})) {
 	    my $funcdef;
 	    eval {
-	        my $parser = new apitest_parser();
 		$funcdef = $parser->parse_function($_);
 		if (defined $funcdef) {
 		    print OUTPUT $funcdef;
@@ -508,14 +603,14 @@ while (<STDIN>) {
 	    if ($@) {
 		$failed[$#failed+1] = $name;
 
-                print OUTPUT ToJava::make_comment("*** UNTRANSLATED FUNCTION: $name");
+                print OUTPUT $parser->make_comment("*** UNTRANSLATED FUNCTION: $name");
 		print STDERR "Parse of $name failed: $@\n";
 	    }
 	}
     }
 }
 
-print OUTPUT ToJava::prologue();
+print OUTPUT $parser->prologue();
 print "Successful translations: ", join(' ', @succeeded), "\n\n";
 print "Failed translations: ", join(' ', @failed), "\n";
 
@@ -525,8 +620,22 @@ sub new() {
     my ($class, $self) = (shift, {});
     $self->{interp} = new ToJava();  
     die "Can't create interpreter!" unless defined $self->{interp};
-    $self->{indent} = 4;
     return bless $self, $class;
+}
+
+sub make_comment($) {
+    my ($self, $comment) = @_;
+    return $self->{interp}->make_comment($comment);
+}
+
+sub preamble() {
+    my $self = shift;
+    return $self->{interp}->preamble();
+}
+
+sub prologue() {
+    my $self = shift;
+    return $self->{interp}->prologue();
 }
 
 sub parse_function($) {
@@ -535,6 +644,7 @@ sub parse_function($) {
 
     print "Found test: $firstline\n";
     $self->{interp}->func_start($firstline);
+    $self->{indent} = 4;
     #print "Converted to: " . 
 
     if (getline() ne "{") {
@@ -647,7 +757,7 @@ sub parse_line($) {
 	$self->{indent} -= 4;
 	$newline = $interp->close_block();
 	if ($self->{indent} == 0) {
-#		print "End of function.\n";
+		print "End of function.\n";
 	    return "END";
 	}
     } elsif ($line =~ /^return (.*);/) {

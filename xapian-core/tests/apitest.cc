@@ -736,7 +736,7 @@ bool test_pctcutoff1()
 
     OmMatchOptions mymopt;
     mymopt.set_percentage_cutoff(my_pct);
-    OmMSet mymset2 = enquire.get_mset(0, 100, 0, &mymopt);
+    OmMSet mymset2 = enquire.get_mset(0, 100, NULL, &mymopt);
 
     if (verbose) {
         cout << "Percentages after cutoff:";
@@ -1752,7 +1752,8 @@ bool test_maxorterms1()
     OmEnquire enquire(make_dbgrp(&mydb));
 
     OmStem stemmer("english");
-    OmQuery myquery1(stemmer.stem_word("word"));
+    std::string stemmed_word = stemmer.stem_word("word");
+    OmQuery myquery1(stemmed_word);
 
     OmQuery myquery2(OM_MOP_OR,
 		    OmQuery(stemmer.stem_word("simple")),
@@ -1764,7 +1765,7 @@ bool test_maxorterms1()
     enquire.set_query(myquery2);
     OmMatchOptions moptions;
     moptions.set_max_or_terms(1);
-    OmMSet mymset2 = enquire.get_mset(0, 10, 0, &moptions);
+    OmMSet mymset2 = enquire.get_mset(0, 10, NULL, &moptions);
 
     TEST_EQUAL(mymset1, mymset2);
 
@@ -1796,7 +1797,7 @@ bool test_maxorterms2()
     enquire.set_query(myquery2);
     OmMatchOptions moptions;
     moptions.set_max_or_terms(1);
-    OmMSet mymset2 = enquire.get_mset(0, 10, 0, &moptions);
+    OmMSet mymset2 = enquire.get_mset(0, 10, NULL, &moptions);
 
     TEST_EQUAL(mymset1, mymset2);
 

@@ -17,5 +17,5 @@ public class OmExpandOptions extends OmObject {
      *  be returned.  A value of true will allow query terms to be
      *  placed in the ESet.
      */
-    public native void use_query_terms (boolean allow_query_terms);
+    public native void set_use_query_terms (boolean allow_query_terms);
 }

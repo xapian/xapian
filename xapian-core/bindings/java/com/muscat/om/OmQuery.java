@@ -15,6 +15,7 @@ public class OmQuery extends OmObject {
 
     /** A query consisting of a single term. (This must *not* be an empty string.) */
     public OmQuery (String term) throws OmError { this (term, 1, 0); }
+    public OmQuery (String term, int wqf) throws OmError { this (term, wqf, 0); }
     public OmQuery (String term, int wqf, int pos) throws OmError {
 	nativePtr = createNativeObject (term, wqf, pos);
     }
@@ -44,16 +45,18 @@ public class OmQuery extends OmObject {
     /** Returns a string representing the query */
     public native String get_description();
 
-//	  om_termcount get_length() const 
-//	      Get the length of the query, used by some ranking formulae. 
+    /** Get the length of the query, used by some ranking formulae. */
+    public native int get_length();
+
+    /** Set whether the query is a pure boolean. */
+    public native boolean set_bool(boolean isbool_);
+
 //	  bool is_bool() const 
 //	      Check whether the query is (pure) boolean. 
 //	  bool is_defined() const 
 //	      Check whether the query is defined. 
 //	  OmQuery& operator=(const OmQuery & copyme) 
 //	      Assignment. 
-//	  bool set_bool(bool isbool_) 
-//	      Set whether the query is a pure boolean. 
 //	  om_termcount set_length(om_termcount qlen_) 
 //	      Set the length of the query. 
 //	   ~OmQuery() 
