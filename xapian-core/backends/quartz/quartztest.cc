@@ -1165,8 +1165,8 @@ static bool test_postlist1()
 	pl2.next(0);
 	TEST(!pl2.at_end());
 	TEST_EQUAL(pl2.get_docid(), 6);
-	TEST_EQUAL(pl2.get_doclength(), 3.0 / 8.0);
-	TEST_EQUAL(pl2.get_wdf(), 7);
+	TEST_EQUAL(pl2.get_doclength(), 2.0 / 8.0);
+	TEST_EQUAL(pl2.get_wdf(), 1);
 	pl2.next(0);
 	TEST(pl2.at_end());
     }
