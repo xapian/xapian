@@ -29,10 +29,6 @@
 using namespace Xapian;
 using namespace std;
 
-#include <errno.h>
-#include <string.h> // for strerror()
-#include <sys/stat.h>
-
 int
 main(int argc, char **argv)
 {
@@ -43,25 +39,6 @@ main(int argc, char **argv)
     }
     
     try {
-	// Create the directory for the database, if it doesn't exist already
-	if (mkdir(argv[1], 0755) == -1) {
-	    // Check if mkdir failed because there's already a directory there
-	    // or for some other reason.  EEXIST can also mean there's a file
-	    // with that name already.
-	    if (errno == EEXIST) {
-		struct stat sb;
-		if (stat(argv[1], &sb) == 0 && S_ISDIR(sb.st_mode))
-		    errno = 0;
-		else
-		    errno = EEXIST; // stat might have changed it
-	    }
-	    if (errno) {
-		cerr << argv[0] << ": couldn't create directory `"
-		     << argv[1] << "': " << strerror(errno) << endl;
-		exit(1);
-	    }
-	}
-
 	// Create the database
 	WritableDatabase database(Auto::open(argv[1], DB_CREATE));
     } catch (const Error &error) {
