@@ -289,7 +289,7 @@ is considerably elaborated by the use of cursors.
 
 struct Btree * Btree_open_to_read(char * name);
 
-int Btree_revision(struct Btree * B);
+B->revision_number
 
 struct Btree * Btree_open_to_read_revision(char * name, unsigned long revision);
 
@@ -525,7 +525,7 @@ Further updates can be prevented quite easily by deleting (or moving) the bitmap
 files. These are required in update mode but ignored in retrieval mode.
 
 Here is a program fragment to unload B-tree B/ and reform it in Bnew/ as a fully
-compact B-treewith revision number 1.
+compact B-tree with revision number 1.
 
 
     {   struct Btree * B = Btree_open_to_read("B/");
@@ -590,7 +590,7 @@ scheme:
 
 static struct Btree * reopen(struct Btree * B)
 {
-    unsigned long int revision = Btree_revision(B);
+    unsigned long int revision = B->revision_number;
 
     /* get the revision number. This will return the correct value, even when
        B->overwritten is detected during opening
@@ -599,7 +599,7 @@ static struct Btree * reopen(struct Btree * B)
     Btree_quit(B);  /* close the B-tree */
     B = Btree_open_to_read(s); /* and reopen */
 
-    if (revision == Btree_revision(B)) {
+    if (revision == B->revision_number) {
 
         /* the revision number ought to have gone up from last time,
            so if we arrive here, something has gone badly wrong ...
@@ -653,7 +653,7 @@ In retrieval mode B->overwitten should be tested after the following procedures,
 
 The test is not required after any of the following,
 
-   revision = Btree_revision(B);
+   revision = B->revision_number;
    Btree_quit(B);
    kt = Btree_item_create(B);
    Btree_item_lose(kt);
