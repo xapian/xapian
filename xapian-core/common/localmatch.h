@@ -101,6 +101,9 @@ class LocalMatch : public SingleMatch
 	/// Key to collapse on, if desired
 	om_keyno collapse_key;
 
+	/// Comparison functor for sorting MSet
+	OmMSetCmp mcmp;
+
 	/** Internal flag to note that maxweight needs to be recalculated
 	 *  while query is running.
 	 */
@@ -135,7 +138,6 @@ class LocalMatch : public SingleMatch
 			      map<OmKey, OmMSetItem> &collapse_table,
 			      om_docid did,
 			      const OmMSetItem &new_item,
-			      const MSetCmp &mcmp,
 			      const OmMSetItem &min_item,
 			      const LeafDocument *irdoc);
 
@@ -162,7 +164,6 @@ class LocalMatch : public SingleMatch
 	bool get_mset(om_doccount first,
 		      om_doccount maxitems,
 		      vector<OmMSetItem> & mset,
-		      mset_cmp cmp,
 		      om_doccount * mbound,
 		      om_weight * greatest_wt,
 		      const OmMatchDecider *mdecider,

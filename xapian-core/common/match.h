@@ -44,10 +44,10 @@ bool msetcmp_forward(const OmMSetItem &, const OmMSetItem &);
 bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
 
 /// Compare an OmMSetItem, using a custom function
-class MSetCmp {
+class OmMSetCmp {
     public:
 	bool (* fn)(const OmMSetItem &a, const OmMSetItem &b);
-	MSetCmp(bool (* fn_)(const OmMSetItem &a, const OmMSetItem &b))
+	OmMSetCmp(bool (* fn_)(const OmMSetItem &a, const OmMSetItem &b))
 		: fn(fn_) {}
 	bool operator()(const OmMSetItem &a, const OmMSetItem &b) const {
 	    return fn(a, b);
@@ -162,7 +162,6 @@ class SingleMatch
 	 *  @param first       First item to return (start at 0)
 	 *  @param maxitems    Maximum number of items to return
 	 *  @param mset        Results will be put here
-	 *  @param cmp         Comparison operator to sort by
 	 *  @param mbound      Mbound will returned here
 	 *  @param greatest_wt Gets set to max weight attained
 	 *  @param mdecider    Optional decision functor
@@ -171,7 +170,6 @@ class SingleMatch
 	virtual bool get_mset(om_doccount first,
 			      om_doccount maxitems,
 			      vector<OmMSetItem> & mset,
-			      mset_cmp cmp,
 			      om_doccount * mbound,
 			      om_weight * greatest_wt,
 			      const OmMatchDecider *mdecider,

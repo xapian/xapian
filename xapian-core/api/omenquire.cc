@@ -88,6 +88,16 @@ OmMatchOptions::set_max_or_terms(om_termcount max_)
     max_or_terms = max_;
 }
 
+OmMSetCmp
+OmMatchOptions::get_sort_comparator() const
+{
+    if (sort_forward) {
+	return OmMSetCmp(msetcmp_forward);
+    } else {
+	return OmMSetCmp(msetcmp_reverse);
+    }
+}
+
 
 /////////////////////////////////
 // Methods for OmExpandOptions //
@@ -205,10 +215,7 @@ OmEnquireInternal::get_mset(om_doccount first,
         moptions = &defmoptions;
     }
 
-    // Set Database
     MultiMatch match(database);
-
-    // Set options
     match.set_options(*moptions);
 
     // Set Rset
@@ -217,6 +224,7 @@ OmEnquireInternal::get_mset(om_doccount first,
     }
 
     // Set weighting scheme
+    // FIXME: incorporate into match options
     match.set_weighting(IRWeight::WTTYPE_BM25);
 
     // Set Query (no need to lock mutex, since its our own copy and
@@ -224,18 +232,8 @@ OmEnquireInternal::get_mset(om_doccount first,
     match.set_query(query->internal);
 
     OmMSet retval;
-
-    // Set sort order
-    // FIXME: incorporate into setting options
-    mset_cmp cmp;
-    if(moptions->sort_forward) {
-	cmp = msetcmp_forward;
-    } else {
-	cmp = msetcmp_reverse;
-    }
-
     // Run query and get results into supplied OmMSet object
-    match.match(first, maxitems, retval.items, cmp,
+    match.match(first, maxitems, retval.items,
 		&(retval.mbound), &(retval.max_attained),
 		mdecider);
 

@@ -473,7 +473,6 @@ bool
 NetworkMatch::get_mset(om_doccount first,
 		       om_doccount maxitems,
 		       vector<OmMSetItem> & mset,
-		       mset_cmp cmp,
 		       om_doccount * mbound,
 		       om_weight * greatest_wt,
 		       const OmMatchDecider *mdecider,

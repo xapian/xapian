@@ -48,6 +48,10 @@ class MultiMatch
 
 	/// Saved RSet (so that it can delete it properly)
 	auto_ptr<RSet> rset;
+
+	/// Comparison functor for sorting MSet
+	OmMSetCmp mcmp;
+
 #ifdef MUS_DEBUG
 	bool allow_add_singlematch;
 #endif /* MUS_DEBUG */
@@ -74,8 +78,7 @@ class MultiMatch
 	 */
 	void merge_msets(vector<OmMSetItem> &mset,
 			 vector<OmMSetItem> &more_mset,
-			 om_doccount lastitem,
-			 MSetCmp & mcmp);
+			 om_doccount lastitem);
 
 	// disallow copies
 	MultiMatch(const MultiMatch &);
@@ -110,7 +113,6 @@ class MultiMatch
 	void match(om_doccount first,
 		   om_doccount maxitems,
 		   vector<OmMSetItem> & mset,
-		   mset_cmp cmp,
 		   om_doccount * mbound,
 		   om_weight * greatest_wt,
 		   const OmMatchDecider *mdecider

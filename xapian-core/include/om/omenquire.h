@@ -32,6 +32,7 @@
 
 class OmEnquireInternal; // Internal state of enquire
 class OmEnquire;         // Declare Enquire class
+class OmMSetCmp;         // Declare mset item comparison class
 
 ///////////////////////////////////////////////////////////////////
 // OmQuery class
@@ -240,6 +241,10 @@ class OmMatchOptions {
 	 *  If this is set to the default of zero, all terms will be used.
 	 */
 	void set_max_or_terms(om_termcount max_);
+
+	/** Get 
+	 */
+	OmMSetCmp get_sort_comparator() const;
 };
 
 /** Base class for matcher decision functor.

@@ -159,7 +159,6 @@ ProgServer::run()
 	match.match(first,
 		    maxitems,
 		    mset,
-		    msetcmp_forward,
 		    &mbound,
 		    &greatest_wt,
 		    0);

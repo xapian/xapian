@@ -37,7 +37,8 @@
 MultiMatch::MultiMatch(MultiDatabase *database_,
 		       auto_ptr<StatsGatherer> gatherer_)
 	: database(database_),
-	  gatherer(gatherer_)
+	  gatherer(gatherer_),
+	  mcmp(msetcmp_forward)
 #ifdef MUS_DEBUG
 	, allow_add_singlematch(true)
 #endif /* MUS_DEBUG */
@@ -129,11 +130,15 @@ MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
 void
 MultiMatch::set_options(const OmMatchOptions & moptions_)
 {
-    Assert((allow_add_singlematch = false) == false);
+#ifdef MUS_DEBUG
+    allow_add_singlematch = false;
+#endif
     for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_options(moptions_);
     }
+
+    mcmp = moptions_.get_sort_comparator();
 }
 
 
@@ -174,8 +179,7 @@ MultiMatch::change_docids_to_global(vector<OmMSetItem> & mset,
 void
 MultiMatch::merge_msets(vector<OmMSetItem> &mset,
 			vector<OmMSetItem> &more_mset,
-			om_doccount lastitem,
-			MSetCmp & mcmp) {
+			om_doccount lastitem) {
     // FIXME - this method is likely to be very inefficient
     DebugMsg("Merging mset of size " << more_mset.size() <<
 	     " to existing set of size " << mset.size() <<
@@ -208,7 +212,6 @@ void
 MultiMatch::match(om_doccount first,
 		  om_doccount maxitems,
 		  vector<OmMSetItem> & mset,
-		  mset_cmp cmp,
 		  om_doccount * mbound,
 		  om_weight * greatest_wt,
 		  const OmMatchDecider *mdecider)
@@ -219,12 +222,10 @@ MultiMatch::match(om_doccount first,
     if(leaves.size() == 1) {
 	// Only one mset to get - so get it.
 	leaves.front()->prepare_match();
-	leaves.front()->get_mset(first, maxitems, mset, cmp,
+	leaves.front()->get_mset(first, maxitems, mset,
 				 mbound, greatest_wt, mdecider);
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
-	MSetCmp mcmp(cmp);
-
 	om_doccount tot_mbound = 0;
 	om_weight   tot_greatest_wt = 0;
 	om_doccount lastitem = first + maxitems;
@@ -253,7 +254,7 @@ MultiMatch::match(om_doccount first,
 		 leaf = leaves.begin();
 		 leaf != leaves.end();
 		 ++leaf_number, ++leaf) {
-		if ((*leaf)->get_mset(0, lastitem, mset, cmp, &tot_mbound,
+		if ((*leaf)->get_mset(0, lastitem, mset, &tot_mbound,
 				      &tot_greatest_wt, mdecider, true)) {
 		    // Modify its docids to be compilant with the whole.
 		    change_docids_to_global(mset, leaves.size(), leaf_number);
@@ -282,7 +283,7 @@ MultiMatch::match(om_doccount first,
 		vector<OmMSetItem> sub_mset;
 
 		// Get next mset
-		if ((*leaf)->get_mset(0, lastitem, sub_mset, cmp, &sub_mbound,
+		if ((*leaf)->get_mset(0, lastitem, sub_mset, &sub_mbound,
 				  &sub_greatest_wt, mdecider, true)) {
 		    msets_received++;
 		    mset_received[leaf_number-1] = true;
@@ -296,7 +297,7 @@ MultiMatch::match(om_doccount first,
 		    if(sub_greatest_wt > tot_greatest_wt)
 			tot_greatest_wt = sub_greatest_wt;
 
-		    merge_msets(mset, sub_mset, lastitem, mcmp);
+		    merge_msets(mset, sub_mset, lastitem);
 		}
 	    }
 	}

@@ -95,7 +95,8 @@ LocalMatch::LocalMatch(IRDatabase *database_)
 	  extra_weight(0),
 	  rset(0),
 	  requested_weighting(IRWeight::WTTYPE_BM25),
-	  do_collapse(false)
+	  do_collapse(false),
+	  mcmp(msetcmp_forward)
 {
 }
 
@@ -178,6 +179,8 @@ LocalMatch::set_options(const OmMatchOptions & moptions_)
 	do_collapse = true;
 	collapse_key = moptions_.collapse_key;
     }
+
+    mcmp = moptions_.get_sort_comparator();
 }
 
 
@@ -427,7 +430,6 @@ LocalMatch::perform_collapse(vector<OmMSetItem> &mset,
          		  map<OmKey, OmMSetItem> &collapse_table,
 			  om_docid did,
 			  const OmMSetItem &new_item,
-			  const MSetCmp &mcmp,
 			  const OmMSetItem &min_item,
 			  const LeafDocument *irdoc)
 {
@@ -510,7 +512,6 @@ bool
 LocalMatch::get_mset(om_doccount first,
 		    om_doccount maxitems,
 		    vector<OmMSetItem> & mset,
-		    mset_cmp cmp,
 		    om_doccount * mbound,
 		    om_weight * greatest_wt,
 		    const OmMatchDecider *mdecider,
@@ -524,9 +525,6 @@ LocalMatch::get_mset(om_doccount first,
     *mbound = 0;
     *greatest_wt = 0;
     mset.clear();
-
-    // Set up comparison operator
-    MSetCmp mcmp(cmp);
 
     // Check that we have a valid query to run
     if(!(users_query.isdefined)) return false;
@@ -628,7 +626,7 @@ LocalMatch::get_mset(om_doccount first,
 		    irdoc = temp;
 		}
 		add_item = perform_collapse(mset, collapse_table, did,
-					    new_item, mcmp, min_item,
+					    new_item, min_item,
 					    irdoc.get());
 	    }
 
