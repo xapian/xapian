@@ -1,3 +1,8 @@
+Fri Jul 11 01:48:21 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_table_manager.cc,tests/quartztest.cc,
+	  testsuite/backendmanager.cc: Tidying up around directory creation.
+
 Fri Jul 11 00:57:12 BST 2003  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Document that the directory is created.

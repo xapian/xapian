@@ -111,9 +111,14 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
 
 	    // Create the directory for the database, if it doesn't exist
 	    // already.
+	    bool fail = false;
 	    struct stat statbuf;
-	    if (stat(db_dir, &statbuf) == -1 ||
-		(!S_ISDIR(statbuf.st_mode) && mkdir(db_dir, 0755) == -1)) {
+	    if (stat(db_dir, &statbuf) == 0) {
+		if (!S_ISDIR(statbuf.st_mode)) fail = true;
+	    } else if (errno != ENOENT || mkdir(db_dir, 0755) == -1) {
+		fail = true;
+	    }
+	    if (fail) {
 		throw Xapian::DatabaseOpeningError("Cannot create directory `"
 						   + db_dir + "'", errno);
 	    }

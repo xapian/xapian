@@ -52,8 +52,8 @@ main(int argc, char **argv)
 	// Create the directory for the database, if it doesn't exist already
 	if (mkdir(destdir, 0755) == -1) {
 	    // Check if mkdir failed because there's already a directory there
-	    // or for some other reason.  EEXIST can also mean there's a file
-	    // with that name already.
+	    // or for some other reason - we also get EEXIST if there's a file
+	    // with that name.
 	    if (errno == EEXIST) {
 		struct stat sb;
 		if (stat(destdir, &sb) == 0 && S_ISDIR(sb.st_mode))
@@ -106,14 +106,21 @@ main(int argc, char **argv)
 	string src(argv[1]);
 	src += "/meta";
 	string dest = destdir;
-	dest += "/meta";
-	ifstream metain(src.c_str());
-	ofstream metaout(dest.c_str());
-	char buf[2048];
-	while (!metain.eof()) {
-	    // FIXME check for errors
-	    metain.read(buf, sizeof(buf));
-	    metaout.write(buf, metain.gcount());
+	dest += "/meta.tmp";
+	{
+	    ifstream metain(src.c_str());
+	    ofstream metaout(dest.c_str());
+	    char buf[2048];
+	    while (!metain.eof()) {
+		// FIXME check for errors
+		metain.read(buf, sizeof(buf));
+		metaout.write(buf, metain.gcount());
+	    }
+	}
+	if (rename(dest.c_str(), (string(destdir) + "meta").c_str()) == -1) {
+	    cerr << argv[0] << ": couldn't rename `" << dest << "' to `"
+		 << destdir << "meta': " << strerror(errno) << endl;
+	    exit(1);
 	}
     } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;

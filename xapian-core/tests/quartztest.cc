@@ -1058,8 +1058,8 @@ static bool test_create1()
     // (2) db doesn't exist, basedir doesn't exist (create)
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   db = new QuartzDatabase(dbdir));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048));
+    db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
+    rmdir(dbdir);
 
     makedir(dbdir);
 
@@ -1117,7 +1117,6 @@ static bool test_adddoc1()
 {
     string dbdir = tmpdir + "testdb_adddoc1";
     rmdir(dbdir);
-    makedir(dbdir);
 
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
 
@@ -1173,7 +1172,6 @@ static bool test_adddoc2()
 {
     string dbdir = tmpdir + "testdb_adddoc2";
     rmdir(dbdir);
-    makedir(dbdir);
 
     Xapian::docid did;
     Xapian::Document document_in;
@@ -1468,7 +1466,6 @@ static bool test_postlist1()
 {
     string dbdir = tmpdir + "testdb_postlist1";
     rmdir(dbdir);
-    makedir(dbdir);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
     QuartzDiskTable disktable(dbdir + "/postlist_", false, 8192);
@@ -1526,7 +1523,6 @@ static bool test_postlist2()
 {
     string dbdir = tmpdir + "testdb_postlist2";
     rmdir(dbdir);
-    makedir(dbdir);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
     QuartzDiskTable disktable(tmpdir + "testdb_postlist2/postlist_", false, 2048);
@@ -1784,7 +1780,6 @@ static bool test_overwrite2()
 {
     string dbname = tmpdir + "overwrite2";
     rmdir(dbname);
-    makedir(dbname);
 
     Xapian::WritableDatabase writer(Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
 
@@ -1909,7 +1904,6 @@ static bool test_writelock1()
 {
     string dbname = tmpdir + "writelock1";
     rmdir(dbname);
-    makedir(dbname);
 
     Xapian::WritableDatabase writer = Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
     TEST_EXCEPTION(Xapian::DatabaseLockError, 
