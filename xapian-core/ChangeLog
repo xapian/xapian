@@ -1,3 +1,7 @@
+Mon Feb 14 02:44:17 GMT 2005  Olly Betts <olly@survex.com>
+
+	* extra/Makefile.am: Update to reflect lempar.c -> queryparser.lt.
+
 Mon Feb 14 02:25:53 GMT 2005  Olly Betts <olly@survex.com>
 
 	* extra/lempar.c,extra/queryparser.lt: Rename lemon template to .lt
