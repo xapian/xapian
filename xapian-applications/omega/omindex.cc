@@ -410,6 +410,14 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
+    } else if (mimetype == "text/x-perl") {
+	string cmd = "pod2text " + shell_protect(file);
+	try {
+	    dump = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    return;
+	}
     } else {
 	// Don't know how to index this
 	cout << "unknown MIME type - skipping\n";
@@ -585,13 +593,17 @@ main(int argc, char **argv)
     int getopt_ret;
 
     map<string, string> mime_map;
+    // Plain text:
     mime_map["txt"] = "text/plain";
     mime_map["text"] = "text/plain";
+    // HTML:
     mime_map["html"] = "text/html";
     mime_map["htm"] = "text/html";
     mime_map["shtml"] = "text/html";
     mime_map["php"] = "text/html"; // Our HTML parser knows to ignore PHP
+    // PDF:
     mime_map["pdf"] = "application/pdf";
+    // PostScript:
     mime_map["ps"] = "application/postscript";
     mime_map["eps"] = "application/postscript";
     mime_map["ai"] = "application/postscript";
@@ -606,9 +618,14 @@ main(int argc, char **argv)
     mime_map["sxw"] = "application/vnd.sun.xml.writer";
     mime_map["sxg"] = "application/vnd.sun.xml.writer.global";
     mime_map["stw"] = "application/vnd.sun.xml.writer.template";
+    // Some other word processor formats:
     mime_map["doc"] = "application/msword";
     mime_map["wpd"] = "application/vnd.wordperfect";
     mime_map["rtf"] = "text/rtf";
+    // Perl:
+    mime_map["pl"] = "text/x-perl";
+    mime_map["pm"] = "text/x-perl";
+    mime_map["pod"] = "text/x-perl";
 
     while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l", longopts, NULL))!=EOF) {
 	switch (getopt_ret) {
