@@ -36,33 +36,32 @@ int main(int argc, char *argv[])
 	// Make the database
 	OmSettings db_parameters;
 	db_parameters.set("backend", "quartz");
+	db_parameters.set("database_create", true);
 	db_parameters.set("quartz_dir", argv[1]);
 	OmWritableDatabase database(db_parameters);
 
 	// Make the indexer
 	OmIndexerBuilder builder;
-	AutoPtr<OmIndexer> indexer = builder.build_from_file("indexfile.xml");
+	OmIndexer indexer = builder.build_from_file("indexfile.xml");
 
 	// Make the document by invoking the indexer
-	OmIndexerMessage filename(new OmIndexerData(argv[2]));
-	indexer->set_input(filename);
-	OmDocumentContents newdocument = indexer->get_output();
+	OmIndexerMessage filename(argv[2]);
+	indexer.set_input(filename);
+	OmDocument newdocument = indexer.get_output();
 
-	std::cout << "Document data: " << newdocument.data.value << std::endl;
+	std::cout << "Document data: " << newdocument.get_data().value << std::endl;
 	std::cout << "Document keys: " << std::endl;
-	for (OmDocumentContents::document_keys::const_iterator i =
-	     newdocument.keys.begin();
-	     i != newdocument.keys.end();
+	for (OmKeyListIterator i = newdocument.keylist_begin();
+	     i != newdocument.keylist_end();
 	     ++i) {
-	    std::cout << "\t" << i->first << "\t" << i->second << std::endl;
+	    std::cout << "\t" << i.get_keyno() << "\t" << *i << std::endl;
 	}
 
 	std::cout << "Document terms: " << std::endl;
-	for (OmDocumentContents::document_terms::const_iterator i =
-	     newdocument.terms.begin();
-	     i != newdocument.terms.end();
+	for (OmTermIterator i = newdocument.termlist_begin();
+	     i != newdocument.termlist_end();
 	     ++i) {
-	    std::cout << "\t" << i->first << "\t" << i->second << std::endl;
+	    std::cout << "\t" << *i << " [" << i.get_wdf() << "]" << std::endl;
 	}
 
 	// Add the document to the database
