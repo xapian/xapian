@@ -274,11 +274,20 @@ run_query()
 	    and_vec.push_back(i->second);
 	}
 	
-	query = OmQuery(OmQuery::OP_FILTER,
+	// if only boolean query is provided then promote that
+	// to be THE query instead of filtering an empty query
+	// So we can have pure boolean queries this way
+	if (query.is_empty()) {
+		query = OmQuery(OmQuery::OP_AND,
+                                filter_vec.begin(),
+                                filter_vec.end());
+	} else {
+		query = OmQuery(OmQuery::OP_FILTER,
 			query,
 			OmQuery(OmQuery::OP_AND,
 				filter_vec.begin(),
 				filter_vec.end()));
+	}
     }
 
     if (!date1.empty() || !date2.empty() || !daysminus.empty()) {
