@@ -311,6 +311,8 @@ fi
 if test x$use_pthread = xtrue; then
 AC_DEFINE(MUS_USE_PTHREAD,,
   [Define if you want to build with libpthreads support])
+CFLAGS="$CFLAGS -D_REENTRANT";
+CXXFLAGS="$CXXFLAGS -D_REENTRANT";
 fi
 
 dnl *************************
