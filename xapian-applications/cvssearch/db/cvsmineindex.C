@@ -7,6 +7,8 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 
+#define SUPP_FRAC 0.05
+
 //
 // Usage:  cvsusageindex < PACKAGE_LIST lib1_dir lib2_dir ...
 //
@@ -89,6 +91,31 @@
 
 void usage(char * prog_name);
 const string database = "db";
+
+void considerRule( map< double, set< pair<string, string> > >& rules, const string& ant, int ant_count, const string& con, int con_count, int pair_supp, int total_transactions ) {
+  //  cerr << "Considering " << ant << " => " << con << " with supp " << pair_supp << endl;
+  //  cerr << "... ant has count " << ant_count << " and con has count " << con_count << endl;
+
+  int importance = pair_supp;
+
+  double conf = 100.0*(double)pair_supp / (double)ant_count;
+
+  double con_conf = 100.0*(double)con_count / (double) total_transactions;
+
+  double surprise1 = conf / con_conf;
+
+  double surprise2 = conf - con_conf;
+
+  //  cerr << "... conf " << conf << endl;
+  //  cerr << "... con_conf " << con_conf << endl;
+  //  cerr << "... surprise1 " << surprise1 << endl;
+  //  cerr << "... surprise2 " << surprise2 << endl;
+
+  double score = surprise2 * importance; // * importance; // surprise2 * importance;
+
+  rules[ -score ].insert( make_pair( ant, con ) );
+
+}
 
 void writeOMDatabase( const string& database_dir,
 		        map< string, set<string> >& comment_symbols, 
@@ -341,9 +368,63 @@ int main(int argc, char *argv[]) {
     /////// data mining step
     /////// transactions are in comment_symbols
     
+    int transaction_count = comment_symbols.size();
+    int min_supp = (int)(SUPP_FRAC * (double) transaction_count);
+
+    cerr << "# transactions = " << transaction_count << endl;
+    cerr << "min supp = " << min_supp << endl;
+
+    map< string, int > item_count;
+
+    // count items
     for( map< string, set<string> >::iterator t = comment_symbols.begin(); t != comment_symbols.end(); t++ ) {
-      
+      set<string> S = t->second;
+      for( set<string>::iterator s = S.begin(); s != S.end(); s++ ) {
+	item_count[*s]++;
+      }
     }
+
+    // count pairs
+   map< pair<string, string>, int> pair_count;
+
+   for( list< set<string> >::iterator t = comment_symbols.begin(); t != comment_symbols.end(); t++ ) {
+     set<string> S = *t;
+     
+     for( set<string>::iterator i1 = S.begin(); i1 != S.end(); i1++) {
+       if ( item_count[*i1] < min_supp ) {
+	 continue;
+       }
+       
+       for( set<string>::iterator i2 = i1; i2 != S.end(); i2++ ) {
+	 if ( i1 == i2 || item_count[*i2] < min_supp ) {
+	   continue;
+	 }
+	 
+	 assert( (*i1) < (*i2) );
+	 pair_count[ make_pair(*i1, *i2) ] ++;
+       }
+     }
+   }    
+    
+   map< double, set<pair<string, string> > > rules;
+
+    // okay, now generate rules
+    for( map< pair<string, string >, int>::iterator p = pair_count.begin(); p != pair_count.end(); p++ ) {
+      considerRule( rules, p->first.first, item_count[p->first.first], p->first.second, item_count[p->first.second], p->second, transactions.size() );
+      considerRule( rules, p->first.second, item_count[p->first.second], p->first.first, item_count[p->first.first], p->second, transactions.size() );
+    }
+
+    for ( map< double, set< pair< string, string > > >::iterator i = rules.begin(); i != rules.end(); i++ ) {
+      double score = -(i->first);
+      cerr << "*** Score " << score << endl;
+      set< pair< string, string> > S = i->second;
+      for( set< pair< string, string > >::iterator p = S.begin(); p != S.end(); p++ ) {
+	pair<string, string> pair = *p;
+	cerr << pair.first << " => " << pair.second << endl;
+      }
+    }
+    
+   
 
     /////// write out OM database
     writeOMDatabase( cvsdata + "/root0/db/mining.om", 

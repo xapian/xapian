@@ -69,7 +69,7 @@ noinst_LIBRARIES = libcvs_db.a
 libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C  cvs_line_db.C  cvs_comment_db.h     cvs_db.h       cvs_file_revision_db.h  cvs_line_db.h  cvs_comment_id_db.C  cvs_db_file.C  cvs_filename_db.C       cvs_revision_db.C  cvs_comment_id_db.h  cvs_db_file.h  cvs_filename_db.h       cvs_revision_db.h  cvs_revision_line_db.C cvs_revision_line_db.h  cvs_revision_less.h  cvs_diff_db.C cvs_diff_db.h
 
 
-bin_PROGRAMS = cvsindex cvssearch cvsquery cvsusageindex cvsusagesearch cvsmineindex cvsminesearch 	# cvssearch cvsusagesearch cvscomments 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
+bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch 	# cvssearch cvsusagesearch cvscomments 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
 
 
 cvsquery_SOURCES = cvsquery.C
@@ -87,9 +87,9 @@ cvsminesearch_SOURCES = util.h util.C cvsminesearch.C
 cvsminesearch_LDFLAGS = -static
 cvsminesearch_LDADD = -lomsee
 
-cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
-cvsusagesearch_LDFLAGS = -static 
-cvsusagesearch_LDADD = -lomsee
+#cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
+#cvsusagesearch_LDFLAGS = -static 
+#cvsusagesearch_LDADD = -lomsee
 
 #cvsclasses_SOURCES = util.h util.C cvspatterns.C
 #cvsclasses_LDADD = -ldb_cxx -lomsee
@@ -97,9 +97,9 @@ cvsusagesearch_LDADD = -lomsee
 #cvsfunctions_SOURCES = util.h util.C cvspatterns.C
 #cvsfunctions_LDADD = -ldb_cxx -lomsee
 
-cvsusageindex_SOURCES = util.h util.C cvsusageindex.C
-cvsusageindex_LDADD = -ldb_cxx -lomsee
-cvsusageindex_LDFLAGS = -static
+#cvsusageindex_SOURCES = util.h util.C cvsusageindex.C
+#cvsusageindex_LDADD = -ldb_cxx -lomsee
+#cvsusageindex_LDFLAGS = -static
 
 cvsmineindex_SOURCES = util.h util.C cvsmineindex.C
 cvsmineindex_LDADD = -ldb_cxx -lomsee
@@ -127,10 +127,6 @@ cvssearch_DEPENDENCIES =
 cvsquery_OBJECTS =  cvsquery.o
 cvsquery_DEPENDENCIES =  libcvs_db.a libcvs_db.a
 cvsquery_LDFLAGS = 
-cvsusageindex_OBJECTS =  util.o cvsusageindex.o
-cvsusageindex_DEPENDENCIES = 
-cvsusagesearch_OBJECTS =  util.o cvsusagesearch.o
-cvsusagesearch_DEPENDENCIES = 
 cvsmineindex_OBJECTS =  util.o cvsmineindex.o
 cvsmineindex_DEPENDENCIES = 
 cvsminesearch_OBJECTS =  util.o cvsminesearch.o
@@ -154,10 +150,9 @@ DEP_FILES =  .deps/cvs_comment_db.P .deps/cvs_comment_id_db.P \
 .deps/cvs_file_revision_db.P .deps/cvs_filename_db.P \
 .deps/cvs_line_db.P .deps/cvs_revision_db.P \
 .deps/cvs_revision_line_db.P .deps/cvsindex.P .deps/cvsmineindex.P \
-.deps/cvsminesearch.P .deps/cvsquery.P .deps/cvssearch.P \
-.deps/cvsusageindex.P .deps/cvsusagesearch.P .deps/util.P
-SOURCES = $(libcvs_db_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES) $(cvsusageindex_SOURCES) $(cvsusagesearch_SOURCES) $(cvsmineindex_SOURCES) $(cvsminesearch_SOURCES)
-OBJECTS = $(libcvs_db_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS) $(cvsusageindex_OBJECTS) $(cvsusagesearch_OBJECTS) $(cvsmineindex_OBJECTS) $(cvsminesearch_OBJECTS)
+.deps/cvsminesearch.P .deps/cvsquery.P .deps/cvssearch.P .deps/util.P
+SOURCES = $(libcvs_db_a_SOURCES) $(cvsindex_SOURCES) $(cvssearch_SOURCES) $(cvsquery_SOURCES) $(cvsmineindex_SOURCES) $(cvsminesearch_SOURCES)
+OBJECTS = $(libcvs_db_a_OBJECTS) $(cvsindex_OBJECTS) $(cvssearch_OBJECTS) $(cvsquery_OBJECTS) $(cvsmineindex_OBJECTS) $(cvsminesearch_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -236,14 +231,6 @@ cvssearch: $(cvssearch_OBJECTS) $(cvssearch_DEPENDENCIES)
 cvsquery: $(cvsquery_OBJECTS) $(cvsquery_DEPENDENCIES)
 	@rm -f cvsquery
 	$(CXXLINK) $(cvsquery_LDFLAGS) $(cvsquery_OBJECTS) $(cvsquery_LDADD) $(LIBS)
-
-cvsusageindex: $(cvsusageindex_OBJECTS) $(cvsusageindex_DEPENDENCIES)
-	@rm -f cvsusageindex
-	$(CXXLINK) $(cvsusageindex_LDFLAGS) $(cvsusageindex_OBJECTS) $(cvsusageindex_LDADD) $(LIBS)
-
-cvsusagesearch: $(cvsusagesearch_OBJECTS) $(cvsusagesearch_DEPENDENCIES)
-	@rm -f cvsusagesearch
-	$(CXXLINK) $(cvsusagesearch_LDFLAGS) $(cvsusagesearch_OBJECTS) $(cvsusagesearch_LDADD) $(LIBS)
 
 cvsmineindex: $(cvsmineindex_OBJECTS) $(cvsmineindex_DEPENDENCIES)
 	@rm -f cvsmineindex

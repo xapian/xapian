@@ -7,7 +7,7 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
  cvs_revision_less.h \
  cvs_diff_db.C cvs_diff_db.h
 
-bin_PROGRAMS = cvsindex cvssearch cvsquery cvsusageindex cvsusagesearch cvsmineindex cvsminesearch \
+bin_PROGRAMS = cvsindex cvssearch cvsquery cvsmineindex cvsminesearch \
 	# cvssearch cvsusagesearch cvscomments \
 	# cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
 
