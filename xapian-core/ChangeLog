@@ -1,3 +1,8 @@
+Fri Sep  8 18:41:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* In MultiPostList::skip_to(), don't call get_docid() if already
+	  at_end().
+
 Fri Sep  8 17:31:28 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change implementation of DBPostList::skip_to to repeatedly call

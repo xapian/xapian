@@ -131,8 +131,10 @@ MultiPostList::skip_to(om_docid did, om_weight w_min)
 	Assert((realdid - 1) * multiplier + offset < did + multiplier);
 	if (!(*i)->at_end()) {
 	    (*i)->skip_to(realdid, w_min);
-	    om_docid id = ((*i)->get_docid() - 1) * multiplier + offset;
-	    if (newdoc == 0 || id < newdoc) newdoc = id;
+	    if (!(*i)->at_end()) {
+		om_docid id = ((*i)->get_docid() - 1) * multiplier + offset;
+		if (newdoc == 0 || id < newdoc) newdoc = id;
+	    }
 	}
 	offset++;
 	if (offset == dbnumber) realdid--;
