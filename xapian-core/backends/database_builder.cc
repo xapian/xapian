@@ -69,6 +69,42 @@ static const StringAndValue database_strings[] = {
     { "",			DBTYPE_NULL		}  // End
 };
 
+static void
+read_stub_database(OmSettings & params, bool readonly)
+{
+    // Check validity of parameters
+    string path = params.get("auto_dir");
+    FILE *stubfd = fopen(path.c_str(), "r");
+    char * buf = 0;
+    size_t bufsize = 0;
+    int linelen = 0;
+    if (stubfd == 0) {
+	throw OmOpeningError("Can't open stub database file: " +
+			     path);
+    }
+    int linenum = 0;
+    while (!feof(stubfd)) {
+	linelen = getline(&buf, &bufsize, stubfd);
+	if (linelen == -1) break;
+	linenum++;
+	while (linelen > 0 &&
+	       (buf[linelen - 1] == '\n' || buf[linelen - 1] == '\r')) {
+	    linelen--;
+	}
+	int eqpos;
+	for (eqpos = 0; eqpos < linelen; eqpos++) {
+	    if (buf[eqpos] == '=') break;
+	}
+	if (eqpos == linelen) {
+	    throw OmOpeningError("Invalid entry in stub database file, at line " + om_tostring(linenum));
+	}
+	params.set(string(buf, eqpos),
+		   string(buf + eqpos + 1, linelen - eqpos - 1));
+    }
+    (void)fclose(stubfd);
+    free(buf);
+}
+
 RefCntPtr<Database>
 DatabaseBuilder::create(const OmSettings & params, bool readonly)
 {
@@ -78,17 +114,35 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
     om_database_type dbtype = static_cast<om_database_type> (
 	map_string_to_value(database_strings, params.get("backend")));
 
+    // Copy params so we can modify them if we have a stub database, or an
+    // auto database.
+    OmSettings myparams = params;
+
+    // Check for an auto database which is pointing at a stub database.
+    if (dbtype == DBTYPE_AUTO) {
+	string path = myparams.get("auto_dir");
+
+	// Check for path actually being a file - if so, assume it to be
+	// a stub database.
+	if (file_exists(path)) {
+	    read_stub_database(myparams, readonly);
+	}
+
+	// Recalculate the database type: it may well have changed.
+	dbtype = static_cast<om_database_type> (
+		map_string_to_value(database_strings, myparams.get("backend")));
+    }
+
     // Create database of correct type, and open it
     switch (dbtype) {
 	case DBTYPE_NULL:
 	    throw OmInvalidArgumentError("Unknown database type `" + 
-					 params.get("backend") + "'");
+					 myparams.get("backend") + "'");
 	    break;
 	case DBTYPE_AUTO: {
 	    // Check validity of parameters
-	    string path = params.get("auto_dir");
-	    // Copy so we get any other parameters the user gave
-	    OmSettings myparams = params;
+	    string path = myparams.get("auto_dir");
+
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 	    if (file_exists(path + "/R") && file_exists(path + "/T")) {
 		// can't easily tell flimsy from heavyduty so assume hd
@@ -148,31 +202,31 @@ DatabaseBuilder::create(const OmSettings & params, bool readonly)
         }
 	case DBTYPE_MUSCAT36_DA:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    database = new DADatabase(params, readonly);
+	    database = new DADatabase(myparams, readonly);
 #endif
 	    break;
 	case DBTYPE_MUSCAT36_DB:
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
-	    database = new DBDatabase(params, readonly);
+	    database = new DBDatabase(myparams, readonly);
 #endif
 	    break;
 	case DBTYPE_INMEMORY:
 #ifdef MUS_BUILD_BACKEND_INMEMORY
-	    database = new InMemoryDatabase(params, readonly);
+	    database = new InMemoryDatabase(myparams, readonly);
 #endif
 	    break;
 	case DBTYPE_QUARTZ:
 #ifdef MUS_BUILD_BACKEND_QUARTZ
 	    if (readonly) {
-		database = new QuartzDatabase(params);
+		database = new QuartzDatabase(myparams);
 	    } else {
-		database = new QuartzWritableDatabase(params);
+		database = new QuartzWritableDatabase(myparams);
 	    }
 #endif
 	    break;
 	case DBTYPE_REMOTE:
 #ifdef MUS_BUILD_BACKEND_REMOTE
-	    database = new NetworkDatabase(params, readonly);
+	    database = new NetworkDatabase(myparams, readonly);
 #endif
 	    break;
 	default:

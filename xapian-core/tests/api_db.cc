@@ -39,6 +39,7 @@ using std::vector;
 #include "om/om.h"
 #include "testsuite.h"
 #include "testutils.h"
+#include "backendmanager.h"
 
 #include "apitest.h"
 #include "api_db.h"
@@ -47,6 +48,7 @@ using std::vector;
 using std::list;
 
 typedef list<om_termname> om_termname_list;
+extern BackendManager backendmanager;
 
 // #######################################################################
 // # Tests start here
@@ -317,6 +319,36 @@ class MyErrorHandler : public OmErrorHandler {
 
 	MyErrorHandler() : count (0) {}
 };
+
+// check that stubdbs work
+static bool test_stubdb1()
+{
+    OmSettings params;
+    params.set("backend", "auto");
+    params.set("auto_dir", "stubdb1");
+    FILE * fd = fopen("stubdb1", "w");
+    TEST(fd != 0);
+    fprintf(fd, "backend=remote\n");
+    fprintf(fd, "remote_type=prog\n");
+    fprintf(fd, "remote_program=../netprogs/omprogsrv\n");
+    fprintf(fd, ("remote_args=" + backendmanager.get_datadir() + " apitest_simpledata\n").c_str());
+    fclose(fd);
+
+    /*
+    params.set("backend", "remote");
+    params.set("remote_type", "prog");
+    params.set("remote_program", "../netprogs/omprogsrv");
+    params.set("remote_args", backendmanager.get_datadir() + " apitest_simpledata");
+    */
+
+    OmDatabase db(params);
+    OmEnquire enquire(db);
+    OmQuery myquery("word");
+    enquire.set_query(myquery);
+    enquire.get_mset(0, 10);
+
+    return true;
+}
 
 // tests error handler in multimatch().
 static bool test_multierrhandler1()
@@ -3091,6 +3123,7 @@ test_desc localdb_tests[] = {
 
 test_desc remotedb_tests[] = {
     {"multierrhandler1",   test_multierrhandler1},
+    {"stubdb1",		   test_stubdb1},
     {"keepalive1",	   test_keepalive1},
     {0, 0}
 };

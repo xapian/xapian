@@ -230,6 +230,12 @@ BackendManager::set_datadir(const string &datadir_)
     datadir = datadir_;
 }
 
+const std::string
+BackendManager::get_datadir(void)
+{
+    return datadir;
+}
+
 OmDatabase
 BackendManager::getdb_void(const vector<string> &)
 {

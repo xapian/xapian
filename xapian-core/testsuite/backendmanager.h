@@ -140,6 +140,10 @@ class BackendManager {
 	 */
 	void set_datadir(const std::string &datadir_);
 
+	/** Get the directory to store data in.
+	 */
+	const std::string get_datadir(void);
+
 	/// Get a database instance of the current type
 	OmDatabase get_database(const std::vector<std::string> &dbnames);
 

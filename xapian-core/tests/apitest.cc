@@ -64,7 +64,7 @@ make_dbgrp(OmDatabase * db1, OmDatabase * db2,
     return result;
 }
 
-static BackendManager backendmanager;
+BackendManager backendmanager;
 
 OmDatabase
 get_database(const string &dbname, const string &dbname2)

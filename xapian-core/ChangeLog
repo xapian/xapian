@@ -1,3 +1,13 @@
+Mon Sep  9 12:59:15 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* Add stub databases: if backend type is auto, and auto_dir points
+	  to a file, read in settings from the file (overwriting the
+	  existing ones), and then use them to open the database.
+	  This allows, for example, omega to open a remote database by
+	  putting in a stub database file in the omega directory.
+	  Updated documentation for opening databases in userman.html.
+	* apitest: Added test for stub databases.
+
 Mon Sep 09 02:26:36 BST 2002  Olly Betts <olly@survex.com>
 
 	* Documentation updates: move suggested books into intro_ir.html
