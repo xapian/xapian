@@ -42,8 +42,8 @@ class OmError {
         OmError(const string &error_msg) : msg(error_msg) { }
 	OmError(const OmError &copyme) : msg(copyme.msg) {}
     public:
-	/** Return a message describing the error.  This is in a human
-	 *  readable form.
+	/** Return a message describing the error.
+	 *  This is in a human readable form.
 	 */
         string get_msg()
         {
