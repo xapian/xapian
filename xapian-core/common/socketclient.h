@@ -162,6 +162,10 @@ class SocketClient : public NetClient {
 		      om_doccount *mbound,
 		      om_weight *greatest_wt);
 
+	/** get the remote termlist */
+	void get_tlist(om_docid did,
+		       vector<NetClient::TermListItem> &items);
+
 	/** Find the max weight */
 	om_weight get_max_weight();
 

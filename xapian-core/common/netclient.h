@@ -104,6 +104,19 @@ class NetClient : public OmRefCntBase {
 			      om_doccount *mbound,
 			      om_weight *greatest_wt) = 0;
 
+	/** The structure used to hold a termlist item */
+	struct TermListItem {
+	    om_termname tname;
+	    om_doccount termfreq;
+	    om_termcount wdf;
+
+	    vector<om_termpos> positions;
+	};
+
+	/** Retrieve a remote termlist */
+	virtual void get_tlist(om_docid did,
+			       vector<TermListItem> &items) = 0;
+
 	/** Find out the max_weight */
 	virtual om_weight get_max_weight() = 0;
 

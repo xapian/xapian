@@ -536,3 +536,13 @@ string_to_omrset(const string &s)
 
     return omrset;
 }
+
+bool startswith(const string &s, const string &prefix)
+{
+    for (string::size_type i=0; i<prefix.length(); ++i) {
+	if ((i > s.length()) || (s[i] != prefix[i])) {
+	    return false;
+	}
+    }
+    return true;
+}

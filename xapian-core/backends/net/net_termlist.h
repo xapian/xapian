@@ -29,6 +29,7 @@
 #include "om/omerror.h"
 #include "termlist.h"
 #include "expandweight.h"
+#include "netclient.h"
 
 class NetworkDatabase;
 
@@ -109,7 +110,8 @@ class NetworkTermList : public LeafTermList {
 	 *  @param database_size_   
 	 */
 	NetworkTermList(om_doclength average_length_,
-			om_doccount  database_size_);
+			om_doccount  database_size_,
+			const vector<NetClient::TermListItem> &items_);
     public:
 
 	/** Get the number of terms in the termlist.

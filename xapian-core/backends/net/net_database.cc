@@ -114,7 +114,9 @@ NetworkDatabase::open_post_list(const om_termname & tname) const
 
 LeafTermList *
 NetworkDatabase::open_term_list(om_docid did) const {
-    return new NetworkTermList(get_avlength(), get_doccount());
+    vector<NetClient::TermListItem> items;
+    link->get_tlist(did, items);
+    return new NetworkTermList(get_avlength(), get_doccount(), items);
 }
 
 LeafDocument *

@@ -25,6 +25,8 @@
 
 #include <string>
 
+#define OM_SOCKET_PROTOCOL_VERSION 1
+
 class OmQueryInternal;
 class OmMatchOptions;
 class Stats;
@@ -124,5 +126,9 @@ string omrset_to_string(const OmRSet &omrset);
 OmRSet string_to_omrset(const string &s);
 
 OmQueryInternal qfs_readquery();
+
+/** returns true if the string s starts with prefix.
+ */
+bool startswith(const string &s, const string &prefix);
 
 #endif /* OM_HGUARD_SOCKETCOMMON_H */

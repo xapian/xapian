@@ -65,7 +65,44 @@ SocketClient::handle_hello(const string &s)
 {
     istrstream is(s.c_str());
 
-    is >> doccount >> avlength;
+    int version;
+    is >> version >> doccount >> avlength;
+
+    if (version != OM_SOCKET_PROTOCOL_VERSION) {
+	throw OmNetworkError(string("Invalid protocol version: ") +
+			     inttostring(version));
+    }
+}
+
+NetClient::TermListItem
+string_to_tlistitem(const string &s)
+{
+    istrstream is(s.c_str());
+    NetClient::TermListItem item;
+
+    string tencoded;
+
+    is >> tencoded >> item.wdf >> item.termfreq;
+
+    item.tname = decode_tname(tencoded);
+
+    return item;
+}
+
+void
+SocketClient::get_tlist(om_docid did,
+			vector<NetClient::TermListItem> &items) {
+    string message;
+
+    buf.writeline(string("GETTLIST ") + inttostring(did));
+
+    while (startswith(message = do_read(), "TLISTITEM ")) {
+	items.push_back(string_to_tlistitem(message.substr(10)));
+    }
+
+    if (message != "END") {
+	throw OmNetworkError(string("Expected END, got ") + message);
+    }
 }
 
 om_doccount

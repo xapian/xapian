@@ -30,6 +30,7 @@
 #include "utils.h"
 #include "om/omerror.h"
 #include "omerr_string.h"
+#include "termlist.h"
 #include <memory>
 #include <strstream.h>
 #include <signal.h>
@@ -55,6 +56,7 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
     }
     buf.readline();
     buf.writeline("HELLO " +
+		  inttostring(OM_SOCKET_PROTOCOL_VERSION) + " " +
 		  inttostring(db->get_doccount()) + " " +
 		  doubletostring(db->get_avlength()));
 }
@@ -93,135 +95,15 @@ SocketServer::run()
 
 	    if (message == "QUIT") {
 		return;
-	    };
-
-	    // extract the match options
-	    if (message.substr(0, 8) != "MOPTIONS") {
-		throw OmNetworkError(string("Expected MOPTIONS, got ") + message);
-	    }
-
-	    OmMatchOptions moptions = string_to_moptions(message.substr(9));
-
-	    // extract the rset
-	    message = buf.readline();
-	    if (message.substr(0, 4) != "RSET") {
-		DebugMsg("Expected RSET, got " << message << endl);
-		throw OmNetworkError(string("Invalid message: ") + message);
-	    }
-	    OmRSet omrset = string_to_omrset(message.substr(5));
-
-	    // extract the query
-	    message = buf.readline();
-
-	    if (message.substr(0, 8) != "SETQUERY") {
-		DebugMsg("Expected SETQUERY, got " << message << endl);
-		throw OmNetworkError("Invalid message");
-	    }
-
-	    message = message.substr(9, message.npos);
-
-	    string wt_string;
-	    // FIXME: use an iterator or something.
-	    while (message.length() > 0 && isdigit(message[0])) {
-		wt_string += message[0];
-		message = message.substr(1);
-	    }
-	    message = message.substr(1);
-
-	    // extract the weighting type
-	    IRWeight::weight_type wt_type = 
-		    static_cast<IRWeight::weight_type>(
-						       atol(wt_string.c_str()));
-
-	    // Extract the query
-	    if (message[0] != '\"' || message[message.length()-1] != '\"') {
-		throw OmNetworkError("Invalid query specification");
+	    } else if (startswith(message, "MOPTIONS ")) {
+		run_match(message);
+	    } else if (startswith(message, "GETTLIST ")) {
+		run_gettermlist(message);
 	    } else {
-		message = message.substr(1, message.length() - 2);
-	    }
-	    OmQueryInternal query = query_from_string(message);
-
-	    MultiMatch match(db.get(),
-			     &query,
-			     omrset,
-			     wt_type,
-			     moptions,
-			     auto_ptr<StatsGatherer>(gatherer =
-						     new NetworkStatsGatherer(this)));
-
-#if 0
-	    DebugMsg("Adding artificial delay for statistics" << endl);
-	    sleep(1);
-#endif
-
-	    // Message 4
-	    send_local_stats(gatherer->get_local_stats());
-
-	    // Message 5, part 1
-	    message = buf.readline();
-
-	    if (message.substr(0, 9) != "GLOBSTATS") {
-		throw OmNetworkError(string("Expected GLOBSTATS, got ") + message);
+		throw OmInvalidArgumentError(string("Unexpected message:") +
+					     message);
 	    }
 
-	    global_stats = string_to_stats(message.substr(10));
-	    have_global_stats = true;
-
-	    // Message 5, part 2
-	    message = buf.readline();
-
-	    if (message.substr(0, 7) != "GETMSET") {
-		throw OmNetworkError(string("Expected GETMSET, got ") + message);
-	    }
-	    message = message.substr(8);
-
-#if 0
-	    DebugMsg("Adding artificial delay..." << endl);
-	    sleep(2);
-#endif
-
-	    om_doccount first;
-	    om_doccount maxitems;
-	    {
-		// extract first,maxitems
-		istrstream is(message.c_str());
-		is >> first >> maxitems;
-	    }
-
-	    OmMSet mset;
-
-	    DebugMsg("About to get_mset(" << first
-		     << ", " << maxitems << "..." << endl);
-
-	    match.match(first,
-			maxitems,
-			mset,
-			0);
-
-	    DebugMsg("done get_mset..." << endl);
-
-	    buf.writeline(string("MSETITEMS ") +
-			  inttostring(mset.items.size()) + " "
-			  + doubletostring(mset.max_possible)
-			  + doubletostring(mset.max_attained));
-
-	    DebugMsg("sent size, maxweight..." << endl);
-
-	    for (vector<OmMSetItem>::iterator i=mset.items.begin();
-		 i != mset.items.end();
-		 ++i) {
-		char charbuf[100];
-		ostrstream os(charbuf, 100);
-		os << "MSETITEM: " << i->wt << " " << i->did << ends;
-		buf.writeline(charbuf);
-
-		DebugMsg("MSETITEM: " << i->wt << " " << i->did << endl);
-	    }
-	    //DebugMsg("sent items..." << endl);
-
-	    buf.writeline("OK");
-
-	    //DebugMsg("sent OK..." << endl);
 	}
     } catch (OmNetworkError &e) {
 	// _Don't_ send network errors over, since they're likely to have
@@ -234,6 +116,167 @@ SocketServer::run()
 	buf.writeline(string("ERROR UNKNOWN"));
 	throw;
     }
+}
+
+void
+SocketServer::run_match(const string &firstmessage)
+{
+    string message = firstmessage;
+    // extract the match options
+    if (!startswith(message, "MOPTIONS ")) {
+	throw OmNetworkError(string("Expected MOPTIONS, got ") + message);
+    }
+
+    OmMatchOptions moptions = string_to_moptions(message.substr(9));
+
+    // extract the rset
+    message = buf.readline();
+    if (!startswith(message, "RSET ")) {
+	DebugMsg("Expected RSET, got " << message << endl);
+	throw OmNetworkError(string("Invalid message: ") + message);
+    }
+    OmRSet omrset = string_to_omrset(message.substr(5));
+
+    // extract the query
+    message = buf.readline();
+
+    if (!startswith(message, "SETQUERY ")) {
+	DebugMsg("Expected SETQUERY, got " << message << endl);
+	throw OmNetworkError("Invalid message");
+    }
+
+    message = message.substr(9, message.npos);
+
+    string wt_string;
+    // FIXME: use an iterator or something.
+    while (message.length() > 0 && isdigit(message[0])) {
+	wt_string += message[0];
+	message = message.substr(1);
+    }
+    message = message.substr(1);
+
+    // extract the weighting type
+    IRWeight::weight_type wt_type = 
+	    static_cast<IRWeight::weight_type>(
+					       atol(wt_string.c_str()));
+
+    // Extract the query
+    if (message[0] != '\"' || message[message.length()-1] != '\"') {
+	throw OmNetworkError("Invalid query specification");
+    } else {
+	message = message.substr(1, message.length() - 2);
+    }
+    OmQueryInternal query = query_from_string(message);
+
+    MultiMatch match(db.get(),
+		     &query,
+		     omrset,
+		     wt_type,
+		     moptions,
+		     auto_ptr<StatsGatherer>(gatherer =
+					     new NetworkStatsGatherer(this)));
+
+#if 0
+    DebugMsg("Adding artificial delay for statistics" << endl);
+    sleep(1);
+#endif
+
+    // Message 4
+    send_local_stats(gatherer->get_local_stats());
+
+    // Message 5, part 1
+    message = buf.readline();
+
+    if (message.substr(0, 9) != "GLOBSTATS") {
+	throw OmNetworkError(string("Expected GLOBSTATS, got ") + message);
+    }
+
+    global_stats = string_to_stats(message.substr(10));
+    have_global_stats = true;
+
+    // Message 5, part 2
+    message = buf.readline();
+
+    if (message.substr(0, 7) != "GETMSET") {
+	throw OmNetworkError(string("Expected GETMSET, got ") + message);
+    }
+    message = message.substr(8);
+
+#if 0
+    DebugMsg("Adding artificial delay..." << endl);
+    sleep(2);
+#endif
+
+    om_doccount first;
+    om_doccount maxitems;
+    {
+	// extract first,maxitems
+	istrstream is(message.c_str());
+	is >> first >> maxitems;
+    }
+
+    OmMSet mset;
+
+    DebugMsg("About to get_mset(" << first
+	     << ", " << maxitems << "..." << endl);
+
+    match.match(first,
+		maxitems,
+		mset,
+		0);
+
+    DebugMsg("done get_mset..." << endl);
+
+    buf.writeline(string("MSETITEMS ") +
+		  inttostring(mset.items.size()) + " "
+		  + doubletostring(mset.max_possible)
+		  + doubletostring(mset.max_attained));
+
+    DebugMsg("sent size, maxweight..." << endl);
+
+    for (vector<OmMSetItem>::iterator i=mset.items.begin();
+	 i != mset.items.end();
+	 ++i) {
+	char charbuf[100];
+	ostrstream os(charbuf, 100);
+	os << "MSETITEM: " << i->wt << " " << i->did << ends;
+	buf.writeline(charbuf);
+
+	DebugMsg("MSETITEM: " << i->wt << " " << i->did << endl);
+    }
+    //DebugMsg("sent items..." << endl);
+
+    buf.writeline("OK");
+
+    //DebugMsg("sent OK..." << endl);
+}
+
+void
+SocketServer::run_gettermlist(const string &firstmessage)
+{
+    string message = firstmessage;
+    // extract the match options
+    if (!startswith(message, "GETTLIST ")) {
+	throw OmNetworkError(string("Expected GETTLIST, got ") + message);
+    }
+
+    om_docid did = atoi(message.c_str() + 9);
+
+    auto_ptr<LeafTermList> tl(db->open_term_list(did));
+
+    tl->next();
+
+    while (!tl->at_end()) {
+	string item = "TLISTITEM ";
+	item = item + encode_tname(tl->get_termname()) + " ";
+	item = item + inttostring(tl->get_wdf()) + " ";
+	item = item + inttostring(tl->get_termfreq());
+	buf.writeline(item);
+
+	tl->next();
+    }
+
+    buf.writeline("END");
 }
 
 void

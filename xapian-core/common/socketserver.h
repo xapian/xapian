@@ -74,6 +74,13 @@ class SocketServer : public NetServer {
 
 	/// Read the global statistics from the stream and cache them.
 	void read_global_stats();
+
+	/// Run the match conversation
+	void run_match(const string &firstmessage);
+
+	/// run the get term list conversation
+	void run_gettermlist(const string &firstmessage);
+	
     public:
 	/** Default constructor. 
 	 *  @param db		The database on which searches are done.

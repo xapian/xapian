@@ -33,7 +33,8 @@
 #include "om/omerror.h"
 
 NetworkTermList::NetworkTermList(om_doclength average_length_,
-				 om_doccount database_size_)
+				 om_doccount database_size_,
+				 const vector<NetClient::TermListItem> &items_)
 	: items(),
 	  current_position(items.begin()),
 	  started(false),
@@ -42,6 +43,20 @@ NetworkTermList::NetworkTermList(om_doclength average_length_,
     // FIXME: set normalised length
     // norm_len = len / this_db->get_avlength();
     normalised_length = 1;
+
+    vector<NetClient::TermListItem>::const_iterator i = items_.begin();
+    while (i != items_.end()) {
+	NetworkTermListItem item;
+	item.tname = i->tname;
+	item.termfreq = i->termfreq;
+	item.wdf = i->wdf;
+
+	items.push_back(item);
+	++i;
+    }
+
+    current_position = items.begin();
+    
     return;
 }
 
