@@ -136,7 +136,7 @@ static bool test_simple1()
 /// Test inserting and deleting items from a Btree
 static bool test_insertdelete1()
 {
-    string btree_dir = tmpdir + "/B";
+    string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
@@ -166,7 +166,7 @@ static bool test_insertdelete1()
 /// Test sequential addition in a Btree
 static bool test_sequent1()
 {
-    string btree_dir = tmpdir + "/B";
+    string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 
@@ -194,7 +194,7 @@ static bool test_sequent1()
 
 static bool test_emptykey1()
 {
-    string btree_dir = tmpdir + "/B";
+    string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
     BTREE_CHECK(btree_dir, OPT_SHOW_STATS);
 

@@ -1,3 +1,8 @@
+Sat Sep 06 20:48:17 BST 2003  Olly Betts <olly@survex.com>
+
+	* tests/btreetest.cc: Reinstated non-superfluous `/'s which I had
+	  overeagerly removed!
+
 Sat Sep 06 17:28:00 BST 2003  Olly Betts <olly@survex.com>
 
 	* matcher/Makefile.am: Ship networkmatch.cc even if "make dist" is run
