@@ -1,3 +1,8 @@
+Sat Nov 06 14:43:16 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Oops, STLPORT_CXXFLAGS *is* used (in xapian-config.in)
+	  so revert the change which removes it.
+
 Sat Nov 06 13:37:23 GMT 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h,matcher/bm25weight.cc,
