@@ -1,14 +1,14 @@
 <todo>
 <todoitem priority=" " difficulty="" owner="" area="Matcher" release="">
 
-Optimisation:  Consider using hash_map instead of map in various places -
-two possible such locations are i) doing collapsem (in matcher/multimatch.cc)
-and ii) in the inmemory database.
+Possible optimisation:  Consider using hash_map instead of map in various
+places - two possible such locations are i) doing collapsem (in
+matcher/multimatch.cc) and ii) in the inmemory database.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
 
-Should OmWritableDatabase have a default ctor?  Consider for all API classes...
+Consider default ctors for any API classes which are missing them.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Olly" area="API" release="">
@@ -27,7 +27,7 @@ info in the target since that can be created atomically) and check the details
 Or touch the lock periodically to keep it?
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="Documentation" release="0.8">
+<todoitem priority="M" difficulty="" owner="Olly" area="Documentation" release="0.8">
 
 Finish reading through generated docs to ensure they read well in collated form.
 
@@ -63,18 +63,18 @@ get_threadid(void)
 -->
 
 </todoitem>
-<todoitem priority="H" difficulty="2" owner="" area="Matcher" release="">
+<todoitem priority="L" difficulty="2" owner="" area="Matcher" release="">
 
 Pass around partially created postlists and termlists as AutoPtrs?
 (for exception safety)
 
 </todoitem>
-<todoitem priority="H" difficulty="3" owner="" area="API" release="">
+<todoitem priority="H" difficulty="3" owner="Olly" area="API" release="0.7">
 
 Put Om into its own namespace, to ensure lack of symbol conflicts.
 
 </todoitem>
-<todoitem priority="H" difficulty="5" owner="" area="Performance" release="">
+<todoitem priority="M" difficulty="5" owner="" area="Performance" release="">
 
 Write (speed) performance test suite.
 
@@ -112,13 +112,6 @@ Make all errors return a context if appropriate.
 <todoitem priority="M" difficulty="5" owner="James" area="Porting" release="1.0">
 
 Produce Microsoft Windows version, probably cross-compiling to mingw.
-
-</todoitem>
-<todoitem priority="M" difficulty="3" owner="Olly" area="API" release="0.8">
-
-Implement methods to iterate through all the documents in the database,
-probably by making the empty term index all documents (or rather act as
-if it does).  Have patch which mostly implements this for the InMemory backend.
 
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Matcher" release="">
@@ -195,7 +188,7 @@ Change all internal references to net/network backend to remote backend (in
 step with external naming)
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="DA backend" release="">
+<todoitem priority="V" difficulty="5" owner="" area="DA backend" release="">
 
 Autodetect heavy-duty vs flimsy (3 byte vs 2 byte)
 
@@ -214,19 +207,19 @@ Clean up interaction of AllTermsIterator for quartz with QuartzPostList.
 Need QuartzPostListTermsIterator class?  (But with a snappier name. ;-) )
 
 </todoitem>
-<todoitem priority="L" difficulty="3" owner="" area="Quartz" release="0.8">
+<todoitem priority="M" difficulty="3" owner="" area="Quartz" release="0.8">
 
 Make quartz database autoflush when enough changes have been performed based
 on the memory used up as a proportion of that available, rather than simply
 when a count of changes is reached.  Remove hardcoded count of 1000 changes.
 
 </todoitem>
-<todoitem priority="L" difficulty="4" owner="" area="API" release="">
+<todoitem priority="M" difficulty="3" owner="Olly" area="API" release="0.8">
 
-Provide fake term which indexes all documents.  This would be used for a
-real "NOT" operator, and also for allowing searches to be scored based on
-location (would give weight from location for this term, with a custom
-weighting scheme).
+Provide fake term (empty termname) which indexes all documents, thus providing
+a clean way to iterate through them.  This would be used for a real "NOT"
+operator.  Olly has a patch which mostly implements this for the InMemory
+backend.
 
 </todoitem>
 <todoitem priority="L" difficulty="4" owner="" area="API" release="">
@@ -254,13 +247,6 @@ Add notes about catching exceptions throughout userman, particularly in
 examples (eg, search engine example)
 
 </todoitem>
-<todoitem priority="L" difficulty="2" owner="" area="Website" release="">
-
-Find a way to autogenerate sourcedoc nicely for website (hard on sf as
-we can't run configure as there's no compilers!  apidoc.pdf is there, but
-needs linking to.  Best to wait until website is moved to ixion.
-
-</todoitem>
 <todoitem priority="L" difficulty="5" owner="" area="General" release="">
 
 Audit for exception safety.
@@ -269,11 +255,6 @@ Audit for exception safety.
 <todoitem priority="L" difficulty="3" owner="" area="API" release="">
 
 Re-implement OmBatchEnquire, and add back into the system.
-
-</todoitem>
-<todoitem priority="L" difficulty="3" owner="" area="Weighting" release="">
-
-Allow for a non-zero minimum value for the ndl (normalised doc len).
 
 </todoitem>
 <todoitem priority="L" difficulty="5" owner="" area="Positional" release="">
@@ -291,7 +272,16 @@ Clustering algorithms.
 Improve performance using SIMD instructions
 
 </todoitem>
-<todoitem priority="L" difficulty="" owner="Olly" area="" release="0.7">
+<todoitem priority="H" difficulty="" owner="Olly" area="" release="0.7">
+
+Finish off loose ends from OmSettings removal.  These are: weighting schemes
+not working with remote backend; stub databases; machinery in InMemory backend
+to allow multierrhandler1 to work; sort out final names for factory functions;
+replace update/overwrite with a single enum; maybe replace boolean flags for
+expand as a bitmap (so they are named in calls and so code is clearer).
+
+</todoitem>
+<todoitem priority="H" difficulty="" owner="Olly" area="" release="0.7">
 
 Replace one remaining use of OmSettings (to pass parameters to the matcher).
 The arguments for OmSettings are not as compelling as we originally thought,
@@ -301,7 +291,7 @@ sort out a bug which is just a typo in an OmSettings value.  Also remove
 docs/omsettings.
 
 </todoitem>
-<todoitem priority="L" difficulty="4" owner="" area="General" release="0.7">
+<todoitem priority="H" difficulty="4" owner="" area="General" release="0.7">
 
 Make backends / weighting schemes / indexer modules register themselves
 automatically.  At runtime / linktime? (ie, replace current conditional
@@ -357,14 +347,14 @@ Ensure that quartz databases don't have a problem if there is no positional
 information entry available for a term / document combination.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
+<todoitem priority="L" difficulty="3" owner="" area="Matcher" release="">
 
 Add synonym postlists.  Need to be able to take underlying postlists which
 aren't necessarily just postlists for single terms, and to be able to
 estimate termfrequency of combined postlists.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Postlists" release="">
+<todoitem priority="L" difficulty="5" owner="" area="Postlists" release="">
 
 Add get_termfreq_exact() methods, for calculating the exact termfreq.  This
 will be particularly useful when trying to do evaluations to check up on the
@@ -376,7 +366,7 @@ exact termfreq based on the first N items in the postlist.
 This may require adding a reset() method, to move a postlist's position back to the beginning.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Postlists" release="">
+<todoitem priority="L" difficulty="3" owner="" area="Postlists" release="">
 
 Add OP_FILTER_TERM_WITH_EXACT_WEIGHT query operator (with better name), which
 will perform a restriction of the LHS term based on the RHS query, but use the
@@ -413,12 +403,12 @@ Java bindings in com/muscat/om should probably move to org/xapian before the
 bindings are actually released.
 
 </todoitem>
-<todoitem priority="M" difficulty="5" owner="" area="Bindings" release="">
+<todoitem priority="L" difficulty="5" owner="" area="Bindings" release="">
 
 Ensure that (Java in particular) bindings throw correct exception types.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="James" area="" release="0.8">
+<todoitem priority="M" difficulty="" owner="James" area="" release="0.8">
 
 indexgraph -> extra (needs to build as a support library?)  [James
 expressed an interest in this as dbtools needs it]
@@ -449,7 +439,7 @@ to deal with that, which can be done in the bindings although it's
 a little fiddly in some languages I believe.
 
 </todoitem>
-<todoitem priority=" " difficulty="" owner="Olly" area="" release="0.8">
+<todoitem priority="M" difficulty="" owner="Olly" area="" release="0.8">
 
 Fix up examples and make sure they are actually instructive.  Add a comment
 to each describing what it demonstrates.

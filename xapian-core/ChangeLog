@@ -1,3 +1,7 @@
+Tue Dec 03 23:59:30 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Updated.
+
 Tue Dec 03 23:26:27 GMT 2002  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,backends/quartz/quartz_postlist.h,common/,

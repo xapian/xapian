@@ -382,6 +382,11 @@ class OmWritableDatabase : public OmDatabase {
 	std::string get_description() const;
 };
 
+namespace Om {
+    const int DB_CREATE = 1;
+    const int DB_OVERWRITE = 2;
+};
+
 /* It's mostly harmless to provide prototypes for all the backends, even
  * if they may not all be built in - it means the failure will be at
  * link time rather than when a file is built.  The main benefit is
@@ -400,11 +405,15 @@ OmDatabase OmAuto__open(const std::string &path);
  *  backend to use.
  *
  * @param path directory that the database is stored in.
- * @param create create the database if it doesn't exist.
- * @param overwrite if create is true, overwrite the database if it exists.
+ * @param action one of:
+ *  - Om::DB_UPDATE open for read/write (fail if no database exists)
+ *  - Om::DB_CREATE create a new database (fail if one exists)
+ *  - Om::DB_OVERWRITE replace an existing database with a new one (fail if
+ *     no database exists)
+ *     UPDATE OR CREATE
+ *     CREATE_OR_OVERWRITE
  */
-OmWritableDatabase OmAuto__open(const std::string &path, bool create,
-	bool overwrite = false);
+OmWritableDatabase OmAuto__open(const std::string &path, bool, bool = false);//Om:dbaction action);
 
 /** Open a Quartz database read-only.
  *
@@ -422,6 +431,33 @@ OmDatabase OmQuartz__open(const std::string &quartz_dir);
  *                 two in the range 2048 to 65536.  The default is 8192.
  *                 This setting is only used when creating databases.  If
  *                 the database already exists, it is completely ignored.
+ */
+/*
+//     - create : boolean, true if a new database should be created.
+//       Default is false.
+//     - allow_overwrite : boolean.  This has no effect unless
+//       create is true.  If this setting is true a new database will be
+//       created in place of an existing one.  If false, an exception will be
+//       thrown if there is an existing database in place.  Default is false.
+//     FIXME: shouldn't describe a tri-state as 2 booleans - this is really
+//     one option with 3 possible settings:
+//     OmDatabase::OPEN
+//     OmDatabase::CREATE_OR_OPEN
+//     OmDatabase::CREATE_OR_TRUNCATE
+    // create if not there, fail if it is / create or open / create or overwrite
+    // (the last isn't quite the same as "rm -rf" then create as it should
+    // atomically replace so the database is always there - is that a useful
+    // distinction though?)
+
+not there   |    there
+
+ create          open    create = true, overwrite = false
+ create          fail
+ create          over    create = true, overwrite = true
+ fail            open    create = false, overwrite = false
+ fail            fail    useless!
+ fail            over
+
  */
 OmWritableDatabase
 OmQuartz__open(const std::string &quartz_dir, bool create,
