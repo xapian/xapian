@@ -261,19 +261,68 @@ particularly good for queries containing many terms.
 All queries are represented by
 <A HREF="apidoc/OmQuery.html"><CODE>OmQuery()</CODE></A>
 objects.  The simplest possible (non-trivial) query is one which searches
-for a single term.  This can be created as follows (where <CODE>tname</CODE> is the term to be searched for).
+for a single term.  This can be created as follows (where <CODE>tname</CODE> is the term to be searched for):
+</P>
 <PRE>
 OmQuery query(tname);
 </PRE>
+<P>
+A term in Muscat is simply represented by a string of binary characters.
+Usually, when searching text, these characters will be the word which the
+term represents, but during the information retrieval process Muscat
+attaches no specific meaning to the term.
 </P>
 <P>
 This constructor actually takes a couple of extra parameters, which may be
-used to specify positional and frequency information for terms in the query:<BR>
+used to specify positional and frequency information for terms in the query:
+<P>
 <PRE>
 OmQuery(const om_termname &amp; tname_,
         om_termcount wqf_ = 1,
         om_termpos term_pos_ = 0) 
 </PRE>
+
+<H3>Compound queries</H3>
+<P>
+More complicated queries are built up by combining single term queries
+using various operators, using the following constructor:
+</P>
+<PRE>
+OmQuery(om_queryop op_,
+	const OmQuery &amp; left,
+	const OmQuery &amp; right)
+</PRE>
+<P>
+The full set of available operators is:
+<TABLE>
+<TR><TD VALIGN="top">
+OM_MOP_AND 
+</TD><TD>
+Return a document if and only if both subqueries are satisfied.
+</TD></TR><TR><TD VALIGN="top">
+OM_MOP_OR 
+</TD><TD>
+Return a document if either subquery is satisfied.
+</TD></TR><TR><TD VALIGN="top">
+OM_MOP_AND_NOT 
+</TD><TD>
+Return a document if left subquery is satisfied and right subquery is not
+satisfied.
+</TD></TR><TR><TD VALIGN="top">
+OM_MOP_XOR 
+</TD><TD>
+Return a document if one subquery is satisfied, but not both.
+</TD></TR><TR><TD VALIGN="top">
+OM_MOP_AND_MAYBE 
+</TD><TD>
+Return a document if and only if the left subquery is satisfied, but calculate
+document weights using both queries.
+</TD></TR><TR><TD VALIGN="top">
+OM_MOP_FILTER 
+</TD><TD>
+As OM_MOP_AND, but use only weights from left subquery.
+</TD></TR>
+</TABLE>
 </P>
 
 <H3>Undefined queries</H3>
