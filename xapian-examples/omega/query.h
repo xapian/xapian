@@ -1,4 +1,4 @@
-/* query.h: query functions for ferretfx
+/* query.h: query functions for omega
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC

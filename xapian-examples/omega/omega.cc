@@ -1,4 +1,4 @@
-/* main.cc: Main module for ferretfx
+/* omega.cc: Main module for omega (example CGI frontend for Open Muscat)
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include "main.h"
+#include "omega.h"
 
 #include <fstream>
 
@@ -217,7 +217,7 @@ static int main2(int argc, char *argv[])
 
 	OmExpandOptions eoptions;
 	eoptions.set_use_query_terms(false);
-	ExpandDeciderFerret decider;
+	ExpandDeciderOmega decider;
 	OmESet topterms =
 		enquire->get_eset(100, tmprset, &eoptions, &decider);
 
@@ -432,7 +432,7 @@ extern FILE *page_fopen(const string &page) {
 static void
 make_log_entry(const string &action, long matches)
 {
-    string log_buf = db_dir + "/fx.log";
+    string log_buf = db_dir + "/omega.log";
     int fd = open(log_buf.c_str(), O_CREAT|O_APPEND|O_WRONLY, 0644);
        
     if (fd != -1) {

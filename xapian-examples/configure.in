@@ -87,5 +87,5 @@ AC_OUTPUT(
  msearch/Makefile
  gui/Makefile
  gui/glade/Makefile
- ferretfx/Makefile
+ omega/Makefile
 )

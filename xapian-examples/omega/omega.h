@@ -1,4 +1,4 @@
-/* main.h: Main header for ferretfx
+/* omega.h: Main header for omega
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -24,7 +24,7 @@
 
 #include "config.h"
 
-#define PROGRAM_NAME "ompf"
+#define PROGRAM_NAME "omega"
 
 #include <map>
 #include <vector>
@@ -46,7 +46,7 @@ extern map<string, string> option;
 
 extern const string default_db_name;
 
-class ExpandDeciderFerret : public OmExpandDecider {
+class ExpandDeciderOmega : public OmExpandDecider {
     public:
 	int operator()(const om_termname& tname) const {
 	    // only suggest 4 or more letter words for now to

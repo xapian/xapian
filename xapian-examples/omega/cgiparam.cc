@@ -28,39 +28,28 @@
 multimap<string, string> cgi_params;
 
 static void
-fettle(void)
+add_param(string name, string val)
 {
-    multimap<string, string>::iterator i;
-    for (i = cgi_params.begin(); i != cgi_params.end(); i++) {
-	bool changed = false;
-	string name = i->first;
-	string val = i->second;
-	size_t len = name.length();
-	if (len > 2 && name[len - 2] == '.' &&
-	    (name[len - 1] == 'x' || name[len - 1] == 'y')) {
-	    // Trim off .x or .y (since GIF button X gives X.x and X.y
-	    // We only actually need to keep one of these...
-            name = name.substr(0, len - 2);
-	    changed = true;
-	}
-	// convert F10=<whatever> into F=10
-	if (name[0] == 'F') {
-	    size_t j = name.find_first_not_of("0123456789", 1);
-	    if (j == string::npos) {
-		val = name.substr(1);
-		name = name[0];
-		changed = true;
-	    }
-	}
-	if (changed) {
-	    cgi_params.erase(i);
-	    cgi_params.insert(make_pair(name, val));
-	}
+    size_t i = name.length();
+    if (i > 2 && name[i - 2] == '.') {
+	// An image button called B gives B.x and B.y parameters with the
+	// coordinates of the click.  We throw away the ".y" one and trim
+	// ".x" from the other
+	if (name[i - 1] == 'y') return;
+	if (name[i - 1] == 'x')
+	    name = name.substr(0, i - 2);
     }
+    // convert 'XXX 10'=<whatever> into XXX=10
+    i = name.find(' ');
+    if (i != string::npos) {
+	val = name.substr(i + 1);
+	name = name.substr(0, i);
+    }
+    cgi_params.insert(make_pair(name, val));
 }
 
 void
-decode_test(void)
+decode_test()
 {
     cgi_params.clear();
     while (!feof(stdin)) {
@@ -69,8 +58,8 @@ decode_test(void)
 	while (1) {
 	    int ch = getchar();
 	    if (ch == EOF || ch == '\n') {
-		if (name.empty()) goto done; // end on blank line
-		cgi_params.insert(make_pair(name, val));
+		if (name.empty()) return; // end on blank line
+		add_param(name, val);
 		break;
 	    }
 	    if (had_equals) {
@@ -82,12 +71,10 @@ decode_test(void)
 	    }
 	}
     }
-    done:
-    fettle();
 }
 
 void
-decode_post(void)
+decode_post()
 {
     char *content_length;
     unsigned int cl = INT_MAX;
@@ -107,7 +94,7 @@ decode_post(void)
 		cl--;
 	    }
 	    if (ch == EOF || ch == '&') {
-		if (!name.empty()) cgi_params.insert(make_pair(name, val));
+		if (!name.empty()) add_param(name, val);
 		break;
 	    }
 	    char orig_ch = ch;
@@ -132,25 +119,24 @@ decode_post(void)
 	    }
 	}
     }
-    fettle();
 }
 
 void
-decode_get(void)
+decode_get()
 {
     char *q_str = getenv("QUERY_STRING");
     if (!q_str) q_str = ""; // Hmm, sounds like a broken web server
 
     cgi_params.clear();
-    char ch = 1; // dummy value
-    while (ch) {
+    char ch;
+    do {
 	string name, val;
 	bool had_equals = false;
 	while (1) {
 	    ch = *q_str++;
 	    if (ch == '\0' || ch == '&') {
-		if (name.empty()) goto done; // end on blank line
-		cgi_params.insert(make_pair(name, val));
+		if (name.empty()) return; // end on blank line
+		add_param(name, val);
 		break;
 	    }
 	    char orig_ch = ch;
@@ -162,10 +148,7 @@ decode_get(void)
 		if (c) c = *q_str++;
 		ch = ch << 4;
 		ch |= (c & 0xf) + ((c & 64) ? 9 : 0);
-		if (!c) {
-		    ch = 0;
-		    break;
-		}
+		if (!c) return; // unfinished % code
 	    }
 	    if (had_equals) {
 		val += char(ch);
@@ -175,7 +158,5 @@ decode_get(void)
 		name += char(ch);
 	    }
 	}
-    }
-    done:
-    fettle();
+    } while (ch);
 }

@@ -21,12 +21,12 @@
  */
 
 /* decode the query from stdin as "NAME=VALUE" pairs */
-extern void decode_test( void );
+extern void decode_test();
 
 /* decode the query as a POST */
-extern void decode_post( void );
+extern void decode_post();
 
 /* decode the query as a GET */
-extern void decode_get( void );
+extern void decode_get();
 
 extern multimap<string, string> cgi_params;

@@ -24,7 +24,7 @@
 %option noyywrap
 
 %{
-#include "main.h"
+#include "omega.h"
 #include "query.h"
 //#include "omassert.h"
 

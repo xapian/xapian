@@ -1,4 +1,4 @@
-/* query.cc: query executor for ferretfx
+/* query.cc: query executor for omega
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -33,7 +33,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
-#include "main.h"
+#include "omega.h"
 #include "query.h"
 
 /* limit on mset size (as given in espec) */
@@ -846,7 +846,7 @@ print_fmt(const string &fmt)
 		    // Present a clickable list of expand terms
 		    if (msize) {
 			OmESet eset;
-			ExpandDeciderFerret decider;
+			ExpandDeciderOmega decider;
 			
 			if (rset->items.size()) {
 			    eset = enquire->get_eset(20, *rset, 0, &decider);
