@@ -2,6 +2,19 @@ Pairs of postinglists are merged into a "virtual" postinglist.  This process
 is repeated to form a single virtual postinglist accessed by the Match
 object behind which hangs a tree of postinglists.
 
+This tree of postinglists is a binary tree.  This is more efficient than
+a n-ary tree in terms of the number of comparisons which need to be performed:
+<insert proof> - proof may only be valid for equal sized posting lists
+without optimisations, in which case there may be a more efficient way to do
+this and we may wish to change the code.
+
+The tree is unbalanced, in such a way as to minimise the likely number of
+times a posting has to be passed up a level.  For a group of OR operations,
+the postinglists with fewest entries are furthest down the tree, minimising
+the amount of information needing to be passed up the tree.
+For AND operations the postinglists with most entries are furthest down,
+allowing maximally sized skip_to's to be performed.
+
 There are several types of virtual postinglist.  Each type can be treated as
 boolean or probabilistic - the only difference is whether the weights are
 ignored or not.  The types are:
