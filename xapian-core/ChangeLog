@@ -1,3 +1,9 @@
+Tue Sep 09 03:36:05 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: don't start the document's
+	  TermIterator from scratch on every iteration in replace_document().
+	  Should be a small performance win.
+
 Sun Sep 07 22:17:27 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Fixed check for socketpair - we were automatically

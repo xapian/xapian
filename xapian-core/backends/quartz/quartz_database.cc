@@ -654,8 +654,8 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
 	    }
             // Now add the terms that are new...
             vIter = addTerms.begin();
+	    Xapian::TermIterator tIter = document.termlist_begin();
             while (vIter != addTerms.end()) {
-                Xapian::TermIterator tIter = document.termlist_begin();
                 tIter.skip_to((*vIter));
 #ifdef USE_LEXICON
 		QuartzLexicon::increment_termfreq(
@@ -675,8 +675,8 @@ QuartzWritableDatabase::do_replace_document(Xapian::docid did,
 	    // Finally, update the positionlist of terms that are not new or
 	    // removed.
             vIter = posTerms.begin();
+	    tIter = document.termlist_begin();
             while (vIter != posTerms.end()) {
-                Xapian::TermIterator tIter = document.termlist_begin();
                 tIter.skip_to((*vIter));
                 if (tIter.positionlist_begin() == tIter.positionlist_end()) {
 		  // In the new document, this term does not have any positions
