@@ -28,12 +28,39 @@
 
 #include <xapian/types.h>
 #include "positionlist.h"
+#include "quartz_table.h"
 
 #include <string>
 
 using namespace std;
 
-class QuartzTable;
+class QuartzPositionListTable : public QuartzTable {
+    public:
+	/** Create a new table object.
+	 *
+	 *  This does not create the table on disk - the create() method must
+	 *  be called before the table is created on disk
+	 *
+	 *  This also does not open the table - the open() method must be
+	 *  called before use is made of the table.
+	 *
+	 *  @param path_          - Path at which the table is stored.
+	 *  @param readonly_      - whether to open the table for read only
+	 *                          access.
+	 *  @param blocksize_     - Size of blocks to use.  This parameter is
+	 *                          only used when creating the table.
+	 */
+	QuartzPositionListTable(string path_, bool readonly_, unsigned int blocksize_)
+	    : QuartzTable(path_ + "/position_", readonly_, blocksize_) { }
+
+	/// Set the position list for the given docid and termname
+	void set_positionlist(Xapian::docid did, const string & tname,
+			Xapian::PositionIterator pos,
+			const Xapian::PositionIterator &pos_end);
+
+	/// Delete the position list for the given docid and termname
+	void delete_positionlist(Xapian::docid did, const string & tname);
+};
 
 /** A position list in a quartz database.
  */
@@ -70,11 +97,6 @@ class QuartzPositionList : public PositionList {
 
 	/// Advance position by one.
 	void next_internal();
-
-	/// Make a key for accessing the positionlist.
-	static void make_key(Xapian::docid did,
-			     const string & tname,
-			     string & key);
 
     public:
         /// Default constructor.
@@ -119,17 +141,6 @@ class QuartzPositionList : public PositionList {
 	    RETURN(is_at_end);
 	}
 
-	/// Set the position list for the given docid and termname
-	static void set_positionlist(QuartzTable * table,
-			Xapian::docid did,
-			const string & tname,
-			Xapian::PositionIterator pos,
-			const Xapian::PositionIterator &pos_end);
-
-	/// Delete the position list for the given docid and termname
-	static void delete_positionlist(QuartzTable * table,
-					Xapian::docid did,
-					const string & tname);
 	/// Return the current position
 	Xapian::termpos get_current_pos() {
 	    return(current_pos);

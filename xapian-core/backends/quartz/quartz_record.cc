@@ -38,13 +38,13 @@ using std::string;
 static const string METAINFO_KEY("", 1);
 
 string
-QuartzRecordManager::get_record(const QuartzTable & table, Xapian::docid did)
+QuartzRecordTable::get_record(Xapian::docid did) const
 {
-    DEBUGCALL_STATIC(DB, string, "QuartzRecordManager::get_record", "[table], " << did);
+    DEBUGCALL(DB, string, "QuartzRecordTable::get_record", did);
     string key(quartz_docid_to_key(did));
     string tag;
 
-    if (!table.get_exact_entry(key, tag)) {
+    if (!get_exact_entry(key, tag)) {
 	throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found.");
     }
 
@@ -53,25 +53,25 @@ QuartzRecordManager::get_record(const QuartzTable & table, Xapian::docid did)
 
 
 Xapian::doccount
-QuartzRecordManager::get_doccount(const QuartzTable & table)
+QuartzRecordTable::get_doccount() const
 {   
-    DEBUGCALL_STATIC(DB, Xapian::doccount, "QuartzRecordManager::get_doccount", "[table]");
+    DEBUGCALL(DB, Xapian::doccount, "QuartzRecordTable::get_doccount", "");
     // Check that we can't overflow (the unsigned test is actually too
     // strict as we can typically assign an unsigned short to a signed long,
     // but this shouldn't actually matter here).
     CASSERT(sizeof(Xapian::doccount) >= sizeof(quartz_tablesize_t));
     CASSERT((Xapian::doccount)(-1) > 0);
     CASSERT((quartz_tablesize_t)(-1) > 0);
-    Xapian::doccount entries = table.get_entry_count();
+    Xapian::doccount entries = get_entry_count();
     RETURN(entries ? entries - 1 : 0);
 }
 
 Xapian::docid
-QuartzRecordManager::get_newdocid(QuartzTable & table)
+QuartzRecordTable::get_newdocid()
 {
-    DEBUGCALL_STATIC(DB, Xapian::docid, "QuartzRecordManager::get_newdocid", "[table]");
+    DEBUGCALL(DB, Xapian::docid, "QuartzRecordTable::get_newdocid", "");
     string tag;
-    (void)table.get_exact_entry(METAINFO_KEY, tag);
+    (void)get_exact_entry(METAINFO_KEY, tag);
 
     Xapian::docid did;
     quartz_totlen_t totlen;
@@ -94,18 +94,18 @@ QuartzRecordManager::get_newdocid(QuartzTable & table)
     }
     tag = pack_uint(did);
     tag += pack_uint_last(totlen);
-    table.set_entry(METAINFO_KEY, tag);
+    set_entry(METAINFO_KEY, tag);
 
     RETURN(did);
 }
 
 Xapian::docid
-QuartzRecordManager::get_lastdocid(const QuartzTable & table)
+QuartzRecordTable::get_lastdocid() const
 {
-    DEBUGCALL_STATIC(DB, Xapian::docid, "QuartzRecordManager::get_lastdocid", "[table]");
+    DEBUGCALL(DB, Xapian::docid, "QuartzRecordTable::get_lastdocid", "");
 
     string tag;
-    if (!table.get_exact_entry(METAINFO_KEY, tag)) RETURN(0u);
+    if (!get_exact_entry(METAINFO_KEY, tag)) RETURN(0u);
 
     Xapian::docid did;
     const char * data = tag.data();
@@ -117,36 +117,32 @@ QuartzRecordManager::get_lastdocid(const QuartzTable & table)
 }
 
 Xapian::docid
-QuartzRecordManager::add_record(QuartzTable & table,
-				const string & data)
+QuartzRecordTable::add_record(const string & data)
 {
-    DEBUGCALL_STATIC(DB, Xapian::docid, "QuartzRecordManager::add_record", "[table], " << data);
-    Xapian::docid did = get_newdocid(table);
+    DEBUGCALL(DB, Xapian::docid, "QuartzRecordTable::add_record", data);
+    Xapian::docid did = get_newdocid();
 
     string key(quartz_docid_to_key(did));
-    table.set_entry(key, data);
+    set_entry(key, data);
 
     RETURN(did);
 }
 
 void
-QuartzRecordManager::replace_record(QuartzTable & table,
-				    const string & data,
-				    Xapian::docid did)
+QuartzRecordTable::replace_record(const string & data, Xapian::docid did)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::replace_record", "[table], " << data << ", " << did);
+    DEBUGCALL(DB, void, "QuartzRecordTable::replace_record", data << ", " << did);
     string key(quartz_docid_to_key(did));
-    table.set_entry(key, data);
+    set_entry(key, data);
 }
 
 void
-QuartzRecordManager::modify_total_length(QuartzTable & table,
-					 quartz_doclen_t old_doclen,
-					 quartz_doclen_t new_doclen)
+QuartzRecordTable::modify_total_length(quartz_doclen_t old_doclen,
+				       quartz_doclen_t new_doclen)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::modify_total_length", "[table], " << old_doclen << ", " << new_doclen);
+    DEBUGCALL(DB, void, "QuartzRecordTable::modify_total_length", old_doclen << ", " << new_doclen);
     string tag;
-    (void)table.get_exact_entry(METAINFO_KEY, tag);
+    (void)get_exact_entry(METAINFO_KEY, tag);
 
     Xapian::docid did;
     quartz_totlen_t totlen;
@@ -175,19 +171,19 @@ QuartzRecordManager::modify_total_length(QuartzTable & table,
 
     tag = pack_uint(did);
     tag += pack_uint_last(newlen);
-    table.set_entry(METAINFO_KEY, tag);
+    set_entry(METAINFO_KEY, tag);
 }
 
 // FIXME: probably want to cache the average length (but not miss updates)
 Xapian::doclength
-QuartzRecordManager::get_avlength(const QuartzTable & table)
+QuartzRecordTable::get_avlength() const
 {
-    DEBUGCALL_STATIC(DB, Xapian::doclength, "QuartzRecordManager::get_avlength", "QuartzTable &");
-    Xapian::doccount docs = get_doccount(table);
+    DEBUGCALL(DB, Xapian::doclength, "QuartzRecordTable::get_avlength", "");
+    Xapian::doccount docs = get_doccount();
     if (docs == 0) RETURN(0);
 
     string tag;
-    if (!table.get_exact_entry(METAINFO_KEY, tag)) RETURN(0u);
+    if (!get_exact_entry(METAINFO_KEY, tag)) RETURN(0u);
 
     Xapian::docid did;
     quartz_totlen_t totlen;
@@ -203,9 +199,8 @@ QuartzRecordManager::get_avlength(const QuartzTable & table)
 }
 
 void
-QuartzRecordManager::delete_record(QuartzTable & table,
-				   Xapian::docid did)
+QuartzRecordTable::delete_record(Xapian::docid did)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::delete_record", "[table], " << did);
-    table.set_entry(quartz_docid_to_key(did));
+    DEBUGCALL(DB, void, "QuartzRecordTable::delete_record", did);
+    set_entry(quartz_docid_to_key(did));
 }

@@ -38,12 +38,12 @@ class QuartzDocument : public Xapian::Document::Internal {
     private:
 	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
 
-	const QuartzTable *value_table;
-	const QuartzTable *record_table;
+	const QuartzValueTable *value_table;
+	const QuartzRecordTable *record_table;
 
 	QuartzDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-		       const QuartzTable *value_table_,
-		       const QuartzTable *record_table_,
+		       const QuartzValueTable *value_table_,
+		       const QuartzRecordTable *record_table_,
 		       Xapian::docid did_, bool lazy);
 
 	// Prevent copying

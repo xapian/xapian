@@ -33,21 +33,21 @@ using std::make_pair;
 #include "omdebug.h"
 
 void
-QuartzValueManager::make_key(string & key, Xapian::docid did, Xapian::valueno valueno)
+QuartzValueTable::make_key(string & key, Xapian::docid did, Xapian::valueno valueno)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::make_key",
+    DEBUGCALL_STATIC(DB, void, "QuartzValueTable::make_key",
 		     key << ", " << did << ", " << valueno);
     (void)valueno; // no warning
     key = quartz_docid_to_key(did);
 }
 
 void
-QuartzValueManager::unpack_entry(const char ** pos,
+QuartzValueTable::unpack_entry(const char ** pos,
 				 const char * end,
 				 Xapian::valueno * this_value_no,
 				 string & this_value)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::unpack_entry",
+    DEBUGCALL_STATIC(DB, void, "QuartzValueTable::unpack_entry",
 		     "[pos], [end], " << this_value_no << ", " << this_value);
     if (!unpack_uint(pos, end, this_value_no)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
@@ -59,21 +59,20 @@ QuartzValueManager::unpack_entry(const char ** pos,
 	else throw Xapian::RangeError("Item in value table is too large");
     }
 
-    DEBUGLINE(DB, "QuartzValueManager::unpack_entry(): value no " <<
+    DEBUGLINE(DB, "QuartzValueTable::unpack_entry(): value no " <<
 	      this_value_no << " is `" << this_value << "'");
 }
 
 void
-QuartzValueManager::add_value(QuartzTable & table,
-			      const string & value,
+QuartzValueTable::add_value(const string & value,
 			      Xapian::docid did,
 			      Xapian::valueno valueno)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::add_value", "[table], " << value << ", " << did << ", " << valueno);
+    DEBUGCALL(DB, void, "QuartzValueTable::add_value", value << ", " << did << ", " << valueno);
     string key;
     make_key(key, did, valueno);
     string tag;
-    (void)table.get_exact_entry(key, tag);
+    (void)get_exact_entry(key, tag);
     string newvalue;
 
     const char * pos = tag.data();
@@ -106,20 +105,19 @@ QuartzValueManager::add_value(QuartzTable & table,
 	newvalue += pack_string(value);
     }
 
-    table.set_entry(key, newvalue);
+    set_entry(key, newvalue);
 }
 
 void
-QuartzValueManager::get_value(const QuartzTable & table,
-			      string & value,
+QuartzValueTable::get_value(string & value,
 			      Xapian::docid did,
-			      Xapian::valueno valueno)
+			      Xapian::valueno valueno) const
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::get_value", "[table], " << value << ", " << did << ", " << valueno);
+    DEBUGCALL(DB, void, "QuartzValueTable::get_value", value << ", " << did << ", " << valueno);
     string key;
     make_key(key, did, valueno);
     string tag;
-    bool found = table.get_exact_entry(key, tag);
+    bool found = get_exact_entry(key, tag);
 
     if (found) {
 	const char * pos = tag.data();
@@ -141,15 +139,14 @@ QuartzValueManager::get_value(const QuartzTable & table,
 }
 
 void
-QuartzValueManager::get_all_values(const QuartzTable & table,
-				map<Xapian::valueno, string> & values,
-				Xapian::docid did)
+QuartzValueTable::get_all_values(map<Xapian::valueno, string> & values,
+				   Xapian::docid did) const
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::get_all_values", "[table], [values], " << did);
+    DEBUGCALL(DB, void, "QuartzValueTable::get_all_values", "[values], " << did);
     string key;
     make_key(key, did, 0);
     string tag;
-    bool found = table.get_exact_entry(key, tag);
+    bool found = get_exact_entry(key, tag);
 
     values.clear();
     if (!found) return;
@@ -167,10 +164,10 @@ QuartzValueManager::get_all_values(const QuartzTable & table,
 }
 
 void
-QuartzValueManager::delete_all_values(QuartzTable & table, Xapian::docid did)
+QuartzValueTable::delete_all_values(Xapian::docid did)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzValueManager::delete_all_values", "[table], " << did);
+    DEBUGCALL(DB, void, "QuartzValueTable::delete_all_values", did);
     string key;
     make_key(key, did, 0);
-    table.set_entry(key);
+    set_entry(key);
 }

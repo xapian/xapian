@@ -29,58 +29,67 @@
 
 #include <xapian/types.h>
 #include "quartz_types.h"
-
-class QuartzTable;
+#include "quartz_table.h"
 
 using namespace std;
 
 /** A record in a quartz database.
  */
-class QuartzRecordManager {
-    private:
-	QuartzRecordManager();
-	~QuartzRecordManager();
+class QuartzRecordTable : public QuartzTable {
     public:
+	/** Create a new table object.
+	 *
+	 *  This does not create the table on disk - the create() method must
+	 *  be called before the table is created on disk
+	 *
+	 *  This also does not open the table - the open() method must be
+	 *  called before use is made of the table.
+	 *
+	 *  @param path_          - Path at which the table is stored.
+	 *  @param readonly_      - whether to open the table for read only
+	 *                          access.
+	 *  @param blocksize_     - Size of blocks to use.  This parameter is
+	 *                          only used when creating the table.
+	 */
+	QuartzRecordTable(string path_, bool readonly_, unsigned int blocksize_)
+	    : QuartzTable(path_ + "/record_", readonly_, blocksize_) { }
+
 	/** Retrieve a document from the table.
 	 */
-	static string get_record(const QuartzTable & table,
-				 Xapian::docid did);
+	string get_record(Xapian::docid did) const;
 
 	/** Get the number of records in the table.
 	 */
-	static Xapian::doccount get_doccount(const QuartzTable & table);
+	Xapian::doccount get_doccount() const;
 
 	/** Return the average length of records in the table.
 	 */
-	static Xapian::doclength get_avlength(const QuartzTable & table);
+	Xapian::doclength get_avlength() const;
 
 	/** Get the next document ID to use.
 	 */
-	static Xapian::docid get_newdocid(QuartzTable & table);
+	Xapian::docid get_newdocid();
 
 	/** Get the last document id used.
 	 */
-	static Xapian::docid get_lastdocid(const QuartzTable & table);
+	Xapian::docid get_lastdocid() const;
 
 	/** Add a new record to the table.
 	 *
 	 */
-	static Xapian::docid add_record(QuartzTable & table,
-				   const string & data);
+	Xapian::docid add_record(const string & data);
+
 	/* Replace an existing record in the table
 	 *
 	 * @param did	The document ID to use.  If not specified, then
 	 * 		a new docid is generated.  Otherwise, this record
 	 * 		will be created (or replace) document did.
 	 */
-	static void replace_record(QuartzTable &table,
-				   const string & data,
-				   Xapian::docid did);
+	void replace_record(const string & data, Xapian::docid did);
 
 	/** Delete a record from the table.
 	 */
-	static void delete_record(QuartzTable & table,
-				  Xapian::docid did);
+	void delete_record(Xapian::docid did);
 
 	/** Modify the stored total length of the records, by supplying an
 	 *  old length for a document, and the new length of the document
@@ -89,9 +98,8 @@ class QuartzRecordManager {
 	 *  @param old_doclen  The old length of the document.
 	 *  @param new_doclen  The new length of the document.
 	 */
-	static void modify_total_length(QuartzTable & table,
-					quartz_doclen_t old_doclen,
-					quartz_doclen_t new_doclen);
+	void modify_total_length(quartz_doclen_t old_doclen,
+				 quartz_doclen_t new_doclen);
 };
 
 #endif /* OM_HGUARD_QUARTZ_RECORD_H */

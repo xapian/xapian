@@ -28,7 +28,12 @@
 #include "database.h"
 #include "quartz_log.h"
 #include "quartz_metafile.h"
+#include "quartz_positionlist.h"
+#include "quartz_postlist.h"
+#include "quartz_record.h"
 #include "quartz_table.h"
+#include "quartz_termlist.h"
+#include "quartz_values.h"
 
 class QuartzTermList;
 
@@ -65,19 +70,19 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	 *  updated: therefore, its most recent revision number is the most
 	 *  recent anywhere in the database.
 	 */
-	QuartzTable postlist_table;
+	QuartzPostListTable postlist_table;
 
 	/** Table storing position lists.
 	 */
-	QuartzTable positionlist_table;
+	QuartzPositionListTable positionlist_table;
 
 	/** Table storing term lists.
 	 */
-	QuartzTable termlist_table;
+	QuartzTermListTable termlist_table;
 
 	/** Table storing values.
 	 */
-	QuartzTable value_table;
+	QuartzValueTable value_table;
 
 	/** Table storing records.
 	 *
@@ -87,7 +92,7 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	 *  recent revision number is not available for all tables, there
 	 *  is no consistent revision available, and the database is corrupt.
 	 */
-	QuartzTable record_table;
+	QuartzRecordTable record_table;
 
 	/** Object for logging modifications.
 	 */
@@ -118,24 +123,6 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	/** Release the database write lock.
 	 */
 	void release_database_write_lock();
-
-	/// Return the path that the metafile is stored at.
-	std::string metafile_path() const;
-
-	/// Return the path that the record table is stored at.
-	std::string record_path() const;
-
-	/// Return the path that the value table is stored at.
-	std::string value_path() const;
-
-	/// Return the path that the termlist table is stored at.
-	std::string termlist_path() const;
-
-	/// Return the path that the positionlist table is stored at.
-	std::string positionlist_path() const;
-
-	/// Return the path that the postlist table is stored at.
-	std::string postlist_path() const;
 
 	/** Open tables at specified revision number.
 	 *

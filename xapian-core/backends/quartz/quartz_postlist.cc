@@ -909,8 +909,8 @@ QuartzPostList::get_description() const
 }
 
 // Returns the last did to allow in this chunk.
-static Xapian::docid
-get_chunk(QuartzTable * bufftable, const string &tname,
+Xapian::docid
+QuartzPostListTable::get_chunk(const string &tname,
 	  Xapian::docid did, bool adding,
 	  PostlistChunkReader ** from, PostlistChunkWriter **to)
 {
@@ -919,7 +919,7 @@ get_chunk(QuartzTable * bufftable, const string &tname,
     make_key(tname, did, key);
 
     // Find the right chunk
-    AutoPtr<QuartzCursor> cursor(bufftable->cursor_get());
+    AutoPtr<QuartzCursor> cursor(cursor_get());
 
     cursor->find_entry(key);
     Assert(!cursor->after_end());
@@ -990,7 +990,7 @@ get_chunk(QuartzTable * bufftable, const string &tname,
 }
 
 void
-QuartzPostList::merge_changes(QuartzTable * bufftable,
+QuartzPostListTable::merge_changes(
     const map<string, map<Xapian::docid, pair<char, Xapian::termcount> > > & mod_plists,
     const map<Xapian::docid, Xapian::termcount> & doclens,
     const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas)
@@ -1008,7 +1008,7 @@ QuartzPostList::merge_changes(QuartzTable * bufftable,
 	    string current_key;
 	    make_key(tname, current_key);
 	    string tag;
-	    (void)bufftable->get_exact_entry(current_key, tag);
+	    (void)get_exact_entry(current_key, tag);
 
 	    // Rewrite start of first chunk to update termfreq and collfreq.
 	    const char *pos = tag.data();
@@ -1032,12 +1032,12 @@ QuartzPostList::merge_changes(QuartzTable * bufftable,
 	    termfreq += deltas->second.first;
 	    if (termfreq == 0) {
 		// All postings deleted!
-		AutoPtr<QuartzCursor> cursor(bufftable->cursor_get());
+		AutoPtr<QuartzCursor> cursor(cursor_get());
 
 		if (!cursor->find_entry(current_key)) {
 		    throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
 		}
-		bufftable->set_entry(current_key);
+		set_entry(current_key);
 		if (islast) continue;
 		while (true) {
 		    // FIXME: faster to always check is_last flag?  it would
@@ -1047,7 +1047,7 @@ QuartzPostList::merge_changes(QuartzTable * bufftable,
 		    const char *kpos = cursor->current_key.data();
 		    const char *kend = kpos + cursor->current_key.size();
 		    if (!check_tname_in_key_lite(&kpos, kend, tname)) break;
-		    bufftable->set_entry(cursor->current_key);
+		    set_entry(cursor->current_key);
 		}
 		continue;
 	    }
@@ -1056,11 +1056,11 @@ QuartzPostList::merge_changes(QuartzTable * bufftable,
 	    string newhdr = make_start_of_first_chunk(termfreq, collfreq, firstdid);
 	    newhdr += make_start_of_chunk(islast, firstdid, lastdid);
 	    if (pos == end) {
-		bufftable->set_entry(current_key, newhdr);
+		set_entry(current_key, newhdr);
 	    } else {
 		Assert((size_t)(pos - tag.data()) <= tag.size());
 		tag.replace(0, pos - tag.data(), newhdr);
-		bufftable->set_entry(current_key, tag);
+		set_entry(current_key, tag);
 	    }
 	}
 	map<Xapian::docid, pair<char, Xapian::termcount> >::const_iterator j;
@@ -1070,7 +1070,7 @@ QuartzPostList::merge_changes(QuartzTable * bufftable,
 	Xapian::docid max_did;
 	PostlistChunkReader *from;
 	PostlistChunkWriter *to;
-	max_did = get_chunk(bufftable, tname, j->first, j->second.first == 'A',
+	max_did = get_chunk(tname, j->first, j->second.first == 'A',
 			    &from, &to);
 	for ( ; j != i->second.end(); ++j) {
 	    Xapian::docid did = j->first;
@@ -1085,15 +1085,15 @@ next_chunk:
 		    }
 		    break;
 		}
-		to->append(bufftable, copy_did,
+		to->append(this, copy_did,
 			   from->get_wdf(), from->get_doclength());
 		from->next();
 	    }
 	    if ((!from || from->is_at_end()) && did > max_did) {
 		delete from;
-		to->flush(bufftable);
+		to->flush(this);
 		delete to;
-		max_did = get_chunk(bufftable, tname, did, false, &from, &to);
+		max_did = get_chunk(tname, did, false, &from, &to);
 		goto next_chunk;
 	    }
 
@@ -1103,19 +1103,19 @@ next_chunk:
 		Xapian::termcount new_doclen = k->second;
 		Xapian::termcount new_wdf = j->second.second;
 
-		to->append(bufftable, did, new_wdf, new_doclen);
+		to->append(this, did, new_wdf, new_doclen);
 	    }
 	}
 
 	if (from) {
 	    while (!from->is_at_end()) {
-		to->append(bufftable, from->get_docid(),
+		to->append(this, from->get_docid(),
 			   from->get_wdf(), from->get_doclength());
 		from->next();
 	    }
 	    delete from;
 	}
-	to->flush(bufftable);
+	to->flush(this);
 	delete to;
     }
 }

@@ -69,12 +69,12 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
 			       unsigned int block_size)
 	: db_dir(quartz_dir),
 	  readonly(action == OM_DB_READONLY),
-	  metafile(metafile_path()),
-	  postlist_table(postlist_path(), readonly, block_size),
-	  positionlist_table(positionlist_path(), readonly, block_size),
-	  termlist_table(termlist_path(), readonly, block_size),
-	  value_table(value_path(), readonly, block_size),
-	  record_table(record_path(), readonly, block_size),
+	  metafile(db_dir + "/meta"),
+	  postlist_table(db_dir, readonly, block_size),
+	  positionlist_table(db_dir, readonly, block_size),
+	  termlist_table(db_dir, readonly, block_size),
+	  value_table(db_dir, readonly, block_size),
+	  record_table(db_dir, readonly, block_size),
 	  log(db_dir + "/log")
 {
     DEBUGCALL(DB, void, "QuartzDatabase", quartz_dir << ", " << action <<
@@ -302,42 +302,6 @@ QuartzDatabase::open_tables_consistent()
     log.make_entry("Opened tables at revision " + om_tostring(revision));
 }
 
-string
-QuartzDatabase::metafile_path() const
-{
-    return db_dir + "/meta";
-}
-
-string
-QuartzDatabase::record_path() const
-{
-    return db_dir + "/record_";
-}
-
-string
-QuartzDatabase::value_path() const
-{
-    return db_dir + "/value_";
-}
-
-string
-QuartzDatabase::termlist_path() const
-{
-    return db_dir + "/termlist_";
-}
-
-string
-QuartzDatabase::positionlist_path() const
-{
-    return db_dir + "/position_";
-}
-
-string
-QuartzDatabase::postlist_path() const
-{
-    return db_dir + "/postlist_";
-}
-
 void
 QuartzDatabase::open_tables(quartz_revision_number_t revision)
 {
@@ -553,21 +517,21 @@ Xapian::doccount
 QuartzDatabase::get_doccount() const
 {
     DEBUGCALL(DB, Xapian::doccount, "QuartzDatabase::get_doccount", "");
-    RETURN(QuartzRecordManager::get_doccount(record_table));
+    RETURN(record_table.get_doccount());
 }
 
 Xapian::docid
 QuartzDatabase::get_lastdocid() const
 {
     DEBUGCALL(DB, Xapian::docid, "QuartzDatabase::get_lastdocid", "");
-    RETURN(QuartzRecordManager::get_lastdocid(record_table));
+    RETURN(record_table.get_lastdocid());
 }
 
 Xapian::doclength
 QuartzDatabase::get_avlength() const
 {
     DEBUGCALL(DB, Xapian::doclength, "QuartzDatabase::get_avlength", "");
-    RETURN(QuartzRecordManager::get_avlength(record_table));
+    RETURN(record_table.get_avlength());
 }
 
 Xapian::doclength
@@ -730,13 +694,10 @@ QuartzWritableDatabase::do_flush_const() const
 {
     DEBUGCALL(DB, void, "QuartzWritableDatabase::do_flush_const", "");
 
-    QuartzPostList::merge_changes(&database_ro.postlist_table, mod_plists, doclens, freq_deltas);
+    database_ro.postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
 
     // Update the total document length.
-    QuartzRecordManager::modify_total_length(
-	    database_ro.record_table,
-	    totlen_removed,
-	    totlen_added);
+    database_ro.record_table.modify_total_length(totlen_removed, totlen_added);
 
     database_ro.apply();
     totlen_added = 0;
@@ -762,16 +723,11 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
     try {
 	if (did == 0) {
 	    // Set the record, and get the document ID to use.
-	    did = QuartzRecordManager::add_record(
-		    database_ro.record_table,
-		    document.get_data());
+	    did = database_ro.record_table.add_record(document.get_data());
 	    Assert(did != 0);
 	} else {
 	    // Set the record using the provided document ID.
-	    QuartzRecordManager::replace_record(
-		    database_ro.record_table,
-		    document.get_data(),
-		    did);
+	    database_ro.record_table.replace_record(document.get_data(), did);
 	}
 
 	// Set the values.
@@ -779,9 +735,8 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 	    Xapian::ValueIterator value = document.values_begin();
 	    Xapian::ValueIterator value_end = document.values_end();
 	    for ( ; value != value_end; ++value) {
-		QuartzValueManager::add_value(
-		    database_ro.value_table,
-		    *value, did, value.get_valueno());
+		database_ro.value_table.add_value(*value, did,
+						  value.get_valueno());
 	    }
 	}
 
@@ -815,15 +770,15 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 		j->second.insert(make_pair(did, make_pair('A', wdf)));
 
 		if (term.positionlist_begin() != term.positionlist_end()) {
-		    QuartzPositionList::set_positionlist(
-			&database_ro.positionlist_table, did, tname,
+		    database_ro.positionlist_table.set_positionlist(
+			did, tname,
 			term.positionlist_begin(), term.positionlist_end());
 		}
 	    }
 	}
 
 	// Set the termlist
-	QuartzTermList::set_entries(&database_ro.termlist_table, did,
+	database_ro.termlist_table.set_entries(did,
 		document.termlist_begin(), document.termlist_end(),
 		new_doclen, false);
 
@@ -879,13 +834,10 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	}
 
 	// Remove the record.
-	QuartzRecordManager::delete_record(
-		database_ro.record_table, did);
+	database_ro.record_table.delete_record(did);
 
 	// Remove the values
-	QuartzValueManager::delete_all_values(
-		database_ro.value_table,
-		did);
+	database_ro.value_table.delete_all_values(did);
 
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
@@ -898,9 +850,7 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	termlist.next();
 	while (!termlist.at_end()) {
 	    string tname = termlist.get_termname();
-	    QuartzPositionList::delete_positionlist(
-		&database_ro.positionlist_table,
-		did, tname);
+	    database_ro.positionlist_table.delete_positionlist(did, tname);
 	    termcount wdf = termlist.get_wdf();
 
 	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
@@ -926,8 +876,7 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	}
 
 	// Remove the termlist.
-	QuartzTermList::delete_termlist(&database_ro.termlist_table,
-					did);
+	database_ro.termlist_table.delete_termlist(did);
     } catch (...) {
 	// If an error occurs while deleting a document, or doing any other
 	// transaction, the modifications so far must be cleared before
@@ -1000,10 +949,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	totlen_removed += termlist.get_doclength();
 
 	// Replace the record
-	QuartzRecordManager::replace_record(
-		database_ro.record_table,
-		document.get_data(),
-		did);
+	database_ro.record_table.replace_record(document.get_data(), did);
 
 	// FIXME: we read the values delete them and then replace in case
 	// they come from where they're going!  Better to ask Document
@@ -1015,21 +961,15 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	    for ( ; value != value_end; ++value) {
 		tmp.push_back(make_pair(*value, value.get_valueno()));
 	    }
-	//	QuartzValueManager::add_value(
-	//	    database_ro.value_table,
-	//	    *value, did, value.get_valueno());
+//	    database_ro.value_table.add_value(*value, did, value.get_valueno());
 	
 	    // Replace the values.
-	    QuartzValueManager::delete_all_values(
-		    database_ro.value_table,
-		    did);
+	    database_ro.value_table.delete_all_values(did);
 
 	    // Set the values.
 	    list<pair<string, Xapian::valueno> >::const_iterator i;
 	    for (i = tmp.begin(); i != tmp.end(); ++i) {
-		QuartzValueManager::add_value(
-		    database_ro.value_table,
-		    i->first, did, i->second);
+		database_ro.value_table.add_value(i->first, did, i->second);
 	    }
 	}
 
@@ -1072,19 +1012,17 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 		// FIXME : this might not work if we replace a positionlist
 		// with itself (e.g. if a document is replaced with itself
 		// with just the values changed)
-		QuartzPositionList::delete_positionlist(
-		    &database_ro.positionlist_table,
-		    did, tname);
+		database_ro.positionlist_table.delete_positionlist(did, tname);
 		if (term.positionlist_begin() != term.positionlist_end()) {
-		    QuartzPositionList::set_positionlist(
-			&database_ro.positionlist_table, did, tname,
+		    database_ro.positionlist_table.set_positionlist(
+			did, tname,
 			term.positionlist_begin(), term.positionlist_end());
 		}
 	    }
 	}
 
 	// Set the termlist
-	QuartzTermList::set_entries(&database_ro.termlist_table, did,
+	database_ro.termlist_table.set_entries(did,
 		document.termlist_begin(), document.termlist_end(),
 		new_doclen, false);
 
@@ -1252,7 +1190,7 @@ QuartzWritableDatabase::open_allterms() const
     DEBUGCALL(DB, TermList *, "QuartzWritableDatabase::open_allterms", "");
     // Terms may have been added or removed, so we need to flush.
     do_flush_const();
-    QuartzTable *t = &database_ro.postlist_table;
+    QuartzPostListTable *t = &database_ro.postlist_table;
     AutoPtr<QuartzCursor> pl_cursor(t->cursor_get());
     RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzWritableDatabase>(this),
 				  pl_cursor, t->get_entry_count()));

@@ -33,11 +33,8 @@
 
 using namespace std;
 
-class QuartzValueManager {
+class QuartzValueTable : public QuartzTable {
     private:
-	QuartzValueManager();
-	~QuartzValueManager();
-
 	/** Read an entry from position.  Throw appropriate exceptions if
 	 *  data runs out.
 	 */
@@ -49,24 +46,37 @@ class QuartzValueManager {
 	/** Generate key representing docid/valueno pair.
 	 */
 	static void make_key(string & key, Xapian::docid did, Xapian::valueno valueno);
+
     public:
+	/** Create a new table object.
+	 *
+	 *  This does not create the table on disk - the create() method must
+	 *  be called before the table is created on disk
+	 *
+	 *  This also does not open the table - the open() method must be
+	 *  called before use is made of the table.
+	 *
+	 *  @param path_          - Path at which the table is stored.
+	 *  @param readonly_      - whether to open the table for read only
+	 *                          access.
+	 *  @param blocksize_     - Size of blocks to use.  This parameter is
+	 *                          only used when creating the table.
+	 */
+	QuartzValueTable(string path_, bool readonly_, unsigned int blocksize_)
+	    : QuartzTable(path_ + "/value_", readonly_, blocksize_) { }
 
 	/** Store a value.  If a value of the same document ID and
 	 *  value number already exists, it is overwritten by this.
 	 */
-	static void add_value(QuartzTable & table,
-				  const string & value,
-				  Xapian::docid did,
-				  Xapian::valueno valueno);
+	void add_value(const string & value, Xapian::docid did,
+		       Xapian::valueno valueno);
 
 	/** Get a value.
 	 *
 	 *  @return The value if found, a null value otherwise.
 	 */
-	static void get_value(const QuartzTable & table,
-				  string & value,
-				  Xapian::docid did,
-				  Xapian::valueno valueno);
+	void get_value(string & value, Xapian::docid did,
+		       Xapian::valueno valueno) const;
 
 	/** Get all values.
 	 *
@@ -74,17 +84,15 @@ class QuartzValueManager {
 	 *                     for the specified document.
 	 *
 	 */
-	static void get_all_values(const QuartzTable & table,
-				       map<Xapian::valueno, string> & values,
-				       Xapian::docid did);
+	void get_all_values(map<Xapian::valueno, string> & values,
+			    Xapian::docid did) const;
 
 	/** Remove all values.
 	 *
 	 *  @param did	The document id for which to remove the values.
 	 *
 	 */
-	static void delete_all_values(QuartzTable &table,
-					  Xapian::docid did);
+	void delete_all_values(Xapian::docid did);
 };
 
 #endif /* OM_HGUARD_QUARTZ_VALUES_H */

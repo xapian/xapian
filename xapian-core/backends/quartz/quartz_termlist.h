@@ -30,9 +30,47 @@
 #include "quartz_table.h"
 #include <xapian/types.h>
 #include "termlist.h"
-#include "quartz_database.h"
 
 using namespace std;
+
+class QuartzTermListTable : public QuartzTable {
+    public:
+	/** Create a new table object.
+	 *
+	 *  This does not create the table on disk - the create() method must
+	 *  be called before the table is created on disk
+	 *
+	 *  This also does not open the table - the open() method must be
+	 *  called before use is made of the table.
+	 *
+	 *  @param path_          - Path at which the table is stored.
+	 *  @param readonly_      - whether to open the table for read only
+	 *                          access.
+	 *  @param blocksize_     - Size of blocks to use.  This parameter is
+	 *                          only used when creating the table.
+	 */
+	QuartzTermListTable(string path_, bool readonly_, unsigned int blocksize_)
+	    : QuartzTable(path_ + "/termlist_", readonly_, blocksize_) { }
+
+	/** Set the entries in the termlist.
+	 *
+	 *  If the termlist already exists, its contents are replaced.
+	 *
+	 *  @param store_termfreqs  If true, term frequencies are stored
+	 *         in the termlist.  This should only be done with static
+	 *         databases (which are probably generated from dumps of
+	 *         dynamic databases) - updating cannot be done efficiently
+	 *         while storing term frequencies.
+	 */
+	void set_entries(Xapian::docid did,
+		    Xapian::TermIterator t, const Xapian::TermIterator &t_end,
+		    quartz_doclen_t doclen, bool store_termfreqs);
+
+	/** Clear the termlist.  After this call, the termlist for the
+	 *  specified document ID will not exist.
+	 */
+	void delete_termlist(Xapian::docid did);
+};
 
 /** A termlist in a quartz database.
  */
@@ -58,7 +96,7 @@ class QuartzTermList : public LeafTermList {
 	 *  FIXME: currently, we read the whole termlist as one chunk.
 	 */
 	string termlist_part;
-	
+
 	/** Position within tag that we're reading from.
 	 */
 	const char *pos;
@@ -79,7 +117,7 @@ class QuartzTermList : public LeafTermList {
 	/** The size of the termlist.
 	 */
 	Xapian::termcount termlist_size;
-	
+
 	/** Current termname.
 	 */
 	string current_tname;
@@ -107,26 +145,6 @@ class QuartzTermList : public LeafTermList {
 	Xapian::doccount doccount;
 
     public:
-	/** Set the entries in the termlist.
-	 *
-	 *  If the termlist already exists, its contents are replaced.
-	 *
-	 *  @param store_termfreqs  If true, term frequencies are stored
-	 *         in the termlist.  This should only be done with static
-	 *         databases (which are probably generated from dumps of
-	 *         dynamic databases) - updating cannot be done efficiently
-	 *         while storing term frequencies.
-	 */
-	static void
-	set_entries(QuartzTable * table_, Xapian::docid did,
-		    Xapian::TermIterator t, const Xapian::TermIterator &t_end,
-		    quartz_doclen_t doclen, bool store_termfreqs);
-
-	/** Clear the termlist.  After this call, the termlist for the
-	 *  specified document ID will not exist.
-	 */
-	static void delete_termlist(QuartzTable * table, Xapian::docid did);
-
 	/** Open the termlist for the specified document, for reading.
 	 */
 	QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,

@@ -33,13 +33,46 @@
 #include "omassert.h"
 #include "quartz_types.h"
 #include "quartz_positionlist.h"
+#include "quartz_table.h"
 
 using namespace std;
 
-class QuartzTable;
 class QuartzCursor;
 class QuartzDatabase;
 class Xapian::Database::Internal;
+
+class PostlistChunkReader;
+class PostlistChunkWriter;
+
+class QuartzPostListTable : public QuartzTable {
+    public:
+	/** Create a new table object.
+	 *
+	 *  This does not create the table on disk - the create() method must
+	 *  be called before the table is created on disk
+	 *
+	 *  This also does not open the table - the open() method must be
+	 *  called before use is made of the table.
+	 *
+	 *  @param path_          - Path at which the table is stored.
+	 *  @param readonly_      - whether to open the table for read only
+	 *                          access.
+	 *  @param blocksize_     - Size of blocks to use.  This parameter is
+	 *                          only used when creating the table.
+	 */
+	QuartzPostListTable(string path_, bool readonly_, unsigned int blocksize_)
+	    : QuartzTable(path_ + "/postlist_", readonly_, blocksize_) { }
+
+	/// Merge added, removed, and changed entries.
+	void merge_changes(
+	    const map<string, map<Xapian::docid, pair<char, Xapian::termcount> > > & mod_plists,
+	    const map<Xapian::docid, Xapian::termcount> & doclens,
+	    const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas);
+
+	Xapian::docid get_chunk(const string &tname,
+		Xapian::docid did, bool adding,
+		PostlistChunkReader ** from, PostlistChunkWriter **to);
+};
 
 /** A postlist in a quartz database.
  */
@@ -213,12 +246,6 @@ class QuartzPostList : public LeafPostList {
 					   const char * end,
 					   Xapian::termcount * number_of_entries_ptr,
 					   Xapian::termcount * collection_freq_ptr);
-
-	/// Merge added, removed, and changed entries.
-	static void merge_changes(QuartzTable * bufftable,
-	    const map<string, map<Xapian::docid, pair<char, Xapian::termcount> > > & mod_plists,
-	    const map<Xapian::docid, Xapian::termcount> & doclens,
-	    const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas);
 };
 
 #endif /* OM_HGUARD_QUARTZ_POSTLIST_H */

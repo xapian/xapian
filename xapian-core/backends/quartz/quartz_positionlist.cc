@@ -30,6 +30,16 @@
 
 using std::string;
 
+static inline void
+make_key(Xapian::docid did, const string & tname, string & key)
+{
+#ifdef SON_OF_QUARTZ
+    key = pack_uint_preserving_sort(did) + tname;
+#else
+    key = pack_uint(did) + tname;
+#endif
+}
+
 void
 QuartzPositionList::read_data(const QuartzTable * table,
 			      Xapian::docid did,
@@ -125,29 +135,15 @@ QuartzPositionList::skip_to(Xapian::termpos termpos)
 	       om_tostring(current_pos) + "."));
 }
 
-void
-QuartzPositionList::make_key(Xapian::docid did,
-			     const string & tname,
-			     string & key)
-{
-    DEBUGCALL_STATIC(DB, void, "QuartzPositionList::make_key", did << ", " << tname << ", " << key);
-#ifdef SON_OF_QUARTZ
-    key = pack_uint_preserving_sort(did) + tname;
-#else
-    key = pack_uint(did) + tname;
-#endif
-}
-
 // Methods modifying position lists
 
 void
-QuartzPositionList::set_positionlist(QuartzTable * table,
-			Xapian::docid did,
+QuartzPositionListTable::set_positionlist(Xapian::docid did,
 			const string & tname,
 			Xapian::PositionIterator pos,
 			const Xapian::PositionIterator &pos_end)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzPositionList::set_positionlist", table << ", " << did << ", " << tname << ", " << pos << ", " << pos_end);
+    DEBUGCALL(DB, void, "QuartzPositionList::set_positionlist", did << ", " << tname << ", " << pos << ", " << pos_end);
     string key;
 
     make_key(did, tname, key);
@@ -161,16 +157,15 @@ QuartzPositionList::set_positionlist(QuartzTable * table,
 	size++;
     }
     tag = pack_uint(size) + tag;
-    table->set_entry(key, tag);
+    set_entry(key, tag);
 }
 
 void
-QuartzPositionList::delete_positionlist(QuartzTable * table,
-			Xapian::docid did,
+QuartzPositionListTable::delete_positionlist(Xapian::docid did,
 			const string & tname)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzPositionList::delete_positionlist", table << ", " << did << ", " << tname);
+    DEBUGCALL(DB, void, "QuartzPositionList::delete_positionlist", did << ", " << tname);
     string key;
     make_key(did, tname, key);
-    table->set_entry(key);
+    set_entry(key);
 }

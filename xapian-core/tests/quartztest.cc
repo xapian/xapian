@@ -1731,9 +1731,9 @@ static bool test_positionlist1()
     document.add_posting("foo", 8);
     document.add_posting("foo", 10);
     document.add_posting("foo", 12);
-    QuartzPositionList::set_positionlist(&bufftable, 1, "foo",
-				 document.termlist_begin().positionlist_begin(),
-				 document.termlist_begin().positionlist_end());
+    bufftable.set_positionlist(1, "foo",
+		 document.termlist_begin().positionlist_begin(),
+		 document.termlist_begin().positionlist_end());
 
     QuartzPositionList pl;
 

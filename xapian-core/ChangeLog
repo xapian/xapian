@@ -1,3 +1,8 @@
+Thu Aug 12 13:21:36 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/,tests/quartztest.cc: Refactored, replacing
+	  Quartz*Manager with Quartz*Table.
+
 Thu Aug 12 02:00:58 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Merged QuartzTableManager into QuartzDatabase.
