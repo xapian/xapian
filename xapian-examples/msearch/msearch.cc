@@ -51,8 +51,7 @@ main(int argc, char *argv[])
     int mfirst = 0;
     const char *progname = argv[0];
     OmRSet rset;
-    vector<vector<string> > dbargs;
-    vector<string> dbtypes;
+    vector<OmSettings *> dbs;
     bool showmset = true;
     om_queryop default_op = OM_MOP_OR;
     int collapse_key = -1;
@@ -73,46 +72,11 @@ main(int argc, char *argv[])
 	    collapse_key = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--da-flimsy") == 0) {
-	    vector<string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    dbtypes.push_back("da_flimsy");
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--da-heavy") == 0) {
-	    vector<string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    dbtypes.push_back("da_heavy");
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--db-flimsy") == 0) {
-	    vector<string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    dbtypes.push_back("db_flimsy");
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--db-heavy") == 0) {
-	    vector<string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    dbtypes.push_back("db_heavy");
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--im") == 0) {
-	    vector<string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    dbtypes.push_back("inmemory");
-	    argc -= 2;
-	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--sleepycat") == 0) {
-	    vector<string> args;
-	    args.push_back(argv[1]);
-	    dbargs.push_back(args);
-	    dbtypes.push_back("sleepycat");
+	} else if (argc >= 2 && strcmp(argv[0], "--dbdir") == 0) {
+	    OmSettings *params = new OmSettings;
+	    params->set_value("backend", "auto");
+	    params->set_value("auto_dir", argv[1]);
+	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
 	} else if (strcmp(argv[0], "--showmset") == 0) {
@@ -137,14 +101,12 @@ main(int argc, char *argv[])
 	}
     }
 	
-    if (syntax_error || argc < 1 || !dbtypes.size()) {
+    if (syntax_error || argc < 1 || dbs.empty()) {
 	cout << "Syntax: " << progname << " [OPTIONS] TERM ..." << endl <<
 		"\t--msize <msize>\n" <<
 		"\t--mfirst <first mitem to return>\n" <<
 		"\t--key <key to collapse mset on>\n" <<
-		"\t--[da-flimsy|da-heavy|db-flimsy|db-heavy] DIRECTORY\n" <<
-		"\t--sleepycat DIRECTORY\n" <<
-		"\t--im INMEMORY\n" <<
+		"\t--dbdir DIRECTORY\n" <<
 		"\t--rel DOCID\n" <<
 		"\t--multidb\n" <<
 		"\t--showmset (default)\n" <<
@@ -156,13 +118,10 @@ main(int argc, char *argv[])
     try {
         OmDatabaseGroup mydbs;
 
-	vector<string>::const_iterator p;
-	vector<vector<string> >::const_iterator q;
-	for(p = dbtypes.begin(), q = dbargs.begin();
-	    p != dbtypes.end();
-	    p++, q++) {
-
-	    mydbs.add_database(*p, *q);
+	vector<OmSettings *>::const_iterator p;
+	for (p = dbs.begin(); p != dbs.end(); p++) {
+	    mydbs.add_database(**p);
+	    delete *p;
 	}
 
 	OmEnquire enquire(mydbs);

@@ -292,7 +292,7 @@ int main(int argc, char *argv[]) {
     string gladefile = "querygui.glade";
     enquire = NULL;
     max_msize = 10;
-    vector<string> dbargs;
+    vector<OmSettings *> dbs;
 
     gtk_init(&argc, &argv);
     glade_init();
@@ -303,12 +303,15 @@ int main(int argc, char *argv[]) {
     argv++;
     argc--;
     while (argc && argv[0][0] == '-') {
-	if (argc >= 2 && strcmp(argv[0], "--max-msize") == 0) {
+	if (argc >= 2 && strcmp(argv[0], "--msize") == 0) {
 	    max_msize = atoi(argv[1]);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--dbdir") == 0) {
-	    dbargs.push_back(argv[1]);
+	    OmSettings *params = new OmSettings;
+	    params->set_value("backend", "auto");
+	    params->set_value("auto_dir", argv[1]);
+	    dbs.push_back(params);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--glade") == 0) {
@@ -321,17 +324,10 @@ int main(int argc, char *argv[]) {
 	}
     }
 
-    while(argc >= 1) {
-	dbargs.push_back(argv[1]);
-	argc -= 1;
-	argv += 1;
-    }
-
-    if (!dbargs.size() || syntax_error) {
-	cout << "Syntax: " << progname << " [options] <database directories>"
-	     << endl;
-	cout << "\t--max-msize <maximum msize>\n";
-	cout << "\t--dbdir <database directory>\n";
+    if (dbs.empty() || syntax_error || argc >= 1) {
+	cout << "Syntax: " << progname << " [options]" << endl;
+	cout << "\t--msize <maximum msize>\n";
+	cout << "\t--dbdir <directory>\n";
 	cout << "\t--glade <glade interface definition file>\n";
 	exit(1);
     }
@@ -340,14 +336,10 @@ int main(int argc, char *argv[]) {
     try {
 	OmDatabaseGroup mydbs;
 
-	vector<string>::const_iterator q;
-	for(q = dbargs.begin();
-	    q != dbargs.end();
-	    q++) {
-	    OmSettings settings;
-	    settings.set_value("backend", "auto");
-	    settings.set_value("auto_dir", q);
-	    mydbs.add_database(settings);
+	vector<OmSettings *>::const_iterator p;
+	for (p = dbs.begin(); p != dbs.end(); p++) {
+	    mydbs.add_database(**p);
+	    delete *p;
 	}
 
 	GladeXML *xml;

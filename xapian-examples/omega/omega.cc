@@ -148,18 +148,20 @@ main2(int argc, char *argv[])
 			// Translate DB parameter to path of database directory
 			if (!dbname.empty()) dbname += '/';
 			dbname += *i;
-			vector<string> params;          
-			params.push_back(map_dbname_to_dir(*i));
-			omdb.add_database("auto", params);
+			OmSettings params;          
+			params.set_value("backend", "auto");
+			params.set_value("auto_dir", map_dbname_to_dir(*i));
+			omdb.add_database(params);
 		    }
 		}
 	    }
 	}
 	if (dbname.empty()) {
 	    dbname = default_dbname;
-	    vector<string> params;          
-	    params.push_back(map_dbname_to_dir(dbname));
-	    omdb.add_database("auto", params);
+	    OmSettings params;          
+	    params.set_value("backend", "auto");
+	    params.set_value("auto_dir", map_dbname_to_dir(dbname));
+	    omdb.add_database(params);
 	}
     } catch (OmError &e) {
 	// FIXME: make this more helpful (and use a template?)

@@ -325,17 +325,18 @@ index_directory(const string &dir)
 int
 main(int argc, char **argv)
 {
-    vector<string> parameters;
+    OmSettings params;
     if (argc != 4) {
 	cout << "Syntax: " << argv[0] << " DBDIRECTORY DOCROOT STARTURL\n";
 	cout << "e.g. " << argv[0]
 	     << " /usr/om/data/default /home/httpd/html /\n";
 	exit(1);
     }
-    parameters.push_back(argv[1]);
+    params.set_value("backend", "sleepycat");
+    params.set_value("sleepycat_dir", argv[1]);
     root = argv[2];
     try {
-	db = new OmWritableDatabase("sleepycat", parameters);
+	db = new OmWritableDatabase(params);
 	index_directory(argv[3]);
 	delete db;
     }

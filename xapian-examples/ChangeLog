@@ -1,6 +1,9 @@
-Thu Aug 17 09:55:07 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+Thu Aug 17 10:19:00 BST 2000 Olly Betts
 
-	* Fix querygui to use OmSettings.
+	* Updated examples to reflect API changes
+
+	* gui, msearch: removed slew of backend switches - now open database
+	  with auto backend 
 
 Thu Aug 10 12:00:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
