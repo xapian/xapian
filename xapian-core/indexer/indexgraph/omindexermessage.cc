@@ -129,6 +129,7 @@ OmIndexerData::swap(OmIndexerData &other) {
     /* And now copy the temp union over ours */
     switch (other.type) {
 	case rt_empty:
+	    break;
 	case rt_int:
 	    u.int_val = tempu.int_val;
 	    break;
