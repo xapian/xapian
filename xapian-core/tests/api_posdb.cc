@@ -495,6 +495,53 @@ static bool test_phrase2()
     return true;
 }
 
+/// Test getting position lists from databases
+static bool test_poslist1()
+{
+    OmDatabase mydb(get_database("apitest_poslist"));
+
+    OmStem stemmer("english");
+    om_termname term = stemmer.stem_word("sponge");
+    
+    OmPositionListIterator pli = mydb.positionlist_begin(2, term);
+
+    TEST(pli != mydb.positionlist_end(2, term));
+    TEST(*pli == 1);
+    pli++;
+    TEST(pli != mydb.positionlist_end(2, term));
+    TEST(*pli == 2);
+    pli++;
+    TEST(pli != mydb.positionlist_end(2, term));
+    TEST(*pli == 3);
+    pli++;
+    TEST(pli != mydb.positionlist_end(2, term));
+    TEST(*pli == 5);
+    pli++;
+    TEST(pli != mydb.positionlist_end(2, term));
+    TEST(*pli == 8);
+    pli++;
+    TEST(pli != mydb.positionlist_end(2, term));
+    TEST(*pli == 13);
+    pli++;
+    TEST(pli != mydb.positionlist_end(2, term));
+    TEST(*pli == 21);
+    pli++;
+    TEST(pli != mydb.positionlist_end(2, term));
+    TEST(*pli == 34);
+    pli++;
+    TEST(pli == mydb.positionlist_end(2, term));
+
+    TEST_EXCEPTION(OmDocNotFoundError, mydb.positionlist_begin(55, term));
+
+    /* FIXME: what exception should be thrown here?  Quartz throws
+     * OmDocNotFoundError, and InMemory throws OmRangeError.
+     */
+    TEST_EXCEPTION(OmRuntimeError, mydb.positionlist_begin(2, "adskfjadsfa"));
+    TEST_EXCEPTION(OmDocNotFoundError, mydb.positionlist_begin(55, "adskfjadsfa"));
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -504,5 +551,14 @@ test_desc positionaldb_tests[] = {
     {"near2",		   test_near2},
     {"phrase1",		   test_phrase1},
     {"phrase2",		   test_phrase2},
+    {0, 0}
+};
+
+/** The tests which need a backend which supports positional information
+ *  and opening position lists from the database
+ *  FIXME: implement for network?
+ */
+test_desc localpositionaldb_tests[] = {
+    {"poslist1",	   test_poslist1},
     {0, 0}
 };

@@ -26,5 +26,6 @@
 #include "testsuite.h"
 
 extern test_desc positionaldb_tests[];
+extern test_desc localpositionaldb_tests[];
 
 #endif /* OM_HGUARD_API_POSDB_H */

@@ -1,3 +1,8 @@
+Mon Dec 18 17:19:40 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented opening positionlists from inmemory databases.  Added
+	  a testcase as well, which is run for quartz and inmemory.
+
 Mon Dec 18 15:48:16 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented AllTermsIterator for quartz.  Interaction with

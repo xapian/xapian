@@ -88,6 +88,7 @@ EXTRA_DIST = testdata/apitest_onedoc.txt \
 	     testdata/apitest_punc.txt \
 	     testdata/apitest_space.txt \
 	     testdata/apitest_allterms.txt \
+	     testdata/apitest_poslist.txt \
 	     testdata/indextest_filereader.txt
 
 

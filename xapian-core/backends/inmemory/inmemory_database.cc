@@ -139,7 +139,23 @@ AutoPtr<PositionList>
 InMemoryDatabase::open_position_list(om_docid did,
 				     const om_termname & tname) const
 {
-    throw OmUnimplementedError("InMemory databases do not support opening positionlist");
+    if (did > doclists.size()) {
+	throw OmDocNotFoundError("Document id " + om_tostring(did) +
+				 " doesn't exist in inmemory database");
+    }
+    const InMemoryDoc &doc = termlists[did-1];
+
+    std::vector<InMemoryPosting>::const_iterator i;
+    for (i = doc.terms.begin();
+	 i != doc.terms.end();
+	 ++i) {
+	if (i->tname == tname) {
+	    AutoPtr<InMemoryPositionList> poslist(new InMemoryPositionList());
+	    poslist->set_data(i->positions);
+	    return AutoPtr<PositionList>(poslist.release());
+	}
+    }
+    throw OmRangeError("No positionlist for term in document.");
 }
 
 void

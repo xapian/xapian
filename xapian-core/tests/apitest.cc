@@ -103,6 +103,7 @@ int main(int argc, char *argv[])
     RUNTESTS("inmemory", writabledb);
     RUNTESTS("inmemory", localdb);
     RUNTESTS("inmemory", positionaldb);
+    RUNTESTS("inmemory", localpositionaldb);
     RUNTESTS("inmemory", doclendb);
     RUNTESTS("inmemory", allterms);
 #endif
@@ -113,6 +114,7 @@ int main(int argc, char *argv[])
     RUNTESTS("quartz", writabledb);
     RUNTESTS("quartz", localdb);
     RUNTESTS("quartz", positionaldb);
+    RUNTESTS("quartz", localpositionaldb);
     RUNTESTS("quartz", doclendb);
     RUNTESTS("quartz", collfreq);
     RUNTESTS("quartz", allterms);
