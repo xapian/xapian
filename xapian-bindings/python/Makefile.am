@@ -1,6 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
 EXTRA_DIST = util.i
+DIST_SUBDIRS = docs
+SUBDIRS = docs
 
 pylibdir = @PYTHON_LIB@/site-packages
 

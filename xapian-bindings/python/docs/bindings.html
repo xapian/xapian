@@ -1,0 +1,153 @@
+<html><head><title>Python bindings for Xapian</title></head>
+<body>
+<h1>Python bindings for Xapian</h1>
+
+<p>
+The Python bindings for Xapian are packaged in the <code>xapian</code> module, and
+largely follow the C++ API, with the following differences and
+additions. Python strings and lists, etc., are converted automatically
+in the bindings, so generally it should just work as expected.
+</p>
+
+<h2>Exceptions</h2>
+
+<p>
+   Exceptions are throwns as SWIG exceptions instead of Xapian
+   exceptions. This isn't done well at the moment; in future we will
+   throw wrapped Xapian exceptions. For now, it's probably easier to
+   catch all exceptions and try to take appropriate action based on
+   their associated string.
+</p>
+
+<h2><code>empty()</code> methods</h2>
+
+<p>
+   <code>empty()</code> methods are renamed to <code>is_empty()</code> in the bindings.
+</p>
+
+<h2>Iterators</h2>
+
+<p>
+   All iterators support <code>next()</code> and <code>equals()</code> methods to move through
+   and test iterators (as for all language bindings). Python-wrapped
+   iterators also support direct comparison, so something like:
+</p>
+
+<pre>
+   m=mset.begin()
+   while m!=mset.end():
+     # do something
+     m.next()
+</pre>
+
+<h2>Iterator deferencing</h2>
+
+<p>
+   C++ iterators are often deferenced to get information, eg
+   <code>(*it)</code>. With Python these are all mapped to named methods, as
+   follows:
+</p>
+
+<table title='Iterator deferencing methods'>
+<thead><td>Iterator</td><td>Deferencing method</td></thead>
+<tr><td>PositionIterator</td>	<td><code>get_termpos()</code></td></tr>
+<tr><td>PostingIterator</td>	<td><code>get_docid()</code></td></tr>
+<tr><td>TermIterator</td>		<td><code>get_term()</code></td></tr>
+<tr><td>ValueIterator</td>	<td><code>get_value()</code></td></tr>
+<tr><td>MSetIterator</td>		<td><code>get_docid()</code></td></tr>
+<tr><td>ESetIterator</td>		<td><code>get_termname()</code></td></tr>
+</table>
+
+<p>
+   Other methods, such as <code>MSetIterator.get_document()</code>, are available unchanged.
+</p>
+   
+<h2>MSet</h2>
+
+<p>
+   MSet objects have some additional methods to simplify access (these
+   work using the C++ array deferencing):
+</p>
+
+<table title='MSet additional methods'>
+<thead><td>Method name</td><td>Explanation</td></thead>
+<tr><td><code>get_hit(index)</code></td><td>returns MSetIterator at index</td></tr>
+<tr><td><code>get_document_percentage(index)</code></td><td><code>convert_to_percent(get_hit(index))</code></td></tr>
+<tr><td><code>get_document(index)</code></td><td><code>get_hit(index).get_document()</code></td></tr>
+<tr><td><code>get_document_id(index)</code></td><td><code>get_hit(index).get_docid()</code></td></tr>
+</table>
+
+<p>
+Additionally, the MSet has a property, <code>mset.items</code>, which returns a list of tuples representing the MSet; this may be more convenient than using the MSetIterator. The members of the tuple are as follows.
+</p>
+
+<table title='MSet.items member members'>
+<thead><td>Index</td><td>Contents</td></thead>
+<tr><td><code>xapian.OMMSET_DID</code></td><td>Document id</td></tr>
+<tr><td><code>xapian.OMMSET_WT</code></td><td>Weight</td></tr>
+<tr><td><code>xapian.OMMSET_RANK</code></td><td>Rank</td></tr>
+<tr><td><code>xapian.OMMSET_PERCENT</code></td><td>Percentage weight</td></tr>
+</table>
+
+<p>
+Two MSet objects are equal if they have the same number and maximum possible number of members, and if every document member of the first MSet exists at the same index in the second MSet, with the same weight.
+</p>
+
+<h2>ESet</h2>
+
+<p>
+The ESet has a property, <code>eset.items</code>, which returns a list of tuples representing the ESet; this may be more convenient than using the ESetIterator. The members of the tuple are as follows.
+</p>
+
+<table title='ESet.items member members'>
+<thead><td>Index</td><td>Contents</td></thead>
+<tr><td><code>xapian.OMESET_TNAME</code></td><td>Term name</td></tr>
+<tr><td><code>xapian.OMESET_WT</code></td><td>Weight</td></tr>
+</table>
+
+<h2>Xapian::Auto</h2>
+
+<p>
+   Functions in <code>Xapian::Auto</code> are mapped directly into the <code>xapian</code>
+   module (so <code>Xapian::Auto::open()</code> becomes <code>xapian.open()</code>, for
+   instance). The <code>Xapian::Auto::DB_*</code> constants are available as
+   <code>xapian.DB_*</code>.
+</p>
+
+<h2>Query</h2>
+
+<p>
+   Please note that although the source code for the bindings
+   indicates that there's another constructor to <code>xapian.Query</code> that
+   should be able to take a default query operator, a list of queries,
+   and an optional window, this doesn't actually work in Python at the
+   moment due to the way SWIG overloading works.
+</p>
+
+<h2>Enquire</h2>
+
+<p>
+   There is an additional method <code>get_matching_terms()</code> which takes an
+   MSetIterator and returns a list of terms in the current query which
+   match the document given by that iterator. This may be slightly
+   more convenient than using the TermIterator directly.
+</p>
+
+<h2>QueryParser and Stem</h2>
+
+<p>
+   The query parser and C++ wrapped stemmers are wrapped for Python as
+   <code>xapian.QueryParser</code> and <code>xapian.Stem</code>. The interfaces are identical to
+   the C++ versions.
+</p>
+
+<p>
+There are examples of the Python bindings, based on simplesearch and
+simpleindex from <code>xapian-examples</code>, in the <code>examples</code> subdirectory.
+</p>
+
+<address>
+Last updated $Date$
+</address>
+</body>
+</html>

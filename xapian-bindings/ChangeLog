@@ -1,3 +1,7 @@
+Sun Dec  7 13:11:56 BST 2003  James Aylett  <james@tartarus.org>
+
+	* Added basic documentation, and two examples, for Python bindings
+
 Thu Oct 02 17:34:47 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.7.4.

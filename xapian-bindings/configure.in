@@ -57,6 +57,14 @@ dnl FIXME: also check for guile, tcl8, java
 
 AC_SUBST(BINDINGS)
 
-AC_CONFIG_FILES([Makefile
- python/Makefile php4/Makefile guile/Makefile tcl8/Makefile])
+AC_CONFIG_FILES([
+ Makefile
+
+ python/Makefile
+ python/docs/Makefile
+ python/docs/examples/Makefile
+
+ php4/Makefile
+ guile/Makefile
+ tcl8/Makefile])
 AC_OUTPUT
