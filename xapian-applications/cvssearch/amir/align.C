@@ -44,7 +44,7 @@ public:
 
   }
 
-  void findOptimalAlignment() {
+  void findOptimalAlignment( int debug = 0 ) {
 
     for( int i = 1; i <= S.size(); i++ ) {
       V[ i ][0] = V[i-1][0] + S.score( S[i], S.space() );
@@ -57,6 +57,7 @@ public:
     // recurrence
 
     for ( int i = 1; i <= S.size(); i++ ) {
+      if ( debug ) cerr << "..." << i << " / " << S.size() << endl;
       for ( int j = 1; j <= T.size(); j++ ) {
 	int v = V[i-1][j-1] + S.score( S[i], T[j] );
 	v = max( v, V[i-1][j] + S.score(S[i], T.space()) );
@@ -217,6 +218,8 @@ public:
 
   int score( const string& l1, const string& l2 ) {
 
+    assert( l1 != space() || l2 != space() );
+
     CharSequence c1(l1);
     CharSequence c2(l2);
 
@@ -245,7 +248,7 @@ int main( int argc, char *argv[] ) {
   LineSequence l1(f1);
   LineSequence l2(f2);
   Alignment<LineSequence> alignment( l1, l2 );
-  alignment.findOptimalAlignment();
+  alignment.findOptimalAlignment( 1 );
   cerr << "*** optimal alignment value is " << alignment.optimalAlignmentValue() << endl;
   alignment.reconstruct();
 
