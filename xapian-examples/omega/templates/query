@@ -90,6 +90,6 @@ $if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}
 $list{$queryterms,<INPUT TYPE=hidden NAME=OLDP VALUE=",.,.">}
 $list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">}
 </FORM>
-<hr><div align=right><i><small><a href="http://omseek.sourceforge.net/">$html{$version}</a></small></i></div>
+<hr><div align=right><i><small><a href="http://xapian.sourceforge.net/">$html{$version}</a></small></i></div>
 </body>
 </html>

@@ -15,8 +15,8 @@ AC_PROG_YACC
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL
 
-dnl Check for libomseek
-OM_PATH_OMSEEK(, AC_MSG_ERROR([Can't find Omseek library]))
+dnl Check for libxapian
+OM_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
 dnl Checks for gtk / glib / glade
 build_gui=yes

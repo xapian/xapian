@@ -1,19 +1,19 @@
 all: simplecreate simpleindex simplesearch simpleexpand indexnasty
 
 indexnasty: indexnasty.cc
-	$(CXX) $< `omseek-config --libs --cflags` -o $@
+	$(CXX) $< `xapian-config --libs --cflags` -o $@
 
 simplecreate: simplecreate.cc
-	$(CXX) $< `omseek-config --libs --cflags` -o $@
+	$(CXX) $< `xapian-config --libs --cflags` -o $@
 
 simpleindex: simpleindex.cc
-	$(CXX) $< `omseek-config --libs --cflags` -o $@
+	$(CXX) $< `xapian-config --libs --cflags` -o $@
 
 simplesearch: simplesearch.cc
-	$(CXX) $< `omseek-config --libs --cflags` -o $@
+	$(CXX) $< `xapian-config --libs --cflags` -o $@
 
 simpleexpand: simpleexpand.cc
-	$(CXX) $< `omseek-config --libs --cflags` -o $@
+	$(CXX) $< `xapian-config --libs --cflags` -o $@
 
 html: simplecreate.cc.html simpleindex.cc.html \
       simplesearch.cc.html simpleexpand.cc.html

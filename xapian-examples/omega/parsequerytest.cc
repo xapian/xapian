@@ -1,6 +1,8 @@
 #include "parsequery.h"
 #include <strstream.h>
 
+OmQuery::op default_op = OmQuery::OP_OR;
+
 typedef struct {
     const char *query;
     const char *expect;
