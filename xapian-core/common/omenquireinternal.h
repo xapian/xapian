@@ -26,6 +26,7 @@
 #define OM_HGUARD_OMENQUIREINTERNAL_H
 
 #include <xapian/database.h>
+#include <xapian/document.h>
 #include <xapian/enquire.h>
 #include <algorithm>
 #include <math.h>
