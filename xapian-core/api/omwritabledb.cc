@@ -58,6 +58,7 @@ OmDatabase::~OmDatabase()
 string
 OmDatabase::get_description() const
 {
+    /// \todo display contents of the database
     return "OmDatabase()";
 }
 
@@ -144,6 +145,7 @@ OmWritableDatabase::add_document(const OmDocumentContents & document)
 string
 OmWritableDatabase::get_description() const
 {
+    /// \todo display contents of the writable database
     return "OmWritableDatabase()";
 }
 

@@ -100,6 +100,7 @@ OmDatabaseGroup::add_database(const OmDatabase & database)
 string
 OmDatabaseGroup::get_description() const
 {
+    /// \todo display the contents of the database group
     return "OmDatabaseGroup()";
 }
 

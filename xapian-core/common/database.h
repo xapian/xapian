@@ -56,7 +56,7 @@ class IRDatabase : public IndexerDestination,
 	/** Destroy the database.  This method must not be called until all
 	 *  objects using the database have been cleaned up.
 	 *
-	 *  FIXME: ensure that the database is not destroyed while objects
+	 *  \todo ensure that the database is not destroyed while objects
 	 *  are still using it by employing reference counted internals.
 	 */
         virtual ~IRDatabase() { return; }

@@ -595,7 +595,6 @@ OmEnquireInternal::calc_matching_terms(om_docid did) const
 
 OmEnquire::OmEnquire(const OmDatabaseGroup &databases)
 {
-    // FIXME: display contents of databases
     DEBUGLINE(APICALL, "Calling OmEnquire::OmEnquire(" << databases << ")");
     internal = new OmEnquireInternal(databases);
     DEBUGLINE(APICALL, "OmEnquire::OmEnquire() returning");
@@ -644,7 +643,6 @@ OmEnquire::get_mset(om_doccount first,
     // FIXME: this copies the mset too much: pass it in by reference?
     OmMSet mset(internal->get_mset(first, maxitems, omrset, moptions, mdecider));
 
-    // FIXME: display contents of mset.
     DEBUGLINE(APICALL, "OmEnquire::get_mset() returning " << mset);
 
     return mset;
@@ -667,7 +665,6 @@ OmEnquire::get_eset(om_termcount maxitems,
     // FIXME: this copies the eset too much: pass it in by reference?
     OmESet eset(internal->get_eset(maxitems, omrset, eoptions, edecider));
 
-    // FIXME: display contents of eset.
     DEBUGLINE(APICALL, "OmEnquire::get_eset() returning " << eset);
 
     return eset;
