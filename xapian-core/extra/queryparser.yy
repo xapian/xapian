@@ -51,6 +51,8 @@ class U {
 
 #include <xapian/queryparser.h>
 
+static vector<string> group_prefix;
+
 static int yyparse();
 static int yyerror(const char *s);
 static int yylex();
@@ -62,7 +64,7 @@ static string q;
 %}
 
 /* BISON Declarations */
-%token TERM PREFIXTERM HYPHEN
+%token TERM PREFIXTERM HYPHEN PREFIXQUOTE PREFIXBRA
 %left OR XOR NOT
 %left AND
 %left NEAR
@@ -113,6 +115,9 @@ exp:	  prob
 		    throw "Syntax: <expression> XOR <expression>";
 		$$ = U(Query(Query::OP_XOR, $1.q, $3.q)); }
 	| '(' exp ')'	{ $$ = $2; }
+	| PREFIXBRA	{ group_prefix.push_back(*($1.q.get_terms_begin())); }
+	  exp ')'	{ group_prefix.pop_back();
+			  $$ = $3; }
 ;
 
 prob:	  probterm
@@ -156,6 +161,10 @@ stopterm: ignorehypterm	{ string term = *($1.q.get_terms_begin());
 			  } else {
 			      $$ = $1;
 			  } }
+	| PREFIXQUOTE	{ group_prefix.push_back(*($1.q.get_terms_begin())); }
+	  phrase '"'	{ group_prefix.pop_back();
+			  $$ = U(Query(Query::OP_PHRASE, $3.v.begin(), $3.v.end()));
+			  $$.q.set_window($3.v.size()); }
 	| '"' phrase '"'{ $$ = U(Query(Query::OP_PHRASE, $2.v.begin(), $2.v.end()));
 			  $$.q.set_window($2.v.size()); }
 	| hypphr        { $$ = U(Query(Query::OP_PHRASE, $1.v.begin(), $1.v.end()));
@@ -378,9 +387,13 @@ more_term:
 		       // search for "subject:xapian anon cvs" should
 		       // use default_op (or should it?) but search
 		       // for "cvs site:xapian.org" should use FILTER
-		       //
-		       // FIXME: Also, what about prefix terms in NEAR,
-		       // prefixed phrases (subject:"space flight")
+		       if (*qptr == '"' || *qptr == '(') {
+			   // prefixed phrases: subject:"space flight"
+			   // prefixed experessions: extract:(fast NEAR food)
+			   yylval = U(Query(prefix, 1, 1));
+			   prefix = "";
+			   return (*qptr++ == '"' ? PREFIXQUOTE : PREFIXBRA);
+		       }
 		       if (yylex() == TERM) return PREFIXTERM;
 		       prefix = "";
 		    }
@@ -411,6 +424,8 @@ more_term:
 	    term = 'R' + term;
 	else if (!already_stemmed)
 	    term = qp->stemmer->stem_word(term);
+	if (prefix.empty() && !group_prefix.empty())
+	    prefix = group_prefix.back();
 	if (!prefix.empty()) {
 	    if (prefix.length() > 1 && (isupper(term[0]) || isdigit(term[0]))) {
 		prefix += ':';

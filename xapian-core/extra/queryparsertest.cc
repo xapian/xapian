@@ -479,6 +479,9 @@ static test tests[] = {
     { "parent.document.getElementById(\\\"leftmenu\\\").cols", NULL },
     { "<% if not isEmpty(Request.QueryString) then", NULL },
     { "Failed to connect agent. (AGENT=dbaxchg2, EC=UserId =NUll)", NULL },
+    { "subject:test other", "(XTtest:(pos=1) OR other:(pos=2))" },
+    { "subject:\"space flight\"", "(XTspace:(pos=1) PHRASE 2 XTflight:(pos=2))" },
+    { "author:(twain OR poe) OR flight", "(Atwain:(pos=1) OR Apoe:(pos=2) OR flight:(pos=3))" },
     { NULL, NULL }
 };
 
@@ -488,6 +491,8 @@ main(void)
     Xapian::QueryParser qp;
     qp.set_stemming_options("english");
     qp.prefixes.insert(pair<string, string>("author", "A"));
+    qp.prefixes.insert(pair<string, string>("title", "XT"));
+    qp.prefixes.insert(pair<string, string>("subject", "XT"));
     test *p = tests;
     int succeed = 0, fail = 0;
     while (p->query) {

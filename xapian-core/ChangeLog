@@ -1,3 +1,9 @@
+Fri Oct 31 18:17:13 GMT 2003  Olly Betts <olly@survex.com>
+
+	* extra/queryparser.yy,extra/queryparsertest.cc: Added support for
+	  term prefixes on phrases and expressions (e.g. author:(twain OR poe)
+	  subject:"space flight").
+
 Tue Oct 28 15:03:01 GMT 2003  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Added FIXME comment.
