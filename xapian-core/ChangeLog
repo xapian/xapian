@@ -1,3 +1,8 @@
+Fri Aug 15 01:06:06 BST 2003  Olly Betts <olly@survex.com>
+
+	* common/utils.h: Fixed parameter name of system from "filename" to
+	  "command" (cosmetic change).
+
 Thu Aug 14 22:31:23 BST 2003  Olly Betts <olly@survex.com>
 
 	* net/progclient.cc: Tidied a little.

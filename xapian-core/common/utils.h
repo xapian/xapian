@@ -146,7 +146,7 @@ inline int atoi(const string &s) { return atoi(s.c_str()); }
 inline int unlink(const string &filename) { return unlink(filename.c_str()); }
 
 /// Allow system to work directly on C++ strings.
-inline int system(const string &filename) { return system(filename.c_str()); }
+inline int system(const string &command) { return system(command.c_str()); }
 
 /// Allow link to work directly on C++ strings.
 inline int link(const string &o, const string &n) {
