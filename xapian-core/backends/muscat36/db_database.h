@@ -272,7 +272,7 @@ class DBDatabase : public IRDatabase {
 	om_doccount get_termfreq(const om_termname & tname) const;
 	bool term_exists(const om_termname & tname) const;
 
-	LeafPostList * open_post_list(const om_termname & tname, RSet * rset) const;
+	LeafPostList * open_post_list(const om_termname & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
@@ -311,7 +311,7 @@ DBDatabase::get_doclength(om_docid did) const
 inline om_doccount
 DBDatabase::get_termfreq(const om_termname & tname) const
 {
-    PostList *pl = open_post_list(tname, NULL);
+    PostList *pl = open_post_list(tname);
     om_doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
     delete pl;

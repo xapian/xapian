@@ -39,54 +39,152 @@ class RSet;
 /** Base class for databases.
  */
 class IRDatabase : public IndexerDestination {
-    // Class which can create IRDatabases.
-    // All classes derived from IRDatabase must also have DatabaseBuilder as
-    // a friend, so that they can be constructed in a unified way.
+    /** Class which can create IRDatabases.
+     *  All classes derived from IRDatabase must also have DatabaseBuilder as
+     *  a friend, so that they can be constructed in a unified way.
+     */
     friend class DatabaseBuilder;
-    private:
-    	// Open method - called only by DatabaseBuilder
-	virtual void open(const DatabaseBuilderParams &) = 0;
 
-	// Note: No close method needed - just delete the object
+    private:
+    	/** Open a database - called only by DatabaseBuilder
+	 *
+	 *  Note that there is no close method - the database is closed when
+	 *  the object is deleted.
+	 *
+	 *  @param params_ Parameters supplied by the user to specify the
+	 *                 location of the database to open.  The meanings
+	 *                 of these parameters are dependent on the database
+	 *                 type.
+	 */
+	virtual void open(const DatabaseBuilderParams & params_) = 0;
+
     protected:
-    	// Constructor - called only by derived classes and by DatabaseBuilder
+    	/** The constructor is called only by derived classes and by
+	 *  DatabaseBuilder.
+	 */
 	IRDatabase() : root(this) { return; }
 
-	// Root database - used to calculate collection statistics
+	/** A pointer to the "root" database.  This defaults to "this", but
+	 *  may be overridden in some situations (such as, when a database
+	 *  is a sub-database of a MultiDatabase).
+	 *
+	 *  The root database is used to calculate collection statistics
+	 *  such as term frequencies and collection size.
+	 *
+	 *  FIXME: For a match operation, this should not point to a
+	 *  multidatabase which is being used by a multimatch, but during
+	 *  an expand it should.  This will currently cause some inaccuracy
+	 *  in the result in a multidatabase situation.  root should
+	 *  probably be replaced by a StatsLeaf object, somehow.
+	 */
 	IRDatabase * root;
+
     public:
+	/** Destroy the database.  This method must not be called until all
+	 *  objects using the database have been cleaned up.
+	 *
+	 *  FIXME: ensure that the database is not destroyed while objects
+	 *  are still using it by employing reference counted internals.
+	 */
         virtual ~IRDatabase() { return; }
 
-	void set_root(IRDatabase *db) {root = db;}
+	/** Set the root database.  This is used by MultiDatabase to ensure
+	 *  that
+	 *
+	 *  @param root_ The new root database.
+	 */
+	void set_root(IRDatabase *root_) {root = root_;}
 
+	//////////////////////////////////////////////////////////////////
 	// Database statistics:
 	// ====================
 
-	// Number of docs in the database
+	/** Return the number of docs in this (sub) database.
+	 *
+	 *  For a database which is part of a MultiDatabase, the result of
+	 *  this method should refer to the number of documents in this
+	 *  part of the collection, rather than the number of documents
+	 *  in the collection pointed to by "root".
+	 */
 	virtual om_doccount  get_doccount() const = 0;
-	// Average length of a document
+
+	/** Return the average length of a document.
+	 *
+	 *  As for get_doccount(), in a sub-database of a MultiDatabase,
+	 *  this should refer to the average length of documents in the
+	 *  sub-database, not the average length of documents in the whole
+	 *  collection.
+	 *
+	 *  See IRDatabase::get_doclength() for the meaning of document
+	 *  length within Muscat.
+	 */
 	virtual om_doclength get_avlength() const = 0;
 
-	// Get the length of a given document
+	/** Get the length of a given document.
+	 *
+	 *  Document length, for the purposes of Muscat, is defined to be
+	 *  the number of instances of terms within a document.  Expressed
+	 *  differently, the sum of the within document frequencies over
+	 *  all the terms in the document.
+	 *
+	 *  @param did  The document id of the document whose length is
+	 *              being requested.
+	 */
 	virtual om_doclength get_doclength(om_docid did) const = 0;
 
-	// Number of docs indexed by a given term
+	/** Return the number of documents indexed by a given term.  This
+	 *  may be an approximation, but must be an upper bound (ie,
+	 *  greater or equal to the true value), and should be as accurate
+	 *  as possible.
+	 *
+	 *  @param tname  The term whose term frequency is being requested.
+	 */
 	virtual om_doccount get_termfreq(const om_termname & tname) const = 0;
 
-	// Whether a given term is in the database: functionally equivalent
-	// to (get_termfreq() != 0), but can be considerably more efficient.
+	/** Check whether a given term is in the database. 
+	 *
+	 *  This method should normally be functionally equivalent to
+	 *  (get_termfreq() != 0), but this equivalence should not be
+	 *  relied upon.  For example, in a database which allowed
+	 *  deleting, get_termfreq() might return the term frequency before
+	 *  the term was deleted, whereas term_exists() might be more
+	 *  up-to-date.
+	 *
+	 *  This method will also often be considerably more efficient than
+	 *  get_termfreq().
+	 *
+	 *  @param tname  The term whose presence is being checked.
+	 */
 	virtual bool term_exists(const om_termname & tname) const = 0;
 
+	//////////////////////////////////////////////////////////////////
 	// Data item access methods:
 	// =========================
 
-	virtual LeafPostList * open_post_list(const om_termname&, RSet *) const = 0;
+	/** Open a posting list.
+	 *
+	 *  @param tname  The term whose posting list is being requested.
+	 *
+	 *  @return       A pointer to the newly created posting list.
+	 *                This object must be deleted by the caller after
+	 *                use.
+	 */
+	virtual LeafPostList * open_post_list(const om_termname & tname) const = 0;
+
 	virtual LeafTermList * open_term_list(om_docid did) const = 0;
+
 	virtual LeafDocument * open_document(om_docid did) const = 0;
 
+	//////////////////////////////////////////////////////////////////
 	// Introspection methods:
 	// ======================
 	
+	/** Determine whether the database is a network database.  This is
+	 *  used by MultiMatch to decide whether to use a LeafMatch or a
+	 *  NetworkMatch to perform a search over the database.
+	 *
+	 *  The default implementation returns "false".
+	 */
 	virtual bool is_network() const;
 
 #if 0
@@ -95,7 +193,6 @@ class IRDatabase : public IndexerDestination {
 #endif
 };
 
-/// Default implementation of is_network(): false.
 inline bool IRDatabase::is_network() const
 {
     return false;

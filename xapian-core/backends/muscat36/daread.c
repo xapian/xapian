@@ -30,7 +30,6 @@
 #define false       0
 
 static int smaller(int a, int b) { return (a < b) ? a : b; }
-static int larger(int a, int b) { return (a > b) ? a : b; }
 
 #define BITSPERBYTE 8
 #define M_5 (BITSPERBYTE-3)

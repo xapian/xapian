@@ -51,6 +51,63 @@ MultiDatabase::~MultiDatabase() {
     }
 }
 
+
+om_doccount
+MultiDatabase::get_doccount() const
+{   
+    Assert(opened);
+    Assert((used = true) == true);
+
+    om_doccount docs = 0;
+
+    vector<IRDatabase *>::const_iterator i = databases.begin();
+    while(i != databases.end()) {
+	docs += (*i)->get_doccount();
+	i++;
+    }
+
+    return docs;
+}
+
+
+om_doclength
+MultiDatabase::get_avlength() const
+{   
+    Assert(opened);
+    Assert((used = true) == true);
+
+    if(!length_initialised) {
+	om_doccount docs = 0;
+	om_doclength totlen = 0;
+
+	vector<IRDatabase *>::const_iterator i = databases.begin();
+	while(i != databases.end()) {
+	    om_doccount db_doccount = (*i)->get_doccount();
+	    docs += db_doccount;
+	    totlen += (*i)->get_avlength() * db_doccount;
+	    i++;
+	}
+
+	avlength = totlen / docs;
+	length_initialised = true;
+    }
+
+    return avlength;
+}
+
+
+om_doccount
+MultiDatabase::get_termfreq(const om_termname & tname) const
+{   
+    if(!term_exists(tname)) return 0;
+    PostList *pl = open_post_list(tname);
+    om_doccount freq = 0;
+    if(pl) freq = pl->get_termfreq();
+    delete pl;
+    return freq;
+}
+
+
 void
 MultiDatabase::set_root(IRDatabase * db) {
     Assert(!used);
@@ -88,7 +145,7 @@ MultiDatabase::open(const DatabaseBuilderParams & params) {
 }
 
 LeafPostList *
-MultiDatabase::open_post_list(const om_termname & tname, RSet * rset) const
+MultiDatabase::open_post_list(const om_termname & tname) const
 {
     Assert(opened);
     Assert((used = true) == true);
@@ -101,7 +158,7 @@ MultiDatabase::open_post_list(const om_termname & tname, RSet * rset) const
     vector<IRDatabase *>::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	if((*i)->term_exists(tname)) {
-	    MultiPostListInternal pl((*i)->open_post_list(tname, rset),
+	    MultiPostListInternal pl((*i)->open_post_list(tname),
 				     offset, multiplier);
 	    pls.push_back(pl);
 	}

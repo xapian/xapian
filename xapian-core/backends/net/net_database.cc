@@ -100,7 +100,7 @@ NetworkDatabase::get_doccount() const
 }
 
 LeafPostList *
-NetworkDatabase::open_post_list(const om_termname & tname, RSet * rset) const
+NetworkDatabase::open_post_list(const om_termname & tname) const
 {
     throw OmUnimplementedError("NetworkDatabase::open_post_list() not implemented");
 #if 0
@@ -115,7 +115,7 @@ NetworkDatabase::open_post_list(const om_termname & tname, RSet * rset) const
     vector<IRDatabase *>::const_iterator i = databases.begin();
     while(i != databases.end()) {
 	if((*i)->term_exists(tname)) {
-	    MultiPostListInternal pl((*i)->open_post_list(tname, rset),
+	    MultiPostListInternal pl((*i)->open_post_list(tname),
 				     offset, multiplier);
 	    pls.push_back(pl);
 	}

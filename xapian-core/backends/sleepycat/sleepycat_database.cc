@@ -215,7 +215,7 @@ SleepyDatabase::open(const DatabaseBuilderParams &params)
 }
 
 LeafPostList *
-SleepyDatabase::open_post_list(const om_termname & tname, RSet *rset) const
+SleepyDatabase::open_post_list(const om_termname & tname) const
 {
     Assert(opened);
     om_termid tid = termcache->term_name_to_id(tname);

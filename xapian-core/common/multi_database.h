@@ -32,20 +32,34 @@
 #include <list>
 
 class MultiDatabase : public IRDatabase {
+    /** DatabaseBuilder is a friend of this class, so that it can call
+     *  the constructor.
+     */
     friend class DatabaseBuilder;
+
+    /** MultiMatch is a friend of this class so that it can access
+     *  `databases'.  FIXME: this isn't very clean, and is tied in with the
+     *  problems surrounding the `root' field.
+     */
     friend class MultiMatch;
+
     private:
 	mutable set<om_termname> terms;
 
+	// List of subdatabases
 	vector<IRDatabase *> databases;
 
 	mutable bool length_initialised;
 	mutable om_doclength avlength;
 
-	bool opened; // Whether we have opened the database (ie, added a sub database)
-	mutable bool used;// Have we used the database (if so, can't add more  databases)
+	// Whether we have opened the database (ie, added a sub database)
+	bool opened;
+
+	// Have we used the database (if so, can't add more  databases)
+	mutable bool used;
 
 	MultiDatabase();
+
 	void open(const DatabaseBuilderParams & params);
     public:
 	~MultiDatabase();
@@ -59,72 +73,30 @@ class MultiDatabase : public IRDatabase {
 	om_doccount get_termfreq(const om_termname & tname) const;
 	bool term_exists(const om_termname & tname) const;
 
-	LeafPostList * open_post_list(const om_termname & tname, RSet * rset) const;
+	LeafPostList * open_post_list(const om_termname & tname) const;
 	LeafTermList * open_term_list(om_docid did) const;
 	LeafDocument * open_document(om_docid did) const;
 
+	/** MultiDatabase is a readonly database type, and thus this method is
+	 *  not supported: if called an exception will be thrown.
+	 */
 	void make_term(const om_termname &) {
 	    throw OmUnimplementedError("DADatabase::make_term() not implemented");
 	}
+
+	/** MultiDatabase is a readonly database type, and thus this method is
+	 *  not supported: if called an exception will be thrown.
+	 */
 	om_docid make_doc(const om_docname &) {
 	    throw OmUnimplementedError("DADatabase::make_doc() not implemented");
 	}
+
+	/** MultiDatabase is a readonly database type, and thus this method is
+	 *  not supported: if called an exception will be thrown.
+	 */
 	void make_posting(const om_termname &, unsigned int, unsigned int) {
 	    throw OmUnimplementedError("DADatabase::make_posting() not implemented");
 	}
 };
-
-inline om_doccount
-MultiDatabase::get_doccount() const
-{
-    Assert(opened);
-    Assert((used = true) == true);
-
-    om_doccount docs = 0;
-
-    vector<IRDatabase *>::const_iterator i = databases.begin();
-    while(i != databases.end()) {
-	docs += (*i)->get_doccount();
-	i++;
-    }
-
-    return docs;
-}
-
-inline om_doclength
-MultiDatabase::get_avlength() const
-{
-    Assert(opened);
-    Assert((used = true) == true);
-
-    if(!length_initialised) {
-	om_doccount docs = 0;
-	om_doclength totlen = 0;
-
-	vector<IRDatabase *>::const_iterator i = databases.begin(); 
-	while(i != databases.end()) {
-	    om_doccount db_doccount = (*i)->get_doccount();
-	    docs += db_doccount;
-	    totlen += (*i)->get_avlength() * db_doccount;
-	    i++;
-	}
-
-	avlength = totlen / docs;
-	length_initialised = true;
-    }
-
-    return avlength;
-}
-
-inline om_doccount
-MultiDatabase::get_termfreq(const om_termname & tname) const
-{
-    if(!term_exists(tname)) return 0;
-    PostList *pl = open_post_list(tname, NULL);
-    om_doccount freq = 0;
-    if(pl) freq = pl->get_termfreq();
-    delete pl;
-    return freq;
-}
 
 #endif /* OM_HGUARD_MULTI_DATABASE_H */

@@ -93,7 +93,7 @@ InMemoryDatabase::open(const DatabaseBuilderParams & params)
 }
 
 LeafPostList *
-InMemoryDatabase::open_post_list(const om_termname & tname, RSet * rset) const
+InMemoryDatabase::open_post_list(const om_termname & tname) const
 {
     Assert(opened);
     Assert(term_exists(tname));

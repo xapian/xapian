@@ -1,3 +1,11 @@
+Tue Mar 28 18:43:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Lots of documentation comments in database.h
+
+	* Changed signature of IRDatabase::open_post_list() so that it
+	  doesn't take an rset:  was never used (weight is told directly
+	  instead.)
+
 Tue Mar 28 14:07:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix for a bug with setting query from vector.

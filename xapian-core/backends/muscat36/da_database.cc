@@ -216,7 +216,7 @@ DADatabase::open(const DatabaseBuilderParams & params)
 
 // Returns a new posting list, for the postings in this database for given term
 LeafPostList *
-DADatabase::open_post_list(const om_termname & tname, RSet * rset) const
+DADatabase::open_post_list(const om_termname & tname) const
 {
     Assert(opened);
 
