@@ -2420,6 +2420,53 @@ bool test_badbackend2()
     return result;
 }
 
+// test that indexing a term more than once at the same position increases
+// the wdf
+bool test_adddoc1()
+{
+    OmWritableDatabase db = backendmanager.get_writable_database("");
+
+    OmDocumentContents doc1, doc2, doc3;
+
+    // doc1 should come top, but if term "foo" gets wdf of 1, doc2 will beat it
+    // doc3 should beat both
+    // Note: all docs have same length
+    doc1.data = string("tom");
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("bar", 3);
+    doc1.add_posting("bar", 4);
+    db.add_document(doc1);
+    
+    doc2.data = string("dick");
+    doc2.add_posting("foo", 1);
+    doc2.add_posting("foo", 2);
+    doc2.add_posting("bar", 3);
+    doc2.add_posting("bar", 3);
+    doc2.add_posting("bar", 3);
+    db.add_document(doc2);
+
+    doc3.data = string("harry");
+    doc3.add_posting("foo", 1);
+    doc3.add_posting("foo", 1);
+    doc3.add_posting("foo", 2);
+    doc3.add_posting("foo", 2);
+    doc3.add_posting("bar", 3);
+    db.add_document(doc3);
+
+    OmQuery query("foo");
+
+    OmEnquire enq(make_dbgrp(&db));
+    enq.set_query(query);
+
+    OmMSet mset = enq.get_mset(0, 10);
+
+    if (!TEST_EXPECTED_DOCS(mset, 3, 1, 2)) return false;
+
+    return true;    
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -2487,6 +2534,12 @@ test_desc db_tests[] = {
     {0, 0}
 };
 
+/// The tests which use a writable backend
+test_desc writabledb_tests[] = {
+    {"adddoc1",		   test_adddoc1},
+    {0, 0}
+};
+
 test_desc localdb_tests[] = {
     {"matchfunctor1",	   test_matchfunctor1},
     {"multiexpand1",       test_multiexpand1},
@@ -2538,6 +2591,11 @@ int main(int argc, char *argv[])
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
     summary.succeeded += sum_temp.succeeded;
     summary.failed += sum_temp.failed;
+    cout << "Running writabledb tests with inmemory backend..." << endl;
+    result = max(result,
+		 test_driver::main(argc, argv, writabledb_tests, &sum_temp));
+    summary.succeeded += sum_temp.succeeded;
+    summary.failed += sum_temp.failed;
     cout << "Running localdb tests with inmemory backend..." << endl;
     result = max(result,
 		 test_driver::main(argc, argv, localdb_tests, &sum_temp));
@@ -2551,6 +2609,11 @@ int main(int argc, char *argv[])
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
     summary.succeeded += sum_temp.succeeded;
     summary.failed += sum_temp.failed;
+    cout << "Running writabledb tests with quartz backend..." << endl;
+    result = max(result,
+		 test_driver::main(argc, argv, writabledb_tests, &sum_temp));
+    summary.succeeded += sum_temp.succeeded;
+    summary.failed += sum_temp.failed;
     cout << "Running localdb tests with quartz backend..." << endl;
     result = max(result,
 		 test_driver::main(argc, argv, localdb_tests, &sum_temp));
@@ -2562,6 +2625,11 @@ int main(int argc, char *argv[])
     backendmanager.set_dbtype("sleepycat");
     cout << "Running tests with sleepycat backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
+    summary.succeeded += sum_temp.succeeded;
+    summary.failed += sum_temp.failed;
+    cout << "Running writabledb tests with sleepycat backend..." << endl;
+    result = max(result,
+		 test_driver::main(argc, argv, writabledb_tests, &sum_temp));
     summary.succeeded += sum_temp.succeeded;
     summary.failed += sum_temp.failed;
     cout << "Running localdb tests with sleepycat backend..." << endl;

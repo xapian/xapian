@@ -44,6 +44,7 @@ class InMemoryPosting {
 	om_docid did;
 	om_termname tname;
 	std::vector<om_termpos> positions; // Sorted list of positions
+	om_termcount wdf;
 
 	// Merge two postings (same term/doc pair, new positional info)
 	void merge(const InMemoryPosting & post) {
@@ -223,7 +224,8 @@ class InMemoryDatabase : public IRDatabase {
 
 	void make_posting(const om_termname & tname,
 			  om_docid did,
-			  om_termpos position);
+			  om_termpos position,
+			  om_termcount wdf);
 
 	//@{
 	/** Implementation of virtual methods: see IRDatabase for details.
@@ -391,7 +393,7 @@ InMemoryTermList::get_wdf() const
 {
     Assert(started);
     Assert(!at_end());
-    return (*pos).positions.size();
+    return (*pos).wdf;
 }
 
 inline om_doccount
@@ -459,7 +461,6 @@ inline om_doclength
 InMemoryDatabase::get_doclength(om_docid did) const
 {
     Assert(did > 0 && did <= termlists.size());
-
     return doclengths[did - 1];
 }
 

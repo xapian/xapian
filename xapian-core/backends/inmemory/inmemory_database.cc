@@ -44,7 +44,7 @@ InMemoryPostList::get_weight() const
     Assert(!at_end());
     Assert(ir_wt != NULL);
 
-    return ir_wt->get_sumpart((*pos).positions.size(), get_doclength());
+    return ir_wt->get_sumpart(get_wdf(), get_doclength());
 }
 
 om_doclength
@@ -63,7 +63,7 @@ InMemoryPostList::get_position_list()
 om_termcount
 InMemoryPostList::get_wdf() const
 {
-    return (*pos).positions.size();
+    return (*pos).wdf;
 }
 
 ///////////////////////////
@@ -189,18 +189,20 @@ InMemoryDatabase::do_add_document(const struct OmDocumentContents & document)
     om_docid did = make_doc(document.data);
     add_keys(did, document.keys);
 
-
     OmDocumentContents::document_terms::const_iterator i;
     for(i = document.terms.begin(); i != document.terms.end(); i++) {
 	make_term(i->second.tname);
 
 	OmDocumentTerm::term_positions::const_iterator j;
+
 	for(j = i->second.positions.begin();
 	    j != i->second.positions.end(); j++) {
-	    make_posting(i->second.tname, did, *j);
+	    make_posting(i->second.tname, did, *j, i->second.wdf);
 	}
 
-	// FIXME: set the wdf
+	Assert(did > 0 && did <= doclengths.size());
+	doclengths[did - 1] += i->second.wdf;
+	totlen += i->second.wdf;
     }
 
     return did;
@@ -226,7 +228,8 @@ InMemoryDatabase::make_doc(const OmData & docdata)
 
 void InMemoryDatabase::make_posting(const om_termname & tname,
 				    om_docid did,
-				    om_termpos position)
+				    om_termpos position,
+				    om_termcount wdf)
 {
     Assert(postlists.find(tname) != postlists.end());
     Assert(did > 0 && did <= termlists.size());
@@ -237,12 +240,11 @@ void InMemoryDatabase::make_posting(const om_termname & tname,
     posting.tname = tname;
     posting.did = did;
     posting.positions.push_back(position);
+    posting.wdf = wdf;
 
     // Now record the posting
     postlists[tname].add_posting(posting);
     termlists[did - 1].add_posting(posting);
-    doclengths[did - 1] += posting.positions.size();
-    totlen += posting.positions.size();
 }
 
 bool

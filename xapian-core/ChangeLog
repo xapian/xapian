@@ -1,3 +1,17 @@
+Sat Aug 19 18:39:00 BST 2000 Olly Betts
+
+	* Added testcase for handling of multiple postings of a term at the
+	  same position (adddoc1).
+
+	* Fixed wdf handling in inmemory backend.
+
+	* Fixed handling of writable databases in BackendManager (they can't
+	  safely be reused as the previous test may have altered the
+	  contents).
+
+	* Added new test category to apitest: tests that need a writable
+	  database.
+
 Sat Aug 19 15:01:00 BST 2000 Olly Betts
 
 	* Muscat36 db backend now autodetects flimsy vs heavyduty

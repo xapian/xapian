@@ -73,11 +73,20 @@ class BackendManager {
 	/// Get a writable sleepycat database instance.
 	OmWritableDatabase getwritedb_sleepycat(const std::vector<std::string> &dbnames);
 
+	/// Do the actual work of creating a sleepycat database instance.
+	OmWritableDatabase do_getwritedb_sleepycat(const std::vector<std::string> &dbnames,
+						   bool writable);
+    
 	/// Get a quartz database instance.
 	OmDatabase getdb_quartz(const std::vector<std::string> &dbnames);
 
 	/// Get a writable quartz database instance.
 	OmWritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
+
+	/// Do the actual work of creating a quartz database instance.
+	OmWritableDatabase do_getwritedb_quartz(const std::vector<std::string> &dbnames,
+						bool writable);
+
     public:
 	/// Constructor - set up default state.
 	BackendManager() :
