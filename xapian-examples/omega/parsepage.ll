@@ -142,13 +142,13 @@ pretty_printf(const char *p, int *a)
 	new_first = first - size;
 	if (new_first < 0) new_first = 0;
 			
-	cout << "<INPUT NAME=F" << new_first << ' '
+	cout << "<INPUT NAME=\"&lt;\" "
 	     << string(yytext + 5, yyleng - 5) << ">\n";
     }
 }
 \\NEXT.*/[\\\n\r] {
     if (last < msize - 1)
-	cout << "<INPUT NAME=F" << last + 1 << ' '
+	cout << "<INPUT NAME=\"&gt;\" "
 	     << string(yytext + 5, yyleng - 5) << ">\n";
 }
 \\MSIZE {

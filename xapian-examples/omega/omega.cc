@@ -62,10 +62,10 @@ static int main2(int argc, char *argv[])
 {
     int n;
     string big_buf;
-    long int list_size;
+    docid list_size;
     bool more = false;
     int      is_old;
-    long int topdoc = 0;
+    docid topdoc = 0;
     char     *method;
     char     *val;
     
@@ -95,14 +95,28 @@ static int main2(int argc, char *argv[])
     else
         decode_get();
 
-    /*** first doc to display ? ***/
-    if ((val = GetEntry("F")) != NULL) {
-       topdoc = atol(val);
-    } else if ((val = GetEntry("TOPDOC")) != NULL) {
-       /*** top doc displayed (for expand & show) ***/
+    list_size = 0;
+    if ((val = GetEntry ("MAXHITS")) != NULL) list_size = atol(val);
+    if (list_size <= 10) {
+	list_size = 10;
+    } else if (list_size >= 1000) {
+	list_size = 1000;
+    }
+
+    if ((val = GetEntry("TOPDOC")) != NULL) topdoc = atol(val);
+
+    // Handle NEXT and PREVIOUS page
+    if ((val = GetEntry(">")) != NULL) {
+       topdoc += list_size;
+    } else if ((val = GetEntry("<")) != NULL) {
+       topdoc -= list_size;
+    } else if ((val = GetEntry("F")) != NULL) {
        topdoc = atol(val);
     }
 
+    topdoc = (topdoc / list_size) * list_size;
+    if (topdoc < 0) topdoc = 0;
+    
     /*** get database name ***/
     val = GetEntry("DB");
     if (val != NULL)
@@ -183,14 +197,6 @@ static int main2(int argc, char *argv[])
     if (option["dec_sep"].size()) dec_sep = option["dec_sep"][0];
     if (option["thou_sep"].size()) thou_sep = option["thou_sep"][0];
    
-    list_size = 0;
-    if ((val = GetEntry ("MAXHITS")) != NULL) list_size = atol( val );
-    if (list_size <= 10) {
-       list_size = 10;
-    } else if (list_size >= 1000) {
-       list_size = 1000;
-    }
-
     if ((val = GetEntry("MATCHOP")) != NULL) {
 	if (strcmp(val, "AND") == 0 || strcmp(val, "and") == 0) op = AND;
     } else if ((val = GetEntry("THRESHOLD")) != NULL) {
