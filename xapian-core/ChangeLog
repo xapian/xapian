@@ -1,3 +1,16 @@
+Tue Jun  6 18:34:36 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Update BackendManager to accept arbitrary numbers of database
+	  parameters, and to cope properly if the datadir isn't specified
+	  (ie, leave the filenames alone).
+
+	* Turn off indexing code built into InMemory databases: they now need
+	  to have their indexing done for them externally.
+
+	* Add debugging code to net_document.cc
+
+	* Make omprogsrv use a backend manager to perform its indexing.
+
 Tue Jun  6 16:59:57 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Separate BackendManager from rest of code in apitest, and put it
