@@ -459,7 +459,7 @@ desc_from_tree(xmlDocPtr doc)
 	    result->data->nodes.push_back(ndesc);
 	} else if (type == "output") {
 	    result->data->output_node = get_prop(node, "node");
-	    result->data->output_conn = get_prop(node, "out_name");
+	    result->data->output_pad = get_prop(node, "out_name");
 	}
     }
     return result;

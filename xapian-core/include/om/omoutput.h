@@ -65,6 +65,9 @@ OUTPUT_FUNCTION(OmPositionListIterator)
 #include "ompaditerator.h"
 OUTPUT_FUNCTION(OmPadIterator)
 
+#include "omnodeinstanceiterator.h"
+OUTPUT_FUNCTION(OmNodeInstanceIterator)
+
 #include "omtermlistiterator.h"
 OUTPUT_FUNCTION(OmTermIterator)
 

@@ -71,7 +71,7 @@ class OmIndexerDesc::Internal {
 	    std::string output_node;
 
 	    /** The name of the output connection to use on the final node. */
-	    std::string output_conn;
+	    std::string output_pad;
 	};
 
 	RefCntPtr<Data> data;

@@ -1,3 +1,12 @@
+Fri Jan 26 13:49:33 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Added get_output_{node,pad} to OmIndexerDesc
+
+	* Implemented and testes OmNodeInstanceIterator
+
+	* Implemented OmIndexerBuilder::build_from_desc, which somehow
+	  hadn't been.  indextest now uses it.
+
 Thu Jan 25 18:47:08 GMT 2001 Olly Betts
 
 	* Fixed various .cvsignore files (omus -> omsee, and

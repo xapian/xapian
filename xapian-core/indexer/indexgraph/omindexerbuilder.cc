@@ -57,7 +57,8 @@ class OmIndexerBuilder::Internal {
 	 * 
 	 *  @param desc		The description of the graph.
 	 */
-	void build_from_desc(const OmIndexerDesc::Internal &desc);
+	void build_from_desc(const OmIndexerDesc::Internal &desc,
+			     OmIndexer::Internal *indexer);
 
 	/** Register a new node type */
 	void register_node_type(const OmNodeDescriptor::Internal &nodedesc);
@@ -166,7 +167,7 @@ OmIndexerBuilder::sort_desc(OmIndexerDesc &desc)
 
     AutoPtr<OmIndexerDesc::Internal> result(new OmIndexerDesc::Internal);
     result->data->output_node = desc.internal->data->output_node;
-    result->data->output_conn = desc.internal->data->output_conn;
+    result->data->output_pad = desc.internal->data->output_pad;
 
     std::vector<int>::const_iterator i = sorted.begin();
     while (i != sorted.end()) {
@@ -193,6 +194,21 @@ OmIndexerBuilder::Internal::build_from_file(const std::string &filename,
     AutoPtr<OmIndexerDesc::Internal> doc = desc_from_xml_file(filename);
 
     build_graph(indexer, *doc);
+}
+
+OmIndexer
+OmIndexerBuilder::build_from_desc(const OmIndexerDesc &desc)
+{
+    OmIndexer indexer;
+    internal->build_from_desc(*desc.internal, indexer.internal);
+    return indexer;
+}
+
+void
+OmIndexerBuilder::Internal::build_from_desc(const OmIndexerDesc::Internal &desc,
+					    OmIndexer::Internal *indexer)
+{
+    build_graph(indexer, desc);
 }
 
 OmIndexer
@@ -411,7 +427,7 @@ OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
 				 desc.data->output_node);
     }
     indexer->final = i->second;
-    indexer->final_out = desc.data->output_conn;
+    indexer->final_out = desc.data->output_pad;
 }
 
 static const OmNodePad &find_conn(const std::vector<OmNodePad> &v,

@@ -26,6 +26,7 @@
 
 #include "om/om.h"
 #include "om/omindexerbuilder.h"
+#include "om/omnodeinstanceiterator.h"
 #include "testsuite.h"
 #include "om/omstem.h"
 
@@ -203,14 +204,14 @@ bool test_flowcheck1()
     return success;
 }
 
-OmIndexer make_indexer_one_node(const std::string &type,
-					 const std::string &input = "in",
-					 const std::string &output = "out",
-					 const std::string &param = "")
+OmIndexerDesc make_indexerdesc_one_node(const std::string &type,
+					const std::string &input = "in",
+					const std::string &output = "out",
+					const std::string &param = "")
 {
     OmIndexerBuilder builder;
 
-    OmIndexer indexer = builder.build_from_string(
+    OmIndexerDesc desc = builder.desc_from_string(
       std::string(
       "<?xml version=\"1.0\"?>\n"
       "<omindexer>\n"
@@ -226,7 +227,20 @@ OmIndexer make_indexer_one_node(const std::string &type,
       // FIXME: on PPC, it seems to miss the last character, so complains
       // that there's no final >.  Stop the bodge, and investigate.
 
-      return indexer;
+      return desc;
+}
+
+OmIndexer make_indexer_one_node(const std::string &type,
+				const std::string &input = "in",
+				const std::string &output = "out",
+				const std::string &param = "")
+{
+    OmIndexerBuilder builder;
+
+    return builder.build_from_desc(make_indexerdesc_one_node(type,
+							     input,
+							     output,
+							     param));
 }
 
 bool test_omsplitter1()
@@ -773,6 +787,28 @@ test_ompaditerator1()
     return true;
 }
 
+bool
+test_indexerdesc1()
+{
+    OmIndexerDesc desc(make_indexerdesc_one_node("omsplitter", "in", "right"));
+
+    TEST(desc.get_output_node() == "only");
+    TEST(desc.get_output_pad() == "right");
+
+    OmNodeInstanceIterator ni(desc.nodes_begin());
+
+    TEST(ni != desc.nodes_end());
+    TEST(*ni == "only");
+
+    ++ni;
+    TEST(ni == desc.nodes_end());
+
+    ni = desc.find_node("only");
+    TEST(*ni == "only");
+
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests                                            #
 // ##################################################################
@@ -798,6 +834,7 @@ test_desc tests[] = {
     {"ommakepair1",		&test_ommakepair1},
     {"ommakepairs1",		&test_ommakepairs1},
     {"ompaditerator1",		&test_ompaditerator1},
+    {"omindexerdesc1",		&test_indexerdesc1},
     // FIXME: add tests for regex nodes
     {0, 0}
 };

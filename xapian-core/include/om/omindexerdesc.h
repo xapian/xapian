@@ -70,6 +70,12 @@ class OmIndexerDesc {
 	 */
 	OmNodeInstanceIterator find_node(const std::string &id) const;
 
+	/** Return the id of the output node */
+	std::string get_output_node() const;
+
+	/** Return the id of the output pad */
+	std::string get_output_pad() const;
+
 	/** Set the name of the node providing the indexer's output,
 	 *  plus the name of the output pad on that node. */
 	void set_output(const std::string &output_node,

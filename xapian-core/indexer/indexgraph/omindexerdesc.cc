@@ -24,6 +24,8 @@
 #include <algorithm> /* swap() */
 #include "om/omindexerdesc.h"
 #include "omindexerdescinternal.h"
+#include "omnodeinstanceiteratorinternal.h"
+#include "autoptr.h"
 
 OmIndexerDesc::OmIndexerDesc()
 	: internal(new Internal)
@@ -50,4 +52,63 @@ OmIndexerDesc::~OmIndexerDesc()
 OmIndexerDesc::OmIndexerDesc(Internal *internal_)
 	: internal(internal_)
 {
+}
+
+std::string
+OmIndexerDesc::get_output_node() const
+{
+    return internal->data->output_node;
+}
+
+std::string
+OmIndexerDesc::get_output_pad() const
+{
+    return internal->data->output_pad;
+}
+
+OmNodeInstanceIterator
+OmIndexerDesc::nodes_begin() const
+{
+    AutoPtr<OmNodeInstanceIterator::Internal> ni(
+				new OmNodeInstanceIterator::Internal(
+						internal->data,
+						internal->data->nodes.begin(),
+						internal->data->nodes.end()));
+
+    OmNodeInstanceIterator result(ni.get());
+    ni.release();
+
+    return result;
+}
+
+OmNodeInstanceIterator
+OmIndexerDesc::nodes_end() const
+{
+    return OmNodeInstanceIterator(0);
+}
+
+OmNodeInstanceIterator
+OmIndexerDesc::find_node(const std::string &id) const
+{
+    std::vector<Internal::NodeInstance>::const_iterator i =
+	    internal->data->nodes.begin();
+    std::vector<Internal::NodeInstance>::const_iterator end =
+	    internal->data->nodes.end();
+
+    while (i != end) {
+	if (i->id == id) break;
+	++i;
+    }
+    if (i == end) {
+	return OmNodeInstanceIterator(0);
+    } else {
+	AutoPtr<OmNodeInstanceIterator::Internal> ni(
+			new OmNodeInstanceIterator::Internal(internal->data,
+							     i, end));
+
+	OmNodeInstanceIterator result(ni.get());
+	ni.release();
+
+	return result;
+    }
 }
