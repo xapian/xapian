@@ -63,7 +63,7 @@
 #define NULL 0
 #endif
 
-int
+extern "C" int
 getopt_long (argc, argv, options, long_options, opt_index)
      int argc;
      char *const *argv;
@@ -79,7 +79,7 @@ getopt_long (argc, argv, options, long_options, opt_index)
    but does match a short option, it is parsed as a short option
    instead.  */
 
-int
+extern "C" int
 getopt_long_only (argc, argv, options, long_options, opt_index)
      int argc;
      char *const *argv;

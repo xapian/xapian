@@ -1,6 +1,6 @@
 ### Process this file with automake to produce Makefile.in
 
-# Need 1.5 for AM_CFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
+# Need 1.5 for AM_CXXFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
 # 1.8.5 contains a lot of fixes over 1.6.3
 AUTOMAKE_OPTIONS = 1.8.5
 
@@ -11,11 +11,11 @@ AM_CXXFLAGS = @AM_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 
 noinst_HEADERS = getopt.h
 
-quest_SOURCES = quest.cc getopt.c getopt1.c
+quest_SOURCES = quest.cc getopt.cc getopt1.cc
 quest_LDADD = $(XAPIAN_LIBS)
 
-# delve doesn't use getopt_long so doesn't need getopt1.c
-delve_SOURCES = delve.cc getopt.c
+# delve doesn't use getopt_long so doesn't need getopt1.cc
+delve_SOURCES = delve.cc getopt.cc
 delve_LDADD = $(XAPIAN_LIBS)
 
 copydatabase_SOURCES = copydatabase.cc

@@ -11,7 +11,6 @@ AC_CONFIG_SRCDIR(delve.cc)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs.
-AC_PROG_CC
 AC_PROG_CXX
 
 dnl Check for libxapian
@@ -24,7 +23,6 @@ dnl ******************************
 
 dnl extra flags for building with gcc
 if test yes = "$GCC"; then
-  AM_CFLAGS="$AM_CFLAGS -Wall -W -Wno-long-long"
   AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wno-long-long -fno-gnu-keywords"
 fi
 
@@ -37,7 +35,6 @@ if test yes = "$use_stlport"; then
   LIBS="$STLPORT_LIBS $LIBS"
 fi
 
-AC_SUBST(AM_CFLAGS)
 AC_SUBST(AM_CXXFLAGS)
 
 dnl **************************
