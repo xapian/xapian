@@ -20,6 +20,14 @@
  * -----END-LICENCE-----
  */
 
+#ifndef OM_HGUARD_BTREE_H
+#define OM_HGUARD_BTREE_H
+
+/* Make header file work when included from C++ */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef unsigned char byte;
 typedef long int4;
 typedef unsigned long uint4;
@@ -167,3 +175,10 @@ extern int Bcursor_get_key(struct Bcursor * BC, struct Btree_item * kt);
 extern int Bcursor_get_tag(struct Bcursor * BC, struct Btree_item * kt);
 extern void Bcursor_lose(struct Bcursor * BC);
 extern void Btree_full_compaction(struct Btree * B, int parity);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* OM_HGUARD_BTREE_H */
+
