@@ -67,6 +67,9 @@
 /* Define if <streambuf> is available */
 #undef HAVE_STREAMBUF
 
+/* Define if socklen_t is available */
+#undef HAVE_SOCKLEN_T
+
 @BOTTOM@
 #ifdef MUS_MUTEX_ERRCHECK
 /* We need _GNU_SOURCE to get the right definitions

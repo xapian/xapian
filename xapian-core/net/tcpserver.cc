@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
 #include "tcpserver.h"
 #include "database.h"
 #include "stats.h"
@@ -95,13 +96,15 @@ TcpServer::get_listening_socket(int port)
     return socketfd;
 }
 
+#ifndef HAVE_SOCKLEN_T
+typedef int socklen_t;
+#endif  /* HAVE_SOCKLEN_T */
+
 int
 TcpServer::get_connected_socket()
 {
     struct sockaddr_in remote_address;
-    // socklen_t not supported everywhere...
-    // FIXME: sort out using autoconf for such systems
-    /* socklen_t */ int remote_address_size = sizeof(remote_address);
+    socklen_t remote_address_size = sizeof(remote_address);
     int con_socket = accept(listen_socket,
 			    reinterpret_cast<sockaddr *>(&remote_address),
 			    &remote_address_size);

@@ -37,6 +37,17 @@ AC_LANG_RESTORE
 dnl check for strcasecmp.
 AC_CHECK_FUNCS([strcasecmp])
 
+dnl check for socklen_t
+AC_TRY_COMPILE([
+#include <sys/types.h>
+#include <sys/socket.h>
+], [socklen_t t;], have_socklen_t=yes, have_socklen_t=no)
+if test "x$have_socklen_t" = "xyes"; then
+AC_DEFINE(HAVE_SOCKLEN_T,,
+  [Define if socklen_t is available])
+fi
+
+
 dnl Check for -fno-access-control flag to compiler.
 dnl Used in some low-level test suite stuff.
 AC_LANG_SAVE

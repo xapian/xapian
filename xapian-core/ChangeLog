@@ -1,3 +1,8 @@
+Tue Aug  8 16:24:27 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add automatic detection of socklen_t, so that we don't get nasty
+	  warnings on Linux just because of solaris.
+
 Tue Aug  8 16:04:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Patch to log where connections are from in tcpserver.cc, by
