@@ -1,8 +1,8 @@
-/* multi_termlist.h: C++ class definition for multiple database access
+/* multi_termlist.h: C++ class declaration for multiple database access
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,13 +24,8 @@
 #ifndef OM_HGUARD_MULTI_TERMLIST_H
 #define OM_HGUARD_MULTI_TERMLIST_H
 
-#include "omdebug.h"
 #include "termlist.h"
 #include "database.h"
-#include <stdlib.h>
-#include <set>
-#include <vector>
-#include <list>
 
 class MultiTermList : public LeafTermList {
     friend class Xapian::Database;
@@ -57,64 +52,5 @@ class MultiTermList : public LeafTermList {
 
 	~MultiTermList();
 };
-
-inline MultiTermList::MultiTermList(LeafTermList * tl_,
-				    const Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> & termdb_,
-				    const Xapian::Database &rootdb_)
-	: tl(tl_), termdb(termdb_), rootdb(rootdb_)
-{
-    termfreq_factor = double(rootdb.get_doccount()) / termdb->get_doccount();
-    DEBUGLINE(DB, "Approximation factor for termfreq: " << termfreq_factor);
-}
-
-inline MultiTermList::~MultiTermList()
-{
-    delete tl;
-}
-
-inline Xapian::termcount
-MultiTermList::get_approx_size() const
-{
-    return tl->get_approx_size();
-}
-
-inline void
-MultiTermList::set_weighting(const OmExpandWeight * wt_new)
-{
-    // Note: wt in the MultiTermList base class isn't ever set or used
-    tl->set_weighting(wt_new);
-}
-
-inline OmExpandBits
-MultiTermList::get_weighting() const {
-    return tl->get_weighting();
-}
-
-inline string
-MultiTermList::get_termname() const
-{
-    return tl->get_termname();
-}
-
-inline Xapian::termcount MultiTermList::get_wdf() const
-{
-    return tl->get_wdf();
-}
-
-inline Xapian::doccount MultiTermList::get_termfreq() const
-{
-    // Approximate term frequency
-    return Xapian::doccount(tl->get_termfreq() * termfreq_factor);
-}
-
-inline TermList * MultiTermList::next()
-{
-    return tl->next();
-}
-
-inline bool MultiTermList::at_end() const
-{
-    return tl->at_end();
-}
 
 #endif /* OM_HGUARD_MULTI_TERMLIST_H */

@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,6 +57,60 @@ MultiPostList::~MultiPostList()
 	delete *i;
     }
     postlists.clear();
+}
+
+void
+MultiPostList::set_termweight(const Xapian::Weight * wt)
+{
+    // Set in base class, so that get_maxweight() works
+    LeafPostList::set_termweight(wt);
+    std::vector<LeafPostList *>::const_iterator i;
+    for (i = postlists.begin(); i != postlists.end(); i++) {
+	(*i)->set_termweight(wt);
+    }
+}
+
+Xapian::doccount
+MultiPostList::get_termfreq() const
+{
+    if(freq_initialised) return termfreq;
+    DEBUGLINE(DB, "Calculating multiple term frequencies");
+
+    // Calculate and remember the termfreq
+    termfreq = 0;
+    std::vector<LeafPostList *>::const_iterator i;
+    for (i = postlists.begin(); i != postlists.end(); i++) {
+	termfreq += (*i)->get_termfreq();
+    }
+
+    freq_initialised = true;
+    return termfreq;
+}
+
+Xapian::termcount
+MultiPostList::get_collection_freq() const
+{
+    if(collfreq_initialised) return collfreq;
+    DEBUGLINE(DB, "Calculating multiple term frequencies");
+
+    // Calculate and remember the collfreq
+    collfreq = 0;
+    std::vector<LeafPostList *>::const_iterator i;
+    for (i = postlists.begin(); i != postlists.end(); i++) {
+	collfreq += (*i)->get_collection_freq();
+    }
+
+    collfreq_initialised = true;
+    return collfreq;
+}
+
+Xapian::docid
+MultiPostList::get_docid() const
+{
+    DEBUGCALL(DB, Xapian::docid, "MultiPostList::get_docid", "");
+    Assert(!at_end());
+    Assert(currdoc != 0);
+    RETURN(currdoc);
 }
 
 Xapian::doclength
@@ -152,4 +206,24 @@ MultiPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 	finished = true;
     }
     RETURN(NULL);
+}
+
+bool
+MultiPostList::at_end() const
+{
+    return finished;
+}
+
+std::string
+MultiPostList::get_description() const
+{
+    std::string desc = "[";
+
+    std::vector<LeafPostList *>::const_iterator i;
+    for (i = postlists.begin(); i != postlists.end(); i++) {
+	desc += (*i)->get_description();
+	if (i != postlists.end()) desc += ",";
+    }
+
+    return desc + "]:" + om_tostring(get_termfreq());
 }
