@@ -181,8 +181,10 @@ test_desc tests[] = {
     {"netmatch1",	test_netmatch1},
     {"netmatch2",	test_netmatch2},
     //{"netexpand1",      test_netexpand1},
+#ifdef MUS_BUILD_BACKEND_SLEEPY
     {"tcpclient1",	test_tcpclient1},
     {"tcpmatch1",	test_tcpmatch1},
+#endif
     {0,			0},
 };
 
