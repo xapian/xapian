@@ -53,10 +53,10 @@ EXTRA_DIST = testdata/apitest_onedoc.txt \
 
 
 clean-local:
-	@if [ -e includetest.cc ] ; then \
+	@if [ -f includetest.cc ] ; then \
 	  echo "removing includetest.cc"; $(RM) includetest.cc ; \
 	fi
-	@if [ -e stemtest.pl ] ; then \
+	@if [ -f stemtest.pl ] ; then \
 	  echo "removing stemtest.pl"; $(RM) stemtest.pl ; \
 	fi
 	@echo "removing random stemtest data"; \
@@ -66,17 +66,17 @@ clean-local:
 -include .deps-includetest-cc
 
 dist-hook:
-	@if [ -e $(distdir)/includetest.cc ] ; then \
+	@if [ -f $(distdir)/includetest.cc ] ; then \
 	  echo "removing includetest.cc from distribution"; \
 	  $(RM) $(distdir)/includetest.cc ; \
 	fi
-	@if [ -e $(distdir)/internaltest_dummy.cc ] ; then \
+	@if [ -f $(distdir)/internaltest_dummy.cc ] ; then \
 	  echo "removing internaltest_dummy.cc from distribution"; \
 	  $(RM) $(distdir)/internaltest_dummy.cc ; \
 	fi
 
 distclean-local: clean-local
-	@if [ -e .deps-includetest-cc ] ; then \
+	@if [ -f .deps-includetest-cc ] ; then \
 	  echo "removing .deps-includetest-cc"; $(RM) .deps-includetest-cc ; \
 	fi
 

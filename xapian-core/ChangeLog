@@ -1,3 +1,8 @@
+Tue Jun 27 10:09:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Changed "test -e" to "test -f" in Makefiles - test -e is not
+	  portable.
+
 Mon Jun 26 15:04:37 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added a swedish stemming algorithm.

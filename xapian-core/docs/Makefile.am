@@ -143,7 +143,7 @@ uninstall-local:
 	  echo "Uninstalling $(DESTDIR)$(docdatadir)/apidoc" ; \
 	  rm -rf $(DESTDIR)$(docdatadir)/apidoc ; \
 	fi
-	@if [ -e $(DESTDIR)$(docdatadir)/apidoc.dvi ]; then \
+	@if [ -f $(DESTDIR)$(docdatadir)/apidoc.dvi ]; then \
 	  echo "Uninstalling $(DESTDIR)$(docdatadir)/apidoc.dvi" ; \
 	  rm -rf $(DESTDIR)$(docdatadir)/apidoc.dvi ; \
 	fi
@@ -187,16 +187,16 @@ DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
 -include .deps-sourcedoc-tex
 
 distclean-local: clean-local
-	@if [ -e .deps-apidoc-html ] ; then \
+	@if [ -f .deps-apidoc-html ] ; then \
 	  echo "removing .deps-apidoc-html"; $(RM) .deps-apidoc-html ; \
 	fi
-	@if [ -e .deps-apidoc-tex ] ; then \
+	@if [ -f .deps-apidoc-tex ] ; then \
 	  echo "removing .deps-apidoc-tex"; $(RM) .deps-apidoc-tex ; \
 	fi
-	@if [ -e .deps-sourcedoc-html ] ; then \
+	@if [ -f .deps-sourcedoc-html ] ; then \
 	  echo "removing .deps-sourcedoc-html"; $(RM) .deps-sourcedoc-html ; \
 	fi
-	@if [ -e .deps-sourcedoc-tex ] ; then \
+	@if [ -f .deps-sourcedoc-tex ] ; then \
 	  echo "removing .deps-sourcedoc-tex"; $(RM) .deps-sourcedoc-tex ; \
 	fi
 
