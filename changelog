@@ -1,3 +1,10 @@
+xapian-bindings (0.8.0-9) unstable; urgency=low
+
+  * debian/rules: Read value of $COMPONENT from a file, rather than the
+    environment, so that it is the same whenever we re-run.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 14:21:20 +0100
+
 xapian-bindings (0.8.0-8) unstable; urgency=low
 
   * debian/rules: Build appropriate python versions depending on enviornment

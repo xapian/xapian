@@ -1,5 +1,6 @@
 #!/usr/bin/make -f
 
+COMPONENT=$(shell cat debian/component)
 ifeq ($(COMPONENT),stable)
   # The default python version
   PYTHON_VERSION_MAIN := 2.1
