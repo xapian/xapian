@@ -1,3 +1,7 @@
+Fri Dec 15 11:40:37 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix segfault in quartz_table
+
 Fri Dec 15 11:23:15 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Removed begin/end_session() from quartztest
