@@ -33,16 +33,16 @@ void lowercase_term(om_termname &term)
 	i++;
     }
     std::string::size_type a;
-    while (a = term.find("^s")) {
+    while ((a = term.find("^s")) != term.npos) {
 	term.replace(a, 2, " ");
     }
-    while (a = term.find("^n")) {
+    while ((a = term.find("^n")) != term.npos) {
 	term.replace(a, 2, "\n");
     }
-    while (a = term.find("^b")) {
+    while ((a = term.find("^b")) != term.npos) {
 	term.replace(a, 2, "\\");
     }
-    while (a = term.find("^0")) {
+    while ((a = term.find("^0")) != term.npos) {
 	term.replace(a, 2, std::string("\0", 1));
     }
 }
