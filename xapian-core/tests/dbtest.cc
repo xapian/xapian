@@ -14,9 +14,9 @@ int main(int argc, char *argv[]) {
     try {
 	IRDatabase * database;
 #if 1
-	DatabaseBuilderParams dbparams(OM_DBTYPE_TEXTFILE, true);
+	DatabaseBuilderParams dbparams(OM_DBTYPE_INMEMORY, true);
 	dbparams.paths.push_back("textfile");
-	database = DatabaseBuilder::create(OM_DBTYPE_TEXTFILE);
+	database = DatabaseBuilder::create(OM_DBTYPE_INMEMORY);
 #endif
 #if 0
 	database.open_subdatabase(new SleepyDatabase(), "test_sleepy", 0);

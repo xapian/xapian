@@ -73,13 +73,13 @@ AC_ARG_ENABLE(backend_sleepy,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-sleepy) ;;
 esac],[build_sleepy=true])
 
-AC_ARG_ENABLE(backend_textfile,
-[  --enable-backend-textfile Enable the textfile database backend (default=yes)],
+AC_ARG_ENABLE(backend_inmemory,
+[  --enable-backend-inmemory Enable the inmemory database backend (default=yes)],
 [case "${enableval}" in
-  yes) build_textfile=true ;;
-  no)  build_textfile=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-textfile) ;;
-esac],[build_textfile=true])
+  yes) build_inmemory=true ;;
+  no)  build_inmemory=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-inmemory) ;;
+esac],[build_inmemory=true])
 
 AC_ARG_ENABLE(backend_multi,
 [  --enable-backend-multi  Enable the multi database backend (default=yes)],
@@ -93,7 +93,7 @@ dnl Set conditionals to specify what we compile
 
 AM_CONDITIONAL(BUILD_BACKEND_DA, test x$build_da = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_SLEEPY, test x$build_sleepy = xtrue)
-AM_CONDITIONAL(BUILD_BACKEND_TEXTFILE, test x$build_textfile = xtrue)
+AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test x$build_inmemory = xtrue)
 AM_CONDITIONAL(BUILD_BACKEND_MULTI, test x$build_multi = xtrue)
 
 dnl Set defines to specify what we compile
@@ -108,9 +108,9 @@ AC_DEFINE(MUS_BUILD_BACKEND_SLEEPY,,
   [Define if you want to build sleepycat backend])
 fi
 
-if test x$build_textfile = xtrue; then
-AC_DEFINE(MUS_BUILD_BACKEND_TEXTFILE,,
-  [Define if you want to build textfile backend])
+if test x$build_inmemory = xtrue; then
+AC_DEFINE(MUS_BUILD_BACKEND_INMEMORY,,
+  [Define if you want to build inmemory backend])
 fi
 
 if test x$build_da = xtrue; then
@@ -187,7 +187,7 @@ AC_OUTPUT(
  backends/da/Makefile
  backends/sleepy/Makefile
  backends/multi/Makefile
- backends/textfile/Makefile
+ backends/inmemory/Makefile
  include/Makefile
  docs/Makefile
  tests/Makefile

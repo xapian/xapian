@@ -1,24 +1,24 @@
-/* textfile_document.h: C++ class definition for accessing a textfile document*/
+/* inmemory_document.h: C++ class definition for accessing a inmemory document*/
 
-#ifndef _textfile_document_h_
-#define _textfile_document_h_
+#ifndef _inmemory_document_h_
+#define _inmemory_document_h_
 
 #include "irdocument.h"
 #include <string>
 
-class TextfileDocument : public virtual IRDocument {
-    friend class TextfileDatabase;
+class InMemoryDocument : public virtual IRDocument {
+    friend class InMemoryDatabase;
     private:
 	string doc;
 
-	TextfileDocument(const string &);
+	InMemoryDocument(const string &);
 
 	// Stop copying
-	TextfileDocument(const TextfileDocument &);
-	TextfileDocument & operator = (const TextfileDocument &);
+	InMemoryDocument(const InMemoryDocument &);
+	InMemoryDocument & operator = (const InMemoryDocument &);
     public:
 	IRKey get_key(keyno) const;
 	IRData get_data() const;
 };
 
-#endif /* _textfile_document_h_ */
+#endif /* _inmemory_document_h_ */

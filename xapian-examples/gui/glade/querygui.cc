@@ -256,9 +256,9 @@ int main(int argc, char *argv[]) {
 	    dbtypes.push_back(OM_DBTYPE_DA);
 	    argc -= 2;
 	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--tf") == 0) {
+	} else if (argc >= 2 && strcmp(argv[0], "--im") == 0) {
 	    dbnames.push_back(argv[1]);
-	    dbtypes.push_back(OM_DBTYPE_TEXTFILE);
+	    dbtypes.push_back(OM_DBTYPE_INMEMORY);
 	    argc -= 2;
 	    argv += 2;
 	} else if (argc >= 2 && strcmp(argv[0], "--glade") == 0) {
@@ -275,14 +275,14 @@ int main(int argc, char *argv[]) {
 	cout << "Syntax: " << progname << " [options]" << endl;
 	cout << "\t--max-msize <maximum msize>\n";
 	cout << "\t--da <DA directory>\n";
-	cout << "\t--tf <textfile>\n";
+	cout << "\t--im <textfile>\n";
 	cout << "\t--glade <glade interface definition file>\n";
 	exit(1);
     }
 
     if(!dbnames.size()) {
 	dbnames.push_back("/mnt/ivory/disk1/home/richard/textfile");
-	dbtypes.push_back(OM_DBTYPE_TEXTFILE);
+	dbtypes.push_back(OM_DBTYPE_INMEMORY);
     }
 
     // Prepare to open database

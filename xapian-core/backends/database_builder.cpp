@@ -7,8 +7,8 @@
 #ifdef MUS_BUILD_BACKEND_DA
 #include "da/da_database.h"
 #endif
-#ifdef MUS_BUILD_BACKEND_TEXTFILE
-#include "textfile/textfile_database.h"
+#ifdef MUS_BUILD_BACKEND_INMEMORY
+#include "inmemory/inmemory_database.h"
 #endif
 #ifdef MUS_BUILD_BACKEND_SLEEPY
 #include "sleepy/sleepy_database.h"
@@ -33,9 +33,9 @@ DatabaseBuilder::create(const DatabaseBuilderParams & params)
 	    database = new DADatabase;
 #endif
 	    break;
-	case OM_DBTYPE_TEXTFILE:
-#ifdef MUS_BUILD_BACKEND_TEXTFILE
-	    database = new TextfileDatabase;
+	case OM_DBTYPE_INMEMORY:
+#ifdef MUS_BUILD_BACKEND_INMEMORY
+	    database = new InMemoryDatabase;
 #endif
 	    break;
 	case OM_DBTYPE_SLEEPY:

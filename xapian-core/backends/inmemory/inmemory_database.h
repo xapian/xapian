@@ -1,7 +1,7 @@
-/* textfile_database.h: C++ class definition for multiple database access */
+/* inmemory_database.h: C++ class definition for multiple database access */
 
-#ifndef _textfile_database_h_
-#define _textfile_database_h_
+#ifndef _inmemory_database_h_
+#define _inmemory_database_h_
 
 #include "omassert.h"
 #include "postlist.h"
@@ -17,14 +17,14 @@
 
 // Class representing a posting (a term/doc pair, and
 // all the relevant positional information, is a single posting)
-class TextfilePosting {
+class InMemoryPosting {
     public:
 	docid did;
 	termname tname;
 	vector<termcount> positions; // Sorted list of positions
 
 	// Merge two postings (same term/doc pair, new positional info)
-	void merge(const TextfilePosting & post) {
+	void merge(const InMemoryPosting & post) {
 	    Assert(did == post.did);
 	    Assert(tname == post.tname);
 
@@ -37,34 +37,34 @@ class TextfilePosting {
 };
 
 // Compare by document ID
-class TextfilePostingLessByDocId {
+class InMemoryPostingLessByDocId {
     public:
-	int operator() (const TextfilePosting &p1, const TextfilePosting &p2)
+	int operator() (const InMemoryPosting &p1, const InMemoryPosting &p2)
 	{
 	    return p1.did < p2.did;
 	}
 };
 
 // Compare by term ID
-class TextfilePostingLessByTermName {
+class InMemoryPostingLessByTermName {
     public:
-	int operator() (const TextfilePosting &p1, const TextfilePosting &p2)
+	int operator() (const InMemoryPosting &p1, const InMemoryPosting &p2)
 	{
 	    return p1.tname < p2.tname;
 	}
 };
 
 // Class representing a term and the documents indexing it
-class TextfileTerm {
+class InMemoryTerm {
     public:
-	vector<TextfilePosting> docs;// Sorted list of documents indexing term
-	void add_posting(const TextfilePosting & post) {
+	vector<InMemoryPosting> docs;// Sorted list of documents indexing term
+	void add_posting(const InMemoryPosting & post) {
 	    // Add document to right place in list
-	    vector<TextfilePosting>::iterator p;
+	    vector<InMemoryPosting>::iterator p;
 	    p = lower_bound(docs.begin(), docs.end(),
 			    post,
-			    TextfilePostingLessByDocId());
-	    if(p == docs.end() || TextfilePostingLessByDocId()(post, *p)) {
+			    InMemoryPostingLessByDocId());
+	    if(p == docs.end() || InMemoryPostingLessByDocId()(post, *p)) {
 		docs.insert(p, post);
 	    } else {
 		(*p).merge(post);
@@ -73,16 +73,16 @@ class TextfileTerm {
 };
 
 // Class representing a document and the terms indexing it
-class TextfileDoc {
+class InMemoryDoc {
     public:
-	vector<TextfilePosting> terms;// Sorted list of terms indexing document
-	void add_posting(const TextfilePosting & post) {
+	vector<InMemoryPosting> terms;// Sorted list of terms indexing document
+	void add_posting(const InMemoryPosting & post) {
 	    // Add document to right place in list
-	    vector<TextfilePosting>::iterator p;
+	    vector<InMemoryPosting>::iterator p;
 	    p = lower_bound(terms.begin(), terms.end(),
 			    post,
-			    TextfilePostingLessByTermName());
-	    if(p == terms.end() || TextfilePostingLessByTermName()(post, *p)) {
+			    InMemoryPostingLessByTermName());
+	    if(p == terms.end() || InMemoryPostingLessByTermName()(post, *p)) {
 		terms.insert(p, post);
 	    } else {
 		(*p).merge(post);
@@ -94,18 +94,18 @@ class TextfileDoc {
 
 
 // Post List
-class TextfilePostList : public virtual DBPostList {
-    friend class TextfileDatabase;
+class InMemoryPostList : public virtual DBPostList {
+    friend class InMemoryDatabase;
     private:
-	vector<TextfilePosting>::const_iterator pos;
-	vector<TextfilePosting>::const_iterator end;
+	vector<InMemoryPosting>::const_iterator pos;
+	vector<InMemoryPosting>::const_iterator end;
 	doccount termfreq;
 	bool started;
 
-	const TextfileDatabase * this_db;
+	const InMemoryDatabase * this_db;
 
-	TextfilePostList(const TextfileDatabase *,
-			 const TextfileTerm &);
+	InMemoryPostList(const InMemoryDatabase *,
+			 const InMemoryTerm &);
     public:
 	doccount get_termfreq() const;
 
@@ -120,17 +120,17 @@ class TextfilePostList : public virtual DBPostList {
 
 
 // Term List
-class TextfileTermList : public virtual TermList {
-    friend class TextfileDatabase;
+class InMemoryTermList : public virtual TermList {
+    friend class InMemoryDatabase;
     private:
-	vector<TextfilePosting>::const_iterator pos;
-	vector<TextfilePosting>::const_iterator end;
+	vector<InMemoryPosting>::const_iterator pos;
+	vector<InMemoryPosting>::const_iterator end;
 	termcount terms;
 	bool started;
 
-	const TextfileDatabase * this_db;
+	const InMemoryDatabase * this_db;
 
-	TextfileTermList(const TextfileDatabase *, const TextfileDoc &);
+	InMemoryTermList(const InMemoryDatabase *, const InMemoryDoc &);
     public:
 	termcount get_approx_size() const;
 
@@ -144,12 +144,12 @@ class TextfileTermList : public virtual TermList {
 
 
 // Database
-class TextfileDatabase : public virtual IRDatabase,
+class InMemoryDatabase : public virtual IRDatabase,
 			 public virtual IndexerDestination {
     friend class DatabaseBuilder;
     private:
-	map<termname, TextfileTerm> postlists;
-	vector<TextfileDoc> termlists;
+	map<termname, InMemoryTerm> postlists;
+	vector<InMemoryDoc> termlists;
 	vector<string> doclists;
 
 	vector<doclength> doclengths;
@@ -160,13 +160,13 @@ class TextfileDatabase : public virtual IRDatabase,
 	bool indexing; // Whether we have started to index to the database
 
 	// Stop copy / assignment being allowed
-	TextfileDatabase& operator=(const TextfileDatabase&);
-	TextfileDatabase(const TextfileDatabase&);
+	InMemoryDatabase& operator=(const InMemoryDatabase&);
+	InMemoryDatabase(const InMemoryDatabase&);
 
-	TextfileDatabase();
+	InMemoryDatabase();
 	void open(const DatabaseBuilderParams &);
     public:
-	~TextfileDatabase();
+	~InMemoryDatabase();
 
 	void set_root(IRDatabase *);
 
@@ -195,8 +195,8 @@ class TextfileDatabase : public virtual IRDatabase,
 //////////////////////////////////////////////
 
 inline
-TextfilePostList::TextfilePostList(const TextfileDatabase *db,
-				   const TextfileTerm &term)
+InMemoryPostList::InMemoryPostList(const InMemoryDatabase *db,
+				   const InMemoryTerm &term)
 	: pos(term.docs.begin()),
 	  end(term.docs.end()),
 	  termfreq(term.docs.size()),
@@ -206,13 +206,13 @@ TextfilePostList::TextfilePostList(const TextfileDatabase *db,
 }
 
 inline doccount
-TextfilePostList::get_termfreq() const
+InMemoryPostList::get_termfreq() const
 {
     return termfreq;
 }
 
 inline docid
-TextfilePostList::get_docid() const
+InMemoryPostList::get_docid() const
 {   
     Assert(started);
     Assert(!at_end());
@@ -220,7 +220,7 @@ TextfilePostList::get_docid() const
 }
 
 inline PostList *
-TextfilePostList::next(weight w_min)
+InMemoryPostList::next(weight w_min)
 {
     if(started) {
 	Assert(!at_end());
@@ -232,7 +232,7 @@ TextfilePostList::next(weight w_min)
 }
 
 inline PostList *
-TextfilePostList::skip_to(docid did, weight w_min)
+InMemoryPostList::skip_to(docid did, weight w_min)
 {
     // FIXME - see if we can make more efficient, perhaps using better
     // data structure.  Note, though, that a binary search of
@@ -249,7 +249,7 @@ TextfilePostList::skip_to(docid did, weight w_min)
 }
 
 inline bool
-TextfilePostList::at_end() const
+InMemoryPostList::at_end() const
 {
     Assert(started);
     if(pos != end) return false;
@@ -263,8 +263,8 @@ TextfilePostList::at_end() const
 // Inline function definitions for termlist //
 //////////////////////////////////////////////
 
-inline TextfileTermList::TextfileTermList(const TextfileDatabase *db,
-					  const TextfileDoc &doc)
+inline InMemoryTermList::InMemoryTermList(const InMemoryDatabase *db,
+					  const InMemoryDoc &doc)
 	: pos(doc.terms.begin()),
 	  end(doc.terms.end()),
 	  terms(doc.terms.size()),
@@ -272,33 +272,33 @@ inline TextfileTermList::TextfileTermList(const TextfileDatabase *db,
 	  this_db(db)
 {}
 
-inline termcount TextfileTermList::get_approx_size() const
+inline termcount InMemoryTermList::get_approx_size() const
 {
     return terms;
 }
 
-inline weight TextfileTermList::get_weight() const
+inline weight InMemoryTermList::get_weight() const
 {
     Assert(started);
     Assert(!at_end());
     return 1.0;  // FIXME
 }
 
-inline termname TextfileTermList::get_termname() const
+inline termname InMemoryTermList::get_termname() const
 {
     Assert(started);
     Assert(!at_end());
     return (*pos).tname;
 }
 
-inline termcount TextfileTermList::get_wdf() const
+inline termcount InMemoryTermList::get_wdf() const
 {
     Assert(started);
     Assert(!at_end());
     return (*pos).positions.size();
 }
 
-inline doccount TextfileTermList::get_termfreq() const
+inline doccount InMemoryTermList::get_termfreq() const
 {
     Assert(started);
     Assert(!at_end());
@@ -306,7 +306,7 @@ inline doccount TextfileTermList::get_termfreq() const
     return this_db->get_termfreq((*pos).tname);
 }
 
-inline TermList * TextfileTermList::next()
+inline TermList * InMemoryTermList::next()
 {
     if(started) {
 	Assert(!at_end());
@@ -317,7 +317,7 @@ inline TermList * TextfileTermList::next()
     return NULL;
 }
 
-inline bool TextfileTermList::at_end() const
+inline bool InMemoryTermList::at_end() const
 {
     Assert(started);
     if(pos != end) return false;
@@ -332,34 +332,34 @@ inline bool TextfileTermList::at_end() const
 //////////////////////////////////////////////
 
 inline doccount
-TextfileDatabase::get_doccount() const
+InMemoryDatabase::get_doccount() const
 {
     Assert(opened);
     return postlists.size();
 }
 
 inline doclength
-TextfileDatabase::get_avlength() const
+InMemoryDatabase::get_avlength() const
 {
     Assert(opened);
-    doccount docs = TextfileDatabase::get_doccount();
+    doccount docs = InMemoryDatabase::get_doccount();
     Assert(docs != 0);
     return ((doclength) totlen) / docs;
 }
 
 inline doccount
-TextfileDatabase::get_termfreq(const termname & tname) const
+InMemoryDatabase::get_termfreq(const termname & tname) const
 {
     Assert(opened);
     Assert(term_exists(tname));
 
-    map<termname, TextfileTerm>::const_iterator i = postlists.find(tname);
+    map<termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if(i == postlists.end()) return 0;
     return i->second.docs.size();
 }
 
 inline doclength
-TextfileDatabase::get_doclength(docid did) const
+InMemoryDatabase::get_doclength(docid did) const
 {
     Assert(opened);
     Assert(did > 0 && did <= termlists.size());
@@ -367,4 +367,4 @@ TextfileDatabase::get_doclength(docid did) const
     return (doclength) doclengths[did - 1];
 }
 
-#endif /* _textfile_database_h_ */
+#endif /* _inmemory_database_h_ */

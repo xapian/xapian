@@ -21,7 +21,7 @@ typedef double weight;
 enum _om_database_type {
     OM_DBTYPE_NULL,
     OM_DBTYPE_DA,
-    OM_DBTYPE_TEXTFILE,
+    OM_DBTYPE_INMEMORY,
     OM_DBTYPE_SLEEPY,
     OM_DBTYPE_MULTI
 };

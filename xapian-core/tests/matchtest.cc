@@ -29,9 +29,9 @@ main(int argc, char *argv[])
 	    dbtypes.push_back(OM_DBTYPE_DA);
 	    argc -= 2;
 	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--tf") == 0) {
+	} else if (argc >= 2 && strcmp(argv[0], "--im") == 0) {
 	    dbnames.push_back(argv[1]);
-	    dbtypes.push_back(OM_DBTYPE_TEXTFILE);
+	    dbtypes.push_back(OM_DBTYPE_INMEMORY);
 	    argc -= 2;
 	    argv += 2;
 	} else if (strcmp(argv[0], "--multidb") == 0) {
@@ -60,7 +60,7 @@ main(int argc, char *argv[])
 	cout << "Syntax: " << progname << " TERM ..." << endl;
 	cout << "\t--msize MSIZE\n";
 	cout << "\t--db DBDIRECTORY\n";
-	cout << "\t--tf TEXTFILE\n";
+	cout << "\t--im INMEMORY\n";
 	cout << "\t--rel DOCID\n";
 	cout << "\t--multidb\n";
 	cout << "\t--showmset\n";

@@ -1,11 +1,11 @@
-/* textfile_database.cc: interface to text file access */
+/* inmemory_database.cc: interface to text file access */
 
 #include <stdio.h>
 
 #include "omassert.h"
-#include "textfile_database.h"
+#include "inmemory_database.h"
+#include "inmemory_document.h"
 #include "textfile_indexer.h"
-#include "textfile_document.h"
 
 #include <string>
 #include <vector>
@@ -17,7 +17,7 @@
 //////////////
 
 weight
-TextfilePostList::get_weight() const
+InMemoryPostList::get_weight() const
 {
     Assert(started);
     Assert(!at_end());
@@ -31,19 +31,19 @@ TextfilePostList::get_weight() const
 // Actual database class //
 ///////////////////////////
 
-TextfileDatabase::TextfileDatabase()
+InMemoryDatabase::InMemoryDatabase()
 	: totlen(0)
 {
     Assert((opened = false) == false);
     Assert((indexing = false) == false);
 }
 
-TextfileDatabase::~TextfileDatabase()
+InMemoryDatabase::~InMemoryDatabase()
 {
 }
 
 void
-TextfileDatabase::open(const DatabaseBuilderParams &params)
+InMemoryDatabase::open(const DatabaseBuilderParams &params)
 {
     Assert(!opened); // Can only open once
 
@@ -73,37 +73,37 @@ TextfileDatabase::open(const DatabaseBuilderParams &params)
 }
 
 DBPostList *
-TextfileDatabase::open_post_list(const termname & tname, RSet *rset) const
+InMemoryDatabase::open_post_list(const termname & tname, RSet *rset) const
 {
     Assert(opened);
     Assert(term_exists(tname));
 
-    map<termname, TextfileTerm>::const_iterator i = postlists.find(tname);
+    map<termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     Assert(i != postlists.end());
 
-    return new TextfilePostList(this, i->second);
+    return new InMemoryPostList(this, i->second);
 }
 
 TermList *
-TextfileDatabase::open_term_list(docid did) const
+InMemoryDatabase::open_term_list(docid did) const
 {
     Assert(opened);
     Assert(did > 0 && did <= termlists.size());
 
-    return new TextfileTermList(this, termlists[did - 1]);
+    return new InMemoryTermList(this, termlists[did - 1]);
 }
 
 IRDocument *
-TextfileDatabase::open_document(docid did) const
+InMemoryDatabase::open_document(docid did) const
 {
     Assert(opened);
     Assert(did > 0 && did <= doclists.size());
 
-    return new TextfileDocument(doclists[did - 1]);
+    return new InMemoryDocument(doclists[did - 1]);
 }
 
 void
-TextfileDatabase::make_term(const termname &tname)
+InMemoryDatabase::make_term(const termname &tname)
 {
     Assert(indexing == true);
     Assert(opened == false);
@@ -112,12 +112,12 @@ TextfileDatabase::make_term(const termname &tname)
 }
 
 docid
-TextfileDatabase::make_doc(const docname &dname)
+InMemoryDatabase::make_doc(const docname &dname)
 {
     Assert(indexing == true);
     Assert(opened == false);
 
-    termlists.push_back(TextfileDoc());
+    termlists.push_back(InMemoryDoc());
     doclengths.push_back(0);
     doclists.push_back(dname);
 
@@ -126,7 +126,7 @@ TextfileDatabase::make_doc(const docname &dname)
     return termlists.size();
 }
 
-void TextfileDatabase::make_posting(const termname & tname,
+void InMemoryDatabase::make_posting(const termname & tname,
 				    docid did,
 				    termcount position)
 {
@@ -137,7 +137,7 @@ void TextfileDatabase::make_posting(const termname & tname,
     Assert(did > 0 && did <= doclengths.size());
 
     // Make the posting
-    TextfilePosting posting;
+    InMemoryPosting posting;
     posting.tname = tname;
     posting.did = did;
     posting.positions.push_back(position);
@@ -150,14 +150,14 @@ void TextfileDatabase::make_posting(const termname & tname,
 }
 
 bool
-TextfileDatabase::term_exists(const termname &tname) const
+InMemoryDatabase::term_exists(const termname &tname) const
 {
     Assert(opened);
 
 #ifdef MUS_DEBUG_VERBOSE
     cout << "Looking up term `" << tname.c_str() << "'" << endl;
 #endif
-    map<termname, TextfileTerm>::const_iterator p = postlists.find(tname);
+    map<termname, InMemoryTerm>::const_iterator p = postlists.find(tname);
 
     if (p == postlists.end()) {
 	return false;

@@ -1,13 +1,13 @@
-/* textfile_document.cc: C++ class for storing textfile documents */
+/* inmemory_document.cc: C++ class for storing inmemory documents */
 
-#include "textfile_document.h"
+#include "inmemory_document.h"
 
-TextfileDocument::TextfileDocument(const string &doc_new)
+InMemoryDocument::InMemoryDocument(const string &doc_new)
 	: doc(doc_new)
 { return; }
 
 IRKey
-TextfileDocument::get_key(keyno id) const
+InMemoryDocument::get_key(keyno id) const
 {
     IRKey key;
     key.value = 0;
@@ -15,7 +15,7 @@ TextfileDocument::get_key(keyno id) const
 }
 
 IRData
-TextfileDocument::get_data() const
+InMemoryDocument::get_data() const
 {
     IRData data;
     data.value = doc;

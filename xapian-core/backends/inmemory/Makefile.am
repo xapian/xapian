@@ -4,9 +4,8 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I$(top_srcdir)/include
 
-noinst_HEADERS = textfile_database.h
+noinst_HEADERS = inmemory_database.h inmemory_document.h
 
-noinst_LTLIBRARIES = libtextfile.la
+noinst_LTLIBRARIES = libinmemory.la
 
-libtextfile_la_SOURCES = textfile_database.cc \
-    textfile_document.h textfile_document.cc
+libinmemory_la_SOURCES = inmemory_database.cc inmemory_document.cc
