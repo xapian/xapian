@@ -31,9 +31,8 @@ Priority | Area            | Task
  High    | LocalMatch      | Pass around partially created postlist as an
          |                 | auto_ptr, for exception safety.
 ---------+-----------------+--------------------------------------------------
- High    | Expand          | Restructure expand so that statistics get shared
-         |                 | correctly in multidb case.  Enable the
-	 |                 | `multiexpand1' test, and get it to pass.
+ Medium  | Expand          | Restructure expand so that it functions in
+         |                 | the distributed case.
 ---------+-----------------+--------------------------------------------------
  Medium  | API             | OmDocumentTerm should use a set rather than a
          |                 | map.
