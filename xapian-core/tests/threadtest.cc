@@ -42,14 +42,13 @@ using std::cerr;
 using std::endl;
 
 #include "omlocks.h"
-#include "omstringstream.h"
 #include <memory>
 std::auto_ptr<OmLock> outputmutex;
-#define OutputMessage(a) { \
-    OmLockSentry sentry(*outputmutex); \
-    om_ostringstream os; \
-    os << a; \
-    fprintf(stdout, "%s", os.str().c_str()); \
+
+void
+OutputMessage(string msg) {
+    OmLockSentry sentry(*outputmutex);
+    fprintf(stdout, "%s\n", msg.c_str());
 }
 
 static std::string database_path;
@@ -85,7 +84,7 @@ open_db_group(std::string database_type, std::string dlist_path)
 	    database_path += std::string(&c, 1);
 	}
 	if(database_path.size() != 0) {
-	    OutputMessage("Adding `" << database_path << "' to dlist" << endl);
+	    OutputMessage("Adding `" + database_path + "' to dlist");
 	    std::vector<std::string> params;
 	    params.push_back(database_path);
 	    OmDatabase db(database_type, params);
@@ -109,7 +108,7 @@ search_stuff(OmEnquire & enq,
 	enq.set_query(*i);
 	results.push_back(enq.get_mset(0, 10));
 	if(results[results.size() - 1].items.size() > 0) {
-	    OutputMessage(enq.get_matching_terms(results[results.size() - 1].items[0]) << endl);
+	    enq.get_matching_terms(results[results.size() - 1].items[0]);
 	}
     }
 }
@@ -185,7 +184,7 @@ read_queries(std::string filename, std::vector<OmQuery> & queries)
 
 	if (terms.size() != 0) {
 	    OmQuery new_query(OM_MOP_OR, terms.begin(), terms.end());
-	    //OutputMessage(new_query.get_description() << endl);
+	    OutputMessage(new_query.get_description());
 	    queries.push_back(new_query);
 	}
     }
@@ -197,7 +196,8 @@ bool check_query_threads(void * (* search_thread)(void *))
     std::vector<pthread_t> threads;
     std::vector<struct some_searches> searches;
 
-    OutputMessage("Performing test with " << num_threads << " threads." << endl);
+    OutputMessage("Performing test with " + om_inttostring(num_threads) +
+		  " threads.");
 
     struct some_searches mainsearch;
 
@@ -215,22 +215,22 @@ bool check_query_threads(void * (* search_thread)(void *))
 
 	read_queries(queryfile + om_inttostring((i % 2) + 1),
 		     newsearch.queries);
-	OutputMessage("search " << (i + 1) << " has " <<
-		newsearch.queries.size() << " items" << endl);
+	OutputMessage("search " + om_inttostring(i + 1) + " has " +
+		om_inttostring(newsearch.queries.size()) + " items");
 	TEST_NOT_EQUAL(newsearch.queries.size(), 0);
 	searches.push_back(newsearch);
     }
 
     for (int i = 0; i < num_threads; i++) {
-	OutputMessage("Performing single threaded search for search " <<
-		(i + 1) << endl);
+	OutputMessage("Performing single threaded search for search " +
+		om_inttostring(i + 1));
 	search_stuff(searches[i].database_type,
 		     searches[i].database_path,
 		     searches[i].queries,
 		     searches[i].expected_results);
 	TEST_EQUAL(searches[i].expected_results.size(),
 		   searches[i].queries.size());
-	OutputMessage("done." << endl);
+	OutputMessage("done.");
     }
 
     for (int i = 0; i < num_threads; i++) {
@@ -240,7 +240,7 @@ bool check_query_threads(void * (* search_thread)(void *))
 
     for (int i = 0; i < num_threads; i++) {
 	int err;
-	OutputMessage("starting thread search " << (i + 1) << endl);
+	OutputMessage("starting thread search " + om_inttostring(i + 1));
 	err = pthread_create(&threads[i],
 			     0,
 			     search_thread,
@@ -249,10 +249,10 @@ bool check_query_threads(void * (* search_thread)(void *))
     }
 
     for (int i = 0; i < num_threads; i++) {
-	OutputMessage("waiting for end of thread search " << (i + 1) << endl);
+	OutputMessage("waiting for end of thread search " + om_inttostring(i + 1));
 	pthread_join(threads[i], NULL);
     }
-    OutputMessage("all threads finished" << endl);
+    OutputMessage("all threads finished");
 
     for (int i = 0; i < num_threads; i++) {
 	TEST_EQUAL(searches[i].expected_results.size(),
@@ -299,9 +299,9 @@ sleep_thread(void * data)
     OmLock * lock = (OmLock *)data;
 
     if(lock) lock->lock();
-    OutputMessage("Sleeping" << endl);
+    OutputMessage("Sleeping");
     mysleep(2);
-    OutputMessage("Slept" << endl);
+    OutputMessage("Slept");
     if(lock) lock->unlock();
 
     return 0;
@@ -320,26 +320,26 @@ long time_sleep(OmLock * lock_ptr)
     err = gettimeofday(&tv1, 0);
     TEST_EQUAL(err, 0);
 
-    OutputMessage("Creating thread 1" << endl);
+    OutputMessage("Creating thread 1");
     err = pthread_create(&thread1,
 			 0,
 			 sleep_thread,
 			 lock_ptr);
     TEST_EQUAL(err, 0);
 
-    OutputMessage("Creating thread 2" << endl);
+    OutputMessage("Creating thread 2");
     err = pthread_create(&thread2,
 			 0,
 			 sleep_thread,
 			 lock_ptr);
     TEST_EQUAL(err, 0);
 
-    OutputMessage("waiting for end of thread 1 " << endl);
+    OutputMessage("waiting for end of thread 1 ");
     pthread_join(thread1, NULL);
-    OutputMessage("waiting for end of thread 2 " << endl);
+    OutputMessage("waiting for end of thread 2 ");
     pthread_join(thread2, NULL);
 
-    OutputMessage("all threads finished" << endl);
+    OutputMessage("all threads finished");
 
     err = gettimeofday(&tv2, 0);
     TEST_EQUAL(err, 0);
@@ -347,7 +347,7 @@ long time_sleep(OmLock * lock_ptr)
     long time = (tv2.tv_sec - tv1.tv_sec) * 1000;
     time += (tv2.tv_usec - tv1.tv_usec) / 1000;
 
-    OutputMessage("Time taken : " << time << "ms" << endl);
+    OutputMessage("Time taken : " + om_inttostring(time) + "ms");
 
     return time;
 }
@@ -357,8 +357,8 @@ bool test_mutextest()
 {
     OmLock lock;
 
-    TEST(time_sleep(&lock) > 2500);
-    TEST(time_sleep(0) < 2500);
+    TEST(time_sleep(&lock) > 3500);
+    TEST(time_sleep(0) < 3500);
 
     return true;
 }

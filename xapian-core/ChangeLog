@@ -1,3 +1,7 @@
+Tue Jul 18 18:48:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change threadtests output so that it doesn't use om_stringstream.
+
 Tue Jul 18 17:12:49 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Debug system now prints out the (currently numeric) debug type
