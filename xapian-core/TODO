@@ -34,6 +34,8 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Distribution    | Add support for Expand
 ---------+-----------------+--------------------------------------------------
+ Medium  | Matchers        | Merge get_max_weight() into result of get_mset()
+---------+-----------------+--------------------------------------------------
  Medium  | OmDatabase      | Test assignment operators for OmDatabase and
          |                 | OmWritableDatabase
 ---------+-----------------+--------------------------------------------------

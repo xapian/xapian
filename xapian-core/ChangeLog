@@ -1,3 +1,12 @@
+Fri May 19 11:48:15 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* MultiMatch::get_max_weight() now returns the maximum of the
+	  max_weights from the submatchers, rather than just the first one.
+	  This ensures that the correct value is returned in the case of
+	  a multimatch with relevant documents in some of the submatchers.
+
+	* Fix some test cases so that they test the correct things.
+
 Fri May 19 11:43:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Further test to check that rset weights are getting distributed

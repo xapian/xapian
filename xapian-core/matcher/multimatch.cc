@@ -130,17 +130,16 @@ MultiMatch::get_max_weight()
 
     // FIXME: this always asks the first database; make it pick one in some
     // way so that the load is fairly spread?
-    // FIXME: assume that prepare_match has been called.
-    leaves.front()->prepare_match(false);
-    om_weight result = leaves.front()->get_max_weight();
+    om_weight result = 0;
 
-#ifdef MUS_DEBUG
-    for(vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
-	i != leaves.end(); i++) {
+    for (vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
+	 i != leaves.end();
+	 i++) {
+	// FIXME: assume that prepare_match has been called.
 	(*i)->prepare_match(false);
-	AssertEqDouble((*i)->get_max_weight(), result);
+	om_weight this_max = (*i)->get_max_weight();
+	if(result < this_max) result = this_max;
     }
-#endif /* MUS_DEBUG */
 
     return result;
 }
