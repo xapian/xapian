@@ -1,3 +1,9 @@
+Fri Apr 19 17:26:23 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed placeholder code for OmQuery::OP_PERCENT_CUTOFF - it's
+	  actually impossible to implement since we started rescaling
+	  percentages so that 100% is attainable.
+
 Fri Apr 19 16:42:42 BST 2002  Olly Betts <olly@survex.com>
 
 	* Tracked down and fixed the bug in the quartz backend which was making

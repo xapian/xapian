@@ -43,11 +43,6 @@ OmKey -&gt; OmAttrib / OmAttribute / OmAttr / OmFacet / ... ?
 Add get_all_terms DB databases.  Needs extra code in dbread.[ch].
 
 </todoitem>
-<todoitem priority="M" difficulty="4" owner="" area="OmQuery" release="1.0">
-
-Make query operator to filter on percentage weight work.
-
-</todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="General" release="1.0">
 
 Allow setting of the document length in OmDocument.  (Currently defined to

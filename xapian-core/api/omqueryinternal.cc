@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,7 +56,6 @@ get_min_subqs(OmQuery::Internal::op_t op)
 	case OmQuery::OP_ELITE_SET:
 	    return 0;
 	case OmQuery::OP_WEIGHT_CUTOFF:
-	case OmQuery::OP_PERCENT_CUTOFF:
 	    return 1;
 	case OmQuery::OP_FILTER:
 	case OmQuery::OP_AND_MAYBE:
@@ -75,7 +75,6 @@ get_max_subqs(OmQuery::Internal::op_t op)
 	case OmQuery::Internal::OP_LEAF:
 	    return 0;
 	case OmQuery::OP_WEIGHT_CUTOFF:
-	case OmQuery::OP_PERCENT_CUTOFF:
 	    return 1;
 	case OmQuery::OP_FILTER:
 	case OmQuery::OP_AND_MAYBE:
@@ -216,9 +215,6 @@ OmQuery::Internal::serialise() const
 	    case OmQuery::OP_WEIGHT_CUTOFF:
 		result += "%wtcutoff" + om_tostring(cutoff);
 		break;
-	    case OmQuery::OP_PERCENT_CUTOFF:
-		result += "%pctcutoff" + om_tostring(cutoff);
-		break;
 	    case OmQuery::OP_ELITE_SET:
 		result += "%eliteset" + om_tostring(elite_set_size);
 		break;
@@ -244,7 +240,6 @@ OmQuery::Internal::get_op_name(OmQuery::Internal::op_t op)
 	case OmQuery::OP_NEAR:            name = "NEAR"; break;
 	case OmQuery::OP_PHRASE:          name = "PHRASE"; break;
 	case OmQuery::OP_WEIGHT_CUTOFF:   name = "WEIGHT_CUTOFF"; break;
-	case OmQuery::OP_PERCENT_CUTOFF:  name = "PERCENT_CUTOFF"; break;
 	case OmQuery::OP_ELITE_SET:       name = "ELITE_SET"; break;
     }
     return name;
@@ -271,7 +266,7 @@ OmQuery::Internal::get_description() const
 	opstr = " " + get_op_name(op) + " ";
 	if (op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE)
 	    opstr += om_tostring(window) + " ";
-	if (op == OmQuery::OP_WEIGHT_CUTOFF || op == OmQuery::OP_PERCENT_CUTOFF)
+	if (op == OmQuery::OP_WEIGHT_CUTOFF)
 	    opstr += om_tostring(cutoff) + " ";
 	if (op == OmQuery::OP_ELITE_SET)
 	    opstr += om_tostring(elite_set_size) + " ";
@@ -294,8 +289,7 @@ OmQuery::Internal::set_window(om_termpos window_)
 void
 OmQuery::Internal::set_cutoff(double cutoff_)
 {
-    if (op != OmQuery::OP_WEIGHT_CUTOFF &&
-	op != OmQuery::OP_PERCENT_CUTOFF)
+    if (op != OmQuery::OP_WEIGHT_CUTOFF)
 	throw OmInvalidOperationError("Can only set cutoff parameter for weight or percentage cutoff operators.");
     cutoff = cutoff_;
 }
@@ -543,16 +537,13 @@ OmQuery::Internal::validate_query() const
 
     // Check that the cutoff parameter is in acceptable limits
     // FIXME: flakey and nasty.
+    if (cutoff != 0 && op != OmQuery::OP_WEIGHT_CUTOFF) {
+	throw OmInvalidArgumentError("OmQuery: " + get_op_name(op) +
+		" requires a cutoff of 0");
+    }
     if (cutoff < 0) {
 	throw OmInvalidArgumentError("OmQuery: " + get_op_name(op) +
 		" requires a cutoff of at least 0");
-    }
-    if (cutoff > 100 && op == OmQuery::OP_PERCENT_CUTOFF) {
-	throw OmInvalidArgumentError("OmQuery: " + get_op_name(op) +
-		" requires a cutoff of no more than 100");
-    } else if (cutoff > 0 && op != OmQuery::OP_WEIGHT_CUTOFF) {
-	throw OmInvalidArgumentError("OmQuery: " + get_op_name(op) +
-		" requires a cutoff of 0");
     }
 
     // Check that all subqueries are valid.

@@ -94,14 +94,6 @@ class OmQuery {
 	     */
 	    OP_WEIGHT_CUTOFF,
 
-	    /** Return only results with a percentage weight greater than
-	     *  a specified cutoff value.
-	     *
-	     *  The cutoff parameter should be specified for this operation,
-	     *  and will default to 0 (ie, no cutoff).
-	     */
-	    OP_PERCENT_CUTOFF,
-
 	    /** Select an elite set of terms from the subqueries, and perform
 	     *  a query with all those terms combined as an OR query.
 	     *  This replaces the old "match_max_or_terms" option.
@@ -152,7 +144,7 @@ class OmQuery {
 	/** A set of OmQuery's, merged together with specified operator.
 	 *  (Takes begin and end iterators).
 	 *  AND, OR, NEAR and PHRASE can take any number of subqueries.
-	 *  WEIGHT_CUTOFF and PERCENT_CUTOFF take only one subquery.
+	 *  WEIGHT_CUTOFF takes only one subquery.
 	 *  If the operator is anything else then there must be exactly two
 	 *  subqueries.
 	 *
@@ -174,8 +166,7 @@ class OmQuery {
 	 */
 	void set_window(om_termpos window);
 
-	/** Set the cutoff parameter, for a WEIGHT_CUTOFF or PERCENT_CUTOFF
-	 *  query.
+	/** Set the cutoff parameter, for a WEIGHT_CUTOFF query.
 	 */
 	void set_cutoff(om_weight cutoff);
 

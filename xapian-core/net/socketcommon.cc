@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Ananova Ltd
+ * Copyright 2001,2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -318,20 +318,6 @@ OmQuery::Internal qfs_readcompound()
 			throw OmInvalidArgumentError("Expected %) in query string");
 		    }
 		    OmQuery::Internal qint(OmQuery::OP_WEIGHT_CUTOFF);
-		    Assert(subqs.size() == 1);
-		    qint.add_subquery(subqs[0]);
-		    qint.end_construction();
-		    qint.set_cutoff(qt.cutoff);
-		    return qint;
-		}
-		break;
-	    case querytok::OP_PERCENT_CUTOFF:
-		{
-		    querytok myqt = qfs_gettok();
-		    if (myqt.type != querytok::OP_KET) {
-			throw OmInvalidArgumentError("Expected %) in query string");
-		    }
-		    OmQuery::Internal qint(OmQuery::OP_PERCENT_CUTOFF);
 		    Assert(subqs.size() == 1);
 		    qint.add_subquery(subqs[0]);
 		    qint.end_construction();

@@ -460,9 +460,6 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 	    return new WeightCutoffPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
 					    query->cutoff,
 					    matcher);
-	case OmQuery::OP_PERCENT_CUTOFF:
-	    Assert(query->subqs.size() == 1);
-	    throw OmUnimplementedError("Percentage cutoffs in query tree not yet implemented.");
     }
     Assert(false);
     RETURN(NULL);
