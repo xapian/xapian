@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,18 +23,29 @@
 
 #include <config.h>
 
-#ifdef HAVE_SNPRINTF
-/* This so we can use snprintf */
-# ifndef _ISOC99_SOURCE
-#  define _ISOC99_SOURCE
-# endif
-#endif
-
 #include <string>
 #include <vector>
 #include <stdio.h>
 
 using namespace std;
+
+// This ought to be enough for any of the conversions below.
+#define BUFSIZE 100
+
+#ifdef SNPRINTF
+#define CONVERT_TO_STRING(FMT) \
+    char buf[BUFSIZE];\
+    int len = SNPRINTF(buf, BUFSIZE, (FMT), val);\
+    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);\
+    return string(buf, len);
+#else
+#define CONVERT_TO_STRING(FMT) \
+    char buf[BUFSIZE];\
+    buf[BUFSIZE - 1] = '\0';\
+    sprintf(buf, (FMT), val);\
+    if (buf[BUFSIZE - 1]) abort(); /* Uh-oh, buffer overrun */ \
+    return string(buf);
+#endif
 
 int
 string_to_int(const string &s)
@@ -43,12 +54,9 @@ string_to_int(const string &s)
 }
 
 string
-int_to_string(int i)
+int_to_string(int val)
 {
-    char buf[20];
-    int len = snprintf(buf, sizeof(buf), "%d", i);
-    if (len < 0 || len > sizeof(buf)) len = sizeof(buf);
-    return string(buf, len);
+    CONVERT_TO_STRING("%d")
 }
 
 vector<string>
