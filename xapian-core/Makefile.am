@@ -10,8 +10,8 @@ LIBNET_LA = net/libnet.la
 endif
 
 # Order is relevant: when building, tests must be last.
-# FIXME: when installing, should we install script and m4 stuff last, in case of
-# failure (disk full for example)?
+# FIXME: when installing, should we install the xapian-config script and
+# xapian.m4 last, in case of failure (disk full for example)?
 SUBDIRS = include getopt autoconf common \
           api backends matcher languages $(remote_subdirs) \
 	  . testsuite bin m4 docs tests extra
