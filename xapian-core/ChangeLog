@@ -1,3 +1,9 @@
+Sat Nov 20 14:36:43 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tests/runtest.in: --logfile-fd was renamed to --log-fd in valgrind
+	  2.1.2 with no support for the old option name, so we must probe
+	  to decide which to use.
+
 Fri Nov 19 13:18:43 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/bcursor.cc,backends/quartz/bcursor.h: Eliminated
