@@ -77,8 +77,19 @@ class AndMaybePostList : public BranchPostList {
 	 */
 	virtual om_doclength get_doclength() const;
 
+        AndMaybePostList(PostList *left, PostList *right, LocalMatch *matcher_)
+	    : l(left), r(right), matcher(matcher_) { }
+
+	/// Constructor for use by decomposing OrPostList
         AndMaybePostList(PostList *left, PostList *right, LocalMatch *matcher_,
-			 om_docid lh = 0, om_docid rh = 0);
+			 om_docid lh, om_docid rh);
+	    : l(left), r(right), matcher(matcher_), lhead(lh), rhead(rh)
+	{
+	    // Initialise the maxweights from the kids so we can avoid forcing
+	    // a full maxweight recalc
+	    lmax = l->get_maxweight();
+	    rmax = r->get_maxweight();
+	}
 };
 
 inline om_doccount

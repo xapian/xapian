@@ -47,23 +47,6 @@ AndMaybePostList::process_next_or_skip_to(om_weight w_min, PostList *ret)
     return NULL;
 }
 
-AndMaybePostList::AndMaybePostList(PostList *left, PostList *right,
-				   LocalMatch *matcher_,
-				   om_docid lh, om_docid rh)
-{
-    matcher = matcher_;
-    l = left;
-    r = right;
-    lhead = lh;
-    rhead = rh;
-    if (lh || rh) {
-	// Initialise the maxweights from the kids so we can avoid forcing
-	// a full maxweight recalc
-	lmax = l->get_maxweight();
-	rmax = r->get_maxweight();
-    }
-}
-
 PostList *
 AndMaybePostList::next(om_weight w_min)
 {
