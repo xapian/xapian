@@ -22,7 +22,7 @@
  * -----END-LICENCE-----
  */
 
-#include <om/om.h>
+#include <config.h>
 #include <iostream>
 
 using namespace std;
@@ -35,12 +35,13 @@ main(int argc, char **argv)
     if (argc < 2 || argc > 3) {
 	cout << "usage: " << argv[0]
 	     << " <path to btree and prefix> [[t][f][b][v][+]]\n"
-	        " t = short tree printing\n"
+		" t = short tree printing\n"
 		" f = full tree printing\n"
 		" b = show bitmap\n"
 		" v = show stats about B-tree\n"
-		" + = same as tbv\n"
-	        " e.g. " << argv[0] << " /var/spool/xapian/mydb/postlist_ +"
+		" + = same as tbv (default)\n"
+		" e.g. " << argv[0]
+	     << " /var/lib/xapian/data/default/postlist_ fbv"
 	     << endl;
 	exit(1);
     }
