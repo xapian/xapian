@@ -75,7 +75,7 @@ MultiPostList::get_doclength() const
     return this_db->get_doclength(get_docid());
 }
 
-PositionList &
+PositionList *
 MultiPostList::get_position_list()
 {
     throw OmUnimplementedError("MultiPostList::get_position_list() unimplemented");

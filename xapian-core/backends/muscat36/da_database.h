@@ -61,7 +61,7 @@ class DAPostList : public LeafPostList {
 	om_docid  get_docid() const;     // Gets current docid
 	om_weight get_weight() const;    // Gets current weight
 	om_doclength get_doclength() const; // Get length of current document
-	PositionList & get_position_list(); // Gets positions
+	PositionList *get_position_list(); // Gets positions
 	PostList *next(om_weight w_min);          // Moves to next docid
 	PostList *skip_to(om_docid did, om_weight w_min);  // Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list

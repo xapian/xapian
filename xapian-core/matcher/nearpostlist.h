@@ -38,7 +38,8 @@ class NearPostList : public AndPostList {
         om_termpos max_separation;
         bool order_matters;
 
- public:
+	inline bool terms_near();
+    public:
 	PostList *next(om_weight w_min);
 	PostList *skip_to(om_docid did, om_weight w_min);
 

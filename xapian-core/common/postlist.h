@@ -100,7 +100,7 @@ class PostList
 	 *  until next() or skip_to() is called on this PostList, or until
 	 *  the PostList is destroyed.
 	 */
-	virtual PositionList & get_position_list() = 0;
+	virtual PositionList *get_position_list() = 0;
 
 	///////////////////////////////////////////////////////////////////
 	// Movement around the postlist

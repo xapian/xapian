@@ -53,7 +53,7 @@ InMemoryPostList::get_doclength() const
     return this_db->get_doclength(get_docid());
 }
 
-PositionList &
+PositionList *
 InMemoryPostList::get_position_list()
 {
     throw OmUnimplementedError("InMemoryPostList::get_position_list() unimplemented");

@@ -80,11 +80,11 @@ SleepyPostList::get_weight() const
     return ir_wt->get_sumpart(wdf, get_doclength());
 }
 
-SleepyPositionList &
+SleepyPositionList *
 SleepyPostList::get_position_list()
 {
     mypositions.set_data(mylist.get_current_item().positions);
-    return mypositions;
+    return &mypositions;
 }
 
 PostList *
