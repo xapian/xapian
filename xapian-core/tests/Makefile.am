@@ -49,6 +49,12 @@ clean-local:
 
 -include .deps-includetest-cc
 
+dist-hook:
+	@if [ -e $(distdir)/includetest.cc ] ; then \
+	  echo "removing includetest.cc from distribution"; \
+	  $(RM) $(distdir)/includetest.cc ; \
+	fi
+
 distclean-local: clean-local
 	@if [ -e .deps-includetest-cc ] ; then \
 	  echo "removing .deps-includetest-cc"; $(RM) .deps-includetest-cc ; \
