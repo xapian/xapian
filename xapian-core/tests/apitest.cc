@@ -31,6 +31,19 @@
 #include "textfile_indexer.h"
 #include "../indexer/index_utils.h"
 
+class TestFail {
+    public:
+	TestFail(string message_ = "") : message(message_) {}
+	~TestFail() {}
+	string message;
+
+//	ostream & operator<<(ostream &os, const OmMSetItem &mitem);
+};
+
+// Don't bracket a, because it may have <<'s in it
+//#define TESTFAIL(a) { TestFail testfail; testfail << a; throw testfail; }
+#define TESTFAIL(a) { TestFail testfail; cout << a; throw testfail; }
+
 // always succeeds
 bool test_trivial();
 // always fails (for testing the framework)
@@ -117,6 +130,8 @@ bool test_multidb4();
 bool test_rset1();
 // test that rsets do more sensible things
 bool test_rset2();
+// test that rsets behave correctly with multiDBs
+bool test_rsetmultidb1();
 
 test_desc tests[] = {
     {"trivial",            test_trivial},
@@ -160,6 +175,7 @@ test_desc tests[] = {
     {"multidb4",           test_multidb4},
     {"rset1",              test_rset1},
     {"rset2",              test_rset2},
+    {"rsetmultidb1",       test_rsetmultidb1},
     {0, 0}
 };
 
@@ -290,31 +306,38 @@ bool mset_range_is_same_weights(const OmMSet &mset1, unsigned int first1,
     return true;
 }
 
-bool expect_mset_order(OmMSet mset, vector<om_docid> order, string mset_name)
+void expect_mset_order(OmMSet mset, om_docid *order,
+		       unsigned int ordersize, string mset_name)
 {
-    int success = true;
-
-    for (unsigned int i = 0;
-	 i < order.size();
-	 i++) {
+    for (unsigned int i = 0; i < ordersize; i++) {
 	if (mset.items.size() <= i) {
-	    success = false;
-	    if (verbose) {
-		cout << "Mset too small: was " << mset <<
-			", expected " << order << endl;
-	    }
+	    TESTFAIL("Mset " << mset_name << " too small: was " <<
+		     mset << ", expected " <<
+		     vector<om_docid>(order, order + 2) << endl);
 	}
 	if (mset.items[i].did != order[i]) {
-	    if (verbose) {
-		cout << "Mset has wrong contents: was " << mset <<
-			", expected " << order << endl;
-	    }
+	    TESTFAIL("Mset " << mset_name << " has wrong contents: was " <<
+		     mset << ", expected " <<
+		     vector<om_docid>(order, order + 2) << endl);
 	}
     }
-
-    return success;
 }
 
+void expect_mset_equal(OmMSet mset1, OmMSet mset2, string names)
+{
+    if (mset1 != mset2) {
+	TESTFAIL("Expected msets " + names + " to be equal: were " <<
+		 mset1 << " and " << mset2 << endl);
+    }
+}
+
+void expect_mset_not_equal(OmMSet mset1, OmMSet mset2, string names)
+{
+    if (mset1 == mset2) {
+	TESTFAIL("Expected msets " + names + " not to be equal: were " <<
+		 mset1 << " and " << mset2 << endl);
+    }
+}
 
 
 OmDocumentContents
@@ -1883,10 +1906,87 @@ bool test_rset2()
     om_docid order1[] = {1, 2};
     om_docid order2[] = {2, 1};
 
-    if (!expect_mset_order(mymset1, vector<om_docid>(order1, order1 + 2),
-			   "mymset1")) success = false;
-    if (!expect_mset_order(mymset2, vector<om_docid>(order2, order2 + 2),
-			   "mymset2")) success = false;
+    try {
+	expect_mset_order(mymset1, order1, 2, "mymset1");
+	expect_mset_order(mymset2, order2, 2, "mymset2");
+    } catch (TestFail & e) {
+	success = false;
+	if (verbose) {
+	    cout << e.message;
+	}
+    }
 
+    return success;
+}
+
+bool test_rsetmultidb1()
+{
+    bool success = true;
+
+    OmWritableDatabase mydb1("inmemory", make_strvec());
+    OmWritableDatabase mydb2("inmemory", make_strvec());
+    OmWritableDatabase mydb3("inmemory", make_strvec());
+    index_file_to_database(mydb1, datadir + "/apitest_rset.txt");
+    index_file_to_database(mydb1, datadir + "/apitest_simpledata2.txt");
+    index_file_to_database(mydb2, datadir + "/apitest_rset.txt");
+    index_file_to_database(mydb3, datadir + "/apitest_simpledata2.txt");
+
+    OmEnquire enquire1(make_dbgrp(&mydb1));
+    OmEnquire enquire2(make_dbgrp(&mydb2, &mydb3));
+
+    OmStem stemmer("english");
+
+    OmQuery myquery(OM_MOP_OR,
+		    OmQuery(stemmer.stem_word("cuddly")),
+		    OmQuery(stemmer.stem_word("multiple")));
+
+
+    enquire1.set_query(myquery);
+    enquire2.set_query(myquery);
+
+    OmRSet myrset;
+    myrset.add_document(4);
+
+    OmMSet mymset1a = enquire1.get_mset(0, 10);
+    OmMSet mymset1b = enquire1.get_mset(0, 10, &myrset);
+    OmMSet mymset2a = enquire2.get_mset(0, 10);
+    OmMSet mymset2b = enquire2.get_mset(0, 10, &myrset);
+
+    // We should have the same documents turn up, but 1 and 3 should
+    // have higher weights with the RSet.
+    if (mymset1a.items.size() != 2 ||
+	mymset1b.items.size() != 2 ||
+	mymset2a.items.size() != 2 ||
+	mymset2b.items.size() != 2) {
+	if (verbose) {
+	    cout << "MSets are of different size: " << endl;
+	    cout << "mset1 (no rset):   " << mymset1a << endl;
+	    cout << "mset1 (with rset): " << mymset1b << endl;
+	    cout << "mset2 (no rset):   " << mymset2a << endl;
+	    cout << "mset2 (with rset): " << mymset2b << endl;
+	}
+	success = false;
+    }
+
+    om_docid order1a[] = {1, 4};
+    om_docid order1b[] = {4, 1};
+    om_docid order2a[] = {1, 4};
+    om_docid order2b[] = {4, 1};
+
+    try {
+	expect_mset_order(mymset1a, order1a, 2, "mymset1a");
+	expect_mset_order(mymset1b, order1b, 2, "mymset1b");
+	expect_mset_order(mymset2a, order2a, 2, "mymset2a");
+	expect_mset_order(mymset2b, order2b, 2, "mymset2b");
+	expect_mset_equal(mymset1a, mymset2a, "mymset1a and mymset2a");
+	expect_mset_equal(mymset1b, mymset2b, "mymset1b and mymset2b");
+	expect_mset_not_equal(mymset1a, mymset1b, "mymset1a and mymset1b");
+    } catch (TestFail & e) {
+	success = false;
+	if (verbose) {
+	    cout << e.message;
+	}
+    }
+    
     return success;
 }

@@ -1,3 +1,7 @@
+Thu May 18 15:08:09 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added test for Rsets in a multimatch.  (Currently fails)
+
 Thu May 18 12:11:50 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added support for using RSets with the network matches
