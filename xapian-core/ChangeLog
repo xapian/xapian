@@ -1,3 +1,7 @@
+Thu May 02 14:40:21 BST 2002  Olly Betts <olly@survex.com>
+
+	* docs/.cvsignore: updated.
+
 Thu May 02 14:38:36 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed assorted references to pthread locking; updated HACKING.
