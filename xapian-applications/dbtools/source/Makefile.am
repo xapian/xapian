@@ -11,5 +11,5 @@ noinst_HEADERS = getopt.h
 xdb_manage_SOURCES = xdb-manage.cc xdb-options.cc getopt.c getopt1.c
 xdb_manage_LDADD = $(XAPIAN_LIBS) $(LIBXML_LIBS)
 
-xdb_dump_SOURCES = xdb-dump.cc xdb-options.cc getopt.c getopt1.
+xdb_dump_SOURCES = xdb-dump.cc xdb-options.cc getopt.c getopt1.c
 xdb_dump_LDADD = $(XAPIAN_LIBS) $(LIBXML_LIBS)
