@@ -76,66 +76,66 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
 OmQuery::OmQuery(const om_termname & tname_,
 		 om_termcount wqf_,
 		 om_termpos term_pos_)
-	: isnull(false), isbool(false), op(OM_MOP_LEAF),
+	: isdefined(true), isbool(false), op(OM_MOP_LEAF),
 	  tname(tname_), term_pos(term_pos_), wqf(wqf_)
 {
 }
 
 OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
-	: isnull(false), isbool(false), op(op_)
+	: isdefined(true), isbool(false), op(op_)
 {
     if (op == OM_MOP_LEAF) {
     	throw OmInvalidArgumentError("Invalid query operation");
     }
-    // Handle null sub-queries.
+    // Handle undefined sub-queries.
     // See documentation for table for result of operations when one of the
-    // operands is null:
+    // operands is undefined:
     //
-    if(left.isnull || right.isnull) {
+    if(!left.isdefined || !right.isdefined) {
 	switch (op) {
 	    case OM_MOP_OR:
 	    case OM_MOP_AND:
-		if (!left.isnull) {
+		if (left.isdefined) {
 		    initialise_from_copy(left);
 		} else {
-		    if (!right.isnull) initialise_from_copy(right);
-		    else isnull = true;
+		    if (right.isdefined) initialise_from_copy(right);
+		    else isdefined = false;
 		}
 		break;
 	    case OM_MOP_FILTER:
-		if (!left.isnull) {
+		if (left.isdefined) {
 		    initialise_from_copy(left);
 		} else {
-		    if (!right.isnull) {
+		    if (right.isdefined) {
 			// Pure boolean
 			initialise_from_copy(right);
 			isbool = true;
 		    } else {
-			isnull = true;
+			isdefined = false;
 		    }
 		}
 		break;
 	    case OM_MOP_AND_MAYBE:
-		if (!left.isnull) {
+		if (left.isdefined) {
 		    initialise_from_copy(left);
 		} else {
-		    isnull = true;
+		    isdefined = false;
 		}
 		break;
 	    case OM_MOP_AND_NOT:
-		if (!left.isnull) {
+		if (left.isdefined) {
 		    initialise_from_copy(left);
 		} else {
-		    if (!right.isnull) {
-		        throw OmInvalidArgumentError("AND NOT can't have a null LHS");
-		    } else isnull = true;
+		    if (right.isdefined) {
+		        throw OmInvalidArgumentError("AND NOT can't have an undefined LHS");
+		    } else isdefined = false;
 		}
 		break;
 	    case OM_MOP_XOR:
-		if (left.isnull && right.isnull) {
-		    isnull = true;
+		if (!left.isdefined && !right.isdefined) {
+		    isdefined = true;
 		} else {
-		    throw OmInvalidArgumentError("XOR can't have one null argument");
+		    throw OmInvalidArgumentError("XOR can't have one undefined argument");
 		}
 		break;
 	    case OM_MOP_LEAF:
@@ -180,7 +180,7 @@ OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
 OmQuery::OmQuery(om_queryop op_,
 		 const vector<OmQuery *>::const_iterator qbegin,
 		 const vector<OmQuery *>::const_iterator qend)
-	: isnull(false), isbool(false), op(op_)
+	: isdefined(true), isbool(false), op(op_)
 {   
     initialise_from_vector(qbegin, qend);
 }
@@ -188,7 +188,7 @@ OmQuery::OmQuery(om_queryop op_,
 OmQuery::OmQuery(om_queryop op_,
 		 const vector<OmQuery>::const_iterator qbegin,
 		 const vector<OmQuery>::const_iterator qend)
-	: isnull(false), isbool(false), op(op_)
+	: isdefined(true), isbool(false), op(op_)
 {   
     initialise_from_vector(qbegin, qend);
 }
@@ -196,7 +196,7 @@ OmQuery::OmQuery(om_queryop op_,
 OmQuery::OmQuery(om_queryop op_,
 		 const vector<om_termname>::const_iterator tbegin,
 		 const vector<om_termname>::const_iterator tend)
-	: isnull(false), isbool(false), op(op_)
+	: isdefined(true), isbool(false), op(op_)
 {
     vector<OmQuery> subqueries;
     vector<om_termname>::const_iterator i;
@@ -222,7 +222,7 @@ OmQuery::operator=(const OmQuery & copyme)
 
 // Default constructor
 OmQuery::OmQuery()
-	: isnull(true)
+	: isdefined(false)
 {}
 
 // Destructor
@@ -239,7 +239,7 @@ OmQuery::~OmQuery()
 void
 OmQuery::initialise_from_copy(const OmQuery &copyme)
 {
-    isnull = copyme.isnull;
+    isdefined = copyme.isdefined;
     isbool = copyme.isbool;
     op = copyme.op;
     if(op == OM_MOP_LEAF) {
@@ -266,11 +266,11 @@ OmQuery::initialise_from_vector(const vector<OmQuery>::const_iterator qbegin,
 
     vector<OmQuery>::const_iterator i;
     for(i = qbegin; i != qend; i++) {
-	if(!i->isnull) subqs.push_back(new OmQuery(*i));
+	if(i->isdefined) subqs.push_back(new OmQuery(*i));
     }
 
     if(subqs.size() == 0) {
-	isnull = true;
+	isdefined = false;
     } else if(subqs.size() == 1) {
 	// Should just have copied into self
 	OmQuery * copyme = subqs[0];
@@ -291,11 +291,11 @@ OmQuery::initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
 
     vector<OmQuery *>::const_iterator i;
     for(i = qbegin; i != qend; i++) {
-	if(!(*i)->isnull) subqs.push_back(new OmQuery(**i));
+	if(!(*i)->isdefined) subqs.push_back(new OmQuery(**i));
     }
 
     if(subqs.size() == 0) {
-	isnull = true;
+	isdefined = false;
     } else if(subqs.size() == 1) {
 	// Should just have copied into self
 	OmQuery * copyme = subqs[0];
@@ -309,7 +309,7 @@ OmQuery::initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
 string
 OmQuery::get_description() const
 {
-    if(isnull) return "<NULL>";
+    if(!isdefined) return "<NULL>";
     string opstr;
     switch(op) {
 	case OM_MOP_LEAF:
@@ -500,8 +500,8 @@ OmEnquireInternal::set_query(const OmQuery &query_)
 	delete query;
 	query = 0;
     }
-    if (query_.is_null()) {
-        throw OmInvalidArgumentError("Query must not be null");
+    if (!query_.is_defined()) {
+        throw OmInvalidArgumentError("Query must not be undefined");
     }
     query = new OmQuery(query_);
 }

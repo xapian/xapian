@@ -1,3 +1,10 @@
+Thu Feb 10 16:04:45 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* More documentation in omenquire.h
+
+	* Changed isnull to isdefined (note change of sense), since this makes
+	  more sense, and is hopefully less likely to confuse.
+
 Thu Feb 10 14:17:31 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Lots more documentation comments in omerror.h and omenquire.h

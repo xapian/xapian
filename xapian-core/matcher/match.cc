@@ -224,9 +224,10 @@ OmMatch::postlist_from_query(const OmQuery *query_)
 {
     PostList *pl = NULL;
 
-    Assert(!query_->isnull); // This shouldn't happen, because we check the
-			 // top level of the query, and isnull should only
-			 // ever occur there.
+    // This should be true happen, because we check the
+    // top level of the query, and !isdefined should only
+    // ever occur there.
+    Assert(query_->isdefined);
 
     switch (query_->op) {
 	case OM_MOP_LEAF:
@@ -292,7 +293,7 @@ OmMatch::set_query(const OmQuery *query_)
     }
     
     // Prepare query
-    if(!query_->isnull) {
+    if(query_->isdefined) {
 	query = postlist_from_query(query_);
 	max_weight = query->recalc_maxweight();
     }

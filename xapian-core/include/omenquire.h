@@ -55,7 +55,7 @@ enum om_queryop {
 class OmQuery {
     friend class OmMatch;
     private:
-	bool isnull;
+	bool isdefined;
 	bool isbool;
 
 	om_queryop op;       /// Operation to be performed at this node
@@ -111,8 +111,13 @@ class OmQuery {
 	/** Assignment. */
 	OmQuery & operator=(const OmQuery & copyme);
 
-	/** Default constructor: makes a null query which can't be used
-	 * (Convenient to have a default constructor though)
+	/** Default constructor: makes an undefined query which can't be used
+	 *  directly.  Such queries should be thought of as placeholders:
+	 *  they are provided for convenience, and to help make certain
+	 *  operations more natural.
+	 *
+	 *  An exception will be thrown if an attempt is made to run an
+	 *  undefined query
 	 */
 	OmQuery();
 
@@ -124,8 +129,8 @@ class OmQuery {
 	 */
 	string get_description() const;
 
-	/** Check whether the query is null. */
-	bool is_null() const { return isnull; }
+	/** Check whether the query is defined. */
+	bool is_defined() const { return isdefined; }
 
 	/** Check whether the query is (pure) boolean. */
 	bool is_bool() const { return isbool; }
