@@ -281,6 +281,32 @@ OmQuery(const om_termname &amp; tname_,
         om_termcount wqf_ = 1,
         om_termpos term_pos_ = 0) 
 </PRE>
+<P>
+The <CODE>wqf</CODE> (<B>W</B>ithin <B>Q</B>uery <B>F</B>requency) is
+a measure of how common a term is in the query.  This is particularly useful
+when generating a query from an existing document, but may also be used
+as a crude way of increasing the importance of a term in a query.  Note that,
+if the intention is simply to ensure that a particular term is in the query
+results, you should use a boolean AND rather than set a high wqf.
+</P>
+<P>
+The <CODE>term_pos</CODE> represents the position of the term in the query.
+This is used for phrase searching, passage retrieval, and other operations
+which require knowledge of the order of terms in the query (such as returning
+the set of matching terms in a given document in the same order as they
+occur in the query).  If such operations are not required, the default
+value of 0 may be used.
+</P>
+<P>
+Note that it may not make much sense to specify a wqf other than 1 when
+supplying a term position (unless you are trying to affect the weighting,
+as previously described).
+</P>
+<P>
+Note also that the results of <CODE>OmQuery(tname, 2)</CODE> and
+<CODE>OmQuery(OM_MOP_OR, OmQuery(tname), OmQuery(tname))</CODE>
+are exactly equivalent.
+</P>
 
 <H3>Compound queries</H3>
 <P>
@@ -293,7 +319,15 @@ OmQuery(om_queryop op_,
 	const OmQuery &amp; right)
 </PRE>
 <P>
-The full set of available operators is:
+The two most common operators are <CODE>OM_MOP_AND</CODE> and
+<CODE>OM_MOP_OR</CODE>, which provide facilities for performing boolean AND
+and OR operations.
+The traditional probabalistic model would consist of a set of terms
+joined together with <CODE>OM_MOP_AND</CODE>.
+</P>
+<P>
+The full set of available
+<A HREF="apidoc/om_queryop.html"><CODE>om_queryop</CODE></A> operators is:
 <TABLE>
 <TR><TD VALIGN="top">
 OM_MOP_AND 
@@ -340,17 +374,18 @@ used in many places in construction of a query.
 </P>
 
 <H3><A NAME="purebool">Specifying a pure boolean query</A></H3>
+<P>
 Occasionally it may be desirable to perform a purely boolean query, and not
 to calculate weights for each document.  This can be performed within Muscat
 as follows:
 <UL><LI>
-Make the desired boolean query, as described above.
+Make the desired query, as described above.
 For example, putting it in <CODE>query</CODE>:
 example:<PRE>
 OmQuery query(OM_MOP_NOT, OmQuery("cheese"), OmQuery("bread"));
 </PRE>
 </LI><LI>
-Make a boolean only query, by filtering a null query with the boolean query.
+Make a pure boolean query, by filtering a null query with the boolean query.
 For example:
 <PRE>
 OmQuery boolquery(OM_MOP_FILTER, OmQuery(), query);
@@ -359,25 +394,47 @@ OmQuery boolquery(OM_MOP_FILTER, OmQuery(), query);
 
 The boolquery will return a set of documents matching the criteria supplied:
 each document in the result set will have a weight of 1.
-<P>
-Why does this work?  Well, 
-
-<H2>Setting options for a query</H2>
-
-There are various additional options 
+</P>
 
 <H2>Retrieving the results of a query</H2>
 
-<H3>The MSet</H3>
+<P>
+The OmEnquire class does not require that a method be called in order to
+perform the query.  Rather, you simply ask for the results of a query,
+and it will perform whatever calculations are neccessary to provide the
+answer:
+</P>
+<PRE>
+OmMSet get_mset(om_doccount first,
+		om_doccount maxitems,
+		const OmRSet * omrset = 0,
+		const OmMatchOptions * moptions = 0,
+		const OmMatchDecider * mdecider = 0) const 
+</PRE>
+<P>
+</P>
+
+<H3>The OmMSet</H3>
+<P>
+Query results are returned in an OmMSet object
+</P>
+
+<H3>Match options</H3>
+
+<P>
+There are various additional options 
+</P>
 
 <H2>Specifying a relevance set</H2>
 
 <H2>Suggesting new terms for the query</H2>
-
+<P>
+</P>
 
 <H2>A simple example</H2>
 <P>
-A simple example of usage of the Muscat API is given 
+A simple example of usage of the Muscat API is given by the msearch
+example in the om-examples package.
 </P>
 
 <HR>
