@@ -16,7 +16,7 @@ class DAPostList : public virtual DBPostList {
 
 	doccount termfreq;
     
-	DAPostList(struct postings *, doccount);
+	DAPostList(const IRDatabase *, struct postings *, doccount);
     public:
 	~DAPostList();
 
@@ -151,8 +151,11 @@ class DADatabase : public virtual IRDatabase {
 
 	mutable map<termname, termid> termidmap;
 	mutable vector<DATerm> termvec;
+
+	// Stop copy / assignment being allowed
+	DADatabase& operator=(const DADatabase&);
+	DADatabase(const DADatabase&);
     public:
-	// FIXME - stop copy / assignment being allowed
 	DADatabase();
 	~DADatabase();
 

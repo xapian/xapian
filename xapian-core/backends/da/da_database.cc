@@ -12,12 +12,10 @@
 #include "da_record.h"
 #include "daread.h"
 
-DAPostList::DAPostList(struct postings *pl, doccount tf)
+DAPostList::DAPostList(const IRDatabase *db, struct postings *pl, doccount tf)
+	: postlist(pl), currdoc(0), termfreq(tf)
 {
-    termfreq = tf;
-    postlist = pl;
-
-    currdoc = 0;
+    set_termweight(IRWeight(db, tf));
 }
 
 DAPostList::~DAPostList()
@@ -178,9 +176,7 @@ DBPostList * DADatabase::open_post_list(termid id) const
     struct postings * postlist;
     postlist = DAopenpostings((terminfo *)&(termvec[id - 1].ti), DA_t);
 
-    DBPostList * pl = new DAPostList(postlist, termvec[id - 1].ti.freq);
-    IRWeight wt(this, termvec[id - 1].ti.freq);
-    pl->set_termweight(wt);
+    DBPostList * pl = new DAPostList(root, postlist, termvec[id - 1].ti.freq);
     return pl;
 }
 

@@ -102,9 +102,13 @@ class IRDocument {
 };
 
 class IRDatabase {
-    private:
+    protected:
+	IRDatabase * root;
     public:
+	IRDatabase() : root(this) {}
         virtual ~IRDatabase() { return; }
+
+	void set_root(IRDatabase *db) {root = db;}
 
 	virtual termid term_name_to_id(const termname &) const = 0;
 	virtual termname term_id_to_name(termid) const = 0;
