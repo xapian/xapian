@@ -327,7 +327,21 @@ test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
     test_driver::result result = {0, 0, 0};
 
     for (const test_desc *test = tests; test->name; test++) {
-	if (!check_name || (m.find(test->name) != m.end())) {
+	bool do_this_test = !check_name;
+	if (!do_this_test && m.find(test->name) != m.end())
+	    do_this_test = true;
+	if (!do_this_test) {
+	    // if this test is "foo123" see if "foo" was listed
+	    // this way "./testprog foo" can run foo1, foo2, etc.
+	    string t = test->name;
+	    std::string::size_type i;
+	    i = t.find_last_not_of("0123456789") + 1;
+	    if (i < t.length()) {
+		t = t.substr(0, i);
+		if (m.find(t) != m.end()) do_this_test = true;
+	    }
+	}
+	if (do_this_test) {
 	    out << "Running test: " << test->name << "...";
 	    out.flush();
 	    try {

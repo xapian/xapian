@@ -1,3 +1,8 @@
+Mon Sep 18 15:43:46 BST 2000 Olly Betts
+
+	* A testsuite programs asked to run test "foo" will now run tests
+	  "foo1", "foo2", ... if they exist.
+
 Mon Sep 18 14:36:13 BST 2000 Olly Betts
 
 	* Implemented API side of OmDatabase::positionlist_{begin,end} -
