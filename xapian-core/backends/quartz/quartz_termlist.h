@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +29,6 @@
 #include "om/omtypes.h"
 #include "termlist.h"
 #include "quartz_database.h"
-#include "autoptr.h"
 
 /** A termlist in a quartz database.
  */
@@ -59,7 +59,7 @@ class QuartzTermList : public LeafTermList {
 	 */
 	const char *pos;
 
-	/** End of data within tag;
+	/** End of data within tag.
 	 */
 	const char *end;
 
@@ -102,85 +102,6 @@ class QuartzTermList : public LeafTermList {
 	 */
 	om_doccount doccount;
 
-
-	/** Read the size from the termlist.
-	 *
-	 *  The value read is stored in the termlist_size member variable.
-	 *
-	 *  @exception OmDatabaseCorruptError is thrown if there is an error
-	 *  (eg, data runs out).
-	 */
-	void read_size();
-
-	/** Write the size into the string supplied.
-	 *
-	 *  @param data A string to append the representation of the size to.
-	 *  @param size The size (number of entries) of the termlist.
-	 */
-	static void write_size(std::string & data, 
-			       om_termcount size);
-
-	/** Read the document length from the termlist.
-	 *
-	 *  The value read is stored in the termlist_size member variable.
-	 *
-	 *  @exception OmDatabaseCorruptError is thrown if there is an error
-	 *  (eg, data runs out).
-	 */
-	void read_doclen();
-
-	/** Write the document length into the string supplied.
-	 *
-	 *  @param data A string to append the representation of the doclen to.
-	 *  @param size The document length (sum of wdfs).
-	 */
-	static void write_doclen(std::string & data,
-				 quartz_doclen_t doclen);
-
-	/** Read whether the termlist stores term frequencies.
-	 *
-	 *  @exception OmDatabaseCorruptError is thrown if there is an error
-	 *  (eg, data runs out).
-	 */
-	void read_has_termfreqs();
-
-	/** Write whether termfreqs are being stored into the string supplied.
-	 *
-	 *  @param data A string to append the data to.
-	 *  @param store_termfreqs Whether termfreqs are being stored.
-	 */
-	static void write_has_termfreqs(std::string & data, 
-					bool store_termfreqs);
-
-	/** Read an item from the termlist.
-	 *
-	 *  The values read are stored in the current_tname, current_wdf,
-	 *  etc, member variables.
-	 *
-	 *  @exception OmDatabaseCorruptError is thrown if there is an error
-	 *  (eg, data runs out).
-	 */
-	void read_item();
-
-	/** Implementation of get_termfreq().
-	 */
-	om_doccount get_termfreq_internal() const;
-
-	/** Write an item into the string supplied.
-	 *
-	 *  @param data           A string to append the data to.
-	 *  @param tname          The termname of the item.
-	 *  @param wdf            The wdf of the item.
-	 *  @param store_termfreq Whether to store the term frequency.
-	 *  @param termfreq       The term frequency of the item.  This
-	 *         will be ignored if this quantity is not being stored.
-	 */
-	static void write_item(std::string & data, 
-			       om_termname tname,
-			       om_termcount wdf,
-			       bool store_termfreq,
-			       om_doccount termfreq);
-
     public:
 	/** Set the entries in the termlist.
 	 *
@@ -201,8 +122,7 @@ class QuartzTermList : public LeafTermList {
 	/** Clear the termlist.  After this call, the termlist for the
 	 *  specified document ID will not exist.
 	 */
-	static void delete_termlist(QuartzBufferedTable * table,
-				    om_docid did);
+	static void delete_termlist(QuartzBufferedTable * table, om_docid did);
 
 	/** Open the termlist for the specified document, for reading.
 	 */

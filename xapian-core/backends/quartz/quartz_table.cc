@@ -33,13 +33,12 @@
 #include "omdebug.h"
 
 #ifdef MUS_DEBUG_VERBOSE
-static string hex_encode(const string & input) {
+static string
+hex_encode(const string & input)
+{
     const char * table = "0123456789abcdef";
     string result;
-    string::const_iterator i = input.begin();
-    for (i = input.begin();
-	 i != input.end();
-	 i++) {
+    for (string::const_iterator i = input.begin(); i != input.end(); ++i) {
 	unsigned char val = *i;
 	Assert(val < 256);
 	result += "\\x";
@@ -56,7 +55,6 @@ QuartzDiskCursor::find_entry(const QuartzDbKey &key)
 {
     DEBUGCALL(DB, bool, "QuartzDiskCursor::find_entry",
 	      "QuartzDbKey(" << key.value << ")");
-    Assert(!(key.value.empty()));
 
     is_after_end = false;
 

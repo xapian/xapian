@@ -2,6 +2,8 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +24,6 @@
 
 #include <config.h>
 #include "quartz_utils.h"
-#include <string>
 
 QuartzDbKey
 quartz_docid_to_key(om_docid did)

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,12 +33,9 @@ QuartzAllTermsList::QuartzAllTermsList(RefCntPtr<const Database> database_,
 {
     DEBUGCALL(DB, void, "QuartzAllTermsList", "[database_], [pl_cursor_]");
     /* Seek to the first term */
-    QuartzDbKey key;
-    key.value = std::string("\0", 1);
+    pl_cursor->find_entry(QuartzDbKey());
 
-    pl_cursor->find_entry(key);
-
-    if (pl_cursor->current_key.value.size() == 0) {
+    if (pl_cursor->current_key.value.empty()) {
 	pl_cursor->next();
     }
 
@@ -62,21 +60,21 @@ QuartzAllTermsList::get_termname() const
 {
     DEBUGCALL(DB, om_termname, "QuartzAllTermsList::get_termname", "");
     Assert(started);
-    if (!is_at_end) {
-	const char *start = pl_cursor->current_key.value.data();
-	const char *end = start + pl_cursor->current_key.value.length();
-	std::string result;
-	if (unpack_string_preserving_sort(&start, end, result)) {
-	    RETURN(result);
-	} else {
-	    DEBUGLINE(DB, "QuartzAllTermsList[" << this
-		      << "]: Failed to read from key: `"
-		      << pl_cursor->current_key.value << "'");
-	    throw OmDatabaseCorruptError("Failed to read the key field from a QuartzCursor's key");
-	}
-    } else {
+    if (is_at_end) {
 	throw OmInvalidArgumentError("Attempt to get termname after end");
     }
+	    
+    const char *start = pl_cursor->current_key.value.data();
+    const char *end = start + pl_cursor->current_key.value.length();
+    string result;
+    if (unpack_string_preserving_sort(&start, end, result)) {
+	RETURN(result);
+    }
+
+    DEBUGLINE(DB, "QuartzAllTermsList[" << this
+	      << "]: Failed to read from key: `"
+	      << pl_cursor->current_key.value << "'");
+    throw OmDatabaseCorruptError("Failed to read the key field from a QuartzCursor's key");
 }
 
 void QuartzAllTermsList::get_stats() const
@@ -99,9 +97,8 @@ QuartzAllTermsList::get_termfreq() const
     } else if (!is_at_end) {
 	get_stats();
 	RETURN(termfreq);
-    } else {
-	throw OmInvalidArgumentError("Attempt to get termfreq after end");
     }
+    throw OmInvalidArgumentError("Attempt to get termfreq after end");
 }
 
 om_termcount
@@ -114,9 +111,8 @@ QuartzAllTermsList::get_collection_freq() const
     } else if (!is_at_end) {
 	get_stats();
 	RETURN(collection_freq);
-    } else {
-	throw OmInvalidArgumentError("Attempt to get collection_freq after end");
     }
+    throw OmInvalidArgumentError("Attempt to get collection_freq after end");
 }
 
 TermList *
@@ -130,9 +126,7 @@ QuartzAllTermsList::skip_to(const om_termname &tname)
 
     have_stats = false;
 
-    bool result = pl_cursor->find_entry(key);
-
-    if (!result) {
+    if (!pl_cursor->find_entry(key)) {
 	if (pl_cursor->after_end()) {
 	    is_at_end = true;
 	} else {

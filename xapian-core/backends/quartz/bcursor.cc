@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,7 +67,7 @@ Bcursor::prev()
 
     if (!positioned) return false;
 
-    while(true) {
+    while (true) {
         if (! B->prev(B, C, 0)) {
 	    positioned = false;
 	    return false;
@@ -75,7 +76,6 @@ Bcursor::prev()
 	    return true;
 	}
     }
-    /* FIXME: return something here? */
 }
 
 int
@@ -84,9 +84,9 @@ Bcursor::next()
     AssertEq(B->error, 0);
     Assert(!B->overwritten);
 
-    if (! positioned) return false;
+    if (!positioned) return false;
 
-    while(true) {
+    while (true) {
 	if (! B->next(B, C, 0)) {
 	    positioned = false;
 	    return false;
@@ -95,7 +95,6 @@ Bcursor::next()
 	    return true;
 	}
     }
-    /* FIXME: return something here? */
 }
 
 int
@@ -163,23 +162,21 @@ Bcursor::get_tag(struct Btree_item * item)
 
     int o = 0;                          /* cursor into item->tag */
     int i;                              /* see below */
-    int l = GETI(p, 0) - cd;            /* number of bytes to extract from current
-					   component */
+    int l = GETI(p, 0) - cd;            /* number of bytes to extract from
+					   current component */
 
-    {
-	int4 space_for_tag = (int4) B->max_item_size * n;
-	if (item->tag_size < space_for_tag)
-	{   delete [] item->tag;
-	    item->tag = zeroed_new(space_for_tag + 5);
-	    if (item->tag == 0) {
-		B->error = BTREE_ERROR_SPACE;
-		throw std::bad_alloc();
-	    }
-	    item->tag_size = space_for_tag + 5;
+    int4 space_for_tag = (int4) B->max_item_size * n;
+    if (item->tag_size < space_for_tag) {
+	delete [] item->tag;
+	item->tag = zeroed_new(space_for_tag + 5);
+	if (item->tag == 0) {
+	    B->error = BTREE_ERROR_SPACE;
+	    throw std::bad_alloc();
 	}
+	item->tag_size = space_for_tag + 5;
     }
-    for (i = 1; i <= n; i++)
-    {
+
+    for (i = 1; i <= n; i++) {
 	Assert(o + l <= item->tag_size);
 
 	memmove(item->tag + o, p + cd, l); o += l;
@@ -193,4 +190,3 @@ Bcursor::get_tag(struct Btree_item * item)
     item->tag_len = o;
     return positioned;
 }
-

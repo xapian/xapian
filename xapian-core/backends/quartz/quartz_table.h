@@ -76,6 +76,9 @@ class QuartzCursor {
 	 *  If there is no key preceding that asked for, the cursor will
 	 *  point to a null key.
 	 *
+	 *  Note: Calling this method with a null key, then calling next()
+	 *  will leave the cursor pointing to the first key.
+	 *
 	 *  @param key    The key to look for in the table.
 	 *
 	 *  @return true if the exact key was found in the table, false

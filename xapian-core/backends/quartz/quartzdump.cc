@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,10 +33,12 @@
 
 #include "getopt.h"
 
-static std::string hex_encode(const std::string & input) {
+using namespace stdl
+
+static string hex_encode(const string & input) {
     const char * table = "0123456789abcdef";
-    std::string result;
-    std::string::const_iterator i;
+    string result;
+    string::const_iterator i;
     for (i = input.begin(); i != input.end(); i++) {
 	unsigned char val = *i;
 	if (isprint(val) && !isspace(val) && val != '\\') {
@@ -55,10 +58,10 @@ main(int argc, char *argv[])
 {
     const char *progname = argv[0];
  
-    std::vector<std::string> tables;
+    vector<string> tables;
     quartz_revision_number_t revnum = 0;
     bool use_revno = false;
-    om_termname startterm = std::string("\0", 1);
+    om_termname startterm;
     om_termname endterm;
     bool use_endterm = false;
 
@@ -88,14 +91,14 @@ main(int argc, char *argv[])
     }
 
     if (syntax_error || tables.empty()) {
-	std::cout << "Syntax: " << progname << " [<options>] <table>...\n"
+	cout << "Syntax: " << progname << " [<options>] <table>...\n"
 		"\t-r <revno>            Specify revision number to open\n"
 		"\t-s <start>            Start at term start\n"
-		"\t-e <end>              End at term end\n";
+		"\t-e <end>              End at term end" << endl;
 	exit(1);
     }
 
-    std::vector<std::string>::const_iterator i;
+    vector<string>::const_iterator i;
     for (i = tables.begin(); i != tables.end(); i++) {
 	try {
 	    QuartzDiskTable table(*i, true, 0);
@@ -110,13 +113,13 @@ main(int argc, char *argv[])
 
 	    quartz_tablesize_t entrycount = table.get_entry_count();
 
-	    std::cout << "Table `" << *i << "' at revision " << openrev;
+	    cout << "Table `" << *i << "' at revision " << openrev;
 	    if (openrev != latestrev)
-		std::cout << " (Newest revision is " << latestrev << ")";
-	    std::cout << std::endl;
+		cout << " (Newest revision is " << latestrev << ")";
+	    cout << endl;
 
-	    std::cout << "table contains " << entrycount <<
-		    (entrycount == 1 ? " entry" : " entries") << std::endl;
+	    cout << "table contains " << entrycount <<
+		    (entrycount == 1 ? " entry" : " entries") << endl;
 	    
 	    AutoPtr<QuartzCursor> cursor(table.cursor_get());
 
@@ -124,36 +127,20 @@ main(int argc, char *argv[])
 	    key.value = startterm;
 	    cursor->find_entry(key);
 
-	    if (startterm == std::string("\0", 1)) {
-		if (cursor->current_key.value == key.value) {
-		    std::cerr << "Calling prev" << std::endl;
-		    cursor->prev();
-		}
-
-		if (cursor->current_key.value.size() != 0) {
-		    std::cerr << "Couldn't move to start "
-			    "(at key,tag=" <<
-			    hex_encode(cursor->current_key.value) << "," <<
-			    hex_encode(cursor->current_tag.value) << ")" <<
-			    std::endl;
-		    exit(1);
-		}
-	    } else {
-		if (cursor->current_key.value < key.value) {
-		    std::cerr << "Calling next" << std::endl;
-		    cursor->next();
-		}
+	    if (startterm.empty() || cursor->current_key.value < startterm) {
+		cerr << "Calling next" << endl;
+		cursor->next();
 	    }
 	    
 	    while (!cursor->after_end() &&
 		   (!use_endterm || cursor->current_key.value <= endterm)) {
-		std::cout << hex_encode(cursor->current_key.value) << " -> "
-			  << hex_encode(cursor->current_tag.value) << "\n";
+		cout << hex_encode(cursor->current_key.value) << " -> "
+		     << hex_encode(cursor->current_tag.value) << "\n";
 		cursor->next();
 	    }
 	}
 	catch (const OmError &e) {
-	    std::cout << "Error: " << e.get_msg() << std::endl;
+	    cout << "Error: " << e.get_msg() << endl;
 	}
     }
     return 0;

@@ -3,7 +3,8 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- *
+ * Copyright 2002 Olly Betts
+ * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
@@ -25,6 +26,7 @@
 #define OM_HGUARD_QUARTZ_UTILS_H
 
 #include <string>
+using std::string;
 
 /// Compile time assert a condition
 #define CASSERT(a) {char assert[(a) ? 1 : -1];(void)assert;}
@@ -117,14 +119,14 @@ unpack_uint(const char ** src,
  *  @result       A string containing the representation of the integer.
  */
 template<class T>
-std::string
+string
 pack_uint(T value)
 {
     // Check unsigned
     CASSERT((T)(-1) > 0);
 
-    if (value == 0) return std::string("", 1u);
-    std::string result;
+    if (value == 0) return string("", 1u);
+    string result;
 
     while(value != 0) {
 	om_byte part = value & 0x7f;
@@ -147,19 +149,19 @@ pack_uint(T value)
  *  @result       A string containing the representation of the integer.
  */
 template<class T>
-std::string
+string
 pack_uint_preserving_sort(T value)
 {
     // Check unsigned
     CASSERT((T)(-1) > 0);
 
-    std::string result;
+    string result;
     while(value != 0) {
 	om_byte part = value & 0xff;
 	value = value >> 8;
-	result.insert((std::string::size_type)0u, 1u, (char) part);
+	result.insert((string::size_type)0u, 1u, (char) part);
     }
-    result.insert((std::string::size_type)0u, 1u, (char) result.size());
+    result.insert((string::size_type)0u, 1u, (char) result.size());
     return result;
 }
 
@@ -220,26 +222,26 @@ unpack_uint_preserving_sort(const char ** src,
 inline bool
 unpack_string(const char ** src,
 	      const char * src_end,
-	      std::string & result)
+	      string & result)
 {
-    std::string::size_type length;
+    string::size_type length;
     if (!unpack_uint(src, src_end, &length)) {
 	return false;
     }
 
     if (src_end - *src < 0 ||
-	(std::string::size_type)(src_end - *src) < length) {
+	(string::size_type)(src_end - *src) < length) {
 	src = 0;
 	return false;
     }
 
-    result = std::string(*src, length);
+    result = string(*src, length);
     *src += length;
     return true;
 }
 
-inline std::string
-pack_string(std::string value)
+inline string
+pack_string(string value)
 {
     return pack_uint(value.size()) + value;
 }
@@ -252,11 +254,11 @@ const int bytes_per_string_chunk = 8;
  *  "count", ie aren't part of the padding.  The count has 64 added
  *  if this _isn't_ the last chunk.
  */
-inline std::string
-pack_string_preserving_sort(std::string value)
+inline string
+pack_string_preserving_sort(string value)
 {
-    std::string result;
-    std::string::size_type pos = 0;
+    string result;
+    string::size_type pos = 0;
     while ((value.length() - pos) > static_cast<unsigned>(bytes_per_string_chunk)) {
 	result += value.substr(pos, 8) + (char)(bytes_per_string_chunk+64);
 	pos += 8;
@@ -277,9 +279,9 @@ pack_string_preserving_sort(std::string value)
 inline bool
 unpack_string_preserving_sort(const char ** src,
 			      const char * src_end,
-			      std::string & result)
+			      string & result)
 {
-    result = std::string("");
+    result = string("");
     bool done = false;
     while (!done) {
 	if (src_end - *src < (bytes_per_string_chunk + 1)) {
@@ -294,7 +296,7 @@ unpack_string_preserving_sort(const char ** src,
 	if (count > bytes_per_string_chunk) {
 	    return false;
 	}
-	result += std::string(*src, count);
+	result += string(*src, count);
 	*src += bytes_per_string_chunk + 1;
     }
     return true;
@@ -317,7 +319,7 @@ unpack_bool(const char ** src,
     return false;
 }
 
-inline std::string
+inline string
 pack_bool(bool value)
 {
     return value ? "1" : "0";
