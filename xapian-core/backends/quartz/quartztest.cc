@@ -1176,7 +1176,7 @@ static bool test_adddoc1()
  */
 static bool test_adddoc2()
 {
-    string dbdir = tmpdir + "testdb_adddoc1";
+    string dbdir = tmpdir + "testdb_adddoc2";
     deletedir(dbdir);
     makedir(dbdir);
 
