@@ -1,3 +1,8 @@
+Mon Nov 19 15:21:31 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed (c) message displayed by -v (BrightStation "PLC" not "Inc.",
+	  first (c) 1999).
+
 Fri Nov 16 11:49:20 GMT 2001  Olly Betts <olly@survex.com>
 
 	* New OmegaScript commands: $allterms{<docid>}, $freq{<term>},

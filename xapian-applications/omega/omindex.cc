@@ -434,7 +434,7 @@ main(int argc, char **argv)
 	    break;
 	case 'v':
 	    cout << OMINDEX << " (omega) " << VERSION << endl;
-	    cout << "(c) Copyright 2000-2001 Brightstation, Inc." << endl;
+	    cout << "(c) Copyright 1999,2000,2001 BrightStation PLC." << endl;
 	    cout << "(c) Copyright 2001 James Aylett" << endl << endl;
 	    cout << "This is free software, and may be redistributed under" << endl;
 	    cout << "the terms of the GNU Public License." << endl;
