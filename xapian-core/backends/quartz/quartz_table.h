@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -238,13 +238,12 @@ class QuartzTable {
  *
  *  A key is used to access a block of data in a quartz table.
  * 
- *  Keys may be of arbitrary length.  Note though that they will be
- *  loaded into memory in their entirety, so should not be permitted
- *  to grow without bound in normal usage.
+ *  Keys are of limited length.
  *
  *  Keys may not have null contents.
  *
- *  A tag is a piece of data associated with a given key.
+ *  A tag is a piece of data associated with a given key.  The contents
+ *  of the tag are opaque to QuartzTable.
  *
  *  Tags may be of arbitrary length.  Note though that they will be
  *  loaded into memory in their entirety, so should not be permitted
@@ -374,17 +373,14 @@ class QuartzDiskTable : public QuartzTable {
 	 *  If the key already exists in the table, the existing tag
 	 *  is replaced by the supplied one.
 	 *
-	 *  If a null pointer is supplied for the tag, then
+	 *  If the tag parameter is omitted, then
 	 *  the entry will be removed from the table, if it exists.  If
 	 *  it does not exist, no action will be taken.
 	 *
 	 *  If an error occurs during the operation, this will be signalled
-	 *  by a return value of false.  All modifications since the
+	 *  by a return value of false.  [FIXME: erm, it returns void...]
+	 *  All modifications since the
 	 *  previous apply() will be lost.
-	 *
-	 *  Note that other methods (such as get_nearest_entry())
-	 *  must not be performed after this call until apply() has been
-	 *  called.
 	 *
 	 *  @param key   The key to store in the table.
 	 *  @param tag   The tag to store in the table, or omit
@@ -483,7 +479,8 @@ class QuartzBufferedTable : public QuartzTable {
 
 	/** Cancel any outstanding changes.
 	 *
-	 *  This causes any modifications held in memory to be forgotten.
+	 *  This will discard any modifications which haven't been committed
+	 *  by calling apply().
 	 */
 	void cancel();
 

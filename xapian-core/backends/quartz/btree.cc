@@ -1647,6 +1647,7 @@ Btree::~Btree() {
 void
 Btree::commit(uint4 revision)
 {
+    DEBUGCALL(DB, void, "Btree::commit", revision);
     Assert(writable);
 
     if (revision < next_revision) {
