@@ -22,6 +22,7 @@
 
 #include "alloccommon.h"
 #include <stdio.h>
+#include <assert.h>
 
 /************ Functions for use of allocator functions **********/
 
@@ -32,6 +33,10 @@ handle_allocation(struct allocation_data *data,
 		       void *address,
 		       size_t size)
 {
+    if (!address) {
+	fprintf(stderr, "Attempt to register an allocation of NULL\n");
+	abort();
+    }
     if (data->allocations_bound >= max_allocations) {
 	/* our array is too small - panic! */
 	fprintf(stderr, "Ran out of room for memory tracking!\n");
@@ -51,11 +56,16 @@ handle_reallocation(struct allocation_data *data,
 {
     int found_it = 0;
     int i;
+    if (!old_address || !new_address) {
+	fprintf(stderr, "Attempt to register a reallocation with NULL\n");
+	abort();
+    }
     for (i = data->allocations_bound - 1;
 	 i >= 0;
 	 --i) {
 	if (data->allocations[i].p == old_address) {
 	    data->allocations[i].p = new_address;
+	    data->allocations[i].size = size;
 	    found_it = 1;
 
 	    break;
@@ -78,11 +88,16 @@ handle_deallocation(struct allocation_data *data,
 {
     int found_it = 0;
     int i;
+    if (!address) {
+	fprintf(stderr, "Attempt to register a deallocation of NULL\n");
+	abort();
+    }
     for (i = data->allocations_bound - 1;
 	 i >= 0;
 	 --i) {
 	if (data->allocations[i].p == address) {
 	    data->allocations[i].p = 0;
+	    --data->num_allocations;
 	    found_it = 1;
 
 	    /* lower allocations_bound if possible */
@@ -107,6 +122,5 @@ handle_deallocation(struct allocation_data *data,
 #endif
 	return alloc_notfound;
     }
-    --data->num_allocations;
     return alloc_ok;
 }

@@ -144,8 +144,6 @@ static unsigned long new_trap_count = 0;
  *  allow us to check for leaks.
  *
  *  FIXME: add handling of new[] and delete[]
- *  FIXME: add malloc() handling (trickier, since can't use
- *  the built-in malloc so easily in implementation.)
  */
 void *operator new(size_t size) throw(std::bad_alloc) {
 #ifdef HAVE_LIBPTHREAD

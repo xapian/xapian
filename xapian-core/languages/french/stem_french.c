@@ -732,6 +732,7 @@ extern void closedown_french_stemmer(void * z_)
 {
     struct french_stemmer * z = (struct french_stemmer *) z_;
     free_pool(z->irregulars);
+    free_pool(z->irregulars2);
     free(z->p);
     free(z);
 }

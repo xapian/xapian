@@ -252,9 +252,9 @@ OmStem::Internal::set_language(stemmer_language langcode_)
 	default:
 	    break;
     }
-    stemmer_data = stemmer_setup();
     // STEMLANG_NULL shouldn't be passed in here.
     Assert(stemmer_setup != 0);
+    stemmer_data = stemmer_setup();
 }
 
 stemmer_language

@@ -1,3 +1,13 @@
+Tue Sep 19 13:16:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* malloc tracking now copes with free(0).
+
+	* Added OM_MALLOC_TRAP[_COUNT], similar to OM_NEW_TRAP[_COUNT].
+
+	* Moved an Assertion in OmStem to somewhere more useful.
+
+	* Fixed a memory leak in the French stemmer
+
 Tue Sep 19 12:40:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add CME_FIND_HSTRERROR to acinclude.m4, by adding it to lists in

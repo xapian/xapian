@@ -38,8 +38,11 @@ static void (*real_free)(void *) = 0;
 static void *(*real_realloc)(void *, size_t) = 0;
 
 static int have_symbols = 0;
-
 static int in_get_symbols = 0;
+
+/** bookkeeping data for the malloc traps */
+static void *malloc_trap_address = 0;
+static unsigned long malloc_trap_count = 0;
 
 static void
 get_symbols()
@@ -70,11 +73,34 @@ get_symbols()
 	fprintf(stderr, "get_symbols(): can't get symbols for malloc and friends\n");
 	abort();
     }
-    //register_allocator("malloc", &allocdata);
+    {
+	/** Handle OM_MALLOC_TRAP and OM_MALLOC_TRAP_COUNT */
+	const char *addr = getenv("OM_MALLOC_TRAP");
+	const char *count = getenv("OM_MALLOC_TRAP_COUNT");
+	if (addr) {
+	    malloc_trap_address = (void *)strtol(addr, 0, 16);
+	    if (count) {
+		malloc_trap_count = atol(count);
+	    } else {
+		malloc_trap_count = 1;
+	    }
+	}
+    }
+
     in_get_symbols = 0;
 }
 
 #define CHECK_SYMBOLS if (have_symbols) ; else get_symbols()
+
+#define HANDLE_MALLOC_TRAP(address) \
+	if (malloc_trap_address != 0 && \
+	    malloc_trap_address == result && \
+	    malloc_trap_count != 0) {\
+	    --malloc_trap_count; \
+            if (malloc_trap_count == 0) { \
+		abort();\
+	    }\
+	}
 
 /** naive_allocator is used to handle memory requests from anything that
  *  dlsym() calls, since we won't yet have access to the real malloc() etc.
@@ -103,6 +129,7 @@ malloc(size_t size)
     CHECK_SYMBOLS;
 
     result = real_malloc(size);
+    HANDLE_MALLOC_TRAP(result);
     if (result) {
 	handle_allocation(&malloc_allocdata, result, size);
     }
@@ -119,6 +146,7 @@ calloc(size_t nmemb, size_t size)
     CHECK_SYMBOLS;
 
     result = real_calloc(nmemb, size);
+    HANDLE_MALLOC_TRAP(result);
     handle_allocation(&malloc_allocdata, result, size * nmemb);
     return result;
 }
@@ -127,6 +155,7 @@ void
 free(void *ptr)
 {
     CHECK_SYMBOLS;
+    if (!ptr) return;
     if (handle_deallocation(&malloc_allocdata, ptr) != alloc_ok) {
 	fprintf(stderr,
 		"free()ing memory at %p which wasn't malloc()ed!\n",
@@ -146,6 +175,7 @@ realloc(void *ptr, size_t size)
     if (ptr == 0 && size > 0) {
 	// equivalent to malloc(size)
 	if (result) {
+	    HANDLE_MALLOC_TRAP(result);
 	    handle_allocation(&malloc_allocdata,
 			      result, size);
 	}
@@ -158,12 +188,15 @@ realloc(void *ptr, size_t size)
 			ptr, size);
 	    }
 	}
-    } else if (handle_reallocation(&malloc_allocdata,
+    } else {
+	HANDLE_MALLOC_TRAP(result);
+	if (handle_reallocation(&malloc_allocdata,
 					ptr, result, size) != alloc_ok) {
-	fprintf(stderr,
-		"realloc()ing memory at %p to %d which wasn't malloc()ed!\n",
+	    fprintf(stderr,
+		    "realloc()ing memory at %p to %d which wasn't malloc()ed!\n",
 		ptr, size);
-	abort();
+	    abort();
+	}
     }
     return result;
 }

@@ -21,6 +21,7 @@
  */
 
 #include "allocdata.h"
+#include "omdebug.h"
 #include <iostream>
 #include <cstdio>
 
@@ -68,6 +69,9 @@ allocation_snapshot::allocation_snapshot(const allocator_desc *allocators,
 {
     data.resize(num_allocators);
     for (int i=0; i<num_allocators; ++i) {
+	DEBUGLINE(UNKNOWN, "Allocations for " << allocators[i].name << ": ["
+		  << allocators[i].allocdata->num_allocations << "/"
+		  << allocators[i].allocdata->allocations_bound << "]");
 	data[i].num_allocations = allocators[i].allocdata->num_allocations;
 	data[i].allocations_bound = allocators[i].allocdata->allocations_bound;
     }
@@ -106,7 +110,9 @@ print_alloc_differences(const struct allocation_snapshot &before,
 	    before.data[alloc].num_allocations) {
 	    out << before.data[alloc].num_allocations -
 		    after.data[alloc].num_allocations
-		    << " extra frees not allocated!" << std::endl;
+		    << " more allocations freed than were allocated by "
+		    << allocators[alloc].name
+		    << std::endl;
 	}
     }
 }
