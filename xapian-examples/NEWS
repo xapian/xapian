@@ -1,4 +1,7 @@
-xapian-examples 0.8.4 (2004-11-30):
+xapian-examples 0.8.4 (2004-12-08):
+
+* Updated to use the new Database/WritableDatabase constructors rather than
+  the Xapian::Auto::open() factory functions.
 
 * configure: Removed unused code which probes for stlport.  We need to use
   stlport for everything or nothing anyway.

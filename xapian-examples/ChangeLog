@@ -1,3 +1,7 @@
+Wed Dec 08 16:03:22 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Final updated for 0.8.4.
+
 Tue Dec 07 16:44:26 GMT 2004  Olly Betts <olly@survex.com>
 
 	* copydatabase.cc,delve.cc,quest.cc,simpleexpand.cc,simpleindex.cc,
