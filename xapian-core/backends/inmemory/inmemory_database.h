@@ -144,8 +144,9 @@ class TextfileTermList : public virtual TermList {
 
 
 // Database
-class TextfileDatabase : public virtual IRSingleDatabase,
+class TextfileDatabase : public virtual IRDatabase,
 			 public virtual IndexerDestination {
+    friend class DatabaseBuilder;
     private:
 	string path;
 
@@ -162,17 +163,20 @@ class TextfileDatabase : public virtual IRSingleDatabase,
 
 	bool opened; // Whether we have opened the database
 	bool indexing; // Whether we have started to index to the database
-    public:
+
+	// Stop copy / assignment being allowed
+	TextfileDatabase& operator=(const TextfileDatabase&);
+	TextfileDatabase(const TextfileDatabase&);
+
 	TextfileDatabase();
+	void open(const DatabaseBuilderParams &);
+    public:
 	~TextfileDatabase();
 
 	void set_root(IRDatabase *);
 
 	termid term_name_to_id(const termname &) const;
 	termname term_id_to_name(termid) const;
-
-	void open(const string &pathname, bool readonly);
-	void close();
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;

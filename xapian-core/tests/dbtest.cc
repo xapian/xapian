@@ -4,7 +4,7 @@
 #include "database.h"
 #include "postlist.h"
 #include "termlist.h"
-#include "database_factory.h"
+#include "database_builder.h"
 
 int main(int argc, char *argv[]) {
     DBPostList * postlist;
@@ -12,10 +12,10 @@ int main(int argc, char *argv[]) {
     docid did;
 
     try {
-	DatabaseFactory dbfactory;
+	DatabaseBuilder dbbuilder;
 	IRDatabase * database;
 #if 1
-	IRSingleDatabase *tmp = dbfactory.make(OM_DBTYPE_TEXTFILE);
+	IRSingleDatabase *tmp = dbbuilder.make(OM_DBTYPE_TEXTFILE);
 	tmp->open("textfile", 1);
 	database = tmp;
 #endif

@@ -206,8 +206,8 @@ DATerm::get_ti()
     return &ti;
 }
 
-class DADatabase : public virtual IRSingleDatabase {
-    friend class DATermList;
+class DADatabase : public virtual IRDatabase {
+    friend class DatabaseBuilder;
     private:
 	bool   opened;
 	struct DAfile * DA_r;
@@ -221,16 +221,13 @@ class DADatabase : public virtual IRSingleDatabase {
 	DADatabase& operator=(const DADatabase&);
 	DADatabase(const DADatabase&);
 
-        termid term_name_to_id_lazy(const termname &name) const;
-    public:
 	DADatabase();
+	void open(const DatabaseBuilderParams &);
+    public:
 	~DADatabase();
 
 	termid term_name_to_id(const termname &) const;
 	termname term_id_to_name(termid) const;
-
-	void open(const string &pathname, bool readonly);
-	void close();
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;

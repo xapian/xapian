@@ -10,12 +10,13 @@
 #include "multi/multi_database.h"
 #include "database.h"
 
-IRSingleDatabase *
-DatabaseBuilder::make(om_database_type type)
+IRDatabase *
+DatabaseBuilder::create(const DatabaseBuilderParams & params)
 {
-    IRSingleDatabase * database = NULL;
+    IRDatabase * database = NULL;
 
-    switch(type) {
+    // Create database of correct type, and 
+    switch(params.type) {
 	case OM_DBTYPE_DA:
 	    database = new DADatabase;
 	    break;
@@ -25,29 +26,31 @@ DatabaseBuilder::make(om_database_type type)
 	case OM_DBTYPE_SLEEPY:
 	    database = new SleepyDatabase;
 	    break;
+	case OM_DBTYPE_MULTI:
+	    database = new MultiDatabase;
+	    break;
+	default:
+	    throw OmError("Unknown database type");
     }
 
+    // Check that we have a database
     if(database == NULL) {
 	throw OmError("Couldn't create database");
     }
 
-    return database;
-}
-
-IRGroupDatabase *
-DatabaseBuilder::makegroup(om_databasegroup_type type)
-{
-    IRGroupDatabase * database = NULL;
-
-    switch(type) {
-	case OM_DBGRPTYPE_MULTI:
-	    database = new MultiDatabase;
-	    break;
+    // Open the database with the specified parameters
+    try {
+	database->open(params);
+    } catch (...) {
+	delete database;
+	throw;
     }
 
-    if(database == NULL) {
-	throw OmError("Couldn't create database group");
-    }
-
+    // Set the root of the database, if specified, otherwise it will default
+    // to itself.
+    // Doing this after opening ensures that for a group database, all the
+    // sub-databases also have their root set.
+    if(params.root != NULL) database->set_root(params.root);
+    
     return database;
 }

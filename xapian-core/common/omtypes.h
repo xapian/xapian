@@ -21,15 +21,10 @@ typedef double weight;
 enum _om_database_type {
     OM_DBTYPE_DA,
     OM_DBTYPE_TEXTFILE,
-    OM_DBTYPE_SLEEPY
+    OM_DBTYPE_SLEEPY,
+    OM_DBTYPE_MULTI
 };
 
-/* Type of a database group */
-enum _om_databasegroup_type {
-    OM_DBGRPTYPE_MULTI
-};
-
-typedef enum _om_databasegroup_type om_databasegroup_type;
 typedef enum _om_database_type om_database_type;
 
 #ifdef __cplusplus

@@ -110,16 +110,30 @@ DADatabase::DADatabase()
 
 DADatabase::~DADatabase()
 {
-    close();
+    if(DA_r != NULL) {
+	DAclose(DA_r);
+	DA_r = NULL;
+    }
+    if(DA_t != NULL) {
+	DAclose(DA_t);
+	DA_t = NULL;
+    }
 }
 
 void
-DADatabase::open(const string &pathname, bool readonly)
+DADatabase::open(const DatabaseBuilderParams & params)
 {
-    DADatabase::close();
+    Assert(!opened);
 
-    string filename_r = pathname + "/R";
-    string filename_t = pathname + "/T";
+    // Check validity of parameters
+    Assert(params.readonly == true);
+    Assert(params.paths.size() == 1);
+    Assert(params.subdbs.size() == 0);
+
+    // Open database with specified path
+    path = params.paths[0];
+    string filename_r = path + "/R";
+    string filename_t = path + "/T";
 
     DA_r = DAopen(filename_r.c_str(), DARECS);
     if(DA_r == NULL)
@@ -132,24 +146,9 @@ DADatabase::open(const string &pathname, bool readonly)
 	throw OpeningError(string("When opening ") + filename_t + ": " + strerror(errno));
     }
 
-    path = pathname;
     opened = true;
 
     return;
-}
-
-void
-DADatabase::close()
-{
-    if(DA_r != NULL) {
-	DAclose(DA_r);
-	DA_r = NULL;
-    }
-    if(DA_t != NULL) {
-	DAclose(DA_t);
-	DA_t = NULL;
-    }
-    opened = false;
 }
 
 // Returns a new posting list, for the postings in this database for given term
@@ -231,30 +230,6 @@ DADatabase::term_name_to_id(const termname &name) const
 	    termvec.push_back(DATerm(&ti, name));
 	    termidmap[name] = id;
 	}
-    } else {
-	id = (*p).second;
-	//printf("found, ID %d\n", id);
-    }
-    return id;
-}
-
-// Assumes the term is in the database and doesn't open the posting list
-// unless and until it's asked for.  Useful when you *know* the term is
-// there (e.g. you just got it from a TermList)
-termid
-DADatabase::term_name_to_id_lazy(const termname &name) const
-{
-    Assert(opened);
-    //printf("Looking up term `%s': ", name.c_str());
-
-    map<termname,termid>::const_iterator p = termidmap.find(name);
-
-    termid id;
-    if (p == termidmap.end()) {
-	id = termvec.size() + 1;
-	//printf("Adding as ID %d\n", id);
-	termvec.push_back(DATerm(NULL, name, DA_t));
-	termidmap[name] = id;
     } else {
 	id = (*p).second;
 	//printf("found, ID %d\n", id);

@@ -57,45 +57,56 @@ SleepyDatabaseInternals::~SleepyDatabaseInternals(){
 inline void
 SleepyDatabaseInternals::open(const string &pathname, bool readonly)
 {
-    // Set up environment
-    u_int32_t flags = DB_INIT_CDB;
-    int mode = 0;
+    try {
+	// Set up environment
+	u_int32_t flags = DB_INIT_CDB;
+	int mode = 0;
 
-    if(readonly) {
-	flags = DB_RDONLY;
-    } else {
-	flags = DB_CREATE;
-	mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+	if(readonly) {
+	    flags = DB_RDONLY;
+	} else {
+	    flags = DB_CREATE;
+	    mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+	}
+	dbenv.appinit(pathname.c_str(), NULL, flags);
+	opened = true;
+
+	Db::open(FILENAME_POSTLIST, DB_BTREE, flags, mode,
+		 &dbenv, NULL, &postlist_db);
+
+	Db::open(FILENAME_TERMLIST, DB_BTREE, flags, mode,
+		 &dbenv, NULL, &termlist_db);
+
+	Db::open(FILENAME_TERMTOID, DB_HASH, flags, mode,
+		 &dbenv, NULL, &termid_db);
+
+	Db::open(FILENAME_IDTOTERM, DB_RECNO, flags, mode,
+		 &dbenv, NULL, &termname_db);
     }
-    dbenv.appinit(pathname.c_str(), NULL, flags);
-    opened = true;
-
-    Db::open(FILENAME_POSTLIST, DB_BTREE, flags, mode,
-	     &dbenv, NULL, &postlist_db);
-
-    Db::open(FILENAME_TERMLIST, DB_BTREE, flags, mode,
-	     &dbenv, NULL, &termlist_db);
-
-    Db::open(FILENAME_TERMTOID, DB_HASH, flags, mode,
-	     &dbenv, NULL, &termid_db);
-
-    Db::open(FILENAME_IDTOTERM, DB_RECNO, flags, mode,
-	     &dbenv, NULL, &termname_db);
+    catch (DbException e) {
+	throw (OmError(string("Database error on open: ") + e.what()));
+    }
 }
 
 inline void
 SleepyDatabaseInternals::close()
 {
-    if(postlist_db) postlist_db->close(0);
-    postlist_db = NULL;
-    if(termlist_db) termlist_db->close(0);
-    termlist_db = NULL;
-    if(termid_db) termid_db->close(0);
-    termid_db = NULL;
-    if(termname_db) termname_db->close(0);
-    termname_db = NULL;
+    try {
+	if(postlist_db) postlist_db->close(0);
+	postlist_db = NULL;
+	if(termlist_db) termlist_db->close(0);
+	termlist_db = NULL;
+	if(termid_db) termid_db->close(0);
+	termid_db = NULL;
+	if(termname_db) termname_db->close(0);
+	termname_db = NULL;
 
-    if(opened) dbenv.appexit();
+	if(opened) dbenv.appexit();
+	opened = false;
+    }
+    catch (DbException e) {
+	throw (OmError(string("Database error on close: ") + e.what()));
+    }
 }
 
 ///////////////
@@ -149,21 +160,6 @@ SleepyDatabase::SleepyDatabase() {
 
 SleepyDatabase::~SleepyDatabase() {
     delete internals;
-}
-
-void SleepyDatabase::open(const string &pathname, bool readonly) {
-    // Open databases
-    try {
-	internals->open(pathname, readonly);
-    }
-    catch (DbException e) {
-	throw (OmError(string("Database error on open: ") + e.what()));
-    }
-    path = pathname;
-    Assert((opened = true) == true);
-}
-
-void SleepyDatabase::close() {
     // Close databases
     try {
 	internals->close();
@@ -172,6 +168,26 @@ void SleepyDatabase::close() {
 	throw (OmError(string("Database error on close: ") + e.what()));
     }
     Assert((opened = false) == false);
+}
+
+void
+SleepyDatabase::open(const DatabaseBuilderParams &params)
+{
+    Assert(!opened);
+
+    // Check validity of parameters
+    Assert(params.paths.size() == 1);
+    Assert(params.subdbs.size() == 0);
+
+    // Open database with specified path
+    path = params.paths[0];
+    try {
+	internals->open(path, params.readonly);
+    }
+    catch (DbException e) {
+	throw (OmError(string("Database error on open: ") + e.what()));
+    }
+    Assert((opened = true) == true);
 }
 
 DBPostList *

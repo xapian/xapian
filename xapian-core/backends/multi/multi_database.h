@@ -190,7 +190,8 @@ inline bool MultiTermList::at_end() const
 
 
 
-class MultiDatabase : public virtual IRGroupDatabase {
+class MultiDatabase : public virtual IRDatabase {
+    friend class DatabaseBuilder;
     private:
 	mutable set<termname> terms;
 
@@ -201,19 +202,16 @@ class MultiDatabase : public virtual IRGroupDatabase {
 
 	bool opened; // Whether we have opened the database (ie, added a subDB)
 	mutable bool used;// Have we used the database (if so, can't add more DBs)
-    public:
+
 	MultiDatabase();
+	void open(const DatabaseBuilderParams &);
+    public:
 	~MultiDatabase();
 
 	void set_root(IRDatabase *);
 
 	termid term_name_to_id(const termname &) const;
 	termname term_id_to_name(termid) const;
-
-	void open(om_database_type,
-		  const string &pathname,
-		  bool readonly);
-	void close();
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;

@@ -112,7 +112,11 @@ MultiDatabase::MultiDatabase()
 }
 
 MultiDatabase::~MultiDatabase() {
-    close();
+    // Close all databases
+    while(databases.begin() != databases.end()) {
+	delete *(databases.begin());
+	databases.erase(databases.begin());
+    }
 }
 
 void
@@ -128,33 +132,27 @@ MultiDatabase::set_root(IRDatabase *db) {
 }
 
 void
-MultiDatabase::open(om_database_type type,
-		    const string &pathname,
-		    bool readonly) {
+MultiDatabase::open(const DatabaseBuilderParams & params) {
     Assert(!used);
 
-    DatabaseBuilder dbbuild;
-    IRSingleDatabase *db = dbbuild.make(type);
+    // Check validity of parameters
+    Assert(params.paths.size() == 0);
+    Assert(params.subdbs.size() > 0);
 
-    db->open(pathname, readonly);
-    db->set_root(root);
+    // Loop through all params in subdbs, creating a database for each one,
+    // with the specified parameters.  Override some parameters though:
+    // If params.readonly is set, everything should be opened readonly
 
-    databases.push_back(db);
+    vector<DatabaseBuilderParams>::const_iterator p;
+    for(p = params.subdbs.begin(); p != params.subdbs.end(); p++) {
+	DatabaseBuilderParams sub_params = *p;
+	if(params.readonly) sub_params.readonly = params.readonly;
+	if(params.root != NULL) sub_params.root = params.root;
+
+	databases.push_back(DatabaseBuilder::create(sub_params));
+    }
 
     opened = true;
-}
-
-
-void MultiDatabase::close() {
-    if(opened) {
-	// Close all databases
-	while(databases.begin() != databases.end()) {
-	    (*databases.begin())->close();
-	    delete *databases.begin();
-	    databases.erase(databases.begin());
-	}
-    }
-    opened = false;
 }
 
 DBPostList *

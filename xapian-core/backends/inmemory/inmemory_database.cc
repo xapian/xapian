@@ -39,36 +39,38 @@ TextfileDatabase::TextfileDatabase()
 
 TextfileDatabase::~TextfileDatabase()
 {
-    close();
 }
 
-void TextfileDatabase::open(const string &pathname, bool readonly)
+void
+TextfileDatabase::open(const DatabaseBuilderParams &params)
 {
-    Assert(readonly == true);
-    Assert(opened == false); // Can only open once
+    Assert(!opened); // Can only open once
 
+    // Check validity of parameters
+    Assert(params.readonly == true);
+    Assert(params.paths.size() > 0);
+    Assert(params.subdbs.size() == 0);
+    
     // Initialise
     totlen = 0;
 
     // Index document
     Assert((indexing = true) == true);
 
-    TextfileIndexerSource source(pathname);
     TextfileIndexer indexer;
-
     indexer.set_destination(this);
-    indexer.add_source(source);
+
+    vector<string>::const_iterator p;
+    for(p = params.paths.begin(); p != params.paths.end(); p++) {
+	indexer.add_source(TextfileIndexerSource(*p));
+    }
 
     // Make sure that there's at least one document
     if(postlists.size() <= 0)
 	throw OmError("Document was empty or nearly empty - nothing to search");
 
-    path = pathname;
+    path = *p;
     Assert((opened = true) == true);
-}
-
-void TextfileDatabase::close()
-{
 }
 
 DBPostList *

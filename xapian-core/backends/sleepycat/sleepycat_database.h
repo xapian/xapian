@@ -62,20 +62,20 @@ class SleepyTermList : public virtual TermList {
 
 class SleepyDatabaseInternals;
 
-class SleepyDatabase : public virtual IRSingleDatabase {
+class SleepyDatabase : public virtual IRDatabase {
+    friend class DatabaseBuilder;
     private:
 	SleepyDatabaseInternals * internals;
 	string path;
 	bool opened;
-    public:
+	
+	void open(const DatabaseBuilderParams &);
 	SleepyDatabase();
+    public:
 	~SleepyDatabase();
 
 	termid term_name_to_id(const termname &) const;
 	termname term_id_to_name(termid) const;
-
-	void open(const string &pathname, bool readonly);
-	void close();
 
 	doccount  get_doccount() const;
 	doclength get_avlength() const;
