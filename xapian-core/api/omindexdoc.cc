@@ -26,8 +26,10 @@
 #include <algorithm>
 
 OmDocumentTerm::OmDocumentTerm(const om_termname & tname_,
-			   om_termpos tpos)
-	: tname(tname_)
+			       om_termpos tpos)
+	: tname(tname_),
+	  wdf(0),
+	  termfreq(0)
 {
     add_posting(tpos);
 }

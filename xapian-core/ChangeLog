@@ -1,3 +1,7 @@
+Tue May 23 16:36:25 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix bug due to uninitialised members in OmDocumentTerm.
+
 Tue May 23 14:51:10 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed boolean queries with the net backend.
