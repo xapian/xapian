@@ -1670,6 +1670,17 @@ static bool test_emptyop1()
     return true;
 }
 
+// Regression test for check_at_least SEGV when there are no matches.
+static bool test_checkatleast1()
+{
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("thom"));
+    Xapian::MSet mymset = enquire.get_mset(0, 10, 11);
+    TEST_EQUAL(0, mymset.size());
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1732,5 +1743,6 @@ test_desc anydb_tests[] = {
     {"xor1",		   test_xor1},
     {"getdoc1",		   test_getdoc1},
     {"emptyop1",	   test_emptyop1},
+    {"checkatleast1",	   test_checkatleast1},
     {0, 0}
 };
