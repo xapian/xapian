@@ -1,3 +1,8 @@
+Thu Apr 01 01:04:17 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/quartztest.cc: Fixed temporary directory used (a slash was
+	  missing).
+
 Thu Apr 01 00:39:59 BST 2004  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Updated.

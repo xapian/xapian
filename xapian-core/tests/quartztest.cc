@@ -2089,6 +2089,7 @@ int main(int argc, char **argv)
     tmpdir = ".quartztmp";
     removedir(tmpdir);
     makedir(tmpdir);
+    tmpdir += '/';
     test_driver::parse_command_line(argc, argv);
     return test_driver::run(tests);
 }
