@@ -639,7 +639,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	// another approach: om_doccount new_est = items.size() * (1 - percent_factor) / (1 - min_item.wt / greatest_wt);
 	om_doccount new_est = (om_doccount)((1 - percent_factor) *
 					    matches_estimated);
-	matches_estimated = std::max(new_est, items.size());
+	matches_estimated = std::max((size_t)new_est, items.size());
 	// and another: items.size() + (1 - greatest_wt * percent_factor / min_item.wt) * (matches_estimated - items.size());
 	
 	// Very likely an underestimate, but we can't really do better without

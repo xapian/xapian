@@ -1,3 +1,7 @@
+Fri May  3 18:02:06 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Overloading ambiguity resolutions for linux/alpha build on CF
+
 Fri May 03 17:13:36 BST 2002  Olly Betts <olly@survex.com>
 
 	* buildall: Don't run configure or make; removed --no-make and --quiet.

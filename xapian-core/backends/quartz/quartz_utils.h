@@ -157,9 +157,9 @@ pack_uint_preserving_sort(T value)
     while(value != 0) {
 	om_byte part = value & 0xff;
 	value = value >> 8;
-	result.insert(0u, 1u, (char) part);
+	result.insert((std::string::size_type)0u, 1u, (char) part);
     }
-    result.insert(0u, 1u, (char) result.size());
+    result.insert((std::string::size_type)0u, 1u, (char) result.size());
     return result;
 }
 
