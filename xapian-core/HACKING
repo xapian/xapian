@@ -132,19 +132,20 @@ Makefile Portability:
 We don't want to force those building Xapian from the source distribution to
 have to use GNU make.  Requiring GNU make for "make dist" isn't such a problem
 but it's probably better to use portable constructs everywhere to avoid
-problems when people move or copy code between targets.
+problems when people move or copy code between targets.  If you do make use
+of non-portable constructs where it's OK, add a comment noting this.
 
 Here's an incomplete list of things to avoid:
 
 * Don't use "$(RM)" - it's defined by GNU make, but using it actually harms
-  portability as other makes don't defined it.  Use plain "rm" instead.
+  portability as other makes don't define it.  Use plain "rm" instead.
 
 * Don't use "%" pattern rules - these are GNU make specific.  Use an
   implicit rule (e.g. ".c.o:") if you can.  Otherwise, write out each version
   explicitly.
 
 * Don't use "$<" except in implicit rules.  This is an annoying restriction,
-  as using "$<" makes it much easy to make VPATH builds work.  But it's only
+  as using "$<" makes it much easier to make VPATH builds work.  But it's only
   portable in implicit rules.  Tips for rewriting - if it's a source file,
   write it as:
     $(srcdir)/foo.ext
@@ -153,7 +154,8 @@ Here's an incomplete list of things to avoid:
   use this trick to make sure it's found whichever directory it's in:
     `test -f foo.ext || echo '$(srcdir)/'`foo.ext
 
-* Don't use "exit 0" to make a rule fail.  Use "false" instead.
+* Don't use "exit 0" to make a rule fail.  Use "false" instead.  BSD make
+  doesn't like "exit 0" in a rule.
 
 * Don't use make conditionals.  Automake offers conditionals which may be
   of use, and these are implemented to work with any make.  See the automake
@@ -163,17 +165,18 @@ Here's an incomplete list of things to avoid:
     cat cmp cp diff echo egrep expr false grep install-info
     ln ls mkdir mv pwd rm rmdir sed sleep sort tar test touch true
   Note that versions of these (GNU versions in particular) support switches
-  which aren't portable - notably, use "test -r" isn't portable; neither is
+  which aren't portable - notably, "test -r" isn't portable; neither is
   "cp -a".  And note that "mkdir -p" isn't portable - the semantics vary.
   See the "Goat Book" for more details and other useful tips:
     http://sources.redhat.com/autobook/
- 
-And lastly a style point - using "@" to suppress output of commands being
-executed removes choice from the user - they may want to see that output.
-If they don't want to see commands, they can use "make -s" (in many versions
-of make).  Using @echo on a message sent to stdout or stderr is acceptable.
-Otherwise don't use "@" - it makes it harder to track down problems in the
-makefiles.
+
+And lastly a style point - using "@" to suppress outputing of commands being
+executed removes choice from the user - they may want to see what commands
+are being executed.  And if they don't want to, they can use "make -s" (in
+many versions of make).
+
+Using @echo on a message sent to stdout or stderr is acceptable.  Otherwise
+don't use "@" - it makes it harder to track down problems in the makefiles.
 
 Submitting Patches:
 ===================
