@@ -32,7 +32,7 @@ OmSettings read_db_options(xmlDocPtr doc, xmlNodePtr current)
     if (xmlStrcmp(current->name, (const xmlChar*)"db-options")) {
 	throw string("not a db-options element");
     }
-    xmlNsPtr ns = xmlSearchNsByHref(doc, current, (const xmlChar*)"http://xapian.sourceforge.net/schemas/dbtools/db-options");
+    xmlNsPtr ns = xmlSearchNsByHref(doc, current, (const xmlChar*)"http://xapian.org/schemas/dbtools/db-options");
     if (ns==NULL) {
 	throw string("namespace on db-options not recognised");
     }

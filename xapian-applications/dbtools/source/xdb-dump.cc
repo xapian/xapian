@@ -75,7 +75,7 @@ int main(int argc, char** argv)
                  << "  -v\t\toutput version and exit" << endl << endl
 #endif
                  << "Report bugs via the web interface at:" << endl
-                 << "<http://sourceforge.net/tracker/?func=add&group_id=35626&atid=414875>" << endl;
+                 << "<http://xapian.org/bugs/>" << endl;
             return 0;
             break;
         case 'v':
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 	    throw string("empty document");
 	}
     
-	xmlNsPtr ns = xmlSearchNsByHref(doc,options, (const xmlChar*)"http://xapian.sourceforge.net/schemas/dbtools/db-options");
+	xmlNsPtr ns = xmlSearchNsByHref(doc,options, (const xmlChar*)"http://xapian.org/schemas/dbtools/db-options");
 	if (ns== NULL) {
 	    xmlFreeDoc(doc);
 	    throw string("wrong namespace");
@@ -151,7 +151,7 @@ int main(int argc, char** argv)
 	cerr << "Couldn't create output document root element" << endl;
 	return 1;
     }
-    xmlNsPtr output_namespace = xmlNewNs(output_root,(const xmlChar*) "http://xapian.sourceforge.net/schemas/dbtools/manage",NULL);
+    xmlNsPtr output_namespace = xmlNewNs(output_root,(const xmlChar*) "http://xapian.org/schemas/dbtools/manage",NULL);
     if (!output_namespace) {
 	if (database)
 	    delete database;

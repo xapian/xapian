@@ -366,7 +366,7 @@ void process_file(char* filename, bool auto_create)
       xmlFreeDoc(output);
       throw string("Couldn't create output document root element");
   }
-  xmlNsPtr output_namespace = xmlNewNs(output_root,(const xmlChar*) "http://xapian.sourceforge.net/schemas/dbtools/manage-results",NULL);
+  xmlNsPtr output_namespace = xmlNewNs(output_root,(const xmlChar*) "http://xapian.org/schemas/dbtools/manage-results",NULL);
   if (!output_namespace) {
       xmlFreeDoc(output);
       throw string("Couldn't set output document namespace");
@@ -389,7 +389,7 @@ void process_file(char* filename, bool auto_create)
       throw string("empty document");
     }
     
-    xmlNsPtr ns = xmlSearchNsByHref(doc,top, (const xmlChar*)"http://xapian.sourceforge.net/schemas/dbtools/manage");
+    xmlNsPtr ns = xmlSearchNsByHref(doc,top, (const xmlChar*)"http://xapian.org/schemas/dbtools/manage");
     if (ns== NULL) {
       throw string("wrong namespace");
     }
@@ -680,7 +680,7 @@ int main(int argc, char** argv)
                  << "  -v\t\toutput version and exit" << endl << endl
 #endif
                  << "Report bugs via the web interface at:" << endl
-                 << "<http://sourceforge.net/tracker/?func=add&group_id=35626&atid=414875>" << endl;
+                 << "<http://xapian.org/bugs/>" << endl;
             return 0;
             break;
         case 'v':

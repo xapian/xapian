@@ -1,3 +1,9 @@
+Tue Dec 18 14:29:31 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* schema references are now to xapian.org
+
+	* website and bug tracker references are now to xapian.org
+
 Wed Nov 28 15:43:33 2001  James Aylett  <tartarus@users.sourceforge.net>
 
 	* check for libxml2 and GNU getopt (fall back to POSIX getopt)
