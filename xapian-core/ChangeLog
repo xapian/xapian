@@ -1,3 +1,13 @@
+Fri Dec 21 12:58:23 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Disable conversion of OR to AND/ANDMAYBE in matcher tree - there's
+	  a bug which sometimes manifests when there's a date filter and a
+	  threshold cutoff in omega, and results in just one match when there
+	  should be more.  I don't believe the bug is actually in OrPostList
+	  but I've been tracking it for 4 days without success and turning off
+	  this optimisation seems to stop it occuring so will have to do for
+	  now.
+
 Thu Dec 20 17:41:04 GMT 2001  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: added more percent_cutoff assertions.

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,6 +38,7 @@ OrPostList::OrPostList(PostList *left_,
 PostList *
 OrPostList::next(om_weight w_min)
 {
+#ifdef MATCHER_PRUNE // FIXME - the bug is probably elsewhere
     if (w_min > minmax) {
 	// we can replace the OR with another operator
 	PostList *ret;
@@ -62,6 +64,7 @@ OrPostList::next(om_weight w_min)
 	l = r = NULL;
 	return ret;
     }
+#endif
 
     bool ldry = false;
     bool rnext = false;
@@ -97,6 +100,7 @@ OrPostList::next(om_weight w_min)
 PostList *
 OrPostList::skip_to(om_docid did, om_weight w_min)
 {
+#ifdef MATCHER_PRUNE // FIXME - the bug is probably elsewhere
     if (w_min > minmax) {
 	// we can replace the OR with another operator
 	PostList *ret;
@@ -122,6 +126,7 @@ OrPostList::skip_to(om_docid did, om_weight w_min)
 	skip_to_handling_prune(ret, did, w_min, matcher);
 	return ret;
     }
+#endif
 
     bool ldry = false;
     if (lhead < did) {
