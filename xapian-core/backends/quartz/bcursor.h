@@ -118,35 +118,6 @@ class Bcursor {
 	 */
 	bool get_key(string * key) const;
 
-	/** Get the tag.
-	 *
-	 *  If cursor is unpositioned, the result is false.
-	 *
-	 *  If the cursor is positioned, the tag of the current item is copied
-	 *  into tag.  The cursor is then moved to the next item as if
-	 *  Bcursor::next() had been called - this may leave the cursor
-	 *  unpositioned.
-	 *
-	 *  The result is true iff the cursor is left positioned.
-	 *
-	 *  e.g.
-	 *
-	 *    Bcursor BC(&btree);
-	 *    string key, tag;
-	 *
-	 *    // Now do something to each key-tag pair in the Btree
-         *    BC.find_key(""); // must give result true
-	 *
-	 *    while (BC.get_key(&key)) {
-	 *        BC.get_tag(&tag);
-	 *        do_something_to(key, tag);
-	 *    }
-	 *
-	 *  If the cursor is unpositioned by Bcursor::get_tag, Bcursor::get_key
-	 *  gives result false the next time it called.
-	 */
-	bool get_tag(string * tag);
-
     public:
 	/** Create a cursor attached to a Btree.
 	 *

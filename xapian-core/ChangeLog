@@ -1,3 +1,10 @@
+Fri Nov 19 13:18:43 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/bcursor.cc,backends/quartz/bcursor.h: Eliminated
+	  Bcursor::get_tag() - it's an internal method only used from one
+	  other method, and it now just a trivial wrapper around
+	  Btree::read_tag().
+
 Fri Nov 19 04:20:39 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/bcursor.cc,backends/quartz/btree.cc,

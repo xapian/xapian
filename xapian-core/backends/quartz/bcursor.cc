@@ -207,30 +207,20 @@ Bcursor::get_key(string * key) const
     return true;
 }
 
-bool
-Bcursor::get_tag(string * tag)
-{
-    Assert(B->level <= level);
-
-    if (!is_positioned) return false;
-
-    B->read_tag(C, tag);
-
-    // We need to call B->next(...) after B->read_tag(...) so that the
-    // cursor ends up on the next key.
-    is_positioned = B->next(C, 0);
-    return is_positioned;
-}
-
 void
 Bcursor::read_tag()
 {
     DEBUGCALL(DB, void, "Bcursor::read_tag", "");
-
     if (have_read_tag) return;
 
-    is_positioned = get_tag(&current_tag);
-    // FIXME: check for errors
+    Assert(B->level <= level);
+    Assert(is_positioned);
+
+    B->read_tag(C, &current_tag);
+
+    // We need to call B->next(...) after B->read_tag(...) so that the
+    // cursor ends up on the next key.
+    is_positioned = B->next(C, 0);
 
     have_read_tag = true;
 
