@@ -154,6 +154,8 @@ void
 OmSettings::Internal::set_value(const string &key, const string &value)
 {
     OmLockSentry sentry(mutex);
+    // copy on write...
+    data = OmRefCntPtr<OmSettingsData>(new OmSettingsData(*data));
     data->values[key] = value;
 }
 

@@ -1,3 +1,10 @@
+Tue May 30 17:15:00 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* OmRefCntBase now has a (protected) copy constructor and a
+	  ref_count_get() method.
+
+	* OmSettings fixed.
+
 Tue May 30 16:41:39 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented OmSettings and added some tests (one still fails.)

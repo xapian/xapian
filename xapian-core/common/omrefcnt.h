@@ -39,6 +39,25 @@ class OmRefCntBase {
 	/// the lock used for synchronising increment and decrement
 	OmLock ref_count_mutex;
 
+    protected:
+	/** The copy constructor.
+	 *
+	 *  This is protected since it'll only be used by derived classes,
+	 *  which should only rarely need copying (this is, after all, a
+	 *  refcount implementation).  Sometimes it's needed, though,
+	 *  since OmLock objects can't be copied.
+	 */
+	OmRefCntBase(const OmRefCntBase &other)
+		: ref_count(0), ref_count_mutex() {};
+
+	/** Return the current ref count.
+	 *
+	 *  This is only rarely useful.  One use is for copy-on-write.
+	 */
+	ref_count_t ref_count_get()
+	{
+	    return ref_count;
+	}
     public:
 	/// The constructor, which initialises the ref_count to 0.
 	OmRefCntBase() : ref_count(0) {};
