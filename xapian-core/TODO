@@ -24,6 +24,10 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    | Documentation   | Write more and more API documentation
 ---------+-----------------+--------------------------------------------------
+ High    | Documentation   | Add auto documentation to distributions,
+         |                 | generate TeX documentation, and put it on the
+         |                 | website.
+---------+-----------------+--------------------------------------------------
  Medium  | Tests           | Test match decision functor
 ---------+-----------------+--------------------------------------------------
  Medium  | Matcher         | Implement match decision functor
