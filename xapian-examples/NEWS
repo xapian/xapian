@@ -1,3 +1,7 @@
+xapian-examples 0.8.5 (2004-12-23):
+
+* INSTALL: Added non-generic installation instructions.
+
 xapian-examples 0.8.4 (2004-12-08):
 
 * Updated to use the new Database/WritableDatabase constructors rather than
