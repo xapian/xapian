@@ -161,7 +161,7 @@ static bool test_tcpmatch1()
 	                  ".quartz/db=apitest_simpledata"
 	                  " --port 1235 &";
     system(command.c_str());
-    sleep(1);
+    sleep(3);
 
     OmSettings params;
     params.set("backend", "remote");

@@ -1,3 +1,17 @@
+Fri Dec  1 17:45:01 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Increase the sleep after the server is started by tcpclient1 to 3
+	  seconds so that the server is more likely to have started when
+	  then test ran.  This seems to be what was causing the test to
+	  randomly fail.  Really, we want a better solution to this (such as
+	  the server picking a port and writing it out on stdout once it is
+	  listening.)
+
+Fri Dec  1 17:27:02 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Swapped the ports used by tcpclient1 and tcpmatch1 to see if the
+	  random failures follow suit.
+
 Fri Dec  1 17:21:07 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Another minor fix to work with STLport.
