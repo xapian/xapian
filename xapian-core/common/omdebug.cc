@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,7 +78,14 @@ OmDebug::initialise()
 		s.replace(token, 2, om_tostring(getpid()));
 	    }
 
+	    // mingw doesn't support O_SYNC, and it's not vital - it just
+	    // ensures that debug output is written to disk, so that none
+	    // is lost if we crash...
+#ifdef O_SYNC
 	    fd = open(s, O_CREAT | O_WRONLY | O_SYNC | O_APPEND, 0644);
+#else
+	    fd = open(s, O_CREAT | O_WRONLY | O_APPEND, 0644);
+#endif
 
 	    if (fd == -1) {
 		fd = 2;

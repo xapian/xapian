@@ -1,3 +1,7 @@
+Mon Mar 15 14:34:44 GMT 2004  Olly Betts <olly@survex.com>
+
+	* common/omdebug.cc: Only use O_SYNC (on the debug log) if we have it.
+
 Sun Mar 14 17:48:52 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tests/runtest.in: Mark with @configure_input@.
