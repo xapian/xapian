@@ -10,6 +10,8 @@ code_structure.html
 mkdoc.pl
 doxygen_api
 doxygen_full
+doxygen_api_conf
+doxygen_full_conf
 sourcedoc
 apidoc
 *.tex
