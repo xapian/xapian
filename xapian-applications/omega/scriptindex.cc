@@ -103,7 +103,8 @@ class Action {
 public:
     typedef enum {
 	BAD, NEW,
-	BOOLEAN, FIELD, INDEX, LOWER, TRUNCATE, UNHTML, UNIQUE, VALUE, WEIGHT
+	BOOLEAN, DATE, FIELD, INDEX, LOWER,
+	TRUNCATE, UNHTML, UNIQUE, VALUE, WEIGHT
     } type;
 private:
     type action;
@@ -160,6 +161,12 @@ parse_index_script(const string &filename)
 			if (action == "boolean") {
 			    code = Action::BOOLEAN;  
 			    arg = OPT;
+			}
+			break;
+		    case 'd':
+			if (action == "date") {
+			    code = Action::DATE;  
+			    arg = YES;
 			}
 			break;
 		    case 'f':
@@ -485,6 +492,50 @@ again:
 		    case Action::WEIGHT:
 			weight = i->get_num_arg();
 			break;
+		    case Action::DATE: {
+			string type = i->get_string_arg();
+			switch (type[0]) {
+			    case 'u':
+				if (type == "unix") {
+				    char buf[9];
+				    struct tm *tm;
+				    time_t t = atoi(value.c_str());
+				    tm = localtime(&t);
+				    sprintf(buf, "%04d%02d%02d",
+					    tm->tm_year + 1900, tm->tm_mon + 1,
+					    tm->tm_mday);
+				    value = buf;
+				    break;
+				}
+				value = "";
+				break;
+			    case 'y':
+				if (type == "yyyymmdd") {
+				    if (value.length() == 8) break;
+				}
+				value = "";
+				break;
+			    default:
+				value = "";
+				break;
+			}
+			if (value.empty()) break;
+			// Date (YYYYMMDD)
+			doc.add_term_nopos("D" + value);
+#if 0 // "Weak" terms aren't currently used by omega
+			value.resize(7);
+			if (value[6] == '3') value[6] = '2';
+			// "Weak" - 10ish day interval
+			newdocument.add_term_nopos("W" + value);
+#endif
+			value.resize(6);
+			// Month (YYYYMM)
+			doc.add_term_nopos("M" + value);
+			value.resize(4);
+			// Year (YYYY)
+			doc.add_term_nopos("Y" + value);
+			break;
+		    }
 		}
 	    }
 	    if (this_field_is_content) seen_content = 1;
