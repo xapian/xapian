@@ -1,3 +1,11 @@
+Tue Sep 05 10:44:28 BST 2000 Olly Betts
+
+	* msearch: --multidb option no longer exists, so removed from
+	  syntax message; complain if operator doesn't have 2 arguments;
+	  Implicitly AND in boolean queries.
+ 
+	* simpleindex: Setting sleepy_dir corrected to sleepycat_dir.
+
 Mon Sep  4 17:44:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add simple/simpleexpand.cc to nightly snapshots.

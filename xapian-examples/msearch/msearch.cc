@@ -108,7 +108,6 @@ main(int argc, char *argv[])
 		"\t--key <key to collapse mset on>\n" <<
 		"\t--dbdir DIRECTORY\n" <<
 		"\t--rel DOCID\n" <<
-		"\t--multidb\n" <<
 		"\t--showmset (default)\n" <<
 		"\t--hidemset\n" <<
 		"\t--matchall\n";
@@ -172,7 +171,10 @@ main(int argc, char *argv[])
 //			doop = true;
 //		    }
 		    if (doop) {
-			Assert(boolquery.size() >= 2);
+			if (boolquery.size() < 2) {
+			    cout << "Syntax error: boolean operands need 2 arguments\n(NB: query should be in reverse polish notation).\n";
+			    exit(1);
+			}
 			OmQuery boolq_right(boolquery.top());
 			boolquery.pop();
 			OmQuery newtop(boolop, boolquery.top(), boolq_right);
@@ -189,8 +191,19 @@ main(int argc, char *argv[])
 		}
 	    }
         }
-	if(boolean) {
-	    Assert(boolquery.size() == 1);
+	if (boolean) {
+	    if (boolquery.size() == 0) {
+		cout << "Syntax error: Empty boolean query.\n";
+		exit(1);
+	    }
+	    while (boolquery.size() > 1) {
+		// implicit AND of remains of query
+		OmQuery boolq_right(boolquery.top());
+		boolquery.pop();
+		OmQuery newtop(OmQuery::OP_AND, boolquery.top(), boolq_right);
+		boolquery.pop();
+		boolquery.push(newtop);
+	    }
 	    query = OmQuery(OmQuery::OP_FILTER, query, boolquery.top());
 	}
 
