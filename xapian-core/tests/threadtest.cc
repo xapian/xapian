@@ -30,6 +30,8 @@
 
 #include <vector>
 #include <pthread.h>
+#include <sys/time.h>
+#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -269,6 +271,78 @@ bool test_separatedbs()
     return check_query_threads(search_thread_separatedbs);
 }
 
+void *
+sleep_thread(void * data)
+{   
+    pthread_mutex_t * mutex = (pthread_mutex_t *)data;
+
+    if(mutex) pthread_mutex_lock(mutex);
+    OutputMessage("Sleeping" << endl);
+    int err = sleep(2);
+    OutputMessage("Slept" << endl);
+    if(mutex) pthread_mutex_unlock(mutex);
+    TEST_EQUAL(err, 0);
+
+    return 0;
+}
+
+long time_sleep(pthread_mutex_t * mutex_ptr)
+{
+    pthread_t thread1;
+    pthread_t thread2;
+
+    struct timeval tv1;
+    struct timeval tv2;
+
+    int err;
+
+    err = gettimeofday(&tv1, 0);
+    TEST_EQUAL(err, 0);
+
+    OutputMessage("Creating thread 1" << endl);
+    err = pthread_create(&thread1,
+			 0,
+			 sleep_thread,
+			 mutex_ptr);
+    TEST_EQUAL(err, 0);
+
+    OutputMessage("Creating thread 2" << endl);
+    err = pthread_create(&thread1,
+			 0,
+			 sleep_thread,
+			 mutex_ptr);
+    TEST_EQUAL(err, 0);
+
+    OutputMessage("waiting for end of thread 1 " << endl);
+    pthread_join(thread1, NULL);
+    OutputMessage("waiting for end of thread 2 " << endl);
+    pthread_join(thread2, NULL);
+
+    OutputMessage("all threads finished" << endl);
+
+    err = gettimeofday(&tv2, 0);
+    TEST_EQUAL(err, 0);
+
+    long time = (tv2.tv_sec - tv1.tv_sec) * 1000;
+    time += (tv2.tv_usec - tv1.tv_usec) / 1000;
+
+    OutputMessage("Time taken : " << time << "ms" << endl);
+
+    return time;
+}
+
+/// Check that mutexes work.
+bool test_mutextest()
+{   
+    pthread_mutex_t mutex;
+    TEST_EQUAL(pthread_mutex_init(&mutex, 0), 0);
+
+    TEST(time_sleep(&mutex) > 2500);
+    TEST(time_sleep(0) < 2500);
+
+    return true;
+}
+
 
 
 // ##################################################################
@@ -277,6 +351,7 @@ bool test_separatedbs()
 
 /// The lists of tests to perform
 test_desc tests[] = {
+    {"mutextest",               test_mutextest},
     {"separatedbs",		test_separatedbs},
     {"samedb",			test_samedb},
     {0, 0}
