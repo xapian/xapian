@@ -1,3 +1,9 @@
+Thu Jun 17 03:46:32 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: Cleaned up code to track
+	  add vs delete vs modify of a posting list entry since we now
+	  force a flush if an entry is about to be retouched.
+
 Thu Jun 17 03:44:21 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: Back out incorrect change from

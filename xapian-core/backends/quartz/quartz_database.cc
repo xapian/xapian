@@ -309,11 +309,11 @@ QuartzWritableDatabase::add_document(const Xapian::Document & document)
 	    Xapian::TermIterator term = document.termlist_begin();
 	    Xapian::TermIterator term_end = document.termlist_end();
 	    for ( ; term != term_end; ++term) {
-		// Calculate the new document length
-		new_doclen += term.get_wdf();
-		string tname = *term;
 		termcount wdf = term.get_wdf();
+		// Calculate the new document length
+		new_doclen += wdf;
 
+		string tname = *term;
 		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
 		i = freq_deltas.find(tname);
 		if (i == freq_deltas.end()) {
@@ -330,14 +330,8 @@ QuartzWritableDatabase::add_document(const Xapian::Document & document)
 		    map<docid, pair<char, termcount> > m;
 		    j = mod_plists.insert(make_pair(tname, m)).first;
 		}
-		map<docid, pair<char, termcount> >::iterator k;
-		k = j->second.find(did);
-		if (k != j->second.end()) {
-		    if (k->second.first == 'D') k->second.first = 'M';
-		    k->second.second = wdf;
-		} else {
-		    j->second.insert(make_pair(did, make_pair('A', wdf)));
-		}
+		Assert(j->second.find(did) == j->second.end());
+		j->second.insert(make_pair(did, make_pair('A', wdf)));
 
 		if (term.positionlist_begin() != term.positionlist_end()) {
 		    QuartzPositionList::set_positionlist(
@@ -445,17 +439,8 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 		map<docid, pair<char, termcount> > m;
 		j = mod_plists.insert(make_pair(tname, m)).first;
 	    }
-	    map<docid, pair<char, termcount> >::iterator k;
-	    k = j->second.find(did);
-	    if (k != j->second.end()) {
-		if (k->second.first == 'A') {
-		    j->second.erase(k);
-		} else {
-		    k->second.first = 'D';
-		}
-	    } else {
-		j->second.insert(make_pair(did, make_pair('D', 0u)));
-	    }
+	    Assert(j->second.find(did) == j->second.end());
+	    j->second.insert(make_pair(did, make_pair('D', 0u)));
 
 	    termlist.next();
 	}
@@ -527,17 +512,8 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 		map<docid, pair<char, termcount> > m;
 		j = mod_plists.insert(make_pair(tname, m)).first;
 	    }
-	    map<docid, pair<char, termcount> >::iterator k;
-	    k = j->second.find(did);
-	    if (k != j->second.end()) {
-		if (k->second.first == 'A') {
-		    j->second.erase(k);
-		} else {
-		    k->second.first = 'D';
-		}
-	    } else {
-		j->second.insert(make_pair(did, make_pair('D', 0u)));
-	    }
+	    Assert(j->second.find(did) == j->second.end());
+	    j->second.insert(make_pair(did, make_pair('D', 0u)));
 
 	    termlist.next();
 	}
@@ -584,10 +560,10 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	    Xapian::TermIterator term_end = document.termlist_end();
 	    for ( ; term != term_end; ++term) {
 		// Calculate the new document length
-		new_doclen += term.get_wdf();
-		string tname = *term;
 		termcount wdf = term.get_wdf();
+		new_doclen += wdf;
 
+		string tname = *term;
 		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
 		i = freq_deltas.find(tname);
 		if (i == freq_deltas.end()) {
@@ -607,7 +583,8 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 		map<docid, pair<char, termcount> >::iterator k;
 		k = j->second.find(did);
 		if (k != j->second.end()) {
-		    if (k->second.first == 'D') k->second.first = 'M';
+		    Assert(k->second.first == 'D');
+		    k->second.first = 'M';
 		    k->second.second = wdf;
 		} else {
 		    j->second.insert(make_pair(did, make_pair('A', wdf)));
