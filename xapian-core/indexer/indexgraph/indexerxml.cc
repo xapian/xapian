@@ -74,9 +74,9 @@ std::string xmlChar2string(const CHAR *s) {
 }
 
 /** Walk the xml tree to make an OmIndexerDesc */
-static AutoPtr<OmIndexerDesc> desc_from_tree(xmlDocPtr doc);
+static AutoPtr<OmIndexerDesc::Internal> desc_from_tree(xmlDocPtr doc);
 
-AutoPtr<OmIndexerDesc>
+AutoPtr<OmIndexerDesc::Internal>
 desc_from_xml_file(const std::string &filename)
 {
     auto_xmlDocPtr doc = xmlParseFile(filename.c_str());
@@ -92,7 +92,7 @@ desc_from_xml_file(const std::string &filename)
     return desc_from_tree(doc.get());
 }
 
-AutoPtr<OmIndexerDesc>
+AutoPtr<OmIndexerDesc::Internal>
 desc_from_xml_string(const std::string &xmldesc)
 {
     auto_xmlDocPtr doc = xmlParseMemory(const_cast<char *>(xmldesc.c_str()),
@@ -399,7 +399,7 @@ FIXME: do something to replace this?
     return node;
 }
 
-static AutoPtr<OmIndexerDesc>
+static AutoPtr<OmIndexerDesc::Internal>
 desc_from_tree(xmlDocPtr doc)
 {
     xmlNodePtr root = doc->xmlRootNode;
@@ -418,7 +418,7 @@ desc_from_tree(xmlDocPtr doc)
 				 + rootname + "', not <omindexer>");
     }
 
-    AutoPtr<OmIndexerDesc> result(new OmIndexerDesc());
+    AutoPtr<OmIndexerDesc::Internal> result(new OmIndexerDesc::Internal);
 
     for (xmlNodePtr node = root->xmlChildrenNode;
 	 node != 0;
@@ -429,7 +429,7 @@ desc_from_tree(xmlDocPtr doc)
 	}
 	std::string type = xmlChar2string(node->name);
 	if (type == "node") {
-	    OmIndexerDesc::NodeInstance ndesc;
+	    OmIndexerDesc::Internal::NodeInstance ndesc;
 
 	    ndesc.type = get_prop(node, "type");
 	    ndesc.id = get_prop(node, "id");
@@ -448,7 +448,7 @@ desc_from_tree(xmlDocPtr doc)
 		if (std::string(xmlChar2string(child->name)) != "input") {
 		    throw OmInvalidDataError(std::string("<input> tag expected, found ") + std::string(xmlChar2string(child->name)));
 		}
-		OmIndexerDesc::Connect conn;
+		OmIndexerDesc::Internal::Connect conn;
 		conn.input_name = get_prop(child, "name");
 		conn.feeder_node = get_prop(child, "node");
 		conn.feeder_out = get_prop(child, "out_name");
@@ -456,10 +456,10 @@ desc_from_tree(xmlDocPtr doc)
 
 		child = child->next;
 	    }
-	    result->nodes.push_back(ndesc);
+	    result->data->nodes.push_back(ndesc);
 	} else if (type == "output") {
-	    result->output_node = get_prop(node, "node");
-	    result->output_conn = get_prop(node, "out_name");
+	    result->data->output_node = get_prop(node, "node");
+	    result->data->output_conn = get_prop(node, "out_name");
 	}
     }
     return result;

@@ -57,7 +57,7 @@ class OmIndexerBuilder::Internal {
 	 * 
 	 *  @param desc		The description of the graph.
 	 */
-	void build_from_desc(const OmIndexerDesc &desc);
+	void build_from_desc(const OmIndexerDesc::Internal &desc);
 
 	/** Register a new node type */
 	void register_node_type(const OmNodeDescriptor::Internal &nodedesc);
@@ -67,7 +67,7 @@ class OmIndexerBuilder::Internal {
 	 *
 	 *  @param desc	The description of the nodes.
 	 */
-	static std::vector<int> sort_nodes(const OmIndexerDesc &desc);
+	static std::vector<int> sort_nodes(const OmIndexerDesc::Internal &desc);
 
 	/** Return information about a node type by name. */
 	AutoPtr<OmNodeDescriptor::Internal> get_node_info(const std::string &type);
@@ -76,17 +76,17 @@ class OmIndexerBuilder::Internal {
 	 *  node pointer.
 	 */
 	void build_graph(OmIndexer::Internal *indexer,
-			 const OmIndexerDesc &desc);
+			 const OmIndexerDesc::Internal &desc);
 
 	/** Verify that all the node types are valid.
 	 *  Throw an OmInvalidDataError if any types in the desc are unknown.
 	 */
-	void verify_node_types(const OmIndexerDesc &desc);
+	void verify_node_types(const OmIndexerDesc::Internal &desc);
 
 	/** Return a count of the number of nodes which have more than
 	 *  one output.
 	 */
-	int count_splitting_nodes(const OmIndexerDesc &desc);
+	int count_splitting_nodes(const OmIndexerDesc::Internal &desc);
 	
 	/** Data kept with each node as the graph is being built */
 	struct type_data {
@@ -140,30 +140,42 @@ class OmIndexerBuilder::Internal {
 OmIndexerDesc
 OmIndexerBuilder::desc_from_file(const std::string &filename)
 {
-    return *desc_from_xml_file(filename);
+    AutoPtr<OmIndexerDesc::Internal> desc(desc_from_xml_file(filename));
+
+    OmIndexerDesc result(desc.get());
+    desc.release();
+
+    return result;
 }
 
 OmIndexerDesc
 OmIndexerBuilder::desc_from_string(const std::string &xmldesc)
 {
-    return *desc_from_xml_string(xmldesc);
+    AutoPtr<OmIndexerDesc::Internal> desc(desc_from_xml_string(xmldesc));
+
+    OmIndexerDesc result(desc.get());
+    desc.release();
+
+    return result;
 }
 
 OmIndexerDesc
 OmIndexerBuilder::sort_desc(OmIndexerDesc &desc)
 {
-    std::vector<int> sorted = Internal::sort_nodes(desc);
+    std::vector<int> sorted = Internal::sort_nodes(*desc.internal);
 
-    OmIndexerDesc result;
-    result.output_node = desc.output_node;
-    result.output_conn = desc.output_conn;
+    AutoPtr<OmIndexerDesc::Internal> result(new OmIndexerDesc::Internal);
+    result->data->output_node = desc.internal->data->output_node;
+    result->data->output_conn = desc.internal->data->output_conn;
 
     std::vector<int>::const_iterator i = sorted.begin();
     while (i != sorted.end()) {
-	result.nodes.push_back(desc.nodes[*i]);
+	result->data->nodes.push_back(desc.internal->data->nodes[*i]);
 	++i;
     }
-    return result;
+    OmIndexerDesc temp(result.get());
+    result.release();
+    return temp;
 }
 
 OmIndexer
@@ -178,7 +190,7 @@ void
 OmIndexerBuilder::Internal::build_from_file(const std::string &filename,
 					    OmIndexer::Internal *indexer)
 {
-    AutoPtr<OmIndexerDesc> doc = desc_from_xml_file(filename);
+    AutoPtr<OmIndexerDesc::Internal> doc = desc_from_xml_file(filename);
 
     build_graph(indexer, *doc);
 }
@@ -195,9 +207,9 @@ void
 OmIndexerBuilder::Internal::build_from_string(const std::string &xmldesc,
 					      OmIndexer::Internal *indexer)
 {
-    AutoPtr<OmIndexerDesc> doc = desc_from_xml_string(xmldesc);
+    AutoPtr<OmIndexerDesc::Internal> doc = desc_from_xml_string(xmldesc);
 
-    DEBUGLINE(INDEXER, __LINE__ << ": desc size " << doc->nodes.size());
+    DEBUGLINE(INDEXER, __LINE__ << ": desc size " << doc->data->nodes.size());
     build_graph(indexer, *doc);
 }
 
@@ -239,29 +251,29 @@ OmIndexerBuilder::Internal::make_node(const std::string &type,
 }
 
 std::vector<int>
-OmIndexerBuilder::Internal::sort_nodes(const OmIndexerDesc &desc)
+OmIndexerBuilder::Internal::sort_nodes(const OmIndexerDesc::Internal &desc)
 {
     DEBUGLINE(INDEXER, "sort_nodes(): sorting desc of length "
-	      << desc.nodes.size());
+	      << desc.data->nodes.size());
     /* First build up a mapping from node ids to positions in the desc.
      */
     std::map<std::string, int> node_num;
-    for (size_t i = 0; i < desc.nodes.size(); ++i) {
-	node_num[desc.nodes[i].id] = i;
+    for (size_t i = 0; i < desc.data->nodes.size(); ++i) {
+	node_num[desc.data->nodes[i].id] = i;
     }
     /* temporarily add the START node in.  We'll remove it before returning
      * the result.  (The START node is special, and is not mentioned in
      * desc.)
      */
-    int num_elements = desc.nodes.size();
+    int num_elements = desc.data->nodes.size();
     node_num["START"] = num_elements;
     ++num_elements;
 
     TopoSort tsort(num_elements);
 
-    for (size_t i=0; i<desc.nodes.size(); ++i) {
-	const OmIndexerDesc::NodeInstance &node = desc.nodes[i];
-	std::vector<OmIndexerDesc::Connect>::const_iterator j;
+    for (size_t i=0; i<desc.data->nodes.size(); ++i) {
+	const OmIndexerDesc::Internal::NodeInstance &node = desc.data->nodes[i];
+	std::vector<OmIndexerDesc::Internal::Connect>::const_iterator j;
 	for (j = node.input.begin();
 	     j != node.input.end();
 	     ++j) {
@@ -281,24 +293,24 @@ OmIndexerBuilder::Internal::sort_nodes(const OmIndexerDesc &desc)
 }
 
 void
-OmIndexerBuilder::Internal::verify_node_types(const OmIndexerDesc &desc)
+OmIndexerBuilder::Internal::verify_node_types(const OmIndexerDesc::Internal &desc)
 {
-    for (size_t i=0; i<desc.nodes.size(); ++i) {
+    for (size_t i=0; i<desc.data->nodes.size(); ++i) {
 	std::map<std::string, node_desc>::const_iterator type;
-	type = nodetypes.find(desc.nodes[i].type);
+	type = nodetypes.find(desc.data->nodes[i].type);
 	if (type == nodetypes.end()) {
 	    throw OmInvalidDataError(std::string("Unknown node type ") +
-				     desc.nodes[i].type);
+				     desc.data->nodes[i].type);
 	}
     }
 }
 
 int
-OmIndexerBuilder::Internal::count_splitting_nodes(const OmIndexerDesc &desc)
+OmIndexerBuilder::Internal::count_splitting_nodes(const OmIndexerDesc::Internal &desc)
 {
     int count = 0;
-    for (size_t i=0; i<desc.nodes.size(); ++i) {
-	if (nodetypes[desc.nodes[i].type].outputs.size() > 1) {
+    for (size_t i=0; i<desc.data->nodes.size(); ++i) {
+	if (nodetypes[desc.data->nodes[i].type].outputs.size() > 1) {
 	    ++count;
 	}
     }
@@ -307,16 +319,16 @@ OmIndexerBuilder::Internal::count_splitting_nodes(const OmIndexerDesc &desc)
 
 void
 OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
-			      const OmIndexerDesc &desc)
+			      const OmIndexerDesc::Internal &desc)
 {
     typemap types;
 
     /* sort the list of nodes so that nodes aren't referred to before
      * being instantiated.
      */
-    DEBUGLINE(INDEXER, "Desc size is " << desc.nodes.size());
+    DEBUGLINE(INDEXER, "Desc size is " << desc.data->nodes.size());
     std::vector<int> sorted = sort_nodes(desc);
-    DEBUGLINE(INDEXER, "Desc size after sort_nodes:" << desc.nodes.size());
+    DEBUGLINE(INDEXER, "Desc size after sort_nodes:" << desc.data->nodes.size());
     
     /* First check that all the node types are valid.
      * This must be called before any accidental use of
@@ -338,13 +350,13 @@ OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
     types["START"].outputs = nodetypes["START"].outputs;
     types["START"].node_name = "START";
 
-    DEBUGLINE(INDEXER, "Nodes in description: " << desc.nodes.size());
+    DEBUGLINE(INDEXER, "Nodes in description: " << desc.data->nodes.size());
     DEBUGLINE(INDEXER, "Nodes in sorted: " << sorted.size());
     for (unsigned int nodeind = 0;
 	 nodeind < sorted.size();
 	 ++nodeind) {
-	const OmIndexerDesc::NodeInstance *node =
-		&desc.nodes[sorted[nodeind]];
+	const OmIndexerDesc::Internal::NodeInstance *node =
+		&desc.data->nodes[sorted[nodeind]];
 
 	if (indexer->nodemap.find(node->id) != indexer->nodemap.end()) {
 		throw OmInvalidDataError(std::string("Duplicate node id ")
@@ -366,7 +378,7 @@ OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
 	indexer->nodemap[node->id] = newnode;
 
 	// connect the inputs
-	std::vector<OmIndexerDesc::Connect>::const_iterator input;
+	std::vector<OmIndexerDesc::Internal::Connect>::const_iterator input;
 	for (input = node->input.begin();
 	     input != node->input.end();
 	     ++input) {
@@ -390,16 +402,16 @@ OmIndexerBuilder::Internal::build_graph(OmIndexer::Internal *indexer,
 
     /* connect the output of the whole graph */
     OmIndexer::Internal::NodeMap::const_iterator i =
-	    indexer->nodemap.find(desc.output_node);
+	    indexer->nodemap.find(desc.data->output_node);
     if (i == indexer->nodemap.end()) {
 	for (i=indexer->nodemap.begin(); i!=indexer->nodemap.end(); ++i) {
 	    DEBUGLINE(INDEXER, "nodemap element " << i->first);
 	}
 	throw OmInvalidDataError(std::string("Unknown output node ") +
-				 desc.output_node);
+				 desc.data->output_node);
     }
     indexer->final = i->second;
-    indexer->final_out = desc.output_conn;
+    indexer->final_out = desc.data->output_conn;
 }
 
 static const OmNodePad &find_conn(const std::vector<OmNodePad> &v,

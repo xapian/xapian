@@ -1,3 +1,12 @@
+Thu Jan 25 14:51:55 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Hide the internals of OmIndexerDesc, and adding member functions
+	  to do all the necessary operations (not all yet implemented).
+	
+	* Indexer internals mostly deal with OmIndexerDesc::Internal
+
+	* Removed '#include <vector>' from omindexerdesc.h
+
 Thu Jan 25 13:45:49 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* When setting up an RSet, allow documents to be referenced by

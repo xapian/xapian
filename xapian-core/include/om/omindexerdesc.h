@@ -24,49 +24,63 @@
 #define OM_HGUARD_OMINDEXERDESC_H
 
 #include <string>
-#include <vector>
 #include <om/omsettings.h>
+
+class OmNodeInstanceIterator;
 
 /** An intermediate form for the node graphs.
  *  This is a description of an indexer graph which can be used instead
  *  of an XML file to build an indexer.  It contains the same information.
  */
-struct OmIndexerDesc {
-    /** Connect describes a node's connection to other nodes. */
-    struct Connect {
-	/** The name of the input being described. */
-	std::string input_name;
-	/** The id of the node this input is connected to. */
-	std::string feeder_node;
-	/** The feeder's output connection */
-	std::string feeder_out;
-    };
-    /** NodeInstance contains all the information about a particular node
-     *  in the graph.
-     */
-    struct NodeInstance {
-	/** The type of the node.  This must be one of the registered node
-	 *  types.
+class OmIndexerDesc {
+    public:
+	/** The default constructor. */
+	OmIndexerDesc();
+
+	/** The copy constructor */
+	OmIndexerDesc(const OmIndexerDesc &other);
+
+	/** The assignment operator */
+	void operator=(const OmIndexerDesc &other);
+
+	/** Destructor */
+	~OmIndexerDesc();
+
+	/** Add an instance of a node to the graph.
+	 *  Returns an iterator which can be used to eg add input
+	 *  connections.
 	 */
-	std::string type;
-	/** This node's id, which must be unique. */
-	std::string id;
+	OmNodeInstanceIterator add_node(const std::string &type,
+					const std::string &id,
+					const OmSettings &param = OmSettings());
 
-	/** This node's input connections */
-	std::vector<Connect> input;
+	/** Return an iterator to the beginning of the list of
+	 *  node instances described by this object.
+	 */
+	OmNodeInstanceIterator nodes_begin() const;
 
-	/** This node's initial parameters */
-	OmSettings param;
-    };
+	/** Return an iterator to one past the end of the list of
+	 *  node instances described by this object.
+	 */
+	OmNodeInstanceIterator nodes_end() const;
 
-    /** The information about all the nodes in the graph */
-    std::vector<NodeInstance> nodes;
+	/** Return a handle to a node identified by name.
+	 *  If no node exists with the given id, then the result
+	 *  is equal to the result of nodes_end()
+	 */
+	OmNodeInstanceIterator find_node(const std::string &id) const;
 
-    /** The id of the node from which the final results come */
-    std::string output_node;
+	/** Set the name of the node providing the indexer's output,
+	 *  plus the name of the output pad on that node. */
+	void set_output(const std::string &output_node,
+			const std::string &output_pad);
 
-    /** The name of the output connection to use on the final node. */
-    std::string output_conn;
+    private:
+	friend class OmIndexerBuilder;
+	class Internal;
+	Internal *internal;
+
+	OmIndexerDesc(Internal *internal_);
 };
 
 #endif /* OM_HGUARD_OMINDEXERDESC_H */

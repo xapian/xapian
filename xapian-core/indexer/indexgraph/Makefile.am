@@ -41,7 +41,7 @@ INDEXERNODES = omstemmernode.cc omsplitternode.cc omlistconcatnode.cc \
 libindexgraph_la_SOURCES = omindexer.cc omindexermessage.cc \
 	do_registration.cc $(INDEXERNODES) indexerxml.cc \
 	toposort.cc omindexerbuilder.cc omnodedescriptor.cc \
-	omindexernode.cc ompaditerator.cc
+	omindexernode.cc ompaditerator.cc omindexerdesc.cc
 
 indexerxml.lo: indexerxml.cc
 	$(LTCXXCOMPILE) @LIBXML_CFLAGS@ -c $<

@@ -1,4 +1,4 @@
-/* indexerxml.h: the xml-specific parts of the indexer graph
+/* omindexerdesc.cc: An intermediate form for the graph description
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,20 +20,34 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_INDEXERXML_H
-#define OM_HGUARD_INDEXERXML_H
-
-#include "config.h"
-
 #include <string>
+#include <algorithm> /* swap() */
 #include "om/omindexerdesc.h"
 #include "omindexerdescinternal.h"
-#include "autoptr.h"
 
-/** Return an OmIndexerDesc built from an XML file. */
-AutoPtr<OmIndexerDesc::Internal> desc_from_xml_file(const std::string &filename);
+OmIndexerDesc::OmIndexerDesc()
+	: internal(new Internal)
+{
+}
 
-/** Return an OmIndexerDesc built from an XML string. */
-AutoPtr<OmIndexerDesc::Internal> desc_from_xml_string(const std::string &xmldesc);
+OmIndexerDesc::OmIndexerDesc(const OmIndexerDesc &other)
+	: internal(new Internal(*other.internal))
+{
+}
 
-#endif /* OM_HGUARD_INDEXERXML_H */
+void
+OmIndexerDesc::operator=(const OmIndexerDesc &other)
+{
+    OmIndexerDesc temp(other);
+    std::swap(internal, temp.internal);
+}
+
+OmIndexerDesc::~OmIndexerDesc()
+{
+    delete internal;
+}
+
+OmIndexerDesc::OmIndexerDesc(Internal *internal_)
+	: internal(internal_)
+{
+}
