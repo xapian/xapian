@@ -40,12 +40,24 @@
 #include <netdb.h>
 #include <signal.h>
 #include <sys/wait.h>
+#ifdef TIMING_PATCH
+#include <sys/time.h>
+
+#define uint64_t unsigned long long
+#endif /* TIMING_PATCH */
 
 /// The TcpServer constructor, taking a database and a listening port.
 TcpServer::TcpServer(OmDatabase db_, int port_, int msecs_timeout_,
+#ifndef TIMING_PATCH
 		     bool verbose_)
+#else /* TIMING_PATCH */
+		     bool verbose_, bool timing_)
+#endif /* TIMING_PATCH */
 	: port(port_), db(db_), listen_socket(get_listening_socket(port_)),
 	  msecs_timeout(msecs_timeout_), verbose(verbose_)
+#ifdef TIMING_PATCH
+          , timing(timing_)
+#endif /* TIMING_PATCH */
 {
 
 }
@@ -134,7 +146,11 @@ TcpServer::get_connected_socket()
 
     if (verbose) {
 	cout << "Connection from " << hent->h_name << ", port " <<
+#ifndef TIMING_PATCH
 	    remote_address.sin_port << endl;
+#else /* TIMING_PATCH */
+	    remote_address.sin_port << ". (tcpserver.cc)" << endl;
+#endif /* TIMING_PATCH */
     }
 
     return con_socket;
@@ -148,13 +164,25 @@ TcpServer::~TcpServer()
 void
 TcpServer::run_once()
 {
-    int connected_socket=get_connected_socket();
+    int connected_socket = get_connected_socket();
+#ifdef TIMING_PATCH
+    struct timeval stp, etp;
+    // record start time
+    int returnval = gettimeofday(&stp,NULL);
+    if (returnval != 0) {
+	cerr << "Could not get time of day...\n";
+    }
+#endif /* TIMING_PATCH */
     int pid = fork();
-    if (pid==0) {
+    if (pid == 0) {
 	// child code
 	close(listen_socket);
 	try {
+#ifndef TIMING_PATCH
 	    SocketServer sserv(db, connected_socket, -1, msecs_timeout);
+#else /* TIMING_PATCH */
+	    SocketServer sserv(db, connected_socket, -1, msecs_timeout, timing);
+#endif /* TIMING_PATCH */
 	    sserv.run();
 	} catch (OmError &err) {
 	    cerr << "Got exception " << err.get_type()
@@ -162,9 +190,19 @@ TcpServer::run_once()
 	} catch (...) {
 	    // ignore other exceptions
 	}
-
-	if (verbose) cout << "Closing connection.\n";
 	close(connected_socket);
+
+#ifndef TIMING_PATCH
+	if (verbose) cout << "Closing connection.\n";
+#else /* TIMING_PATCH */
+	// record end time
+	returnval = gettimeofday(&etp, NULL);
+	if (returnval != 0) {
+	    cerr << "Could not get time of day...\n";
+	}
+	uint64_t total = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+	if (verbose) cout << "Connection held open for " <<  total << " usecs. (tcpserver.cc)\n\n";
+#endif /* TIMING_PATCH */
 	exit(0);
     } else if (pid > 0) {
 	// parent code

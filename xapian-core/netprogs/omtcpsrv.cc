@@ -48,6 +48,10 @@ int main(int argc, char *argv[]) {
 
     bool verbose = true;
 
+#ifdef TIMING_PATCH
+    bool timing = false;
+    
+#endif /* TIMING_PATCH */
     bool syntax_error = false;
     argv++;
     argc--;
@@ -112,6 +116,12 @@ int main(int argc, char *argv[]) {
 	    verbose = false;
 	    argc -= 1;
 	    argv += 1;
+#ifdef TIMING_PATCH
+	} else if (strcmp(argv[0], "--timing") == 0) {
+	    timing = true;
+	    argc -= 1;
+	    argv += 1;
+#endif /* TIMING_PATCH */
 	} else {
 	    syntax_error = true;
 	    break;
@@ -145,7 +155,11 @@ int main(int argc, char *argv[]) {
 	    delete *p;
 	}
 
+#ifndef TIMING_PATCH
 	TcpServer server(mydbs, port, msecs_timeout, verbose);
+#else /* TIMING_PATCH */
+	TcpServer server(mydbs, port, msecs_timeout, verbose, timing);
+#endif /* TIMING_PATCH */
 
 	if (one_shot) {
 	    server.run_once();

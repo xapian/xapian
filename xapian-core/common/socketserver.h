@@ -23,6 +23,8 @@
 #ifndef OM_HGUARD_SOCKETSERVER_H
 #define OM_HGUARD_SOCKETSERVER_H
 
+#define TIMING_PATCH // for webtop
+
 #include "netserver.h"
 #include "multimatch.h"
 #include "socketcommon.h"
@@ -51,6 +53,11 @@ class SocketServer : public NetServer {
 	/// and exception
 	int msecs_timeout;
 
+#ifdef TIMING_PATCH
+	/// Timing mode.
+	bool timing;
+
+#endif /* TIMING_PATCH */
 	/// The line buffer for doing the actual I/O
 	AutoPtr<OmLineBuf> buf;
 
@@ -98,7 +105,12 @@ class SocketServer : public NetServer {
 	SocketServer(OmDatabase db,
 		     int readfd_,
 		     int writefd_ = -1,
+#ifndef TIMING_PATCH
 		     int msecs_timeout_ = 10000);
+#else /* TIMING_PATCH */
+		     int msecs_timeout_ = 10000,
+		     bool timing_ = false);
+#endif /* TIMING_PATCH */
 
 	/** Default constructor.
 	 *  @param db		The database on which searches are done.
@@ -106,7 +118,12 @@ class SocketServer : public NetServer {
 	 */
 	SocketServer(OmDatabase db,
 		     AutoPtr<OmLineBuf> buffer,
+#ifndef TIMING_PATCH
 		     int msecs_timeout_ = 10000);
+#else /* TIMING_PATCH */
+		     int msecs_timeout_ = 10000,
+		     bool timing_ = false);
+#endif /* TIMING_PATCH */
 
 	/** Destructor. */
 	~SocketServer();

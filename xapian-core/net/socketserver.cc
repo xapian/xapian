@@ -40,16 +40,29 @@
 #include <cerrno>
 #include <cstring>
 #include <unistd.h>
+#ifdef TIMING_PATCH
+#include <sys/time.h>
+
+#define uint64_t unsigned long long
+#endif /* TIMING_PATCH */
 
 /// The SocketServer constructor, taking two filedescriptors and a database.
 SocketServer::SocketServer(OmDatabase db_,
 			   int readfd_,
 			   int writefd_,
+#ifndef TIMING_PATCH
 			   int msecs_timeout_)
+#else /* TIMING_PATCH */
+			   int msecs_timeout_,
+			   bool timing_)
+#endif /* TIMING_PATCH */
 	: db(db_),
 	  readfd(readfd_),
 	  writefd((writefd_ == -1) ? readfd_ : writefd_),
 	  msecs_timeout(msecs_timeout_),
+#ifdef TIMING_PATCH
+	  timing(timing_),
+#endif /* TIMING_PATCH */
 	  buf(new OmSocketLineBuf(readfd, writefd)),
 	  conversation_state(conv_ready),
 	  gatherer(0),
@@ -68,11 +81,19 @@ SocketServer::SocketServer(OmDatabase db_,
 
 SocketServer::SocketServer(OmDatabase db_,
 			   AutoPtr<OmLineBuf> buf_,
+#ifndef TIMING_PATCH
 			   int msecs_timeout_)
+#else /* TIMING_PATCH */
+			   int msecs_timeout_,
+			   bool timing_)
+#endif /* TIMING_PATCH */
 	: db(db_),
 	  readfd(-1),
 	  writefd(-1),
 	  msecs_timeout(msecs_timeout_),
+#ifdef TIMING_PATCH
+	  timing(timing_),
+#endif /* TIMING_PATCH */
 	  buf(buf_),
 	  conversation_state(conv_ready),
 	  gatherer(0),
@@ -104,17 +125,70 @@ void
 SocketServer::run()
 {
     try {
+#ifdef TIMING_PATCH
+      struct timeval stp, etp;
+      uint64_t time = 0;
+      uint64_t total = 0;
+      uint64_t totalidle = 0;
+      int returnval = 0;
+#endif /* TIMING_PATCH */
 	while (1) {
 	    std::string message;
 
 	    // Message 3 (see README_progprotocol.txt)
+#ifdef TIMING_PATCH
+	    returnval = gettimeofday(&stp, NULL);
+#endif /* TIMING_PATCH */
 	    message = buf->readline(msecs_timeout);
+#ifndef TIMING_PATCH
 	    
+#else /* TIMING_PATCH */
+	    returnval = gettimeofday(&etp, NULL);
+	    time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+	    totalidle += time;
+#endif /* TIMING_PATCH */
 	    switch (message.empty() ? '\0' : message[0]) {
+#ifndef TIMING_PATCH
 		case 'X': return;
 		case 'Q': run_match(message.substr(1)); break;
 		case 'T': run_gettermlist(message.substr(1)); break;
 		case 'D': run_getdocument(message.substr(1)); break;
+#else /* TIMING_PATCH */
+	        case 'X': {
+		    if (timing) {
+			cout << "Total working time = " << total << " usecs. (socketserver.cc)\n";
+			cout << "Total waiting time = " << totalidle << " usecs. (socketserver.cc)\n";
+		    }
+		    return;
+		}
+		case 'Q': {
+		    returnval = gettimeofday(&stp, NULL);
+		    run_match(message.substr(1));
+		    returnval = gettimeofday(&etp, NULL);
+		    time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+		    total += time;
+		    if (timing) cout << "Match time = " << time << " usecs. (socketserver.cc)\n";
+		}
+		break;
+		case 'T': {
+		    returnval = gettimeofday(&stp, NULL);
+		    run_gettermlist(message.substr(1));
+		    returnval = gettimeofday(&etp, NULL);
+		    time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+		    total += time;
+		    if (timing) cout << "Get Term List time = " << time << " usecs. (socketserver.cc)\n";
+		}
+		break;
+		case 'D': {
+		    returnval = gettimeofday(&stp, NULL);
+		    run_getdocument(message.substr(1));
+		    gettimeofday(&etp, NULL);
+		    time = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
+		    total += time;
+		    if (timing) cout << "Get Doc time = " << time << " usecs. (socketserver.cc)\n";
+		}
+		break;
+#endif /* TIMING_PATCH */
 		case 'm': break; // ignore min weight message left over from postlist
 		case 'S': break; // ignore skip_to message left over from postlist
 		default:

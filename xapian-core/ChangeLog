@@ -1,3 +1,8 @@
+Fri Nov 03 14:29:14 GMT 2000 Jon Fielder
+
+	* Added 'TIMING_PATCH' for performance testing of distributed
+	  searching.
+
 Fri Nov  3 11:30:30 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add a little hack to malloc_wrapper.sh to allow tests in deeper

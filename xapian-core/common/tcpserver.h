@@ -49,6 +49,11 @@ class TcpServer {
 	/// Output informtive messages?
 	bool verbose;
 
+#ifdef TIMING_PATCH
+	/// Output timing stats?
+	bool timing;
+
+#endif /* TIMING_PATCH */
 	/** Open the listening socket and return a filedescriptor to
 	 *  it.
 	 *
@@ -63,7 +68,11 @@ class TcpServer {
     public:
 	/** Default constructor. */
 	TcpServer(OmDatabase db_, int port_, int msecs_timeout_ = 10000,
+#ifndef TIMING_PATCH
 		  bool verbose_ = true);
+#else /* TIMING_PATCH */
+		  bool verbose_ = true, bool timing_ = false);
+#endif /* TIMING_PATCH */
 
 	/** Destructor. */
 	~TcpServer();
