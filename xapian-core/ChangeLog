@@ -1,3 +1,7 @@
+Mon Nov 20 14:20:20 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove a compiler warning in quartz_database.cc
+
 Mon Nov 20 14:13:31 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Simple bugfix to ombatchenquire.cc so that it compiles when

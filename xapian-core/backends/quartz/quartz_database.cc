@@ -164,7 +164,7 @@ QuartzDatabase::do_cancel_transaction()
 om_docid
 QuartzDatabase::do_add_document(const OmDocumentContents & document)
 {
-    Assert(false);
+    throw OmInternalError("QuartzDatabase::do_add_document() called, but QuartzDatabase is not a modifiable database.");
 }
 
 void
