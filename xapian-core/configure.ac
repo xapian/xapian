@@ -104,25 +104,48 @@ fi
 dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST(ldflags)
 
-dnl Some C++ compilers need a special switch to select ANSI C++ mode.  Do
-dnl this early in configure so such settings are used for other tests.
-case "$CXX" in
-  aCC|*/aCC)
-    dnl Select ANSI mode (std:: namespace and ANSI scoping for i in:
-    dnl   for (int i = 1; i < n; ++i) { ... }
-    dnl (note the latest is controlled by: -ansi_for_scope,on if we need
-    dnl drop -AA)
-    dnl Note this means that user code must be built with -AA (which is
-    dnl the default on Itanium, but not on PARISC:
-    dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
-    dnl )
-    ANSI_CXXFLAGS="-AA" ;;
-  cxx|*/cxx)
-    dnl Select ANSI mode (strict_ansi is needed for ANSI iostream, as -std ansi
-    dnl gives a pre-standard AT&T-compatible version).
-    dnl If this is a problem, try "-std ansi -D__USE_STD_IOSTREAM"
-    ANSI_CXXFLAGS="-std strict_ansi" ;;
-esac
+AC_MSG_CHECKING([for $CC option to enable ANSI C++ mode])
+if test yes = "$GXX"; then
+  AC_MSG_RESULT([none required])
+else
+  dnl Some C++ compilers need a special switch to select ANSI C++ mode.  Do
+  dnl this early in configure so such settings are used for other tests.
+  case "$CXX" in
+    aCC|*/aCC)
+      dnl Select ANSI mode for HP's CC (std:: namespace and ANSI scoping for
+      dnl i in:
+      dnl   for (int i = 1; i < n; ++i) { ... }
+      dnl (this is controlled by: -ansi_for_scope,on should we need drop -AA)
+      dnl Note this means that user code must be built with -AA (which is
+      dnl the default on Itanium, but not on PARISC:
+      dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
+      dnl )
+      ANSI_CXXFLAGS="-AA" ;;
+    cxx|*/cxx)
+      dnl Select ANSI mode ('-std strict_ansi' is needed for ANSI iostream
+      dnl as '-std ansi' gives a pre-standard AT&T-compatible version).
+      dnl If this proves to be a problem, try '-std ansi -D__USE_STD_IOSTREAM'
+      ANSI_CXXFLAGS="-std strict_ansi" ;;
+    CC|*/CC)
+      dnl Select ANSI mode for SGI's CC
+      ANSI_CXXFLAGS="-LANG:std" ;;
+  esac
+
+  dnl Check that the compiler recognises any flags we picked above to avoid
+  dnl problems with compilers whose names clash with those above.
+  if test -n "$ANSI_CXXFLAGS" ; then
+    AC_TRY_COMPILE([], [], , ANSI_CXXFLAGS=)
+  fi
+
+  if test -n "$ANSI_CXXFLAGS" ; then
+    AC_MSG_RESULT([$ANSI_CXXFLAGS])
+  else
+    dnl Perhaps we should try to compile some code which uses iostream, for
+    dnl scoping, etc, but maintaining such a snippet to cover everything we
+    dnl require which any C++ compiler may not support is tricky.
+    AC_MSG_RESULT([none known for $GXX])
+  fi
+fi
 
 dnl Put any flags for ANSI mode in CXXFLAGS not AM_CXXFLAGS since AM_CXXFLAGS
 dnl is only used in the Makefiles and we want to use such flags in configure

@@ -1,3 +1,12 @@
+Tue Jan 04 03:02:02 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Automatically enable ANSI C++ mode for SGI's compiler
+	  with '-LANG:std'; check that any automatically determined flags
+	  for ANSI C++ mode actually allow us to compile a trivial program
+	  - if they don't it probably means the compiler isn't the one we
+	  were expecting, but one installed with the same name, so we now
+	  drop the flags in this case.
+
 Thu Dec 30 00:50:58 GMT 2004  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy: QueryParser::parse_query() was failing to
