@@ -79,13 +79,12 @@ int main(int argc, char *argv[]) {
 	    dbtypes.push_back("db_heavy");
 	    argc -= 2;
 	    argv += 2;
-	} else if (argc >= 2 && strcmp(argv[0], "--im") == 0) {
+	} else if (argc >= 1 && strcmp(argv[0], "--im") == 0) {
 	    vector<string> args;
-	    args.push_back(argv[1]);
 	    dbargs.push_back(args);
 	    dbtypes.push_back("inmemory");
-	    argc -= 2;
-	    argv += 2;
+	    argc -= 1;
+	    argv += 1;
 	} else if (argc >= 2 && strcmp(argv[0], "--sleepycat") == 0) {
 	    vector<string> args;
 	    args.push_back(argv[1]);
