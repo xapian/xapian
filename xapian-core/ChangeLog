@@ -1,3 +1,7 @@
+Tue Oct 21 22:14:22 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/Makefile.am: Tweaked rule to symlink queryparser.cc.
+
 Tue Oct 21 17:31:10 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/Makefile.am: Added rule to symlink queryparser.cc from source
