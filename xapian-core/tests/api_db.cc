@@ -897,6 +897,11 @@ static bool test_spaceterms1()
     TEST_MSET_SIZE(mymset, 1);
     docs = enquire.get_docs(mymset.begin(), mymset.end());
     TEST_EQUAL(docs.size(), 1);
+
+    for (int key_no = 0; key_no < 7; ++key_no) {
+	OmKey key = enquire.get_doc(mymset.begin()).get_key(key_no);
+	TEST_NOT_EQUAL(key.value, "");
+    }
     
     init_simple_enquire(enquire, OmQuery(stemmer.stem_word("new\nline")));
     mymset = enquire.get_mset(0, 10);

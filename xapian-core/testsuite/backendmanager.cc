@@ -53,6 +53,11 @@ string_to_document(std::string paragraph)
 	    document.add_key(i, key);
 	}
     }
+    {
+	OmKey key;
+	key.value = std::string("\0\0\0 \1", 5);
+	document.add_key(0, key);
+    }
 
     std::string::size_type spacepos;
     om_termname word;

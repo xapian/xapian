@@ -1,3 +1,13 @@
+Wed Dec 13 16:28:47 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Escape zero bytes in the network protocol, since these were
+	  breaking things when being passed across as part of keys.
+
+	* Add test of having zero bytes in the collapse keys.
+
+	* In testsuite, only display the context of errors if there is one
+	  present.
+
 Wed Dec 13 14:44:46 GMT 2000 Olly Betts
 
 	* Implemented OmMSet::operator[]().

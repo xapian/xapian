@@ -35,6 +35,9 @@ encode_tname(const std::string &tname)
     std::string::const_iterator i;
     for (i = tname.begin(); i != tname.end(); ++i) {
 	switch (*i) {
+	    case '\0':
+		result += "\\0";
+		break;
 	    case ' ':
 		result += "\\_";
 		break;
@@ -75,11 +78,15 @@ decode_tname(const std::string &tcode)
 		    case '_':
 		       result += " ";
 		       break;
+		    case '0':
+		       result += std::string("\0", 1);
+		       break;
 		    default:
 		       Assert(false);
 		}
 	        break;
 	    case ' ':
+	    case '\0':
 	    case '\n':
 	        Assert(false);
 	    default:
