@@ -31,6 +31,7 @@ main(int argc, char *argv[])
     list<string> dbnames;
     list<string> dbtypes;
     bool multidb = false;
+    bool showmset = false;
 
     bool syntax_error = false;
     argv++;
@@ -54,6 +55,10 @@ main(int argc, char *argv[])
 	    multidb = true;
 	    argc--;
 	    argv++;
+	} else if (strcmp(argv[0], "--showmset") == 0) {
+	    showmset = true;
+	    argc--;
+	    argv++;
 	} else {
 	    syntax_error = true;
 	    break;
@@ -66,6 +71,7 @@ main(int argc, char *argv[])
 	cout << "\t--db DBDIRECTORY\n";
 	cout << "\t--tf TEXTFILE\n";
 	cout << "\t--multidb\n";
+	cout << "\t--showmset\n";
 	exit(1);
     }
 
@@ -162,14 +168,16 @@ main(int argc, char *argv[])
 
         match.match();
 	
-	for (docid i = 0; i < match.msize; i++) {
-	    docid q0 = match.mset[i].id;
-	    IRDocument *doc = database->open_document(q0);
-	    IRData data = doc->get_data();
-	    string p = data.value;
-	    cout << q0 << ":[" << p << "] " << match.mset[i].w << "\n\n";
+	if (showmset) {
+	    for (docid i = 0; i < match.msize; i++) {
+		docid q0 = match.mset[i].id;
+		IRDocument *doc = database->open_document(q0);
+		IRData data = doc->get_data();
+		string p = data.value;
+		cout << q0 << ":[" << p << "] " << match.mset[i].w << "\n\n";
+	    }
+	    cout << endl;
 	}
-	cout << endl;
 	database->close();
 	delete database;
     }
