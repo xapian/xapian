@@ -93,12 +93,6 @@ NetworkMatch::link_to_multi(StatsGatherer *gatherer_)
 //    statsleaf.my_average_length_is(database->get_avlength());
 }
 
-//////////////////////////////////////////////////////////
-// ########## PAST THIS POINT IMPLEMENTATION ########## //
-// ########## IS JUST COPIED FROM LEAFMATCH, ########## //
-// ########## AND IS HENCE BOGUS TO THE MAX. ########## //
-//////////////////////////////////////////////////////////
-
 NetworkMatch::~NetworkMatch()
 {
 }
@@ -107,9 +101,11 @@ NetworkMatch::~NetworkMatch()
 // Setting query options
 //
 void
-NetworkMatch::set_options(const OmSettings & moptions_)
+NetworkMatch::set_options(const OmSettings & mopts)
 {
-    database->link->set_options(moptions_);
+    database->link->set_options(mopts);
+    // weighting scheme has potentially changed
+    max_weight_needs_fetch = true;
 }
 
 void
@@ -152,9 +148,6 @@ void
 NetworkMatch::recalc_maxweight()
 {
     Assert(false);
-#if 0
-    recalculate_maxweight = true;
-#endif
 }
 
 // This is the method which runs the query, generating the M set
