@@ -16,8 +16,8 @@ Match::add_pterm(const string& termname)
 
     PostList *postlist = DB->open_post_list(id);
     if (merger) {
-        // FIXME: this builds a totally unbalanced tree
-        // or does that not matter?
+        // FIXME: want to build a tree balanced by the term frequencies
+        // (similar to a huffman encoding tree)
         merger = new MergedPostList(merger, postlist);
     } else {
         merger = postlist;
@@ -25,7 +25,7 @@ Match::add_pterm(const string& termname)
     return true;
 }
 
-#define MSIZE 1000
+#define MSIZE 100
 
 typedef struct {
     weight w;
