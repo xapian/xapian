@@ -8,7 +8,6 @@ noinst_HEADERS = \
  leafpostlist.h \
  expandweight.h stats.h networkstats.h \
  match.h multimatch.h expand.h rset.h \
- indexer.h \
  utils.h omqueryinternal.h refcnt.h \
  document.h \
  netclient.h progclient.h net_database.h \
