@@ -85,19 +85,20 @@ class DATermListItem {
 	{ return; }
 };
  
-class DATermList : public virtual TermList {
+class DATermList : public virtual DBTermList {
     friend class DADatabase;
     private:
 	vector<DATermListItem>::iterator pos;
 	vector<DATermListItem> terms;
 	bool have_started;
+	doccount dbsize;
 
-	DATermList(struct termvec *tv);
+	DATermList(struct termvec *tv, doccount dbsize);
     public:
 	termcount get_approx_size() const;
 
-	weight get_weight() const; // Gets weight of current term
-	termname get_termname() const;
+	ExpandBits get_weighting() const; // Gets weight info of current term
+	const termname & get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -109,7 +110,7 @@ inline termcount DATermList::get_approx_size() const
     return terms.size();
 }
 
-inline termname DATermList::get_termname() const
+inline const termname & DATermList::get_termname() const
 {
     Assert(!at_end());
     Assert(have_started);
@@ -234,7 +235,7 @@ class DADatabase : public virtual IRDatabase {
 	bool term_exists(const termname &) const;
 
 	DBPostList * open_post_list(const termname&, RSet *) const;
-	TermList * open_term_list(docid id) const;
+	DBTermList * open_term_list(docid id) const;
 	IRDocument * open_document(docid id) const;
 
 	void make_term(const termname &) {

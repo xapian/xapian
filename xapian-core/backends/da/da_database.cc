@@ -67,8 +67,8 @@ PostList * DAPostList::skip_to(docid id, weight w_min)
 
 
 
-DATermList::DATermList(struct termvec *tv)
-	: have_started(false)
+DATermList::DATermList(struct termvec *tv, doccount dbsize_new)
+	: have_started(false), dbsize(dbsize_new)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
     readterms(tv);
@@ -85,17 +85,14 @@ DATermList::DATermList(struct termvec *tv)
     pos = terms.begin();
 }
 
-weight DATermList::get_weight() const
+ExpandBits
+DATermList::get_weighting() const
 {
-    return 1.0; // FIXME
-#if 0
     Assert(!at_end());
-    Assert(currdoc != 0);
-    Assert(ir_wt != NULL);
+    Assert(have_started);
+    Assert(wt != NULL);
 
-    // NB ranges from daread share the same wdf value
-    return ir_wt->get_weight(postlist->wdf, 1.0);
-#endif
+    return wt->get_bits(pos->wdf, 1.0, DATermList::get_termfreq(), dbsize);
 }
 
 
@@ -167,7 +164,7 @@ DBPostList * DADatabase::open_post_list(const termname &tname, RSet *rset) const
 }
 
 // Returns a new term list, for the terms in this database for given document
-TermList * DADatabase::open_term_list(docid did) const
+DBTermList * DADatabase::open_term_list(docid did) const
 {
     Assert(opened);
 
@@ -181,7 +178,7 @@ TermList * DADatabase::open_term_list(docid did) const
 
     openterms(tv);
 
-    DATermList *tl = new DATermList(tv);
+    DATermList *tl = new DATermList(tv, DADatabase::get_doccount());
     return tl;
 }
 
