@@ -126,9 +126,12 @@ int main(int argc, char *argv[]) {
 	 Dbt data;
 
 	 if ( db.get(0, &key, &data, 0) == DB_NOTFOUND ) {
+	   //	   cerr << "Did not find key" << endl;
 	   db.close(0);
 	   continue;
                  }
+
+	 //	 cerr << "Found key" << endl;
 
 	 //	 cout << (char*)data.get_data();
 

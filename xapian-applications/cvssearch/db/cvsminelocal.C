@@ -128,6 +128,9 @@ int main(int argc, char *argv[]) {
     string p;
     while (!cin.eof()) {
       cin >> p;
+      if ( cin.eof() && p == "" ) {
+	break;
+      }
       cerr << "... will process " << p << endl;
       packages.insert(p);
     }
