@@ -84,6 +84,91 @@
 void usage(char * prog_name);
 const string database = "db";
 
+void writeDatabase( const string& database_dir, map<string, int>& app_symbol_count, map<string, list<string> >& app_symbol_terms ) {
+
+  cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
+  assert( database_dir != "." );
+  assert( database_dir != "..");
+  system( ("rm -rf " + database_dir).c_str() );
+  system( ("rm -rf " + database_dir+"_c").c_str() );
+  system( ("rm -rf " + database_dir+"_f").c_str() );
+
+
+  // ----------------------------------------
+  // create database directory
+  // ----------------------------------------
+  system(("mkdir " + database_dir+"_c" ).c_str());
+  system(("mkdir " + database_dir+"_f" ).c_str());
+
+  // code which accesses Omsee
+
+  OmSettings db_parameters_classes;
+  db_parameters_classes.set("backend", "quartz");
+  db_parameters_classes.set("quartz_dir", database_dir+"_c");
+  OmWritableDatabase database_classes(db_parameters_classes); // open database
+
+  database_classes.begin_session();
+
+  OmSettings db_parameters_functions;
+  db_parameters_functions.set("backend", "quartz");
+  db_parameters_functions.set("quartz_dir", database_dir+"_f");
+  OmWritableDatabase database_functions(db_parameters_functions); // open database
+
+  database_functions.begin_session();
+
+
+  int f_count = 0;
+  int c_count = 0;
+  for( map<string, int>::iterator c = app_symbol_count.begin(); c != app_symbol_count.end(); c++ ) {
+    string symbol = c->first;
+    int count = c->second;
+    bool isFunction = ( symbol.find("()") != -1 );
+
+    if ( isFunction ) {
+      f_count++;
+
+      if ( f_count % FLUSH_RATE == 0 ) {
+	cerr << "*** FLUSHING FUNCTIONS" << endl;
+	database_functions.flush();
+      }
+    } else {
+      c_count++;
+
+      if ( c_count % FLUSH_RATE == 0 ) {
+	cerr << "*** FLUSHING CLASSES" << endl;
+	database_classes.flush();
+      }
+
+    }
+
+
+
+    cerr <<"*** Symbol " << symbol << " has count " << count << endl;
+    list<string> words = app_symbol_terms[symbol];
+
+    OmDocumentContents newdocument;
+    int pos = 1;
+    for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
+	  
+      string word = *i;
+      //	  cerr << "..." << pos << " " << word << endl;
+      newdocument.add_posting(word, pos++); // term, position of term
+    }
+    static char str[4096];
+    sprintf(str, "%d %s", count, symbol.c_str());
+    newdocument.data = string(str);
+    if ( isFunction ) {
+      database_functions.add_document(newdocument);
+    } else {
+      database_classes.add_document(newdocument);
+    }
+  }
+
+
+  database_functions.end_session();
+  database_classes.end_session();
+  cerr << "Done!" << endl;
+}
 
 
 int main(int argc, char *argv[]) {
@@ -108,162 +193,152 @@ int main(int argc, char *argv[]) {
 
   // get list of packages to process from file
 
+  set<string> lib_symbols;
   set<string> packages;
 
   int qpos;
   int npos;
 
-  // get packages from cmd line or from file
-  if ( argc == 1 ) {
-    // get packages from file
-    string p;
-    while (!cin.eof()) {
-      cin >> p;
-      if ( cin.eof() && p == "" ) {
-	break;
-      }
-      cerr << "... will process " << p << endl;
-      packages.insert(p);
+  // get apps from stdin
+  string p;
+  while (!cin.eof()) {
+    cin >> p;
+    if ( cin.eof() && p == "" ) {
+      break;
     }
-    npos = 1;
-    qpos = 2;
-  } else {
-    // get package from cmd line
-    cerr << "... will process " << argv[1] << endl;
-    packages.insert( argv[1] );
-    npos = 2;
-    qpos = 3;
+    cerr << "... will process " << p << endl;
+    packages.insert(p);
+  }
+  npos = 1;
+  qpos = 2;
+  
+
+
+  // get libraries if any
+  system("rm -f /home/amichail/temp/tags"); 
+  for( int i = 1; i < argc; i++ ) {
+    string dir = argv[i];
+ 
+
+    cerr << "Running ctags on " << dir << endl;
+    string cmd = string("ctags -a ") + string(CTAGS_FLAGS) + " " + dir; // append mode
+    cerr << "Invoking " << cmd << endl;
+    system(cmd.c_str());
+    cerr << "Done" << endl;
+    
   }
 
-
+  readTags( "/home/amichail/temp/tags", lib_symbols );
 
 
   system("rm -f /home/amichail/temp/tags");
 
-  for ( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
 
-    string package = *i + ".cmt";
 
-    string package_name;
-    string package_path;
 
-    unsigned int p = package.find(".cmt");
-    unsigned int q = package.find_last_of('/');
 
-    if ( p == string::npos ) {
-      cerr << "Must include .cmt extension in package(s)." << endl;
-      exit(1);
-    }
-    // ----------------------------------------
-    // no '/', so use current directory
-    // ----------------------------------------
-    if ( q == string::npos) {
-      q = 0;
-    }
-    if ( q >= p )
-      {
-	cerr << "Cannot parse package.cmt. found a \"/\" after \".cmt\" in the filename." << endl;
+  map< string, list<string> > lib_symbol_terms; // accumulated from all its points of usage
+  map<string, int> lib_symbol_count;
+
+  try {
+
+      
+
+    for ( set<string>::iterator i = packages.begin(); i != packages.end(); i++ ) {
+
+      string package = *i + ".cmt";
+
+      string package_name;
+      string package_path;
+
+      unsigned int p = package.find(".cmt");
+      unsigned int q = package.find_last_of('/');
+
+      if ( p == string::npos ) {
+	cerr << "Must include .cmt extension in package(s)." << endl;
 	exit(1);
       }
-    package_name = string(package, q, p-q);
-    package_path = string(package, 0, p);
-
-
-
-    cerr << "package -" << package_name << "-" << endl;
-
-    cerr << "Running ctags on " << package_path << endl;
-    string fullpath = cvsdata +"/" + package_path;
-    string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + fullpath;
-    cerr << "Invoking " << cmd << endl;
-    system(cmd.c_str());
-    cerr << "Done" << endl;
-
-
-
-
-
-
-    set<string> defined_symbols;
-    readTags( "/home/amichail/temp/tags", defined_symbols );
-
-
-
-
-    // change / to _ in package
-    for( int i = 0; i < package_path.length(); i++ ) {
-      if ( package_path[i] == '/' ) {
-	package_path[i] = '_';
-      }
-    }
-
-    package_path = "database/"+package_path;
-
-    //    string file_cmt = cvsdata+"/database/"+package + ".cmt";
-    //    string file_offset = cvsdata +"/database/"+package +".offset";
-
-
-
-
-
-
-    int lines_read = 0;
-
-
-    package = string(package, q, p);
-    cerr << "package -" << package_name << "-" << endl;
-
-    assert( package != "." ); // safety checks
-    assert( package != ".." );
-
-
-    string file_cmt    = package_path + ".cmt";
-    string file_offset = package_path + ".offset";
-    string database_dir= package_path + ".om";
-
-    // file may not exist (if it was deleted in repostory at some point)
-    {
-      ifstream in( file_cmt.c_str() );
-      if ( !in ) {
-	cerr << "Could not find " << file_cmt << endl;
-	continue;
-      }
-    }
-
-
-    cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
-    system( ("rm -rf " + database_dir).c_str() );
-    system( ("rm -rf " + database_dir+"_c").c_str() );
-    system( ("rm -rf " + database_dir+"_f").c_str() );
-
-    try {
-
       // ----------------------------------------
-      // create database directory
+      // no '/', so use current directory
       // ----------------------------------------
-      system(("mkdir " + database_dir+"_c" ).c_str());
-      system(("mkdir " + database_dir+"_f" ).c_str());
+      if ( q == string::npos) {
+	q = 0;
+      }
+      if ( q >= p )
+	{
+	  cerr << "Cannot parse package.cmt. found a \"/\" after \".cmt\" in the filename." << endl;
+	  exit(1);
+	}
+      package_name = string(package, q, p-q);
+      package_path = string(package, 0, p);
 
-      // code which accesses Omsee
 
-      OmSettings db_parameters_classes;
-      db_parameters_classes.set("backend", "quartz");
-      db_parameters_classes.set("quartz_dir", database_dir+"_c");
-      OmWritableDatabase database_classes(db_parameters_classes); // open database
 
-      database_classes.begin_session();
+      cerr << "package -" << package_name << "-" << endl;
 
-      OmSettings db_parameters_functions;
-      db_parameters_functions.set("backend", "quartz");
-      db_parameters_functions.set("quartz_dir", database_dir+"_f");
-      OmWritableDatabase database_functions(db_parameters_functions); // open database
+      cerr << "Running ctags on " << package_path << endl;
+      string fullpath = cvsdata +"/" + package_path;
+      string cmd = string("ctags ") + string(CTAGS_FLAGS) + " " + fullpath;
+      cerr << "Invoking " << cmd << endl;
+      system(cmd.c_str());
+      cerr << "Done" << endl;
 
-      database_functions.begin_session();
+
+
+
+
+
+      set<string> app_symbols;
+      readTags( "/home/amichail/temp/tags", app_symbols );
+
+
+
+
+      // change / to _ in package
+      for( int i = 0; i < package_path.length(); i++ ) {
+	if ( package_path[i] == '/' ) {
+	  package_path[i] = '_';
+	}
+      }
+
+      package_path = "database/"+package_path;
+
+      //    string file_cmt = cvsdata+"/database/"+package + ".cmt";
+      //    string file_offset = cvsdata +"/database/"+package +".offset";
+
+
+
+
+
+
+      int lines_read = 0;
+
+
+      package = string(package, q, p);
+      cerr << "package -" << package_name << "-" << endl;
+
+      assert( package != "." ); // safety checks
+      assert( package != ".." );
+
+
+      string file_cmt    = package_path + ".cmt";
+      string file_offset = package_path + ".offset";
+      string database_dir= package_path + ".om";
+
+      // file may not exist (if it was deleted in repostory at some point)
+      {
+	ifstream in( file_cmt.c_str() );
+	if ( !in ) {
+	  cerr << "Could not find " << file_cmt << endl;
+	  continue;
+	}
+      }
+
 
       cerr << "... reading " << file_cmt << endl;
 
-      map< string, list<string> > symbol_terms; // accumulated from all its points of usage
-      map<string, int> symbol_count;
+      map< string, list<string> > app_symbol_terms; // accumulated from all its points of usage
+      map<string, int> app_symbol_count;
 
       Lines lines( cvsdata, package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
 
@@ -276,79 +351,43 @@ int main(int argc, char *argv[]) {
 
 
 	for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
-	  if ( defined_symbols.find(*i) != defined_symbols.end() ) {
-	    symbol_count[*i]++; // count number of lines that contain symbol
+
+	  if ( app_symbols.find(*i) != app_symbols.end() ) {
+	    app_symbol_count[*i]++; // count number of lines that contain symbol
 
 	    for( list<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
-	      symbol_terms[*i].push_back(*t);
+	      app_symbol_terms[*i].push_back(*t);
 	    }
 	  }
+
+	  if ( lib_symbols.find(*i) != lib_symbols.end() ) {
+	    lib_symbol_count[*i]++; // count number of lines that contain symbol
+
+	    for( list<string>::iterator t = terms.begin(); t != terms.end(); t++ ) {
+	      lib_symbol_terms[*i].push_back(*t);
+	    }
+	  }
+
+
 	}
 	lines_read++;
       } // while
 
-      /// write out results to omsee
+	/// write out results to omsee
+      writeDatabase( database_dir, app_symbol_count, app_symbol_terms );
+	
+	
 
-      int f_count = 0;
-      int c_count = 0;
-      for( map<string, int>::iterator c = symbol_count.begin(); c != symbol_count.end(); c++ ) {
-	string symbol = c->first;
-	int count = c->second;
-	bool isFunction = ( symbol.find("()") != -1 );
+    } // for packages
 
-	if ( isFunction ) {
-	  f_count++;
+    /// write out results to omsee
+    writeDatabase( "global.om", lib_symbol_count, lib_symbol_terms );
 
-	  if ( f_count % FLUSH_RATE == 0 ) {
-	    cerr << "*** FLUSHING FUNCTIONS" << endl;
-	    database_functions.flush();
-	  }
-	} else {
-	  c_count++;
+  } catch(OmError & error) {
+    cerr << "OMSEE Exception: " << error.get_msg() << endl;
+  } catch( DbException& e ) {
+    cerr << "Exception:  " << e.what() << endl;
+  }
 
-	  if ( c_count % FLUSH_RATE == 0 ) {
-	    cerr << "*** FLUSHING CLASSES" << endl;
-	    database_classes.flush();
-	  }
-
-	}
-
-
-
-	cerr <<"*** Symbol " << symbol << " has count " << count << endl;
-	list<string> words = symbol_terms[symbol];
-
-	OmDocumentContents newdocument;
-	int pos = 1;
-	for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
-	  
-	  string word = *i;
-	  //	  cerr << "..." << pos << " " << word << endl;
-	  newdocument.add_posting(word, pos++); // term, position of term
-	}
-	static char str[4096];
-	sprintf(str, "%d %s", count, symbol.c_str());
-	newdocument.data = string(str);
-	if ( isFunction ) {
-	  database_functions.add_document(newdocument);
-	} else {
-	  database_classes.add_document(newdocument);
-	}
-      }
-
-
-      database_functions.end_session();
-      database_classes.end_session();
-      cerr << "Done!" << endl;
-
-
-
-    } catch(OmError & error) {
-      cerr << "OMSEE Exception: " << error.get_msg() << endl;
-    } catch( DbException& e ) {
-      cerr << "Exception:  " << e.what() << endl;
-    }
-
-  } // for packages
 
 }
