@@ -48,7 +48,7 @@ class OmRefCntBase {
 	 *  since OmLock objects can't be copied.
 	 */
 	OmRefCntBase(const OmRefCntBase &other)
-		: ref_count(0), ref_count_mutex() {};
+		: ref_count(0), ref_count_mutex() { }
 
     public:
 	/** Return the current ref count.
@@ -61,7 +61,7 @@ class OmRefCntBase {
 	}
 
 	/// The constructor, which initialises the ref_count to 0.
-	OmRefCntBase() : ref_count(0) {};
+	OmRefCntBase() : ref_count(0) { }
 
 	/** Increase reference count from 0 to 1, used when first making an
 	 *  OmRefCntPtr out of a pointer.
@@ -165,11 +165,11 @@ template <class T>
 inline void OmRefCntPtr<T>::operator=(const OmRefCntPtr &other) {
     if (dest && dest->ref_decrement()) {
 	delete dest;
-    };
+    }
     dest = other.dest;
     if (dest) {
 	dest->ref_increment();
-    };
+    }
 }
 
 template <class T>

@@ -44,7 +44,7 @@ static int unpackint(int * a, const byte * p, int o)
     {   int m = n & M_5MASK;
         int i; for (i = 4; i <= s; i++) { m = m << BITSPERBYTE | p[o]; o++; }
         *a = m;
-    };
+    }
     return o;
 }
 

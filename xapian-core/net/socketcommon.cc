@@ -357,7 +357,7 @@ OmSocketLineBuf::OmSocketLineBuf(int readfd_, int writefd_)
     // set non-blocking flag on reading fd
     if (fcntl(readfd, F_SETFL, O_NONBLOCK) < 0) {
 	throw OmNetworkError("Can't set non-blocking flag on fd");
-    };
+    }
 }
 
 OmSocketLineBuf::OmSocketLineBuf(int fd_)
@@ -366,7 +366,7 @@ OmSocketLineBuf::OmSocketLineBuf(int fd_)
     // set non-blocking flag on reading fd
     if (fcntl(readfd, F_SETFL, O_NONBLOCK) < 0) {
 	throw OmNetworkError("Can't set non-blocking flag on fd");
-    };
+    }
 }
 
 std::string

@@ -619,7 +619,7 @@ OmQueryInternal::OmQueryInternal(OmQuery::op op_,
 	    delete *i;
 	}
 	throw;
-    };
+    }
     // same code as above.
     // FIXME: use a destructor instead.
     std::vector<OmQueryInternal *>::iterator i;

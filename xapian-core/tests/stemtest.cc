@@ -52,7 +52,7 @@ void stemfile(const OmStem &stemmer, FILE * f)
 		word += ch;
 
 		ch = getc(f);
-		if (ch == EOF) { break; };
+		if (ch == EOF) { break; }
 		if (!IS_LETTER(ch)) { ungetc(ch, f); break; }
 	    }
 
@@ -86,7 +86,7 @@ int main(int argc, char **argv)
     } catch (OmError &e) {
 	cout << e.get_msg() << endl;
 	return 1;
-    };
+    }
 
     return 0;
 }

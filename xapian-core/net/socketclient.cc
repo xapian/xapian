@@ -342,7 +342,7 @@ SocketClient::send_global_stats(const Stats &stats)
 	global_stats = stats;
 	global_stats_valid = true;
 	conv_state = state_getmset;
-    };
+    }
 }
 
 bool

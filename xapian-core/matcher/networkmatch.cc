@@ -75,8 +75,8 @@ NetworkMatch::prepare_match(bool nowait)
 		do {
 		    database->link->wait_for_input();
 		} while (!database->link->get_remote_stats(mystats));
-	    };
-	};
+	    }
+	}
 	statssource.take_remote_stats(mystats);
 
 	is_prepared = true;
@@ -179,7 +179,7 @@ NetworkMatch::get_mset(om_doccount first,
 	    database->link->wait_for_input();
 	    finished = database->link->get_mset(first, maxitems,
 						mset);
-	};
+	}
     }
     return finished;
 }

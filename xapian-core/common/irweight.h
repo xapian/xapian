@@ -48,7 +48,7 @@ class IRWeight {
 	static map<string, IRWeight *> user_weights;
     public:
 	IRWeight() : initialised(false), weight_calculated(false) { return; }
-	virtual ~IRWeight() { return; };
+	virtual ~IRWeight() { return; }
 
 	static IRWeight *create(const string &wt_type);
     
