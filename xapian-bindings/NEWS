@@ -1,3 +1,49 @@
+Xapian-bindings 0.8.1 (2004-04-30):
+
+General:
+
+* configure: Require SWIG 1.3.20 or higher (previously was 1.3.14).
+
+* Add "-I/usr/include" to the swig line.  This is needed when xapian is
+  installed with a prefix of /usr, since "xapian-config --cxxflags" carefully
+  doesn't emit -I/usr/include in this situation (because it causes problems
+  with some GCC versions).
+
+* Fixed the %exception handler to cover all the exceptions Xapian can throw,
+  not just a subset.
+
+Java:
+
+* Removed wrappers for unused error classes which have been pruned from C++.
+
+* Make finalize() methods of Database and WritableDatabase public so they can
+  be called from by the user.
+
+* Document Doccument.add_term_nopos() as deprecated.
+
+PHP4:
+
+* Make sure that PHP bindings build a module which exports get_module() so PHP
+  is able to load it.
+
+* Configure now checks that phpize can actually be run, rather than just that
+  it's executable (test -x isn't portable anyhow).
+
+* Added basic documentation and examples to PHP4 bindings.
+
+* Rename overloaded methods and constructors.
+
+* Add simple access to the prefixes map in QueryParser.
+
+* Correct simpleindex ports to never generate empty termnames.
+
+Python:
+
+* configure: Use $PYTHON instead of python when running python to determine
+  library and include paths and version number.
+
+* Actually ship python examples and documentation.
+
 Xapian-bindings 0.8.0 (2004-04-20):
 
 * README: Started collecting information on supporting Xapian from even

@@ -1,3 +1,7 @@
+Wed Jun 30 00:09:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated for 0.8.1 release.
+
 Tue Jun 29 23:26:36 BST 2004  Eric B. Ridge <ebr@tcdi.com>
 
 	* java/native/,java/org/xapian/: Updates to java bindings:
