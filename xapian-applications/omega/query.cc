@@ -233,7 +233,7 @@ void add_bterm(const string &term) {
     }
 
 #ifdef __SUNPRO_CC
-    filter_map.insert(make_pair<string, string>(prefix, term));
+    filter_map.insert(pair<const string, string>(prefix, term));
 #else
     filter_map.insert(make_pair(prefix, term));
 #endif
