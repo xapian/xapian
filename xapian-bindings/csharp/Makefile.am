@@ -37,6 +37,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	Stem.cs \
 	TermIterator.cs \
 	ValueIterator.cs \
+	Weight.cs \
 	WritableDatabase.cs \
 	Xapian.cs \
 	XapianPINVOKE.cs \
@@ -53,7 +54,7 @@ BUILT_SOURCES = $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS)
 # SWIG 1.3.21 and earlier don't generate op.cs.  An empty .cs file is allowed
 # so we just touch it to avoid complicated contortions in the build system.
 # Once we require SWIG 1.3.22 or newer, the touch can be removed.
-$(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS): $(XAPIAN_SWIG_SRCS)
+XapianSharp.cc $(XAPIAN_SWIG_CS_SRCS): $(XAPIAN_SWIG_SRCS)
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -o $(ASSEMBLY).cc $(srcdir)/../xapian.i
 	touch op.cs
 

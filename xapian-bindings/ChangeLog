@@ -1,3 +1,8 @@
+Sun Nov 28 01:50:45 GMT 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Wrapping for Xapian::Weight means we need to add
+	  Weight.cs to the list of generated sources.
+
 Sat Nov 27 03:00:24 GMT 2004  Olly Betts <olly@survex.com>
 
 	* xapian.i: Mark Weight as needing a director for Python.
