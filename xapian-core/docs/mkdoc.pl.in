@@ -86,25 +86,29 @@ EOF
 
 # Print directory index
 print DESTFILE "<H1>Directory structure index</H1>\n";
-$level=0;
+my $level=0;
 foreach $dir (sort keys(%descriptions)) {
   $newlev = ($dir =~ tr#/##) + 1; # Count the number of /'s in $dir
+  if($level == $newlev) {
+      print DESTFILE "</LI>";
+  }
   while($level < $newlev) {
-    print DESTFILE "<UL>";
+    print DESTFILE "\n" . " " x ($level * 2) . "<UL>";
     $level++;
   }
   while($level > $newlev) {
-    print DESTFILE "</UL>";
+    print DESTFILE "</LI>\n" . " " x ($level * 2 - 2) . "</UL>";
     $level--;
   }
-  print DESTFILE "<LI><A HREF=\"#$dir\">$dir</A></LI>\n";
+  print DESTFILE "\n" . " " x ($level * 2 - 1) .
+		 "<LI><A HREF=\"#$dir\">$dir</A>";
 }
 $newlev=0;
 while($level > $newlev) {
-  print DESTFILE "</UL>";
+  print DESTFILE "</LI>\n" . " " x ($level * 2 - 2) . "</UL>";
   $level--;
 }
-print DESTFILE "<HR>\n";
+print DESTFILE "\n<HR>\n\n";
 
 # Print directory details
 print DESTFILE "<H1>Directory structure</H1>\n";
