@@ -69,6 +69,7 @@ QuartzCursor::find_entry(const string &key)
     bool err = cursor.get_key(&current_key);
     (void)err; // FIXME: check for errors
     have_read_tag = false;
+    is_positioned = true;
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");
 

@@ -1,3 +1,8 @@
+Mon Aug 16 15:08:08 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_table.cc: Fixed QuartzCursor::find()
+    	  to work again after the last change.
+
 Mon Aug 16 14:43:08 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/,tests/quartztest.cc: QuartzCursor no longer
