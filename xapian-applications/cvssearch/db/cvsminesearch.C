@@ -26,7 +26,7 @@
 //                 how far A&~B deviates from independence, and invert the ratio
 //                 to take care of the outside negation.
 //
-//                 Unlike confidence, convinction factors in both P(A) and P(B) and 
+//                 Unlike confidence, convinction factors in both P(A) and P(B) and
 //                 always has a value of 1 when the relvant items are completely unrelated
 //
 //                 Unlike interest, rules which hold 100% of the time have the highest possible
@@ -37,7 +37,7 @@
 //
 // Say we are considering A=>B.  We want to know:
 //
-// * % of transactions without B 
+// * % of transactions without B
 //
 // * % of transactions with A 
 //
@@ -109,25 +109,25 @@ unsigned int find_symbol_count( Db& db, const string & k ) {
     assert(0);
 }
 
-void generate_rules( Db& db, 
-                     const string & ranking_system, 
-                     const set<string>& query_symbols, 
-                     const map<string, unsigned int>& relative_item_count,
+void generate_rules( Db& db,
+                     const string & ranking_system,
+                     const set<string>& query_symbols,
+                     const map<string, set<int> >& relative_item_commits,
                      unsigned int transactions_returned,
                      unsigned int total_commit_transactions,
                      map<double, set<string> >& class_ranking,
-                     map<double, set<string> >& function_ranking ) 
+                     map<double, set<string> >& function_ranking )
 {
     if( ranking_system == "" ) {
         cerr << "*** Please supply ranking system:  either =>, <=, or <=>" << endl;
         exit(-1);
     }
-  
-    for( map<string, unsigned int>::const_iterator i = relative_item_count.begin(); 
-         i != relative_item_count.end(); ++i) 
+
+    for( map<string, set<int> >::const_iterator i = relative_item_commits.begin();
+         i != relative_item_commits.end(); ++i)
     {
         string symbol = i->first;
-        unsigned int a_and_b_count = i->second;
+        unsigned int a_and_b_count = i->second.size();
 
         if ( a_and_b_count < MIN_SUPPORT ) {
             continue;
@@ -168,21 +168,21 @@ void generate_rules( Db& db,
                 a_count = transactions_returned; // if only query terms specified, this case applies also
                 b_count = symbol_count;
             }
-	    
+
             not_b_count = total_commit_transactions - b_count;
             a_and_not_b_count = a_count - a_and_b_count;
-            
+
             double a_and_not_b_prob = (double) a_and_not_b_count / (double) total_commit_transactions;
             double a_prob = (double) a_count / (double) total_commit_transactions;
             double not_b_prob = (double) not_b_count / (double) total_commit_transactions;
-            
+
             double convinction = (a_prob * not_b_prob) / ( a_and_not_b_prob );
-            
+
             score = convinction; // may be +inf but that's ok
         }
 
         string item = ranking_system + symbol;
-        
+
         if ( item.find("()") != string::npos ) {
             function_ranking[ -score ].insert(item);
         } else {
@@ -192,19 +192,19 @@ void generate_rules( Db& db,
 }
 
 
-void rank_all_items( Db& db, 
-                     unsigned int total_commit_transactions, 
-                     map<double, set<string> >& class_ranking, 
-                     map<double, set<string> >& function_ranking ) 
+void rank_all_items( Db& db,
+                     unsigned int total_commit_transactions,
+                     map<double, set<string> >& class_ranking,
+                     map<double, set<string> >& function_ranking )
 {
     // just iterate through all (K,I) pairs
 
     Dbc *cursor;
     db.cursor( NULL, &cursor, 0 );
-  
+
     Dbt key;
     Dbt data;
-  
+
     while( cursor->get( &key, &data, DB_NEXT ) != DB_NOTFOUND ) {
         string k = (char*)key.get_data();
         double c = 100.0*(double)atoi((char*)data.get_data()) / (double) total_commit_transactions;
@@ -217,34 +217,52 @@ void rank_all_items( Db& db,
     cursor->close();
 }
 
-void count_single_items(const list< set<string> >& transactions, 
-                        map<string, unsigned int>& item_count ) 
+void count_single_items(const map< int, set<string> >& transactions,
+                        map<string, set<int> >& item_count )
 {
     cerr << "... counting items" << endl;
-    for( list< set<string> >::const_iterator t = transactions.begin(); 
-         t != transactions.end(); ++t) 
+    for( map< int, set<string> >::const_iterator t = transactions.begin();
+         t != transactions.end(); ++t)
     {
-        const set<string> & S = *t;
-        for( set<string>::const_iterator s = S.begin(); s != S.end(); ++s) 
+        const set<string> & S = t->second;
+        for( set<string>::const_iterator s = S.begin(); s != S.end(); ++s)
         {
-            ++(item_count[*s]);
+            item_count[*s].insert( t->first ); // insert commit id
         }
     }
 }
 
-void output_items(const map< double, set<string> >& class_ranking, unsigned int max_results ) 
+void output_items(const map<string, set<int> >& item_commits, const map< double, set<string> >& class_ranking, unsigned int max_results )
 {
     unsigned int count = 0;
-    for( map< double, set<string> >::const_iterator i = class_ranking.begin(); 
-         i != class_ranking.end(); ++i) 
+    for( map< double, set<string> >::const_iterator i = class_ranking.begin();
+         i != class_ranking.end(); ++i)
     {
         double score =  -(i->first);
         const set<string> & S = i->second;
-        for(set<string>::const_iterator s = S.begin(); s != S.end(); ++s) 
+        for(set<string>::const_iterator s = S.begin(); s != S.end(); ++s)
         {
-            cout << score << " " << (*s) << endl;
+            cout << score << " ";
+
+            // write out commits
+            // strip arrow off
+            string t;
+            for( string::const_iterator c = s->begin(); c != s->end(); c++ ) {
+                if ( (*c) != '=' && (*c) != '<' && (*c) != '>' ) {
+                        t += (*c);
+                }
+            }
+            map<string, set<int> >::const_iterator it = item_commits.find(t);
+            if ( it != item_commits.end() ) {
+              set<int> C = it->second; //item_commits[t];
+              for(set<int>::const_iterator i = C.begin(); i != C.end(); i++ ) {
+                  cout << (*i) << " ";
+              }
+            }
+
+            cout << (*s) << endl;
             ++count;
-            if ( count == max_results ) 
+            if ( count == max_results )
             {
                 return;
             }
@@ -259,14 +277,14 @@ int main(unsigned int argc, char *argv[]) {
             " <path to database> <search terms>" << endl;
         exit(1);
     }
-    
+
     string cvsdata = get_cvsdata();
-    
+
     set<string> packages;
 
     int qpos;
     int npos;
-     
+
     // ----------------------------------------
     // get packages from cmd line or from file
     // ----------------------------------------
@@ -307,7 +325,7 @@ int main(unsigned int argc, char *argv[]) {
 
         Db db(0,0);
         db.open( (cvsdata +"/root0/db/mining.db").c_str(),  0 , DB_HASH, DB_RDONLY, 0 );
-    
+
 
 
         // ----------------------------------------
@@ -350,40 +368,53 @@ int main(unsigned int argc, char *argv[]) {
             }
         }
         cout << endl;
-     
+
         OmMSet matches;
 
         if ( ! queryterms.empty() ) {
 
             OmQuery query(OmQuery::OP_AND, queryterms.begin(), queryterms.end());
-            enquire.set_query(query); 
+            enquire.set_query(query);
             unsigned int num_results = 10000000;
-            matches = enquire.get_mset(0, num_results); 
+            matches = enquire.get_mset(0, num_results);
             cerr <<  matches.size() << " results found" << endl;
         } else {
             map< double, set<string> > function_ranking;
             map< double, set<string> > class_ranking;
             rank_all_items(db, total_commit_transactions, class_ranking, function_ranking);
-            output_items( class_ranking, max_results );
-            output_items( function_ranking, max_results );
+#warning "don't have commit ids here..."
+            map<string, set<int> > item_commits;
+            output_items( item_commits, class_ranking, max_results );
+            output_items( item_commits, function_ranking, max_results );
             db.close(0);
             return 0;
         }
 
-        list< set<string> > transactions_returned;
+        map< int, set<string> > transactions_returned;
         for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
             unsigned int sim = matches.convert_to_percent(i);
             OmDocument doc = i.get_document();
             string data = doc.get_data().value;
-            
+
+            cerr << "Found " << data << endl;
+
             list<string> symbols;
             split( data, " \n", symbols );
             set<string> S;
+
+            // the commit number is also stored in data now, so we need to check for it below
+            int commit_id = -1;
             for( list<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
+                if ( isdigit((*s)[0]) ) {
+                        assert( commit_id == -1 );
+                        commit_id = atoi( s->c_str() );
+                        continue;
+                }
                 S.insert(*s);
+                cerr << "..." << (*s) << endl;
             }
-            
-            transactions_returned.push_back( S );
+            assert( commit_id != -1 );
+            transactions_returned[commit_id] = S;
         }
 
         assert( total_commit_transactions > 0 );
@@ -393,20 +424,20 @@ int main(unsigned int argc, char *argv[]) {
 
         //////////////////////////////////// count single items
 
-        map< string, unsigned int > relative_item_count; // the count is relative to the transactions returned
-        count_single_items( transactions_returned, relative_item_count );
+        map< string, set<int> > relative_item_commits; // the count is relative to the transactions returned
+        count_single_items( transactions_returned, relative_item_commits );
 
         // at this point we can generate rules
         map< double, set<string> > function_ranking;
         map< double, set<string> > class_ranking;
 
-        generate_rules( db, ranking_system, query_symbols, relative_item_count, 
+        generate_rules( db, ranking_system, query_symbols, relative_item_commits,
                         transactions_returned.size(),
                         total_commit_transactions, class_ranking, function_ranking );
 
-        output_items( class_ranking, max_results );
-        output_items( function_ranking, max_results );
-    
+        output_items( relative_item_commits, class_ranking, max_results );
+        output_items( relative_item_commits, function_ranking, max_results );
+
         db.close(0);
     
          
