@@ -135,7 +135,7 @@ class InMemoryTermList : public virtual DBTermList {
 	termcount get_approx_size() const;
 
 	ExpandBits get_weighting() const;
-	termname get_termname() const;
+	const termname & get_termname() const;
 	termcount get_wdf() const; // Number of occurences of term in current doc
 	doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
@@ -286,10 +286,10 @@ inline ExpandBits InMemoryTermList::get_weighting() const
     return wt->get_bits(InMemoryTermList::get_wdf(),
 			len,
 			InMemoryTermList::get_termfreq(),
-			InMemoryTermList::get_approx_size());
+			this_db->get_doccount());
 }
 
-inline termname InMemoryTermList::get_termname() const
+inline const termname & InMemoryTermList::get_termname() const
 {
     Assert(started);
     Assert(!at_end());
@@ -356,7 +356,6 @@ inline doccount
 InMemoryDatabase::get_termfreq(const termname & tname) const
 {
     Assert(opened);
-    Assert(term_exists(tname));
 
     map<termname, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if(i == postlists.end()) return 0;

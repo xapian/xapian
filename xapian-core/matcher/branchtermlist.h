@@ -3,8 +3,6 @@
 #ifndef _branchtermlist_h_
 #define _branchtermlist_h_
 
-#include "database.h"
-#include "match.h"
 #include "termlist.h"
 
 class BranchTermList : public virtual TermList {

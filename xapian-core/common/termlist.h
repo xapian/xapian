@@ -15,12 +15,13 @@ class TermList {
     public:
 	virtual termcount get_approx_size() const = 0; // Gets size of termlist
 	virtual ExpandBits get_weighting() const = 0; // Gets weighting info for current term
-	virtual termname get_termname() const = 0; // Gets current termname
+	virtual const termname & get_termname() const = 0; // Gets current termname
 	virtual termcount get_wdf() const = 0; // Get wdf of current term
 
 	virtual doccount get_termfreq() const = 0; // Get num of docs indexed by term
 	virtual TermList * next() = 0; // Moves to next term
 	virtual bool   at_end() const = 0; // True if we're off the end of the list
+	virtual ~TermList() { return; }
 };
 
 class DBTermList : public virtual TermList {

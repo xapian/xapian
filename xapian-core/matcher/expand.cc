@@ -39,29 +39,27 @@ Expand::build_tree(const RSet *rset, const ExpandWeight *ewt)
 	pq.push(tl);
     }
 
-    // Build a tree balanced by the term frequencies
-    // (similar to building a huffman encoding tree).
-    //
-    // This scheme reduces the number of objects common terms
-    // get "pulled" through, reducing the amount of work done which
-    // speeds things up.
     if (pq.empty()) {
-	// return new EmptyTermList(); FIXME - do this
 	return NULL;
     }
 
+    // Build a tree balanced by the term frequencies
+    // (similar to building a huffman encoding tree).
+    //
+    // This scheme reduces the number of objects terms from large docs
+    // get "pulled" through, reducing the amount of work done which
+    // speeds things up.
     while (true) {
-#ifdef MUS_DEBUG_VERBOSE
-	cout << "Expand: found termlist" << endl;
-#endif /* MUS_DEBUG_VERBOSE */
 	TermList *p = pq.top();
+#ifdef MUS_DEBUG_VERBOSE
+	cout << "Expand: adding termlist " << p << " to tree" << endl;
+#endif /* MUS_DEBUG_VERBOSE */
 	pq.pop();
 	if (pq.empty()) {
 	    return p;
 	}
 	// NB right is always <= left - we can use this to optimise
 	p = new OrTermList(pq.top(), p);
-	// p = new OrTermList(pq.top(), p, this); FIXME - for optimising
 	pq.pop();
 	pq.push(p);
     }
@@ -80,29 +78,13 @@ Expand::expand(const RSet *rset)
     // Start weighting scheme
     ExpandWeight ewt(database, rset->get_rsize());
 
-    TermList *merger = Expand::build_tree(rset, &ewt);
-
-    bool recalculate_maxweight = false;
+    TermList *merger = build_tree(rset, &ewt);
+    if(merger == NULL) return;
 
     while (1) {
-	if (recalculate_maxweight) {
-#if 0
-	    recalculate_maxweight = false;
-	    w_max = merger->recalc_maxweight();
-#ifdef MUS_DEBUG_VERBOSE
-	    cout << "max possible doc weight = " << w_max << endl;
-#endif /* MUS_DEBUG_VERBOSE */
-	    if (w_max < w_min) {
-#ifdef MUS_DEBUG_VERBOSE
-		cout << "*** TERMINATING EARLY (1)" << endl;
-#endif /* MUS_DEBUG_VERBOSE */
-		break;
-	    }
-#endif
-	}    
-
 	TermList *ret = merger->next();
         if (ret) {
+	    cout << "Merger:" << merger << " Ret:" << ret << endl;
 	    delete merger;
 	    merger = ret;
 
@@ -116,7 +98,7 @@ Expand::expand(const RSet *rset)
         etotal++;
 	
 	ExpandBits ebits = merger->get_weighting();
-	weight wt = ewt.get_weight(ebits);
+	weight wt = ewt.get_weight(ebits, merger->get_termname());
         
         if (wt > w_min) {
 	    termname tname = merger->get_termname();

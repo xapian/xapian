@@ -71,6 +71,7 @@ inline bool
 OrPostList::at_end() const
 {
     // Can never really happen - OrPostList next/skip_to autoprune
+    AssertParanoid(!(l->at_end()) && !(r->at_end()));
     return false;
 }
 

@@ -14,7 +14,7 @@ class OrTermList : public virtual BranchTermList {
 	termcount get_approx_size() const;
 
 	ExpandBits get_weighting() const;
-	termname get_termname() const;
+	const termname & get_termname() const;
         termcount get_wdf() const;
         doccount get_termfreq() const;
 
@@ -41,11 +41,12 @@ OrTermList::get_termfreq() const
     return r->get_termfreq();
 }
 
-inline termname
+inline const termname &
 OrTermList::get_termname() const
 {
     Assert(started);
-    return min(lhead, rhead);
+    if (lhead < rhead) return l->get_termname();
+    return r->get_termname();
 }
 
 inline termcount

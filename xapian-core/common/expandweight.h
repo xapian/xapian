@@ -16,8 +16,8 @@ class ExpandBits {
     friend class ExpandWeight;
     private:
 	weight multiplier;   // Multiplier to apply to get expand weight
-	termcount rtermfreq; // Number of relevant docs indexed by term
-	termcount termfreq;  // Term frequency (may be within a subset of whole database)
+	doccount rtermfreq; // Number of relevant docs indexed by term
+	doccount termfreq;  // Term frequency (may be within a subset of whole database)
 	doccount dbsize;     // Size of database to which termfreq applies
     public:
 	ExpandBits(weight multiplier_new,
@@ -36,14 +36,14 @@ class ExpandBits {
 class ExpandWeight {
     protected:
 	const IRDatabase *root; // Root database
-	doccount rootsize;  // Size of whole collection
-	doccount rsetsize;  // Size of RSet
+	doccount dbsize;        // Size of whole collection
+	doccount rsize;         // Size of RSet
     public:
 	ExpandWeight(const IRDatabase *root, doccount rsetsize_new);
 
 	ExpandBits get_bits(doccount wdf, doclength len,
-			    termcount termfreq, doccount dbsize) const;
-	weight get_weight(const ExpandBits &) const;
+			    doccount termfreq, doccount dbsize) const;
+	weight get_weight(const ExpandBits &, const termname &) const;
 };
 
 ///////////////////////////////
@@ -54,16 +54,16 @@ inline
 ExpandWeight::ExpandWeight(const IRDatabase *root_new,
 			   doccount rsetsize_new)
 	: root(root_new),
-	  rsetsize(rsetsize_new)
+	  rsize(rsetsize_new)
 {
-    rootsize = root_new->get_doccount();
+    dbsize = root_new->get_doccount();
     return;
 }
 
 inline ExpandBits
 ExpandWeight::get_bits(doccount wdf,
 		       doclength len,
-		       termcount termfreq,
+		       doccount termfreq,
 		       doccount dbsize) const
 {
     // FIXME -- use wdf and len to calculate multiplier
