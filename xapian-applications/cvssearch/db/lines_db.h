@@ -17,6 +17,7 @@ class lines_db : public lines
 {
 private:
     unsigned int  file_id;
+    unsigned int  file_length;
     cvs_db_file & _db_file;
 public:
     lines_db(const string & root, const string & pkg, const string & mes, cvs_db_file  & db_file);

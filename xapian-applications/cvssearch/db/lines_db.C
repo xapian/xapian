@@ -8,6 +8,9 @@
 // (at your option) any later version.
 
 #include <strstream>
+#include <iostream>
+#include <stdio.h>
+#include <stdiostream.h>
 #include "lines_db.h"
 #include "util.h"
 
@@ -20,6 +23,7 @@ lines_db::lines_db(const string & root,
      _db_file(db_file)
 {
     file_id = 0;
+    file_length = 0;
     current_fn = "";
 }
 
@@ -40,11 +44,12 @@ bool lines_db::readNextLine() {
     
     set<string, cvs_revision_less> revisions;
     if (0) {
-    } else if (_db_file.get_revision(file_id, ++line_no, revisions) == 0) {
+    } else if (line_no < file_length) {
         // ----------------------------------------
-        // first try to get the revision info for 
+        // try to get the revision info for 
         // the next line.
-        // even if the next t
+        // ----------------------------------------
+        _db_file.get_revision(file_id, ++line_no, revisions);
     } else if (_db_file.get_revision(++file_id, line_no = 1, revisions) == 0) {
         if (_db_file.get_filename(file_id, current_fn) == 0)
         {
@@ -53,6 +58,20 @@ bool lines_db::readNextLine() {
             }
             current_fn = package + "/" + current_fn;
             string file_path = path + "/" + current_fn;
+            {
+                string command = "wc -l " + file_path;
+                FILE * fout = popen(command.c_str(), "r");
+                istream * pis = 0;
+                if (fout != NULL)
+                {
+                    pis = new istdiostream(fout);
+                }
+                if (pis) {
+                    *pis >> file_length;
+                }
+                pclose(fout);
+                delete pis;
+            }
             in_code = new ifstream(file_path.c_str());
             if( ! *in_code ) {
                 cerr << "*** could not open " << file_path << endl;

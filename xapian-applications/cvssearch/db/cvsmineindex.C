@@ -223,6 +223,11 @@ int main(unsigned int argc, char *argv[]) {
                     }
                 }
 #warning "when is fileid zero?"
+                // ----------------------------------------
+                // fileid is zero only when the given filename
+                // is not a file we are interested in.
+                // (ie not in the berkeley database)
+                // ----------------------------------------
                 if (fileid == 0) {
                     continue;
                 }
@@ -241,14 +246,14 @@ int main(unsigned int argc, char *argv[]) {
 
 
                         if ( commit_words.find( commitid+offset ) == commit_words.end() ) {
-				set<string> empty;
-				commit_words[ commitid+offset ] = empty;
+                            set<string> empty;
+                            commit_words[ commitid+offset ] = empty;
                         }
                         if ( commit_symbols.find( commitid+offset ) == commit_symbols.end() ) {
-				set<string> empty;
-				commit_symbols[ commitid+offset ] = empty;
+                            set<string> empty;
+                            commit_symbols[ commitid+offset ] = empty;
                         }
-
+                        
                         // ----------------------------------------
                         // have we entered info for this commit ?
                         // ----------------------------------------
