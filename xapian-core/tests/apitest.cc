@@ -249,19 +249,9 @@ OmMSet do_get_simple_query_mset(OmQuery query, int maxitems = 10, int first = 0)
 // tests the document count for a simple query
 bool test_simplequery1()
 {
-    bool success = true;
     OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
-    // We've done the query, now check that the result is what
-    // we expect (2 documents)
-    if (mymset.items.size() != 2) {
-	if (verbose) {
-	    cout << "The size of the mset was "
-		    << mymset.items.size()
-		    << ", expected 2." << endl;
-	}
-	success = false;
-    }
-    return success;
+    TEST_EQUAL(mymset.items.size(), 2);
+    return true;
 }
 
 // tests for the right documents and weights returned with simple query
@@ -1061,7 +1051,7 @@ bool test_getqterms1()
     om_termname_list terms = myquery.get_terms();
 
     om_termname_list answers_list;
-    for (int i=0; i<(sizeof(answers) / sizeof(answers[0])); ++i) {
+    for (unsigned int i=0; i<(sizeof(answers) / sizeof(answers[0])); ++i) {
         answers_list.push_back(answers[i]);
     }
     success = (terms == answers_list);
@@ -1112,7 +1102,7 @@ bool test_getmterms1()
     } else {
 	om_termname_list mterms = enquire.get_matching_terms(mymset.items[0]);
         om_termname_list answers_list;
-	for (int i=0; i<(sizeof(answers) / sizeof(answers[0])); ++i) {
+	for (unsigned int i=0; i<(sizeof(answers) / sizeof(answers[0])); ++i) {
 		answers_list.push_back(answers[i]);
 	}
 	if (mterms != answers_list) {
@@ -2320,10 +2310,16 @@ bool test_msetzeroitems1()
     OmMSet mymset1 = do_get_simple_query_mset(OmQuery("thi"), 0);
     OmMSet mymset2 = do_get_simple_query_mset(OmQuery("thi"), 1);
 
-    //TEST_EQUAL(mymset1.mbound, mymset2.mbound);
-    //TEST_EQUAL(mymset1.max_attained, mymset2.max_attained);
     TEST_EQUAL(mymset1.max_possible, mymset2.max_possible);
 
+    return true;
+}
+
+// test that the mbound of a simple query is as expected
+bool test_mbound1()
+{
+    OmMSet mymset = do_get_simple_query_mset(OmQuery("word"));
+    TEST_EQUAL(mymset.mbound, 2);
     return true;
 }
 
@@ -2377,6 +2373,7 @@ test_desc db_tests[] = {
     {"phrase1",		   test_phrase1},
     {"qterminfo1",	   test_qterminfo1},
     {"msetzeroitems1",     test_msetzeroitems1},
+    {"mbound1",            test_mbound1},
     {0, 0}
 };
 
