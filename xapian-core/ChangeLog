@@ -1,3 +1,7 @@
+Thu Apr 18 12:45:04 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added bindings/php4/xapian/.cvsignore.
+
 Thu Apr 18 12:36:53 BST 2002  Olly Betts <olly@survex.com>
 
 	* Minor tweaks to "Makefile" section in HACKING.
