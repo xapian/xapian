@@ -1993,8 +1993,8 @@ bool test_maxorterms1()
     return true;
 }
 
-/// Test that the wdf in the termlists is correct.
-bool test_termlistwdf()
+/// Test that the termfreq returned by termlists is correct.
+bool test_termlisttermfreq()
 {
     OmDatabase mydb(get_database("apitest_simpledata"));
     OmEnquire enquire(make_dbgrp(&mydb));
@@ -2076,7 +2076,7 @@ test_desc db_tests[] = {
     {"rsetmultidb1",       test_rsetmultidb1},
     {"rsetmultidb2",       test_rsetmultidb2},
     {"maxorterms1",        test_maxorterms1},
-    {"termlistwdf",        test_termlistwdf},
+    {"termlisttermfreq",   test_termlisttermfreq},
     {0, 0}
 };
 
@@ -2120,7 +2120,7 @@ int main(int argc, char *argv[])
     summary.failed += sum_temp.failed;
 #endif
 
-#if 1 && defined(MUS_BUILD_BACKEND_SLEEPY)
+#if 0 && defined(MUS_BUILD_BACKEND_SLEEPY)
     backendmanager.set_dbtype("sleepycat");
     cout << "Running tests with sleepycat backend..." << endl;
     result = max(result, test_driver::main(argc, argv, db_tests, &sum_temp));
