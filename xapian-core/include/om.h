@@ -23,12 +23,14 @@
 #ifndef _om_h_
 #define _om_h_
 
+// FIXME: remove junk bits
+
 /* Types and exceptions */
 #include "omtypes.h"
 #include "omerror.h"
 
 /* Data access */
-#include "omdata.h"
+//#include "omdata.h"
 
 /* Searching */
 #include "omenquire.h"
