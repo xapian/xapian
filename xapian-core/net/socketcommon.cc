@@ -327,16 +327,7 @@ OmSocketLineBuf::do_writeline(string s, const OmTime & end_time)
 string
 omrset_to_string(const Xapian::RSet &omrset)
 {
-    string result = om_tostring(omrset.size());
-
-    set<Xapian::docid>::const_iterator i;
-    for (i = omrset.internal->items.begin();
-	 i != omrset.internal->items.end();
-	 ++i) {
-	result += " ";
-	result += om_tostring(*i);
-    }
-    return result;
+    return omrset.internal->to_string();
 }
 
 string

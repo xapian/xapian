@@ -312,26 +312,25 @@ class ESet::Internal {
 	string get_description() const;
 };
 
-}
-
-std::string omrset_to_string(const Xapian::RSet &omrset);
-
-class Xapian::RSet::Internal {
+class RSet::Internal {
     friend class Xapian::RSet;
     friend class RSetI;
     friend class OmExpand;
     friend class MultiMatch;
-    friend std::string omrset_to_string(const Xapian::RSet &omrset);
 
     private:
 	/// Items in the relevance set.
 	set<Xapian::docid> items;
 
     public:
+	std::string to_string() const;
+
 	/** Returns a string representing the rset.
 	 *  Introspection method.
 	 */
 	string get_description() const;
 };
+
+}
 
 #endif // OM_HGUARD_OMENQUIREINTERNAL_H

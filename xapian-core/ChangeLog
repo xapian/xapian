@@ -1,3 +1,11 @@
+Wed Aug 06 16:25:15 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,net/socketcommon.cc,common/omenquireinternal.h:
+	  Moved rset serialisation into a method of RSet::Internal, so
+	  omrset_to_string() is now just glue code.  This eliminates the
+	  need for it to be a friend of RSet::Internal which Sun's C++
+	  compiler didn't seem to be able to cope with.
+
 Wed Aug 06 01:57:11 BST 2003  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Applied patch from Olivier Galibert to fix
