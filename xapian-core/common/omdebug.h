@@ -10,7 +10,6 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-fg
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
@@ -33,7 +32,6 @@ fg
 #include "omstringstream.h"
 
 #ifdef MUS_DEBUG_VERBOSE
-#include "om/autoptr.h"
 #include <vector>
 #include <stdio.h>
 
@@ -191,7 +189,7 @@ class OmDebugCall {
 		  type(type_)
 	{
 	    DEBUGLINE2(type, methodname << "(" << params << ") called");
-	};
+	}
 
 	/** Optionally called to specify a return value. */
         void setreturnval(std::string returnval_) { returnval = returnval_; }
@@ -248,7 +246,108 @@ class OmDebugCall {
 
 using std::endl;
 
-#else /* MUS_DEBUG_VERBOSE */
+#elif defined(MUS_DEBUG_PROFILE)
+
+#define DEBUGMSG(a,b)
+#define DEBUGLINE(a,b)
+#define RETURN(A) return (A)
+
+#include <sys/time.h>
+#include <stdio.h>
+
+class OmTimer {
+    private:
+	std::string call;
+
+	// time routine entered (to subtract from parent)
+	struct timeval entry;
+
+	// time routine started executing
+	struct timeval start;
+
+	// dead time (time spent paused in subroutines)
+	struct timeval dead;
+	
+	// time pause() called
+	static struct timeval paused;
+	
+	// pointer to start time so resume can start the clock
+	static struct timeval * pstart;
+
+	static list<OmTimer *> stack;
+
+    public:
+	OmTimer(const std::string &call_) : call(call_) {
+	    stack.push_back(this);
+	    entry = paused;
+	    pstart = &start;
+	    timerclear(&dead);
+	}
+	
+	~OmTimer() {
+	    gettimeofday(&paused, NULL);
+	    {
+		if (stack.empty()) abort();
+		stack.pop_back();
+
+//		struct timeval justme;
+		
+		// subtract start from paused
+		int usec = paused.tv_usec - start.tv_usec;
+		int sec = paused.tv_sec - start.tv_sec;
+		usec -= dead.tv_usec;
+		sec -= dead.tv_sec;
+		while (usec < 0) {
+		    usec += 1000000;
+		    sec--;
+		}
+		sec += usec / 1000000;
+		usec %= 1000000;
+		fprintf(stderr, "% 5d.%06d " // "[% 5d.%06d] "
+			"%s\n", sec, usec,
+			// justme.tv_sec, justme.tv_usec,
+			call.c_str());
+	    }
+	    pstart = NULL;
+	    struct timeval * d = NULL;
+	    if (!stack.empty()) {
+		d = &(stack.back()->dead);
+		d->tv_sec -= entry.tv_sec;
+		d->tv_usec -= entry.tv_usec;
+	    }
+	    gettimeofday(&paused, NULL);
+	    if (d) {
+		d->tv_sec += paused.tv_sec;
+		d->tv_usec += paused.tv_usec;
+	    }
+	}
+	
+	static void pause() {
+	    gettimeofday(&paused, NULL);
+	}
+
+	static void resume() {
+	    if (pstart == NULL) abort();
+	    gettimeofday(pstart, NULL);
+	}
+	    
+};
+
+/** Display a message indicating that a method has been called, and another
+ *  message when the method ends.
+ */
+#define DEBUGCALL(t,r,a,b) do { \
+    OmTimer::pause(); \
+    OmTimer om_time_call(a); \
+    OmTimer::resume(); } while (0)
+
+#define DEBUGCALL_STATIC(t,r,a,b) do { \
+    OmTimer::pause(); \
+    OmTimer om_time_call(a); \
+    OmTimer::resume(); } while (0)
+
+#else
+
 #define DEBUGMSG(a,b)
 #define DEBUGLINE(a,b)
 #define RETURN(A) return (A)

@@ -161,3 +161,16 @@ OmDebug::display_message(enum om_debug_types type, std::string msg)
 
 #endif /* MUS_DEBUG_VERBOSE */
 
+#ifdef MUS_DEBUG_PROFILE
+
+#include "omdebug.h"
+
+#include <sys/time.h>
+
+static struct timeval OmTimer::paused;
+
+static struct timeval * OmTimer::pstart = NULL;
+
+static list<OmTimer *> OmTimer::stack;
+
+#endif

@@ -1,3 +1,9 @@
+Wed Oct 11 11:17:52 BST 2000 Olly Betts
+
+	* Added profiling variant of DEBUGCALL() and DEBUGCALL_STATIC(),
+	  turned on with --enable-debug=profile switch to configure.
+	  Reported information needs more work.
+
 Tue Oct 10 17:03:07 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix bug in temporary implementation of quartz_table - now stores
