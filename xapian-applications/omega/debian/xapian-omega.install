@@ -1,4 +1,3 @@
-etc/omega.conf
 usr/bin/dbi2omega usr/share/doc/xapian-omega/examples/
 usr/bin/htdig2omega usr/share/doc/xapian-omega/examples/
 usr/bin/omindex
