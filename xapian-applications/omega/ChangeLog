@@ -1,3 +1,7 @@
+Thu Jul 03 23:34:50 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.0.
+
 Thu Jul 03 23:33:05 BST 2003  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Abort parsing of document if it's excluded from
