@@ -1,3 +1,7 @@
+Wed Sep 13 18:02:38 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* includetest.o now compiled with LIBXML_CFLAGS
+
 Wed Sep 13 17:52:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* QuartzDbTables now implemented (as maps) and pass testsuite.
