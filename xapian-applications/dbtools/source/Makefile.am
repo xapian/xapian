@@ -6,8 +6,10 @@ AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) $(LIBXML_CFLAGS)
 
 bin_PROGRAMS = xdb-manage xdb-dump
 
-xdb_manage_SOURCES = xdb-manage.cc xdb-options.cc
+noinst_HEADERS = getopt.h
+
+xdb_manage_SOURCES = xdb-manage.cc xdb-options.cc getopt.c getopt1.c
 xdb_manage_LDADD = $(XAPIAN_LIBS) $(LIBXML_LIBS)
 
-xdb_dump_SOURCES = xdb-dump.cc xdb-options.cc
+xdb_dump_SOURCES = xdb-dump.cc xdb-options.c getopt.c getopt1.cc
 xdb_dump_LDADD = $(XAPIAN_LIBS) $(LIBXML_LIBS)

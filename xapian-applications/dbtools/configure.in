@@ -12,44 +12,31 @@ AC_PROG_CC
 AC_PROG_CXX
 
 dnl Use libtool to manage our libraries
-AM_PROG_LIBTOOL
+dnl not needed for just linking to them surely?
+dnl AM_PROG_LIBTOOL
 
 dnl Check for xapian bits
 OM_PATH_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
-
-dnl Check for getopt.h.
-AC_CHECK_HEADERS([getopt.h],, AC_MSG_ERROR([can't build dbtool without getopt]))
-dnl Check for getopt_long -- FreeBSD has a gnugetopt library
-AC_CHECK_FUNCS([getopt_long],,
-  AC_CHECK_LIB([gnugetopt],[getopt_long],[AC_DEFINE([HAVE_GETOPT_LONG])]))
 
 dnl Check for libxml or libxml2.  We do this by looking for xml-config.
 AC_PATH_PROG(XML_CONFIG_PATH, xml2-config)
 if test -n "$XML_CONFIG_PATH" ; then
   HAVE_LIBXML2=yes
-  AC_DEFINE(HAVE_LIBXML2,, [ Define if libxml2 is available.])
+  AC_DEFINE(HAVE_LIBXML2,, [Define if libxml2 is available.])
 else
   HAVE_LIBXML2=no
   AC_PATH_PROG(XML_CONFIG_PATH, xml-config)
 fi
-if test -n "$XML_CONFIG_PATH" ; then
-  AC_DEFINE(HAVE_LIBXML,, [ Define if libxml or libxml2 is available.])
-fi
 AM_CONDITIONAL(HAVE_LIBXML2, test "x$HAVE_LIBXML2" = xyes)
-if test -n "$XML_CONFIG_PATH"
-then
-AC_DEFINE(HAVE_LIBXML,,
-  [ Define if libxml is available.])
-fi
 
-if test -n "$XML_CONFIG_PATH"
-then
-    AC_MSG_CHECKING([libxml flags])
-    LIBXML_CFLAGS=`$XML_CONFIG_PATH --cflags`
-    LIBXML_LIBS=`$XML_CONFIG_PATH --libs`
-    AC_MSG_RESULT("$LIBXML_CFLAGS")
+if test -n "$XML_CONFIG_PATH" ; then
+  AC_DEFINE(HAVE_LIBXML,, [Define if libxml or libxml2 is available.])
+  AC_MSG_CHECKING([libxml flags])
+  LIBXML_CFLAGS=`$XML_CONFIG_PATH --cflags`
+  LIBXML_LIBS=`$XML_CONFIG_PATH --libs`
+  AC_MSG_RESULT("$LIBXML_CFLAGS")
 else
-    AC_MSG_ERROR(can't build dbtool without xml)
+  AC_MSG_ERROR(can't build dbtool without xml)
 fi
 AC_SUBST(LIBXML_CFLAGS)
 AC_SUBST(LIBXML_LIBS)

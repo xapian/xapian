@@ -1,3 +1,7 @@
+Mon May 13 11:20:25 BST 2002  Olly Betts <olly@survex.com>
+
+	* Link GNU getopt to those programs which need it.
+
 Fri May 03 16:25:26 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated wrt key->value changes in xapian-core.
