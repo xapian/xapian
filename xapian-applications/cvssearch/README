@@ -11,8 +11,12 @@ INSTALLATION
   Make sure this version of ctags is in your path *and* is executed
   by default
 
-* install the latest release of the sleepycat database from
+* install a suitable release of the sleepycat database from
   http://www.sleepycat.com/download/index.shtml
+
+  Unfortunately the sleepycat C++ API has changed subtley between recent
+  releases.  We know that 4.0.14 works, so presumably 4.0.x should.  Feedback
+  on this issue is particularly welcome.
  
   From the dist/ directory, type
 
