@@ -1,1 +1,20 @@
-Fill in package descriptions.
+Package descriptions could do with some improvement.
+
+Make a default configuration file for omega, and place it in the appropriate
+location.
+
+Remove code which causes omega to look for a configuration file in its runtime
+directory.  Possibly add code so that the configfile location (or contents) can
+be overridden by environment variables (with apache, these can be set using
+mod_env, and with apache 1.3.7 or later this may be used inside a .htaccess
+file).
+
+Make a debconf question for omega package, asking if user wants to set up a
+database holding the system documentation, and how frequently this should be
+reindexed.
+
+Split dbi2omega into a separate package, which actually Depends on libdbi-perl?
+I don't feel comfortable about part of the xapian-scriptindex package not
+working at all if the Recommends dependency isn't satisfied, but dbi2omega is
+such a trivial thing I'm not happy about making a package just for it.
+Perhaps it should simply be installed as an example, under /usr/share/doc/
