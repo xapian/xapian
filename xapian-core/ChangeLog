@@ -1,3 +1,10 @@
+Fri Jul  7 17:31:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added OmMSet::get_termfreq() and OmMSet::get_termweight() methods,
+	  for getting information about the terms involved in the query.
+	  Implemented the methods, but not yet the process of putting the
+	  information they require into the OmMSet.
+
 Fri Jul  7 15:44:18 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove MultiMatch::get_max_weight()

@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <map>
 
 class OmEnquireInternal; // Internal state of enquire
 class OmEnquire;         // Declare Enquire class
@@ -467,17 +468,51 @@ class OmMSetItem {
  */
 class OmMSet {
     private:
+	/** A structure containing the term frequency and weight for a
+	 *  given query term.
+	 */
+	struct TermFreqAndWeight {
+	    om_doccount termfreq;
+	    om_weight termweight;
+	};
+
+	/** The term frequencies and weights returned by the match process.
+	 *  This map will contain information for each term which was in
+	 *  the query.
+	 */
+	map<om_termname, TermFreqAndWeight> termfreqandwts;
+
+	/// Internal method used for percentage conversion
+	int convert_to_percent_internal(om_weight wt) const;
     public:
 	OmMSet() : mbound(0) {}
 
 	/** This converts the weight supplied to a percentage score.
-	 * The return value will be in the range 0 to 100, and will be 0 if
-	 * and only if the item did not match the query at all.
+	 *  The return value will be in the range 0 to 100, and will be 0 if
+	 *  and only if the item did not match the query at all.
 	 */
 	int convert_to_percent(om_weight wt) const;
 
 	/// Return the percentage score for the given item.
 	int convert_to_percent(const OmMSetItem & item) const;
+
+	/** Return the term frequency of the given query term.
+	 *
+	 *  @param tname The term to look for.
+	 *
+	 *  @exception OmInvalidArgumentError is thrown if the term was not
+	 *             in the query.
+	 */
+	om_doccount get_termfreq(om_termname tname) const;
+
+	/** Return the term weight of the given query term.
+	 *
+	 *  @param tname The term to look for.
+	 *
+	 *  @exception OmInvalidArgumentError is thrown if the term was not
+	 *             in the query.
+	 */
+	om_weight get_termweight(om_termname tname) const;
 
 	/// A list of items comprising the (selected part of the) mset.
 	std::vector<OmMSetItem> items;

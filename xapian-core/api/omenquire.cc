@@ -269,7 +269,7 @@ OmMSetItem::get_description() const
 ////////////////////////
 
 int
-OmMSet::convert_to_percent(om_weight wt) const
+OmMSet::convert_to_percent_internal(om_weight wt) const
 {
     DEBUGAPICALL("OmMSet::convert_to_percent", wt);
     if(max_possible == 0) return 100;
@@ -286,13 +286,49 @@ OmMSet::convert_to_percent(om_weight wt) const
 }
 
 int
+OmMSet::convert_to_percent(om_weight wt) const
+{
+    DEBUGAPICALL("OmMSet::convert_to_percent", wt);
+    int pcent = convert_to_percent_internal(wt);
+    DEBUGAPIRETURN(pcent);
+    return pcent;
+}
+
+int
 OmMSet::convert_to_percent(const OmMSetItem & item) const
 {
     DEBUGAPICALL("OmMSet::convert_to_percent", item);
-    // FIXME: should call an internal method, not a public one.
-    int pcent = OmMSet::convert_to_percent(item.wt);
+    int pcent = convert_to_percent_internal(item.wt);
     DEBUGAPIRETURN(pcent);
     return pcent;
+}
+
+om_doccount
+OmMSet::get_termfreq(om_termname tname) const
+{
+    DEBUGAPICALL("OmMSet::get_termfreq", tname);
+    map<om_termname, TermFreqAndWeight>::const_iterator i;
+    i = termfreqandwts.find(tname);
+    if(i == termfreqandwts.end()) {
+	throw OmInvalidArgumentError("Term frequency of `" + tname +
+				     "' not available.");
+    }
+    DEBUGAPIRETURN(i->second.termfreq);
+    return i->second.termfreq;
+}
+
+om_weight
+OmMSet::get_termweight(om_termname tname) const
+{
+    DEBUGAPICALL("OmMSet::get_termweight", tname);
+    map<om_termname, TermFreqAndWeight>::const_iterator i;
+    i = termfreqandwts.find(tname);
+    if(i == termfreqandwts.end()) {
+	throw OmInvalidArgumentError("Term weight of `" + tname +
+				     "' not available.");
+    }
+    DEBUGAPIRETURN(i->second.termweight);
+    return i->second.termweight;
 }
 
 std::string
