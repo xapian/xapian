@@ -22,6 +22,8 @@ AC_PROG_CXX
 
 dnl Check for libxapian
 XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+dnl We want XAPIAN_CXXFLAGS to be used for configure tests
+CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 if test "$XAPIAN_VERSION" != "$PACKAGE_VERSION" ; then
     AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION])

@@ -21,7 +21,7 @@ install-data-hook:
 	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
 
 AM_CPPFLAGS = -I@PYTHON_INC@
-AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) @SWIG_CXXFLAGS@
+AM_CXXFLAGS = @SWIG_CXXFLAGS@
 _xapian_la_LDFLAGS = -avoid-version -module
 nodist__xapian_la_SOURCES = xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS)

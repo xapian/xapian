@@ -1,3 +1,10 @@
+Tue Nov 09 03:06:56 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,guile/Makefile.am,
+	  java/native/Makefile.am,php4/Makefile.am,python/Makefile.am,
+	  tcl8/Makefile.am: We now get -AA or -std strict_ansi from
+	  xapian-config, so we don't need to probe for them ourselves.
+
 Sat Nov 06 16:19:30 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: Check GXX instead of GCC when deciding whether to pass
