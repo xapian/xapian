@@ -197,6 +197,7 @@ OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(
     om_termname_list::const_iterator i = terms.begin();
     while (i != terms.end()) {
         tset.insert(*i);
+	i++;
     }
 }
 
