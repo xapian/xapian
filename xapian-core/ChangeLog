@@ -1,3 +1,7 @@
+Fri Sep 22 13:26:54 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Enable malloc checking to be turned off by setting OM_NO_MALLOCCHECK
+
 Fri Sep 22 12:20:38 BST 2000 Olly Betts
 
 	* Renamed PostList::intro_term_description() to get_description()
