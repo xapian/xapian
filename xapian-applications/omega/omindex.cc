@@ -716,17 +716,22 @@ main(int argc, char **argv)
     try {
 	if (!overwrite) {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OPEN);
-	    updated.resize(db.get_lastdocid() + 1);
+	    if (dupes == DUPE_replace) {
+		// + 1 so that db.get_lastdocid() is a valid subscript.
+		updated.resize(db.get_lastdocid() + 1);
+	    }
 	} else {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
 	}
 	index_directory("/", mime_map);
-	for (Xapian::docid did = 1; did < updated.size(); ++did) {
-	    if (!updated[did]) {
-		try {
-		    db.delete_document(did);
-		    cout << "Deleted document #" << did << endl;
-		} catch (const Xapian::DocNotFoundError &) {
+	if (dupes == DUPE_replace) {
+	    for (Xapian::docid did = 1; did < updated.size(); ++did) {
+		if (!updated[did]) {
+		    try {
+			db.delete_document(did);
+			cout << "Deleted document #" << did << endl;
+		    } catch (const Xapian::DocNotFoundError &) {
+		    }
 		}
 	    }
 	}

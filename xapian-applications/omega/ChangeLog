@@ -1,3 +1,8 @@
+Fri Dec 17 22:50:01 GMT 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Only try to delete removed documents in DUPE_replace
+	  mode.
+
 Thu Dec 16 11:43:28 GMT 2004  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Fixed "Unknown Exception" when trying to "unhtml"
