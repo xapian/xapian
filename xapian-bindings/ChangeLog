@@ -1,3 +1,7 @@
+Thu Jan  1 22:45:26 2004  James Aylett  <james@tartarus.org>
+
+	* python/util.i: OMMSET_* and OMESET_* -> MSET_* and ESET_*
+
 Thu Jan  1 22:42:57 2004  James Aylett  <james@tartarus.org>
 
 	* xapian.i: a couple of Xapian::Query constructors weren't being

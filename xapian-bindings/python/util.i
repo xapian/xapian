@@ -3,8 +3,8 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 James Aylett
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002,2003 James Aylett
  * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
@@ -160,21 +160,23 @@
 
 %typedef PyObject *LangSpecificListType;
 
-#define OMMSET_DID 0
-#define OMMSET_WT 1
-#define OMMSET_RANK 2
-#define OMMSET_PERCENT 3
+#define MSET_DID 0
+#define MSET_WT 1
+#define MSET_RANK 2
+#define MSET_PERCENT 3
+#define MSET_DOCUMENT 4
 
-#define OMESET_TNAME 0
-#define OMESET_WT 1
+#define ESET_TNAME 0
+#define ESET_WT 1
 %{
-#define OMMSET_DID 0
-#define OMMSET_WT 1
-#define OMMSET_RANK 2
-#define OMMSET_PERCENT 3
+#define MSET_DID 0
+#define MSET_WT 1
+#define MSET_RANK 2
+#define MSET_PERCENT 3
+#define MSET_DOCUMENT 4
 
-#define OMESET_TNAME 0
-#define OMESET_WT 1
+#define ESET_TNAME 0
+#define ESET_WT 1
 
 PyObject *Xapian_MSet_items_get(Xapian::MSet *mset)
 {
@@ -187,10 +189,10 @@ PyObject *Xapian_MSet_items_get(Xapian::MSet *mset)
     while (i != mset->end()) {
         PyObject *t = PyTuple_New(4);
 
-	PyTuple_SetItem(t, OMMSET_DID, PyInt_FromLong(*i));
-	PyTuple_SetItem(t, OMMSET_WT, PyFloat_FromDouble(i.get_weight()));
-	PyTuple_SetItem(t, OMMSET_RANK, PyInt_FromLong(i.get_rank()));
-	PyTuple_SetItem(t, OMMSET_PERCENT, PyInt_FromLong(i.get_percent()));
+	PyTuple_SetItem(t, MSET_DID, PyInt_FromLong(*i));
+	PyTuple_SetItem(t, MSET_WT, PyFloat_FromDouble(i.get_weight()));
+	PyTuple_SetItem(t, MSET_RANK, PyInt_FromLong(i.get_rank()));
+	PyTuple_SetItem(t, MSET_PERCENT, PyInt_FromLong(i.get_percent()));
 
 	PyList_Append(retval, t);
         ++i;
@@ -209,8 +211,8 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
     while (i != eset->end()) {
         PyObject *t = PyTuple_New(2);
 
-	PyTuple_SetItem(t, 0, PyString_FromString((*i).c_str()));
-	PyTuple_SetItem(t, 1, PyFloat_FromDouble(i.get_weight()));
+	PyTuple_SetItem(t, ESET_TNAME, PyString_FromString((*i).c_str()));
+	PyTuple_SetItem(t, ESET_WT, PyFloat_FromDouble(i.get_weight()));
 
 	PyList_Append(retval, t);
         ++i;
@@ -229,8 +231,8 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
     while (i != $1.end()) {
         PyObject *t = PyTuple_New(2);
 
-	PyTuple_SetItem(t, 0, PyInt_FromLong(*i));
-	PyTuple_SetItem(t, 1, PyFloat_FromDouble(i->get_weight()));
+	PyTuple_SetItem(t, MSET_DID, PyInt_FromLong(*i));
+	PyTuple_SetItem(t, MSET_WT, PyFloat_FromDouble(i->get_weight()));
 
 	PyList_Append($result, t);
         ++i;
