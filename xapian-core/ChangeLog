@@ -1,3 +1,8 @@
+Fri May 30 01:22:49 BST 2003  Olly Betts <olly@survex.com>
+
+	* extra/queryparsertest.cc: Added another 405 queries which fail to
+	  parse (courtesy of Arjen van der Meijden).
+
 Thu May 29 19:08:28 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml,extra/queryparsertest.cc: Extracted two more
