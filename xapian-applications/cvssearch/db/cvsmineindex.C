@@ -21,6 +21,7 @@
  * 
  ********************************************************************************/
 
+#warning "CODE TERMS IMPROVE THINGS A LOT BUT NOW WE NEED COMMIT RANKING"
 #warning "DOES NOT USE STOP WORDS"
 #warning "SHOULD SPECIFY INCLUDE DIRECTORIES OF HEADER FILES ONLY"
 #warning "THAT WAY WE DO NOT GET EXTRANEOUS STUFF (e.g., example apps)"
@@ -196,7 +197,7 @@ int main(unsigned int argc, char *argv[]) {
 
     unsigned int offset = 0;
 
-    string commit_path = cvsdata + "/" + root + "/commit.offset";
+    string commit_path = cvsdata + "/" + root + "/mining.offset";
     ofstream fout(commit_path.c_str());
 
     try {
@@ -427,7 +428,7 @@ void write_OM_database( const string & database_dir,
             symbol_string += (*j) + " ";
         }
 
-        //cerr << "DATA = " << symbol_string << endl;
+	//        cerr << "DATA = " << symbol_string << endl;
 
         // find comment words associated with that commit
         map<unsigned int, set<string> >::const_iterator f = commit_words.find(i->first);
@@ -449,7 +450,7 @@ void write_OM_database( const string & database_dir,
         set<string>::const_iterator w;
         for (w = words.begin(); w != words.end(); ++w) {
             newdocument.add_posting(*w, ++pos);
-                //cerr << "... term " << (*w) << endl;
+	    //                cerr << "... term " << (*w) << endl;
         }
 
         // ----------------------------------------
@@ -458,7 +459,7 @@ void write_OM_database( const string & database_dir,
         // ----------------------------------------
         for(j = symbols.begin(); j != symbols.end(); ++j) {
             newdocument.add_posting(":"+(*j), ++pos);
-            //cerr << "... symbol " << (":"+(*j)) << endl;
+	    //            cerr << "... symbol " << (":"+(*j)) << endl;
         }
 
         // ----------------------------------------
@@ -556,13 +557,12 @@ get_data(lines & lines,
                     }
                 }
 
-/*****************
+#warning "adds code terms here"
 		// always add code terms to commit_words
-		for( list<string>::iterator i = symbol_terms.begin(); i != symbol_terms.end(); i++ ) {
+		for( list<string>::const_iterator i = symbol_terms.begin(); i != symbol_terms.end(); i++ ) {
 		  //		  cerr << "... entering code word " << (*i) << endl;
 		  commit_words[commitid+offset].insert(*i);
 		}
-****************/
 
 
                 // ----------------------------------------
@@ -573,6 +573,7 @@ get_data(lines & lines,
                     if ( lib_symbols.find(*s) != lib_symbols.end() ) {
 			commit_symbols[commitid+offset].insert(*s);
 			// we no longer look at parents since that created problems
+			//			cerr << "found symbol " << (*s) << endl
                     }
                 }
 
