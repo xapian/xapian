@@ -1,3 +1,7 @@
+Thu Nov 22 17:39:59 GMT 2001  Olly Betts <olly@survex.com>
+
+	* querygui: fixed compiler warnings.
+
 Thu Nov 22 17:33:46 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Added key support to indexnasty and tried to make it a bit less nasty

@@ -228,7 +228,7 @@ static void do_topterms() {
     gtk_clist_thaw(topterms_widget);
 }
 
-static void
+void
 on_results_selection(GtkWidget *widget,
 		     gint row,
 		     gint column,
