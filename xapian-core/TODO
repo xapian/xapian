@@ -53,9 +53,9 @@ Priority | Area            | Task
  Medium  | API		   | Don't allow a boolean query in any Query
          |                 | constructors, except for copy constructors.
 ---------+-----------------+--------------------------------------------------
- Low     | Documentation   | Put TeX documentation on website.
+ Low     | Website         | Put TeX documentation on website.
 ---------+-----------------+--------------------------------------------------
- Low     | Website         | Merge output of mkdoc.pl with doc++ output. 
+ Low     | Documentation   | Merge output of mkdoc.pl with doc++ output. 
 ---------+-----------------+--------------------------------------------------
  Low     | API             | Add query batch (as wrapper for now)
 ---------+-----------------+--------------------------------------------------
