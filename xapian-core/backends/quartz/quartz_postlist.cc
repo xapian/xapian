@@ -218,6 +218,11 @@ QuartzPostList::skip_to(om_docid did, om_weight w_min)
     throw OmUnimplementedError("FIXME");
 }
 
+std::string
+QuartzPostList::get_description() const
+{
+    return tname + ":" + om_tostring(number_of_entries);
+}
 
 
 // Methods modifying position lists
