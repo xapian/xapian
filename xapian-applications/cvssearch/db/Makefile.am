@@ -15,16 +15,13 @@ cvsquery_SOURCES = cvsquery.C
 cvsquery_LDADD = libcvs_db.a -ldb_cxx libcvs_db.a
 
 cvsindex_SOURCES = util.h util.C cvsindex.C
-cvsindex_LDFLAGS = -static
-cvsindex_LDADD = -lomsee
+cvsindex_LDFLAGS = -static `omsee-config --libs`
 
 cvssearch_SOURCES = util.h util.C cvssearch.C
-cvssearch_LDFLAGS = -static
-cvssearch_LDADD = -lomsee
+cvssearch_LDFLAGS = -static `omsee-config --libs`
 
 cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
-cvsusagesearch_LDFLAGS = -static
-cvsusagesearch_LDADD = -lomsee
+cvsusagesearch_LDFLAGS = -static `omsee-config --libs`
 
 #cvsclasses_SOURCES = util.h util.C cvspatterns.C
 #cvsclasses_LDADD = -ldb_cxx -lomsee

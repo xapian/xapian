@@ -76,16 +76,13 @@ cvsquery_SOURCES = cvsquery.C
 cvsquery_LDADD = libcvs_db.a -ldb_cxx libcvs_db.a
 
 cvsindex_SOURCES = util.h util.C cvsindex.C
-cvsindex_LDFLAGS = -static
-cvsindex_LDADD = -lomsee
+cvsindex_LDFLAGS = -static `omsee-config --libs`
 
 cvssearch_SOURCES = util.h util.C cvssearch.C
-cvssearch_LDFLAGS = -static
-cvssearch_LDADD = -lomsee
+cvssearch_LDFLAGS = -static `omsee-config --libs`
 
 cvsusagesearch_SOURCES = util.h util.C cvsusagesearch.C
-cvsusagesearch_LDFLAGS = -static
-cvsusagesearch_LDADD = -lomsee
+cvsusagesearch_LDFLAGS = -static `omsee-config --libs`
 
 #cvsclasses_SOURCES = util.h util.C cvspatterns.C
 #cvsclasses_LDADD = -ldb_cxx -lomsee
@@ -134,12 +131,15 @@ AR = ar
 PROGRAMS =  $(bin_PROGRAMS)
 
 cvsindex_OBJECTS =  util.o cvsindex.o
+cvsindex_LDADD = $(LDADD)
 cvsindex_DEPENDENCIES = 
 cvsusageindex_OBJECTS =  util.o cvsusageindex.o
 cvsusageindex_DEPENDENCIES = 
 cvssearch_OBJECTS =  util.o cvssearch.o
+cvssearch_LDADD = $(LDADD)
 cvssearch_DEPENDENCIES = 
 cvsusagesearch_OBJECTS =  util.o cvsusagesearch.o
+cvsusagesearch_LDADD = $(LDADD)
 cvsusagesearch_DEPENDENCIES = 
 cvscomments_OBJECTS =  cvscomments.o
 cvscomments_DEPENDENCIES = 
