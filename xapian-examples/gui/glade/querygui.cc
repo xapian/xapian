@@ -18,9 +18,16 @@
 #include <list>
 
 IRDatabase *database;
+Match * matcher;
+string query;
+
 doccount max_msize;
 GtkCList *results_widget;
 GtkCList *topterms_widget;
+GtkLabel *result_query;
+GtkLabel *result_score;
+GtkLabel *result_docid;
+GtkText *result_text;
 
 gchar *
 c_string(const string & s)
@@ -101,6 +108,27 @@ result_destroy_notify(gpointer data)
     delete item;
 }
 
+static void do_resultdisplay(gint row) {
+    try {
+	docid did = matcher->mset[row].did;
+	IRDocument *doc = database->open_document(did);
+	IRData data = doc->get_data();
+	string fulltext = data.value;
+	weight maxweight = matcher->get_max_weight();
+	string score = inttostring((int)(100 * matcher->mset[row].wt / maxweight));
+
+	gtk_text_freeze(result_text);
+	gtk_text_backward_delete(result_text, gtk_text_get_length(result_text));
+	gtk_text_insert(result_text, NULL, NULL, NULL, fulltext.c_str(), -1);
+	gtk_text_thaw(result_text);
+	gtk_label_set_text(result_query, query.c_str());
+	gtk_label_set_text(result_score, score.c_str());
+	gtk_label_set_text(result_docid, inttostring(did).c_str());
+    } catch (OmError e) {
+	cout << e.get_msg() << endl;
+    }
+}
+
 static void do_topterms() {
     try {
 	RSet rset(database);
@@ -160,17 +188,20 @@ on_results_selection(GtkWidget *widget,
 		     gpointer data)
 {
     do_topterms();
+    do_resultdisplay(row);
 }
 
 static void
 on_query_changed(GtkWidget *widget, gpointer user_data) {
     GtkEditable *textbox = GTK_EDITABLE(widget);
     char *tmp = gtk_editable_get_chars( textbox, 0, -1);
-    string query(tmp);
+    query = string(tmp);
     g_free(tmp);
 
     try {
-	Match matcher(database); 
+	delete matcher;
+	matcher = NULL;
+	matcher = new Match(database); 
 
 	// split into terms
 	QueryParser parser;
@@ -181,28 +212,28 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
 	vector<QueryTerm>::const_iterator i = qterms.begin();
 	while(i != qterms.end()) {
-	    matcher.add_term((*i).tname);
+	    matcher->add_term((*i).tname);
 	    i++;
 	}
 
-	matcher.set_max_msize(max_msize);
+	matcher->set_max_msize(max_msize);
 
-	matcher.match();
-	weight maxweight = matcher.get_max_weight();
-	doccount mtotal = matcher.mtotal;
-	doccount msize = matcher.msize;
+	matcher->match();
+	weight maxweight = matcher->get_max_weight();
+	doccount mtotal = matcher->mtotal;
+	doccount msize = matcher->msize;
 
 	gtk_clist_freeze(results_widget);
 	gtk_clist_clear(results_widget);
 	cout << "MTotal: " << mtotal << " Maxweight: " << maxweight << endl;
 	for (docid i = 0; i < msize; i++) {
-	    docid q0 = matcher.mset[i].did;
-	    IRDocument *doc = database->open_document(q0);
+	    docid did = matcher->mset[i].did;
+	    IRDocument *doc = database->open_document(did);
 	    IRData data = doc->get_data();
 	    string message;
 #if 0
 	    if(Database *mdb = dynamic_cast<MultiDatabase *>(database)) {
-		message = (mdb->get_database_of_doc(q0))->get_database_path();
+		message = (mdb->get_database_of_doc(did))->get_database_path();
 	    } else {
 		message = database->get_database_path();
 	    }
@@ -210,8 +241,8 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 #endif
 	    message += data.value;
 	    message = data.value;
-	    ResultItemGTK * item = new ResultItemGTK(matcher.mset[i].did,
-		100 * matcher.mset[i].wt / maxweight, message);
+	    ResultItemGTK * item = new ResultItemGTK(matcher->mset[i].did,
+		100 * matcher->mset[i].wt / maxweight, message);
 	    gint index = gtk_clist_append(results_widget, item->data);
 
 	    // Make sure it gets freed when item is removed from result list
@@ -313,16 +344,19 @@ int main(int argc, char *argv[]) {
 	exit(1);
     }
 
+    matcher = new Match(database); 
+
     // FIXME - debugging code - remove this
-    Match matcher(database); 
-    matcher.add_term("love");
-    matcher.set_max_msize(10);
-    matcher.match();
-    weight maxweight = matcher.get_max_weight();
-    doccount mtotal = matcher.mtotal;
-    doccount mressize = matcher.msize;
+    matcher->add_term("love");
+    matcher->set_max_msize(10);
+    matcher->match();
+    weight maxweight = matcher->get_max_weight();
+    doccount mtotal = matcher->mtotal;
+    doccount mressize = matcher->msize;
     cout << maxweight << " " << mtotal << " " << mressize << endl;
 
+    delete matcher;
+    matcher = NULL;
 
     GladeXML *xml;
 
@@ -339,6 +373,10 @@ int main(int argc, char *argv[]) {
 
     topterms_widget = GTK_CLIST(glade_xml_get_widget(xml, "topterms"));
     results_widget = GTK_CLIST(glade_xml_get_widget(xml, "results"));
+    result_query = GTK_LABEL(glade_xml_get_widget(xml, "result_query"));
+    result_score = GTK_LABEL(glade_xml_get_widget(xml, "result_score"));
+    result_docid = GTK_LABEL(glade_xml_get_widget(xml, "result_docid"));
+    result_text = GTK_TEXT(glade_xml_get_widget(xml, "result_text"));
 
     /* start the event loop */
     gtk_main();
