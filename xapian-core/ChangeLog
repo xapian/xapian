@@ -1,3 +1,7 @@
+Wed May 12 02:08:44 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Fixed typos in comment.
+
 Tue May 11 20:55:56 BST 2004  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Added comment saying why we filter out

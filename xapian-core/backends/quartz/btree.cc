@@ -1148,14 +1148,14 @@ void Btree::form_key(const string & key)
    B-tree, replacing any existing item with the same key. The result is true
    for an addition, false for a replacement.
 
-   For a long tag, we end end up having to add m components, of the form
+   For a long tag, we end up having to add m components, of the form
 
        key 1 m tag1
        key 2 m tag2
        ...
        key m m tagm
 
-   and tag1+tag2+...+tagm are equal to tag. These is their turn may be replacing
+   and tag1+tag2+...+tagm are equal to tag. These in their turn may be replacing
    n components of the form
 
        key 1 n TAG1
