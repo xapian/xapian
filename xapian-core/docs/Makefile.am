@@ -99,6 +99,14 @@ DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
 apidoc/index.html:
 	doc++ ${DOCPPFLAGS} --dir apidoc `find ${top_srcdir}/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
+apidoc.tex:
+	doc++ -t ${DOCPPFLAGS} --output $@ `find ${top_srcdir}/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
+
+%.dvi: %.tex docxx.sty
+	if [ ! -r docxx.sty ] ; then ln -s ${srcdir}/docxx.sty . ; fi
+	latex "\\scrollmode\\input $(basename $@)" || :
+	latex "\\scrollmode\\input $(basename $@)" || ( $(RM) $@ ; false )
+
 sourcedoc/index.html:
 	doc++ ${DOCPPFLAGS} --all --private --dir sourcedoc `find ${top_srcdir} -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
