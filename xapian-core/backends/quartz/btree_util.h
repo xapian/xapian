@@ -218,6 +218,7 @@ int sys_open_to_read_no_except(const std::string & name);
 int sys_open_to_write(const std::string & name);
 int sys_close(int h);
 int sys_read_bytes(int h, int n, byte *p);
+std::string sys_read_all_bytes(int h, size_t max);
 int sys_write_bytes(int h, int n, const byte *p);
 int sys_flush(int h);
 

@@ -44,6 +44,7 @@
 
 #include "omassert.h"
 #include <string>
+#include <algorithm>  // for std::min()
 
 /*------debugging aids from here--------
 
@@ -156,6 +157,33 @@ int sys_read_bytes(int h, int n, byte * p)
 	}
     }
     return true;
+}
+
+std::string sys_read_all_bytes(int h, size_t max)
+{
+    size_t bytes_read;
+    size_t bytes_to_read = max;
+    std::string retval;
+    while (1) {
+	char buf[1024];
+	bytes_read = read(h, buf, min(sizeof(buf), bytes_to_read));
+	if (bytes_read > 0) {
+	    // add byte to string, continue unless we reached max
+	    retval.append(buf, buf+bytes_read);
+	    bytes_to_read -= bytes_read;
+	    if (bytes_to_read == 0) {
+		break;
+	    }
+	} else if (bytes_read == 0) {
+	    // end of file, we're finished
+	    break;
+	} else if (bytes_read == -1) {
+	    std::string message = "Error reading block: ";
+	    message += strerror(errno);
+	    throw OmDatabaseError(message);
+	}
+    }
+    return retval;
 }
 
 int sys_write_bytes(int h, int n, const byte * p)

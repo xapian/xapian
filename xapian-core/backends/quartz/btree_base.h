@@ -82,9 +82,6 @@ class Btree_base {
 	void write_to_file(const std::string &filename);
     private:
 
-	/** The actual data from the base file. */
-	byte *data;
-
 	/* Decoded values from the base file follow */
 	uint4 revision;
 	uint4 block_size;

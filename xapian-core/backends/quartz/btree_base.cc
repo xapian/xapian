@@ -21,11 +21,42 @@
  */
 
 #include "btree_base.h"
+#include "quartz_utils.h"
+#include "utils.h"
 #include "om/omerror.h"
 #include <errno.h>
 
 /************ Base file parameters ************/
 
+/** This is the current description of the base file format:
+ *
+ * Numbers are (unless mentioned otherwise) stored in the variable
+ * length format used by pack_uint() - that is 7 bits at a time in
+ * a byte, starting with lower-order bits, and setting the high bit
+ * on all bytes before the last one.
+ *
+ * The format consists of a sequence of numbers in this order:
+ *
+ * REVISION
+ * FORMAT	will be = 1 for the current format.  If this value is
+ * 		higher then it is a different format which we
+ * 		doesn't yet understand, so we bomb out.  If it's lower,
+ * 		then it depends if we have backwards-compatibility code
+ * 		implemented.
+ * BLOCK_SIZE
+ * ROOT
+ * LEVEL
+ * BIT_MAP_SIZE
+ * ITEM_COUNT
+ * LAST_BLOCK
+ * HAVE_FAKEROOT
+ * REVISION2	A second copy of the revision number, for consistency checks.
+ */
+#define CURR_FORMAT 1U
+
+#if 0
+
+/** This is the description of the old base file format: IGNORE */
 #define B_SIZE          80  /* 2 bytes */
 
 #define B_FORMAT         2  /* 1 byte - spare; 256 possible styles ... */
@@ -41,10 +72,10 @@
         /* 31 to 75 are spare */
 
 #define B_REVISION2     (B_SIZE - 4)
+#endif
 
 Btree_base::Btree_base()
-	: data(0),
-	  revision(0),
+	: revision(0),
 	  block_size(0),
 	  root(0),
 	  level(0),
@@ -56,8 +87,7 @@ Btree_base::Btree_base()
 }
 
 Btree_base::Btree_base(const std::string &name_, char ch)
-	: data(0),
-	  revision(0),
+	: revision(0),
 	  block_size(0),
 	  root(0),
 	  level(0),
@@ -73,8 +103,7 @@ Btree_base::Btree_base(const std::string &name_, char ch)
 }
 
 Btree_base::Btree_base(const Btree_base &other)
-	: data(0),
-	  revision(other.revision),
+	: revision(other.revision),
 	  block_size(other.block_size),
 	  root(other.root),
 	  level(other.level),
@@ -88,10 +117,6 @@ Btree_base::Btree_base(const Btree_base &other)
 void
 Btree_base::operator=(const Btree_base &other)
 {
-    if (data) {
-	delete [] data;
-	data = 0;
-    }
     revision = other.revision;
     block_size = other.block_size;
     root = other.root;
@@ -104,10 +129,6 @@ Btree_base::operator=(const Btree_base &other)
 
 Btree_base::~Btree_base()
 {
-    if (data) {
-	delete [] data;
-	data = 0;
-    }
 }
 
 /** A tiny class used to close a filehandle safely in the presence
@@ -130,75 +151,91 @@ Btree_base::read(const std::string & name, char ch, std::string &err_msg)
 {
     int h = sys_open_to_read_no_except(name + "base" + ch);
     fdcloser closefd(h);
-    byte w[2];
-    int size;
     if ( ! valid_handle(h)) {
 	err_msg += "Couldn't open " + name + "base" +
 		ch + ": " + strerror(errno) + "\n";
 	return false;
     }
-    if (! sys_read_bytes(h, 2, w)) {
-	err_msg += "Couldn't read from " + name + "base" + ch +
-		": " + strerror(errno) + "\n";
+    std::string buf(sys_read_all_bytes(h, 1024));
+
+    const char *start = buf.data();
+    const char *end = start + buf.length();
+
+    if (!unpack_uint(&start, end, &revision)) {
+	err_msg += "Unable to read revision number from " +
+		    name + "base" + ch + "\n";
 	return false;
     }
-    size = GETINT2(w, 0);
-
-    if (data) {
-	delete [] data;
-	data = 0;
+    uint4 format;
+    if (!unpack_uint(&start, end, &format)) {
+	err_msg += "Unable to read revision number from " +
+		    name + "base" + ch + "\n";
+	return false;
     }
-    data = new byte[size];
-    if (data != 0) {
-	SETINT2(data, 0, size);
-	if (sys_read_bytes(h, size - 2, data + 2) &&
-	    get_int4(data, B_REVISION) == get_int4(data, B_REVISION2)) {
+    if (format != CURR_FORMAT) {
+	err_msg += "Bad base file format " + om_tostring(format) + " in " +
+		    name + "base" + ch + "\n";
+	return false;
+    }
+    if (!unpack_uint(&start, end, &block_size)) {
+	err_msg += "Couldn't read block_size from base file " +
+	name + "base" + ch + "\n";
+	return false;
+    }
+    uint4 unsigned_temp;
+    if (!unpack_uint(&start, end, &unsigned_temp)) {
+	err_msg += "Couldn't read root from base file " +
+	name + "base" + ch + "\n";
+	return false;
+    }
+    root = unsigned_temp;
+    if (!unpack_uint(&start, end, &unsigned_temp)) {
+	err_msg += "Couldn't read level from base file " +
+	name + "base" + ch + "\n";
+	return false;
+    }
+    level = unsigned_temp;
+    if (!unpack_uint(&start, end, &unsigned_temp)) {
+	err_msg += "Couldn't read bit_map_size from base file " +
+	name + "base" + ch + "\n";
+	return false;
+    }
+    bit_map_size = unsigned_temp;
+    if (!unpack_uint(&start, end, &unsigned_temp)) {
+	err_msg += "Couldn't read item_count from base file " +
+	name + "base" + ch + "\n";
+	return false;
+    }
+    item_count = unsigned_temp;
+    if (!unpack_uint(&start, end, &unsigned_temp)) {
+	err_msg += "Couldn't read last_block from base file " +
+	name + "base" + ch + "\n";
+	return false;
+    }
+    last_block = unsigned_temp;
+    uint4 temp_have_fakeroot;
+    if (!unpack_uint(&start, end, &temp_have_fakeroot)) {
+	err_msg += "Couldn't read have_fakeroot from base file " +
+	name + "base" + ch + "\n";
+	return false;
+    }
+    have_fakeroot = temp_have_fakeroot;
 
-	    revision = get_uint4(data, B_REVISION);
-	    block_size = get_int4(data, B_BLOCK_SIZE);
-	    root = get_int4(data, B_ROOT);
-	    level = get_int4(data, B_LEVEL);
-	    bit_map_size = get_int4(data, B_BIT_MAP_SIZE);
-	    item_count = get_int4(data, B_ITEM_COUNT);
-	    last_block = get_int4(data, B_LAST_BLOCK);
-	    have_fakeroot = GETINT1(data, B_HAVE_FAKEROOT);
-	    return true;
-	} else {
-	    err_msg += "Couldn't read revision number from " +
-		    name + "base" + ch + ": " + strerror(errno) + "\n";
-	    return false;
-	}
-    } else {
-	throw std::bad_alloc();
+    uint4 revision2;
+    if (!unpack_uint(&start, end, &revision2)) {
+	err_msg += "Couldn't read revision2 from base file " +
+	name + "base" + ch + "\n";
+	return false;
+    }
+    if (revision != revision2) {
+	err_msg += "Revision number mismatch in " +
+		name + "base" + ch + ": " +
+		om_tostring(revision) + " vs " + om_tostring(revision2) + "\n";
+	return false;
     }
 
-    return false;
+    return true;
 }
-
-#if 0
-bool 
-Btree_base::write(struct Btree * B)
-{
-    if (data) {
-	delete [] data;
-	data = 0;
-    }
-    data = new byte[B_SIZE];
-
-    int h = sys_open_to_write(B->name + "base" + B->other_base_letter);
-    fdcloser closefd(h);
-
-    memset(data, 0, B_SIZE);
-
-    Assert(false);
-    /* FIXME: things need a bit of reorganisation here. */
-
-    return valid_handle(h) &&
-	    sys_write_bytes(h, GETINT2(B->base, 0), B->base) &&
-	    sys_flush(h) &&
-	    sys_close(h);
-}
-#endif
 
 uint4
 Btree_base::get_revision()
@@ -299,27 +336,22 @@ Btree_base::set_have_fakeroot(bool have_fakeroot_)
 void
 Btree_base::write_to_file(const std::string &filename)
 {
-    if (data) {
-	delete [] data;
-	data = 0;
-    }
-    data = new byte[B_SIZE];
-    memset(data, 0, B_SIZE);
-
-    SETINT2(data, 0, B_SIZE);
-    set_int4(data, B_REVISION, revision);
-    set_int4(data, B_REVISION2, revision);
-    set_int4(data, B_BLOCK_SIZE, block_size);
-    set_int4(data, B_ROOT, root);
-    set_int4(data, B_LEVEL, level);
-    set_int4(data, B_BIT_MAP_SIZE, bit_map_size);
-    set_int4(data, B_ITEM_COUNT, item_count);
-    set_int4(data, B_LAST_BLOCK, last_block);
-    SETINT1(data, B_HAVE_FAKEROOT, have_fakeroot);
+    std::string buf;
+    buf += pack_uint(revision);
+    buf += pack_uint(CURR_FORMAT);
+    buf += pack_uint(block_size);
+    buf += pack_uint(static_cast<uint4>(root));
+    buf += pack_uint(static_cast<uint4>(level));
+    buf += pack_uint(static_cast<uint4>(bit_map_size));
+    buf += pack_uint(static_cast<uint4>(item_count));
+    buf += pack_uint(static_cast<uint4>(last_block));
+    buf += pack_uint(have_fakeroot);
+    buf += pack_uint(revision);  // REVISION2
 
     int h = sys_open_to_write(filename);
     fdcloser closefd(h);
 
-    sys_write_bytes(h, B_SIZE, data);
+    sys_write_bytes(h, buf.length(),
+		    reinterpret_cast<const byte *>(buf.data()));
     sys_flush(h);
 }

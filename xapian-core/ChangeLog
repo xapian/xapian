@@ -1,3 +1,11 @@
+Fri Nov 24 10:11:05 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Btree base files now store things in variable-length fields.
+	  The format number is also now used.
+	
+	* New function sys_read_all_bytes() to read an entire file into
+	  a string.
+
 Thu Nov 23 19:40:31 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added automatie detection of fdatasync, checking if -lrt is needed,
