@@ -102,6 +102,9 @@ class OMQuery {
 
 	// Introspection method
 	string get_description() const;
+
+	// Check whether the query is null
+	bool is_null() const { return isnull; };
 };
 
 ///////////////////////////////////////////////////////////////////
