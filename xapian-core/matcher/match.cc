@@ -49,7 +49,7 @@ Match::add_band()
     bq.pop();
     right = bq.top();
     bq.pop();
-    bq.push(new AndPostList(left, right));
+    bq.push(new AndPostList(left, right, this));
 
     return true;
 }
@@ -64,7 +64,7 @@ Match::add_bor()
     bq.pop();
     right = bq.top();
     bq.pop();
-    bq.push(new OrPostList(left, right));
+    bq.push(new OrPostList(left, right, this));
 
     return true;
 }
@@ -79,7 +79,7 @@ Match::add_bandnot()
     bq.pop();
     left = bq.top();
     bq.pop();
-    bq.push(new AndNotPostList(left, right));
+    bq.push(new AndNotPostList(left, right, this));
 
     return true;
 }
@@ -100,9 +100,18 @@ class MSetCmp {
 };
 
 void
-Match::match(void)
+Match::recalc_maxweight()
+{
+    Assert(merger != NULL);
+    cout << "recalculating weights\n";
+    w_max = merger->recalc_maxweight();
+    cout << "new w_max = " << w_max << endl;
+}
+
+void
+Match::match()
 {    
-    PostList *merger = NULL;
+    merger = NULL;
     PostList *boolmerger = NULL;
 
     if (bq.size() > 1) return; // Partially constructed boolean query
@@ -120,7 +129,7 @@ Match::match(void)
 	    pq.pop();
 	    if (pq.empty()) break;
 	    // NB right is always <= left - we can use this to optimise
-	    merger = new OrPostList(pq.top(), merger);
+	    merger = new OrPostList(pq.top(), merger, this);
 	    pq.pop();
 	    pq.push(merger);
 	}
@@ -128,7 +137,7 @@ Match::match(void)
 
     if (boolmerger) {
 	if (merger) {
-	    merger = new FilterPostList(merger, boolmerger);
+	    merger = new FilterPostList(merger, boolmerger, this);
 	} else {
 	    merger = boolmerger;
 	}
@@ -140,7 +149,8 @@ Match::match(void)
     weight w_min = 0;
     vector<MSetItem> mset;
     int sorted_to = 0;
-    weight w_max = merger->get_maxweight();
+
+    recalc_maxweight();
     cout << "max possible doc weight = " << w_max << endl;
 
     // FIXME: clean all this up
@@ -213,4 +223,5 @@ Match::match(void)
     }
 #endif
     delete merger;
+    merger = NULL;
 }

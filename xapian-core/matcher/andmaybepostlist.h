@@ -11,6 +11,7 @@ class AndMaybePostList : public virtual BranchPostList {
     private:
         docid lhead, rhead;
         weight lmax, rmax;
+
     public:
 	doccount get_termfreq() const;
 
@@ -18,11 +19,13 @@ class AndMaybePostList : public virtual BranchPostList {
 	weight get_weight() const;
 	weight get_maxweight() const;
 
+        weight recalc_maxweight();
+
 	PostList *next(weight w_min);
 	PostList *skip_to(docid, weight w_min);
 	bool   at_end() const;
 
-        AndMaybePostList(PostList *, PostList *);
+        AndMaybePostList(PostList *, PostList *, Match *root_);
 };
 
 inline doccount
@@ -53,6 +56,14 @@ inline weight
 AndMaybePostList::get_maxweight() const
 {
     return lmax + rmax;
+}
+
+inline weight
+AndMaybePostList::recalc_maxweight()
+{
+    lmax = l->recalc_maxweight();
+    rmax = r->recalc_maxweight();
+    return AndMaybePostList::get_maxweight();
 }
 
 inline bool

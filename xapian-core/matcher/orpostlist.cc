@@ -3,13 +3,11 @@
 #include "andmaybepostlist.h"
 #include <stdio.h>
 
-OrPostList::OrPostList(PostList *left, PostList *right)
+OrPostList::OrPostList(PostList *left, PostList *right, Match *root_)
 {
+    root = root_;
     l = left;
     r = right;
-    lmax = l->get_maxweight();
-    rmax = r->get_maxweight();
-    minmax = min(lmax, rmax);
     lhead = rhead = 0;
 }
 
@@ -27,20 +25,20 @@ OrPostList::next(weight w_min)
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		printf("OR -> AND\n");
-		ret = new AndPostList(l, r);
+		ret = new AndPostList(l, r, root);
 	    } else {
 		printf("OR -> AND MAYBE (1)\n");
-		ret = new AndMaybePostList(r, l);
+		ret = new AndMaybePostList(r, l, root);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    printf("OR -> AND MAYBE (2)\n");
-	    ret = new AndMaybePostList(l, r);
+	    ret = new AndMaybePostList(l, r, root);
 	}
 		
-	l = r = NULL;
 	PostList *ret2 = ret->next(w_min);
+	l = r = NULL;
 	if (ret2) {
 	    delete ret;
 	    ret = ret2;
@@ -85,20 +83,20 @@ OrPostList::skip_to(docid id, weight w_min)
 	if (w_min > lmax) {
 	    if (w_min > rmax) {
 		printf("OR -> AND (in skip_to)\n");
-		ret = new AndPostList(l, r);
+		ret = new AndPostList(l, r, root);
 	    } else {
 		printf("OR -> AND MAYBE (in skip_to) (1)\n");
-		ret = new AndMaybePostList(r, l);
+		ret = new AndMaybePostList(r, l, root);
 	    }
 	} else {
 	    // w_min > rmax since w_min > minmax but not (w_min > lmax)
 	    Assert(w_min > rmax);
 	    printf("OR -> AND MAYBE (in skip_to) (2)\n");
-	    ret = new AndMaybePostList(l, r);
+	    ret = new AndMaybePostList(l, r, root);
 	}
 		
-	l = r = NULL;
 	PostList *ret2 = ret->skip_to(id, w_min);
+	l = r = NULL;
 	if (ret2) {
 	    delete ret;
 	    ret = ret2;

@@ -9,6 +9,7 @@
 class AndNotPostList : public virtual BranchPostList {
     private:
         docid lhead, rhead;
+
         PostList *advance_to_next_match(weight w_min, PostList *);
     public:
 	doccount get_termfreq() const;
@@ -17,11 +18,13 @@ class AndNotPostList : public virtual BranchPostList {
 	weight get_weight() const;
 	weight get_maxweight() const;
 
+        weight recalc_maxweight();
+
 	PostList *next(weight w_min);
 	PostList *skip_to(docid, weight w_min);
 	bool   at_end() const;
 
-        AndNotPostList(PostList *l, PostList *r);
+        AndNotPostList(PostList *l, PostList *r, Match *root_);
 };
 
 inline doccount
@@ -49,6 +52,12 @@ inline weight
 AndNotPostList::get_maxweight() const
 {
     return l->get_maxweight();
+}
+
+inline weight
+AndNotPostList::recalc_maxweight()
+{
+    return l->recalc_maxweight();
 }
 
 inline bool

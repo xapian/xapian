@@ -2,12 +2,11 @@
 #include "andpostlist.h"
 #include <stdio.h>
 
-AndMaybePostList::AndMaybePostList(PostList *left, PostList *right)
+AndMaybePostList::AndMaybePostList(PostList *left, PostList *right, Match *root_)
 {
+    root = root_;
     l = left;
     r = right;
-    lmax = l->get_maxweight();
-    rmax = r->get_maxweight();
     lhead = rhead = 0;
 }
 
@@ -18,7 +17,7 @@ AndMaybePostList::next(weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	printf("AND MAYBE -> AND\n");
-	ret = new AndPostList(l, r);
+	ret = new AndPostList(l, r, root);
 	l = r = NULL;
 	PostList *ret2 = ret->next(w_min);
 	if (ret2) {
@@ -55,7 +54,7 @@ AndMaybePostList::skip_to(docid id, weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	printf("AND MAYBE -> AND (in skip_to)\n");
-	ret = new AndPostList(l, r);
+	ret = new AndPostList(l, r, root);
 	l = r = NULL;
 	PostList *ret2 = ret->skip_to(id, w_min);
 	if (ret2) {

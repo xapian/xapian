@@ -17,11 +17,13 @@ class OrPostList : public virtual BranchPostList {
 	weight get_weight() const;
 	weight get_maxweight() const;
 
+        weight recalc_maxweight();
+
 	PostList *next(weight w_min);
 	PostList *skip_to(docid, weight w_min);
 	bool   at_end() const;
 
-        OrPostList(PostList *, PostList *);
+        OrPostList(PostList *, PostList *, Match *);
 };
 
 inline doccount
@@ -54,6 +56,15 @@ inline weight
 OrPostList::get_maxweight() const
 {
     return lmax + rmax;
+}
+
+inline weight
+OrPostList::recalc_maxweight()
+{
+    lmax = l->recalc_maxweight();
+    rmax = r->recalc_maxweight();
+    minmax = min(lmax, rmax);
+    return OrPostList::get_maxweight();
 }
 
 inline bool

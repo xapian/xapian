@@ -27,6 +27,8 @@ class DAPostList : public virtual DBPostList {
 
 	doccount get_termfreq() const;
 
+        weight recalc_maxweight();
+
 	docid  get_docid() const;     // Gets current docid
 	weight get_weight() const;    // Gets current weight
 	weight get_maxweight() const;    // Gets max weight
@@ -63,6 +65,12 @@ DAPostList::at_end() const
 {
     if (currdoc == MAXINT) return true;
     return false;
+}
+
+inline weight
+DAPostList::recalc_maxweight()
+{
+    return DAPostList::get_maxweight();
 }
 
 

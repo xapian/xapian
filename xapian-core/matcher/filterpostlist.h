@@ -10,7 +10,10 @@ class FilterPostList : public virtual AndPostList {
 	weight get_weight() const;
 	weight get_maxweight() const;
 
-        FilterPostList(PostList *l, PostList *r) : AndPostList(l, r) {};
+        weight recalc_maxweight();
+
+        FilterPostList(PostList *l, PostList *r, Match *root) :
+            AndPostList(l, r, root) {};
 };
 
 inline weight
@@ -23,4 +26,10 @@ inline weight
 FilterPostList::get_maxweight() const
 {
     return l->get_maxweight();
+}
+
+inline weight
+FilterPostList::recalc_maxweight()
+{
+    return l->recalc_maxweight();    
 }

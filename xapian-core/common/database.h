@@ -25,6 +25,8 @@ class PostList {
 	virtual weight get_weight() const = 0;    // Gets current weight
         virtual weight get_maxweight() const = 0;    // Gets max weight
 
+        virtual weight recalc_maxweight() = 0; // recalculate weights (used when tree has been autopruned)
+
 	// w_min in the next two functions is simply a hint -
 	// documents with a weight less than w_min will be ignored.
 	// However, it may be best to return them anyway, if the weight

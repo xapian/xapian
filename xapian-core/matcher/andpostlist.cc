@@ -35,12 +35,11 @@ AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
     return;
 }
 
-AndPostList::AndPostList(PostList *left, PostList *right)
+AndPostList::AndPostList(PostList *left, PostList *right, Match *root_)
 {    
+    root = root_;
     l = left;
     r = right;
-    lmax = l->get_maxweight();
-    rmax = r->get_maxweight();
     head = 0;
 }
 

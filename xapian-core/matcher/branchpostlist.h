@@ -4,11 +4,13 @@
 #define _branchpostlist_h_
 
 #include "database.h"
+#include "match.h"
 
 class BranchPostList : public virtual PostList {
     protected:
         void handle_prune(PostList *&kid, PostList *ret);
         PostList *l, *r;
+        Match *root;
     public:
         virtual ~BranchPostList();
 };
@@ -26,8 +28,9 @@ BranchPostList::handle_prune(PostList *&kid, PostList *ret)
     if (ret) {
 	delete kid;
 	kid = ret;
+	// now get tree to recalculate max weights...
+	root->recalc_maxweight();
     }
-    // FIXME: now get tree to recalculate max weights...
 }
 
 #endif /* _branchpostlist_h_ */

@@ -30,8 +30,9 @@ AndNotPostList::advance_to_next_match(weight w_min, PostList *ret)
     return NULL;
 }
 
-AndNotPostList::AndNotPostList(PostList *left, PostList *right)
+AndNotPostList::AndNotPostList(PostList *left, PostList *right, Match *root_)
 {    
+    root = root_;
     l = left;
     r = right;
     lhead = rhead = 0;
