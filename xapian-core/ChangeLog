@@ -1,3 +1,8 @@
+Fri Nov  3 11:30:30 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add a little hack to malloc_wrapper.sh to allow tests in deeper
+	  directories to find malloccheck.so.
+
 Thu Nov  2 18:49:58 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* More stuff in indexerquickstart.html
