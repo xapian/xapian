@@ -1,0 +1,8 @@
+
+
+Multi Databases:
+Termid issue:  Where should translation from local id to global id be performed?
+
+ i)  Could do in multitermlist / multipostlist - have a translation cache
+ ii) Could do by passing lowlevel termlist a translation routine
+     (NULL = no translation)
