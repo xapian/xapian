@@ -1,3 +1,8 @@
+Wed Sep 10 02:53:46 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/scalability.html: Fixed oops (32GB should be 32TB);  Added
+	  note about Linux 2.4 and ext2 filesize limits.
+
 Tue Sep 09 03:36:05 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: don't start the document's
