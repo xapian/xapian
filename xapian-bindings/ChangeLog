@@ -1,3 +1,15 @@
+Tue Apr 05 00:50:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* csharp/.cvsignore,python/docs/.cvsignore,
+	  python/docs/examples/.cvsignore,python/.cvsignore,
+	  java/native/.cvsignore,java/org/xapian/errors/.cvsignore,
+	  java/org/xapian/.cvsignore,java/org/xapian/examples/.cvsignore,
+	  java/org/.cvsignore,java/.cvsignore,debian/.cvsignore,
+	  guile/.cvsignore,tcl8/docs/.cvsignore,tcl8/docs/examples/.cvsignore,
+	  tcl8/.cvsignore,php4/docs/.cvsignore,php4/docs/examples/.cvsignore,
+	  php4/.cvsignore,.cvsignore: Remove .cvsignore files, as they're not
+	  used by SVN.
+
 Tue Apr 05 00:34:09 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,php4/Makefile.am: There are problems with the PHP glue
