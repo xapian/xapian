@@ -504,9 +504,6 @@ QuartzBufferedTable::apply(quartz_revision_number_t new_revision)
     try {
 	// One QuartzEntry to rule them all, One QuartzEntry to find them,
 	// One QuartzEntry to bring them all, and in the backend bind them...
-	map<string, string *> merged;
-
-	
 	QuartzTableEntries::items & entries = changed_entries.get_all_entries();
 	map<string, string *>::iterator entry;
 	entry = entries.begin();

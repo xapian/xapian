@@ -1,3 +1,7 @@
+Mon Aug 11 16:11:05 BST 2003  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_table.cc: Removed unused variable.
+
 Mon Aug 11 16:09:57 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: Fixed typo in comment.
