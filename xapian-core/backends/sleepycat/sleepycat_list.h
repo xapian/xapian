@@ -61,8 +61,8 @@ class SleepyListItem {
 	 *  For termlists, the WDF is the number of occurences of this term
 	 *  in the termlist document.
 	 *
-	 *  If WDF information is not empty, this field will have a value of
-	 *  zero.
+	 *  If WDF information is not present, this field will have a value
+	 *  of zero.
 	 */
 	om_termcount wdf;
 
