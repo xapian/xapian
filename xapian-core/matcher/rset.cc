@@ -71,7 +71,7 @@ RSet::calculate_stats()
 }
 
 void
-RSet::give_stats_to_statssource(StatsSource *statssource)
+RSet::give_stats_to_statssource(OmWeight::Internal *statssource)
 {
     DEBUGCALL(MATCH, void, "RSet::give_stats_to_statssource", statssource);
     Assert(calculated_reltermfreqs);

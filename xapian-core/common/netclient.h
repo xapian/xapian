@@ -32,6 +32,8 @@
 #include "networkstats.h"
 #include "omenquireinternal.h"
 
+using std::map;
+
 /** The base class of the network interface.
  *  A NetClient object is used by NetworkMatch to communicate
  *  with remote matching processes.

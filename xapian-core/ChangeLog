@@ -1,3 +1,8 @@
+Fri Dec 06 03:51:35 GMT 2002  Olly Betts <olly@survex.com>
+
+	* common/,include/om/omenquire.h,matcher/localmatch.h,matcher/rset.cc,
+	  matcher/stats.cc: Fixed to compile with GCC 3.0.
+
 Thu Dec 05 23:28:29 GMT 2002  Olly Betts <olly@survex.com>
 
 	* include/om/omdatabase.h: Added missing "std::".

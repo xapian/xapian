@@ -738,7 +738,8 @@ class OmEnquire {
 /// Abstract base class for weighting schemes
 class OmWeight {
     friend class OmEnquire; // So OmEnquire can clone us
-    class Internal;
+    public:
+	class Internal;
     private:
 	OmWeight(const OmWeight &);
 	void operator=(OmWeight &);

@@ -30,7 +30,7 @@
 #include "omenquireinternal.h"
 
 class Database;
-class StatsSource;
+class OmWeight::Internal;
 
 class RSetItem {
     public:
@@ -38,8 +38,11 @@ class RSetItem {
 	om_docid did;
 };
 
-/** A relevance set.  This is used internally, and performs the calculation
- *  and caching of relevant term frequencies. */
+/** A relevance set.
+ *
+ * This is used internally, and performs the calculation and caching of
+ * relevant term frequencies.
+ */
 class RSet {
     private:
 	// disallow copy
@@ -63,7 +66,7 @@ class RSet {
 	void will_want_reltermfreq(om_termname tname);
 
 	void calculate_stats();
-	void give_stats_to_statssource(StatsSource *statssource);
+	void give_stats_to_statssource(OmWeight::Internal *statssource);
 
 	om_doccount get_rsize() const;
 	om_doccount get_reltermfreq(om_termname tname) const;
@@ -73,13 +76,13 @@ class RSet {
 // Inline method definitions //
 ///////////////////////////////
 
-// Empty initialisation
+/// Empty initialisation
 inline
 RSet::RSet(const OmDatabase &root_)
 	: root(root_), dbroot(NULL), calculated_reltermfreqs(false)
 {}
 
-// Initialise with an OmRSet
+/// Initialise with an OmRSet
 inline
 RSet::RSet(const OmDatabase &root_, const OmRSet & omrset)
 	: root(root_), dbroot(NULL), calculated_reltermfreqs(false)
@@ -91,7 +94,7 @@ RSet::RSet(const OmDatabase &root_, const OmRSet & omrset)
     }
 }
 
-// Initialise with an OmRSet
+/// Initialise with an OmRSet
 inline
 RSet::RSet(const Database *dbroot_, const OmRSet & omrset)
 	: dbroot(dbroot_), calculated_reltermfreqs(false)

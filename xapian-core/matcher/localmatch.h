@@ -49,7 +49,7 @@ class LocalSubMatch : public SubMatch {
         LocalSubMatch(const LocalSubMatch &);
         LocalSubMatch & operator=(const LocalSubMatch &);
 
-	AutoPtr<StatsSource> statssource;
+	AutoPtr<OmWeight::Internal> statssource;
 
 	bool is_prepared;
 

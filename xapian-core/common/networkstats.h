@@ -69,10 +69,10 @@ class NetworkStatsGatherer : public StatsGatherer {
 
 class NetClient;
 
-/** Network StatsSource: a virtual StatsSource which is part of the glue
+/** NetworkStatsSource: a virtual OmWeight::Internal which is part of the glue
  *  between a StatsGatherer and the remote matching process.
  */
-class NetworkStatsSource : public StatsSource {
+class NetworkStatsSource : public OmWeight::Internal {
     private:
 	/// The NetClient object used for communications.
 	RefCntPtr<NetClient> nclient;

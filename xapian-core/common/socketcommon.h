@@ -34,6 +34,8 @@
 #include "om/omquery.h"
 #include "omtime.h"
 
+using std::map;
+
 #define OM_SOCKET_PROTOCOL_VERSION 15
 
 class OmQuery::Internal;

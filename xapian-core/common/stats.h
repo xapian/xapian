@@ -59,7 +59,7 @@ class Stats {
 	Stats & operator +=(const Stats & inc);
 };
 
-class StatsSource;
+class OmWeight::Internal;
 
 /** Statistics collector: gathers statistics from sub-databases, puts them
  *  together to build statistics for whole collection, and returns the
@@ -73,11 +73,11 @@ class StatsGatherer {
 	 */
 	mutable bool have_gathered;
 
-	/** A collection of StatsSource children.
+	/** A collection of OmWeight::Internal children.
 	 *  The Gatherer uses this to make sure that each child
 	 *  has contributed before it will give out its statistics.
 	 */
-	mutable std::set<StatsSource *> sources;
+	mutable std::set<OmWeight::Internal *> sources;
 
 	/** The total statistics gathered for the whole collection.
 	 */
@@ -91,17 +91,17 @@ class StatsGatherer {
 	 */
 	virtual void set_global_stats(om_doccount rset_size);
 
-	/** Add a StatsSource object to this gatherer.
+	/** Add a OmWeight::Internal object to this gatherer.
 	 *  The gatherer will include the source's statistics
 	 *  into its own summary statistics.
 	 */
-	void add_child(StatsSource *source);
+	void add_child(OmWeight::Internal *source);
 
-	/** Remove a StatsSource object from this gatherer.
+	/** Remove a OmWeight::Internal object from this gatherer.
 	 *  This is needed in the case of some parts of the database dying
 	 *  during the match.
 	 */
-	void remove_child(StatsSource *source);
+	void remove_child(OmWeight::Internal *source);
 
 	/** Contribute some statistics to the overall statistics.
 	 *  Should only be called once by each sub-database.
@@ -152,10 +152,14 @@ class OmWeight::Internal {
     public:
 	/// Constructor
 	Internal(StatsGatherer *gatherer_) : gatherer(gatherer_), total_stats(0)
-	{ }
+	{
+	    gatherer->add_child(this);
+	}
 
 	/// Virtual destructor
-	virtual ~Internal() { }
+	virtual ~Internal() {
+	    gatherer->remove_child(this);
+	}
 
 	/// Contribute all the statistics that don't depend on global
 	/// stats.  Used by StatsGatherer.
@@ -217,28 +221,12 @@ class OmWeight::Internal {
 	om_doccount get_total_reltermfreq(const om_termname & tname) const;
 };
 
-class StatsSource : public OmWeight::Internal {
-    private:
-        // Prevent copying
-        StatsSource(const StatsSource &);
-        StatsSource & operator=(const StatsSource &);
-
-    public:
-	/// Constructor
-	StatsSource(StatsGatherer *gatherer_) : OmWeight::Internal(gatherer_) {
-	    gatherer->add_child(this);
-	}
-	~StatsSource() {
-	    gatherer->remove_child(this);
-	}
-};
-
-/** LocalStatsSource: the StatsSource object which provides methods
+/** LocalStatsSource: the OmWeight::Internal object which provides methods
  *  to access the statistics.  A LocalSubMatch object uses it to report
  *  on its local statistics and retrieve the global statistics after
  *  the gathering process is complete.
  */
-class LocalStatsSource : public StatsSource {
+class LocalStatsSource : public OmWeight::Internal {
     private:
     public:
 	/// Constructor

@@ -28,14 +28,14 @@
 #include "omdebug.h"
 
 void
-StatsGatherer::add_child(StatsSource *source) {
+StatsGatherer::add_child(OmWeight::Internal *source) {
     DEBUGCALL(MATCH, void, "StatsGatherer::add_child", source);
     Assert(have_gathered == false);
     sources.insert(source);
 }
 
 void
-StatsGatherer::remove_child(StatsSource *source) {
+StatsGatherer::remove_child(OmWeight::Internal *source) {
     DEBUGCALL(MATCH, void, "StatsGatherer::remove_child", source);
     // If have_gathered is true, the stats will be wrong, but we just
     // continue as best we can.
@@ -55,7 +55,7 @@ LocalStatsGatherer::get_stats() const
 {
     DEBUGCALL(MATCH, Stats *, "LocalStatsGatherer::get_stats", "");
     if(!have_gathered) {
-	for (std::set<StatsSource *>::iterator i = sources.begin();
+	for (std::set<OmWeight::Internal *>::iterator i = sources.begin();
 	     i != sources.end();
 	     ++i) {
 	    (*i)->contrib_my_stats();
@@ -92,7 +92,7 @@ NetworkStatsGatherer::fetch_local_stats() const
 {
     DEBUGCALL(MATCH, void, "NetworkStatsGatherer::fetch_local_stats", "");
     if (!have_gathered) {
-	for (std::set<StatsSource *>::iterator i = sources.begin();
+	for (std::set<OmWeight::Internal *>::iterator i = sources.begin();
 	     i != sources.end();
 	     ++i) {
 	    (*i)->contrib_my_stats();
@@ -123,7 +123,7 @@ NetworkStatsGatherer::fetch_global_stats() const
 
 NetworkStatsSource::NetworkStatsSource(StatsGatherer * gatherer_,
 				       RefCntPtr<NetClient> nclient_)
-	: StatsSource(gatherer_), nclient(nclient_),
+	: OmWeight::Internal(gatherer_), nclient(nclient_),
           have_remote_stats(false)
 {
     DEBUGCALL(MATCH, void, "NetworkStatsSource", "[gatherer_], [nclient_]");
@@ -153,7 +153,7 @@ NetworkStatsSource::take_remote_stats(Stats stats)
 #endif /* MUS_BUILD_BACKEND_REMOTE */
 
 LocalStatsSource::LocalStatsSource(StatsGatherer * gatherer_)
-	: StatsSource(gatherer_)
+	: OmWeight::Internal(gatherer_)
 {
     DEBUGCALL(MATCH, void, "LocalStatsSource", gatherer_);
 }
