@@ -1392,9 +1392,18 @@ static struct Btree * basic_open(const char * name_,
                                   /* unsigned comparison */
         }
 
-        if (ch == 'A') { base = baseA; other_base = baseB; } else
-        if (ch == 'B') { base = baseB; other_base = baseA; } else
-                       { B->error = BTREE_ERROR_BASE_READ; return B; }
+        if (ch == 'A') {
+	    base = baseA;
+	    other_base = baseB;
+	} else if (ch == 'B') {
+	    base = baseB;
+	    other_base = baseA;
+	} else {
+	    B->error = BTREE_ERROR_BASE_READ;
+	    free (baseA);
+	    free (baseB);
+	    return B;
+	}
 
         /* base now points to the most recent base block */
 
