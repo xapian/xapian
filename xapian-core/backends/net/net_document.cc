@@ -1,4 +1,4 @@
-/* leafdocument.cc: class with document data
+/* net_document.cc: C++ class for storing net documents
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,29 +20,37 @@
  * -----END-LICENCE-----
  */
 
-#include <om/omtypes.h>
-#include "omrefcnt.h"
-#include "omlocks.h"
-#include "document.h"
+#include "net_document.h"
 #include <om/omdocument.h>
 
+NetworkDocument::NetworkDocument(const string & doc_,
+				 const vector<OmKey> &keys_)
+	: doc(doc_), keys(keys_)
+{
+}
+
 OmKey
-LeafDocument::get_key(om_keyno keyid) const
+NetworkDocument::do_get_key(om_keyno keyid) const
 {
-    OmLockSentry locksentry(mutex);
-    return do_get_key(keyid);
+    OmKey key;
+    if(keys.size() <= keyid) {
+	key.value = "";
+    } else {
+        key = keys[keyid];
+    }
+    return key;
 }
-	
+
 vector<OmKey>
-LeafDocument::get_all_keys() const
+NetworkDocument::do_get_all_keys() const
 {
-    OmLockSentry locksentry(mutex);
-    return do_get_all_keys();
+    return keys;
 }
-	
+
 OmData
-LeafDocument::get_data() const
+NetworkDocument::do_get_data() const
 {
-    OmLockSentry locksentry(mutex);
-    return do_get_data();
+    OmData data;
+    data.value = doc;
+    return data;
 }

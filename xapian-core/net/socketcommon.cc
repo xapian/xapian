@@ -34,7 +34,8 @@
 #include "readquery.h"
 #include "stats.h"
 #include "utils.h"
-#include <om/omenquire.h>
+#include "om/omenquire.h"
+#include "om/omdocument.h"
 
 OmQueryInternal qfs_readcompound();
 
@@ -516,6 +517,18 @@ omrset_to_string(const OmRSet &omrset)
 	result += inttostring(*i);
     }
     return result;
+}
+
+string
+omkey_to_string(const OmKey &omkey)
+{
+    return encode_tname(omkey.value);
+}
+
+OmKey
+string_to_omkey(const string &s)
+{
+    return decode_tname(s);
 }
 
 OmRSet

@@ -81,6 +81,9 @@ class SocketServer : public NetServer {
 	/// run the get term list conversation
 	void run_gettermlist(const string &firstmessage);
 	
+	/// run the get document conversation
+	void run_getdocument(const string &firstmessage);
+	
     public:
 	/** Default constructor. 
 	 *  @param db		The database on which searches are done.

@@ -31,6 +31,7 @@ class OmQueryInternal;
 class OmMatchOptions;
 class Stats;
 class OmRSet;
+class OmKey;
 
 /** The OmLineBuf class implements a two-way line discipline
  *  using Unix filedescriptors, allowing the client to read
@@ -124,6 +125,18 @@ string omrset_to_string(const OmRSet &omrset);
  *  @param s		The serialised object as a string.
  */
 OmRSet string_to_omrset(const string &s);
+
+/** Convert an OmKey object into a string representation.
+ *
+ *  @param omrset		The object to serialise.
+ */
+string omkey_to_string(const OmKey &omkey);
+
+/** Convert a serialised OmKey string back into an object.
+ *
+ *  @param s		The serialised object as a string.
+ */
+OmKey string_to_omkey(const string &s);
 
 OmQueryInternal qfs_readquery();
 

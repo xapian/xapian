@@ -1,3 +1,8 @@
+Fri Jun  2 19:09:00 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented NetworkDatabase::open_document().  Tests still fail
+	  from some lack of support in other backends.
+
 Fri Jun  2 18:22:03 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added get_all_keys() method to LeafDocument

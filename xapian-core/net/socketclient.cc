@@ -107,6 +107,30 @@ SocketClient::get_tlist(om_docid did,
     }
 }
 
+void
+SocketClient::get_doc(om_docid did,
+		      string &doc,
+		      vector<OmKey> &keys)
+{
+    string message;
+    buf.writeline(string("GETDOC ") + inttostring(did));
+
+    message = do_read();
+    if (!startswith(message, "DOC ")) {
+	throw OmNetworkError(string("Expected DOC, got ") + message);
+    }
+
+    doc = decode_tname(message.substr(4));
+
+    while (startswith(message = do_read(), "KEY ")) {
+	keys.push_back(string_to_omkey(message.substr(4)));
+    }
+
+    if (message != "END") {
+	throw OmNetworkError(string("Expected END, got ") + message);
+    }
+}
+
 om_doccount
 SocketClient::get_doccount()
 {

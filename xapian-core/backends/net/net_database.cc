@@ -24,6 +24,7 @@
 #include "omassert.h"
 #include "net_database.h"
 #include "net_termlist.h"
+#include "net_document.h"
 #include "database_builder.h"
 #include "progclient.h"
 #include "tcpclient.h"
@@ -122,21 +123,16 @@ NetworkDatabase::open_term_list(om_docid did) const {
 LeafDocument *
 NetworkDatabase::open_document(om_docid did) const
 {
-    throw OmUnimplementedError("NetworkDatabase::open_document() not implemented");
+    string doc;
+    vector<OmKey> keys;
+    link->get_doc(did, doc, keys);
+    return new NetworkDocument(doc, keys);
 }
 
 om_doclength
 NetworkDatabase::get_doclength(om_docid did) const
 {
     throw OmUnimplementedError("NetworkDatabase::get_doclength() not implemented");
-#if 0
-    om_doccount multiplier = databases.size();
-
-    om_docid realdid = (did - 1) / multiplier + 1;
-    om_doccount dbnumber = (did - 1) % multiplier;
-
-    return (*(databases.begin() + dbnumber))->get_doclength(realdid);
-#endif
 }
 
 bool

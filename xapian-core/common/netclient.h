@@ -117,6 +117,11 @@ class NetClient : public OmRefCntBase {
 	virtual void get_tlist(om_docid did,
 			       vector<TermListItem> &items) = 0;
 
+	/** Retrieve a remote document */
+	virtual void get_doc(om_docid did,
+			     string &doc,
+			     vector<OmKey> &keys) = 0;
+
 	/** Find out the max_weight */
 	virtual om_weight get_max_weight() = 0;
 

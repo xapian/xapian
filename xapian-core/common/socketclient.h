@@ -178,6 +178,11 @@ class SocketClient : public NetClient {
 	void get_tlist(om_docid did,
 		       vector<NetClient::TermListItem> &items);
 
+	/** Retrieve a remote document */
+	void get_doc(om_docid did,
+		     string &doc,
+		     vector<OmKey> &keys);
+
 	/** Find the max weight */
 	om_weight get_max_weight();
 

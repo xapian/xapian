@@ -31,6 +31,7 @@
 #include "om/omerror.h"
 #include "omerr_string.h"
 #include "termlist.h"
+#include "document.h"
 #include <memory>
 #include <strstream.h>
 #include <signal.h>
@@ -99,6 +100,8 @@ SocketServer::run()
 		run_match(message);
 	    } else if (startswith(message, "GETTLIST ")) {
 		run_gettermlist(message);
+	    } else if (startswith(message, "GETDOC ")) {
+		run_getdocument(message);
 	    } else {
 		throw OmInvalidArgumentError(string("Unexpected message:") +
 					     message);
@@ -274,6 +277,32 @@ SocketServer::run_gettermlist(const string &firstmessage)
 	buf.writeline(item);
 
 	tl->next();
+    }
+
+    buf.writeline("END");
+}
+
+void
+SocketServer::run_getdocument(const string &firstmessage)
+{
+    string message = firstmessage;
+    // extract the match options
+    if (!startswith(message, "GETDOC ")) {
+	throw OmNetworkError(string("Expected GETDOC, got ") + message);
+    }
+
+    om_docid did = atoi(message.c_str() + 7);
+
+    auto_ptr<LeafDocument> doc(db->open_document(did));
+
+    buf.writeline(string("DOC ") + encode_tname(doc->get_data().value));
+
+    vector<OmKey> keys = doc->get_all_keys();
+
+    vector<OmKey>::const_iterator i = keys.begin();
+    while (i != keys.end()) {
+	string item = string("KEY ") + omkey_to_string(*i);
+	buf.writeline(item);
     }
 
     buf.writeline("END");
