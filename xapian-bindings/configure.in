@@ -49,10 +49,16 @@ fi
 
 AC_PATH_PROG(PHP_CONFIG, php-config, [])
 if test -n "$PHP_CONFIG" ; then
-    dnl FIXME: check version: $PHP_CONFIG --version returns e.g. "4.2.1"
-    PHPIZE="`$PHP_CONFIG --prefix`/bin/phpize"
-    AC_SUBST(PHPIZE)
-    BINDINGS="$BINDINGS php4"
+    case "`$PHP_CONFIG --version 2> /dev/null`" in
+    4.*)
+	PHPIZE="`$PHP_CONFIG --prefix`/bin/phpize"
+	AC_SUBST(PHPIZE)
+	if test -x "$PHPIZE" ; then
+	    BINDINGS="$BINDINGS php4"
+	fi
+	;;
+    *) ;;
+    esac
 fi
 
 AC_PATH_PROG(JAVA, java, [],
@@ -72,7 +78,19 @@ if test -n "$JAVA" -a -n "$JAVAC" -a -n "$JAR" ; then
     AC_CHECK_HEADER(jni.h, [BINDINGS="$BINDINGS java"])
 fi
 
-dnl FIXME: also check for guile, tcl8
+AC_PATH_PROG(TCLSH, tclsh, [])
+if test -n "$TCLSH" ;  then
+    if `echo 'if {$tcl_version < 8.0 } { exit 1 }'|$TCLSH 2> /dev/null` ; then
+	TCL_LIB="`echo 'puts $tcl_library'|$TCLSH`"
+	AC_SUBST(TCL_LIB)
+	dnl there's no obvious way to get "/usr/include/tcl8.2" directly...
+	TCL_INC="`echo \"$TCL_LIB\"|sed 's!/lib/!/include/!'`"
+	AC_SUBST(TCL_INC)
+	BINDINGS="$BINDINGS tcl8"
+    fi
+fi
+
+dnl FIXME: also check for guile
 
 AC_SUBST(BINDINGS)
 

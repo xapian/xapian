@@ -2,11 +2,11 @@
 
 EXTRA_DIST = util.i extra.i
 
-tcllibdir = ~/local/lib/tcl8.2
+tcllibdir = @TCL_LIB@
 
 tcllib_LTLIBRARIES = xapian.la
 
-AM_CPPFLAGS = -I/usr/include/tcl8.2
+AM_CPPFLAGS = -I@TCL_INC@
 # swig generated code gives lots of (non-harmful) warnings with -W or -Wunused
 AM_CXXFLAGS = $(XAPIAN_CXXFLAGS) -Wall -Wno-unused
 xapian_la_LDFLAGS = -avoid-version -module

@@ -1,3 +1,10 @@
+Tue Jan 13 01:50:27 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Check PHP version is at least 4.0.
+	* configure.in,tcl8/Makefile.am: Look for tclsh and enable building
+	  tcl bindings if it's at least version 8.0; get lib and include
+	  directories from tclsh and use those for building the bindings.
+
 Mon Jan 12 17:52:39 GMT 2004  Olly Betts <olly@survex.com>
 
 	* python/docs/bindings.html: OMMSET_* and OMESET_* -> MSET_* and
