@@ -1086,7 +1086,7 @@ next_chunk:
 			   from->get_wdf(), from->get_doclength());
 		from->next();
 	    }
-	    if (from && from->is_at_end() && did > max_did) {
+	    if ((!from || from->is_at_end()) && did > max_did) {
 		delete from;
 		to->flush(bufftable);
 		delete to;

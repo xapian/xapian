@@ -1,3 +1,7 @@
+Sun Jun 27 23:37:01 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc: Fixed bug in postlist merging.
+
 Sat Jun 26 00:51:04 BST 2004  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Malcolm Baldridge (helped fix a problem with building
