@@ -31,7 +31,7 @@
 #include "expand.h"
 #include "database.h"
 #include "database_builder.h"
-#include "irdocument.h"
+#include <om/omdocument.h>
 
 #include <vector>
 #include <set>
@@ -596,11 +596,6 @@ OmEnquire::get_mset(om_doccount first,
                     const OmMatchOptions *moptions,
 		    const OmMatchDecider *mdecider) const
 {
-    // FIXME - implement this
-    if(mdecider != 0)
-	throw OmUnimplementedError("Decision functors are not yet implemented "
-				   "in OmEnquire::get_mset().");
-
     if(internal->query == 0) {
         throw OmInvalidArgumentError("You must set a query before calling OmEnquire::get_mset()");
     }
@@ -652,7 +647,8 @@ OmEnquire::get_mset(om_doccount first,
 	}
     } else {
 	match.match(first, maxitems, retval.items,
-		    msetcmp_forward, &(retval.mbound), &(retval.max_attained));
+		    msetcmp_forward, &(retval.mbound), &(retval.max_attained),
+		    mdecider);
 
 	// Get max weight for an item in the MSet
 	retval.max_possible = match.get_max_weight();
@@ -714,7 +710,7 @@ OmData
 OmEnquire::get_doc_data(om_docid did) const
 {
     internal->open_database();
-    IRDocument *doc = internal->database->open_document(did);
+    OmDocument *doc = internal->database->open_document(did);
     return doc->get_data();
 }
 

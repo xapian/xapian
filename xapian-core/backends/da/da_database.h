@@ -33,6 +33,8 @@
 #include "termlist.h"
 #include "database.h"
 
+#include <om/omdocument.h>
+
 #include "errno.h"
 
 // Anonymous declarations (definitions in daread.h)
@@ -269,7 +271,7 @@ class DADatabase : public virtual IRDatabase {
 
 	DBPostList * open_post_list(const om_termname & tname, RSet * rset) const;
 	DBTermList * open_term_list(om_docid did) const;
-	IRDocument * open_document(om_docid did) const;
+	OmDocument * open_document(om_docid did) const;
 
 	void make_term(const om_termname & tname) {
 	    throw OmUnimplementedError("DADatabase::make_term() not implemented");

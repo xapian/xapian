@@ -204,7 +204,7 @@ class InMemoryDatabase : public virtual IRDatabase {
 
 	DBPostList * open_post_list(const om_termname & tname, RSet * rset) const;
 	DBTermList * open_term_list(om_docid did) const;
-	IRDocument * open_document(om_docid did) const;
+	OmDocument * open_document(om_docid did) const;
 
 	om_doclength get_doclength(om_docid did) const;
 

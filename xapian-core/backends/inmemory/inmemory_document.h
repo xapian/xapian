@@ -23,10 +23,10 @@
 #ifndef OM_HGUARD_INMEMORY_DOCUMENT_H
 #define OM_HGUARD_INMEMORY_DOCUMENT_H
 
-#include "irdocument.h"
+#include <om/omdocument.h>
 #include <string>
 
-class InMemoryDocument : public virtual IRDocument {
+class InMemoryDocument : public virtual OmDocument {
     friend class InMemoryDatabase;
     private:
 	string doc;
@@ -37,7 +37,7 @@ class InMemoryDocument : public virtual IRDocument {
 	InMemoryDocument(const InMemoryDocument &);
 	InMemoryDocument & operator = (const InMemoryDocument &);
     public:
-	IRKey get_key(om_keyno keyid) const;
+	OmKey get_key(om_keyno keyid) const;
 	OmData get_data() const;
 };
 

@@ -26,10 +26,10 @@ InMemoryDocument::InMemoryDocument(const string & doc_)
 	: doc(doc_)
 { return; }
 
-IRKey
+OmKey
 InMemoryDocument::get_key(om_keyno keyid) const
 {
-    IRKey key;
+    OmKey key;
     key.value = 0;
     return key;
 }

@@ -20,7 +20,7 @@
  * -----END-LICENCE-----
  */
 
-#include "irdocument.h"
+#include <om/omdocument.h>
 #include "da_database.h"
 #include "da_record.h"
 #include "daread.h"
@@ -31,11 +31,11 @@ DADocument::~DADocument()
     if(rec != NULL) loserecord(rec);
 }
 
-IRKey
+OmKey
 DADocument::get_key(om_keyno keyid) const
 {
     cout << "Asked for keyno " << keyid;
-    IRKey key;
+    OmKey key;
     key.value = did % (keyid + 1);
     cout << ": saying " << key.value << endl;
     return key;

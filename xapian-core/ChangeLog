@@ -1,3 +1,9 @@
+Fri Feb 18 13:54:37 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented match functors
+
+	* IRDocument is now OmDocument, on <om/omdocument.h>
+
 Fri Feb 18 13:53:34 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added test for reversed boolean queries.

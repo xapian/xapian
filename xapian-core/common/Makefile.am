@@ -4,7 +4,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 noinst_HEADERS = \
  omassert.h \
- database_builder.h database.h termlist.h postlist.h irdocument.h \
+ database_builder.h database.h termlist.h postlist.h \
  dbpostlist.h \
  irweight.h expandweight.h \
  match.h expand.h rset.h \

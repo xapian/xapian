@@ -25,7 +25,7 @@
 
 #include "database.h"
 #include "omassert.h"
-#include "irdocument.h"
+#include "om/omdocument.h"
 #include "om/omenquire.h"
 
 class IRWeight;
@@ -78,11 +78,12 @@ class OmMatch
 
 	// Internal method to perform the collapse operation
 	bool perform_collapse(vector<OmMSetItem> &mset,
-			      map<IRKey, OmMSetItem> &collapse_table,
+			      map<OmKey, OmMSetItem> &collapse_table,
 			      om_docid did,
 			      const OmMSetItem &new_item,
 			      const MSetCmp &mcmp,
-			      const OmMSetItem &min_item);
+			      const OmMSetItem &min_item,
+			      const OmDocument *irdoc);
     public:
         OmMatch(IRDatabase * database_);
         ~OmMatch();
@@ -136,7 +137,8 @@ class OmMatch
 		   vector<OmMSetItem> & mset,// Results will be put here
 		   mset_cmp cmp,           // Comparison operator to sort by
 		   om_doccount * mbound,   // Mbound will returned here
-		   om_weight * greatest_wt // Gets set to max weight attained
+		   om_weight * greatest_wt,// Gets set to max weight attained
+		   const OmMatchDecider *decider // Optional decider functor
 		   );
 
 	// Do a boolean only match

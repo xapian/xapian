@@ -23,7 +23,8 @@
 #ifndef OM_HGUARD_OMENQUIRE_H
 #define OM_HGUARD_OMENQUIRE_H
 
-#include "omtypes.h"
+#include <om/omtypes.h>
+#include <om/omdocument.h>
 #include <string>
 #include <vector>
 #include <set>
@@ -232,10 +233,7 @@ class OmMatchOptions {
 };
 
 /** Base class for matcher decision functor.
- *
- *  Note:  Matcher decision functors are not yet implemented!
  */
-// FIXME - implement
 class OmMatchDecider {
     public:
 	/** Decide whether we want this document to be in the mset.
@@ -243,7 +241,7 @@ class OmMatchDecider {
 	 *  Note: The parameters of this method are extremely likely to change
 	 *  in the near future.
 	 */
-	virtual int operator()(om_docid did) const = 0;
+	virtual int operator()(OmDocument *doc) const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -464,21 +462,6 @@ class OmESet {
 	om_termcount ebound;
 };
 
-///////////////////////////////////////////////////////////////////
-// OmData class
-// ============
-// Representing the document data
-
-/** @memo The data in a document.
- *  @doc This contains the arbitrary chunk of data which is associated
- *  with each document in the database: it is up to the user to define
- *  the format of this data, and to set it at indexing time.
- */
-class OmData {
-    public:
-	/// The data.
-	string value;
-};
 
 ///////////////////////////////////////////////////////////////////
 // OmEnquire class

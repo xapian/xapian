@@ -23,12 +23,12 @@
 #ifndef OM_HGUARD_DA_RECORD_H
 #define OM_HGUARD_DA_RECORD_H
 
-#include "irdocument.h"
+#include "om/omdocument.h"
 #include "daread.h"
 
 class DADatabase;
 
-class DADocument : public virtual IRDocument {
+class DADocument : public virtual OmDocument {
     friend class DADatabase;
     private:
 	const DADatabase * database;
@@ -43,7 +43,7 @@ class DADocument : public virtual IRDocument {
     public:
 	~DADocument();
 
-	IRKey get_key(om_keyno keyid) const;
+	OmKey get_key(om_keyno keyid) const;
 	OmData get_data() const;
 };
 

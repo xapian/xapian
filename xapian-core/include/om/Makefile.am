@@ -4,4 +4,4 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 libomusincludedir = $(includedir)/om
 libomusinclude_HEADERS = om.h \
-omerror.h omtypes.h omenquire.h omstem.h
+omerror.h omtypes.h omenquire.h omstem.h omdocument.h

@@ -29,7 +29,7 @@
 #include "database_builder.h"
 #include "indexer.h"
 
-class IRDocument;
+class OmDocument;
 class PostList;
 class DBPostList;
 class TermList;
@@ -77,7 +77,7 @@ class IRDatabase : public virtual IndexerDestination {
 
 	virtual DBPostList * open_post_list(const om_termname&, RSet *) const = 0;
 	virtual DBTermList * open_term_list(om_docid) const = 0;
-	virtual IRDocument * open_document(om_docid id) const = 0;
+	virtual OmDocument * open_document(om_docid id) const = 0;
 
 #if 0
 	// Introspection methods:

@@ -58,7 +58,7 @@ class MultiDatabase : public virtual IRDatabase {
 
 	DBPostList * open_post_list(const om_termname & tname, RSet * rset) const;
 	DBTermList * open_term_list(om_docid did) const;
-	IRDocument * open_document(om_docid did) const;
+	OmDocument * open_document(om_docid did) const;
 
 	void make_term(const om_termname &) {
 	    throw OmUnimplementedError("DADatabase::make_term() not implemented");

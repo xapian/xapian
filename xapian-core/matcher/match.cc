@@ -29,7 +29,7 @@
 #include "filterpostlist.h"
 #include "emptypostlist.h"
 #include "dbpostlist.h"
-#include "irdocument.h"
+#include <om/omdocument.h>
 #include "rset.h"
 
 #include "bm25weight.h"
@@ -315,22 +315,22 @@ OmMatch::recalc_maxweight()
 // Internal method to perform the collapse operation
 inline bool
 OmMatch::perform_collapse(vector<OmMSetItem> &mset,
-         		  map<IRKey, OmMSetItem> &collapse_table,
+         		  map<OmKey, OmMSetItem> &collapse_table,
 			  om_docid did,
 			  const OmMSetItem &new_item,
 			  const MSetCmp &mcmp,
-			  const OmMSetItem &min_item)
+			  const OmMSetItem &min_item,
+			  const OmDocument *irdoc)
 {
     bool add_item = true;
 
-    IRDocument * irdoc = database->open_document(did);
-    IRKey irkey = irdoc->get_key(collapse_key);
-    map<IRKey, OmMSetItem>::iterator oldkey;
+    OmKey irkey = irdoc->get_key(collapse_key);
+    map<OmKey, OmMSetItem>::iterator oldkey;
     oldkey = collapse_table.find(irkey);
     if(oldkey == collapse_table.end()) {
 	DebugMsg("collapsem: new key: " << irkey.value << endl);
 	// Key not been seen before
-	collapse_table.insert(pair<IRKey, OmMSetItem>(irkey, new_item));
+	collapse_table.insert(pair<OmKey, OmMSetItem>(irkey, new_item));
     } else {
 	const OmMSetItem olditem = (*oldkey).second;
 	if(mcmp(olditem, new_item)) {
@@ -365,7 +365,8 @@ OmMatch::perform_collapse(vector<OmMSetItem> &mset,
 void
 OmMatch::match(om_doccount first, om_doccount maxitems,
 	       vector<OmMSetItem> & mset, mset_cmp cmp,
-	       om_doccount * mbound, om_weight * greatest_wt)
+	       om_doccount * mbound, om_weight * greatest_wt,
+	       const OmMatchDecider *mdecider)
 {
     // Prepare query
     *mbound = 0;
@@ -387,7 +388,7 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
     om_weight w_max = max_weight;
     recalculate_maxweight = false;
 
-    map<IRKey, OmMSetItem> collapse_table;
+    map<OmKey, OmMSetItem> collapse_table;
 
     // Perform query
     while (1) {
@@ -430,11 +431,25 @@ OmMatch::match(om_doccount first, om_doccount maxitems,
 	    bool add_item = true;
 	    OmMSetItem new_item(w, did);
 
-	    // Item has high enough weight to go in MSet: do collapse if wanted
-	    if(do_collapse) {
-		add_item = perform_collapse(mset, collapse_table, did,
-					    new_item, mcmp, min_item);
+	    OmDocument * irdoc = 0;
+	    
+
+	    // Use the decision functor if any.
+	    if (mdecider != 0) {
+		if (irdoc == 0) irdoc = database->open_document(did);
+		add_item = mdecider->operator()(irdoc);
 	    }
+
+	    // Item has high enough weight to go in MSet: do collapse if wanted
+	    if(add_item && do_collapse) {
+		if (irdoc == 0) irdoc = database->open_document(did);
+		add_item = perform_collapse(mset, collapse_table, did,
+					    new_item, mcmp, min_item,
+					    irdoc);
+	    }
+
+	    delete irdoc;
+	    irdoc = 0;
 
 	    if(add_item) {
 		mset.push_back(new_item);
@@ -506,7 +521,7 @@ OmMatch::boolmatch(om_doccount first, om_doccount maxitems,
 
     om_doccount max_msize = first + maxitems;
 
-    map<IRKey, OmMSetItem> collapse_table;
+    map<OmKey, OmMSetItem> collapse_table;
 
     // Perform query
     while(mset.size() < max_msize) {
@@ -526,14 +541,14 @@ OmMatch::boolmatch(om_doccount first, om_doccount maxitems,
 
 	// Item has high enough weight to go in MSet: do collapse if wanted
 	if(do_collapse) {
-	    IRDocument * irdoc = database->open_document(did);
-	    IRKey irkey = irdoc->get_key(collapse_key);
-	    map<IRKey, OmMSetItem>::iterator oldkey;
+	    OmDocument * irdoc = database->open_document(did);
+	    OmKey irkey = irdoc->get_key(collapse_key);
+	    map<OmKey, OmMSetItem>::iterator oldkey;
 	    oldkey = collapse_table.find(irkey);
 	    if(oldkey == collapse_table.end()) {
 		DebugMsg("collapsem: new key: " << irkey.value << endl);
 		// Key not been seen before
-		collapse_table.insert(pair<IRKey, OmMSetItem>(irkey, new_item));
+		collapse_table.insert(pair<OmKey, OmMSetItem>(irkey, new_item));
 	    } else {
 		DebugMsg("collapsem: already exists: " << irkey.value << endl);
 		// There's already a better match with this key

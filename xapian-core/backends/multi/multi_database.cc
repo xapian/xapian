@@ -129,7 +129,7 @@ MultiDatabase::open_term_list(om_docid did) const {
     return new MultiTermList(newtl, *(databases.begin() + dbnumber), this);
 }
 
-IRDocument *
+OmDocument *
 MultiDatabase::open_document(om_docid did) const {
     Assert(opened);
     Assert((used = true) == true);
