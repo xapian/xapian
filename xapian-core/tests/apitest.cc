@@ -99,6 +99,8 @@ bool test_batchquery1();
 bool test_repeatquery1();
 // test that searching for a term not in the database fails nicely
 bool test_absentterm1();
+// as absentterm1, but setting query from a vector of terms
+bool test_absentterm2();
 
 test_desc tests[] = {
     {"trivial",            test_trivial},
@@ -135,6 +137,7 @@ test_desc tests[] = {
     {"batchquery1",	   test_batchquery1},
     {"repeatquery1",	   test_repeatquery1},
     {"absentterm1",	   test_absentterm1},
+    {"absentterm2",	   test_absentterm2},
     {0, 0}
 };
 
@@ -1460,6 +1463,30 @@ bool test_absentterm1()
     OmQuery query("frink");
     query.set_bool(true);
     init_simple_enquire(enquire, query);
+
+    OmMSet mymset = enquire.get_mset(0, 10);
+    if (mymset.items.size() != 0) {
+	success = false;
+
+	if(verbose) {
+	    cout << "Expected no items in mset: found " <<
+		    mymset.items.size() << endl;
+	}
+    }
+
+    return success;
+}
+
+bool test_absentterm2()
+{
+    bool success = true;
+
+    OmEnquire enquire(get_simple_database());
+    vector<om_termname> terms;
+    terms.push_back("frink");
+
+    OmQuery query(OM_MOP_OR, terms.begin(), terms.end());
+    enquire.set_query(query);
 
     OmMSet mymset = enquire.get_mset(0, 10);
     if (mymset.items.size() != 0) {
