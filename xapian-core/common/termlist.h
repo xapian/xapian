@@ -9,6 +9,7 @@
 class TermList {
     private:
     public:
+	virtual termcount get_approx_size() const = 0; // Gets size of termlist
 	virtual termid get_termid() const = 0; // Gets current termid
 	virtual termcount get_wdf() const = 0; // Get wdf of current term
 	virtual doccount get_termfreq() const = 0; // Get num of docs indexed by term
