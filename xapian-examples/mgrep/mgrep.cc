@@ -211,7 +211,7 @@ main(int argc, char *argv[])
 	}
 
 	vector<MSetItem> mset;
-        match.match(mfirst, msize, mset);
+        match.match(mfirst, msize, mset, msetcmp_forward);
 	
 	if (showmset) {
 	    vector<MSetItem>::const_iterator i;

@@ -239,7 +239,7 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
 	// Perform match
 	doccount mtotal;
-	matcher->match(0, max_msize, mset, &mtotal);
+	matcher->match(0, max_msize, mset, msetcmp_forward, &mtotal);
 	weight maxweight = matcher->get_max_weight();
 
 	gtk_clist_freeze(results_widget);
@@ -369,7 +369,7 @@ int main(int argc, char *argv[]) {
     // FIXME - debugging code - remove this
     matcher->add_term("love");
     doccount mtotal;
-    matcher->match(0, 10, mset, &mtotal);
+    matcher->match(0, 10, mset, msetcmp_forward, &mtotal);
     weight maxweight = matcher->get_max_weight();
     cout << maxweight << " " << mtotal << " " << mset.size() << endl;
 
