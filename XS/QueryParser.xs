@@ -14,7 +14,7 @@ QueryParser::set_stemming_options(lang, stem_all = NO_INIT)
     string lang
     bool stem_all
     CODE:
-	if (items == 1)
+        if (items == 2) /* items includes the hidden this pointer */
 	    THIS->set_stemming_options(lang);
 	else 
 	    THIS->set_stemming_options(lang, stem_all);

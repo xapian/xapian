@@ -41,7 +41,7 @@ Enquire::set_cutoff(percent_cutoff, weight_cutoff = NO_INIT)
     percent     percent_cutoff
     weight      weight_cutoff
     CODE:
-        if (items == 2) {
+        if (items == 3) { /* items includes the hidden this pointer */
             THIS->set_cutoff(percent_cutoff, weight_cutoff);
         } else {
             THIS->set_cutoff(percent_cutoff);
@@ -53,7 +53,7 @@ Enquire::set_sorting(sort_key, sort_bands, sort_by_relevance = NO_INIT)
     int         sort_bands
     bool	sort_by_relevance
     CODE:
-        if (items == 3) {
+        if (items == 4) { /* items includes the hidden this pointer */
 	    THIS->set_sorting(sort_key, sort_bands, sort_by_relevance);
         } else {
 	    THIS->set_sorting(sort_key, sort_bands);

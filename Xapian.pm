@@ -62,7 +62,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.8.3.0';
+our $VERSION = '0.8.3.1';
 
 bootstrap Search::Xapian $VERSION;
 
@@ -152,11 +152,6 @@ Enquire::register_match_decoder(...) with one argument,
 Enquire::set_weighting_scheme(const Weight &weight);
 Query::Query(tname, ...); with more than one argument;
 QueryParser::set_stemming_options() with third (Stopper) argument;
-RSet::add_document(const Xapian::MSetIterator & i),
-RSet::remove_document(const Xapian::MSetIterator & i),
-RSet::contains(const Xapian::MSetIterator & i)
-(these are very similar to wrapping of get_matching_terms_begin and _end in
-Xapian/Enquire.pm).
 
 =head1 CREDITS
 

@@ -1,5 +1,17 @@
 Revision history for Perl extension Search::Xapian.
 
+0.8.3.1  Tue Nov  3 18:25:02 2004
+	[Changes contributed by Olly Betts]
+	- Fixed handling of optional parameters in Document::add_posting(),
+	  Document::add_term(), Document::remove_posting(),
+	  Enquire::set_cutoff(), Enquire::set_sorting(), and
+	  QueryParser::set_stemming_options().  Added test cases for
+	  the first three.
+	- Fixed wrapping of Enquire::get_matching_terms_begin() and
+	  get_matching_terms_end().
+	- Wrap versions of RSet::add_document(), RSet::remove_document(), and
+	  RSet::contains() which take MSetIterator instead of a docid.
+
 0.8.3.0  Tue Oct 27 20:32:36 2004
 	[Changes contributed by Olly Betts]
 	- Fixed exporting of DB_* constants.
