@@ -57,15 +57,12 @@ open(TIME, ">$time_file");
     
 while ($app_path = <APPS>) {
     chomp($app_path);
-    print "APP $app_path\n";
     $app_name = $app_path;
     $app_name =~ tr/\//\_/;
-    print "APP NAME $app_name\n";
     $app_name = "$CVSDATA/$app_name";
 
     if ($app_path ne "" ) {
         system ("cvs checkout $app_path");
-        print "$app_path\n";
         $found_files = 0;
         open(LIST, ">$list_file") || die "cannot create temporary file list\n";
         for ($i = 0; $i <= $#file_types; ++$i) {
@@ -82,7 +79,7 @@ while ($app_path = <APPS>) {
             print TIME "$app_path", "\n";
             print TIME "Started  @ ", `date`;
             $start_date = time;
-            system ("cvsmap -i $list_file -f1 $app_name.comments -f2 $app_name.offset");
+            system ("cvsmap -i $list_file -db $app_name.db -f1 $app_name.cmt -f2 $app_name.offset");
             print TIME "Finished @ ", `date`;
             $delta_time += time - $start_date;
             print TIME "\n";
