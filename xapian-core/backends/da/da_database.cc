@@ -78,6 +78,36 @@ bool DAPostList::at_end() {
 
 
 
+DATermList::DATermList(DADatabase *db, struct termvec *tv) {
+    tvec = tv;
+    dbase = db;
+
+    readterms(tvec);
+}
+
+DATermList::~DATermList() {
+    losetermvec(tvec);
+}
+
+termid DATermList::get_termid() {
+    if(at_end()) throw OmError("Attempt to access beyond end of termlist.");
+
+    char *term = (char *)tvec->term;
+
+    return dbase->term_name_to_id(string(term + 1, (unsigned)term[0]));
+}
+
+void   DATermList::next() {
+    printf("Next\n");
+    readterms(tvec);
+}
+
+bool   DATermList::at_end() {
+    if(tvec->term == 0) return true;
+    return false;
+}
+
+
 
 DADatabase::DADatabase()
 {
@@ -155,7 +185,16 @@ PostList * DADatabase::open_post_list(termid id)
 TermList * DADatabase::open_term_list(docid id)
 {
     if(!opened) throw OmError("DADatabase not opened.");
-    return NULL;
+
+    struct termvec *tv = maketermvec();
+    int found = DAgettermvec(DA_r, id, tv);
+
+    if(found == 0) throw RangeError("Docid not found");
+
+    openterms(tv);
+
+    DATermList *tl = new DATermList(this, tv);
+    return tl;
 }
 
 termid

@@ -32,7 +32,6 @@ class TermList {
     public:
 	virtual termid get_termid() = 0;    // Gets current termid
 	virtual void   next() = 0;          // Moves to next termid
-	virtual void   skip_to(termid) = 0; // Moves to next termid >= specified termid
 	virtual bool   at_end() = 0;        // True if we're off the end of the list
 
         virtual ~TermList() { return; }

@@ -7,7 +7,9 @@
 int main(int argc, char *argv[]) {
     DADatabase database;
     PostList * postlist;
+    TermList * termlist;
     termid tid;
+    docid did;
 
     try {
 	database.open("testdir", 0);
@@ -25,6 +27,16 @@ int main(int argc, char *argv[]) {
 	    else postlist->next();
 	}
 	delete postlist;
+	did = 2510;
+	termlist = database.open_term_list(did);
+	printf("\nTermlist for document %d:\n", did);
+	while(!termlist->at_end()) {
+	    termid tid = termlist->get_termid();
+
+	    printf("TermId: %d\n", tid);
+	    termlist->next();
+	}
+	delete termlist;
 	database.close();
     }
     catch (OmError e) {

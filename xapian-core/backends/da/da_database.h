@@ -28,7 +28,18 @@ class DAPostList : public virtual PostList {
 };
 
 class DATermList : public virtual TermList {
+    friend class DADatabase;
+    private:
+	struct termvec * tvec;
+	DADatabase * dbase;
 
+	DATermList(DADatabase *db, struct termvec *tv);
+    public:
+	~DATermList();
+
+	termid get_termid();
+	void   next();
+	bool   at_end();
 };
 
 class DADatabase : public virtual IRDatabase {
