@@ -1,3 +1,7 @@
+Wed Oct 30 02:12:37 GMT 2002  Olly Betts <olly@survex.com>
+
+	* buildall: Removed in favour of bootstrap script.
+
 Sat Oct 12 17:06:52 BST 2002  Olly Betts <olly@survex.com>
 
 	* .cvsignore: Removed libtool.
