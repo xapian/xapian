@@ -1,3 +1,7 @@
+Thu Sep 28 19:12:00 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add files containing generic utilities needed for quartz.
+
 Thu Sep 28 18:19:17 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Removed some debugging code which doesn't work with some versions

@@ -106,4 +106,4 @@ QuartzRecordDiffs::add_record(om_docid did, const OmData & data)
 
     tag->value = data.value;
 }
-	
+
