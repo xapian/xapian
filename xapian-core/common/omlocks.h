@@ -66,7 +66,8 @@ class OmLock {
 	 *  will not return until the mutex is locked.
 	 */
 	void lock() const {
-	    int retval = pthread_mutex_lock(&mutex);
+	    int retval;
+	    retval = pthread_mutex_lock(&mutex);
 	    Assert(retval == 0);
 	    islocked = true;
 	}
