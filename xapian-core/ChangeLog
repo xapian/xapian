@@ -1,3 +1,10 @@
+Tue Nov 14 19:26:28 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixed bug with skip_to in quartz position lists - quartz now
+	  passes all but 3 api tests.  Added a dummy test to quartz to
+	  remind me to implement a few more tests of the quartz position
+	  lists.
+
 Tue Nov 14 17:32:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add hack to malloccheck.so to allow running of gdb with the malloc
