@@ -1,3 +1,7 @@
+Fri Feb 13 15:08:09 GMT 2004  Olly Betts <olly@survex.com>
+
+	* HACKING: XAPIAN_DEBUG_TYPES should be XAPIAN_DEBUG_FLAGS.
+
 Sat Feb 07 14:26:54 GMT 2004  Olly Betts <olly@survex.com>
 
 	* docs/queryparser.html: Grammar fixes.
