@@ -61,11 +61,14 @@ if(param()){
 	$query = param("query");
 	$root = param("root");
 	
-#	if(!$root){
-#		&error("You must specify a root and symbol!");
-#	}
 
-	$root = "root0";
+
+
+        if(!$root||$root eq "All"){ 
+                 $root = "root0"; 
+        }
+
+
 
 	if($query){
 		@tmpquery = split /\s/, $query;
