@@ -21,6 +21,7 @@
  */
 
 #include "config.h"
+#include "omdebug.h"
 
 #include "quartz_db_table.h"
 #include "om/omerror.h"
@@ -58,7 +59,7 @@ QuartzDbTable::get_entry_count() const
 bool
 QuartzDbTable::get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const
 {
-    if (key.value.empty()) throw OmInvalidArgumentError("Keys may not be null, in QuartzDbTable::read_entry_exact()");
+    Assert(!(key.value.empty()));
 
     /// FIXME: replace with calls to martin's code
     std::map<QuartzDbKey, QuartzDbTag>::const_iterator j;
@@ -88,7 +89,7 @@ QuartzDbTable::get_nearest_entry(QuartzDbKey &key, QuartzDbTag & tag) const
 bool
 QuartzDbTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const
 {
-    if (key.value.empty()) throw OmInvalidArgumentError("Keys may not be null, in QuartzDbTable::read_entry_exact()");
+    Assert(!(key.value.empty()));
 
     /// FIXME: replace with calls to martin's code
     std::map<QuartzDbKey, QuartzDbTag>::const_iterator j = data.find(key);
@@ -108,7 +109,7 @@ QuartzDbTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries)
     bool modified = false;
     std::map<QuartzDbKey, QuartzDbTag *>::const_iterator i;
     for (i = entries.begin(); i != entries.end(); i++) {
-	if ((i->first).value.empty()) throw OmInvalidArgumentError("Keys may not be null, in QuartzDbTable::read_entry_exact()");
+	Assert(!((i->first).value.empty()));
 	std::map<QuartzDbKey, QuartzDbTag>::iterator j = data.find(i->first);
 	if (i->second == 0) {
 	    // delete j

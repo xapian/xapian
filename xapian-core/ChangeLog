@@ -1,3 +1,11 @@
+Thu Sep 14 19:46:44 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add some tests for QuartzDbEntries object.  Need more.
+
+	* Changed QuartzDbTable so that its methods merely Assert that keys
+	  have non-zero length, rather than throwing exceptions.  This
+	  condition should never arise.
+
 Thu Sep 14 18:38:46 BST 2000 Olly Betts
 
 	* Overhauled DEBUGCALL macros - now you can just use RETURN(...)

@@ -20,6 +20,7 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "om/omerror.h"
@@ -50,10 +51,12 @@ static void check_table_values_hello(const QuartzDbTable & table, string world)
     TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
+#ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmInvalidArgumentError, table.get_nearest_entry(key, tag));
+    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
+#endif
     
     // Check normal reads
     key.value = "hello";
@@ -74,11 +77,13 @@ static void check_table_values_hello(const QuartzDbTable & table, string world)
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "");
     
+#ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmInvalidArgumentError, table.get_nearest_entry(key, tag));
+    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "foo");
+#endif
 }
 
 /// Check the values returned by a table containing no key/tag pairs
@@ -103,10 +108,12 @@ static void check_table_values_empty(const QuartzDbTable & table)
     TEST(!table.get_exact_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
     
+#ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmInvalidArgumentError, table.get_nearest_entry(key, tag));
+    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag));
     TEST_EQUAL(tag.value, "foo");
+#endif
     
     // Check normal reads
     key.value = "hello";
@@ -127,11 +134,13 @@ static void check_table_values_empty(const QuartzDbTable & table)
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "");
     
+#ifdef MUS_DEBUG
     key.value = "";
     tag.value = "foo";
-    TEST_EXCEPTION(OmInvalidArgumentError, table.get_nearest_entry(key, tag));
+    TEST_EXCEPTION(OmAssertionError, table.get_nearest_entry(key, tag));
     TEST_EQUAL(key.value, "");
     TEST_EQUAL(tag.value, "foo");
+#endif
 }
 
 /// Test making and playing with a QuartzDbTable
@@ -202,7 +211,9 @@ static bool test_dbtable1()
     key.value = "";
     newentries[key] = &tag;
     TEST_EXCEPTION(OmInvalidOperationError, table1.set_entries(newentries));
-    TEST_EXCEPTION(OmInvalidArgumentError, table2.set_entries(newentries));
+#ifdef MUS_DEBUG
+    TEST_EXCEPTION(OmAssertionError, table2.set_entries(newentries));
+#endif
 
     // Check changing an entry, to a null tag
     newentries.clear();
@@ -270,6 +281,38 @@ static bool test_dbtable1()
 static bool test_dbentries1()
 {
     QuartzDbEntries entries;
+
+    QuartzDbKey key1;
+
+    key1.value="";
+#ifdef MUS_DEBUG
+    TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
+#endif
+    key1.value="foo";
+    TEST(!entries.have_entry(key1));
+
+    key1.value="";
+    {
+	auto_ptr<QuartzDbTag> tagptr(new QuartzDbTag);
+	tagptr->value = "bar";
+	TEST_EXCEPTION(OmAssertionError, entries.set_tag(key1, tagptr));
+    }
+    TEST_EXCEPTION(OmAssertionError, entries.have_entry(key1));
+    TEST_EXCEPTION(OmAssertionError, entries.get_tag(key1));
+
+    key1.value="foo";
+    {
+	auto_ptr<QuartzDbTag> tagptr(new QuartzDbTag);
+	tagptr->value = "bar";
+	entries.set_tag(key1, tagptr);
+    }
+    TEST(entries.have_entry(key1));
+    TEST(entries.get_tag(key1) != 0);
+    TEST(entries.get_tag(key1)->value == "bar");
+
+    //key1.value="foo";
+    //TEST(entries.have_entry(key1));
+
     return true;
 }
 

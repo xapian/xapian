@@ -41,6 +41,7 @@ QuartzDbEntries::~QuartzDbEntries()
 QuartzDbTag *
 QuartzDbEntries::get_tag(const QuartzDbKey &key)
 {
+    Assert(key.value != "");
     std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
     Assert(i != entries.end());
     return i->second;
@@ -49,6 +50,7 @@ QuartzDbEntries::get_tag(const QuartzDbKey &key)
 bool
 QuartzDbEntries::have_entry(const QuartzDbKey &key)
 {
+    Assert(key.value != "");
     return (entries.find(key) != entries.end());
 }
 
@@ -56,6 +58,7 @@ void
 QuartzDbEntries::set_tag(const QuartzDbKey &key,
 			 auto_ptr<QuartzDbTag> tag)
 {
+    Assert(key.value != "");
     std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
 
     if (i == entries.end()) {
@@ -70,6 +73,7 @@ QuartzDbEntries::set_tag(const QuartzDbKey &key,
 void
 QuartzDbEntries::forget_entry(const QuartzDbKey &key)
 {
+    Assert(key.value != "");
     std::map<QuartzDbKey, QuartzDbTag *>::iterator i = entries.find(key);
 
     if (i != entries.end()) {

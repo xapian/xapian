@@ -63,7 +63,7 @@ class QuartzDbDiffs {
 
 inline QuartzDbDiffs::~QuartzDbDiffs() {}
 
-/** Class managing a set of diffs to a Quartz PostList database.
+/** Class managing a set of diffs to a Quartz PostList table.
  */
 class QuartzPostListDbDiffs : public QuartzDbDiffs {
     private:
@@ -93,7 +93,7 @@ class QuartzPostListDbDiffs : public QuartzDbDiffs {
 	void add_posting(om_termname tname, om_docid did, om_termcount wdf);
 };
 
-/** Class managing a set of diffs to a Quartz PositionList database.
+/** Class managing a set of diffs to a Quartz PositionList table.
  */
 class QuartzPositionListDbDiffs : public QuartzDbDiffs {
     private:
