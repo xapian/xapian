@@ -70,6 +70,7 @@ using namespace std;
 #define DUPE_duplicate 2
 static int dupes = DUPE_replace;
 static int recurse = 1;
+static bool follow_symlinks = false;
 static string dbpath;
 static string root;
 static string indexroot;
@@ -513,10 +514,18 @@ index_directory(const string &dir, const map<string, string>& mime_map)
 	if (!url.empty() && url[url.size() - 1] != '/') url += '/';
 	url += ent->d_name;
 	string file = root + indexroot + url;
-	if (stat(file.c_str(), &statbuf) == -1) {
-	    cout << "Can't stat \"" << file << "\" - skipping\n";
-	    continue;
-	}
+        if (follow_symlinks)
+        {
+            if (stat(file.c_str(), &statbuf) == -1) {
+                cout << "Can't stat \"" << file << "\" - skipping\n";
+                continue;
+            }
+        } else {
+            if (lstat(file.c_str(), &statbuf) == -1) {
+                cout << "Can't stat \"" << file << "\" - skipping\n";
+                continue;
+            }
+        }
 	if (S_ISDIR(statbuf.st_mode)) {
 	    if (!recurse) continue;
 	    try {
@@ -561,6 +570,7 @@ main(int argc, char **argv)
 	{ "url",	required_argument,	NULL, 'U' },
 	{ "mime-type",	required_argument,	NULL, 'M' },
 	{ "no-recurse",	no_argument,		NULL, 'l' },
+	{ "follow",	no_argument,		NULL, 'f' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -605,6 +615,7 @@ main(int argc, char **argv)
 		 << "  -U, --url\t\tbase url DIRECTORY represents\n"
 	         << "  -M, --mime-type\tadditional MIME mapping ext:type\n"
 		 << "  -l, --no-recurse\tonly process the given directory\n"
+		 << "  -f, --follow\t\tfollow symbolic links\n"
 		 << "      --overwrite\tcreate the database anew (the default is\n"
 	        "\t\t\tto update if the database already exists).\n"
 		 << "  -h, --help\t\tdisplay this help and exit\n"
@@ -636,6 +647,9 @@ main(int argc, char **argv)
 	    break;
 	case 'l': // Turn off recursion
 	    recurse = 0;
+	    break;
+	case 'f': // Turn on following of symlinks
+	    follow_symlinks = true;
 	    break;
 	case 'M': {
 	    const char * s = strchr(optarg, ':');

@@ -1,3 +1,9 @@
+Wed Dec 15 15:08:41 GMT 2004  Richard Boulton <richard@tartarus.org>
+
+	* omindex.cc: Change behaviour of crawler such that it doesn't
+	  follow symbolic links any more.  Add "--follow" command
+	  line option to turn following of symlinks back on.
+
 Wed Dec 08 16:31:46 GMT 2004  Olly Betts <olly@survex.com>
 
 	* NEWS: Final update for 0.8.4.
