@@ -53,8 +53,8 @@ print <<_HTML_;
 <frameset rows=\"45,*\">
 	<frame name=top src=$top$passparam2>
 	<frameset rows=\"50%,50%\">
-		<frame name=match src=$match$passparam1>
-		<frame name=source src=$source$passparam1>
+		<frame name=m src=$match$passparam1>
+		<frame name=s src=$source$passparam1>
 	</frameset>
 </frameset>
 <noframes>

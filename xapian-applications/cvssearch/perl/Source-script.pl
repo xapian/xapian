@@ -85,14 +85,18 @@ if(param()){
 		$line = $_;
 		$line = Entities::encode_entities($line);
 		print "<tr>";
-		print "<td><pre>$i:<a name=$i></a></td>";
+		print "<td><pre>$i<a name=$i></a></td>";
+        my $space ="";
+        if (length($line) == 0) {
+            $space = " ";
+        }
 		if($lineMAPweight{$i}){
 			$weight = $lineMAPweight{$i};
 			$color = Cvssearch::get_color($weight, 150);
 			$line = &highlightquery($line);
-			print "<td bgcolor=$color><pre>$line </td>";
+			print "<td bgcolor=$color><pre>$line$space</td>";
 		}else{
-			print "<td><pre>$line </td>";
+			print "<td><pre>$line$space</td>";
 		}
 		print "</tr>\n";
 		$i++;

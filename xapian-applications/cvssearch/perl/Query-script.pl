@@ -101,7 +101,7 @@ print <<_HTML_;
 <table width=100%>
 <tr valign=bottom><td>
 <a href="http://cvssearch.sourceforge.net">
-<img border=0 src="http://cvssearch.sourceforge.net/fishlogo.gif"></a>
+<img border=0 src="Logo.cgi"></a>
 </td><td align=right>
 <form action=./Query.cgi>
 <b>Enter keyword(s) to search for: </b><input type=text size=45 name=query value="$query">

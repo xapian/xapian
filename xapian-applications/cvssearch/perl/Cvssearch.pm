@@ -222,7 +222,7 @@ sub get_color {
     my $r = $min_color_red  + $ratio * $distance_red;
     my $g = $min_color_green+ $ratio * $distance_green;
     my $b = $min_color_blue + $ratio * $distance_blue;
-    my $output = sprintf(" #%2.2X%2.2X%2.2X",$r,$g,$b);
+    my $output = sprintf("#%2.2X%2.2X%2.2X",$r,$g,$b);
     return $output;
 }
 
@@ -463,7 +463,7 @@ sub getSpectrum{
 			$g=255-$mod;
 			$b=0;
 		}
-    	$curcolor = sprintf(" #%2.2X%2.2X%2.2X",$r,$g,$b);
+    	$curcolor = sprintf("#%2.2X%2.2X%2.2X",$r,$g,$b);
 
 		push @colors, $curcolor;
 	}

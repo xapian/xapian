@@ -36,27 +36,37 @@ print "Content-type:text/html\n\n";
 print "<html>\n";
 print "<head>\n";
 
-#print javascript for popups
+# ----------------------------------------
+# print javascript for popups
+# ----------------------------------------
 open (OUTPUT, "<./popup.js");
 print <OUTPUT>;
 close (OUTPUT);
 
-#---------------
-# style sheet
-#---------------
-print <<_STYLE_;
+# ----------------------------------------
+# print javascript for calling popups in
+# shorthand notation
+# ----------------------------------------
+print <<_SCRIPT_;
+<script language="JavaScript">
+function l(targetObjectId, event) {
+    locking(targetObjectId, event);
+    return false;
+}
 
-<STYLE TYPE=text/css>
-body {background-color:white}
-A:link, A:active, A:visited { text-decoration:none;color:black;}
-.popupLink { COLOR: blue; outline: none }
-.popup { POSITION:absolute; VISIBILITY:hidden; BACKGROUND-COLOR:white; LAYER-BACKGROUND-COLOR:white; BORDER:2px solid orange; PADDING: 3px; z-index: 10 }
-.red {color:red}
-</STYLE>
+function s(targetObjectId, event) {
+    return !showPopup(targetObjectId, event);
+}
 
-</head>
-<body>
-_STYLE_
+
+function h() {
+    hideCurrentPopup();
+    return false;
+}
+</script>
+_SCRIPT_
+
+
 
 #----------------------------------------
 # parse parameters
@@ -66,7 +76,7 @@ if(param()){
 	$id = param("id");
 	$did = Cvssearch::encode($id);
 	$passparam = "?id=$did&dump=$dump";
-	
+    
 	$id = Cvssearch::decode($id);
 	
 	
@@ -74,17 +84,16 @@ if(param()){
 	if (!$found){
 		&error("Page expired");
 	}
-
-
+    
+    
 	@entries = split /\n/, $found;
-    print STDERR "entries: @entries\n";
-
-	$query = shift @entries;#query
-	$stemquery = shift @entries;#stemquery
+    
+	$query = shift @entries;    #query
+	$stemquery = shift @entries; #stemquery
 	$grepquery = shift @entries;
-	shift @entries; #id
+	shift @entries;             #id
 	$path = shift @entries;
-	$revs = shift @entries; #revs
+	$revs = shift @entries;     #revs
 	
 	#go through each line entry
 	foreach (@entries){
@@ -92,16 +101,14 @@ if(param()){
 		$line = shift @info;
 		$together = join ' ', @info;
 		$lineMAPinfo{$line} = $together;
-
 	}
 	#-------------------------------
 	# query cvsquery for comments
 	#-------------------------------
-	
+    
 	($root, $db, $fileid) = split / /, $id;
 	$querystr = "$cvsquery $root $db";
-
-    print STDERR "REVS $revs\n";
+    
 	@revs = split /\s/, $revs;
 	$first = shift @revs;
 	if($first ne "grep"){
@@ -110,70 +117,89 @@ if(param()){
 	foreach(@revs){
 		$querystr .= " -c $fileid $_";
 	}
-	
+    
 	$result = `$querystr`;
-	@comments = split /$ctrlA/, $result; # split revisions
-	
-	#---------------------------
-	#write comments into divs
-	#---------------------------
-	
-	print "<!-- keep the popup divs as the first things on the page or else MSIE 5 on the mac sometimes has trouble rendering them on top of text -->\n";
-	print "<DIV onclick='event.cancelBubble = true;' class=popup id='grep'>grep matched <b>$grepquery</b> on this line.</DIV>\n";
+	@comments = split /$ctrlA/, $result;
+    @curcomments;
+    
 	$i=0;
 	foreach (@revs){
 		$currev = $_;
 		$curcomment = $comments[$i];
 		chomp $curcomment;
 		$curcomment = Entities::encode_entities($curcomment);
-        print STDERR "COMMENT $curcomment\n";
-        print STDERR "QUERY $grepquery\n";
 		if($curcomment =~/$grepquery/i){
-            print STDERR "MATCH $currev\n";
+            @curcomments = (@curcomments, $curcomment);
 			$revMAPmatch{$currev} = $currev;
-			$curcomment = &highlightquery($curcomment);
 		}
+		$i++;
+	}
+    
+	@revs = keys %revMAPmatch;
+    @revs = sort {cmp_cvs_version($a, $b)} @revs;
+    if (@revs){
+    	@colors = Cvssearch::getSpectrum($#revs+1);
+    }
+    
+    # ----------------------------------------
+    # style sheet
+    # ----------------------------------------
+    print "<style type=text/css>\n";
+    print "body {background-color:white;}\n";
+    print ".g {background-color:#dddddd;}\n";
+    print "A:link, A:active, A:visited { text-decoration:none;color:black;}\n";
+    print ".popupLink { color: blue; outline: none;}\n";
+    print ".popup { position:absolute; visibility:hidden; color:white;background-color:#3366cc;";
+    print "layer-background-color:#3366cc;border:2px solid orange; padding: 3px; z-index: 10;}\n";
+    print ".red {color:red;}\n";
+	foreach ($i=0;$i<$#revs+1;$i++){
+		$revMAPcolor{$revs[$i]} = $colors[$i];
+		$ch = toChar($revs[$i]); # need to convert digits to alphabets since netscape doesn't understand digit id
+        $ch =~ tr/\./-/;
+		print ".$ch {background-color:$colors[$i];}\n";
+	}
+    
+    print "</style>\n";
+    print "</head>\n";
+    print "<body>\n";
+	
+	#---------------------------
+	#write comments into divs
+	#---------------------------
+	
+	print "<!-- keep the popup divs as the first things on the page or else ";
+    print "MSIE 5 on the mac sometimes has trouble rendering them on top of text -->\n";
+	print "<DIV onclick='event.cancelBubble = true;' class=popup id='grep'>";
+    print "grep matched <b>$grepquery</b> on this line.</DIV>\n";
+    
+    
+	$i=0;
+	foreach (@revs){
+		$currev = $_;
+		$curcomment = $curcomments[$i];
+        $curcomment = highlightquery($curcomment);
 		$ch = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
 		print "<DIV onclick='event.cancelBubble = true;' class=popup id='$ch'><pre><b>Rev:$currev</b>\n$curcomment</pre></DIV>\n";
 		$i++;
 	}
 	print "<!-- begin body of document -->\n";
-
+    
 	#----------------
 	#display file
 	#----------------
 	
 	#filename
 	&filename($stemquery);
-#	my @newrevs;
-    print STDERR "# of revs $#revs @revs\n";
-
-#	foreach (@revs) {
-#		if($revMAPmatch{$_}){
-#			@newrevs = (@newrevs, $_);
-#		}elsif($_ eq "grep"){
-#			@newrevs = (@newrevs, $_);
-#		}
-#	}
-#	@revs = @newrevs;
 	
-	@revs = keys %revMAPmatch;
-	
-    @revs = sort {&cmp_cvs_version($a, $b)} @revs;
-    print STDERR "# of revs $#revs\n";
-    if(@revs){
-    	@colors = Cvssearch::getSpectrum($#revs+1);
-    }
+    
     print "<pre>";
-
+    
 	foreach ($i=0;$i<$#revs+1;$i++){
 		$revMAPcolor{$revs[$i]} = $colors[$i];
 		$ch = &toChar($revs[$i]); # need to convert digits to alphabets since netscape doesn't understand digit id
 		print "<span style=\"background-color:$colors[$i]\">";
-		print "<a href=# \n";
-		print "onclick=\"locking('$ch', event);return false;\"\n";
-		print "onmouseover=\"return !showPopup('$ch', event);\"\n";
-		print "onmouseout=\"hideCurrentPopup(); return false;\"\n";
+		print "<a href=# ";
+        print "onclick=\"l('$ch',event);\" onmouseover=\"s('$ch',event);\" onmouseout=\"h();\"";
 		print ">";
 		if($revMAPmatch{$revs[$i]}){
 			print "<b>$revs[$i]</b>";
@@ -184,10 +210,9 @@ if(param()){
 	}
 	print "</pre>\n";
 	
-	print "<table cellSpacing=0 cellPadding=0 width=100% border=0>";
+	print "<table cellSpacing=0 cellPadding=0 width=100% border=0>\n";
 	@file = `cat $path`;
-	#print @file;
-	$i=1; #line index
+	$i=1;                       #line index
 	push @revs, "grep";
 	foreach(@file){
 		s/\n//g;
@@ -195,21 +220,16 @@ if(param()){
 		if($lineMAPinfo{$i}){
 			$line = Entities::encode_entities($line);
 			print "<tr>";
-			print "<a name=$i><td><pre>$i:</td>";
-#			print "<a name=$i><td>$i:</td>";
-
+			print "<td><pre>$i</td>";
+            
 			$info = $lineMAPinfo{$i};
 			@info = split / /, $info;
 			$weight = shift @info;
 			
-			#print revs, in the column it belongs to
 			print "<td><pre>";
-#			print "<td>";
-
-			#print "<td class=pre>";
 			$flag = 1;
-
-			for($j=0;$j<$#revs+1;$j++){
+            
+			for($j=0;$j<=$#revs;$j++){
 				$toprev = $revs[$j];
 				$found = 0;
 				$flag *= -1;
@@ -217,51 +237,57 @@ if(param()){
 					if($toprev eq $_){
 						$currev = $_;
 						$color = $revMAPcolor{$currev};
-						$ch = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
-						print "<span style=\"background-color:$color\">";
-						print "<a href=# \n";
-						print "onclick=\"locking('$ch', event);return false;\"\n";
-						print "onmouseover=\"return !showPopup('$ch', event);\"\n";
-						print "onmouseout=\"hideCurrentPopup(); return false;\"\n";
-						print ">";
+                        $ch = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
+
+                        if ($color) {
+                            $ch1 = &toChar($currev); # need to convert digits to alphabets since netscape doesn't understand digit id
+                            $ch1 =~ tr/\./-/;
+                            print "<span class=$ch1";
+                        } 
+                        print ">";
+                        print "<a href=# ";
+                        print "onclick=\"l('$ch',event);\" onmouseover=\"s('$ch',event);\" onmouseout=\"h();\">";
 						if($revMAPmatch{$currev}){
-							print "<b>C</b>";
-						}elsif($currev eq "grep"){
-							print "<b>G</b>";
-						}else{
 							print "C";
+						}elsif($currev eq "grep"){
+							print "G";
 						}
-						print "</a></span>";
+						print "</a>";
+                        if ($color) {
+                            print "</span>";
+                        }
 						$found = 1;
 					}
-                                        # this is removed for fixxing a bug.. don't uncomment this.
+                    # this is removed for fixxing a bug.. don't uncomment this.
 					# last if $toprev eq $currev;
 				}
 				if($found==0){
 					if($flag==1){
 						print " ";
 					}else{
-						print "<span style=\"background-color:#dddddd\"> </span>";
+						print "<span class=g> </span>";
 					}
 				}
 			}
-
+            
 			print "</td>";
 			
 			$color = Cvssearch::get_color($weight, 150);
 			$line = &highlightquery($line);
-#			print "<td bgcolor=$color><a href=\"$source$passparam#$i\" target=source>$line </a></td></tr>\n";
-			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=source>$line </a></td></tr>\n";
+            $space = "";
+            if (length($line) == 0) {
+                $space = " ";
+            }
+			print "<td bgcolor=$color><pre><a href=\"$source$passparam#$i\" target=s>$line$space</a></td></tr>\n";
 		}
 		if ($lineMAPinfo{$i+1} > $lineMAPinfo{$i}) {
 			print "<tr></tr>";
 			print "<tr></tr>";
-			print "<tr></tr>";
+			print "<tr></tr>\n";
 		}
 		$i++;
 	}
 	print "</table>";
-	#print an empty page so html can scroll to the last line
 	print "<pre>";
 	for($j=0;$j<60;$j++){
 		print "\n";	
@@ -329,22 +355,22 @@ sub error{
 ### perl sort function for sort the cvs versions.
 ### ie. 1.10 is later than l.9
 sub cmp_cvs_version
-{
-    my $first = $_[0];
-    my $second = $_[1];
-
-    my @first = split(/\./, $first);
-    my @second = split(/\./, $second);
-    
-    my $size = $#first;
-    $size = $#second if ($#first > $#second); 
-
-    for (my $i=0; $i<=$size; $i++) {
-        if ($first[$i]>$second[$i]) {
-            return 1;
-        } elsif ($first[$i]<$second[$i]) {
-            return -1;
-        } else {
+  {
+      my $first = $_[0];
+      my $second = $_[1];
+      
+      my @first = split(/\./, $first);
+      my @second = split(/\./, $second);
+      
+      my $size = $#first;
+      $size = $#second if ($#first > $#second); 
+      
+      for (my $i=0; $i<=$size; $i++) {
+          if ($first[$i]>$second[$i]) {
+              return 1;
+          } elsif ($first[$i]<$second[$i]) {
+              return -1;
+          } else {
             next;
         }
     }
