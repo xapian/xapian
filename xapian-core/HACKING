@@ -528,7 +528,10 @@ Currently incomplete, but these jobs are amongst those that need doing:
 * Copy the tarballs over - take them from the autobuilder to ensure consistent
   bootstrapping: http://www.oligarchy.co.uk/xapian/HEAD/
 
-* cvs tag the source trees for the new revision
+* cvs tag the source trees for the new revision - use the cvs-tag-release
+  script, running it with the new version number, for example:
+
+  xapian-maintainer-tools/cvs-tag-release 0.8.1
 
 * Update the website - download.php and news.php
 
