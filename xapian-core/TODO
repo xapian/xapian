@@ -230,7 +230,7 @@ Big Jobs
  High    |cAPI             | Write bindings for other languages (Java, C,
          |                 | perl, python, etc.).
 ---------+-----------------+--------------------------------------------------
- High    | Performance     | Write (speed) performance test suite.
+ High    |rPerformance     | Write (speed) performance test suite.
 ---------+-----------------+--------------------------------------------------
  High    |gIndexer         | Write indexer modules.
 ---------+-----------------+--------------------------------------------------
