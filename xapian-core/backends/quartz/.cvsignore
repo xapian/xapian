@@ -6,7 +6,8 @@ Makefile
 .libs
 libquartz.la
 btreetest
-quartztest
+quartzcheck
 quartzdump
+quartztest
 .btreetmp
 .quartztmp

@@ -1,3 +1,7 @@
+Fri Oct 04 19:08:08 BST 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/.cvsignore: Added quartzcheck.
+
 Fri Oct 04 18:24:55 BST 2002  Olly Betts <olly@survex.com>
 
 	* docs/: converted all text docs to HTML (except omsettings which will
