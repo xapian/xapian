@@ -177,15 +177,6 @@ Clean up interaction of AllTermsIterator for quartz with QuartzPostList.
 Need QuartzPostListTermsIterator class?  (But with a snappier name. ;-) )
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Quartz" release="0.8">
-
-Make quartz database autoflush when enough changes have been performed based
-on the memory used up as a proportion of that available, rather than simply
-when a count of changes is reached.  Remove hardcoded count of 1000 changes.
-
-Hmm, testing shows 1000 seems to be a sweet spot!
-
-</todoitem>
 <todoitem priority="M" difficulty="3" owner="Olly" area="API" release="0.9">
 
 Provide fake term (empty termname) which indexes all documents, thus providing
@@ -360,13 +351,6 @@ of term generation (word breaks and stemming) across the index
 and query tools ... we may want the query parser to have a callback
 to deal with that, which can be done in the bindings although it's
 a little fiddly in some languages I believe.
-
-</todoitem>
-<todoitem priority="M" difficulty="" owner="Olly" area="" release="0.9">
-
-Fix up examples and make sure they are actually instructive.  Add a comment
-to each describing what it demonstrates.
-I've made a start.  delve and quest are reasonable examples.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="James" area="" release="*">
