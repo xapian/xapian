@@ -39,23 +39,23 @@ TextfileIndexer::add_source(const IndexerSource &source)
     StemEn stemmer;
 
     while(*from) {
-	string line;
-	getline(*from, line);
+	string para;
+	get_paragraph(*from, para);
 	
-	docid did = dest->make_doc(line);
+	docid did = dest->make_doc(para);
 	termcount position = 1;
 
 	string::size_type spacepos;
 	termname word;
-	while((spacepos = line.find_first_not_of(" \t")) != string::npos) {
-	    if(spacepos) line = line.erase(0, spacepos);
-	    spacepos = line.find_first_of(" \t");
-	    word = line.substr(0, spacepos);
+	while((spacepos = para.find_first_not_of(" \t")) != string::npos) {
+	    if(spacepos) para = para.erase(0, spacepos);
+	    spacepos = para.find_first_of(" \t");
+	    word = para.substr(0, spacepos);
 	    select_characters(word, "");
 	    lowercase_term(word);
 	    word = stemmer.stem_word(word);
 	    dest->make_posting(dest->make_term(word), did, position++);
-	    line = line.erase(0, spacepos);
+	    para = para.erase(0, spacepos);
 	}
     }
 

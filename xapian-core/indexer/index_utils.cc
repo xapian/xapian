@@ -32,3 +32,17 @@ void select_characters(termname &term, const string & keep)
 	term.erase(pos, endpos - pos);
     }
 }
+
+// Read a paragraph from stream.
+void get_paragraph(istream &input, string &para) {
+    para = "";
+    string line;
+    unsigned linecount = 0;
+    do {
+	getline(input, line);
+	para += line;
+	linecount ++;
+	if(linecount > 30) break;;
+	para += " ";
+    } while(line.find_first_not_of(" \t") != string::npos || linecount < 3);
+}

@@ -7,5 +7,6 @@
 #include "omtypes.h"
 void lowercase_term(termname &);
 void select_characters(termname &term, const string & keep);
+void get_paragraph(istream &input, string &para);
 
 #endif /* _index_utils_h_ */
