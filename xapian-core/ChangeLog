@@ -1,3 +1,9 @@
+Wed May 17 17:09:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* RSet now has a give_stats_to_statssource() method, used by
+	  localmatch to pass the statistics to the stats system for
+	  sharing and merging.
+
 Wed May 17 15:56:52 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Pass relevance sets around as OmRSets, only creating an RSet within

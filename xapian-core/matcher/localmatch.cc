@@ -411,6 +411,7 @@ LocalMatch::build_query_tree()
 
     if (rset.get() != 0) {
 	rset->calculate_stats();
+	rset->give_stats_to_statssource(statssource);
     }
 }
 

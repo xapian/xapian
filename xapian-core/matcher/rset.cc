@@ -22,6 +22,7 @@
 
 #include "rset.h"
 #include "termlist.h"
+#include "stats.h"
 
 void
 RSet::calculate_stats()
@@ -45,6 +46,20 @@ RSet::calculate_stats()
 	    tl->next();
 	}
     }
-    DebugMsg("done");
+    DebugMsg("done" << endl);
     calculated_reltermfreqs = true;
+}
+
+void
+RSet::give_stats_to_statssource(StatsSource &statssource)
+{
+    Assert(calculated_reltermfreqs);
+
+    map<om_termname, om_doccount>::const_iterator reltermfreq;
+    for (reltermfreq = reltermfreqs.begin();
+	 reltermfreq != reltermfreqs.end();
+	 reltermfreq++) {
+	statssource.my_reltermfreq_is(reltermfreq->first,
+				      reltermfreq->second);
+    }
 }
