@@ -193,7 +193,7 @@ MultiMatch::get_collapse_key(PostList *pl, const OmDatabase &db, om_docid did,
     const OmKey *key = pl->get_collapse_key();
     if (key) RETURN(*key);
     if (doc.get() == 0) {
-	RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
+	RefCntPtr<Document> temp(db.internal->open_document(did));
 	doc = temp;
     }
     RETURN(doc->get_key(keyno));
@@ -434,7 +434,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	// FIXME: if results are from MSetPostList then we can omit this step
 	if (mdecider != NULL) {
 	    if (doc.get() == 0) {
-		RefCntPtr<Document> temp(OmDatabase::InternalInterface::get(db)->open_document(did));
+		RefCntPtr<Document> temp(db.internal->open_document(did));
 		doc = temp;
 	    }
 	    OmDocument mydoc(new OmDocument::Internal(doc, db, did));
