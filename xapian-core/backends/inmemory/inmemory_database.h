@@ -279,7 +279,7 @@ TextfileDatabase::get_avlength() const
     return avlength;
 }
 
-termname
+inline termname
 TextfileDatabase::term_id_to_name(termid id) const
 {
     Assert(opened);

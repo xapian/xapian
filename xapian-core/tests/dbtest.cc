@@ -4,6 +4,7 @@
 #include "sleepy_database.h"
 #include "da_database.h"
 #include "multi_database.h"
+#include "textfile_database.h"
 
 int main(int argc, char *argv[]) {
     DBPostList * postlist;
@@ -12,13 +13,17 @@ int main(int argc, char *argv[]) {
     docid did;
 
     try {
+#if 1
+	TextfileDatabase database;
+	database.open("textfile", 0);
+#endif
 #if 0
 	MultiDatabase database;
 	database.open_subdatabase(new SleepyDatabase(), "test_sleepy", 0);
 	//database.open_subdatabase(new SleepyDatabase(), "test_sleepy2", 0);
 	//database.open_subdatabase(new DADatabase(), "testdir", 0);
 #endif
-#if 1
+#if 0
 	SleepyDatabase database;
 	database.open("test_sleepy", 0);
 #endif
