@@ -9,6 +9,9 @@
 
 // align file1 file2
 
+// in delta format, line numbers refer to original
+// line numbers in file1 and file2 
+
 #define GNU_DIFF_MARKER_COL 64
 #define DIFF_OUTPUT "/tmp/diff_output"
 #define DEBUG_MODE 0
