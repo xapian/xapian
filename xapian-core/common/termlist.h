@@ -33,7 +33,7 @@ class TermList {
     private:
     public:
 	virtual om_termcount get_approx_size() const = 0; // Gets size of termlist
-	virtual OMExpandBits get_weighting() const = 0; // Gets weighting info for current term
+	virtual OmExpandBits get_weighting() const = 0; // Gets weighting info for current term
 	virtual const om_termname get_termname() const = 0; // Gets current termname
 	virtual om_termcount get_wdf() const = 0; // Get wdf of current term
 
@@ -45,15 +45,15 @@ class TermList {
 
 class DBTermList : public virtual TermList {
     protected:
-	const OMExpandWeight * wt;
+	const OmExpandWeight * wt;
     public:
 	DBTermList() : wt(NULL) { return; }
 	~DBTermList() { return; }
-	virtual void set_weighting(const OMExpandWeight * wt_); // Sets term weight
+	virtual void set_weighting(const OmExpandWeight * wt_); // Sets term weight
 };
 
 inline void
-DBTermList::set_weighting(const OMExpandWeight * wt_)
+DBTermList::set_weighting(const OmExpandWeight * wt_)
 {
     wt = wt_;
 }

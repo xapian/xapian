@@ -26,23 +26,23 @@
 #include "omassert.h"
 #include "config.h"
 
-OMExpandBits
-operator+(const OMExpandBits &bits1, const OMExpandBits &bits2)
+OmExpandBits
+operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
 {   
-    OMExpandBits sum(bits1);
+    OmExpandBits sum(bits1);
     sum.multiplier += bits2.multiplier;
     sum.rtermfreq += bits2.rtermfreq;
 
     // FIXME - try to share this information rather than pick half of it
     if(bits2.dbsize > sum.dbsize) {
-	DebugMsg("OMExpandBits::operator+ using second operand: " <<
+	DebugMsg("OmExpandBits::operator+ using second operand: " <<
 		 bits2.termfreq << "/" << bits2.dbsize << " instead of " <<
 		 bits1.termfreq << "/" << bits1.dbsize << endl);
 	sum.termfreq = bits2.termfreq;
 	sum.dbsize = bits2.dbsize;
     }
     else if(bits2.dbsize < sum.dbsize){
-	DebugMsg("OMExpandBits::operator+ using first operand: " << 
+	DebugMsg("OmExpandBits::operator+ using first operand: " << 
 		bits1.termfreq << "/" << bits1.dbsize << " instead of " <<
 		bits2.termfreq << "/" << bits2.dbsize << endl);
     }
@@ -50,7 +50,7 @@ operator+(const OMExpandBits &bits1, const OMExpandBits &bits2)
 }
 
 om_weight
-OMExpandWeight::get_weight(const OMExpandBits &bits,
+OmExpandWeight::get_weight(const OmExpandBits &bits,
 			   const om_termname &tname) const
 {
     double termfreq = (double)bits.termfreq;
@@ -69,7 +69,7 @@ OMExpandWeight::get_weight(const OMExpandBits &bits,
     }
 
 #if 0
-    DebugMsg("OMExpandWeight::get_weight("
+    DebugMsg("OmExpandWeight::get_weight("
 	     "N=" << dbsize << ", "
 	     "n=" << termfreq << ", "
 	     "R=" << rsize << ", "
@@ -105,7 +105,7 @@ OMExpandWeight::get_weight(const OMExpandBits &bits,
 
 // Provide an upper bound on the values which may be returned as weights 
 om_weight
-OMExpandWeight::get_maxweight() const
+OmExpandWeight::get_maxweight() const
 {
     // FIXME - check the maths behind this.
     return(log(4.0 * (rsize + 0.5) * (dbsize - rsize + 0.5)) * rsize);

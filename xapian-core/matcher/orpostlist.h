@@ -26,7 +26,7 @@
 #include "branchpostlist.h"
 
 class PostList;
-class OMMatch;
+class OmMatch;
 
 class OrPostList : public virtual BranchPostList {
     private:
@@ -47,7 +47,7 @@ class OrPostList : public virtual BranchPostList {
 
 	string intro_term_description() const;
 
-        OrPostList(PostList * left, PostList * right, OMMatch * root_);
+        OrPostList(PostList * left, PostList * right, OmMatch * root_);
 };
 
 inline om_doccount

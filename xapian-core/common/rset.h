@@ -46,7 +46,7 @@ class RSet {
 	vector<RSetItem> documents; // FIXME - should be encapsulated
 
 	RSet(IRDatabase *root_new);
-	RSet(IRDatabase *root_new, const OMRSet & _rset);
+	RSet(IRDatabase *root_new, const OmRSet & _rset);
 
 	void add_document(om_docid did);
 	void will_want_termfreq(om_termname tname) const;
@@ -66,7 +66,7 @@ RSet::RSet(IRDatabase *root_new)
 
 // Initialise with an OMRset
 inline
-RSet::RSet(IRDatabase *root_new, const OMRSet & _rset)
+RSet::RSet(IRDatabase *root_new, const OmRSet & _rset)
 	: root(root_new), initialised_reltermfreqs(false)
 {
     set<om_docid>::const_iterator i;

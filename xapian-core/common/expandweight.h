@@ -31,15 +31,15 @@ class RSet;
 
 // Information which is passed up through tree of termlists to calculate
 // term weightings
-class OMExpandBits {
-    friend class OMExpandWeight;
+class OmExpandBits {
+    friend class OmExpandWeight;
     private:
 	om_weight multiplier;   // Multiplier to apply to get expand weight
 	om_doccount rtermfreq; // Number of relevant docs indexed by term
 	om_doccount termfreq;  // Term frequency (may be within a subset of whole database)
 	om_doccount dbsize;     // Size of database to which termfreq applies
     public:
-	OMExpandBits(om_weight multiplier_new,
+	OmExpandBits(om_weight multiplier_new,
 		   om_termcount termfreq_new,
 		   om_doccount dbsize_new)
 		: multiplier(multiplier_new),
@@ -48,21 +48,21 @@ class OMExpandBits {
 		  dbsize(dbsize_new)
 		  { return; }
 
-	friend OMExpandBits operator+(const OMExpandBits &, const OMExpandBits &);
+	friend OmExpandBits operator+(const OmExpandBits &, const OmExpandBits &);
 };
 
 // Abstract base class for weighting schemes
-class OMExpandWeight {
+class OmExpandWeight {
     protected:
 	const IRDatabase *root; // Root database
 	om_doccount dbsize;        // Size of whole collection
 	om_doccount rsize;         // Size of RSet
     public:
-	OMExpandWeight(const IRDatabase *root_, om_doccount rsetsize_);
+	OmExpandWeight(const IRDatabase *root_, om_doccount rsetsize_);
 
-	OMExpandBits get_bits(om_termcount wdf, om_doclength len,
+	OmExpandBits get_bits(om_termcount wdf, om_doclength len,
 			      om_doccount termfreq, om_doccount dbsize) const;
-	om_weight get_weight(const OMExpandBits & bits,
+	om_weight get_weight(const OmExpandBits & bits,
 			     const om_termname & tname) const;
 	om_weight get_maxweight() const;
 };
@@ -72,7 +72,7 @@ class OMExpandWeight {
 ///////////////////////////////
 
 inline
-OMExpandWeight::OMExpandWeight(const IRDatabase *root_,
+OmExpandWeight::OmExpandWeight(const IRDatabase *root_,
 			   om_doccount rsetsize_)
 	: root(root_),
 	  rsize(rsetsize_)
@@ -83,8 +83,8 @@ OMExpandWeight::OMExpandWeight(const IRDatabase *root_,
 
 const double k = 1;
 
-inline OMExpandBits
-OMExpandWeight::get_bits(om_termcount wdf,
+inline OmExpandBits
+OmExpandWeight::get_bits(om_termcount wdf,
 		       om_doclength len,
 		       om_doccount termfreq,
 		       om_doccount dbsize) const
@@ -103,7 +103,7 @@ OMExpandWeight::get_bits(om_termcount wdf,
 	DebugMsg("No wdf information => multiplier = " << multiplier << endl);
 #endif
     }
-    return OMExpandBits(multiplier, termfreq, dbsize);
+    return OmExpandBits(multiplier, termfreq, dbsize);
 }
 
 #endif /* _expandweight_h_ */

@@ -52,7 +52,7 @@ AndNotPostList::advance_to_next_match(om_weight w_min, PostList *ret)
     return NULL;
 }
 
-AndNotPostList::AndNotPostList(PostList *left, PostList *right, OMMatch *root_)
+AndNotPostList::AndNotPostList(PostList *left, PostList *right, OmMatch *root_)
 {    
     root = root_;
     l = left;

@@ -38,12 +38,12 @@ class IRWeight;
 // (By default, equally weighted items will be returned in reverse
 // document id number.)
 
-typedef bool (* mset_cmp)(const OMMSetItem &, const OMMSetItem &);
-bool msetcmp_forward(const OMMSetItem &, const OMMSetItem &);
-bool msetcmp_reverse(const OMMSetItem &, const OMMSetItem &);
+typedef bool (* mset_cmp)(const OmMSetItem &, const OmMSetItem &);
+bool msetcmp_forward(const OmMSetItem &, const OmMSetItem &);
+bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
 
 // Class which encapsulates best match operation
-class OMMatch
+class OmMatch
 {
     private:
         IRDatabase *database;
@@ -63,25 +63,25 @@ class OMMatch
         bool recalculate_maxweight;
 
 	// Make a postlist from a query object
-	PostList * postlist_from_query(const OMQuery * query_);
+	PostList * postlist_from_query(const OmQuery * query_);
 
 	// Make a postlist from a vector of query objects (AND or OR)
 	PostList * postlist_from_queries(om_queryop op,
-					 const vector<OMQuery *> & queries);
+					 const vector<OmQuery *> & queries);
 
 	// Open a postlist
 	DBPostList * mk_postlist(const om_termname& tname,
 				 RSet * rset);
     public:
-        OMMatch(IRDatabase * database_);
-        ~OMMatch();
+        OmMatch(IRDatabase * database_);
+        ~OmMatch();
 
 	///////////////////////////////////////////////////////////////////
 	// Set the terms and operations which comprise the query
 	// =====================================================
 
 	// Sets query to use.
-	void set_query(const OMQuery * query_);
+	void set_query(const OmQuery * query_);
 
 	///////////////////////////////////////////////////////////////////
 	// Set additional options for performing the query
@@ -122,7 +122,7 @@ class OMMatch
 	// undesirable.
 	void match(om_doccount first,      // First item to return (start at 0)
 		   om_doccount maxitems,   // Maximum number of items to return
-		   vector<OMMSetItem> & mset,// Results will be put here
+		   vector<OmMSetItem> & mset,// Results will be put here
 		   mset_cmp cmp,           // Comparison operator to sort by
 		   om_doccount * mbound,   // Mbound will returned here
 		   om_weight * greatest_wt // Gets set to max weight attained
@@ -131,7 +131,7 @@ class OMMatch
 	// Do a boolean only match
 	void boolmatch(om_doccount first,  // First item to return (start at 0)
 		       om_doccount maxitems,// Maximum number of items to return
-		       vector<OMMSetItem> & mset); // Results
+		       vector<OmMSetItem> & mset); // Results
 
 	///////////////////////////////////////////////////////////////////
 	// Miscellaneous
@@ -147,20 +147,20 @@ class OMMatch
 ///////////////////////////////
 
 inline void
-OMMatch::set_collapse_key(om_keyno key)
+OmMatch::set_collapse_key(om_keyno key)
 {
     do_collapse = true;
     collapse_key = key;
 }
 
 inline void
-OMMatch::set_no_collapse()
+OmMatch::set_no_collapse()
 {
     do_collapse = false;
 }
 
 inline void
-OMMatch::set_rset(RSet *rset_)
+OmMatch::set_rset(RSet *rset_)
 {
     Assert(!have_added_terms);
     Assert(query == NULL);
@@ -168,13 +168,13 @@ OMMatch::set_rset(RSet *rset_)
 }
 
 inline void
-OMMatch::set_min_weight_percent(int pcent)
+OmMatch::set_min_weight_percent(int pcent)
 {
     min_weight_percent = pcent;
 }
 
 inline om_weight
-OMMatch::get_max_weight()
+OmMatch::get_max_weight()
 {
     return max_weight;
 }

@@ -34,7 +34,7 @@ main(int argc, char *argv[])
     int msize = 10;
     int mfirst = 0;
     const char *progname = argv[0];
-    OMRSet rset;
+    OmRSet rset;
     vector<vector<string> > dbargs;
     vector<string> dbtypes;
     bool showmset = false;
@@ -104,7 +104,7 @@ main(int argc, char *argv[])
     }
 
     try {
-        OMEnquire enquire;
+        OmEnquire enquire;
 
 	vector<string>::const_iterator p;
 	vector<vector<string> >::const_iterator q;
@@ -117,9 +117,9 @@ main(int argc, char *argv[])
 
 	Stemmer * stemmer = StemmerBuilder::create(STEMLANG_ENGLISH);
 
-	OMQuery query;
-	stack<OMQuery> boolquery;
-	// Parse query into OMQuery object
+	OmQuery query;
+	stack<OmQuery> boolquery;
+	// Parse query into OmQuery object
 	bool boolean = false;
         for (char **p = argv; *p; p++) {
 	    string term = *p;
@@ -128,7 +128,7 @@ main(int argc, char *argv[])
 		continue;
 	    } else if (term == "P") {
 		Assert(boolquery.size() == 1);
-		query = OMQuery(OM_MOP_FILTER, query, boolquery.top());
+		query = OmQuery(OM_MOP_FILTER, query, boolquery.top());
 		boolean = false;
 		continue;
 	    } else {
@@ -156,38 +156,38 @@ main(int argc, char *argv[])
 		    }
 		    if(doop) {
 			Assert(boolquery.size() >= 2);
-			OMQuery boolq_right(boolquery.top());
+			OmQuery boolq_right(boolquery.top());
 			boolquery.pop();
-			OMQuery newtop(boolop, boolquery.top(), boolq_right);
+			OmQuery newtop(boolop, boolquery.top(), boolq_right);
 			boolquery.pop();
 			boolquery.push(newtop);
 		    } else {
-			boolquery.push(OMQuery(stemmer->stem_word(term)));
+			boolquery.push(OmQuery(stemmer->stem_word(term)));
 		    }
 		} else {
 		    term = stemmer->stem_word(term);
 		    DebugMsg("oldquery: " << query.get_description() << endl);
-		    query = OMQuery(default_op, query, term);
+		    query = OmQuery(default_op, query, term);
 		    DebugMsg("newquery: " << query.get_description() << endl);
 		}
 	    }
         }
 	if(boolean) {
 	    Assert(boolquery.size() == 1);
-	    query = OMQuery(OM_MOP_FILTER, query, boolquery.top());
+	    query = OmQuery(OM_MOP_FILTER, query, boolquery.top());
 	}
 
 	enquire.set_query(query);
 	DebugMsg("Query is: " << query.get_description() << endl);
 
-	OMMatchOptions opts;
+	OmMatchOptions opts;
 	if(collapse_key != -1) opts.set_collapse_key(collapse_key);
 
-	OMMSet mset;
+	OmMSet mset;
 	enquire.get_mset(mset, mfirst, msize, &rset, &opts);
 	
 	if (showmset) {
-	    vector<OMMSetItem>::const_iterator i;
+	    vector<OmMSetItem>::const_iterator i;
 	    for(i = mset.items.begin();
 		i != mset.items.end();
 		i++) {

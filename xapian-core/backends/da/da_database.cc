@@ -106,7 +106,7 @@ DATermList::DATermList(struct termvec *tv, om_doccount dbsize_)
     pos = terms.begin();
 }
 
-OMExpandBits
+OmExpandBits
 DATermList::get_weighting() const
 {
     Assert(!at_end());

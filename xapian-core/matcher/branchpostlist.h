@@ -30,7 +30,7 @@ class BranchPostList : public virtual PostList {
     protected:
         void handle_prune(PostList *&kid, PostList *ret);
         PostList *l, *r;
-        OMMatch *root;
+        OmMatch *root;
     public:
         virtual ~BranchPostList();
 };

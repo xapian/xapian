@@ -57,26 +57,26 @@ class PLPCmpLt {
         }
 };
 
-// Compare an OMMSetItem, using a custom function
+// Compare an OmMSetItem, using a custom function
 class MSetCmp {
     public:
-	bool (* fn)(const OMMSetItem &a, const OMMSetItem &b);
-	MSetCmp(bool (* _fn)(const OMMSetItem &a, const OMMSetItem &b))
+	bool (* fn)(const OmMSetItem &a, const OmMSetItem &b);
+	MSetCmp(bool (* _fn)(const OmMSetItem &a, const OmMSetItem &b))
 		: fn(_fn) {}
-	bool operator()(const OMMSetItem &a, const OMMSetItem &b) {
+	bool operator()(const OmMSetItem &a, const OmMSetItem &b) {
 	    return fn(a, b);
 	}
 };
 
 // Comparison which sorts equally weighted MSetItems in docid order
-bool msetcmp_forward(const OMMSetItem &a, const OMMSetItem &b) {
+bool msetcmp_forward(const OmMSetItem &a, const OmMSetItem &b) {
     if(a.wt > b.wt) return true;
     if(a.wt == b.wt) return a.did < b.did;
     return false;
 }
 
 // Comparison which sorts equally weighted MSetItems in reverse docid order
-bool msetcmp_reverse(const OMMSetItem &a, const OMMSetItem &b) {
+bool msetcmp_reverse(const OmMSetItem &a, const OmMSetItem &b) {
     if(a.wt > b.wt) return true;
     if(a.wt == b.wt) return a.did > b.did;
     return false;
@@ -86,7 +86,7 @@ bool msetcmp_reverse(const OMMSetItem &a, const OMMSetItem &b) {
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-OMMatch::OMMatch(IRDatabase *database_)
+OmMatch::OmMatch(IRDatabase *database_)
 	: query(NULL),
 	  do_collapse(false),
 	  have_added_terms(false)
@@ -96,7 +96,7 @@ OMMatch::OMMatch(IRDatabase *database_)
     rset = NULL;
 }
 
-OMMatch::~OMMatch()
+OmMatch::~OmMatch()
 {
     while (!weights.empty()) {
 	delete(weights.back());
@@ -105,7 +105,7 @@ OMMatch::~OMMatch()
 }
 
 DBPostList *
-OMMatch::mk_postlist(const om_termname& tname, RSet * rset)
+OmMatch::mk_postlist(const om_termname& tname, RSet * rset)
 {
     // FIXME - this should be centralised into a postlist factory
     DBPostList * pl = database->open_post_list(tname, rset);
@@ -122,7 +122,7 @@ OMMatch::mk_postlist(const om_termname& tname, RSet * rset)
 // Operation must be either AND or OR.
 // Optimise query by building tree carefully.
 PostList *
-OMMatch::postlist_from_queries(om_queryop op, const vector<OMQuery *> &queries)
+OmMatch::postlist_from_queries(om_queryop op, const vector<OmQuery *> &queries)
 {
     Assert(op == OM_MOP_OR || op == OM_MOP_AND);
     Assert(queries.size() >= 2);
@@ -130,7 +130,7 @@ OMMatch::postlist_from_queries(om_queryop op, const vector<OMQuery *> &queries)
     // Open a postlist for each query, and store these postlists in a vector.
     vector<PostList *> postlists;
     postlists.reserve(queries.size());
-    vector<OMQuery *>::const_iterator q;
+    vector<OmQuery *>::const_iterator q;
     for(q = queries.begin(); q != queries.end(); q++) {
 	postlists.push_back(postlist_from_query(*q));
 	DebugMsg("Made postlist: get_termfreq() = " << postlists.back()->get_termfreq() << endl);
@@ -220,7 +220,7 @@ OMMatch::postlist_from_queries(om_queryop op, const vector<OMQuery *> &queries)
 // Make a postlist from a query object - this is called recursively down
 // the query tree.
 PostList *
-OMMatch::postlist_from_query(const OMQuery *query_)
+OmMatch::postlist_from_query(const OmQuery *query_)
 {
     PostList *pl = NULL;
 
@@ -282,7 +282,7 @@ OMMatch::postlist_from_query(const OMQuery *query_)
 ////////////////////////
 
 void
-OMMatch::set_query(const OMQuery *query_)
+OmMatch::set_query(const OmQuery *query_)
 {
     // Clear existing query
     max_weight = 0;
@@ -305,15 +305,15 @@ OMMatch::set_query(const OMQuery *query_)
 // This method is called by branch postlists when they rebalance
 // in order to recalculate the weights in the tree
 void
-OMMatch::recalc_maxweight()
+OmMatch::recalc_maxweight()
 {
     recalculate_maxweight = true;
 }
 
 // This is the method which runs the query, generating the M set
 void
-OMMatch::match(om_doccount first, om_doccount maxitems,
-	       vector<OMMSetItem> & mset, mset_cmp cmp,
+OmMatch::match(om_doccount first, om_doccount maxitems,
+	       vector<OmMSetItem> & mset, mset_cmp cmp,
 	       om_doccount * mbound, om_weight * greatest_wt)
 {
     // Prepare query
@@ -336,7 +336,7 @@ OMMatch::match(om_doccount first, om_doccount maxitems,
     om_weight w_max = max_weight;
     recalculate_maxweight = false;
 
-    map<IRKey, OMMSetItem> collapse_table;
+    map<IRKey, OmMSetItem> collapse_table;
 
     // Perform query
     while (1) {
@@ -377,20 +377,20 @@ OMMatch::match(om_doccount first, om_doccount maxitems,
         if (w > w_min) {
 	    om_docid did = query->get_docid();
 	    bool add_item = true;
-	    OMMSetItem mitem(w, did);
+	    OmMSetItem mitem(w, did);
 
 	    // Item has high enough weight to go in MSet: do collapse if wanted
 	    if(do_collapse) {
 		IRDocument * irdoc = database->open_document(did);
 		IRKey irkey = irdoc->get_key(collapse_key);
-		map<IRKey, OMMSetItem>::iterator oldkey;
+		map<IRKey, OmMSetItem>::iterator oldkey;
 		oldkey = collapse_table.find(irkey);
 		if(oldkey == collapse_table.end()) {
 		    DebugMsg("collapsem: new key: " << irkey.value << endl);
 		    // Key not been seen before
-		    collapse_table.insert(pair<IRKey, OMMSetItem>(irkey, mitem));
+		    collapse_table.insert(pair<IRKey, OmMSetItem>(irkey, mitem));
 		} else {
-		    OMMSetItem olditem = (*oldkey).second;
+		    OmMSetItem olditem = (*oldkey).second;
 		    if(mcmp.operator()(olditem, mitem)) {
 			DebugMsg("collapsem: better exists: " << irkey.value << endl);
 			// There's already a better match with this key
@@ -404,7 +404,7 @@ OMMatch::match(om_doccount first, om_doccount maxitems,
 			    // FIXME: more efficient way that just scanning?
 			    om_weight olddid = olditem.did;
 			    DebugMsg("collapsem: removing " << olddid << ": " << irkey.value << endl);
-			    vector<OMMSetItem>::iterator i = mset.begin();
+			    vector<OmMSetItem>::iterator i = mset.begin();
 			    for(;;) {
 				if(i->did == olddid) {
 				    mset.erase(i);
@@ -474,8 +474,8 @@ OMMatch::match(om_doccount first, om_doccount maxitems,
 // This method runs the query, generating the M set, but doesn't calcualate
 // any weights (all weights in result are set to 1)
 void
-OMMatch::boolmatch(om_doccount first, om_doccount maxitems,
-		   vector<OMMSetItem> &mset)
+OmMatch::boolmatch(om_doccount first, om_doccount maxitems,
+		   vector<OmMSetItem> &mset)
 {
     // Prepare query
     mset.clear();
@@ -487,7 +487,7 @@ OMMatch::boolmatch(om_doccount first, om_doccount maxitems,
 
     om_doccount max_msize = first + maxitems;
 
-    map<IRKey, OMMSetItem> collapse_table;
+    map<IRKey, OmMSetItem> collapse_table;
 
     // Perform query
     while(mset.size() < max_msize) {
@@ -503,18 +503,18 @@ OMMatch::boolmatch(om_doccount first, om_doccount maxitems,
 
 	om_docid did = query->get_docid();
 	bool add_item = true;
-	OMMSetItem mitem(1.0, did);
+	OmMSetItem mitem(1.0, did);
 
 	// Item has high enough weight to go in MSet: do collapse if wanted
 	if(do_collapse) {
 	    IRDocument * irdoc = database->open_document(did);
 	    IRKey irkey = irdoc->get_key(collapse_key);
-	    map<IRKey, OMMSetItem>::iterator oldkey;
+	    map<IRKey, OmMSetItem>::iterator oldkey;
 	    oldkey = collapse_table.find(irkey);
 	    if(oldkey == collapse_table.end()) {
 		DebugMsg("collapsem: new key: " << irkey.value << endl);
 		// Key not been seen before
-		collapse_table.insert(pair<IRKey, OMMSetItem>(irkey, mitem));
+		collapse_table.insert(pair<IRKey, OmMSetItem>(irkey, mitem));
 	    } else {
 		DebugMsg("collapsem: already exists: " << irkey.value << endl);
 		// There's already a better match with this key

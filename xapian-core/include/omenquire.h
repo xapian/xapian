@@ -28,12 +28,12 @@
 #include <vector>
 #include <set>
 
-class OMEnquireInternal; // Internal state of enquire
-class OMEnquire;         // Declare Enquire class
-class OMMatch;           // Class which performs queries
+class OmEnquireInternal; // Internal state of enquire
+class OmEnquire;         // Declare Enquire class
+class OmMatch;           // Class which performs queries
 
 ///////////////////////////////////////////////////////////////////
-// OMQuery class
+// OmQuery class
 // =============
 // Representation of a query
 
@@ -50,56 +50,56 @@ enum om_queryop {
 };
 
 /// Class representing a query
-class OMQuery {
-    friend class OMMatch;
+class OmQuery {
+    friend class OmMatch;
     private:
 	bool isnull;
 	bool isbool;
-	vector<OMQuery *> subqs;
+	vector<OmQuery *> subqs;
 	om_termname tname;
 	om_queryop op;
 
-	void initialise_from_copy(const OMQuery & copyme);
-	void initialise_from_vector(const vector<OMQuery>::const_iterator qbegin,
-				    const vector<OMQuery>::const_iterator qend);
-	void initialise_from_vector(const vector<OMQuery *>::const_iterator qbegin,
-				    const vector<OMQuery *>::const_iterator qend);
+	void initialise_from_copy(const OmQuery & copyme);
+	void initialise_from_vector(const vector<OmQuery>::const_iterator qbegin,
+				    const vector<OmQuery>::const_iterator qend);
+	void initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
+				    const vector<OmQuery *>::const_iterator qend);
     public:
 	/// A query consisting of a single term
-	OMQuery(const om_termname & tname_);
+	OmQuery(const om_termname & tname_);
 
 	/// A query consisting of two subqueries, opp-ed together
-	OMQuery(om_queryop op_, const OMQuery & left, const OMQuery & right);
+	OmQuery(om_queryop op_, const OmQuery & left, const OmQuery & right);
 
-	/** A set of OMQuery's, merged together with specified operator.
+	/** A set of OmQuery's, merged together with specified operator.
 	 * (Takes begin and end iterators).
 	 * The only operators allowed are AND and OR. */
-	OMQuery(om_queryop op_,
-		const vector<OMQuery>::const_iterator qbegin,
-		const vector<OMQuery>::const_iterator qend);
+	OmQuery(om_queryop op_,
+		const vector<OmQuery>::const_iterator qbegin,
+		const vector<OmQuery>::const_iterator qend);
 
-	/// As before, but uses a vector of OMQuery pointers
-	OMQuery(om_queryop op_,
-		const vector<OMQuery *>::const_iterator qbegin,
-		const vector<OMQuery *>::const_iterator qend);
+	/// As before, but uses a vector of OmQuery pointers
+	OmQuery(om_queryop op_,
+		const vector<OmQuery *>::const_iterator qbegin,
+		const vector<OmQuery *>::const_iterator qend);
 
 	/// As before, except subqueries are all individual terms.
-	OMQuery(om_queryop op_,
+	OmQuery(om_queryop op_,
 		const vector<om_termname>::const_iterator tbegin,
 		const vector<om_termname>::const_iterator tend);
 
 	/// Copy constructor
-	OMQuery(const OMQuery & copyme);
+	OmQuery(const OmQuery & copyme);
 
 	/// Assignment
-	OMQuery & operator=(const OMQuery & copyme);
+	OmQuery & operator=(const OmQuery & copyme);
 
 	/** Default constructor: makes a null query which can't be used
 	 * (Convenient to have a default constructor though) */
-	OMQuery();
+	OmQuery();
 
 	/// Destructor
-	~OMQuery();
+	~OmQuery();
 
 	/** Introspection method
 	 * Returns a string representing the query. */
@@ -113,19 +113,19 @@ class OMQuery {
 };
 
 ///////////////////////////////////////////////////////////////////
-// OMMatchOptions class
+// OmMatchOptions class
 // ====================
 /// Used to specify options for running a query
 
-class OMMatchOptions {
-    friend OMEnquire;
+class OmMatchOptions {
+    friend OmEnquire;
     private:
 	bool  do_collapse;
 	om_keyno collapse_key;
 
 	bool  sort_forward;
     public:
-	OMMatchOptions();
+	OmMatchOptions();
 
 	/** Set a key to collapse (remove duplicates) on.
 	 *  There may only be one key in use at a time.
@@ -143,16 +143,16 @@ class OMMatchOptions {
 };
 
 ///////////////////////////////////////////////////////////////////
-// OMExpandOptions class
+// OmExpandOptions class
 // =====================
 /// Used to specify options for performing expand
 
-class OMExpandOptions {
-    friend OMEnquire;
+class OmExpandOptions {
+    friend OmEnquire;
     private:
 	bool  allow_query_terms;
     public:
-	OMExpandOptions();
+	OmExpandOptions();
 
 	/** This sets whether terms which are already in the query will
 	 *  be returned by the match.  By default, such terms will not
@@ -164,20 +164,20 @@ class OMExpandOptions {
 
 /** Base class for expand decision functions.
  */
-class OMExpandDecider {
+class OmExpandDecider {
     public:
 	virtual bool want_term(const om_termname & tname) const = 0;
 };
 
 ///////////////////////////////////////////////////////////////////
-// OMRSet class
+// OmRSet class
 // =============
 /** A relevance set.
  *  This is the set of documents which are marked as relevant, for use
  *  in modifying the term weights, and in performing query expansion.
  */
 
-class OMRSet {
+class OmRSet {
     private:
     public:
 	/** Items in the relevance set.  These can be altered directly if
@@ -189,29 +189,29 @@ class OMRSet {
 
 /// Add a document to the relevance set.
 inline void
-OMRSet::add_document(om_docid did)
+OmRSet::add_document(om_docid did)
 {
     items.insert(did);
 }
 
 /// Remove a document from the relevance set.
 inline void
-OMRSet::remove_document(om_docid did)
+OmRSet::remove_document(om_docid did)
 {
     set<om_docid>::iterator i = items.find(did);
     if(i != items.end()) items.erase(i);
 }
 
 ///////////////////////////////////////////////////////////////////
-// OMMSet class
+// OmMSet class
 // =============
 // Representaton of a match result set
 
 /// An item resulting from a query
-class OMMSetItem {
-    friend class OMMatch;
+class OmMSetItem {
+    friend class OmMatch;
     private:
-	OMMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
+	OmMSetItem(om_weight wt_, om_docid did_) : wt(wt_), did(did_) {}
     public:
 	om_weight wt; /// Weight calculated
 	om_docid did; /// Document id
@@ -220,10 +220,10 @@ class OMMSetItem {
 /** A match set (MSet).
  *  This class represents (a portion of) the results of a query.
  */
-class OMMSet {
+class OmMSet {
     private:
     public:
-	OMMSet() : mbound(0) {}
+	OmMSet() : mbound(0) {}
 
 	/** This converts the weight supplied to a percentage score.
 	 * The return value will be in the range 0 to 100, and will be 0 if
@@ -232,14 +232,14 @@ class OMMSet {
 	int convert_to_percent(om_weight wt) const;
 
 	/// Return the percentage score for the given item.
-	int convert_to_percent(const OMMSetItem & item) const;
+	int convert_to_percent(const OmMSetItem & item) const;
 
 	/// A list of items comprising the mset.
-	vector<OMMSetItem> items;
+	vector<OmMSetItem> items;
 
 	/** The index of the first item in the result to put into the mset.
 	 *  This corresponds to the parameter "first" specified in
-	 *  OMEnquire::get_mset().  A value of 0 corresponds to the highest
+	 *  OmEnquire::get_mset().  A value of 0 corresponds to the highest
 	 *  result being the first item in the mset.
 	 */
 	om_doccount firstitem;
@@ -278,15 +278,15 @@ class OMMSet {
 };
 
 ///////////////////////////////////////////////////////////////////
-// OMESet class
+// OmESet class
 // =============
 // Representation a set of expand terms
 
 /// An item in the ESet
-class OMESetItem {
-    friend class OMExpand;
+class OmESetItem {
+    friend class OmExpand;
     private:
-	OMESetItem(om_weight wt_new, om_termname tname_new)
+	OmESetItem(om_weight wt_new, om_termname tname_new)
 		: wt(wt_new), tname(tname_new) {}
     public:
 	om_weight wt;
@@ -294,26 +294,26 @@ class OMESetItem {
 };
 
 /// Class representing an ESet
-class OMESet {
+class OmESet {
     private:
     public:
-	OMESet() : etotal(0) {}
-	vector<OMESetItem> items;
+	OmESet() : etotal(0) {}
+	vector<OmESetItem> items;
 	om_termcount etotal;
 };
 
 ///////////////////////////////////////////////////////////////////
-// OMEnquire class
+// OmEnquire class
 // ===============
 // This class provides an interface to the information retrieval
 // system for the purpose of searching.
 
-class OMEnquire {
+class OmEnquire {
     private:
-	OMEnquireInternal *internal;
+	OmEnquireInternal *internal;
     public:
-        OMEnquire();
-        ~OMEnquire();
+        OmEnquire();
+        ~OmEnquire();
 
 	// Add a new database to use.
 	//
@@ -326,21 +326,21 @@ class OMEnquire {
 			  const vector<string> & params);
 
 	// Set the query to run.
-	void set_query(const OMQuery & query_);
+	void set_query(const OmQuery & query_);
 
 	// Get (a portion of) the match set for the current query
-	void get_mset(OMMSet & mset,
+	void get_mset(OmMSet & mset,
                       om_doccount first,
                       om_doccount maxitems,
-		      const OMRSet * omrset = 0,
-	              const OMMatchOptions * moptions = 0) const;
+		      const OmRSet * omrset = 0,
+	              const OmMatchOptions * moptions = 0) const;
 
 	// Get the expand set for the given rset
-	void get_eset(OMESet & eset,
+	void get_eset(OmESet & eset,
                       om_termcount maxitems,
-                      const OMRSet & omrset,
-                      const OMExpandOptions * eoptions = 0,
-		      const OMExpandDecider * decider = 0) const;
+                      const OmRSet & omrset,
+                      const OmExpandOptions * eoptions = 0,
+		      const OmExpandDecider * decider = 0) const;
 };
 
 #endif /* _omenquire_h_ */

@@ -50,7 +50,7 @@ class AndPostList : public virtual BranchPostList {
 
         AndPostList(PostList *left,
 		    PostList *right,
-		    OMMatch *root_,
+		    OmMatch *root_,
 		    bool replacement = false);
 };
 

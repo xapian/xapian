@@ -31,27 +31,27 @@
 #include <stack>
 #include <vector>
 
-class OMExpandDeciderAlways : public virtual OMExpandDecider {
+class OmExpandDeciderAlways : public virtual OmExpandDecider {
     public:
 	bool want_term(const om_termname & tname) const { return true; }
 };
 
-class OMExpand {
+class OmExpand {
     private:
         IRDatabase *database;
    
         bool recalculate_maxweight;
-	TermList * build_tree(const RSet *rset, const OMExpandWeight *ewt);
+	TermList * build_tree(const RSet *rset, const OmExpandWeight *ewt);
     public:
-        OMExpand(IRDatabase * database_);
+        OmExpand(IRDatabase * database_);
 
 	void expand(om_termcount max_esize,
-		    OMESet & eset,
+		    OmESet & eset,
 		    const RSet * rset,
-		    const OMExpandDecider * decider);
+		    const OmExpandDecider * decider);
 };
 
-inline OMExpand::OMExpand(IRDatabase * database_)
+inline OmExpand::OmExpand(IRDatabase * database_)
 	: database(database_)
 { return; }
 

@@ -175,8 +175,8 @@ int main(int argc, char *argv[])
 }
 
 
-bool mset_range_is_same(const OMMSet &mset1, unsigned int first1,
-                        const OMMSet &mset2, unsigned int first2,
+bool mset_range_is_same(const OmMSet &mset1, unsigned int first1,
+                        const OmMSet &mset2, unsigned int first2,
 			unsigned int count)
 {
     for (unsigned int i=0; i<count; ++i) {
@@ -187,7 +187,7 @@ bool mset_range_is_same(const OMMSet &mset1, unsigned int first1,
     }
 }
 
-bool operator==(const OMMSet &first, const OMMSet &second)
+bool operator==(const OmMSet &first, const OmMSet &second)
 {
     if ((first.mbound != second.mbound) ||
 	(first.max_possible != second.max_possible) ||
@@ -212,18 +212,18 @@ bool test_zerodocid_inmemory()
     bool success = true;
     // open the database (in this case a simple text file
     // we prepared earlier)
-    OMEnquire enquire;
+    OmEnquire enquire;
     vector<string> dbargs;
     dbargs.push_back(datadir + "/apitest_onedoc.txt");
 
     enquire.add_database("inmemory", dbargs);
 
     // make a simple query, with one word in it - "word".
-    OMQuery myquery("word");
+    OmQuery myquery("word");
     enquire.set_query(myquery);
 
     // retrieve the top ten results (we only expect one)
-    OMMSet mymset;
+    OmMSet mymset;
     enquire.get_mset(mymset, 0, 10);
 
     // We've done the query, now check that the result is what
@@ -238,12 +238,12 @@ bool test_zerodocid_inmemory()
     return success;
 }
 
-void do_get_simple_query_mset(OMMSet &mset, OMQuery query,
+void do_get_simple_query_mset(OmMSet &mset, OmQuery query,
                               int maxitems = 10, int first = 0)
 {
     // open the database (in this case a simple text file
     // we prepared earlier)
-    OMEnquire enquire;
+    OmEnquire enquire;
     vector<string> dbargs;
     dbargs.push_back(datadir + "/apitest_simpledata.txt");
 
@@ -259,8 +259,8 @@ void do_get_simple_query_mset(OMMSet &mset, OMQuery query,
 bool test_simplequery1()
 {
     bool success = true;
-    OMMSet mymset;
-    do_get_simple_query_mset(mymset, OMQuery("word"));
+    OmMSet mymset;
+    do_get_simple_query_mset(mymset, OmQuery("word"));
     // We've done the query, now check that the result is what
     // we expect (2 documents)
     if (mymset.items.size() != 2) {
@@ -277,8 +277,8 @@ bool test_simplequery1()
 bool test_simplequery2()
 {
     bool success = true;
-    OMMSet mymset;
-    do_get_simple_query_mset(mymset, OMQuery("word"));
+    OmMSet mymset;
+    do_get_simple_query_mset(mymset, OmQuery("word"));
 
     // We've done the query, now check that the result is what
     // we expect (documents 2 and 4)
@@ -301,10 +301,10 @@ bool test_simplequery2()
 bool test_simplequery3()
 {
     bool success = true;
-    OMMSet mymset;
+    OmMSet mymset;
     // The search is for "thi" rather than "this" because
     // the index will have stemmed versions of the terms.
-    do_get_simple_query_mset(mymset, OMQuery("thi"));
+    do_get_simple_query_mset(mymset, OmQuery("thi"));
 
     // We've done the query, now check that the result is what
     // we expect (documents 2 and 4)
@@ -328,13 +328,13 @@ bool test_simplequery3()
 bool test_multidb1()
 {
     bool success = true;
-    OMEnquire enquire1;
+    OmEnquire enquire1;
     vector<string> dbargs1;
     dbargs1.push_back(datadir + "/apitest_simpledata.txt");
     dbargs1.push_back(datadir + "/apitest_simpledata2.txt");
     enquire1.add_database("inmemory", dbargs1);
 
-    OMEnquire enquire2;
+    OmEnquire enquire2;
     vector<string> dbargs2;
     dbargs2.push_back(datadir + "/apitest_simpledata.txt");
     enquire2.add_database("inmemory", dbargs2);
@@ -342,16 +342,16 @@ bool test_multidb1()
     enquire2.add_database("inmemory", dbargs2);
 
     // make a simple query, with one word in it - "word".
-    OMQuery myquery("word");
+    OmQuery myquery("word");
     enquire1.set_query(myquery);
     enquire2.set_query(myquery);
 
     // retrieve the top ten results from each method of accessing
     // multiple text files
-    OMMSet mymset1;
+    OmMSet mymset1;
     enquire1.get_mset(mymset1, 0, 10);
 
-    OMMSet mymset2;
+    OmMSet mymset2;
     enquire2.get_mset(mymset2, 0, 10);
 
     if (mymset1.items.size() != mymset2.items.size()) {
@@ -372,21 +372,21 @@ bool test_changequery1()
     // the index will have stemmed versions of the terms.
     // open the database (in this case a simple text file
     // we prepared earlier)
-    OMEnquire enquire;
+    OmEnquire enquire;
     vector<string> dbargs;
     dbargs.push_back(datadir + "/apitest_simpledata.txt");
 
     enquire.add_database("inmemory", dbargs);
 
-    OMQuery myquery("this");
+    OmQuery myquery("this");
     // make a simple query
     enquire.set_query(myquery);
 
-    OMMSet mset1, mset2;
+    OmMSet mset1, mset2;
     // retrieve the top ten results
     enquire.get_mset(mset1, 0, 10);
 
-    myquery = OMQuery("foo");
+    myquery = OmQuery("foo");
     enquire.get_mset(mset2, 0, 10);
 
     // verify that both msets are identical
@@ -400,8 +400,8 @@ bool test_nullquery1()
 {
     bool success = false;
     try {
-	OMMSet mymset;
-	do_get_simple_query_mset(mymset, OMQuery());
+	OmMSet mymset;
+	do_get_simple_query_mset(mymset, OmQuery());
     } catch (const OmError &) {
 	success = true;
     }
@@ -410,25 +410,25 @@ bool test_nullquery1()
 
 bool test_msetmaxitems1()
 {
-    OMMSet mymset;
-    do_get_simple_query_mset(mymset, OMQuery("thi"), 1);
+    OmMSet mymset;
+    do_get_simple_query_mset(mymset, OmQuery("thi"), 1);
     return (mymset.items.size() == 1);
 }
 
 bool test_expandmaxitems1()
 {
-    OMEnquire enquire;
+    OmEnquire enquire;
     vector<string> dbargs;
     dbargs.push_back(datadir + "/apitest_simpledata.txt");
     enquire.add_database("inmemory", dbargs);
 
-    enquire.set_query(OMQuery("thi"));
+    enquire.set_query(OmQuery("thi"));
 
-    OMMSet mymset;
+    OmMSet mymset;
     enquire.get_mset(mymset, 0, 10);
 
-    OMESet myeset;
-    OMRSet myrset;
+    OmESet myeset;
+    OmRSet myrset;
     myrset.add_document(mymset.items[0].did);
     myrset.add_document(mymset.items[1].did);
     enquire.get_eset(myeset, 1, myrset);
@@ -439,10 +439,10 @@ bool test_expandmaxitems1()
 bool test_boolquery1()
 {
     bool success = true;
-    OMQuery myboolquery(OMQuery(OM_MOP_FILTER,
-				OMQuery(),
-				OMQuery("thi")));
-    OMMSet mymset;
+    OmQuery myboolquery(OmQuery(OM_MOP_FILTER,
+				OmQuery(),
+				OmQuery("thi")));
+    OmMSet mymset;
     do_get_simple_query_mset(mymset, myboolquery);
 
     if (mymset.max_possible != 1) {
@@ -471,10 +471,10 @@ bool test_boolquery1()
 bool test_msetfirst1()
 {
     bool success = true;
-    OMMSet mymset1, mymset2;
+    OmMSet mymset1, mymset2;
 
-    do_get_simple_query_mset(mymset1, OMQuery("thi"), 6, 0);
-    do_get_simple_query_mset(mymset2, OMQuery("thi"), 3, 3);
+    do_get_simple_query_mset(mymset1, OmQuery("thi"), 6, 0);
+    do_get_simple_query_mset(mymset2, OmQuery("thi"), 3, 3);
 
     if (!mset_range_is_same(mymset1, 3, mymset2, 0, 3)) {
         success = false;

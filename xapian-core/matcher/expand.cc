@@ -28,9 +28,9 @@
 
 #include <algorithm>
 
-class OMESetCmp {
+class OmESetCmp {
     public:
-        bool operator()(const OMESetItem &a, const OMESetItem &b) {
+        bool operator()(const OmESetItem &a, const OmESetItem &b) {
 	    if(a.wt > b.wt) return true;
 	    if(a.wt != b.wt) return false;
 	    return a.tname > b.tname;
@@ -45,7 +45,7 @@ class TLPCmpGt {
 };
 
 TermList *
-OMExpand::build_tree(const RSet *rset, const OMExpandWeight *ewt)
+OmExpand::build_tree(const RSet *rset, const OmExpandWeight *ewt)
 {
     // Put items in priority queue, such that items with greatest size
     // are returned first.
@@ -75,7 +75,7 @@ OMExpand::build_tree(const RSet *rset, const OMExpandWeight *ewt)
     // speeds things up.
     while (true) {
 	TermList *p = pq.top();
-	DebugMsg("OMExpand: adding termlist " << p << " to tree" << endl);
+	DebugMsg("OmExpand: adding termlist " << p << " to tree" << endl);
 	pq.pop();
 	if (pq.empty()) {
 	    return p;
@@ -88,22 +88,22 @@ OMExpand::build_tree(const RSet *rset, const OMExpandWeight *ewt)
 }
 
 void
-OMExpand::expand(om_termcount max_esize,
-		 OMESet & eset,
+OmExpand::expand(om_termcount max_esize,
+		 OmESet & eset,
 		 const RSet * rset,
-		 const OMExpandDecider * decider)
+		 const OmExpandDecider * decider)
 {
     eset.items.clear();
     eset.etotal = 0;
 
-    DebugMsg("OMExpand::expand()" << endl);
+    DebugMsg("OmExpand::expand()" << endl);
     if (rset->get_rsize() == 0) return; // No query
-    DebugMsg("OMExpand::expand() 2" << endl);
+    DebugMsg("OmExpand::expand() 2" << endl);
 
     om_weight w_min = 0;
 
     // Start weighting scheme
-    OMExpandWeight ewt(database, rset->get_rsize());
+    OmExpandWeight ewt(database, rset->get_rsize());
 
     TermList *merger = build_tree(rset, &ewt);
     if(merger == NULL) return;
@@ -123,11 +123,11 @@ OMExpand::expand(om_termcount max_esize,
 	if(decider->want_term(tname)) {
 	    eset.etotal++;
 
-	    OMExpandBits ebits = merger->get_weighting();
+	    OmExpandBits ebits = merger->get_weighting();
 	    om_weight wt = ewt.get_weight(ebits, tname);
 
 	    if (wt > w_min) {
-		eset.items.push_back(OMESetItem(wt, tname));
+		eset.items.push_back(OmESetItem(wt, tname));
 
 		// FIXME: find balance between larger size for more efficient
 		// nth_element and smaller size for better w_min optimisations
@@ -137,7 +137,7 @@ OMExpand::expand(om_termcount max_esize,
 		    nth_element(eset.items.begin(),
 				eset.items.begin() + max_esize,
 				eset.items.end(),
-				OMESetCmp());
+				OmESetCmp());
 		    // erase elements which don't make the grade
 		    eset.items.erase(eset.items.begin() + max_esize,
 				     eset.items.end());
@@ -153,14 +153,14 @@ OMExpand::expand(om_termcount max_esize,
 	DebugMsg("finding nth" << endl);
 	nth_element(eset.items.begin(),
 		    eset.items.begin() + max_esize,
-		    eset.items.end(), OMESetCmp());
+		    eset.items.end(), OmESetCmp());
 	// erase elements which don't make the grade
 	eset.items.erase(eset.items.begin() + max_esize, eset.items.end());
     }
     DebugMsg("sorting" << endl);
 
     // Need a stable sort, but this is provided by comparison operator
-    sort(eset.items.begin(), eset.items.end(), OMESetCmp());
+    sort(eset.items.begin(), eset.items.end(), OmESetCmp());
 
     DebugMsg("esize = " << eset.items.size() << ", etotal = " << eset.etotal << endl);
     if (eset.items.size()) {

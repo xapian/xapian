@@ -70,15 +70,15 @@ stringToType<om_database_type> stringToTypeMap<om_database_type>::types[] = {
 };
 
 /////////////////////////
-// Methods for OMQuery //
+// Methods for OmQuery //
 /////////////////////////
 
-OMQuery::OMQuery(const om_termname & tname_)
+OmQuery::OmQuery(const om_termname & tname_)
 	: isnull(false), isbool(false), tname(tname_), op(OM_MOP_LEAF)
 {
 }
 
-OMQuery::OMQuery(om_queryop op_, const OMQuery &left, const OMQuery &right)
+OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
 	: isnull(false), isbool(false), op(op_)
 {
     if (op == OM_MOP_LEAF) {
@@ -148,93 +148,93 @@ OMQuery::OMQuery(om_queryop op_, const OMQuery &left, const OMQuery &right)
 	    if(left.op == op && right.op == op) {
 		// Both queries have same operation as top
 		initialise_from_copy(left);
-		vector<OMQuery *>::const_iterator i;
+		vector<OmQuery *>::const_iterator i;
 		for(i = right.subqs.begin(); i != right.subqs.end(); i++) {
-		    subqs.push_back(new OMQuery(**i));
+		    subqs.push_back(new OmQuery(**i));
 		}
 	    } else if(left.op == op) {
 		// Query2 has different operation (or is a leaf)
 		initialise_from_copy(left);
-		subqs.push_back(new OMQuery(right));
+		subqs.push_back(new OmQuery(right));
 	    } else if(right.op == op) { // left has different operation
 		// Query1 has different operation (or is a leaf)
 		initialise_from_copy(right);
-		subqs.push_back(new OMQuery(left));
+		subqs.push_back(new OmQuery(left));
 		// FIXME: this puts the
 		// query in an different order from that entered.
 	    } else {
-		subqs.push_back(new OMQuery(left));
-		subqs.push_back(new OMQuery(right));
+		subqs.push_back(new OmQuery(left));
+		subqs.push_back(new OmQuery(right));
 	    }
 	} else {
-	    subqs.push_back(new OMQuery(left));
-	    subqs.push_back(new OMQuery(right));
+	    subqs.push_back(new OmQuery(left));
+	    subqs.push_back(new OmQuery(right));
 	}
 	DebugMsg(get_description() << endl);
     }
 }
 
-OMQuery::OMQuery(om_queryop op_,
-		 const vector<OMQuery *>::const_iterator qbegin,
-		 const vector<OMQuery *>::const_iterator qend)
+OmQuery::OmQuery(om_queryop op_,
+		 const vector<OmQuery *>::const_iterator qbegin,
+		 const vector<OmQuery *>::const_iterator qend)
 	: isnull(false), isbool(false), op(op_)
 {   
     initialise_from_vector(qbegin, qend);
 }
 
-OMQuery::OMQuery(om_queryop op_,
-		 const vector<OMQuery>::const_iterator qbegin,
-		 const vector<OMQuery>::const_iterator qend)
+OmQuery::OmQuery(om_queryop op_,
+		 const vector<OmQuery>::const_iterator qbegin,
+		 const vector<OmQuery>::const_iterator qend)
 	: isnull(false), isbool(false), op(op_)
 {   
     initialise_from_vector(qbegin, qend);
 }
 
-OMQuery::OMQuery(om_queryop op_,
+OmQuery::OmQuery(om_queryop op_,
 		 const vector<om_termname>::const_iterator tbegin,
 		 const vector<om_termname>::const_iterator tend)
 	: isnull(false), isbool(false), op(op_)
 {
-    vector<OMQuery> subqueries;
+    vector<OmQuery> subqueries;
     vector<om_termname>::const_iterator i;
     for(i = tbegin; i != tend; i++) {
-	subqueries.push_back(OMQuery(*i));
+	subqueries.push_back(OmQuery(*i));
     }
     initialise_from_vector(subqueries.begin(), subqueries.end());
 }
 
 // Copy constructor
-OMQuery::OMQuery(const OMQuery & copyme)
+OmQuery::OmQuery(const OmQuery & copyme)
 {
     initialise_from_copy(copyme);
 }
 
 // Assignment
-OMQuery &
-OMQuery::operator=(const OMQuery & copyme)
+OmQuery &
+OmQuery::operator=(const OmQuery & copyme)
 {
     initialise_from_copy(copyme);
     return *this;
 }
 
 // Default constructor
-OMQuery::OMQuery()
+OmQuery::OmQuery()
 	: isnull(true)
 {}
 
 // Destructor
-OMQuery::~OMQuery()
+OmQuery::~OmQuery()
 {
-    vector<OMQuery *>::const_iterator i;
+    vector<OmQuery *>::const_iterator i;
     for(i = subqs.begin(); i != subqs.end(); i++) {
 	delete *i;
     }
     subqs.clear();
 }
 
-// Copy an OMQuery object into self
+// Copy an OmQuery object into self
 void
-OMQuery::initialise_from_copy(const OMQuery &copyme)
+OmQuery::initialise_from_copy(const OmQuery &copyme)
 {
     isnull = copyme.isnull;
     isbool = copyme.isbool;
@@ -242,35 +242,35 @@ OMQuery::initialise_from_copy(const OMQuery &copyme)
     if(op == OM_MOP_LEAF) {
 	tname = copyme.tname;
     } else {
-	vector<OMQuery *>::const_iterator i;
+	vector<OmQuery *>::const_iterator i;
 	for(i = subqs.begin(); i != subqs.end(); i++) {
 	    delete *i;
 	}
 	subqs.clear();
 	for(i = copyme.subqs.begin(); i != copyme.subqs.end(); i++) {
-	    subqs.push_back(new OMQuery(**i));
+	    subqs.push_back(new OmQuery(**i));
 	}
     }
 }
 
 void
-OMQuery::initialise_from_vector(const vector<OMQuery>::const_iterator qbegin,
-				const vector<OMQuery>::const_iterator qend)
+OmQuery::initialise_from_vector(const vector<OmQuery>::const_iterator qbegin,
+				const vector<OmQuery>::const_iterator qend)
 {
     if ((op != OM_MOP_AND) && (op != OM_MOP_OR)) {
     	throw OmInvalidArgument("Vector query op must be AND or OR");
     }
 
-    vector<OMQuery>::const_iterator i;
+    vector<OmQuery>::const_iterator i;
     for(i = qbegin; i != qend; i++) {
-	if(!i->isnull) subqs.push_back(new OMQuery(*i));
+	if(!i->isnull) subqs.push_back(new OmQuery(*i));
     }
 
     if(subqs.size() == 0) {
 	isnull = true;
     } else if(subqs.size() == 1) {
 	// Should just have copied into self
-	OMQuery * copyme = subqs[0];
+	OmQuery * copyme = subqs[0];
 	subqs.clear();
 	initialise_from_copy(*copyme);
 	delete copyme;
@@ -279,23 +279,23 @@ OMQuery::initialise_from_vector(const vector<OMQuery>::const_iterator qbegin,
 
 // FIXME: this function generated by cut and paste of previous: use a template?
 void
-OMQuery::initialise_from_vector(const vector<OMQuery *>::const_iterator qbegin,
-				const vector<OMQuery *>::const_iterator qend)
+OmQuery::initialise_from_vector(const vector<OmQuery *>::const_iterator qbegin,
+				const vector<OmQuery *>::const_iterator qend)
 {
     if ((op != OM_MOP_AND) && (op != OM_MOP_OR)) {
     	throw OmInvalidArgument("Vector query op must be AND or OR");
     }
 
-    vector<OMQuery *>::const_iterator i;
+    vector<OmQuery *>::const_iterator i;
     for(i = qbegin; i != qend; i++) {
-	if(!(*i)->isnull) subqs.push_back(new OMQuery(**i));
+	if(!(*i)->isnull) subqs.push_back(new OmQuery(**i));
     }
 
     if(subqs.size() == 0) {
 	isnull = true;
     } else if(subqs.size() == 1) {
 	// Should just have copied into self
-	OMQuery * copyme = subqs[0];
+	OmQuery * copyme = subqs[0];
 	subqs.clear();
 	initialise_from_copy(*copyme);
 	delete copyme;
@@ -304,7 +304,7 @@ OMQuery::initialise_from_vector(const vector<OMQuery *>::const_iterator qbegin,
 
 // Introspection
 string
-OMQuery::get_description() const
+OmQuery::get_description() const
 {
     if(isnull) return "<NULL>";
     string opstr;
@@ -332,7 +332,7 @@ OMQuery::get_description() const
 		break;
     }
     string description;
-    vector<OMQuery *>::const_iterator i;
+    vector<OmQuery *>::const_iterator i;
     for(i = subqs.begin(); i != subqs.end(); i++) {
 	if(description.size()) description += opstr;
 	description += (**i).get_description();
@@ -341,54 +341,54 @@ OMQuery::get_description() const
 }
 
 ////////////////////////////////
-// Methods for OMMatchOptions //
+// Methods for OmMatchOptions //
 ////////////////////////////////
 
-OMMatchOptions::OMMatchOptions()
+OmMatchOptions::OmMatchOptions()
 	: do_collapse(false),
 	  sort_forward(true)
 {}
 
 void
-OMMatchOptions::set_collapse_key(om_keyno key_)
+OmMatchOptions::set_collapse_key(om_keyno key_)
 {
     do_collapse = true;
     collapse_key = key_;
 }
 
 void
-OMMatchOptions::set_no_collapse()
+OmMatchOptions::set_no_collapse()
 {
     do_collapse = false;
 }
 
 void
-OMMatchOptions::set_sort_forward(bool forward_)
+OmMatchOptions::set_sort_forward(bool forward_)
 {
     sort_forward = forward_;
 }
 
 /////////////////////////////////
-// Methods for OMExpandOptions //
+// Methods for OmExpandOptions //
 /////////////////////////////////
 
-OMExpandOptions::OMExpandOptions()
+OmExpandOptions::OmExpandOptions()
 	: allow_query_terms(false)
 {}
 
 void
-OMExpandOptions::use_query_terms(bool allow_query_terms_)
+OmExpandOptions::use_query_terms(bool allow_query_terms_)
 {
     allow_query_terms = allow_query_terms_;
 }
 
 
 ////////////////////////
-// Methods for OMMSet //
+// Methods for OmMSet //
 ////////////////////////
 
 int
-OMMSet::convert_to_percent(om_weight wt) const
+OmMSet::convert_to_percent(om_weight wt) const
 {
     int pcent = (int) ceil(wt * 100 / max_possible);
     if(pcent > 100) pcent = 100;
@@ -399,42 +399,42 @@ OMMSet::convert_to_percent(om_weight wt) const
 }
 
 int
-OMMSet::convert_to_percent(const OMMSetItem & item) const
+OmMSet::convert_to_percent(const OmMSetItem & item) const
 {
-    return OMMSet::convert_to_percent(item.wt);
+    return OmMSet::convert_to_percent(item.wt);
 }
 
 /////////////////////////////////
 // Internals of enquire system //
 /////////////////////////////////
 
-class OMEnquireInternal {
+class OmEnquireInternal {
     public:
 	IRDatabase * database;
 	vector<DatabaseBuilderParams> dbparams;
 	
-	mutable OMQuery * query;
+	mutable OmQuery * query;
 
-	OMEnquireInternal();
-	~OMEnquireInternal();
+	OmEnquireInternal();
+	~OmEnquireInternal();
 
 	void open_database();
 	void add_database(const DatabaseBuilderParams & newdb);
-	void set_query(const OMQuery & query_);
+	void set_query(const OmQuery & query_);
 };
 
 //////////////////////////////////////////
-// Inline methods for OMEnquireInternal //
+// Inline methods for OmEnquireInternal //
 //////////////////////////////////////////
 
 inline
-OMEnquireInternal::OMEnquireInternal()
+OmEnquireInternal::OmEnquireInternal()
 	: database(0), query(0)
 {
 }
 
 inline
-OMEnquireInternal::~OMEnquireInternal()
+OmEnquireInternal::~OmEnquireInternal()
 {
     if(database != 0) {
 	delete database;
@@ -448,7 +448,7 @@ OMEnquireInternal::~OMEnquireInternal()
 
 // Open the database(s), if not already open.
 inline void
-OMEnquireInternal::open_database()
+OmEnquireInternal::open_database()
 {
     if(database == 0) {
 	if(dbparams.size() == 0) {
@@ -465,7 +465,7 @@ OMEnquireInternal::open_database()
 
 // Add a new database to list.  If database already opened, close it.
 inline void
-OMEnquireInternal::add_database(const DatabaseBuilderParams & newdb)
+OmEnquireInternal::add_database(const DatabaseBuilderParams & newdb)
 {
     if(database != 0) {
 	delete database;
@@ -475,7 +475,7 @@ OMEnquireInternal::add_database(const DatabaseBuilderParams & newdb)
 }
 
 inline void
-OMEnquireInternal::set_query(const OMQuery &query_)
+OmEnquireInternal::set_query(const OmQuery &query_)
 {
     if(query) {
 	delete query;
@@ -484,19 +484,19 @@ OMEnquireInternal::set_query(const OMQuery &query_)
     if (query_.is_null()) {
         throw OmInvalidArgument("Query must not be null");
     }
-    query = new OMQuery(query_);
+    query = new OmQuery(query_);
 }
 
 ////////////////////////////////////////////
-// Initialise and delete OMEnquire object //
+// Initialise and delete OmEnquire object //
 ////////////////////////////////////////////
 
-OMEnquire::OMEnquire()
+OmEnquire::OmEnquire()
 {
-    internal = new OMEnquireInternal();
+    internal = new OmEnquireInternal();
 }
 
-OMEnquire::~OMEnquire()
+OmEnquire::~OmEnquire()
 {
     delete internal;
     internal = NULL;
@@ -507,7 +507,7 @@ OMEnquire::~OMEnquire()
 //////////////////
 
 void
-OMEnquire::add_database(const string & type,
+OmEnquire::add_database(const string & type,
 			const vector<string> & params)
 {
     // Convert type into an om_database_type
@@ -523,30 +523,30 @@ OMEnquire::add_database(const string & type,
 }
 
 void
-OMEnquire::set_query(const OMQuery & query_)
+OmEnquire::set_query(const OmQuery & query_)
 {
     internal->set_query(query_);
 }
 
 void
-OMEnquire::get_mset(OMMSet &mset,
+OmEnquire::get_mset(OmMSet &mset,
                     om_doccount first,
                     om_doccount maxitems,
-                    const OMRSet *omrset,
-                    const OMMatchOptions *moptions) const
+                    const OmRSet *omrset,
+                    const OmMatchOptions *moptions) const
 {
     internal->open_database();
     Assert(internal->database != NULL);
     Assert(internal->query != NULL);
 
     // Use default options if none supplied
-    OMMatchOptions defmoptions;
+    OmMatchOptions defmoptions;
     if (moptions == 0) {
         moptions = &defmoptions;
     }
 
     // Set Database
-    OMMatch match(internal->database);
+    OmMatch match(internal->database);
 
     // Set Rset
     RSet *rset = 0;
@@ -563,7 +563,7 @@ OMEnquire::get_mset(OMMSet &mset,
     // Set Query
     match.set_query(internal->query);
 
-    // Run query and get results into supplied OMMSet object
+    // Run query and get results into supplied OmMSet object
     if(internal->query->is_bool()) {
 	match.boolmatch(first, maxitems, mset.items);
 	mset.mbound = mset.items.size();
@@ -586,19 +586,19 @@ OMEnquire::get_mset(OMMSet &mset,
 }
 
 void
-OMEnquire::get_eset(OMESet & eset,
+OmEnquire::get_eset(OmESet & eset,
 	            om_termcount maxitems,
-                    const OMRSet & omrset,
-	            const OMExpandOptions * eoptions,
-		    const OMExpandDecider * decider) const
+                    const OmRSet & omrset,
+	            const OmExpandOptions * eoptions,
+		    const OmExpandDecider * decider) const
 {
     internal->open_database();
-    OMExpand expand(internal->database);
+    OmExpand expand(internal->database);
     RSet rset(internal->database, omrset);
 
     DebugMsg("rset size is " << rset.get_rsize() << endl);
 
-    OMExpandDeciderAlways decider_always;
+    OmExpandDeciderAlways decider_always;
     if(decider == 0) decider = &decider_always;
     
     // FIXME: also set whether or not to use query terms.
