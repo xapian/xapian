@@ -35,30 +35,20 @@
 //
 // #define DANGEROUS
 
-#ifdef __osf__
-// GCC's fixincluded unistd seems to be missing pread and pwrite prototypes.
+// Trying to include the correct headers with the correct defines set to
+// get pread() and pwrite() prototyped on every platform without breaking any
+// other platform is a real can of worms.  So instead we get the right types
+// from sys/types.h and provide our own prototypes.
 #include <sys/types.h>
-extern ssize_t pread(int, void *, size_t, off_t);
-extern ssize_t pwrite(int, const void *, size_t, off_t);
-#elif defined(__sun__) || defined(__sun) || defined(sun)
-// Solaris always prototypes pread and pwrite anyway, but x86 Solaris seems
-// to have a buggy unistd.h which fails to prototype _xmknod (presumably an
-// internal helper function) if _XOPEN_SOURCE is defined which causes
-// Sun's C++ compiler to die.
-#else
-// Need this to get pread and pwrite with GNU libc.
-#if !defined _XOPEN_SOURCE
-#define _XOPEN_SOURCE 500
+#ifdef HAVE_PREAD
+extern "C" ssize_t pread(int, void *, size_t, off_t);
 #endif
-// Required by OpenBSD (tested on 3.4)
-#if !defined _XOPEN_VERSION
-#define _XOPEN_VERSION 500
-#endif
+#ifdef HAVE_PWRITE
+extern "C" ssize_t pwrite(int, const void *, size_t, off_t);
 #endif
 
 #include <unistd.h>
 
-#include <sys/types.h>
 #include <sys/stat.h>
 
 #include <stdio.h>

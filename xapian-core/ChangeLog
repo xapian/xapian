@@ -1,3 +1,9 @@
+Tue Nov 30 01:09:26 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Instead of trying to coax pread/pwrite
+	  prototypes out of the system headers, let's try just providing our
+	  own!
+
 Mon Nov 29 19:51:13 GMT 2004  Olly Betts <olly@survex.com>
 
 	* extra/Makefile.am: Moved -no-undefined to the right place, plus we
