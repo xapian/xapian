@@ -1,0 +1,198 @@
+Omega overview
+==============
+
+Omega splits into two parts: omindex, for creating and maintaining an
+index of your website(s), and omega, the CGI program that allows
+searching that index via a web interface.
+
+The CGI program's parameters are documented in cgiparams.txt, and
+OmegaScript, the language it uses to define its web interface, is
+documented in omegascript.txt.
+
+
+Worldview
+=========
+
+Omega operates on a set of databases. This allows you to aggregate
+results from multiple websites together in one search. Each database
+must be created and maintained separately using omindex.
+
+
+Term construction
+=================
+
+Documents within an omega database are stored with two types of terms:
+those used for probabilistic searching (the CGI parameter 'P'), and
+those used for boolean filtering (the CGI parameter 'B'). Boolean
+terms start with an initial capital letter denoting the 'group' of the
+term (eg: 'M' for MIME type), while probabilistic terms are all
+lower-case, and are also stemmed before adding to the
+postlist. (Currently the stemmer is the English one and cannot be
+configured without editing the source code.)
+
+The two term types are used as follows when building the query:
+B(oolean) terms with the same prefix are ORed together, with all the
+different prefix legs being ANDed together. This is then FILTERed
+against the P(robabilistic) terms. This will look something like:
+
+		      [ FILTER ]
+		       /      \
+		      /        \
+		 P-terms      [     AND     ]
+			       /     | ... \
+                              /
+			[    OR    ]
+		       /      | ... \
+                    B(F,1) B(F,2)...B(F,n)
+
+Where B(F,1) is the first boolean term with prefix F, and so on.
+
+The intent here is to allow filtering on arbitrary (and, typically,
+orthogonal) characteristics of the document. For instance, by adding
+boolean terms "Mtext/html", "Mtext/plain" and "S/press/" you would be
+filtering the probabilistic search for only documents that are both in
+the "/press/" subsite _and_ which are either of MIME type text/html or
+text/plain. (See below for more information about subsites.)
+
+In order to add more boolean prefixes, you will need to alter the
+index_file() function in omindex.cc. Currently, omindex will add terms
+with the prefix 'M' containing the MIME type, 'S' containing the
+subsite and 'U' containing the complete URL (the last being mostly
+used to detect duplicate documents when indexing).
+
+Probabilistic terms are constructed from the title, body and keywords
+of a document. (Not all document types support all three areas of
+text.) Title terms are stored with position data starting at 0, body
+terms starting 100 beyond title terms, and keyword terms starting 100
+beyond body terms. This allows queries using positional data without
+causing false matches across the different types of term.
+
+
+Subsites
+========
+
+Within a database, omega supports the concept of 'subsites'. These are
+noted using boolean terms (see 'Term construction', above) to allow
+filtering on them.
+
+Subsites work by having all documents within it having a common base
+URL. For instance, you might have two subsites for your press area and
+your product descriptions:
+
+	http://example.com/press/index.html
+	http://example.com/press/bigrelease.html
+	http://example.com/product/bigproduct.html
+	http://example.com/product/littleproduct.html
+
+You could index all documents within http://example.com/press/ using a
+subsite of '/press/', and all within http://example.com/product/ using
+'/product/'.
+
+Subsites are also useful because omindex indexes documents through the
+file system, not by fetching from the web server. If you don't have a
+URL to file system mapping which puts all documents under one
+hierarchy, you'll need to index each separate section as a subsite.
+
+An obvious example of this is the way that many web servers map URLs
+of the form <http://example.com/~<username>/> to a directory within
+that user's home directory (such as ~<username>/pub on a Unix
+system). In this case, you can index each user's home page separately,
+with a subsite of the form '/~<username>/'. You can then use boolean
+filters to allow people to search only a specific home page (or a
+group of them), or omit boolean terms on the subsite to search
+everyone's pages.
+
+Note that the subsite specified when you index is used to build the
+complete URL that the results page links to. Thus while subsites will
+typically want to be relative to the hostname part of the URL (eg
+'/subsite/' rather than 'http://example.com/subsite/'), you can use
+subsites to have a single search across several different
+hostnames. This will still work if you actually store each distinct
+hostname in a different database.
+
+
+omindex operation
+=================
+
+omindex is fairly simple to use:
+
+----------------------------------------------------------------------
+Usage: ../omindex [OPTION] --db DATABASE 
+        --url BASEURL DIRECTORY
+
+Index static website data via the filesystem.
+  -d, --duplicates      set duplicate handling
+                        one of `ignore', `replace', `duplicate'
+  -D, --db              path to database to use
+  -U, --url             base url DIRECTORY represents
+  -h, --help            display this help and exit
+  -v --version          output version and exit
+----------------------------------------------------------------------
+
+You _must_ specify the database to index into (it's created if it
+doesn't exist, but relevant directories must exist - this includes the
+base directory for Quartz) and the base URL (which is used as the
+subsite, and can be relative to the hostname - starts '/' - or
+absolute - starts with a scheme, eg
+'http://morestuffhere...'). DIRECTORY is just the top level in the
+file system of what to index: omindex will recurse down directories
+looking for anything that can be indexed.
+
+Currently omindex can index HTML (.html, .htm, .shtml) and text files
+(.txt, .text), and PostScript (.ps, .eps, .ai) if pstotext is
+available, and PDF (.pdf) if pdftotext is available.
+
+--duplicates configures how omindex handles duplicates (detected on
+URL). 'ignore' means to ignore a document if it already appears to be
+in the database; 'replace' means to replace the document in the
+database with a new one by indexing this file, and 'duplicate' means
+to index this file as a new document, leaving the previous one in the
+database as well. The last strategy is very fast, but is liable to do
+strange things to your results set. In general, 'ignore' is useful for
+completely static documents (eg: archive sites), while 'replace' is
+the most generally useful.
+
+
+omega configuration
+===================
+
+Most of the omega CGI configuration is dynamic, by setting CGI
+parameters. However two things must be hard-coded into the binary: the
+location of the databases, and the location of the OmegaScript format
+templates used for output.
+
+The first, the database directory, is defined near the start of
+omega.cc, as a string variable called db_dir. This should point to the
+directory that contains the databases - eg if db_dir = "/home/omega/"
+then the databases might be /home/omega/mainsite and
+/home/omega/supportsite. Databases are opened with automatic type
+detection, so they can be anything for which you have a built
+backend. (Typically this will be Quartz, meaning that
+/home/omega/mainsite and so on will themselves be directories.)
+
+The second, the templates directory, is defined in query.cc as the
+variable file in the function eval_file().
+
+In future, these will be defined in a header file, or somewhere else
+easy to modify.
+
+
+Document data construction
+==========================
+
+(This is only useful if you need to inject your own documents into the
+database independently of omindex, such as if you are indexing
+dynamically-generated documents that are served using a server-side
+system such as PHP or ASP, but which you can determine the contents of
+in some way, such as documents generated from reasonably static
+database contents.)
+
+The document data field stores some summary information about the
+document, in the following (sample) format:
+
+----------------------------------------------------------------------
+url=<baseurl>
+sample=<sample>
+caption=<title>
+type=<mimetype>
+----------------------------------------------------------------------

@@ -30,3 +30,6 @@ P=my search terms
 You then get a large-ish HTML file. For best results, set this all up
 as a CGI in some way.
 
+For more information, see overview.txt. Descriptions of the omega CGI
+program are in cgiparams.txt, and of the OmegaScript language it uses
+to format its results pages in omegascript.txt.

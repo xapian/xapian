@@ -1,0 +1,208 @@
+OmegaScript
+===========
+
+OmegaScript basically works by adding processed text-generation
+commands of the form $command{comma-separated-arguments} or
+$simplecommand to plain HTML. A simple example:
+
+----------------------------------------------------------------------
+<html>
+<head><title>Sample</title></head>
+<body>
+
+<p>
+You searched for '$html{$query}'.
+</p>
+
+</body>
+</html>
+----------------------------------------------------------------------
+
+Where appropriate, arguments themselves can contain OmegaScript
+commands. Where an argument is treated as a string, the string is
+precisely the contents of that argument - there is no string delimiter
+(such as the double-quoted character '"' in C and similar
+languages). This can make complex OmegaScript slightly difficult to
+read at times.
+
+The $simplecommand form is an abbreviation for when a command takes no
+arguments. In this case, $simplecommand{} is still legal (for when you
+need to have characters straight after the command which would
+normally be part of the command name).
+
+
+OmegaScript literals
+====================
+
+$$ - literal '$'
+$( - literal '{'
+$) - literal '}'
+$. - literal ','
+
+
+OmegaScript commands
+====================
+
+In the following descriptions, a LIST is a string of tab-separated
+values.
+
+${...}
+	commented out code
+
+$add{1,2,3}
+	add arguments together
+
+$and{...}
+	logical shortcutting and of its arguments - evaluates
+	arguments until it finds an empty one (and returns "true") or
+	has evaluated them all (returns "")
+
+$cgi{CGI}
+	lookup the value of a CGI variable
+
+$cgilist{CGI}
+	return a list of all values of a CGI variable
+
+$date{TIME_T[,FMT]}
+	convert a time_t to strftime FMT (default: YYYY-MM-DD)
+
+$dbname
+	database name (multiple names are returned separated by "/").
+
+$defaultop
+	"and" or "or".
+
+$env{VAR}
+	lookup variable in environment
+
+$eq{A,B}
+	returns "true" if A and B are the same, "" otherwise.
+
+$field{NAME}
+	lookup field in record
+
+$filesize{SIZE}
+	pretty printed filesize (e.g. 100 bytes, 2K, 4M, 1G)
+
+$fmt
+	name of current format (as set by FMT, or the default)
+
+$freqs
+	returns an HTML string listing query terms and frequencies
+
+$hitlist{FMT}
+	display hitlist using format FMT
+
+$hitsperpage
+	hits per page (as set by HITSPERPAGE, or the default)
+
+$html{TEXT}
+	html escape string (<>&, etc)
+
+$id
+	document id of current doc
+
+$if{COND,THEN[,ELSE]}
+	if COND is non-empty, evaluate THEN, otherwise evaluate else
+	(if present)
+
+$include{FILE}
+	include another omegascript file
+
+$last
+	m-set number of last hit on this page
+
+$lastpage
+	number of last page of hits (may be an underestimate unless
+	$thispage == $lastpage)
+
+$list{LIST,...}
+	pretty print list. If "LIST" is 1, 2, 3, 4 then:
+
+	"$list{LIST,$. }" = "1, 2, 3, 4"
+	"$list{LIST,$. , and }" = "1, 2, 3 and 4"
+	"$list{LIST,List ,$. ,.}" = "List 1, 2, 3, 4."
+	"$list{LIST,List ,$. , and ,.}" = "List 1, 2, 3 and 4."
+
+	NB $list returns an empty string for an empty list (so the
+	last two forms aren't redundant as it may at first appear).
+
+$map{LIST,STUFF)
+	map a list into the evaluated argument. If "LIST" is
+	1, 2, 3, 4 then:
+
+	"$map{LIST,x$_ = $_; }" = "x1 = 1; x2 = 2; x3 = 3; x4 = 4; "
+
+$max{...}
+	maximum of the arguments
+
+$min{...}
+	minimum of the arguments
+
+$msize
+	estimated number of matches
+
+$ne{A,B}
+	returns "true" if A and B are not the same, "" if they are.
+
+$not{A}
+	returns "true" for the empty string, "" otherwise.
+
+$opt{OPT}
+
+	lookup an option value (as set by $set).
+
+$or{...}
+	logical shortcutting or of its arguments - returns first
+	non-empty argument
+
+$percentage
+	percentage score of current hit (in range 1-100).
+
+$query
+	query string (built from cgi P variable(s) plus possible added
+	terms from ADD and X).
+
+$queryterms
+	list of probabilistic query terms
+
+$range{START,END}
+	return list of values between start and end
+
+$record[{ID}]
+	raw record contents of document
+
+$relevant[{ID}]
+	document id if document is relevant, "" otherwise
+	(side-effect: removes id from list of relevant documents
+	returned by $relevants)
+
+$relevants
+	return list of relevant documents
+
+$score
+	score (0-10) of current hit
+
+$set{OPT,VALUE}
+	set option value
+
+$setmap{PREFIX,NAME1,VALUE1,...}
+	set a map of option values (<PREFIX><NAME1>=<VALUE1>, etc)
+
+$terms
+	list of matching terms for current hit
+
+$thispage
+	page number of current page
+
+$topdoc
+	first document on current page of hit list (counting from 0)
+
+$topterms[{N}]
+	list of up to N top relevance feedback terms (default 20)
+
+$url{TEXT}
+	url encode argument
+
+$version
+	omega version string
