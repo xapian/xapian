@@ -8,6 +8,7 @@ definition is written out again, if there is a third (or 4th) value then the lis
 first joined with this value}
 $def{querystring,$if{$3,$list{$map{$2,$url{$_}},$1=,,$3,$4},$list{$map{$2,$1=$url{$_}},&}}}
 $def{ifquerystring,$if{$2,$querystring{$1,$2,$3,$4}&}}
+
 $def{hiddenvar,$if{$3,$list{$map{$2,$html{$_}},<INPUT TYPE=hidden NAME=$1 VALUE=",,$3,$4">},$list{$map{$2,<INPUT TYPE=hidden NAME=$1 VALUE="$html{$_}">},}}}
 $def{ifhiddenvar,$if{$2,$hiddenvar{$1,$2,$3,$4}}}
 
@@ -34,7 +35,7 @@ $def{hiturl,$field{url}}
 $def{hitmatching,<i>$list{$map{$terms,$html{$prettyterm{$_}}},$. ,</i> and <i>}</i>}
 $def{grouplabel,$value{$cgi{COLLAPSE}}}
 
-$def{showgroupdesc,<a href="$expandurl" target="_blank">More <b>$grouplabel</b> results</a>}
+$def{showgroupdesc,<a href="$expandurl" target="_blank">View more matching <b>$grouplabel</b> results</a><br><small></small>}
 
 $def{showhitdesc,<B><small>$html{$date{$field{modtime},%Y-%m-%d %H:%M}}</small>
 <A HREF="$field{url}">$html{$hitcaption}</A></B><BR>
@@ -45,11 +46,11 @@ $if{$field{language},Language: <b>$html{$field{language}}</b>}
 $if{$field{size},Size: <b>$html{$filesize{$field{size}}}</b>}
 $if{$field{language}$field{size},<br>}
 $percentage% relevant$. matching: $hitmatching
-</small>${for lynx:}<P>}
+</small>}
 
 $def{grouped,$and{$ne{$collapsed,0},$opt{groupcollapse}}}
 
-$def{showhit,<TR><TD VALIGN=top>$if{$grouped,</td><td>&nbsp;,$showhitrel}</TD><TD>$if{$grouped,$showgroupdesc,$showhitdesc}</TD></TR>}
+$def{showhit,<TR><TD VALIGN=top>$showhitrel</TD><TD>$showhitdesc{}$if{$grouped,<br>$showgroupdesc}${for lynx:}<P></TD></TR>}
 
 ${
 $def{PREV,

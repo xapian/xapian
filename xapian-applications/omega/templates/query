@@ -113,6 +113,9 @@ $list{$queryterms,<INPUT TYPE=hidden NAME=xP VALUE=",.,.">}
 <INPUT TYPE=hidden NAME=xFILTERS VALUE="$html{$filters}">
 $list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">}
 $if{$cgi{THRESHOLD},<INPUT TYPE=hidden NAME=THRESHOLD VALUE="$html{$cgi{THRESHOLD}}">}
+${Preserve the B filter if used.  When it becomes part of the template UI just leave the xB behind}
+$if{$cgi{B},<INPUT TYPE=hidden NAME=B VALUE="$html{$cgi{B}}">
+            <INPUT TYPE=hidden NAME=xB VALUE="$html{$cgi{B}}">}
 </FORM>
 <hr><div align=right><i><small><a href="http://www.xapian.org/">$html{$version}</a></small></i></div>
 </body>
