@@ -121,7 +121,7 @@ class QuartzTable {
 	 *  This moves the cursor forward one position, and then
 	 *  reads an entry from the position pointed to by the cursor.
 	 *  If there is no such entry, the cursor becomes invalid, (and
-	 *  the method returns false).
+	 *  the method returns false, and the key and tag are unaltered).
 	 *
 	 *  @param key    Will be filled with the key of the item found.
 	 *  @param tag    Will be filled with the tag of the item found.
@@ -180,6 +180,10 @@ class QuartzDiskTable : public QuartzTable {
 	/** The path at which the table is stored.
 	 */
 	std::string path;
+
+	/** Whether the table has been opened.
+	 */
+	bool opened;
 	
 	/** Whether the table is readonly.
 	 */

@@ -363,8 +363,8 @@ static bool test_bufftable1()
     unlink("./test_bufftable1_data_1");
     unlink("./test_bufftable1_data_2");
     QuartzDiskTable disktable1("./test_bufftable1_", false, 8192);
-    QuartzBufferedTable bufftable1(&disktable1);
     disktable1.open();
+    QuartzBufferedTable bufftable1(&disktable1);
 
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
@@ -427,14 +427,153 @@ static bool test_bufftable2()
 {
     unlink("./test_bufftable2_data_1");
     unlink("./test_bufftable2_data_2");
-    QuartzDiskTable disktable1("./test_bufftable2_", false, 8192);
-    QuartzBufferedTable bufftable1(&disktable1);
-    disktable1.open();
+    quartz_revision_number_t new_revision;
+    quartz_revision_number_t old_revision;
+    {
+	// Open table and add a few documents
+	QuartzDiskTable disktable("./test_bufftable2_", false, 8192);
+	disktable.open();
+	QuartzBufferedTable bufftable(&disktable);
 
-    TEST_EQUAL(disktable1.get_entry_count(), 0);
-    TEST_EQUAL(bufftable1.get_entry_count(), 0);
+	TEST_EQUAL(disktable.get_entry_count(), 0);
+	TEST_EQUAL(bufftable.get_entry_count(), 0);
 
-    // FIXME - write test
+	QuartzDbKey key;
+	QuartzDbTag tag;
+
+	key.value = "foo1";
+	bufftable.get_or_make_tag(key)->value = "bar1";
+	key.value = "foo2";
+	bufftable.get_or_make_tag(key)->value = "bar2";
+	key.value = "foo3";
+	bufftable.get_or_make_tag(key)->value = "bar3";
+
+	new_revision = disktable.get_latest_revision_number() + 1;
+	TEST(bufftable.apply(new_revision));
+
+	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
+	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
+    }
+    {
+	// Reopen and check that the documents are still there.
+	QuartzDiskTable disktable("./test_bufftable2_", false, 8192);
+	disktable.open();
+	QuartzBufferedTable bufftable(&disktable);
+
+	TEST_EQUAL(disktable.get_entry_count(), 3);
+	TEST_EQUAL(bufftable.get_entry_count(), 3);
+
+	QuartzDbKey key;
+	QuartzDbTag tag;
+
+	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
+	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
+
+	key.value = "foo";
+	tag.value = "";
+	QuartzCursor cursor;
+	TEST(!bufftable.get_nearest_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "");
+	TEST_EQUAL(tag.value, "");
+
+	TEST(bufftable.get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo1");
+	TEST_EQUAL(tag.value, "bar1");
+
+	TEST(bufftable.get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo2");
+	TEST_EQUAL(tag.value, "bar2");
+
+	TEST(bufftable.get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo3");
+	TEST_EQUAL(tag.value, "bar3");
+
+	TEST(!bufftable.get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo3");
+	TEST_EQUAL(tag.value, "bar3");
+
+	// Add a new tag
+	key.value = "foo25";
+	bufftable.get_or_make_tag(key)->value = "bar25";
+	old_revision = new_revision;
+	new_revision += 1;
+	TEST(bufftable.apply(new_revision));
+
+	TEST_EQUAL(disktable.get_entry_count(), 4);
+	TEST_EQUAL(bufftable.get_entry_count(), 4);
+
+	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
+	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
+    }
+    {
+	// Open old revision
+	QuartzDiskTable disktable("./test_bufftable2_", false, 8192);
+	disktable.open(old_revision);
+	QuartzBufferedTable bufftable(&disktable);
+
+	TEST_EQUAL(disktable.get_entry_count(), 3);
+	TEST_EQUAL(bufftable.get_entry_count(), 3);
+
+	QuartzDbKey key;
+	QuartzDbTag tag;
+
+	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
+	TEST_EQUAL(old_revision, disktable.get_open_revision_number());
+
+	// Add a new tag
+	key.value = "foo26";
+	bufftable.get_or_make_tag(key)->value = "bar26";
+	new_revision += 1;
+	TEST(bufftable.apply(new_revision));
+
+	TEST_EQUAL(disktable.get_entry_count(), 4);
+	TEST_EQUAL(bufftable.get_entry_count(), 4);
+
+	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
+	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
+    }
+    {
+	// Reopen and check that the documents are still there.
+	QuartzDiskTable disktable("./test_bufftable2_", false, 8192);
+	disktable.open();
+	QuartzBufferedTable bufftable(&disktable);
+
+	TEST_EQUAL(disktable.get_entry_count(), 4);
+	TEST_EQUAL(bufftable.get_entry_count(), 4);
+
+	QuartzDbKey key;
+	QuartzDbTag tag;
+
+	TEST_EQUAL(new_revision, disktable.get_latest_revision_number());
+	TEST_EQUAL(new_revision, disktable.get_open_revision_number());
+
+	key.value = "foo";
+	tag.value = "";
+	QuartzCursor cursor;
+	TEST(!bufftable.get_nearest_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "");
+	TEST_EQUAL(tag.value, "");
+
+	TEST(bufftable.get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo1");
+	TEST_EQUAL(tag.value, "bar1");
+
+	TEST(bufftable.get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo2");
+	TEST_EQUAL(tag.value, "bar2");
+
+	TEST(bufftable.get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo3");
+	TEST_EQUAL(tag.value, "bar3");
+
+	TEST(bufftable.get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo36");
+	TEST_EQUAL(tag.value, "bar36");
+
+	TEST(!bufftable.get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo3");
+	TEST_EQUAL(tag.value, "bar3");
+    }
 
     return true;
 }
@@ -445,12 +584,13 @@ static bool test_cursor1()
     unlink("./test_cursor1_data_1");
     unlink("./test_cursor1_data_2");
 
-    QuartzDiskTable disktable1("./test_cursor1_", false, 8192);
-    QuartzBufferedTable bufftable1(&disktable1);
-    disktable1.open();
-
     QuartzDbKey key;
     QuartzDbTag tag;
+
+    // Open table and put stuff in it.
+    QuartzDiskTable disktable1("./test_cursor1_", false, 8192);
+    disktable1.open();
+    QuartzBufferedTable bufftable1(&disktable1);
 
     key.value = "foo1";
     bufftable1.get_or_make_tag(key)->value = "bar1";
@@ -478,6 +618,8 @@ static bool test_cursor1()
 	TEST_EQUAL(tag.value, "bar3");
 
 	TEST(!table->get_next_entry(key, tag, cursor));
+	TEST_EQUAL(key.value, "foo3");
+	TEST_EQUAL(tag.value, "bar3");
 
 	key.value = "foo";
 	tag.value = "blank";

@@ -1173,7 +1173,7 @@ extern int Btree_find_key(struct Btree * B, byte * key, int key_len)
     return find(B, C);
 }
 
-extern struct Btree_item * Btree_item_create(struct Btree * B)
+extern struct Btree_item * Btree_item_create()
 {
     struct Btree_item * item = (struct Btree_item *) calloc(1, sizeof(struct Btree_item));
     item->key_size = -1;

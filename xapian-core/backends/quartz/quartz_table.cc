@@ -140,6 +140,7 @@ QuartzDiskTable::QuartzDiskTable(std::string path_,
 				 bool readonly_,
 				 unsigned int blocksize_)
 	: path(path_),
+	  opened(false),
           readonly(readonly_),
 	  revision(0)
 {
@@ -162,6 +163,8 @@ QuartzDiskTable::open()
 	data = data2;
 	revision = revision2;
     }
+
+    opened = true;
 }
 
 bool
@@ -183,6 +186,7 @@ QuartzDiskTable::open(quartz_revision_number_t revision_)
     } else {
 	return false;
     }
+    opened = true;
     return true;
 }
 
@@ -193,6 +197,7 @@ QuartzDiskTable::~QuartzDiskTable()
 quartz_revision_number_t
 QuartzDiskTable::get_open_revision_number() const
 {
+    Assert(opened);
     return revision;
 }
 
@@ -215,6 +220,7 @@ QuartzDiskTable::get_latest_revision_number() const
 quartz_tablesize_t
 QuartzDiskTable::get_entry_count() const
 {
+    Assert(opened);
     return data.size();
 }
 
@@ -223,6 +229,7 @@ QuartzDiskTable::get_nearest_entry(QuartzDbKey &key,
 				   QuartzDbTag &tag,
 				   QuartzCursor &cursor) const
 {
+    Assert(opened);
     Assert(!(key.value.empty()));
 
     /// FIXME: replace with calls to martin's code
@@ -255,11 +262,13 @@ QuartzDiskTable::get_next_entry(QuartzDbKey &key,
 				QuartzDbTag &tag,
 				QuartzCursor &cursor) const
 {
+    Assert(opened);
 }
 
 bool
 QuartzDiskTable::get_exact_entry(const QuartzDbKey &key, QuartzDbTag & tag) const
 {
+    Assert(opened);
     Assert(!(key.value.empty()));
 
     /// FIXME: replace with calls to martin's code
@@ -275,6 +284,7 @@ bool
 QuartzDiskTable::set_entries(std::map<QuartzDbKey, QuartzDbTag *> & entries,
 			     quartz_revision_number_t new_revision)
 {
+    Assert(opened);
     if(readonly) throw OmInvalidOperationError("Attempt to set entries in a readonly table.");
 
     // Find out which table is not opened

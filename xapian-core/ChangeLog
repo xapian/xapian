@@ -1,3 +1,10 @@
+Tue Oct 31 16:12:12 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove argument of Btree_item_create().
+
+	* Add several tests of quartz tables, prior to replacing their
+	  implementation with Btree calls.
+
 Tue Oct 31 14:36:08 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Remove a couple of statics which shouldn't have been there, causing

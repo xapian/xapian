@@ -209,13 +209,11 @@ int Btree_delete(struct Btree * B, byte * key, int key_len);
     number of keys in the B-tree.
 
 
-struct Btree_item * Btree_item_create(struct Btree * B);
-
-    [Perhaps argument B is not required.]
+struct Btree_item * Btree_item_create();
 
     Creates a structure for holding B-tree items. After
 
-        t = Btree_item_create(B);
+        t = Btree_item_create();
 
     We can make use of the following,
 
