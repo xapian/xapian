@@ -1,3 +1,8 @@
+Wed Mar 28 14:24:38 BST 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Set elite set size to max(10, sqrt(number of subqueries)) by
+	  default.  This is rather more useful than the old default of 0.
+
 Wed Mar 28 10:25:35 BST 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* QuartzDatabase now implements replace_document(), and 

@@ -303,7 +303,6 @@ bool
 OmQuery::Internal::is_defined() const
 {
     if (op == OP_UNDEF) return false;
-    if (op == OP_ELITE_SET && elite_set_size == 0) return false;
     return true;
 }
 
@@ -336,6 +335,8 @@ OmQuery::Internal::set_elite_set_size(om_termcount size_)
 {
     if (op != OmQuery::OP_ELITE_SET)
 	throw OmInvalidOperationError("Can only set elite set size for elite set operator.");
+    if (size_ == 0)
+	throw OmInvalidArgumentError("Elite set size may not be zero.");
     elite_set_size = size_;
 }
 
@@ -619,6 +620,13 @@ OmQuery::Internal::simplify_query()
     // if window size is 0, then use number of subqueries
     // This is cheap, so we might as well always set it.
     if (window == 0) window = subqs.size();
+
+    // if elite set size is 0, use sqrt of number of subqueries, or a minimum
+    // of 10.  Gives a reasonable default.
+    if (elite_set_size == 0) {
+	elite_set_size = static_cast<om_termcount>(ceil(sqrt(subqs.size())));
+	if (elite_set_size < 10) elite_set_size = 10;
+    }
 
     // Remove nulls if we can
     if (subqs.size() > 0 && can_remove_nulls(op)) {

@@ -112,11 +112,11 @@ class OmQuery {
 
 	/** Default constructor: makes an undefined query which can't be used
 	 *  directly.  Such queries should be thought of as placeholders:
-	 *  they are provided for convenience, and to help make certain
-	 *  operations more natural.
+	 *  they are provided merely for convenience.
 	 *
 	 *  An exception will be thrown if an attempt is made to run an
-	 *  undefined query.
+	 *  undefined query, or to use an undefined query when building up
+	 *  a composite query.
 	 */
 	OmQuery();
 
