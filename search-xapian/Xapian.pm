@@ -62,7 +62,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.8.3.1';
+our $VERSION = '0.8.4.0';
 
 bootstrap Search::Xapian $VERSION;
 
@@ -89,7 +89,7 @@ Search::Xapian - Perl XS frontend to the Xapian C++ search library.
   my $db = Search::Xapian::Database->new( '[DATABASE DIR]' );
   my $enq = $db->enquire( '[QUERY TERM]' );
 
-  printf "Parsing query '%s'\n", $enq->get_query()->get_description();
+  printf "Running query '%s'\n", $enq->get_query()->get_description();
 
   my @matches = $enq->matches(0, 10);
 
@@ -103,8 +103,8 @@ Search::Xapian - Perl XS frontend to the Xapian C++ search library.
 =head1 DESCRIPTION
 
 This module wraps most methods of most Xapian classes. The missing classes
-and methods should be added in the future. It also provides a more
-simplified, 'perlish' interface - as demonstrated above.
+and methods should be added in the future. It also provides a simplified,
+more 'perlish' interface - as demonstrated above.
 
 The Xapian library is evolving very quickly at the time of writing,
 hence any documentation placed here would be likely to become out of
@@ -135,7 +135,7 @@ Error handling for all methods liable to generate them.
 
 =item Documentation
 
-Brief descriptions of classes, possibly just adapted for Xapian docs.
+Brief descriptions of classes, possibly just adapted from Xapian docs.
 
 =item Unwrapped classes
 

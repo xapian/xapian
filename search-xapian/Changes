@@ -1,5 +1,12 @@
 Revision history for Perl extension Search::Xapian.
 
+0.8.4.0  Wed Dec  8 03:36:13 2004
+	[Changes contributed by Olly Betts]
+	- Changed Database and WritableDatabase constructors to use the new C++
+	  constructors instead of the factory functions.
+	- Eliminated GNU-make-ism from generated Makefile.
+	- Added new test "exception.t" to test C++ -> Perl exception handling.
+
 0.8.3.1  Tue Nov  3 18:25:02 2004
 	[Changes contributed by Olly Betts]
 	- Fixed handling of optional parameters in Document::add_posting(),

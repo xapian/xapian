@@ -7,9 +7,8 @@ new1(file, opts)
     string	file
     int		opts
     CODE:
-        RETVAL = new WritableDatabase();
         try {
-            *RETVAL = Auto::open(file, opts);
+	    RETVAL = new WritableDatabase(file, opts);
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -28,7 +27,7 @@ new2(database)
 WritableDatabase *
 new3()
     CODE:
-        RETVAL = new WritableDatabase(); 
+        RETVAL = new WritableDatabase();
         try {
             *RETVAL = InMemory::open();
         }

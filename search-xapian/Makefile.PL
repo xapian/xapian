@@ -29,5 +29,5 @@ WriteMakefile(
 
 
 sub MY::postamble {
-  return "\$(XS_FILES): \$(wildcard XS/*.xs)\n\ttouch \$(XS_FILES)";
+  return "\$(XS_FILES): ".join(" ", <XS/*.xs>)."\n\ttouch \$(XS_FILES)";
 }

@@ -50,6 +50,7 @@ t/parser.t
 t/search.t
 t/tied.t
 t/document.t
+t/exception.t
 
 examples/simplesearch.pl
 META.yml
