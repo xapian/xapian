@@ -222,7 +222,7 @@ SocketClient::set_query(const OmQueryInternal *query_)
 }
 
 void
-SocketClient::set_options(const OmMatchOptions &moptions_)
+SocketClient::set_options(const OmSettings &moptions_)
 {
     moptions = moptions_;
 }
@@ -409,7 +409,7 @@ SocketClient::get_mset(om_doccount first,
     remote_stats_valid = false;
     global_stats = Stats();
     global_stats_valid = false;
-    moptions = OmMatchOptions();
+    moptions = OmSettings();
     omrset = OmRSet();
 
     return true;

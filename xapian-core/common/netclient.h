@@ -81,7 +81,7 @@ class NetClient : public OmRefCntBase {
 	 *
 	 * @param moptions_ The match options.
 	 */
-	virtual void set_options(const OmMatchOptions &moptions_) = 0;
+	virtual void set_options(const OmSettings &moptions_) = 0;
 
 	/** Set the rset to be transmitted over the link.
 	 *

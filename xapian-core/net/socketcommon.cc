@@ -500,32 +500,37 @@ OmSocketLineBuf::do_writeline(std::string s)
 }
 
 std::string
-moptions_to_string(const OmMatchOptions &moptions)
+moptions_to_string(const OmSettings &moptions)
 {
     std::string result;
 
-    result += om_tostring((int)moptions.do_collapse) + " ";
-    result += om_tostring(moptions.collapse_key) + " ";
-    result += om_tostring((int)moptions.sort_forward) + " ";
-    result += om_tostring(moptions.percent_cutoff) + " ";
-    result += om_tostring(moptions.max_or_terms);
+    result += om_tostring(moptions.get_value_int("match_collapse_key", 0)) + " ";
+    result += om_tostring((int)moptions.get_value_bool("match_sort_forward", true)) + " ";
+    result += om_tostring(moptions.get_value_int("match_percent_cutoff", 0)) + " ";
+    result += om_tostring(moptions.get_value_int("match_max_or_terms", 0));
 
     return result;
 }
 
-OmMatchOptions
+OmSettings
 string_to_moptions(const std::string &s)
 {
     istrstream is(s.c_str());
 
-    OmMatchOptions mopt;
+    OmSettings mopt;
+    bool sort_forward;
+    int collapse_key, percent_cutoff, max_or_terms;
 
-    is >> mopt.do_collapse
-       >> mopt.collapse_key
-       >> mopt.sort_forward
-       >> mopt.percent_cutoff
-       >> mopt.max_or_terms;
+    is >> collapse_key
+       >> sort_forward
+       >> percent_cutoff
+       >> max_or_terms;
 
+    mopt.set_value("match_collapse_key", collapse_key);
+    mopt.set_value("match_sort_forward", sort_forward);
+    mopt.set_value("match_percent_cutoff", percent_cutoff);
+    mopt.set_value("match_max_or_terms", max_or_terms);
+    
     Assert(s == moptions_to_string(mopt));
 //    DEBUGLINE(UNKNOWN, "string_to_moptions: mopt " << s << "->"
 //	      << moptions_to_string(mopt));

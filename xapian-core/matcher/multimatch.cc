@@ -43,7 +43,7 @@ MultiMatch::MultiMatch(const MultiDatabase * multi_database_,
 		       const OmQueryInternal * query,
 		       const OmRSet & omrset,
 		       IRWeight::weight_type wt_type,
-		       const OmMatchOptions & moptions,
+		       const OmSettings & moptions,
 		       std::auto_ptr<StatsGatherer> gatherer_)
 	: multi_database(multi_database_),
 	  gatherer(gatherer_),
@@ -132,14 +132,19 @@ MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
 
 
 void
-MultiMatch::set_options(const OmMatchOptions & moptions)
+MultiMatch::set_options(const OmSettings & moptions)
 {
     for(std::vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_options(moptions);
     }
 
-    mcmp = moptions.get_sort_comparator();
+    // FIXME: same code as in localmatch.cc...
+    if (moptions.get_value_bool("match_sort_forward", true)) {
+	mcmp = OmMSetCmp(msetcmp_forward);
+    } else {
+	mcmp = OmMSetCmp(msetcmp_reverse);
+    }
 }
 
 

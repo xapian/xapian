@@ -145,7 +145,7 @@ SocketServer::run_match(const std::string &firstmessage)
 	throw OmNetworkError(std::string("Expected MOPTIONS, got ") + message);
     }
 
-    OmMatchOptions moptions = string_to_moptions(message.substr(9));
+    OmSettings moptions = string_to_moptions(message.substr(9));
 
     // extract the rset
     message = buf->readline();

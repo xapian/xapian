@@ -171,106 +171,6 @@ class OmQuery {
 	std::string get_description() const;
 };
 
-///////////////////////////////////////////////////////////////////
-// OmMatchOptions class
-// ====================
-
-/** Class used to specify options for running a query.
- *  FIXME: make this into a struct?
- */
-class OmMatchOptions {
-    friend OmEnquireInternal;
-    public:
-        /** If true, duplicates will be removed based on a key.
-	 *  This defaults to false.
-	 */
-	bool  do_collapse;
-
-	/** The key number to collapse upon, if do_collapse is true.
-	 */
-	om_keyno collapse_key;
-
-	/** If true, documents with the same weight will be
-	 *  returned in ascending document order; if false, they will
-	 *  be returned in descending order.
-	 */
-	bool  sort_forward;
-
-	/** Minimum percentage score for returned documents.
-	 *  If a document has a lower percentage score than this, it
-	 *  will not appear in the results.
-	 */
-	int percent_cutoff;
-
-	/** Maximum number of terms which will be used if the query
-	 *  contains a large number of terms which are ORed together.
-	 *
-	 *  See set_max_or_terms() for more details.
-	 */
-	om_termcount max_or_terms;
-
-
-	/** Create a match options object.
-	 */
-	OmMatchOptions();
-
-	/** Set a key to collapse (remove duplicates) on.
-	 *  There may only be one key in use at a time.
-	 *  Each key value will appear only once in the result set.
-	 */
-	void set_collapse_key(om_keyno key_);
-
-	/** Set no key to collapse on.
-	 *  This is the default.
-	 */
-	void set_no_collapse();
-
-	/** Set direction of sorting.  This applies only to documents which
-	 *  have the same weight, which will only ever occur with some
-	 *  weighting schemes.
-	 */
-	void set_sort_forward(bool forward_ = true);
-
-	/** Set a percentage cutoff for the match.  Only documents
-	 *  with a percent weight of at least this percentage will
-	 *  be returned in the mset.  (If the intention is to return
-	 *  only matches which contain all the terms in the query,
-	 *  then consider using OM_MOP_AND instead of OM_MOP_OR in
-	 *  the query.)  The percentage must be between 0 and 100, or
-	 *  an OmInvalidArgumentError will be thrown.
-	 */
-	void set_percentage_cutoff(int percent_);
-
-	/** Set the maximum number of terms which will be used if the query
-	 *  contains a large number of terms which are ORed together.
-	 *
-	 *  The terms will be sorted according to termweight, and only
-	 *  the top terms will be used.  Parts of the query which
-	 *  do not involve terms ORed together will be unaffected by this
-	 *  option.
-	 *
-	 *  This enables a query to be set which represents a document,
-	 *  and only the elite set of terms which best distinguish that
-	 *  document to be used to find similar documents, resulting in
-	 *  a performance improvement.
-	 *
-	 *  If this is set to the default of zero, all terms will be used.
-	 */
-	void set_max_or_terms(om_termcount max_);
-
-	/** Get appropriate comparator object.
-	 *  This returns an object which can be used to compare two
-	 *  OmMSetItems and decide which comes first: this is used by
-	 *  the matcher to sort the results of a search.
-	 */
-	OmMSetCmp get_sort_comparator() const;
-
-	/** Returns a string representing the options.
-	 *  Introspection method.
-	 */
-	std::string get_description() const;
-};
-
 /** Base class for matcher decision functor.
  */
 class OmMatchDecider {
@@ -283,53 +183,6 @@ class OmMatchDecider {
 	virtual int operator()(const OmDocument *doc) const = 0;
 
 	virtual ~OmMatchDecider() {}
-};
-
-///////////////////////////////////////////////////////////////////
-// OmExpandOptions class
-// =====================
-
-/// A class holding options to be used when performing an expand operation.
-class OmExpandOptions {
-    friend OmEnquireInternal;
-    private:
-        /// See use_query_terms()
-	bool use_query_terms;
-
-	/// See use_exact_termfreq()
-	bool use_exact_termfreq;
-    public:
-	/** Create an OmExpandOptions object.  This object is passed to
-	 *  the OmEnquire::get_eset() method.
-	 */
-	OmExpandOptions();
-
-	/** This sets whether terms which are already in the query will
-	 *  be returned by the match.  By default, such terms will not
-	 *  be returned.  A value of true will allow query terms to be
-	 *  placed in the ESet.
-	 *
-	 *  @param use_query_terms_     The value to use for the option.
-	 *                              The default is false.
-	 */
-	void set_use_query_terms(bool use_query_terms_);
-
-	/** This sets whether term frequencies are to be calculated
-	 *  exactly, or whether it is okay to use an approximation.
-	 *  This approximation only comes into effect when multiple
-	 *  databases are being used, and in many cases will serve to
-	 *  improve efficiency greatly.  By default, exact term frequencies
-	 *  will not be calculated and the approximation will be used.
-	 *
-	 *  @param use_exact_termfreq_  The value to use for the option.
-	 *                              The default is false.
-	 */
-	void set_use_exact_termfreq(bool use_exact_termfreq_);
-
-	/** Returns a string representing the options.
-	 *  Introspection method.
-	 */
-	std::string get_description() const;
 };
 
 /** Base class for expand decision functor.
@@ -452,8 +305,8 @@ class OmMSetItem {
 	 *  instance of each key value (apart from the null string) will
 	 *  be present in the items in the returned OmMSet.
 	 *
-	 *  See OmMatchOptions::set_collapse_key() for more information
-	 *  about setting a key to collapse upon.
+	 *  See the OmSettings match_collapse_key parameter for more
+	 *  information about setting a key to collapse upon.
 	 */
 	OmKey collapse_key;
 
@@ -739,7 +592,7 @@ class OmEnquire {
 	OmMSet get_mset(om_doccount first,
                         om_doccount maxitems,
 			const OmRSet * omrset = 0,
-			const OmMatchOptions * moptions = 0,
+			const OmSettings * moptions = 0,
 			const OmMatchDecider * mdecider = 0) const;
 
 	/** Get the expand set for the given rset.
@@ -759,7 +612,7 @@ class OmEnquire {
 	 */
 	OmESet get_eset(om_termcount maxitems,
 			const OmRSet & omrset,
-			const OmExpandOptions * eoptions = 0,
+			const OmSettings * eoptions = 0,
 			const OmExpandDecider * edecider = 0) const;
 
 
@@ -925,7 +778,7 @@ class OmBatchEnquire {
 	    /** A pointer to the match options for this query,
 	     *  if any.
 	     */
-	    const OmMatchOptions * moptions;
+	    const OmSettings * moptions;
 
 	    /** A pointer to the match decider function, or
 	     *  0 for no decision functor.

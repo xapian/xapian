@@ -300,23 +300,29 @@ LocalMatch::del_query_tree()
 //
 
 void
-LocalMatch::set_options(const OmMatchOptions & moptions_)
+LocalMatch::set_options(const OmSettings & moptions_)
 {
     Assert(!is_prepared);
     Assert(query == NULL);
 
-    if(moptions_.percent_cutoff > 0) {
-	min_weight_percent = moptions_.percent_cutoff;
+    int val = moptions_.get_value_int("match_percent_cutoff", 0);
+    if (val > 0) {
+	min_weight_percent = val;
     }
 
-    if(moptions_.do_collapse) {
+    val = moptions_.get_value_int("match_collapse_key", -1);
+    if (val >= 0) {
 	do_collapse = true;
-	collapse_key = moptions_.collapse_key;
+	collapse_key = val;
     }
 
-    max_or_terms = moptions_.max_or_terms;
+    max_or_terms = moptions_.get_value_int("match_max_or_terms", 0);
 
-    mcmp = moptions_.get_sort_comparator();
+    if (moptions_.get_value_bool("match_sort_forward", true)) {
+	mcmp = OmMSetCmp(msetcmp_forward);
+    } else {
+	mcmp = OmMSetCmp(msetcmp_reverse);
+    }
 }
 
 

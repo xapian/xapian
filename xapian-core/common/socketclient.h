@@ -83,7 +83,7 @@ class SocketClient : public NetClient {
 	om_weight remote_maxweight;
 
 	/// The match options structure
-	OmMatchOptions moptions;
+	OmSettings moptions;
 
 	/// The current RSet.
 	OmRSet omrset;
@@ -152,7 +152,7 @@ class SocketClient : public NetClient {
 	 *
 	 *  @param moptions_  The match options to use.
 	 */
-	void set_options(const OmMatchOptions &moptions_);
+	void set_options(const OmSettings &moptions_);
 
 	/** Set the rset for the match.
 	 */

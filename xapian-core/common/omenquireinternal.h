@@ -74,12 +74,12 @@ class OmEnquireInternal {
 	OmMSet get_mset(om_doccount first,
 			om_doccount maxitems,
 			const OmRSet *omrset,
-			const OmMatchOptions *moptions,
+			const OmSettings *moptions,
 			const OmMatchDecider *mdecider) const;
 	OmESet get_eset(om_termcount maxitems,
 			const OmRSet & omrset,
-			const OmExpandOptions * eoptions,
-			const OmExpandDecider * edecider) const;
+			const OmSettings *eoptions,
+			const OmExpandDecider *edecider) const;
 	const OmDocument get_doc(om_docid did) const;
 	const OmDocument get_doc(const OmMSetItem &mitem) const;
 	om_termname_list get_matching_terms(om_docid did) const;

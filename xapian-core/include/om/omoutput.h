@@ -43,8 +43,6 @@ OUTPUT_FUNCTION(OmDocument);
 
 #include "omenquire.h"
 OUTPUT_FUNCTION(OmQuery);
-OUTPUT_FUNCTION(OmMatchOptions);
-OUTPUT_FUNCTION(OmExpandOptions);
 OUTPUT_FUNCTION(OmRSet);
 OUTPUT_FUNCTION(OmMSetItem);
 OUTPUT_FUNCTION(OmMSet);

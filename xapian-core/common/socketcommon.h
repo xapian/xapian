@@ -25,11 +25,11 @@
 
 #include <string>
 #include "omlinebuf.h"
+#include "om/omsettings.h"
 
 #define OM_SOCKET_PROTOCOL_VERSION 2
 
 class OmQueryInternal;
-class OmMatchOptions;
 class Stats;
 class OmRSet;
 class OmKey;
@@ -104,17 +104,17 @@ std::string stats_to_string(const Stats &stats);
  */
 Stats string_to_stats(const std::string &s);
 
-/** Convert an OmMatchOptions object into a string representation.
+/** Convert the match_ options from an OmSettings object into a string representation.
  *
  *  @param moptions	The object to serialise.
  */
-std::string moptions_to_string(const OmMatchOptions &moptions);
+std::string moptions_to_string(const OmSettings &moptions);
 
-/** Convert a serialised OmMatchOptions string back into an object.
+/** Convert a serialised OmSettings string back into an object.
  *
  *  @param s		The serialised object as a string.
  */
-OmMatchOptions string_to_moptions(const std::string &s);
+OmSettings string_to_moptions(const std::string &s);
 
 /** Convert an OmRSet object into a string representation.
  *

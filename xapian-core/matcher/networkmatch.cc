@@ -109,7 +109,7 @@ NetworkMatch::~NetworkMatch()
 // Setting query options
 //
 void
-NetworkMatch::set_options(const OmMatchOptions & moptions_)
+NetworkMatch::set_options(const OmSettings & moptions_)
 {
     database->link->set_options(moptions_);
 }

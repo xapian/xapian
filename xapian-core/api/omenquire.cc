@@ -45,149 +45,6 @@
 #include <algorithm>
 #include <math.h>
 
-////////////////////////////////
-// Methods for OmMatchOptions //
-////////////////////////////////
-
-OmMatchOptions::OmMatchOptions()
-	: do_collapse(false),
-	  collapse_key(0),
-	  sort_forward(true),
-	  percent_cutoff(-1),
-	  max_or_terms(0)
-{}
-
-std::string
-OmMatchOptions::get_description() const
-{
-    DEBUGAPICALL("OmMatchOptions::get_description", "");
-    std::string description;
-    if (do_collapse) {
-	if (description != "") description += ", ";
-	description += "collapse on key " + om_tostring(collapse_key);
-    }
-
-    if (!sort_forward) {
-	if (description != "") description += ", ";
-	description += "reverse document order";
-    }
-
-    if (percent_cutoff != -1) {
-	if (description != "") description += ", ";
-	description += "cutoff at " + om_tostring(percent_cutoff) + "%";
-    }
-
-    if (max_or_terms != 0) {
-	if (description != "") description += ", ";
-	description += "max_or_terms = " + om_tostring(max_or_terms);
-    }
-
-    description = "OmMatchOptions(" + description + ")";
-
-    DEBUGAPIRETURN(description);
-    return description;
-}
-
-void
-OmMatchOptions::set_collapse_key(om_keyno key_)
-{
-    DEBUGAPICALL("OmMatchOptions::set_collapse_key", key_);
-    do_collapse = true;
-    collapse_key = key_;
-}
-
-void
-OmMatchOptions::set_no_collapse()
-{
-    DEBUGAPICALL("OmMatchOptions::set_no_collapse", "");
-    do_collapse = false;
-}
-
-void
-OmMatchOptions::set_sort_forward(bool forward_)
-{
-    DEBUGAPICALL("OmMatchOptions::set_sort_forward", forward_);
-    sort_forward = forward_;
-}
-
-void
-OmMatchOptions::set_percentage_cutoff(int percent_)
-{
-    DEBUGAPICALL("OmMatchOptions::set_percentage_cutoff", percent_);
-    if (percent_ >=0 && percent_ <= 100) {
-        percent_cutoff = percent_;
-    } else {
-        throw OmInvalidArgumentError("Percent cutoff must be in 0..100");
-    }
-}
-
-void
-OmMatchOptions::set_max_or_terms(om_termcount max_)
-{
-    DEBUGAPICALL("OmMatchOptions::set_max_or_terms", max_);
-    max_or_terms = max_;
-}
-
-OmMSetCmp
-OmMatchOptions::get_sort_comparator() const
-{
-    DEBUGAPICALL("OmMatchOptions::get_sort_comparator", "");
-    if (sort_forward) {
-	return OmMSetCmp(msetcmp_forward);
-    } else {
-	return OmMSetCmp(msetcmp_reverse);
-    }
-}
-
-
-/////////////////////////////////
-// Methods for OmExpandOptions //
-/////////////////////////////////
-
-OmExpandOptions::OmExpandOptions()
-	: use_query_terms(false),
-	  use_exact_termfreq(false)
-{
-    DEBUGAPICALL("OmExpandOptions::OmExpandOptions", "");
-}
-
-std::string
-OmExpandOptions::get_description() const
-{
-    DEBUGAPICALL("OmExpandOptions::get_description", "");
-    std::string description;
-
-    if (use_query_terms) {
-	if (description != "") description += ", ";
-	description += "use query terms";
-    }
-
-    if (use_exact_termfreq) {
-	if (description != "") description += ", ";
-	description += "use exact term frequency";
-    }
-
-    description = "OmExpandOptions(" + description + ")";
-
-    DEBUGAPIRETURN(description);
-    return description;
-}
-
-void
-OmExpandOptions::set_use_query_terms(bool use_query_terms_)
-{
-    DEBUGAPICALL("OmExpandOptions::set_use_query_terms", use_query_terms_);
-    use_query_terms = use_query_terms_;
-}
-
-void
-OmExpandOptions::set_use_exact_termfreq(bool use_exact_termfreq_)
-{
-    DEBUGAPICALL("OmExpandOptions::set_use_exact_termfreq", use_exact_termfreq_);
-    use_exact_termfreq = use_exact_termfreq_;
-}
-
-
 OmExpandDeciderFilterTerms::OmExpandDeciderFilterTerms(
                                const om_termname_list &terms)
 {
@@ -446,7 +303,7 @@ OmMSet
 OmEnquireInternal::get_mset(om_doccount first,
                     om_doccount maxitems,
                     const OmRSet *omrset,
-                    const OmMatchOptions *moptions,
+                    const OmSettings *moptions,
 		    const OmMatchDecider *mdecider) const
 {
     OmLockSentry locksentry(mutex);
@@ -456,9 +313,9 @@ OmEnquireInternal::get_mset(om_doccount first,
     Assert(query->is_defined());
 
     // Use default options if none supplied
-    OmMatchOptions defmoptions;
+    OmSettings default_settings;
     if (moptions == 0) {
-        moptions = &defmoptions;
+        moptions = &default_settings;
     }
 
     // Set Rset
@@ -493,13 +350,13 @@ OmEnquireInternal::get_mset(om_doccount first,
 OmESet
 OmEnquireInternal::get_eset(om_termcount maxitems,
                     const OmRSet & omrset,
-	            const OmExpandOptions * eoptions,
+	            const OmSettings * eoptions,
 		    const OmExpandDecider * edecider) const
 {
     OmLockSentry locksentry(mutex);
     OmESet retval;
 
-    OmExpandOptions defeoptions;
+    OmSettings defeoptions;
     if (eoptions == 0) {
         eoptions = &defeoptions;
     }
@@ -519,7 +376,7 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     std::auto_ptr<OmExpandDecider> decider_noquery;
     std::auto_ptr<OmExpandDecider> decider_andnoquery;
 
-    if (query != 0 && !eoptions->use_query_terms) {
+    if (query != 0 && !eoptions->get_value_bool("expand_use_query_terms", false)) {
 	std::auto_ptr<OmExpandDecider> temp1(
 	    new OmExpandDeciderFilterTerms(query->get_terms()));
         decider_noquery = temp1;
@@ -533,7 +390,7 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     }
 
     expand.expand(maxitems, retval, &rset, edecider,
-		  eoptions->use_exact_termfreq);
+		  eoptions->get_value_bool("expand_use_exact_termfreq", false));
 
     return retval;
 }
@@ -697,7 +554,7 @@ OmMSet
 OmEnquire::get_mset(om_doccount first,
                     om_doccount maxitems,
                     const OmRSet *omrset,
-                    const OmMatchOptions *moptions,
+                    const OmSettings *moptions,
 		    const OmMatchDecider *mdecider) const
 {
     // FIXME: display contents of pointer params, if they're not null.
@@ -717,7 +574,7 @@ OmEnquire::get_mset(om_doccount first,
 OmESet
 OmEnquire::get_eset(om_termcount maxitems,
                     const OmRSet & omrset,
-	            const OmExpandOptions * eoptions,
+	            const OmSettings * eoptions,
 		    const OmExpandDecider * edecider) const
 {
     // FIXME: display contents of pointer params and omrset, if they're not
