@@ -1,3 +1,10 @@
+Tue Sep 19 18:42:51 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Implement get_maxweight() and recalc_maxweight() in EmptyPostList
+	  so that they don't attempt to use an invalid IRWeight object.
+	  This fixes an assertion error if a list of terms which are not
+	  in the database are combined in a query.
+
 Tue Sep 19 15:55:34 BST 2000 Olly Betts
 
 	* api_db.cc: Added query() helper functions

@@ -38,11 +38,26 @@ class EmptyPostList : public LeafPostList {
 	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
+	om_weight get_maxweight() const;
+	om_weight recalc_maxweight();
+
 	std::string intro_term_description() const;
 };
 
 inline om_doccount
 EmptyPostList::get_termfreq() const
+{
+    return 0;
+}
+
+inline om_weight
+EmptyPostList::get_maxweight() const
+{
+    return 0;
+}
+
+inline om_weight 
+EmptyPostList::recalc_maxweight()
 {
     return 0;
 }

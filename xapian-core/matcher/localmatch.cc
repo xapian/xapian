@@ -141,7 +141,6 @@ LocalMatch::build_and_tree(std::vector<PostList *> &postlists)
 
     if (postlists.empty()) {
 	EmptyPostList *pl = new EmptyPostList();
-	pl->set_termweight(mk_weight());
 	return pl;
     }
 
@@ -183,7 +182,6 @@ LocalMatch::build_or_tree(std::vector<PostList *> &postlists)
     // If none of the postlists had any entries, return an EmptyPostList.
     if (pq.empty()) {
 	EmptyPostList *pl = new EmptyPostList();
-	pl->set_termweight(mk_weight());
 	return pl;
     }
 

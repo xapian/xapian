@@ -29,8 +29,7 @@
 /** A postlist which generates termweights (rather than merely modifying
  *  them and passing them on)
  */
-class LeafPostList : public PostList
-{
+class LeafPostList : public PostList {
     protected:
 	const IRWeight * ir_wt;
     public:
@@ -41,8 +40,8 @@ class LeafPostList : public PostList
 	// Sets term weighting formula, and needed information
 	virtual void set_termweight(const IRWeight * wt);
 
-	om_weight get_maxweight() const;    // Gets max weight
-        om_weight recalc_maxweight();       // recalculate weights
+	virtual om_weight get_maxweight() const;    // Gets max weight
+        virtual om_weight recalc_maxweight();       // recalculate weights
 };
 
 inline void
