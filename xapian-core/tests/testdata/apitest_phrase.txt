@@ -5,7 +5,7 @@ The PHRASE operator is ordered; the NEAR operator just looks from the
 specified terms in any order.
 
 You can specify a window size.  This allows the operators to be used for
-finding near phrases or a group of word close to each other.
+finding near phrases or a group of words close to each other.
 
 Warning notice:
 Leave fridge on!
@@ -60,3 +60,4 @@ pad pad pad!
 Pad pad pad pad
 Rare milk
 pad pad pad!
+

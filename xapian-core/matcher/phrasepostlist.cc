@@ -109,13 +109,16 @@ PhrasePostList::test_doc()
     om_termpos idx, min;
     do {
 	plists[0]->next();
-	if (plists[0]->at_end()) return false;
+	if (plists[0]->at_end()) {
+	    DEBUGLINE(MATCH, "--MISS--");
+	    return false;
+	}
 	pos = plists[0]->get_position();
 	idx = plists[0]->index;
 	min = pos + plists.size() - idx;
 	if (min > window) min -= window; else min = 0;
     } while (!do_test(plists, 1, min, pos + window - idx));
-    DebugMsg("**HIT**\n");
+    DEBUGLINE(MATCH, "**HIT**");
     return true;
 }
 

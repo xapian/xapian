@@ -26,7 +26,8 @@ PostList *
 SelectPostList::next(om_weight w_min)
 {
     do {
-        source->next(w_min);
+        PostList *p = source->next(w_min);
+	Assert(p == NULL); // AND should never prune
     } while (!source->at_end() && !test_doc());
     return NULL;
 }
@@ -35,7 +36,8 @@ PostList *
 SelectPostList::skip_to(om_docid did, om_weight w_min)
 {
     if (did > get_docid()) {
-	source->skip_to(did, w_min);
+	PostList *p = source->skip_to(did, w_min);
+	Assert(p == NULL); // AND should never prune
         if (!source->at_end() && !test_doc()) this->next(w_min);
     }
     return NULL;

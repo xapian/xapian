@@ -87,8 +87,12 @@ M|5| |Documentation| Ensure that API documentation covers entirety of
 M|5| |Documentation| Document backend API (database, postlist,
  | | |             | termlist, document, etc) in same way as enquire API.
 -+-+-+-------------+-----------------------------------------------------------
-M|3| |Positional   | Implement get_position_list() method on operators
+M|5| |Positional   | Implement get_position_list() method on operators
  | | |             | so that (A OR B) NEAR (C AND D) works.
+ | | |             | This is much harder than it seems - PostList tree pruning
+ | | |             | is the main problem.  But also what does NEAR mean on
+ | | |             | expressions?  A NEAR (B AND C) is probably most naturally
+ | | |             | interpreted as (A NEAR B) AND (A NEAR C)...
 -+-+-+-------------+-----------------------------------------------------------
 M|5| |Bindings     | Ensure that (Java in particular) bindings throw
  | | |             | correct exception types.
