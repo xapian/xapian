@@ -38,6 +38,10 @@ TradWeight::calc_termweight() const
     } else {
 	tw = (dbsize - termfreq + 0.5) / (termfreq + 0.5);
     }
+
+    // FIXME This is to guarantee nice properties (monotonic increase) of the
+    // weighting function.
+    // Check whether this actually helps / whether it hinders efficiency
     if (tw < 2) {
 	// if size and/or termfreq is estimated we can get tw <= 0
 	// so handle this gracefully
