@@ -1,3 +1,9 @@
+Tue May 14 14:47:00 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated todo.
+
+	* extra/parsequery.yy: Fettled indentation.
+
 Tue May 14 13:14:51 BST 2002  Olly Betts <olly@survex.com>
 
 	* Added test case for new "embedded &" rule, and fix problem bug it

@@ -1,13 +1,7 @@
 <todo>
 <todoitem priority=" " difficulty="" owner="Olly" area="Docs" release="0.5">
 
-Read through generated docs to ensure they read well in collated form.
-
-</todoitem>
-<todoitem priority=" " difficulty="" owner="" area="" release="">
-
-Use m4_include to pull in autoconf/*.m4 into aclocal once we move to requiring
-autoconf 2.50.
+Finish reading through generated docs to ensure they read well in collated form.
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="" release="">

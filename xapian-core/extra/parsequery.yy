@@ -256,11 +256,11 @@ more_term:
 	term_end = find_if(qptr, q.end(), p_notalnum);
 	if (term_end != q.end()) {
 	    if (*term_end == '&') {
-	       // Treat AT&T M&S A&P etc as a single term
-	       if (term_end + 1 != q.end() && isalnum(term_end[1])) {
-		   qptr = term_end + 1;
-		   goto more_term;
-	       }
+		// Treat AT&T M&S A&P etc as a single term
+		if (term_end + 1 != q.end() && isalnum(term_end[1])) {
+		    qptr = term_end + 1;
+		    goto more_term;
+		}
 	    } else {
 		string::iterator end2;
 		end2 = find_if(term_end, q.end(), p_notplusminus);
