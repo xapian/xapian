@@ -191,8 +191,6 @@ DADatabase::DADatabase(const string &filename_r, const string &filename_t,
 
 DADatabase::~DADatabase()
 {
-    internal_end_session();
-
     if (valuefile != 0) {
 	fclose(valuefile);
 	valuefile = 0;

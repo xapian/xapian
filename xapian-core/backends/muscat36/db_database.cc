@@ -1,4 +1,4 @@
-/* db_database.cc: C++ class for datype access routines
+/* db_database.cc: C++ class for dbtype access routines
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -23,7 +23,6 @@
 
 #include <config.h>
 #include <string.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string>
@@ -199,8 +198,6 @@ DBDatabase::DBDatabase(const string &filename, const string &filename_v,
 
 DBDatabase::~DBDatabase()
 {
-    internal_end_session();
-
     if (valuefile != 0) {
 	fclose(valuefile);
 	valuefile = 0;

@@ -1,3 +1,8 @@
+Mon Sep 06 02:39:29 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/muscat36/da_database.cc,backends/muscat36/db_database.cc:
+	  Fixed to compile now that internal_end_session() has gone.
+
 Mon Sep 06 00:59:36 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/runtest.in: Added support for running gdb on a test program,
