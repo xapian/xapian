@@ -4,6 +4,14 @@ Mon Jul  3 17:32:51 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 	  list of tests (it _does_ depend on a backend) and wasn't really
 	  strict enough (so still passed with a void database).
 
+Mon Jul  3 16:52:52 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added get_type() method to OmError, to return a string describing
+	  the class.
+
+	* Changed omerror.h to use a macro to define the error classes, due
+	  to excessive code replication.
+
 Mon Jul  3 16:04:05 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* testsuite.cc wasn't compiling with debug disabled.
