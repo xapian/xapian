@@ -254,9 +254,7 @@ class Btree {
 	 *  is one of these older revisions.
 	 */
 	quartz_revision_number_t get_latest_revision_number() const {
-	    if (both_bases && other_revision_number > revision_number)
-		return other_revision_number;
-	    return revision_number;
+	    return latest_revision_number;
 	}
 
 	/** Get the revision number at which this table
@@ -349,7 +347,7 @@ class Btree {
 	/** Revision number of the other base, or zero if there is only one
 	 *  base file.
 	 */
-	quartz_revision_number_t other_revision_number;
+	mutable quartz_revision_number_t latest_revision_number;
 
 	/** set to true if baseA and baseB both exist as valid bases.
 	 *

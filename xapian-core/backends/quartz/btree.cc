@@ -324,12 +324,13 @@ Btree::write_block(uint4 n, const byte * p) const
     AssertParanoid(base.block_free_at_start(n));
 
     /* write revision is okay */
-    AssertParanoid(REVISION(p) == revision_number + 1);
+    AssertParanoid(REVISION(p) == latest_revision_number + 1);
 
     if (both_bases) {
 	// Delete the old base before modifying the database.
 	sys_unlink(name + "base" + other_base_letter);
 	both_bases = false;
+	latest_revision_number = revision_number;
     }
 
 #ifdef HAVE_PWRITE
@@ -503,11 +504,15 @@ Btree::alter()
 	C[j].rewrite = true;
 
 	uint4 n = C[j].n;
-	if (base.block_free_at_start(n)) return;
+	if (base.block_free_at_start(n)) {
+	    Assert(REVISION(p) == latest_revision_number + 1);
+	    return;
+	}
+	Assert(REVISION(p) < latest_revision_number + 1);
 	base.free_block(n);
 	n = base.next_free_block();
 	C[j].n = n;
-	SET_REVISION(p, revision_number + 1);
+	SET_REVISION(p, latest_revision_number + 1);
 
 	if (j == level) return;
 	j++;
@@ -687,7 +692,7 @@ Btree::split_root(uint4 split_n)
     C[level].c = DIR_START;
     C[level].n = base.next_free_block();
     C[level].rewrite = true;
-    SET_REVISION(q, revision_number + 1);
+    SET_REVISION(q, latest_revision_number + 1);
     SET_LEVEL(q, level);
     SET_DIR_END(q, DIR_START);
     compress(q);   /* to reset TOTAL_FREE, MAX_FREE */
@@ -1424,7 +1429,9 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	sequential =       base.get_sequential();
 
 	if (other_base != 0) {
-	    other_revision_number = other_base->get_revision();
+	    latest_revision_number = other_base->get_revision();
+	    if (revision_number > latest_revision_number)
+		latest_revision_number = revision_number;
 	}
     }
 
@@ -1476,7 +1483,7 @@ Btree::read_root()
 	    C[0].n = 0;
 	} else {
 	    /* writing - */
-	    SET_REVISION(p, revision_number + 1);
+	    SET_REVISION(p, latest_revision_number + 1);
 	    C[0].n = base.next_free_block();
 	}
     } else {
@@ -1543,7 +1550,7 @@ Btree::Btree(string path_, bool readonly_)
 	: revision_number(0),
 	  item_count(0),
 	  block_size(0),
-	  other_revision_number(0),
+	  latest_revision_number(0),
 	  both_bases(false),
 	  base_letter('A'),
 	  faked_root_block(true),
@@ -1703,8 +1710,7 @@ Btree::commit(quartz_revision_number_t revision)
 	other_base_letter = tmp;
     }
     both_bases = true;
-    other_revision_number = revision_number;
-    revision_number = revision;
+    latest_revision_number = revision_number = revision;
     root = C[level].n;
 
     Btree_modified = false;
@@ -1747,7 +1753,7 @@ Btree::cancel()
     faked_root_block = base.get_have_fakeroot();
     sequential =       base.get_sequential();
 
-    other_revision_number = 0;
+    latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 
     prev_ptr = &Btree::prev_default;
     next_ptr = &Btree::next_default;
