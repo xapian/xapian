@@ -1,3 +1,9 @@
+Mon Apr 15 12:12:05 BST 2002  Olly Betts <olly@survex.com>
+
+	* stemtest: getopt fix.
+
+	* stemtest.pl.in: output now: less verbose by default and coloured.
+
 Mon Apr 15 11:18:58 BST 2002  Olly Betts <olly@survex.com>
 
 	* Updated HACKING to say that automake 1.5 is required, and note that

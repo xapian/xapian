@@ -76,7 +76,7 @@ int main(int argc, char **argv)
     int c;
     while ((c = getopt_long(argc, argv, "l", opts, NULL)) != EOF) {
 	if (c == 'l') {
-	    lang = argv[optind];
+	    lang = optarg;
 	} else {
 	    syntax_error = true;
 	}

@@ -7,6 +7,7 @@
 #
 # ----START-LICENCE----
 # Copyright 1999,2000,2001 BrightStation PLC
+# Copyright 2002 Ananova Ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -25,6 +26,11 @@
 # -----END-LICENCE-----
 
 use strict;
+
+my $COL_RED = "\x1b[1m\x1b[31m";
+my $COL_GREEN = "\x1b[1m\x1b[32m";
+my $COL_YELLOW = "\x1b[1m\x1b[33m";
+my $COL_RESET = "\x1b[0m";
 
 my @all_languages = ("danish", "dutch", "english", "french", "german", "italian", "norwegian", "portuguese", "spanish", "swedish");
 my @languages = ();
@@ -139,7 +145,7 @@ if ($did_something) {
 
 sub dicttest {
     my $language = shift;
-    my $datadir = $ENV{"srcdir"} . "/../../data/stemming/$language/data";
+    my $datadir = $ENV{"srcdir"} . "/../../xapian-data/stemming/$language/data";
     my $wordcount = 0;
     my $myretval = $val_succeeded;
 
@@ -190,10 +196,18 @@ sub dicttest {
 	}
 	close(STEMMED_ANSWERS);
 	close(STEMMER_OUTPUT) or die "Subprocess exited abnormally.";
-	print "$wordcount words checked... " . ($myretval? "FAILED" : "ok") . "\n";
+	print "$wordcount words checked... ";
+	if ($myretval) {
+	    print $COL_RED, "FAILED", $COL_RESET, "\n";
+	} else {
+	    #print $COL_GREEN, "ok.", $COL_RESET, "\n";
+	    print "\r                                                                               \r";
+	}
     } else {
-        print "stemming test data not available in $datadir\n";
-	print "(skipping language $language)\n";
+	print $COL_YELLOW, "SKIPPED", $COL_RESET, "\n";
+	if ($verbose) {
+	    print "stemming test data for $language not available in $datadir\n";
+        }
 	return $val_skipped;
     }
     return $myretval;
@@ -205,6 +219,7 @@ sub randtest {
     my $language = shift;
     my $filename = shift;
     my $should_exit = 0;
+    my $excuse;
 
     my $outputfname = "stemtest.pl$$";
 
@@ -214,7 +229,7 @@ sub randtest {
     $system_retval = system("./stemtest --language $language $filename > $outputfname");
     if ($system_retval) {
         if ($verbose) {
-	    print "stemtest returned $system_retval\n";
+	    $excuse = "stemtest returned $system_retval";
 	}
 	# check for SIGINT - should really do it properly
 	# rather than comparing with 2...
@@ -231,17 +246,17 @@ sub randtest {
 	if (!defined $size) {
 	    $myretval = $val_failed;
 	    if ($verbose) {
-	        print "Unable to stat output file.\n";
+	        $excuse = "Unable to stat output file.";
 	    }
 	} elsif ($size >= ($junksize * 1.01)) {
 	    $myretval = $val_failed;
 	    if ($verbose) {
-	        print "Stemmed file is significantly bigger than input ($size vs. $junksize)\n";
+	        $excuse = "Stemmed file is significantly bigger than input ($size vs. $junksize)";
 	    }
 	} elsif ($size < ($junksize / 2)) {
 	    $myretval = $val_failed;
 	    if ($verbose) {
-	        print "Stemmed file is smaller than half the input\n";
+	        $excuse = "Stemmed file is smaller than half the input";
 	    }
 	}
     }
@@ -249,9 +264,13 @@ sub randtest {
     unlink $outputfname;
 
     if ($myretval == $val_succeeded) {
-        print " ok.\n";
+	#print " ok.\n";
+	print "\r                                                                               \r";
     } else {
-        print " FAILED\n";
+	print " ", $COL_RED, "FAILED", $COL_RESET, "\n";
+    }
+    if (defined $excuse) {
+	print "$excuse\n";
     }
     if ($should_exit) {
         exit(1);
@@ -267,7 +286,7 @@ sub make_randomtext {
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789^ \n");
 
     if ((-r $filename) && (-s $filename == $junksize)) {
-        print "$filename already exists, skipping generation.\n";
+        print "$filename already exists, skipping generation.\n" if $verbose;
 	return;
     }
 
@@ -285,7 +304,7 @@ sub make_randomjunk {
     my $count = 0;
 
     if ((-r $filename) && (-s $filename == $junksize)) {
-        print "$filename already exists, skipping generation.\n";
+        print "$filename already exists, skipping generation.\n" if $verbose;
 	return;
     }
 
