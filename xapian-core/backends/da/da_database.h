@@ -57,32 +57,48 @@ DAPostList::at_end() const
 class DATermList : public virtual TermList {
     friend class DADatabase;
     private:
-	struct termvec * tvec;
-	DADatabase * dbase;
+	vector<termid>::iterator pos;
+	vector<termid> ids;
 
 	DATermList(DADatabase *db, struct termvec *tv);
     public:
-	~DATermList();
-
 	termid get_termid();
 	void   next();
 	bool   at_end();
 };
 
+inline termid DATermList::get_termid()
+{
+    Assert(!at_end());
+    return *pos;
+}
+
+inline void   DATermList::next()
+{
+    Assert(!at_end());
+    pos++;
+}
+
+inline bool   DATermList::at_end()
+{
+    if(pos == ids.end()) return true;
+    return false;
+}
+
+
+
+
 class DATerm {
     friend class DADatabase;
     private:
-	DATerm(struct terminfo *, termname);
+	DATerm(struct terminfo *ti_new, termname name_new) {
+	    ti = *ti_new;
+	    name = name_new;
+	}
     public:
 	struct terminfo ti;
 	termname name;
 };
-
-inline DATerm::DATerm(struct terminfo *ti_new, termname name_new)
-{
-    ti = *ti_new;
-    name = name_new;
-}
 
 
 

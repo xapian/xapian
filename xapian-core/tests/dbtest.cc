@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 	    else postlist->next();
 	}
 	delete postlist;
-	did = 2510;
+	did = 111;
 	termlist = database.open_term_list(did);
 	printf("\nTermlist for document %d:\n", did);
 	while(!termlist->at_end()) {

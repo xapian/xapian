@@ -5,6 +5,8 @@
 #include <errno.h>
 #include <math.h>
 #include <string>
+#include <vector>
+#include <algorithm>
 
 #include "database.h"
 #include "da_database.h"
@@ -71,35 +73,20 @@ void DAPostList::skip_to(docid id)
 
 DATermList::DATermList(DADatabase *db, struct termvec *tv)
 {
-    tvec = tv;
-    dbase = db;
+    readterms(tv);
+    while(tv->term != 0) {
+	char *term = (char *)tv->term;
+	termid id;
+	// FIXME - Next line is inefficient - checks for term in term list
+	id = db->term_name_to_id(string(term + 1, (unsigned)term[0]));
+	ids.push_back(id);
+	readterms(tv);
+    }
+    losetermvec(tv);
 
-    readterms(tvec);
-}
+    sort(ids.begin(), ids.end());
 
-DATermList::~DATermList()
-{
-    losetermvec(tvec);
-}
-
-termid DATermList::get_termid()
-{
-    Assert(!at_end());
-
-    char *term = (char *)tvec->term;
-
-    return dbase->term_name_to_id(string(term + 1, (unsigned)term[0]));
-}
-
-void   DATermList::next()
-{
-    readterms(tvec);
-}
-
-bool   DATermList::at_end()
-{
-    if(tvec->term == 0) return true;
-    return false;
+    pos = ids.begin();
 }
 
 
@@ -190,7 +177,7 @@ termid
 DADatabase::term_name_to_id(const termname &name)
 {
     Assert(opened);
-    //printf("Looking up term `%s': ", name.c_str());
+    printf("Looking up term `%s': ", name.c_str());
 
     map<termname,termid>::iterator p = termidmap.find(name);
 
@@ -208,16 +195,16 @@ DADatabase::term_name_to_id(const termname &name)
 	free(k);
 
 	if(found == 0) {
-	    //printf("Not in collection\n");
+	    printf("Not in collection\n");
 	} else {
 	    id = termvec.size() + 1;
-	    //printf("Adding as ID %d\n", id);
+	    printf("Adding as ID %d\n", id);
 	    termvec.push_back(DATerm(&ti, name));
 	    termidmap[name] = id;
 	}
     } else {
 	id = (*p).second;
-	//printf("found, ID %d\n", id);
+	printf("found, ID %d\n", id);
     }
     return id;
 }
