@@ -1,3 +1,7 @@
+Thu Dec 06 17:46:37 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Base page links on estimated number of matches, not minimum.
+
 Wed Dec 05 17:07:33 GMT 2001  Olly Betts <olly@survex.com>
 
 	* omindex: minor speed tweaks.

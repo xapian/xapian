@@ -957,7 +957,7 @@ eval(const string &fmt, const string &loopvar)
 		value = int_to_string(last);
 		break;
 	    case CMD_lastpage: {
-		int l = mset.get_matches_lower_bound();
+		int l = mset.get_matches_estimated();
 		if (l > 0) l = (l - 1) / hits_per_page + 1;
 		value = int_to_string(l);
 		break;
