@@ -122,6 +122,7 @@ LocalMatch::mk_postlist(const om_termname& tname)
     LeafPostList * pl = database->open_post_list(tname);
 
     // FIXME - query size is currently fixed as 1
+    // FIXME - want to use within query frequency here.
     IRWeight * wt = mk_weight(1, tname);
 
     pl->set_termweight(wt);

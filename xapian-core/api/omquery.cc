@@ -365,6 +365,7 @@ OmQueryInternal::swap(OmQueryInternal &other)
     std::swap(tname, other.tname);
     std::swap(term_pos, other.term_pos);
     std::swap(wqf, other.wqf);
+    std::swap(max_weight, other.max_weight);
 }
 
 void

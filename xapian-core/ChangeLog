@@ -1,3 +1,8 @@
+Thu May 25 17:47:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added max_weight member to OmQueryInternal, so we can store the
+	  termweight there when calculating elite terms.
+
 Thu May 25 17:28:52 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented Termlist fetching for net backend.

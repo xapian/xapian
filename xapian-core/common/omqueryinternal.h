@@ -50,11 +50,13 @@ class OmQueryInternal {
 
 	/// The container type for storing pointers to subqueries
 	typedef vector<OmQueryInternal *> subquery_list;
+
 	/// Sub queries on which to perform operation
 	subquery_list subqs;
 
 	/// Length of query
 	om_termcount qlen;
+
 
 	// Fields used only for leaf nodes.
 
@@ -66,6 +68,13 @@ class OmQueryInternal {
 
 	/// Within query frequency of this term
 	om_termcount wqf;
+
+	/** Maximum weight that this term could contribute.
+	 *  This is calculated by LocalMatch before the query is run for
+	 *  each term.
+	 */
+	om_weight max_weight;
+
 
 	/// Copy another OmQueryInternal into self.
 	void initialise_from_copy(const OmQueryInternal & copyme);
@@ -92,6 +101,8 @@ class OmQueryInternal {
 	/** Private function used to implement get_terms() */
         void accumulate_terms(
 	    vector<pair<om_termname, om_termpos> > &terms) const;
+
+	
     public:
 	/** A query consisting of a single term. */
 	OmQueryInternal(const om_termname & tname_,
