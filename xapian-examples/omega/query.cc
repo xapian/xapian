@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <vector>
 
 #include <stdio.h>
@@ -220,31 +221,20 @@ do_match(long int first_hit, long int list_size)
     return msize;
 }
 
-static int
-order(const void *a, const void *b)
-{
-   return strcmp(*(char **)a, *(char **)b);
-}
-
 /* generate a sorted picker */
 extern void
 do_picker(char prefix, const char **opts)
 {
     const char **p;
-    char **q;
     char buf[16] = "BOOL-X";
-    int do_current = 0;
-    char current[256];
-    char txtbuf[16384];
-    char *t;
-    int len;
-    char *picker[256];
+    bool do_current = false;
+    string current;
+    vector<string> picker;
     
     map <char, string>::const_iterator i = filter_map.find(prefix);
     if (i != filter_map.end() && i->second.length() > 1) {
-	i->second.copy(current, 256, 1);
-	current[i->second.length() - 1] = '\0';
-	do_current = 1;
+	current = i->second.substr(1);
+	do_current = true;
     }
 
     cout << "<SELECT NAME=B>\n<OPTION VALUE=\"\"";
@@ -260,55 +250,42 @@ do_picker(char prefix, const char **opts)
 	cout << tmp;
     else
 	cout << "-Any-";
-
-   t = txtbuf;
-   q = picker;
-   for (p = opts; *p; p++) {
-      strcpy(buf+6, *p);
-      string trans = option[buf];
-      len = trans.size();
-      if (len) {
-	  trans.copy(t, 16384); // FIXME
-      } else {
-	  if (prefix == 'N')
-	      sprintf(t, ".%s", *p);
-	  else 
-	      sprintf(t, "[%s]", *p);
-	  len = strlen(t);
-      }
-      *q++ = t;
-      t += len;
-      if (do_current && !strcmp(*p, current)) {
-	 *t++ = '\n';
-	 do_current = 0;
-      }
-      *t++ = '\t';		      
-      strcpy(t, *p);
-      t += strlen(t) + 1;
-   }
+    
+    for (p = opts; *p; p++) {
+	strcpy(buf+6, *p);
+	string trans = option[buf];
+	if (!trans.size()) {
+	    if (prefix == 'N')
+		trans = string(".") + *p;
+	    else 
+		trans = "[" + string(*p) + "]";
+	}
+	if (do_current && current == *p) {
+	    trans += '\n';
+	    do_current = false;
+	}
+	picker.push_back(trans + '\t' + string(*p));
+    }
    
-   *q = NULL;
-   
-   qsort(picker, q - picker, sizeof(char*), order);
+    sort(picker.begin(), picker.end());
 
-   if (do_current) {
-      sprintf(t, "%s\n\t%s", current, current);
-      *q++ = t;
-      *q = NULL;
-   }
+    vector<string>::const_iterator i2;
+    for (i2 = picker.begin(); i2 != picker.end(); i2++) {
+	size_t j = (*i2).find('\t');
+	if (j == string::npos) continue;
+	const char *p = (*i2).c_str();
+	cout << "\n<OPTION VALUE=" << prefix << string(p + j + 1);
+	if (j >= 1 && p[j - 1] == '\n') cout << " SELECTED";
+	cout << '>' << string(p, j);
+    }
 
-   for (q = picker; *q; q++) {
-      char *s, *t;
-      s = *q;
-      t = strchr(s, '\t');
-      if (!t) continue;
-      *t++ = '\0';
-      cout << "\n<OPTION VALUE=" << prefix << t;
-      if (t[-2] == '\n') cout << " SELECTED";
-      cout << '>' << s;
-   }
-   
-   cout << "</SELECT>\n";
+    if (do_current) {
+	cout << "\n<OPTION VALUE=\"" << prefix << current << "\" SELECTED>"
+             << current;
+    }
+
+    
+    cout << "</SELECT>\n";
 }
 
 /******************************************************************/
