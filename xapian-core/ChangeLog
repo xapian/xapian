@@ -1,3 +1,7 @@
+Mon Jul 28 10:38:04 BST 2003  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Fixed --cxxflags for uninstalled VPATH builds.
+
 Mon Jul 28 10:37:17 BST 2003  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated FreeBSD success report.
