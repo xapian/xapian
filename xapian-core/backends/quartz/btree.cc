@@ -35,19 +35,20 @@
 //
 // #define DANGEROUS
 
+#include <sys/types.h>
+#include <unistd.h>
+
 // Trying to include the correct headers with the correct defines set to
 // get pread() and pwrite() prototyped on every platform without breaking any
-// other platform is a real can of worms.  So instead we get the right types
-// from sys/types.h and provide our own prototypes.
-#include <sys/types.h>
-#ifdef HAVE_PREAD
-extern "C" ssize_t pread(int, void *, size_t, off_t);
+// other platform is a real can of worms.  So instead we probe for what
+// prototypes (if any) are required in configure and put them into
+// PREAD_PROTOTYPE and PWRITE_PROTOTYPE.
+#if defined HAVE_PREAD && defined PREAD_PROTOTYPE
+PREAD_PROTOTYPE
 #endif
-#ifdef HAVE_PWRITE
-extern "C" ssize_t pwrite(int, const void *, size_t, off_t);
+#if defined HAVE_PWRITE && defined PWRITE_PROTOTYPE
+PWRITE_PROTOTYPE
 #endif
-
-#include <unistd.h>
 
 #include <sys/stat.h>
 

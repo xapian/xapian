@@ -1,3 +1,8 @@
+Tue Nov 30 02:36:33 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,backends/quartz/btree.cc: Get configure to probe for
+	  the prototypes (if any) needed for pread and pwrite.
+
 Tue Nov 30 01:09:26 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Instead of trying to coax pread/pwrite

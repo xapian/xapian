@@ -412,7 +412,70 @@ case "$host_os" in
     AC_MSG_RESULT([present but broken on $host_os])
     ;;
   *)
-    AC_CHECK_FUNCS(pread pwrite)
+    AC_CHECK_FUNC(pread,
+       [AC_MSG_CHECKING([for any prototype needed for pread])
+	AC_CACHE_VAL([xo_cv_pread_prototype],
+	  [
+	    for p in ' ' \
+	      'extern "C" ssize_t pread(int, void *, size_t, off_t) throw ();' \
+	      'extern "C" ssize_t pread(int, void *, size_t, off_t);' ; do
+	      AC_TRY_COMPILE([
+#include <sys/types.h>
+#include <unistd.h>
+$p
+	      ],[
+	        char b[256];
+	        pread(1, b, 256, 20);
+	      ],[
+		xo_cv_pread_prototype="$p"
+		break
+	      ])
+	    done
+	    if test -z "$xo_cv_pread_prototype"; then
+	      AC_MSG_RESULT([not found])
+	      AC_MSG_ERROR([Failed to find working prototype for pread])
+	    fi
+	  ])
+	  if test " " = "$xo_cv_pread_prototype" ; then
+	    AC_MSG_RESULT([none required])
+	  else
+	    AC_MSG_RESULT([$xo_cv_pread_prototype])
+	    AC_DEFINE_UNQUOTED(PREAD_PROTOTYPE, [$xo_cv_pread_prototype],
+			       [explicit prototype needed for pread (if any)])
+	  fi
+	])
+    AC_CHECK_FUNC(pwrite,
+       [AC_MSG_CHECKING([for any prototype needed for pwrite])
+	AC_CACHE_VAL([xo_cv_pwrite_prototype],
+	  [
+	    for p in ' ' \
+	      'extern "C" ssize_t pwrite(int, const void *, size_t, off_t) throw ();' \
+	      'extern "C" ssize_t pwrite(int, const void *, size_t, off_t);' ; do
+	      AC_TRY_COMPILE([
+#include <sys/types.h>
+#include <unistd.h>
+$p
+	      ],[
+	        const char *p = "hello";
+	        pwrite(1, p, 5, 20);
+	      ],[
+		xo_cv_pwrite_prototype="$p"
+		break
+	      ])
+	    done
+	    if test -z "$xo_cv_pwrite_prototype"; then
+	      AC_MSG_RESULT([not found])
+	      AC_MSG_ERROR([Failed to find working prototype for pwrite])
+	    fi
+	  ])
+	  if test " " = "$xo_cv_pwrite_prototype" ; then
+	    AC_MSG_RESULT([none required])
+	  else
+	    AC_MSG_RESULT([$xo_cv_pwrite_prototype])
+	    AC_DEFINE_UNQUOTED(PWRITE_PROTOTYPE, [$xo_cv_pwrite_prototype],
+			       [explicit prototype needed for pwrite (if any)])
+	  fi
+	])
     ;;
 esac
 
