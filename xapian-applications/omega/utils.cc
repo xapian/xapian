@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,12 +20,21 @@
  * USA
  * -----END-LICENCE-----
  */
+
+#include <config.h>
+
+#ifdef HAVE_SNPRINTF
+/* This so we can use snprintf */
+# ifndef _ISOC99_SOURCE
+#  define _ISOC99_SOURCE
+# endif
+#endif
+
 #include <string>
 #include <vector>
 #include <stdio.h>
 
-using std::string;
-using std::vector;
+using namespace std;
 
 int
 string_to_int(const string &s)
@@ -36,8 +46,9 @@ string
 int_to_string(int i)
 {
     char buf[20];
-    sprintf(buf, "%d", i);
-    return string(buf);
+    int len = snprintf(buf, sizeof(buf), "%d", i);
+    if (len < 0 || len > sizeof(buf)) len = sizeof(buf);
+    return string(buf, len);
 }
 
 vector<string>
@@ -45,7 +56,7 @@ split(const string &s, char at)
 {
     size_t p = 0, q;
     vector<string> v;
-    while (1) {	    
+    while (true) {	    
 	q = s.find(at, p);
 	v.push_back(s.substr(p, q - p));
 	if (q == string::npos) break;
@@ -59,7 +70,7 @@ split(const string &s, const string &at)
 {
     size_t p = 0, q;
     vector<string> v;
-    while (1) {	    
+    while (true) {	    
 	q = s.find_first_of(at, p);
 	v.push_back(s.substr(p, q - p));
 	if (q == string::npos) break;

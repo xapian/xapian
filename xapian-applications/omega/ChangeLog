@@ -1,3 +1,7 @@
+Fri Jul 11 11:57:24 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in,utils.cc: Use snprintf.
+
 Tue Jul 08 17:56:39 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in: Version 0.7.1.
