@@ -90,6 +90,11 @@ $fmt
 $freqs
 	returns an HTML string listing query terms and frequencies
 
+$highlight{TEXT,LIST}
+	html escape string (<>&, etc) and highlight any terms from LIST
+	that appear in TEXT. Currently uses <strong>...</strong> to
+	highlight.
+
 $hitlist{FMT}
 	display hitlist using format FMT
 

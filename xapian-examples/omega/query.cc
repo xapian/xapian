@@ -286,6 +286,81 @@ html_escape(const string &str)
     return res;
 }
 
+static bool word_in_list(const string& test_word, const string& list)
+{
+    //    cerr << "word_in_list(" << test_word << ", '" << list << "'): ";
+    std::string::size_type split = 0, split2;
+    while ((split2 = list.find('\t', split)) != std::string::npos) {
+	if (test_word == list.substr(split, split2 - split)) {
+	    //	    cerr << "HIT." << endl;
+	    return 1;
+	} else {
+	    split = split2 + 1;
+	}
+    }
+    if (test_word == list.substr(split, split2 - split)) {
+	//	cerr << "HIT." << endl;
+	return 1;
+    } else {
+	//	cerr << "." << endl;
+	return 0;
+    }
+}
+
+// FIXME: this copied from om/indexer/index_utils.cc
+static void
+lowercase_term(om_termname &term)
+{
+    om_termname::iterator i = term.begin();
+    while(i != term.end()) {
+	*i = tolower(*i);
+	i++;
+    }
+}
+
+// FIXME: shares algorithm with omindex.cc!
+static string
+html_highlight(const string &str, const string &list)
+{
+    string res;
+    std::string::size_type i, j = 0, k, l = 0;
+    //    cerr << "html_highlight('" << str << "', '" << list << "'): ";
+    while ((i = str.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				  "abcdefghijklmnopqrstuvwxyz", j))
+	   != std::string::npos) {
+
+	//	cerr << "[i=" << i << "]";
+	
+	j = str.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				  "abcdefghijklmnopqrstuvwxyz"
+				  "0123456789", i);
+	k = str.find_first_not_of("+-", j);
+	if (k == string::npos || !isalnum(str[k])) j = k;
+
+	//	cerr << "[j=" << j << "] ";
+	
+	//#if 0
+	string word = str.substr(i, j - i);
+	string term = word;
+	lowercase_term(term);
+
+	res += html_escape(str.substr(l, i - l));
+	if (word_in_list(stemmer->stem_word(term), list)) {
+	    res += "<strong>" + word + "</strong>";
+	} else {
+	    res += word;
+	}
+	l = j;
+	//#endif
+	//	i = j + 1;
+    }
+    //    cerr << endl;
+    if (l != std::string::npos) {
+	res += html_escape(str.substr(l));
+    }
+    return res;
+}
+
 #if 0
 static void
 print_query_string(const char *after)
@@ -365,6 +440,7 @@ CMD_field,
 CMD_filesize,
 CMD_fmt,
 CMD_freqs,
+CMD_highlight,
 CMD_hitlist,
 CMD_hitsperpage,
 CMD_html,
@@ -433,6 +509,7 @@ static struct func_desc func_tab[] = {
 {T(filesize),	1, 1, N, 0, 0}}, // pretty printed filesize
 {T(fmt),	0, 0, N, 0, 0}}, // name of current format
 {T(freqs),	0, 0, N, 1, 1}}, // return HTML string listing query terms and frequencies
+{T(highlight),	2, 2, N, 0, 0}}, // html escape and highlight words from list
 {T(hitlist),	N, N, 0, 1, 0}}, // display hitlist using format in argument
 {T(hitsperpage),0, 0, N, 0, 0}}, // hits per page
 {T(html),	1, 1, N, 0, 0}}, // html escape string (<>&)
@@ -703,6 +780,9 @@ eval(const string &fmt, const string &loopvar)
 		break;
 	    case CMD_hitsperpage:
 		value = int_to_string(hits_per_page);
+		break;
+	    case CMD_highlight:
+		value = html_highlight(args[0], args[1]);
 		break;
 	    case CMD_html:
 	        value = html_escape(args[0]);

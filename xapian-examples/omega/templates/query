@@ -1,7 +1,7 @@
 $set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
 <html>
 $set{topterms,$or{$ne{$msize,0},$query}}
-$if{$opt{topterms},$include{toptermsjs}}
+$if{topterms,$include{toptermsjs}}
 <head>
 <title>$if{$query,Omega search results for `$html{$query}',New Omega Search}</title>
 </head>
@@ -43,7 +43,7 @@ ALT="$percentage%" HEIGHT=16 WIDTH=32></TD>
 </TD></TR></TABLE></TD>
 <TD><B><A
 HREF="$field{url}">$html{$or{$field{caption},$field{url},Untitled}}</A></B><BR>
-$html{$field{sample}}$if{$field{sample},...}<br>
+$highlight{$field{sample},$terms}$if{$field{sample},...}<br>
 <A HREF="$field{url}">$html{$field{url}}</A><br>
 ${
 <small>Language: <b>$html{$or{$field{language},unknown}}</b>
