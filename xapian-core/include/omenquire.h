@@ -74,8 +74,10 @@ class OmQuery {
 	/// Operation to be performed at this node
 	om_queryop op;
 
+	/// The container type for storing pointers to subqueries
+	typedef vector<OmQuery *> subquery_list;
 	/// Sub queries on which to perform operation
-	vector<OmQuery *> subqs;
+	subquery_list subqs;
 
 	/// Length of query
 	om_termcount qlen;
