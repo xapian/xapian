@@ -22,6 +22,13 @@
 
 #include "util.h"
 
+
+// for profiling
+#define SKIP_SC_DATABASE_WRITE 0 
+#define SKIP_OM_DATABASE_WRITE 0 
+#define STORE_COMMENTS_IN_OM 1 
+#define STORE_INFO_IN_OM 1 
+
 void load_offset_file( string& file_offset, vector<string>& files, vector<string>& offsets ) {
 
   cerr << "... reading " << file_offset << endl;
@@ -85,6 +92,8 @@ int main(int argc, char *argv[]) {
     db_parameters.set("quartz_dir", package);
     OmWritableDatabase database(db_parameters); // open database 
 
+    database.begin_session();
+
     // also write out file:line -> comments mapping using sleepy cat
     Db db(0, 0);
     db.open((package+"/comments.db").c_str(), 0, DB_HASH, DB_CREATE, 0 );
@@ -133,6 +142,7 @@ int main(int argc, char *argv[]) {
 	current_offset = offset;
 	current_fn = fn;
 	cerr << "... processing " << current_fn << endl;
+	database.flush();
       }
       static char str[4096];
       sprintf(str,"%d", (line_no-current_offset+1));
@@ -141,14 +151,18 @@ int main(int argc, char *argv[]) {
 
       int space = line.find(" ");
       string comment = string( line, space+2, line.length() - (space+2) );
+#if STORE_COMMENTS_IN_OM
       message += comment;
+#endif
 
       // put comment in database
       Dbt key( (void*) file_and_line.c_str(),
 	       file_and_line.length()+1 ); // include 0 at end
       Dbt data( (void*) comment.c_str(),
 		comment.length()+1 ); // include 0 at end
+#if !SKIP_SC_DATABASE_WRITE
       db.put( 0, &key, &data, DB_NOOVERWRITE );   
+#endif
 
 
       for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
@@ -172,14 +186,21 @@ int main(int argc, char *argv[]) {
 
       //      cerr << endl << message;
 
+#if STORE_INFO_IN_OM
       newdocument.data = message; // data associated with document (e.g., title, etc.)
+#else
+      newdocument.data = "";
+#endif
+#if !SKIP_OM_DATABASE_WRITE
       database.add_document(newdocument);
+#endif
       
     }
     
     in.close();
     db.close(0);
-    
+    database.end_session();
+
     cerr << "Done!" << endl;
 
   }
