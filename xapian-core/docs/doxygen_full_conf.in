@@ -101,7 +101,7 @@ MACRO_EXPANSION       = YES
 EXPAND_ONLY_PREDEF    = YES
 SEARCH_INCLUDES       = YES
 INCLUDE_PATH          =
-PREDEFINED            =
+PREDEFINED            = MUS_BUILD_BACKEND_QUARTZ
 EXPAND_AS_DEFINED     = DEFINE_ERROR_BASECLASS DEFINE_ERROR_CLASS
 #---------------------------------------------------------------------------
 # Configuration::addtions related to external references
