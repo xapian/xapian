@@ -16,7 +16,6 @@ ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
-dnl AC_PROG_LIBTOOL
 
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
@@ -81,4 +80,5 @@ dnl **************************
 dnl * Build the output files *
 dnl **************************
 
-AC_OUTPUT(Makefile omega.spec)
+AC_CONFIG_FILES([Makefile omega.spec])
+AC_OUTPUT

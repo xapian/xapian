@@ -1,3 +1,9 @@
+Mon May 26 12:12:22 BST 2003  Olly Betts <olly@survex.com>
+
+	* omega.spec.in: Removed %changelog - it hasn't been reliably updated
+	  and only really makes sense when the packaging is done by a third
+	  party anyway.
+
 Mon May 26 12:01:55 BST 2003  Olly Betts <olly@survex.com>
 
 	* query.cc: If the query is empty, don't bother running it through
@@ -105,15 +111,15 @@ Wed Feb 26 17:50:26 GMT 2003  Olly Betts <olly@survex.com>
 
 Wed Feb 26 15:13:02 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
-        * Add DBUSER and DBPASSWD env var support to dbi2omega
-	  so that password protected DB's can easily be used
+	* dbi2omega: Add DBUSER and DBPASSWD env var support so that password
+	  protected DB's can easily be used
 	* add cgi paramter COLLAPSE to collapse on key values
 	* Add $value{key[,docid]} support to omegascript
 
 Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
-        * Fix success message in bootstrap when building in non-src dir
-          as configure is written to the src dir
+	* bootstrap: Fix success message when building in non-src dir
+	  as configure is written to the src dir.
 
 Mon Jan  6 12:47:55 GMT 2003  James Aylett  <james@tartarus.org>
 
@@ -597,9 +603,9 @@ Wed May 01 11:26:59 BST 2002  Olly Betts <olly@survex.com>
 
 Tue Apr 23 15:10:42 BST 2002  Olly Betts <olly@survex.com>
 
-        * Make buildall smart enough to generate aclocal.m4 properly and
-          remove acinclude.m4.  It now also extracts the package name from
-          configure.in so we can use the same buildall everywhere; fixed
+	* Make buildall smart enough to generate aclocal.m4 properly and
+	  remove acinclude.m4.  It now also extracts the package name from
+	  configure.in so we can use the same buildall everywhere; fixed
 	  problem with double use of AM_CXXFLAGS in Makefile.am.
 
 Tue Apr 23 14:27:29 BST 2002  Olly Betts <olly@survex.com>
@@ -678,7 +684,7 @@ Wed Jan 9  Sam Liddicott  <sam@ananova.com>
 
 	* Added RAW_SEARCH as cgi param which when set stops change-search
 	  detection being performed and processes rset, topdoc and page-change
-          parameters ( [ ] < > 1 2 etc etc ) anyway
+	  parameters ( [ ] < > 1 2 etc etc ) anyway
 
 	* Added MIN_HITS cgi param to request many more hits than can
 	  fit on the page so we can be confident that the next few
