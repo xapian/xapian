@@ -313,18 +313,21 @@ OmStem::stem_word(const std::string &word) const
     RETURN(internal->stem_word(word));
 }
 
-std::vector<std::string>
+std::string
 OmStem::get_available_languages()
 {
-    DEBUGAPICALL_STATIC(std::vector<std::string>,
+    DEBUGAPICALL_STATIC(std::string,
 			"OmStem::get_available_languages", "");
-    std::vector<std::string> languages;
+    std::string languages;
 
     const char ** pos;
     for (pos = language_names + 1;
 	 pos != language_names + (sizeof(language_names) / sizeof(char *));
 	 pos++) {
-	languages.push_back(*pos);
+	if (languages.length() > 0) {
+	    languages += " ";
+	}
+	languages += *pos;
     }
     RETURN(languages);
 }

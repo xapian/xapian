@@ -65,10 +65,11 @@ class OmStem {
 	 */
 	std::string stem_word(const std::string &word) const;
 
-	/** Return a list of available languages.  An OmStem object is
-	 *  not required for this operation.
+	/** Return a list of available languages.  The list is returned
+	 *  as a space-separated string.  An OmStem object is not
+	 *  required for this operation.
 	 */
-	static std::vector<std::string> get_available_languages();
+	static std::string get_available_languages();
 
 	/** Returns a string representing the omstem object.
 	 *  Introspection method.

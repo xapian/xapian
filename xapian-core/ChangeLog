@@ -1,3 +1,11 @@
+Tue Jan 30 11:09:29 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* OmStem::get_available_languages() now returns a string
+	  rather than a vector.  Languages are space-separated.
+	  Updated apitest.
+
+	* Added definition of RTLD_DEFAULT to internaltest.cc
+
 Mon Jan 29 16:11:15 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* OmIndexerMessage's copy-on-write slightly more careful.

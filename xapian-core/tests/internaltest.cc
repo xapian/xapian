@@ -138,6 +138,11 @@ bool test_testsuite2()
     return true;
 }
 
+/* In some systems <dlfcn.h> doesn't define RTLD_DEFAULT */
+#ifndef RTLD_DEFAULT
+#define RTLD_DEFAULT (void *)0
+#endif
+
 // test the memory leak tests
 bool test_testsuite3()
 {

@@ -185,13 +185,29 @@ static bool test_emptyquerypart1()
 
 static bool test_stemlangs1()
 {
-    vector<string> langs;
-    langs = OmStem::get_available_languages();
+    vector<string> langv;
+    string langs = OmStem::get_available_languages();
 
-    TEST(langs.size() != 0);
+    string::size_type next = langs.find_first_of(" ");
+
+    while (langs.length() > 0) {
+	langv.push_back(langs.substr(0, next));
+    	if (next == langs.npos) {
+	    langs = "";
+	} else {
+	    langs = langs.substr(next);
+	}
+	if (langs.length() > 0) {
+	    // skip leading space too
+	    langs = langs.substr(1);
+	}
+	next = langs.find_first_of(" ");
+    }
+
+    TEST(langv.size() != 0);
 
     vector<string>::const_iterator i;
-    for (i = langs.begin(); i != langs.end(); i++) {
+    for (i = langv.begin(); i != langv.end(); i++) {
 	// try making a stemmer with the given language -
 	// it should successfully create, and not throw an exception.
 	OmStem stemmer(*i);
