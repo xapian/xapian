@@ -274,19 +274,19 @@ bool test_separatedbs()
 void *
 sleep_thread(void * data)
 {   
-    pthread_mutex_t * mutex = (pthread_mutex_t *)data;
+    OmLock * lock = (OmLock *)data;
 
-    if(mutex) pthread_mutex_lock(mutex);
+    if(lock) lock->lock();
     OutputMessage("Sleeping" << endl);
     int err = sleep(2);
     OutputMessage("Slept" << endl);
-    if(mutex) pthread_mutex_unlock(mutex);
+    if(lock) lock->unlock();
     TEST_EQUAL(err, 0);
 
     return 0;
 }
 
-long time_sleep(pthread_mutex_t * mutex_ptr)
+long time_sleep(OmLock * lock_ptr)
 {
     pthread_t thread1;
     pthread_t thread2;
@@ -303,14 +303,14 @@ long time_sleep(pthread_mutex_t * mutex_ptr)
     err = pthread_create(&thread1,
 			 0,
 			 sleep_thread,
-			 mutex_ptr);
+			 lock_ptr);
     TEST_EQUAL(err, 0);
 
     OutputMessage("Creating thread 2" << endl);
     err = pthread_create(&thread1,
 			 0,
 			 sleep_thread,
-			 mutex_ptr);
+			 lock_ptr);
     TEST_EQUAL(err, 0);
 
     OutputMessage("waiting for end of thread 1 " << endl);
@@ -333,11 +333,10 @@ long time_sleep(pthread_mutex_t * mutex_ptr)
 
 /// Check that mutexes work.
 bool test_mutextest()
-{   
-    pthread_mutex_t mutex;
-    TEST_EQUAL(pthread_mutex_init(&mutex, 0), 0);
+{
+    OmLock lock;
 
-    TEST(time_sleep(&mutex) > 2500);
+    TEST(time_sleep(&lock) > 2500);
     TEST(time_sleep(0) < 2500);
 
     return true;
