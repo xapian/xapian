@@ -31,7 +31,7 @@
 #include "stats.h"
 
 class IRDatabase;
-class OmDocument;
+class LeafDocument;
 class IRWeight;
 
 #include <stack>
@@ -101,7 +101,7 @@ class LeafMatch : public Match
 			      const OmMSetItem &new_item,
 			      const MSetCmp &mcmp,
 			      const OmMSetItem &min_item,
-			      const OmDocument *irdoc);
+			      const LeafDocument *irdoc);
 
 	// disallow copies
 	LeafMatch(const LeafMatch &);

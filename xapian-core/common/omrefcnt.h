@@ -1,0 +1,135 @@
+/* omrefcnt.h: Reference-counted pointers
+ *
+ * ----START-LICENCE----
+ * Copyright 1999,2000 Dialog Corporation
+ * 
+ * This program is free software; you can redistribute it and/or 
+ * modify it under the terms of the GNU General Public License as 
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
+ * -----END-LICENCE-----
+ */
+
+#ifndef OM_HGUARD_OMREFCNT_H
+#define OM_HGUARD_OMREFCNT_H
+
+#include "omlocks.h"
+
+/** Reference counted objects should inherit from
+ *  OmRefCntBase.  This gives the object a reference count
+ *  and a lock used by OmRefCntPtr.
+ */
+class OmRefCntBase {
+    public:
+	typedef unsigned int ref_count_t;
+
+	ref_count_t ref_count;
+	OmLock ref_count_mutex;
+
+	OmRefCntBase() : ref_count(0) {}
+};
+
+/** The actual reference-counted pointer.  Can be used with any
+ *  class derived from OmRefCntBase, as long as it is allocated
+ *  on the heap by new (not new[]!).
+ */
+template <class T>
+class OmRefCntPtr {
+    private:
+	T *dest;
+
+	void increment();
+
+	// if decrement() returns true, then
+	// dest should be deleted.
+	bool decrement();
+    public:
+	T *operator->() const;
+	T *operator*() const;
+	T *get() const;
+	OmRefCntPtr(T *dest_ = 0);
+	OmRefCntPtr(const OmRefCntPtr &other);
+	void operator=(const OmRefCntPtr &other);
+	~OmRefCntPtr();
+};
+
+template <class T>
+inline void OmRefCntPtr<T>::increment()
+{
+    if (dest) {
+	OmLockSentry locksentry(dest->ref_count_mutex);
+	dest->ref_count += 1;
+    }
+}
+
+template <class T>
+inline bool OmRefCntPtr<T>::decrement()
+{
+    if (dest) {
+	OmLockSentry locksentry(dest->ref_count_mutex);
+	dest->ref_count -= 1;
+	return (dest->ref_count == 0);
+    } else {
+	return false;
+    }
+}
+
+template <class T>
+inline OmRefCntPtr<T>::OmRefCntPtr(T *dest_) : dest(dest_)
+{
+    increment();
+}
+
+template <class T>
+inline OmRefCntPtr<T>::OmRefCntPtr(const OmRefCntPtr &other) : dest(other.dest)
+{
+    increment();
+}
+
+template <class T>
+inline void OmRefCntPtr<T>::operator=(const OmRefCntPtr &other) {
+    if (decrement()) {
+	delete dest;
+    };
+    dest = other.dest;
+    increment();
+}
+
+template <class T>
+inline OmRefCntPtr<T>::~OmRefCntPtr()
+{
+    if (decrement()) {
+	delete dest;
+	dest = 0;
+    }
+}
+
+template <class T>
+inline T *OmRefCntPtr<T>::operator->() const
+{
+    return dest;
+}
+
+template <class T>
+inline T *OmRefCntPtr<T>::operator*() const
+{
+    return dest;
+}
+
+template <class T>
+inline T *OmRefCntPtr<T>::get() const
+{
+    return dest;
+}
+
+#endif /* OM_HGUARD_OMREFCNT_H */

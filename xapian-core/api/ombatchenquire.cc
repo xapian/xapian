@@ -48,8 +48,8 @@ class OmBatchEnquire::Internal {
 	void set_queries(const query_batch &queries_);
         mset_batch get_msets() const;
 
-	const OmDocument *get_doc(const OmMSetItem &mitem) const;
-	const OmDocument *get_doc(om_docid did) const;
+	const OmDocument get_doc(const OmMSetItem &mitem) const;
+	const OmDocument get_doc(om_docid did) const;
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
 	om_termname_list get_matching_terms(om_docid did) const;
 };
@@ -83,14 +83,14 @@ OmBatchEnquire::get_msets() const
     return internal->get_msets();
 }
 
-const OmDocument *
+const OmDocument
 OmBatchEnquire::get_doc(om_docid did) const
 {
     OmLockSentry locksentry(internal->mutex);
     return internal->get_doc(did);
 }
 
-const OmDocument *
+const OmDocument
 OmBatchEnquire::get_doc(const OmMSetItem &mitem) const
 {
     OmLockSentry locksentry(internal->mutex);
@@ -151,13 +151,13 @@ OmBatchEnquire::Internal::get_msets() const
     return result;
 }
 
-const OmDocument *
+const OmDocument
 OmBatchEnquire::Internal::get_doc(om_docid did) const
 {
     return enquire.get_doc(did);
 }
 
-const OmDocument *
+const OmDocument
 OmBatchEnquire::Internal::get_doc(const OmMSetItem &mitem) const
 {
     return enquire.get_doc(mitem);

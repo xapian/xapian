@@ -60,8 +60,8 @@ class OmEnquireInternal {
 			const OmRSet & omrset,
 			const OmExpandOptions * eoptions,
 			const OmExpandDecider * edecider) const;
-	const OmDocument *get_doc(const OmMSetItem &mitem) const;
-	const OmDocument *get_doc(om_docid did) const;
+	const OmDocument get_doc(const OmMSetItem &mitem) const;
+	const OmDocument get_doc(om_docid did) const;
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
 	om_termname_list get_matching_terms(om_docid did) const;
 };

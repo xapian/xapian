@@ -29,7 +29,7 @@
 #include "database_builder.h"
 #include "indexer.h"
 
-class OmDocument;
+class LeafDocument;
 class PostList;
 class LeafPostList;
 class TermList;
@@ -82,7 +82,7 @@ class IRDatabase : public IndexerDestination {
 
 	virtual LeafPostList * open_post_list(const om_termname&, RSet *) const = 0;
 	virtual LeafTermList * open_term_list(om_docid did) const = 0;
-	virtual OmDocument * open_document(om_docid did) const = 0;
+	virtual LeafDocument * open_document(om_docid did) const = 0;
 
 #if 0
 	// Introspection methods:

@@ -1,3 +1,10 @@
+Thu Mar 16 12:49:44 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* New OmDocument which is copyable, and is actually a wrapper
+	  around LeafDocument.
+
+	* Added reference-counted smart pointer, used in above.
+
 Wed Mar 15 18:27:10 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Now uses a MultiMatch object to do match.  Doesn't yet use more

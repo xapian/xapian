@@ -10,7 +10,8 @@ noinst_HEADERS = \
  match.h leafmatch.h multimatch.h expand.h rset.h \
  stemmer.h \
  indexer.h textfile_indexer.h query_parser.h \
- utils.h omlocks.h omqueryinternal.h
+ utils.h omlocks.h omqueryinternal.h omrefcnt.h \
+ omdocumentinternal.h
 
 noinst_LTLIBRARIES = libcommon.la
 

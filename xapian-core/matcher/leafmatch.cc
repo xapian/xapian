@@ -32,7 +32,8 @@
 #include "emptypostlist.h"
 #include "leafpostlist.h"
 
-#include <om/omdocument.h>
+#include "document.h"
+#include "omdocumentinternal.h"
 #include "rset.h"
 #include "omqueryinternal.h"
 
@@ -332,7 +333,7 @@ LeafMatch::perform_collapse(vector<OmMSetItem> &mset,
 			  const OmMSetItem &new_item,
 			  const MSetCmp &mcmp,
 			  const OmMSetItem &min_item,
-			  const OmDocument *irdoc)
+			  const LeafDocument *irdoc)
 {
     bool add_item = true;
 
@@ -457,22 +458,23 @@ LeafMatch::match(om_doccount first, om_doccount maxitems,
 	if(mcmp(new_item, min_item)) {
 	    bool add_item = true;
 
-	    auto_ptr<OmDocument> irdoc;
-	    
+	    OmRefCntPtr<LeafDocument> irdoc;
 
 	    // Use the decision functor if any.
 	    if (mdecider != 0) {
 		if (irdoc.get() == 0) {
-		    auto_ptr<OmDocument> temp(database->open_document(did));
+		    OmRefCntPtr<LeafDocument> temp(database->open_document(did));
 		    irdoc = temp;
 		}
-		add_item = mdecider->operator()(irdoc.get());
+		OmDocument::Internal temp2(irdoc);
+		OmDocument mydoc(&temp2);
+		add_item = mdecider->operator()(&mydoc);
 	    }
 
 	    // Item has high enough weight to go in MSet: do collapse if wanted
 	    if(add_item && do_collapse) {
 		if (irdoc.get() == 0) {
-		    auto_ptr<OmDocument> temp(database->open_document(did));
+		    OmRefCntPtr<LeafDocument> temp(database->open_document(did));
 		    irdoc = temp;
 		}
 		add_item = perform_collapse(mset, collapse_table, did,
@@ -575,7 +577,7 @@ LeafMatch::boolmatch(om_doccount first, om_doccount maxitems,
 
 	// Item has high enough weight to go in MSet: do collapse if wanted
 	if(do_collapse) {
-	    OmDocument * irdoc = database->open_document(did);
+	    LeafDocument * irdoc = database->open_document(did);
 	    OmKey irkey = irdoc->get_key(collapse_key);
 	    map<OmKey, OmMSetItem>::iterator oldkey;
 	    oldkey = collapse_table.find(irkey);

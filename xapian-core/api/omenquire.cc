@@ -34,6 +34,7 @@
 #include "database.h"
 #include "database_builder.h"
 #include <om/omdocument.h>
+#include "omdocumentinternal.h"
 
 #include <vector>
 #include <memory>
@@ -167,8 +168,8 @@ class OmEnquireInternal {
 			const OmRSet & omrset,
 			const OmExpandOptions * eoptions,
 			const OmExpandDecider * edecider) const;
-	const OmDocument *get_doc(const OmMSetItem &mitem) const;
-	const OmDocument *get_doc(om_docid did) const;
+	const OmDocument get_doc(const OmMSetItem &mitem) const;
+	const OmDocument get_doc(om_docid did) const;
 	om_termname_list get_matching_terms(const OmMSetItem &mitem) const;
 	om_termname_list get_matching_terms(om_docid did) const;
 };
@@ -257,7 +258,8 @@ OmEnquireInternal::get_mset(om_doccount first,
     match.add_leafmatch(temp);
     auto_ptr<LeafMatch> submatch(temp);
 #else
-    auto_ptr<Match> match(new LeafMatch(database, &gatherer));
+    //auto_ptr<Match> match(new LeafMatch(database, &gatherer));
+    LeafMatch match(database, &gatherer);
 #endif
 
     // Set cutoff percent
@@ -371,16 +373,17 @@ OmEnquireInternal::get_eset(om_termcount maxitems,
     return retval;
 }
 
-const OmDocument *
+const OmDocument
 OmEnquireInternal::get_doc(om_docid did) const
 {
     open_database();
-    OmDocument *doc = database->open_document(did);
+    LeafDocument *doc = database->open_document(did);
+    OmDocument::Internal docint(doc);
 
-    return doc;
+    return OmDocument(&docint);
 }
 
-const OmDocument *
+const OmDocument
 OmEnquireInternal::get_doc(const OmMSetItem &mitem) const
 {
     open_database();
@@ -507,14 +510,14 @@ OmEnquire::get_eset(om_termcount maxitems,
     return internal->get_eset(maxitems, omrset, eoptions, edecider);
 }
 
-const OmDocument *
+const OmDocument
 OmEnquire::get_doc(om_docid did) const
 {
     OmLockSentry locksentry(internal->mutex);
     return internal->get_doc(did);
 }
 
-const OmDocument *
+const OmDocument
 OmEnquire::get_doc(const OmMSetItem &mitem) const
 {
     OmLockSentry locksentry(internal->mutex);
