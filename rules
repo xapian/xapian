@@ -159,7 +159,7 @@ binary-arch: build install
 clean:
 	dh_testdir
 	dh_testroot
-	#-$(MAKE) distclean
+	-$(MAKE) distclean
 	rm -f config.sub config.guess
 	dh_clean
 	rm -f build-stamp configure-stamp
