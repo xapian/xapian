@@ -1128,13 +1128,14 @@ static bool test_postlist1()
     settings.set("backend", "quartz");
     RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
 
-    QuartzDiskTable disktable("./test_postlist1_", false, 8192);
+    QuartzDiskTable disktable(".testdb_postlist1/postlist_", false, 8192);
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
     QuartzTable * table = &bufftable;
+    QuartzDiskTable positiontable(".testdb_postlist1/position_", false, 8192);
 
     {
-	QuartzPostList pl2(database_w, 7, table, "foo");
+	QuartzPostList pl2(database_w, 7, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 0);
 	pl2.next(0);
 	TEST(pl2.at_end());
@@ -1142,7 +1143,7 @@ static bool test_postlist1()
 
     QuartzPostList::add_entry(&bufftable, "foo", 5, 7, 3);
     {
-	QuartzPostList pl2(database_w, 8.0, table, "foo");
+	QuartzPostList pl2(database_w, 8.0, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 1);
 	pl2.next(0);
 	TEST(!pl2.at_end());
@@ -1155,7 +1156,7 @@ static bool test_postlist1()
 
     QuartzPostList::add_entry(&bufftable, "foo", 6, 1, 2);
     {
-	QuartzPostList pl2(database_w, 8.0, table, "foo");
+	QuartzPostList pl2(database_w, 8.0, table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 2);
 	pl2.next(0);
 	TEST(!pl2.at_end());
