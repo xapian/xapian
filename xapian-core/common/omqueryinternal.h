@@ -58,9 +58,6 @@ class OmQuery::Internal {
 	/// Operation to be performed at this node
 	op_t op;
 
-	/// Whether the query is pure boolean
-	bool isbool;
-
 	/// Sub queries on which to perform operation
 	subquery_list subqs;
 	
@@ -138,10 +135,6 @@ class OmQuery::Internal {
 	 */
 	void flatten_subqs();
 
-	/** Remove undefined subqueries.
-	 */
-	void remove_undef_subqs();
-
     public:
 	/** Copy constructor. */
 	Internal(const OmQuery::Internal & copyme);
@@ -158,11 +151,10 @@ class OmQuery::Internal {
 
 	/** Default constructor: makes an undefined query which can't be used
 	 *  directly.  Such queries should be thought of as placeholders:
-	 *  they are provided for convenience, and to help make certain
-	 *  operations more natural.
+	 *  they are provided merely for convenience.
 	 *
-	 *  An exception will be thrown if an attempt is made to run an
-	 *  undefined query
+	 *  An exception will be thrown if an attempt is made to use or run
+	 *  an undefined query.
 	 */
 	Internal();
 
@@ -189,14 +181,6 @@ class OmQuery::Internal {
 
 	/** Check whether the query is defined. */
 	bool is_defined() const;
-
-	/** Check whether the query is (pure) boolean. */
-	bool is_bool() const { return isbool; }
-
-	/** Set whether the query is a pure boolean.
-	 *  Returns true iff the query was previously a boolean query.
-	 */
-	bool set_bool(bool isbool_);
 
 	/** Set window for NEAR or PHRASE queries */
 	void set_window(om_termpos window);

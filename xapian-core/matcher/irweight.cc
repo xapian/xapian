@@ -30,10 +30,12 @@
 std::map<std::string, const IRWeight *> IRWeight::custom_weights;
 
 IRWeight *
-IRWeight::create(const std::string &wt_type, const OmSettings & opts)
+IRWeight::create_new(const OmSettings & opts)
 {
-    DEBUGLINE(UNKNOWN, "IRWeight::create(" << wt_type << ")");
+    DEBUGLINE(UNKNOWN, "IRWeight::create_new(" << opts << ")");
     IRWeight * weight = NULL;
+
+    const std::string wt_type = opts.get("match_weighting_scheme", "bm25");
 
     if (wt_type.size() == 0 || wt_type.at(0) != 'x') {
 	// Create weight of correct type

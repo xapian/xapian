@@ -32,6 +32,9 @@ class RSet;
 class StatsSource;
 
 /// Abstract base class for weighting schemes
+// FIXME: this should be split into an IRWeightFactory, and an IRWeight base
+// class, with create_new being create on the factory, and the registry of
+// user weights being in the factory, not static.
 class IRWeight {
     private:
 	IRWeight(const IRWeight &);
@@ -52,7 +55,7 @@ class IRWeight {
 	IRWeight() : initialised(false), weight_calculated(false) { }
 	virtual ~IRWeight() { }
 
-	static IRWeight *create(const std::string &wt_type, const OmSettings & opts);
+	static IRWeight * create_new(const OmSettings & opts);
 
 	/// Register a custom weight object
 	static void register_custom(const std::string &wt_type, const IRWeight *wt);

@@ -138,20 +138,6 @@ can_flatten(OmQuery::Internal::op_t op)
     return (op == OmQuery::OP_NEAR || op == OmQuery::OP_PHRASE);
 }
 
-static bool
-can_remove_nulls(OmQuery::Internal::op_t op)
-{
-    return (op == OmQuery::OP_OR ||
-	    op == OmQuery::OP_AND ||
-	    op == OmQuery::OP_XOR ||
-	    op == OmQuery::OP_NEAR ||
-	    op == OmQuery::OP_PHRASE ||
-	    op == OmQuery::OP_ELITE_SET ||
-	    op == OmQuery::OP_FILTER ||
-	    op == OmQuery::OP_AND_MAYBE ||
-	    op == OmQuery::OP_AND_NOT);
-}
-
 ///////////////////////////////////
 // Methods for OmQuery::Internal //
 ///////////////////////////////////
@@ -182,9 +168,6 @@ OmQuery::Internal::serialise() const
     std::string result;
 
     std::string qlens = std::string("%L") + om_tostring(qlen);
-    if (isbool) {
-	result = "%B";
-    }
     result += qlens;
     if (op == OmQuery::Internal::OP_LEAF) {
 	result += "%T" + encode_tname(tname) + ' ' + om_tostring(term_pos);
@@ -306,15 +289,6 @@ OmQuery::Internal::is_defined() const
     return true;
 }
 
-
-bool
-OmQuery::Internal::set_bool(bool isbool_)
-{
-    bool oldbool = isbool;
-    isbool = isbool_;
-    return oldbool;
-}
-
 void
 OmQuery::Internal::set_window(om_termpos window_)
 {
@@ -430,7 +404,6 @@ void
 OmQuery::Internal::swap(OmQuery::Internal &other)
 {
     std::swap(op, other.op);
-    std::swap(isbool, other.isbool);
     subqs.swap(other.subqs);
     std::swap(qlen, other.qlen);
     std::swap(window, other.window);
@@ -458,7 +431,6 @@ OmQuery::Internal::initialise_from_copy(const OmQuery::Internal &copyme)
 OmQuery::Internal::Internal(const OmQuery::Internal &copyme)
 	: mutex(),
 	  op(copyme.op),
-	  isbool(copyme.isbool),
 	  subqs(),
 	  qlen(copyme.qlen),
 	  window(copyme.window),
@@ -483,7 +455,6 @@ OmQuery::Internal::Internal(const om_termname & tname_,
 		 om_termpos term_pos_)
 	: mutex(),
 	  op(OmQuery::Internal::OP_LEAF),
-	  isbool(false),
 	  subqs(),
 	  qlen(wqf_),
 	  window(0),
@@ -501,7 +472,6 @@ OmQuery::Internal::Internal(const om_termname & tname_,
 OmQuery::Internal::Internal(op_t op_)
 	: mutex(),
 	  op(op_),
-	  isbool(false),
 	  subqs(),
 	  qlen(0),
 	  window(0),
@@ -549,6 +519,14 @@ OmQuery::Internal::prevalidate_query() const
     } else {
 	AssertEq(tname.size(), 0);
     }
+
+    // Check that all subqueries are defined.
+    for (subquery_list::const_iterator i = subqs.begin();
+	 i != subqs.end();
+	 ++i) {
+	if ((**i).op == OmQuery::Internal::OP_UNDEF)
+	    throw OmInvalidArgumentError("OmQuery: subqueries must not be undefined.");
+    }
 }
 
 void
@@ -579,18 +557,11 @@ OmQuery::Internal::validate_query() const
 		" requires a cutoff of 0");
     }
 
-    // Check that all subqueries are defined and valid.
+    // Check that all subqueries are valid.
     for (subquery_list::const_iterator i = subqs.begin();
 	 i != subqs.end();
 	 ++i) {
-	if ((**i).op == OmQuery::Internal::OP_UNDEF)
-	    throw OmInvalidArgumentError("OmQuery: subqueries must not be undefined.");
 	(**i).validate_query();
-
-	// FIXME: pure boolean subqueries are okay in some situations (eg,
-	// part of an AND -> a FILTER)
-	if ((**i).isbool)
-	    throw OmInvalidArgumentError("OmQuery: subqueries must not be pure boolean.");
     }
 }
 
@@ -598,24 +569,6 @@ void
 OmQuery::Internal::simplify_query()
 {
     DEBUGCALL(API, void, "OmQuery::Internal::simplify_query", "");
-
-    // Special handling for FILTER with null on LHS
-    if (op == OmQuery::OP_FILTER &&
-	subqs[0]->op == OmQuery::Internal::OP_UNDEF &&
-	subqs[1]->op != OmQuery::Internal::OP_UNDEF) {
-	Assert(subqs.size() == 2);
-	initialise_from_copy(*(subqs[1]));
-	isbool = true;
-    }
-
-    // Special handling for AND_NOT or AND_MAYBE with null on LHS
-    if ((op == OmQuery::OP_AND_NOT || op == OmQuery::OP_AND_MAYBE) &&
-	subqs[0]->op == OmQuery::Internal::OP_UNDEF &&
-	subqs[1]->op != OmQuery::Internal::OP_UNDEF) {
-	Assert(subqs.size() == 2);
-	throw OmInvalidArgumentError(get_op_name(op) +
-				     " can't have an undefined LHS");
-    }
 
     // if window size is 0, then use number of subqueries
     // This is cheap, so we might as well always set it.
@@ -626,11 +579,6 @@ OmQuery::Internal::simplify_query()
     if (elite_set_size == 0) {
 	elite_set_size = static_cast<om_termcount>(ceil(sqrt(subqs.size())));
 	if (elite_set_size < 10) elite_set_size = 10;
-    }
-
-    // Remove nulls if we can
-    if (subqs.size() > 0 && can_remove_nulls(op)) {
-	remove_undef_subqs();
     }
 
     // Remove duplicates if we can.
@@ -669,24 +617,6 @@ struct SortPosName {
 	}
     }
 };
-
-/** Remove undefined subqueries.
- */
-void
-OmQuery::Internal::remove_undef_subqs()
-{
-    Assert(can_remove_nulls(op));
-
-    subquery_list::iterator sq = subqs.begin();
-    while (sq != subqs.end()) {
-	Assert(*sq != 0);
-	if ((*sq)->op == OmQuery::Internal::OP_UNDEF) {
-	    sq = subqs.erase(sq);
-	} else {
-	    ++sq;
-	}
-    }
-}
 
 /** Collapse occurrences of a term at the same position into a
  *  single occurrence with higher wqf.

@@ -162,7 +162,21 @@ Make exceptions work with shared libs on solaris / find an alternative. (gcc
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="Options" release="">
 
-Use OmSettings for specifying what debugging info to output
+Use OmSettings for specifying what debugging info to output.
+
+</todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="OmSettings" release="">
+
+Add serialisation methods to OmSettings, and use them instead of simply
+serialising those entries of the settings object that are desired, when
+passing match options over the network.
+
+</todoitem>
+<todoitem priority="M" difficulty="2" owner="" area="OmQuery" release="">
+
+Move all serialisation of OmQuery into OmQuery (out of socketcommon.cc and
+localmatch): modification of omquery requires changes in 3 separate parts
+of the code, at present.
 
 </todoitem>
 <todoitem priority="M" difficulty="5" owner="" area="Documentation" release="1.0">

@@ -1,3 +1,36 @@
+Wed Mar 28 17:15:22 BST 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Modifications to OmQuery.  Remove the isbool flag: there is
+	  no longer any need for the concept of a "pure boolean query".
+	  The same effect as was obtained by setting isbool can be
+	  obtained by setting the match_weighting_scheme parameter to
+	  bool.
+	  
+	* Also, undefined queries may no longer be used when
+	  building up composite queries; the correct behaviour for this
+	  is hard to define and implement and harder to document, and
+	  removing this removes lots of special case code.
+
+	* Updated network query passing code.
+
+	* Remove special cases for bool weighting in localmatch and irweight.
+
+	* Updated omsettings docs.  Updated comments in omsetting.h.
+
+	* Updated todo.xml
+
+	* Incremented network protocol version.
+
+	* Added test_emptyop1, which checks what happens when an attempt is
+	  made to use an empty list of subqueries to build up a query, and
+	  then use the query.
+
+	* Remove test_boolsubq1: no such thing as a boolean query now, so
+	  no need to test what happens when one is used.
+
+	* Updated testsuite to use "match_weighting_scheme" setting, rather
+	  than calling OmQuery::set_bool().
+
 Wed Mar 28 15:05:46 BST 2001 Chris Emerson <chris.emerson@omsee.com>
 
 	* Fixes to InMemoryDatabase:

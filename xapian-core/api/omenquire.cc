@@ -948,7 +948,8 @@ OmEnquire::Internal::Data::get_mset(om_doccount first,
     OmMSet retval;
     match.get_mset(first, maxitems, retval, mdecider);
 
-    Assert(!(query->is_bool()) || retval.get_max_possible() == 0);
+    Assert(moptions->get("match_weighting_scheme", "bm25") != "bool" ||
+	   retval.get_max_possible() == 0);
 
     // The OmMSet needs to have a pointer to ourselves, so that it can
     // retrieve the documents.  This is set here explicitly to avoid having

@@ -64,8 +64,8 @@
       It is usually only possible to choose an appropriate weight for cutoff
       based on the results of a previous run of the same query; this is thus
       mainly useful for alerting operations.
-    - match_weighting_scheme : Weighting scheme to use; this is either
-      'bm25' or 'trad'.  The default is bm25.
+    - match_weighting_scheme : Weighting scheme to use; this is one of
+      'bm25', 'trad' or 'bool'.  The default is bm25.
 
   - BM25 weighting options : The BM25 formula is \f[
       \frac{C.s_{q}}{1+L_{d}}+\sum_{t}\frac{(A+1)q_{t}}{A+q_{t}}.\frac{(B+1)f_{t,d}}{B((1-D)+DL_{d})+f_{t,d}}.w_{t}

@@ -57,12 +57,6 @@ class LocalSubMatch : public SubMatch {
 	/// The size of the query (passed to IRWeight objects)
 	om_doclength querysize;
     
-	/** Name of weighting scheme to use.
-	 *  This may differ from the requested scheme if, for example,
-	 *  the query is pure boolean.
-	 */
-	std::string weighting_scheme;
-
 	/// Stored match options object
 	OmSettings opts;
 
@@ -113,13 +107,6 @@ class LocalSubMatch : public SubMatch {
 
 	    if (opts.get_int("match_max_or_terms", 0) != 0)
 		throw OmInvalidArgumentError("The match_max_or_terms parameter is deprecated: use the OP_ELITE_SET query type instead.");
-
-	    // If query is boolean, set weighting to boolean
-	    if (query->is_bool()) {
-		weighting_scheme = "bool";
-	    } else {
-		weighting_scheme = opts.get("match_weighting_scheme", "bm25");
-	    }
 
 	    statssource->take_my_stats(db->get_doccount(), db->get_avlength());
 	}

@@ -34,8 +34,6 @@ TERM		%T{TCHAR}*\ {DIGIT}{DIGIT}*(,{DIGIT}{DIGIT}*)?
 
 NULL_QUERY	%N
 
-BOOL_FLAG	%B
-
 QUERY_LEN	%L{DIGIT}{DIGIT}*
 
 OP_BRA		%\(
@@ -135,11 +133,6 @@ OP_KET		%\)
 
 {NULL_QUERY}	{
 		    qt.type = querytok::NULL_QUERY;
-		    return qt;
-		}
-
-{BOOL_FLAG}	{
-		    qt.type = querytok::BOOL_FLAG;
 		    return qt;
 		}
 

@@ -173,20 +173,6 @@ bool OmQuery::is_defined() const
     RETURN(internal->is_defined());
 }
 
-bool OmQuery::is_bool() const
-{
-    DEBUGAPICALL(bool, "OmQuery::is_bool", "");
-    OmLockSentry locksentry(internal->mutex);
-    RETURN(internal->is_bool());
-}
-
-bool OmQuery::set_bool(bool isbool_)
-{
-    DEBUGAPICALL(bool, "OmQuery::set_bool", isbool_);
-    OmLockSentry locksentry(internal->mutex);
-    RETURN(internal->set_bool(isbool_));
-}
-
 void OmQuery::set_window(om_termpos window)
 {
     DEBUGAPICALL(void, "OmQuery::set_window", window);

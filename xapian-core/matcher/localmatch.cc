@@ -488,7 +488,7 @@ LocalSubMatch::mk_weight(const OmQuery::Internal *query_)
 	tname = query_->tname;
 	wqf = query_->wqf;
     }
-    IRWeight * wt = IRWeight::create(weighting_scheme, opts);
+    IRWeight * wt = IRWeight::create_new(opts);
     wt->set_stats(statssource.get(), querysize, wqf, tname);
 #ifdef MUS_DEBUG_PARANOID
     if (!tname.empty()) {

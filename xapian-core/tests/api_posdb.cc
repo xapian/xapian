@@ -43,6 +43,8 @@ static bool test_near1()
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
+    OmSettings mymopt;
+    mymopt.set("match_weighting_scheme", "bool");
 
     // make a query
     vector<OmQuery> subqs;
@@ -51,11 +53,10 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    OmMSet mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset);
 
     subqs.clear();
@@ -63,11 +64,10 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 3);
 
     subqs.clear();
@@ -75,11 +75,10 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(3);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 1, 3);
 
     subqs.clear();
@@ -87,11 +86,10 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(5);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 1, 3);
 
     subqs.clear();
@@ -99,11 +97,10 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(6);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 1, 2, 3);
 
     subqs.clear();
@@ -112,11 +109,10 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(3);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9);
 
     subqs.clear();
@@ -125,11 +121,10 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(4);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10);
 
     subqs.clear();
@@ -138,11 +133,10 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(5);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11);
 
     subqs.clear();
@@ -151,11 +145,10 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(6);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 
     subqs.clear();
@@ -164,11 +157,10 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(7);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top twenty results
-    mymset = enquire.get_mset(0, 20);
+    mymset = enquire.get_mset(0, 20, 0, &mymopt);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
     subqs.clear();
@@ -177,11 +169,10 @@ static bool test_near1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(8);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 20);
+    mymset = enquire.get_mset(0, 20, 0, &mymopt);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 
     subqs.clear();
@@ -191,11 +182,10 @@ static bool test_near1()
     // test really large window size
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(999999999);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 20);
+    mymset = enquire.get_mset(0, 20, 0, &mymopt);
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 
     return true;
@@ -207,6 +197,8 @@ static bool test_near2()
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
+    OmSettings mymopt;
+    mymopt.set("match_weighting_scheme", "bool");
 
     // make a query
     vector<OmQuery> subqs;
@@ -217,11 +209,10 @@ static bool test_near2()
     subqs.push_back(OmQuery(stemmer.stem_word("and")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    OmMSet mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 1);
 
     subqs.clear();
@@ -231,11 +222,10 @@ static bool test_near2()
     subqs.push_back(OmQuery(stemmer.stem_word("operator")));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 2);
 
     subqs.clear();
@@ -245,11 +235,10 @@ static bool test_near2()
 			    OmQuery(stemmer.stem_word("near"))));
     q = OmQuery(OmQuery::OP_NEAR, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 2);
 
     return true;
@@ -261,6 +250,8 @@ static bool test_phrase1()
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
+    OmSettings mymopt;
+    mymopt.set("match_weighting_scheme", "bool");
 
     // make a query
     vector<OmQuery> subqs;
@@ -269,11 +260,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("fridge")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    OmMSet mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset);
 
     subqs.clear();
@@ -281,11 +271,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset);
 
     subqs.clear();
@@ -293,11 +282,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(3);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 1);
 
     subqs.clear();
@@ -305,11 +293,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(5);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 1);
 
     subqs.clear();
@@ -317,11 +304,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("near")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(6);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 1, 2);
 
     subqs.clear();
@@ -330,11 +316,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(3);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 4);
 
     subqs.clear();
@@ -343,11 +328,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(4);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 4);
 
     subqs.clear();
@@ -356,11 +340,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(5);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 4);
 
     subqs.clear();
@@ -369,11 +352,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(6);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 4);
 
     subqs.clear();
@@ -382,11 +364,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(7);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top twenty results
-    mymset = enquire.get_mset(0, 20);
+    mymset = enquire.get_mset(0, 20, 0, &mymopt);
     mset_expect_order(mymset, 4);
 
     subqs.clear();
@@ -395,11 +376,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(8);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top 20 results
-    mymset = enquire.get_mset(0, 20);
+    mymset = enquire.get_mset(0, 20, 0, &mymopt);
     mset_expect_order(mymset, 4);
 
     // test really large window size
@@ -409,11 +389,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("on")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(999999999);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top 20 results
-    mymset = enquire.get_mset(0, 20);
+    mymset = enquire.get_mset(0, 20, 0, &mymopt);
     mset_expect_order(mymset, 4);
 
     // regression test (was matching doc 15, should fail)
@@ -423,11 +402,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("third")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(9);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset);
 
     // regression test (should match doc 15, make sure still does with fix)
@@ -437,11 +415,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("third")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(10);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 15);
 
     // regression test (phrase matching was getting order wrong when
@@ -451,11 +428,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("rare")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 16);
 
     // regression test (phrase matching was getting order wrong when
@@ -465,11 +441,10 @@ static bool test_phrase1()
     subqs.push_back(OmQuery(stemmer.stem_word("milk")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 17);
 
     return true;
@@ -481,6 +456,8 @@ static bool test_phrase2()
     OmDatabase mydb(get_database("apitest_phrase"));
     OmEnquire enquire(make_dbgrp(&mydb));
     OmStem stemmer("english");
+    OmSettings mymopt;
+    mymopt.set("match_weighting_scheme", "bool");
 
     // make a query
     vector<OmQuery> subqs;
@@ -491,11 +468,10 @@ static bool test_phrase2()
     subqs.push_back(OmQuery(stemmer.stem_word("and")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    OmMSet mymset = enquire.get_mset(0, 10);
+    OmMSet mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset);
 
     subqs.clear();
@@ -505,11 +481,10 @@ static bool test_phrase2()
     subqs.push_back(OmQuery(stemmer.stem_word("operator")));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset, 2);
 
     subqs.clear();
@@ -519,11 +494,10 @@ static bool test_phrase2()
 			    OmQuery(stemmer.stem_word("near"))));
     q = OmQuery(OmQuery::OP_PHRASE, subqs.begin(), subqs.end());
     q.set_window(2);
-    q.set_bool(true);
     enquire.set_query(q);
 
     // retrieve the top ten results
-    mymset = enquire.get_mset(0, 10);
+    mymset = enquire.get_mset(0, 10, 0, &mymopt);
     mset_expect_order(mymset);
 
     return true;

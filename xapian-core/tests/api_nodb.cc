@@ -67,19 +67,6 @@ static bool test_getqterms1()
     return true;
 }
 
-// tests that building a query with boolean sub-queries throws an exception.
-static bool test_boolsubq1()
-{
-    OmQuery mybool("foo");
-    mybool.set_bool(true);
-
-    TEST_EXCEPTION(OmInvalidArgumentError,
-		   OmQuery query(OmQuery::OP_OR, OmQuery("bar"), mybool));
-    TEST_EXCEPTION(OmInvalidArgumentError,
-		   OmQuery query(OmQuery::OP_AND, OmQuery("bar"), mybool));
-    return true;
-}
-
 // tests that query lengths are calculated correctly
 static bool test_querylen1()
 {
@@ -160,14 +147,15 @@ static bool test_querylen3()
 static bool test_queryvalid1()
 {
     vector<OmQuery> v1;
-    // Need two arguments, but the second may be null.
+    // Need two arguments, which may not be null
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
     v1.push_back(OmQuery("bad"));
     TEST_EXCEPTION(OmInvalidArgumentError,
 		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
     v1.push_back(OmQuery());
-    OmQuery q1(OmQuery::OP_AND_NOT, v1.begin(), v1.end());
+    TEST_EXCEPTION(OmInvalidArgumentError,
+		   OmQuery(OmQuery::OP_AND_NOT, v1.begin(), v1.end()));
     v1.clear();
     v1.push_back(OmQuery());
     TEST_EXCEPTION(OmInvalidArgumentError,
@@ -299,7 +287,6 @@ static bool test_badbackend2()
 test_desc nodb_tests[] = {
     {"trivial1",           test_trivial1},
     {"getqterms1",	   test_getqterms1},
-    {"boolsubq1",	   test_boolsubq1},
     {"querylen1",	   test_querylen1},
     {"querylen2",	   test_querylen2},
     {"querylen3",	   test_querylen3},

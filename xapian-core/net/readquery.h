@@ -31,7 +31,6 @@ struct querytok {
     enum etype {
 	END,
 	NULL_QUERY,
-	BOOL_FLAG,
 	QUERY_LEN,
 	OP_AND,
 	OP_OR,

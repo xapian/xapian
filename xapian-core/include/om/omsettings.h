@@ -62,15 +62,15 @@ class OmSettings {
 	 *
 	 *  @param key   The name of the option as a string.
 	 *
-	 *  @param value The value to set the option to.
+	 *  @param value The value to set the option to, as a string.
 	 */
 	void set(const std::string &key, const std::string &value);
 
 	/** Set an option value.
 	 *
-	 *  @param key   The name of the option as a char *.
+	 *  @param key   The name of the option as a string.
 	 *
-	 *  @param value The value to set the option to.
+	 *  @param value The value to set the option to, as a char *.
 	 */
 	void set(const std::string &key, const char *value);
     

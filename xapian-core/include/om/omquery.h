@@ -167,14 +167,6 @@ class OmQuery {
 	/** Check whether the query is defined. */
 	bool is_defined() const;
 
-	/** Check whether the query is (pure) boolean. */
-	bool is_bool() const;
-
-	/** Set whether the query is a pure boolean.
-	 *  Returns true iff the query was previously a boolean query.
-	 */
-	bool set_bool(bool isbool_);
-
 	/** Set the window size, for a NEAR or PHRASE query.
 	 */
 	void set_window(om_termpos window);
