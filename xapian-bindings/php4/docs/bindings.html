@@ -9,6 +9,31 @@ and additions. PHP4 strings and arrays, etc., are converted automatically
 in the bindings, so generally it should just work as expected.
 </p>
 
+<h2>Installation</h2>
+
+<p>
+Assuming you have suitable versions of PHP4 and SWIG installed, running
+configure will automatically enable the PHP4 bindings, and
+<code>make install</code> will install the extension shared library in
+the location reported by <code>php-config --extension-dir</code>.
+</p>
+
+<p>
+Check that php.ini has a line like <code>extension_dir =
+"<i>&lt;location reported by php-config --extension-dir&gt;</i>"</code>.
+</p>
+
+<p>
+Then add this line to php.ini: <code>extension = xapian.so</code> (or
+whatever the library is called - not all UNIX systems use <code>.so</code>
+as the extension, and MS Windows uses <code>.dll</code>).
+</p>
+
+<p>
+Depending how PHP is setup, you may need to restart the webserver for this
+change to take effect.
+</p>
+
 <h2>Exceptions</h2>
 
 <p>

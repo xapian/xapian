@@ -1,3 +1,8 @@
+Thu Sep 09 03:07:43 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/bindings.html: Added documentation on how to install the
+	  PHP4 bindings.
+
 Thu Sep 09 02:45:24 BST 2004  Olly Betts <olly@survex.com>
 
 	* python/docs/bindings.html: Word-wrapped HTML source.
