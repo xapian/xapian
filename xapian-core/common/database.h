@@ -13,16 +13,7 @@
 
 #include "omtypes.h"
 #include "error.h"
-
-class IRDatabase;
-
-class IRWeight {
-    private:
-	weight termweight;
-    public:
-	IRWeight(const IRDatabase *, doccount termfreq);
-	weight get_weight() {return termweight;}
-};
+#include "irweight.h"
 
 class PostList {
     private:
@@ -62,21 +53,33 @@ PostList::skip_to(docid id, weight w_min)
 class DBPostList : public virtual PostList {
     protected:
 	IRWeight * ir_wt;
-	bool weight_initialised;
-	weight termweight;
+
+	mutable bool weight_initialised;
+	mutable weight termweight;
+	void calc_termweight() const; // Calculates term weight
     public:
-	void set_termweight(IRWeight *); // Sets term weight
+	DBPostList() :
+		ir_wt(NULL), weight_initialised(false) {}
+	~DBPostList() {
+	    if(ir_wt) delete ir_wt;
+	}
+	void set_termweight(const IRWeight &); // Sets term weight
 };
 
 inline void
-DBPostList::set_termweight(IRWeight * wt)
+DBPostList::set_termweight(const IRWeight & wt)
 {
-    ir_wt = wt;
+    if(ir_wt) delete ir_wt;
+    weight_initialised = false;
+    ir_wt = new IRWeight(wt);
+}
 
-    termweight = wt->get_weight();
-
-    // Set weight_initialised, but only if we're doing asserts
-    Assert((weight_initialised = true) == true);  // Deliberate =
+inline void
+DBPostList::calc_termweight() const
+{
+    Assert(ir_wt != NULL);
+    termweight = ir_wt->get_weight();
+    weight_initialised = true;
 }
 
 class TermList {

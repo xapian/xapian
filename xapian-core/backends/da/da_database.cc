@@ -17,7 +17,6 @@ DAPostList::DAPostList(struct postings *pl, doccount tf)
     termfreq = tf;
     postlist = pl;
 
-    weight_initialised = false;
     currdoc = 0;
 }
 
@@ -32,7 +31,8 @@ const double k = 1;
 weight DAPostList::get_weight() const
 {
     Assert(!at_end());
-    Assert(weight_initialised);
+
+    if(!weight_initialised) calc_termweight();
 
     doccount wdf;
     weight wt;
@@ -58,7 +58,7 @@ weight DAPostList::get_weight() const
 // return an upper bound on the termweight
 weight DAPostList::get_maxweight() const
 {
-    Assert(weight_initialised);
+    if(!weight_initialised) calc_termweight();
 
     return termweight * (k + 1);
 }
@@ -179,7 +179,8 @@ DBPostList * DADatabase::open_post_list(termid id) const
     postlist = DAopenpostings((terminfo *)&(termvec[id - 1].ti), DA_t);
 
     DBPostList * pl = new DAPostList(postlist, termvec[id - 1].ti.freq);
-    pl->set_termweight(new IRWeight(this, termvec[id - 1].ti.freq));
+    IRWeight wt(this, termvec[id - 1].ti.freq);
+    pl->set_termweight(wt);
     return pl;
 }
 

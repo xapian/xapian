@@ -67,7 +67,9 @@ class DATermListItem {
 	termid id;
 	termcount wdf;
 	doccount termfreq;
-	DATermListItem(termid id_new, termcount wdf_new, doccount termfreq_new) {
+	DATermListItem(termid id_new,
+		       termcount wdf_new,
+		       doccount termfreq_new) {
 	    id = id_new;
 	    wdf = wdf_new;
 	    termfreq = termfreq_new;
