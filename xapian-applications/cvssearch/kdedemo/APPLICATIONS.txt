@@ -61,7 +61,6 @@ kdebase/kwrite
 kdebase/kxkb
 kdebase/kxmlrpc
 kdebase/legacyimport
-kdebase/libkong
 kdebase/mimetypes
 kdebase/nsplugins
 
