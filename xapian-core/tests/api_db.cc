@@ -1716,7 +1716,6 @@ static bool test_allterms1()
     return true;
 }
     
-#if 0 // FIXME: why isn't this used?
 // test that iterating through all terms in two databases works.
 static bool test_allterms2()
 {
@@ -1734,26 +1733,15 @@ static bool test_allterms2()
     TEST(*ati == "four");
     TEST(ati.get_termfreq() == 1);
 
-    Xapian::TermIterator ati2 = ati;
-
     ati++;
     TEST(ati != db.allterms_end());
     TEST(*ati == "one");
     TEST(ati.get_termfreq() == 1);
 
-    TEST(ati2 != db.allterms_end());
-    TEST(*ati2 == "four");
-    TEST(ati2.get_termfreq() == 1);
-
     ++ati;
-    ++ati2;
     TEST(ati != db.allterms_end());
     TEST(*ati == "six");
     TEST(ati.get_termfreq() == 3);
-
-    TEST(ati2 != db.allterms_end());
-    TEST(*ati2 == "one");
-    TEST(ati2.get_termfreq() == 1);
 
     ati++;
     TEST(ati != db.allterms_end());
@@ -1770,7 +1758,6 @@ static bool test_allterms2()
 
     return true;
 }
-#endif
 
 // test that skip_to sets at_end (regression test)
 static bool test_allterms3()
@@ -1799,6 +1786,7 @@ static bool test_allterms4()
     db.flush();
 
     Xapian::TermIterator i = db.allterms_begin();
+    TEST(i != db.allterms_end());
     TEST(*i == "foo");
     TEST(i.get_termfreq() == 682);
     ++i;
@@ -3420,7 +3408,7 @@ test_desc mus36_tests[] = {
 /// The tests which need a backend which supports iterating over all terms
 test_desc allterms_tests[] = {
     {"allterms1",	   test_allterms1},
-//    {"allterms2",	   test_allterms2},
+    {"allterms2",	   test_allterms2},
     {"allterms3",	   test_allterms3},
     {"allterms4",	   test_allterms4},
     {0, 0}
