@@ -76,13 +76,14 @@ class OmSettings::Internal {
 	 */
 	void set(const std::string &key, const std::string &value);
 
-	/** Get a setting value.
+	/** Find a setting value.
 	 *
 	 *  @param key	 The key corresponding to the value to retrieve.
 	 *
 	 *  @exception   OmRangeError will be thrown for an invalid key.
 	 */
-	std::string get(const std::string &key) const;
+	bool find(const std::string &key, std::string & result,
+		  bool throw_exception) const;
 
 	/** Return stored settings as a string for use by
 	 *  OmSettings::get_description()
@@ -176,24 +177,28 @@ std::string
 OmSettings::get(const std::string &key) const
 {
     DEBUGAPICALL(std::string, "OmSettings::get", key);
-    RETURN(internal->get(key));
+    std::string val;
+    (void) internal->find(key, val, true);
+    RETURN(val);
 }
 
 bool
 OmSettings::get_bool(const std::string &key) const
 {
     DEBUGAPICALL(bool, "OmSettings::get_bool", key);
-    std::string s = internal->get(key);
-    RETURN(!(s.empty() || s == "0"));
+    std::string val;
+    (void) internal->find(key, val, true);
+    RETURN(!(val.empty() || val == "0"));
 }
 
 int
 OmSettings::get_int(const std::string &key) const
 {
     DEBUGAPICALL(int, "OmSettings::get_int", key);
-    std::string s = internal->get(key);
+    std::string val;
+    (void) internal->find(key, val, true);
     int res;
-    sscanf(s.c_str(), "%d", &res);
+    sscanf(val.c_str(), "%d", &res);
     RETURN(res);
 }
 
@@ -201,20 +206,38 @@ double
 OmSettings::get_real(const std::string &key) const
 {
     DEBUGAPICALL(double, "OmSettings::get_real", key);
-    std::string s = internal->get(key);
+    std::string val;
+    (void) internal->find(key, val, true);
     double res;
-    sscanf(s.c_str(), "%lf", &res);
+    sscanf(val.c_str(), "%lf", &res);
     RETURN(res);
+}
+
+vector<string>
+OmSettings::get_vector(const std::string &key) const
+{
+    DEBUGAPICALL(vector<string>, "OmSettings::get_vector", key);
+    std::string val;
+    (void) internal->find(key, val, true);
+    std::string::size_type p = 0, q;
+    vector<string> v;
+    while (1) {	    
+	q = val.find('\0', p);
+	v.push_back(val.substr(p, q - p));
+	if (q == std::string::npos) break;
+	p = q + 1;
+    }
+    RETURN(v);
 }
 
 std::string
 OmSettings::get(const std::string &key, std::string def) const
 {
     DEBUGAPICALL(std::string, "OmSettings::get", key << ", " << def);
-    try {
-	RETURN(internal->get(key));
-    }
-    catch (const OmRangeError &e) {
+    std::string val;
+    if (internal->find(key, val, false)) {
+	RETURN(val);
+    } else {
 	RETURN(def);
     }
 }
@@ -223,10 +246,10 @@ bool
 OmSettings::get_bool(const std::string &key, bool def) const
 {
     DEBUGAPICALL(bool, "OmSettings::get_bool", key << ", " << def);
-    try {
-	RETURN(get_bool(key));
-    }
-    catch (const OmRangeError &e) {
+    std::string val;
+    if (internal->find(key, val, false)) {
+	RETURN(!(val.empty() || val == "0"));
+    } else {
 	RETURN(def);
     }
 }
@@ -235,10 +258,12 @@ int
 OmSettings::get_int(const std::string &key, int def) const
 {
     DEBUGAPICALL(int, "OmSettings::get_int", key << ", " << def);
-    try {
-	RETURN(get_int(key));
-    }
-    catch (const OmRangeError &e) {
+    std::string val;
+    if (internal->find(key, val, false)) {
+	int res;
+	sscanf(val.c_str(), "%d", &res);
+	RETURN(res);
+    } else {
 	RETURN(def);
     }
 }
@@ -247,28 +272,14 @@ double
 OmSettings::get_real(const std::string &key, double def) const
 {
     DEBUGAPICALL(double, "OmSettings::get_real", key << ", " << def);
-    try {
-	RETURN(get_real(key));
-    }
-    catch (const OmRangeError &e) {
+    std::string val;
+    if (internal->find(key, val, false)) {
+	double res;
+	sscanf(val.c_str(), "%lf", &res);
+	RETURN(res);
+    } else {
 	RETURN(def);
     }
-}
-
-vector<string>
-OmSettings::get_vector(const std::string &key) const
-{
-    DEBUGAPICALL(vector<string>, "OmSettings::get_vector", key);
-    std::string s = internal->get(key);
-    std::string::size_type p = 0, q;
-    vector<string> v;
-    while (1) {	    
-	q = s.find('\0', p);
-	v.push_back(s.substr(p, q - p));
-	if (q == std::string::npos) break;
-	p = q + 1;
-    }
-    RETURN(v);
 }
 
 std::string
@@ -316,8 +327,8 @@ OmSettings::Internal::set(const std::string &key, const std::string &value)
     data->values[key] = value;
 }
 
-std::string
-OmSettings::Internal::get(const std::string &key) const
+bool
+OmSettings::Internal::find(const std::string &key, std::string & result, bool throw_exception) const
 {
     OmLockSentry sentry(mutex);
 
@@ -325,9 +336,14 @@ OmSettings::Internal::get(const std::string &key) const
     i = data->values.find(key);
 
     if (i == data->values.end()) {
-	throw OmRangeError(std::string("Setting ") + key + " doesn't exist.");
+	if (throw_exception) {
+	    throw OmRangeError(std::string("Setting ") + key + " doesn't exist.");
+	} else { 
+	    return false;
+	}
     }
-    return i->second;
+    result = i->second;
+    return true;
 }
 
 std::string
