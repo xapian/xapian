@@ -29,9 +29,8 @@ class Indexer {
 	// Set the destination
 	virtual void set_destination(IndexerDestination *) = 0;
 
-	// Generate terms from the current source, and put them in the
-	// destination
-	virtual void add_source(IndexerSource &) = 0;
+	// Generate terms from the source, and put them in the destination
+	virtual void add_source(const IndexerSource &) = 0;
 };
 
 #endif /* _indexer_h_ */

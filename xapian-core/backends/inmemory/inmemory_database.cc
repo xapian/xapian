@@ -4,6 +4,7 @@
 
 #include "omassert.h"
 #include "textfile_database.h"
+#include "textfile_indexer.h"
 
 #include <string>
 #include <vector>
@@ -48,22 +49,11 @@ void TextfileDatabase::open(const string &pathname, bool readonly) {
     // Index document
     Assert((indexing = true) == true);
 
-    termname word;
-    docid did;
-    termcount position;
+    TextfileIndexerSource source(pathname);
+    TextfileIndexer indexer;
 
-    word = "thou";
-    did = make_doc();
-    position = 1;
-
-    make_posting(make_term(word), did, position++);
-    make_posting(make_term("things"), did, position++);
-    make_posting(make_term(word), did, position++);
-    did = make_doc();
-    position = 1;
-
-    make_posting(make_term("things"), did, position++);
-    make_posting(make_term("junk"), did, position++);
+    indexer.set_destination(this);
+    indexer.add_source(source);
 
     // Make sure that there's at least one document
     if(postlists.size() <= 0)
