@@ -30,6 +30,13 @@ Priority | Area            | Task
  High    | Sleepy Backend  | Stop SleepyDatabase aborting when an attempt to
          |                 | open in a non existent directory is performed.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Databases       | Make parameter checks when opening databases
+         |                 | throw OmInvalidArgument errors, rather than
+	 |                 | just be Asserts.
+---------+-----------------+--------------------------------------------------
+ Medium  | Databases       | Make database parameters into name/value pairs,
+         |                 | rather than simply be anonymous.
+---------+-----------------+--------------------------------------------------
  Medium  |CDistribution    | Make omprogsrv use a MultiMatch instead of Local
 ---------+-----------------+--------------------------------------------------
  Medium  |CDistribution    | Make Stats gathering etc. work asynchronously
