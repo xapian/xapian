@@ -1,4 +1,4 @@
-Omega 0.8.4 (2004-11-30):
+Omega 0.8.4 (2004-12-08):
 
 * omindex,scriptindex: Improved HTML to text conversion - now we strip
   leading and trailing whitespace and convert all other consecutive groups of
@@ -21,6 +21,9 @@ Omega 0.8.4 (2004-11-30):
   Tweaked so we use boolean weights in this case.
 
 * omega: Use Query::empty() instead of the now deprecated Query::is_empty().
+
+* omega,omindex,scriptindex: Use the new Database/WritableDatabase
+  constructors.
 
 * templates/godmode: Finished off godmode template.
 
