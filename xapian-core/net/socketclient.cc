@@ -50,7 +50,7 @@ SocketClient::SocketClient(int socketfd_,
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.
     if (signal(SIGPIPE, SIG_IGN) < 0) {
-	throw OmNetworkError(std::string("signal: ") + strerror(errno));
+	throw OmNetworkError("Couldn't install SIGPIPE handler", errno);
     }
 
     std::string received = do_read();

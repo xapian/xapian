@@ -401,7 +401,7 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
 	    if (errno == EAGAIN) {
 		continue;
 	    } else {
-		throw OmNetworkError(std::string("select:") + strerror(errno));
+		throw OmNetworkError("select failed", errno);
 	    }
 	} else if (retval == 0) {
 	    continue;
@@ -414,7 +414,7 @@ OmSocketLineBuf::do_readline(int msecs_timeout)
 	    if (errno == EAGAIN) {
 		continue;
 	    } else {
-		throw OmNetworkError(std::string("read:") + strerror(errno));
+		throw OmNetworkError("read failed", errno);
 	    }
 	} else if (received == 0) {
 	    continue;
@@ -445,7 +445,7 @@ OmSocketLineBuf::wait_for_data(int msecs)
 	tv.tv_usec = (msecs % 1000) * 1000;
 
 	int retval = select(readfd + 1, &fdset, 0, &fdset,
-			    (msecs == 0)? NULL : &tv);
+			    (msecs == 0) ? NULL : &tv);
 	if (retval == 0) {
 	    // select's timeout arrived before any data
 	    throw OmNetworkTimeoutError("Timeout exceeded waiting for remote.");
@@ -459,9 +459,8 @@ OmSocketLineBuf::wait_for_data(int msecs)
 		// (On Linux, it's the time not slept, but this isn't
 		// portable)
 		continue;
-	    } else {
-		throw OmNetworkError("Unknown network error waiting for remote.");
 	    }
+	    throw OmNetworkError("Network error waiting for remote", errno);
 	}
 	// if we got this far, then there is data to be received.
 
@@ -475,8 +474,7 @@ OmSocketLineBuf::wait_for_data(int msecs)
 		buffer += std::string(buf, buf + received);
 	    } else if (received < 0) {
 		if (errno != EAGAIN) {
-		    throw OmNetworkError(std::string("Network error: ") +
-					 std::string(strerror(errno)));
+		    throw OmNetworkError("Network error", errno);
 		}
 	    }
 	} while (received > 0);
@@ -518,7 +516,7 @@ OmSocketLineBuf::do_writeline(std::string s)
 	ssize_t written = write(writefd, s.data(), s.length());
 
 	if (written < 0) {
-	    throw OmNetworkError(std::string("write:") + strerror(errno));
+	    throw OmNetworkError("write error", errno);
 	}
 
 	s.erase(0, written);

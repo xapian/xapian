@@ -1,3 +1,7 @@
+Mon Nov 27 14:36:59 GMT 2000 Olly Betts
+
+	* OmError class now optional stores an errno value.
+
 Mon Nov 27 13:04:18 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Quartztest builds its test databases in a subdirectory, which

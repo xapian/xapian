@@ -68,7 +68,7 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.
     if (signal(SIGPIPE, SIG_IGN) < 0) {
-	throw OmNetworkError(std::string("signal: ") + strerror(errno));
+	throw OmNetworkError("Couldn't install SIGPIPE handler", errno);
     }
     buf->writeline("OM "STRINGIZE(OM_SOCKET_PROTOCOL_VERSION)" " +
 		   om_tostring(db.get_doccount()) + " " +

@@ -145,15 +145,13 @@ DADatabase::DADatabase(const OmSettings & params, bool readonly)
     // Open database with specified path
     DA_r = DA_open(filename_r.c_str(), DA_RECS, heavy_duty);
     if (DA_r == 0) {
-	throw OmOpeningError(std::string("When opening ") + filename_r +
-			     ": " + strerror(errno));
+	throw OmOpeningError("Couldn't open " + filename_r, errno);
     }
     DA_t = DA_open(filename_t.c_str(), DA_TERMS, heavy_duty);
     if (DA_t == 0) {
 	DA_close(DA_r);
 	DA_r = 0;
-	throw OmOpeningError(std::string("When opening ") + filename_t +
-			     ": " + strerror(errno));
+	throw OmOpeningError("Couldn't open " + filename_t, errno);
     }
 
     if (filename_k.empty()) return;
@@ -161,23 +159,22 @@ DADatabase::DADatabase(const OmSettings & params, bool readonly)
     // Open keyfile
     keyfile = fopen(filename_k.c_str(), "rb");
     if (keyfile == 0) {
-	throw OmOpeningError(std::string("When opening ") + filename_k +
-			     ": " + strerror(errno));
+	throw OmOpeningError("Couldn't open " + filename_k, errno);
     }
 
     // Check for magic string at beginning of file.
     try {
 	char input[9];
+	errno = 0;
 	size_t bytes_read = fread(input, sizeof(char), 8, keyfile);
 	if (bytes_read < 8) {
 	    throw OmOpeningError(std::string("When opening ") + filename_k +
-				 ": couldn't read magic - " + strerror(errno));
+				 ": couldn't read magic", errno);
 	}
 	input[8] = '\0';
 	if (strcmp(input, "omrocks!")) {
 	    throw OmOpeningError(std::string("When opening ") + filename_k +
-				 ": couldn't read magic - got `" +
-				 input + "'");
+				 ": found wrong magic - got `" + input + "'");
 	}
     }
     catch (...) {

@@ -68,7 +68,7 @@ TcpServer::get_listening_socket(int port)
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
-	throw OmNetworkError(std::string("socket: ") + strerror(errno));
+	throw OmNetworkError("socket", errno);
     }
 
     int retval;
@@ -83,8 +83,9 @@ TcpServer::get_listening_socket(int port)
     }
 
     if (retval < 0) {
+	int saved_errno = errno; // note down in case close hits an error
 	close(socketfd);
-	throw OmNetworkError(std::string("setsockopt: ") + strerror(errno));
+	throw OmNetworkError("setsockopt failed", saved_errno);
     }
 
     struct sockaddr_in addr;
@@ -97,16 +98,18 @@ TcpServer::get_listening_socket(int port)
 		      sizeof(addr));
 
     if (retval < 0) {
+	int saved_errno = errno; // note down in case close hits an error
 	close(socketfd);
-	throw OmNetworkError(std::string("bind: ") + strerror(errno));
+	throw OmNetworkError("bind failed", saved_errno);
     }
 
     // FIXME: backlog argument should perhaps be larger.
     retval = listen(socketfd, 1);
 
     if (retval < 0) {
+	int saved_errno = errno; // note down in case close hits an error
 	close(socketfd);
-	throw OmNetworkError(std::string("listen: ") + strerror(errno));
+	throw OmNetworkError("listen failed", saved_errno);
     }
     return socketfd;
 }
@@ -126,7 +129,7 @@ TcpServer::get_connected_socket()
 			    &remote_address_size);
 
     if (con_socket < 0) {
-	throw OmNetworkError(std::string("accept: ") + strerror(errno));
+	throw OmNetworkError("accept failed", errno);
     }
 
     if (remote_address_size != sizeof(remote_address)) {
@@ -209,9 +212,9 @@ TcpServer::run_once()
 	close(connected_socket);
     } else {
 	// fork() failed
-	std::string errormsg = std::string("fork():") + strerror(errno);
+	int saved_errno = errno; // note down in case close hits an error
 	close(connected_socket);
-	throw OmNetworkError(errormsg);
+	throw OmNetworkError("fork failed", saved_errno);
     }
 }
 
