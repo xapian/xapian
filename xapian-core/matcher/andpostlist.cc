@@ -37,12 +37,19 @@ AndPostList::process_next_or_skip_to(weight w_min, PostList *ret)
     return;
 }
 
-AndPostList::AndPostList(PostList *left, PostList *right, Match *root_)
-{    
+AndPostList::AndPostList(PostList *left, PostList *right, Match *root_,
+			 bool replacement)
+{
     root = root_;
     l = left;
     r = right;
     head = 0;
+    if (replacement) {
+	// Initialise the maxweights from the kids so we can avoid forcing
+	// a full maxweight recalc
+	lmax = l->get_maxweight();
+	rmax = r->get_maxweight();
+    }
 }
 
 PostList *

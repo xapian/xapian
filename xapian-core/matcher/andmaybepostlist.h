@@ -19,13 +19,15 @@ class AndMaybePostList : public virtual BranchPostList {
 	weight get_weight() const;
 	weight get_maxweight() const;
 
+        weight init_maxweight();
         weight recalc_maxweight();
 
 	PostList *next(weight w_min);
 	PostList *skip_to(docid, weight w_min);
 	bool   at_end() const;
 
-        AndMaybePostList(PostList *, PostList *, Match *root_);
+        AndMaybePostList(PostList *, PostList *, Match *root_,
+			 bool replacement = true);
 
         PostList *sync_and_skip_to(docid id, weight w_min, docid lh, docid rh);
 };

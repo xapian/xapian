@@ -1,12 +1,19 @@
 #include "andmaybepostlist.h"
 #include "andpostlist.h"
 
-AndMaybePostList::AndMaybePostList(PostList *left, PostList *right, Match *root_)
+AndMaybePostList::AndMaybePostList(PostList *left, PostList *right,
+				   Match *root_, bool replacement)
 {
     root = root_;
     l = left;
     r = right;
     lhead = rhead = 0;
+    if (replacement) {
+	// Initialise the maxweights from the kids so we can avoid forcing
+	// a full maxweight recalc
+	lmax = l->get_maxweight();
+	rmax = r->get_maxweight();
+    }
 }
 
 PostList *
@@ -61,7 +68,7 @@ AndMaybePostList::skip_to(docid id, weight w_min)
 	// we can replace the AND MAYBE with an AND
 	PostList *ret;
 	cout << "AND MAYBE -> AND (in skip_to)\n";
-	ret = new AndPostList(l, r, root);
+	ret = new AndPostList(l, r, root, true);
 	id = max(id, max(lhead, rhead));
 	l = r = NULL;
 	PostList *ret2 = ret->skip_to(id, w_min);

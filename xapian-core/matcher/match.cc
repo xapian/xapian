@@ -166,16 +166,13 @@ Match::match()
         if (ret) {
 	    delete merger;
 	    merger = ret;
+
 	    cout << "*** REPLACING ROOT\n";
 	    // no need for a full recalc - we're just switching to a subtree
 	    w_max = merger->get_maxweight();
 	    cout << "max possible doc weight = " << w_max << endl;
-            // FIXME: actually we do need to recalc but only because (e.g.)
-            // an OR maybe have become and ANDMAYBE which needs its weights
-            // initialising
-	    w_max = merger->recalc_maxweight();
-	    recalculate_maxweight = false;
-	    cout << "max possible doc weight = " << w_max << " (recalculated)" << endl;
+	    AssertParanoid(w_max == merger->recalc_maxweight());
+
 	    if (w_max < w_min) {
 		cout << "*** TERMINATING EARLY" << endl;
 		break;

@@ -19,13 +19,15 @@ class AndPostList : public virtual BranchPostList {
 	weight get_weight() const;
 	weight get_maxweight() const;
 
+        weight init_maxweight();
         weight recalc_maxweight();
     
 	PostList *next(weight w_min);
 	PostList *skip_to(docid, weight w_min);
 	bool   at_end() const;
 
-        AndPostList(PostList *l, PostList *r, Match *root_);
+        AndPostList(PostList *l, PostList *r, Match *root_,
+		    bool replacement = true);
 };
 
 inline doccount
