@@ -1,4 +1,4 @@
-use strict;
+MSuse strict;
 use Cvssearch;
 
 sub usage() {
@@ -204,13 +204,15 @@ sub cvsbuild {
             # ----------------------------------------
             my $checkout_start_date = time;
             if ($app_path eq ".") {
-                chdir ("$cvsdata/$root/src");
-                system ("cvs -l -d $cvsroot checkout . 2>/dev/null");
-                chdir ($pwd);
+                if (chdir ("$cvsdata/$root/src")) {
+                    system ("cvs -l -d $cvsroot checkout . 2>/dev/null");
+                    chdir ($pwd);
+                }
             } else {
-                chdir ("$cvsdata/$root/src");
-                system ("cvs -l -d $cvsroot checkout -N $app_path 2>/dev/null"); 
-                chdir ($pwd);
+                if (chdir ("$cvsdata/$root/src")) {
+                    system ("cvs -l -d $cvsroot checkout -N $app_path 2>/dev/null"); 
+                    chdir ($pwd);
+                }
             }
             my $checkout_end_date = time;
             
@@ -221,17 +223,18 @@ sub cvsbuild {
             my $found_files = 0;
             open(LIST, ">$list_file") || die "cannot create temporary file list\n";
 
-            chdir ("$cvsdata/$root/src/$app_path");
-            for ($i = 0; $i <= $#file_types; ++$i) {
-                open(FIND_RESULT, "find . -name \"*.$file_types[$i]\"|");
-                while (<FIND_RESULT>) {
-                    $found_files = 1;
-                    my $length = length($_);
-                    print LIST substr($_, 2, $length-2);
+            if (chdir ("$cvsdata/$root/src/$app_path")) {
+                for ($i = 0; $i <= $#file_types; ++$i) {
+                    open(FIND_RESULT, "find . -name \"*.$file_types[$i]\"|");
+                    while (<FIND_RESULT>) {
+                        $found_files = 1;
+                        my $length = length($_);
+                        print LIST substr($_, 2, $length-2);
+                    }
+                    close(FIND_RESULT);
                 }
-                close(FIND_RESULT);
+                chdir ($pwd);
             }
-            chdir ($pwd);
             close(LIST);
             my $find_end_date = time;
 
@@ -246,24 +249,26 @@ sub cvsbuild {
             if ($found_files) {
                 my $prefix_path = "$cvsdata/$root/db/$app_name";
                 if ($comp_mode) {
-                    chdir ("$cvsdata/$root/src/$app_path");
-                    system ("$cvsmap -d $cvsroot".
-                            " -i $list_file".
-                            " -comp");
-                    chdir ($pwd);
+                    if (chdir ("$cvsdata/$root/src/$app_path")) {
+                        system ("$cvsmap -d $cvsroot".
+                                " -i $list_file".
+                                " -comp");
+                        chdir ($pwd);
+                    }
                 } else {
                     $map_start_date = time;
                     Cvssearch::cvsupdatedb ($root, "-r", $app_name);
-                    chdir ("$cvsdata/$root/src/$app_path");
-                    system ("$cvsmap -d $cvsroot".
-                            " -i $list_file".
-                            " -db $prefix_path.db".
-                            " -st $prefix_path.st".
-                            " -f1 $prefix_path.cmt".
-                            " -f2 $prefix_path.offset".
-                            " -m  $app_path".
-                            " -cl $cvs2cl");
-                    chdir ($pwd);
+                    if (chdir ("$cvsdata/$root/src/$app_path")) {
+                        system ("$cvsmap -d $cvsroot".
+                                " -i $list_file".
+                                " -db $prefix_path.db".
+                                " -st $prefix_path.st".
+                                " -f1 $prefix_path.cmt".
+                                " -f2 $prefix_path.offset".
+                                " -m  $app_path".
+                                " -cl $cvs2cl");
+                        chdir ($pwd);
+                    }
                     $map_end_date = time;
                     $index_start_date =time;
                     system ("$cvsindex $root:$app_name");
@@ -315,14 +320,15 @@ sub cvsbuild {
                     my ($entries, $authors, $cvs_words) = 
                       Cvssearch::cvs_stat ($pwd, "$cvsdata/$root/src", $app_path);
                     
-                    chdir ("$cvsdata/$root/src/$app_path");
-                    open(LIST, "<$list_file") || die "cannot read from  $list_file: $!\n";
-                    while (<LIST>) {
-                        chomp;
-                        $code_words += Cvssearch::code_comment_counter ($_);
+                    if (chdir ("$cvsdata/$root/src/$app_path")) {
+                        open(LIST, "<$list_file") || die "cannot read from  $list_file: $!\n";
+                        while (<LIST>) {
+                            chomp;
+                            $code_words += Cvssearch::code_comment_counter ($_);
+                        }
+                        close(LIST);
+                        chdir ("$pwd");
                     }
-                    close(LIST);
-                    chdir ("$pwd");
                     
                     open(STAT, ">>$prefix_path.st") || die "cannot append to statistics file\n";
                     print STAT "total   # words of code comment :\t$code_words words\n";
