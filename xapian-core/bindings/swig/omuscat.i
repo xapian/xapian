@@ -206,6 +206,12 @@ class OmDocumentContents {
     /** The keys associated with this document. */
     document_keys keys;
 
+    %addmethods {
+	void add_key(int keyno, string value) {
+	    self->keys[keyno] = value;
+	}
+    }
+
     // TODO: sort out access to the maps somehow.
     /** Type to store terms in. */
     typedef map<string, OmDocumentTerm> document_terms;
@@ -237,10 +243,23 @@ class OmWritableDatabase : public OmDatabase {
 			   const vector<string> & params);
 	virtual ~OmWritableDatabase();
 
-	void lock(om_timeout timeout = 0);
-	void unlock();
+	void begin_session(om_timeout timeout = 0);
+	void end_session();
+	void flush();
 
-	om_docid add_document(const OmDocumentContents & document);
+	void begin_transaction(om_timeout timeout = 0);
+	void end_transaction();
+
+	om_docid add_document(const OmDocumentContents & document,
+			      om_timeout timeout = 0);
+	void delete_document(om_docid did, om_timeout timeout = 0);
+	void replace_document(om_docid did,
+			      const OmDocumentContents & document,
+			      om_timeout timeout = 0);
+
+	OmDocumentContents get_document(om_docid did);
+
+	string get_description() const;
 };
 
 class OmDocument {

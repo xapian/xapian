@@ -1,3 +1,8 @@
+Thu Aug 10 18:05:52 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Updates the Python/SWIG bindings.  3 tests (out of 20 which are
+	  translated) currently pass.
+
 Thu Aug 10 17:12:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add stub implementations for new methods in OmWritableDatabase,

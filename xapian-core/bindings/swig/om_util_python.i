@@ -189,7 +189,14 @@
 
 %typedef PyObject *LangSpecificListType;
 
+#define OMMSET_DID 0
+#define OMMSET_WT 1
+#define OMMSET_COLLAPSEKEY 2
 %{
+#define OMMSET_DID 0
+#define OMMSET_WT 1
+#define OMMSET_COLLAPSEKEY 2
+
 PyObject *OmMSet_items_get(OmMSet *mset)
 {
     PyObject *retval = PyList_New(0);
@@ -201,9 +208,9 @@ PyObject *OmMSet_items_get(OmMSet *mset)
     while (i != mset->items.end()) {
         PyObject *t = PyTuple_New(3);
 
-	PyTuple_SetItem(t, 0, PyInt_FromLong(i->did));
-	PyTuple_SetItem(t, 1, PyFloat_FromDouble(i->wt));
-	PyTuple_SetItem(t, 2, PyString_FromString(i->collapse_key.value.c_str()));
+	PyTuple_SetItem(t, OMMSET_DID, PyInt_FromLong(i->did));
+	PyTuple_SetItem(t, OMMSET_WT, PyFloat_FromDouble(i->wt));
+	PyTuple_SetItem(t, OMMSET_COLLAPSEKEY, PyString_FromString(i->collapse_key.value.c_str()));
 
 	PyList_Append(retval, t);
         ++i;

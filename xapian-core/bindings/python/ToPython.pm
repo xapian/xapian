@@ -25,6 +25,14 @@ use apitest_parser;
 
 package ToPython;
 
+BEGIN {
+    %ToPython::basic_types = (
+    	"std::string" => 1,
+    	"bool" => 1,
+	"int" => 1
+    );
+}
+
 sub new {
     my $class = shift;
     return bless { tests => "", func => ""}, $class;
@@ -76,6 +84,9 @@ if (len(tests) == 0) or ("$name" in tests):
     except (TestFail):
         print "FAIL"
 	failed = failed+1
+    except:
+        print "EXCEPT"
+	failed = failed+1
 TESTEND
     }
     $result .= <<MAINEND
@@ -122,6 +133,12 @@ sub addtext($) {
     # change true,false to 1,0
     $text =~ s/\btrue\b/1/g;
     $text =~ s/\bfalse\b/0/g;
+    # change foo.size() into len(mymset.items)
+    $text =~ s/($apitest_parser::func)\.size\(\)/len($1)/g;
+    # change mset.items[foo].did to mset.items[foo][OMMSET_DID], etc.
+    $text =~ s/\.did\b/[OMMSET_DID]/g;
+    $text =~ s/\.wt\b/[OMMSET_WT]/g;
+    $text =~ s/\.collapse_key\b/[OMMSET_COLLAPSE_KEY]/g;
 
     $self->{func} .= (" " x $self->{indent_level}) . $text;
 }
@@ -140,7 +157,16 @@ sub var_decl($$$) {
     my ($self, $type, $name, $initialiser) = @_;
     my $text;
     if (defined $initialiser) {
-        $text = "$name = $initialiser\n";
+        if ($initialiser =~ /($apitest_parser::func)(\(.*\))$/) {
+	    my ($func, $args) = ($1, $2);
+	    $text = "$name = $func$args\n";
+	} else {
+	    if (exists($ToPython::basic_types{$type})) {
+		$text = "$name = $initialiser\n";
+	    } else {
+	        $text = "$name = $type($initialiser)\n"
+	    }
+	}
     } else {
         $text = "$name = $type()\n";
     }
@@ -208,8 +234,9 @@ sub close_block() {
 
 sub do_cout(@$) {
     my ($self, $coutargs, $endl) = @_;
-    my $text = "print ";
-    $text .= join(" + ", @$coutargs);
+    my $text = "print str(";
+    $text .= join(") + str(", @$coutargs);
+    $text .= ")";
     if ($endl) {
         $text .= ",";
     }
