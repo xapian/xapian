@@ -65,10 +65,10 @@ DADocument::do_get_key(om_keyno keyid) const
 	unsigned int keypos = keyid;
 	if (keypos + 8 > len) {
 	    // Record not big enough.
-	    DebugMsg(": not found in record" << endl);
+	    DEBUGLINE(DB, ": not found in record");
 	} else {
 	    key.value = std::string((char *)pos + LWIDTH(heavy_duty) + 3 + keypos, 8);
-	    DebugMsg(": found in record - value is `" << key.value << "'" << endl);
+	    DEBUGLINE(DB, ": found in record - value is `" << key.value << "'");
 	}
     }
 

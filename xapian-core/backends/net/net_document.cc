@@ -36,10 +36,10 @@ NetworkDocument::do_get_key(om_keyno keyid) const
     DebugMsg("NetworkDocument::do_get_key(" << keyid << ")");
     std::map<om_keyno, OmKey>::const_iterator k = keys.find(keyid);
     if (k != keys.end()) {
-	DebugMsg(" = " << k->second.value << endl);
+	DEBUGLINE(DB, " = " << k->second.value);
 	return k->second;
     } else {
-	DebugMsg(" = not found" << endl);
+	DEBUGLINE(DB, " = not found");
 	return OmKey();
     }
 }

@@ -96,7 +96,7 @@ inline om_doccount
 MultiPostList::get_termfreq() const
 {
     if(freq_initialised) return termfreq;
-    DebugMsg("Calculating multiple term frequencies" << endl);
+    DEBUGLINE(DB, "Calculating multiple term frequencies");
 
     // Calculate and remember the termfreq
     std::list<MultiPostListInternal>::const_iterator i = postlists.begin();
@@ -115,7 +115,7 @@ MultiPostList::get_docid() const
 {
     Assert(!at_end());
     Assert(currdoc != 0);
-    //DebugMsg(this << ":DocID " << currdoc << endl);
+    //DEBUGLINE(DB, this << ":DocID " << currdoc);
     return currdoc;
 }
 

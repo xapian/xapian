@@ -189,7 +189,7 @@ inline bool DBTermList::at_end() const
 {
     Assert(have_started);
     if(pos == terms.end()) {
-	DebugMsg("TERMLIST " << this << " ENDED " << endl);
+	DEBUGLINE(DB, "TERMLIST " << this << " ENDED ");
 	return true;
     }
     return false;
@@ -231,7 +231,7 @@ inline struct DB_term_info *
 DBTerm::get_ti() const
 {
     if (!terminfo_initialised) {
-	DebugMsg("Getting terminfo" << endl);
+	DEBUGLINE(DB, "Getting terminfo");
 	std::string::size_type len = tname.length();
 	if(len > 255) abort();
 	byte * k = (byte *) malloc(len + 1);

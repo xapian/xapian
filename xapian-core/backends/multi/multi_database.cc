@@ -211,17 +211,17 @@ MultiDatabase::term_exists(const om_termname & tname) const
 
 	if(found) {
 	    if (terms.size() > 500) {
-		DebugMsg("(term cache full - clearing) " << endl);
+		DEBUGLINE(DB, "(term cache full - clearing) ");
 		terms.clear();
 	    }
-	    DebugMsg("found in sub-database" << endl);
+	    DEBUGLINE(DB, "found in sub-database");
 	    terms.insert(tname);
 	} else {
-	    DebugMsg("not in collection" << endl);
+	    DEBUGLINE(DB, "not in collection");
 	}
     } else {
 	found = true;
-	DebugMsg("found in cache" << endl);
+	DEBUGLINE(DB, "found in cache");
     }
     return found;
 }

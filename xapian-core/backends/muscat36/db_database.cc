@@ -80,7 +80,7 @@ PostList * DBPostList::skip_to(om_docid did, om_weight w_min)
     if (currdoc && did <= om_docid(postlist->E)) {
 	// skip_to later in the current range
 	currdoc = did;
-	//DebugMsg("Skip within range " << did << endl);
+	//DEBUGLINE(DB, "Skip within range " << did);
 	return NULL;
     }
     //printf("%p:From %d skip_to ", this, currdoc);
@@ -340,22 +340,22 @@ DBDatabase::get_key(om_docid did, om_keyno keyid) const
     OmLockSentry sentry(mutex);
 
     OmKey key;
-    DebugMsg("Looking in keyfile for keyno " << keyid << " in document " << did);
+    DEBUGLINE(DB, "Looking in keyfile for keyno " << keyid << " in document " << did);
 
     if (keyfile == 0) {
-	DebugMsg(": don't have keyfile - using record" << endl);
+	DEBUGLINE(DB, ": don't have keyfile - using record");
     } else {
 	int seekok = fseek(keyfile, (long)did * 8, SEEK_SET);
 	if(seekok == -1) {
-	    DebugMsg(": seek off end of keyfile - using record" << endl);
+	    DEBUGLINE(DB, ": seek off end of keyfile - using record");
 	} else {
 	    char input[9];
 	    size_t bytes_read = fread(input, sizeof(char), 8, keyfile);
 	    if(bytes_read < 8) {
-		DebugMsg(": read off end of keyfile - using record" << endl);
+		DEBUGLINE(DB, ": read off end of keyfile - using record");
 	    } else {
 		key.value = std::string(input, 8);
-		DebugMsg(": found - value is `" << key.value << "'" << endl);
+		DEBUGLINE(DB, ": found - value is `" << key.value << "'");
 	    }
 	}
     }
@@ -373,7 +373,7 @@ DBDatabase::open_document(om_docid did) const
 OmRefCntPtr<const DBTerm>
 DBDatabase::term_lookup(const om_termname & tname) const
 {
-    //DebugMsg("DBDatabase::term_lookup(`" << tname.c_str() << "'): ");
+    //DEBUGLINE(DB, "DBDatabase::term_lookup(`" << tname.c_str() << "'): ");
 
     std::map<om_termname, OmRefCntPtr<const DBTerm> >::const_iterator p;
     p = termmap.find(tname);
@@ -392,22 +392,22 @@ DBDatabase::term_lookup(const om_termname & tname) const
 	free(k);
 
 	if(found == 0) {
-	    DebugMsg("Not in collection" << endl);
+	    DEBUGLINE(DB, "Not in collection");
 	} else {
 	    // FIXME: be a bit nicer on the cache than this
 	    if(termmap.size() > 500) {
-		DebugMsg("cache full, wiping");
+		DEBUGLINE(DB, "cache full, wiping");
 		termmap.clear();
 	    }
 
-	    DebugMsg("found, adding to cache" << endl);
+	    DEBUGLINE(DB, "found, adding to cache");
 	    std::pair<om_termname, OmRefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}
     } else {
 	the_term = (*p).second;
-	DebugMsg("found in cache" << endl);
+	DEBUGLINE(DB, "found in cache");
     }
     return the_term;
 }

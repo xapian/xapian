@@ -1,3 +1,8 @@
+Tue Aug  1 17:12:03 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Changed more DebugMsgs with endls into DEBUGLINEs: backends now
+	  finished.
+
 Tue Aug  1 17:07:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add explicit std:: to things in sleepycat backend, so that it will

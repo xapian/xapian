@@ -64,8 +64,8 @@ inline MultiTermList::MultiTermList(TermList * tl_,
 {
     termfreq_factor = ((double)(rootdb->get_doccount())) /
 		      (termdb->get_doccount());
-    DebugMsg("Approximation factor for termfrequency: " <<
-	     termfreq_factor << endl);
+    DEBUGLINE(DB, "Approximation factor for termfrequency: " <<
+	      termfreq_factor);
 }
 
 inline MultiTermList::~MultiTermList()
