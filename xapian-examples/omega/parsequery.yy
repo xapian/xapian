@@ -1,4 +1,4 @@
-/* parsequery.yy: parser for query strings
+/* parsequery.yy: parser for omega query strings
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -30,6 +30,9 @@ class U {
     public:
 	OmQuery q;
 	vector<OmQuery> v;
+	vector<OmQuery> love;
+	vector<OmQuery> hate;
+
 	U(OmQuery q) : q(q) { }
 	U() { }
 };
@@ -38,34 +41,74 @@ class U {
 
 int yyerror(const char *s);
 int yylex();
+
+static string::const_iterator q_ptr;
+
+#include "query.h"
 %}
 
 /* BISON Declarations */
 %token TERM
 %left OR XOR NOT
 %left AND
+%left NEAR
+%left '+' '-'
 
 /* Grammar follows */
 %%
-input:	  { cout << "no query\n"; }
-	| exp { cout << $1.q << endl; }
+input:	  { query = OmQuery(); }
+	| exp { query = $1.q; }
 ;
 
-exp:	  terms			{ $$ = $1; }
-	| exp AND exp		{ $$ = U(OmQuery(OM_MOP_AND, $1.q, $3.q)); }
-	| exp OR exp		{ $$ = U(OmQuery(OM_MOP_OR, $1.q, $3.q)); }
-	| exp NOT exp		{ $$ = U(OmQuery(OM_MOP_AND_NOT, $1.q, $3.q)); }
-	| exp XOR exp		{ $$ = U(OmQuery(OM_MOP_XOR, $1.q, $3.q)); }
-	| '"' phrase '"'	{ $$ = U(OmQuery(OM_MOP_PHRASE, $2.v.begin(), $2.v.end(), $2.v.size())); }
+exp:	  prob		{
+			    OmQuery q = $1.q;
+			    if ($1.love.size()) {
+				q = OmQuery(OM_MOP_AND_MAYBE,
+					    OmQuery(OM_MOP_AND,
+						    $1.love.begin(),
+						    $1.love.end()),
+					    q);
+			    }
+			    if ($1.hate.size()) {
+				if (!q.is_defined()) {
+				    // FIXME: barf
+				}
+				q = OmQuery(OM_MOP_AND_NOT,
+					    q,
+					    OmQuery(OM_MOP_OR,
+						    $1.hate.begin(),
+						    $1.hate.end()));
+			    }
+			    $$ = q;
+			}
+	| exp AND exp	{ $$ = U(OmQuery(OM_MOP_AND, $1.q, $3.q)); }
+	| exp OR exp	{ $$ = U(OmQuery(OM_MOP_OR, $1.q, $3.q)); }
+	| exp NOT exp	{ $$ = U(OmQuery(OM_MOP_AND_NOT, $1.q, $3.q)); }
+	| exp XOR exp	{ $$ = U(OmQuery(OM_MOP_XOR, $1.q, $3.q)); }
+	| '(' exp ')'	{ $$ = $2; }
 ;
 
-terms:	  TERM			{ $$ = $1; }
-	| TERM terms		{ $$ = U(OmQuery(OM_MOP_OR, $1.q, $2.q)); }
+prob:	  term		{ $$ = $1; }
+	| prob term	{ $$ = U(OmQuery(OM_MOP_OR, $1.q, $2.q));
+	                  $$.love = $1.love;
+	                  $$.hate = $1.hate; }			  
+	| prob '+' term	{ $$ = $1; $$.love.push_back($3.q); }
+	| prob '-' term	{ $$ = $1; $$.hate.push_back($3.q); }
 ;
 
-phrase:	  TERM			{ $$.v.push_back($1.q); }
-	| phrase TERM		{ $$ = $1; $$.v.push_back($2.q); }
+term:	  TERM		{ $$ = $1; }
+	| TERM NEAR TERM{ vector<OmQuery> v;
+	                  v.push_back($1.q);
+	                  v.push_back($3.q);
+			  $$ = U(OmQuery(OM_MOP_NEAR, v.begin(), v.end(), 11)); }
+	| '"' phrase '"'{ $$ = U(OmQuery(OM_MOP_PHRASE, $2.v.begin(), $2.v.end(), $2.v.size())); }
+	| '{' phrase '}'{ $$ = U(OmQuery(OM_MOP_NEAR, $2.v.begin(), $2.v.end(), $2.v.size())); }
 ;
+
+phrase:	  TERM		{ $$.v.push_back($1.q); }
+	| phrase TERM	{ $$ = $1; $$.v.push_back($2.q); }
+;
+
 %%
 
 /* Lexical analyzer returns a string containing a term name
@@ -77,23 +120,32 @@ phrase:	  TERM			{ $$.v.push_back($1.q); }
 
 static om_termpos termpos = 1;
 
+static inline int
+next_char()
+{
+   if (q_ptr == raw_prob.end()) return EOF;
+   return *q_ptr++;
+}
+
+static OmStem stemmer("english");
+
 yylex()
 {
     int c;
 
     /* skip white space  */
-    while (isspace((c = getchar())))  
+    while (isspace((c = next_char())))
 	;
     /* process terms */
     if (isalnum(c)) {
 	string term;
 	term = char(c);
-	c = getchar();
+	c = next_char();
 	while (isalnum(c)) {
 	    term += char(c);
-	    c = getchar();
+	    c = next_char();
 	}
-	ungetc(c, stdin);
+	if (c != EOF) q_ptr--;
 	if (term == "AND") {
 	    return AND;
         } else if (term == "OR") {
@@ -102,8 +154,13 @@ yylex()
 	    return NOT;
         } else if (term == "XOR") {
 	    return XOR;
+        } else if (term == "NEAR") {
+	    return NEAR;
         }
+	term = stemmer.stem_word(term);
 	yylval = U(OmQuery(term, 1, termpos++));
+	new_terms_list.push_back(term);
+	new_terms.insert(term);
 	return TERM;
     }
     switch (c) {
@@ -118,13 +175,46 @@ yylex()
     return c;                                
 }
 
-yyerror(const char *s)  /* Called by yyparse on error */
+yyerror(const char *s)
 {
-    printf("%s\n", s);
+    throw s;
 }
 
-int main()
+void
+parse_prob()
 {
+    q_ptr = raw_prob.begin();
     yyparse();
-    return 0;
 }
+
+#if 0
+    int stem, stem_all;
+
+    stem = !atoi(option["no_stem"].c_str());
+    /* stem capitalised words too -- needed for EuroFerret */
+    stem_all = atoi(option["all_stem"].c_str());
+    // FIXME: allow domain:uk in query...
+    // don't allow + and & in term then ?
+    // or allow +&.-_ ?
+    // domain/site/language/host ?
+#endif
+
+#if 0
+/* transliterate accented characters in step with what the indexers do */
+static int
+get_next_char(const char **p)
+{
+    static int cache = 0;
+    int ch;
+    if (cache) {
+	ch = cache;
+	cache = 0;
+	return ch;
+    }
+    ch = (int)(unsigned char)(*(*p)++);
+    switch (ch) {
+#include "symboltab.h"
+    }
+    return ch;
+}
+#endif

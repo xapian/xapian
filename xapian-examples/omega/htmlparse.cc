@@ -1,5 +1,6 @@
 #include <htmlparse.h>
 #include <stdio.h>
+#include <ctype.h>
 
 void
 HtmlParser::parse_html(const string &body)
@@ -106,7 +107,10 @@ HtmlParser::parse_html(const string &body)
 	    start = body.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 					   "abcdefghijklmnopqrstuvwxyz"
 					   "0123456789.-", start);
-	    string tag = body.substr(p, start - p); // FIXME: toupper
+	    string tag = body.substr(p, start - p);
+	    // convert tagname to lowercase
+	    for (string::iterator i = tag.begin(); i != tag.end(); i++)
+		*i = tolower(*i);
 	       
 	    if (closing) {
 		closing_tag(tag);

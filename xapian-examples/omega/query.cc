@@ -56,15 +56,11 @@ int_to_string(int i)
 static bool done_query = false;
 static om_docid last = 0;
 
-// declared in parsequery.ll
-extern void parse_prob(const string&);
+// declared in parsequery.yy
+extern void parse_prob();
 
 list<om_termname> new_terms_list;
-static set<om_termname> new_terms;
-
-static vector<OmQuery *> pluses;
-static vector<OmQuery *> minuses;
-static vector<OmQuery *> normals;
+set<om_termname> new_terms;
 
 static OmMSet mset;
 
@@ -76,6 +72,8 @@ static void ensure_match();
 
 string raw_prob;
 map<om_docid, bool> ticked;
+
+OmQuery query;
 
 string query_string;
 
@@ -91,7 +89,7 @@ set_probabilistic(const string &newp, const string &oldp)
     /* and strip trailing whitespace */
     while (len > first_nonspace && isspace(newp[len - 1])) len--;
     raw_prob = newp.substr(first_nonspace, len - first_nonspace);
-    parse_prob(raw_prob);
+    parse_prob();
 
     // Check new query against the previous one
     const char *pend;
@@ -122,26 +120,6 @@ set_probabilistic(const string &newp, const string &oldp)
     return SAME_QUERY;
 }
 
-static om_termpos querypos = 1;
-
-/* if term is in the database, add it to the term list */
-void check_term(const string &name, termtype type) {
-    new_terms_list.push_back(name);
-    new_terms.insert(name);
-    OmQuery *q = new OmQuery(name, 1, querypos++);
-    switch (type) {
-     case PLUS:
-	pluses.push_back(q);
-	break;
-     case MINUS:
-	minuses.push_back(q);
-	break;
-     case NORMAL:
-	normals.push_back(q);
-	break;
-    }
-}
-
 // FIXME: multimap for general use?
 map<char, string> filter_map;
 
@@ -153,18 +131,6 @@ void add_bterm(const string &term) {
 static void
 run_query()
 {
-    OmQuery query(OM_MOP_AND_NOT,
-		  OmQuery(OM_MOP_AND_MAYBE,
-			  OmQuery(OM_MOP_AND,
-				  pluses.begin(),
-				  pluses.end()),
-			  OmQuery(op,
-				  normals.begin(),
-				  normals.end())),
-		  OmQuery(OM_MOP_OR,
-			  minuses.begin(),
-			  minuses.end()));
-
     if (!filter_map.empty()) {
 	// a vector is more convenient than a map for constructing queries.
 	vector<om_termname> filter_vec;
@@ -305,7 +271,10 @@ html_escape(const string &str)
     return res;
 }
 
-static void print_query_string(const char *after) {		      
+#if 0
+static void
+print_query_string(const char *after)
+{
     if (after && strncmp(after, "&B=", 3) == 0) {
 	char prefix = after[3];
 	size_t start = 0, amp = 0;
@@ -326,9 +295,9 @@ static void print_query_string(const char *after) {
 	    }
 	}
     }
-
     cout << query_string;
 }
+#endif
 
 /* pretty print numbers with thousands separated */
 /* NB only handles %ld and %d with no width or flag specifiers... */

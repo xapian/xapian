@@ -19,7 +19,7 @@ o.substring(1,i)+o.substring(i+c.value.length+1,o.length-1);
 <FORM NAME=P METHOD=GET 
 ACTION="$html{$or{$env{SCRIPT_NAME},ompf}}" TARGET="_top">
 <center>
-<INPUT NAME=P VALUE="$query" SIZE=65>
+<INPUT NAME=P VALUE="$html{$query}" SIZE=65>
 <INPUT TYPE=IMAGE VALUE="Search" BORDER=0 WIDTH=56 HEIGHT=56 ALIGN=middle 
 SRC="http://www.euroferret.com/fx-gif/find.gif">
 ${
@@ -39,13 +39,15 @@ $if{$topterms,<BR><NOSCRIPT><INPUT TYPE=hidden NAME=ADD VALUE=1></NOSCRIPT>}
 ${$list{$freqs,<hr>,$. ,<hr>}}
 <hr>
 $if{$eq{$msize,0},
- $if{$queryterms,No documents match your query},
- $if{$ne{$last,$msize},
-  $add{$topdoc,1}-$add{$topdoc,$maxhits} of at least $msize matches,
-  $if{$eq{$topdoc,0},
-   All $msize matches,
-   $add{$topdoc,1}$if{$ne{$add{$topdoc,1},$msize},-$msize} of exactly $msize matches}
-}}
+
+$if{$queryterms,No documents match your query},
+
+$if{$ne{$last,$msize},
+ $add{$topdoc,1}-$add{$topdoc,$maxhits} of at least $msize matches,
+ $if{$eq{$topdoc,0},
+  All $msize matches,
+  $add{$topdoc,1}$if{$ne{$add{$topdoc,1},$msize},-$msize} of exactly $msize matches}
+}
 <hr>
 </center>
 <table>
@@ -89,6 +91,8 @@ $if{$ne{$last,$msize},<INPUT TYPE=image NAME="&gt;"
 SRC="http://www.euroferret.com/fx-gif/next.gif" BORDER=0 HEIGHT=56 WIDTH=56>,
 ${<IMG ALT="" SRC="http://www.euroferret.com/fx-gif/nextoff.gif" HEIGHT=56 WIDTH=56>}}
 <br>
+
+}
 $map{$html{$cgilist{DB}},<INPUT TYPE=hidden NAME=DB VALUE=",">}
 $if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
 $if{$ne{$maxhits,10},<INPUT TYPE=hidden NAME=MAXHITS VALUE=$maxhits>}

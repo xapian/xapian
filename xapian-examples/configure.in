@@ -10,7 +10,7 @@ ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"
 dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
-AM_PROG_LEX
+AC_PROG_YACC
 
 dnl Use libtool to manage our libraries
 AM_PROG_LIBTOOL

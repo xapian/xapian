@@ -62,7 +62,6 @@ void
 MyHtmlParser::closing_tag(const string &text)
 {
     string x = text;
-    lowercase_term(x); // ick
     if (x == "title") {
 	title = dump;
 	// replace newlines with spaces
@@ -117,9 +116,23 @@ index_file(const string &url)
     if (p.title != "") record = record +"\ncaption=" + p.title;
     newdocument.data = record;
 
-    size_t j;
-    j = 0;
     int pos = 1;
+    // FIXME: extract to separate function...
+    size_t j = 0;
+    while ((i = p.title.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				      "abcdefghijklmnopqrstuvwxyz", j))
+	    != string::npos) {
+	
+	j = p.title.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+				      "abcdefghijklmnopqrstuvwxyz"
+				      "0123456789", i);
+	om_termname term = p.title.substr(i, j - i);
+	lowercase_term(term);
+        term = stemmer.stem_word(term);
+	newdocument.add_posting(term, pos++);
+	i = j + 1;
+    }
+    j = 0;
     while ((i = dump.find_first_of("ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 				   "abcdefghijklmnopqrstuvwxyz", j))
 	    != string::npos) {

@@ -46,14 +46,11 @@ void add_bterm(const string &);
 extern om_queryop op;
 
 extern string raw_prob;
+extern OmQuery query;
 extern map<om_docid, bool> ticked;
 extern string query_string;
 extern map<char, string> filter_map;
 extern char *fmtstr;
 extern list<om_termname> new_terms_list;
-
-typedef enum { NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
-
-extern void check_term(const string &name, termtype type);
-
+extern set<om_termname> new_terms;
 #endif /* QUERY_H */

@@ -1,4 +1,12 @@
-Mon Jul 09 15:05:00 BST 2000 Olly Betts
+Tue Jul 11 14:17:00 BST 2000 Olly Betts
+
+	* omega: replaced LEX based query parser with YACC based parser
+	  which handles phrases and boolean queries
+
+	* omindex: lowercase tag names; added virtual destructor for
+	  HtmlParser class; generate index terms from title	
+
+Mon Jul 10 15:05:00 BST 2000 Olly Betts
 
 	* omega: MORELIKE now works; godmode works to some extent; mset
 	  moved into query.cc; empty query handling now less icky; $pages
