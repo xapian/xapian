@@ -382,7 +382,7 @@ inline om_doccount
 InMemoryDatabase::get_doccount() const
 {
     Assert(opened);
-    return postlists.size();
+    return termlists.size();
 }
 
 inline om_doclength
