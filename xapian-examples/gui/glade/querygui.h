@@ -12,6 +12,10 @@ extern "C" {
 
 void on_query_changed(GtkWidget *widget, gpointer user_data);
 
+gboolean on_mainwindow_destroy(GtkWidget *widget,
+			       GdkEvent *event,
+			       gpointer user_data);
+
 #ifdef __cplusplus
 }
 #endif

@@ -29,6 +29,11 @@
   <name>mainwindow</name>
   <width>350</width>
   <height>450</height>
+  <signal>
+    <name>destroy</name>
+    <handler>on_mainwindow_destroy</handler>
+    <last_modification_time>Wed, 20 Oct 1999 13:54:25 GMT</last_modification_time>
+  </signal>
   <title>Test a query</title>
   <type>GTK_WINDOW_TOPLEVEL</type>
   <position>GTK_WIN_POS_NONE</position>
