@@ -150,20 +150,15 @@ run_query()
 				filter_vec.end()));
     }
 
-    if (!query.is_defined()) {
-	// empty mset
-	mset = OmMSet();
-    } else {
-	enquire->set_query(query);
+    enquire->set_query(query);
 
-	// We could use the value of topdoc as first parameter, but we
-	// need to know the first few items on the mset to fake a
-	// relevance set for topterms
-        OmSettings opt;
-        opt.set("match_percent_cutoff", threshold);
-	// FIXME - set msetcmp to reverse?
-       	mset = enquire->get_mset(0, topdoc + hits_per_page, rset, &opt);
-    }
+    // We could use the value of topdoc as first parameter, but we
+    // need to know the first few items on the mset to fake a
+    // relevance set for topterms
+    OmSettings opt;
+    opt.set("match_percent_cutoff", threshold);
+    // FIXME - set msetcmp to reverse?
+    mset = enquire->get_mset(0, topdoc + hits_per_page, rset, &opt);
 }
 
 #if 0

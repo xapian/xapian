@@ -78,9 +78,6 @@ exp:	  prob		{
 					    q);
 			    }
 			    if ($1.hate.size()) {
-				if (!q.is_defined()) {
-				    // FIXME: barf
-				}
 				q = OmQuery(OmQuery::OP_AND_NOT,
 					    q,
 					    OmQuery(OmQuery::OP_OR,
