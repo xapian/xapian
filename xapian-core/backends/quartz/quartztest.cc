@@ -374,15 +374,37 @@ static bool test_adddoc1()
     TEST_EQUAL(database.get_doccount(), 0);
     OmDocumentContents document;
     om_docid did;
+
     did = database.add_document(document);
     TEST_EQUAL(database.get_doccount(), 1);
+    settings.set("quartz_modification_log", "log_ro");
+    {
+	QuartzDatabase db_readonly(settings, true);
+	TEST_EQUAL(db_readonly.get_doccount(), 0);
+    }
+    database.flush();
+    {
+	QuartzDatabase db_readonly(settings, true);
+	TEST_EQUAL(db_readonly.get_doccount(), 1);
+    }
+
     database.delete_document(did);
     TEST_EQUAL(database.get_doccount(), 0);
+    {
+	QuartzDatabase db_readonly(settings, true);
+	TEST_EQUAL(db_readonly.get_doccount(), 1);
+    }
+    database.flush();
+    {
+	QuartzDatabase db_readonly(settings, true);
+	TEST_EQUAL(db_readonly.get_doccount(), 0);
+    }
     database.end_session();
 
     return true;
 }
 
+/// Test packing integers into strings
 static bool test_packint1()
 {
     TEST_EQUAL(pack_uint32(0), std::string("\000", 1));
@@ -395,6 +417,7 @@ static bool test_packint1()
     return true;
 }
 
+/// Test packing integers into strings and unpacking again
 static bool test_packint2()
 {
     std::string foo;
@@ -434,6 +457,7 @@ static bool test_packint2()
     return true;
 }
 
+/// Test unpacking integers from strings
 static bool test_unpackint1()
 {
     std::string foo;

@@ -1,3 +1,11 @@
+Mon Oct  2 16:21:16 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Improved messages to quartz log - can now make log entries when
+	  opened readonly, if requested.
+
+	* quartzopen1 now checks behaviour of flush(), and time at which
+	  documents get written to database.  (Currently fails).
+
 Mon Oct  2 14:27:00 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added utilities to pack and unpack integers to quartz_utils.h

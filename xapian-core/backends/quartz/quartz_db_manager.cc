@@ -38,9 +38,13 @@ QuartzDbManager::QuartzDbManager(string db_dir_,
 	  readonly(readonly_)
 {
     // Open modification log
-    if (readonly) log_filename = "";
     log.reset(new QuartzLog(log_filename));
-    log->make_entry("Database at `" + db_dir + "' opened for modifications.");
+    if (readonly) {
+	log->make_entry("Opening database at `" + db_dir + "' readonly.");
+    } else {
+	log->make_entry("Opening database at `" + db_dir +
+			"' for modifications.");
+    }
 
     // set cache size parameters, etc, here.
 
@@ -94,6 +98,8 @@ QuartzDbManager::QuartzDbManager(string db_dir_,
 	} else {
 	    // initialise
 	    QuartzRevisionNumber new_revision = get_next_revision_number();
+	    log->make_entry("Initialising database - new revision is " +
+			    new_revision.get_description() + ".");   
 	    std::map<QuartzDbKey, QuartzDbTag *> empty_entries;
 	    std::map<QuartzDbKey, QuartzDbTag *> record_entries;
 	    QuartzDbKey key;
