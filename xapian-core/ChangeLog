@@ -1,3 +1,9 @@
+Mon Oct 16 18:59:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* In multimatch.cc, replace w_max by max_possible_item, so that
+	  early termination comparison takes document ID into account. This
+	  may fix the problem with boolean queries not terminating early.
+
 Mon Oct 16 16:42:17 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added dummy implementation of get_next_entry() in quartz_table.cc

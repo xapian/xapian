@@ -194,7 +194,10 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // maximum weight a document could possibly have
     const om_weight max_weight = pl->recalc_maxweight();
 
-    om_weight w_max = max_weight; // w_max may decrease as tree is pruned
+    // Maxium possible item that could exist.
+    // FIXME: the "(om_docid)-1" is a hack to get the maximum possible
+    // document ID.
+    OmMSetItem max_possible_item(max_weight, (om_docid)-1);
     recalculate_w_max = false;
 
     // Check if any results have been asked for (might just be wanting
@@ -241,9 +244,9 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     while (1) {
 	if (recalculate_w_max) {
 	    recalculate_w_max = false;
-	    w_max = pl->recalc_maxweight();
-	    DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
-	    if (w_max < min_item.wt) {
+	    max_possible_item.wt = pl->recalc_maxweight();
+	    DEBUGLINE(MATCH, "max possible item = " << max_possible_item);
+	    if (mcmp(min_item, max_possible_item)) {
 		DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
 		break;
 	    }
@@ -257,11 +260,11 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	    // no need for a full recalc (unless we've got to do one because
 	    // of a prune elsewhere) - we're just switching to a subtree
-	    w_max = pl->get_maxweight();
-	    DEBUGLINE(MATCH, "max possible doc weight = " << w_max);
-            AssertParanoid(recalculate_w_max || fabs(w_max - pl->recalc_maxweight()) < 1e-9);
+	    max_possible_item.wt = pl->get_maxweight();
+	    DEBUGLINE(MATCH, "max possible item = " << max_possible_item);
+            AssertParanoid(recalculate_w_max || fabs(max_possible_item.wt - pl->recalc_maxweight()) < 1e-9);
 
-	    if (w_max < min_item.wt) {
+	    if (mcmp(min_item, max_possible_item)) {
 		DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
 		break;
 	    }
