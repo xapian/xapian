@@ -1,3 +1,8 @@
+Thu Apr 20 14:37:14 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixed main part of bug with MSet docid merging in MultiMatch.
+	  Will still fail to do collapse operation across multiple databases.
+
 Thu Apr 20 13:20:33 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Fixed some memory leaks.

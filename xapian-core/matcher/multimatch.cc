@@ -179,6 +179,52 @@ MultiMatch::get_max_weight()
 
 
 void
+MultiMatch::change_docids_to_global(vector<OmMSetItem> & mset,
+				    om_doccount number_of_leaves,
+				    om_doccount leaf_number)
+{
+    vector<OmMSetItem>::iterator mset_item;
+    for (mset_item = mset.begin();
+	 mset_item != mset.end();
+	 mset_item++) {
+	mset_item->did = (mset_item->did - 1) * number_of_leaves + leaf_number;
+    }
+}
+
+void
+MultiMatch::merge_msets(vector<OmMSetItem> &mset,
+			vector<OmMSetItem> &more_mset,
+			om_doccount lastitem,
+			MSetCmp & mcmp) {
+    // FIXME - this method is likely to be very inefficient
+    DebugMsg("Merging mset of size " << more_mset.size() <<
+	     " to existing set of size " << mset.size() <<
+	     endl);
+
+    vector<OmMSetItem> old_mset;
+    old_mset.swap(mset);
+
+    vector<OmMSetItem>::const_iterator i = old_mset.begin();
+    vector<OmMSetItem>::const_iterator j = more_mset.begin();
+    while(mset.size() < lastitem &&
+	  i != old_mset.end() && j != more_mset.end()) {
+	if(mcmp(*i, *j)) {
+	    mset.push_back(*i++);
+	} else {
+	    mset.push_back(*j++);
+	}
+    }
+    while(mset.size() < lastitem &&
+	  i != old_mset.end()) {
+	mset.push_back(*i++);
+    }
+    while(mset.size() < lastitem &&
+	  j != more_mset.end()) {
+	mset.push_back(*j++);
+    }
+}
+
+void
 MultiMatch::match(om_doccount first,
 		  om_doccount maxitems,
 		  vector<OmMSetItem> & mset,
@@ -208,57 +254,40 @@ MultiMatch::match(om_doccount first,
 	    leaf != leaves.end(); leaf++) {
 	    (*leaf)->prepare_match();
 	}
-	
+
 	// Get the first mset
 	(*(leaves.begin()))->get_mset(0, lastitem, mset, cmp,
 				      &tot_mbound, &tot_greatest_wt, mdecider);
 
-	if(leaves.size() > 1) {
-	    // Get subsequent msets, and merge each one with the current mset
-	    // FIXME: this approach may be very inefficient - needs attention.
-	    for(vector<SingleMatch *>::iterator leaf = leaves.begin() + 1;
-		leaf != leaves.end(); leaf++) {
+	// Modify its docids to be compilant with the whole.
+	change_docids_to_global(mset, leaves.size(), 1);
 
-		om_doccount sub_mbound;
-		om_weight   sub_greatest_wt;
-		vector<OmMSetItem> sub_mset;
+	// Get subsequent msets, and merge each one with the current mset
+	// FIXME: this approach may be very inefficient - needs attention.
+	om_doccount leaf_number;
+	vector<SingleMatch *>::iterator leaf;
+	for(leaf = leaves.begin() + 1,
+	    leaf_number = 2;
+	    leaf != leaves.end();
+	    leaf++, leaf_number++) {
 
-		// Get next mset
-		(*leaf)->get_mset(0, lastitem, sub_mset, cmp,
-				  &sub_mbound, &sub_greatest_wt, mdecider);
+	    om_doccount sub_mbound;
+	    om_weight   sub_greatest_wt;
+	    vector<OmMSetItem> sub_mset;
 
-		DebugMsg("Merging mset of size " << sub_mset.size() <<
-			 " to existing set of size " << mset.size() <<
-			 endl);
+	    // Get next mset
+	    (*leaf)->get_mset(0, lastitem, sub_mset, cmp,
+			      &sub_mbound, &sub_greatest_wt, mdecider);
+	    change_docids_to_global(sub_mset,
+				    leaves.size(),
+				    leaf_number);
 
-		// Merge stats
-		tot_mbound += sub_mbound;
-		if(sub_greatest_wt > tot_greatest_wt)
-		    tot_greatest_wt = sub_greatest_wt;
+	    // Merge stats
+	    tot_mbound += sub_mbound;
+	    if(sub_greatest_wt > tot_greatest_wt)
+		tot_greatest_wt = sub_greatest_wt;
 
-		// Merge msets: FIXME - this is likely to be very inefficient
-		vector<OmMSetItem> old_mset;
-		old_mset.swap(mset);
-
-		vector<OmMSetItem>::const_iterator i = old_mset.begin();
-		vector<OmMSetItem>::const_iterator j = sub_mset.begin();
-		while(mset.size() < lastitem &&
-		      i != old_mset.end() && j != sub_mset.end()) {
-		    if(mcmp(*i, *j)) {
-			mset.push_back(*i++);
-		    } else {
-			mset.push_back(*j++);
-		    }
-		}
-		while(mset.size() < lastitem &&
-		      i != old_mset.end()) {
-		    mset.push_back(*i++);
-		}
-		while(mset.size() < lastitem &&
-		      j != sub_mset.end()) {
-		    mset.push_back(*j++);
-		}
-	    }
+	    merge_msets(mset, sub_mset, lastitem, mcmp);
 	}
 
 	// Clear unwanted leading elements.

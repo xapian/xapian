@@ -20,8 +20,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  Urgent  | Chris           | Juggle
 ---------+-----------------+--------------------------------------------------
- High    | MultiMatch      | Fix the MSet docid merging
----------+-----------------+--------------------------------------------------
  High    | MultiMatch      | Fix the MSet docid merging with collapsing on.
 ---------+-----------------+--------------------------------------------------
  High    | Stemming        | Make a separate package to contain stemming

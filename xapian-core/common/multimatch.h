@@ -55,6 +55,28 @@ class MultiMatch
 	/// Construct a SingleMatch object from an IRDatabase
 	auto_ptr<SingleMatch> make_match_from_database(IRDatabase *db);
 
+	/** Change all the document IDs in the given mset to be valid
+	 *  globally, rather than within the sub-match which produced them.
+	 *
+	 *  @param mset              The MSet to alter.
+	 *  @param number_of_leaves  The number of sub-matches that exist.
+	 *  @param leaf_number       The sub-match which this mset comes from.
+	 *  			     (Starting at 1)
+	 */
+	void change_docids_to_global(vector<OmMSetItem> & mset,
+				     om_doccount number_of_leaves,
+				     om_doccount leaf_number);
+
+        /** Merge two msets together.
+	 *
+	 *  @param mset      The mset to put the results in.
+	 *  @param more_mset
+	 */
+	void merge_msets(vector<OmMSetItem> &mset,
+			 vector<OmMSetItem> &more_mset,
+			 om_doccount lastitem,
+			 MSetCmp & mcmp);
+
 	// disallow copies
 	MultiMatch(const MultiMatch &);
 	void operator=(const MultiMatch &);
