@@ -19,12 +19,14 @@
 // should have another command for classes/functions that look
 // at their contents 
 
+#define SKIP_FUNCTIONS 1
+
 #define MAX_FROM_APP 9999999
 
 // makes things to limit things in this way because symbols
 // could occur in many places.
 
-#define TOTAL_WORDS 500
+#define TOTAL_WORDS 200
 #define MAX_WORDS 9999999
 #define MIN_WORDS 1
 
@@ -96,8 +98,6 @@
 void usage(char * prog_name);
 const string database = "db";
 
-#define SKIP_CLASSES 0 
-
 void writeDatabase( const string& database_dir, map<string, int>& app_symbol_count, map<string, list<string> >& app_symbol_terms ) {
 
   cerr << "... removing directory " << database_dir << " (if it already exists)" << endl;
@@ -116,15 +116,11 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
 
   // code which accesses Omsee
 
-#if !SKIP_CLASSES
   OmSettings db_parameters_classes;
   db_parameters_classes.set("backend", "quartz");
   db_parameters_classes.set("quartz_dir", database_dir+"_c");
   db_parameters_classes.set("database_create", true);
   OmWritableDatabase database_classes(db_parameters_classes); // open database
-
-#endif
-
 
   OmSettings db_parameters_functions;
   db_parameters_functions.set("backend", "quartz");
@@ -161,9 +157,7 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
       //      cerr << "Data -" << newdocument.data << "- with # words = " << pos << endl;
       database_functions.add_document(newdocument);
     } else {
-#if !SKIP_CLASSES
       database_classes.add_document(newdocument);
-#endif
     }
   }
 
@@ -354,6 +348,10 @@ int main(int argc, char *argv[]) {
 
 
 	for( set<string>::iterator i = symbols.begin(); i != symbols.end(); i++ ) {
+
+	  if ( SKIP_FUNCTIONS && i->find("()") != -1 ) {
+	    continue;
+	  }
 
 	  if ( app_symbols.find(*i) != app_symbols.end() ) {
 	    app_symbol_count[*i]++; // count number of lines that contain symbol
