@@ -59,8 +59,21 @@
 #include "irweight.h"
 
 #include <algorithm>
+using std::max;
+using std::make_pair;
+using std::make_heap;
+using std::push_heap;
+using std::pop_heap;
+using std::nth_element;
+using std::sort;
 #include "autoptr.h"
 #include <queue>
+#include <vector>
+using std::vector;
+#include <map>
+using std::map;
+#include <set>
+using std::set;
 
 class OmErrorHandler;
 
@@ -132,9 +145,9 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
     query->validate_query();
 
     om_doccount number_of_leaves = db.internal->databases.size();
-    std::vector<OmRSet> subrsets(number_of_leaves);
+    vector<OmRSet> subrsets(number_of_leaves);
 
-    std::set<om_docid>::const_iterator reldoc; 
+    set<om_docid>::const_iterator reldoc; 
     for (reldoc = omrset.internal->items.begin();
 	 reldoc != omrset.internal->items.end(); reldoc++) {
 	om_doccount local_docid = ((*reldoc) - 1) / number_of_leaves + 1;
@@ -142,9 +155,9 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 	subrsets[subdatabase].add_document(local_docid);
     }
     
-    std::vector<OmRSet>::const_iterator subrset = subrsets.begin();
+    vector<OmRSet>::const_iterator subrset = subrsets.begin();
 
-    std::vector<RefCntPtr<Database> >::iterator i;
+    vector<RefCntPtr<Database> >::iterator i;
     for (i = db.internal->databases.begin();
 	 i != db.internal->databases.end(); ++i) {
 	Assert(subrset != subrsets.end());
@@ -198,7 +211,7 @@ MultiMatch::prepare_matchers()
     bool nowait = true;
     do {
 	prepared = true;
-	std::vector<RefCntPtr<SubMatch> >::iterator leaf;
+	vector<RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); leaf++) {
 	    try {
 		if (!(*leaf)->prepare_match(nowait)) prepared = false;
@@ -258,14 +271,13 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", ...");
 
-    std::map<om_termname,
-    	     OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
+    map<om_termname, OmMSet::Internal::Data::TermFreqAndWeight> termfreqandwts;
 
     Assert(!leaves.empty());
 
     // Start matchers
     {
-	std::vector<RefCntPtr<SubMatch> >::iterator leaf;
+	vector<RefCntPtr<SubMatch> >::iterator leaf;
 	for (leaf = leaves.begin(); leaf != leaves.end(); leaf++) {
 	    try {
 		(*leaf)->start_match(first + maxitems);
@@ -284,8 +296,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     }
 
     // Get postlists
-    std::vector<PostList *> postlists;
-    std::vector<RefCntPtr<SubMatch> >::iterator i;
+    vector<PostList *> postlists;
+    vector<RefCntPtr<SubMatch> >::iterator i;
     for (i = leaves.begin(); i != leaves.end(); i++) {
 	// FIXME: errorhandler here? (perhaps not needed if this simply makes a pending postlist)
 	postlists.push_back((*i)->get_postlist(first + maxitems, this));
@@ -294,8 +306,8 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Get term info
     termfreqandwts.clear();
     {
-	std::vector<RefCntPtr<SubMatch> >::iterator leaf;
-	std::vector<PostList * >::iterator pl_iter;
+	vector<RefCntPtr<SubMatch> >::iterator leaf;
+	vector<PostList * >::iterator pl_iter;
 	Assert(leaves.size() == postlists.size());
 	for (leaf = leaves.begin(), pl_iter = postlists.begin();
 	     leaf != leaves.end();
@@ -355,7 +367,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // Empty result set
     om_doccount docs_matched = 0;
     om_weight greatest_wt = 0;
-    std::vector<OmMSetItem> items;
+    vector<OmMSetItem> items;
 
     // maximum weight a document could possibly have
     const om_weight max_weight = pl->recalc_maxweight();
@@ -400,7 +412,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     }
 
     // Table of keys which have been seen already, for collapsing.
-    std::map<string, OmMSetItem> collapse_tab;
+    map<string, OmMSetItem> collapse_tab;
 
     // Whether to perform collapse operation
     bool do_collapse = false;
@@ -503,14 +515,14 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 
 	    // Don't collapse on null key
 	    if (!new_item.collapse_key.empty()) {
-		std::map<string, OmMSetItem>::iterator oldkey;
+		map<string, OmMSetItem>::iterator oldkey;
 		oldkey = collapse_tab.find(new_item.collapse_key);
 		if (oldkey == collapse_tab.end()) {
 		    DEBUGLINE(MATCH, "collapsem: new key: " <<
 			      new_item.collapse_key);
 		    // Key not been seen before
-		    collapse_tab.insert(std::make_pair(new_item.collapse_key,
-						       new_item));
+		    collapse_tab.insert(make_pair(new_item.collapse_key,
+						  new_item));
 		} else {
 		    const OmMSetItem old_item = oldkey->second;
 		    if (mcmp(old_item, new_item)) {
@@ -528,7 +540,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 			om_docid olddid = old_item.did;
 			DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
 				  ": " << new_item.collapse_key);
-			std::vector<OmMSetItem>::iterator i;
+			vector<OmMSetItem>::iterator i;
 			for (i = items.begin(); i->did != olddid; i++) {
 			    Assert(i != items.end());
 			}
@@ -556,22 +568,30 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		if (max_weight == 0) {
 		    if (opts.get_bool("match_sort_forward", true)) break;
 		}
-	    } else if (!sort_bands && items.size() > max_msize) {
+	    } else if (sort_bands != 1 && items.size() > max_msize) {
 		if (!is_heap) {
 		    is_heap = true;
-		    std::make_heap<std::vector<OmMSetItem>::iterator,
-			 	   OmMSetCmp>(items.begin(), items.end(), mcmp);
-		} else {
-		    std::push_heap<std::vector<OmMSetItem>::iterator,
-				   OmMSetCmp>(items.begin(), items.end(), mcmp);
-		}
-		std::pop_heap<std::vector<OmMSetItem>::iterator,
+		    make_heap<vector<OmMSetItem>::iterator,
 			      OmMSetCmp>(items.begin(), items.end(), mcmp);
-		items.pop_back(); 
-		min_item = items.front();
-		if (getorrecalc_maxweight(pl) < min_item.wt) {
-		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
-		    break;
+		} else {
+		    push_heap<vector<OmMSetItem>::iterator,
+			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+		}
+		if (sort_bands) {
+		    om_weight ceiling;
+		    ceiling = max(greatest_wt, getorrecalc_maxweight(pl));
+		    om_weight w = ceiling / sort_bands *
+			    floor(items.front().wt * sort_bands / ceiling);
+		    if (w > min_item.wt) min_item.wt = w;
+		} else {
+		    pop_heap<vector<OmMSetItem>::iterator,
+			     OmMSetCmp>(items.begin(), items.end(), mcmp);
+		    items.pop_back(); 
+		    min_item = items.front();
+		    if (getorrecalc_maxweight(pl) < min_item.wt) {
+			DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
+			break;
+		    }
 		}
 	    } else {
 		is_heap = false;
@@ -588,19 +608,18 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	            min_item.did = 0;
 		    if (!is_heap) {
 			is_heap = true;
-			std::make_heap<std::vector<OmMSetItem>::iterator,
-				       OmMSetCmp>(items.begin(), items.end(),
+			make_heap<vector<OmMSetItem>::iterator,
+				  OmMSetCmp>(items.begin(), items.end(),
 						  mcmp);
 		    }
 		    while (!items.empty() && items.front().wt < min_item.wt) {
-			std::pop_heap<std::vector<OmMSetItem>::iterator,
-				      OmMSetCmp>(items.begin(), items.end(),
-						 mcmp);
+			pop_heap<vector<OmMSetItem>::iterator,
+				 OmMSetCmp>(items.begin(), items.end(), mcmp);
 			Assert(items.back().wt < min_item.wt);
 			items.pop_back();
 		    }
 #ifdef MUS_DEBUG_PARANOID
-		    std::vector<OmMSetItem>::const_iterator i;
+		    vector<OmMSetItem>::const_iterator i;
 		    for (i = items.begin(); i != items.end(); ++i) {
 			Assert(i->wt >= min_item.wt);
 		    }
@@ -611,13 +630,13 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		if (greatest_wt >= getorrecalc_maxweight(pl)) {
 		    if (!is_heap) {
 			is_heap = true;
-			std::make_heap<std::vector<OmMSetItem>::iterator,
-				       OmMSetCmp>(items.begin(), items.end(),
-						  mcmp);
+			make_heap<vector<OmMSetItem>::iterator,
+				  OmMSetCmp>(items.begin(), items.end(), mcmp);
 		    }
 		    // greatest_wt cannot now rise any further, so we now know
 		    // exactly where the relevance bands are.
-		    om_weight w = greatest_wt / sort_bands * floor(items.back().wt * sort_bands / greatest_wt);
+		    om_weight w = greatest_wt / sort_bands *
+			    floor(items.front().wt * sort_bands / greatest_wt);
 		    if (w > min_item.wt) min_item.wt = w;
 		}
 	    }
@@ -631,13 +650,13 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     if (!items.empty() && greatest_wt > 0) {
 	// OK, work out weight corresponding to 100%
 	double denom = 0;
-	std::map<om_termname,
-		 OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
+	map<om_termname,
+	    OmMSet::Internal::Data::TermFreqAndWeight>::const_iterator i;
 	for (i = termfreqandwts.begin(); i != termfreqandwts.end(); i++)
 	    denom += i->second.termweight;
 	denom *= greatest_wt;
 	Assert(denom > 0);
-	std::vector<OmMSetItem>::const_iterator best;
+	vector<OmMSetItem>::const_iterator best;
 	best = min_element(items.begin(), items.end(), mcmp);
 
 	OmTermIterator docterms = db.termlist_begin(best->did);
@@ -655,17 +674,17 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    om_weight min_wt = percent_factor / percent_scale;
 	    if (!is_heap) {
 		is_heap = true;
-		std::make_heap<std::vector<OmMSetItem>::iterator,
-			       OmMSetCmp>(items.begin(), items.end(), mcmp);
+		make_heap<vector<OmMSetItem>::iterator,
+			  OmMSetCmp>(items.begin(), items.end(), mcmp);
 	    }
 	    while (!items.empty() && items.front().wt < min_wt) {
-		std::pop_heap<std::vector<OmMSetItem>::iterator,
-			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+		pop_heap<vector<OmMSetItem>::iterator,
+			 OmMSetCmp>(items.begin(), items.end(), mcmp);
 		Assert(items.back().wt < min_item.wt);
 		items.pop_back();
 	    }
 #ifdef MUS_DEBUG_PARANOID
-	    std::vector<OmMSetItem>::const_iterator i;
+	    vector<OmMSetItem>::const_iterator i;
 	    for (i = items.begin(); i != items.end(); ++i) {
 		Assert(i->wt >= min_item.wt);
 	    }
@@ -694,7 +713,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	// another approach: om_doccount new_est = items.size() * (1 - percent_factor) / (1 - min_item.wt / greatest_wt);
 	om_doccount new_est = (om_doccount)((1 - percent_factor) *
 					    matches_estimated);
-	matches_estimated = std::max((size_t)new_est, items.size());
+	matches_estimated = max((size_t)new_est, items.size());
 	// and another: items.size() + (1 - greatest_wt * percent_factor / min_item.wt) * (matches_estimated - items.size());
 	
 	// Very likely an underestimate, but we can't really do better without
@@ -715,8 +734,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	    items.clear();
 	} else {
 	    DEBUGLINE(MATCH, "finding " << first << "th");
-	    std::nth_element(items.begin(), items.begin() + first, items.end(),
-			     mcmp);
+	    nth_element(items.begin(), items.begin() + first, items.end(), mcmp);
 	    // erase the leading ``first'' elements
 	    items.erase(items.begin(), items.begin() + first);
 	}
@@ -733,7 +751,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 	DEBUGLINE(MATCH, "sorting");
 
 	// Need a stable sort, but this is provided by comparison operator
-	std::sort(items.begin(), items.end(), mcmp);
+	sort(items.begin(), items.end(), mcmp);
 
 	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt <<
 		  ", min weight in mset = " << items.back().wt);

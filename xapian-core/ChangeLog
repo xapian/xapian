@@ -1,3 +1,8 @@
+Thu May 09 16:58:11 BST 2002  Olly Betts <olly@survex.com>
+
+	* Added another optimisation for match_sort_bands - my test case
+	  is now 25% faster (still slow though).
+
 Thu May 09 11:57:59 BST 2002  Olly Betts <olly@survex.com>
 
 	* NEWS, PLATFORMS, README: Updated to something approximating what we
