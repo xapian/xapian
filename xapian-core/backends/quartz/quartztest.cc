@@ -42,6 +42,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+static std::string tmpdir;
+
 /// Get the size of the given file in bytes.
 static int get_filesize(std::string filename)
 {
@@ -49,6 +52,16 @@ static int get_filesize(std::string filename)
     int result = stat(filename.c_str(), &buf);
     if (result) return -1;
     return buf.st_size;
+}
+
+static void deletedir(std::string filename)
+{
+    system(("rm -fr " + filename).c_str());
+}
+
+static void makedir(std::string filename)
+{
+    system(("mkdir " + filename).c_str());
 }
 
 /// Check the values returned by a table containing key/tag "hello"/"world"
@@ -161,15 +174,15 @@ static void unlink_table(const std::string & path)
 /// Test making and playing with a QuartzDiskTable
 static bool test_disktable1()
 {
-    unlink_table("./test_disktable1_");
+    unlink_table(tmpdir + "test_disktable1_");
     {
-	QuartzDiskTable table0("./test_disktable1_", true, 0);
+	QuartzDiskTable table0(tmpdir + "test_disktable1_", true, 0);
 	TEST_EXCEPTION(OmOpeningError, table0.open());
 	TEST_EXCEPTION(OmOpeningError, table0.open(10));
     }
-    QuartzDiskTable table2("./test_disktable1_", false, 8192);
+    QuartzDiskTable table2(tmpdir + "test_disktable1_", false, 8192);
     table2.open();
-    QuartzDiskTable table1("./test_disktable1_", true, 0);
+    QuartzDiskTable table1(tmpdir + "test_disktable1_", true, 0);
     table1.open();
 
 
@@ -302,20 +315,20 @@ static bool test_disktable1()
 /// Test making and playing with a QuartzDiskTable
 static bool test_disktable2()
 {
-    unlink_table("./test_disktable2_");
+    unlink_table(tmpdir + "test_disktable2_");
 
-    QuartzDiskTable table("./test_disktable2_", false, 8192);
+    QuartzDiskTable table(tmpdir + "test_disktable2_", false, 8192);
     table.open();
-    TEST_EQUAL(get_filesize("./test_disktable2_DB"), 0);
+    TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 0);
 
     table.apply(table.get_latest_revision_number() + 1);
-    TEST_EQUAL(get_filesize("./test_disktable2_DB"), 0);
+    TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 0);
 
     table.apply(table.get_latest_revision_number() + 1);
-    TEST_EQUAL(get_filesize("./test_disktable2_DB"), 0);
+    TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 0);
 
     table.apply(table.get_latest_revision_number() + 1);
-    TEST_EQUAL(get_filesize("./test_disktable2_DB"), 0);
+    TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 0);
 
     QuartzDbKey key;
     key.value = "foo";
@@ -324,7 +337,7 @@ static bool test_disktable2()
 
     table.set_entry(key, &tag);
     table.apply(table.get_latest_revision_number() + 1);
-    TEST_EQUAL(get_filesize("./test_disktable2_DB"), 8192);
+    TEST_EQUAL(get_filesize(tmpdir + "test_disktable2_DB"), 8192);
 
     return true;
 }
@@ -371,8 +384,8 @@ static bool test_tableentries1()
 /// Test making and playing with a QuartzBufferedTable
 static bool test_bufftable1()
 {
-    unlink_table("test_bufftable1_");
-    QuartzDiskTable disktable1("./test_bufftable1_", false, 8192);
+    unlink_table(tmpdir + "test_bufftable1_");
+    QuartzDiskTable disktable1(tmpdir + "test_bufftable1_", false, 8192);
     disktable1.open();
     QuartzBufferedTable bufftable1(&disktable1);
 
@@ -431,12 +444,12 @@ static bool test_bufftable1()
 /// Test making and playing with a QuartzBufferedTable
 static bool test_bufftable2()
 {
-    unlink_table("test_bufftable2_");
+    unlink_table(tmpdir + "test_bufftable2_");
     quartz_revision_number_t new_revision;
     quartz_revision_number_t old_revision;
     {
 	// Open table and add a few documents
-	QuartzDiskTable disktable("./test_bufftable2_", false, 8192);
+	QuartzDiskTable disktable(tmpdir + "test_bufftable2_", false, 8192);
 	disktable.open();
 	QuartzBufferedTable bufftable(&disktable);
 
@@ -460,7 +473,7 @@ static bool test_bufftable2()
     }
     {
 	// Reopen and check that the documents are still there.
-	QuartzDiskTable disktable("./test_bufftable2_", false, 8192);
+	QuartzDiskTable disktable(tmpdir + "test_bufftable2_", false, 8192);
 	disktable.open();
 	QuartzBufferedTable bufftable(&disktable);
 
@@ -511,7 +524,7 @@ static bool test_bufftable2()
     }
     {
 	// Open old revision
-	QuartzDiskTable disktable("./test_bufftable2_", false, 8192);
+	QuartzDiskTable disktable(tmpdir + "test_bufftable2_", false, 8192);
 	TEST(disktable.open(old_revision));
 	QuartzBufferedTable bufftable(&disktable);
 
@@ -543,7 +556,7 @@ static bool test_bufftable2()
     }
     {
 	// Reopen and check that the documents are still there.
-	QuartzDiskTable disktable("./test_bufftable2_", false, 8192);
+	QuartzDiskTable disktable(tmpdir + "test_bufftable2_", false, 8192);
 	disktable.open();
 	QuartzBufferedTable bufftable(&disktable);
 
@@ -587,7 +600,7 @@ static bool test_bufftable2()
     {
 	// Check that opening a nonexistant revision returns false (but doesn't
 	// throw an exception).
-	QuartzDiskTable disktable("./test_bufftable2_", false, 8192);
+	QuartzDiskTable disktable(tmpdir + "test_bufftable2_", false, 8192);
 	TEST(!disktable.open(new_revision + 10));
     }
 
@@ -597,11 +610,11 @@ static bool test_bufftable2()
 /// Test making and playing with a QuartzBufferedTable
 static bool test_bufftable3()
 {
-    unlink_table("test_bufftable3_");
+    unlink_table(tmpdir + "test_bufftable3_");
     quartz_revision_number_t new_revision;
     {
 	// Open table and add a couple of documents
-	QuartzDiskTable disktable("./test_bufftable3_", false, 8192);
+	QuartzDiskTable disktable(tmpdir + "test_bufftable3_", false, 8192);
 	disktable.open();
 	QuartzBufferedTable bufftable(&disktable);
 
@@ -629,7 +642,7 @@ static bool test_bufftable3()
     }
     {
 	// Reopen and check that the documents are still there.
-	QuartzDiskTable disktable("./test_bufftable3_", false, 8192);
+	QuartzDiskTable disktable(tmpdir + "test_bufftable3_", false, 8192);
 	disktable.open();
 	QuartzBufferedTable bufftable(&disktable);
 
@@ -661,12 +674,12 @@ static bool test_bufftable3()
 /// Test QuartzCursors
 static bool test_cursor1()
 {
-    unlink_table("./test_cursor1_");
+    unlink_table(tmpdir + "test_cursor1_");
 
     QuartzDbKey key;
 
     // Open table and put stuff in it.
-    QuartzDiskTable disktable1("./test_cursor1_", false, 8192);
+    QuartzDiskTable disktable1(tmpdir + "test_cursor1_", false, 8192);
     disktable1.open();
     QuartzBufferedTable bufftable1(&disktable1);
 
@@ -849,12 +862,12 @@ static bool test_cursor1()
 /// Regression test for cursors
 static bool test_cursor2()
 {
-    unlink_table("./test_cursor2_");
+    unlink_table(tmpdir + "test_cursor2_");
 
     QuartzDbKey key;
 
     // Open table and put stuff in it.
-    QuartzDiskTable disktable1("./test_cursor2_", false, 8192);
+    QuartzDiskTable disktable1(tmpdir + "test_cursor2_", false, 8192);
     disktable1.open();
     QuartzBufferedTable bufftable1(&disktable1);
 
@@ -886,8 +899,8 @@ static bool test_cursor2()
 static bool test_open1()
 {
     OmSettings settings;
-    system("rm -fr .testdb_open1");
-    settings.set("quartz_dir", ".testdb_open1");
+    deletedir(tmpdir + "testdb_open1");
+    settings.set("quartz_dir", tmpdir + "testdb_open1");
     settings.set("quartz_logfile", "log_open1");
     settings.set("backend", "quartz");
 
@@ -895,7 +908,7 @@ static bool test_open1()
 		   RefCntPtr<Database> database_0 =
 		   DatabaseBuilder::create(settings, true));
 
-    system("mkdir .testdb_open1");
+    makedir(tmpdir + "testdb_open1");
     RefCntPtr<Database> database_w =
 	    DatabaseBuilder::create(settings, false);
     RefCntPtr<Database> database_r =
@@ -909,9 +922,9 @@ static bool test_open1()
 static bool test_adddoc1()
 {
     OmSettings settings;
-    system("rm -fr .testdb_adddoc1");
-    system("mkdir .testdb_adddoc1");
-    settings.set("quartz_dir", ".testdb_adddoc1");
+    deletedir(tmpdir + "testdb_adddoc1");
+    makedir(tmpdir + "testdb_adddoc1");
+    settings.set("quartz_dir", tmpdir + "testdb_adddoc1");
     settings.set("quartz_logfile", "log_adddoc1");
     settings.set("backend", "quartz");
 
@@ -975,9 +988,9 @@ static bool test_adddoc1()
 static bool test_adddoc2()
 {
     OmSettings settings;
-    system("rm -fr .testdb_adddoc2");
-    system("mkdir .testdb_adddoc2");
-    settings.set("quartz_dir", ".testdb_adddoc2");
+    deletedir(tmpdir + "testdb_adddoc2");
+    makedir(tmpdir + "testdb_adddoc2");
+    settings.set("quartz_dir", tmpdir + "testdb_adddoc2");
     settings.set("quartz_logfile", "log_adddoc2");
     settings.set("backend", "quartz");
 
@@ -1279,9 +1292,9 @@ static bool test_unpackint1()
 /// Test playing with a btree
 static bool test_btree1()
 {
-    const char * path = "./test_btree1_";
-    Btree_create(path, 8192);
-    struct Btree * btree = Btree_open_to_read(path);
+    std::string path = tmpdir + "test_btree1_";
+    Btree_create(path.c_str(), 8192);
+    struct Btree * btree = Btree_open_to_read(path.c_str());
 
     std::string key = "foo";
     {
@@ -1307,18 +1320,18 @@ static bool test_btree1()
 static bool test_postlist1()
 {
     OmSettings settings;
-    system("rm -fr .testdb_postlist1");
-    system("mkdir .testdb_postlist1");
-    settings.set("quartz_dir", ".testdb_postlist1");
+    deletedir(tmpdir + "testdb_postlist1");
+    makedir(tmpdir + "testdb_postlist1");
+    settings.set("quartz_dir", tmpdir + "testdb_postlist1");
     settings.set("quartz_logfile", "log_postlist1");
     settings.set("backend", "quartz");
     RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
 
-    QuartzDiskTable disktable(".testdb_postlist1/postlist_", false, 8192);
+    QuartzDiskTable disktable(tmpdir + "testdb_postlist1/postlist_", false, 8192);
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
     QuartzTable * table = &bufftable;
-    QuartzDiskTable positiontable(".testdb_postlist1/position_", false, 8192);
+    QuartzDiskTable positiontable(tmpdir + "testdb_postlist1/position_", false, 8192);
 
     {
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
@@ -1368,18 +1381,18 @@ static bool test_postlist1()
 static bool test_postlist2()
 {
     OmSettings settings;
-    system("rm -fr .testdb_postlist2");
-    system("mkdir .testdb_postlist2");
-    settings.set("quartz_dir", ".testdb_postlist2");
+    deletedir(tmpdir + "testdb_postlist2");
+    makedir(tmpdir + "testdb_postlist2");
+    settings.set("quartz_dir", tmpdir + "testdb_postlist2");
     settings.set("quartz_logfile", "log_postlist2");
     settings.set("backend", "quartz");
     RefCntPtr<Database> database_w = DatabaseBuilder::create(settings, false);
 
-    QuartzDiskTable disktable(".testdb_postlist2/postlist_", false, 8192);
+    QuartzDiskTable disktable(tmpdir + "testdb_postlist2/postlist_", false, 8192);
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
     QuartzTable * table = &bufftable;
-    QuartzDiskTable positiontable(".testdb_postlist2/position_", false, 8192);
+    QuartzDiskTable positiontable(tmpdir + "testdb_postlist2/position_", false, 8192);
 
     {
 	QuartzPostList pl2(database_w, table, &positiontable, "foo");
@@ -1505,8 +1518,8 @@ static bool test_postlist2()
 /// Test playing with a positionlist, testing skip_to in particular.
 static bool test_positionlist1()
 {
-    unlink_table("./testdb_positionlist1_");
-    QuartzDiskTable disktable("testdb_positionlist1_", false, 8192);
+    unlink_table(tmpdir + "testdb_positionlist1_");
+    QuartzDiskTable disktable(tmpdir + "testdb_positionlist1_", false, 8192);
     disktable.open();
     QuartzBufferedTable bufftable(&disktable);
 
@@ -1607,5 +1620,8 @@ test_desc tests[] = {
 
 int main(int argc, char *argv[])
 {
+    tmpdir = ".quartztmp/";
+    deletedir(tmpdir);
+    makedir(tmpdir);
     return test_driver::main(argc, argv, tests);
 }
