@@ -1,3 +1,8 @@
+Wed Mar 03 19:04:04 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Only enable python bindings for python 1.5 or later
+	  (since that's what SWIG supports).
+
 Sun Feb 22 04:28:18 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.in: Changed --disable-LANGUAGE to be --without-LANGUAGE

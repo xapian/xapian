@@ -60,11 +60,15 @@ if test no != "$with_swig" ; then
   if test no != "$with_python" ; then
     AC_PATH_PROG(PYTHON, python, [])
     if test -n "$PYTHON" ; then
+      dnl SWIG needs Python 1.5 or newer.
+      case "`python -c 'import sys;print sys.version[[:3]]' 2>/dev/null`" in
+      [1.[56789]*|[2-9].*])
 	PYTHON_INC="`python -c 'import sys;print sys.prefix + "/include/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_INC)
 	PYTHON_LIB="`python -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_LIB)
-	BINDINGS="$BINDINGS python"
+	BINDINGS="$BINDINGS python" ;;
+      esac
     fi
   fi
 
