@@ -413,8 +413,8 @@ start_server()
                 socket_path, strerror(errno));
     }
 
-    /* Allow 5 queue to grow to at most 5 requests.  Should be plenty since we
-     * simply fork for each request.*/
+    /* Allow listen queue to grow to at most 5 requests.  Should be plenty
+     * since we simply fork for each request.*/
     ret = listen(serversock, 5);
     if (ret == -1) {
         fprintf(stderr, "Couldn't listen on socket `%s': `%s'\n",
@@ -424,8 +424,8 @@ start_server()
 
     /* The SIGTERM and SIGINT signal handlers cause the socket to be removed
      * from the filesystem, so they mustn't be set earlier in this file (where
-     * we havn't yet checked that the socket filename doesn't point to a file
-     * we don't wish to overwrite. */
+     * we haven't yet checked that the socket filename doesn't point to a file
+     * we don't wish to overwrite). */
     signal(SIGCHLD, on_SIGCHLD);
     signal(SIGTERM, on_SIGTERM);
     signal(SIGINT, on_SIGINT);

@@ -1,3 +1,7 @@
+Mon Sep 13 16:31:55 BST 2004  Olly Betts <olly@survex.com>
+
+	* source/queryserver.cpp: Corrected a couple of typos in comments.
+
 Fri Sep 03 15:13:15 BST 2004  Olly Betts <olly@survex.com>
 
 	* acinclude.m4: Actually put the macro definition for TYPE_SOCKLEN_T
