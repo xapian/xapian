@@ -39,9 +39,7 @@ class OmIndexerStartNode : public OmIndexerNode
 	};
     private:
 	void calculate() {
-	    set_output_record("out", *message);
-	    Message temp(0);
-	    message = temp;
+	    set_output_record("out", message);
 	}
 
 	Message message;

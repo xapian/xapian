@@ -32,24 +32,7 @@
 #include <parser.h>
 #include "omindexernode.h"
 #include "om/omsettings.h"
-
-template <class T, class U>
-class deleter_map : private std::map<T, U> {
-    public:
-	using std::map<T, U>::iterator;
-	using std::map<T, U>::const_iterator;
-	using std::map<T, U>::begin;
-	using std::map<T, U>::end;
-	using std::map<T, U>::operator[];
-	using std::map<T, U>::find;
-	~deleter_map() {
-	    for (typename std::map<T,U>::iterator i = begin();
-		 i != end();
-		 ++i) {
-		delete i->second;
-	    }
-	}
-};
+#include "deleter_map.h"
 
 class OmIndexerStartNode;
 

@@ -63,16 +63,11 @@ class SplitNode : public OmIndexerNode {
 
 	void calculate() {
 	    Message msg = get_input_record("in");
-	    Record temp1(*msg);
-	    temp1.name += "1";
-	    if (temp1.type == Record::rt_string) {
-		*temp1.u.string_val += "1";
-	    }
-	    Record temp2(*msg);
-	    temp2.name += "2";
-	    if (temp2.type == Record::rt_string) {
-		*temp2.u.string_val += "2";
-	    }
+	    Message temp1(new Record(msg->get_name() + "1",
+				     msg->get_string() + "1"));
+
+	    Message temp2(new Record(msg->get_name() + "2",
+				     msg->get_string() + "2"));
 	    set_output_record("out1", temp1);
 	    set_output_record("out2", temp2);
 	}

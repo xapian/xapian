@@ -27,6 +27,7 @@
 #include <memory>
 #include <map>
 #include <vector>
+#include "deleter_map.h"
 
 /** The possible physical types a message can have. */
 enum OmIndexerMessageType {
@@ -41,10 +42,6 @@ enum OmIndexerMessageType {
  */
 class Record {
     public:
-	/** A tag attached to this message describing its high-level type
-	 *  (eg "language", "document data", etc.) */
-	std::string name;
-
 	/** The possible types of information stored in the record.
 	 */
 	enum record_type {
@@ -54,6 +51,66 @@ class Record {
 	    rt_string,
 	    rt_vector
 	};
+
+	/** Constructor: create an empty record */
+	Record(const std::string &name_ = std::string(""));
+	/** Constructor: create an int record */
+	Record(const std::string &name_, int value);
+	/** Constructor: create a double record */
+	Record(const std::string &name_, double value);
+	/** Constructor: create a string record */
+	Record(const std::string &name_, const std::string &value);
+	// FIXME: add constructors for the non-empty types too!
+	/** Copy constructor */
+	Record(const Record &other);
+	/** Assignment operator */
+	void operator=(const Record &other);
+
+	/** Takes care of cleaning up any memory etc. */
+	~Record();
+
+	/** Set the name for this message */
+	void set_name(const std::string &name_);
+
+	/** Get the name for this message */
+	std::string get_name() const;
+
+	/** Enquire about the stored type */
+	record_type get_type() const;
+
+	/** Get the integer value from this message.
+	 *  Will throw an exception if this message is of another type.
+	 */
+	int get_int() const;
+
+	/** Get the double value from this message.
+	 *  Will throw an exception if this message is of another type.
+	 */
+	double get_double() const;
+
+	/** Get the string value from this message.
+	 *  Will throw an exception if this message is of another type.
+	 */
+	std::string get_string() const;
+
+	/** Give this record an integer value
+	 */
+	void set_int(int value);
+
+	/** Give this record a double value
+	 */
+	void set_double(double value);
+
+	/** Give this record a string value
+	 */
+	void set_string(const std::string &value);
+
+	// FIXME: include the vector type as well.
+
+    private:
+	/** A tag attached to this message describing its high-level type
+	 *  (eg "language", "document data", etc.) */
+	std::string name;
 
 	/** The type of this record */
 	record_type type;
@@ -65,16 +122,6 @@ class Record {
 	    std::string *string_val;
 	    std::vector<Record> *vector_val;
 	} u;
-
-	/** Constructor */
-	Record();
-	/** Copy constructor */
-	Record(const Record &other);
-	/** Assignment operator */
-	void operator=(const Record &other);
-
-	/** Takes care of cleaning up any memory etc. */
-	~Record();
 
     private:
 	/* atomic exception-safe swap routine */
@@ -162,7 +209,7 @@ class OmIndexerNode {
 	void set_output_double(const std::string &output_name, double value);
 	void set_output_string(const std::string &output_name,
 			       const std::string &value);
-	void set_output_record(const std::string &output_name, const Record &value);
+	void set_output_record(const std::string &output_name, Message value);
 
 	/* The implementation's interface to the configuration data. */
 
@@ -182,7 +229,7 @@ class OmIndexerNode {
 	std::map<std::string, output_info_type> output_info;
 
 	/** Message outputs */
-	std::map<std::string, Record> outputs_record;
+	deleter_map<std::string, Message *> outputs_record;
 #if 0
 	/*
 	We're currently not bothering with separate output buffers,

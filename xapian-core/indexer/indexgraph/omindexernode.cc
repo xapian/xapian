@@ -28,7 +28,7 @@ Message
 OmIndexerNode::get_output_record(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    std::map<std::string, Record>::iterator i;
+    deleter_map<std::string, Message *>::iterator i;
     i = outputs_record.find(output_name);
 
     Message result;
@@ -40,8 +40,7 @@ OmIndexerNode::get_output_record(const std::string &output_name)
 		output_name + ", which wasn't calculated, from " +
 		typeid(*this).name();
     } else {
-	auto_ptr<Record> temp(new Record(i->second));
-	result = temp;
+	result = *i->second;
 	outputs_record.erase(i);
     }
     return result;
@@ -51,7 +50,7 @@ int
 OmIndexerNode::get_output_int(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    std::map<std::string, Record>::iterator i;
+    deleter_map<std::string, Message *>::iterator i;
     i = outputs_record.find(output_name);
 
     int result;
@@ -63,11 +62,11 @@ OmIndexerNode::get_output_int(const std::string &output_name)
 		output_name + ", which wasn't calculated, from " +
 		typeid(*this).name();
     } else {
-	if (i->second.type != Record::rt_int) {
+	if ((*i->second)->get_type() != Record::rt_int) {
 	    // FIXME: better exception?
 	    throw OmInvalidArgumentError(std::string("Attempt to convert a non-int output (") + output_name + ") into a int");
 	}
-	result = i->second.u.int_val;
+	result = (*i->second)->get_int();
 	outputs_record.erase(i);
     }
     return result;
@@ -77,7 +76,7 @@ double
 OmIndexerNode::get_output_double(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    std::map<std::string, Record>::iterator i;
+    deleter_map<std::string, Message *>::iterator i;
     i = outputs_record.find(output_name);
 
     double result;
@@ -89,11 +88,12 @@ OmIndexerNode::get_output_double(const std::string &output_name)
 		output_name + ", which wasn't calculated, from " +
 		typeid(*this).name();
     } else {
-	if (i->second.type != Record::rt_double) {
+	if ((*i->second)->get_type() != Record::rt_double) {
 	    // FIXME: better exception?
 	    throw OmInvalidArgumentError(std::string("Attempt to convert a non-double output (") + output_name + ") into a double");
 	}
-	result = i->second.u.double_val;
+	result = (*i->second)->get_double();
+	delete i->second;
 	outputs_record.erase(i);
     }
     return result;
@@ -103,7 +103,7 @@ std::string
 OmIndexerNode::get_output_string(const std::string &output_name)
 {
     calculate_if_needed(output_name);
-    std::map<std::string, Record>::iterator i;
+    deleter_map<std::string, Message *>::iterator i;
     i = outputs_record.find(output_name);
 
     std::string result;
@@ -115,11 +115,12 @@ OmIndexerNode::get_output_string(const std::string &output_name)
 		output_name + ", which wasn't calculated, from " +
 		typeid(*this).name();
     } else {
-	if (i->second.type != Record::rt_string) {
+	if ((*i->second)->get_type() != Record::rt_string) {
 	    // FIXME: better exception?
 	    throw OmInvalidArgumentError(std::string("Attempt to convert a non-string output (") + output_name + ") into a string");
 	}
-	result = *i->second.u.string_val;
+	result = (*i->second)->get_string();
+	delete i->second;
 	outputs_record.erase(i);
     }
     return result;
@@ -128,8 +129,7 @@ OmIndexerNode::get_output_string(const std::string &output_name)
 void
 OmIndexerNode::calculate_if_needed(const std::string &output_name)
 {
-    // FIXME: check non-record types too
-    std::map<std::string, Record>::iterator i;
+    deleter_map<std::string, Message *>::iterator i;
     i = outputs_record.find(output_name);
 
     if (i == outputs_record.end()) {
@@ -142,7 +142,6 @@ OmIndexerNode::OmIndexerNode()
 {
 }
 
-
 OmIndexerNode::~OmIndexerNode()
 {
 }
@@ -152,9 +151,26 @@ OmIndexerNode::config_modified(const std::string &key)
 {
 }
 
-Record::Record() : name(), type(rt_empty)
+Record::Record(const std::string &name_) : name(name_), type(rt_empty)
 {
-    u.int_val = 0;
+}
+
+Record::Record(const std::string &name_, int value_)
+	: name(name_), type(rt_int)
+{
+    u.int_val = value_;
+}
+
+Record::Record(const std::string &name_, double value_)
+	: name(name_), type(rt_double)
+{
+    u.double_val = value_;
+}
+
+Record::Record(const std::string &name_, const std::string &value_)
+	: name(name_), type(rt_string)
+{
+    u.string_val = new std::string(value_);
 }
 
 Record::Record(const Record &other)
@@ -264,6 +280,50 @@ Record::~Record()
     }
 }
 
+void Record::set_name(const std::string &name_)
+{
+    name = name_;
+}
+
+std::string
+Record::get_name() const
+{
+    return name;
+}
+
+Record::record_type
+Record::get_type() const
+{
+    return type;
+}
+
+int
+Record::get_int() const
+{
+    if (type != rt_int) {
+	throw OmTypeError("Record::get_int() called for non-int value");
+    }
+    return u.int_val;
+}
+
+double
+Record::get_double() const
+{
+    if (type != rt_double) {
+	throw OmTypeError("Record::get_double() called for non-double value");
+    }
+    return u.double_val;
+}
+
+std::string
+Record::get_string() const
+{
+    if (type != rt_string) {
+	throw OmTypeError("Record::get_string() called for non-string value");
+    }
+    return *u.string_val;
+}
+
 void
 OmIndexerNode::connect_input(const std::string &input_name,
 			     OmIndexerNode *other_node,
@@ -277,12 +337,12 @@ OmIndexerNode::connect_input(const std::string &input_name,
 }
 
 void OmIndexerNode::set_output_record(const std::string &output_name,
-				      const Record &value)
+				      Message value)
 {
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    outputs_record[output_name] = value;
+    outputs_record[output_name] = new Message(value);
 }
 
 void OmIndexerNode::set_output_string(const std::string &output_name,
@@ -291,11 +351,8 @@ void OmIndexerNode::set_output_string(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    Record rec;
-    rec.name = "string";
-    rec.type = Record::rt_string;
-    rec.u.string_val = new std::string(value);
-    outputs_record[output_name] = rec;
+    Message mess(new Record("string", value));
+    outputs_record[output_name] = new Message(mess);
 }
 
 void OmIndexerNode::set_output_int(const std::string &output_name,
@@ -304,11 +361,8 @@ void OmIndexerNode::set_output_int(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    Record rec;
-    rec.name = "int";
-    rec.type = Record::rt_int;
-    rec.u.int_val = value;
-    outputs_record[output_name] = rec;
+    Message mess(new Record("int", value));
+    outputs_record[output_name] = new Message(mess);
 }
 
 void OmIndexerNode::set_output_double(const std::string &output_name,
@@ -317,11 +371,8 @@ void OmIndexerNode::set_output_double(const std::string &output_name,
     /*cout << "Setting output \"" << output_name
 	 << "\" to record:" << value << endl; */
     // TODO: check that it isn't already set?
-    Record rec;
-    rec.name = "double";
-    rec.type = Record::rt_double;
-    rec.u.double_val = value;
-    outputs_record[output_name] = rec;
+    Message mess(new Record("double", value));
+    outputs_record[output_name] = new Message(mess);
 }
 
 Message OmIndexerNode::get_input_record(const std::string &input_name)
@@ -379,21 +430,22 @@ double OmIndexerNode::get_input_double(const std::string &input_name)
 std::ostream &operator<<(std::ostream &os, const Record &record)
 {
     os << "Record{";
-    switch (record.type) {
+    switch (record.get_type()) {
 	case Record::rt_empty:
-	    os << "empty}" << record.name;
+	    os << "empty}" << record.get_name();
 	    break;
 	case Record::rt_int:
-	    os << "int}: " << record.name << "=" << record.u.int_val;
+	    os << "int}: " << record.get_name() << "=" << record.get_int();
 	    break;
 	case Record::rt_double:
-	    os << "double}: " << record.name << "=" << record.u.double_val;
+	    os << "double}: " << record.get_name() << "=" << record.get_double();
 	    break;
 	case Record::rt_string:
-	    os << "string}: " << record.name << "=" << *record.u.string_val;
+	    os << "string}: " << record.get_name() << "=" << record.get_string();
 	    break;
 	case Record::rt_vector:
-	    os << "vector}: length " << record.name << "=" << record.u.vector_val->size();
+	    // FIXME: implement this
+	    os << "vector}: length " << record.get_name() << "=..."/* << record.u.vector_val->size()*/;
 	    break;
     }
     return os;
