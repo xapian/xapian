@@ -417,6 +417,10 @@ if test x$build_remote = xtrue; then
     [Define if you want to build remote database backend])
 fi
 
+dnl See if we have fdatasync, and what libraries are needed for it.
+AC_CHECK_LIB(rt, fdatasync)
+AC_CHECK_FUNCS(fdatasync fsync)
+
 dnl See if we want to use STLport
 RJB_FIND_STLPORT
 

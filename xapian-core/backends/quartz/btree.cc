@@ -20,6 +20,8 @@
  * -----END-LICENCE-----
  */
 
+#include "config.h"
+
 /** The next 4 lines are needed to make fdatasync appear.
  */
 #ifndef _GNU_SOURCE
@@ -183,11 +185,18 @@ int sys_write_bytes(int h, int n, const byte * p)
 }
 
 int sys_flush(int h) {
-#ifdef _POSIX_SYNCHRONIZED_IO
+#ifdef HAVE_FDATASYNC
+#ifndef _POSIX_SYNCHRONIZED_IO
+#define _POSIX_SYNCHRONIZED_IO
+#endif // _POSIX_SYNCHRONIZED_IO
     fdatasync(h);
-#else
+#else // HAVE_FDATASYNC
+#ifdef HAVE_FSYNC
     fsync(h);
-#endif
+#else // HAVE_FSYNC
+#error "Have neither fsync() nor fdatasync() - can't sync."
+#endif // HAVE_FSYNC
+#endif // HAVE_FDATASYNC
     return true;
 }
 

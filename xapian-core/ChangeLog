@@ -1,3 +1,8 @@
+Thu Nov 23 19:40:31 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added automatie detection of fdatasync, checking if -lrt is needed,
+	  and reverting to fsync if not present.
+
 Thu Nov 23 18:12:59 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add a cancel method to QuartzTableManager(), and ensure it is
