@@ -1,3 +1,9 @@
+Sun Nov 07 05:00:24 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: rearrange so that libtool is active when we test if
+	  the c++ compiler can link a program so it can pull in libstdc++
+	  through a .la file.
+
 Fri Nov 05 17:23:36 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.ac: AM_CONFIG_HEADER -> AC_CONFIG_HEADERS; Run tests using

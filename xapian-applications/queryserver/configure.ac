@@ -9,6 +9,10 @@ AC_CONFIG_SRCDIR(source/queryserver.cpp)
 
 AC_CONFIG_HEADERS(config.h)
 
+dnl Check for libxapian
+AC_PROG_LIBTOOL
+XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+
 dnl Checks for programs.
 AC_PROG_CXX
 
@@ -42,10 +46,6 @@ AC_CHECK_TYPE(ssize_t, long)
 
 dnl check for socklen_t
 TYPE_SOCKLEN_T
-
-dnl Check for libxapian
-AC_PROG_LIBTOOL
-XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
 dnl Check for halibut. (Needed to make some of the documentation)
 AC_PATH_PROG([HALIBUT], [halibut], [$MISSING halibut])
