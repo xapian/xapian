@@ -26,7 +26,7 @@
 #include "omassert.h"
 #include <db_cxx.h>
 
-#include "omtypes.h"
+#include <om/omtypes.h>
 
 typedef unsigned int entry_type;   // Able to represent any entry
 
@@ -42,7 +42,7 @@ class SleepyList {
 	entry_type *ids;    // List of ids
 	entry_type *wdfs;   // List of wdfs, 1 for each id
 	entry_type *freqs;  // How many things are indexed by this item
-	termpos *positions;
+	om_termpos *positions;
 
 	entry_type readentry(char ** pos, char * end); // Read entry
     public:

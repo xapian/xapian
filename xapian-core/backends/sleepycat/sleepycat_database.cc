@@ -104,7 +104,7 @@ SleepyDatabaseInternals::open(const string &pathname, bool readonly)
 		 &dbenv, NULL, &termname_db);
     }
     catch (DbException e) {
-	throw (OmError(string("Database error on open: ") + e.what()));
+	throw (OmOpeningError(string("Database error on open: ") + e.what()));
     }
 }
 
@@ -125,7 +125,7 @@ SleepyDatabaseInternals::close()
 	opened = false;
     }
     catch (DbException e) {
-	throw (OmError(string("Database error on close: ") + e.what()));
+	throw (OmDatabaseError(string("Database error on close: ") + e.what()));
     }
 }
 
@@ -133,7 +133,9 @@ SleepyDatabaseInternals::close()
 // Postlists //
 ///////////////
 
-SleepyPostList::SleepyPostList(const termname &tn, docid *data_new, doccount tf)
+SleepyPostList::SleepyPostList(const om_termname &tn,
+			       om_docid *data_new,
+			       om_doccount tf)
 	: pos(0), data(data_new), tname(tn), termfreq(tf)
 {
 }
@@ -142,13 +144,13 @@ SleepyPostList::~SleepyPostList() {
     free(data);
 }
 
-weight SleepyPostList::get_weight() const {
+om_weight SleepyPostList::get_weight() const {
     Assert(!at_end());
     Assert(ir_wt != NULL);
     
-    doccount wdf = 1;
+    om_doccount wdf = 1;
 
-    return ir_wt->get_weight(wdf, 1.0);
+    return ir_wt->get_sumpart(wdf, 1.0);
 }
 
 ///////////////
@@ -156,9 +158,9 @@ weight SleepyPostList::get_weight() const {
 ///////////////
 
 SleepyTermList::SleepyTermList(const SleepyDatabaseTermCache *tc_new,
-			       termid *data_new,
-			       termcount terms_new,
-			       doccount dbsize_new)
+			       om_termid *data_new,
+			       om_termcount terms_new,
+			       om_doccount dbsize_new)
 	: pos(0),
 	  data(data_new),
 	  terms(terms_new),
@@ -188,7 +190,7 @@ SleepyDatabase::~SleepyDatabase() {
 	delete internals;
     }
     catch (DbException e) {
-	throw (OmError(string("Database error on close: ") + e.what()));
+	throw (OmDatabaseError(string("Database error on close: ") + e.what()));
     }
     Assert((opened = false) == false);
 }
@@ -207,16 +209,16 @@ SleepyDatabase::open(const DatabaseBuilderParams &params)
 	internals->open(params.paths[0], params.readonly);
     }
     catch (DbException e) {
-	throw (OmError(string("Database error on open: ") + e.what()));
+	throw (OmOpeningError(string("Database error on open: ") + e.what()));
     }
     Assert((opened = true) == true);
 }
 
 LeafPostList *
-SleepyDatabase::open_post_list(const termname & tname, RSet *rset) const
+SleepyDatabase::open_post_list(const om_termname & tname, RSet *rset) const
 {
     Assert(opened);
-    termid tid = termcache->term_name_to_id(tname);
+    om_termid tid = termcache->term_name_to_id(tname);
     Assert(tid != 0);
 
     Dbt key(&tid, sizeof(tid));
@@ -228,21 +230,21 @@ SleepyDatabase::open_post_list(const termname & tname, RSet *rset) const
     // Get, no transactions, no flags
     try {
 	int found = internals->postlist_db->get(NULL, &key, &data, 0);
-	if(found == DB_NOTFOUND) throw RangeError("Termid not found");
+	if(found == DB_NOTFOUND) throw OmDatabaseError("Termid not found");
 
 	// Any other errors should cause an exception.
 	Assert(found == 0);
     }
     catch (DbException e) {
-	throw OmError("PostlistDb error:" + string(e.what()));
+	throw OmDatabaseError("PostlistDb error:" + string(e.what()));
     }
 
-    return new SleepyPostList(tname, (docid *)data.get_data(),
-			      data.get_size() / sizeof(docid));
+    return new SleepyPostList(tname, (om_docid *)data.get_data(),
+			      data.get_size() / sizeof(om_docid));
 }
 
 LeafTermList *
-SleepyDatabase::open_term_list(docid did) const {
+SleepyDatabase::open_term_list(om_docid did) const {
     Assert(opened);
     Dbt key(&did, sizeof(did));
     Dbt data;
@@ -253,25 +255,26 @@ SleepyDatabase::open_term_list(docid did) const {
     // Get, no transactions, no flags
     try {
 	int found = internals->termlist_db->get(NULL, &key, &data, 0);
-	if(found == DB_NOTFOUND) throw RangeError("Docid not found");
+	if(found == DB_NOTFOUND) throw OmDocNotFoundError("Docid not found");
 
 	// Any other errors should cause an exception.
 	Assert(found == 0);
     }
     catch (DbException e) {
-	throw OmError("TermlistDb error:" + string(e.what()));
+	throw OmDatabaseError("TermlistDb error:" + string(e.what()));
     }
 
     return new SleepyTermList(termcache,
-			      (termid *)data.get_data(),
-			      data.get_size() / sizeof(termid),
+			      (om_termid *)data.get_data(),
+			      data.get_size() / sizeof(om_termid),
 			      get_doccount());
 }
 
-IRDocument *
-SleepyDatabase::open_document(docid did) const {
+OmDocument *
+SleepyDatabase::open_document(om_docid did) const {
     Assert(opened);
-    throw OmError("SleepyDatabase.open_document() not implemented");
+    throw OmUnimplementedError(
+	"SleepyDatabase.open_document() not implemented");
 }
 
 /*
@@ -384,11 +387,11 @@ SleepyDatabase::add(termid tid, docid did, termpos tpos) {
 // Term  cache //
 /////////////////
 
-termid
-SleepyDatabaseTermCache::term_name_to_id(const termname &tname) const {
+om_termid
+SleepyDatabaseTermCache::term_name_to_id(const om_termname &tname) const {
     Dbt key((void *)tname.c_str(), tname.size());
     Dbt data;
-    termid tid;
+    om_termid tid;
 
     data.set_flags(DB_DBT_USERMEM);
     data.set_ulen(sizeof(tid));
@@ -403,21 +406,21 @@ SleepyDatabaseTermCache::term_name_to_id(const termname &tname) const {
 	    // Any other errors should cause an exception.
 	    Assert(found == 0);
 
-	    if(data.get_size() != sizeof(termid)) {
-		throw OmError("TermidDb: found termname, but data is not a termid.");
+	    if(data.get_size() != sizeof(om_termid)) {
+		throw OmDatabaseError("TermidDb: found termname, but data is not a termid.");
 	    }
 	}
     }
     catch (DbException e) {
-	throw OmError("TermidDb error: " + string(e.what()));
+	throw OmDatabaseError("TermidDb error: " + string(e.what()));
     }
 
     return tid;
 }
 
-termname
-SleepyDatabaseTermCache::term_id_to_name(termid tid) const {
-    if(tid == 0) throw RangeError("Termid 0 not valid");
+om_termname
+SleepyDatabaseTermCache::term_id_to_name(om_termid tid) const {
+    if(tid == 0) throw OmRangeError("Termid 0 not valid");
 
     Dbt key(&tid, sizeof(tid));
     Dbt data;
@@ -425,15 +428,15 @@ SleepyDatabaseTermCache::term_id_to_name(termid tid) const {
     // Get, no transactions, no flags
     try {
 	int found = internals->termname_db->get(NULL, &key, &data, 0);
-	if(found == DB_NOTFOUND) throw RangeError("Termid not found");
+	if(found == DB_NOTFOUND) throw OmRangeError("Termid not found");
 
 	// Any other errors should cause an exception.
 	Assert(found == 0);
     }
     catch (DbException e) {
-	throw OmError("TermnameDb error:" + string(e.what()));
+	throw OmDatabaseError("TermnameDb error:" + string(e.what()));
     }
 
-    termname tname((char *)data.get_data(), data.get_size());
+    om_termname tname((char *)data.get_data(), data.get_size());
     return tname;
 }

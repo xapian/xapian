@@ -56,7 +56,7 @@ SleepyList::readentry(char **pos, char *end)
     entry_type *epos = (entry_type *) *pos;
     entry_type entry = *epos ++;
     *pos = (char *)epos;
-    if(*pos > end) throw(OmError("Database corrupt - unexpected end of list"));
+    if(*pos > end) throw(OmDatabaseError("Database corrupt - unexpected end of list"));
     return entry;
 }
 
@@ -81,7 +81,7 @@ SleepyList::open(void *keydata_new, size_t keylen_new)
 	// For now, just read it all at once
 	found = db->get(NULL, &key, &data, 0);
     } catch (DbException e) {
-	throw OmError("PostlistDb error:" + string(e.what()));
+	throw OmDatabaseError("PostlistDb error:" + string(e.what()));
     }
     
     // Unpack entry
@@ -132,7 +132,7 @@ SleepyList::close()
 		// Write list
 		//found = db->put(NULL, &key, &data, 0);
 	    } catch (DbException e) {
-		throw OmError("PostlistDb error:" + string(e.what()));
+		throw OmDatabaseError("PostlistDb error:" + string(e.what()));
 	    }
 	}
 	modified = false;

@@ -34,22 +34,22 @@
 class SleepyPostList : public LeafPostList {
     friend class SleepyDatabase;
     private:
-	doccount pos;
-	docid *data;
+	om_doccount pos;
+	om_docid *data;
 
-	termname tname;
-	doccount termfreq;
+	om_termname tname;
+	om_doccount termfreq;
 
-	SleepyPostList(const termname &tn, docid *data_new, doccount tf);
+	SleepyPostList(const om_termname &tn, om_docid *data_new, om_doccount tf);
     public:
 	~SleepyPostList();
 
-	doccount   get_termfreq() const;// Number of docs indexed by this term
+	om_doccount   get_termfreq() const;// Number of docs indexed by this term
 
-	docid      get_docid() const;   // Current docid
-	weight     get_weight() const;  // Current weight
-        PostList * next(weight w_min);  // Move to next docid
-        PostList * skip_to(docid did, weight w_min);  // Skip to next docid >= docid
+	om_docid      get_docid() const;   // Current docid
+	om_weight     get_weight() const;  // Current weight
+        PostList * next(om_weight w_min);  // Move to next docid
+        PostList * skip_to(om_docid did, om_weight w_min);  // Skip to next docid >= docid
 	bool       at_end() const;      // True if we're off the end of the list
 
 	string intro_term_description() const;
@@ -62,25 +62,25 @@ class SleepyDatabaseTermCache;
 class SleepyTermList : public LeafTermList {
     friend class SleepyDatabase;
     private:
-	termcount pos;
-	termid *data;
-	termcount terms;
-	doccount dbsize;
+	om_termcount pos;
+	om_termid *data;
+	om_termcount terms;
+	om_doccount dbsize;
 
 	const SleepyDatabaseTermCache *termcache;
 
 	SleepyTermList(const SleepyDatabaseTermCache *tc_new,
-		       termid *data_new,
-		       termcount terms_new,
-		       doccount dbsize_new);
+		       om_termid *data_new,
+		       om_termcount terms_new,
+		       om_doccount dbsize_new);
     public:
 	~SleepyTermList();
-	termcount get_approx_size() const;
+	om_termcount get_approx_size() const;
 
 	OmExpandBits get_weighting() const;  // Gets weight of current term
-	const termname get_termname() const;  // Current term
-	termcount get_wdf() const;  // Occurences of current term in doc
-	doccount get_termfreq() const;  // Docs indexed by current term
+	const om_termname get_termname() const;  // Current term
+	om_termcount get_wdf() const;  // Occurences of current term in doc
+	om_doccount get_termfreq() const;  // Docs indexed by current term
 	TermList * next();
 	bool   at_end() const;
 };
@@ -95,8 +95,8 @@ class SleepyDatabaseTermCache {
 	SleepyDatabaseInternals * internals;
 	SleepyDatabaseTermCache(SleepyDatabaseInternals *i) : internals(i) {}
     public:
-	termname term_id_to_name(termid tid) const;
-	termid term_name_to_id(const termname & tname) const;
+	om_termname term_id_to_name(om_termid tid) const;
+	om_termid term_name_to_id(const om_termname & tname) const;
 };
 
 class SleepyDatabase : public IRDatabase {
@@ -112,24 +112,25 @@ class SleepyDatabase : public IRDatabase {
     public:
 	~SleepyDatabase();
 
-	doccount  get_doccount() const;
-	doclength get_avlength() const;
+	om_doccount  get_doccount() const;
+	om_doclength get_avlength() const;
 
-	doccount get_termfreq(const termname & tname) const;
-	bool term_exists(const termname & tname) const;
+	om_doccount get_termfreq(const om_termname & tname) const;
+	bool term_exists(const om_termname & tname) const;
 
-	LeafPostList * open_post_list(const termname& tname, RSet * rset) const;
-	LeafTermList * open_term_list(docid did) const;
-	IRDocument * open_document(docid did) const;
+	LeafPostList * open_post_list(const om_termname& tname,
+				      RSet * rset) const;
+	LeafTermList * open_term_list(om_docid did) const;
+	OmDocument * open_document(om_docid did) const;
 
-	void make_term(const termname &) {
-	    throw OmError("DADatabase::make_term() not implemented");
+	void make_term(const om_termname &) {
+	    throw OmUnimplementedError("DADatabase::make_term() not implemented");
 	}
-	docid make_doc(const docname &) {
-	    throw OmError("DADatabase::make_doc() not implemented");
+	om_docid make_doc(const om_docname &) {
+	    throw OmUnimplementedError("DADatabase::make_doc() not implemented");
 	}
-	void make_posting(const termname &, unsigned int, unsigned int) {
-	    throw OmError("DADatabase::make_posting() not implemented");
+	void make_posting(const om_termname &, unsigned int, unsigned int) {
+	    throw OmUnimplementedError("DADatabase::make_posting() not implemented");
 	}
 };
 
@@ -139,13 +140,13 @@ class SleepyDatabase : public IRDatabase {
 // Inline definitions for SleepyPostList //
 ///////////////////////////////////////////
 
-inline doccount
+inline om_doccount
 SleepyPostList::get_termfreq() const
 {
     return termfreq;
 }
 
-inline docid
+inline om_docid
 SleepyPostList::get_docid() const
 {
     Assert(!at_end());
@@ -154,7 +155,7 @@ SleepyPostList::get_docid() const
 }
 
 inline PostList *
-SleepyPostList::next(weight w_min)
+SleepyPostList::next(om_weight w_min)
 {
     Assert(!at_end());
     pos ++;
@@ -162,7 +163,7 @@ SleepyPostList::next(weight w_min)
 }
 
 inline PostList *
-SleepyPostList::skip_to(docid did, weight w_min)
+SleepyPostList::skip_to(om_docid did, om_weight w_min)
 {
     Assert(!at_end());
     if(pos == 0) pos++;
@@ -191,7 +192,7 @@ SleepyPostList::intro_term_description() const
 // Inline definitions for SleepyTermList //
 ///////////////////////////////////////////
 
-inline termcount
+inline om_termcount
 SleepyTermList::get_approx_size() const
 {
     return terms;
@@ -203,13 +204,13 @@ SleepyTermList::get_weighting() const {
     Assert(pos != 0);
     Assert(wt != NULL);
 
-    termcount wdf = 1; // FIXME - not yet stored in data structure
-    doclength norm_len = 1.0; // FIXME - not yet stored in data structure
+    om_termcount wdf = 1; // FIXME - not yet stored in data structure
+    om_doclength norm_len = 1.0; // FIXME - not yet stored in data structure
 
     return wt->get_bits(wdf, norm_len, SleepyTermList::get_termfreq(), dbsize);
 }
 
-inline const termname
+inline const om_termname
 SleepyTermList::get_termname() const
 {
     Assert(!at_end());
@@ -217,7 +218,7 @@ SleepyTermList::get_termname() const
     return termcache->term_id_to_name(data[pos]);
 }
 
-inline termcount
+inline om_termcount
 SleepyTermList::get_wdf() const
 {
     Assert(!at_end());
@@ -225,7 +226,7 @@ SleepyTermList::get_wdf() const
     return 1;
 }
 
-inline doccount
+inline om_doccount
 SleepyTermList::get_termfreq() const
 {
     Assert(!at_end());
@@ -252,32 +253,32 @@ SleepyTermList::at_end() const
 // Inline definitions for SleepyDatabase //
 ///////////////////////////////////////////
 
-inline doccount
+inline om_doccount
 SleepyDatabase::get_doccount() const
 {
     Assert(opened);
     return 1;
 }
 
-inline doclength
+inline om_doclength
 SleepyDatabase::get_avlength() const
 {
     Assert(opened);
     return 1;
 }
 
-inline doccount
-SleepyDatabase::get_termfreq(const termname &tname) const
+inline om_doccount
+SleepyDatabase::get_termfreq(const om_termname &tname) const
 {   
     PostList *pl = open_post_list(tname, NULL);
-    doccount freq = 0;
+    om_doccount freq = 0;
     if(pl) freq = pl->get_termfreq();
     delete pl;
     return freq;
 }
 
 inline bool
-SleepyDatabase::term_exists(const termname &tname) const
+SleepyDatabase::term_exists(const om_termname &tname) const
 {
     if(termcache->term_name_to_id(tname)) return true;
     return false;
