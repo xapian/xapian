@@ -1,3 +1,26 @@
+Xapian-core 0.8.3 (2004-09-20):
+
+API:
+
+* Fixed bug which caused a segmentation fault or odd "Document not found"
+  exceptions when new check_at_least parameter to Enquire::get_mset() was used
+  and there weren't many matches (regression test checkatleast1).
+
+remote backend:
+
+* Renamed omtcpsrv to xapian-tcpsrv and omprogsrv to xapian-progsrv.
+
+packaging:
+
+* RPM packaging now has a separate package for the runtime libraries to
+  allow 32 and 64 bit versions to be installed concurrently.
+  
+* RPM for xapian-core now includes binaries from xapian-examples.
+
+debug code:
+
+* Fixed to compile with debug tracing enabled.
+
 Xapian-core 0.8.2 (2004-09-13):
 
 API:

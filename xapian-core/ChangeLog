@@ -1,3 +1,7 @@
+Mon Sep 20 15:24:27 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.ac: Version 0.8.3.
+
 Mon Sep 20 15:13:34 BST 2004  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Updated.
