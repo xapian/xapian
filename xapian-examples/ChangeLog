@@ -1,3 +1,7 @@
+Wed Jun  5 17:57:44 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* simple/Makefile: update to use --cxxflags rather than -cflags.
+
 Wed May 22 15:23:55 BST 2002  Richard Boulton <richard@tartarus.org>
 
 	* msearch.cc: Add --sortvalue and --sortbands options to allow

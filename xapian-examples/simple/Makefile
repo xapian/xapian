@@ -1,19 +1,19 @@
 all: simplecreate simpleindex simplesearch simpleexpand indexnasty
 
 indexnasty: indexnasty.cc
-	$(CXX) $< `xapian-config --libs --cflags` -o $@
+	$(CXX) $< `xapian-config --libs --cxxflags` -o $@
 
 simplecreate: simplecreate.cc
-	$(CXX) $< `xapian-config --libs --cflags` -o $@
+	$(CXX) $< `xapian-config --libs --cxxflags` -o $@
 
 simpleindex: simpleindex.cc
-	$(CXX) $< `xapian-config --libs --cflags` -o $@
+	$(CXX) $< `xapian-config --libs --cxxflags` -o $@
 
 simplesearch: simplesearch.cc
-	$(CXX) $< `xapian-config --libs --cflags` -o $@
+	$(CXX) $< `xapian-config --libs --cxxflags` -o $@
 
 simpleexpand: simpleexpand.cc
-	$(CXX) $< `xapian-config --libs --cflags` -o $@
+	$(CXX) $< `xapian-config --libs --cxxflags` -o $@
 
 html: simplecreate.cc.html simpleindex.cc.html \
       simplesearch.cc.html simpleexpand.cc.html
