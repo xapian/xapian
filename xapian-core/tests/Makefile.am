@@ -61,6 +61,7 @@ EXTRA_DIST = runtest.in \
 	     testdata/apitest_space.txt \
 	     testdata/apitest_allterms.txt \
 	     testdata/apitest_allterms2.txt \
+	     testdata/apitest_allterms4.txt \
 	     testdata/apitest_poslist.txt \
 	     testdata/apitest_manydocs.txt \
 	     testdata/etext.txt \
