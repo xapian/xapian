@@ -24,8 +24,6 @@ Priority | Area            | Task
 ---------+-----------------+--------------------------------------------------
  High    |RDocumentation   | Document muscat36 access methods.
 ---------+-----------------+--------------------------------------------------
- Medium  |CDocumentation   | Write docs for pthreads stuff
----------+-----------------+--------------------------------------------------
  Medium  | Documentation   | Document backend API (database, postlist,
          |                 | termlist, document, etc) in same way as enquire
 	 |                 | API.
