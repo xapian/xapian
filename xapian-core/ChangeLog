@@ -1,3 +1,7 @@
+Fri Apr 19 17:38:23 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed completed tasks from todo list. 
+
 Fri Apr 19 17:26:23 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed placeholder code for OmQuery::OP_PERCENT_CUTOFF - it's

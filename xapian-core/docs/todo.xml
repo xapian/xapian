@@ -65,11 +65,6 @@ Implement methods to iterate through all the documents in the database.
 Possibly via a special term which indexes all documents.
 
 </todoitem>
-<todoitem priority="M" difficulty="3" owner="" area="Quartz" release="1.0">
-
-Implement deletion and updating of documents.  Test.
-
-</todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="API" release="">
 
 Test that optimisations are not causing wrong results to be returned.  Have a
@@ -255,11 +250,6 @@ Put PS/PDF documentation on website.
 <todoitem priority="L" difficulty="5" owner="c" area="General" release="">
 
 Audit for exception safety.
-
-</todoitem>
-<todoitem priority="L" difficulty="4" owner="R" area="Positional" release="">
-
-Test get_position_list() methods on databases.
 
 </todoitem>
 <todoitem priority="L" difficulty="3" owner="" area="API" release="">
