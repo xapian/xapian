@@ -1,3 +1,11 @@
+Mon Sep 18 12:31:05 BST 2000 Olly Betts
+
+	* acinclude.m4 generation moved from buildall to a separate script
+	  so that the Makefile can regenerate acinclude.m4 if necessary.
+
+	* Use AC_CONFIG_AUX_DIR to reduce the clutter in the top level
+	  directory.
+
 Mon Sep 18 12:26:48 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Tests in the testsuite can now be skipped, and avoid being

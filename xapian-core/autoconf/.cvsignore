@@ -2,3 +2,5 @@
 Makefile.in
 Makefile
 .deps
+config.guess
+config.sub

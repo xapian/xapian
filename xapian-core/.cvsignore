@@ -7,17 +7,11 @@ acinclude.m4
 aclocal.m4
 configure
 config.cache
-config.guess
 config.h
 config.h.in
 config.log
 config.status
-config.sub
-depcomp
-install-sh
 libtool
-missing
-mkinstalldirs
 stamp-h
 stamp-h.in
 .deps
