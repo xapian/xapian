@@ -7,7 +7,7 @@ LATEX = @LATEX_PATH@
 AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 HTMLFILES = index.html intro.html intro_ir.html userman.html \
-        stemming.html porterstem.html using_stemmers.html
+        stemming.html porterstem.html using_stemmers.html quickstart.html
 
 # Files which should be put in the distribution by automake
 EXTRA_DIST = mkdoc.pl.in doxygen_api_conf.in doxygen_full_conf.in \
