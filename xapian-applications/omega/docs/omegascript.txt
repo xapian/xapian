@@ -74,15 +74,16 @@ $dbname
 	database name (multiple names are returned separated by "/").
 
 $def{MACRONAME,VALUE}
-	define a macro which can take 0 to 9 arguments.  You can call it with $MACRONAME
-	(if it take 0 arguments) or $MACRONAME{ARG1,ARG2,ARG3} is it takes arguments.
-	In value, arguments are available as $1, $2, ... $9.  In the current implementation,
-	macros can override omegascript commands, but this shouldn't be relied on.  It's
-	recommended to use a capitalised name for macros to avoid collision with future
-	OmegaScript commands.
-	
+	define a macro which can take 0 to 9 arguments.  You can call it with
+	$MACRONAME (if it take 0 arguments) or $MACRONAME{ARG1,ARG2,ARG3} is
+	it takes arguments.  In value, arguments are available as $1, $2, ...
+	$9.  In the current implementation, macros can override omegascript
+	commands, but this shouldn't be relied on.  It's recommended to use a
+	capitalised name for macros to avoid collision with future OmegaScript
+	commands.
+
 $defaultop
-	"and" or "or".
+	"and" or "or" (set from CGI variable DEFAULTOP).
 
 $env{VAR}
 	lookup variable in environment
@@ -189,6 +190,10 @@ $or{...}
 
 $percentage
 	percentage score of current hit (in range 1-100).
+
+$prettyterm{TERM}
+	convert a term to "user form", as it might be entered in a query
+	(currently "Rbeckham" -> "Beckham"; "footbal" -> "footbal.").
 
 $query
 	query string (built from cgi P variable(s) plus possible added
