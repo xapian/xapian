@@ -450,8 +450,6 @@ class Enquire {
 #endif
 */
 class Weight {
-    private:
-	virtual Weight * clone() const = 0;
     public:
 	virtual ~Weight();
 
@@ -492,6 +490,9 @@ class BM25Weight : public Weight {
     public:
 	BM25Weight(double A_, double B_, double C_, double D_,
 		   double min_normlen_);
+#ifdef SWIGPHP4
+	%rename(BM25Weight_default) BM25Weight;
+#endif
 	BM25Weight();
 
 	BM25Weight * clone() const;
@@ -511,6 +512,9 @@ class BM25Weight : public Weight {
 class TradWeight : public Weight {
     public:
 	explicit TradWeight(double k);
+#ifdef SWIGPHP4
+	%rename(TradWeight_default) TradWeight;
+#endif
 	TradWeight();
 
 	TradWeight * clone() const;

@@ -1,3 +1,10 @@
+Thu Dec 02 13:31:40 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Weight::clone is for internal use - don't wrap it.
+	* xapian.i: For PHP4, rename the default BM25Weight ctor to
+	  BM25Weight_default and the default TradWeight ctor to
+	  TradWeight_default.
+
 Thu Dec 02 13:30:55 GMT 2004  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: test -d before mkdir to avoid worrying looking
