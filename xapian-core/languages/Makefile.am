@@ -4,14 +4,12 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
-noinst_HEADERS =
+noinst_HEADERS = pool.h
 
 noinst_LTLIBRARIES = liblanguages.la
 
-# This line is present because of a bug in some versions of libtool
-# (exhibited when there are no source files)
-liblanguages_la_SOURCES = dummy.c
+liblanguages_la_SOURCES = pool.c
 
-SUBDIRS = en .
+SUBDIRS = en dutch english french german italian portuguese spanish .
 
 liblanguages_la_LIBADD = en/liben.la
