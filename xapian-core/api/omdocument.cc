@@ -166,12 +166,11 @@ OmDocument::Internal::read_termlist(OmTermIterator t,
 	for ( ; t != tend; t++) {
 	    OmPositionListIterator p = t.positionlist_begin();
 	    OmPositionListIterator pend = t.positionlist_end();
-	    Assert(p != pend);
-	    OmDocumentTerm term(*t, *p);
-	    p++;
+	    OmDocumentTerm term(*t);
 	    for ( ; p != pend; p++) {
-		term.add_posting(*p);
+		term.add_position(*p);
 	    }
+	    term.set_wdf(t.get_wdf());
 	    terms.insert(std::make_pair(*t, term));
 	}
 	terms_here = true;
@@ -179,9 +178,12 @@ OmDocument::Internal::read_termlist(OmTermIterator t,
 }
 
 void
-OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
+OmDocument::add_posting(const om_termname & tname,
+			om_termpos tpos,
+			om_termcount wdfinc)
 {
-    DEBUGAPICALL(void, "OmDocument::add_posting", tname << ", " << tpos);
+    DEBUGAPICALL(void, "OmDocument::add_posting",
+		 tname << ", " << tpos << ", " << wdfinc);
     if (tname.empty()) {
 	throw OmInvalidArgumentError("Empty termnames aren't allowed.");
     }
@@ -190,45 +192,81 @@ OmDocument::add_posting(const om_termname & tname, om_termpos tpos)
     std::map<om_termname, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
     if (i == internal->terms.end()) {
-	internal->terms.insert(std::make_pair(tname,
-					      OmDocumentTerm(tname, tpos)));
+	OmDocumentTerm newterm(tname);
+	newterm.add_position(tpos);
+	newterm.set_wdf(wdfinc);
+	internal->terms.insert(std::make_pair(tname, newterm));
     } else {
-	i->second.add_posting(tpos);
+	i->second.add_position(tpos);
+	if (wdfinc) i->second.set_wdf(i->second.get_wdf() + wdfinc);
     }
 }
 
 void
-OmDocument::remove_posting(const om_termname & tname, om_termpos tpos)
+OmDocument::set_wdf(const om_termname & tname, om_termcount wdf)
 {
-    DEBUGAPICALL(void, "OmDocument::remove_posting", tname << ", " << tpos);
-    // FIXME: need to lock here...
-    if (!internal->terms_here) {
-	// FIXME: read terms from Document into terms
-	Assert(false);
-	internal->terms_here = true;
+    DEBUGAPICALL(void, "OmDocument::set_wdf", tname << ", " << wdf);
+    if (tname.empty()) {
+	throw OmInvalidArgumentError("Empty termnames aren't allowed.");
     }
+    if (wdf == 0) {
+	throw OmInvalidArgumentError("wdf must be at least 1.");
+    }
+    internal->read_termlist(termlist_begin(), termlist_end());
+
     std::map<om_termname, OmDocumentTerm>::iterator i;
     i = internal->terms.find(tname);
+    if (i == internal->terms.end()) {
+	OmDocumentTerm newterm(tname);
+	newterm.set_wdf(wdf);
+	internal->terms.insert(std::make_pair(tname, newterm));
+    } else {
+	i->second.set_wdf(wdf);
+    }
+}
 
-    if (i == internal->terms.end()) return;
-    
-    // FIXME: implement
-    // i->second.remove_posting(tpos);
-    // if (no postings left) internal->terms.erase(i);
-    Assert(0);
+void
+OmDocument::remove_posting(const om_termname & tname,
+			   om_termpos tpos,
+			   om_termcount wdfdec)
+{
+    DEBUGAPICALL(void, "OmDocument::remove_posting",
+		 tname << ", " << tpos << ", " << wdfdec);
+    if (tname.empty()) {
+	throw OmInvalidArgumentError("Empty termnames aren't allowed.");
+    }
+    internal->read_termlist(termlist_begin(), termlist_end());
+
+    std::map<om_termname, OmDocumentTerm>::iterator i;
+    i = internal->terms.find(tname);
+    if (i == internal->terms.end()) {
+	throw OmInvalidArgumentError("Term `" + tname +
+				     "' is not present in document, in "
+				     "OmDocument::remove_posting()");
+    } else {
+	i->second.remove_position(tpos);
+	if (wdfdec) {
+	    om_termcount currwdf = i->second.get_wdf();
+	    currwdf = ((currwdf > wdfdec) ? (currwdf - wdfdec) : 0);
+	    i->second.set_wdf(currwdf);
+	}
+    }
 }
 
 void
 OmDocument::remove_term(const om_termname & tname)
 {
     DEBUGAPICALL(void, "OmDocument::remove_term", tname);
-    // FIXME: need to lock here...
-    if (!internal->terms_here) {
-	// FIXME: read terms from Document into terms
-	Assert(false);
-	internal->terms_here = true;
+    internal->read_termlist(termlist_begin(), termlist_end());
+    std::map<om_termname, OmDocumentTerm>::iterator i;
+    i = internal->terms.find(tname);
+    if (i == internal->terms.end()) {
+	throw OmInvalidArgumentError("Term `" + tname +
+				     "' is not present in document, in "
+				     "OmDocument::remove_term()");
+    } else {
+	internal->terms.erase(i);
     }
-    internal->terms.erase(tname);
 }
 
 
@@ -290,24 +328,20 @@ OmDocument::keylist_end() const
     RETURN(OmKeyListIterator(new OmKeyListIterator::Internal(internal->keys.end())));
 }
 
-OmDocumentTerm::OmDocumentTerm(const om_termname & tname_,
-			       om_termpos tpos)
+OmDocumentTerm::OmDocumentTerm(const om_termname & tname_)
 	: tname(tname_),
 	  wdf(0),
 	  termfreq(0)
 {
-    DEBUGAPICALL(void, "OmDocumentTerm::OmDocumentTerm", tname_ << ", " << tpos);
-    add_posting(tpos);
+    DEBUGAPICALL(void, "OmDocumentTerm::OmDocumentTerm", tname_);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void
-OmDocumentTerm::add_posting(om_termpos tpos)
+OmDocumentTerm::add_position(om_termpos tpos)
 {
-    DEBUGAPICALL(void, "OmDocumentTerm::add_posting", tpos);
-    wdf++;
-    if (tpos == 0) return;
+    DEBUGAPICALL(void, "OmDocumentTerm::add_position", tpos);
     
     // We generally expect term positions to be added in approximately
     // increasing order, so check the end first
@@ -317,10 +351,33 @@ OmDocumentTerm::add_posting(om_termpos tpos)
 	return;
     }
 
+    // Search for the position the term occurs at.  Use binary chop to
+    // search, since this is a sorted list.
     std::vector<om_termpos>::iterator i;
     i = std::lower_bound(positions.begin(), positions.end(), tpos);
     if (i == positions.end() || *i != tpos) {
 	positions.insert(i, tpos);
+    }
+}
+
+void
+OmDocumentTerm::remove_position(om_termpos tpos)
+{
+    DEBUGAPICALL(void, "OmDocumentTerm::remove_position", tpos);
+    
+    // Search for the position the term occurs at.  Use binary chop to
+    // search, since this is a sorted list.
+    std::vector<om_termpos>::iterator i;
+    i = std::lower_bound(positions.begin(), positions.end(), tpos);
+    if (i == positions.end() || *i != tpos) {
+	throw OmInvalidArgumentError("Position `" + om_tostring(tpos) +
+				     "' not found in list of positions that `" +
+				     tname +
+				     "' occurs at,"
+				     " when removing position from list");
+	positions.insert(i, tpos);
+    } else {
+	positions.erase(i);
     }
 }
 

@@ -106,7 +106,13 @@ BM25Weight::get_sumpart(om_termcount wdf, om_doclength len) const
     om_doclength normlen = len * lenpart;
     if (normlen < min_normlen) normlen = min_normlen;
 
-    om_weight wt = (double) wdf * (param_B + 1) / (normlen * param_BD + param_B * (1 - param_D) + wdf);
+    double denom = (normlen * param_BD + param_B * (1 - param_D) + wdf);
+    om_weight wt;
+    if (denom != 0) {
+	wt = (double) wdf * (param_B + 1) / denom;
+    } else {
+	wt = 0;
+    }
     DEBUGMSG(WTCALC, "(wdf,len,lenpart) = (" << wdf << "," << len << "," <<
 	     lenpart << ") =>  wtadj = " << wt);
 

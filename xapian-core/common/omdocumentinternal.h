@@ -31,13 +31,9 @@
 struct OmDocumentTerm {
     /** Make a new term.
      *
-     *  This creates a new term, and adds one posting at the specified
-     *  position.
-     *
      *  @param tname_ The name of the new term.
-     *  @param tpos   Optional positional information.
      */
-    OmDocumentTerm(const om_termname & tname_, om_termpos tpos = 0);
+    OmDocumentTerm(const om_termname & tname_);
 
     /** The name of this term.
      */
@@ -73,17 +69,33 @@ struct OmDocumentTerm {
      */
     om_doccount termfreq;
 
-    /** Add an entry to the posting list.
+    /** Add a position to the posting list.
      *
-     *  This method increments the wdf.  If positional information is
-     *  supplied, this also adds an entry to the list of positions, unless
+     *  This adds an entry to the list of positions, unless
      *  there is already one for the specified position.
      *
+     *  This does not change the value of the wdf.
+     *
      *  @param tpos The position within the document at which the term
-     *              occurs.  If this information is not available, use
-     *              the default value of 0.
+     *              occurs.
      */
-    void add_posting(om_termpos tpos = 0);
+    void add_position(om_termpos tpos);
+
+    /** Remove an entry from the posting list.
+     *
+     *  This removes an entry from the list of positions.
+     *
+     *  This does not change the value of the wdf.
+     *
+     *  @exception OmInvalidArgumentError is thrown if the 
+     */
+    void remove_position(om_termpos tpos);
+
+    /// Set the wdf
+    void set_wdf(om_termcount wdf_) { wdf = wdf_; }
+
+    /// Get the wdf
+    om_termcount get_wdf() { return wdf; }
 
     /** Returns a string representing the OmDocumentTerm.
      *  Introspection method.

@@ -134,25 +134,68 @@ class OmDocument {
 	 *  represented only once in the positional information, but do
 	 *  increase the wdf.
 	 *
-	 *  @param tname  The name of the term.
-	 *  @param tpos   The position of the term.
-	 */
-	void add_posting(const om_termname & tname, om_termpos tpos = 0);
-
-	/** Remove an occurrence of a term to the document.
+	 *  If the term is not already in the document, it will be added to
+	 *  it.
 	 *
-	 *  @param tname  The name of the term.
-	 *  @param tpos   The position of the term.
+	 *  @param tname     The name of the term.
+	 *  @param tpos      The position of the term.
+	 *  @param wdfinc    The increment that will be applied to the wdf
+	 *                   when adding this posting.
 	 */
-	void remove_posting(const om_termname & tname, om_termpos tpos);
+	void add_posting(const om_termname & tname,
+			 om_termpos tpos,
+			 om_termcount wdfinc = 1);
+
+	/** Set the wdf to a particular value.
+	 *
+	 *  Note that subsequent calls to add_posting() and remove_posting()
+	 *  will modify the value.
+	 *
+	 *  Note also that it is perfectly reasonable for a term to have a
+	 *  wdf of zero.
+	 *
+	 *  If the term is not already in the document, it will be added to
+	 *  it (but will not have a positionlist unless add_posting() is
+	 *  called).
+	 *
+	 *  @param tname     The name of the term.
+	 *  @param wdf       The value to set the wdf to.
+	 */
+	void set_wdf(const om_termname & tname, om_termcount wdf);
+
+	/** Remove a posting of a term from the document.
+	 *
+	 *  Note that the term will still index the document even if all
+	 *  occurrences are removed.  To remove a term from a document
+	 *  completely, use remove_term().
+	 *
+	 *  @param tname     The name of the term.
+	 *  @param tpos      The position of the term.
+	 *  @param wdfdec    The decrement that will be applied to the wdf
+	 *                   when removing this posting.  The wdf will not go
+	 *                   below the value of 0.
+	 *
+	 *  @exception OmInvalidArgumentError will be thrown if the term is
+	 *  not at the position specified in the position list for this
+	 *  term in this document.
+	 *
+	 *  @exception OmInvalidArgumentError will be thrown if the term is
+	 *  not in the document
+	 */
+	void remove_posting(const om_termname & tname,
+			    om_termpos tpos,
+			    om_termcount wdfdec = 1);
 
 	/** Remove a term and all postings associated with it.
 	 *
 	 *  @param tname  The name of the term.
+	 *
+	 *  @exception OmInvalidArgumentError will be thrown if the term is
+	 *  not in the document
 	 */
 	void remove_term(const om_termname & tname);
 
-	/// Remove all terms and postings.
+	/// Remove all terms and postings from the document.
 	void clear_terms();
 
 	OmTermIterator termlist_begin() const;

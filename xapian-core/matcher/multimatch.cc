@@ -125,12 +125,12 @@ MultiMatch::MultiMatch(const OmDatabase &db_,
 		smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, opts, gatherer.get()));
 	    }
 	} catch (OmError & e) {
+#if 0
 	    if (errorhandler) (*errorhandler)(e);
 	    // Continue match without this sub-postlist.
-	    throw;
-#if 0
 	    Make an EmptyMatch object instead of smatch
 #endif
+	    throw;
 	}
 	leaves.push_back(smatch);
 	subrset++;

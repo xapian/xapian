@@ -1,3 +1,17 @@
+Thu Feb  1 19:03:10 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fixes to OmDocument interface: add parameters specifying the
+	  changes to be made to the wdf to add_posting and remove_posting,
+	  properly implement remove_posting and remove_term, including
+	  throwing of exceptions, and add a set_wdf() method to set the wdf
+	  to an absolute value.  Corresponding modifications to
+	  OmDocumentTerm.
+
+	* Fix commented out errorhandler code in multimatch.cc, so it still
+	  compiles.
+
+	* Add a check to avoid division by zero in bm25weight.cc
+
 Thu Feb  1 15:59:30 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add a missed #include to omqueryinternal.h
