@@ -1,3 +1,8 @@
+Mon Nov 29 17:46:54 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Don't try to run "runtest" as a test - it just
+	  needs to be a dependency of the tests.
+
 Sat Nov 27 02:58:28 GMT 2004  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/dir_contents: Trimmed whitespace.

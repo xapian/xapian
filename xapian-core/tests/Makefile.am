@@ -16,12 +16,14 @@ endif
 
 ## Test programs to be run
 TESTS = $(quartz_tests) $(remote_tests) \
- apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
- runtest
+ apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT)
 
 ## Programs to build
 check_PROGRAMS = $(quartz_check_programs) $(remote_check_programs) \
  apitest internaltest stemtest
+
+# Make sure runtest is up to date before running tests
+check_SCRIPTS = runtest
 
 ## Sources:
 
