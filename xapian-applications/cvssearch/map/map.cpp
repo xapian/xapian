@@ -38,7 +38,9 @@
 #include "backward_line_map_algorithm.h"
 #include "diff.h"
 #include "cvs_log.h"
+#include "parse_change_log.h"
 #include <vector>
+
 using std::vector;
 
 string scvs_root;
@@ -59,6 +61,8 @@ static string scmt_db     = "/dev/null";
 static string soffset_db  = "/dev/null";
 static string sfile_db    = "/dev/null";
 static string sstats_file = "/dev/null";
+static string smodule_name= "";
+static string scvs2cl_path= "";
 
 static unsigned int num_mappings = 0;
 static unsigned int num_deletes = 0;
@@ -87,6 +91,10 @@ main(unsigned int argc, const char **argv)
     while (i < argc)
     {
         if (0) {
+        } else if (!strcmp(argv[i], "-m") && i+1 < argc) {
+            smodule_name = argv[++i];
+        } else if (!strcmp(argv[i], "-cl") && i+1 < argc) {
+            scvs2cl_path = argv[++i];
         } else if (!strcmp(argv[i], "-i") && i+1 < argc) {
             input_file = argv[++i];
         } else if (!strcmp(argv[i], "-f1") && i+1 < argc) {
@@ -123,7 +131,7 @@ main(unsigned int argc, const char **argv)
     // determine what the cvsroot is,
     // make sure cvs use it explicitly.
     // ----------------------------------------
-    if (scvs_root.length() == 0) 
+    if (scvs_root.length() == 0)
     {
         usage(argv[0]);
         exit(1);
@@ -140,6 +148,11 @@ main(unsigned int argc, const char **argv)
     cvs_db_file * pdb_file = 0;
     if (use_db)
     {
+        if (!read_mode && (smodule_name.length() == 0 || scvs2cl_path.length() == 0)) 
+        {
+            usage(argv[0]);
+            exit(1);
+        }
         unlink(sfile_db.c_str());
         pdb_file = new cvs_db_file(sfile_db, read_mode);
     }
@@ -198,17 +211,22 @@ main(unsigned int argc, const char **argv)
             << "average # cvs comments / line  :\t" << (double) num_mappings / (double) num_lines << endl
             ;
     }
+
     if (pdb_file)
     {
+        if (!read_mode) {
+            parse_change_log (smodule_name, scvs2cl_path, *pdb_file);
+        }
         delete pdb_file;
     }
+
 
     exit (EXIT_SUCCESS);
 }
 
 static void usage(const string & prog_name)
 {
-    cerr << "Usage: " << prog_name << " -d CVSROOT [OPTION] [FILE] ..." << endl
+    cerr << "Usage: " << prog_name << " -d CVSROOT [Options] ..." << endl
          << endl
          << "Options:" << endl
          << "  -h                   print this message" << endl
@@ -217,6 +235,8 @@ static void usage(const string & prog_name)
          << "  -html fileid version output html comparason result" << endl
          << "  -s                   display abbreviated html output" << endl
          << "  -db pkg.db           specify the database file" << endl
+         << "  -m                   module name (MUST SPECIFY), used only if -db option is turned on" << endl
+         << "  -cl                  cvs2cl path (MUST SPECIFY), used only if -db option is turned on" << endl
          << "  -f1 pkg.cmt          specify the line-comment map file" << endl
          << "  -f2 pkg.offset       specify the filename index file" <<endl
          << "  -st stat.file        output statistical information to stat.file" << endl
@@ -252,7 +272,7 @@ cvsmap(istream & log_in, ostream & line_out, ostream & offset_out, cvs_db_file *
             }
 
             line_out   << *pcollection;
-            offset_out << log.path_name() << " " << file_offset << "\002" << endl;
+            offset_out << smodule_name << "/" << log.path_name() << " " << file_offset << "\002" << endl;
             file_offset += pcollection->lines();
             
             delete pcollection;

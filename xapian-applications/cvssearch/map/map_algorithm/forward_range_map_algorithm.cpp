@@ -254,8 +254,7 @@ forward_range_map_algorithm::get_line_mappings(cvs_db_file & db_file) const
     {
         for (unsigned int i = 0; i < _log.size(); ++i)
         {
-            if ((val = db_file.put_revision(file_id, _log[i].revision())) == 0 &&
-                (val = db_file.put_comment (file_id, _log[i].revision(), _log[i].comments())) == 0)
+            if ((val = db_file.put_revision(file_id, _log[i].revision())) == 0)
             {
             }
                  
