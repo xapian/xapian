@@ -65,6 +65,16 @@ QuartzModifications::close_diffs()
 void
 QuartzModifications::apply()
 {
+    if(!postlist_diffs->is_modified() &&
+       !positionlist_diffs->is_modified() &&
+       !termlist_diffs->is_modified() &&
+       !lexicon_diffs->is_modified() &&
+       !attribute_diffs->is_modified() &&
+       !record_diffs->is_modified()) {
+	db_manager->log->make_entry("No modifications to apply.");
+	return;
+    }
+
     bool success;
     QuartzRevisionNumber old_revision(db_manager->get_revision_number());
     QuartzRevisionNumber new_revision(db_manager->get_next_revision_number());
@@ -104,7 +114,6 @@ QuartzModifications::apply()
 	open_diffs();
     }
     db_manager->log->make_entry("Modifications succeeded.");
-
 }
 
 om_docid

@@ -81,6 +81,12 @@ QuartzDiffs::apply(QuartzRevisionNumber new_revision)
     return result;
 }
 
+bool
+QuartzDiffs::is_modified()
+{
+    return !changed_entries.empty();
+}
+
 void
 QuartzPostListDiffs::add_posting(om_termname tname,
 				 om_docid did,

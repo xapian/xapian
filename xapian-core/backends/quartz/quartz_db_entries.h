@@ -78,6 +78,12 @@ class QuartzDbEntries {
 	 */
 	bool have_entry(const QuartzDbKey &key);
 
+	/** Return whether there are any entries stored in this object.
+	 *
+	 *  @return true if the object stores no entries, false otherwise.
+	 */
+	bool empty();
+
 	/** Set the tag associated with a given key.
 	 *  If a tag is already associated with the key, it is freed and
 	 *  replaced.  Any pointers to the old tag previously returned by

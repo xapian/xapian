@@ -50,6 +50,12 @@ QuartzDbEntries::have_entry(const QuartzDbKey &key)
     return (entries.find(key) != entries.end());
 }
 
+bool
+QuartzDbEntries::empty()
+{
+    return (entries.empty());
+}
+
 void
 QuartzDbEntries::set_tag(const QuartzDbKey &key, AutoPtr<QuartzDbTag> tag)
 {

@@ -1,3 +1,12 @@
+Mon Oct  2 19:36:21 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Rename settings parameter quartz_modification_log to quartz_logfile.
+
+	* Don't increment revision number when applying null modifications.
+
+	* Added test for adding a document and reading it out again.
+	  (Currently fails with an unimplemented error.)
+
 Mon Oct  2 18:09:34 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Overhauled the indexer graph type-checker.  Types which start

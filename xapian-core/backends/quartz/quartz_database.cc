@@ -51,8 +51,8 @@
 //		   This does have the advantage that databases may be
 //		   stored on NFS partitions.
 //
-// quartz_modification_log - File in which to store log information
-//                 regarding modifications made to the database.  If not
+// quartz_logfile - File in which to store log information regarding
+//                 modifications and accesses made to the database.  If not
 //                 specified, such log information will not be stored.
 //                 If this is a relative path, it is taken to be relative
 //                 to the quartz_dir directory.
@@ -79,7 +79,7 @@ QuartzDatabase::QuartzDatabase(const OmSettings & settings, bool readonly)
     // Read parameters
     string db_dir  = settings.get("quartz_dir");
     string tmp_dir = settings.get("quartz_tmpdir", db_dir);
-    string log_filename = settings.get("quartz_modification_log", "");
+    string log_filename = settings.get("quartz_logfile", "");
     use_transactions = settings.get_bool("quartz_use_transactions", false);
     bool perform_recovery = settings.get_bool("quartz_perform_recovery", false);
 
@@ -202,6 +202,7 @@ OmDocumentContents
 QuartzDatabase::do_get_document(om_docid did)
 {
     OmLockSentry sentry(quartz_mutex);
+
 
     throw OmUnimplementedError("QuartzDatabase::do_get_document() not yet implemented");
 }

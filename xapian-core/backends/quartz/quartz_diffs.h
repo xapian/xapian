@@ -97,6 +97,13 @@ class QuartzDiffs {
 	 *          otherwise.
 	 */
 	bool apply(QuartzRevisionNumber new_revision);
+
+	/** Determine whether the object contains modifications.
+	 *
+	 *  @return true if the diffs object contains modifications to the
+	 *          database, false if no changes have been made.
+	 */
+	bool is_modified();
 };
 
 inline QuartzDiffs::~QuartzDiffs() {}

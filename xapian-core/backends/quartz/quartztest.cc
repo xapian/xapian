@@ -360,14 +360,16 @@ static bool test_open1()
     return true;
 }
 
-/// Test opening of a quartz database
+/** Test adding and deleting a document, and that flushing occurs in a
+ *  sensible manner.
+ */
 static bool test_adddoc1()
 {
     OmSettings settings;
     system("rm -fr .testdb_adddoc1");
     system("mkdir .testdb_adddoc1");
     settings.set("quartz_dir", ".testdb_adddoc1");
-    settings.set("quartz_modification_log", "log");
+    settings.set("quartz_logfile", "log");
     QuartzDatabase database(settings, false);
 
     database.begin_session(0);
@@ -377,7 +379,7 @@ static bool test_adddoc1()
 
     did = database.add_document(document);
     TEST_EQUAL(database.get_doccount(), 1);
-    settings.set("quartz_modification_log", "log_ro");
+    settings.set("quartz_logfile", "log_ro");
     {
 	QuartzDatabase db_readonly(settings, true);
 	TEST_EQUAL(db_readonly.get_doccount(), 0);
@@ -399,7 +401,40 @@ static bool test_adddoc1()
 	QuartzDatabase db_readonly(settings, true);
 	TEST_EQUAL(db_readonly.get_doccount(), 0);
     }
+    database.flush();
     database.end_session();
+
+    return true;
+}
+
+/** Test adding a document, and checking that it got added correctly.
+ */
+static bool test_adddoc2()
+{
+    OmSettings settings;
+    system("rm -fr .testdb_adddoc2");
+    system("mkdir .testdb_adddoc2");
+    settings.set("quartz_dir", ".testdb_adddoc2");
+    settings.set("quartz_logfile", "log");
+
+    om_docid did;
+    OmDocumentContents document_in;
+    {
+	QuartzDatabase database(settings, false);
+	TEST_EQUAL(database.get_doccount(), 0);
+	did = database.add_document(document_in);
+	TEST_EQUAL(database.get_doccount(), 1);
+    }
+
+    {
+	settings.set("quartz_logfile", "log_ro");
+	QuartzDatabase database(settings, true);
+	OmDocumentContents document_out = database.get_document(did);
+
+	TEST_EQUAL(document_in.data.value, document_out.data.value);
+	TEST(document_in.keys.size() == document_out.keys.size());
+	TEST(document_in.terms.size() == document_out.terms.size());
+    }
 
     return true;
 }
@@ -536,6 +571,7 @@ test_desc tests[] = {
     {"quartzdbentries1",	test_dbentries1},
     {"quartzopen1",		test_open1},
     {"quartzadddoc1",		test_adddoc1},
+    {"quartzadddoc2",		test_adddoc2},
     {"quartzpackint1",		test_packint1},
     {"quartzpackint2",		test_packint2},
     {"quartzunpackint1",	test_unpackint1},
