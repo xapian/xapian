@@ -8,8 +8,15 @@ noinst_HEADERS = pool.h
 
 noinst_LTLIBRARIES = liblanguages.la
 
-liblanguages_la_SOURCES = pool.c
+liblanguages_la_SOURCES = pool.c stemmer_builder.cc
 
-SUBDIRS = en dutch english french german italian portuguese spanish .
+SUBDIRS = dutch english french german italian portuguese spanish .
 
-liblanguages_la_LIBADD = en/liben.la
+liblanguages_la_LIBADD = \
+dutch/libdutch.la \
+english/libenglish.la \
+french/libfrench.la \
+german/libgerman.la \
+italian/libitalian.la \
+portuguese/libportuguese.la \
+spanish/libspanish.la \
