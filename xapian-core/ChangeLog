@@ -1,3 +1,7 @@
+Thu May 06 22:20:43 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Added a few more assertions.
+
 Thu May 06 02:25:33 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_positionlist.cc,

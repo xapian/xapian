@@ -415,6 +415,7 @@ Btree::block_to_cursor(Cursor * C_, int j, uint4 n)
 {
     if (n == C_[j].n) return;
     byte * p = C_[j].p;
+    Assert(p);
 
     // FIXME: only needs to be done in write mode
     if (C_[j].rewrite) {
@@ -1849,9 +1850,10 @@ Btree::reopen_to_read(const Btree &btree)
 bool
 Btree::prev_for_sequential(Cursor * C_, int /*dummy*/)
 {
-    byte * p = C_[0].p;
     int c = C_[0].c;
     if (c == DIR_START) {
+	byte * p = C_[0].p;
+	Assert(p);
 	uint4 n = C_[0].n;
 	while (true) {
 	    if (n == 0) return false;
@@ -1876,6 +1878,7 @@ bool
 Btree::next_for_sequential(Cursor * C_, int /*dummy*/)
 {
     byte * p = C_[0].p;
+    Assert(p);
     int c = C_[0].c;
     c += D2;
     if (c == DIR_END(p)) {
