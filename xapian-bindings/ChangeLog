@@ -1,3 +1,7 @@
+Wed Dec 01 15:41:56 GMT 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Distribute xapian-bindings.spec.in.
+
 Wed Dec 01 15:39:55 GMT 2004  Olly Betts <olly@survex.com>
 
 	* xapian-bindings.spec.in: No longer need "BuildRequires: swig";
