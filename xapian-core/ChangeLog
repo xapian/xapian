@@ -1,3 +1,7 @@
+Sun Jul 27 14:31:36 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/todo.xml: Assorted updates.
+
 Sun Jul 27 13:02:36 BST 2003  Olly Betts <olly@survex.com>
 
 	* extra/.cvsignore: We still create libomqueryparser.la for backward

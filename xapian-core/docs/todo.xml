@@ -88,8 +88,8 @@ should probably use data() and length().  xapian-bindings hasn't been checked.
 </todoitem>
 <todoitem priority="M" difficulty="4" owner="" area="General" release="1.0">
 
-Allow setting of the document length in Xapian::Document?  (Currently defined to
-be the sum of the wdfs, which is perhaps the correct definition).
+Should the document length be defined as the sum of the wdfs as it is now?
+Or should we allow setting it (via method of Xapian::Document)?
 
 </todoitem>
 <todoitem priority="M" difficulty="2" owner="" area="General" release="">
@@ -100,7 +100,8 @@ Make all errors return a context if appropriate.
 <todoitem priority="M" difficulty="5" owner="James" area="Porting" release="1.0">
 
 Produce Microsoft Windows version, probably cross-compiling to mingw.  0.7.0
-can be built with a mingw cross-compiler.  Test suite builds, but not yet run.
+can be built with a mingw cross-compiler.  Test suite builds, but some tests
+fail.  Not yet investigated why.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
@@ -111,9 +112,9 @@ two documents have the same weight.
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Matcher" release="">
 
-Check that negative term weights don't mess up matcher's optimisations - if
-they do we need to either disallow negative term weights, or fix/disable the
-optimisations for the case of negative term weights.
+Should negative term weights be allowed?  If so, check that they don't
+mess up matcher's optimisations, and fix if necessary.  If not, we should
+moan if someone tries to set them.
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Documentation" release="">
@@ -157,6 +158,8 @@ the same way weighting objects are.
 
 Allow negative relevance judgements?  Will need to check that this doesn't
 cause assumptions to be violated. (eg, unsigned integers going negative.)
+See discussion here:
+http://sourceforge.net/mailarchive/forum.php?thread_id=2728143&forum_id=412
 
 </todoitem>
 <todoitem priority="M" difficulty="3" owner="" area="Databases" release="1.0">
@@ -342,12 +345,14 @@ it in cgi-bin directory).
 </todoitem>
 <todoitem priority=" " difficulty="" owner="Sam/James" area="Bindings" release="">
 
-Language bindings: PHP, Java, Guile, tcl (C would be good too).
+Language bindings: Java, Guile?, tcl? (C would be good too).
 All can be done using SWIG, and it's probably easier to do so
 even though some languages may have better tools
 available just because it's less overall work.  We have contributed XS
 bindings for Perl, so we may as well keep using those while they're
-supported for us.
+supported for us.  What's really needed is someone interested in bindings
+for a particular language who knows that language well and will be using
+them actively.  Otherwise we'll just have a token implementation...
 
 </todoitem>
 <todoitem priority=" " difficulty="" owner="" area="Bindings" release="">
