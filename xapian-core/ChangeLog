@@ -1,3 +1,8 @@
+Tue Mar 16 01:40:43 GMT 2004  Olly Betts <olly@survex.com>
+
+	* docs/matcherdesign.html: Merged in more details from a message I
+	  sent to the mailing list.
+
 Mon Mar 15 20:39:21 GMT 2004  Olly Betts <olly@survex.com>
 
 	* tests/quartztest.cc: Fail the test if there's still a directory after

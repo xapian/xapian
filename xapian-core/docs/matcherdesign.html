@@ -13,23 +13,94 @@ technique well), and there's as yet no documentation of sort_bands.
 
 <h2>The PostList Tree</h2>
 
-<P>Pairs of PostLists are merged into a "virtual" PostList.  This process
-is repeated to form a single virtual PostList accessed by the Match
-object behind which hangs a tree of PostLists.
-
-<P>This tree of PostLists is a binary tree.  This is more efficient than
+<P>The matcher builds a tree structure from the query.  This tree is a binary
+tree, and each node is a PostList sub-class object.  This is more efficient than
 a n-ary tree in terms of the number of comparisons which need to be performed:
-&lt;insert proof&gt; - proof may only be valid for equal sized posting lists
+&lt;insert proof&gt; (but this proof may only be valid for equal sized posting
+lists
 without optimisations, in which case there may be a more efficient way to do
-this and we may wish to change the code.
+this - investigate!)
+
+<P>To built the tree, a PostList object is
+created for each term, and pairs of PostLists are combined using
+2-way branching tree elements for AND, OR, etc - these are virtual
+PostLists whose class names reflect the operation (AndPostList,
+OrPostList, etc).  See below for a full list.
 
 <P>The tree is deliberately built in an uneven way, such that we minimise the
 likely number of
 times a posting has to be passed up a level.  For a group of OR operations,
-the PostLists with fewest entries are furthest down the tree, minimising
-the amount of information needing to be passed up the tree.
-For AND operations the PostLists with most entries are furthest down,
-allowing maximally sized skip_to's to be performed.
+the PostLists with fewest entries are furthest down the group's subtree,
+minimising the amount of information needing to be passed up the tree.
+For a group of AND operations the PostLists with most entries are furthest down,
+so we look at the least frequent terms first, and skip the posting lists of
+the others.  This will generally minimise the number of posting list entries
+we read and maximises the size of each skip_to.  The OR tree is built up
+in a similar way to how an optimal huffman code is constructed.  This is
+provably optimal, but with the assumption that the tree structure is
+immutable once created.  If term distribution is uneven, rebalancing this
+tree during the match might be more efficient.
+
+<h2>running the match</h2>
+
+<P>
+Once the tree is built, the matcher repeatedly asks
+the root of the tree for the next matching document and compares it to
+those in the proto-mset it maintains.  If the next matching document scores
+more highly (either by weight, or in sort order if sorting is used) then it
+adds it and discards the lowest scoring document (this is a bit more
+complicated if sort_bands are being used, but essentially it's the same
+idea; sort_bands are rather nasty to implement, and seem a rather arbitrary
+compromise between sorting and relevance - if a better scheme can be found,
+we should seriously consider removing sort_bands).
+
+<P>
+When one of a sub-tree of AND operations runs out, it signals "end of list",
+and each AND signals this too.
+
+<P>
+When an OR gets end of list, it autoprunes, replacing itself with the
+branch that still has postings - see below for full details.  If the matcher
+itself gets "end of list", the match is complete.
+
+<P>
+The other operations also handle end of list in one of these two ways
+(for asymmetric operations, which happens may depend which branch has run out).
+
+<P>
+The matcher also passes the lowest weight currently needed make the proto-mset
+into the tree, and each node may adjust this weight and pass it on to its
+subtrees.  Each PostList can report a minimum weight it could contribute - so if
+the left branch of an AND will always return a weight of 2 or more,
+then if the whole AND needs to return at least 6, the right branch is
+told it need to return at least 4.
+
+<P>
+For example, an OR knows that if its left branch can
+contribute at most a weight of 4 and its right branch at most 7, then if
+the minimum weight is 8, only documents matching both branches are now
+of interest so it mutates into an AND.  If the minimum weight is 6 it
+changes into an AND_MAYBE (A AND_MAYBE B matches documents which which
+match A, but B contributes to the weight - in most search engines query
+syntax, that's expressed as `+A B').  See the "Operator Decay" section
+below for full details of these mutations.  If the minimum weight needed is
+12, no document is good enough, and the OR returns "end of list".
+
+<h2>Phrase and near matching</h2>
+
+<P>
+The way phrase and near matching works is to perform an AND query for all the
+terms, with a filter node in front which only returns documents whose
+positional information fulfils the phrase requirements.
+
+<P>Unfortunately this creates a
+bad case is where a lot of documents have the words of the phrase in
+but few match the actual phrase - this filter does a lot of work, but
+the matcher can't stop early.  We should look at hoisting the filtering
+part higher up the tree, but note that this may not always be a win.
+Some heuristics are probably required.
+
+<h2>virtual postlist types</h2>
 
 <P>There are several types of virtual PostList.  Each type can be treated as
 boolean or probabilistic - the only difference is whether the weights are
@@ -43,7 +114,7 @@ ignored or not.  The types are:
 <li> XorPostList: returns documents which match one branch or the other but not both
 
 <li> AndNotPostList: returns documents which match the left branch, but not the
- right (the weight of documents from the right branch is ignored)
+ right (the weights of documents from the right branch are ignored).
 
 <li> AndMaybePostList: returns documents which match the left branch - weights from
  documents also in the right branch are added in for the probabilistic case
@@ -51,7 +122,7 @@ ignored or not.  The types are:
 
 <li> FilterPostList: applies the right branch as a boolean filter to the left
  branch (which is typically a probabilistic query.  Note: same as
- AndPostList with the right branch weights ignored
+ AndPostList with the right branch weights ignored.
 </ul>
 
 <p>[Note: You can use AndNotPostList to apply an inverted boolean filter to a
