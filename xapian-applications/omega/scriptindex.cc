@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -324,7 +324,7 @@ index_file(istream &stream, Xapian::WritableDatabase &database,
 	Xapian::docid docid = 0;
 	Xapian::termpos wordcount = 0;
 	map<string, list<string> > fields;
-	bool seen_content = 0;
+	bool seen_content = false;
 	while (true) {
 	    Xapian::termcount weight = 1;
 	    // Cope with files from MS Windows (\r\n end of lines)
@@ -342,7 +342,7 @@ index_file(istream &stream, Xapian::WritableDatabase &database,
 	    vector<Action> &v = index_spec[field];
 	    string old_value = value;
 	    vector<Action>::const_iterator i;
-	    bool this_field_is_content = 1;
+	    bool this_field_is_content = true;
 	    for (i = v.begin(); i != v.end(); ++i) {
 		switch (i->get_action()) {
 		    case Action::BAD:
@@ -406,7 +406,7 @@ index_file(istream &stream, Xapian::WritableDatabase &database,
 			// Unique fields aren't considered content - if
 			// there are no other fields in the document, the
 			// document is to be deleted.
-			this_field_is_content = 0;
+			this_field_is_content = false;
 
 			// Argument is the prefix to add to the field value
 			// to get the unique term.
@@ -481,11 +481,11 @@ again:
 		    }
 		}
 	    }
-	    if (this_field_is_content) seen_content = 1;
+	    if (this_field_is_content) seen_content = true;
 	    if (line.empty() || line == "\r") break;
 	}
 
-	// If we havn't seen any fields (other than unique identifiers)
+	// If we haven't seen any fields (other than unique identifiers)
 	// the document is to be deleted.
 	if (!seen_content) {
 	    if (docid) {
@@ -542,9 +542,9 @@ int
 main(int argc, char **argv)
 {
     // If update_db is true, the database will be updated rather than created.
-    bool update_db = 0;
-    bool quiet = 0;
-    verbose = 0;
+    bool update_db = false;
+    bool quiet = false;
+    verbose = false;
 
     argv0 = argv[0];
 
@@ -556,13 +556,13 @@ main(int argc, char **argv)
 
 	switch (argv[1][1]) {
 	    case 'u':
-		update_db = 1;
+		update_db = true;
 		break;
 	    case 'q':
-		quiet = 1;
+		quiet = true;
 		break;
 	    case 'v':
-		verbose = 1;
+		verbose = true;
 		break;
 	    default:
 		argc = 1;

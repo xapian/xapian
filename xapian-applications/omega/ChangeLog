@@ -1,3 +1,7 @@
+Wed Mar 03 14:55:50 GMT 2004  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Use true/false for assigning to booleans, not 1/0.
+
 Sat Feb 21 18:33:15 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omega.cc,query.cc,docs/omegascript.txt: Added $httpheader
