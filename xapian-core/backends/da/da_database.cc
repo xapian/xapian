@@ -92,7 +92,7 @@ DATermList::get_weighting() const
     Assert(have_started);
     Assert(wt != NULL);
 
-    return wt->get_bits(pos->wdf, 1.0, DATermList::get_termfreq(), dbsize);
+    return wt->get_bits(pos->wdf, 1.0, pos->termfreq, dbsize);
 }
 
 
