@@ -763,6 +763,9 @@ static bool test_writelock1()
 	Xapian::WritableDatabase writer2 = Xapian::Quartz::open(dbname, Xapian::DB_OPEN));
     TEST_EXCEPTION(Xapian::DatabaseLockError, 
 	Xapian::WritableDatabase writer2 = Xapian::Quartz::open(dbname, Xapian::DB_CREATE_OR_OVERWRITE));
+    // Xapian::DB_CREATE would fail with DatabaseCreateError
+    TEST_EXCEPTION(Xapian::DatabaseLockError, 
+	Xapian::WritableDatabase writer2 = Xapian::Quartz::open(dbname, Xapian::DB_CREATE_OR_OPEN));
     return true;
 }
 

@@ -1,3 +1,7 @@
+Mon Nov 22 02:15:22 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tests/quartztest.cc: Test with DB_CREATE_OR_OPEN in writelock1.
+
 Mon Nov 22 01:37:13 GMT 2004  Olly Betts <olly@survex.com>
 
 	* common/utils.cc: define NOMINMAX as a cleaner way to prevent
