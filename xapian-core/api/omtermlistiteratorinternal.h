@@ -32,9 +32,15 @@ class OmTermListIterator::Internal {
         friend bool operator==(const OmTermListIterator &a, const OmTermListIterator &b);
 
 	RefCntPtr<TermList> termlist;
-    
+
+	OmDatabase database;
+
+	om_docid did;
+
     public:
-        Internal(TermList *termlist_) : termlist(termlist_)
+        Internal(TermList *termlist_, const OmDatabase &database_,
+		 om_docid did_)
+	    : termlist(termlist_), database(database_), did(did_)
 	{
 	    // A TermList starts before the start, iterators start at the start
 	    termlist->next();

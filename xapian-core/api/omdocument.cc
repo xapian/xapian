@@ -219,7 +219,9 @@ OmTermListIterator
 OmDocument::termlist_begin() const
 {
     DEBUGAPICALL(OmTermListIterator, "OmDocument::termlist_begin", "");
-    RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->ptr->open_term_list())));
+    RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->ptr->open_term_list(),
+							       internal->database,
+							       internal->did)));
 }
 
 OmTermListIterator

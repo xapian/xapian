@@ -37,6 +37,8 @@ class OmDocument::Internal {
 
 	OmDatabase database;
 
+	om_docid did;
+
 	bool data_here, keys_here, terms_here;
 
 	/// The (user defined) data associated with this document.
@@ -54,12 +56,14 @@ class OmDocument::Internal {
 	/// The terms (and their frequencies and positions) in this document.
 	document_terms terms;
 
-	explicit Internal(Document *ld, const OmDatabase &database_)
-		: ptr(ld), database(database_), data_here(false),
+	explicit Internal(Document *ld, const OmDatabase &database_,
+			  om_docid did_)
+		: ptr(ld), database(database_), did(did_), data_here(false),
 		  keys_here(false), terms_here(false) {}
 
-	explicit Internal(RefCntPtr<Document> ptr_, const OmDatabase &database_)
-	        : ptr(ptr_), database(database_), data_here(false),
+	explicit Internal(RefCntPtr<Document> ptr_, const OmDatabase &database_,
+			  om_docid did_)
+	        : ptr(ptr_), database(database_), did(did_), data_here(false),
 		  keys_here(false), terms_here(false) {}
 
 	Internal(const Internal &other)

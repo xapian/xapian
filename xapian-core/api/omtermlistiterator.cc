@@ -103,7 +103,8 @@ OmPositionListIterator
 OmTermListIterator::positionlist_begin()
 {
     DEBUGAPICALL(OmPositionListIterator, "OmTermListIterator::positionlist_begin", "");
-    throw OmUnimplementedError("Can't create a positionlist from a termlist");
+    RETURN(internal->database.positionlist_begin(internal->did,
+						 internal->termlist->get_termname()));
 }
 
 OmPositionListIterator

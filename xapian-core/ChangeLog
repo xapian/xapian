@@ -1,3 +1,7 @@
+Mon Dec 04 14:13:05 GMT 2000 Olly Betts
+
+	* More OmDocument work.
+
 Mon Dec  4 11:43:46 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Renamed OmMSet::mbound to docs_considered.

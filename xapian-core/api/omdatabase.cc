@@ -136,7 +136,8 @@ OmDatabase::termlist_begin(om_docid did) const
 {
     DEBUGAPICALL(OmTermListIterator, "OmDatabase::termlist_begin", did);
     if (did == 0) throw OmInvalidArgumentError("Document IDs of 0 are invalid");
-    RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->open_term_list(did, *this))));
+    RETURN(OmTermListIterator(new OmTermListIterator::Internal(internal->open_term_list(did, *this),
+							       *this, did)));
 }
 
 OmTermListIterator
