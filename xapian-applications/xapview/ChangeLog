@@ -1,7 +1,11 @@
+Mon Jun 23 21:11:56 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: Check for Bison 1.875 which doesn't work with Xapian.
+
 Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
 
-        * Fix success message in bootstrap when building in non-src dir
-          as configure is written to the src dir
+        * bootstrap: Fix success message when building in non-src dir
+          as configure is written to the src dir.
 
 Sat Dec 14 01:49:02 GMT 2002  Olly Betts <olly@survex.com>
 

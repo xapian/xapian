@@ -1,3 +1,7 @@
+Mon Jun 23 21:13:27 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: Check for Bison 1.875 which doesn't work with Xapian.
+
 Sat Apr 12 02:37:02 BST 2003  Olly Betts <olly@survex.com>
 
 	* getopt.c,getopt.h,getopt1.c,source/Makefile.am,source/getopt.c,

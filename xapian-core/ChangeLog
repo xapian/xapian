@@ -1,3 +1,7 @@
+Mon Jun 23 21:10:33 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: Check for Bison 1.875 which doesn't work with Xapian.
+
 Mon Jun 23 21:08:35 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING: Automake 1.7 works reliably with Xapian; CFLAGS=-Werror can
