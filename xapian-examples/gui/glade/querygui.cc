@@ -35,7 +35,7 @@
 
 #include <om/om.h>
 
-#include "textfile_indexer.h"
+#include "../indexer/index_utils.h"
 #include "query_parser.h"
 
 #include <list>
@@ -225,17 +225,22 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 
     try {
 	// split into terms
-	QueryParser parser;
-	TextfileIndexer idx;
-	parser.set_indexer(&idx);
 	vector<QueryTerm> qterms;
-	qterms = parser.parse_query(querystring);
-
 	OmQuery omquery;
-	vector<QueryTerm>::const_iterator i = qterms.begin();
-	while(i != qterms.end()) {
-	    omquery = OmQuery(OM_MOP_OR, omquery, (*i).tname);
-	    i++;
+	OmStem stemmer("english");
+	om_termname word;
+        string::size_type spacepos;
+	om_termcount position = 1;
+	string unparsed_query = querystring;
+	while((spacepos = unparsed_query.find_first_not_of(" \t\n")) != string::npos) {
+	    if(spacepos) unparsed_query = unparsed_query.erase(0, spacepos);
+	    spacepos = unparsed_query.find_first_of(" \t\n");
+	    word = unparsed_query.substr(0, spacepos);
+	    select_characters(word, "");
+	    lowercase_term(word);
+	    word = stemmer.stem_word(word);
+	    omquery = OmQuery(OM_MOP_OR, omquery, OmQuery(word, 1, position++));
+	    unparsed_query = unparsed_query.erase(0, spacepos);
 	}
 
 	// Perform match
@@ -340,14 +345,14 @@ int main(int argc, char *argv[]) {
 
     // Set Database(s)
     try {
-	OmDatabase mydb;
+	OmDatabaseGroup mydbs;
 
 	vector<string>::const_iterator p;
 	vector<vector<string> >::const_iterator q;
 	for(p = dbtypes.begin(), q = dbargs.begin();
 	    p != dbtypes.end();
 	    p++, q++) {
-	    mydb.add_database(*p, *q);
+	    mydbs.add_database(*p, *q);
 	}
 
 	GladeXML *xml;
@@ -381,7 +386,7 @@ int main(int argc, char *argv[]) {
 	gtk_main();
 
 	// Start enquiry system
-	enquire = new OmEnquire(mydb);
+	enquire = new OmEnquire(mydbs);
 
     } catch (OmError &e) {
 	cout << "OmError: " << e.get_msg() << endl;
