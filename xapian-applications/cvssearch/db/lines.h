@@ -17,7 +17,7 @@ protected:
     // classes and functions in that line
     // and insert them into the symbols set.
     // ----------------------------------------
-    static void extractSymbols(const string & s, set <string> & symbols);
+    static void extractSymbols(const string & s, set <string> & symbols, list<string>& symbol_list );
 
     // ----------------------------------------
     // takes a list of words, lower cases and 
@@ -32,6 +32,7 @@ protected:
     string codeline;
     list<string> term_list;
     set <string> symbols;
+    list<string> symbol_list;
     set <string> terms;
     unsigned int line_no;
     map< string, list<string> > revision_comment_words;
@@ -177,7 +178,7 @@ public:
     // required by some apps, so the output is
     // not a reference.
     // ----------------------------------------
-    const set<string>   getCodeSymbolTerms();
+    const list<string>   getCodeSymbolTerms();
 
     // ----------------------------------------
     // Gets the number of line just read from 

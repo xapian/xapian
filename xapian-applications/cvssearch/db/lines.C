@@ -26,7 +26,7 @@ lines::~lines()
 
 
 void
-lines::extractSymbols( const string& s, set <string> & symbols) {
+lines::extractSymbols( const string& s, set <string> & symbols, list<string>& symbol_list) {
     string current = "";
     bool foundBlank = false;
     for ( string::const_iterator i = s.begin(); i != s.end(); i++ ) {
@@ -51,6 +51,7 @@ lines::extractSymbols( const string& s, set <string> & symbols) {
                     current += "()";
                     //cerr << "... found " << current << endl;
                     symbols.insert(current);
+		    symbol_list.push_back(current);
                     current = "";
                     foundBlank = false;
                 } else {
@@ -58,6 +59,7 @@ lines::extractSymbols( const string& s, set <string> & symbols) {
                     //cerr << "... found " << current << endl;
                     assert( current != "" );
                     symbols.insert(current);
+		    symbol_list.push_back(current);
                     current = "";
                     foundBlank = false;
                 }
@@ -65,6 +67,7 @@ lines::extractSymbols( const string& s, set <string> & symbols) {
                 if ( foundBlank ) {
                     assert( current != "" );
                     symbols.insert(current);
+		    symbol_list.push_back(current);
                     current = "";	  
                     foundBlank = false;
                 }
@@ -75,6 +78,7 @@ lines::extractSymbols( const string& s, set <string> & symbols) {
     if ( current != "" ) {
         //    cerr << "...found " << current << endl;
         symbols.insert(current);
+	symbol_list.push_back(current);
     }
 }
 
@@ -105,15 +109,15 @@ lines::updateRevisionComments( map< string, list<string> >& rcw ) {
 #warning "doesn't handle all upper case yet"
 #endif
 
-const set<string>
+const list<string>
 lines::getCodeSymbolTerms() {
     // ----------------------------------------
     // computed here, since may not be required
     // by some apps
     // ----------------------------------------
-    set<string> code_terms;
+    list<string> code_terms;
     
-    for( set<string>::iterator s = symbols.begin(); s != symbols.end(); s++ ) {
+    for( list<string>::iterator s = symbol_list.begin(); s != symbol_list.end(); s++ ) {
         //cerr << "** symbol " << (*s) << endl;
         string w = "";
         for( string::const_iterator c = s->begin(); c != s->end(); c++ ) {
@@ -128,7 +132,7 @@ lines::getCodeSymbolTerms() {
 #warning "not stemming code words"
 		    //                    w = stemmer->stem_word(w);
                     //		  cerr << "........inserting " << w << endl;
-                    code_terms.insert(w);
+                    code_terms.push_back(w);
                     w = "";
                 }
             }
@@ -142,7 +146,7 @@ lines::getCodeSymbolTerms() {
 #warning "not stemming code words"
             //w = stemmer->stem_word(w);
            // 	      cerr << "........inserting " << w << endl;
-	    code_terms.insert(w);
+	    code_terms.push_back(w);
         }
     }
     return code_terms;

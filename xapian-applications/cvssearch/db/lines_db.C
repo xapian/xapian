@@ -39,6 +39,7 @@ bool lines_db::readNextLine() {
     terms.clear();
     term_list.clear();
     symbols.clear();
+    symbol_list.clear();
     data = "";
     codelinedata = "";
     
@@ -124,7 +125,7 @@ bool lines_db::readNextLine() {
         string line = "";
         getline( *in_code, line, '\n' );
         codeline = line;
-        extractSymbols( line, symbols );
+        extractSymbols( line, symbols, symbol_list );
     }
     return true;
 }
