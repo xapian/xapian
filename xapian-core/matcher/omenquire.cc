@@ -475,15 +475,14 @@ OMEnquire::~OMEnquire()
 
 void
 OMEnquire::add_database(const string & type,
-			const vector<string> & entries,
-			bool readonly)
+			const vector<string> & entries)
 {
     // Convert type into an om_database_type
     om_database_type dbtype = OM_DBTYPE_NULL;
     dbtype = stringToTypeMap<om_database_type>::get_type(type);
 
-    // Prepare params to build database with
-    DatabaseBuilderParams params(dbtype, readonly);
+    // Prepare params to build database with (open it readonly)
+    DatabaseBuilderParams params(dbtype, true);
     params.paths = entries;
 
     // Use params to create database, and add it to the list of databases

@@ -228,8 +228,7 @@ class OMEnquire {
 	// Third parameter is a flag: if set, the database will be opened
 	// read-only.
 	void add_database(const string &,
-			  const vector<string> &,
-			  bool = true);
+			  const vector<string> &);
 
 	// Set the query to run.
 	void set_query(const OMQuery &);
