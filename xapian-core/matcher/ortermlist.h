@@ -35,14 +35,14 @@ OrTermList::get_termfreq() const
 }
 
 inline termid
-OrtermList::get_termid() const
+OrTermList::get_termid() const
 {
     Assert(lhead != 0 && rhead != 0); // check we've started
     return min(lhead, rhead);
 }
 
 inline termcount
-OrtermList::get_wdf() const
+OrTermList::get_wdf() const
 {
     Assert(lhead != 0 && rhead != 0); // check we've started
     if (lhead < rhead) return l->get_wdf();
@@ -51,7 +51,7 @@ OrtermList::get_wdf() const
 }
 
 inline bool
-OrtermList::at_end() const
+OrTermList::at_end() const
 {
     return lhead == 0 && rhead == 0;
 }
