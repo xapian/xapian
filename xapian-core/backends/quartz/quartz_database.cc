@@ -209,7 +209,8 @@ QuartzDatabase::do_get_document_internal(om_docid did,
     QuartzTermList termlist(ptrtothis,
 			    tables->get_termlist_table(),
 			    tables->get_lexicon_table(),
-			    did);
+			    did,
+			    get_doccount_internal());
 
     termlist.next();
     while (!termlist.at_end()) {
@@ -240,6 +241,13 @@ om_doccount
 QuartzDatabase::get_doccount() const
 {
     OmLockSentry sentry(quartz_mutex);
+
+    return get_doccount_internal();
+}
+
+om_doccount
+QuartzDatabase::get_doccount_internal() const
+{
     return QuartzRecordManager::get_doccount(*(tables->get_record_table()));
 }
 
@@ -255,8 +263,7 @@ om_doclength
 QuartzDatabase::get_avlength_internal() const
 {
     // FIXME: probably want to cache this value (but not miss updates)
-    om_doccount docs =
-	    QuartzRecordManager::get_doccount(*(tables->get_record_table()));
+    om_doccount docs = get_doccount_internal();
     if (docs == 0) return 0;
 
     return QuartzRecordManager::get_total_length(*(tables->get_record_table()))
@@ -325,7 +332,8 @@ QuartzDatabase::open_term_list_internal(om_docid did,
     return(new QuartzTermList(ptrtothis,
 			      tables->get_termlist_table(),
 			      tables->get_lexicon_table(),
-			      did));
+			      did,
+			      get_doccount_internal()));
 }
 
 LeafTermList *
@@ -540,7 +548,8 @@ QuartzWritableDatabase::do_delete_document(om_docid did)
     QuartzTermList termlist(0,
 			    buffered_tables->get_termlist_table(),
 			    buffered_tables->get_lexicon_table(),
-			    did);
+			    did,
+			    database_ro.get_doccount_internal());
     old_doclen = termlist.get_doclength();
     QuartzRecordManager::modify_total_length(
 		*(buffered_tables->get_record_table()),
@@ -585,7 +594,8 @@ QuartzWritableDatabase::do_get_document(om_docid did)
 om_doccount 
 QuartzWritableDatabase::get_doccount() const
 {
-    return database_ro.get_doccount();
+    OmLockSentry sentry(database_ro.quartz_mutex);
+    return database_ro.get_doccount_internal();
 }
 
 om_doclength

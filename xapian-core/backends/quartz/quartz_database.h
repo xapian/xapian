@@ -82,6 +82,8 @@ class QuartzDatabase : public Database {
 	LeafTermList * open_term_list_internal(om_docid did,
 				RefCntPtr<const Database> ptrtothis) const;
 
+	/// Implementation of get_doccount()
+	om_doccount  get_doccount_internal() const;
     public:
 	/** Create and open a quartz database.
 	 *

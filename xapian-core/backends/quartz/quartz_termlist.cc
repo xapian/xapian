@@ -151,14 +151,16 @@ QuartzTermList::delete_termlist(QuartzBufferedTable * table,
 QuartzTermList::QuartzTermList(RefCntPtr<const Database> this_db_,
 			       const QuartzTable * table_,
 			       const QuartzTable * lexicon_table_,
-			       om_docid did)
+			       om_docid did,
+			       om_doccount doccount_)
 	: this_db(this_db_),
 	  table(table_),
 	  lexicon_table(lexicon_table_),
 	  have_finished(false),
 	  current_wdf(0),
 	  has_termfreqs(false),
-	  current_termfreq(0)
+	  current_termfreq(0),
+	  doccount(doccount_)
 {
     QuartzDbKey key(quartz_docid_to_key(did));
 
@@ -227,6 +229,12 @@ QuartzTermList::get_wdf() const
 om_doccount
 QuartzTermList::get_termfreq() const
 {
+    return get_termfreq_internal();
+}
+
+om_doccount
+QuartzTermList::get_termfreq_internal() const
+{
     if (current_termfreq == 0) {
 	// FIXME: sort out (thread) locking - the database needs to be locked somehow during this call.
 	current_termfreq = 0; // If not found, this value will be unchanged.
@@ -242,6 +250,12 @@ QuartzTermList::get_termfreq() const
 OmExpandBits
 QuartzTermList::get_weighting() const
 {
-    throw OmUnimplementedError("QuartzTermList::get_weighting() unimplemented");
+    Assert(!have_finished);
+    Assert(wt != NULL);
+
+    return wt->get_bits(current_wdf,
+			doclen,
+			get_termfreq_internal(),
+			doccount);
 }
 

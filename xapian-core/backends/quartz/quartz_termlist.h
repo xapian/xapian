@@ -98,6 +98,10 @@ class QuartzTermList : public LeafTermList {
 	 */
 	mutable om_doccount current_termfreq;
 
+	/** Number of documents in database.
+	 */
+	om_doccount doccount;
+
 
 	/** Read the size from the termlist.
 	 *
@@ -158,6 +162,10 @@ class QuartzTermList : public LeafTermList {
 	 */
 	void read_item();
 
+	/** Implementation of get_termfreq().
+	 */
+	om_doccount get_termfreq_internal() const;
+
 	/** Write an item into the string supplied.
 	 *
 	 *  @param data           A string to append the data to.
@@ -202,7 +210,8 @@ class QuartzTermList : public LeafTermList {
 	QuartzTermList(RefCntPtr<const Database> this_db_,
 		       const QuartzTable * table_,
 		       const QuartzTable * lexicon_table_,
-		       om_docid did);
+		       om_docid did,
+		       om_doccount doccount_);
 
 	/** Get the length of the document represented by the termlist.
 	 *
