@@ -106,7 +106,7 @@ void BtreeCheck::report_block(int m, int n, const byte * p) const
     int c;
     print_spaces(m);
     out << "[" << n << "] *" << REVISION(p) << " ("
-	<< (dir_end - DIR_START)/D2 << ") " << block_usage(p) << "%% ";
+	<< (dir_end - DIR_START)/D2 << ") " << block_usage(p) << "% ";
 
     for (c = DIR_START; c < dir_end; c += D2) {
 	if (c == DIR_START + 6) out << "... ";
