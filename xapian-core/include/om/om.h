@@ -23,8 +23,6 @@
 #ifndef OM_HGUARD_OM_H
 #define OM_HGUARD_OM_H
 
-// FIXME: remove junk bits
-
 /* Types and exceptions */
 #include "omtypes.h"
 #include "omerror.h"
