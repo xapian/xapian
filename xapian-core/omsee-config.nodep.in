@@ -1,7 +1,7 @@
 #! /bin/sh
 # @configure_input@
-# libomus-config.in: This file is processed by configure to
-# generate libomus-config
+# omsee-config.in: This file is processed by configure to
+# generate omsee-config
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -12,11 +12,11 @@ dependency_libs="@dependency_libs@"
 usage()
 {
     cat <<EOF
-Usage: libomus-config [OPTION]
+Usage: omsee-config [OPTION]
 
 Known values for OPTION are:
 
-  --check		check for existence of libomus
+  --check		check for existence of omsee
   --libs		print library linking information
   --cflags		print pre-processor and compiler flags
   --prefix              set prefix
@@ -64,7 +64,7 @@ while test $# -gt 0; do
 	;;
 
     --version)
-	echo libomus @VERSION@
+	echo omsee @VERSION@
 	exit 0
 	;;
 
@@ -110,7 +110,7 @@ if test "$echo_cflags" = "yes"; then
 fi
 
 if test "$echo_libs" = "yes"; then
-    echo -L$libdir -lomus $dependency_libs
+    echo -L$libdir -lomsee $dependency_libs
 fi
 
 exit 0
