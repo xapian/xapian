@@ -27,6 +27,8 @@
 #include "andpostlist.h"
 #include "omdebug.h"
 
+class PosListBuffer;
+
 /** A postlist comprising several postlists NEARed together.
  *
  *  This postlist returns a posting if and only if it is in all of the
@@ -40,8 +42,8 @@ class NearPostList : public PostList {
     	PostList *source; // Source of candidate documents
 	vector<PostList *> terms;
 
-        inline bool do_near(vector<PositionList *> &plists,
-			    om_termcount i, om_termcount max);
+        inline bool do_near(vector<PosListBuffer> &plists, om_termcount i,
+			    om_termcount pos);
     	inline bool terms_near();
     public:
 	PostList *next(om_weight w_min);
@@ -61,6 +63,7 @@ class NearPostList : public PostList {
 
         NearPostList(PostList *source_, om_termpos window_,
 		     vector<PostList *> terms_);
+        ~NearPostList() { delete source; }
 };
 
 inline string

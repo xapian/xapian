@@ -120,7 +120,7 @@ class OmQueryInternal {
 
 	/** A set of OmQueryInternals, merged together with specified
 	 * operator.  (Takes begin and end iterators).
-	 * The only operators allowed are AND and OR. */
+	 * The only operators allowed are AND, OR, NEAR, and PHRASE. */
 #if 0
 	OmQueryInternal(om_queryop op_,
 		const vector<OmQueryInternal>::const_iterator qbegin,

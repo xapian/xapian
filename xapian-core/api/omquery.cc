@@ -56,7 +56,8 @@ OmQuery::OmQuery(om_queryop op_, const OmQuery &left, const OmQuery &right)
 
 OmQuery::OmQuery(om_queryop op_,
 		 const vector<OmQuery *>::const_iterator qbegin,
-		 const vector<OmQuery *>::const_iterator qend)
+		 const vector<OmQuery *>::const_iterator qend,
+		 om_termcount window)
 	: internal(0)
 {
     vector<OmQueryInternal *> temp;
@@ -65,12 +66,13 @@ OmQuery::OmQuery(om_queryop op_,
 	temp.push_back((*i)->internal);
 	++i;
     }
-    internal = new OmQueryInternal(op_, temp.begin(), temp.end());
+    internal = new OmQueryInternal(op_, temp.begin(), temp.end(), window);
 }
 
 OmQuery::OmQuery(om_queryop op_,
 		 const vector<OmQuery>::const_iterator qbegin,
-		 const vector<OmQuery>::const_iterator qend)
+		 const vector<OmQuery>::const_iterator qend,
+		 om_termcount window)
 	: internal(0)
 {   
     vector<OmQueryInternal *> temp;
@@ -79,16 +81,17 @@ OmQuery::OmQuery(om_queryop op_,
 	temp.push_back(i->internal);
 	++i;
     }
-    internal = new OmQueryInternal(op_, temp.begin(), temp.end());
+    internal = new OmQueryInternal(op_, temp.begin(), temp.end(), window);
 }
 
 
 OmQuery::OmQuery(om_queryop op_,
 		 const vector<om_termname>::const_iterator tbegin,
-		 const vector<om_termname>::const_iterator tend)
+		 const vector<om_termname>::const_iterator tend,
+		 om_termcount window)
 	: internal(0)
 {
-    internal = new OmQueryInternal(op_, tbegin, tend);
+    internal = new OmQueryInternal(op_, tbegin, tend, window);
 }
 
 // Copy constructor
@@ -378,6 +381,7 @@ OmQueryInternal::swap(OmQueryInternal &other)
     std::swap(term_pos, other.term_pos);
     std::swap(wqf, other.wqf);
     std::swap(max_weight, other.max_weight);
+    std::swap(window, other.window);
 }
 
 void
@@ -393,7 +397,7 @@ OmQueryInternal::OmQueryInternal(const OmQueryInternal &copyme)
 	isbool(copyme.isbool), op(copyme.op),
 	subqs(subquery_list()), qlen(copyme.qlen),
 	tname(copyme.tname), term_pos(copyme.term_pos),
-	wqf(copyme.wqf)
+	wqf(copyme.wqf), max_weight(copyme.max_weight), window(copyme.window)
 {
     try {
 	for (subquery_list::const_iterator i = copyme.subqs.begin();
@@ -639,6 +643,7 @@ OmQueryInternal::initialise_from_vector(
 	default:
 	    throw OmInvalidArgumentError("Vector query op must be AND, OR, NEAR, or PHRASE");
     }
+    // FIXME: if NEAR/PHRASE and window_ == 0 default to number of subqueries
     window = window_;
     qlen = 0;
 

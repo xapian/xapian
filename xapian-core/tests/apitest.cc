@@ -36,6 +36,31 @@
 #include "../indexer/index_utils.h"
 #include "backendmanager.h"
 
+#define TEST_EXPECTED_DOCS(A,B) do {\
+    if ((A).size() != (B).size()) {\
+	if (verbose) {\
+	    cout << "Match set is of wrong size: was " << (A).size()\
+		 << " - expected " << (B).size() << endl;\
+	    cout << "Full mset was: " << mymset << endl;\
+	}\
+	return false;\
+    } else {\
+	vector<om_docid>::const_iterator i;\
+	vector<OmMSetItem>::const_iterator j;\
+	for (i = (B).begin(), j = (A).begin();\
+	     i != (B).end() && j != (A).end(); i++, j++) {\
+	    if (*i != j->did) {\
+		if (verbose) {\
+		    cout << "Match set didn't contain expected result:" << endl;\
+		    cout << "Found docid " << j->did << " expected " << *i <<endl;\
+		    cout << "Full mset was: " << mymset << endl;\
+		}\
+		return false;\
+	    }\
+	}\
+    }\
+} while (0)
+
 // tests the allow query terms expand option
 bool test_allowqterms1();
 // tests that the MSet max_attained works
@@ -1461,8 +1486,6 @@ bool test_stemlangs()
 // test that a multidb with 2 dbs query returns correct docids
 bool test_multidb3()
 {
-    bool success = true;
-
     OmDatabase mydb2(get_database("apitest_simpledata"));
     OmDatabase mydb3(get_database("apitest_simpledata2"));
     OmEnquire enquire(make_dbgrp(&mydb2, &mydb3));
@@ -1481,40 +1504,15 @@ bool test_multidb3()
     expected_docs.push_back(2);
     expected_docs.push_back(3);
     expected_docs.push_back(7);
-    
-    if (mymset.items.size() != expected_docs.size()) {
-	if (verbose) {
-	    cout << "Match set is of wrong size: was " <<
-		    mymset.items.size() << " - expected " <<
-		    expected_docs.size() << endl;
-	}
-	success = false;
-    } else {
-	vector<om_docid>::const_iterator i;
-	vector<OmMSetItem>::const_iterator j;
-	for (i = expected_docs.begin(), j = mymset.items.begin();
-	     i != expected_docs.end() && j != mymset.items.end();
-	     i++, j++) {
-	    if (*i != j->did) {
-		success = false;
-		if (verbose) {
-		    cout << "Match set didn't contain expected result:" << endl;
-		    cout << "Found docid " << j->did << " expected " << *i <<endl;
-		}
-	    }
-	}
-    }
-    if (!success && verbose) {
-	cout << "Full mset was: " << mymset << endl;
-    }
-    return success;
+
+    TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+    return true;
 }
 
 // test that a multidb with 3 dbs query returns correct docids
 bool test_multidb4()
 {
-    bool success = true;
-
     OmDatabase mydb2(get_database("apitest_simpledata"));
     OmDatabase mydb3(get_database("apitest_simpledata2"));
     OmDatabase mydb4(get_database("apitest_termorder"));
@@ -1536,32 +1534,9 @@ bool test_multidb4()
     expected_docs.push_back(4);
     expected_docs.push_back(10);
     
-    if (mymset.items.size() != expected_docs.size()) {
-	if (verbose) {
-	    cout << "Match set is of wrong size: was " <<
-		    mymset.items.size() << " - expected " <<
-		    expected_docs.size() << endl;
-	}
-	success = false;
-    } else {
-	vector<om_docid>::const_iterator i;
-	vector<OmMSetItem>::const_iterator j;
-	for (i = expected_docs.begin(), j = mymset.items.begin();
-	     i != expected_docs.end() && j != mymset.items.end();
-	     i++, j++) {
-	    if (*i != j->did) {
-		success = false;
-		if (verbose) {
-		    cout << "Match set didn't contain expected result:" << endl;
-		    cout << "Found docid " << j->did << " expected " << *i <<endl;
-		}
-	    }
-	}
-    }
-    if (!success && verbose) {
-	cout << "Full mset was: " << mymset << endl;
-    }
-    return success;
+    TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+
+    return true;
 }
 
 // test that rsets do sensible things
@@ -1776,7 +1751,7 @@ bool test_maxorterms2()
 		     OmQuery(stemmer.stem_word("search")));
 
     OmQuery myquery2(OM_MOP_OR,
-		     OmQuery(stemmer.stem_word("thi")),
+		     OmQuery(stemmer.stem_word("this")),
 		     OmQuery(OM_MOP_AND,
 			     OmQuery(stemmer.stem_word("word")),
 			     OmQuery(stemmer.stem_word("search"))));
@@ -1885,6 +1860,40 @@ bool test_multiexpand1()
     return true;
 }
 
+/// Simple test of NEAR
+bool test_near1()
+{
+    OmDatabase mydb(get_database("apitest_simpledata"));
+    OmEnquire enquire(make_dbgrp(&mydb));
+    OmStem stemmer("english");
+
+    // make a query
+    vector<OmQuery> subqs;
+    subqs.push_back(OmQuery(stemmer.stem_word("this")));
+    subqs.push_back(OmQuery(stemmer.stem_word("paragraph")));
+    OmQuery myquery(OM_MOP_NEAR, subqs.begin(), subqs.end(), 2);
+
+    enquire.set_query(myquery);
+
+    try {
+	// retrieve the top ten results
+	OmMSet mymset = enquire.get_mset(0, 10);
+	vector<om_docid> expected_docs;
+	expected_docs.push_back(3);
+	expected_docs.push_back(1);
+	expected_docs.push_back(2);
+    
+	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
+    }
+    catch (OmUnimplementedError err) {
+	if (err.get_msg() !=
+	    "InMemoryPostList::get_position_list() unimplemented") {
+	    throw err; // FIXME: ickity-ick
+	}
+    }
+
+    return true;
+}
 
 
 
@@ -1932,6 +1941,7 @@ test_desc db_tests[] = {
     {"maxorterms2",        test_maxorterms2},
     {"termlisttermfreq",   test_termlisttermfreq},
     {"multiexpand1",       test_multiexpand1},
+    {"near1",		   test_near1},
     {0, 0}
 };
 
