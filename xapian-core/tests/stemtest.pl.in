@@ -179,6 +179,7 @@ sub randtest {
     my $myretval = $val_succeeded;
     my $language = shift;
     my $filename = shift;
+    my $should_exit = 0;
 
     my $outputfname = "stemtest.pl$$";
 
@@ -194,7 +195,7 @@ sub randtest {
 	# rather than comparing with 2...
 	if ($system_retval == 2) {
 	    print STDERR "Child received SIGINT - exiting\n";
-	    exit(1);
+	    $should_exit = 1;
 	};
         $myretval = $val_failed;
     } else {
@@ -226,6 +227,9 @@ sub randtest {
         print " ok.\n";
     } else {
         print " FAILED\n";
+    };
+    if ($should_exit) {
+        exit(1);
     };
     return $myretval;
 };

@@ -1,3 +1,7 @@
+Thu Mar  9 15:46:17 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Stemtest.pl now cleans up after itself a bit better.
+
 Thu Mar  9 15:17:47 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Use Stats objects to pass statistics needed for the match around,
