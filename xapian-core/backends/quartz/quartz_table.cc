@@ -614,7 +614,7 @@ QuartzBufferedTable::get_exact_entry(const QuartzDbKey &key,
 				     QuartzDbTag & tag) const
 {
     if (changed_entries.have_entry(key)) {
-	QuartzDbTag * tagptr = changed_entries.get_tag(key);
+	const QuartzDbTag * tagptr = changed_entries.get_tag(key);
 	if (tagptr == 0) return false;
 	tag = *tagptr;
 	return true;
