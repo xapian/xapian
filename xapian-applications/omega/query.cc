@@ -283,6 +283,7 @@ html_escape(const string &str)
     return res;
 }
 
+// FIXME split list into hash or map and use that rather than linear lookup?
 static bool word_in_list(const string& test_word, const string& list)
 {
     //    cerr << "word_in_list(" << test_word << ", '" << list << "'): ";
@@ -386,36 +387,6 @@ print_query_string(const char *after)
 }
 #endif
 
-/* pretty print numbers with thousands separated */
-/* NB only handles %ld and %d with no width or flag specifiers... */
-static string
-pretty_sprintf(const char *p, int *a)
-{
-    string res;
-    char ch;    
-    while ((ch = *p++)) {
-	if (ch == '%') {
-	    ch = *p++;
-	    if (ch == 'l') ch = *p++;
-	    if (ch == 'd') {
-		char buf[16];
-		char *q;
-		int len;
-		sprintf(buf, "%d", *a++);
-		len = strlen(buf);
-		q = buf;
-		while ((ch = *q++)) {
-		    res += ch;
-		    if (--len && len % 3 == 0) res += option["thousand"];
-		}
-		continue;
-	    }
-	}
-	res += ch;
-    }
-    return res;
-}
-
 static map<string, string> field;
 static om_docid q0;
 static int percent;
@@ -425,6 +396,7 @@ static string print_caption(om_docid m, const string &fmt, const string &loopvar
 enum tagval {
 CMD_,
 CMD_add,
+CMD_allterms,
 CMD_and,
 CMD_cgi,
 CMD_cgilist,
@@ -436,6 +408,7 @@ CMD_env,
 CMD_field,
 CMD_filesize,
 CMD_fmt,
+CMD_freq,
 CMD_freqs,
 CMD_highlight,
 CMD_hitlist,
@@ -452,6 +425,7 @@ CMD_max,
 CMD_min,
 CMD_msize,
 CMD_ne,
+CMD_nice,
 CMD_not,
 CMD_opt,
 CMD_or,
@@ -465,6 +439,7 @@ CMD_relevants,
 CMD_score,
 CMD_set,
 CMD_setmap,
+CMD_setrelevant,
 CMD_terms,
 CMD_thispage,
 CMD_topdoc,
@@ -494,6 +469,7 @@ static struct func_desc func_tab[] = {
 //name minargs maxargs evalargs ensure_match cache
 {"",{CMD_,	N, N, 0, 0, 0}}, // commented out code
 {T(add),	0, N, N, 0, 0}}, // add a list of numbers
+{T(allterms),	0, 1, N, 0, 0}}, // list of all terms matching document
 {T(and),	1, N, 0, 0, 0}}, // logical shortcutting and of a list of values
 {T(cgi),	1, 1, N, 0, 0}}, // return cgi parameter value
 {T(cgilist),	1, 1, N, 0, 0}}, // return list of values for cgi parameter
@@ -505,6 +481,7 @@ static struct func_desc func_tab[] = {
 {T(field),	1, 1, N, 0, 0}}, // lookup field in record
 {T(filesize),	1, 1, N, 0, 0}}, // pretty printed filesize
 {T(fmt),	0, 0, N, 0, 0}}, // name of current format
+{T(freq),	1, 1, N, 0, 0}}, // frequency of a term
 {T(freqs),	0, 0, N, 1, 1}}, // return HTML string listing query terms and frequencies
 {T(highlight),	2, 2, N, 0, 0}}, // html escape and highlight words from list
 {T(hitlist),	N, N, 0, 1, 0}}, // display hitlist using format in argument
@@ -521,6 +498,7 @@ static struct func_desc func_tab[] = {
 {T(min),	1, N, N, 0, 0}}, // minimum of a list of values
 {T(msize),	0, 0, N, 1, 0}}, // number of matches
 {T(ne), 	2, 2, N, 0, 0}}, // test not equal
+{T(nice),	1, 1, N, 0, 0}}, // pretty print integer (with thousands sep)
 {T(not),	1, 1, N, 0, 0}}, // logical not
 {T(opt),	1, 1, N, 0, 0}}, // lookup an option value
 {T(or),		1, N, 0, 0, 0}}, // logical shortcutting or of a list of values
@@ -534,6 +512,7 @@ static struct func_desc func_tab[] = {
 {T(score),	0, 0, N, 0, 0}}, // score (0-10) of current hit
 {T(set),	2, 2, N, 0, 0}}, // set option value
 {T(setmap),	1, N, N, 0, 0}}, // set map of option values
+{T(setrelevant),0, 1, N, 0, 0}}, // set rset
 {T(terms),	0, 0, N, 1, 0}}, // list of matching terms
 {T(thispage),	0, 0, N, 1, 0}}, // page number of current page
 {T(topdoc),	0, 0, N, 0, 0}}, // first document on current page of hit list (counting from 0)
@@ -652,6 +631,17 @@ eval(const string &fmt, const string &loopvar)
 		value = int_to_string(total);
 		break;
 	    }
+	    case CMD_allterms: {
+		// list of all terms indexing document
+		int id = q0;
+		if (!args.empty()) id = string_to_int(args[0]);
+		OmTermIterator term = omdb->termlist_begin(id);
+		for ( ; term != omdb->termlist_end(id); term++)
+		    value = value + *term + '\t';
+
+		if (!value.empty()) value.erase(value.size() - 1);
+		break;
+	    }
 	    case CMD_and:
 		for (vector<string>::const_iterator i = args.begin();
 		     i != args.end(); i++) {
@@ -730,17 +720,17 @@ eval(const string &fmt, const string &loopvar)
 	    case CMD_fmt:
 		value = fmtname;
 		break;
-	    case CMD_freqs:
-		if (!qp.termlist.empty()) {
-		    list<om_termname>::const_iterator i;
-		    for (i = qp.termlist.begin();
-			 i != qp.termlist.end(); i++) {
-			int freq = mset.get_termfreq(*i);
-			value = value + *i + ":&nbsp;"
-			    + pretty_sprintf("%d", &freq) + '\t';
-		    }		    
-		    if (!value.empty()) value.erase(value.size() - 1);
+	    case CMD_freq: 
+		try {
+		    value = int_to_string(mset.get_termfreq(args[0]));
+		} catch (...) {
+		    value = int_to_string(omdb->get_termfreq(args[0]));
 		}
+		break;
+	    case CMD_freqs:
+		// for backward compatibility
+		value = eval("$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}}",
+			     loopvar);
 		break;
 	    case CMD_hitlist:
 #if 0
@@ -849,6 +839,7 @@ eval(const string &fmt, const string &loopvar)
 			j = l.find('\t', i);
 			value += eval(pat, eval(l.substr(i, j - i), loopvar));
 			if (j == string::npos) break;
+			value += '\t';
 			i = j + 1;
 		    }
 		}
@@ -880,6 +871,15 @@ eval(const string &fmt, const string &loopvar)
             case CMD_ne:
 		if (args[0] != args[1]) value = "true";
 		break;
+	    case CMD_nice: {
+		std::string::const_iterator i = args[0].begin();
+		int len = args[0].length();
+		while (len) {
+		    value += *i++;
+		    if (--len && len % 3 == 0) res += option["thousand"];
+		}
+		break;
+	    }
 	    case CMD_not:
 		if (args[0].empty()) value = "true";
 		break;
@@ -958,6 +958,20 @@ eval(const string &fmt, const string &loopvar)
 		}
 		break;
 	    }
+	    case CMD_setrelevant: {
+		std::string::size_type i = 0, j;
+	    	while (1) {
+		    j = args[0].find_first_not_of("0123456789", i);
+	    	    om_docid id = atoi(args[0].substr(i, j - i).c_str());
+		    if (id) {
+			rset->add_document(id);
+			ticked[id] = true;
+		    }
+	    	    if (j == string::npos) break;
+		    i = j + 1;
+		}
+		break;
+	    }			     
 	    case CMD_terms: {
 		// list of matching terms
 		OmTermIterator term = enquire->get_matching_terms_begin(q0);
@@ -979,32 +993,30 @@ eval(const string &fmt, const string &loopvar)
 		if (!args.empty()) howmany = string_to_int(args[0]);
 		if (howmany < 0) howmany = 0;
 		    
-		// Present a clickable list of expand terms
-		if (mset.size()) {
-		    OmESet eset;
-		    ExpandDeciderOmega decider;
+		// List of expand terms
+		OmESet eset;
+		ExpandDeciderOmega decider;
 		    
-		    if (rset->size()) {
-			eset = enquire->get_eset(howmany, *rset, 0, &decider);
-		    } else {
-			// invent an rset
-			OmRSet tmp;
+		if (!rset->empty()) {
+		    eset = enquire->get_eset(howmany, *rset, 0, &decider);
+	    	} else if (mset.size()) {
+		    // invent an rset
+		    OmRSet tmp;
 			
-			int c = 5;
-			// FIXME: what if mset does not start at first match?
-			OmMSetIterator m = mset.begin();
-			for ( ; m != mset.end(); ++m) {
-			    tmp.add_document(*m);
-			    if (--c == 0) break;
-			}
-			
-			eset = enquire->get_eset(howmany, tmp, 0, &decider);
+	    	    int c = 5;
+    		    // FIXME: what if mset does not start at first match?
+		    OmMSetIterator m = mset.begin();
+		    for ( ; m != mset.end(); ++m) {
+			tmp.add_document(*m);
+			if (--c == 0) break;
 		    }
-		    
-		    for (OmESetIterator i = eset.begin(); i != eset.end(); i++)
-			value = value + *i + '\t';
-		    if (!value.empty()) value.erase(value.size() - 1);
+			
+		    eset = enquire->get_eset(howmany, tmp, 0, &decider);
 		}
+		    
+		for (OmESetIterator i = eset.begin(); i != eset.end(); i++)
+		    value = value + *i + '\t';
+		if (!value.empty()) value.erase(value.size() - 1);
 		break;
 	    }
 	    case CMD_url:

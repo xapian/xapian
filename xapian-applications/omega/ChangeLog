@@ -1,3 +1,16 @@
+Fri Nov 16 11:49:20 GMT 2001  Olly Betts <olly@survex.com>
+
+	* New OmegaScript commands: $allterms{<docid>}, $freq{<term>},
+	  $nice{<number>}, $set_relevant{<docid>}.
+
+	* $map{} now returns a list (shouldn't affect most users - if
+	  the extra tabs are a problem, change `$map{...}' to
+	  `$list{$map{...},}' ).
+
+	* Template `query' now preserves value of THRESHOLD.
+
+	* Template `godmode' fixed to actually work.
+
 Wed Nov 14 15:04:13 GMT 2001  Olly Betts <olly@survex.com>
 
 	* Fixed to compile with GCC3.0

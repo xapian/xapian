@@ -16,9 +16,9 @@ o.substring(1,i)+o.substring(i+c.value.length+1,o.length-1);
 <title>Omega: dump of record $cgi{ID}</title>
 </head>
 <body bgcolor=white>
-<b>Clunk</b> ... <i>god mode engaged!</i><hr>
-Raw record #$cgi{ID}:<br>
-<small><pre>$html{$record{$cgi{ID}}}</pre></small>
+$setrelevant{$cgi{ID}}
+<small>Raw record #$cgi{ID}:<br>
+<pre>$html{$record{$cgi{ID}}}</pre></small>
 <hr>
 Terms indexing this record<br>
 <table><tr><th>Term</th><th>Freq</th></tr>
@@ -31,14 +31,13 @@ document.write('<INPUT NAME=P VALUE=\"\" SIZE=65>')
 <INPUT ALIGN=middle TYPE=image HEIGHT=56 WIDTH=56 BORDER=0 
 SRC="http://www.euroferret.com/fx-gif/find.gif" VALUE=Find>
 $if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
-${$terms should be all terms indexing the document}
-$map{$terms,
+$map{$allterms{$cgi{ID}},
 <tr><td>
 ${if (isupper(*p)<input type=checkbox name=B value=\"" << p << "\">";}
 ${	       else if (strchr(p, ' ')) 
 		  cout << "<input type=checkbox name=X onclick=C(this) "
 		          "value=\"&quot;" << p << "&quot;\">";}
-<input type=checkbox name=X onclick=C(this) value=",.">}
+<input type=checkbox name=X onclick=C(this) value="$_."> 
 <A HREF="$env{SCRIPT_NAME}?$if{$dbname,DB=$url{$dbname}&}${
               if (isupper(*p)) {
 		  cout << "B=" << p << "\">";
@@ -53,12 +52,13 @@ ${	       else if (strchr(p, ' '))
 		      q++;
 		  }
 		  cout << "%22\">";
-	      }}P=$url{${termname}.}"</A></td><td>${freq}</td></tr>}
+	      }}P=$url{$_.}">$html{$_}</A></td><td>$freq{$_}</td></tr>}
 <hr>
 Expand terms<br>
 <table><tr><th>Term</th><th>Freq</th></tr>
 <tr><td bgcolor="#ccffcc">
-$map{$topterms{1000},<INPUT TYPE=checkbox NAME=X VALUE=",." onClick="C(this)">&nbsp;,. }
+
+$map{$topterms{1000},<INPUT TYPE=checkbox NAME=X VALUE="$_." onClick="C(this)">&nbsp;$_. }
 </td></tr></table>
 </form>
 <hr><div align=right><i><small>$html{$version}</small></i></div>

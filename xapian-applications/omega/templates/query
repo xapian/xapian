@@ -26,7 +26,7 @@ $if{$eq{$msize,0},
 $if{$query,No documents match your query},
 
 $if{$ne{$last,$msize},
- $add{$topdoc,1}-$add{$topdoc,$hitsperpage} of at least $msize matches,
+ $add{$topdoc,1}-$add{$topdoc,$hitsperpage} of about $msize matches,
  $if{$eq{$topdoc,0},
   All $msize matches,
   $add{$topdoc,1}$if{$ne{$add{$topdoc,1},$msize},-$msize} of exactly $msize matches}
@@ -89,6 +89,7 @@ $if{$ne{$hitsperpage,10},<INPUT TYPE=hidden NAME=HITSPERPAGE VALUE=$hitsperpage>
 $if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}
 $list{$queryterms,<INPUT TYPE=hidden NAME=OLDP VALUE=",.,.">}
 $list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">}
+$if{$cgi{THRESHOLD},<INPUT TYPE=hidden NAME=THRESHOLD VALUE="$html{$cgi{THRESHOLD}}">}
 </FORM>
 <hr><div align=right><i><small><a href="http://xapian.sourceforge.net/">$html{$version}</a></small></i></div>
 </body>
