@@ -535,7 +535,7 @@ LocalMatch::perform_collapse(std::vector<OmMSetItem> &mset,
 bool
 LocalMatch::prepare_match(bool nowait)
 {
-    if(!is_prepared) {
+    if (!is_prepared) {
 	DEBUGLINE(MATCH, "LocalMatch::prepare_match() - Gathering my statistics");
 	gather_query_statistics();
 	is_prepared = true;
@@ -560,8 +560,9 @@ LocalMatch::get_mset(om_doccount first,
 	throw OmInvalidArgumentError("Query is not defined.");
     }
 
-    // Root postlist of query tree
     querysize = users_query.qlen;
+    
+    // Root postlist of query tree
     PostList * query = postlist_from_query(&users_query);
 
     Assert(query != NULL);
@@ -748,11 +749,9 @@ LocalMatch::get_mset(om_doccount first,
     DEBUGLINE(MATCH, "msize = " << items.size() << ", mbound = " << mbound);
     if (items.size()) {
 	DEBUGLINE(MATCH, "max weight in mset = " << items[0].wt <<
-		  ", min weight in mset = " << items[items.size() - 1].wt);
+		  ", min weight in mset = " << items.back()->.wt);
     }
 
-    // Get initial max weight and the maximum extra weight contribution
     mset = OmMSet(first, mbound, max_weight, greatest_wt, items, term_info);
-
     return true;
 }

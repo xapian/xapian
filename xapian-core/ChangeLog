@@ -1,3 +1,7 @@
+Thu Sep 21 15:53:30 BST 2000 Olly Betts
+
+	* Very minor changes to LocalMatch.
+
 Thu Sep 21 15:38:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* More robust table opening for Quartz, and fixed testsuite.
