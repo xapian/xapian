@@ -1,3 +1,8 @@
+Tue Sep 30 00:59:50 BST 2003  Olly Betts <olly@survex.com>
+
+	* query.cc: Cleaned up a recent fix by using clean generic code which
+	  works on Sun's C++ too.
+
 Mon Sep 29 17:12:10 BST 2003  Olly Betts <olly@survex.com>
 
 	* cgiparam.cc: Portability fixes for Sun's C++ compiler.

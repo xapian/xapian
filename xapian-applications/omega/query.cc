@@ -232,11 +232,7 @@ void add_bterm(const string &term) {
 	prefix = term[0];
     }
 
-#ifdef __SUNPRO_CC
-    filter_map.insert(pair<const string, string>(prefix, term));
-#else
-    filter_map.insert(make_pair(prefix, term));
-#endif
+    filter_map.insert(multimap<string, string>::value_type(prefix, term));
 }
 
 static void
