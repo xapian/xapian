@@ -61,7 +61,10 @@ class om_ostringstream {
 	om_ostringstream & operator << (double);
 	om_ostringstream & operator << (bool);
 
+#if 0
+	/// Hack to recognise endl and flush
 	om_ostringstream & operator << (ostream& (*)(ostream&));
+#endif
     private:
 	/// Copies are not allowed.
 	om_ostringstream(const om_ostringstream &);

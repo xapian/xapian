@@ -97,10 +97,12 @@ om_ostringstream & om_ostringstream::operator << (bool msg) {
     return *this << om_tostring(msg);
 }
 
+#if 0
 om_ostringstream & om_ostringstream::operator << (ostream& (*msg)(ostream&)) {
     if (msg == std::endl) return *this << '\n';
     if (msg == std::flush) return *this;
     return *this;
 }
+#endif
 
 #endif // HAVE_SSTREAM
