@@ -1,6 +1,6 @@
                             Xapian QueryServer
                             ==================
-
+ 
 Chapter 1: QueryServer
 ----------------------
 
