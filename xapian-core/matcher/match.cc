@@ -186,7 +186,7 @@ Match::match()
 	    // no need for a full recalc - we're just switching to a subtree
 	    w_max = merger->get_maxweight();
 	    cout << "max possible doc weight = " << w_max << endl;
-	    AssertParanoid(fabs(w_max - merger->recalc_maxweight()) < 1e9);
+	    AssertParanoid(fabs(w_max - merger->recalc_maxweight()) < 1e-9);
 
 	    if (w_max < w_min) {
 		cout << "*** TERMINATING EARLY" << endl;
