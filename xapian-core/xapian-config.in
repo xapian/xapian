@@ -28,6 +28,7 @@ if test 0 = "$#"; then
 fi
 
 builddir="`echo $0|sed 's![^/]*$!!'`"
+xo_lib_xapian=no
 
 while test 0 != "$#"; do
     case "$1" in
@@ -39,6 +40,13 @@ while test 0 != "$#"; do
     --version)
 	echo "xapian @VERSION@"
 	exit 0
+	;;
+
+    --from-xo-lib-xapian)
+	# Top Secret option which allows us to give a more helpful error
+	# message if we're asked to link with an uninstalled libxapian
+	# and libtool isn't in use.
+	xo_lib_xapian=yes
 	;;
 
     --help)
@@ -66,7 +74,11 @@ while test 0 != "$#"; do
     --libs)
     	# check if this is an uninstalled xapian-config
    	if test -n "$builddir" -a -f "${builddir}Makefile" ; then
-	    echo "$0: If you want to link against an uninstalled libxapian, use libtool and \`xapian-config --ltlibs'.  If you're using XO_LIB_XAPIAN, simply add AC_PROG_LIBTOOL to your configure.in." 1>&2
+	    if test no = "$xo_lib_xapian" ; then
+		echo "$0: Use libtool and \`xapian-config --ltlibs' to link with an uninstalled libxapian." 1>&2
+	    else
+		echo "$0: Add AC_PROG_LIBTOOL to your configure.in to link with an uninstalled libxapian." 1>&2
+	    fi
 	    exit 1
 	fi
 	L=

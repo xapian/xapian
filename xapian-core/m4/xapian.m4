@@ -40,7 +40,10 @@ dnl if either is expanded later.
       [XAPIAN_LIBS="`$XAPIAN_CONFIG --ltlibs`"],
       [AC_PROVIDE_IFELSE([AM_PROG_LIBTOOL],
 	[XAPIAN_LIBS="`$XAPIAN_CONFIG --ltlibs`"],
-	[XAPIAN_LIBS="`$XAPIAN_CONFIG --libs`"
+	dnl pass magic option so xapian-config knows we called it (so it
+	dnl can choose a more appropriate error message if asked to link
+	dnl with an uninstalled libxapian).
+	[XAPIAN_LIBS="`$XAPIAN_CONFIG --from-xo-lib-xapian --libs`"
 	define([AC_PROG_LIBTOOL], defn([AC_PROG_LIBTOOL])
 	       [XAPIAN_LIBS="`$XAPIAN_CONFIG --ltlibs`"])
 	define([AM_PROG_LIBTOOL], defn([AM_PROG_LIBTOOL])
