@@ -887,7 +887,7 @@ static void print_query_page( const char* page, long int first, long int size) {
 			   int freq = 0;
 			   termid id = database.term_name_to_id(*i);
 			   if (id) {
-			       PostList *pl = database.open_post_list(id);
+			       PostList *pl = database.open_post_list(id, NULL);
 			       freq = pl->get_termfreq();
 			       delete pl;
 			   }
