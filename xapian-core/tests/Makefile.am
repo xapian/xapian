@@ -20,9 +20,11 @@ check_PROGRAMS  = apitest includetest stemtest
 
 ## Sources:
 
+noinst_HEADERS = testsuite.h
+
 includetest_SOURCES = includetest.cc
 
-apitest_SOURCES = apitest.cc
+apitest_SOURCES = apitest.cc testsuite.cc
 apitest_LDADD = ../libomus.la
 
 stemtest_SOURCES = stemtest.cc

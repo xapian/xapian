@@ -25,13 +25,7 @@
 #include <memory>
 #include <getopt.h>
 #include "om/om.h"
-
-typedef bool (*testerfunc)();
-
-struct om_test {
-  char *name;
-  testerfunc run;
-};
+#include "testsuite.h"
 
 // always succeeds
 bool test_trivial();
@@ -103,7 +97,7 @@ bool test_batchquery1();
 // test that running a query twice returns the same results
 bool test_repeatquery1();
 
-om_test tests[] = {
+test_desc tests[] = {
     {"trivial",            test_trivial},
     // {"alwaysfail",       test_alwaysfail},
     {"zerodocid_inmemory", test_zerodocid_inmemory},
@@ -149,32 +143,13 @@ void usage(char *progname)
     cerr << "Usage: " << progname << " [-v] [-o] [-f]" << endl;
 }
 
-//  A wrapper around the tests to trap exceptions,
-//  and avoid having to catch them in every test function.
-bool runtest(om_test *test)
-{
-    bool success;
-    try {
-        success = test->run();
-    } catch (OmError &err) {
-	cout << "OmError exception: " << err.get_msg();
-	success = false;
-    } catch (...) {
-	cout << "Unknown exception! ";
-	success = false;
-    }
-    return success;
-}
-
 int main(int argc, char *argv[])
 {
-    bool abort_on_error = false;
     bool fussy = false;
 
-    om_test *test = &tests[0];
-    int num_failed = 0;
-    int num_succeeded = 0;
     int c;
+
+    test_driver driver;
 
     while ((c = getopt(argc, argv, "vof")) != EOF) {
 	switch (c) {
@@ -182,7 +157,7 @@ int main(int argc, char *argv[])
 		verbose = true;
 		break;
 	    case 'o':
-	    	abort_on_error = true;
+		driver.set_abort_on_error(true);
 		break;
 	    case 'f':
 	    	fussy = true;
@@ -204,33 +179,18 @@ int main(int argc, char *argv[])
     }
     datadir = std::string(srcdir) + "/testdata/";
 
-    while ((test->name) != 0) {
-    	cout << "Running test: " << test->name << "...";
-	cout.flush();
-	bool succeeded = runtest(test);
-	if (succeeded) {
-	    ++num_succeeded;
-	    cout << " ok." << endl;
-	} else {
-	    ++num_failed;
-	    cout << " FAILED" << endl;
-	    if (abort_on_error) {
-	        cout << "Test failed - aborting further tests." << endl;
-		break;
-	    }
-	}
-	++test;
-    }
+    test_driver::result myresult = driver.run_tests(tests);
+
     cout << "apitest finished: "
-         << num_succeeded << " tests passed, "
-	 << num_failed << " failed."
+         << myresult.succeeded << " tests passed, "
+	 << myresult.failed << " failed."
 	 << endl;
 	
     // FIXME: fussy should be the default, but for the moment
     // we want distcheck to succeed even though the tests don't
     // all pass, so that we can get nightly snapshots.
     if (fussy) {
-	return (bool)num_failed; // if 0, then everything passed
+	return (bool)myresult.failed; // if 0, then everything passed
     } else {
 	return 0;
     }
