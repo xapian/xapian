@@ -1,3 +1,10 @@
+Thu Apr 10 18:55:55 BST 2003  Olly Betts <olly@survex.com>
+
+	* xapian-config.nodep.in: Removed --prefix and --exec-prefix - you
+	  can't reliably install Xapian with a different prefix to the one
+	  it was configured with, yet these options give the impression you
+	  can.
+
 Thu Apr 10 18:53:53 BST 2003  Olly Betts <olly@survex.com>
 
 	* .cvsignore: Added config.sub.
@@ -5007,6 +5014,7 @@ Fri Nov 24 18:27:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Fri Nov 24 15:34:17 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Declare this to be version 0.4.1
+
 
 
 

@@ -1,7 +1,5 @@
 #! /bin/sh
 # @configure_input@
-# xapian-config.in: This file is processed by configure to
-# generate xapian-config
 
 prefix="@prefix@"
 exec_prefix="@exec_prefix@"
@@ -15,8 +13,6 @@ Usage: xapian-config [OPTION]...
 
 Known values for OPTION are:
 
-  --prefix		set prefix
-  --exec-prefix		set executable prefix (specify after --prefix)
   --libs		print library linking information
   --cxxflags		print pre-processor and compiler flags
   --help		display this help and exit successfully
@@ -38,25 +34,6 @@ while test 0 != "$#"; do
     esac
 
     case "$1" in
-    --prefix=*)
-	prefix="$optarg"
-	includedir="$prefix/include"
-	libdir="$prefix/lib"
-	;;
-
-    --prefix)
-	echo "$prefix"
-	;;
-
-    --exec-prefix=*)
-	exec_prefix="$optarg"
-	libdir="$exec_prefix/lib"
-	;;
-
-    --exec-prefix)
-	echo "$exec_prefix"
-	;;
-
     --version)
 	echo xapian @VERSION@
 	exit 0
