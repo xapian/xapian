@@ -1,6 +1,9 @@
 xapian-core (0.8.3-1) unstable; urgency=low
 
   * New upstream release.
+  * Fixed bug which caused a segmentation fault or odd "Document not found"
+    exceptions when new check_at_least parameter to Enquire::get_mset() was
+    used and there weren't many matches (regression test checkatleast1).
   * omtcpsrv renamed to xapian-tcpsrv.
 
  -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 19:37:47 +0100
