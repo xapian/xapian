@@ -109,10 +109,8 @@ extern struct DA_postings * DA_open_postings(struct DA_term_info * t, struct DA_
 extern void                 DA_read_postings(struct DA_postings * q, int style, int Z);
 extern void                 DA_close_postings(struct DA_postings * q);
 
-/* -- don't compile the next two until needed
 extern int                  DA_next_term(struct DA_term_info * v, struct DA_file * p);
 extern int                  DA_prev_term(struct DA_term_info * v, struct DA_file * p);
-*/
 
 extern int                  DA_get_record(struct DA_file * p, int n, struct record * r);
 

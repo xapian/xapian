@@ -376,7 +376,6 @@ extern void DA_close_postings(struct DA_postings * q)
     free(q);
 }
 
-#if 0
 /* The following works, but is not currently needed */
 
 extern int DA_next_term(struct DA_term_info * v, struct DA_file * p)
@@ -428,7 +427,6 @@ extern int DA_prev_term(struct DA_term_info * v, struct DA_file * p)
     MUS_PTHREAD_MUTEX_UNLOCK(p->mutex);
     return true;
 }
-#endif
 
 static void DA_read_bytes(struct DA_file * p, int l, struct record * r, int notskipping)
 {   int lev = p->levels;

@@ -57,6 +57,9 @@ QuartzAllTermsList::get_termname() const
 	if (unpack_string_preserving_sort(&start, end, result)) {
 	    return result;
 	} else {
+	    DEBUGLINE(DB, "QuartzAllTermsList[" << this
+		      << "]: Failed to read from key: `"
+		      << pl_cursor->current_key.value << "'");
 	    throw OmDatabaseCorruptError("Failed to read the key field from a QuartzCursor's key");
 	}
     } else {
@@ -103,12 +106,20 @@ QuartzAllTermsList::get_collection_freq() const
 bool
 QuartzAllTermsList::skip_to(const om_termname &tname)
 {
+    DEBUGLINE(DB, "QuartzAllTermList::skip_to(" << tname << ")");
     QuartzDbKey key;
     key.value = pack_string_preserving_sort(tname);
 
     have_stats = false;
 
-    return pl_cursor->find_entry(key);
+    bool result = pl_cursor->find_entry(key);
+
+    DEBUGLINE(DB, "QuartzAllTermList[" << this << "]::skip_to(): key is " <<
+	      pl_cursor->current_key.value);
+
+    is_at_end = pl_cursor->after_end();
+
+    return result;
 }
 
 bool

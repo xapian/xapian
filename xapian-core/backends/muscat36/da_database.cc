@@ -32,6 +32,7 @@
 #include "termlist.h"
 #include "da_database.h"
 #include "da_document.h"
+#include "da_alltermslist.h"
 #include "daread.h"
 #include "omdebug.h"
 
@@ -430,5 +431,11 @@ DADatabase::term_exists(const om_termname & tname) const
 RefCntPtr<AllTermsList>
 DADatabase::open_allterms() const
 {
-    throw OmUnimplementedError("open_allterms() not implemented yet");
+    DA_term_info daterm;
+    std::string zero("\0", 1);
+    DA_term(reinterpret_cast<const byte *>(zero.data()),
+	    &daterm, DA_t);
+    return new DAAllTermsList(RefCntPtr<const DADatabase>(RefCntPtrToThis(), this),
+			      daterm,
+			      DA_t);
 }

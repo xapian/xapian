@@ -23,46 +23,108 @@
 #include "multialltermslist.h"
 
 MultiAllTermsList::MultiAllTermsList(const std::vector<RefCntPtr<AllTermsList> > &lists_)
-	: lists(lists_)
+	: lists(lists_), is_at_end(false)
 {
+    update_current();
 }
 
 MultiAllTermsList::~MultiAllTermsList()
 {
 }
 
+void
+MultiAllTermsList::update_current()
+{
+    bool found_term = false;
+
+    std::vector<RefCntPtr<AllTermsList> >::const_iterator i;
+    for (i = lists.begin(); i != lists.end(); ++i) {
+	if ((*i)->at_end()) {
+	    continue;
+	} else if (!found_term) {
+	    current = (*i)->get_termname();
+	    found_term = true;
+	} else {
+	    std::string newterm = (*i)->get_termname();
+	    if (newterm < current) {
+		current = newterm;
+	    }
+	}
+    }
+    if (!found_term) {
+	is_at_end = true;
+    }
+}
+
 const om_termname
 MultiAllTermsList::get_termname() const
 {
-    throw OmUnimplementedError("not implemented");
+    return current;
 }
 
 om_doccount
 MultiAllTermsList::get_termfreq() const
 {
-    throw OmUnimplementedError("not implemented");
+    om_doccount termfreq = 0;
+
+    std::vector<RefCntPtr<AllTermsList> >::const_iterator i;
+    for (i = lists.begin(); i!=lists.end(); ++i) {
+	if (!(*i)->at_end() &&
+	    (*i)->get_termname() == current) {
+	    termfreq += (*i)->get_termfreq();
+	}
+    }
+    return termfreq;
 }
 
 om_termcount
 MultiAllTermsList::get_collection_freq() const
 {
-    throw OmUnimplementedError("not implemented");
+    om_termcount collection_freq = 0;
+
+    std::vector<RefCntPtr<AllTermsList> >::const_iterator i;
+    for (i = lists.begin(); i!=lists.end(); ++i) {
+	if (!(*i)->at_end() &&
+	    (*i)->get_termname() == current) {
+	    collection_freq += (*i)->get_collection_freq();
+	}
+    }
+    return collection_freq;
 }
 
 bool
 MultiAllTermsList::skip_to(const om_termname &tname)
 {
-    throw OmUnimplementedError("not implemented");
+    bool result = false;
+
+    std::vector<RefCntPtr<AllTermsList> >::const_iterator i;
+    for (i = lists.begin(); i!=lists.end(); ++i) {
+	result = result || (*i)->skip_to(tname);
+    }
+    update_current();
+
+    return result;
 }
 
 bool
 MultiAllTermsList::next()
 {
-    throw OmUnimplementedError("not implemented");
+    bool result = false;
+
+    std::vector<RefCntPtr<AllTermsList> >::const_iterator i;
+    for (i = lists.begin(); i!=lists.end(); ++i) {
+	if (!(*i)->at_end() &&
+	    (*i)->get_termname() == current) {
+	    result = result || (*i)->next();
+	}
+    }
+    update_current();
+
+    return result;
 }
 
 bool
 MultiAllTermsList::at_end() const
 {
-    throw OmUnimplementedError("not implemented");
+    return is_at_end;
 }

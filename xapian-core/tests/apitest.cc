@@ -142,10 +142,12 @@ int main(int argc, char *argv[])
     if (file_exists("../../makeda/makeDA")) {
 	RUNTESTS("da", db);
 	RUNTESTS("da", localdb);
+	RUNTESTS("da", allterms);
     }
     if (file_exists("../../makeda/makeDAflimsy")) {
 	RUNTESTS("daflimsy", db);
 	RUNTESTS("daflimsy", localdb);
+	RUNTESTS("daflimsy", allterms);
     }
     if (file_exists("../../makeda/makeDB")) {
 	RUNTESTS("db", db);

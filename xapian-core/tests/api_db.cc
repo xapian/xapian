@@ -1182,6 +1182,60 @@ static bool test_allterms1()
     return true;
 }
     
+// test that iterating through all terms in two databases works.
+static bool test_allterms2()
+{
+    OmDatabase db;
+    db.add_database(get_database("apitest_allterms"));
+    db.add_database(get_database("apitest_allterms2"));
+    OmAllTermsIterator ati = db.allterms_begin();
+
+    TEST(ati != db.allterms_end());
+    TEST(*ati == "five");
+    TEST(ati.get_termfreq() == 2);
+    ati++;
+
+    TEST(ati != db.allterms_end());
+    TEST(*ati == "four");
+    TEST(ati.get_termfreq() == 1);
+
+    OmAllTermsIterator ati2 = ati;
+
+    ati++;
+    TEST(ati != db.allterms_end());
+    TEST(*ati == "one");
+    TEST(ati.get_termfreq() == 1);
+
+    TEST(ati2 != db.allterms_end());
+    TEST(*ati2 == "four");
+    TEST(ati2.get_termfreq() == 1);
+
+    ++ati;
+    ++ati2;
+    TEST(ati != db.allterms_end());
+    TEST(*ati == "six");
+    TEST(ati.get_termfreq() == 3);
+
+    TEST(ati2 != db.allterms_end());
+    TEST(*ati2 == "one");
+    TEST(ati2.get_termfreq() == 1);
+
+    ati++;
+    TEST(ati != db.allterms_end());
+    TEST(*ati == "three");
+    TEST(ati.get_termfreq() == 3);
+
+    ati++;
+    TEST(ati != db.allterms_end());
+    TEST(*ati == "two");
+    TEST(ati.get_termfreq() == 2);
+
+    ati++;
+    TEST(ati == db.allterms_end());
+
+    return true;
+}
+
 // test that searching for a term with a special characters in it works
 static bool test_specialterms1()
 {
@@ -2069,6 +2123,7 @@ test_desc db_tests[] = {
 /// The tests which need a backend which supports terms with newlines / zeros
 test_desc allterms_tests[] = {
     {"allterms1",	   test_allterms1},
+//    {"allterms2",	   test_allterms2},
     {0, 0}
 };
 

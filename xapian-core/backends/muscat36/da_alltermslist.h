@@ -1,4 +1,4 @@
-/* multialltermslist.h
+/* da_alltermslist.h
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,36 +20,43 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_MULTIALLTERMSLIST_H
-#define OM_HGUARD_MULTIALLTERMSLIST_H
+#ifndef OM_HGUARD_DA_ALLTERMSLIST_H
+#define OM_HGUARD_DA_ALLTERMSLIST_H
 
 #include "alltermslist.h"
+#include "da_database.h"
+#include "daread.h"
 
 /** class for alltermslists over several databases */
-class MultiAllTermsList : public AllTermsList
+class DAAllTermsList : public AllTermsList
 {
     private:
 	/// Copying is not allowed.
-	MultiAllTermsList(const MultiAllTermsList &);
+	DAAllTermsList(const DAAllTermsList &);
 
 	/// Assignment is not allowed.
-	void operator=(const MultiAllTermsList &);
+	void operator=(const DAAllTermsList &);
 
-	std::vector<RefCntPtr<AllTermsList> > lists;
+	/// Keep our database around
+	RefCntPtr<const Database> database;
 
-	/// The current term being pointed at.
-	om_termname current;
+	DA_term_info term;
+	DA_file *DA_t;
 
-	/// Flag indicating the end of the lists
+	std::string current_term;
+	om_termcount termfreq;
+
+	void update_cache();
+
 	bool is_at_end;
-
-	void update_current();
     public:
 	/// Standard constructor for base class.
-	MultiAllTermsList(const std::vector<RefCntPtr<AllTermsList> > &lists_);
+	DAAllTermsList(RefCntPtr<const Database> database_,
+		       const DA_term_info &term_,
+		       DA_file *DA_t);
 
 	/// Standard destructor for base class.
-	~MultiAllTermsList();
+	~DAAllTermsList();
 
 	// Gets current termname
 	const om_termname get_termname() const;
@@ -70,4 +77,4 @@ class MultiAllTermsList : public AllTermsList
 	bool at_end() const;
 };
 
-#endif /* OM_HGUARD_MULTIALLTERMSLIST_H */
+#endif /* OM_HGUARD_DA_ALLTERMSLIST_H */

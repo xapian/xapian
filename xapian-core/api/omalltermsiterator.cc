@@ -67,11 +67,8 @@ OmAllTermsIterator::operator=(const OmAllTermsIterator &other)
 	return;
     }
 
-    Internal * newinternal = NULL;
-    if (other.internal)
-	newinternal = new Internal(*(other.internal));
-    std::swap(internal, newinternal);
-    delete newinternal;
+    OmAllTermsIterator newiterator(other);
+    std::swap(internal, newiterator.internal);
 }
 
 om_termname

@@ -1,3 +1,9 @@
+Tue Dec 19 16:55:02 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Implemented AllTermsIterator for DA and Multi databases.
+	  Added a test which actually uses a multidatabase, but
+	  disabled it as it currently fails for both Quartz and DA.
+
 Tue Dec 19 12:14:05 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Adjusted TODO
