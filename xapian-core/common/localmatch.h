@@ -152,7 +152,7 @@ class LocalMatch : public SingleMatch
 	void set_collapse_key(om_keyno key);
 	void set_no_collapse();
 
-	void prepare_match();
+	bool prepare_match(bool nowait);
 	
         om_weight get_max_weight();
 	void get_mset(om_doccount first,

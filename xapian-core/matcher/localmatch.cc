@@ -469,8 +469,8 @@ LocalMatch::perform_collapse(vector<OmMSetItem> &mset,
     return add_item;
 }
 
-void
-LocalMatch::prepare_match()
+bool
+LocalMatch::prepare_match(bool nowait)
 {
     if(!is_prepared) {
 
@@ -479,6 +479,7 @@ LocalMatch::prepare_match()
 
 	is_prepared = true;
     }
+    return true;
 }
 
 // Return the maximum possible weight, calculating it if necessary.

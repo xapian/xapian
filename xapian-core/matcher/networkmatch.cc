@@ -50,8 +50,8 @@ NetworkMatch::NetworkMatch(IRDatabase *database_)
     database->link->register_statssource(&statssource);
 }
 
-void
-NetworkMatch::prepare_match()
+bool
+NetworkMatch::prepare_match(bool nowait)
 {
     if (!is_prepared) {
 	database->link->finish_query();
@@ -62,6 +62,7 @@ NetworkMatch::prepare_match()
 
 	is_prepared = true;
     }
+    return true;
 }
 
 void

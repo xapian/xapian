@@ -1,3 +1,8 @@
+Tue May  2 14:35:01 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Changed signature of Match::prepare_match() to allow for
+	  asynchronous processing.
+
 Fri Apr 28 18:55:12 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Begun process of making OmDatabaseGroup use reference counted

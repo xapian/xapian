@@ -118,9 +118,19 @@ class SingleMatch
 	
 	/** Prepare to perform the match operation.
 	 *  This must be called before either get_max_weight() or
-	 *  get_mset().
+	 *  get_mset().  It can be called more than once.  If nowait
+	 *  is true, the operation has only succeeded when the return
+	 *  value is true.
+	 * 
+	 *  @param nowait	If true, then return as soon as
+	 *  			possible even if the operation hasn't
+	 *  			been completed.  If it hasn't, then
+	 *  			the return value will be false.  The
+	 *  			caller should periodically retry until
+	 *  			prepare_match returns true, or throws
+	 *  			an exception to indicate an error.
 	 */
-	virtual void prepare_match() = 0;
+	virtual bool prepare_match(bool nowait = false) = 0;
 	
 	///////////////////////////////////////////////////////////////////
 	// Get information about result

@@ -114,6 +114,9 @@ ProgServer::run()
 	    match.set_query(&temp);
 	}
 
+	cerr << "Adding artificial delay for statistics" << endl;
+	sleep(3);
+
 	// Message 4
 	send_local_stats(gatherer->get_local_stats());
 
@@ -134,6 +137,9 @@ ProgServer::run()
 	    throw OmNetworkError(string("Expected GETMSET, got ") + message);
 	}
 	message = message.substr(8);
+
+	cerr << "Adding artificial delay..." << endl;
+	sleep(5);
 
 	om_doccount first;
 	om_doccount maxitems;
