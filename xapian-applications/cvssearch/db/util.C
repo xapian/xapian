@@ -68,7 +68,10 @@ bool Lines::okSubChar(char c) {
   return (okFirstChar(c) || (c >= '0' && c <= '9' ));
 }
 
-
+//
+// Given a line of source code, pick up all classes and functions in that line
+// and insert them into the symbols set.
+//
 void Lines::extractSymbols( const string& s ) {
   string current = "";
   bool foundBlank = false;
@@ -121,6 +124,9 @@ void Lines::extractSymbols( const string& s ) {
   }
 }
 
+//
+// loads contents of offset file into file and offset vectors
+//
 void Lines::load_offset_file(  const string& file_offset, vector<string>& files, vector<string>& offsets ) {
   
   cerr << "... reading " << file_offset << endl;
@@ -143,6 +149,10 @@ void Lines::load_offset_file(  const string& file_offset, vector<string>& files,
     
 }
 
+//
+// takes a list of words, lower cases and stems each word, and puts the result
+// in another list
+//
 void Lines::stemWords( const list<string>& words, list<string>& term_list ) {
   for( list<string>::const_iterator i = words.begin(); i != words.end(); i++ ) {
      
@@ -157,7 +167,20 @@ void Lines::stemWords( const list<string>& words, list<string>& term_list ) {
   }
 }
 
-Lines::Lines( const string& p, const string& sroot, const string& pkg, const string& file_db, const string& file_offset, const string& mes ) {
+//
+// constructor 
+//
+//    * loads offset file info into vectors files and offsets
+//
+//    * in_comment is the stream for reading from cmt file
+//
+Lines::Lines( const string& p,           // path (e.g., "cvsdata/root0/src/")
+	      const string& sroot,       // ?????????
+	      const string& pkg,         // package 
+	      const string& file_db,     // name of cmt file
+	      const string& file_offset, // name of offset file 
+	      const string& mes          // message used for progress indicator
+	      ) {
   
   path = p;
   root = sroot;
@@ -189,12 +212,23 @@ Lines::~Lines() {
   }
 }
 
-
+//
+// returns file containing line just read
+//
+// if no line read yet, then this is the empty string
+// 
 string Lines::currentFile() {
   assert( current_fn != "" );
   return current_fn;
 }
 
+//
+// given a line and field from a cmt file, read a vector of 
+// information for that field in that line
+//
+// example:  if a line is involved with 3 commits and the field is "author",
+//           then returns a vector of length 3 containing the 3 authors in order
+// 
 void Lines::readVector( const string& line, const string& field, vector<string>& field_vector ) {
   // pick up revisions
   int i = -1;
@@ -212,14 +246,43 @@ void Lines::readVector( const string& line, const string& field, vector<string>&
   }
 }
 
+//
+// this is the data string returned by the cvssearch command
+//
+// it looks something like this:
+//
+//  65 1074:root0 kdenetwork_kmail 63:1.71 1.52 1.42 1.41 1.34      
+//
 string Lines::getData() {
   return data;
 }
 
+//
+// This is the data string that may be used in the future to do grep
+// searches by using a single file per application
+//
+// It looks a lot like data from previous member but also includes 
+// the line content afterwards.  The idea is to just grep it and 
+// look at the data preceding each line in the grep results.
+//
 string Lines::getCodeLineData() {
   return codelinedata;
 }
 
+//
+//
+// Suppose a line is associated with revision comments C1, C2, C3 for revisions R1, R2, R3.
+//
+// then the map is updated as follows:
+//
+// R1 -> list of lowercased, stemmed C1 words
+// R2 -> list of lowercased, stemmed C2 words
+// R3 -> list of lowercased, stemmed C3 words
+//
+// Observe that the map is not cleared.  That is, calling this method
+// multiple times just keeps making the map bigger (so that we can build a map for all revisions of interest)
+//
+//
 void Lines::updateRevisionComments( map< string, list<string> >& rcw ) {
   for( map< string, list<string > >::iterator i = revision_comment_words.begin(); i != revision_comment_words.end(); i++ ) {
     if ( rcw[i->first].empty() ) {
@@ -228,7 +291,11 @@ void Lines::updateRevisionComments( map< string, list<string> >& rcw ) {
   }
 }
 
-// returns false when there is no next line
+//
+// reads next line from file; moves on to next file when previous file done
+//
+// returns false when there are no more files to read lines from
+//
 bool Lines::ReadNextLine() {
 
   bool changedFiles = false;
@@ -383,31 +450,66 @@ bool Lines::ReadNextLine() {
 
 }
 
+//
+// Gets number of line just read from current file.
+//
 int Lines::getLineNumber() {
   return line_no-current_offset+1;
 }
 
+//
+// Gets the actual contents of the line just read.
+// 
 string Lines::getCodeLine() {
   return code_line;
 }
 
+//
+// Lowercased, stemmed terms from all comments associated with line just read.
+//
 set<string> Lines::getCommentTerms() {
   return terms;
 }
  
+//
+// Code symbols (functions/classes) from line of code just read.
+//
 set<string> Lines::getCodeSymbols() {
   assert( path != "" );
   return symbols;
 }
 
+//
+// Lowercased, stemmed term *list* from all comments associated associated with line just read.
+//
+// Observe that this list preserves word order and frequency.
+//
 list<string> Lines::getTermList() {
   return term_list;
 }
 
+//
+// Suppose a line is associated with revision comments C1, C2, C3 for revisions R1, R2, R3.
+//
+// We return a map of the form:
+//
+// R1 -> list of lowercased, stemmed C1 words
+// R2 -> list of lowercased, stemmed C2 words
+// R3 -> list of lowercased, stemmed C3 words
+//
+// Observe this contains information for the line just read only.
+//
 map< string, list<string> > Lines::getRevisionCommentWords() { 
   return revision_comment_words;
 }
 
+//
+// Like above, but we have a map of the form:
+//
+// R1 -> C1 string
+// R2 -> C2 string
+// R3 -> C3 string
+//
 map< string, string > Lines::getRevisionCommentString() { 
   return revision_comment_string;
 }
@@ -416,6 +518,13 @@ map< string, string > Lines::getRevisionCommentString() {
 #warning "doesn't handle all upper case yet"
 #endif
 
+//
+// Looks at all the functions/classes associated with the line
+// just read, and returns the set of all words in all these functions/classes.
+//
+// For example, if the symbols are:  startTimer() and TimerEvent, it returns
+// the set { start, timer, event }.
+//
 set<string> Lines::getCodeSymbolTerms() {
   // computed here, since may not be required by some apps
   
@@ -456,11 +565,17 @@ set<string> Lines::getCodeSymbolTerms() {
   return code_terms;
 }
 
-void readTags( const string& fn, set<string>& S, map<string, set<string> >& symbol_parents
-#if 0
-	       , map< string, string >& tag // for line numbers for start/end of function
-#endif
- ) {
+//
+// reads information from ctags file
+//
+// takes file name of tag file
+//
+// returns the set of classes/functions mentioned in the file in S
+//
+// also returns a map which contains an entry for each class with parents;
+// in that case, the map takes the class and returns its parents.
+//
+void readTags( const string& fn, set<string>& S, map<string, set<string> >& symbol_parents ) {
   cerr << "readTags " << fn << endl;
   ifstream in(fn.c_str());
   assert (in);
@@ -497,45 +612,6 @@ void readTags( const string& fn, set<string>& S, map<string, set<string> >& symb
 
     if ( function ) {
       symbol += "()";
-#if 0
-      // pick up line numbers for function
-
-      //      cerr << "-" << s << "-" << endl;
-
-      int k1 = s.find("\tclass:")+7;
-      int k2 = s.length()-1;
-      for( int i = k1; i <= k2; i++ ) {
-	if ( s[i] == '\t' ) {
-	  k2 = i-1;
-	  break;
-	}
-      }
-      string klass = s.substr( k1, k2-k1+1 );
-
-      int j = s.find(";\"\t")-1;
-      assert(j>0);
-
-      int i = j;
-      while ( s[i] != '\t' ) {
-	i--;
-      }
-      i--; // skip \t
-      while ( s[i] != '\t' ) {
-	i--;
-      }
-
-      i++;
-
-      assert(i>0);
-
-      //      int l = atoi( s.substr(i,j-i+1).c_str() );
-
-      //      cerr << "-" << l << "-" << endl;
-      tag[ s.substr(i,j-i+1)] = klass+"::"+osymbol + "()";
-      
-#endif
-
-
     } else {
 
       // this is a class
