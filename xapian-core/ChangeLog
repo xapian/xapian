@@ -1,3 +1,8 @@
+Sun May 25 21:43:34 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omtermlistiterator.cc: Removed iostream.h include left over from
+	  debugging.
+
 Sun May 25 12:27:11 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/,extra/omparsequery.h,extra/parsequery.yy,include/Makefile.am,
