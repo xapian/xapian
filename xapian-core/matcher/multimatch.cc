@@ -42,7 +42,7 @@ MultiMatch::~MultiMatch()
 }
 
 void
-MultiMatch::add_leafmatch(LeafMatch * leaf)
+MultiMatch::add_leafmatch(SingleMatch * leaf)
 {
     Assert(allow_add_leafmatch);
 
@@ -53,7 +53,7 @@ void
 MultiMatch::set_query(const OmQueryInternal * query)
 {
     Assert((allow_add_leafmatch = false) == false);
-    for(vector<LeafMatch *>::iterator i = leaves.begin();
+    for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_query(query);
     }
@@ -63,7 +63,7 @@ void
 MultiMatch::set_rset(RSet * rset)
 {
     Assert((allow_add_leafmatch = false) == false);
-    for(vector<LeafMatch *>::iterator i = leaves.begin();
+    for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_rset(rset);
     }
@@ -73,7 +73,7 @@ void
 MultiMatch::set_weighting(IRWeight::weight_type wt_type_)
 {
     Assert((allow_add_leafmatch = false) == false);
-    for(vector<LeafMatch *>::iterator i = leaves.begin();
+    for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_weighting(wt_type_);
     }
@@ -84,7 +84,7 @@ void
 MultiMatch::set_min_weight_percent(int pcent)
 {
     Assert((allow_add_leafmatch = false) == false);
-    for(vector<LeafMatch *>::iterator i = leaves.begin();
+    for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_min_weight_percent(pcent);
     }
@@ -94,7 +94,7 @@ void
 MultiMatch::set_collapse_key(om_keyno key)
 {
     Assert((allow_add_leafmatch = false) == false);
-    for(vector<LeafMatch *>::iterator i = leaves.begin();
+    for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_collapse_key(key);
     }
@@ -104,7 +104,7 @@ void
 MultiMatch::set_no_collapse()
 {
     Assert((allow_add_leafmatch = false) == false);
-    for(vector<LeafMatch *>::iterator i = leaves.begin();
+    for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_no_collapse();
     }
@@ -120,7 +120,7 @@ MultiMatch::get_max_weight()
     om_weight result = leaves.front()->get_max_weight();
 
 #ifdef MUS_DEBUG
-    for(vector<LeafMatch *>::iterator i = leaves.begin();
+    for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	Assert((*i)->get_max_weight() == result);
     }
@@ -161,7 +161,7 @@ MultiMatch::match(om_doccount first,
 	if(leaves.size() > 1) {
 	    // Get subsequent msets, and merge each one with the current mset
 	    // FIXME: this approach may be very inefficient - needs attention.
-	    for(vector<LeafMatch *>::iterator leaf = leaves.begin() + 1;
+	    for(vector<SingleMatch *>::iterator leaf = leaves.begin() + 1;
 		leaf != leaves.end(); leaf++) {
 
 		om_doccount sub_mbound;

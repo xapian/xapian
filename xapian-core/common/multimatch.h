@@ -27,15 +27,15 @@
 
 #include <vector>
 
-class LeafMatch;
+class SingleMatch;
 
 /** Class for performing a match over multiple leafmatch objects.
  */
-class MultiMatch : public Match
+class MultiMatch
 {
     private:
 	/// Vector of the items 
-	vector<LeafMatch *> leaves;
+	vector<SingleMatch *> leaves;
 #ifdef MUS_DEBUG
 	bool allow_add_leafmatch;
 #endif /* MUS_DEBUG */
@@ -47,7 +47,7 @@ class MultiMatch : public Match
 	MultiMatch();
 	~MultiMatch();
 
-	/** Add a new leafmatch object to the multimatch.
+	/** Add a new singlematch object to the multimatch.
 	 *
 	 *  Caller is responsible for ensuring that the leafmatch object
 	 *  pointed to remains valid until the multimatch object is
@@ -55,7 +55,7 @@ class MultiMatch : public Match
 	 *
 	 *  @param leaf A pointer to the new object to add.
 	 */
-	void add_leafmatch(LeafMatch * leaf);
+	void add_leafmatch(SingleMatch * leaf);
 
 	void set_query(const OmQueryInternal * query);
 	void set_rset(RSet * rset);

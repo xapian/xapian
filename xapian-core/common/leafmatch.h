@@ -49,7 +49,7 @@ bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
  *  This is the Match class which performs the main calculation: other
  *  Match objects merge or transmit the results of LeafMatch objects.
  */
-class LeafMatch : public Match
+class LeafMatch : public SingleMatch
 {
     private:
         IRDatabase *database;

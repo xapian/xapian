@@ -54,16 +54,16 @@ class MSetCmp {
 	}
 };
 
-/// Base class for matchers
-class Match
+/// Base class for single matchers
+class SingleMatch
 {
     private:
 	// disallow copies
-	Match(const Match &);
-	void operator=(const Match &);
+	SingleMatch(const SingleMatch &);
+	void operator=(const SingleMatch &);
     public:
-	Match() {};
-	virtual ~Match() = 0;
+	SingleMatch() {};
+	virtual ~SingleMatch() = 0;
 
 	///////////////////////////////////////////////////////////////////
 	// Set the terms and operations which comprise the query
@@ -138,6 +138,10 @@ class Match
 			  ) = 0;
 };
 
-inline Match::~Match() {}
+///////////////////////////////
+// Inline method definitions //
+///////////////////////////////
+
+inline SingleMatch::~SingleMatch() {}
 
 #endif /* OM_HGUARD_MATCH_H */
