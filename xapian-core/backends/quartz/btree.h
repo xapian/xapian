@@ -122,7 +122,7 @@ class Btree {
 	/** the last used block of B->bit_map0 */
 	/*int4 last_block; */
 
-    public: //private:
+    protected:
 
 	/** Perform the opening operation to read.
 	 */
