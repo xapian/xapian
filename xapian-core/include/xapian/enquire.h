@@ -33,12 +33,11 @@
 #include <string>
 #include <time.h> // for time_t
 
-class OmWeight;
-
 namespace Xapian {
 class Query;
 class ErrorHandler;
 class MSetIterator;
+class Weight;
 
 /** A match set (MSet).
  *  This class represents (a portion of) the results of a query.
@@ -530,19 +529,19 @@ class OmRSet {
 	std::string get_description() const;
 };
 
+namespace Xapian {
+
 /** Base class for matcher decision functor.
  */
-class OmMatchDecider {
+class MatchDecider {
     public:
 	/** Decide whether we want this document to be in the mset.
 	 */
 	virtual int operator()(const OmDocument &doc) const = 0;
 
 	/// Destructor.
-	virtual ~OmMatchDecider() {}
+	virtual ~MatchDecider() {}
 };
-
-namespace Xapian {
 
 /** Base class for expand decision functor.
  */
@@ -626,7 +625,7 @@ class Enquire {
 	 *  		    is specified, the default is BM25 with A=1, B=1,
 	 *  		    C=0, D=0.5, min_normlen=0.5
 	 */
-	void set_weighting_scheme(const OmWeight &weight_);
+	void set_weighting_scheme(const Weight &weight_);
 
         /** Set the collapse key to use for queries.
          *
@@ -733,7 +732,7 @@ class Enquire {
 	 */
 	MSet get_mset(om_doccount first, om_doccount maxitems,
 		      const OmRSet * omrset = 0,
-		      const OmMatchDecider * mdecider = 0) const;
+		      const MatchDecider * mdecider = 0) const;
 
 	static const int include_query_terms = 1;
 	static const int use_exact_termfreq = 2;
@@ -847,10 +846,10 @@ class Enquire {
 	/** End iterator corresponding to get_matching_terms_begin() */
 	Xapian::TermIterator get_matching_terms_end(const MSetIterator &it) const;
 
-	/** Register an OmMatchDecider.
+	/** Register a MatchDecider.
 	 */
 	void register_match_decider(const std::string &name,
-				    const OmMatchDecider *mdecider = NULL);
+				    const MatchDecider *mdecider = NULL);
 
 	/** Introspection method.
 	 *  @return  A string representing the enquire object.
@@ -862,15 +861,17 @@ class Enquire {
 
 class SocketServer;
 
+namespace Xapian {
+
 /// Abstract base class for weighting schemes
-class OmWeight {
-    friend class Xapian::Enquire; // So Xapian::Enquire can clone us
+class Weight {
+    friend class Enquire; // So Enquire can clone us
     friend class SocketServer; // So SocketServer can clone us - FIXME
     public:
 	class Internal;
     private:
-	OmWeight(const OmWeight &);
-	void operator=(OmWeight &);
+	Weight(const Weight &);
+	void operator=(Weight &);
 
 	/// Return a new weight object of this type.
 	//
@@ -878,23 +879,23 @@ class OmWeight {
 	// virtual OmFooWeight * clone() const {
 	//     return new OmFooWeight(param1, param2);
 	// }
-	virtual OmWeight * clone() const = 0;
+	virtual Weight * clone() const = 0;
 
     protected:
-	const Internal * internal; // OmWeight::Internal == StatsSource
+	const Internal * internal; // Weight::Internal == StatsSource
 	om_doclength querysize;
 	om_termcount wqf;
 	std::string tname;
 
     public:
-	OmWeight() { }
-	virtual ~OmWeight() { }
+	Weight() { }
+	virtual ~Weight() { }
 
 	/** Create a new weight object of the same type as this and initialise
 	 *  it with the specified statistics.
 	 *
 	 *  You shouldn't call this method yourself - it's called by
-	 *  Xapian::Enquire.
+	 *  Enquire.
 	 *
 	 *  @param internal_  Object to ask for collection statistics.
 	 *  @param querysize_ Query size.
@@ -902,9 +903,9 @@ class OmWeight {
 	 *		      associated with.
 	 *  @param tname_     Term which this object is associated with.
 	 */
-	OmWeight * create(const Internal * internal_, om_doclength querysize_,
+	Weight * create(const Internal * internal_, om_doclength querysize_,
 			  om_termcount wqf_, std::string tname_) const {
-	    OmWeight * wt = clone();
+	    Weight * wt = clone();
 	    wt->internal = internal_;
 	    wt->querysize = querysize_;
 	    wt->wqf = wqf_;
@@ -921,7 +922,7 @@ class OmWeight {
 	virtual std::string serialise() const = 0;
 
 	/// Create object given string serialisation returned by serialise().
-	virtual OmWeight * OmWeight::unserialise(const std::string &s) const = 0;
+	virtual Weight * Weight::unserialise(const std::string &s) const = 0;
 
 	/** Get a weight which is part of the sum over terms being performed.
 	 *  This returns a weight for a given term and document.  These
@@ -960,16 +961,16 @@ class OmWeight {
 };
 
 /// Boolean weighting scheme (everything gets 0)
-class BoolWeight : public OmWeight {
+class BoolWeight : public Weight {
     public:
-	OmWeight * clone() const {
+	Weight * clone() const {
 	    return new BoolWeight;
 	}
 	BoolWeight() { }
 	~BoolWeight() { }
 	std::string name() const { return "Bool"; }
 	std::string serialise() const { return ""; }
-	OmWeight * unserialise(const std::string & /*s*/) const {
+	Weight * unserialise(const std::string & /*s*/) const {
 	    return new BoolWeight;
 	}
 	om_weight get_sumpart(om_termcount /*wdf*/, om_doclength /*len*/) const { return 0; }
@@ -992,7 +993,7 @@ class BoolWeight : public OmWeight {
 //   - \f$L_{d}\f$ is the normalised length of document d
 //   - \f$s_{q}\f$ is the size of the query
 //   - \f$A\f$, \f$B\f$, \f$C\f$ and \f$D\f$ are user specified parameters
-class BM25Weight : public OmWeight {
+class BM25Weight : public Weight {
     private:
 	mutable om_weight termweight;
 	mutable om_doclength lenpart;
@@ -1037,13 +1038,13 @@ class BM25Weight : public OmWeight {
 	BM25Weight() : A(1), B(1), C(0), D(0.5), min_normlen(0.5),
 		       weight_calculated(false) { }
 
-	OmWeight * clone() const {
+	Weight * clone() const {
 	    return new BM25Weight(A, B, C, D, min_normlen);
 	}
 	~BM25Weight() { }
 	std::string name() const { return "BM25"; }
 	std::string serialise() const;
-	OmWeight * unserialise(const std::string & s) const;
+	Weight * unserialise(const std::string & s) const;
 	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
 	om_weight get_maxpart() const;
 
@@ -1064,7 +1065,7 @@ class BM25Weight : public OmWeight {
 //   - \f$k\f$ is a user specifiable parameter
 //
 // TradWeight is equivalent to BM25Weight(1, 1, 0, k, 0)
-class TradWeight : public OmWeight {
+class TradWeight : public Weight {
     private:
 	mutable om_weight termweight;
 	mutable om_doclength lenpart;
@@ -1085,13 +1086,13 @@ class TradWeight : public OmWeight {
 	TradWeight(double k = 1) : param_k(k), weight_calculated(false) {
 	    if (param_k < 0) param_k = 0;
 	}
-	OmWeight * clone() const {
+	Weight * clone() const {
 	    return new TradWeight(param_k);
 	}
 	~TradWeight() { }
 	std::string name() const { return "Trad"; }
 	std::string serialise() const;
-	OmWeight * unserialise(const std::string & s) const;
+	Weight * unserialise(const std::string & s) const;
 	
 	om_weight get_sumpart(om_termcount wdf, om_doclength len) const;
 	om_weight get_maxpart() const;
@@ -1101,5 +1102,7 @@ class TradWeight : public OmWeight {
 
 	bool get_sumpart_needs_doclength() const { return (lenpart != 0); }
 };
+
+}
 
 #endif /* XAPIAN_INCLUDED_ENQUIRE_H */

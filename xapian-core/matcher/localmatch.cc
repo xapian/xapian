@@ -373,7 +373,7 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_query", query << ", " << matcher << ", " << is_bool);
     if (!query) {
 	LeafPostList *pl = new EmptyPostList();
-	pl->set_termweight(new BoolWeight());
+	pl->set_termweight(new Xapian::BoolWeight());
 	RETURN(pl);
     }
 
@@ -385,15 +385,15 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 
 	    // FIXME: pass the weight type and the info needed to create it to
 	    // the postlist instead (why?)
-	    OmWeight * wt;
+	    Xapian::Weight * wt;
 	    if (is_bool) {
-		wt = new BoolWeight();
+		wt = new Xapian::BoolWeight();
 	    } else {
 		wt = wtscheme->create(statssource.get(), querysize, query->wqf,
 				      query->tname);
 #ifdef MUS_DEBUG_PARANOID
 		// Check that max_extra weight is really right
-		AutoPtr<OmWeight> temp_wt(wtscheme->create(statssource.get(),
+		AutoPtr<Xapian::Weight> temp_wt(wtscheme->create(statssource.get(),
 					  querysize, 1, ""));
 		AssertEqDouble(wt->get_maxextra(), temp_wt->get_maxextra());
 #endif
@@ -504,7 +504,7 @@ LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
     PostList *pl = postlist_from_query(&users_query, matcher, false);
     // don't bother with an ExtraWeightPostList if there's no extra weight
     // contribution.
-    AutoPtr<OmWeight> extra_wt(wtscheme->create(statssource.get(),
+    AutoPtr<Xapian::Weight> extra_wt(wtscheme->create(statssource.get(),
 			       querysize, 1, ""));
     if (extra_wt->get_maxextra() == 0) {
 	RETURN(pl);

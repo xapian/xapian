@@ -30,7 +30,7 @@
 #include "stats.h"
 #include "rset.h"
 
-class OmWeight;
+class Xapian::Weight;
 class Database;
 class Document;
 namespace Xapian {
@@ -51,7 +51,7 @@ class LocalSubMatch : public SubMatch {
         LocalSubMatch(const LocalSubMatch &);
         LocalSubMatch & operator=(const LocalSubMatch &);
 
-	AutoPtr<OmWeight::Internal> statssource;
+	AutoPtr<Xapian::Weight::Internal> statssource;
 
 	bool is_prepared;
 
@@ -63,11 +63,11 @@ class LocalSubMatch : public SubMatch {
 	/// RSet to be used (affects weightings)
 	AutoPtr<RSet> rset;
     
-	/// The size of the query (passed to OmWeight objects)
+	/// The size of the query (passed to Xapian::Weight objects)
 	om_doclength querysize;
     
 	/// Weighting scheme object
-	const OmWeight * wtscheme;
+	const Xapian::Weight * wtscheme;
 
 	/// The weights and termfreqs of terms in the query.
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight> term_info;
@@ -103,7 +103,7 @@ class LocalSubMatch : public SubMatch {
 	LocalSubMatch(const Database *db_,
 		      const Xapian::Query::Internal * query,
 		      const OmRSet & omrset, StatsGatherer *gatherer,
-		      const OmWeight *wtscheme_)
+		      const Xapian::Weight *wtscheme_)
 		: statssource(new LocalStatsSource(gatherer)),
 		  is_prepared(false), users_query(*query), db(db_),
 		  querysize(query->qlen), wtscheme(wtscheme_)

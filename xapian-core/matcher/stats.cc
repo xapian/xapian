@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,14 +28,14 @@
 #include "omdebug.h"
 
 void
-StatsGatherer::add_child(OmWeight::Internal *source) {
+StatsGatherer::add_child(Xapian::Weight::Internal *source) {
     DEBUGCALL(MATCH, void, "StatsGatherer::add_child", source);
     Assert(have_gathered == false);
     sources.insert(source);
 }
 
 void
-StatsGatherer::remove_child(OmWeight::Internal *source) {
+StatsGatherer::remove_child(Xapian::Weight::Internal *source) {
     DEBUGCALL(MATCH, void, "StatsGatherer::remove_child", source);
     // If have_gathered is true, the stats will be wrong, but we just
     // continue as best we can.
@@ -55,7 +55,7 @@ LocalStatsGatherer::get_stats() const
 {
     DEBUGCALL(MATCH, Stats *, "LocalStatsGatherer::get_stats", "");
     if(!have_gathered) {
-	for (std::set<OmWeight::Internal *>::iterator i = sources.begin();
+	for (std::set<Xapian::Weight::Internal *>::iterator i = sources.begin();
 	     i != sources.end();
 	     ++i) {
 	    (*i)->contrib_my_stats();
@@ -92,7 +92,7 @@ NetworkStatsGatherer::fetch_local_stats() const
 {
     DEBUGCALL(MATCH, void, "NetworkStatsGatherer::fetch_local_stats", "");
     if (!have_gathered) {
-	for (std::set<OmWeight::Internal *>::iterator i = sources.begin();
+	for (std::set<Xapian::Weight::Internal *>::iterator i = sources.begin();
 	     i != sources.end();
 	     ++i) {
 	    (*i)->contrib_my_stats();
@@ -123,7 +123,7 @@ NetworkStatsGatherer::fetch_global_stats() const
 
 NetworkStatsSource::NetworkStatsSource(StatsGatherer * gatherer_,
 				       RefCntPtr<NetClient> nclient_)
-	: OmWeight::Internal(gatherer_), nclient(nclient_),
+	: Xapian::Weight::Internal(gatherer_), nclient(nclient_),
           have_remote_stats(false)
 {
     DEBUGCALL(MATCH, void, "NetworkStatsSource", "[gatherer_], [nclient_]");
@@ -153,7 +153,7 @@ NetworkStatsSource::take_remote_stats(Stats stats)
 #endif /* MUS_BUILD_BACKEND_REMOTE */
 
 LocalStatsSource::LocalStatsSource(StatsGatherer * gatherer_)
-	: OmWeight::Internal(gatherer_)
+	: Xapian::Weight::Internal(gatherer_)
 {
     DEBUGCALL(MATCH, void, "LocalStatsSource", gatherer_);
 }
@@ -164,15 +164,15 @@ LocalStatsSource::~LocalStatsSource()
 }
 
 void
-OmWeight::Internal::perform_request() const
+Xapian::Weight::Internal::perform_request() const
 {
-    DEBUGCALL(MATCH, void, "OmWeight::Internal::perform_request", "");
+    DEBUGCALL(MATCH, void, "Xapian::Weight::Internal::perform_request", "");
     Assert(total_stats == 0);
     total_stats = gatherer->get_stats();
     Assert(total_stats != 0);
 
 #ifdef MUS_DEBUG_VERBOSE
-    DEBUGLINE(WTCALC, "OmWeight::Internal::perform_request(): stats are:");
+    DEBUGLINE(WTCALC, "Xapian::Weight::Internal::perform_request(): stats are:");
     DEBUGLINE(WTCALC, "  collection_size = " << total_stats->collection_size);
     DEBUGLINE(WTCALC, "  rset_size = "       << total_stats->rset_size);
     DEBUGLINE(WTCALC, "  average_length = "  << total_stats->average_length);

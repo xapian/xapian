@@ -37,7 +37,7 @@
 class SubMatch;
 class Xapian::ErrorHandler;
 class SocketServer;
-class OmWeight;
+class Xapian::Weight;
 
 class MultiMatch
 {
@@ -72,7 +72,7 @@ class MultiMatch
 	Xapian::ErrorHandler * errorhandler;
 
 	/// Weighting scheme
-	const OmWeight * weight;
+	const Xapian::Weight * weight;
 
 	/** Internal flag to note that w_max needs to be recalculated
 	 *  while query is running.
@@ -128,13 +128,13 @@ class MultiMatch
 		   om_weight bias_weight_,
 		   Xapian::ErrorHandler * errorhandler,
 		   AutoPtr<StatsGatherer> gatherer_,
-		   const OmWeight *wtscheme);
+		   const Xapian::Weight *wtscheme);
 	~MultiMatch();
 
 	void get_mset(om_doccount first,
 		      om_doccount maxitems,
 		      Xapian::MSet & mset,
-		      const OmMatchDecider * mdecider);
+		      const Xapian::MatchDecider * mdecider);
 
 	/** Called by postlists to indicate that they've rearranged themselves
 	 *  and the maxweight now possible is smaller.

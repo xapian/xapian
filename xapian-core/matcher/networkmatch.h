@@ -59,7 +59,7 @@ class RemoteSubMatch : public SubMatch {
 	void finish_query();
 
 	/// Make a weight - default argument is used for finding extra_weight
-	OmWeight * mk_weight(const Xapian::Query::Internal *query = NULL);
+	Xapian::Weight * mk_weight(const Xapian::Query::Internal *query = NULL);
 
     public:
 	RemoteSubMatch(const NetworkDatabase *db_,
@@ -67,7 +67,7 @@ class RemoteSubMatch : public SubMatch {
 		       const OmRSet & omrset,
 		       om_valueno collapse_key, bool sort_forward,
 		       int percent_cutoff, om_weight weight_cutoff,
-		       StatsGatherer *gatherer_, const OmWeight *wtscheme);
+		       StatsGatherer *gatherer_, const Xapian::Weight *wtscheme);
 
 	~RemoteSubMatch();
 

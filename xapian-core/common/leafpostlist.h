@@ -32,7 +32,7 @@
  */
 class LeafPostList : public PostList {
     protected:
-	const OmWeight * ir_wt;
+	const Xapian::Weight * ir_wt;
 	bool want_doclength;
     public:
 	LeafPostList() : ir_wt(NULL), want_doclength(false) { }
@@ -45,7 +45,7 @@ class LeafPostList : public PostList {
 	om_doccount get_termfreq_est() const { return get_termfreq(); }
 
 	// Sets term weighting formula, and needed information
-	virtual void set_termweight(const OmWeight * wt);
+	virtual void set_termweight(const Xapian::Weight * wt);
 
 	virtual om_weight get_weight() const;
 
@@ -54,7 +54,7 @@ class LeafPostList : public PostList {
 };
 
 inline void
-LeafPostList::set_termweight(const OmWeight * wt)
+LeafPostList::set_termweight(const Xapian::Weight * wt)
 {
     ir_wt = wt;
     want_doclength = wt->get_sumpart_needs_doclength();

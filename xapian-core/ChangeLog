@@ -1,3 +1,11 @@
+Thu May 08 01:16:30 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,backends/multi/multi_postlist.h,common/,
+	  include/om/om.h,include/xapian/enquire.h,matcher/,
+	  net/socketclient.cc,net/socketserver.cc: OmMatchDecider ->
+	  Xapian::MatchDecider; OmWeight -> Xapian::Weight; BoolWeight,
+	  TradWeight, BM25Weight -> Xapian::.
+
 Wed May 07 23:06:47 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btreetest.cc,backends/quartz/quartztest.cc,

@@ -183,7 +183,7 @@ MergePostList::recalc_maxweight()
 		AutoPtr<LeafPostList> lpl(new EmptyPostList);
 		// give it a weighting object
 		// FIXME: make it an EmptyWeight instead of BoolWeight
-		lpl->set_termweight(new BoolWeight());
+		lpl->set_termweight(new Xapian::BoolWeight());
 		*i = lpl.release();
 	    } else {
 		throw;

@@ -157,9 +157,9 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	ErrorHandler * errorhandler;
 
-	map<string, const OmMatchDecider *> mdecider_map;
+	map<string, const MatchDecider *> mdecider_map;
 
-	mutable OmWeight * weight; // mutable so get_mset can set default
+	mutable Weight * weight; // mutable so get_mset can set default
 
 	Internal(const OmDatabase &databases, ErrorHandler * errorhandler_);
 	~Internal();
@@ -176,7 +176,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	const Query & get_query();
 	Xapian::MSet get_mset(om_doccount first, om_doccount maxitems,
 			const OmRSet *omrset, 
-			const OmMatchDecider *mdecider) const;
+			const MatchDecider *mdecider) const;
 	Xapian::ESet get_eset(om_termcount maxitems, const OmRSet & omrset, int flags,
 			double k, const ExpandDecider *edecider) const;
 
@@ -184,7 +184,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	TermIterator get_matching_terms(const Xapian::MSetIterator &it) const;
 
 	void register_match_decider(const string &name,
-				    const OmMatchDecider *mdecider);
+				    const MatchDecider *mdecider);
     
 	string get_description() const;
 };

@@ -42,7 +42,7 @@ RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
 			       om_valueno collapse_key, bool sort_forward,
 			       int percent_cutoff, om_weight weight_cutoff,
 			       StatsGatherer *gatherer_,
-			       const OmWeight *wtscheme)
+			       const Xapian::Weight *wtscheme)
 	: is_prepared(false), db(db_), gatherer(gatherer_)
 {	    
     DEBUGCALL(MATCH, void, "RemoteSubMatch", db_ << ", " << query << ", " <<

@@ -63,7 +63,7 @@ class Stats {
 	Stats & operator +=(const Stats & inc);
 };
 
-class OmWeight::Internal;
+class Xapian::Weight::Internal;
 
 /** Statistics collector: gathers statistics from sub-databases, puts them
  *  together to build statistics for whole collection, and returns the
@@ -77,11 +77,11 @@ class StatsGatherer {
 	 */
 	mutable bool have_gathered;
 
-	/** A collection of OmWeight::Internal children.
+	/** A collection of Xapian::Weight::Internal children.
 	 *  The Gatherer uses this to make sure that each child
 	 *  has contributed before it will give out its statistics.
 	 */
-	mutable std::set<OmWeight::Internal *> sources;
+	mutable std::set<Xapian::Weight::Internal *> sources;
 
 	/** The total statistics gathered for the whole collection.
 	 */
@@ -95,17 +95,17 @@ class StatsGatherer {
 	 */
 	virtual void set_global_stats(om_doccount rset_size);
 
-	/** Add a OmWeight::Internal object to this gatherer.
+	/** Add a Xapian::Weight::Internal object to this gatherer.
 	 *  The gatherer will include the source's statistics
 	 *  into its own summary statistics.
 	 */
-	void add_child(OmWeight::Internal *source);
+	void add_child(Xapian::Weight::Internal *source);
 
-	/** Remove a OmWeight::Internal object from this gatherer.
+	/** Remove a Xapian::Weight::Internal object from this gatherer.
 	 *  This is needed in the case of some parts of the database dying
 	 *  during the match.
 	 */
-	void remove_child(OmWeight::Internal *source);
+	void remove_child(Xapian::Weight::Internal *source);
 
 	/** Contribute some statistics to the overall statistics.
 	 *  Should only be called once by each sub-database.
@@ -127,7 +127,7 @@ class LocalStatsGatherer : public StatsGatherer {
 /** Statistics source: gathers notifications of statistics which will be
  *  needed, and passes them on in bulk to a StatsGatherer.
  */
-class OmWeight::Internal {
+class Xapian::Weight::Internal {
     private:
         // Prevent copying
         Internal(const Internal &);
@@ -225,12 +225,12 @@ class OmWeight::Internal {
 	om_doccount get_total_reltermfreq(const string & tname) const;
 };
 
-/** LocalStatsSource: the OmWeight::Internal object which provides methods
+/** LocalStatsSource: the Xapian::Weight::Internal object which provides methods
  *  to access the statistics.  A LocalSubMatch object uses it to report
  *  on its local statistics and retrieve the global statistics after
  *  the gathering process is complete.
  */
-class LocalStatsSource : public OmWeight::Internal {
+class LocalStatsSource : public Xapian::Weight::Internal {
     private:
     public:
 	/// Constructor
@@ -293,7 +293,7 @@ StatsGatherer::set_global_stats(om_doccount rset_size)
 }
 
 ///////////////////////////////////////////////
-// Inline method definitions for OmWeight::Internal //
+// Inline method definitions for Xapian::Weight::Internal //
 ///////////////////////////////////////////////
 
 
@@ -305,7 +305,7 @@ LocalStatsSource::contrib_my_stats()
 }
 
 inline void
-OmWeight::Internal::take_my_stats(om_doccount csize, om_doclength avlen)
+Xapian::Weight::Internal::take_my_stats(om_doccount csize, om_doclength avlen)
 {
     Assert(total_stats == 0);
     my_stats.collection_size = csize;
@@ -313,7 +313,7 @@ OmWeight::Internal::take_my_stats(om_doccount csize, om_doclength avlen)
 }
 
 inline void
-OmWeight::Internal::my_termfreq_is(const string & tname, om_doccount tfreq)
+Xapian::Weight::Internal::my_termfreq_is(const string & tname, om_doccount tfreq)
 {
     Assert(total_stats == 0);
     // Can be called a second time, if a term occurs multiple times in the
@@ -324,7 +324,7 @@ OmWeight::Internal::my_termfreq_is(const string & tname, om_doccount tfreq)
 }
 
 inline void
-OmWeight::Internal::my_reltermfreq_is(const string & tname, om_doccount rtfreq)
+Xapian::Weight::Internal::my_reltermfreq_is(const string & tname, om_doccount rtfreq)
 {
     Assert(total_stats == 0);
     // Can be called a second time, if a term occurs multiple times in the
@@ -335,28 +335,28 @@ OmWeight::Internal::my_reltermfreq_is(const string & tname, om_doccount rtfreq)
 }
 
 inline om_doccount
-OmWeight::Internal::get_total_collection_size() const
+Xapian::Weight::Internal::get_total_collection_size() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->collection_size;
 }
 
 inline om_doccount
-OmWeight::Internal::get_total_rset_size() const
+Xapian::Weight::Internal::get_total_rset_size() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->rset_size;
 }
 
 inline om_doclength
-OmWeight::Internal::get_total_average_length() const
+Xapian::Weight::Internal::get_total_average_length() const
 {
     if(total_stats == 0) perform_request();
     return total_stats->average_length;
 }
 
 inline om_doccount
-OmWeight::Internal::get_total_termfreq(const string & tname) const
+Xapian::Weight::Internal::get_total_termfreq(const string & tname) const
 {
     if(total_stats == 0) perform_request();
 
@@ -371,7 +371,7 @@ OmWeight::Internal::get_total_termfreq(const string & tname) const
 }
 
 inline om_doccount
-OmWeight::Internal::get_total_reltermfreq(const string & tname) const
+Xapian::Weight::Internal::get_total_reltermfreq(const string & tname) const
 {
     if(total_stats == 0) perform_request();
     std::map<string, om_doccount>::const_iterator rtfreq;

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,7 +72,7 @@ RSet::calculate_stats()
 }
 
 void
-RSet::give_stats_to_statssource(OmWeight::Internal *statssource)
+RSet::give_stats_to_statssource(Xapian::Weight::Internal *statssource)
 {
     DEBUGCALL(MATCH, void, "RSet::give_stats_to_statssource", statssource);
     Assert(calculated_reltermfreqs);

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +29,7 @@
 class ExtraWeightPostList : public PostList {
     private:
 	PostList * pl;
-	OmWeight * wt;
+	Xapian::Weight * wt;
 	MultiMatch * matcher;
 	om_weight max_weight;
 
@@ -92,7 +93,7 @@ class ExtraWeightPostList : public PostList {
 	    return pl->open_position_list();
 	}
 
-        ExtraWeightPostList(PostList * pl_, OmWeight *wt_, MultiMatch *matcher_)
+        ExtraWeightPostList(PostList * pl_, Xapian::Weight *wt_, MultiMatch *matcher_)
 	    : pl(pl_), wt(wt_), matcher(matcher_), max_weight(wt->get_maxextra())
 	{ }
 

@@ -679,7 +679,7 @@ Xapian::Enquire::Internal::get_query()
 
 Xapian::MSet
 Xapian::Enquire::Internal::get_mset(om_doccount first, om_doccount maxitems,
-                    const OmRSet *omrset, const OmMatchDecider *mdecider) const
+                    const OmRSet *omrset, const MatchDecider *mdecider) const
 {
     DEBUGCALL(API, Xapian::MSet, "Enquire::Internal::get_mset", first << ", "
 	      << maxitems << ", " << omrset << ", " << mdecider);
@@ -880,7 +880,7 @@ Xapian::Enquire::Internal::calc_matching_terms(om_docid did) const
 
 void
 Xapian::Enquire::Internal::register_match_decider(const string &name,
-	const OmMatchDecider *mdecider)
+	const MatchDecider *mdecider)
 {
     if (mdecider) {
 	mdecider_map[name] = mdecider;
@@ -928,9 +928,9 @@ Xapian::Enquire::get_query()
 }
 
 void
-Xapian::Enquire::set_weighting_scheme(const OmWeight &weight_)
+Xapian::Enquire::set_weighting_scheme(const Weight &weight_)
 {
-    DEBUGAPICALL(void, "Xapian::Enquire::set_weighting_scheme", "[OmWeight]");
+    DEBUGAPICALL(void, "Xapian::Enquire::set_weighting_scheme", "[Weight]");
     delete internal->weight;
     internal->weight = weight_.clone();
 }
@@ -972,7 +972,7 @@ Xapian::MSet
 Xapian::Enquire::get_mset(om_doccount first,
                     om_doccount maxitems,
                     const OmRSet *omrset,
-		    const OmMatchDecider *mdecider) const
+		    const MatchDecider *mdecider) const
 {
     // FIXME: display contents of pointer params, if they're not null.
     DEBUGAPICALL(Xapian::MSet, "Xapian::Enquire::get_mset", first << ", " <<
@@ -1042,7 +1042,7 @@ Xapian::Enquire::get_matching_terms_end(om_docid /*did*/) const
 
 void
 Xapian::Enquire::register_match_decider(const string &name,
-				  const OmMatchDecider *mdecider)
+				  const MatchDecider *mdecider)
 {
     internal->register_match_decider(name, mdecider);
 }

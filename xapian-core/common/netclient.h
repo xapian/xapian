@@ -75,7 +75,7 @@ class NetClient : public RefCntBase {
 	virtual void set_query(const Xapian::Query::Internal *query_,
 			       om_valueno collapse_key, bool sort_forward,
 			       int percent_cutoff, om_weight weight_cutoff,
-			       const OmWeight *wtscheme,
+			       const Xapian::Weight *wtscheme,
 			       const OmRSet &omrset_) = 0;
 
 	/** Read the remote statistics.

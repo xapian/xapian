@@ -181,7 +181,7 @@ MultiMatch::MultiMatch(const OmDatabase &db_, const Xapian::Query::Internal * qu
 		       int sort_bands_, time_t bias_halflife_,
 		       om_weight bias_weight_, Xapian::ErrorHandler * errorhandler_,
 		       AutoPtr<StatsGatherer> gatherer_,
-		       const OmWeight * weight_)
+		       const Xapian::Weight * weight_)
 	: gatherer(gatherer_), db(db_), query(query_),
 	  collapse_key(collapse_key_), percent_cutoff(percent_cutoff_),
 	  weight_cutoff(weight_cutoff_), sort_forward(sort_forward_),
@@ -328,7 +328,7 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
 
 void
 MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
-		     Xapian::MSet & mset, const OmMatchDecider *mdecider)
+		     Xapian::MSet & mset, const Xapian::MatchDecider *mdecider)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", ...");
@@ -397,7 +397,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		    AutoPtr<LeafPostList> lpl(new EmptyPostList);
 		    // give it a weighting object
 		    // FIXME: make it an EmptyWeight instead of BoolWeight
-		    lpl->set_termweight(new BoolWeight());
+		    lpl->set_termweight(new Xapian::BoolWeight());
 
 		    delete *pl_iter;
 		    *pl_iter = lpl.release();

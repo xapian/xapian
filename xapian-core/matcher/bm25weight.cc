@@ -30,13 +30,15 @@
 #include <xapian/enquire.h>
 #include "stats.h"
 
+namespace Xapian {
+
 string BM25Weight::serialise() const {
     return om_tostring(A) + ' ' + om_tostring(B) + ' ' +
 	   om_tostring(C) + ' ' + om_tostring(D) + ' ' +
 	   om_tostring(min_normlen);
 }
 
-OmWeight * BM25Weight::unserialise(const string & s) const {
+Weight * BM25Weight::unserialise(const string & s) const {
     // We never actually modify through p, but strtod takes a char **
     // as the second parameter and we can't pass &p if p is const char *
     // (sigh)
@@ -156,4 +158,6 @@ BM25Weight::get_maxextra() const
     DEBUGLINE(WTCALC, "querysize = " << querysize <<
 	      " => maxextra = " << maxextra);
     RETURN(maxextra);
+}
+
 }

@@ -31,7 +31,7 @@
 #include "omenquireinternal.h"
 
 class Database;
-class OmWeight::Internal;
+class Xapian::Weight::Internal;
 
 class RSetItem {
     public:
@@ -67,7 +67,7 @@ class RSet {
 	void will_want_reltermfreq(string tname);
 
 	void calculate_stats();
-	void give_stats_to_statssource(OmWeight::Internal *statssource);
+	void give_stats_to_statssource(Xapian::Weight::Internal *statssource);
 
 	om_doccount get_rsize() const;
 	om_doccount get_reltermfreq(string tname) const;

@@ -85,11 +85,11 @@ SocketServer::SocketServer(OmDatabase db_, int readfd_, int writefd_,
 	      om_tostring(db.get_doccount()) + ' ' +
 	      om_tostring(db.get_avlength()));
     // FIXME: these registrations duplicated below - refactor into method
-    OmWeight *wt = new BoolWeight();
+    Xapian::Weight *wt = new Xapian::BoolWeight();
     wtschemes[wt->name()] = wt;
-    wt = new TradWeight();
+    wt = new Xapian::TradWeight();
     wtschemes[wt->name()] = wt;
-    wt = new BM25Weight();
+    wt = new Xapian::BM25Weight();
     wtschemes[wt->name()] = wt;
 }
 
@@ -111,18 +111,18 @@ SocketServer::SocketServer(OmDatabase db_, AutoPtr<OmLineBuf> buf_,
 {
     Assert(buf.get() != 0);
     // FIXME: these registrations duplicated above - refactor into method
-    OmWeight *wt = new BoolWeight();
+    Xapian::Weight *wt = new Xapian::BoolWeight();
     wtschemes[wt->name()] = wt;
-    wt = new TradWeight();
+    wt = new Xapian::TradWeight();
     wtschemes[wt->name()] = wt;
-    wt = new BM25Weight();
+    wt = new Xapian::BM25Weight();
     wtschemes[wt->name()] = wt;
 }
 
 /// The SocketServer destructor
 SocketServer::~SocketServer()
 {
-    map<string, OmWeight *>::const_iterator i;
+    map<string, Xapian::Weight *>::const_iterator i;
     for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
 	delete i->second;
     }
@@ -296,12 +296,12 @@ SocketServer::run_match(const string &firstmessage)
 
     // extract the weight object
     message = readline(msecs_active_timeout);
-    map<string, OmWeight *>::const_iterator i = wtschemes.find(message);
+    map<string, Xapian::Weight *>::const_iterator i = wtschemes.find(message);
     if (i == wtschemes.end()) {
 	throw Xapian::InvalidArgumentError("Weighting scheme " + message + " not registered");
     }
     message = readline(msecs_active_timeout);
-    AutoPtr<OmWeight> wt(i->second->unserialise(message));
+    AutoPtr<Xapian::Weight> wt(i->second->unserialise(message));
 
     // extract the rset
     message = readline(msecs_active_timeout);

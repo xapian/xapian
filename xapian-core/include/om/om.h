@@ -66,6 +66,8 @@ typedef std::string om_termname;
 #define OmMSetIterator Xapian::MSetIterator
 #define OmESet Xapian::ESet
 #define OmESetIterator Xapian::ESetIterator
+#define OmWeight Xapian::Weight
+#define OmMatchDecider Xapian::MatchDecider
 //#define OmDocument Xapian::Document
 
 #define om_percent Xapian::percent
@@ -103,5 +105,10 @@ typedef std::string om_termname;
 
 // Output
 #include <xapian/output.h>
+
+// More backward compatibility
+using Xapian::BoolWeight;
+using Xapian::TradWeight;
+using Xapian::BM25Weight;
 
 #endif /* XAPIAN_INCLUDED_OM_H */

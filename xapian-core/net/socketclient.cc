@@ -387,7 +387,7 @@ void
 SocketClient::set_query(const Xapian::Query::Internal *query_,
 			om_valueno collapse_key, bool sort_forward,
 			int percent_cutoff, om_weight weight_cutoff,
-			const OmWeight *wtscheme, const OmRSet &omrset_)
+			const Xapian::Weight *wtscheme, const OmRSet &omrset_)
 {
     /* no actual communication performed in this method */
 

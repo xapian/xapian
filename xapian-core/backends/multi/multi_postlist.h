@@ -56,7 +56,7 @@ class MultiPostList : public LeafPostList {
     public:
 	~MultiPostList();
 
-	void set_termweight(const OmWeight * wt); // Sets term weight
+	void set_termweight(const Xapian::Weight * wt); // Sets term weight
 
 	om_doccount get_termfreq() const;
 	om_termcount get_collection_freq() const;
@@ -74,7 +74,7 @@ class MultiPostList : public LeafPostList {
 };
 
 inline void
-MultiPostList::set_termweight(const OmWeight * wt)
+MultiPostList::set_termweight(const Xapian::Weight * wt)
 {
     // Set in base class, so that get_maxweight() works
     LeafPostList::set_termweight(wt);

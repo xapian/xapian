@@ -31,11 +31,13 @@
 #include "rset.h"
 #include "omdebug.h"
 
+namespace Xapian {
+
 string TradWeight::serialise() const {
     return om_tostring(param_k);
 }
 
-OmWeight * TradWeight::unserialise(const std::string & s) const {
+Weight * TradWeight::unserialise(const std::string & s) const {
     return new TradWeight(strtod(s.c_str(), NULL));
 }
 
@@ -115,4 +117,6 @@ TradWeight::get_maxextra() const
 {
     DEBUGCALL(MATCH, om_weight, "TradWeight::get_maxextra", "");
     RETURN(0);
+}
+
 }

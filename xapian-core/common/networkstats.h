@@ -69,10 +69,10 @@ class NetworkStatsGatherer : public StatsGatherer {
 
 class NetClient;
 
-/** NetworkStatsSource: a virtual OmWeight::Internal which is part of the glue
- *  between a StatsGatherer and the remote matching process.
+/** NetworkStatsSource: a virtual Xapian::Weight::Internal which is part of the
+ *  glue between a StatsGatherer and the remote matching process.
  */
-class NetworkStatsSource : public OmWeight::Internal {
+class NetworkStatsSource : public Xapian::Weight::Internal {
     private:
 	/// The NetClient object used for communications.
 	RefCntPtr<NetClient> nclient;

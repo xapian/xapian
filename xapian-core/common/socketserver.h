@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -88,7 +88,7 @@ class SocketServer : public NetServer {
 	bool have_global_stats;
 
 	/// Registered weighting schemes
-	map<string, OmWeight *> wtschemes;
+	map<string, Xapian::Weight *> wtschemes;
 
 	/// Run the match conversation
 	void run_match(const std::string &firstmessage);
@@ -176,7 +176,7 @@ class SocketServer : public NetServer {
 
 	/** Register a custom weighting scheme
 	 */
-	void register_weighting_scheme(const OmWeight &wt) {
+	void register_weighting_scheme(const Xapian::Weight &wt) {
 	    wtschemes[wt.name()] = wt.clone();
 	}
 };
