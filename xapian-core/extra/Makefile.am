@@ -25,14 +25,16 @@ endif
 
 # 0:0:0 0.7.2 (and anything before) 
 # 0:1:0 0.7.3 and 0.7.4
-libxapianqueryparser_la_LDFLAGS = -version-info 0:1:0
+# 0:2:0 0.7.5
+libxapianqueryparser_la_LDFLAGS = -version-info 0:2:0
 
 libxapianqueryparser_la_SOURCES = $(YYSOURCES)
 
 # For backward compatibility
 # 0:0:0 0.7.3 (and anything before) 
 # 0:1:0 0.7.4
-libomqueryparser_la_LDFLAGS = -version-info 0:1:0
+# 0:2:0 0.7.5
+libomqueryparser_la_LDFLAGS = -version-info 0:2:0
 
 libomqueryparser_la_SOURCES = $(YYSOURCES)
 
