@@ -127,10 +127,11 @@ weight SleepyPostList::get_maxweight() const {
 // Termlists //
 ///////////////
 
-SleepyTermList::SleepyTermList(termid *data_new, termcount terms_new) {
-    pos = 0;
-    data = data_new;
-    terms = terms_new;
+SleepyTermList::SleepyTermList(IRDatabase *db,
+			       termid *data_new,
+			       termcount terms_new)
+	: pos(0), data(data_new), terms(terms_new)
+{
 }
 
 SleepyTermList::~SleepyTermList() {
@@ -199,9 +200,9 @@ SleepyDatabase::open_post_list(termid tid) const {
 }
 
 TermList *
-SleepyDatabase::open_term_list(docid tid) const {
+SleepyDatabase::open_term_list(docid did) const {
     Assert(opened);
-    Dbt key(&tid, sizeof(tid));
+    Dbt key(&did, sizeof(did));
     Dbt data;
 
     // FIXME - should use DB_DBT_USERMEM and DB_DBT_PARTIAL eventually
@@ -219,7 +220,8 @@ SleepyDatabase::open_term_list(docid tid) const {
 	throw OmError("TermlistDb error:" + string(e.what()));
     }
 
-    return new SleepyTermList((termid *)data.get_data(),
+    return new SleepyTermList(root,
+			      (termid *)data.get_data(),
 			      data.get_size() / sizeof(termid));
 }
 

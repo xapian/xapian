@@ -78,7 +78,7 @@ class SleepyTermList : public virtual TermList {
 	termid *data;
 	termcount terms;
 
-	SleepyTermList(termid *, termcount);
+	SleepyTermList(IRDatabase *, termid *, termcount);
 	~SleepyTermList();
     public:
 	termid get_termid() const;  // Current termid
