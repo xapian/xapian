@@ -66,13 +66,29 @@
     <node type="omnewkeylist" id="newkey"></node>
     <!-- split the filename into directory and name -->
     <node type="omregexmatch" id="splitdir">
-        <param name="regex" type="string">(.*/)(.*)</param>
+        <param name="regex" type="string">\(.*/\)\?\([^/]*\)$</param>
     	<input name="in" node="splitfname3" out_name="left"/></node>
+    <!-- Select the submatches, dropping the whole filename -->
+    <node type="omselectitems" id="selectsubs">
+        <param name="items" type="list">
+	    <item value="1"/>
+	    <item value="2"/></param>
+	<input name="in" node="splitdir" out_name="out"/></node>
+
+    <!-- Generate the key numbers -->
+    <node type="ommakerange" id="keyrange">
+        <param name="first" type="string" value="1"/>
+        <param name="step" type="string" value="1"/>
+        <param name="count" type="string" value="2"/></node>
+    <!-- pair the key numbers with the key values -->
+    <node type="ommakepairs" id="keypairs">
+        <input name="left" node="keyrange" out_name="out"/>
+        <input name="right" node="selectsubs" out_name="out"/></node>
 
     <!-- add the key to the list -->
     <node type="omkeylistadd" id="addkeys">
     	<input name="keylist" node="newkey" out_name="out"/>
-	<input name="keys" node="splitdir" out_name="out"/></node>
+	<input name="keys" node="keypairs" out_name="out"/></node>
 
     <!-- join everything into the final document -->
     <node type="ommakedoc" id="doc">
