@@ -30,10 +30,18 @@
 #include "database.h"
 #include "branchpostlist.h"
 
-class AndMaybePostList : public BranchPostList {
-    private:
-        om_docid lhead, rhead;
-        om_weight lmax, rmax;
+/** A postlist with weights modified by another postlist.
+ *
+ *  This postlist returns a posting if and only if it is in the left
+ *  sub-postlist.
+ *
+ *  If the posting does not occur in the right postlist, the weight for the
+ *  posting is simply that in the left postlist.  If the posting occurs in
+ *  both postlists, the weight for the posting is the sum of the weights in
+ *  the sub-postlists.
+ */
+class AndMaybePostList : public BranchPostList { private: om_docid lhead,
+    rhead; om_weight lmax, rmax;
 
         PostList * process_next_or_skip_to(om_weight w_min, PostList *ret);
     public:
