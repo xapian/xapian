@@ -31,8 +31,6 @@
 
 using namespace std;
 
-class RSetI;
-
 /** Information which is passed up through tree of termlists to calculate
  *  term weightings.
  */
@@ -51,7 +49,7 @@ class OmExpandBits {
 		  rtermfreq(1),
 		  termfreq(termfreq_new),
 		  dbsize(dbsize_new)
-		  { return; }
+		  { }
 
 	friend OmExpandBits operator+(const OmExpandBits &, const OmExpandBits &);
 };
@@ -81,8 +79,8 @@ class OmExpandWeight {
 
 	/// Parameter used by expand weighting formula
 	double expand_k;
-    public:
 
+    public:
 
 	OmExpandWeight(const OmDatabase &root_,
 		       om_doccount rsetsize_,
