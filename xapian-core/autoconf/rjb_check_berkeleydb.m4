@@ -15,14 +15,23 @@ CXXFLAGS_sleepysave=$CXXFLAGS
 LIBS_sleepysave=$LIBS
 CXXFLAGS="$CXXFLAGS $SLEEPYCAT_INCLUDES $SLEEPYCAT_LINKFLAGS"
 LIBS="$LIBS $SLEEPYCAT_LIBS"
-AC_TRY_COMPILE([#include <db_cxx.h>],
-	       [int major, minor, patch;
-               DbEnv::version(&major, &minor, &patch);
-               return !($1);
-               ],
-               [have_sleepy_cxx=yes],
-               [have_sleepy_cxx=no],
-               [have_sleepy_cxx=no])
+AC_TRY_RUN([#include <db_cxx.h>
+	   int main() {
+	   int major, minor, patch;
+	   DbEnv::version(&major, &minor, &patch);
+	   return !($1);
+	   }
+	   ],
+	   [have_sleepy_cxx=yes],
+	   [have_sleepy_cxx=no],
+	   AC_TRY_COMPILE([#include <db_cxx.h>],
+			  [int major, minor, patch;
+			  DbEnv::version(&major, &minor, &patch);
+			  return !($1);
+			  ],
+			  [have_sleepy_cxx=yes],
+			  [have_sleepy_cxx=no],
+			  [have_sleepy_cxx=no]))
 CXXFLAGS=$CXXFLAGS_sleepysave
 LIBS=$LIBS_sleepysave
 AC_LANG_RESTORE
