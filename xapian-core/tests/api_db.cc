@@ -1568,12 +1568,16 @@ static bool test_termlist2()
     OmTermListIterator t = db.termlist_begin(1);
     OmTermListIterator tend = db.termlist_end(1);
     std::vector<om_termname> v(t, tend);
-    if (verbose) {
-	std::vector<om_termname>::const_iterator i;
-	for (i = v.begin(); i != v.end(); i++) {
-	    cout << *i << endl;
-	}
+
+    t = db.termlist_begin(1);
+    tend = db.termlist_end(1);
+    std::vector<om_termname>::const_iterator i;
+    for (i = v.begin(); i != v.end(); i++) {
+	TEST_NOT_EQUAL(t, tend);
+	TEST_EQUAL(*i, *t);
+	t++;
     }
+    TEST_EQUAL(t, tend);
     return true;
 }
 
@@ -1625,7 +1629,7 @@ test_desc db_tests[] = {
     {"wqf1",		   test_wqf1},
     {"qlen1",		   test_qlen1},
     {"termlist1",	   test_termlist1},
-// currently leaks    {"termlist2",	   test_termlist2},
+    {"termlist2",	   test_termlist2},
     {0, 0}
 };
 

@@ -41,7 +41,7 @@ class OmPostListIterator::Internal {
 	    if (p) postlist = p; // handle prune
 	}
 
-	~Internal() {}
+	~Internal() { }
 };
 
 #endif /* OM_HGUARD_OMPOSTLISTITERATOR_H */

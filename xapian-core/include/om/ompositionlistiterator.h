@@ -23,13 +23,12 @@
 #ifndef OM_HGUARD_OMPOSITIONLISTITERATOR_H
 #define OM_HGUARD_OMPOSITIONLISTITERATOR_H
 
-//#include <iterator>
+#include <iterator>
 #include "omtypes.h"
 
 class OmDatabase;
 
 class OmPositionListIterator {
-    //    : public iterator<input_iterator_tag, om_termpos, om_termpos, const om_termpos *, om_termpos> {
     private:
 	friend class OmPostListIterator; // So OmPostListIterator can construct us
 

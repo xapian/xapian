@@ -23,13 +23,12 @@
 #ifndef OM_HGUARD_OMTERMLISTITERATOR_H
 #define OM_HGUARD_OMTERMLISTITERATOR_H
 
-//#include <iterator>
+#include <iterator>
 #include "omtypes.h"
 
 class OmDatabase;
 
 class OmTermListIterator {
-    //    : public iterator<input_iterator_tag, om_termpos, om_termpos, const om_termpos *, om_termpos> {
     private:
 	friend class OmDatabase; // So OmDatabase can construct us
 
@@ -44,13 +43,21 @@ class OmTermListIterator {
     public:
         ~OmTermListIterator();
 
-	OmTermListIterator operator=(OmTermListIterator &o);
+        /** Copying is allowed.  The internals are reference counted, so
+	 *  copying is also cheap.
+	 */
+	OmTermListIterator(const OmTermListIterator &other);
+
+        /** Assignment is allowed.  The internals are reference counted,
+	 *  so assignment is also cheap.
+	 */
+	void operator=(const OmTermListIterator &other);
     
 	const om_termname operator *();
 
 	OmTermListIterator & operator++();
 
-	OmTermListIterator operator++(int);
+	void operator++(int);
 
 	// extra method, not required for an input_iterator
 	OmTermListIterator skip_to(const om_termname & tname);

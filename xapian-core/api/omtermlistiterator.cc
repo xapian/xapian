@@ -26,7 +26,28 @@
 #include "omdebug.h"
 
 OmTermListIterator::~OmTermListIterator() {
-//    delete internal;
+    delete internal;
+}
+
+OmTermListIterator::OmTermListIterator(const OmTermListIterator &other)
+    : internal(NULL)
+{
+    if (other.internal) internal = new Internal(*(other.internal));
+}
+
+void
+OmTermListIterator::operator=(const OmTermListIterator &other)
+{
+    if (this == &other) {
+	DEBUGLINE(API, "OmTermListIterator assigned to itself");
+	return;
+    }
+
+    Internal * newinternal = NULL;
+    if (other.internal)
+	newinternal = new Internal(*(other.internal));
+    std::swap(internal, newinternal);
+    delete newinternal;
 }
 
 const om_termname
@@ -40,10 +61,9 @@ OmTermListIterator::operator++() {
     return *this;
 }
 
-OmTermListIterator
+void
 OmTermListIterator::operator++(int) {
     internal->termlist->next();
-    return *this;
 }
 
 // extra method, not required to be an input_iterator
@@ -70,7 +90,8 @@ operator==(const OmTermListIterator &a, const OmTermListIterator &b)
 {
     if (a.internal == b.internal) return true;
     if (a.internal) {
-	return !b.internal && a.internal->termlist->at_end();
+	if (b.internal) return a.internal->termlist.get() == b.internal->termlist.get();
+	return a.internal->termlist->at_end();
     }
     Assert(b.internal); // a.internal is NULL, so b.internal can't be
     return b.internal->termlist->at_end();

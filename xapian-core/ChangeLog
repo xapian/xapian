@@ -1,3 +1,7 @@
+Mon Sep 11 13:31:38 BST 2000 Olly Betts
+
+	* Fixed OmTermListIterator so termlist2 test passes.
+ 
 Mon Sep 11 12:28:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* If a test fails and leaks, then don't rerun it (ie, only rerun if
