@@ -70,6 +70,10 @@ Priority | Area            | Task
 	 |                 | the API is concerned.  Have an internal typedef
 	 |                 | so that this isn't inappropriate internally.
 ---------+-----------------+--------------------------------------------------
+ Medium  | Sleepycat       | Make sleepylist use a list rather than a vector?
+         |                 | Check behaviour when halfway through list and an
+	 |                 | item is added.
+---------+-----------------+--------------------------------------------------
  Low     |cBackends        | Use pthread locks around inmemory methods
 ---------+-----------------+--------------------------------------------------
  Low     | Backends        | Use pthread locks around database methods
