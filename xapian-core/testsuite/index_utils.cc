@@ -53,7 +53,7 @@ void select_characters(om_termname &term, const std::string & keep)
 {
     std::string chars;
     if(keep.size() == 0) {
-	chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789^";
     } else {
 	chars = keep;
     }
