@@ -1,3 +1,14 @@
+Thu Aug 31 11:29:00 BST 2000 Olly Betts
+
+	* Removed strange special case which allows assignment of an
+	  OmWritableDatabase to an OmDatabase which is actually a reference
+	  to an OmWritableDatabase.
+
+	* Make OmWritableDatabase::get_document() into a const method in the
+	  code as well as the header.
+
+	* Added database assignment test.
+
 Wed Aug 30 19:15:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Partially implemented type-checking in OmIndexer

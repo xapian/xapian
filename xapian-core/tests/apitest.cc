@@ -209,11 +209,13 @@ static bool test_trivial()
     return true;
 }
 
+#if 0
 // always fails (for testing the framework)
 static bool test_alwaysfail()
 {
     return false;
 }
+#endif
 
 // tests that the backend doesn't return zero docids
 static bool test_zerodocid()
@@ -2633,6 +2635,24 @@ static bool test_qlen1()
     return (mset1.items[0].wt < mset2.items[0].wt);
 }
 
+static bool test_databaseassign()
+{
+    OmWritableDatabase wdb = backendmanager.get_writable_database("");
+    OmDatabase db = backendmanager.get_database("");
+    OmDatabase actually_wdb = wdb;
+    OmWritableDatabase w1(wdb);
+    w1 = wdb;
+    OmDatabase d1(wdb);
+    OmDatabase d2(actually_wdb);
+    d2 = wdb;
+    d2 = actually_wdb;
+    try { wdb = wdb; } // assign to itself
+    catch (const OmInvalidArgumentError &e) { }
+    try { db = db; } // assign to itself
+    catch (const OmInvalidArgumentError &e) { }
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -2713,6 +2733,7 @@ test_desc positionaldb_tests[] = {
 test_desc writabledb_tests[] = {
     {"adddoc1",		   test_adddoc1},
     {"implicitendsession", test_implicitendsession},
+    {"databaseassign",	   test_databaseassign},
     {0, 0}
 };
 
@@ -2739,8 +2760,7 @@ test_desc muscat36da_tests[] = {
     {"topercent1",	   test_topercent1},
     {"expandfunctor1",	   test_expandfunctor1},
 // lack of document lengths means several hits come out with same weight
-
-    //    {"pctcutoff1",	   test_pctcutoff1},
+//    {"pctcutoff1",	   test_pctcutoff1},
     {"allowqterms1",       test_allowqterms1},
     {"maxattain1",         test_maxattain1},
     {"collapsekey1",	   test_collapsekey1},

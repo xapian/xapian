@@ -44,10 +44,6 @@ class OmWritableDatabase;
  *  be opened (for example, a required file cannot be found).
  */
 class OmDatabase {
-    /** OmWritableDatabase is a friend so that it can call is_writable().
-     */
-    friend OmWritableDatabase;
-
     public:
 	/** Add a new database to use.
 	 *
@@ -75,18 +71,6 @@ class OmDatabase {
 	 */
 	void add_database(const OmDatabase & database);
     
-    private:
-	/** Check whether this is a writable database.
-	 *
-	 *  This is used to check that an assignment to an OmWritableDatabase
-	 *  is valid.
-	 *
-	 *  @return true if the database is writable, false otherwise.
-	 *               This always returns false for an instance of
-	 *               OmDatabase (as opposed to an instance of a subclass).
-	 */
-	virtual bool is_writable() const { return false; }
-
     protected:
 	class Internal;
 
@@ -169,28 +153,6 @@ class OmDatabase {
  *  is liable to change in the near future.
  */
 class OmWritableDatabase : public OmDatabase {
-    private:
-	/** Assignment of an OmDatabase to an OmWritableDatabase is
-	 *  not allowed.  This method may get called by calling the
-	 *  assignment operator from a reference to an OmDatabase,
-	 *  in which case an exception will be thrown unless the
-	 *
-	 *  @param     other   the OmDatabase to assign.
-	 *
-	 *  @exception OmInvalidArgument is thrown if other is not a reference
-	 *             to a writable database.
-	 */
-	virtual void operator=(const OmDatabase &other);
-
-	/** Check whether this is a writable database.
-	 *
-	 *  This is used to check that an assignment to an OmWritableDatabase
-	 *  is valid.
-	 *
-	 *  @return true if the database is writable, false otherwise.
-	 *               This always returns true for an OmWritableDatabase.
-	 */
-	virtual bool is_writable() const { return true; }
     public:
 	/** Open a database for writing.
 	 *

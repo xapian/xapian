@@ -133,17 +133,6 @@ OmWritableDatabase::OmWritableDatabase(const OmWritableDatabase &other)
 }
 
 void
-OmWritableDatabase::operator=(const OmDatabase &other)
-{
-    DEBUGAPICALL("OmWritableDatabase::operator=", "OmDatabase");
-    if (other.is_writable()) {
-	OmDatabase::operator=(other);
-    } else {
-	throw OmInvalidArgumentError("Cannot assign a readonly database to a writable database");
-    }
-}
-
-void
 OmWritableDatabase::operator=(const OmWritableDatabase &other)
 {
     DEBUGAPICALL("OmWritableDatabase::operator=", "OmWritableDatabase");
@@ -302,7 +291,7 @@ OmWritableDatabase::replace_document(om_docid did,
 }
 
 OmDocumentContents
-OmWritableDatabase::get_document(om_docid did)
+OmWritableDatabase::get_document(om_docid did) const
 {
     DEBUGAPICALL("OmWritableDatabase::get_document", did);
     // Get the pointer while locked, in case someone is assigning to it.
