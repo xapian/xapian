@@ -82,6 +82,18 @@ CME_FIND_SOCKETPAIR
 
 dnl Check for sleepycat library.
 dnl FIXME - check for C++ version
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+CXXFLAGS_sleepysave=$CXXFLAGS
+CXXFLAGS="$CXXFLAGS -I/usr/local/BerkeleyDB/include/"
+echo -n "Checking for db_cxx.h..."
+AC_TRY_COMPILE([#include "db_cxx.h"],
+	       [return 0;],
+	       [have_sleepy_cxx=yes],
+	       [CXXFLAGS=$CXXFLAGS_sleepysave
+	       have_sleepy_cxx=no])
+echo $have_sleepy_cxx
+AC_LANG_RESTORE
 
 SLEEPYCAT_LIBS=
 SLEEPYCAT_LINKFLAGS=
@@ -99,7 +111,7 @@ if test "x$SLEEPYCAT_LIBS" = "x"; then
 fi
 
 have_sleepycat=no
-if test ! "x$SLEEPYCAT_LIBS" = "x"; then
+if test ! "x$SLEEPYCAT_LIBS" = "x" -a "$have_sleepy_cxx" = "yes"; then
   have_sleepycat=yes
   AC_SUBST(SLEEPYCAT_LIBS)
   AC_SUBST(SLEEPYCAT_LINKFLAGS)

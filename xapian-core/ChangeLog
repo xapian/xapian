@@ -1,3 +1,7 @@
+Fri May 26 11:58:24 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Hopefully better detection of Sleepy C++ bits.
+
 Thu May 25 17:47:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added max_weight member to OmQueryInternal, so we can store the
