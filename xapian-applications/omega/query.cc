@@ -795,7 +795,7 @@ T(and,		1, N, 0, 0, 0), // logical shortcutting and of a list of values
 T(cgi,		1, 1, N, 0, 0), // return cgi parameter value
 T(cgilist,	1, 1, N, 0, 0), // return list of values for cgi parameter
 T(collapsed,	0, 0, N, 0, 0), // return number of hits collapsed into this
-T(date,		1, 2, N, 1, 0), // convert time_t to strftime format
+T(date,		1, 2, N, 0, 0), // convert time_t to strftime format
 				// (default: YYYY-MM-DD)
 T(dbname,	0, 0, N, 0, 0), // database name
 T(dbsize,	0, 0, N, 0, 1), // database size (# of documents)
@@ -863,7 +863,7 @@ T(sub,		2, 2, N, 0, 0), // subtract
 T(terms,	0, 0, N, 1, 0), // list of matching terms
 T(thispage,	0, 0, N, 1, 0), // page number of current page
 T(time,		0, 0, N, 1, 0), // how long the match took (in seconds)
-T(topdoc,	0, 0, N, 0, 0), // first document on current page of hit list
+T(topdoc,	0, 0, N, 1, 0), // first document on current page of hit list
 				// (counting from 0)
 // FIXME: cache really needs to be smart about parameter value...
 T(topterms,	0, 1, N, 1, 1), // list of up to N top relevance feedback terms
@@ -875,7 +875,7 @@ T(uniq,		1, 1, N, 0, 0), // removed duplicates from a sorted list
 T(unstem,	1, 1, N, 0, 0), // return list of probabilistic terms from
 				// the query which stemmed to this term
 T(url,		1, 1, N, 0, 0), // url encode argument
-T(value,	1, 2, N, 0, 0), // return document value/slot/key/whatever
+T(value,	1, 2, N, 0, 0), // return document value
 T(version,	0, 0, N, 0, 0), // omega version string
 { NULL,{0,      0, 0, 0, 0, 0}}
 };
