@@ -40,7 +40,7 @@ inline docid
 DAPostList::get_docid() const
 {
     Assert(!at_end());
-    printf("DocID %d\n", postlist->Doc);
+    printf("%p:DocID %d\n", this, postlist->Doc);
     return postlist->Doc;
 }
 
