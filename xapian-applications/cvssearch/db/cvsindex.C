@@ -95,9 +95,10 @@ int main(int argc, char *argv[])
             OmSettings db_parameters;
             db_parameters.set("backend", "quartz");
             db_parameters.set("quartz_dir", database_dir);
+            db_parameters.set("database_create", true);
             OmWritableDatabase database(db_parameters); // open database 
 
-            database.begin_session();
+            //database.begin_session();
 
             cerr << "... reading " << file_cmt << endl;
 
@@ -111,10 +112,12 @@ int main(int argc, char *argv[])
                 if ( lines.currentFile() != prev_file ) {
                     prev_file = lines.currentFile();
                     files++;
+/**
                     if ( files % FLUSH_RATE == 0 ) {
                         cerr << "... flushing database." << endl;
                         database.flush();
                     }
+***/
                 }
 
                 list<string> words = lines.getTermList();
@@ -130,18 +133,18 @@ int main(int argc, char *argv[])
                 // following associated string:
                 // 80 15:1.8 1.3 1.1
                 // ----------------------------------------
-                OmDocumentContents newdocument;
+                OmDocument newdocument;
                 int pos = 1;
                 for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
 	  
                     string word = *i;
                     newdocument.add_posting(word, pos++); // term, position of term
                 }
-                newdocument.data = data;
+                newdocument.set_data( data );
                 database.add_document(newdocument);
             }
       
-            database.end_session();
+            //database.end_session();
             cerr << "Done!" << endl;
         }
         catch(OmError & error) {

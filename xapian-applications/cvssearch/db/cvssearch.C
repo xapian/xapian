@@ -113,12 +113,12 @@ int main(int argc, char *argv[]) {
 
        //       cout << matches.items.size() << " results found" << endl;
 
-       vector<OmMSetItem>::const_iterator i;
-       for (i = matches.items.begin(); i != matches.items.end(); i++) {
+       //vector<OmMSetItem>::const_iterator i;
+       for (OmMSetIterator i = matches.begin(); i != matches.end(); i++) {
 	 //	 cout << "Document ID " << i->did << "\t";
-	 int sim = matches.convert_to_percent(*i);
+	 int sim = matches.convert_to_percent(i);
 	 cout << sim << " ";
-	 OmDocument doc = enquire.get_doc(*i);
+	 OmDocument doc = i.get_document();
 	 string data = doc.get_data().value;
 	 cout << data << endl; // data includes newline
        }

@@ -109,18 +109,18 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
   OmSettings db_parameters_classes;
   db_parameters_classes.set("backend", "quartz");
   db_parameters_classes.set("quartz_dir", database_dir+"_c");
+  db_parameters_classes.set("database_create", true);
   OmWritableDatabase database_classes(db_parameters_classes); // open database
 
-  database_classes.begin_session();
 #endif
 
 
   OmSettings db_parameters_functions;
   db_parameters_functions.set("backend", "quartz");
   db_parameters_functions.set("quartz_dir", database_dir+"_f");
+  db_parameters_functions.set("database_create", true);
   OmWritableDatabase database_functions(db_parameters_functions); // open database
 
-  database_functions.begin_session();
 
 
   int f_count = 0;
@@ -133,17 +133,21 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
     if ( isFunction ) {
       f_count++;
 
+/***
       if ( f_count % FLUSH_RATE == 0 ) {
 	cerr << "*** FLUSHING FUNCTIONS" << endl;
 	database_functions.flush();
       }
+***/
     } else {
       c_count++;
 #if !SKIP_CLASSES
+/***
       if ( c_count % FLUSH_RATE == 0 ) {
 	cerr << "*** FLUSHING CLASSES" << endl;
 	database_classes.flush();
       }
+**/
 #endif
 
     }
@@ -153,7 +157,7 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
     //    cerr <<"*** Symbol " << symbol << " has count " << count << endl;
     list<string> words = app_symbol_terms[symbol];
 
-    OmDocumentContents newdocument;
+    OmDocument newdocument;
     int pos = 1;
     for( list<string>::iterator i = words.begin(); i != words.end(); i++ ) {
 	  
@@ -166,7 +170,7 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
     static char str[4096];
     sprintf(str, "%d %s", count, symbol.c_str());
     assert( strlen(str) <= 1000 );
-    newdocument.data = string(str);
+    newdocument.set_data( string(str) );
 
     if ( isFunction ) {
       //      cerr << "Data -" << newdocument.data << "- with # words = " << pos << endl;
@@ -178,11 +182,6 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
     }
   }
 
-
-  database_functions.end_session();
-#if !SKIP_CLASSES
-  database_classes.end_session();
-#endif
 
   cerr << "Done!" << endl;
 }

@@ -14,6 +14,7 @@ extern void lowercase_string(string &term);
 extern void split (const string & text, const string & separators, list<string> & words);
 
 #include <fstream.h>
+#include <vector>
 
 class Lines {
 

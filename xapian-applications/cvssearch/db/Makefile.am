@@ -9,7 +9,7 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
  cvs_revision_less.h \
  cvs_diff_db.C cvs_diff_db.h
 
-bin_PROGRAMS = cvsindex cvsusageindex cvssearch cvsclasses cvsfunctions cvscomments cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
+bin_PROGRAMS = cvsindex cvsusageindex cvssearch cvscomments cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
 bin_SCRIPTS = cvsbuild cvsupdatedb cvsquery-script
 EXTRA_DIST = cvsbuild.pl cvsupdatedb.pl cvsquery-script.pl
 
@@ -34,55 +34,55 @@ cvsquery_SOURCES = cvsquery.C
 cvsquery_LDADD = libcvs_db.a -ldb_cxx libcvs_db.a
 
 cvsindex_SOURCES = util.h util.C cvsindex.C
-cvsindex_LDADD = -lomus -ldb_cxx
+cvsindex_LDADD = -lomsee -ldb_cxx
 
 cvssearch_SOURCES = util.h util.C cvssearch.C
-cvssearch_LDADD = -lomus
+cvssearch_LDADD = -lomsee
 
-cvsclasses_SOURCES = util.h util.C cvspatterns.C
-cvsclasses_LDADD = -ldb_cxx -lomus
+#cvsclasses_SOURCES = util.h util.C cvspatterns.C
+#cvsclasses_LDADD = -ldb_cxx -lomsee
 
-cvsfunctions_SOURCES = util.h util.C cvspatterns.C
-cvsfunctions_LDADD = -ldb_cxx -lomus
+#cvsfunctions_SOURCES = util.h util.C cvspatterns.C
+#cvsfunctions_LDADD = -ldb_cxx -lomsee
 
 cvsusageindex_SOURCES = util.h util.C cvsusageindex.C
-cvsusageindex_LDADD = -ldb_cxx -lomus
+cvsusageindex_LDADD = -ldb_cxx -lomsee
 
 cvscomments_SOURCES = cvscomments.C
-cvscomments_LDADD = -ldb_cxx -lomus
+cvscomments_LDADD = -ldb_cxx -lomsee
 
 cvssymbolcount_SOURCES = cvssymbolcount.C
-cvssymbolcount_LDADD = -ldb_cxx -lomus
+cvssymbolcount_LDADD = -ldb_cxx -lomsee
 
 cvscountsymbols_SOURCES = util.h util.C cvscountsymbols.C
-cvscountsymbols_LDADD = -ldb_cxx -lomus
+cvscountsymbols_LDADD = -ldb_cxx -lomsee
 
 cvsminelocal_SOURCES = util.h util.C cvsminelocal.C
-cvsminelocal_LDADD = -lomus -ldb_cxx
+cvsminelocal_LDADD = -lomsee -ldb_cxx
 
 #cvsmineglobal_SOURCES = util.h util.C cvsmineglobal.C
-#cvsmineglobal_LDADD = -lomus -ldb_cxx
+#cvsmineglobal_LDADD = -lomsee -ldb_cxx
 
 
 #cvseval_SOURCES = util.h util.C cvseval.C
 
 cvscomments_SOURCES = cvscomments.C
-cvscomments_LDADD = -ldb_cxx -lomus
+cvscomments_LDADD = -ldb_cxx -lomsee
 
 cvssymbolcount_SOURCES = cvssymbolcount.C
-cvssymbolcount_LDADD = -ldb_cxx -lomus
+cvssymbolcount_LDADD = -ldb_cxx -lomsee
 
 cvscountsymbols_SOURCES = util.h util.C cvscountsymbols.C
-cvscountsymbols_LDADD = -ldb_cxx -lomus
+cvscountsymbols_LDADD = -ldb_cxx -lomsee
 
 cvsminelocal_SOURCES = util.h util.C cvsminelocal.C
-cvsminelocal_LDADD = -lomus -ldb_cxx
+cvsminelocal_LDADD = -lomsee -ldb_cxx
 
 #cvsmineglobal_SOURCES = util.h util.C cvsmineglobal.C
-#cvsmineglobal_LDADD = -lomus -ldb_cxx
+#cvsmineglobal_LDADD = -lomsee -ldb_cxx
 
 
 #cvseval_SOURCES = util.h util.C cvseval.C
-#cvseval_LDADD = -lomus -ldb_cxx
+#cvseval_LDADD = -lomsee -ldb_cxx
 
 
