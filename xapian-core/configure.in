@@ -176,26 +176,32 @@ if test $ac_cv_func_fork = no ; then
 else
   REMOTE_LDFLAGS=
   dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
-  AC_CHECK_FUNC(socketpair, ,
-		AC_CHECK_LIB(socket, socketpair,
-		    [ac_cv_func_socketpair=yes
-		     REMOTE_LDFLAGS=-lsocket]))
+  SAVE_LIBS="$LIBS"
+  LIBS=
+  AC_SEARCH_LIBS(socket, socketpair, [REMOTE_LDFLAGS="$LIBS"])
+  LIBS="$SAVE_LIBS"
   if test $ac_cv_func_socketpair = no ; then
     build_remote=false
   else
     dnl Add -lnsl to LDFLAGS if needed (eg Solaris)
+    SAVE_LIBS="$LIBS"
+    LIBS=
     AC_SEARCH_LIBS(gethostbyname, nsl,
-	    [REMOTE_LDFLAGS="-lnsl $REMOTE_LDFLAGS"],
+	    [REMOTE_LDFLAGS="$LIBS $REMOTE_LDFLAGS"],
 	    build_remote=false)
+    LIBS="$SAVE_LIBS"
     if test false != "$build_remote" ; then
+      SAVE_LIBS="$LIBS"
+      LIBS=
       AC_SEARCH_LIBS(gethostbyaddr, nsl,
 	      [
 	      case " $REMOTE_LDFLAGS " in
 	      "* -lnsl *") ;;
-	      *) REMOTE_LDFLAGS="-lnsl $REMOTE_LDFLAGS" ;;
+	      *) REMOTE_LDFLAGS="$LIBS $REMOTE_LDFLAGS" ;;
 	      esac
 	      ],
 	      build_remote=false)
+      LIBS="$SAVE_LIBS"
     fi
   fi
   if test false != "$build_remote" ; then

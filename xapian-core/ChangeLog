@@ -1,3 +1,7 @@
+Mon Sep 29 00:41:19 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Fixed dependency libs for libxapian.
+
 Sun Sep 28 23:55:49 BST 2003  Olly Betts <olly@survex.com>
 
 	* Makefile.am,backends/quartz/Makefile.am,
