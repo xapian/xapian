@@ -1,3 +1,7 @@
+Fri Sep 22 18:24:00 BST 2000 Olly Betts
+
+	* mergepostlist.{cc,h}: started to rework matcher in earnest.	
+
 Fri Sep 22 18:19:13 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Now have a scheme for registering all the core indexer nodes
