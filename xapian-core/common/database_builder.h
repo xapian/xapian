@@ -38,7 +38,8 @@ enum om_database_type {
     OM_DBTYPE_MUSCAT36_DB_H,
     OM_DBTYPE_INMEMORY,
     OM_DBTYPE_SLEEPY,
-    OM_DBTYPE_MULTI
+    OM_DBTYPE_MULTI,
+    OM_DBTYPE_NET
 };
 
 /** Parameters used when opening a database*/
