@@ -57,16 +57,12 @@ QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
     QuartzDbKey key;
     key.value = NEXTDOCID_TAG;
 
-    QuartzDbTag * tag = table.get_tag(key);
-    if (tag == 0) {
-	throw OmDatabaseCorruptError("Record containing next free docid not present.");
-    }
+    QuartzDbTag * tag = table.get_or_make_tag(key);
 
     om_docid did;
     const char * data = tag->value.data();
     const char * end = data + tag->value.size();
     bool success = unpack_uint(&data, end, &did);
-
     if (!success) {
 	if (data == end) { // Overflow
 	    throw OmRangeError("Next document number is out of range.");

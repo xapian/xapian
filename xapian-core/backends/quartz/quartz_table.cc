@@ -521,25 +521,16 @@ QuartzBufferedTable::is_modified()
     return !changed_entries.empty();
 }
 
-QuartzDbTag *
-QuartzBufferedTable::get_tag(const QuartzDbKey &key)
+bool
+QuartzBufferedTable::have_tag(const QuartzDbKey &key)
 {
     if (changed_entries.have_entry(key)) {
-	return changed_entries.get_tag(key);
+	return (changed_entries.get_tag(key) != 0);
     } else {
-	AutoPtr<QuartzDbTag> tag(new QuartzDbTag);
-	QuartzDbTag * tagptr = tag.get();
-
-	bool found = disktable->get_exact_entry(key, *tagptr);
-
-	if (found) {
-	    changed_entries.set_tag(key, tag);
-	    AssertEq(changed_entries.get_tag(key), tagptr);
-	} else {
-	    tagptr = 0;
-	}
-
-	return tagptr;
+	// FIXME: don't want to read tag here - just want to check if there
+	// is a tag.
+	QuartzDbTag tag;
+	return disktable->get_exact_entry(key, tag);
     }
 }
 
@@ -591,9 +582,7 @@ QuartzBufferedTable::delete_tag(const QuartzDbKey &key)
 {
     // This reads the tag to check if it currently exists, so we can keep
     // track of the number of entries in the table.
-    if (get_tag(key) != 0) {
-	entry_count -= 1;
-    }
+    if (have_tag(key)) entry_count -= 1;
     changed_entries.set_tag(key, AutoPtr<QuartzDbTag>(0));
 }
 

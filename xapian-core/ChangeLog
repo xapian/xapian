@@ -1,3 +1,11 @@
+Wed Nov 22 18:35:56 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove QuartzBufferedTable::get_tag() method - was only used to
+	  check whether a tag was present, not to access the tag.  Replaced
+	  with a have_tag() method.  This tidying up should help with making
+	  smart pointers to point to a tag - no longer have to deal with
+	  null pointers.
+
 Wed Nov 22 18:28:36 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Turned the rest of the Btree API functions into Btree member

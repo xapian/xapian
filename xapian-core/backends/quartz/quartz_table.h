@@ -414,6 +414,13 @@ class QuartzBufferedTable : public QuartzTable {
 	/** Number of entries in the table, including the changed entries.
 	 */
 	quartz_tablesize_t entry_count;
+
+	/** Return whether a tag is present in the table.
+	 *
+	 *  @return false if the tag is not present in the table, or is
+	 *          currently marked for deletion, true otherwise.
+	 */
+	bool have_tag(const QuartzDbKey &key);
     public:
 	/** Create a new table.  This does not open the table - the open()
 	 *  method must be called before use is made of the table.
@@ -455,17 +462,6 @@ class QuartzBufferedTable : public QuartzTable {
 	 *          been made.
 	 */
 	bool is_modified();
-
-	/** Get a pointer to the tag for a given key.
-	 *
-	 *  If the tag is not present in the database, or is currently
-	 *  marked for deletion, this will return a null pointer.
-	 *
-	 *  The pointer is owned by the QuartzBufferedTable (actually, by
-	 *  its changed_entries object) - it may be modified, but must not
-	 *  be deleted.
-	 */
-	QuartzDbTag * get_tag(const QuartzDbKey &key);
 
 	/** Get a pointer to the tag for a given key, creating a new tag if
 	 *  not present.

@@ -386,10 +386,6 @@ static bool test_bufftable1()
     TEST_EQUAL(disktable1.get_entry_count(), 0);
     TEST_EQUAL(bufftable1.get_entry_count(), 0);
 
-    TEST_EQUAL((void *)bufftable1.get_tag(key), 0);
-    TEST_EQUAL(disktable1.get_entry_count(), 0);
-    TEST_EQUAL(bufftable1.get_entry_count(), 0);
-
     QuartzDbTag * tag = bufftable1.get_or_make_tag(key);
     TEST_NOT_EQUAL(tag, 0);
     TEST_EQUAL(disktable1.get_entry_count(), 0);
