@@ -39,6 +39,7 @@
 #include "query_parser.h"
 
 #include <list>
+#include <memory>
 
 OmEnquire * enquire;
 OmMSet mset;
@@ -137,8 +138,8 @@ static void do_resultdisplay(gint row) {
     try {
 	om_docid did = mset.items[row].did;
 	
-	OmData data = enquire->get_doc_data(mset.items[row]);
-	string fulltext = data.value;
+	auto_ptr<const OmDocument> doc(enquire->get_doc(mset.items[row]));
+	string fulltext = doc->get_data().value;
 	
 	string score = inttostring(mset.convert_to_percent(mset.items[row]));
 

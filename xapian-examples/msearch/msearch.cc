@@ -29,6 +29,7 @@
 
 #include <vector>
 #include <stack>
+#include <memory>
 
 int
 main(int argc, char *argv[])
@@ -193,7 +194,8 @@ main(int argc, char *argv[])
 	    for(i = mset.items.begin();
 		i != mset.items.end();
 		i++) {
-		string p = enquire.get_doc_data(*i).value;
+		auto_ptr<const OmDocument> doc(enquire.get_doc(*i));
+		string p = doc->get_data().value;
 		cout << i->did << ":[" << p << "] " << i->wt << endl << endl;
 	    }
 	    cout << endl;
