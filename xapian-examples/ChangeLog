@@ -1,3 +1,9 @@
+Mon Feb 19 17:36:42 GMT 2001 Olly Betts
+
+	* Removed RJB_FIND_STLPORT from configure.in and acinclude.m4 -
+	  omsee-config should take care of whether stlport needs to be used
+	  or not.
+
 Fri Feb  2 16:34:26 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Fix a reference to the old style of OmDocument::add_posting() - now

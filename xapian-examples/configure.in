@@ -25,9 +25,6 @@ AM_PATH_GLIB(1.2.0, , build_gui=no)
 AM_PATH_LIBGLADE(, build_gui=no)
 AM_CONDITIONAL(BUILD_GUI, test "X$build_gui" = Xyes)
 
-dnl See if we want to use STLport
-RJB_FIND_STLPORT
-
 dnl *************************
 dnl * Set debugging options *
 dnl *************************
