@@ -26,6 +26,7 @@ Arch  | Platform                       |Version|Status| Notes / requirements
 x86   | Linux 2.2 Debian 3.0 GCC 2.95.4|~0.8.0 |Passed| ixion (James' colo box)
 x86   | Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.8.0 |Passed| ixion (James' colo box)
 x86   | Linux 2.2 Debian 3.0 GCC 3.3   | 0.7.2 |Passed| ixion (James' colo box)
+x86   | Linux 2.2 Debian 3.0 GCC 3.4pre|~0.8.0 |Passed| ixion (James' colo box)
 x86   | Linux 2.4 Debian sid GCC 2.95.4| 0.7.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.2.3 | 0.7.0 |Passed| from Olly Betts
 x86   | Linux 2.4 Debian sid GCC 3.3.1 | 0.7.0 |Passed| from Olly Betts

@@ -1,3 +1,7 @@
+Sat Apr 10 00:32:07 BST 2004  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Added success report for GCC 3.4 (prerelease).
+
 Sat Apr 10 00:27:58 BST 2004  Olly Betts <olly@survex.com>
 
 	* extra/xapian/queryparser.h: Added doxygen documentation comments.
