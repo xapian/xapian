@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     WritableDatabase database;
     try {
 	// Open the database
-	database = Auto::open(argv[1], DB_OPEN);
+	database = Auto::open(argv[1], DB_CREATE_OR_OPEN);
     } catch (const Error &error) {
 	cerr << "Exception: "  << error.get_msg() << endl;
 	exit(1);
