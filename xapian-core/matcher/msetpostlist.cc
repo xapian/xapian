@@ -21,12 +21,9 @@
  * -----END-LICENCE-----
  */
 
-// NB don't prune - even with one sublist we still translate docids...
-
 #include "msetpostlist.h"
 #include "omdebug.h"
 
-        
 MSetPostList::MSetPostList(const OmMSet mset_, const NetworkDatabase *db_)
     : mset(mset_), db(db_), current(-1)
 {

@@ -1,3 +1,8 @@
+Wed May 08 09:44:45 BST 2002  Olly Betts <olly@survex.com>
+
+	* matcher/msetpostlist.cc: Removed bogus comment cut and pasted from
+	  matcher/mergepostlist.cc.
+
 Tue May 07 17:51:57 BST 2002  Olly Betts <olly@survex.com>
 
 	* It's "m4_include", not "m4include".
