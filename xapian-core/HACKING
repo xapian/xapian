@@ -284,8 +284,9 @@ Here's an incomplete list of things to avoid:
 	mv foo.tmp foo.cc
 
   Alternatively, pass the output filename to the script and make sure you
-  delete the output on error or a signal.  Some makefiles or scripts still
-  need modifying to avoid this problem (FIXME).
+  delete the output on error or a signal.  All used Makefile.am-s and scripts
+  have been checked (and fixed if required) as of 2003-05-26 (didn't check
+  bindings or indexer subdirectories).
 
 And lastly a style point - using "@" to suppress outputing of commands being
 executed removes choice from the user - they may want to see what commands

@@ -51,4 +51,6 @@ xapian-config: xapian-config.nodep libxapian.la
 	@echo "Creating $@"
 	export dependency_libs; \
 	. $(top_builddir)/libxapian.la ; \
-	sed "s%@dependency_libs@%$${dependency_libs}%" < xapian-config.nodep > $@
+	sed "s%@dependency_libs@%$${dependency_libs}%" < xapian-config.nodep > tmp-$@
+	-rm -f $@
+	mv tmp-$@ $@

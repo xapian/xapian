@@ -1,3 +1,9 @@
+Mon May 26 20:43:21 BST 2003  Olly Betts <olly@survex.com>
+
+	* HACKING,Makefile.am,backends/Makefile.am,docs/mkdoc.pl,
+	  net/Makefile.am: Fixed to never leave partial files in place of the
+	  expected output if a build is interrupted.
+
 Mon May 26 16:50:59 BST 2003  Olly Betts <olly@survex.com>
 
 	* HACKING: Added note adapted from an old email noting why compile-time

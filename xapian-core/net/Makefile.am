@@ -18,5 +18,5 @@ readquery.cc: $(srcdir)/readquery.ll
 	: # config.h must be included before any other headers, but that
 	: # seems to be impossible to arrange in lex/flex
 	echo "#include <config.h>" | cat - readquery.tmp > readquery.tmp2
-	rm readquery.tmp
+	-rm -f readquery.tmp readquery.cc
 	mv readquery.tmp2 readquery.cc

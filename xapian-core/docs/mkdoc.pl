@@ -1,5 +1,5 @@
 #! /usr/bin/perl -w
-# mkdoc.pl: generate documentation from source code and associated files.
+# mkdoc.pl: generate source code structure overview doc from dir_contents files
 use strict;
 
 # Declarations
@@ -101,7 +101,7 @@ sub tohtml($) {
 
 sub output_html() {
     # Open output
-    open(DESTFILE, ">$dest");
+    open DESTFILE, ">$dest-$$.tmp" or die "$dest-$$.tmp: $!";
 
     # Print header
     print DESTFILE <<EOF;
@@ -175,6 +175,8 @@ Command line used to generate this documentation:<BR>
 </HTML>
 EOF
 
-    # Done
-    close DESTFILE;
+    # Close temp file and rename into place
+    close DESTFILE or die "$dest-$$.tmp: $!";
+    unlink $dest;
+    rename "$dest-$$.tmp", $dest or die "$dest: $!";
 }

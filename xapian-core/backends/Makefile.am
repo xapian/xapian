@@ -14,7 +14,7 @@ libbackend_la_SOURCES = database.cc
 # ii)  Add lines below to define BUILDSUBDIR_NEWONE and LIBADD_NEWONE
 # iii) Add $(BUILDSUBDIR_NEWONE) and $(LIBADD_NEWONE) to the definitions
 #      of SUBDIRS and libbackend_la_LIBADD at the bottom of this file
-# iv)  Write the library
+# iv)  Write the backend library
 
 if BUILD_BACKEND_MUSCAT36
 BUILDSUBDIR_MUSCAT36 = muscat36
