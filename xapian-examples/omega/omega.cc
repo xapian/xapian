@@ -195,12 +195,6 @@ static int main2(int argc, char *argv[])
        topdoc = atol(val);
     }
 
-    /* FIXME - ick */
-    if (topdoc >= 1000) {
-	cout << "Sorry, only the first 1000 matches are accessible at present";
-	exit(0);
-    }
-
     /*** get database name ***/
     char *tmp = GetEntry("DB");
     if (tmp != NULL)
