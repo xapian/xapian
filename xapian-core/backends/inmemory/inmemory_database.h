@@ -353,7 +353,7 @@ TextfileDatabase::term_id_to_name(termid tid) const
     return termvec[tid - 1];
 }
 
-inline const string &
+inline const string
 TextfileDatabase::get_database_path() const {
     Assert(opened);
     return path;
