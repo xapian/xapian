@@ -72,6 +72,15 @@ public class BackendManager {
 	return do_getdb(dbnames);
     }
 
+    public OmDatabase get_database(String dbname1, String dbname2) throws Throwable {
+        String[] dbnames = new String[2];
+
+        dbnames[0] = dbname1;
+	dbnames[1] = dbname2;
+
+	return do_getdb(dbnames);
+    }
+
     public static String[] make_strvec(String s) {
         String[] retval = new String[1];
 	retval[0] = s;

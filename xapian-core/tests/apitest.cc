@@ -754,8 +754,8 @@ bool test_pctcutoff1()
 	    if (mymset2.convert_to_percent(mymset2.items[i]) != my_pct) {
 	        success = false;
 		if (verbose) {
-		    cout << "Match with % cutoff returned "
-		            " too many items" << endl;
+		    cout << "Match with % cutoff returned too many items"
+			 << endl;
 		}
 		break;
 	    }

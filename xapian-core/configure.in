@@ -514,7 +514,7 @@ AC_OUTPUT(
  docs/doxygen_api_conf
  docs/doxygen_full_conf
  tests/stemtest.pl
- tests/apitest_to_java.pl
+ bindings/java/apitest_to_java.pl
  bindings/Makefile
  bindings/python/Makefile
  bindings/perl5/Makefile
@@ -526,4 +526,5 @@ AC_OUTPUT(
  if test -r docs/mkdoc.pl ; then chmod +x docs/mkdoc.pl ; fi
  if test -r docs/todo2html.pl ; then chmod +x docs/todo2html.pl ; fi
  if test -r tests/stemtest.pl ; then chmod +x tests/stemtest.pl ; fi
+ if test -r bindings/java/apitest_to_java.pl ; then chmod +x bindings/java/apitest_to_java.pl ; fi
 )

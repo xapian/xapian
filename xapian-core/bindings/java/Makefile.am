@@ -41,6 +41,7 @@ JSRC  = com/muscat/om/OmObject.java			\
 	com/muscat/om/OmNetworkError.java		\
 	RunTest.java					\
 	ApiTest.java					\
+	ApiTestFuncs.java				\
 	BackendManager.java
 
 JCLASSES  = com/muscat/om/OmObject.class			\
@@ -78,6 +79,7 @@ JCLASSES  = com/muscat/om/OmObject.class			\
 	com/muscat/om/OmNetworkError.class		\
 	RunTest.class                                   \
 	ApiTest.class                                   \
+	ApiTestFuncs.class				\
 	BackendManager.class
 
 # where to put the class files
@@ -94,6 +96,9 @@ JAVACFLAGS = +E
 #TARGETS = $(foreach file,$(subst java,class,$(SRC)),$(OUT)/$(file))
 
 # rule to make java -> class
+
+ApiTestFuncs.java: $(top_srcdir)/tests/apitest.cc apitest_to_java.pl
+	@PERL_PATH@ apitest_to_java.pl > /dev/null 2>/dev/null < $<
 
 all-local: class.timestamp
 

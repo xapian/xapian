@@ -31,7 +31,7 @@ public class ApiTest {
 	                           "/../../tests/testdata/" );
 
         System.out.println("pctcutoff1: " + test_pctcutoff1());
-        System.out.println("collapsekey1: " + test_collapsekey1());
+        //System.out.println("collapsekey1: " + test_collapsekey1());
     }
 
     public static boolean test_pctcutoff1() throws Throwable
@@ -107,6 +107,7 @@ public class ApiTest {
 	return success;
     }
 
+/*
     public static boolean test_collapsekey1() throws Throwable
     {
 	boolean success = true;
@@ -166,14 +167,19 @@ public class ApiTest {
 
 	return success;
     }
+    */
 
     public static OmDatabaseGroup get_simple_database() throws Throwable {
         OmDatabase mydb = get_database("apitest_simpledata");
 	return make_dbgrp(mydb);
     }
 
+    public static void init_simple_enquire(OmEnquire enq, OmQuery query) throws Throwable {
+        enq.set_query(query);
+    }
+
     public static void init_simple_enquire(OmEnquire enq) throws Throwable {
-        enq.set_query(new OmQuery("thi"));
+        init_simple_enquire(enq, new OmQuery("thi"));
     }
 
     public static void print_mset_percentages(OmMSet mset)
@@ -190,15 +196,38 @@ public class ApiTest {
 
     private static BackendManager backendmanager;
 
-    private static OmDatabase get_database(String dbname) throws Throwable {
+    public static OmDatabase get_database(String dbname) throws Throwable {
         return backendmanager.get_database(dbname);
     }
 
-    private static OmDatabaseGroup make_dbgrp(OmDatabase db1) throws Throwable {
+    public static OmDatabase get_database(String dbname1, String dbname2) throws Throwable {
+        return backendmanager.get_database(dbname1, dbname2);
+    }
+
+    public static OmDatabaseGroup make_dbgrp(OmDatabase db1,
+                 			     OmDatabase db2) throws Throwable {
+        OmDatabaseGroup result = new OmDatabaseGroup();
+
+	result.add_database(db1);
+	result.add_database(db2);
+
+	return result;
+    }
+
+    public static OmDatabaseGroup make_dbgrp(OmDatabase db1) throws Throwable {
         OmDatabaseGroup result = new OmDatabaseGroup();
 
 	result.add_database(db1);
 
 	return result;
+    }
+
+    public static OmMSet get_simple_query_mset(OmQuery query,
+                                               int maxitems,
+					       int first) throws Throwable {
+        OmEnquire enquire = new OmEnquire(get_simple_database());
+	init_simple_enquire(enquire, query);
+
+	return enquire.get_mset(first, maxitems);
     }
 }

@@ -1,0 +1,592 @@
+#! @PERL_PATH@ -w
+# @configure_input@
+# apitest_to_java.pl is automatically generated from apitest_to_java.pl.in
+# *** Do not edit the generated file ***
+#
+# apitest_to_java.pl.in - automatic test of the stemming functions.
+#
+# ----START-LICENCE----
+# Copyright 1999,2000 BrightStation PLC
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA
+# -----END-LICENCE-----
+
+use strict;
+use Carp;
+
+# FIXME: split into separate files
+package ToJava;
+
+BEGIN {
+    %ToJava::typemap = ( "bool" => "boolean",
+                         "unsigned int" => "int",
+                         "size_t" => "int",
+			 "om_weight" => "double");
+    %ToJava::basic_types = ("boolean" => 1,
+                            "int" => 1,
+			    "double" => 1);
+}
+
+sub new {
+    my $class = shift;
+    return bless { func => ""}, $class;
+}
+
+sub get_value {
+    my $self = shift;
+    return $self->{func};
+}
+
+sub preamble() {
+    return <<'EOF'
+import java.lang.*;
+import ApiTest.*;
+import com.muscat.om.*;
+
+class ApiTestFuncs {
+    public static OmDatabase get_database(String arg) throws Throwable {
+        return ApiTest.get_database(arg);
+    }
+    public static OmDatabase get_database(String arg1, String arg2) throws Throwable {
+        return ApiTest.get_database(arg1, arg2);
+    }
+    private static OmEnquire make_dbgrp(OmDatabase db1) throws Throwable {
+        return new OmEnquire(ApiTest.make_dbgrp(db1));
+    }
+    private static OmEnquire make_dbgrp(OmDatabase db1,
+                                        OmDatabase db2) throws Throwable {
+        return new OmEnquire(ApiTest.make_dbgrp(db1, db2));
+    }
+    private static OmMSet do_get_simple_query_mset(OmQuery query,
+                                               int maxitems,
+					       int first) throws Throwable {
+	return ApiTest.get_simple_query_mset(query, maxitems, first);
+    }
+    private static OmMSet do_get_simple_query_mset(OmQuery query) throws Throwable {
+	return do_get_simple_query_mset(query, 10, 0);
+    }
+    private static boolean floats_are_equal_enough(double a, double b)
+    {
+	if (Math.abs(a - b) > 1E-5) return false;
+	return true;
+    }
+    private static boolean weights_are_equal_enough(double a, double b) {
+	if (floats_are_equal_enough(a, b)) return true;
+
+	if(verbose) {
+	    System.out.println("Got weight of " + a +
+	                       ", expected weight of " + b);
+	}
+	return false;
+    }
+    private static boolean verbose = true;
+    private static String endl = "\n";
+EOF
+}
+
+sub prologue() {
+    return <<'EOF'
+}
+EOF
+}
+
+sub make_comment($) {
+    my $text = shift;
+
+    return "/* $text */\n";
+}
+
+sub func_start($) {
+    my $self = shift;
+    my $orig = shift;
+    if ($orig =~ /^bool ([a-z0-9_]+)\(\)/) {
+        my $name = $1;
+	$self->{func} = "    public static boolean $name() throws Throwable \n    {\n";
+	$self->{indent_level} = 8;
+	return $self->{func};
+    } else {
+        Carp::croak("Don't understand function header");
+    }
+}
+
+sub map_type($) {
+    my $orig_type = shift;
+    if (exists $ToJava::typemap{$orig_type}) {
+        return $ToJava::typemap{$orig_type};
+    } else {
+        return $orig_type;
+    }
+}
+
+sub addtext($) {
+    my ($self, $text) = @_;
+
+    # do a few simple transformations to make it closer to java...
+    #
+    # remove address-of operator
+    $text =~ s/\&([a-z]+)/$1/g;
+    # const type & -> type
+    $text =~ s/(?:const )($main::type) (?:\&)/$1/g;
+    # Change "OmType(foo)" -> "new OmType(foo)" if within ()
+    $text =~ s/(\(.*)($main::type)\(/$1new $2(/gs;
+    # Change "mymsetfoo.items" -> "mymsetfoo_items" (set up in var_decl)
+    $text =~ s/(mymset[a-z0-9]*)\.(items)/$1_$2/g;
+    $text =~ s/(mymset[a-z0-9]*_items)\[([^\]])+\]\.([a-z]+)/((OmMSetItem)($1.elementAt($2))).get_$3()/g;
+    $self->{func} .= (" " x $self->{indent_level}) . $text;
+}
+
+sub indent() {
+    my $self = shift;
+    $self->{indent_level} += 4;
+}
+
+sub undent() {
+    my $self = shift;
+    $self->{indent_level} -= 4;
+}
+
+sub var_decl($$$) {
+    my ($self, $type, $name, $initialiser) = @_;
+    $type = map_type($type);
+    my $text;
+    if (defined $initialiser) {
+        if ($initialiser =~ /^($main::func)(\(.*\))$/) {
+	    my ($func, $args) = ($1, $2);
+	    if (defined $args) {
+		$text = "$type $name = $func$args;\n";
+	    } else {
+		$text = "$type $name = $func;\n";
+	    }
+	} else {
+	    if (exists($ToJava::basic_types{$type})) {
+		$text = "$type $name = $initialiser;\n";
+	    } else {
+		$text = "$type $name = new $type($initialiser);\n";
+	    }
+	}
+    } else {
+	$text = "$type $name = new $type();\n";
+    }
+    # a special case
+    if ($type eq "OmMSet") {
+        $text .= "OmVector ${name}_items = ${name}.get_items();\n";
+    }
+    $self->addtext($text);
+    return $text;
+}
+
+sub func_call($$) {
+    my ($self, $func, $args) = @_;
+
+    my $text = "$func($args);\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_if($) {
+    my ($self, $cond) = @_;
+
+    my $text = "if ($cond) {\n";
+    $self->addtext($text);
+    $self->indent();
+    return $text;
+}
+
+sub do_else() {
+    my $self = shift;
+
+    my $text = "} else {\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_elsif($) {
+    my ($self, $cond) = @_;
+
+    my $text = "} else if ($cond) {\n";
+    $self->undent();
+    $self->addtext($text);
+    $self->indent();
+    return $text;
+}
+
+sub do_try() {
+    my $self = shift;
+    my $text = "try {\n";
+    $self->addtext($text);
+    $self->indent();
+    return $text;
+}
+
+sub do_catch($) {
+    my ($self, $expt) = @_;
+
+    # give a parameter name if not present
+    if ($expt =~ /$main::type (?\&)?$/) {
+        $expt .= "unused_exception_type";
+    }
+    my $text = "} catch ($expt) {\n";
+    $self->undent();
+    $self->addtext($text);
+    $self->indent();
+    return $text;
+}
+
+sub do_for($$$) {
+    my ($self, $precommand, $cond, $inc) = @_;
+
+    if ($precommand =~ /^($main::type) ($main::identifier.*)/) {
+        my ($type, $rest) = ($1, $2);
+        $precommand = map_type($type) . " $rest"; 
+    }
+    
+    my $text = "for ($precommand;$cond;$inc) {\n";
+    $self->addtext($text);
+    $self->indent();
+    return $text;
+}
+
+sub close_block() {
+    my $self = shift;
+    my $text = "}\n";
+    $self->undent();
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_blank() {
+    my $self = shift;
+    my $text = "\n";
+    # don't want the indenting here.
+    $self->{func} .= $text;
+    return $text;
+}
+
+sub do_invalid($) {
+    my ($self, $line) = @_;
+    my $text = "#INVALID:$line";
+    $self->addtext($text);
+    die "Can't handle invalid line";
+    return $text;
+}
+
+sub do_return($) {
+    my ($self, $val) = @_;
+    my $text = "return $val;\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_break() {
+    my $self = shift;
+    my $text = "break;\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_comment($) {
+    my ($self, $comment) = @_;
+    my $text = "//$comment\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_cout(@$) {
+    my ($self, $coutargs, $endl) = @_;
+    my $text = ($endl? "System.out.println(" : "System.out.print(");
+    $text .= join(" + ", @$coutargs);
+    $text .= ");\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_postinc($$) {
+    my ($self, $id, $op) = @_;
+    my $text = "$id$op;\n";
+    $self->addtext($text);
+    return $text;
+}
+
+sub do_preinc($$) {
+    my ($self, $arg1, $arg2) = @_;
+    return $self->do_postinc($arg1, $arg2);
+}
+
+sub do_assignment($$) {
+    my ($self, $assignee, $value) = @_;
+    my $text = "$assignee = $value;\n";
+    $self->addtext($text);
+    return $text;
+}
+
+package apitest_parser;
+
+#private
+sub getline() {
+    my $line = <STDIN>;
+    chomp $line;
+    if (defined $line) {
+	# get a full statement if it looks like one without
+	# curly braces.
+	my $newbit;
+	while ($line =~ /^[ \t]*[a-zA-Z]/ &&
+	       $line !~ /[{};]/ &&
+	       defined($newbit = <STDIN>)) {
+	    chomp $newbit;
+	    $line .= $newbit;
+	}
+
+        # remove leading/trailing whitespace
+	$line =~ s/^[ \t]*(.*?)[ \t]*$/$1/;
+    }
+    return $line;
+}
+
+$main::func_start_regex = '^bool (test_[a-z_]*[0-9]*)\(\) *$';
+$main::type = "(?:bool|(?:unsigned )?int|size_t|Om[A-Z][A-Za-z]+|om_[a-z]+)";
+$main::identifier = "(?:[a-zA-Z_0-9]+)";
+$main::func = "(?:(?:$main::identifier).$main::identifier)";
+$main::commentstart = '(?:\/\/|\/\*)';
+
+my (@succeeded, @failed);
+my (%want_name);
+my ($want_allnames) = (1);
+
+$main::verbose = 0;
+
+while (@ARGV) {
+    $_ = shift @ARGV;
+    if ($_ =~ /^-v$/) {
+        $main::verbose = 1;
+    } else {
+        if ($_ !~ /^test_/) {
+	    $_ = "test_" . $_;
+	}
+	$want_name{$_} = 1;
+	$want_allnames = 0;
+    }
+}
+
+open(OUTPUT, ">ApiTestFuncs.java") or die "Can't open apitest_converted.java";
+print OUTPUT ToJava::make_comment("*** This file was autogenerated from apitest.cc by apitest_to_java.pl ***");
+print OUTPUT ToJava::preamble();
+
+while (<STDIN>) {
+    chomp;
+    if (/$main::func_start_regex/) {
+	my $name = $1;
+	if ($want_allnames || exists($want_name{$name})) {
+	    my $funcdef;
+	    eval {
+	        my $parser = new apitest_parser();
+		$funcdef = $parser->parse_function($_);
+		if (defined $funcdef) {
+		    print OUTPUT $funcdef;
+		    $succeeded[$#succeeded+1] = $name;
+		} else {
+		    $failed[$#failed+1] = $name;
+		}
+
+#print $funcdef;
+	    };
+	    if ($@) {
+		$failed[$#failed+1] = $name;
+
+                print OUTPUT ToJava::make_comment("*** UNTRANSLATED FUNCTION: $name");
+		print STDERR "Parse of $name failed: $@\n";
+	    }
+	}
+    }
+}
+
+print OUTPUT ToJava::prologue();
+print "Successful translations: ", join(' ', @succeeded), "\n\n";
+print "Failed translations: ", join(' ', @failed), "\n";
+
+package apitest_parser;
+
+sub new() {
+    my ($class, $self) = (shift, {});
+    $self->{interp} = new ToJava();  
+    die "Can't create interpreter!" unless defined $self->{interp};
+    $self->{indent} = 4;
+    return bless $self, $class;
+}
+
+sub parse_function($) {
+    my ($self, $firstline) = @_;
+    $self->{failed} = 0;
+
+    print "Found test: $firstline\n";
+    $self->{interp}->func_start($firstline);
+    #print "Converted to: " . 
+
+    if (getline() ne "{") {
+	Carp::croak "Expected opening block!";
+    }
+    while (defined ($_ = getline())) {
+	my $line = $_;
+	my $newline = $self->parse_line($line);
+	last if $newline eq "END"; 
+	if ($main::verbose) {
+	    $newline = (' ' x $self->{indent}) . $newline;
+	    $newline =~ s/^( *)-=>/-=>$1/;
+	    print $newline;
+	}
+    }
+    if ($self->{failed}) {
+        return undef;
+    }
+    return $self->{interp}->get_value();
+}
+
+sub parse_line($) {
+    my ($self, $line) = @_;
+    my $interp = $self->{interp};
+    my $newline;
+    if ($line =~ /^($main::type) ($main::identifier)( = (.*))?;/) {
+	my ($type, $id, $init) = ($1, $2, $4);
+	$newline = $interp->var_decl($type, $id, $init);
+    } elsif ($line =~ /^($main::type) ($main::identifier)\((.*)\);/) {
+	my ($type, $id, $init) = ($1, $2, $3);
+	$newline = $interp->var_decl($type, $id, $init);
+    } elsif ($line =~ /^($main::func)\((.*)\);/) {
+	my ($func, $args) = ($1, $2);
+	$newline = $interp->func_call($func, $args);
+    } elsif ($line =~ /^if \((.*)\) {$/) {
+	my $cond = $1;
+	$newline = $interp->do_if($cond);
+	$self->{indent} += 4;
+    } elsif ($line =~ /^if \(.*/) {
+	while ($line !~ /^if \(.*\) .*[;{]/s) {
+	    my $extra = getline();
+	    if (!defined $extra) {
+	        print "-=>$line";
+		die "End of file in if statement";
+	    }
+	    $line .= $extra;
+	}
+	if ($line =~ /if \((.*)\) {$/s) {
+	    my $cond = $1;
+	    $newline = $interp->do_if($cond);
+	    $self->{indent} += 4;
+	} elsif ($line =~ /if \((.*)\) ([^;]*);$/s) {
+	    my ($cond, $statement) = ($1, $2);
+	    #print "cond = \"$cond\", statement = \"$statement\"\n";
+	    $newline = $interp->do_if($cond);
+	    $self->{indent} += 4;
+	    $newline .= ' ' x $self->{indent};
+	    $newline .= $self->parse_line("$statement;", $interp);
+	    $self->{indent} -= 4;
+	    $newline .= ' ' x $self->{indent};
+	    $newline .= $interp->close_block();
+	} else {
+	    print "-=>$line";
+	    die "Invalid if statement";
+	}
+    } elsif ($line =~ /^for \((.*);(.*);(.*)\) {$/) {
+	my ($precommand, $cond, $inc) = ($1, $2, $3);
+	$newline = $interp->do_for($precommand, $cond, $inc);
+	$self->{indent} += 4;
+    } elsif ($line =~ /^try {$/) {
+        $newline = $interp->do_try();
+	$self->{indent} += 4;
+    } elsif ($line =~ /^} catch ?\((.*)\) {$/) {
+        my $expt = $1;
+        $newline = $interp->do_catch($expt);
+    } elsif ($line =~ /^{/) {
+	$self->{indent} -= 4;
+    } elsif ($line =~ /^($main::commentstart)(.*)/) {
+	my $commenttext = $2;
+	$newline = $interp->do_comment($commenttext);
+    } elsif ($line =~ /^} else {$/) {
+        $newline = $interp->do_else();
+    } elsif ($line =~ /^} else if \(/) {
+	while ($line !~ /^} else if \(.*\) .*[;{]/s) {
+	    my $extra = getline();
+	    if (!defined $extra) {
+	        print "-=>$line";
+		die "End of file in if statement";
+	    }
+	    $line .= $extra;
+	}
+	if ($line =~ /} else if \((.*)\) {$/s) {
+	    my $cond = $1;
+	    $newline = $interp->do_elsif($cond);
+	} elsif ($line =~ /} else if \((.*)\) ([^;]*);$/s) {
+	    my ($cond, $statement) = ($1, $2);
+	    #print "cond = \"$cond\", statement = \"$statement\"\n";
+	    $newline = $interp->do_elsif($cond);
+	    $self->{indent} += 4;
+	    $newline .= ' ' x $self->{indent};
+	    $newline .= $self->parse_line("$statement;", $interp);
+	    $self->{indent} -= 4;
+	    $newline .= ' ' x $self->{indent};
+	    $newline .= $interp->close_block();
+	} else {
+	    print "-=>$line";
+	    die "Invalid else if statement";
+	}
+    } elsif ($line =~ /^}$/) {
+	$self->{indent} -= 4;
+	$newline = $interp->close_block();
+	if ($self->{indent} == 0) {
+#		print "End of function.\n";
+	    return "END";
+	}
+    } elsif ($line =~ /^return (.*);/) {
+# return statement
+	my $returnval = $1;
+	$newline = $interp->do_return($returnval);
+    } elsif ($line =~ /^break;/) {
+# break statement
+	$newline = $interp->do_break();
+    } elsif ($line =~ /^($main::identifier) = (.*);/) {
+# assignment
+	my ($var, $value) = ($1, $2);
+	$newline = $interp->do_assignment($var, $value);
+    } elsif ($line =~ /^cout/) {
+# uses of cout are often multiline, so group them together.
+	while ($line !~ /\;/) {
+	    $line .= getline();
+	}
+	if ($line !~ /^cout(.*?)(<< endl)?;/s) {
+	    print STDERR "bad cout line: $line";
+	    Carp::croak "Bad cout line!";
+	}
+	my ($coutargs, $endl) = ($1, $2);
+	my @coutargs = split(/[ \t]*<<[ \t]*/s, $coutargs);
+	shift @coutargs; # remove blank before first <<
+		$newline = $interp->do_cout(\@coutargs, $endl);
+    } elsif ($line =~ /^$/) {
+	$newline = $interp->do_blank();
+    } elsif ($line =~ /^($main::identifier)(\+\+|\-\-);/) {
+	my ($id, $op) = ($1, $2);
+	$newline = $interp->do_postinc($id, $op);
+    } elsif ($line =~ /^(\+\+|\-\-)($main::identifier);/) {
+	my ($id, $op) = ($1, $2);
+	$newline = $interp->do_preinc($id, $op);
+    } else {
+	if ($main::verbose) {
+	    $newline = "-=> $line\n";
+	    $self->{failed} = 1;
+	} else {
+	    $newline = $interp->do_invalid($line);
+	}
+#	    print "# " . $line . "\n";
+    }
+    return $newline;
+}

@@ -1,3 +1,9 @@
+Thu Jul 20 19:08:53 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Progress on the apitest-to-Java script and support stuff.  A
+	  few helper functions need adding, but about half of the test
+	  functions translate ok.
+
 Thu Jul 20 16:39:00 BST 2000 Olly Betts
 
 	* Tweaks to doxygen makefile stuff.
