@@ -1,3 +1,8 @@
+Tue Jun 13 15:03:13 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add detection of SWIG to the configure script.  Don't attempt to
+	  build SWIG stuff if swig isn't available.
+
 Tue Jun 13 14:53:51 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* First cleanup of the java stuff.
