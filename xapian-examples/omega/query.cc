@@ -1,6 +1,3 @@
-// declared in parsepage.ll
-extern void print_query_page(const char *, long int, long int);
-
 #include <vector>
 
 #include <stdio.h>
@@ -17,7 +14,10 @@ extern void print_query_page(const char *, long int, long int);
 #include "main.h"
 #include "query.h"
 
-typedef enum { NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
+// declared in parsepage.ll
+extern void print_query_page(const char *, long int, long int);
+// declared in parsequery.ll
+extern void parse_prob(const string&);
 
 vector<termname> new_terms;
 static vector<termname> pluses;
@@ -51,7 +51,6 @@ char thou_sep = ',', dec_sep = '.';
 
 #ifdef FERRET
 string ad_keywords;
-static int n_ad_keywords = 0;
 #endif
 
 string query_string;
@@ -59,9 +58,6 @@ string query_string;
 matchop op = OR; // default matching mode
 
 static map<termname, int> matching_map;
-
-static void parse_prob(const string&);
-static int get_next_char(const char **p);
 
 /**************************************************************/
 /* return a sane (1-100) percentage value for num/denom */
@@ -171,7 +167,7 @@ int set_probabilistic(const string &newp, const string &oldp) {
 static int term_count = 1; // FIXME: ick
 
 /* if term is in the database, add it to the term list */
-static void check_term(string name, termtype type) {
+void check_term(const string &name, termtype type) {
     new_terms.push_back(name);
     switch (type) {
      case PLUS:
@@ -186,129 +182,7 @@ static void check_term(string name, termtype type) {
 	normals.push_back(name);
 	matching_map[name] = term_count++;
 	break;
-    }    
-}
-
-/**************************************************************/
-/* transliterate accented characters in step with what the indexers do */
-static int get_next_char( const char **p ) {
-   static int cache = 0;
-   int ch;
-   if (cache) {
-      ch = cache;
-      cache = 0;
-      return ch;
-   }
-   ch = (int)(unsigned char)(*(*p)++);
-   switch (ch) {
-#include "symboltab.h"
-   }
-   return ch;
-}
-
-static void
-parse_prob(const string &text)
-{
-    const char *pC = text.c_str();
-    termtype type = NORMAL;
-    string buf;
-    int stem, stem_all;
-    int ch;
-#ifdef FERRET
-    int in_quotes = 0;
-    string phrase_buf;
-#endif
-    StemEn stemmer;
-
-#ifdef FERRET
-    stem = 1;
-    stem_all = 1;
-#else
-    stem = !atoi(option["no_stem"].c_str());
-    /* stem capitalised words too -- needed for EuroFerret - Olly 1997-03-19 */
-    stem_all = atoi(option["all_stem"].c_str());
-#endif
-
-    ch = get_next_char(&pC);
-    while (ch) {	
-	if (isalnum(ch)) {
-	    bool got_next = false;
-	    int do_stem;
-	    // FIXME: allow domain:uk in query...
-	    // don't allow + and & in term then ?
-	    // or allow +&.-_ ?
-	    // domain/site/language/host ?
-	    do_stem = stem;
-
-	    if (in_quotes) do_stem = 0;
-
-	    if (!stem_all && ch >= 'A' && ch <= 'Z') do_stem = 0;
-
-            buf = "";
-	    while (isalnum(ch) || ch == '+' || ch == '&') {
-		buf += tolower(ch);
-	        ch = get_next_char(&pC);
-	    }
-
-	    if (n_ad_keywords < 4) {
-	       /* FIXME: && type != ABSENT, or pick 4 top +ve weights later? */
-	       if (n_ad_keywords)
-		  ad_keywords += '+';
-
-	       ad_keywords += buf;
-	       n_ad_keywords++;
-	    }
-
-	    if (!in_quotes && ch == '.') {
-	       got_next = true;
-	       ch = get_next_char(&pC);
-	       /* ignore a dot if followed by an alphanum e.g. index.html) */
-	       if (!isalnum(ch)) do_stem = 0;
-	    }
-
-	    if (do_stem) buf = stemmer.stem_word(buf);
-
-	    if (!in_quotes) {
-		check_term(buf, type);
-		/* Currently we index hyphenated words as multiple terms, so
-		 * we probably want to keep same +/- weighting for all
-		 * hyphenated */
-		if (ch != '-') type = NORMAL;
-	    } else {
-		if (in_quotes > 1) {
-		    string tmp_buf;
-		    tmp_buf = phrase_buf;
-		    tmp_buf += ' ';
-		    tmp_buf += buf;
-		    check_term(tmp_buf, type);
-		}
-		phrase_buf = buf;
-	    }
-
-	    if (ch == '\"') {
-		/* had a single term in quotes, so add it */
-		if (in_quotes == 1) check_term(phrase_buf, type);
-		in_quotes = !in_quotes;
-		if (!in_quotes) type = NORMAL; /* reset +/- */
-	    } else {
-		if (in_quotes) in_quotes++;
-	    }
-	    if (got_next) continue;
-	} else if (ch == '+') {
-	    type = PLUS;
-	} else if (ch == '-') {
-	    type = MINUS;
-	} else if (ch == '\"') {
-	    /* had a single term in quotes, so add it */
-	    if (in_quotes == 2) check_term(phrase_buf, type);
-	    in_quotes = !in_quotes;
-	}
-       
-        if (ch) ch = get_next_char(&pC); /* skip unless it's a '\0' */
     }
-
-    /* had a single term in unterminated quotes, so add it */
-    if (in_quotes == 2) check_term(phrase_buf, type);
 }
 
 // FIXME: multimap for general use?

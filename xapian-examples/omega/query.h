@@ -26,4 +26,8 @@ extern char *fmtstr;
 extern string ad_keywords;
 extern vector<termname> new_terms;
 
+typedef enum { NORMAL, PLUS, MINUS /*, BOOL_FILTER*/ } termtype;
+
+extern void check_term(const string &name, termtype type);
+
 #endif /* QUERY_H */

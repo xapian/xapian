@@ -1,4 +1,4 @@
-/* scanner for FX query page */
+/* scanner for query strings */
 
 %option noyywrap
 

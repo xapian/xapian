@@ -6,3 +6,4 @@ Makefile
 .deps
 .libs
 parsepage.cc
+parsequery.cc

@@ -11,5 +11,8 @@ INCLUDES = -I$(top_srcdir)/include
 
 bin_PROGRAMS = ompf
 
-ompf_SOURCES = main.cc query.cc cgiparam.cc parsepage.ll
+ompf_SOURCES = main.cc query.cc cgiparam.cc parsepage.ll parsequery.ll
 ompf_LDADD = ../libom.la
+
+parsequery.cc: parsequery.ll
+	$(SHELL) $(YLWRAP) "$(LEX)" $< lex.qlex.c $@ -- $(AM_LFLAGS) $(LFLAGS)
