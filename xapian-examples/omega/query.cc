@@ -1,7 +1,7 @@
 /* limit on mset size (as given in espec) */
 #define MLIMIT 1000 // FIXME: deeply broken
 
-#include <list>
+#include <vector>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -206,9 +206,9 @@ int set_probabilistic(const char *p, const char *oldp) {
    }
 
     if (n_new_terms) {
-	list<termid> pluses;
-	list<termid> minuses;
-	list<termid> normals;
+	vector<termid> pluses;
+	vector<termid> minuses;
+	vector<termid> normals;
       
 	for (i = 0; i < n_new_terms; i++) {
 	    switch (new_terms[i].type) {

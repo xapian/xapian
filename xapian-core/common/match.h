@@ -6,14 +6,7 @@
 
 #include <queue>
 #include <stack>
-#include <list>
-
-class PLPCmp {
-   public:
-       bool operator()(const PostList *a, const PostList *b) {
-           return a->get_termfreq() > b->get_termfreq();
-       }
-};
+#include <vector>
 
 class MSetItem {
     public:
@@ -39,11 +32,11 @@ class Match {
         bool recalculate_maxweight;
     public:
         Match(IRDatabase *);
-        bool add_term(const string &);
+        bool add_term(const termname &);
         bool add_term(termid);
 	bool add_op(matchop op);
-	bool add_oplist(matchop op, const list<string>&);
-	bool add_oplist(matchop op, const list<termid>&);
+	bool add_oplist(matchop op, const vector<termname>&);
+	bool add_oplist(matchop op, const vector<termid>&);
 
         void match();
         void set_max_msize(doccount n);

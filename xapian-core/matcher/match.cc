@@ -9,6 +9,20 @@
 
 #include <algorithm>
 
+class PLPCmpGt {
+    public:
+        bool operator()(const PostList *a, const PostList *b) {
+            return a->get_termfreq() > b->get_termfreq();
+        }
+};
+
+class PLPCmpLt {
+    public:
+        bool operator()(const PostList *a, const PostList *b) {
+            return a->get_termfreq() < b->get_termfreq();
+        }
+};
+
 Match::Match(IRDatabase *database)
 {
     DB = database;
@@ -27,29 +41,68 @@ Match::add_term(termid id)
     return true;
 }
 
-// FIXME: sort out error handling in next 2 methods
+// FIXME: sort out error handling in next 2 methods (e.g. term not found...)
 bool
-Match::add_oplist(matchop op, const list<string> &terms)
+Match::add_oplist(matchop op, const vector<termname> &terms)
 {
-    list<string>::const_iterator i;
-    bool first = true;
+    Assert(op == OR || op == AND);
+    vector<termid> ids;
+    vector<termname>::const_iterator i;
     for (i = terms.begin(); i != terms.end(); i++) {
-	add_term(*i);
-	if (!first) add_op(op);
-	first = false;
+	ids.push_back(DB->term_name_to_id(*i));
     }
-    return true;
+    return Match::add_oplist(op, ids);
 }
 
 bool
-Match::add_oplist(matchop op, const list<termid> &ids)
+Match::add_oplist(matchop op, const vector<termid> &ids)
 {
-    list<termid>::const_iterator i;
-    bool first = true;
-    for (i = ids.begin(); i != ids.end(); i++) {
-	add_term(*i);
-	if (!first) add_op(op);
-	first = false;
+    Assert(op == OR || op == AND);
+    if (op == OR) {
+	// FIXME: try using a heap instead (C++ sect 18.8)?
+	priority_queue<PostList*, vector<PostList*>, PLPCmpGt> pq;
+	vector<termid>::const_iterator i;
+	for (i = ids.begin(); i != ids.end(); i++) {
+	    pq.push(DB->open_post_list(*i));
+	}
+
+	// Build a tree balanced by the term frequencies
+	// (similar to building a huffman encoding tree).
+	//
+	// This scheme reduces the number of objects common terms
+	// get "pulled" through, reducing the amount of work done which
+	// speeds things up.
+	while (true) {
+	    PostList *p = pq.top();
+	    pq.pop();
+	    if (pq.empty()) {
+		q.push(p);		
+		break;
+	    }
+	    // NB right is always <= left - we can use this to optimise
+	    p = new OrPostList(pq.top(), p, this);
+	    pq.pop();
+	    pq.push(p);
+	}
+    } else {
+	// Build nice tree for AND-ed terms
+	// SORT list into ascending freq order
+	// AND last two elements, then AND with each subsequent element
+	vector<PostList *> sorted;
+	vector<termid>::const_iterator i;
+	for (i = ids.begin(); i != ids.end(); i++) {
+	    sorted.push_back(DB->open_post_list(*i));
+	}
+	stable_sort(sorted.begin(), sorted.end(), PLPCmpLt());
+
+        PostList *p = sorted.back();
+        sorted.pop_back();
+	while (!sorted.empty()) {	    
+	    // NB right is always <= left - we can use this to optimise
+	    p = new AndPostList(sorted.back(), p, this);
+	    sorted.pop_back();
+	}
+        q.push(p);		
     }
     return true;
 }
@@ -103,36 +156,6 @@ Match::recalc_maxweight()
     Assert(merger != NULL);
     recalculate_maxweight = true;
 }
-
-#if 0
-// FIXME: code to build nice tree for OR-ed terms
-    // FIXME: try using a heap instead (C++ sect 18.8)
-    priority_queue<PostList*, vector<PostList*>, PLPCmp> pq;
-    if (!pq.empty()) {
-	// Build a tree balanced by the term frequencies
-	// (similar to building a huffman encoding tree).
-	//
-	// This scheme reduces the number of objects common terms
-	// get "pulled" through, reducing the amount of work done which
-	// speeds things up.
-	while (true) {
-	    merger = pq.top();
-	    pq.pop();
-	    if (pq.empty()) break;
-	    // NB right is always <= left - we can use this to optimise
-	    merger = new OrPostList(pq.top(), merger, this);
-	    pq.pop();
-	    pq.push(merger);
-	}
-    }
-#endif
-
-#if 0
-// FIXME: code to build nice tree for AND-ed terms
-    // SORT list into descending freq order
-    // take first two elements and AND
-    // AND with each subsequent element
-#endif
 
 #if 0
     if (boolmerger) {
