@@ -96,6 +96,8 @@ bool test_subqcollapse1();
 bool test_batchquery1();
 // test that running a query twice returns the same results
 bool test_repeatquery1();
+// test that searching for a term not in the database fails nicely
+bool test_absentterm1();
 
 test_desc tests[] = {
     {"trivial",            test_trivial},
@@ -131,6 +133,7 @@ test_desc tests[] = {
     {"subqcollapse1",	   test_subqcollapse1},
     {"batchquery1",	   test_batchquery1},
     {"repeatquery1",	   test_repeatquery1},
+    {"absentterm1",	   test_absentterm1},
     {0, 0}
 };
 
@@ -1430,6 +1433,28 @@ bool test_repeatquery1()
 
 	if (verbose) {
 	    cout << "MSets are different." << endl;
+	}
+    }
+
+    return success;
+}
+
+bool test_absentterm1()
+{
+    bool success = true;
+
+    OmEnquire enquire(get_simple_database());
+    OmQuery query("frink");
+    query.set_bool(true);
+    init_simple_enquire(enquire, query);
+
+    OmMSet mymset = enquire.get_mset(0, 10);
+    if (mymset.items.size() != 0) {
+	success = false;
+
+	if(verbose) {
+	    cout << "Expected no items in mset: found " <<
+		    mymset.items.size() << endl;
 	}
     }
 

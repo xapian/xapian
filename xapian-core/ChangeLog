@@ -1,3 +1,7 @@
+Tue Mar 21 15:26:03 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Test behaviour when searching for terms not in database.
+
 Tue Mar 21 15:08:11 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Implemented OmQueryInternal::operator=()
