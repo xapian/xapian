@@ -25,6 +25,7 @@
 
 #include "om/omtypes.h"
 #include "omrefcnt.h"
+#include "omlocks.h"
 
 class OmKey;
 class OmData;
@@ -37,6 +38,13 @@ class LeafDocument : public OmRefCntBase {
 
 	/// Assignment is not allowed.
 	void operator=(const LeafDocument &);
+
+	OmLock mutex;
+	
+	/// The virtual implementation of get_key().
+	virtual OmKey do_get_key(om_keyno keyid) const = 0;
+	/// The virtual implementation of get_data().
+	virtual OmData do_get_data() const = 0;     
     public:
 	/** Get key by key number.
 	 *
@@ -54,7 +62,7 @@ class LeafDocument : public OmRefCntBase {
 	 *  key is not present in this document, the key's value will be a zero
 	 *  length string
 	 */
-	virtual OmKey get_key(om_keyno keyid) const = 0;
+	OmKey get_key(om_keyno keyid) const;
 	
 	/** Get data stored in document.
 	 *
@@ -70,7 +78,7 @@ class LeafDocument : public OmRefCntBase {
 	 *  @return       An OmData object containing the data for this
 	 *  document.
 	 */
-	virtual OmData get_data() const = 0;     
+	OmData get_data() const;     
 
 	/** Constructor.  In derived classes, this will typically be a
 	 *  private method, and only be called by database objects of the

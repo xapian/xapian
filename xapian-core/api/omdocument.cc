@@ -29,6 +29,7 @@
 // A document in the database - holds keys and records
 class OmDocument::Internal {
     public:
+	/// The reference counted pointer to a LeafDocument instance
 	OmRefCntPtr<LeafDocument> ptr;
 	OmLock mutex;
 

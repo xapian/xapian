@@ -1,4 +1,4 @@
-/* db_document.h: C++ class definition for DB access routines
+/* leafdocument.cc: class with document data
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,35 +20,22 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_DB_DOCUMENT_H
-#define OM_HGUARD_DB_DOCUMENT_H
-
+#include <om/omtypes.h>
+#include "omrefcnt.h"
+#include "omlocks.h"
 #include "document.h"
-#include "dbread.h"
+#include <om/omdocument.h>
 
-class DBDatabase;
-
-/// A document from a DA format database
-class DBDocument : public LeafDocument {
-    friend class DBDatabase;
-    private:
-	const DBDatabase * database;
-	om_docid did;
-	mutable struct record * rec;
-	int heavy_duty;
-
-	DBDocument(const DBDatabase * database_,
-		   om_docid did_,
-		   int heavy_duty_);
-
-	// Stop copying
-	DBDocument(const DBDocument &);
-	void operator = (const DBDocument &);
-    public:
-	~DBDocument();
-
-	OmKey do_get_key(om_keyno keyid) const;
-	OmData do_get_data() const;
-};
-
-#endif /* OM_HGUARD_DB_DOCUMENT_H */
+OmKey
+LeafDocument::get_key(om_keyno keyid) const
+{
+    OmLockSentry locksentry(mutex);
+    return do_get_key(keyid);
+}
+	
+OmData
+LeafDocument::get_data() const
+{
+    OmLockSentry locksentry(mutex);
+    return do_get_data();
+}

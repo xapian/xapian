@@ -37,8 +37,8 @@ class InMemoryDocument : public LeafDocument {
 	InMemoryDocument(const InMemoryDocument &);
 	InMemoryDocument & operator = (const InMemoryDocument &);
     public:
-	OmKey get_key(om_keyno keyid) const;
-	OmData get_data() const;
+	OmKey do_get_key(om_keyno keyid) const;
+	OmData do_get_data() const;
 };
 
 #endif /* OM_HGUARD_INMEMORY_DOCUMENT_H */

@@ -1,3 +1,7 @@
+Wed Apr 12 13:22:26 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Sorted out the mutex situation with Om/LeafDocument.
+
 Tue Apr 11 22:01:03 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Renamed DocumentContents and DocumentTerm to OmDocumentContents and 

@@ -30,7 +30,7 @@ InMemoryDocument::InMemoryDocument(const string & doc_)
 }
 
 OmKey
-InMemoryDocument::get_key(om_keyno keyid) const
+InMemoryDocument::do_get_key(om_keyno keyid) const
 {
     OmKey key;
     if(doc.size() <= keyid) {
@@ -42,7 +42,7 @@ InMemoryDocument::get_key(om_keyno keyid) const
 }
 
 OmData
-InMemoryDocument::get_data() const
+InMemoryDocument::do_get_data() const
 {
     OmData data;
     data.value = doc;

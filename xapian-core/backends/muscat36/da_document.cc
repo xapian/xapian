@@ -50,7 +50,7 @@ DADocument::~DADocument()
  *  key lookup.
  */
 OmKey
-DADocument::get_key(om_keyno keyid) const
+DADocument::do_get_key(om_keyno keyid) const
 {
     OmKey key = database->get_key(did, keyid);
 
@@ -80,7 +80,7 @@ DADocument::get_key(om_keyno keyid) const
  *  use a key instead, if at all possible.
  */
 OmData
-DADocument::get_data() const
+DADocument::do_get_data() const
 {
     if(rec == 0) rec = database->get_record(did);
     OmData data;

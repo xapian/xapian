@@ -47,8 +47,8 @@ class DADocument : public LeafDocument {
     public:
 	~DADocument();
 
-	OmKey get_key(om_keyno keyid) const;
-	OmData get_data() const;
+	OmKey do_get_key(om_keyno keyid) const;
+	OmData do_get_data() const;
 };
 
 

@@ -41,7 +41,7 @@ DBDocument::~DBDocument()
 }
 
 OmKey
-DBDocument::get_key(om_keyno keyid) const
+DBDocument::do_get_key(om_keyno keyid) const
 {
     OmKey key = database->get_key(did, keyid);
 
@@ -66,7 +66,7 @@ DBDocument::get_key(om_keyno keyid) const
 }
 
 OmData
-DBDocument::get_data() const
+DBDocument::do_get_data() const
 {
     if(rec == NULL) rec = database->get_record(did);
     OmData data;
