@@ -1,3 +1,8 @@
+Tue Sep 07 02:21:49 BST 2004  Olly Betts <olly@survex.com>
+
+	* tests/btreetest.cc,tests/quartztest.cc: Moved overwrite1 from
+	  quartztest to btreetest.  Added const in a few places.
+
 Tue Sep 07 02:07:43 BST 2004  Olly Betts <olly@survex.com>
 
 	* tests/quartztest.cc: Removed overwrite2 test.  Digging back in CVS

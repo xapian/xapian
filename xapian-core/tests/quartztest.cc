@@ -32,8 +32,6 @@
 #include "bcursor.h"
 #include "quartz_utils.h"
 
-#include "autoptr.h"
-
 #include <errno.h>
 #include <unistd.h>
 #include <vector>
@@ -74,7 +72,7 @@ static void unlink_table(const string & path)
 /// Test opening of a quartz database
 static bool test_open1()
 {
-    string dbdir = tmpdir + "testdb_open1";
+    const string dbdir = tmpdir + "testdb_open1";
     removedir(dbdir);
     
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
@@ -90,7 +88,7 @@ static bool test_open1()
 /// Test creating and opening of quartz databases
 static bool test_create1()
 {
-    string dbdir = tmpdir + "testdb_create1";
+    const string dbdir = tmpdir + "testdb_create1";
     removedir(dbdir);
 
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db;
@@ -162,7 +160,7 @@ static bool test_create1()
  */
 static bool test_adddoc1()
 {
-    string dbdir = tmpdir + "testdb_adddoc1";
+    const string dbdir = tmpdir + "testdb_adddoc1";
     removedir(dbdir);
 
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
@@ -223,7 +221,7 @@ static bool test_adddoc1()
  */
 static bool test_adddoc2()
 {
-    string dbdir = tmpdir + "testdb_adddoc2";
+    const string dbdir = tmpdir + "testdb_adddoc2";
     removedir(dbdir);
 
     Xapian::docid did;
@@ -343,7 +341,7 @@ static bool test_adddoc2()
 
 static bool test_adddoc3()
 {
-    string dbdir = tmpdir + "testdb_adddoc3";
+    const string dbdir = tmpdir + "testdb_adddoc3";
     removedir(dbdir);
 
     Xapian::docid did;
@@ -564,18 +562,16 @@ static bool test_unpackint1()
 /// Test playing with a postlist
 static bool test_postlist1()
 {
-    string dbdir = tmpdir + "testdb_postlist1";
+    const string dbdir = tmpdir + "testdb_postlist1";
     removedir(dbdir);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
-    Btree bufftable(dbdir + "/postlist_", false);
-    bufftable.open();
-    Btree disktable(dbdir + "/postlist_", true);
-    Btree * table = &bufftable;
+    Btree table(dbdir + "/postlist_", false);
+    table.open();
     Btree positiontable(dbdir + "/position_", false);
 
     {
-	QuartzPostList pl2(db_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, &table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 0);
 	TEST_EQUAL(pl2.get_collection_freq(), 0);
 	pl2.next(0);
@@ -583,9 +579,9 @@ static bool test_postlist1()
     }
 
 #if 0 // FIXME update to use new stuff
-    QuartzPostList::add_entry(&bufftable, "foo", 5, 7, 3);
+    QuartzPostList::add_entry(&table, "foo", 5, 7, 3);
     {
-	QuartzPostList pl2(db_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, &table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 1);
 	TEST_EQUAL(pl2.get_collection_freq(), 7);
 	pl2.next(0);
@@ -597,9 +593,9 @@ static bool test_postlist1()
 	TEST(pl2.at_end());
     }
 
-    QuartzPostList::add_entry(&bufftable, "foo", 6, 1, 2);
+    QuartzPostList::add_entry(&table, "foo", 6, 1, 2);
     {
-	QuartzPostList pl2(db_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, &table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 2);
 	TEST_EQUAL(pl2.get_collection_freq(), 8);
 	pl2.next(0);
@@ -623,19 +619,18 @@ static bool test_postlist1()
 /// Test playing with a postlist
 static bool test_postlist2()
 {
-    string dbdir = tmpdir + "testdb_postlist2";
+    const string dbdir = tmpdir + "testdb_postlist2";
     removedir(dbdir);
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db_w = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 8192);
 
-    Btree bufftable(tmpdir + "testdb_postlist2/postlist_", false);
+    Btree bufftable(dbdir + "/postlist_", false);
     bufftable.open();
-    Btree disktable(tmpdir + "testdb_postlist2/postlist_", true);
+    Btree disktable(dbdir + "/postlist_", true);
     disktable.open();
-    Btree * table = &bufftable;
-    Btree positiontable(tmpdir + "testdb_postlist2/position_", false);
+    Btree positiontable(dbdir + "/position_", false);
 
     {
-	QuartzPostList pl2(db_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, &bufftable, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 0);
 	TEST_EQUAL(pl2.get_collection_freq(), 0);
 	pl2.next(0);
@@ -661,7 +656,7 @@ static bool test_postlist2()
     disktable.open();
 
     {
-	QuartzPostList pl2(db_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, &bufftable, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	TEST_EQUAL(pl2.get_collection_freq(), collfreq);
 	pl2.next(0);
@@ -679,7 +674,7 @@ static bool test_postlist2()
 	TEST(pl2.at_end());
     }
     {
-	QuartzPostList pl2(db_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, &bufftable, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	pl2.next(0);
 	vector<unsigned int>::const_iterator i3 = testdata.begin();
@@ -710,7 +705,7 @@ static bool test_postlist2()
 	TEST(pl2.at_end());
     }
     {
-	QuartzPostList pl2(db_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, &bufftable, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	pl2.next(0);
 	vector<unsigned int>::const_iterator i3 = testdata.begin();
@@ -727,7 +722,7 @@ static bool test_postlist2()
 	TEST(pl2.at_end());
     }
     {
-	QuartzPostList pl2(db_w, table, &positiontable, "foo");
+	QuartzPostList pl2(db_w, &bufftable, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
 	vector<unsigned int>::const_iterator i3 = testdata.begin();
 
@@ -757,51 +752,10 @@ static bool test_postlist2()
     return true;
 }
 
-/// Test overwriting a table.
-static bool test_overwrite1()
-{
-    unlink_table(tmpdir + "testdb_overwrite1_");
-    Btree bufftable(tmpdir + "testdb_overwrite1_", false);
-    bufftable.create(2048);
-    bufftable.open();
-    Btree disktable(tmpdir + "testdb_overwrite1_", true);
-    disktable.open();
-
-    for (int i = 1; i <= 1000; ++i) {
-	bufftable.add("foo" + om_tostring(i), "bar" + om_tostring(i));
-    }
-
-    bufftable.commit(disktable.get_latest_revision_number() + 1);
-    disktable.open();
-
-    Btree disktable_ro(tmpdir + "testdb_overwrite1_", true);
-    disktable_ro.open();
-    string tag;
-    TEST(disktable_ro.get_exact_entry("foo1", tag));
-    TEST_EQUAL(tag, "bar1");
-
-    bufftable.add("foo1", "bar2");
-    bufftable.commit(disktable.get_latest_revision_number() + 1);
-    disktable.open();
-    TEST(disktable_ro.get_exact_entry("foo999", tag));
-    TEST(disktable_ro.get_exact_entry("foo1", tag));
-    TEST_EQUAL(tag, "bar1");
-
-    bufftable.add("foo1", "bar3");
-    bufftable.commit(disktable.get_latest_revision_number() + 1);
-    disktable.open();
-    TEST(disktable_ro.get_exact_entry("foo999", tag));
-    TEST_EXCEPTION(Xapian::DatabaseModifiedError,
-		   disktable_ro.get_exact_entry("foo1", tag));
-    //TEST_EQUAL(tag, "bar1");
-
-    return true;
-}
-
 /// Test that write locks work
 static bool test_writelock1()
 {
-    string dbname = tmpdir + "writelock1";
+    const string dbname = tmpdir + "writelock1";
     removedir(dbname);
 
     Xapian::WritableDatabase writer = Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
@@ -892,7 +846,6 @@ test_desc tests[] = {
     {"unpackint1",	test_unpackint1},
     {"postlist1",	test_postlist1},
     {"postlist2",	test_postlist2},
-    {"overwrite1", 	test_overwrite1},
     {"writelock1", 	test_writelock1},
     {"packstring1", 	test_packstring1},
     {0, 0}

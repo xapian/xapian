@@ -1209,6 +1209,48 @@ static bool test_bitmap1()
     return true;
 }
 
+/// Test overwriting a table.
+static bool test_overwrite1()
+{
+    const string tablename = tmpdir + "/test_overwrite1_";
+    unlink_table(tablename);
+    Btree bufftable(tablename, false);
+    bufftable.create(2048);
+    bufftable.open();
+    Btree disktable(tablename, true);
+    disktable.open();
+
+    for (int i = 1; i <= 1000; ++i) {
+	bufftable.add("foo" + om_tostring(i), "bar" + om_tostring(i));
+    }
+
+    bufftable.commit(disktable.get_latest_revision_number() + 1);
+    disktable.open();
+
+    Btree disktable_ro(tablename, true);
+    disktable_ro.open();
+    string tag;
+    TEST(disktable_ro.get_exact_entry("foo1", tag));
+    TEST_EQUAL(tag, "bar1");
+
+    bufftable.add("foo1", "bar2");
+    bufftable.commit(disktable.get_latest_revision_number() + 1);
+    disktable.open();
+    TEST(disktable_ro.get_exact_entry("foo999", tag));
+    TEST(disktable_ro.get_exact_entry("foo1", tag));
+    TEST_EQUAL(tag, "bar1");
+
+    bufftable.add("foo1", "bar3");
+    bufftable.commit(disktable.get_latest_revision_number() + 1);
+    disktable.open();
+    TEST(disktable_ro.get_exact_entry("foo999", tag));
+    TEST_EXCEPTION(Xapian::DatabaseModifiedError,
+		   disktable_ro.get_exact_entry("foo1", tag));
+    //TEST_EQUAL(tag, "bar1");
+
+    return true;
+}
+
 // ================================
 // ========= END OF TESTS =========
 // ================================
@@ -1229,12 +1271,13 @@ test_desc tests[] = {
     {"cursor2",		test_cursor2},
     {"cursor3", 	test_cursor3},
     {"bitmap1", 	test_bitmap1},
+    {"overwrite1", 	test_overwrite1},
     {0, 0}
 };
 
 int main(int argc, char **argv)
 {
-    char * e_tmpdir = getenv("BTREETMP");
+    const char * e_tmpdir = getenv("BTREETMP");
     if (e_tmpdir) {
 	tmpdir = e_tmpdir;
     } else {
