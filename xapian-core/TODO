@@ -1,1 +1,81 @@
+This file contains items which need to be worked on.
+It tends to be a huge list, partially incomplete and partially out of date.
 
+
+
+
+ToDo items on the coding side.
+(Not a complete list)
+
+Near term (within a fortnight)
+=========================
+
+Split database definition files into database/postlist/termlist files.
+
+Remove hardcoded reference to an indexer in InMemoryDatabase.  Index to it
+in the usual way.
+
+Reformat code to be consistent style, before distributing it.
+
+Write proper weighting formula for termlists, so expand works correctly.
+
+Add tags to all files so can add licences easily.
+
+Make InMemoryDatabase allow (size of position vector) != (wdf), ie, if posting
+is made and position is already there, leave position vector same but
+increment wdf.
+
+Allow for a non-zero minimum value for the ndl (normalised doc len).
+
+Rename some methods to use consistent nomenclature: eg
+get_termfreq -> get_cfreq (cf - collection frequency)
+
+Expose positional information in postlists in a consistent way.
+(extra methods / get_positionlist() method ?)
+
+Implement phrase searching. - AND postlist, scan through positionlist
+for sequential positions.
+
+Document how each function should work in database, and what it should do in
+error conditions (when things should be Asserted / when exceptions should
+be thrown / when error condition should be returned.)
+Do same for postlists, termlists, documents, matcher, etc.
+
+Middle term (within a couple of months)
+============================
+
+A couple of objects get copied a lot - look into doing copy-on-write for them.
+(Notably term objects (currently strings so this happens, but may not stay
+that way) and ExpandBits)
+
+Write more decision functions to expand - especially one to exclude the
+current query terms.
+
+Write an Enquire object to make a consistent exported searching interface.
+
+Make the sleepycat database function (at all).
+Write indexing methods for databases.
+
+Passage retrieval.
+
+Other search functions (collapse, sort, cluster).
+
+Extend introspection methods to cover all objects.
+
+Make gui demo display text being searched.
+
+Write (speed) performance test suite.
+
+Sanify and implement introspection methods - get_database_path, etc.
+Should be able to get entire state of database by introspection.
+
+Long term
+=========
+
+Write indexer modules.
+
+Make backends / weighting schemes / indexer modules register themselves
+automatically.  At runtime / linktime?
+(ie, replace current conditional compilation scheme)
+
+Distributed searching (distributed enquire objects).
