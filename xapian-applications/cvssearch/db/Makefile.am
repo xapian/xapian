@@ -10,25 +10,6 @@ libcvs_db_a_SOURCES = cvs_comment_db.C     cvs_db.C       cvs_file_revision_db.C
  cvs_diff_db.C cvs_diff_db.h
 
 bin_PROGRAMS = cvsindex cvsusageindex cvssearch cvscomments cvssymbolcount cvscountsymbols cvsminelocal cvsquery #cvsmineglobal#cvseval
-bin_SCRIPTS = cvsbuild cvsupdatedb cvsquery-script
-EXTRA_DIST = cvsbuild.pl cvsupdatedb.pl cvsquery-script.pl
-
-define build-perl-script
-$(PERL) -c $(firstword $^)
-rm -rf $@
-echo "#! " $(PERL) > $@
-cat $(firstword $^) >> $@
-chmod ugo+rx $@
-endef
-
-cvsbuild : $(srcdir)/cvsbuild.pl
-	$(build-perl-script)
-
-cvsupdatedb : $(srcdir)/cvsupdatedb.pl
-	$(build-perl-script)
-
-cvsquery-script : $(srcdir)/cvsquery-script.pl
-	$(build-perl-script)
 
 cvsquery_SOURCES = cvsquery.C
 cvsquery_LDADD = libcvs_db.a -ldb_cxx libcvs_db.a

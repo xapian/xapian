@@ -11,6 +11,7 @@
 #include <fstream.h>
 #include <stdio.h>
 #include "util.h"
+#include <strstream>
 
 #define INCLUDE_TERM_STOP_LIST_IN_SYMBOL_STOP_LIST true
 
@@ -540,14 +541,14 @@ void Lines::load_offset_file(  const string& file_offset, vector<string>& files,
 #warning "we should be able to specify granularity here:  line/file/app"
 #warning "perhaps we should rename this class"
 #warning "the default should work on a line by line basis"
-Lines::Lines( const string& p, const string& pkg, const string& file_db, const string& file_offset, const string& gran, bool use_stop_words ) {
+Lines::Lines( const string& p, const string& sroot, const string& pkg, const string& file_db, const string& file_offset, const string& gran, bool use_stop_words ) {
   
   granularity = gran;
 
   cerr << "** granularity " << granularity << endl;
 
   path = p;
-
+  root = sroot;
   package = pkg;
   
   load_offset_file( file_offset, files, offsets );
@@ -750,9 +751,11 @@ bool Lines::ReadNextLine() {
     }
 
     // build data string
-    static char str[4096];
-    sprintf(str, "%d:%d", (line_no-current_offset+1), file_no );
-    data = string(str) +" " + package + ":";
+    // static char str[4096];
+    ostrstream ost;
+    ost << (line_no-current_offset + 1) << ":"<< root << " " << package << " " << file_no << ":" << ends;
+    // sprintf(str, "%d:%d", (line_no-current_offset+1), file_no );
+    data = ost.str(); // string(str) +" " + root + " " + package + ":";
   
     for(int i = revisions.size()-1; i >=0; i-- ) {
       data += revisions[i];
@@ -905,4 +908,23 @@ void readTags( const string& fn, set<string>& S ) {
     //    cerr << "** found symbol -" << symbol << "-" << endl;
   } 
   in.close();
+}
+
+string get_cvsdata() 
+{
+    string cvsdata;
+    char *s = getenv("CVSDATA");
+    if ( s==0 ) {
+        cerr <<" Warning:  $CVSDATA not set!" << endl;
+        exit(1);
+    } else {
+        cvsdata = s;
+        // ----------------------------------------
+        // strip trailing / if any
+        // ----------------------------------------
+        if ( cvsdata[cvsdata.length()-1] == '/' ) {
+            cvsdata = cvsdata.substr( 0, cvsdata.length()-1 );
+        }
+    }
+    return cvsdata;
 }

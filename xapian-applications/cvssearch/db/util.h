@@ -60,9 +60,10 @@ class Lines {
   void extractSymbols( const string& s );
   void load_offset_file(  const string& file_offset, vector<string>& files, vector<string>& offsets );
   void Lines::readVector( const string& line, const string& field, vector<string>& field_vector );
-  string package;
+    string root;
+    string package;
 public:
-  Lines( const string& p, const string& package, const string& file_db, const string& file_offset, const string& granularity = "line", bool use_stop_words = true );
+  Lines( const string& p, const string& root, const string& package, const string& file_db, const string& file_offset, const string& granularity = "line", bool use_stop_words = true );
   ~Lines();
   string currentFile();
   // returns false when there is no next line
@@ -76,3 +77,5 @@ public:
 };
 
 void readTags( const string& fn, set<string>& S );
+
+string get_cvsdata();

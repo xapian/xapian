@@ -210,7 +210,7 @@ int main(int argc, char *argv[]) {
 
       { // pass 1
 	cerr << "PASS 1" << endl;
-	Lines lines( cvsdata, package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
+	Lines lines( cvsdata, "", package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
 	lines_read = 0;
 	string prev_file = "";
 	while ( lines.ReadNextLine() ) {
@@ -248,7 +248,7 @@ int main(int argc, char *argv[]) {
       
       { // pass 2
 	cerr << "PASS 2" << endl;
-	Lines lines( cvsdata, package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST );
+	Lines lines( cvsdata, "", package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST );
 	
 	lines_read = 0;
 

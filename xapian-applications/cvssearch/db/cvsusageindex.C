@@ -360,7 +360,7 @@ int main(int argc, char *argv[]) {
       map< string, list<string> > app_symbol_terms; // accumulated from all its points of usage
       map<string, int> app_symbol_count;
 
-      Lines lines( cvsdata, package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
+      Lines lines( cvsdata, "", package, file_cmt, file_offset, GRANULARITY, USE_STOP_LIST ); // file level granularity
 
       while ( lines.ReadNextLine() ) {
 
