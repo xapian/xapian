@@ -7,7 +7,6 @@ int n_dlist = 0;
 
 #include <fstream>
 
-#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -29,14 +28,14 @@ Match *matcher;
 
 map<string, string> option;
 
-static int ssi=0;
+static bool ssi = false;
 
 const string default_db_name = "ompf";
 
 static string map_dbname_to_dir(const string &db_name);
 
-static void make_log_entry( const char *action, long matches );
-static void make_query_log_entry( const char *buf, size_t length );
+static void make_log_entry(const char *action, long matches);
+static void make_query_log_entry(const char *buf, size_t length);
 
 string db_name;
 static string db_dir;
@@ -65,98 +64,13 @@ static int main2(int argc, char *argv[])
     int n;
     char     big_buf[4048];
     long int list_size;
-    char*    to = big_buf;
+    char    *to = big_buf;
     int      more = 0;
     int      is_old;
     long int topdoc = 0;
     char     *method;
     char     *val;
     
-    /* log query details */
-     {
-	extern char **environ;
-	char *p = big_buf;
-	int len = 4047;
-	char **penv;
-	int fd;
-	fd = open("/tmp/ferenv.log", O_CREAT|O_APPEND|O_WRONLY, 0644);
-       
-	if (fd != -1) {
-	   for (penv = environ; *penv; penv++) {
-	      const char *e = *penv;
-	      int l = strchr(e, '=') - e;
-
-	      switch (l) {
-	       case 4:
-		 if (memcmp(e, "PATH", 4) == 0) continue;
-		 break;
-	       case 9:
-		 if (memcmp(e, "USER_NAME", 9) == 0) continue;
-		 break;
-	       case 10:
-		 if (memcmp(e, "DATE_LOCAL", 10) == 0) continue;
-		 break;
-	       case 11:
-		 if (memcmp(e, "REMOTE_PORT", 11) == 0) continue;
-		 if (memcmp(e, "REQUEST_URI", 11) == 0) continue;
-		 if (memcmp(e, "SCRIPT_NAME", 11) == 0) continue;
-		 if (memcmp(e, "SERVER_NAME", 11) == 0) continue;
-		 if (memcmp(e, "SERVER_PORT", 11) == 0) continue;
-		 break;
-	       case 12:
-		 if (memcmp(e, "DOCUMENT_URI", 12) == 0) continue;
-		 if (memcmp(e, "REDIRECT_URL", 12) == 0) continue;
-		 if (memcmp(e, "SERVER_ADMIN", 12) == 0) continue;
-		 break;
-	       case 13:
-		 if (memcmp(e, "DOCUMENT_NAME", 13) == 0) continue;
-		 if (memcmp(e, "DOCUMENT_ROOT", 13) == 0) continue;
-		 if (memcmp(e, "LAST_MODIFIED", 13) == 0) continue;
-		 break;
-	       case 14:
-		 if (memcmp(e, "REQUEST_METHOD", 14) == 0) continue;
-		 break;
-	       case 15:
-		 if (memcmp(e, "REDIRECT_STATUS", 15) == 0) continue;
-		 if (memcmp(e, "SCRIPT_FILENAME", 15) == 0) continue;
-		 if (memcmp(e, "SERVER_PROTOCOL", 15) == 0) continue;
-		 if (memcmp(e, "SERVER_SOFTWARE", 15) == 0) continue;
-		 break;
-	       case 16:
-		 if (memcmp(e, "SERVER_SIGNATURE", 16) == 0) continue;
-		 break;
-	       case 17:
-		 if (memcmp(e, "GATEWAY_INTERFACE", 17) == 0) continue;
-		 break;
-	       case 18:
-		 if (memcmp(e, "DOCUMENT_PATH_INFO", 18) == 0) continue;
-		 break;
-	       case 21:
-		 if (memcmp(e, "REDIRECT_QUERY_STRING", 21) == 0) continue;
-		 break;
-	       case 22:
-		 if (memcmp(e, "QUERY_STRING_UNESCAPED", 22) == 0) continue;
-		 break;
-	      }
-	      l = strlen(e);
-
-	      if (l + 1 > len) break;
-	      memcpy(p, e, l);
-	      len -= l + 1;
-	      p += l;
-	      strcpy(p, "\n");
-	      p++;
-	   }
-	   
-	   if (len) {
-	      strcpy(p, "\n");
-	      p++;
-	   }
-	   write(fd, big_buf, p - big_buf);
-	   close(fd);
-	}
-     }
-   
     setvbuf(stdout, NULL, _IOLBF, 0);
       
     have_query = false;
@@ -200,10 +114,10 @@ static int main2(int argc, char *argv[])
     else
 	db_name = default_db_name;
 #ifdef META
-    ssi = 0;
+    ssi = false;
 #else
     /* if we're called from a SSI page, set flag to use query-ssi, etc */
-    if (getenv("REDIRECT_QUERY_STRING")) ssi = 1;
+    if (getenv("REDIRECT_QUERY_STRING")) ssi = true;
 #endif
 
     /* Translate DB parameter to path to database directory */
