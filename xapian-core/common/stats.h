@@ -302,7 +302,10 @@ inline void
 StatsSource::my_termfreq_is(const om_termname & tname, om_doccount tfreq)
 {
     Assert(total_stats == 0);
-    Assert(my_stats.termfreq.find(tname) == my_stats.termfreq.end());
+    // Can be called a second time, if a term occurs multiple times in the
+    // query.
+    Assert(my_stats.termfreq.find(tname) == my_stats.termfreq.end() ||
+	   my_stats.termfreq.find(tname)->second == tfreq);
     my_stats.termfreq[tname] = tfreq;
 }
 
@@ -310,7 +313,10 @@ inline void
 StatsSource::my_reltermfreq_is(const om_termname & tname, om_doccount rtfreq)
 {
     Assert(total_stats == 0);
-    Assert(my_stats.reltermfreq.find(tname) == my_stats.reltermfreq.end());
+    // Can be called a second time, if a term occurs multiple times in the
+    // query.
+    Assert(my_stats.reltermfreq.find(tname) == my_stats.reltermfreq.end() ||
+	   my_stats.reltermfreq.find(tname)->second == rtfreq);
     my_stats.reltermfreq[tname] = rtfreq;
 }
 
