@@ -43,7 +43,7 @@ om_doccount do_match();
 
 void add_bterm(const string &);
 
-extern om_queryop op;
+extern OmQuery::op op;
 
 extern string raw_prob;
 extern map<om_docid, bool> ticked;

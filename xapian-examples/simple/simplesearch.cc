@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 	}
 
 	// Build the query object
-	OmQuery query(OM_MOP_OR, queryterms.begin(), queryterms.end());
+	OmQuery query(OmQuery::OP_OR, queryterms.begin(), queryterms.end());
 	cout << "Performing query `" << query.get_description() << "'" << endl;
 
 	// Give the query object to the enquire session

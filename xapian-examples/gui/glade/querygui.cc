@@ -237,7 +237,7 @@ on_query_changed(GtkWidget *widget, gpointer user_data) {
 	    select_characters(word, "");
 	    lowercase_term(word);
 	    word = stemmer.stem_word(word);
-	    omquery = OmQuery(OM_MOP_OR, omquery, OmQuery(word, 1, position++));
+	    omquery = OmQuery(OmQuery::OP_OR, omquery, OmQuery(word, 1, position++));
 	    unparsed_query = unparsed_query.erase(0, spacepos);
 	}
 

@@ -50,7 +50,7 @@ map<om_docid, bool> ticked;
 
 static OmQuery query;
 static string query_string;
-om_queryop op = OM_MOP_OR; // default matching mode
+OmQuery::op op = OmQuery::OP_OR; // default matching mode
 
 static QueryParser qp;
 
@@ -118,9 +118,9 @@ run_query()
 	for (i = filter_map.begin(); i != filter_map.end(); i++)
 	    filter_vec.push_back(i->second);
 
-	query = OmQuery(OM_MOP_FILTER,
+	query = OmQuery(OmQuery::OP_FILTER,
 			query,
-			OmQuery(OM_MOP_AND,
+			OmQuery(OmQuery::OP_AND,
 				filter_vec.begin(),
 				filter_vec.end()));
     }
@@ -422,7 +422,7 @@ eval(const string &fmt)
 		break;
 	    }
 	    if (var == "defaultop") {
-		if (op == OM_MOP_AND) {
+		if (op == OmQuery::OP_AND) {
 		    value = "and";
 		} else {
 		    value = "or";

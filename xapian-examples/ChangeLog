@@ -1,3 +1,7 @@
+Mon Aug 21 15:57:00 BST 2000 Olly Betts
+
+	* Updated to reflect om_queryop -> OmQuery::op api changes.
+
 Mon Aug 21 09:51:00 BST 2000 Olly Betts
 
 	* omega: Changed remaining references from /usr/om to /usr/omega
@@ -14,7 +18,7 @@ Fri Aug 18 14:20:37 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 Thu Aug 17 10:33:00 BST 2000 Olly Betts
 
 	* Updated examples to reflect OmMatchOptions/OmExpandOptions ->
-	  OmSettings change
+	  OmSettings change.
 
 Thu Aug 17 10:19:00 BST 2000 Olly Betts
 

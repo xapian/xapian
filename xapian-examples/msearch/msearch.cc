@@ -53,7 +53,7 @@ main(int argc, char *argv[])
     OmRSet rset;
     vector<OmSettings *> dbs;
     bool showmset = true;
-    om_queryop default_op = OM_MOP_OR;
+    OmQuery::op default_op = OmQuery::OP_OR;
     int collapse_key = -1;
 
     bool syntax_error = false;
@@ -88,7 +88,7 @@ main(int argc, char *argv[])
 	    argc--;
 	    argv++;
 	} else if (strcmp(argv[0], "--matchall") == 0) {
-	    default_op = OM_MOP_AND;
+	    default_op = OmQuery::OP_AND;
 	    argc--;
 	    argv++;
 	} else if (strcmp(argv[0], "--rel") == 0) {
@@ -139,36 +139,36 @@ main(int argc, char *argv[])
 		continue;
 	    } else if (term == "P") {
 		if (boolquery.size() >= 1) {
-		    query = OmQuery(OM_MOP_FILTER, query, boolquery.top());
+		    query = OmQuery(OmQuery::OP_FILTER, query, boolquery.top());
 		}
 		boolean = false;
 		continue;
 	    } else {
 		if (boolean) {
 		    bool doop = false;
-		    om_queryop boolop = default_op;
+		    OmQuery::op boolop = default_op;
 		    if (term == "OR") {
-			boolop = OM_MOP_OR;
+			boolop = OmQuery::OP_OR;
 			doop = true;
 		    } else if (term == "NOT") {
-			boolop = OM_MOP_AND_NOT;
+			boolop = OmQuery::OP_AND_NOT;
 			doop = true;
 		    } else if (term == "AND") {
-			boolop = OM_MOP_AND;
+			boolop = OmQuery::OP_AND;
 			doop = true;
 		    } else if (term == "XOR") {
-			boolop = OM_MOP_XOR;
+			boolop = OmQuery::OP_XOR;
 			doop = true;
 		    } else if (term == "ANDMAYBE") {
-			boolop = OM_MOP_AND_MAYBE;
+			boolop = OmQuery::OP_AND_MAYBE;
 			doop = true;
 		    } else if (term == "ANDNOT") {
-			boolop = OM_MOP_AND_NOT;
+			boolop = OmQuery::OP_AND_NOT;
 			doop = true;
 		    }
 // FIXME: NEAR (and PHRASE) take a window size and multiple terms
 //		    else if (term == "NEAR") {
-//			boolop = OM_MOP_NEAR;
+//			boolop = OmQuery::OP_NEAR;
 //			doop = true;
 //		    }
 		    if (doop) {
@@ -191,7 +191,7 @@ main(int argc, char *argv[])
         }
 	if(boolean) {
 	    Assert(boolquery.size() == 1);
-	    query = OmQuery(OM_MOP_FILTER, query, boolquery.top());
+	    query = OmQuery(OmQuery::OP_FILTER, query, boolquery.top());
 	}
 
 	enquire.set_query(query);
