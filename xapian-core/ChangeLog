@@ -1,3 +1,8 @@
+Fri Oct  6 13:15:45 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* QuartzBufferedTable::get_or_make_tag() now never returns a null
+	  pointer, as advertised.  Fixes broken test.
+
 Fri Oct  6 12:02:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Add autoptr cleanup item to todo.

@@ -333,6 +333,7 @@ QuartzBufferedTable::apply(QuartzRevisionNumber new_revision)
 	throw;
     }
     changed_entries.clear();
+    Assert(entry_count == disktable->get_entry_count());
     return result;
 }
 
@@ -374,27 +375,44 @@ QuartzBufferedTable::get_tag(const QuartzDbKey &key)
 QuartzDbTag *
 QuartzBufferedTable::get_or_make_tag(const QuartzDbKey &key)
 {
+    QuartzDbTag * tagptr;
+
+    // Check cache first
     if (changed_entries.have_entry(key)) {
-	return changed_entries.get_tag(key);
-    } else {
-	AutoPtr<QuartzDbTag> tag(new QuartzDbTag);
-	QuartzDbTag * tagptr = tag.get();
-
-	bool found = disktable->get_exact_entry(key, *tag);
-
-	changed_entries.set_tag(key, tag);
-	if (found && tagptr == 0) {
-	    Assert(entry_count != 0);
-	    entry_count -= 1;
-	} else if (!found && tagptr != 0) {
+	tagptr = changed_entries.get_tag(key);
+	if (tagptr == 0) {
+	    // make new empty tag
+	    AutoPtr<QuartzDbTag> tag(new QuartzDbTag);
+	    tagptr = tag.get();
+	    changed_entries.set_tag(key, tag);
 	    entry_count += 1;
-	}
-	Assert(changed_entries.have_entry(key));
-	Assert(changed_entries.get_tag(key) == tagptr);
-	Assert(tag.get() == 0);
 
-	return tagptr;
+	    Assert(changed_entries.get_tag(key) == tagptr);
+	    Assert(tag.get() == 0);
+
+	    return tagptr;
+	} else {
+	    return tagptr;
+	}
     }
+
+    AutoPtr<QuartzDbTag> tag(new QuartzDbTag);
+    tagptr = tag.get();
+
+    bool found = disktable->get_exact_entry(key, *tag);
+
+    changed_entries.set_tag(key, tag);
+    if (found && tagptr == 0) {
+	Assert(entry_count != 0);
+	entry_count -= 1;
+    } else if (!found && tagptr != 0) {
+	entry_count += 1;
+    }
+    Assert(changed_entries.have_entry(key));
+    Assert(changed_entries.get_tag(key) == tagptr);
+    Assert(tag.get() == 0);
+
+    return tagptr;
 }
 
 void
