@@ -570,8 +570,6 @@ if($query && ($query ne "")){
 # print email for bugs # survey
 #--------------
 print <<_HTML_;
-#<p>
-#<b class=orange>Please fill out our short <a href=http://www.pollcat.com/tzk3nkgszq_a target=_blank>survey</a>. Your feedback is essential in improving CVSSearch.</font></b>
 <p>
 <b class=orange>Please send all bugs/comments to <a mailto="cvssearch\@cse.unsw.edu.au">cvssearch\@cse.unsw.edu.au</a>
 _HTML_
