@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsuite -I${top_builddir}/include
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsuite -I$(top_builddir)/include
 
 noinst_HEADERS =       quartz_types.h \
                        quartz_database.h \
@@ -42,6 +42,7 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       bcursor.cc \
 		       btree_base.cc
 
+EXTRA_DIST = z_data/ord+ z_data/ord- z_data/ordnum+ z_data/ordnum-
 
 noinst_LTLIBRARIES = libquartz.la
 
