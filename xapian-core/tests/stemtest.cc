@@ -29,7 +29,7 @@
 
 #include "om/omstem.h"
 
-#define IS_LETTER(ch)  (islower(ch) || (ch) == '^')
+#define IS_LETTER(ch)  (!isspace(ch))
 
 void stemfile(const OmStem &stemmer, FILE * f)
 {
@@ -47,6 +47,7 @@ void stemfile(const OmStem &stemmer, FILE * f)
 		word += ch;
 
 		ch = getc(f);
+		if (ch == EOF) { break; };
 		if (!IS_LETTER(ch)) { ungetc(ch, f); break; }
 	    }
 
