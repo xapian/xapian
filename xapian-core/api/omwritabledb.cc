@@ -1,4 +1,4 @@
-/* omindexer.cc
+/* omwritabledb.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
