@@ -23,26 +23,6 @@ lowercase_term(om_termname &term)
     }
 }
 
-// Keep only the characters in keep
-// FIXME - make this accept character ranges in "keep"
-static void
-select_characters(om_termname &term, const string & keep)
-{
-    string chars;
-    if (keep.empty()) {
-	chars ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    } else {
-	chars = keep;
-    }
-    string::size_type pos;
-    while((pos = term.find_first_not_of(chars)) != string::npos)
-    {
-	string::size_type endpos = term.find_first_of(chars, pos);
-	term.erase(pos, endpos - pos);
-    }
-}
-
-
 static OmWritableDatabase *db;
 
 class MyHtmlParser : public HtmlParser {
