@@ -110,6 +110,8 @@ There are six tables comprising a quartz database.
 <B>Record</B>.
 This stores the arbitrary chunk of data associated with each document.
 <p>
+Key: pack_uint(docid) 
+<p>
 It also stores a couple of special fields - one containing the next
 document ID to use when adding a document (document IDs are allocated in
 increasing order, starting at 1, and are currently never reused), and one

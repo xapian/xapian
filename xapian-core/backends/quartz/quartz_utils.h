@@ -74,7 +74,7 @@ unpack_uint(const char ** src,
     unsigned int shift = 0;
     T result = 0;
 
-    while(1) {
+    while (true) {
 	if ((*src) == src_end) {
 	    *src = 0;
 	    return false;
@@ -88,7 +88,7 @@ unpack_uint(const char ** src,
 	     ((part & 0x7f) << (shift % 8)) >= 0x100) ||
 	    (shift >= sizeof(T) * 8))  {
 	    // Overflowed - move to end of this integer
-	    while(1) {
+	    while (true) {
 		if ((part & 0x80) == 0) return false;
 		if ((*src) == src_end) {
 		    *src = 0;
@@ -126,7 +126,7 @@ pack_uint(T value)
     if (value == 0) return string("", 1u);
     string result;
 
-    while(value != 0) {
+    while (value != 0) {
 	om_byte part = value & 0x7f;
 	value = value >> 7;
 	if (value) part |= 0x80;
@@ -222,20 +222,20 @@ unpack_string(const char ** src,
 	      const char * src_end,
 	      string & result)
 {
-    string::size_type length;                        
-    if (!unpack_uint(src, src_end, &length)) {       
-    	return false;                                 
-    }                                                
-                                              
-    if (src_end - *src < 0 ||                        
+    string::size_type length;
+    if (!unpack_uint(src, src_end, &length)) {
+    	return false;
+    }
+
+    if (src_end - *src < 0 ||
 	(string::size_type)(src_end - *src) < length) {
-	src = 0;                                      
-	return false;                                 
-    }                                                
-                                                  
-    result = string(*src, length);                   
-    *src += length;                                  
-    return true;                                     
+	src = 0;
+	return false;
+    }
+
+    result = string(*src, length);
+    *src += length;
+    return true;
 }
 
 inline string

@@ -31,8 +31,8 @@
 #include "omdebug.h"
 using std::string;
 
-#define NEXTDOCID_TAG std::string("\000\000", 2)
-#define TOTLEN_TAG std::string("\000\001", 2)
+// Tag used to store next free docid and total length
+static const string METAINFO_TAG("\000\000", 2);
 
 string
 QuartzRecordManager::get_record(QuartzTable & table, om_docid did)
@@ -57,46 +57,40 @@ QuartzRecordManager::get_doccount(QuartzTable & table)
     // quartz_tablesize_t) are compatible.
     om_doccount entries = table.get_entry_count();
 
-    Assert(entries != 1);
-    if (entries < 2) RETURN(0);
-    RETURN(entries - 2);
+    if (entries < 1) RETURN(0);
+    RETURN(entries - 1);
 }
 
 om_docid
 QuartzRecordManager::get_newdocid(QuartzBufferedTable & table)
 {
     DEBUGCALL_STATIC(DB, om_docid, "QuartzRecordManager::get_newdocid", "[table]");
-    string key;
-    key = NEXTDOCID_TAG;
-
-    string * tag = table.get_or_make_tag(key);
+    string * tag = table.get_or_make_tag(METAINFO_TAG);
 
     om_docid did;
+    quartz_totlen_t totlen;
     if (tag->empty()) {
 	did = 1u;
-
-	// Ensure that other informational tag is present.
-	string key2;
-	key2 = TOTLEN_TAG;
-	(void) table.get_or_make_tag(key2);
+	totlen = 0u;
     } else {
 	const char * data = tag->data();
 	const char * end = data + tag->size();
-	bool success = unpack_uint(&data, end, &did);
-	if (!success) {
-	    if (data == end) { // Overflow
-		throw OmRangeError("Next document number is out of range.");
-	    } else { // Number ran out
-		throw OmDatabaseCorruptError("Record containing next free docid is corrupt.");
-	    }
+	if (!unpack_uint(&data, end, &did)) {
+	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
+	}
+	if (!unpack_uint(&data, end, &totlen)) {
+	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
 	}
 	if (data != end) {
-	    // Junk data at end of record
-	    throw OmDatabaseCorruptError("Junk data at end of record containing next free docid.");
+	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
+	}
+	++did;
+	if (did == 0) {
+	    throw OmRangeError("Next document number is out of range.");
 	}
     }
-
-    *tag = pack_uint(did + 1);
+    *tag = pack_uint(did);
+    *tag += pack_uint(totlen);
 
     RETURN(did);
 }
@@ -132,69 +126,61 @@ QuartzRecordManager::modify_total_length(QuartzBufferedTable & table,
 					 quartz_doclen_t new_doclen)
 {
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::modify_total_length", "[table], " << old_doclen << ", " << new_doclen);
-    string key;
-    key = TOTLEN_TAG;
-    string * tag = table.get_or_make_tag(key);
+    string * tag = table.get_or_make_tag(METAINFO_TAG);
 
+    om_docid did;
     quartz_totlen_t totlen;
     if (tag->empty()) {
+	did = 1u;
 	totlen = 0u;
-
-	// Ensure that other informational tag is present.
-	string key2;
-	key2 = NEXTDOCID_TAG;
-	(void) table.get_or_make_tag(key2);
     } else {
 	const char * data = tag->data();
 	const char * end = data + tag->size();
-	bool success = unpack_uint(&data, end, &totlen);
-	if (!success) {
-	    if (data == end) { // Overflow
-		throw OmRangeError("Total document length is out of range.");
-	    } else { // Number ran out
-		throw OmDatabaseCorruptError("Record containing total document length is corrupt.");
-	    }
+	if (!unpack_uint(&data, end, &did)) {
+	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
+	}
+	if (!unpack_uint(&data, end, &totlen)) {
+	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
 	}
 	if (data != end) {
-	    // Junk data at end of record
-	    throw OmDatabaseCorruptError("Junk data at end of record containing total document length.");
+	    throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
 	}
     }
+    
+    if (totlen < old_doclen)
+	throw OmDatabaseCorruptError("Total document length is less than claimed old document length");
 
+    totlen -= old_doclen;
     quartz_totlen_t newlen = totlen + new_doclen;
+
     if (newlen < totlen)
 	throw OmRangeError("New total document length is out of range.");
-    if (newlen < old_doclen)
-	throw OmDatabaseCorruptError("Total document length is less than claimed old document length");
-    newlen -= old_doclen;
-    *tag = pack_uint(newlen);
+
+    *tag = pack_uint(did);
+    *tag += pack_uint(newlen);
 }
 
 om_totlength
 QuartzRecordManager::get_total_length(QuartzTable & table)
 {
     DEBUGCALL_STATIC(DB, om_totlength, "QuartzRecordManager::get_total_length", "QuartzTable &");
-    string key;
-    key = TOTLEN_TAG;
     string tag;
+    if (!table.get_exact_entry(METAINFO_TAG, tag)) RETURN(0u);
 
-    if (!table.get_exact_entry(key, tag)) {
-	RETURN(0u);
-    }
-
+    om_docid did;
     quartz_totlen_t totlen;
     const char * data = tag.data();
     const char * end = data + tag.size();
-    bool success = unpack_uint(&data, end, &totlen);
-    if (!success) {
-	if (data == end) { // Overflow
-	    throw OmRangeError("Total document length is out of range.");
-	} else { // Number ran out
-	    throw OmDatabaseCorruptError("Record containing total document length is corrupt.");
-	}
+    if (!unpack_uint(&data, end, &did)) {
+	throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
     }
-
-    RETURN((om_totlength) totlen);
+    if (!unpack_uint(&data, end, &totlen)) {
+	throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
+    }
+    if (data != end) {
+	throw OmDatabaseCorruptError("Record containing meta information is corrupt.");
+    }
+    RETURN((om_totlength)totlen);
 }
 
 void
@@ -204,4 +190,3 @@ QuartzRecordManager::delete_record(QuartzBufferedTable & table,
     DEBUGCALL_STATIC(DB, void, "QuartzRecordManager::delete_record", "[table], " << did);
     table.delete_tag(quartz_docid_to_key(did));
 }
-
