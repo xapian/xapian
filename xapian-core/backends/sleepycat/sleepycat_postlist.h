@@ -82,7 +82,7 @@ class SleepycatPostList : public LeafPostList {
         PostList * skip_to(om_docid did, om_weight w_min);  // Skip to next docid >= docid
 	bool       at_end() const;      // True if we're off the end of the list
 
-	std::string intro_term_description() const;
+	std::string get_description() const;
 };
 
 #endif /* MUS_BUILD_BACKEND_SLEEPYCAT */

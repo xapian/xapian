@@ -70,7 +70,7 @@ class DAPostList : public LeafPostList {
 	PostList *skip_to(om_docid did, om_weight w_min);  // Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
-	std::string intro_term_description() const;
+	std::string get_description() const;
 };
 
 inline om_doccount
@@ -113,7 +113,7 @@ DAPostList::at_end() const
 }
 
 inline std::string
-DAPostList::intro_term_description() const
+DAPostList::get_description() const
 {
     return tname + ":" + om_tostring(termfreq);
 }

@@ -70,7 +70,7 @@ class AndMaybePostList : public BranchPostList {
 	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
-	std::string intro_term_description() const;
+	std::string get_description() const;
 
 	/** Return the document length of the document the current term
 	 *  comes from.
@@ -143,10 +143,10 @@ AndMaybePostList::at_end() const
 }
 
 inline std::string
-AndMaybePostList::intro_term_description() const
+AndMaybePostList::get_description() const
 {
-    return "(" + l->intro_term_description() + " AndMaybe " +
-	    r->intro_term_description() + ")";
+    return "(" + l->get_description() + " AndMaybe " + r->get_description() +
+	   ")";
 }
 
 inline om_doclength

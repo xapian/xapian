@@ -27,18 +27,16 @@
 #include "database.h"
 #include "andpostlist.h"
 
-// FilterPostList(probabilistic, boolean)
-// AntiFilterPostList(probabilistic, boolean)
-
-/** A postlist comprising two postlists ANDed together, but
+/** A postlist comprising two postlists ANDed together, but with weights
+ *  taken only from one.
  *
  *  This postlist returns a posting if and only if it is in both of the
  *  sub-postlists.  The weight for a posting is the weight of the left-hand
  *  sub-postings.  The weight of the right-hand posting is ignored (and
  *  indeed, should never get calculated).
  *
- *  This is useful for restricting the search to a subdomain of the
- *  database.
+ *  This is useful for restricting the search to a subset of the
+ *  database.  Note that AndNotPostList provides an "AntiFilterPostList".
  */
 class FilterPostList : public AndPostList {
     public:
@@ -47,7 +45,7 @@ class FilterPostList : public AndPostList {
 
         om_weight recalc_maxweight();
 
-	std::string intro_term_description() const;
+	std::string get_description() const;
 
         FilterPostList(PostList *l, PostList *r, LocalMatch *matcher_) :
             AndPostList(l, r, matcher_) {};

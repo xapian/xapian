@@ -42,8 +42,7 @@ FilterPostList::recalc_maxweight()
 }
 
 std::string
-FilterPostList::intro_term_description() const
+FilterPostList::get_description() const
 {
-    return "(" + l->intro_term_description() + " Filter " +
-	    r->intro_term_description() + ")";
+    return "(" + l->get_description() + " Filter " + r->get_description() + ")";
 }

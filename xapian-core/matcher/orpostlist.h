@@ -51,7 +51,7 @@ class OrPostList : public BranchPostList {
 	PostList *skip_to(om_docid did, om_weight w_min);
 	bool   at_end() const;
 
-	std::string intro_term_description() const;
+	std::string get_description() const;
 
 	/** Return the document length of the document the current term
 	 *  comes from.
@@ -115,10 +115,9 @@ OrPostList::at_end() const
 }
 
 inline std::string
-OrPostList::intro_term_description() const
+OrPostList::get_description() const
 {
-    return "(" + l->intro_term_description() + " Or " +
-	    r->intro_term_description() + ")";
+    return "(" + l->get_description() + " Or " + r->get_description() + ")";
 }
 
 inline om_doclength
@@ -140,4 +139,4 @@ OrPostList::get_doclength() const
     return doclength;
 }
 
-#endif /* _orpostlist_h_ */
+#endif /* OM_HGUARD_ORPOSTLIST_H */

@@ -1,3 +1,8 @@
+Fri Sep 22 12:20:38 BST 2000 Olly Betts
+
+	* Renamed PostList::intro_term_description() to get_description()
+	  for consistency with other classes.
+
 Fri Sep 22 10:41:08 BST 2000 Olly Betts
 
 	* Updated docs in irweight.h; tweaked multimatch.cc.

@@ -65,7 +65,7 @@ class MultiPostList : public LeafPostList {
 	PostList *skip_to(om_docid did, om_weight w_min);// Moves to next docid >= specified docid
 	bool   at_end() const;        // True if we're off the end of the list
 
-	std::string intro_term_description() const;
+	std::string get_description() const;
 };
 
 inline void
@@ -112,13 +112,13 @@ MultiPostList::at_end() const
 }
 
 inline std::string
-MultiPostList::intro_term_description() const
+MultiPostList::get_description() const
 {
     std::string desc = "[";
 
     std::vector<LeafPostList *>::const_iterator i;
     for (i = postlists.begin(); i != postlists.end(); i++) {
-	desc += (*i)->intro_term_description();
+	desc += (*i)->get_description();
 	if (i != postlists.end()) desc += ",";
     }
 

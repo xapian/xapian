@@ -566,7 +566,7 @@ LocalMatch::get_mset(om_doccount first,
     PostList * query = postlist_from_query(&users_query);
 
     Assert(query != NULL);
-    DEBUGLINE(MATCH, "query = (" << query->intro_term_description() << ")");
+    DEBUGLINE(MATCH, "query = (" << query->get_description() << ")");
 
     // Empty result set
     om_doccount mbound = 0;

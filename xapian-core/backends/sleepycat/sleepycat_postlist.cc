@@ -121,7 +121,7 @@ SleepycatPostList::at_end() const
 }
 
 std::string
-SleepycatPostList::intro_term_description() const
+SleepycatPostList::get_description() const
 {
     return tname + ":" + om_tostring(get_termfreq());
 }

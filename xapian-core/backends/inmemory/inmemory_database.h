@@ -151,7 +151,7 @@ class InMemoryPostList : public LeafPostList {
 
 	bool   at_end() const;        // True if we're off the end of the list
 
-	std::string intro_term_description() const;
+	std::string get_description() const;
 };
 
 
@@ -337,7 +337,7 @@ InMemoryPostList::at_end() const
 
 
 inline std::string
-InMemoryPostList::intro_term_description() const
+InMemoryPostList::get_description() const
 {
     return tname + ":" + om_tostring(termfreq);
 }

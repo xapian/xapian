@@ -146,7 +146,7 @@ class PostList : public RefCntBase
 
 	// Returns a description of the term or terms from which the postlist
 	// derives.
-	virtual std::string intro_term_description() const = 0;
+	virtual std::string get_description() const = 0;
 };
 
 inline om_termcount

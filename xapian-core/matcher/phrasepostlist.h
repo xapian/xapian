@@ -45,7 +45,7 @@ class NearPostList : public SelectPostList {
         bool do_test(std::vector<PositionList *> &plists, om_termcount i,
 		     om_termcount min, om_termcount max);
     public:
-	std::string intro_term_description() const;
+	std::string get_description() const;
 
         NearPostList(PostList *source, om_termpos window_,
 		     std::vector<PostList *> terms_) : SelectPostList(source)
@@ -56,10 +56,10 @@ class NearPostList : public SelectPostList {
 };
 
 inline std::string
-NearPostList::intro_term_description() const
+NearPostList::get_description() const
 {
     return "(Near " + om_tostring(window) + " "
-	   + source->intro_term_description() + ")";
+	   + source->get_description() + ")";
 }
 
 
@@ -79,7 +79,7 @@ class PhrasePostList : public SelectPostList {
         bool do_test(std::vector<PositionList *> &plists, om_termcount i,
 		     om_termcount min, om_termcount max);
     public:
-	std::string intro_term_description() const;
+	std::string get_description() const;
 
         PhrasePostList(PostList *source, om_termpos window_,
 		       std::vector<PostList *> terms_) : SelectPostList(source)
@@ -90,10 +90,10 @@ class PhrasePostList : public SelectPostList {
 };
 
 inline std::string
-PhrasePostList::intro_term_description() const
+PhrasePostList::get_description() const
 {
     return "(Phrase " + om_tostring(window) + " "
-	   + source->intro_term_description() + ")";
+	   + source->get_description() + ")";
 }
 
 #endif /* OM_HGUARD_PHRASEPOSTLIST_H */

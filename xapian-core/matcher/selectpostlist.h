@@ -52,16 +52,16 @@ class SelectPostList : public PostList {
 	PositionList * get_position_list() { return source->get_position_list(); }
 	bool at_end() const { return source->at_end(); }
 
-	std::string intro_term_description() const;
+	std::string get_description() const;
 
 	SelectPostList(PostList *source_) : source(source_) { }
         ~SelectPostList() { delete source; }
 };
 
 inline std::string
-SelectPostList::intro_term_description() const
+SelectPostList::get_description() const
 {
-    return "(Select " + source->intro_term_description() + ")";
+    return "(Select " + source->get_description() + ")";
 }
 
 #endif /* OM_HGUARD_SELECTPOSTLIST_H */
