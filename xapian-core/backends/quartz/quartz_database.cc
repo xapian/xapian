@@ -287,7 +287,6 @@ QuartzDatabase::get_termfreq(const om_termname & tname) const
     om_doccount termfreq = 0; // If not found, this value will be unchanged.
     QuartzLexicon::get_entry(tables->get_lexicon_table(),
 			     tname,
-			     0,
 			     &termfreq);
     return termfreq;
 }
@@ -298,7 +297,7 @@ QuartzDatabase::term_exists(const om_termname & tname) const
     Assert(tname.size() != 0);
     OmLockSentry sentry(quartz_mutex);
     return QuartzLexicon::get_entry(tables->get_lexicon_table(),
-				    tname, 0, 0);
+				    tname, 0);
 }
 
 
@@ -500,10 +499,8 @@ QuartzWritableDatabase::do_add_document(const OmDocumentContents & document)
 
     
     for (term = document.terms.begin(); term != document.terms.end(); term++) {
-	om_termid tid;
 	QuartzLexicon::increment_termfreq(buffered_tables->get_lexicon_table(),
-					  term->second.tname,
-					  &tid);
+					  term->second.tname);
 	QuartzPostList::add_entry(buffered_tables->get_postlist_table(),
 				  term->second.tname,
 				  did,

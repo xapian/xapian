@@ -42,28 +42,19 @@ class QuartzLexicon {
 	static void make_key(QuartzDbKey & key,
 			     const om_termname & tname);
 
-	/** Allocate a new term ID.
-	 */
-	static om_termid allocate_termid(QuartzBufferedTable * table);
-
 	/** Parse an entry from the lexicon.
 	 *
 	 *  @param data     The data stored in the tag in the lexicon table.
-	 *  @param tid      A pointer to a value which is filled with the
-	 *                  term ID of the term looked up, if found.  If the
-	 *                  pointer is 0, the termID read is discarded.
 	 *  @param termfreq A pointer to a value which is filled with the
 	 *                  term frequency, if the term is found.  If the
 	 *                  pointer is 0, the termfreq read is discarded
 	 */
 	static void parse_entry(const std::string & data,
-				om_termid * tid,
 				om_doccount * termfreq);
 
 	/** Make an entry to go into the lexicon.
 	 */
 	static void make_entry(std::string & data,
-			       om_termid tid,
 			       om_doccount termfreq);
 
     public:
@@ -75,14 +66,9 @@ class QuartzLexicon {
 	 *
 	 *  @param table   The table which the lexicon is stored in.
 	 *  @param tname   The term to add.
-	 *  @param tidptr  A pointer to a termid, which is used to return the
-	 *                 termid associated with this term.  The initial
-	 *                 value of this termid is ignored.  If the pointer
-	 *                 is 0, this entry is ignored.
 	 */
 	static void increment_termfreq(QuartzBufferedTable * table,
-				       const om_termname & tname,
-				       om_termid * tidptr = 0);
+				       const om_termname & tname);
 
 	/** Remove an entry from the lexicon.  If the entry
 	 *  doesn't already exist, no action is taken.
@@ -95,9 +81,6 @@ class QuartzLexicon {
 	 *
 	 *  @param table    The table which the lexicon is stored in.
 	 *  @param tname    The term being looked up in the lexicon.
-	 *  @param tid      A pointer to a value which is filled with the
-	 *                  term ID of the term looked up, if found.  If the
-	 *                  pointer is 0, the termID read is discarded.
 	 *  @param termfreq A pointer to a value which is filled with the
 	 *                  term frequency, if the term is found.  If the
 	 *                  pointer is 0, the termfreq read is discarded
@@ -107,7 +90,6 @@ class QuartzLexicon {
 	 */
 	static bool get_entry(const QuartzTable * table,
 			      const om_termname & tname,
-			      om_termid * tid,
 			      om_doccount * termfreq);
 };
 

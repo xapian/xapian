@@ -240,7 +240,6 @@ QuartzTermList::get_termfreq_internal() const
 	current_termfreq = 0; // If not found, this value will be unchanged.
 	QuartzLexicon::get_entry(lexicon_table,
 				 current_tname,
-				 0,
 				 &current_termfreq);
     }
 

@@ -33,43 +33,13 @@ QuartzLexicon::make_key(QuartzDbKey & key,
     key.value = pack_string(tname);
 }
 
-om_termid
-QuartzLexicon::allocate_termid(QuartzBufferedTable * table)
-{
-    QuartzDbKey key;
-    key.value = pack_string("");
-    QuartzDbTag * tag = table->get_or_make_tag(key);
-
-    om_termid tid;
-    if (tag->value.size() == 0) {
-	tid = 1;
-    } else {
-	std::string::const_iterator pos = tag->value.begin();
-	std::string::const_iterator end = pos + tag->value.size();
-
-	if (!unpack_uint(&pos, end, &tid)) {
-	    if(pos == 0)
-		throw OmDatabaseCorruptError("Unexpected end of data when reading next termid from lexicon.");
-	    else throw OmRangeError("Size of next termid out of range, in lexicon.");
-	}
-    }
-    tag->value = pack_uint(tid + 1);
-
-    return tid;
-}
-
 void
 QuartzLexicon::parse_entry(const std::string & data,
-			   om_termid * tid,
 			   om_doccount * termfreq)
 {
     std::string::const_iterator pos = data.begin();
     std::string::const_iterator end = pos + data.size();
 
-    if (!unpack_uint(&pos, end, tid)) {
-	if(pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termid from lexicon.");
-	else throw OmRangeError("Size of termid out of range, in lexicon.");
-    }
     if (!unpack_uint(&pos, end, termfreq)) {
 	if(pos == 0) throw OmDatabaseCorruptError("Unexpected end of data when reading termfreq from lexicon.");
 	else throw OmRangeError("Size of termfreq out of range, in lexicon.");
@@ -78,41 +48,33 @@ QuartzLexicon::parse_entry(const std::string & data,
 
 void
 QuartzLexicon::make_entry(std::string & data,
-			  om_termid tid,
 			  om_doccount termfreq)
 {
-    data = pack_uint(tid);
-    data += pack_uint(termfreq);
+    data = pack_uint(termfreq);
 }
 
 void
 QuartzLexicon::increment_termfreq(QuartzBufferedTable * table,
-				  const om_termname & tname,
-				  om_termid * tidptr)
+				  const om_termname & tname)
 {
     QuartzDbKey key;
     make_key(key, tname);
     QuartzDbTag * tag = table->get_or_make_tag(key);
 
-    om_termid tid;
     om_doccount termfreq;
 
     if (tag->value.size() == 0) {
-	// New tag - allocate a new termid.
-	tid = allocate_termid(table);
 	termfreq = 1;
     } else {
 	// Read tag
-	parse_entry(tag->value, &tid, &termfreq);
+	parse_entry(tag->value, &termfreq);
 
 	// Do the increment
 	termfreq += 1;
     }
 
     // Store modified tag
-    make_entry(tag->value, tid, termfreq);
-
-    if (tidptr != 0) *tidptr = tid;
+    make_entry(tag->value, termfreq);
 }
 
 void
@@ -123,7 +85,6 @@ QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
     make_key(key, tname);
     QuartzDbTag * tag = table->get_or_make_tag(key);
 
-    om_termid tid;
     om_doccount termfreq;
     if (tag->value.size() == 0) {
 	// Have no tag - this shouldn't really happen - in a production
@@ -133,7 +94,7 @@ QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
     }
 
     // Read tag
-    parse_entry(tag->value, &tid, &termfreq);
+    parse_entry(tag->value, &termfreq);
 
     // Do the decrement
     termfreq -= 1;
@@ -143,14 +104,13 @@ QuartzLexicon::decrement_termfreq(QuartzBufferedTable * table,
 	table->delete_tag(key);
     } else {
 	// Store modified tag
-	make_entry(tag->value, tid, termfreq);
+	make_entry(tag->value, termfreq);
     }
 }
 
 bool
 QuartzLexicon::get_entry(const QuartzTable * table,
 			 const om_termname & tname,
-			 om_termid * tid,
 			 om_doccount * termfreq)
 {
     // This may be called internally.
@@ -160,7 +120,7 @@ QuartzLexicon::get_entry(const QuartzTable * table,
     bool found = table->get_exact_entry(key, tag);
     if (!found) return false;
 
-    parse_entry(tag.value, tid, termfreq);
+    parse_entry(tag.value, termfreq);
 
     return true;
 }
