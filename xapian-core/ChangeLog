@@ -1,3 +1,9 @@
+Thu Jun 27 20:31:13 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* backends/quartz/btreetest.cc (sequent1): Add regression test for
+	  recently fixed bug with sequential addition.
+	* backends/quartz/z_data/ordnum[+-]: Data files for new test.
+
 Thu Jun 27 13:13:37 BST 2002  Olly Betts <olly@survex.com>
 
 	* Documentation fettling: removed docs/Notes and

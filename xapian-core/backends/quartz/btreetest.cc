@@ -99,7 +99,7 @@ static void do_create(const string & btree_dir, int block_size = 1024)
     tout << btree_dir << "/DB created with block size " << block_size << "\n";
 }
 
-/// Test making and playing with a QuartzBufferedTable
+/// Test inserting and deleting items from a Btree
 static bool test_insertdelete1()
 {
     string btree_dir = tmpdir + "/B/";
@@ -122,6 +122,35 @@ static bool test_insertdelete1()
     return true;
 }
 
+/// Test sequential addition in a Btree
+static bool test_sequent1()
+{
+    string btree_dir = tmpdir + "/B/";
+    do_create(btree_dir);
+    Btree::check(btree_dir, "v");
+
+    if (!file_exists(datadir + "ordnum+") || !file_exists(datadir + "ordnum-"))
+	SKIP_TEST("Data files not present");
+
+    do_update(btree_dir, datadir + "ord+");
+    Btree::check(btree_dir, "v");
+
+    do_update(btree_dir, datadir + "ordnum+");
+    Btree::check(btree_dir, "v");
+
+    do_update(btree_dir, datadir + "ord-");
+    Btree::check(btree_dir, "vt");
+
+    do_update(btree_dir, datadir + "ordnum-");
+    Btree::check(btree_dir, "vt");
+
+    Btree btree;
+    btree.open_to_read(btree_dir.c_str());
+    TEST_EQUAL(btree.item_count, 0);
+
+    return true;
+}
+
 // ================================
 // ========= END OF TESTS =========
 // ================================
@@ -129,6 +158,7 @@ static bool test_insertdelete1()
 // The lists of tests to perform
 test_desc tests[] = {
     {"insertdelete1",         test_insertdelete1},
+    {"sequent1",              test_sequent1},
     {0, 0}
 };
 
