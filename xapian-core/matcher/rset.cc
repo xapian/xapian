@@ -44,12 +44,12 @@ RSet::calculate_stats()
 	    // Store termnamess in a hash for each document, rather than
 	    // a list?
 	    om_termname tname = tl->get_termname();
-	    cout << tname << ", ";
+	    DebugMsg(tname << ", ");
 	    if(reltermfreqs.find(tname) != reltermfreqs.end())
 		reltermfreqs[tname] ++;
 	    tl->next();
 	}
-	cout << tname << "] ";
+	DebugMsg("] ");
     }
     DebugMsg("done" << endl);
     calculated_reltermfreqs = true;
