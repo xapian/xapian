@@ -1,3 +1,9 @@
+Wed Dec 04 22:12:26 GMT 2002  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated for 0.5.5.
+	* backends/quartz/quartz_postlist.cc,matcher/localmatch.cc,
+	  matcher/tradweight.cc: Fixed to build with --enable-debug.
+
 Wed Dec 04 22:05:53 GMT 2002  Olly Betts <olly@survex.com>
 
 	* configure.in,NEWS: Version 0.5.5.

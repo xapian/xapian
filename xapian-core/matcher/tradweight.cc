@@ -107,7 +107,7 @@ TradWeight::get_maxpart() const
 om_weight
 TradWeight::get_sumextra(om_doclength /*len*/) const
 {
-    DEBUGCALL(MATCH, om_weight, "TradWeight::get_sumextra", len);
+    DEBUGCALL(MATCH, om_weight, "TradWeight::get_sumextra", "/*len*/");
     RETURN(0);
 }
 

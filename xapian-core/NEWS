@@ -1,6 +1,14 @@
 Xapian 0.5.5 (2002-12-04):
 
+* Fixed compilation with --enable-debug.
+
 * Minor documentation updates.
+
+* Omega: Fixed paging on default database; removed xDEFAULTOP from the query
+  template as it's no longer used; removed bogus unmatched '}' from query
+  template; added dbi2omega perl script to dump any database which perl DBI
+  can access into the dump format expected by scriptindex; limit length of
+  probabilistic terms generated to 64 characters.
 
 Xapian 0.5.4 (2002-10-16):
 
