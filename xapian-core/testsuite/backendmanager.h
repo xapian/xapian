@@ -103,7 +103,7 @@ class BackendManager {
 	/** Set the database type to use.
 	 *
 	 *  Valid values for dbtype are "inmemory", "sleepycat", "quartz",
-	 *  "void", "da", and "network".
+	 *  "void", "da" and "remote".
 	 */
 	void set_dbtype(const std::string &type);
 
