@@ -1,3 +1,9 @@
+xapian-bindings (0.8.2-2) unstable; urgency=low
+
+  * Build against libxapian3. (See changelog for libxapian for explanation)
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 17:03:28 +0100
+
 xapian-bindings (0.8.2-1) unstable; urgency=low
 
   * New upstream release.
