@@ -1,4 +1,4 @@
-/* progserver.h: class for fork()-based server.
+/* omdatabaseinterface.h: Extra interface to OmDatabaseGroup
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,30 +20,27 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_PROGSERVER_H
-#define OM_HGUARD_PROGSERVER_H
+#ifndef OM_HGUARD_OMDATABASEINTERFACE_H
+#define OM_HGUARD_OMDATABASEINTERFACE_H
 
-#include "socketserver.h"
-#include "database.h"
+#include <vector>
+
+#include <om/omenquire.h>
+#include "database_builder.h"
 #include "multi_database.h"
-#include "multimatch.h"
-#include "socketcommon.h"
-#include "networkstats.h"
-#include <memory>
 
-/** The base class of the network server object.
- *  A NetServer object is used by server programs to take care
- *  of a connection to a NetClient.
+/** This class is used basically to add an interface to OmDatabaseGroup
+ *  which isn't exported to the API.  Internal OM functions can get at
+ *  this interface by going through this friend class.
  */
-class ProgServer : public SocketServer {
-    private:
-	// disallow copies
-	ProgServer(const ProgServer &);
-	void operator=(const ProgServer &);
-
+class OmDatabaseGroup::InternalInterface {
     public:
-	/** Default constructor. */
-	ProgServer(OmRefCntPtr<MultiDatabase> db, int readfd_, int writefd_);
+	/** Create a MultiDatabase from an OmDatabaseGroup.
+	 *
+	 *  @param dbg		The source OmDatabaseGroup object.
+	 */
+	static OmRefCntPtr<MultiDatabase>
+		make_multidatabase(const OmDatabaseGroup &dbg);
 };
 
-#endif  /* OM_HGUARD_PROGSERVER_H */
+#endif // OM_HGUARD_OMDATABASEINTERFACE_H

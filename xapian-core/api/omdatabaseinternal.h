@@ -39,6 +39,8 @@
  */
 class OmDatabaseGroup::Internal {
     public:
+	friend class OmDatabaseGroup::InternalInterface;
+
 	Internal() {}
 	Internal(const Internal &other)
 		: params(other.params), mutex() {}

@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 	DatabaseBuilderParams mparam(OM_DBTYPE_MULTI);
 	mparam.subdbs.push_back(param);
 	auto_ptr<IRDatabase> db(DatabaseBuilder::create(mparam));
-	auto_ptr<MultiDatabase> mdb(dynamic_cast<MultiDatabase *>(db.get()));
+	OmRefCntPtr<MultiDatabase> mdb(dynamic_cast<MultiDatabase *>(db.get()));
 	if (!mdb.get()) {
 	    throw OmDatabaseError("Invalid database");
 	} else {

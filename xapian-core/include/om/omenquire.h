@@ -523,6 +523,12 @@ class OmDatabaseGroup {
 	class Internal;
 	Internal *internal;
 
+	/** InternalInterface is a class used externally to interact
+	 *  with OmDatabaseGroup objects.
+	 */
+	class InternalInterface;
+	friend class InternalInterface;
+
     public:
 	OmDatabaseGroup();
 	~OmDatabaseGroup();

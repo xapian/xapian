@@ -1,4 +1,4 @@
-/* omenquire.cc: External interface for running queries
+/* omdatabase.cc: External interface for running queries
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -25,6 +25,7 @@
 #include "omlocks.h"
 #include "omdatabaseinternal.h"
 #include "omwritabledbinternal.h"
+#include "omdatabaseinterface.h"
 
 #include <vector>
 
@@ -146,3 +147,37 @@ OmDatabaseGroup::Internal::get_multi_database()
     return multidb;
 #endif
 }
+
+///////////////////////////////////////////////////
+// Methods of OmDatabaseGroup::InternalInterface //
+///////////////////////////////////////////////////
+
+OmRefCntPtr<MultiDatabase>
+OmDatabaseGroup::InternalInterface::make_multidatabase(
+					       const OmDatabaseGroup &dbg)
+{
+    OmRefCntPtr<MultiDatabase> database;
+    if(dbg.internal->params.size() == 0) {
+	throw OmInvalidArgumentError("Must specify at least one database");
+    } else {
+	DatabaseBuilderParams multiparams(OM_DBTYPE_MULTI);
+	multiparams.subdbs = dbg.internal->params;
+	auto_ptr<IRDatabase> tempdb(DatabaseBuilder::create(multiparams));
+
+	// FIXME: we probably need a better way of getting a
+	// MultiDatabase to avoid the dynamic_cast.
+	database =
+	    OmRefCntPtr<MultiDatabase>(
+			dynamic_cast<MultiDatabase *>(tempdb.get()));
+
+	if (database.get() == 0) {
+	    // it wasn't really a MultiDatabase...
+	    Assert(false);
+	} else {
+	    // it was good - don't let the auto_ptr delete it.
+	    tempdb.release();
+	}
+    }
+    return database;
+}
+

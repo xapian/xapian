@@ -1,4 +1,4 @@
-/* progserver.h: class for fork()-based server.
+/* tcpserver.h: class for TCP/IP-based server.
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 Dialog Corporation
@@ -20,30 +20,37 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_PROGSERVER_H
-#define OM_HGUARD_PROGSERVER_H
+#ifndef OM_HGUARD_TCPGSERVER_H
+#define OM_HGUARD_TCPGSERVER_H
 
 #include "socketserver.h"
 #include "database.h"
 #include "multi_database.h"
-#include "multimatch.h"
 #include "socketcommon.h"
-#include "networkstats.h"
 #include <memory>
 
 /** The base class of the network server object.
  *  A NetServer object is used by server programs to take care
  *  of a connection to a NetClient.
  */
-class ProgServer : public SocketServer {
+class TcpServer : public SocketServer {
     private:
 	// disallow copies
-	ProgServer(const ProgServer &);
-	void operator=(const ProgServer &);
+	TcpServer(const TcpServer &);
+	void operator=(const TcpServer &);
 
+	/** Open the listening socket and return a filedescriptor to
+	 *  it.
+	 *  
+	 *  @param port		The local port to bind to.
+	 */
+	static int get_listening_socket(int port);
     public:
 	/** Default constructor. */
-	ProgServer(OmRefCntPtr<MultiDatabase> db, int readfd_, int writefd_);
+	TcpServer(OmRefCntPtr<MultiDatabase> db, int port);
+
+	/** Destructor. */
+	~TcpServer();
 };
 
-#endif  /* OM_HGUARD_PROGSERVER_H */
+#endif  /* OM_HGUARD_TCPGSERVER_H */
