@@ -1,3 +1,11 @@
+Sat Sep 14 02:10:12 BST 2002  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: removed note about VPATH problems.
+
+Sat Sep 14 02:02:58 BST 2002  Olly Betts <olly@survex.com>
+
+	* btree.cc,btree.h: rearranged Btree::del() so control flow is clearer.
+
 Sat Sep 14 01:56:44 BST 2002  Olly Betts <olly@survex.com>
 
 	* HACKING,docs/Makefile.am: added evil hack to allow VPATH builds to
