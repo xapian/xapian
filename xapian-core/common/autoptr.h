@@ -23,16 +23,16 @@
 #ifndef OM_HGUARD_AUTOPTR_H
 #define OM_HGUARD_AUTOPTR_H
 
+template <class T>
+struct AutoPtrRef;
+
 /** The actual auto pointer.  Can be used with any pointer allocated
  *  by operator new (not new[]!).
  */
 template <class T>
 class AutoPtr {
     private:
-	template <class U>
-	struct AutoPtrRef {
-	    AutoPtr<U> ap;
-	};
+	typedef AutoPtrRef<T> thisAutoPtrRef;
     public:
 	typedef T element_type;
 
@@ -56,13 +56,24 @@ class AutoPtr {
 	T *release() throw();
 	void reset(T *p = 0) throw();
 
-	AutoPtr(AutoPtrRef<T> other) throw();
+	AutoPtr(thisAutoPtrRef other) throw() : dest(other.ap.release()) { }
 	template <class U>
-	operator AutoPtrRef<U>() throw();
+	operator AutoPtrRef<U>() throw() {
+		AutoPtrRef<U> ref;
+		ref.ap = *this;
+		return ref;
+	}
 	template <class U>
 	operator AutoPtr<U>() throw();
     private:
 	T *dest;
+};
+
+/** A helper class used by AutoPtr
+ */
+template <class T>
+struct AutoPtrRef {
+    AutoPtr<T> ap;
 };
 
 template <class T>
@@ -134,10 +145,13 @@ void AutoPtr<T>::reset(T *p) throw()
     dest = p;
 }
 
+#if 0
 template <class T>
-AutoPtr<T>::AutoPtr<T>(AutoPtrRef<T> ref) throw()
+AutoPtr<T>::AutoPtr(AutoPtrRef<T> ref) throw()
 	: dest(ref.ap.release()) { }
+#endif
 
+#if 0
 template <class T>
 template <class U>
 AutoPtr<T>::operator AutoPtr<T>::AutoPtrRef<U>() throw()
@@ -146,6 +160,7 @@ AutoPtr<T>::operator AutoPtr<T>::AutoPtrRef<U>() throw()
     ar.ap = *this;
     return ar;
 }
+#endif
 
 template <class T>
 template <class U>
