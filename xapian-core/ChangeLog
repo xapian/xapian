@@ -1,3 +1,8 @@
+Sun Jul 06 12:56:08 BST 2003  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am,docs/index.html,docs/scalability.html: Added new
+	  document on Xapian's scalability.
+
 Sun Jul 06 12:15:34 BST 2003  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Made quartz block count unsigned, which should

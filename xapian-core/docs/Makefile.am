@@ -11,7 +11,7 @@ SUFFIXES = .eps .dia .png
 
 HTMLDOCS = index.html install.html intro_ir.html overview.html \
  stemming.html quickstart.html remote.html remote_protocol.html \
- quartzdesign.html matcherdesign.html tests.html \
+ quartzdesign.html matcherdesign.html tests.html scalability.html \
  bm25.html code_structure.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
