@@ -115,37 +115,35 @@ static int is_old_query(const string &oldp) {
        if (!is_old) break;
        term = pend + 1;
    }
-   /* for the ferret, return:
-    * 0 entirely new query
-    * 1 unchanged query
-    * -1 new query, but based on the old one
-    */
+   // return:
+   // 0 entirely new query
+   // 1 unchanged query
+   // -1 new query, but based on the old one
    if (is_old && new_terms.size() > n_old_terms) return -1;
    return is_old;
 }
 
 /**************************************************************/
 int set_probabilistic(const string &newp, const string &oldp) {
-   const char *p = newp.c_str();
-   int is_old;
+    const char *p = newp.c_str();
+    int is_old;
 
-   /* strip leading whitespace */
-   while (isspace(*p)) p++;
-   /* and strip trailing whitespace */
-   size_t len = strlen(p);
-   while (len && isspace(p[len - 1])) len--;
+    /* strip leading whitespace */
+    while (isspace(*p)) p++;
+    /* and strip trailing whitespace */
+    size_t len = strlen(p);
+    while (len && isspace(p[len - 1])) len--;
    
-   raw_prob = string(p, len);
+    raw_prob = string(p, len);
+    parse_prob(raw_prob);
 
-   parse_prob(raw_prob);
-
-   is_old = is_old_query(oldp);
-
-   /* clear relevance set if query has changed */
-   if (!is_old) {
-      // FIXME Give_Muscat("delrels r0-*");
-   }
-
+    is_old = is_old_query(oldp);
+    
+    /* clear relevance set if query has changed */
+    if (!is_old) {
+	// FIXME Give_Muscat("delrels r0-*");
+    }
+    
     if (!new_terms.empty()) {
 	// now we constuct the query:
 	// ((plusterm_1 AND ... AND plusterm_n) ANDMAYBE
@@ -159,7 +157,7 @@ int set_probabilistic(const string &newp, const string &oldp) {
 	if (!minuses.empty()) {
 	    matcher->add_oplist(OR, minuses);
 	    if (!matcher->add_op(AND_NOT)) {
-		cout << "Don't be so negative\n" << endl;
+		cout << "Don't be so negative\n" << endl; // FIXME
 		exit(0);
 	    }
 	}
@@ -341,10 +339,11 @@ run_query(void)
 }
 
 /**************************************************************/
-long do_match ( long int first_hit, long int list_size) {
-    print_query_page ( "query", first_hit, list_size);
-
-    return msize; /* Ol 1997-01-31 return msize for logging code */
+long
+do_match(long int first_hit, long int list_size)
+{
+    print_query_page("query", first_hit, list_size);
+    return msize;
 }
 
 static int
