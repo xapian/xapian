@@ -40,16 +40,15 @@ class MultiMatch
 {
     private:
 	/// Vector of the items
-	std::vector<RefCntPtr<SingleMatch> > leaves;
+	std::vector<RefCntPtr<SubMatch> > leaves;
 
 	/// stats gatherer
 	AutoPtr<StatsGatherer> gatherer;
 
+	const OmDatabase db;
+
 	OmQueryInternal query_save_for_hack;
 	OmSettings moptions_save_for_hack;
-
-	/// Construct a SingleMatch object from an Database
-	RefCntPtr<SingleMatch> make_match_from_database(Database *db);
 
 	/** Prepare all the sub matchers.
 	 *
@@ -64,9 +63,6 @@ class MultiMatch
 	/// Assignment is not permitted.
 	void operator=(const MultiMatch &);
 
-	void set_query(const OmQueryInternal * query);
-	void set_rset(const OmRSet & omrset);
-	void set_options(const OmSettings & moptions);
     public:
 	/** MultiMatch constructor.
 	 *

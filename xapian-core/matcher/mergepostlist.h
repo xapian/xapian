@@ -58,6 +58,13 @@ class MergePostList : public PostList {
 
 	virtual PositionList * get_position_list();
 
+	virtual void set_matcher(LocalMatch *matcher_) {
+	    std::vector<PostList *>::iterator i;
+	    for (i = plists.begin(); i != plists.end(); i++) {
+		(*i)->set_matcher(matcher_);
+	    }
+	}
+
         MergePostList(std::vector<PostList *> plists_);
 	// FIXME: LocalMatch *matcher_?
         ~MergePostList();

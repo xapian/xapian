@@ -28,6 +28,7 @@
 #include "omqueryinternal.h"
 #include "match.h"
 #include "stats.h"
+#include "rset.h"
 
 class IRWeight;
 class Database;
@@ -39,33 +40,142 @@ class PostList;
 #include "autoptr.h"
 
 class MultiMatch;
-class SubMatch {
+class LocalMatch;
+
+class SubMatch : public RefCntBase {
     friend class MultiMatch;
+    friend class LocalMatch;
+
     public:
+	virtual ~SubMatch() { }
+
+	///////////////////////////////////////////////////////////////////
+	// Prepare to do the match
+	// =======================
+
+	/** Prepare to perform the match operation.
+	 *  This must be called with a return value of true before
+	 *  get_postlist().  It can be called more
+	 *  than once.  If nowait is true, the operation has only succeeded
+	 *  when the return value is true.
+	 *
+	 *  @param nowait	If true, then return as soon as
+	 *  			possible even if the operation hasn't
+	 *  			been completed.  If it hasn't, then
+	 *  			the return value will be false.  The
+	 *  			caller should retry until prepare_match
+	 *  			returns true, or throws an exception to
+	 *  			indicate an error.
+	 *
+	 *  @return  If nowait is true, and the match is being performed
+	 *           over a network connection, and the result isn't
+	 *           immediately available, this method returns false.
+	 *           In all other circumstances it will return true.
+	 */
+	virtual bool prepare_match(bool nowait) = 0;
+
+	/// Make a weight - default argument is used for finding extra_weight
+	virtual IRWeight * mk_weight(const OmQueryInternal *query = NULL) = 0;
+
+	virtual PostList * get_postlist() = 0;
+
+	virtual LeafDocument * open_document(om_docid did) const = 0;
+
+	virtual const std::map<om_termname, OmMSet::TermFreqAndWeight> get_term_info() const = 0;
+};
+
+class LocalSubMatch : public SubMatch {
+    friend class MultiMatch;
+    friend class LocalMatch;
+
+    private:
+	bool is_prepared;
+
+	/// Query to be run
+	OmQueryInternal users_query;
+
+	/// The size of the query (passed to IRWeight objects)
+	om_doclength querysize;
+    
 	const Database *db;
 	LocalStatsSource statssource;
 	PostList *postlist;
 
-	SubMatch() { } // FIXME: hackity hack
+	/// RSet to be used (affects weightings)
+	AutoPtr<RSet> rset;
+    
+	/** Optional limit on number of terms to OR together.
+	 *  If zero, there is no limit.
+	 */
+	om_termcount max_or_terms;
 
-	SubMatch(const Database *db_) : db(db_) {
-	    statssource.my_collection_size_is(db->get_doccount());
-	    statssource.my_average_length_is(db->get_avlength());
-	}
+	/** Name of weighting scheme to use.
+	 *  This may differ from the requested scheme if, for example,
+	 *  the query is pure boolean.
+	 */
+	string weighting_scheme;
+    
+	/// Stored match options object
+	OmSettings mopts;
+
+	/// Make a weight - default argument is used for finding extra_weight
+	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
+
+	/// The weights and termfreqs of terms in the query.
+	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
+
+
+	PostList * build_and_tree(std::vector<PostList *> &postlists);
+
+	PostList * build_or_tree(std::vector<PostList *> &postlists);
+
+	/// Make a postlist from a vector of query objects (AND or OR)
+	PostList *postlist_from_queries(OmQuery::op op,
+				const std::vector<OmQueryInternal *> & queries,
+				om_termcount window);
+
+	/// Make a postlist from a query object
+	PostList *postlist_from_query(const OmQueryInternal * query);
 
 	void register_term(const om_termname &tname) {
 	    statssource.my_termfreq_is(tname, db->get_termfreq(tname));
 	}
 
-	void link_to_multi(StatsGatherer *gatherer) {
+    public:
+	LocalSubMatch(const Database *db_, const OmQueryInternal * query,
+		      const OmRSet & omrset, const OmSettings &mopts_,
+		      StatsGatherer *gatherer)
+		: is_prepared(false), users_query(*query), db(db_),
+		  mopts(mopts_)
+	{	    
+	    AutoPtr<RSet> new_rset(new RSet(db, omrset));
+	    rset = new_rset;
+
+	    max_or_terms = mopts.get_int("match_max_or_terms", 0);
+
+	    // If query is boolean, set weighting to boolean
+	    if (users_query.is_bool()) {
+		weighting_scheme = "bool";
+	    } else {
+		weighting_scheme = mopts.get("match_weighting_scheme", "bm25");
+	    }
+
+	    statssource.my_collection_size_is(db->get_doccount());
+	    statssource.my_average_length_is(db->get_avlength());
 	    statssource.connect_to_gatherer(gatherer);
 	}
 
+	/// Calculate the statistics for the query
+	bool prepare_match(bool nowait);
 
-	PostList * open_post_list(const om_termname & tname, IRWeight *wt) {
-	    LeafPostList * pl = db->open_post_list(tname);
-	    pl->set_termweight(wt);
-	    return pl;
+	PostList * get_postlist();
+
+	virtual LeafDocument * open_document(om_docid did) const {
+	    return db->open_document(did);
+	}
+
+	const std::map<om_termname, OmMSet::TermFreqAndWeight> get_term_info() const {
+	    return term_info;
 	}
 };   
 
@@ -87,32 +197,11 @@ class LocalMatch : public SingleMatch
 {
     friend class MultiMatch;
     private:
-	SubMatch submatch;    
-
-	/// Query to be run
-	OmQueryInternal users_query;
-
-	/// RSet to be used (affects weightings)
-	AutoPtr<RSet> rset;
+	OmDatabase db;
 
 	/// Stored match options object
 	OmSettings mopts;
-
-	/** Name of weighting scheme to use.
-	 *  This may differ from the requested scheme if, for example,
-	 *  the query is pure boolean.
-	 */
-	string weighting_scheme;
-
-	/** Optional limit on number of terms to OR together.
-	 *  If zero, there is no limit.
-	 */
-	om_termcount max_or_terms;
-
-	/** The weights and termfreqs of terms in the query.
-	 */
-	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
-
+    
 	/// Comparison functor for sorting MSet
 	OmMSetCmp mcmp;
 
@@ -120,24 +209,6 @@ class LocalMatch : public SingleMatch
 	 *  while query is running.
 	 */
         bool recalculate_w_max;
-
-	/// The size of the query (passed to IRWeight objects)
-	om_doclength querysize;
-
-	/// Calculate the statistics for the query
-	void gather_query_statistics();
-
-	/// Make a postlist from a query object
-	PostList *postlist_from_query(const OmQueryInternal * query);
-
-	/// Make a postlist from a vector of query objects (AND or OR)
-	PostList *postlist_from_queries(
-				OmQuery::op op,
-				const std::vector<OmQueryInternal *> & queries,
-				om_termcount window);
-
-	/// Make a weight - default argument is used for finding extra_weight
-	IRWeight * mk_weight(const OmQueryInternal *query = NULL);
 
 	/// Internal method to perform the collapse operation
 	bool perform_collapse(std::vector<OmMSetItem> &mset,
@@ -150,37 +221,19 @@ class LocalMatch : public SingleMatch
 	LocalMatch(const LocalMatch &);
 	void operator=(const LocalMatch &);
 
-	PostList * build_and_tree(std::vector<PostList *> &postlists);
-	PostList * build_or_tree(std::vector<PostList *> &postlists);
     public:
-        LocalMatch(Database * db_);
-
-	///////////////////////////////////////////////////////////////////
-	// Implement these virtual methods
-	void link_to_multi(StatsGatherer *gatherer);
-
-	void set_query(const OmQueryInternal * query);
-
-        void set_rset(const OmRSet & omrset);
+        LocalMatch(const OmDatabase &db);
 
 	void set_options(const OmSettings & mopts_);
 
-	bool prepare_match(bool nowait);
-
-	bool get_mset(om_doccount first,
+	bool get_mset(PostList *postlist,
+		      om_doccount first,
 		      om_doccount maxitems,
 		      OmMSet & mset,
 		      const OmMatchDecider *mdecider,
-		      bool nowait
-		     );
-
-	// gross bodge
-	PostList *do_postlist_hack();    
-	void do_postlist_hack2(PostList *pl);
-    private:    
-	bool hackery;
-	PostList *query_hackery;
-    public:
+		      const IRWeight *extra_weight,
+		      const map<om_termname, OmMSet::TermFreqAndWeight> &termfreqandwts,
+		      bool nowait);
     
 	///////////////////////////////////////////////////////////////////
 	// Miscellaneous

@@ -29,6 +29,8 @@
 
 #include "positionlist.h"
 
+class LocalMatch;
+
 /** Abstract base class for postlists. */
 class PostList : public RefCntBase
 {
@@ -138,6 +140,8 @@ class PostList : public RefCntBase
 
 	// Returns true if we're off the end of the list
 	virtual bool   at_end() const = 0;
+
+	virtual void set_matcher(LocalMatch *matcher_) { }
 
 	///////////////////////////////////////////////////////////////////
 	// Introspection methods

@@ -61,20 +61,14 @@ class NetworkMatch : public SingleMatch
 	/// Indication of whether max_weight needs to be updated
 	bool max_weight_needs_fetch;
     public:
-        NetworkMatch(Database * database_);
+        NetworkMatch(Database * database_, StatsGatherer *gatherer_);
         ~NetworkMatch();
-
-	///////////////////////////////////////////////////////////////////
-	// Implement these virtual methods
-	void link_to_multi(StatsGatherer *gatherer);
 
 	void set_query(const OmQueryInternal * query_);
 
 	void set_rset(const OmRSet & omrset);
 
 	void set_options(const OmSettings & moptions_);
-
-	bool prepare_match(bool nowait);
 
         om_weight get_max_weight();
 	bool get_mset(om_doccount first,

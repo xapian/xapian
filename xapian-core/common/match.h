@@ -63,11 +63,6 @@ class SingleMatch : public RefCntBase
 	SingleMatch(const SingleMatch &);
 	void operator=(const SingleMatch &);
 
-	///////////////////////////////////////////////////////////////////
-	// Link to a multimatch object (used by
-	// MultiMatch::add_singlematch)
-	virtual void link_to_multi(StatsGatherer *gatherer) = 0;
-
     protected:
 	/// Flag to remember whether we have prepared to run a query yet
 	bool is_prepared;
@@ -81,7 +76,7 @@ class SingleMatch : public RefCntBase
 	// =====================================================
 
 	/** Sets query to use. */
-	virtual void set_query(const OmQueryInternal * query_) = 0;
+//	virtual void set_query(const OmQueryInternal * query_) = 0;
 
 	///////////////////////////////////////////////////////////////////
 	// Set additional options for performing the query
@@ -89,34 +84,10 @@ class SingleMatch : public RefCntBase
 
 	/** Set relevance information.
 	 */
-        virtual void set_rset(const OmRSet & omrset) = 0;
+//        virtual void set_rset(const OmRSet & omrset) = 0;
 
 	/** Set the match options. */
 	virtual void set_options(const OmSettings & moptions_) = 0;
-
-	///////////////////////////////////////////////////////////////////
-	// Prepare to do the match
-	// =======================
-
-	/** Prepare to perform the match operation.
-	 *  This must be called before get_mset().  It can be called more
-	 *  than once.  If nowait is true, the operation has only succeeded
-	 *  when the return value is true.
-	 *
-	 *  @param nowait	If true, then return as soon as
-	 *  			possible even if the operation hasn't
-	 *  			been completed.  If it hasn't, then
-	 *  			the return value will be false.  The
-	 *  			caller should retry until prepare_match
-	 *  			returns true, or throws an exception to
-	 *  			indicate an error.
-	 *
-	 *  @return  If nowait is true, and the match is being performed
-	 *           over a network connection, and the result isn't
-	 *           immediately available, this method returns false.
-	 *           In all other circumstances it will return true.
-	 */
-	virtual bool prepare_match(bool nowait) = 0;
 
 	///////////////////////////////////////////////////////////////////
 	// Get information about result
@@ -149,11 +120,14 @@ class SingleMatch : public RefCntBase
 	 *  @exception OmInvalidArgumentError is thrown if the query has
 	 *             not been set appropriately.
 	 */
-	virtual bool get_mset(om_doccount first,
-			      om_doccount maxitems,
-			      OmMSet &mset,
-			      const OmMatchDecider *mdecider,
-			      bool nowait) = 0;
+	bool get_mset(PostList *postlist,
+		      om_doccount first,
+		      om_doccount maxitems,
+		      OmMSet & mset,
+		      const OmMatchDecider *mdecider,
+		      const IRWeight *extra_weight,
+		      const map<om_termname, OmMSet::TermFreqAndWeight> &termfreqandwts,
+		      bool nowait);
 
 	// gross bodge FIXME
 	virtual PostList *do_postlist_hack() {

@@ -41,90 +41,57 @@
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-MultiMatch::MultiMatch(const OmDatabase &db,
+MultiMatch::MultiMatch(const OmDatabase &db_,
 		       const OmQueryInternal * query,
 		       const OmRSet & omrset,
 		       const OmSettings & moptions,
 		       AutoPtr<StatsGatherer> gatherer_)
 	: gatherer(gatherer_),
+db(db_),
 query_save_for_hack(*query), moptions_save_for_hack(moptions)
 {
-    std::vector<RefCntPtr<Database> >::iterator i;
-    for (i = db.internal->databases.begin();
-	 i != db.internal->databases.end(); ++i) {
-	RefCntPtr<SingleMatch> smatch(make_match_from_database((*i).get()));
-	smatch->link_to_multi(gatherer.get());
-	leaves.push_back(smatch);
-    }
-
-    set_query(query);
-    set_rset(omrset);
-    set_options(moptions);
-
-    prepare_matchers();
-}
-
-RefCntPtr<SingleMatch>
-MultiMatch::make_match_from_database(Database *db)
-{
-    /* There is currently only one special case, for network
-     * databases.
-     */
-    if (db->is_network()) {
-#ifdef MUS_BUILD_BACKEND_REMOTE
-	return RefCntPtr<SingleMatch>(new NetworkMatch(db));
-#else /* MUS_BUILD_BACKEND_REMOTE */
-	throw OmUnimplementedError("Network operation is not available");
-#endif /* MUS_BUILD_BACKEND_REMOTE */
-    }
-    return RefCntPtr<SingleMatch>(new LocalMatch(db));
-}
-
-MultiMatch::~MultiMatch()
-{
-}
-
-void
-MultiMatch::set_query(const OmQueryInternal * query)
-{
-    for(std::vector<RefCntPtr<SingleMatch> >::iterator i = leaves.begin();
-	i != leaves.end(); i++) {
-	(*i)->set_query(query);
-    }
-}
-
-void
-MultiMatch::set_rset(const OmRSet & omrset)
-{
-    om_doccount number_of_leaves = leaves.size();
+    om_doccount number_of_leaves = db.internal->databases.size();
     std::vector<OmRSet> subrsets(number_of_leaves);
 
     for (std::set<om_docid>::const_iterator reldoc = omrset.items.begin();
-	 reldoc != omrset.items.end();
-	 reldoc++) {
+	 reldoc != omrset.items.end(); reldoc++) {
 	om_doccount local_docid = ((*reldoc) - 1) / number_of_leaves + 1;
 	om_doccount subdatabase = ((*reldoc) - 1) % number_of_leaves;
 	subrsets[subdatabase].add_document(local_docid);
     }
+    
+    std::vector<OmRSet>::const_iterator subrset = subrsets.begin();
 
-    std::vector<OmRSet>::const_iterator subrset;
-    std::vector<RefCntPtr<SingleMatch> >::iterator leaf;
-    for (leaf = leaves.begin(), subrset = subrsets.begin();
-	 leaf != leaves.end(), subrset != subrsets.end();
-	 leaf++, subrset++) {
-	(*leaf)->set_rset(*subrset);
+    std::vector<RefCntPtr<Database> >::iterator i;
+    for (i = db.internal->databases.begin();
+	 i != db.internal->databases.end(); ++i) {
+	Assert(subrset != subrsets.end());
+	Database *db = (*i).get();
+	Assert(db);
+	RefCntPtr<SubMatch> smatch;
+	/* There is currently only one special case, for network
+	 * databases.
+	 */
+	if (db->is_network()) {
+#if 0 //FIXME def MUS_BUILD_BACKEND_REMOTE
+	    smatch = RefCntPtr<SubMatch>(new NetworkMatch(db, query, *subrset, moptions, gatherer.get()));
+#else /* MUS_BUILD_BACKEND_REMOTE */
+	    throw OmUnimplementedError("Network operation is not available");
+#endif /* MUS_BUILD_BACKEND_REMOTE */
+	} else {
+	    smatch = RefCntPtr<SubMatch>(new LocalSubMatch(db, query, *subrset, moptions, gatherer.get()));
+	}
+	leaves.push_back(smatch);
+	subrset++;
     }
+    Assert(subrset == subrsets.end());
 
     gatherer->set_global_stats(omrset.items.size());
+    prepare_matchers();
 }
 
-void
-MultiMatch::set_options(const OmSettings & moptions)
+MultiMatch::~MultiMatch()
 {
-    for(std::vector<RefCntPtr<SingleMatch> >::iterator i = leaves.begin();
-	i != leaves.end(); i++) {
-	(*i)->set_options(moptions);
-    }
 }
 
 void
@@ -134,11 +101,9 @@ MultiMatch::prepare_matchers()
     bool nowait = true;
     do {
 	prepared = true;
-	for(std::vector<RefCntPtr<SingleMatch> >::iterator leaf = leaves.begin();
+	for (std::vector<RefCntPtr<SubMatch> >::iterator leaf = leaves.begin();
 	    leaf != leaves.end(); leaf++) {
-	    if (!(*leaf)->prepare_match(nowait)) {
-		prepared = false;
-	    }
+	    if (!(*leaf)->prepare_match(nowait)) prepared = false;
 	}
 	// Use blocking IO on subsequent passes, so that we don't go into
 	// a tight loop.
@@ -152,22 +117,24 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		     const OmMatchDecider *mdecider)
 {
     Assert(leaves.size() > 0);
-    if (leaves.size() == 1) {
-	// Only one mset to get - so get it, and block.
-	leaves.front()->get_mset(first, maxitems, mset, mdecider, false);
-	return;
-    }
 
-    std::vector<PostList *> v;
-    std::vector<RefCntPtr<SingleMatch> >::iterator i;
-    SingleMatch *sm = NULL;
-    std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
-    for (i = leaves.begin(); i != leaves.end(); i++) {
-	try {
-	    v.push_back((*i)->do_postlist_hack());
-	    if (!sm) sm = (*i).get();
+    PostList *pl;
+
+    if (leaves.size() == 1) {
+	// Only one mset to get - so get it
+	pl = leaves.front()->get_postlist();
+    } else {
+	std::vector<PostList *> v;
+	std::vector<RefCntPtr<SubMatch> >::iterator i;
+	std::map<om_termname, OmMSet::TermFreqAndWeight> term_info;
+	for (i = leaves.begin(); i != leaves.end(); i++) {
+	    v.push_back((*i)->get_postlist());
 	}
-	catch (const OmUnimplementedError &e) {
+	pl = new MergePostList(v);
+//	try {
+//	}
+//	catch (const OmUnimplementedError &e) {
+#if 0
 	    // it's a NetworkMatch
 	    OmMSet mset_tmp;
 	    (*i)->get_mset(0, first + maxitems, mset_tmp, mdecider, false);
@@ -181,28 +148,16 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
 		j = term_info.find(i->first);
 		if (j == term_info.end()) term_info.insert(*i);
 	    }
-	}
+#endif
+//	}
     }
-    if (sm) {
-	DEBUGLINE(MATCH, "Have a localmatch to abuse");
-	sm->do_postlist_hack2(new MergePostList(v));
-	sm->get_mset(first, maxitems, mset, mdecider, false);
-    } else {
-	DEBUGLINE(MATCH, "Don't have a localmatch to abuse");
-	NetworkMatch *m = dynamic_cast<NetworkMatch *>(leaves.front().get());
-	LocalMatch *lm = new LocalMatch(m->database);
-	Stats stats;
-	stats.collection_size = 1;
-	stats.rset_size = 1;
-	stats.average_length = 1;
-	LocalStatsSource s;
-	s.total_stats = &stats;
-	lm->submatch.statssource = s;
-	lm->set_query(&query_save_for_hack);
-	lm->set_options(moptions_save_for_hack);
-	lm->do_postlist_hack2(new MergePostList(v));
-	lm->term_info = term_info;
-	lm->get_mset(first, maxitems, mset, mdecider, false);
-	delete lm;
-    }
+
+    // Extra weight object - used to calculate part of doc weight which
+    // doesn't come from the sum.
+    IRWeight * extra_weight = leaves.front()->mk_weight();
+    LocalMatch lm(db);
+    lm.set_options(moptions_save_for_hack);
+    lm.get_mset(pl, first, maxitems, mset, mdecider, extra_weight,
+		leaves.front()->get_term_info(), false);
+    delete extra_weight;
 }

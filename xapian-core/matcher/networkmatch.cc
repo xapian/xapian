@@ -36,9 +36,10 @@
 // Initialisation and cleaning up //
 ////////////////////////////////////
 
-NetworkMatch::NetworkMatch(Database *database_)
+NetworkMatch::NetworkMatch(Database *database_, StatsGatherer *gatherer_)
 	: database(dynamic_cast<NetworkDatabase *>(database_)),
 	  statssource(database->link),
+	  gatherer(gatherer_),
 	  max_weight_needs_fetch(true)
 {
     // make sure that the database was a NetworkDatabase after all
@@ -46,51 +47,7 @@ NetworkMatch::NetworkMatch(Database *database_)
     Assert(database != 0);
 
     database->link->register_statssource(&statssource);
-}
-
-bool
-NetworkMatch::prepare_match(bool nowait)
-{
-    if (!is_prepared) {
-	bool finished_query = database->link->finish_query();
-
-	if (!finished_query) {
-	    if (nowait) {
-		return false;
-	    } else {
-		do {
-		    database->link->wait_for_input();
-		} while (!database->link->finish_query());
-	    }
-	}
-
-	// Read the remote statistics and give them to the stats source
-	//
-	Stats mystats;
-	bool read_remote_stats = database->link->get_remote_stats(mystats);
-	if (!read_remote_stats) {
-	    if (nowait) {
-		return false;
-	    } else {
-		do {
-		    database->link->wait_for_input();
-		} while (!database->link->get_remote_stats(mystats));
-	    }
-	}
-	statssource.take_remote_stats(mystats);
-
-	is_prepared = true;
-    }
-    return true;
-}
-
-void
-NetworkMatch::link_to_multi(StatsGatherer *gatherer_)
-{
-    gatherer = gatherer_;
     statssource.connect_to_gatherer(gatherer);
-//    statsleaf.my_collection_size_is(database->get_doccount());
-//    statsleaf.my_average_length_is(database->get_avlength());
 }
 
 NetworkMatch::~NetworkMatch()
