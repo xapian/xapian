@@ -16,7 +16,6 @@ OrTermList::next()
 
     if (lhead <= rhead) {
 	if (lhead == rhead) rnext = true;
-	//handle_prune(l, l->next(w_min - rmax));
 	handle_prune(l, l->next());
 	if (l->at_end()) ldry = true;
     } else {
@@ -24,7 +23,6 @@ OrTermList::next()
     }
 
     if (rnext) {
-	//handle_prune(r, r->next(w_min - lmax));
 	handle_prune(r, r->next());
 	if (r->at_end()) {
 	    TermList *ret = l;

@@ -101,7 +101,6 @@ Expand::expand(const RSet *rset)
 #endif
 	}    
 
-	//TermList *ret = merger->next(w_min);
 	TermList *ret = merger->next();
         if (ret) {
 	    delete merger;
@@ -110,22 +109,6 @@ Expand::expand(const RSet *rset)
 #ifdef MUS_DEBUG_VERBOSE
 	    cout << "*** REPLACING ROOT\n";
 #endif /* MUS_DEBUG_VERBOSE */
-	    // no need for a full recalc (unless we've got to do one because
-	    // of a prune elsewhere) - we're just switching to a subtree
-#if 0
-	    w_max = merger->get_maxweight();
-#ifdef MUS_DEBUG_VERBOSE
-	    cout << "max possible doc weight = " << w_max << endl;
-#endif /* MUS_DEBUG_VERBOSE */
-            AssertParanoid(recalculate_maxweight || fabs(w_max - merger->recalc_maxweight()) < 1e-9);
-
-	    if (w_max < w_min) {
-#ifdef MUS_DEBUG_VERBOSE
-		cout << "*** TERMINATING EARLY (2)" << endl;
-#endif /* MUS_DEBUG_VERBOSE */
-		break;
-	    }
-#endif
 	}
 
 	if (merger->at_end()) break;

@@ -9,7 +9,6 @@
 class OrTermList : public virtual BranchTermList {
     private:
         termname lhead, rhead;
-//        weight lmax, rmax, minmax;
 	bool started;
     public:
 	termcount get_approx_size() const;
@@ -19,21 +18,16 @@ class OrTermList : public virtual BranchTermList {
         termcount get_wdf() const;
         doccount get_termfreq() const;
 
-//	weight recalc_maxweight();
-
 	TermList *next();
-//	TermList *next(weight w_min);
-//	TermList *skip_to(docid, weight w_min);
 	bool   at_end() const;
 
         OrTermList(TermList *, TermList *);
-//        OrTermList(TermList *, TermList *, Match *);
 };
 
 inline ExpandBits
 OrTermList::get_weighting() const
 {
-    Assert(started); // check we've started
+    Assert(started);
     if (lhead < rhead) return l->get_weighting();
     if (lhead > rhead) return r->get_weighting();
     return l->get_weighting() + r->get_weighting();
@@ -42,7 +36,7 @@ OrTermList::get_weighting() const
 inline doccount
 OrTermList::get_termfreq() const
 {
-    Assert(started); // check we've started
+    Assert(started);
     if (lhead < rhead) return l->get_termfreq();
     return r->get_termfreq();
 }
@@ -50,14 +44,14 @@ OrTermList::get_termfreq() const
 inline termname
 OrTermList::get_termname() const
 {
-    Assert(started); // check we've started
+    Assert(started);
     return min(lhead, rhead);
 }
 
 inline termcount
 OrTermList::get_wdf() const
 {
-    Assert(started); // check we've started
+    Assert(started);
     if (lhead < rhead) return l->get_wdf();
     if (lhead > rhead) return r->get_wdf();
     return l->get_wdf() + r->get_wdf();
