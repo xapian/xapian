@@ -97,7 +97,11 @@ class InMemoryTerm {
 // Class representing a document and the terms indexing it
 class InMemoryDoc {
     public:
+	bool is_valid;
 	std::vector<InMemoryPosting> terms;// Sorted list of terms indexing document
+
+	/* Initialise valid */
+	InMemoryDoc() : is_valid(true) {};
 	void add_posting(const InMemoryPosting & post) {
 	    // Add document to right place in list
 	    std::vector<InMemoryPosting>::iterator p;
@@ -195,6 +199,8 @@ class InMemoryDatabase : public Database {
 
 	std::vector<om_doclength> doclengths;
 
+	om_doccount totdocs;
+
 	om_totlength totlen;
 
 	bool indexing; // Whether we have started to index to the database
@@ -217,7 +223,11 @@ class InMemoryDatabase : public Database {
 
 	void make_term(const om_termname & tname);
 
+	bool doc_exists(om_docid did) const;
 	om_docid make_doc(const OmData & docdata);
+
+	/* The common parts of add_doc and replace_doc */
+	void finish_add_doc(om_docid did, const OmDocument &document);
 	void add_keys(om_docid did, const std::map<om_keyno, OmKey> &keys_);
 
 	void make_posting(const om_termname & tname,
@@ -458,7 +468,7 @@ InMemoryTermList::at_end() const
 inline om_doccount
 InMemoryDatabase::get_doccount() const
 {
-    return termlists.size();
+    return totdocs;
 }
 
 inline om_doclength
@@ -484,6 +494,10 @@ inline om_doclength
 InMemoryDatabase::get_doclength(om_docid did) const
 {
     Assert(did > 0 && did <= termlists.size());
+    if (!doc_exists(did)) {
+	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
+				 std::string(" not found"));
+    }
     return doclengths[did - 1];
 }
 

@@ -1,3 +1,8 @@
+Wed Mar 21 14:29:04 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Implemented delete_document and replace_document in inmemory
+	  database.
+
 Wed Mar 21 12:39:13 GMT 2001 Olly Betts
 
 	* Tweak to docs/quickstart.html.

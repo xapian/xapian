@@ -70,7 +70,7 @@ InMemoryPostList::get_wdf() const
 ///////////////////////////
 
 InMemoryDatabase::InMemoryDatabase(const OmSettings & params, bool readonly)
-	: totlen(0), error_in_next(0), abort_in_next(0)
+	: totdocs(0), totlen(0), error_in_next(0), abort_in_next(0)
 {
     if (!readonly) {
 // FIXME:	throw OmInvalidArgumentError("InMemoryDatabase must be opened readonly.");
@@ -103,11 +103,18 @@ InMemoryDatabase::do_open_post_list(const om_termname & tname) const
 				i->second);
 }
 
+bool
+InMemoryDatabase::doc_exists(om_docid did) const
+{
+    return (did > 0 && did <= termlists.size() &&
+	    termlists[did-1].is_valid);
+}
+
 LeafTermList *
 InMemoryDatabase::open_term_list(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
-    if (did > termlists.size()) {
+    if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
 	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
@@ -121,7 +128,7 @@ InMemoryDatabase::open_document(om_docid did, bool lazy) const
 {
     // we're never lazy so ignore that flag
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
-    if (did > doclists.size()) {
+    if (!doc_exists(did)) {
 	// FIXME: the docid in this message will be local, not global
 	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
 				 std::string(" not found"));
@@ -134,7 +141,7 @@ AutoPtr<PositionList>
 InMemoryDatabase::open_position_list(om_docid did,
 				     const om_termname & tname) const
 {
-    if (did > doclists.size()) {
+    if (!doc_exists(did)) {
 	throw OmDocNotFoundError("Document id " + om_tostring(did) +
 				 " doesn't exist in inmemory database");
     }
@@ -157,7 +164,6 @@ void
 InMemoryDatabase::add_keys(om_docid did,
 			   const std::map<om_keyno, OmKey> &keys_)
 {
-    Assert(keylists.size() == did - 1);
     keylists.push_back(keys_);
 }
 
@@ -198,14 +204,51 @@ InMemoryDatabase::do_cancel_transaction()
 void
 InMemoryDatabase::do_delete_document(om_docid did)
 {
-    throw OmUnimplementedError("InMemoryDatabase::do_delete_document() not implemented");  
+    if (!doc_exists(did)) {
+	throw OmDocNotFoundError(std::string("Docid ") + om_tostring(did) +
+				 std::string(" not found"));
+    }
+    termlists[did-1].is_valid = false;
+    doclists[did-1] = "";
+    keylists[did-1].clear();
+    totlen -= doclengths[did-1];
+    doclengths[did-1] = 0;
+
+    std::vector<InMemoryPosting>::const_iterator i;
+    for (i = termlists[did-1].terms.begin();
+	 i != termlists[did-1].terms.end();
+	 ++i) {
+	std::map<om_termname, InMemoryTerm>::iterator t
+		= postlists.find(i->tname);
+	Assert(t != postlists.end());
+	std::vector<InMemoryPosting>::iterator posting = t->second.docs.begin();
+	/* FIXME: inefficient on vectors... */
+	while (posting != t->second.docs.end()) {
+	    if (posting->did == did) {
+		posting = t->second.docs.erase(posting);
+	    } else {
+		++posting;
+	    }
+	}
+    }
+    termlists[did-1].terms.clear();
 }
 
 void
 InMemoryDatabase::do_replace_document(om_docid did,
 				      const OmDocument & document)
 {
-    throw OmUnimplementedError("InMemoryDatabase::do_replace_document() not implemented");  
+    DEBUGLINE(DB, "InMemoryDatabase::do_replace_document(): replaceing doc "
+	          << did);
+
+    do_delete_document(did);
+
+    /* resurrect this document */
+    termlists[did-1] = InMemoryDoc();
+    doclengths[did-1] = 0;
+    doclists[did-1] = document.get_data().value;
+
+    finish_add_doc(did, document);
 }
 
 om_docid
@@ -215,7 +258,15 @@ InMemoryDatabase::do_add_document(const OmDocument & document)
 
     DEBUGLINE(DB, "InMemoryDatabase::do_add_document(): adding doc "
 	          << did);
- 
+
+    finish_add_doc(did, document);
+
+    return did;
+}
+
+void
+InMemoryDatabase::finish_add_doc(om_docid did, const OmDocument &document)
+{
     {
 	std::map<om_keyno, OmKey> keys;
 	OmKeyListIterator k = document.keylist_begin();
@@ -252,7 +303,7 @@ InMemoryDatabase::do_add_document(const OmDocument & document)
 	totlen += i.get_wdf();
     }
 
-    return did;
+    totdocs++;
 }
 
 void
@@ -282,6 +333,7 @@ void InMemoryDatabase::make_posting(const om_termname & tname,
     Assert(postlists.find(tname) != postlists.end());
     Assert(did > 0 && did <= termlists.size());
     Assert(did > 0 && did <= doclengths.size());
+    Assert(doc_exists(did));
 
     // Make the posting
     InMemoryPosting posting;
