@@ -1,3 +1,10 @@
+Wed Nov  8 13:52:56 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Much work on quartz - it now passes all its tests except the one
+	  using position lists (which aren't implemented yet), using the
+	  Btree manager.  Work remains to be done on catching error
+	  conditions, but the basic structure is now done.
+
 Wed Nov  8 13:40:26 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Factored some common code out of most index tests.
