@@ -1,3 +1,13 @@
+Mon Jul  3 13:51:53 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix fake memory leak being reported in some conditions, due to
+	  failure to initialise the debug object fully before starting the
+	  testsuite.
+
+	* Run phrase and near tests on each backend, but fail.  Inmemory to
+	  be fixed in a moment: network failure doesn't matter yet, but
+	  should be fixed soon.
+
 Mon Jul  3 12:38:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Change some FIXME's to \todo's - the new doxygen tag.  This should

@@ -315,6 +315,7 @@ int test_driver::main(int argc,
     // made when the first debug message is displayed is (wrongly) picked
     // up on as a memory leak.
     DEBUGLINE(UNKNOWN, "Starting testsuite run.");
+    om_debug.get_mutex();
 
     test_driver::result myresult;
     if (one_test) {

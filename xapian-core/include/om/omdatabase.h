@@ -119,7 +119,7 @@ class OmDatabase {
 	/** Returns a string representing the database object.
 	 *  Introspection method.
 	 */
-	string get_description() const;
+	virtual string get_description() const;
 };
 
 ///////////////////////////////////////////////////////////////////
