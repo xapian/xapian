@@ -32,7 +32,7 @@ RUNMAKE=1
 
 # Details of this script
 PROGNAME="`echo $0 | sed -e 's#^.*/##'`"
-VERSION="0.15"
+VERSION="0.16"
 
 # Little bit of paranoia
 test -z "${PROGNAME}" && PROGNAME="[build script]"
@@ -185,7 +185,7 @@ case "`bison --version|sed 's/.* //;q'`" in
   ERRMSG="${ERRMSG}Maintainer tool bison needs to be at least version 1.35\\n" ;;
 esac
 test -z "${ERRMSG}" ||\
-  error "${ERRMSG}See INSTALL for details of tools needed to develop $PACKAGE"
+  error "${ERRMSG}See HACKING for details of tools needed to develop $PACKAGE"
 
 ERRMSG=""
 case "`aclocal --version|sed 's/.* //;q' 2>/dev/null`" in
@@ -203,7 +203,7 @@ case "`autoheader --version|sed 's/.* //;q'`" in
   ERRMSG="${ERRMSG}Maintainer tool autoheader needs to be from autoconf at least version 2.13\\n" ;;
 esac
 test -z "${ERRMSG}" ||
-error "${ERRMSG}See INSTALL for details of tools needed to develop $PACKAGE"
+error "${ERRMSG}See HACKING for details of tools needed to develop $PACKAGE"
 
 # Change to srcdir
 cd "${SRCDIR}"

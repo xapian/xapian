@@ -1,3 +1,7 @@
+Fri May 03 14:29:58 BST 2002  Olly Betts <olly@survex.com>
+
+	* It's HACKING (not INSTALL) that has details of developer tools.
+
 Thu May 02 15:57:48 BST 2002  Olly Betts <olly@survex.com>
 
 	* Removed OmData - just return and take a string instead.
