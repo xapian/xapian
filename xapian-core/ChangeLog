@@ -1,3 +1,10 @@
+Thu Jul 11 00:16:22 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in, docs/Makefile.am: configure fixes for Solaris - clear
+	  cached result for fdatasync since it may be wrong if we decide we
+	  need to link librt; split SOURCEDOC_SRC into two to avoid hitting
+	  4096 char line length in Solaris sed.
+
 Tue Jul 09 17:47:31 BST 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS, tests/Makefile.am: improved internaltest.cc automake rules

@@ -243,6 +243,8 @@ fi
 
 dnl See if we have fdatasync, and what libraries are needed for it.
 AC_CHECK_FUNC(fdatasync, , AC_CHECK_LIB(rt, fdatasync))
+dnl unset the cached value since linking with "-lrt" may change the answer
+unset ac_cv_func_fdatasync
 AC_CHECK_FUNCS(fdatasync fsync)
 
 dnl See if we want to use STLport
@@ -357,11 +359,16 @@ AC_SYS_LARGEFILE
 
 APIDOC_SRC="`cd \"$srcdir\";find include -name \*.h -print|sed 's!^!$(top_srcdir)/!'|tr '
 ' ' '`"
-SOURCEDOC_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name \*.@<:@ch@:>@ -print -o -name \*.cc -print|sed 's!^.!$(top_srcdir)!'|tr '
+dnl find SOURCEDOC in two goes to avoid overflowing the 4096 character
+dnl line length limit in some sed implementations
+SOURCEDOC_CC_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name \*.cc -print|sed 's!^\.!$(top_srcdir)!'|tr '
+' ' '`"
+SOURCEDOC_C_H_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name \*.@<:@ch@:>@ -print|sed 's!^\.!$(top_srcdir)!'|tr '
 ' ' '`"
 
 AC_SUBST(APIDOC_SRC)
-AC_SUBST(SOURCEDOC_SRC)
+AC_SUBST(SOURCEDOC_CC_SRC)
+AC_SUBST(SOURCEDOC_C_H_SRC)
 
 dnl *******************************************************************
 dnl * Make sure we can reference the top source and build directories *
