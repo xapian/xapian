@@ -1,3 +1,7 @@
+Thu Sep 19 00:49:01 BST 2002  Olly Betts <olly@survex.com>
+
+	* HACKING: Added note about safe way to generate files in make rules.
+
 Thu Sep 19 00:45:51 BST 2002  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Tested on Solaris 7 with GCC 2.95.3 (works) and Solaris 8

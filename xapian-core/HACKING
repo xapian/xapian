@@ -211,6 +211,22 @@ Here's an incomplete list of things to avoid:
   ourselves using find with -newer.  A similar hack can probably be used in
   other cases where VPATH doesn't work portably.
 
+* This is actually a robustness point, not portability per se.  Rules which
+  generate files should be careful not to leave a partial file in place if
+  there's an error as it will have a timestamp which leads make to believe it's
+  up-to-date.  So this is bad:
+
+  foo.cc: script.pl
+  	$PERL script.pl > foo.cc
+
+  This is better:
+
+  foo.cc: script.pl
+  	$PERL script.pl > foo.tmp
+	mv foo.tmp foo.cc
+
+  The makefiles haven't all been modified to avoid this problem (FIXME).
+
 And lastly a style point - using "@" to suppress outputing of commands being
 executed removes choice from the user - they may want to see what commands
 are being executed.  And if they don't want to, they can use "make -s" (in
