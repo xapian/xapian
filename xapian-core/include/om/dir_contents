@@ -1,8 +1,0 @@
-<Directory>include/om</Directory>
-
-<Description>
-This directory contains the externally visible header files which are
-needed to link applications against Omsee.
-
-Internal header files are kept in the "common" directory.
-</Description>

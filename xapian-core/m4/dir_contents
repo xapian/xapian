@@ -1,7 +1,0 @@
-<Directory>m4</Directory>
-
-<Description>
-Directory containing m4 macros to be installed with Omsee.
-This currently just contains the macro for finding the parameters for
-linking and including headers for an installed version.
-</Description>

@@ -1,6 +1,0 @@
-<Directory>languages/spanish</Directory>
-
-<Description>
-Code for processing spanish, such as a stemming algorithm for normalising
-spanish words.
-</Description>

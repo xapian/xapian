@@ -1,9 +1,0 @@
-.cme_cvs*
-.*.swp
-*.lo
-Makefile.in
-Makefile
-.deps
-.libs
-apitest_helpers.py
-apitest_to_python.pl
