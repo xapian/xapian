@@ -148,13 +148,15 @@ MultiMatch::get_max_weight()
     Assert((allow_add_singlematch = false) == false);
     Assert(leaves.size() > 0);
 
-    leaves.front()->prepare_match();
+    // FIXME: this always asks the first database; make it pick one in some
+    // way so that the load is fairly spread?
+    leaves.front()->prepare_match(false);
     om_weight result = leaves.front()->get_max_weight();
 
 #ifdef MUS_DEBUG
     for(vector<SingleMatch *>::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
-	(*i)->prepare_match();
+	(*i)->prepare_match(false);
 	Assert((*i)->get_max_weight() == result);
     }
 #endif /* MUS_DEBUG */
@@ -218,14 +220,15 @@ MultiMatch::add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
 			      vector<SingleMatch *>::size_type *msets_received,
 			      om_doccount * tot_mbound,
 			      om_weight   * tot_greatest_wt,
-			      vector<OmMSetItem> & mset) {
+			      vector<OmMSetItem> & mset,
+			      bool nowait) {
     om_doccount sub_mbound;
     om_weight   sub_greatest_wt;
     vector<OmMSetItem> sub_mset;
 
     // Get next mset
     if ((*leaf)->get_mset(0, lastitem, sub_mset, &sub_mbound,
-			  &sub_greatest_wt, mdecider, true)) {
+			  &sub_greatest_wt, mdecider, nowait)) {
 	(*msets_received)++;
 	mset_received[leaf_number - 1] = true;
 
@@ -243,6 +246,24 @@ MultiMatch::add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
 }
 
 void
+MultiMatch::prepare_matchers() {
+    bool prepared;
+    bool nowait = true;
+    do {
+	prepared = true;
+	for(vector<SingleMatch *>::iterator leaf = leaves.begin();
+	    leaf != leaves.end(); leaf++) {
+	    if (!(*leaf)->prepare_match(nowait)) {
+		prepared = false;
+	    }
+	}
+	// Use blocking IO on subsequent passes, so that we don't go into
+	// a tight loop.
+	nowait = false;
+    } while (!prepared);
+}
+
+void
 MultiMatch::match(om_doccount first,
 		  om_doccount maxitems,
 		  vector<OmMSetItem> & mset,
@@ -254,26 +275,17 @@ MultiMatch::match(om_doccount first,
     Assert(leaves.size() > 0);
 
     if(leaves.size() == 1) {
-	// Only one mset to get - so get it.
-	leaves.front()->prepare_match();
+	// Only one mset to get - so get it, and block.
+	leaves.front()->prepare_match(false);
 	leaves.front()->get_mset(first, maxitems, mset,
-				 mbound, greatest_wt, mdecider);
+				 mbound, greatest_wt, mdecider, false);
     } else if(leaves.size() > 1) {
 	// Need to merge msets.
 	om_doccount tot_mbound = 0;
 	om_weight   tot_greatest_wt = 0;
 	om_doccount lastitem = first + maxitems;
 
-	bool prepared = true;
-	do {
-	    // Prepare all the msets
-	    for(vector<SingleMatch *>::iterator leaf = leaves.begin();
-		leaf != leaves.end(); leaf++) {
-		if (!(*leaf)->prepare_match(true)) {
-		    prepared = false;
-		}
-	    }
-	} while (!prepared);
+	prepare_matchers();
 
 	vector<bool> mset_received(leaves.size(), false);
 	vector<SingleMatch *>::size_type msets_received = 0;
@@ -283,6 +295,7 @@ MultiMatch::match(om_doccount first,
 
 	// Get subsequent msets, and merge each one with the current mset
 	// FIXME: this approach may be very inefficient - needs attention.
+	bool nowait = true;
 	while (msets_received != leaves.size()) {
 	    for(leaf = leaves.begin(),
 		leaf_number = 1;
@@ -302,9 +315,15 @@ MultiMatch::match(om_doccount first,
 				  &msets_received,
 				  &tot_mbound,
 				  &tot_greatest_wt,
-				  mset);
+				  mset,
+				  nowait);
 	    }
+
+	    // Use blocking IO on subsequent passes, so that we don't go into
+	    // a tight loop.
+	    nowait = false;
 	}
+
 
 	// Clear unwanted leading elements.
 	if(first != 0) {

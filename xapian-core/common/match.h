@@ -132,11 +132,11 @@ class SingleMatch
 	 *  			possible even if the operation hasn't
 	 *  			been completed.  If it hasn't, then
 	 *  			the return value will be false.  The
-	 *  			caller should periodically retry until
-	 *  			prepare_match returns true, or throws
-	 *  			an exception to indicate an error.
+	 *  			caller should retry until prepare_match
+	 *  			returns true, or throws an exception to
+	 *  			indicate an error.
 	 */
-	virtual bool prepare_match(bool nowait = false) = 0;
+	virtual bool prepare_match(bool nowait) = 0;
 	
 	///////////////////////////////////////////////////////////////////
 	// Get information about result
@@ -165,7 +165,8 @@ class SingleMatch
 	 *  @param mbound      Mbound will returned here
 	 *  @param greatest_wt Gets set to max weight attained
 	 *  @param mdecider    Optional decision functor
-	 *  @param nowait      If true, then do work asynchronously
+	 *  @param nowait      If true, then work asynchronously -
+	 *                     see prepare_match()
 	 */
 	virtual bool get_mset(om_doccount first,
 			      om_doccount maxitems,
@@ -173,8 +174,7 @@ class SingleMatch
 			      om_doccount * mbound,
 			      om_weight * greatest_wt,
 			      const OmMatchDecider *mdecider,
-			      bool nowait = false
-			     ) = 0;
+			      bool nowait) = 0;
 };
 
 ///////////////////////////////

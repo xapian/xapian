@@ -80,6 +80,11 @@ class MultiMatch
 			 vector<OmMSetItem> &more_mset,
 			 om_doccount lastitem);
 
+	/** Add the next mset available to the current mset, if it is available.
+	 *
+	 *  FIXME: this method should be refactored to reduce the number
+	 *  of parameters.
+	 */
 	bool add_next_sub_mset(vector<SingleMatch *>::iterator leaf,
 			       om_doccount number_of_leaves,
 			       om_doccount leaf_number,
@@ -89,7 +94,15 @@ class MultiMatch
 			       vector<SingleMatch *>::size_type *msets_received,
 			       om_doccount * tot_mbound,
 			       om_weight   * tot_greatest_wt,
-			       vector<OmMSetItem> & mset);
+			       vector<OmMSetItem> & mset,
+			       bool nowait);
+
+	/** Prepare all the sub matchers.
+	 *
+	 *  This calls prepare_match() on all the sub matchers until they
+	 *  all return true to signal that they are prepared.
+	 */
+	void prepare_matchers();
 
 	// disallow copies
 	MultiMatch(const MultiMatch &);

@@ -1,3 +1,11 @@
+Mon May  8 19:42:48 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Stop MultiMatch going into a tight loop when waiting for sub
+	  matchers to prepare_match() or get_mset(), by doing one pass of
+	  non blocking IO, and then blocking IO for subsequent calls.
+
+	* Refactor MultiMatch::match() into more separate methods.
+
 Mon May  8 19:14:19 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* In MultiMatch::match(), factor out adding of a new mset to
