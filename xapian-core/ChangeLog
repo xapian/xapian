@@ -1,3 +1,7 @@
+Tue Sep 26 18:17:11 BST 2000 Olly Betts
+
+	* Removed superfluous MergePostList:: qualification.
+
 Tue Sep 26 17:12:44 BST 2000 Olly Betts
 
 	* OmTermListIterator: operator* now const; added get_wdf() and

@@ -56,7 +56,7 @@ class MergePostList : public PostList {
 	 */
 	virtual om_doclength get_doclength() const;
 
-	virtual PositionList * MergePostList::get_position_list();
+	virtual PositionList * get_position_list();
 
         MergePostList(std::vector<PostList *> plists_);
 	// FIXME: LocalMatch *matcher_?
