@@ -94,7 +94,7 @@ if(($cvsdata ne "") && (not (-d $cvsdata))) {
 # path where all temp files are created during query time.
 # ------------------------------------------------------------
 if(($cvscache ne "") && (not (-d $cvscache))) {
-    mkdir ("$cvscache", 0777) || die "cannot mmkdir $cvscache: $!";
+    mkdir ("$cvscache", 0777) || die "cannot mkdir $cvscache: $!";
     system ("chmod o+rwx $cvscache");
 }
 

@@ -126,8 +126,7 @@ _HTML_
 	my $val;
 	my $ctr = -1;
 # don't want to sort by package
-	foreach $key (@key_list) {
- # key is package
+	foreach $key (@key_list) { # key is package
 		$ctr++;
                 $val = $val_list[$ctr]; # get id for package
 		$querystr = "$cvsquery $root $key";
