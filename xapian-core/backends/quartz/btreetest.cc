@@ -99,21 +99,23 @@ static void do_create(const string & btree_dir, int block_size = 1024)
     tout << btree_dir << "/DB created with block size " << block_size << "\n";
 }
 
+#define BtreeCheck Btree
+#define VERBOSE(S) (verbose?(S):"")
 /// Test inserting and deleting items from a Btree
 static bool test_insertdelete1()
 {
     string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
-    Btree::check(btree_dir, "v");
+    BtreeCheck::check(btree_dir, VERBOSE("v"));
 
     if (!file_exists(datadir + "ord+") || !file_exists(datadir + "ord-"))
 	SKIP_TEST("Data files not present");
 
     do_update(btree_dir, datadir + "ord+");
-    Btree::check(btree_dir, "v");
+    BtreeCheck::check(btree_dir, VERBOSE("v"));
 
     do_update(btree_dir, datadir + "ord-");
-    Btree::check(btree_dir, "vt");
+    BtreeCheck::check(btree_dir, VERBOSE("vt"));
 
     Btree btree;
     btree.open_to_read(btree_dir.c_str());
@@ -127,22 +129,22 @@ static bool test_sequent1()
 {
     string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
-    Btree::check(btree_dir, "v");
+    BtreeCheck::check(btree_dir, VERBOSE("v"));
 
     if (!file_exists(datadir + "ordnum+") || !file_exists(datadir + "ordnum-"))
 	SKIP_TEST("Data files not present");
 
     do_update(btree_dir, datadir + "ord+");
-    Btree::check(btree_dir, "v");
+    BtreeCheck::check(btree_dir, VERBOSE("v"));
 
     do_update(btree_dir, datadir + "ordnum+");
-    Btree::check(btree_dir, "v");
+    BtreeCheck::check(btree_dir, VERBOSE("v"));
 
     do_update(btree_dir, datadir + "ord-");
-    Btree::check(btree_dir, "vt");
+    BtreeCheck::check(btree_dir, VERBOSE("vt"));
 
     do_update(btree_dir, datadir + "ordnum-");
-    Btree::check(btree_dir, "vt");
+    BtreeCheck::check(btree_dir, VERBOSE("vt"));
 
     Btree btree;
     btree.open_to_read(btree_dir.c_str());

@@ -1,3 +1,8 @@
+Wed Oct 16 20:05:39 BST 2002  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btreetest.cc: Suppress (most) output from
+	  Btree::check unless verbose (-v) is enabled.
+
 Mon Oct 14 15:13:18 BST 2002  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: Fixed compilation problem with std:: on
