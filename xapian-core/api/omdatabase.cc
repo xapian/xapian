@@ -105,7 +105,7 @@ OmDatabase::add_database(const OmDatabase & database)
 	throw OmInvalidArgumentError("Can't add an OmDatabase to itself");
 	return;
     }
-    std::vector<OmRefCntPtr<IRDatabase> >::iterator i;
+    std::vector<RefCntPtr<IRDatabase> >::iterator i;
     OmLockSentry locksentry(database.internal->mutex);
     for (i = database.internal->databases.begin();
 	 i != database.internal->databases.end(); i++) {

@@ -29,7 +29,7 @@
 #include "database.h"
 #include "multi_database.h"
 #include "omlocks.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 #include <algorithm>
 #include <math.h>
 #include <map>
@@ -45,7 +45,7 @@ class OmEnquireInternal {
 	/** The multidatabase which this enquire object uses.
 	 *  This is obtained from the OmDatabase passed to the constructor.
 	 */
-	OmRefCntPtr<MultiDatabase> database;
+	RefCntPtr<MultiDatabase> database;
 
 	/** The user's query.
 	 *  This may need to be mutable in future so that it can be

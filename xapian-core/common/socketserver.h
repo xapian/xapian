@@ -43,7 +43,7 @@ class SocketServer : public NetServer {
 	void operator=(const SocketServer &);
 
 	/// The database we're associated with
-	OmRefCntPtr<MultiDatabase> db;
+	RefCntPtr<MultiDatabase> db;
 
 	/// The filedescriptors for talking to the remote end.
 	int readfd;
@@ -97,7 +97,7 @@ class SocketServer : public NetServer {
 	 *                      missing or -1, then readfd_ will be used
 	 *                      instead.
 	 */
-	SocketServer(OmRefCntPtr<MultiDatabase> db,
+	SocketServer(RefCntPtr<MultiDatabase> db,
 		     int readfd_,
 		     int writefd_ = -1,
 		     int msecs_timeout_ = 10000);
@@ -106,7 +106,7 @@ class SocketServer : public NetServer {
 	 *  @param db		The database on which searches are done.
 	 *  @param buffer	OmLineBuf already connected to remote end.
 	 */
-	SocketServer(OmRefCntPtr<MultiDatabase> db,
+	SocketServer(RefCntPtr<MultiDatabase> db,
 		     std::auto_ptr<OmLineBuf> buffer,
 		     int msecs_timeout_ = 10000);
 

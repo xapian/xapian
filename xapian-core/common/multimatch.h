@@ -25,7 +25,7 @@
 
 #include "match.h"
 #include "stats.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 
 #include <vector>
 #include <memory>  // auto_ptr
@@ -39,7 +39,7 @@ class MultiMatch
 {
     private:
 	/// Vector of the items
-	std::vector<OmRefCntPtr<SingleMatch> > leaves;
+	std::vector<RefCntPtr<SingleMatch> > leaves;
 
 	/// The database
 	const MultiDatabase * multi_database;
@@ -51,7 +51,7 @@ class MultiMatch
 	OmMSetCmp mcmp;
 
 	/// Construct a SingleMatch object from an IRDatabase
-	OmRefCntPtr<SingleMatch> make_match_from_database(IRDatabase *db);
+	RefCntPtr<SingleMatch> make_match_from_database(IRDatabase *db);
 
 	/** Change all the document IDs in the given mset to be valid
 	 *  globally, rather than within the sub-match which produced them.

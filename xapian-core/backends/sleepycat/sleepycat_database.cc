@@ -99,7 +99,7 @@ om_doclength
 SleepycatDatabase::get_doclength(om_docid did) const
 {
     std::auto_ptr<SleepycatTermList> tl(
-	new SleepycatTermList(did, OmRefCntPtr<const SleepycatDatabase>(RefCntPtrToThis(), this),
+	new SleepycatTermList(did, RefCntPtr<const SleepycatDatabase>(RefCntPtrToThis(), this),
 			      internals.get(), termcache.get()));
     return tl->get_doclength();
 }
@@ -133,14 +133,14 @@ SleepycatDatabase::do_open_post_list(const om_termname & tname) const
 				     " not found; can't open postlist");
 
     return new SleepycatPostList(tid, internals.get(), tname,
-				 OmRefCntPtr<const SleepycatDatabase>(RefCntPtrToThis(), this));
+				 RefCntPtr<const SleepycatDatabase>(RefCntPtrToThis(), this));
 }
 
 LeafTermList *
 SleepycatDatabase::open_term_list(om_docid did) const
 {
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
-    return new SleepycatTermList(did, OmRefCntPtr<const SleepycatDatabase>(RefCntPtrToThis(), this),
+    return new SleepycatTermList(did, RefCntPtr<const SleepycatDatabase>(RefCntPtrToThis(), this),
 				 internals.get(), termcache.get());
 }
 

@@ -27,7 +27,7 @@
 
 #include "database_builder.h"
 #include "om/omindexdoc.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 #include "omlocks.h"
 #include "emptypostlist.h"
 
@@ -40,7 +40,7 @@ class LeafTermList;
  *  All classes derived from IRDatabase must have DatabaseBuilder as
  *  a friend, so that they can be constructed in a unified way.
  */
-class IRDatabase : public OmRefCntBase {
+class IRDatabase : public RefCntBase {
     private:
 	/// Copies are not allowed.
 	IRDatabase(const IRDatabase &);

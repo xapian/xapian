@@ -22,7 +22,7 @@
 
 #include <om/omdocument.h>
 #include "om/omtypes.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 #include "document.h"
 #include "omdocumentparams.h"
 
@@ -30,10 +30,10 @@
 class OmDocument::Internal {
     public:
 	/// The reference counted pointer to a LeafDocument instance
-	OmRefCntPtr<LeafDocument> ptr;
+	RefCntPtr<LeafDocument> ptr;
 	OmLock mutex;
 
-	explicit Internal(OmRefCntPtr<LeafDocument> ptr_) : ptr(ptr_) {}
+	explicit Internal(RefCntPtr<LeafDocument> ptr_) : ptr(ptr_) {}
 
 	Internal(const Internal &other)
 		: ptr(other.ptr), mutex() {}

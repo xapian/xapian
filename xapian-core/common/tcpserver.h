@@ -41,7 +41,7 @@ class TcpServer {
 	int port;
 
 	/// The database we're using.
-	OmRefCntPtr<MultiDatabase> db;
+	RefCntPtr<MultiDatabase> db;
 
 	/// The listening socket
 	int listen_socket;
@@ -62,7 +62,7 @@ class TcpServer {
 	int get_connected_socket();
     public:
 	/** Default constructor. */
-	TcpServer(OmRefCntPtr<MultiDatabase> db_, int port_,
+	TcpServer(RefCntPtr<MultiDatabase> db_, int port_,
 		  int msecs_timeout_ = 10000);
 
 	/** Destructor. */

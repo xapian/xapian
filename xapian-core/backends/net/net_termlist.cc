@@ -32,7 +32,7 @@
 NetworkTermList::NetworkTermList(om_doclength average_length_,
 				 om_doccount database_size_,
 				 const std::vector<NetClient::TermListItem> &items_,
-				 OmRefCntPtr<const NetworkDatabase> this_db_)
+				 RefCntPtr<const NetworkDatabase> this_db_)
 	: items(),
 	  current_position(items.begin()),
 	  started(false),

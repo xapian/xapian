@@ -47,14 +47,14 @@ NetworkDatabase::NetworkDatabase(const OmSettings & params, bool readonly)
     if (type == "prog") {
 	std::string prog = params.get("remote_program");
 	std::vector<std::string> args = params.get_vector("remote_args");
-	link = OmRefCntPtr<NetClient>(new ProgClient(prog, args, timeout));
+	link = RefCntPtr<NetClient>(new ProgClient(prog, args, timeout));
 	Assert(link.get() != 0);
 	//initialise_link();
     } else if (type == "tcp") {
 	std::string server = params.get("remote_server");
 	// FIXME: default port?
 	int port = params.get_int("remote_port");
-	link = OmRefCntPtr<NetClient>(new TcpClient(server, port, timeout));
+	link = RefCntPtr<NetClient>(new TcpClient(server, port, timeout));
     } else {
 	throw OmUnimplementedError(std::string("Network database type ") +
 				   type);
@@ -96,7 +96,7 @@ NetworkDatabase::open_term_list(om_docid did) const {
     std::vector<NetClient::TermListItem> items;
     link->get_tlist(did, items);
     return new NetworkTermList(get_avlength(), get_doccount(), items,
-			       OmRefCntPtr<const NetworkDatabase>(RefCntPtrToThis(), this));
+			       RefCntPtr<const NetworkDatabase>(RefCntPtrToThis(), this));
 }
 
 LeafDocument *

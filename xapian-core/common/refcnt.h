@@ -1,4 +1,4 @@
-#/* omrefcnt.h: Reference-counted pointers
+/* refcnt.h: Reference-counted pointers
  *
  * ----START-LICENCE----
  * Copyright 1999,2000 BrightStation PLC
@@ -20,16 +20,16 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMREFCNT_H
-#define OM_HGUARD_OMREFCNT_H
+#ifndef OM_HGUARD_REFCNT_H
+#define OM_HGUARD_REFCNT_H
 
 #include "omlocks.h"
 
 /** Reference counted objects should inherit from
- *  OmRefCntBase.  This gives the object a reference count
- *  and a lock used by OmRefCntPtr.
+ *  RefCntBase.  This gives the object a reference count
+ *  and a lock used by RefCntPtr.
  */
-class OmRefCntBase {
+class RefCntBase {
     private:
 	typedef unsigned int ref_count_t;
 
@@ -47,7 +47,7 @@ class OmRefCntBase {
 	 *  refcount implementation).  Sometimes it's needed, though,
 	 *  since OmLock objects can't be copied.
 	 */
-	OmRefCntBase(const OmRefCntBase &other)
+	RefCntBase(const RefCntBase &other)
 		: ref_count(0), ref_count_mutex() { }
 
 	/** Dummy class, used simply to make the private constructor
@@ -66,14 +66,14 @@ class OmRefCntBase {
 	}
 
 	/// The constructor, which initialises the ref_count to 0.
-	OmRefCntBase() : ref_count(0) { }
+	RefCntBase() : ref_count(0) { }
 
 	/** Increase reference count from 0 to 1, used when first making an
-	 *  OmRefCntPtr out of a pointer.
+	 *  RefCntPtr out of a pointer.
 	 */
 	void ref_start() const;
 
-	/// Increase the reference count, used when copying an OmRefCntPtr.
+	/// Increase the reference count, used when copying an RefCntPtr.
 	void ref_increment() const;
 
 	/** Decrease the reference count.  In addition, return true if the
@@ -84,17 +84,17 @@ class OmRefCntBase {
 };
 
 /** The actual reference-counted pointer.  Can be used with any
- *  class derived from OmRefCntBase, as long as it is allocated
+ *  class derived from RefCntBase, as long as it is allocated
  *  on the heap by new (not new[]!).
  */
 template <class T>
-class OmRefCntPtr {
+class RefCntPtr {
     friend T;
     private:
 	T *dest;
 
     public:
-	/** Make an OmRefCntPtr for an object which may already
+	/** Make an RefCntPtr for an object which may already
 	 *  have reference counted pointers.  This should only
 	 *  be called by the object itself, to pass references
 	 *  to objects which it creates and which depend on it.
@@ -103,34 +103,34 @@ class OmRefCntPtr {
 	 *  (eg, a database might pass a newly created postlist
 	 *  a reference counted pointer to itself.)
 	 */
-	OmRefCntPtr(OmRefCntBase::RefCntPtrToThis, T *dest_);
+	RefCntPtr(RefCntBase::RefCntPtrToThis, T *dest_);
 
 	T *operator->() const;
 	T &operator*() const;
 	T *get() const;
-	OmRefCntPtr(T *dest_ = 0);
-	OmRefCntPtr(const OmRefCntPtr &other);
-	void operator=(const OmRefCntPtr &other);
-	~OmRefCntPtr();
+	RefCntPtr(T *dest_ = 0);
+	RefCntPtr(const RefCntPtr &other);
+	void operator=(const RefCntPtr &other);
+	~RefCntPtr();
 
 	template <class U>
-	OmRefCntPtr(const OmRefCntPtr<U> &other);
+	RefCntPtr(const RefCntPtr<U> &other);
 };
 
-inline void OmRefCntBase::ref_start() const
+inline void RefCntBase::ref_start() const
 {
     OmLockSentry locksentry(ref_count_mutex);
     Assert(ref_count == 0);
     ref_count += 1;
 }
 
-inline void OmRefCntBase::ref_increment() const
+inline void RefCntBase::ref_increment() const
 {
     OmLockSentry locksentry(ref_count_mutex);
     ref_count += 1;
 }
 
-inline bool OmRefCntBase::ref_decrement() const
+inline bool RefCntBase::ref_decrement() const
 {
     OmLockSentry locksentry(ref_count_mutex);
     ref_count -= 1;
@@ -140,7 +140,7 @@ inline bool OmRefCntBase::ref_decrement() const
 
 
 template <class T>
-inline OmRefCntPtr<T>::OmRefCntPtr(OmRefCntBase::RefCntPtrToThis, T *dest_)
+inline RefCntPtr<T>::RefCntPtr(RefCntBase::RefCntPtrToThis, T *dest_)
 	: dest(dest_)
 {
     Assert(dest != 0);
@@ -148,7 +148,7 @@ inline OmRefCntPtr<T>::OmRefCntPtr(OmRefCntBase::RefCntPtrToThis, T *dest_)
 }
 
 template <class T>
-inline OmRefCntPtr<T>::OmRefCntPtr(T *dest_) : dest(dest_)
+inline RefCntPtr<T>::RefCntPtr(T *dest_) : dest(dest_)
 {
     if (dest) {
 	dest->ref_start();
@@ -156,7 +156,7 @@ inline OmRefCntPtr<T>::OmRefCntPtr(T *dest_) : dest(dest_)
 }
 
 template <class T>
-inline OmRefCntPtr<T>::OmRefCntPtr(const OmRefCntPtr &other) : dest(other.dest)
+inline RefCntPtr<T>::RefCntPtr(const RefCntPtr &other) : dest(other.dest)
 {
     if (dest) {
 	Assert(dest->ref_count_get() != 0);
@@ -165,7 +165,7 @@ inline OmRefCntPtr<T>::OmRefCntPtr(const OmRefCntPtr &other) : dest(other.dest)
 }
 
 template <class T>
-inline void OmRefCntPtr<T>::operator=(const OmRefCntPtr &other) {
+inline void RefCntPtr<T>::operator=(const RefCntPtr &other) {
     if (dest && dest->ref_decrement()) {
 	delete dest;
     }
@@ -177,7 +177,7 @@ inline void OmRefCntPtr<T>::operator=(const OmRefCntPtr &other) {
 }
 
 template <class T>
-inline OmRefCntPtr<T>::~OmRefCntPtr()
+inline RefCntPtr<T>::~RefCntPtr()
 {
     if (dest && dest->ref_decrement()) {
 	delete dest;
@@ -188,7 +188,7 @@ inline OmRefCntPtr<T>::~OmRefCntPtr()
 template <class T>
 template <class U>
 inline
-OmRefCntPtr<T>::OmRefCntPtr(const OmRefCntPtr<U> &other)
+RefCntPtr<T>::RefCntPtr(const RefCntPtr<U> &other)
 	: dest(other.get())
 {
     if (dest) {
@@ -198,21 +198,21 @@ OmRefCntPtr<T>::OmRefCntPtr(const OmRefCntPtr<U> &other)
 }
 
 template <class T>
-inline T *OmRefCntPtr<T>::operator->() const
+inline T *RefCntPtr<T>::operator->() const
 {
     return dest;
 }
 
 template <class T>
-inline T &OmRefCntPtr<T>::operator*() const
+inline T &RefCntPtr<T>::operator*() const
 {
     return *dest;
 }
 
 template <class T>
-inline T *OmRefCntPtr<T>::get() const
+inline T *RefCntPtr<T>::get() const
 {
     return dest;
 }
 
-#endif /* OM_HGUARD_OMREFCNT_H */
+#endif /* OM_HGUARD_REFCNT_H */

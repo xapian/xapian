@@ -24,7 +24,7 @@
 #define OM_HGUARD_OMDOCUMENTPARAMS_H
 
 #include "document.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 /// Parameters used to create an OmDocument
 class OmDocumentParams {
     public:
@@ -38,11 +38,11 @@ class OmDocumentParams {
 	OmDocumentParams(LeafDocument *ld)
 		: ld_ptr(ld) {}
 
-	OmDocumentParams(OmRefCntPtr<LeafDocument> ld_ptr_)
+	OmDocumentParams(RefCntPtr<LeafDocument> ld_ptr_)
 		: ld_ptr(ld_ptr_) {}
 
 	/// The reference counted pointer to the LeafDocument.
-	OmRefCntPtr<LeafDocument> ld_ptr;
+	RefCntPtr<LeafDocument> ld_ptr;
 };
 
 #endif  // OM_HGUARD_OMDOCUMENTPARAMS_H

@@ -50,12 +50,12 @@ class DBPostList : public LeafPostList {
 	om_termname tname;
 	om_doccount termfreq;
 
-	OmRefCntPtr<const DBDatabase> this_db; // Just used to keep a reference
+	RefCntPtr<const DBDatabase> this_db; // Just used to keep a reference
 
 	DBPostList(const om_termname & tname_,
 		   struct DB_postings * postlist_,
 		   om_doccount termfreq_,
-		   OmRefCntPtr<const DBDatabase> this_db_);
+		   RefCntPtr<const DBDatabase> this_db_);
     public:
 	~DBPostList();
 
@@ -141,10 +141,10 @@ class DBTermList : public LeafTermList {
 	bool have_started;
 	om_doccount dbsize;
 
-	OmRefCntPtr<const DBDatabase> this_db; // Just used to keep a reference
+	RefCntPtr<const DBDatabase> this_db; // Just used to keep a reference
 
 	DBTermList(struct termvec *tv, om_doccount dbsize_,
-		   OmRefCntPtr<const DBDatabase> this_db_);
+		   RefCntPtr<const DBDatabase> this_db_);
     public:
 	om_termcount get_approx_size() const;
 
@@ -205,7 +205,7 @@ inline bool DBTermList::at_end() const
 
 
 
-class DBTerm : public OmRefCntBase {
+class DBTerm : public RefCntBase {
     friend DBDatabase;
     private:
 	DBTerm(struct DB_term_info * ti_,
@@ -265,14 +265,14 @@ class DBDatabase : public IRDatabase {
 
 	FILE * keyfile;
 
-	mutable std::map<om_termname, OmRefCntPtr<const DBTerm> > termmap;
+	mutable std::map<om_termname, RefCntPtr<const DBTerm> > termmap;
 
 	// Stop copy / assignment being allowed
 	DBDatabase& operator=(const DBDatabase&);
 	DBDatabase(const DBDatabase&);
 
 	// Look up term in database
-	OmRefCntPtr<const DBTerm> term_lookup(const om_termname & tname) const;
+	RefCntPtr<const DBTerm> term_lookup(const om_termname & tname) const;
 
 	// Get a record
 	struct record * get_record(om_docid did) const;

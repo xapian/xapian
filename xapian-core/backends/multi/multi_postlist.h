@@ -34,7 +34,7 @@ class MultiPostList : public LeafPostList {
     private:
 	std::vector<LeafPostList *> postlists;
 
-	OmRefCntPtr<const MultiDatabase> this_db;
+	RefCntPtr<const MultiDatabase> this_db;
 
 	bool   finished;
 	om_docid  currdoc;
@@ -48,7 +48,7 @@ class MultiPostList : public LeafPostList {
 	om_doccount multiplier;
 
 	MultiPostList(std::vector<LeafPostList *> & pls,
-		      OmRefCntPtr<const MultiDatabase> this_db_);
+		      RefCntPtr<const MultiDatabase> this_db_);
     public:
 	~MultiPostList();
 

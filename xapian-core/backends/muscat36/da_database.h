@@ -50,12 +50,12 @@ class DAPostList : public LeafPostList {
 	om_termname tname;
 	om_doccount termfreq;
 
-	OmRefCntPtr<const DADatabase> this_db; // Just used to keep a reference
+	RefCntPtr<const DADatabase> this_db; // Just used to keep a reference
 
 	DAPostList(const om_termname & tname_,
 		   struct DA_postings * postlist_,
 		   om_doccount termfreq_,
-		   OmRefCntPtr<const DADatabase> this_db_);
+		   RefCntPtr<const DADatabase> this_db_);
     public:
 	~DAPostList();
 
@@ -144,10 +144,10 @@ class DATermList : public LeafTermList {
 	bool have_started;
 	om_doccount dbsize;
 
-	OmRefCntPtr<const DADatabase> this_db;
+	RefCntPtr<const DADatabase> this_db;
 
 	DATermList(struct termvec *tv, om_doccount dbsize_,
-		   OmRefCntPtr<const DADatabase> this_db_);
+		   RefCntPtr<const DADatabase> this_db_);
     public:
 	om_termcount get_approx_size() const;
 
@@ -208,7 +208,7 @@ inline bool DATermList::at_end() const
 
 
 
-class DATerm : public OmRefCntBase {
+class DATerm : public RefCntBase {
     friend DADatabase;
     private:
 	DATerm(struct DA_term_info * ti_,
@@ -270,7 +270,7 @@ class DADatabase : public IRDatabase {
 
 	FILE * keyfile;
 
-	mutable std::map<om_termname, OmRefCntPtr<const DATerm> > termmap;
+	mutable std::map<om_termname, RefCntPtr<const DATerm> > termmap;
 
 	int heavy_duty;
 
@@ -279,7 +279,7 @@ class DADatabase : public IRDatabase {
 	DADatabase(const DADatabase&);
 
 	// Look up term in database
-	OmRefCntPtr<const DATerm> term_lookup(const om_termname & tname) const;
+	RefCntPtr<const DATerm> term_lookup(const om_termname & tname) const;
 
 	// Get a record
 	struct record * get_record(om_docid did) const;

@@ -25,12 +25,12 @@
 
 #include "om/omtypes.h"
 #include "om/omerror.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 
 #include "positionlist.h"
 
 /** Abstract base class for postlists. */
-class PostList : public OmRefCntBase
+class PostList : public RefCntBase
 {
     private:
 	/// disallow copy

@@ -1,3 +1,8 @@
+Wed Sep 13 12:31:25 BST 2000 Olly Betts
+
+	* OmRefCnt* -> RefCnt*; omrefcnt.h -> refcnt.h; OmSettingsData ->
+	  SettingsData.
+
 Wed Sep 13 11:28:18 BST 2000 Olly Betts
 
 	* Use libtool's -export-symbols-regex switch to cut down on junk

@@ -25,7 +25,7 @@
 
 #include "om/omtypes.h"
 #include "omdebug.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 #include <map>
 #include <vector>
 

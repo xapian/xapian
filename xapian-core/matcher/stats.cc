@@ -102,7 +102,7 @@ NetworkStatsGatherer::fetch_global_stats() const
     have_global_stats = true;
 }
 
-NetworkStatsSource::NetworkStatsSource(OmRefCntPtr<NetClient> nclient_)
+NetworkStatsSource::NetworkStatsSource(RefCntPtr<NetClient> nclient_)
 	: nclient(nclient_),
           have_remote_stats(false)
 {

@@ -41,7 +41,7 @@
 DAPostList::DAPostList(const om_termname & tname_,
 		       struct DA_postings * postlist_,
 		       om_doccount termfreq_,
-		       OmRefCntPtr<const DADatabase> this_db_)
+		       RefCntPtr<const DADatabase> this_db_)
 	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_),
 	  this_db(this_db_)
 {
@@ -105,7 +105,7 @@ DAPostList::get_position_list()
 
 
 DATermList::DATermList(struct termvec *tv, om_doccount dbsize_,
-		       OmRefCntPtr<const DADatabase> this_db_)
+		       RefCntPtr<const DADatabase> this_db_)
 	: have_started(false), dbsize(dbsize_), this_db(this_db_)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
@@ -290,14 +290,14 @@ LeafPostList *
 DADatabase::open_post_list_internal(const om_termname & tname) const
 {
     // Make sure the term has been looked up
-    OmRefCntPtr<const DATerm> the_term = term_lookup(tname);
+    RefCntPtr<const DATerm> the_term = term_lookup(tname);
     Assert(the_term.get() != 0);
 
     struct DA_postings * postlist;
     postlist = DA_open_postings(the_term->get_ti(), DA_t);
 
     return new DAPostList(tname, postlist, the_term->get_ti()->freq,
-			  OmRefCntPtr<const DADatabase>(RefCntPtrToThis(), this));
+			  RefCntPtr<const DADatabase>(RefCntPtrToThis(), this));
 }
 
 // Returns a new term list, for the terms in this database for given document
@@ -318,7 +318,7 @@ DADatabase::open_term_list(om_docid did) const
     M_open_terms(tv);
 
     return new DATermList(tv, DADatabase::get_doccount_internal(),
-			  OmRefCntPtr<const DADatabase>(RefCntPtrToThis(), this));
+			  RefCntPtr<const DADatabase>(RefCntPtrToThis(), this));
 }
 
 struct record *
@@ -376,15 +376,15 @@ DADatabase::open_document(om_docid did) const
     return new DADocument(this, did, heavy_duty);
 }
 
-OmRefCntPtr<const DATerm>
+RefCntPtr<const DATerm>
 DADatabase::term_lookup(const om_termname & tname) const
 {
     DEBUGMSG(DB, "DADatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    std::map<om_termname, OmRefCntPtr<const DATerm> >::const_iterator p;
+    std::map<om_termname, RefCntPtr<const DATerm> >::const_iterator p;
     p = termmap.find(tname);
 
-    OmRefCntPtr<const DATerm> the_term;
+    RefCntPtr<const DATerm> the_term;
     if (p == termmap.end()) {
 	std::string::size_type len = tname.length();
 	if(len > 255) return 0;
@@ -407,7 +407,7 @@ DADatabase::term_lookup(const om_termname & tname) const
 	    }
 
 	    DEBUGLINE(DB, "found, adding to cache");
-	    std::pair<om_termname, OmRefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
+	    std::pair<om_termname, RefCntPtr<const DATerm> > termpair(tname, new DATerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}

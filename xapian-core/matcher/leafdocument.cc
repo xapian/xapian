@@ -21,7 +21,7 @@
  */
 
 #include <om/omtypes.h>
-#include "omrefcnt.h"
+#include "refcnt.h"
 #include "omlocks.h"
 #include "document.h"
 #include <om/omdocument.h>

@@ -37,7 +37,7 @@ class NetworkDatabase : public IRDatabase {
     friend class NetworkMatch;
     private:
         /// Reference to the network link object
-    	OmRefCntPtr<NetClient> link;
+    	RefCntPtr<NetClient> link;
 
 	/// Set up the connection, including swapping statistics.
 	void initialise_link();

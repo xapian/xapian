@@ -45,7 +45,7 @@
 #include <sys/wait.h>
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(OmRefCntPtr<MultiDatabase> db_,
+TcpServer::TcpServer(RefCntPtr<MultiDatabase> db_,
 		       int port_, int msecs_timeout_)
 	: port(port_), db(db_), listen_socket(get_listening_socket(port_)),
 	  msecs_timeout(msecs_timeout_)

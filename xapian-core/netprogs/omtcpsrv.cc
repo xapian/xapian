@@ -139,7 +139,7 @@ int main(int argc, char *argv[]) {
 	    delete *p;
 	}
 
-	OmRefCntPtr<MultiDatabase> mdb(
+	RefCntPtr<MultiDatabase> mdb(
 	    OmDatabase::InternalInterface::get_multi_database(mydbs));
 
 	TcpServer server(mdb, port, msecs_timeout);

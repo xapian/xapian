@@ -24,7 +24,7 @@
 #define OM_HGUARD_DOCUMENT_H
 
 #include "om/omtypes.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 #include "omlocks.h"
 #include <map>
 
@@ -32,7 +32,7 @@ class OmKey;
 class OmData;
 
 /// A document in the database - holds keys and records
-class LeafDocument : public OmRefCntBase {
+class LeafDocument : public RefCntBase {
     private:
 	/// Copies are not allowed.
 	LeafDocument(const LeafDocument &);

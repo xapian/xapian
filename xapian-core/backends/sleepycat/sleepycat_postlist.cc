@@ -35,7 +35,7 @@
 SleepycatPostList::SleepycatPostList(om_termid tid_,
 				     SleepycatDatabaseInternals * internals_,
 				     const om_termname & tname_,
-				     OmRefCntPtr<const SleepycatDatabase> this_db_)
+				     RefCntPtr<const SleepycatDatabase> this_db_)
 	: tname(tname_),
 	  mylist(internals_->postlist_db,
 		 reinterpret_cast<void *>(&tid_),

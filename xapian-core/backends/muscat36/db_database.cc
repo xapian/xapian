@@ -42,7 +42,7 @@
 DBPostList::DBPostList(const om_termname & tname_,
 		       struct DB_postings * postlist_,
 		       om_doccount termfreq_,
-		       OmRefCntPtr<const DBDatabase> this_db_)
+		       RefCntPtr<const DBDatabase> this_db_)
 	: postlist(postlist_), currdoc(0), tname(tname_), termfreq(termfreq_),
 	  this_db(this_db_)
 {
@@ -108,7 +108,7 @@ DBPostList::get_position_list()
 
 
 DBTermList::DBTermList(struct termvec *tv, om_doccount dbsize_,
-		       OmRefCntPtr<const DBDatabase> this_db_)
+		       RefCntPtr<const DBDatabase> this_db_)
 	: have_started(false), dbsize(dbsize_), this_db(this_db_)
 {
     // FIXME - read terms as we require them, rather than all at beginning?
@@ -284,14 +284,14 @@ LeafPostList *
 DBDatabase::open_post_list_internal(const om_termname & tname) const
 {
     // Make sure the term has been looked up
-    OmRefCntPtr<const DBTerm> the_term = term_lookup(tname);
+    RefCntPtr<const DBTerm> the_term = term_lookup(tname);
     Assert(the_term.get() != 0);
 
     struct DB_postings * postlist;
     postlist = DB_open_postings(the_term->get_ti(), DB);
 
     return new DBPostList(tname, postlist, the_term->get_ti()->freq,
-			  OmRefCntPtr<const DBDatabase>(RefCntPtrToThis(), this));
+			  RefCntPtr<const DBDatabase>(RefCntPtrToThis(), this));
 }
 
 LeafPostList *
@@ -320,7 +320,7 @@ DBDatabase::open_term_list(om_docid did) const
     M_open_terms(tv);
 
     return new DBTermList(tv, DBDatabase::get_doccount_internal(),
-			  OmRefCntPtr<const DBDatabase>(RefCntPtrToThis(), this));
+			  RefCntPtr<const DBDatabase>(RefCntPtrToThis(), this));
 }
 
 struct record *
@@ -378,15 +378,15 @@ DBDatabase::open_document(om_docid did) const
     return new DBDocument(this, did, DB->heavy_duty);
 }
 
-OmRefCntPtr<const DBTerm>
+RefCntPtr<const DBTerm>
 DBDatabase::term_lookup(const om_termname & tname) const
 {
     //DEBUGLINE(DB, "DBDatabase::term_lookup(`" << tname.c_str() << "'): ");
 
-    std::map<om_termname, OmRefCntPtr<const DBTerm> >::const_iterator p;
+    std::map<om_termname, RefCntPtr<const DBTerm> >::const_iterator p;
     p = termmap.find(tname);
 
-    OmRefCntPtr<const DBTerm> the_term;
+    RefCntPtr<const DBTerm> the_term;
     if (p == termmap.end()) {
 	std::string::size_type len = tname.length();
 	if(len > 255) return 0;
@@ -409,7 +409,7 @@ DBDatabase::term_lookup(const om_termname & tname) const
 	    }
 
 	    DEBUGLINE(DB, "found, adding to cache");
-	    std::pair<om_termname, OmRefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
+	    std::pair<om_termname, RefCntPtr<const DBTerm> > termpair(tname, new DBTerm(&ti, tname));
 	    termmap.insert(termpair);
 	    the_term = termmap.find(tname)->second;
 	}

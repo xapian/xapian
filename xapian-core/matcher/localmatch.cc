@@ -667,12 +667,12 @@ LocalMatch::get_mset(om_doccount first,
 	if(mcmp(new_item, min_item)) {
 	    bool add_item = true;
 
-	    OmRefCntPtr<LeafDocument> irdoc;
+	    RefCntPtr<LeafDocument> irdoc;
 
 	    // Use the decision functor if any.
 	    if (mdecider != 0) {
 		if (irdoc.get() == 0) {
-		    OmRefCntPtr<LeafDocument> temp(database->open_document(did));
+		    RefCntPtr<LeafDocument> temp(database->open_document(did));
 		    irdoc = temp;
 		}
 		OmDocument mydoc(irdoc);
@@ -682,7 +682,7 @@ LocalMatch::get_mset(om_doccount first,
 	    // Item has high enough weight to go in MSet: do collapse if wanted
 	    if(add_item && do_collapse) {
 		if (irdoc.get() == 0) {
-		    OmRefCntPtr<LeafDocument> temp(database->open_document(did));
+		    RefCntPtr<LeafDocument> temp(database->open_document(did));
 		    irdoc = temp;
 		}
 		new_item.collapse_key = irdoc.get()->get_key(collapse_key);

@@ -27,7 +27,7 @@
 
 #include <om/omenquire.h>
 #include "omlocks.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 #include "database_builder.h"
 #include "multi_database.h"
 #include "database.h"
@@ -45,7 +45,7 @@ class OmDatabase::Internal {
     private:
 	/** The multidatabase, if this has been created.
 	 */
-	OmRefCntPtr<MultiDatabase> multi_database;
+	RefCntPtr<MultiDatabase> multi_database;
 
 	/** Add a database, based on parameters.
 	 */
@@ -54,7 +54,7 @@ class OmDatabase::Internal {
     public:
 	/** The databases which this consists of.
 	 */
-	std::vector<OmRefCntPtr<IRDatabase> > databases;
+	std::vector<RefCntPtr<IRDatabase> > databases;
 
 	/** Make a new internal object, with the user supplied parameters.
 	 *
@@ -82,7 +82,7 @@ class OmDatabase::Internal {
 
 	/** Add an already opened database (or set of databases).
 	 */
-	void add_database(OmRefCntPtr<IRDatabase> newdb);
+	void add_database(RefCntPtr<IRDatabase> newdb);
 
 	/** A lock to control concurrent access to this object.
 	 *  This is not intended to control access to the IRDatabase objects.
@@ -101,7 +101,7 @@ class OmDatabase::Internal {
 	 *
 	 *  @return  A reference counted pointer to the MultiDatabase.
 	 */
-	OmRefCntPtr<MultiDatabase> get_multi_database();
+	RefCntPtr<MultiDatabase> get_multi_database();
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERNAL_H

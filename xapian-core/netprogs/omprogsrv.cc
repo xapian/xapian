@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 	std::vector<IRDatabase> dbs;
 	dbs.push_back(DatabaseBuilder::create(param));
 	auto_ptr<IRDatabase> db(DatabaseBuilder::create(dbs));
-	OmRefCntPtr<MultiDatabase> mdb(dynamic_cast<MultiDatabase *>(db.get()));
+	RefCntPtr<MultiDatabase> mdb(dynamic_cast<MultiDatabase *>(db.get()));
 	if (!mdb.get()) {
 	    throw OmDatabaseError("Invalid database");
 	} else {
@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
 	}
 #endif
 
-	OmRefCntPtr<MultiDatabase> multidb;
+	RefCntPtr<MultiDatabase> multidb;
 	multidb = OmDatabase::InternalInterface::get_multi_database(dbgrp);
 	ProgServer server(multidb, 0, 1);
 

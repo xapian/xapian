@@ -48,11 +48,11 @@ MultiMatch::MultiMatch(const MultiDatabase * multi_database_,
 	  gatherer(gatherer_),
 	  mcmp(msetcmp_forward)
 {
-    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator db;
+    std::vector<RefCntPtr<IRDatabase> >::const_iterator db;
     for (db = multi_database->databases.begin();
 	 db != multi_database->databases.end();
 	 ++db) {
-	OmRefCntPtr<SingleMatch> smatch(make_match_from_database(db->get()));
+	RefCntPtr<SingleMatch> smatch(make_match_from_database(db->get()));
 	smatch->link_to_multi(gatherer.get());
 	leaves.push_back(smatch);
     }
@@ -64,7 +64,7 @@ MultiMatch::MultiMatch(const MultiDatabase * multi_database_,
     prepare_matchers();
 }
 
-OmRefCntPtr<SingleMatch>
+RefCntPtr<SingleMatch>
 MultiMatch::make_match_from_database(IRDatabase *db)
 {
     /* There is currently only one special case, for network
@@ -72,12 +72,12 @@ MultiMatch::make_match_from_database(IRDatabase *db)
      */
     if (db->is_network()) {
 #ifdef MUS_BUILD_BACKEND_REMOTE
-	return OmRefCntPtr<SingleMatch>(new NetworkMatch(db));
+	return RefCntPtr<SingleMatch>(new NetworkMatch(db));
 #else /* MUS_BUILD_BACKEND_REMOTE */
 	throw OmUnimplementedError("Network operation is not available");
 #endif /* MUS_BUILD_BACKEND_REMOTE */
     } else {
-	return OmRefCntPtr<SingleMatch>(new LocalMatch(db));
+	return RefCntPtr<SingleMatch>(new LocalMatch(db));
     }
 }
 
@@ -88,7 +88,7 @@ MultiMatch::~MultiMatch()
 void
 MultiMatch::set_query(const OmQueryInternal * query)
 {
-    for(std::vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
+    for(std::vector<RefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_query(query);
     }
@@ -109,7 +109,7 @@ MultiMatch::set_rset(const OmRSet & omrset)
     }
 
     std::vector<OmRSet>::const_iterator subrset;
-    std::vector<OmRefCntPtr<SingleMatch> >::iterator leaf;
+    std::vector<RefCntPtr<SingleMatch> >::iterator leaf;
     for (leaf = leaves.begin(), subrset = subrsets.begin();
 	 leaf != leaves.end(), subrset != subrsets.end();
 	 leaf++, subrset++) {
@@ -122,7 +122,7 @@ MultiMatch::set_rset(const OmRSet & omrset)
 void
 MultiMatch::set_options(const OmSettings & moptions)
 {
-    for(std::vector<OmRefCntPtr<SingleMatch> >::iterator i = leaves.begin();
+    for(std::vector<RefCntPtr<SingleMatch> >::iterator i = leaves.begin();
 	i != leaves.end(); i++) {
 	(*i)->set_options(moptions);
     }
@@ -288,7 +288,7 @@ MultiMatch::prepare_matchers()
     bool nowait = true;
     do {
 	prepared = true;
-	for(std::vector<OmRefCntPtr<SingleMatch> >::iterator leaf = leaves.begin();
+	for(std::vector<RefCntPtr<SingleMatch> >::iterator leaf = leaves.begin();
 	    leaf != leaves.end(); leaf++) {
 	    if (!(*leaf)->prepare_match(nowait)) {
 		prepared = false;
@@ -313,10 +313,10 @@ MultiMatch::collect_msets(om_doccount lastitem,
     mset.firstitem = 0;
 
     std::vector<bool> mset_received(leaves.size(), false);
-    std::vector<OmRefCntPtr<SingleMatch> >::size_type msets_received = 0;
+    std::vector<RefCntPtr<SingleMatch> >::size_type msets_received = 0;
 
     om_doccount leaf_number;
-    std::vector<OmRefCntPtr<SingleMatch> >::iterator leaf;
+    std::vector<RefCntPtr<SingleMatch> >::iterator leaf;
 
     // Get msets one by one, and merge each one with the current mset.
     // FIXME: this approach may be very inefficient - needs attention.

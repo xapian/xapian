@@ -24,7 +24,7 @@
 #define OM_HGUARD_NETCLIENT_H
 
 #include <string>
-#include "omrefcnt.h"
+#include "refcnt.h"
 #include "irweight.h"
 #include "omqueryinternal.h"
 #include "stats.h"
@@ -34,7 +34,7 @@
  *  A NetClient object is used by NetworkMatch to communicate
  *  with remote matching processes.
  */
-class NetClient : public OmRefCntBase {
+class NetClient : public RefCntBase {
     private:
 	// disallow copies
 	NetClient(const NetClient &);

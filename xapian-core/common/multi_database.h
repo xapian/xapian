@@ -50,7 +50,7 @@ class MultiDatabase : public IRDatabase {
 
     private:
 	// List of subdatabases
-	std::vector<OmRefCntPtr<IRDatabase> > databases;
+	std::vector<RefCntPtr<IRDatabase> > databases;
 
 	mutable bool length_initialised;
 	mutable om_doclength avlength;
@@ -70,7 +70,7 @@ class MultiDatabase : public IRDatabase {
 	 *  @exception OmInvalidArgumentError if no databases are specified
 	 *             in the vector.
 	 */
-	MultiDatabase(std::vector<OmRefCntPtr<IRDatabase> > databases_);
+	MultiDatabase(std::vector<RefCntPtr<IRDatabase> > databases_);
 
 	//@{
 	/** MultiDatabase is a readonly database type, and thus this method

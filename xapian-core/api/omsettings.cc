@@ -22,7 +22,7 @@
 
 #include "config.h"
 #include "omlocks.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 #include "omdebug.h"
 #include "om/omsettings.h"
 #include "utils.h"
@@ -34,7 +34,7 @@
 // OmSettings ref-counted data
 // ===========================
 
-class OmSettingsData : public OmRefCntBase {
+class SettingsData : public RefCntBase {
     public:
 	typedef string key_type;
 	typedef string value_type;
@@ -53,7 +53,7 @@ class OmSettings::Internal {
 	OmLock mutex;
 
 	/// The actual data (or ref-counted pointer to it)
-	OmRefCntPtr<OmSettingsData> data;
+	RefCntPtr<SettingsData> data;
     public:
 	Internal();
 
@@ -270,7 +270,7 @@ OmSettings::get_description() const
 OmSettings::Internal::Internal()
 	: mutex()
 {
-    data = new OmSettingsData;
+    data = new SettingsData;
 }
 
 OmSettings::Internal::Internal(const OmSettings::Internal &other)
@@ -296,7 +296,7 @@ OmSettings::Internal::set(const string &key, const string &value)
     OmLockSentry sentry(mutex);
     // copy on write...
     if (data->ref_count_get() > 1) {
-	data = OmRefCntPtr<OmSettingsData>(new OmSettingsData(*data));
+	data = RefCntPtr<SettingsData>(new SettingsData(*data));
     }
     data->values[key] = value;
 }
@@ -306,7 +306,7 @@ OmSettings::Internal::get(const string &key) const
 {
     OmLockSentry sentry(mutex);
 
-    OmSettingsData::map_type::const_iterator i;
+    SettingsData::map_type::const_iterator i;
     i = data->values.find(key);
 
     if (i == data->values.end()) {
@@ -319,7 +319,7 @@ string
 OmSettings::Internal::get_description() const
 {
     std::string description;
-    OmSettingsData::map_type::const_iterator i;
+    SettingsData::map_type::const_iterator i;
     for (i = data->values.begin(); i != data->values.end(); i++) {
 	description += "\"" + i->first + "\"->\"" + i->second + "\" ";	
     }

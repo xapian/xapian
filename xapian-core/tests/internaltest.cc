@@ -35,7 +35,7 @@ using std::endl;
 
 #include "om/om.h"
 #include "testsuite.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 #include "omstringstream.h"
 
 #ifdef MUS_BUILD_BACKEND_SLEEPYCAT
@@ -204,7 +204,7 @@ bool test_exception1()
 // # Tests of the reference counted pointers #
 // ###########################################
 
-class test_refcnt : public OmRefCntBase {
+class test_refcnt : public RefCntBase {
     private:
 	bool &deleted;
     public:
@@ -213,8 +213,8 @@ class test_refcnt : public OmRefCntBase {
 	        cout << " constructor ";
 	    }
 	}
-	OmRefCntPtr<const test_refcnt> test() {
-	    return OmRefCntPtr<const test_refcnt>(RefCntPtrToThis(), this);
+	RefCntPtr<const test_refcnt> test() {
+	    return RefCntPtr<const test_refcnt>(RefCntPtrToThis(), this);
 	}
 	~test_refcnt() {
 	    deleted = true;
@@ -240,7 +240,7 @@ bool test_refcnt1()
 	}
 	delete p;
     } else {
-	OmRefCntPtr<test_refcnt> rcp(p);
+	RefCntPtr<test_refcnt> rcp(p);
 
 	if (rcp->ref_count != 1) {
 	    success = false;
@@ -251,7 +251,7 @@ bool test_refcnt1()
 	}
 
 	{
-	    OmRefCntPtr<test_refcnt> rcp2;
+	    RefCntPtr<test_refcnt> rcp2;
 	    rcp2 = rcp;
 	    if (rcp->ref_count != 2) {
 		success = false;

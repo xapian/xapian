@@ -41,7 +41,7 @@
 #include <unistd.h>
 
 /// The SocketServer constructor, taking two filedescriptors and a database.
-SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
+SocketServer::SocketServer(RefCntPtr<MultiDatabase> db_,
 			   int readfd_,
 			   int writefd_,
 			   int msecs_timeout_)
@@ -66,7 +66,7 @@ SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
 		  om_tostring(db->get_avlength()));
 }
 
-SocketServer::SocketServer(OmRefCntPtr<MultiDatabase> db_,
+SocketServer::SocketServer(RefCntPtr<MultiDatabase> db_,
 			   std::auto_ptr<OmLineBuf> buf_,
 			   int msecs_timeout_)
 	: db(db_),

@@ -42,7 +42,7 @@ MultiDatabase::MultiDatabase(const OmSettings & params)
 				  "OmSettings & params) not supported");
 }
 
-MultiDatabase::MultiDatabase(std::vector<OmRefCntPtr<IRDatabase> > databases_)
+MultiDatabase::MultiDatabase(std::vector<RefCntPtr<IRDatabase> > databases_)
 	: length_initialised(false)
 {
     if (databases_.empty()) {
@@ -69,7 +69,7 @@ MultiDatabase::get_doccount() const
 {
     om_doccount docs = 0;
 
-    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
+    std::vector<RefCntPtr<IRDatabase> >::const_iterator i;
     for (i = databases.begin(); i != databases.end(); i++) {
 	docs += (*i)->get_doccount();
     }
@@ -83,7 +83,7 @@ MultiDatabase::get_avlength() const
 	om_doccount docs = 0;
 	om_doclength totlen = 0;
 
-	std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
+	std::vector<RefCntPtr<IRDatabase> >::const_iterator i;
 	for (i = databases.begin(); i != databases.end(); i++) {
 	    om_doccount db_doccount = (*i)->get_doccount();
 	    docs += db_doccount;
@@ -115,7 +115,7 @@ MultiDatabase::do_open_post_list(const om_termname & tname) const
     
     std::vector<LeafPostList *> pls;
     try {
-	std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
+	std::vector<RefCntPtr<IRDatabase> >::const_iterator i;
 	for (i = databases.begin(); i != databases.end(); i++) {
 	    pls.push_back((*i)->open_post_list(tname));
 	    pls.back()->next();
@@ -131,7 +131,7 @@ MultiDatabase::do_open_post_list(const om_termname & tname) const
     }
 
     return new MultiPostList(pls,
-			     OmRefCntPtr<const MultiDatabase>(RefCntPtrToThis(), this));
+			     RefCntPtr<const MultiDatabase>(RefCntPtrToThis(), this));
 }
 
 LeafTermList *
@@ -141,7 +141,7 @@ MultiDatabase::open_term_list(om_docid did) const {
 
     TermList *newtl = databases[dbnumber]->open_term_list(realdid);
     return new MultiTermList(newtl, databases[dbnumber],
-			     OmRefCntPtr<const IRDatabase>(RefCntPtrToThis(), this));
+			     RefCntPtr<const IRDatabase>(RefCntPtrToThis(), this));
 }
 
 LeafDocument *
@@ -166,7 +166,7 @@ bool
 MultiDatabase::term_exists(const om_termname & tname) const
 {
     Assert(tname.size() != 0);
-    std::vector<OmRefCntPtr<IRDatabase> >::const_iterator i;
+    std::vector<RefCntPtr<IRDatabase> >::const_iterator i;
     for (i = databases.begin(); i != databases.end(); i++) {
 	if ((*i)->term_exists(tname)) return true;
     }

@@ -49,7 +49,7 @@ class OmDatabase::InternalInterface {
 	 *
 	 *  @return  A reference counted pointer to the MultiDatabase.
 	 */
-	static OmRefCntPtr<MultiDatabase> get_multi_database(const OmDatabase &db);
+	static RefCntPtr<MultiDatabase> get_multi_database(const OmDatabase &db);
 };
 
 #endif // OM_HGUARD_OMDATABASEINTERFACE_H

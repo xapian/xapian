@@ -74,14 +74,14 @@ class NetClient;
 class NetworkStatsSource : public StatsSource {
     private:
 	/// The NetClient object used for communications.
-	OmRefCntPtr<NetClient> nclient;
+	RefCntPtr<NetClient> nclient;
 
 	/// A flag indicating whether or not we have the remote
 	/// statistics yet.
 	bool have_remote_stats;
     public:
 	/// Constructor
-	NetworkStatsSource(OmRefCntPtr<NetClient> nclient_);
+	NetworkStatsSource(RefCntPtr<NetClient> nclient_);
 
 	/// Destructor
 	~NetworkStatsSource();

@@ -31,7 +31,7 @@ class OmTermListIterator::Internal {
 	friend class OmTermListIterator; // allow access to termlist
         friend bool operator==(const OmTermListIterator &a, const OmTermListIterator &b);
 
-	OmRefCntPtr<TermList> termlist;
+	RefCntPtr<TermList> termlist;
     
     public:
         Internal(TermList *termlist_) : termlist(termlist_)

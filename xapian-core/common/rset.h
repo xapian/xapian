@@ -52,7 +52,7 @@ class RSet {
     public:
 	std::vector<RSetItem> documents; // FIXME - should be encapsulated
 
-	// FIXME: should take a OmRefCntPtr to an IRDatabase
+	// FIXME: should take a RefCntPtr to an IRDatabase
 	RSet(IRDatabase *root_new);
 	RSet(IRDatabase *root_new, const OmRSet & omrset);
 

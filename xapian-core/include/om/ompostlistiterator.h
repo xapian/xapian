@@ -48,7 +48,7 @@ class OmPostListIterator {
 	 *  copying is also cheap.
 	 */
 	OmPostListIterator(const OmPostListIterator &other);
-    
+
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */

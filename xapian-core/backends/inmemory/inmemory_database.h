@@ -132,9 +132,9 @@ class InMemoryPostList : public LeafPostList {
 	 */
 	InMemoryPositionList mypositions;
 
-	OmRefCntPtr<const InMemoryDatabase> this_db;
+	RefCntPtr<const InMemoryDatabase> this_db;
 
-	InMemoryPostList(OmRefCntPtr<const InMemoryDatabase> db,
+	InMemoryPostList(RefCntPtr<const InMemoryDatabase> db,
 			 const InMemoryTerm & term);
     public:
 	om_doccount get_termfreq() const;
@@ -164,10 +164,10 @@ class InMemoryTermList : public LeafTermList {
 	om_termcount terms;
 	bool started;
 
-	OmRefCntPtr<const InMemoryDatabase> this_db;
+	RefCntPtr<const InMemoryDatabase> this_db;
 	om_doclength document_length;
 
-	InMemoryTermList(OmRefCntPtr<const InMemoryDatabase> db,
+	InMemoryTermList(RefCntPtr<const InMemoryDatabase> db,
 			 const InMemoryDoc & doc,
 			 om_doclength len);
     public:
@@ -268,7 +268,7 @@ class InMemoryDatabase : public IRDatabase {
 //////////////////////////////////////////////
 
 inline
-InMemoryPostList::InMemoryPostList(OmRefCntPtr<const InMemoryDatabase> db,
+InMemoryPostList::InMemoryPostList(RefCntPtr<const InMemoryDatabase> db,
 				   const InMemoryTerm & term)
 	: pos(term.docs.begin()),
 	  end(term.docs.end()),
@@ -348,7 +348,7 @@ InMemoryPostList::intro_term_description() const
 //////////////////////////////////////////////
 
 inline
-InMemoryTermList::InMemoryTermList(OmRefCntPtr<const InMemoryDatabase> db,
+InMemoryTermList::InMemoryTermList(RefCntPtr<const InMemoryDatabase> db,
 				   const InMemoryDoc & doc,
 				   om_doclength len)
 	: pos(doc.terms.begin()),

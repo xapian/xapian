@@ -27,7 +27,7 @@
 #include "om/omdocument.h"
 #include "om/omenquire.h"
 #include "irweight.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 
 #include <vector>
 
@@ -55,7 +55,7 @@ class OmMSetCmp {
 class StatsGatherer;
 
 /// Base class for single matchers
-class SingleMatch : public OmRefCntBase
+class SingleMatch : public RefCntBase
 {
     friend class MultiMatch;
     private:

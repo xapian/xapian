@@ -25,10 +25,10 @@
 
 #include "om/omtypes.h"
 #include "om/omerror.h"
-#include "omrefcnt.h"
+#include "refcnt.h"
 
 /** Abstract base class for position lists. */
-class PositionList : public OmRefCntBase
+class PositionList : public RefCntBase
 {
     private:
 	/// Copying is not allowed.

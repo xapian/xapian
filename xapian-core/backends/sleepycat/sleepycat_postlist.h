@@ -54,7 +54,7 @@ class SleepycatPostList : public LeafPostList {
 	 */
 	InMemoryPositionList mypositions;
 
-	OmRefCntPtr<const SleepycatDatabase> this_db;
+	RefCntPtr<const SleepycatDatabase> this_db;
 
 	/** Create a SleepycatPostList from the specified internals, and
 	 *  using the specified termid.
@@ -67,7 +67,7 @@ class SleepycatPostList : public LeafPostList {
 	SleepycatPostList(om_termid tid_,
 			  SleepycatDatabaseInternals * internals_,
 			  const om_termname & tname_,
-			  OmRefCntPtr<const SleepycatDatabase> this_db_);
+			  RefCntPtr<const SleepycatDatabase> this_db_);
     public:
 	~SleepycatPostList();
 
