@@ -156,9 +156,15 @@ DOCPPFLAGS = --sort --no-java-graphs --c-comments --quantel \
              --upwards-arrows --no-define
 
 %.dvi: %.tex docxx.sty
-	if [ ! -r docxx.sty ] ; then ln -s $(srcdir)/docxx.sty . ; fi
-	$(LATEX) "$(basename $@)" || :
-	$(LATEX) "$(basename $@)" || ( $(RM) $@ ; false )
+	@#Make it as if docxx is there, for VPATH builds.
+	@if [ ! -r docxx.sty ] ; then \
+	  echo "Sym-linking docxx.sty" ; \
+	  ln -s $(srcdir)/docxx.sty . ; \
+	fi
+	@echo "Generating $@"
+	@$(LATEX) "\scrollmode\input" "$(basename $@)" || :
+	@$(LATEX) "\scrollmode\input" "$(basename $@)" || \
+	  ( $(RM) $@ ; false )
 
 %.ps: %.dvi
 	$(DVIPS) -o $@ $<
@@ -178,7 +184,6 @@ distclean-local: clean-local
 	  echo "removing .deps-sourcedoc"; $(RM) .deps-sourcedoc ; \
 	fi
 
-
 #########################
 # Rules for doc++ stuff #
 #########################
@@ -186,21 +191,39 @@ distclean-local: clean-local
 APIDOC_SRCFILES    = `find $(top_srcdir)/include -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 SOURCEDOC_SRCFILES = `find $(top_srcdir) -name \*.h -or -name \*.cc -or -name \*.cpp -or -name \*.c`
 
+GENDEPS_APIDOC = \
+@list="$(APIDOC_SRCFILES)" ; \
+echo "apidoc/index.html apidoc.tex : " $$list > .deps-apidoc ; \
+for p in $$list ; do \
+  echo $$p | sed -e 's/^\\$$//' -e '/^$$/d' -e '/:$$/d' | \
+  sed -e 's/$$/ :/' >> .deps-apidoc ; \
+done ;
+
+GENDEPS_SOURCEDOC = \
+@list="$(SOURCEDOC_SRCFILES)" ; \
+echo "sourcedoc/index.html sourcedoc.tex : " $$list > .deps-sourcedoc ; \
+for p in $$list ; do \
+  echo $$p | sed -e 's/^\\$$//' -e '/^$$/d' -e '/:$$/d' | \
+  sed -e 's/$$/ :/' >> .deps-sourcedoc ; \
+done ;
+
 apidoc/index.html:
-	echo "apidoc/index.html apidoc.tex: " $(APIDOC_SRCFILES) > .deps-apidoc
-	doc++ $(DOCPPFLAGS) --dir apidoc $(APIDOC_SRCFILES)
+	@echo "Generating HTML documentation for API"
+	$(GENDEPS_APIDOC)
+	@doc++ $(DOCPPFLAGS) --dir apidoc $(APIDOC_SRCFILES)
 
 apidoc.tex:
-	echo "apidoc/index.html apidoc.tex: " $(APIDOC_SRCFILES) > .deps-apidoc
-	doc++ -t $(DOCPPFLAGS) --output $@ $(APIDOC_SRCFILES)
+	@echo "Generating latex documentation for API"
+	$(GENDEPS_APIDOC)
+	@doc++ -t $(DOCPPFLAGS) --output $@ $(APIDOC_SRCFILES)
 
 sourcedoc/index.html:
-	echo "sourcedoc/index.html sourcedoc.tex: " \
-	     $(SOURCEDOC_SRCFILES) > .deps-sourcedoc
-	doc++ $(DOCPPFLAGS) --private --dir sourcedoc $(SOURCEDOC_SRCFILES)
+	@echo "Generating HTML documentation for full source"
+	$(GENDEPS_SOURCEDOC)
+	@doc++ $(DOCPPFLAGS) --private --dir sourcedoc $(SOURCEDOC_SRCFILES)
 
 sourcedoc.tex:
-	echo "sourcedoc/index.html sourcedoc.tex: " \
-	     $(SOURCEDOC_SRCFILES) > .deps-sourcedoc
-	doc++ -t $(DOCPPFLAGS) --private --output $@ $(SOURCEDOC_SRCFILES)
+	$(GENDEPS_SOURCEDOC)
+	@echo "Generating latex documentation for full source"
+	@doc++ -t $(DOCPPFLAGS) --private --output $@ $(SOURCEDOC_SRCFILES)
 
