@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,11 @@
 #include "omassert.h"
 #include "termlist.h"
 
+#include <list>
+#include <vector>
+
 using namespace std;
+
 class VectorTermList : public TermList {
     private:
 	vector<string> terms;
@@ -38,6 +42,12 @@ class VectorTermList : public TermList {
     public:
 	VectorTermList(vector<string>::const_iterator begin,
 		       vector<string>::const_iterator end)
+	    : terms(begin, end), offset(0), before_start(true)
+	{
+	}
+
+	VectorTermList(list<string>::const_iterator begin,
+		       list<string>::const_iterator end)
 	    : terms(begin, end), offset(0), before_start(true)
 	{
 	}

@@ -1,9 +1,6 @@
-/* queryparser.h: parser for omega-style query strings
+/* queryparser.h: build a Xapian::Query object from a user query string.
  *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright (C) 2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,7 +16,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_H
@@ -27,90 +23,83 @@
 
 #include <xapian.h>
 
-#include <list>
-#include <map>
 #include <string>
 
 namespace Xapian {
 
-/** Stopword functor base class. */
+/// Base class for stop-word decision functor.
 class Stopper {
-    public:
-	/** Decide if a term is a stopword.
-	 *
-	 * @param term  the term to test.
-	 * @return true if term is a stopword.
-	 */
-	virtual bool operator()(const std::string &/*term*/) {
-	    return false;
-	}
+  public:
+    /// Is term a stop-word?
+    virtual bool operator()(const std::string & term) const = 0;
+
+    /// Class has virtual methods, so provide a virtual destructor.
+    virtual ~Stopper() { }
 };
 
-/** Sophisticated query parser. */
+/// Build a Xapian::Query object from a user query string.
 class QueryParser {
-    private:
-	// Prevent copying
-	QueryParser(const QueryParser &);
-	QueryParser & operator=(const QueryParser &);
+    /// Class representing the queryparser internals.
+    class Internal;
+    /// @internal Reference counted internals.
+    Xapian::Internal::RefCntPtr<Internal> internal;
 
-    public:
-	/** Create a new query parser. */
-	QueryParser() : default_op(Query::OP_OR), stop(NULL), stemmer(NULL),
-		stem(true), stem_all(false)
-	{
-	    set_stemming_options("english");
-	}
+  public:
+    /// Enum of feature flags.
+    typedef enum {
+	FLAG_BOOLEAN = 1,
+	FLAG_PHRASE = 2,
+	FLAG_LOVEHATE = 4
+    } feature_flag;
 
-	/** Destruct the parser. */
-	~QueryParser()
-	{
-	    delete stop;
-	    delete stemmer;
-	}
+    typedef enum { STEM_NONE, STEM_SOME, STEM_ALL } stem_strategy;
 
-	/** Set the stemming language and options.
-	 */
-	void set_stemming_options(const std::string &lang,
-				  bool stem_all_ = false,
-				  Stopper *stop_ = NULL);
+    /// Copy constructor.
+    QueryParser(const QueryParser & o);
 
-	/** Set the default boolean operator.
-	 */
-	void set_default_op(Query::op default_op_) {
-	    default_op = default_op_;
-	}
+    /// Assignment.
+    QueryParser & operator=(const QueryParser & o);
 
-	/** Specify the database being searched.
-	 */
-	void set_database(const Database &db_) {
-	    db = db_;
-	}
+    /// Default constructor.
+    QueryParser();
 
-	/** Parse a query.
-	 */
-	Query parse_query(const std::string &q);
+    /// Destructor.
+    ~QueryParser();
 
-	std::list<std::string> termlist;
-	std::list<std::string> stoplist;
+    /// Set the stemmer.
+    void set_stemmer(const Xapian::Stem & stemmer);
 
-	std::multimap<std::string, std::string> unstem;
+    /// Set the stemming options.
+    void set_stemming_options(stem_strategy strategy);
 
-	// Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
-	// "foobar" -> "XFOO"
-	std::map<std::string, std::string> prefixes;
+    void set_stopper(Stopper *stop = NULL);
 
-	// don't touch these - FIXME: make private and use friend...
-	Query::op default_op;
+    /** Set the default boolean operator. */
+    void set_default_op(Query::op default_op);
 
-	Stopper *stop;
+    /** Get the default boolean operator. */
+    Query::op get_default_op() const;
 
-	Stem *stemmer;
+    /// Specify the database being searched.
+//    void set_database(const Database &db);
 
-	bool stem, stem_all;
+    /// Parse a query.
+    Query parse_query(const std::string &query_string);
 
-	Database db;
+    void add_prefix(const std::string &field, const std::string &prefix);
+
+    void add_boolean_prefix(const std::string & field, const std::string &prefix);
+
+    TermIterator termlist_begin() const;
+    TermIterator termlist_end() const;
+
+    TermIterator stoplist_begin() const;
+    TermIterator stoplist_end() const;
+
+    TermIterator unstem_begin(const string &term) const;
+    TermIterator unstem_end(const string &term) const;
 };
 
 }
 
-#endif /* XAPIAN_INCLUDED_QUERYPARSER_H */
+#endif // XAPIAN_INCLUDED_QUERYPARSER_H

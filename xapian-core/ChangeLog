@@ -1,3 +1,16 @@
+Mon Jan 17 03:21:29 GMT 2005  Olly Betts <olly@survex.com>
+
+	* api/vectortermlist.h,extra/,extra/xapian/queryparser.h: Rewritten
+	  QueryParser class.  Uses Lemon instead of Bison to generate the
+	  parser, which enables us to stop using static data, so this class
+	  is at last reentrant.  It now uses a PIMPL style with reference
+	  counted internals like most of the other Xapian classes.  And
+	  direct access to member variables has gone, which unfortunately
+	  forces an API change (bug #39).  The rewrite also supports more
+	  features than the original did.
+	* HACKING,configure.ac: No longer need Bison.
+	* configure.ac: Need CC_FOR_BUILD to compile Lemon with.
+
 Mon Jan 17 02:40:40 GMT 2005  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: IRIX + SGI C++ now compiles with just two warnings -

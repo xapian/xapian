@@ -4,6 +4,9 @@ Makefile.in
 Makefile
 .deps
 .libs
-queryparser.cc
 queryparsertest
 libxapianqueryparser.la
+lemon
+queryparser.h
+queryparser.out
+queryparser_internal.cc

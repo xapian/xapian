@@ -52,7 +52,7 @@ dnl 4:1:1 0.8.3 No API changes
 dnl 5:0:0 0.8.4 BM25Weight ctor parameters reordered
 dnl 5:1:0 0.8.5 No API changes
 dnl and for the next release:
-dnl no api changes so far
+dnl 6:0:0 0.?.? QueryParser API overhauled
 LIBRARY_VERSION_INFO=5:1:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
@@ -73,7 +73,18 @@ AM_MAINTAINER_MODE
 
 dnl Checks for programs.
 AC_PROG_CXX
-AC_PROG_YACC
+
+dnl We want a non-cross-compiling C compiler for building lemon with.
+if test -z "$CC_FOR_BUILD" ; then
+  AC_PROG_CC
+  if test yes = "$cross_compiling"; then
+    CC_FOR_BUILD=cc
+  else
+    CC_FOR_BUILD="$CC"
+  fi
+  dnl Unset CC to make sure we don't accidentally use it.
+  unset CC
+fi
 
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
