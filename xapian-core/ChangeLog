@@ -1,3 +1,10 @@
+Mon Sep 18 12:26:48 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Tests in the testsuite can now be skipped, and avoid being
+	  counted as either a pass or a fail.
+	
+	* Leak detection code partly separated out.
+
 Mon Sep 18 11:55:53 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* malloccheck now includes a naive memory allocation function to

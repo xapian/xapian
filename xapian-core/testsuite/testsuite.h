@@ -39,12 +39,30 @@ class TestFailure {
 	std::string message;
 };
 
+/** Class which is thrown when a test case is to be skipped.
+ *  This happens when something can't be tested for some reason, but
+ *  shouldn't cause a test fail.
+ */
+class TestSkip {
+    public:
+	TestSkip(std::string message_ = "") : message(message_) {}
+	~TestSkip() {}
+	std::string message;
+};
+
 /** Macro used to build a TestFailure object and throw it.
  */
 // Don't bracket a, because it may have <<'s in it
 #define FAIL_TEST(a) do { TestFailure testfail; \
                           if (verbose) { std::cout << a; } \
 		          throw testfail; } while (0)
+
+/** Macro used to build a TestSkip object and throw it.
+ */
+// Don't bracket a, because it may have <<'s in it
+#define SKIP_TEST(a) do { TestSkip testskip; \
+                          if (verbose) { std::cout << a; } \
+		          throw testskip; } while (0)
 
 /// Type for a test function.
 typedef bool (*test_func)();

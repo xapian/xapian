@@ -56,6 +56,21 @@ struct allocation_data {
 
 #define ALLOC_DATA_INIT { 0, 0 }
 
+struct allocation_snapshot {
+    long num_allocations;
+    long allocations_bound;
+};
+
+/** Get a snapshot of the current allocation state
+ */
+INLINE void
+get_alloc_snapshot(const struct allocation_data *allocdata,
+		   struct allocation_snapshot *snapshot)
+{
+    snapshot->num_allocations = allocdata->num_allocations;
+    snapshot->allocations_bound = allocdata->allocations_bound;
+}
+
 /** Register an allocation in the table.
  */
 INLINE void

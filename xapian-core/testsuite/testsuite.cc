@@ -224,8 +224,8 @@ test_driver::runtest(const test_desc *test)
 {
     bool success = true;
 
-    int old_allocations = allocdata.num_allocations;
-    int old_bound = allocdata.allocations_bound;
+    struct allocation_snapshot before;
+    get_alloc_snapshot(&allocdata, &before);
 
     // This is used to make a note of how many times we've run the test
     int runcount = 0;
@@ -245,6 +245,14 @@ test_driver::runtest(const test_desc *test)
 	    if (verbose) {
 		out << fail.message << std::endl;
 	    }
+	} catch (TestSkip &skip) {
+	    out << " SKIPPED";
+	    if (verbose) {
+		out << skip.message << std::endl;
+	    }
+	    // Rethrow the exception to avoid success/fail
+	    // (caught in do_runtests())
+	    throw;
 	} catch (OmError &err) {
 	    out << " OMEXCEPT";
 	    if (verbose) {
@@ -259,14 +267,16 @@ test_driver::runtest(const test_desc *test)
 	    success = false;
 	}
 
-	int after_allocations = allocdata.num_allocations;
-	int after_bound = allocdata.allocations_bound;
-	if (after_allocations != old_allocations) {
+	struct allocation_snapshot after;
+	get_alloc_snapshot(&allocdata, &after);
+	if (after.num_allocations != before.num_allocations) {
 	    if (verbose) {
-		if (after_allocations > old_allocations) {
-		    out << after_allocations - old_allocations
+		if (after.num_allocations > before.num_allocations) {
+		    out << after.num_allocations - before.num_allocations
 			    << " extra allocations not freed: ";
-		    for (int i=old_bound; i<after_bound; ++i) {
+		    for (int i=before.allocations_bound;
+			 i<after.allocations_bound;
+			 ++i) {
 			if (allocdata.allocations[i].p != 0) {
 			    out << hex;
 			    out << allocdata.allocations[i].p << "("
@@ -276,15 +286,14 @@ test_driver::runtest(const test_desc *test)
 		    }
 		    out << std::endl;
 		} else {
-		    out << old_allocations - after_allocations
+		    out << before.num_allocations - after.num_allocations
 			    << " extra frees not allocated!" << std::endl;
 		}
 	    }
 	    if(runcount < 2 && success) {
 		out << " repeating...";
 		repeat = true;
-		old_allocations = allocdata.num_allocations;
-		old_bound = allocdata.allocations_bound;
+		get_alloc_snapshot(&allocdata, &before);
 	    } else {
 		out << " LEAK";
 		success = false;
@@ -321,17 +330,21 @@ test_driver::do_run_tests(std::vector<std::string>::const_iterator b,
 	if (!check_name || (m.find(test->name) != m.end())) {
 	    out << "Running test: " << test->name << "...";
 	    out.flush();
-	    bool succeeded = runtest(test);
-	    if (succeeded) {
-		++result.succeeded;
-		out << " ok." << std::endl;
-	    } else {
-		++result.failed;
-                out << std::endl;
-		if (abort_on_error) {
-		    out << "Test failed - aborting further tests." << std::endl;
-		    break;
+	    try {
+		bool succeeded = runtest(test);
+		if (succeeded) {
+		    ++result.succeeded;
+		    out << " ok." << std::endl;
+		} else {
+		    ++result.failed;
+		    out << std::endl;
+		    if (abort_on_error) {
+			out << "Test failed - aborting further tests." << std::endl;
+			break;
+		    }
 		}
+	    } catch (const TestSkip &e) {
+		// ignore the result of this test.
 	    }
 	}
     }

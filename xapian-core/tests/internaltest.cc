@@ -62,6 +62,11 @@ bool test_alwaysfail()
     return false;
 }
 
+bool test_skip()
+{
+    SKIP_TEST("skip test");
+}
+
 bool test_except1()
 {
     bool success = false;
@@ -89,6 +94,7 @@ bool test_testsuite1()
     bool success = true;
 
     test_desc mytests[] = {
+	{"test0", test_skip},
 	{"test1", test_alwaysfail},
 	{"test2", test_trivial},
 	{0, 0}
