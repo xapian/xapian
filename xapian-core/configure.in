@@ -178,7 +178,7 @@ else
   dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
   SAVE_LIBS="$LIBS"
   LIBS=
-  AC_SEARCH_LIBS(socket, socketpair, [REMOTE_LDFLAGS=-lsocket])
+  AC_SEARCH_LIBS(socketpair, socket, [REMOTE_LDFLAGS="$LIBS"])
   LIBS="$SAVE_LIBS"
   if test "$ac_cv_func_socketpair" = no ; then
     build_remote=false
