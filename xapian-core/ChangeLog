@@ -1,3 +1,7 @@
+Wed May 12 14:32:54 BST 2004  Olly Betts <olly@survex.com>
+
+	* common/omtime.h: Corrected file description.
+
 Wed May 12 02:08:44 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc: Fixed typos in comment.

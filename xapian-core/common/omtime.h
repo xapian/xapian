@@ -1,4 +1,4 @@
-/* omtime.h: Various useful network-related utilities
+/* omtime.h: Class representing a time to subsecond accuracy
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
