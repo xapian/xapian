@@ -37,10 +37,9 @@ class PostList {
 // (in some sense)  Nice description, eh -- Richard
 class DBPostList : public virtual PostList {
     protected:
-        BM25Weight own_wt;
 	const IRWeight * ir_wt;
     public:
-	DBPostList() : ir_wt(&own_wt) { return; }
+	DBPostList() : ir_wt(NULL) { return; }
 	void set_termweight(const IRWeight *); // Sets term weight
         weight get_maxweight() const;    // Gets max weight
         weight recalc_maxweight();       // recalculate weights
@@ -56,7 +55,7 @@ DBPostList::set_termweight(const IRWeight * wt)
 inline weight
 DBPostList::get_maxweight() const
 {
-    // FIXME - too much indirection?
+    Assert(ir_wt != NULL);
     return ir_wt->get_maxweight();
 }
 
