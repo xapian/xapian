@@ -51,15 +51,21 @@ OmDocument::OmDocument(const OmDocumentParams & params)
 OmKey
 OmDocument::get_key(om_keyno key) const
 {
-    OmLockSentry locksentry(internal->mutex);
-    return internal->ptr->get_key(key);
+    internal->mutex.lock();
+    LeafDocument *myptr = internal->ptr.get();
+    internal->mutex.unlock();
+
+    return myptr->get_key(key);
 }
 
 OmData
 OmDocument::get_data() const
 {
-    OmLockSentry locksentry(internal->mutex);
-    return internal->ptr->get_data();
+    internal->mutex.lock();
+    LeafDocument *myptr = internal->ptr.get();
+    internal->mutex.unlock();
+
+    return myptr->get_data();
 }
 
 void
