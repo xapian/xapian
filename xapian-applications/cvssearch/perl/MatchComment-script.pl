@@ -106,6 +106,7 @@ if(param()){
     my $i = 1;
     my $has_something = 1;
     my $printed_something = 0;
+    my $file_last_printed_line = 0;
     open (FILE, "<$cvsdata/$root/src/$pkg/$file_name");
     open (QUERY, "$query_string |");
     while (<QUERY>) {
@@ -125,6 +126,7 @@ if(param()){
                 open (FILE, "<$cvsdata/$root/src/$pkg/$file_name");
                 $i = 1;
                 $has_something = 1;
+                $file_last_printed_line = 0;
             }
         } else {
             my $line_index = $_;
@@ -150,15 +152,19 @@ if(param()){
                 }
             }
             if ($has_something) {
-                print "<tr><td colspan=3> </td></tr>\n";
-                print "<tr><td colspan=3 class=s>$file_name,&nbsp;revision:$revision</td></tr>\n";
+                print "<tr><td colspan=3>&nbsp;</td></tr>\n";
+                print "<tr><td colspan=3 class=\"s\">$file_name,&nbsp;revision:$revision</td></tr>\n";
                 $has_something = 0;
             }
             $printed_something = 1;
-            print "<tr><td>$line_index</td><td>";
-            print "<span class=$class><a href=# ";
-            print "onclick=\"return c($line_index, $file_id, \'$revision\');\">F</a></span> ";
-            print "</td><td class=t><pre><a href=# onclick=\"return o($file_id, \'$revision\', $line_index);\">$line$space</a></td></tr>\n";
+            if ($file_last_printed_line + 1 < $i) {
+                print "<tr><td colspan=3>&nbsp;</td></tr>\n";
+            }
+            print "<tr><td>$line_index </td><td>";
+            print "<a href=# ";
+            print "onclick=\"return c($line_index, $file_id, \'$revision\');\"><span class=\"$class\">F</span></a> ";
+            print "</td><td class=\"t\"><pre><a href=# onclick=\"return o($file_id, \'$revision\', $line_index);\">$line$space</a></td></tr>\n";
+            $file_last_printed_line = $i;
             $i++;
         }
     }
@@ -218,7 +224,7 @@ function c(line, fileid, rev){
 function o(fileid, revision, line) {
     var link = "$source?root=$root&pkg=$pkg" + "&revision=" + revision + "&fileid="+ fileid + "&symbol=$symbol#"+line;
     if (parent.frames[2].location.href != link) {
-        parent.s.location.href = link;
+        parent.frames[2].location.href = link;
     }
     return false;
 }   
