@@ -49,7 +49,7 @@ string fmtname = "query";
 om_docid topdoc = 0;
 om_docid list_size = 0;
 
-static const string muscat_dir = "/usr/om";
+static const string muscat_dir = "/usr/omega";
 
 static void
 make_log_entry(const string &action, long matches)
