@@ -1,3 +1,8 @@
+Fri Dec 06 22:58:57 GMT 2002  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Fixed so running "gdb .libs/apitest"
+	  finds srcdir (for an in-tree build at least).
+
 Fri Dec 06 03:51:35 GMT 2002  Olly Betts <olly@survex.com>
 
 	* common/,include/om/omenquire.h,matcher/localmatch.h,matcher/rset.cc,

@@ -103,6 +103,11 @@ test_driver::get_srcdir(const string & argv0)
 	srcfile = srcdir;
 	srcdir = ".";
     }
+    // libtool puts the real executable in .libs...
+    i = srcdir.find_last_of('/');
+    if (srcdir.substr(i + 1) == ".libs") {
+	srcdir.erase(i);
+    }
     srcfile += ".cc";
     // deal with libtool
     if (srcfile[0] == 'l' && srcfile[1] == 't' && srcfile[2] == '-')
