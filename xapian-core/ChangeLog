@@ -1,3 +1,10 @@
+Wed Apr 17 10:39:02 BST 2002  Olly Betts <olly@survex.com>
+
+	* Fixed btreetest code to use new names "ord+" and "ord-" for
+	  datafiles; disabled LFSinsertdelete1 test as it's exactly the
+	  same as insertdelete1 (despite the comment above which suggests
+	  it tests files >2G).
+
 Mon Apr 15 17:14:22 BST 2002  Olly Betts <olly@survex.com>
 
 	* Fix a few OmDatabase::InternalInterface uses I'd somehow missed.

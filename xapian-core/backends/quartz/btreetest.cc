@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Ananova Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -149,13 +150,13 @@ static bool test_insertdelete1()
     do_create(btree_dir);
     do_check(btree_dir, "v");
 
-    if (!file_exists(datadir + "+ord") ||
-	!file_exists(datadir + "-ord")) SKIP_TEST("Data files not present");
+    if (!file_exists(datadir + "ord+") ||
+	!file_exists(datadir + "ord-")) SKIP_TEST("Data files not present");
 
-    do_update(btree_dir, datadir + "+ord");
+    do_update(btree_dir, datadir + "ord+");
     do_check(btree_dir, "v");
 
-    do_update(btree_dir, datadir + "-ord");
+    do_update(btree_dir, datadir + "ord-");
     do_check(btree_dir, "vt");
 
     Btree btree;
@@ -165,23 +166,24 @@ static bool test_insertdelete1()
     return true;
 }
 
+#if 0 // FIXME: implement this!  Currently it's a copy of test_insertdelete1()
 /// Test making and playing with a QuartzBufferedTable
 /// try to pass the 2G boundry.  Should succeed if LFS is enabled
 static bool test_LFSinsertdelete1()
 {
-    // FIXME: unused ?!? bool LFSunlikely=sizeof(off_t)==4;
+    bool LFSunlikely=sizeof(off_t)==4;
 
     std::string btree_dir = tmpdir + "/B/";
     do_create(btree_dir);
     do_check(btree_dir, "v");
 
-    if (!file_exists(datadir + "+ord") ||
-	!file_exists(datadir + "-ord")) SKIP_TEST("Data files not present");
+    if (!file_exists(datadir + "ord+") ||
+	!file_exists(datadir + "ord-")) SKIP_TEST("Data files not present");
 
-    do_update(btree_dir, datadir + "+ord");
+    do_update(btree_dir, datadir + "ord+");
     do_check(btree_dir, "v");
 
-    do_update(btree_dir, datadir + "-ord");
+    do_update(btree_dir, datadir + "ord-");
     do_check(btree_dir, "vt");
 
     Btree btree;
@@ -190,6 +192,7 @@ static bool test_LFSinsertdelete1()
 
     return true;
 }
+#endif
 
 // ================================
 // ========= END OF TESTS =========
@@ -198,7 +201,7 @@ static bool test_LFSinsertdelete1()
 // The lists of tests to perform
 test_desc tests[] = {
     {"insertdelete1",         test_insertdelete1},
-    {"LFSinsertdelete1",      test_LFSinsertdelete1},
+// FIXME:    {"LFSinsertdelete1",      test_LFSinsertdelete1},
     {0, 0}
 };
 
