@@ -62,8 +62,14 @@ AC_PATH_PROG(JAVAC, javac, [],
 AC_PATH_PROG(JAR, jar, [],
 	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
 if test -n "$JAVA" -a -n "$JAVAC" -a -n "$JAR" ; then
-    dnl FIXME: check version?  
-    BINDINGS="$BINDINGS java"
+    dnl Eric says:
+    dnl  The JNI library *requires* "Java 2", which is 1.2 or better.
+    dnl  I've only tested with JDK 1.3 and 1.4 from Sun.
+    dnl
+    dnl So checking for jni.h presumably checks we have "Java 2"?!
+    dnl Note: jni.h #defines JNI_VERSION_1_[124] (but not 3 it seems) - we
+    dnl could check for that if we want to check for a particular JDK version...
+    AC_CHECK_HEADER(jni.h, [BINDINGS="$BINDINGS java"])
 fi
 
 dnl FIXME: also check for guile, tcl8

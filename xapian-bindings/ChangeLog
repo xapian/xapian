@@ -1,3 +1,7 @@
+Mon Jan 12 17:49:30 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Check for jni.h before enabling java bindings.
+
 Tue Jan  6 10:15:00 2004  James Aylett  <james@tartarus.org>
 
 	* TCL bindings: get them to build (not built automatically)
