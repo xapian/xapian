@@ -13,6 +13,8 @@ struct querytok {
 	OP_ANDMAYBE,
 	OP_ANDNOT,
 	OP_XOR,
+	OP_NEAR,
+	OP_PHRASE,
 	TERM,
 	OP_BRA,
 	OP_KET,
@@ -21,6 +23,7 @@ struct querytok {
     om_termname tname;
     om_termcount wqf;
     om_termpos term_pos;
+    om_termpos window; // for NEAR and PHRASE
 
     querytok(etype type_ = ERROR)
 	    : type(type_) {}

@@ -236,10 +236,10 @@ OmQueryInternal::serialise() const
 		result += "%xor";
 		break;
 	    case OM_MOP_NEAR:
-		result += "%near" + om_inttostring(window) + ",";
+		result += "%near" + om_inttostring(window);
 		break;
 	    case OM_MOP_PHRASE:
-		result += "%phrase" + om_inttostring(window) + ",";
+		result += "%phrase" + om_inttostring(window);
 		break;
 	} // switch(op)
 	result += "%)";

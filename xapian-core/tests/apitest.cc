@@ -1885,10 +1885,13 @@ bool test_near1()
     
 	TEST_EXPECTED_DOCS(mymset.items, expected_docs);
     }
-    catch (OmUnimplementedError err) {
+    catch (OmUnimplementedError &err) {
 	if (err.get_msg() !=
-	    "InMemoryPostList::get_position_list() unimplemented") {
-	    throw err; // FIXME: ickity-ick
+	    "InMemoryPostList::get_position_list() unimplemented" &&
+	    err.get_msg() !=
+	    "REMOTE: InMemoryPostList::get_position_list() unimplemented") {
+	    cout << "!!!" << err.get_msg() << "!!!\n";
+	    throw; // FIXME: ickity-ick
 	}
     }
 

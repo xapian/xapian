@@ -20,6 +20,8 @@ OP_FILTER	%filter
 OP_ANDMAYBE	%andmaybe
 OP_ANDNOT	%andnot
 OP_XOR		%xor
+OP_NEAR		%near{DIGIT}{DIGIT}*
+OP_PHRASE	%phrase{DIGIT}{DIGIT}*
 
 HEXDIGIT	[0-9a-fA-F]
 TCHAR		{HEXDIGIT}{HEXDIGIT}
@@ -118,6 +120,32 @@ OP_KET		%\)
 
 {OP_XOR}	{
 		    qt.type = querytok::OP_XOR;
+		    return qt;
+		}
+
+{OP_NEAR}	{
+		    qt.type = querytok::OP_NEAR;
+		    char *p = yytext + 5; // skip %near
+
+		    qt.window = 0;
+		    while (isdigit(*p)) {
+		        qt.window *= 10;
+			qt.window += *p - '0';
+			++p;
+		    }
+		    return qt;
+		}
+
+{OP_PHRASE}	{
+		    qt.type = querytok::OP_PHRASE;
+		    char *p = yytext + 7; // skip %phrase
+
+		    qt.window = 0;
+		    while (isdigit(*p)) {
+		        qt.window *= 10;
+			qt.window += *p - '0';
+			++p;
+		    }
 		    return qt;
 		}
 

@@ -306,6 +306,32 @@ OmQueryInternal qfs_readcompound()
 					   temp.end());
 		}
 		break;
+	    case querytok::OP_NEAR:
+		{
+		    vector<OmQueryInternal *> temp =
+			    convert_subqs(subqs);
+		    querytok myqt = qfs_gettok();
+		    if (myqt.type != querytok::OP_KET) {
+			throw OmInvalidArgumentError("Expected %) in query string");
+		    }
+		    return OmQueryInternal(OM_MOP_NEAR,
+					   temp.begin(),
+					   temp.end(), qt.window);
+		}
+		break;
+	    case querytok::OP_PHRASE:
+		{
+		    vector<OmQueryInternal *> temp =
+			    convert_subqs(subqs);
+		    querytok myqt = qfs_gettok();
+		    if (myqt.type != querytok::OP_KET) {
+			throw OmInvalidArgumentError("Expected %) in query string");
+		    }
+		    return OmQueryInternal(OM_MOP_PHRASE,
+					   temp.begin(),
+					   temp.end(), qt.window);
+		}
+		break;
 	    default:
 		throw OmInvalidArgumentError("Invalid query string");
 	} // switch(qt.type)
