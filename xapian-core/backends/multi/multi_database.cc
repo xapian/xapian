@@ -6,6 +6,76 @@
 #include "multi_database.h"
 
 #include <string>
+#include <list>
+
+//////////////
+// Postlist //
+//////////////
+
+MultiPostList::MultiPostList(list<MultiPostListInternal> &pls)
+{
+    postlists = pls;
+    freq_initialised = false;
+    weight_initialised = false;
+    currdoc = 0;
+    finished = false;
+}
+
+MultiPostList::~MultiPostList()
+{
+    // Will be empty if we've got to the end of all lists,
+    // but we might not have, so remove anything left.
+    while(postlists.begin() != postlists.end()) {
+	delete (*postlists.begin()).pl;
+	postlists.erase(postlists.begin());
+    }
+}
+
+weight MultiPostList::get_weight() const
+{
+    return 1;
+}
+
+weight MultiPostList::get_maxweight() const
+{
+    return 1;
+}
+
+PostList * MultiPostList::next(weight w_min)
+{
+    Assert(!at_end());
+    
+    list<MultiPostListInternal>::iterator i = postlists.begin();
+    docid newdoc = 0;
+
+    while(i != postlists.end()) {
+	// Check if it needs to be advanced
+	if(currdoc >= (*i).currdoc) {
+	    (*i).pl->next(w_min);
+	    if((*i).pl->at_end()) {
+		delete (*i).pl;
+		list<MultiPostListInternal>::iterator erase_iter = i;
+		i++;
+		postlists.erase(erase_iter);
+		// erase iter is now invalid, but i is still valid because
+		// i) this is a list, and ii) i wasn't pointing to a deleted
+		// entry
+		continue;
+	    }
+	    (*i).currdoc = (*i).pl->get_docid();
+	}
+
+	// Check if it might be the newdoc
+	if(newdoc > (*i).currdoc || newdoc == 0) newdoc = (*i).currdoc;
+	i++;
+    }
+
+    currdoc = newdoc;
+
+    if(postlists.begin() == postlists.end())
+	finished = true;
+    return NULL;
+}
 
 ///////////////////////////
 // Actual database class //
@@ -13,15 +83,17 @@
 
 MultiDatabase::MultiDatabase() {
     opened = false;
+    used = false;
 }
 
 MultiDatabase::~MultiDatabase() {
-    if(opened) close();
+    close();
 }
 
 void
 MultiDatabase::open_subdatabase(IRDatabase * db,
 				const string &pathname, bool readonly) {
+    Assert(!used);
     db->open(pathname, readonly);
     databases.push_back(db);
     opened = true;
@@ -29,21 +101,35 @@ MultiDatabase::open_subdatabase(IRDatabase * db,
 
 
 void MultiDatabase::close() {
-    // Close all databases
-    vector<IRDatabase *>::iterator i;
-    i = databases.begin();
-    while(i != databases.end()) {
-	(*i)->close();
-	delete *i;
-	databases.erase(i);
-	i++;
+    if(opened) {
+	// Close all databases
+	while(databases.begin() != databases.end()) {
+	    (*(databases.begin()))->close();
+	    delete *(databases.begin());
+	    databases.erase(databases.begin());
+	}
     }
     opened = false;
 }
 
 PostList *
 MultiDatabase::open_post_list(termid tid) const {
-    throw OmError("MultiDatabase.open_post_list() not implemented");
+    Assert(opened);
+    used = true;
+
+    termname tname = term_id_to_name(tid);
+
+    list<MultiPostListInternal> pls;
+    list<IRDatabase *>::const_iterator i = databases.begin();
+    while(i != databases.end()) {
+	termid local_tid = (*i)->term_name_to_id(tname);
+	if(local_tid) {
+	    pls.push_back(MultiPostListInternal((*i)->open_post_list(tid)));
+	}
+	i++;
+    }
+    Assert(pls.begin() != pls.end());
+    return new MultiPostList(pls);
 }
 
 TermList *
@@ -73,27 +159,40 @@ MultiDatabase::term_name_to_id(const termname &tname) const {
     printf("Looking up term `%s': ", tname.c_str());
     map<termname,termid>::const_iterator p = termidmap.find(tname);
 
-    termid id = 0;
+    termid tid = 0;
     if (p == termidmap.end()) {
-	printf("Looking through sub-databases:\n");
+	printf("Looking through sub-databases:");
 	bool found = false;
 
+	list<IRDatabase *>::const_iterator i = databases.begin();
+	while(i != databases.end()) {
+	    termid thisid = (*i)->term_name_to_id(tname);
+	    if(thisid) {
+		found = true;
+		break;
+	    }
+	    i++;
+	}
+
 	if(found) {
-	    id = termvec.size() + 1;
-	    printf("Adding as ID %d\n", id);
+	    tid = termvec.size() + 1;
+	    printf("Adding as ID %d\n", tid);
 	    termvec.push_back(MultiTerm(tname));
-	    termidmap[tname] = id;
+	    termidmap[tname] = tid;
 	} else {
 	    printf("Not in collection\n");
 	}
     } else {
-	id = (*p).second;
-	printf("found, ID %d\n", id);
+	tid = (*p).second;
+	printf("found, ID %d\n", tid);
     }
-    return id;
+    return tid;
 }
 
 termname
 MultiDatabase::term_id_to_name(termid tid) const {
-    return "";
+    Assert(opened);
+    Assert(tid > 0 && tid <= termvec.size());
+    //printf("Looking up termid %d: name = `%s'\n", tid, termvec[tid - 1].name.c_str());
+    return termvec[tid - 1].name;
 }

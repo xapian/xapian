@@ -12,8 +12,9 @@ int main(int argc, char *argv[]) {
     docid did;
 
     try {
-	database.open_subdatabase(new DADatabase(), "testdir", 0);
 	database.open_subdatabase(new SleepyDatabase(), "test_sleepy", 0);
+	database.open_subdatabase(new SleepyDatabase(), "test_sleepy2", 0);
+	database.open_subdatabase(new DADatabase(), "testdir", 0);
 
 	tid = database.term_name_to_id("thou");
 	printf("tid is %d\n", tid);
