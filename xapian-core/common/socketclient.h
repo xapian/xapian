@@ -25,6 +25,7 @@
 
 #include "netclient.h"
 #include "socketcommon.h"
+#include "rset.h"
 
 /** An implementation of the NetClient interface using a program.
  *  ProgClient gets a socket by spawning a separate program, rather
@@ -74,6 +75,9 @@ class SocketClient : public NetClient {
 
 	/// The match options structure
 	OmMatchOptions moptions;
+
+	/// The current RSet.
+	OmRSet omrset;
 
 	/// functions which actually do the work
 	string do_read();
@@ -128,6 +132,10 @@ class SocketClient : public NetClient {
 	 *  @param moptions_  The match options to use.
 	 */
 	void set_options(const OmMatchOptions &moptions_);
+
+	/** Set the rset for the match.
+	 */
+	void set_rset(const OmRSet &omrset_);
 
 	/** Signal the end of the query specification phase.
 	 *  Returns true if the operation succeeded, or false

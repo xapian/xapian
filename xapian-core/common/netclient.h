@@ -83,6 +83,12 @@ class NetClient : public OmRefCntBase {
 	 */
 	virtual void set_options(const OmMatchOptions &moptions_) = 0;
 
+	/** Set the rset to be transmitted over the link.
+	 *
+	 * @param rset_  A pointer to the rset object.
+	 */
+	virtual void set_rset(const OmRSet &omrset_) = 0;
+
 	/** Signal to the remote end that this is the end of the query
 	 *  specification phase.
 	 */

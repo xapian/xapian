@@ -1,3 +1,9 @@
+Thu May 18 12:11:50 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added support for using RSets with the network matches
+
+	* Better timeouts when remote end unresponsive
+
 Thu May 18 11:20:58 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Added test that setting an rset has appropriate effect on match

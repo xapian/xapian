@@ -315,14 +315,27 @@ string
 OmLineBuf::readline()
 {
     string::size_type pos;
-    while ((pos = buffer.find_first_of('\n')) == buffer.npos) {
+
+    // FIXME: put the timeout somewhere sensible.
+    const int timeout = 10;
+
+    time_t start_time = time(NULL);
+    time_t curr_time;
+
+    while ((curr_time = time(NULL)) <= (start_time + timeout) &&
+	   (pos = buffer.find_first_of('\n')) == buffer.npos) {
 	char buf[256];
 	
 	// wait for input to be available.
 	fd_set fdset;
 	FD_ZERO(&fdset);
 	FD_SET(readfd, &fdset);
-	int retval = select(readfd+1, &fdset, 0, 0, NULL);
+
+	struct timeval tv;
+	tv.tv_sec = start_time + timeout - curr_time;
+	tv.tv_usec = 0;
+
+	int retval = select(readfd+1, &fdset, 0, 0, &tv);
 
 	if (retval < 0) {
 	    if (errno == EAGAIN) {
@@ -338,6 +351,10 @@ OmLineBuf::readline()
 
 	buffer += string(buf, buf + received);
     }
+    if (curr_time > (start_time + timeout)) {
+	throw OmNetworkTimeoutError("No response from remote end");
+    }
+
     string retval(buffer.begin(), buffer.begin() + pos);
 
     buffer.erase(0, pos+1);
@@ -466,4 +483,37 @@ string_to_moptions(const string &s)
        >> mopt.max_or_terms;
 
     return mopt;
+}
+
+string
+omrset_to_string(const OmRSet &omrset)
+{
+    string result = inttostring(omrset.items.size());
+
+    for (set<om_docid>::const_iterator i = omrset.items.begin();
+	 i != omrset.items.end();
+	 ++i) {
+	result += " ";
+	result += inttostring(*i);
+    }
+    return result;
+}
+
+OmRSet
+string_to_omrset(const string &s)
+{
+    OmRSet omrset;
+
+    om_docid did;
+    int numitems;
+
+    istrstream is(s.c_str());
+
+    is >> numitems;
+
+    while (numitems-- && (is >> did)) {
+	omrset.items.insert(did);
+    }
+
+    return omrset;
 }

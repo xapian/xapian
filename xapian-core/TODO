@@ -23,10 +23,8 @@ Priority | Area            | Task
  High    | InMemory        | Remove hardcoded reference to an indexer in
          |                 | InMemoryDatabase.  Index to it in the usual way.
 ---------+-----------------+--------------------------------------------------
- High    |CDistribution    | Add support for RSets, and any match options
+ High    |CDistribution    | Test support for RSets, and any match options
          |                 | which make sense over a net link
----------+-----------------+--------------------------------------------------
- High    |CDistribution    | Add tests for network match options
 ---------+-----------------+--------------------------------------------------
  High    |CDistribution    | Make the network server better (multithreaded
          |                 | etc.).

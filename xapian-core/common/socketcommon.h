@@ -28,6 +28,7 @@
 class OmQueryInternal;
 class OmMatchOptions;
 class Stats;
+class OmRSet;
 
 /** The OmLineBuf class implements a two-way line discipline
  *  using Unix filedescriptors, allowing the client to read
@@ -78,11 +79,50 @@ class OmLineBuf {
 	void writeline(string s);
 };
 
+/** Build a query from a serialised string.
+ *  This uses a flex parser for the tokenizing.
+ *
+ *  @param qs  The string from which to build the query.
+ */
 OmQueryInternal query_from_string(string qs);
+
+/** Convert a Stats object into a string representation.
+ *
+ *  @param  stats	The stats object to serialise.
+ */
 string stats_to_string(const Stats &stats);
+
+/** Convert a string representing a Stats object back into an
+ *  object.
+ *
+ *  @param  s		The serialised Stats object.
+ */
 Stats string_to_stats(const string &s);
+
+/** Convert an OmMatchOptions object into a string representation.
+ *
+ *  @param moptions	The object to serialise.
+ */
 string moptions_to_string(const OmMatchOptions &moptions);
+
+/** Convert a serialised OmMatchOptions string back into an object.
+ *
+ *  @param s		The serialised object as a string.
+ */
 OmMatchOptions string_to_moptions(const string &s);
+
+/** Convert an OmRSet object into a string representation.
+ *
+ *  @param omrset		The object to serialise.
+ */
+string omrset_to_string(const OmRSet &omrset);
+
+/** Convert a serialised OmRSet string back into an object.
+ *
+ *  @param s		The serialised object as a string.
+ */
+OmRSet string_to_omrset(const string &s);
+
 OmQueryInternal qfs_readquery();
 
 #endif /* OM_HGUARD_SOCKETCOMMON_H */

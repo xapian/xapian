@@ -137,7 +137,9 @@ int main(int argc, char *argv[]) {
     } catch (OmError &e) {
 	cerr << "OmError exception (" << typeid(e).name()
 	     << "): " << e.get_msg() << endl;
+    } catch (std::exception &e) {
+	cerr << "Caught standard exception: " << typeid(e).name();
     } catch (...) {
-	cerr << "Caught exception" << endl;
+	cerr << "Caught unknown exception" << endl;
     }
 }

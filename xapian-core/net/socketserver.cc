@@ -94,6 +94,19 @@ SocketServer::run()
 	    match.set_options(moptions);
 	}
 
+	// extract the rset
+	message = buf.readline();
+	if (message.substr(0, 4) != "RSET") {
+	    cerr << "Expected RSET, got " << message << endl;
+	    throw OmNetworkError(string("Invalid message: ") + message);
+	}
+	{
+	    OmRSet omrset = string_to_omrset(message.substr(6));
+
+	    match.set_rset(omrset);
+	}
+
+
 	// extract the query
 	message = buf.readline();
 

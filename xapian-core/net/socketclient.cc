@@ -119,6 +119,8 @@ SocketClient::finish_query()
 
 		message += "MOPTIONS " +
 			moptions_to_string(moptions) + '\n';
+		message += "RSET " +
+			omrset_to_string(omrset) + '\n';
 		message += "SETQUERY " +
 		                 wt_string + " \"" +
 		       	         query_string + "\"" + '\n';
@@ -301,4 +303,10 @@ om_weight
 SocketClient::get_max_weight()
 {
     return remote_maxweight;
+}
+
+void
+SocketClient::set_rset(const OmRSet &omrset_)
+{
+    omrset = omrset_;
 }

@@ -86,14 +86,6 @@ NetworkMatch::prepare_match(bool nowait)
     return true;
 }
 
-#if 0
-void
-NetworkMatch::finish_query()
-{
-    database->link->finish_query();
-}
-#endif
-
 void
 NetworkMatch::link_to_multi(StatsGatherer *gatherer_)
 {
@@ -111,66 +103,7 @@ NetworkMatch::link_to_multi(StatsGatherer *gatherer_)
 
 NetworkMatch::~NetworkMatch()
 {
-#if 0
-    del_query_tree();
-#endif
 }
-
-#if 0
-LeafPostList *
-NetworkMatch::mk_postlist(const om_termname& tname, RSet * rset)
-{
-    // FIXME - this should be centralised into a postlist factory
-    LeafPostList * pl = database->open_post_list(tname, rset);
-    if(rset) rset->will_want_termfreq(tname);
-
-    IRWeight * wt = mk_weight(1, tname, rset);
-    statsleaf.my_termfreq_is(tname, pl->get_termfreq());
-    // Query size of 1 for now.  FIXME
-    pl->set_termweight(wt);
-    return pl;
-}
-#endif
-
-
-#if 0
-void
-NetworkMatch::mk_extra_weight()
-{
-    if(extra_weight == 0) {
-	extra_weight = mk_weight(1, "", rset);
-    }
-}
-#endif
-
-#if 0
-IRWeight *
-NetworkMatch::mk_weight(om_doclength querysize_,
-		     om_termname tname_,
-		     const RSet * rset_)
-{
-    IRWeight * wt = IRWeight::create(wt_type);
-    //IRWeight * wt = new TradWeight();
-    weights.push_back(wt); // Remember it for deleting
-    wt->set_stats(&statsleaf, querysize_, tname_, rset_);
-    return wt;
-}
-#endif
-
-#if 0
-void
-NetworkMatch::del_query_tree()
-{
-    delete query;
-    query = 0;
-
-    extra_weight = 0;
-    while (!weights.empty()) {
-	delete(weights.back());
-	weights.pop_back();
-    }
-}
-#endif
 
 /////////////////////////////////////////////////////////////////////
 // Setting query options
@@ -184,12 +117,7 @@ NetworkMatch::set_options(const OmMatchOptions & moptions_)
 void
 NetworkMatch::set_rset(const OmRSet & omrset)
 {
-    Assert(false);
-#if 0
-    Assert(query == NULL);
-    rset = rset_;
-    del_query_tree();
-#endif
+    database->link->set_rset(omrset);
 }
 
 void
