@@ -1,3 +1,7 @@
+Thu Nov 30 18:05:39 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add a few std::'s to strings which had been missed.
+
 Thu Nov 30 16:41:11 GMT 2000 Olly Betts
 
 	* OmDocument::Internal now knows its OmDatabase.

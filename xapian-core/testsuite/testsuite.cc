@@ -96,7 +96,7 @@ test_driver::set_quiet(bool quiet_)
     }
 }
 
-string
+std::string
 test_driver::get_srcdir(const std::string & argv0)
 {
     char *p = getenv("srcdir");

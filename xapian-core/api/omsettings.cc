@@ -172,7 +172,7 @@ OmSettings::set(const std::string &key, vector<string>::const_iterator begin,
     internal->set(key, s);
 }
 
-string
+std::string
 OmSettings::get(const std::string &key) const
 {
     DEBUGAPICALL(std::string, "OmSettings::get", key);
@@ -207,7 +207,7 @@ OmSettings::get_real(const std::string &key) const
     RETURN(res);
 }
 
-string
+std::string
 OmSettings::get(const std::string &key, std::string def) const
 {
     DEBUGAPICALL(std::string, "OmSettings::get", key << ", " << def);
@@ -316,7 +316,7 @@ OmSettings::Internal::set(const std::string &key, const std::string &value)
     data->values[key] = value;
 }
 
-string
+std::string
 OmSettings::Internal::get(const std::string &key) const
 {
     OmLockSentry sentry(mutex);
@@ -330,7 +330,7 @@ OmSettings::Internal::get(const std::string &key) const
     return i->second;
 }
 
-string
+std::string
 OmSettings::Internal::get_description() const
 {
     std::string description;

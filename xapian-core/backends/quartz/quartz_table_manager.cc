@@ -185,37 +185,37 @@ QuartzDiskTableManager::open_tables_consistent()
     log->make_entry("Opened tables at revision " + om_tostring(revision) + ".");
 }
 
-string
+std::string
 QuartzDiskTableManager::record_path() const
 {
     return db_dir + "/record_";
 }
 
-string
+std::string
 QuartzDiskTableManager::attribute_path() const
 {
     return db_dir + "/attribute_";
 }
 
-string
+std::string
 QuartzDiskTableManager::lexicon_path() const
 {
     return db_dir + "/lexicon_";
 }
 
-string
+std::string
 QuartzDiskTableManager::termlist_path() const
 {
     return db_dir + "/termlist_";
 }
 
-string
+std::string
 QuartzDiskTableManager::positionlist_path() const
 {
     return db_dir + "/position_";
 }
 
-string
+std::string
 QuartzDiskTableManager::postlist_path() const
 {
     return db_dir + "/postlist_";
