@@ -149,7 +149,22 @@ static void xml_warn_func(void *ctx, const char *fmt, ...) {
     }
     va_end(ap);
 #else
-    message += fmt;
+    // FIXME XXX: this may overflow.
+    va_start(ap, fmt);
+    char *buf = 0;
+    try {
+	buf = new char[16384];
+	vsprintf(buf, fmt, ap);
+	message += buf;
+	delete [] buf;
+	buf = 0;
+    } catch (...) {
+	if (buf) {
+	    delete [] buf;
+	    buf = 0;
+	}
+    }
+    va_end(ap);
 #endif // HAVE_VSNPRINTF
 
     DEBUGLINE(INDEXER, message);

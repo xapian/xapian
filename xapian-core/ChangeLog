@@ -1,3 +1,10 @@
+Fri Oct 27 13:54:13 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added OmMakeDocNode to combine data, terms, keys at the end
+	  of an indexer
+
+	* Fixed segfault in OmRegexFilterNode
+
 Thu Oct 26 18:32:36 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Start of an indexer quickstart

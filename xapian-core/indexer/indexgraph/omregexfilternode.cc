@@ -58,8 +58,8 @@ class OmRegexFilterNode : public OmIndexerNode {
 		if (regex.matches(orig)) {
 		    output->append_element(OmIndexerData(orig));
 		}
-		set_output("out", output);
 	    }
+	    set_output("out", output);
 	}
 };
 
