@@ -1,3 +1,7 @@
+Mon Nov  5 12:38:56 GMT 2001 Richard Boulton <richard@tartarus.org>
+
+	* Move omega into separate "applications" module.
+
 Thu Nov  1 20:43:25 GMT 2001 Richard Boulton <richard@tartarus.org>
 
 	* omega: Put template dir into a variable, defined at same place as
