@@ -1,3 +1,7 @@
+Fri Mar 24 13:41:17 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added net/ directory with (very) start of remote match code.
+
 Thu Mar 23 15:00:54 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* MultiMatch now takes care of its own StatsGatherer

@@ -34,6 +34,14 @@ class NetworkMatch : public SingleMatch
 	// disallow copies
 	NetworkMatch(const NetworkMatch &);
 	void operator=(const NetworkMatch &);
+
+	// the database object
+	IRDatabase *database;
+
+	// network socket state
+	// FIXME: encapsulate into an object.
+	int to;
+	int from;
     public:
         NetworkMatch(IRDatabase * database_);
         ~NetworkMatch();

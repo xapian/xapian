@@ -11,7 +11,7 @@ noinst_HEADERS = \
  stemmer.h \
  indexer.h textfile_indexer.h query_parser.h \
  utils.h omlocks.h omqueryinternal.h omrefcnt.h \
- omdocumentinternal.h document.h
+ omdocumentinternal.h document.h networkmatch.h
 
 noinst_LTLIBRARIES = libcommon.la
 

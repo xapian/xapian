@@ -6,7 +6,7 @@ AUTOMAKE_OPTIONS = foreign # don't fuss about GNU required files
 # When installing, should install script and m4 stuff last, in case of failure
 SUBDIRS = include common \
           backends api matcher languages indexer . m4 \
-	  docs tests
+	  docs tests net
 
 EXTRA_DIST = Makefile_common.am ChangeLog buildall HACKING TODO PLATFORMS
 
