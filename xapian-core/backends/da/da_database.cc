@@ -96,12 +96,12 @@ PostList * DADatabase::open_post_list(termid id)
 
     termname name = term_id_to_name(id);
 
-    int len = strlen(name);
+    int len = name.length();
     if(len > 126) throw OmError("Term too long for DA implementation.");
     byte * k = (byte *) malloc(len + 1);
     if(k == NULL) throw OmError(strerror(ENOMEM));
     k[0] = len + 1;
-    memcpy(k + 1, name, len);
+    memcpy(k + 1, name.c_str(), len);
 
     struct terminfo ti;
     int found = DAterm(k, 0, &ti, DA_t);
@@ -125,13 +125,15 @@ termid
 DADatabase::term_name_to_id(termname name)
 {
     termid id;
+
     id = termidmap[name];
     if (!id) {
 	id = termidvec.size() + 1;
+	printf("Adding term `%s' as ID %d\n", name.c_str(), id);
 	termidvec.push_back(name);
 	termidmap[name] = id;
     }
-    printf("Looking up term `%s': ID = %d\n", name, id);
+    printf("Looking up term `%s': ID = %d\n", name.c_str(), id);
     return id;
 }
 
@@ -139,6 +141,6 @@ termname
 DADatabase::term_id_to_name(termid id)
 {
     if (id <= 0 || id > termidvec.size()) throw RangeError("invalid termid");
-    printf("Looking up termid %d: name = `%s'\n", id, termidvec[id - 1]);
+    printf("Looking up termid %d: name = `%s'\n", id, termidvec[id - 1].c_str());
     return termidvec[id - 1];
 }

@@ -5,7 +5,10 @@
 
 typedef unsigned int termid;
 typedef unsigned int docid;
-typedef char *termname;
 typedef unsigned int weight;
+
+#ifdef __cplusplus
+typedef string termname;
+#endif
 
 #endif /* _omtypes_h_ */
