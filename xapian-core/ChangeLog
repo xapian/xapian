@@ -1,3 +1,8 @@
+Wed Aug  9 14:54:30 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add detection of BerkeleyDB version 3.1 to configure.in, ready
+	  for new backend.
+
 Tue Aug  8 17:50:47 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Use auto_ptr's and similar to protect TermLists being manipulated by

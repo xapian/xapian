@@ -122,47 +122,92 @@ dnl Checks for library functions.
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(strerror)
 
-dnl Check for sleepycat library.
-SLEEPYCAT_INCLUDES="-I/usr/local/BerkeleyDB/include -I/usr/include/db2"
-SLEEPYCAT_LIBS=
-SLEEPYCAT_LINKFLAGS=
-AC_SUBST(SLEEPYCAT_INCLUDES)
-AC_SUBST(SLEEPYCAT_LIBS)
-AC_SUBST(SLEEPYCAT_LINKFLAGS)
+dnl Check for sleepycat database library.  (C++ interface)
+AC_SUBST(BERKELEY_2_x_LIBS)
+AC_SUBST(BERKELEY_2_x_INCLUDES)
+AC_SUBST(BERKELEY_2_x_LINKFLAGS)
+AC_SUBST(BERKELEY_3_1_LIBS)
+AC_SUBST(BERKELEY_3_1_INCLUDES)
+AC_SUBST(BERKELEY_3_1_LINKFLAGS)
 
-dnl This should work for the debian package
-AC_CHECK_LIB(db2, db_open, SLEEPYCAT_LIBS=-ldb2++)
 
-dnl This should work for the default installation from sleepycat
-if test "x$SLEEPYCAT_LIBS" = "x"; then
-  LDFLAGS_sleepysave=$LDFLAGS
-  SLEEPYCAT_LINKFLAGS="-L/usr/local/BerkeleyDB/lib/"
-  LDFLAGS="$LDFLAGS $SLEEPYCAT_LINKFLAGS"
-  AC_CHECK_LIB(db, db_open, SLEEPYCAT_LIBS=-ldb)
-  LDFLAGS=$LDFLAGS_sleepysave
+dnl This detects the default 3.1 install from sleepycat
+if test "x$have_berkeley_3_1_cxx" != "xyes"; then
+  SLEEPYCAT_INCLUDES="-I/usr/local/BerkeleyDB.3.1/include"
+  SLEEPYCAT_LINKFLAGS="-L/usr/local/BerkeleyDB.3.1/lib"
+  SLEEPYCAT_LIBS="-ldb"
+
+  have_sleepy_cxx=no
+  AC_MSG_CHECKING([for C++ interface to Berkeley DB, version 3.1, in /usr/local/BerkeleyDB.3.1])
+  RJB_CHECK_BERKELEYDB(major==3 && minor==1)
+  AC_MSG_RESULT($have_sleepy_cxx)
+
+  if test "x$have_sleepy_cxx" = "xyes"; then
+    have_berkeley_3_1_cxx=yes
+    BERKELEY_3_1_LIBS="$SLEEPYCAT_LIBS"
+    BERKELEY_3_1_INCLUDES="$SLEEPYCAT_INCLUDES"
+    BERKELEY_3_1_LINKFLAGS="$SLEEPYCAT_LINKFLAGS"
+  fi
 fi
 
-dnl Check for C++ interface to sleepycat
-AC_MSG_CHECKING([for C++ interface to Berkeley DB])
-AC_LANG_SAVE
-AC_LANG_CPLUSPLUS
-CXXFLAGS_sleepysave=$CXXFLAGS
-LIBS_sleepysave=$LIBS
-CXXFLAGS="$CXXFLAGS $SLEEPYCAT_INCLUDES $SLEEPYCAT_LINKFLAGS"
-LIBS="$LIBS $SLEEPYCAT_LIBS"
-AC_TRY_LINK([#include <db_cxx.h>],
-	       [Dbt t;return 0;],
-	       [have_sleepy_cxx=yes],
-	       [have_sleepy_cxx=no])
-CXXFLAGS=$CXXFLAGS_sleepysave
-LIBS=$LIBS_sleepysave
-AC_LANG_RESTORE
-AC_MSG_RESULT($have_sleepy_cxx)
 
-dnl Decide whether we've got the neccessary bits to compile with sleepycat.
-have_sleepycat=no
-if test ! "x$SLEEPYCAT_LIBS" = "x" -a "x$have_sleepy_cxx" = "xyes"; then
-  have_sleepycat=yes
+dnl This looks for a package of 3.1 in a plausible place
+if test "x$have_berkeley_3_1_cxx" != "xyes"; then
+  SLEEPYCAT_LIBS="-ldb++"
+  SLEEPYCAT_INCLUDES="-I/usr/include/db"
+  SLEEPYCAT_LINKFLAGS=
+
+  have_sleepy_cxx=no
+  AC_MSG_CHECKING([for C++ interface to Berkeley DB, version 3.1, in /usr/include/db2])
+  RJB_CHECK_BERKELEYDB(major==3 && minor==1)
+  AC_MSG_RESULT($have_sleepy_cxx)
+
+  if test "x$have_sleepy_cxx" = "xyes"; then
+    have_berkeley_3_1_cxx=yes
+    BERKELEY_3_1_LIBS="$SLEEPYCAT_LIBS"
+    BERKELEY_3_1_INCLUDES="$SLEEPYCAT_INCLUDES"
+    BERKELEY_3_1_LINKFLAGS="$SLEEPYCAT_LINKFLAGS"
+  fi
+fi
+
+
+
+dnl This should work for the default installation of 2.x from sleepycat
+if test "x$have_berkeley_2_x_cxx" != "xyes"; then
+  SLEEPYCAT_LIBS="-ldb"
+  SLEEPYCAT_INCLUDES="-I/usr/local/BerkeleyDB/include"
+  SLEEPYCAT_LINKFLAGS="-L/usr/local/BerkeleyDB/lib/"
+  
+  have_sleepy_cxx=no
+  AC_MSG_CHECKING([for C++ interface to Berkeley DB, version 2.x, in /usr/local/BerkeleyDB])
+  RJB_CHECK_BERKELEYDB(major==2)
+  AC_MSG_RESULT($have_sleepy_cxx)
+
+  if test "x$have_sleepy_cxx" = "xyes"; then
+    have_berkeley_2_x_cxx=yes
+    BERKELEY_2_x_LIBS="$SLEEPYCAT_LIBS"
+    BERKELEY_2_x_INCLUDES="$SLEEPYCAT_INCLUDES"
+    BERKELEY_2_x_LINKFLAGS="$SLEEPYCAT_LINKFLAGS"
+  fi
+fi
+
+dnl This detects the debian package of 2.x
+if test "x$have_berkeley_2_x_cxx" != "xyes"; then
+  SLEEPYCAT_LIBS="-ldb2++"
+  SLEEPYCAT_INCLUDES="-I/usr/include/db2"
+  SLEEPYCAT_LINKFLAGS=
+
+  have_sleepy_cxx=no
+  AC_MSG_CHECKING([for C++ interface to Berkeley DB, version 2.x, in /usr/include/db2])
+  RJB_CHECK_BERKELEYDB(major==2)
+  AC_MSG_RESULT($have_sleepy_cxx)
+
+  if test "x$have_sleepy_cxx" = "xyes"; then
+    have_berkeley_2_x_cxx=yes
+    BERKELEY_2_x_LIBS="$SLEEPYCAT_LIBS"
+    BERKELEY_2_x_INCLUDES="$SLEEPYCAT_INCLUDES"
+    BERKELEY_2_x_LINKFLAGS="$SLEEPYCAT_LINKFLAGS"
+  fi
 fi
 
 dnl ***************************
@@ -263,7 +308,8 @@ fi
 
 dnl Turn off compilation of anything that we don't have the requirements for
 
-if test x$have_sleepycat = xno; then
+
+if test "x$have_berkeley_2_x_cxx" != "xyes"; then
   if test ! "x$build_sleepy" = "xfalse"; then
     AC_MSG_WARN(Sleepycat database library not available: not building support);
   fi
