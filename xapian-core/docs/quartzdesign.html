@@ -9,16 +9,10 @@
 <h2>Status</h2>
 
 WARNING: This document describes a piece of code which is still in
-development.  As such, some of the descriptions within it will be
-inconsistent with the code to be found in our releases and CVS
-repository.  In such cases, the code is out of date if written before
-this document (ie, before 2000-10-20), and this document is out of
-date if the code was written after this document.  If you find such
-inconsistencies, especially this document being out of date, please
-alert us to the problem using the discussion mailing list, at
-&lt;xapian-discuss@lists.sourceforge.net&gt;.
-
-<P>(Document at least partially updated 2002-10-13, and subsequently...)
+development.  While we try hard to update this document correctly
+to reflect the current state of the code, it's possible discrepancies
+may exist.  If you notice any, please alert us to the problem using the
+<A HREF="http://www.xapian.org/lists.php">Mailing Lists</A>.
 
 <h2>Why Quartz?</h2>
 
@@ -884,27 +878,38 @@ Bcursor::~Bcursor();
 
 <h2>Checking the B-tree</h2>
 
-Provisionally, the following is provided:
+The following static method is provided in btreecheck.h:
 
 <pre> 
-void Btree::check(const char * name, const char * opt_string);
+void BtreeCheck::check(const string &amp; name, int opts);
 </pre> 
+<!-- FIXME there's an optional ostream & argument (default output is to cout) -->
 
 <blockquote>
-    Btree::check(s, opts) is essentially equivalent to
+    BtreeCheck::check(s, opts) is essentially equivalent to
 
 <pre>
         Btree * B = new Btree();
 	B-&gt;Btree_open_to_write(s);
         {
-            /* do a complete integrity check of the B-tree,
-               reporting according to the option string
-            */
+            // do a complete integrity check of the B-tree,
+            // reporting according to the bitmask opts
         }
         delete B;
 </pre>
 
-    The option string, if non-null, causes information to go to stdout. The
+    The option bitmask may consist of any of the following values |-ed together:
+<ul>
+  <li> OPT_SHORT_TREE - short summary of entire B-tree
+  <li> OPT_FULL_TREE - full summary of entire B-tree
+  <li> OPT_SHOW_BITMAP - print the bitmap
+  <li> OPT_SHOW_STATS - print the basic information (revision number, blocksize etc.)
+</ul>
+
+    The options control what is reported - the entire B-tree is always checked
+    as well as reporting the information.
+    <!-- keep this for quartzcheck docs:
+    if non-null, causes information to go to stdout. The
     following characters may appear in the option string:
 
 <pre>
@@ -919,6 +924,7 @@ void Btree::check(const char * name, const char * opt_string);
     The options cause a side-effect of printing, so Btree_check(s, "v") checks
     the entire B-tree and reports basic information, rather than merely
     reporting the basic information.
+    -->
 </blockquote>
 
 <h2>Full compaction</h2>

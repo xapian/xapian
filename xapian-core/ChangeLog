@@ -1,3 +1,8 @@
+Wed Nov 27 04:58:29 GMT 2002  Olly Betts <olly@survex.com>
+
+	* docs/quartzdesign.html: Reworded "under development" warning;
+	  Updated Btree::check(), which is now BtreeCheck::check().
+
 Wed Nov 27 01:36:26 GMT 2002  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btreecheck.cc,backends/quartz/btreecheck.h,
