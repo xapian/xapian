@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,15 +32,15 @@ class BoolWeight : public IRWeight {
     private:
 	BoolWeight() {}
     public:
-	IRWeight * create(const OmSettings &opts) const	{
+	IRWeight * create(const OmSettings &/*opts*/) const	{
 	    return new BoolWeight;
 	}
-	BoolWeight(const OmSettings & opts) { }
+	BoolWeight(const OmSettings & /*opts*/) { }
 	~BoolWeight() { }
-	om_weight get_sumpart(om_termcount wdf, om_doclength len) const { return 0; }
+	om_weight get_sumpart(om_termcount /*wdf*/, om_doclength /*len*/) const { return 0; }
 	om_weight get_maxpart() const { return 0; }
 
-	om_weight get_sumextra(om_doclength len) const { return 0; }
+	om_weight get_sumextra(om_doclength /*len*/) const { return 0; }
 	om_weight get_maxextra() const { return 0; }
 
 	bool get_sumpart_needs_doclength() const { return false; }	

@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,11 +36,12 @@ class EmptySubMatch : public SubMatch {
 	/// Prepare the match operation - we're always prepared.
 	bool prepare_match(bool nowait) {
 	    DEBUGCALL(MATCH, bool, "EmptySubMatch::prepare_match", nowait);
+	    (void)nowait;
 	    RETURN(true);
 	};
 
 	/// get a postlist - returns an empty postlist
-	PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher) {
+	PostList * get_postlist(om_doccount /*maxitems*/, MultiMatch * /*matcher*/) {
 	    AutoPtr<LeafPostList> lpl(new EmptyPostList);
 	    // give it a weighting object
 	    // FIXME: make it an EmptyWeight instead of BoolWeight
@@ -48,7 +50,7 @@ class EmptySubMatch : public SubMatch {
 	    return lpl.release();
 	}
 
-	Document * open_document(om_docid did) const {
+	Document * open_document(om_docid /*did*/) const {
 	    throw OmInternalError("Attempt to open document from EmptySubMatch should not happen.");
 	}
 

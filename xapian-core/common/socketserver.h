@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -96,7 +97,7 @@ class SocketServer : public NetServer {
 	void run_getdocument(const std::string &firstmessage);
 
 	/// Handle a keepalive message
-	void run_keepalive(const std::string &firstmessage);
+	void run_keepalive();
 
 	/// Read a line of input from the buffer, and process
 	/// any special messages (eg 'X')

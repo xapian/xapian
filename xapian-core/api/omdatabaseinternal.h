@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,7 +85,7 @@ class OmDatabase::Internal {
 	LeafTermList * open_term_list(om_docid did,
 				      const OmDatabase &db) const;
 
-	TermList * open_allterms(const OmDatabase &db) const;
+	TermList * open_allterms() const;
 
 	Document * open_document(om_docid did) const;
 

@@ -467,7 +467,7 @@ LocalSubMatch::postlist_from_query(const OmQuery::Internal *query,
 ////////////////////////
 
 bool
-LocalSubMatch::prepare_match(bool nowait)
+LocalSubMatch::prepare_match(bool /*nowait*/)
 {
     DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", nowait);
     if (!is_prepared) {
@@ -493,6 +493,7 @@ PostList *
 LocalSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", maxitems << ", " << matcher);
+    (void)maxitems; // Avoid warning in non-debug build
     PostList *pl = postlist_from_query(&users_query, matcher, false);
     IRWeight *wt = mk_weight();
     // don't bother with an ExtraWeightPostList if there's no extra weight

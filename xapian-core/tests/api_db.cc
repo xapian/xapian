@@ -2977,20 +2977,28 @@ static bool test_consistency1()
     enquire.set_query(OmQuery(OmQuery::OP_OR, OmQuery("the"), OmQuery("sky")));
     om_doccount lots = 214;
     OmMSet bigmset = enquire.get_mset(0, lots);
-    for (om_doccount start = 0; start < lots; ++start) {
-	for (om_doccount size = 0; size < lots - start; ++size) {
-	    OmMSet mset = enquire.get_mset(start, size);
-	    if (mset.size()) {
-		TEST(start + mset.size() == min(start + size, bigmset.size()));
-	    } else if (size) {
+    try {
+	for (om_doccount start = 0; start < lots; ++start) {
+	    for (om_doccount size = 0; size < lots - start; ++size) {
+		OmMSet mset = enquire.get_mset(start, size);
+		if (mset.size()) {
+		    TEST_EQUAL(start + mset.size(),
+			       min(start + size, bigmset.size()));
+		} else if (size) {
 //		tout << start << mset.size() << bigmset.size() << endl;
-		TEST(start >= bigmset.size());
-	    }
-	    for (om_doccount i = 0; i < mset.size(); ++i) {
-		TEST_EQUAL(*mset[i], *bigmset[start + i]);
-		TEST_EQUAL(mset[i].get_weight(), bigmset[start + i].get_weight());
+		    TEST(start >= bigmset.size());
+		}
+		for (om_doccount i = 0; i < mset.size(); ++i) {
+		    TEST_EQUAL(*mset[i], *bigmset[start + i]);
+		    TEST_EQUAL(mset[i].get_weight(),
+			       bigmset[start + i].get_weight());
+		}
 	    }
 	}
+    }
+    catch (const OmNetworkTimeoutError &) {
+	// consistency1 is a long test - may timeout with the remote backend...
+	SKIP_TEST("Test taking too long");
     }
     return true;
 }

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -222,7 +223,7 @@ class PendingMSetPostList : public PostList {
 	    return pl2;
 	}
 
-	PostList *skip_to(om_docid did, om_weight w_min) {
+	PostList *skip_to(om_docid /*did*/, om_weight /*w_min*/) {
 	    // MSetPostList doesn't return documents in docid order, so skip_to
 	    // isn't a meaningful operation.
 	    throw OmUnimplementedError("PendingMSetPostList doesn't support skip_to");	    

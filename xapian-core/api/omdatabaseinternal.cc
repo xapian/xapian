@@ -148,7 +148,7 @@ OmDatabase::Internal::open_position_list(om_docid did,
 }
 
 TermList *
-OmDatabase::Internal::open_allterms(const OmDatabase &db) const
+OmDatabase::Internal::open_allterms() const
 {
     if (databases.empty()) return new EmptyAllTermsList();
     

@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -473,7 +474,7 @@ BackendManager::getdb_network(const vector<string> &dbnames)
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_network(const vector<string> &dbnames)
+BackendManager::getwritedb_network(const vector<string> &/*dbnames*/)
 {
     throw OmInvalidArgumentError("Attempted to open writable network database");
 }
@@ -534,13 +535,13 @@ BackendManager::getdb_daflimsy(const vector<string> &dbnames)
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_da(const vector<string> &dbnames)
+BackendManager::getwritedb_da(const vector<string> &/*dbnames*/)
 {
     throw OmInvalidArgumentError("Attempted to open writable da database");
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_daflimsy(const vector<string> &dbnames)
+BackendManager::getwritedb_daflimsy(const vector<string> &/*dbnames*/)
 {
     throw OmInvalidArgumentError("Attempted to open writable daflimsy database");
 }
@@ -599,13 +600,13 @@ BackendManager::getdb_dbflimsy(const vector<string> &dbnames)
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_db(const vector<string> &dbnames)
+BackendManager::getwritedb_db(const vector<string> &/*dbnames*/)
 {
     throw OmInvalidArgumentError("Attempted to open writable db database");
 }
 
 OmWritableDatabase
-BackendManager::getwritedb_dbflimsy(const vector<string> &dbnames)
+BackendManager::getwritedb_dbflimsy(const vector<string> &/*dbnames*/)
 {
     throw OmInvalidArgumentError("Attempted to open writable dbflimsy database");
 }

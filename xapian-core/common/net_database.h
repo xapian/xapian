@@ -83,17 +83,17 @@ class NetworkDatabase : public Database {
 		"NetworkDatabase::cancel_transaction() not implemented: readonly database type");
 	}
 
-	om_docid do_add_document(const OmDocument & document) {
+	om_docid do_add_document(const OmDocument & /*document*/) {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::add_document() not implemented: readonly database type");
 	}
 
-	void do_delete_document(om_docid did) {
+	void do_delete_document(om_docid /*did*/) {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::delete_document() not implemented: readonly database type");
 	}
 
-	void do_replace_document(om_docid did, const OmDocument & document) {
+	void do_replace_document(om_docid /*did*/, const OmDocument & /*document*/) {
 	    throw OmUnimplementedError(
 		"NetworkDatabase::replace_document() not implemented: readonly database type");
 	}
@@ -129,7 +129,7 @@ class NetworkDatabase : public Database {
 };
 
 inline om_termcount
-NetworkDatabase::get_collection_freq(const om_termname & tname) const
+NetworkDatabase::get_collection_freq(const om_termname & /*tname*/) const
 {
     throw OmUnimplementedError("NetworkDatabase::get_collection_freq() not implemented: data not stored in database.");
 }

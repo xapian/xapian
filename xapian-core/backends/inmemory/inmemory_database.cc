@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -130,7 +131,7 @@ InMemoryDatabase::open_term_list(om_docid did) const
 }
 
 Document *
-InMemoryDatabase::open_document(om_docid did, bool lazy) const
+InMemoryDatabase::open_document(om_docid did, bool /*lazy*/) const
 {
     // we're never lazy so ignore that flag
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
@@ -154,9 +155,7 @@ InMemoryDatabase::open_position_list(om_docid did,
     const InMemoryDoc &doc = termlists[did-1];
 
     vector<InMemoryPosting>::const_iterator i;
-    for (i = doc.terms.begin();
-	 i != doc.terms.end();
-	 ++i) {
+    for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
 	if (i->tname == tname) {
 	    AutoPtr<InMemoryPositionList> poslist(new InMemoryPositionList());
 	    poslist->set_data(i->positions);
@@ -167,7 +166,7 @@ InMemoryDatabase::open_position_list(om_docid did,
 }
 
 void
-InMemoryDatabase::add_values(om_docid did,
+InMemoryDatabase::add_values(om_docid /*did*/,
 			     const map<om_valueno, string> &values_)
 {
     valuelists.push_back(values_);

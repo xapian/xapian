@@ -105,7 +105,7 @@ NetworkDatabase::get_avlength() const
 }
 
 LeafPostList *
-NetworkDatabase::do_open_post_list(const om_termname & tname) const
+NetworkDatabase::do_open_post_list(const om_termname & /*tname*/) const
 {
     throw OmUnimplementedError("NetworkDatabase::do_open_post_list() not implemented");
 }
@@ -120,7 +120,7 @@ NetworkDatabase::open_term_list(om_docid did) const {
 }
 
 Document *
-NetworkDatabase::open_document(om_docid did, bool lazy) const
+NetworkDatabase::open_document(om_docid did, bool /*lazy*/) const
 {
     // ignore lazy (for now at least - FIXME: can we sensibly pass it?)
     if (did == 0) throw OmInvalidArgumentError("Docid 0 invalid");
@@ -131,8 +131,8 @@ NetworkDatabase::open_document(om_docid did, bool lazy) const
 }
 
 AutoPtr<PositionList> 
-NetworkDatabase::open_position_list(om_docid did,
-				    const om_termname & tname) const
+NetworkDatabase::open_position_list(om_docid /*did*/,
+				    const om_termname & /*tname*/) const
 {
     throw OmUnimplementedError("Network databases do not support opening positionlist");
 }
@@ -155,7 +155,7 @@ NetworkDatabase::collect_document(om_docid did) const
 }
 
 om_doclength
-NetworkDatabase::get_doclength(om_docid did) const
+NetworkDatabase::get_doclength(om_docid /*did*/) const
 {
     throw OmUnimplementedError("NetworkDatabase::get_doclength() not implemented");
 }
@@ -163,7 +163,7 @@ NetworkDatabase::get_doclength(om_docid did) const
 bool
 NetworkDatabase::term_exists(const om_termname & tname) const
 {
-    Assert(tname.size() != 0);
+    Assert(!tname.empty());
     // FIXME: have cache of termfreqs?
     return link->term_exists(tname);
 }
@@ -171,7 +171,7 @@ NetworkDatabase::term_exists(const om_termname & tname) const
 om_doccount
 NetworkDatabase::get_termfreq(const om_termname & tname) const
 {
-    Assert(tname.size() != 0);
+    Assert(!tname.empty());
     // FIXME: have cache of termfreqs?
     return link->get_termfreq(tname);
 }

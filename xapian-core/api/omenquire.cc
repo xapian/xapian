@@ -3,6 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1232,13 +1233,13 @@ OmEnquire::get_matching_terms_begin(om_docid did) const
 }
 
 OmTermIterator
-OmEnquire::get_matching_terms_end(const OmMSetIterator &it) const
+OmEnquire::get_matching_terms_end(const OmMSetIterator &/*it*/) const
 {
     return OmTermIterator(NULL);
 }
 
 OmTermIterator
-OmEnquire::get_matching_terms_end(om_docid did) const
+OmEnquire::get_matching_terms_end(om_docid /*did*/) const
 {
     return OmTermIterator(NULL);
 }

@@ -334,8 +334,8 @@ AC_LANG_RESTORE
 
 dnl extra flags for building with gcc
 if test yes = "$GCC"; then
-  AM_CFLAGS="$AM_CFLAGS -Wall -Wunused"
-  AM_CXXFLAGS="$AM_CXXFLAGS -Wall -Wunused -fno-gnu-keywords"
+  AM_CFLAGS="$AM_CFLAGS -Wall -W"
+  AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -fno-gnu-keywords"
 fi
 
 dnl modify flags for building with stlport

@@ -99,7 +99,7 @@ read_file(const string path)
 }
 
 static void
-read_stub_database(OmSettings & params, bool readonly)
+read_stub_database(OmSettings & params, bool /*readonly*/)
 {
     // Check validity of parameters
     string buf = read_file(params.get("auto_dir"));

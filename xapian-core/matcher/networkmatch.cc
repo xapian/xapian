@@ -67,6 +67,7 @@ PostList *
 RemoteSubMatch::get_postlist(om_doccount maxitems, MultiMatch *matcher)
 {
     DEBUGCALL(MATCH, PostList *, "RemoteSubMatch::get_postlist", maxitems << ", " << matcher);
+    (void)matcher;
     postlist = new PendingMSetPostList(db, maxitems);
     RETURN(postlist);
 }

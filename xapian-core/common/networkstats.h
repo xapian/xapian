@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,7 +64,7 @@ class NetworkStatsGatherer : public StatsGatherer {
 
 	/// Ignore the rset size - we need to get it from the
 	/// remote end.
-	virtual void set_global_stats(om_doccount rset_size) {};
+	virtual void set_global_stats(om_doccount /*rset_size*/) {};
 };
 
 class NetClient;

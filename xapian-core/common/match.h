@@ -2,6 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2002 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -82,7 +83,7 @@ class SubMatch : public RefCntBase {
 	virtual bool prepare_match(bool nowait) = 0;
 
 	/// Start the remote match going
-	virtual void start_match(om_doccount maxitems) { }
+	virtual void start_match(om_doccount /*maxitems*/) { }
 	
 	virtual PostList * get_postlist(om_doccount maxitems, MultiMatch *matcher) = 0;
 

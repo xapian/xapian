@@ -278,7 +278,7 @@ TcpServer::run()
 
 //////////////////////////////////////////////////////////////
 void
-TcpServer::on_SIGTERM (int sig)
+TcpServer::on_SIGTERM (int /*sig*/)
 {
     signal (SIGTERM, SIG_DFL);
     /* terminate all processes in my process group */
@@ -292,7 +292,7 @@ TcpServer::on_SIGTERM (int sig)
 
 //////////////////////////////////////////////////////////////
 void 
-TcpServer::on_SIGCHLD (int sig)
+TcpServer::on_SIGCHLD (int /*sig*/)
 {    
     int status;
     while (waitpid(-1, &status, WNOHANG) > 0);
