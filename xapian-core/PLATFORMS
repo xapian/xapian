@@ -10,24 +10,28 @@ Adding tracing code often make the problem go away.  We believe this is a
 code generation problem or similar - it's never been seen with GCC 3.0 or
 newer.  The table below ignores such test failures.
 
-Arch  | Platform                 | Version | Status | Notes / requirements
-------+--------------------------+---------+--------+------------------------
-x86   |   Linux 2.4 - Debian 3.0 |  0.5.0  | Passed |
-x86   |   Linux 2.2 - Debian 2.2 |  0.5.0  | Passed |
-x86   | * Linux 2.4 - Debian 2.2 |  0.5.0  | Passed |
-x86   | * Linux 2.4 - RedHat 7.3 |  0.5.0  | Passed | --disable-remote-backend
-x86   | * FreeBSD 4.5            |  0.5.0  | Passed | [1]
-sparc | * Linux 2.2 - Debian 2.2 |  0.5.0  | Passed |
-sparc | * Solaris 8, GCC 2.95.3  |  0.5.0  | Passed | [2] [3]
-sparc |   Solaris 7, GCC 2.95.3  |  0.5.0  | Passed | [2] [3] 
-ppc   | * Linux 2.4 - Debian 2.2 |  0.5.0  | Passed | [3]
-------+--------------------------+---------+--------+------------------------
-sparc | * Solaris 8, Sun Workshop|  0.5.0  | Failed | Compilation fails
-alpha | * Linux 2.2 - Debian 2.2 |  0.5.0  | Failed | Quartz tests fail
-ppc   | * Darwin 5.4 - OS X 10.1 |  0.5.0  | Failed | [3] All tests fail
-------+--------------------------+---------+--------+------------------------
+Arch  | Platform                       |Version|Status| Notes / requirements
+------+--------------------------------+-------+------+------------------------
+x86   | Linux 2.4 Debian 3.0 GCC 2.95.4| 0.5.0 |Passed|
+x86   | Linux 2.4 Debian 3.0 GCC 3.0   | 0.5.0 |Passed|
+x86   | Linux 2.2 Debian 2.2 GCC 2.95.4| 0.5.0 |Passed|
+x86   |*Linux 2.4 Debian 2.2 GCC 2.95.4| 0.5.0 |Passed|
+x86   |*Linux 2.4 RedHat 7.3 GCC 2.96  | 0.5.0 |Passed| --disable-remote-backend
+x86   | Linux 2.4 RedHat 7.3 GCC 3.1   | 0.5.0 |Passed| from Jan Algermissen
+x86   |*FreeBSD 4.5                    | 0.5.0 |Passed| [1]
+sparc |*Linux 2.2 - Debian 2.2         | 0.5.0 |Passed|
+sparc |*Solaris 8 GCC 2.95.3           | 0.5.0 |Passed| [2] [3]
+sparc | Solaris 7 GCC 2.95.3           | 0.5.0 |Passed| [2] [3] 
+ppc   |*Linux 2.4 - Debian 2.2         | 0.5.0 |Passed| [3]
+------+--------------------------------+-------+------+------------------------
+arm   |@Linux 2.4 Debian 3.0 GCC2.95.4 | 0.5.0 |Failed| internal-&api-test fail 
+sparc |*Solaris 8 Sun Workshop C++     | 0.5.0 |Failed| Compilation fails
+alpha |*Linux 2.2 - Debian 2.2         | 0.5.0 |Failed| Quartz tests fail
+ppc   |*Darwin 5.4 - OS X 10.1         | 0.5.0 |Failed| [3] All tests fail
+------+--------------------------------+-------+------+------------------------
 
 * = SourceForge CompileFarm machine
+@ = handhelds.org (telnet ipaq[1-6].handhelds.org / user guest / no password)
 
 [1] ./configure spits many warnings but apparently succeeds.
 
