@@ -31,6 +31,7 @@
 #include "om/omerror.h"
 
 #include "quartz_record.h"
+#include "quartz_attributes.h"
 
 #include <string>
 
@@ -188,6 +189,11 @@ QuartzDatabase::do_get_document_internal(om_docid did)
 
     document.data = QuartzRecordManager::get_record(
 			*(tables->get_record_table()), did);
+
+    QuartzAttributesManager::get_all_attributes(
+			*(tables->get_attribute_table()),
+			document.keys,
+			did);
 
     return document;
 }

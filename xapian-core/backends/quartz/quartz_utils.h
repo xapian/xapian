@@ -125,6 +125,33 @@ pack_uint(T value)
     return result;
 }
 
+inline bool
+unpack_string(const char ** src,
+	      const char * src_end,
+	      std::string & result)
+{
+    std::string::size_type length;
+    if (!unpack_uint(src, src_end, &length)) {
+	return false;
+    }
+
+    if (src_end - *src < 0 ||
+	(std::string::size_type)(src_end - *src) < length) {
+	src_end = 0;
+	return false;
+    }
+
+    result = string(*src, length);
+    *src += length;
+    return true;
+}
+
+inline std::string
+pack_string(std::string value)
+{
+    return pack_uint(value.size()) + value;
+}
+
 #include "quartz_table_entries.h"
 #include "om/omtypes.h"
 

@@ -1,3 +1,9 @@
+Wed Oct 11 18:55:39 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Added Attributes (ie, Keys) to quartz.  Can write them, and has
+	  structure in place for reading them.  Reading not yet written,
+	  tests not yet written.
+
 Wed Oct 11 18:24:16 BST 2000 Olly Betts
 
 	* Profiling now seems to be working.
