@@ -1,3 +1,8 @@
+Wed Nov 24 02:22:49 GMT 2004  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Removed bogus extra line from code which was meant to
+	  truncate at a word boundary, but has never actually worked!
+
 Wed Nov 24 02:20:36 GMT 2004  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Improved HTML to text conversion - the parser now knows

@@ -379,11 +379,10 @@ truncate_to_word(string & input, string::size_type maxlen)
     } else {
 	output = input.substr(0, maxlen);
 
-	string::size_type space = output.find_last_of(" \t\n\r");
-	space = 0;
+	string::size_type space = output.find_last_of(WHITESPACE);
 	if (space != string::npos && space > maxlen / 2) {
 	    string::size_type nonspace;
-	    nonspace = output.find_last_not_of(" \t\n\r", space);
+	    nonspace = output.find_last_not_of(WHITESPACE, space);
 	    if (nonspace != string::npos) output.erase(nonspace);
 	}
 
