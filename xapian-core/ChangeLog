@@ -1,3 +1,7 @@
+Wed Jul 09 02:37:12 BST 2003  Olly Betts <olly@survex.com>
+
+	* bindings/perl5/: Removed remaining files.
+
 Wed Jul 09 02:30:55 BST 2003  Olly Betts <olly@survex.com>
 
 	* configure.in,bindings/Makefile.am,bindings/php4/Makefile.am:
