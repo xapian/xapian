@@ -69,9 +69,13 @@
     - match_weighting_scheme : Weighting scheme to use; this is one of
       'bm25', 'trad' or 'bool'.  The default is bm25.
 
-  - match_sort_bands : sort results into this many bands, and by document id
-      within each band, according to the setting of match_sort_forward.  The
-      default (0) is off.
+  - match_sort_key : value number to reorder on.  Sorting is with a string
+      compare.  Higher is better.  If match_sort_key is set, but 
+      match_sort_bands isn't, sort the whole mset my the key.  No default.
+  - match_sort_bands : sort results into this many bands of equal percentage
+      relevance.  Within each band, sort by the value number specified by
+      match_sort_key, otherwise by document id (taking note of the setting of
+      match_sort_forward.  The default (0) is off.
 
   - match bias functor options - NB this is a temporary API for this feature.
     - match_bias : Default false - set to true to enable the match bias
