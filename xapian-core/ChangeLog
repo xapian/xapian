@@ -1,3 +1,8 @@
+Thu Mar 18 00:45:15 GMT 2004  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.am,tests/Makefile.am: Pass the magic mingw/cygwin flag
+	  when linking the programs in bin and tests.
+
 Thu Mar 18 00:33:22 GMT 2004  Olly Betts <olly@survex.com>
 
 	* configure.in,xapian-config.in: mingw and cygwin both need

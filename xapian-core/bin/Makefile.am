@@ -17,19 +17,19 @@ check_PROGRAMS = $(remote_check_programs)
 
 quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcheck_SOURCES = quartzcheck.cc
-quartzcheck_LDADD = ../testsuite/libbtreecheck.la ../libxapian.la
+quartzcheck_LDADD = @ldflags@ ../testsuite/libbtreecheck.la ../libxapian.la
 
 quartzcompact_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcompact_SOURCES = quartzcompact.cc
-quartzcompact_LDADD = ../libxapian.la 
+quartzcompact_LDADD = @ldflags@ ../libxapian.la 
 
 quartzdump_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzdump_SOURCES = quartzdump.cc
-quartzdump_LDADD = ../getopt/libgetopt.la ../libxapian.la
+quartzdump_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la -lz
 
 omprogsrv_CXXFLAGS = -I$(top_srcdir)/testsuite
 omprogsrv_SOURCES = omprogsrv.cc
-omprogsrv_LDADD = ../testsuite/libtest.la ../libxapian.la
+omprogsrv_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
 omtcpsrv_SOURCES = omtcpsrv.cc
-omtcpsrv_LDADD = ../getopt/libgetopt.la ../libxapian.la
+omtcpsrv_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la

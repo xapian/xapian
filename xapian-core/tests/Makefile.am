@@ -27,25 +27,25 @@ check_PROGRAMS = $(quartz_check_programs) $(remote_check_programs) \
 noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h
 
 apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc
-apitest_LDADD = ../testsuite/libtest.la ../libxapian.la
+apitest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
 stemtest_SOURCES = stemtest.cc
-stemtest_LDADD = ../testsuite/libtest.la ../libxapian.la
+stemtest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
 internaltest_SOURCES = internaltest.cc
-internaltest_LDADD = ../testsuite/libtest.la ../libxapian.la
+internaltest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
 btreetest_SOURCES = btreetest.cc
-btreetest_LDADD = ../testsuite/libtest.la ../testsuite/libbtreecheck.la \
-	../libxapian.la
+btreetest_LDADD = @ldflags@ ../testsuite/libtest.la \
+	../testsuite/libbtreecheck.la ../libxapian.la
 
 quartztest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartztest_SOURCES = quartztest.cc
-quartztest_LDADD = ../getopt/libgetopt.la ../testsuite/libtest.la \
+quartztest_LDADD = @ldflags@ ../getopt/libgetopt.la ../testsuite/libtest.la \
 	../libxapian.la
 
 remotetest_SOURCES = remotetest.cc
-remotetest_LDADD = ../testsuite/libtest.la ../libxapian.la
+remotetest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST = runtest.in \
