@@ -67,6 +67,8 @@ static test tests[] = {
     { "location.href = \"\"", "(locat:(pos=1) PHRASE 2 href:(pos=2))" },
     { "method=\"post\" action=\"\">", "(method:(pos=1) OR post:(pos=2) OR action:(pos=3))" },
     { "NOT windows", "Syntax: <expression> NOT <expression>" },
+    { "hard\xa0space", "(hard:(pos=1) OR space:(pos=2))" },
+    { " white\r\nspace\ttest ", "(white:(pos=1) OR space:(pos=2) OR test:(pos=3))" },
     // These are currently parse errors, but many shouldn't be:
     { "behuizing 19\" inch", NULL },
     { "\"missing quote", NULL }, //"(miss:(pos=1) PHRASE 2 quot:(pos=2))" },
