@@ -57,9 +57,15 @@ class OmQuery {
     private:
 	bool isnull;
 	bool isbool;
-	vector<OmQuery *> subqs;
-	om_termname tname;
-	om_queryop op;
+
+	om_queryop op;       /// Operation to be performed at this node
+	vector<OmQuery *> subqs;  /// Sub queries on which to perform operation
+	om_termcount qlen;   /// Length of query
+
+	// Fields used only for leaf nodes.
+	om_termname tname;   /// Term that this leaf represents
+	om_termpos term_pos; /// Position in query of this term
+	om_termcount wqf;    /// Within query frequency of this term
 
 	void initialise_from_copy(const OmQuery & copyme);
 	void initialise_from_vector(const vector<OmQuery>::const_iterator qbegin,
@@ -70,7 +76,7 @@ class OmQuery {
 	/** A query consisting of a single term. */
 	OmQuery(const om_termname & tname_,
 		om_termcount wqf_ = 1,
-		om_termpos term_pos = 0);
+		om_termpos term_pos_ = 0);
 
 	/** A query consisting of two subqueries, opp-ed together. */
 	OmQuery(om_queryop op_, const OmQuery & left, const OmQuery & right);
