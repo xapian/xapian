@@ -47,8 +47,7 @@ class MultiMatch
 
 	const OmDatabase db;
 
-	OmQueryInternal query_save_for_hack;
-	OmSettings moptions_save_for_hack;
+	OmSettings moptions;
 
 	/** Prepare all the sub matchers.
 	 *

@@ -39,13 +39,7 @@ class PostList;
 #include <map>
 #include "autoptr.h"
 
-class MultiMatch;
-class LocalMatch;
-
 class SubMatch : public RefCntBase {
-    friend class MultiMatch;
-    friend class LocalMatch;
-
     public:
 	virtual ~SubMatch() { }
 
@@ -85,9 +79,6 @@ class SubMatch : public RefCntBase {
 };
 
 class LocalSubMatch : public SubMatch {
-    friend class MultiMatch;
-    friend class LocalMatch;
-
     private:
 	bool is_prepared;
 
@@ -195,7 +186,6 @@ bool msetcmp_reverse(const OmMSetItem &, const OmMSetItem &);
  */
 class LocalMatch : public SingleMatch
 {
-    friend class MultiMatch;
     private:
 	OmDatabase db;
 

@@ -63,28 +63,9 @@ class SingleMatch : public RefCntBase
 	SingleMatch(const SingleMatch &);
 	void operator=(const SingleMatch &);
 
-    protected:
-	/// Flag to remember whether we have prepared to run a query yet
-	bool is_prepared;
-
     public:
-	SingleMatch() : is_prepared(false) {};
+	SingleMatch() {};
 	virtual ~SingleMatch() = 0;
-
-	///////////////////////////////////////////////////////////////////
-	// Set the terms and operations which comprise the query
-	// =====================================================
-
-	/** Sets query to use. */
-//	virtual void set_query(const OmQueryInternal * query_) = 0;
-
-	///////////////////////////////////////////////////////////////////
-	// Set additional options for performing the query
-	// ===============================================
-
-	/** Set relevance information.
-	 */
-//        virtual void set_rset(const OmRSet & omrset) = 0;
 
 	/** Set the match options. */
 	virtual void set_options(const OmSettings & moptions_) = 0;
@@ -128,15 +109,6 @@ class SingleMatch : public RefCntBase
 		      const IRWeight *extra_weight,
 		      const map<om_termname, OmMSet::TermFreqAndWeight> &termfreqandwts,
 		      bool nowait);
-
-	// gross bodge FIXME
-	virtual PostList *do_postlist_hack() {
-	    throw OmUnimplementedError("do_postlist_hack not supported by network stuff");
-	}
-
-	virtual void do_postlist_hack2(PostList *pl) {
-	    throw OmUnimplementedError("do_postlist_hack2 not supported by network stuff");
-	}
 };
 
 ///////////////////////////////

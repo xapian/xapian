@@ -86,7 +86,7 @@ NetworkMatch::set_query(const OmQueryInternal *query_)
 om_weight
 NetworkMatch::get_max_weight()
 {
-    Assert(is_prepared);
+//    Assert(is_prepared);
     if (max_weight_needs_fetch) {
 	max_weight = database->link->get_max_weight();
 	max_weight_needs_fetch = false;
@@ -117,7 +117,7 @@ NetworkMatch::get_mset(om_doccount first,
 {
     // FIXME: need to pass termfreqandwts to each link->get_mset() call and
     // to get the results back.
-    Assert(is_prepared);
+//    Assert(is_prepared);
 
     if (mdecider != 0) {
 	throw OmInvalidArgumentError("Can't use a match decider remotely");

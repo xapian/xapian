@@ -44,11 +44,9 @@
 MultiMatch::MultiMatch(const OmDatabase &db_,
 		       const OmQueryInternal * query,
 		       const OmRSet & omrset,
-		       const OmSettings & moptions,
+		       const OmSettings & moptions_,
 		       AutoPtr<StatsGatherer> gatherer_)
-	: gatherer(gatherer_),
-db(db_),
-query_save_for_hack(*query), moptions_save_for_hack(moptions)
+	: gatherer(gatherer_), db(db_), moptions(moptions_)
 {
     om_doccount number_of_leaves = db.internal->databases.size();
     std::vector<OmRSet> subrsets(number_of_leaves);
@@ -156,7 +154,7 @@ MultiMatch::get_mset(om_doccount first, om_doccount maxitems,
     // doesn't come from the sum.
     IRWeight * extra_weight = leaves.front()->mk_weight();
     LocalMatch lm(db);
-    lm.set_options(moptions_save_for_hack);
+    lm.set_options(moptions);
     lm.get_mset(pl, first, maxitems, mset, mdecider, extra_weight,
 		leaves.front()->get_term_info(), false);
     delete extra_weight;

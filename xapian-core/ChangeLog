@@ -1,3 +1,7 @@
+Mon Oct 02 18:00:20 BST 2000 Olly Betts
+
+	* Cleaned up a bit.
+
 Mon Oct 02 17:28:53 BST 2000 Olly Betts
 
 	* LocalMatch: Split off postlist tree generation into LocalSubMatch
