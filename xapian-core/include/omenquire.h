@@ -24,6 +24,7 @@
 #define _omenquire_h_
 
 #include "omtypes.h"
+#include <string>
 #include <vector>
 #include <set>
 
@@ -94,6 +95,9 @@ class OMQuery {
 
 	// Destructor
 	~OMQuery();
+
+	// Introspection method
+	string get_description();
 };
 
 ///////////////////////////////////////////////////////////////////

@@ -178,6 +178,7 @@ main(int argc, char *argv[])
 	}
 
 	enquire.set_query(query);
+	cout << "Query is: " << query.get_description() << endl;
 
 	OMMatchOptions opts;
 	if(collapse_key != -1) opts.set_collapse_key(collapse_key);

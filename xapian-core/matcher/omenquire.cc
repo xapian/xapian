@@ -256,6 +256,43 @@ OMQuery::initialise_from_vector(const vector<OMQuery *>::const_iterator qbegin,
     }
 }
 
+// Introspection
+string
+OMQuery::get_description()
+{
+    string opstr;
+    switch(op) {
+	case OM_MOP_LEAF:
+		return tname;
+		break;
+	case OM_MOP_AND:
+		opstr = " AND ";
+		break;
+	case OM_MOP_OR:
+		opstr = " OR ";
+		break;
+	case OM_MOP_FILTER:
+		opstr = " FILTER ";
+		break;
+	case OM_MOP_AND_MAYBE:
+		opstr = " AND_MAYBE ";
+		break;
+	case OM_MOP_AND_NOT:
+		opstr = " AND_NOT ";
+		break;
+	case OM_MOP_XOR:
+		opstr = " XOR ";
+		break;
+    }
+    string description;
+    vector<OMQuery *>::const_iterator i;
+    for(i = subqs.begin(); i != subqs.end(); i++) {
+	if(description.size()) description += opstr;
+	description += (**i).get_description();
+    }
+    return "(" + description + ")";
+}
+
 ////////////////////////////////
 // Methods for OMMatchOptions //
 ////////////////////////////////
