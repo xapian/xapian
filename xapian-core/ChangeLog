@@ -1,3 +1,17 @@
+Thu Mar 29 19:05:46 BST 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Add "extra" directory to om source tree, to hold extra libraries
+	  for use with omsee, which aren't part of the core.
+
+	* Put a query parser into "extra".  This is roughly the parser
+	  from omega.  Needs some work: in particular, it needs to be
+	  made reentrant.
+
+	* Added extra/ directory to top level Makefile.am and configure.in.
+	  Added AC_PROG_YACC to Makefile.am
+
+	* Add includes of required header files to omquery.h.
+
 Wed Mar 28 17:15:22 BST 2001  Richard Boulton <richard.boulton@omsee.com>
 
 	* Modifications to OmQuery.  Remove the isbool flag: there is

@@ -18,11 +18,11 @@ endif
 SUBDIRS = include testsuite autoconf common \
           api backends matcher languages $(BUILDSUBDIR_REMOTE1) \
 	  $(BUILDSUBDIR_INDEXER) . m4 \
-	  docs $(BUILDSUBDIR_REMOTE2) tests bindings
+	  docs $(BUILDSUBDIR_REMOTE2) tests bindings extra
 
 DIST_SUBDIRS = include testsuite autoconf common \
                api backends matcher languages net \
-	       indexer  . m4 docs netprogs tests bindings
+	       indexer  . m4 docs netprogs tests bindings extra
 
 bin_SCRIPTS=omsee-config
 

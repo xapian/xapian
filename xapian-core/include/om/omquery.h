@@ -23,6 +23,13 @@
 #ifndef OM_HGUARD_OMQUERY_H
 #define OM_HGUARD_OMQUERY_H
 
+#ifndef OM_HGUARD_OMTYPES_H
+#include "om/omtypes.h"
+#endif
+#ifndef OM_HGUARD_OMTERMLISTITERATOR_H
+#include "om/omtermlistiterator.h"
+#endif
+
 ///////////////////////////////////////////////////////////////////
 // OmQuery class
 // =============

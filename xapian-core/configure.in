@@ -18,6 +18,7 @@ dnl Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
 AM_PROG_LEX
+AC_PROG_YACC
 
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
@@ -627,6 +628,7 @@ AC_OUTPUT(
  bindings/tcl8/Makefile
  bindings/java/Makefile
  bindings/java/native/Makefile
+ extra/Makefile
 ,
  for a in docs/mkdoc.pl docs/todo2html.pl tests/stemtest.pl \
           tests/findheaders.pl bindings/java/apitest_to_java.pl \
