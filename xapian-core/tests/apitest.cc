@@ -25,6 +25,9 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <cerrno>
 
 #include "om/om.h"
 #include "testsuite.h"
@@ -237,14 +240,143 @@ make_dbgrp(OmDatabase * db1 = 0,
     return result;
 }
 
-OmDatabase get_database(const string &dbname, const string &dbname2 = "") {
+class BackendManager {
+    private:
+	/// The type of a get_database member function
+	typedef OmDatabase (BackendManager::*getdb_func)(const string &dbname1,
+							 const string &dbname2);
+	/// The current get_database member function
+	getdb_func do_getdb;
+
+	/// Get an inmemory database instance.
+	OmDatabase getdb_inmemory(const string &dbname1,
+				  const string &dbname2);
+
+	/// Get an inmemory database instance.
+	OmDatabase getdb_sleepy(const string &dbname1,
+				const string &dbname2);
+    public:
+	/// Constructor - set up default state.
+	BackendManager() : do_getdb(&getdb_inmemory) {};
+
+	/** Set the database type to use.
+	 *
+	 *  Valid values for dbtype are "inmemory" and "sleepycat"
+	 */
+	void set_dbtype(const string &type);
+
+	/// Get a database instance of the current type
+	OmDatabase get_database(const string &dbname1,
+				const string &dbname2);
+};
+
+static BackendManager backendmanager;
+
+void BackendManager::set_dbtype(const string &type)
+{
+    if (type == "inmemory") {
+	do_getdb = &getdb_inmemory;
+    } else if (type == "sleepycat") {
+	do_getdb = &getdb_sleepy;
+    } else {
+	throw OmInvalidArgumentError("Expected inmemory or sleepy");
+    }
+}
+
+OmDatabase BackendManager::getdb_inmemory(const string &dbname1,
+					  const string &dbname2)
+{
     OmWritableDatabase db("inmemory", make_strvec());
-    index_file_to_database(db, datadir_ + "/" + dbname + ".txt");
+    index_file_to_database(db, datadir_ + "/" + dbname1 + ".txt");
     if (dbname2.length() > 0) {
 	index_file_to_database(db, datadir_ + "/" + dbname2 + ".txt");
     }
 
     return db;
+}
+
+/** Create the directory dirname if needed.  Returns true if the
+ *  directory was created and false if it was already there.  Throws
+ *  an exception if there was an error (eg not a directory).
+ */
+bool create_dir_if_needed(const string &dirname)
+{
+    // create a directory for sleepy indexes if not present
+    struct stat sbuf;
+    int result = stat(dirname.c_str(), &sbuf);
+    if (result < 0) {
+	if (errno == ENOENT) {
+	    if (mkdir(dirname.c_str(), 0700) < 0) {
+		throw OmOpeningError("Can't create directory");
+	    }
+	} else {
+	    throw OmOpeningError("Can't stat directory");
+	}
+	return true; // either threw an exception, or created a directory.
+    } else {
+	if (!S_ISDIR(sbuf.st_mode)) {
+	    throw OmOpeningError("Is not a directory.");
+	}
+	return false; // Already a directory.
+    }
+}
+
+/** Return true if the file fname exists.
+ */
+bool file_exists(const string &fname)
+{
+    // create a directory for sleepy indexes if not present
+    struct stat sbuf;
+    int result = stat(fname.c_str(), &sbuf);
+    if (result < 0) {
+	return false;
+    } else {
+	if (!S_ISREG(sbuf.st_mode)) {
+	    return false;
+	}
+	return true;
+    }
+}
+
+OmDatabase BackendManager::getdb_sleepy(const string &dbname1,
+					const string &dbname2)
+{
+    string parent_dir = ".sleepy";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir + "/" + dbname1 + "#" + dbname2;
+
+    if (file_exists(datadir_ + "/" + dbname1 + ".txt") &&
+	((dbname2.length() == 0) ||
+	 file_exists(datadir_ + "/" + dbname2 + ".txt"))) {
+	bool created = create_dir_if_needed(dbdir);
+
+	if (created) {
+	    // directory was created, so do the indexing.
+	    OmWritableDatabase db("sleepycat", make_strvec(dbdir));
+	    index_file_to_database(db, datadir_ + "/" + dbname1 + ".txt");
+	    if (dbname2.length() > 0) {
+		index_file_to_database(db, datadir_ + "/" + dbname2 + ".txt");
+	    }
+	    return db;
+	} else {
+	    // else just return a read-only db.
+	    return OmDatabase("sleepycat", make_strvec(dbdir));
+	}
+    } else {
+	// open a non-existant database
+	return OmDatabase("sleepycat", make_strvec(dbdir));
+    }
+}
+
+OmDatabase BackendManager::get_database(const string &dbname1,
+					const string &dbname2)
+{
+    return (this->*do_getdb)(dbname1, dbname2);
+}
+
+OmDatabase get_database(const string &dbname, const string &dbname2 = "") {
+    return backendmanager.get_database(dbname, dbname2);
 }
 
 // #######################################################################
@@ -1873,5 +2005,15 @@ int main(int argc, char *argv[])
     }
     datadir_ = std::string(srcdir) + "/testdata/";
 
-    return test_driver::main(argc, argv, tests);
+    int result;
+    
+    backendmanager.set_dbtype("inmemory");
+    result = test_driver::main(argc, argv, tests);
+
+#if 0
+    backendmanager.set_dbtype("sleepycat");
+    result = max(result, test_driver::main(argc, argv, tests));
+#endif
+
+    return result;
 }

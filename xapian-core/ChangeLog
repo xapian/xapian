@@ -1,3 +1,9 @@
+Mon May 22 13:08:37 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* apitest can now run all the tests against sleepycat as well as
+	  inmemory tables.  The actual call is currently protected by
+	  #if 0.
+
 Fri May 19 18:35:33 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Abstracted all database access in apitest to one function, so that
