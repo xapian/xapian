@@ -32,23 +32,28 @@ using std::string;
 
 static void usage(char * progname);
 
+static void query_fileid          (cvs_db_file & db_file, const string & filename);
 static void query_filename        (cvs_db_file & db_file, unsigned int file_id);
 static void query_comment         (cvs_db_file & db_file, unsigned int file_id, const string & revision);
 static void query_line            (cvs_db_file & db_file, unsigned int file_id, const string & revision);
 static void query_revision        (cvs_db_file & db_file, unsigned int file_id, unsigned int line);
 static void query_revision_comment(cvs_db_file & db_file, unsigned int file_id);
 static void query_all_revisions   (cvs_db_file & db_file, unsigned int file_id);
+static void query_all_files       (cvs_db_file & db_file, unsigned int commit_id);
+static void query_commit_comment  (cvs_db_file & db_file, unsigned int commit_id);
 
 static string cvsroot_name;
 static string database_name;
-static char controlA = '\001';
-static char controlB = '\002';
-static char controlC = '\003';
+static string module_name;
+static const char controlA = '\001';
+static const char controlB = '\002';
+static const char controlC = '\003';
 
 int
 main(unsigned int argc, char **argv) 
 {
     unsigned int file_id = 0;
+    unsigned int commit_id = 0;
     unsigned int line = 0;
     string revision;
     if (argc < 3 || !strcmp(argv[2], "-h")) {
@@ -56,36 +61,49 @@ main(unsigned int argc, char **argv)
     }
 
     database_name = argv[1];
+    module_name = argv[2];
 
     cvs_db_file db_file(database_name, true);
 
-    for (unsigned int i = 2; i < argc; ++i)
+    for (unsigned int i = 3; i < argc; ++i)
     {
         if (0) {
-        } else if (!strcmp(argv[i],"-f") && i+2 <= argc) {
+        } else if (!strcmp(argv[i],"-f") && i+1 < argc) {
             file_id = strtoul(argv[++i], (char **) NULL, 10);
 
             query_filename(db_file, file_id);
-        } else if (!strcmp(argv[i],"-c") && i+3 <= argc) {
+        } else if (!strcmp(argv[i],"-F") && i+1 < argc) {
+            string filename = argv[++i];
+
+            query_fileid(db_file, filename);
+        } else if (!strcmp(argv[i],"-A") && i+1 < argc) {
+            commit_id = strtoul(argv[++i], (char **) NULL, 10);
+
+            query_all_files(db_file, commit_id);
+        } else if (!strcmp(argv[i],"-a") && i+1 < argc) {
+            file_id = strtoul(argv[++i], (char **) NULL, 10);
+
+            query_revision_comment(db_file, file_id);
+        } else if (!strcmp(argv[i],"-C") && i+1 < argc) {
+            commit_id = strtoul(argv[++i], (char **) NULL, 10);
+
+            query_commit_comment(db_file, commit_id);
+        } else if (!strcmp(argv[i],"-c") && i+2 < argc) {
             file_id = strtoul(argv[++i], (char **) NULL, 10);
             revision = argv[++i];
 
             query_comment(db_file, file_id, revision);
-        } else if (!strcmp(argv[i],"-r") && i+3 <= argc) {
+        } else if (!strcmp(argv[i],"-r") && i+2 < argc) {
             file_id = strtoul(argv[++i], (char **) NULL, 10);
             line = strtoul(argv[++i], (char **) NULL, 10);
 
             query_revision(db_file, file_id, line);
-        } else if (!strcmp(argv[i],"-l") && i+ 3 <= argc) {
+        } else if (!strcmp(argv[i],"-l") && i+2 < argc) {
             file_id = strtoul(argv[++i], (char **) NULL, 10);
             revision = argv[++i];
 
             query_line(db_file, file_id, revision);
-        } else if (!strcmp(argv[i],"-a") && i+ 2 <= argc) {
-            file_id = strtoul(argv[++i], (char **) NULL, 10);
-
-            query_revision_comment(db_file, file_id);
-        } else if (!strcmp(argv[i],"-v") && i+ 2 <= argc) {
+        } else if (!strcmp(argv[i],"-v") && i+1 < argc) {
             file_id = strtoul(argv[++i], (char **) NULL, 10);            
 
             query_all_revisions(db_file, file_id);
@@ -100,14 +118,21 @@ main(unsigned int argc, char **argv)
 void
 usage(char * prog_name)
 {
-    cerr << "Usage: " << prog_name << " DatabaseFile [Options] [Options] ..." << endl
+    cerr << "Usage: " << prog_name << " DatabaseFile ModuleName [Options] [Options] ..." << endl
          << endl
          << "Options:" << endl
          << "  -h                     print out this message" << endl
+         << "  -f file_id             query for filename" << endl
+         << "  -F filename            query for file_id" << endl
+
+         << "  -A commit_id           query for all filename, revision pairs" << endl
+         << "  -a file_id             query for all revision,comment pairs" <<endl
+
+         << "  -C commit_id           query for cvs comments from a commit" << endl
          << "  -c file_id revision    query for cvs comments from a file_id and a revision" << endl
          << "  -r file_id line        query for revisions from a file_id and a line"<< endl
          << "  -l file_id revision    query for lines from a file_id and a revision" << endl
-         << "  -a file_id             query for all revision,comment pairs" <<endl
+
          << "  -v file_id             query for all revisions" << endl;
         ;
     
@@ -119,7 +144,7 @@ void query_filename(cvs_db_file & db_file, unsigned int file_id)
     string filename;
     if (db_file.get_filename(file_id, filename) == 0)
     {
-        cout << filename << endl;
+        cout << module_name << "/" << filename << endl;
     }
 }
 
@@ -189,5 +214,40 @@ void query_revision_comment(cvs_db_file & db_file, unsigned int file_id)
         {
             cout << *itr << controlC << comments[i] << controlB << endl;
         }
+    }
+}
+
+void query_fileid (cvs_db_file & db_file, const string & filename) 
+{
+    unsigned int file_id;
+    if (db_file.get_fileid(file_id, filename) == 0) 
+    {
+        cout << file_id << endl;
+    }
+}
+
+void query_all_files (cvs_db_file & db_file, unsigned int commit_id) 
+{
+    vector<unsigned int> file_ids;
+    vector<string> revisions;
+    if (db_file.get_commit(commit_id, file_ids, revisions) == 0)
+    {
+        for (unsigned int i = 0; i < file_ids.size() && i < revisions.size(); ++i) 
+        {
+            string filename;
+            if (db_file.get_filename(file_ids[i], filename) == 0) 
+            {
+                cout << file_ids[i] << controlC << module_name << "/" << filename << controlC << revisions[i] << endl;
+            }
+        }
+    }
+}
+
+void query_commit_comment (cvs_db_file & db_file, unsigned int commit_id) 
+{
+    string comment;
+    if (db_file.get_comment (commit_id, comment) == 0) 
+    {
+        cout << comment << endl;
     }
 }

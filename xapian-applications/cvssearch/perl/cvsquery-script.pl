@@ -5,6 +5,8 @@ my $cvsquery = "./cvsquery";
 my $cvsdata = Cvssearch::get_cvsdata();
 my $cvsroot_dir;
 
+sub usage();
+
 # ------------------------------------------------------------
 # path where all our files are stored.
 # if $cvsdata is not set, use current directory instead.
@@ -20,10 +22,12 @@ if ($#ARGV < 0) {
 }
 
 $_ = $ARGV[1];
-$ARGV[1]=~tr/\//\_/;
-$ARGV[1] = "$cvsdata/$ARGV[0]/db/$ARGV[1].db/$ARGV[1].db";
 
-shift @ARGV;
+my $root_dir = $ARGV[0];
+my $package = Cvssearch::strip_last_slash($ARGV[1]);
+$package =~ tr/\//\_/;
+
+$ARGV[0]= "$cvsdata/$root_dir/db/$package.db/$package.db";
 # ------------------------------------------------------------
 # call cvsmap-script with the same parameters
 # ------------------------------------------------------------
@@ -32,10 +36,10 @@ system ("$cvsquery @ARGV");
 
 sub usage()
 {
+
 print << "EOF";
 cvsquerydb 1.0 (2001-2-26)
 Usage: $0 root_dir package [Options] [Options] ...
-
 Options:
   -h                     print out this message
   -c file_id revision    query for cvs comments from a file_id and a revision

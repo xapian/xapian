@@ -1,6 +1,6 @@
 /************************************************************
  *
- *  cvs_filename_db.C implementation.
+ *  cvs_file_id_db.C implementation.
  *
  *  (c) 2001 Andrew Yao (andrewy@users.sourceforge.net)
  *
@@ -26,20 +26,16 @@
  *
  ************************************************************/
 
-#include "cvs_filename_db.h"
+#include "cvs_file_id_db.h"
+#include <strstream>
 
-cvs_filename_db::cvs_filename_db(DbEnv *dbenv, u_int32_t flags)
-    :cvs_db("recno-filename", "4", dbenv, flags)
-{
-}
-
-cvs_filename_db::cvs_filename_db(const string & name, const string & index, DbEnv *dbenv = 0, u_int32_t flags = 0)
-    :cvs_db(name, index, dbenv, flags)
+cvs_file_id_db::cvs_file_id_db(DbEnv *dbenv, u_int32_t flags)
+    :cvs_db("filename-file_id", "9", dbenv, flags)
 {
 }
 
 /**
- * Opens the database storing recno->filename.
+ * Opens the database storing filename->file_id.
  *
  * @param filename the name of the physical file where the database
  *                 is located/to be created.
@@ -47,32 +43,31 @@ cvs_filename_db::cvs_filename_db(const string & name, const string & index, DbEn
  * @return error code of the open operation.
  **/
 int
-cvs_filename_db::do_open(const string & filename, bool read_only)
+cvs_file_id_db::do_open(const string & filename, bool read_only)
 {
     int flag = read_only ? DB_RDONLY : DB_CREATE;
-    return _db.open(filename.c_str(), _db_name.c_str(), DB_RECNO, flag, 0);
+    return _db.open(filename.c_str(), _db_name.c_str(), DB_HASH, flag, 0);
 }
 
 /**
- * Gets a filename given a recno specified as fileId.
+ * Gets a file_id given a filename.
  *
- * @param fileId the recno of the filename to get.
- * @param filename location where the returned filename is stored.
+ * @param file_id the recno of the filename to get.
+ * @param filename the filename to retrieve.
  *
  * @return error code of the get operation.
  **/
 int
-cvs_filename_db::get(unsigned int fileId, string & filename)
+cvs_file_id_db::get(unsigned int & file_id, const string & filename)
 {
     int val = 0;
     try {
-        db_recno_t rec = (db_recno_t) fileId;
-        Dbt key(((void *) &rec), sizeof(db_recno_t));
-        Dbt data;
+        Dbt key ((void *) filename.c_str(), filename.length() + 1);
+        Dbt data((void *) file_id, sizeof(unsigned int));
         val = _db.get(0, &key, &data, 0);
         if (data.get_data())
         {
-            filename = (char *) data.get_data();
+            file_id = * (unsigned int *) data.get_data();
         }
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
@@ -81,27 +76,23 @@ cvs_filename_db::get(unsigned int fileId, string & filename)
 }
 
 /**
- * Puts a filename into the database and obtain its recno.
+ * Puts a filename->file_id into the database,
+ * the file_id is the recno of the filename.
  *
- * @param fileId the returned recno of the filename.
- * @param filename the filename to be stored.
+ * @param file_id the recno of the filename
+ * @param filename the filename.
  *
  * @return error code of the put operation.
  **/
 int
-cvs_filename_db::put(unsigned int & fileId, const string & filename)
+cvs_file_id_db::put(unsigned int file_id, const string & filename)
 {
     int val = 0;
     try {
-        db_recno_t rec = 0;
-        Dbt key ((void *) &rec, sizeof(db_recno_t));
-        Dbt data((void *) filename.c_str(), filename.length()+1);
-        val = _db.put(0, &key, &data, DB_APPEND);
+        Dbt key ((void *) filename.c_str(), filename.length() + 1);
+        Dbt data((void *) &file_id, sizeof(unsigned int));
 
-        if (key.get_data())
-        {
-            fileId = (unsigned int) *((db_recno_t *) key.get_data());
-        }
+        val = _db.put(0, &key, &data, 0);
     }  catch (DbException& e ) {
         cerr << "SleepyCat Exception: " << e.what() << endl;
     }

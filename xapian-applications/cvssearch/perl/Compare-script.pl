@@ -127,10 +127,10 @@ sub compare_root_index() {
     my $i = 0;
     while (<DBCONTENT>) {
         chomp;
-        my $pkg1 = $_;
-        $pkg1 =~tr/\_/\//;
+        my $pkg = $_;
+        $pkg =~tr/\_/\//;
         print "<tr>\n";
-        print "<td $class[$i%2]><a href=\"$cvscompare?root=$root&pkg=$pkg1\">$pkg1</a></td>";
+        print "<td $class[$i%2]><a href=\"$cvscompare?root=$root&pkg=$pkg\">$pkg</a></td>";
         print "</tr>\n";
         $i++;
     }
@@ -144,8 +144,8 @@ sub compare_root_index() {
 # ------------------------------------------------------------
 sub compare_pkg_index {
     my ($root, $pkg) = @_;
-    $pkg  =~tr/\//\_/;
     my $pkg1 = $pkg;
+    $pkg1 =~tr/\//\_/;
     my $i;
     my $filename;
     my @filenames;
@@ -153,11 +153,10 @@ sub compare_pkg_index {
     my $comment;
     my @versions;
     my @comments;
-    $pkg1 =~tr/\_/\//;
     
     print "<html>\n";
     print "<head>\n";
-    print_title ($pkg1);
+    print_title ($pkg);
     Cvssearch::print_style_sheet();
     print "</head>\n";
     print "<body>\n";
@@ -165,14 +164,14 @@ sub compare_pkg_index {
     # ----------------------------------------
     # dump all the links here
     # ----------------------------------------
-    open (OFFSET, "<$cvsdata/$root/db/$pkg.offset");
+    open (OFFSET, "<$cvsdata/$root/db/$pkg1.offset");
     $i = 1;
     while (<OFFSET>) {
         chomp;
         my @fields = split(/ /);
         $filename = $fields[0];
-        if ($pkg1 == substr($filename, 0, length($pkg1))) {
-            $filename = substr($filename, length($pkg1)+1, length($filename)-length($pkg1)-1);
+        if ($pkg == substr($filename, 0, length($pkg))) {
+            $filename = substr($filename, length($pkg)+1, length($filename)-length($pkg)-1);
         }
         @filenames = (@filenames, $filename);
         $i++;
@@ -236,7 +235,7 @@ sub compare_pkg_index {
     
     close(RESULT);
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
-    print "<h1 align=center>$pkg1</h1>\n";
+    print "<h1 align=center>$pkg</h1>\n";
     print "<b>Up to ";
     print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>\n";
     print "</b><p>\n";
@@ -270,14 +269,14 @@ sub compare_file_index {
     # ----------------------------------------
     # dump all the links here
     # ----------------------------------------
-    $pkg  =~tr/\//\_/;    
+    my $pkg1 = $pkg;
+    $pkg1  =~tr/\//\_/;    
     open (FILE, "$cvsquery $root $pkg -f $fileid -a $fileid |");
     my $version;
     my $comment;
     my @versions;
     my @comments;
     my $filename;
-    my $pkg1;
     
     # ------------------------------------------------------------
     # get the filename
@@ -289,13 +288,11 @@ sub compare_file_index {
             last;
         } else {
             $filename = $_;
-            $pkg1 = $pkg;
-            $pkg1 =~tr/\_/\//;
-            if ($pkg1 == substr($filename, 0, length($pkg1))) {
+            if ($pkg == substr($filename, 0, length($pkg))) {
                 # ----------------------------------------
                 # throw away the package name part.
                 # ----------------------------------------
-                $filename = substr($filename, length($pkg1)+1, length($filename)-length($pkg1)-1);
+                $filename = substr($filename, length($pkg)+1, length($filename)-length($pkg)-1);
             }
         }
     }
@@ -355,7 +352,7 @@ sub compare_file_index {
         print "<h1 align=\"center\">aligned diff outputs for <B>$filename</B></h1>\n";
         print "<b>Up to ";
         print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>\n";
-        print "<a href=\"$cvscompare?pkg=$pkg&root=$root\">[$pkg1]</a>\n";
+        print "<a href=\"$cvscompare?pkg=$pkg&root=$root\">[$pkg]</a>\n";
         print "</b><p>\n";
         
         print "<hr noshade>\n";
@@ -387,7 +384,8 @@ sub compare_file_index {
 
 sub compare_file_version {
     my ($root, $pkg, $fileid, $version, $short, $latest_version) = @_;
-    $pkg=~tr/\//\_/;
+    my $pkg1 = $pkg;
+    $pkg1 =~tr/\//\_/;
     my $cvsroot = Cvssearch::read_cvsroot_dir($root, $cvsdata);
     if ($fileid eq "" || 
         $pkg eq "" ||
@@ -459,21 +457,19 @@ sub compare_file_version {
     Cvssearch::print_style_sheet();
     print "</head>\n";
     print "<body class=compare>\n";
-    chdir ("$cvsdata/$root/src");
+    chdir ("$cvsdata/$root/src/$pkg");
     
-    my $pkg1 = $pkg;
     my $filename = "";
-    $pkg1 =~tr/\_/\//;
-    if ($pkg1 == substr($file, 0, length($pkg1))) {
+    if ($pkg == substr($file, 0, length($pkg))) {
         # ----------------------------------------
         # throw away the package name part.
         # ----------------------------------------
-        $filename = substr($file, length($pkg1)+1, length($file)-length($pkg1)-1);
+        $filename = substr($file, length($pkg)+1, length($file)-length($pkg)-1);
     }
     
     print "<b>Up to ";
     print "<a href=\"$cvscompare?root=$root\">[$cvsroot]</a>\n";
-    print "<a href=\"$cvscompare?pkg=$pkg&root=$root\">[$pkg1]</a>\n";
+    print "<a href=\"$cvscompare?pkg=$pkg&root=$root\">[$pkg]</a>\n";
     print "<a href=\"$cvscompare?pkg=$pkg&root=$root&fileid=$fileid\">[$filename]</a>\n";
     print "</b><p>\n";
     
@@ -482,7 +478,7 @@ sub compare_file_version {
     print "<a href=\"$cvscompare?root=$root&pkg=$pkg&fileid=$fileid&short=1&version=$version\">short</a>)\n";
     print "in commit of version $version</h1>\n";
     print "<pre class=popuplink>CVS comment:\n$comment</pre>\n";
-    open (OUTPUT, "$cvsmap -d $cvsroot -db $cvsdata/$root/db/$pkg.db/$pkg.db -html $fileid $version $short_flag -r $latest_version $file |");
+    open (OUTPUT, "$cvsmap -d $cvsroot -db $cvsdata/$root/db/$pkg1.db/$pkg1.db -html $fileid $version $short_flag -r $latest_version $filename |");
     while (<OUTPUT>) {
         print $_;
     }

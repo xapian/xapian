@@ -30,7 +30,7 @@
 #include <strstream>
 
 cvs_comment_id_db::cvs_comment_id_db(DbEnv *dbenv, u_int32_t flags)
-    :cvs_db("file_revision-comment_id", "2", dbenv, flags)
+    :cvs_db("file_revision-id", "2", dbenv, flags)
 {
 }
 
@@ -69,7 +69,7 @@ cvs_comment_id_db::get(unsigned int fileId, const string & revision, unsigned in
         ost.freeze(0);
 
         Dbt key ((void *) skey.c_str(), skey.length() + 1);
-        Dbt data((void *) comment_id, sizeof(unsigned int));
+        Dbt data(0, 0);
         val = _db.get(0, &key, &data, 0);
         if (data.get_data())
         {

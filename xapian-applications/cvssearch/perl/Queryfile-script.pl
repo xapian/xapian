@@ -25,7 +25,7 @@ use Cvssearch;
 #-------------------
 $CVSDATA = $ENV{"CVSDATA"}; # path where database content file is stored
 $source = "./Source.cgi";
-$match = "./Match.cgi";
+$match = "./Matchfile.cgi";
 $comments = "./Comments.cgi";
 $top = "./Top.cgi";
 

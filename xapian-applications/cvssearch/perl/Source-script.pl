@@ -13,7 +13,7 @@
 # Date: Feb 16 2001
 #-------------------------------------------------------------------
 
-
+use strict;
 use CGI ':all';
 use Cvssearch;
 use Entities;
@@ -21,7 +21,8 @@ use Entities;
 #---------------------------------------------
 # global mappigns defind in the script
 #---------------------------------------------
-#%lineMAPweight - map line number with its weight
+my %lineMAPweight; # map line number with its weight
+my $grepquery;
 
 #-------------
 # start html
@@ -30,101 +31,73 @@ use Entities;
 print "Content-type:text/html\n\n";
 print "<html>\n";
 print "<header>\n";
-
-#---------------
-# style sheet
-#---------------
+# ----------------------------------------
+# common style sheet
+# ----------------------------------------
 Cvssearch::print_style_sheet();
-print "</header>\n<body>\n";
+print "</header>\n";
+print "<body>\n";
 
 #----------------------------------------
 # Parse Parameters
 #----------------------------------------
 if(param()){
-    $dump = param("dump");
-    $id = param("id");
-    $id = Cvssearch::decode($id);
-    
-    $found = Cvssearch::findfile($dump,$id);
+    my $dump = param("dump");
+    my $id   = Cvssearch::decode(param("id"));
+    my $found = Cvssearch::findfile($dump,$id);
+
     if (!$found){
-        &error("Page expired");
+        error("Page expired");
     }
-    @entries = split /\n/, $found;
+    my @entries = split /\n/, $found;
 	shift @entries;             #query
     shift @entries;             #stemquery
     $grepquery = shift @entries;
 	shift @entries;             #id
-	$path = shift @entries;
+	my $path = shift @entries;
 	shift @entries;             #revs
 	
-	#go through each line entry
+    # ----------------------------------------
+	# go through each line entry
+    # ----------------------------------------
 	foreach (@entries){
-		($line, $weight) = split / /, $_;
+		my ($line, $weight) = split /[\s]+/, $_;
 		$lineMAPweight{$line} = $weight;
 	}
-	
-	#display file
-	
-	#filename
-	&filename();
+
+	print Cvssearch::fileheader("<b>Source Code<b>", "Darker highlight denotes better match");	
 	
 	print "<table cellSpacing=0 cellPadding=0 width=100% border=0>";
-	@file = `cat $path`;
-	#print @file;
-	$i=1;                       #line index
+	my @file = `cat $path`;
+	my $i=1;                       #line index
 	foreach(@file){
-		s/\n//g;
-		$line = $_;
+		chomp;
+		my $line = $_;
 		$line = Entities::encode_entities($line);
-		print "<tr nowrap>";
-		print "<td><pre><a name=$i>$i</a></td>";
+		print "<tr nowrap><td><pre><a name=$i>$i</a></td>";
+
+        # ----------------------------------------
+        # create an extra character if the line
+        # is empty
+        # ----------------------------------------
         my $space ="";
         if (length($line) == 0) {
             $space = " ";
         }
-		if($lineMAPweight{$i}){
-			$weight = $lineMAPweight{$i};
-			$color = Cvssearch::get_color($weight, 150);
-			$line = &highlightquery($line);
-			print "<td bgcolor=$color><pre>$line$space</td>";
-		}else{
-			print "<td><pre>$line$space</td>";
+		if($lineMAPweight{$i}) {
+			my $weight = $lineMAPweight{$i};
+			my $color = Cvssearch::get_color($weight, 150);
+			$line = highlightquery($line);
+			print "<td bgcolor=$color>";
+		} else {
+			print "<td>"
 		}
-		print "</tr>\n";
+		print "<pre>$line$space</td></tr>\n";
 		$i++;
 	}
 	print "</table>";	
-	
-	#print an empty page so html can scroll to the last line
-    #	print "<pre>";
-    #	for($j=0;$j<60;$j++){
-    #		print "\n";	
-    #	}
-    #	print "</pre>";
 }
-
 print "</body></html>";
-
-
-#--------------------------
-# sub functions
-#--------------------------
-
-#!!!!!!!!!!!!!!!!!!!!
-# HTML FORMATTING
-#!!!!!!!!!!!!!!!!!!!!
-
-#-----------------------------------
-# stats prints stemmed query words
-# projects searched in and
-# number of files matched
-#-----------------------------------
-
-sub filename{
-	print Cvssearch::fileheader("<b>Source Code<b>", "Darker highlight denotes better match");
-}
-
-
 
 #-----------------------------------
 # highlightquery
@@ -141,8 +114,7 @@ sub highlightquery{
 # display errors
 #------------------
 sub error{
-	($mesg) = @_;
-	&stats;
+	my ($mesg) = @_;
 	print "<p><b class=red>$mesg</b>";
 	exit(0);
 }

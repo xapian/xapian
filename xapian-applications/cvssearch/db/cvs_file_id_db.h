@@ -1,7 +1,7 @@
 /************************************************************
  *
- *  cvs_comment_db.h the class to manipulate a database to store
- *  recno->cvs comments.
+ *  cvs_file_id_db.h the class to manipulate a database to store
+ *  (filename->file_id)
  *
  *  (c) 2001 Andrew Yao (andrewy@users.sourceforge.net)
  *
@@ -27,19 +27,19 @@
  *
  ************************************************************/
 
-#ifndef __CVS_COMMENT_DB_H__
-#define __CVS_COMMENT_DB_H__
+#ifndef __CVS_FILE_ID_DB_H__
+#define __CVS_FILE_ID_DB_H__
 
-#include "cvs_filename_db.h"
+#include "cvs_db.h"
 
-class cvs_comment_db : public cvs_filename_db 
+class cvs_file_id_db : public cvs_db 
 {
-// protected:
-//    int do_open(const string & filename, bool read_only);
+protected:
+    int do_open(const string & filename, bool read_only);
 public:
-    cvs_comment_db(DbEnv *dbenv = 0, u_int32_t flags = 0);
-//    int get(unsigned int   comment_id,       string & comment);
-//    int put(unsigned int & comment_id, const string & comment);
+    cvs_file_id_db(DbEnv *dbenv = 0, u_int32_t flags = 0);
+    int get(unsigned int & fileId, const string & filename);
+    int put(unsigned int   fileId, const string & filename);
 };
 
 #endif

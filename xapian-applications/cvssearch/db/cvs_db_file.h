@@ -27,8 +27,10 @@
 
 #include "cvs_comment_db.h"
 #include "cvs_comment_id_db.h"
+#include "cvs_comment_id2_db.h"
 #include "cvs_db.h"
 #include "cvs_filename_db.h"
+#include "cvs_file_id_db.h"
 #include "cvs_line_db.h"
 #include "cvs_revision_db.h"
 #include "cvs_file_revision_db.h"
@@ -45,37 +47,53 @@ using std::vector;
 class cvs_db_file
 {
 protected:
-    cvs_comment_db _comment_db;
-    cvs_comment_id_db _comment_id_db;
-    cvs_filename_db _filename_db;
-    cvs_line_db _line_db;
-    cvs_revision_db _revision_db;
-    cvs_file_revision_db _file_revision_db;
-    cvs_diff_db _diff_db;
-    cvs_revision_line_db _revision_line_db;
+    cvs_comment_db _comment_db;                             // [comment_id -> comment]
+    cvs_comment_id_db _comment_id_db;                       // [file_id, rev -> comment_id]
+    cvs_comment_id2_db _comment_id2_db;                     // [comment_id -> {(file_id, rev)}]
+    cvs_filename_db _filename_db;                           // [file_id -> filename]
+    cvs_file_id_db _file_id_db;                             // [file_name -> file_id]
+    cvs_line_db _line_db;                                   // [file_id, rev ->{lines}]
+    cvs_revision_db _revision_db;                           // [file_id, line -> {revs}]
+    cvs_file_revision_db _file_revision_db;                 // [file_id -> {revs}]
+    cvs_diff_db _diff_db;                                   // [file_id, rev ->{diffs}]
+
     const string _database_name;
     bool _read_only;
 
 public:
     cvs_db_file(const string & database_name, bool read_only) : _database_name(database_name), _read_only(read_only) {}
-    int get_comment(unsigned int file_id, const string & revision,       string & comment);
+
     int get_revision         (unsigned int file_id, unsigned int line, set<string, cvs_revision_less> & revisions);
+    int put_revision         (unsigned int file_id, const string & revision);
+
+    int put_mapping          (unsigned int file_id, const string & revision, unsigned int line);
     int get_line             (unsigned int file_id, const string & revision, set<unsigned int> &lines);
     int get_revision_comment (unsigned int file_id, set<string, cvs_revision_less> & revisions, vector<string> & comments);
+
     int get_filename         (unsigned int file_id, string & filename);
-    int get_line_mapping     (unsigned int file_id, const string & revision, unsigned int line_new, unsigned int & line_old);
+    int get_fileid           (unsigned int & file_id, const string & filename);
+    int put_filename         (unsigned int & file_id, const string & filename);
+    
+
+
     int get_diff             (unsigned int fileId, const string & revision, 
                               vector<unsigned int> & s1, vector<unsigned int> & s2, 
                               vector<unsigned int> & d1, vector<unsigned int> & d2, vector<char> & type);
-
-    int put_revision         (unsigned int file_id, const string & revision);
-    int put_comment          (unsigned int file_id, const string & revision, const string & comment);
-    int put_mapping          (unsigned int file_id, const string & revision, unsigned int line);
-    int put_filename         (unsigned int & file_id, const string & filename);
-    int put_line_mapping     (unsigned int file_id, const string & revision, unsigned int line_new, unsigned int line_old);
     int put_diff             (unsigned int fileId, const string & revision, 
                               const vector<unsigned int> & s1, const vector<unsigned int> & s2, 
                               const vector<unsigned int> & d1, const vector<unsigned int> & d2, const vector<char> & type);
+
+
+
+    int put_comment          (unsigned int & commit_id, const string & comment);
+    int get_comment          (unsigned int commit_id, string & comment);
+    int get_comment          (unsigned int file_id, const string & revision, string & comment);
+
+
+
+    int put_commit           (unsigned int file_id, const string & revision, unsigned int   commitid);
+    int get_commit           (unsigned int file_id, const string & revision, unsigned int & commitid);
+    int get_commit           (unsigned int commitid, vector<unsigned int> & fileids, vector<string> & revisions);
 
     int sync();
     virtual ~cvs_db_file();

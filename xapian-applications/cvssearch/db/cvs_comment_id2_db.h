@@ -1,7 +1,9 @@
 /************************************************************
  *
- *  cvs_comment_db.h the class to manipulate a database to store
- *  recno->cvs comments.
+ *  cvs_comment_id2_db.h the class to manipulate a database to store
+ *  comment_id->{(file_id, revision)}
+ *  file_id is the recno of the filename, comment_id is the recno
+ *  of the comment.
  *
  *  (c) 2001 Andrew Yao (andrewy@users.sourceforge.net)
  *
@@ -27,19 +29,21 @@
  *
  ************************************************************/
 
-#ifndef __CVS_COMMENT_DB_H__
-#define __CVS_COMMENT_DB_H__
+#ifndef __CVS_COMMENT_ID2_DB_H__
+#define __CVS_COMMENT_ID2_DB_H__
 
-#include "cvs_filename_db.h"
+#include "cvs_db.h"
+#include <vector>
+using std::vector;
 
-class cvs_comment_db : public cvs_filename_db 
+class cvs_comment_id2_db : public cvs_db 
 {
-// protected:
-//    int do_open(const string & filename, bool read_only);
+protected:
+    int do_open(const string & filename, bool read_only);
 public:
-    cvs_comment_db(DbEnv *dbenv = 0, u_int32_t flags = 0);
-//    int get(unsigned int   comment_id,       string & comment);
-//    int put(unsigned int & comment_id, const string & comment);
+    cvs_comment_id2_db(DbEnv *dbenv = 0, u_int32_t flags = 0);
+    int get(unsigned int comment_id, vector<unsigned int> & fileIds, vector<string> & revisions);
+    int put(unsigned int comment_id, unsigned int fileId, const string & revision);
 };
 
 #endif

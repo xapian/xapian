@@ -30,7 +30,7 @@
 #include <strstream>
 
 cvs_revision_line_db::cvs_revision_line_db(DbEnv *dbenv, u_int32_t flags)
-    :cvs_db("file_revision_line-line", "8", dbenv, flags)
+    :cvs_db("file_revision_line-line", "10", dbenv, flags)
 {
 }
 
