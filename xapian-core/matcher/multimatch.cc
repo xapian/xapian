@@ -613,7 +613,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		}
 	    }
 	}
-	    
+
 	// OK, actually add the item to the mset.
 	if (pushback) {
 	    ++docs_matched;
@@ -764,7 +764,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    double denom = 0;
 	    for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
 		denom += i->second.termweight;
-	   
+
 	    DEBUGLINE(MATCH, "denom = " << denom << " percent_scale = " << percent_scale);
 	    Assert(percent_scale <= denom);
 	    denom *= greatest_wt;
@@ -802,7 +802,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	}
 	percent_scale *= 100.0;
     }
-    
+
     if (sort_bands > 1) {
 	sort(items.begin(), items.end(),
 	     MSetSortCmp(db, sort_bands, percent_scale,

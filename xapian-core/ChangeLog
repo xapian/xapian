@@ -1,3 +1,7 @@
+Wed Jun 16 01:27:09 BST 2004  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Trimmed extra whitespace.
+
 Tue Jun 15 15:40:11 BST 2004  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_postlist.cc: Fixed PostlistChunkReader to
