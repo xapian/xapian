@@ -1,3 +1,8 @@
+Fri Sep  8 16:34:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Delve can now display several termlists, several postlists, or
+	  lots of positionlists.
+
 Fri Sep  8 12:02:05 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Fix Asserts in MultiPostList::skip_to(), and small bug in
