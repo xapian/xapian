@@ -183,7 +183,8 @@ QuartzDatabase::do_delete_document(om_docid did)
 {
     OmLockSentry sentry(quartz_mutex);
 
-    throw OmUnimplementedError("QuartzDatabase::do_delete_document() not yet implemented");
+    Assert(modifications.get() != 0);
+    return modifications->delete_document(did);
 }
 
 void
@@ -192,7 +193,8 @@ QuartzDatabase::do_replace_document(om_docid did,
 {
     OmLockSentry sentry(quartz_mutex);
 
-    throw OmUnimplementedError("QuartzDatabase::do_replace_document() not yet implemented");
+    Assert(modifications.get() != 0);
+    return modifications->replace_document(did, document);
 }
 
 
@@ -210,7 +212,10 @@ om_doccount
 QuartzDatabase::get_doccount() const
 {
     OmLockSentry sentry(quartz_mutex);
-    throw OmUnimplementedError("QuartzDatabase::get_doccount() not yet implemented");
+
+    // FIXME: check that the sizes of these types (om_doccount and
+    // quartz_tablesize_t) are compatible.
+    return db_manager->record_table->get_entry_count() - 1;
 }
 
 om_doclength

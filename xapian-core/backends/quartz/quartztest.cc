@@ -369,9 +369,13 @@ static bool test_adddoc1()
     QuartzDatabase database(settings, false);
 
     database.begin_session(0);
+    TEST_EQUAL(database.get_doccount(), 0);
     OmDocumentContents document;
     om_docid did;
     did = database.add_document(document);
+    TEST_EQUAL(database.get_doccount(), 1);
+    database.delete_document(did);
+    TEST_EQUAL(database.get_doccount(), 0);
     database.end_session();
 
     return true;

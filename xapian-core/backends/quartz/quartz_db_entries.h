@@ -56,8 +56,8 @@ class QuartzDbEntries {
 
 	/** Get a pointer to the tag for a given key.
 	 *
-	 *  This must not be called for a give which is not stored in the
-	 *  object - have_tag() should be used first to check whether
+	 *  This must not be called for a key which is not stored in the
+	 *  object - have_entry() should be used first to check whether
 	 *  a tag is stored or not.
 	 *
 	 *  @param key  The key that the tag is stored under.

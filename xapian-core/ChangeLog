@@ -1,3 +1,8 @@
+Wed Sep 27 19:30:34 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Almost added ability to add an empty document to a quartz database
+	  (yay(!)).  Added test for this, too.
+
 Wed Sep 27 19:04:10 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
 
 	* Added a regex replace node.

@@ -59,6 +59,16 @@ class QuartzDiffs {
 	 */
 	QuartzDbTag * get_tag(const QuartzDbKey &key);
 
+	/** Get a pointer to the tag for a given key, creating a new tag if
+	 *  not present.
+	 *
+	 *  This will never return a null pointer.
+	 *
+	 *  The pointer is owned by the changed_entries object - it may
+	 *  be modified, but must not be deleted.
+	 */
+	QuartzDbTag * get_or_make_tag(const QuartzDbKey &key);
+
     public:
 	/** Construct the diffs object.
 	 */
@@ -160,7 +170,7 @@ class QuartzTermListDiffs : public QuartzDiffs {
 	~QuartzTermListDiffs() {}
 };
 
-/** Class managing a set of diffs to a Quartz TermList table.
+/** Class managing a set of diffs to a Quartz Record table.
  */
 class QuartzRecordDiffs : public QuartzDiffs {
     private:
@@ -175,6 +185,10 @@ class QuartzRecordDiffs : public QuartzDiffs {
 	/** Destroy the diffs.  Any unapplied diffs will be lost.
 	 */
 	~QuartzRecordDiffs() {}
+
+	/** Add a record.
+	 */
+	void add_record(om_docid did, const OmData & data);
 };
 
 /** Class managing a set of diffs to a Quartz Lexicon table.

@@ -38,11 +38,27 @@ QuartzDiffs::get_tag(const QuartzDbKey &key)
 
 	if (found) {
 	    changed_entries.set_tag(key, tag);
+	    Assert(changed_entries.get_tag(key) == tagptr);
 	} else {
 	    tagptr = 0;
 	}
 
-	Assert(changed_entries.get_tag(key) == tagptr);
+	return tagptr;
+    }
+}
+
+QuartzDbTag *
+QuartzDiffs::get_or_make_tag(const QuartzDbKey &key)
+{
+    if (changed_entries.have_entry(key)) {
+	return changed_entries.get_tag(key);
+    } else {
+	AutoPtr<QuartzDbTag> tag(new QuartzDbTag);
+	QuartzDbTag * tagptr = tag.get();
+
+	table->get_exact_entry(key, *tag);
+	changed_entries.set_tag(key, tag);
+
 	return tagptr;
     }
 }
@@ -77,3 +93,14 @@ QuartzPositionListDiffs::add_positionlist(om_docid did,
 {
 }
 
+void
+QuartzRecordDiffs::add_record(om_docid did, const OmData & data)
+{
+    QuartzDbKey key;
+    key.value = did;
+
+    QuartzDbTag * tag = get_or_make_tag(key);
+
+    tag->value = data.value;
+}
+	

@@ -81,11 +81,34 @@ QuartzDbManager::QuartzDbManager(string db_dir_,
 	    attribute_table   ->set_entries(empty_entries, new_revision);
 	    record_table      ->set_entries(empty_entries, new_revision);
 	}
-
     } else {
 	// Get the most recent versions, failing with an OmNeedRecoveryError
 	// if this is not a consistent version.
 	open_tables_newest();
+    }
+
+    if (record_table->get_entry_count() == 0) {
+	// database never previously opened
+	if (readonly) {
+	    throw OmOpeningError("Database is empty and uninitialised");
+	} else {
+	    // initialise
+	    QuartzRevisionNumber new_revision = get_next_revision_number();
+	    std::map<QuartzDbKey, QuartzDbTag *> empty_entries;
+	    std::map<QuartzDbKey, QuartzDbTag *> record_entries;
+	    QuartzDbKey key;
+	    QuartzDbTag tag;
+	    key.value = string("\0", 1);
+	    tag.value = "";
+	    record_entries[key] = &tag;
+
+	    postlist_table    ->set_entries(empty_entries,  new_revision);
+	    positionlist_table->set_entries(empty_entries,  new_revision);
+	    termlist_table    ->set_entries(empty_entries,  new_revision);
+	    lexicon_table     ->set_entries(empty_entries,  new_revision);
+	    attribute_table   ->set_entries(empty_entries,  new_revision);
+	    record_table      ->set_entries(record_entries, new_revision);
+	}
     }
 }
 

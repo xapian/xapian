@@ -108,12 +108,20 @@ QuartzModifications::apply()
 }
 
 om_docid
+QuartzModifications::get_newdocid()
+{
+    // FIXME: read from record 0.
+    return 1;
+}
+
+om_docid
 QuartzModifications::add_document(const OmDocumentContents & document)
 {
-    om_docid did = 1; //get_newdocid();
+    om_docid did = get_newdocid();
+
+    record_diffs->add_record(did, document.data);
 
     OmDocumentContents::document_terms::const_iterator i;
-
     for (i = document.terms.begin(); i != document.terms.end(); i++) {
 	postlist_diffs->add_posting(i->second.tname, did, i->second.wdf);
 	positionlist_diffs->add_positionlist(did,
@@ -122,5 +130,18 @@ QuartzModifications::add_document(const OmDocumentContents & document)
     }
 
     return did;
+}
+
+void
+QuartzModifications::delete_document(om_docid did)
+{
+    throw OmUnimplementedError("QuartzModifications::delete_document() not yet implemented");
+}
+
+void
+QuartzModifications::replace_document(om_docid did,
+				      const OmDocumentContents & document)
+{
+    throw OmUnimplementedError("QuartzModifications::replace_document() not yet implemented");
 }
 

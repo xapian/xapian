@@ -79,6 +79,10 @@ class QuartzModifications {
 	/** Close the diffs objects.
 	 */
 	void close_diffs();
+
+	/** Get a document ID for a new document.
+	 */
+	om_docid get_newdocid();
     public:
 
 	/** Construct the modifications object.
