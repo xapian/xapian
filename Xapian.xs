@@ -1,6 +1,6 @@
 #include <xapian.h>
-#include <string.h>
-#include <vector.h>
+#include <string>
+#include <vector>
 
 #ifdef __cplusplus
 extern "C" {

@@ -59,6 +59,8 @@ Database::get_description()
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
         }
+    OUTPUT:
+        RETVAL
 
 TermIterator *
 Database::termlist_begin(did)
@@ -114,6 +116,34 @@ Database::allterms_end()
     OUTPUT:
         RETVAL
 
+PostingIterator *
+Database::postlist_begin(term)
+    string	term
+    CODE:
+        RETVAL = new PostingIterator();
+	try {
+	    *RETVAL = THIS->postlist_begin(term);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
+
+PostingIterator *
+Database::postlist_end(term)
+    string	term
+    CODE:
+        RETVAL = new PostingIterator();
+	try {
+	    *RETVAL = THIS->postlist_end(term);
+        }
+        catch (const Error &error) {
+            croak( "Exception: %s", error.get_msg().c_str() );
+        }
+    OUTPUT:
+        RETVAL
+
 doccount
 Database::get_doccount()
     CODE:
@@ -123,6 +153,8 @@ Database::get_doccount()
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
         }
+    OUTPUT:
+        RETVAL
 
 doclength
 Database::get_avlength()
@@ -133,6 +165,8 @@ Database::get_avlength()
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
         }
+    OUTPUT:
+        RETVAL
 
 doccount
 Database::get_termfreq(tname)
@@ -183,6 +217,8 @@ Database::get_doclength(did)
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
         }
+    OUTPUT:
+        RETVAL
 
 void
 Database::keep_alive()

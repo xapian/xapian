@@ -111,7 +111,8 @@ could rapidly become redundant.
 Apologies to those of you considering using this module. For the time
 being, I would suggest garnering what you can from the tests and
 examples provided, or reading through the Xapian documentation on
-http://www.xapian.org/.
+http://www.xapian.org/, notably the API documentation at
+http://www.xapian.org/docs/apidoc/html/annotated.html
 
 If you encounter problems, email either me or preferably the
 Xapian-discuss mailing list (which I am on - subscription details can
@@ -138,9 +139,9 @@ Brief descriptions of classes, possibly just adapted for Xapian docs.
 Thanks to Tye McQueen E<lt>tye@metronet.comE<gt> for explaining the
 finer points of how best to write XS frontends to C++ libraries, James
 Aylett E<lt>james@tartarus.orgE<gt> for clarifying the less obvious
-aspects of the Xapian API, and Olly Betts E<lt>olly@survex.comE<gt>
-for contributing advice, bugfixes, and code wrapping some of the
-remaining classes.
+aspects of the Xapian API, and especially Olly Betts
+E<lt>olly@survex.comE<gt> for contributing advice, bugfixes, and
+wrapper code for the more obsure classes.
 
 =head1 AUTHOR
 
