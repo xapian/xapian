@@ -21,6 +21,12 @@
 //
 //   For each symbol, we identify all comments that were associated
 //   with lines containing that symbol.
+
+//
+// We do not put duplicate comments in the symbol's profile, so the
+// profiles are reasonably small.  
+//
+
 //
 //   Query => classes/functions related to the task at hand, both at a
 //                    local & global level.
@@ -42,9 +48,8 @@
 // makes things to limit things in this way because symbols
 // could occur in many places.
 
-#define TOTAL_WORDS 9999999
-#define MAX_WORDS 9999999
-#define MIN_WORDS 1
+#define MAX_COMMENT_WORDS 40
+
 
 #warning "requires ctags from http://ctags.sourceforge.net/"
 #warning "should generate unique file for tags"
@@ -69,7 +74,7 @@
 
 // ctags 5.0 flags (see http://ctags.sourceforge.net/ctags.html)
 //
-#define CTAGS_FLAGS "-R --fields=aiK --extra=q --c-types=cfsu --java-types=cim --kind-long=yes -f" TEMP "/tags"
+#define CTAGS_FLAGS "-R --file-scope=no --fields=aiK --extra=q --c-types=cfsu --java-types=cim --kind-long=yes -f" TEMP "/tags"
 
 
 //
@@ -131,12 +136,15 @@ void writeDatabase( const string& database_dir, map<string, int>& app_symbol_cou
 
   for( map<string, int>::iterator c = app_symbol_count.begin(); c != app_symbol_count.end(); c++ ) {
     string symbol = c->first;
-    int count = c->second;
+
+    int count = app_symbol_terms[symbol].size();  //= c->second;
+
     bool isFunction = ( symbol.find("()") != -1 );
 
     cerr <<"*** Symbol " << symbol << " has count " << count << ":" << endl;
 
-    // merge all lists together
+    // merge all lists together, the number of lists is approx. the # of commits
+    // with that symbol
     list<string> words;
     for( set< list<string> >::const_iterator s = app_symbol_terms[symbol].begin(); s != app_symbol_terms[symbol].end(); s++ ) {
       list<string> L = *s;
@@ -355,32 +363,15 @@ int main(int argc, char *argv[]) {
 	    for( map<string, list<string> >::iterator r = terms.begin(); r != terms.end(); r++ ) {
 	      list<string> word_list = r->second;
 
-	      /*
-	      for( list<string>::iterator t = word_list.begin(); t != word_list.end(); t++ ) {
-		cerr << (*t) << " ";
+	      if ( word_list.size() <= MAX_COMMENT_WORDS ) {
+		app_symbol_terms[*i].insert(word_list); // avoid repetition
 	      }
-	      cerr << endl;
-	      */
-
-	      app_symbol_terms[*i].insert(word_list); // avoid repetition
 	    }
 
 
 
 	  }
               
-	  if ( terms.size() < MIN_WORDS ) {
-	    continue; 
-	  }
-
-	  if ( terms.size() > MAX_WORDS ) {
-	    continue; 
-	  }
-
-	  if ( contributed_terms[*i] + terms.size() >= TOTAL_WORDS ) {
-	    continue;
-	  }
-
 	  if ( lib_symbols.find(*i) != lib_symbols.end() ) {
 
 	    if ( lib_symbol_app_count[*i] < MAX_FROM_APP ) {
@@ -390,13 +381,9 @@ int main(int argc, char *argv[]) {
 	      for( map<string, list<string> >::iterator r = terms.begin(); r != terms.end(); r++ ) {
 		list<string> word_list = r->second;
 
-		for( list<string>::iterator t = word_list.begin(); t != word_list.end(); t++ ) {
-		  //lib_symbol_word_list[*i].push_back(*t);
-		  contributed_terms[*i]++;
+		if ( word_list.size() <= MAX_COMMENT_WORDS ) {
+		  lib_symbol_terms[*i].insert(word_list); // avoid repetition
 		}
-
-
-		lib_symbol_terms[*i].insert(word_list); // avoid repetition
 	      }
 
 	      //	      cerr << "** NOT ignoring " << (*i) << endl;
