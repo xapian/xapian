@@ -1,3 +1,11 @@
+xapian-bindings (0.8-2) unstable; urgency=low
+
+  * Add rules to make symlinks to config.guess and config.sub, and added
+    Build-Depends on autotools-dev.
+  * Add some more TODO notes.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 10:15:06 +0100
+
 xapian-bindings (0.8-1) unstable; urgency=low
 
   * Initial release - provides packages for only the python bindings, so far.
