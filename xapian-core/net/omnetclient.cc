@@ -22,11 +22,47 @@
 
 #include <iostream>
 #include <string>
+#include <typeinfo>
+#include <memory>
+#include "database.h"
+#include "database_builder.h"
+#include <om/omerror.h>
+
+void run_matcher();
 
 int main() {
     string message;
     getline(cin, message);
-    cerr << "CLIENT: got " << message << endl;
+    cerr << "omnetclient: read " << message << endl;
     cout << "BOO!" << endl;
     cout.flush();
+
+    try {
+	run_matcher();
+    } catch (OmError &e) {
+	cerr << "OmError exception (" << typeid(e).name()
+	     << "): " << e.get_msg() << endl;
+    } catch (...) {
+	cerr << "Caught exception" << endl;
+    }
+}
+
+void run_matcher() {
+    // open the database to return results
+    DatabaseBuilderParams param(OM_DBTYPE_INMEMORY);
+    param.paths.push_back("text.txt");
+    auto_ptr<IRDatabase> db(DatabaseBuilder::create(param));
+
+    while (1) {
+	string message;
+	getline(cin, message);
+
+	if (cin == "GETDOCCOUNT") {
+	    cout << db->get_doccount() << endl;
+	    cout.flush();
+	} else {
+	    cout << "ERROR" << endl;
+	    cout.flush();
+	}
+    }
 }
