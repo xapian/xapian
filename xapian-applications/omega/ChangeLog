@@ -1,3 +1,9 @@
+Mon Mar 31 19:42:24 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Install documentation!
+	* omega.spec.in: Merged in changes to RPM packaging from Fabrice Colin
+	  and reworked further.
+
 Fri Mar 28 17:47:45 GMT 2003  Olly Betts <olly@survex.com>
 
 	* templates/query,templates/query2: Removed bogus setting of defunct

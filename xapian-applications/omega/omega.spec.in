@@ -1,74 +1,78 @@
 # RedHat-style .spec file for Xapian
 # @configure_input@
+%define contentdir /var/lib
 
+Summary: Xapian-based indexing and search utilities.
 Name: @PACKAGE@
 Version: @VERSION@
 Release: 1
-Requires: xapian-core
-BuildPrereq: xapian-core, xapian-core-devel
 License: GPL
+Vendor: www.xapian.org
 Group: Applications/Internet
 URL: http://www.xapian.org/
-Summary: @PACKAGE@ is a CGI application which uses the Xapian search library to index and search a collection of documents
-
-Source0: http://www.xapian.org/download/distributions/%{name}-%{version}.tar.gz
+# FIXME: once we reach 1.0 "=" should become ">="
+Requires: xapian-core = %{version}
+BuildRequires: xapian-core-devel = %{version}
+Source0: http://www.tartarus.org/~olly/xapian-%{version}/%{name}-%{version}.tar.gz
 
 # Where are we going to build the install set to?
 BuildRoot: %{_tmppath}/%{name}-root
 
 %description
-@PACKAGE@ is a CGI application which uses the Xapian search library to
-index and search a collection of documents
+Omega is a CGI application which uses the Xapian Information Retrieval
+library to index and search collections of documents.
 
 %prep
 %setup -q -n %{name}-%{version}
 
 %build
-
-test -f ./configure || ./bootstrap
-./configure
+./configure --prefix=/usr
 make
 
 %install
-[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT
-
-make install-strip prefix=$RPM_BUILD_ROOT%{_prefix}
-mkdir -p $RPM_BUILD_ROOT/var/www/cgi-bin
-cp $RPM_BUILD_ROOT/usr/lib/omega/bin/omega $RPM_BUILD_ROOT/var/www/cgi-bin
-mkdir -p $RPM_BUILD_ROOT%{_prefix}/share/doc/%{name}
-
-# docs
-cp COPYING INSTALL README NEWS TODO docs/* $RPM_BUILD_ROOT%{_prefix}/share/doc/%{name}/
-mkdir -p $RPM_BUILD_ROOT/etc
-cp omega.conf $RPM_BUILD_ROOT/etc
-
-# default templates
-mkdir -p $RPM_BUILD_ROOT/var/lib/omega/templates
-cp templates/* $RPM_BUILD_ROOT/var/lib/omega/templates/
-# data dir
-mkdir -p $RPM_BUILD_ROOT/var/lib/omega/data
-
-mkdir -p $RPM_BUILD_ROOT/var/www/icons/omega
-cp images/* $RPM_BUILD_ROOT/var/www/icons/omega/
+[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+mkdir -p %{buildroot}
+make install-strip DESTDIR=%{buildroot}
+mkdir -p %{buildroot}/usr/lib/omega/
+# CGI application
+mkdir -p %{buildroot}/var/www/cgi-bin/
+mv %{buildroot}/usr/lib/omega/bin/omega %{buildroot}/var/www/cgi-bin
+# Create the data directory
+mkdir -p %{buildroot}/var/lib/omega/data
+# Default templates
+mkdir -p %{buildroot}/var/lib/omega/templates
+cp templates/* %{buildroot}/var/lib/omega/templates/
+# Images
+mkdir -p %{buildroot}/var/www/icons/omega
+cp -r images/* $RPM_BUILD_ROOT/var/www/icons/omega/
+# Configuration file
+mkdir -p %{buildroot}/etc
+install -D -m644 omega.conf %{buildroot}/etc/omega.conf
+# move the docs to the right place
+mkdir -p %{buildroot}/usr/share/doc
+mv %{buildroot}/usr/share/omega %{buildroot}/usr/share/doc/omega-%{version}
+%docdir /usr/share/doc/%{name}-%{version}
 
 %clean
-[ "$RPM_BUILD_ROOT" != "/" ] && rm -rf $RPM_BUILD_ROOT
+[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
 %files
-%defattr(-,root,root)
-/usr/bin/*
-/var/www/cgi-bin/*
-/var/lib/omega/
-%docdir /usr/share/doc/%{name}
-/usr/share/doc/%{name}
-%config /etc/omega.conf
+%defattr(-, root, root)
+%{_bindir}/dbi2omega
+%{_bindir}/omindex
+%{_bindir}/scriptindex
+%{contentdir}/omega
+/var/www/cgi-bin/omega
 /var/www/icons/omega
+%docdir /usr/share/doc/%{name}-%{version}
 
-%post -p /sbin/ldconfig
+%config /etc/omega.conf
 
-%postun -p /sbin/ldconfig
+%doc AUTHORS ChangeLog COPYING NEWS README TODO
 
 %changelog
+* Mon Mar 31 2003  Olly Betts <olly@survex.com>
+  Merged in changes from Fabrice Colin
+
 * Wed May 14 2002  Sam Liddicott <sam@ananova.com>
   First cut based on xapian spec file

@@ -63,6 +63,14 @@ pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex
 bin_SCRIPTS = dbi2omega
 
+# Data to install, in the usual automake way
+docdatadir   = $(datadir)/omega
+docdata_DATA = docs/cgiparams.txt \
+	docs/omegascript.txt \
+	docs/overview.txt \
+	docs/quickstart.txt \
+	docs/scriptindex.txt \
+
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc
 omega_LDADD = $(XAPIAN_LIBS) -lomqueryparser # -lpcre
 
