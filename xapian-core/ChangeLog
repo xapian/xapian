@@ -1,3 +1,8 @@
+Mon Mar 15 20:38:11 GMT 2004  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: Database::Internal::Internal::keep_alive()
+	  should be Database::Internal::keep_alive().
+
 Mon Mar 15 17:20:58 GMT 2004  Olly Betts <olly@survex.com>
 
 	* include/xapian/base.h: Returning a void result makes SGI's compiler
