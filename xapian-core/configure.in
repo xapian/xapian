@@ -120,12 +120,12 @@ AC_ARG_ENABLE(backend_muscat36,
 esac],[build_muscat36=true])
 
 AC_ARG_ENABLE(backend_sleepy,
-[  --enable-backend-sleepy Enable the sleepycat database backend (default=no)],
+[  --enable-backend-sleepy Enable the sleepycat database backend (default=yes)],
 [case "${enableval}" in
   yes) build_sleepy=true ;;
   no)  build_sleepy=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-sleepy) ;;
-esac],[build_sleepy=false])
+esac],[build_sleepy=true])
 
 AC_ARG_ENABLE(backend_inmemory,
 [  --enable-backend-inmemory Enable the inmemory database backend (default=yes)],
@@ -191,10 +191,16 @@ fi
 dnl Turn off compilation of anything that we don't have the requirements for
 
 if test x$have_sleepycat = xno; then
+  if test ! "x$build_sleepy" = "xfalse"; then
+    AC_MSG_WARN(Sleepycat database library not available: not building support) ;;
+  fi
   build_sleepy=false;
 fi
 
 if test x$HAVE_LIBPTHREAD = xno; then
+  if test ! "x$use_pthread" = "xfalse"; then
+    AC_MSG_WARN(pthread not available: not building support) ;;
+  fi
   use_pthread=false
 fi
 

@@ -1,3 +1,9 @@
+Thu May 25 15:23:11 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Attempt to build sleepycat support by default.  Also, try and make
+	  it more obvious when something can't be found which is needed for
+	  building requested support.
+
 Thu May 25 15:22:10 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* More useful exception message when support for a particular
