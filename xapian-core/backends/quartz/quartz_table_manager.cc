@@ -136,14 +136,14 @@ QuartzDiskTableManager::~QuartzDiskTableManager()
 bool
 QuartzDiskTableManager::database_exists() {
     DEBUGCALL(DB, bool, "QuartzDiskTableManager::database_exists", "");
-    return  record_table.exists() &&
-	    postlist_table.exists() &&
-	    positionlist_table.exists() &&
-	    termlist_table.exists() &&
+    return record_table.exists() &&
+	   postlist_table.exists() &&
+	   positionlist_table.exists() &&
+	   termlist_table.exists() &&
 #ifdef USE_LEXICON
-	    lexicon_table.exists() &&
+	   lexicon_table.exists() &&
 #endif
-	    value_table.exists();
+	   value_table.exists();
 }
 
 void
@@ -153,6 +153,8 @@ QuartzDiskTableManager::create_and_open_tables()
     //FIXME - check that database directory exists.
 
     // Delete any existing tables
+    // FIXME: would be better to arrange that this works such that there's
+    // always a valid database in place...
     log->make_entry("Cleaning up database directory.");
     metafile.create();
     postlist_table.erase();

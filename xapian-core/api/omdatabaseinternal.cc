@@ -41,7 +41,7 @@
 
 using std::vector;
 
-// Include headers for all the database types
+// Include headers for all the enabled database backends
 #ifdef MUS_BUILD_BACKEND_MUSCAT36
 #include "../backends/muscat36/da_database.h"
 #include "../backends/muscat36/db_database.h"
@@ -57,10 +57,6 @@ using std::vector;
 #include "net_database.h"
 #endif
 
-//#include "database.h"
-
-//#include <stdio.h>
-
 using std::string;
 
 #ifdef MUS_BUILD_BACKEND_QUARTZ
@@ -72,18 +68,6 @@ OmQuartz__open(const string &quartz_dir) {
 OmWritableDatabase
 OmQuartz__open(const string &quartz_dir, bool create, bool overwrite,
 	       int block_size) {
-//     - database_create : boolean, true if a new database should be created.
-//       Default is false.
-//     - database_allow_overwrite : boolean.  This has no effect unless
-//       backend_create is ue.  If this setting is true a new database will be
-//       created in place of an existing one.  If false, an exception will be
-//       thrown if there is an existing database in place.  Default is false.
-//     FIXME: shouldn't describe a tri-state as 2 booleans - this is really
-//     one option with 3 possible settings:
-    // create if not there, fail if it is / create or open / create or overwrite
-    // (the last isn't quite the same as "rm -rf" then create as it should
-    // atomically replace so the database is always there - is that a useful
-    // distinction though?)
     return OmWritableDatabase(new OmDatabase::Internal(
 	new QuartzWritableDatabase(quartz_dir, create, overwrite, block_size)));
 }
@@ -144,31 +128,7 @@ OmRemote__open(const string &host, unsigned int port,
 #endif
 
 #if 0
-/** Type of a database */
-enum om_database_type {
-    DBTYPE_NULL,
-    DBTYPE_AUTO, // autodetect database type
-    DBTYPE_MUSCAT36_DA,
-    DBTYPE_MUSCAT36_DB,
-    DBTYPE_INMEMORY,
-    DBTYPE_REMOTE,
-    DBTYPE_QUARTZ
-};
-
-// Translation of types as strings to types as enum om_database_type
-
-/** The mapping from database type names to database type codes.
- *  This list must be in alphabetic order. */
-static const StringAndValue database_strings[] = {
-    { "auto",			DBTYPE_AUTO		},
-    { "da",			DBTYPE_MUSCAT36_DA	},
-    { "db",			DBTYPE_MUSCAT36_DB	},
-    { "inmemory",		DBTYPE_INMEMORY		},
-    { "remote",			DBTYPE_REMOTE		},
-    { "quartz",			DBTYPE_QUARTZ		},
-    { "",			DBTYPE_NULL		}  // End
-};
-
+// auto da db inmemory remote quartz
 static string
 read_file(const string path)
 {
