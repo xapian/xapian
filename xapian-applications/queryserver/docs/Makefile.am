@@ -12,11 +12,11 @@ EXTRA_DIST = $(doc_sources)
 
 # Data to install, in the usual automake way
 docdatadir   = $(datadir)/doc/xapian-queryserver
-dist_docdata_DATA = $(doc_targets) $(doc_extra)
-dist_man_MANS = $(doc_mans)
+### dist_docdata_DATA = $(doc_targets) $(doc_extra)
+### dist_man_MANS = $(doc_mans)
 
 # Build documentation
-all-local: $(doc_targets)
+### all-local: $(doc_targets)
 
 xapian-queryserver.txt: $(doc_sources)
 	$(HALIBUT) --text=$@ $^

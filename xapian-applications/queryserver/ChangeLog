@@ -1,3 +1,12 @@
+Tue Apr 27 16:00:29 BST 2004  Richard Boulton <richard@tartarus.org>
+
+        * docs/Makefile.am: Temporarily disable building of documentation:
+          ordering of cvs timestamps isn't reliable enough to guarantee
+          that build doesn't try to rebuild documentation when it doesn't
+          need to.  Therefore unless I disable this halibut is required on
+          any machine running make dist, and halibut isn't yet widespread
+          enough for this to be reasonable.
+
 Tue Apr 27 15:19:29 BST 2004  Richard Boulton <richard@tartarus.org>
 
         * docs/Makefile.am: New file.  Builds text, info, pdf, man and html
