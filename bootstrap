@@ -41,7 +41,7 @@ for d in xapian-core xapian-bindings xapian-examples xapian-applications/* ; do
   if test -f "$d/configure.in" -o -f "$d/configure.ac" ; then
     echo "Bootstrapping \`$d'"
     # change to the directory to help Debian's hybrid autoconf 2.13/2.5x
-    cd "$d" && ${AUTORECONF-autoreconf} -f -i
+    cd "$d" && ${AUTORECONF-autoreconf} -i
   fi
 
   if test xapian-core = "$d" ; then
