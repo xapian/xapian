@@ -27,6 +27,7 @@ DAPostList::~DAPostList()
 weight DAPostList::get_weight() const
 {
     Assert(!at_end());
+    Assert(currdoc != 0);
 
     // NB ranges from daread share the same wdf value
     return ir_wt->get_weight(postlist->wdf, 1.0);
@@ -41,7 +42,7 @@ weight DAPostList::get_maxweight() const
 
 PostList * DAPostList::next(weight w_min)
 {
-    Assert(!at_end());
+    Assert(currdoc == 0 || !at_end());
     if (currdoc && currdoc < docid(postlist->E)) {	
 	currdoc++;
 	return NULL;
@@ -70,6 +71,7 @@ PostList * DAPostList::skip_to(docid id, weight w_min)
 
 
 DATermList::DATermList(const IRDatabase *db, struct termvec *tv)
+	: have_started(false)
 {
     readterms(tv);
     while(tv->term != 0) {

@@ -42,6 +42,7 @@ inline docid
 DAPostList::get_docid() const
 {
     Assert(!at_end());
+    Assert(currdoc != 0);
     //printf("%p:DocID %d\n", this, currdoc);
     return currdoc;
 }
@@ -49,6 +50,7 @@ DAPostList::get_docid() const
 inline bool
 DAPostList::at_end() const
 {
+    Assert(currdoc != 0);
     if (currdoc == MAXINT) return true;
     return false;
 }
@@ -84,6 +86,7 @@ class DATermList : public virtual TermList {
     private:
 	vector<DATermListItem>::iterator pos;
 	vector<DATermListItem> terms;
+	bool have_started;
 
 	DATermList(const IRDatabase *root, struct termvec *tv);
     public:
@@ -97,30 +100,38 @@ class DATermList : public virtual TermList {
 inline termid DATermList::get_termid() const
 {
     Assert(!at_end());
+    Assert(have_started);
     return pos->id;
 }
 
 inline termcount DATermList::get_wdf() const
 {
     Assert(!at_end());
+    Assert(have_started);
     return pos->wdf;
 }
 
 inline doccount DATermList::get_termfreq() const
 {
     Assert(!at_end());
+    Assert(have_started);
     return pos->termfreq;
 }
 
 inline TermList * DATermList::next()
 {
-    Assert(!at_end());
-    pos++;
+    if(have_started) {
+	Assert(!at_end());
+	pos++;
+    } else {
+	have_started = true;
+    }
     return NULL;
 }
 
 inline bool   DATermList::at_end() const
 {
+    Assert(have_started);
     if(pos == terms.end()) return true;
     return false;
 }
