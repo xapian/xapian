@@ -146,15 +146,15 @@ class Btree {
 	void block_to_cursor(Cursor *C_, int j, uint4 n);
 	void alter();
 	void compress(byte *p);
-	void enter_key(Cursor *C_, int j, byte *kq, byte *kp);
-	void split_off(Cursor *C_, int j, int c, byte *p, byte *q);
+	void enter_key(int j, byte *kq, byte *kp);
+	void split_off(int j, int c, byte *p, byte *q);
 	int mid_point(byte *p);
 	void add_item_to_block(byte *p, byte *kt, int c);
-	void add_item(Cursor *C_, byte *kt, int j);
-	void delete_item(Cursor *C_, int j, bool repeatedly);
+	void add_item(byte *kt, int j);
+	void delete_item(int j, bool repeatedly);
 	int add_kt(int found);
 	void read_root();
-	void split_root(Cursor *C_, int j);
+	void split_root(int j);
 	void make_index_item(byte * result, unsigned int result_len,
 			     const byte * prevkey, const byte * newkey,
 			     const uint4 blocknumber, bool truncate) const;

@@ -1,3 +1,9 @@
+Thu May 13 09:32:22 BST 2004  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h: Added DEBUGCALL
+	  tracing;  Stripped out C_ parameters where they are always the
+	  internal cursor C.
+
 Thu May 13 00:05:45 BST 2004  Olly Betts <olly@survex.com>
 
 	* extra/queryparser.yy,extra/queryparsertest.cc: If we fail to parse

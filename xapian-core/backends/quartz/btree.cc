@@ -244,6 +244,7 @@ static void sys_unlink(const string &filename)
 void
 Btree::read_block(uint4 n, byte * p)
 {
+    DEBUGCALL(DB, void, "Btree::read_block", n << ", " << p);
     /* Use the base bit_map_size not the bitmap's size, because
      * the latter is uninitialised in readonly mode.
      */
@@ -305,7 +306,7 @@ Btree::read_block(uint4 n, byte * p)
 }
 
 /** write_block(n, p) writes block n in the DB file from address p.
- *  In writing we check to see if the DB file has as yet been
+ *  When writing we check to see if the DB file has already been
  *  modified. If not (so this is the first write) the old base is
  *  deleted. This prevents the possibility of it being opened
  *  subsequently as an invalid base.
@@ -313,6 +314,7 @@ Btree::read_block(uint4 n, byte * p)
 void
 Btree::write_block(uint4 n, const byte * p)
 {
+    DEBUGCALL(DB, void, "Btree::write_block", n << ", " << p);
     Assert(writable);
     /* Check that n is in range. */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
@@ -395,8 +397,7 @@ Btree::write_block(uint4 n, const byte * p)
 void
 Btree::set_overwritten()
 {
-    // initial debugging line
-    DEBUGLINE(DB, "overwritten set to true");
+    DEBUGCALL(DB, void, "Btree::set_overwritten", "");
     overwritten = true;
     throw Xapian::DatabaseModifiedError("Db block overwritten");
 }
@@ -414,6 +415,7 @@ Btree::set_overwritten()
 void
 Btree::block_to_cursor(Cursor * C_, int j, uint4 n)
 {
+    DEBUGCALL(DB, void, "Btree::block_to_cursor", (void*)C_ << ", " << j << ", " << n);
     if (n == C_[j].n) return;
     byte * p = C_[j].p;
     Assert(p);
@@ -489,6 +491,7 @@ Btree::block_given_by(const byte * p, int c)
 void
 Btree::alter()
 {
+    DEBUGCALL(DB, void, "Btree::alter", "");
     Assert(writable);
     int j = 0;
     byte * p = C[j].p;
@@ -530,22 +533,23 @@ Btree::alter()
 
 int Btree::compare_keys(const byte * key1, const byte * key2)
 {
+    DEBUGCALL_STATIC(DB, int, "Btree::compare_keys", (void*)key1 << ", " << (void*)key2);
     int key1_len = GETK(key1, 0);
     int key2_len = GETK(key2, 0);
     if (key1_len == key2_len)
-	return memcmp(key1 + K1, key2 + K1, key1_len - K1);
+	RETURN(memcmp(key1 + K1, key2 + K1, key1_len - K1));
 
     int k_smaller = (key2_len < key1_len ? key2_len : key1_len) - C2;
 
     // Compare the first part of the keys
     int diff = memcmp(key1 + K1, key2 + K1, k_smaller - K1);
-    if (diff != 0) return diff;
+    if (diff != 0) RETURN(diff);
 
     diff = key1_len - key2_len;
-    if (diff != 0) return diff;
+    if (diff != 0) RETURN(diff);
 
     // Compare the count
-    return memcmp(key1 + k_smaller, key2 + k_smaller, C2);
+    RETURN(memcmp(key1 + k_smaller, key2 + k_smaller, C2));
 }
 
 /** find_in_block(p, key, offset, c) searches for the key in the block at p.
@@ -562,6 +566,7 @@ int Btree::compare_keys(const byte * key1, const byte * key2)
 
 int Btree::find_in_block(const byte * p, const byte * key, int offset, int c)
 {
+    DEBUGCALL_STATIC(DB, int, "Btree::find_in_block", (void*)p << ", " << (void*)key << ", " << offset << ", " << c);
     int i = DIR_START - offset;
     int j = DIR_END(p);
 
@@ -578,7 +583,7 @@ int Btree::find_in_block(const byte * p, const byte * key, int offset, int c)
 	int t = compare_keys(key, p + GETD(p, k) + I2);
 	if (t < 0) j = k; else i = k;
     }
-    return i;
+    RETURN(i);
 }
 
 /** find(C_) searches for the key of B->kt in the B-tree.
@@ -591,6 +596,7 @@ int Btree::find_in_block(const byte * p, const byte * key, int offset, int c)
 bool
 Btree::find(Cursor * C_)
 {
+    DEBUGCALL(DB, bool, "Btree::find", (void*)C_);
     // Note: the parameter is needed when we're called by BCursor
     const byte * p;
     int c;
@@ -605,7 +611,7 @@ Btree::find(Cursor * C_)
 #endif /* BTREE_DEBUG_FULL */
 	C_[j].c = c;
 	block_to_cursor(C_, j - 1, block_given_by(p, c));
-	if (overwritten) return false;
+	if (overwritten) RETURN(false);
     }
     p = C_[0].p;
     c = find_in_block(p, k, D2, C_[j].c);
@@ -614,8 +620,8 @@ Btree::find(Cursor * C_)
     report_block_full(j, C_[j].n, p);
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
-    if (c < DIR_START) return false;
-    return (compare_keys(kt + I2, key_of(p, c)) == 0);
+    if (c < DIR_START) RETURN(false);
+    RETURN((compare_keys(kt + I2, key_of(p, c)) == 0));
 }
 
 /** compress(p) compresses the block at p by shuffling all the items up to the end.
@@ -626,6 +632,7 @@ Btree::find(Cursor * C_)
 void
 Btree::compress(byte * p)
 {
+    DEBUGCALL(DB, void, "Btree::compress", (void*)p);
     Assert(writable);
     int e = block_size;
     byte * b = buffer;
@@ -658,8 +665,9 @@ static void form_null_key(byte * b, uint4 n)
  *  and construct a new one.
  */
 void
-Btree::split_root(Cursor * C_, int j)
+Btree::split_root(int j)
 {
+    DEBUGCALL(DB, void, "Btree::split_root", j);
     /* gain a level */
     level++;
 
@@ -670,14 +678,14 @@ Btree::split_root(Cursor * C_, int j)
     if (q == 0) {
 	throw std::bad_alloc();
     }
-    C_[j].p = q;
-    C_[j].split_p = zeroed_new(block_size);
-    if (C_[j].split_p == 0) {
+    C[j].p = q;
+    C[j].split_p = zeroed_new(block_size);
+    if (C[j].split_p == 0) {
 	throw std::bad_alloc();
     }
-    C_[j].c = DIR_START;
-    C_[j].n = base.next_free_block();
-    C_[j].rewrite = true;
+    C[j].c = DIR_START;
+    C[j].n = base.next_free_block();
+    C[j].rewrite = true;
     SET_REVISION(q, next_revision);
     SET_LEVEL(q, j);
     SET_DIR_END(q, DIR_START);
@@ -685,10 +693,10 @@ Btree::split_root(Cursor * C_, int j)
 
     /* form a null key in b with a pointer to the old root */
 
-    uint4 old_root = C_[j - 1].split_n;
+    uint4 old_root = C[j - 1].split_n;
     byte b[10]; /* 7 is exact */
     form_null_key(b, old_root);
-    add_item(C_, b, j);
+    add_item(b, j);
 }
 
 /** Make an item with key newkey.  Key is optionally truncated to minimal key
@@ -732,7 +740,7 @@ void Btree::make_index_item(byte * result, unsigned int result_len,
     set_int4(result, I2 + i + C2, blocknumber);
 }
 
-/** enter_key(C, j, prevkey, newkey) is called after a block split.
+/** enter_key(j, prevkey, newkey) is called after a block split.
   
    It enters in the block at level C[j] a separating key for the block
    at level C[j - 1]. The key itself is newkey. prevkey is the
@@ -748,16 +756,16 @@ void Btree::make_index_item(byte * result, unsigned int result_len,
    block split, with a further call to enter_key. Hence the recursion.
 */
 void
-Btree::enter_key(Cursor * C_, int j, byte * prevkey, byte * newkey)
+Btree::enter_key(int j, byte * prevkey, byte * newkey)
 {
     Assert(writable);
     Assert(compare_keys(prevkey, newkey) < 0);
     Assert(j >= 1);
-    if (j > level) split_root(C_, j);
+    if (j > level) split_root(j);
 
-    /*  byte * p = C_[j - 1].p;  -- see below */
+    /*  byte * p = C[j - 1].p;  -- see below */
 
-    uint4 blocknumber = C_[j - 1].n;
+    uint4 blocknumber = C[j - 1].n;
 
     // Keys are truncated here: but don't truncate the count at the end away.
     // FIXME: check that b is big enough.  Dynamically allocate.
@@ -778,12 +786,12 @@ here:
        }
      */
 
-    C_[j].c = find_in_block(C_[j].p, b + I2, 0, 0) + D2;
-    C_[j].rewrite = true; /* a subtle point: this *is* required. */
-    add_item(C_, b, j);
+    C[j].c = find_in_block(C[j].p, b + I2, 0, 0) + D2;
+    C[j].rewrite = true; /* a subtle point: this *is* required. */
+    add_item(b, j);
 }
 
-/* split_off(C, j, c, p, q) splits the block at p at directory offset c.
+/* split_off(j, c, p, q) splits the block at p at directory offset c.
 
    In fact p is just C[j].p, and q is C[j].split_p, a block buffer
    provided at each cursor level to accommodate the split.
@@ -793,13 +801,13 @@ here:
 */
 
 void
-Btree::split_off(Cursor * C_, int j, int c, byte * p, byte * q)
+Btree::split_off(int j, int c, byte * p, byte * q)
 {
     Assert(writable);
     /* p is C[j].p, q is C[j].split_p */
 
-    C_[j].split_n = C_[j].n;
-    C_[j].n = base.next_free_block();
+    C[j].split_n = C[j].n;
+    C[j].n = base.next_free_block();
 
     memmove(q, p, block_size);  /* replicate the whole block in q */
     SET_DIR_END(q, c);
@@ -878,24 +886,24 @@ Btree::add_item_to_block(byte * p, byte * kt_, int c)
     SET_TOTAL_FREE(p, new_total);
 }
 
-/** Btree::add_item(C_, kt_, j) adds item kt_ to the block at cursor level C_[j].
+/** Btree::add_item(kt_, j) adds item kt_ to the block at cursor level C[j].
  *
  *  If there is not enough room the block splits and the item is then
  *  added to the appropriate half.
  */
 void
-Btree::add_item(Cursor * C_, byte * kt_, int j)
+Btree::add_item(byte * kt_, int j)
 {
     Assert(writable);
-    byte * p = C_[j].p;
-    int c = C_[j].c;
+    byte * p = C[j].p;
+    int c = C[j].c;
     uint4 n;
 
     int kt_len = GETI(kt_, 0);
     int needed = kt_len + D2;
     if (TOTAL_FREE(p) < needed) {
 	int m;
-	byte * q = C_[j].split_p;
+	byte * q = C[j].split_p;
 	int add_to_upper_half;
 
         // Prepare to split p. After splitting, the block is in two halves, the
@@ -906,12 +914,12 @@ Btree::add_item(Cursor * C_, byte * kt_, int j)
 	    // If we're not in sequential mode, we split at the mid point
 	    // of the node.
             m = mid_point(p);
-            split_off(C_, j, m, p, q);
+            split_off(j, m, p, q);
             add_to_upper_half = c >= m;
         } else {
 	    // During sequential addition, split at the insert point
             m = c;
-            split_off(C_, j, m, p, q);
+            split_off(j, m, p, q);
 	    // And add item to lower half if q has room, otherwise upper half
             add_to_upper_half = TOTAL_FREE(q) < needed;
 	}
@@ -922,21 +930,21 @@ Btree::add_item(Cursor * C_, byte * kt_, int j)
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(p));
 	    add_item_to_block(p, kt_, c);
-	    n = C_[j].n;
+	    n = C[j].n;
 	} else {
 	    Assert(c >= DIR_START);
 	    Assert(c <= DIR_END(q));
 	    add_item_to_block(q, kt_, c);
-	    n = C_[j].split_n;
+	    n = C[j].split_n;
 	}
-	write_block(C_[j].split_n, q);
+	write_block(C[j].split_n, q);
 
-	enter_key(C_, j + 1,                /* enters a separating key at level j + 1 */
+	enter_key(j + 1,                /* enters a separating key at level j + 1 */
 		  key_of(q, DIR_END(q) - D2), /* - between the last key of block q, */
 		  key_of(p, DIR_START));      /* - and the first key of block p */
     } else {
 	add_item_to_block(p, kt_, c);
-	n = C_[j].n;
+	n = C[j].n;
     }
     if (j == 0) {
 	changed_n = n;
@@ -944,7 +952,7 @@ Btree::add_item(Cursor * C_, byte * kt_, int j)
     }
 }
 
-/** Btree::delete_item(C_, j, repeatedly) is (almost) the converse of add_item.
+/** Btree::delete_item(j, repeatedly) is (almost) the converse of add_item.
  *
  * If repeatedly is true, the process repeats at the next level when a
  * block has been completely emptied, freeing the block and taking out
@@ -952,11 +960,11 @@ Btree::add_item(Cursor * C_, byte * kt_, int j)
  * reduces the number of levels in the B-tree.
  */
 void
-Btree::delete_item(Cursor * C_, int j, bool repeatedly)
+Btree::delete_item(int j, bool repeatedly)
 {
     Assert(writable);
-    byte * p = C_[j].p;
-    int c = C_[j].c;
+    byte * p = C[j].p;
+    int c = C[j].c;
     int o = GETD(p, c);              /* offset of item to be deleted */
     int kt_len = GETI(p, o);         /* - and its length */
     int dir_end = DIR_END(p) - D2;   /* directory length will go down by 2 bytes */
@@ -969,11 +977,11 @@ Btree::delete_item(Cursor * C_, int j, bool repeatedly)
     if (!repeatedly) return;
     if (j < level) {
 	if (dir_end == DIR_START) {
-	    base.free_block(C_[j].n);
-	    C_[j].rewrite = false;
-	    C_[j].n = BLK_UNUSED;
-	    C_[j + 1].rewrite = true;  /* *is* necessary */
-	    delete_item(C_, j + 1, true);
+	    base.free_block(C[j].n);
+	    C[j].rewrite = false;
+	    C[j].n = BLK_UNUSED;
+	    C[j + 1].rewrite = true;  /* *is* necessary */
+	    delete_item(j + 1, true);
 	}
     } else {
 	/* j == B->level */
@@ -981,20 +989,20 @@ Btree::delete_item(Cursor * C_, int j, bool repeatedly)
 	    /* single item in the root block, so lose a level */
 	    uint4 new_root = block_given_by(p, DIR_START);
 	    delete [] p;
-	    C_[j].p = 0;
-	    base.free_block(C_[j].n);
-	    C_[j].rewrite = false;
-	    C_[j].n = BLK_UNUSED;
-	    delete [] C_[j].split_p;
-	    C_[j].split_p = 0;
-	    C_[j].split_n = BLK_UNUSED;
+	    C[j].p = 0;
+	    base.free_block(C[j].n);
+	    C[j].rewrite = false;
+	    C[j].n = BLK_UNUSED;
+	    delete [] C[j].split_p;
+	    C[j].split_p = 0;
+	    C[j].split_n = BLK_UNUSED;
 	    level--;
 
-	    block_to_cursor(C_, level, new_root);
+	    block_to_cursor(C, level, new_root);
 	    if (overwritten) return;
 
 	    j--;
-	    p = C_[j].p;
+	    p = C[j].p;
 	    dir_end = DIR_END(p); /* prepare for the loop */
 	}
     }
@@ -1072,8 +1080,8 @@ Btree::add_kt(int found)
 		SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
 	    } else {
 		/* do it the long way */
-		delete_item(C, 0, false);
-		add_item(C, kt, 0);
+		delete_item(0, false);
+		add_item(kt, 0);
 	    }
 	}
     } else {
@@ -1085,7 +1093,7 @@ Btree::add_kt(int found)
 	    sequential = false;
 	}
 	C[0].c += D2;
-	add_item(C, kt, 0);
+	add_item(kt, 0);
     }
     return components;
 }
@@ -1115,7 +1123,7 @@ Btree::delete_kt()
     if (found) {
 	components = components_of(C[0].p, C[0].c);
 	alter();
-	delete_item(C, 0, true);
+	delete_item(0, true);
     }
     return components;
 }
@@ -1446,6 +1454,7 @@ Btree::read_root()
 	/* root block for an unmodified database. */
 	int o = block_size - C2;
 	byte * p = C[0].p;
+	Assert(p);
 
 	/* clear block - shouldn't be neccessary, but is a bit nicer,
 	 * and means that the same operations should always produce
