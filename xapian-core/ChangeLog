@@ -1,3 +1,16 @@
+Wed Feb  9 16:42:08 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* stemtest.pl handling of random input data improved:
+
+	  o doesn't bother regenerating the random data every time.
+
+	  o the seed is actually generated from the hostname, rather
+	    than being hard-coded to 1.
+
+	  o support for running the test with a specified seed
+
+	  o some basic tests that the output is sensible
+
 Wed Feb  9 14:52:54 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 
 	* Rename all exception classes to have names ending in Error

@@ -26,29 +26,32 @@
 
 use strict;
 
-$main::did_something = 0;
-$main::retval = 0;
-$main::verbose = 0;
+my $seed = undef;
+my $junksize = 2 * 1048576;
+
+my ($did_something, $retval, $verbose) = (0, 0, 0);
+my ($val_succeeded, $val_failed, $val_skipped) = (0, 1, 2);
+my ($testspassed, $testsfailed, $testsskipped) = (0, 0, 0);
 
 while ($_ = shift @ARGV) {
   if ($_ =~ /^-v$/) {
-      $main::verbose = 1;
+      $verbose = 1;
+  } elsif ($_ =~ /^--seed$/) {
+      $seed = shift or die "Usage: $0 [-v] [--seed <seed>]";
   } else {
       print "Usage: $0 [-v]\n";
       exit 1;
   };
 };
 
-my ($val_succeeded, $val_failed, $val_skipped) = (0, 1, 2);
-
-$main::testspassed = 0;
-$main::testsfailed = 0;
-$main::testsskipped = 0;
-
 # we need to generate a file of random rubbish to feed to each
 # of the stemming routines.
-my ($randtext, $randjunk) = (".stemtest.pl_randtext", ".stemtest.pl_randjunk");
-my $seed = 1;
+if (!defined $seed) {
+    $seed = unpack("%32L*", `hostname`);
+    print "The random seed is $seed; please report the seed when reporting a test failure.\n";
+};
+
+my ($randtext, $randjunk) = ("randtext_seed_$seed", "randjunk_seed_$seed");
 srand $seed;
 print "Generating random text... (seed $seed)\n";
 &make_randomtext($randtext);
@@ -60,50 +63,51 @@ foreach ("dutch", "english", "french", "german", "italian", "portuguese", "spani
     my $language = $_;
     my $myretval = &dicttest($language);
     if ($myretval == $val_succeeded) {
-        $main::testspassed++;
+        $testspassed++;
     } elsif ($myretval == $val_failed) {
-        $main::retval = $myretval;
-	$main::testsfailed++;
+        $retval = $myretval;
+	$testsfailed++;
     } elsif ($myretval == $val_skipped) {
-        $main::testsskipped++;
+        $testsskipped++;
     } else {
         die "Internal error";
     };
 
     $myretval = &randtest($language, $randtext);
     if ($myretval == $val_succeeded) {
-        $main::testspassed++;
+        $testspassed++;
     } elsif ($myretval == $val_failed) {
-        $main::retval = $myretval;
-	$main::testsfailed++;
+        $retval = $myretval;
+	$testsfailed++;
     } elsif ($myretval == $val_skipped) {
-        $main::testsskipped++;
+        $testsskipped++;
     } else {
         die "Internal error";
     };
 
     $myretval = &randtest($language, $randjunk);
     if ($myretval == $val_succeeded) {
-        $main::testspassed++;
+        $testspassed++;
     } elsif ($myretval == $val_failed) {
-        $main::retval = $myretval;
-	$main::testsfailed++;
+        $retval = $myretval;
+	$testsfailed++;
     } elsif ($myretval == $val_skipped) {
-        $main::testsskipped++;
+        $testsskipped++;
     } else {
         die "Internal error";
     };
 };
 
-unlink($randtext);
-unlink($randjunk);
+# don't delete them, since we want them cached.
+#unlink($randtext);
+#unlink($randjunk);
 
-print "$0 finished: $main::testspassed tests passed, " .
-      "$main::testsfailed failed" .
-      ($main::testsskipped? ", $main::testsskipped skipped" : "") . ".\n";
+print "$0 finished: $testspassed tests passed, " .
+      "$testsfailed failed" .
+      ($testsskipped? ", $testsskipped skipped" : "") . ".\n";
 
-if ($main::did_something) {
-    exit $main::retval;
+if ($did_something) {
+    exit $retval;
 } else {
     exit 77;  # magic value meaning "ignore test"
 };
@@ -117,9 +121,9 @@ sub dicttest {
     print "Testing $language with fixed dictionary...";
     if (-r "$datadir/voc.txt" &&
         -r "$datadir/voc.st") {
-	$main::did_something = 1;
+	$did_something = 1;
 
-	if ($main::verbose) {
+	if ($verbose) {
 	    print "Running \`./stemtest --$language $datadir/voc.txt'...\n";
 	};
 	open(STEMMER_OUTPUT, "./stemtest --$language $datadir/voc.txt|")
@@ -145,14 +149,14 @@ sub dicttest {
 
 	        if ($stemmed ne $answer) {
 		    $myretval = $val_failed;
-		    if ($main::verbose) {
+		    if ($verbose) {
 		    	print "Got $stemmed, expected $answer\n";
 		    };
 		    last;
 		};
 	    } else {
 	        $myretval = $val_failed;
-		if ($main::verbose) {
+		if ($verbose) {
 		    print "Got an unexpected EOF\n";
 		};
 		last;
@@ -169,22 +173,51 @@ sub dicttest {
 };
 
 sub randtest {
-    my $retval;
+    my $system_retval;
+    my $myretval = $val_succeeded;
     my $language = shift;
     my $filename = shift;
 
+    my $outputfname = "stemtest.pl$$";
+
     print "Testing $language with file $filename...";
-    $retval = system("./stemtest --$language $filename > /dev/null 2>&1");
-    if ($retval) {
-        if ($main::verbose) {
-	    print "stemtest returned $retval\n";
+    $system_retval = system("./stemtest --$language $filename > $outputfname 2>&1");
+    if ($system_retval) {
+        if ($verbose) {
+	    print "stemtest returned $system_retval\n";
 	};
-	print " FAILED\n";
-        return $val_failed;
+        $myretval = $val_failed;
     } else {
-        print " ok.\n";
-        return $val_succeeded;
+        # do some sanity checks on the result
+	my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,
+	    $atime,$mtime,$ctime,$blksize,$blocks) = stat $outputfname;
+        
+	if (!defined $size) {
+	    $myretval = $val_failed;
+	    if ($verbose) {
+	        print "Unable to stat output file.\n";
+	    };
+	} elsif ($size >= ($junksize * 1.01)) {
+	    $myretval = $val_failed;
+	    if ($verbose) {
+	        print "Stemmed file is significantly bigger than input ($size vs. $junksize)\n";
+	    };
+	} elsif ($size < ($junksize / 2)) {
+	    $myretval = $val_failed;
+	    if ($verbose) {
+	        print "Stemmed file is smaller than half the input\n";
+	    };
+	};
     };
+
+    unlink $outputfname;
+
+    if ($myretval == $val_succeeded) {
+        print " ok.\n";
+    } else {
+        print " FAILED\n";
+    };
+    return $myretval;
 };
 
 # these are inefficient, I know...
@@ -194,9 +227,14 @@ sub make_randomtext {
     my @allowedchars = split(//,
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789^ \n");
 
+    if (-r $filename) {
+        print "$filename already exists, skipping generation.\n";
+	return;
+    };
+
     open(OUTPUT, ">$filename") or die "Failed to create random text file";
 
-    while ($count < 2048576) {
+    while ($count < $junksize) {
         print OUTPUT $allowedchars[int(rand(@allowedchars))];
 	$count++;
     };
@@ -207,9 +245,14 @@ sub make_randomjunk {
     my $filename = shift;
     my $count = 0;
 
+    if (-r $filename) {
+        print "$filename already exists, skipping generation.\n";
+	return;
+    };
+
     open(OUTPUT, ">$filename") or die "Failed to create random junk file";
 
-    while ($count < 2048576) {
+    while ($count < $junksize) {
         print OUTPUT pack("C", int(rand(256)));
 	$count++;
     };
