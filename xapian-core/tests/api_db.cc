@@ -2900,19 +2900,19 @@ static bool test_postlist1()
     return true;
 }
 
-// tests that an OmPostListIterator works as an STL iterator
+// tests that an Xapian::PostListIterator works as an STL iterator
 static bool test_postlist2()
 {
     OmDatabase db(get_database("apitest_simpledata"));
-    OmPostListIterator p = db.postlist_begin("this");
-    OmPostListIterator pend = db.postlist_end("this");
+    Xapian::PostListIterator p = db.postlist_begin("this");
+    Xapian::PostListIterator pend = db.postlist_end("this");
 
     // test operator= creates a copy which compares equal
-    OmPostListIterator p_copy = p;
+    Xapian::PostListIterator p_copy = p;
     TEST_EQUAL(p, p_copy);
 
     // test copy constructor creates a copy which compares equal
-    OmPostListIterator p_clone(p);
+    Xapian::PostListIterator p_clone(p);
     TEST_EQUAL(p, p_clone);
 
 #ifdef __SUNPRO_CC
@@ -2937,20 +2937,20 @@ static bool test_postlist2()
     return true;
 }
 
-static OmPostListIterator
+static Xapian::PostListIterator
 test_postlist3_helper()
 {
     OmDatabase db(get_database("apitest_simpledata"));
     return db.postlist_begin("this");
 }
 
-// tests that an OmPostListIterator still works when the DB is deleted
+// tests that an Xapian::PostListIterator still works when the DB is deleted
 static bool test_postlist3()
 {
-    OmPostListIterator u = test_postlist3_helper();
+    Xapian::PostListIterator u = test_postlist3_helper();
     OmDatabase db(get_database("apitest_simpledata"));
-    OmPostListIterator p = db.postlist_begin("this");
-    OmPostListIterator pend = db.postlist_end("this");
+    Xapian::PostListIterator p = db.postlist_begin("this");
+    Xapian::PostListIterator pend = db.postlist_end("this");
 
     while (p != pend) {
 	TEST_EQUAL(*p, *u);
@@ -2964,7 +2964,7 @@ static bool test_postlist3()
 static bool test_postlist4()
 {
     OmDatabase db(get_database("apitest_simpledata"));
-    OmPostListIterator i = db.postlist_begin("this");
+    Xapian::PostListIterator i = db.postlist_begin("this");
     i.skip_to(1);
     i.skip_to(999999999);
     TEST(i == db.postlist_end("this"));
@@ -2978,7 +2978,7 @@ static bool test_postlist5()
     // Allow for databases which don't support length
     if (db.get_avlength() != 1)
 	TEST_EQUAL_DOUBLE(db.get_avlength(), 4);
-    OmPostListIterator i = db.postlist_begin("this");
+    Xapian::PostListIterator i = db.postlist_begin("this");
     unsigned int j = 1;
     while (i != db.postlist_end("this")) {
 	TEST_EQUAL(*i, j);
@@ -2993,7 +2993,7 @@ static bool test_postlist5()
 static bool test_postlist6()
 {
     OmDatabase db(get_database("apitest_simpledata"));
-    OmPostListIterator i = db.postlist_begin("this");
+    Xapian::PostListIterator i = db.postlist_begin("this");
     TEST(i != db.postlist_end("this"));
     while (i != db.postlist_end("this")) {
 	TEST_EQUAL(i.get_doclength(), db.get_doclength(*i));

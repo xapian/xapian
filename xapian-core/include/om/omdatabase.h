@@ -4,7 +4,7 @@
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,11 +27,14 @@
 #define OM_HGUARD_OMDATABASE_H
 
 #include "om/omdocument.h"
-#include "om/ompostlistiterator.h"
-#include "xapian/termiterator.h"
-#include "xapian/positionlistiterator.h"
+#include <xapian/termiterator.h>
+#include <xapian/positionlistiterator.h>
 
 class OmWritableDatabase;
+
+namespace Xapian {
+    class PostListIterator;
+}
 
 /** This class is used to access a database, or a set of databases.
  *
@@ -101,11 +104,11 @@ class OmDatabase {
 	/** An iterator pointing to the start of the postlist
 	 *  for a given term.
 	 */
-	OmPostListIterator postlist_begin(const std::string &tname) const;
+	Xapian::PostListIterator postlist_begin(const std::string &tname) const;
 
 	/** Corresponding end iterator to postlist_begin()
 	 */
-	OmPostListIterator postlist_end(const std::string &tname) const;
+	Xapian::PostListIterator postlist_end(const std::string &tname) const;
 
 	/** An iterator pointing to the start of the termlist
 	 *  for a given document.

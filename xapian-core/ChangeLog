@@ -1,3 +1,9 @@
+Wed Apr 30 03:51:52 BST 2003  Olly Betts <olly@survex.com>
+
+	* api/,backends/,common/,extra/omparsequery.h,extra/parsequery.yy,
+	  include/,matcher/localmatch.h,matcher/orpostlist.h,tests/api_db.cc:
+	  OmPostListIterator -> Xapian::PostListIterator, etc.
+
 Wed Apr 30 02:13:31 BST 2003  Olly Betts <olly@survex.com>
 
 	* docs/matcherdesign.html,include/om/omenquire.h: Merged docs

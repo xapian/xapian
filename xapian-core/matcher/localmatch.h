@@ -33,7 +33,10 @@
 class OmWeight;
 class Database;
 class Document;
-class PostList;
+namespace Xapian {
+    class PostListIterator::Internal;
+}
+typedef Xapian::PostListIterator::Internal PostList;
 
 #include <vector>
 using std::vector;

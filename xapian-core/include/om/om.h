@@ -59,6 +59,7 @@ typedef std::string om_termname;
 #define OmExpandDeciderFilterTerms Xapian::ExpandDeciderFilterTerms
 #define OmPositionListIterator Xapian::PositionListIterator
 #define OmTermIterator Xapian::TermIterator
+#define OmPostListIterator Xapian::PostListIterator
 
 // om/omoutput.h used to include iostream, but xapian/output.h includes iosfwd
 // instead.  So we include iostream here in case anyone relied on iostream
@@ -73,7 +74,7 @@ typedef std::string om_termname;
 // Data access
 #include "om/omdocument.h"
 #include "om/omdatabase.h"
-#include "om/ompostlistiterator.h"
+#include <xapian/postlistiterator.h>
 #include <xapian/positionlistiterator.h>
 #include <xapian/termiterator.h>
 #include "om/omvalueiterator.h"

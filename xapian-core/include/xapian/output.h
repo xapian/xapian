@@ -56,8 +56,8 @@ XAPIAN_OUTPUT_FUNCTION(OmEnquire)
 #include <xapian/stem.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::Stem)
 
-#include "om/ompostlistiterator.h"
-XAPIAN_OUTPUT_FUNCTION(OmPostListIterator)
+#include <xapian/postlistiterator.h>
+XAPIAN_OUTPUT_FUNCTION(Xapian::PostListIterator)
 
 #include <xapian/positionlistiterator.h>
 XAPIAN_OUTPUT_FUNCTION(Xapian::PositionListIterator)

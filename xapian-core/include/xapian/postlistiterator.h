@@ -1,9 +1,10 @@
-/** \file ompostlistiterator.h
+/** \file postlistiterator.h
  * \brief Classes for iterating through posting lists
  */
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,50 +23,53 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_OMPOSTLISTITERATOR_H
-#define OM_HGUARD_OMPOSTLISTITERATOR_H
+#ifndef XAPIAN_INCLUDED_POSTLISTITERATOR_H
+#define XAPIAN_INCLUDED_POSTLISTITERATOR_H
 
 #include <iterator>
 #include <string>
+
+#include <xapian/base.h>
 #include <xapian/types.h>
 
 class OmDatabase;
-namespace Xapian {
-class PositionListIterator;
-}
 
-class OmPostListIterator {
+namespace Xapian {
+
+class PositionListIterator;
+
+class PostListIterator {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
-	Internal *internal;
+	Xapian::Internal::RefCntPtr<Internal> internal;
 
     private:
 	friend class OmDatabase; // So OmDatabase can construct us
 
-	OmPostListIterator(Internal *internal_);
+	PostListIterator(Internal *internal_);
 
     public:
-        friend bool operator==(const OmPostListIterator &a,
-			       const OmPostListIterator &b);
+        friend bool operator==(const PostListIterator &a,
+			       const PostListIterator &b);
 
 	/// Default constructor - for declaring an uninitialised iterator
-	OmPostListIterator();
+	//PostListIterator();
 
 	/// Destructor
-        ~OmPostListIterator();
+        ~PostListIterator();
 
         /** Copying is allowed.  The internals are reference counted, so
 	 *  copying is also cheap.
 	 */
-	OmPostListIterator(const OmPostListIterator &other);
+	PostListIterator(const PostListIterator &other);
 
         /** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */
-	void operator=(const OmPostListIterator &other);
+	void operator=(const PostListIterator &other);
 
-	OmPostListIterator & operator++();
+	PostListIterator & operator++();
 
 	void operator++(int);
 
@@ -96,8 +100,8 @@ class OmPostListIterator {
         om_termcount get_wdf() const;
 
     	// allow iteration of positionlist for current term
-	Xapian::PositionListIterator positionlist_begin();
-	Xapian::PositionListIterator positionlist_end();
+	PositionListIterator positionlist_begin();
+	PositionListIterator positionlist_end();
 
 	// Don't expose these methods here.  A container iterator doesn't
 	// provide a method to find the size of the container...
@@ -119,10 +123,16 @@ class OmPostListIterator {
 	//@}
 };
 
-inline bool operator!=(const OmPostListIterator &a,
-		       const OmPostListIterator &b)
+inline bool operator==(const PostListIterator &a, const PostListIterator &b)
+{
+    return (a.internal.get() == b.internal.get());
+}
+
+inline bool operator!=(const PostListIterator &a, const PostListIterator &b)
 {
     return !(a == b);
 }
 
-#endif /* OM_HGUARD_OMPOSTLISTITERATOR_H */
+}
+
+#endif /* XAPIAN_INCLUDED_POSTLISTITERATOR_H */

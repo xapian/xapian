@@ -4,6 +4,7 @@
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
+ * Copyright 2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,20 +30,19 @@
 #include <string>
 
 #include <xapian/base.h>
-
 #include <xapian/types.h>
 
-class OmPostListIterator;
 class OmDatabase;
 
 namespace Xapian {
 
+class PostListIterator;
 class TermIterator;
 
 class PositionListIterator {
     private:
 	// friend classes which need to be able to construct us
-	friend class OmPostListIterator;
+	friend class PostListIterator;
 	friend class TermIterator;
 	friend class OmDatabase;
 
@@ -95,15 +95,13 @@ class PositionListIterator {
 };
 
 inline bool
-operator==(const PositionListIterator &a,
-	   const PositionListIterator &b)
+operator==(const PositionListIterator &a, const PositionListIterator &b)
 {
     return (a.internal.get() == b.internal.get());
 }
 
 inline bool
-operator!=(const Xapian::PositionListIterator &a,
-	   const Xapian::PositionListIterator &b)
+operator!=(const PositionListIterator &a, const PositionListIterator &b)
 {
     return !(a == b);
 }

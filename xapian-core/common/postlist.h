@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2003 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@
 #include <string>
 
 #include <xapian/types.h>
-#include "xapian/error.h"
+#include <xapian/error.h>
 #include "refcnt.h"
 
 #include "positionlist.h"
@@ -36,16 +36,16 @@
 using std::string;
 
 /** Abstract base class for postlists. */
-class PostList : public RefCntBase
+class Xapian::PostListIterator::Internal : public Xapian::Internal::RefCntBase
 {
     private:
 	/// disallow copy
-	PostList(const PostList &);
+	Internal(const Internal &);
 	/// disallow assignment
-	void operator=(const PostList &);
+	void operator=(const Internal &);
     public:
-	PostList() { }
-        virtual ~PostList() { }
+	Internal() { }
+        virtual ~Internal() { }
 
 	///////////////////////////////////////////////////////////////////
 	// Information about the postlist
@@ -77,7 +77,9 @@ class PostList : public RefCntBase
 	 *  database.  This is equal to the sum of the wdfs of all the
 	 *  items in the postlist.
 	 */
-	virtual om_termcount get_collection_freq() const;
+	virtual om_termcount get_collection_freq() const {
+	    throw Xapian::UnimplementedError("PostList::get_collection_freq() unimplemented");
+	}
 
 	///////////////////////////////////////////////////////////////////
 	// Information about the current item
@@ -130,7 +132,9 @@ class PostList : public RefCntBase
 	 *  which where wdf isn't meaningful then an Xapian::UnimplementedError
 	 *  exception will be thrown.
 	 */
-        virtual om_termcount get_wdf() const;
+        virtual om_termcount get_wdf() const {
+	    throw Xapian::UnimplementedError("PostList::get_wdf() unimplemented");
+	}
 
 	/** Get the list of positions at which the current term appears.
 	 *  This method returns a pointer to a PositionList, which is valid
@@ -156,7 +160,7 @@ class PostList : public RefCntBase
 
 	/// Move to the next docid
 	/// FIXME: do this more neatly
-	PostList *next() { return next(-9e20); }
+	Internal *next() { return next(-9e20); }
 	
 	/// Move to next docid with weight greater than w_min
 	//
@@ -168,14 +172,14 @@ class PostList : public RefCntBase
 	// either one of P's children, or another branch.  P will be deleted
 	// by the parent after it replaces P.
 
-	virtual PostList *next(om_weight w_min) = 0;
+	virtual Internal *next(om_weight w_min) = 0;
 
 	/// Moves to next docid >= specified docid
-	PostList *skip_to(om_docid did) { return skip_to(did, -9e20); }
+	Internal *skip_to(om_docid did) { return skip_to(did, -9e20); }
 
 	/// Moves to next docid >= specified docid, and weight greater than
 	/// w_min
-	virtual PostList *skip_to(om_docid, om_weight w_min) = 0;
+	virtual Internal *skip_to(om_docid, om_weight w_min) = 0;
 
 	/// Returns true if we're off the end of the list
 	virtual bool at_end() const = 0;
@@ -190,16 +194,6 @@ class PostList : public RefCntBase
 	virtual string get_description() const = 0;
 };
 
-inline om_termcount
-PostList::get_wdf() const
-{
-    throw Xapian::UnimplementedError("PostList::get_wdf() unimplemented");
-}
-
-inline om_termcount
-PostList::get_collection_freq() const
-{
-    throw Xapian::UnimplementedError("PostList::get_collection_freq() unimplemented");
-}
+typedef Xapian::PostListIterator::Internal PostList;
 
 #endif /* OM_HGUARD_POSTLIST_H */

@@ -26,8 +26,7 @@
 #include "xapian/error.h"
 #include "omdatabaseinternal.h"
 #include "omdebug.h"
-#include "om/ompostlistiterator.h"
-#include "ompostlistiteratorinternal.h"
+#include <xapian/postlistiterator.h>
 #include "xapian/termiterator.h"
 #include "omtermlistiteratorinternal.h"
 #include "xapian/positionlistiterator.h"
@@ -96,22 +95,22 @@ OmDatabase::add_database(const OmDatabase & database)
     }
 }
 
-OmPostListIterator
+Xapian::PostListIterator
 OmDatabase::postlist_begin(const string &tname) const
 {
-    DEBUGAPICALL(OmPostListIterator, "OmDatabase::postlist_begin", tname);
+    DEBUGAPICALL(Xapian::PostListIterator, "OmDatabase::postlist_begin", tname);
     if (tname.empty())
        	throw Xapian::InvalidArgumentError("Zero length terms are invalid");
-    RETURN(OmPostListIterator(new OmPostListIterator::Internal(internal->open_post_list(tname, *this))));
+    RETURN(Xapian::PostListIterator(internal->open_post_list(tname, *this)));
 }
 
-OmPostListIterator
+Xapian::PostListIterator
 OmDatabase::postlist_end(const string &tname) const
 {
-    DEBUGAPICALL(OmPostListIterator, "OmDatabase::postlist_end", tname);
+    DEBUGAPICALL(Xapian::PostListIterator, "OmDatabase::postlist_end", tname);
     if (tname.empty())
        	throw Xapian::InvalidArgumentError("Zero length terms are invalid");
-    RETURN(OmPostListIterator(NULL));
+    RETURN(Xapian::PostListIterator(NULL));
 }
 
 Xapian::TermIterator

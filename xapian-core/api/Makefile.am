@@ -3,7 +3,7 @@
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
            -I$(top_srcdir)/languages
 
-noinst_HEADERS = omdatabaseinternal.h ompostlistiteratorinternal.h \
+noinst_HEADERS = omdatabaseinternal.h \
  omvalueiteratorinternal.h omtermlistiteratorinternal.h
 noinst_LTLIBRARIES = libapi.la
 
