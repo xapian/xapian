@@ -277,8 +277,8 @@ Improve performance using SIMD instructions
 Finish off loose ends from OmSettings removal.  These are: weighting schemes
 not working with remote backend; stub databases; machinery in InMemory backend
 to allow multierrhandler1 to work; sort out final names for factory functions;
-replace update/overwrite with a single enum; maybe replace boolean flags for
-expand as a bitmap (so they are named in calls and so code is clearer).
+maybe replace boolean flags for expand with bit flags |-ed together
+(so they are named in calls and code is clearer).
 
 </todoitem>
 <todoitem priority="H" difficulty="" owner="Olly" area="" release="0.7">

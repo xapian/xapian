@@ -41,13 +41,10 @@
 
 using std::string;
 
-QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
-					       bool readonly_,
-					       unsigned int block_size,
-					       bool create,
-					       bool allow_overwrite)
+QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_, int action,
+					       unsigned int block_size)
 	: db_dir(db_dir_),
-	  readonly(readonly_),
+	  readonly(action == OM_DB_READONLY),
 	  metafile(metafile_path()),
 	  postlist_table(postlist_path(), readonly, block_size),
 	  positionlist_table(positionlist_path(), readonly, block_size),
@@ -58,22 +55,15 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
 	  value_table(value_path(), readonly, block_size),
 	  record_table(record_path(), readonly, block_size)
 {
-    DEBUGCALL(DB, void, "QuartzDiskTableManager", db_dir_ << ", " << log_filename << ", " << readonly_ << ", " << block_size << ", " << create << ", " << allow_overwrite);
+    DEBUGCALL(DB, void, "QuartzDiskTableManager", db_dir_ << ", " << action <<
+	      ", " << block_size);
     // Open modification log if there
-    
     log.reset(new QuartzLog(db_dir + "/log"));
-    if (readonly) {
-	log->make_entry("Opening database at `" + db_dir + "' readonly.");
-    } else if (create) {
-	log->make_entry("Creating database at `" + db_dir + "'" +
-			(allow_overwrite ?
-			 " (allowing overwrite of old database)" :
-			 " (overwriting not permitted)") +
-			".");
-    } else {
-	log->make_entry("Opening database at `" + db_dir +
-			"' for modifications.");
-    }
+    static const char *acts[] = {
+	"Open readonly", "Create or open", "Create", "Create or overwrite",
+	"Open" // , "Overwrite"
+    };
+    log->make_entry(string(acts[action]) + " database at `" + db_dir + "'");
 
     // set cache size parameters, etc, here.
 
@@ -81,26 +71,34 @@ QuartzDiskTableManager::QuartzDiskTableManager(string db_dir_,
 
     bool dbexists = database_exists();
     // open tables
-    if (readonly) {
+    if (action == OM_DB_READONLY) {
 	if (!dbexists) {
 	    throw OmOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	}
 	// Can still allow searches even if recovery is needed
 	open_tables_consistent();
-    } else if (create) {
+    } else {
 	if (dbexists) {
 	    log->make_entry("Old database exists");
+	    if (action == OM_DB_CREATE) {
+		throw OmDatabaseCreateError("Can't create new database at `" +
+			db_dir + "': a database already exists and I was told "
+			"not to overwrite it.");
+	    }
+	    // if we're overwriting, pretend the db doesn't exists
+	    // FIXME: if we allow OM_DB_OVERWRITE, check it here
+	    if (action == OM_DB_CREATE_OR_OVERWRITE) dbexists = false;
 	}
-	if (!allow_overwrite && dbexists) {
-	    throw OmDatabaseCreateError("Can't create new database at `" +
-		db_dir + "': a database already exists in place."
-		"  Move it, or set database_allow_overwrite parameter");
-	}
-	create_and_open_tables();
-    } else {
+	
 	if (!dbexists) {
-	    throw OmOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
+	    // FIXME: if we allow OM_DB_OVERWRITE, check it here
+	    if (action == OM_DB_OPEN) {
+		throw OmOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
+	    }
+	    create_and_open_tables();
+	    return;
 	}
+
 	// Get latest consistent version
 	open_tables_consistent();
 
@@ -154,7 +152,8 @@ QuartzDiskTableManager::create_and_open_tables()
 
     // Delete any existing tables
     // FIXME: would be better to arrange that this works such that there's
-    // always a valid database in place...
+    // always a valid database in place...  Or does it already?  The metafile
+    // is created before erasing...
     log->make_entry("Cleaning up database directory.");
     metafile.create();
     postlist_table.erase();
@@ -432,14 +431,9 @@ QuartzDiskTableManager::reopen()
 
 
 QuartzBufferedTableManager::QuartzBufferedTableManager(string db_dir_,
-						       unsigned int block_size,
-						       bool create,
-						       bool allow_overwrite)
-	: disktables(db_dir_,
-		     false,
-		     block_size,
-		     create,
-		     allow_overwrite),
+						       int action,
+						       unsigned int block_size)
+	: disktables(db_dir_, action, block_size),
 	  postlist_buffered_table(disktables.get_postlist_table()),
 	  positionlist_buffered_table(disktables.get_positionlist_table()),
 	  termlist_buffered_table(disktables.get_termlist_table()),

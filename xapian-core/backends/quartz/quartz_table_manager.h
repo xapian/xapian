@@ -31,6 +31,8 @@
 #include "quartz_metafile.h"
 #include "autoptr.h"
 
+const int OM_DB_READONLY = 0;
+
 /** Class managing the tables used by a Quartz database.
  */
 class QuartzTableManager {
@@ -204,11 +206,8 @@ class QuartzDiskTableManager : public QuartzTableManager {
 	 *  @exception OmDatabaseCorruptError is thrown if there is no
 	 *             consistent revision available.
 	 */
-	QuartzDiskTableManager(std::string db_dir_,
-			       bool readonly_,
-			       unsigned int block_size,
-			       bool create,
-			       bool allow_overwrite);
+	QuartzDiskTableManager(std::string db_dir_, int action,
+			       unsigned int block_size);
 
 	/** Delete the manager.
 	 */
@@ -305,11 +304,9 @@ class QuartzBufferedTableManager : public QuartzTableManager {
 	 *  This may throw any exceptions which are thrown by
 	 *  QuartzDiskTableManager's constructor.
 	 */
-	QuartzBufferedTableManager(std::string db_dir_,
-				   unsigned int block_size,
-				   bool create,
-				   bool allow_overwrite);
-	
+	QuartzBufferedTableManager(std::string db_dir_, int action,
+				   unsigned int block_size);
+
 	/** Destroy the manager.  Any anapplied modifications will
 	 *  be lost.
 	 */

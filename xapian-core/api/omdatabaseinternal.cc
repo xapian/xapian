@@ -61,15 +61,14 @@ using std::string;
 
 #ifdef MUS_BUILD_BACKEND_QUARTZ
 OmDatabase
-OmQuartz__open(const string &quartz_dir) {
-    return OmDatabase(new OmDatabase::Internal(new QuartzDatabase(quartz_dir)));
+OmQuartz__open(const string &dir) {
+    return OmDatabase(new OmDatabase::Internal(new QuartzDatabase(dir)));
 }
 
 OmWritableDatabase
-OmQuartz__open(const string &quartz_dir, bool create, bool overwrite,
-	       int block_size) {
+OmQuartz__open(const string &dir, int action, int block_size) {
     return OmWritableDatabase(new OmDatabase::Internal(
-	new QuartzWritableDatabase(quartz_dir, create, overwrite, block_size)));
+	new QuartzWritableDatabase(dir, action, block_size)));
 }
 #endif
 
@@ -229,7 +228,7 @@ OmAuto__open(const string &path)
 }
 
 OmWritableDatabase
-OmAuto__open(const std::string &path, bool create, bool overwrite)
+OmAuto__open(const std::string &path, int action)
 {
 // FIXME : sort out stub databases - their current format is rather
 // angled towards the OmSettings approach.  Need to think whether all
@@ -243,26 +242,9 @@ OmAuto__open(const std::string &path, bool create, bool overwrite)
     }
 #endif
 
-    if (create) {
-	// OK, we didn't detect a known database.  If we're constructing
-	// a writable database, this may mean it doesn't exist, so try
-	// defaulting to a backend which supports writing and is actually
-	// built in...
-#ifdef MUS_BUILD_BACKEND_QUARTZ
-	return OmQuartz__open(path, create, overwrite);
-#endif
-    } else {
-#ifdef MUS_BUILD_BACKEND_QUARTZ
-	// FIXME: Quartz has lots of files, and the names may change
-	// during development.  Make sure this stays up to date.
-
-        if (file_exists(path + "/record_DB")) {
-	    return OmQuartz__open(path, create, overwrite);
-	}
-#endif
-    }
-
-    throw OmFeatureUnavailableError("Couldn't detect type of database");
+    // There's only quartz which is writable at present - if more are added
+    // then this code needs to look at action and perhaps autodetect.
+    return OmQuartz__open(path, action);
 }
 
 /////////////////////////////////////

@@ -1040,7 +1040,7 @@ static bool test_open1()
 
     makedir(dbdir);
     RefCntPtr<Database> database_w =
-	    new QuartzWritableDatabase(dbdir, true, false, 2048);
+	    new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048);
     RefCntPtr<Database> database_r = new QuartzDatabase(dbdir);
 
     return true;
@@ -1058,13 +1058,13 @@ static bool test_create1()
     TEST_EXCEPTION(OmOpeningError,
 		   db = new QuartzDatabase(dbdir));
     TEST_EXCEPTION(OmOpeningError,
-		   db = new QuartzWritableDatabase(dbdir, false, false, 2048));
+		   db = new QuartzWritableDatabase(dbdir, OM_DB_OPEN, 2048));
 
     // (2) db doesn't exist, basedir doesn't exist (create)
     TEST_EXCEPTION(OmOpeningError,
 		   db = new QuartzDatabase(dbdir));
     TEST_EXCEPTION(OmOpeningError,
-		   db = new QuartzWritableDatabase(dbdir, true, false, 2048));
+		   db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048));
 
     makedir(dbdir);
 
@@ -1072,27 +1072,27 @@ static bool test_create1()
     TEST_EXCEPTION(OmOpeningError,
 		   db = new QuartzDatabase(dbdir));
     TEST_EXCEPTION(OmOpeningError,
-		   db = new QuartzWritableDatabase(dbdir, false, false, 2048));
+		   db = new QuartzWritableDatabase(dbdir, OM_DB_OPEN, 2048));
 
     // (4) db doesn't exist, basedir exists (create)
     TEST_EXCEPTION(OmOpeningError,
 		   db = new QuartzDatabase(dbdir));
-    db = new QuartzWritableDatabase(dbdir, true, false, 2048);
+    db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048);
     db = new QuartzDatabase(dbdir);
 
     // (5) db exists (create, no overwrite)
     db = new QuartzDatabase(dbdir);
     TEST_EXCEPTION(OmDatabaseCreateError,
-		   db = new QuartzWritableDatabase(dbdir, true, false, 2048));
+		   db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048));
     db = new QuartzDatabase(dbdir);
 
     // (6) db exists (no create)
-    db = new QuartzWritableDatabase(dbdir, false, false, 2048);
+    db = new QuartzWritableDatabase(dbdir, OM_DB_OPEN, 2048);
 
     // (7) db exists (create, overwrite)
     db = new QuartzDatabase(dbdir);
     TEST_EQUAL(db->get_doccount(), 0);
-    db = new QuartzWritableDatabase(dbdir, true, true, 2048);
+    db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE_OR_OVERWRITE, 2048);
     TEST_EQUAL(db->get_doccount(), 0);
     OmDocument document_in;
     document_in.set_data("Foobar rising");
@@ -1108,7 +1108,7 @@ static bool test_create1()
 
     // (8) db exists with data (create, overwrite)
     db = new QuartzDatabase(dbdir);
-    db = new QuartzWritableDatabase(dbdir, true, true, 2048);
+    db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE_OR_OVERWRITE, 2048);
     db->add_document(document_in);
     TEST_EQUAL(db->get_doccount(), 1);
 
@@ -1124,7 +1124,7 @@ static bool test_adddoc1()
     deletedir(dbdir);
     makedir(dbdir);
 
-    RefCntPtr<Database> db = new QuartzWritableDatabase(dbdir, true, false, 2048);
+    RefCntPtr<Database> db = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 2048);
 
     TEST_EQUAL(db->get_doccount(), 0);
     TEST_EQUAL(db->get_avlength(), 0);
@@ -1474,7 +1474,7 @@ static bool test_postlist1()
     string dbdir = tmpdir + "testdb_postlist1";
     deletedir(dbdir);
     makedir(dbdir);
-    RefCntPtr<Database> db_w = new QuartzWritableDatabase(dbdir, true, false, 8192);
+    RefCntPtr<Database> db_w = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 8192);
 
     QuartzDiskTable disktable(dbdir + "/postlist_", false, 8192);
     disktable.open();
@@ -1532,7 +1532,7 @@ static bool test_postlist2()
     string dbdir = tmpdir + "testdb_postlist2";
     deletedir(dbdir);
     makedir(dbdir);
-    RefCntPtr<Database> db_w = new QuartzWritableDatabase(dbdir, true, false, 8192);
+    RefCntPtr<Database> db_w = new QuartzWritableDatabase(dbdir, OM_DB_CREATE, 8192);
 
     QuartzDiskTable disktable(tmpdir + "testdb_postlist2/postlist_", false, 2048);
     disktable.open();

@@ -1,3 +1,11 @@
+Wed Dec 04 03:35:12 GMT 2002  Olly Betts <olly@survex.com>
+
+	* api/omdatabaseinternal.cc,backends/quartz/,docs/todo.xml,
+	  include/om/omdatabase.h: Replace create and allow_overwrite
+	  boolean flags with OM_DB_XXX constants.  And we now support
+	  OM_DB_CREATE_OR_OPEN which is a common action to want to
+	  perform, but was fiddly to achieve before.
+
 Tue Dec 03 23:59:30 GMT 2002  Olly Betts <olly@survex.com>
 
 	* docs/todo.xml: Updated.

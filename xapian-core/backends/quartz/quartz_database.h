@@ -149,14 +149,13 @@ class QuartzWritableDatabase : public Database {
 	//@}
 
     public:
-
 	/** Create and open a writable quartz database.
 	 *
 	 *  @exception OmOpeningError thrown if database can't be opened.
 	 *
-	 *  @param quartz_dir directory holding quartz tables
+	 *  @param dir directory holding quartz tables
 	 */
-	QuartzWritableDatabase(const string &quartz_dir, bool create, bool overwrite, int block_size);
+	QuartzWritableDatabase(const string &dir, int action, int block_size);
 
 	~QuartzWritableDatabase();
 

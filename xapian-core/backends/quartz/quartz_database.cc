@@ -55,11 +55,7 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir)
 {
     DEBUGCALL(DB, void, "QuartzDatabase", quartz_dir);
     // Open database manager
-    tables.reset(new QuartzDiskTableManager(quartz_dir,
-					    true,
-					    0u,
-					    false,
-					    false));
+    tables.reset(new QuartzDiskTableManager(quartz_dir, OM_DB_READONLY, 0u));
 }
 
 QuartzDatabase::QuartzDatabase(AutoPtr<QuartzTableManager> tables_)
@@ -310,17 +306,15 @@ QuartzDatabase::open_allterms() const
 }
 
 
-QuartzWritableDatabase::QuartzWritableDatabase(const string &quartz_dir,
-	bool create, bool overwrite, int block_size)
-	: buffered_tables(new QuartzBufferedTableManager(quartz_dir,
-							 block_size,
-							 create,
-							 overwrite)),
+QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
+					       int block_size)
+	: buffered_tables(new QuartzBufferedTableManager(dir, action,
+							 block_size)),
 	  changecount(0),
 	  database_ro(AutoPtr<QuartzTableManager>(buffered_tables))
 {
-    DEBUGCALL(DB, void, "QuartzWritableDatabase", quartz_dir << ", " <<
-	      create << ", " << overwrite << ", " << block_size);
+    DEBUGCALL(DB, void, "QuartzWritableDatabase", dir << ", " << action << ", "
+	      << block_size);
 }
 
 QuartzWritableDatabase::~QuartzWritableDatabase()
