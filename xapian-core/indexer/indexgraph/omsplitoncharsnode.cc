@@ -107,7 +107,7 @@ class OmSplitOnCharsNode : public OmIndexerNode {
 		    } else {
 			/* Character range */
 			int newcharnum = static_cast<unsigned char>(s[pos+1]);
-			for (int i=charnum + 1; i<=newcharnum; ++i) {
+			for (int i=last_char + 1; i<=newcharnum; ++i) {
 			    isword[i] = !default_word;
 			}
 			pos++;
