@@ -1,7 +1,5 @@
-
 %{
 
-#include <config.h>
 #include "readquery.h"
 #include <stdio.h>
 
