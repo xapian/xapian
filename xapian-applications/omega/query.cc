@@ -64,23 +64,20 @@
 
 using namespace std;
 
-// This should be configurable per database (or something like that) but
-// for now at least set it in one place in the file to make it easier to
-// customise by hacking the source...
-static const char * STEM_LANGUAGE = "english";
+static const char * DEFAULT_STEM_LANGUAGE = "english";
 
 static bool done_query = false;
 static Xapian::docid last = 0;
 
 static Xapian::MSet mset;
 
+static map<Xapian::docid, bool> ticked;
+
+static void ensure_query_parsed();
 static void ensure_match();
 
-string raw_prob;
-map<Xapian::docid, bool> ticked;
-
 static Xapian::Query query;
-static string query_string;
+//static string url_query_string;
 Xapian::Query::op default_op = Xapian::Query::OP_OR; // default matching mode
 
 static Xapian::QueryParser qp;
@@ -146,26 +143,30 @@ vet_filename(const string &filename)
     return (i == string::npos);
 }
 
-querytype
-set_probabilistic(const string &newp, const string &oldp)
-{
-    // strip leading and trailing whitespace
-    string::size_type first_nonspace = newp.find_first_not_of(" \t\r\n\v");
-    if (first_nonspace == string::npos) {
-	raw_prob = "";
-    } else {
-	string::size_type len = newp.find_last_not_of(" \t\r\n\v");
-	raw_prob = newp.substr(first_nonspace, len + 1 - first_nonspace);
-    }
+// Heuristics:
+// * If any terms have been removed, it's a "fresh query" so we discard any
+//   relevance judgements
+// * If all previous terms are there but more have been added then we keep
+//   the relevance judgements, but return the first page of hits
+//
+// NEW_QUERY entirely new query
+// SAME_QUERY unchanged query
+// EXTENDED_QUERY new query, but based on the old one
+// BAD_QUERY parse error (message in query_parse_error)
+typedef enum { NEW_QUERY, SAME_QUERY, EXTENDED_QUERY, BAD_QUERY } querytype;
 
+static querytype
+set_probabilistic(const string &oldp)
+{
     // call YACC generated parser
-    qp.set_stemming_options(option["no_stem"] == "true" ? "" : STEM_LANGUAGE,
-			    option["all_stem"] == "true",
+    string stemmer_lang = option["stemmer"];
+    if (stemmer_lang == "") stemmer_lang = DEFAULT_STEM_LANGUAGE;
+    qp.set_stemming_options(stemmer_lang, option["stem_all"] == "true",
 			    new MyStopper()); 
     qp.set_default_op(default_op);
     qp.set_database(db);
     try {
-	query = qp.parse_query(raw_prob);
+	query = qp.parse_query(query_string);
     } catch (const char *s) {
 	error_msg = s;
 	return BAD_QUERY;
@@ -187,7 +188,7 @@ set_probabilistic(const string &newp, const string &oldp)
     const char *term;
     unsigned int n_old_terms = 0;
 
-    if (oldp.empty()) return newp.empty() ? SAME_QUERY : NEW_QUERY;
+    if (oldp.empty()) return query_string.empty() ? SAME_QUERY : NEW_QUERY;
 
     // We used to use "word1#word2#" (with trailing #) but some broken old
     // browsers (versions of MSIE) don't quote # in form GET submissions
@@ -597,7 +598,9 @@ html_highlight(const string &s, const string &list,
 	       const string &bra, const string &ket)
 {
     if (!stemmer) {
-	stemmer = new Xapian::Stem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
+	string stemmer_lang = option["stemmer"];
+	if (stemmer_lang == "") stemmer_lang = DEFAULT_STEM_LANGUAGE;
+	stemmer = new Xapian::Stem(stemmer_lang);
     }
     string::const_iterator i, j = s.begin(), k, l;
     string res;
@@ -656,23 +659,23 @@ print_query_string(const char *after)
 	char prefix = after[3];
 	string::size_type start = 0, amp = 0;
 	while (true) {
-	    amp = query_string.find('&', amp);
+	    amp = url_query_string.find('&', amp);
 	    if (amp == string::npos) {
-		cout << query_string.substr(start);
+		cout << url_query_string.substr(start);
 		return;
 	    }
 	    amp++;
-	    while (query_string[amp] == 'B' &&
-		   query_string[amp + 1] == '=' &&
-		   query_string[amp + 2] == prefix) {
-		cout << query_string.substr(start, amp - start - 1);
-		start = query_string.find('&', amp + 3);
+	    while (url_query_string[amp] == 'B' &&
+		   url_query_string[amp + 1] == '=' &&
+		   url_query_string[amp + 2] == prefix) {
+		cout << url_query_string.substr(start, amp - start - 1);
+		start = url_query_string.find('&', amp + 3);
 		if (start == string::npos) return;
 		amp = start + 1;
 	    }
 	}
     }
-    cout << query_string;
+    cout << url_query_string;
 }
 #endif
 
@@ -772,7 +775,7 @@ CMD_MACRO // special tag for macro evaluation
 struct func_attrib {
     int tag;
     int minargs, maxargs, evalargs;
-    bool ensure_match;
+    char ensure;
 };
 
 #define STRINGIZE(N) _STRINGIZE(N)
@@ -785,8 +788,10 @@ struct func_desc {
 };
 
 #define N -1
+#define M 'M'
+#define Q 'Q'
 static struct func_desc func_tab[] = {
-//name minargs maxargs evalargs ensure_match
+//name minargs maxargs evalargs ensure
 {"",{CMD_,	   N, N, 0, 0}},// commented out code
 T(add,		   0, N, N, 0), // add a list of numbers
 T(allterms,	   0, 1, N, 0), // list of all terms matching document
@@ -809,14 +814,14 @@ T(filesize,	   1, 1, N, 0), // pretty printed filesize
 T(filters,	   0, 0, N, 0), // serialisation of current filters
 T(fmt,		   0, 0, N, 0), // name of current format
 T(freq,		   1, 1, N, 0), // frequency of a term
-T(freqs,	   0, 0, N, 1), // return HTML string listing query terms and
+T(freqs,	   0, 0, N, M), // return HTML string listing query terms and
 				// frequencies
 T(ge,		   2, 2, N, 0), // test >=
 T(gt,		   2, 2, N, 0), // test >
 T(highlight,	   2, 4, N, 0), // html escape and highlight words from list
 T(hit,		   0, 0, N, 0), // hit number of current mset entry (starting
 				// from 0
-T(hitlist,	   1, 1, 0, 1), // display hitlist using format in argument
+T(hitlist,	   1, 1, 0, M), // display hitlist using format in argument
 T(hitsperpage,	   0, 0, N, 0), // hits per page
 T(hostname,	   1, 1, N, 0), // extract hostname from URL
 T(html,		   1, 1, N, 0), // html escape string (<>&")
@@ -824,8 +829,8 @@ T(htmlstrip,	   1, 1, N, 0), // html strip tags string (s/<[^>]*>?//g)
 T(id,		   0, 0, N, 0), // docid of current doc
 T(if,		   2, 3, 1, 0), // conditional
 T(include,	   1, 1, 1, 0), // include another file
-T(last,		   0, 0, N, 1), // m-set number of last hit on page
-T(lastpage,	   0, 0, N, 1), // number of last hit page
+T(last,		   0, 0, N, M), // m-set number of last hit on page
+T(lastpage,	   0, 0, N, M), // number of last hit page
 T(le,		   2, 2, N, 0), // test <=
 T(list,		   2, 5, N, 0), // pretty print list
 T(log,		   1, 2, 1, 0), // create a log entry
@@ -834,8 +839,8 @@ T(map,		   1, 2, 1, 0), // map a list into another list
 T(max,		   1, N, N, 0), // maximum of a list of values
 T(min,		   1, N, N, 0), // minimum of a list of values
 T(mod,		   2, 2, N, 0), // integer modulus
-T(msize,	   0, 0, N, 1), // number of matches
-T(msizeexact,	   0, 0, N, 1), // is $msize exact?
+T(msize,	   0, 0, N, M), // number of matches
+T(msizeexact,	   0, 0, N, M), // is $msize exact?
 T(mul,		   2, N, N, 0), // multiply a list of numbers
 T(ne,	 	   2, 2, N, 0), // test not equal
 T(nice,		   1, 1, N, 0), // pretty print integer (with thousands sep)
@@ -844,32 +849,32 @@ T(now,		   0, 0, N, 0), // current date/time as a time_t
 T(opt,		   1, 2, N, 0), // lookup an option value
 T(or,		   1, N, 0, 0), // logical shortcutting or of a list of values
 T(percentage,	   0, 0, N, 0), // percentage score of current hit
-T(prettyterm,	   1, 1, N, 0), // pretty print term name
-T(query,	   0, 0, N, 0), // query
-T(querydescription,0, 0, N, 0), // query.get_description()
-T(queryterms,	   0, 0, N, 0), // list of query terms
+T(prettyterm,	   1, 1, N, Q), // pretty print term name
+T(query,	   0, 0, N, Q), // query
+T(querydescription,0, 0, N, Q), // query.get_description()
+T(queryterms,	   0, 0, N, Q), // list of query terms
 T(range,	   2, 2, N, 0), // return list of values between start and end
-T(record,	   0, 1, N, 1), // record contents of document
-T(relevant,	   0, 1, N, 1), // is document relevant?
-T(relevants,	   0, 0, N, 1), // return list of relevant documents
+T(record,	   0, 1, N, 0), // record contents of document
+T(relevant,	   0, 1, N, Q), // is document relevant?
+T(relevants,	   0, 0, N, Q), // return list of relevant documents
 T(score,	   0, 0, N, 0), // score (0-10) of current hit
 T(set,		   2, 2, N, 0), // set option value
 T(setmap,	   1, N, N, 0), // set map of option values
-T(setrelevant,     0, 1, N, 0), // set rset
+T(setrelevant,     0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(sub,		   2, 2, N, 0), // subtract
-T(terms,	   0, 0, N, 1), // list of matching terms
-T(thispage,	   0, 0, N, 1), // page number of current page
-T(time,		   0, 0, N, 1), // how long the match took (in seconds)
-T(topdoc,	   0, 0, N, 1), // first document on current page of hit list
+T(terms,	   0, 0, N, M), // list of matching terms
+T(thispage,	   0, 0, N, M), // page number of current page
+T(time,		   0, 0, N, M), // how long the match took (in seconds)
+T(topdoc,	   0, 0, N, M), // first document on current page of hit list
 				// (counting from 0)
-T(topterms,	   0, 1, N, 1), // list of up to N top relevance feedback terms
+T(topterms,	   0, 1, N, M), // list of up to N top relevance feedback terms
 				// (default 16)
 #ifdef HAVE_PCRE
 T(transform,	   3, 3, N, 0), // transform with a regexp
 #endif
 T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
-T(unstem,	   1, 1, N, 0), // return list of probabilistic terms from
+T(unstem,	   1, 1, N, Q), // return list of probabilistic terms from
 				// the query which stemmed to this term
 T(url,		   1, 1, N, 0), // url encode argument
 T(value,	   1, 2, N, 0), // return document value
@@ -991,7 +996,9 @@ eval(const string &fmt, const vector<string> &param)
 	    for (vector<string>::size_type j = 0; j < n; j++)
 		args[j] = eval(args[j], param);
 	}
-	if (i->second->ensure_match) ensure_match();
+	if (i->second->ensure == 'Q' || i->second->ensure == 'M')
+	    ensure_query_parsed();
+	if (i->second->ensure == 'M') ensure_match();
 	string value;
 	switch (i->second->tag) {
 	    case CMD_:
@@ -1078,7 +1085,7 @@ eval(const string &fmt, const vector<string> &param)
 		fa->minargs = 0;
 		fa->maxargs = 9;
 		fa->evalargs = N; // FIXME: or 0?
-		fa->ensure_match = false;
+		fa->ensure = 0;
 		
 		macros.push_back(args[1]);
 		func_map[args[0]] = fa;
@@ -1190,29 +1197,29 @@ eval(const string &fmt, const vector<string> &param)
 		const char *q;
 		int ch;
 		
-		query_string = "?DB=";
-		query_string += dbname;
-		query_string += "&P=";
-		q = raw_prob.c_str();
+		url_query_string = "?DB=";
+		url_query_string += dbname;
+		url_query_string += "&P=";
+		q = query_string.c_str();
 		while ((ch = *q++) != '\0') {
 		    switch (ch) {
 		     case '+':
-			query_string += "%2b";
+			url_query_string += "%2b";
 			break;
 		     case '"':
-			query_string += "%22";
+			url_query_string += "%22";
 			break;
 		     case ' ':
 			ch = '+';
 			/* fall through */
 		     default:
-			query_string += ch;
+			url_query_string += ch;
 		    }
 		}
 	        // add any boolean terms
 		for (FMCI i = filter_map.begin(); i != filter_map.end(); i++) {
-		    query_string += "&B=";
-		    query_string += i->second;
+		    url_query_string += "&B=";
+		    url_query_string += i->second;
 		}
 #endif
 		for (hit_no = topdoc; hit_no < last; hit_no++)
@@ -1436,7 +1443,7 @@ eval(const string &fmt, const vector<string> &param)
 		value = pretty_term(args[0]);
 		break;
 	    case CMD_query:
-		value = raw_prob;
+		value = query_string;
 		break;
 	    case CMD_querydescription:
 		value = query.get_description();
@@ -1595,8 +1602,12 @@ eval(const string &fmt, const vector<string> &param)
 		    Xapian::ESetIterator i;
 		    set<string> seen;
 		    {
-			if (!stemmer)
-			    stemmer = new Xapian::Stem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
+			if (!stemmer) {
+			    string stemmer_lang = option["stemmer"];
+			    if (stemmer_lang == "")
+				stemmer_lang = DEFAULT_STEM_LANGUAGE;
+			    stemmer = new Xapian::Stem(stemmer_lang);
+			}
 			// Exclude terms "similar" to those already in
 			// the query
 			set<string>::const_iterator t;
@@ -1788,8 +1799,11 @@ pretty_term(const string & term)
     if (!db.term_exists('R' + term))
 	return term + '.';
 
-    if (!stemmer)
-	stemmer = new Xapian::Stem(option["no_stem"] == "true" ? "" : STEM_LANGUAGE);
+    if (!stemmer) {
+	string stemmer_lang = option["stemmer"];
+	if (stemmer_lang == "") stemmer_lang = DEFAULT_STEM_LANGUAGE;
+	stemmer = new Xapian::Stem(stemmer_lang);
+    }
 
     // The term is present unstemmed, but if it would stem further it still
     // needs protecting
@@ -1849,9 +1863,150 @@ print_caption(const string &fmt, const vector<string> &param)
 }
 
 void
-do_match()
+parse_omegascript()
 {
     cout << eval_file(fmtname);
+}
+
+// Sets:
+//
+static void
+ensure_query_parsed()
+{
+    MCI val;
+#ifdef __SUNPRO_CC
+    pair<multimap<string, string>::iterator,
+	 multimap<string, string>::iterator> g;
+#else
+    pair<MCI, MCI> g;
+#endif
+
+    // Should we discard the existing R-set recorded in R CGI parameters?
+    bool discard_rset = true;
+
+    // Should we force the first page of hits (and ignore [ > < # and TOPDOC
+    // CGI parameters)?
+    bool force_first_page = true;
+
+    string v;
+    // get list of terms from previous iteration of query
+    val = cgi_params.find("xP");
+    if (val == cgi_params.end()) val = cgi_params.find("OLDP");
+    if (val != cgi_params.end()) {
+	v = val->second;
+    } else {
+	// if xP not given, default to keeping the rset and don't force page 1
+	discard_rset = false;
+	force_first_page = false;
+    }
+    querytype result = set_probabilistic(v);
+    switch (result) {
+	case BAD_QUERY:
+	    // Hmm, how to handle this...
+	    break;
+	case NEW_QUERY:
+	    break;
+	case SAME_QUERY:
+        case EXTENDED_QUERY:
+	    // If we've changed database, force the first page of hits
+	    // and discard the R-set (since the docids will have changed)
+	    val = cgi_params.find("xDB");
+	    if (val != cgi_params.end() && val->second != dbname) break;
+	    if (result == SAME_QUERY && force_first_page) {
+		force_first_page = false;
+		val = cgi_params.find("xFILTERS");
+		string xfilters;
+		if (val != cgi_params.end()) {
+		    xfilters = val->second;
+		} else {
+		    // compatibility with older xB/xDATE/... scheme
+		    val = cgi_params.find("xB");
+		    if (val != cgi_params.end())
+			xfilters = val->second + filter_sep;
+		    static const char * check_vars[] = {
+			"DATE1", "DATE2", "DAYSMINUS", NULL
+		    };
+		    for (const char **pv = check_vars; *pv; ++pv) {
+			val = cgi_params.find('x' + string(*pv));
+			if (val != cgi_params.end()) xfilters += val->second;
+			xfilters += filter_sep;
+		    }
+		    val = cgi_params.find("xDEFAULTOP");
+		    if (val == cgi_params.end() && xfilters.length() == 3) {
+			// no x values, so don't force first page
+			xfilters = filters;
+		    } else {
+			char ch = 'O';
+			if (val != cgi_params.end() && val->second == "and")
+			    ch = 'A';
+			xfilters[xfilters.length() - 1] = ch;
+		    }
+		}
+		if (filters != xfilters) {
+		    // Filters changed since last query
+		    force_first_page = true;
+		}
+	    }
+	    discard_rset = false;
+	    break;
+    }
+
+    if (!force_first_page) {
+	// Work out which mset element is the first hit we want
+	// to display
+	val = cgi_params.find("TOPDOC");
+	if (val != cgi_params.end()) {
+	    topdoc = atol(val->second.c_str());
+	}
+
+	// Handle next, previous, and page links
+	if (cgi_params.find(">") != cgi_params.end()) {
+	    topdoc += hits_per_page;
+	} else if (cgi_params.find("<") != cgi_params.end()) {
+	    if (topdoc >= hits_per_page)
+		topdoc -= hits_per_page;
+	    else
+		topdoc = 0;
+	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
+		   (val = cgi_params.find("#")) != cgi_params.end()) {
+	    topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
+	}
+
+	// raw_search means don't snap TOPDOC to a multiple of HITSPERPAGE.
+	// Normally we snap TOPDOC like this so that things work nicely if
+	// HITSPERPAGE is in a picker or on radio buttons.  If we're
+	// postprocessing the output of omega and want variable sized pages,
+	// this is unhelpful.
+	bool raw_search = false; 
+	val = cgi_params.find("RAWSEARCH");
+	// In Omega <= 0.6.3, RAWSEARCH was RAW_SEARCH - renamed to be
+	// consistent with the naming of other CGI parameters.
+	if (val == cgi_params.end()) val = cgi_params.find("RAW_SEARCH");
+	if (val != cgi_params.end()) {
+	    raw_search = bool(atol(val->second.c_str()));
+	}
+
+	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
+    }
+
+    if (!discard_rset) {
+	// put documents marked as relevant into the rset
+	g = cgi_params.equal_range("R");
+	for (MCI i = g.first; i != g.second; i++) {
+	    const string & v = i->second;
+	    if (!v.empty()) {
+		vector<string> r = split(v, '.');
+		vector<string>::const_iterator i;
+		for (i = r.begin(); i != r.end(); i++) {
+		    Xapian::docid d = string_to_int(*i);
+		    if (d) {
+			rset.add_document(d);
+			ticked[d] = true;
+		    }
+		}
+	    }
+	}
+    }
 }
 
 // run query if we haven't already

@@ -1,3 +1,11 @@
+Tue Oct 21 20:03:27 BST 2003  Olly Betts <olly@survex.com>
+
+	* omega.cc,omega.h,query.cc,query.h: Reworked so that the
+	  probabilistic query isn't parsed until we need some
+	  information from it.  This means that we can now use options
+	  set by the omegascript template to control the behaviour of the
+	  query parser.
+
 Thu Oct 16 21:17:01 BST 2003  Olly Betts <olly@survex.com>
 
 	* omega.cc: Renamed `big_buf' to `query_string' and eliminated `more'

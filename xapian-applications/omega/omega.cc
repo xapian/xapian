@@ -23,6 +23,7 @@
  * -----END-LICENCE-----
  */
 
+#include <assert.h>
 #include <stdio.h>
 #include <time.h>
 
@@ -62,6 +63,9 @@ Xapian::docid topdoc = 0;
 Xapian::docid hits_per_page = 0;
 Xapian::docid min_hits = 0;
 
+// the probabilistic query
+string query_string;
+
 // percentage cut-off
 int threshold = 0;
 
@@ -70,12 +74,6 @@ Xapian::valueno sort_key = 0;
 int sort_bands = 0; // Don't sort
 Xapian::valueno collapse_key = 0;
 bool collapse = false;
-
-const static char filter_sep = '-';
-// Any choice of character for filter_sep could conceivably lead to
-// false positives, but the situation is contrived, and just means that if
-// someone changed a filter, the first page wouldn't be forced.
-// That's hardly the end of the world...
 
 static string
 map_dbname_to_dir(const string &dbname)
@@ -87,7 +85,6 @@ int main(int argc, char *argv[])
 try {
     read_config_file();
 
-    string query_string;
     char *method;
     MCI val;
 #ifdef __SUNPRO_CC
@@ -231,6 +228,20 @@ try {
 	}
     } 
 
+    // strip leading and trailing whitespace from query_string
+    string::size_type first_nonspace;
+    first_nonspace = query_string.find_first_not_of(" \t\r\n\v");
+    if (first_nonspace == string::npos) {
+	query_string = "";
+    } else {
+	string::size_type len = query_string.find_last_not_of(" \t\r\n\v");
+	assert(len != string::npos);
+	if (first_nonspace > 0 || len <= query_string.length() - 1) {
+	    len = len + 1 - first_nonspace;
+	    query_string = query_string.substr(first_nonspace, len + 1);
+	}
+    }
+
     // set any boolean filters
     g = cgi_params.equal_range("B");
     if (g.first != g.second) {
@@ -325,135 +336,7 @@ try {
         min_hits = 0;
     }
 
-    // Should we discard the existing R-set recorded in R CGI parameters?
-    bool discard_rset = true;
-
-    // Should we force the first page of hits (and ignore [ > < # and TOPDOC
-    // CGI parameters)?
-    bool force_first_page = true;
-
-    // raw_search means don't snap TOPDOC to a multiple of HITSPERPAGE.
-    // Normally we snap TOPDOC like this so that things work nicely if
-    // HITSPERPAGE is in a picker or on radio buttons.  If we're postprocessing
-    // the output of omega and want variable sized pages, this is unhelpful.
-    bool raw_search = false; 
-    val = cgi_params.find("RAWSEARCH");
-    // In Omega <= 0.6.3, RAWSEARCH was RAW_SEARCH - renamed to be consistent
-    // with the naming of other CGI parameters.
-    if (val == cgi_params.end()) val = cgi_params.find("RAW_SEARCH");
-    if (val != cgi_params.end()) {
-	raw_search = bool(atol(val->second.c_str()));
-    }
-
-    string v;
-    // get list of terms from previous iteration of query
-    val = cgi_params.find("xP");
-    if (val == cgi_params.end()) val = cgi_params.find("OLDP");
-    if (val != cgi_params.end()) {
-	v = val->second;
-    } else {
-	// if xP not given, default to keeping the rset and don't force page 1
-	discard_rset = false;
-	force_first_page = false;
-    }
-    int result = set_probabilistic(query_string, v);
-    switch (result) {
-	case BAD_QUERY:
-	    // Hmm, how to handle this...
-	    break;
-	case NEW_QUERY:
-	    break;
-	case SAME_QUERY:
-        case EXTENDED_QUERY:
-	    // If we've changed database, force the first page of hits
-	    // and discard the R-set (since the docids will have changed)
-	    val = cgi_params.find("xDB");
-	    if (val != cgi_params.end() && val->second != dbname) break;
-	    if (result == SAME_QUERY && force_first_page) {
-		force_first_page = false;
-		val = cgi_params.find("xFILTERS");
-		string xfilters;
-		if (val != cgi_params.end()) {
-		    xfilters = val->second;
-		} else {
-		    // compatibility with older xB/xDATE/... scheme
-		    val = cgi_params.find("xB");
-		    if (val != cgi_params.end())
-			xfilters = val->second + filter_sep;
-		    static const char * check_vars[] = {
-			"DATE1", "DATE2", "DAYSMINUS", NULL
-		    };
-		    for (const char **pv = check_vars; *pv; ++pv) {
-			val = cgi_params.find('x' + string(*pv));
-			if (val != cgi_params.end()) xfilters += val->second;
-			xfilters += filter_sep;
-		    }
-		    val = cgi_params.find("xDEFAULTOP");
-		    if (val == cgi_params.end() && xfilters.length() == 3) {
-			// no x values, so don't force first page
-			xfilters = filters;
-		    } else {
-			char ch = 'O';
-			if (val != cgi_params.end() && val->second == "and")
-			    ch = 'A';
-			xfilters[xfilters.length() - 1] = ch;
-		    }
-		}
-		if (filters != xfilters) {
-		    // Filters changed since last query
-		    force_first_page = true;
-		}
-	    }
-	    discard_rset = false;
-	    break;
-    }
-
-    if (!force_first_page) {
-	// Work out which mset element is the first hit we want
-	// to display
-	val = cgi_params.find("TOPDOC");
-	if (val != cgi_params.end()) {
-	    topdoc = atol(val->second.c_str());
-	}
-
-	// Handle next, previous, and page links
-	if (cgi_params.find(">") != cgi_params.end()) {
-	    topdoc += hits_per_page;
-	} else if (cgi_params.find("<") != cgi_params.end()) {
-	    if (topdoc >= hits_per_page)
-		topdoc -= hits_per_page;
-	    else
-		topdoc = 0;
-	} else if ((val = cgi_params.find("[")) != cgi_params.end() ||
-		   (val = cgi_params.find("#")) != cgi_params.end()) {
-	    topdoc = (atol(val->second.c_str()) - 1) * hits_per_page;
-	}
-
-	// snap topdoc to page boundary
-	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
-    }
-
-    if (!discard_rset) {
-	// put documents marked as relevant into the rset
-	g = cgi_params.equal_range("R");
-	for (MCI i = g.first; i != g.second; i++) {
-	    const string & v = i->second;
-	    if (!v.empty()) {
-		vector<string> r = split(v, '.');
-		vector<string>::const_iterator i;
-		for (i = r.begin(); i != r.end(); i++) {
-		    Xapian::docid d = string_to_int(*i);
-		    if (d) {
-			rset.add_document(d);
-			ticked[d] = true;
-		    }
-		}
-	    }
-	}
-    }
-
-    // process commands
-    do_match();
+    parse_omegascript(); 
 } catch (const Xapian::Error &e) {
     cout << "Exception: " << e.get_msg() << endl;
 } catch (const string &s) {

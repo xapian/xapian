@@ -36,6 +36,14 @@
 
 using namespace std;
 
+const static char filter_sep = '-';
+// Any choice of character for filter_sep could conceivably lead to
+// false positives, but the situation is contrived, and just means that if
+// someone changed a filter, the first page wouldn't be forced.
+// That's hardly the end of the world...
+
+extern string query_string;
+
 extern string dbname;
 extern string fmtname;
 extern string filters;
