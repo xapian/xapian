@@ -203,18 +203,24 @@ main(int argc, char **argv)
 {
     const struct option long_opts[] = {
 	{"no-full",	no_argument, 0, 'n'},
+	{"fuller",	no_argument, 0, 'F'},
 	{"help",	no_argument, 0, 'h'},
 	{"version",	no_argument, 0, 'v'},
     };
 
     bool full_compaction = true;
+    size_t max_item_size = 0;
+    const size_t block_size = 8192;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "nhv", long_opts, 0)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "nFhv", long_opts, 0)) != EOF) {
         switch (c) {
             case 'n':
 		full_compaction = false;
                 break;
+	    case 'F':
+		max_item_size = block_size - DIR_START - BLOCK_CAPACITY * D2;
+		break;
             case 'h':
 		usage(argv[0]);
 		exit(0);
@@ -294,9 +300,10 @@ main(int argc, char **argv)
 	    dest += '_';
 
 	    Btree out(dest, false);
-	    out.create(8192);
+	    out.create(block_size);
 	    out.open();
 	    out.set_full_compaction(full_compaction);
+	    if (max_item_size) out.max_item_size = max_item_size;
 
 	    // Sometimes stat can fail for benign reasons (e.g. >= 2GB file
 	    // on certain systems).

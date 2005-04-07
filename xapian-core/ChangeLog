@@ -1,3 +1,8 @@
+Thu Apr 07 03:35:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Added "fuller compaction" mode, which ignores
+	  the usual "at least 4 items per block" rule.
+
 Thu Apr 07 03:28:32 BST 2005  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Added success result for GCC 3.2.3 on FreeBSD 4.8; fixed
