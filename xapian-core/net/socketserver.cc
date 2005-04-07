@@ -312,7 +312,7 @@ SocketServer::run_match(const string &firstmessage)
 
     MultiMatch match(db, query, qlen, omrset, collapse_key, percent_cutoff,
 		     weight_cutoff, order, Xapian::valueno(-1),
-		     0, false, false, 0, 0, NULL, gatherer, wt.get());
+		     false, false, 0, 0, NULL, gatherer, wt.get());
 
 #if 0
     DEBUGLINE(UNKNOWN, "Adding artificial delay for statistics");

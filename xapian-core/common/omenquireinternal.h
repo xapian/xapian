@@ -147,7 +147,6 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	Xapian::weight weight_cutoff;
 
 	Xapian::valueno sort_key;
-	int sort_bands;
 	bool sort_by_relevance;
 	bool sort_value_forward;
 

@@ -58,8 +58,6 @@ class MultiMatch
 
 	Xapian::valueno sort_key;
 
-	int sort_bands;
-
 	bool sort_by_relevance;
 
 	bool sort_value_forward;
@@ -125,7 +123,6 @@ class MultiMatch
 		   Xapian::weight weight_cutoff_,
 		   Xapian::Enquire::docid_order order_,
 		   Xapian::valueno sort_key_,
-		   int sort_bands_,
 		   bool sort_by_relevance_,
 		   bool sort_value_forward_,
 		   time_t bias_halflife_,

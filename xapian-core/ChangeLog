@@ -1,3 +1,8 @@
+Thu Apr 07 15:57:15 BST 2005  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/omenquireinternal.h,common/multimatch.h,
+	  matcher/multimatch.cc,net/socketserver.cc: Tidy up after sort_bands.
+
 Thu Apr 07 15:15:27 BST 2005  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/,include/xapian/enquire.h,
