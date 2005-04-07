@@ -1370,7 +1370,7 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	throw std::bad_alloc();
     }
 
-    max_item_size = (block_size - DIR_START - BLOCK_CAPACITY * D2) / BLOCK_CAPACITY;
+    set_max_item_size(BLOCK_CAPACITY);
 
     base_letter = ch;
 

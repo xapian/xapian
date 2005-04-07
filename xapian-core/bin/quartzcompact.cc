@@ -49,7 +49,9 @@ usage(const char * progname)
     cout << "Usage: " << progname
 	 << " [OPTION] <path to source database>... "
 	    "<path to destination database>\n\n"
-	    "  -n, --no-full  Disable full compaction"
+	    "  -n, --no-full  Disable full compaction\n"
+	    "  -F, --fuller   Enable fuller compaction (not recommended if you plan to"
+	    "                 update the compacted database)"
 	 << endl;
 }
 
@@ -209,7 +211,7 @@ main(int argc, char **argv)
     };
 
     bool full_compaction = true;
-    size_t max_item_size = 0;
+    size_t block_capacity = 0;
     const size_t block_size = 8192;
 
     int c;
@@ -219,7 +221,7 @@ main(int argc, char **argv)
 		full_compaction = false;
                 break;
 	    case 'F':
-		max_item_size = block_size - DIR_START - BLOCK_CAPACITY * D2;
+		block_capacity = 1;
 		break;
             case 'h':
 		usage(argv[0]);
@@ -303,7 +305,7 @@ main(int argc, char **argv)
 	    out.create(block_size);
 	    out.open();
 	    out.set_full_compaction(full_compaction);
-	    if (max_item_size) out.max_item_size = max_item_size;
+	    if (block_capacity) out.set_max_item_size(block_capacity);
 
 	    // Sometimes stat can fail for benign reasons (e.g. >= 2GB file
 	    // on certain systems).

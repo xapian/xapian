@@ -548,6 +548,17 @@ class Btree {
 	 */
 	static const string::size_type max_key_len = BTREE_MAX_KEY_LEN;
 
+	/** Set the maximum item size given the block capacity.
+	 *
+	 *  At least this many items of maximum size must fit into a block.
+	 *  The default is BLOCK_CAPACITY (which is currently 4).
+	 */
+	void set_max_item_size(size_t block_capacity) {
+	    if (block_capacity > 4) block_capacity = 4;
+	    max_item_size = (block_size - DIR_START - block_capacity * D2)
+		/ block_capacity;
+	}
+
     protected:
 
 	/** Perform the opening operation to read.
@@ -650,7 +661,7 @@ class Btree {
 	int changed_c;
 
 	/// maximum size of an item (key-tag pair)
-	int max_item_size;
+	size_t max_item_size;
 
 	/// Set to true the first time the B-tree is modified.
 	mutable bool Btree_modified;

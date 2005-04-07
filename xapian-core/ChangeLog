@@ -1,3 +1,10 @@
+Thu Apr 07 13:37:02 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h,
+	  bin/quartzcompact.cc: The "fuller compaction" code needs changes
+	  to btree.h which I'd failed to check in.  Also document --fuller
+	  in 'quartzcompact --help'.
+
 Thu Apr 07 03:35:36 BST 2005  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc: Added "fuller compaction" mode, which ignores
