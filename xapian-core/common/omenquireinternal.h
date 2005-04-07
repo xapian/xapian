@@ -140,7 +140,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
     public:
 	Xapian::valueno collapse_key;
 
-	bool sort_forward;
+	Xapian::Enquire::docid_order order;
 
 	percent percent_cutoff;
 
@@ -149,6 +149,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	Xapian::valueno sort_key;
 	int sort_bands;
 	bool sort_by_relevance;
+	bool sort_value_forward;
 
 	time_t bias_halflife;
 	Xapian::weight bias_weight;

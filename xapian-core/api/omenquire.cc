@@ -155,7 +155,7 @@ RSet::Internal::to_string() const
 
     set<Xapian::docid>::const_iterator i;
     for (i = items.begin(); i != items.end(); ++i) {
-	result += " ";
+	result += ' ';
 	result += om_tostring(*i);
     }
     return result;
@@ -656,10 +656,11 @@ MSetIterator::get_description() const
 // Methods for Xapian::Enquire::Internal
 
 Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
-  : db(db_), query(), collapse_key(Xapian::valueno(-1)), sort_forward(true), 
-    percent_cutoff(0), weight_cutoff(0), sort_key(Xapian::valueno(-1)),
-    sort_bands(0), sort_by_relevance(false), bias_halflife(0), bias_weight(0),
-    errorhandler(errorhandler_), weight(0)
+  : db(db_), query(), collapse_key(Xapian::valueno(-1)),
+    order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
+    sort_key(Xapian::valueno(-1)), sort_bands(0), sort_by_relevance(false),
+    sort_value_forward(true),
+    bias_halflife(0), bias_weight(0), errorhandler(errorhandler_), weight(0)
 {
 }
 
@@ -691,25 +692,30 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	      << maxitems << ", " << check_at_least << ", " << rset << ", "
 	      << mdecider);
 
-    // Set Rset
-    RSet emptyrset;
-    if (rset == 0) {
-	rset = &emptyrset;
-    }
-
     if (weight == 0) {
 	weight = new BM25Weight;
     }
 
-    ::MultiMatch match(db, query.internal.get(), qlen, *rset, collapse_key,
+    MSet retval;
+    if (rset == 0) {
+	::MultiMatch match(db, query.internal.get(), qlen, RSet(), collapse_key,
 		       percent_cutoff, weight_cutoff,
-		       sort_forward, sort_key, sort_bands, sort_by_relevance,
+		       order, sort_key, sort_bands, sort_by_relevance,
+		       sort_value_forward,
 		       bias_halflife, bias_weight, errorhandler,
 		       new LocalStatsGatherer(), weight);
-
-    // Run query and get results into supplied Xapian::MSet object
-    MSet retval;
-    match.get_mset(first, maxitems, check_at_least, retval, mdecider);
+	// Run query and put results into supplied Xapian::MSet object.
+	match.get_mset(first, maxitems, check_at_least, retval, mdecider);
+    } else {
+	::MultiMatch match(db, query.internal.get(), qlen, *rset, collapse_key,
+		       percent_cutoff, weight_cutoff,
+		       order, sort_key, sort_bands, sort_by_relevance,
+		       sort_value_forward,
+		       bias_halflife, bias_weight, errorhandler,
+		       new LocalStatsGatherer(), weight);
+	// Run query and put results into supplied Xapian::MSet object.
+	match.get_mset(first, maxitems, check_at_least, retval, mdecider);
+    }
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
 
@@ -834,7 +840,8 @@ string
 Enquire::Internal::get_description() const
 {
     string description = db.get_description();
-    description += ", " + query.get_description();
+    description += ", ";
+    description += query.get_description();
     return description;
 }
 
@@ -932,9 +939,9 @@ Enquire::set_collapse_key(Xapian::valueno collapse_key)
 }
 
 void
-Enquire::set_sort_forward(bool sort_forward)
+Enquire::set_docid_order(Enquire::docid_order order)
 {
-    internal->sort_forward = sort_forward;
+    internal->order = order;
 }
 
 void
@@ -945,15 +952,30 @@ Enquire::set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff
 }
 
 void
-Enquire::set_sorting(Xapian::valueno sort_key, int sort_bands,
-		     bool sort_by_relevance)
+Enquire::set_sort_by_relevance()
 {
-    if (sort_bands > 1) {
-	throw Xapian::UnimplementedError("sort bands are no longer supported");
-    }
+    internal->sort_key = Xapian::valueno(-1);
+    internal->sort_bands = 0;
+    internal->sort_by_relevance = true;
+}
+
+void
+Enquire::set_sort_by_value(Xapian::valueno sort_key, bool ascending)
+{
     internal->sort_key = sort_key;
-    internal->sort_bands = sort_bands;
-    internal->sort_by_relevance = sort_by_relevance;
+    internal->sort_bands = 1;
+    internal->sort_by_relevance = false;
+    internal->sort_value_forward = ascending;
+}
+
+void
+Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key,
+					  bool ascending)
+{
+    internal->sort_key = sort_key;
+    internal->sort_bands = 1;
+    internal->sort_by_relevance = true;
+    internal->sort_value_forward = ascending;
 }
 
 void
@@ -1047,19 +1069,7 @@ string
 Enquire::get_description() const
 {
     DEBUGCALL(INTRO, string, "Xapian::Enquire::get_description", "");
-#if 1
-    return "Xapian::Enquire()";
-#else
-    // Hmm, causing and handling exceptions is a somewhat suspect thing to be
-    // doing in code which we want to be able to use for non-intrusive
-    // tracing - FIXME
-    try {
-	RETURN("Xapian::Enquire(" + internal->get_description() + ")");
-    } catch (Error & e) {
-	if (internal->errorhandler) (*internal->errorhandler)(e);
-	throw;
-    }
-#endif
+    RETURN("Xapian::Enquire(" + internal->get_description() + ")");
 }
 
 }

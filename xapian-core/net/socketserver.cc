@@ -287,13 +287,15 @@ SocketServer::run_match(const string &firstmessage)
 #endif
 
     Xapian::termcount qlen;
-    bool sort_forward;
+    Xapian::Enquire::docid_order order;
+    int order_int;
     Xapian::valueno collapse_key;
     int percent_cutoff;
     Xapian::weight weight_cutoff;
     string weighting_scheme;
 
-    is >> qlen >> collapse_key >> sort_forward >> percent_cutoff >> weight_cutoff;
+    is >> qlen >> collapse_key >> order_int >> percent_cutoff >> weight_cutoff;
+    order = Xapian::Enquire::docid_order(order_int);
 
     // extract the weight object
     message = readline(msecs_active_timeout);
@@ -309,8 +311,8 @@ SocketServer::run_match(const string &firstmessage)
     Xapian::RSet omrset = string_to_omrset(message);
 
     MultiMatch match(db, query, qlen, omrset, collapse_key, percent_cutoff,
-		     weight_cutoff, sort_forward, Xapian::valueno(-1),
-		     false, 0, 0, 0, NULL, gatherer, wt.get());
+		     weight_cutoff, order, Xapian::valueno(-1),
+		     0, false, false, 0, 0, NULL, gatherer, wt.get());
 
 #if 0
     DEBUGLINE(UNKNOWN, "Adding artificial delay for statistics");

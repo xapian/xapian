@@ -192,7 +192,8 @@ class SocketClient : public NetClient {
 	 */
 	void set_query(const Xapian::Query::Internal *query_,
 		       Xapian::termcount qlen,
-		       Xapian::valueno collapse_key, bool sort_forward,
+		       Xapian::valueno collapse_key,
+		       Xapian::Enquire::docid_order order,
 		       int percent_cutoff, Xapian::weight weight_cutoff,
 		       const Xapian::Weight *wtscheme,
 		       const Xapian::RSet &omrset_);

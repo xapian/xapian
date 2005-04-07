@@ -1,3 +1,13 @@
+Thu Apr 07 15:15:27 BST 2005  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/,include/xapian/enquire.h,
+	  matcher/networkmatch.cc,matcher/multimatch.cc,matcher/networkmatch.h,
+	  net/socketserver.cc,net/socketclient.cc,tests/api_db.cc:
+	  Enhanced Enquire sorting API and added ability to reverse sort on
+	  a value.
+	* api/omenquire.cc: Enquire::get_description() now includes output of
+	  Enquire::Internal::get_description().
+ 
 Thu Apr 07 13:55:56 BST 2005  Olly Betts <olly@survex.com>
 
 	* HACKING: Fixed a typo.

@@ -30,6 +30,7 @@
 #include <time.h> // for time_t
 
 #include <xapian/base.h>
+#include <xapian/error.h>
 #include <xapian/types.h>
 
 namespace Xapian {
@@ -708,6 +709,12 @@ class Enquire {
 	 */
 	void set_collapse_key(Xapian::valueno collapse_key);
 
+	typedef enum {
+	    ASCENDING = 1,
+	    DESCENDING = 0,
+	    DONT_CARE = 2
+	} docid_order;
+
 	/** Set the direction in which documents are ordered by document id
 	 *  in the returned MSet.
 	 *
@@ -718,14 +725,24 @@ class Enquire {
 	 *  is used, this means documents with equal sort value (and also equal
 	 *  weight if ordering on relevance after the sort).
 	 *
-	 * @param sort_forward If true, document ids are in ascending order;
-	 *	  if false, they are in descending order. (default true)
+	 * @param order  This can be:
+	 * - Xapian::Enquire::ASCENDING
+	 *	docids sort in ascending order (default)
+	 * - Xapian::Enquire::DESCENDING
+	 *	docids sort in descending order
+	 * - Xapian::Enquire::DONT_CARE
+	 *      docids sort in whatever order is most efficient for the backend
 	 *
 	 *  Note: If you add documents in strict date order, then a boolean
-	 *  search with set_sort_forward(false) is a very efficient way to
-	 *  perform "sort by date, newest first".
+	 *  search with set_docid_order(Xapian::Enquire::DESCENDING) is a very
+	 *  efficient way to perform "sort by date, newest first".
 	 */
-	void set_sort_forward(bool sort_forward);
+	void set_docid_order(docid_order order);
+
+	/** For compatibility with Xapian 0.8.5 and earlier. */
+	void set_sort_forward(bool sort_forward) {
+	    set_docid_order(sort_forward ? ASCENDING : DESCENDING);
+	}
 
 	/** Set the percentage and/or weight cutoffs.
 	 *
@@ -734,7 +751,7 @@ class Enquire {
 	 *	it will not appear in the mset.  If your intention is to return
 	 *	only matches which contain all the terms in the query, then
 	 *	it's more efficient to use Xapian::Query::OP_AND instead of
-	 *	Xapian::Query::OP_OR in the query than to set percent_cutoff to 100).
+	 *	Xapian::Query::OP_OR in the query than to use set_cutoff(100).
 	 *	(default 0 => no percentage cut-off).
 	 * @param weight_cutoff Minimum weight for a document to be returned.
 	 *	If a document has a lower score that this, it will not appear
@@ -743,28 +760,46 @@ class Enquire {
 	 *	previous run of the same query; this is thus mainly useful for
 	 *	alerting operations.  The other potential use is with a user
 	 *	specified weighting scheme.
+	 *	(default 0 => no weight cut-off).
 	 */
 	void set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff = 0);
 
-	/** Set the sorting key and number of sort bands.
+	/** For compatibility with Xapian 0.8.5 and earlier. */
+	void set_sorting(Xapian::valueno sort_key, int sort_bands,
+			 bool sort_by_relevance = false) {
+	    if (sort_bands > 1) {
+		throw Xapian::UnimplementedError("sort bands are no longer supported");
+	    }
+	    if (sort_bands == 0 || sort_key == Xapian::valueno(-1)) {
+		set_sort_by_relevance();
+	    } else if (!sort_by_relevance) {
+		set_sort_by_value(sort_key);
+	    } else {
+		set_sort_by_value_then_relevance(sort_key);
+	    }
+	}
+
+	/* @param sort_by_relevance sort results with equal keys by relevance
+	 *	 before docid.  (default is false).
+         */
+	void set_sort_by_relevance();
+
+	/** Set the sorting to be used.
 	 *
 	 * @param sort_key value number to reorder on.  Sorting is with a
-	 *	string compare.  Higher is better.  If match_sort_key is set,
-	 *	but match_sort_bands isn't, sort the whole mset my the key.
-	 *	(default is Xapian::valueno(-1) which means re-sort by doc id:
-	 *	ascending or descending as controlled by sort_forward).
+	 *	string compare.  If ascending is true (the default) higher
+	 *	is better; if ascending is false, lower is better.
 	 *
-	 * @param sort_bands sort results into this many bands of equal
-	 *	 percentage relevance.  Within each band, sort by the value
-	 *	 number specified by sort_key.  (default is 0 which means
-	 *	 no re-sorting).  NB Values other than 0 and 1 are no longer
-	 *	 supported.
-	 *
-	 * @param sort_by_relevance sort results with equal keys by relevance
-	 *	 rather than docid.  (default is false).
-	 */
-	void set_sorting(Xapian::valueno sort_key, int sort_bands,
-			 bool sort_by_relevance = false);
+	 * @param ascending  If true, documents values which sort higher by
+	 *		 string compare are better.  If false, the sort order
+	 *		 is reversed.  (default true)
+         */
+	void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
+	void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
+					      bool ascending = true);
+// FIXME: consider implementing this:
+//	void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
+//					      bool ascending);
 
 	/** Set the bias functor parameters.
 	 *

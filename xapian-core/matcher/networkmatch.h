@@ -66,7 +66,8 @@ class RemoteSubMatch : public SubMatch {
 		       const Xapian::Query::Internal * query,
 		       Xapian::termcount qlen,
 		       const Xapian::RSet & omrset,
-		       Xapian::valueno collapse_key, bool sort_forward,
+		       Xapian::valueno collapse_key,
+		       Xapian::Enquire::docid_order order,
 		       int percent_cutoff, Xapian::weight weight_cutoff,
 		       StatsGatherer *gatherer_, const Xapian::Weight *wtscheme);
 

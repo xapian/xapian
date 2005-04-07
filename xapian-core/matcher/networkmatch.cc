@@ -36,7 +36,8 @@ RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
 			       const Xapian::Query::Internal * query,
 			       Xapian::termcount qlen,
 			       const Xapian::RSet & omrset,
-			       Xapian::valueno collapse_key, bool sort_forward,
+			       Xapian::valueno collapse_key,
+			       Xapian::Enquire::docid_order order,
 			       int percent_cutoff, Xapian::weight weight_cutoff,
 			       StatsGatherer *gatherer_,
 			       const Xapian::Weight *wtscheme)
@@ -44,14 +45,14 @@ RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
 {	    
     DEBUGCALL(MATCH, void, "RemoteSubMatch", db_ << ", " << query << ", " <<
 	      qlen << ", " <<
-	      omrset << ", " << collapse_key << ", " << sort_forward << ", " <<
+	      omrset << ", " << collapse_key << ", " << int(order) << ", " <<
 	      percent_cutoff << ", " << weight_cutoff << ", " << gatherer_);
     Assert(db);
     Assert(query);
     Assert(gatherer_);
     statssource = new NetworkStatsSource(gatherer_, db->link);
 
-    db->link->set_query(query, qlen, collapse_key, sort_forward, percent_cutoff,
+    db->link->set_query(query, qlen, collapse_key, order, percent_cutoff,
 			weight_cutoff, wtscheme, omrset);
     db->link->register_statssource(statssource);
 

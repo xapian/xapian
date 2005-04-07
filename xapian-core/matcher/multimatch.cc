@@ -154,18 +154,87 @@ msetcmp_sort_reverse_relevance(const Xapian::Internal::MSetItem &a,
     return (a.did > b.did);
 }
 
+// Reverse sort by value versions:
+
+// Comparison which reverse sorts by a value - used when sort_bands == 1.
+// If sort keys compare equal, return documents in docid order.
+static bool
+msetcmp_reverse_sort_forward(const Xapian::Internal::MSetItem &a,
+			     const Xapian::Internal::MSetItem &b)
+{
+    // two special cases to make min_item compares work when did == 0
+    if (a.did == 0) return false;
+    if (b.did == 0) return true; 
+    // "smaller is better"
+    if (a.sort_key > b.sort_key) return false;
+    if (a.sort_key < b.sort_key) return true;
+    return (a.did < b.did);
+}
+
+// Comparison which reverse sorts by a value - used when sort_bands == 1.
+// If sort keys compare equal, return documents in weight, then docid order.
+static bool
+msetcmp_reverse_sort_forward_relevance(const Xapian::Internal::MSetItem &a,
+				       const Xapian::Internal::MSetItem &b)
+{
+    // two special cases to make min_item compares work when did == 0
+    if (a.did == 0) return false;
+    if (b.did == 0) return true; 
+    // "smaller is better"
+    if (a.sort_key > b.sort_key) return false;
+    if (a.sort_key < b.sort_key) return true;
+    if (a.wt > b.wt) return true;
+    if (a.wt < b.wt) return false;
+    return (a.did < b.did);
+}
+
+// Comparison which reverse sorts by a value - used when sort_bands == 1.
+// If sort keys compare equal, return documents in reverse docid order.
+static bool
+msetcmp_reverse_sort_reverse(const Xapian::Internal::MSetItem &a,
+		     const Xapian::Internal::MSetItem &b)
+{
+    // two special cases to make min_item compares work when did == 0
+    if (a.did == 0) return false;
+    if (b.did == 0) return true; 
+    // "smaller is better"
+    if (a.sort_key > b.sort_key) return false;
+    if (a.sort_key < b.sort_key) return true;
+    return (a.did > b.did);
+}
+
+// Comparison which reverse sorts by a value - used when sort_bands == 1.
+// If sort keys compare equal, return documents in reverse docid order.
+static bool
+msetcmp_reverse_sort_reverse_relevance(const Xapian::Internal::MSetItem &a,
+				       const Xapian::Internal::MSetItem &b)
+{
+    // two special cases to make min_item compares work when did == 0
+    if (a.did == 0) return false;
+    if (b.did == 0) return true; 
+    // "smaller is better"
+    if (a.sort_key > b.sort_key) return false;
+    if (a.sort_key < b.sort_key) return true;
+    if (a.wt > b.wt) return true;
+    if (a.wt < b.wt) return false;
+    return (a.did > b.did);
+}
+
 class MSetSortCmp {
     private:
 	Xapian::Database db;
 	double factor;
 	Xapian::valueno sort_key;
 	bool forward;
+	bool forward_value;
 	int bands;
     public:
-	MSetSortCmp(const Xapian::Database &db_, int bands_, double percent_scale,
-		    Xapian::valueno sort_key_, bool forward_)
+	MSetSortCmp(const Xapian::Database &db_, int bands_,
+		    double percent_scale, Xapian::valueno sort_key_,
+		    bool forward_, bool forward_value_)
 	    : db(db_), factor(percent_scale * bands_ / 100.0),
-	      sort_key(sort_key_), forward(forward_), bands(bands_) {
+	      sort_key(sort_key_), forward(forward_),
+	      forward_value(forward_value_), bands(bands_) {
 	}
 	bool operator()(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b) const {
 	    int band_a = int(ceil(a.wt * factor));
@@ -183,9 +252,15 @@ class MSetSortCmp {
 		    Xapian::Document doc = db.get_document(b.did);
 		    b.sort_key = doc.get_value(sort_key);
 		}
-		// "bigger is better"
-		if (a.sort_key > b.sort_key) return true;
-		if (a.sort_key < b.sort_key) return false;
+		if (forward_value) {
+		    // "bigger is better"
+		    if (a.sort_key > b.sort_key) return true;
+		    if (a.sort_key < b.sort_key) return false;
+		} else {
+		    // "smaller is better"
+		    if (a.sort_key > b.sort_key) return false;
+		    if (a.sort_key < b.sort_key) return true;
+		}
 	    }
 	    if (forward) return a.did < b.did;
 	    return a.did > b.did;
@@ -195,31 +270,38 @@ class MSetSortCmp {
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
-MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Internal * query_,
+MultiMatch::MultiMatch(const Xapian::Database &db_,
+		       const Xapian::Query::Internal * query_,
 		       Xapian::termcount qlen,
-		       const Xapian::RSet & omrset, Xapian::valueno collapse_key_,
+		       const Xapian::RSet & omrset,
+		       Xapian::valueno collapse_key_,
 		       int percent_cutoff_, Xapian::weight weight_cutoff_,
-		       bool sort_forward_, Xapian::valueno sort_key_,
+		       Xapian::Enquire::docid_order order_,
+		       Xapian::valueno sort_key_,
 		       int sort_bands_, bool sort_by_relevance_,
+		       bool sort_value_forward_,
 		       time_t bias_halflife_,
-		       Xapian::weight bias_weight_, Xapian::ErrorHandler * errorhandler_,
+		       Xapian::weight bias_weight_,
+		       Xapian::ErrorHandler * errorhandler_,
 		       StatsGatherer * gatherer_,
 		       const Xapian::Weight * weight_)
 	: gatherer(gatherer_), db(db_), query(query_),
 	  collapse_key(collapse_key_), percent_cutoff(percent_cutoff_),
-	  weight_cutoff(weight_cutoff_), sort_forward(sort_forward_),
+	  weight_cutoff(weight_cutoff_), order(order_),
 	  sort_key(sort_key_), sort_bands(sort_bands_),
 	  sort_by_relevance(sort_by_relevance_),
+	  sort_value_forward(sort_value_forward_),
 	  bias_halflife(bias_halflife_), bias_weight(bias_weight_),
 	  errorhandler(errorhandler_), weight(weight_)
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
 	      qlen << ", " <<
 	      omrset << ", " << collapse_key_ << ", " << percent_cutoff_ <<
-	      ", " << weight_cutoff_ << ", " << sort_forward << ", " <<
+	      ", " << weight_cutoff_ << ", " << int(order) << ", " <<
 	      sort_key_ << ", " << sort_bands_ << ", " << sort_by_relevance_ <<
-	      ", " << bias_halflife_ << ", " << bias_weight_ << ", " <<
-	      errorhandler_ << ", [gatherer_], [weight_]");
+	      ", " << sort_value_forward_ << ", " << bias_halflife_ << ", " <<
+	      bias_weight_ << ", " << errorhandler_ <<
+	      ", [gatherer_], [weight_]");
     if (!query) return;
 
     query->validate_query();
@@ -258,6 +340,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 	    const NetworkDatabase *netdb = subdb->as_networkdatabase();
 	    if (netdb) {
 		if (sort_key != Xapian::valueno(-1) || sort_bands) {
+		    // And neither is sort_value_forward, but that's ignored
+		    // unless we're sorting on a value.
 		    throw Xapian::UnimplementedError("sort_key and sort_bands not supported with remote backend");
 		}
 		if (bias_halflife) {
@@ -266,7 +350,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 		smatch = Xapian::Internal::RefCntPtr<SubMatch>(
 			new RemoteSubMatch(netdb, query, qlen,
 			    *subrset, collapse_key,
-			    sort_forward, percent_cutoff, weight_cutoff,
+			    order, percent_cutoff, weight_cutoff,
 			    gatherer.get(), weight));
 	    } else {
 #endif /* XAPIAN_BUILD_BACKEND_REMOTE */
@@ -275,14 +359,11 @@ MultiMatch::MultiMatch(const Xapian::Database &db_, const Xapian::Query::Interna
 	    }
 #endif /* XAPIAN_BUILD_BACKEND_REMOTE */
 	} catch (Xapian::Error & e) {
-	    if (errorhandler) {
-		DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
-		(*errorhandler)(e);
-		// Continue match without this sub-postlist.
-		smatch = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
-	    } else {
-		throw;
-	    }
+	    if (!errorhandler) throw;
+	    DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
+	    (*errorhandler)(e);
+	    // Continue match without this sub-postlist.
+	    smatch = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
 	}
 	leaves.push_back(smatch);
 	++subrset;
@@ -518,11 +599,37 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     /// Comparison functor for sorting MSet
     // The sort_bands == 1 case is special - then we only need to compare
     // weights when the sortkeys are identical.
-    OmMSetCmp mcmp(sort_bands != 1 ?
-	(sort_forward ? msetcmp_forward : msetcmp_reverse) :
-	(sort_forward ?
-	    (sort_by_relevance ? msetcmp_sort_forward_relevance : msetcmp_sort_forward) :
-	    (sort_by_relevance ? msetcmp_sort_reverse_relevance : msetcmp_sort_reverse)));
+    bool sort_forward = (order != Xapian::Enquire::DESCENDING);
+    bool (* mcmp_fn)(const Xapian::Internal::MSetItem &, const Xapian::Internal::MSetItem &);
+    if (sort_bands != 1) {
+	mcmp_fn = (sort_forward ? msetcmp_forward : msetcmp_reverse);
+    } else if (sort_forward) {
+	if (sort_by_relevance) {
+	    if (sort_value_forward)
+		mcmp_fn = msetcmp_sort_forward_relevance;
+	    else
+		mcmp_fn = msetcmp_reverse_sort_forward_relevance;
+	} else {
+	    if (sort_value_forward)
+		mcmp_fn = msetcmp_sort_forward;
+	    else
+		mcmp_fn = msetcmp_reverse_sort_forward;
+	}
+    } else {
+	if (sort_by_relevance) {
+	    if (sort_value_forward)
+		mcmp_fn = msetcmp_sort_reverse_relevance;
+	    else
+		mcmp_fn = msetcmp_reverse_sort_reverse_relevance;
+	} else {
+	    if (sort_value_forward)
+		mcmp_fn = msetcmp_sort_reverse;
+	    else
+		mcmp_fn = msetcmp_reverse_sort_reverse;
+	}
+    }
+
+    OmMSetCmp mcmp(mcmp_fn);
 
     // Perform query
 
@@ -587,7 +694,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	// FIXME: if results are from MSetPostList then we can omit this step
 	if (mdecider != NULL) {
 	    if (doc.get() == 0) {
-		unsigned int multiplier = db.internal.size();
+		const unsigned int multiplier = db.internal.size();
 		Assert(multiplier != 0);
 		Xapian::doccount n = (did - 1) % multiplier; // which actual database
 		Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database

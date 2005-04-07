@@ -1119,6 +1119,10 @@ static bool test_sortrel1()
     const Xapian::docid order1[] = { 1,2,3,4,5,6,7,8,9 };
     const Xapian::docid order2[] = { 2,1,3,6,5,4,7,9,8 };
     const Xapian::docid order3[] = { 3,2,1,6,5,4,9,8,7 };
+    const Xapian::docid order4[] = { 7,8,9,4,5,6,1,2,3 };
+    const Xapian::docid order5[] = { 9,8,7,6,5,4,3,2,1 };
+    const Xapian::docid order6[] = { 7,9,8,6,5,4,2,1,3 };
+    const Xapian::docid order7[] = { 7,9,8,6,5,4,2,1,3 };
 
     Xapian::MSet mset;
     size_t i;
@@ -1158,9 +1162,41 @@ static bool test_sortrel1()
     enquire.set_sort_forward(false);
 
     mset = enquire.get_mset(0, 10);
-    TEST_EQUAL(mset.size(), sizeof(order1) / sizeof(Xapian::docid));
+    TEST_EQUAL(mset.size(), sizeof(order3) / sizeof(Xapian::docid));
     for (i = 0; i < sizeof(order3) / sizeof(Xapian::docid); ++i) {
 	TEST_EQUAL(*mset[i], order3[i]);
+    }
+
+    enquire.set_sort_by_value(1, false);
+    enquire.set_sort_forward(true);
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order4) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order4) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order4[i]);
+    }
+
+    enquire.set_sort_by_value(1, false);
+    enquire.set_sort_forward(false);
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order5) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order5) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order5[i]);
+    }
+
+    enquire.set_sort_by_value_then_relevance(1, false);
+    enquire.set_sort_forward(true);
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order6) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order6) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order6[i]);
+    }
+
+    enquire.set_sort_by_value_then_relevance(1, false);
+    enquire.set_sort_forward(false);
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order7) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order7) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order7[i]);
     }
 
     return true;
