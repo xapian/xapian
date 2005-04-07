@@ -46,6 +46,7 @@ x86   | Linux 2.4 Slackw. 9.1 GCC 3.2.3|~0.8.1 |Passed| from tweakers.net
 x86   | Linux 2.6 Debian 3.0 GCC 2.95.4| 0.8.2 |Passed| from gmane.org
 x86   |*Linux 2.6 RedHat FC2 GCC 3.3.3 | 0.8.5 |Passed| (x86-linux2)
 x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.8.5 |Passed|
+x86   |!FreeBSD 4.8 GCC 3.2.3          | 0.8.5~|Passed|
 x86   |=FreeBSD 4.9 GCC 2.95.4         | 0.8.3~|Passed|
 x86   |*FreeBSD 4.10 GCC 2.95.4        | 0.8.5 |Passed| (x86-freebsd1)
 x86   |#FreeBSD 5.2.1 GCC 3.3.3        | 0.8.5 |Passed| (was spe152)
@@ -191,7 +192,7 @@ mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
 0.8.2 onwards.)
 
 [11] Intel's compiler is very "chatty" - lots of "remark" messages about
-irrelevant thing, and a few warnings which don't seem to be easy to suppress
+irrelevant things, and a few warnings which don't seem to be easy to suppress
 by tweaking the code.  Also, configure identifies it as GCC, so we pass a few
 GCC specific command-line options which Intel's compiler doesn't actually
 understand.  However it just issues a warning message and ignores these
