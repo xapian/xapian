@@ -1,5 +1,17 @@
 Revision history for Perl extension Search::Xapian.
 
+0.9.0.0  ??? Apr ?? ??:??:?? 2005
+	[Changes contributed by Olly Betts]
+	- Makefile.PL now check environmental variable CXX for the C++ compiler
+	  to use.
+	- Fixed cross-wired methods inside Enquire::get_matching_terms_begin
+	  and Enquire::get_matching_terms_end (thanks to Arne Georg Gleditsch
+	  for reporting this).
+	- $q = Query(op, @termlist) now handles terms with embedded zero bytes.
+	- Removed Query::clone() and = overload - they would die if ever used
+	  and aren't useful since a Query object is essentially immutable once
+	  constructed.
+
 0.8.4.0  Wed Dec  8 03:36:13 2004
 	[Changes contributed by Olly Betts]
 	- Changed Database and WritableDatabase constructors to use the new C++
