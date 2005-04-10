@@ -1,6 +1,6 @@
 use ExtUtils::MakeMaker;
 
-my $CC = 'g++';
+my $CC = $ENV{"CXX"} || 'g++';
 
 my $xapian_config = $ENV{XAPIAN_CONFIG} || 'xapian-config';
 my $libs = `$xapian_config --libs`;
