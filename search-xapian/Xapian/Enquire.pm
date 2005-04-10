@@ -45,9 +45,9 @@ sub get_matching_terms_begin {
     my $arg = shift;
     my $arg_class = ref( $arg );
     if( $arg_class eq 'Search::Xapian::MSetIterator' ) {
-      return $self->get_matching_terms_begin1($arg);
-    } else {
       return $self->get_matching_terms_begin2($arg);
+    } else {
+      return $self->get_matching_terms_begin1($arg);
     }
   }
   Carp::carp( "USAGE: \$enquire->get_matching_terms_begin(\$docid) or \$enquire->get_matching_terms_begin(\$msetiterator)" );
@@ -60,9 +60,9 @@ sub get_matching_terms_end {
     my $arg = shift;
     my $arg_class = ref( $arg );
     if( $arg_class eq 'Search::Xapian::MSetIterator' ) {
-      return $self->get_matching_terms_end1($arg);
-    } else {
       return $self->get_matching_terms_end2($arg);
+    } else {
+      return $self->get_matching_terms_end1($arg);
     }
   }
   Carp::carp( "USAGE: \$enquire->get_matching_terms_end(\$docid) or \$enquire->get_matching_terms_end(\$msetiterator)" );
