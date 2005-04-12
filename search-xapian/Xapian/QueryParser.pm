@@ -19,10 +19,19 @@ our @EXPORT_OK = ( );
 
 our @EXPORT = qw( );
 
-
 # Preloaded methods go here.
 
-# TODO: Add hash-based initialization
+use overload '='  => sub { $_[0]->clone() },
+             'fallback' => 1;
+
+sub clone() {
+  my $self = shift;
+  my $class = ref( $self );
+  my $copy = new2( $self );
+  bless $copy, $class;
+  return $copy;
+}
+
 sub new() {
   my $class = shift;
   my $qp = new0();
