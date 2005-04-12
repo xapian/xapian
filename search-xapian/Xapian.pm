@@ -43,7 +43,6 @@ our %EXPORT_TAGS = (
                                   OP_FILTER
                                   OP_NEAR
                                   OP_PHRASE
-                                  OP_WEIGHT_CUTOFF
                                   OP_ELITE_SET
                                  ) ],
                     'db' => [ qw(
