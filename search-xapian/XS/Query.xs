@@ -73,20 +73,8 @@ newXobj(op, ...);
     OUTPUT:
         RETVAL
 
-void
-Query::set_window(termpos window)
-
-void
-Query::set_cutoff(weight cutoff)
-
-void
-Query::set_elite_set_size(termcount size)
-
 termcount
 Query::get_length()
-
-termcount
-Query::set_length(termcount qlen)
 
 TermIterator *
 Query::get_terms_begin()
