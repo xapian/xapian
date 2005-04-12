@@ -5,7 +5,7 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
-use Test::More;
+use Test;
 use Devel::Peek;
 BEGIN { plan tests => 4 };
 use Search::Xapian qw(:standard);
