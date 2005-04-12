@@ -11,10 +11,17 @@ Enquire::new(databases)
         RETVAL
 
 void
-Enquire::set_query_object(query)
+Enquire::set_query1(query)
     Query *     query
     CODE:
-        THIS->set_query(*query);
+	THIS->set_query(*query);
+
+void
+Enquire::set_query2(query, len)
+    Query *     query
+    termcount   len
+    CODE:
+	THIS->set_query(*query, len);
 
 Query *
 Enquire::get_query();

@@ -28,8 +28,19 @@ sub set_query {
   my $query = shift;
   if( ref( $query ) ne 'Search::Xapian::Query' ) {
     $query = Search::Xapian::Query->new( $query, @_ );
+    $self->set_query1( $query );
+    return;
   }
-  $self->set_query_object( $query );
+  my $nargs = scalar(@_);
+  if( $nargs > 1) {
+    Carp::carp( "USAGE: \$enquire->set_query(\$query) or \$enquire->set_query(\$query, \$length)" );
+    exit;
+  }
+  if( $nargs == 0 ) {
+    $self->set_query1( $query );
+  } else {
+    $self->set_query2( $query, shift );
+  }
 }
 
 sub matches {
