@@ -1,3 +1,10 @@
+Thu Apr 14 03:30:09 BST 2005  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Fixed to only include the xapian
+	  headers we actually depend on.
+	* include/xapian/queryparser.h: Added \file and \brief documentation
+	  comments.
+
 Thu Apr 14 02:50:36 BST 2005  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc,include/xapian.h,tests/queryparsertest.cc:

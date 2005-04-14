@@ -1,6 +1,7 @@
-/* queryparser.h: build a Xapian::Query object from a user query string.
- *
- * Copyright (C) 2005 Olly Betts
+/** \file  queryparser.h
+ *  \brief parsing a user query string to build a Xapian::Query object
+ */
+/* Copyright (C) 2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,7 +22,10 @@
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_H
 #define XAPIAN_INCLUDED_QUERYPARSER_H
 
-#include <xapian.h>
+#include <xapian/base.h>
+#include <xapian/query.h>
+#include <xapian/stem.h>
+#include <xapian/termiterator.h>
 
 #include <set>
 #include <string>
