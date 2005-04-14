@@ -38,7 +38,7 @@ class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
     friend class ::State;
     Xapian::Stem stemmer;
     stem_strategy stem_action;
-    Xapian::Stopper * stopper;
+    const Xapian::Stopper * stopper;
     Xapian::Query::op default_op;
     const char * errmsg;
     // Xapian::Database db;

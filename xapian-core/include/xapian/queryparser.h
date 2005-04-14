@@ -23,6 +23,7 @@
 
 #include <xapian.h>
 
+#include <set>
 #include <string>
 
 namespace Xapian {
@@ -35,6 +36,31 @@ class Stopper {
 
     /// Class has virtual methods, so provide a virtual destructor.
     virtual ~Stopper() { }
+};
+
+/// Simple implementation of Stopper class - this will suit most users.
+class SimpleStopper : public Stopper {
+  private:
+    std::set<std::string> stop_words;
+
+  public:
+    /// Default constructor.
+    SimpleStopper() { }
+
+    /// Initialise from a pair of iterators.
+    template <class Iterator>
+    SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) { }
+
+    /// Add a single stop word.
+    void add(const std::string word) { stop_words.insert(word); }
+
+    /// Is term a stop-word?
+    virtual bool operator()(const std::string & term) const {
+	return stop_words.find(term) != stop_words.end();
+    }
+
+    /// Destructor.
+    virtual ~SimpleStopper() { }
 };
 
 /// Build a Xapian::Query object from a user query string.
@@ -73,11 +99,11 @@ class QueryParser {
     void set_stemming_options(stem_strategy strategy);
 
     /// Set the stopper.
-    void set_stopper(Stopper *stop = NULL);
+    void set_stopper(const Stopper *stop = NULL);
 
     /// Deprecated method for backward compatibility.
     void set_stemming_options(const std::string &lang, bool stem_all = false,
-			      Stopper *stop = NULL) {
+			      const Stopper *stop = NULL) {
 	set_stemmer(Xapian::Stem(lang));
 	if (lang.empty() || lang == "none") {
 	    set_stemming_options(STEM_NONE);

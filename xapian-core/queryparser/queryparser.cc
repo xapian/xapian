@@ -56,7 +56,7 @@ QueryParser::set_stemming_options(stem_strategy strategy)
 }
 
 void
-QueryParser::set_stopper(Stopper * stopper)
+QueryParser::set_stopper(const Stopper * stopper)
 {
     internal->stopper = stopper;
 }
