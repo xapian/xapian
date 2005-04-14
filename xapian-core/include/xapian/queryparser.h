@@ -141,6 +141,9 @@ class QueryParser {
 
     TermIterator unstem_begin(const std::string &term) const;
     TermIterator unstem_end(const std::string &term) const;
+
+    /// Return a string describing this object.
+    std::string get_description() const;
 };
 
 }

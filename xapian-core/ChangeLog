@@ -1,3 +1,8 @@
+Thu Apr 14 19:57:06 BST 2005  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc: Added
+	  QueryParser::get_description() method (not very descriptive yet!)
+
 Thu Apr 14 03:30:09 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Fixed to only include the xapian

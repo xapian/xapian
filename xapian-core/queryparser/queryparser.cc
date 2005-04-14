@@ -155,3 +155,11 @@ QueryParser::unstem_end(const std::string &/*term*/) const
 {
     return TermIterator(NULL);
 }
+
+std::string
+QueryParser::get_description() const
+{
+    DEBUGAPICALL(std::string, "Xapian::QueryParser::get_description", "");
+    // FIXME : describe better!
+    RETURN("Xapian::QueryParser()");
+}
