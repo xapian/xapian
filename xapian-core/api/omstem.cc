@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -91,7 +91,7 @@ struct stemmer_obj {
  *  If you change this, change language_names[], language_strings[], and
  *  enum stemmer_language also.
  */
-struct stemmer_obj stemmers[] = {
+static const struct stemmer_obj stemmers[] = {
 	{ 0, 0, 0 },
 	{ 0, 0, 0 },
 	E(danish),
@@ -136,8 +136,9 @@ static const char * language_names[] = {
 
 /** The mapping from language strings to language codes.
  *  This list must be in alphabetic order.
- *  If you change this, change language_names[] and enum stemmer_language
- *  also.
+ *  If you change this, you must also change language_names[] and enum
+ *  stemmer_language, and update the list in the documentation comment in
+ *  include/xapian/stem.h.
  */
 static const StringAndValue language_strings[] = {
     {"da",		STEMLANG_DANISH},
@@ -182,59 +183,44 @@ class Xapian::Stem::Internal : public Xapian::Internal::RefCntBase {
         Internal(const Xapian::Stem::Internal &);
         Internal & operator=(const Xapian::Stem::Internal &);
 
-    public:
-	/** Initialise the state based on the specified language name.
+	/** The code representing the language being stemmed.
 	 */
-	Internal(const string &language);
+	stemmer_language langcode;
 
-	/** Initialise the state based on the specified language code.
+	/** Data used by the stemming algorithm.
 	 */
-	Internal(enum stemmer_language langcode_);
+	struct SN_env * stemmer_data;
+
+    public:
+	/// Initialise the state based on the specified language code.
+	Internal(stemmer_language langcode_);
 
 	/** Destructor.
 	 */
 	~Internal();
 
-	/** The code representing the language being stemmed.
-	 */
-	enum stemmer_language langcode;
-
 	/** Stem the given word.
 	 */
-	string stem_word(const string &word) const;
+	string operator()(const string &word) const;
 
-    private:
-	/** Data used by the stemming algorithm.
-	 */
-	struct SN_env * stemmer_data;
+	/// Return the language as a string.
+	const char * get_stemlang() const {
+	    return language_names[langcode];
+	}
 
-	/** Set the stemming language.
-	 */
-	void set_language(stemmer_language langcode_);
+	/// Return a stemmer_language enum value from a language string.
+	static stemmer_language get_stemtype(const string &language) {
+	    return static_cast<stemmer_language> (
+		    map_string_to_value(language_strings, language));
+	}
 
-	/** Return a stemmer_language enum value from a language
-	 *  string.
-	 */
-	stemmer_language get_stemtype(const string &language);
 };
 
-Xapian::Stem::Internal::Internal(const string &language)
-	: stemmer_data(0)
+Xapian::Stem::Internal::Internal(stemmer_language lc)
+	: langcode(lc),
+	  stemmer_data(stemmers[lc].setup ? stemmers[lc].setup() : 0)
 {
-    stemmer_language langcode_ = get_stemtype(language);
-    if (langcode_ == STEMLANG_INVALID) {
-        // FIXME: use a separate InvalidLanguage exception?
-        throw Xapian::InvalidArgumentError("Unknown language `" +
-				     language + "' specified");
-    }
-    set_language(langcode_);
-}
-
-Xapian::Stem::Internal::Internal(enum stemmer_language langcode_)
-	: stemmer_data(0)
-{
-    Assert(langcode_ != STEMLANG_INVALID);
-    set_language(langcode_);
+    Assert(lc != STEMLANG_INVALID);
 }
 
 Xapian::Stem::Internal::~Internal()
@@ -244,26 +230,8 @@ Xapian::Stem::Internal::~Internal()
     }
 }
 
-void
-Xapian::Stem::Internal::set_language(stemmer_language langcode_)
-{
-    Assert(langcode_ != STEMLANG_INVALID); 
-    if (stemmer_data != 0) {
-	stemmers[langcode].closedown(stemmer_data);
-    }
-    langcode = langcode_;
-    stemmer_data = stemmers[langcode].setup ? stemmers[langcode].setup() : 0;
-}
-
-stemmer_language
-Xapian::Stem::Internal::get_stemtype(const string &language)
-{
-    return static_cast<stemmer_language> (
-		map_string_to_value(language_strings, language));
-}
-
 string
-Xapian::Stem::Internal::stem_word(const string &word) const
+Xapian::Stem::Internal::operator()(const string &word) const
 {
     if (!stemmer_data || word.empty()) return word;
     SN_set_current(stemmer_data, word.length(),
@@ -277,9 +245,14 @@ Xapian::Stem::Internal::stem_word(const string &word) const
 // Methods of Xapian::Stem
 
 Xapian::Stem::Stem(const string &language)
-	: internal(new Xapian::Stem::Internal(language))
+	: internal(0)
 {
-    DEBUGAPICALL(void, "Xapian::Stem::Stem", language);
+    stemmer_language langcode = Internal::get_stemtype(language);
+    if (langcode == STEMLANG_INVALID) {
+        throw Xapian::InvalidArgumentError("Unknown language '" + language +
+					   "' specified");
+    }
+    internal = new Xapian::Stem::Internal(langcode);
 }
 
 Xapian::Stem::Stem() : internal(new Xapian::Stem::Internal(STEMLANG_NONE))
@@ -306,10 +279,20 @@ Xapian::Stem::operator=(const Xapian::Stem &other)
 }
 
 string
-Xapian::Stem::stem_word(const string &word) const
+Xapian::Stem::operator()(const string &word) const
 {
-    DEBUGAPICALL(string, "Xapian::Stem::stem_word", word);
-    RETURN(internal->stem_word(word));
+    DEBUGAPICALL(string, "Xapian::Stem::operator()", word);
+    RETURN(internal->operator()(word));
+}
+
+string
+Xapian::Stem::get_description() const
+{
+    DEBUGAPICALL(string, "Xapian::Stem::get_description", "");
+    string result = "Xapian::Stem(";
+    result += internal->get_stemlang();
+    result += ")";
+    RETURN(result);
 }
 
 string
@@ -326,11 +309,4 @@ Xapian::Stem::get_available_languages()
 	languages += *pos;
     }
     RETURN(languages);
-}
-
-string
-Xapian::Stem::get_description() const
-{
-    DEBUGCALL(INTRO, string, "Xapian::Stem::get_description", "");
-    RETURN("Xapian::Stem(" + string(language_names[internal->langcode]) + ")");
 }

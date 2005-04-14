@@ -1,3 +1,11 @@
+Thu Apr 14 23:39:57 BST 2005  Olly Betts <olly@survex.com>
+
+	* include/xapian/stem.h: Rewritten with better documentation comments.
+	* include/xapian/stem.h: Added operator() as preferred alternative
+	  to stem_word().
+	* api/omstem.cc,include/xapian/stem.h: Simplified by restructuring
+	  to eliminate a few internal methods.
+
 Thu Apr 14 23:35:47 BST 2005  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.cc: Make get_description() debug tracing

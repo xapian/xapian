@@ -1,10 +1,7 @@
-/** \file stem.h
- * \brief The stemming API
+/** \file  stem.h
+ *  \brief stemming algorithms
  */
-/* ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+/* Copyright (C) 2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,67 +17,98 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef XAPIAN_INCLUDED_STEM_H
 #define XAPIAN_INCLUDED_STEM_H
 
-#include <string>
-
 #include <xapian/base.h>
 
+#include <string>
+
 namespace Xapian {
-/// This class provides an interface to the stemming algorithms.
+
+/// Class representing a stemming algorithm.
 class Stem {
-    public:
-	class Internal;
-	/// @internal Reference counted internals.
-	Xapian::Internal::RefCntPtr<Internal> internal;
+  public:
+    /// Class representing the stemmer internals.
+    class Internal;
+    /// @internal Reference counted internals.
+    Xapian::Internal::RefCntPtr<Internal> internal;
 
-	/// Create a stemmer object which leaves words unchanged
-	Stem();
+    /// Copy constructor.
+    Stem(const Stem & o);
 
-	/** Create a new stemmer object.
-	 *
-	 *  @param language	a string specifying the language being used.
-	 *                      This can either be the english name of the
-	 *                      language, or the two letter ISO 639
-	 *                      (version 1) language code.
-	 *
-	 *  @exception Xapian::InvalidArgumentError will be thrown if an
-	 *  unknown language is supplied.
-	 */
-        explicit Stem(const std::string &language);
+    /// Assignment.
+    void operator=(const Stem & o);
 
-	/// Standard destructor
-	~Stem();
+    /** Construct a Xapian::Stem object which doesn't change terms.
+     *
+     *  Equivalent to Stem("none").
+     */
+    Stem();
 
-	/// Copying is allowed
-	Stem(const Stem &);
+    /** Construct a Xapian::Stem object for a particular language.
+     *
+     *  @param language	Either the English name for the language
+     *			or the two letter ISO639 code.
+     *
+     *  The following language names are understood (aliases follow the
+     *  name):
+     *
+     *  - none - don't stem terms
+     *  - danish (da)
+     *  - dutch (nl)
+     *  - english (en) - Martin Porter's 2002 revision of his stemmer
+     *  - english_lovins (lovins) - Lovin's stemmer
+     *  - english_porter (porter) - Porter's stemmer as described in
+     *			his 1980 paper
+     *  - finnish (fi)
+     *  - french (fr)
+     *  - german (de)
+     *  - italian (it)
+     *  - norwegian (no)
+     *  - portuguese (pt)
+     *  - russian (ru)
+     *  - spanish (es)
+     *  - swedish (sv)
+     *
+     *  @exception		Xapian::InvalidArgumentError is thrown if
+     *			language isn't recognised.
+     */
+    explicit Stem(const std::string &language);
 
-	/// Assignment is allowed
-	void operator=(const Stem &);
+    /// Destructor.
+    ~Stem();
 
-	/** Stem a word.
-	 *
-	 *  @param word		the word to stem.
-	 *  @return		a stemmed version of the word.
-	 */
-	std::string stem_word(const std::string &word) const;
+    /** Stem a word.
+     *
+     *  @param word		a word to stem.
+     *  @return		the stem
+     */
+    std::string operator()(const std::string &word) const;
 
-	/** Return a list of available languages.  The list is returned
-	 *  as a space-separated string.  A Xapian::Stem object is not
-	 *  required for this operation.
-	 */
-	static std::string get_available_languages();
+    /** For compatibility with Xapian 0.8.5 and earlier. */
+    std::string stem_word(const std::string &word) const {
+	return operator()(word);
+    }
 
-	/** Returns a string representing the omstem object.
-	 *  Introspection method.
-	 */
-	std::string get_description() const;
+    /// Return a string describing this object.
+    std::string get_description() const;
+
+    /** Return a list of available languages.
+     *
+     *  Each stemmer is only included once in the list (not once for
+     *  each alias).  The name included is the English name of the
+     *  language.
+     *
+     *  The list is returned as a string, with language names separated by
+     *  spaces.  This is a static method, so a Xapian::Stem object is not
+     *  required for this operation.
+     */
+    static std::string get_available_languages();
 };
 
 }
 
-#endif
+#endif // XAPIAN_INCLUDED_STEM_H
