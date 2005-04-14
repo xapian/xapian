@@ -1,7 +1,6 @@
 // xapian.h: Public interfaces for core Xapian library
 //
-// ----START-LICENCE----
-// Copyright 2003,2004 Olly Betts
+// Copyright (C) 2003,2004,2005 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -17,7 +16,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 // USA
-// -----END-LICENCE-----
 
 #ifndef XAPIAN_INCLUDED_XAPIAN_H
 #define XAPIAN_INCLUDED_XAPIAN_H
@@ -44,6 +42,7 @@
 #include <xapian/enquire.h>
 #include <xapian/expanddecider.h>
 #include <xapian/query.h>
+#include <xapian/queryparser.h>
 
 // Stemming
 #include <xapian/stem.h>

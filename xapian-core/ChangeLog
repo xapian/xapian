@@ -1,3 +1,10 @@
+Thu Apr 14 02:50:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc,include/xapian.h,tests/queryparsertest.cc:
+	  Change xapian.h to automatically include xapian/queryparser.h
+	  and fix direct includes of xapian/queryparser.h in tests and
+	  examples.
+
 Thu Apr 14 01:48:39 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Added Xapian::SimpleStopper which
