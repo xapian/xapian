@@ -22,6 +22,7 @@
 #include <config.h>
 
 #include <xapian/base.h>
+#include <xapian/database.h>
 #include <xapian/query.h>
 #include <xapian/queryparser.h>
 #include <xapian/stem.h>
@@ -41,7 +42,7 @@ class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
     const Xapian::Stopper * stopper;
     Xapian::Query::op default_op;
     const char * errmsg;
-    // Xapian::Database db;
+    Xapian::Database db;
     list<string> termlist;
     list<string> stoplist;
     multimap<string, string> unstem;

@@ -73,6 +73,11 @@ QueryParser::get_default_op() const
     return internal->default_op;
 }
 
+void
+QueryParser::set_database(const Database &db) {
+    internal->db = db;
+}
+
 static const unsigned default_flags =
     QueryParser::FLAG_PHRASE |
     QueryParser::FLAG_BOOLEAN |

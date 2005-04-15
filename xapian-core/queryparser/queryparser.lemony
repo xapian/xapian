@@ -324,17 +324,34 @@ phrased_term:
 		}
 		term += *it++;
 	    }
-	    if (it != end) {
-		// Keep trailing + and - (e.g. C++, Na+, Cl-).
-		// FIXME: should probably keep # for C#, etc but need to fix
-		// indexing in step.
-		// FIXME: keeping trailing "-" is of dubious utility and
-		// there's the risk of hyphens getting stuck onto the end of
-		// terms...
-		AccentNormalisingItor suffixes;
-		suffixes = find_if(it, end, C_isnotsign);
-		if (suffixes == end || !C_isalnum(*suffixes)) {
-		    while (it != suffixes) term += *it++;
+	    if (it != end && (*it == '#' || C_issign(*it))) {
+		string suff_term = term;
+		AccentNormalisingItor p = it;
+		if (*p == '#') {
+		    // Keep trailing # (e.g. C#).
+		    suff_term += '#';
+		    while (++p != end && *p == '#') { }
+		} else {
+		    // Keep trailing +, and - (e.g. C++, Na+, Cl-).
+		    // FIXME: keeping trailing "-" is of dubious utilpy and
+		    // there's the risk of hyphens getting stuck onto the end of
+		    // terms...
+		    // FIXME: generating a term like foo+---+++ doesn't make
+		    // much sense - we should probably be more conservative as
+		    // to what combinations are allowed.
+		    do {
+			suff_term += *p++;
+		    } while (p != end && C_issign(*p));
+		}
+		if (p == end || !C_isalnum(*p)) {
+		    // If the suffixed term doesn't exist, check that the
+		    // non-suffixed term does.  This also takes care of
+		    // the case when QueryParser::set_database() hasn't
+		    // been called.
+		    if (db.term_exists(suff_term) || !db.term_exists(term)) {
+			term = suff_term;
+			it = p;
+		    }
 		}
 	    }
 	}

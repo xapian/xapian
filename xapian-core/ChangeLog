@@ -1,3 +1,14 @@
+Fri Apr 15 02:05:27 BST 2005  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser_internal.h,
+	  queryparser/queryparser.cc: Implemented QueryParser::set_database()
+	  method.
+	* queryparser/queryparser.lemony: Allow searches for C#, etc.  If a
+	  database has been set, for this and + and - suffixes, check if the
+	  term actually exists, and if not, ignore the suffix if the
+	  unsuffixed term exists.
+	* tests/queryparsertest.cc: Added tests for # suffix.
+
 Thu Apr 14 23:39:57 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/stem.h: Rewritten with better documentation comments.
