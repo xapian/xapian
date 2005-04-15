@@ -1,3 +1,10 @@
+Fri Apr 15 03:12:02 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.txt: Updated QueryParser prefix documentation to
+	  remove references to CVS HEAD.
+	* docs/termprefixes.txt: Capitalise "Month" to indicate why it has
+	  prefix "M" (in line with all the other entries in the list).
+
 Fri Apr 15 02:55:06 BST 2005  Olly Betts <olly@survex.com>
 
 	* indextext.cc: Generate terms like "c#".

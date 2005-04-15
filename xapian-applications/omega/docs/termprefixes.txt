@@ -32,7 +32,7 @@ G	newsGroup (or similar entity - e.g. a web forum name)
 H	Hostname
 K	Keyword
 L	ISO Language code
-M	month (numeric format: YYYYMM)
+M	Month (numeric format: YYYYMM)
 N	ISO couNtry code (or domaiN name)
 P	Pathname
 Q	uniQue id
@@ -72,16 +72,7 @@ query.
 
 Title has standard prefix S, so you'd generate terms as normal, but then
 add an "S" prefix.  You then need to tell Xapian::QueryParser that "title:"
-maps to an "S" prefix.  In 0.8.5, you do this like so:
-
-    Xapian::QueryParser qp;
-    qp.prefixes.insert(make_pair<"subject", "S">);
-    // And similar lines for other probabilistic prefixes...
-    // And any other QueryParser configuration (e.g. stemmer, stopper).
-    Xapian::Query query = qp.parse_query(user_query_string);
-
-CVS HEAD (and so the next release) change this by abstracting the prefixes map
-so you use an add_prefix() method instead:
+maps to an "S" prefix, which you do like this:
 
     Xapian::QueryParser qp;
     qp.add_prefix("subject", "S");
