@@ -1,3 +1,8 @@
+Fri Apr 15 02:53:22 BST 2005  Olly Betts <olly@survex.com>
+
+	* query.cc: Clearer code for adding boolean filters are added to the
+	  query.
+
 Wed Apr 06 02:47:14 BST 2005  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Tweak the hashing of URLs so that it works the same

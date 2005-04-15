@@ -271,19 +271,17 @@ run_query()
 	    or_vec.push_back(i->second);
 	}
 	
-	// If no probabilistic query is provided then promote the filters
-	// to be THE query instead of filtering an empty query.
+	Xapian::Query filter(Xapian::Query::OP_AND,
+			     filter_vec.begin(), filter_vec.end());
+
 	if (query.empty()) {
-	    query = Xapian::Query(Xapian::Query::OP_AND,
-			    filter_vec.begin(),
-			    filter_vec.end());
+	    // If no probabilistic query is provided then promote the filters
+	    // to be THE query - filtering an empty query will give no
+	    // matches.
+	    std::swap(query, filter);
 	    if (enquire) enquire->set_weighting_scheme(Xapian::BoolWeight());
 	} else {
-	    query = Xapian::Query(Xapian::Query::OP_FILTER,
-		    query,
-		    Xapian::Query(Xapian::Query::OP_AND,
-			    filter_vec.begin(),
-			    filter_vec.end()));
+	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, filter);
 	}
     }
 
