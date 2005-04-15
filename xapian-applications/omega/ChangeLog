@@ -1,3 +1,8 @@
+Fri Apr 15 02:55:06 BST 2005  Olly Betts <olly@survex.com>
+
+	* indextext.cc: Generate terms like "c#".
+	* query.cc: Highlight words like "C#".
+
 Fri Apr 15 02:53:22 BST 2005  Olly Betts <olly@survex.com>
 
 	* query.cc: Clearer code for adding boolean filters are added to the

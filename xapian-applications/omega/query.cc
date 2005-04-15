@@ -637,16 +637,23 @@ html_highlight(const string &s, const string &list,
 		    j = next;
 		}
 	    }
-	    string::size_type len = term.length();
 	    last = j;
-	    while (j != s_end && p_plusminus(*j)) {
-		term += *j;
-		++j;
-	    }
-	    if (j != s_end && isalnum(*j)) {
-		term.resize(len);
-	    } else {
-		last = j;
+	    if (j != s_end && (*j == '#' || p_plusminus(*j))) {
+		string::size_type len = term.length();
+		if (*j == '#') {
+		    term += '#';
+		    do { ++j; } while (j != s_end && *j == '#');
+		} else {
+		    while (j != s_end && p_plusminus(*j)) {
+			term += *j;
+			++j;
+		    }
+		}
+		if (j != s_end && isalnum(*j)) {
+		    term.resize(len);
+		} else {
+		    last = j;
+		}
 	    }
 	}
 	j = last;

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -84,16 +84,23 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 		    j = next;
 		}
 	    }
-	    string::size_type len = term.length();
 	    last = j;
-	    while (j != s_end && p_plusminus(*j)) {
-		term += *j;
-		++j;
-	    }
-	    if (j != s_end && isalnum(*j)) {
-		term.resize(len);
-	    } else {
-		last = j;
+	    if (j != s_end && (*j == '#' || p_plusminus(*j))) {
+		string::size_type len = term.length();
+		if (*j == '#') {
+		    term += '#';
+		    do { ++j; } while (j != s_end && *j == '#');
+		} else {
+		    while (j != s_end && p_plusminus(*j)) {
+			term += *j;
+			++j;
+		    }
+		}
+		if (j != s_end && isalnum(*j)) {
+		    term.resize(len);
+		} else {
+		    last = j;
+		}
 	    }
 	}
 	if (term.length() <= MAX_PROB_TERM_LENGTH) {
