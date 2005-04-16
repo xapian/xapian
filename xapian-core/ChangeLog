@@ -1,3 +1,7 @@
+Sat Apr 16 01:08:22 BST 2005  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated from tinderbox.
+
 Fri Apr 15 23:18:58 BST 2005  Olly Betts <olly@survex.com>
 
 	* languages/: Remove lingering .c versions of snowball generated
