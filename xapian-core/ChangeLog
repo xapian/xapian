@@ -1,3 +1,7 @@
+Thu Apr 21 01:46:51 BST 2005  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Added success report for Ubuntu 5.04 on x86_64.
+
 Mon Apr 18 02:54:10 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/stemming.html: Stemming appears to be applicable to Japanese

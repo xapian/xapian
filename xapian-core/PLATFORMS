@@ -80,6 +80,7 @@ x86_64| Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.8.3~|Passed| from gmane.org
 x86_64|*Linux 2.6 RedHat FC3 GCC 3.3.4 |~0.9.0 |Passed| (amd64-linux1)
 x86_64|*Linux 2.6 RedHat FC3 GCC 3.4.2 |~0.9.0 |Passed| (amd64-linux1)
 x86_64|*Linux 2.6 RedHat FC3 GCC pre4.0|~0.9.0 |Passed| (amd64-linux1) 20041019
+x86_64| Linux 2.6 Ubuntu 5.04 GCC 3.3.5|~0.9.0 |Passed| from Olly Betts
 alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4|~0.9.0 |Passed| (alpha-linux1)
 alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 |~0.9.0 |Passed| (alpha-linux1) [6]
 alpha |=Linux 2.4 Debian 3.0 GCC 3.4.1 |~0.9.0 |Passed| (spe142,161)
