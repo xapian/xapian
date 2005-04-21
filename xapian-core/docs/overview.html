@@ -467,11 +467,6 @@ Xapian::Query::OP_PHRASE
 Return documents where the terms are with the specified distance of each other
 and in the given order.
 </TD></TR><TR><TD VALIGN="top">
-Xapian::Query::OP_WEIGHT_CUTOFF
-</TD><TD>
-Return only results with a weight greater than or equal to a specified cutoff
-value.
-</TD></TR><TR><TD VALIGN="top">
 Xapian::Query::OP_ELITE_SET
 </TD><TD>
 Select an elite set of terms from the subqueries, and perform
@@ -656,7 +651,6 @@ Xapian::Query::OP_OR operators. For example,
     query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("export"));
     query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("canned"));
     query = Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("fish"));
-
 </PRE>
 
 This creates a probabilistic query with terms `regulation', `import', `export',

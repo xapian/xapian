@@ -1,3 +1,8 @@
+Thu Apr 21 15:03:42 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/overview.html,include/xapian/query.h: Removed lingering
+	  references to OP_WEIGHT_CUTOFF.
+
 Thu Apr 21 01:46:51 BST 2005  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Added success report for Ubuntu 5.04 on x86_64.

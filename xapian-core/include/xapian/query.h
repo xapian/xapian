@@ -136,7 +136,6 @@ class Query {
 	 *  iterators.
 	 * 
 	 *  AND, OR, NEAR and PHRASE can take any number of subqueries.
-	 *  WEIGHT_CUTOFF takes only one subquery.
 	 *  Other operators take exactly two subqueries.
 	 *
 	 *  The iterators may be to Xapian::Query objects, pointers to
