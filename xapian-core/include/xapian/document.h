@@ -43,7 +43,6 @@ class Document {
 	/// @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
-    public:
 	/** @internal Constructor is only used by internal classes.
 	 *
 	 *  @param internal_ pointer to internal opaque class
@@ -108,8 +107,7 @@ class Document {
 			 Xapian::termpos tpos,
 			 Xapian::termcount wdfinc = 1);
 
-	/** Add a term to the document, without specifying a position that
-	 *  it occurs at.
+	/** Add a term to the document, without positional information.
 	 *
 	 *  Any existing positional information for the term will be left
 	 *  unmodified.
@@ -120,9 +118,10 @@ class Document {
 	 */
 	void add_term(const std::string & tname, Xapian::termcount wdfinc = 1);
 
-	/** Old name for add_term.
+	/** Old name for add_term().
 	 *
-	 * Use add_term() instead.
+	 *  This call is deprecated and present only for backward
+	 *  compatibility.  Use add_term() instead.
 	 */
 	void add_term_nopos(const std::string & term,
 			    Xapian::termcount wdfinc = 1) {
