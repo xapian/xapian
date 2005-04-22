@@ -1,3 +1,7 @@
+Fri Apr 22 01:33:41 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Updated to reflect 0.9.0 API.
+
 Thu Apr 07 23:49:51 BST 2005  Olly Betts <olly@survex.com>
 
 	* xapian.i: Removed superfluous ';' after 'namespace { ... }'.

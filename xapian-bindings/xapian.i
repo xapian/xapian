@@ -28,7 +28,6 @@
 
 #undef list
 #include <xapian.h>
-#include <xapian/queryparser.h>
 #include <string>
 #include <vector>
 #include <list>
@@ -92,8 +91,9 @@ class Stopper;
 // from xapian/positioniterator.h
 
 class PositionIterator {
-  private:
   public:
+    // FIXME: do we want this?  For C# for example...
+    // PositionIterator();
     PositionIterator(const PositionIterator &other);
     ~PositionIterator();
     %extend {
@@ -114,8 +114,9 @@ class PositionIterator {
 // from xapian/postingiterator.h
 
 class PostingIterator {
-  private:
   public:
+    // FIXME: do we want this?  For C# for example...
+    // PostingIterator();
     PostingIterator(const PostingIterator& other);
     ~PostingIterator();
     %extend {
@@ -141,6 +142,8 @@ class PostingIterator {
 
 class TermIterator {
   public:
+    // FIXME: do we want this?  For C# for example...
+    // TermIterator();
     TermIterator(const TermIterator &other);
     ~TermIterator();
     %extend {
@@ -172,6 +175,8 @@ class TermIterator {
 
 class ValueIterator {
   public:
+    // FIXME: do we want this?  For C# for example...
+    // ValueIterator();
     ValueIterator(const ValueIterator& other);
     ~ValueIterator();
     %extend {
@@ -296,6 +301,7 @@ class MSet {
 
 class MSetIterator {
   public:
+    // FIXME: wrap for csharp? MSetIterator();
     MSetIterator(const MSetIterator& other);
     %extend {
 	docid get_docid() const {
@@ -403,31 +409,53 @@ class Enquire {
 
     void set_weighting_scheme(const Weight& weight);
     void set_collapse_key(valueno collapse_key);
+
+    typedef enum {
+	ASCENDING = 1,
+	DESCENDING = 0,
+	DONT_CARE = 2
+    } docid_order;
+
+    void set_docid_order(docid_order order);
+    // For compatibility with 0.8.5 and earlier:
     void set_sort_forward(bool sort_forward);
 #ifndef SWIGPHP4
     void set_cutoff(int percent_cutoff, weight weight_cutoff = 0);
+    // For compatibility with 0.8.5 and earlier:
     void set_sorting(Xapian::valueno sort_key, int sort_bands,
 		     bool sort_by_relevance = false);
 #else
     void set_cutoff(int percent_cutoff);
+    // For compatibility with 0.8.5 and earlier:
     void set_sorting(Xapian::valueno sort_key, int sort_bands);
 #endif
+    void set_sort_by_relevance();
+    void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
+    void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
+					  bool ascending = true);
+ 
     void set_bias(weight bias_weight, time_t bias_halflife);
 
 #ifndef SWIGPHP4
     MSet get_mset(doccount first,
 	    doccount maxitems,
+	    doccount checkatleast = 0,
 	    const RSet *omrset = 0,
 	    const MatchDecider *mdecider = 0) const;
-    // FIXME wrap with checkatleast too
+    MSet get_mset(doccount first,
+	    doccount maxitems,
+	    const RSet *omrset,
+	    const MatchDecider *mdecider = 0) const;
 
+    // FIXME wrap form without flags and k?
     ESet get_eset(termcount maxitems,
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0,
 	    const ExpandDecider *edecider = 0) const;
-    // FIXME wrap form without flags and k?
 #else
+    // FIXME wrap checkatleast omrset and mdecider optional parameters
     MSet get_mset(doccount first, doccount maxitems) const;
+    // FIXME wrap form without flags and k?
     ESet get_eset(termcount maxitems, const RSet &omrset) const;
 #endif
 
@@ -467,7 +495,7 @@ class Enquire {
  *
  * The problem comes from having a private pure virtual clone() function in
  * the Weight class. Directors work by multiple inheritance from both
- * SWIG_Director and the class their directing; constructors in the target
+ * SWIG_Director and the class they're directing; constructors in the target
  * language are then redirected to the director class. However the director
  * mechanism doesn't generate a wrapper for the clone() function (presumably
  * because it's private). This is wrong, because the director is then
@@ -480,6 +508,9 @@ class Enquire {
 */
 
 class Weight {
+/* SWIG doesn't handle this:
+    private:
+	virtual Weight * clone() const = 0; */
     public:
 	virtual ~Weight();
 
@@ -516,7 +547,7 @@ class BoolWeight : public Weight {
 %warnfilter(842) BM25Weight::unserialise;
 class BM25Weight : public Weight {
     public:
-	BM25Weight(double A_, double B_, double C_, double D_,
+	BM25Weight(double k1_, double k2_, double k3_, double b_,
 		   double min_normlen_);
 #ifdef SWIGPHP4
 	%rename(BM25Weight_default) BM25Weight;
@@ -575,7 +606,7 @@ class Database {
 #endif
 	Database(const string &path);
 	virtual ~Database();
-	Database(const Database & database);
+	Database(const Database & other);
 	void reopen();
 
 	string get_description() const;
@@ -603,7 +634,7 @@ class WritableDatabase : public Database {
     public:
 	virtual ~WritableDatabase();
 	WritableDatabase(const string &path, int action);
-	WritableDatabase(const WritableDatabase & database);
+	WritableDatabase(const WritableDatabase & other);
 
 	void flush();
 
@@ -613,10 +644,14 @@ class WritableDatabase : public Database {
 
 	docid add_document(const Document & document);
 	void delete_document(docid did);
-	// FIXME: void delete_document(const std::string & unique_term);
 	void replace_document(docid did, const Document & document);
-	// FIXME: Xapian::docid replace_document(const std::string & unique_term,
-	//			       const Xapian::Document & document);
+#ifdef SWIGPHP4
+	%rename(delete_document_by_term) delete_document;
+	%rename(replace_document_by_term) replace_document;
+#endif
+	void delete_document(const std::string & unique_term);
+	Xapian::docid replace_document(const std::string & unique_term,
+				       const Xapian::Document & document);
 
 	string get_description() const;
 };
@@ -693,6 +728,7 @@ class Query {
 	    OP_PHRASE,
 	    OP_ELITE_SET
 	};
+	// FIXME wrap optional arguments in PHP?
 #ifndef SWIGPHP4
 	Query(const string &tname, termcount wqf = 1, termpos term_pos = 0);
 #else
@@ -752,12 +788,28 @@ public:
     virtual ~Stopper() { }
 };
 
+class SimpleStopper : public Stopper {
+  public:
+    SimpleStopper() { }
+
+    void add(const std::string word) { stop_words.insert(word); }
+
+#if defined SWIGPHP4 || defined SWIGTCL || defined SWIGGUILE || defined SWIGCSHARP
+    %rename(apply) operator();
+#endif
+    virtual bool operator()(const std::string & term) const {
+	return stop_words.find(term) != stop_words.end();
+    }
+
+    virtual ~SimpleStopper() { }
+};
+
 class QueryParser {
 public:
     typedef enum {
 	FLAG_BOOLEAN = 1,
 	FLAG_PHRASE = 2,
-	FLAG_LOVEHATE = 3
+	FLAG_LOVEHATE = 4
     } feature_flag;
 
     typedef enum {
@@ -794,6 +846,8 @@ public:
 
     TermIterator unstem_begin(const std::string &term) const;
     TermIterator unstem_end(const std::string &term) const;
+
+    std::string get_description() const;
 };
 
 // xapian/stem.h
@@ -802,9 +856,15 @@ public:
     explicit Stem(const string &language);
     ~Stem();
 
-    string stem_word(const string &word);
-    static string get_available_languages();
+#if defined SWIGPHP4 || defined SWIGTCL || defined SWIGGUILE || defined SWIGCSHARP
+    %rename(apply) operator();
+#endif
+    string operator()(const string &word) const;
+    string stem_word(const string &word); // DEPRECATED
+
     string get_description() const;
+
+    static string get_available_languages();
 };
 
 }
