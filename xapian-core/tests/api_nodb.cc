@@ -257,6 +257,9 @@ static bool test_stemlangs1()
 	Xapian::Stem stemmer(*i);
     }
 
+    // Check that we get an exception for a bogus language name.
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stemmer("bogus"));
+
     return true;
 }
 
