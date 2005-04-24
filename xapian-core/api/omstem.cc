@@ -54,7 +54,7 @@ using std::string;
  *  and language_strings[] also.
  */
 enum stemmer_language {
-    STEMLANG_INVALID,
+    STEMLANG_INVALID = -2,
     STEMLANG_NONE,
     STEMLANG_DANISH,
     STEMLANG_DUTCH,
@@ -92,8 +92,6 @@ struct stemmer_obj {
  *  enum stemmer_language also.
  */
 static const struct stemmer_obj stemmers[] = {
-	{ 0, 0, 0 },
-	{ 0, 0, 0 },
 	E(danish),
 	E(dutch),
 	E(english),
@@ -116,8 +114,6 @@ static const struct stemmer_obj stemmers[] = {
  *  enum stemmer_language also.
  */
 static const char * language_names[] = {
-    "",
-    "none",
     "danish",
     "dutch",
     "english",
@@ -178,6 +174,7 @@ static const StringAndValue language_strings[] = {
 // Xapian::Stem::Internal class
 
 class Xapian::Stem::Internal : public Xapian::Internal::RefCntBase {
+    friend class Xapian::Stem;
     private:
         // Prevent copying
         Internal(const Xapian::Stem::Internal &);
@@ -193,69 +190,39 @@ class Xapian::Stem::Internal : public Xapian::Internal::RefCntBase {
 
     public:
 	/// Initialise the state based on the specified language code.
-	Internal(stemmer_language langcode_);
+	Internal(stemmer_language lc)
+	    : langcode(lc),
+	      stemmer_data(stemmers[lc].setup()) {
+	    Assert(lc != STEMLANG_INVALID && lc != STEMLANG_NONE);
+	}
 
 	/** Destructor.
 	 */
-	~Internal();
-
-	/** Stem the given word.
-	 */
-	string operator()(const string &word) const;
-
-	/// Return the language as a string.
-	const char * get_stemlang() const {
-	    return language_names[langcode];
+	~Internal() {
+	    stemmers[langcode].closedown(stemmer_data);
 	}
-
-	/// Return a stemmer_language enum value from a language string.
-	static stemmer_language get_stemtype(const string &language) {
-	    return static_cast<stemmer_language> (
-		    map_string_to_value(language_strings, language));
-	}
-
 };
-
-Xapian::Stem::Internal::Internal(stemmer_language lc)
-	: langcode(lc),
-	  stemmer_data(stemmers[lc].setup ? stemmers[lc].setup() : 0)
-{
-    Assert(lc != STEMLANG_INVALID);
-}
-
-Xapian::Stem::Internal::~Internal()
-{
-    if (stemmer_data != 0) {
-	stemmers[langcode].closedown(stemmer_data);
-    }
-}
-
-string
-Xapian::Stem::Internal::operator()(const string &word) const
-{
-    if (!stemmer_data || word.empty()) return word;
-    SN_set_current(stemmer_data, word.length(),
-		   reinterpret_cast<const unsigned char *>(word.data()));
-    // FIXME should we look at the return value of the stem function?
-    stemmers[langcode].stem(stemmer_data);
-    return string(reinterpret_cast<const char *>(stemmer_data->p),
-		  stemmer_data->l);
-}
 
 // Methods of Xapian::Stem
 
 Xapian::Stem::Stem(const string &language)
 	: internal(0)
 {
-    stemmer_language langcode = Internal::get_stemtype(language);
+    stemmer_language langcode;
+    // Look up stemmer_language enum value from a language string.
+    langcode = static_cast<stemmer_language> (
+		    map_string_to_value(language_strings, language));
+
     if (langcode == STEMLANG_INVALID) {
         throw Xapian::InvalidArgumentError("Unknown language '" + language +
 					   "' specified");
     }
-    internal = new Xapian::Stem::Internal(langcode);
+    if (langcode != STEMLANG_NONE) {
+	internal = new Xapian::Stem::Internal(langcode);
+    }
 }
 
-Xapian::Stem::Stem() : internal(new Xapian::Stem::Internal(STEMLANG_NONE))
+Xapian::Stem::Stem() : internal(0)
 {
     DEBUGAPICALL(void, "Xapian::Stem::Stem", "");
 }
@@ -282,7 +249,14 @@ string
 Xapian::Stem::operator()(const string &word) const
 {
     DEBUGAPICALL(string, "Xapian::Stem::operator()", word);
-    RETURN(internal->operator()(word));
+    if (!internal.get() || word.empty()) return word;
+
+    struct SN_env * data = internal->stemmer_data;
+    SN_set_current(data, word.length(),
+		   reinterpret_cast<const unsigned char *>(word.data()));
+    // FIXME should we look at the return value of the stem function?
+    stemmers[internal->langcode].stem(data);
+    return string(reinterpret_cast<const char *>(data->p), data->l);
 }
 
 string
@@ -290,7 +264,11 @@ Xapian::Stem::get_description() const
 {
     DEBUGAPICALL(string, "Xapian::Stem::get_description", "");
     string result = "Xapian::Stem(";
-    result += internal->get_stemlang();
+    if (internal.get()) {
+	result += language_names[internal->langcode];
+    } else {
+	result += "none";
+    }
     result += ")";
     RETURN(result);
 }
@@ -299,13 +277,13 @@ string
 Xapian::Stem::get_available_languages()
 {
     DEBUGAPICALL_STATIC(string, "Xapian::Stem::get_available_languages", "");
-    string languages;
+    string languages = "none";
 
     const char ** pos;
-    for (pos = language_names + 1;
+    for (pos = language_names;
 	 pos != language_names + (sizeof(language_names) / sizeof(char *));
 	 pos++) {
-	if (!languages.empty()) languages += ' ';
+	languages += ' ';
 	languages += *pos;
     }
     RETURN(languages);

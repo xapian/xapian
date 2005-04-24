@@ -1,3 +1,7 @@
+Sun Apr 24 03:02:47 BST 2005  Olly Betts <olly@survex.com>
+
+	* api/omstem.cc: Simplified Xapian::Stem::Internal.
+
 Sun Apr 24 02:21:22 BST 2005  Olly Betts <olly@survex.com>
 
 	* tests/api_nodb.cc: Extended stemlang1 to check that trying to create
