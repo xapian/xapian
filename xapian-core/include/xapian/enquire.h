@@ -779,8 +779,7 @@ class Enquire {
 	    }
 	}
 
-	/* @param sort_by_relevance sort results with equal keys by relevance
-	 *	 before docid.  (default is false).
+	/** Set the sorting to be by relevance only.
          */
 	void set_sort_by_relevance();
 
