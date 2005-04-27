@@ -1,3 +1,12 @@
+Wed Apr 27 02:40:43 BST 2005  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc,include/xapian/queryparser.h,
+	  queryparser/queryparser.cc,tests/queryparsertest.cc: Rename
+	  QueryParser::set_stemming_options() to set_stemming_strategy()
+	  - it's a better name and avoids confusion with the old deprecated
+	  method called set_stemming_options().
+	* examples/quest.cc: Added stopword handling.
+ 
 Wed Apr 27 02:39:33 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Fixed documentation comment.

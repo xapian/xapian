@@ -99,8 +99,8 @@ class QueryParser {
     /// Set the stemmer.
     void set_stemmer(const Xapian::Stem & stemmer);
 
-    /// Set the stemming options.
-    void set_stemming_options(stem_strategy strategy);
+    /// Set the stemming strategy.
+    void set_stemming_strategy(stem_strategy strategy);
 
     /// Set the stopper.
     void set_stopper(const Stopper *stop = NULL);
@@ -110,9 +110,9 @@ class QueryParser {
 			      const Stopper *stop = NULL) {
 	set_stemmer(Xapian::Stem(lang));
 	if (lang.empty() || lang == "none") {
-	    set_stemming_options(STEM_NONE);
+	    set_stemming_strategy(STEM_NONE);
 	} else {
-	    set_stemming_options(stem_all ? STEM_ALL : STEM_SOME);
+	    set_stemming_strategy(stem_all ? STEM_ALL : STEM_SOME);
 	}
 	set_stopper(stop);
     }

@@ -505,7 +505,7 @@ main(void)
 {
     Xapian::QueryParser qp;
     qp.set_stemmer(Xapian::Stem("english"));
-    qp.set_stemming_options(Xapian::QueryParser::STEM_SOME);
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qp.add_prefix("author", "A");
     qp.add_prefix("title", "XT");
     qp.add_prefix("subject", "XT");

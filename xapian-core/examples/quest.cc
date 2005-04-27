@@ -28,6 +28,18 @@
 
 using namespace std;
 
+static const char * sw[] = {
+    "a", "about", "an", "and", "are", "as", "at",
+    "be", "by",
+    "en",
+    "for", "from",
+    "how",
+    "i", "in", "is", "it",
+    "of", "on", "or",
+    "that", "the", "this", "to",
+    "was", "what", "when", "where", "which", "who", "why", "will", "with"
+};
+
 static void
 show_help(const char * argv0)
 {
@@ -51,6 +63,7 @@ main(int argc, char **argv)
 	{ NULL,		0, 0, 0}
     };
 
+    Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
     int msize = 10;
 
     bool have_database = false;
@@ -95,9 +108,8 @@ main(int argc, char **argv)
 	    parser.set_database(db);
 	    parser.set_default_op(Xapian::Query::OP_OR);
 	    parser.set_stemmer(Xapian::Stem("english"));
-	    parser.set_stemming_options(Xapian::QueryParser::STEM_SOME);
-	    // FIXME: pass Xapian::Stopper instead of NULL...
-	    //parser.set_stopper(NULL);
+	    parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+	    parser.set_stopper(&mystopper);
 	    enquire.set_query(parser.parse_query(argv[optind]));
 	} catch (const char * error_msg) {
 	    cout << "Couldn't parse query: " << error_msg << endl;

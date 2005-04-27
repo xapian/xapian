@@ -50,7 +50,7 @@ QueryParser::set_stemmer(const Xapian::Stem & stemmer)
 }
 
 void
-QueryParser::set_stemming_options(stem_strategy strategy)
+QueryParser::set_stemming_strategy(stem_strategy strategy)
 {
     internal->stem_action = strategy;
 }
