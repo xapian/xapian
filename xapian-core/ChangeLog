@@ -1,3 +1,9 @@
+Wed Apr 27 23:04:53 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,include/xapian/version.h.in: Define
+	  XAPIAN_HAS_xxx_BACKEND for each backend which is enabled.  The
+	  bindings need this, and user code might find it useful too.
+
 Wed Apr 27 03:31:50 BST 2005  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,api/ompostlistiterator.cc,

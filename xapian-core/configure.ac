@@ -765,7 +765,7 @@ test -d include/xapian || mkdir include/xapian
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 dnl Use @ around $MAIN_VERSION so we get " in the final output.
-$CXXCPP -DVERSION="\"@$MAIN_VERSION@\"" -DMAJOR_VERSION="\"$MAJOR_VERSION\"" -DMINOR_VERSION="\"$MINOR_VERSION\"" -DREVISION="\"$REVISION\"" $tmpfile|grep '"'|${SED-sed} 's/^ *//;s/ *$//;/^#/d;s/" *,//;s/"//g;s/@/"/g;s/  */ /g;s/,$//' > include/xapian/version.h.tmp
+$CXXCPP -I. -DSTRING_VERSION="\"@$MAIN_VERSION@\"" -DMAJOR_VERSION="\"$MAJOR_VERSION\"" -DMINOR_VERSION="\"$MINOR_VERSION\"" -DREVISION="\"$REVISION\"" $tmpfile|grep '"'|${SED-sed} 's/^ *//;s/ *$//;/^#/d;s/" *,//;s/"//g;s/@/"/g;s/  */ /g;s/,$//' > include/xapian/version.h.tmp
 rm -f $tmpfile
 dnl Only update the file if it has changed, so we don't touch the timestamp
 dnl and cause lost of rebuilding needlessly.
