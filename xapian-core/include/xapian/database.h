@@ -4,7 +4,7 @@
 /* ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,15 +31,14 @@
 
 #include <xapian/base.h>
 #include <xapian/types.h>
+#include <xapian/positioniterator.h>
+#include <xapian/postingiterator.h>
+#include <xapian/termiterator.h>
 
 /// The Xapian library lives in the Xapian namespace.
 namespace Xapian {
     
 class Document;
-class PositionIterator;
-class PostingIterator;
-class TermIterator;
-class WritableDatabase;
 
 /** This class is used to access a database, or a group of databases.
  *
@@ -116,35 +115,43 @@ class Database {
 	 */
 	PostingIterator postlist_begin(const std::string &tname) const;
 
-	/** Corresponding end iterator to postlist_begin()
+	/** Corresponding end iterator to postlist_begin().
 	 */
-	PostingIterator postlist_end(const std::string &tname) const;
+	PostingIterator postlist_end(const std::string &) const {
+	    return PostingIterator(NULL);
+	}
 
 	/** An iterator pointing to the start of the termlist
 	 *  for a given document.
 	 */
 	TermIterator termlist_begin(Xapian::docid did) const;
 	
-	/** Corresponding end iterator to termlist_begin()
+	/** Corresponding end iterator to termlist_begin().
 	 */
-	TermIterator termlist_end(Xapian::docid did) const;
+	TermIterator termlist_end(Xapian::docid) const {
+	    return TermIterator(NULL);
+	}
 
 	/** An iterator pointing to the start of the position list
 	 *  for a given term in a given document.
 	 */
 	PositionIterator positionlist_begin(Xapian::docid did, const std::string &tname) const;
 
-	/** Corresponding end iterator to positionlist_begin()
+	/** Corresponding end iterator to positionlist_begin().
 	 */
-	PositionIterator positionlist_end(Xapian::docid did, const std::string &tname) const;
+	PositionIterator positionlist_end(Xapian::docid, const std::string &) const {
+	    return PositionIterator(NULL);
+	}
 
 	/** An iterator which runs across all terms in the database.
 	 */
 	TermIterator allterms_begin() const;
 
-	/** Corresponding end iterator to allterms_begin()
+	/** Corresponding end iterator to allterms_begin().
 	 */
-	TermIterator allterms_end() const;
+	TermIterator allterms_end() const {
+	    return TermIterator(NULL);
+	}
 
 	/// Get the number of documents in the database.
 	Xapian::doccount get_doccount() const;

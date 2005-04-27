@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -135,14 +135,6 @@ Database::postlist_begin(const string &tname) const
     RETURN(PostingIterator(new MultiPostList(pls, *this)));
 }
 
-PostingIterator
-Database::postlist_end(const string &tname) const
-{
-    DEBUGAPICALL(PostingIterator, "Database::postlist_end", tname);
-    (void)tname;
-    RETURN(PostingIterator(NULL));
-}
-
 TermIterator
 Database::termlist_begin(Xapian::docid did) const
 {
@@ -157,14 +149,6 @@ Database::termlist_begin(Xapian::docid did) const
     LeafTermList *tl;
     tl = new MultiTermList(internal[n]->open_term_list(m), internal[n], *this);
     RETURN(TermIterator(tl));
-}
-
-TermIterator
-Database::termlist_end(Xapian::docid did) const
-{
-    DEBUGAPICALL(TermIterator, "Database::termlist_end", did);
-    (void)did;
-    RETURN(TermIterator(NULL));
 }
 
 TermIterator
@@ -186,13 +170,6 @@ Database::allterms_begin() const
     RETURN(TermIterator(new MultiAllTermsList(lists)));
 }
 
-TermIterator
-Database::allterms_end() const
-{
-    DEBUGAPICALL(TermIterator, "Database::allterms_end", "");
-    RETURN(TermIterator(NULL));
-}
-
 PositionIterator
 Database::positionlist_begin(Xapian::docid did, const string &tname) const
 {
@@ -208,16 +185,6 @@ Database::positionlist_begin(Xapian::docid did, const string &tname) const
     Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
     RETURN(PositionIterator(internal[n]->open_position_list(m, tname)));
-}
-
-PositionIterator
-Database::positionlist_end(Xapian::docid did, const string &tname) const
-{
-    DEBUGAPICALL(PositionIterator, "Database::positionlist_end",
-		 did << ", " << tname);
-    (void)did;
-    (void)tname;
-    RETURN(PositionIterator(NULL));
 }
 
 Xapian::doccount

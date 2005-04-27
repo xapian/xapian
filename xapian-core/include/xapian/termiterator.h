@@ -31,11 +31,11 @@
 
 #include <xapian/base.h>
 #include <xapian/types.h>
+#include <xapian/positioniterator.h>
 
 namespace Xapian {
 
 class Database;
-class PositionIterator;
 
 /** A wrapper class for a termname which returns the termname if dereferenced 
  *  with *.  We need this to implement input_iterator semantics.
@@ -102,12 +102,14 @@ class TermIterator {
 	/** Return PositionIterator pointing to start of positionlist for
 	 *  current term.
 	 */
-	PositionIterator positionlist_begin();
+	PositionIterator positionlist_begin() const;
 
 	/** Return PositionIterator pointing to end of positionlist for
 	 *  current term.
 	 */
-	PositionIterator positionlist_end();
+	PositionIterator positionlist_end() const {
+	    return PositionIterator(NULL);
+	}
 
 	/** Returns a string describing this object.
 	 *  Introspection method.

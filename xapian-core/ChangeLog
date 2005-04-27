@@ -1,3 +1,12 @@
+Wed Apr 27 03:31:50 BST 2005  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,api/ompostlistiterator.cc,
+	  api/omtermlistiterator.cc,include/xapian/,
+	  queryparser/queryparser.cc: Where end iterator is just
+	  FooIterator(NULL) put it inline in the header for efficiency.
+	  If we ever need to change an implementation, we can easily move
+	  methods back into the library and bump the library version suitably.
+
 Wed Apr 27 02:40:43 BST 2005  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc,include/xapian/queryparser.h,

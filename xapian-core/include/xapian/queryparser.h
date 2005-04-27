@@ -134,13 +134,19 @@ class QueryParser {
     void add_boolean_prefix(const std::string & field, const std::string &prefix);
 
     TermIterator termlist_begin() const;
-    TermIterator termlist_end() const;
+    TermIterator termlist_end() const {
+	return TermIterator(NULL);
+    }
 
     TermIterator stoplist_begin() const;
-    TermIterator stoplist_end() const;
+    TermIterator stoplist_end() const {
+	return TermIterator(NULL);
+    }
 
     TermIterator unstem_begin(const std::string &term) const;
-    TermIterator unstem_end(const std::string &term) const;
+    TermIterator unstem_end(const std::string &) const {
+	return TermIterator(NULL);
+    }
 
     /// Return a string describing this object.
     std::string get_description() const;

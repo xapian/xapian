@@ -122,22 +122,10 @@ QueryParser::termlist_begin() const
 }
 
 TermIterator
-QueryParser::termlist_end() const
-{
-    return TermIterator(NULL);
-}
-
-TermIterator
 QueryParser::stoplist_begin() const
 {
     list<std::string> & sl = internal->stoplist;
     return TermIterator(new VectorTermList(sl.begin(), sl.end()));
-}
-
-TermIterator
-QueryParser::stoplist_end() const
-{
-    return TermIterator(NULL);
 }
 
 TermIterator
@@ -153,12 +141,6 @@ QueryParser::unstem_begin(const std::string &term) const
 	++i;
     }
     return TermIterator(new VectorTermList(l.begin(), l.end()));
-}
-
-TermIterator
-QueryParser::unstem_end(const std::string &/*term*/) const
-{
-    return TermIterator(NULL);
 }
 
 std::string

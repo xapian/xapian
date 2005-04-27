@@ -31,11 +31,11 @@
 
 #include <xapian/base.h>
 #include <xapian/types.h>
+#include <xapian/positioniterator.h>
 
 namespace Xapian {
 
 class Database;
-class PositionIterator;
 
 /** A wrapper class for a docid which returns the docid if dereferenced 
  *  with *.  We need this to implement input_iterator semantics.
@@ -120,12 +120,14 @@ class PostingIterator {
 	/** Return PositionIterator pointing to start of positionlist for
 	 *  current document.
 	 */
-	PositionIterator positionlist_begin();
+	PositionIterator positionlist_begin() const;
 
 	/** Return PositionIterator pointing to end of positionlist for
 	 *  current document.
 	 */
-	PositionIterator positionlist_end();
+	PositionIterator positionlist_end() const {
+	    return PositionIterator(NULL);
+	}
 
 	// Don't expose these methods here.  A container iterator doesn't
 	// provide a method to find the size of the container...
