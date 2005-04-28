@@ -1,3 +1,10 @@
+Thu Apr 28 21:13:17 BST 2005  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Don't declare the backend factory
+	  functions if the corresponding backend has been disabled.  This
+	  means that trying to use a disabled backend will be caught at
+	  compile time rather than link time.
+
 Thu Apr 28 21:12:43 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/intro_ir.html: Corrected two errors.

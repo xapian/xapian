@@ -34,6 +34,7 @@
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
+#include <xapian/version.h>
 
 /// The Xapian library lives in the Xapian namespace.
 namespace Xapian {
@@ -548,6 +549,7 @@ Database open_stub(const std::string &file);
 
 }
 
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
 namespace Quartz {
 /** Open a Quartz database read-only.
  *
@@ -574,13 +576,17 @@ WritableDatabase
 open(const std::string &dir, int action, int block_size = 8192);
 
 }
+#endif
 
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 namespace InMemory {
 /** Open an InMemory database for update.
  */
 WritableDatabase open();
 }
+#endif
 
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
 namespace Muscat36 {
 /** Open a Muscat 3.6 DA database.
  *
@@ -626,7 +632,9 @@ Database open_db(const std::string &DB, size_t cache_size = 30);
  */
 Database open_db(const std::string &DB, const std::string &values, size_t cache_size = 30);
 }
+#endif
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 namespace Remote {
 /** Open a remote database (using a program).
  *
@@ -663,6 +671,7 @@ Database
 open(const std::string &host, unsigned int port,
 	Xapian::timeout timeout = 10000, Xapian::timeout connect_timeout = 0);
 }
+#endif
 
 }
 
