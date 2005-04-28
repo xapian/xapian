@@ -1,3 +1,7 @@
+Thu Apr 28 21:12:43 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/intro_ir.html: Corrected two errors.
+
 Wed Apr 27 23:04:53 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,include/xapian/version.h.in: Define
