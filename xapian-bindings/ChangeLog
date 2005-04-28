@@ -1,3 +1,12 @@
+Thu Apr 28 21:21:23 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: If a backend is disabled in the xapian-core we're building
+	  against, provide stub definitions of the database factory functions
+	  so there isn't a link failure.
+	* xapian.i: This means we can now wrap the Muscat36 factory functions.
+	* xapian.i: QueryParser::set_stemming_options() has been renamed to
+	  set_stemming_strategy().
+
 Fri Apr 22 01:33:41 BST 2005  Olly Betts <olly@survex.com>
 
 	* xapian.i: Updated to reflect 0.9.0 API.

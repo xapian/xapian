@@ -33,6 +33,55 @@
 #include <list>
 
 using namespace std;
+
+// If xapian-bindings configure detects that a backend was disabled (manually
+// or automatically) we include a stub definition here so the bindings can
+// still be built.
+namespace Xapian {
+#ifndef XAPIAN_HAS_QUARTZ_BACKEND
+    namespace Quartz {
+	Database open() {
+	    throw FeatureUnavailableError("Quartz backend not supported");
+	}
+	WritableDatabase open(const string &, int, int = 8192) {
+	    throw FeatureUnavailableError("Quartz backend not supported");
+	}
+    }
+#endif
+
+#ifndef XAPIAN_HAS_INMEMORY_BACKEND
+    namespace InMemory {
+	WritableDatabase open() {
+	    throw FeatureUnavailableError("InMemory backend not supported");
+	}
+    }
+#endif
+
+#ifndef XAPIAN_HAS_MUSCAT36_BACKEND
+    namespace Muscat36 {
+	Database open_da(const string &, const string &, bool = true) {
+	    throw FeatureUnavailableError("Muscat36 backend not supported");
+	}
+	Database open_da(const string &, const string &, const string &, bool = true) {
+	    throw FeatureUnavailableError("Muscat36 backend not supported");
+	}
+	Database open_db(const string &, size_t = 30) {
+	    throw FeatureUnavailableError("Muscat36 backend not supported");
+	}
+	Database open_db(const string &, const string &, size_t = 30) {
+	    throw FeatureUnavailableError("Muscat36 backend not supported");
+	}
+    }
+#endif
+
+#ifndef XAPIAN_HAS_REMOTE_BACKEND
+    namespace Remote {
+	Database open(const string &, unsigned int, timeout = 0, timeout = 0) {
+	    throw FeatureUnavailableError("Remote backend not supported");
+	}
+    }
+#endif
+}
 %}
 
 using namespace std;
@@ -698,9 +747,21 @@ namespace InMemory {
     WritableDatabase open();
 }
 
-// If we wrap Muscat36, people will have to compile it in.  I doubt anyone
-// uses it these days anyway, except perhaps to migrate to Xapian (you can
-// convert a database using copydatabase).
+namespace Muscat36 {
+#ifdef SWIGPHP4
+    Database open_da(const std::string &R, const std::string &T);
+    %rename(open_da_values) open_da;
+    Database open_da(const std::string &R, const std::string &T, const std::string &values);
+    Database open_db(const std::string &DB);
+    %rename(open_db_values) open_db;
+    Database open_db(const std::string &DB, const std::string &values);
+#else
+    Database open_da(const std::string &R, const std::string &T, bool heavy_duty = true);
+    Database open_da(const std::string &R, const std::string &T, const std::string &values, bool heavy_duty = true);
+    Database open_db(const std::string &DB, size_t cache_size = 30);
+    Database open_db(const std::string &DB, const std::string &values, size_t cache_size = 30);
+#endif
+}
 
 namespace Remote {
     // FIXME: prog factory function not currently wrapped - is it useful?
@@ -824,7 +885,7 @@ public:
     QueryParser(const QueryParser & o);
 #endif
     void set_stemmer(const Xapian::Stem & stemmer);
-    void set_stemming_options(stem_strategy strategy);
+    void set_stemming_strategy(stem_strategy strategy);
 #ifndef SWIGPHP4
     void set_stopper(Stopper *stop = NULL);
 #else
