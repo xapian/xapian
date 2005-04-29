@@ -612,9 +612,7 @@ main(int argc, char **argv)
     
     // Catch any Xapian::Error exceptions thrown
     try {
-	// Make the database
-	// Sleep and retry if we get an Xapian::DatabaseLockError - this just
-	// means that another process is updating the database
+	// Open the database.
 	Xapian::WritableDatabase database;
 	while (true) {
 	    try {
@@ -627,6 +625,9 @@ main(int argc, char **argv)
 		}
 		break;
 	    } catch (const Xapian::DatabaseLockError &error) {
+		// Sleep and retry if we get a Xapian::DatabaseLockError -
+		// this just means that another process is updating the
+		// database.
 		cout << "Database locked ... retrying" << endl;
 		sleep(1);
 	    }
@@ -637,11 +638,11 @@ main(int argc, char **argv)
 	repcount = 0;
 	delcount = 0;
 
-	// Read file/s
 	if (argc == 2) {
-	    // Read from stdin
+	    // Read from stdin.
 	    index_file(cin, database, stemmer);
 	} else {
+	    // Read file(s) listed on the command line.
 	    for (int i = 2; i < argc; ++i) {
 		ifstream stream(argv[i]);
 		if (stream) {

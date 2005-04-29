@@ -1,3 +1,7 @@
+Fri Apr 29 10:27:05 BST 2005  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Improved comments.
+
 Fri Apr 15 03:12:02 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/termprefixes.txt: Updated QueryParser prefix documentation to
