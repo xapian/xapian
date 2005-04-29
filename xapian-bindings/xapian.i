@@ -748,7 +748,7 @@ namespace InMemory {
 }
 
 namespace Muscat36 {
-#ifdef SWIGPHP4
+#if defined SWIGPHP4 || defined SWIGGUILE
     Database open_da(const std::string &R, const std::string &T);
     %rename(open_da_values) open_da;
     Database open_da(const std::string &R, const std::string &T, const std::string &values);

@@ -182,7 +182,7 @@ if test no != "$with_swig" ; then
     fi
   fi
 
-  if test no != "$with_guile" ; then
+  if test yes == "$with_guile" ; then
     AC_PATH_PROG(GUILE, guile, [])
     if test -n "$GUILE" ;  then
 	dnl test guile version?

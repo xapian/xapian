@@ -1,3 +1,9 @@
+Fri Apr 29 09:57:17 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Rename second version of Muscat36::open_da() for guile
+	  like we do for PHP4.
+	* configure.ac: Disable guile by default, as it needs more work.
+
 Thu Apr 28 21:21:23 BST 2005  Olly Betts <olly@survex.com>
 
 	* xapian.i: If a backend is disabled in the xapian-core we're building
