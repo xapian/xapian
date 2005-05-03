@@ -1,3 +1,8 @@
+Wed May 04 00:52:04 BST 2005  Olly Betts <olly@survex.com>
+
+	* matcher/bm25weight.cc: Avoid needing document length if we're simply
+	  going to multiply it by zero!
+
 Tue May 03 14:07:20 BST 2005  Olly Betts <olly@survex.com>
 
 	* HACKING: CVS -> SVN;  Note that tabs should be 8 spaces.

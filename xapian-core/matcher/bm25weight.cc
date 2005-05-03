@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -168,6 +168,8 @@ BM25Weight::get_maxextra() const
     RETURN(maxextra);
 }
 
-bool BM25Weight::get_sumpart_needs_doclength() const { return (lenpart != 0); }
+bool BM25Weight::get_sumpart_needs_doclength() const { 
+    return (b != 0 && k1 != 0 && lenpart != 0);
+}
 
 }
