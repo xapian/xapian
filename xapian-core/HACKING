@@ -129,10 +129,10 @@ To use Insure (another proprietary tool):
 If you have runes for using other tools, please add them above, or send them
 to us so we can.
 
-Building from CVS:
+Building from SVN:
 ==================
 
-If you're building code from CVS, you'll want to configure with:
+If you're building code from SVN, you'll want to configure with:
 
 ./configure --enable-maintainer-mode
 
@@ -141,14 +141,14 @@ run the top-level configure this produces (see below for more information about
 this).  If you don't enable maintainer mode, then rules to build the
 documentation are disabled.
 
-The CVS repository does not contain any automatically generated files
+The SVN repository does not contain any automatically generated files
 (such as configure, Makefile.in, Lemon generated sources, etc) because
 experience shows it's best to keep these out of version control.  This
-means that if you check the sources out of CVS, before you can successfully
+means that if you check the sources out of SVN, before you can successfully
 run the normal build process you'll need to have several programs installed
 so these files can be generated.  Note that you can avoid needing to have
-these programs installed by using the CVS snapshots available from the
-CVS page of the Xapian website.
+these programs installed by using the SVN snapshots available from the
+"Bleeding Edge" page of the Xapian website.
 
 At the time of writing, these programs are autoconf, automake, and libtool.
 Some older versions of these programs may not work correctly at the time of
@@ -190,9 +190,9 @@ Please tell us if you find that older or newer versions of any of these
 tools work or fail to work.
 
 We have provided a simple script (bootstrap) to run these programs for you
-on all the xapian modules you've checked out of CVS to produce a source tree
+on all the xapian modules you've checked out of SVN to produce a source tree
 like that you'd get from unpacking the result of "make dist".  bootstrap is
-in CVS in the level above xapian-core, etc.  Running bootstrap generates
+in SVN in the level above xapian-core, etc.  Running bootstrap generates
 a configure script in the top level which allows you to configure xapian-core
 and any other modules you've checked out with one command.
 
@@ -446,10 +446,13 @@ please send it to us for inclusion.  Any major changes should be discussed
 on the xapian-devel mailing list first:
 <http://www.xapian.org/lists.php>
 
-We find patches generated with "diff -puN" easiest to read.  If you are
-working from a CVS copy of the code, you can use "cvs diff -puN" to generate
-your patch, or put the line "diff -puN" in your ~/.cvsrc file and just use
-"cvs diff".
+We find patches in unified diff format easiest to read.  If you're using a
+SVN checkout just use "svn diff" to generate the diff.  If you're working
+from a tarball, compare against the original versions of files using
+"diff -puN" (-p reports the function name for each chunk).
+
+Please set the width of a tab character in your editor to 8 spaces.  Failing to
+do so will make it much harder for us to merge in your changes.
 
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name
@@ -457,11 +460,11 @@ to the AUTHORS file (unless you specifically request us not to).  If you see we
 have forgotten to do this, please draw it to our attention so that we can
 address the omission.
 
-Developers with CVS access:
+Developers with SVN access:
 ===========================
 
 People who are more seriously involved with the project are likely to
-have write access to the CVS repository. This section gives the conventions
+have write access to the SVN repository. This section gives the conventions
 for those developers. In addition to this, obviously you should make sure
 you update any documentation, especially the inline source code
 documentation that generates the API docs.

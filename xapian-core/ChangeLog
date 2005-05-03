@@ -1,3 +1,7 @@
+Tue May 03 14:07:20 BST 2005  Olly Betts <olly@survex.com>
+
+	* HACKING: CVS -> SVN;  Note that tabs should be 8 spaces.
+
 Thu Apr 28 21:13:17 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Don't declare the backend factory
@@ -32,7 +36,7 @@ Wed Apr 27 02:40:43 BST 2005  Olly Betts <olly@survex.com>
 	  - it's a better name and avoids confusion with the old deprecated
 	  method called set_stemming_options().
 	* examples/quest.cc: Added stopword handling.
- 
+
 Wed Apr 27 02:39:33 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Fixed documentation comment.
@@ -138,7 +142,7 @@ Thu Apr 07 15:15:27 BST 2005  Olly Betts <olly@survex.com>
 	  a value.
 	* api/omenquire.cc: Enquire::get_description() now includes output of
 	  Enquire::Internal::get_description().
- 
+
 Thu Apr 07 13:55:56 BST 2005  Olly Betts <olly@survex.com>
 
 	* HACKING: Fixed a typo.
