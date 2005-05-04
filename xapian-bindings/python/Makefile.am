@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-TESTS_ENVIRONMENT = PYTHONPATH=@PYTHON_MODERN_OR_OLDE@:.libs $(PYTHON)
+TESTS_ENVIRONMENT = PYTHONPATH=@PYTHON_MODERN_OR_OLDE@$(PATH_SEPARATOR).libs $(PYTHON)
 
 ## Test programs to be run
 TESTS = smoketest.py
@@ -31,7 +31,7 @@ install-data-hook:
 
 AM_CPPFLAGS = -I@PYTHON_INC@
 AM_CXXFLAGS = @SWIG_CXXFLAGS@
-_xapian_la_LDFLAGS = -avoid-version -module
+_xapian_la_LDFLAGS = -avoid-version -module -no-undefined
 _xapian_la_SOURCES = @PYTHON_MODERN_OR_OLDE@/xapian_wrap.cc \
 	@PYTHON_MODERN_OR_OLDE@/xapian_wrap.h
 _xapian_la_LIBADD = $(XAPIAN_LIBS)
@@ -41,7 +41,7 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS)
 # we can't expect to be allowed to write to $(srcdir), so we copy the
 # .py file to the build directory instead.
 xapian.pyc: xapian.py
-	PYTHONPATH=.:.libs $(PYTHON) -c "import xapian"
+	PYTHONPATH=.$(PATH_SEPARATOR).libs $(PYTHON) -c "import xapian"
 
 xapian.py: @PYTHON_MODERN_OR_OLDE@/xapian.py
 	cp `test -f @PYTHON_MODERN_OR_OLDE@/xapian.py || echo '$(srcdir)/'`@PYTHON_MODERN_OR_OLDE@/xapian.py xapian.py
