@@ -1,3 +1,19 @@
+Wed May  4 11:32:18 BST 2005  Richard Boulton <richard@tartarus.org>
+
+	* configfile.cc: Configuration file is now looked for in various
+	  locations: the first location in which a file is found is used.
+	  Firstly, if the OMEGA_CONFIG_FILE environment variable is set,
+	  the location given in it is checked.  Secondly, the file
+	  "omega.conf" in the same directory as the executable is checked.
+	  Finally, the file "${sysconfdir}/omega.conf" (eg, /etc/omega.conf
+	  on Linux) is checked.  If none of these locations contain a file,
+	  default values are used.
+	* docs/overview.txt: Update to describe new configuration file
+	  locations.
+	* Makefile.am: Install omega.conf to ${sysconfdir} by default.
+	  Define CONFIGFILE_SYSTEM with an appropriate value to find the
+	  system configuration file.
+
 Wed May  4 11:20:26 BST 2005  Richard Boulton <richard@tartarus.org>
 
 	* query.cc: Use new set_stemming_strategy() API method, rather than

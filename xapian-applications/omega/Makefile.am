@@ -8,7 +8,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
  gnu_getopt.h
 
-# None generated documentation.
+# Non-generated documentation.
 omega_docs = docs/cgiparams.txt \
 	docs/omegascript.txt \
 	docs/overview.txt \
@@ -64,6 +64,8 @@ EXTRA_DIST = templates/query \
 	$(omega_docs) \
 	dbi2omega htdig2omega htdig2omega.script mbox2omega mbox2omega.script
 
+CPPFLAGS = -DCONFIGFILE_SYSTEM=\"@sysconfdir@/omega.conf\"
+
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex
@@ -75,6 +77,8 @@ docdata_DATA = $(omega_docs)
 
 omegadatadir = $(datadir)/omega
 omegadata_DATA = htdig2omega.script mbox2omega.script
+
+sysconf_DATA = omega.conf
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc
 omega_LDADD = $(XAPIAN_LIBS) # -lpcre

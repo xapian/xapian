@@ -264,8 +264,18 @@ omega configuration
 
 Most of the omega CGI configuration is dynamic, by setting CGI
 parameters. However some things must be configured using a
-configuration file (either 'omega.conf' in the same directory as the
-Omega CGI itself, or '/etc/omega.conf').
+configuration file.  The configuration file is searched for in
+various locations:
+ - Firstly, if the "OMEGA_CONFIG_FILE" environment variable is
+   set, its value is used as the full path to a configuration file
+   to read.
+ - Next (if the environment variable is not set, or the file pointed
+   to is not present), the file "omega.conf" in the same directory as
+   the Omega CGI is used.
+ - Next (if neither of the previous steps found a file), the file
+   "${sysconfdir}/omega.conf" (eg, /etc/omega.conf on Linux systems)
+   is used.
+ - Finally, if no configuration file is found, default values are used.
 
 The format of the file is very simple: a line per option, with the
 option name followed by its value, separated by a space. The current
@@ -274,14 +284,17 @@ databases), 'template_dir' (the directory containing the Omega
 templates), and 'log_dir' (the directory which the omegascript $log command
 writes log files to).
 
-If neither configuration file can be opened, defaults are used (this
-is also supplied as omega.conf in the distribution):
-
+The default values (used if no configuration file is found) are:
 ----------------------------------------------------------------------
 database_dir /var/lib/omega/data
 template_dir /var/lib/omega/templates
 log_dir /var/log/omega
 ----------------------------------------------------------------------
+
+Note that, with apache, environment variables may be set using mod_env, and
+with apache 1.3.7 or later this may be used inside a .htaccess file.  This
+makes it reasonably easy to share a single system installed copy of Omega
+between multiple users.
 
 
 Document data construction

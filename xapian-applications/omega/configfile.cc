@@ -31,10 +31,13 @@ using std::ifstream;
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "configfile.h"
 
-static string config_file = "/etc/omega.conf";
+static const char * configfile_local = "omega.conf";
+static const char * configfile_system = CONFIGFILE_SYSTEM;
+static const char * configfile_envvar = "OMEGA_CONFIG_FILE";
 
 string database_dir = "/var/lib/omega/data/";
 string template_dir = "/var/lib/omega/templates/";
@@ -43,17 +46,17 @@ string log_dir = "/var/log/omega/";
 /** Return true if the file fname exists
  */
 static bool
-file_readable(const string &fname)
+file_readable(const char * fname)
 {
     struct stat sbuf;
     // exists && is a regular file or symlink
-    return stat(fname.c_str(), &sbuf) >= 0 && !S_ISDIR(sbuf.st_mode);
+    return stat(fname, &sbuf) >= 0 && !S_ISDIR(sbuf.st_mode);
 }   
 
 static bool
-try_read_config_file(string cfile)
+try_read_config_file(const char * cfile)
 {
-    ifstream in(cfile.c_str());
+    ifstream in(cfile);
     if (!in) {
 	if (file_readable(cfile))
 	    throw string("Can't open configuration file `") + cfile + "'";
@@ -78,7 +81,24 @@ try_read_config_file(string cfile)
 void
 read_config_file()
 {
-    if (try_read_config_file("omega.conf")) return;
-    try_read_config_file(config_file);
+    // Tries to find the config file in various ways.  If a config file
+    // is found in a particular location but is not readable, an error
+    // is thrown.  If a config file isn't found in a particular location,
+    // the next candidate is tried.
+
+    // First check if a location is specified in the environment variable.
+    const char * cfile = getenv(configfile_envvar);
+    if (cfile != NULL && cfile[0] != '\0') {
+        if (try_read_config_file(cfile)) return;
+    }
+
+    // Next, try reading the local config file.
+    if (try_read_config_file(configfile_local)) return;
+
+    // Finally read the system config file.
+    if (try_read_config_file(configfile_system)) return;
+
+    // Just use the default configuration.
+    return;
 }
 
