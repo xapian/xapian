@@ -1,3 +1,10 @@
+Wed May  4 11:20:26 BST 2005  Richard Boulton <richard@tartarus.org>
+
+	* query.cc: Use new set_stemming_strategy() API method, rather than
+	  old set_stemming_options() method.  The old method didn't compile
+	  because it's being passed a stemming_strategy value, which there
+	  isn't a prototype for.
+
 Fri Apr 29 10:27:05 BST 2005  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Improved comments.

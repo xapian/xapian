@@ -162,7 +162,7 @@ set_probabilistic(const string &oldp)
 {
     // Parse the query string.
     qp.set_stemmer(Xapian::Stem(option["stemmer"]));
-    qp.set_stemming_options(option["stem_all"] == "true" ? Xapian::QueryParser::STEM_ALL : Xapian::QueryParser::STEM_SOME);
+    qp.set_stemming_strategy(option["stem_all"] == "true" ? Xapian::QueryParser::STEM_ALL : Xapian::QueryParser::STEM_SOME);
     qp.set_stopper(new MyStopper());
     qp.set_default_op(default_op);
 //    qp.set_database(db);
