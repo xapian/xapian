@@ -142,7 +142,8 @@ if test no != "$with_swig" ; then
     if test -n "$PHP_CONFIG" ; then
 	case "`$PHP_CONFIG --version 2> /dev/null`" in
 	4.*)
-	    AC_PATH_PROGS(PHP4, [php4 php], [exit 77 #])
+	    dnl If the php interpreter can't be found, skip the php tests.
+	    AC_PATH_PROGS(PHP4, [php4 php], [\$(top_srcdir)/skiptest])
 	    PHP_INC="`$PHP_CONFIG --includes`"
 	    AC_SUBST(PHP_INC)
 	    PHP_EXTENSION_DIR="`$PHP_CONFIG --extension-dir`"

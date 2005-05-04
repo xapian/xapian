@@ -1,3 +1,9 @@
+Wed May 04 18:07:49 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,Makefile.am: Setting PHP4 to "exit 77 #" doesn't
+	  actually work right, so use a trivial shell script to skip PHP
+	  tests if we can't find the PHP interpreter.
+
 Wed May 04 02:00:31 BST 2005  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,python/Makefile.am,java/native/Makefile.am,
