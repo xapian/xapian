@@ -1,3 +1,8 @@
+Thu May 05 01:00:26 BST 2005  Olly Betts <olly@survex.com>
+
+	* common/utils.cc: On WIN32, don't define NOMINMAX if it is already
+	  defined.
+
 Wed May 04 00:52:04 BST 2005  Olly Betts <olly@survex.com>
 
 	* matcher/bm25weight.cc: Avoid needing document length if we're simply

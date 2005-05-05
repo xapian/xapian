@@ -32,7 +32,9 @@ using namespace std;
 
 #ifdef __WIN32__
 // Prevent windows.h from defining min and max macros.
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #include <windows.h>
 #ifndef FOF_NOERRORUI
 #define FOF_NOERRORUI 1024
@@ -147,7 +149,9 @@ rmdir(const string &filename)
     string::iterator i;
     for (i = safefile.begin(); i != safefile.end(); ++i) {
 	if (*i == '/') {
-	    // Convert Unix path separators to backslashes.
+	    // Convert Unix path separators to backslashes.  C library
+	    // functions understand "/" in paths, but Win32 API functions
+	    // don't.
 	    *i = '\\';
 	} else if (*i < 32 || strchr("<>\"|*?", *i)) {
 	    // Check for illegal characters in filename.
