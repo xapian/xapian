@@ -1,3 +1,7 @@
+Thu May 05 13:17:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* skiptest: Add skiptest script needed by last-but-one commit.
+
 Thu May 05 12:44:01 BST 2005  Olly Betts <olly@survex.com>
 
 	* xapian.i: Back out PHP4 specific hacks added since 0.8.5 which
