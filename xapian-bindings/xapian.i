@@ -260,18 +260,11 @@ class Document {
     string get_data() const;
     void set_data(const string & data);
 
-#ifndef SWIGPHP4
     void add_posting(const string & tname, termpos tpos, termcount wdfinc=1);
     void add_term(const string & tname, termcount wdfinc = 1);
     // For compatibility with older code.
     void add_term_nopos(const string & tname, termcount wdfinc = 1);
     void remove_posting(const string & tname, termpos tpos, termcount wdfdec = 1);
-#else
-    void add_posting(const string & tname, termpos tpos);
-    void add_term(const string & tname);
-    void add_term_nopos(const string & tname);
-    void remove_posting(const string & tname, termpos tpos);
-#endif
     void remove_term(const string & tname);
     void clear_terms();
 
@@ -468,16 +461,10 @@ class Enquire {
     void set_docid_order(docid_order order);
     // For compatibility with 0.8.5 and earlier:
     void set_sort_forward(bool sort_forward);
-#ifndef SWIGPHP4
     void set_cutoff(int percent_cutoff, weight weight_cutoff = 0);
     // For compatibility with 0.8.5 and earlier:
     void set_sorting(Xapian::valueno sort_key, int sort_bands,
 		     bool sort_by_relevance = false);
-#else
-    void set_cutoff(int percent_cutoff);
-    // For compatibility with 0.8.5 and earlier:
-    void set_sorting(Xapian::valueno sort_key, int sort_bands);
-#endif
     void set_sort_by_relevance();
     void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
     void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
@@ -517,9 +504,7 @@ class Enquire {
     TermIterator get_matching_terms_begin(const MSetIterator& i) const;
     TermIterator get_matching_terms_end(const MSetIterator& i) const;
 
-#ifndef SWIGPHP4
     void register_match_decider(const std::string& name, const MatchDecider* mdecider=NULL);
-#endif
 
     %extend {
 	std::list<std::string>
@@ -766,12 +751,8 @@ namespace Muscat36 {
 namespace Remote {
     // FIXME: prog factory function not currently wrapped - is it useful?
     %rename(remote_open) open;
-#ifndef SWIGPHP4
     Database open(const std::string &host, unsigned int port,
 	timeout timeout = 10000, timeout connect_timeout = 0);
-#else
-    Database open(const std::string &host, unsigned int port);
-#endif
 }
 
 // xapian/query.h:
@@ -790,10 +771,8 @@ class Query {
 	    OP_ELITE_SET
 	};
 	// FIXME wrap optional arguments in PHP?
-#ifndef SWIGPHP4
 	Query(const string &tname, termcount wqf = 1, termpos term_pos = 0);
-#else
-	Query(const string &tname);
+#ifdef SWIGPHP4
 	%rename(Query_from_query_pair) Query;
 #endif
 	Query(Query::op op_, const Query & left, const Query & right);
@@ -886,11 +865,7 @@ public:
 #endif
     void set_stemmer(const Xapian::Stem & stemmer);
     void set_stemming_strategy(stem_strategy strategy);
-#ifndef SWIGPHP4
     void set_stopper(Stopper *stop = NULL);
-#else
-    void set_stopper(Stopper *stop);
-#endif
     void set_default_op(Query::op default_op_);
     Query::op get_default_op() const;
     void set_database(const Database &db_);
