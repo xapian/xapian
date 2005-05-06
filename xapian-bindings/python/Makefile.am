@@ -41,7 +41,7 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS)
 # we can't expect to be allowed to write to $(srcdir), so we copy the
 # .py file to the build directory instead.
 xapian.pyc: xapian.py
-	PYTHONPATH=.$(PATH_SEPARATOR).libs $(PYTHON) -c "import xapian"
+	PYTHONPATH=.$(PYTHON_PATHSEP).libs $(PYTHON) -c "import xapian"
 
 xapian.py: @PYTHON_MODERN_OR_OLDE@/xapian.py
 	cp `test -f @PYTHON_MODERN_OR_OLDE@/xapian.py || echo '$(srcdir)/'`@PYTHON_MODERN_OR_OLDE@/xapian.py xapian.py
