@@ -1,3 +1,63 @@
+Xapian-bindings 0.9.0 (2005-05-??):
+up to: Fri May 06 20:39:50 BST 2005  Olly Betts <olly@survex.com>
+
+General:
+
+* Updated SWIG-based bindings to latest Xapian API
+
+* Improve support for building the bindings on MS Windows:
+
+  + Provide stub versions of any backend functions which are disabled in the
+    library we're wrapping to avoid a link failure on MS Windows (where the
+    remote backend is automatically disabled).  These stubs just throw
+    Xapian::FeatureUnavailableError.
+
+  + Add -no-undefined to *_la_LDFLAGS.
+
+  + Use $(PATH_SEPARATOR) or Python's os.pathsep instead of ':' where
+    appropriate.
+
+* Wrap the Muscat36 Database factory functions (easy to do now we have stubs
+  for disabled backends).
+
+* Don't wrap MSet::max_size() as it's there for STL compatibility rather than
+  being useful functionality.
+
+* configure: Fix all SWIG warnings and pass -Werror to SWIG so any which get
+  introduced in future get fixed.
+
+* configure: Fix version test to allow for _svn6789 suffix which SVN snapshots
+  have.
+
+* Generate SWIG bindings with SWIG 1.3.24 (except for PHP which we still use
+  1.3.22 for as more recent versions don't work with methods with optional
+  arguments - the arguments become non-optional!)
+
+Guile:
+
+* configure: Disable guile by default, as it needs more work.
+
+PHP4:
+
+* For PHP4, rename default Database constructor to Database_empty
+  instead of suppressing the much more useful Database(const string &path)
+  constructor.
+
+* Use a blank config file when running PHP4 tests to avoid problems
+  when the bindings are already installed as an extension which is
+  loaded automatically in the default config.
+
+* configure.ac: If configure can't find the PHP interpreter (as php4 or php),
+  it probably just means it's not in PATH.  We only need it for running tests,
+  so substitute a trivial shell script which just exits with code 77 so PHP
+  tests are skipped (previously we substituted "missing" which caused the tests
+  to fail).
+
+Python:
+
+* Added Python-style iterators ESetIter, TermIter, PostingIter, PositionIter,
+  and ValueIter.
+
 Xapian-bindings 0.8.5.1 (2005-02-23):
 
 General:
