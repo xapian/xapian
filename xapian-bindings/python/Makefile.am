@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-TESTS_ENVIRONMENT = PYTHONPATH=@PYTHON_MODERN_OR_OLDE@$(PATH_SEPARATOR).libs $(PYTHON)
+TESTS_ENVIRONMENT = PYTHONPATH=@PYTHON_MODERN_OR_OLDE@$(PYTHON_PATHSEP).libs $(PYTHON)
 
 ## Test programs to be run
 TESTS = smoketest.py

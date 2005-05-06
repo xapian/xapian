@@ -132,6 +132,8 @@ if test no != "$with_swig" ; then
 	AC_SUBST(PYTHON_INC)
 	PYTHON_LIB="`$PYTHON -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_LIB)
+	PYTHON_PATHSEP="`python -c 'import os;print os.pathsep'`"
+	AC_SUBST(PYTHON_PATHSEP)
 	BINDINGS="$BINDINGS python"
       fi
     fi
