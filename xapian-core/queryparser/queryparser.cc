@@ -86,7 +86,6 @@ static const unsigned default_flags =
 Query
 QueryParser::parse_query(const string &query_string)
 {
-    internal->termlist.clear();
     internal->unstem.clear();
     internal->errmsg = NULL;
 
@@ -112,13 +111,6 @@ QueryParser::add_boolean_prefix(const std::string &field,
 				const std::string &prefix)
 {
     internal->prefixes.insert(make_pair(field, make_pair(true, prefix)));
-}
-
-TermIterator
-QueryParser::termlist_begin() const
-{
-    list<std::string> & tl = internal->termlist;
-    return TermIterator(new VectorTermList(tl.begin(), tl.end()));
 }
 
 TermIterator

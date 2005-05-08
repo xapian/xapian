@@ -43,7 +43,6 @@ class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
     Xapian::Query::op default_op;
     const char * errmsg;
     Xapian::Database db;
-    list<string> termlist;
     list<string> stoplist;
     multimap<string, string> unstem;
 
