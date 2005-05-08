@@ -64,7 +64,7 @@ EXTRA_DIST = templates/query \
 	$(omega_docs) \
 	dbi2omega htdig2omega htdig2omega.script mbox2omega mbox2omega.script
 
-CPPFLAGS = -DCONFIGFILE_SYSTEM=\"@sysconfdir@/omega.conf\"
+AM_CPPFLAGS = -DCONFIGFILE_SYSTEM=\"@sysconfdir@/omega.conf\"
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
