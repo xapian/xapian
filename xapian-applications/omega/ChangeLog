@@ -1,3 +1,8 @@
+Sun May 08 02:16:07 BST 2005  Olly Betts <olly@survex.com>
+
+	* query.cc: Use Query::get_terms_begin() not
+	  QueryParser::termlist_begin().
+
 Sun May 08 02:11:49 BST 2005  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Use AM_CPPFLAGS not CPPFLAGS (CPPFLAGS is for the

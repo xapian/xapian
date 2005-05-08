@@ -178,8 +178,8 @@ set_probabilistic(const string &oldp)
     }
 
     Xapian::termcount n_new_terms = 0;
-    for (Xapian::TermIterator i = qp.termlist_begin();
-	 i != qp.termlist_end(); ++i) {
+    for (Xapian::TermIterator i = query.get_terms_begin();
+	 i != query.get_terms_end(); ++i) {
 	if (termset.find(*i) == termset.end()) {
 	    termset.insert(*i);
 	    if (!queryterms.empty()) queryterms += '\t';
