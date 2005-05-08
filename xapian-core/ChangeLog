@@ -1,3 +1,12 @@
+Sun May 08 23:22:37 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Corrected $CC -> $CXX to fix bogus message "Checking
+	  for  option to enable ANSI C++ mode".
+	* configure.ac: If any tools needed for documentation are missing
+	  and we're in maintainer mode, die with a suitable error in
+	  configure rather than with strange errors when building the
+	  documentation.
+
 Sun May 08 01:43:55 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h,queryparser/queryparser.lemony,

@@ -163,7 +163,7 @@ fi
 dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST(ldflags)
 
-AC_MSG_CHECKING([for $CC option to enable ANSI C++ mode])
+AC_MSG_CHECKING([for $CXX option to enable ANSI C++ mode])
 if test yes = "$GXX"; then
   AC_MSG_RESULT([none required])
 else
@@ -250,7 +250,10 @@ dnl check for socklen_t
 TYPE_SOCKLEN_T
 
 dnl Checks for perl (needed to regenerate some of the documentation)
-AC_PATH_PROG(PERL, perl, [$MISSING perl])
+AC_PATH_PROG(PERL, perl, [])
+if test x$USE_MAINTAINER_MODE = xyes; then
+  test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
+fi
 
 dnl Make DATADIR available to the library
 dnl This isn't currently used.  If we reenable it, it needs to be renamed
@@ -259,26 +262,35 @@ dnl AC_DEFINE_DIR(DATADIR, datadir, [Location of platform independent support fi
 
 dnl Checks for dot.  (Diagrams in the documentation)
 AC_PATH_PROG(DOT, dot)
-if test -n "$DOT" ; then
-  DOXYGEN_HAVE_DOT=YES
-  DOXYGEN_DOT_PATH=`echo "$DOT" | sed "s/\/dot$//"`
-else
-  DOXYGEN_HAVE_DOT=NO
+if test x$USE_MAINTAINER_MODE = xyes; then
+  test -z "$DOT" && AC_MSG_ERROR([dot is required in maintainer mode])
 fi
-AC_SUBST(DOXYGEN_HAVE_DOT)
+DOXYGEN_DOT_PATH=`echo "$DOT" | sed 's!/dot$!!'`
 AC_SUBST(DOXYGEN_DOT_PATH)
 
 dnl Check for latex. (Needed to make some more of the documentation)
-AC_PATH_PROG(LATEX, latex, [$MISSING latex])
+AC_PATH_PROG(LATEX, latex, [])
+if test x$USE_MAINTAINER_MODE = xyes; then
+  test -z "$LATEX" && AC_MSG_ERROR([latex is required in maintainer mode])
+fi
 
 dnl Check for makeindex. (Needed to make some more of the documentation)
-AC_PATH_PROG(MAKEINDEX, makeindex, [$MISSING makeindex])
+AC_PATH_PROG(MAKEINDEX, makeindex, [])
+if test x$USE_MAINTAINER_MODE = xyes; then
+  test -z "$MAKEINDEX" && AC_MSG_ERROR([makeindex is required in maintainer mode])
+fi
 
 dnl Check for doxygen. (Needed to make some more of the documentation)
-AC_PATH_PROG(DOXYGEN, doxygen, [$MISSING doxygen])
+AC_PATH_PROG(DOXYGEN, doxygen, [])
+if test x$USE_MAINTAINER_MODE = xyes; then
+  test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required in maintainer mode])
+fi
 
 dnl Check for dvips. (Needed to make some more of the documentation)
-AC_PATH_PROG(DVIPS, dvips, [$MISSING dvips])
+AC_PATH_PROG(DVIPS, dvips, [])
+if test x$USE_MAINTAINER_MODE = xyes; then
+  test -z "$DVIPS" && AC_MSG_ERROR([dvips is required in maintainer mode])
+fi
 
 dnl Check whether we need -ldl for dlsym() etc.
 dnl No longer used...
