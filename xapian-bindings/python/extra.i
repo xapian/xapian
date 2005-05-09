@@ -168,15 +168,11 @@ Document.__iter__ = document_gen_termlist_iter
 Document.terms = document_gen_termlist_iter
 Document.values = document_gen_valuelist_iter
 
-def queryparser_gen_termlist_iter(self):
-    return TermIter(self.termlist_begin(), self.termlist_end())
 def queryparser_gen_stoplist_iter(self):
     return TermIter(self.stoplist_begin(), self.stoplist_end())
 def queryparser_gen_unstemlist_iter(self):
     return TermIter(self.unstem_begin(), self.unstem_end())
 
-QueryParser.__iter__ = queryparser_gen_termlist_iter
-QueryParser.terms = queryparser_gen_termlist_iter
 QueryParser.stoplist = queryparser_gen_stoplist_iter
 QueryParser.unstemlist = queryparser_gen_unstemlist_iter
 

@@ -1,3 +1,8 @@
+Mon May 09 11:00:08 BST 2005  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Removed python iter wrappers for removed methods
+	  QueryParser::termlist_begin() and termlist_end().
+
 Mon May 09 10:54:47 BST 2005  Olly Betts <olly@survex.com>
 
 	* xapian.i: Removed wrappers for removed methods
