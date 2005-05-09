@@ -874,9 +874,6 @@ public:
     void add_prefix(const std::string &field, const std::string &prefix);
     void add_boolean_prefix(const std::string & field, const std::string &prefix);
 
-    TermIterator termlist_begin() const;
-    TermIterator termlist_end() const;
-
     TermIterator stoplist_begin() const;
     TermIterator stoplist_end() const;
 
