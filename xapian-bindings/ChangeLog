@@ -1,3 +1,7 @@
+Mon May 09 20:37:42 BST 2005  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated again.
+
 Mon May 09 18:47:46 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,python/Makefile.am: Changes to help building the python
