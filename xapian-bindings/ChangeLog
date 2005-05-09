@@ -1,3 +1,12 @@
+Mon May 09 15:22:30 BST 2005  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Add "" around PYTHONPATH setting in
+	  TESTS_ENVIRONMENT to protect PYTHON_PATHSEP from the shell
+	  (PYTHON_PATHSEP is ';' under Windows).
+	* python/Makefile.am: Explicitly pass -outdir to SWIG because Windows
+	  versions of SWIG only consider '\' as a directory separator when
+	  extracting the directory from the argument to -o.
+
 Mon May 09 11:02:08 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: If python is found, also check that Python.h exists

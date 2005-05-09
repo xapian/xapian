@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-TESTS_ENVIRONMENT = PYTHONPATH=@PYTHON_MODERN_OR_OLDE@$(PYTHON_PATHSEP).libs $(PYTHON)
+TESTS_ENVIRONMENT = PYTHONPATH="@PYTHON_MODERN_OR_OLDE@$(PYTHON_PATHSEP).libs" $(PYTHON)
 
 ## Test programs to be run
 TESTS = smoketest.py
@@ -50,15 +50,19 @@ if MAINTAINER_MODE
 # "modern" versions are for Python 2.2 and up;  "olde" versions are for earlier
 # Python versions (which in our case means 2.1).
 
+# We need to explicitly set -outdir because on Windows, SWIG splits paths at
+# "\" when extracting the output directory from the value passed to the -o
+# option.
+
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i extra.i
 	test -d modern || mkdir modern
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow -modern \
-	    -o modern/xapian_wrap.cc $(srcdir)/../xapian.i
+	    -outdir modern -o modern/xapian_wrap.cc $(srcdir)/../xapian.i
 
 olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i extra.i
 	test -d olde || mkdir olde
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow \
-	    -o olde/xapian_wrap.cc $(srcdir)/../xapian.i
+	    -outdir olde -o olde/xapian_wrap.cc $(srcdir)/../xapian.i
 
 CLEANFILES = $(BUILT_SOURCES) xapian.py xapian.pyc
 else
