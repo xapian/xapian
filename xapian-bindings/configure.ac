@@ -128,17 +128,24 @@ if test no != "$with_swig" ; then
       esac
       if test -n "$PYTHON" ; then
 	AC_SUBST(PYTHON_MODERN_OR_OLDE)
-	PYTHON_INC="`$PYTHON -c 'import sys;print sys.prefix + "/include/python" + sys.version[[:3]]'`"
+	PYTHON_INC="`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_inc().replace(os.sep,"/")'`"
 	AC_SUBST(PYTHON_INC)
 	dnl Check that Python.h is there, which is a good way to check that
 	dnl the appropriate python-dev package has been installed.
 	AC_MSG_CHECKING([for $PYTHON_INC/Python.h])
 	if test -f "$PYTHON_INC/Python.h" ; then
 	  AC_MSG_RESULT(yes)
-	  PYTHON_LIB="`$PYTHON -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"
-	  AC_SUBST(PYTHON_LIB)
+	  PYTHON_LIB="`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_lib(1).replace(os.sep,"/")'`"
+	  AC_ARG_VAR(PYTHON_LIB, [Directory to install python bindings in])
 	  PYTHON_PATHSEP="`python -c 'import os;print os.pathsep'`"
 	  AC_SUBST(PYTHON_PATHSEP)
+	  case "$host_os" in
+	  cygwin* | mingw* | pw32*)
+	    PYTHON_LIBS="`$PYTHON -c 'import os,sys;print "-L", os.path.join(sys.prefix,"libs").replace(os.sep,"/"),"-lpython"+sys.version[:3].replace(".","")'`" ;;
+	  *)
+	    PYTHON_LIBS=
+	  esac
+	  AC_SUBST(PYTHON_LIBS)
 	  BINDINGS="$BINDINGS python"
 	else
 	  AC_MSG_RESULT([no (install python-dev or python-devel package or similar)])

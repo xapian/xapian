@@ -17,7 +17,7 @@ EXTRA_DIST = util.i extra.i $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
-pylibdir = @PYTHON_LIB@/site-packages
+pylibdir = @PYTHON_LIB@
 
 pylib_SCRIPTS = @PYTHON_MODERN_OR_OLDE@/xapian.py xapian.pyc
 
@@ -34,7 +34,7 @@ AM_CXXFLAGS = @SWIG_CXXFLAGS@
 _xapian_la_LDFLAGS = -avoid-version -module -no-undefined
 _xapian_la_SOURCES = @PYTHON_MODERN_OR_OLDE@/xapian_wrap.cc \
 	@PYTHON_MODERN_OR_OLDE@/xapian_wrap.h
-_xapian_la_LIBADD = $(XAPIAN_LIBS)
+_xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 
 # In a distribution, xapian.py is in $(srcdir), and python will always
 # generate the .pyc file in the same directory as the .py file.  However,
