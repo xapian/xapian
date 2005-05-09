@@ -93,7 +93,7 @@ apidoc/html/index.html: $(top_srcdir)/configure.ac \
 # "make refman.ps" sometimes fails for no obvious reason on the first attempt.
 # Repeating the command works, so just do that!
 apidoc.ps: apidoc/html/index.html
-	cd apidoc/latex && (make refman.ps;make refman.ps)
+	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.ps;pool_size=750000 $(MAKE) refman.ps)
 	mv apidoc/latex/refman.ps apidoc.ps
 
 sourcedoc/html/index.html: $(top_srcdir)/configure.ac \
@@ -108,7 +108,7 @@ sourcedoc/html/index.html: $(top_srcdir)/configure.ac \
 # "make refman.ps" sometimes fails for no obvious reason on the first attempt.
 # Repeating the command works, so just do that!
 sourcedoc.ps: sourcedoc/html/index.html
-	cd sourcedoc/latex && (make refman.ps;make refman.ps)
+	cd sourcedoc/latex && (pool_size=750000 $(MAKE) refman.ps;pool_size=750000 $(MAKE) refman.ps)
 	mv sourcedoc/latex/refman.ps sourcedoc.ps
 endif
 

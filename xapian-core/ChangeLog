@@ -1,3 +1,9 @@
+Mon May 09 20:56:40 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Explicitly set the pool_size for latex, because we
+	  seem to overflow the default setting on many systems.
+	* docs/Makefile.am: Use $(MAKE) instead of make.
+
 Sun May 08 23:22:37 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Corrected $CC -> $CXX to fix bogus message "Checking
