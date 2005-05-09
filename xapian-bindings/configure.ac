@@ -130,11 +130,19 @@ if test no != "$with_swig" ; then
 	AC_SUBST(PYTHON_MODERN_OR_OLDE)
 	PYTHON_INC="`$PYTHON -c 'import sys;print sys.prefix + "/include/python" + sys.version[[:3]]'`"
 	AC_SUBST(PYTHON_INC)
-	PYTHON_LIB="`$PYTHON -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"
-	AC_SUBST(PYTHON_LIB)
-	PYTHON_PATHSEP="`python -c 'import os;print os.pathsep'`"
-	AC_SUBST(PYTHON_PATHSEP)
-	BINDINGS="$BINDINGS python"
+	dnl Check that Python.h is there, which is a good way to check that
+	dnl the appropriate python-dev package has been installed.
+	AC_MSG_CHECKING([for $PYTHON_INC/Python.h])
+	if test -f "$PYTHON_INC/Python.h" ; then
+	  AC_MSG_RESULT(yes)
+	  PYTHON_LIB="`$PYTHON -c 'import sys;print sys.prefix + "/lib/python" + sys.version[[:3]]'`"
+	  AC_SUBST(PYTHON_LIB)
+	  PYTHON_PATHSEP="`python -c 'import os;print os.pathsep'`"
+	  AC_SUBST(PYTHON_PATHSEP)
+	  BINDINGS="$BINDINGS python"
+	else
+	  AC_MSG_RESULT([no (install python-dev or python-devel package or similar)])
+	fi
       fi
     fi
   fi

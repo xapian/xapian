@@ -1,3 +1,9 @@
+Mon May 09 11:02:08 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: If python is found, also check that Python.h exists
+	  (it may not be if the python-dev package (or similar) isn't
+	  installed).
+
 Mon May 09 11:00:08 BST 2005  Olly Betts <olly@survex.com>
 
 	* python/extra.i: Removed python iter wrappers for removed methods
