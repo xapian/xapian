@@ -1,3 +1,8 @@
+Tue May 10 01:09:01 BST 2005  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Removed state parameter from
+	  TermList::add_term() since it is no longer used.
+
 Mon May 09 20:56:40 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Explicitly set the pool_size for latex, because we

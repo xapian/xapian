@@ -462,7 +462,7 @@ class TermList {
 
   public:
     /// Add a Term object to this TermList object.
-    void add_term(Term * term, State * state) {
+    void add_term(Term * term) {
 	terms.push_back(term->as_query_object());
 	delete term;
     }
@@ -787,12 +787,12 @@ term(T) ::= BRA expr(E) KET.
 
 phrase(P) ::= TERM(T). {
     P = new TermList;
-    P->add_term(T, state);
+    P->add_term(T);
 }
 
 phrase(P) ::= phrase(Q) TERM(T). {
     P = Q;
-    P->add_term(T, state);
+    P->add_term(T);
 }
 
 // phrased_term - A phrased term works like a single term, but is actually
@@ -804,13 +804,13 @@ phrase(P) ::= phrase(Q) TERM(T). {
 
 phrased_term(P) ::= TERM(T) PHR_TERM(U). {
     P = new TermList;
-    P->add_term(T, state);
-    P->add_term(U, state);
+    P->add_term(T);
+    P->add_term(U);
 }
 
 phrased_term(P) ::= phrased_term(Q) PHR_TERM(T). {
     P = Q;
-    P->add_term(T, state);
+    P->add_term(T);
 }
 
 // near_expr - 2 or more terms with NEAR in between.  There must be at least 2
@@ -821,13 +821,13 @@ phrased_term(P) ::= phrased_term(Q) PHR_TERM(T). {
 
 near_expr(P) ::= TERM(T) NEAR TERM(U). {
     P = new TermList;
-    P->add_term(T, state);
-    P->add_term(U, state);
+    P->add_term(T);
+    P->add_term(U);
 }
 
 near_expr(P) ::= near_expr(Q) NEAR TERM(T). {
     P = Q;
-    P->add_term(T, state);
+    P->add_term(T);
 }
 
 // Select appropriate syntax highlighting in vim editor: vim: syntax=lemon
