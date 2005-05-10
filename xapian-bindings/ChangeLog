@@ -1,3 +1,9 @@
+Tue May 10 01:24:59 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: Quote another setting of
+	  PYTHONPATH; Don't set PYTHON_LIBS on cygwin; fix undoubled []
+	  in setting of PYTHON_LIBS.
+
 Mon May 09 20:37:42 BST 2005  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated again.

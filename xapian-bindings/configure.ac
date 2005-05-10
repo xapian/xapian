@@ -140,8 +140,8 @@ if test no != "$with_swig" ; then
 	  PYTHON_PATHSEP="`python -c 'import os;print os.pathsep'`"
 	  AC_SUBST(PYTHON_PATHSEP)
 	  case "$host_os" in
-	  cygwin* | mingw* | pw32*)
-	    PYTHON_LIBS="`$PYTHON -c 'import os,sys;print "-L", os.path.join(sys.prefix,"libs").replace(os.sep,"/"),"-lpython"+sys.version[:3].replace(".","")'`" ;;
+	  mingw* | pw32*)
+	    PYTHON_LIBS="`$PYTHON -c 'import os,sys;print "-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/"),"-lpython"+sys.version[[:3]].replace(".","")'`" ;;
 	  *)
 	    PYTHON_LIBS=
 	  esac
