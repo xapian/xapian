@@ -31,8 +31,6 @@ docdatadir   = $(datadir)/doc/@PACKAGE@
 docdata_DATA = $(HTMLDOCS) apidoc.ps
 
 dist-hook:
-	: # Don't allow "make dist" if dot (part of graphviz) isn't installed
-	test YES = "@DOXYGEN_HAVE_DOT@"
 	$(mkinstalldirs) $(distdir)/apidoc
 	if test -f apidoc/html/index.html ; then \
 	  cp -a apidoc/* $(distdir)/apidoc/ ; \
