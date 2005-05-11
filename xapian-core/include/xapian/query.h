@@ -97,7 +97,7 @@ class Query {
 	    /** Select an elite set from the subqueries, and perform
 	     *  a query with these combined as an OR query.
 	     */
-	    OP_ELITE_SET
+	    OP_ELITE_SET = 10
 	} op;
 
 	/** Copy constructor. */

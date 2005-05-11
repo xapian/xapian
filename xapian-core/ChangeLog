@@ -1,3 +1,8 @@
+Wed May 11 16:09:32 BST 2005  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Fix OP_ELITE_SET at 10 (the value it had
+	  in 0.8.5).
+
 Tue May 10 22:56:45 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Removed check for DOXYGEN_HAVE_DOT which I removed
