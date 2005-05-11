@@ -1,3 +1,7 @@
+Wed May 11 02:28:41 BST 2005  Olly Betts <olly@survex.com>
+
+	* NEWS: Started to update for 0.9.0.
+
 Sun May 08 02:16:07 BST 2005  Olly Betts <olly@survex.com>
 
 	* query.cc: Use Query::get_terms_begin() not
@@ -204,7 +208,7 @@ Thu Dec 16 11:43:28 GMT 2004  Olly Betts <olly@survex.com>
 	* scriptindex.cc: Fixed "Unknown Exception" when trying to "unhtml"
 	  text which contains "</body>" (bug#61).  This bug was introduced in
 	  0.8.4.
- 
+
 Thu Dec 16 11:28:25 GMT 2004  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc: <h1> - <h6> and </h1> - </h6> should leave a

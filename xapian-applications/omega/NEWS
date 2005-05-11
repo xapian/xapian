@@ -1,3 +1,71 @@
+Omega 0.9.0 (2005-05-??):
+up to: Sun May 08 02:16:07 BST 2005  Olly Betts <olly@survex.com>
+
+* Updated for 0.9.0 API changes.
+
+	* configfile.cc: Configuration file is now looked for in various
+	  locations: the first location in which a file is found is used.
+	  Firstly, if the OMEGA_CONFIG_FILE environment variable is set,
+	  the location given in it is checked.  Secondly, the file
+	  "omega.conf" in the same directory as the executable is checked.
+	  Finally, the file "${sysconfdir}/omega.conf" (eg, /etc/omega.conf
+	  on Linux) is checked.  If none of these locations contain a file,
+	  default values are used.
+	* docs/overview.txt: Update to describe new configuration file
+	  locations.
+	* Makefile.am: Install omega.conf to ${sysconfdir} by default.
+	  Define CONFIGFILE_SYSTEM with an appropriate value to find the
+	  system configuration file.
+
+	* indextext.cc: Generate terms like "c#".
+	* query.cc: Highlight words like "C#".
+
+	* omindex.cc: Tweak the hashing of URLs so that it works the same
+	  way on all platforms (previously it would depend on sizeof(long)).
+	  This means an incompatibility with any existing database built on
+	  a platform where sizeof(long) > 4 where URLs were hashed (i.e.
+	  URLs were > 228 bytes if sizeof(long) == 8), but we really want
+	  databases to be portable between platforms.
+
+	* omindex.cc,docs/overview.txt: Removed useless "DUPE_duplicate"
+	  option.
+
+	* omindex.cc,docs/overview.txt: Added support for using pod2text for
+	  indexing Perl documentation.
+
+	* omindex.cc,docs/overview.txt: Replace -l/--no-recurse with
+	  -l/--depth-limit which takes an argument allowing recursion
+	  to be restriction to any depth, not just 0 or infinite!
+
+	* mbox2omega,mbox2omega.script,Makefile.am: Added mbox2omega which
+	  allows a mail folder to be indexed.  Mostly it's an example as
+	  there's no mechanism included to show the full original message.
+
+	* templates/opensearch: Add new template to implement basic
+	  opensearch feeds of search results.
+
+	* omindex.cc,docs/overview.txt: Extend -M/--mime-type to allow an
+	  existing mapping to be removed by omitting the type.
+
+	* omindex.cc: Fixed so that we get lstat() prototype on Linux systems
+	  where we have posix_fadvise().
+
+documentation:
+
+* docs/omegascript.txt: Clarify $field description slightly.
+
+* docs/cgiparams.txt,docs/omegascript.txt: Fixed 3 references to OmXxxx classes.
+
+* docs/termprefixes.txt: Added a single document covering all aspects of term
+  prefixes.
+
+* docs/omegascript.txt: Moved $collapsed into correct place alphabetically!
+
+* docs/cgiparams.txt,docs/overview.txt: Improved description of how B filters
+  are handled when building the query.
+
+* docs/scriptindex.txt: Note that actions are applied in the specified order.
+
 Omega 0.8.5 (2004-12-23):
 
 * README,INSTALL: Proper installation instructions.
