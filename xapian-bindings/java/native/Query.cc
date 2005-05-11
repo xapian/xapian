@@ -41,7 +41,6 @@ static Xapian::Query::op op_table[] = {
         Query::OP_FILTER,
         Query::OP_NEAR,
         Query::OP_PHRASE,
-        Query::OP_WEIGHT_CUTOFF,
         Query::OP_ELITE_SET,
 };
 
@@ -106,7 +105,7 @@ JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_query_1get_1description (JNI
     CATCH(NULL)
 }
 
-JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_query_1is_1empty (JNIEnv *env, jclass clazz, jlong qid) {
+JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_query_1empty (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
         Query *q = _query->get(qid);
         return q->empty();
@@ -129,39 +128,11 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1terms_1end (JNIEnv *env
     CATCH(-1)
 }
 
-JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1set_1length (JNIEnv *env, jclass clazz, jlong qid, jlong size) {
-    TRY
-        Query *q = _query->get(qid);
-        return q->set_length(size);
-    CATCH(-1)
-}
-
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1get_1length (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
         Query *q = _query->get(qid);
         return q->get_length();
     CATCH(-1)
-}
-
-JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1set_1elite_1set_1size (JNIEnv *env, jclass clazz, jlong qid, jlong size) {
-    TRY
-        Query *q = _query->get(qid);
-        q->set_elite_set_size(size);
-    CATCH(;)
-}
-
-JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1set_1cutoff (JNIEnv *env, jclass clazz, jlong qid, jdouble cutoff) {
-    TRY
-        Query *q = _query->get(qid);
-        q->set_cutoff(cutoff);
-    CATCH(;)
-}
-
-JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1set_1window (JNIEnv *env, jclass clazz, jlong qid, jlong window) {
-    TRY
-        Query *q = _query->get(qid);
-        q->set_window(window);
-    CATCH(;)
 }
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1finalize (JNIEnv *env, jclass clazz, jlong qid) {

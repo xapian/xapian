@@ -81,10 +81,6 @@ public class MSet {
         return XapianJNI.mset_size(id);
     }
 
-    public int max_size() throws XapianError {
-        return XapianJNI.mset_max_size(id);
-    }
-
     public MSetIterator getElement(long index) throws XapianError {
         return new MSetIterator(XapianJNI.mset_element(id, index), 1);
     }

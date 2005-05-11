@@ -15,6 +15,9 @@ CLEANFILES = SmokeTest.class built/xapian_jni.jar
 
 SmokeTest: SmokeTest.class
 
+.java.class:
+	$(JAVAC) -classpath $(srcdir):. -d . $<
+
 # directory to install xapian_jni.jar in
 # `pwd`/
 jardir = built

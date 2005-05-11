@@ -40,7 +40,21 @@ TODO list:
 
 The majority of the C++ API is wrapped, with a few exceptions still to be done:
 
+* [DONE] Remove Query::set_length(), set_elite_set_size() and set_window().
+
+* Wrap optional parameter for Query ctor.
+
+* Wrap optional second parameter (length) to Enquire::set_query().
+    
+* [DONE] Remove OP_WEIGHT_CUTOFF.
+
+* [DONE] Remove MSet::max_size().
+
 * Wrap new QueryParser API.
+
+* Wrap changes to Enquire sorting API.
+
+* Use Stem::operator() rather than Stem::stem_word().
 
 * Wrap new method ESet::back().
 

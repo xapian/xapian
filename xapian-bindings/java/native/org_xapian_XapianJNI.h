@@ -609,14 +609,6 @@ JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1size
 
 /*
  * Class:     org_xapian_XapianJNI
- * Method:    mset_max_size
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1max_1size
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     org_xapian_XapianJNI
  * Method:    mset_empty
  * Signature: (J)Z
  */
@@ -889,6 +881,14 @@ JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_query_1get_1description
 
 /*
  * Class:     org_xapian_XapianJNI
+ * Method:    query_empty
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_query_1empty
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     org_xapian_XapianJNI
  * Method:    query_is_empty
  * Signature: (J)Z
  */
@@ -913,43 +913,11 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1terms_1end
 
 /*
  * Class:     org_xapian_XapianJNI
- * Method:    query_set_length
- * Signature: (JJ)J
- */
-JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1set_1length
-  (JNIEnv *, jclass, jlong, jlong);
-
-/*
- * Class:     org_xapian_XapianJNI
  * Method:    query_get_length
  * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1get_1length
   (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     org_xapian_XapianJNI
- * Method:    query_set_elite_set_size
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1set_1elite_1set_1size
-  (JNIEnv *, jclass, jlong, jlong);
-
-/*
- * Class:     org_xapian_XapianJNI
- * Method:    query_set_cutoff
- * Signature: (JD)V
- */
-JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1set_1cutoff
-  (JNIEnv *, jclass, jlong, jdouble);
-
-/*
- * Class:     org_xapian_XapianJNI
- * Method:    query_set_window
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_query_1set_1window
-  (JNIEnv *, jclass, jlong, jlong);
 
 /*
  * Class:     org_xapian_XapianJNI

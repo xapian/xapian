@@ -116,13 +116,6 @@ JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1size(JNIEnv *env, jclass 
     CATCH(-1)
 }
 
-JNIEXPORT jint JNICALL Java_org_xapian_XapianJNI_mset_1max_1size(JNIEnv *env, jclass clazz, jlong msetid) {
-    TRY
-        MSet *mset = _mset->get(msetid);
-        return mset->max_size();
-    CATCH(-1)
-}
-
 JNIEXPORT jboolean JNICALL Java_org_xapian_XapianJNI_mset_1empty(JNIEnv *env, jclass clazz, jlong msetid) {
     TRY
         MSet *mset = _mset->get(msetid);

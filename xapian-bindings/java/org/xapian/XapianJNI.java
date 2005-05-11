@@ -253,8 +253,6 @@ public class XapianJNI {
 
     public static native int mset_size(long msetid) throws XapianError;
 
-    public static native int mset_max_size(long msetid) throws XapianError;
-
     public static native boolean mset_empty(long msetid) throws XapianError;
 
     public static native long mset_begin(long msetid) throws XapianError;
@@ -329,21 +327,13 @@ public class XapianJNI {
 
     public static native String query_get_description(long id) throws XapianError;
 
-    public static native boolean query_is_empty(long id) throws XapianError;
+    public static native boolean query_empty(long id) throws XapianError;
 
     public static native long query_terms_begin(long id) throws XapianError;
 
     public static native long query_terms_end(long id) throws XapianError;
 
-    public static native long query_set_length(long id, long qlen) throws XapianError;
-
     public static native long query_get_length(long id) throws XapianError;
-
-    public static native void query_set_elite_set_size(long id, long size) throws XapianError;
-
-    public static native void query_set_cutoff(long id, double cutoff) throws XapianError;
-
-    public static native void query_set_window(long id, long termpos) throws XapianError;
 
     public static native void query_finalize(long id);
 

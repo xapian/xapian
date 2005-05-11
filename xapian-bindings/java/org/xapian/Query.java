@@ -135,32 +135,20 @@ public class Query {
         _nativeOperator = str;
     }
 
-    public void setWindow(long termpos) throws XapianError {
-        XapianJNI.query_set_window(id, termpos);
-    }
-
-    public void setCutoff(double cutoff) throws XapianError {
-        XapianJNI.query_set_cutoff(id, cutoff);
-    }
-
-    public void setEliteSetSize(long size) throws XapianError {
-        XapianJNI.query_set_elite_set_size(id, size);
-    }
-
     public long getLength() throws XapianError {
         return XapianJNI.query_get_length(id);
-    }
-
-    public long setLength(long qlen) throws XapianError {
-        return XapianJNI.query_set_length(id, qlen);
     }
 
     public TermIterator getTerms() throws XapianError {
         return new TermIterator(id, XapianJNI.query_terms_begin(id), XapianJNI.query_terms_end(id));
     }
 
+    public boolean empty() throws XapianError {
+        return XapianJNI.query_empty(id);
+    }
+
     public boolean isEmpty() throws XapianError {
-        return XapianJNI.query_is_empty(id);
+        return XapianJNI.query_empty(id);
     }
 
     public String toString() {

@@ -1,3 +1,12 @@
+Wed May 11 02:15:23 BST 2005  Olly Betts <olly@survex.com>
+
+	* java/native/Query.cc,java/native/MSet.cc,
+	  java/native/org_xapian_XapianJNI.h,java/org/xapian/Query.java,
+	  java/org/xapian/MSet.java,java/org/xapian/XapianJNI.java: Updates to
+	  enable compilation with 0.9.0.
+	* java/Makefile.am: Add .java.class: rule so SmokeTest can be built.
+	* java/README: List API additions still to be wrapped.
+
 Tue May 10 21:01:57 BST 2005  Olly Betts <olly@survex.com>
 
 	* python/extra.i: Should be ValueIter not ValueIterator, and fixed up
