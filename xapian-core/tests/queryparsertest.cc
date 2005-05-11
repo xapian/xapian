@@ -1,9 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,7 +16,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -29,27 +25,27 @@
 
 using namespace std;
 
-Xapian::Query::op default_op = Xapian::Query::OP_OR;
+#include "testsuite.h"
 
-typedef struct {
+struct test {
     const char *query;
     const char *expect;
-} test;
+};
 
-static test tests[] = {
-    { "om-example", "(om:(pos=1) PHRASE 2 exampl:(pos=2))" },
-    { "size_t", "(size:(pos=1) PHRASE 2 t:(pos=2))" },
-    { "muscat -wine", "(muscat:(pos=1) AND_NOT wine:(pos=2))" },
-    { "a- grade", "(a-:(pos=1) OR grade:(pos=2))" },
-    { "gtk+ -gimp", "(gtk+:(pos=1) AND_NOT gimp:(pos=2))" },
-    { "c++ -c--", "(c++:(pos=1) AND_NOT c--:(pos=2))" },
+static test test_or_queries[] = {
+    { "simple-example", "(simpl:(pos=1) PHRASE 2 exampl:(pos=2))" },
+    { "time_t", "(time:(pos=1) PHRASE 2 t:(pos=2))" },
+    { "stock -cooking", "(stock:(pos=1) AND_NOT cook:(pos=2))" },
+    { "d- school report", "(d-:(pos=1) OR school:(pos=2) OR report:(pos=3))" },
+    { "gtk+ -gnome", "(gtk+:(pos=1) AND_NOT gnome:(pos=2))" },
+    { "c++ -d--", "(c++:(pos=1) AND_NOT d--:(pos=2))" },
     { "Mg2+ Cl-", "(Rmg2+:(pos=1) OR Rcl-:(pos=2))" },
-    { "\"c++ standard\"", "(c++:(pos=1) PHRASE 2 standard:(pos=2))" },
-    { "AT&T M&S", "(Rat&t:(pos=1) OR Rm&s:(pos=2))" },
+    { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 librari:(pos=2))" },
+    { "A&L A&RMCO AD&D", "(Ra&l:(pos=1) OR Ra&rmco:(pos=2) OR Rad&d:(pos=3))" },
     { "C# vs C++", "(Rc#:(pos=1) OR vs:(pos=2) OR Rc++:(pos=3))" },
     { "j##", "j#:(pos=1)" },
     { "a#b", "(a:(pos=1) OR b:(pos=2))" },
-    { "E.T. N.A.T.O AB.C.", "(Ret:(pos=1) OR Rnato:(pos=2) OR (Rab:(pos=3) PHRASE 2 Rc:(pos=4)))" },
+    { "O.K. U.N.C.L.E XY.Z.", "(Rok:(pos=1) OR Runcle:(pos=2) OR (Rxy:(pos=3) PHRASE 2 Rz:(pos=4)))" },
     { "author:orwell animal farm", "(Aorwel:(pos=1) OR anim:(pos=2) OR farm:(pos=3))" },
     { "höhle", "hoehl:(pos=1)" },
     { "subject:test other", "(XTtest:(pos=1) OR other:(pos=2))" },
@@ -72,7 +68,6 @@ static test tests[] = {
     { "XOR", "Syntax: <expression> XOR <expression>" },
     { "hard\xa0space", "(hard:(pos=1) OR space:(pos=2))" },
     { " white\r\nspace\ttest ", "(white:(pos=1) OR space:(pos=2) OR test:(pos=3))" },
-    { "!!!MAGIC!!!", "(weird:(pos=1) OR stuff:(pos=2))" }, // !!!MAGIC!!! replaced below
     { "one AND two/three", "(one:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
     { "one AND /two/three", "(one:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
     { "one AND/two/three", "(one:(pos=1) AND (two:(pos=2) PHRASE 2 three:(pos=3)))" },
@@ -500,29 +495,28 @@ static test tests[] = {
     { NULL, NULL }
 };
 
-int
-main(void)
+static test test_and_queries[] = {
+    { "internet explorer title:(http www)", "(internet:(pos=1) AND explor:(pos=2) AND XThttp:(pos=3) AND XTwww:(pos=4))" },
+    { NULL, NULL }
+};
+
+static bool test_queryparser1()
 {
-    Xapian::QueryParser qp;
-    qp.set_stemmer(Xapian::Stem("english"));
-    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
-    qp.add_prefix("author", "A");
-    qp.add_prefix("title", "XT");
-    qp.add_prefix("subject", "XT");
-    qp.add_boolean_prefix("site", "H");
-    test *p = tests;
-    int succeed = 0, fail = 0;
-    while (p->query) {
+    Xapian::QueryParser queryparser;
+    queryparser.set_stemmer(Xapian::Stem("english"));
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    queryparser.add_prefix("author", "A");
+    queryparser.add_prefix("title", "XT");
+    queryparser.add_prefix("subject", "XT");
+    queryparser.add_boolean_prefix("site", "H");
+    for (test *p = test_or_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
 	    expect = p->expect;
 	else
 	    expect = "parse error";
 	try {
-	    string query(p->query);
-	    // Need special handling to get a zero byte in here (yuck)
-	    if (query == "!!!MAGIC!!!") query = string("\x01weird\x00stuff\x7f", 13);
-	    Xapian::Query qobj = qp.parse_query(query);
+	    Xapian::Query qobj = queryparser.parse_query(p->query);
 	    parsed = qobj.get_description();
 	    expect = string("Xapian::Query(") + expect + ')';
 	} catch (const Xapian::Error &e) {
@@ -532,16 +526,67 @@ main(void)
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
-	if (parsed == expect) {
-	    //cout << "OK\t`" << p->query << "'" << endl;
-	    if (p->expect) succeed++;
-	} else {
-	    cout << "Query:\t`" << p->query << "'\n";
-	    cout << "Expected:\t`" << expect << "'\n";	    
-	    cout << "Got:\t\t`" << parsed << "'\n";
-	    fail++;
-	}
-	p++;
+	tout << "Query: " << p->query << '\n';
+	TEST_EQUAL(parsed, expect);
     }
-    return (fail != 0);
+    return true;
+}
+
+// With default_op = OP_AND.
+static bool test_queryparser2()
+{
+    Xapian::QueryParser queryparser;
+    queryparser.set_stemmer(Xapian::Stem("english"));
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    queryparser.add_prefix("author", "A");
+    queryparser.add_prefix("title", "XT");
+    queryparser.add_prefix("subject", "XT");
+    queryparser.add_boolean_prefix("site", "H");
+    queryparser.set_default_op(Xapian::Query::OP_AND);
+    for (test *p = test_and_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = queryparser.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_msg();
+	} catch (const char *s) {
+	    parsed = s;
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+// Test query with odd characters in.
+static bool test_queryparser3()
+{
+    Xapian::QueryParser queryparser;
+    string query("\x01weird\x00stuff\x7f", 13);
+    Xapian::Query qobj = queryparser.parse_query(query);
+    tout << "Query:  " << query << '\n';
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((weird:(pos=1) OR stuff:(pos=2)))");
+    return true;
+}
+
+// Tests to perform:
+test_desc tests[] = {
+    {"queryparser1",	test_queryparser1},
+    {"queryparser2",	test_queryparser2},
+    {"queryparser3",	test_queryparser3},
+    {0, 0}
+};
+
+int main(int argc, char **argv)
+{
+    test_driver::parse_command_line(argc, argv);
+    return test_driver::run(tests);
 }

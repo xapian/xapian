@@ -1,3 +1,15 @@
+Wed May 11 16:52:41 BST 2005  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Move prefixed, bracketed
+	  subexpression to be an alternative for stop_term which allows
+	  "term prefix:(term2 term3)" to parse correctly. Also move
+	  non-prefixed, bracketed subexpression to be an alternative
+	  for stop_term - this doesn't change how things parse, but
+	  makes the grammar simpler.
+	* tests/queryparsertest.cc: Added regression test for the above.
+	* tests/Makefile.am,tests/queryparsertest.cc: Reworked queryparsertest
+	  to use the standard testsuite harness.
+ 
 Wed May 11 16:09:32 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: Fix OP_ELITE_SET at 10 (the value it had

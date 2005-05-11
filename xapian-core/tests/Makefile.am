@@ -53,7 +53,7 @@ remotetest_SOURCES = remotetest.cc
 remotetest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
 queryparsertest_SOURCES = queryparsertest.cc
-queryparsertest_LDADD = @ldflags@ ../libxapian.la
+queryparsertest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST = runtest.in \

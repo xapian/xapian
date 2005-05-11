@@ -570,12 +570,6 @@ query ::= . {
 %type expr {Query *}
 %destructor expr {delete $$;}
 
-expr(E) ::= PREFIX_BRA expr(A) KET. {
-    E = A;
-    // Remove the prefix which the lexer pushed as it generated PREFIX_BRA.
-    state->pop_prefix();
-}
-
 expr(E) ::= prob(P). {
     E = new Query(P->query);
     // Handle any "+ terms".
@@ -635,8 +629,10 @@ bool_arg(A) ::= . {
     A = NULL;
 }
 
-// prob - a probabilistic sub-expression consisting of terms, "+" terms,
-// and/or "-" terms, or a general expression in brackets.
+// prob - a probabilistic sub-expression consisting of stop_terms, "+" terms,
+// and/or "-" terms.
+//
+// Note: stop_term can also be several other things other than a simple term!
 
 %type prob {ProbQuery *}
 %destructor prob {delete $$;}
@@ -658,22 +654,6 @@ prob(P) ::= prob(Q) stop_term(T). {
 	}
     }
     delete T;
-}
-
-prob(P) ::= BRA expr(E) KET. {
-    P = new ProbQuery;
-    P->query = *E;
-    delete E;
-}
-
-prob(P) ::= prob(Q) BRA expr(E) KET. {
-    P = Q;
-    if (P->query.empty()) {
-	P->query = *E;
-    } else {
-	P->query = Query(state->default_op(), P->query, *E);
-    }
-    delete E;
 }
 
 prob(P) ::= LOVE term(T). {
@@ -725,9 +705,12 @@ prob(P) ::= prob(Q) BOOLEAN_FILTER(T). {
     delete T;
 }
 
-// stop_term - A term which should be checked against the stopword list.
-// If a term is loved, hated, or in a phrase, we don't consult the stopword
-// list.
+// stop_term - A term which should be checked against the stopword list,
+// or a quoted phrase (with or without prefix) or a phrased_term or a near_expr
+// or a bracketed subexpression (with or without prefix).
+//
+// If a term is loved, hated, or in a phrase, we don't want to consult the
+// stopword list, so stop_term isn't used there.
 
 %type stop_term {Query *}
 %destructor stop_term {delete $$;}
@@ -743,6 +726,7 @@ stop_term(T) ::= TERM(U). {
 }
 
 stop_term(T) ::= PREFIX_QUOTE phrase(P) QUOTE. {
+    // Remove the prefix which the lexer pushed as it generated PREFIX_QUOTE.
     state->pop_prefix();
     T = P->as_phrase_query();
 }
@@ -755,6 +739,15 @@ stop_term(T) ::= phrased_term(P).
 
 stop_term(T) ::= near_expr(P).
 	{ T = P->as_near_query(); }
+
+stop_term(T) ::= BRA expr(E) KET.
+	{ T = E; }
+
+stop_term(T) ::= PREFIX_BRA expr(E) KET. {
+    // Remove the prefix which the lexer pushed as it generated PREFIX_BRA.
+    state->pop_prefix();
+    T = E;
+}
 
 // term - A term, or a phrase (quoted, hyphenated, or NEARed), or a general
 // expression in brackets.
