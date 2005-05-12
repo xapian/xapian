@@ -1,3 +1,9 @@
+Fri May 13 00:29:31 BST 2005  Olly Betts <olly@survex.com>
+
+	* java/native/Query.cc,java/native/org_xapian_XapianJNI.h,
+	  java/org/xapian/Query.java,java/org/xapian/XapianJNI.java,
+	  java/README: Wrap optional parameters of Query(term) ctor.
+
 Fri May 13 00:26:24 BST 2005  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Updated for 0.9.0.

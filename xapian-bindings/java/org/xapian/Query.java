@@ -41,7 +41,6 @@ public class Query {
     public static final int OP_FILTER = 6;
     public static final int OP_NEAR = 7;
     public static final int OP_PHRASE = 8;
-    public static final int OP_WEIGHT_CUTOFF = 9;
     public static final int OP_ELITE_SET = 10;
 
     private Query _left = null, _right = null;
@@ -76,6 +75,18 @@ public class Query {
         if (term == null)
             throw new XapianError("Empty Queries are not allowed");
         id = XapianJNI.query_new(term);
+    }
+
+    public Query(String term, int wqf) throws XapianError {
+        if (term == null)
+            throw new XapianError("Empty Queries are not allowed");
+        id = XapianJNI.query_new(term, wqf);
+    }
+
+    public Query(String term, int wqf, int pos) throws XapianError {
+        if (term == null)
+            throw new XapianError("Empty Queries are not allowed");
+        id = XapianJNI.query_new(term, wqf, pos);
     }
 
     public Query(int operator, Query left, Query right) throws XapianError {

@@ -842,6 +842,22 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_
 /*
  * Class:     org_xapian_XapianJNI
  * Method:    query_new
+ * Signature: (Ljava/lang/String;I)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_2I
+  (JNIEnv *, jclass, jstring, jint);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    query_new
+ * Signature: (Ljava/lang/String;II)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_2II
+  (JNIEnv *, jclass, jstring, jint, jint);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    query_new
  * Signature: (IJJ)J
  */
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__IJJ

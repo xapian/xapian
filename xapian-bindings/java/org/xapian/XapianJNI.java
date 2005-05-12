@@ -317,6 +317,10 @@ public class XapianJNI {
 
     public static native long query_new(String term) throws XapianError;
 
+    public static native long query_new(String term, int wqf) throws XapianError;
+
+    public static native long query_new(String term, int wqf, int pos) throws XapianError;
+
     public static native long query_new(int operator, long left, long right) throws XapianError;
 
     public static native long query_new(int operator, String left, String right) throws XapianError;

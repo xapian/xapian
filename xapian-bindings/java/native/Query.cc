@@ -61,6 +61,24 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_
     CATCH(-1)
 }
 
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_2I (JNIEnv *env, jclass clazz, jstring term, jint wqf) {
+    TRY
+        const char *c_term = env->GetStringUTFChars(term, 0);
+        Query *q = new Query(c_term, wqf);
+        env->ReleaseStringUTFChars(term, c_term);
+        return _query->put(q);
+    CATCH(-1)
+}
+
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__Ljava_lang_String_2II (JNIEnv *env, jclass clazz, jstring term, jint wqf, jint pos) {
+    TRY
+        const char *c_term = env->GetStringUTFChars(term, 0);
+        Query *q = new Query(c_term, wqf, pos);
+        env->ReleaseStringUTFChars(term, c_term);
+        return _query->put(q);
+    CATCH(-1)
+}
+
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__IJJ (JNIEnv *env, jclass clazz, jint op, jlong leftid, jlong rightid) {
     TRY
         Query *left = _query->get(leftid);
