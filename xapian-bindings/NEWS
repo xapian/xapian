@@ -40,6 +40,14 @@ Guile:
 
 * configure: Disable guile by default, as it needs more work.
 
+Java:
+
+* Updated to compile against 0.9.0 API.
+
+* Added missing make rule to build SmokeTestWrap.class to "make check" works.
+
+* Wrap optional parameters to Query(term) constructor.
+
 PHP4:
 
 * For PHP4, rename default Database constructor to Database_empty
