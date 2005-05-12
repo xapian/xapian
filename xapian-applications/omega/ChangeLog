@@ -1,3 +1,12 @@
+Fri May 13 00:35:21 BST 2005  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Improved handling of extra blank lines in dump file;
+	  Strip multiple \r characters from end of line;  Complain if a dump
+	  file doesn't appear to have been = escaped correctly;  Flush
+	  database after each input file to ensure all changes from a file
+	  make it in.
+	* docs/omegascript.txt: Whitespace tweak.
+
 Wed May 11 02:28:41 BST 2005  Olly Betts <olly@survex.com>
 
 	* NEWS: Started to update for 0.9.0.

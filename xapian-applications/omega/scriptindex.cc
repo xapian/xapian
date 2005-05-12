@@ -304,35 +304,47 @@ parse_index_script(const string &filename)
 }
 
 static bool
-index_file(istream &stream, Xapian::WritableDatabase &database,
-	   Xapian::Stem &stemmer)
+index_file(const char *fname, istream &stream,
+	   Xapian::WritableDatabase &database, Xapian::Stem &stemmer)
 {
     string line;
-    if (!getline(stream, line)) {
-	// empty file !?!
-	return true;
-    }
-    
-    while (true) {
+    size_t line_no = 0;
+    while (!stream.eof() && getline(stream, line)) {
+	++line_no;
 	Xapian::Document doc;
 	Xapian::docid docid = 0;
 	Xapian::termpos wordcount = 0;
 	map<string, list<string> > fields;
 	bool seen_content = false;
-	while (true) {
-	    Xapian::termcount weight = 1;
-	    // Cope with files from MS Windows (\r\n end of lines)
-	    if (line[line.size() - 1] == '\r') line.resize(line.size() - 1);
+	while (!line.empty()) {
+	    // Cope with files from MS Windows (\r\n end of lines).
+	    // Trim multiple \r characters, since that seems the best way
+	    // to handle that case.
+	    string::size_type last = line.find_last_not_of('\r');
+	    if (last == string::npos) break;
+	    line.resize(last + 1);
 
 	    string::size_type eq = line.find('=');
+	    if (eq == string::npos && !line.empty()) {
+		cout << fname << ':' << line_no << ": expected = somewhere "
+		    "in this line" << endl;
+		// FIXME: die or what?
+	    }
 	    string field = line.substr(0, eq);
 	    string value = line.substr(eq + 1);
 	    while (getline(stream, line) && !line.empty() && line[0] == '=') {
-		// Cope with files from MS Windows (\r\n end of lines)
-		if (line[line.size() - 1] == '\r') line.resize(line.size() - 1);
-		value += '\n' + line.substr(1);
+		// Cope with files from MS Windows (\r\n end of lines).
+		// Trim multiple \r characters, since that seems the best way
+		// to handle that case.
+		last = line.find_last_not_of('\r');
+		// Since line[0] == '=', so last != string::npos.
+		// Replace the = with a \n so we don't have to use substr.
+		line[0] = '\n';
+		line.resize(last + 1);
+		value += line;
 	    }
 
+	    Xapian::termcount weight = 1;
 	    vector<Action> &v = index_spec[field];
 	    string old_value = value;
 	    vector<Action>::const_iterator i;
@@ -484,7 +496,6 @@ again:
 		}
 	    }
 	    if (this_field_is_content) seen_content = true;
-	    if (line.empty() || line == "\r") break;
 	}
 
 	// If we haven't seen any fields (other than unique identifiers)
@@ -530,12 +541,11 @@ again:
 		addcount ++;
 	    }
 	}
-
-	if (stream.eof() || !getline(stream, line)) break;
     }
 
-    //cout << "Flushing: " << endl;
-    //database.flush();
+    // Flush after each file to make sure all changes from that file make it in.
+    if (verbose) cout << "Flushing: " << endl;
+    database.flush();
 
     return true;
 }
@@ -640,21 +650,18 @@ main(int argc, char **argv)
 
 	if (argc == 2) {
 	    // Read from stdin.
-	    index_file(cin, database, stemmer);
+	    index_file("<stdin>", cin, database, stemmer);
 	} else {
 	    // Read file(s) listed on the command line.
 	    for (int i = 2; i < argc; ++i) {
 		ifstream stream(argv[i]);
 		if (stream) {
-		    index_file(stream, database, stemmer);
+		    index_file(argv[i], stream, database, stemmer);
 		} else {
 		    cout << "Can't open file " << argv[i] << endl;
 		}
 	    }
 	}
-
-	if (verbose) cout << "Flushing: " << endl;
-	database.flush();
 
 	cout << "records (added, replaced, deleted) = (" << addcount <<
 		", " << repcount << ", " << delcount << ")" << endl;

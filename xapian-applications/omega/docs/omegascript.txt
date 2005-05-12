@@ -156,7 +156,7 @@ $httpheader{NAME,VALUE}
 	$httpheader{Cache-Control,max-age=0$.private}
 
 	If Content-Type is not specified by the template, it defaults
-	to text/html. Headers must be specified before any other
+	to text/html.  Headers must be specified before any other
 	output from the Omegascript template - any $httpheader{}
 	commands found later in the template will be silently ignored.
 
