@@ -1,3 +1,12 @@
+Thu May 12 16:59:22 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/database.cc,backends/Makefile.am,include/xapian/database.h,
+	  include/xapian/dbfactory.h,include/xapian.h,include/Makefile.am:
+	  Split off database factory methods into xapian/dbfactory.h - this
+	  allows us to fix recent breakage in VPATH builds (caused by the
+	  need to include the generated file xapian/version.h from
+	  xapian/database.h) without modifying almost every Makefile.am.
+
 Wed May 11 16:52:41 BST 2005  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Move prefixed, bracketed
