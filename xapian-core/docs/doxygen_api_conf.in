@@ -68,10 +68,7 @@ WARN_LOGFILE           = doxygen_api_warnings
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = @TOP_SRCDIR@/include
-FILE_PATTERNS          = *.cpp \
-                         *.cc \
-                         *.c \
-                         *.h
+FILE_PATTERNS          = *.h
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = YES
@@ -175,7 +172,7 @@ ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
 SEARCH_INCLUDES        = YES
-INCLUDE_PATH           = 
+INCLUDE_PATH           = @TOP_BUILDDIR@/include
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = 
 EXPAND_AS_DEFINED      = DEFINE_ERROR_BASECLASS \
@@ -194,7 +191,7 @@ PERL_PATH              = @PERL@
 #---------------------------------------------------------------------------
 CLASS_DIAGRAMS         = YES
 HIDE_UNDOC_RELATIONS   = YES
-HAVE_DOT               = @DOXYGEN_HAVE_DOT@
+HAVE_DOT               = YES
 CLASS_GRAPH            = YES
 COLLABORATION_GRAPH    = YES
 UML_LOOK               = NO

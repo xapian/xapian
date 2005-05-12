@@ -86,7 +86,7 @@ apidoc/html/index.html: $(top_srcdir)/configure.ac \
 		$(srcdir)/doxygen_api_conf.in \
 		$(APIDOC_SRC)
 	rm -rf apidoc
-	top_srcdir=$(top_srcdir) $(DOXYGEN) doxygen_api_conf
+	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api_conf
 
 # "make refman.ps" sometimes fails for no obvious reason on the first attempt.
 # Repeating the command works, so just do that!
