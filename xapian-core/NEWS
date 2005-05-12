@@ -1,3 +1,267 @@
+Xapian-core 0.9.0 (2005-05-13):
+
+API:
+
+* Query objects really need to be immutable after construction (otherwise we
+  need a copy-on-write mechanism).  To achieve this the following API changes
+  were required:
+
+  + Remove Query::set_length() in favour of an optional length
+    parameter to Enquire::set_query().
+  
+  + Eliminated Query::set_elite_set_size() in favour of optional parameter
+    to constructor.
+
+  + Eliminated Query::set_window() in favour of an optional parameter to the
+    constructor.
+
+* Removed OP_WEIGHT_CUTOFF, since it doesn't actually seem to add useful
+  functionality over using Enquire::set_cutoff().
+
+* MSet::max_size() (which only exists so that MSet is an STL container) now
+  returns MSet::size() and is inlined from the header.
+  
+* Added ESet::max_size() (for STL compatibility).
+
+* Fixed Xapian::RSet to have the same "it's a handle" copy semantics as most of
+  the other classes.
+
+* Rewritten QueryParser class:
+
+  + Uses Lemon instead of Bison to generate the parser, which enables us to
+    stop using static data, so this class is at last reentrant.
+
+  + QueryParser now uses a PIMPL style with reference counted internals like
+    most of the other Xapian classes.
+
+  + Direct access to member variables has gone, which unfortunately forces an
+    API change (but this fixes bug #39).  Instead of accessing
+    QueryParser::termlist member variable, iterate over terms using
+    Query::get_terms_begin() and get_terms_end() on the returned Query object.
+    Direct access to stoplist is replaced by QueryParser::get_stoplist_begin()
+    and get_stoplist_end(); and to unstem by get_unstem_begin() and
+    get_unstem_end().
+
+  + The rewrite parses many real world examples better than the old version.
+
+  + Now allow searches for C#, etc.  If a database has been set, for this and +
+    and - suffixes, check if the term actually exists, and if not, ignore the
+    suffix if the unsuffixed term exists.
+
+  + Added QueryParser::get_description() method (not very descriptive yet!)
+
+  + Added backward compatibility wrapper for old version of
+    QueryParser::set_stemming_options().
+
+  + xapian.h now automatically includes xapian/queryparser.h.  Directly
+    including xapian/queryparser.h will continue to work for now, but is
+    deprecated.
+
+  + QueryParser::parse_query() was failing to clear termlist and unstem
+    - the rewrite fixes this.
+
+  + New QueryParser parses "term prefix:(term2 term3)" correctly.
+
+* Added Xapian::SimpleStopper which just stops terms specified by a pair of
+  iterators.  This should be sufficient for the majority of uses.
+
+* Tidied up the Enquire sorting API and added ability to reverse sort on a
+  value.  Removed sort_bands support.
+
+* Enquire::get_description() improved.
+
+* Methods which return an end iterator where the internals are just NULL are
+  now inline in the header for efficiency.  Should we ever need to change an
+  implementation, we can easily move methods back into the library and bump the
+  library version suitably.
+
+* Added Stem::operator() as preferred alternative to Stem::stem_word().
+
+* Simplified Stem internal design by restructuring to eliminate a few internal
+  methods.
+
+* BM25Weight: Avoid fetching document length if we're simply going to multiply
+  it by zero!
+
+testsuite:
+
+* Fixed TEST_EQUAL_DOUBLE to use DBL_EPSILON correctly.
+
+* Rewrite of index_utils test harness code, removing unused and unusual
+  features.  Data files for tests are now easier to write.  These changes
+  also fix the bug that ^x didn't actually decode hex values correctly.
+
+* tests/testdata/etext.txt: Stripped carriage returns.
+
+* apitest: Extended stemlang1 to check that trying to create
+  a stemmer for a non-existent language throws InvalidArgumentError.
+
+* queryparsertest:
+
+  + Moved into tests/ subdirectory.
+
+  + Reworked to use the standard testsuite harness.
+
+  + Added tests for new features in the rewritten QueryParser.
+
+quartz backend:
+
+* quartzcheck: Now checks the structure of all the tables, not
+  just the postlist table, and cross-checks doclen values between
+  termlist and postlist tables.  Recognises "--help" option.  Should
+  now continue after an error (typically it would crash before), and
+  counts the number of errors found.  Now exits with non-zero status
+  if any errors were found.  More readable output.
+
+* quartzcompact: Extended to allow merging several quartz
+  databases to produce a single compact quartz database.  This
+  allows for faster building - simple index in chunks, then merge
+  the chunks.
+
+* quartzcompact: Made full compaction a tiny bit more compact.
+
+* quartzcompact: Added "fuller compaction" mode, which ignores the usual "at
+  least 4 items per block" rule.  This achieves slightly tighter compaction,
+  though it's probably not advisable to use this option if you plan to update
+  the compacted database.
+
+* Improved compaction by a few % in non-full case.  Tighter bound on amount of
+  memory to reserve to read the tag into.
+
+* Fix skip_to on an allterms TermIterator to set the current term when the
+  skip_to-ed term is in the database.  Add regression test for this
+  (allterms5).
+
+* Values are stored in sorted order so we can stop unpacking the list once we
+  get to one after the one we're looking for (in the case where the one we're
+  looking for doesn't exist).
+
+build system:
+
+* configurec: Check that the C++ compiler can actually link a program.
+  AC_LANG_CXX doesn't, and if it can't find a C++ compiler it'll just return
+  "g++" which just leads to a later configure test failing in a confusing way.
+
+* configure: corrected configure output of "none known for yes" or "none known
+  for no" to "none known for g++-3.2" or similar.
+
+* include/xapian/version.h: Define XAPIAN_HAS_xxx_BACKEND for each backend
+  which is enabled.  The bindings need this, and user code might find it useful
+  too.
+
+* include/xapian/database.h: Don't declare the backend factory functions if the
+  corresponding backend has been disabled.  This means that trying to use a
+  disabled backend will be caught at compile time rather than link time.
+
+* configure: Enhanced valgrind test to (a) see if --tool=memcheck
+  is needed and (b) see if valgrind actually works (we don't want to
+  try to use an x86 valgrind on an x86_64 box).
+
+* configure: Suppress 2 Intel C++ warnings which we can't easily code around,
+  and enable -Werror automatically with --enable-maintainer-mode.
+
+* Clearer make rules for building Postscript doxygen docs.
+
+* Removed some no longer used code.
+
+* Moved a number of method definitions out of headers because they are virtual,
+  or too large to be sensible candidates for inlining.
+
+* Eliminated the extra library for the queryparser - it's tiny compared to the
+  main library and having it around just complicates things.
+
+* configure: We no longer need Bison, but we do need CC_FOR_BUILD to compile
+  Lemon with.
+
+* Snapshot generator now appends _svn6789 or similar to the version string.
+  Adjusted configure and XO_LIB_XAPIAN macro to take this into account.
+
+* configure: If any tools needed for documentation are missing
+  and we're in maintainer mode, die with a suitable error in
+  configure rather than with strange errors when building the
+  documentation.
+
+* docs/Makefile.am: Explicitly set the pool_size for latex, because we
+  now seem to overflow the default setting on some systems.
+
+* docs/Makefile.am: Use $(MAKE) instead of make.
+
+documentation:
+
+* Numerous improvements to documentation comments.  Added documentation
+  comments for QueryParser class.
+
+* HACKING: Added better description of how reference-counted API
+  classes are structured.
+ 
+* HACKING: Note that '#include <limits>' isn't supported by GCC 2.95,
+  and other assorted minor tweaks.
+  
+* HACKING: Note how to disable use of VALGRIND on the make check
+  command line, or when using runtest directly.
+  
+* Updated all documentation mentions of CVS to talk about Subversion
+  instead.
+
+* PLATFORMS: Updated from tinderbox and other sources.
+
+* PLATFORMS: Added minimal testcase which fails to compile with
+  Compaq's C++ compiler (cxx).
+
+* INSTALL,README: Updated.
+
+* docs/queryparser.html: Note that + and - work on phrases and
+  bracketed expressions.
+
+* docs/intro_ir.html: Corrected two errors.
+
+* docs/stemming.html: Stemming appears to be applicable to Japanese
+  so don't say it isn't!
+
+examples:
+
+* Moved xapian-examples module to examples subdirectory of xapian-core.
+
+* quest: Added stopword handling.
+
+portability: 
+
+* configure: autoconf identifies Intel's C++ compiler as GCC, so probe for
+  which we actually have.
+
+* Xapian will now compile cleanly with Intel C++ 8.1 on ia64 Linux and
+  on x86 Linux.
+
+* backends/quartz/btree.cc: Fixed GCC compilation warning.
+
+* tests/api_db.cc: Fixed warning from Sun's C++ compiler.
+
+* configure: Automatically enable ANSI C++ mode for SGI's compiler
+  with '-LANG:std'; check that any automatically determined flags
+  for ANSI C++ mode actually allow us to compile a trivial program
+  - if they don't it probably means the compiler isn't the one we
+  were expecting, but one installed with the same name, so we now
+  drop the flags in this case.
+
+* The compile on IRIX with SGI compiler is now warning free, apart from two
+  "unused variable" warnings in Snowball generated code.
+
+* On WIN32, don't define NOMINMAX if it is already defined.
+
+packaging:
+
+* xapian.spec: Don't say "%makeinstall" in a comment since rpm
+  tries to expand it and explodes.
+
+* xapian.spec: '/usr/share' -> '%{_datadir}'.
+
+* xapian.spec: Put the .so in the -devel package (it's only useful
+  for linking to - the .so.* files are all that's needed at runtime).
+
+debug code:
+
+* net/socketserver.cc: Fixed typo in debug code.
+
 Xapian-core 0.8.5 (2004-12-23):
 
 quartz backend:

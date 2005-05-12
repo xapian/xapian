@@ -8,7 +8,7 @@ dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT(xapian-core, 0.8.5)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-core, 0.9.0)dnl FIXME: bugreport addr as third argument
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -52,8 +52,8 @@ dnl 4:1:1 0.8.3 No API changes
 dnl 5:0:0 0.8.4 BM25Weight ctor parameters reordered
 dnl 5:1:0 0.8.5 No API changes
 dnl and for the next release:
-dnl 6:0:0 0.?.? QueryParser API overhauled
-LIBRARY_VERSION_INFO=5:1:0
+dnl 6:0:0 0.9.0 QueryParser API overhauled, etc
+LIBRARY_VERSION_INFO=6:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Note if the user specified a particular C++ compiler so we can give a more
