@@ -52,8 +52,16 @@ class SimpleStopper : public Stopper {
     SimpleStopper() { }
 
     /// Initialise from a pair of iterators.
+#ifndef __SUNPRO_CC
     template <class Iterator>
     SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) { }
+#else
+    // Sun's C++ doesn't cope with the Iterator points to const char *.
+    template <class Iterator>
+    SimpleStopper(Iterator begin, Iterator end) {
+	while (begin != end) stop_words.insert(*begin++);
+    }
+#endif
 
     /// Add a single stop word.
     void add(const std::string word) { stop_words.insert(word); }
