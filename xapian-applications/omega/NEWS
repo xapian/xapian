@@ -1,54 +1,54 @@
-Omega 0.9.0 (2005-05-??):
-up to: Sun May 08 02:16:07 BST 2005  Olly Betts <olly@survex.com>
+Omega 0.9.0 (2005-05-13):
 
 * Updated for 0.9.0 API changes.
 
-	* configfile.cc: Configuration file is now looked for in various
-	  locations: the first location in which a file is found is used.
-	  Firstly, if the OMEGA_CONFIG_FILE environment variable is set,
-	  the location given in it is checked.  Secondly, the file
-	  "omega.conf" in the same directory as the executable is checked.
-	  Finally, the file "${sysconfdir}/omega.conf" (eg, /etc/omega.conf
-	  on Linux) is checked.  If none of these locations contain a file,
-	  default values are used.
-	* docs/overview.txt: Update to describe new configuration file
-	  locations.
-	* Makefile.am: Install omega.conf to ${sysconfdir} by default.
-	  Define CONFIGFILE_SYSTEM with an appropriate value to find the
-	  system configuration file.
+* omindex/scriptindex: Generate terms like "c#".
 
-	* indextext.cc: Generate terms like "c#".
-	* query.cc: Highlight words like "C#".
+* Added mbox2omega script which allows a mail folder to be indexed using
+  scriptindex.  Mostly it's an example as there's no mechanism included to show
+  the full original message.
 
-	* omindex.cc: Tweak the hashing of URLs so that it works the same
-	  way on all platforms (previously it would depend on sizeof(long)).
-	  This means an incompatibility with any existing database built on
-	  a platform where sizeof(long) > 4 where URLs were hashed (i.e.
-	  URLs were > 228 bytes if sizeof(long) == 8), but we really want
-	  databases to be portable between platforms.
+omega:
 
-	* omindex.cc,docs/overview.txt: Removed useless "DUPE_duplicate"
-	  option.
+* The configuration file is now looked for differently - you can now set 
+  the environmental variable OMEGA_CONFIG_FILE.  See docs/overview.txt for
+  details.
 
-	* omindex.cc,docs/overview.txt: Added support for using pod2text for
-	  indexing Perl documentation.
+* $highlight can now highlight terms like "C#".
 
-	* omindex.cc,docs/overview.txt: Replace -l/--no-recurse with
-	  -l/--depth-limit which takes an argument allowing recursion
-	  to be restriction to any depth, not just 0 or infinite!
+* Add new template 'opensearch' to implement basic opensearch feeds of search
+  results.
 
-	* mbox2omega,mbox2omega.script,Makefile.am: Added mbox2omega which
-	  allows a mail folder to be indexed.  Mostly it's an example as
-	  there's no mechanism included to show the full original message.
+omindex:
 
-	* templates/opensearch: Add new template to implement basic
-	  opensearch feeds of search results.
+* URL hashing previously depended on sizeof(long) so databases weren't totally
+  portable between platforms.  This is now fixed, but to do so we've had to
+  break compatibility with databases built on platforms with 64 bit longs
+  with URLs > 228 bytes.
 
-	* omindex.cc,docs/overview.txt: Extend -M/--mime-type to allow an
-	  existing mapping to be removed by omitting the type.
+* Removed useless "DUPE_duplicate" option.
 
-	* omindex.cc: Fixed so that we get lstat() prototype on Linux systems
-	  where we have posix_fadvise().
+* Added support for indexing Perl "pod" documentation using pod2text.
+
+* Replaced -l/--no-recurse with -l/--depth-limit which takes an argument
+  allowing recursion to be restriction to any depth, not just 0 or infinity!
+
+* Extend -M/--mime-type to allow an existing mapping to be removed by omitting
+  the type.
+
+* Fixed code so that we get lstat() prototype on Linux systems where we have
+  posix_fadvise().
+
+scriptindex:
+
+* Improved handling of extra blank lines in dump file.
+
+* Strip multiple \r characters from end of line.
+
+* Complain if a dump file doesn't appear to have been = escaped correctly.
+
+* Flush database after each input file to ensure all changes from a file
+  make it in.
 
 documentation:
 
