@@ -614,8 +614,8 @@ updated as follows:
   now incorporated into the release, remove or update the patch file.
 
 * Tag all the files in the debian control directory with the tag
-  "debianVERSION_1" - eg, for a new release of version 0.8.1, tag
-  with "debian0-8-1_1".
+  "debian-VERSION-1" - eg, for a new release of version 0.8.1, tag
+  with "debian-0.8.1-1".
 
 * Use xapian-maintainer-tools/debian/makesources to make and upload
   new source packages, for both the stable and unstable distributions.

@@ -1,3 +1,8 @@
+Sat May 14 00:36:14 BST 2005  Olly Betts <olly@survex.com>
+
+	* HACKING: Update information about the SVN tag name to use for
+	  debian files.
+
 Fri May 13 23:21:54 BST 2005  Olly Betts <olly@survex.com>
 
 	* HACKING: Updated release instructions to refer to SVN.
