@@ -22,9 +22,10 @@ unless (flock LOCK, LOCK_EX|LOCK_NB) {
 }
 
 # If no tags specified, default to those which there are directories for.
+# Don't bother to build tags/* since those (generally) don't change.
 if (scalar @ARGV == 0) {
     @ARGV = grep /\/[A-Za-z0-9][-A-Za-z0-9_.]*$/ && -d $_,
-	(glob('branches/[A-Za-z0-9]*'), glob('tags/[A-Za-z0-9]*'));
+	glob('branches/[A-Za-z0-9]*');
     -d "trunk" && unshift @ARGV, "trunk";
 }
 
@@ -82,23 +83,25 @@ foreach my $tag (@ARGV) {
     print LOG $log;
     $log = undef;
 
-    # Modify configure.ac files to insert $revision into version string.
-    foreach my $configure_ac
-	(glob("\Q$tag\E/xapian/*/configure.ac"),
-	 glob("\Q$tag\E/xapian/*/*/configure.ac")) {
-	open OUT, ">", "tmp.out" or die $!;
-	open IN, "<", $configure_ac or die $!;
-	while (<IN>) {
-	    s/(^AC_INIT\([^,]*,.*?)(\s*[),])/$1_svn$revision$2/g;
-	    print OUT;
+    if ($tag !~ m!^tags/!) {
+	# Modify configure.ac files to insert $revision into version string.
+	foreach my $configure_ac
+	    (glob("\Q$tag\E/xapian/*/configure.ac"),
+	     glob("\Q$tag\E/xapian/*/*/configure.ac")) {
+	    open OUT, ">", "tmp.out" or die $!;
+	    open IN, "<", $configure_ac or die $!;
+	    while (<IN>) {
+		s/(^AC_INIT\([^,]*,.*?)(\s*[),])/$1_svn$revision$2/g;
+		print OUT;
+	    }
+	    close IN or die $!;
+	    close OUT or die $!;
+	    rename "tmp.out", $configure_ac;
 	}
-	close IN or die $!;
-	close OUT or die $!;
-	rename "tmp.out", $configure_ac;
     }
 
     system "rm", "-rf", "$tag/build";
-    mkdir "$tag/build", 0755 or die $!;
+    mkpath("$tag/build", 0, 0755) or die $!;
     chdir "$tag/build" or die $!;
 
     my $l = "../../$logfile.$revision";
@@ -132,12 +135,28 @@ foreach my $tag (@ARGV) {
 
     my $d = "/usr/data/www/oligarchy.co.uk/xapian/$tag";
     if (! -d $d) {
-	mkdir $d, 0755 || die $!;
+	mkpath($d, 0, 0755) or die $!;
 	open HTACCESS, ">", "$d/.htaccess" or die $!;
 	print HTACCESS "IndexOptions NameWidth=*\n";
 	close HTACCESS or die $!;
     } else {
-	unlink glob "$d/*.tar.gz";
+	if (-d "$d/old") {
+	    my @o = glob "$d/old/*.tar.gz";
+	    my $n = scalar @o;
+	    @o = grep {-M $_ > 7} @o;
+	    $n -= scalar @o;
+	    # Delete snapshots more than a week old, but leave at least one.
+	    unlink @o if $n > 0;
+	} else {
+	    mkdir "$d/old", 0755 or die $!;
+	    open HTACCESS, ">", "$d/old/.htaccess" or die $!;
+	    print HTACCESS "IndexOptions NameWidth=*\n";
+	    close HTACCESS or die $!;
+	}
+	for (glob "$d/*.tar.gz") {
+	    my ($leaf) = m!([^/]*)$!;
+	    rename $_, "$d/old/$leaf";
+	}
     }
     for (glob("*/*.tar.gz"), glob("*/*/*.tar.gz")) {
 	system("mv", $_, $d);

@@ -1,0 +1,35 @@
+#!/bin/sh
+
+set -e
+
+version="$1"
+
+# check parameter was passed and that it looks like a version
+case "$version" in
+[0-9].[0-9].[0-9]) ;;
+*)
+    echo "Syntax: $0 VERSION"
+    echo "e.g. $0 0.9.0"
+    exit 1
+    ;;
+esac
+
+# Check that we've not already done this version.
+if [ -d "/usr/data/www/oligarchy.co.uk/xapian/$version" ] ; then
+    echo "Version $version already has a download directory:"
+    echo "  /usr/data/www/oligarchy.co.uk/xapian/$version"
+    exit 1
+fi
+
+# Tag the release in SVN.
+svn cp -m"$version release." svn+userv:///xapian/trunk svn+userv:///xapian/tags/"$version"
+
+# Create a directory so the snapshotter will build this.
+mkdir /u1/olly/xapian-svn-snapshot/tags
+mkdir /u1/olly/xapian-svn-snapshot/tags/"$version"
+
+# Snapshotter will automatically copy the tarballs onto the website.
+$HOME/bin/make-xapian-svn-snapshot-tarballs tags/"$version"
+
+# Clean up.
+rm -rf /u1/olly/xapian-svn-snapshot/tags/"$version"
