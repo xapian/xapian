@@ -1,3 +1,7 @@
+Sat May 14 01:02:33 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_full_conf.in: Fix lingering DOXYGEN_HAVE_DOT reference.
+
 Sat May 14 00:36:14 BST 2005  Olly Betts <olly@survex.com>
 
 	* HACKING: Update information about the SVN tag name to use for
