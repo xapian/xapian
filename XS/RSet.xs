@@ -18,7 +18,7 @@ new2(other);
         RETVAL
  
 
-termcount
+doccount
 RSet::size()
 
 bool

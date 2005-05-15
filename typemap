@@ -10,6 +10,8 @@ QueryParser		O_QUERYPARSER
 QueryParser *	O_QUERYPARSER
 Stopper			O_STOPPER
 Stopper *		O_STOPPER
+SimpleStopper		O_SIMPLESTOPPER
+SimpleStopper *		O_SIMPLESTOPPER
 Stem			O_OBJECT
 Stem *			O_OBJECT
 MSet			O_MSET
@@ -132,6 +134,14 @@ O_STOPPER
 		XSRETURN_UNDEF;
 	}
 
+O_SIMPLESTOPPER
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::SimpleStopper\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::SimpleStopper\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
 O_DATABASE
 	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::Database\") )
 		$var = ($type)SvIV((SV*)SvRV( $arg ));
@@ -203,6 +213,8 @@ O_QUERYPARSER
 	sv_setref_pv( $arg, "Search::Xapian::QueryParser", (void*)$var );
 O_STOPPER
 	sv_setref_pv( $arg, "Search::Xapian::Stopper", (void*)$var );
+O_SIMPLESTOPPER
+	sv_setref_pv( $arg, "Search::Xapian::SimpleStopper", (void*)$var );
 O_DATABASE
 	sv_setref_pv( $arg, "Search::Xapian::Database", (void*)$var );
 O_WDATABASE

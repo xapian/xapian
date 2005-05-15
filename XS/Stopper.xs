@@ -2,15 +2,8 @@ MODULE = Search::Xapian  		PACKAGE = Search::Xapian::Stopper
 
 PROTOTYPES: ENABLE
 
-Stopper *
-Stopper::new()
-	CODE:
-		RETVAL = new Stopper();
-	OUTPUT:
-		RETVAL
-
 bool
-Stopper::stopword(term)
+Stopper::stop_word(term)
 	string term;
 	CODE:
 		RETVAL = (*THIS)(term);

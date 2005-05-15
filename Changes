@@ -1,7 +1,7 @@
 Revision history for Perl extension Search::Xapian.
 
-0.9.0.0  ??? Apr ?? ??:??:?? 2005
-	[Changes contributed by Olly Betts]
+0.9.0.0  ??? May ?? ??:??:?? 2005
+	[Changes contributed by Olly Betts and Tim Brody]
 	- Makefile.PL now check environmental variable CXX for the C++ compiler
 	  to use.
 	- Fixed cross-wired methods inside Enquire::get_matching_terms_begin
@@ -11,6 +11,16 @@ Revision history for Perl extension Search::Xapian.
 	- Removed Query::clone() and = overload - they would die if ever used
 	  and aren't useful since a Query object is essentially immutable once
 	  constructed.
+	- Removed MSet::max_size - C++ only has it so MSet works as an STL
+	  container.
+	- RSet::size() returns doccount not termcount (though they're currently
+	  the same type underneath so this is an aesthetic internal change).
+	- Wrap changed Xapian::QueryParser API.
+	- Wrap new SimpleStopper class (with test cases).
+	- Added PerlStopper class which can be subclassed in Perl to implement
+	  your own stop word algorithm.
+	- Wrap new Enquire sorting API methods.
+	- Updated list of unwrapped classes and methods in documentation.
 
 0.8.4.0  Wed Dec  8 03:36:13 2004
 	[Changes contributed by Olly Betts]
