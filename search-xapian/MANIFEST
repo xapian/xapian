@@ -21,6 +21,8 @@ Xapian/PositionIterator.pm
 Xapian/PostingIterator.pm
 Xapian/TermIterator.pm
 Xapian/ValueIterator.pm
+Xapian/PerlStopper.pm
+Xapian/SimpleStopper.pm
 
 Xapian.xs
 XS/MSetIterator.xs
@@ -40,6 +42,7 @@ XS/PositionIterator.xs
 XS/PostingIterator.xs
 XS/ValueIterator.xs
 XS/Stem.xs
+XS/SimpleStopper.xs
 
 perlobject.map
 typemap
