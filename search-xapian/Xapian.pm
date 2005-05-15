@@ -21,6 +21,9 @@ use Search::Xapian::TermIterator;
 use Search::Xapian::ValueIterator;
 use Search::Xapian::WritableDatabase;
 
+use Search::Xapian::SimpleStopper;
+use Search::Xapian::PerlStopper;
+
 require Exporter;
 require DynaLoader;
 
@@ -50,9 +53,22 @@ our %EXPORT_TAGS = (
                                  DB_CREATE
                                  DB_CREATE_OR_OPEN
                                  DB_CREATE_OR_OVERWRITE
+                                 ) ],
+                    'qpflags' => [ qw(
+				 FLAG_BOOLEAN
+				 FLAG_PHRASE
+				 FLAG_LOVEHATE
+                                 ) ],
+                    'qpstem' => [ qw(
+				 STEM_NONE
+				 STEM_SOME
+				 STEM_ALL
                                  ) ]
                    );
-$EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} }, @{ $EXPORT_TAGS{'db'} } ];
+$EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} },
+			   @{ $EXPORT_TAGS{'db'} },
+			   @{ $EXPORT_TAGS{'qpflags'} },
+			   @{ $EXPORT_TAGS{'qpstem'} } ];
 $EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} } ];
 
 
@@ -61,7 +77,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.8.4.0';
+our $VERSION = '0.9.0.0';
 
 bootstrap Search::Xapian $VERSION;
 
@@ -70,6 +86,21 @@ bootstrap Search::Xapian $VERSION;
 our @OP_NAMES;
 foreach (@{ $EXPORT_TAGS{'ops'} }) {
   $OP_NAMES[eval $_] = $_;
+}
+
+our @DB_NAMES;
+foreach (@{ $EXPORT_TAGS{'dbs'} }) {
+  $DB_NAMES[eval $_] = $_;
+}
+
+our @FLAG_NAMES;
+foreach (@{ $EXPORT_TAGS{'qpflags'} }) {
+  $FLAG_NAMES[eval $_] = $_;
+}
+
+our @STEM_NAMES;
+foreach (@{ $EXPORT_TAGS{'qpstem'} }) {
+  $STEM_NAMES[eval $_] = $_;
 }
 
 1;
@@ -147,19 +178,26 @@ MatchDecider, Weight (and subclasses).
 The following methods are not yet wrapped:
 Enquire::get_eset(...) with more than two arguments,
 Enquire::get_mset(...) with more than two arguments,
-Enquire::register_match_decoder(...) with one argument,
+Enquire::register_match_decider(...) with one argument,
 Enquire::set_weighting_scheme(const Weight &weight);
-Query::Query(tname, ...); with more than one argument;
-QueryParser::set_stemming_options() with third (Stopper) argument;
+Query::Query(tname, ...); with more than one argument,
+Query itor ctor optional "parameter" parameter,
+Remote::open(...),
+static Stem::get_available_languages().
+
+We wrap ESet::back(), MSet::swap() and MSet::operator[](), but not
+MSet::back(), ESet::swap(), ESet::operator[]().
+
+Tie MSet and ESet to allow them to just be used as lists?
 
 =head1 CREDITS
 
 Thanks to Tye McQueen E<lt>tye@metronet.comE<gt> for explaining the
 finer points of how best to write XS frontends to C++ libraries, James
 Aylett E<lt>james@tartarus.orgE<gt> for clarifying the less obvious
-aspects of the Xapian API, and especially Olly Betts
-E<lt>olly@survex.comE<gt> for contributing advice, bugfixes, and
-wrapper code for the more obscure classes.
+aspects of the Xapian API, Tim Brody for patches wrapping ::QueryParser and
+::Stopper and especially Olly Betts E<lt>olly@survex.comE<gt> for contributing
+advice, bugfixes, and wrapper code for the more obscure classes.
 
 =head1 AUTHOR
 

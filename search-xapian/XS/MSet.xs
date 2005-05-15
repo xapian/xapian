@@ -84,9 +84,6 @@ MSet::get_max_attained()
 doccount
 MSet::size()
 
-doccount
-MSet::max_size()
-
 bool
 MSet::empty()
 
