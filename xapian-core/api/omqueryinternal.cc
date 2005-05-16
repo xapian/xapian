@@ -601,7 +601,7 @@ struct SortPosName {
 void
 Xapian::Query::Internal::collapse_subqs()
 {
-    Assert(can_reorder(op));
+    Assert(op == OP_OR || op == OP_AND || op == OP_XOR);
     typedef set<Xapian::Query::Internal *, SortPosName> subqtable;
     subqtable sqtab;
 
