@@ -49,18 +49,18 @@ foreach my $tag (@ARGV) {
     if (! -d "$tag/xapian/.svn") {
         system "rm", "-rf", "$tag/xapian";
 	# Check out the tag into a directory of the same name.
-	open CVS, "svn co --non-interactive \Q$repourl/$tag\E \Q$tag\E/xapian 2>&1|" or die $!;
-	while (<CVS>) {
+	open SVN, "svn co --non-interactive \Q$repourl/$tag\E \Q$tag\E/xapian 2>&1|" or die $!;
+	while (<SVN>) {
 	    $log .= $_;
 	    $lastlog = $_;
 	}
-	close CVS or die $!;
+	close SVN or die $!;
     } else {
         # Revert any local changes.
 	$log = "svn revert:\n".`svn revert -R \Q$tag\E/xapian 2>&1`."svn up:\n";
-	open CVS, "svn up --non-interactive \Q$tag\E/xapian 2>&1|" or die $!;
+	open SVN, "svn up --non-interactive \Q$tag\E/xapian 2>&1|" or die $!;
 	my $lines = 0;
-	while (<CVS>) {
+	while (<SVN>) {
 	    $log .= $_;
 	    $lastlog = $_;
 	    ++$lines;
@@ -69,7 +69,7 @@ foreach my $tag (@ARGV) {
 		die "A conflict?!  That should be impossible!\n";    
 	    }
 	}
-	close CVS or die $!;
+	close SVN or die $!;
 	next if ($lines <= 1);
     }
     my ($revision) = ($lastlog =~ /\b(\d+)\b/);
