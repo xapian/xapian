@@ -182,7 +182,7 @@ termcount Query::get_length() const
 TermIterator Query::get_terms_begin() const
 {
     DEBUGAPICALL(Xapian::TermIterator, "Xapian::Query::get_terms_begin", "");
-    Assert(internal.get());
+    if (!internal.get()) RETURN(TermIterator(NULL));
     RETURN(internal->get_terms());
 }
 

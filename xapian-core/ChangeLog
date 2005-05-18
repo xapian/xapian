@@ -1,3 +1,8 @@
+Wed May 18 16:41:56 BST 2005  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,tests/api_nodb.cc: Fix SEGV on get_terms_begin()
+	  on an empty Query object.
+
 Mon May 16 22:58:09 BST 2005  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Fixed compilation with --enable-debug.

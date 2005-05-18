@@ -75,6 +75,15 @@ static bool test_getqterms1()
     return true;
 }
 
+// tests that get_query_terms() doesn't SEGV on an empty query
+// (regression test for bug in 0.9.0)
+static bool test_getqterms2()
+{
+    Xapian::Query empty_query;
+    TEST_EQUAL(empty_query.get_terms_begin(), empty_query.get_terms_end());
+    return true;
+}
+
 // tests that empty queries work correctly
 static bool test_emptyquery1()
 {
@@ -305,6 +314,7 @@ static bool test_weight1()
 test_desc nodb_tests[] = {
     {"trivial1",           test_trivial1},
     {"getqterms1",	   test_getqterms1},
+    {"getqterms2",	   test_getqterms2},
     {"emptyquery1",	   test_emptyquery1},
     {"querylen1",	   test_querylen1},
     {"querylen2",	   test_querylen2},
