@@ -1,3 +1,8 @@
+Wed May 18 16:59:23 BST 2005  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,include/xapian/query.h: Put Query::get_terms_end()
+	  inline in header.
+
 Wed May 18 16:41:56 BST 2005  Olly Betts <olly@survex.com>
 
 	* api/omquery.cc,tests/api_nodb.cc: Fix SEGV on get_terms_begin()

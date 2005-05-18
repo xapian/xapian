@@ -186,12 +186,6 @@ TermIterator Query::get_terms_begin() const
     RETURN(internal->get_terms());
 }
 
-TermIterator Query::get_terms_end() const
-{
-    DEBUGAPICALL(Xapian::TermIterator, "Xapian::Query::get_terms_end", "");
-    RETURN(TermIterator(NULL));
-}
-	
 bool
 Query::empty() const
 {
