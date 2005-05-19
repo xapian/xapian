@@ -5,7 +5,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 15 };
+BEGIN { plan tests => 16 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -41,5 +41,6 @@ foreach (@stopwords) {
 foreach (qw(one two three four five)) {
     ok( !$stopper->stop_word($_) );
 }
+ok( $qp->set_stopper($stopper), undef );
 
 1;
