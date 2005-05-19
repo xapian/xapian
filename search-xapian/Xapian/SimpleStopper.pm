@@ -8,8 +8,8 @@ use Carp;
 require Exporter;
 require DynaLoader;
 
-#@Search::Xapian::SimpleStopper::ISA = qw(Search::Xapian::Stopper Exporter DynaLoader);
-our @ISA = qw(Exporter DynaLoader);
+our @ISA = qw(Exporter DynaLoader Search::Xapian::Stopper);
+
 # Items to export into callers namespace by default. Note: do not export
 # names by default without a very good reason. Use EXPORT_OK instead.
 # Do not simply export all your public functions/methods/constants.
