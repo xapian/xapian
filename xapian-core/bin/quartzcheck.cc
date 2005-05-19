@@ -87,7 +87,10 @@ main(int argc, char **argv)
     try {
 	size_t errors = 0;
 	struct stat sb;
-	if (stat(argv[1], &sb) == 0 && S_ISDIR(sb.st_mode)) {
+	string record_DB(argv[1]);
+	record_DB += "/record_DB";
+	if (stat(record_DB.c_str(), &sb) == 0) {
+	    // Check a whole quartz database directory.
 	    try {
 		Xapian::Database db(argv[1]);
 		doclens.reserve(db.get_lastdocid());
@@ -110,6 +113,7 @@ main(int argc, char **argv)
 		errors += check_table(table.c_str(), opts);
 	    }
 	} else {
+	    // Just check a single Btree.
 	    errors = check_table(argv[1], opts);
 	}
 	if (errors > 0) {

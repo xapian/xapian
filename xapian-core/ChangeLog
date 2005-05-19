@@ -1,3 +1,10 @@
+Thu May 19 01:12:27 BST 2005  Olly Betts <olly@survex.com>
+
+	* bin/quartzcheck.cc: Fixed corner case where you couldn't check a
+	  single Btree table which was just the DB and baseA/baseB files
+	  in a directory (Xapian doesn't produce anything like this, but
+	  btreetest does while unit testing the Btree code).
+
 Wed May 18 16:59:23 BST 2005  Olly Betts <olly@survex.com>
 
 	* api/omquery.cc,include/xapian/query.h: Put Query::get_terms_end()
