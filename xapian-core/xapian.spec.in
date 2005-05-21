@@ -41,7 +41,6 @@ files needed for building packages which use Xapian.
 
 %prep
 %setup -q -c
-%setup -q -T -D -a 1
 
 %build
 cd %{name}-%{version}
