@@ -44,6 +44,9 @@ using namespace std;
 #ifdef XAPIAN_BUILD_BACKEND_QUARTZ
 #include "quartz/quartz_database.h"
 #endif
+#ifdef XAPIAN_BUILD_BACKEND_FLINT
+#include "flint/flint_database.h"
+#endif
 #ifdef XAPIAN_BUILD_BACKEND_REMOTE
 // These headers are all in common
 #include "net_database.h"
@@ -66,6 +69,21 @@ Quartz::open(const string &dir, int action, int block_size) {
 			action << ", " << block_size);
     return WritableDatabase(new QuartzWritableDatabase(dir, action,
 						       block_size));
+}
+#endif
+
+#ifdef XAPIAN_BUILD_BACKEND_FLINT
+Database
+Flint::open(const string &dir) {
+    DEBUGAPICALL_STATIC(Database, "Flint::open", dir);
+    return Database(new FlintDatabase(dir));
+}
+
+WritableDatabase
+Flint::open(const string &dir, int action, int block_size) {
+    DEBUGAPICALL_STATIC(WritableDatabase, "Flint::open", dir << ", " <<
+			action << ", " << block_size);
+    return WritableDatabase(new FlintWritableDatabase(dir, action, block_size));
 }
 #endif
 
@@ -153,6 +171,11 @@ open_stub(Database *db, const string &file)
 		db->add_database(Quartz::open(line));
 		ok = true;
 #endif
+#ifdef XAPIAN_BUILD_BACKEND_FLINT
+	    } else if (type == "flint") {
+		db->add_database(Flint::open(line));
+		ok = true;
+#endif
 #ifdef XAPIAN_BUILD_BACKEND_REMOTE
 	    } else if (type == "remote") {
 		string::size_type colon = line.find(':');
@@ -191,7 +214,7 @@ open_stub(Database *db, const string &file)
     if (!ok) {
 	// Don't include the line itself - that might help an attacker
 	// by revealing part of a sensitive file's contents if they can
-	// arrange it to be read as a stub database via infelicities in
+	// arrange for it to be read as a stub database via infelicities in
 	// an application which uses Xapian.  The line number is enough
 	// information to identify the problem line.
 	throw DatabaseOpeningError("Bad line " + om_tostring(line_no) + " in stub database file `" + file + "'");
@@ -225,6 +248,12 @@ open_database(Database * db, const string &path)
 	return;
     }
 #endif
+#ifdef XAPIAN_BUILD_BACKEND_FLINT
+    if (file_exists(path + "/iamflint")) {
+	db->internal.push_back(new FlintDatabase(path));
+	return;
+    }
+#endif
 #ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
     if (file_exists(path + "/R") && file_exists(path + "/T")) {
 	// can't easily tell flimsy from heavyduty so assume hd
@@ -253,10 +282,18 @@ open_database(Database * db, const string &path)
 void
 open_writable_database(Database *db, const string &path, int action)
 {
-#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
-    // Only quartz currently supports disk-based writable databases - if other
-    // writable backends are added then this code needs to look at action and
-    // perhaps autodetect.
+#if defined XAPIAN_BUILD_BACKEND_FLINT && defined XAPIAN_BUILD_BACKEND_QUARTZ
+    // Both Flint and Quartz are enabled.
+    const char *p = getenv("XAPIAN_PREFER_FLINT");
+    if (p != NULL && *p) {
+	db->internal.push_back(new FlintWritableDatabase(path, action, 8192));
+    }
+    db->internal.push_back(new QuartzWritableDatabase(path, action, 8192));
+#elif defined XAPIAN_BUILD_BACKEND_FLINT
+    // Only Flint is enabled.
+    db->internal.push_back(new FlintWritableDatabase(path, action, 8192));
+#elif defined XAPIAN_BUILD_BACKEND_QUARTZ
+    // Only Quartz is enabled.
     db->internal.push_back(new QuartzWritableDatabase(path, action, 8192));
 #else
     throw FeatureUnavailableError("No disk-based writable backend is enabled");

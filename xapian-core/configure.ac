@@ -402,6 +402,14 @@ AC_ARG_ENABLE(backend_quartz,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-quartz) ;;
 esac],[build_quartz=true])
 
+AC_ARG_ENABLE(backend_flint,
+[  --enable-backend-flint Enable the flint database backend (default=yes)],
+[case "${enableval}" in
+  yes) build_flint=true ;;
+  no)  build_flint=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-flint) ;;
+esac],[build_flint=true])
+
 AC_ARG_ENABLE(backend_inmemory,
 [  --enable-backend-inmemory Enable the inmemory database backend (default=yes)],
 [case "${enableval}" in
@@ -476,6 +484,7 @@ dnl Set conditionals to specify what we compile
 
 AM_CONDITIONAL(BUILD_BACKEND_MUSCAT36, test true = "$build_muscat36")
 AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test true = "$build_quartz")
+AM_CONDITIONAL(BUILD_BACKEND_FLINT, test true = "$build_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test true = "$build_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test true = "$build_remote")
 dnl Set a flag for AM when shared libraries are enabled.
@@ -491,6 +500,11 @@ fi
 if test true = "$build_quartz"; then
 AC_DEFINE(XAPIAN_BUILD_BACKEND_QUARTZ,,
   [Define if you want to build the quartz database backend])
+fi
+
+if test true = "$build_flint"; then
+AC_DEFINE(XAPIAN_BUILD_BACKEND_FLINT,,
+  [Define if you want to build the flint database backend])
 fi
 
 if test true = "$build_inmemory"; then
@@ -745,6 +759,7 @@ AC_CONFIG_FILES([
  backends/Makefile
  backends/muscat36/Makefile
  backends/quartz/Makefile
+ backends/flint/Makefile
  backends/multi/Makefile
  backends/inmemory/Makefile
  backends/net/Makefile

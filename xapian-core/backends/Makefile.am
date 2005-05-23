@@ -16,6 +16,11 @@ libbackend_la_SOURCES = database.cc
 #      of SUBDIRS and libbackend_la_LIBADD at the bottom of this file
 # iv)  Write the backend library
 
+if BUILD_BACKEND_FLINT
+BUILDSUBDIR_FLINT = flint
+LIBADD_FLINT = flint/libflint.la
+endif
+
 if BUILD_BACKEND_MUSCAT36
 BUILDSUBDIR_MUSCAT36 = muscat36
 LIBADD_MUSCAT36 = muscat36/libmuscat36.la
@@ -24,6 +29,11 @@ endif
 if BUILD_BACKEND_QUARTZ
 BUILDSUBDIR_QUARTZ = quartz
 LIBADD_QUARTZ = quartz/libquartz.la
+endif
+
+if BUILD_BACKEND_FLINT
+BUILDSUBDIR_FLINT = flint
+LIBADD_FLINT = flint/libflint.la
 endif
 
 # InMemoryPositionList is used by MapTermList which is used by Xapian::Document
@@ -38,14 +48,16 @@ endif
 
 SUBDIRS = $(BUILDSUBDIR_MUSCAT36) \
           $(BUILDSUBDIR_QUARTZ) \
+          $(BUILDSUBDIR_FLINT) \
           $(BUILDSUBDIR_INMEMORY) \
 	  $(BUILDSUBDIR_REMOTE) multi .
 
-DIST_SUBDIRS = muscat36 quartz inmemory net multi .
+DIST_SUBDIRS = muscat36 quartz flint inmemory net multi .
 
 libbackend_la_LIBADD = \
           $(LIBADD_MUSCAT36) \
 	  $(LIBADD_QUARTZ) \
+	  $(LIBADD_FLINT) \
           $(LIBADD_INMEMORY) \
 	  $(LIBADD_REMOTE) \
 	  multi/libmulti.la

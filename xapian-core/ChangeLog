@@ -1,3 +1,12 @@
+Mon May 23 02:36:06 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,backends/database.cc,backends/Makefile.am,
+	  backends/flint/: Cloned the quartz backend to form the basis of the
+	  new flint backend.  Currently it's the same except that the quartz
+	  log feature has been removed.  When creating a database without a
+	  specified backend, quartz is still used unless the environmental
+	  variable XAPIAN_PREFER_FLINT is set to a non-empty value.
+
 Sat May 21 20:58:48 BST 2005  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Remove bogus %setup line left over from when we
