@@ -45,9 +45,8 @@ cp -r images/* %{buildroot}/var/www/icons/omega/
 # Configuration file
 mkdir -p %{buildroot}/etc
 install -D -m644 omega.conf %{buildroot}/etc/omega.conf
-# Move the htdig2omega script to the right place
-mkdir -p %{buildroot}%{_datadir}/%{name}
-mv %{buildroot}/usr/share/omega/htdig2omega.script %{buildroot}%{_datadir}/%{name}
+# Move the scripts to the right place
+mv %{buildroot}/usr/share/omega %{buildroot}%{_datadir}/%{name}
 # Move the docs to the right place
 mv %{buildroot}/usr/share/doc/omega %{buildroot}/usr/share/doc/%{name}-%{version}
 
@@ -60,10 +59,11 @@ mv %{buildroot}/usr/share/doc/omega %{buildroot}/usr/share/doc/%{name}-%{version
 %{_bindir}/omindex
 %{_bindir}/scriptindex
 %{_bindir}/htdig2omega
+%{_bindir}/mbox2omega
 %{contentdir}/omega
 /var/www/cgi-bin/omega
 /var/www/icons/omega
-%{_datadir}/%{name}/htdig2omega.script
+%{_datadir}/%{name}
 %config(noreplace) /etc/omega.conf
 %docdir /usr/share/doc/%{name}-%{version}
 %doc AUTHORS ChangeLog COPYING NEWS README TODO
