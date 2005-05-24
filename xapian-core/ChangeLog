@@ -1,3 +1,10 @@
+Tue May 24 02:30:39 BST 2005  Olly Betts <olly@survex.com>
+
+	* HACKING: Add "email Fabrice" to the release checklist so that RPM
+	  spec files don't lag behind.  The new svn-tag-release script
+	  actually builds the release tarballs rather than just copying
+	  snapshots like cvs-tag-release did, so document that.
+
 Tue May 24 01:21:18 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Added missing documentation comments.

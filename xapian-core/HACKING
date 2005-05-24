@@ -559,6 +559,8 @@ How to make a release
 
 This is a (hopefully complete) list of the jobs which need doing:
 
+* Email Fabrice Colin so he can check RPM spec files.
+
 * Update the NEWS files using information from the ChangeLog files
 
 * Update the PLATFORMS file.  Don't forget to use reports from the tinderbox:
@@ -578,12 +580,12 @@ This is a (hopefully complete) list of the jobs which need doing:
 
   xapian-maintainer-tools/svn-tag-release 0.9.0
 
-  This script also creates a directory for the new version, generates
-  tarballs for it, and copies them into it.
+  This script also generates tarballs for the new release and copies them
+  across to the website.
 
-* Update the website - download.php and the version near the top of the website
-  building script .scripts/update_website.sh.  Both of these are in CVS module
-  www.xapian.org
+* Update the website - download.php and the version near the top of the
+  website building script .scripts/update_website.sh.  Both of these are in CVS
+  module www.xapian.org
 
 * Run /u1/olly/xapian-website-update/update_website.sh
 
