@@ -1,3 +1,7 @@
+Tue May 24 01:21:18 BST 2005  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Added missing documentation comments.
+
 Mon May 23 02:36:06 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,backends/database.cc,backends/Makefile.am,
