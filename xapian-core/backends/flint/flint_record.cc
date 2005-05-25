@@ -1,4 +1,4 @@
-/* quartz_record.cc: Records in quartz databases
+/* flint_record.cc: Records in flint databases
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -23,8 +23,8 @@
  */
 
 #include <config.h>
-#include "quartz_record.h"
-#include "quartz_utils.h"
+#include "flint_record.h"
+#include "flint_utils.h"
 #include "utils.h"
 #include <xapian/error.h>
 #include "omassert.h"
@@ -37,10 +37,10 @@ using std::string;
 static const string METAINFO_KEY("", 1);
 
 string
-QuartzRecordTable::get_record(Xapian::docid did) const
+FlintRecordTable::get_record(Xapian::docid did) const
 {
-    DEBUGCALL(DB, string, "QuartzRecordTable::get_record", did);
-    string key(quartz_docid_to_key(did));
+    DEBUGCALL(DB, string, "FlintRecordTable::get_record", did);
+    string key(flint_docid_to_key(did));
     string tag;
 
     if (!get_exact_entry(key, tag)) {
@@ -52,23 +52,23 @@ QuartzRecordTable::get_record(Xapian::docid did) const
 
 
 Xapian::doccount
-QuartzRecordTable::get_doccount() const
+FlintRecordTable::get_doccount() const
 {   
-    DEBUGCALL(DB, Xapian::doccount, "QuartzRecordTable::get_doccount", "");
+    DEBUGCALL(DB, Xapian::doccount, "FlintRecordTable::get_doccount", "");
     // Check that we can't overflow (the unsigned test is actually too
     // strict as we can typically assign an unsigned short to a signed long,
     // but this shouldn't actually matter here).
-    CASSERT(sizeof(Xapian::doccount) >= sizeof(quartz_tablesize_t));
+    CASSERT(sizeof(Xapian::doccount) >= sizeof(flint_tablesize_t));
     CASSERT_TYPE_UNSIGNED(Xapian::doccount);
-    CASSERT_TYPE_UNSIGNED(quartz_tablesize_t);
+    CASSERT_TYPE_UNSIGNED(flint_tablesize_t);
     Xapian::doccount entries = get_entry_count();
     RETURN(entries ? entries - 1 : 0);
 }
 
 Xapian::docid
-QuartzRecordTable::get_lastdocid() const
+FlintRecordTable::get_lastdocid() const
 {
-    DEBUGCALL(DB, Xapian::docid, "QuartzRecordTable::get_lastdocid", "");
+    DEBUGCALL(DB, Xapian::docid, "FlintRecordTable::get_lastdocid", "");
 
     string tag;
     if (!get_exact_entry(METAINFO_KEY, tag)) RETURN(0u);
@@ -83,34 +83,34 @@ QuartzRecordTable::get_lastdocid() const
 }
 
 void
-QuartzRecordTable::replace_record(const string & data, Xapian::docid did)
+FlintRecordTable::replace_record(const string & data, Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "QuartzRecordTable::replace_record", data << ", " << did);
-    string key(quartz_docid_to_key(did));
+    DEBUGCALL(DB, void, "FlintRecordTable::replace_record", data << ", " << did);
+    string key(flint_docid_to_key(did));
     add(key, data);
 }
 
 void
-QuartzRecordTable::set_total_length_and_lastdocid(quartz_totlen_t totlen,
+FlintRecordTable::set_total_length_and_lastdocid(flint_totlen_t totlen,
 						  Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "QuartzRecordTable::set_total_length_and_lastdocid",
+    DEBUGCALL(DB, void, "FlintRecordTable::set_total_length_and_lastdocid",
 			totlen << ", " << did);
     string tag = pack_uint(did);
     tag += pack_uint_last(totlen);
     add(METAINFO_KEY, tag);
 }
 
-quartz_totlen_t
-QuartzRecordTable::get_total_length() const
+flint_totlen_t
+FlintRecordTable::get_total_length() const
 {
-    DEBUGCALL(DB, quartz_totlen_t, "QuartzRecordTable::get_total_length", "");
+    DEBUGCALL(DB, flint_totlen_t, "FlintRecordTable::get_total_length", "");
 
     string tag;
     if (!get_exact_entry(METAINFO_KEY, tag)) RETURN(0);
 
     Xapian::docid did;
-    quartz_totlen_t totlen;
+    flint_totlen_t totlen;
     const char * data = tag.data();
     const char * end = data + tag.size();
     if (!unpack_uint(&data, end, &did)) {
@@ -123,9 +123,9 @@ QuartzRecordTable::get_total_length() const
 }
 
 void
-QuartzRecordTable::delete_record(Xapian::docid did)
+FlintRecordTable::delete_record(Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "QuartzRecordTable::delete_record", did);
-    if (!del(quartz_docid_to_key(did)))
+    DEBUGCALL(DB, void, "FlintRecordTable::delete_record", did);
+    if (!del(flint_docid_to_key(did)))
 	throw Xapian::DocNotFoundError("Can't delete non-existent document #" + om_tostring(did));
 }

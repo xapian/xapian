@@ -22,13 +22,36 @@
  */
 
 #include <config.h>
-#include "btree_base.h"
-#include "quartz_utils.h"
+#include "flint_btreebase.h"
+#include "flint_utils.h"
 #include "utils.h"
 #include <xapian/error.h>
 #include "omassert.h"
 #include <errno.h>
 using namespace std;
+
+// Only useful for platforms like Windows which distinguish between text and
+// binary files.
+#ifndef __WIN32__
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+#endif
+
+/** A tiny class used to close a filehandle safely in the presence
+ *  of exceptions.
+ */
+class fdcloser {
+    public:
+	fdcloser(int fd_) : fd(fd_) {}
+	~fdcloser() {
+	    if (fd >= 0) {
+		(void)close(fd);
+	    }
+	}
+    private:
+	int fd;
+};
 
 /************ Base file parameters ************/
 
@@ -60,7 +83,7 @@ using namespace std;
  */
 #define CURR_FORMAT 5U
 
-Btree_base::Btree_base()
+FlintTable_base::FlintTable_base()
 	: revision(0),
 	  block_size(0),
 	  root(0),
@@ -76,7 +99,7 @@ Btree_base::Btree_base()
 {
 }
 
-Btree_base::Btree_base(const string &name_, char ch)
+FlintTable_base::FlintTable_base(const string &name_, char ch)
 	: revision(0),
 	  block_size(0),
 	  root(0),
@@ -94,7 +117,7 @@ Btree_base::Btree_base(const string &name_, char ch)
     }
 }
 
-Btree_base::Btree_base(const Btree_base &other)
+FlintTable_base::FlintTable_base(const FlintTable_base &other)
 	: revision(other.revision),
 	  block_size(other.block_size),
 	  root(other.root),
@@ -121,7 +144,7 @@ Btree_base::Btree_base(const Btree_base &other)
 }
 
 void
-Btree_base::swap(Btree_base &other)
+FlintTable_base::swap(FlintTable_base &other)
 {
     std::swap(revision, other.revision);
     std::swap(block_size, other.block_size);
@@ -137,7 +160,7 @@ Btree_base::swap(Btree_base &other)
     std::swap(bit_map, other.bit_map);
 }
 
-Btree_base::~Btree_base()
+FlintTable_base::~FlintTable_base()
 {
     delete [] bit_map;
     bit_map = 0;
@@ -146,7 +169,7 @@ Btree_base::~Btree_base()
 }
 
 bool
-Btree_base::do_unpack_uint(const char **start, const char *end,
+FlintTable_base::do_unpack_uint(const char **start, const char *end,
 			   uint4 *dest, string &err_msg, 
 			   const string &basename,
 			   const char *varname)
@@ -175,16 +198,16 @@ do { \
 #define REASONABLE_BASE_SIZE 1024
 
 bool
-Btree_base::read(const string & name, char ch, string &err_msg)
+FlintTable_base::read(const string & name, char ch, string &err_msg)
 {
     string basename = name + "base" + ch;
-    int h = sys_open_to_read_no_except(basename);
+    int h = open(name.c_str(), O_RDONLY | O_BINARY);
     fdcloser closefd(h);
     if (h == -1) {
 	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
 	return false;
     }
-    string buf(sys_read_all_bytes(h, REASONABLE_BASE_SIZE));
+    string buf(sys_read_n_bytes(h, REASONABLE_BASE_SIZE));
 
     const char *start = buf.data();
     const char *end = start + buf.length();
@@ -208,7 +231,7 @@ Btree_base::read(const string & name, char ch, string &err_msg)
      */
     {
 	unsigned long start_offset = start - buf.data();
-	buf += sys_read_all_bytes(h, bit_map_size);
+	buf += sys_read_n_bytes(h, bit_map_size);
 	start = buf.data() + start_offset;
 	end = buf.data() + buf.length();
     }
@@ -284,7 +307,7 @@ Btree_base::read(const string & name, char ch, string &err_msg)
 }
 
 void
-Btree_base::write_to_file(const string &filename)
+FlintTable_base::write_to_file(const string &filename)
 {
     calculate_last_block();
 
@@ -303,11 +326,16 @@ Btree_base::write_to_file(const string &filename)
     buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     buf += pack_uint(revision);  // REVISION2
 
-    int h = sys_open_to_write(filename);
+    int h = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+    if (h < 0) {
+	string message = string("Couldn't open base ")
+		+ filename + " to write: " + strerror(errno);
+	throw Xapian::DatabaseOpeningError(message);
+    }
     fdcloser closefd(h);
 
-    sys_write_string(h, buf);
-    sys_flush(h);
+    sys_write_n_bytes(h, buf.length(), buf.data());
+    sys_sync(h);
 }
 
 /*
@@ -316,7 +344,7 @@ Btree_base::write_to_file(const string &filename)
 */
 
 bool
-Btree_base::block_free_at_start(uint4 n) const
+FlintTable_base::block_free_at_start(uint4 n) const
 {
     size_t i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;
@@ -329,7 +357,7 @@ Btree_base::block_free_at_start(uint4 n) const
 */
 
 void
-Btree_base::free_block(uint4 n)
+FlintTable_base::free_block(uint4 n)
 {
     uint4 i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;
@@ -350,7 +378,7 @@ Btree_base::free_block(uint4 n)
     /* increase the bit map by this number of bytes if it overflows */
 
 void
-Btree_base::extend_bit_map()
+FlintTable_base::extend_bit_map()
 {
     int n = bit_map_size + BIT_MAP_INC;
     byte *new_bit_map0 = 0;
@@ -388,7 +416,7 @@ Btree_base::extend_bit_map()
 */
 
 uint4
-Btree_base::next_free_block()
+FlintTable_base::next_free_block()
 {
     uint4 i;
     int x;
@@ -409,7 +437,7 @@ Btree_base::next_free_block()
 }
 
 bool
-Btree_base::block_free_now(uint4 n)
+FlintTable_base::block_free_now(uint4 n)
 {
     uint4 i = n / CHAR_BIT;
     int bit = 0x1 << n % CHAR_BIT;
@@ -417,7 +445,7 @@ Btree_base::block_free_now(uint4 n)
 }
 
 void
-Btree_base::calculate_last_block()
+FlintTable_base::calculate_last_block()
 {
     if (bit_map_size == 0) {
 	last_block = 0;
@@ -444,7 +472,7 @@ Btree_base::calculate_last_block()
 }
 
 bool
-Btree_base::is_empty() const
+FlintTable_base::is_empty() const
 {
     for (uint4 i = 0; i < bit_map_size; i++) {
 	if (bit_map[i] != 0) {
@@ -455,14 +483,14 @@ Btree_base::is_empty() const
 }
 
 void
-Btree_base::clear_bit_map()
+FlintTable_base::clear_bit_map()
 {
     memset(bit_map, 0, bit_map_size);
 }
 
 // We've commited, so "bitmap at start" needs to be reset to the current bitmap.
 void
-Btree_base::commit()
+FlintTable_base::commit()
 {
     memcpy(bit_map0, bit_map, bit_map_size);
     bit_map_low = 0;

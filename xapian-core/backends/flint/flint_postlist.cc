@@ -1,4 +1,4 @@
-/* quartz_postlist.cc: Postlists in quartz databases
+/* flint_postlist.cc: Postlists in a flint database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -23,9 +23,9 @@
 
 #include <config.h>
 #include "omdebug.h"
-#include "quartz_postlist.h"
-#include "quartz_utils.h"
-#include "bcursor.h"
+#include "flint_postlist.h"
+#include "flint_utils.h"
+#include "flint_cursor.h"
 #include "database.h"
 
 /// Make a key for accessing the postlist.
@@ -63,8 +63,8 @@ class PostlistChunkWriter {
 			    bool is_last_chunk_);
 
 	/// Append an entry to this chunk.
-	void append(Btree * table, Xapian::docid did,
-		    Xapian::termcount wdf, quartz_doclen_t doclen);
+	void append(FlintTable * table, Xapian::docid did,
+		    Xapian::termcount wdf, flint_doclen_t doclen);
 
 	/// Append a block of raw entries to this chunk.
 	void raw_append(Xapian::docid first_did_, Xapian::docid current_did_,
@@ -82,7 +82,7 @@ class PostlistChunkWriter {
 	 *  with a different key to the original one, if for example the first
 	 *  entry has changed.
 	 */
-	void flush(Btree *table);
+	void flush(FlintTable *table);
 
     private:
 	string orig_key;
@@ -151,7 +151,7 @@ read_start_of_first_chunk(const char ** posptr,
 		     (void *)number_of_entries_ptr << ", " <<
 		     (void *)collection_freq_ptr);
 
-    QuartzPostList::read_number_of_entries(posptr, end,
+    FlintPostList::read_number_of_entries(posptr, end,
 			   number_of_entries_ptr, collection_freq_ptr);
     if (number_of_entries_ptr)
 	DEBUGLINE(DB, "number_of_entries = " << *number_of_entries_ptr);
@@ -180,7 +180,7 @@ static inline void read_did_increase(const char ** posptr,
 static inline void read_wdf_and_length(const char ** posptr,
 				const char * end,
 				Xapian::termcount * wdf_ptr,
-				quartz_doclen_t * doclength_ptr)
+				flint_doclen_t * doclength_ptr)
 {
     if (!unpack_uint(posptr, end, wdf_ptr)) report_read_error(*posptr);
     if (!unpack_uint(posptr, end, doclength_ptr)) report_read_error(*posptr);
@@ -215,7 +215,7 @@ read_start_of_chunk(const char ** posptr,
     RETURN(last_did_in_chunk);
 }
 
-static string make_wdf_and_length(Xapian::termcount wdf, quartz_doclen_t doclength)
+static string make_wdf_and_length(Xapian::termcount wdf, flint_doclen_t doclength)
 {
     return pack_uint(wdf) + pack_uint(doclength);
 }
@@ -262,7 +262,7 @@ class PostlistChunkReader {
 	Xapian::termcount get_wdf() const {
 	    return wdf;
 	}
-	quartz_doclen_t get_doclength() const {
+	flint_doclen_t get_doclength() const {
 	    return doclength;
 	}
 
@@ -284,7 +284,7 @@ class PostlistChunkReader {
 
 	Xapian::docid did;
 	Xapian::termcount wdf;
-	quartz_doclen_t doclength;
+	flint_doclen_t doclength;
 };
 
 void
@@ -313,8 +313,8 @@ PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
 }
 
 void
-PostlistChunkWriter::append(Btree * table, Xapian::docid did,
-			    Xapian::termcount wdf, quartz_doclen_t doclen)
+PostlistChunkWriter::append(FlintTable * table, Xapian::docid did,
+			    Xapian::termcount wdf, flint_doclen_t doclen)
 {
     if (!started) {
 	started = true;
@@ -362,7 +362,7 @@ make_start_of_chunk(bool new_is_last_chunk,
 }
 
 void
-PostlistChunkWriter::flush(Btree *table)
+PostlistChunkWriter::flush(FlintTable *table)
 {
     DEBUGCALL(DB, void, "PostlistChunkWriter::flush", table);
 
@@ -400,7 +400,7 @@ PostlistChunkWriter::flush(Btree *table)
 	     * it.  Need to rewrite the next chunk as the first
 	     * chunk.
 	     */
-	    AutoPtr<Bcursor> cursor(table->cursor_get());
+	    AutoPtr<FlintCursor> cursor(table->cursor_get());
 
 	    if (!cursor->find_entry(orig_key)) {
 		throw Xapian::DatabaseCorruptError("The key we're working on has disappeared");
@@ -473,12 +473,12 @@ PostlistChunkWriter::flush(Btree *table)
 	if (is_last_chunk) {
 	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary last chunk");
 	    // Update the previous chunk's is_last_chunk flag.
-	    AutoPtr<Bcursor> cursor(table->cursor_get());
+	    AutoPtr<FlintCursor> cursor(table->cursor_get());
 
 	    /* Should not find the key we just deleted, but should
 	     * find the previous chunk. */
 	    if (cursor->find_entry(orig_key)) {
-		throw Xapian::DatabaseCorruptError("Quartz key not deleted as we expected");
+		throw Xapian::DatabaseCorruptError("Flint key not deleted as we expected");
 	    }
 	    // Make sure this is a chunk with the right term attached.
 	    const char * keypos = cursor->current_key.data();
@@ -608,7 +608,7 @@ PostlistChunkWriter::flush(Btree *table)
  *  This must only be called when *posptr is pointing to the start of
  *  the first chunk of the posting list.
  */
-void QuartzPostList::read_number_of_entries(const char ** posptr,
+void FlintPostList::read_number_of_entries(const char ** posptr,
 				   const char * end,
 				   Xapian::termcount * number_of_entries_ptr,
 				   Xapian::termcount * collection_freq_ptr)
@@ -637,9 +637,9 @@ void QuartzPostList::read_number_of_entries(const char ** posptr,
  *  The first chunk begins with the number of entries, then the docid of the
  *  first document, then has the header of a standard chunk.
  */
-QuartzPostList::QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-			       const Btree * table_,
-			       const Btree * positiontable_,
+FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
+			       const FlintTable * table_,
+			       const FlintTable * positiontable_,
 			       const string & tname_)
 	: this_db(this_db_),
 	  table(table_),
@@ -649,7 +649,7 @@ QuartzPostList::QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Databas
 	  is_at_end(false),
 	  have_started(false)
 {
-    DEBUGCALL(DB, void, "QuartzPostList::QuartzPostList",
+    DEBUGCALL(DB, void, "FlintPostList::FlintPostList",
 	      this_db_.get() << ", " << table_ << ", " <<
 	      positiontable_ << ", " << tname_);
     string key;
@@ -677,15 +677,15 @@ QuartzPostList::QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Databas
     read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
 
-QuartzPostList::~QuartzPostList()
+FlintPostList::~FlintPostList()
 {
-    DEBUGCALL(DB, void, "QuartzPostList::~QuartzPostList", "");
+    DEBUGCALL(DB, void, "FlintPostList::~FlintPostList", "");
 }
 
 bool
-QuartzPostList::next_in_chunk()
+FlintPostList::next_in_chunk()
 {
-    DEBUGCALL(DB, bool, "QuartzPostList::next_in_chunk", "");
+    DEBUGCALL(DB, bool, "FlintPostList::next_in_chunk", "");
     if (pos == end) RETURN(false);
 
     read_did_increase(&pos, end, &did);
@@ -700,9 +700,9 @@ QuartzPostList::next_in_chunk()
 }
 
 void
-QuartzPostList::next_chunk()
+FlintPostList::next_chunk()
 {
-    DEBUGCALL(DB, void, "QuartzPostList::next_chunk", "");
+    DEBUGCALL(DB, void, "FlintPostList::next_chunk", "");
     if (is_last_chunk) {
 	is_at_end = true;
 	return;
@@ -746,9 +746,9 @@ QuartzPostList::next_chunk()
 }
 
 PositionList *
-QuartzPostList::read_position_list()
+FlintPostList::read_position_list()
 {
-    DEBUGCALL(DB, PositionList *, "QuartzPostList::read_position_list", "");
+    DEBUGCALL(DB, PositionList *, "FlintPostList::read_position_list", "");
 
     positionlist.read_data(positiontable, did, tname);
 
@@ -756,20 +756,20 @@ QuartzPostList::read_position_list()
 }
 
 PositionList *
-QuartzPostList::open_position_list() const
+FlintPostList::open_position_list() const
 {
-    DEBUGCALL(DB, PositionList *, "QuartzPostList::open_position_list", "");
+    DEBUGCALL(DB, PositionList *, "FlintPostList::open_position_list", "");
 
-    AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
+    AutoPtr<FlintPositionList> poslist(new FlintPositionList());
     poslist->read_data(positiontable, did, tname);
 
     RETURN(poslist.release());
 }
 
 PostList *
-QuartzPostList::next(Xapian::weight w_min)
+FlintPostList::next(Xapian::weight w_min)
 {
-    DEBUGCALL(DB, PostList *, "QuartzPostList::next", w_min);
+    DEBUGCALL(DB, PostList *, "FlintPostList::next", w_min);
     (void)w_min; // no warning
 
     if (!have_started) {
@@ -787,9 +787,9 @@ QuartzPostList::next(Xapian::weight w_min)
 }
 
 bool
-QuartzPostList::current_chunk_contains(Xapian::docid desired_did)
+FlintPostList::current_chunk_contains(Xapian::docid desired_did)
 {
-    DEBUGCALL(DB, bool, "QuartzPostList::current_chunk_contains", desired_did);
+    DEBUGCALL(DB, bool, "FlintPostList::current_chunk_contains", desired_did);
     if (desired_did >= first_did_in_chunk &&
 	desired_did <= last_did_in_chunk) {
 	RETURN(true);
@@ -798,10 +798,10 @@ QuartzPostList::current_chunk_contains(Xapian::docid desired_did)
 }
 
 void
-QuartzPostList::move_to_chunk_containing(Xapian::docid desired_did)
+FlintPostList::move_to_chunk_containing(Xapian::docid desired_did)
 {
     DEBUGCALL(DB, void,
-	      "QuartzPostList::move_to_chunk_containing", desired_did);
+	      "FlintPostList::move_to_chunk_containing", desired_did);
     string key;
     make_key(tname, desired_did, key);
     (void) cursor->find_entry(key);
@@ -852,10 +852,10 @@ QuartzPostList::move_to_chunk_containing(Xapian::docid desired_did)
 }
 
 bool
-QuartzPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
+FlintPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 {
     DEBUGCALL(DB, bool,
-	      "QuartzPostList::move_forward_in_chunk_to_at_least", desired_did);
+	      "FlintPostList::move_forward_in_chunk_to_at_least", desired_did);
     if (desired_did > last_did_in_chunk) {
 	pos = end;
 	RETURN(false);
@@ -870,10 +870,10 @@ QuartzPostList::move_forward_in_chunk_to_at_least(Xapian::docid desired_did)
 }
 
 PostList *
-QuartzPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
+FlintPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 {
     DEBUGCALL(DB, PostList *,
-	      "QuartzPostList::skip_to", desired_did << ", " << w_min);
+	      "FlintPostList::skip_to", desired_did << ", " << w_min);
     (void)w_min; // no warning
     // We've started now - if we hadn't already, we're already positioned
     // at start so there's no need to actually do anything.
@@ -909,14 +909,14 @@ QuartzPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
 }
 
 string
-QuartzPostList::get_description() const
+FlintPostList::get_description() const
 {
     return tname + ":" + om_tostring(number_of_entries);
 }
 
 // Returns the last did to allow in this chunk.
 Xapian::docid
-QuartzPostListTable::get_chunk(const string &tname,
+FlintPostListTable::get_chunk(const string &tname,
 	  Xapian::docid did, bool adding,
 	  PostlistChunkReader ** from, PostlistChunkWriter **to)
 {
@@ -925,7 +925,7 @@ QuartzPostListTable::get_chunk(const string &tname,
     make_key(tname, did, key);
 
     // Find the right chunk
-    AutoPtr<Bcursor> cursor(cursor_get());
+    AutoPtr<FlintCursor> cursor(cursor_get());
 
     cursor->find_entry(key);
     Assert(!cursor->after_end());
@@ -997,7 +997,7 @@ QuartzPostListTable::get_chunk(const string &tname,
 }
 
 void
-QuartzPostListTable::merge_changes(
+FlintPostListTable::merge_changes(
     const map<string, map<Xapian::docid, pair<char, Xapian::termcount> > > & mod_plists,
     const map<Xapian::docid, Xapian::termcount> & doclens,
     const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas)
@@ -1042,7 +1042,7 @@ QuartzPostListTable::merge_changes(
 		// posting list.
 		del(current_key);
 		if (islast) continue;
-		AutoPtr<Bcursor> cursor(cursor_get());
+		AutoPtr<FlintCursor> cursor(cursor_get());
 		(void)cursor->find_entry(current_key);
 		// find_entry() returns the entry <= that asked for.
 		cursor->next();

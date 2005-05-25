@@ -168,6 +168,39 @@ open(const std::string &dir, int action, int block_size = 8192);
 }
 #endif
 
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+namespace Flint {
+
+/** Construct a Database object for read-only access to a Flint database.
+ *
+ * @param dir  pathname of the directory containing the database.
+ */
+Database open(const std::string &dir);
+
+/** Construct a Database object for update access to a Flint database.
+ *
+ * @param dir		pathname of the directory containing the database.
+ * @param action  	determines handling of existing/non-existing database:
+ *  - Xapian::DB_CREATE			fail if database already exist,
+ *					otherwise create new database.
+ *  - Xapian::DB_CREATE_OR_OPEN 	open existing database, or create new
+ *					database if none exists.
+ *  - Xapian::DB_CREATE_OR_OVERWRITE	overwrite existing database, or create
+ *					new database if none exists.
+ *  - Xapian::DB_OPEN			open existing database, failing if none
+ *					exists.
+ * @param block_size	the Btree blocksize to use (in bytes), which must be a
+ * 			power of two between 2048 and 65536 (inclusive).  The
+ * 			default (also used if an invalid value if passed) is
+ * 			8192 bytes.  This parameter is ignored when opening an
+ * 			existing database.
+ */
+WritableDatabase
+open(const std::string &dir, int action, int block_size = 8192);
+
+}
+#endif
+
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 namespace Remote {
 

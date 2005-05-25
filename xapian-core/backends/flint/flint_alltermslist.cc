@@ -1,4 +1,4 @@
-/* quartzalltermslist.cc
+/* flintalltermslist.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -23,17 +23,17 @@
  */
 
 #include <config.h>
-#include "quartz_alltermslist.h"
-#include "quartz_utils.h"
-#include "quartz_postlist.h"
+#include "flint_alltermslist.h"
+#include "flint_utils.h"
+#include "flint_postlist.h"
 
-QuartzAllTermsList::QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-				       AutoPtr<Bcursor> pl_cursor_,
-				       quartz_tablesize_t size_)
+FlintAllTermsList::FlintAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+				       AutoPtr<FlintCursor> pl_cursor_,
+				       flint_tablesize_t size_)
 	: database(database_), pl_cursor(pl_cursor_), size(size_), 
 	  started(false)
 {
-    DEBUGCALL(DB, void, "QuartzAllTermsList", "[database_], [pl_cursor_]");
+    DEBUGCALL(DB, void, "FlintAllTermsList", "[database_], [pl_cursor_]");
     /* Seek to the first term */
     pl_cursor->find_entry(string());
 
@@ -46,48 +46,48 @@ QuartzAllTermsList::QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian:
 	const char *start = pl_cursor->current_key.data();
 	const char *end = start + pl_cursor->current_key.length();
 	if (!unpack_string_preserving_sort(&start, end, current_term)) {
-	    throw Xapian::DatabaseCorruptError("Failed to read the key field from a Bcursor's key");
+	    throw Xapian::DatabaseCorruptError("Failed to read the key field from a FlintCursor's key");
 	}
     }
 
     have_stats = false;
 }
 
-QuartzAllTermsList::~QuartzAllTermsList()
+FlintAllTermsList::~FlintAllTermsList()
 {
-    DEBUGCALL(DB, void, "~QuartzAllTermsList", "");
+    DEBUGCALL(DB, void, "~FlintAllTermsList", "");
 }
 
 Xapian::termcount
-QuartzAllTermsList::get_approx_size() const
+FlintAllTermsList::get_approx_size() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "QuartzAllTermsList::get_approx_size", "");
+    DEBUGCALL(DB, Xapian::termcount, "FlintAllTermsList::get_approx_size", "");
     RETURN(size);
 }
 
 string
-QuartzAllTermsList::get_termname() const
+FlintAllTermsList::get_termname() const
 {
-    DEBUGCALL(DB, string, "QuartzAllTermsList::get_termname", "");
+    DEBUGCALL(DB, string, "FlintAllTermsList::get_termname", "");
     Assert(started);
     RETURN(current_term);
 }
 
-void QuartzAllTermsList::get_stats() const
+void FlintAllTermsList::get_stats() const
 {
     pl_cursor->read_tag();
     const char *start = pl_cursor->current_tag.data();
     const char *end = start + pl_cursor->current_tag.length();
-    QuartzPostList::read_number_of_entries(&start, end,
+    FlintPostList::read_number_of_entries(&start, end,
 					   &termfreq, &collection_freq);
 
     have_stats = true;
 }
 
 Xapian::doccount
-QuartzAllTermsList::get_termfreq() const
+FlintAllTermsList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "QuartzAllTermsList::get_termfreq", "");
+    DEBUGCALL(DB, Xapian::doccount, "FlintAllTermsList::get_termfreq", "");
     Assert(started);
     if (have_stats) {
 	RETURN(termfreq);
@@ -99,9 +99,9 @@ QuartzAllTermsList::get_termfreq() const
 }
 
 Xapian::termcount
-QuartzAllTermsList::get_collection_freq() const
+FlintAllTermsList::get_collection_freq() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "QuartzAllTermsList::get_collection_freq", "");
+    DEBUGCALL(DB, Xapian::termcount, "FlintAllTermsList::get_collection_freq", "");
     Assert(started);
     if (have_stats) {
 	RETURN(collection_freq);
@@ -113,10 +113,10 @@ QuartzAllTermsList::get_collection_freq() const
 }
 
 TermList *
-QuartzAllTermsList::skip_to(const string &tname)
+FlintAllTermsList::skip_to(const string &tname)
 {
-    DEBUGCALL(DB, TermList *, "QuartzAllTermsList::skip_to", tname);
-    DEBUGLINE(DB, "QuartzAllTermList::skip_to(" << tname << ")");
+    DEBUGCALL(DB, TermList *, "FlintAllTermsList::skip_to", tname);
+    DEBUGLINE(DB, "FlintAllTermList::skip_to(" << tname << ")");
     started = true;
     string key;
     key = pack_string_preserving_sort(tname);
@@ -137,9 +137,9 @@ QuartzAllTermsList::skip_to(const string &tname)
 }
 
 TermList *
-QuartzAllTermsList::next()
+FlintAllTermsList::next()
 {
-    DEBUGCALL(DB, TermList *, "QuartzAllTermsList::next", "");
+    DEBUGCALL(DB, TermList *, "FlintAllTermsList::next", "");
     if (!started) {
 	started = true;
     } else {
@@ -153,7 +153,7 @@ QuartzAllTermsList::next()
 	    const char *start = pl_cursor->current_key.data();
 	    const char *end = start + pl_cursor->current_key.length();
 	    if (!unpack_string_preserving_sort(&start, end, current_term)) {
-		throw Xapian::DatabaseCorruptError("Failed to read the key field from a Bcursor's key");
+		throw Xapian::DatabaseCorruptError("Failed to read the key field from a FlintCursor's key");
 	    }
 	    // Check if this is the first chunk of a postlist, skip otherwise
 	    if (start == end) break;
@@ -165,8 +165,8 @@ QuartzAllTermsList::next()
 }
 
 bool
-QuartzAllTermsList::at_end() const
+FlintAllTermsList::at_end() const
 {
-    DEBUGCALL(DB, bool, "QuartzAllTermsList::at_end", "");
+    DEBUGCALL(DB, bool, "FlintAllTermsList::at_end", "");
     RETURN(is_at_end);
 }

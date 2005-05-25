@@ -1,4 +1,4 @@
-/* quartz_utils.h: Generic functions for quartz
+/* flint_utils.h: Generic functions for flint
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -22,17 +22,12 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_UTILS_H
-#define OM_HGUARD_QUARTZ_UTILS_H
+#ifndef OM_HGUARD_FLINT_UTILS_H
+#define OM_HGUARD_FLINT_UTILS_H
 
 #include <xapian/types.h>
 
 #include <string>
-
-// Define this to use the new (incompatible) database encoding schemes.
-// Once this work is finished, we can have a flag day and enable them
-// all at once by default.
-// #define SON_OF_QUARTZ 1
 
 using namespace std;
 
@@ -395,13 +390,9 @@ pack_bool(bool value)
  *  component of the key).
  */
 inline string
-quartz_docid_to_key(Xapian::docid did)
+flint_docid_to_key(Xapian::docid did)
 {
-#ifdef SON_OF_QUARTZ
     return pack_uint_preserving_sort(did);
-#else
-    return pack_uint_last(did);
-#endif
 }
 
-#endif /* OM_HGUARD_QUARTZ_UTILS_H */
+#endif /* OM_HGUARD_FLINT_UTILS_H */

@@ -1,4 +1,4 @@
-/* bcursor.cc: Btree cursor implementation
+/* flint_cursor.cc: Btree cursor implementation
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -24,9 +24,9 @@
 #include <config.h>
 #include <errno.h>
 
-#include "bcursor.h"
-#include "btree.h"
-#include "btree_util.h"
+#include "flint_cursor.h"
+#include "flint_table.h"
+#include "flint_btreeutil.h"
 #include "omassert.h"
 #include "omdebug.h"
 
@@ -47,14 +47,16 @@ hex_encode(const string & input)
 }
 #endif
 
-Bcursor::Bcursor(Btree *B_)
+#define DIR_START        11
+
+FlintCursor::FlintCursor(FlintTable *B_)
 	: is_positioned(false),
 	  is_after_end(false),
 	  have_read_tag(false),
 	  B(B_),
 	  level(B_->level)
 {
-    C = new Cursor[level + 1];
+    C = new Cursor_[level + 1];
 
     for (int j = 0; j < level; j++) {
         C[j].n = BLK_UNUSED;
@@ -64,7 +66,7 @@ Bcursor::Bcursor(Btree *B_)
     C[level].p = B->C[level].p;
 }
 
-Bcursor::~Bcursor()
+FlintCursor::~FlintCursor()
 {
     // Use the value of level stored in the cursor rather than the
     // Btree, since the Btree might have been deleted already.
@@ -75,9 +77,9 @@ Bcursor::~Bcursor()
 }
 
 bool
-Bcursor::prev()
+FlintCursor::prev()
 {
-    DEBUGCALL(DB, bool, "Bcursor::prev", "");
+    DEBUGCALL(DB, bool, "FlintCursor::prev", "");
     Assert(B->level <= level);
     Assert(!is_after_end);
 
@@ -95,7 +97,7 @@ Bcursor::prev()
 		is_positioned = false;
 		return false;
 	    }
-	    if (Item(C[0].p, C[0].c).component_of() == 1) {
+	    if (Item_(C[0].p, C[0].c).component_of() == 1) {
 		break;
 	    }
 	}
@@ -106,7 +108,7 @@ Bcursor::prev()
 	    is_positioned = false;
 	    return false;
 	}
-	if (Item(C[0].p, C[0].c).component_of() == 1) {
+	if (Item_(C[0].p, C[0].c).component_of() == 1) {
 	    break;
 	}
     }
@@ -119,9 +121,9 @@ Bcursor::prev()
 }
 
 bool
-Bcursor::next()
+FlintCursor::next()
 {
-    DEBUGCALL(DB, bool, "Bcursor::next", "");
+    DEBUGCALL(DB, bool, "FlintCursor::next", "");
     Assert(B->level <= level);
     Assert(!is_after_end);
     if (!have_read_tag) {
@@ -130,7 +132,7 @@ Bcursor::next()
 		is_positioned = false;
 		break;
 	    }
-	    if (Item(C[0].p, C[0].c).component_of() == 1) {
+	    if (Item_(C[0].p, C[0].c).component_of() == 1) {
 		is_positioned = true;
 		break;
 	    }
@@ -151,20 +153,20 @@ Bcursor::next()
 }
 
 bool
-Bcursor::find_entry(const string &key)
+FlintCursor::find_entry(const string &key)
 {
-    DEBUGCALL(DB, bool, "Bcursor::find_entry", key);
+    DEBUGCALL(DB, bool, "FlintCursor::find_entry", key);
     Assert(B->level <= level);
 
     is_after_end = false;
 
     bool found;
 
-    if (key.size() > Btree::max_key_len) {
+    if (key.size() > FlintTable::max_key_len) {
 	is_positioned = true;
 	// Can't find key - too long to possibly be present, so find the
 	// truncated form but ignore "found".
-	B->form_key(key.substr(0, Btree::max_key_len));
+	B->form_key(key.substr(0, FlintTable::max_key_len));
 	(void)(B->find(C));
 	found = false;
     } else {
@@ -178,7 +180,7 @@ Bcursor::find_entry(const string &key)
 	    C[0].c = DIR_START;
 	    if (! B->prev(C, 0)) goto done;
 	}
-	while (Item(C[0].p, C[0].c).component_of() != 1) {
+	while (Item_(C[0].p, C[0].c).component_of() != 1) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
 		break;
@@ -197,20 +199,20 @@ done:
 }
 
 bool
-Bcursor::get_key(string * key) const
+FlintCursor::get_key(string * key) const
 {
     Assert(B->level <= level);
 
     if (!is_positioned) return false;
 
-    (void)Item(C[0].p, C[0].c).key().read(key);
+    (void)Item_(C[0].p, C[0].c).key().read(key);
     return true;
 }
 
 void
-Bcursor::read_tag()
+FlintCursor::read_tag()
 {
-    DEBUGCALL(DB, void, "Bcursor::read_tag", "");
+    DEBUGCALL(DB, void, "FlintCursor::read_tag", "");
     if (have_read_tag) return;
 
     Assert(B->level <= level);
@@ -228,7 +230,7 @@ Bcursor::read_tag()
 }
 
 void
-Bcursor::del()
+FlintCursor::del()
 {
     Assert(!is_after_end);
 

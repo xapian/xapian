@@ -21,25 +21,25 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_BCURSOR_H
-#define OM_HGUARD_BCURSOR_H
+#ifndef OM_HGUARD_FLINT_CURSOR_H
+#define OM_HGUARD_FLINT_CURSOR_H
 
-#include "quartz_types.h"
+#include "flint_types.h"
 
 #include <string>
 using std::string;
 
 #define BLK_UNUSED uint4(-1)
 
-class Cursor {
+class Cursor_ {
     private:
         // Prevent copying
-        Cursor(const Cursor &);
-        Cursor & operator=(const Cursor &);
+        Cursor_(const Cursor_ &);
+        Cursor_ & operator=(const Cursor_ &);
 
     public:
 	/// Constructor, to initialise important elements.
-	Cursor() : p(0), c(-1), n(BLK_UNUSED), rewrite(false)
+	Cursor_() : p(0), c(-1), n(BLK_UNUSED), rewrite(false)
 	{}
 
 	/// pointer to a block
@@ -59,18 +59,18 @@ class Cursor {
 	bool rewrite;
 };
 
-class Btree;
+class FlintTable;
 
 /** A cursor pointing to a position in a Btree table, for reading several
  *  entries in order, or finding approximate matches.
  */
-class Bcursor {
+class FlintCursor {
     private:
 	/// Copying not allowed
-        Bcursor(const Bcursor &);
+        FlintCursor(const FlintCursor &);
 
 	/// Assignment not allowed
-        Bcursor & operator=(const Bcursor &);
+        FlintCursor & operator=(const FlintCursor &);
 
 	/** Whether the cursor is positioned at a valid entry.
 	 *
@@ -88,10 +88,10 @@ class Bcursor {
 	bool have_read_tag;
 
 	/// The Btree table
-	Btree * B;
+	FlintTable * B;
 
 	/// Pointer to an array of Cursors
-	Cursor * C;
+	Cursor_ * C;
 
 	/** The value of level in the Btree structure. */
 	int level;
@@ -105,7 +105,7 @@ class Bcursor {
 	 *
 	 *  e.g.
 	 *
-	 *    Bcursor BC(&btree);
+	 *    FlintCursor BC(&btree);
 	 *    string key;
 	 *
 	 *    // Now do something to each key in the Btree
@@ -126,14 +126,14 @@ class Bcursor {
 	 *  the cursor points. A cursor is either positioned or unpositioned,
 	 *  and is initially unpositioned.
 	 *
-	 *  NB: You must not try to use a Bcursor after the Btree it is
-	 *  attached to is destroyed.  It's safe to destroy the Bcursor
-	 *  after the Btree though, you just may not use the Bcursor.
+	 *  NB: You must not try to use a FlintCursor after the Btree it is
+	 *  attached to is destroyed.  It's safe to destroy the FlintCursor
+	 *  after the Btree though, you just may not use the FlintCursor.
 	 */
-	Bcursor(Btree *B);
+	FlintCursor(FlintTable *B);
 
-	/** Destroy the Bcursor */
-	~Bcursor();
+	/** Destroy the FlintCursor */
+	~FlintCursor();
 
 	/** Current key pointed to by cursor.
 	 */
@@ -160,8 +160,8 @@ class Bcursor {
 	 *  Otherwise the cursor is moved to the next item in the B-tree,
 	 *  and the result is true.
 	 *  
-	 *  Effectively, Bcursor::next() loses the position of BC when it drops
-	 *  off the end of the list of items. If this is awkward, one can
+	 *  Effectively, FlintCursor::next() loses the position of BC when it
+	 *  drops off the end of the list of items. If this is awkward, one can
 	 *  always arrange for a key to be present which has a rightmost
 	 *  position in a set of keys,
 	 */
@@ -169,8 +169,8 @@ class Bcursor {
  
 	/** Move to the previous key.
 	 *
-	 *  This is like Bcursor::next, but BC is taken to the previous rather
-	 *  than next item.
+	 *  This is like FlintCursor::next, but BC is taken to the previous
+	 *  rather than next item.
 	 */
 	bool prev();
 
@@ -187,8 +187,8 @@ class Bcursor {
 	 *  point to a null key.
 	 *
 	 *  Note:  Since the B-tree always contains a null key, which precedes
-	 *  everything, a call to Bcursor::find_entry always results in a valid
-	 *  key being pointed to by the cursor.
+	 *  everything, a call to FlintCursor::find_entry always results in a
+	 *  valid key being pointed to by the cursor.
 	 *
 	 *  Note: Calling this method with a null key, then calling next()
 	 *  will leave the cursor pointing to the first key.
@@ -213,4 +213,4 @@ class Bcursor {
 	void del();
 };
 
-#endif /* OM_HGUARD_BCURSOR_H */
+#endif /* OM_HGUARD_FLINT_CURSOR_H */

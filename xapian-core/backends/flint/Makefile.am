@@ -2,35 +2,33 @@
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_builddir)/include
 
-noinst_HEADERS =       quartz_types.h \
-                       quartz_database.h \
-		       quartz_termlist.h \
-		       quartz_postlist.h \
-		       quartz_positionlist.h \
-		       quartz_record.h \
-		       quartz_values.h \
-		       quartz_utils.h \
-		       quartz_log.h \
-		       quartz_document.h \
-		       quartz_alltermslist.h \
-		       quartz_metafile.h \
-		       btree.h \
-		       bcursor.h \
-		       btree_util.h \
-		       btree_base.h
+noinst_HEADERS =       flint_types.h \
+                       flint_database.h \
+		       flint_termlist.h \
+		       flint_postlist.h \
+		       flint_positionlist.h \
+		       flint_record.h \
+		       flint_values.h \
+		       flint_utils.h \
+		       flint_document.h \
+		       flint_alltermslist.h \
+		       flint_metafile.h \
+		       flint_table.h \
+		       flint_cursor.h \
+		       flint_btreeutil.h \
+		       flint_btreebase.h
 
-libflint_la_SOURCES = quartz_database.cc \
-		       quartz_termlist.cc \
-		       quartz_postlist.cc \
-		       quartz_positionlist.cc \
-		       quartz_record.cc \
-		       quartz_values.cc \
-		       quartz_log.cc \
-		       quartz_document.cc \
-		       quartz_alltermslist.cc \
-		       quartz_metafile.cc \
-		       btree.cc \
-		       bcursor.cc \
-		       btree_base.cc
+libflint_la_SOURCES =  flint_database.cc \
+		       flint_termlist.cc \
+		       flint_postlist.cc \
+		       flint_positionlist.cc \
+		       flint_record.cc \
+		       flint_values.cc \
+		       flint_document.cc \
+		       flint_alltermslist.cc \
+		       flint_metafile.cc \
+		       flint_table.cc \
+		       flint_cursor.cc \
+		       flint_btreebase.cc
 
 noinst_LTLIBRARIES = libflint.la

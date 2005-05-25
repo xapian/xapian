@@ -21,10 +21,10 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_BTREE_UTIL_H
-#define OM_HGUARD_BTREE_UTIL_H
+#ifndef OM_HGUARD_FLINT_BTREEUTIL_H
+#define OM_HGUARD_FLINT_BTREEUTIL_H
 
-#include "quartz_types.h"
+#include "flint_types.h"
 #include "omassert.h"
 
 #include <string.h>  /* memset */
@@ -47,7 +47,7 @@
 
 // FIXME: 65536 in Asserts below should really be block_size
 inline int
-GETINT1(const byte *p, int c)
+getint1(const byte *p, int c)
 {
     Assert(c >= 0);
     Assert(c < 65536);
@@ -55,7 +55,7 @@ GETINT1(const byte *p, int c)
 }
 
 inline void
-SETINT1(byte *p, int c, int x)
+setint1(byte *p, int c, int x)
 {
     Assert(c >= 0);
     Assert(c < 65536);
@@ -63,7 +63,7 @@ SETINT1(byte *p, int c, int x)
 }
 
 inline int
-GETINT2(const byte *p, int c)
+getint2(const byte *p, int c)
 {
     Assert(c >= 0);
     Assert(c + 1 < 65536);
@@ -71,7 +71,7 @@ GETINT2(const byte *p, int c)
 }
 
 inline void
-SETINT2(byte *p, int c, int x)
+setint2(byte *p, int c, int x)
 {
     Assert(c >= 0);
     Assert(c + 1 < 65536);
@@ -80,7 +80,7 @@ SETINT2(byte *p, int c, int x)
 }
 
 inline int
-get_int4(const byte *p, int c)
+getint4(const byte *p, int c)
 {
     Assert(c >= 0);
     Assert(c + 3 < 65536);
@@ -88,7 +88,7 @@ get_int4(const byte *p, int c)
 }
 
 inline void
-set_int4(byte *p, int c, int x)
+setint4(byte *p, int c, int x)
 {
     Assert(c >= 0);
     Assert(c + 3 < 65536);
@@ -98,40 +98,8 @@ set_int4(byte *p, int c, int x)
     p[c + 3] = x;
 }
 
-int sys_open_to_read(const string & name);
-int sys_open_to_read_no_except(const string & name);
-int sys_open_to_write(const string & name);
-void sys_unlink_if_exists(const string &filename);
-// Return true on success
-inline bool sys_close(int h) {
-    return close(h) == 0;
-}
+string sys_read_n_bytes(int h, size_t max);
+void sys_write_n_bytes(int h, size_t n, const char *p);
+int sys_sync(int h);
 
-string sys_read_all_bytes(int h, size_t max);
-void sys_write_string(int h, const string &s);
-int sys_flush(int h);
-
-inline byte *zeroed_new(size_t size)
-{
-    byte *temp = new byte[size];
-    if (temp) memset(temp, 0, size);
-
-    return temp;
-}
-
-/** A tiny class used to close a filehandle safely in the presence
- *  of exceptions.
- */
-class fdcloser {
-    public:
-	fdcloser(int fd_) : fd(fd_) {}
-	~fdcloser() {
-	    if (fd >= 0) {
-		sys_close(fd);
-	    }
-	}
-    private:
-	int fd;
-};
-
-#endif /* OM_HGUARD_BTREE_UTIL_H */
+#endif /* OM_HGUARD_FLINT_BTREEUTIL_H */

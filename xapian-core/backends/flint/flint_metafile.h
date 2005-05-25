@@ -1,4 +1,4 @@
-/* quartz_metafile.h: Management of quartz meta-file
+/* flint_metafile.h: Management of flint meta-file
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -22,25 +22,25 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_METAFILE_H
-#define OM_HGUARD_QUARTZ_METAFILE_H
+#ifndef OM_HGUARD_FLINT_METAFILE_H
+#define OM_HGUARD_FLINT_METAFILE_H
 
 #include <string>
 
-/** A class which encapsulates access to the Quartz meta-file, a
+/** A class which encapsulates access to the Flint meta-file, a
  *  small file describing global features of the database.
  */
-class QuartzMetaFile {
+class FlintMetaFile {
     public:
 	/** Constructor.
 	 *
 	 * @param filename_	The name of the meta-file
 	 */
-	QuartzMetaFile(const std::string &filename_)
+	FlintMetaFile(const std::string &filename_)
 	    : filename(filename_) { }
 
 	/** Destructor */
-	~QuartzMetaFile() { }
+	~FlintMetaFile() { }
 
 	/** Open the meta-file.
 	 *
@@ -62,4 +62,4 @@ class QuartzMetaFile {
 	std::string filename;
 };
 
-#endif /* OM_HGUARD_QUARTZ_METAFILE_H */
+#endif /* OM_HGUARD_FLINT_METAFILE_H */

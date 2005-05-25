@@ -1,4 +1,4 @@
-/* quartz_database.h: C++ class definition for quartz database
+/* flint_database.h: C++ class definition for flint database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -22,31 +22,31 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_DATABASE_H
-#define OM_HGUARD_QUARTZ_DATABASE_H
+#ifndef OM_HGUARD_FLINT_DATABASE_H
+#define OM_HGUARD_FLINT_DATABASE_H
 
 #include "database.h"
-#include "quartz_metafile.h"
-#include "quartz_positionlist.h"
-#include "quartz_postlist.h"
-#include "quartz_record.h"
-#include "quartz_termlist.h"
-#include "quartz_values.h"
+#include "flint_metafile.h"
+#include "flint_positionlist.h"
+#include "flint_postlist.h"
+#include "flint_record.h"
+#include "flint_termlist.h"
+#include "flint_values.h"
 
-class QuartzTermList;
+class FlintTermList;
 
-#include "quartz_types.h"
+#include "flint_types.h"
 
 #include <map>
 
-const int OM_DB_READONLY = 0;
+const int XAPIAN_DB_READONLY = 0;
 
 /** A backend designed for efficient indexing and retrieval, using
  *  compressed posting lists and a btree storage scheme.
  */
-class QuartzDatabase : public Xapian::Database::Internal {
-    friend class QuartzWritableDatabase;
-    friend class QuartzTermList;
+class FlintDatabase : public Xapian::Database::Internal {
+    friend class FlintWritableDatabase;
+    friend class FlintTermList;
     private:
 	/** Directory to store databases in.
 	 */
@@ -56,11 +56,11 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	 */
 	bool readonly;
 
-	/** The file describing the Quartz database.
+	/** The file describing the Flint database.
 	 *  This file has information about the format of the database
 	 *  which can't easily be stored in any of the individual tables.
 	 */
-	QuartzMetaFile metafile;
+	FlintMetaFile metafile;
 
 	/** Table storing posting lists.
 	 *
@@ -68,19 +68,19 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	 *  updated: therefore, its most recent revision number is the most
 	 *  recent anywhere in the database.
 	 */
-	QuartzPostListTable postlist_table;
+	FlintPostListTable postlist_table;
 
 	/** Table storing position lists.
 	 */
-	QuartzPositionListTable positionlist_table;
+	FlintPositionListTable positionlist_table;
 
 	/** Table storing term lists.
 	 */
-	QuartzTermListTable termlist_table;
+	FlintTermListTable termlist_table;
 
 	/** Table storing values.
 	 */
-	QuartzValueTable value_table;
+	FlintValueTable value_table;
 
 	/** Table storing records.
 	 *
@@ -90,7 +90,7 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	 *  recent revision number is not available for all tables, there
 	 *  is no consistent revision available, and the database is corrupt.
 	 */
-	QuartzRecordTable record_table;
+	FlintRecordTable record_table;
 
 	/** Return true if a database exists at the path specified for this
 	 *  database.
@@ -123,21 +123,21 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	 *  @exception Xapian::InvalidArgumentError is thrown if the specified
 	 *  revision is not available.
 	 */
-	void open_tables(quartz_revision_number_t revision);
+	void open_tables(flint_revision_number_t revision);
 
 	/** Get an object holding the revision number which the tables are
 	 *  opened at.
 	 *
 	 *  @return the current revision number.
 	 */
-	quartz_revision_number_t get_revision_number() const;
+	flint_revision_number_t get_revision_number() const;
 
 	/** Get an object holding the next revision number which should be
 	 *  used in the tables.
 	 *
 	 *  @return the next revision number.
 	 */
-	quartz_revision_number_t get_next_revision_number() const;
+	flint_revision_number_t get_next_revision_number() const;
 
 	/** Set the revision number in the tables.
 	 *
@@ -149,7 +149,7 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	 *          get_latest_revision_number()), or undefined behaviour will
 	 *          result.
 	 */
-	void set_revision_number(quartz_revision_number_t new_revision);
+	void set_revision_number(flint_revision_number_t new_revision);
 	
 	/** Re-open tables to recover from an overwritten condition,
 	 *  or just get most up-to-date version.
@@ -173,14 +173,14 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	void cancel();
 
     public:
-	/** Create and open a quartz database.
+	/** Create and open a flint database.
 	 *
 	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
 	 *             consistent revision available.
 	 *
 	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
 	 *
-	 *  @param dbdir directory holding quartz tables
+	 *  @param dbdir directory holding flint tables
 	 *
 	 *  @param block_size Block size, in bytes, to use when creating
 	 *                    tables.  This is only important, and has the
@@ -188,10 +188,10 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	 *                    created.  (ie, opened writable for the first
 	 *                    time).
 	 */
-	QuartzDatabase(const string &db_dir_, int action = OM_DB_READONLY,
+	FlintDatabase(const string &db_dir_, int action = XAPIAN_DB_READONLY,
 		       unsigned int block_size = 0u);
 
-	~QuartzDatabase();
+	~FlintDatabase();
 
 	/** Virtual methods of Database.
 	 */
@@ -214,9 +214,9 @@ class QuartzDatabase : public Xapian::Database::Internal {
 	//@}
 };
 
-/** A writable quartz database.
+/** A writable flint database.
  */
-class QuartzWritableDatabase : public Xapian::Database::Internal {
+class FlintWritableDatabase : public Xapian::Database::Internal {
     private:
 	/** Unflushed changes to term frequencies and collection frequencies. */
 	mutable map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> >
@@ -231,11 +231,11 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 
 	/** The readonly database encapsulated in the writable database.
 	 */
-	mutable QuartzDatabase database_ro;
+	mutable FlintDatabase database_ro;
 
 	/** Total length of all documents including unflushed modifications.
 	 */
-	mutable quartz_totlen_t total_length;
+	mutable flint_totlen_t total_length;
 
 	/** Highest document ID ever allocated by this database.
 	 */
@@ -263,15 +263,15 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	//@}
 
     public:
-	/** Create and open a writable quartz database.
+	/** Create and open a writable flint database.
 	 *
 	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
 	 *
-	 *  @param dir directory holding quartz tables
+	 *  @param dir directory holding flint tables
 	 */
-	QuartzWritableDatabase(const string &dir, int action, int block_size);
+	FlintWritableDatabase(const string &dir, int action, int block_size);
 
-	~QuartzWritableDatabase();
+	~FlintWritableDatabase();
 
 	/** Virtual methods of Database.
 	 */
@@ -294,4 +294,4 @@ class QuartzWritableDatabase : public Xapian::Database::Internal {
 	//@}
 };
 
-#endif /* OM_HGUARD_QUARTZ_DATABASE_H */
+#endif /* OM_HGUARD_FLINT_DATABASE_H */

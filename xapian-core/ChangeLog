@@ -1,3 +1,10 @@
+Wed May 25 01:10:51 BST 2005  Olly Betts <olly@survex.com>
+
+	* include/xapian/version.h.in,include/xapian/dbfactory.h,
+	  include/xapian/queryparser.h,backends/quartz/,backends/flint/:
+	  Flint backend hooked in fully, and everything now builds once
+	  more.
+
 Tue May 24 02:30:39 BST 2005  Olly Betts <olly@survex.com>
 
 	* HACKING: Add "email Fabrice" to the release checklist so that RPM

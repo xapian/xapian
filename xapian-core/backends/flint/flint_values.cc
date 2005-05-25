@@ -1,4 +1,4 @@
-/* quartz_values.cc: Values in quartz databases
+/* flint_values.cc: Values in flint databases
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -23,8 +23,8 @@
  */
 
 #include <config.h>
-#include "quartz_values.h"
-#include "quartz_utils.h"
+#include "flint_values.h"
+#include "flint_utils.h"
 #include "utils.h"
 #include <xapian/error.h>
 using std::string;
@@ -33,21 +33,21 @@ using std::make_pair;
 #include "omdebug.h"
 
 void
-QuartzValueTable::make_key(string & key, Xapian::docid did, Xapian::valueno valueno)
+FlintValueTable::make_key(string & key, Xapian::docid did, Xapian::valueno valueno)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzValueTable::make_key",
+    DEBUGCALL_STATIC(DB, void, "FlintValueTable::make_key",
 		     key << ", " << did << ", " << valueno);
     (void)valueno; // no warning
-    key = quartz_docid_to_key(did);
+    key = flint_docid_to_key(did);
 }
 
 void
-QuartzValueTable::unpack_entry(const char ** pos,
+FlintValueTable::unpack_entry(const char ** pos,
 				 const char * end,
 				 Xapian::valueno * this_value_no,
 				 string & this_value)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzValueTable::unpack_entry",
+    DEBUGCALL_STATIC(DB, void, "FlintValueTable::unpack_entry",
 		     "[pos], [end], " << this_value_no << ", " << this_value);
     if (!unpack_uint(pos, end, this_value_no)) {
 	if (*pos == 0) throw Xapian::DatabaseCorruptError("Incomplete item in value table");
@@ -59,16 +59,16 @@ QuartzValueTable::unpack_entry(const char ** pos,
 	else throw Xapian::RangeError("Item in value table is too large");
     }
 
-    DEBUGLINE(DB, "QuartzValueTable::unpack_entry(): value no " <<
+    DEBUGLINE(DB, "FlintValueTable::unpack_entry(): value no " <<
 	      this_value_no << " is `" << this_value << "'");
 }
 
 void
-QuartzValueTable::add_value(const string & value,
+FlintValueTable::add_value(const string & value,
 			      Xapian::docid did,
 			      Xapian::valueno valueno)
 {
-    DEBUGCALL(DB, void, "QuartzValueTable::add_value", value << ", " << did << ", " << valueno);
+    DEBUGCALL(DB, void, "FlintValueTable::add_value", value << ", " << did << ", " << valueno);
     string key;
     make_key(key, did, valueno);
     string tag;
@@ -109,11 +109,11 @@ QuartzValueTable::add_value(const string & value,
 }
 
 void
-QuartzValueTable::get_value(string & value,
+FlintValueTable::get_value(string & value,
 			      Xapian::docid did,
 			      Xapian::valueno valueno) const
 {
-    DEBUGCALL(DB, void, "QuartzValueTable::get_value", value << ", " << did << ", " << valueno);
+    DEBUGCALL(DB, void, "FlintValueTable::get_value", value << ", " << did << ", " << valueno);
     string key;
     make_key(key, did, valueno);
     string tag;
@@ -142,10 +142,10 @@ QuartzValueTable::get_value(string & value,
 }
 
 void
-QuartzValueTable::get_all_values(map<Xapian::valueno, string> & values,
+FlintValueTable::get_all_values(map<Xapian::valueno, string> & values,
 				   Xapian::docid did) const
 {
-    DEBUGCALL(DB, void, "QuartzValueTable::get_all_values", "[values], " << did);
+    DEBUGCALL(DB, void, "FlintValueTable::get_all_values", "[values], " << did);
     string key;
     make_key(key, did, 0);
     string tag;
@@ -167,9 +167,9 @@ QuartzValueTable::get_all_values(map<Xapian::valueno, string> & values,
 }
 
 void
-QuartzValueTable::delete_all_values(Xapian::docid did)
+FlintValueTable::delete_all_values(Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "QuartzValueTable::delete_all_values", did);
+    DEBUGCALL(DB, void, "FlintValueTable::delete_all_values", did);
     string key;
     make_key(key, did, 0);
     del(key);

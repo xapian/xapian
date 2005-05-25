@@ -1,4 +1,4 @@
-/* quartz_metafile.cc: Management of quartz meta-file
+/* flint_metafile.cc: Management of flint meta-file
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -24,12 +24,20 @@
 
 #include <config.h>
 #include <string>
-#include "quartz_metafile.h"
-#include "btree_util.h"
+#include "flint_metafile.h"
+#include "flint_btreeutil.h"
 #include "omassert.h"
 #include "omdebug.h"
 
 using std::string;
+
+// Only useful for platforms like Windows which distinguish between text and
+// binary files.
+#ifndef __WIN32__
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+#endif
 
 static const string metafile_magic = "OMMETA";
 static const unsigned int metafile_version = 1;
@@ -61,42 +69,52 @@ static unsigned int decode_version(const string &s)
     return version;
 }
 
-void QuartzMetaFile::open()
+void FlintMetaFile::open()
 {
-    int fd = sys_open_to_read(filename);
-    string data = sys_read_all_bytes(fd, min_metafile_size + 1);
-    sys_close(fd);
+    int fd = ::open(filename.c_str(), O_RDONLY | O_BINARY);
+    if (fd < 0) {
+	string message = string("Couldn't open metafile ")
+		+ filename + " to read: " + strerror(errno);
+	throw Xapian::DatabaseOpeningError(message);
+    }
+    string data = sys_read_n_bytes(fd, min_metafile_size + 1);
+    (void)close(fd);
 
     if (data.length() < min_metafile_size) {
-	throw Xapian::DatabaseCorruptError("Quartz metafile " + filename +
+	throw Xapian::DatabaseCorruptError("Flint metafile " + filename +
 				     " too short; may be truncated.");
     }
 
     if (data.substr(0, metafile_magic.length()) != metafile_magic) {
-	throw Xapian::DatabaseCorruptError("Quartz metafile " + filename +
+	throw Xapian::DatabaseCorruptError("Flint metafile " + filename +
 				     " is invalid: magic string not found.");
     }
 
     unsigned int version;
     version = decode_version(data.substr(metafile_magic.length(), 4));
     if (version != metafile_version) {
-	throw Xapian::DatabaseOpeningError("Unknown Quartz metafile version " +
+	throw Xapian::DatabaseOpeningError("Unknown Flint metafile version " +
 			     om_tostring(version) + " in " +
 			     filename);
     }
 
     if (data.length() > max_metafile_size) {
-	throw Xapian::DatabaseCorruptError("Quartz metafile " + filename +
+	throw Xapian::DatabaseCorruptError("Flint metafile " + filename +
 				     " contains extra garbage.");
     }
 }
 
-void QuartzMetaFile::create()
+void FlintMetaFile::create()
 {
     string data = metafile_magic;
     data += encode_version(metafile_version);
 
-    int fd = sys_open_to_write(filename);
-    sys_write_string(fd, data);
-    sys_close(fd);
+    int fd = ::open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+    if (fd < 0) {
+	string message = string("Couldn't open metafile ")
+		+ filename + " to write: " + strerror(errno);
+	throw Xapian::DatabaseOpeningError(message);
+    }
+    sys_write_n_bytes(fd, data.length(), data.data());
+    (void)close(fd);
 }

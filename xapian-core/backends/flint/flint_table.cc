@@ -61,11 +61,11 @@ PWRITE_PROTOTYPE
 #include <errno.h>
 #include "autoptr.h"
 
-#include "btree.h"
-#include "btree_util.h"
-#include "btree_base.h"
-#include "bcursor.h"
-#include "quartz_utils.h"
+#include "flint_table.h"
+#include "flint_btreeutil.h"
+#include "flint_btreebase.h"
+#include "flint_cursor.h"
+#include "flint_utils.h"
 
 #include "omassert.h"
 #include "omdebug.h"
@@ -90,7 +90,7 @@ PWRITE_PROTOTYPE
 using std::min;
 using std::string;
 
-const string::size_type Btree::max_key_len;
+const string::size_type FlintTable::max_key_len;
 
 //#define BTREE_DEBUG_FULL 1
 #undef BTREE_DEBUG_FULL
@@ -102,7 +102,7 @@ static void print_key(const byte * p, int c, int j);
 static void print_tag(const byte * p, int c, int j);
 
 /*
-static void report_cursor(int N, Btree * B, Cursor * C)
+static void report_cursor(int N, Btree * B, Cursor_ * C)
 {
     int i;
     printf("%d)\n", N);
@@ -117,30 +117,13 @@ static void report_cursor(int N, Btree * B, Cursor * C)
 
 /* Input/output is defined with calls to the basic Unix system interface: */
 
-int sys_open_to_read_no_except(const string & name)
-{
-    int fd = open(name.c_str(), O_RDONLY | O_BINARY);
-    return fd;
-}
-
-int sys_open_to_read(const string & name)
-{
-    int fd = sys_open_to_read_no_except(name);
-    if (fd < 0) {
-	string message = string("Couldn't open ")
-		+ name + " to read: " + strerror(errno);
-	throw Xapian::DatabaseOpeningError(message);
-    }
-    return fd;
-}
-
 static int sys_open_to_write_no_except(const string & name)
 {
     int fd = open(name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
     return fd;
 }
 
-int sys_open_to_write(const string & name)
+static int sys_open_to_write(const string & name)
 {
     int fd = sys_open_to_write_no_except(name);
     if (fd < 0) {
@@ -162,8 +145,10 @@ static int sys_open_for_readwrite(const string & name)
     return fd;
 }
 
-static void sys_write_bytes(int h, int n, const char * p)
+void sys_write_n_bytes(int h, size_t n_, const char * p)
 {
+    ssize_t n = n_;
+    Assert(n >= 0);
     while (true) {
 	ssize_t bytes_written = write(h, p, n);
 	if (bytes_written == n) {
@@ -187,7 +172,7 @@ static void sys_write_bytes(int h, int n, const char * p)
     }
 }
 
-string sys_read_all_bytes(int h, size_t bytes_to_read)
+string sys_read_n_bytes(int h, size_t bytes_to_read)
 {
     ssize_t bytes_read;
     string retval;
@@ -214,13 +199,7 @@ string sys_read_all_bytes(int h, size_t bytes_to_read)
     return retval;
 }
 
-void
-sys_write_string(int h, const string &s)
-{
-    sys_write_bytes(h, s.length(), s.data());
-}
-
-int sys_flush(int h) {
+int sys_sync(int h) {
 #if defined HAVE_FDATASYNC
     return (fdatasync(h) != -1);
 #elif defined HAVE_FSYNC
@@ -243,6 +222,83 @@ static void sys_unlink(const string &filename)
     }
 }
 
+static inline byte *zeroed_new(size_t size)
+{
+    byte *temp = new byte[size];
+    if (temp) memset(temp, 0, size);
+
+    return temp;
+}
+
+/* A B-tree comprises (a) a base file, containing essential information (Block
+   size, number of the B-tree root block etc), (b) a bitmap, the Nth bit of the
+   bitmap being set if the Nth block of the B-tree file is in use, and (c) a
+   file DB containing the B-tree proper. The DB file is divided into a sequence
+   of equal sized blocks, numbered 0, 1, 2 ... some of which are free, some in
+   use. Those in use are arranged in a tree.
+
+   Each block, b, has a structure like this:
+
+     R L M T D o1 o2 o3 ... oN <gap> [item] .. [item] .. [item] ...
+     <---------- D ----------> <-M->
+
+   And then,
+
+   R = REVISION(b)  is the revision number the B-tree had when the block was
+                    written into the DB file.
+   L = GET_LEVEL(b) is the level of the block, which is the number of levels
+                    towards the root of the B-tree structure. So leaf blocks
+                    have level 0 and the one root block has the highest level
+                    equal to the number of levels in the B-tree.
+   M = MAX_FREE(b)  is the size of the gap between the end of the directory and
+                    the first item of data. (It is not necessarily the maximum
+                    size among the bits of space that are free, but I can't
+                    think of a better name.)
+   T = TOTAL_FREE(b)is the total amount of free space left in b.
+   D = DIR_END(b)   gives the offset to the end of the directory.
+
+   o1, o2 ... oN are a directory of offsets to the N items held in the block.
+   The items are key-tag pairs, and as they occur in the directory are ordered
+   by the keys.
+
+   An item has this form:
+
+           I K key x C tag
+             <--K-->
+           <------I------>
+
+   A long tag presented through the API is split up into C tags small enough to
+   be accommodated in the blocks of the B-tree. The key is extended to include
+   a counter, x, which runs from 1 to C. The key is preceded by a length, K,
+   and the whole item with a length, I, as depicted above.
+
+   Here are the corresponding definitions:
+
+*/
+
+#define REVISION(b)      static_cast<unsigned int>(getint4(b, 0))
+#define GET_LEVEL(b)     getint1(b, 4)
+#define MAX_FREE(b)      getint2(b, 5)
+#define TOTAL_FREE(b)    getint2(b, 7)
+#define DIR_END(b)       getint2(b, 9)
+#define DIR_START        11
+
+#define SET_REVISION(b, x)      setint4(b, 0, x)
+#define SET_LEVEL(b, x)         setint1(b, 4, x)
+#define SET_MAX_FREE(b, x)      setint2(b, 5, x)
+#define SET_TOTAL_FREE(b, x)    setint2(b, 7, x)
+#define SET_DIR_END(b, x)       setint2(b, 9, x)
+
+/** Flip to sequential addition block-splitting after this number of observed
+ *  sequential additions (in negated form). */
+#define SEQ_START_POINT (-10)
+
+/** Even for items of at maximum size, it must be possible to get this number of
+ *  items in a block */
+#define BLOCK_CAPACITY 4
+
+
+
 /* There are two bit maps in bit_map0 and bit_map. The nth bit of bitmap is 0
    if the nth block is free, otherwise 1. bit_map0 is the initial state of
    bitmap at the start of the current transaction.
@@ -259,10 +315,10 @@ static void sys_unlink(const string &filename)
 
 /// read_block(n, p) reads block n of the DB file to address p.
 void
-Btree::read_block(uint4 n, byte * p) const
+FlintTable::read_block(uint4 n, byte * p) const
 {
     // Log the value of p, not the contents of the block it points to...
-    DEBUGCALL(DB, void, "Btree::read_block", n << ", " << (void*)p);
+    DEBUGCALL(DB, void, "FlintTable::read_block", n << ", " << (void*)p);
     /* Use the base bit_map_size not the bitmap's size, because
      * the latter is uninitialised in readonly mode.
      */
@@ -331,9 +387,9 @@ Btree::read_block(uint4 n, byte * p) const
  *  subsequently as an invalid base.
  */
 void
-Btree::write_block(uint4 n, const byte * p) const
+FlintTable::write_block(uint4 n, const byte * p) const
 {
-    DEBUGCALL(DB, void, "Btree::write_block", n << ", " << p);
+    DEBUGCALL(DB, void, "FlintTable::write_block", n << ", " << p);
     Assert(writable);
     /* Check that n is in range. */
     Assert(n / CHAR_BIT < base.get_bit_map_size());
@@ -383,7 +439,7 @@ Btree::write_block(uint4 n, const byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    sys_write_bytes(handle, block_size, (const char *)p);
+    sys_write_n_bytes(handle, block_size, (const char *)p);
 #endif
 }
 
@@ -410,9 +466,9 @@ Btree::write_block(uint4 n, const byte * p) const
 
 
 void
-Btree::set_overwritten() const
+FlintTable::set_overwritten() const
 {
-    DEBUGCALL(DB, void, "Btree::set_overwritten", "");
+    DEBUGCALL(DB, void, "FlintTable::set_overwritten", "");
     // If we're writable, there shouldn't be another writer who could cause
     // overwritten to be flagged, so that's a DatabaseCorruptError.
     if (writable)
@@ -431,9 +487,9 @@ Btree::set_overwritten() const
 */
 
 void
-Btree::block_to_cursor(Cursor * C_, int j, uint4 n) const
+FlintTable::block_to_cursor(Cursor_ * C_, int j, uint4 n) const
 {
-    DEBUGCALL(DB, void, "Btree::block_to_cursor", (void*)C_ << ", " << j << ", " << n);
+    DEBUGCALL(DB, void, "FlintTable::block_to_cursor", (void*)C_ << ", " << j << ", " << n);
     if (n == C_[j].n) return;
     byte * p = C_[j].p;
     Assert(p);
@@ -448,7 +504,7 @@ Btree::block_to_cursor(Cursor * C_, int j, uint4 n) const
     // Check if the block is in the built-in cursor (potentially in
     // modified form).
     if (writable && n == C[j].n) {
-	if (C != C_) memcpy(p, C[j].p, block_size);
+	memcpy(p, C[j].p, block_size);
     } else {
 	read_block(n, p);
     }
@@ -486,9 +542,9 @@ Btree::block_to_cursor(Cursor * C_, int j, uint4 n) const
 */
 
 void
-Btree::alter()
+FlintTable::alter()
 {
-    DEBUGCALL(DB, void, "Btree::alter", "");
+    DEBUGCALL(DB, void, "FlintTable::alter", "");
     Assert(writable);
 #ifdef DANGEROUS
     C[0].rewrite = true;
@@ -513,7 +569,7 @@ Btree::alter()
 	if (j == level) return;
 	j++;
 	p = C[j].p;
-	Item_wr(p, C[j].c).set_block_given_by(n);
+	Item_wr_(p, C[j].c).set_block_given_by(n);
     }
 #endif
 }
@@ -530,24 +586,24 @@ Btree::alter()
    c if possible.
 */
 
-int Btree::find_in_block(const byte * p, Key key, bool leaf, int c)
+int FlintTable::find_in_block(const byte * p, Key_ key, bool leaf, int c)
 {
-    DEBUGCALL_STATIC(DB, int, "Btree::find_in_block", (void*)p << ", " << (void*)key.get_address() << ", " << leaf << ", " << c);
+    DEBUGCALL_STATIC(DB, int, "FlintTable::find_in_block", (void*)p << ", " << (void*)key.get_address() << ", " << leaf << ", " << c);
     int i = DIR_START;
     if (leaf) i -= D2;
     int j = DIR_END(p);
 
     if (c != -1) {
-	if (c < j && i < c && Item(p, c).key() <= key)
+	if (c < j && i < c && Item_(p, c).key() <= key)
 	    i = c;
 	c += D2;
-	if (c < j && i < c && key < Item(p, c).key())
+	if (c < j && i < c && key < Item_(p, c).key())
 	    j = c;
     }
 
     while (j - i > D2) {
 	int k = i + ((j - i)/(D2 * 2))*D2; /* mid way */
-	if (key < Item(p, k).key()) j = k; else i = k;
+	if (key < Item_(p, k).key()) j = k; else i = k;
     }
     RETURN(i);
 }
@@ -560,32 +616,32 @@ int Btree::find_in_block(const byte * p, Key key, bool leaf, int c)
 */
 
 bool
-Btree::find(Cursor * C_) const
+FlintTable::find(Cursor_ * C_) const
 {
-    DEBUGCALL(DB, bool, "Btree::find", (void*)C_);
-    // Note: the parameter is needed when we're called by BCursor
+    DEBUGCALL(DB, bool, "FlintTable::find", (void*)C_);
+    // Note: the parameter is needed when we're called by FlintCursor
     const byte * p;
     int c;
-    Key key = kt.key();
+    Key_ key = kt.key();
     for (int j = level; j > 0; --j) {
 	p = C_[j].p;
 	c = find_in_block(p, key, false, C_[j].c);
 #ifdef BTREE_DEBUG_FULL
-	printf("Block in Btree:find - code position 1");
+	printf("Block in FlintTable:find - code position 1");
 	report_block_full(j, C_[j].n, p);
 #endif /* BTREE_DEBUG_FULL */
 	C_[j].c = c;
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, Item_(p, c).block_given_by());
     }
     p = C_[0].p;
     c = find_in_block(p, key, true, C_[0].c);
 #ifdef BTREE_DEBUG_FULL
-    printf("Block in Btree:find - code position 2");
+    printf("Block in FlintTable:find - code position 2");
     report_block_full(0, C_[0].n, p);
 #endif /* BTREE_DEBUG_FULL */
     C_[0].c = c;
     if (c < DIR_START) RETURN(false);
-    RETURN(Item(p, c).key() == key);
+    RETURN(Item_(p, c).key() == key);
 }
 
 /** compact(p) compact the block at p by shuffling all the items up to the end.
@@ -594,19 +650,19 @@ Btree::find(Cursor * C_) const
 */
 
 void
-Btree::compact(byte * p)
+FlintTable::compact(byte * p)
 {
-    DEBUGCALL(DB, void, "Btree::compact", (void*)p);
+    DEBUGCALL(DB, void, "FlintTable::compact", (void*)p);
     Assert(writable);
     int e = block_size;
     byte * b = buffer;
     int dir_end = DIR_END(p);
     for (int c = DIR_START; c < dir_end; c += D2) {
-	Item item(p, c);
+	Item_ item(p, c);
 	int l = item.size();
 	e -= l;
 	memmove(b + e, item.get_address(), l);
-	SETD(p, c, e);  /* reform in b */
+	setD(p, c, e);  /* reform in b */
     }
     memmove(p + e, b + e, block_size - e);  /* copy back */
     e -= dir_end;
@@ -618,9 +674,9 @@ Btree::compact(byte * p)
  *  and construct a new one.
  */
 void
-Btree::split_root(uint4 split_n)
+FlintTable::split_root(uint4 split_n)
 {
-    DEBUGCALL(DB, void, "Btree::split_root", split_n);
+    DEBUGCALL(DB, void, "FlintTable::split_root", split_n);
     /* gain a level */
     ++level;
 
@@ -645,7 +701,7 @@ Btree::split_root(uint4 split_n)
 
     /* form a null key in b with a pointer to the old root */
     byte b[10]; /* 7 is exact */
-    Item_wr item(b, false); // XXX
+    Item_wr_ item(b);
     item.form_null_key(split_n);
     add_item(item, level);
 }
@@ -666,7 +722,7 @@ Btree::split_root(uint4 split_n)
    block split, with a further call to enter_key. Hence the recursion.
 */
 void
-Btree::enter_key(int j, Key prevkey, Key newkey)
+FlintTable::enter_key(int j, Key_ prevkey, Key_ newkey)
 {
     Assert(writable);
     Assert(prevkey < newkey);
@@ -674,7 +730,7 @@ Btree::enter_key(int j, Key prevkey, Key newkey)
 
     uint4 blocknumber = C[j - 1].n;
 
-    // FIXME update to use Key
+    // FIXME update to use Key_
     // Keys are truncated here: but don't truncate the count at the end away.
     const int newkey_len = newkey.length();
     int i;
@@ -699,7 +755,7 @@ Btree::enter_key(int j, Key prevkey, Key newkey)
     }
 
     byte b[UCHAR_MAX + 6];
-    Item_wr item(b, false); // XXX
+    Item_wr_ item(b);
     Assert(I2 + i + C2 <= 256);
     Assert(I2 + i + C2 + 4 <= (int)sizeof(b));
     item.set_key_and_block(newkey, i, blocknumber);
@@ -709,10 +765,10 @@ Btree::enter_key(int j, Key prevkey, Key newkey)
     // saving in disk use.  Other redundant keys will still creep in though.
     if (j > 1) {
 	byte * p = C[j - 1].p;
-	uint4 n = get_int4(newkey.get_address(), newkey_len + K1 + C2);
+	uint4 n = getint4(newkey.get_address(), newkey_len + K1 + C2);
 	int new_total_free = TOTAL_FREE(p) + newkey_len + C2;
 	// FIXME: incredibly icky going from key to item like this...
-	Item_wr((byte *)newkey.get_address() - I2, false).form_null_key(n); // XXX lose the - I2
+	Item_wr_((byte *)newkey.get_address() - I2).form_null_key(n);
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
@@ -726,13 +782,13 @@ Btree::enter_key(int j, Key prevkey, Key newkey)
  */
 
 int
-Btree::mid_point(byte * p)
+FlintTable::mid_point(byte * p)
 {
     int n = 0;
     int dir_end = DIR_END(p);
     int size = block_size - TOTAL_FREE(p) - dir_end;
     for (int c = DIR_START; c < dir_end; c += D2) {
-	int l = Item(p, c).size();
+	int l = Item_(p, c).size();
 	n += 2 * l;
 	if (n >= size) {
 	    if (l < n - size) return c;
@@ -754,7 +810,7 @@ Btree::mid_point(byte * p)
 */
 
 void
-Btree::add_item_to_block(byte * p, Item_wr kt_, int c)
+FlintTable::add_item_to_block(byte * p, Item_wr_ kt_, int c)
 {
     Assert(writable);
     int dir_end = DIR_END(p);
@@ -777,7 +833,7 @@ Btree::add_item_to_block(byte * p, Item_wr kt_, int c)
     SET_DIR_END(p, dir_end);
 
     int o = dir_end + new_max;
-    SETD(p, c, o);
+    setD(p, c, o);
     memmove(p + o, kt_.get_address(), kt_len);
 
     SET_MAX_FREE(p, new_max);
@@ -785,13 +841,13 @@ Btree::add_item_to_block(byte * p, Item_wr kt_, int c)
     SET_TOTAL_FREE(p, new_total);
 }
 
-/** Btree::add_item(kt_, j) adds item kt_ to the block at cursor level C[j].
+/** FlintTable::add_item(kt_, j) adds item kt_ to the block at cursor level C[j].
  *
  *  If there is not enough room the block splits and the item is then
  *  added to the appropriate half.
  */
 void
-Btree::add_item(Item_wr kt_, int j)
+FlintTable::add_item(Item_wr_ kt_, int j)
 {
     Assert(writable);
     byte * p = C[j].p;
@@ -861,8 +917,8 @@ Btree::add_item(Item_wr kt_, int j)
 	/* Enter a separating key at level j + 1 between */
 	/* the last key of block split_p, and the first key of block p */
 	enter_key(j + 1,
-		  Item(split_p, DIR_END(split_p) - D2).key(),
-		  Item(p, DIR_START).key());
+		  Item_(split_p, DIR_END(split_p) - D2).key(),
+		  Item_(p, DIR_START).key());
     } else {
 	add_item_to_block(p, kt_, c);
 	n = C[j].n;
@@ -873,7 +929,7 @@ Btree::add_item(Item_wr kt_, int j)
     }
 }
 
-/** Btree::delete_item(j, repeatedly) is (almost) the converse of add_item.
+/** FlintTable::delete_item(j, repeatedly) is (almost) the converse of add_item.
  *
  * If repeatedly is true, the process repeats at the next level when a
  * block has been completely emptied, freeing the block and taking out
@@ -881,12 +937,12 @@ Btree::add_item(Item_wr kt_, int j)
  * reduces the number of levels in the B-tree.
  */
 void
-Btree::delete_item(int j, bool repeatedly)
+FlintTable::delete_item(int j, bool repeatedly)
 {
     Assert(writable);
     byte * p = C[j].p;
     int c = C[j].c;
-    int kt_len = Item(p, c).size(); /* size of the item to be deleted */
+    int kt_len = Item_(p, c).size(); /* size of the item to be deleted */
     int dir_end = DIR_END(p) - D2;   /* directory length will go down by 2 bytes */
 
     memmove(p + c, p + c + D2, dir_end - c);
@@ -907,7 +963,7 @@ Btree::delete_item(int j, bool repeatedly)
 	Assert(j == level);
 	while (dir_end == DIR_START + D2 && level > 0) {
 	    /* single item in the root block, so lose a level */
-	    uint4 new_root = Item(p, DIR_START).block_given_by();
+	    uint4 new_root = Item_(p, DIR_START).block_given_by();
 	    delete [] p;
 	    C[level].p = 0;
 	    base.free_block(C[level].n);
@@ -953,7 +1009,7 @@ static addcount = 0;
 */
 
 int
-Btree::add_kt(bool found)
+FlintTable::add_kt(bool found)
 {
     Assert(writable);
     int components = 0;
@@ -972,11 +1028,11 @@ Btree::add_kt(bool found)
 
 	byte * p = C[0].p;
 	int c = C[0].c;
-	Item item(p, c);
+	Item_ item(p, c);
 	int kt_size = kt.size();
 	int needed = kt_size - item.size();
 
-	components = Item(p, c).components_of();
+	components = Item_(p, c).components_of();
 
 	if (needed <= 0) {
 	    /* simple replacement */
@@ -989,7 +1045,7 @@ Btree::add_kt(bool found)
 	    if (new_max >= 0) {
 		int o = DIR_END(p) + new_max;
 		memmove(p + o, kt.get_address(), kt_size);
-		SETD(p, c, o);
+		setD(p, c, o);
 		SET_MAX_FREE(p, new_max);
 		SET_TOTAL_FREE(p, TOTAL_FREE(p) - needed);
 	    } else {
@@ -1018,7 +1074,7 @@ Btree::add_kt(bool found)
 */
 
 int
-Btree::delete_kt()
+FlintTable::delete_kt()
 {
     Assert(writable);
 
@@ -1035,14 +1091,14 @@ Btree::delete_kt()
     }
     */
     if (found) {
-	components = Item(C[0].p, C[0].c).components_of();
+	components = Item_(C[0].p, C[0].c).components_of();
 	alter();
 	delete_item(0, true);
     }
     return components;
 }
 
-/* Btree::form_key(key) treats address kt as an item holder and fills in
+/* FlintTable::form_key(key) treats address kt as an item holder and fills in
 the key part:
 
 	   (I) K key c (C tag)
@@ -1051,12 +1107,12 @@ The bracketed parts are left blank. The key is filled in with key_len bytes and
 K set accordingly. c is set to 1.
 */
 
-void Btree::form_key(const string & key) const
+void FlintTable::form_key(const string & key) const
 {
     kt.form_key(key);
 }
 
-/* Btree::add(key, tag) adds the key/tag item to the
+/* FlintTable::add(key, tag) adds the key/tag item to the
    B-tree, replacing any existing item with the same key.
 
    For a long tag, we end up having to add m components, of the form
@@ -1080,17 +1136,17 @@ void Btree::form_key(const string & key) const
 */
 
 bool
-Btree::add(const string &key, string tag)
+FlintTable::add(const string &key, string tag)
 {
-    DEBUGCALL(DB, bool, "Btree::add", key << ", " << tag);
+    DEBUGCALL(DB, bool, "FlintTable::add", key << ", " << tag);
     Assert(writable);
 
-    if (key.size() > Btree::max_key_len) {
+    if (key.size() > FlintTable::max_key_len) {
 	throw Xapian::InvalidArgumentError(
-		"Key too long: length was " +
+		"Key_ too long: length was " +
 		om_tostring(key.size()) +
 		" bytes, maximum length of a key is " + 
-		STRINGIZE(Btree::max_key_len) + " bytes");
+		STRINGIZE(FlintTable::max_key_len) + " bytes");
     }
 
     form_key(key);
@@ -1162,20 +1218,20 @@ Btree::add(const string &key, string tag)
     RETURN(true);
 }
 
-/* Btree::del(key) returns false if the key is not in the B-tree,
+/* FlintTable::del(key) returns false if the key is not in the B-tree,
    otherwise deletes it and returns true.
 
-   Again, this is parallel to Btree::add, but simpler in form.
+   Again, this is parallel to FlintTable::add, but simpler in form.
 */
 
 bool
-Btree::del(const string &key)
+FlintTable::del(const string &key)
 {
-    DEBUGCALL(DB, bool, "Btree::del", key);
+    DEBUGCALL(DB, bool, "FlintTable::del", key);
     Assert(writable);
 
     // We can't delete a key which we is too long for us to store.
-    if (key.size() > Btree::max_key_len) RETURN(false);
+    if (key.size() > FlintTable::max_key_len) RETURN(false);
 
     if (key.empty()) RETURN(false);
     form_key(key);
@@ -1194,29 +1250,29 @@ Btree::del(const string &key)
 }
 
 bool
-Btree::get_exact_entry(const string &key, string & tag) const
+FlintTable::get_exact_entry(const string &key, string & tag) const
 {
-    DEBUGCALL(DB, bool, "Btree::get_exact_entry", key << ", " << tag);
+    DEBUGCALL(DB, bool, "FlintTable::get_exact_entry", key << ", " << tag);
     Assert(!key.empty());
 
     // An oversized key can't exist, so attempting to search for it should fail.
-    if (key.size() > Btree::max_key_len) RETURN(false);
+    if (key.size() > FlintTable::max_key_len) RETURN(false);
 
     RETURN(find_tag(key, &tag));
 }
 
 bool
-Btree::find_key(const string &key) const
+FlintTable::find_key(const string &key) const
 {
-    DEBUGCALL(DB, bool, "Btree::find_key", key);
+    DEBUGCALL(DB, bool, "FlintTable::find_key", key);
     form_key(key);
     RETURN(find(C));
 }
 
 bool
-Btree::find_tag(const string &key, string * tag) const
+FlintTable::find_tag(const string &key, string * tag) const
 {
-    DEBUGCALL(DB, bool, "Btree::find_tag", key << ", &tag");
+    DEBUGCALL(DB, bool, "FlintTable::find_tag", key << ", &tag");
     form_key(key);
     if (!find(C)) RETURN(false);
 
@@ -1225,9 +1281,9 @@ Btree::find_tag(const string &key, string * tag) const
 }
 
 void
-Btree::read_tag(Cursor * C_, string *tag) const
+FlintTable::read_tag(Cursor_ * C_, string *tag) const
 {
-    Item item(C_[0].p, C_[0].c);
+    Item_ item(C_[0].p, C_[0].c);
 
     /* n components to join */
     int n = item.components_of();
@@ -1241,14 +1297,14 @@ Btree::read_tag(Cursor * C_, string *tag) const
 
     for (int i = 2; i <= n; i++) {
 	next(C_, 0);
-	(void)Item(C_[0].p, C_[0].c).append_chunk(tag);
+	(void)Item_(C_[0].p, C_[0].c).append_chunk(tag);
     }
     // At this point the cursor is on the last item - calling next will move
-    // it to the next key (Bcursor::get_tag() relies on this).
+    // it to the next key (FlintCursor::get_tag() relies on this).
 }
 
 void
-Btree::set_full_compaction(bool parity)
+FlintTable::set_full_compaction(bool parity)
 {
     Assert(writable);
 
@@ -1256,15 +1312,15 @@ Btree::set_full_compaction(bool parity)
     full_compaction = parity;
 }
 
-Bcursor * Btree::cursor_get() const {
+FlintCursor * FlintTable::cursor_get() const {
     // FIXME Ick - casting away const is nasty
-    return new Bcursor(const_cast<Btree *>(this));
+    return new FlintCursor(const_cast<FlintTable *>(this));
 }
 
 /************ B-tree opening and closing ************/
 
 bool
-Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
+FlintTable::basic_open(bool revision_supplied, flint_revision_number_t revision_)
 {
     int ch = 'X'; /* will be 'A' or 'B' */
 
@@ -1274,7 +1330,7 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	basenames.push_back('A');
 	basenames.push_back('B');
 
-	vector<Btree_base> bases(basenames.size());
+	vector<FlintTable_base> bases(basenames.size());
 	vector<bool> base_ok(basenames.size());
 
 	for (size_t i = 0; i < basenames.size(); ++i) {
@@ -1308,7 +1364,7 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 		return false;
 	    }
 	} else {
-	    quartz_revision_number_t highest_revision = 0;
+	    flint_revision_number_t highest_revision = 0;
 	    for (size_t i = 0; i < basenames.size(); ++i) {
 		if (base_ok[i] && bases[i].get_revision() >= highest_revision) {
 		    ch = basenames[i];
@@ -1317,8 +1373,8 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	    }
 	}
 
-	Btree_base *basep = 0;
-	Btree_base *other_base = 0;
+	FlintTable_base *basep = 0;
+	FlintTable_base *other_base = 0;
 
 	for (size_t i = 0; i < basenames.size(); ++i) {
 	    DEBUGLINE(UNKNOWN, "Checking (ch == " << ch << ") against "
@@ -1365,7 +1421,7 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
     }
 
     /* kt holds constructed items as well as keys */
-    kt = Item_wr(zeroed_new(block_size), true); // XXX
+    kt = Item_wr_(zeroed_new(block_size));
     if (kt.get_address() == 0) {
 	throw std::bad_alloc();
     }
@@ -1380,7 +1436,7 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 }
 
 void
-Btree::read_root()
+FlintTable::read_root()
 {
     if (faked_root_block) {
 	/* root block for an unmodified database. */
@@ -1393,9 +1449,9 @@ Btree::read_root()
 	memset(p, 0, block_size);
 
 	int o = block_size - I2 - K1 - C2 - C2;
-	Item_wr(p + o, false).fake_root_item(); // XXX
+	Item_wr_(p + o).fake_root_item();
 
-	SETD(p, DIR_START, o);         // its directory entry
+	setD(p, DIR_START, o);         // its directory entry
 	SET_DIR_END(p, DIR_START + D2);// the directory size
 
 	o -= (DIR_START + D2);
@@ -1423,7 +1479,7 @@ Btree::read_root()
 }
 
 bool
-Btree::do_open_to_write(bool revision_supplied, quartz_revision_number_t revision_)
+FlintTable::do_open_to_write(bool revision_supplied, flint_revision_number_t revision_)
 {
     /* FIXME: do the exception safety the right way, by making all the
      * parts into sensible objects.
@@ -1442,8 +1498,8 @@ Btree::do_open_to_write(bool revision_supplied, quartz_revision_number_t revisio
 
     handle = sys_open_for_readwrite(name + "DB");
 
-    prev_ptr = &Btree::prev_default;
-    next_ptr = &Btree::next_default;
+    prev_ptr = &FlintTable::prev_default;
+    next_ptr = &FlintTable::next_default;
 
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
@@ -1473,7 +1529,7 @@ Btree::do_open_to_write(bool revision_supplied, quartz_revision_number_t revisio
     return true;
 }
 
-Btree::Btree(string path_, bool readonly_)
+FlintTable::FlintTable(string path_, bool readonly_)
 	: revision_number(0),
 	  item_count(0),
 	  block_size(0),
@@ -1485,7 +1541,7 @@ Btree::Btree(string path_, bool readonly_)
 	  handle(-1),
 	  level(0),
 	  root(0),
-	  kt(0, true), // XXX
+	  kt(0),
 	  buffer(0),
 	  base(),
 	  other_base_letter(0),
@@ -1500,12 +1556,12 @@ Btree::Btree(string path_, bool readonly_)
 	  dont_close_handle(false),
 	  split_p(0)
 {
-    DEBUGCALL(DB, void, "Btree::Btree", path_ << ", " << readonly_);
+    DEBUGCALL(DB, void, "FlintTable::Btree", path_ << ", " << readonly_);
 }
 
 bool
-Btree::exists() const {
-    DEBUGCALL(DB, bool, "Btree::exists", "");
+FlintTable::exists() const {
+    DEBUGCALL(DB, bool, "FlintTable::exists", "");
     return (file_exists(name + "DB") &&
 	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
 }
@@ -1513,7 +1569,7 @@ Btree::exists() const {
 /** Delete file, throwing an error if can't delete it (but not if it
  *  doesn't exist)
  */
-void
+static void
 sys_unlink_if_exists(const string & filename)
 {
     if (unlink(filename) == -1) {
@@ -1524,15 +1580,15 @@ sys_unlink_if_exists(const string & filename)
 }
 
 void
-Btree::create(unsigned int block_size_)
+FlintTable::create(unsigned int block_size_)
 {
-    DEBUGCALL(DB, void, "Btree::create", block_size_);
+    DEBUGCALL(DB, void, "FlintTable::create", block_size_);
     close();
 
     // Block size must in the range 2048..BYTE_PAIR_RANGE, and a power of two.
     if (block_size_ < 2048 || block_size_ > BYTE_PAIR_RANGE ||
 	(block_size_ & (block_size_ - 1)) != 0) {
-	block_size_ = 8192;
+	block_size_ = FLINT_DEFAULT_BLOCK_SIZE;
     }
 
     // FIXME: it would be good to arrange that this works such that there's
@@ -1541,7 +1597,7 @@ Btree::create(unsigned int block_size_)
     /* write initial values to files */
 
     /* create the base file */
-    Btree_base base_;
+    FlintTable_base base_;
     base_.set_block_size(block_size_);
     base_.set_have_fakeroot(true);
     base_.set_sequential(true);
@@ -1552,25 +1608,25 @@ Btree::create(unsigned int block_size_)
 
     /* create the main file */
     int h = sys_open_to_write(name + "DB");
-    if (h == -1 || !sys_close(h)) {
+    if (h == -1 || ::close(h) != 0) {
 	string message = "Error creating DB file: ";
 	message += strerror(errno);
 	throw Xapian::DatabaseOpeningError(message);
     }
 }
 
-Btree::~Btree() {
-    DEBUGCALL(DB, void, "Btree::~Btree", "");
-    Btree::close();
+FlintTable::~FlintTable() {
+    DEBUGCALL(DB, void, "FlintTable::~FlintTable", "");
+    FlintTable::close();
 }
 
-void Btree::close() {
-    DEBUGCALL(DB, void, "Btree::close", "");
+void FlintTable::close() {
+    DEBUGCALL(DB, void, "FlintTable::close", "");
 
     if (handle != -1) {
 	// If an error occurs here, we just ignore it, since we're just
 	// trying to free everything.
-	if (!dont_close_handle) (void)sys_close(handle);
+	if (!dont_close_handle) (void)::close(handle);
 	handle = -1;
     }
 
@@ -1584,9 +1640,9 @@ void Btree::close() {
 }
 
 void
-Btree::commit(quartz_revision_number_t revision)
+FlintTable::commit(flint_revision_number_t revision)
 {
-    DEBUGCALL(DB, void, "Btree::commit", revision);
+    DEBUGCALL(DB, void, "FlintTable::commit", revision);
     Assert(writable);
 
     if (revision <= revision_number) {
@@ -1605,8 +1661,8 @@ Btree::commit(quartz_revision_number_t revision)
 	}
     }
 
-    if (!sys_flush(handle)) {
-	if (!dont_close_handle) (void)sys_close(handle);
+    if (!sys_sync(handle)) {
+	if (!dont_close_handle) (void)::close(handle);
 	handle = -1;
 	throw Xapian::DatabaseError("Can't commit new revision - failed to close DB");
     }
@@ -1655,9 +1711,9 @@ Btree::commit(quartz_revision_number_t revision)
 }
 
 void
-Btree::cancel()
+FlintTable::cancel()
 {
-    DEBUGCALL(DB, void, "Btree::cancel", "");
+    DEBUGCALL(DB, void, "FlintTable::cancel", "");
     Assert(writable);
 
     // This causes problems: if (!Btree_modified) return;
@@ -1678,8 +1734,8 @@ Btree::cancel()
 
     latest_revision_number = revision_number; // FIXME: we can end up reusing a revision if we opened a btree at an older revision, start to modify it, then cancel...
 
-    prev_ptr = &Btree::prev_default;
-    next_ptr = &Btree::next_default;
+    prev_ptr = &FlintTable::prev_default;
+    next_ptr = &FlintTable::next_default;
 
     for (int j = 0; j <= level; j++) {
 	C[j].n = BLK_UNUSED;
@@ -1695,20 +1751,25 @@ Btree::cancel()
 /************ B-tree reading ************/
 
 void
-Btree::do_open_to_read(bool revision_supplied, quartz_revision_number_t revision_)
+FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revision_)
 {
     if (!basic_open(revision_supplied, revision_)) {
 	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
     }
 
-    handle = sys_open_to_read(name + "DB");
+    handle = ::open(name.c_str(), O_RDONLY | O_BINARY);
+    if (handle < 0) {
+	string message = string("Couldn't open ")
+		+ name + " to read: " + strerror(errno);
+	throw Xapian::DatabaseOpeningError(message);
+    }
 
     if (sequential) {
-	prev_ptr = &Btree::prev_for_sequential;
-	next_ptr = &Btree::next_for_sequential;
+	prev_ptr = &FlintTable::prev_for_sequential;
+	next_ptr = &FlintTable::next_for_sequential;
     } else {
-	prev_ptr = &Btree::prev_default;
-	next_ptr = &Btree::next_default;
+	prev_ptr = &FlintTable::prev_default;
+	next_ptr = &FlintTable::next_default;
     }
 
     for (int j = 0; j <= level; j++) {
@@ -1723,9 +1784,9 @@ Btree::do_open_to_read(bool revision_supplied, quartz_revision_number_t revision
 }
 
 void
-Btree::open()
+FlintTable::open()
 {
-    DEBUGCALL(DB, void, "Btree::open", "");
+    DEBUGCALL(DB, void, "FlintTable::open", "");
     DEBUGLINE(DB, "opening at path " << name);
     close();
 
@@ -1739,9 +1800,9 @@ Btree::open()
 }
 
 bool
-Btree::open(quartz_revision_number_t revision)
+FlintTable::open(flint_revision_number_t revision)
 {
-    DEBUGCALL(DB, bool, "Btree::open", revision);
+    DEBUGCALL(DB, bool, "FlintTable::open", revision);
     DEBUGLINE(DB, "opening for particular revision at path " << name);
     close();
 
@@ -1762,7 +1823,7 @@ Btree::open(quartz_revision_number_t revision)
 }
 
 bool
-Btree::prev_for_sequential(Cursor * C_, int /*dummy*/) const
+FlintTable::prev_for_sequential(Cursor_ * C_, int /*dummy*/) const
 {
     int c = C_[0].c;
     if (c == DIR_START) {
@@ -1794,7 +1855,7 @@ Btree::prev_for_sequential(Cursor * C_, int /*dummy*/) const
 }
 
 bool
-Btree::next_for_sequential(Cursor * C_, int /*dummy*/) const
+FlintTable::next_for_sequential(Cursor_ * C_, int /*dummy*/) const
 {
     byte * p = C_[0].p;
     Assert(p);
@@ -1826,7 +1887,7 @@ Btree::next_for_sequential(Cursor * C_, int /*dummy*/) const
 }
 
 bool
-Btree::prev_default(Cursor * C_, int j) const
+FlintTable::prev_default(Cursor_ * C_, int j) const
 {
     byte * p = C_[j].p;
     int c = C_[j].c;
@@ -1841,13 +1902,13 @@ Btree::prev_default(Cursor * C_, int j) const
     c -= D2;
     C_[j].c = c;
     if (j > 0) {
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, Item_(p, c).block_given_by());
     }
     return true;
 }
 
 bool
-Btree::next_default(Cursor * C_, int j) const
+FlintTable::next_default(Cursor_ * C_, int j) const
 {
     byte * p = C_[j].p;
     int c = C_[j].c;
@@ -1864,9 +1925,9 @@ Btree::next_default(Cursor * C_, int j) const
     }
     C_[j].c = c;
     if (j > 0) {
-	block_to_cursor(C_, j - 1, Item(p, c).block_given_by());
+	block_to_cursor(C_, j - 1, Item_(p, c).block_given_by());
 #ifdef BTREE_DEBUG_FULL
-	printf("Block in Btree:next_default");
+	printf("Block in FlintTable:next_default");
 	report_block_full(j - 1, C_[j - 1].n, C_[j - 1].p);
 #endif /* BTREE_DEBUG_FULL */
     }
@@ -1888,9 +1949,9 @@ Btree::next_default(Cursor * C_, int j) const
    are equal do we compare the counts.
 */
 
-bool Key::operator<(Key key2) const
+bool Key_::operator<(Key_ key2) const
 {
-    DEBUGCALL(DB, bool, "Key::operator<", (void*)key2.p);
+    DEBUGCALL(DB, bool, "Key_::operator<", (void*)key2.p);
     int key1_len = length();
     int key2_len = key2.length();
     if (key1_len == key2_len) {
@@ -1911,9 +1972,9 @@ bool Key::operator<(Key key2) const
     RETURN(key1_len < key2_len);
 }
 
-bool Key::operator==(Key key2) const
+bool Key_::operator==(Key_ key2) const
 {
-    DEBUGCALL(DB, bool, "Key::operator==", (void*)key2.p);
+    DEBUGCALL(DB, bool, "Key_::operator==", (void*)key2.p);
     int key1_len = length();
     if (key1_len != key2.length()) return false;
     // The keys are the same length, so we can compare the counts

@@ -1,4 +1,4 @@
-/* quartz_termlist.cc: Termlists in quartz databases
+/* flint_termlist.cc: Termlists in a flint database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -24,21 +24,21 @@
 
 #include <config.h>
 #include <xapian/error.h>
-#include "quartz_termlist.h"
-#include "quartz_utils.h"
+#include "flint_termlist.h"
+#include "flint_utils.h"
 #include "utils.h"
 
 #include <algorithm>
 using namespace std;
 
 void
-QuartzTermListTable::set_entries(Xapian::docid did,
+FlintTermListTable::set_entries(Xapian::docid did,
 			    Xapian::TermIterator t,
 			    const Xapian::TermIterator &t_end,
-			    quartz_doclen_t doclen_,
+			    flint_doclen_t doclen_,
 			    bool store_termfreqs)
 {
-    DEBUGCALL(DB, void, "QuartzTermList::set_entries", did << ", " << t << ", " << t_end << ", " << doclen_ << ", " << store_termfreqs);
+    DEBUGCALL(DB, void, "FlintTermList::set_entries", did << ", " << t << ", " << t_end << ", " << doclen_ << ", " << store_termfreqs);
     string tag = pack_uint(doclen_);
 
     string v;
@@ -78,37 +78,37 @@ QuartzTermListTable::set_entries(Xapian::docid did,
     tag += pack_uint(size);
     tag += pack_bool(store_termfreqs);
     tag += v;
-    add(quartz_docid_to_key(did), tag);
+    add(flint_docid_to_key(did), tag);
 
-    DEBUGLINE(DB, "QuartzTermList::set_entries() - new entry is `" + tag + "'");
+    DEBUGLINE(DB, "FlintTermList::set_entries() - new entry is `" + tag + "'");
 }
 
 void
-QuartzTermListTable::delete_termlist(Xapian::docid did)
+FlintTermListTable::delete_termlist(Xapian::docid did)
 {
-    DEBUGCALL_STATIC(DB, void, "QuartzTermList::delete_termlist", did);
-    del(quartz_docid_to_key(did));
+    DEBUGCALL_STATIC(DB, void, "FlintTermList::delete_termlist", did);
+    del(flint_docid_to_key(did));
 }
 
 
-QuartzTermList::QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-			       const Btree * table_,
+FlintTermList::FlintTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
+			       const FlintTable * table_,
 			       Xapian::docid did_,
 			       Xapian::doccount doccount_)
 	: this_db(this_db_), did(did_), table(table_),
 	  have_finished(false), current_wdf(0), has_termfreqs(false),
 	  current_termfreq(0), doccount(doccount_)
 {
-    DEBUGCALL(DB, void, "QuartzTermList", "[this_db_], " << table_ << ", "
+    DEBUGCALL(DB, void, "FlintTermList", "[this_db_], " << table_ << ", "
 	      << did << ", " << doccount_);
 
-    string key(quartz_docid_to_key(did));
+    string key(flint_docid_to_key(did));
 
     if (!table->get_exact_entry(key, termlist_part))
 	throw Xapian::DocNotFoundError("Can't read termlist for document "
 				 + om_tostring(did) + ": Not found");
 
-    DEBUGLINE(DB, "QuartzTermList::QuartzTermList() - data is `" + termlist_part + "'");
+    DEBUGLINE(DB, "FlintTermList::FlintTermList() - data is `" + termlist_part + "'");
 
     pos = termlist_part.data();
     end = pos + termlist_part.size();
@@ -133,24 +133,24 @@ QuartzTermList::QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Databas
 }
 
 Xapian::termcount
-QuartzTermList::get_approx_size() const
+FlintTermList::get_approx_size() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "QuartzTermList::get_approx_size", "");
+    DEBUGCALL(DB, Xapian::termcount, "FlintTermList::get_approx_size", "");
     RETURN(termlist_size);
 }
 
-quartz_doclen_t
-QuartzTermList::get_doclength() const
+flint_doclen_t
+FlintTermList::get_doclength() const
 {
-    DEBUGCALL(DB, quartz_doclen_t, "QuartzTermList::get_doclength", "");
+    DEBUGCALL(DB, flint_doclen_t, "FlintTermList::get_doclength", "");
     RETURN(doclen);
 }
 
 
 TermList *
-QuartzTermList::next()
+FlintTermList::next()
 {
-    DEBUGCALL(DB, TermList *, "QuartzTermList::next", "");
+    DEBUGCALL(DB, TermList *, "FlintTermList::next", "");
     if (pos == end) {
 	have_finished = true;
 	RETURN(0);
@@ -191,7 +191,7 @@ QuartzTermList::next()
 	current_termfreq = 0;
     }
  
-    DEBUGLINE(DB, "QuartzTermList::next() - " <<
+    DEBUGLINE(DB, "FlintTermList::next() - " <<
 		  "current_tname=" << current_tname <<
 		  "current_wdf=" << current_wdf <<
 		  "current_termfreq=" << current_termfreq);
@@ -199,39 +199,39 @@ QuartzTermList::next()
 }
 
 bool
-QuartzTermList::at_end() const
+FlintTermList::at_end() const
 {
-    DEBUGCALL(DB, bool, "QuartzTermList::at_end", "");
+    DEBUGCALL(DB, bool, "FlintTermList::at_end", "");
     RETURN(have_finished);
 }
 
 string
-QuartzTermList::get_termname() const
+FlintTermList::get_termname() const
 {
-    DEBUGCALL(DB, string, "QuartzTermList::get_termname", "");
+    DEBUGCALL(DB, string, "FlintTermList::get_termname", "");
     RETURN(current_tname);
 }
 
 Xapian::termcount
-QuartzTermList::get_wdf() const
+FlintTermList::get_wdf() const
 {
-    DEBUGCALL(DB, Xapian::termcount, "QuartzTermList::get_wdf", "");
+    DEBUGCALL(DB, Xapian::termcount, "FlintTermList::get_wdf", "");
     RETURN(current_wdf);
 }
 
 Xapian::doccount
-QuartzTermList::get_termfreq() const
+FlintTermList::get_termfreq() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "QuartzTermList::get_termfreq", "");
+    DEBUGCALL(DB, Xapian::doccount, "FlintTermList::get_termfreq", "");
     if (current_termfreq == 0)
 	current_termfreq = this_db->get_termfreq(current_tname);
     RETURN(current_termfreq);
 }
 
 OmExpandBits
-QuartzTermList::get_weighting() const
+FlintTermList::get_weighting() const
 {
-    DEBUGCALL(DB, OmExpandBits, "QuartzTermList::get_weighting", "");
+    DEBUGCALL(DB, OmExpandBits, "FlintTermList::get_weighting", "");
     Assert(!have_finished);
     Assert(wt != NULL);
 
@@ -239,8 +239,8 @@ QuartzTermList::get_weighting() const
 }
 
 Xapian::PositionIterator
-QuartzTermList::positionlist_begin() const
+FlintTermList::positionlist_begin() const
 {
-    DEBUGCALL(DB, Xapian::PositionIterator, "QuartzTermList::positionlist_begin", "");
+    DEBUGCALL(DB, Xapian::PositionIterator, "FlintTermList::positionlist_begin", "");
     return Xapian::PositionIterator(this_db->open_position_list(did, current_tname));
 }

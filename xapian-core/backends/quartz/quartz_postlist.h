@@ -39,8 +39,8 @@ using namespace std;
 class Bcursor;
 class QuartzDatabase;
 
-class PostlistChunkReader;
-class PostlistChunkWriter;
+class QPostlistChunkReader;
+class QPostlistChunkWriter;
 
 class QuartzPostListTable : public Btree {
     public:
@@ -69,7 +69,7 @@ class QuartzPostListTable : public Btree {
 
 	Xapian::docid get_chunk(const string &tname,
 		Xapian::docid did, bool adding,
-		PostlistChunkReader ** from, PostlistChunkWriter **to);
+		QPostlistChunkReader ** from, QPostlistChunkWriter **to);
 };
 
 /** A postlist in a quartz database.

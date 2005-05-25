@@ -49,15 +49,15 @@ make_key(const string & tname, string & key)
 // Or indexing speed.  Or something...
 const unsigned int CHUNKSIZE = 2000;
 
-/** PostlistChunkWriter is a wrapper which acts roughly as an
+/** QPostlistChunkWriter is a wrapper which acts roughly as an
  *  output iterator on a postlist chunk, taking care of the
  *  messy details.  It's intended to be used with deletion and
  *  replacing of entries, not for adding to the end, when it's
  *  not really needed.
  */
-class PostlistChunkWriter {
+class QPostlistChunkWriter {
     public:
-	PostlistChunkWriter(const string &orig_key_,
+	QPostlistChunkWriter(const string &orig_key_,
 			    bool is_first_chunk_,
 			    const string &tname_,
 			    bool is_last_chunk_);
@@ -239,18 +239,18 @@ static void write_start_of_chunk(string & chunk,
     // works despite this, but it's ugly.
 }
 
-/** PostlistChunkReader is essentially an iterator wrapper
+/** QPostlistChunkReader is essentially an iterator wrapper
  *  around a postlist chunk.  It simply iterates through the
  *  entries in a postlist.
  */
-class PostlistChunkReader {
+class QPostlistChunkReader {
     public:
 	/** Initialise the postlist chunk reader.
 	 *
 	 *  @param first_did  First document id in this chunk.
 	 *  @param data       The tag string with the header removed.
 	 */
-	PostlistChunkReader(Xapian::docid first_did, const string & data_)
+	QPostlistChunkReader(Xapian::docid first_did, const string & data_)
 	    : data(data_), pos(data.data()), end(pos + data.length()), at_end(data.empty()), did(first_did)
 	{
 	    if (!at_end) read_wdf_and_length(&pos, end, &wdf, &doclength);
@@ -288,7 +288,7 @@ class PostlistChunkReader {
 };
 
 void
-PostlistChunkReader::next()
+QPostlistChunkReader::next()
 {
     if (pos == end) {
 	at_end = true;
@@ -298,7 +298,7 @@ PostlistChunkReader::next()
     }
 }
 
-PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
+QPostlistChunkWriter::QPostlistChunkWriter(const string &orig_key_,
 					 bool is_first_chunk_,
 					 const string &tname_,
 					 bool is_last_chunk_)
@@ -307,13 +307,13 @@ PostlistChunkWriter::PostlistChunkWriter(const string &orig_key_,
 	  is_last_chunk(is_last_chunk_),
 	  started(false)
 {
-    DEBUGCALL(DB, void, "PostlistChunkWriter::PostlistChunkWriter",
+    DEBUGCALL(DB, void, "QPostlistChunkWriter::QPostlistChunkWriter",
 	      orig_key_ << ", " << is_first_chunk_ << ", " << tname_ << ", " <<
 	      is_last_chunk_);
 }
 
 void
-PostlistChunkWriter::append(Btree * table, Xapian::docid did,
+QPostlistChunkWriter::append(Btree * table, Xapian::docid did,
 			    Xapian::termcount wdf, quartz_doclen_t doclen)
 {
     if (!started) {
@@ -362,9 +362,9 @@ make_start_of_chunk(bool new_is_last_chunk,
 }
 
 void
-PostlistChunkWriter::flush(Btree *table)
+QPostlistChunkWriter::flush(Btree *table)
 {
-    DEBUGCALL(DB, void, "PostlistChunkWriter::flush", table);
+    DEBUGCALL(DB, void, "QPostlistChunkWriter::flush", table);
 
     /* This is one of the more messy parts involved with updating posting
      * list chunks.
@@ -383,10 +383,10 @@ PostlistChunkWriter::flush(Btree *table)
 	 * If this was the first chunk, then the next chunk must
 	 * be transformed into the first chunk.  Messy!
 	 */
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting chunk");
+	DEBUGLINE(DB, "QPostlistChunkWriter::flush(): deleting chunk");
 	Assert(!orig_key.empty());
 	if (is_first_chunk) {
-	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting first chunk");
+	    DEBUGLINE(DB, "QPostlistChunkWriter::flush(): deleting first chunk");
 	    if (is_last_chunk) {
 		/* This is the first and the last chunk, ie the only
 		 * chunk, so just delete the tag.
@@ -462,7 +462,7 @@ PostlistChunkWriter::flush(Btree *table)
 	    return;
 	}
 
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary chunk");
+	DEBUGLINE(DB, "QPostlistChunkWriter::flush(): deleting secondary chunk");
 	/* This isn't the first chunk.  Check whether we're the last
 	 * chunk.
 	 */
@@ -471,7 +471,7 @@ PostlistChunkWriter::flush(Btree *table)
 	table->del(orig_key);
 
 	if (is_last_chunk) {
-	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): deleting secondary last chunk");
+	    DEBUGLINE(DB, "QPostlistChunkWriter::flush(): deleting secondary last chunk");
 	    // Update the previous chunk's is_last_chunk flag.
 	    AutoPtr<Bcursor> cursor(table->cursor_get());
 
@@ -523,7 +523,7 @@ PostlistChunkWriter::flush(Btree *table)
 	    table->add(cursor->current_key, tag);
 	}
     } else {
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): updating chunk which still has items in it");
+	DEBUGLINE(DB, "QPostlistChunkWriter::flush(): updating chunk which still has items in it");
 	/* The chunk still has some items in it.  Two major subcases:
 	 * a) This is the first chunk.
 	 * b) This isn't the first chunk.
@@ -539,7 +539,7 @@ PostlistChunkWriter::flush(Btree *table)
 	    /* The first chunk.  This is the relatively easy case,
 	     * and we just have to write this one back to disk.
 	     */
-	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
+	    DEBUGLINE(DB, "QPostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
 	    string key;
 	    make_key(tname, key);
 	    bool ok = table->get_exact_entry(key, tag);
@@ -563,7 +563,7 @@ PostlistChunkWriter::flush(Btree *table)
 	    return;
 	}
 
-	DEBUGLINE(DB, "PostlistChunkWriter::flush(): updating secondary chunk which still has items in it");
+	DEBUGLINE(DB, "QPostlistChunkWriter::flush(): updating secondary chunk which still has items in it");
 	/* Not the first chunk.
 	 *
 	 * This has the easy sub-sub-case:
@@ -918,7 +918,7 @@ QuartzPostList::get_description() const
 Xapian::docid
 QuartzPostListTable::get_chunk(const string &tname,
 	  Xapian::docid did, bool adding,
-	  PostlistChunkReader ** from, PostlistChunkWriter **to)
+	  QPostlistChunkReader ** from, QPostlistChunkWriter **to)
 {
     // Get chunk containing entry
     string key;
@@ -939,7 +939,7 @@ QuartzPostListTable::get_chunk(const string &tname,
 	    throw Xapian::DatabaseCorruptError("Attempted to delete or modify an entry in a non-existent posting list for " + tname);
 
 	*from = NULL;
-	*to = new PostlistChunkWriter("", true, tname, true);
+	*to = new QPostlistChunkWriter("", true, tname, true);
 	return Xapian::docid(-1);
     }
  
@@ -963,7 +963,7 @@ QuartzPostListTable::get_chunk(const string &tname,
     bool is_last_chunk;
     Xapian::docid last_did_in_chunk;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk, &is_last_chunk);
-    *to = new PostlistChunkWriter(cursor->current_key, is_first_chunk, tname,
+    *to = new QPostlistChunkWriter(cursor->current_key, is_first_chunk, tname,
 				  is_last_chunk);
     if (did > last_did_in_chunk) {
 	// This is the shortcut.  Not very pretty, but I'll leave refactoring
@@ -973,7 +973,7 @@ QuartzPostListTable::get_chunk(const string &tname,
 	(*to)->raw_append(first_did_in_chunk, last_did_in_chunk,
 			  string(pos, end)); 
     } else {
-	*from = new PostlistChunkReader(first_did_in_chunk, string(pos, end));
+	*from = new QPostlistChunkReader(first_did_in_chunk, string(pos, end));
     }
     if (is_last_chunk) return Xapian::docid(-1);
 
@@ -1072,8 +1072,8 @@ QuartzPostListTable::merge_changes(
 	Assert(j != i->second.end()); // This case is caught above.
 
 	Xapian::docid max_did;
-	PostlistChunkReader *from;
-	PostlistChunkWriter *to;
+	QPostlistChunkReader *from;
+	QPostlistChunkWriter *to;
 	max_did = get_chunk(tname, j->first, j->second.first == 'A',
 			    &from, &to);
 	for ( ; j != i->second.end(); ++j) {

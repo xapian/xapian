@@ -1,4 +1,4 @@
-/* quartz_alltermslist.h
+/* flint_alltermslist.h
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -21,34 +21,34 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_ALLTERMSLIST_H
-#define OM_HGUARD_QUARTZ_ALLTERMSLIST_H
+#ifndef OM_HGUARD_FLINT_ALLTERMSLIST_H
+#define OM_HGUARD_FLINT_ALLTERMSLIST_H
 
 #include "alltermslist.h"
-#include "quartz_database.h"
+#include "flint_database.h"
 
-class Bcursor;
+class FlintCursor;
 
 /** class for alltermslists over several databases */
-class QuartzAllTermsList : public AllTermsList
+class FlintAllTermsList : public AllTermsList
 {
     private:
 	/// Copying is not allowed.
-	QuartzAllTermsList(const QuartzAllTermsList &);
+	FlintAllTermsList(const FlintAllTermsList &);
 
 	/// Assignment is not allowed.
-	void operator=(const QuartzAllTermsList &);
+	void operator=(const FlintAllTermsList &);
 
 	/// Keep our database around
 	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
 
 	/// A cursor pointing at the current term's postlist entry
-	AutoPtr<Bcursor> pl_cursor;
+	AutoPtr<FlintCursor> pl_cursor;
 
 	/// Cached "at-end" value
 	bool is_at_end;
 
-	quartz_tablesize_t size;
+	flint_tablesize_t size;
 
 	bool started;
 
@@ -63,12 +63,12 @@ class QuartzAllTermsList : public AllTermsList
 	void get_stats() const;
     public:
 	/// Standard constructor for base class.
-	QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-			   AutoPtr<Bcursor> pl_cursor_,
-		       	   quartz_tablesize_t size_);
+	FlintAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+			   AutoPtr<FlintCursor> pl_cursor_,
+		       	   flint_tablesize_t size_);
 
 	/// Standard destructor for base class.
-	~QuartzAllTermsList();
+	~FlintAllTermsList();
 
         // Gets size of termlist
 	Xapian::termcount get_approx_size() const;
@@ -92,4 +92,4 @@ class QuartzAllTermsList : public AllTermsList
 	bool at_end() const;
 };
 
-#endif /* OM_HGUARD_QUARTZ_ALLTERMSLIST_H */
+#endif /* OM_HGUARD_FLINT_ALLTERMSLIST_H */

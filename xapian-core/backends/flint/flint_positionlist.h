@@ -1,4 +1,4 @@
-/* quartz_positionlist.h: Position lists in quartz databases
+/* flint_positionlist.h: Position lists in flint databases
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -23,18 +23,18 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_POSITIONLIST_H
-#define OM_HGUARD_QUARTZ_POSITIONLIST_H
+#ifndef OM_HGUARD_FLINT_POSITIONLIST_H
+#define OM_HGUARD_FLINT_POSITIONLIST_H
 
 #include <xapian/types.h>
 #include "positionlist.h"
-#include "btree.h"
+#include "flint_table.h"
 
 #include <string>
 
 using namespace std;
 
-class QuartzPositionListTable : public Btree {
+class FlintPositionListTable : public FlintTable {
     public:
 	/** Create a new table object.
 	 *
@@ -50,8 +50,8 @@ class QuartzPositionListTable : public Btree {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzPositionListTable(string path_, bool readonly_)
-	    : Btree(path_ + "/position_", readonly_) { }
+	FlintPositionListTable(string path_, bool readonly_)
+	    : FlintTable(path_ + "/position.", readonly_) { }
 
 	/// Set the position list for the given docid and termname
 	void set_positionlist(Xapian::docid did, const string & tname,
@@ -62,9 +62,9 @@ class QuartzPositionListTable : public Btree {
 	void delete_positionlist(Xapian::docid did, const string & tname);
 };
 
-/** A position list in a quartz database.
+/** A position list in a flint database.
  */
-class QuartzPositionList : public PositionList {
+class FlintPositionList : public PositionList {
     private:
         /// The data.
         string data;
@@ -90,36 +90,36 @@ class QuartzPositionList : public PositionList {
 	Xapian::termcount number_of_entries;
 
         /// Copying is not allowed.
-        QuartzPositionList(const QuartzPositionList &);
+        FlintPositionList(const FlintPositionList &);
 
         /// Assignment is not allowed.
-        void operator=(const QuartzPositionList &);
+        void operator=(const FlintPositionList &);
 
 	/// Advance position by one.
 	void next_internal();
 
     public:
         /// Default constructor.
-        QuartzPositionList() : have_started(false) {}
+        FlintPositionList() : have_started(false) {}
 
         /// Destructor.
-        ~QuartzPositionList() { return; }
+        ~FlintPositionList() { return; }
 
         /// Fill list with data, and move the position to the start.
-        void read_data(const Btree * table,
+        void read_data(const FlintTable * table,
 		       Xapian::docid did,
 		       const string & tname);
 
         /// Gets size of position list.
         Xapian::termcount get_size() const {
-	    DEBUGCALL(DB, Xapian::termcount, "QuartzPositionList::get_size", "");
+	    DEBUGCALL(DB, Xapian::termcount, "FlintPositionList::get_size", "");
 	    RETURN(number_of_entries);
 	}
 
         /// Gets current position.
         Xapian::termpos get_position() const {
 	    Assert(have_started);
-	    DEBUGCALL(DB, Xapian::termpos, "QuartzPositionList::get_position", "");
+	    DEBUGCALL(DB, Xapian::termpos, "FlintPositionList::get_position", "");
 	    RETURN(current_pos);
 	}
 
@@ -137,7 +137,7 @@ class QuartzPositionList : public PositionList {
 
         /// True if we're off the end of the list
         bool at_end() const {
-	    DEBUGCALL(DB, bool, "QuartzPositionList::at_end", "");
+	    DEBUGCALL(DB, bool, "FlintPositionList::at_end", "");
 	    RETURN(is_at_end);
 	}
 
@@ -147,4 +147,4 @@ class QuartzPositionList : public PositionList {
 	}
 };
 
-#endif /* OM_HGUARD_QUARTZ_POSITIONLIST_H */
+#endif /* OM_HGUARD_FLINT_POSITIONLIST_H */

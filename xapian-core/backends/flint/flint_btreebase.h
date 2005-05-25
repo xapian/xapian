@@ -21,30 +21,30 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_BTREE_BASE_H
-#define OM_HGUARD_BTREE_BASE_H
+#ifndef OM_HGUARD_FLINT_BTREEBASE_H
+#define OM_HGUARD_FLINT_BTREEBASE_H
 
-#include "quartz_types.h"
-#include "btree_util.h"
+#include "flint_types.h"
+#include "flint_btreeutil.h"
 
-class Btree_base {
+class FlintTable_base {
     public:
 	/** Initialise a Btree_Base object with all zero fields.
 	 */
-	Btree_base();
+	FlintTable_base();
 
 	/** Read a base file from disk into a structure in memory.
 	 *
 	 *  @param name			The base filename name
 	 *  @param ch			The suffix
 	 */
-	Btree_base(const string &name_, char ch);
+	FlintTable_base(const string &name_, char ch);
 
 	/** Copy constructor */
-	Btree_base(const Btree_base &other);
+	FlintTable_base(const FlintTable_base &other);
 
 	/** Destructor - frees resources. */
-	~Btree_base();
+	~FlintTable_base();
 
 	/** Read values from a base file.
 	 *
@@ -115,11 +115,11 @@ class Btree_base {
 	/* Used by Btree::check() */
 	bool is_empty() const;
 
-	void swap(Btree_base &other);
+	void swap(FlintTable_base &other);
 
     private:
 	/** private assignment operator - you probably want swap() instead */
-	void operator=(const Btree_base &other);
+	void operator=(const FlintTable_base &other);
 
 	void extend_bit_map();
 
@@ -153,4 +153,4 @@ class Btree_base {
 	byte *bit_map;
 };
 
-#endif /* OM_HGUARD_BTREE_BASE_H */
+#endif /* OM_HGUARD_FLINT_BTREEBASE_H */

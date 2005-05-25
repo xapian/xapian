@@ -1,4 +1,4 @@
-/* quartz_database.cc: quartz database
+/* flint_database.cc: flint database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -25,21 +25,21 @@
 
 #include <config.h>
 
-#include "quartz_database.h"
+#include "flint_database.h"
 #include "utils.h"
 #include "omdebug.h"
 #include "autoptr.h"
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
 
-#include "quartz_postlist.h"
-#include "quartz_termlist.h"
-#include "quartz_positionlist.h"
-#include "quartz_utils.h"
-#include "quartz_record.h"
-#include "quartz_values.h"
-#include "quartz_document.h"
-#include "quartz_alltermslist.h"
+#include "flint_postlist.h"
+#include "flint_termlist.h"
+#include "flint_positionlist.h"
+#include "flint_utils.h"
+#include "flint_record.h"
+#include "flint_values.h"
+#include "flint_document.h"
+#include "flint_alltermslist.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -67,31 +67,23 @@ using namespace Xapian;
  * determining the current and next revision numbers, and stores handles
  * to the tables.
  */
-QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
+FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 			       unsigned int block_size)
-	: db_dir(quartz_dir),
-	  readonly(action == OM_DB_READONLY),
-	  metafile(db_dir + "/meta"),
+	: db_dir(flint_dir),
+	  readonly(action == XAPIAN_DB_READONLY),
+	  metafile(db_dir + "/iamflint"),
 	  postlist_table(db_dir, readonly),
 	  positionlist_table(db_dir, readonly),
 	  termlist_table(db_dir, readonly),
 	  value_table(db_dir, readonly),
 	  record_table(db_dir, readonly)
 {
-    DEBUGCALL(DB, void, "QuartzDatabase", quartz_dir << ", " << action <<
+    DEBUGCALL(DB, void, "FlintDatabase", flint_dir << ", " << action <<
 	      ", " << block_size);
-    static const char *acts[] = {
-	"Open readonly", "Create or open", "Create", "Create or overwrite",
-	"Open" // , "Overwrite"
-    };
-
-    // set cache size parameters, etc, here.
-
-    // open environment here
 
     bool dbexists = database_exists();
     // open tables
-    if (action == OM_DB_READONLY) {
+    if (action == XAPIAN_DB_READONLY) {
 	if (!dbexists) {
 	    // Catch pre-0.6 Xapian databases and give a better error
 	    if (file_exists(db_dir + "/attribute_DB"))
@@ -151,7 +143,7 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
 	// tables.
 	if (record_table.get_open_revision_number() != 
 	    postlist_table.get_latest_revision_number()) {
-	    quartz_revision_number_t new_revision = get_next_revision_number();
+	    flint_revision_number_t new_revision = get_next_revision_number();
 
 	    postlist_table.commit(new_revision);
 	    positionlist_table.commit(new_revision);
@@ -165,16 +157,16 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
     }
 }
 
-QuartzDatabase::~QuartzDatabase()
+FlintDatabase::~FlintDatabase()
 {
-    DEBUGCALL(DB, void, "~QuartzDatabase", "");
+    DEBUGCALL(DB, void, "~FlintDatabase", "");
     // Only needed for a writable database: dtor_called();
     if (!readonly) release_database_write_lock();
 }
 
 bool
-QuartzDatabase::database_exists() {
-    DEBUGCALL(DB, bool, "QuartzDatabase::database_exists", "");
+FlintDatabase::database_exists() {
+    DEBUGCALL(DB, bool, "FlintDatabase::database_exists", "");
     return record_table.exists() &&
 	   postlist_table.exists() &&
 	   positionlist_table.exists() &&
@@ -183,9 +175,9 @@ QuartzDatabase::database_exists() {
 }
 
 void
-QuartzDatabase::create_and_open_tables(unsigned int block_size)
+FlintDatabase::create_and_open_tables(unsigned int block_size)
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::create_and_open_tables", "");
+    DEBUGCALL(DB, void, "FlintDatabase::create_and_open_tables", "");
     //FIXME - check that database directory exists.
 
     // Create postlist_table first, and record_table last.  Existence of
@@ -207,7 +199,7 @@ QuartzDatabase::create_and_open_tables(unsigned int block_size)
     postlist_table.open();
 
     // Check consistency
-    quartz_revision_number_t revision = record_table.get_open_revision_number();
+    flint_revision_number_t revision = record_table.get_open_revision_number();
     if (revision != value_table.get_open_revision_number() ||
 	revision != termlist_table.get_open_revision_number() ||
 	revision != positionlist_table.get_open_revision_number() ||
@@ -218,9 +210,9 @@ QuartzDatabase::create_and_open_tables(unsigned int block_size)
 }
 
 void
-QuartzDatabase::open_tables_consistent()
+FlintDatabase::open_tables_consistent()
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::open_tables_consistent", "");
+    DEBUGCALL(DB, void, "FlintDatabase::open_tables_consistent", "");
     // Open record_table first, since it's the last to be written to,
     // and hence if a revision is available in it, it should be available
     // in all the other tables (unless they've moved on already).
@@ -231,7 +223,7 @@ QuartzDatabase::open_tables_consistent()
 
     metafile.open();
     record_table.open();
-    quartz_revision_number_t revision = record_table.get_open_revision_number();
+    flint_revision_number_t revision = record_table.get_open_revision_number();
 
     bool fully_opened = false;
     int tries = 100;
@@ -256,7 +248,7 @@ QuartzDatabase::open_tables_consistent()
 	    // if it's changed we try the opening again, otherwise we give up.
 	    //
 	    record_table.open();
-	    quartz_revision_number_t newrevision =
+	    flint_revision_number_t newrevision =
 		    record_table.get_open_revision_number();
 	    if (revision == newrevision) {
 		// Revision number hasn't changed - therefore a second index
@@ -273,9 +265,9 @@ QuartzDatabase::open_tables_consistent()
 }
 
 void
-QuartzDatabase::open_tables(quartz_revision_number_t revision)
+FlintDatabase::open_tables(flint_revision_number_t revision)
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::open_tables", revision);
+    DEBUGCALL(DB, void, "FlintDatabase::open_tables", revision);
     metafile.open();
     record_table.open(revision);
     value_table.open(revision);
@@ -284,32 +276,32 @@ QuartzDatabase::open_tables(quartz_revision_number_t revision)
     postlist_table.open(revision);
 }
 
-quartz_revision_number_t
-QuartzDatabase::get_revision_number() const
+flint_revision_number_t
+FlintDatabase::get_revision_number() const
 {
-    DEBUGCALL(DB, quartz_revision_number_t, "QuartzDatabase::get_revision_number", "");
+    DEBUGCALL(DB, flint_revision_number_t, "FlintDatabase::get_revision_number", "");
     // We could use any table here, theoretically.
     RETURN(postlist_table.get_open_revision_number());
 }
 
-quartz_revision_number_t
-QuartzDatabase::get_next_revision_number() const
+flint_revision_number_t
+FlintDatabase::get_next_revision_number() const
 {
-    DEBUGCALL(DB, quartz_revision_number_t, "QuartzDatabase::get_next_revision_number", "");
+    DEBUGCALL(DB, flint_revision_number_t, "FlintDatabase::get_next_revision_number", "");
     /* We _must_ use postlist_table here, since it is always the first
      * to be written, and hence will have the greatest available revision
      * number.
      */
-    quartz_revision_number_t new_revision =
+    flint_revision_number_t new_revision =
 	    postlist_table.get_latest_revision_number();
     new_revision += 1;
     RETURN(new_revision);
 }
 
 void
-QuartzDatabase::set_revision_number(quartz_revision_number_t new_revision)
+FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::set_revision_number", new_revision);
+    DEBUGCALL(DB, void, "FlintDatabase::set_revision_number", new_revision);
     postlist_table.commit(new_revision);
     positionlist_table.commit(new_revision);
     termlist_table.commit(new_revision);
@@ -318,18 +310,18 @@ QuartzDatabase::set_revision_number(quartz_revision_number_t new_revision)
 }
 
 void
-QuartzDatabase::reopen()
+FlintDatabase::reopen()
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::reopen", "");
+    DEBUGCALL(DB, void, "FlintDatabase::reopen", "");
     if (readonly) {
 	open_tables_consistent();
     }
 }
 
 void
-QuartzDatabase::get_database_write_lock()
+FlintDatabase::get_database_write_lock()
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::get_database_write_lock", "");
+    DEBUGCALL(DB, void, "FlintDatabase::get_database_write_lock", "");
     // FIXME:: have a backoff strategy to avoid stalling on a stale lockfile
 #ifdef HAVE_SYS_UTSNAME_H
     const char *hostname;
@@ -425,16 +417,16 @@ QuartzDatabase::get_database_write_lock()
 }
 
 void
-QuartzDatabase::release_database_write_lock()
+FlintDatabase::release_database_write_lock()
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::release_database_write_lock", "");
+    DEBUGCALL(DB, void, "FlintDatabase::release_database_write_lock", "");
     unlink(db_dir + "/db_lock");
 }
 
 void
-QuartzDatabase::apply()
+FlintDatabase::apply()
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::apply", "");
+    DEBUGCALL(DB, void, "FlintDatabase::apply", "");
     if (!postlist_table.is_modified() &&
 	!positionlist_table.is_modified() &&
 	!termlist_table.is_modified() &&
@@ -443,8 +435,8 @@ QuartzDatabase::apply()
 	return;
     }
 
-    quartz_revision_number_t old_revision = get_revision_number();
-    quartz_revision_number_t new_revision = get_next_revision_number();
+    flint_revision_number_t old_revision = get_revision_number();
+    flint_revision_number_t new_revision = get_next_revision_number();
 
     try {
 	postlist_table.commit(new_revision);
@@ -476,9 +468,9 @@ QuartzDatabase::apply()
 }
 
 void
-QuartzDatabase::cancel()
+FlintDatabase::cancel()
 {
-    DEBUGCALL(DB, void, "QuartzDatabase::cancel", "");
+    DEBUGCALL(DB, void, "FlintDatabase::cancel", "");
     postlist_table.cancel();
     positionlist_table.cancel();
     termlist_table.cancel();
@@ -487,122 +479,122 @@ QuartzDatabase::cancel()
 }
 
 Xapian::doccount
-QuartzDatabase::get_doccount() const
+FlintDatabase::get_doccount() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "QuartzDatabase::get_doccount", "");
+    DEBUGCALL(DB, Xapian::doccount, "FlintDatabase::get_doccount", "");
     RETURN(record_table.get_doccount());
 }
 
 Xapian::docid
-QuartzDatabase::get_lastdocid() const
+FlintDatabase::get_lastdocid() const
 {
-    DEBUGCALL(DB, Xapian::docid, "QuartzDatabase::get_lastdocid", "");
+    DEBUGCALL(DB, Xapian::docid, "FlintDatabase::get_lastdocid", "");
     RETURN(record_table.get_lastdocid());
 }
 
 Xapian::doclength
-QuartzDatabase::get_avlength() const
+FlintDatabase::get_avlength() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "QuartzDatabase::get_avlength", "");
+    DEBUGCALL(DB, Xapian::doclength, "FlintDatabase::get_avlength", "");
     Xapian::doccount docs = record_table.get_doccount();
     if (docs == 0) RETURN(0);
     RETURN(double(record_table.get_total_length()) / docs);
 }
 
 Xapian::doclength
-QuartzDatabase::get_doclength(Xapian::docid did) const
+FlintDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::doclength, "QuartzDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::doclength, "FlintDatabase::get_doclength", did);
     Assert(did != 0);
 
-    QuartzTermList termlist(0, &termlist_table, did, 0);
+    FlintTermList termlist(0, &termlist_table, did, 0);
     RETURN(termlist.get_doclength());
 }
 
 Xapian::doccount
-QuartzDatabase::get_termfreq(const string & tname) const
+FlintDatabase::get_termfreq(const string & tname) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "QuartzDatabase::get_termfreq", tname);
+    DEBUGCALL(DB, Xapian::doccount, "FlintDatabase::get_termfreq", tname);
     Assert(!tname.empty());
 
-    QuartzPostList pl(NULL, &postlist_table, NULL, tname);
+    FlintPostList pl(NULL, &postlist_table, NULL, tname);
     RETURN(pl.get_termfreq());
 }
 
 Xapian::termcount
-QuartzDatabase::get_collection_freq(const string & tname) const
+FlintDatabase::get_collection_freq(const string & tname) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "QuartzDatabase::get_collection_freq", tname);
+    DEBUGCALL(DB, Xapian::termcount, "FlintDatabase::get_collection_freq", tname);
     Assert(!tname.empty());
 
     Xapian::termcount collfreq = 0; // If not found, this value will be unchanged.
-    QuartzPostList pl(NULL, &postlist_table, NULL, tname);
+    FlintPostList pl(NULL, &postlist_table, NULL, tname);
     collfreq = pl.get_collection_freq();
     RETURN(collfreq);
 }
 
 bool
-QuartzDatabase::term_exists(const string & tname) const
+FlintDatabase::term_exists(const string & tname) const
 {
-    DEBUGCALL(DB, bool, "QuartzDatabase::term_exists", tname);
+    DEBUGCALL(DB, bool, "FlintDatabase::term_exists", tname);
     Assert(!tname.empty());
-    AutoPtr<Bcursor> cursor(postlist_table.cursor_get());
-    // FIXME: nasty C&P from backends/quartz/quartz_postlist.cc
+    AutoPtr<FlintCursor> cursor(postlist_table.cursor_get());
+    // FIXME: nasty C&P from backends/flint/flint_postlist.cc
     string key = pack_string_preserving_sort(tname);
     return cursor->find_entry(key);
 }
 
 bool
-QuartzDatabase::has_positions() const
+FlintDatabase::has_positions() const
 {
     return positionlist_table.get_entry_count() > 0;
 }
 
 
 LeafPostList *
-QuartzDatabase::do_open_post_list(const string& tname) const
+FlintDatabase::do_open_post_list(const string& tname) const
 {
-    DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::do_open_post_list", tname);
+    DEBUGCALL(DB, LeafPostList *, "FlintDatabase::do_open_post_list", tname);
     Assert(!tname.empty());
 
-    Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
-    return(new QuartzPostList(ptrtothis,
+    Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
+    return(new FlintPostList(ptrtothis,
 			      &postlist_table,
 			      &positionlist_table,
 			      tname));
 }
 
 LeafTermList *
-QuartzDatabase::open_term_list(Xapian::docid did) const
+FlintDatabase::open_term_list(Xapian::docid did) const
 {
-    DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list", did);
+    DEBUGCALL(DB, LeafTermList *, "FlintDatabase::open_term_list", did);
     Assert(did != 0);
 
-    Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
-    RETURN(new QuartzTermList(ptrtothis, &termlist_table, did, get_doccount()));
+    Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
+    RETURN(new FlintTermList(ptrtothis, &termlist_table, did, get_doccount()));
 }
 
 Xapian::Document::Internal *
-QuartzDatabase::open_document(Xapian::docid did, bool lazy) const
+FlintDatabase::open_document(Xapian::docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Xapian::Document::Internal *, "QuartzDatabase::open_document",
+    DEBUGCALL(DB, Xapian::Document::Internal *, "FlintDatabase::open_document",
 	      did << ", " << lazy);
     Assert(did != 0);
 
-    Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
-    RETURN(new QuartzDocument(ptrtothis,
+    Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
+    RETURN(new FlintDocument(ptrtothis,
 			      &value_table,
 			      &record_table,
 			      did, lazy));
 }
 
 PositionList *
-QuartzDatabase::open_position_list(Xapian::docid did,
+FlintDatabase::open_position_list(Xapian::docid did,
 				   const string & tname) const
 {
     Assert(did != 0);
 
-    AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
+    AutoPtr<FlintPositionList> poslist(new FlintPositionList());
     poslist->read_data(&positionlist_table, did, tname);
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
@@ -617,17 +609,17 @@ QuartzDatabase::open_position_list(Xapian::docid did,
 }
 
 TermList *
-QuartzDatabase::open_allterms() const
+FlintDatabase::open_allterms() const
 {
-    DEBUGCALL(DB, TermList *, "QuartzDatabase::open_allterms", "");
-    AutoPtr<Bcursor> pl_cursor(postlist_table.cursor_get());
-    RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzDatabase>(this),
+    DEBUGCALL(DB, TermList *, "FlintDatabase::open_allterms", "");
+    AutoPtr<FlintCursor> pl_cursor(postlist_table.cursor_get());
+    RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
 				  pl_cursor, postlist_table.get_entry_count()));
 }
 
-size_t QuartzWritableDatabase::flush_threshold = 0;
+size_t FlintWritableDatabase::flush_threshold = 0;
 
-QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
+FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 					       int block_size)
 	: freq_deltas(),
 	  doclens(),
@@ -637,7 +629,7 @@ QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
 	  lastdocid(database_ro.get_lastdocid()),
 	  changes_made(0)
 {
-    DEBUGCALL(DB, void, "QuartzWritableDatabase", dir << ", " << action << ", "
+    DEBUGCALL(DB, void, "FlintWritableDatabase", dir << ", " << action << ", "
 	      << block_size);
     if (flush_threshold == 0) {
 	const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
@@ -646,22 +638,22 @@ QuartzWritableDatabase::QuartzWritableDatabase(const string &dir, int action,
     if (flush_threshold == 0) flush_threshold = 10000;
 }
 
-QuartzWritableDatabase::~QuartzWritableDatabase()
+FlintWritableDatabase::~FlintWritableDatabase()
 {
-    DEBUGCALL(DB, void, "~QuartzWritableDatabase", "");
+    DEBUGCALL(DB, void, "~FlintWritableDatabase", "");
     dtor_called();
 }
 
 void
-QuartzWritableDatabase::flush()
+FlintWritableDatabase::flush()
 {
     if (changes_made) do_flush_const();
 }
 
 void
-QuartzWritableDatabase::do_flush_const() const
+FlintWritableDatabase::do_flush_const() const
 {
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::do_flush_const", "");
+    DEBUGCALL(DB, void, "FlintWritableDatabase::do_flush_const", "");
 
     database_ro.postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
 
@@ -676,15 +668,15 @@ QuartzWritableDatabase::do_flush_const() const
 }
 
 Xapian::docid
-QuartzWritableDatabase::add_document(const Xapian::Document & document)
+FlintWritableDatabase::add_document(const Xapian::Document & document)
 {
     DEBUGCALL(DB, Xapian::docid,
-	      "QuartzWritableDatabase::add_document", document);
+	      "FlintWritableDatabase::add_document", document);
     RETURN(add_document_(0, document));
 }
 
 Xapian::docid
-QuartzWritableDatabase::add_document_(Xapian::docid did,
+FlintWritableDatabase::add_document_(Xapian::docid did,
 				      const Xapian::Document & document)
 {
     try {
@@ -704,7 +696,7 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 	    }
 	}
 
-	quartz_doclen_t new_doclen = 0;
+	flint_doclen_t new_doclen = 0;
 	{
 	    Xapian::TermIterator term = document.termlist_begin();
 	    Xapian::TermIterator term_end = document.termlist_end();
@@ -780,9 +772,9 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 }
 
 void
-QuartzWritableDatabase::delete_document(Xapian::docid did)
+FlintWritableDatabase::delete_document(Xapian::docid did)
 {
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::delete_document", did);
+    DEBUGCALL(DB, void, "FlintWritableDatabase::delete_document", did);
     Assert(did != 0);
 
     try {
@@ -800,8 +792,8 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	database_ro.value_table.delete_all_values(did);
 
 	// OK, now add entries to remove the postings in the underlying record.
-	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
-	QuartzTermList termlist(ptrtothis,
+	Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
+	FlintTermList termlist(ptrtothis,
 				&database_ro.termlist_table,
 				did, get_doccount());
 
@@ -856,10 +848,10 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 }
 
 void
-QuartzWritableDatabase::replace_document(Xapian::docid did,
+FlintWritableDatabase::replace_document(Xapian::docid did,
 					 const Xapian::Document & document)
 {
-    DEBUGCALL(DB, void, "QuartzWritableDatabase::replace_document", did << ", " << document);
+    DEBUGCALL(DB, void, "FlintWritableDatabase::replace_document", did << ", " << document);
     Assert(did != 0);
 
     try {
@@ -873,8 +865,8 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	if (did > lastdocid) lastdocid = did;
 
 	// OK, now add entries to remove the postings in the underlying record.
-	Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
-	QuartzTermList termlist(ptrtothis,
+	Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
+	FlintTermList termlist(ptrtothis,
 				&database_ro.termlist_table,
 				did, get_doccount());
 
@@ -932,7 +924,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	    }
 	}
 
-	quartz_doclen_t new_doclen = 0;
+	flint_doclen_t new_doclen = 0;
 	{
 	    Xapian::TermIterator term = document.termlist_begin();
 	    Xapian::TermIterator term_end = document.termlist_end();
@@ -1009,32 +1001,32 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 }
 
 Xapian::doccount
-QuartzWritableDatabase::get_doccount() const
+FlintWritableDatabase::get_doccount() const
 {
-    DEBUGCALL(DB, Xapian::doccount, "QuartzWritableDatabase::get_doccount", "");
+    DEBUGCALL(DB, Xapian::doccount, "FlintWritableDatabase::get_doccount", "");
     RETURN(database_ro.get_doccount());
 }
 
 Xapian::docid
-QuartzWritableDatabase::get_lastdocid() const
+FlintWritableDatabase::get_lastdocid() const
 {
-    DEBUGCALL(DB, Xapian::docid, "QuartzWritableDatabase::get_lastdocid", "");
+    DEBUGCALL(DB, Xapian::docid, "FlintWritableDatabase::get_lastdocid", "");
     RETURN(lastdocid);
 }
 
 Xapian::doclength
-QuartzWritableDatabase::get_avlength() const
+FlintWritableDatabase::get_avlength() const
 {
-    DEBUGCALL(DB, Xapian::doclength, "QuartzWritableDatabase::get_avlength", "");
+    DEBUGCALL(DB, Xapian::doclength, "FlintWritableDatabase::get_avlength", "");
     Xapian::doccount docs = database_ro.get_doccount();
     if (docs == 0) RETURN(0);
     RETURN(double(total_length) / docs);
 }
 
 Xapian::doclength
-QuartzWritableDatabase::get_doclength(Xapian::docid did) const
+FlintWritableDatabase::get_doclength(Xapian::docid did) const
 {
-    DEBUGCALL(DB, Xapian::doclength, "QuartzWritableDatabase::get_doclength", did);
+    DEBUGCALL(DB, Xapian::doclength, "FlintWritableDatabase::get_doclength", did);
     map<docid, termcount>::const_iterator i = doclens.find(did);
     if (i != doclens.end()) RETURN(i->second);
 
@@ -1042,9 +1034,9 @@ QuartzWritableDatabase::get_doclength(Xapian::docid did) const
 }
 
 Xapian::doccount
-QuartzWritableDatabase::get_termfreq(const string & tname) const
+FlintWritableDatabase::get_termfreq(const string & tname) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "QuartzWritableDatabase::get_termfreq", tname);
+    DEBUGCALL(DB, Xapian::doccount, "FlintWritableDatabase::get_termfreq", tname);
     Xapian::doccount termfreq = database_ro.get_termfreq(tname);
     map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
     i = freq_deltas.find(tname);
@@ -1053,9 +1045,9 @@ QuartzWritableDatabase::get_termfreq(const string & tname) const
 }
 
 Xapian::termcount
-QuartzWritableDatabase::get_collection_freq(const string & tname) const
+FlintWritableDatabase::get_collection_freq(const string & tname) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "QuartzWritableDatabase::get_collection_freq", tname);
+    DEBUGCALL(DB, Xapian::termcount, "FlintWritableDatabase::get_collection_freq", tname);
     Xapian::termcount collfreq = database_ro.get_collection_freq(tname);
 
     map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
@@ -1066,23 +1058,23 @@ QuartzWritableDatabase::get_collection_freq(const string & tname) const
 }
 
 bool
-QuartzWritableDatabase::term_exists(const string & tname) const
+FlintWritableDatabase::term_exists(const string & tname) const
 {
-    DEBUGCALL(DB, bool, "QuartzWritableDatabase::term_exists", tname);
+    DEBUGCALL(DB, bool, "FlintWritableDatabase::term_exists", tname);
     RETURN(get_termfreq(tname) != 0);
 }
 
 bool
-QuartzWritableDatabase::has_positions() const
+FlintWritableDatabase::has_positions() const
 {
     return database_ro.has_positions();
 }
 
 
 LeafPostList *
-QuartzWritableDatabase::do_open_post_list(const string& tname) const
+FlintWritableDatabase::do_open_post_list(const string& tname) const
 {
-    DEBUGCALL(DB, LeafPostList *, "QuartzWritableDatabase::do_open_post_list", tname);
+    DEBUGCALL(DB, LeafPostList *, "FlintWritableDatabase::do_open_post_list", tname);
     Assert(!tname.empty());
 
     // Need to flush iff we've got buffered changes to this term's postlist.
@@ -1090,49 +1082,49 @@ QuartzWritableDatabase::do_open_post_list(const string& tname) const
     j = mod_plists.find(tname);
     if (j != mod_plists.end()) do_flush_const();
 
-    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
-    return(new QuartzPostList(ptrtothis,
+    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
+    return(new FlintPostList(ptrtothis,
 			      &database_ro.postlist_table,
 			      &database_ro.positionlist_table,
 			      tname));
 }
 
 LeafTermList *
-QuartzWritableDatabase::open_term_list(Xapian::docid did) const
+FlintWritableDatabase::open_term_list(Xapian::docid did) const
 {
-    DEBUGCALL(DB, LeafTermList *, "QuartzWritableDatabase::open_term_list",
+    DEBUGCALL(DB, LeafTermList *, "FlintWritableDatabase::open_term_list",
 	      did);
     Assert(did != 0);
 
     // Only need to flush if document #did has been modified.
     if (doclens.find(did) != doclens.end()) do_flush_const();
 
-    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
-    RETURN(new QuartzTermList(ptrtothis, &database_ro.termlist_table, did,
+    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
+    RETURN(new FlintTermList(ptrtothis, &database_ro.termlist_table, did,
 			      get_doccount()));
 }
 
 Xapian::Document::Internal *
-QuartzWritableDatabase::open_document(Xapian::docid did, bool lazy) const
+FlintWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 {
-    DEBUGCALL(DB, Xapian::Document::Internal *, "QuartzWritableDatabase::open_document",
+    DEBUGCALL(DB, Xapian::Document::Internal *, "FlintWritableDatabase::open_document",
 	      did << ", " << lazy);
     Assert(did != 0);
 
-    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
-    RETURN(new QuartzDocument(ptrtothis,
+    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
+    RETURN(new FlintDocument(ptrtothis,
 			      &database_ro.value_table,
 			      &database_ro.record_table,
 			      did, lazy));
 }
 
 PositionList *
-QuartzWritableDatabase::open_position_list(Xapian::docid did,
+FlintWritableDatabase::open_position_list(Xapian::docid did,
 				   const string & tname) const
 {
     Assert(did != 0);
 
-    AutoPtr<QuartzPositionList> poslist(new QuartzPositionList());
+    AutoPtr<FlintPositionList> poslist(new FlintPositionList());
     poslist->read_data(&database_ro.positionlist_table, did, tname);
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
@@ -1147,13 +1139,13 @@ QuartzWritableDatabase::open_position_list(Xapian::docid did,
 }
 
 TermList *
-QuartzWritableDatabase::open_allterms() const
+FlintWritableDatabase::open_allterms() const
 {
-    DEBUGCALL(DB, TermList *, "QuartzWritableDatabase::open_allterms", "");
+    DEBUGCALL(DB, TermList *, "FlintWritableDatabase::open_allterms", "");
     // Terms may have been added or removed, so we need to flush.
     do_flush_const();
-    QuartzPostListTable *t = &database_ro.postlist_table;
-    AutoPtr<Bcursor> pl_cursor(t->cursor_get());
-    RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzWritableDatabase>(this),
+    FlintPostListTable *t = &database_ro.postlist_table;
+    AutoPtr<FlintCursor> pl_cursor(t->cursor_get());
+    RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),
 				  pl_cursor, t->get_entry_count()));
 }

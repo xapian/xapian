@@ -1,4 +1,4 @@
-/* quartz_document.h: Document from a Quartz Database
+/* flint_document.h: Document from a Flint Database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -22,38 +22,38 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_DOCUMENT_H
-#define OM_HGUARD_QUARTZ_DOCUMENT_H
+#ifndef OM_HGUARD_FLINT_DOCUMENT_H
+#define OM_HGUARD_FLINT_DOCUMENT_H
 
 #include <xapian/base.h>
 #include "document.h"
 
-class QuartzDatabase;
+class FlintDatabase;
 
-/// A document from a Quartz format database
-class QuartzDocument : public Xapian::Document::Internal {
-    friend class QuartzDatabase;
-    friend class QuartzWritableDatabase;
+/// A document from a Flint format database
+class FlintDocument : public Xapian::Document::Internal {
+    friend class FlintDatabase;
+    friend class FlintWritableDatabase;
     private:
 	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
 
-	const QuartzValueTable *value_table;
-	const QuartzRecordTable *record_table;
+	const FlintValueTable *value_table;
+	const FlintRecordTable *record_table;
 
-	QuartzDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-		       const QuartzValueTable *value_table_,
-		       const QuartzRecordTable *record_table_,
+	FlintDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+		       const FlintValueTable *value_table_,
+		       const FlintRecordTable *record_table_,
 		       Xapian::docid did_, bool lazy);
 
 	// Prevent copying
-	QuartzDocument(const QuartzDocument &);
-	QuartzDocument & operator = (const QuartzDocument &);
+	FlintDocument(const FlintDocument &);
+	FlintDocument & operator = (const FlintDocument &);
     public:
-	~QuartzDocument();
+	~FlintDocument();
 
 	string do_get_value(Xapian::valueno valueid) const;
 	map<Xapian::valueno, string> do_get_all_values() const;
 	string do_get_data() const;
 };
 
-#endif /* OM_HGUARD_QUARTZ_DOCUMENT_H */
+#endif /* OM_HGUARD_FLINT_DOCUMENT_H */

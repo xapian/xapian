@@ -1,4 +1,4 @@
-/* quartz_postlist.h: Postlists in quartz databases
+/* flint_postlist.h: Postlists in flint databases
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -22,8 +22,8 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_POSTLIST_H
-#define OM_HGUARD_QUARTZ_POSTLIST_H
+#ifndef OM_HGUARD_FLINT_POSTLIST_H
+#define OM_HGUARD_FLINT_POSTLIST_H
 
 #include <map>
 #include <string>
@@ -31,18 +31,18 @@
 #include "leafpostlist.h"
 #include <xapian/database.h>
 #include "omassert.h"
-#include "quartz_types.h"
-#include "quartz_positionlist.h"
+#include "flint_types.h"
+#include "flint_positionlist.h"
 
 using namespace std;
 
-class Bcursor;
-class QuartzDatabase;
+class FlintCursor;
+class FlintDatabase;
 
 class PostlistChunkReader;
 class PostlistChunkWriter;
 
-class QuartzPostListTable : public Btree {
+class FlintPostListTable : public FlintTable {
     public:
 	/** Create a new table object.
 	 *
@@ -58,8 +58,8 @@ class QuartzPostListTable : public Btree {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzPostListTable(string path_, bool readonly_)
-	    : Btree(path_ + "/postlist_", readonly_) { }
+	FlintPostListTable(string path_, bool readonly_)
+	    : FlintTable(path_ + "/postlist.", readonly_) { }
 
 	/// Merge added, removed, and changed entries.
 	void merge_changes(
@@ -72,9 +72,9 @@ class QuartzPostListTable : public Btree {
 		PostlistChunkReader ** from, PostlistChunkWriter **to);
 };
 
-/** A postlist in a quartz database.
+/** A postlist in a flint database.
  */
-class QuartzPostList : public LeafPostList {
+class FlintPostList : public LeafPostList {
     private:
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us.
@@ -82,16 +82,16 @@ class QuartzPostList : public LeafPostList {
 	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db;
 
 	/// The table containing the postlist.
-	const Btree * table;
+	const FlintTable * table;
 
 	/// The table containing positionlists.
-	const Btree * positiontable;
+	const FlintTable * positiontable;
 
 	/// The termname for this postlist.
 	string tname;
 
 	/// Cursor pointing to current chunk of postlist.
-	AutoPtr<Bcursor> cursor;
+	AutoPtr<FlintCursor> cursor;
 
 	/// True if this is the last chunk.
 	bool is_last_chunk;
@@ -112,7 +112,7 @@ class QuartzPostList : public LeafPostList {
 	Xapian::docid did;
 
 	/// The (absolute) length of the current document.
-	quartz_doclen_t doclength;
+	flint_doclen_t doclength;
 
 	/// The wdf of the current document.
 	Xapian::termcount wdf;
@@ -130,13 +130,13 @@ class QuartzPostList : public LeafPostList {
 	Xapian::termcount collection_freq;
 
 	/// The position list object for this posting list.
-	QuartzPositionList positionlist;
+	FlintPositionList positionlist;
 
 	/// Copying is not allowed.
-	QuartzPostList(const QuartzPostList &);
+	FlintPostList(const FlintPostList &);
 
 	/// Assignment is not allowed.
-	void operator=(const QuartzPostList &);
+	void operator=(const FlintPostList &);
 
 	/** Move to the next item in the chunk, if possible.
 	 *  If already at the end of the chunk, returns false.
@@ -185,13 +185,13 @@ class QuartzPostList : public LeafPostList {
 
     public:
 	/// Default constructor.
-	QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-		       const Btree * table_,
-		       const Btree * positiontable_,
+	FlintPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
+		       const FlintTable * table_,
+		       const FlintTable * positiontable_,
 		       const string & tname);
 
 	/// Destructor.
-	~QuartzPostList();
+	~FlintPostList();
 
 	/** Returns number of docs indexed by this term.
 	 *
@@ -246,4 +246,4 @@ class QuartzPostList : public LeafPostList {
 					   Xapian::termcount * collection_freq_ptr);
 };
 
-#endif /* OM_HGUARD_QUARTZ_POSTLIST_H */
+#endif /* OM_HGUARD_FLINT_POSTLIST_H */

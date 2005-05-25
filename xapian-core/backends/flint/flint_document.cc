@@ -1,4 +1,4 @@
-/* quartz_document.cc: Implementation of document for Quartz database
+/* flint_document.cc: Implementation of document for Flint database
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -24,34 +24,34 @@
 
 #include <config.h>
 #include "omdebug.h"
-#include "quartz_database.h"
-#include "quartz_document.h"
-#include "quartz_values.h"
-#include "quartz_record.h"
+#include "flint_database.h"
+#include "flint_document.h"
+#include "flint_values.h"
+#include "flint_record.h"
 
-/** Create a QuartzDocument: this is only called by
- *  QuartzDatabase::open_document().
+/** Create a FlintDocument: this is only called by
+ *  FlintDatabase::open_document().
  */
-QuartzDocument::QuartzDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-			       const QuartzValueTable *value_table_,
-			       const QuartzRecordTable *record_table_,
+FlintDocument::FlintDocument(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+			       const FlintValueTable *value_table_,
+			       const FlintRecordTable *record_table_,
 			       Xapian::docid did_, bool lazy)
 	: Xapian::Document::Internal(database_.get(), did_),
 	  database(database_),
 	  value_table(value_table_),
 	  record_table(record_table_)
 {
-    DEBUGCALL(DB, void, "QuartzDocument", "[database_], " << value_table_ << ", " << record_table_ << ", " << did_ << ", " << lazy);
+    DEBUGCALL(DB, void, "FlintDocument", "[database_], " << value_table_ << ", " << record_table_ << ", " << did_ << ", " << lazy);
     // FIXME: this should work but isn't great - in fact I wonder if
     // we should cache the results anyway...
     if (!lazy) (void)record_table->get_record(did);
 }
 
-/** Destroy a QuartzDocument.
+/** Destroy a FlintDocument.
  */
-QuartzDocument::~QuartzDocument()
+FlintDocument::~FlintDocument()
 {
-    DEBUGCALL(DB, void, "~QuartzDocument", "");
+    DEBUGCALL(DB, void, "~FlintDocument", "");
 }
 
 /** Retrieve a value from the database
@@ -59,9 +59,9 @@ QuartzDocument::~QuartzDocument()
  *  @param valueid	The value number to retrieve.
  */
 string
-QuartzDocument::do_get_value(Xapian::valueno valueid) const
+FlintDocument::do_get_value(Xapian::valueno valueid) const
 {
-    DEBUGCALL(DB, string, "QuartzDocument::do_get_value", valueid);
+    DEBUGCALL(DB, string, "FlintDocument::do_get_value", valueid);
     string retval;
     value_table->get_value(retval, did, valueid);
     RETURN(retval);
@@ -70,9 +70,9 @@ QuartzDocument::do_get_value(Xapian::valueno valueid) const
 /** Retrieve all value values from the database
  */
 map<Xapian::valueno, string>
-QuartzDocument::do_get_all_values() const
+FlintDocument::do_get_all_values() const
 {
-    DEBUGCALL(DB, void, "QuartzDocument::do_get_all_values", "");
+    DEBUGCALL(DB, void, "FlintDocument::do_get_all_values", "");
     map<Xapian::valueno, string> value_map;
     value_table->get_all_values(value_map, did);
     return value_map;
@@ -81,8 +81,8 @@ QuartzDocument::do_get_all_values() const
 /** Retrieve the document data from the database
  */
 string
-QuartzDocument::do_get_data() const
+FlintDocument::do_get_data() const
 {
-    DEBUGCALL(DB, string, "QuartzDocument::do_get_data", "");
+    DEBUGCALL(DB, string, "FlintDocument::do_get_data", "");
     RETURN(record_table->get_record(did));
 }

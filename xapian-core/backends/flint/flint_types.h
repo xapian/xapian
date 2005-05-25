@@ -1,4 +1,4 @@
-/* quartz_types.h: Types used by quartz backend and the Btree manager
+/* flint_types.h: Types used by flint backend and the Btree manager
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -21,14 +21,14 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_TYPES_H
-#define OM_HGUARD_QUARTZ_TYPES_H
+#ifndef OM_HGUARD_FLINT_TYPES_H
+#define OM_HGUARD_FLINT_TYPES_H
 
 typedef unsigned char byte;
 typedef long int4;
 typedef unsigned long uint4;
 
-typedef unsigned int quartz_blocksize_t;
+typedef unsigned int flint_blocksize_t;
 
 /** A type used to store a revision number for a table.
  *
@@ -40,30 +40,30 @@ typedef unsigned int quartz_blocksize_t;
  *  number to roll over after a few years.  It would be better to use 64 bits
  *  (and / or to ensure that rolling over causes no problem).
  */
-typedef unsigned int quartz_revision_number_t;
+typedef unsigned int flint_revision_number_t;
 
 /** A type used to store the number of entries in a table.
  *
  *  Again, this must be of suitable minimum size.
  */
-typedef unsigned int quartz_tablesize_t;
+typedef unsigned int flint_tablesize_t;
 
 /** An integer type for storing the length of a document - ie, the sum of the
  *  wdfs of the terms in the document.
  */
-typedef unsigned int quartz_doclen_t;
+typedef unsigned int flint_doclen_t;
 
 /** An integer type which can store the sum of the lengths of the documents
  *  in the database.
  *
  *  FIXME - change this to a double?
  */
-typedef unsigned long long int quartz_totlen_t;
+typedef unsigned long long int flint_totlen_t;
 
 /** The default block size to use in a B-tree table.
  *  If this is changed, be sure to update the API documentation
  *  correspondingly.
  */
-#define QUARTZ_BTREE_DEF_BLOCK_SIZE 8192
+#define FLINT_DEFAULT_BLOCK_SIZE 8192
 
-#endif /* OM_HGUARD_QUARTZ_TYPES_H */
+#endif /* OM_HGUARD_FLINT_TYPES_H */

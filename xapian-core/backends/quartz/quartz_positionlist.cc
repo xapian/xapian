@@ -32,11 +32,7 @@ using std::string;
 static inline void
 make_key(Xapian::docid did, const string & tname, string & key)
 {
-#ifdef SON_OF_QUARTZ
-    key = pack_uint_preserving_sort(did) + tname;
-#else
     key = pack_uint(did) + tname;
-#endif
 }
 
 void

@@ -1,4 +1,4 @@
-/* quartz_positionlist.cc
+/* flint_positionlist.cc
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -24,27 +24,23 @@
 
 #include <config.h>
 #include "omdebug.h"
-#include "quartz_positionlist.h"
-#include "quartz_utils.h"
+#include "flint_positionlist.h"
+#include "flint_utils.h"
 
 using std::string;
 
 static inline void
 make_key(Xapian::docid did, const string & tname, string & key)
 {
-#ifdef SON_OF_QUARTZ
     key = pack_uint_preserving_sort(did) + tname;
-#else
-    key = pack_uint(did) + tname;
-#endif
 }
 
 void
-QuartzPositionList::read_data(const Btree * table,
+FlintPositionList::read_data(const FlintTable * table,
 			      Xapian::docid did,
 			      const string & tname)
 {
-    DEBUGCALL(DB, void, "QuartzPositionList::read_data",
+    DEBUGCALL(DB, void, "FlintPositionList::read_data",
 	      table << ", " << did << ", " << tname);
 
     string key;
@@ -85,9 +81,9 @@ QuartzPositionList::read_data(const Btree * table,
 }
 
 void
-QuartzPositionList::next_internal()
+FlintPositionList::next_internal()
 {
-    DEBUGCALL(DB, void, "QuartzPositionList::next_internal", "");
+    DEBUGCALL(DB, void, "FlintPositionList::next_internal", "");
     if (pos == end) {
 	is_at_end = true;
 	return;
@@ -109,27 +105,27 @@ QuartzPositionList::next_internal()
 }
 
 void
-QuartzPositionList::next()
+FlintPositionList::next()
 {
-    DEBUGCALL(DB, void, "QuartzPositionList::next", "");
+    DEBUGCALL(DB, void, "FlintPositionList::next", "");
     Assert(!is_at_end);
     next_internal();
     have_started = true;
-    DEBUGLINE(DB, string("QuartzPositionList - moved to ") <<
+    DEBUGLINE(DB, string("FlintPositionList - moved to ") <<
 	      (is_at_end ? string("end.") : std::string("position = ") +
 	       om_tostring(current_pos) + "."));
 }
 
 void
-QuartzPositionList::skip_to(Xapian::termpos termpos)
+FlintPositionList::skip_to(Xapian::termpos termpos)
 {
-    DEBUGCALL(DB, void, "QuartzPositionList::skip_to", termpos);
+    DEBUGCALL(DB, void, "FlintPositionList::skip_to", termpos);
     if (!have_started) {
 	next_internal();
 	have_started = true;
     }
     while (!is_at_end && current_pos < termpos) next_internal();
-    DEBUGLINE(DB, string("QuartzPositionList - skipped to ") <<
+    DEBUGLINE(DB, string("FlintPositionList - skipped to ") <<
 	      (is_at_end ? string("end.") : std::string("position = ") +
 	       om_tostring(current_pos) + "."));
 }
@@ -137,12 +133,12 @@ QuartzPositionList::skip_to(Xapian::termpos termpos)
 // Methods modifying position lists
 
 void
-QuartzPositionListTable::set_positionlist(Xapian::docid did,
+FlintPositionListTable::set_positionlist(Xapian::docid did,
 			const string & tname,
 			Xapian::PositionIterator pos,
 			const Xapian::PositionIterator &pos_end)
 {
-    DEBUGCALL(DB, void, "QuartzPositionList::set_positionlist", did << ", " << tname << ", " << pos << ", " << pos_end);
+    DEBUGCALL(DB, void, "FlintPositionList::set_positionlist", did << ", " << tname << ", " << pos << ", " << pos_end);
     string key;
 
     make_key(did, tname, key);
@@ -160,10 +156,10 @@ QuartzPositionListTable::set_positionlist(Xapian::docid did,
 }
 
 void
-QuartzPositionListTable::delete_positionlist(Xapian::docid did,
+FlintPositionListTable::delete_positionlist(Xapian::docid did,
 			const string & tname)
 {
-    DEBUGCALL(DB, void, "QuartzPositionList::delete_positionlist", did << ", " << tname);
+    DEBUGCALL(DB, void, "FlintPositionList::delete_positionlist", did << ", " << tname);
     string key;
     make_key(did, tname, key);
     del(key);

@@ -1,4 +1,4 @@
-/* quartz_termlist.h: Termlists in quartz databases
+/* flint_termlist.h: Termlists in flint databases
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -22,18 +22,18 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_TERMLIST_H
-#define OM_HGUARD_QUARTZ_TERMLIST_H
+#ifndef OM_HGUARD_FLINT_TERMLIST_H
+#define OM_HGUARD_FLINT_TERMLIST_H
 
 #include <string>
 
 #include <xapian/types.h>
 #include "termlist.h"
-#include "btree.h"
+#include "flint_table.h"
 
 using namespace std;
 
-class QuartzTermListTable : public Btree {
+class FlintTermListTable : public FlintTable {
     public:
 	/** Create a new table object.
 	 *
@@ -49,8 +49,8 @@ class QuartzTermListTable : public Btree {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzTermListTable(string path_, bool readonly_)
-	    : Btree(path_ + "/termlist_", readonly_) { }
+	FlintTermListTable(string path_, bool readonly_)
+	    : FlintTable(path_ + "/termlist.", readonly_) { }
 
 	/** Set the entries in the termlist.
 	 *
@@ -64,7 +64,7 @@ class QuartzTermListTable : public Btree {
 	 */
 	void set_entries(Xapian::docid did,
 		    Xapian::TermIterator t, const Xapian::TermIterator &t_end,
-		    quartz_doclen_t doclen, bool store_termfreqs);
+		    flint_doclen_t doclen, bool store_termfreqs);
 
 	/** Clear the termlist.  After this call, the termlist for the
 	 *  specified document ID will not exist.
@@ -72,13 +72,13 @@ class QuartzTermListTable : public Btree {
 	void delete_termlist(Xapian::docid did);
 };
 
-/** A termlist in a quartz database.
+/** A termlist in a flint database.
  */
-class QuartzTermList : public LeafTermList {
+class FlintTermList : public LeafTermList {
     private:
         // Prevent copying
-        QuartzTermList(const QuartzTermList &);
-        QuartzTermList & operator=(const QuartzTermList &);
+        FlintTermList(const FlintTermList &);
+        FlintTermList & operator=(const FlintTermList &);
 
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us.
@@ -89,7 +89,7 @@ class QuartzTermList : public LeafTermList {
 
 	/** The table holding the termlist.
 	 */
-	const Btree * table;
+	const FlintTable * table;
 
 	/** The data for the (part of the) termlist currently being read.
 	 *
@@ -112,7 +112,7 @@ class QuartzTermList : public LeafTermList {
 
 	/** The length of the document represented by the termlist.
 	 */
-	quartz_doclen_t doclen;
+	flint_doclen_t doclen;
 
 	/** The size of the termlist.
 	 */
@@ -147,8 +147,8 @@ class QuartzTermList : public LeafTermList {
     public:
 	/** Open the termlist for the specified document, for reading.
 	 */
-	QuartzTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-		       const Btree * table_,
+	FlintTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
+		       const FlintTable * table_,
 		       Xapian::docid did_,
 		       Xapian::doccount doccount_);
 
@@ -158,7 +158,7 @@ class QuartzTermList : public LeafTermList {
 	 *  database could then avoid having to create a temporary termlist
 	 *  object.
 	 */
-	quartz_doclen_t get_doclength() const;
+	flint_doclen_t get_doclength() const;
 
 	/** Return number of items in termlist.
 	 *  (This is actually exact - it may be approximate for combined
@@ -201,4 +201,4 @@ class QuartzTermList : public LeafTermList {
 	Xapian::PositionIterator positionlist_begin() const;
 };
 
-#endif /* OM_HGUARD_QUARTZ_TERMLIST_H */
+#endif /* OM_HGUARD_FLINT_TERMLIST_H */

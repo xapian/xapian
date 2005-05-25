@@ -1,4 +1,4 @@
-/* quartz_record.h: Records in quartz databases
+/* flint_values.h: Values in flint databases
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -22,20 +22,31 @@
  * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_QUARTZ_RECORD_H
-#define OM_HGUARD_QUARTZ_RECORD_H
+#ifndef OM_HGUARD_FLINT_VALUES_H
+#define OM_HGUARD_FLINT_VALUES_H
 
+#include <map>
 #include <string>
 
 #include <xapian/types.h>
-#include "quartz_types.h"
-#include "btree.h"
+#include "flint_table.h"
 
 using namespace std;
 
-/** A record in a quartz database.
- */
-class QuartzRecordTable : public Btree {
+class FlintValueTable : public FlintTable {
+    private:
+	/** Read an entry from position.  Throw appropriate exceptions if
+	 *  data runs out.
+	 */
+	static void unpack_entry(const char ** pos,
+				 const char * end,
+				 Xapian::valueno * this_value_no,
+				 string & this_value);
+
+	/** Generate key representing docid/valueno pair.
+	 */
+	static void make_key(string & key, Xapian::docid did, Xapian::valueno valueno);
+
     public:
 	/** Create a new table object.
 	 *
@@ -51,39 +62,37 @@ class QuartzRecordTable : public Btree {
 	 *  @param blocksize_     - Size of blocks to use.  This parameter is
 	 *                          only used when creating the table.
 	 */
-	QuartzRecordTable(string path_, bool readonly_)
-	    : Btree(path_ + "/record_", readonly_) { }
+	FlintValueTable(string path_, bool readonly_)
+	    : FlintTable(path_ + "/value.", readonly_) { }
 
-	/** Retrieve a document from the table.
+	/** Store a value.  If a value of the same document ID and
+	 *  value number already exists, it is overwritten by this.
 	 */
-	string get_record(Xapian::docid did) const;
+	void add_value(const string & value, Xapian::docid did,
+		       Xapian::valueno valueno);
 
-	/** Get the number of records in the table.
-	 */
-	Xapian::doccount get_doccount() const;
-
-	/** Return the total length of all the records in the table.
-	 */
-	quartz_totlen_t get_total_length() const;
-
-	/** Get the last document id used.
-	 */
-	Xapian::docid get_lastdocid() const;
-
-	/** Set the total length and last document ID used.
-	 */
-	void set_total_length_and_lastdocid(quartz_totlen_t totlen,
-					    Xapian::docid did);
-
-	/* Add a new record to the table, or replace an existing record.
+	/** Get a value.
 	 *
-	 * @param did	The document ID to use.
+	 *  @return The value if found, a null value otherwise.
 	 */
-	void replace_record(const string & data, Xapian::docid did);
+	void get_value(string & value, Xapian::docid did,
+		       Xapian::valueno valueno) const;
 
-	/** Delete a record from the table.
+	/** Get all values.
+	 *
+	 *  @param values  A map to be filled with all the values
+	 *                     for the specified document.
+	 *
 	 */
-	void delete_record(Xapian::docid did);
+	void get_all_values(map<Xapian::valueno, string> & values,
+			    Xapian::docid did) const;
+
+	/** Remove all values.
+	 *
+	 *  @param did	The document id for which to remove the values.
+	 *
+	 */
+	void delete_all_values(Xapian::docid did);
 };
 
-#endif /* OM_HGUARD_QUARTZ_RECORD_H */
+#endif /* OM_HGUARD_FLINT_VALUES_H */
