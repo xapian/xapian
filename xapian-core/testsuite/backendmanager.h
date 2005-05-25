@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -93,6 +93,14 @@ class BackendManager {
 	Xapian::WritableDatabase getwritedb_remote(const std::vector<std::string> &dbnames);
 #endif
 
+#ifdef XAPIAN_BUILD_BACKEND_FLINT
+	/// Get a flint database instance.
+	Xapian::Database getdb_flint(const std::vector<std::string> &dbnames);
+
+	/// Get a writable flint database instance.
+	Xapian::WritableDatabase getwritedb_flint(const std::vector<std::string> &dbnames);
+#endif
+
 #ifdef XAPIAN_BUILD_BACKEND_QUARTZ
 	/// Get a quartz database instance.
 	Xapian::Database getdb_quartz(const std::vector<std::string> &dbnames);
@@ -136,7 +144,7 @@ class BackendManager {
 
 	/** Set the database type to use.
 	 *
-	 *  Valid values for dbtype are "inmemory", "quartz",
+	 *  Valid values for dbtype are "inmemory", "flint", "quartz",
 	 *  "void", "da", "daflimsy", "db", "dbflimsy", and "remote".
 	 */
 	void set_dbtype(const std::string &type);

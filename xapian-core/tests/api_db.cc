@@ -1109,6 +1109,20 @@ static bool test_quartzdatabaseopeningerror1()
     return true;
 }
 
+// tests that specifying a nonexistent input file throws an exception.
+static bool test_flintdatabaseopeningerror1()
+{
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Flint::open(".flint/nosuchdirectory"));
+    mkdir(".flint/emptydirectory", 0755);
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Flint::open(".flint/emptydirectory"));
+    touch(".flint/somefile");
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Flint::open(".flint/somefile"));
+    return true;
+}
+
 // feature test for Enquire: sort by value, then relevance.
 static bool test_sortrel1()
 {
@@ -1325,6 +1339,12 @@ test_desc remotedb_tests[] = {
     {"stubdb1",		   test_stubdb1},
     {"keepalive1",	   test_keepalive1},
     {"termstats",	   test_termstats},
+    {0, 0}
+};
+
+test_desc flint_tests[] = {
+    {"flintdatabaseopeningerror1",	test_flintdatabaseopeningerror1},
+    {"sortrel1",	   test_sortrel1},
     {0, 0}
 };
 

@@ -1,3 +1,9 @@
+Wed May 25 03:33:34 BST 2005  Olly Betts <olly@survex.com>
+
+	* tests/apitest.cc,tests/api_db.cc,tests/api_db.h,
+	  testsuite/backendmanager.cc,testsuite/backendmanager.h:
+	  apitest now runs tests on flint as well.
+
 Wed May 25 03:20:12 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/database.cc: When automatically determining which backend

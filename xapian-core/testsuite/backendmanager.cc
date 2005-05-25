@@ -132,6 +132,15 @@ BackendManager::set_dbtype(const string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
 #endif
 #endif
+    } else if (type == "flint") {
+#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
+	do_getdb = &BackendManager::getdb_flint;
+	do_getwritedb = &BackendManager::getwritedb_flint;
+	rmdir(".flint");
+#else
+	do_getdb = &BackendManager::getdb_void;
+	do_getwritedb = &BackendManager::getwritedb_void;
+#endif
     } else if (type == "quartz") {
 #ifdef XAPIAN_BUILD_BACKEND_QUARTZ
 	do_getdb = &BackendManager::getdb_quartz;
@@ -177,7 +186,7 @@ BackendManager::set_dbtype(const string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
 	throw Xapian::InvalidArgumentError(
-		"Expected inmemory, quartz, remote, da, db, "
+		"Expected inmemory, flint, quartz, remote, da, db, "
 		"daflimsy, dbflimsy, or void");
     }
     current_type = type;
@@ -310,6 +319,51 @@ bool create_dir_if_needed(const string &dirname)
 	throw Xapian::DatabaseOpeningError("Is not a directory.");
     return false; // Already a directory.
 }
+
+#ifdef XAPIAN_BUILD_BACKEND_FLINT
+Xapian::Database
+BackendManager::getdb_flint(const vector<string> &dbnames)
+{
+    string parent_dir = ".flint";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end(); i++) {
+	dbdir += "=" + *i;
+    }
+    // If the database is readonly, we can reuse it if it exists.
+    if (create_dir_if_needed(dbdir)) {
+	// Directory was created, so do the indexing.
+	Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
+	index_files_to_database(db, change_names_to_paths(dbnames));
+    }
+    return Xapian::Quartz::open(dbdir);
+}
+
+Xapian::WritableDatabase
+BackendManager::getwritedb_flint(const vector<string> &dbnames)
+{
+    string parent_dir = ".flint";
+    create_dir_if_needed(parent_dir);
+
+    // Add 'w' to distinguish writable dbs (which need to be recreated on each
+    // use) from readonly ones (which can be reused).
+    string dbdir = parent_dir + "/dbw";
+    for (vector<string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end(); ++i) {
+	dbdir += "=" + *i;
+    }
+    // For a writable database we need to start afresh each time.
+    rmdir(dbdir);
+    (void)create_dir_if_needed(dbdir);
+    touch(dbdir + "/log");
+    // directory was created, so do the indexing.
+    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
+    index_files_to_database(db, change_names_to_paths(dbnames));
+    return db;
+}
+#endif
 
 #ifdef XAPIAN_BUILD_BACKEND_QUARTZ
 Xapian::Database

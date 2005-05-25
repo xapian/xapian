@@ -115,6 +115,20 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef XAPIAN_BUILD_BACKEND_QUARTZ
+    RUNTESTS("flint", anydb);
+    RUNTESTS("flint", specchar);
+    RUNTESTS("flint", writabledb);
+    RUNTESTS("flint", localdb);
+    RUNTESTS("flint", positionaldb);
+    RUNTESTS("flint", localpositionaldb);
+    RUNTESTS("flint", doclendb);
+    RUNTESTS("flint", collfreq);
+    RUNTESTS("flint", allterms);
+    RUNTESTS("flint", multivalue);
+    RUNTESTS("flint", flint);
+#endif
+
+#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
     RUNTESTS("quartz", anydb);
     RUNTESTS("quartz", specchar);
     RUNTESTS("quartz", writabledb);
