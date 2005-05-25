@@ -690,8 +690,9 @@ if test yes = "$GXX"; then
       dnl
       dnl -Wno-long-long had appeared by GCC 2.95 and there's little likelihood
       dnl Xapian will build with any earlier version, so there's not much point
-      dnl testing if -Wno-long-long is supported.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wno-long-long -fno-gnu-keywords"
+      dnl testing if -Wno-long-long is supported.  -Wredundant-decls had also
+      dnl appeared by GCC 2.95
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wno-long-long -fno-gnu-keywords"
       dnl Automatically add -Werror if maintainer mode is enabled and we're
       dnl using GCC3 or newer.  We don't do this for older GCCs as GCC 2.95
       dnl issues spurious warnings.

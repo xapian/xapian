@@ -1,3 +1,7 @@
+Wed May 25 18:36:41 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add -Wredundant-decls to the default CXXFLAGS for GCC.
+
 Wed May 25 03:33:34 BST 2005  Olly Betts <olly@survex.com>
 
 	* tests/apitest.cc,tests/api_db.cc,tests/api_db.h,
