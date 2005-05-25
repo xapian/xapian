@@ -688,21 +688,21 @@ if test yes = "$GXX"; then
     [
       dnl GCC:
       dnl
-      dnl -Wno-long-long had appeared by GCC 2.95 and there's little likelihood
-      dnl Xapian will build with any earlier version, so there's not much point
-      dnl testing if -Wno-long-long is supported.  -Wredundant-decls had also
-      dnl appeared by GCC 2.95
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wno-long-long -fno-gnu-keywords"
+      dnl All these options were supported by g++ 2.95 and there's little
+      dnl likelihood Xapian will build with any earlier version, so there's
+      dnl not much point worry about whether older versions had them or not.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wundef -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
       dnl Automatically add -Werror if maintainer mode is enabled and we're
       dnl using GCC3 or newer.  We don't do this for older GCCs as GCC 2.95
       dnl issues spurious warnings.
+      dnl Also only add -Wendif in this case (it was added in GCC 3.0).
       if test x$USE_MAINTAINER_MODE = xyes; then
 	dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
 	dnl but somewhere in the 3.X series the output became more verbose.
 	dnl So for simplicitly, we test for the earlier versions.
 	case `$CXX --version 2>&1` in
 	[[12]].*) ;;
-	*) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
+	*) AM_CXXFLAGS="$AM_CXXFLAGS -Wendif -Werror" ;;
 	esac
       fi
     ])

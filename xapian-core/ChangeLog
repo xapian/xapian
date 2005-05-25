@@ -1,3 +1,8 @@
+Wed May 25 20:41:39 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Pass more -W flags to g++ (including -Wundef which
+	  caught the getopt problem fixed by the previous commit).
+
 Wed May 25 20:32:35 BST 2005  Olly Betts <olly@survex.com>
 
 	* getopt/getopt.cc: Added accidentally pruned #define so that getopt
