@@ -201,12 +201,12 @@ bool
 FlintTable_base::read(const string & name, char ch, string &err_msg)
 {
     string basename = name + "base" + ch;
-    int h = open(name.c_str(), O_RDONLY | O_BINARY);
-    fdcloser closefd(h);
+    int h = open(basename.c_str(), O_RDONLY | O_BINARY);
     if (h == -1) {
 	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
 	return false;
     }
+    fdcloser closefd(h);
     string buf(sys_read_n_bytes(h, REASONABLE_BASE_SIZE));
 
     const char *start = buf.data();

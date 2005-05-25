@@ -1,3 +1,8 @@
+Wed May 25 03:19:21 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_btreebase.cc: Fix typo in code which prevented
+	  a flint database from being opened.
+
 Wed May 25 01:10:51 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/version.h.in,include/xapian/dbfactory.h,
