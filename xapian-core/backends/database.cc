@@ -287,8 +287,9 @@ open_writable_database(Database *db, const string &path, int action)
     const char *p = getenv("XAPIAN_PREFER_FLINT");
     if (p != NULL && *p) {
 	db->internal.push_back(new FlintWritableDatabase(path, action, 8192));
+    } else {
+	db->internal.push_back(new QuartzWritableDatabase(path, action, 8192));
     }
-    db->internal.push_back(new QuartzWritableDatabase(path, action, 8192));
 #elif defined XAPIAN_BUILD_BACKEND_FLINT
     // Only Flint is enabled.
     db->internal.push_back(new FlintWritableDatabase(path, action, 8192));

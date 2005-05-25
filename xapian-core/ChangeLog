@@ -1,3 +1,9 @@
+Wed May 25 03:20:12 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: When automatically determining which backend
+	  to use when creating a WritableDatabase, don't try to open it as
+	  both Flint *AND* Quartz (an "else" was missing).
+
 Wed May 25 03:19:21 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_btreebase.cc: Fix typo in code which prevented
