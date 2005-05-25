@@ -33,6 +33,7 @@
    is included in the GNU C Library, and linking in this code is a waste when
    using the GNU C library (especially if it is a shared library). */
 
+#define GNU_GETOPT_INTERFACE_VERSION 2
 #if defined __GLIBC__ && __GLIBC__ >= 2
 # include <gnu-versions.h>
 # if _GNU_GETOPT_INTERFACE_VERSION == GNU_GETOPT_INTERFACE_VERSION
