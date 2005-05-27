@@ -1,3 +1,7 @@
+Fri May 27 20:06:52 BST 2005  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Add missing '#include <config.h>'.
+
 Fri May 27 12:20:03 BST 2005  Olly Betts <olly@survex.com>
 
 	* common/omdebug.h: Oops, change to static_cast reveals that we were
