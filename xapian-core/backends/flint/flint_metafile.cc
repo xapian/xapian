@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,8 +39,9 @@ using std::string;
 #endif
 #endif
 
-static const string metafile_magic = "OMMETA";
-static const unsigned int metafile_version = 1;
+static const string metafile_magic = "IAmFlint";
+// YYYYMMDDX where X allows multiple format revisions in a day
+static const unsigned int metafile_version = 200505270;
 
 static const size_t min_metafile_size = metafile_magic.length() + 4;
 
@@ -116,5 +117,9 @@ void FlintMetaFile::create()
 	throw Xapian::DatabaseOpeningError(message);
     }
     sys_write_n_bytes(fd, data.length(), data.data());
-    (void)close(fd);
+    if (close(fd) < 0) {
+	string message = string("Couldn't open metafile ")
+		+ filename + " to write: " + strerror(errno);
+	throw Xapian::DatabaseOpeningError(message);
+    }
 }

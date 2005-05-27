@@ -1,3 +1,10 @@
+Sat May 28 00:42:25 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_metafile.cc: Change metafile magic to be
+	  different from quartz, and make the metafile version a datestamp
+	  which we'll change each time the format changes; check the return
+	  value of close on the metafile.
+
 Fri May 27 22:09:45 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.am,backends/flint/: Implement new fork+fcntl+exec
