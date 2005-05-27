@@ -1,3 +1,7 @@
+Fri May 27 22:06:14 BST 2005  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc: Missed a warning fix.
+
 Fri May 27 22:04:18 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h,

@@ -193,11 +193,11 @@ Query::empty() const
     return internal.get() == 0;
 }
 
-Query::Query(Query::op op, const std::string & left, const std::string & right)
+Query::Query(Query::op op_, const std::string & left, const std::string & right)
     : internal(0)
 {
     try {
-	start_construction(op, 0);
+	start_construction(op_, 0);
 	add_subquery(left);
 	add_subquery(right);
 	end_construction();
