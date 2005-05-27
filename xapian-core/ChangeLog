@@ -1,3 +1,7 @@
+Fri May 27 12:16:03 BST 2005  Olly Betts <olly@survex.com>
+
+	* common/omdebug.h: Replace C style cast with static_cast<>.
+
 Fri May 27 12:07:48 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: -Wendif should be -Wendif-labels.

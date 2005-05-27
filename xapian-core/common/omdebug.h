@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -198,7 +198,7 @@ class OmDebugCall {
     typedef r omdebugapicallreturn_t; \
     if (om_debug.want_type(OM_DEBUG_##t)) { \
 	om_ostringstream os1; \
-	os1 << "[" << ((void *)this) << "] " << STRINGIZE(r) << " " << a; \
+	os1 << "[" << static_cast<void*>(this) << "] " << STRINGIZE(r) << " " << a; \
 	omdebugapicall_method = os1.str(); \
 	om_ostringstream os2; \
 	os2 << b; \
