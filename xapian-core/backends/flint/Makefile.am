@@ -16,7 +16,8 @@ noinst_HEADERS =       flint_types.h \
 		       flint_table.h \
 		       flint_cursor.h \
 		       flint_btreeutil.h \
-		       flint_btreebase.h
+		       flint_btreebase.h \
+		       flint_lock.h
 
 libflint_la_SOURCES =  flint_database.cc \
 		       flint_termlist.cc \
@@ -29,6 +30,7 @@ libflint_la_SOURCES =  flint_database.cc \
 		       flint_metafile.cc \
 		       flint_table.cc \
 		       flint_cursor.cc \
-		       flint_btreebase.cc
+		       flint_btreebase.cc \
+		       flint_lock.cc
 
 noinst_LTLIBRARIES = libflint.la

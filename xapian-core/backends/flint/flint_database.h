@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,7 @@
 #include "flint_record.h"
 #include "flint_termlist.h"
 #include "flint_values.h"
+#include "flint_lock.h"
 
 class FlintTermList;
 
@@ -92,6 +93,9 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 */
 	FlintRecordTable record_table;
 
+	/// Lock object.
+	FlintLock lock;
+
 	/** Return true if a database exists at the path specified for this
 	 *  database.
 	 */
@@ -113,10 +117,6 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 *  Xapian::DatabaseLockError if failure.
 	 */
 	void get_database_write_lock();
-
-	/** Release the database write lock.
-	 */
-	void release_database_write_lock();
 
 	/** Open tables at specified revision number.
 	 *

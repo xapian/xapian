@@ -157,18 +157,18 @@ public:
 	// Read the length now because we may be copying the key over itself.
 	// FIXME that's stupid!  sort this out
 	int newkey_len = newkey.length();
-	int size = I2 + K1 + i + C2;
+	int newsize = I2 + K1 + i + C2;
 	// Item size (4 since tag contains block number)
-	setint2(p, 0, size + 4);
+	setint2(p, 0, newsize + 4);
 	// Key size
-	setint1(p, I2, size - I2);
+	setint1(p, I2, newsize - I2);
 	// Copy the main part of the key, possibly truncating.
 	memmove(p + I2 + K1, newkey.get_address() + K1, i);
 	// Copy the count part.
 	memmove(p + I2 + K1 + i, newkey.get_address() + K1 + newkey_len, C2);
 	// Set tag contents to block number
 //	set_block_given_by(n);
-	setint4(p, size, n);
+	setint4(p, newsize, n);
     }
 
     /** Set this item's tag to point to block n (this block should not be at
@@ -185,14 +185,14 @@ public:
 	set_key_len(K1);        /* null key */
 	set_size(I2 + K1 + 4);  /* total length */
     }
-    void form_key(const string & key) {
-	Assert(key.length() <= FLINT_BTREE_MAX_KEY_LEN);
+    void form_key(const string & key_) {
+	Assert(key_.length() <= FLINT_BTREE_MAX_KEY_LEN);
 
 	// This just so it doesn't fall over horribly in non-debug builds.
-	string::size_type key_len = std::min(key.length(), FLINT_BTREE_MAX_KEY_LEN);
+	string::size_type key_len = std::min(key_.length(), FLINT_BTREE_MAX_KEY_LEN);
 
 	set_key_len(key_len + K1 + C2);
-	memmove(p + I2 + K1, key.data(), key_len);
+	memmove(p + I2 + K1, key_.data(), key_len);
 	set_component_of(1);
     }
     // FIXME passing cd here is icky

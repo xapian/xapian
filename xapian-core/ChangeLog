@@ -1,3 +1,8 @@
+Fri May 27 22:09:45 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.am,backends/flint/: Implement new fork+fcntl+exec
+	  based locking;  Fix new GCC warnings.
+
 Fri May 27 22:06:14 BST 2005  Olly Betts <olly@survex.com>
 
 	* api/omquery.cc: Missed a warning fix.

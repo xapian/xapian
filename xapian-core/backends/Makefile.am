@@ -16,11 +16,6 @@ libbackend_la_SOURCES = database.cc
 #      of SUBDIRS and libbackend_la_LIBADD at the bottom of this file
 # iv)  Write the backend library
 
-if BUILD_BACKEND_FLINT
-BUILDSUBDIR_FLINT = flint
-LIBADD_FLINT = flint/libflint.la
-endif
-
 if BUILD_BACKEND_MUSCAT36
 BUILDSUBDIR_MUSCAT36 = muscat36
 LIBADD_MUSCAT36 = muscat36/libmuscat36.la

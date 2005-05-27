@@ -40,6 +40,7 @@
 #include "flint_values.h"
 #include "flint_document.h"
 #include "flint_alltermslist.h"
+#include "flint_lock.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -76,7 +77,8 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	  positionlist_table(db_dir, readonly),
 	  termlist_table(db_dir, readonly),
 	  value_table(db_dir, readonly),
-	  record_table(db_dir, readonly)
+	  record_table(db_dir, readonly),
+	  lock(db_dir + "/flicklock")
 {
     DEBUGCALL(DB, void, "FlintDatabase", flint_dir << ", " << action <<
 	      ", " << block_size);
@@ -96,9 +98,6 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	if (!dbexists) {
 	    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
 	    if (action == Xapian::DB_OPEN) {
-		// Catch pre-0.6 Xapian databases and give a better error
-		if (file_exists(db_dir + "/attribute_DB"))
-		    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
 		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	    }
 
@@ -161,7 +160,7 @@ FlintDatabase::~FlintDatabase()
 {
     DEBUGCALL(DB, void, "~FlintDatabase", "");
     // Only needed for a writable database: dtor_called();
-    if (!readonly) release_database_write_lock();
+    if (lock) lock.release();
 }
 
 bool
@@ -322,105 +321,9 @@ void
 FlintDatabase::get_database_write_lock()
 {
     DEBUGCALL(DB, void, "FlintDatabase::get_database_write_lock", "");
-    // FIXME:: have a backoff strategy to avoid stalling on a stale lockfile
-#ifdef HAVE_SYS_UTSNAME_H
-    const char *hostname;
-    struct utsname host;
-    if (!uname(&host)) {
-	host.nodename[0] = '\0';
+    if (!lock.lock(true)) {
+	throw Xapian::DatabaseLockError("Unable to acquire database write lock on " + db_dir);
     }
-    hostname = host.nodename;
-#elif defined(HAVE_GETHOSTNAME)
-    char hostname[256];
-    if (gethostname(hostname, sizeof hostname) == -1) {
-	*hostname = '\0';
-    }
-#else
-    const char *hostname = "";
-#endif
-    string tempname = db_dir + "/db_lock.tmp." + om_tostring(getpid()) + "." +
-	    hostname + "." +
-	    om_tostring(reinterpret_cast<long>(this)); /* should work within
-							  one process too! */
-    DEBUGLINE(DB, "Temporary file " << tempname << " created");
-    int num_tries = 5;
-    while (true) {
-	num_tries--;
-	if (num_tries < 0) {
-	    throw Xapian::DatabaseLockError("Unable to acquire database write lock "
-				      + db_dir + "/db_lock");
-	}
-
-	int tempfd = open(tempname.c_str(), O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
-	if (tempfd < 0) {
-	    throw Xapian::DatabaseLockError("Unable to create " + tempname +
-				      ": " + strerror(errno),
-				      errno);
-	}
-
-#if defined __CYGWIN__
-	close(tempfd);
-	// Cygwin carefully tries to recreate Unix semantics for rename(), so
-	// we can't use rename for locking.  And link() works on NTFS but not
-	// FAT.  So we use the underlying API call and translate the paths.
-	char fr[MAX_PATH], to[MAX_PATH];
-	cygwin_conv_to_win32_path(tempname.c_str(), fr);
-	cygwin_conv_to_win32_path((db_dir + "/db_lock").c_str(), to);
-	if (MoveFile(fr, to)) {
-	    return;
-	}
-#elif defined __WIN32__
-	// MS Windows can't rename an open file, so make sure we close it
-	// first.
-	close(tempfd);
-	// MS Windows doesn't support link(), but rename() won't overwrite an
-	// existing file, which is exactly the semantics we want.
-	if (rename(tempname.c_str(), (db_dir + "/db_lock").c_str()) == 0) {
-	    return;
-	}
-#else
-	/* Now link(2) the temporary file to the lockfile name.
-	 * If either link() returns 0, or the temporary file has
-	 * link count 2 afterwards, then the lock succeeded.
-	 * Otherwise, it failed.  (Reference: Linux open() manpage)
-	 */
-	/* FIXME: sort out all these unlinks */
-	int result = link(tempname, db_dir + "/db_lock");
-	if (result == 0) {
-	    close(tempfd);
-	    unlink(tempname);
-	    return;
-	}
-#ifdef XAPIAN_DEBUG_VERBOSE
-	int link_errno = errno;
-#endif
-	struct stat statbuf;
-	int statresult = fstat(tempfd, &statbuf);
-	int fstat_errno = errno;
-	close(tempfd);
-	unlink(tempname);
-	if (statresult != 0) {
-	    throw Xapian::DatabaseLockError("Unable to fstat() temporary file " +
-				      tempname + " while locking: " +
-				      strerror(fstat_errno));
-	}
-	if (statbuf.st_nlink == 2) {
-	    /* success */
-	    return;
-	}
-	DEBUGLINE(DB, "link() returned " << result << "(" <<
-		  strerror(link_errno) << ")");
-	DEBUGLINE(DB, "Links in statbuf: " << statbuf.st_nlink);
-	/* also failed */
-#endif
-    }
-}
-
-void
-FlintDatabase::release_database_write_lock()
-{
-    DEBUGCALL(DB, void, "FlintDatabase::release_database_write_lock", "");
-    unlink(db_dir + "/db_lock");
 }
 
 void
