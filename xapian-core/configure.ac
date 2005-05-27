@@ -695,14 +695,14 @@ if test yes = "$GXX"; then
       dnl Automatically add -Werror if maintainer mode is enabled and we're
       dnl using GCC3 or newer.  We don't do this for older GCCs as GCC 2.95
       dnl issues spurious warnings.
-      dnl Also only add -Wendif in this case (it was added in GCC 3.0).
+      dnl Also only add -Wendif-labels in this case (it was added in GCC 3.0).
       if test x$USE_MAINTAINER_MODE = xyes; then
 	dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
 	dnl but somewhere in the 3.X series the output became more verbose.
 	dnl So for simplicitly, we test for the earlier versions.
 	case `$CXX --version 2>&1` in
 	[[12]].*) ;;
-	*) AM_CXXFLAGS="$AM_CXXFLAGS -Wendif -Werror" ;;
+	*) AM_CXXFLAGS="$AM_CXXFLAGS -Wendif-labels -Werror" ;;
 	esac
       fi
     ])

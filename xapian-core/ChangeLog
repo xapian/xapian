@@ -1,3 +1,7 @@
+Fri May 27 12:07:48 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: -Wendif should be -Wendif-labels.
+
 Wed May 25 20:41:39 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Pass more -W flags to g++ (including -Wundef which
