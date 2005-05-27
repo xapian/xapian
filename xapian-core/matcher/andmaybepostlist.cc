@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,9 +43,9 @@ AndMaybePostList::process_next_or_skip_to(Xapian::weight w_min, PostList *ret)
 
     skip_to_handling_prune(r, lhead, w_min - lmax, matcher);
     if (r->at_end()) {
-	PostList *ret = l;
+	PostList *tmp = l;
 	l = NULL;
-	RETURN(ret);
+	RETURN(tmp);
     }
     rhead = r->get_docid();
     RETURN(NULL);

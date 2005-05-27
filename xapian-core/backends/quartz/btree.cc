@@ -532,7 +532,7 @@ Btree::alter()
 
 int Btree::find_in_block(const byte * p, Key key, bool leaf, int c)
 {
-    DEBUGCALL_STATIC(DB, int, "Btree::find_in_block", (void*)p << ", " << (void*)key.get_address() << ", " << leaf << ", " << c);
+    DEBUGCALL_STATIC(DB, int, "Btree::find_in_block", reinterpret_cast<const void*>(p) << ", " << reinterpret_cast<const void*>(key.get_address()) << ", " << leaf << ", " << c);
     int i = DIR_START;
     if (leaf) i -= D2;
     int j = DIR_END(p);
@@ -712,7 +712,7 @@ Btree::enter_key(int j, Key prevkey, Key newkey)
 	uint4 n = get_int4(newkey.get_address(), newkey_len + K1 + C2);
 	int new_total_free = TOTAL_FREE(p) + newkey_len + C2;
 	// FIXME: incredibly icky going from key to item like this...
-	Item_wr((byte *)newkey.get_address() - I2).form_null_key(n);
+	Item_wr(const_cast<byte *>(newkey.get_address()) - I2).form_null_key(n);
 	SET_TOTAL_FREE(p, new_total_free);
     }
 
@@ -1890,7 +1890,7 @@ Btree::next_default(Cursor * C_, int j) const
 
 bool Key::operator<(Key key2) const
 {
-    DEBUGCALL(DB, bool, "Key::operator<", (void*)key2.p);
+    DEBUGCALL(DB, bool, "Key::operator<", reinterpret_cast<const void*>(key2.p));
     int key1_len = length();
     int key2_len = key2.length();
     if (key1_len == key2_len) {
@@ -1913,7 +1913,7 @@ bool Key::operator<(Key key2) const
 
 bool Key::operator==(Key key2) const
 {
-    DEBUGCALL(DB, bool, "Key::operator==", (void*)key2.p);
+    DEBUGCALL(DB, bool, "Key::operator==", reinterpret_cast<const void*>(key2.p));
     int key1_len = length();
     if (key1_len != key2.length()) return false;
     // The keys are the same length, so we can compare the counts

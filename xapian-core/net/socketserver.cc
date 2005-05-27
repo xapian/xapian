@@ -280,22 +280,24 @@ SocketServer::run_match(const string &firstmessage)
 
     // extract the match options
     message = readline(msecs_active_timeout);
-#ifdef HAVE_SSTREAM
-    istringstream is(message);
-#else
-    istrstream is(message.data(), message.length());
-#endif
 
     Xapian::termcount qlen;
     Xapian::Enquire::docid_order order;
-    int order_int;
     Xapian::valueno collapse_key;
     int percent_cutoff;
     Xapian::weight weight_cutoff;
     string weighting_scheme;
 
-    is >> qlen >> collapse_key >> order_int >> percent_cutoff >> weight_cutoff;
-    order = Xapian::Enquire::docid_order(order_int);
+    {
+#ifdef HAVE_SSTREAM
+	istringstream is(message);
+#else
+	istrstream is(message.data(), message.length());
+#endif
+	int order_int;
+	is >> qlen >> collapse_key >> order_int >> percent_cutoff >> weight_cutoff;
+	order = Xapian::Enquire::docid_order(order_int);
+    }
 
     // extract the weight object
     message = readline(msecs_active_timeout);

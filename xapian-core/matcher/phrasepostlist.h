@@ -53,9 +53,9 @@ class NearPostList : public SelectPostList {
 	    return source->get_termfreq_est() / 2;
 	}
 
-        NearPostList(PostList *source, Xapian::termpos window_,
+        NearPostList(PostList *source_, Xapian::termpos window_,
 		     std::vector<PostList *> terms_)
-		: SelectPostList(source)
+		: SelectPostList(source_)
         {
 	    window = window_;
 	    terms = terms_;
@@ -86,8 +86,8 @@ class PhrasePostList : public SelectPostList {
 	    return source->get_termfreq_est() / 3;
 	}
 
-        PhrasePostList(PostList *source, Xapian::termpos window_,
-		       std::vector<PostList *> terms_) : SelectPostList(source)
+        PhrasePostList(PostList *source_, Xapian::termpos window_,
+		       std::vector<PostList *> terms_) : SelectPostList(source_)
         {
 	    window = window_;
 	    terms = terms_;

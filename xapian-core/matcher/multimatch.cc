@@ -486,10 +486,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Get postlists
     vector<PostList *> postlists;
-    vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator i;
-    for (i = leaves.begin(); i != leaves.end(); ++i) {
-	// FIXME: errorhandler here? (perhaps not needed if this simply makes a pending postlist)
-	postlists.push_back((*i)->get_postlist(first + check_at_least, this));
+    {
+	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator i;
+	for (i = leaves.begin(); i != leaves.end(); ++i) {
+	    // FIXME: errorhandler here? (perhaps not needed if this simply makes a pending postlist)
+	    postlists.push_back((*i)->get_postlist(first + check_at_least, this));
+	}
     }
 
     // Get term info
@@ -909,9 +911,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		items.pop_back();
 	    }
 #ifdef XAPIAN_DEBUG_PARANOID
-	    vector<Xapian::Internal::MSetItem>::const_iterator i;
-	    for (i = items.begin(); i != items.end(); ++i) {
-		Assert(i->wt >= min_wt);
+	    vector<Xapian::Internal::MSetItem>::const_iterator j;
+	    for (j = items.begin(); j != items.end(); ++j) {
+		Assert(j->wt >= min_wt);
 	    }
 #endif
 	}

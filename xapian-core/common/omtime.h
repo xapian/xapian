@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,7 +46,7 @@ class OmTime {
 
 	/// Initialised
 	OmTime(long int msec) : sec(msec / 1000), usec((msec % 1000) * 1000) {}
-	OmTime(long int sec, long int usec) : sec(sec), usec(usec) {}
+	OmTime(long int sec_, long int usec_) : sec(sec_), usec(usec_) {}
 
 	void operator+= (const OmTime &add) {
 	    usec += add.usec;

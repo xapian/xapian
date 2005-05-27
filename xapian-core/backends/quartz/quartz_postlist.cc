@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -194,10 +194,10 @@ read_start_of_chunk(const char ** posptr,
 		    bool * is_last_chunk_ptr)
 {
     DEBUGCALL_STATIC(DB, Xapian::docid, "read_start_of_chunk",
-		     (void *)posptr << ", " <<
-		     (void *)end << ", " <<
+		     reinterpret_cast<const void*>(posptr) << ", " <<
+		     reinterpret_cast<const void*>(end) << ", " <<
 		     first_did_in_chunk << ", " <<
-		     (void *)is_last_chunk_ptr);
+		     reinterpret_cast<const void*>(is_last_chunk_ptr));
 
     // Read whether this is the last chunk
     if (!unpack_bool(posptr, end, is_last_chunk_ptr))

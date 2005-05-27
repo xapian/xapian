@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -371,19 +371,19 @@ test_driver::runtest(const test_desc *test)
 		if (s[s.size() - 1] != '\n') out << endl;
 		tout.str("");
 	    }
-	    const char *sig = "SIGNAL";
+	    const char *signame = "SIGNAL";
 	    switch (signum) {
-		case SIGSEGV: sig = "SIGSEGV"; break;
-		case SIGFPE: sig = "SIGFPE"; break;
-		case SIGILL: sig = "SIGILL"; break;
+		case SIGSEGV: signame = "SIGSEGV"; break;
+		case SIGFPE: signame = "SIGFPE"; break;
+		case SIGILL: signame = "SIGILL"; break;
 #ifdef SIGBUS
-		case SIGBUS: sig = "SIGBUS"; break;
+		case SIGBUS: signame = "SIGBUS"; break;
 #endif
 #ifdef SIGSTKFLT
-		case SIGSTKFLT: sig = "SIGSTKFLT"; break;
+		case SIGSTKFLT: signame = "SIGSTKFLT"; break;
 #endif
 	    }
-    	    out << " " << col_red << sig << col_reset;
+    	    out << " " << col_red << signame << col_reset;
 	    return FAIL;
 	}
 	return PASS;
@@ -411,7 +411,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
     set<string> m(b, e);
     bool check_name = !m.empty();
 
-    test_driver::result result = {0, 0, 0};
+    test_driver::result res = {0, 0, 0};
 
     for (const test_desc *test = tests; test->name; test++) {
 	bool do_this_test = !check_name;
@@ -433,7 +433,7 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 	    out.flush();
 	    switch (runtest(test)) {
 		case PASS:
-		    ++result.succeeded;
+		    ++res.succeeded;
 		    if (verbose || !use_cr) {
 			out << col_green << " ok" << col_reset << endl;
 		    } else {
@@ -441,22 +441,22 @@ test_driver::do_run_tests(vector<string>::const_iterator b,
 		    }
 		    break;
 		case FAIL:
-		    ++result.failed;
+		    ++res.failed;
 		    out << endl;
 		    if (abort_on_error) {
 			out << "Test failed - aborting further tests." << endl;
-			return result;
+			return res;
 		    }
 		    break;
 		case SKIP:
-		    ++result.skipped;
+		    ++res.skipped;
 		    out << endl;
 		    // ignore the result of this test.
 		    break;
 	    }
 	}
     }
-    return result;
+    return res;
 }
 
 void
@@ -549,7 +549,6 @@ test_driver::parse_command_line(int argc, char **argv)
 		abort_on_error = true;
 		break;
 	    default: {
-		map<int, string *>::const_iterator i;
 		i = short_opts.find(c);
 		if (i != short_opts.end()) {
 		    *(i->second) = string(optarg);

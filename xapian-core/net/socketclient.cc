@@ -197,8 +197,8 @@ SocketClient::get_requested_docs()
 	Assert(!message.empty() && message[0] == 'O');
 	cdoc.data = decode_tname(message.substr(1));
 
-	while (1) {
-	    string message = do_read();
+	while (true) {
+	    message = do_read();
 	    if (message == "Z") break;
 #ifdef HAVE_SSTREAM
 	    istringstream is(message);

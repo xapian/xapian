@@ -49,12 +49,12 @@ BM25Weight * BM25Weight::unserialise(const string & s) const {
     // as the second parameter and we can't pass &p if p is const char *
     // (sigh)
     char *p = const_cast<char *>(s.c_str());
-    double k1, k2, k3, b;
-    k1 = strtod(p, &p);
-    k2 = strtod(p, &p);
-    k3 = strtod(p, &p);
-    b = strtod(p, &p);
-    return new BM25Weight(k1, k2, k3, b, strtod(p, NULL));
+    double k1_, k2_, k3_, b_;
+    k1_ = strtod(p, &p);
+    k2_ = strtod(p, &p);
+    k3_ = strtod(p, &p);
+    b_ = strtod(p, &p);
+    return new BM25Weight(k1_, k2_, k3_, b_, strtod(p, NULL));
 }
 
 // Calculate weights using statistics retrieved from databases
