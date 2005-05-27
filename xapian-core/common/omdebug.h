@@ -198,7 +198,7 @@ class OmDebugCall {
     typedef r omdebugapicallreturn_t; \
     if (om_debug.want_type(OM_DEBUG_##t)) { \
 	om_ostringstream os1; \
-	os1 << "[" << static_cast<void*>(this) << "] " << STRINGIZE(r) << " " << a; \
+	os1 << "[" << static_cast<const void*>(this) << "] " << STRINGIZE(r) << " " << a; \
 	omdebugapicall_method = os1.str(); \
 	om_ostringstream os2; \
 	os2 << b; \
