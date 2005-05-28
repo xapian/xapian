@@ -23,6 +23,7 @@
  */
 
 #include <config.h>
+#include <errno.h>
 #include <string>
 #include "flint_metafile.h"
 #include "flint_btreeutil.h"

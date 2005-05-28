@@ -1,3 +1,7 @@
+Sat May 28 14:31:33 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_metafile.cc: Added missing '#include <errno.h>'.
+
 Sat May 28 14:15:36 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc: Simplify code a bit.
