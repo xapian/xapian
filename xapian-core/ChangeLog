@@ -1,3 +1,7 @@
+Sat May 28 14:15:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc: Simplify code a bit.
+
 Sat May 28 02:01:12 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/: Move the special item holding the total document

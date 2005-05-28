@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,9 +44,8 @@ FlintPositionList::read_data(const FlintTable * table,
 	      table << ", " << did << ", " << tname);
 
     string key;
-    string tag;
     make_key(did, tname, key);
-    if (!table->get_exact_entry(key, tag)) {
+    if (!table->get_exact_entry(key, data)) {
 	// This isn't an error, since position list not be present simply
 	// implies that there is no positional information available.
 	data = "";
@@ -58,9 +57,6 @@ FlintPositionList::read_data(const FlintTable * table,
 	number_of_entries = 0;
 	return;
     }
-
-    // FIXME: Unwanted copy
-    data = tag;
 
     pos = data.data();
     end = pos + data.size();
