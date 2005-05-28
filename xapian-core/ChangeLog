@@ -1,3 +1,8 @@
+Sat May 28 16:24:43 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.h: Removed unused FlintLock method
+	  'operator int()' which was confusing Sun's C++ compiler.
+
 Sat May 28 16:18:11 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: Removed superfluous "Query::" which was

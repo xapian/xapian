@@ -43,7 +43,6 @@ class FlintLock {
     void release();
 
     operator bool() { return fd != -1; }
-    operator int() { return fd; }
 };
 
 #endif // XAPIAN_INCLUDED_FLINT_LOCK_H
