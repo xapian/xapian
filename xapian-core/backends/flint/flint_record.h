@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,19 +61,6 @@ class FlintRecordTable : public FlintTable {
 	/** Get the number of records in the table.
 	 */
 	Xapian::doccount get_doccount() const;
-
-	/** Return the total length of all the records in the table.
-	 */
-	flint_totlen_t get_total_length() const;
-
-	/** Get the last document id used.
-	 */
-	Xapian::docid get_lastdocid() const;
-
-	/** Set the total length and last document ID used.
-	 */
-	void set_total_length_and_lastdocid(flint_totlen_t totlen,
-					    Xapian::docid did);
 
 	/* Add a new record to the table, or replace an existing record.
 	 *

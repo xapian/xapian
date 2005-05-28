@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,10 +31,6 @@
 #include "omdebug.h"
 
 using std::string;
-
-// Magic key (which corresponds to an invalid docid) is used to store the
-// next free docid and total length of all documents
-static const string METAINFO_KEY("", 1);
 
 string
 FlintRecordTable::get_record(Xapian::docid did) const
@@ -65,61 +61,12 @@ FlintRecordTable::get_doccount() const
     RETURN(entries ? entries - 1 : 0);
 }
 
-Xapian::docid
-FlintRecordTable::get_lastdocid() const
-{
-    DEBUGCALL(DB, Xapian::docid, "FlintRecordTable::get_lastdocid", "");
-
-    string tag;
-    if (!get_exact_entry(METAINFO_KEY, tag)) RETURN(0u);
-
-    Xapian::docid did;
-    const char * data = tag.data();
-    const char * end = data + tag.size();
-    if (!unpack_uint(&data, end, &did)) {
-	throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
-    }
-    RETURN(did);
-}
-
 void
 FlintRecordTable::replace_record(const string & data, Xapian::docid did)
 {
     DEBUGCALL(DB, void, "FlintRecordTable::replace_record", data << ", " << did);
     string key(flint_docid_to_key(did));
     add(key, data);
-}
-
-void
-FlintRecordTable::set_total_length_and_lastdocid(flint_totlen_t totlen,
-						  Xapian::docid did)
-{
-    DEBUGCALL(DB, void, "FlintRecordTable::set_total_length_and_lastdocid",
-			totlen << ", " << did);
-    string tag = pack_uint(did);
-    tag += pack_uint_last(totlen);
-    add(METAINFO_KEY, tag);
-}
-
-flint_totlen_t
-FlintRecordTable::get_total_length() const
-{
-    DEBUGCALL(DB, flint_totlen_t, "FlintRecordTable::get_total_length", "");
-
-    string tag;
-    if (!get_exact_entry(METAINFO_KEY, tag)) RETURN(0);
-
-    Xapian::docid did;
-    flint_totlen_t totlen;
-    const char * data = tag.data();
-    const char * end = data + tag.size();
-    if (!unpack_uint(&data, end, &did)) {
-	throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
-    }
-    if (!unpack_uint_last(&data, end, &totlen)) {
-	throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
-    }
-    RETURN(totlen);
 }
 
 void

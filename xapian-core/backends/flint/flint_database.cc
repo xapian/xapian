@@ -151,7 +151,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	    record_table.commit(new_revision);
 	}
 	if (record_table.get_doccount() == 0) {
-	    record_table.set_total_length_and_lastdocid(0, record_table.get_lastdocid());
+	    postlist_table.set_total_length_and_lastdocid(0, postlist_table.get_lastdocid());
 	}
     }
 }
@@ -205,7 +205,7 @@ FlintDatabase::create_and_open_tables(unsigned int block_size)
 	revision != postlist_table.get_open_revision_number()) {
 	throw Xapian::DatabaseCreateError("Newly created tables are not in consistent state");
     }
-    record_table.set_total_length_and_lastdocid(0, 0);
+    postlist_table.set_total_length_and_lastdocid(0, 0);
 }
 
 void
@@ -392,7 +392,7 @@ Xapian::docid
 FlintDatabase::get_lastdocid() const
 {
     DEBUGCALL(DB, Xapian::docid, "FlintDatabase::get_lastdocid", "");
-    RETURN(record_table.get_lastdocid());
+    RETURN(postlist_table.get_lastdocid());
 }
 
 Xapian::doclength
@@ -401,7 +401,7 @@ FlintDatabase::get_avlength() const
     DEBUGCALL(DB, Xapian::doclength, "FlintDatabase::get_avlength", "");
     Xapian::doccount docs = record_table.get_doccount();
     if (docs == 0) RETURN(0);
-    RETURN(double(record_table.get_total_length()) / docs);
+    RETURN(double(postlist_table.get_total_length()) / docs);
 }
 
 Xapian::doclength
@@ -528,7 +528,7 @@ FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 	  doclens(),
 	  mod_plists(),
 	  database_ro(dir, action, block_size),
-	  total_length(database_ro.record_table.get_total_length()),
+	  total_length(database_ro.postlist_table.get_total_length()),
 	  lastdocid(database_ro.get_lastdocid()),
 	  changes_made(0)
 {
@@ -561,8 +561,8 @@ FlintWritableDatabase::do_flush_const() const
     database_ro.postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
 
     // Update the total document length and last used docid.
-    database_ro.record_table.set_total_length_and_lastdocid(total_length,
-							    lastdocid);
+    database_ro.postlist_table.set_total_length_and_lastdocid(total_length,
+							      lastdocid);
     database_ro.apply();
     freq_deltas.clear();
     doclens.clear();
@@ -650,7 +650,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
 	database_ro.cancel();
-	total_length = database_ro.record_table.get_total_length();
+	total_length = database_ro.postlist_table.get_total_length();
 	lastdocid = database_ro.get_lastdocid();
 	freq_deltas.clear();
 	doclens.clear();
@@ -738,7 +738,7 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
 	database_ro.cancel();
-	total_length = database_ro.record_table.get_total_length();
+	total_length = database_ro.postlist_table.get_total_length();
 	lastdocid = database_ro.get_lastdocid();
 	freq_deltas.clear();
 	doclens.clear();
@@ -891,7 +891,7 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
 	database_ro.cancel();
-	total_length = database_ro.record_table.get_total_length();
+	total_length = database_ro.postlist_table.get_total_length();
 	lastdocid = database_ro.get_lastdocid();
 	freq_deltas.clear();
 	doclens.clear();

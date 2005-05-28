@@ -41,7 +41,7 @@ using std::string;
 
 static const string metafile_magic = "IAmFlint";
 // YYYYMMDDX where X allows multiple format revisions in a day
-static const unsigned int metafile_version = 200505270;
+static const unsigned int metafile_version = 200505280;
 
 static const size_t min_metafile_size = metafile_magic.length() + 4;
 
