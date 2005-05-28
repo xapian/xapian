@@ -167,7 +167,7 @@ class Query {
 	/** Return a Xapian::TermIterator to the end of the list of terms in the
 	 *  query.
 	 */
-	TermIterator Query::get_terms_end() const {
+	TermIterator get_terms_end() const {
 	    return TermIterator(NULL);
 	}
 

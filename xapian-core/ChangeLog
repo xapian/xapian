@@ -1,3 +1,8 @@
+Sat May 28 16:18:11 BST 2005  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Removed superfluous "Query::" which was
+	  causing the build to fail with aCC.
+
 Sat May 28 14:31:33 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_metafile.cc: Added missing '#include <errno.h>'.
