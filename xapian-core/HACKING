@@ -58,7 +58,7 @@ message you're interested by setting environment variables.  You can:
 
  * set XAPIAN_DEBUG_LOG to be the path to a file that you would like debugging
    output to be stored in (to override the default of stderr).  The first
-   occurence of %% in the name will be replaced with the process-id.
+   occurrence of %% in the name will be replaced with the process-id.
 
  * set XAPIAN_DEBUG_FLAGS to a bitmap to select the types of debugging message
    you would like to display (the default value is 0, which displays no debug

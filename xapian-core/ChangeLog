@@ -1,3 +1,7 @@
+Sun May 29 01:00:41 BST 2005  Olly Betts <olly@survex.com>
+
+	* HACKING,NEWS,testsuite/testsuite.h: Fixed spelling mistakes.
+
 Sat May 28 22:51:15 BST 2005  Olly Betts <olly@survex.com>
 
 	* tests/: svn:ignore .flint/ subdirectory.
@@ -2348,7 +2352,7 @@ Fri Aug 20 20:03:59 BST 2004  Olly Betts <olly@survex.com>
 	* backends/quartz/btree_util.h,common/,docs/overview.html,
 	  docs/quickstart.html,include/xapian/enquire.h,
 	  matcher/branchpostlist.h,matcher/multimatch.cc,tests/api_db.cc:
-	  Corrected multiple occurences of "an Xapian::XXX" to "a Xapian::XXX"
+	  Corrected multiple occurrences of "an Xapian::XXX" to "a Xapian::XXX"
 	  (presumably these all resulted from replacing "Om" with "Xapian::").
 
 Fri Aug 20 17:38:15 BST 2004  Olly Betts <olly@survex.com>
@@ -7971,7 +7975,7 @@ Fri Dec 21 12:58:23 GMT 2001  Olly Betts <olly@survex.com>
 	  threshold cutoff in omega, and results in just one match when there
 	  should be more.  I don't believe the bug is actually in OrPostList
 	  but I've been tracking it for 4 days without success and turning off
-	  this optimisation seems to stop it occuring so will have to do for
+	  this optimisation seems to stop it occurring so will have to do for
 	  now.
 
 Thu Dec 20 17:41:04 GMT 2001  Olly Betts <olly@survex.com>

@@ -212,7 +212,7 @@ class test_driver {
 #define _STRINGIZE(N) #N
 #endif
 
-/// Display the location at which a testcase occured, with an explanation
+/// Display the location at which a testcase occurred, with an explanation.
 #define TESTCASE_LOCN(a) __FILE__":"STRINGIZE(__LINE__)": "STRINGIZE(a)
 
 /** Test a condition, and display the test with an extra explanation if

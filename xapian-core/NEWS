@@ -709,7 +709,7 @@ documentation:
   documentation comments - this way they're much more likely to
   be kept up-to-date.
 
-* Corrected multiple occurences of "an Xapian::XXX" to "a Xapian::XXX"
+* Corrected multiple occurrences of "an Xapian::XXX" to "a Xapian::XXX"
   (presumably these all resulted from replacing "Om" with "Xapian::").
 
 * Various minor updates and improvements.
