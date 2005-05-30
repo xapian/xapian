@@ -1,3 +1,8 @@
+Mon May 30 01:48:17 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc,backends/flint/flint_lock.h:  Added
+	  locking code for MS Windows (untested).
+
 Sun May 29 01:00:41 BST 2005  Olly Betts <olly@survex.com>
 
 	* HACKING,NEWS,testsuite/testsuite.h: Fixed spelling mistakes.

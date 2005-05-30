@@ -31,18 +31,32 @@
 
 #include <string>
 
+#if defined __CYGWIN__ || defined __WIN32__
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 class FlintLock {
     std::string filename;
+#if defined __CYGWIN__ || defined __WIN32__
+    HANDLE hFile;
+#else
     int fd;
     pid_t pid;
+#endif
 
   public:
+#if defined __CYGWIN__ || defined __WIN32__
+    FlintLock(const std::string &filename_)
+       	: filename(filename_), hFile(INVALID_HANDLE_VALUE) { }
+    operator bool() { return hFile != INVALID_HANDLE_VALUE; }
+#else
     FlintLock(const std::string &filename_) : filename(filename_), fd(-1) { }
+    operator bool() { return fd != -1; }
+#endif
 
     bool lock(bool exclusive);
     void release();
-
-    operator bool() { return fd != -1; }
 };
 
 #endif // XAPIAN_INCLUDED_FLINT_LOCK_H

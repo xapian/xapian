@@ -30,9 +30,26 @@
 
 #include "flint_lock.h"
 
+#ifdef __CYGWIN__
+#include <sys/cygwin.h>
+#endif
+
 bool
 FlintLock::lock(bool exclusive) {
     (void)exclusive; // Ignore for now.
+#ifdef __CYGWIN__
+    if (hFile != INVALID_HANDLE_VALUE) return false; // Already locked!?
+    char fnm[MAX_PATH];
+    cygwin_conv_to_win32_path(filename.c_str(), fnm);
+    hFile = CreateFile(fnm, GENERIC_WRITE, FILE_SHARE_READ,
+		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    return (hFile != INVALID_HANDLE_VALUE);
+#elif defined __WIN32__
+    if (hFile != INVALID_HANDLE_VALUE) return false; // Already locked!?
+    hFile = CreateFile(filename.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
+		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    return (hFile != INVALID_HANDLE_VALUE);
+#else
     if (fd >= 0) return false; // Already locked!?
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
     if (lockfd < 0) return false; // Couldn't open lockfile.
@@ -94,12 +111,20 @@ FlintLock::lock(bool exclusive) {
     fd = fds[0];
     pid = child;
     return true;
+#endif
 }
 
 void
 FlintLock::release() {
+#if defined __CYGWIN__ || defined __WIN32__
+    if (hFile == INVALID_HANDLE_VALUE) return;
+    CloseHandle(hFile);
+    hFile = INVALID_HANDLE_VALUE;
+#else
     if (fd < 0) return;
     close(fd);
+    fd = -1;
     int status;
     waitpid(pid, &status, 0);
+#endif
 }
