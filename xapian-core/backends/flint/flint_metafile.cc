@@ -42,7 +42,10 @@ using std::string;
 
 static const string metafile_magic = "IAmFlint";
 // YYYYMMDDX where X allows multiple format revisions in a day
-static const unsigned int metafile_version = 200505280;
+static const unsigned int metafile_version = 200505310;
+// 200505310 Interpolative coding for position lists
+// 200505280 Total doclen and last docid entry moved to postlist table
+// 200505270 First dated version
 
 static const size_t min_metafile_size = metafile_magic.length() + 4;
 
@@ -53,7 +56,7 @@ static string encode_version(unsigned int version)
     string data;
 
     for (size_t i = 0; i < 4; ++i) {
-	data += char(version);
+	data += static_cast<unsigned char>(version);
 	version >>= 8;
     }
 
@@ -64,8 +67,8 @@ static unsigned int decode_version(const string &s)
 {
     unsigned int version = 0;
 
-    for (size_t i = 1; i <= 4; ++i) {
-	version = (version << 8) + s[4 - i];
+    for (size_t i = 0; i < 4; ++i) {
+	version = (version << 8) + static_cast<unsigned char>(s[3 - i]);
     }
 
     return version;

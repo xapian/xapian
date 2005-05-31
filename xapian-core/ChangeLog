@@ -1,3 +1,11 @@
+Tue May 31 19:31:24 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.h,
+	  backends/flint/flint_positionlist.cc,
+	  backends/flint/flint_metafile.cc: positionlist entries are now
+	  stored using interpolative coding (which is significantly more
+	  compact).
+
 Mon May 30 01:48:17 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_lock.cc,backends/flint/flint_lock.h:  Added

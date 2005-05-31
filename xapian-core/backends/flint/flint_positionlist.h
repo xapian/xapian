@@ -1,10 +1,6 @@
-/* flint_positionlist.h: Position lists in flint databases
+/* flint_positionlist.h: A position list in a flint database.
  *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 Hein Ragas
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright (C) 2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,131 +16,98 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
- * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_FLINT_POSITIONLIST_H
-#define OM_HGUARD_FLINT_POSITIONLIST_H
+#ifndef XAPIAN_HGUARD_FLINT_POSITIONLIST_H
+#define XAPIAN_HGUARD_FLINT_POSITIONLIST_H
 
 #include <xapian/types.h>
-#include "positionlist.h"
+
 #include "flint_table.h"
+#include "flint_utils.h"
+#include "positionlist.h"
 
 #include <string>
 
 using namespace std;
 
 class FlintPositionListTable : public FlintTable {
-    public:
-	/** Create a new table object.
-	 *
-	 *  This does not create the table on disk - the create() method must
-	 *  be called before the table is created on disk
-	 *
-	 *  This also does not open the table - the open() method must be
-	 *  called before use is made of the table.
-	 *
-	 *  @param path_          - Path at which the table is stored.
-	 *  @param readonly_      - whether to open the table for read only
-	 *                          access.
-	 *  @param blocksize_     - Size of blocks to use.  This parameter is
-	 *                          only used when creating the table.
-	 */
-	FlintPositionListTable(string path_, bool readonly_)
-	    : FlintTable(path_ + "/position.", readonly_) { }
+    static string make_key(Xapian::docid did, const string & tname) {
+	return pack_uint_preserving_sort(did) + tname;
+    }
 
-	/// Set the position list for the given docid and termname
-	void set_positionlist(Xapian::docid did, const string & tname,
-			Xapian::PositionIterator pos,
-			const Xapian::PositionIterator &pos_end);
+  public:
+    /** Create a new FlintPositionListTable object.
+     *
+     *  This method does not create or open the table on disk - you
+     *  must call the create() or open() methods respectively!
+     *
+     *  @param dbdir		The directory the flint database is stored in.
+     *  @param readonly		true if we're opening read-only, else false.
+     */
+    FlintPositionListTable(string dbdir, bool readonly)
+	: FlintTable(dbdir + "/position.", readonly) { }
 
-	/// Delete the position list for the given docid and termname
-	void delete_positionlist(Xapian::docid did, const string & tname);
+    /// Set the position list for term tname in document did.
+    void set_positionlist(Xapian::docid did, const string & tname,
+			  Xapian::PositionIterator pos,
+			  const Xapian::PositionIterator &pos_end);
+
+    /// Delete the position list for term tname in document did.
+    void delete_positionlist(Xapian::docid did, const string & tname) {
+	del(make_key(did, tname));
+    }
 };
 
-/** A position list in a flint database.
- */
+/** A position list in a flint database. */
 class FlintPositionList : public PositionList {
-    private:
-        /// The data.
-        string data;
+    /// Vector of term positions.
+    vector<Xapian::termpos> positions;
 
-        /** Position of iteration through data.
-	 */
-	const char * pos;
+    /// Position of iteration through data.
+    vector<Xapian::termpos>::const_iterator current_pos;
 
-	/** Byte after end of data.
-	 */
-	const char * end;
+    /// Have we started iterating yet?
+    bool have_started;
 
-	/// Whether we've run off the end of the list yet.
-	bool is_at_end;
+    /// Advance to next term position.
+    void next_internal();
 
-	/// Whether we've started iterating yet.
-	bool have_started;
+    /// Copying is not allowed.
+    FlintPositionList(const FlintPositionList &);
 
-	/// The current position.
-	Xapian::termpos current_pos;
-	
-	/// The number of entries in the position list.
-	Xapian::termcount number_of_entries;
+    /// Assignment is not allowed.
+    void operator=(const FlintPositionList &);
 
-        /// Copying is not allowed.
-        FlintPositionList(const FlintPositionList &);
+  public:
+    /// Default constructor.
+    FlintPositionList() : have_started(false) {}
 
-        /// Assignment is not allowed.
-        void operator=(const FlintPositionList &);
+    /// Destructor.
+    ~FlintPositionList() { }
 
-	/// Advance position by one.
-	void next_internal();
+    /// Fill list with data, and move the position to the start.
+    void read_data(const FlintTable * table, Xapian::docid did,
+		   const string & tname);
 
-    public:
-        /// Default constructor.
-        FlintPositionList() : have_started(false) {}
+    /// Returns size of position list.
+    Xapian::termcount get_size() const;
 
-        /// Destructor.
-        ~FlintPositionList() { return; }
+    /** Returns current position.
+     *
+     *  Either next() or skip_to() must have been called before this
+     *  method can be called.
+     */
+    Xapian::termpos get_position() const;
 
-        /// Fill list with data, and move the position to the start.
-        void read_data(const FlintTable * table,
-		       Xapian::docid did,
-		       const string & tname);
+    /// Advance to the next term position in the list.
+    void next();
 
-        /// Gets size of position list.
-        Xapian::termcount get_size() const {
-	    DEBUGCALL(DB, Xapian::termcount, "FlintPositionList::get_size", "");
-	    RETURN(number_of_entries);
-	}
+    /// Advance to the first term position which is at least termpos.
+    void skip_to(Xapian::termpos termpos);
 
-        /// Gets current position.
-        Xapian::termpos get_position() const {
-	    Assert(have_started);
-	    DEBUGCALL(DB, Xapian::termpos, "FlintPositionList::get_position", "");
-	    RETURN(current_pos);
-	}
-
-        /** Move to the next item in the list.
-         *  Either next() or skip_to() must be called before any other
-         *  methods.
-         */
-        void next();
-
-        /** Move to the next item in the list.
-         *  Either next() or skip_to() must be called before any other
-         *  methods.
-         */
-        void skip_to(Xapian::termpos termpos);
-
-        /// True if we're off the end of the list
-        bool at_end() const {
-	    DEBUGCALL(DB, bool, "FlintPositionList::at_end", "");
-	    RETURN(is_at_end);
-	}
-
-	/// Return the current position
-	Xapian::termpos get_current_pos() {
-	    return(current_pos);
-	}
+    /// True if we're off the end of the list
+    bool at_end() const;
 };
 
-#endif /* OM_HGUARD_FLINT_POSITIONLIST_H */
+#endif /* XAPIAN_HGUARD_FLINT_POSITIONLIST_H */
