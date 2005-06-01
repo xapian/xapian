@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-0.9.0.0  ??? May ?? ??:??:?? 2005
+0.9.0.0  ??? Jun ?? ??:??:?? 2005
 	[Changes contributed by Olly Betts and Tim Brody]
 	- Makefile.PL now check environmental variable CXX for the C++ compiler
 	  to use.
@@ -21,6 +21,7 @@ Revision history for Perl extension Search::Xapian.
 	  your own stop word algorithm.
 	- Wrap new Enquire sorting API methods.
 	- Updated list of unwrapped classes and methods in documentation.
+	- Make != and == work for comparing iterators (as well as ne and eq).
 
 0.8.4.0  Wed Dec  8 03:36:13 2004
 	[Changes contributed by Olly Betts]
