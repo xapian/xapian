@@ -1,3 +1,7 @@
+Wed Jun 01 12:41:59 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc: Placate Sun's C++ compiler.
+
 Tue May 31 19:31:24 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.h,
