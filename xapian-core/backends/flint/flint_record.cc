@@ -36,10 +36,9 @@ string
 FlintRecordTable::get_record(Xapian::docid did) const
 {
     DEBUGCALL(DB, string, "FlintRecordTable::get_record", did);
-    string key(flint_docid_to_key(did));
     string tag;
 
-    if (!get_exact_entry(key, tag)) {
+    if (!get_exact_entry(flint_docid_to_key(did), tag)) {
 	throw Xapian::DocNotFoundError("Document " + om_tostring(did) + " not found.");
     }
 
@@ -57,8 +56,7 @@ FlintRecordTable::get_doccount() const
     CASSERT(sizeof(Xapian::doccount) >= sizeof(flint_tablesize_t));
     CASSERT_TYPE_UNSIGNED(Xapian::doccount);
     CASSERT_TYPE_UNSIGNED(flint_tablesize_t);
-    Xapian::doccount entries = get_entry_count();
-    RETURN(entries ? entries - 1 : 0);
+    RETURN(get_entry_count());
 }
 
 void
