@@ -1,5 +1,5 @@
 Xapian-core 0.9.1 (2005-06-0?):
-up to: Thu Jun 02 02:05:47 BST 2005  Olly Betts <olly@survex.com>
+up to: Fri Jun 03 00:46:00 BST 2005  Olly Betts <olly@survex.com>
 
 API:
 
@@ -44,6 +44,8 @@ quartz backend:
   Btree code).
 
 build system:
+
+* Releases are now created using libtool 1.5.18 and automake 1.9.5.
 
 * configure: Pass more -W flags to g++ (including -Wundef which caught the
   getopt problem fixed in this release).  Fixed new GCC warnings from these new

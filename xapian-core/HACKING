@@ -178,13 +178,20 @@ writing, we require the following versions:
 		we required) and 1.8.5, so currently we're requiring 1.8.5.
 
 		automake 1.9 was very new when we moved to requiring 1.8.5.
-		It should be more mature now, and the NEWS file suggests it
-		will benefit us with smaller Makefile.ins.
+		It's much more mature now, and its NEWS file suggests it
+		will benefit us with smaller Makefile.ins amongst other
+		things.  Currently snapshots and release tarballs are generated
+		with automake 1.9.5, but this isn't a hard requirement -
+		automake 1.8.5 is sufficient for bootstrapping sources from
+		SVN.
 
-	GNU libtool 1.5.8
+	GNU libtool 1.5.18
 		libtool 1.5 was the first version to properly support linking
-		C++ libraries, and 1.5.8 is large 1.5 plus bug fixes and
-		portability enhancements.
+		C++ libraries, and 1.5.18 is largely 1.5 plus bug fixes and
+		portability enhancements.  (Note: nothing actually enforces
+		the requirement for 1.5.18, but this is the version which
+		snapshots and release tarballs are currently bootstrapped
+		with).
 
 Please tell us if you find that older or newer versions of any of these
 tools work or fail to work.
