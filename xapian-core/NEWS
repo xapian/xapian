@@ -1,3 +1,90 @@
+Xapian-core 0.9.1 (2005-06-0?):
+up to: Thu Jun 02 02:05:47 BST 2005  Olly Betts <olly@survex.com>
+
+API:
+
+* Fix SEGV on get_terms_begin() on an empty Query object.  This was causing
+  a SEGV in Omega with an empty query.
+
+* Put Query::get_terms_end() inline in header.
+
+flint backend:
+
+* Added the new "flint" backend, which starts out as a copy of the quartz
+  backend plus some modifications and replacements.  When creating a database
+  without a specified backend, quartz is still used unless the environmental
+  variable XAPIAN_PREFER_FLINT is set to a non-empty value.
+
+* apitest now runs tests on flint as well as the other backends.
+
+* Removed undocumented (and hence the little used) quartz "log" feature.
+
+* Implement new fork+fcntl+exec based locking (for Unix) and CreateFile based
+  locking (for Windows - currently untested).
+
+* Move the special key/tag pair holding the total document length and doc id
+  high water mark from the record table to the postlist table.  This means that
+  when appending documents, the insertion point will now always be at the end
+  of the record table which is more efficient.  We need to jump around the
+  postlist table to merge postings in anyway.
+
+* Changed metafile magic to be different from quartz, and make the metafile
+  version a datestamp which we'll change each time the format changes.
+  
+* Check the return value of close() when writing the metafile.
+
+* Flint position list table now stores entries using interpolative coding
+  (which is significantly more compact).
+
+quartz backend:
+
+* quartzcheck: Fixed corner case where you couldn't check a single Btree table
+  which was just the DB and baseA/baseB files in a directory (Xapian doesn't
+  produce anything like this, but btreetest does while unit testing the
+  Btree code).
+
+build system:
+
+* configure: Pass more -W flags to g++ (including -Wundef which caught the
+  getopt problem fixed in this release).  Fixed new GCC warnings from these new
+  flags.
+
+* Fixed a lingering DOXYGEN_HAVE_DOT reference.
+
+* Fixed accidentally pruned #define which meant that getopt code was being
+  included even on systems which use glibc (on such systems, we should use
+  the glibc copy of the code instead).
+
+* queryparser/queryparser.lemony: Add missing '#include <config.h>'.
+
+documentation:
+
+* Added missing documentation comments for a QueryParser methods added in
+  0.9.0.
+
+* docs/quartzdesign.html: Remove warning that quartz is still in development.
+
+* HACKING: Updated release instructions to refer to SVN, and note that release
+  tarballs are now built specially rather than being copies of snapshots.
+  Update information about the SVN tag name to use for debian files.
+
+* HACKING: Add "email Fabrice" to the release checklist so that RPM
+  spec files don't lag behind.
+
+* Fixed a few spelling mistakes.
+
+packaging:
+
+* xapian.spec: Remove bogus %setup line left over from when we packaged
+  xapian-core and xapian-examples together from separate tarballs.
+
+debug code:
+
+* api/omqueryinternal.cc: Fixed compilation with --enable-debug.
+
+* common/omdebug.h: Replace C style cast with static_cast<> which reveals that
+  we were discarding const (harmlessly though).
+
 Xapian-core 0.9.0 (2005-05-13):
 
 API:

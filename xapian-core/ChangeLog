@@ -1,3 +1,7 @@
+Thu Jun 02 17:36:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* NEWS: First draft of release notes for 0.9.1.
+
 Thu Jun 02 02:05:47 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_record.cc: Fix get_doccount() to not return
