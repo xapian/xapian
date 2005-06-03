@@ -1,3 +1,7 @@
+Fri Jun 03 01:58:08 BST 2005  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated from tinderbox.
+
 Fri Jun 03 00:46:00 BST 2005  Olly Betts <olly@survex.com>
 
 	* HACKING,NEWS: Snapshot and release tarballs are now bootstrapped
