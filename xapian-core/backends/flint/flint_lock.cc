@@ -20,6 +20,7 @@
 
 #include <config.h>
 
+#ifndef __WIN32__
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -27,6 +28,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
+#endif
 
 #include "flint_lock.h"
 

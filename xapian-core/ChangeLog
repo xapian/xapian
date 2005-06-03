@@ -1,3 +1,8 @@
+Fri Jun 03 03:49:33 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc,backends/flint/flint_lock.h: Fixed
+	  compilation failure on mingw.
+
 Fri Jun 03 01:58:08 BST 2005  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated from tinderbox.

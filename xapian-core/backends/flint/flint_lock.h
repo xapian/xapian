@@ -21,19 +21,19 @@
 #ifndef XAPIAN_INCLUDED_FLINT_LOCK_H
 #define XAPIAN_INCLUDED_FLINT_LOCK_H
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
-
 #include <string>
 
 #if defined __CYGWIN__ || defined __WIN32__
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#else
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #endif
 
 class FlintLock {
