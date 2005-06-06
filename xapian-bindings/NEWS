@@ -4,6 +4,11 @@ General:
 
 * Releases are now created using libtool 1.5.18 and automake 1.9.5.
 
+Tcl:
+
+* Updated documentation to include information from Michael Schlenker about how
+  to delete a database object such that the destructor gets called.
+
 Xapian-bindings 0.9.0 (2005-05-13):
 
 General:
