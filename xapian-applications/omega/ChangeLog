@@ -1,3 +1,7 @@
+Mon Jun 06 17:51:58 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Updated for 0.9.1.
+
 Mon May 23 23:36:48 BST 2005  Fabrice Colin <fabrice.colin@gmail.com>
 
 	* omega.spec.in: Updated for 0.9.0.
