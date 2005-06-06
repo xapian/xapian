@@ -1,5 +1,4 @@
-Xapian-core 0.9.1 (2005-06-0?):
-up to: Fri Jun 03 00:46:00 BST 2005  Olly Betts <olly@survex.com>
+Xapian-core 0.9.1 (2005-06-06):
 
 API:
 
@@ -64,7 +63,11 @@ documentation:
 * Added missing documentation comments for a QueryParser methods added in
   0.9.0.
 
-* docs/quartzdesign.html: Remove warning that quartz is still in development.
+* docs/quartzdesign.html: Removed warning that quartz is still in development.
+
+* PLATFORMS: Updated from tinderbox.
+
+* configure: Describe CC_FOR_BUILD in configure --help output.
 
 * HACKING: Updated release instructions to refer to SVN, and note that release
   tarballs are now built specially rather than being copies of snapshots.

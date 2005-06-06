@@ -1,3 +1,7 @@
+Mon Jun 06 17:44:19 BST 2005  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.9.1.
+
 Mon Jun 06 17:28:34 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Describe CC_FOR_BUILD in configure --help output.
