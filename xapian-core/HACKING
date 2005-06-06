@@ -573,11 +573,11 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Update the PLATFORMS file.  Don't forget to use reports from the tinderbox:
   http://www.oligarchy.co.uk/tinderbox/xapian/status.html
 
-* Update the version in configure.ac for each module, and the library version
-  info in xapian-core's configure.ac
+* Update the version in configure.ac for each module (xapian-core, omega, and
+  xapian-bindings), and the library version info in xapian-core's configure.ac
 
 * Add the new version to the list of versions in Bugzilla:
-  http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian
+  http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=add
 
 * Move any bugs fixed by this release from "RESOLVED FIXED" -> "CLOSED"
   http://www.xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED

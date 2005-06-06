@@ -1,3 +1,7 @@
+Mon Jun 06 19:49:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* HACKING: Minor updates to release checklist.
+
 Mon Jun 06 17:44:19 BST 2005  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Updated for 0.9.1.
