@@ -1,3 +1,7 @@
+Mon Jun 06 17:58:16 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,NEWS: Updated for 0.9.1.
+
 Fri May 13 00:34:22 BST 2005  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated with Java information for 0.9.0.

@@ -1,3 +1,9 @@
+Xapian-bindings 0.9.1 (2005-06-06):
+
+General:
+
+* Releases are now created using libtool 1.5.18 and automake 1.9.5.
+
 Xapian-bindings 0.9.0 (2005-05-13):
 
 General:
