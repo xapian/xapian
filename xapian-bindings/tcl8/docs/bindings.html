@@ -22,7 +22,7 @@ Tcl8 bindings based on the simple examples from <code>xapian-examples</code>:
 <p>
    To destroy an object <code><i>obj</i></code>, you need to use one of
    <code><i>obj</i> -delete</code> or <code>rename <i>obj</i> ""</code>
-   (either works).
+   (either should work, but see below).
 </p>
 
 <p>
@@ -36,6 +36,30 @@ Tcl8 bindings based on the simple examples from <code>xapian-examples</code>:
    no direct replacement for the former, although at present it's actually
    exactly the same as the latter (since Quartz is the only disk based
    backend which supports writing).
+</p>
+
+<p>
+  Michael Schlenker reports that this form works (i.e. the destructor gets
+  called):
+
+<blockquote><pre>
+xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE
+rename xapiandb ""
+</pre></blockquote>
+
+  However, apparently none of these forms works:
+
+<blockquote><pre>
+xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE
+set db xapiandb
+$db -delete
+
+set db [xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE]
+$db -delete
+
+set db [xapian::WritableDatabase xapiandb testdir $::xapian::DB_CREATE_OR_OVERWRITE]
+rename $db ""
+</pre></blockquote>
 </p>
 
 <h2>Exceptions</h2>
@@ -97,7 +121,7 @@ Tcl8 bindings based on the simple examples from <code>xapian-examples</code>:
 <h2>Database Factory Functions</h2>
 
 <ul>
-<li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian::open_sutb</code>
+<li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian::open_stub</code>
 <li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian::quartz_open</code> (but note that the WriteableDatabase version isn't wrapped - see
 the 'Destructors' section above for an explanation).
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open</code>

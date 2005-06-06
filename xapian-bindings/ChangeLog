@@ -1,3 +1,9 @@
+Mon Jun 06 18:48:42 BST 2005  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/bindings.html: Added information from Michael Schlenker
+	  about how to delete a database object such that the destructor
+	  gets called.
+
 Mon Jun 06 17:58:16 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,NEWS: Updated for 0.9.1.
