@@ -1,5 +1,7 @@
 Omega 0.9.1 (2005-06-06):
 
+* Releases are now created using libtool 1.5.18 and automake 1.9.5.
+
 * Updated RPM packaging.
 
 Omega 0.9.0 (2005-05-13):
