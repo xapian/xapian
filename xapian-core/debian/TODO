@@ -12,14 +12,3 @@ full xapian source documentation).  We could move this to point to the
 xapian website.  There should almost certainly be a link back to the front page
 of the Xapian website, too.  The documentation should also probably be in the
 style of the Xapian website, and should use the Xapian logo on the front page.
-
-We don't Build-Depend on graphviz because this would mean that this wouldn't be
-able to go into the "main" archive in Debian, because graphviz is non-free.
-To ensure we generate consistent packages whether dot is available or not, we
-need to follow one of these possible approaches:
- 1) Ensure that "dot" isn't used when generating documentation.  Needs new
-    configure option (note - just adding "DOT=" to configure options doesn't
-    work).
- 2) find a free replacement for dot, and build-depend on it.  (there's one for
-    neato (springgraph), so maybe there's one for dot).
- 3) write a free replacement for dot.

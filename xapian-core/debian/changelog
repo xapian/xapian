@@ -1,3 +1,12 @@
+xapian-core (0.9.1) unstable; urgency=low
+
+  * New upstream release.  (Version 0.9.0 never got packaged.)
+  * Various API changes - see NEWS file for details.
+  * No longer Build-Depend on bison - we now use lemon, and use the copy
+    of lemon in the Xapian source tree.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue,  7 Jun 2005 07:31:29 +0100
+
 xapian-core (0.8.5-1) unstable; urgency=low
 
   * New upstream release.

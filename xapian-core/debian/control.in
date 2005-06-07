@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Richard Boulton <richard@tartarus.org>
 Standards-Version: 3.6.1
-Build-Depends: debhelper (>= 4.1.22), bison (>= 1.35), autotools-dev
+Build-Depends: debhelper (>= 4.1.22), autotools-dev
 
 Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any
