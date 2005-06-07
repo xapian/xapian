@@ -134,6 +134,9 @@ foreach my $tag (@ARGV) {
     $log = undef;
 
     my $d = "/usr/data/www/oligarchy.co.uk/xapian/$tag";
+    if ($tag =~ m!^tags/([\d.]+)$!) {
+	$d = "/usr/data/www/oligarchy.co.uk/xapian/$1";
+    }
     if (! -d $d) {
 	mkpath($d, 0, 0755) or die $!;
 	open HTACCESS, ">", "$d/.htaccess" or die $!;

@@ -28,11 +28,13 @@ wget -o- "http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian
 svn cp -m"$version release." svn+userv:///xapian/trunk svn+userv:///xapian/tags/"$version"
 
 # Create a directory so the snapshotter will build this.
-mkdir /u1/olly/xapian-svn-snapshot/tags
-mkdir /u1/olly/xapian-svn-snapshot/tags/"$version"
+D=/u1/olly/xapian-svn-snapshot/tags
+test -d $D || mkdir $D
+mkdir $D/"$version"
 
 # Snapshotter will automatically copy the tarballs onto the website.
 $HOME/bin/make-xapian-svn-snapshot-tarballs tags/"$version"
 
 # Clean up.
-rm -rf /u1/olly/xapian-svn-snapshot/tags/"$version"
+rm -rf $D/"$version"
+rmdir $D || echo "Directory '$D' not removed."
