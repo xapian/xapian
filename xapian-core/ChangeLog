@@ -1,3 +1,9 @@
+Thu Jun 09 01:06:35 BST 2005  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Pass automake options to AM_INIT_AUTOMAKE
+	  rather than specifying them in Makefile.am.  This way, the version
+	  requirements for autoconf and automake are stated close together.
+
 Mon Jun 06 19:49:36 BST 2005  Olly Betts <olly@survex.com>
 
 	* HACKING: Minor updates to release checklist.
