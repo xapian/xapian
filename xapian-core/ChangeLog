@@ -1,3 +1,8 @@
+Sat Jun 11 17:53:12 BST 2005  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Fix mis-repacking of keys in positionlist
+	  table when merging several databases.
+
 Thu Jun 09 01:06:35 BST 2005  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Pass automake options to AM_INIT_AUTOMAKE

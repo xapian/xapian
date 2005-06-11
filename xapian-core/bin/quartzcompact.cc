@@ -173,7 +173,7 @@ class PositionCursor : private Bcursor {
 		if (!unpack_uint(&d, d + current_key.size(), &did))
 		    abort();
 		did += offset;
-		key = pack_uint_last(did);
+		key = pack_uint(did);
 		size_t tnameidx = d - current_key.data();
 		key += current_key.substr(tnameidx);
 	    } else {
