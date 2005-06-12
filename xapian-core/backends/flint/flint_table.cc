@@ -1757,7 +1757,7 @@ FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revi
 	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
     }
 
-    handle = ::open(name.c_str(), O_RDONLY | O_BINARY);
+    handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
     if (handle < 0) {
 	string message = string("Couldn't open ")
 		+ name + " to read: " + strerror(errno);

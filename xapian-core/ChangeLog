@@ -1,3 +1,8 @@
+Sun Jun 12 02:02:35 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc: We were failing to append "DB" to the
+	  path when opening a table for reading - fixed.
+
 Sun Jun 12 02:00:30 BST 2005  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.cc: When a flint database was requested, we
