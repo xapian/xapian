@@ -1,3 +1,9 @@
+Sun Jun 12 13:08:16 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_alltermslist.cc: Disable assertion which is
+	  incorrect in a corner case.
+	* tests/api_db.cc: Add test_specialterms2 as a regression test.
+
 Sun Jun 12 02:03:52 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc: Encoding and decoding of
@@ -8763,7 +8769,7 @@ Mon Feb 19 13:52:23 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 	  categories of tests to cope with this.
 
 	* Adjusted BackendManager's key generation, and updated
-	  test_specialchars1() accordingly.
+	  test_specialterms1() accordingly.
 
 Fri Feb 16 17:26:59 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
 

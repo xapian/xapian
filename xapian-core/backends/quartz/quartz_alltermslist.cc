@@ -130,7 +130,8 @@ QuartzAllTermsList::skip_to(const string &tname)
 	    next();
 	}
     } else {
-	Assert(key == pl_cursor->current_key);
+	// This assertion isn't true if key contains zero bytes.
+	// Assert(key == pl_cursor->current_key);
 	current_term = tname;
     }
     RETURN(NULL);

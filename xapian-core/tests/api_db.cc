@@ -772,6 +772,34 @@ static bool test_specialterms1()
     return true;
 }
 
+// test that terms with a special characters in appear correctly when iterating allterms
+static bool test_specialterms2()
+{
+    Xapian::Database db(get_database("apitest_space"));
+
+    // Check the terms are all as expected (after stemming) and that allterms copes with
+    // iterating over them.
+    Xapian::TermIterator t;
+    t = db.allterms_begin();
+    TEST_EQUAL(*t, "back\\slash"); ++t; TEST_NOT_EQUAL(t, db.allterms_end());
+    TEST_EQUAL(*t, string("big\0zero", 8)); ++t; TEST_NOT_EQUAL(t, db.allterms_end());
+    TEST_EQUAL(*t, "new\nlin"); ++t; TEST_NOT_EQUAL(t, db.allterms_end());
+    TEST_EQUAL(*t, "one\x01on"); ++t; TEST_NOT_EQUAL(t, db.allterms_end());
+    TEST_EQUAL(*t, "space man"); ++t; TEST_NOT_EQUAL(t, db.allterms_end());
+    TEST_EQUAL(*t, "tab\tbi"); ++t; TEST_NOT_EQUAL(t, db.allterms_end());
+    TEST_EQUAL(*t, "tu\x02tu"); ++t; TEST_EQUAL(t, db.allterms_end());
+
+    // Now check that skip_to exactly a term containing a zero byte works.
+    // This is a regression test for flint and quartz - an Assert() used to fire in debug builds
+    // (the Assert was wrong - the actual code handled this OK).
+    t = db.allterms_begin();
+    t.skip_to(string("big\0zero", 8));
+    TEST_NOT_EQUAL(t, db.allterms_end());
+    TEST_EQUAL(*t, string("big\0zero", 8));
+
+    return true;
+}
+
 // test that rsets behave correctly with multiDBs
 static bool test_rsetmultidb2()
 {
@@ -1286,6 +1314,7 @@ test_desc allterms_tests[] = {
     {"allterms3",	   test_allterms3},
     {"allterms4",	   test_allterms4},
     {"allterms5",	   test_allterms5},
+    {"specialterms2",	   test_specialterms2},
     {0, 0}
 };
 
