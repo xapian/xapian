@@ -1,8 +1,6 @@
-/* flint_alltermslist.h
+/* flint_alltermslist.h: A termlist containing all terms in a flint database.
  *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright (C) 2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,78 +16,111 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
- * -----END-LICENCE-----
  */
 
-#ifndef OM_HGUARD_FLINT_ALLTERMSLIST_H
-#define OM_HGUARD_FLINT_ALLTERMSLIST_H
+#ifndef XAPIAN_HGUARD_FLINT_ALLTERMSLIST_H
+#define XAPIAN_HGUARD_FLINT_ALLTERMSLIST_H
 
 #include "alltermslist.h"
-#include "flint_database.h"
+#include "database.h"
+#include "flint_postlist.h"
 
 class FlintCursor;
 
-/** class for alltermslists over several databases */
-class FlintAllTermsList : public AllTermsList
-{
-    private:
-	/// Copying is not allowed.
-	FlintAllTermsList(const FlintAllTermsList &);
+class FlintAllTermsList : public AllTermsList {
+    /// Copying is not allowed.
+    FlintAllTermsList(const FlintAllTermsList &);
 
-	/// Assignment is not allowed.
-	void operator=(const FlintAllTermsList &);
+    /// Assignment is not allowed.
+    void operator=(const FlintAllTermsList &);
 
-	/// Keep our database around
-	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+    /// Keep a reference to our database to stop it being deleted.
+    Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
 
-	/// A cursor pointing at the current term's postlist entry
-	AutoPtr<FlintCursor> pl_cursor;
+    /** A cursor which runs through the postlist table reading termnames from
+     *  the keys.
+     */
+    FlintCursor * cursor;
 
-	/// Cached "at-end" value
-	bool is_at_end;
+    /// The approximate number of terms in this list.
+    Xapian::termcount approx_size;
 
-	flint_tablesize_t size;
+    /// The termname at the current position.
+    string current_term;
 
-	bool started;
+    /** The term frequency of the term at the current position.
+     *
+     *  If this value is zero, then we haven't read the term frequency or
+     *  collection frequency for the current term yet.  We need to call
+     *  read_termfreq_and_collfreq() to read these.
+     */
+    mutable Xapian::termcount termfreq;
 
-	/// Cached termname
-	string current_term;
+    /// The collection frequency of the term at the current position.
+    mutable Xapian::termcount collfreq;
 
-	/// Cached statistics
-	mutable bool have_stats;
-	mutable Xapian::termcount termfreq;
-	mutable Xapian::termcount collection_freq;
+    /// Read and cache the term frequency and collection frequency.
+    void read_termfreq_and_collfreq() const;
 
-	void get_stats() const;
-    public:
-	/// Standard constructor for base class.
-	FlintAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-			   AutoPtr<FlintCursor> pl_cursor_,
-		       	   flint_tablesize_t size_);
+  public:
+    FlintAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+		      const FlintPostListTable * pltab) : database(database_), termfreq(0) {
+	// The number of entries in the postlist table will be the number of
+	// terms, probably plus some extra entries for chunked posting lists,
+	// plus 1 for the metainfo key (unless the table is completely empty).
+	// FIXME : this can badly overestimate (it could be several times too
+	// large) - perhaps keep track of the number of terms (or number of
+	// extra chunks) and store this along with the last_docid and
+	// total_doclen?  (Mind you, not sure this value is ever used, but
+	// we should really make the exact number of terms available somewhere
+	// in the API).
+	approx_size = pltab->get_entry_count();
+	if (approx_size) --approx_size;
 
-	/// Standard destructor for base class.
-	~FlintAllTermsList();
+	// Seek to the metainfo key, so the first next will advance us to the
+	// first real key.
+	cursor = pltab->cursor_get();
+	cursor->find_entry(string("", 1));
+    }
 
-        // Gets size of termlist
-	Xapian::termcount get_approx_size() const;
+    /// Destructor.
+    ~FlintAllTermsList();
 
-	// Gets current termname
-	string get_termname() const;
+    /** Returns the approximate size of the list.
+     *
+     *  This is probably unused for this class.
+     */
+    Xapian::termcount get_approx_size() const;
 
-	// Get num of docs indexed by term
-	Xapian::doccount get_termfreq() const;
+    /** Returns the current termname.
+     *
+     *  Either next() or skip_to() must have been called before this
+     *  method can be called.
+     */
+    string get_termname() const;
 
-	// Get num of docs indexed by term
-	Xapian::termcount get_collection_freq() const;
+    /** Returns the term frequency of the current term.
+     *
+     *  Either next() or skip_to() must have been called before this
+     *  method can be called.
+     */
+    Xapian::doccount get_termfreq() const;
 
-	TermList * skip_to(const string &tname);
+    /** Returns the collection frequency of the current term.
+     *
+     *  Either next() or skip_to() must have been called before this
+     *  method can be called.
+     */
+    Xapian::termcount get_collection_freq() const;
 
-	/** next() causes the AllTermsList to move to the next term in the list.
-	 */
-	TermList * next();
+    /// Advance to the next term in the list.
+    TermList * next();
 
-	// True if we're off the end of the list
-	bool at_end() const;
+    /// Advance to the first term which is >= tname.
+    TermList * skip_to(const string &tname);
+
+    /// True if we're off the end of the list
+    bool at_end() const;
 };
 
-#endif /* OM_HGUARD_FLINT_ALLTERMSLIST_H */
+#endif /* XAPIAN_HGUARD_FLINT_ALLTERMSLIST_H */

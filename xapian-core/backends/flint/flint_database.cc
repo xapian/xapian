@@ -515,9 +515,8 @@ TermList *
 FlintDatabase::open_allterms() const
 {
     DEBUGCALL(DB, TermList *, "FlintDatabase::open_allterms", "");
-    AutoPtr<FlintCursor> pl_cursor(postlist_table.cursor_get());
     RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
-				  pl_cursor, postlist_table.get_entry_count()));
+				 &postlist_table));
 }
 
 size_t FlintWritableDatabase::flush_threshold = 0;
@@ -1047,8 +1046,6 @@ FlintWritableDatabase::open_allterms() const
     DEBUGCALL(DB, TermList *, "FlintWritableDatabase::open_allterms", "");
     // Terms may have been added or removed, so we need to flush.
     do_flush_const();
-    FlintPostListTable *t = &database_ro.postlist_table;
-    AutoPtr<FlintCursor> pl_cursor(t->cursor_get());
     RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),
-				  pl_cursor, t->get_entry_count()));
+				 &database_ro.postlist_table));
 }

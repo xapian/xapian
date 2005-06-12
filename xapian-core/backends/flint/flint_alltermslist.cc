@@ -1,9 +1,6 @@
-/* flintalltermslist.cc
+/* flint_alltermslist.cc: A termlist containing all terms in a flint database.
  *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright (C) 2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,154 +16,126 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
+
 #include "flint_alltermslist.h"
-#include "flint_utils.h"
 #include "flint_postlist.h"
+#include "flint_utils.h"
 
-FlintAllTermsList::FlintAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-				       AutoPtr<FlintCursor> pl_cursor_,
-				       flint_tablesize_t size_)
-	: database(database_), pl_cursor(pl_cursor_), size(size_), 
-	  started(false)
+void
+FlintAllTermsList::read_termfreq_and_collfreq() const
 {
-    DEBUGCALL(DB, void, "FlintAllTermsList", "[database_], [pl_cursor_]");
-    /* Seek to the first term */
-    pl_cursor->find_entry(string());
+    DEBUGCALL(DB, void, "FlintAllTermsList::read_termfreq_and_collfreq", "");
+    Assert(!current_term.empty());
+    Assert(!at_end());
 
-    if (pl_cursor->current_key.empty()) {
-	pl_cursor->next();
-    }
-
-    is_at_end = pl_cursor->after_end();
-    if (!is_at_end) {
-	const char *start = pl_cursor->current_key.data();
-	const char *end = start + pl_cursor->current_key.length();
-	if (!unpack_string_preserving_sort(&start, end, current_term)) {
-	    throw Xapian::DatabaseCorruptError("Failed to read the key field from a FlintCursor's key");
-	}
-    }
-
-    have_stats = false;
+    // Unpack the termfreq and collfreq from the tag.  Only do this if
+    // one or other is actually read.
+    cursor->read_tag();
+    const char *p = cursor->current_tag.data();
+    const char *pend = p + cursor->current_tag.size();
+    FlintPostList::read_number_of_entries(&p, pend, &termfreq, &collfreq);
 }
 
 FlintAllTermsList::~FlintAllTermsList()
 {
     DEBUGCALL(DB, void, "~FlintAllTermsList", "");
+    delete cursor;
 }
 
 Xapian::termcount
 FlintAllTermsList::get_approx_size() const
 {
     DEBUGCALL(DB, Xapian::termcount, "FlintAllTermsList::get_approx_size", "");
-    RETURN(size);
+    RETURN(approx_size);
 }
 
 string
 FlintAllTermsList::get_termname() const
 {
     DEBUGCALL(DB, string, "FlintAllTermsList::get_termname", "");
-    Assert(started);
+    Assert(!current_term.empty());
+    Assert(!at_end());
     RETURN(current_term);
-}
-
-void FlintAllTermsList::get_stats() const
-{
-    pl_cursor->read_tag();
-    const char *start = pl_cursor->current_tag.data();
-    const char *end = start + pl_cursor->current_tag.length();
-    FlintPostList::read_number_of_entries(&start, end,
-					   &termfreq, &collection_freq);
-
-    have_stats = true;
 }
 
 Xapian::doccount
 FlintAllTermsList::get_termfreq() const
 {
     DEBUGCALL(DB, Xapian::doccount, "FlintAllTermsList::get_termfreq", "");
-    Assert(started);
-    if (have_stats) {
-	RETURN(termfreq);
-    } else if (!is_at_end) {
-	get_stats();
-	RETURN(termfreq);
-    }
-    throw Xapian::InvalidArgumentError("Attempt to get termfreq after end");
+    Assert(!current_term.empty());
+    Assert(!at_end());
+    if (termfreq == 0) read_termfreq_and_collfreq();
+    RETURN(termfreq);
 }
 
 Xapian::termcount
 FlintAllTermsList::get_collection_freq() const
 {
     DEBUGCALL(DB, Xapian::termcount, "FlintAllTermsList::get_collection_freq", "");
-    Assert(started);
-    if (have_stats) {
-	RETURN(collection_freq);
-    } else if (!is_at_end) {
-	get_stats();
-	RETURN(collection_freq);
-    }
-    throw Xapian::InvalidArgumentError("Attempt to get collection_freq after end");
-}
-
-TermList *
-FlintAllTermsList::skip_to(const string &tname)
-{
-    DEBUGCALL(DB, TermList *, "FlintAllTermsList::skip_to", tname);
-    DEBUGLINE(DB, "FlintAllTermList::skip_to(" << tname << ")");
-    started = true;
-    string key;
-    key = pack_string_preserving_sort(tname);
-
-    have_stats = false;
-
-    if (!pl_cursor->find_entry(key)) {
-	if (pl_cursor->after_end()) {
-	    is_at_end = true;
-	} else {
-	    next();
-	}
-    } else {
-	Assert(key == pl_cursor->current_key);
-	current_term = tname;
-    }
-    RETURN(NULL);
+    Assert(!current_term.empty());
+    Assert(!at_end());
+    if (termfreq == 0) read_termfreq_and_collfreq();
+    RETURN(collfreq);
 }
 
 TermList *
 FlintAllTermsList::next()
 {
     DEBUGCALL(DB, TermList *, "FlintAllTermsList::next", "");
-    if (!started) {
-	started = true;
-    } else {
-	while (true) {
-	    pl_cursor->next();
+    Assert(!at_end());
+    // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
+    // the current term.
+    termfreq = 0;
 
-	    is_at_end = pl_cursor->after_end();
-
-	    if (is_at_end) break;
-
-	    const char *start = pl_cursor->current_key.data();
-	    const char *end = start + pl_cursor->current_key.length();
-	    if (!unpack_string_preserving_sort(&start, end, current_term)) {
-		throw Xapian::DatabaseCorruptError("Failed to read the key field from a FlintCursor's key");
-	    }
-	    // Check if this is the first chunk of a postlist, skip otherwise
-	    if (start == end) break;
+    while (true) {
+	cursor->next();
+	if (cursor->after_end()) {
+	    current_term = "";
+	    break;
 	}
 
-	have_stats = false;
+	const char *p = cursor->current_key.data();
+	const char *pend = p + cursor->current_key.size();
+	if (!unpack_string_preserving_sort(&p, pend, current_term)) {
+	    throw Xapian::DatabaseCorruptError("PostList table key has unexpected format");
+	}
+
+	// If this key is for the first chunk of a postlist, we're done.  Otherwise we need
+	// to skip past continuation chunks until we find the first chunk of the next postlist.
+	if (p == pend) break;
     }
     RETURN(NULL);
+}
+
+TermList *
+FlintAllTermsList::skip_to(const string &tname)
+{
+    DEBUGCALL(DB, TermList *, "FlintAllTermsList::skip_to", tname);
+    Assert(!at_end());
+    // Set termfreq to 0 to indicate no value has been read for the current term.
+    termfreq = 0;
+
+    if (cursor->find_entry(pack_string_preserving_sort(tname))) {
+	// The term we asked for is there, so just return that rather than
+	// wasting effort unpacking it from the key.
+	current_term = tname;
+	RETURN(NULL);
+    }
+    if (cursor->after_end()) {
+	current_term = "";
+	RETURN(NULL);
+    }
+    // If there wasn't an exact match, the cursor is left on the last key *BEFORE*
+    // the one we asked for.
+    RETURN(next());
 }
 
 bool
 FlintAllTermsList::at_end() const
 {
     DEBUGCALL(DB, bool, "FlintAllTermsList::at_end", "");
-    RETURN(is_at_end);
+    RETURN(cursor->after_end());
 }

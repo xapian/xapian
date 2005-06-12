@@ -1,3 +1,11 @@
+Mon Jun 13 00:13:33 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_alltermslist.cc,
+	  backends/flint/flint_alltermslist.h,
+	  backends/flint/flint_database.cc: Rewrite of FlintAllTermsList
+	  with several fewer member variables.  Also fixes a bug (the old
+	  version wasn't ignoring the metainfo entry so tests were failing).
+
 Sun Jun 12 13:08:16 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_alltermslist.cc: Disable assertion which is
