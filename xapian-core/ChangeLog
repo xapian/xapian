@@ -1,3 +1,8 @@
+Sun Jun 12 02:00:30 BST 2005  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.cc: When a flint database was requested, we
+	  were incorrectly creating a quartz database instead - fixed.
+
 Sat Jun 11 17:53:12 BST 2005  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc: Fix mis-repacking of keys in positionlist

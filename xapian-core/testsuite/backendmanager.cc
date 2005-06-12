@@ -335,10 +335,10 @@ BackendManager::getdb_flint(const vector<string> &dbnames)
     // If the database is readonly, we can reuse it if it exists.
     if (create_dir_if_needed(dbdir)) {
 	// Directory was created, so do the indexing.
-	Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
+	Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
 	index_files_to_database(db, change_names_to_paths(dbnames));
     }
-    return Xapian::Quartz::open(dbdir);
+    return Xapian::Flint::open(dbdir);
 }
 
 Xapian::WritableDatabase
@@ -359,7 +359,7 @@ BackendManager::getwritedb_flint(const vector<string> &dbnames)
     (void)create_dir_if_needed(dbdir);
     touch(dbdir + "/log");
     // directory was created, so do the indexing.
-    Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
+    Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
     index_files_to_database(db, change_names_to_paths(dbnames));
     return db;
 }
