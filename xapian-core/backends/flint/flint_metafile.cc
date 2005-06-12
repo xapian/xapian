@@ -42,7 +42,8 @@ using std::string;
 
 static const string metafile_magic = "IAmFlint";
 // YYYYMMDDX where X allows multiple format revisions in a day
-static const unsigned int metafile_version = 200505310;
+static const unsigned int metafile_version = 200506110;
+// 200506110 Fixed interpolative coding to work(!)
 // 200505310 Interpolative coding for position lists
 // 200505280 Total doclen and last docid entry moved to postlist table
 // 200505270 First dated version

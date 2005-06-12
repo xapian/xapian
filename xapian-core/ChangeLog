@@ -1,3 +1,10 @@
+Sun Jun 12 02:03:52 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc: Encoding and decoding of
+	  position list size, and first and last entries didn't match.
+	  Reworked to match using a slightly smaller encoding.
+	* backends/flint/flint_metafile.cc: Bumped format version.
+
 Sun Jun 12 02:02:35 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_table.cc: We were failing to append "DB" to the
