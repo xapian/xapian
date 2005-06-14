@@ -8,7 +8,7 @@ ifeq ($(COMPONENT),stable)
   PYTHON_VERSIONS := 2.1 2.2
 else
   PYTHON_VERSION_MAIN := 2.3
-  PYTHON_VERSIONS := 2.1 2.2 2.3
+  PYTHON_VERSIONS := 2.1 2.2 2.3 2.4
 endif
 
 export DH_COMPAT=3
