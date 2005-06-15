@@ -1,3 +1,10 @@
+Wed Jun 15 01:00:11 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc: It seems we need to explicitly kill
+	  the child process.  Otherwise when we have two databases locked
+	  just closing the connection doesn't cause the child to die.  I
+	  don't understand why it's needed, but this fix is at least clean.
+
 Mon Jun 13 00:13:33 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_alltermslist.cc,

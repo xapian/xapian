@@ -127,6 +127,7 @@ FlintLock::release() {
     close(fd);
     fd = -1;
     int status;
+    kill(pid, SIGHUP);
     waitpid(pid, &status, 0);
 #endif
 }
