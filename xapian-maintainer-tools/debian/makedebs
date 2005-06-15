@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -x
 # Make the Debian binary packages from the source packages.
 #
 # Copyright (C) 2004 Richard Boulton
@@ -80,13 +80,13 @@ fi
 # This variable will be used when we finish support for snapshot packages.
 EXTRA_VERSION_UPSTREAM=
 
-# If we're building for the stable distribution, we need to add a bit
+# If we're building for the unstable distribution, we need to add a bit
 # to the debian version number, to avoid conflicts with the package in
-# unstable.  We add "0stable" since it should sort before any other
+# stable.  We add "99unstable" since it should sort before any other
 # modification.
 EXTRA_VERSION_DEBIAN=""
-if [ "x$COMPONENT" == "xstable" ] ; then
-  EXTRA_VERSION_DEBIAN=".0stable"
+if [ "x$COMPONENT" == "xunstable" ] ; then
+  EXTRA_VERSION_DEBIAN=".99unstable"
 fi
 
 # TARGETDIR is the location that all generated files will be stored in.
@@ -125,7 +125,7 @@ then
   # Distribution tarballs all exist
   true
 else
-  echo "Source packages do not exist: run ./makepackages first"
+  echo "Source packages do not exist: run ./makesources first"
   exit 1
 fi
 
