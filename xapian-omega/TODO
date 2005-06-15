@@ -1,0 +1,7 @@
+Make a default configuration file for omega, and place it in the appropriate
+location.
+
+Make /etc/omega.conf into a conffile.
+Sort out permissions of /var/log/omega/, and rotate logfiles generated in
+there.
+Ensure that logfiles are removed when package is purged.
