@@ -41,7 +41,7 @@ SNAPSHOT=
 
 # CVS tags to use to check out Debian control files
 DEBTAG_CORE='debian-0.9.1-2'
-DEBTAG_BINDINGS='debian-0.9.1-2'
+DEBTAG_BINDINGS='debian-0.9.1-3'
 DEBTAG_OMEGA='debian-0.9.1-1'
 
 #SVNTAG='trunk'
