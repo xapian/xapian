@@ -1,3 +1,10 @@
+xapian-bindings (0.9.1-3) unstable; urgency=low
+
+  * Correct python2.4-xapian.install to include the 2.4 files, not the 2.3
+    ones.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Jun 2005 12:11:34 +0100
+
 xapian-bindings (0.9.1-2) unstable; urgency=low
 
   * Temporarily disable python 2.1 packages, since tarball seems to be
