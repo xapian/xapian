@@ -19,13 +19,13 @@
 # USA
 
 # Usage: ./makedebs [COMPONENT]
-# COMPONENT defaults to "unstable".
-# Currently, the only sensible alternate value is "stable".
+# COMPONENT defaults to "stable".
+# Currently, the only sensible alternate value is "unstable".
 
 set -e
 
-COMPONENT=unstable
-VERSION='0.8.5'
+COMPONENT=stable
+VERSION='0.9.1'
 DEBVER_CORE='1'
 DEBVER_BINDINGS='1'
 DEBVER_OMEGA='1'
@@ -72,7 +72,7 @@ DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
 # that we don't transfer the packages over the network if we don't need to.
 ONIXION=no
 if [ "x`hostname -f`" == "xixion.tartarus.org" ] ; then
-  if [ -r '/usr/data/cvs/xapian' ] ; then
+  if [ -r '/home/xapian-svn' ] ; then
     ONIXION=yes
   fi
 fi
