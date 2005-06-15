@@ -1,33 +1,31 @@
 #!/bin/sh
+# Tag the latest versions of the debian control files.   Automatically
+# works out the version numbers and tag names.
 
 set -e
 
-version="$1"
-
-# check parameter was passed and that it looks like a version
-case "$version" in
-[0-9].[0-9].[0-9]-[1-9]) ;;
-*)
-    echo "Syntax: $0 VERSION"
-    echo "e.g. $0 0.9.0-1"
-    exit 1
-    ;;
-esac
-
 SVNROOT="svn+ssh+userv://xapian-svn@svn.xapian.org/xapian/"
-DEBTAG="debian-$version"
+DEBTAG_BASE="debian-"
 
-# Make the subversion directory
-svn mkdir -m "Tag for $DEBTAG release." \
-  ${SVNROOT}tags/$DEBTAG/
 
 # Tag the release in SVN.
-svn cp -m "Tag for $DEBTAG release." \
-  ${SVNROOT}trunk/xapian-core/debian \
-  ${SVNROOT}tags/"$DEBTAG"/xapian-core/
-svn cp -m "Tag for $DEBTAG release." \
-  ${SVNROOT}trunk/xapian-bindings/debian \
-  ${SVNROOT}tags/"$DEBTAG"/xapian-bindings/
-svn cp -m "Tag for $DEBTAG release." \
-  ${SVNROOT}trunk/xapian-applications/omega/debian \
-  ${SVNROOT}tags/"$DEBTAG"/xapian-omega/
+for module in xapian-core xapian-bindings xapian-omega;
+do
+  MODULE_NAME=$module
+  if [ "x$module" == "xxapian-omega" ];
+  then
+    MODULE_NAME=xapian-applications/omega
+  fi
+
+  VERSION="`svn cat ${SVNROOT}/trunk/$MODULE_NAME/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
+  DEBTAG="${DEBTAG_BASE}${VERSION}"
+
+  svn ls ${SVNROOT}tags/$DEBTAG/ >/dev/null 2>&1 || \
+    svn mkdir -m "Tag for $DEBTAG release." \
+            ${SVNROOT}tags/$DEBTAG/
+
+  svn ls ${SVNROOT}tags/$DEBTAG/$module/ >/dev/null 2>&1 || \
+    svn cp -m "Tagging $module for $DEBTAG release." \
+      ${SVNROOT}trunk/$MODULE_NAME/debian \
+      ${SVNROOT}tags/"$DEBTAG"/$module/
+done

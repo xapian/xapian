@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 # Make the Debian binary packages from the source packages.
 #
 # Copyright (C) 2004 Richard Boulton
@@ -21,6 +21,17 @@
 # Usage: ./makedebs [COMPONENT]
 # COMPONENT defaults to "stable".
 # Currently, the only sensible alternate value is "unstable".
+
+echo <<EOF
+WARNING - this script will attempt to install some of the generated packages
+using sudo.  This is required to generate some of the dependencies correctly.
+If you do not wish it to try this, abort now!
+
+If installation fails, a local copy of xapian will be generated, and
+functioning packages will be generated, but some of the dependencies in the
+package descriptions may be incorrect or missing.
+EOF
+sleep 5;
 
 set -e
 
@@ -139,18 +150,23 @@ cd build
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_BIN_OPTS}
   cd ..
 
-  # Build and install (to a temporary location) the core library
-  cd xapian-core-${VERSION}
-    mkdir -p build-tmp
-    cd build-tmp
-      ../configure --prefix=${TMPDIR}/core
-      make
-      make install
+  # Install the newly generated packages, if possible.
+  sudo /usr/bin/dpkg -i *.deb
+  if [ $? -ne 0 ];
+  then
+    # Build and install (to a temporary location) the core library
+    cd xapian-core-${VERSION}
+      mkdir -p build-tmp
+      cd build-tmp
+        ../configure --prefix=${TMPDIR}/core
+        make
+        make install
+      cd ..
     cd ..
-  cd ..
-  # Add new library to beginning of path.
-  export PATH
-  PATH="$TMPDIR/core/bin:$PATH"
+    # Add new library to beginning of path.
+    export PATH
+    PATH="$TMPDIR/core/bin:$PATH"
+  fi
 
   # Build packages from xapian-bindings
   dpkg-source -x ${CONTROL_BINDINGS}
