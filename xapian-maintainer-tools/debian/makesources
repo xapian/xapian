@@ -26,28 +26,12 @@
 
 set -e
 
-# SVN tag to use to check out Xapian sources
-# If this is of the form "tags/MAJOR-MINOR-PATCH", where MAJOR, MINOR and PATCH
-# are integers, we are building a release, and will build from a tarball
-# (which we will generate from SVN code if the tarball isn't already
-# cached in our target directory.)
-# Otherwise, we are building a snapshot package, and will build directly
-# from SVN code.  (FIXME - currently generates from a cached tarball if there
-# is one.  Not sure this is a bad thing.)
-SVNTAG='tags/0.9.1'
-
-# Flag, set to non-zero if this is a snapshot build.
+# Set this to the tag of a snapshot build, or empty to build the latest
+# release.
+# FIXME - snapshot builds are currently broken.  This should be fixed and
+# integrated with nightly snapshot generation.
 SNAPSHOT=
-
-# CVS tags to use to check out Debian control files
-DEBTAG_CORE='debian-0.9.1-2'
-DEBTAG_BINDINGS='debian-0.9.1-3'
-DEBTAG_OMEGA='debian-0.9.1-1'
-
-#SVNTAG='trunk'
-#DEBTAG_CORE=HEAD
-#DEBTAG_BINDINGS=HEAD
-#DEBTAG_OMEGA=HEAD
+#SNAPSHOT=trunk
 
 # Debian component to build for (libc version being the most important factor)
 # This will be overridden by $1, if set.
@@ -102,34 +86,42 @@ if [ "x`hostname`" == "xixion" ] ; then
 fi
 
 # Calculate the version which we're building.
+
 # $VERSION holds the version number as defined in configure.in.
 # $EXTRA_VERSION_UPSTREAM holds a suffix to be added to the upstream
 # version number (empty when building a release)
 # $EXTRA_VERSION_DEBIAN holds a suffix to be added to the debian
 # version number (empty when building for the current distribution)
-# Finally, $SNAP_VERSION will be set to "$VERSION$EXTRA_VERSION_UPSTREAM"
-# (and will therefore be identical to $VERSION when building a release).
-
-VERSION="`echo ${SVNTAG} | sed 's/^tags\/\([0-9][0-9]*\).\([0-9][0-9]*\).\([0-9][0-9]*\)$/\1.\2.\3/g'`"
-EXTRA_VERSION_UPSTREAM=""
-EXTRA_VERSION_DEBIAN=""
+# $SVNTAG hold the SVN tag to use to check out Xapian sources
 
 # If we are building a version other than that specified in the
 # debian control file, we need to make an entry in the debian changelog.
 # $CHANGE_MSG holds the message to put in the entry.
-CHANGE_MSG=""
 
 # If we failed to parse the tag into a version number, we are not building
 # a tagged release.  We will therefore have to get the version number from
 # the source code.
 if [ "x$SNAPSHOT" != "x" ] ; then
-  VERSION="`svn cat ${SVNROOT}/tags/${SVNTAG}/xapian-core/configure.ac | grep AC_INIT | head -n 1 | sed 's/^.*xapian-core, \([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)[^0-9].*$/\1.\2.\3/g'`"
+  VERSION="`svn cat ${SVNROOT}/$SNAPSHOT/xapian-core/configure.ac | grep AC_INIT | head -n 1 | sed 's/^.*xapian-core, \([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)[^0-9].*$/\1.\2.\3/g'`"
+  SVNTAG="$SNAPSHOT"
   # For now, append the current date to snapshot builds.
-  # FIXME - should use the date of last modification to the snapshot.
+  # FIXME - should use the date of last modification to the snapshot, or the revision number of the snapshot.
   EXTRA_VERSION_UPSTREAM=".`date '+%Y%m%d'`"
   CHANGE_MSG="  * Snapshot build.
 "
+else
+  VERSION="`svn cat ${SVNROOT}/trunk/xapian-core/configure.ac | grep AC_INIT | head -n 1 | sed 's/^.*xapian-core, \([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)[^0-9].*$/\1.\2.\3/g'`"
+  SVNTAG="tags/$VERSION"
+  EXTRA_VERSION_UPSTREAM=""
+  EXTRA_VERSION_DEBIAN=""
+  CHANGE_MSG=""
 fi
+
+# Calculate CVS tags to use to check out Debian control files
+DEBTAG_BASE="debian-"
+DEBTAG_CORE="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-core/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
+DEBTAG_BINDINGS="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-bindings/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
+DEBTAG_OMEGA="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-applications/omega/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
 
 # If we're building for the unstable distribution, we need to add a bit
 # to the debian version number, to avoid conflicts with the package in
@@ -141,6 +133,8 @@ if [ "x$COMPONENT" == "xunstable" ] ; then
 "
 fi
 
+# $SNAP_VERSION will be set to "$VERSION$EXTRA_VERSION_UPSTREAM"
+# (and will therefore be identical to $VERSION when building a release).
 SNAP_VERSION="$VERSION$EXTRA_VERSION_UPSTREAM"
 
 # Finish the contents of the changelog entry, if one is to be made.
