@@ -152,6 +152,7 @@ $CHANGE_MSG
 fi
 
 # Checkout debian control files from SVN
+rm -rf control
 mkdir -p control
 cd control
   svn co -q ${SVNROOT}/tags/${DEBTAG_CORE}/xapian-core xapian-core
