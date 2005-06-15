@@ -1,3 +1,12 @@
+xapian-bindings (0.9.1-1) unstable; urgency=low
+
+  * New upstream releases (No package was generated for release 0.9.0)
+  * Now build for python 2.4.
+  * Update default python version to be compatible with that for new
+    Debain stable version.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Jun 2005 09:12:07 +0100
+
 xapian-bindings (0.8.5-1) unstable; urgency=low
 
   * New upstream release.
