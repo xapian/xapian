@@ -1,3 +1,10 @@
+xapian-omega (0.9.1-2) unstable; urgency=low
+
+  * Add termprefixes.txt to package.
+  * Install /etc/omega.conf.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Jun 2005 12:36:51 +0100
+
 xapian-omega (0.9.1-1) unstable; urgency=low
 
   * New upstream releases (no package was generated for release 0.9.0)

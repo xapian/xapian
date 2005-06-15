@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-export DH_COMPAT=3
+export DH_COMPAT=4
 export DH_OPTIONS
 
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
