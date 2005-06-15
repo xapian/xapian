@@ -38,11 +38,11 @@ set -e
 COMPONENT=stable
 VERSION='0.9.1'
 DEBVER_CORE='2'
-DEBVER_BINDINGS='2'
+DEBVER_BINDINGS='3'
 DEBVER_OMEGA='1'
 
 # Options to pass to dpkg-buildpackage when building binary packages.
-BUILDPACKAGE_BIN_OPTS="-us -uc -d -b"
+BUILDPACKAGE_BIN_OPTS="-us -uc -b"
 
 # Location of apt repository on www.xapian.org.
 PUBDIR="/usr/data/www/xapian.org/debian"
@@ -166,6 +166,8 @@ cd build
     # Add new library to beginning of path.
     export PATH
     PATH="$TMPDIR/core/bin:$PATH"
+    # Tell buildpackage not to worry about dependencies.
+    BUILDPACKAGE_BIN_OPTS="${BUILDPACKAGE_BIN_OPTS} -d"
   fi
 
   # Build packages from xapian-bindings
