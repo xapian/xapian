@@ -1,0 +1,33 @@
+#!/bin/sh
+
+set -e
+
+version="$1"
+
+# check parameter was passed and that it looks like a version
+case "$version" in
+[0-9].[0-9].[0-9]-[1-9]) ;;
+*)
+    echo "Syntax: $0 VERSION"
+    echo "e.g. $0 0.9.0-1"
+    exit 1
+    ;;
+esac
+
+SVNROOT="svn+ssh+userv://xapian-svn@svn.xapian.org/xapian/"
+DEBTAG="debian-$version"
+
+# Make the subversion directory
+svn mkdir -m "Tag for $DEBTAG release." \
+  ${SVNROOT}tags/$DEBTAG/
+
+# Tag the release in SVN.
+svn cp -m "Tag for $DEBTAG release." \
+  ${SVNROOT}trunk/xapian-core/debian \
+  ${SVNROOT}tags/"$DEBTAG"/xapian-core/
+svn cp -m "Tag for $DEBTAG release." \
+  ${SVNROOT}trunk/xapian-bindings/debian \
+  ${SVNROOT}tags/"$DEBTAG"/xapian-bindings/
+svn cp -m "Tag for $DEBTAG release." \
+  ${SVNROOT}trunk/xapian-applications/omega/debian \
+  ${SVNROOT}tags/"$DEBTAG"/xapian-omega/
