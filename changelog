@@ -1,3 +1,10 @@
+xapian-bindings (0.9.1-2) unstable; urgency=low
+
+  * Temporarily disable python 2.1 packages, since tarball seems to be
+    broken for them.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Jun 2005 11:16:19 +0100
+
 xapian-bindings (0.9.1-1) unstable; urgency=low
 
   * New upstream releases (No package was generated for release 0.9.0)

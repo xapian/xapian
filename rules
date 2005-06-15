@@ -5,10 +5,10 @@ ifeq ($(COMPONENT),stable)
   # The default python version
   PYTHON_VERSION_MAIN := 2.3
   # The python versions to build for
-  PYTHON_VERSIONS := 2.1 2.2 2.3 2.4
+  PYTHON_VERSIONS := 2.2 2.3 2.4
 else
   PYTHON_VERSION_MAIN := 2.3
-  PYTHON_VERSIONS := 2.1 2.2 2.3 2.4
+  PYTHON_VERSIONS := 2.2 2.3 2.4
 endif
 
 export DH_COMPAT=3
