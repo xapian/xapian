@@ -1,4 +1,6 @@
-usr/bin/xapian-tcpsrv
+usr/bin/delve
 usr/bin/quartzcheck
 usr/bin/quartzcompact
 usr/bin/quartzdump
+usr/bin/quest
+usr/bin/xapian-tcpsrv

@@ -54,11 +54,13 @@ Section: utils
 Depends: ${shlibs:Depends}
 Description: Basic tools for Xapian search engine library
  This package contains several tools related to Xapian.
-  - xapian-tcpsrv: A simple TCP based server, used for searching across remote
-    databases.
+  - delve: Inspect the contents of a Xapian database.
   - quartzcheck: Check the validity of a Xapian database.
   - quartzcompact: Remove unused space in a Xapian database.
   - quartzdump: Dump (part of) a Xapian database.
+  - quest: Command line search of a Xapian database.
+  - xapian-tcpsrv: A simple TCP based server, used for searching across remote
+    databases.
  .
  The Xapian search engine library is designed to be a highly adaptable toolkit
  to allow developers to easily add advanced indexing and search facilities to
