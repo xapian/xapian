@@ -22,7 +22,7 @@
 # COMPONENT defaults to "stable".
 # Currently, the only sensible alternate value is "unstable".
 
-echo <<EOF
+cat <<EOF
 WARNING - this script will attempt to install some of the generated packages
 using sudo.  This is required to generate some of the dependencies correctly.
 If you do not wish it to try this, abort now!
@@ -37,8 +37,8 @@ set -e
 
 COMPONENT=stable
 VERSION='0.9.1'
-DEBVER_CORE='1'
-DEBVER_BINDINGS='1'
+DEBVER_CORE='2'
+DEBVER_BINDINGS='2'
 DEBVER_OMEGA='1'
 
 # Options to pass to dpkg-buildpackage when building binary packages.
