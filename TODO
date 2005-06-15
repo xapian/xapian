@@ -12,3 +12,6 @@ full xapian source documentation).  We could move this to point to the
 xapian website.  There should almost certainly be a link back to the front page
 of the Xapian website, too.  The documentation should also probably be in the
 style of the Xapian website, and should use the Xapian logo on the front page.
+
+Make a xapian-examples package, and put the examples (simple* and
+copydatabase) in there, together with their source code.
