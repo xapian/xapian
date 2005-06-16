@@ -1,3 +1,8 @@
+Thu Jun 16 19:12:41 BST 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i: When converting a python list to vector<string> we
+	  know the number of elements so reserve that number in the vector.
+
 Thu Jun 16 19:02:03 BST 2005  Olly Betts <olly@survex.com>
 
 	* python/util.i: Remove bogus ";" after closing "}" of "namespace {}".

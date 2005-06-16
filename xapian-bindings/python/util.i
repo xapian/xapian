@@ -163,8 +163,9 @@
         PyErr_SetString(PyExc_TypeError, "expected list");
         return NULL;
     }
-    vector<string> *v = new vector<string>();
     int numitems = PyList_Size($input);
+    vector<string> *v = new vector<string>();
+    v.reserve(numitems);
     for (int i=0; i<numitems; ++i) {
         PyObject *obj = PyList_GetItem($input, i);
 	if (PyString_Check(obj)) {
