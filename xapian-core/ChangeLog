@@ -1,3 +1,9 @@
+Thu Jun 16 17:54:39 BST 2005  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.am,bin/xapian-compact.cc: Added new "xapian-compact"
+	  program which can compact and merge flint databases in a similar
+	  way to how quartzcompact does for quartz databases.
+
 Thu Jun 16 01:22:45 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Check for spaces in build directory, source directory,
