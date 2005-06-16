@@ -1,3 +1,9 @@
+Thu Jun 16 18:43:33 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc: Fix warnings from older GCC versions.
+	* backends/flint/flint_lock.cc: '#include <signal.h>' so that SIGHUP gets
+	  defined reliably.
+
 Thu Jun 16 17:54:39 BST 2005  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.am,bin/xapian-compact.cc: Added new "xapian-compact"

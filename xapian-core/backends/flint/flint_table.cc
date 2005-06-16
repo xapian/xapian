@@ -1,4 +1,4 @@
-/* btree.cc: Btree implementation
+/* flint_table.cc: Btree implementation
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
@@ -59,7 +59,6 @@ PWRITE_PROTOTYPE
 #include <limits.h>   /* for CHAR_BIT */
 
 #include <errno.h>
-#include "autoptr.h"
 
 #include "flint_table.h"
 #include "flint_btreeutil.h"
@@ -1333,8 +1332,10 @@ FlintTable::basic_open(bool revision_supplied, flint_revision_number_t revision_
 	vector<FlintTable_base> bases(basenames.size());
 	vector<bool> base_ok(basenames.size());
 
-	for (size_t i = 0; i < basenames.size(); ++i) {
-	    base_ok[i] = bases[i].read(name, basenames[i], err_msg);
+	{
+	    for (size_t i = 0; i < basenames.size(); ++i) {
+		base_ok[i] = bases[i].read(name, basenames[i], err_msg);
+	    }
 	}
 
 	// FIXME: assumption that there are only two bases
