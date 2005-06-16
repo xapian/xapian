@@ -1,3 +1,7 @@
+Thu Jun 16 19:02:03 BST 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i: Remove bogus ";" after closing "}" of "namespace {}".
+
 Mon Jun 06 18:50:54 BST 2005  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated for 0.9.1.

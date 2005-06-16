@@ -5,7 +5,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003 James Aylett
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -91,7 +91,7 @@
 		return PyInt_AsLong(PyNumber_Int(obj));
 	    }
 	}
-    };
+    }
 %}
 
 %typemap(python, in) const vector<Xapian::Query *> *(vector<Xapian::Query *> v){
@@ -348,7 +348,7 @@ namespace Xapian {
 	PyObject *items;
 	%mutable;
     }
-};
+}
 
 #pragma SWIG nowarn=515 /* Suppress warning that const is discarded by operator() */
 namespace Xapian {
@@ -358,5 +358,5 @@ namespace Xapian {
 	virtual int operator() (const Xapian::Document &doc) const = 0;
 	virtual ~MatchDecider() { }
     };
-};
+}
 #pragma SWIG nowarn=
