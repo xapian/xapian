@@ -1,3 +1,8 @@
+Thu Jun 16 01:22:45 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check for spaces in build directory, source directory,
+	  or install prefix and die with a helpful message.
+
 Wed Jun 15 01:00:11 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_lock.cc: It seems we need to explicitly kill

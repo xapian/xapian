@@ -57,6 +57,36 @@ dnl 7:0:0 0.9.1 Query::get_terms_end() now inline in header
 LIBRARY_VERSION_INFO=7:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
+dnl Check the build directory doesn't contain a space, so we die early with
+dnl a helpful error.
+case "`pwd`" in
+*' '*)
+   AC_MSG_ERROR([You can't build in a directory whose path contains a space])
+   ;;
+*) ;;
+esac
+
+dnl Check the source directory doesn't contain a space, so we die early with
+dnl a helpful error.  FIXME: Unfortunately, configure seems to choke before
+dnl it gets to us so this code doesn't get a chance to fire.
+case "$0" in
+*' '*)
+   dnl Note: for in-tree builds, the build directory test above will fire
+   dnl before this can.
+   AC_MSG_ERROR([You can't build with sources in a directory whose path contains a space])
+   ;;
+*) ;;
+esac
+
+dnl Check the prefix to install in doesn't contain a space, so we die early with
+dnl a helpful error.
+case "$prefix" in
+*' '*)
+   AC_MSG_ERROR([You can't install in a directory whose path contains a space])
+   ;;
+*) ;;
+esac
+
 dnl Note if the user specified a particular C++ compiler so we can give a more
 dnl appropriate error message if we can't link a simple C++ program.
 original_CXX=
@@ -66,9 +96,9 @@ elif test -n "$CCC" ; then
   original_CXX="CCC=$CCC"
 fi
 
-# Need 1.5 for AM_CXXFLAGS, etc; also so generated files in EXTRA_DIST work
-# Need 1.6.3 for tests/internaltest to build with Solaris make
-# 1.8.5 contains a lot of fixes over 1.6.3
+dnl Need 1.5 for AM_CXXFLAGS, etc; also so generated files in EXTRA_DIST work
+dnl Need 1.6.3 for tests/internaltest to build with Solaris make
+dnl 1.8.5 contains a lot of fixes over 1.6.3
 AM_INIT_AUTOMAKE([1.8.5])
 AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 
