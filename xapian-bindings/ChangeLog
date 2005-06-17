@@ -1,3 +1,10 @@
+Fri Jun 17 03:18:19 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: csharp build uses a tool from GNU Mono called "mcs"
+	  but some UNIX variants ship with a tool called "mcs" which does
+	  something else.  For now, simply check the "mcs --version" is
+	  understood.
+
 Thu Jun 16 19:12:41 BST 2005  Olly Betts <olly@survex.com>
 
 	* python/util.i: When converting a python list to vector<string> we

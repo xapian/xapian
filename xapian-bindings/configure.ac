@@ -211,10 +211,22 @@ if test no != "$with_swig" ; then
 
   if test no != "$with_csharp" ; then
     AC_PATH_PROG(CSC, mcs, [])
-    AC_PATH_PROG(GACUTIL, gacutil, [])
-    AC_PATH_PROG(SN, sn, [])
-    if test -n "$CSC" -a -n "$GACUTIL" -a -n "$SN" ; then
-      BINDINGS="$BINDINGS csharp"
+    if test -n "$CSC" ; then
+      # There are other tools called mcs (such as /usr/bin/mcs on Tru64),
+      # so we check that the mcs we found understands --version which is
+      # sufficient to distinguish mono's mcs from the Tru64 one.
+      AC_MSG_CHECKING([whether $CSC is from GNU Mono])
+      if (exec >&5 2>&5;$CSC --version;exit $?) ; then
+	AC_MSG_RESULT(yes)
+	AC_PATH_PROG(GACUTIL, gacutil, [])
+	AC_PATH_PROG(SN, sn, [])
+	if test -n "$GACUTIL" -a -n "$SN" ; then
+	  BINDINGS="$BINDINGS csharp"
+	fi
+      else
+	AC_MSG_RESULT(no)
+	CSC=
+      fi
     fi
   fi
 fi
