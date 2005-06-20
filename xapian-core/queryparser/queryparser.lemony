@@ -331,7 +331,7 @@ phrased_term:
 		    while (++p != end && *p == '#') { }
 		} else {
 		    // Keep trailing +, and - (e.g. C++, Na+, Cl-).
-		    // FIXME: keeping trailing "-" is of dubious utilpy and
+		    // FIXME: keeping trailing "-" is of dubious utility and
 		    // there's the risk of hyphens getting stuck onto the end of
 		    // terms...
 		    // FIXME: generating a term like foo+---+++ doesn't make
