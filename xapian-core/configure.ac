@@ -725,7 +725,7 @@ if test yes = "$GXX"; then
       dnl All these options were supported by g++ 2.95 and there's little
       dnl likelihood Xapian will build with any earlier version, so there's
       dnl not much point worry about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wundef -Wshadow -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wundef -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
       dnl Automatically add -Werror if maintainer mode is enabled and we're
       dnl using GCC3 or newer.  We don't do this for older GCCs as GCC 2.95
       dnl issues spurious warnings.
@@ -735,8 +735,10 @@ if test yes = "$GXX"; then
 	dnl but somewhere in the 3.X series the output became more verbose.
 	dnl So for simplicitly, we test for the earlier versions.
 	case `$CXX --version 2>&1` in
-	[[12]].*) ;;
-	*) AM_CXXFLAGS="$AM_CXXFLAGS -Wendif-labels -Werror" ;;
+	[[12]].*) ;; dnl GCC < 3
+	3.0*) AM_CXXFLAGS="$AM_CXXFLAGS -Wendif-labels -Werror" ;;
+	dnl -Wshadow spews false positives with GCC 3.0.4
+	*) AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wendif-labels -Werror" ;;
 	esac
       fi
     ])
