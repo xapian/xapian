@@ -1,3 +1,12 @@
+Wed Jun 22 20:50:43 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,include/xapian/version.h.in,include/xapian/version_h.cc,
+	  include/Makefile.am: Eliminate use of "ln -s" when generating
+	  include/xapian/version.h since it seems to cause problems on Solaris
+	  in some setups and isn't really necessary.  Also add dependency
+	  mechanism so version.h gets regenerated when the template is
+	  changed.
+
 Wed Jun 22 18:47:05 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/intro_ir.html: Citeseer has moved, so update link.

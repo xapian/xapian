@@ -13,5 +13,9 @@ xapianinclude_HEADERS = xapian/base.h xapian/database.h xapian/dbfactory.h \
 
 nodist_xapianinclude_HEADERS = xapian/version.h
 
-EXTRA_DIST = xapian/version.h.in
-DISTCLEANFILES = xapian/version.h
+# Regenerate xapian/version.h if its template has been changed.
+xapian/version.h.timestamp: xapian/version_h.cc
+	cd $(top_builddir) && $(SHELL) ./config.status --recheck
+
+EXTRA_DIST = xapian/version_h.cc
+DISTCLEANFILES = xapian/version.h xapian/version.h.timestamp

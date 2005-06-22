@@ -821,18 +821,17 @@ AC_OUTPUT
 MAJOR_VERSION="`echo \"$VERSION\"|sed 's/\..*//'`"
 [MINOR_VERSION="`echo \"$VERSION\"|sed 's/[^.]*\.//;s/\..*//'`"]
 [REVISION="`echo \"$VERSION\"|sed 's/.*\.//;s/_svn[0-9]*$//'`"]
-dnl for portability, files run through $CXXCPP must have extension .c .cc or .C
-tmpfile=_versionh.cc
-rm -f $tmpfile
-ln -s $srcdir/include/xapian/version.h.in $tmpfile
 test -d include/xapian || mkdir include/xapian
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 dnl Use @ around $MAIN_VERSION so we get " in the final output.
-$CXXCPP -I. -DSTRING_VERSION="\"@$MAIN_VERSION@\"" -DMAJOR_VERSION="\"$MAJOR_VERSION\"" -DMINOR_VERSION="\"$MINOR_VERSION\"" -DREVISION="\"$REVISION\"" $tmpfile|grep '"'|${SED-sed} 's/^ *//;s/ *$//;/^#/d;s/" *,//;s/"//g;s/@/"/g;s/  */ /g;s/,$//' > include/xapian/version.h.tmp
-rm -f $tmpfile
-dnl Only update the file if it has changed, so we don't touch the timestamp
-dnl and cause lost of rebuilding needlessly.
+rm -f include/xapian/version.h.tmp
+$CXXCPP -I. -DSTRING_VERSION="\"@$MAIN_VERSION@\"" -DMAJOR_VERSION="\"$MAJOR_VERSION\"" -DMINOR_VERSION="\"$MINOR_VERSION\"" -DREVISION="\"$REVISION\"" $srcdir/include/xapian/version_h.cc|grep '"'|${SED-sed} 's/^ *//;s/ *$//;/^#/d;s/" *,//;s/"//g;s/@/"/g;s/  */ /g;s/,$//' > include/xapian/version.h.tmp
+dnl Only update the file if it has changed, so we don't alter the timestamp
+dnl and cause lots of rebuilding needlessly.  However, the build system
+dnl needs a timestamp to know when to regenerate version.h because version_h.cc
+dnl has changed so we use a separate timestamp file.
+touch include/xapian/version.h.timestamp
 if cmp include/xapian/version.h.tmp include/xapian/version.h >/dev/null 2>&1
 then
   rm include/xapian/version.h.tmp
