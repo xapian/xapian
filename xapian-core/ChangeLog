@@ -1,3 +1,7 @@
+Wed Jun 22 18:47:05 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/intro_ir.html: Citeseer has moved, so update link.
+
 Mon Jun 20 13:33:42 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: -Wshadow causes false positives with GCC 3.0.4, so
