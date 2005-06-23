@@ -1,3 +1,9 @@
+Thu Jun 23 16:42:41 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.txt: Explain who to use termprefixes with
+	  scriptindex and omega, since that's what most people will want to
+	  know.
+
 Thu Jun 23 16:41:15 BST 2005  Olly Betts <olly@survex.com>
 
 	* query.cc,docs/omegascript.txt: Added $length{} and $stoplist{}

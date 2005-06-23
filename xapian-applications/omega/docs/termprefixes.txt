@@ -71,8 +71,18 @@ search within the title by specifying title:report (for example) in their
 query.
 
 Title has standard prefix S, so you'd generate terms as normal, but then
-add an "S" prefix.  You then need to tell Xapian::QueryParser that "title:"
-maps to an "S" prefix, which you do like this:
+add an "S" prefix.  If you're using scriptindex, then you do this by
+adding "index=S" to the scriptindex rule like so:
+
+title : field=title index=S
+
+You then need to tell Xapian::QueryParser that "title:" maps to an "S" prefix.
+If you're using Omega, then you do so by adding this to your omegascript
+template (at the start is best):
+
+    $setmap{title,S}
+
+Or if you're writing your own search frontend, like this:
 
     Xapian::QueryParser qp;
     qp.add_prefix("subject", "S");
