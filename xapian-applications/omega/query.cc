@@ -757,6 +757,7 @@ CMD_include,
 CMD_last,
 CMD_lastpage,
 CMD_le,
+CMD_length,
 CMD_list,
 CMD_log,
 CMD_lt,
@@ -787,6 +788,7 @@ CMD_set,
 CMD_setmap,
 CMD_setrelevant,
 CMD_slice,
+CMD_stoplist,
 CMD_sub,
 CMD_terms,
 CMD_thispage,
@@ -867,6 +869,7 @@ T(include,	   1, 1, 1, 0), // include another file
 T(last,		   0, 0, N, M), // m-set number of last hit on page
 T(lastpage,	   0, 0, N, M), // number of last hit page
 T(le,		   2, 2, N, 0), // test <=
+T(length,	   1, 1, N, 0), // length of list
 T(list,		   2, 5, N, 0), // pretty print list
 T(log,		   1, 2, 1, 0), // create a log entry
 T(lt,		   2, 2, N, 0), // test <
@@ -897,6 +900,7 @@ T(set,		   2, 2, N, 0), // set option value
 T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,     0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
+T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
 T(terms,	   0, 0, N, M), // list of matching terms
 T(thispage,	   0, 0, N, M), // page number of current page
@@ -1317,6 +1321,14 @@ eval(const string &fmt, const vector<string> &param)
 		if (string_to_int(args[0]) <= string_to_int(args[1]))
 		    value = "true";
 		break;
+            case CMD_length:
+		if (args[0].empty()) {
+		    value = "0";
+		} else {
+		    size_t length = count(args[0].begin(), args[0].end(), '\t');
+		    value = int_to_string(length + 1);
+		}
+		break;
 	    case CMD_list: {
 		if (!args[0].empty()) {
 		    string pre, inter, interlast, post;
@@ -1580,6 +1592,16 @@ eval(const string &fmt, const vector<string> &param)
 		    i = j + 1;
 		}
 	        break;
+	    }
+	    case CMD_stoplist: {
+		Xapian::TermIterator i = qp.stoplist_begin();
+		Xapian::TermIterator end = qp.stoplist_end();
+		while (i != end) {
+		    if (!value.empty()) value += '\t';
+		    value += *i;
+		    ++i;
+		}
+		break;
 	    }
 	    case CMD_sub:
 		value = int_to_string(string_to_int(args[0]) -
