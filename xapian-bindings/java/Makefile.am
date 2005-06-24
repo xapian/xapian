@@ -9,7 +9,7 @@ TESTS_ENVIRONMENT = JAVA=$(JAVA) ./run-java-test
 ## Test programs to be run
 TESTS = SmokeTest
 
-EXTRA_DIST = run-java-test
+EXTRA_DIST = run-java-test SmokeTest.java
 
 CLEANFILES = SmokeTest.class built/xapian_jni.jar
 
