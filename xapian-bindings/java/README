@@ -30,7 +30,9 @@ where the libxapian_jni.so library is located.
 (Alternatively, you can set the LD_LIBRARY_PATH environment variable and skip
 the -Djava.library.path setting for java.)
 
-The java bindings have been tested with Debian packages of GCJ 3.4 and GIJ 3.4.
+The java bindings have been tested with Debian packages of GCJ 3.4 and GIJ 3.4,
+and Sun java version 1.4.1_01a.
+
 They should work with any java toolchain with suitable JNI support - please
 report success stories or any problems to the development mailing list:
 xapian-devel@lists.xapian.org
