@@ -496,6 +496,7 @@ again:
 		}
 	    }
 	    if (this_field_is_content) seen_content = true;
+	    if (stream.eof()) break;
 	}
 
 	// If we haven't seen any fields (other than unique identifiers)
