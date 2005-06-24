@@ -59,9 +59,24 @@ If the documents being indexed represent people, you might have a gender
 field (e.g. M for Male, F for Female, X for Unknown).  Gender doesn't have
 a standard prefix, so you might allocated "XGENDER".  And then lowercase
 the field contents to avoid needing to always add a colon.  So documents
-will be indexed by one of XGENDERm, XGENDERf, or XGENDERx, and you can
-restrict a search in Omega by passing a B parameter with one of these as
-the value.
+will be indexed by one of XGENDERm, XGENDERf, or XGENDERx.
+
+You can then restrict a search in Omega by passing a B parameter with one
+of these as the value, e.g. B=XGENDERf
+
+You can also allow the use to restrict a search with a boolean filter
+specified in text query (e.g. sex:f -> XGENDERf) by adding this to the
+start of your omegascript template:
+
+$setmap{boolprefix,sex,XGENDER}
+
+Multiple aliases are allowed:
+
+$setmap{boolprefix,sex,XGENDER,gender,XGENDER}
+
+This decoupling of internal and external names is also useful if you want
+to offer search frontends in more than one language, as it allows the
+prefixes the user sees to be translated.
 
 Probabilistic Fields
 ====================

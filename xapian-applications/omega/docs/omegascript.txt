@@ -278,13 +278,21 @@ $setrelevant{docids}
 $setmap{MAP,NAME1,VALUE1,...}
 	set a map of option values which may be looked up against using
 	$opt{MAP,NAME} (maps with the same name are merged rather than
-	overwritten).  Omega uses the "prefix" map to set the prefixes
-	understood by the query parser.  So if you wish to translate
-	a prefix of "author:" to A and "title:" to "S" you would use:
+	overwritten).
+      
+	Omega uses the "prefix" map to set the prefixes understood by the query
+	parser.  So if you wish to translate a prefix of "author:" to A and
+	"title:" to "S" you would use:
 
 	$setmap{prefix,author,A,title,S}
 
-	Note: you must set the prefix map before the query is parsed.  This
+	Similarly, if you want to be able to restrict a search with a
+	boolean filter from the text query (e.g. "group:" to "G") you
+	would use:
+
+	$setmap{boolprefix,group,G}
+
+	Note: you must set the prefix maps before the query is parsed.  This
 	is done as late as possible - the following commands require the
 	query to be parsed: $prettyterm, $query, $querydescription, $queryterms,
 	$relevant, $relevants, $setrelevant, $unstem, and also these commands

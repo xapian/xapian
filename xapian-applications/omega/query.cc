@@ -165,11 +165,16 @@ set_probabilistic(const string &oldp)
     qp.set_stemming_strategy(option["stem_all"] == "true" ? Xapian::QueryParser::STEM_ALL : Xapian::QueryParser::STEM_SOME);
     qp.set_stopper(new MyStopper());
     qp.set_default_op(default_op);
-//    qp.set_database(db);
+    qp.set_database(db);
     map<string, string>::const_iterator pfx = option.lower_bound("prefix,");
     for (; pfx != option.end() && pfx->first.substr(0, 7) == "prefix,"; ++pfx) {
 	qp.add_prefix(pfx->first.substr(7), pfx->second);
     }
+    pfx = option.lower_bound("boolprefix,");
+    for (; pfx != option.end() && pfx->first.substr(0, 11) == "boolprefix,"; ++pfx) {
+	qp.add_boolean_prefix(pfx->first.substr(11), pfx->second);
+    }
+
     try {
 	query = qp.parse_query(query_string);
     } catch (const char *s) {
