@@ -1,3 +1,8 @@
+Sat Jun 25 23:45:42 BST 2005  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Tweak get_lastdocid() code to be a little
+	  clearer.
+
 Wed Jun 22 20:50:43 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,include/xapian/version.h.in,include/xapian/version_h.cc,

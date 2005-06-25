@@ -209,7 +209,7 @@ Database::get_lastdocid() const
     Assert(multiplier != 0);
     for (Xapian::doccount i = 0; i < multiplier; ++i) {
 	Xapian::docid did_i = internal[i]->get_lastdocid();
-	did = std::max(did, (did_i - 1) * multiplier + i + 1); // if did_i is 0 then did is unchanged
+	if (did_i) did = std::max(did, (did_i - 1) * multiplier + i + 1);
     }
     RETURN(did);
 }
