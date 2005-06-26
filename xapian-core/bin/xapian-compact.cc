@@ -72,6 +72,11 @@ class PostlistCursor : private FlintCursor {
 	next();
     }
 
+    ~PostlistCursor()
+    {
+	delete FlintCursor::get_table();
+    }
+
     bool next() {
 	if (!FlintCursor::next()) return false;
 	// We put all chunks into the non-initial chunk form here, then fix up
@@ -85,30 +90,29 @@ class PostlistCursor : private FlintCursor {
 	// key is: pack_string_preserving_sort(tname)
 	// plus optionally: pack_uint_preserving_sort(did)
 	const char * d = key.data();
+	const char * e = d + key.size();
 	string tname;
-	if (!unpack_string_preserving_sort(&d, d + key.size(), tname))
+	if (!unpack_string_preserving_sort(&d, e, tname))
 	    throw Xapian::DatabaseCorruptError("Bad postlist key");
-	bool first_chunk = (d == key.data() + key.size());
-	if (!first_chunk) {
-	    size_t tmp = d - key.data();
-	    if (!unpack_uint_preserving_sort(&d, d + key.size(), &firstdid))
-		throw Xapian::DatabaseCorruptError("Bad postlist key");
-	    firstdid += offset;
-	    key.erase(tmp);
-	}
-	// Adjust key and header of tag if this *IS* an initial chunk.
-	if (first_chunk) {
+	if (d == e) {
+	    // This is an initial chunk for a term, so adjust tag header.
 	    d = tag.data();
-	    const char *e = d + tag.size();
+	    e = d + tag.size();
 	    if (!unpack_uint(&d, e, &tf) ||
 		!unpack_uint(&d, e, &cf) ||
 		!unpack_uint(&d, e, &firstdid)) {
 		throw Xapian::DatabaseCorruptError("Bad postlist tag");
 	    }
-	    firstdid += 1;
-	    firstdid += offset;
+	    ++firstdid;
 	    tag.erase(0, d - tag.data());
+	} else {
+	    // Not an initial chunk, so adjust key.
+	    size_t tmp = d - key.data();
+	    if (!unpack_uint_preserving_sort(&d, e, &firstdid) || d != e)
+		throw Xapian::DatabaseCorruptError("Bad postlist key");
+	    key.erase(tmp);
 	}
+	firstdid += offset;
 	return true;
     }
 };
@@ -246,7 +250,6 @@ main(int argc, char **argv)
 	    if (*t == "postlist") {
 		priority_queue<PostlistCursor *, vector<PostlistCursor *>,
 			       CursorGt> pq;
-		vector<FlintTable *> btrees;
 		flint_totlen_t totlen = 0;
 		for (int i = 0; i < out_of; ++i) {
 		    Xapian::docid off = offset[i];
@@ -259,7 +262,8 @@ main(int argc, char **argv)
 		    FlintTable *in = new FlintTable(src, true);
 		    in->open();
 		    if (in->get_entry_count()) {
-			btrees.push_back(in);
+			// PostlistCursor takes ownership of FlintTable in and
+			// is responsible for deleting it.
 			PostlistCursor * cur = new PostlistCursor(in, off);
 			// Merge the METAINFO tags from each database into one.
 			// They have a key with a single zero byte, which will
@@ -342,12 +346,6 @@ main(int argc, char **argv)
 			delete cur;
 		    }
 		}
-
-		for (vector<FlintTable *>::const_iterator b = btrees.begin();
-		     b != btrees.end(); ++b) {
-		    delete *b;
-		}
-		btrees.clear();
 	    } else {
 		// Position, Record, Termlist, Value
 		bool is_position_table = (*t == "position");
@@ -373,7 +371,6 @@ main(int argc, char **argv)
 
 		    FlintCursor cur(&in);
 		    cur.find_entry("");
-		    cur.next();
 
 		    string key;
 		    while (cur.next()) {
@@ -381,7 +378,8 @@ main(int argc, char **argv)
 			if (off) {
 			    Xapian::docid did;
 			    const char * d = cur.current_key.data();
-			    if (!unpack_uint_preserving_sort(&d, d + cur.current_key.size(), &did)) {
+			    const char * e = d + cur.current_key.size();
+			    if (!unpack_uint_preserving_sort(&d, e, &did)) {
 				string msg = "Bad ";
 				msg += *t;
 				msg += " key";
@@ -393,7 +391,7 @@ main(int argc, char **argv)
 				// Copy over the termname too.
 				size_t tnameidx = d - cur.current_key.data();
 				key += cur.current_key.substr(tnameidx);
-			    } else {
+			    } else if (d != e) {
 				string msg = "Bad ";
 				msg += *t;
 				msg += " key";

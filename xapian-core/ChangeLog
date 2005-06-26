@@ -1,3 +1,13 @@
+Sun Jun 26 02:04:33 BST 2005  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc,backends/flint/flint_cursor.h: Let
+	  PostlistCursor take ownership of the FlintTable it's iterating over
+	  which makes clean-up tidier.
+	* bin/xapian-compact.cc: We were accidentally skipping the first
+	  entry in various tables (which essentially meant the first
+	  document from each database would go missing when merging
+	  databases).
+
 Sat Jun 25 23:45:42 BST 2005  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Tweak get_lastdocid() code to be a little

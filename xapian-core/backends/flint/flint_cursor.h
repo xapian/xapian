@@ -211,6 +211,9 @@ class FlintCursor {
 	 *  entry.
 	 */
 	void del();
+
+	/// Return a pointer to the FlintTable we're a cursor for.
+	FlintTable * get_table() const { return B; }
 };
 
 #endif /* OM_HGUARD_FLINT_CURSOR_H */
