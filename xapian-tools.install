@@ -4,3 +4,4 @@ usr/bin/quartzcompact
 usr/bin/quartzdump
 usr/bin/quest
 usr/bin/xapian-tcpsrv
+usr/bin/xapian-compact
