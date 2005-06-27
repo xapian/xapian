@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,6 +35,7 @@
 #include "apitest.h"
 #include "api_wrdb.h"
 
+#include <cmath>
 #include <list>
 
 using namespace std;
@@ -759,6 +760,72 @@ static bool test_phraseorneartoand1()
     return true;
 }
 
+// Check that a large number of position list entries for a particular term
+// works - regression test for flint.
+static bool test_longpositionlist1()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    Xapian::Document doc;
+    Xapian::termpos n;
+    for (n = 1; n <= 2000; ++n) {
+	doc.add_posting("fork", n * 3);
+	doc.add_posting("knife", n * unsigned(log(double(n + 2))));
+	doc.add_posting("spoon", n * n);
+    }
+    doc.set_data("cutlery");
+    Xapian::docid did = db.add_document(doc);
+    db.flush();
+
+    doc = db.get_document(did);
+
+    Xapian::TermIterator t, tend;
+    Xapian::PositionIterator p, pend;
+
+    t = doc.termlist_begin();
+    tend = doc.termlist_end();
+
+    TEST(t != tend);
+    TEST_EQUAL(*t, "fork");
+    p = t.positionlist_begin();
+    pend = t.positionlist_end();
+    for (n = 1; n <= 2000; ++n) {
+	TEST(p != pend);
+	TEST_EQUAL(*p, n * 3);
+	++p;
+    }
+    TEST(p == pend);
+ 
+    ++t;
+    TEST(t != tend);
+    TEST_EQUAL(*t, "knife");
+    p = t.positionlist_begin();
+    pend = t.positionlist_end();
+    for (n = 1; n <= 2000; ++n) {
+	TEST(p != pend);
+	TEST_EQUAL(*p, n * unsigned(log(double(n + 2))));
+	++p;
+    }
+    TEST(p == pend);
+
+    ++t;
+    TEST(t != tend);
+    TEST_EQUAL(*t, "spoon");
+    p = t.positionlist_begin();
+    pend = t.positionlist_end();
+    for (n = 1; n <= 2000; ++n) {
+	TEST(p != pend);
+	TEST_EQUAL(*p, n * n);
+	++p;
+    }
+    TEST(p == pend);
+ 
+    ++t;
+    TEST(t == tend);
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -777,5 +844,6 @@ test_desc writabledb_tests[] = {
     {"replacedoc2",	   test_replacedoc2},
     {"uniqueterm1",	   test_uniqueterm1},
     {"phraseorneartoand1", test_phraseorneartoand1},
+    {"longpositionlist1",  test_longpositionlist1},
     {0, 0}
 };

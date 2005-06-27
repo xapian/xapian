@@ -39,6 +39,7 @@ class BitWriter {
 	unsigned int acc;
     public:
 	BitWriter() : n_bits(0), acc(0) { }
+	BitWriter(const string & seed) : buf(seed), n_bits(0), acc(0) { }
 	void encode(size_t value, size_t outof) {
 	    Assert(value < outof);
 	    // FIXME: look at replacing this with "fls()" (where available) or
@@ -201,11 +202,7 @@ FlintPositionListTable::set_positionlist(Xapian::docid did,
 	return;
     }
 
-    BitWriter wr;
-    string s = pack_uint(poscopy.back());
-    for (size_t i = 0; i < s.size(); ++i) {
-	wr.write_bits(s[i], 8);
-    }
+    BitWriter wr(pack_uint(poscopy.back()));
 
     wr.encode(poscopy[0], poscopy.back());
     wr.encode(poscopy.size() - 2, poscopy.back() - poscopy[0]);

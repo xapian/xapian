@@ -1,3 +1,9 @@
+Mon Jun 27 03:41:23 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc,tests/api_wrdb.cc: Fixed
+	  mispacking of length for Flint positionlists with more than 127
+	  entries, and added regression test longpositionlist1.
+
 Sun Jun 26 02:04:33 BST 2005  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc,backends/flint/flint_cursor.h: Let
