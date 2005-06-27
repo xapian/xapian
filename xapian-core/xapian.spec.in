@@ -80,6 +80,7 @@ cp AUTHORS ChangeLog COPYING NEWS PLATFORMS README %{buildroot}%{_datadir}/doc/%
 %{_bindir}/simpleindex
 %{_bindir}/simplesearch
 %{_bindir}/simpleexpand
+%{_bindir}/xapian-compact
 %doc %{_datadir}/doc/%{name}-%{version}
 
 %files libs

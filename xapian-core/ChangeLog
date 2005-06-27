@@ -1,3 +1,7 @@
+Mon Jun 27 04:21:34 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: Package xapian-compact.
+
 Mon Jun 27 03:41:23 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc,tests/api_wrdb.cc: Fixed
