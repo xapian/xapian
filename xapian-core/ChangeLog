@@ -1,3 +1,9 @@
+Thu Jun 30 00:11:52 BST 2005  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: More explicit explanation of the
+	  "descending docid with boolean weighting" trick for fast
+	  date ordered searching.
+
 Wed Jun 29 13:16:13 BST 2005  Olly Betts <olly@survex.com>
 
 	* NEWS: Fix typo: "configurec" -> "configure".

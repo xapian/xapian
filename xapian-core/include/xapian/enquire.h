@@ -734,8 +734,9 @@ class Enquire {
 	 *      docids sort in whatever order is most efficient for the backend
 	 *
 	 *  Note: If you add documents in strict date order, then a boolean
-	 *  search with set_docid_order(Xapian::Enquire::DESCENDING) is a very
-	 *  efficient way to perform "sort by date, newest first".
+	 *  search - i.e. set_weighting_scheme(Xapian::BoolWeight()) - with
+	 *  set_docid_order(Xapian::Enquire::DESCENDING) is a very efficient
+	 *  way to perform "sort by date, newest first".
 	 */
 	void set_docid_order(docid_order order);
 
