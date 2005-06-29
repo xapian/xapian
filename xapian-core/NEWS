@@ -230,7 +230,7 @@ quartz backend:
 
 build system:
 
-* configurec: Check that the C++ compiler can actually link a program.
+* configure: Check that the C++ compiler can actually link a program.
   AC_LANG_CXX doesn't, and if it can't find a C++ compiler it'll just return
   "g++" which just leads to a later configure test failing in a confusing way.
 

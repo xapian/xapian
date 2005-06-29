@@ -1,3 +1,7 @@
+Wed Jun 29 13:16:13 BST 2005  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix typo: "configurec" -> "configure".
+
 Mon Jun 27 04:21:34 BST 2005  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Package xapian-compact.
