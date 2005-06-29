@@ -126,9 +126,13 @@ $freqs
 
 $highlight{TEXT,LIST,[OPEN,[CLOSE]]}
 	html escape string (<>&, etc) and highlight any terms from LIST
-	that appear in TEXT by enclosing them in OPEN and CLOSE.  OPEN
-	defaults to "<strong>", CLOSE to the appropriate closing tag for
-	OPEN (i.e. with a "/" in front and any parameters removed).
+	that appear in TEXT by enclosing them in OPEN and CLOSE.  If
+	OPEN is specified, but close is omitted, CLOSE defaults to the
+	appropriate closing tag for OPEN (i.e. with a "/" in front and any
+	parameters removed).  If both are omitted, then OPEN is set to:
+	'<b style="color:black;background-color:#XXXXXX">' (where XXXXXX
+	cycles through ffff66 66ffff ff66ff 6666ff ff6666 66ff66 ffaa33
+	33ffaa aa33ff 33aaff) and CLOSE is '</b>'.
 
 $hit
 	M-set number of current doc (first document in m-set is 0, so if

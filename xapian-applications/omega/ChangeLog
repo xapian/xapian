@@ -1,3 +1,12 @@
+Wed Jun 29 03:19:22 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt,query.cc: Changed $highlight so
+	  if OPEN and CLOSE aren't specified, they default to
+	  highlighting each word from the query with a different
+	  background colour like gmane does (previous default was to use
+	  '<strong>' and '</strong>').
+	* query.cc: Removed surplus whitespace.
+
 Fri Jun 24 02:51:38 BST 2005  Olly Betts <olly@survex.com>
 
 	* query.cc: Call QueryParser::set_database() as this is now used to

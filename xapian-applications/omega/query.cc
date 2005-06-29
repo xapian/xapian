@@ -126,8 +126,8 @@ class MyStopper : public Xapian::Stopper {
 		return (t == "that" || t == "the" || t == "this" || t == "to");
 	    case 'w':
 		return (t == "was" || t == "what" || t == "when" ||
-		       	t == "where" || t == "which" || t == "who" ||
-		       	t == "why" || t == "will" || t == "with");
+			t == "where" || t == "which" || t == "who" ||
+			t == "why" || t == "will" || t == "with");
 	    default:
 		return false;
 	}
@@ -189,7 +189,7 @@ set_probabilistic(const string &oldp)
 	    termset.insert(*i);
 	    if (!queryterms.empty()) queryterms += '\t';
 	    queryterms += *i;
-	}		    
+	}
 	n_new_terms++;
     }
 
@@ -212,7 +212,7 @@ set_probabilistic(const string &oldp)
     }
     // short-cut: if the new query has fewer terms, it must be a new one
     if (n_new_terms < n_old_terms) return NEW_QUERY;
-    
+
     while ((pend = strchr(term, '.')) != NULL) {
 	if (termset.find(string(term, pend - term)) == termset.end())
 	    return NEW_QUERY;
@@ -231,7 +231,7 @@ set_probabilistic(const string &oldp)
 static multimap<string, string> filter_map;
 
 typedef multimap<string, string>::const_iterator FMCI;
-    
+
 void add_bterm(const string &term) {
     string prefix;
     if (term[0] == 'X') {
@@ -275,7 +275,7 @@ run_query()
 	    }
 	    or_vec.push_back(i->second);
 	}
-	
+
 	Xapian::Query filter(Xapian::Query::OP_AND,
 			     filter_vec.begin(), filter_vec.end());
 
@@ -329,7 +329,7 @@ run_query()
 	if (collapse) {
 	    enquire->set_collapse_key(collapse_key);
 	}
-				
+
 	// FIXME - set msetcmp to reverse?
 
 #ifdef HAVE_GETTIMEOFDAY
@@ -449,14 +449,14 @@ do_picker(string prefix, const char **opts)
 	cout << tmp;
     else
 	cout << "-Any-";
-    
+
     for (p = opts; *p; p++) {
 	string trans = option[string('B') + prefix + *p];
 	if (trans.empty()) {
 	    // FIXME: nasty special casing on prefix...
 	    if (prefix == "N")
 		trans = string(".") + *p;
-	    else 
+	    else
 		trans = "[" + string(*p) + "]";
 	}
 	if (do_current && current == *p) {
@@ -465,7 +465,7 @@ do_picker(string prefix, const char **opts)
 	}
 	picker.push_back(trans + '\t' + string(*p));
     }
-   
+
     sort(picker.begin(), picker.end());
 
     vector<string>::const_iterator i2;
@@ -512,7 +512,7 @@ html_escape(const string &str)
     while (p < str.size()) {
 	char ch = str[p++];
 	switch (ch) {
- 	    case '<':
+	    case '<':
 	        res += "&lt;";
 	        continue;
 	    case '>':
@@ -540,7 +540,7 @@ html_strip(const string &str)
     while (p < str.size()) {
 	char ch = str[p++];
 	switch (ch) {
- 	    case '<':
+	    case '<':
 	        skip = true;
 	        continue;
 	    case '>':
@@ -554,14 +554,16 @@ html_strip(const string &str)
 }
 
 // FIXME split list into hash or map and use that rather than linear lookup?
-static bool word_in_list(const string& test_word, const string& list)
+static int word_in_list(const string& test_word, const string& list)
 {
     string::size_type split = 0, split2;
+    int count = 0;
     while ((split2 = list.find('\t', split)) != string::npos) {
-	if (test_word == list.substr(split, split2 - split)) return true;
+	if (test_word == list.substr(split, split2 - split)) return count;
 	split = split2 + 1;
+	++count;
     }
-    return (test_word == list.substr(split, split2 - split));
+    return (test_word == list.substr(split)) ? count : -1;
 }
 
 inline static bool
@@ -622,7 +624,7 @@ html_highlight(const string &s, const string &list,
 	    term = *j;
 	    while (++j != s_end && *j == '.' && ++j != s_end && isupper(*j)) {
 		term += *j;
-	    } 
+	    }
 	    if (term.length() < 2 || (j != s_end && isalnum(*j))) {
 		term = "";
 	    }
@@ -663,22 +665,35 @@ html_highlight(const string &s, const string &list,
 	}
 	j = last;
 	lowercase_term(term);
-	bool match = false;
+	int match = -1;
 	// As of 0.8.0, raw terms won't start with a digit.  But we may
 	// be searching an older database where it does, so keep the
 	// isdigit check for now...
 	if (isupper(term[0]) || isdigit(term[0])) {
-	    if (word_in_list('R' + term, list)) match = true;
+	    match = word_in_list('R' + term, list);
 	}
-	if (!match && word_in_list(stemmer->stem_word(term), list))
-	    match = true;
-
-	if (match) {
+	if (match == -1)
+	    match = word_in_list(stemmer->stem_word(term), list);
+	if (match >= 0) {
 	    res += html_escape(s.substr(l - s.begin(), first.raw() - l));
-	    res += bra;
+	    if (!bra.empty()) {
+		res += bra;
+	    } else {
+		static const char * colours[] = {
+		    "ffff66", "66ffff", "ff66ff", "6666ff", "ff6666",
+		    "66ff66", "ffaa33", "33ffaa", "aa33ff", "33aaff"
+		};
+		res += "<b style=\"color:black;background-color:#";
+		res += colours[match % (sizeof(colours) / sizeof(colours[0]))];
+		res += "\">";
+	    }
 	    word = s.substr(first.raw() - s.begin(), j.raw() - first.raw());
 	    res += html_escape(word);
-	    res += ket;
+	    if (!bra.empty()) {
+		res += ket;
+	    } else {
+		res += "</b>";
+	    }
 	} else {
 	    res += html_escape(s.substr(l - s.begin(), j.raw() - l));
 	}
@@ -819,7 +834,7 @@ struct func_attrib {
 
 #define STRINGIZE(N) _STRINGIZE(N)
 #define _STRINGIZE(N) #N
-    
+
 #define T(F,A,B,C,D) {STRINGIZE(F),{CMD_##F,A,B,C,D}}
 struct func_desc {
     const char *name;
@@ -885,7 +900,7 @@ T(mod,		   2, 2, N, 0), // integer modulus
 T(msize,	   0, 0, N, M), // number of matches
 T(msizeexact,	   0, 0, N, M), // is $msize exact?
 T(mul,		   2, N, N, 0), // multiply a list of numbers
-T(ne,	 	   2, 2, N, 0), // test not equal
+T(ne,		   2, 2, N, 0), // test not equal
 T(nice,		   1, 1, N, 0), // pretty print integer (with thousands sep)
 T(not,		   1, 1, N, 0), // logical not
 T(now,		   0, 0, N, 0), // current date/time as a time_t
@@ -980,7 +995,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case 'g': case 'h': case 'i': case 'j': case 'k': case 'l':
 	    case 'm': case 'n': case 'o': case 'p': case 'q': case 'r':
 	    case 's': case 't': case 'u': case 'v': case 'w': case 'x':
-	    case 'y': case 'z': 
+	    case 'y': case 'z':
 	    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
 	    case 'G': case 'H': case 'I': case 'J': case 'K': case 'L':
 	    case 'M': case 'N': case 'O': case 'P': case 'Q': case 'R':
@@ -1036,7 +1051,7 @@ eval(const string &fmt, const vector<string> &param)
 		n = i->second->evalargs;
 	    else
 		n = args.size();
-	    
+
 	    for (vector<string>::size_type j = 0; j < n; j++)
 		args[j] = eval(args[j], param);
 	}
@@ -1130,7 +1145,7 @@ eval(const string &fmt, const vector<string> &param)
 		fa->maxargs = 9;
 		fa->evalargs = N; // FIXME: or 0?
 		fa->ensure = 0;
-		
+
 		macros.push_back(args[1]);
 		func_map[args[0]] = fa;
 		break;
@@ -1162,7 +1177,7 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_error:
 		if (error_msg.empty() && enquire == NULL) {
-		    error_msg = "Database `" + dbname + "' couldn't be opened"; 
+		    error_msg = "Database `" + dbname + "' couldn't be opened";
 		}
 		value = error_msg;
 		break;
@@ -1192,7 +1207,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_fmt:
 		value = fmtname;
 		break;
-	    case CMD_freq: 
+	    case CMD_freq:
 		try {
 		    value = int_to_string(mset.get_termfreq(args[0]));
 		} catch (...) {
@@ -1216,19 +1231,17 @@ eval(const string &fmt, const vector<string> &param)
 		string bra, ket;
 		if (args.size() > 2) {
 		    bra = args[2];
-		} else {
-		    bra = "<strong>";
+		    if (args.size() > 3) {
+			ket = args[3];
+		    } else {
+			string::const_iterator i;
+			i = find_if(bra.begin() + 2, bra.end(), p_nottag);
+			ket = "</";
+			ket += bra.substr(1, i - bra.begin() - 1);
+			ket += '>';
+		    }
 		}
-		if (args.size() > 3) {
-		    ket = args[3];
-		} else {
-		    string::const_iterator i;
-		    i = find_if(bra.begin() + 2, bra.end(), p_nottag);
-		    ket = "</";
-		    ket += bra.substr(1, i - bra.begin() - 1);
-		    ket += '>'; 
-		}
-		    
+
 		value = html_highlight(args[0], args[1], bra, ket);
 		break;
 	    }
@@ -1240,7 +1253,7 @@ eval(const string &fmt, const vector<string> &param)
 #if 0
 		const char *q;
 		int ch;
-		
+
 		url_query_string = "?DB=";
 		url_query_string += dbname;
 		url_query_string += "&P=";
@@ -1561,14 +1574,14 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_setrelevant: {
 		string::size_type i = 0, j;
-	    	while (true) {
+		while (true) {
 		    j = args[0].find_first_not_of("0123456789", i);
-	    	    Xapian::docid id = atoi(args[0].substr(i, j - i).c_str());
+		    Xapian::docid id = atoi(args[0].substr(i, j - i).c_str());
 		    if (id) {
 			rset.add_document(id);
 			ticked[id] = true;
 		    }
-	    	    if (j == string::npos) break;
+		    if (j == string::npos) break;
 		    i = j + 1;
 		}
 		break;
@@ -1610,7 +1623,7 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	    case CMD_sub:
 		value = int_to_string(string_to_int(args[0]) -
-		       		      string_to_int(args[1]));
+				      string_to_int(args[1]));
 		break;
 	    case CMD_terms:
 		if (enquire) {
@@ -1619,7 +1632,7 @@ eval(const string &fmt, const vector<string> &param)
 		    while (term != enquire->get_matching_terms_end(q0)) {
 			// check term was in the typed query so we ignore
 			// boolean filter terms
-			if (termset.find(*term) != termset.end()) 
+			if (termset.find(*term) != termset.end())
 			    value = value + *term + '\t';
 			++term;
 		    }
@@ -1686,12 +1699,12 @@ eval(const string &fmt, const vector<string> &param)
 			    seen.insert(term);
 			}
 		    }
-		    MyStopper stop;
+		    MyStopper stopper;
 		    for (i = eset.begin(); i != eset.end(); ++i) {
 			string term = *i;
 			if (term[0] == 'R') {
 			    term.erase(0, 1);
-			    if (stop(term)) continue;
+			    if (stopper(term)) continue;
 			    term = stemmer->stem_word(term);
 			}
 			if (seen.find(term) != seen.end()) continue;
@@ -1786,14 +1799,14 @@ eval(const string &fmt, const vector<string> &param)
 		args.insert(args.begin(), param[0]);
 		int n = i->second->tag - CMD_MACRO;
 		assert(n >= 0 && (unsigned int)n < macros.size());
-	       	// throw "Unknown function `" + var + "'";
+		// throw "Unknown function `" + var + "'";
 		value = eval(macros[n], args);
 		break;
 	    }
 	}
         res += value;
     }
-	     
+
     res += fmt.substr(p);
     return res;
 }
@@ -1821,7 +1834,7 @@ eval_file(const string &fmtfile)
 		    }
 		    if (len == 0) {
 			string fmt = string(blk, st.st_size);
-			free(blk);			
+			free(blk);
 			close(fd);
 			vector<string> noargs;
 			noargs.resize(1);
@@ -1849,7 +1862,7 @@ extern string
 pretty_term(const string & term)
 {
     if (term.empty()) return term;
-    
+
     if (term.length() >= 2 && term[0] == 'R')
 	return char(toupper(term[1])) + term.substr(2);
 
@@ -1873,10 +1886,10 @@ pretty_term(const string & term)
     // needs protecting.
     if (stemmer->stem_word(term) != term)
 	return term + '.';
- 
+
     return term;
 }
-    
+
 /* return a sane (1-100) percentage value for ratio */
 static int
 percentage(double ratio)
@@ -2056,7 +2069,7 @@ ensure_query_parsed()
 	// HITSPERPAGE is in a picker or on radio buttons.  If we're
 	// postprocessing the output of omega and want variable sized pages,
 	// this is unhelpful.
-	bool raw_search = false; 
+	bool raw_search = false;
 	val = cgi_params.find("RAWSEARCH");
 	// In Omega <= 0.6.3, RAWSEARCH was RAW_SEARCH - renamed to be
 	// consistent with the naming of other CGI parameters.
@@ -2093,7 +2106,7 @@ static void
 ensure_match()
 {
     if (done_query) return;
-    
+
     run_query();
     done_query = true;
     last = mset.get_matches_lower_bound();
