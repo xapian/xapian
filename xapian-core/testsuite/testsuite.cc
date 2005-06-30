@@ -295,8 +295,9 @@ test_driver::runtest(const test_desc *test)
 		    // C++ STL implementations often "horde" released
 		    // memory - perhaps we can supply our own allocator
 		    // so we can tell the difference?
-		    // Also see Q14 here:
-// http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/valgrind/valgrind/FAQ.txt?rev=HEAD&content-type=text/plain 
+		    //
+		    // See also:
+		    // http://valgrind.org/docs/FAQ/faq.unexpected.html#faq.reports
 		    //
 		    // For now, just use runcount to rerun the test and see
 		    // if more is leaked - hopefully this shouldn't give
@@ -383,7 +384,7 @@ test_driver::runtest(const test_desc *test)
 		case SIGSTKFLT: signame = "SIGSTKFLT"; break;
 #endif
 	    }
-    	    out << " " << col_red << signame << col_reset;
+	    out << " " << col_red << signame << col_reset;
 	    return FAIL;
 	}
 	return PASS;

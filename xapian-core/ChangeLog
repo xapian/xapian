@@ -1,3 +1,7 @@
+Thu Jun 30 02:14:16 BST 2005  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Update URL for valgrind FAQ in comment.
+
 Thu Jun 30 00:11:52 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: More explicit explanation of the
