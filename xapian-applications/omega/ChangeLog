@@ -1,3 +1,7 @@
+Sat Jul 02 14:56:35 BST 2005  Olly Betts <olly@survex.com>
+
+	* query.cc: Workaround further Sun C++ crapness.
+
 Wed Jun 29 03:19:22 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt,query.cc: Changed $highlight so
