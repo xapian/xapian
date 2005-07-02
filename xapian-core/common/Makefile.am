@@ -17,7 +17,7 @@ noinst_HEADERS = \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \
  autoptr.h \
  alltermslist.h multialltermslist.h \
- gnu_getopt.h
+ gnu_getopt.h safewindows.h
 
 noinst_LTLIBRARIES = libcommon.la
 

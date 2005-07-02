@@ -1,3 +1,7 @@
+Sat Jul 02 18:49:03 BST 2005  Olly Betts <olly@survex.com>
+
+	* common/Makefile.am: Ship safewindows.h header.
+
 Sat Jul 02 18:04:18 BST 2005  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc,bin/xapian-compact.cc,
