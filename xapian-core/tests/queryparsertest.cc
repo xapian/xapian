@@ -62,6 +62,7 @@ static test test_or_queries[] = {
     { "cvs site:xapian.org", "(cvs:(pos=1) FILTER Hxapian.org)" },
     { "cvs -site:xapian.org", "(cvs:(pos=1) AND_NOT Hxapian.org)" },
     { "site:xapian.org mail", "(mail:(pos=1) FILTER Hxapian.org)" },
+    { "-site:xapian.org mail", "(mail:(pos=1) AND_NOT Hxapian.org)" },
     { "site:xapian.org", "Hxapian.org" },
     { "NOT windows", "Syntax: <expression> NOT <expression>" },
     { "foo OR (something AND)", "Syntax: <expression> AND <expression>" },
