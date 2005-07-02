@@ -77,6 +77,10 @@ PWRITE_PROTOTYPE
 
 #ifdef __WIN32__
 # include <io.h> // for _commit()
+# ifdef _MSC_VER
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h> // FIXME: why does MSVC need windows.h?
+# endif
 #endif
 
 // Only useful for platforms like Windows which distinguish between text and
@@ -89,8 +93,6 @@ PWRITE_PROTOTYPE
 
 using std::min;
 using std::string;
-
-const string::size_type Btree::max_key_len;
 
 //#define BTREE_DEBUG_FULL 1
 #undef BTREE_DEBUG_FULL
@@ -598,12 +600,15 @@ Btree::compact(byte * p)
 {
     DEBUGCALL(DB, void, "Btree::compact", (void*)p);
     Assert(writable);
+    Assert(p);
+    Assert(buffer);
     int e = block_size;
     byte * b = buffer;
     int dir_end = DIR_END(p);
     for (int c = DIR_START; c < dir_end; c += D2) {
 	Item item(p, c);
 	int l = item.size();
+	Assert(e >= dir_end);
 	e -= l;
 	memmove(b + e, item.get_address(), l);
 	SETD(p, c, e);  /* reform in b */
@@ -1085,12 +1090,12 @@ Btree::add(const string &key, string tag)
     DEBUGCALL(DB, bool, "Btree::add", key << ", " << tag);
     Assert(writable);
 
-    if (key.size() > Btree::max_key_len) {
+    if (key.size() > BTREE_MAX_KEY_LEN) {
 	throw Xapian::InvalidArgumentError(
 		"Key too long: length was " +
 		om_tostring(key.size()) +
 		" bytes, maximum length of a key is " + 
-		STRINGIZE(Btree::max_key_len) + " bytes");
+		STRINGIZE(BTREE_MAX_KEY_LEN) + " bytes");
     }
 
     form_key(key);
@@ -1175,7 +1180,7 @@ Btree::del(const string &key)
     Assert(writable);
 
     // We can't delete a key which we is too long for us to store.
-    if (key.size() > Btree::max_key_len) RETURN(false);
+    if (key.size() > BTREE_MAX_KEY_LEN) RETURN(false);
 
     if (key.empty()) RETURN(false);
     form_key(key);
@@ -1200,7 +1205,7 @@ Btree::get_exact_entry(const string &key, string & tag) const
     Assert(!key.empty());
 
     // An oversized key can't exist, so attempting to search for it should fail.
-    if (key.size() > Btree::max_key_len) RETURN(false);
+    if (key.size() > BTREE_MAX_KEY_LEN) RETURN(false);
 
     RETURN(find_tag(key, &tag));
 }

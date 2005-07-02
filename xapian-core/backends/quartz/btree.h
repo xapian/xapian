@@ -33,6 +33,11 @@ using std::string;
 #include "btree_util.h"
 #include "bcursor.h"
 
+/** The largest possible value of a key_len.
+ *
+ *  This gives the upper limit of the size of a key that may be stored in the
+ *  B-tree (252 bytes with the present implementation).
+ */
 const string::size_type BTREE_MAX_KEY_LEN = 252;
 
 // FIXME: This named constant probably isn't used everywhere it should be...
@@ -539,14 +544,6 @@ class Btree {
 	 *          the last call to commit().
 	 */
 	bool is_modified() const { return Btree_modified; }
-
-	/** The largest possible value of a key_len.
-	 *
-	 *  This gives the upper limit of the size of a key that may
-	 *  be stored in the B-tree (252 bytes with the present
-	 *  implementation).
-	 */
-	static const string::size_type max_key_len = BTREE_MAX_KEY_LEN;
 
 	/** Set the maximum item size given the block capacity.
 	 *

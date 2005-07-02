@@ -4,7 +4,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,6 +53,7 @@
 #include <windows.h>
 #include <sys/cygwin.h>
 #elif defined __WIN32__
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define getpid() GetCurrentProcessId()
 #endif
@@ -130,7 +131,7 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
 	    create_and_open_tables(block_size);
 	    return;
 	}
-	
+
 	log.make_entry("Old database exists");
 	if (action == Xapian::DB_CREATE) {
 	    throw Xapian::DatabaseCreateError("Can't create new database at `" +
@@ -152,7 +153,7 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
 	// Check that there are no more recent versions of tables.  If there
 	// are, perform recovery by writing a new revision number to all
 	// tables.
-	if (record_table.get_open_revision_number() != 
+	if (record_table.get_open_revision_number() !=
 	    postlist_table.get_latest_revision_number()) {
 	    quartz_revision_number_t new_revision = get_next_revision_number();
 
@@ -222,7 +223,7 @@ QuartzDatabase::create_and_open_tables(unsigned int block_size)
 	revision != termlist_table.get_open_revision_number() ||
 	revision != positionlist_table.get_open_revision_number() ||
 	revision != postlist_table.get_open_revision_number()) {
-	log.make_entry("Revisions are not consistent: have " + 
+	log.make_entry("Revisions are not consistent: have " +
 			om_tostring(revision) + ", " +
 			om_tostring(value_table.get_open_revision_number()) + ", " +
 			om_tostring(termlist_table.get_open_revision_number()) + ", " +
@@ -256,7 +257,7 @@ QuartzDatabase::open_tables_consistent()
     int tries_left = tries;
     while (!fully_opened && (tries_left--) > 0) {
 	log.make_entry("Trying revision " + om_tostring(revision));
-	
+
 	bool opened;
 	opened = value_table.open(revision);
 	if (opened) opened = termlist_table.open(revision);
@@ -486,8 +487,8 @@ QuartzDatabase::apply()
     } catch (...) {
 	// Modifications failed.  Wipe all the modifications from memory.
 	log.make_entry("Attempted modifications failed.  Wiping partial modifications");
-	
-	// Reopen tables with old revision number, 
+
+	// Reopen tables with old revision number.
 	log.make_entry("Reopening tables without modifications: old revision is " + om_tostring(old_revision));
 	open_tables(old_revision);
 
@@ -727,7 +728,7 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
     try {
 	// Use the next unused document ID.
 	if (did == 0) did = ++lastdocid;
-	
+
 	// Add the record using that document ID.
 	database_ro.record_table.replace_record(document.get_data(), did);
 
@@ -958,7 +959,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 		tmp.push_back(make_pair(*value, value.get_valueno()));
 	    }
 //	    database_ro.value_table.add_value(*value, did, value.get_valueno());
-	
+
 	    // Replace the values.
 	    database_ro.value_table.delete_all_values(did);
 

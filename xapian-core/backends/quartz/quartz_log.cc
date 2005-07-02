@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +34,7 @@
 #include <unistd.h>
 
 #ifdef __WIN32__
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define getpid() GetCurrentProcessId()
 #endif
@@ -54,7 +55,7 @@ QuartzLog::~QuartzLog()
 	(void) close(fd);
     }
 }
- 
+
 void
 QuartzLog::make_entry(const string &entry) const
 {
