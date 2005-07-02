@@ -37,6 +37,8 @@
 #include "btree.h"
 #include "bcursor.h"
 #include "quartz_utils.h"
+#include "utils.h" // for mkdir for MSVC
+
 #include <xapian.h>
 
 #include "gnu_getopt.h"

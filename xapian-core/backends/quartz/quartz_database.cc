@@ -43,19 +43,17 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #ifdef HAVE_SYS_UTSNAME_H
-#include <sys/utsname.h>
+# include <sys/utsname.h>
 #endif
 #include <cerrno>
 
 #ifdef __CYGWIN__
-#include <windows.h>
-#include <sys/cygwin.h>
+# include "safewindows.h"
+# include <sys/cygwin.h>
 #elif defined __WIN32__
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#define getpid() GetCurrentProcessId()
+# include "safewindows.h"
+# define getpid() GetCurrentProcessId()
 #endif
 
 #include <list>
@@ -386,7 +384,7 @@ QuartzDatabase::get_database_write_lock()
 				      + db_dir + "/db_lock");
 	}
 
-	int tempfd = open(tempname.c_str(), O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+	int tempfd = open(tempname.c_str(), O_CREAT | O_EXCL, 0600);
 	if (tempfd < 0) {
 	    throw Xapian::DatabaseLockError("Unable to create " + tempname +
 				      ": " + strerror(errno),

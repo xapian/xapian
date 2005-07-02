@@ -24,8 +24,7 @@
 #include <string>
 
 #if defined __CYGWIN__ || defined __WIN32__
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "safewindows.h"
 #else
 #include <fcntl.h>
 #include <unistd.h>
@@ -48,7 +47,7 @@ class FlintLock {
   public:
 #if defined __CYGWIN__ || defined __WIN32__
     FlintLock(const std::string &filename_)
-       	: filename(filename_), hFile(INVALID_HANDLE_VALUE) { }
+	: filename(filename_), hFile(INVALID_HANDLE_VALUE) { }
     operator bool() { return hFile != INVALID_HANDLE_VALUE; }
 #else
     FlintLock(const std::string &filename_) : filename(filename_), fd(-1) { }

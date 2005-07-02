@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,16 +31,15 @@
 #include "quartz_postlist.h"
 #include "bcursor.h"
 #include "quartz_utils.h"
+#include "utils.h" // for mkdir for MSVC
 
 #include <errno.h>
-#include <unistd.h>
 #include <vector>
 #include <algorithm>
 using namespace std;
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 static string tmpdir;
 
@@ -74,7 +73,7 @@ static bool test_open1()
 {
     const string dbdir = tmpdir + "testdb_open1";
     removedir(dbdir);
-    
+
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_0 = new QuartzDatabase(dbdir));
 
@@ -497,7 +496,7 @@ static bool test_unpackint1()
     const char *p;
     om_uint32 result;
     bool success;
-    
+
     p = foo.data();
     success = unpack_uint(&p, foo.data() + foo.size(), &result);
     TEST(!success);
@@ -759,12 +758,12 @@ static bool test_writelock1()
     removedir(dbname);
 
     Xapian::WritableDatabase writer = Xapian::Quartz::open(dbname, Xapian::DB_CREATE);
-    TEST_EXCEPTION(Xapian::DatabaseLockError, 
+    TEST_EXCEPTION(Xapian::DatabaseLockError,
 	Xapian::WritableDatabase writer2 = Xapian::Quartz::open(dbname, Xapian::DB_OPEN));
-    TEST_EXCEPTION(Xapian::DatabaseLockError, 
+    TEST_EXCEPTION(Xapian::DatabaseLockError,
 	Xapian::WritableDatabase writer2 = Xapian::Quartz::open(dbname, Xapian::DB_CREATE_OR_OVERWRITE));
     // Xapian::DB_CREATE would fail with DatabaseCreateError
-    TEST_EXCEPTION(Xapian::DatabaseLockError, 
+    TEST_EXCEPTION(Xapian::DatabaseLockError,
 	Xapian::WritableDatabase writer2 = Xapian::Quartz::open(dbname, Xapian::DB_CREATE_OR_OPEN));
     return true;
 }
@@ -849,8 +848,8 @@ test_desc tests[] = {
     {"unpackint1",	test_unpackint1},
     {"postlist1",	test_postlist1},
     {"postlist2",	test_postlist2},
-    {"writelock1", 	test_writelock1},
-    {"packstring1", 	test_packstring1},
+    {"writelock1",	test_writelock1},
+    {"packstring1",	test_packstring1},
     {0, 0}
 };
 

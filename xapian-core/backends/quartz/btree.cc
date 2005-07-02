@@ -38,7 +38,6 @@
 // #define DANGEROUS
 
 #include <sys/types.h>
-#include <unistd.h>
 
 // Trying to include the correct headers with the correct defines set to
 // get pread() and pwrite() prototyped on every platform without breaking any
@@ -77,10 +76,10 @@ PWRITE_PROTOTYPE
 
 #ifdef __WIN32__
 # include <io.h> // for _commit()
-# ifdef _MSC_VER
-#  define WIN32_LEAN_AND_MEAN
-#  include <windows.h> // FIXME: why does MSVC need windows.h?
-# endif
+// FIXME: does MSVC really need this?  If so, why?
+//# ifdef _MSC_VER
+//#  include "safewindows.h"
+//# endif
 #endif
 
 // Only useful for platforms like Windows which distinguish between text and

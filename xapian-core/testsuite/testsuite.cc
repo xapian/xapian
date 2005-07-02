@@ -40,7 +40,6 @@
 
 #include <setjmp.h>
 #include <signal.h>
-#include <unistd.h>
 
 #include <exception>
 

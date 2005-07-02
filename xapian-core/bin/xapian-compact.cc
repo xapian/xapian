@@ -32,6 +32,7 @@
 #include "flint_table.h"
 #include "flint_cursor.h"
 #include "flint_utils.h"
+#include "utils.h" // for mkdir for MSVC
 
 #include <xapian.h>
 
@@ -151,10 +152,10 @@ main(int argc, char **argv)
 		compaction = STANDARD;
                 break;
 	    case 'F':
-	       	compaction = FULLER;
+		compaction = FULLER;
 		break;
 	    case OPT_VERSION:
-		cout << argv[0] << " (xapian) "XAPIAN_VERSION << endl; 
+		cout << argv[0] << " (xapian) "XAPIAN_VERSION << endl;
 		exit(0);
             default:
 		usage(argv[0]);
@@ -179,7 +180,7 @@ main(int argc, char **argv)
 		 << endl;
 	    exit(1);
 	}
-	
+
 	struct stat sb;
 	if (stat(string(srcdir) + "/iamflint", &sb) != 0) {
 	    cout << argv[0] << ": '" << srcdir
@@ -299,7 +300,7 @@ main(int argc, char **argv)
 		    else
 			bad_stat = true;
 		}
-		
+
 		string tag = pack_uint(tot_off);
 		tag += pack_uint_last(tot_totlen);
 		out.add(string("", 1), tag);

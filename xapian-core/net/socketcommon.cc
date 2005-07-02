@@ -35,7 +35,6 @@
 #include <vector>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <cerrno>
 #include "socketcommon.h"
 #include "omdebug.h"

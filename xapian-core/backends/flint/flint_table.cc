@@ -38,7 +38,6 @@
 // #define DANGEROUS
 
 #include <sys/types.h>
-#include <unistd.h>
 
 // Trying to include the correct headers with the correct defines set to
 // get pread() and pwrite() prototyped on every platform without breaking any
@@ -76,6 +75,10 @@ PWRITE_PROTOTYPE
 
 #ifdef __WIN32__
 # include <io.h> // for _commit()
+// FIXME: does MSVC really need this?  If so, why?
+//# ifdef _MSC_VER
+//#  include "safewindows.h"
+//# endif
 #endif
 
 // Only useful for platforms like Windows which distinguish between text and
@@ -88,8 +91,6 @@ PWRITE_PROTOTYPE
 
 using std::min;
 using std::string;
-
-const string::size_type FlintTable::max_key_len;
 
 //#define BTREE_DEBUG_FULL 1
 #undef BTREE_DEBUG_FULL
@@ -1140,12 +1141,12 @@ FlintTable::add(const string &key, string tag)
     DEBUGCALL(DB, bool, "FlintTable::add", key << ", " << tag);
     Assert(writable);
 
-    if (key.size() > FlintTable::max_key_len) {
+    if (key.size() > FLINT_BTREE_MAX_KEY_LEN) {
 	throw Xapian::InvalidArgumentError(
 		"Key_ too long: length was " +
 		om_tostring(key.size()) +
-		" bytes, maximum length of a key is " + 
-		STRINGIZE(FlintTable::max_key_len) + " bytes");
+		" bytes, maximum length of a key is " +
+		STRINGIZE(FLINT_BTREE_MAX_KEY_LEN) + " bytes");
     }
 
     form_key(key);
@@ -1230,7 +1231,7 @@ FlintTable::del(const string &key)
     Assert(writable);
 
     // We can't delete a key which we is too long for us to store.
-    if (key.size() > FlintTable::max_key_len) RETURN(false);
+    if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
 
     if (key.empty()) RETURN(false);
     form_key(key);
@@ -1255,7 +1256,7 @@ FlintTable::get_exact_entry(const string &key, string & tag) const
     Assert(!key.empty());
 
     // An oversized key can't exist, so attempting to search for it should fail.
-    if (key.size() > FlintTable::max_key_len) RETURN(false);
+    if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
 
     RETURN(find_tag(key, &tag));
 }

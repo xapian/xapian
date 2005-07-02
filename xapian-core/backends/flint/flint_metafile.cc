@@ -25,6 +25,7 @@
 #include <config.h>
 #include <errno.h>
 #include <string>
+#include <utils.h>
 #include "flint_metafile.h"
 #include "flint_btreeutil.h"
 #include "omassert.h"

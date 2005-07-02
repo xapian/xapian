@@ -32,7 +32,6 @@
 #include <string>
 #include <vector>
 
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #ifdef __WIN32__

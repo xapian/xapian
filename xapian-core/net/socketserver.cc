@@ -39,7 +39,6 @@
 #include <signal.h>
 #include <cerrno>
 #include <cstring>
-#include <unistd.h>
 #ifdef HAVE_SSTREAM
 #include <sstream>
 using std::istringstream;

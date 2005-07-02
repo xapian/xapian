@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -162,11 +162,11 @@ FlintCursor::find_entry(const string &key)
 
     bool found;
 
-    if (key.size() > FlintTable::max_key_len) {
+    if (key.size() > FLINT_BTREE_MAX_KEY_LEN) {
 	is_positioned = true;
 	// Can't find key - too long to possibly be present, so find the
 	// truncated form but ignore "found".
-	B->form_key(key.substr(0, FlintTable::max_key_len));
+	B->form_key(key.substr(0, FLINT_BTREE_MAX_KEY_LEN));
 	(void)(B->find(C));
 	found = false;
     } else {

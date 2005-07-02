@@ -33,6 +33,11 @@ using std::string;
 #include "flint_btreeutil.h"
 #include "flint_cursor.h"
 
+/** The largest possible value of a key_len.
+ *
+ *  This gives the upper limit of the size of a key that may be stored in the
+ *  B-tree (252 bytes with the present implementation).
+ */
 const string::size_type FLINT_BTREE_MAX_KEY_LEN = 252;
 
 // FIXME: This named constant probably isn't used everywhere it should be...
@@ -470,14 +475,6 @@ class FlintTable {
 	 *          the last call to commit().
 	 */
 	bool is_modified() const { return Btree_modified; }
-
-	/** The largest possible value of a key_len.
-	 *
-	 *  This gives the upper limit of the size of a key that may
-	 *  be stored in the B-tree (252 bytes with the present
-	 *  implementation).
-	 */
-	static const string::size_type max_key_len = FLINT_BTREE_MAX_KEY_LEN;
 
 	/** Set the maximum item size given the block capacity.
 	 *

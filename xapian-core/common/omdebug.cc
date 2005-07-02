@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,18 +33,12 @@ OmDebug om_debug;
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string>
 
 using namespace std;
 
 #define ENV_DEBUG_LOG   "XAPIAN_DEBUG_LOG"
 #define ENV_DEBUG_FLAGS "XAPIAN_DEBUG_FLAGS"
-  
-#ifdef __WIN32__
-#include <windows.h>
-#define getpid() GetCurrentProcessId()
-#endif
 
 OmDebug::OmDebug() : initialised(false), wanted_types(0), fd(2)
 {

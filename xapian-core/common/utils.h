@@ -33,7 +33,12 @@ using std::vector;
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
+#ifdef _MSC_VER
+# include <direct.h>
+# include <io.h>
+#else
+# include <unistd.h>
+#endif
 #include <ctype.h>
 
 #include <fcntl.h>
@@ -54,7 +59,7 @@ inline int fcntl_open(const char *filename, int flags, mode_t mode) {
 inline int fcntl_open(const char *filename, int flags) {
     return open(filename, flags);
 }
- 
+
 #undef open
 
 inline int open(const char *filename, int flags, mode_t mode) {
@@ -64,6 +69,21 @@ inline int open(const char *filename, int flags, mode_t mode) {
 inline int open(const char *filename, int flags) {
     return fcntl_open(filename, flags);
 }
+#endif
+
+#ifdef _MSC_VER
+inline int open(const char *filename, int flags, int mode) {
+    return _open(filename, flags, mode);
+}
+
+inline int open(const char *filename, int flags) {
+    return _open(filename, flags);
+}
+
+#define S_ISREG(m) (((m)&_S_IFMT) == _S_IFREG)
+#define S_ISDIR(m) (((m)&_S_IFMT) == _S_IFDIR)
+
+#define ssize_t SSIZE_T
 #endif
 
 /// Convert a string to a string!
@@ -137,14 +157,15 @@ inline int link(const string &o, const string &n) {
 #endif
 
 /// Allow mkdir to work directly on C++ strings.
-inline int mkdir(const string &filename, mode_t mode) {
 #ifdef __WIN32__
-    (void)mode; // Ignored by win32
-    return mkdir(filename.c_str());
-#else
-    return mkdir(filename.c_str(), mode);
-#endif
+inline int mkdir(const string &filename, int /*mode*/) {
+    return _mkdir(filename.c_str());
 }
+#else
+inline int mkdir(const string &filename, mode_t mode) {
+    return mkdir(filename.c_str(), mode);
+}
+#endif
 
 /// Allow stat to work directly on C++ strings.
 inline int stat(const string &filename, struct stat *buf) {

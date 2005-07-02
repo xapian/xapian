@@ -1,3 +1,12 @@
+Sat Jul 02 18:04:18 BST 2005  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc,bin/xapian-compact.cc,
+	  backends/muscat36/io_system.cc,backends/quartz/btree.cc,
+	  backends/quartz/quartz_log.cc,backends/quartz/quartz_database.cc,
+	  backends/flint/,common/,net/,tests/,testsuite/backendmanager.cc,
+	  testsuite/testsuite.cc: Assorted tweaks towards allowing
+	  compilation with MSVC.
+
 Sat Jul 02 05:08:54 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/quartz/: Always define WIN32_LEAN_AND_MEAN before

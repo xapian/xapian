@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,6 @@ using namespace std;
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <errno.h>
 
 #ifdef HAVE_SSTREAM
@@ -77,11 +76,11 @@ static int process_lines(Btree & btree, ifstream &f)
 	if (s.empty()) continue;
 	if (s[0] == '+') {
 	    string::size_type sp = s.find(' ');
-	    btree.add(s.substr(1, min(sp - 1, Btree::max_key_len)),
+	    btree.add(s.substr(1, min(sp - 1, BTREE_MAX_KEY_LEN)),
 		      s.substr(sp + 1));
 	    ++count;
 	} else if (s[0] == '-') {
-	    btree.del(s.substr(1, Btree::max_key_len));
+	    btree.del(s.substr(1, BTREE_MAX_KEY_LEN));
 	    --count;
 	} else {
 	    throw "No '+' or '-' on line `" + s + "'";

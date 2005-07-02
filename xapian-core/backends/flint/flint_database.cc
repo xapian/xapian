@@ -44,18 +44,17 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #ifdef HAVE_SYS_UTSNAME_H
-#include <sys/utsname.h>
+# include <sys/utsname.h>
 #endif
 #include <cerrno>
 
 #ifdef __CYGWIN__
-#include <windows.h>
-#include <sys/cygwin.h>
+# include "safewindows.h"
+# include <sys/cygwin.h>
 #elif defined __WIN32__
-#include <windows.h>
-#define getpid() GetCurrentProcessId()
+# include "safewindows.h"
+# define getpid() GetCurrentProcessId()
 #endif
 
 #include <list>
@@ -119,7 +118,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	    create_and_open_tables(block_size);
 	    return;
 	}
-	
+
 	if (action == Xapian::DB_CREATE) {
 	    throw Xapian::DatabaseCreateError("Can't create new database at `" +
 		    db_dir + "': a database already exists and I was told "
@@ -140,7 +139,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	// Check that there are no more recent versions of tables.  If there
 	// are, perform recovery by writing a new revision number to all
 	// tables.
-	if (record_table.get_open_revision_number() != 
+	if (record_table.get_open_revision_number() !=
 	    postlist_table.get_latest_revision_number()) {
 	    flint_revision_number_t new_revision = get_next_revision_number();
 
@@ -349,8 +348,8 @@ FlintDatabase::apply()
 	record_table.commit(new_revision);
     } catch (...) {
 	// Modifications failed.  Wipe all the modifications from memory.
-	
-	// Reopen tables with old revision number, 
+
+	// Reopen tables with old revision number.
 	open_tables(old_revision);
 
 	// Increase revision numbers to new revision number plus one,
@@ -584,7 +583,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
     try {
 	// Use the next unused document ID.
 	if (did == 0) did = ++lastdocid;
-	
+
 	// Add the record using that document ID.
 	database_ro.record_table.replace_record(document.get_data(), did);
 
@@ -815,7 +814,7 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		tmp.push_back(make_pair(*value, value.get_valueno()));
 	    }
 //	    database_ro.value_table.add_value(*value, did, value.get_valueno());
-	
+
 	    // Replace the values.
 	    database_ro.value_table.delete_all_values(did);
 

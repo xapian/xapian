@@ -37,11 +37,11 @@
 
 #include <vector>
 
-#include <unistd.h>
-
 #ifdef __WIN32__
-#include <windows.h>
-#define getpid() GetCurrentProcessId()
+# include "safewindows.h"
+# define getpid() GetCurrentProcessId()
+#else
+# include <unistd.h>
 #endif
 
 /** The types of debug output.  These are specified within a DEBUGMSG in
@@ -256,13 +256,13 @@ class Xapian::Internal::Timer {
 
 	// dead time (time spent paused in subroutines)
 	struct timeval dead;
-	
+
 	// kids time (time spent running in subroutines)
 	struct timeval kids;
-	
+
 	// time pause() called
 	static struct timeval paused;
-	
+
 	// pointer to start time so resume can start the clock
 	static struct timeval * pstart;
 
@@ -279,7 +279,7 @@ class Xapian::Internal::Timer {
 	    timerclear(&dead);
 	    timerclear(&kids);
 	}
-	
+
 	~Timer() {
 	    gettimeofday(&paused, NULL);
 	    {
@@ -296,7 +296,7 @@ class Xapian::Internal::Timer {
 		    runu += 1000000;
 		    runs--;
 		}
-		
+
 		if (!stack.empty()) {
 		    struct timeval * k = &(stack.back()->kids);
 		    k->tv_sec += runs;
@@ -329,7 +329,7 @@ class Xapian::Internal::Timer {
 	    // dead time for subroutines
 	    usec += dead.tv_usec;
 	    sec += dead.tv_sec;
-		
+
 	    // subtract paused (dead time 2 part a)
 	    usec -= paused.tv_usec;
 	    sec -= paused.tv_sec;
@@ -347,7 +347,7 @@ class Xapian::Internal::Timer {
 		d->tv_usec += paused.tv_usec;
 	    }
 	}
-	
+
 	static void pause() {
 	    gettimeofday(&paused, NULL);
 	}
@@ -356,7 +356,6 @@ class Xapian::Internal::Timer {
 	    if (pstart == NULL) abort();
 	    gettimeofday(pstart, NULL);
 	}
-	    
 };
 
 /** Display a message indicating that a method has been called, and another

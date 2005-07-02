@@ -31,12 +31,12 @@
 
 #include <sys/types.h>
 #include <time.h>
-#include <unistd.h>
 
 #ifdef __WIN32__
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#define getpid() GetCurrentProcessId()
+# include "safewindows.h"
+# define getpid() GetCurrentProcessId()
+#else
+# include <unistd.h>
 #endif
 
 using std::string;

@@ -3,7 +3,7 @@
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,14 +31,7 @@
 using namespace std;
 
 #ifdef __WIN32__
-// Prevent windows.h from defining min and max macros.
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <windows.h>
-#ifndef FOF_NOERRORUI
-#define FOF_NOERRORUI 1024
-#endif
+#include "safewindows.h"
 #endif
 
 // This ought to be enough for any of the conversions below.
