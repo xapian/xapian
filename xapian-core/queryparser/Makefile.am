@@ -14,8 +14,11 @@ if MAINTAINER_MODE
 lemon: lemon.c
 	$(CC_FOR_BUILD) -o lemon $(srcdir)/lemon.c
 
+# Lemon carefully avoids touching queryparser_token.h if it hasn't changed,
+# but only the generated queryparser_internal.cc depends on it, so it's
+# better to touch it so we can have a dependency to generate it.
 queryparser_internal.cc queryparser_token.h: queryparser.lemony queryparser.lt lemon
-	./lemon -q -oqueryparser_internal.cc -hqueryparser_token.h $(srcdir)/queryparser.lemony
+	./lemon -q -oqueryparser_internal.cc -hqueryparser_token.h $(srcdir)/queryparser.lemony && touch queryparser_token.h
 
 BUILT_SOURCES = $(lemon_built_sources)
 MAINTAINERCLEANFILES = lemon $(lemon_built_sources)

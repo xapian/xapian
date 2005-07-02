@@ -1,3 +1,10 @@
+Sat Jul 02 04:11:01 BST 2005  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Fixed to
+	  handle "-site:microsoft.com" where site is a boolean prefix.
+	* queryparser/Makefile.am: Add dependency to generate
+	  queryparser_token.h.
+
 Thu Jun 30 02:14:16 BST 2005  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: Update URL for valgrind FAQ in comment.

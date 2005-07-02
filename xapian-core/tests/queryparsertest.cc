@@ -60,6 +60,7 @@ static test test_or_queries[] = {
     { "one author:AND two", "(one:(pos=1) OR ARand:(pos=2) OR two:(pos=3))" },
     { "author:hyphen-ated", "(Ahyphen:(pos=1) PHRASE 2 Aate:(pos=2))" },
     { "cvs site:xapian.org", "(cvs:(pos=1) FILTER Hxapian.org)" },
+    { "cvs -site:xapian.org", "(cvs:(pos=1) AND_NOT Hxapian.org)" },
     { "site:xapian.org mail", "(mail:(pos=1) FILTER Hxapian.org)" },
     { "site:xapian.org", "Hxapian.org" },
     { "NOT windows", "Syntax: <expression> NOT <expression>" },

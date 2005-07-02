@@ -546,7 +546,7 @@ class TermList {
 
 // BOOLEAN_FILTER is a query term with a prefix registered using
 // add_bool_prefix().  It's added to the query using a FILTER operator,
-// e.g. site:xapian.org
+// e.g. site:xapian.org (or using AND_NOT if it's negated).
 %destructor BOOLEAN_FILTER {delete $$;}
 
 // Grammar rules:
@@ -686,6 +686,22 @@ prob(P) ::= prob(Q) HATE term(T). {
 	P->hate = *T;
     } else {
 	P->hate = Query(Query::OP_OR, P->hate, *T);
+    }
+    delete T;
+}
+
+prob(P) ::= HATE BOOLEAN_FILTER(T). {
+    P = new ProbQuery;
+    P->hate = T->as_query_object();
+    delete T;
+}
+
+prob(P) ::= prob(Q) HATE BOOLEAN_FILTER(T). {
+    P = Q;
+    if (P->hate.empty()) {
+	P->hate = T->as_query_object();
+    } else {
+	P->hate = Query(Query::OP_OR, P->hate, T->as_query_object());
     }
     delete T;
 }
