@@ -284,8 +284,14 @@ open_writable_database(Database *db, const string &path, int action)
 {
 #if defined XAPIAN_BUILD_BACKEND_FLINT && defined XAPIAN_BUILD_BACKEND_QUARTZ
     // Both Flint and Quartz are enabled.
+    bool use_flint = false;
     const char *p = getenv("XAPIAN_PREFER_FLINT");
     if (p != NULL && *p) {
+	use_flint = !file_exists(path + "/record_DB");
+    } else {
+	use_flint = file_exists(path + "/iamflint");
+    }
+    if (use_flint) {
 	db->internal.push_back(new FlintWritableDatabase(path, action, 8192));
     } else {
 	db->internal.push_back(new QuartzWritableDatabase(path, action, 8192));

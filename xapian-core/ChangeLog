@@ -1,3 +1,8 @@
+Sun Jul 03 15:24:12 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: Fixed to auto-detect database type when
+	  opening an existing Flint database as a WritableDatabase.
+
 Sat Jul 02 18:49:22 BST 2005  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add test case: "-site:xapian.org mail".
