@@ -579,11 +579,41 @@ static bool test_queryparser3()
     return true;
 }
 
+// Test right truncation.
+static bool test_queryparser4()
+{
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::Document doc;
+    doc.add_term("abc");
+    doc.add_term("main");
+    doc.add_term("muscat");
+    doc.add_term("muscle");
+    doc.add_term("musclebound");
+    doc.add_term("muscular");
+    doc.add_term("mutton");
+    db.add_document(doc);
+    Xapian::QueryParser queryparser;
+    queryparser.set_database(db);
+    queryparser.set_database(db);
+    Xapian::Query qobj = queryparser.parse_query("ab*", Xapian::QueryParser::FLAG_WILDCARD);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(abc:(pos=1))");
+    qobj = queryparser.parse_query("muscle*", Xapian::QueryParser::FLAG_WILDCARD);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) OR musclebound:(pos=1)))");
+    qobj = queryparser.parse_query("meat*", Xapian::QueryParser::FLAG_WILDCARD);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("musc*", Xapian::QueryParser::FLAG_WILDCARD);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1)))");
+    qobj = queryparser.parse_query("mutt*", Xapian::QueryParser::FLAG_WILDCARD);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
+    return true;
+}
+
 // Tests to perform:
 test_desc tests[] = {
     {"queryparser1",	test_queryparser1},
     {"queryparser2",	test_queryparser2},
     {"queryparser3",	test_queryparser3},
+    {"queryparser4",	test_queryparser4},
     {0, 0}
 };
 

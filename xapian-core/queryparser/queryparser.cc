@@ -78,20 +78,15 @@ QueryParser::set_database(const Database &db) {
     internal->db = db;
 }
 
-static const unsigned default_flags =
-    QueryParser::FLAG_PHRASE |
-    QueryParser::FLAG_BOOLEAN |
-    QueryParser::FLAG_LOVEHATE;
-
 Query
-QueryParser::parse_query(const string &query_string)
+QueryParser::parse_query(const string &query_string, unsigned flags)
 {
     internal->unstem.clear();
     internal->errmsg = NULL;
 
     if (query_string.empty()) return Query();
 
-    Query result = internal->parse_query(query_string, default_flags);
+    Query result = internal->parse_query(query_string, flags);
     if (internal->errmsg && strcmp(internal->errmsg, "parse error") == 0) {
 	result = internal->parse_query(query_string, 0);
     }

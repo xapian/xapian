@@ -1,3 +1,13 @@
+Mon Jul 04 15:50:55 BST 2005  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,queryparser/queryparser.cc:
+	  Add flag FLAG_BOOLEAN_ANY_CASE which tells the QueryParser that
+	  boolean operators such as "AND", "OR", and "NEAR" should be
+	  recognised even if they aren't fully capitalised (so "and",
+	  "And", "aNd", etc will work too).  Add flag FLAG_WILDCARD which
+	  tells the QueryParser to allow right truncation e.g. "xap*".
+	* tests/queryparsertest.cc: Add tests for FLAG_WILDCARD.
+
 Sun Jul 03 15:24:12 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/database.cc: Fixed to auto-detect database type when

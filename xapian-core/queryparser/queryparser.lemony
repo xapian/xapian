@@ -52,6 +52,8 @@ class Term {
 
     Query * as_query() const { return new Query(name, 1, pos); }
 
+    Query * as_wildcarded_query(State * state) const;
+
     Query as_query_object() const { return Query(name, 1, pos); }
 };
 
@@ -88,7 +90,29 @@ class State {
     string get_current_prefix() const {
 	return prefix_stack.empty() ? "" : prefix_stack.back();
     }
+
+    Database get_database() {
+	return qpi->db;
+    }
 };
+
+Query *
+Term::as_wildcarded_query(State * state) const
+{
+    Database db = state->get_database();
+    TermIterator t = db.allterms_begin();
+    t.skip_to(name);
+    Query q;
+    while (t != db.allterms_end() && (*t).substr(0, name.size()) == name) {
+	if (q.empty()) {
+	    q = Query(*t, 1, pos);
+	} else {
+	    q = Query(Query::OP_OR, q, Query(*t, 1, pos));
+	}
+	++t;
+    }
+    return new Query(q);
+}
 
 static inline string
 downcase_term(const string &term)
@@ -124,7 +148,7 @@ static void ParseFree(void *, void (*freeProc)(void*));
 static void Parse(void *, int, Term *, State *);
 
 Query
-QueryParser::Internal::parse_query(const string &qs, unsigned int flags)
+QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 {
 #ifndef NDEBUG
     // Set the prefix added to Lemon's debug output, if it's enabled.
@@ -358,22 +382,42 @@ phrased_term:
 	if (mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
 	    // Don't want to interpret A.N.D. or ÁND as an AND operator.
 	    if (!was_acronym && transliterations == it.transliterations()) {
-		if (prefix.empty() && !term.empty() && C_isupper(term[0])) {
-		    if (term == "AND") {
-			Parse(pParser, AND, NULL, &state);
-			continue;
-		    } else if (term == "OR") {
-			Parse(pParser, OR, NULL, &state);
-			continue;
-		    } else if (term == "NOT") {
-			Parse(pParser, NOT, NULL, &state);
-			continue;
-		    } else if (term == "NEAR") {
-			Parse(pParser, NEAR, NULL, &state);
-			continue;
-		    } else if (term == "XOR") {
-			Parse(pParser, XOR, NULL, &state);
-			continue;
+		if (prefix.empty() && !term.empty() && C_isalpha(term[0])) {
+		    if (C_isupper(term[0])) {
+			if (term == "AND") {
+			    Parse(pParser, AND, NULL, &state);
+			    continue;
+			} else if (term == "OR") {
+			    Parse(pParser, OR, NULL, &state);
+			    continue;
+			} else if (term == "NOT") {
+			    Parse(pParser, NOT, NULL, &state);
+			    continue;
+			} else if (term == "NEAR") {
+			    Parse(pParser, NEAR, NULL, &state);
+			    continue;
+			} else if (term == "XOR") {
+			    Parse(pParser, XOR, NULL, &state);
+			    continue;
+			}
+		    } else if (flags & FLAG_BOOLEAN_ANY_CASE) {
+			string lcterm = downcase_term(term);
+			if (term == "and") {
+			    Parse(pParser, AND, NULL, &state);
+			    continue;
+			} else if (term == "or") {
+			    Parse(pParser, OR, NULL, &state);
+			    continue;
+			} else if (term == "not") {
+			    Parse(pParser, NOT, NULL, &state);
+			    continue;
+			} else if (term == "near") {
+			    Parse(pParser, NEAR, NULL, &state);
+			    continue;
+			} else if (term == "xor") {
+			    Parse(pParser, XOR, NULL, &state);
+			    continue;
+			}
 		    }
 		}
 	    }
@@ -425,6 +469,19 @@ phrased_term:
 	if (mode == IN_PHRASED_TERM) {
 	    Parse(pParser, PHR_TERM, new Term(term, term_pos++), &state);
 	} else {
+	    if (flags & FLAG_WILDCARD) {
+		if (mode != IN_QUOTES && it != end && *it == '*') {
+		    ++it;
+		    if (it == end || !C_isalnum(*it)) {
+			// Wildcard at end of term (also know as
+			// "right truncation").
+			Parse(pParser, WILD_TERM, new Term(term, term_pos++),
+			      &state);
+			continue;
+		    }
+		}
+	    }
+
 	    Parse(pParser, TERM, new Term(term, term_pos++), &state);
 	    if (mode == IN_QUOTES) continue;
 	}
@@ -543,6 +600,10 @@ class TermList {
 // apostrophe are common examples - see is_phrase_generator() for the list
 // of all punctuation which does this).
 %destructor PHR_TERM {delete $$;}
+
+// WILD_TERM is like a TERM, but has a trailing wildcard which need to be
+// expanded.
+%destructor WILD_TERM {delete $$;}
 
 // BOOLEAN_FILTER is a query term with a prefix registered using
 // add_bool_prefix().  It's added to the query using a FILTER operator,
@@ -743,6 +804,11 @@ stop_term(T) ::= TERM(U). {
     delete U;
 }
 
+stop_term(T) ::= WILD_TERM(U). {
+    T = U->as_wildcarded_query(state);
+    delete U;
+}
+
 stop_term(T) ::= PREFIX_QUOTE phrase(P) QUOTE. {
     // Remove the prefix which the lexer pushed as it generated PREFIX_QUOTE.
     state->pop_prefix();
@@ -775,6 +841,11 @@ stop_term(T) ::= PREFIX_BRA expr(E) KET. {
 
 term(T) ::= TERM(U). {
     T = U->as_query();
+    delete U;
+}
+
+term(T) ::= WILD_TERM(U). {
+    T = U->as_wildcarded_query(state);
     delete U;
 }
 
