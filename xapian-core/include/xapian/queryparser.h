@@ -85,9 +85,16 @@ class QueryParser {
 
     /// Enum of feature flags.
     typedef enum {
+	/// Support AND, OR, etc and bracketted subexpressions.
 	FLAG_BOOLEAN = 1,
+	/// Support quoted phrases.
 	FLAG_PHRASE = 2,
-	FLAG_LOVEHATE = 4
+	// Support + and -.
+	FLAG_LOVEHATE = 4,
+	// Support AND, OR, etc even if they aren't in ALLCAPS.
+	FLAG_BOOLEAN_ANY_CASE = 8,
+	// Support right truncation (e.g. Xap*).
+	FLAG_WILDCARD = 16
     } feature_flag;
 
     typedef enum { STEM_NONE, STEM_SOME, STEM_ALL } stem_strategy;
@@ -135,7 +142,8 @@ class QueryParser {
     void set_database(const Database &db);
 
     /// Parse a query.
-    Query parse_query(const std::string &query_string);
+    Query parse_query(const std::string &query_string,
+		      unsigned flags = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE);
 
     /** Add a probabilistic term prefix.
      *
