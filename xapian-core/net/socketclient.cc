@@ -238,7 +238,7 @@ SocketClient::collect_doc(Xapian::docid did, string &doc,
 
 	return;
     }
-    
+
     /* FIXME: should the cache be cleared at this point? */
 
     /* Since we've missed our cache, the did being collected must be
@@ -419,7 +419,7 @@ SocketClient::finish_query()
 	    do_write("Q" + query_string + '\n'
 		     + optstring + '\n'
 		     + wtstring + '\n'
-		     + omrset_to_string(omrset));		
+		     + omrset_to_string(omrset));
 	    conv_state = state_sentquery;
 	    // fall through...
 	case state_sentquery:
@@ -559,7 +559,7 @@ SocketClient::get_posting(Xapian::docid &did, Xapian::weight &w, string &value)
 	    if (!buf.data_waiting()) {
 		RETURN(false);
 	    }
-	
+
 	    DEBUGLINE(MATCH, "data is waiting");
 	    string message = do_read();
 	    DEBUGLINE(MATCH, "read `" << message << "'");

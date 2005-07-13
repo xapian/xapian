@@ -37,7 +37,7 @@
 
 /// The Xapian library lives in the Xapian namespace.
 namespace Xapian {
-    
+
 class Document;
 
 /** This class is used to access a database, or a group of databases.
@@ -58,7 +58,7 @@ class Database {
 	 *  @param database the database(s) to add.
 	 */
 	void add_database(const Database & database);
-    
+
     public:
 	class Internal;
 	/// @internal Reference counted internals.
@@ -125,7 +125,7 @@ class Database {
 	 *  for a given document.
 	 */
 	TermIterator termlist_begin(Xapian::docid did) const;
-	
+
 	/** Corresponding end iterator to termlist_begin().
 	 */
 	TermIterator termlist_end(Xapian::docid) const {
@@ -332,7 +332,7 @@ class WritableDatabase : public Database {
 	 *  If an error occurs, an exception will be thrown, and none of
 	 *  the modifications made to the database during the transaction
 	 *  will have been applied to the database.
-	 *  
+	 *
 	 *  Whatever occurs, after this method the transaction will no
 	 *  longer be in progress.
 	 *
@@ -358,7 +358,7 @@ class WritableDatabase : public Database {
 	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
-	 *  
+	 *
 	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.
 	 *
@@ -408,7 +408,7 @@ class WritableDatabase : public Database {
 	 *  fails to be removed and an exception is thrown (possibly at a
 	 *  later time when flush is called or the database is closed).
 	 *
-	 *  @param did     The document ID of the document to be removed. 
+	 *  @param did     The document ID of the document to be removed.
 	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while writing to the database.
