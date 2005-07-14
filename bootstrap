@@ -29,7 +29,8 @@ for module in xapian-core xapian-applications/omega xapian-bindings xapian-appli
   d="${srcdir}$module"
   if test -f "$d/configure.in" -o -f "$d/configure.ac" ; then
     echo "Bootstrapping \`$module'"
-    # use --install as debian's autoconf wrapper uses 2.5X if it sees it
+    test -f "$d/preautoreconf" && "$d/preautoreconf"
+    # Use --install as debian's autoconf wrapper uses 2.5X if it sees it
     # (but it doesn't check for -i).
     ${AUTORECONF-autoreconf} --install "$d"
     modules="$modules $module"
