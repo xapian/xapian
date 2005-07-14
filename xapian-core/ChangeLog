@@ -1,3 +1,7 @@
+Fri Jul 15 00:48:39 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix superfluous shell quoting.
+
 Fri Jul 15 00:28:40 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,docs/Makefile.am,preautoreconf,Makefile.am: Generate

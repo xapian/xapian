@@ -59,7 +59,7 @@ AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Check the build directory doesn't contain a space, so we die early with
 dnl a helpful error.
-case "`pwd`" in
+case `pwd` in
 *' '*)
    AC_MSG_ERROR([You can't build in a directory whose path contains a space])
    ;;
@@ -69,7 +69,7 @@ esac
 dnl Check the source directory doesn't contain a space, so we die early with
 dnl a helpful error.  FIXME: Unfortunately, configure seems to choke before
 dnl it gets to us so this code doesn't get a chance to fire.
-case "$0" in
+case $0 in
 *' '*)
    dnl Note: for in-tree builds, the build directory test above will fire
    dnl before this can.
@@ -80,7 +80,7 @@ esac
 
 dnl Check the prefix to install in doesn't contain a space, so we die early with
 dnl a helpful error.
-case "$prefix" in
+case $prefix in
 *' '*)
    AC_MSG_ERROR([You can't install in a directory whose path contains a space])
    ;;
@@ -131,7 +131,7 @@ if test -n "$CXX" ; then
   AC_MSG_RESULT($cxx_works)
 fi
 if test no = "$cxx_works" ; then
-  case "$original_CXX" in
+  case $original_CXX in
   CCC=*)
     dnl CCC is handled in a slightly odd way - if its value isn't an
     dnl executable (taking PATH into account) then it is ignored!
@@ -203,7 +203,7 @@ if test yes = "$GXX"; then
 else
   dnl Some C++ compilers need a special switch to select ANSI C++ mode.  Do
   dnl this early in configure so such settings are used for other tests.
-  case "$CXX" in
+  case $CXX in
     aCC|*/aCC)
       dnl Select ANSI mode for HP's CC (std:: namespace and ANSI scoping for
       dnl i in:
@@ -405,7 +405,7 @@ for func in snprintf _snprintf ; do
   )
 done
 AC_MSG_RESULT([$ac_cv_func_snprintf])
-case "$ac_cv_func_snprintf" in
+case $ac_cv_func_snprintf in
   no|unknown) ;; dnl be conservative when crosscompiling
   *)
     AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf],
@@ -422,7 +422,7 @@ dnl Find out what we've been asked to build
 dnl muscat36 defaults to off
 AC_ARG_ENABLE(backend_muscat36,
 [  --enable-backend-muscat36 Enable (old) Muscat 3.6 databases (default=no)],
-[case "${enableval}" in
+[case ${enableval} in
   yes) build_muscat36=true ;;
   no)  build_muscat36=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-muscat36) ;;
@@ -430,7 +430,7 @@ esac],[build_muscat36=false])
 
 AC_ARG_ENABLE(backend_quartz,
 [  --enable-backend-quartz Enable the quartz database backend (default=yes)],
-[case "${enableval}" in
+[case ${enableval} in
   yes) build_quartz=true ;;
   no)  build_quartz=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-quartz) ;;
@@ -438,7 +438,7 @@ esac],[build_quartz=true])
 
 AC_ARG_ENABLE(backend_flint,
 [  --enable-backend-flint Enable the flint database backend (default=yes)],
-[case "${enableval}" in
+[case ${enableval} in
   yes) build_flint=true ;;
   no)  build_flint=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-flint) ;;
@@ -446,7 +446,7 @@ esac],[build_flint=true])
 
 AC_ARG_ENABLE(backend_inmemory,
 [  --enable-backend-inmemory Enable the inmemory database backend (default=yes)],
-[case "${enableval}" in
+[case ${enableval} in
   yes) build_inmemory=true ;;
   no)  build_inmemory=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-inmemory) ;;
@@ -454,7 +454,7 @@ esac],[build_inmemory=true])
 
 AC_ARG_ENABLE(backend_remote,
 [  --enable-backend-remote Enable the remote database backend (default=yes)],
-[case "${enableval}" in
+[case ${enableval} in
   yes) build_remote=true ;;
   no)  build_remote=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-remote) ;;
@@ -501,7 +501,7 @@ fi
 
 AC_ARG_ENABLE(quiet,
 [  --enable-quiet          Enable quiet building (default=no)],
-[case "${enableval}" in
+[case ${enableval} in
   yes) use_quiet=true ;;
   no)  use_quiet=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-quiet) ;;
@@ -562,7 +562,7 @@ AC_CHECK_FUNCS(fsync)
 dnl HP-UX has pread and pwrite, but they don't work!  Apparently this problem
 dnl manifests when largefile support is enabled, and we definitely want that
 dnl so don't use pread or pwrite on HP-UX.
-case "$host_os" in
+case $host_os in
   hpux*)
     AC_MSG_CHECKING([for pread])
     AC_MSG_RESULT([present but broken on $host_os])
@@ -655,7 +655,7 @@ use_debug_profile=no
 
 AC_ARG_ENABLE(debug,
 [  --enable-debug          Turn on debugging (no|partial|yes|full|profile)(default=no)],
-[case "${enableval}" in
+[case ${enableval} in
   full) use_debug_paranoid=yes ; use_debug=yes ; use_debug_verbose=yes ;;
   yes) use_debug_paranoid=yes ; use_debug=yes ;;
   partial) use_debug=yes ;;
@@ -666,7 +666,7 @@ esac])
 
 AC_ARG_ENABLE(debug-verbose,
 [  --enable-debug-verbose  Turn on debugging messages (no|yes)(default=no)],
-[case "${enableval}" in
+[case ${enableval} in
   yes) use_debug_verbose=yes ;;
   no)  use_debug_verbose=no ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug-verbose) ;;
@@ -807,9 +807,9 @@ AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([xapian-config], [chmod +x xapian-config])
 AC_OUTPUT
 
-MAJOR_VERSION="`echo \"$VERSION\"|sed 's/\..*//'`"
-[MINOR_VERSION="`echo \"$VERSION\"|sed 's/[^.]*\.//;s/\..*//'`"]
-[REVISION="`echo \"$VERSION\"|sed 's/.*\.//;s/_svn[0-9]*$//'`"]
+MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
+[MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
+[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
 test -d include/xapian || mkdir include/xapian
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
