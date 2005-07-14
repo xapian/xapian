@@ -95,7 +95,6 @@ SocketServer::SocketServer(const Xapian::Database &db_, AutoPtr<OmLineBuf> buf_,
 			   int msecs_active_timeout_, int msecs_idle_timeout_
 #ifdef TIMING_PATCH
 			   , bool timing_
-			   
 #endif /* TIMING_PATCH */
 			   )
 	: db(db_), readfd(-1), writefd(-1),
@@ -160,11 +159,11 @@ SocketServer::run()
 	    returnval = gettimeofday(&stp, NULL);
 #endif /* TIMING_PATCH */
 	    message = readline(msecs_idle_timeout);
-	    
+
 #ifdef TIMING_PATCH
 	    returnval = gettimeofday(&etp, NULL);
 	    time = ((1000000 * etp.tv_sec) + etp.tv_usec)
-	       	- ((1000000 * stp.tv_sec) + stp.tv_usec);
+		- ((1000000 * stp.tv_sec) + stp.tv_usec);
 	    totalidle += time;
 #endif /* TIMING_PATCH */
 	    switch (message.empty() ? '\0' : message[0]) {
@@ -179,7 +178,7 @@ SocketServer::run()
 		    run_match(message.substr(1));
 		    returnval = gettimeofday(&etp, NULL);
 		    time = ((1000000 * etp.tv_sec) + etp.tv_usec)
-		       	- ((1000000 * stp.tv_sec) + stp.tv_usec);
+			- ((1000000 * stp.tv_sec) + stp.tv_usec);
 		    total += time;
 		    if (timing) cout << "Match time = " << time
 			<< " usecs. (socketserver.cc)\n";
@@ -190,10 +189,10 @@ SocketServer::run()
 		    run_gettermlist(message.substr(1));
 		    returnval = gettimeofday(&etp, NULL);
 		    time = ((1000000 * etp.tv_sec) + etp.tv_usec)
-		       	- ((1000000 * stp.tv_sec) + stp.tv_usec);
+			- ((1000000 * stp.tv_sec) + stp.tv_usec);
 		    total += time;
 		    if (timing) cout << "Get Term List time = " << time
-		       	<< " usecs. (socketserver.cc)\n";
+			<< " usecs. (socketserver.cc)\n";
 		    break;
 		}
 		case 'D': {
@@ -201,10 +200,10 @@ SocketServer::run()
 		    run_getdocument(message.substr(1));
 		    gettimeofday(&etp, NULL);
 		    time = ((1000000 * etp.tv_sec) + etp.tv_usec)
-		       	- ((1000000 * stp.tv_sec) + stp.tv_usec);
+			- ((1000000 * stp.tv_sec) + stp.tv_usec);
 		    total += time;
 		    if (timing) cout << "Get Doc time = " << time
-		       	<< " usecs. (socketserver.cc)\n";
+			<< " usecs. (socketserver.cc)\n";
 		    break;
 		}
 		case 'K': {
@@ -212,10 +211,10 @@ SocketServer::run()
 		    run_keepalive();
 		    gettimeofday(&etp, NULL);
 		    time = ((1000000 * etp.tv_sec) + etp.tv_usec)
-		       	- ((1000000 * stp.tv_sec) + stp.tv_usec);
+			- ((1000000 * stp.tv_sec) + stp.tv_usec);
 		    total += time;
 		    if (timing) cout << "Keep-alive time = " << time
-		       	<< " usecs. (socketserver.cc)\n";
+			<< " usecs. (socketserver.cc)\n";
 		    break;
 		}
 #endif /* TIMING_PATCH */
@@ -271,9 +270,9 @@ void
 SocketServer::run_match(const string &firstmessage)
 {
     string message = firstmessage;
-    
+
     gatherer = new NetworkStatsGatherer(this);
-    
+
     Xapian::Query::Internal * query;
     query = Xapian::Query::Internal::unserialise(message);
 
@@ -282,6 +281,8 @@ SocketServer::run_match(const string &firstmessage)
 
     Xapian::termcount qlen;
     Xapian::Enquire::docid_order order;
+    Xapian::valueno sort_key;
+    bool sort_by_relevance, sort_value_forward;
     Xapian::valueno collapse_key;
     int percent_cutoff;
     Xapian::weight weight_cutoff;
@@ -294,7 +295,9 @@ SocketServer::run_match(const string &firstmessage)
 	istrstream is(message.data(), message.length());
 #endif
 	int order_int;
-	is >> qlen >> collapse_key >> order_int >> percent_cutoff >> weight_cutoff;
+	is >> qlen >> collapse_key >> order_int
+	   >> sort_key >> sort_by_relevance >> sort_value_forward
+	   >> percent_cutoff >> weight_cutoff;
 	order = Xapian::Enquire::docid_order(order_int);
     }
 
@@ -312,8 +315,9 @@ SocketServer::run_match(const string &firstmessage)
     Xapian::RSet omrset = string_to_omrset(message);
 
     MultiMatch match(db, query, qlen, omrset, collapse_key, percent_cutoff,
-		     weight_cutoff, order, Xapian::valueno(-1),
-		     false, false, 0, 0, NULL, gatherer, wt.get());
+		     weight_cutoff, order,
+		     sort_key, sort_by_relevance, sort_value_forward,
+		     0, 0, NULL, gatherer, wt.get());
 
 #if 0
     DEBUGLINE(UNKNOWN, "Adding artificial delay for statistics");
@@ -408,9 +412,9 @@ SocketServer::run_gettermlist(const string &firstmessage)
 
     while (tl != tlend) {
 	string item = om_tostring(tl.get_wdf());
-        item += ' ';
-        item += om_tostring(tl.get_termfreq());
-        item += ' ';
+	item += ' ';
+	item += om_tostring(tl.get_termfreq());
+	item += ' ';
 	item += encode_tname(*tl);
 	writeline(item);
 	tl++;

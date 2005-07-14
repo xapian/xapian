@@ -1,3 +1,10 @@
+Thu Jul 14 12:49:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* common/,matcher/multimatch.cc,matcher/networkmatch.cc,
+	  matcher/networkmatch.h,net/socketclient.cc,net/socketserver.cc,
+	  tests/api_db.cc: Implement sorting on a value with the remote
+	  backend.
+
 Wed Jul 13 01:25:17 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h,include/xapian/dbfactory.h,

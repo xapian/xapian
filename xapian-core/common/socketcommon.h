@@ -35,7 +35,8 @@
 using std::map;
 
 // 18: Removed OP_WEIGHT_CUTOFF
-#define XAPIAN_SOCKET_PROTOCOL_VERSION 18
+// 19: Remote backend now supports sorting on a value
+#define XAPIAN_SOCKET_PROTOCOL_VERSION 19
 
 class Stats;
 class OmTime;
@@ -63,7 +64,7 @@ class OmSocketLineBuf : public OmLineBuf {
 
 	/** Read one line from readfd
 	 *  @param end_time	The time at which the read will
-	 *  			fail with a timeout error.
+	 *			fail with a timeout error.
 	 */
 	string do_readline(const OmTime & end_time);
 
@@ -79,7 +80,7 @@ class OmSocketLineBuf : public OmLineBuf {
 	 *  input and output filedescriptors to use.
 	 */
 	OmSocketLineBuf(int readfd_, int writefd_,
-	       		const string & errcontext_);
+			const string & errcontext_);
 
 	/** A convenience constructor which takes only one
 	 *  fd, which can be both read from and written to.
@@ -93,8 +94,8 @@ class OmSocketLineBuf : public OmLineBuf {
 	/** Block until at least a line of data has been read.
 	 *
 	 *  @param msecs  The timeout in milliseconds (or infinite
-	 *                if zero).  An exception will be thrown if
-	 *                the timeout is exceeded.
+	 *		  if zero).  An exception will be thrown if
+	 *		  the timeout is exceeded.
 	 */
 	void wait_for_data(int msecs);
 };

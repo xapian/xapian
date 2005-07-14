@@ -92,7 +92,7 @@ om_tostring(const void * val)
 string
 om_tostring(bool val)
 {
-    return val ? "true" : "false";
+    return val ? "1" : "0";
 }
 
 void

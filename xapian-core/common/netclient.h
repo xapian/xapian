@@ -76,6 +76,8 @@ class NetClient : public Xapian::Internal::RefCntBase {
 			       Xapian::termcount qlen,
 			       Xapian::valueno collapse_key,
 			       Xapian::Enquire::docid_order order,
+			       Xapian::valueno sort_key,
+			       bool sort_by_relevance, bool sort_value_forward,
 			       int percent_cutoff, Xapian::weight weight_cutoff,
 			       const Xapian::Weight *wtscheme,
 			       const Xapian::RSet &omrset_) = 0;
@@ -99,7 +101,7 @@ class NetClient : public Xapian::Internal::RefCntBase {
 			      Xapian::MSet &mset) = 0;
 
 	virtual void close_end_time() = 0;
-	
+
 	virtual void next(Xapian::weight w_min, Xapian::docid &did, Xapian::weight &w,
 			  string &value) = 0;
 

@@ -132,7 +132,7 @@ class SocketClient : public NetClient {
 	 *  can't be created - a derived class must be instantiated which
 	 *  has code in the constructor to open the socket.
 	 *
-	 *  @param socketfd_  	The socket used for the communications.
+	 *  @param socketfd_	The socket used for the communications.
 	 *  @param msecs_timeout_ The timeout used with the network operations.
 	 *                       Generally a Xapian::NetworkTimeout exception will
 	 *                       be thrown if the remote end doesn't respond
@@ -194,6 +194,8 @@ class SocketClient : public NetClient {
 		       Xapian::termcount qlen,
 		       Xapian::valueno collapse_key,
 		       Xapian::Enquire::docid_order order,
+		       Xapian::valueno sort_key,
+		       bool sort_by_relevance, bool sort_value_forward,
 		       int percent_cutoff, Xapian::weight weight_cutoff,
 		       const Xapian::Weight *wtscheme,
 		       const Xapian::RSet &omrset_);
@@ -215,7 +217,7 @@ class SocketClient : public NetClient {
 
 	void next(Xapian::weight w_min, Xapian::docid &did, Xapian::weight &w, string &value);
 	void skip_to(Xapian::docid new_did, Xapian::weight w_min, Xapian::docid &did, Xapian::weight &w, string &value);
-	
+
 	/** get the remote termlist */
 	void get_tlist(Xapian::docid did,
 		       vector<NetClient::TermListItem> &items);

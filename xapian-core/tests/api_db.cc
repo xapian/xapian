@@ -246,7 +246,7 @@ static bool test_multierrhandler1()
 
 class myMatchDecider : public Xapian::MatchDecider {
     public:
-        int operator()(const Xapian::Document &doc) const {
+	int operator()(const Xapian::Document &doc) const {
 	    // Note that this is not recommended usage of get_data()
 	    return doc.get_data().find("This is") != string::npos;
 	}
@@ -268,7 +268,7 @@ static bool test_matchfunctor1()
     TEST_EQUAL(mymset.size(), 3);
     for ( ; i != mymset.end(); ++i) {
 	const Xapian::Document doc(i.get_document());
-        TEST(myfunctor(doc));
+	TEST(myfunctor(doc));
     }
 
     return true;
@@ -522,7 +522,7 @@ static bool test_collapsekey3()
     // which has no entries), the upper bound stays the same, but the lower
     // bound drops.
     {
-        Xapian::valueno value_no = 1000;
+	Xapian::valueno value_no = 1000;
 	enquire.set_collapse_key(value_no);
 	Xapian::MSet mymset = enquire.get_mset(0, 3);
 
@@ -644,7 +644,7 @@ static bool test_allterms1()
 
     return true;
 }
-    
+
 // test that iterating through all terms in two databases works.
 static bool test_allterms2()
 {
@@ -760,7 +760,7 @@ static bool test_specialterms1()
 	    }
 	}
     }
-    
+
     enquire.set_query(stemmer.stem_word(string("big\0zero", 8)));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
@@ -1050,7 +1050,7 @@ static bool test_sortvalue1()
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("this"));
 
-    for (int pass = 1; pass <= 2; ++pass) { 
+    for (int pass = 1; pass <= 2; ++pass) {
 	for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
 	    tout << "Sorting on value " << value_no << endl;
 	    enquire.set_sorting(value_no, 1);
@@ -1065,7 +1065,7 @@ static bool test_sortvalue1()
 	    j = allbset.begin();
 	    for (i = partbset1.begin(); i != partbset1.end(); ++i) {
 		tout << "Entry " << n << ": " << *i << " | " << *j << endl;
-		TEST(j != allbset.end()); 	
+		TEST(j != allbset.end());
 		if (*i != *j) ok = false;
 		++j;
 		++n;
@@ -1073,16 +1073,16 @@ static bool test_sortvalue1()
 	    tout << "===\n";
 	    for (i = partbset2.begin(); i != partbset2.end(); ++i) {
 		tout << "Entry " << n << ": " << *i << " | " << *j << endl;
-		TEST(j != allbset.end()); 	
+		TEST(j != allbset.end());
 		if (*i != *j) ok = false;
 		++j;
 		++n;
 	    }
-	    TEST(j == allbset.end()); 	
+	    TEST(j == allbset.end());
 	    if (!ok)
 		FAIL_TEST("Split msets aren't consistent with unsplit");
 	}
-        enquire.set_sort_forward(false);
+	enquire.set_sort_forward(false);
     }
 
     return true;
@@ -1167,7 +1167,7 @@ static bool test_sortrel1()
 
     Xapian::MSet mset;
     size_t i;
-    
+
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order1) / sizeof(Xapian::docid));
     for (i = 0; i < sizeof(order1) / sizeof(Xapian::docid); ++i) {
@@ -1319,7 +1319,7 @@ test_desc allterms_tests[] = {
 
 /// The tests which need a backend which supports terms with newlines / zeros
 test_desc specchar_tests[] = {
-    {"specialterms1", 	   test_specialterms1},
+    {"specialterms1",	   test_specialterms1},
     {0, 0}
 };
 
@@ -1332,7 +1332,7 @@ test_desc doclendb_tests[] = {
 
 /// Tests which need getting collection frequencies to be supported.
 test_desc collfreq_tests[] = {
-    {"collfreq1",          test_collfreq1},
+    {"collfreq1",	   test_collfreq1},
     {0, 0}
 };
 
@@ -1367,6 +1367,7 @@ test_desc remotedb_tests[] = {
     {"stubdb1",		   test_stubdb1},
     {"keepalive1",	   test_keepalive1},
     {"termstats",	   test_termstats},
+    {"sortvalue1",	   test_sortvalue1},
     {0, 0}
 };
 

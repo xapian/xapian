@@ -385,6 +385,8 @@ SocketClient::set_query(const Xapian::Query::Internal *query_,
 			Xapian::termcount qlen,
 			Xapian::valueno collapse_key,
 			Xapian::Enquire::docid_order order,
+			Xapian::valueno sort_key,
+			bool sort_by_relevance, bool sort_value_forward,
 			int percent_cutoff, Xapian::weight weight_cutoff,
 			const Xapian::Weight *wtscheme,
 			const Xapian::RSet &omrset_)
@@ -397,8 +399,10 @@ SocketClient::set_query(const Xapian::Query::Internal *query_,
     Assert(conv_state == state_getquery);
     // FIXME: no point carefully serialising these all separately...
     query_string = query_->serialise();
-    optstring = om_tostring(qlen) + ' ' + om_tostring(collapse_key) +
-	' ' + om_tostring(int(order)) + ' ' +
+    optstring = om_tostring(qlen) + ' ' + om_tostring(collapse_key) + ' ' +
+	om_tostring(int(order)) + ' ' + om_tostring(sort_key) + ' ' +
+	om_tostring(sort_by_relevance) + ' ' +
+	om_tostring(sort_value_forward) + ' ' +
 	om_tostring(percent_cutoff) + ' ' + om_tostring(weight_cutoff);
     wtstring = wtscheme->name() + '\n' + wtscheme->serialise();
     omrset = omrset_;

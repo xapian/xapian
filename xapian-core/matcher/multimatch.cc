@@ -107,7 +107,7 @@ msetcmp_sort_forward(const Xapian::Internal::MSetItem &a,
     if (a.sort_key < b.sort_key) return false;
     // two special cases to make min_item compares work when did == 0
     if (a.did == 0) return false;
-    if (b.did == 0) return true; 
+    if (b.did == 0) return true;
     return (a.did < b.did);
 }
 
@@ -124,7 +124,7 @@ msetcmp_sort_forward_relevance(const Xapian::Internal::MSetItem &a,
     if (a.wt < b.wt) return false;
     // two special cases to make min_item compares work when did == 0
     if (a.did == 0) return false;
-    if (b.did == 0) return true; 
+    if (b.did == 0) return true;
     return (a.did < b.did);
 }
 
@@ -164,7 +164,7 @@ msetcmp_reverse_sort_forward(const Xapian::Internal::MSetItem &a,
 {
     // two special cases to make min_item compares work when did == 0
     if (a.did == 0) return false;
-    if (b.did == 0) return true; 
+    if (b.did == 0) return true;
     // "smaller is better"
     if (a.sort_key > b.sort_key) return false;
     if (a.sort_key < b.sort_key) return true;
@@ -179,7 +179,7 @@ msetcmp_reverse_sort_forward_relevance(const Xapian::Internal::MSetItem &a,
 {
     // two special cases to make min_item compares work when did == 0
     if (a.did == 0) return false;
-    if (b.did == 0) return true; 
+    if (b.did == 0) return true;
     // "smaller is better"
     if (a.sort_key > b.sort_key) return false;
     if (a.sort_key < b.sort_key) return true;
@@ -196,7 +196,7 @@ msetcmp_reverse_sort_reverse(const Xapian::Internal::MSetItem &a,
 {
     // two special cases to make min_item compares work when did == 0
     if (a.did == 0) return false;
-    if (b.did == 0) return true; 
+    if (b.did == 0) return true;
     // "smaller is better"
     if (a.sort_key > b.sort_key) return false;
     if (a.sort_key < b.sort_key) return true;
@@ -211,7 +211,7 @@ msetcmp_reverse_sort_reverse_relevance(const Xapian::Internal::MSetItem &a,
 {
     // two special cases to make min_item compares work when did == 0
     if (a.did == 0) return false;
-    if (b.did == 0) return true; 
+    if (b.did == 0) return true;
     // "smaller is better"
     if (a.sort_key > b.sort_key) return false;
     if (a.sort_key < b.sort_key) return true;
@@ -241,7 +241,7 @@ class MSetSortCmp {
 	    int band_b = int(ceil(b.wt * factor));
 	    if (band_a > bands) band_a = bands;
 	    if (band_b > bands) band_b = bands;
-	    
+
 	    if (band_a != band_b) return band_a > band_b;
 	    if (sort_key != Xapian::valueno(-1)) {
 		if (a.sort_key.empty()) {
@@ -318,14 +318,14 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	}
 
 	const set<Xapian::docid> & items = omrset.internal->items;
-	set<Xapian::docid>::const_iterator i; 
+	set<Xapian::docid>::const_iterator i;
 	for (i = items.begin(); i != items.end(); ++i) {
 	    Xapian::doccount local_docid = (*i - 1) / number_of_leaves + 1;
 	    Xapian::doccount subdatabase = (*i - 1) % number_of_leaves;
 	    subrsets[subdatabase].add_document(local_docid);
 	}
     }
-    
+
     vector<Xapian::RSet>::const_iterator subrset = subrsets.begin();
 
     vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> >::const_iterator i;
@@ -339,18 +339,14 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 #ifdef XAPIAN_BUILD_BACKEND_REMOTE
 	    const NetworkDatabase *netdb = subdb->as_networkdatabase();
 	    if (netdb) {
-		if (sort_key != Xapian::valueno(-1)) {
-		    // And neither is sort_value_forward, but that's ignored
-		    // unless we're sorting on a value.
-		    throw Xapian::UnimplementedError("sorting on a value is not supported with remote backend");
-		}
 		if (bias_halflife) {
 		    throw Xapian::UnimplementedError("bias_halflife and bias_weight not supported with remote backend");
 		}
 		smatch = Xapian::Internal::RefCntPtr<SubMatch>(
 			new RemoteSubMatch(netdb, query, qlen,
-			    *subrset, collapse_key,
-			    order, percent_cutoff, weight_cutoff,
+			    *subrset, collapse_key, order,
+			    sort_key, sort_by_relevance, sort_value_forward,
+			    percent_cutoff, weight_cutoff,
 			    gatherer.get(), weight));
 	    } else {
 #endif /* XAPIAN_BUILD_BACKEND_REMOTE */
@@ -413,7 +409,7 @@ MultiMatch::prepare_matchers()
 string
 MultiMatch::get_collapse_key(PostList *pl, Xapian::docid did,
 			     Xapian::valueno keyno, Xapian::Internal::RefCntPtr<Xapian::Document::Internal> &doc)
-{		      
+{
     DEBUGCALL(MATCH, string, "MultiMatch::get_collapse_key", pl << ", " << did << ", " << keyno << ", [doc]");
     const string *key = pl->get_collapse_key();
     if (key) RETURN(*key);
@@ -423,7 +419,7 @@ MultiMatch::get_collapse_key(PostList *pl, Xapian::docid did,
 	Xapian::doccount n = (did - 1) % multiplier; // which actual database
 	Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-   	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
+	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
 	doc = temp;
     }
     RETURN(doc->get_value(keyno));
@@ -523,7 +519,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    }
 	}
     }
-    
+
     // Get a single combined postlist
     PostList *pl;
     Assert(postlists.size() != 0);
@@ -537,7 +533,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // a proper API later, promise - Olly
     if (bias_halflife) {
 	pl = new BiasPostList(pl, db,
-	       	new OmBiasFunctor(db, bias_weight, bias_halflife), this);
+		new OmBiasFunctor(db, bias_weight, bias_halflife), this);
     }
 
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");
@@ -594,7 +590,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::Internal::MSetItem min_item(weight_cutoff, 0);
 
     Xapian::weight percent_factor = percent_cutoff / 100.0;
- 
+
     // Table of keys which have been seen already, for collapsing.
     map<string, pair<Xapian::Internal::MSetItem,Xapian::weight> > collapse_tab;
 
@@ -646,7 +642,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // from the second stage from the first.
 
     // Is the mset a valid heap?
-    bool is_heap = false; 
+    bool is_heap = false;
 
     while (true) {
 	if (recalculate_w_max) {
@@ -797,7 +793,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		}
 		pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
 			 OmMSetCmp>(items.begin(), items.end(), mcmp);
-		items.pop_back(); 
+		items.pop_back();
 		if (sort_key != Xapian::valueno(-1)) {
 		    Xapian::weight tmp = min_item.wt;
 		    min_item = items.front();
@@ -1029,7 +1025,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Assert(matches_estimated <= matches_upper_bound);
 
     // We may need to qualify any collapse_count to see if the highest weight
-    // collapsed item would have qualified percent_cutoff 
+    // collapsed item would have qualified percent_cutoff
     // We WILL need tp restore collapse_count to the mset by taking from
     // collapse_tab; this is what comes of copying around whole objects
     // instead of taking references, we find it hard to update collapse_count
@@ -1065,7 +1061,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    }
 	}
     }
-    
+
     mset = Xapian::MSet(new Xapian::MSet::Internal(
 				       first,
 				       matches_upper_bound,
