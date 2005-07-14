@@ -761,17 +761,6 @@ AC_SUBST(AM_CXXFLAGS)
 dnl See if large file support is available
 AC_SYS_LARGEFILE
 
-APIDOC_SRC="`cd \"$srcdir\";echo include/xapian/*.h|sed 's!include/xapian/version.h!!;s!include!$T/include!g'`"
-dnl find SOURCEDOC in 2 goes to avoid overflowing the 4096 character
-dnl line length limit in some sed implementations
-SOURCEDOC_CC_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name \*.cc -print|sed 's!^\.!$T!'|tr '
-' ' '`"
-SOURCEDOC_H_SRC="`cd \"$srcdir\";find . -name tests -prune -o -name include -prune -o -name \*.h -print|sed '/^\.\/confdefs\.h$/d;s!^\.!$T!'|tr '
-' ' '`"
-AC_SUBST(APIDOC_SRC)
-AC_SUBST(SOURCEDOC_CC_SRC)
-AC_SUBST(SOURCEDOC_H_SRC)
-
 dnl *******************************************************************
 dnl * Make sure we can reference the top source and build directories *
 dnl *******************************************************************

@@ -1,3 +1,13 @@
+Fri Jul 15 00:28:40 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,docs/Makefile.am,preautoreconf,Makefile.am: Generate
+	  the list of source files to feed to doxygen by inspecting all the
+	  Makefile.am files prior to running autoreconf rather than by using
+	  "find" when the user runs ./configure.  This speeds up configure,
+	  avoids generating docs for random .cc and .h files which aren't
+	  part of xapian-core, and avoids problems with picking up FIND.EXE
+	  on MS Windows.
+
 Thu Jul 14 12:49:36 BST 2005  Olly Betts <olly@survex.com>
 
 	* common/,matcher/multimatch.cc,matcher/networkmatch.cc,
