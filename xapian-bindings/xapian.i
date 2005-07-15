@@ -873,7 +873,7 @@ public:
     void set_database(const Database &db_);
     Query parse_query(const string &q);
 #ifdef SWIGPHP4
-    %rename (parse_query_flags) parse_query
+    %rename (parse_query_flags) parse_query;
 #endif
     Query parse_query(const string &q, unsigned flags);
 
