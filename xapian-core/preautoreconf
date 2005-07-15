@@ -5,6 +5,10 @@ sub parse_makefile_am($);
 
 my @makefile_am;
 
+if ($0 =~ m!(.*)/!) {
+    chdir $1 or die $!;
+}
+
 my %s;
 for (parse_makefile_am("")) {
     $s{$_} = 1;

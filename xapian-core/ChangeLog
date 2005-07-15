@@ -1,3 +1,8 @@
+Fri Jul 15 02:31:11 BST 2005  Olly Betts <olly@survex.com>
+
+	* preautoreconf: Change directory to the directory that the
+	  preautoreconf script is in before doing anything else.
+
 Fri Jul 15 01:02:29 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in,configure.ac:
