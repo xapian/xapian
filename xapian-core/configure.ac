@@ -761,18 +761,6 @@ AC_SUBST(AM_CXXFLAGS)
 dnl See if large file support is available
 AC_SYS_LARGEFILE
 
-dnl *******************************************************************
-dnl * Make sure we can reference the top source and build directories *
-dnl *******************************************************************
-
-dnl The actual values of these are set in the makefile, so we protect
-dnl against expansion here.  Contorted, but it works.
-TOP_SRCDIR='$(top_srcdir)'
-TOP_BUILDDIR='$(top_builddir)'
-
-AC_SUBST(TOP_SRCDIR)
-AC_SUBST(TOP_BUILDDIR)
-
 dnl **************************
 dnl * Build the output files *
 dnl **************************

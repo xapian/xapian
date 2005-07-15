@@ -15,7 +15,7 @@ ABBREVIATE_BRIEF       =
 ALWAYS_DETAILED_SEC    = NO
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = @TOP_SRCDIR@
+STRIP_FROM_PATH        = @top_srcdir@
 STRIP_FROM_INC_PATH    = 
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = YES
@@ -67,14 +67,14 @@ WARN_LOGFILE           = doxygen_full_warnings
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = @TOP_SRCDIR@ \
+INPUT                  = @top_srcdir@ \
                          ../config.h
 FILE_PATTERNS          = *.cpp \
                          *.cc \
                          *.c \
                          *.h
 RECURSIVE              = YES
-EXCLUDE                = @TOP_SRCDIR@/docs
+EXCLUDE                = @top_srcdir@/docs
 EXCLUDE_SYMLINKS       = YES
 EXCLUDE_PATTERNS       = acconfig.h
 EXAMPLE_PATH           = 
@@ -105,8 +105,8 @@ IGNORE_PREFIX          =
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
-HTML_HEADER            = @TOP_SRCDIR@/docs/doxygen_full_header.html_tmpl
-HTML_FOOTER            = @TOP_SRCDIR@/docs/doxygen_full_footer.html_tmpl
+HTML_HEADER            = @top_srcdir@/docs/doxygen_full_header.html_tmpl
+HTML_FOOTER            = @top_srcdir@/docs/doxygen_full_footer.html_tmpl
 HTML_STYLESHEET        = 
 HTML_ALIGN_MEMBERS     = YES
 GENERATE_HTMLHELP      = NO

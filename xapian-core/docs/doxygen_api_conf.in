@@ -15,7 +15,7 @@ ABBREVIATE_BRIEF       =
 ALWAYS_DETAILED_SEC    = YES
 INLINE_INHERITED_MEMB  = NO
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = @TOP_SRCDIR@
+STRIP_FROM_PATH        = @top_srcdir@
 STRIP_FROM_INC_PATH    = 
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = YES
@@ -67,7 +67,7 @@ WARN_LOGFILE           = doxygen_api_warnings
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = @TOP_SRCDIR@/include
+INPUT                  = @top_srcdir@/include
 FILE_PATTERNS          = *.h
 RECURSIVE              = YES
 EXCLUDE                = 
@@ -101,8 +101,8 @@ IGNORE_PREFIX          =
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
-HTML_HEADER            = @TOP_SRCDIR@/docs/doxygen_api_header.html_tmpl
-HTML_FOOTER            = @TOP_SRCDIR@/docs/doxygen_api_footer.html_tmpl
+HTML_HEADER            = @top_srcdir@/docs/doxygen_api_header.html_tmpl
+HTML_FOOTER            = @top_srcdir@/docs/doxygen_api_footer.html_tmpl
 HTML_STYLESHEET        = 
 HTML_ALIGN_MEMBERS     = YES
 GENERATE_HTMLHELP      = NO
@@ -172,7 +172,7 @@ ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
 SEARCH_INCLUDES        = YES
-INCLUDE_PATH           = @TOP_BUILDDIR@/include
+INCLUDE_PATH           = @top_builddir@/include
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = 
 EXPAND_AS_DEFINED      = DEFINE_ERROR_BASECLASS \

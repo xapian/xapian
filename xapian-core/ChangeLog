@@ -1,3 +1,9 @@
+Fri Jul 15 01:02:29 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in,configure.ac:
+	  Eliminate TOP_SRCDIR and TOP_BUILDDIR - it's better to just use
+	  top_srcdir and top_builddir directly.
+
 Fri Jul 15 00:48:39 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix superfluous shell quoting.
