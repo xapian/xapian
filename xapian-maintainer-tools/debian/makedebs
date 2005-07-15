@@ -36,9 +36,9 @@ sleep 5;
 set -e
 
 COMPONENT=stable
-VERSION='0.9.1'
-DEBVER_CORE='2'
-DEBVER_BINDINGS='3'
+VERSION='0.9.2'
+DEBVER_CORE='1'
+DEBVER_BINDINGS='1'
 DEBVER_OMEGA='1'
 
 # Options to pass to dpkg-buildpackage when building binary packages.
