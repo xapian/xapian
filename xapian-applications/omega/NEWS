@@ -1,3 +1,25 @@
+Omega 0.9.2 (2005-07-15):
+
+* omega: Changed $highlight so if OPEN and CLOSE aren't specified, they default
+  to highlighting each word from the query with a different background colour
+  like gmane does (previous default was to use '<strong>' and '</strong>').
+
+* omega: Call QueryParser::set_database() as this is now used to decide what to
+  do for terms like "C#".
+
+* omega: Added the ability to set boolean prefixes for the QueryParser by
+  setting a "boolprefix" map in the omegascript template.
+
+* omega: Added $length{} and $stoplist{} commands to OmegaScript.
+
+* scriptindex: Fix infinite loop if there's no newline at the end of a dumpfile.
+
+* docs/termprefixes.txt: Explain who to use termprefixes with scriptindex and
+  omega, since that's what most people will want to know.
+
+* docs/omegascript.txt: Use standard "S" prefix for title in example for
+  $setmap, rather than "XT".
+
 Omega 0.9.1 (2005-06-06):
 
 * Releases are now created using libtool 1.5.18 and automake 1.9.5.
