@@ -1,3 +1,119 @@
+Xapian-core 0.9.2 (2005-07-15):
+
+API:
+
+* QueryParser:
+
+  + Added optional "flags" argument to parse_query method.
+
+  + Add flag FLAG_BOOLEAN_ANY_CASE which tells the QueryParser that boolean
+    operators such as "AND", "OR", and "NEAR" should be recognised even if
+    they aren't fully capitalised (so "and", "And", "aNd", etc will work too).
+
+  + Add flag FLAG_WILDCARD which tells the QueryParser to allow right
+    truncation e.g. "xap*".
+
+  + Fixed to handle "-site:microsoft.com" where site is a boolean prefix.
+    Added testcases for this.
+
+testsuite:
+
+* The test harness was incorrectly creating a quartz database when a flint one
+  was requested, which meant tests weren't being run against flint and so it
+  had bugs rendering it pretty much unusable.
+
+* Added regression test longpositionlist1 (to check encoding/decoding a long
+  position list, which flint had problems with).
+
+flint backend:
+
+* Bumped format version number.
+
+* Added new "xapian-compact" program which can compact and merge flint
+  databases in a similar way to how quartzcompact does for quartz databases.
+
+* Fixed to auto-detect database type when opening an existing Flint database
+  as a WritableDatabase.
+
+* The code to encode the position list size, first entry, and last entry
+  didn't match the code to decode them!  Reworked both to match, using a
+  slightly more compact encoding.
+ 
+* We were failing to append "DB" to the path when opening a table for reading.
+
+* Rewrite of FlintAllTermsList with several fewer member variables.  The
+  rewrite fixes a bug too - the old version wasn't ignoring the metainfo
+  entry which is now in the postlist table.
+ 
+* It seems we need to explicitly kill the child process used for locking.
+  Otherwise when we have two databases locked just closing the connection
+  doesn't cause the child to die.  I don't understand why it's needed, but this
+  fix is at least clean.
+
+quartz backend:
+
+* quartzcompact: Fix mis-repacking of keys in positionlist table when merging
+  several databases.
+
+* Disable assertion in allterms iteration which is incorrect in a corner case.
+  This is only a problem if a termname contains zero bytes and you're using a
+  debug build.  Add regression test test_specialterms2.
+
+remote backend:
+
+* Implement sorting on a value with the remote backend.
+
+build system:
+
+* Pass automake options to AM_INIT_AUTOMAKE rather than specifying them in
+  Makefile.am.  This way, the version requirements for autoconf and automake
+  are stated close together.
+
+* configure: -Wshadow causes false positives with GCC 3.0.4, so only enable it
+  for 3.1 and up.
+
+* configure: Eliminate use of "ln -s" when generating include/xapian/version.h
+  since it seems to cause problems on Solaris in some setups and isn't really
+  necessary.
+
+* Add dependency mechanism so version.h gets regenerated when the template is
+  changed.
+
+* configure: Check for spaces in build directory, source directory, or install
+  prefix and die with a helpful message.
+
+* Add dependency to generate queryparser_token.h.
+
+* Eliminated TOP_SRCDIR and TOP_BUILDDIR - it's better to just use top_srcdir
+  and top_builddir directly.
+
+* configure: Generate the list of source files to feed to doxygen by inspecting
+  all the Makefile.am files prior to running autoreconf rather than by using
+  "find" when the user runs ./configure.  This speeds up configure, avoids
+  generating docs for random .cc and .h files which aren't part of xapian-core,
+  and avoids problems with picking up FIND.EXE on MS Windows.
+
+documentation:
+
+* Expanded explanation of the "descending docid with boolean weighting" trick
+  for fast date ordered searching in Enquire::set_docid_order() API docs.
+
+* docs/intro_ir.html: Citeseer has moved, so update link.
+
+* testsuite/testsuite.cc: Update URL for valgrind FAQ in comment.
+
+* COPYING: Update FSF address.
+
+* HACKING: Minor updates to release checklist.
+
+portability: 
+
+* Assorted tweaks towards allowing compilation with MSVC.
+
+packaging:
+
+* xapian.spec.in: Package xapian-compact.
+
 Xapian-core 0.9.1 (2005-06-06):
 
 API:

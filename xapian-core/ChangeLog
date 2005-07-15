@@ -1,3 +1,7 @@
+Fri Jul 15 11:11:35 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,NEWS,PLATFORMS: Updated for 0.9.2.
+
 Fri Jul 15 02:31:11 BST 2005  Olly Betts <olly@survex.com>
 
 	* preautoreconf: Change directory to the directory that the
