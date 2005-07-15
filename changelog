@@ -1,3 +1,15 @@
+xapian-omega (0.9.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Changed $highlight to default to colouring each word differently.
+  * Add ability to set boolean prefixes for query parser from OmegaScript.
+  * Added $length{} and $stoplist{} commands to OmegaScript.
+  * scriptindex: Fix infinite loop if there's no newline at the end of a
+    dumpfile.
+  * documentation updates.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri, 15 Jul 2005 13:12:52 +0100
+
 xapian-omega (0.9.1-2) unstable; urgency=low
 
   * Add termprefixes.txt to package.
