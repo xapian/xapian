@@ -1,3 +1,8 @@
+Fri Jul 15 02:10:07 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Added wrappers for new optional flags argument to
+	  QueryParser::parse_query().
+
 Fri Jun 24 12:00:19 BST 2005  Olly Betts <olly@survex.com>
 
 	* java/README: Add success report for Sun java 1.4.1_01a.

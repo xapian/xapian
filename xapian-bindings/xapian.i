@@ -849,7 +849,9 @@ public:
     typedef enum {
 	FLAG_BOOLEAN = 1,
 	FLAG_PHRASE = 2,
-	FLAG_LOVEHATE = 4
+	FLAG_LOVEHATE = 4,
+	FLAG_BOOLEAN_ANY_CASE = 8,
+	FLAG_WILDCARD = 16
     } feature_flag;
 
     typedef enum {
@@ -870,6 +872,10 @@ public:
     Query::op get_default_op() const;
     void set_database(const Database &db_);
     Query parse_query(const string &q);
+#ifdef SWIGPHP4
+    %rename (parse_query_flags) parse_query
+#endif
+    Query parse_query(const string &q, unsigned flags);
 
     void add_prefix(const std::string &field, const std::string &prefix);
     void add_boolean_prefix(const std::string & field, const std::string &prefix);
