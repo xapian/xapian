@@ -1,3 +1,25 @@
+Xapian-bindings 0.9.2 (2005-07-15):
+
+General:
+
+* Added wrappers for new optional flags argument to QueryParser::parse_query().
+
+CSharp:
+
+* Enhance configure to check that "mcs" is actually GNU Mono mcs and not
+  another tool with the same name.
+
+Java:
+
+* Include SmokeTest.java in the distribution so "make check" works.
+
+* Added success report for Sun java 1.4.1_01a.
+
+Python:
+
+* When converting a python list to vector<string> we know the number of elements
+  so reserve that number in the vector.
+
 Xapian-bindings 0.9.1 (2005-06-06):
 
 General:
