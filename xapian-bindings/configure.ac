@@ -6,7 +6,7 @@ dnl 2.57 fixes the annoying warnings from configure on FreeBSD
 dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
-AC_INIT(xapian-bindings, 0.9.1)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-bindings, 0.9.2)dnl FIXME: bugreport addr as third argument
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR(xapian.i)
 

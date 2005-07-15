@@ -1,3 +1,7 @@
+Fri Jul 15 11:12:13 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Updated for 0.9.2.
+
 Fri Jul 15 10:21:17 BST 2005  Olly Betts <olly@survex.com>
 
 	* xapian.i: Added semicolon missing from recent change.
