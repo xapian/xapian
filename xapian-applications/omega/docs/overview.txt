@@ -117,6 +117,9 @@ Usage: omindex [OPTION] --db DATABASE
 
 Index static website data via the filesystem.
   -d, --duplicates      set duplicate handling ('ignore' or 'replace')
+  -p, --preserve-nonduplicates
+		        don't delete documents not updated during
+			replace duplicate operation
   -D, --db              path to database to use
   -U, --url             base url DIRECTORY represents
   -M, --mime-type	additional MIME mapping ext:type
@@ -154,17 +157,17 @@ If the entire website is stored in the file system under the directory
 passes, one for the '/press' site and one for the '/product' site. You
 might use the following commands:
 
-$ omindex --db /www/omega --url '/press' /www/example/press
-$ omindex --db /www/omega --url '/product' /www/example/product
+$ omindex -p --db /www/omega --url '/press' /www/example/press
+$ omindex -p --db /www/omega --url '/product' /www/example/product
 
 If you add a new large product, but don't want to reindex the whole of
 the product section, you could do:
 
-$ omindex --db /www/omega --url '/product' /www/example/product large
+$ omindex -p --db /www/omega --url '/product' /www/example/product large
 
 and just the large products will be reindexed. You need to do it like that, and not as:
 
-$ omindex --db /www/omega --url '/product/large' /www/example/product/large
+$ omindex -p --db /www/omega --url '/product/large' /www/example/product/large
 
 because that would make the large products part of a new site,
 '/product/large', which is unlikely to be what you want, as large
@@ -227,6 +230,17 @@ database as well. The last strategy is very fast, but is liable to do
 strange things to your results set. In general, 'ignore' is useful for
 completely static documents (eg: archive sites), while 'replace' is
 the most generally useful.
+
+With 'replace', omindex will remove any document it finds in the
+database that it did not update - in other words, it will clear out
+everything that doesn't exist any more. However if you are building up
+an omega database with several runs of omindex, this is not
+appropriate (as each run would delete the data from the previous run),
+so you should use the --preserve-nonduplicates. Note that if you
+choose to work like this, it is impossible to prune old documents from
+the database using omindex. If this is a problem for you, an
+alternative is to index each subsite into a different database, and
+merge all the databases together when searching.
 
 --depth-limit allows you to prevent omindex from descending more than
 a certain number of directories.  If you wish to replicate the old

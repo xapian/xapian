@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001 James Aylett
+ * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005 Olly Betts
  *
@@ -579,6 +579,9 @@ main(int argc, char **argv)
     // If overwrite is true, the database will be created anew even if it
     // already exists.
     bool overwrite = false;
+    // If preserve_unupdated is false, delete any documents we don't
+    // replace (if in replace duplicates mode)
+    bool preserve_unupdated = false;
     size_t depth_limit = 0;
 
     static const struct option longopts[] = {
@@ -586,6 +589,7 @@ main(int argc, char **argv)
 	{ "version",	no_argument,		NULL, 'v' },
 	{ "overwrite",	no_argument,		NULL, 'o' },
 	{ "duplicates",	required_argument,	NULL, 'd' },
+	{ "preserve-nonduplicates",	no_argument,	NULL, 'p' },
 	{ "db",		required_argument,	NULL, 'D' },
 	{ "url",	required_argument,	NULL, 'U' },
 	{ "mime-type",	required_argument,	NULL, 'M' },
@@ -631,7 +635,7 @@ main(int argc, char **argv)
     mime_map["pm"] = "text/x-perl";
     mime_map["pod"] = "text/x-perl";
 
-    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:l", longopts, NULL))!=EOF) {
+    while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:lp", longopts, NULL))!=EOF) {
 	switch (getopt_ret) {
 	case 'h':
 	    cout << OMINDEX << endl
@@ -639,6 +643,9 @@ main(int argc, char **argv)
 		 << "\t--url BASEURL [BASEDIRECTORY] DIRECTORY\n\n"
 		 << "Index static website data via the filesystem.\n"
 		 << "  -d, --duplicates\tset duplicate handling ('ignore' or 'replace')\n"
+	         << "  -p, --preserve-nonduplicates\n"
+		"\t\t\tdon't delete unupdated documents in\n"
+		"\t\t\tduplicate replace mode\n"
 		 << "  -D, --db\t\tpath to database to use\n"
 		 << "  -U, --url\t\tbase url DIRECTORY represents\n"
 	         << "  -M, --mime-type\tadditional MIME mapping ext:type\n"
@@ -654,7 +661,7 @@ main(int argc, char **argv)
 	case 'v':
 	    cout << OMINDEX << " (" << PACKAGE << ") " << VERSION << "\n"
 		 << "Copyright (c) 1999,2000,2001 BrightStation PLC.\n"
-		 << "Copyright (c) 2001 James Aylett\n"
+		 << "Copyright (c) 2001,2005 James Aylett\n"
 		 << "Copyright (c) 2001,2002 Ananova Ltd\n"
 		 << "Copyright (c) 2002,2003,2004,2005 Olly Betts\n\n"
 		 << "This is free software, and may be redistributed under\n"
@@ -669,6 +676,9 @@ main(int argc, char **argv)
 		skip_duplicates = false;
 		break;
 	    }
+	    break;
+	case 'p': // don't delete unupdated documents
+	    preserve_unupdated = true;
 	    break;
 	case 'l': { // Set recursion limit
 	    int arg = atoi(optarg);
@@ -757,7 +767,7 @@ main(int argc, char **argv)
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
 	}
 	index_directory(depth_limit, "/", mime_map);
-	if (!skip_duplicates) {
+	if (!skip_duplicates && !preserve_unupdated) {
 	    for (Xapian::docid did = 1; did < updated.size(); ++did) {
 		if (!updated[did]) {
 		    try {

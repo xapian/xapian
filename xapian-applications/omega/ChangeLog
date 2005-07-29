@@ -1,3 +1,12 @@
+Fri Jul 29 10:05:21 BST 2005  James Aylett  <james@tartarus.org>
+
+	* omindex.cc: add --preserve-nonduplicates / -p option to not
+	  delete any documents that aren't updated, in replace duplicates
+	  mode (so that multiple runs of omindex on different subsites
+	  don't stomp on each other).
+
+	* docs/overview.txt: update to match the above.
+
 Fri Jul 15 11:12:28 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Updated for 0.9.2.
