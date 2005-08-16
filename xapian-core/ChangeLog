@@ -1,3 +1,10 @@
+Tue Aug 16 16:01:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_types.h,backends/quartz/quartz_types.h:  Using
+	  a double to hold the total document length would be a bad idea as
+	  we need to store it exactly so kill FIXME comments that suggest
+	  perhaps we should.
+
 Fri Jul 15 11:11:35 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,NEWS,PLATFORMS: Updated for 0.9.2.

@@ -55,8 +55,6 @@ typedef unsigned int flint_doclen_t;
 
 /** An integer type which can store the sum of the lengths of the documents
  *  in the database.
- *
- *  FIXME - change this to a double?
  */
 typedef unsigned long long int flint_totlen_t;
 
