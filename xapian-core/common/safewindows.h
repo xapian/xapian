@@ -21,8 +21,8 @@
 #ifndef XAPIAN_INCLUDED_SAFEWINDOWS_H
 #define XAPIAN_INCLUDED_SAFEWINDOWS_H
 
-#ifndef __WIN32__
-# error Including safewindows.h, but __WIN32__ not defined!
+#if !defined __CYGWIN__ && !defined __WIN32__
+# error Including safewindows.h, but neither __CYGWIN__ nor __WIN32__ defined!
 #endif
 
 // Prevent windows.h from defining min and max macros.

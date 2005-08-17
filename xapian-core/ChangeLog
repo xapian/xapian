@@ -1,3 +1,7 @@
+Wed Aug 17 11:50:54 BST 2005  Olly Betts <olly@survex.com>
+
+	* common/safewindows.h: Fix compilation for cygwin.
+
 Tue Aug 16 16:01:36 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_types.h,backends/quartz/quartz_types.h:  Using
