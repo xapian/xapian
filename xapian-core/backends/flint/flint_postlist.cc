@@ -195,7 +195,7 @@ check_tname_in_key(const char **keypos, const char *keyend, const string &tname)
 static Xapian::docid
 read_start_of_first_chunk(const char ** posptr,
 			  const char * end,
-			  Xapian::termcount * number_of_entries_ptr,
+			  Xapian::doccount * number_of_entries_ptr,
 			  Xapian::termcount * collection_freq_ptr)
 {
     DEBUGCALL_STATIC(DB, Xapian::docid, "read_start_of_first_chunk",
@@ -663,7 +663,7 @@ PostlistChunkWriter::flush(FlintTable *table)
  */
 void FlintPostList::read_number_of_entries(const char ** posptr,
 				   const char * end,
-				   Xapian::termcount * number_of_entries_ptr,
+				   Xapian::doccount * number_of_entries_ptr,
 				   Xapian::termcount * collection_freq_ptr)
 {
     if (!unpack_uint(posptr, end, number_of_entries_ptr))
@@ -878,7 +878,7 @@ FlintPostList::move_to_chunk_containing(Xapian::docid desired_did)
     if (keypos == keyend) {
 	// In first chunk
 #ifdef XAPIAN_DEBUG
-	Xapian::termcount old_number_of_entries = number_of_entries;
+	Xapian::doccount old_number_of_entries = number_of_entries;
 	Xapian::termcount old_collection_freq = collection_freq;
 	did = read_start_of_first_chunk(&pos, end, &number_of_entries,
 					&collection_freq);

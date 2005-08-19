@@ -1,3 +1,8 @@
+Fri Aug 19 12:13:39 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_postlist.cc,backends/flint/flint_postlist.cc:
+	  Correct uses of termcount which should be doccount.
+
 Fri Aug 19 11:48:51 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Fix prototype for ESet::operator[] to
