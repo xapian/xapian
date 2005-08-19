@@ -1,3 +1,8 @@
+Fri Aug 19 11:48:51 BST 2005  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Fix prototype for ESet::operator[] to
+	  take parameter of type termcount instead of doccount.
+
 Wed Aug 17 11:50:54 BST 2005  Olly Betts <olly@survex.com>
 
 	* common/safewindows.h: Fix compilation for cygwin.

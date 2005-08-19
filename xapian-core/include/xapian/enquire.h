@@ -434,8 +434,8 @@ class ESet {
 	/** Iterator pointing to the last element of this E-Set */
 	ESetIterator back() const;
 
-	/** This returns the document at position i in this E-Set.  */
-	ESetIterator operator[](Xapian::doccount i) const;
+	/** This returns the term at position i in this E-Set.  */
+	ESetIterator operator[](Xapian::termcount i) const;
 
 	/** Introspection method.
 	 *
