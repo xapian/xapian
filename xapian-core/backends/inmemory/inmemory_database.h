@@ -121,6 +121,8 @@ class InMemoryDoc {
 	void add_posting(const InMemoryTermEntry & post);
 };
 
+class InMemoryDatabase;
+
 /** A PostList in an inmemory database.
  */
 class InMemoryPostList : public LeafPostList {
