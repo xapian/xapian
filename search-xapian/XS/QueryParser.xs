@@ -50,8 +50,13 @@ Query *
 QueryParser::parse_query(q)
     string q
     CODE:
-	RETVAL = new Query();
-	*RETVAL = THIS->parse_query(q);
+	try {
+	    RETVAL = new Query();
+	    *RETVAL = THIS->parse_query(q);
+	}
+	catch (const char * err_msg) {
+	    croak( "Exception: %s", err_msg );
+	}
     OUTPUT:
 	RETVAL
 
