@@ -60,8 +60,8 @@ $cgilist{CGI}
 	return a list of all values of a CGI variable
 
 $collapsed
-	number of other documents collapsed into current hit inside $hitlist
-	useful like:
+	number of other documents collapsed into current hit inside $hitlist,
+	which might be used like so:
 
   $if{$ne{$collapsed,0},at least $collapsed hidden results ($value{$cgi{COLLAPSE}})}
 
@@ -350,13 +350,13 @@ $unstem{TERM}
 $url{TEXT}
 	url encode argument
 
-$value{KEY[,DOCID]}
-	returns the KEY value from the current hit (inside $hitlist) or
-	of the supplied document id.
+$value{VALUENO[,DOCID]}
+	returns value number VALUENO for document DOCID.  If DOCID is omitted
+	then the current hit is used (which only works inside $hitlist).
 
 $version
-	omega version string
-	
+	omega version string - e.g. "Xapian - omega 0.9.2"
+
 Numeric Operators:
 ==================
 

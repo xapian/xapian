@@ -1,3 +1,8 @@
+Sat Sep 10 14:57:19 BST 2005  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt: Improve descriptions of $collapsed, $value,
+	  $version.
+
 Fri Jul 29 10:05:21 BST 2005  James Aylett  <james@tartarus.org>
 
 	* omindex.cc: add --preserve-nonduplicates / -p option to not
