@@ -1,3 +1,8 @@
+Wed Sep 14 23:54:14 BST 2005  Olly Betts <olly@survex.com>
+
+	* HACKING: Now generate snapshots and releases with automake 1.9.6
+	  (was 1.9.5) and libtool 1.5.20 (was 1.5.18).
+
 Tue Aug 30 14:01:55 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.h: Forward declare class
