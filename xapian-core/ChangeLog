@@ -1,3 +1,10 @@
+Sat Sep 17 14:07:32 BST 2005  Richard Boulton <richard@tartarus.org>
+
+	* backends/flint/flint_lock.cc: Pass two NULLs to execl() to avoid
+	  getting a warning ("not enough variable arguments to fit a
+	  sentinel", observed on Ubuntu breezy powerpc).  Reported by
+	  Sidnei da Silva.
+
 Wed Sep 14 23:54:14 BST 2005  Olly Betts <olly@survex.com>
 
 	* HACKING: Now generate snapshots and releases with automake 1.9.6
