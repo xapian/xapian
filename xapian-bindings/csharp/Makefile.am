@@ -54,7 +54,7 @@ endif
 
 lib_LTLIBRARIES = XapianSharp.la
 
-AM_CXXFLAGS = @SWIG_CXXFLAGS@
+AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 XapianSharp_la_LDFLAGS = -avoid-version -module -no-undefined
 nodist_XapianSharp_la_SOURCES = XapianSharp.cc
 XapianSharp_la_LIBADD = $(XAPIAN_LIBS)

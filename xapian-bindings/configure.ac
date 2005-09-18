@@ -25,8 +25,9 @@ AC_LANG_CPLUSPLUS
 
 dnl Check for libxapian
 XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
-dnl We want XAPIAN_CXXFLAGS to be used for configure tests
-CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
+dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so set AM_CXXFLAGS
+dnl here and unset them later.
+AM_CXXFLAGS="$XAPIAN_CXXFLAGS"
 
 dnl Allow for bindings being version 0.8.5.1 which xapian-core is 0.8.5.
 dnl Also ignore any _svn6789 suffix which snapshots will have.
@@ -264,6 +265,8 @@ if test yes = "$GXX" ; then
 fi
 AC_SUBST(SWIG_CXXFLAGS)
 AC_SUBST(JAVA_CXXFLAGS)
+
+AM_CXXFLAGS=
 
 AC_CONFIG_FILES([Makefile
  python/Makefile python/docs/Makefile python/docs/examples/Makefile

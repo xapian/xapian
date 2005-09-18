@@ -19,7 +19,7 @@ install-data-hook:
 	rm -f $(DESTDIR)$(phpextdir)/xapian.la
 
 AM_CPPFLAGS = @PHP_INC@
-AM_CXXFLAGS = @SWIG_CXXFLAGS@
+AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module -no-undefined
 xapian_la_SOURCES = xapian_wrap.cc php_xapian.h
 xapian_la_LIBADD = $(XAPIAN_LIBS)

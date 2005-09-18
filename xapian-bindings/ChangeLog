@@ -1,3 +1,10 @@
+Sun Sep 18 23:58:08 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,guile/Makefile.am,
+	  java/native/Makefile.am,php4/Makefile.am,python/Makefile.am,
+	  tcl8/Makefile.am: Rework how XAPIAN_CXXFLAGS is passed through
+	  so that the user can override CXXFLAGS like so: make CXXFLAGS=-g
+
 Fri Jul 15 11:12:13 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Updated for 0.9.2.
