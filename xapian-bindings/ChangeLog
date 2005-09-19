@@ -1,3 +1,13 @@
+Mon Sep 19 13:19:59 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Change how which bindings to build are selected.  If
+	  no --with* arguments are passed, then we default to building
+	  bindings we detect the required tools for.  But instead of requiring
+	  users to deselect bindings they don't want, they now select bindings
+	  they do want.  So "./configure --with-python" will only build the
+	  python bindings (and will fail if the required tools aren't
+	  installed).
+
 Sun Sep 18 23:58:08 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,csharp/Makefile.am,guile/Makefile.am,
