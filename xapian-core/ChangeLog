@@ -1,3 +1,11 @@
+Tue Sep 20 21:32:04 BST 2005  Olly Betts <olly@survex.com>
+
+	* api/Makefile.am,api/version.cc,include/xapian/version_h.cc: Add 4
+	  functions to report version information for the library version
+	  being used (which may not be the same as that compiled against
+	  if shared libraries are in use):  xapian_version_string(),
+	  xapian_major_version(), xapian_minor_version(), xapian_revision().
+
 Sat Sep 17 14:07:32 BST 2005  Richard Boulton <richard@tartarus.org>
 
 	* backends/flint/flint_lock.cc: Pass two NULLs to execl() to avoid

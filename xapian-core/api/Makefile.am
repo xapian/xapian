@@ -9,4 +9,4 @@ noinst_LTLIBRARIES = libapi.la
 libapi_la_SOURCES = omenquire.cc omquery.cc omqueryinternal.cc \
 		    omdatabase.cc omstem.cc omdocument.cc omerror.cc \
 		    ompostlistiterator.cc ompositionlistiterator.cc \
-		    omtermlistiterator.cc omvalueiterator.cc
+		    omtermlistiterator.cc omvalueiterator.cc version.cc
