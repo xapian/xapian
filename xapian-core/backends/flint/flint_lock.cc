@@ -82,7 +82,8 @@ FlintLock::lock(bool exclusive) {
 	//shutdown(fds[1], 1); // Disable further sends.
 	// Connect pipe to stdin.
 	dup2(fds[1], 0);
-	execl("/bin/cat", NULL, NULL); // FIXME: use special statically linked helper
+	// FIXME: use special statically linked helper instead of cat.
+	execl("/bin/cat", "/bin/cat", NULL);
 	// Emulate cat ourselves (we try to avoid this to reduce VM overhead).
 	char ch;
 	while (read(0, &ch, 1) != 0) { /* Do nothing */ }

@@ -1,3 +1,8 @@
+Tue Sep 20 23:38:05 BST 2005  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc: Don't pass NULL for second parameter
+	  of execl().
+ 
 Tue Sep 20 21:32:04 BST 2005  Olly Betts <olly@survex.com>
 
 	* api/Makefile.am,api/version.cc,include/xapian/version_h.cc: Add 4
