@@ -1,3 +1,8 @@
+Wed Sep 21 01:31:23 BST 2005  Olly Betts <olly@survex.com>
+
+	* api/Makefile.am: Fixed VPATH build which was broken by the addition
+	  of version.cc.
+
 Tue Sep 20 23:38:05 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_lock.cc: Don't pass NULL for second parameter
