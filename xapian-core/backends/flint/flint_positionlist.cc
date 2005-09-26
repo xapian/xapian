@@ -94,7 +94,7 @@ static void
 encode_interpolative(BitWriter & wr, const vector<Xapian::termpos> &pos, int j, int k)
 {
     if (j + 1 >= k) return;
-    
+
     const size_t mid = (j + k) / 2;
     // Encode one out of (pos[k] - pos[j] + 1) values
     // (less some at either end because we must be able to fit
