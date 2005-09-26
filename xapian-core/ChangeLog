@@ -1,3 +1,7 @@
+Mon Sep 26 22:22:24 BST 2005  Olly Betts <olly@survex.com>
+
+	* .: svn:ignore docsource.mk.
+
 Mon Sep 26 19:54:15 BST 2005  Olly Betts <olly@survex.com>
 
 	* bin/: svn:ignore xapian-compact.
