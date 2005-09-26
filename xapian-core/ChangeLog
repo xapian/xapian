@@ -1,3 +1,7 @@
+Mon Sep 26 19:54:15 BST 2005  Olly Betts <olly@survex.com>
+
+	* bin/: svn:ignore xapian-compact.
+
 Mon Sep 26 19:50:13 BST 2005  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc: Remove trailing whitespace.
