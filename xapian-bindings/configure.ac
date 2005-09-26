@@ -12,6 +12,28 @@ AC_CONFIG_SRCDIR(xapian.i)
 
 AM_CONFIG_HEADER(config.h)
 
+dnl MacOS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
+dnl successfully link the SWIG generated modules.  The link always seems
+dnl to fail on 10.1.4 whatever I try.  Not tried 10.2.8 yet as that SF CF box
+dnl is down but I expect it will fail there too.  So always setting
+dnl MACOSX_DEPLOYMENT_TARGET to at least 10.3 seems to be the appropriate
+dnl thing to do.  Most MacOS X developers will have upgraded from 10.1 and
+dnl 10.2 by now anyhow.
+dnl
+dnl NB we must do this *BEFORE* AC_PROG_LIBTOOL since that is what checks
+dnl MACOSX_DEPLOYMENT_TARGET.
+AC_CANONICAL_HOST
+case $host_os in
+darwin*)
+  case $MACOSX_DEPLOYMENT_TARGET in
+  "")
+    MACOSX_DEPLOYMENT_TARGET=10.3 ;;
+  10.[[012]])
+    AC_MSG_WARN([Overriding MACOSX_DEPLOYMENT_TARGET from $MACOSX_DEPLOYMENT_TARGET to 10.3])
+    MACOSX_DEPLOYMENT_TARGET=10.3 ;;
+  esac
+esac
+
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
 AC_DISABLE_STATIC

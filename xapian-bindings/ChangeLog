@@ -1,3 +1,12 @@
+Mon Sep 26 22:39:01 BST 2005  Olly Betts <olly@survex.com>
+
+	* INSTALL,configure.ac: On darwin, ensure MACOSX_DEPLOYMENT_TARGET is
+	  set to at least 10.3.  This is required to link the bindings, and
+	  it doesn't seem to be possible to link them on 10.1 or 10.2 anyway.
+	* INSTALL: Update to reflect --with and --without option changes.
+	* INSTALL: Added notes about OpenBSD issues and issues with compiling
+	  the bindings requiring a lot of memory.
+
 Mon Sep 19 13:19:59 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Change how which bindings to build are selected.  If
