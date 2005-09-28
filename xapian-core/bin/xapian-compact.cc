@@ -171,6 +171,8 @@ main(int argc, char **argv)
     // Path to the database to create.
     const char *destdir = argv[argc - 1];
 
+    vector<string> sources;
+    sources.reserve(argc - 1 - optind);
     // Check destdir isn't the same as any source directory...
     for (int i = optind; i < argc - 1; ++i) {
 	const char *srcdir = argv[i];
@@ -187,6 +189,7 @@ main(int argc, char **argv)
 		 << "' is not a flint database directory" << endl;
 	    exit(1);
 	}
+	sources.push_back(srcdir);
     }
 
     // If the destination database directory doesn't exist, create it.
@@ -213,11 +216,10 @@ main(int argc, char **argv)
 	    "postlist", "record", "termlist", "position", "value", NULL
 	};
 
-	const size_t out_of = argc - 1 - optind;
-	vector<Xapian::docid> offset(out_of);
+	vector<Xapian::docid> offset(sources.size());
 	Xapian::docid tot_off = 0;
-	for (int i = 0; i < out_of; ++i) {
-	    Xapian::Database db(argv[i + optind]);
+	for (int i = 0; i < sources.size(); ++i) {
+	    Xapian::Database db(sources[i]);
 	    Xapian::docid last = db.get_lastdocid();
 	    offset[i] = tot_off;
 	    tot_off += last;
@@ -252,10 +254,9 @@ main(int argc, char **argv)
 		priority_queue<PostlistCursor *, vector<PostlistCursor *>,
 			       CursorGt> pq;
 		flint_totlen_t totlen = 0;
-		for (int i = 0; i < out_of; ++i) {
+		for (int i = 0; i < sources.size(); ++i) {
 		    Xapian::docid off = offset[i];
-		    const char *srcdir = argv[i + optind];
-		    string src(srcdir);
+		    string src(sources[i]);
 		    src += '/';
 		    src += *t;
 		    src += '.';
@@ -350,10 +351,9 @@ main(int argc, char **argv)
 	    } else {
 		// Position, Record, Termlist, Value
 		bool is_position_table = (*t == "position");
-		for (int i = 0; i < out_of; ++i) {
+		for (int i = 0; i < sources.size(); ++i) {
 		    Xapian::docid off = offset[i];
-		    const char *srcdir = argv[i + optind];
-		    string src(srcdir);
+		    string src(sources[i]);
 		    src += '/';
 		    src += *t;
 		    src += '.';
