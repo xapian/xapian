@@ -740,7 +740,10 @@ class Enquire {
 	 */
 	void set_docid_order(docid_order order);
 
-	/** For compatibility with Xapian 0.8.5 and earlier. */
+	/** For compatibility with Xapian 0.8.5 and earlier.
+	 *
+	 *  Now deprecated, please use set_docid_order() instead.
+	 */
 	void set_sort_forward(bool sort_forward) {
 	    set_docid_order(sort_forward ? ASCENDING : DESCENDING);
 	}
@@ -765,7 +768,11 @@ class Enquire {
 	 */
 	void set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff = 0);
 
-	/** For compatibility with Xapian 0.8.5 and earlier. */
+	/** For compatibility with Xapian 0.8.5 and earlier.
+	 *
+	 *  Now deprecated, please use set_sort_by_relevance(), set_sort_by_value(), or
+	 *  set_sort_by_value_then_relevance() instead.
+	 */
 	void set_sorting(Xapian::valueno sort_key, int sort_bands,
 			 bool sort_by_relevance = false) {
 	    if (sort_bands > 1) {
