@@ -1,3 +1,10 @@
+Sun Oct 02 00:15:06 BST 2005  Olly Betts <olly@survex.com>
+
+	* INSTALL,configure.ac: Add -lstdc++ to XAPIAN_LIBS if we're using
+	  GCC.  OpenBSD needs it to be explicitly specified and libtool
+	  handles this if it would have been implicitly linked with anyway.
+	* INSTALL: Improved and expanded the text in a few places.
+
 Sat Oct 01 14:04:51 BST 2005  Olly Betts <olly@survex.com>
 
 	* README,configure.ac,php/,php4/: Fabrice Colin reports that the PHP4
