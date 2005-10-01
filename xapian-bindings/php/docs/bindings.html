@@ -1,26 +1,26 @@
-<html><head><title>PHP4 bindings for Xapian</title></head>
+<html><head><title>PHP bindings for Xapian</title></head>
 <body>
-<h1>PHP4 bindings for Xapian</h1>
+<h1>PHP bindings for Xapian</h1>
 
 <p>
-The PHP4 bindings for Xapian are packaged in the <code>xapian.so</code>
+The PHP bindings for Xapian are packaged in the <code>xapian.so</code>
 extension, and largely follow the C++ API.  This document lists the differences
-and additions. PHP4 strings and arrays, etc., are converted automatically
+and additions. PHP strings and arrays, etc., are converted automatically
 in the bindings, so generally it should just work as expected.
 </p>
 
 <p>
 The <code>examples</code> subdirectory contains examples showing how to use the
-PHP4 bindings based on the simple examples from <code>xapian-examples</code>:
-<a href="examples/simpleindex.php4">simpleindex.php4</a>,
-<a href="examples/simplesearch.php4">simplesearch.php4</a>.
+PHP bindings based on the simple examples from <code>xapian-examples</code>:
+<a href="examples/simpleindex.php">simpleindex.php</a>,
+<a href="examples/simplesearch.php">simplesearch.php</a>.
 </p>
 
 <h2>Installation</h2>
 
 <p>
-Assuming you have suitable versions of PHP4 and SWIG installed, running
-configure will automatically enable the PHP4 bindings, and
+Assuming you have s suitable version of PHP installed (PHP4 or PHP5), running
+configure will automatically enable the PHP bindings, and
 <code>make install</code> will install the extension shared library in
 the location reported by <code>php-config --extension-dir</code>.
 </p>
@@ -49,7 +49,7 @@ Alternatively you can add the following line to the start of your PHP scripts:
 <h2>Exceptions</h2>
 
 <p>
-In general, a PHP4 fatal error is triggered on a C++ exception being thrown in
+In general, a PHP fatal error is triggered on a C++ exception being thrown in
 the library. This is awful, and should be fixed in some useful way - the
 intention is to rework the core library to not throw exceptions but this
 is not at trivial job.
@@ -58,7 +58,8 @@ is not at trivial job.
 <h2>Object orientation</h2>
 
 <p>
-The PHP4 bindings do not currently use a PHP4 object orientated style. In order
+The PHP bindings do not currently use a PHP object orientated style
+(unfortunately SWIG's support for this is very buggy). In order
 to construct an object, use <code>$object = new_ClassName(...)</code>.  Destroy
 it using <code>delete_ClassName($object)</code>. Invoke methods on an object
 using <code>ClassName_method_name($object, ...)</code>.
@@ -76,7 +77,7 @@ using <code>ClassName_method_name($object, ...)</code>.
 
 <p>
    C++ iterators are often dereferenced to get information, eg
-   <code>(*it)</code>. With PHP4 these are all mapped to named methods, as
+   <code>(*it)</code>. With PHP these are all mapped to named methods, as
    follows:
 </p>
 

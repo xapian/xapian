@@ -11,7 +11,7 @@ Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
 		See java/README for Java binding specific information.
 Perl		Perl XS bindings contributed by Alex Bowley are available
 		from CPAN (module Search::Xapian).
-PHP4		Requires PHP 4.
+PHP		Requires PHP 4 or 5.
 Python		Requires Python 2.1 or later.
 Tcl		Requires Tcl 8.1 or later.
 

@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-TESTS_ENVIRONMENT = $(PHP4) -c $(srcdir) -d extension_dir=.libs
+TESTS_ENVIRONMENT = $(PHP) -c $(srcdir) -d extension_dir=.libs
 
 ## Test programs to be run
 TESTS = smoketest.php
@@ -13,7 +13,7 @@ phpextdir = @PHP_EXTENSION_DIR@
 phpext_LTLIBRARIES = xapian.la
 
 # Remove the .la file - xapian.la is never linked against (it's a module)
-# and PHP4 doesn't use libltdl.  Note that the library gets installed by
+# and PHP doesn't use libltdl.  Note that the library gets installed by
 # install-data, so that's where we need to hook.
 install-data-hook:
 	rm -f $(DESTDIR)$(phpextdir)/xapian.la

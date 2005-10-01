@@ -218,16 +218,25 @@ if test no != "$with_php" ; then
     case $version in
     4.*)
       dnl If the php interpreter can't be found, skip the php tests.
-      AC_PATH_PROGS(PHP4, [php4 php], [\$(top_srcdir)/skiptest])
+      AC_PATH_PROGS(PHP, [php4 php], [\$(top_srcdir)/skiptest])
       PHP_INC=`$PHP_CONFIG --includes`
       AC_SUBST(PHP_INC)
       PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
       AC_SUBST(PHP_EXTENSION_DIR)
-      BINDINGS="$BINDINGS php4"
+      BINDINGS="$BINDINGS php"
+      ;;
+    5.*)
+      dnl If the php interpreter can't be found, skip the php tests.
+      AC_PATH_PROGS(PHP, [php5 php], [\$(top_srcdir)/skiptest])
+      PHP_INC=`$PHP_CONFIG --includes`
+      AC_SUBST(PHP_INC)
+      PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
+      AC_SUBST(PHP_EXTENSION_DIR)
+      BINDINGS="$BINDINGS php"
       ;;
     *)
       if test yes = "$with_php" ; then
-	AC_MSG_ERROR([Only PHP4 is supported ($PHP_CONFIG reports $version)])
+	AC_MSG_ERROR([Only PHP4 and PHP5 are supported ($PHP_CONFIG reports $version)])
       fi
       ;;
     esac
@@ -372,7 +381,7 @@ AM_CXXFLAGS=
 
 AC_CONFIG_FILES([Makefile
  python/Makefile python/docs/Makefile python/docs/examples/Makefile
- php4/Makefile php4/docs/Makefile php4/docs/examples/Makefile php4/util.i
+ php/Makefile php/docs/Makefile php/docs/examples/Makefile php/util.i
  java/Makefile java/native/Makefile java/org/Makefile java/org/xapian/Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  guile/Makefile
