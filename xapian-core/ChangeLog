@@ -1,3 +1,10 @@
+Sat Oct 01 03:25:50 BST 2005  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Added "--multipass" option to merge postlists
+	  in pairs or triples until all are merged.  Generally this is faster
+	  than an N-way merge, but it does require more disk space for
+	  temporary files so it's not the default.
+
 Fri Sep 30 18:02:32 BST 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Give pointer to replacements for the

@@ -46,9 +46,12 @@ usage(const char * progname)
     cout << "Usage: " << progname
 	 << " [OPTION] <source database>... "
 	    "<destination database>\n\n"
-	    "  -n, --no-full  Disable full compaction\n"
-	    "  -F, --fuller   Enable fuller compaction (not recommended if you plan to\n"
-	    "                 update the compacted database)"
+	    "  -n, --no-full    Disable full compaction\n"
+	    "  -F, --fuller     Enable fuller compaction (not recommended if you plan to\n"
+	    "                   update the compacted database)\n"
+	    "  -m, --multipass  If merging more than 3 databases, merge the postlists in\n"
+	    "                   multiple passes (which is generally faster but requires\n"
+	    "                   more disk space for temporary files)"
 	 << endl;
 }
 
@@ -129,6 +132,98 @@ class CursorGt {
     }
 };
 
+static void
+merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
+		vector<string>::const_iterator b, vector<string>::const_iterator e,
+		Xapian::docid tot_off)
+{
+    flint_totlen_t tot_totlen = 0;
+    priority_queue<PostlistCursor *, vector<PostlistCursor *>, CursorGt> pq;
+    for ( ; b != e; ++b, ++offset) {
+	FlintTable *in = new FlintTable(*b, true);
+	in->open();
+	if (in->get_entry_count()) {
+	    // PostlistCursor takes ownership of FlintTable in and
+	    // is responsible for deleting it.
+	    PostlistCursor * cur = new PostlistCursor(in, *offset);
+	    // Merge the METAINFO tags from each database into one.
+	    // They have a key with a single zero byte, which will
+	    // always be the first key.
+	    if (!is_metainfo_key(cur->key)) {
+		throw Xapian::DatabaseCorruptError("No METAINFO item in postlist table.");
+	    }
+	    const char * data = cur->tag.data();
+	    const char * end = data + cur->tag.size();
+	    Xapian::docid dummy_did = 0;
+	    if (!unpack_uint(&data, end, &dummy_did)) {
+		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
+	    }
+	    flint_totlen_t totlen = 0;
+	    if (!unpack_uint_last(&data, end, &totlen)) {
+		throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
+	    }
+	    tot_totlen += totlen;
+	    if (tot_totlen < tot_totlen) {
+		throw "totlen wrapped!";
+	    }
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
+	} else {
+	    delete in;
+	}
+    }
+
+    string tag = pack_uint(tot_off);
+    tag += pack_uint_last(tot_totlen);
+    out->add(string("", 1), tag);
+
+    string last_key;
+    Xapian::termcount tf, cf;
+    vector<pair<Xapian::docid, string> > tags;
+    while (true) {
+	PostlistCursor * cur = NULL;
+	if (!pq.empty()) {
+	    cur = pq.top();
+	    pq.pop();
+	}
+	if (cur == NULL || cur->key != last_key) {
+	    if (!tags.empty()) {
+		string first_tag = pack_uint(tf);
+		first_tag += pack_uint(cf);
+		first_tag += pack_uint(tags[0].first - 1);
+		string tag = tags[0].second;
+		tag[0] = (tags.size() == 1) ? '1' : '0';
+		first_tag += tag;
+		out->add(last_key, first_tag);
+		vector<pair<Xapian::docid, string> >::const_iterator i;
+		i = tags.begin();
+		while (++i != tags.end()) {
+		    string key = last_key;
+		    key += pack_uint_preserving_sort(i->first);
+		    tag = i->second;
+		    tag[0] = (i + 1 == tags.end()) ? '1' : '0';
+		    out->add(key, tag);
+		}
+	    }
+	    tags.clear();
+	    if (cur == NULL) break;
+	    tf = cf = 0;
+	    last_key = cur->key;
+	}
+	tf += cur->tf;
+	cf += cur->cf;
+	tags.push_back(make_pair(cur->firstdid, cur->tag));
+	if (cur->next()) {
+	    pq.push(cur);
+	} else {
+	    delete cur;
+	}
+    }
+}
+
 #define OPT_HELP 1
 #define OPT_VERSION 2
 
@@ -138,15 +233,17 @@ main(int argc, char **argv)
     const struct option long_opts[] = {
 	{"fuller",	no_argument, 0, 'F'},
 	{"no-full",	no_argument, 0, 'n'},
+	{"multipass",	no_argument, 0, 'm'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
     };
 
     enum { STANDARD, FULL, FULLER } compaction = FULL;
     const size_t block_size = 8192;
+    bool multipass = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "nF", long_opts, 0)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "nFm", long_opts, 0)) != EOF) {
         switch (c) {
             case 'n':
 		compaction = STANDARD;
@@ -154,6 +251,9 @@ main(int argc, char **argv)
 	    case 'F':
 		compaction = FULLER;
 		break;
+            case 'm':
+		multipass = true;
+                break;
 	    case OPT_VERSION:
 		cout << argv[0] << " (xapian) "XAPIAN_VERSION << endl;
 		exit(0);
@@ -171,60 +271,61 @@ main(int argc, char **argv)
     // Path to the database to create.
     const char *destdir = argv[argc - 1];
 
-    vector<string> sources;
-    sources.reserve(argc - 1 - optind);
-    // Check destdir isn't the same as any source directory...
-    for (int i = optind; i < argc - 1; ++i) {
-	const char *srcdir = argv[i];
-	if (strcmp(srcdir, destdir) == 0) {
-	    cout << argv[0]
-		 << ": destination may not be the same as any source directory"
-		 << endl;
-	    exit(1);
-	}
-
-	struct stat sb;
-	if (stat(string(srcdir) + "/iamflint", &sb) != 0) {
-	    cout << argv[0] << ": '" << srcdir
-		 << "' is not a flint database directory" << endl;
-	    exit(1);
-	}
-	sources.push_back(srcdir);
-    }
-
-    // If the destination database directory doesn't exist, create it.
-    if (mkdir(destdir, 0755) < 0) {
-	// Check why mkdir failed.  It's ok if the directory already exists,
-	// but we also get EEXIST if there's an existing file with that name.
-	if (errno == EEXIST) {
-	    struct stat sb;
-	    if (stat(destdir, &sb) == 0 && S_ISDIR(sb.st_mode))
-		errno = 0;
-	    else
-		errno = EEXIST; // stat might have changed it
-	}
-	if (errno) {
-	    cerr << argv[0] << ": cannot create directory '"
-		 << destdir << "': " << strerror(errno) << endl;
-	    exit(1);
-	}
-    }
-
-    flint_totlen_t tot_totlen = 0;
     try {
+	vector<string> sources;
+	vector<Xapian::docid> offset;
+	sources.reserve(argc - 1 - optind);
+	offset.reserve(argc - 1 - optind);
+	Xapian::docid tot_off = 0;
+	for (int i = optind; i < argc - 1; ++i) {
+	    const char *srcdir = argv[i];
+	    // Check destdir isn't the same as any source directory...
+	    if (strcmp(srcdir, destdir) == 0) {
+		cout << argv[0]
+		     << ": destination may not be the same as any source directory"
+		     << endl;
+		exit(1);
+	    }
+
+	    struct stat sb;
+	    if (stat(string(srcdir) + "/iamflint", &sb) != 0) {
+		cout << argv[0] << ": '" << srcdir
+		     << "' is not a flint database directory" << endl;
+		exit(1);
+	    }
+	    Xapian::Database db(srcdir);
+	    // No point trying to merge empty databases!
+	    if (db.get_doccount() != 0) {
+		Xapian::docid last = db.get_lastdocid();
+		offset.push_back(tot_off);
+		tot_off += last;
+		// FIXME: prune unused docids off the start and end of each range...
+		sources.push_back(string(srcdir) + '/');
+	    }
+	}
+
+	// If the destination database directory doesn't exist, create it.
+	if (mkdir(destdir, 0755) < 0) {
+	    // Check why mkdir failed.  It's ok if the directory already
+	    // exists, but we also get EEXIST if there's an existing file with
+	    // that name.
+	    if (errno == EEXIST) {
+		struct stat sb;
+		if (stat(destdir, &sb) == 0 && S_ISDIR(sb.st_mode))
+		    errno = 0;
+		else
+		    errno = EEXIST; // stat might have changed it
+	    }
+	    if (errno) {
+		cerr << argv[0] << ": cannot create directory '"
+		     << destdir << "': " << strerror(errno) << endl;
+		exit(1);
+	    }
+	}
+
 	const char * tables[] = {
 	    "postlist", "record", "termlist", "position", "value", NULL
 	};
-
-	vector<Xapian::docid> offset(sources.size());
-	Xapian::docid tot_off = 0;
-	for (int i = 0; i < sources.size(); ++i) {
-	    Xapian::Database db(sources[i]);
-	    Xapian::docid last = db.get_lastdocid();
-	    offset[i] = tot_off;
-	    tot_off += last;
-	    // FIXME: prune unused docids off the start and end of each range...
-	}
 
 	for (const char **t = tables; *t; ++t) {
 	    // The postlist requires an N-way merge, adjusting the headers
@@ -251,110 +352,70 @@ main(int argc, char **argv)
 	    off_t in_size = 0;
 
 	    if (*t == "postlist") {
-		priority_queue<PostlistCursor *, vector<PostlistCursor *>,
-			       CursorGt> pq;
-		flint_totlen_t totlen = 0;
-		for (int i = 0; i < sources.size(); ++i) {
-		    Xapian::docid off = offset[i];
-		    string src(sources[i]);
-		    src += '/';
-		    src += *t;
-		    src += '.';
-
-		    FlintTable *in = new FlintTable(src, true);
-		    in->open();
-		    if (in->get_entry_count()) {
-			// PostlistCursor takes ownership of FlintTable in and
-			// is responsible for deleting it.
-			PostlistCursor * cur = new PostlistCursor(in, off);
-			// Merge the METAINFO tags from each database into one.
-			// They have a key with a single zero byte, which will
-			// always be the first key.
-			if (!is_metainfo_key(cur->key)) {
-			    throw Xapian::DatabaseCorruptError("No METAINFO item in postlist table.");
-			}
-			const char * data = cur->tag.data();
-			const char * end = data + cur->tag.size();
-			Xapian::docid dummy_did = 0;
-			if (!unpack_uint(&data, end, &dummy_did)) {
-			    throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-			}
-			if (!unpack_uint_last(&data, end, &totlen)) {
-			    throw Xapian::DatabaseCorruptError("Tag containing meta information is corrupt.");
-			}
-			tot_totlen += totlen;
-			if (tot_totlen < tot_totlen) {
-			    throw "totlen wrapped!";
-			}
-			if (cur->next()) {
-			    pq.push(cur);
-			} else {
-			    delete cur;
-			}
-		    } else {
-			delete in;
-		    }
+		vector<string> tmp;
+		tmp.reserve(sources.size());
+		for (vector<string>::const_iterator src = sources.begin();
+		     src != sources.end(); ++src) {
+		    string s(*src);
+		    s += *t;
+		    s += '.';
+		    tmp.push_back(s);
 
 		    struct stat sb;
-		    if (stat(src + "DB", &sb) == 0)
+		    if (stat(s + "DB", &sb) == 0)
 			in_size += sb.st_size / 1024;
 		    else
 			bad_stat = true;
 		}
+		vector<Xapian::docid> off(offset);
+		size_t c = 0;
+		while (multipass && tmp.size() > 3) {
+		    vector<string> tmpout;
+		    tmpout.reserve(tmp.size() / 2);
+		    vector<Xapian::docid> newoff;
+		    newoff.resize(tmp.size() / 2);
+		    for (size_t i = 0, j; i < tmp.size(); i = j) {
+			j = i + 2;
+			if (j == tmp.size() - 1) ++j;
 
-		string tag = pack_uint(tot_off);
-		tag += pack_uint_last(tot_totlen);
-		out.add(string("", 1), tag);
+			string dest = destdir;
+			char buf[64];
+			sprintf(buf, "/tmp%u_%u.", c, i / 2);
+			dest += buf;
 
-		string last_key;
-		Xapian::termcount tf, cf;
-		vector<pair<Xapian::docid, string> > tags;
-		while (true) {
-		    PostlistCursor * cur = NULL;
-		    if (!pq.empty()) {
-			cur = pq.top();
-			pq.pop();
-		    }
-		    if (cur == NULL || cur->key != last_key) {
-			if (!tags.empty()) {
-			    string first_tag = pack_uint(tf);
-			    first_tag += pack_uint(cf);
-			    first_tag += pack_uint(tags[0].first - 1);
-			    string tag = tags[0].second;
-			    tag[0] = (tags.size() == 1) ? '1' : '0';
-			    first_tag += tag;
-			    out.add(last_key, first_tag);
-			    vector<pair<Xapian::docid, string> >::const_iterator i;
-			    i = tags.begin();
-			    while (++i != tags.end()) {
-				string key = last_key;
-				key += pack_uint_preserving_sort(i->first);
-				tag = i->second;
-				tag[0] = (i + 1 == tags.end()) ? '1' : '0';
-				out.add(key, tag);
+			FlintTable tmptab(dest, false);
+			tmptab.create(block_size);
+			tmptab.open();
+
+			merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
+			if (c > 0) {
+			    for (int k = i; k < j; ++k) {
+				unlink((tmp[k] + "DB").c_str());
+				unlink((tmp[k] + "baseA").c_str());
+				unlink((tmp[k] + "baseB").c_str());
 			    }
 			}
-			tags.clear();
-			if (cur == NULL) break;
-			tf = cf = 0;
-			last_key = cur->key;
+			tmpout.push_back(dest);
+			tmptab.commit(1);
 		    }
-		    tf += cur->tf;
-		    cf += cur->cf;
-		    tags.push_back(make_pair(cur->firstdid, cur->tag));
-		    if (cur->next()) {
-			pq.push(cur);
-		    } else {
-			delete cur;
+		    swap(tmp, tmpout);
+		    swap(off, newoff);
+		    ++c;
+		}
+		merge_postlists(&out, off.begin(), tmp.begin(), tmp.end(), tot_off);
+		if (c > 0) {
+		    for (int k = 0; k < tmp.size(); ++k) {
+			unlink((tmp[k] + "DB").c_str());
+			unlink((tmp[k] + "baseA").c_str());
+			unlink((tmp[k] + "baseB").c_str());
 		    }
 		}
 	    } else {
 		// Position, Record, Termlist, Value
 		bool is_position_table = (*t == "position");
-		for (int i = 0; i < sources.size(); ++i) {
+		for (size_t i = 0; i < sources.size(); ++i) {
 		    Xapian::docid off = offset[i];
 		    string src(sources[i]);
-		    src += '/';
 		    src += *t;
 		    src += '.';
 
