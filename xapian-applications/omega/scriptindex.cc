@@ -554,10 +554,8 @@ again:
 int
 main(int argc, char **argv)
 {
-    // If overwrite is true, the database will be created anew even if it
-    // already exists.
-    bool overwrite = false;
-    bool quiet = false;
+    // If the database already exists, default to updating not overwriting.
+    int database_mode = Xapian::DB_CREATE_OR_OPEN;
     verbose = false;
 
     argv0 = argv[0];
@@ -585,13 +583,13 @@ main(int argc, char **argv)
 		cout << "scriptindex (" << PACKAGE << ") " << VERSION << endl;
 		return 0;
 	    case 'o': // --overwrite
-		overwrite = true;
+		database_mode = Xapian::DB_CREATE_OR_OVERWRITE;
 		break;
 	    case 'u':
-		// Update is now the default, so ignore -u for compatibility...
+		// Update is now the default, so ignore -u for compatibility.
 		break;
 	    case 'q':
-		quiet = true;
+		// --quiet no longer does anything; ignore for compatibility.
 		break;
 	    case 'v':
 		verbose = true;
@@ -602,38 +600,25 @@ main(int argc, char **argv)
     argv += optind;
     argc -= optind;
     if (show_help || argc < 2) {
-	cout << "Usage: " << argv0
-	     << " [--help] [--version] [--overwrite] [-q] [-v] "
-	     << " <path to xapian database> <indexer script> [<filename>]..."
-	     << endl
-	     << "Creates a new database containing the data given by the list "
-	     << "of files."
-	     << endl
-	     << "The -q (quiet) option suppresses log messages."
-	     << endl
-	     << "The -v (verbose) option generates messages about all actions."
-	     << endl
-	     << "The --overwrite option causes the database to be created anew (the default is\n"
-	        "to update if the database already exists)."
-	     << endl;
+	cout << "Usage: " << argv0 
+	     << " [--help] [--version] [--overwrite] [-q] [-v]\n"
+"                <path to xapian database> <indexer script> [<filename>]...\n"
+"Creates a new database containing the data given by the list of files.\n"
+"The -v (verbose) option displays messages to aid debugging.\n"
+"The --overwrite option causes the database to be created anew (the default\n"
+"is to update if the database already exists)." << endl;
 	exit(show_help ? 0 : 1);
     }
     
     parse_index_script(argv[1]);
     
-    // Catch any Xapian::Error exceptions thrown
+    // Catch any Xapian::Error exceptions thrown.
     try {
 	// Open the database.
 	Xapian::WritableDatabase database;
 	while (true) {
 	    try {
-		if (!overwrite) {
-		    database = Xapian::WritableDatabase(argv[0],
-						  Xapian::DB_CREATE_OR_OPEN);
-		} else {
-		    database = Xapian::WritableDatabase(argv[0],
-						  Xapian::DB_CREATE_OR_OVERWRITE);
-		}
+		database = Xapian::WritableDatabase(argv[0], database_mode);
 		break;
 	    } catch (const Xapian::DatabaseLockError &error) {
 		// Sleep and retry if we get a Xapian::DatabaseLockError -

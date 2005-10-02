@@ -1,3 +1,13 @@
+Sun Oct 02 16:28:59 BST 2005  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Use "int database_mode" (set to the value to pass to
+	  WritableDatabase's ctor) instead of "bool overwrite" to implement
+	  --overwrite.
+	* scriptindex.cc: Remove code to handle "-q" as it no longer actually
+	  controls anything.  Just ignore it for backwards compatibility.
+	* scriptindex.cc: Tweak --help output to not wrap on a default
+	  install.
+
 Sat Sep 10 14:57:19 BST 2005  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt: Improve descriptions of $collapsed, $value,
