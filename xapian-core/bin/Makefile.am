@@ -16,7 +16,7 @@ remote_check_programs = xapian-progsrv
 endif
 
 EXTRA_PROGRAMS = quartzcheck quartzcompact quartzdump\
-    xapian-compact xapian-tcpsrv xapian-progsrv
+    xapian-compact xapian-tcpsrv xapian-progsrv flintdump
 bin_PROGRAMS = $(quartz_bin_programs) $(remote_bin_programs) $(flint_bin_programs)
 check_PROGRAMS = $(remote_check_programs)
 
@@ -31,6 +31,10 @@ quartzcompact_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
 quartzdump_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzdump_SOURCES = quartzdump.cc
 quartzdump_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
+
+flintdump_CXXFLAGS = -I$(top_srcdir)/backends/flint
+flintdump_SOURCES = flintdump.cc
+flintdump_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
 
 xapian_progsrv_CXXFLAGS = -I$(top_srcdir)/testsuite
 xapian_progsrv_SOURCES = omprogsrv.cc
