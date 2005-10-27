@@ -1,3 +1,7 @@
+Thu Oct 27 09:32:24 BST 2005  Fabrice Colin
+
+	* xapian.spec.in: Invoke %setup correctly.
+
 Sat Oct 01 03:25:50 BST 2005  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Added "--multipass" option to merge postlists

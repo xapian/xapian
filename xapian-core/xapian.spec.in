@@ -40,17 +40,15 @@ indexing and search facilities to applications. This package provides the
 files needed for building packages which use Xapian.
 
 %prep
-%setup -q -c
+%setup -q -n %{name}-%{version}
 
 %build
-cd %{name}-%{version}
 %configure
 make
 
 %install
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 mkdir -p %{buildroot}
-cd %{name}-%{version}
 # makeinstall doesn't work properly with libtool built libraries
 make DESTDIR=%{buildroot} install
 # Move the docs to the right place
