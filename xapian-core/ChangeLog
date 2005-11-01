@@ -1,3 +1,8 @@
+Tue Nov 01 13:22:50 GMT 2005  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Sourceforge have a ppc64 linux box.  Xapian builds and
+	  works out of the box, so add success report for this platform.
+
 Thu Oct 27 09:32:24 BST 2005  Fabrice Colin
 
 	* xapian.spec.in: Invoke %setup correctly.
