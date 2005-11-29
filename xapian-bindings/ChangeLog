@@ -1,3 +1,8 @@
+Tue Nov 29 04:11:18 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,php/Makefile.am: Bump required SWIG version to 1.3.26
+	  and drop the special requirement for 1.3.22 for PHP (hurrah!)
+
 Tue Nov 29 03:46:40 GMT 2005  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am,php/php.ini: Instead of "$(PHP) -c $(srcdir)" and
