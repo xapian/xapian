@@ -40,25 +40,39 @@ C#		Supported by SWIG 1.3.18 onwards
 
 These are the other languages which SWIG supports, but which nobody has yet
 worked on producing Xapian bindings for (from http://www.swig.org/compare.html
-and release notes):
+and SWIG release notes):
 
 Ruby		Supported by SWIG 1.3.6 onwards
 Mzscheme	Supported by SWIG 1.3.6 onwards
 Ocaml		Supported by SWIG 1.3.14 onwards
 Pike		Supported by SWIG 1.3.14 onwards
 Chicken		Supported by SWIG 1.3.18 onwards
-Allegro CL	Supported by SWIG 1.3.22 onwards
+Allegro CL	SWIG 1.3.28 will add support for wrapping C++ with Allegro CL
 Modula-3	Supported by SWIG 1.3.22 onwards
 Lua             Supported by SWIG 1.3.26 onwards
 CLISP           Supported by SWIG 1.3.26 onwards
 Common Lisp with UFFI
                 Supported by SWIG 1.3.26 onwards
+
+These languages are supported by patches against reasonably recent versions
+of SWIG:
+
 Q		See http://thread.gmane.org/gmane.comp.programming.swig/5248
+		Patched version of SWIG 1.3.22 available from
+		http://q-lang.sourceforge.net/
+
+Attempts have been made to add support to SWIG for these languages, but the
+latest patches are against really old versions of SWIG.  However, they may
+still serve as useful inspiration if you wanted to add support to current
+SWIG versions:
+
 JavaScript	See http://www.ultravioletconsulting.com/projects/swigjs/
-                (Appears to have seen no activity for over 5 years!)
+		(Written for SWIG 1.1 and appears to have seen no activity for
+		over 5 years!)
 Eiffel		See http://efsa.sourceforge.net/archive/cozzi/swigeiffel.htm
-                (Appears to have seen no activity in nearly 6 years!)
+		(Written for SWIG 1.2 and appears to have seen no activity in
+		over 7 years!)
 
 It may be possible to support a language which isn't listed above, but it's
-likely to be more work unless you're already familiar with the tools available
+likely to be harder unless you're already familiar with the tools available
 for wrapping a C++ library for use with that language.
