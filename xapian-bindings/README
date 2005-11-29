@@ -38,8 +38,9 @@ Guile		rm@fabula.de is working on reviving these
 C#		Supported by SWIG 1.3.18 onwards
                 richard@tartarus.org is working on these
 
-These are the other languages which SWIG supports, but which nobody has
-worked on producing Xapian bindings for:
+These are the other languages which SWIG supports, but which nobody has yet
+worked on producing Xapian bindings for (from http://www.swig.org/compare.html
+and release notes):
 
 Ruby		Supported by SWIG 1.3.6 onwards
 Mzscheme	Supported by SWIG 1.3.6 onwards
@@ -48,7 +49,10 @@ Pike		Supported by SWIG 1.3.14 onwards
 Chicken		Supported by SWIG 1.3.18 onwards
 Allegro CL	Supported by SWIG 1.3.22 onwards
 Modula-3	Supported by SWIG 1.3.22 onwards
-		http://www.swig.org/compare.html
+Lua             Supported by SWIG 1.3.26 onwards
+CLISP           Supported by SWIG 1.3.26 onwards
+Common Lisp with UFFI
+                Supported by SWIG 1.3.26 onwards
 Q		See http://thread.gmane.org/gmane.comp.programming.swig/5248
 JavaScript	See http://www.ultravioletconsulting.com/projects/swigjs/
                 (Appears to have seen no activity for over 5 years!)

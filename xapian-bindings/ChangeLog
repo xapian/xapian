@@ -1,3 +1,7 @@
+Tue Nov 29 00:48:06 GMT 2005  Olly Betts <olly@survex.com>
+
+	* README: Updated list of languages SWIG supports.
+
 Sun Oct 02 14:19:20 BST 2005  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Fixed "php4" -> "php" in DIST_SUBDIRS.
