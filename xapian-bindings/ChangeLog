@@ -1,3 +1,10 @@
+Tue Nov 29 03:46:40 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am,php/php.ini: Instead of "$(PHP) -c $(srcdir)" and
+	  having an empty php.ini in srcdir (which we were failing to
+	  distribute anyway), use "$(PHP) -n" which tells PHP not to use any
+	  php.ini file.
+
 Tue Nov 29 00:48:06 GMT 2005  Olly Betts <olly@survex.com>
 
 	* README: Updated list of languages SWIG supports.

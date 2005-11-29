@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-TESTS_ENVIRONMENT = $(PHP) -c $(srcdir) -d extension_dir=.libs
+TESTS_ENVIRONMENT = $(PHP) -n -d extension_dir=.libs
 
 ## Test programs to be run
 TESTS = smoketest.php
