@@ -1,3 +1,9 @@
+Wed Nov 30 00:22:33 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/README,java/native/Enquire.cc,java/org/xapian/Enquire.java:
+	  Wrap optional second parameter (query length) to
+	  Enquire::set_query().
+
 Tue Nov 29 04:31:44 GMT 2005  Olly Betts <olly@survex.com>
 
 	* README: Improved.

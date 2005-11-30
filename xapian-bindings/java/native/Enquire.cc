@@ -129,13 +129,13 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1new (JNIEnv *env, jcl
     CATCH(-1)
 }
 
-JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *env, jclass clazz, jlong eid, jlong qid) {
+JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *env, jclass clazz, jlong eid, jlong qid, jint qlen) {
     TRY
         Enquire *e = _enquire->get(eid);
         Query *tmp = _query->get(qid);
         MyQuery *q = new MyQuery(*tmp);
         q->setMyID(qid);
-        e->set_query(*q);
+        e->set_query(*q, qlen);
     CATCH(;)
 }
 

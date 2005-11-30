@@ -45,8 +45,12 @@ public class Enquire {
     }
 
     public void setQuery(Query q) throws XapianError {
+	setQuery(q, 0);
+    }
+
+    public void setQuery(Query q, int qlen) throws XapianError {
         _query = q;
-        XapianJNI.enquire_set_query(id, q.id);
+        XapianJNI.enquire_set_query(id, q.id, qlen);
     }
 
     public Query getQuery() throws XapianError {
