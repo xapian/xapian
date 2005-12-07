@@ -1,3 +1,7 @@
+Wed Dec 07 02:46:53 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html: Fix typo.
+
 Wed Dec 07 02:42:51 GMT 2005  Olly Betts <olly@survex.com>
 
 	* php/docs/bindings.html: Fix typo; note that SWIG doesn't currently
