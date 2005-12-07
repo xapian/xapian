@@ -19,7 +19,7 @@ PHP bindings based on the simple examples from <code>xapian-examples</code>:
 <h2>Installation</h2>
 
 <p>
-Assuming you have s suitable version of PHP installed (PHP4 or PHP5), running
+Assuming you have a suitable version of PHP installed (PHP4 or PHP5), running
 configure will automatically enable the PHP bindings, and
 <code>make install</code> will install the extension shared library in
 the location reported by <code>php-config --extension-dir</code>.
@@ -59,7 +59,8 @@ is not at trivial job.
 
 <p>
 The PHP bindings do not currently use a PHP object orientated style
-(unfortunately SWIG's support for this is very buggy). In order
+(unfortunately SWIG's support for this is currently buggy for PHP4 and
+unimplemented for PHP5). In order
 to construct an object, use <code>$object = new_ClassName(...)</code>.  Destroy
 it using <code>delete_ClassName($object)</code>. Invoke methods on an object
 using <code>ClassName_method_name($object, ...)</code>.

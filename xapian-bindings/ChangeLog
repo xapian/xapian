@@ -1,3 +1,8 @@
+Wed Dec 07 02:42:51 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html: Fix typo; note that SWIG doesn't currently
+	  support proxy classes in PHP5.
+
 Wed Nov 30 00:22:33 GMT 2005  Olly Betts <olly@survex.com>
 
 	* java/README,java/native/Enquire.cc,java/org/xapian/Enquire.java:
