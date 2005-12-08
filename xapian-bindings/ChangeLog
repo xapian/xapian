@@ -1,3 +1,10 @@
+Thu Dec 08 02:05:13 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simpleindex.php,
+	  php/docs/examples/simplesearch.php: Add a more useful error message
+	  if a database can't be opened; Fix inconsistent whitespace; Update
+	  FSF address.
+
 Thu Dec 08 01:58:04 GMT 2005  Olly Betts <olly@survex.com>
 
 	* INSTALL: Improved phrasing.

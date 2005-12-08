@@ -1,10 +1,8 @@
 <?php
-/* $Id$
- * Index each paragraph in a textfile as a document
+/* Index each paragraph in a textfile as a document
  *
- * ----START-LICENCE----
- * Copyright 2004 James Aylett
- * Copyright 2004 Olly Betts
+ * Copyright (C) 2004 James Aylett
+ * Copyright (C) 2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 define('MAX_PROB_TERM_LENGTH', 64);
@@ -37,7 +34,7 @@ function p_notalnum($c)
 
 function p_notplusminus($c)
 {
-    return $c!='+' and $c!='-';
+    return $c != '+' and $c != '-';
 }
 
 function find_p($string, $start, $predicate)
@@ -56,7 +53,7 @@ if (!isset($_SERVER['argv']) or count($_SERVER['argv']) != 2) {
 
 $database = new_WritableDatabase($_SERVER['argv'][1], DB_CREATE_OR_OPEN);
 if (!$database) {
-    print "Died! :-(\n";
+    print "Couldn't create database '{$_SERVER['argv'][1]}'\n";
     exit;
 }
 $stemmer = new_Stem("english");
@@ -64,8 +61,8 @@ $para = '';
 $lines = file("php://stdin");
 foreach ($lines as $line) {
     $line = rtrim($line);
-    if ($line=="") {
-	if ($para!="") {
+    if ($line == "") {
+	if ($para != "") {
 	    $doc = new_Document();
 	    Document_set_data($doc, $para);
 	    $pos = 0;
@@ -78,14 +75,14 @@ foreach ($lines as $line) {
 	     */
 	    $i = 0;
 	    $j = 0;
-	    while ($i<strlen($para)) {
+	    while ($i < strlen($para)) {
 		$i = find_p($para, $j, 'p_alnum');
 		$j = find_p($para, $i, 'p_notalnum');
 		$k = find_p($para, $j, 'p_notplusminus');
-		if ($k==strlen($para) or !p_alnum(substr($para, $k, 1))) {
+		if ($k == strlen($para) or !p_alnum(substr($para, $k, 1))) {
 		    $j = $k;
 		}
-		if ($j-$i <= MAX_PROB_TERM_LENGTH and $j>$i) {
+		if ($j-$i <= MAX_PROB_TERM_LENGTH and $j > $i) {
 		    $term = stem_stem_word($stemmer, substr($para, $i, $j-$i));
 		    Document_add_posting($doc, $term, $pos);
 		    $pos ++;
@@ -97,7 +94,7 @@ foreach ($lines as $line) {
 	    $para = "";
 	}
     } else {
-	if ($para!="") {
+	if ($para != "") {
 	    $para .= " ";
 	}
 	$para .= $line;
