@@ -1,3 +1,10 @@
+Thu Dec 08 04:13:11 GMT 2005  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Fix testsuite harness to work with valgrind
+	  on 64 bit platforms (it's not documented, but VALGRIND_COUNT_LEAKS
+	  requires the count parameters to be 64 bit on such platforms - i.e.
+	  long rather than int as we were using).
+
 Tue Nov 01 13:22:50 GMT 2005  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Sourceforge have a ppc64 linux box.  Xapian builds and

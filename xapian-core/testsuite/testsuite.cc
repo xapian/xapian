@@ -1,6 +1,5 @@
 /* testsuite.cc: a test suite engine
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005 Olly Betts
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -202,7 +200,7 @@ test_driver::runtest(const test_desc *test)
 #ifdef HAVE_VALGRIND
 		VALGRIND_DO_LEAK_CHECK;
 		int vg_errs = VALGRIND_COUNT_ERRORS;
-		int vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
+		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
 		VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
 		ftruncate(LOG_FD_FOR_VG, 0);
 		lseek(LOG_FD_FOR_VG, 0, SEEK_SET);
@@ -260,7 +258,7 @@ test_driver::runtest(const test_desc *test)
 		VALGRIND_DO_LEAK_CHECK;
 		int vg_errs2 = VALGRIND_COUNT_ERRORS;
 		vg_errs = vg_errs2 - vg_errs;
-		int vg_leaks2 = 0, vg_dubious2 = 0, vg_reachable2 = 0;
+		long vg_leaks2 = 0, vg_dubious2 = 0, vg_reachable2 = 0;
 		VALGRIND_COUNT_LEAKS(vg_leaks2, vg_dubious2, vg_reachable2,
 				     dummy);
 		vg_leaks = vg_leaks2 - vg_leaks;
@@ -296,7 +294,7 @@ test_driver::runtest(const test_desc *test)
 		    // so we can tell the difference?
 		    //
 		    // See also:
-		    // http://valgrind.org/docs/FAQ/faq.unexpected.html#faq.reports
+		    // http://valgrind.org/docs/FAQ/#faq.reports
 		    //
 		    // For now, just use runcount to rerun the test and see
 		    // if more is leaked - hopefully this shouldn't give
