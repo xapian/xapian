@@ -1,3 +1,8 @@
+Thu Dec 08 01:58:04 GMT 2005  Olly Betts <olly@survex.com>
+
+	* INSTALL: Improved phrasing.
+	* NEWS: Added draft entry for next release.
+
 Wed Dec 07 02:46:53 GMT 2005  Olly Betts <olly@survex.com>
 
 	* php/docs/bindings.html: Fix typo.
