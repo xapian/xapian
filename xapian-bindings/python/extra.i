@@ -1,9 +1,8 @@
 %{
 /* python/extra.i: Xapian scripting python interface additional code.
  *
- * ----START-LICENCE----
- * Copyright 2003,2004,2005 James Aylett
- * Copyright 2005 Olly Betts
+ * Copyright (C) 2003,2004,2005 James Aylett
+ * Copyright (C) 2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 %}
 
@@ -32,15 +30,15 @@ class MSetIter:
         self.end = end
 
     def __iter__(self):
-	return self
+        return self
 
     def next(self):
-	if self.iter==self.end:
-	    raise StopIteration
-	else:
-	    r = [self.iter.get_docid(), self.iter.get_weight(), self.iter.get_rank(), self.iter.get_percent(), self.iter.get_document()]
-	    self.iter.next()
-	    return r
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            r = [self.iter.get_docid(), self.iter.get_weight(), self.iter.get_rank(), self.iter.get_percent(), self.iter.get_document()]
+            self.iter.next()
+            return r
 
 class ESetIter:
     def __init__(self, start, end):
@@ -48,15 +46,15 @@ class ESetIter:
         self.end = end
 
     def __iter__(self):
-	return self
+        return self
 
     def next(self):
-	if self.iter==self.end:
-	    raise StopIteration
-	else:
-	    r = [self.iter.get_termname(), self.iter.get_weight()]
-	    self.iter.next()
-	    return r
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            r = [self.iter.get_termname(), self.iter.get_weight()]
+            self.iter.next()
+            return r
 
 class TermIter:
     def __init__(self, start, end):
@@ -64,15 +62,15 @@ class TermIter:
         self.end = end
 
     def __iter__(self):
-	return self
+        return self
 
     def next(self):
-	if self.iter==self.end:
-	    raise StopIteration
-	else:
-	    r = [self.iter.get_term(), self.iter.get_wdf(), self.iter.get_termfreq(), PositionIter(self.iter.positionlist_begin(), self.iter.positionlist_end())]
-	    self.iter.next()
-	    return r
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            r = [self.iter.get_term(), self.iter.get_wdf(), self.iter.get_termfreq(), PositionIter(self.iter.positionlist_begin(), self.iter.positionlist_end())]
+            self.iter.next()
+            return r
 
 class PostingIter:
     def __init__(self, start, end):
@@ -80,15 +78,15 @@ class PostingIter:
         self.end = end
 
     def __iter__(self):
-	return self
+        return self
 
     def next(self):
-	if self.iter==self.end:
-	    raise StopIteration
-	else:
-	    r = [self.iter.get_docid(), self.iter.get_doclength(), self.iter.get_wdf(), PositionIter(self.iter.positionlist_begin(), self.iter.positionlist_end())]
-	    self.iter.next()
-	    return r
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            r = [self.iter.get_docid(), self.iter.get_doclength(), self.iter.get_wdf(), PositionIter(self.iter.positionlist_begin(), self.iter.positionlist_end())]
+            self.iter.next()
+            return r
 
 class PositionIter:
     def __init__(self, start, end):
@@ -96,15 +94,15 @@ class PositionIter:
         self.end = end
 
     def __iter__(self):
-	return self
+        return self
 
     def next(self):
-	if self.iter==self.end:
-	    raise StopIteration
-	else:
-	    r = self.iter.get_termpos()
-	    self.iter.next()
-	    return r
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            r = self.iter.get_termpos()
+            self.iter.next()
+            return r
 
 class ValueIter:
     def __init__(self, start, end):
@@ -112,15 +110,15 @@ class ValueIter:
         self.end = end
 
     def __iter__(self):
-	return self
+        return self
 
     def next(self):
-	if self.iter==self.end:
-	    raise StopIteration
-	else:
-	    r = [self.iter.get_valueno(), self.iter.get_value()]
-	    self.iter.next()
-	    return r
+        if self.iter==self.end:
+            raise StopIteration
+        else:
+            r = [self.iter.get_valueno(), self.iter.get_value()]
+            self.iter.next()
+            return r
 
 # Bind the Python iterators into the shadow classes
 def mset_gen_iter(self):
@@ -178,3 +176,4 @@ QueryParser.stoplist = queryparser_gen_stoplist_iter
 QueryParser.unstemlist = queryparser_gen_unstemlist_iter
 
 %}
+/* vim:syntax=python:set expandtab: */

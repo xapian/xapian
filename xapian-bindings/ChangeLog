@@ -1,3 +1,9 @@
+Thu Dec 08 03:39:25 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/util.i: Tweak layout for better readability;
+	  Update FSF address.
+	* python/extra.i: Add vim modeline.
+
 Thu Dec 08 02:05:13 GMT 2005  Olly Betts <olly@survex.com>
 
 	* php/docs/examples/simpleindex.php,
