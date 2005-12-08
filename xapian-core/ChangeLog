@@ -1,3 +1,8 @@
+Thu Dec 08 23:13:09 GMT 2005  Olly Betts <olly@survex.com>
+
+	* INSTALL: Update URL for stlport to sourceforge site, which seems to
+	  be where the action is now.
+
 Thu Dec 08 04:13:11 GMT 2005  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: Fix testsuite harness to work with valgrind
