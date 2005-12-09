@@ -1,3 +1,8 @@
+Fri Dec 09 02:15:38 GMT 2005  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Added assertions that the internal ptr isn't NULL
+	  to ESet::end() and ESet::get_description().
+
 Fri Dec 09 02:14:13 GMT 2005  Olly Betts <olly@survex.com>
 
 	* HACKING: Note platforms valgrind now has solid support for; Improve

@@ -549,6 +549,7 @@ ESet::begin() const
 ESetIterator
 ESet::end() const
 {
+    Assert(internal.get() != 0);
     return ESetIterator(internal->items.size(), *this);
 }
 
@@ -572,6 +573,7 @@ string
 ESet::get_description() const
 {
     DEBUGCALL(INTRO, string, "Xapian::ESet::get_description", "");
+    Assert(internal.get() != 0);
     RETURN("Xapian::ESet(" + internal->get_description() + ")");
 }
 
