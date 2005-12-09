@@ -1,3 +1,8 @@
+Fri Dec 09 02:14:13 GMT 2005  Olly Betts <olly@survex.com>
+
+	* HACKING: Note platforms valgrind now has solid support for; Improve
+	  phrasing in a few places.
+
 Thu Dec 08 23:13:09 GMT 2005  Olly Betts <olly@survex.com>
 
 	* INSTALL: Update URL for stlport to sourceforge site, which seems to

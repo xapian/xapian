@@ -71,10 +71,12 @@ Debugging memory allocations
 ============================
 
 The testsuite can make use of valgrind to check for memory leaks and reads
-from uninitialised memory durings tests.  Although valgrind originally was
-specific to x86 Linux, there are now ports to x86 FreeBSD and PowerPC Linux.
-Xapian contains very little platform specific code so testing with valgrind on
-one platform still gives good coverage.
+from uninitialised memory durings tests.  This restricts the platforms which
+we can catch leaks on (valgrind currently supports x86, x86_64, and powerpc
+Linux reliably, with other ports being investigated).  However Xapian contains
+very little platform specific code (and most of what there is is Windows
+specific) so even just testing with valgrind on one platform gives good
+coverage.
 
 If you have a new enough version of valgrind installed, it's automatically
 detected by configure and used when running the testsuite.  The testsuite runs
@@ -148,7 +150,8 @@ means that if you check the sources out of SVN, before you can successfully
 run the normal build process you'll need to have several programs installed
 so these files can be generated.  Note that you can avoid needing to have
 these programs installed by using the SVN snapshots available from the
-"Bleeding Edge" page of the Xapian website.
+"Bleeding Edge" page of the Xapian website.  These snapshots are bootstrapped
+tarballs much like any release version.
 
 At the time of writing, these programs are autoconf, automake, and libtool.
 Some older versions of these programs may not work correctly at the time of
@@ -318,7 +321,8 @@ We don't want to force those building Xapian from the source distribution to
 have to use GNU make.  Requiring GNU make for "make dist" isn't such a problem
 but it's probably better to use portable constructs everywhere to avoid
 problems when people move or copy code between targets.  If you do make use
-of non-portable constructs where it's OK, add a comment noting this.
+of non-portable constructs where it's OK, add a comment noting the special
+circumstances which justify doing so.
 
 Here's an incomplete list of things to avoid:
 
@@ -334,9 +338,10 @@ Here's an incomplete list of things to avoid:
   portable in implicit rules.  Tips for rewriting - if it's a source file,
   write it as:
     $(srcdir)/foo.ext
-  If it's a generated object file or similar, just write the name as is; if it
-  could be produced by the build, but also goes in the distribution tarball,
-  use this trick to make sure it's found whichever directory it's in:
+  If it's a generated object file or similar, just write the name as is.  The
+  tricky case is a generated file which isn't in SVN but is shipped in the
+  distribution tarball, as such a file could be in either the source or build
+  tree.  Use this trick to make sure it's found whichever directory it's in:
     `test -f foo.ext || echo '$(srcdir)/'`foo.ext
 
 * Don't use "exit 0" to make a rule fail.  Use "false" instead.  BSD make
@@ -382,17 +387,19 @@ Here's an incomplete list of things to avoid:
 	mv foo.tmp foo.cc
 
   Alternatively, pass the output filename to the script and make sure you
-  delete the output on error or a signal.  All used Makefile.am-s and scripts
-  have been checked (and fixed if required) as of 2003-07-10 (didn't check
-  xapian-bindings, xapian-examples, or xapian-core/indexer).
+  delete the output on error or a signal (although this approach can leave
+  a partial file in place if the power fails).  All used Makefile.am-s and
+  scripts have been checked (and fixed if required) as of 2003-07-10 (didn't
+  check xapian-bindings, xapian-examples, or xapian-core/indexer).
 
 And lastly a style point - using "@" to suppress echoing of commands being
 executed removes choice from the user - they may want to see what commands
 are being executed.  And if they don't want to, many versions of make support
 the use "make -s" to suppress the echoing of commands.
 
-Using @echo on a message sent to stdout or stderr is acceptable.  Otherwise
-don't use "@" - it makes it harder to track down problems in the makefiles.
+Using @echo on a message sent to stdout or stderr is acceptable (since it
+avoids showing the message twice).  Otherwise don't use "@" - it makes it
+harder to track down problems in the makefiles.
 
 Use of Assert
 =============
@@ -400,8 +407,8 @@ Use of Assert
 Use Assert to perform internal consistency checks, and to check for invalid
 arguments to functions and methods (e.g. passing a NULL pointer when this isn't
 permitted).  It should *NOT* be used to check for error conditions such as
-file read errors, new returning 0, etc (since we want to perform such checks
-in non-debug builds too).
+file read errors, memory allocation failing, etc (since we want to perform such
+checks in non-debug builds too).
 
 File format errors should also not be tested with Assert - we want to catch
 a corrupted database or a malformed input file in a non-debug build too.
