@@ -3,23 +3,39 @@
 #include "header.h"
 #include <stdlib.h>
 
+#include "omassert.h"
+
+// FIXME Upgrade to newer snowball which checks return values from malloc
+// and calloc.
 extern struct SN_env * SN_create_env(int S_size, int I_size, int B_size)
 {   struct SN_env * z;
     z = reinterpret_cast<struct SN_env *>(calloc(1, sizeof(struct SN_env)));
+    if (z == NULL) {
+	throw Xapian::InternalError("calloc failed to allocate "STRINGIZE(sizeof(struct SN_env))" bytes");
+    }
     z->p = create_s();
     if (S_size) {
 	z->S = reinterpret_cast<symbol **>(malloc(S_size * sizeof(symbol *)));
+	if (z->S == NULL) {
+	    throw Xapian::InternalError("malloc failed");
+	}
 	for (int i = 0; i < S_size; i++) z->S[i] = create_s();
 	z->S_size = S_size;
     }
 
     if (I_size) {
 	z->I = reinterpret_cast<int *>(calloc(I_size, sizeof(int)));
+	if (z->I == NULL) {
+	    throw Xapian::InternalError("calloc failed");
+	}
 	z->I_size = I_size;
     }
 
     if (B_size) {
 	z->B = reinterpret_cast<symbol *>(calloc(B_size, sizeof(symbol)));
+	if (z->B == NULL) {
+	    throw Xapian::InternalError("calloc failed");
+	}
 	z->B_size = B_size;
     }
 

@@ -1,3 +1,10 @@
+Fri Dec 09 05:54:33 GMT 2005  Olly Betts <olly@survex.com>
+
+	* languages/api.cc: Check for malloc and calloc failing to allocate
+	  memory and throw an exception.  Richard has fix this upstream in
+	  snowball, so this is a temporary fix until we import a new version
+	  of snowball.
+
 Fri Dec 09 02:15:38 GMT 2005  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Added assertions that the internal ptr isn't NULL
