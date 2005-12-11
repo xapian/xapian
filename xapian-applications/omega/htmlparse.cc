@@ -245,22 +245,22 @@ HtmlParser::parse_html(const string &body)
     map<string,string> Param;
     string::const_iterator start = body.begin();
 
-    while (1) {
+    while (true) {
 	// Skip through until we find an HTML tag, a comment, or the end of
 	// document.  Ignore isolated occurences of `<' which don't start
-	// a tag or comment
+	// a tag or comment.
 	string::const_iterator p = start;
-	while (1) {
+	while (true) {
 	    p = find(p, body.end(), '<');
 	    if (p == body.end()) break;
 	    char ch = *(p + 1);
-	    // tag, closing tag, comment (or SGML declaration), or PHP
+	    // Tag, closing tag, comment (or SGML declaration), or PHP.
 	    if (isalpha(ch) || ch == '/' || ch == '!' || ch == '?') break;
 	    p++; 
 	}
 
 
-	// process text up to start of tag
+	// Process text up to start of tag.
 	if (p > start) {
 	    string text = body.substr(start - body.begin(), p - start);
 	    decode_entities(text);

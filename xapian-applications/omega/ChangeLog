@@ -1,3 +1,7 @@
+Sun Dec 11 09:12:12 GMT 2005  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc: Tweak a few comments; "while (1)" -> "while (true)".
+
 Sun Dec 11 09:09:40 GMT 2005  Olly Betts <olly@survex.com>
 
 	* docs/overview.txt: The U prefix (URL term) was grouped with the date
