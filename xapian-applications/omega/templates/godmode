@@ -2,7 +2,7 @@ $set{thousand,$.}$set{decimal,.}<html>
 <head>
 <title>Omega:
 $if{$cgi{ID},
-Record $cgi{ID},
+Document #$cgi{ID},
 $if{$ne{$msize,0},
 Term "$html{$cgi{B}}",
 Choose what to Inspect}}
@@ -80,13 +80,15 @@ $if{$ne{$opt{y},$lastpage},...}
 $NEXT
 </center>
 }
-,
+}}
+$if{$or{$error,$and{$not{$cgi{ID}},$eq{$msize,0}}},
+$if{$error,</form><div style="border:dotted;border-width:1px;padding:.5em;margin:.5em;background-color:yellow">$html{$error}</div><form METHOD=GET ACTION="$env{SCRIPT_NAME}">}
 Inspect document # <INPUT NAME=ID SIZE=10>
 <INPUT TYPE=SUBMIT VALUE="Inspect">
 <hr>
 Inspect term <INPUT NAME=B SIZE=10>
 <INPUT TYPE=SUBMIT VALUE="Inspect">
-}}
+}
 $if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}
 $if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
 <hr><div align=right><i><small>$html{$version}</small></i></div>
