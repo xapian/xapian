@@ -92,7 +92,8 @@ $env{VAR}
 
 $error
 	error message (e.g. if a database wouldn't open, or the query wasn't
-	parseable) or empty if there wasn't an error
+	parseable, or a Xapian exception has been thrown) or empty if there
+	wasn't an error
 
 $field{NAME}
 	lookup field in record.  If multiple instances of field exist the

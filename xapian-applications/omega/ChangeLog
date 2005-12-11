@@ -1,3 +1,9 @@
+Sun Dec 11 09:16:57 GMT 2005  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt,query.cc: If executing an OmegaScript command
+	  causes a Xapian exception to be thrown, catch it and copy the error
+	  message into error_msg (which is read by the $error command).
+
 Sun Dec 11 09:12:12 GMT 2005  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc: Tweak a few comments; "while (1)" -> "while (true)".

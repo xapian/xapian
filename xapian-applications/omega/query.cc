@@ -1,6 +1,5 @@
 /* query.cc: query executor for omega
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
@@ -19,9 +18,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -957,7 +955,7 @@ eval(const string &fmt, const vector<string> &param)
     }
     string res;
     string::size_type p = 0, q;
-    while ((q = fmt.find('$', p)) != string::npos) {
+    while ((q = fmt.find('$', p)) != string::npos) try {
 	res += fmt.substr(p, q - p);
 	string::size_type code_start = q; // note down for error reporting
 	q++;
@@ -1176,7 +1174,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_error:
-		if (error_msg.empty() && enquire == NULL) {
+		if (error_msg.empty() && enquire == NULL && !dbname.empty()) {
 		    error_msg = "Database `" + dbname + "' couldn't be opened";
 		}
 		value = error_msg;
@@ -1812,6 +1810,10 @@ eval(const string &fmt, const vector<string> &param)
 	    }
 	}
         res += value;
+    } catch (const Xapian::Error & e) {
+	// FIXME: this means we only see the most recent error in $error
+	// - is that the best approach?
+	error_msg = e.get_msg();
     }
 
     res += fmt.substr(p);
