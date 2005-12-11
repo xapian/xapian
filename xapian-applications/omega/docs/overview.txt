@@ -184,6 +184,9 @@ Currently omindex can index:
 * PostScript (.ps, .eps, .ai) if pstotext is available
 * OpenOffice/StarOffice documents (.sxc, .stc, .sxd, .std, .sxi, .sti, .sxm,
   .sxw, .sxg, .stw) if unzip is available
+* OpenDocument format documents (.odt, .ods, .odp, .odg, .odc, .odf, .odb,
+  .odi, .odm, .ott, .ots, .otp, .otg, .otc, .otf, .oti, .oth) if unzip is
+  available
 * MS Word documents (.doc) if antiword is available
 * Wordperfect documents (.wpd) if wpd2text is available (comes with libwpd)
 * Rich Text Format documents (.rtf) if unrtf is available
@@ -206,6 +209,23 @@ of:
     application/msword
     application/pdf
     application/postscript
+    application/vnd.oasis.opendocument.text
+    application/vnd.oasis.opendocument.spreadsheet
+    application/vnd.oasis.opendocument.presentation
+    application/vnd.oasis.opendocument.graphics
+    application/vnd.oasis.opendocument.chart
+    application/vnd.oasis.opendocument.formula
+    application/vnd.oasis.opendocument.database
+    application/vnd.oasis.opendocument.image
+    application/vnd.oasis.opendocument.text-master
+    application/vnd.oasis.opendocument.text-template
+    application/vnd.oasis.opendocument.spreadsheet-template
+    application/vnd.oasis.opendocument.presentation-template
+    application/vnd.oasis.opendocument.graphics-template
+    application/vnd.oasis.opendocument.chart-template
+    application/vnd.oasis.opendocument.formula-template
+    application/vnd.oasis.opendocument.image-template
+    application/vnd.oasis.opendocument.text-web
     application/vnd.sun.xml.calc
     application/vnd.sun.xml.calc.template
     application/vnd.sun.xml.draw

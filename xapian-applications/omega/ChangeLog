@@ -1,3 +1,8 @@
+Sun Dec 11 09:22:58 GMT 2005  Olly Betts <olly@survex.com>
+
+	* docs/overview.txt,omindex.cc: Add support for OpenDocument format
+	  mimetypes and extensions out of the box.
+
 Sun Dec 11 09:16:57 GMT 2005  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt,query.cc: If executing an OmegaScript command

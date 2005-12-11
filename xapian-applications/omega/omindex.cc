@@ -324,7 +324,9 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
-    } else if (mimetype.substr(0, 24) == "application/vnd.sun.xml.") {
+    } else if (mimetype.substr(0, 24) == "application/vnd.sun.xml." ||
+	       mimetype.substr(0, 35) == "application/vnd.oasis.opendocument.")
+    {
 	// Inspired by http://mjr.towers.org.uk/comp/sxw2text
 	string safefile = shell_protect(file);
 #define OOO_XML_SED_DECODE_ENTITIES \
@@ -366,7 +368,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	    // "Typically, Subject will be expressed as keywords, key phrases
 	    // or classification codes that describe a topic of the resource."
 	    // OpenOffice uses meta:keywords for keywords - dc:subject
-	    // comes from a text field labelled "Subject.  Let's just treat
+	    // comes from a text field labelled "Subject".  Let's just treat
 	    // it as more keywords.
 	    cmd = "unzip -p " + safefile + " meta.xml"
 		  "|sed 's/.*<dc:subject>\\([^<]*\\).*/\\1/p;d'"
@@ -615,6 +617,25 @@ main(int argc, char **argv)
     mime_map["ps"] = "application/postscript";
     mime_map["eps"] = "application/postscript";
     mime_map["ai"] = "application/postscript";
+    // OpenDocument:
+    // FIXME: need to find sample documents to test all of these.
+    mime_map["odt"] = "application/vnd.oasis.opendocument.text";
+    mime_map["ods"] = "application/vnd.oasis.opendocument.spreadsheet";
+    mime_map["odp"] = "application/vnd.oasis.opendocument.presentation";
+    mime_map["odg"] = "application/vnd.oasis.opendocument.graphics";
+    mime_map["odc"] = "application/vnd.oasis.opendocument.chart";
+    mime_map["odf"] = "application/vnd.oasis.opendocument.formula";
+    mime_map["odb"] = "application/vnd.oasis.opendocument.database";
+    mime_map["odi"] = "application/vnd.oasis.opendocument.image";
+    mime_map["odm"] = "application/vnd.oasis.opendocument.text-master";
+    mime_map["ott"] = "application/vnd.oasis.opendocument.text-template";
+    mime_map["ots"] = "application/vnd.oasis.opendocument.spreadsheet-template";
+    mime_map["otp"] = "application/vnd.oasis.opendocument.presentation-template";
+    mime_map["otg"] = "application/vnd.oasis.opendocument.graphics-template";
+    mime_map["otc"] = "application/vnd.oasis.opendocument.chart-template";
+    mime_map["otf"] = "application/vnd.oasis.opendocument.formula-template";
+    mime_map["oti"] = "application/vnd.oasis.opendocument.image-template";
+    mime_map["oth"] = "application/vnd.oasis.opendocument.text-web";
     // OpenOffice/StarOffice documents:
     mime_map["sxc"] = "application/vnd.sun.xml.calc";
     mime_map["stc"] = "application/vnd.sun.xml.calc.template";
