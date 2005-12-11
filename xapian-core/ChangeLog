@@ -1,3 +1,9 @@
+Sun Dec 11 01:33:58 GMT 2005  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix handling of "+" terms in a query
+	  when the default query operator is AND.
+	* tests/queryparsertest.cc: Add regression test.
+
 Fri Dec 09 05:54:33 GMT 2005  Olly Betts <olly@survex.com>
 
 	* languages/api.cc: Check for malloc and calloc failing to allocate

@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
 
@@ -96,6 +96,16 @@ class State {
     }
 };
 
+static void
+add_to_query(Query & q, Query::op op, const Query &term)
+{
+    if (q.empty()) {
+	q = term;
+    } else {
+	q = Query(op, q, term);
+    }
+}
+
 Query *
 Term::as_wildcarded_query(State * state) const
 {
@@ -104,11 +114,7 @@ Term::as_wildcarded_query(State * state) const
     t.skip_to(name);
     Query q;
     while (t != db.allterms_end() && (*t).substr(0, name.size()) == name) {
-	if (q.empty()) {
-	    q = Query(*t, 1, pos);
-	} else {
-	    q = Query(Query::OP_OR, q, Query(*t, 1, pos));
-	}
+	add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
 	++t;
     }
     return new Query(q);
@@ -709,28 +715,30 @@ prob(P) ::= stop_term(T). {
 prob(P) ::= prob(Q) stop_term(T). {
     P = Q;
     // If T is a stopword, there's nothing to do here.
-    if (!T->empty()) {
-	if (P->query.empty()) {
-	    P->query = *T;
-	} else {
-	    P->query = Query(state->default_op(), P->query, *T);
-	}
-    }
+    if (!T->empty())
+	add_to_query(P->query, state->default_op(), *T);
     delete T;
 }
 
 prob(P) ::= LOVE term(T). {
     P = new ProbQuery;
-    P->love = *T;
+    if (state->default_op() == Query::OP_AND) {
+	P->query = *T;
+    } else {
+	P->love = *T;
+    }
     delete T;
 }
 
 prob(P) ::= prob(Q) LOVE term(T). {
     P = Q;
-    if (P->love.empty()) {
-	P->love = *T;
+    if (state->default_op() == Query::OP_AND) {
+	/* The default op is AND, so we just put loved terms into the query
+	 * (in this case the only effect of love is to ignore the stopword
+	 * list). */
+	add_to_query(P->query, Query::OP_AND, *T);
     } else {
-	P->love = Query(Query::OP_AND, P->love, *T);
+	add_to_query(P->love, Query::OP_AND, *T);
     }
     delete T;
 }
@@ -743,11 +751,7 @@ prob(P) ::= HATE term(T). {
 
 prob(P) ::= prob(Q) HATE term(T). {
     P = Q;
-    if (P->hate.empty()) {
-	P->hate = *T;
-    } else {
-	P->hate = Query(Query::OP_OR, P->hate, *T);
-    }
+    add_to_query(P->hate, Query::OP_OR, *T);
     delete T;
 }
 
@@ -759,11 +763,7 @@ prob(P) ::= HATE BOOLEAN_FILTER(T). {
 
 prob(P) ::= prob(Q) HATE BOOLEAN_FILTER(T). {
     P = Q;
-    if (P->hate.empty()) {
-	P->hate = T->as_query_object();
-    } else {
-	P->hate = Query(Query::OP_OR, P->hate, T->as_query_object());
-    }
+    add_to_query(P->hate, Query::OP_OR, T->as_query_object());
     delete T;
 }
 
@@ -775,12 +775,8 @@ prob(P) ::= BOOLEAN_FILTER(T). {
 
 prob(P) ::= prob(Q) BOOLEAN_FILTER(T). {
     P = Q;
-    if (P->filter.empty()) {
-	P->filter = T->as_query_object();
-    } else {
-	// FIXME we should OR filters with the same prefix...
-	P->filter = Query(Query::OP_AND, P->filter, T->as_query_object());
-    }
+    // FIXME we should OR filters with the same prefix...
+    add_to_query(P->filter, Query::OP_AND, T->as_query_object());
     delete T;
 }
 

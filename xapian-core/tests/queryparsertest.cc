@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
 
@@ -48,6 +48,7 @@ static test test_or_queries[] = {
     { "O.K. U.N.C.L.E XY.Z.", "(Rok:(pos=1) OR Runcle:(pos=2) OR (Rxy:(pos=3) PHRASE 2 Rz:(pos=4)))" },
     { "author:orwell animal farm", "(Aorwel:(pos=1) OR anim:(pos=2) OR farm:(pos=3))" },
     { "höhle", "hoehl:(pos=1)" },
+    { "one +two three", "(two:(pos=2) AND_MAYBE (one:(pos=1) OR three:(pos=3)))" },
     { "subject:test other", "(XTtest:(pos=1) OR other:(pos=2))" },
     { "subject:\"space flight\"", "(XTspace:(pos=1) PHRASE 2 XTflight:(pos=2))" },
     { "author:(twain OR poe) OR flight", "(Atwain:(pos=1) OR Apoe:(pos=2) OR flight:(pos=3))" },
@@ -499,6 +500,9 @@ static test test_or_queries[] = {
 
 static test test_and_queries[] = {
     { "internet explorer title:(http www)", "(internet:(pos=1) AND explor:(pos=2) AND XThttp:(pos=3) AND XTwww:(pos=4))" },
+    // Regression test for bug in 0.9.2 and earlier - this would give
+    // (two:(pos=2) AND_MAYBE (one:(pos=1) AND three:(pos=3)))
+    { "one +two three", "(one:(pos=1) AND two:(pos=2) AND three:(pos=3))" },
     { NULL, NULL }
 };
 
