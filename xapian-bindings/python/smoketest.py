@@ -1,6 +1,6 @@
 # Simple test that we can load the xapian module and run a simple test
 #
-# Copyright (C) 2004 Olly Betts
+# Copyright (C) 2004,2005 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
 import sys
@@ -34,5 +34,11 @@ try:
     db.add_document(doc)
     if db.get_doccount() != 1:
         sys.exit(1)
+    terms = ["smoke", "test", "terms"]
+    query = xapian.Query(xapian.Query.OP_OR, terms)
+    query1 = xapian.Query(xapian.Query.OP_PHRASE, ("smoke", "test", "tuple"))
+    query2 = xapian.Query(xapian.Query.OP_XOR, (query, query1, xapian.Query("a")))
+    subqs = ["a", "b"]
+    query3 = xapian.Query(xapian.Query.OP_OR, subqs)
 except:
     sys.exit(1)

@@ -1,3 +1,12 @@
+Sun Dec 11 07:31:21 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i,xapian.i: Fix wrapper for Xapian::Query ctor taking
+	  operator and list of strings, plus optional parameter to work again.
+	  Add a new wrapper which is similar but takes a list of xapian.query
+	  objects instead of strings.
+	* python/smoketest.py: Add regression test and feature test for
+	  the above changes.
+
 Thu Dec 08 03:39:25 GMT 2005  Olly Betts <olly@survex.com>
 
 	* python/extra.i,python/util.i: Tweak layout for better readability;

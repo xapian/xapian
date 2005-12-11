@@ -30,46 +30,34 @@
 namespace Xapian {
     class PythonProblem {};
     Query *get_py_query(PyObject *obj) {
-	Query *retval = 0;
-	PyInstanceObject *iobj = (PyInstanceObject*)obj;
-	PyObject *mythis = PyDict_GetItemString(iobj->in_dict, "this");
-	if (SWIG_ConvertPtr(mythis, (void **)&retval,
-			    SWIGTYPE_p_Xapian__Query, 0)) {
-	    //	    cerr << "obj.this: " << PyString_AsString(mythis) << endl;
-	    //	    cerr << "Problem is: " << err << endl;
-	    PyErr_SetString(PyExc_ValueError, "Query object invalid");
-	    return 0;
+	PyObject * mythis = PyObject_GetAttrString(obj, "this");
+	Query * retval = 0;
+	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
+				       SWIGTYPE_p_Xapian__Query, 0)) {
+	    retval = 0;
 	}
 	return retval;
     }
 
+#if 0 // Currently unused
     RSet *get_py_rset(PyObject *obj) {
-	if (!PyInstance_Check(obj)) return 0;
-	RSet *retval = 0;
-	PyInstanceObject *iobj = (PyInstanceObject*)obj;
-	PyObject *mythis = PyDict_GetItemString(iobj->in_dict, "this");
-	if (SWIG_ConvertPtr(mythis, (void **)&retval,
-			    SWIGTYPE_p_Xapian__RSet, 0)) {
-	    // cerr << "obj.this: " << PyString_AsString(mythis) << endl;
-	    // cerr << "Problem is: " << err << endl;
-	    PyErr_SetString(PyExc_ValueError, "RSet object invalid");
-	    return 0;
+	PyObject * mythis = PyObject_GetAttrString(obj, "this");
+	Rset * retval = 0;
+	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
+				       SWIGTYPE_p_Xapian__RSet, 0)) {
+	    retval = 0;
 	}
 	return retval;
     }
+#endif
 
 #if 0 // FIXME
     MatchDecider *get_py_matchdecider(PyObject *obj) {
-	if (!PyInstance_Check(obj)) return 0;
-	MatchDecider *retval = 0;
-	PyInstanceObject *iobj = (PyInstanceObject*)obj;
-	PyObject *mythis = PyDict_GetItemString(iobj->in_dict, "this");
-	if (SWIG_ConvertPtr(mythis, (void **)&retval,
-			    SWIGTYPE_p_MatchDecider, 0)) {
-	    // cerr << "obj.this: " << PyString_AsString(mythis) << endl;
-	    // cerr << "Problem is: " << err << endl;
-	    PyErr_SetString(PyExc_ValueError, "MatchDecider object invalid");
-	    return 0;
+	PyObject * mythis = PyObject_GetAttrString(obj, "this");
+	MatchDecider * retval = 0;
+	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
+				       SWIGTYPE_p_Xapian__MatchDecider, 0)) {
+	    retval = 0;
 	}
 	return retval;
     }
@@ -84,28 +72,40 @@ namespace Xapian {
 }
 %}
 
-%typemap(python, in) const vector<Xapian::Query *> *(vector<Xapian::Query *> v){
+%typemap(python, typecheck, precedence=501) const vector<Xapian::Query> & {
+    if (!PySequence_Check($input)) {
+	$1 = 0;
+    } else {
+	$1 = 1;
+	int numitems = PySequence_Size($input);
+	for (int i = 0; i < numitems; ++i) {
+	    PyObject *obj = PySequence_GetItem($input, i);
+	    if (!Xapian::get_py_query(obj)) {
+		$1 = 0;
+		break;
+	    }
+	}
+    }
+}
+
+%typemap(python, in) const vector<Xapian::Query> & (vector<Xapian::Query> v) {
     if (!PySequence_Check($input)) {
 	PyErr_SetString(PyExc_TypeError, "expected list of queries");
 	return NULL;
     }
-    PyObject *obj;
-    int sz = PySequence_Size($input);
-    for (int i = 0; i < sz; i++) {
-	obj = PySequence_GetItem($input, i);
-	if (!PyInstance_Check(obj)) {
-	    PyErr_SetString(PyExc_TypeError, "expected instance objects");
-	    return NULL;
-	}
+    int numitems = PySequence_Size($input);
+    for (int i = 0; i < numitems; ++i) {
+	PyObject *obj = PySequence_GetItem($input, i);
 	Xapian::Query *subqp = Xapian::get_py_query(obj);
 	if (!subqp) {
 	    PyErr_SetString(PyExc_TypeError, "expected query");
 	    return NULL;
 	}
-	v.push_back(subqp);
+	v.push_back(*subqp);
     }
     $1 = &v;
 }
+
 /*
 %typemap(python, out) termname_list {
     $result = PyList_New(0);
@@ -125,18 +125,14 @@ namespace Xapian {
 }
 */
 
-%typemap(python, freearg) const vector<string>* {
-    delete $1;
-}
-
-%typemap(python, typecheck) const std::vector<std::string>* {
-    $1 = 1;
-    if (!PyList_Check($input)) {
+%typemap(python, typecheck, precedence=500) const vector<string> & {
+    if (!PySequence_Check($input)) {
 	$1 = 0;
     } else {
-	int numitems = PyList_Size($input);
+	$1 = 1;
+	int numitems = PySequence_Size($input);
 	for (int i=0; i<numitems; ++i) {
-	    PyObject *obj = PyList_GetItem($input, i);
+	    PyObject *obj = PySequence_GetItem($input, i);
 	    if (!PyString_Check(obj)) {
 		$1 = 0;
 		break;
@@ -145,25 +141,24 @@ namespace Xapian {
     }
 }
 
-%typemap(python, in) const std::vector<std::string>* {
-    if (!PyList_Check($input)) {
+%typemap(python, in) const vector<string> & (vector<string> v) {
+    if (!PySequence_Check($input)) {
 	PyErr_SetString(PyExc_TypeError, "expected list");
 	return NULL;
     }
-    int numitems = PyList_Size($input);
-    vector<string> *v = new vector<string>();
+    int numitems = PySequence_Size($input);
     v.reserve(numitems);
     for (int i=0; i<numitems; ++i) {
-	PyObject *obj = PyList_GetItem($input, i);
+	PyObject *obj = PySequence_GetItem($input, i);
 	if (!PyString_Check(obj)) {
 	    PyErr_SetString(PyExc_TypeError, "expected list of strings");
 	    return NULL;
 	}
 	int len = PyString_Size(obj);
 	const char *err = PyString_AsString(obj);
-	v->push_back(string(err, len));
+	v.push_back(string(err, len));
     }
-    $1 = v;
+    $1 = &v;
 }
 
 %typedef PyObject *LangSpecificListType;

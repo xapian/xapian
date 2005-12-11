@@ -785,10 +785,14 @@ class Query {
         %extend {
 	    /** Constructs a query from a vector of terms merged with the
 	     *  specified operator */
-	    Query(Query::op op, vector<string> * subqs,
-		  termcount parameter = 0) {
-		return new Xapian::Query(op, subqs->begin(), subqs->end(),
-					 parameter);
+	    Query(Query::op op, const vector<string> & subqs, termcount param = 0) {
+		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
+	    }
+
+	    /** Constructs a query from a vector of subqueries merged with the
+	     *  specified operator */
+	    Query(Query::op op, const vector<Xapian::Query> & subqs, termcount param = 0) {
+		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
 	    }
 	}
 #ifndef SWIGGUILE
