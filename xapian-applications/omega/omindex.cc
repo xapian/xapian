@@ -610,7 +610,7 @@ main(int argc, char **argv)
     mime_map["html"] = "text/html";
     mime_map["htm"] = "text/html";
     mime_map["shtml"] = "text/html";
-    mime_map["php"] = "text/html"; // Our HTML parser knows to ignore PHP
+    mime_map["php"] = "text/html"; // Our HTML parser knows to ignore PHP code.
     // PDF:
     mime_map["pdf"] = "application/pdf";
     // PostScript:
