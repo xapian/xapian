@@ -60,7 +60,7 @@ extern int threshold;
 
 extern bool sort_numeric;
 extern Xapian::valueno sort_key;
-extern int sort_bands;
+extern bool sort_ascending;
 extern Xapian::valueno collapse_key;
 extern bool collapse;
 

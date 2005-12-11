@@ -73,9 +73,9 @@ string query_string;
 // percentage cut-off
 int threshold = 0;
 
-bool sort_numeric = true;
-Xapian::valueno sort_key = 0;
-int sort_bands = 0; // Don't sort
+bool sort_numeric = false;
+Xapian::valueno sort_key = Xapian::valueno(-1);
+bool sort_ascending = true;
 Xapian::valueno collapse_key = 0;
 bool collapse = false;
 
@@ -317,18 +317,17 @@ try {
     if (val != cgi_params.end()) {
 	const string & v = val->second;
 	if (v[0] == '#') {
+	    // FIXME not supported currently!
 	    sort_numeric = true;
 	    sort_key = atoi(v.c_str() + 1);
 	} else {
 	    sort_key = atoi(v.c_str());
 	}
-	sort_bands = 1; // sorting is off unless this is set
-	val = cgi_params.find("SORTBANDS");
+	val = cgi_params.find("SORTREVERSE");
 	if (val != cgi_params.end()) {
-	    sort_bands = atoi(val->second.c_str());
-	    if (sort_bands <= 0) sort_bands = 1;
+	    sort_ascending = (atoi(val->second.c_str()) == 0);
 	}
-	// FIXME: add SORT and SORTBANDS to filters too!  But in a compatible
+	// FIXME: add SORT and SORTREVERSE to filters too!  But in a compatible
 	// way ideally...
     }
 

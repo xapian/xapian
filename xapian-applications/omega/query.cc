@@ -305,8 +305,6 @@ run_query()
 
     if (enquire && error_msg.empty()) {
 	enquire->set_cutoff(threshold);
-        // match_min_hits will be moved into matcher soon
-	// enquire->set_min_hits(min_hits); or similar...
 
 	// Temporary bodge to allow experimentation with Xapian::BiasFunctor
 	MCI i;
@@ -320,15 +318,12 @@ run_query()
 	    }
 	    enquire->set_bias(bias_weight, half_life);
 	}
-	if (sort_bands) {
-	    enquire->set_sorting(sort_key, sort_bands);
-	    // FIXME: ignore sort_numeric for now
+	if (sort_key != Xapian::valueno(-1)) {
+	    enquire->set_sort_by_value_then_relevance(sort_key, sort_ascending);
 	}
 	if (collapse) {
 	    enquire->set_collapse_key(collapse_key);
 	}
-
-	// FIXME - set msetcmp to reverse?
 
 #ifdef HAVE_GETTIMEOFDAY
 	struct timeval tv;

@@ -1,3 +1,10 @@
+Sun Dec 11 09:27:18 GMT 2005  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.txt,omega.cc,omega.h,query.cc: Add "SORTREVERSE"
+	  CGI parameter which allows the sort order to be reversed when
+	  sorting on a value.  Remove "SORTBANDS" CGI parameter since it
+	  no longer does anything.
+ 
 Sun Dec 11 09:26:14 GMT 2005  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Improve wording of comment.

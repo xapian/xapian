@@ -116,12 +116,10 @@ Reordering parameters
 
 SORT
 	reorder results by this value number (greater values are better).
-	By default the comparison is a string compare.
+	The comparison used is a string compare.
 
-SORTBANDS
-	reorder results by the specified sort key within this many equal
-	width bands of percentage relevance.  So if this is 5, the bands
-	are 100-80, 80-60, 60-40, 40-20, and 20-0.
+SORTREVERSE
+	if non-zero, reverse the sort order so that lower values are better.
 
 Display parameters and navigation
 ---------------------------------
