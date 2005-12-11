@@ -1,3 +1,10 @@
+Sun Dec 11 09:09:40 GMT 2005  Olly Betts <olly@survex.com>
+
+	* docs/overview.txt: The U prefix (URL term) was grouped with the date
+	  searching prefixes, but it makes more sense to group it with the
+	  prefixes relating to parts of the URL (H for hostname, P for path,
+	  etc).
+
 Sun Oct 02 16:28:59 BST 2005  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Use "int database_mode" (set to the value to pass to

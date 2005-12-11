@@ -257,6 +257,12 @@ T	MIME type
 H	hostname of site (if supplied - this term won't exist if you
 	index a site with base URL '/press', for instance)
 P	path of site (ie: the rest of the site base URL)
+U	full URL of indexed document - if the resulting term would be > 240
+	characters, a hashing scheme is used to prevent omindex overflowing
+	the Xapian term length limit.
+
+
+
 D	date (numeric format: YYYYMMDD)
 	date can also have the magical form "latest" - a document indexed
 	by the term Dlatest matches any date-range without an end date.
@@ -268,10 +274,6 @@ W	"weak" (approximately 10 day intervals, taken as YYYYMMD from
 	the D term, and changing the last digit to a '2' if it's a '3')
 M	month (numeric format: YYYYMM)
 Y	year (four digits)
-U	full URL of indexed document - if the resulting term would be > 240
-	characters, a hashing scheme is used to prevent omindex overflowing
-	the Xapian term length limit.
-
 
 omega configuration
 ===================
