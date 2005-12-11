@@ -1,3 +1,12 @@
+Sun Dec 11 07:58:51 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i,xapian.i: Support a mixture of xapian.Query objects
+	  and strings in the python xapian.Query(OP, SEQUENCE [, PARAM])
+	  ctor.
+	* python/smoketest.py: Add feature test.
+	* python/docs/bindings.html: Update documentation to mention recent
+	  fixes/improvements.
+
 Sun Dec 11 07:31:21 GMT 2005  Olly Betts <olly@survex.com>
 
 	* python/util.i,xapian.i: Fix wrapper for Xapian::Query ctor taking

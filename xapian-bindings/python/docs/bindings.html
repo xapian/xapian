@@ -125,13 +125,17 @@ the TCP version is currently wrapped, the "program" version isn't).
 <h2>Query</h2>
 
 <p>
-   Please note that although the source code for the bindings
-   indicates that there's another constructor to <code>xapian.Query</code> that
-   should be able to take a query operator, a list of Query objects,
-   and an optional window, this doesn't actually work in Python at the
-   moment due to the way SWIG overloading works.  However, you can pass a
-   query operator, a list of strings, and an optional window.
+   In C++ there's a Xapian::Query constructor which takes a query operator and
+   start/end iterators specifying a number of terms or queries, plus an optional
+   parameter.  In Python, this is wrapped to accept any Python sequence (for
+   example a list or tuple) to give the terms/queries, and you can specify
+   a mixture of terms and queries if you wish.  For example:
 </p>
+
+<pre>
+   subq = xapian.Query(xapian.Query.OP_AND, "hello", "world")
+   q = xapian.Query(xapian.Query.OP_AND, [subq, "foo", xapian.Query("bar", 2)])
+</pre>
 
 <h2>Enquire</h2>
 
@@ -148,7 +152,7 @@ the TCP version is currently wrapped, the "program" version isn't).
 Custom MatchDeciders can be created in Python; simply subclass
 xapian.MatchDecider, ensure you call the super-constructor, and define a
 __call__ method that will do the work. The simplest example (which does nothing
-useful) would be as follows.
+useful) would be as follows:
 </p>
 
 <pre>

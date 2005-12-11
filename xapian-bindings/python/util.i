@@ -72,7 +72,7 @@ namespace Xapian {
 }
 %}
 
-%typemap(python, typecheck, precedence=501) const vector<Xapian::Query> & {
+%typemap(python, typecheck, precedence=500) const vector<Xapian::Query> & {
     if (!PySequence_Check($input)) {
 	$1 = 0;
     } else {
@@ -80,7 +80,7 @@ namespace Xapian {
 	int numitems = PySequence_Size($input);
 	for (int i = 0; i < numitems; ++i) {
 	    PyObject *obj = PySequence_GetItem($input, i);
-	    if (!Xapian::get_py_query(obj)) {
+	    if (!PyString_Check(obj) && !Xapian::get_py_query(obj)) {
 		$1 = 0;
 		break;
 	    }
@@ -94,14 +94,21 @@ namespace Xapian {
 	return NULL;
     }
     int numitems = PySequence_Size($input);
+    v.reserve(numitems);
     for (int i = 0; i < numitems; ++i) {
 	PyObject *obj = PySequence_GetItem($input, i);
-	Xapian::Query *subqp = Xapian::get_py_query(obj);
-	if (!subqp) {
-	    PyErr_SetString(PyExc_TypeError, "expected query");
-	    return NULL;
+	if (PyString_Check(obj)) {
+	    int len = PyString_Size(obj);
+	    const char *p = PyString_AsString(obj);
+	    v.push_back(Xapian::Query(string(p, len)));
+	} else {
+	    Xapian::Query *subqp = Xapian::get_py_query(obj);
+	    if (!subqp) {
+		PyErr_SetString(PyExc_TypeError, "expected string or query");
+		return NULL;
+	    }
+	    v.push_back(*subqp);
 	}
-	v.push_back(*subqp);
     }
     $1 = &v;
 }
@@ -124,42 +131,6 @@ namespace Xapian {
     $1 = 0;
 }
 */
-
-%typemap(python, typecheck, precedence=500) const vector<string> & {
-    if (!PySequence_Check($input)) {
-	$1 = 0;
-    } else {
-	$1 = 1;
-	int numitems = PySequence_Size($input);
-	for (int i=0; i<numitems; ++i) {
-	    PyObject *obj = PySequence_GetItem($input, i);
-	    if (!PyString_Check(obj)) {
-		$1 = 0;
-		break;
-	    }
-	}
-    }
-}
-
-%typemap(python, in) const vector<string> & (vector<string> v) {
-    if (!PySequence_Check($input)) {
-	PyErr_SetString(PyExc_TypeError, "expected list");
-	return NULL;
-    }
-    int numitems = PySequence_Size($input);
-    v.reserve(numitems);
-    for (int i=0; i<numitems; ++i) {
-	PyObject *obj = PySequence_GetItem($input, i);
-	if (!PyString_Check(obj)) {
-	    PyErr_SetString(PyExc_TypeError, "expected list of strings");
-	    return NULL;
-	}
-	int len = PyString_Size(obj);
-	const char *err = PyString_AsString(obj);
-	v.push_back(string(err, len));
-    }
-    $1 = &v;
-}
 
 %typedef PyObject *LangSpecificListType;
 

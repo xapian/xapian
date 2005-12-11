@@ -3,7 +3,6 @@
 %{
 /* xapian.i: the Xapian scripting interface.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2005 James Aylett
@@ -21,9 +20,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #undef list
@@ -783,14 +781,16 @@ class Query {
 #ifndef SWIGPHP4
 	Query(const Query& copyme);
         %extend {
+#ifndef SWIGPYTHON /* For Python we handle strings in the vector<Query> case. */
 	    /** Constructs a query from a vector of terms merged with the
-	     *  specified operator */
+	     *  specified operator. */
 	    Query(Query::op op, const vector<string> & subqs, termcount param = 0) {
 		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
 	    }
+#endif
 
 	    /** Constructs a query from a vector of subqueries merged with the
-	     *  specified operator */
+	     *  specified operator. */
 	    Query(Query::op op, const vector<Xapian::Query> & subqs, termcount param = 0) {
 		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
 	    }

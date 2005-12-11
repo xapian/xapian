@@ -37,7 +37,7 @@ try:
     terms = ["smoke", "test", "terms"]
     query = xapian.Query(xapian.Query.OP_OR, terms)
     query1 = xapian.Query(xapian.Query.OP_PHRASE, ("smoke", "test", "tuple"))
-    query2 = xapian.Query(xapian.Query.OP_XOR, (query, query1, xapian.Query("a")))
+    query2 = xapian.Query(xapian.Query.OP_XOR, (query, query1, "string"))
     subqs = ["a", "b"]
     query3 = xapian.Query(xapian.Query.OP_OR, subqs)
 except:
