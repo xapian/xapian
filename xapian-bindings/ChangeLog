@@ -1,3 +1,9 @@
+Mon Dec 12 02:11:44 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am,java/run-java-test: Use $(PATH_SEPARATOR) to
+	  seprate entries in the java -classpath command line option so
+	  that it'll work on platforms where $(PATH_SEPARATOR) isn't ":".
+
 Sun Dec 11 07:58:51 GMT 2005  Olly Betts <olly@survex.com>
 
 	* python/util.i,xapian.i: Support a mixture of xapian.Query objects

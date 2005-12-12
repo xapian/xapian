@@ -4,7 +4,7 @@ SUBDIRS = native org .
 
 ## Test programs to be run
 
-TESTS_ENVIRONMENT = JAVA=$(JAVA) ./run-java-test
+TESTS_ENVIRONMENT = JAVA=$(JAVA) PATHSEP=$(PATH_SEPARATOR) ./run-java-test
 
 ## Test programs to be run
 TESTS = SmokeTest
