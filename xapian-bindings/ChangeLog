@@ -1,3 +1,8 @@
+Mon Dec 12 11:15:34 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/util.i.in: Use std::string::data() instead of c_str() as it may
+	  be more efficient for some implementations.
+
 Mon Dec 12 04:26:24 GMT 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix java separator configure test to actually work.
