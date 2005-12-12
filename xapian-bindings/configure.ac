@@ -339,8 +339,29 @@ if test no != "$with_java" ; then
     dnl Note: jni.h #defines JNI_VERSION_1_[124] (but not 3 it seems).
     dnl So we could check for that if we want to check for a particular
     dnl JDK version...
-    AC_CHECK_HEADER(jni.h, [BINDINGS="$BINDINGS java"],
+    java_ok=no
+    AC_CHECK_HEADER(jni.h, [java_ok=yes],
       [test yes = "$with_java" && AC_MSG_ERROR([jni.h not found])])
+    if test yes = $java_ok ; then
+      AC_MSG_CHECKING([for Java path separator])
+      echo 'public class X { public static void main(String[] args) { System.out.println(System.getProperty("path.separator"); } }' > conftest.java
+      if (exec >&5 2>&5;$JAVAC conftest.java;exit $?) ; then
+	JAVA_PATHSEP=`$JAVA conftest 2> /dev/null`
+	AC_SUBST(JAVA_PATHSEP)
+	if test -n "$JAVA_PATHSEP" ; then
+	  AC_MSG_RESULT("$JAVA_PATHSEP")
+	  BINDINGS="$BINDINGS java"
+	else
+	  java_ok=no
+	fi
+      else
+	java_ok=no
+      fi
+      if test no = "$java_ok" ; then
+	AC_MSG_RESULT([test failed])
+        test yes = "$with_java" && AC_MSG_ERROR([Couldn't compile and run simple Java program])
+      fi
+    fi
   else
     if test yes = "$with_java" ; then
       if test -z "$JAVA" ; then
