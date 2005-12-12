@@ -1,3 +1,7 @@
+Mon Dec 12 04:26:24 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix java separator configure test to actually work.
+
 Mon Dec 12 02:54:10 GMT 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,java/Makefile.am: Compile a small java program and
@@ -6,7 +10,7 @@ Mon Dec 12 02:54:10 GMT 2005  Olly Betts <olly@survex.com>
 Mon Dec 12 02:11:44 GMT 2005  Olly Betts <olly@survex.com>
 
 	* java/Makefile.am,java/run-java-test: Use $(PATH_SEPARATOR) to
-	  seprate entries in the java -classpath command line option so
+	  separate entries in the java -classpath command line option so
 	  that it'll work on platforms where $(PATH_SEPARATOR) isn't ":".
 
 Sun Dec 11 07:58:51 GMT 2005  Olly Betts <olly@survex.com>

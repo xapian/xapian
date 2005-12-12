@@ -344,12 +344,12 @@ if test no != "$with_java" ; then
       [test yes = "$with_java" && AC_MSG_ERROR([jni.h not found])])
     if test yes = $java_ok ; then
       AC_MSG_CHECKING([for Java path separator])
-      echo 'public class X { public static void main(String[] args) { System.out.println(System.getProperty("path.separator"); } }' > conftest.java
+      [echo 'public class conftest { public static void main(String[] args) { System.out.println(System.getProperty("path.separator")); } }' > conftest.java]
       if (exec >&5 2>&5;$JAVAC conftest.java;exit $?) ; then
 	JAVA_PATHSEP=`$JAVA conftest 2> /dev/null`
 	AC_SUBST(JAVA_PATHSEP)
 	if test -n "$JAVA_PATHSEP" ; then
-	  AC_MSG_RESULT("$JAVA_PATHSEP")
+	  AC_MSG_RESULT($JAVA_PATHSEP)
 	  BINDINGS="$BINDINGS java"
 	else
 	  java_ok=no
