@@ -82,7 +82,7 @@ class Database {
 
 	/** Destroy this handle on the database.
 	 *
-	 *  If there are no copies of this object remaining, the database
+	 *  If there are no copies of this object remaining, the database(s)
 	 *  will be closed.
 	 */
 	virtual ~Database();
@@ -156,7 +156,7 @@ class Database {
 	/// Get the number of documents in the database.
 	Xapian::doccount get_doccount() const;
 
-	/// Get the last used document id of the database.
+	/// Get the highest document id which has been used in the database.
 	Xapian::docid get_lastdocid() const;
 
 	/// Get the average length of the documents in the database.
