@@ -1,3 +1,7 @@
+Mon Dec 19 12:53:38 GMT 2005  Olly Betts <olly@survex.com>
+
+	* AUTHORS,PLATFORMS: Add success report for Fedora Core 4.
+
 Mon Dec 19 12:52:55 GMT 2005  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Improve a couple of documentation

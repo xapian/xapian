@@ -50,6 +50,7 @@ x86   |=Linux 2.4 RHEL ES3 IntelC++ 8.1| 0.9.2 |Passed| (spe141)
 x86   | Linux 2.4 Slackw. 9.1 GCC 3.2.3|~0.8.1 |Passed| from tweakers.net
 x86   | Linux 2.6 Debian 3.0 GCC 2.95.4| 0.8.2 |Passed| from gmane.org
 x86   |*Linux 2.6 RedHat FC2 GCC 3.3.3 | 0.9.2 |Passed| (x86-linux2)
+x86   | Linux 2.6 RedHat FC4 GCC 4.0.0 | 0.9.1 |Passed| from Christiano Anderson
 x86   |=Linux 2.6 RH 10.0 GCC 3.4.1    | 0.9.1 |Passed| (spe188)
 x86   |=Linux 2.6 RH 10.0 IntelC++ 8.1 | 0.9.1 |Passed| (spe188)
 x86   |=Linux 2.6 SuSE 9 GCC 3.3.3     | 0.9.1 |Passed| (spe162)
