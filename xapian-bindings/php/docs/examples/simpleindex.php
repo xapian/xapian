@@ -100,5 +100,5 @@ foreach ($lines as $line) {
 	$para .= $line;
     }
 }
-delete_WritableDatabase($database);
+$database = Null;
 ?>

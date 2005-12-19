@@ -50,9 +50,9 @@ Alternatively you can add the following line to the start of your PHP scripts:
 
 <p>
 In general, a PHP fatal error is triggered on a C++ exception being thrown in
-the library. This is awful, and should be fixed in some useful way - the
-intention is to rework the core library to not throw exceptions but this
-is not at trivial job.
+the library.  We acknowledge this is awful, and needs to be fixed to work
+in a more useful way - the current plan is to rework the core library to not
+throw exceptions but this is not at trivial job.
 </p>
 
 <h2>Object orientation</h2>
@@ -60,10 +60,11 @@ is not at trivial job.
 <p>
 The PHP bindings do not currently use a PHP object oriented style
 (unfortunately SWIG's support for this is currently buggy for PHP4 and
-unimplemented for PHP5). In order
-to construct an object, use <code>$object = new_ClassName(...)</code>.  Destroy
-it using <code>delete_ClassName($object)</code>. Invoke methods on an object
-using <code>ClassName_method_name($object, ...)</code>.
+unimplemented for PHP5). In order to construct an object, use
+<code>$object = new_ClassName(...);</code>.  You can't explicitly destroy
+an object from PHP, but <code>$object = Null;</code> will cause the destructor
+to be called.
+Invoke methods on an object using <code>ClassName_method_name($object, ...)</code>.
 </p>
 
 <h2>Iterators</h2>
