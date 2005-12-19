@@ -1,6 +1,5 @@
 /* omindex.cc: index static documents into the omega db
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
@@ -18,9 +17,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -49,8 +47,9 @@
 
 #include <xapian.h>
 
-#include "myhtmlparse.h"
+#include "commonhelp.h"
 #include "indextext.h"
+#include "myhtmlparse.h"
 
 #include "gnu_getopt.h"
 
@@ -75,8 +74,8 @@ static string root;
 static string indexroot;
 static string baseurl;
 static Xapian::WritableDatabase db;
-
-vector<bool> updated;
+static Xapian::Stem stemmer("english");
+static vector<bool> updated;
 
 static const unsigned int MAX_URL_LENGTH = 240;
 
@@ -428,7 +427,6 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	cout << "unknown MIME type - skipping\n";
 	return;
     }
-    Xapian::Stem stemmer("english");
 
     // Produce a sample
     if (sample.empty()) {
@@ -597,6 +595,7 @@ main(int argc, char **argv)
 	{ "mime-type",	required_argument,	NULL, 'M' },
 	{ "depth-limit",required_argument,	NULL, 'l' },
 	{ "follow",	no_argument,		NULL, 'f' },
+	{ "stemmer",	required_argument,	NULL, 's' },
 	{ 0, 0, NULL, 0 }
     };
 
@@ -658,11 +657,11 @@ main(int argc, char **argv)
 
     while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:lp", longopts, NULL))!=EOF) {
 	switch (getopt_ret) {
-	case 'h':
-	    cout << OMINDEX << endl
-		 << "Usage: " << argv[0] << " [OPTION] --db DATABASE\n"
+	case 'h': {
+	    print_package_info(OMINDEX);
+	    cout << "Usage: " << argv[0] << " [OPTION]... --db DATABASE\n"
 		 << "\t--url BASEURL [BASEDIRECTORY] DIRECTORY\n\n"
-		 << "Index static website data via the filesystem.\n"
+		 << "Index static website data via the filesystem.\n\n"
 		 << "  -d, --duplicates\tset duplicate handling ('ignore' or 'replace')\n"
 	         << "  -p, --preserve-nonduplicates\n"
 		"\t\t\tdon't delete unupdated documents in\n"
@@ -672,13 +671,12 @@ main(int argc, char **argv)
 	         << "  -M, --mime-type\tadditional MIME mapping ext:type\n"
 		 << "  -l, --depth-limit=LIMIT\tset recursion limit (0 = unlimited)\n"
 		 << "  -f, --follow\t\tfollow symbolic links\n"
-		 << "      --overwrite\tcreate the database anew (the default is\n"
-	        "\t\t\tto update if the database already exists).\n"
-		 << "  -h, --help\t\tdisplay this help and exit\n"
-		 << "  -v, --version\t\toutput version and exit\n\n"
-		 << "Report bugs via the web interface at:\n"
-		 << "<http://xapian.org/bugs/>" << endl;
+		 << "      --overwrite\tcreate the database anew (the default is to update if\n"
+	        "\t\t\tthe database already exists)\n";
+	    print_stemmer_help();
+	    print_help_and_version_help();
 	    return 0;
+	}
 	case 'v':
 	    cout << OMINDEX << " (" << PACKAGE << ") " << VERSION << "\n"
 		 << "Copyright (c) 1999,2000,2001 BrightStation PLC.\n"
@@ -720,7 +718,7 @@ main(int argc, char **argv)
 		    mime_map.erase(string(optarg, s - optarg));
 		}
 	    } else {
-		cerr << "Illegal MIME mapping '" << optarg << "'\n"
+		cerr << "Invalid MIME mapping '" << optarg << "'\n"
 			"Should be of the form ext:type, eg txt:text/plain\n"
 			"(or txt: to delete a default mapping)" << endl;
 		return 1;
@@ -735,6 +733,16 @@ main(int argc, char **argv)
 	    break;
 	case 'o': // --overwrite
 	    overwrite = true;
+	    break;
+	case 's':
+	    try {
+		stemmer = Xapian::Stem(optarg);
+	    } catch (const Xapian::Error &e) {
+		cerr << "Unknown stemming language '" << optarg << "'.\n";
+		cerr << "Available language names are: "
+		     << Xapian::Stem::get_available_languages() << endl;
+		return 1;
+	    }
 	    break;
 	case ':': // missing param
 	    return 1;

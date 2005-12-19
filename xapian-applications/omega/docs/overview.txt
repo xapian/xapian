@@ -21,8 +21,13 @@ those used for boolean filtering (the CGI parameter 'B'). Boolean
 terms start with an initial capital letter denoting the 'group' of the
 term (eg: 'M' for MIME type), while probabilistic terms are all
 lower-case, and are also stemmed before adding to the
-database. (Currently the stemmer is the English one and cannot be
-configured without editing the source code.)
+database.
+
+The "english" stemmer is used by default - you can configure this for omindex
+and scriptindex with "--stemmer LANGUAGE" (use 'none' to disable stemming, see
+omindex --help for the list of accepted language names).  At search time you
+can configure the stemmer by adding $set{stemmer,LANGUAGE} to the top of you
+OmegaScript template.
 
 The two term types are used as follows when building the query:
 B(oolean) terms with the same prefix are ORed together, with all the

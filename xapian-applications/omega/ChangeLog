@@ -1,3 +1,11 @@
+Mon Dec 19 10:27:30 GMT 2005  Olly Betts <olly@survex.com>
+
+	* Makefile.am,commonhelp.cc,commonhelp.h,docs/overview.txt,omindex.cc,
+	  scriptindex.cc: Add "--stemmer" option to omindex and scriptindex
+	  to allow the stemming language to be set.
+	* omindex.cc,scriptindex.cc: More consistent --help and --version
+	  output.  Update FSF address.
+
 Mon Dec 19 06:03:31 GMT 2005  Olly Betts <olly@survex.com>
 
 	* query.cc: Explicitly use "unsigned char" when %-encoding in $url

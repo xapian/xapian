@@ -1,6 +1,5 @@
 /* scriptindex.cc
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
@@ -18,9 +17,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -38,8 +36,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#include "myhtmlparse.h"
+#include "commonhelp.h"
 #include "indextext.h"
+#include "myhtmlparse.h"
 
 #include "gnu_getopt.h"
 
@@ -557,11 +556,13 @@ main(int argc, char **argv)
     // If the database already exists, default to updating not overwriting.
     int database_mode = Xapian::DB_CREATE_OR_OPEN;
     verbose = false;
+    Xapian::Stem stemmer("english"); 
 
     argv0 = argv[0];
     static const struct option longopts[] = {
 	{ "help",	no_argument,	NULL, 'h' },
 	{ "version",	no_argument,	NULL, 'V' },
+	{ "stemmer",	required_argument,	NULL, 's' },
 	{ "overwrite",	no_argument,	NULL, 'o' },
 	{ "quiet",	no_argument,	NULL, 'q' },
 	{ "verbose",	no_argument,	NULL, 'v' },
@@ -594,19 +595,31 @@ main(int argc, char **argv)
 	    case 'v':
 		verbose = true;
 		break;
+	    case 's':
+		try {
+		    stemmer = Xapian::Stem(optarg);
+		} catch (const Xapian::Error &e) {
+		    cerr << "Unknown stemming language '" << optarg << "'.\n";
+		    cerr << "Available language names are: "
+			 << Xapian::Stem::get_available_languages() << endl;
+		    return 1;
+		}
+		break;
 	}
     }
 
     argv += optind;
     argc -= optind;
     if (show_help || argc < 2) {
-	cout << "Usage: " << argv0 
-	     << " [--help] [--version] [--overwrite] [-q] [-v]\n"
-"                <path to xapian database> <indexer script> [<filename>]...\n"
-"Creates a new database containing the data given by the list of files.\n"
-"The -v (verbose) option displays messages to aid debugging.\n"
-"The --overwrite option causes the database to be created anew (the default\n"
-"is to update if the database already exists)." << endl;
+	print_package_info("scriptindex");
+	cout << "Usage: " << argv0 << " [OPTION]... DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n\n"
+		"Creates or updates a Xapian database with the data from the input files listed\n"
+		"on the command line.  If no files are specified, data is read from stdin.\n\n"
+		"  -v, --verbose\t\tdisplay additional messages to aid debugging\n"
+		"      --overwrite\tcreate the database anew (the default is to update if\n"
+	        "\t\t\tthe database already exists)\n";
+	print_stemmer_help();
+	print_help_and_version_help('V');
 	exit(show_help ? 0 : 1);
     }
     
@@ -628,7 +641,6 @@ main(int argc, char **argv)
 		sleep(1);
 	    }
 	}
-	Xapian::Stem stemmer("english"); 
 
 	addcount = 0;
 	repcount = 0;
