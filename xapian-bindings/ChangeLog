@@ -1,3 +1,8 @@
+Mon Dec 19 12:51:19 GMT 2005  Olly Betts <olly@survex.com>
+
+	* tcl8/util.i: Remove typemaps for handling std::string since SWIG
+	  supplies those now.
+
 Mon Dec 19 11:45:39 GMT 2005  Olly Betts <olly@survex.com>
 
 	* php/docs/bindings.html,php/docs/examples/simpleindex.php: You aren't

@@ -1,9 +1,7 @@
 %{
-/* tcl8/util.i: the Xapian scripting Tcl8 interface helpers.
+/* tcl8/util.i: custom tcl8 typemaps for xapian-bindings
  *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright (c) 2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,21 +15,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 %}
-%include typemaps.i
 
-%typemap(tcl8, in) const string & (string temp) {
-    int len;
-    char *cval = Tcl_GetStringFromObj($input, &len);
-
-    temp = string(cval, len);
-    $1 = &temp;
-}
-
-%typemap(tcl8, out) string {
-    Tcl_SetStringObj($result,$1->c_str(), $1->length());
-}
+/* This space intentionally left blank */
