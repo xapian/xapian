@@ -384,7 +384,13 @@ if test yes = "$GXX" ; then
   dnl Swig generated code gives lots of unused and uninitialized warnings.
   dnl They're non-harmful, so suppress them.
   SWIG_CXXFLAGS="-Wall -Wno-unused -Wno-uninitialized"
+  dnl The Java JNI wrappers have a few unused variables.
   JAVA_CXXFLAGS="-Wall -W -Wno-unused"
+  dnl Python itself is compiled with -fno-strict-aliasing, and it appears
+  dnl it's safest to follow this lead when compiling the SWIG generated
+  dnl interface code.  E.g.:
+  dnl   http://article.gmane.org/gmane.comp.gcc.devel/74692
+  PYTHON_CXXFLAGS="-fno-strict-aliasing"
   dnl We need to explicitly link against -lstdc++ on OpenBSD (discovered
   dnl on OpenBSD 3.7 with GCC 3.3.5 but this appears to be due to a
   dnl deliberate decision on the part of OpenBSD developers).  Luckily

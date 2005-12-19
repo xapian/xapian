@@ -1,3 +1,10 @@
+Mon Dec 19 11:01:31 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: If using GCC, compile the python
+	  bindings with -fno-strict-aliasing (python itself is compiled with
+	  this option to avoid problems and it appears we ought to use it too
+	  to avoid the same problems).
+
 Mon Dec 12 11:15:34 GMT 2005  Olly Betts <olly@survex.com>
 
 	* php/util.i.in: Use std::string::data() instead of c_str() as it may
