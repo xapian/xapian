@@ -1,3 +1,9 @@
+Mon Dec 19 06:03:31 GMT 2005  Olly Betts <olly@survex.com>
+
+	* query.cc: Explicitly use "unsigned char" when %-encoding in $url
+	  so that top bit set characters are correctly handled on platforms
+	  where char is signed by default.
+
 Sun Dec 11 09:30:44 GMT 2005  Olly Betts <olly@survex.com>
 
 	* templates/godmode: If a non-existant docid is specified, report the

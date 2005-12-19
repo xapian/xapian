@@ -485,7 +485,7 @@ percent_encode(const string &str)
     string res;
     const char *p = str.c_str();
     while (true) {
-	char ch = *p++;
+	unsigned char ch = *p++;
 	if (ch == 0) return res;
 	if (ch <= 32 || ch >= 127 || strchr("#%&,/:;<=>?@[\\]^_{|}", ch)) {
 	    char buf[4];
