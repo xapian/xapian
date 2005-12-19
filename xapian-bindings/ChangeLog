@@ -1,3 +1,7 @@
+Mon Dec 19 11:37:16 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add feature tests for new Query wrapping stuff.
+
 Mon Dec 19 11:34:44 GMT 2005  Olly Betts <olly@survex.com>
 
 	* python/util.i: Convert C++ strings to python ones in a zero-byte

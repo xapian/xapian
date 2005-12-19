@@ -1,7 +1,7 @@
 <?php
 /* Simple test that we can load the xapian module and run a simple test
  *
- * Copyright (C) 2004 Olly Betts
+ * Copyright (C) 2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
 
@@ -32,3 +32,9 @@ Document_add_posting($doc, Stem_stem_word($stem, "there"), 5);
 $db = inmemory_open();
 WritableDatabase_add_document($db, $doc);
 if (Database_get_doccount($db) != 1) exit(1);
+$terms = array("smoke", "test", "terms")
+$query = new_Query(Query_OP_OR, $terms)
+$query1 = new_Query(Query_OP_PHRASE, array("smoke", "test", "tuple"))
+$query2 = new_Query(Query_OP_XOR, array($query, $query1, "string"))
+$subqs = array("a", "b")
+$query3 = new_Query(Query_OP_OR, $subqs)
