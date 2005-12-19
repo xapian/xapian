@@ -1,3 +1,8 @@
+Mon Dec 19 11:34:44 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i: Convert C++ strings to python ones in a zero-byte
+	  clean way.
+
 Mon Dec 19 11:01:31 GMT 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,python/Makefile.am: If using GCC, compile the python

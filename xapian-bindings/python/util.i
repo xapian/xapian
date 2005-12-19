@@ -124,7 +124,7 @@ namespace Xapian {
 
     while (i != $1->end()) {
 	// FIXME: check return values (once we know what they should be)
-	PyList_Append($result, PyString_FromString(i->c_str()));
+	PyList_Append($result, PyString_FromStringAndSize(i->data(), i->size()));
 	++i;
     }
     delete $1;
@@ -185,7 +185,7 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
     while (i != eset->end()) {
 	PyObject *t = PyTuple_New(2);
 
-	PyTuple_SetItem(t, ESET_TNAME, PyString_FromString((*i).c_str()));
+	PyTuple_SetItem(t, ESET_TNAME, PyString_FromStringAndSize((*i).data(), (*i).size()));
 	PyTuple_SetItem(t, ESET_WT, PyFloat_FromDouble(i.get_weight()));
 
 	PyList_Append(retval, t);
