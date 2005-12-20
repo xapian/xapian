@@ -1,3 +1,10 @@
+Tue Dec 20 09:48:56 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Heed compatibility warnings and use different
+	  forms for command-line switches to the C# compiler (presumably for
+	  compatibility with Microsoft's compiler, though the warnings don't
+	  actually say that explicitly).
+
 Mon Dec 19 12:51:19 GMT 2005  Olly Betts <olly@survex.com>
 
 	* tcl8/util.i: Remove typemaps for handling std::string since SWIG
