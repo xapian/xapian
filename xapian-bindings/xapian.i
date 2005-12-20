@@ -733,9 +733,11 @@ class Quartz {
     Quartz();
     ~Quartz();
   public:
+    static
     Database open(const std::string &dir);
+    static
     WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
-}
+};
 
 class InMemory {
   private:
