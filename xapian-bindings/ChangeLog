@@ -1,3 +1,10 @@
+Tue Dec 20 16:51:49 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs,csharp/TODO: SWIG now supports optional
+	  parameters in C# so no need to specify them.  Also the
+	  get_description() problem I noticed seems to have been
+	  fixed by a newer version of SWIG.
+
 Tue Dec 20 15:50:41 GMT 2005  Olly Betts <olly@survex.com>
 
 	* xapian.i: Added a missing ";" and two missing "static" from the

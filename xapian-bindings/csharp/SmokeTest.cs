@@ -23,12 +23,12 @@ class SmokeTest {
 	    Xapian.Stem stem = new Xapian.Stem("english");
 	    Xapian.Document doc = new Xapian.Document();
 	    doc.set_data("is there anybody out there?");
-	    doc.add_term("XYzzy", 1);
-	    doc.add_posting(stem.stem_word("is"), 1, 1);
-	    doc.add_posting(stem.stem_word("there"), 2, 1);
-	    doc.add_posting(stem.stem_word("anybody"), 3, 1);
-	    doc.add_posting(stem.stem_word("out"), 4, 1);
-	    doc.add_posting(stem.stem_word("there"), 5, 1);
+	    doc.add_term("XYzzy");
+	    doc.add_posting(stem.stem_word("is"), 1);
+	    doc.add_posting(stem.stem_word("there"), 2);
+	    doc.add_posting(stem.stem_word("anybody"), 3);
+	    doc.add_posting(stem.stem_word("out"), 4);
+	    doc.add_posting(stem.stem_word("there"), 5);
 	    Xapian.WritableDatabase db = Xapian.InMemory.open();
 	    db.add_document(doc);
 	    if (db.get_doccount() != 1) {

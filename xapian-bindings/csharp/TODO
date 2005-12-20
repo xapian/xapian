@@ -4,16 +4,3 @@ TODO
 Write examples (copying those from other bindings).
 
 Write documentation.
-
-
-The following problems, reported by Olly, need to be looked at:
-
-> I get a warning when building the assembly that
-> WritableDatabase.get_description() needs to be marked new as it hides
-> Database.get_description().  I guess that's a C# thing (probably
-> something like virtual in C++).  Sounds like a SWIG bug.
-
-> Methods like Document::add_term() with optional parameters insist on
-> having all parameters specified (another SWIG bug?)
-
-SWIG 1.3.23 apparently implements optional parameters for C#.
