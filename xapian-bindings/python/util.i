@@ -33,7 +33,7 @@ namespace Xapian {
 	PyObject * mythis = PyObject_GetAttrString(obj, "this");
 	Query * retval = 0;
 	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
-				       SWIGTYPE_p_Xapian__Query, 0)) {
+				       SWIGTYPE_p_Xapian__Query, 0) < 0) {
 	    retval = 0;
 	}
 	return retval;

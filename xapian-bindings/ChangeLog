@@ -1,3 +1,8 @@
+Tue Dec 20 20:40:57 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i: Test return value of SWIG_ConvertPtr < 0 for
+	  consistency with usage elsewhere.
+
 Tue Dec 20 16:51:49 GMT 2005  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs,csharp/TODO: SWIG now supports optional
