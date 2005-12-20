@@ -1,6 +1,6 @@
 // Simple test that we can load the xapian module and run a simple test
 //
-// Copyright (C) 2004 Olly Betts
+// Copyright (C) 2004,2005 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,16 +14,14 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 // USA
-
-using Xapian;
 
 class SmokeTest {
     public static void Main() {
 	try {
-	    Stem stem = new Stem("english");
-	    Document doc = new Document();
+	    Xapian.Stem stem = new Xapian.Stem("english");
+	    Xapian.Document doc = new Xapian.Document();
 	    doc.set_data("is there anybody out there?");
 	    doc.add_term("XYzzy", 1);
 	    doc.add_posting(stem.stem_word("is"), 1, 1);
@@ -31,15 +29,13 @@ class SmokeTest {
 	    doc.add_posting(stem.stem_word("anybody"), 3, 1);
 	    doc.add_posting(stem.stem_word("out"), 4, 1);
 	    doc.add_posting(stem.stem_word("there"), 5, 1);
-// FIXME: inmemory_open fails to link...
-//	    WritableDatabase db = inmemory_open();
-//	    db.add_document(doc);
-//	    if (db.get_doccount() != 1) {
-//		System.Environment.Exit(1);
-//	    }
-	} catch {
-	     // FIXME: give details of the exception
-	     System.Console.WriteLine("Exception:");
+	    Xapian.WritableDatabase db = Xapian.InMemory.open();
+	    db.add_document(doc);
+	    if (db.get_doccount() != 1) {
+		System.Environment.Exit(1);
+	    }
+	} catch (System.Exception e) {
+	     System.Console.WriteLine("Exception: " + e.ToString());
 	     System.Environment.Exit(1);
 	}
     }

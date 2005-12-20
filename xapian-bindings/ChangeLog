@@ -1,3 +1,18 @@
+Tue Dec 20 13:05:07 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/: svn:ignore SmokeTest.exe, and adjust other ignores to be
+	  more specific.
+	* csharp/Makefile.am,csharp/SmokeTest.cs,csharp/TODO,xapian.i:
+	  SmokeTest now passes and reports exceptions verbosely.
+	  Xapian::InMemory::open() is wrapped as Xapian.InMemory.open(), and
+	  similarly for other database factory functions.
+	* xapian.i: Removed workaround for SWIG 1.3.22's missing std_XXX.i
+	  typemap files for C#.  Added workaround for SWIG 1.3.27's missing
+	  SWIG_exception() for C#.  Stop renaming methods for PHP as it now
+	  support overloading.  Add dtors for MSetIterator and ESetIterator
+	  as the classes do have them (they just do nothing) and SWIG will
+	  try to wrap the default ones anyway (and get it slightly wrong).
+
 Tue Dec 20 09:48:56 GMT 2005  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Heed compatibility warnings and use different

@@ -10,6 +10,7 @@ EXTRA_DIST = util.i extra.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
 ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_CS_SRCS=\
+	Auto.cs \
 	BM25Weight.cs \
 	BoolWeight.cs \
 	Database.cs \
@@ -17,18 +18,24 @@ XAPIAN_SWIG_CS_SRCS=\
 	ESet.cs \
 	ESetIterator.cs \
 	Enquire.cs \
+	InMemory.cs \
 	MSet.cs \
 	MSetIterator.cs \
+	Muscat36.cs \
 	PositionIterator.cs \
 	PostingIterator.cs \
+	Quartz.cs \
 	Query.cs \
 	QueryParser.cs \
+	Remote.cs \
 	RSet.cs \
 	SWIGTYPE_p_Xapian__ExpandDecider.cs \
 	SWIGTYPE_p_Xapian__MatchDecider.cs \
-	SWIGTYPE_p_std__listTstd__string_t.cs \
+	SWIGTYPE_p_std__list_Tstd__string_t.cs \
+	SWIGTYPE_p_std__vector_Tstd__string_t.cs \
+	SWIGTYPE_p_std__vector_TXapian__Query_t.cs \
 	SWIGTYPE_p_time_t.cs \
-	SWIGTYPE_p_vectorTstd__string_t.cs \
+	SimpleStopper.cs \
 	Stem.cs \
 	Stopper.cs \
 	TermIterator.cs \
@@ -49,7 +56,7 @@ BUILT_SOURCES = $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS)
 
 if MAINTAINER_MODE
 XapianSharp.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i extra.i
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -o $(ASSEMBLY).cc $(srcdir)/../xapian.i
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -dllimport XapianSharp -o $(ASSEMBLY).cc $(srcdir)/../xapian.i
 endif
 
 lib_LTLIBRARIES = XapianSharp.la
@@ -66,7 +73,7 @@ uninstall-local:
 	$(GACUTIL) /u $(ASSEMBLY) /f /package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)
 
 SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll
-	$(CSC) --unsafe --target exe SmokeTest.cs -r:$(ASSEMBLY).dll
+	$(CSC) -unsafe -target:exe SmokeTest.cs -r:$(ASSEMBLY).dll
 
 all-am: $(ASSEMBLY).dll
 

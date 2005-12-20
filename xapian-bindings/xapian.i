@@ -84,17 +84,18 @@ namespace Xapian {
 
 using namespace std;
 
-#ifdef SWIGCSHARP
-/* In SWIG 1.3.22 C# doesn't have all the files which stl.i tries to include,
- * so just include the one which does exist for now.  FIXME monitor this
- * situation... */
-%include "std_string.i"
-#else
-%include "stl.i"
-#endif
+%include stl.i
 
 %include typemaps.i
 %include exception.i
+
+#ifdef SWIGCSHARP
+%{
+#ifndef SWIG_exception
+# define SWIG_exception(code, msg) SWIG_CSharpException(code, msg)
+#endif
+%}
+#endif
 
 %{
 #define OMSWIG_exception(type, e) \
@@ -287,23 +288,11 @@ class MSet {
     MSet(const MSet& other);
     ~MSet();
 
-#ifdef SWIGPHP4
-    %rename(fetch_range) fetch;
-#endif
     void fetch(MSetIterator& begin, MSetIterator& end) const;
-#ifdef SWIGPHP4
-    %rename(fetch_single) fetch;
-#endif
     void fetch(MSetIterator& item) const;
-#ifdef SWIGPHP4
-    %rename(fetch) fetch;
-#endif
     void fetch() const;
 
     percent convert_to_percent(weight wt) const;
-#ifdef SWIGPHP4
-    %rename(convert_msetiterator_to_percent) convert_to_percent;
-#endif
     percent convert_to_percent(const MSetIterator & item) const;
 
     doccount get_termfreq(std::string tname) const;
@@ -343,6 +332,7 @@ class MSetIterator {
   public:
     // FIXME: wrap for csharp? MSetIterator();
     MSetIterator(const MSetIterator& other);
+    ~MSetIterator();
     %extend {
 	docid get_docid() const {
 	    return *(*self);
@@ -386,6 +376,7 @@ class ESet {
 class ESetIterator {
   public:
     ESetIterator(const ESetIterator& other);
+    ~ESetIterator();
     %extend {
 	std::string get_termname() const {
 	    return *(*self);
@@ -415,19 +406,10 @@ class RSet {
 	bool is_empty() const { return self->empty(); }
     }
     void add_document(docid did);
-#ifdef SWIGPHP4
-    %rename(add_document_from_mset_iterator) add_document;
-#endif
     void add_document(MSetIterator& i);
     void remove_document(docid did);
-#ifdef SWIGPHP4
-    %rename(remove_document_from_mset_iterator) remove_document;
-#endif
     void remove_document(MSetIterator& i);
     bool contains(docid did);
-#ifdef SWIGPHP4
-    %rename(contains_from_mset_iterator) contains;
-#endif
     bool contains(MSetIterator& i);
     string get_description() const;
 };
@@ -470,7 +452,6 @@ class Enquire {
  
     void set_bias(weight bias_weight, time_t bias_halflife);
 
-#ifndef SWIGPHP4
     MSet get_mset(doccount first,
 	    doccount maxitems,
 	    doccount checkatleast = 0,
@@ -486,19 +467,9 @@ class Enquire {
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0,
 	    const ExpandDecider *edecider = 0) const;
-#else
-    // FIXME wrap checkatleast omrset and mdecider optional parameters
-    MSet get_mset(doccount first, doccount maxitems) const;
-    // FIXME wrap form without flags and k?
-    ESet get_eset(termcount maxitems, const RSet &omrset) const;
-#endif
 
     TermIterator get_matching_terms_begin(docid did) const;
     TermIterator get_matching_terms_end(docid did) const;
-#ifdef SWIGPHP4
-    %rename(get_matching_terms_from_mset_iterator_begin) get_matching_terms_begin;
-    %rename(get_matching_terms_from_mset_iterator_end) get_matching_terms_end;
-#endif
     TermIterator get_matching_terms_begin(const MSetIterator& i) const;
     TermIterator get_matching_terms_end(const MSetIterator& i) const;
 
@@ -581,9 +552,6 @@ class BM25Weight : public Weight {
     public:
 	BM25Weight(double k1_, double k2_, double k3_, double b_,
 		   double min_normlen_);
-#ifdef SWIGPHP4
-	%rename(BM25Weight_default) BM25Weight;
-#endif
 	BM25Weight();
 
 	BM25Weight * clone() const;
@@ -604,9 +572,6 @@ class BM25Weight : public Weight {
 class TradWeight : public Weight {
     public:
 	explicit TradWeight(double k);
-#ifdef SWIGPHP4
-	%rename(TradWeight_default) TradWeight;
-#endif
 	TradWeight();
 
 	TradWeight * clone() const;
@@ -629,13 +594,7 @@ class TradWeight : public Weight {
 class Database {
     public:
 	void add_database(const Database & database);
-#ifdef SWIGPHP4
-	%rename(Database_empty) Database;
-#endif
 	Database();
-#ifdef SWIGPHP4
-	%rename(Database) Database;
-#endif
 	Database(const string &path);
 	virtual ~Database();
 	Database(const Database & other);
@@ -677,10 +636,6 @@ class WritableDatabase : public Database {
 	docid add_document(const Document & document);
 	void delete_document(docid did);
 	void replace_document(docid did, const Document & document);
-#ifdef SWIGPHP4
-	%rename(delete_document_by_term) delete_document;
-	%rename(replace_document_by_term) replace_document;
-#endif
 	void delete_document(const std::string & unique_term);
 	Xapian::docid replace_document(const std::string & unique_term,
 				       const Xapian::Document & document);
@@ -695,15 +650,19 @@ class WritableDatabase : public Database {
 
 // Database factory functions:
 
+#ifndef SWIGCSHARP
 namespace Auto {
+#ifdef SWIGPHP4
+    /* PHP4 lacks namespaces so fake them rather than having a function just
+     * called "open".  Also rename open_stub, open_da, etc for consistency. */
+    %rename(auto_open) open;
+    %rename(auto_open_stub) open_stub;
+#endif
     Database open(const string & path);
 /* SWIG Tcl wrappers don't call destructors for classes returned by factory
  * functions, so don't wrap them so users are forced to use the
  * WritableDatabase ctor instead (that's the preferred method anyway). */
 #ifndef SWIGTCL
-#ifdef SWIGPHP4
-    %rename(open_writable) open;
-#endif
     WritableDatabase open(const string & path, int action);
 #endif
     Database open_stub(const string & file);
@@ -716,12 +675,7 @@ namespace Quartz {
  * functions, so don't wrap them so users are forced to use the
  * WritableDatabase ctor instead. */
 #ifndef SWIGTCL
-#ifdef SWIGPHP4
-    %rename(quartz_open_writable) open;
-    WritableDatabase open(const std::string &dir, int action);
-#else
     WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
-#endif
 #endif
 }
 
@@ -731,7 +685,7 @@ namespace InMemory {
 }
 
 namespace Muscat36 {
-#if defined SWIGPHP4 || defined SWIGGUILE
+#ifdef SWIGGUILE
     Database open_da(const std::string &R, const std::string &T);
     %rename(open_da_values) open_da;
     Database open_da(const std::string &R, const std::string &T, const std::string &values);
@@ -739,6 +693,12 @@ namespace Muscat36 {
     %rename(open_db_values) open_db;
     Database open_db(const std::string &DB, const std::string &values);
 #else
+#ifdef SWIGPHP4
+    /* PHP4 lacks namespaces so fake them rather than having a function just
+     * called "open".  Also rename open_stub, open_da, etc for consistency. */
+    %rename(muscat36_open_da) open_da;
+    %rename(muscat36_open_db) open_db;
+#endif
     Database open_da(const std::string &R, const std::string &T, bool heavy_duty = true);
     Database open_da(const std::string &R, const std::string &T, const std::string &values, bool heavy_duty = true);
     Database open_db(const std::string &DB, size_t cache_size = 30);
@@ -752,6 +712,66 @@ namespace Remote {
     Database open(const std::string &host, unsigned int port,
 	timeout timeout = 10000, timeout connect_timeout = 0);
 }
+#else
+/* Lie to SWIG that Auto, etc are classes with static methods rather than
+   namespaces so it wraps it as we want in C#. */
+class Auto {
+  private:
+    Auto();
+    ~Auto();
+  public:
+    static
+    Database open(const string & path);
+    static
+    WritableDatabase open(const string & path, int action);
+    static
+    Database open_stub(const string & file);
+};
+
+class Quartz {
+  private:
+    Quartz();
+    ~Quartz();
+  public:
+    Database open(const std::string &dir);
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+}
+
+class InMemory {
+  private:
+    InMemory();
+    ~InMemory();
+  public:
+    static
+    WritableDatabase open();
+};
+
+class Muscat36 {
+  private:
+    Muscat36();
+    ~Muscat36();
+  public:
+    static
+    Database open_da(const std::string &R, const std::string &T, bool heavy_duty = true);
+    static
+    Database open_da(const std::string &R, const std::string &T, const std::string &values, bool heavy_duty = true);
+    static
+    Database open_db(const std::string &DB, size_t cache_size = 30);
+    static
+    Database open_db(const std::string &DB, const std::string &values, size_t cache_size = 30);
+};
+
+class Remote {
+  private:
+    Remote();
+    ~Remote();
+  public:
+    // FIXME: prog factory function not currently wrapped - is it useful?
+    static
+    Database open(const std::string &host, unsigned int port,
+	timeout timeout = 10000, timeout connect_timeout = 0);
+};
+#endif
 
 // xapian/query.h:
 
@@ -770,18 +790,13 @@ class Query {
 	};
 	// FIXME wrap optional arguments in PHP?
 	Query(const string &tname, termcount wqf = 1, termpos term_pos = 0);
-#ifdef SWIGPHP4
-	%rename(Query_from_query_pair) Query;
-#endif
 	Query(Query::op op_, const Query & left, const Query & right);
-#ifdef SWIGPHP4
-	%rename(Query_from_term_pair) Query;
-#endif
 	Query(Query::op op_, const string & left, const string & right);
-#ifndef SWIGPHP4
 	Query(const Query& copyme);
         %extend {
-#ifndef SWIGPYTHON /* For Python we handle strings in the vector<Query> case. */
+#if !defined(SWIGPYTHON) && !defined(SWIGPHP4)
+	    /* For Python and PHP we handle strings in the vector<Query> case. */
+
 	    /** Constructs a query from a vector of terms merged with the
 	     *  specified operator. */
 	    Query(Query::op op, const vector<string> & subqs, termcount param = 0) {
@@ -799,12 +814,8 @@ class Query {
 	/** Apply the specified operator to a single Xapian::Query object. */
 	Query(Query::op op_, Xapian::Query q);
 #endif
-#endif
 
 	/** Constructs a new empty query object */
-#ifdef SWIGPHP4
-	%rename(Query_empty) Query;
-#endif
 	Query();
 
 	~Query();
@@ -825,7 +836,7 @@ class Query {
 #endif
 class Stopper {
 public:
-#if defined SWIGPHP4 || defined SWIGTCL || defined SWIGGUILE || defined SWIGCSHARP
+#ifndef SWIGPYTHON
     %rename(apply) operator();
 #endif
     virtual bool operator()(const std::string & term) const = 0;
@@ -838,7 +849,7 @@ class SimpleStopper : public Stopper {
 
     void add(const std::string word) { stop_words.insert(word); }
 
-#if defined SWIGPHP4 || defined SWIGTCL || defined SWIGGUILE || defined SWIGCSHARP
+#ifndef SWIGPYTHON
     %rename(apply) operator();
 #endif
     virtual bool operator()(const std::string & term) const {
@@ -866,9 +877,6 @@ public:
 
     QueryParser();
     ~QueryParser();
-#ifndef SWIGPHP4
-    QueryParser(const QueryParser & o);
-#endif
     void set_stemmer(const Xapian::Stem & stemmer);
     void set_stemming_strategy(stem_strategy strategy);
     void set_stopper(Stopper *stop = NULL);
@@ -876,9 +884,6 @@ public:
     Query::op get_default_op() const;
     void set_database(const Database &db_);
     Query parse_query(const string &q);
-#ifdef SWIGPHP4
-    %rename (parse_query_flags) parse_query;
-#endif
     Query parse_query(const string &q, unsigned flags);
 
     void add_prefix(const std::string &field, const std::string &prefix);
@@ -899,7 +904,7 @@ public:
     explicit Stem(const string &language);
     ~Stem();
 
-#if defined SWIGPHP4 || defined SWIGTCL || defined SWIGGUILE || defined SWIGCSHARP
+#ifndef SWIGPYTHON
     %rename(apply) operator();
 #endif
     string operator()(const string &word) const;
