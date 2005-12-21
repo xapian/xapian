@@ -72,7 +72,7 @@ namespace Xapian {
 }
 %}
 
-%typemap(python, typecheck, precedence=500) const vector<Xapian::Query> & {
+%typemap(typecheck, precedence=500) const vector<Xapian::Query> & {
     if (!PySequence_Check($input)) {
 	$1 = 0;
     } else {
@@ -88,7 +88,7 @@ namespace Xapian {
     }
 }
 
-%typemap(python, in) const vector<Xapian::Query> & (vector<Xapian::Query> v) {
+%typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v) {
     if (!PySequence_Check($input)) {
 	PyErr_SetString(PyExc_TypeError, "expected list of queries");
 	return NULL;
@@ -114,7 +114,7 @@ namespace Xapian {
 }
 
 /*
-%typemap(python, out) termname_list {
+%typemap(out) termname_list {
     $result = PyList_New(0);
     if ($result == 0) {
 	return NULL;
@@ -142,6 +142,7 @@ namespace Xapian {
 
 #define ESET_TNAME 0
 #define ESET_WT 1
+
 %{
 #define MSET_DID 0
 #define MSET_WT 1
@@ -195,7 +196,7 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 }
 %}
 
-%typemap(python, memberout) PyObject *items {
+%typemap(memberout) PyObject *items {
     $result = PyList_New(0);
     if ($result == 0) {
 	return NULL;

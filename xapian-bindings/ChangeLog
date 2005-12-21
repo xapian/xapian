@@ -1,3 +1,9 @@
+Wed Dec 21 09:04:54 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i: Remove the language name from the %typemap arguments
+	  - it's superfluous (since we only include this file for python) and
+	  seems to be deprecated in SWIG.
+
 Tue Dec 20 20:40:57 GMT 2005  Olly Betts <olly@survex.com>
 
 	* python/util.i: Test return value of SWIG_ConvertPtr < 0 for
