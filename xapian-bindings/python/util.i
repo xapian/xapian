@@ -44,7 +44,7 @@ namespace Xapian {
 	PyObject * mythis = PyObject_GetAttrString(obj, "this");
 	Rset * retval = 0;
 	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
-				       SWIGTYPE_p_Xapian__RSet, 0)) {
+				       SWIGTYPE_p_Xapian__RSet, 0) < 0) {
 	    retval = 0;
 	}
 	return retval;
@@ -56,19 +56,21 @@ namespace Xapian {
 	PyObject * mythis = PyObject_GetAttrString(obj, "this");
 	MatchDecider * retval = 0;
 	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
-				       SWIGTYPE_p_Xapian__MatchDecider, 0)) {
+				       SWIGTYPE_p_Xapian__MatchDecider, 0) < 0) {
 	    retval = 0;
 	}
 	return retval;
     }
 #endif
 
+#if 0
     int get_py_int(PyObject *obj) {
 	if (!PyNumber_Check(obj)) {
 	    throw PythonProblem();
 	}
 	return PyInt_AsLong(PyNumber_Int(obj));
     }
+#endif
 }
 %}
 
@@ -90,7 +92,7 @@ namespace Xapian {
 
 %typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v) {
     if (!PySequence_Check($input)) {
-	PyErr_SetString(PyExc_TypeError, "expected list of queries");
+	PyErr_SetString(PyExc_TypeError, "expected list of strings or queries");
 	return NULL;
     }
     int numitems = PySequence_Size($input);
@@ -98,8 +100,10 @@ namespace Xapian {
     for (int i = 0; i < numitems; ++i) {
 	PyObject *obj = PySequence_GetItem($input, i);
 	if (PyString_Check(obj)) {
-	    int len = PyString_Size(obj);
-	    const char *p = PyString_AsString(obj);
+	    char * p;
+	    int len;
+	    /* We know this must be a string, so this call can't fail. */
+	    (void)PyString_AsStringAndSize(&p, &len);
 	    v.push_back(Xapian::Query(string(p, len)));
 	} else {
 	    Xapian::Query *subqp = Xapian::get_py_query(obj);
