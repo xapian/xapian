@@ -1,3 +1,9 @@
+Sat Dec 24 14:27:56 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/util.i.in: Remove language name from %typemap as it's deprecated
+	  by SWIG and not needed since we only include the appropriate util.i
+	  for the language we're building bindings for.
+
 Sat Dec 24 13:13:26 GMT 2005  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,csharp/extra.i,guile/Makefile.am,guile/extra.i,

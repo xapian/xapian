@@ -42,7 +42,7 @@
 
 %include typemaps.i
 
-%typemap(php4, out) std::list<std::string> {
+%typemap(out) std::list<std::string> {
     array_init($result);
 
     std::list<std::string>::const_iterator tn;
