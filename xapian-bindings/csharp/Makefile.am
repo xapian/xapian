@@ -7,6 +7,8 @@ TESTS = SmokeTest.exe
 
 EXTRA_DIST = util.i extra.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
 
+SUBDIRS = docs
+
 ASSEMBLY=XapianSharp
 
 XAPIAN_SWIG_CS_SRCS=\
