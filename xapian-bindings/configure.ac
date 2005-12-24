@@ -411,7 +411,7 @@ AC_CONFIG_FILES([Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  guile/Makefile
  tcl8/Makefile tcl8/docs/Makefile tcl8/docs/examples/Makefile
- csharp/Makefile
+ csharp/Makefile csharp/docs/Makefile
  csharp/AssemblyInfo.cs
  xapian-bindings.spec])
 AC_OUTPUT
