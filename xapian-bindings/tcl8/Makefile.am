@@ -5,7 +5,7 @@ TESTS_ENVIRONMENT = $(TCLSH)
 ## Test programs to be run
 TESTS = smoketest.tcl
 
-EXTRA_DIST = util.i extra.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = util.i $(TESTS) $(BUILT_SOURCES)
 SUBDIRS = docs
 
 tcllibdir = @TCL_LIB@/../xapian@VERSION@
@@ -28,7 +28,7 @@ xapian_la_LIBADD = $(XAPIAN_LIBS)
 BUILT_SOURCES = xapian_wrap.cc
 
 if MAINTAINER_MODE
-xapian_wrap.cc: ../xapian.i util.i extra.i
+xapian_wrap.cc: ../xapian.i util.i
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -tcl8 -namespace -pkgversion @VERSION@ -o $@ $(srcdir)/../xapian.i
 endif
 

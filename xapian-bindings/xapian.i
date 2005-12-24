@@ -911,7 +911,3 @@ public:
 };
 
 }
-
-// This includes a language specific extra.i, thanks to judicious setting of
-// the include path
-%include "extra.i"

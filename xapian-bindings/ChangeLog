@@ -1,3 +1,11 @@
+Sat Dec 24 13:13:26 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/extra.i,guile/Makefile.am,guile/extra.i,
+	  php/Makefile.am,php/extra.i,python/util.i,tcl8/Makefile.am,
+	  tcl8/extra.i,xapian.i: Eliminate all the empty extra.i files.
+	  Python's isn't empty, but we can just include that from Python's
+	  util.i.
+
 Sat Dec 24 13:08:16 GMT 2005  Olly Betts <olly@survex.com>
 
 	* csharp/util.i,xapian.i: Make ++ and -- work on iterators.

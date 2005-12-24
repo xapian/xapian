@@ -5,7 +5,7 @@ TESTS_ENVIRONMENT =
 ## Test programs to be run
 TESTS = SmokeTest.exe
 
-EXTRA_DIST = util.i extra.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
+EXTRA_DIST = util.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
@@ -57,7 +57,7 @@ $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 BUILT_SOURCES = $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS)
 
 if MAINTAINER_MODE
-XapianSharp.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i extra.i
+XapianSharp.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_CS_SRCS)

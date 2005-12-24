@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = util.i extra.i $(BUILT_SOURCES)
+EXTRA_DIST = util.i $(BUILT_SOURCES)
 
 noinst_LTLIBRARIES = xapianc.la
 
@@ -12,7 +12,7 @@ xapianc_la_LIBADD = $(XAPIAN_LIBS)
 BUILT_SOURCES = xapian_wrap.cc
 
 if MAINTAINER_MODE
-xapian_wrap.cc: ../xapian.i util.i extra.i
+xapian_wrap.cc: ../xapian.i util.i
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -guile -o $@ $(srcdir)/../xapian.i
 endif
 

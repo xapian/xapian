@@ -319,3 +319,5 @@ namespace Xapian {
     };
 }
 #pragma SWIG nowarn=
+
+%include extra.i
