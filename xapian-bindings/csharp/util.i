@@ -1,8 +1,7 @@
 %{
-/* csharp/util.i: the Xapian scripting csharp interface helpers.
+/* csharp/util.i: custom C# typemaps for xapian-bindings
  *
- * ----START-LICENCE----
- * Copyright 2004 Richard Boulton
+ * Copyright (c) 2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +15,53 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 %}
+
+namespace Xapian {
+
+%typemap(cscode) class MSetIterator %{
+    public static MSetIterator operator++(MSetIterator it) {
+	return it.next();
+    }
+    public static MSetIterator operator--(MSetIterator it) {
+	return it.prev();
+    }
+%}
+
+%typemap(cscode) ESetIterator %{
+    public static ESetIterator operator++(ESetIterator it) {
+	return it.next();
+    }
+    public static ESetIterator operator--(ESetIterator it) {
+	return it.prev();
+    }
+%}
+
+%typemap(cscode) TermIterator %{
+    public static TermIterator operator++(TermIterator it) {
+	return it.next();
+    }
+%}
+
+%typemap(cscode) ValueIterator %{
+    public static ValueIterator operator++(ValueIterator it) {
+	return it.next();
+    }
+%}
+
+%typemap(cscode) PostingIterator %{
+    public static PostingIterator operator++(PostingIterator it) {
+	return it.next();
+    }
+%}
+
+%typemap(cscode) PositionIterator %{
+    public static PositionIterator operator++(PositionIterator it) {
+	return it.next();
+    }
+%}
+
+}

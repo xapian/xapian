@@ -127,6 +127,15 @@ using namespace std;
 // the include path
 %include "util.i"
 
+// In C#, we wrap ++ and -- as ++ and --.
+#ifdef SWIGCSHARP
+#define NEXT(CLASS) CLASS & next() { return ++(*self); }
+#define PREV(CLASS) CLASS & prev() { return --(*self); }
+#else
+#define NEXT(CLASS) void next() { ++(*self); }
+#define PREV(CLASS) void prev() { --(*self); }
+#endif
+
 %include <xapian/types.h>
 
 namespace Xapian {
@@ -148,9 +157,7 @@ class PositionIterator {
 	Xapian::termpos get_termpos() const {
 	    return *(*self);
 	}
-	void next() {
-	    ++(*self);
-	}
+	NEXT(PositionIterator)
 	bool equals(const PositionIterator &other) const {
 	    return (*self) == other;
 	}
@@ -171,9 +178,7 @@ class PostingIterator {
 	Xapian::docid get_docid() const {
 	    return *(*self);
 	}
-	void next() {
-	    ++(*self);
-	}
+	NEXT(PostingIterator)
 	bool equals(const PostingIterator &other) const {
 	    return (*self) == other;
 	}
@@ -198,9 +203,7 @@ class TermIterator {
 	string get_term() const {
 	    return *(*self);
 	}
-	void next() {
-	    ++(*self);
-	}
+	NEXT(TermIterator)
 	bool equals(const TermIterator& other) const {
 	    return (*self) == other;
 	}
@@ -231,9 +234,7 @@ class ValueIterator {
 	string get_value() const {
 	    return *(*self);
 	}
-	void next() {
-	    ++(*self);
-	}
+	NEXT(ValueIterator)
 	bool equals(const ValueIterator &other) const {
 	    return (*self) == other;
 	}
@@ -337,12 +338,8 @@ class MSetIterator {
 	docid get_docid() const {
 	    return *(*self);
 	}
-	void next() {
-	    ++(*self);
-	}
-	void prev() {
-	    --(*self);
-	}
+	NEXT(MSetIterator)
+	PREV(MSetIterator)
 	bool equals(const MSetIterator &other) const {
 	    return (*self) == other;
 	}
@@ -381,12 +378,8 @@ class ESetIterator {
 	std::string get_termname() const {
 	    return *(*self);
 	}
-	void next() {
-	    ++(*self);
-	}
-	void prev() {
-	    --(*self);
-	}
+	NEXT(ESetIterator)
+	PREV(ESetIterator)
 	bool equals(const ESetIterator &other) const {
 	    return (*self) == other;
 	}
