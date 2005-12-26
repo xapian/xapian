@@ -1,3 +1,7 @@
+Mon Dec 26 18:14:37 GMT 2005  Olly Betts <olly@survex.com>
+
+	* README: Added note about supported platforms.
+
 Sat Dec 24 15:10:53 GMT 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Added csharp/docs/Makefile to AC_CONFIG_FILES.

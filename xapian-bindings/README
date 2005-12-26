@@ -1,6 +1,17 @@
 See INSTALL for instructions on configuring, building, and installing this
 software.
 
+Supported Platforms
+-------------------
+
+Most development work has been done on Linux with GCC, but the bindings should
+work on other Unix-like platforms and with other compilers (we've heard success
+stories for at least MacOS X and OpenBSD).
+
+The Python bindings have been successfully built on Microsoft Windows using
+mingw.  The other bindings may need a few build tweaks to work - contact us
+via the mailing lists if you want to get them working.
+
 Supported Languages
 -------------------
 
