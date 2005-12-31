@@ -1,3 +1,9 @@
+Sat Dec 31 06:15:55 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/TODO,csharp/docs/bindings.html: Note that we need to write
+	  the custom typemaps for Enquire::get_matching_terms() and the
+	  Query list constructors.
+
 Mon Dec 26 18:14:37 GMT 2005  Olly Betts <olly@survex.com>
 
 	* README: Added note about supported platforms.

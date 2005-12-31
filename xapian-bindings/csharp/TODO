@@ -1,4 +1,8 @@
 TODO
 ----
 
+Write custom typemaps for Enquire::get_matching_terms() and constructing a
+query from list of Query objects and/or terms.
+
 Write examples (copying those from other bindings).
+
