@@ -1,3 +1,9 @@
+Sat Dec 31 06:17:56 GMT 2005  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/bindings.html: We've not implemented the typemaps
+	  which allow Enquire::get_matching_terms() to work yet, so
+	  comment out that section of the documentation.
+
 Sat Dec 31 06:15:55 GMT 2005  Olly Betts <olly@survex.com>
 
 	* csharp/TODO,csharp/docs/bindings.html: Note that we need to write
