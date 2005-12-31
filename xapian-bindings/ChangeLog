@@ -1,3 +1,8 @@
+Sat Dec 31 06:39:17 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Clean up now php/util.i is no longer a generated
+	  file.
+
 Sat Dec 31 06:29:24 GMT 2005  Olly Betts <olly@survex.com>
 
 	* php/util.i,php/util.i.in: Generating php/util.i from configure
