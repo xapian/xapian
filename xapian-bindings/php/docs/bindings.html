@@ -62,7 +62,7 @@ The PHP bindings do not currently use a PHP object oriented style
 (unfortunately SWIG's support for this is currently buggy for PHP4 and
 unimplemented for PHP5). In order to construct an object, use
 <code>$object = new_ClassName(...);</code>.  You can't explicitly destroy
-an object from PHP, but <code>$object = Null;</code> will cause the destructor
+an object from PHP, but <code>unset($object);</code> or <code>$object = Null;</code> will cause the destructor
 to be called.
 Invoke methods on an object using <code>ClassName_method_name($object, ...)</code>.
 </p>
@@ -117,9 +117,7 @@ Invoke methods on an object using <code>ClassName_method_name($object, ...)</cod
 
 <ul>
 <li> <code>Xapian::Auto::open_stub(<i>file</i>)</code> is wrapped as <code>open_stub(<i>file</i>)</code>
-<li> <code>Xapian::Quartz::open(<i>path</i>)</code> is wrapped as <code>quartz_open(<i>path</i>)</code>
-<li> The 2 or 3 argument form of <code>Xapian::Quartz::open()</code> which opens a writable database
-is wrapped as <code>quartz_open_writable</code>.
+<li> <code>Xapian::Quartz::open(...)</code> is wrapped as <code>quartz_open(...)</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>inmemory_open()</code>
 <li> <code>Xapian::Remote::open()</code> is wrapped as <code>remote_open()</code> (only
 the TCP version is currently wrapped, the "program" version isn't).
@@ -133,6 +131,21 @@ the TCP version is currently wrapped, the "program" version isn't).
    <code>DB_CREATE_OR_OPEN</code>, <code>Xapian::Query::OP_OR</code> is
    available as <code>Query_OP_OR</code>, and so on.
 </p>
+
+<h2>Query</h2>
+
+<p>
+   In C++ there's a Xapian::Query constructor which takes a query operator and
+   start/end iterators specifying a number of terms or queries, plus an optional
+   parameter.  In PHP, this is wrapped to accept an array listing the terms
+   and/or queries (you can specify a mixture of terms and queries if you wish)
+   For example:
+</p>
+
+<pre>
+   subq = new_Query(Query_OP_AND, "hello", "world");
+   q = new_Query(xapian.Query.OP_AND, array(subq, "foo", new_Query("bar", 2)));
+</pre>
 
 <h2>Enquire</h2>
 

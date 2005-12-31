@@ -1,3 +1,8 @@
+Sat Dec 31 06:40:24 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html: Update documentation to include new
+	  features.
+
 Sat Dec 31 06:39:17 GMT 2005  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am: Clean up now php/util.i is no longer a generated
