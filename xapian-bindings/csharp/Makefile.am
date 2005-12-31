@@ -33,7 +33,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	RSet.cs \
 	SWIGTYPE_p_Xapian__ExpandDecider.cs \
 	SWIGTYPE_p_Xapian__MatchDecider.cs \
-	SWIGTYPE_p_std__list_Tstd__string_t.cs \
 	SWIGTYPE_p_std__vector_Tstd__string_t.cs \
 	SWIGTYPE_p_std__vector_TXapian__Query_t.cs \
 	SWIGTYPE_p_time_t.cs \

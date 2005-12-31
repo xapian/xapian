@@ -1,3 +1,8 @@
+Sat Dec 31 13:25:31 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: SWIGTYPE_p_std__list_Tstd__string_t.cs is no
+	  longer generated.
+
 Sat Dec 31 06:43:37 GMT 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove php/util.i from AC_CONFIG_FILES.
