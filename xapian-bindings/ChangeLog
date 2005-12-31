@@ -1,3 +1,8 @@
+Sat Dec 31 14:15:41 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Removed another reference to
+	  SWIGTYPE_p_std__list_Tstd__string_t.
+
 Sat Dec 31 13:25:31 GMT 2005  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: SWIGTYPE_p_std__list_Tstd__string_t.cs is no

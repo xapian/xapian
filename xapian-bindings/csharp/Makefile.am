@@ -63,7 +63,6 @@ XapianSharp.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -dllimport XapianSharp -o $(ASSEMBLY).cc $(srcdir)/../xapian.i
 	: # SWIG 1.3.27 names these differently to SWIG CVS HEAD, so check and
 	: # rename to the CVS HEAD names so we can use either.
-	test -f SWIGTYPE_p_std__list_Tstd__string_t.cs || mv SWIGTYPE_p_std__listTstd__string_t.cs SWIGTYPE_p_std__list_Tstd__string_t.cs
 	test -f SWIGTYPE_p_std__vector_Tstd__string_t.cs || mv SWIGTYPE_p_std__vectorTstd__string_t.cs SWIGTYPE_p_std__vector_Tstd__string_t.cs
 	test -f SWIGTYPE_p_std__vector_TXapian__Query_t.cs || mv SWIGTYPE_p_std__vectorTXapian__Query_t.cs SWIGTYPE_p_std__vector_TXapian__Query_t.cs
 endif
