@@ -406,7 +406,7 @@ AM_CXXFLAGS=
 
 AC_CONFIG_FILES([Makefile
  python/Makefile python/docs/Makefile python/docs/examples/Makefile
- php/Makefile php/docs/Makefile php/docs/examples/Makefile php/util.i
+ php/Makefile php/docs/Makefile php/docs/examples/Makefile
  java/Makefile java/native/Makefile java/org/Makefile java/org/xapian/Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  guile/Makefile

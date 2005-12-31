@@ -1,3 +1,7 @@
+Sat Dec 31 06:43:37 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove php/util.i from AC_CONFIG_FILES.
+
 Sat Dec 31 06:42:41 GMT 2005  Olly Betts <olly@survex.com>
 
 	* python/smoketest.py: Add more tests.
