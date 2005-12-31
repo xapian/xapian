@@ -24,11 +24,9 @@
  * USA
  */
 
-#undef list
 #include <xapian.h>
 #include <string>
 #include <vector>
-#include <list>
 
 using namespace std;
 
@@ -468,20 +466,16 @@ class Enquire {
 
     void register_match_decider(const std::string& name, const MatchDecider* mdecider=NULL);
 
+/* Only Python and PHP currently have the required custom typemap defined. */
+#if defined SWIGPYTHON || defined SWIGPHP
     %extend {
-	std::list<std::string>
+	std::pair<Xapian::TermIterator, Xapian::TermIterator>
 	get_matching_terms(const MSetIterator &hit) const {
-	    std::list<std::string> terms;
-	    Xapian::TermIterator term = self->get_matching_terms_begin(hit);
-
-	    while (term != self->get_matching_terms_end(hit)) {
-		terms.push_back(*term);
-		++term;
-	    }
-
-	    return terms;
+	    return make_pair(self->get_matching_terms_begin(hit),
+			     self->get_matching_terms_end(hit));
 	}
     }
+#endif
 
     string get_description() const;
 };
@@ -909,5 +903,9 @@ public:
 
     static string get_available_languages();
 };
+
+#ifdef SWIGPYTHON
+%include extra.i
+#endif
 
 }

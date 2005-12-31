@@ -1,5 +1,5 @@
 %{
-/* python/util.i: the Xapian scripting python interface helpers.
+/* python/util.i: custom Python typemaps for xapian-bindings
  *
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
@@ -95,6 +95,7 @@ namespace Xapian {
 	PyErr_SetString(PyExc_TypeError, "expected list of strings or queries");
 	return NULL;
     }
+
     int numitems = PySequence_Size($input);
     v.reserve(numitems);
     for (int i = 0; i < numitems; ++i) {
@@ -103,7 +104,7 @@ namespace Xapian {
 	    char * p;
 	    int len;
 	    /* We know this must be a string, so this call can't fail. */
-	    (void)PyString_AsStringAndSize(&p, &len);
+	    (void)PyString_AsStringAndSize(obj, &p, &len);
 	    v.push_back(Xapian::Query(string(p, len)));
 	} else {
 	    Xapian::Query *subqp = Xapian::get_py_query(obj);
@@ -117,24 +118,18 @@ namespace Xapian {
     $1 = &v;
 }
 
-/*
-%typemap(out) termname_list {
+%typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
     $result = PyList_New(0);
     if ($result == 0) {
 	return NULL;
     }
 
-    Xapian::termname_list::const_iterator i = $1->begin();
-
-    while (i != $1->end()) {
-	// FIXME: check return values (once we know what they should be)
-	PyList_Append($result, PyString_FromStringAndSize(i->data(), i->size()));
-	++i;
+    for (Xapian::TermIterator i = $1.first; i != $1.second; ++i) {
+	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
+	if (str == 0) return NULL;
+	if (PyList_Append($result, str) == -1) return NULL;
     }
-    delete $1;
-    $1 = 0;
 }
-*/
 
 %typedef PyObject *LangSpecificListType;
 
@@ -164,17 +159,16 @@ PyObject *Xapian_MSet_items_get(Xapian::MSet *mset)
 	return NULL;
     }
 
-    Xapian::MSetIterator i = mset->begin();
-    while (i != mset->end()) {
+    for (Xapian::MSetIterator i = mset->begin(); i != mset->end(); ++i) {
 	PyObject *t = PyTuple_New(4);
+	if (!t) return NULL;
 
 	PyTuple_SetItem(t, MSET_DID, PyInt_FromLong(*i));
 	PyTuple_SetItem(t, MSET_WT, PyFloat_FromDouble(i.get_weight()));
 	PyTuple_SetItem(t, MSET_RANK, PyInt_FromLong(i.get_rank()));
 	PyTuple_SetItem(t, MSET_PERCENT, PyInt_FromLong(i.get_percent()));
 
-	PyList_Append(retval, t);
-	++i;
+	if (PyList_Append(retval, t) == -1) return NULL;
     }
     return retval;
 }
@@ -186,15 +180,16 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 	return NULL;
     }
 
-    Xapian::ESetIterator i = eset->begin();
-    while (i != eset->end()) {
+    for (Xapian::ESetIterator i = eset->begin(); i != eset->end(); ++i) {
 	PyObject *t = PyTuple_New(2);
+	if (!t) return NULL;
 
-	PyTuple_SetItem(t, ESET_TNAME, PyString_FromStringAndSize((*i).data(), (*i).size()));
+	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
+	if (str == 0) return NULL;
+	PyTuple_SetItem(t, ESET_TNAME, str);
 	PyTuple_SetItem(t, ESET_WT, PyFloat_FromDouble(i.get_weight()));
 
-	PyList_Append(retval, t);
-	++i;
+	if (PyList_Append(retval, t) == -1) return NULL;
     }
     return retval;
 }
@@ -206,15 +201,14 @@ PyObject *Xapian_ESet_items_get(Xapian::ESet *eset)
 	return NULL;
     }
 
-    Xapian::MSetIterator i = $1.begin();
-    while (i != $1.end()) {
+    for (Xapian::MSetIterator i = $1.begin(); i != $1.end(); ++i) {
 	PyObject *t = PyTuple_New(2);
+	if (!t) return NULL;
 
 	PyTuple_SetItem(t, MSET_DID, PyInt_FromLong(*i));
 	PyTuple_SetItem(t, MSET_WT, PyFloat_FromDouble(i->get_weight()));
 
-	PyList_Append($result, t);
-	++i;
+	if (PyList_Append($result, t) == -1) return NULL;
     }
 %}
 
@@ -319,5 +313,3 @@ namespace Xapian {
     };
 }
 #pragma SWIG nowarn=
-
-%include extra.i

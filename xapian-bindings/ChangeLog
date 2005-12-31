@@ -1,3 +1,17 @@
+Sat Dec 31 06:29:24 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/util.i,php/util.i.in: Generating php/util.i from configure
+	  is unnecessary and risks lost changes if you fail to notice
+	  and edit the wrong file, so stop doing it.  Redo Xapian section in
+	  phpinfo() to look more like most other modules; New PHP typemaps:
+	  you can now construct a Query object from an array of strings or
+	  Query objects (or a mixture).
+	* php/util.i,python/util.i,xapian.i: Change the %extend method
+	  Enquire::get_matching_terms() to generate the PHP/Python list
+	  directly from the TermIterator rather than constructing a
+	  temporary C++ std::list.
+	* python/util.i: Check for errors in more places.
+
 Sat Dec 31 06:17:56 GMT 2005  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/bindings.html: We've not implemented the typemaps
