@@ -19,7 +19,6 @@
 
 # We need at least Tcl version 8
 package require Tcl 8
-#package require xapian 0.9.3
 
 load [file join ".libs" xapian.so]
 xapian::Stem stem "english"

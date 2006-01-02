@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
 # We need at least Tcl version 8.3
@@ -33,7 +33,7 @@ if {[llength $argv] != 1} {
 }
 
 if {[catch {
-    xapian::WritableDatabase database [lindex $argv 0] $DB_CREATE_OR_OPEN
+    xapian::WritableDatabase database [lindex $argv 0] $xapian::DB_CREATE_OR_OPEN
     xapian::Stem stemmer "english"
 
     set para ""
@@ -48,7 +48,7 @@ if {[catch {
                 # A term is one or more alphanumerics, with optional trailing
                 # + and/or - (e.g. C++).  But "hyphen-ated" should generate
                 # "hyphen" not "hyphen-".
-                set re {([[:alnum:]]+(?:[-+]*(?![[:alnum:]]))?)}
+                set re {([[:alnum:]]+(?:[-+]*(?![-+[:alnum:]]))?)}
                 set j 0
                 while {[regexp -indices -start $j $re $para -> word]} {
                     set i [lindex $word 0]

@@ -1,7 +1,7 @@
 #!/usr/bin/env tclsh
 # Simple command-line search program
 #
-# Copyright (C) 2004 Olly Betts
+# Copyright (C) 2004,2006 Olly Betts
 # Copyright (C) 2004 Michael Schlenker
 #
 # This program is free software; you can redistribute it and/or
@@ -16,12 +16,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
 # We need at least Tcl version 8.1
 package require Tcl 8.1
-package require xapian 0.8.4
+# We need xapian 0.9.3 for the query from list ctor wrapper
+package require xapian 0.9.3
 
 if {[llength $argv] < 2} {
     puts "usage: $argv0 <path to database> <search terms>"
@@ -34,16 +35,10 @@ if {[catch {
     xapian::Enquire enquire database
     xapian::Stem stemmer "english"
 
-    xapian::Query firstterm [stemmer stem_word [lindex $argv 1]]
-    set query firstterm
-    foreach term [lrange $argv 2 end] {
-        xapian::Query nextterm [stemmer stem_word $term]
-        xapian::Query newquery $Query_OP_OR $query nextterm
-        set query newquery
-    }
-    puts "Performing query `[$query get_description]'"
+    xapian::Query query $xapian::Query_OP_OR [lrange $argv 1 end]
+    puts "Performing query `[query get_description]'"
 
-    enquire set_query $query
+    enquire set_query query
     set matches [enquire get_mset 0 10]
     puts "[$matches get_matches_estimated] results found"
 

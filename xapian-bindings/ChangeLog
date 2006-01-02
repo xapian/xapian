@@ -1,3 +1,14 @@
+Mon Jan 02 23:40:04 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simpleindex.tcl,
+	  tcl8/docs/examples/simplesearch.tcl: Need explicit "xapian::" on
+	  constants.
+	* tcl8/docs/examples/simplesearch.tcl: Use the new Query from list
+	  constructor.
+	* tcl8/docs/examples/simpleindex.tcl: Tweak regex to not tokenise
+	  "foo--bar" as "foo-" and "bar".
+	* tcl8/smoketest.tcl: Removed commented out unused line.
+
 Mon Jan 02 23:25:48 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/bindings.html,tcl8/smoketest.tcl,tcl8/util.i,xapian.i:
