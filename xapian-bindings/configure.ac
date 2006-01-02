@@ -160,7 +160,7 @@ if test no != "$with_python" ; then
       PYTHON_MODERN_OR_OLDE=olde
       ;;
     [2.[1-9]*|[3-9].*])
-      dnl Used output from swig -modern for Python 2.2 and up for
+      dnl Use output from swig -modern for Python 2.2 and up for
       dnl cleaner, leaner, faster wrapper code in xapian.py.
       PYTHON_MODERN_OR_OLDE=modern
       ;;
@@ -405,12 +405,12 @@ AC_SUBST(JAVA_CXXFLAGS)
 AM_CXXFLAGS=
 
 AC_CONFIG_FILES([Makefile
- python/Makefile python/docs/Makefile python/docs/examples/Makefile
- php/Makefile php/docs/Makefile php/docs/examples/Makefile
+ python/Makefile python/docs/Makefile
+ php/Makefile php/docs/Makefile
  java/Makefile java/native/Makefile java/org/Makefile java/org/xapian/Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
  guile/Makefile
- tcl8/Makefile tcl8/docs/Makefile tcl8/docs/examples/Makefile
+ tcl8/Makefile tcl8/docs/Makefile
  csharp/Makefile csharp/docs/Makefile
  csharp/AssemblyInfo.cs
  xapian-bindings.spec])

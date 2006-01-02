@@ -1,3 +1,11 @@
+Mon Jan 02 18:59:21 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,php/docs/Makefile.am,php/docs/examples/Makefile.am,
+	  python/docs/Makefile.am,python/docs/examples/Makefile.am,
+	  tcl8/docs/Makefile.am,tcl8/docs/examples/Makefile.am: Eliminate
+	  separate Makefile in each examples subdirectory, which makes the
+	  build system simpler, smaller, and a little faster.
+
 Mon Jan 02 18:57:47 GMT 2006  Olly Betts <olly@survex.com>
 
 	* README: Note that Python 2.0 and Tcl 8.0 wouldn't be too hard to
