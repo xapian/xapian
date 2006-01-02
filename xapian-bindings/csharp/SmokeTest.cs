@@ -34,6 +34,18 @@ class SmokeTest {
 	    if (db.get_doccount() != 1) {
 		System.Environment.Exit(1);
 	    }
+	    if (doc.termlist_count() != 5) {
+		System.Environment.Exit(1);
+	    }
+	    int count = 0;
+	    Xapian.TermIterator i = doc.termlist_begin();
+	    while (!i.Equals(doc.termlist_end())) {
+		++count;
+		++i;
+	    }
+	    if (count != 5) {
+		System.Environment.Exit(1);
+	    }
 	} catch (System.Exception e) {
 	     System.Console.WriteLine("Exception: " + e.ToString());
 	     System.Environment.Exit(1);

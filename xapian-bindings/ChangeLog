@@ -1,3 +1,13 @@
+Mon Jan 02 02:48:35 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Don't use $(ASSEMBLY).cc for the generated C++
+	  source.  It doesn't work everywhere, so it's confusing to use it
+	  in just some places.
+	* csharp/util.i: Implement operator== and operator!= for the iterator
+	  classes so that comparisons with the end iterator work as expected.
+	* csharp/SmokeTest.cs: Add test for this.
+	* csharp/docs/bindings.html: Document.
+ 
 Sat Dec 31 14:15:41 GMT 2005  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Removed another reference to

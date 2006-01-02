@@ -29,7 +29,8 @@ C# bindings based on the simple examples from <code>xapian-examples</code>:
 <h2>Iterators</h2>
 
 <p>
-   The C#-wrapped iterators work much like their C++ counterparts, e.g.:
+   The C#-wrapped iterators work much like their C++ counterparts, with
+   operators "++", "--", "==", and "!=" overloaded.  E.g.:
 </p>
 
 <pre>
@@ -44,7 +45,7 @@ C# bindings based on the simple examples from <code>xapian-examples</code>:
 
 <p>
    C++ iterators are often dereferenced to get information, eg
-   <code>(*it)</code>. With C# these are all mapped to named methods, as
+   <code>(*it)</code>.  In C# these are all mapped to named methods, as
    follows:
 </p>
 
@@ -94,7 +95,7 @@ the TCP version is currently wrapped, the "program" version isn't).
    In C++ there's a Xapian::Query constructor which takes a query operator and
    start/end iterators specifying a number of terms or queries, plus an optional
    parameter.
-   These aren't currently wrapped in C#.
+   This isn't currently wrapped in C#.
 <!-- FIXME implement this wrapping! 
  
    In C#, this is wrapped to accept any C# sequence (for

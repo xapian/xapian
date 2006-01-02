@@ -29,6 +29,22 @@ namespace Xapian {
     public static MSetIterator operator--(MSetIterator it) {
 	return it.prev();
     }
+    public override bool Equals(object o) {
+	return i is MSetIterator && equals(i);
+    }
+    public static bool operator==(MSetIterator a, MSetIterator b) {
+	if ((object)a == (object)b) return true;
+	if ((object)a == null || (object)b == null) return false;
+	return a.equals(b);
+    }
+    public static bool operator!=(MSetIterator a, MSetIterator b) {
+	if ((object)a == (object)b) return false;
+	if ((object)a == null || (object)b == null) return true;
+	return !a.equals(b);
+    }
+    // Implementing GetHashCode() to always return 0 is rather lame, but
+    // using iterators as keys in a hash table would be rather strange.
+    public override int GetHashCode() { return 0; }
 %}
 
 %typemap(cscode) ESetIterator %{
@@ -38,30 +54,110 @@ namespace Xapian {
     public static ESetIterator operator--(ESetIterator it) {
 	return it.prev();
     }
+    public override bool Equals(object o) {
+	return o is ESetIterator && equals((ESetIterator)o);
+    }
+    public static bool operator==(ESetIterator a, ESetIterator b) {
+	if ((object)a == (object)b) return true;
+	if ((object)a == null || (object)b == null) return false;
+	return a.equals(b);
+    }
+    public static bool operator!=(ESetIterator a, ESetIterator b) {
+	if ((object)a == (object)b) return false;
+	if ((object)a == null || (object)b == null) return true;
+	return !a.equals(b);
+    }
+    // Implementing GetHashCode() to always return 0 is rather lame, but
+    // using iterators as keys in a hash table would be rather strange.
+    public override int GetHashCode() { return 0; }
 %}
 
 %typemap(cscode) TermIterator %{
     public static TermIterator operator++(TermIterator it) {
 	return it.next();
     }
+    public override bool Equals(object o) {
+	return o is TermIterator && equals((TermIterator)o);
+    }
+    public static bool operator==(TermIterator a, TermIterator b) {
+	if ((object)a == (object)b) return true;
+	if ((object)a == null || (object)b == null) return false;
+	return a.equals(b);
+    }
+    public static bool operator!=(TermIterator a, TermIterator b) {
+	if ((object)a == (object)b) return false;
+	if ((object)a == null || (object)b == null) return true;
+	return !a.equals(b);
+    }
+    // Implementing GetHashCode() to always return 0 is rather lame, but
+    // using iterators as keys in a hash table would be rather strange.
+    public override int GetHashCode() { return 0; }
 %}
 
 %typemap(cscode) ValueIterator %{
     public static ValueIterator operator++(ValueIterator it) {
 	return it.next();
     }
+    public override bool Equals(object o) {
+	return i is ValueIterator && equals(i);
+    }
+    public static bool operator==(ValueIterator a, ValueIterator b) {
+	if ((object)a == (object)b) return true;
+	if ((object)a == null || (object)b == null) return false;
+	return a.equals(b);
+    }
+    public static bool operator!=(ValueIterator a, ValueIterator b) {
+	if ((object)a == (object)b) return false;
+	if ((object)a == null || (object)b == null) return true;
+	return !a.equals(b);
+    }
+    // Implementing GetHashCode() to always return 0 is rather lame, but
+    // using iterators as keys in a hash table would be rather strange.
+    public override int GetHashCode() { return 0; }
 %}
 
 %typemap(cscode) PostingIterator %{
     public static PostingIterator operator++(PostingIterator it) {
 	return it.next();
     }
+    public override bool Equals(object o) {
+	return i is PostingIterator && equals(i);
+    }
+    public static bool operator==(PostingIterator a, PostingIterator b) {
+	if ((object)a == (object)b) return true;
+	if ((object)a == null || (object)b == null) return false;
+	return a.equals(b);
+    }
+    public static bool operator!=(PostingIterator a, PostingIterator b) {
+	if ((object)a == (object)b) return false;
+	if ((object)a == null || (object)b == null) return true;
+	return !a.equals(b);
+    }
+    // Implementing GetHashCode() to always return 0 is rather lame, but
+    // using iterators as keys in a hash table would be rather strange.
+    public override int GetHashCode() { return 0; }
 %}
 
 %typemap(cscode) PositionIterator %{
     public static PositionIterator operator++(PositionIterator it) {
 	return it.next();
     }
+    public override bool Equals(object o) {
+	return i is PositionIterator && equals(i);
+    }
+    public static bool operator==(PositionIterator a, PositionIterator b) {
+	if ((object)a == (object)b) return true;
+	if ((object)a == null || (object)b == null) return false;
+	return a.equals(b);
+    }
+    public static bool operator!=(PositionIterator a, PositionIterator b) {
+	if ((object)a == (object)b) return false;
+	if ((object)a == null || (object)b == null) return true;
+	return !a.equals(b);
+    }
+    // Implementing GetHashCode() to always return 0 is rather lame, but
+    // using iterators as keys in a hash table would be rather strange.
+    public override int GetHashCode() { return 0; }
 %}
 
 }

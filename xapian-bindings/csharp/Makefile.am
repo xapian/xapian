@@ -53,14 +53,14 @@ XapianSharp.snk:
 $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 	$(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs
 
-BUILT_SOURCES = $(ASSEMBLY).cc $(XAPIAN_SWIG_CS_SRCS)
+BUILT_SOURCES = XapianSharp.cc $(XAPIAN_SWIG_CS_SRCS)
 
 if MAINTAINER_MODE
 XapianSharp.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_CS_SRCS)
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -dllimport XapianSharp -o $(ASSEMBLY).cc $(srcdir)/../xapian.i
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -dllimport XapianSharp -o XapianSharp.cc $(srcdir)/../xapian.i
 	: # SWIG 1.3.27 names these differently to SWIG CVS HEAD, so check and
 	: # rename to the CVS HEAD names so we can use either.
 	test -f SWIGTYPE_p_std__vector_Tstd__string_t.cs || mv SWIGTYPE_p_std__vectorTstd__string_t.cs SWIGTYPE_p_std__vector_Tstd__string_t.cs
