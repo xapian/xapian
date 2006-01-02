@@ -1,3 +1,8 @@
+Mon Jan 02 07:06:58 GMT 2006  Olly Betts <olly@survex.com>
+
+	* TODO,csharp/TODO: Move C# TODO to top level, update C# entries, and
+	  add entry for tcl.
+
 Mon Jan 02 07:05:05 GMT 2006  Olly Betts <olly@survex.com>
 
 	* csharp/docs/Makefile.am,csharp/docs/bindings.html,

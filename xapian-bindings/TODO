@@ -1,0 +1,16 @@
+TODO
+====
+
+C#
+--
+
+Write custom typemaps for constructing a query from list of Query objects
+and/or terms.
+
+Perhaps write custom typemaps for Enquire::get_matching_terms().
+
+Tcl
+---
+
+Write custom typemaps for constructing a query from list of Query objects
+and/or terms.
