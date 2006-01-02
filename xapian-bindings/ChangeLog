@@ -1,3 +1,8 @@
+Mon Jan 02 18:47:03 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/docs/Makefile.am: Fix path for SimpleIndex.cs; add
+	  SimpleSearch.cs.
+
 Mon Jan 02 18:12:59 GMT 2006  Olly Betts <olly@survex.com>
 
 	* README: C# bindings are now usable.
