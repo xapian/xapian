@@ -6,7 +6,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2005 James Aylett
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -466,8 +466,8 @@ class Enquire {
 
     void register_match_decider(const std::string& name, const MatchDecider* mdecider=NULL);
 
-/* Only Python and PHP currently have the required custom typemap defined. */
-#if defined SWIGPYTHON || defined SWIGPHP
+/* We've not written the required custom typemap for all languages yet. */
+#if defined SWIGPYTHON || defined SWIGPHP || defined SWIGTCL
     %extend {
 	std::pair<Xapian::TermIterator, Xapian::TermIterator>
 	get_matching_terms(const MSetIterator &hit) const {
@@ -783,8 +783,9 @@ class Query {
 	Query(Query::op op_, const string & left, const string & right);
 	Query(const Query& copyme);
         %extend {
-#if !defined(SWIGPYTHON) && !defined(SWIGPHP4)
-	    /* For Python and PHP we handle strings in the vector<Query> case. */
+#if !defined(SWIGPYTHON) && !defined(SWIGPHP4) && !defined(SWIGTCL)
+	    /* For Python, PHP, and TCL we handle strings in the vector<Query>
+	     * case. */
 
 	    /** Constructs a query from a vector of terms merged with the
 	     *  specified operator. */

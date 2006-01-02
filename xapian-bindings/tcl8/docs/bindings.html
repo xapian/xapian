@@ -129,7 +129,23 @@ the 'Destructors' section above for an explanation).
 the TCP version is currently wrapped, the "program" version isn't).
 </ul>
 
-<!-- required typemap not implemented for Tcl yet:
+<h2>Query</h2>
+
+<p>
+   In C++ there's a Xapian::Query constructor which takes a query operator and
+   start/end iterators specifying a number of terms or queries, plus an optional
+   parameter.  In Tcl, this is wrapped to accept a Tcl list
+   to give the terms/queries, and you can specify
+   a mixture of terms and queries if you wish.  For example:
+</p>
+
+<pre>
+   set terms [list "hello" "world"]
+   xapian::Query subq $xapian::Query_OP_AND $terms
+   xapian::Query bar_term "bar" 2
+   xapian::Query query $xapian::Query_OP_AND [list subq "foo" bar_term]
+</pre>
+
 <h2>Enquire</h2>
 
 <p>
@@ -138,7 +154,6 @@ the TCP version is currently wrapped, the "program" version isn't).
    match the document given by that iterator.  You may find this
    more convenient than using the TermIterator directly.
 </p>
--->
 
 <address>
 Last updated $Date$

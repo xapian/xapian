@@ -1,3 +1,10 @@
+Mon Jan 02 23:25:48 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/bindings.html,tcl8/smoketest.tcl,tcl8/util.i,xapian.i:
+	  Implement custom typemaps for Tcl, so that you can now construct
+	  a Query from a list of Query objects and/or strings, and
+	  Enquire::get_matching_terms is now wrapped.
+
 Mon Jan 02 18:59:21 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,php/docs/Makefile.am,php/docs/examples/Makefile.am,
