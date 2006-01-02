@@ -12,8 +12,8 @@ in the bindings, so generally it should just work as expected.
 <p>
 The <code>examples</code> subdirectory contains examples showing how to use the
 C# bindings based on the simple examples from <code>xapian-examples</code>:
-<a href="examples/simpleindex.cs">simpleindex.cs</a>,
-<a href="examples/simplesearch.cs">simplesearch.cs</a>.
+<a href="examples/SimpleIndex.cs">SimpleIndex.cs</a>,
+<a href="examples/SimpleSearch.cs">SimpleSearch.cs</a>.
 </p>
 
 <h2>Exceptions</h2>
@@ -89,6 +89,18 @@ C# bindings based on the simple examples from <code>xapian-examples</code>:
 the TCP version is currently wrapped, the "program" version isn't).
 </ul>
 
+<h2>Constants</h2>
+
+<p>
+   The <code>Xapian::DB_*</code> constants are currently wrapped in a Xapian
+   class within the Xapian namespace, so have a double Xapian prefix!
+   So <code>Xapian::DB_CREATE_OR_OPEN</code> is available as
+   <code>Xapian.Xapian.DB_CREATE_OR_OPEN</code>.
+   The <code>Query::OP_*</code> constants are wrapped a little oddly too:
+   <code>Query::OP_OR</code> is wrapped as <code>Xapian.Query.op.OP_OR</code>.
+   The naming here needs sorting out...
+</p>
+
 <h2>Query</h2>
 
 <p>
@@ -111,7 +123,8 @@ the TCP version is currently wrapped, the "program" version isn't).
 </pre>
 -->
 
-<!-- FIXME: Need to define the custom output typemap to handle this:
+<!-- FIXME: Need to define the custom output typemap to handle this if it
+actually seems useful...
 <h2>Enquire</h2>
 
 <p>

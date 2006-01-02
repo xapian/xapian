@@ -1,3 +1,10 @@
+Mon Jan 02 07:05:05 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/docs/Makefile.am,csharp/docs/bindings.html,
+	  csharp/docs/examples/: Add C# examples.
+	* csharp/docs/bindings.html: Document the slightly odd names that
+	  constants are currently wrapped as.
+
 Mon Jan 02 06:49:48 GMT 2006  Olly Betts <olly@survex.com>
 
 	* csharp/util.i: Fixed to work!
