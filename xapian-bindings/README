@@ -23,8 +23,10 @@ Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
 Perl		Perl XS bindings contributed by Alex Bowley are available
 		from CPAN (module Search::Xapian).
 PHP		Requires PHP 4 or 5.
-Python		Requires Python 2.1 or later.
-Tcl		Requires Tcl 8.1 or later.
+Python		Requires Python 2.1 or later (Python 2.0 could be made to work
+		without too much work).
+Tcl		Requires Tcl 8.1 or later (Tcl 8.0 could be made to work
+		without too much work).
 C#		Tested with Mono C# 1.0.8.
 
 Adding support for other programming languages

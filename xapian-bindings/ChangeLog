@@ -1,3 +1,8 @@
+Mon Jan 02 18:57:47 GMT 2006  Olly Betts <olly@survex.com>
+
+	* README: Note that Python 2.0 and Tcl 8.0 wouldn't be too hard to
+	  support in case anyone is sufficiently motivated.
+
 Mon Jan 02 18:47:03 GMT 2006  Olly Betts <olly@survex.com>
 
 	* csharp/docs/Makefile.am: Fix path for SimpleIndex.cs; add
@@ -32,7 +37,7 @@ Mon Jan 02 02:48:35 GMT 2006  Olly Betts <olly@survex.com>
 	  classes so that comparisons with the end iterator work as expected.
 	* csharp/SmokeTest.cs: Add test for this.
 	* csharp/docs/bindings.html: Document.
- 
+
 Sat Dec 31 14:15:41 GMT 2005  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Removed another reference to
