@@ -25,6 +25,7 @@ Perl		Perl XS bindings contributed by Alex Bowley are available
 PHP		Requires PHP 4 or 5.
 Python		Requires Python 2.1 or later.
 Tcl		Requires Tcl 8.1 or later.
+C#		Tested with Mono C# 1.0.8.
 
 Adding support for other programming languages
 ----------------------------------------------
@@ -45,9 +46,8 @@ rather than just a token implementation...
 These are languages which SWIG supports and which people have done some work
 on producing Xapian bindings for:
 
-Guile		rm@fabula.de is working on reviving these
-C#		Supported by SWIG 1.3.18 onwards
-                richard@tartarus.org is working on these
+Guile		rm@fabula.de has done some work on getting Guile bindings
+                working, but sadly much was lost in a disk crash.
 
 These are the other languages which SWIG supports, but which nobody has yet
 worked on producing Xapian bindings for (from http://www.swig.org/compare.html
