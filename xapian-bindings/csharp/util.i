@@ -30,7 +30,7 @@ namespace Xapian {
 	return it.prev();
     }
     public override bool Equals(object o) {
-	return i is MSetIterator && equals(i);
+	return o is MSetIterator && equals((MSetIterator)o);
     }
     public static bool operator==(MSetIterator a, MSetIterator b) {
 	if ((object)a == (object)b) return true;
@@ -55,7 +55,7 @@ namespace Xapian {
 	return it.prev();
     }
     public override bool Equals(object o) {
-	return o is ESetIterator && equals((ESetIterator)o);
+	return o is ESetIterator && equals((ESetIterator)(ESetIterator)o);
     }
     public static bool operator==(ESetIterator a, ESetIterator b) {
 	if ((object)a == (object)b) return true;
@@ -77,7 +77,7 @@ namespace Xapian {
 	return it.next();
     }
     public override bool Equals(object o) {
-	return o is TermIterator && equals((TermIterator)o);
+	return o is TermIterator && equals((TermIterator)(TermIterator)o);
     }
     public static bool operator==(TermIterator a, TermIterator b) {
 	if ((object)a == (object)b) return true;
@@ -99,7 +99,7 @@ namespace Xapian {
 	return it.next();
     }
     public override bool Equals(object o) {
-	return i is ValueIterator && equals(i);
+	return o is ValueIterator && equals((ValueIterator)o);
     }
     public static bool operator==(ValueIterator a, ValueIterator b) {
 	if ((object)a == (object)b) return true;
@@ -121,7 +121,7 @@ namespace Xapian {
 	return it.next();
     }
     public override bool Equals(object o) {
-	return i is PostingIterator && equals(i);
+	return o is PostingIterator && equals((PostingIterator)o);
     }
     public static bool operator==(PostingIterator a, PostingIterator b) {
 	if ((object)a == (object)b) return true;
@@ -143,7 +143,7 @@ namespace Xapian {
 	return it.next();
     }
     public override bool Equals(object o) {
-	return i is PositionIterator && equals(i);
+	return o is PositionIterator && equals((PositionIterator)o);
     }
     public static bool operator==(PositionIterator a, PositionIterator b) {
 	if ((object)a == (object)b) return true;

@@ -1,3 +1,7 @@
+Mon Jan 02 06:49:48 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/util.i: Fixed to work!
+
 Mon Jan 02 02:48:35 GMT 2006  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Don't use $(ASSEMBLY).cc for the generated C++
