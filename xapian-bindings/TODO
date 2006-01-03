@@ -1,16 +1,22 @@
 TODO
 ====
 
+General
+-------
+
+The "smoketest" is rather more than a smoketest in most cases, and also
+the different versions aren't in step as to what is tested...
+
+Patch SWIG to not use SwigValueWrapper for classes with a default ctor?
+Do a quick check by hand first to see if this greatly improves size
+and compile time as I suspect it might...
+
 C#
 --
+
+Sort out names which constants get wrapped as.
 
 Write custom typemaps for constructing a query from list of Query objects
 and/or terms.
 
 Perhaps write custom typemaps for Enquire::get_matching_terms().
-
-Tcl
----
-
-Write custom typemaps for constructing a query from list of Query objects
-and/or terms.
