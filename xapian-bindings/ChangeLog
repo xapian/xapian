@@ -1,3 +1,10 @@
+Tue Jan 03 01:45:11 GMT 2006  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html,php/smoketest.php,xapian.i: Translate Xapian
+	  exceptions to PHP exceptions for PHP5.  For PHP4, handle
+	  DocNotFoundError and FeatureUnavailableError by issuing a warning
+	  and making the method return "Null".
+
 Tue Jan 03 01:41:11 GMT 2006  Olly Betts <olly@survex.com>
 
 	* php/docs/examples/simplesearch.php: Use newly wrapped Query from

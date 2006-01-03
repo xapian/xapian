@@ -2,7 +2,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005 Olly Betts
+ * Copyright (C) 2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,3 +53,14 @@ $mset = Enquire_get_mset($enq, 0, 10);
 if (MSet_size($mset) != 1) exit(1);
 $terms = join(" ", Enquire_get_matching_terms($enq, MSet_get_hit($mset, 0)));
 if ($terms != "is there") exit(1);
+
+# Check PHP4 handling of Xapian::DocNotFoundError
+$old_error_reporting = error_reporting();
+if ($old_error_reporting & E_WARNING)
+    error_reporting($old_error_reporting ^ E_WARNING);
+$doc2 = Database_get_document($db, 2);
+if ($doc2 != null) {
+    exit(1);
+}
+if ($old_error_reporting & E_WARNING)
+    error_reporting($old_error_reporting);

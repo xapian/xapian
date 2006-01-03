@@ -95,27 +95,58 @@ using namespace std;
 %}
 #endif
 
+#ifdef SWIGPHP
 %{
-#define OMSWIG_exception(type, e) \
-    SWIG_exception((type), \
-	const_cast<char *>(((e).get_type() + ": " + (e).get_msg()).c_str()))
+#if PHP_MAJOR_VERSION < 5
+#define XapianException(TYPE, E) \
+    SWIG_exception((TYPE), \
+	const_cast<char *>(((E).get_type() + ": " + (E).get_msg()).c_str()))
+#define XapianRuntimeException(TYPE, E) \
+    do { \
+	zend_error(E_WARNING, const_cast<char *>(((E).get_type() + ": " + (E).get_msg()).c_str())); \
+	return; \
+    } while (0)
+#else
+#include <zend_exceptions.h>
+// FIXME: throw errors as PHP classes corresponding to the Xapian error
+// classes.
+#define XapianException(TYPE, E) \
+    zend_throw_exception_ex(NULL, (TYPE) TSRMLS_CC, "%s: %s", (E).get_type(), (E).get_msg())
+#endif
 %}
+#else
+%{
+#define XapianException(TYPE, E) \
+    SWIG_exception((TYPE), \
+	const_cast<char *>(((E).get_type() + ": " + (E).get_msg()).c_str()))
+%}
+#endif
 
+%{
+#ifndef XapianRuntimeException
+#define XapianRuntimeException(TYPE, E) XapianException(TYPE, E)
+#endif
+%}
+ 
+// FIXME: RangeError DatabaseError and NetworkError are all subclasses of
+// RuntimeError - how should we handle those for PHP4?
 %exception {
     try {
 	$function
     } catch (const Xapian::InvalidArgumentError &e) {
-	OMSWIG_exception(SWIG_ValueError, e);
+	XapianException(SWIG_ValueError, e);
     } catch (const Xapian::RangeError &e) {
-	OMSWIG_exception(SWIG_IndexError, e);
+	XapianException(SWIG_IndexError, e);
     } catch (const Xapian::DatabaseError &e) {
-	OMSWIG_exception(SWIG_IOError, e);
+	XapianException(SWIG_IOError, e);
     } catch (const Xapian::NetworkError &e) {
-	OMSWIG_exception(SWIG_IOError, e);
+	XapianException(SWIG_IOError, e);
+    } catch (const Xapian::InternalError &e) {
+	XapianException(SWIG_RuntimeError, e);
     } catch (const Xapian::RuntimeError &e) {
-	OMSWIG_exception(SWIG_RuntimeError, e);
+	XapianRuntimeException(SWIG_RuntimeError, e);
     } catch (const Xapian::Error &e) {
-	OMSWIG_exception(SWIG_UnknownError, e);
+	XapianException(SWIG_UnknownError, e);
     } catch (...) {
 	SWIG_exception(SWIG_UnknownError, "unknown error in Xapian");
     }

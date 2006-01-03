@@ -49,11 +49,39 @@ Alternatively you can add the following line to the start of your PHP scripts:
 <h2>Exceptions</h2>
 
 <p>
-In general, a PHP fatal error is triggered on a C++ exception being thrown in
-the library.  We acknowledge this is awful, and needs to be fixed to work
-in a more useful way - the current plan is to rework the core library to not
-throw exceptions but this is not at trivial job.
+In PHP5, we translate exceptions thrown by Xapian into PHP Exception objects
+which are thrown into the PHP script.
 </p>
+
+<p>
+Unfortunately, exception handling with <code>try</code> and <code>catch</code>
+isn't supported in PHP4, and the alternatives aren't great.
+Most C++ exceptions are converted to a PHP fatal error.
+However, for exceptions which might be commonly encountered we instead
+produce a PHP warning and the method returns <code>null</code>.  You can
+then check for and handle the exception like so:
+</p>
+
+<blockquote><pre>
+$old_error_reporting = error_reporting
+if ($old_error_reporting &amp; E_WARNING)
+    error_reporting($old_error_reporting ^ E_WARNING);
+$doc = Database_get_document($database, $docid);
+if ($doc != null) {
+    exit(1);
+}
+if ($old_error_reporting &amp; E_WARNING)
+    error_reporting($old_error_reporting);
+</pre></blockquote>
+
+<p>The following exceptions are currently handled like this (this is a
+fairly new feature, so feedback on exceptions which should and shouldn't
+be in this list is particularly welcome):</p>
+
+<ul>
+<li><code>DocNotFoundError</code>
+<li><code>FeatureUnavailableError</code>
+</ul>
 
 <h2>Object orientation</h2>
 
