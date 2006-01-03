@@ -2,7 +2,7 @@ $httpheader{Content-Type,application/xml}<?xml version="1.0"?>
   <rss version="2.0" xmlns:openSearch="http://a9.com/-/spec/opensearchrss/1.0/">
     <channel>
       <title>Xapian search results</title>
-      <link>$env{SCRIPT_NAME}?DB=$dbname&amp;P=$html{$query}</link>
+      <link>$html{$env{SCRIPT_NAME}?DB=$dbname&P=$query}</link>
       <description>Search results for "$html{$query}" at xapian.org</description>
       <language>en</language>
       <copyright>(C)2005, Xapian.org</copyright>
@@ -12,8 +12,8 @@ $httpheader{Content-Type,application/xml}<?xml version="1.0"?>
 $hitlist{
       <item>
         <title>$html{$or{$field{title},$field{caption}}}</title>
-        <link>$field{url}</link>
-        <description>$highlight{$field{sample},$terms,&lt;strong&gt;,&lt;/strong&gt;}$if{$field{sample},...}</description>
+        <link>$html{$field{url}}</link>
+        <description>$html{$highlight{$field{sample},$terms,&lt;strong&gt;,&lt;/strong&gt;}$if{$field{sample},...}}</description>
       </item>}
     </channel>
   </rss>

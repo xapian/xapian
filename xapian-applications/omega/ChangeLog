@@ -1,8 +1,6 @@
-Tue Jan 03 17:43:25 GMT 2006  Olly Betts <olly@survex.com>
+Tue Jan 03 17:43:40 GMT 2006  Olly Betts <olly@survex.com>
 
-	* :
-
-
+	* templates/opensearch: Add missing escaping.
 
 Mon Dec 19 10:27:30 GMT 2005  Olly Betts <olly@survex.com>
 
