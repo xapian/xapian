@@ -45,11 +45,17 @@ We can help with the Xapian and SWIG side, but without somebody who knows
 the language well it's hard to produce a solid, well tested set of bindings
 rather than just a token implementation...
 
+To be worth shipping in the xapian-bindings tarball, bindings for an additional
+language really need a version of the smoketest (so we can be confident that
+they actually work!), and also documentation and examples along the lines of
+the existing bindings (without these the bindings aren't likely to be useful to
+anyone else).
+
 These are languages which SWIG supports and which people have done some work
 on producing Xapian bindings for:
 
 Guile		rm@fabula.de has done some work on getting Guile bindings
-                working, but sadly much was lost in a disk crash.
+   		working, but sadly much was lost in a disk crash.
 
 These are the other languages which SWIG supports, but which nobody has yet
 worked on producing Xapian bindings for (from http://www.swig.org/compare.html
@@ -62,10 +68,10 @@ Pike		Supported by SWIG 1.3.14 onwards
 Chicken		Supported by SWIG 1.3.18 onwards
 Allegro CL	SWIG 1.3.28 will add support for wrapping C++ with Allegro CL
 Modula-3	Supported by SWIG 1.3.22 onwards
-Lua             Supported by SWIG 1.3.26 onwards
-CLISP           Supported by SWIG 1.3.26 onwards
+Lua		Supported by SWIG 1.3.26 onwards
+CLISP		Supported by SWIG 1.3.26 onwards
 Common Lisp with UFFI
-                Supported by SWIG 1.3.26 onwards
+		Supported by SWIG 1.3.26 onwards
 
 These languages are supported by patches against reasonably recent versions
 of SWIG:
