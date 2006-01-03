@@ -35,7 +35,13 @@ if {[catch {
     xapian::Enquire enquire database
     xapian::Stem stemmer "english"
 
-    xapian::Query query $xapian::Query_OP_OR [lrange $argv 1 end]
+    set terms {}
+    foreach term [lrange $argv 1 end] {
+	set terms [linsert $terms end \
+	    [stemmer stem_word [string tolower $term]]]
+    }
+    xapian::Query query $xapian::Query_OP_OR $terms
+ 
     puts "Performing query `[query get_description]'"
 
     enquire set_query query

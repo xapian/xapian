@@ -73,7 +73,7 @@ if {[catch {
             }
         }
     }
-    # We *must* delete the database so the the destructor gets called so
+    # We *must* delete the database so that the destructor gets called so
     # pending changes are flushed and the lock file is removed.
     database -delete
 } exception]} {

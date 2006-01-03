@@ -1,3 +1,9 @@
+Tue Jan 03 01:40:24 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simpleindex.tcl: Fix typo in comment.
+	* tcl8/docs/examples/simplesearch.tcl: Fix to lowercase and stem query
+	  terms.
+
 Mon Jan 02 23:40:04 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/examples/simpleindex.tcl,
