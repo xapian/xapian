@@ -1,3 +1,8 @@
+Tue Jan 03 01:41:11 GMT 2006  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simplesearch.php: Use newly wrapped Query from
+	  list constructor.
+
 Tue Jan 03 01:40:24 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/examples/simpleindex.tcl: Fix typo in comment.

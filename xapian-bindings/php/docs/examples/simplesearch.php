@@ -2,7 +2,7 @@
 /* Simple command-line search program
  *
  * Copyright (C) 2004 James Aylett
- * Copyright (C) 2004,2005 Olly Betts
+ * Copyright (C) 2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,15 +35,11 @@ if (!$database) {
 
 $enquire = new_Enquire($database);
 $stemmer = new_Stem("english");
-$query = NULL;
+$terms = array();
 foreach (array_slice($_SERVER['argv'], 2) as $term) {
-    $nextquery = new_Query(Stem_stem_word($stemmer, strtolower($term)));
-    if ($query === NULL) {
-	$query = $nextquery;
-    } else {
-	$query = new_Query_from_query_pair(Query_OP_OR, $query, $nextquery);
-    }
+    array_push($terms, Stem_stem_word($stemmer, strtolower($term)));
 }
+$query = new_Query(Query_OP_OR, $terms);
 
 print "Performing query `" . Query_get_description($query) . "'\n";
 
