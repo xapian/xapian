@@ -1,9 +1,8 @@
 /* configfile.cc: Read a config file for omega.
  *
- * ----START-LICENCE----
  * Copyright 2001 Lemur Consulting Ltd.
  * Copyright 2002 Ananova Ltd
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -43,10 +41,10 @@ string database_dir = "/var/lib/omega/data/";
 string template_dir = "/var/lib/omega/templates/";
 string log_dir = "/var/log/omega/";
 
-/** Return true if the file fname exists
+/** Return true if the file fname exists.
  */
 static bool
-file_readable(const char * fname)
+file_exists(const char * fname)
 {
     struct stat sbuf;
     // exists && is a regular file or symlink
@@ -58,7 +56,7 @@ try_read_config_file(const char * cfile)
 {
     ifstream in(cfile);
     if (!in) {
-	if (file_readable(cfile))
+	if (file_exists(cfile))
 	    throw string("Can't open configuration file `") + cfile + "'";
 	return false;
     }

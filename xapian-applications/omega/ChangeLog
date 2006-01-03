@@ -1,3 +1,8 @@
+Tue Jan 03 22:38:01 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configfile.cc: Rename file_readable() to file_exists() to better
+	  reflect what the function actually does!
+
 Tue Jan 03 17:43:40 GMT 2006  Olly Betts <olly@survex.com>
 
 	* templates/opensearch: Add missing escaping.
