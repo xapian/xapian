@@ -1663,7 +1663,7 @@ eval(const string &fmt, const vector<string> &param)
 			i = value.find(split, i);
 			if (i == string::npos) break;
 		    }
-		    value.replace(i, split.size(), '\t');
+		    value.replace(i, split.size(), 1, '\t');
 		    ++i;
 		}
 	        break;

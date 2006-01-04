@@ -1,3 +1,7 @@
+Wed Jan 04 20:44:44 GMT 2006  Olly Betts <olly@survex.com>
+
+	* query.cc: Fixed to compile with GCC 3.0.
+
 Wed Jan 04 04:33:15 GMT 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,cdb.h,cdb_find.cc,cdb_hash.cc,cdb_init.cc,cdb_int.h,
