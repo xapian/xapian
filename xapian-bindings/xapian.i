@@ -178,8 +178,7 @@ class Stopper;
 
 class PositionIterator {
   public:
-    // FIXME: do we want this?  For C# for example...
-    // PositionIterator();
+    PositionIterator();
     PositionIterator(const PositionIterator &other);
     ~PositionIterator();
     %extend {
@@ -199,8 +198,7 @@ class PositionIterator {
 
 class PostingIterator {
   public:
-    // FIXME: do we want this?  For C# for example...
-    // PostingIterator();
+    PostingIterator();
     PostingIterator(const PostingIterator& other);
     ~PostingIterator();
     %extend {
@@ -224,8 +222,7 @@ class PostingIterator {
 
 class TermIterator {
   public:
-    // FIXME: do we want this?  For C# for example...
-    // TermIterator();
+    TermIterator();
     TermIterator(const TermIterator &other);
     ~TermIterator();
     %extend {
@@ -255,8 +252,7 @@ class TermIterator {
 
 class ValueIterator {
   public:
-    // FIXME: do we want this?  For C# for example...
-    // ValueIterator();
+    ValueIterator();
     ValueIterator(const ValueIterator& other);
     ~ValueIterator();
     %extend {
@@ -360,7 +356,7 @@ class MSet {
 
 class MSetIterator {
   public:
-    // FIXME: wrap for csharp? MSetIterator();
+    MSetIterator();
     MSetIterator(const MSetIterator& other);
     ~MSetIterator();
     %extend {
@@ -385,6 +381,7 @@ class ESetIterator;
 
 class ESet {
   public:
+    ESet();
     ESet(const ESet& other);
     ~ESet();
     termcount get_ebound() const;
@@ -401,6 +398,7 @@ class ESet {
 
 class ESetIterator {
   public:
+    ESetIterator();
     ESetIterator(const ESetIterator& other);
     ~ESetIterator();
     %extend {
@@ -642,6 +640,7 @@ class Database {
 class WritableDatabase : public Database {
     public:
 	virtual ~WritableDatabase();
+	WritableDatabase();
 	WritableDatabase(const string &path, int action);
 	WritableDatabase(const WritableDatabase & other);
 
