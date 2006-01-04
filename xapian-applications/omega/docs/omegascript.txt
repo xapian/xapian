@@ -196,6 +196,28 @@ $log{LOGFILE[,ENTRY]}
 	isn't evaluated).  ENTRY defaults to a format similar to the Common Log
 	Format used by webservers.
 
+$lookup{CDBFILE,KEY}
+	Return the tag corresponding to key KEY in the CDB file CDBFILE.  If
+	the file doesn't exist, or KEY isn't a key in it, then $lookup expands
+	to nothing.  CDB files are compact disk based hashtables.  For more
+	information and public domain software which can create CDB files,
+	please visit: http://www.corpit.ru/mjt/tinycdb.html
+
+	An example of how this might be used is to map top-level domains to
+	country names.  Create a CDB file tld_en which maps "fr" to "France",
+	"de" to "Germany", etc and then you can translate a country code to
+	the English country name like so:
+
+	"$or{$lookup{tld_en,$field{tld}},.$field{tld}}"
+
+	If a tld isn't in the CDB (e.g. "com"), this will expand to ".com".
+
+	You can take this further and prepare a set of CDBs mapping tld codes
+	to names in other languages - tld_fr for French, tld_de for German.
+	Then if you have the iso language code in $opt{lang} you can replace
+	"tld_en" with "tld_$or{$opt{lang},en}" and automatically translate
+	into the currently set language, or English if no language is set.
+
 $map{LIST,STUFF)
 	map a list into the evaluated argument. If "LIST" is
 	1, 2 then:

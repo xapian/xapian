@@ -1,3 +1,10 @@
+Wed Jan 04 04:33:15 GMT 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,cdb.h,cdb_find.cc,cdb_hash.cc,cdb_init.cc,cdb_int.h,
+	  cdb_unpack.cc,configfile.cc,configfile.h,docs/omegascript.txt,
+	  omega.conf,query.cc: Add $lookup{CDBFILE,KEY} command to perform
+	  a lookup in a CDB file.
+
 Wed Jan 04 03:06:31 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt,docs/overview.txt,query.cc: Added new feature

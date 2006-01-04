@@ -40,6 +40,7 @@ static const char * configfile_envvar = "OMEGA_CONFIG_FILE";
 string database_dir = "/var/lib/omega/data/";
 string template_dir = "/var/lib/omega/templates/";
 string log_dir = "/var/log/omega/";
+string cdb_dir = "/var/lib/omega/cdb/";
 
 /** Return true if the file fname exists.
  */
@@ -70,6 +71,8 @@ try_read_config_file(const char * cfile)
 	    template_dir = value + "/";
 	} else if (name == "log_dir") {
 	    log_dir = value + "/";
+	} else if (name == "cdb_dir") {
+	    cdb_dir = value + "/";
 	}
     }
 

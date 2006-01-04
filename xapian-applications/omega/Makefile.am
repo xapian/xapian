@@ -6,7 +6,7 @@ AUTOMAKE_OPTIONS = 1.8.5
 
 noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
- gnu_getopt.h commonhelp.h
+ gnu_getopt.h commonhelp.h cdb.h cdb_int.h
 
 # Non-generated documentation.
 omega_docs = docs/cgiparams.txt \
@@ -80,7 +80,8 @@ omegadata_DATA = htdig2omega.script mbox2omega.script
 
 sysconf_DATA = omega.conf
 
-omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc
+omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
+ cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc
 omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\

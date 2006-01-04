@@ -48,6 +48,8 @@
 #include <sys/timeb.h>
 #endif
 
+#include <cdb.h>
+
 #ifdef HAVE_PCRE
 #include <pcre.h>
 #endif
@@ -780,6 +782,7 @@ CMD_le,
 CMD_length,
 CMD_list,
 CMD_log,
+CMD_lookup,
 CMD_lt,
 CMD_map,
 CMD_max,
@@ -893,6 +896,7 @@ T(le,		   2, 2, N, 0), // test <=
 T(length,	   1, 1, N, 0), // length of list
 T(list,		   2, 5, N, 0), // pretty print list
 T(log,		   1, 2, 1, 0), // create a log entry
+T(lookup,	   2, 2, N, 0), // lookup in named cdb file
 T(lt,		   2, 2, N, 0), // test <
 T(map,		   1, 2, 1, 0), // map a list into another list
 T(max,		   1, N, N, 0), // maximum of a list of values
@@ -1410,6 +1414,27 @@ eval(const string &fmt, const vector<string> &param)
 		line += '\n';
 		write(fd, line.data(), line.length());
 		close(fd);
+		break;
+	    }
+	    case CMD_lookup: {
+		if (!vet_filename(args[0])) break;
+		string cdbfile = cdb_dir + args[0];
+	        int fd = open(cdbfile.c_str(), O_RDONLY);
+		if (fd == -1) break;
+
+		struct cdb cdb;
+		cdb_init(&cdb, fd);
+
+		if (cdb_find(&cdb, args[1].data(), args[1].length()) > 0) {
+		    size_t datalen = cdb_datalen(&cdb);
+		    const void * p = cdb_get(&cdb, datalen, cdb_datapos(&cdb));
+		    if (p) {
+			value = string(static_cast<const char *>(p), datalen);
+		    }
+		}
+
+		cdb_free(&cdb);
+		close(fd); // FIXME: cache fds?
 		break;
 	    }
             case CMD_lt:
