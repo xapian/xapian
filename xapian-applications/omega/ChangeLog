@@ -1,3 +1,17 @@
+Wed Jan 04 03:06:31 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt,docs/overview.txt,query.cc: Added new feature
+	  which allows you to avoid storing fieldnames in every document
+	  (which can save a lot of disk space for a large database).  Instead
+	  you just store the field values, one per line, and add something
+	  like "$set{fieldnames,$split{caption sample url}}" to the
+	  OmegaScript template to specify the fieldnames to use.
+	* docs/omegascript.txt,query.cc: Add new "$split{}" command which
+	  splits a string to give an OmegaScript list.
+	* query.cc: Fix $url{} to escape "+" to "%2b".
+	* query.cc: Speed up $highlight{} - only compare terms which are the
+	  same length.
+
 Tue Jan 03 22:38:01 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configfile.cc: Rename file_readable() to file_exists() to better

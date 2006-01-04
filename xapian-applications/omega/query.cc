@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -487,7 +487,7 @@ percent_encode(const string &str)
     while (true) {
 	unsigned char ch = *p++;
 	if (ch == 0) return res;
-	if (ch <= 32 || ch >= 127 || strchr("#%&,/:;<=>?@[\\]^_{|}", ch)) {
+	if (ch <= 32 || ch >= 127 || strchr("#%&+,/:;<=>?@[\\]^_{|}", ch)) {
 	    char buf[4];
 	    sprintf(buf, "%%%02x", ch);
 	    res.append(buf, 3);
@@ -547,16 +547,23 @@ html_strip(const string &str)
 }
 
 // FIXME split list into hash or map and use that rather than linear lookup?
-static int word_in_list(const string& test_word, const string& list)
+static int word_in_list(const string& word, const string& list)
 {
     string::size_type split = 0, split2;
     int count = 0;
     while ((split2 = list.find('\t', split)) != string::npos) {
-	if (test_word == list.substr(split, split2 - split)) return count;
+	if (word.size() == split2 - split) {
+	    if (memcmp(word.data(), list.data() + split, word.size()) == 0)
+		return count;
+	}
 	split = split2 + 1;
 	++count;
     }
-    return (test_word == list.substr(split)) ? count : -1;
+    if (word.size() == list.size() - split) {
+	if (memcmp(word.data(), list.data() + split, word.size()) == 0)
+	    return count;
+    }
+    return -1;
 }
 
 inline static bool
@@ -571,7 +578,7 @@ p_notalnum(unsigned int c)
     return !isalnum(c);
 }
 
-// Not a character in an indentifier
+// Not a character in an identifier
 inline static bool
 p_notid(unsigned int c)
 {
@@ -801,6 +808,7 @@ CMD_set,
 CMD_setmap,
 CMD_setrelevant,
 CMD_slice,
+CMD_split,
 CMD_stoplist,
 CMD_sub,
 CMD_terms,
@@ -913,6 +921,7 @@ T(set,		   2, 2, N, 0), // set option value
 T(setmap,	   1, N, N, 0), // set map of option values
 T(setrelevant,     0, 1, N, Q), // set rset
 T(slice,	   2, 2, N, 0), // slice a list using a second list
+T(split,	   1, 2, N, 0), // split a string to give a list
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
 T(terms,	   0, 0, N, M), // list of matching terms
@@ -1611,6 +1620,29 @@ eval(const string &fmt, const vector<string> &param)
 		}
 	        break;
 	    }
+	    case CMD_split: {
+		string split;
+		if (args.size() == 1) {
+		    split = " ";
+		    value = args[0];
+		} else {
+		    split = args[0];
+		    value = args[1];
+		}
+		string::size_type i = 0;
+		while (true) {
+		    if (split.empty()) {
+			++i;
+			if (i >= value.size()) break;
+		    } else {
+			i = value.find(split, i);
+			if (i == string::npos) break;
+		    }
+		    value.replace(i, split.size(), '\t');
+		    ++i;
+		}
+	        break;
+	    }
 	    case CMD_stoplist: {
 		Xapian::TermIterator i = qp.stoplist_begin();
 		Xapian::TermIterator end = qp.stoplist_end();
@@ -1917,27 +1949,43 @@ print_caption(const string &fmt, const vector<string> &param)
     Xapian::Document doc = db.get_document(q0);
     string text = doc.get_data();
 
-    // parse record
+    // Parse document data.
     field.clear();
     string::size_type i = 0;
-    while (true) {
-	string::size_type old_i = i;
-	i = text.find('\n', i);
-	string line = text.substr(old_i, i - old_i);
-	string::size_type j = line.find('=');
-	if (j != string::npos) {
-	    string key = line.substr(0, j);
-	    string value = field[key];
-	    if (!value.empty()) value += '\t';
-	    value += line.substr(j + 1);
-	    field[key] = value;
-	} else if (!line.empty()) {
-	    // FIXME: bodge for now
-	    if (field["caption"].empty()) field["caption"] = line;
-	    field["sample"] += line;
+    map<string, string>::const_iterator opt = option.lower_bound("fieldnames");
+    if (opt != option.end() && !opt->second.empty()) {
+	// Each line is a field, with fieldnames taken from corresponding
+	// entries in the tab-separated list specified by $opt{fieldnames}.
+	const string & list = opt->second;
+	string::size_type n = 0, n2;
+	while (true) {
+	    n2 = list.find('\t', n);
+	    string::size_type old_i = i;
+	    i = text.find('\n', i);
+	    field[list.substr(n, n2 - n)] = text.substr(old_i, i - old_i);
+	    if (n2 == string::npos || i == string::npos) break;
+	    ++i;
+	    n = n2 + 1;
 	}
-	if (i == string::npos) break;
-	i++;
+    } else {
+	// Each line is a field, in the format NAME=VALUE.  We assume the field
+	// name doesn't contain an "=".  Lines without an "=" are currently
+	// just ignored.
+	while (true) {
+	    string::size_type old_i = i;
+	    i = text.find('\n', i);
+	    string line = text.substr(old_i, i - old_i);
+	    string::size_type j = line.find('=');
+	    if (j != string::npos) {
+		string key = line.substr(0, j);
+		string value = field[key];
+		if (!value.empty()) value += '\t';
+		value += line.substr(j + 1);
+		field[key] = value;
+	    }
+	    if (i == string::npos) break;
+	    ++i;
+	}
     }
 
     return eval(fmt, param);

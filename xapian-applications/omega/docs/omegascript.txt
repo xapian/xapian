@@ -99,7 +99,7 @@ $field{NAME}
 	lookup field in record.  If multiple instances of field exist the
 	field values are returned tab separated; which means you can pass the
 	results to $map; e.g.
-          $map{$field{keywords},<b>$html{$_}</b><br>}
+	  $map{$field{keywords},<b>$html{$_}</b><br>}
 
 $filesize{SIZE}
 	pretty printed filesize (e.g. 100 bytes, 2K, 4M, 1G)
@@ -117,7 +117,7 @@ $freq{term}
 
 $freqs
 	returns an HTML string listing query terms and frequencies.
-	
+
 	Deprecated and likely to be removed, as it hardcodes HTML layout into
 	the omega binary.  Exactly equivalent to:
 
@@ -276,6 +276,15 @@ $set{OPT,VALUE}
 	  stemming).
 	* stem_all - if "true", then tell the query parser to stem all words,
 	  even capitalised ones.
+	* fieldnames - if set to a non-empty value then the document data is
+	  parsed with each line being the value of a field, and the names
+	  are taken from entries in the list in fieldnames.  So
+	  $set{fieldnames,$split{title sample url}} will take the first line
+	  as the "title" field, the second as the "sample" field and the
+	  third as the "url" field.  Any lines without a corresponding field
+	  name will be ignored.  If unset or empty then the document data is
+	  parsed as one field per line in the format NAME=VALUE (where NAME is
+	  assumed not to contain '=').
 
 $setrelevant{docids}
 	add documents into the rset
@@ -284,7 +293,7 @@ $setmap{MAP,NAME1,VALUE1,...}
 	set a map of option values which may be looked up against using
 	$opt{MAP,NAME} (maps with the same name are merged rather than
 	overwritten).
-      
+
 	Omega uses the "prefix" map to set the prefixes understood by the query
 	parser.  So if you wish to translate a prefix of "author:" to A and
 	"title:" to "S" you would use:
@@ -309,12 +318,22 @@ $slice{LIST,POSITIONS}
 	returns the elements from "LIST" at the positions listed in the
 	second list "POSITIONS".  The first item is at position 0.
 	Any positions which are out of range will be ignored.
-	
+
 	For example, if "LIST" is a, b, c, d then:
 	"$slice{LIST,2}" = "c"
 	"$slice{LIST,1	3}" = "b	d"
 	"$slice{LIST,$range{1,3}}" = "b	c	d"
 	"$slice{LIST,$range{-10,10}}" = "a	b	c	d"
+
+$split{STRING}
+$split{SPLIT,STRING}
+	returns a list by splitting the string "STRING" into elements at each
+	occurrence of the substring "SPLIT".  If SPLIT isn't specified, it
+	defaults to a single space.  If SPLIT is empty, STRING is split into
+	individual characters.
+
+	For example:
+	"$split{one two three}" = "one	two	three"
 
 $stoplist
 	returns a list of any terms in the query which were ignored as
@@ -366,10 +385,10 @@ $add{A,B,...}
 
 $div{A,B}
 	returns int(A / B) (or "divide by 0" if B is zero)
-	    
+
 $mod{A,B}
 	returns int(A % B) (or "divide by 0" if B is zero)
-	    
+
 $max{...}
 	maximum of the arguments
 

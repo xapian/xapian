@@ -358,6 +358,16 @@ caption=<title>
 type=<mimetype>
 ----------------------------------------------------------------------
 
-Further fields may be added (although omindex doesn't currently do any
+Further fields may be added (although omindex doesn't currently add any
 others), and may be looked up from OmegaScript using the $field{}
 command.
+
+As of Omega 0.9.3, you can alternatively add something like this near the
+start of your OmegaScript template:
+
+$set{fieldnames,$split{caption sample url}}
+
+Then you need only give the field values in the document data, which can
+save a lot of space in a large database.  With the setting of fieldnames
+above, the first line of document data can be accessed with $field{caption},
+the second with $field{sample}, and the third with $field{url}.
