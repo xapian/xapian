@@ -72,6 +72,17 @@ cdb_init(struct cdb *cdbp, int fd)
   return 0;
 }
 
+#ifdef __cplusplus
+class VoidStarOrCharStar {
+    void *p;
+  public:
+    VoidStarOrCharStar(const void *p_) : p((void*)p_) { }
+    VoidStarOrCharStar(const char *p_) : p((void*)p_) { }
+    operator void*() { return p; }
+    operator char*() { return (char*)p; }
+};
+#endif
+
 void
 cdb_free(struct cdb *cdbp)
 {
@@ -86,7 +97,15 @@ cdb_free(struct cdb *cdbp)
     UnmapViewOfFile((void*) cdbp->cdb_mem);
     CloseHandle(hMapping);
 #else
-    munmap((void*)cdbp->cdb_mem, cdbp->cdb_fsize);
+#ifdef __cplusplus
+    /* Solaris sys/mman.h defines munmap as taking char* unless __STDC__ is
+     * defined (which it isn't in C++).
+     */
+    VoidStarOrCharStar p(cdbp->cdb_mem);
+#else
+    void * p = (void*)cdbp->cdb_mem;
+#endif
+    munmap(p, cdbp->cdb_fsize);
 #endif /* _WIN32 */
     cdbp->cdb_mem = NULL;
   }

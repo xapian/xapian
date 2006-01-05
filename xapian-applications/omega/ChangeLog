@@ -1,3 +1,8 @@
+Thu Jan 05 03:24:07 GMT 2006  Olly Betts <olly@survex.com>
+
+	* cdb_init.cc: Fix to hopefully compile on Solaris which has a broken
+	  sys/mman.h when used from C++.
+
 Wed Jan 04 20:44:44 GMT 2006  Olly Betts <olly@survex.com>
 
 	* query.cc: Fixed to compile with GCC 3.0.
