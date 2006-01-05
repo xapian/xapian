@@ -1,3 +1,11 @@
+Thu Jan 05 18:29:20 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: SWIG/Tcl ignores the SWIG_XXXError code passed to
+	  SWIG_exception so special-case Tcl's %exception block to only
+	  look for the Xapian::Error baseclass.  This cuts the compile
+	  time by about a factor of 3 and halves the size of the stripped
+	  library!
+
 Wed Jan 04 20:21:39 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Include default constructors for all classes so that SWIG

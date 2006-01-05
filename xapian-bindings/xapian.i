@@ -128,6 +128,18 @@ using namespace std;
 #endif
 %}
  
+#ifdef SWIGTCL
+// SWIG/Tcl ignores the SWIG_XXXError code.
+%exception {
+    try {
+	$function
+    } catch (const Xapian::Error &e) {
+	XapianException(SWIG_UnknownError, e);
+    } catch (...) {
+	SWIG_exception(SWIG_UnknownError, "unknown error in Xapian");
+    }
+}
+#else
 // FIXME: RangeError DatabaseError and NetworkError are all subclasses of
 // RuntimeError - how should we handle those for PHP4?
 %exception {
@@ -151,6 +163,7 @@ using namespace std;
 	SWIG_exception(SWIG_UnknownError, "unknown error in Xapian");
     }
 }
+#endif
 
 // This includes a language specific util.i, thanks to judicious setting of
 // the include path
