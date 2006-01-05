@@ -20,21 +20,28 @@ If you're using GCC, we currently recommend GCC 3.3 or newer.
 
 GCC's C++ support has improved a lot since GCC 2.95, and you may experience
 spurious warning messages or even Internal Compiler Errors if you try to use
-2.95.  The "GCC 2.96" supplied by RedHat is also best avoided.  This isn't
-based on an official GCC release, but rather on a snapshot of GCC somewhere
-between 2.95 and 3.0.
+2.95 (in particular, GCC 2.95 for arm fails to compile Xapian).
+
+The "GCC 2.96" supplied by RedHat is also best avoided.  This isn't based on an
+official GCC release, but rather on a snapshot of GCC somewhere between 2.95
+and 3.0.
 
 Even older GCC compilers (including EGCS) are most unlikely to work at all
 due to lack of support for various C++ features which Xapian uses.
 
+
+Building in a separate directory:
+=================================
+
+If you wish to perform your build in a separate directory from the source,
+create and change to the build directory, and run the configure script (in
+the source directory) from the build directory, like so:
+
+  mkdir BUILD; cd BUILD; ../configure
+
+
 Options to give to configure:
 =============================
-
-Note: If you wish to perform your build in a separate directory from the
-source, change to the build directory, and run the configure script
-(in the source directory) from the build directory.
-
-ie: mkdir BUILD; cd BUILD; ../configure
 
 --enable-debug
 	You should use this to build a version of Xapian with debugging
