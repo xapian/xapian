@@ -115,7 +115,7 @@ dnl fail in obscure ways.
 case $build_os in
   *mingw* | *cygwin* | pw32*)
     find /dirunlikelytoexist >/dev/null 2>&1
-    if test $? = 1;then #2 ; then
+    if test $? = 2 ; then
 	dnl Unix find will return 1 if the directory didn't exist, or 0 if
 	dnl it did.
 	AC_MSG_ERROR([
