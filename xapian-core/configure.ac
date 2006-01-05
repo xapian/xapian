@@ -108,6 +108,28 @@ AC_CONFIG_HEADERS(config.h)
 dnl Use libtool to manage our libraries
 AC_PROG_LIBTOOL
 
+dnl A standard "gotcha" for mingw and cygwin users is to not set up their
+dnl PATH correctly, so that MSDOS FIND.EXE is found before Unix find.  Help
+dnl them out by checking for this condition, rather than letting libtool
+dnl fail in obscure ways.
+case $build_os in
+  *mingw* | *cygwin* | pw32*)
+    find /dirunlikelytoexist >/dev/null 2>&1
+    if test $? = 1;then #2 ; then
+	dnl Unix find will return 1 if the directory didn't exist, or 0 if
+	dnl it did.
+	AC_MSG_ERROR([
+*** You appear to have an MSDOS-like FIND.EXE in your PATH ahead of any
+*** UNIX-like find.  This misconfiguration will confuse libtool - you'll need
+*** to make sure you have a UNIX-like find installed and fix your PATH, then
+*** rerun configure.  For more information, see:
+***
+***   http://www.cygwin.com/faq/faq_3.html#SEC41
+])
+    fi
+  ;;
+esac
+
 dnl Add parameters for aclocal
 dnl (This must come after AM_INIT_AUTOMAKE, since it modifies ACLOCAL)
 ACLOCAL="$ACLOCAL $ACLOCAL_FLAGS"

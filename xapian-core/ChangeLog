@@ -1,3 +1,8 @@
+Thu Jan 05 16:09:06 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add sanity check for MS Windows that "find" is
+	  Unix-like find, not MSDOS-like.
+
 Thu Jan 05 04:27:29 GMT 2006  Olly Betts <olly@survex.com>
 
 	* INSTALL,PLATFORMS,README: Updated.
