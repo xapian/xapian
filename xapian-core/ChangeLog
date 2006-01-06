@@ -1,3 +1,10 @@
+Fri Jan 06 18:05:30 GMT 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.cc,queryparser/queryparser.lemony,
+	  queryparser/queryparser_internal.h: Replace pair<bool, string>
+	  with a simple class BoolAndString - the pair results in a
+	  4328 byte symbol on HP-UX which gets truncated (to 4000 bytes).
+
 Fri Jan 06 12:55:37 GMT 2006  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated from tinderbox.

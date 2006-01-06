@@ -1,7 +1,7 @@
 /* queryparser_internal.h: The non-lemon-generated parts of the QueryParser
  * class.
  *
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
 
@@ -34,6 +34,12 @@ using namespace std;
 
 class State;
 
+struct BoolAndString {
+    bool flag;
+    string str;
+    BoolAndString(bool f, const string &s) : flag(f), str(s) { }
+};
+
 class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
     friend class Xapian::QueryParser;
     friend class ::State;
@@ -49,7 +55,7 @@ class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
     // Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
     // "foobar" -> "XFOO"
     // bool is true if this is a boolean filter.
-    map<string, pair<bool, string> > prefixes;
+    map<string, BoolAndString> prefixes;
   public:
     Internal() : stem_action(STEM_NONE), stopper(NULL),
 	default_op(Xapian::Query::OP_OR), errmsg(NULL) { }
