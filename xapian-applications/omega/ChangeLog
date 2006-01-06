@@ -1,3 +1,8 @@
+Fri Jan 06 21:29:37 GMT 2006  Olly Betts <olly@survex.com>
+
+	* symboltab.h: Fix A after \xbf being interpereted as an overlong
+	  escape sequence.
+
 Fri Jan 06 21:26:57 GMT 2006  Olly Betts <olly@survex.com>
 
 	* query.cc: Fix printf type mismatch on 64 bit platforms.
