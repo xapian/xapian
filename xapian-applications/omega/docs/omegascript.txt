@@ -111,6 +111,10 @@ $filters
 	DAYSMINUS, and DEFAULTOP) - set xFILTERS to this so that Omega
 	can detect when the filters have changed and force the first page.
 
+$find{LIST,STRING}
+	returns the number of the first entry in LIST which is equal to STRING
+	(starting from 0) or the empty string if no entry matches.
+
 $fmt
 	name of current format (as set by FMT, or the default)
 

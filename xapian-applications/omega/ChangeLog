@@ -1,3 +1,7 @@
+Fri Jan 06 21:00:34 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt,query.cc: Added $find{LIST,STRING}.
+
 Fri Jan 06 20:52:31 GMT 2006  Olly Betts <olly@survex.com>
 
 	* symboltab.h: Write top-bit set characters using \xXX notation to

@@ -760,6 +760,7 @@ CMD_error,
 CMD_field,
 CMD_filesize,
 CMD_filters,
+CMD_find,
 CMD_fmt,
 CMD_freq,
 CMD_freqs,
@@ -872,6 +873,7 @@ T(eq,		   2, 2, N, 0), // test equality
 T(field,	   1, 1, N, 0), // lookup field in record
 T(filesize,	   1, 1, N, 0), // pretty printed filesize
 T(filters,	   0, 0, N, 0), // serialisation of current filters
+T(find,		   2, 2, N, 0), // find entry in list
 T(fmt,		   0, 0, N, 0), // name of current format
 T(freq,		   1, 1, N, 0), // frequency of a term
 T(freqs,	   0, 0, N, M), // return HTML string listing query terms and
@@ -1210,6 +1212,24 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_filters:
 		value = filters;
 		break;
+	    case CMD_find: {
+		string l = args[0], s = args[1];
+		string::size_type i = 0, j = 0;
+		size_t count = 0;
+		while (j != l.size()) {
+		    j = l.find('\t', i);
+		    if (j == string::npos) j = l.size();
+		    if (j - i == s.length()) {
+			if (memcmp(s.data(), l.data() + i, j - i) == 0) {
+			    value = int_to_string(count);
+			    break;
+			}
+		    }
+		    ++count;
+		    i = j + 1;
+		}
+		break;
+	    }
 	    case CMD_fmt:
 		value = fmtname;
 		break;
