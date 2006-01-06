@@ -1,7 +1,7 @@
 %{
 /* php4/util.i: custom PHP typemaps for xapian-bindings
  *
- * Copyright (C) 2004,2005 Olly Betts
+ * Copyright (C) 2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,9 +35,9 @@ namespace Xapian {
 	return retval;
     }
 }
-%}
 
 #include <config.h> /* for PACKAGE_VERSION */
+%}
 
 /* Add a section to the output from phpinfo(). */
 %pragma(php4) phpinfo="

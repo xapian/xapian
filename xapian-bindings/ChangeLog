@@ -1,3 +1,8 @@
+Fri Jan 06 00:30:50 GMT 2006  Olly Betts <olly@survex.com>
+
+	* php/util.i: Fix so that PACKAGE_VERSION is defined when compiling
+	  the SWIG generated C++ source code.
+
 Thu Jan 05 18:29:20 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: SWIG/Tcl ignores the SWIG_XXXError code passed to
