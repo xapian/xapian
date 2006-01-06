@@ -1,3 +1,7 @@
+Fri Jan 06 12:55:37 GMT 2006  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated from tinderbox.
+
 Thu Jan 05 16:12:00 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Oops, remove hack left over from testing.

@@ -44,13 +44,14 @@ x86   |#Linux 2.4 RHEL AS3 IntelC++ 8.1| 0.8.5~|Passed| (was td185)
 x86   |=Linux 2.4 RHEL AS4 GCC 3.2.3   |~0.9.3 |Passed| (td185)
 x86   |=Linux 2.4 RHEL AS4 GCC 3.4.4   |~0.9.3 |Passed| (td185)
 x86   |=Linux 2.4 RHEL AS4 GCC 4.0.1   |~0.9.3 |Passed| (td185)
-x86   |#Linux 2.4 RHEL AS4 IntelC++ 8.1| 0.9.2 |Passed| (was td185)
+x86   |=Linux 2.4 RHEL AS4 IntelC++ 8.1|~0.9.3 |Passed| (td185)
 x86   |=Linux 2.4 RHEL AS4 IntelC++ 9.0|~0.9.3 |Passed| (td185)
 x86   |#Linux 2.4 RHEL ES3 GCC 2.96    | 0.8.5 |Passed| (was td141)
 x86   |#Linux 2.4 RHEL ES3 GCC 3.4.1   | 0.8.5 |Passed| (was td141)
 x86   |#Linux 2.4 RHEL ES3 GCC 3.4.3   | 0.9.2 |Passed| (was td141)
 x86   |#Linux 2.4 RHEL ES3 GCC pre4.0  | 0.9.2 |Passed| (was td141)
 x86   |#Linux 2.4 RHEL ES3 IntelC++ 8.1| 0.9.2 |Passed| (was td141)
+x86   |=Linux 2.4 RHEL ES4 IntelC++ 8.1|~0.9.3 |Passed| (td141)
 x86   |=Linux 2.6 RHEL ES4 GCC 3.4.4   |~0.9.3 |Passed| (td141)
 x86   |=Linux 2.6 RHEL ES4 GCC 4.0.1   |~0.9.3 |Passed| (td141)
 x86   | Linux 2.4 Slackw. 9.1 GCC 3.2.3|~0.8.1 |Passed| from tweakers.net
@@ -61,7 +62,7 @@ x86   |=Linux 2.6 RH 10.0 GCC 3.4.1    | 0.9.1 |Passed| (td188)
 x86   |=Linux 2.6 RH 10.0 IntelC++ 8.1 | 0.9.1 |Passed| (td188)
 x86   |=Linux 2.6 SuSE 9 GCC 3.3.3     |~0.9.3 |Passed| (td162)
 x86   |#Linux 2.6 SuSE 9 GCC 3.4.1     |~0.9.0 |Passed| (was td186)
-x86   |#Linux 2.6 SuSE 9 IntelC++ 8.1  | 0.9.1 |Passed| (was td162)
+x86   |=Linux 2.6 SuSE 9 IntelC++ 8.1  |~0.9.3 |Passed| (td162)
 x86   |=Linux 2.6 SuSE 9 IntelC++ 9.0  |~0.9.3 |Passed| (td162)
 x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.9.2 |Passed|
 x86   |!FreeBSD 4.8 GCC 3.2.3          | 0.9.2 |Passed|
@@ -78,7 +79,7 @@ x86   |=NetBSD 2.0 GCC 3.3.3           |~0.9.3 |Passed| (td143)
 x86   |#OpenBSD 3.4 GCC 2.95.3         | 0.9.0 |Passed| (was x86-openbsd1)
 x86   |*OpenBSD 3.8 GCC 3.3.5          |~0.9.3 |Passed| (x86-openbsd1)
 x86   |*Solaris 9 GCC 3.3.2            |~0.9.3 |Passed| (x86-solaris1)
-x86   |*Solaris 9 Sun Workshop C++ 5.5 | 0.9.1 |Passed| (x86-solaris1) [2]
+x86   |*Solaris 9 Sun Workshop C++ 5.5 |~0.9.3 |Passed| (x86-solaris1) [2]
 x86   | Cygwin 1.5.10 GCC 3.3.3 XP sp2 |~0.8.4 |Passed| [4] from Mike Boone
 x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
 x86   | MinGW 3.1.0                    |~0.8.4 |Passed| from Michael Sisolak
@@ -89,7 +90,7 @@ x86_64|=Linux 2.6 RHEL AS4 GCC 3.4.4   |~0.9.3 |Passed| (td189)
 x86_64|=Linux 2.6 RHEL AS4 GCC 4.0.1   |~0.9.3 |Passed| (td189)
 x86_64|#Linux 2.4 SuSE 8.1 GCC 3.2.2   | 0.8.5 |Passed|
 x86_64|=Linux 2.6 SuSE 9 GCC 3.3.3     |~0.9.3 |Passed| (td179,190)
-x86_64|=Linux 2.6 SuSE 9 IntelC++ 8.1  | 0.9.1 |Passed| (td179)
+x86_64|=Linux 2.6 SuSE 9 IntelC++ 8.1  |~0.9.3 |Passed| (td179,190)
 x86_64| Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.8.3~|Passed| from gmane.org
 x86_64|*Linux 2.6 RedHat FC3 GCC 3.3.4 |~0.9.3 |Passed| (amd64-linux2)
 x86_64|*Linux 2.6 RedHat FC3 GCC 3.4.2 |~0.9.3 |Passed| (amd64-linux2)
@@ -104,7 +105,7 @@ alpha |#FreeBSD 5.3 GCC 3.4.2	       | 0.9.0 |Passed| (was td149)
 alpha |=FreeBSD 5.4 GCC 3.4.2	       | 0.9.2 |Passed| (td149)
 alpha |=DEC OSF 5.1 GCC 3.3            |~0.9.0 |Passwd| (td207) [8]
 sparc |*Solaris 9 GCC 3.3.2            |~0.9.3 |Passed| (sparc-solaris1) [2]
-sparc |*Solaris 9 Sun Workshop C++ 5.5 | 0.9.1 |Passed| (sparc-solaris1) [2]
+sparc |*Solaris 9 Sun Workshop C++ 5.5 |~0.9.3 |Passed| (sparc-solaris1) [2]
 ppc   |*MacOS X 10.1.4 GCC 2.95.2      | 0.9.2 |Passed| (ppc-osx1) [7]
 ppc   |*MacOS X 10.2.8 GCC 2.95.2      | 0.9.1 |Passed| (ppc-osx2)
 ppc   |*MacOS X 10.2.8 GCC 3.1 20020420| 0.9.2 |Passed| (ppc-osx2)
@@ -130,7 +131,7 @@ ia64  |+Linux 2.4 RHEL AS3 IntelC++ 8.1| 0.8.5~|Passed| [11]
 ia64  |=Linux 2.6 RHEL AS4 GCC 3.2.3   |~0.9.3 |Passed| (td174,177)
 ia64  |=Linux 2.6 RHEL AS4 GCC 3.4.4   |~0.9.3 |Passed| (td174,177)
 ia64  |=Linux 2.6 RHEL AS4 GCC 4.0.1   |~0.9.3 |Passed| (td174,177)
-ia64  |#Linux 2.6 RHEL AS4 IntelC++ 8.1| 0.9.2 |Passed| (was td174,177) [11]
+ia64  |=Linux 2.6 RHEL AS4 IntelC++ 8.1|~0.9.3 |Passed| (td174,177) [11]
 ia64  |=Linux 2.6 RHEL AS4 IntelC++ 9.0|~0.9.3 |Passed| (td174,177) [11]
 ia64  |=Linux 2.6 SuSE 9 GCC 3.3.3     | 0.9.2 |Passed| (td187)
 ia64  |=Linux 2.6 SuSE 9 GCC 3.4.1     | 0.8.5~|Passed|
@@ -141,7 +142,7 @@ ia64  |=HP-UX 11.23 GCC 3.4.3          | 0.9.2 |Passed| (td176)
 ia64  |=HP-UX 11.23 aCC B3910B A.06.00 | 0.9.2 |Passed| (td196)
 ia64  |=HP-UX 11.23 aCC B3910B A.06.02 | 0.9.2 |Passed| (td176)
 ------+--------------------------------+-------+------+------------------------
-x86   |&Linux cross to mingw GCC 2.95.3| 0.9.2 |Built | [1]
+x86   |&Linux cross to mingw GCC 2.95.3|~0.9.3 |Built | [1]
 x86   | Linux cross to DJGPP GCC 2.95.2| 0.8.0 |Built | [1] [3]
 ------+--------------------------------+-------+------+------------------------
 arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [5]
