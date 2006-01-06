@@ -1,3 +1,8 @@
+Fri Jan 06 18:14:33 GMT 2006  Olly Betts <olly@survex.com>
+
+	* query.cc: Cast time_t to unsigned long to avoid problems on 64bit
+	  platforms.
+
 Fri Jan 06 18:12:38 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt: Note in the $cgi description that it returns

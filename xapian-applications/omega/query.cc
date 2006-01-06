@@ -1522,7 +1522,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_now: {
 		char buf[64];
-		sprintf(buf, "%u", time(NULL));
+		sprintf(buf, "%lu", (unsigned long)time(NULL));
 		value = buf;
 		break;
 	    }
