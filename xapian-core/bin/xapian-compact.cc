@@ -1,6 +1,6 @@
 /* xapian-compact.cc: Compact a flint database, or merge and compact several.
  *
- * Copyright (C) 2004,2005 Olly Betts
+ * Copyright (C) 2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -368,13 +368,13 @@ main(int argc, char **argv)
 			bad_stat = true;
 		}
 		vector<Xapian::docid> off(offset);
-		size_t c = 0;
+		unsigned int c = 0;
 		while (multipass && tmp.size() > 3) {
 		    vector<string> tmpout;
 		    tmpout.reserve(tmp.size() / 2);
 		    vector<Xapian::docid> newoff;
 		    newoff.resize(tmp.size() / 2);
-		    for (size_t i = 0, j; i < tmp.size(); i = j) {
+		    for (unsigned int i = 0, j; i < tmp.size(); i = j) {
 			j = i + 2;
 			if (j == tmp.size() - 1) ++j;
 
@@ -389,7 +389,7 @@ main(int argc, char **argv)
 
 			merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
 			if (c > 0) {
-			    for (int k = i; k < j; ++k) {
+			    for (unsigned int k = i; k < j; ++k) {
 				unlink((tmp[k] + "DB").c_str());
 				unlink((tmp[k] + "baseA").c_str());
 				unlink((tmp[k] + "baseB").c_str());
