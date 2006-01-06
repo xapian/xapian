@@ -54,7 +54,9 @@ $allterms{docid}
 	list of all terms matching document
 
 $cgi{CGI}
-	lookup the value of a CGI variable
+	lookup the value of a CGI variable.  If the same variable has multiple
+	values, $cgi will pick one arbitrarily - use $cgilist if you want all
+	the values.
 
 $cgilist{CGI}
 	return a list of all values of a CGI variable

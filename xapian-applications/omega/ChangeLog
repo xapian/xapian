@@ -1,3 +1,9 @@
+Fri Jan 06 18:12:38 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt: Note in the $cgi description that it returns
+	  an arbitrary value if there's more than one, and pointing to
+	  $cgilist.
+
 Thu Jan 05 05:54:58 GMT 2006  Olly Betts <olly@survex.com>
 
 	* cdb_init.cc: Fix mingw compilation.
