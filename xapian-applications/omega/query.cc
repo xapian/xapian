@@ -1722,7 +1722,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_time:
 		if (usec != -1) {
 		    char buf[64];
-		    sprintf(buf, "%d.%06d", sec, usec);
+		    sprintf(buf, "%ld.%06ld", sec, usec);
 		    value = buf;
 		}
 		break;

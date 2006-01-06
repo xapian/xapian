@@ -1,3 +1,7 @@
+Fri Jan 06 21:26:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* query.cc: Fix printf type mismatch on 64 bit platforms.
+
 Fri Jan 06 21:00:34 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt,query.cc: Added $find{LIST,STRING}.
