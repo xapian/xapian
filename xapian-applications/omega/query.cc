@@ -1448,7 +1448,6 @@ eval(const string &fmt, const vector<string> &param)
 		    string::size_type i = 0, j;
 		    while (true) {
 			j = l.find('\t', i);
-			string save_loopvar;
 			p[0] = l.substr(i, j - i);
 			value += eval(pat, p);
 			if (j == string::npos) break;
