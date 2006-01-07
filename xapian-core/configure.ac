@@ -303,9 +303,6 @@ AC_CHECK_HEADERS(streambuf, [], [], [ ])
 dnl check for strcasecmp.
 AC_CHECK_FUNCS([strcasecmp])
 
-dnl check for socklen_t
-TYPE_SOCKLEN_T
-
 dnl Checks for perl (needed to regenerate some of the documentation)
 AC_PATH_PROG(PERL, perl, [])
 if test x$USE_MAINTAINER_MODE = xyes; then
@@ -515,6 +512,9 @@ else
 	      ],
 	      build_remote=false)
       LIBS="$SAVE_LIBS"
+
+      dnl check for socklen_t
+      TYPE_SOCKLEN_T
     fi
   fi
   if test false != "$build_remote" ; then

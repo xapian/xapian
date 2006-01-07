@@ -1,3 +1,8 @@
+Sat Jan 07 07:13:25 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: TYPE_SOCKLEN_T fails hard, so only run it if we've
+	  successfully run other socket tests.
+
 Sat Jan 07 05:29:39 GMT 2006  Olly Betts <olly@survex.com>
 
 	* queryparser/accentnormalisingitor.h: #include <limits.h> for
