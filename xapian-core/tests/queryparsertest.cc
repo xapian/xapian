@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,7 +47,7 @@ static test test_or_queries[] = {
     { "a#b", "(a:(pos=1) OR b:(pos=2))" },
     { "O.K. U.N.C.L.E XY.Z.", "(Rok:(pos=1) OR Runcle:(pos=2) OR (Rxy:(pos=3) PHRASE 2 Rz:(pos=4)))" },
     { "author:orwell animal farm", "(Aorwel:(pos=1) OR anim:(pos=2) OR farm:(pos=3))" },
-    { "höhle", "hoehl:(pos=1)" },
+    { "h\xf6hle", "hoehl:(pos=1)" },
     { "one +two three", "(two:(pos=2) AND_MAYBE (one:(pos=1) OR three:(pos=3)))" },
     { "subject:test other", "(XTtest:(pos=1) OR other:(pos=2))" },
     { "subject:\"space flight\"", "(XTspace:(pos=1) PHRASE 2 XTflight:(pos=2))" },
@@ -57,7 +57,7 @@ static test test_or_queries[] = {
     { "beer NOT \"orange juice\"", "(beer:(pos=1) AND_NOT (orang:(pos=2) PHRASE 2 juic:(pos=3)))" },
     { "one AND two", "(one:(pos=1) AND two:(pos=2))" },
     { "one A.N.D. two", "(one:(pos=1) OR Rand:(pos=2) OR two:(pos=3))" },
-    { "one ÁND. two", "(one:(pos=1) OR Rand:(pos=2) OR two:(pos=3))" },
+    { "one \xc1ND. two", "(one:(pos=1) OR Rand:(pos=2) OR two:(pos=3))" },
     { "one author:AND two", "(one:(pos=1) OR ARand:(pos=2) OR two:(pos=3))" },
     { "author:hyphen-ated", "(Ahyphen:(pos=1) PHRASE 2 Aate:(pos=2))" },
     { "cvs site:xapian.org", "(cvs:(pos=1) FILTER Hxapian.org)" },
@@ -288,7 +288,7 @@ static test test_or_queries[] = {
     { "AMD Athlon XP 2500+ (1,83GHz, 512KB)", "(Ramd:(pos=1) OR Rathlon:(pos=2) OR Rxp:(pos=3) OR 2500+:(pos=4) OR 1:(pos=5) OR 83ghz:(pos=6) OR 512kb:(pos=7))" },
     { "'q ben\"", "(q:(pos=1) OR ben:(pos=2))" },
     { "getsmbfilepwent: malformed password entry (uid not number)", "(getsmbfilepw:(pos=1) OR malform:(pos=2) OR password:(pos=3) OR entri:(pos=4) OR uid:(pos=5) OR not:(pos=6) OR number:(pos=7))" },
-    { "öude onderdelen\"", "(oeud:(pos=1) OR onderdelen:(pos=2))" },
+    { "\xf6ude onderdelen\"", "(oeud:(pos=1) OR onderdelen:(pos=2))" },
     { "Heeft iemand enig idee waarom de pioneer (zelf met originele firmware van pioneer) bij mij niet wil flashen ?" "?", "(Rheeft:(pos=1) OR iemand:(pos=2) OR enig:(pos=3) OR ide:(pos=4) OR waarom:(pos=5) OR de:(pos=6) OR pioneer:(pos=7) OR zelf:(pos=8) OR met:(pos=9) OR originel:(pos=10) OR firmwar:(pos=11) OR van:(pos=12) OR pioneer:(pos=13) OR bij:(pos=14) OR mij:(pos=15) OR niet:(pos=16) OR wil:(pos=17) OR flashen:(pos=18))" }, // Split ? and ? to avoid trigram problems
     { "asus a7v266 bios nieuw -(a7v266-e)", "((asus:(pos=1) OR a7v266:(pos=2) OR bio:(pos=3) OR nieuw:(pos=4)) AND_NOT (a7v266:(pos=5) PHRASE 2 e:(pos=6)))" },
     { "cybercom \"dvd+r\"", "(cybercom:(pos=1) OR (dvd:(pos=2) PHRASE 2 r:(pos=3)))" },
@@ -341,7 +341,7 @@ static test test_or_queries[] = {
     { "apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)", "(apm:(pos=1) OR Rbios:(pos=2) OR version:(pos=3) OR (1:(pos=4) PHRASE 2 2:(pos=5)) OR Rflags:(pos=6) OR 0x03:(pos=7) OR Rdriver:(pos=8) OR version:(pos=9) OR (1:(pos=10) PHRASE 2 16:(pos=11)))" },
     { "GA-8IHXP(3.0)", "((Rga:(pos=1) PHRASE 2 8ihxp:(pos=2)) OR (3:(pos=3) PHRASE 2 0:(pos=4)))" },
     { "8IHXP(3.0)", "(8ihxp:(pos=1) OR (3:(pos=2) PHRASE 2 0:(pos=3)))" },
-    { "na·si (de ~ (m.))", "(na:(pos=1) OR si:(pos=2) OR de:(pos=3) OR m:(pos=4))" },
+    { "na\xb7si (de ~ (m.))", "(na:(pos=1) OR si:(pos=2) OR de:(pos=3) OR m:(pos=4))" },
     { "header(\"Content-Disposition: attachment;", "(header:(pos=1) OR (Rcontent:(pos=2) PHRASE 3 Rdisposition:(pos=3) PHRASE 3 attach:(pos=4)))" },
     { "\"header(\"Content-Disposition: attachment;\"", "(header:(pos=1) OR (Rcontent:(pos=2) PHRASE 2 Rdisposition:(pos=3)) OR attach:(pos=4))" },
     { "\"Beep -f\"", "(Rbeep:(pos=1) PHRASE 2 f:(pos=2))" },
@@ -433,7 +433,7 @@ static test test_or_queries[] = {
     { "php getenv(\"HTTP_REFERER\")", "(php:(pos=1) OR getenv:(pos=2) OR (Rhttp:(pos=3) PHRASE 2 Rreferer:(pos=4)))" },
     { "nec+-1300", "(nec:(pos=1) OR 1300:(pos=2))" },
     { "smbpasswd script \"-s\"", "(smbpasswd:(pos=1) OR script:(pos=2) OR s:(pos=3))" },
-    { "leestekens \" Ö ë", "(leesteken:(pos=1) OR (Roe:(pos=2) PHRASE 2 e:(pos=3)))" },
+    { "leestekens \" \xd6 \xeb", "(leesteken:(pos=1) OR (Roe:(pos=2) PHRASE 2 e:(pos=3)))" },
     { "freesco and (all seeing eye)", "(freesco:(pos=1) OR and:(pos=2) OR all:(pos=3) OR see:(pos=4) OR eye:(pos=5))" },
     { "('all seeing eye') and freesco", "(all:(pos=1) OR see:(pos=2) OR eye:(pos=3) OR and:(pos=4) OR freesco:(pos=5))" },
     { "\"[......\"", "" },

@@ -1,3 +1,8 @@
+Sat Jan 07 09:13:06 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Write top-bit set characters using \xXX
+	  notation to avoid warnings from Intel's C++ compiler.
+
 Sat Jan 07 07:13:25 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: TYPE_SOCKLEN_T fails hard, so only run it if we've
