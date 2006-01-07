@@ -104,14 +104,41 @@ run a test program by hand (rather than via make) just use:
 
 ./runtest ./apitest
 
-You can specify options and arguments:
+You can specify options and arguments.  Individual test programs optionally
+take one or more test names as arguments, and you can also pass "-v" to get
+more verbose output from failing tests, e.g.:
 
 ./runtest ./apitest -v deldoc1
+
+If the number of the test is omitted, all tests with that basename are run,
+so to run deldoc1, deldoc2, etc:
+
+./runtest ./apitest deldoc
 
 You can also use runtest to run a test program under gdb (or most other tools):
 
 ./runtest gdb ./apitest -v deldoc1
 ./runtest valgrind ./apitest -v deldoc1
+
+Some test programs take special arguments - for example, you can restrict
+apitest to the flint backend using "-b=flint".
+
+There are a few environmental variables which the testsuite harness checks for
+which you might find useful:
+
+  XAPIAN_TESTSUITE_SIG_DFL:
+    By default, the testsuite harness catches signals and handles them
+    gracefully - the current test is failed, and the testsuite moves onto the
+    next test.  If you want to suppress this (some debugging tools may work
+    better if the signal is not caught) set the environment variable
+    XAPIAN_TESTSUITE_SIG_DFL to any value to prevent the testsuite harness
+    from installing its own signal handling.
+
+ XAPIAN_TESTSUITE_PLAIN_OUTPUT:
+    By default, the testsuite harness uses ANSI escape sequences to give
+    colour output if stdout is a tty.  You can disable this feature by
+    setting XAPIAN_TESTSUITE_PLAIN_OUTPUT to any value.  Alternatively,
+    piping the output (through cat or more) will have the same effect.
 
 Using various debugging, profiling, and leak-finding tools:
 ===========================================================

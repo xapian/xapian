@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -193,7 +193,8 @@ test_driver::runtest(const test_desc *test)
 	tout.str("");
 	SignalRedirector sig; // use object so signal handlers are reset
 	if (!setjmp(jb)) {
-	    static bool catch_signals = (getenv("XAPIAN_SIG_DFL") == NULL);
+	    static bool catch_signals =
+		(getenv("XAPIAN_TESTSUITE_SIG_DFL") == NULL);
 	    if (catch_signals) sig.activate();
 	    try {
 		expected_exception = NULL;
@@ -513,7 +514,7 @@ test_driver::parse_command_line(int argc, char **argv)
     argv0 = argv[0];
 
 #ifndef __WIN32__
-    if (isatty(1)) {
+    if (isatty(1) && (getenv("XAPIAN_TESTSUITE_PLAIN_OUTPUT") == NULL)) {
 	col_red = "\x1b[1m\x1b[31m";
 	col_green = "\x1b[1m\x1b[32m";
 	col_yellow = "\x1b[1m\x1b[33m";

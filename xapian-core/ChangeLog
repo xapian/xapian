@@ -1,3 +1,16 @@
+Sat Jan 07 19:09:33 GMT 2006  Olly Betts <olly@survex.com>
+
+	* HACKING,docs/tests.html: Merge the "running tests" section of
+	  docs/tests.html into the similar section in HACKING, and make
+	  docs/tests.html refer the reader to HACKING for more information.
+	* HACKING,tests/apitest.cc: Remove OM_TEST_BACKEND.  You can now
+	  use the "-b" switch to apitest to control which backend is used
+	  so it's pretty much redundant.
+	* HACKING,testsuite/testsuite.cc: Rename XAPIAN_SIG_DFL to
+	  XAPIAN_TESTSUITE_SIG_DFL.
+	* HACKING,testsuite/testsuite.cc: Add XAPIAN_TESTSUITE_PLAIN_OUTPUT
+	  to disable use of ANSI escape sequences in test output.
+
 Sat Jan 07 09:13:06 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Write top-bit set characters using \xXX

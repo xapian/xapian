@@ -17,28 +17,23 @@
 
 <H2><A NAME="running">A Brief Guide to Running Tests</A></H2>
 
-<P>After a successful "make", try "make check".  If you set the environment
-variable OM_TEST_BACKEND, apitest will only run with that backend.
+<P>After a successful "make", try "make check".
 
-<P>Individual test programs optionally take one or more test names as arguments
-(if the number of the test is omitted, all tests with that basename are run, so
-"./apitest deldoc" runs deldoc1, deldoc2, ...).  You can also pass "-v" to a
-test to get more verbose output from some tests.
-
-<P>By default, the testsuite catches signals and handles them gracefully -
-the current test is failed, and the testsuite moves onto the next test.
-If you want to suppress this (some debugging tools may work better if the
-signal is not caught) set the environment variable XAPIAN_SIG_DFL to any value
-to prevent the testsuite from installing its own signal handling.
+<P>It's possible to run test cases individually, and get verbose output
+when one fails, etc.  For more information, see the "Running test programs"
+section of HACKING.
 
 <H2><A NAME="writing">A Brief Guide to Writing Tests</A></H2>
 
-<P>Test programs live in tests/.  They mostly use a standard test rig, in
-testsuite/, which wraps each test,
-reports results, and generally packages things up nicely.  The test rig counts
+<P>Test programs live in tests/.  They mostly use a standard test harness,
+in testsuite/, which wraps each test,
+reports results, and generally packages things up nicely.  The test harness
+counts
 passes, fails, and skips, catches signals and unhandled exceptions and so
-forth.  On x86 Linux is can also check for memory leaks and accesses to
-uninitialised values by making use of valgrind, if it is installed.
+forth.  It can also also check for memory leaks and accesses to
+uninitialised values by making use of valgrind, for platforms which valgrind
+supports (configure automatically enables use of valgrind if a suitably
+recent version is detected).
 
 <P>A typical test program has three parts: the tests themselves (at the top),
 a table of tests (at the bottom), and a tiny main which sets the test harness
@@ -46,7 +41,7 @@ in motion.  It uses the table to figure out what the tests are called, and
 what function to call to run them.
 
 <P>The most important test system for most people will be apitest. This also
-uses the test rig, but has several tables of tests to be run depending what
+uses the test harness, but has several tables of tests to be run depending what
 facilities each backend supports.  A lot of the work is done by macros and
 helper functions, which may make it hard to work out quite what is going on,
 but make life easier once you've grasped what's going on.  The main() and other
