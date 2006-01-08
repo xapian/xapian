@@ -1,3 +1,9 @@
+Sun Jan 08 03:51:52 GMT 2006  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.cc: Fix conditional compilation of
+	  flint backend to use XAPIAN_BUILD_BACKEND_FLINT instead
+	  of XAPIAN_BUILD_BACKEND_QUARTZ.
+
 Sun Jan 08 02:11:30 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Disable flint backend by default if building for
