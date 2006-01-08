@@ -5,6 +5,8 @@
  * Public domain.
  */
 
+#include <config.h>
+
 #include "cdb_int.h"
 
 int

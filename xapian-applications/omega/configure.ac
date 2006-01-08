@@ -36,7 +36,7 @@ fi
 dnl Check for lstat (not available under mingw for example).
 AC_CHECK_FUNCS(lstat)
 
-AC_CHECK_FUNCS(posix_fadvise)
+AC_CHECK_FUNCS(posix_fadvise mmap)
 
 AC_MSG_CHECKING(for working snprintf)
 dnl mingw has _snprintf

@@ -1,3 +1,12 @@
+Sun Jan 08 21:05:46 GMT 2006  Olly Betts <olly@survex.com>
+
+	* cdb_find.cc,cdb_hash.cc,cdb_unpack.cc: #include <config.h>.
+	* configure.ac: Test for mmap.
+	* cdb_init.cc: If mmap isn't found, and this isn't WIN32 fall back on
+	  the very crude approach of loading the whole file into a malloc-ed
+	  block.  For a small cdb file, that'll give acceptable performance
+	  at least.
+
 Fri Jan 06 21:29:37 GMT 2006  Olly Betts <olly@survex.com>
 
 	* symboltab.h: Fix A after \xbf being interpereted as an overlong

@@ -5,13 +5,15 @@
  * Public domain.
  */
 
+#include <config.h>
+
 #include <sys/types.h>
-#ifdef _WIN32
+#ifdef HAVE_MMAP
+# include <sys/mman.h>
+#elif defined _WIN32
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
 # include <io.h>
-#else
-# include <sys/mman.h>
 #endif
 #include <sys/stat.h>
 #include "cdb_int.h"
@@ -22,8 +24,13 @@ cdb_init(struct cdb *cdbp, int fd)
   struct stat st;
   unsigned char *mem;
   unsigned fsize, dend;
+#ifndef HAVE_MMAP
 #ifdef _WIN32
   HANDLE hFile, hMapping;
+#else
+  size_t size;
+  void *p;
+#endif
 #endif
 
   /* get file size */
@@ -34,6 +41,7 @@ cdb_init(struct cdb *cdbp, int fd)
     return errno = EPROTO, -1;
   fsize = (unsigned)(st.st_size & 0xffffffffu);
   /* memory-map file */
+#ifndef HAVE_MMAP
 #ifdef _WIN32
   hFile = (HANDLE) _get_osfhandle(fd);
   if(hFile == (HANDLE) -1) return -1;
@@ -41,6 +49,20 @@ cdb_init(struct cdb *cdbp, int fd)
   if (!hMapping) return -1;
   mem = (unsigned char *)MapViewOfFile(hMapping, FILE_MAP_READ, 0, 0, 0);
   if (!mem) return -1;
+#else
+  // No mmap, so take the very crude approach of malloc and read the whole file in!
+  if ((mem = malloc(fsize)) == NULL)
+    return -1;
+  size = fsize;
+  p = (void*)mem;
+  while (size > 0) {
+    ssize_t n = read(fd, p, size);
+    if (n == -1)
+      return -1;
+    p += n;
+    size -= n;
+  }
+#endif
 #else
   mem = (unsigned char *)mmap(NULL, fsize, PROT_READ, MAP_SHARED, fd, 0);
   if (mem == (unsigned char *)-1)
@@ -93,11 +115,15 @@ cdb_free(struct cdb *cdbp)
     HANDLE hFile, hMapping;
 #endif
 
+#ifndef HAVE_MMAP
 #ifdef _WIN32
     hFile = (HANDLE) _get_osfhandle(cdbp->cdb_fd);
     hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
     UnmapViewOfFile((void*) cdbp->cdb_mem);
     CloseHandle(hMapping);
+#else
+    free(mem);
+#endif
 #else
 #ifdef __cplusplus
     /* Solaris sys/mman.h defines munmap as taking char* unless __STDC__ is
