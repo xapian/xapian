@@ -1,6 +1,6 @@
 /* flint_lock.cc: database locking for flint backend.
  *
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
 
@@ -83,7 +83,7 @@ FlintLock::lock(bool exclusive) {
 	// Connect pipe to stdin.
 	dup2(fds[1], 0);
 	// FIXME: use special statically linked helper instead of cat.
-	execl("/bin/cat", "/bin/cat", NULL);
+	execl("/bin/cat", "/bin/cat", (void*)NULL);
 	// Emulate cat ourselves (we try to avoid this to reduce VM overhead).
 	char ch;
 	while (read(0, &ch, 1) != 0) { /* Do nothing */ }
