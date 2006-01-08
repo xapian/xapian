@@ -111,7 +111,7 @@ AC_PROG_LIBTOOL
 dnl A standard "gotcha" for mingw and cygwin users is to not set up their
 dnl PATH correctly, so that MSDOS FIND.EXE is found before Unix find.  Help
 dnl them out by checking for this condition, rather than letting libtool
-dnl fail in obscure ways.
+dnl fail in obscure ways.  NB check the *BUILD* OS, not the host one!
 case $build_os in
   *mingw* | *cygwin* | pw32*)
     find /dirunlikelytoexist >/dev/null 2>&1
@@ -462,7 +462,14 @@ AC_ARG_ENABLE(backend_flint,
   yes) build_flint=true ;;
   no)  build_flint=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-flint) ;;
-esac],[build_flint=true])
+esac],[
+  dnl We'd need to implement a flint locking strategy for MSDOS before we can
+  dnl build flint there.
+  case $host_os in
+    *djgpp* | *msdos* ) build_flint=false ;;
+    *) build_flint=true ;;
+  esac
+])
 
 AC_ARG_ENABLE(backend_inmemory,
 [  --enable-backend-inmemory Enable the inmemory database backend (default=yes)],

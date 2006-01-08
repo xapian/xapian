@@ -1,3 +1,8 @@
+Sun Jan 08 02:11:30 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Disable flint backend by default if building for
+	  djgpp or msdos.
+
 Sun Jan 08 02:09:48 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_lock.cc: Cast NULL to (void*) to avoid
