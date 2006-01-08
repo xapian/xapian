@@ -14,6 +14,9 @@
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
 # include <io.h>
+#else
+# include <stdlib.h>
+# include <unistd.h>
 #endif
 #include <sys/stat.h>
 #include "cdb_int.h"
@@ -122,7 +125,7 @@ cdb_free(struct cdb *cdbp)
     UnmapViewOfFile((void*) cdbp->cdb_mem);
     CloseHandle(hMapping);
 #else
-    free(mem);
+    free(cdbp->cdb_mem);
 #endif
 #else
 #ifdef __cplusplus
