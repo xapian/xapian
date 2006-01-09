@@ -1,3 +1,8 @@
+Mon Jan 09 03:42:18 GMT 2006  Olly Betts <olly@survex.com>
+
+	* omega.cc,utils.cc,utils.h: Replace remaining use of split with
+	  a direct walk of the string.
+
 Mon Jan 09 03:19:49 GMT 2006  Olly Betts <olly@survex.com>
 
 	* query.cc: Don't split strings of docids in R parameters into a

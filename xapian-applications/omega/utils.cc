@@ -22,7 +22,6 @@
 #include <config.h>
 
 #include <string>
-#include <vector>
 #include <stdio.h>
 
 using namespace std;
@@ -74,32 +73,4 @@ date_to_string(int y, int m, int d)
     if (buf[sizeof(buf) - 1]) abort(); /* Uh-oh, buffer overrun */
     return string(buf);
 #endif
-}
-
-vector<string>
-split(const string &s, char at)
-{
-    size_t p = 0, q;
-    vector<string> v;
-    while (true) {	    
-	q = s.find(at, p);
-	v.push_back(s.substr(p, q - p));
-	if (q == string::npos) break;
-	p = q + 1;
-    }
-    return v;
-}
-
-vector<string>
-split(const string &s, const string &at)
-{
-    size_t p = 0, q;
-    vector<string> v;
-    while (true) {	    
-	q = s.find_first_of(at, p);
-	v.push_back(s.substr(p, q - p));
-	if (q == string::npos) break;
-	p = q + 1;
-    }
-    return v;
 }

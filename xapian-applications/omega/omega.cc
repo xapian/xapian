@@ -1,10 +1,9 @@
 /* omega.cc: Main module for omega (example CGI frontend for Xapian)
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,9 +17,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -139,16 +137,19 @@ try {
 	for (MCI i = g.first; i != g.second; ++i) {
 	    const string & v = i->second;
 	    if (!v.empty()) {
-		vector<string> dbs = split(v, '/');
-		vector<string>::const_iterator j;
-		for (j = dbs.begin(); j != dbs.end(); ++j) {
-		    if (!j->empty() && seen.find(*j) == seen.end()) {
+		size_t p = 0, q;
+		while (true) {	    
+		    q = v.find('/', p);
+		    string s = v.substr(p, q - p);
+		    if (!s.empty() && seen.find(s) == seen.end()) {
 			// Translate DB parameter to path of database directory
 			if (!dbname.empty()) dbname += '/';
-			dbname += *j;
-			db.add_database(Xapian::Database(map_dbname_to_dir(*j)));
-			seen.insert(*j);
+			dbname += s;
+			db.add_database(Xapian::Database(map_dbname_to_dir(s)));
+			seen.insert(s);
 		    }
+		    if (q == string::npos) break;
+		    p = q + 1;
 		}
 	    }
 	}
