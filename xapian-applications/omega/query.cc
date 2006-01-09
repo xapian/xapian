@@ -66,6 +66,8 @@
 using namespace std;
 
 #ifndef SNPRINTF
+#include <stdarg.h>
+
 static int my_snprintf(char *str, size_t size, const char *format, ...)
 {
     int res;

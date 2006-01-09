@@ -44,6 +44,8 @@ last_day(int y, int m)
 }
 
 #ifndef SNPRINTF
+#include <stdarg.h>
+
 static int my_snprintf(char *str, size_t size, const char *format, ...)
 {
     int res;
