@@ -14,8 +14,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * USA
  */
 
 #include <config.h>
@@ -380,7 +380,11 @@ main(int argc, char **argv)
 
 			string dest = destdir;
 			char buf[64];
+#ifdef SNPRINTF
+			SNPRINTF(buf, sizeof(buf), "/tmp%u_%u.", c, i / 2);
+#else
 			sprintf(buf, "/tmp%u_%u.", c, i / 2);
+#endif
 			dest += buf;
 
 			FlintTable tmptab(dest, false);

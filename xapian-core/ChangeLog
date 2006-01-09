@@ -1,3 +1,7 @@
+Mon Jan 09 00:58:33 GMT 2006  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Use snprintf if we have it.
+
 Sun Jan 08 03:51:52 GMT 2006  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.cc: Fix conditional compilation of
