@@ -1,3 +1,8 @@
+Mon Jan 09 01:35:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/muscat36/io_system.cc,bin/xapian-compact.cc,
+	  common/omdebug.cc: More sprintf tweaks.
+
 Mon Jan 09 00:58:33 GMT 2006  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Use snprintf if we have it.

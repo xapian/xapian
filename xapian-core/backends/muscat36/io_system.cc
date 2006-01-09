@@ -1,9 +1,8 @@
 /* io_system.c: Martin / Olly's IO code for split files.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2004,2005 Olly Betts
+ * Copyright 2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -251,7 +249,12 @@ extern int X_point(filehandle fd, int n, int m)
               bfds[fd]->fileno = fileno;
 
               endp = bfds[fd]->fname + strlen(bfds[fd]->fname);
-              if (fileno>0) sprintf( endp, "!%d", fileno );
+              if (fileno>0) {
+#ifdef SNPRINTF
+		  SNPRINTF(endp, EXTRA_MAX + 1, "!%d", fileno);
+#else
+		  sprintf(endp, "!%d", fileno);
+#endif
               DIAG(( " (opening file '%s', %d, %d)",bfds[fd]->fname, bfds[fd]->flags, bfds[fd]->mode));
               bfds[fd]->fd = OPEN(bfds[fd]->fname, bfds[fd]->flags, bfds[fd]->mode);
               *endp = '\0';
@@ -313,7 +316,11 @@ extern int X_read(filehandle fd, byte * buf, int count) {
            if (close( bfds[fd]->fd ) == -1) return -1;
 
            endp = bfds[fd]->fname + strlen(bfds[fd]->fname);
-           sprintf( endp, "!%d", ++bfds[fd]->fileno );
+#ifdef SNPRINTF
+	   SNPRINTF(endp, EXTRA_MAX + 1, "!%d", ++bfds[fd]->fileno);
+#else
+	   sprintf(endp, "!%d", ++bfds[fd]->fileno);
+#endif
 
            DIAG(( "opening %s", bfds[fd]->fname ));
            bfds[fd]->fd = OPEN(bfds[fd]->fname, bfds[fd]->flags, bfds[fd]->mode);

@@ -379,13 +379,11 @@ main(int argc, char **argv)
 			if (j == tmp.size() - 1) ++j;
 
 			string dest = destdir;
-			char buf[64];
-#ifdef SNPRINTF
-			SNPRINTF(buf, sizeof(buf), "/tmp%u_%u.", c, i / 2);
-#else
-			sprintf(buf, "/tmp%u_%u.", c, i / 2);
-#endif
-			dest += buf;
+			dest += "/tmp";
+			dest += om_tostring(c);
+			dest += '_';
+			dest += om_tostring(i / 2);
+			dest += '.';
 
 			FlintTable tmptab(dest, false);
 			tmptab.create(block_size);
