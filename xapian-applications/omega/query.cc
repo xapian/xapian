@@ -2198,15 +2198,12 @@ ensure_query_parsed()
 	g = cgi_params.equal_range("R");
 	for (MCI i = g.first; i != g.second; i++) {
 	    const string & v = i->second;
-	    if (!v.empty()) {
-		vector<string> r = split(v, '.');
-		vector<string>::const_iterator i;
-		for (i = r.begin(); i != r.end(); i++) {
-		    Xapian::docid d = string_to_int(*i);
-		    if (d) {
-			rset.add_document(d);
-			ticked[d] = true;
-		    }
+	    for (size_t i = 0; i < v.size(); i = v.find('.', i)) {
+		while (v[i] == '.') ++i;
+		Xapian::docid d = atoi(v.c_str() + i);
+		if (d) {
+		    rset.add_document(d);
+		    ticked[d] = true;
 		}
 	    }
 	}

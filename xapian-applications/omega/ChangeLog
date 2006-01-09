@@ -1,3 +1,10 @@
+Mon Jan 09 03:19:49 GMT 2006  Olly Betts <olly@survex.com>
+
+	* query.cc: Don't split strings of docids in R parameters into a
+	  vector<string> - just walk the string directly.  The code is
+	  as simple, and much more efficient if a lot of documents are
+	  marked relevant.
+
 Mon Jan 09 02:46:34 GMT 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,date.cc,omindex.cc,query.cc,scriptindex.cc,utils.cc,
