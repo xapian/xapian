@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,6 +39,7 @@
 #include "commonhelp.h"
 #include "indextext.h"
 #include "myhtmlparse.h"
+#include "utils.h"
 
 #include "gnu_getopt.h"
 
@@ -453,14 +454,12 @@ again:
 			switch (type[0]) {
 			    case 'u':
 				if (type == "unix") {
-				    char buf[9];
 				    struct tm *tm;
 				    time_t t = atoi(value.c_str());
 				    tm = localtime(&t);
-				    sprintf(buf, "%04d%02d%02d",
-					    tm->tm_year + 1900, tm->tm_mon + 1,
-					    tm->tm_mday);
-				    value = buf;
+				    value = date_to_string(tm->tm_year + 1900,
+							   tm->tm_mon + 1,
+							   tm->tm_mday);
 				    break;
 				}
 				value = "";

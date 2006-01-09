@@ -1,3 +1,8 @@
+Mon Jan 09 02:46:34 GMT 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,date.cc,omindex.cc,query.cc,scriptindex.cc,utils.cc,
+	  utils.h: Use snprintf where available.
+
 Sun Jan 08 22:41:47 GMT 2006  Olly Betts <olly@survex.com>
 
 	* cdb_init.cc: Fixed malloc-based version to compile.

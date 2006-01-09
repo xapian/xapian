@@ -65,6 +65,22 @@
 
 using namespace std;
 
+#ifndef SNPRINTF
+static int my_snprintf(char *str, size_t size, const char *format, ...)
+{
+    int res;
+    va_list ap;
+    va_start(ap, format);
+    str[size - 1] = '\0';
+    res = vsprintf(str, format, ap);
+    if (str[size - 1] || res >= size) abort(); /* Overflowed! */
+    va_end(ap);
+    return res;
+}
+#else
+#define my_snprintf SNPRINTF
+#endif
+
 static bool query_parsed = false;
 static bool done_query = false;
 static Xapian::docid last = 0;
@@ -491,7 +507,7 @@ percent_encode(const string &str)
 	if (ch == 0) return res;
 	if (ch <= 32 || ch >= 127 || strchr("#%&+,/:;<=>?@[\\]^_{|}", ch)) {
 	    char buf[4];
-	    sprintf(buf, "%%%02x", ch);
+	    my_snprintf(buf, sizeof(buf), "%%%02x", ch);
 	    res.append(buf, 3);
 	} else {
 	    res += ch;
@@ -1198,13 +1214,13 @@ eval(const string &fmt, const vector<string> &param)
 		int size = string_to_int(args[0]);
 		char buf[200] = "";
 		if (size && size < 1024) {
-		    sprintf(buf, "%d bytes", size);
+		    my_snprintf(buf, sizeof(buf), "%d bytes", size);
 		} else if (size < 1024*1024) {
-		    sprintf(buf, "%dK", int(size/1024));
+		    my_snprintf(buf, sizeof(buf), "%dK", int(size/1024));
 		} else if (size < 1024*1024*1024) {
-		    sprintf(buf, "%dM", int(size/1024/1024));
+		    my_snprintf(buf, sizeof(buf), "%dM", int(size/1024/1024));
 		} else {
-		    sprintf(buf, "%dG", int(size/1024/1024/1024));
+		    my_snprintf(buf, sizeof(buf), "%dG", int(size/1024/1024/1024));
 		}
 		value = buf;
 		break;
@@ -1541,7 +1557,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_now: {
 		char buf[64];
-		sprintf(buf, "%lu", (unsigned long)time(NULL));
+		my_snprintf(buf, sizeof(buf), "%lu", (unsigned long)time(NULL));
 		value = buf;
 		break;
 	    }
@@ -1722,7 +1738,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_time:
 		if (usec != -1) {
 		    char buf[64];
-		    sprintf(buf, "%ld.%06ld", sec, usec);
+		    my_snprintf(buf, sizeof(buf), "%ld.%06ld", sec, usec);
 		    value = buf;
 		}
 		break;

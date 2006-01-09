@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,6 +50,7 @@
 #include "commonhelp.h"
 #include "indextext.h"
 #include "myhtmlparse.h"
+#include "utils.h"
 
 #include "gnu_getopt.h"
 
@@ -471,16 +472,19 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
     }
 
     struct tm *tm = localtime(&last_mod);
-    char buf[9];
-    sprintf(buf, "%04d%02d%02d", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
-    newdocument.add_term("D" + string(buf)); // Date (YYYYMMDD)
-    buf[7] = '\0';
-    if (buf[6] == '3') buf[6] = '2';
-    newdocument.add_term("W" + string(buf)); // "Weak" - 10ish day interval
-    buf[6] = '\0';
-    newdocument.add_term("M" + string(buf)); // Month (YYYYMM)
-    buf[4] = '\0';
-    newdocument.add_term("Y" + string(buf)); // Year (YYYY)
+    string date_term = "D" + date_to_string(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
+    newdocument.add_term(date_term); // Date (YYYYMMDD)
+    date_term.resize(8);
+    date_term[0] = 'W';
+    if (date_term[7] == '3') date_term[7] = '2';
+    newdocument.add_term(date_term); // "Weak" - 10ish day interval
+    date_term.resize(7);
+    date_term[0] = 'M';
+    newdocument.add_term(date_term); // Month (YYYYMM)
+    date_term.resize(5);
+    date_term[0] = 'Y';
+    newdocument.add_term(date_term); // Year (YYYY)
+
     newdocument.add_term(urlterm); // Url
 
     if (!skip_duplicates) {
@@ -682,7 +686,7 @@ main(int argc, char **argv)
 		 << "Copyright (c) 1999,2000,2001 BrightStation PLC.\n"
 		 << "Copyright (c) 2001,2005 James Aylett\n"
 		 << "Copyright (c) 2001,2002 Ananova Ltd\n"
-		 << "Copyright (c) 2002,2003,2004,2005 Olly Betts\n\n"
+		 << "Copyright (c) 2002,2003,2004,2005,2006 Olly Betts\n\n"
 		 << "This is free software, and may be redistributed under\n"
 		 << "the terms of the GNU Public License." << endl;
 	    return 0;

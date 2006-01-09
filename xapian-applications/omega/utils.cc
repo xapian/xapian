@@ -1,8 +1,7 @@
 /* utils.cc: string utils for omega
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -57,6 +55,25 @@ string
 int_to_string(int val)
 {
     CONVERT_TO_STRING("%d")
+}
+
+string
+date_to_string(int y, int m, int d)
+{
+    char buf[11];
+    if (y < 0) y = 0; else if (y > 9999) y = 9999;
+    if (m < 1) m = 1; else if (m > 12) m = 12;
+    if (d < 1) d = 1; else if (d > 31) d = 31;
+#ifdef SNPRINTF
+    int len = SNPRINTF(buf, sizeof(buf), "%04d%02d%02d", y, m, d);
+    if (len == -1 || len > BUFSIZE) return string(buf, BUFSIZE);
+    return string(buf, len);
+#else
+    buf[sizeof(buf) - 1] = '\0';
+    sprintf(buf, "%04d%02d%02d", y, m, d);
+    if (buf[sizeof(buf) - 1]) abort(); /* Uh-oh, buffer overrun */
+    return string(buf);
+#endif
 }
 
 vector<string>
