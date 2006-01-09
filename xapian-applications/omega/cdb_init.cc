@@ -32,7 +32,7 @@ cdb_init(struct cdb *cdbp, int fd)
   HANDLE hFile, hMapping;
 #else
   size_t size;
-  void *p;
+  unsigned char *p;
 #endif
 #endif
 
@@ -54,12 +54,12 @@ cdb_init(struct cdb *cdbp, int fd)
   if (!mem) return -1;
 #else
   // No mmap, so take the very crude approach of malloc and read the whole file in!
-  if ((mem = malloc(fsize)) == NULL)
+  if ((mem = (unsigned char *)malloc(fsize)) == NULL)
     return -1;
   size = fsize;
-  p = (void*)mem;
+  p = mem;
   while (size > 0) {
-    ssize_t n = read(fd, p, size);
+    ssize_t n = read(fd, (void*)p, size);
     if (n == -1)
       return -1;
     p += n;
@@ -125,7 +125,7 @@ cdb_free(struct cdb *cdbp)
     UnmapViewOfFile((void*) cdbp->cdb_mem);
     CloseHandle(hMapping);
 #else
-    free(cdbp->cdb_mem);
+    free((void*)cdbp->cdb_mem);
 #endif
 #else
 #ifdef __cplusplus

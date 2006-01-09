@@ -1,3 +1,7 @@
+Mon Jan 09 04:17:54 GMT 2006  Olly Betts <olly@survex.com>
+
+	* cdb_init.cc: Fix more compilation issues with cdb no-mmap code.
+
 Mon Jan 09 03:42:18 GMT 2006  Olly Betts <olly@survex.com>
 
 	* omega.cc,utils.cc,utils.h: Replace remaining use of split with
