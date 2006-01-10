@@ -1,3 +1,8 @@
+Tue Jan 10 22:41:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix to actually skip the check for valgrind if
+	  VALGRIND is set to an empty value.
+
 Tue Jan 10 01:08:10 GMT 2006  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updates from the tinderbox.

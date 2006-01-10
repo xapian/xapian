@@ -356,32 +356,35 @@ dnl Checks for header files.
 AC_CHECK_HEADERS(fcntl.h limits.h, [], [], [ ])
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
-dnl testsuite.
-AC_PATH_PROG(VALGRIND, valgrind, [])
-if test -n "$VALGRIND" ; then
-  dnl Check that the valgrind version installed supports the most recently
-  dnl added client request which we use - VALGRIND_DO_LEAK_CHECK is ages old,
-  dnl VALGRIND_COUNT_ERRORS was added at the same time as VALGRIND_COUNT_LEAKS
-  AC_EGREP_CPP(yes,
-    [#include <valgrind/memcheck.h>
-     #ifdef VALGRIND_COUNT_LEAKS
-     yes
-     #endif
-    ], [],
-    [VALGRIND=])
+dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
+dnl don't use valgrind.
+if test "${VALGRIND+set}" != "set" || test -n "$VALGRIND" ; then
+  AC_PATH_PROG(VALGRIND, valgrind, [])
+  if test -n "$VALGRIND" ; then
+    dnl Check that the valgrind version installed supports the most recently
+    dnl added client request which we use - VALGRIND_DO_LEAK_CHECK is ages old,
+    dnl VALGRIND_COUNT_ERRORS was added at the same time as VALGRIND_COUNT_LEAKS
+    AC_EGREP_CPP(yes,
+      [#include <valgrind/memcheck.h>
+       #ifdef VALGRIND_COUNT_LEAKS
+       yes
+       #endif
+      ], [],
+      [VALGRIND=])
 
-  dnl Check that the installed valgrind version works, and see if it needs
-  dnl --tool=memcheck to work.
-  if $VALGRIND -q true 2> /dev/null ; then
-     dnl All is OK.
-     :
-  elif $VALGRIND --tool=memcheck -q true 2> /dev/null ; then
-     dnl The valgrind version installed requires --tool=memcheck
-     VALGRIND="$VALGRIND --tool=memcheck"
-  else
-     dnl The valgrind detected doesn't work!  Perhaps this is an x86_64 box
-     dnl with a 32 bit valgrind.
-     VALGRIND=
+    dnl Check that the installed valgrind version works, and see if it needs
+    dnl --tool=memcheck to work.
+    if $VALGRIND -q true 2> /dev/null ; then
+       dnl All is OK.
+       :
+    elif $VALGRIND --tool=memcheck -q true 2> /dev/null ; then
+       dnl The valgrind version installed requires --tool=memcheck
+       VALGRIND="$VALGRIND --tool=memcheck"
+    else
+       dnl The valgrind detected doesn't work!  Perhaps this is an x86_64 box
+       dnl with a 32 bit valgrind.
+       VALGRIND=
+    fi
   fi
 fi
 
