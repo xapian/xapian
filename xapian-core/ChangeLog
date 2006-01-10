@@ -1,3 +1,7 @@
+Tue Jan 10 01:08:10 GMT 2006  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updates from the tinderbox.
+
 Mon Jan 09 01:35:57 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/muscat36/io_system.cc,bin/xapian-compact.cc,

@@ -142,8 +142,12 @@ ia64  |=HP-UX 11.23 GCC 3.4.3          | 0.9.2 |Passed| (td176)
 ia64  |=HP-UX 11.23 aCC B3910B A.06.00 | 0.9.2 |Passed| (td196)
 ia64  |=HP-UX 11.23 aCC B3910B A.06.02 | 0.9.2 |Passed| (td176)
 ------+--------------------------------+-------+------+------------------------
-x86   |&Linux cross to mingw GCC 2.95.3|~0.9.3 |Built | [1]
+x86   |&Linux cross to mingw GCC 2.95.3|~0.9.3 |Built | [1] Using MSVCRT.DLL
+x86   |*Linux cross to mingw GCC 3.4.2 |~0.9.3 |Built | [1] Using MSVCRT.DLL
+x86   |*Linux cross to mingw GCC 3.4.4 |~0.9.3 |Built | [1] Using CRTDLL.DLL
+x86   |*Linux cross to CYGWIN GCC 3.4.4|~0.9.3 |Built | [1]
 x86   | Linux cross to DJGPP GCC 2.95.2| 0.8.0 |Built | [1] [3]
+x86   |*Linux cross to DJGPP GCC 3.4.3 |~0.9.3 |Built | [1] [3]
 ------+--------------------------------+-------+------+------------------------
 arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [5]
 ------+--------------------------------+-------+------+------------------------
@@ -200,7 +204,8 @@ x86   | Linux 2.4 Debian sid GCC 3.3.1 | 0.7.0 |Passed| from Olly Betts
 
 [3] Perhaps not a terribly useful platform for Xapian, but an additional test
 of portability.  Remote backend is automatically disabled due to lack of
-socketpair.  Not tried to run the binaries yet.
+socketpair, and flint backend is automatically disabled due to lack of a
+locking strategy implementation.  Not tried to actually run the binaries yet...
 
 [4] Fails to build if there are spaces in the full path to the directory.
 
@@ -226,7 +231,7 @@ means your code must also be compiled with -AA.  Compiling with -AP (non
 ANSI mode) would require changes to Xapian, and is only required if you
 need to link to Xapian and another library not available in -AA form.  HP
 recommend ISVs to supply libraries in -AA form, so this isn't a likely
-scenario.
+scenario.  Where required, "xapian-config --cxxflags" will include "-AA".
 
 [10] ./configure emits many warnings (we believe these are harmless):
 mv: [FILE]: set owner/group (was: [USERNO]/[GROUPNO]): Operation not permitted
