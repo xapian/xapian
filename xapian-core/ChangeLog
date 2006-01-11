@@ -1,3 +1,8 @@
+Wed Jan 11 03:06:28 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Note the library version info which 0.9.3 will
+	  probably need.
+
 Tue Jan 10 22:41:36 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix to actually skip the check for valgrind if
