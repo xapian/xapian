@@ -1,3 +1,8 @@
+Wed Jan 11 03:14:30 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: If not cross-compiling, try to actually run a test
+	  program built with the C++ compiler, not just link one.
+
 Wed Jan 11 03:06:28 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Note the library version info which 0.9.3 will

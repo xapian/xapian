@@ -152,7 +152,10 @@ cxx_works=no
 if test -n "$CXX" ; then
   AC_LANG_CPLUSPLUS
   AC_MSG_CHECKING([whether the C++ compiler works])
-  AC_TRY_LINK([], [], cxx_works=yes, cxx_works=no)
+  AC_TRY_RUN([int main() {}],
+	     cxx_works=yes,
+	     cxx_works=no,
+	     AC_TRY_LINK([], [], cxx_works=yes, cxx_works=no))
   AC_MSG_RESULT($cxx_works)
 fi
 if test no = "$cxx_works" ; then
