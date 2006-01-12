@@ -38,10 +38,12 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 
 # In a distribution, xapian.py is in $(srcdir), and python will always
 # generate the .pyc file in the same directory as the .py file.  However,
-# we can't expect to be allowed to write to $(srcdir), so we copy the
-# .py file to the build directory instead.
+# we can't necessarily expect to be allowed to write to $(srcdir), so we copy
+# the .py file to the build directory instead.  We "import _xapian" first
+# so that if we fail to import the glue library we don't generate a broken
+# xapian.pyc.
 xapian.pyc: xapian.py
-	PYTHONPATH=".$(PYTHON_PATHSEP).libs" $(PYTHON) -c "import xapian"
+	PYTHONPATH=".$(PYTHON_PATHSEP).libs" $(PYTHON) -c "import _xapian;import xapian"
 
 xapian.py: @PYTHON_MODERN_OR_OLDE@/xapian.py
 	cp `test -f @PYTHON_MODERN_OR_OLDE@/xapian.py || echo '$(srcdir)/'`@PYTHON_MODERN_OR_OLDE@/xapian.py xapian.py

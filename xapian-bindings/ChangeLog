@@ -1,3 +1,9 @@
+Thu Jan 12 15:28:16 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: "import _xapian;" before we "import xapian;" to
+	  avoid creating a broken xapian.pyc is the shared library can't be
+	  loaded for some reason.
+
 Fri Jan 06 00:30:50 GMT 2006  Olly Betts <olly@survex.com>
 
 	* php/util.i: Fix so that PACKAGE_VERSION is defined when compiling
