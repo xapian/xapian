@@ -17,6 +17,10 @@ Known Issues
 
          make CXXFLAGS=-g
 
+     Version 0.9.3 reduces the compile time by something like a factor of 3
+     and probably also reduces memory usage significantly, but you might still
+     encounter this issue on slower machines with less memory.
+
 Quick Installation Guide
 ========================
 

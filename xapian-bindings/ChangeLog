@@ -1,3 +1,8 @@
+Thu Jan 12 17:23:23 GMT 2006  Olly Betts <olly@survex.com>
+
+	* INSTALL: Note that compile time (and probably memory usage) are much
+	  reduced in 0.9.3.
+
 Thu Jan 12 17:18:10 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Pull out much of the common exception handling code into
