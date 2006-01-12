@@ -1,3 +1,9 @@
+Thu Jan 12 17:18:10 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Pull out much of the common exception handling code into
+	  a helper function, drastically reducing the size of the compiled
+	  code for other languages like I recently did for tcl.
+
 Thu Jan 12 15:28:16 GMT 2006  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: "import _xapian;" before we "import xapian;" to

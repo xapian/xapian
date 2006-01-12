@@ -95,75 +95,91 @@ using namespace std;
 %}
 #endif
 
-#ifdef SWIGPHP
 %{
-#if PHP_MAJOR_VERSION < 5
-#define XapianException(TYPE, E) \
-    SWIG_exception((TYPE), \
-	const_cast<char *>(((E).get_type() + ": " + (E).get_msg()).c_str()))
-#define XapianRuntimeException(TYPE, E) \
-    do { \
-	zend_error(E_WARNING, const_cast<char *>(((E).get_type() + ": " + (E).get_msg()).c_str())); \
-	return; \
-    } while (0)
-#else
+#if defined SWIGPHP && PHP_MAJOR_VERSION >= 5
 #include <zend_exceptions.h>
 // FIXME: throw errors as PHP classes corresponding to the Xapian error
 // classes.
-#define XapianException(TYPE, E) \
-    zend_throw_exception_ex(NULL, (TYPE) TSRMLS_CC, "%s: %s", (E).get_type(), (E).get_msg())
-#endif
-%}
-#else
-%{
-#define XapianException(TYPE, E) \
-    SWIG_exception((TYPE), \
-	const_cast<char *>(((E).get_type() + ": " + (E).get_msg()).c_str()))
-%}
+#define XapianException(TYPE, MSG) \
+    zend_throw_exception(NULL, (TYPE) TSRMLS_CC, MSG.c_str() TSRMLS_CC)
 #endif
 
-%{
-#ifndef XapianRuntimeException
-#define XapianRuntimeException(TYPE, E) XapianException(TYPE, E)
+#ifndef XapianException
+#define XapianException(TYPE, MSG) SWIG_exception((TYPE), (MSG).c_str())
 #endif
-%}
  
-#ifdef SWIGTCL
-// SWIG/Tcl ignores the SWIG_XXXError code.
-%exception {
+static int XapianExceptionHandler(string & msg) {
     try {
-	$function
+	// Rethrow so we can look at the exception if it was a Xapian::Error.
+	throw;
     } catch (const Xapian::Error &e) {
-	XapianException(SWIG_UnknownError, e);
-    } catch (...) {
-	SWIG_exception(SWIG_UnknownError, "unknown error in Xapian");
-    }
-}
-#else
-// FIXME: RangeError DatabaseError and NetworkError are all subclasses of
-// RuntimeError - how should we handle those for PHP4?
-%exception {
-    try {
-	$function
-    } catch (const Xapian::InvalidArgumentError &e) {
-	XapianException(SWIG_ValueError, e);
-    } catch (const Xapian::RangeError &e) {
-	XapianException(SWIG_IndexError, e);
-    } catch (const Xapian::DatabaseError &e) {
-	XapianException(SWIG_IOError, e);
-    } catch (const Xapian::NetworkError &e) {
-	XapianException(SWIG_IOError, e);
-    } catch (const Xapian::InternalError &e) {
-	XapianException(SWIG_RuntimeError, e);
-    } catch (const Xapian::RuntimeError &e) {
-	XapianRuntimeException(SWIG_RuntimeError, e);
-    } catch (const Xapian::Error &e) {
-	XapianException(SWIG_UnknownError, e);
-    } catch (...) {
-	SWIG_exception(SWIG_UnknownError, "unknown error in Xapian");
-    }
-}
+	msg = e.get_type();
+	msg += ": ";
+	msg += e.get_msg();
+#if defined SWIGPHP && PHP_MAJOR_VERSION < 5
+	try {
+	    // Re-rethrow the previous exception so we can handle the type in a
+	    // fine-grained way, but only in one place to avoid bloating the
+	    // file.
+	    throw;
+	} catch (const Xapian::RangeError &e) {
+	    // FIXME: RangeError DatabaseError and NetworkError are all
+	    // subclasses of RuntimeError - how should we handle those for
+	    // PHP4?
+	    return SWIG_UnknownError;
+	} catch (const Xapian::DatabaseError &) {
+	    return SWIG_UnknownError;
+	} catch (const Xapian::NetworkError &) {
+	    return SWIG_UnknownError;
+	} catch (const Xapian::RuntimeError &) {
+	    return SWIG_RuntimeError;
+	} catch (...) {
+	    return SWIG_UnknownError;
+	}
+#elif !defined SWIGTCL // SWIG/Tcl ignores the SWIG_XXXError code.
+	try {
+	    // Re-rethrow the previous exception so we can handle the type in a
+	    // fine-grained way, but only in one place to avoid bloating the
+	    // file.
+	    throw;
+	} catch (const Xapian::InvalidArgumentError &e) {
+	    return SWIG_ValueError;
+	} catch (const Xapian::RangeError &e) {
+	    return SWIG_IndexError;
+	} catch (const Xapian::DatabaseError &) {
+	    return SWIG_IOError;
+	} catch (const Xapian::NetworkError &) {
+	    return SWIG_IOError;
+	} catch (const Xapian::InternalError &) {
+	    return SWIG_RuntimeError;
+	} catch (const Xapian::RuntimeError &) {
+	    return SWIG_RuntimeError;
+	} catch (...) {
+	    return SWIG_UnknownError;
+	}
 #endif
+    } catch (...) {
+	msg = "unknown error in Xapian";
+    }
+    return SWIG_UnknownError;
+}
+%}
+
+%exception {
+    try {
+	$function
+    } catch (...) {
+	string msg;
+	int code = XapianExceptionHandler(msg);
+#if defined SWIGPHP && PHP_MAJOR_VERSION < 5
+	if (code == SWIG_RuntimeError) {
+	    zend_error(E_WARNING, const_cast<char *>(msg.c_str()));
+	    return;
+	}
+#endif
+	XapianException(code, msg);
+    }
+}
 
 // This includes a language specific util.i, thanks to judicious setting of
 // the include path
