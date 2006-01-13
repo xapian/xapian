@@ -225,6 +225,7 @@ fi
 dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST(ldflags)
 
+WARNING_CXXFLAGS=
 AC_MSG_CHECKING([for $CXX option to enable ANSI C++ mode])
 if test yes = "$GXX"; then
   AC_MSG_RESULT([none required])
@@ -233,15 +234,25 @@ else
   dnl this early in configure so such settings are used for other tests.
   case $CXX in
     aCC|*/aCC)
-      dnl Select ANSI mode for HP's CC (std:: namespace and ANSI scoping for
-      dnl i in:
+      dnl Select ANSI mode for HP's aCC, which gives us the std:: namespace,
+      dnl Koenig lookup, and ANSI scoping for the variable i in:
       dnl   for (int i = 1; i < n; ++i) { ... }
-      dnl (this is controlled by: -ansi_for_scope,on should we need drop -AA)
-      dnl Note this means that user code must be built with -AA (which is
-      dnl the default on Itanium, but not on PARISC:
+      dnl (don't confuse -AA with -Aa which is similar but without the std::
+      dnl namespace).
+      dnl
+      dnl Note that using -AA means that user code must be built with -AA
+      dnl (which is the default on Itanium, but not on PARISC:
       dnl  http://h21007.www2.hp.com/dspp/tech/tech_TechDocumentDetailPage_IDX/1,1701,5520,00.html
       dnl )
-      ANSI_CXXFLAGS="-AA" ;;
+      dnl Also -ext (which can also be spelled +e):
+      dnl "Allow various C++ extensions.  Currently -ext enables the 64 bit
+      dnl integer (long long) data type."  This seems to be implied by -AA
+      dnl but otherwise is needed to allow "cout << (long long)42;".
+      ANSI_CXXFLAGS="-AA"
+      dnl +w turns on more warnings.
+      dnl +W<n1>,<n2>,... suppresses warnings n1, n2, ...
+      dnl 336 is "Entire translation unit was empty"
+      WARNING_CXXFLAGS="+w +W336" ;;
     cxx|*/cxx)
       dnl Select ANSI mode ('-std strict_ansi' is needed for ANSI iostream
       dnl as '-std ansi' gives a pre-standard AT&T-compatible version).
@@ -254,6 +265,7 @@ else
 
   dnl Check that the compiler recognises any flags we picked above to avoid
   dnl problems with compilers whose names clash with those above.
+  dnl E.g. Solaris, FreeBSD, and MacOS X all have a "CC" which isn't SGI's.
   if test -n "$ANSI_CXXFLAGS" ; then
     AC_TRY_COMPILE([], [], , ANSI_CXXFLAGS=)
   fi
@@ -740,7 +752,7 @@ dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
 
-dnl extra flags for building with gcc
+dnl Set flags to control warnings (enable more, or disable annoying ones).
 if test yes = "$GXX"; then
   dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
   dnl which we actually have.
@@ -765,7 +777,7 @@ if test yes = "$GXX"; then
       dnl
       dnl All these options were supported by g++ 2.95 and there's little
       dnl likelihood Xapian will build with any earlier version, so there's
-      dnl not much point worry about whether older versions had them or not.
+      dnl not much point worrying about whether older versions had them or not.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wundef -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
       dnl Automatically add -Werror if maintainer mode is enabled and we're
       dnl using GCC3 or newer.  We don't do this for older GCCs as GCC 2.95
@@ -783,6 +795,9 @@ if test yes = "$GXX"; then
 	esac
       fi
     ])
+else
+    dnl WARNING_CXXFLAGS is set above.
+    AM_CXXFLAGS="$WARNING_CXXFLAGS"
 fi
 
 dnl modify flags for building with stlport

@@ -1,3 +1,9 @@
+Fri Jan 13 18:25:04 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Turn on more warnings for aCC; suppress existing
+	  warning ("Entire translation unit was empty") since it's not
+	  useful to us.
+
 Fri Jan 13 03:22:26 GMT 2006  Olly Betts <olly@survex.com>
 
         * configure.ac: The configure test for snprintf uses memcmp, so
