@@ -1,3 +1,8 @@
+Fri Jan 13 03:22:26 GMT 2006  Olly Betts <olly@survex.com>
+
+        * configure.ac: The configure test for snprintf uses memcmp, so
+          we need to "#include <string.h>" for it to work reliably.
+
 Wed Jan 11 03:14:30 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: If not cross-compiling, try to actually run a test

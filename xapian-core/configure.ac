@@ -418,7 +418,10 @@ for func in snprintf _snprintf ; do
   dnl ISO C90 semantics for the returned length when truncating.
   AC_RUN_IFELSE([
     AC_LANG_PROGRAM(
-      [[#include <stdio.h>]],
+      [[
+#include <stdio.h>
+#include <string.h>
+      ]],
       [[
 	char buffer[4] = "abc";
 	if ($func(buffer, 2, "%s", "XYZ") != 3) return 1;
