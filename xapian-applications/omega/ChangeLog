@@ -1,3 +1,7 @@
+Sat Jan 14 22:40:43 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Copy over fixed snprintf checks from xapian-core.
+
 Fri Jan 13 03:21:15 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: The configure test for snprintf uses memcmp, so
