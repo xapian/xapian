@@ -1,3 +1,11 @@
+Sat Jan 14 21:43:32 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix backwards logic in snprintf configure test.
+	  Also define SNPRINTF_ISO to be an snprintf with ISO C90 semantics
+	  for the return value (if one exists), with SNPRINTF being defined
+	  to any snprintf which at least performs truncation (which in many
+	  cases is sufficient).
+
 Sat Jan 14 04:47:33 GMT 2006  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lt: Fix aCC warnings.
