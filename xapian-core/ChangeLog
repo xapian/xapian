@@ -1,3 +1,7 @@
+Sat Jan 14 04:47:00 GMT 2006  Olly Betts <olly@survex.com>
+
+	* common/utils.h: Fix aCC warning.
+
 Fri Jan 13 18:25:04 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Turn on more warnings for aCC; suppress existing

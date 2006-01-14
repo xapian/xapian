@@ -1,9 +1,8 @@
 /* utils.h: Various useful utilities
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005 Olly Betts
+ * Copyright 2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_UTILS_H
@@ -208,49 +206,53 @@ namespace Xapian {
     }
 }
 
+// Add explicit cast to bool to prevent compiler warning from "aCC +w":
+// Warning (suggestion) 818: [...] # Type `int' is larger than type `bool',
+// truncation in value may result.
+
 inline bool C_isdigit(char ch) {
     using namespace Xapian::Internal;
-    return is_tab[static_cast<unsigned char>(ch)] & IS_DIGIT;
+    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_DIGIT);
 }
 
 inline bool C_isxdigit(char ch) {
     using namespace Xapian::Internal;
-    return is_tab[static_cast<unsigned char>(ch)] & IS_HEX;
+    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_HEX);
 }
 
 inline bool C_isupper(char ch) {
     using namespace Xapian::Internal;
-    return is_tab[static_cast<unsigned char>(ch)] & IS_UPPER;
+    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_UPPER);
 }
 
 inline bool C_islower(char ch) {
     using namespace Xapian::Internal;
-    return is_tab[static_cast<unsigned char>(ch)] & IS_LOWER;
+    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_LOWER);
 }
 
 inline bool C_isalpha(char ch) {
     using namespace Xapian::Internal;
-    return is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_LOWER);
+    return bool(is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_LOWER));
 }
 
 inline bool C_isalnum(char ch) {
     using namespace Xapian::Internal;
-    return is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_LOWER|IS_DIGIT);
+    return bool(is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_LOWER|IS_DIGIT));
 }
 
 inline bool C_isspace(char ch) {
     using namespace Xapian::Internal;
-    return is_tab[static_cast<unsigned char>(ch)] & IS_SPACE;
+    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_SPACE);
 }
 
 inline bool C_issign(char ch) {
     using namespace Xapian::Internal;
-    return is_tab[static_cast<unsigned char>(ch)] & IS_SIGN;
+    return bool(is_tab[static_cast<unsigned char>(ch)] & IS_SIGN);
 }
 
 inline bool C_isupdig(char ch) {
     using namespace Xapian::Internal;
-    return is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_DIGIT);
+    return bool(is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_DIGIT));
 }
 
 inline bool C_isnotdigit(char ch) { return !C_isdigit(ch); }
