@@ -1,3 +1,7 @@
+Sat Jan 14 04:47:33 GMT 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: Fix aCC warnings.
+
 Sat Jan 14 04:47:00 GMT 2006  Olly Betts <olly@survex.com>
 
 	* common/utils.h: Fix aCC warning.

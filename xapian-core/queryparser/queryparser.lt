@@ -227,7 +227,7 @@ static const char *ParseTokenName(int tokenType){
 */
 static void *ParseAlloc(void *(*mallocProc)(size_t)){
   yyParser *pParser;
-  pParser = (yyParser*)(*mallocProc)( (size_t)sizeof(yyParser) );
+  pParser = (yyParser*)(*mallocProc)( sizeof(yyParser) );
   if( pParser ){
     pParser->yyidx = -1;
   }
@@ -276,7 +276,7 @@ static int yy_pop_parser_stack(yyParser *pParser){
       yyTokenName[yytos->major]);
   }
 #endif
-  yymajor = yytos->major;
+  yymajor = (YYCODETYPE)yytos->major;
   yy_destructor( yymajor, &yytos->minor);
   pParser->yyidx--;
   return yymajor;
@@ -631,7 +631,7 @@ static void Parse(
              yyTracePrompt,yyTokenName[yymajor]);
         }
 #endif
-        yy_destructor(yymajor,&yyminorunion);
+        yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
         yymajor = YYNOCODE;
       }else{
          while(
@@ -642,7 +642,7 @@ static void Parse(
           yy_pop_parser_stack(yypParser);
         }
         if( yypParser->yyidx < 0 || yymajor==0 ){
-          yy_destructor(yymajor,&yyminorunion);
+          yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
           yy_parse_failed(yypParser);
           yymajor = YYNOCODE;
         }else if( yymx!=YYERRORSYMBOL ){
@@ -667,7 +667,7 @@ static void Parse(
         yy_syntax_error(yypParser,yymajor,yyminorunion);
       }
       yypParser->yyerrcnt = 3;
-      yy_destructor(yymajor,&yyminorunion);
+      yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
       if( yyendofinput ){
         yy_parse_failed(yypParser);
       }
