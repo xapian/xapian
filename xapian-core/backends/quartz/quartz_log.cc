@@ -26,6 +26,9 @@
 #include "utils.h"
 
 #include <errno.h>
+#ifdef HAVE_SYS_ERRNO_H
+# include <sys/errno.h>
+#endif
 #include <string.h>
 #include <time.h>
 

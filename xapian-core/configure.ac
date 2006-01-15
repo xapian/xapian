@@ -370,7 +370,7 @@ dnl	[AC_CHECK_LIB(dl, dlsym, [DL_LIBS="-ldl"])])
 dnl AC_SUBST(DL_LIBS)
 
 dnl Checks for header files.
-AC_CHECK_HEADERS(fcntl.h limits.h, [], [], [ ])
+AC_CHECK_HEADERS(fcntl.h limits.h sys/errno.h, [], [], [ ])
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and

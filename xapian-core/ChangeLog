@@ -1,3 +1,11 @@
+Sun Jan 15 23:52:01 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_table.cc,
+	  backends/quartz/btree.cc,backends/quartz/quartz_database.cc,
+	  backends/quartz/quartz_log.cc,configure.ac,net/socketcommon.cc,
+	  net/tcpclient.cc,testsuite/backendmanager.cc: Compaq C++ requires
+	  sys/errno.h to get ENOENT and most other EXXX codes defined.
+
 Sun Jan 15 23:41:15 GMT 2006  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Initialise 2 variables to avoid compiler
