@@ -1,3 +1,8 @@
+Sun Jan 15 04:36:49 GMT 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc:
+	  Add Stopper::get_description() and SimpleStopper::get_description().
+
 Sat Jan 14 21:43:32 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix backwards logic in snprintf configure test.

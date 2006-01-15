@@ -21,11 +21,35 @@
 
 #include <config.h>
 
-#include "queryparser_internal.h"
+#include <xapian/queryparser.h>
 #include <xapian/termiterator.h>
+
+#include "queryparser_internal.h"
 #include "vectortermlist.h"
 
 using namespace Xapian;
+
+// Default implementation in case the user hasn't implemented it.
+std::string
+Stopper::get_description() const
+{
+    DEBUGCALL(INTRO, std::string, "Xapian::Stopper::get_description", "");
+    return "Xapian::Stopper subclass";
+}
+
+std::string
+SimpleStopper::get_description() const
+{
+    DEBUGCALL(INTRO, std::string, "Xapian::SimpleStopper::get_description", "");
+    std::string desc("Xapian::SimpleStopper(");
+    std::set<string>::const_iterator i;
+    for (i = stop_words.begin(); i != stop_words.end(); ++i) {
+	if (i != stop_words.begin()) desc += ' ';
+	desc += *i;
+    }
+    desc += ')';
+    return desc;
+}
 
 QueryParser::QueryParser(const QueryParser & o) : internal(o.internal) { }
 

@@ -1,7 +1,7 @@
 /** \file  queryparser.h
  *  \brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005 Olly Betts
+/* Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
 
@@ -40,6 +40,9 @@ class Stopper {
 
     /// Class has virtual methods, so provide a virtual destructor.
     virtual ~Stopper() { }
+
+    /// Return a string describing this object.
+    virtual std::string get_description() const;
 };
 
 /// Simple implementation of Stopper class - this will suit most users.
@@ -73,6 +76,9 @@ class SimpleStopper : public Stopper {
 
     /// Destructor.
     virtual ~SimpleStopper() { }
+
+    /// Return a string describing this object.
+    virtual std::string get_description() const;
 };
 
 /// Build a Xapian::Query object from a user query string.
