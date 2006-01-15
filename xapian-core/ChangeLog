@@ -1,3 +1,7 @@
+Sun Jan 15 14:49:45 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_log.cc: #include <string.h> for strerror.
+
 Sun Jan 15 04:36:49 GMT 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h,queryparser/queryparser.cc:
