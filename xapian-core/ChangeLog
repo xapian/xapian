@@ -1,3 +1,10 @@
+Sun Jan 15 23:38:11 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: If libxapian.la's dependency_libs contains
+	  another .la file, crudely transform to a pair of -L and -l
+	  options.  Ideally we should recursively pull in dependency_libs
+	  from that .la file, but that's too hard to do in sh.
+
 Sun Jan 15 21:43:26 GMT 2006  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,queryparser/queryparser.lt:

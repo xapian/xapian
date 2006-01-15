@@ -1,8 +1,8 @@
 #! /bin/sh
 # @configure_input@
 #
-# Copyright 1999,2000,2001 BrightStation PLC
-# Copyright 2002,2003,2004,2005 Olly Betts
+# Copyright (C) 1999,2000,2001 BrightStation PLC
+# Copyright (C) 2002,2003,2004,2005,2006 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
 prefix="@prefix@"
@@ -113,7 +113,7 @@ while test 0 != "$#"; do
 	    if test no = "$xo_lib_xapian" ; then
 		echo "$0: Use libtool and 'xapian-config --ltlibs'" 1>&2
 	    else
-	        configure_ac='configure.in (or configure.ac)'
+		configure_ac='configure.in (or configure.ac)'
 		# If ac_top_srcdir isn't passed to us, we just end up looking
 		# in the current directory, which is a sensible fallback.
 		if test -r "${ac_top_srcdir}configure.ac" ; then
@@ -132,6 +132,14 @@ while test 0 != "$#"; do
 	test /usr/lib != "$libdir" && L="-L$libdir "
 	D=
 	eval `grep ^dependency_libs= "$libdir/libxapian.la"`
+	# Replace "/path/to/libfoo.la" with "-L/path/to -lfoo" which doesn't
+	# take into account any dependency_libs which libfoo.la may pull in
+	# but the only .la that we're likely to see is libstdc++.la and it'll
+	# hopefully work there as any dependency libs will probably be pulled
+	# in by the compiler for us.  Recursively pulling in dependency_libs
+	# is probably too hard to do in sh - we'd need to reimplement
+	# xapian-config in C or C++.
+	dependency_libs=`echo " $dependency_libs "|sed 's![     ][      ]*!  !g;s! \(/[^ ]*\)/lib\([^ ]*\).la ! -L\1 -l\2 !g;s!  ! !g;s!^ !!;s! $!!'`
 	test -n "$dependency_libs" && D=" $dependency_libs"
 	echo "$F$L-lxapian$D"
 	;;
