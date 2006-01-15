@@ -1,8 +1,7 @@
 /* testsuite.h: a generic test suite engine
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2005 Olly Betts
+ * Copyright 2002,2003,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_TESTSUITE_H
@@ -86,8 +84,6 @@ extern om_ostringstream tout;
 
 /// The test driver.  This class takes care of running the tests.
 class test_driver {
-    friend void report_totals();
-
     public:
 	/** A structure used to report the summary of tests passed
 	 *  and failed.
@@ -148,6 +144,9 @@ class test_driver {
 	// running total for a test run
 	static result total;
 
+	/// Print summary of tests passed, failed, and skipped.
+	static void report(const test_driver::result &r, const std::string &desc);
+
     private:
 	/** Prevent copying */
 	test_driver(const test_driver &);
@@ -178,9 +177,6 @@ class test_driver {
 	 */
 	result do_run_tests(std::vector<std::string>::const_iterator b,
 			    std::vector<std::string>::const_iterator e);
-
-	/// print summary of tests passed, failed, and skipped
-	static void report(const test_driver::result &r, const std::string &desc);
 
 	// abort tests at the first failure
 	static bool abort_on_error;

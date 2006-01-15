@@ -1,3 +1,13 @@
+Sun Jan 15 21:43:26 GMT 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,queryparser/queryparser.lt:
+	  Eliminate ParseAlloc's mallocProc parameter and ParseFree's freeProc
+	  parameter - we always pass malloc and free, and get warnings from
+	  some compilers because we're passing a C-linkage function for a
+	  C++-linkage function pointer.
+	* testsuite/testsuite.cc,testsuite/testsuite.h: Fix functions
+	  registered as signal handlers and pass to atexit to have C linkage.
+
 Sun Jan 15 14:49:45 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_log.cc: #include <string.h> for strerror.

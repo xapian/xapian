@@ -149,8 +149,8 @@ prefix_needs_colon(const string & prefix, unsigned char ch)
 }
 
 // Prototype the functions lemon generates.
-static void *ParseAlloc(void *(*mallocProc)(size_t));
-static void ParseFree(void *, void (*freeProc)(void*));
+static void *ParseAlloc();
+static void ParseFree(void *);
 static void Parse(void *, int, Term *, State *);
 
 Query
@@ -163,7 +163,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
     ParseTrace(stdout, "LEMON: ");
 #endif
 
-    void * pParser = ParseAlloc(malloc);
+    void * pParser = ParseAlloc();
 
     termpos term_pos = 1;
     AccentNormalisingItor it(qs.begin()), end(qs.end());
@@ -509,7 +509,7 @@ done:
     // Implicitly close any unclosed quotes...
     if (mode == IN_QUOTES) Parse(pParser, QUOTE, NULL, &state);
     Parse(pParser, 0, NULL, &state);
-    ParseFree(pParser, free);
+    ParseFree(pParser);
 
     errmsg = state.error;
     return state.query;

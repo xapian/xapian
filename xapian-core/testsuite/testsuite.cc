@@ -127,6 +127,8 @@ test_driver::test_driver(const test_desc *tests_)
 static jmp_buf jb;
 static int signum = 0;
 
+/* Needs C linkage so we can pass it to signal() without problems. */
+extern "C" {
 static void
 handle_sig(int signum_)
 {
@@ -141,6 +143,7 @@ handle_sig(int signum_)
 #endif
     signum = signum_;
     longjmp(jb, 1);
+}
 }
 
 class SignalRedirector {
@@ -490,11 +493,14 @@ test_driver::report(const test_driver::result &r, const string &desc)
     }
 }
 
-// call via atexit if there's more than one test run
-void
-report_totals()
+/* Needs C linkage so we can pass it to atexit() without problems. */
+extern "C" {
+// Call upon program exit if there's more than one test run.
+static void
+report_totals(void)
 {
     test_driver::report(test_driver::total, "total");
+}
 }
 
 void
