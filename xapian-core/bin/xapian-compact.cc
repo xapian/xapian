@@ -181,7 +181,7 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
     out->add(string("", 1), tag);
 
     string last_key;
-    Xapian::termcount tf, cf;
+    Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
     vector<pair<Xapian::docid, string> > tags;
     while (true) {
 	PostlistCursor * cur = NULL;
