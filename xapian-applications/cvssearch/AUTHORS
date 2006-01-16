@@ -7,7 +7,7 @@ Entities.pm:
 
 pstream.h is from http://pstreams.sourceforge.net/:
 
-  Copyright (C) 2001,2002 Jonathan Wakely
+  Copyright (C) 2001,2002,2003,2004 Jonathan Wakely
 
   This file is part of PStreams.
 

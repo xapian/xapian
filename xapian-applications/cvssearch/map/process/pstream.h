@@ -1,6 +1,6 @@
 /* $Id$
 PStreams - POSIX Process I/O for C++
-Copyright (C) 2001,2002 Jonathan Wakely
+Copyright (C) 2001,2002,2003,2004 Jonathan Wakely
 
 This file is part of PStreams.
 
@@ -25,11 +25,11 @@ along with PStreams; if not, write to the Free Software Foundation, Inc.,
  * @author Jonathan Wakely
  *
  * Defines classes redi::ipstream, redi::opstream, redi::pstream
- * and, conditionally, redi::rpstream.
+ * and redi::rpstream.
  */
 
-#ifndef REDI_PSTREAM_H
-#define REDI_PSTREAM_H
+#ifndef REDI_PSTREAM_H_SEEN
+#define REDI_PSTREAM_H_SEEN
 
 #include <ios>
 #include <streambuf>
@@ -37,31 +37,27 @@ along with PStreams; if not, write to the Free Software Foundation, Inc.,
 #include <ostream>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <cstring>
-#include <cerrno>
+#include <algorithm>    // for min()
+#include <cstring>      // for memcpy(), memmove() etc.
+#include <cerrno>       // for errno
+#include <cstddef>      // for size_t
+#include <cstdlib>      // for exit()
 #include <sys/types.h>  // for pid_t
 #include <sys/wait.h>   // for waitpid()
+#include <sys/ioctl.h>  // for ioctl() and FIONREAD
+#if defined(__sun)
+# include <sys/filio.h> // for FIONREAD on Solaris 2.5
+#endif
 #include <unistd.h>     // for pipe() fork() exec() and filedes functions
 #include <signal.h>     // for kill()
-
-
-// TODO   add input buffering to pstreambuf
-
-// TODO   abstract process creation and control to a process class.
-
-// TODO   capitalise class names ?
-// basic_pstreambuf -> BasicPStreamBuf
-// basic_opstream   -> BasicOPStream
-// basic_ipstream   -> BasicIPStream
-// basic_pstream    -> BasicPStream
-// basic_rpstream   -> BasicRPStream
-
+#include <fcntl.h>      // for fcntl()
+#if REDI_EVISCERATE_PSTREAMS
+# include <stdio.h>     // for FILE, fdopen()
+#endif
 
 
 /// The library version.
-#define PSTREAMS_VERSION 0x002a   // 0.42
-
+#define PSTREAMS_VERSION 0x0052   // 0.5.2
 
 /**
  *  @namespace redi
@@ -81,20 +77,26 @@ namespace redi
   /// Common base class providing constants and typenames.
   struct pstreams
   {
-    /// Type used to specify how to connect to the process
+    /// Type used to specify how to connect to the process.
     typedef std::ios_base::openmode           pmode;
+
+    /// Type used to hold the arguments for a command.
+    typedef std::vector<std::string>          argv_type;
+
+    /// Type used for file descriptors.
+    typedef int                               fd_type;
 
     static const pmode pstdin  = std::ios_base::out; ///< Write to stdin
     static const pmode pstdout = std::ios_base::in;  ///< Read from stdout
     static const pmode pstderr = std::ios_base::app; ///< Read from stderr
 
   protected:
-    static const size_t bufsz = 32;
-    static const size_t pbsz  = 2;
+    enum { bufsz = 32 };  ///< Size of pstreambuf buffers.
+    enum { pbsz  = 2 };   ///< Number of putback characters kept.
   };
 
   /// Class template for stream buffer.
-  template <typename CharT, typename Traits>
+  template <typename CharT, typename Traits = std::char_traits<CharT> >
     class basic_pstreambuf
     : public std::basic_streambuf<CharT, Traits>
     , public pstreams
@@ -106,8 +108,8 @@ namespace redi
       typedef typename traits_type::int_type    int_type;
       typedef typename traits_type::off_type    off_type;
       typedef typename traits_type::pos_type    pos_type;
-      /// Type used for file descriptors
-      typedef int                               fd_t;
+      /** @deprecated use pstreams::fd_type instead. */
+      typedef fd_type                           fd_t;
 
       /// Default constructor.
       basic_pstreambuf();
@@ -115,8 +117,10 @@ namespace redi
       /// Constructor that initialises the buffer with @a command.
       basic_pstreambuf(const std::string& command, pmode mode);
 
-      /// Constructor that initialises the buffer with @a file and @a argv..
-      basic_pstreambuf(const std::string& file, const std::vector<std::string>& argv, pmode mode);
+      /// Constructor that initialises the buffer with @a file and @a argv.
+      basic_pstreambuf( const std::string& file,
+                        const argv_type& argv,
+                        pmode mode );
 
       /// Destructor.
       ~basic_pstreambuf();
@@ -127,7 +131,7 @@ namespace redi
 
       /// Initialise the stream buffer with @a file and @a argv.
       basic_pstreambuf*
-      open(const std::string& file, const std::vector<std::string>& argv, pmode mode);
+      open(const std::string& file, const argv_type& argv, pmode mode);
 
       /// Close the stream buffer and wait for the process to exit.
       basic_pstreambuf*
@@ -144,7 +148,7 @@ namespace redi
       /// Change active input source.
       bool
       read_err(bool readerr = true);
-      
+
       /// Report whether the stream buffer has been initialised.
       bool
       is_open() const;
@@ -155,8 +159,8 @@ namespace redi
 
 #if REDI_EVISCERATE_PSTREAMS
       /// Obtain FILE pointers for each of the process' standard streams.
-      size_t
-      fopen(FILE*& in, FILE*& out, FILE*& err);
+      std::size_t
+      fopen(std::FILE*& in, std::FILE*& out, std::FILE*& err);
 #endif
 
       /// Return the exit status of the process.
@@ -184,24 +188,21 @@ namespace redi
       int
       sync();
 
+      /// Insert multiple characters into the pipe.
       std::streamsize
       xsputn(const char_type* s, std::streamsize n);
 
-      /// Insert a character into the pipe.
-      bool
-      write(char_type c);
-
-      /// Extract a character from the pipe.
-      bool
-      read(char_type& c);
-
       /// Insert a sequence of characters into the pipe.
       std::streamsize
-      write(char_type* s, std::streamsize n);
+      write(const char_type* s, std::streamsize n);
 
       /// Extract a sequence of characters from the pipe.
       std::streamsize
       read(char_type* s, std::streamsize n);
+
+      /// Report how many characters can be read from active input without blocking.
+      std::streamsize
+      showmanyc();
 
     protected:
       /// Enumerated type to indicate whether stdout or stderr is to be read.
@@ -215,16 +216,16 @@ namespace redi
       int
       wait(bool nohang = false);
 
-      /// Return the file descriptor for the output pipe;
-      fd_t&
+      /// Return the file descriptor for the output pipe.
+      fd_type&
       wpipe();
 
-      /// Return the file descriptor for the active input pipe
-      fd_t&
+      /// Return the file descriptor for the active input pipe.
+      fd_type&
       rpipe();
 
       /// Return the file descriptor for the specified input pipe.
-      fd_t&
+      fd_type&
       rpipe(buf_read_src which);
 
       void
@@ -233,14 +234,14 @@ namespace redi
       void
       destroy_buffers(pmode mode);
 
-      /// Writes buffered characters to the process' stdin pipe..
+      /// Writes buffered characters to the process' stdin pipe.
       bool
       empty_buffer();
 
       bool
       fill_buffer();
 
-      /// Return the active input buffer
+      /// Return the active input buffer.
       char_type*
       rbuffer();
 
@@ -255,12 +256,12 @@ namespace redi
       init_rbuffers();
 
       pid_t         ppid_;        // pid of process
-      fd_t          wpipe_;       // pipe used to write to process' stdin
-      fd_t          rpipe_[2];    // two pipes to read from, stdout and stderr
-      char_type*                wbuffer_;
-      char_type*                rbuffer_[2];
-      char_type*                rbufstate_[3];
-      /// Index into rpipe_[] to indicate active source for read operations
+      fd_type       wpipe_;       // pipe used to write to process' stdin
+      fd_type       rpipe_[2];    // two pipes to read from, stdout and stderr
+      char_type*    wbuffer_;
+      char_type*    rbuffer_[2];
+      char_type*    rbufstate_[3];
+      /// Index into rpipe_[] to indicate active source for read operations.
       buf_read_src  rsrc_;
       int           status_;      // hold exit status of child process
       int           error_;       // hold errno if fork() or exec() fails
@@ -270,14 +271,10 @@ namespace redi
   template <typename CharT, typename Traits = std::char_traits<CharT> >
     class pstream_common
     : virtual public std::basic_ios<CharT, Traits>
-    , public pstreams
+    , virtual public pstreams
     {
     protected:
       typedef basic_pstreambuf<CharT, Traits>       streambuf_type;
-
-    public:
-      /// Type used to specify how to connect to the process
-      typedef typename streambuf_type::pmode        pmode;
 
       /// Default constructor.
       pstream_common();
@@ -286,16 +283,21 @@ namespace redi
       pstream_common(const std::string& command, pmode mode);
 
       /// Constructor that initialises the stream by starting a process.
-      pstream_common(const std::string& file, const std::vector<std::string>& argv, pmode mode);
+      pstream_common(const std::string& file, const argv_type& argv, pmode mode);
+
+      /// Pure virtual destructor.
+      virtual
+      ~pstream_common() = 0;
 
       /// Start a process.
-      virtual void
-      open(const std::string& command, pmode mode);
+      void
+      do_open(const std::string& command, pmode mode);
 
       /// Start a process.
-      virtual void
-      open(const std::string& file, const std::vector<std::string>& argv, pmode mode);
+      void
+      do_open(const std::string& file, const argv_type& argv, pmode mode);
 
+    public:
       /// Close the pipe.
       void
       close();
@@ -308,21 +310,17 @@ namespace redi
       const std::string&
       command() const;
 
-      /// Return a pointer to the stream buffer
+      /// Return a pointer to the stream buffer.
       streambuf_type*
       rdbuf() const;
 
 #if REDI_EVISCERATE_PSTREAMS
       /// Obtain FILE pointers for each of the process' standard streams.
-      size_t
-      fopen(FILE*& in, FILE*& out, FILE*& err);
+      std::size_t
+      fopen(std::FILE*& in, std::FILE*& out, std::FILE*& err);
 #endif
 
     protected:
-      /// Pure virtual destructor
-      virtual
-      ~pstream_common() = 0;
-
       std::string       command_; ///< The command used to start the process.
       streambuf_type    buf_;     ///< The stream buffer.
     };
@@ -342,85 +340,96 @@ namespace redi
     class basic_ipstream
     : public std::basic_istream<CharT, Traits>
     , public pstream_common<CharT, Traits>
+    , virtual public pstreams
     {
       typedef std::basic_istream<CharT, Traits>     istream_type;
       typedef pstream_common<CharT, Traits>         pbase_type;
-      typedef typename pbase_type::streambuf_type   streambuf_type;
+
+      using pbase_type::buf_;  // declare name in this scope
 
     public:
-      /// Type used to specify how to connect to the process
+      /// Type used to specify how to connect to the process.
       typedef typename pbase_type::pmode            pmode;
+
+      /// Type used to hold the arguments for a command.
+      typedef typename pbase_type::argv_type        argv_type;
 
       /// Default constructor, creates an uninitialised stream.
       basic_ipstream()
       : istream_type(NULL), pbase_type()
-      {}
+      { }
 
       /**
        * @brief Constructor that initialises the stream by starting a process.
        *
-       * Initialises the stream buffer by calling open() with the supplied
+       * Initialises the stream buffer by calling do_open() with the supplied
        * arguments.
        *
-       * @param command a string containing a shell command.
-       * @param mode    the I/O mode to use when opening the pipe.
-       * @see   open()
+       * @param command  a string containing a shell command.
+       * @param mode     the I/O mode to use when opening the pipe.
+       * @see   do_open(const std::string&, pmode)
        */
-      basic_ipstream(const std::string& command, pmode mode = std::ios_base::in)
-      : istream_type(NULL), pbase_type(command, mode)
-      {}
+      basic_ipstream(const std::string& command, pmode mode = pstdout)
+      : istream_type(NULL), pbase_type(command, mode|pstdout)
+      { }
 
       /**
        * @brief Constructor that initialises the stream by starting a process.
        *
-       * Initialises the stream buffer by calling open() with the supplied
+       * Initialises the stream buffer by calling do_open() with the supplied
        * arguments.
        *
        * @param file  a string containing the pathname of a program to execute.
        * @param argv  a vector of argument strings passed to the new program.
        * @param mode  the I/O mode to use when opening the pipe.
-       * @see   open()
+       * @see   do_open(const std::string&, const argv_type&, pmode)
        */
-      basic_ipstream(const std::string& file, const std::vector<std::string>& argv, pmode mode = std::ios_base::in)
-      : istream_type(NULL), pbase_type(file, argv, mode)
-      {}
+      basic_ipstream( const std::string& file,
+                      const argv_type& argv,
+                      pmode mode = pstdout )
+      : istream_type(NULL), pbase_type(file, argv, mode|pstdout)
+      { }
 
       /**
-       * @brief Destructor
+       * @brief Destructor.
        *
        * Closes the stream and waits for the child to exit.
        */
       ~basic_ipstream()
-      {}
+      { }
 
       /**
        * @brief Start a process.
        *
-       * Starts a new process by passing @a command to the shell
-       * and opens a pipe to the process with the specified @a mode.
+       * Calls do_open( @a %command , @a mode|pstdout ).
        *
-       * @param command a string containing a shell command.
-       * @param mode    the I/O mode to use when opening the pipe.
-       * @see   pstream_common::open()
+       * @param command  a string containing a shell command.
+       * @param mode     the I/O mode to use when opening the pipe.
+       * @see   do_open(const std::string&, pmode)
        */
       void
-      open(const std::string& command, pmode mode = std::ios_base::in)
-      { pbase_type::open(command, mode); }
+      open(const std::string& command, pmode mode = pstdout)
+      {
+        this->do_open(command, mode|pstdout);
+      }
 
       /**
        * @brief Start a process.
        *
-       * Starts a new process by executing @a file with the arguments in
-       * @a argv and opens pipes to the process as given by @a mode.
+       * Calls do_open( @a file , @a argv , @a mode|pstdout ).
        *
        * @param file  a string containing the pathname of a program to execute.
        * @param argv  a vector of argument strings passed to the new program.
        * @param mode  the I/O mode to use when opening the pipe.
-       * @see   pstream_common::open()
+       * @see   do_open(const std::string&, const argv_type&, pmode)
        */
       void
-      open(const std::string& file, const std::vector<std::string>& argv, pmode mode = std::ios_base::in)
-      { pbase_type::open(file, argv, mode); }
+      open( const std::string& file,
+            const argv_type& argv,
+            pmode mode = pstdout )
+      {
+        this->do_open(file, argv, mode|pstdout);
+      }
 
       /**
        * @brief Set streambuf to read from process' @c stdout.
@@ -429,7 +438,7 @@ namespace redi
       basic_ipstream&
       out()
       {
-        buf_.read_err(false);
+        this->buf_.read_err(false);
         return *this;
       }
 
@@ -440,7 +449,7 @@ namespace redi
       basic_ipstream&
       err()
       {
-        buf_.read_err(true);
+        this->buf_.read_err(true);
         return *this;
       }
     };
@@ -449,7 +458,7 @@ namespace redi
   /**
    * @class basic_opstream
    * @brief Class template for Output PStreams.
-   * 
+   *
    * Writing to an open opstream writes to the standard input of the command;
    * the command's standard output is the same as that of the process that
    * created the pstream object, unless altered by the command itself.
@@ -459,48 +468,55 @@ namespace redi
     class basic_opstream
     : public std::basic_ostream<CharT, Traits>
     , public pstream_common<CharT, Traits>
+    , virtual public pstreams
     {
       typedef std::basic_ostream<CharT, Traits>     ostream_type;
       typedef pstream_common<CharT, Traits>         pbase_type;
-      typedef typename pbase_type::streambuf_type   streambuf_type;
+
+      using pbase_type::buf_;  // declare name in this scope
 
     public:
-      /// Type used to specify how to connect to the process
+      /// Type used to specify how to connect to the process.
       typedef typename pbase_type::pmode            pmode;
+
+      /// Type used to hold the arguments for a command.
+      typedef typename pbase_type::argv_type        argv_type;
 
       /// Default constructor, creates an uninitialised stream.
       basic_opstream()
       : ostream_type(NULL), pbase_type()
-      {}
+      { }
 
       /**
        * @brief Constructor that initialises the stream by starting a process.
        *
-       * Initialises the stream buffer by calling open() with the supplied
+       * Initialises the stream buffer by calling do_open() with the supplied
        * arguments.
        *
-       * @param command a string containing a shell command.
-       * @param mode    the I/O mode to use when opening the pipe.
-       * @see   open()
+       * @param command  a string containing a shell command.
+       * @param mode     the I/O mode to use when opening the pipe.
+       * @see   do_open(const std::string&, pmode)
        */
-      basic_opstream(const std::string& command, pmode mode = std::ios_base::out)
-      : ostream_type(NULL), pbase_type(command, mode)
-      {}
+      basic_opstream(const std::string& command, pmode mode = pstdin)
+      : ostream_type(NULL), pbase_type(command, mode|pstdin)
+      { }
 
       /**
        * @brief Constructor that initialises the stream by starting a process.
        *
-       * Initialises the stream buffer by calling open() with the supplied
+       * Initialises the stream buffer by calling do_open() with the supplied
        * arguments.
        *
        * @param file  a string containing the pathname of a program to execute.
        * @param argv  a vector of argument strings passed to the new program.
        * @param mode  the I/O mode to use when opening the pipe.
-       * @see   open()
+       * @see   do_open(const std::string&, const argv_type&, pmode)
        */
-      basic_opstream(const std::string& file, const std::vector<std::string>& argv, pmode mode = std::ios_base::out)
-      : ostream_type(NULL), pbase_type(file, argv, mode)
-      {}
+      basic_opstream( const std::string& file,
+                      const argv_type& argv,
+                      pmode mode = pstdin )
+      : ostream_type(NULL), pbase_type(file, argv, mode|pstdin)
+      { }
 
       /**
        * @brief Destructor
@@ -511,24 +527,36 @@ namespace redi
 
       /**
        * @brief Start a process.
-       * @param command a string containing a shell command.
-       * @param mode    the I/O mode to use when opening the pipe.
-       * @see   pstream_common::open(const std::string&, pmode)
+       *
+       * Calls do_open( @a %command , @a mode|pstdin ).
+       *
+       * @param command  a string containing a shell command.
+       * @param mode     the I/O mode to use when opening the pipe.
+       * @see   do_open(const std::string&, pmode)
        */
       void
-      open(const std::string& command, pmode mode = std::ios_base::out)
-      { pbase_type::open(command, mode); }
+      open(const std::string& command, pmode mode = pstdin)
+      {
+        this->do_open(command, mode|pstdin);
+      }
 
       /**
        * @brief Start a process.
+       *
+       * Calls do_open( @a file , @a argv , @a mode|pstdin ).
+       *
        * @param file  a string containing the pathname of a program to execute.
        * @param argv  a vector of argument strings passed to the new program.
        * @param mode  the I/O mode to use when opening the pipe.
-       * @see   pstream_common::open(const std::string&, const std::vector<std::string>&, pmode)
+       * @see   do_open(const std::string&, const argv_type&, pmode)
        */
       void
-      open(const std::string& file, const std::vector<std::string>& argv, pmode mode = std::ios_base::out)
-      { pbase_type::open(file, argv, mode); }
+      open( const std::string& file,
+            const argv_type& argv,
+            pmode mode = pstdin)
+      {
+        this->do_open(file, argv, mode|pstdin);
+      }
     };
 
 
@@ -549,48 +577,55 @@ namespace redi
     class basic_pstream
     : public std::basic_iostream<CharT, Traits>
     , public pstream_common<CharT, Traits>
+    , virtual public pstreams
     {
       typedef std::basic_iostream<CharT, Traits>    iostream_type;
       typedef pstream_common<CharT, Traits>         pbase_type;
-      typedef typename pbase_type::streambuf_type   streambuf_type;
+
+      using pbase_type::buf_;  // declare name in this scope
 
     public:
-      /// Type used to specify how to connect to the process
+      /// Type used to specify how to connect to the process.
       typedef typename pbase_type::pmode            pmode;
+
+      /// Type used to hold the arguments for a command.
+      typedef typename pbase_type::argv_type        argv_type;
 
       /// Default constructor, creates an uninitialised stream.
       basic_pstream()
       : iostream_type(NULL), pbase_type()
-      {}
+      { }
 
       /**
        * @brief Constructor that initialises the stream by starting a process.
        *
-       * Initialises the stream buffer by calling open() with the supplied
+       * Initialises the stream buffer by calling do_open() with the supplied
        * arguments.
        *
-       * @param command a string containing a shell command.
-       * @param mode    the I/O mode to use when opening the pipe.
-       * @see   open(const std::string&, pmode)
+       * @param command  a string containing a shell command.
+       * @param mode     the I/O mode to use when opening the pipe.
+       * @see   do_open(const std::string&, pmode)
        */
-      basic_pstream(const std::string& command, pmode mode = std::ios_base::in|std::ios_base::out)
+      basic_pstream(const std::string& command, pmode mode = pstdout|pstdin)
       : iostream_type(NULL), pbase_type(command, mode)
-      {}
+      { }
 
       /**
        * @brief Constructor that initialises the stream by starting a process.
        *
-       * Initialises the stream buffer by calling open() with the supplied
+       * Initialises the stream buffer by calling do_open() with the supplied
        * arguments.
        *
        * @param file  a string containing the pathname of a program to execute.
        * @param argv  a vector of argument strings passed to the new program.
        * @param mode  the I/O mode to use when opening the pipe.
-       * @see   open(const std::string&, const std::vector<std::string>&, pmode)
+       * @see   do_open(const std::string&, const argv_type&, pmode)
        */
-      basic_pstream(const std::string& file, const std::vector<std::string>& argv, pmode mode = std::ios_base::in|std::ios_base::out)
+      basic_pstream( const std::string& file,
+                     const argv_type& argv,
+                     pmode mode = pstdout|pstdin )
       : iostream_type(NULL), pbase_type(file, argv, mode)
-      {}
+      { }
 
       /**
        * @brief Destructor
@@ -601,24 +636,36 @@ namespace redi
 
       /**
        * @brief Start a process.
-       * @param command a string containing a shell command.
-       * @param mode    the I/O mode to use when opening the pipe.
-       * @see   pstream_common::open(const std::string&, pmode)
+       *
+       * Calls do_open( @a %command , @a mode ).
+       *
+       * @param command  a string containing a shell command.
+       * @param mode     the I/O mode to use when opening the pipe.
+       * @see   do_open(const std::string&, pmode)
        */
       void
-      open(const std::string& command, pmode mode = std::ios_base::in|std::ios_base::out)
-      { pbase_type::open(command, mode); }
+      open(const std::string& command, pmode mode = pstdout|pstdin)
+      {
+        this->do_open(command, mode);
+      }
 
       /**
        * @brief Start a process.
+       *
+       * Calls do_open( @a file , @a argv , @a mode ).
+       *
        * @param file  a string containing the pathname of a program to execute.
        * @param argv  a vector of argument strings passed to the new program.
        * @param mode  the I/O mode to use when opening the pipe.
-       * @see   pstream_common::open(const std::string&, const std::vector<std::string>&, pmode)
+       * @see   do_open(const std::string&, const argv_type&, pmode)
        */
       void
-      open(const std::string& file, const std::vector<std::string>& argv, pmode mode = std::ios_base::in|std::ios_base::out)
-      { pbase_type::open(file, argv, mode); }
+      open( const std::string& file,
+            const argv_type& argv,
+            pmode mode = pstdout|pstdin )
+      {
+        this->do_open(file, argv, mode);
+      }
 
       /**
        * @brief Set streambuf to read from process' @c stdout.
@@ -627,7 +674,7 @@ namespace redi
       basic_pstream&
       out()
       {
-        buf_.read_err(false);
+        this->buf_.read_err(false);
         return *this;
       }
 
@@ -638,49 +685,182 @@ namespace redi
       basic_pstream&
       err()
       {
-        buf_.read_err(true);
+        this->buf_.read_err(true);
+        return *this;
+      }
+    };
+
+
+  /**
+   * @class basic_rpstream
+   * @brief template for Restricted PStreams.
+   *
+   * Writing to an rpstream opened with @c pmode @c pstdin writes to the
+   * standard input of the command.
+   * It is not possible to read directly from an rpstream object, to use
+   * an rpstream as in istream you must call either basic_rpstream::out()
+   * or basic_rpstream::err(). This is to prevent accidental reads from
+   * the wrong input source. If the rpstream was not opened with @c pmode
+   * @c pstderr then the class cannot read the process' @c stderr, and
+   * basic_rpstream::err() will return an istream that reads from the
+   * process' @c stdout, and vice versa.
+   * Reading from an rpstream opened with @c pmode @c pstdout and/or
+   * @c pstderr reads the command's standard output and/or standard error.
+   * Any of the process' @c stdin, @c stdout or @c stderr that is not
+   * connected to the pstream (as specified by the @c pmode)
+   * will be the same as the process that created the pstream object,
+   * unless altered by the command itself.
+   */
+
+  template <typename CharT, typename Traits = std::char_traits<CharT> >
+    class basic_rpstream
+    : public std::basic_ostream<CharT, Traits>
+    , private std::basic_istream<CharT, Traits>
+    , private pstream_common<CharT, Traits>
+    , virtual public pstreams
+    {
+      typedef std::basic_ostream<CharT, Traits>     ostream_type;
+      typedef std::basic_istream<CharT, Traits>     istream_type;
+      typedef pstream_common<CharT, Traits>         pbase_type;
+
+      using pbase_type::buf_;  // declare name in this scope
+
+    public:
+      /// Type used to specify how to connect to the process.
+      typedef typename pbase_type::pmode            pmode;
+
+      /// Type used to hold the arguments for a command.
+      typedef typename pbase_type::argv_type        argv_type;
+
+      /// Default constructor, creates an uninitialised stream.
+      basic_rpstream()
+      : ostream_type(NULL), istream_type(NULL), pbase_type()
+      { }
+
+      /**
+       * @brief  Constructor that initialises the stream by starting a process.
+       *
+       * Initialises the stream buffer by calling do_open() with the supplied
+       * arguments.
+       *
+       * @param command a string containing a shell command.
+       * @param mode the I/O mode to use when opening the pipe.
+       * @see   do_open(const std::string&, pmode)
+       */
+      basic_rpstream(const std::string& command, pmode mode = pstdout|pstdin)
+      : ostream_type(NULL) , istream_type(NULL) , pbase_type(command, mode)
+      { }
+
+      /**
+       * @brief  Constructor that initialises the stream by starting a process.
+       *
+       * Initialises the stream buffer by calling do_open() with the supplied
+       * arguments.
+       *
+       * @param file a string containing the pathname of a program to execute.
+       * @param argv a vector of argument strings passed to the new program.
+       * @param mode the I/O mode to use when opening the pipe.
+       * @see   do_open(const std::string&, const argv_type&, pmode)
+       */
+      basic_rpstream( const std::string& file,
+                      const argv_type& argv,
+                      pmode mode = pstdout|pstdin )
+      : ostream_type(NULL), istream_type(NULL), pbase_type(file, argv, mode)
+      { }
+
+      /// Destructor
+      ~basic_rpstream() { }
+
+      /**
+       * @brief  Start a process.
+       *
+       * Calls do_open( @a %command , @a mode ).
+       *
+       * @param command a string containing a shell command.
+       * @param mode the I/O mode to use when opening the pipe.
+       * @see   do_open(const std::string&, pmode)
+       */
+      void
+      open(const std::string& command, pmode mode = pstdout|pstdin)
+      {
+        this->do_open(command, mode);
+      }
+
+      /**
+       * @brief  Start a process.
+       *
+       * Calls do_open( @a file , @a argv , @a mode ).
+       *
+       * @param file a string containing the pathname of a program to execute.
+       * @param argv a vector of argument strings passed to the new program.
+       * @param mode the I/O mode to use when opening the pipe.
+       * @see   do_open(const std::string&, const argv_type&, pmode)
+       */
+      void
+      open( const std::string& file,
+            const argv_type& argv,
+            pmode mode = pstdout|pstdin )
+      {
+        this->do_open(file, argv, mode);
+      }
+
+      /**
+       * @brief  Obtain a reference to the istream that reads
+       *         the process' @c stdout.
+       * @return @c *this
+       */
+      istream_type&
+      out()
+      {
+        this->buf_.read_err(false);
+        return *this;
+      }
+
+      /**
+       * @brief  Obtain a reference to the istream that reads
+       *         the process' @c stderr.
+       * @return @c *this
+       */
+      istream_type&
+      err()
+      {
+        this->buf_.read_err(true);
         return *this;
       }
     };
 
 
   /// Type definition for common template specialisation.
-  typedef basic_pstreambuf<char, std::char_traits<char> > pstreambuf;
+  typedef basic_pstreambuf<char> pstreambuf;
   /// Type definition for common template specialisation.
   typedef basic_ipstream<char> ipstream;
   /// Type definition for common template specialisation.
   typedef basic_opstream<char> opstream;
   /// Type definition for common template specialisation.
   typedef basic_pstream<char> pstream;
+  /// Type definition for common template specialisation.
+  typedef basic_rpstream<char> rpstream;
 
-
-  template <typename C, typename T>
-    std::basic_ostream<C,T>&
-    peof(std::basic_ostream<C,T>& s);
 
   /**
-   * When inserted into an ouput pstream the manipulator calls 
+   * When inserted into an output pstream the manipulator calls
    * basic_pstreambuf<C,T>::peof() to close the output pipe,
-   * causing the child process to receive the End Of File indicator
+   * causing the child process to receive the end-of-file indicator
    * on subsequent reads from its @c stdin stream.
-   * 
-   * @brief  Manipulator to close the pipe connected to the process' stdin.
+   *
+   * @brief   Manipulator to close the pipe connected to the process' stdin.
    * @param   s  An output PStream class.
    * @return  The stream object the manipulator was invoked on.
-   * @warning The effect of this manipulator is undefined if it is used
-   *          with a stream object for which @c std::basic_ios<C,T>::rdbuf()
-   *          does not return a pointer to a pstreambuf. If unsure do not
-   *          use this manipulator and call basic_pstreambuf<C,T>::peof()
-   *          directly.
-   * @see     basic_pstreambuf<C,T>::peof(), basic_pstream<C,T>::rdbuf(),
-   *          basic_ipstream<C,T>::rdbuf(), basic_opstream<C,T>::rdbuf().
+   * @see     basic_pstreambuf<C,T>::peof()
+   * @relates basic_opstream basic_pstream basic_rpstream
    */
   template <typename C, typename T>
-    std::basic_ostream<C,T>&
+    inline std::basic_ostream<C,T>&
     peof(std::basic_ostream<C,T>& s)
     {
-      static_cast<basic_pstreambuf<C,T>*>(s.rdbuf())->peof();
-      //dynamic_cast<basic_pstreambuf<C,T>*>(s.rdbuf())->peof();
+      typedef basic_pstreambuf<C,T> pstreambuf;
+      if (pstreambuf* p = dynamic_cast<pstreambuf*>(s.rdbuf()))
+        p->peof();
       return s;
     }
 
@@ -699,16 +879,15 @@ namespace redi
   template <typename C, typename T>
     inline
     basic_pstreambuf<C,T>::basic_pstreambuf()
-    : ppid_(0)
+    : ppid_(-1)   // initialise to -1 to indicate no process run yet.
     , wpipe_(-1)
-    , wbuffer_(0)
+    , wbuffer_(NULL)
     , rsrc_(rsrc_out)
     , status_(-1)
     , error_(0)
     {
       init_rbuffers();
     }
-
 
   /**
    * Initialises the stream buffer by calling open() with the supplied
@@ -721,9 +900,9 @@ namespace redi
   template <typename C, typename T>
     inline
     basic_pstreambuf<C,T>::basic_pstreambuf(const std::string& command, pmode mode)
-    : ppid_(0)
+    : ppid_(-1)   // initialise to -1 to indicate no process run yet.
     , wpipe_(-1)
-    , wbuffer_(0)
+    , wbuffer_(NULL)
     , rsrc_(rsrc_out)
     , status_(-1)
     , error_(0)
@@ -743,10 +922,12 @@ namespace redi
    */
   template <typename C, typename T>
     inline
-    basic_pstreambuf<C,T>::basic_pstreambuf(const std::string& file, const std::vector<std::string>& argv, pmode mode)
-    : ppid_(0)
+    basic_pstreambuf<C,T>::basic_pstreambuf( const std::string& file,
+                                             const argv_type& argv,
+                                             pmode mode )
+    : ppid_(-1)   // initialise to -1 to indicate no process run yet.
     , wpipe_(-1)
-    , wbuffer_(0)
+    , wbuffer_(NULL)
     , rsrc_(rsrc_out)
     , status_(-1)
     , error_(0)
@@ -769,154 +950,197 @@ namespace redi
   /**
    * Starts a new process by passing @a command to the shell
    * and opens pipes to the process with the specified @a mode.
+   *
+   * Will duplicate the actions of  the  shell  in searching for an
+   * executable file if the specified file name does not contain a slash (/)
+   * character.
+   *
    * There is no way to tell whether the shell command succeeded, this
    * function will always succeed unless resource limits (such as
    * memory usage, or number of processes or open files) are exceeded.
+   * This means is_open() will return true even if @a command cannot
+   * be executed.
    *
    * @param   command  a string containing a shell command.
    * @param   mode     a bitwise OR of one or more of @c out, @c in, @c err.
    * @return  NULL if the shell could not be started or the
    *          pipes could not be opened, @c this otherwise.
+   * @see     <b>execlp</b>(3)
    */
   template <typename C, typename T>
-    inline basic_pstreambuf<C,T>*
+    basic_pstreambuf<C,T>*
     basic_pstreambuf<C,T>::open(const std::string& command, pmode mode)
     {
+#if 0
+      const std::string argv[] = { "sh", "-c", command };
+      return this->open("sh", std::vector<std::string>(argv, argv+3), mode);
+#else
       basic_pstreambuf<C,T>* ret = NULL;
 
       if (!is_open())
       {
         switch(fork(mode))
         {
-          case 0 :
-          {
-            // this is the new process, exec command
-            ::execlp("sh", "sh", "-c", command.c_str(), 0);
+        case 0 :
+          // this is the new process, exec command
+          ::execlp("sh", "sh", "-c", command.c_str(), (void*)NULL);
 
-            // can only reach this point if exec() failed
+          // can only reach this point if exec() failed
 
-            // parent can get exit code from waitpid()
-            std::exit(errno);
-          }
-          case -1 :
-          {
-            // couldn't fork, error already handled in pstreambuf::fork()
-            break;
-          }
-          default :
-          {
-            // this is the parent process
-#if 0
-            // check process not exited already
-            // very unlikely, since not enough time for shell to parse cmd!
+          // parent can get exit code from waitpid()
+          ::_exit(errno);
+          // using std::exit() would make static dtors run twice
 
-            switch (wait(true))
-            {
-              case 0 :
-                // activate buffers
-                create_buffers(mode);
-                ret = this;
-                break;
-              case 1:
-                // child exited already
-                sync();
-                close_fd_array(&wpipe_, 1);
-                close_fd_array(rpipe_, 2);
-                break;
-              default :
-                break;
-            }
-#else
-            // activate buffers
-            create_buffers(mode);
-            ret = this;
-#endif
-          }
+        case -1 :
+          // couldn't fork, error already handled in pstreambuf::fork()
+          break;
+
+        default :
+          // this is the parent process
+          // activate buffers
+          create_buffers(mode);
+          ret = this;
         }
       }
       return ret;
+#endif
     }
 
+  /**
+   * @brief  Helper function to close a file descriptor.
+   *
+   * Inspects @a fd and calls <b>close</b>(3) if it has a non-negative value.
+   *
+   * @param   fd  a file descriptor.
+   * @relates basic_pstreambuf
+   */
+  inline void
+  close_fd(pstreams::fd_type& fd)
+  {
+    if (fd >= 0 && ::close(fd) == 0)
+      fd = -1;
+  }
+
+  /**
+   * @brief  Helper function to close an array of file descriptors.
+   *
+   * Calls @c close_fd() on each member of the array.
+   * The length of the array is determined automatically by
+   * template argument deduction to avoid errors.
+   *
+   * @param   fds  an array of file descriptors.
+   * @relates basic_pstreambuf
+   */
+  template <int N>
+    inline void
+    close_fd_array(pstreams::fd_type (&fds)[N])
+    {
+      for (std::size_t i = 0; i < N; ++i)
+        close_fd(fds[i]);
+    }
 
   /**
    * Starts a new process by executing @a file with the arguments in
    * @a argv and opens pipes to the process with the specified @a mode.
-   * By convention argv[0] should be the file name of the file being executed.
+   *
+   * By convention @c argv[0] should be the file name of the file being
+   * executed.
    * Will duplicate the actions of  the  shell  in searching for an
    * executable file if the specified file name does not contain a slash (/)
    * character.
+   *
+   * Iff @a file is successfully executed then is_open() will return true.
+   * Note that exited() will return true if file cannot be executed, since
+   * the child process will have exited.
    *
    * @param   file  a string containing the pathname of a program to execute.
    * @param   argv  a vector of argument strings passed to the new program.
    * @param   mode  a bitwise OR of one or more of @c out, @c in and @c err.
    * @return  NULL if a pipe could not be opened or if the program could
    *          not be executed, @c this otherwise.
-   * @see execvp()
+   * @see     <b>execvp</b>(3)
    */
   template <typename C, typename T>
-    inline basic_pstreambuf<C,T>*
-    basic_pstreambuf<C,T>::open(const std::string& file, const std::vector<std::string>& argv, pmode mode)
+    basic_pstreambuf<C,T>*
+    basic_pstreambuf<C,T>::open( const std::string& file,
+                                 const argv_type& argv,
+                                 pmode mode )
     {
       basic_pstreambuf<C,T>* ret = NULL;
 
       if (!is_open())
       {
-        switch(fork(mode))
+        // constants for read/write ends of pipe
+        enum { RD, WR };
+
+        // open another pipe and set close-on-exec
+        fd_type ck_exec[] = { -1, -1 };
+        if (-1 == ::pipe(ck_exec)
+            || -1 == ::fcntl(ck_exec[RD], F_SETFD, FD_CLOEXEC)
+            || -1 == ::fcntl(ck_exec[WR], F_SETFD, FD_CLOEXEC))
         {
+          error_ = errno;
+          close_fd_array(ck_exec);
+        }
+        else
+        {
+          switch(fork(mode))
+          {
           case 0 :
-          {
             // this is the new process, exec command
-
-            char** arg_v = new char*[argv.size()+1];
-            for (size_t i = 0; i < argv.size(); ++i)
             {
-              const std::string& src = argv[i];
-              char*& dest = arg_v[i];
-              dest = new char[src.size()+1];
-              dest[ src.copy(dest, src.size()) ] = 0;
+              char** arg_v = new char*[argv.size()+1];
+              for (std::size_t i = 0; i < argv.size(); ++i)
+              {
+                const std::string& src = argv[i];
+                char*& dest = arg_v[i];
+                dest = new char[src.size()+1];
+                dest[ src.copy(dest, src.size()) ] = '\0';
+              }
+              arg_v[argv.size()] = NULL;
+
+              ::execvp(file.c_str(), arg_v);
+
+              // can only reach this point if exec() failed
+
+              // parent can get error code from ck_exec pipe
+              error_ = errno;
+
+              ::write(ck_exec[WR], &error_, sizeof(error_));
+              ::close(ck_exec[WR]);
+              ::close(ck_exec[RD]);
+
+              ::_exit(error_);
+              // using std::exit() would make static dtors run twice
             }
-            arg_v[argv.size()] = 0;
 
-            ::execvp(file.c_str(), arg_v);
-
-            // can only reach this point if exec() failed
-
-            // parent can get exit code from waitpid()
-            std::exit(errno);
-          }
           case -1 :
-          {
             // couldn't fork, error already handled in pstreambuf::fork()
+            close_fd_array(ck_exec);
             break;
-          }
-          default :
-          {
-            // this is the parent process
-#if 0
-            // check process not exited already
-            // very unlikely, since not enough time for shell to parse cmd!
 
-            switch (wait(true))
+          default :
+            // this is the parent process
+
+            // check child called exec() successfully
+            ::close(ck_exec[WR]);
+            switch (::read(ck_exec[RD], &error_, sizeof(error_)))
             {
-              case 0 :
-                // activate buffers
-                create_buffers(mode);
-                ret = this;
-                break;
-              case 1:
-                // child exited already
-                sync();
-                close_fd_array(&wpipe_, 1);
-                close_fd_array(rpipe_, 2);
-                break;
-              default :
-                break;
+            case 0:
+              // activate buffers
+              create_buffers(mode);
+              ret = this;
+              break;
+            case -1:
+              error_ = errno;
+              break;
+            default:
+              // error_ contains error code from child
+              // call wait() to clean up and set ppid_ to 0
+              this->wait();
+              break;
             }
-#else
-            // activate buffers
-            create_buffers(mode);
-            ret = this;
-#endif
+            ::close(ck_exec[RD]);
           }
         }
       }
@@ -924,27 +1148,11 @@ namespace redi
     }
 
   /**
-   * @brief  Helper function to close an array of file descriptors.
-   * Inspects each of the @a count file descriptors in the array @a filedes
-   * and calls @c close() if they have a non-negative value.
-   * @param filedes an array of file descriptors
-   * @param count size of the array.
-   */
-  inline void
-  close_fd_array(int* filedes, size_t count)
-  {
-    for (size_t i = 0; i < count; ++i)
-      if (filedes[i] >= 0)
-        if (::close(filedes[i]) == 0)
-          filedes[i] = -1;
-  }
-
-  /**
    * Creates pipes as specified by @a mode and calls @c fork() to create
    * a new process. If the fork is successful the parent process stores
    * the child's PID and the opened pipes and the child process replaces
    * its standard streams with the opened pipes.
-   * 
+   *
    * If an error occurs the error code will be set to one of the possile
    * errors for @c pipe() or @c fork().
    * See your system's documentation for these error codes.
@@ -961,17 +1169,16 @@ namespace redi
     {
       pid_t pid = -1;
 
-      // three pairs of file descriptors, for pipes connected to the
+      // Three pairs of file descriptors, for pipes connected to the
       // process' stdin, stdout and stderr
       // (stored in a single array so close_fd_array() can close all at once)
-      fd_t fd[6] =  {-1, -1, -1, -1, -1, -1};
-      fd_t* pin = fd;
-      fd_t* pout = fd+2;
-      fd_t* perr = fd+4;
+      fd_type fd[] = { -1, -1, -1, -1, -1, -1 };
+      fd_type* const pin = fd;
+      fd_type* const pout = fd+2;
+      fd_type* const perr = fd+4;
 
       // constants for read/write ends of pipe
-      const int RD = 0;
-      const int WR = 1;
+      enum { RD, WR };
 
       // N.B.
       // For the pstreambuf pin is an output stream and
@@ -1023,7 +1230,7 @@ namespace redi
             // couldn't fork for some reason
             error_ = errno;
             // close any open pipes
-            close_fd_array(fd, 6);
+            close_fd_array(fd);
             break;
           }
           default :
@@ -1059,32 +1266,34 @@ namespace redi
       else
       {
         // close any pipes we opened before failure
-        close_fd_array(fd, 6);
+        close_fd_array(fd);
       }
       return pid;
     }
 
-
   /**
-   * Closes all pipes and waits for the associated process to finish.
-   * If an error occurs the error code will be set to one of the possible errors
-   * for @c waitpid(). See your system's documentation for these errors.
+   * Closes all pipes and calls wait() to wait for the process to finish.
+   * If an error occurs the error code will be set to one of the possible
+   * errors for @c waitpid().
+   * See your system's documentation for these errors.
    *
    * @return  @c this on successful close or @c NULL if there is no
    *          process to close or if an error occurs.
    */
   template <typename C, typename T>
-    inline basic_pstreambuf<C,T>*
+    basic_pstreambuf<C,T>*
     basic_pstreambuf<C,T>::close()
     {
       basic_pstreambuf<C,T>* ret = NULL;
       if (is_open())
       {
         sync();
+
         destroy_buffers(pstdin|pstdout|pstderr);
 
-        close_fd_array(&wpipe_, 1);
-        close_fd_array(rpipe_, 2);
+        // close pipes before wait() so child gets EOF/SIGPIPE
+        close_fd(wpipe_);
+        close_fd_array(rpipe_);
 
         if (wait() == 1)
         {
@@ -1094,7 +1303,6 @@ namespace redi
       return ret;
     }
 
-
   /**
    *  Called on construction to initialise the arrays used for reading.
    */
@@ -1103,10 +1311,9 @@ namespace redi
     basic_pstreambuf<C,T>::init_rbuffers()
     {
       rpipe_[rsrc_out] = rpipe_[rsrc_err] = -1;
-      rbuffer_[rsrc_out] = rbuffer_[rsrc_err] = 0;
-      rbufstate_[0] = rbufstate_[1] = rbufstate_[2] = 0;
+      rbuffer_[rsrc_out] = rbuffer_[rsrc_err] = NULL;
+      rbufstate_[0] = rbufstate_[1] = rbufstate_[2] = NULL;
     }
-
 
   template <typename C, typename T>
     void
@@ -1116,14 +1323,14 @@ namespace redi
       {
         delete[] wbuffer_;
         wbuffer_ = new char_type[bufsz];
-        setp(wbuffer_, wbuffer_ + bufsz);
+        this->setp(wbuffer_, wbuffer_ + bufsz);
       }
       if (mode & pstdout)
       {
         delete[] rbuffer_[rsrc_out];
         rbuffer_[rsrc_out] = new char_type[bufsz];
         if (rsrc_ == rsrc_out)
-          setg(rbuffer_[rsrc_out] + pbsz, rbuffer_[rsrc_out] + pbsz,
+          this->setg(rbuffer_[rsrc_out] + pbsz, rbuffer_[rsrc_out] + pbsz,
               rbuffer_[rsrc_out] + pbsz);
       }
       if (mode & pstderr)
@@ -1131,11 +1338,10 @@ namespace redi
         delete[] rbuffer_[rsrc_err];
         rbuffer_[rsrc_err] = new char_type[bufsz];
         if (rsrc_ == rsrc_err)
-          setg(rbuffer_[rsrc_err] + pbsz, rbuffer_[rsrc_err] + pbsz,
+          this->setg(rbuffer_[rsrc_err] + pbsz, rbuffer_[rsrc_err] + pbsz,
               rbuffer_[rsrc_err] + pbsz);
       }
     }
-
 
   template <typename C, typename T>
     void
@@ -1143,23 +1349,23 @@ namespace redi
     {
       if (mode & pstdin)
       {
-        setp(0, 0);
+        this->setp(NULL, NULL);
         delete[] wbuffer_;
-        wbuffer_ = 0;
+        wbuffer_ = NULL;
       }
       if (mode & pstdout)
       {
         if (rsrc_ == rsrc_out)
-          setg(0, 0, 0);
+          this->setg(NULL, NULL, NULL);
         delete[] rbuffer_[rsrc_out];
-        rbuffer_[rsrc_out] = 0;
+        rbuffer_[rsrc_out] = NULL;
       }
       if (mode & pstderr)
       {
         if (rsrc_ == rsrc_err)
-          setg(0, 0, 0);
+          this->setg(NULL, NULL, NULL);
         delete[] rbuffer_[rsrc_err];
-        rbuffer_[rsrc_err] = 0;
+        rbuffer_[rsrc_err] = NULL;
       }
     }
 
@@ -1169,17 +1375,14 @@ namespace redi
     {
       if (rsrc_ != src)
       {
-        char_type* tmpbufstate[3];
-        tmpbufstate[0] = eback();
-        tmpbufstate[1] = gptr();
-        tmpbufstate[2] = egptr();
-        setg(rbufstate_[0], rbufstate_[1], rbufstate_[2]);
-        for (size_t i = 0; i < 3; ++i)
+        char_type* tmpbufstate[] = {this->eback(), this->gptr(), this->egptr()};
+        this->setg(rbufstate_[0], rbufstate_[1], rbufstate_[2]);
+        for (std::size_t i = 0; i < 3; ++i)
           rbufstate_[i] = tmpbufstate[i];
+        rsrc_ = src;
       }
       return rsrc_;
     }
-
 
   /**
    * Suspends execution and waits for the associated process to exit, or
@@ -1188,12 +1391,13 @@ namespace redi
    * already exited wait() returns immediately.
    *
    * @param   nohang  true to return immediately if the process has not exited.
-   * @return  1 if the process has exited, 0 if @a nohang is true and the
-   *          process has not exited yet, -1 if an error occurs, in which
-   *          case the error can be found using error().
+   * @return  1 if the process has exited.
+   *          0 if @a nohang is true and the process has not exited yet.
+   *          -1 if no process has been started or if an error occurs,
+   *          in which case the error can be found using error().
    */
   template <typename C, typename T>
-    inline int
+    int
     basic_pstreambuf<C,T>::wait(bool nohang)
     {
       int exited = -1;
@@ -1214,18 +1418,19 @@ namespace redi
             ppid_ = 0;
             status_ = status;
             exited = 1;
-            // TODO  close pipes with close_fd_array() ?
+            destroy_buffers(pstdin|pstdout|pstderr);
+            close_fd(wpipe_);
+            close_fd_array(rpipe_);
             break;
         }
       }
       return exited;
     }
 
-
   /**
    * Sends the specified signal to the process.  A signal can be used to
    * terminate a child process that would not exit otherwise.
-   * 
+   *
    * If an error occurs the error code will be set to one of the possible
    * errors for @c kill().  See your system's documentation for these errors.
    *
@@ -1242,29 +1447,30 @@ namespace redi
         if (::kill(ppid_, signal))
           error_ = errno;
         else
+        {
+          // TODO call exited() to check for exit and clean up? leave to user?
           ret = this;
+        }
       }
       return ret;
     }
 
-
   /**
-   *  return  True if the associated process has exited, false otherwise.
-   *  see     basic_pstreambuf<C,T>::close()
+   *  @return  True if the associated process has exited, false otherwise.
+   *  @see     basic_pstreambuf<C,T>::close()
    */
   template <typename C, typename T>
     inline bool
     basic_pstreambuf<C,T>::exited()
     {
-      // TODO  should close() if is_open() and has exited
-      return wait(true)==1;
+      return ppid_ == 0 || wait(true)==1;
     }
 
 
   /**
-   *  return  The exit status of the child process, or -1 if close()
-   *          has not yet been called to wait for the child to exit.
-   *  see     basic_pstreambuf<C,T>::close()
+   *  @return  The exit status of the child process, or -1 if close()
+   *           has not yet been called to wait for the child to exit.
+   *  @see     basic_pstreambuf<C,T>::close()
    */
   template <typename C, typename T>
     inline int
@@ -1274,7 +1480,7 @@ namespace redi
     }
 
   /**
-   *  return  The error code of the most recently failed operation, or zero.
+   *  @return  The error code of the most recently failed operation, or zero.
    */
   template <typename C, typename T>
     inline int
@@ -1284,10 +1490,8 @@ namespace redi
     }
 
   /**
-   * closes the output pipe, causing the child process to receive the
-   * End Of File indicator on subsequent reads from its @c stdin stream.
-   *
-   * @return  peof() returns no value.
+   *  Closes the output pipe, causing the child process to receive the
+   *  end-of-file indicator on subsequent reads from its @c stdin stream.
    */
   template <typename C, typename T>
     inline void
@@ -1295,31 +1499,33 @@ namespace redi
     {
       sync();
       destroy_buffers(pstdin);
-      close_fd_array(&wpipe_, 1);
+      close_fd(wpipe_);
     }
 
   /**
-   * @return  true if a previous call to open() succeeded and close()
-   *          has not been called successfully, false otherwise.
+   * @return  true if a previous call to open() succeeded and wait() has
+   *          not been called and determined that the process has exited,
+   *          false otherwise.
    * @warning This function can not be used to determine whether the
    *          command used to initialise the buffer was successfully
    *          executed or not. If the shell command failed this function
    *          will still return true.
+   *          You can use exited() to see if it's still open.
    */
   template <typename C, typename T>
     inline bool
     basic_pstreambuf<C,T>::is_open() const
     {
-      return bool(ppid_>0);
+      return ppid_ > 0;
     }
 
   /**
    * Toggle the stream used for reading. If @a readerr is @c true then the
    * process' @c stderr output will be used for subsequent extractions, if
    * @a readerr is false the the process' stdout will be used.
-   * @param readerr @c true to read @c stderr, @c false to read @c stdout.
-   * @return @c true if the requested stream is open and will be used for
-   * subsequent extractions, @c false otherwise.
+   * @param   readerr  @c true to read @c stderr, @c false to read @c stdout.
+   * @return  @c true if the requested stream is open and will be used for
+   *          subsequent extractions, @c false otherwise.
    */
   template <typename C, typename T>
     inline bool
@@ -1328,7 +1534,7 @@ namespace redi
       buf_read_src src = readerr ? rsrc_err : rsrc_out;
       if (rpipe_[src]>=0)
       {
-        rsrc_ = src;
+        switch_read_buffer(src);
         return true;
       }
       return false;
@@ -1336,13 +1542,12 @@ namespace redi
 
   /**
    * Called when the internal character buffer is not present or is full,
-   * to transfer the buffer contents to the pipe. For unbuffered streams
-   * this is called for every insertion.
+   * to transfer the buffer contents to the pipe.
    *
-   * @param c a character to be written to the pipe
-   * @return @c traits_type::not_eof(c) if @a c is equal to @c
-   * traits_type::eof(). Otherwise returns @a c if @a c can be written
-   * to the pipe, or @c traits_type::eof() if not.
+   * @param   c  a character to be written to the pipe.
+   * @return  @c traits_type::not_eof(c) if @a c is equal to @c
+   *          traits_type::eof(). Otherwise returns @a c if @a c can be
+   *          written to the pipe, or @c traits_type::eof() if not.
    */
   template <typename C, typename T>
     typename basic_pstreambuf<C,T>::int_type
@@ -1351,7 +1556,7 @@ namespace redi
       if (!empty_buffer())
         return traits_type::eof();
       else if (!traits_type::eq_int_type(c, traits_type::eof()))
-        return sputc(c);
+        return this->sputc(c);
       else
         return traits_type::not_eof(c);
     }
@@ -1361,31 +1566,34 @@ namespace redi
     int
     basic_pstreambuf<C,T>::sync()
     {
-      return (empty_buffer() ? 0 : -1);
+      return !exited() && empty_buffer() ? 0 : -1;
     }
 
-
+  /**
+   * @param   s  character buffer.
+   * @param   n  buffer length.
+   * @return  the number of characters written.
+   */
   template <typename C, typename T>
     std::streamsize
     basic_pstreambuf<C,T>::xsputn(const char_type* s, std::streamsize n)
     {
-      if (n < epptr() - pptr())
+      if (n < this->epptr() - this->pptr())
       {
-        memcpy(pptr(), s, n * sizeof(char_type));
-        pbump(n);
+        std::memcpy(this->pptr(), s, n * sizeof(char_type));
+        this->pbump(n);
         return n;
       }
       else
       {
         for (std::streamsize i = 0; i < n; ++i)
         {
-          if (traits_type::eq_int_type(sputc(s[i]), traits_type::eof()))
+          if (traits_type::eq_int_type(this->sputc(s[i]), traits_type::eof()))
             return i;
         }
         return n;
       }
     }
-
 
   /**
    * @return  true if the buffer was emptied, false otherwise.
@@ -1394,16 +1602,15 @@ namespace redi
     bool
     basic_pstreambuf<C,T>::empty_buffer()
     {
-      int count = pptr() - pbase();
-      std::streamsize written = write(wbuffer_, count);
+      const std::streamsize count = this->pptr() - this->pbase();
+      const std::streamsize written = this->write(this->wbuffer_, count);
       if (count > 0 && written == count)
       {
-        pbump(-written);
+        this->pbump(-written);
         return true;
       }
       return false;
     }
-
 
   /**
    * Called when the internal character buffer is is empty, to re-fill it
@@ -1411,18 +1618,16 @@ namespace redi
    *
    * @return The first available character in the buffer,
    * or @c traits_type::eof() in case of failure.
-   * @see uflow()
    */
   template <typename C, typename T>
     typename basic_pstreambuf<C,T>::int_type
     basic_pstreambuf<C,T>::underflow()
     {
-      if (gptr() < egptr() || fill_buffer())
-        return traits_type::to_int_type(*gptr());
+      if (this->gptr() < this->egptr() || fill_buffer())
+        return traits_type::to_int_type(*this->gptr());
       else
         return traits_type::eof();
     }
-
 
   /**
    * Attempts to make @a c available as the next character to be read by
@@ -1436,15 +1641,30 @@ namespace redi
     typename basic_pstreambuf<C,T>::int_type
     basic_pstreambuf<C,T>::pbackfail(int_type c)
     {
-      if (gptr() != eback())
+      if (this->gptr() != this->eback())
       {
-        gbump(-1);
+        this->gbump(-1);
         if (!traits_type::eq_int_type(c, traits_type::eof()))
-          *gptr() = traits_type::to_char_type(c);
+          *this->gptr() = traits_type::to_char_type(c);
         return traits_type::not_eof(c);
       }
       else
          return traits_type::eof();
+    }
+
+  template <typename C, typename T>
+    std::streamsize
+    basic_pstreambuf<C,T>::showmanyc()
+    {
+      int avail = 0;
+#ifdef FIONREAD
+      if (ioctl(rpipe(), FIONREAD, &avail) == -1)
+        avail = -1;
+      else
+#endif
+      if (const std::ptrdiff_t buflen = this->gptr() - this->eback())
+        avail += buflen;
+      return std::streamsize(avail);
     }
 
   /**
@@ -1454,90 +1674,65 @@ namespace redi
     bool
     basic_pstreambuf<C,T>::fill_buffer()
     {
-      int npb = std::min(gptr()-eback(), static_cast<int>(pbsz));
+      const std::streamsize pb1 = this->gptr() - this->eback();
+      const std::streamsize pb2 = pbsz;
+      const std::streamsize npb = std::min(pb1, pb2);
 
-      std::memmove(rbuffer()+pbsz-npb, gptr()-npb, npb*sizeof(char_type));
+      std::memmove( rbuffer() + pbsz - npb,
+                    this->gptr() - npb,
+                    npb * sizeof(char_type) );
 
-      std::streamsize rc = read(rbuffer() + pbsz, bufsz - pbsz);
+      const std::streamsize rc = read(rbuffer() + pbsz, bufsz - pbsz);
 
       if (rc > 0)
       {
-        setg(rbuffer()+pbsz-npb, rbuffer()+pbsz, rbuffer()+pbsz+rc);
+        this->setg( rbuffer() + pbsz - npb,
+                    rbuffer() + pbsz,
+                    rbuffer() + pbsz + rc );
         return true;
       }
       else
       {
-        setg(0, 0, 0);
+        this->setg(NULL, NULL, NULL);
         return false;
       }
-    }
-
-
-  /**
-   * Attempts to insert @a c into the pipe. Used by overflow().
-   *
-   * @param c a character to insert.
-   * @return true if the character could be inserted, false otherwise.
-   * @see write(char_type* s, std::streamsize n)
-   */
-  template <typename C, typename T>
-    inline bool
-    basic_pstreambuf<C,T>::write(char_type c)
-    {
-      return (write(&c, 1) == 1);
-    }
-
-  /**
-   * Attempts to extract a character from the pipe and store it in @a c.
-   * Used by underflow().
-   *
-   * @param c a reference to hold the extracted character.
-   * @return true if a character could be extracted, false otherwise.
-   * @see read(char_type* s, std::streamsize n)
-   */
-  template <typename C, typename T>
-    inline bool
-    basic_pstreambuf<C,T>::read(char_type& c)
-    {
-      return (read(&c, 1) == 1);
     }
 
   /**
    * Writes up to @a n characters to the pipe from the buffer @a s.
    * This currently only works for fixed width character encodings where
-   * each character uses sizeof(char_type) bytes.
+   * each character uses @c sizeof(char_type) bytes.
    *
-   * @param s character buffer.
-   * @param n buffer length.
-   * @return the number of characters written.
+   * @param   s  character buffer.
+   * @param   n  buffer length.
+   * @return  the number of characters written.
    */
   template <typename C, typename T>
     inline std::streamsize
-    basic_pstreambuf<C,T>::write(char_type* s, std::streamsize n)
+    basic_pstreambuf<C,T>::write(const char_type* s, std::streamsize n)
     {
-      return (wpipe() >= 0 ? ::write(wpipe(), s, n * sizeof(char_type)) : 0);
+      return wpipe() >= 0 ? ::write(wpipe(), s, n * sizeof(char_type)) : 0;
     }
 
   /**
    * Reads up to @a n characters from the pipe to the buffer @a s.
    * This currently only works for fixed width character encodings where
-   * each character uses sizeof(char_type) bytes.
+   * each character uses @c sizeof(char_type) bytes.
    *
-   * @param s character buffer.
-   * @param n buffer length.
-   * @return the number of characters read.
+   * @param   s  character buffer.
+   * @param   n  buffer length.
+   * @return  the number of characters read.
    */
   template <typename C, typename T>
     inline std::streamsize
     basic_pstreambuf<C,T>::read(char_type* s, std::streamsize n)
     {
-      return (rpipe() >= 0 ? ::read(rpipe(), s, n * sizeof(char_type)) : 0);
+      return rpipe() >= 0 ? ::read(rpipe(), s, n * sizeof(char_type)) : 0;
     }
-
 
   /** @return a reference to the output file descriptor */
   template <typename C, typename T>
-    inline typename basic_pstreambuf<C,T>::fd_t&
+    inline typename basic_pstreambuf<C,T>::fd_type&
     basic_pstreambuf<C,T>::wpipe()
     {
       return wpipe_;
@@ -1545,7 +1740,7 @@ namespace redi
 
   /** @return a reference to the active input file descriptor */
   template <typename C, typename T>
-    inline typename basic_pstreambuf<C,T>::fd_t&
+    inline typename basic_pstreambuf<C,T>::fd_type&
     basic_pstreambuf<C,T>::rpipe()
     {
       return rpipe_[rsrc_];
@@ -1553,7 +1748,7 @@ namespace redi
 
   /** @return a reference to the specified input file descriptor */
   template <typename C, typename T>
-    inline typename basic_pstreambuf<C,T>::fd_t&
+    inline typename basic_pstreambuf<C,T>::fd_type&
     basic_pstreambuf<C,T>::rpipe(buf_read_src which)
     {
       return rpipe_[which];
@@ -1588,16 +1783,16 @@ namespace redi
     , command_()
     , buf_()
     {
-      init(&buf_);
+      this->init(&buf_);
     }
 
   /**
-   * Initialises the stream buffer by calling open() with the supplied
-   * arguments.
+   * Initialises the stream buffer by calling
+   * do_open( @a command , @a mode )
    *
    * @param command a string containing a shell command.
    * @param mode    the I/O mode to use when opening the pipe.
-   * @see   open()
+   * @see   do_open(const std::string&, pmode)
    */
   template <typename C, typename T>
     inline
@@ -1606,28 +1801,30 @@ namespace redi
     , command_(command)
     , buf_()
     {
-      init(&buf_);
-      open(command, mode);
+      this->init(&buf_);
+      do_open(command, mode);
     }
-   
+
   /**
-   * Initialises the stream buffer by calling open() with the supplied
-   * arguments.
+   * Initialises the stream buffer by calling
+   * do_open( @a file , @a argv , @a mode )
    *
    * @param file  a string containing the pathname of a program to execute.
    * @param argv  a vector of argument strings passed to the new program.
    * @param mode  the I/O mode to use when opening the pipe.
-   * @see open()
+   * @see do_open(const std::string&, const argv_type&, pmode)
    */
   template <typename C, typename T>
     inline
-    pstream_common<C,T>::pstream_common(const std::string& file, const std::vector<std::string>& argv, pmode mode)
+    pstream_common<C,T>::pstream_common( const std::string& file,
+                                         const argv_type& argv,
+                                         pmode mode )
     : std::basic_ios<C,T>(NULL)
     , command_(file)
     , buf_()
     {
-      init(&buf_);
-      open(file, argv, mode);
+      this->init(&buf_);
+      do_open(file, argv, mode);
     }
 
   /**
@@ -1646,50 +1843,52 @@ namespace redi
     }
 
   /**
-   * Starts a new process by passing @a command to the shell and
-   * opens pipes to the process as given by @a mode.
+   * Calls rdbuf()->open( @a command , @a mode )
+   * and sets @c failbit on error.
    *
    * @param command a string containing a shell command.
    * @param mode    the I/O mode to use when opening the pipe.
-   * @see   basic_pstreambuf::open()
+   * @see   basic_pstreambuf::open(const std::string&, pmode)
    */
   template <typename C, typename T>
     inline void
-    pstream_common<C,T>::open(const std::string& command, pmode mode)
+    pstream_common<C,T>::do_open(const std::string& command, pmode mode)
     {
       if (!buf_.open((command_=command), mode))
-        setstate(std::ios_base::failbit);
+        this->setstate(std::ios_base::failbit);
     }
 
   /**
-   * Starts a new process by executing @a file with the arguments in
-   * @a argv and opens pipes to the process as given by @a mode.
+   * Calls rdbuf()->open( @a file, @a  argv, @a mode )
+   * and sets @c failbit on error.
    *
    * @param file  a string containing the pathname of a program to execute.
    * @param argv  a vector of argument strings passed to the new program.
    * @param mode  the I/O mode to use when opening the pipe.
-   * @see   basic_pstreambuf::open()
+   * @see   basic_pstreambuf::open(const std::string&, const argv_type&, pmode)
    */
   template <typename C, typename T>
     inline void
-    pstream_common<C,T>::open(const std::string& file, const std::vector<std::string>& argv, pmode mode)
+    pstream_common<C,T>::do_open( const std::string& file,
+                                  const argv_type& argv,
+                                  pmode mode )
     {
       if (!buf_.open((command_=file), argv, mode))
-        setstate(std::ios_base::failbit);
+        this->setstate(std::ios_base::failbit);
     }
 
-  /** Waits for the associated process to finish and closes the pipe. */
+  /** Calls rdbuf->close() and sets @c failbit on error. */
   template <typename C, typename T>
     inline void
     pstream_common<C,T>::close()
     {
       if (!buf_.close())
-        setstate(std::ios_base::failbit);
+        this->setstate(std::ios_base::failbit);
     }
 
   /**
-   * @return  true if open() has been successfully called, false otherwise.
-   * @see     basic_pstreambuf::open()
+   * @return  rdbuf()->is_open().
+   * @see     basic_pstreambuf::is_open()
    */
   template <typename C, typename T>
     inline bool
@@ -1715,6 +1914,7 @@ namespace redi
       return const_cast<streambuf_type*>(&buf_);
     }
 
+
 #if REDI_EVISCERATE_PSTREAMS
   /**
    * @def REDI_EVISCERATE_PSTREAMS
@@ -1730,9 +1930,10 @@ namespace redi
    * @warning  This function exposes the internals of the stream buffer and
    *           should be used with caution. It is the caller's responsibility
    *           to flush streams etc. in order to clear any buffered data.
-   *           The POSIX.1 function @c fdopen(3) is used to obtain the
+   *           The POSIX.1 function <b>fdopen</b>(3) is used to obtain the
    *           @c FILE pointers from the streambuf's private file descriptor
-   *           members so consult your system's documentation for @c fdopen().
+   *           members so consult your system's documentation for
+   *           <b>fdopen</b>(3).
    *
    * @param   in    A FILE* that will refer to the process' stdin.
    * @param   out   A FILE* that will refer to the process' stdout.
@@ -1744,30 +1945,32 @@ namespace redi
    * streams @c NULL is assigned to the parameter.
    * The return value can be tested to see which parameters should be
    * @c !NULL by masking with the corresponding @c pmode value.
+   *
+   * @see <b>fdopen</b>(3)
    */
   template <typename C, typename T>
-    inline size_t
-    basic_pstreambuf<C,T>::fopen(FILE*& in, FILE*& out, FILE*& err)
+    std::size_t
+    basic_pstreambuf<C,T>::fopen(std::FILE*& in, std::FILE*& out, std::FILE*& err)
     {
       in = out = err = NULL;
-      size_t open_files = 0;
+      std::size_t open_files = 0;
       if (wpipe() > -1)
       {
-        if (in = ::fdopen(wpipe(), "w"))
+        if ((in = ::fdopen(wpipe(), "w")))
         {
             open_files |= pstdin;
         }
       }
-      if (rpipe(rsrc_out) > -1) 
+      if (rpipe(rsrc_out) > -1)
       {
-        if (out = ::fdopen(rpipe(rsrc_out), "r"))
+        if ((out = ::fdopen(rpipe(rsrc_out), "r")))
         {
             open_files |= pstdout;
         }
       }
       if (rpipe(rsrc_err) > -1)
       {
-        if (err = ::fdopen(rpipe(rsrc_err), "r"))
+        if ((err = ::fdopen(rpipe(rsrc_err), "r")))
         {
             open_files |= pstderr;
         }
@@ -1786,8 +1989,8 @@ namespace redi
    *  @see    basic_pstreambuf::fopen()
    */
   template <typename C, typename T>
-    inline size_t
-    pstream_common<C,T>::fopen(FILE*& in, FILE*& out, FILE*& err)
+    inline std::size_t
+    pstream_common<C,T>::fopen(std::FILE*& in, std::FILE*& out, std::FILE*& err)
     {
       return buf_.fopen(in, out, err);
     }
@@ -1802,6 +2005,7 @@ namespace redi
  * @htmlinclude mainpage.html
  */
 
-#endif  // REDI_PSTREAM_H
+#endif  // REDI_PSTREAM_H_SEEN
 
 // vim: ts=2 sw=2 expandtab
+

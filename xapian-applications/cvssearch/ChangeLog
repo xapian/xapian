@@ -1,3 +1,9 @@
+Mon Jan 16 11:26:45 GMT 2006  Olly Betts <olly@survex.com>
+
+	* AUTHORS,db/pstream.h,map/process/pstream.h: Import newer version
+	  of pstream.h which fixes compilation problems with newer versions
+	  of GCC (thanks to Dan Carpenter for suggesting this).
+
 Tue Apr 05 14:50:08 BST 2005  Olly Betts <olly@survex.com>
 
 	* configure.ac,configure.in: Rename configure.in to configure.ac.
