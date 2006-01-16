@@ -22,6 +22,8 @@
 
 #include <config.h>
 
+#include "safeerrno.h"
+
 #ifdef HAVE_SSTREAM
 #include <sstream>
 #else
@@ -33,10 +35,6 @@
 #include <vector>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <cerrno>
-#ifdef HAVE_SYS_ERRNO_H
-# include <sys/errno.h>
-#endif
 
 #include "socketcommon.h"
 #include "omdebug.h"

@@ -22,6 +22,8 @@
 
 #include <config.h>
 
+#include "safeerrno.h"
+
 // Define to use "dangerous" mode - in this mode we write modified btree
 // blocks back in place.  This is somewhat faster (especially once we're
 // I/O bound) but the database can't be safely searched during indexing
@@ -54,11 +56,6 @@ PWRITE_PROTOTYPE
 #include <stdio.h>
 #include <string.h>   /* for memmove */
 #include <limits.h>   /* for CHAR_BIT */
-
-#include <errno.h>
-#ifdef HAVE_SYS_ERRNO_H
-# include <sys/errno.h>
-#endif
 
 #include "autoptr.h"
 

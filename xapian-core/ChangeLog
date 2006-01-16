@@ -1,3 +1,11 @@
+Mon Jan 16 18:17:27 GMT 2006  Olly Betts <olly@survex.com>
+
+	* HACKING,backends/flint/,backends/muscat36/,backends/quartz/,
+	  bin/quartzcompact.cc,bin/xapian-compact.cc,common/Makefile.am,
+	  common/safeerrno.h,net/,tests/btreetest.cc,tests/quartztest.cc,
+	  testsuite/backendmanager.cc,testsuite/testsuite.cc: Sorted out
+	  a cleaner workaround for Compaq C++'s <errno.h> oddity.
+
 Mon Jan 16 17:18:56 GMT 2006  Olly Betts <olly@survex.com>
 
 	* common/safewindows.h: Fix typo in file description.

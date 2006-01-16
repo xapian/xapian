@@ -318,6 +318,19 @@ problem, which is implemented in common/utils.h.
 Any C++ file which wants to "#include <fcntl.h>" should instead '#include
 "utils.h"'.
 
+<windows.h>:
+------------
+
+Don't directly '#include <windows.h>' - instead '#include "safewindows.h"'
+which reduces the bloat of header files included and prevents some of the
+more egregious namespace pollution.
+
+<errno.h>:
+----------
+
+Don't directly '#include <errno.h>' - instead '#include "safeerrno.h"' which
+works around a problem with Compaq's C++ compiler.
+
 Warning Free Compilation:
 -------------------------
 

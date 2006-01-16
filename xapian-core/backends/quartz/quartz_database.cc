@@ -23,6 +23,8 @@
 
 #include <config.h>
 
+#include "safeerrno.h"
+
 #include "quartz_database.h"
 #include "utils.h"
 #include "omdebug.h"
@@ -44,10 +46,6 @@
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
-#ifdef HAVE_SYS_ERRNO_H
-# include <sys/errno.h>
-#endif
-#include <cerrno>
 
 #ifdef __CYGWIN__
 # include "safewindows.h"

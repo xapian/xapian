@@ -20,11 +20,12 @@
 
 #include <config.h>
 
+#include "safeerrno.h"
+
 #include <fstream>
 #include <iostream>
 #include <queue>
 
-#include <errno.h>
 #include <stdio.h> // for rename()
 #include <string.h>
 #include <sys/stat.h>

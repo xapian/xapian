@@ -23,6 +23,8 @@
 
 #include <config.h>
 
+#include "safeerrno.h"
+
 #include "flint_database.h"
 #include "utils.h"
 #include "omdebug.h"
@@ -44,10 +46,6 @@
 #include <sys/stat.h>
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
-#endif
-#include <cerrno>
-#ifdef HAVE_SYS_ERRNO_H
-# include <sys/errno.h>
 #endif
 
 #ifdef __CYGWIN__

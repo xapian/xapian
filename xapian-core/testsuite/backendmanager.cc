@@ -21,15 +21,14 @@
  */
 
 #include <config.h>
+
+#include "safeerrno.h"
+
 #include <fstream>
 #include <string>
 #include <vector>
 
 #include <sys/stat.h>
-#include <cerrno>
-#ifdef HAVE_SYS_ERRNO_H
-# include <sys/errno.h>
-#endif
 
 #include <xapian.h>
 #include "index_utils.h"

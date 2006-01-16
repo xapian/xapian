@@ -21,13 +21,12 @@
  */
 
 #include <config.h>
+
+#include "safeerrno.h"
+
 #include "tcpclient.h"
 #include <xapian/error.h>
 
-#include <errno.h>
-#ifdef HAVE_SYS_ERRNO_H
-# include <sys/errno.h>
-#endif
 #include <netdb.h>
 #include <netinet/in.h>
 #include <string.h>

@@ -22,6 +22,15 @@
 
 #include <config.h>
 
+#ifdef HAVE_VALGRIND
+# include "safeerrno.h"
+# include <valgrind/memcheck.h>
+# include <stdio.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
+#endif
+
 #include <iostream>
 
 #ifdef HAVE_STREAMBUF
@@ -45,15 +54,6 @@
 #include "testsuite.h"
 #include "omdebug.h"
 #include "utils.h"
-
-#ifdef HAVE_VALGRIND
-# include <valgrind/memcheck.h>
-# include <stdio.h>
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <fcntl.h>
-# include <errno.h>
-#endif
 
 // fd that we elsewhere tell valgrind to log to (with --logfile-fd=N)
 #define LOG_FD_FOR_VG 255

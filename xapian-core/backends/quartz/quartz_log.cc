@@ -21,14 +21,13 @@
  */
 
 #include <config.h>
+
+#include "safeerrno.h"
+
 #include "quartz_log.h"
 #include "omdebug.h"
 #include "utils.h"
 
-#include <errno.h>
-#ifdef HAVE_SYS_ERRNO_H
-# include <sys/errno.h>
-#endif
 #include <string.h>
 #include <time.h>
 
