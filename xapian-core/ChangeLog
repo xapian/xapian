@@ -1,3 +1,7 @@
+Mon Jan 16 18:19:26 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_utils.h: Fix compiler warning.
+
 Mon Jan 16 18:17:27 GMT 2006  Olly Betts <olly@survex.com>
 
 	* HACKING,backends/flint/,backends/muscat36/,backends/quartz/,
