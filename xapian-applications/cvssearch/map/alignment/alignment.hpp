@@ -253,7 +253,7 @@ alignment<T>::diff_output(ostream & os,
                           unsigned int d2,
                           diff_type type) const
 {
-    if (type == e_null)
+    if (type == e_none)
     {
         return os;
     }
