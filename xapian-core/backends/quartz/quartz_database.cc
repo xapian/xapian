@@ -44,10 +44,10 @@
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
-#include <cerrno>
 #ifdef HAVE_SYS_ERRNO_H
 # include <sys/errno.h>
 #endif
+#include <cerrno>
 
 #ifdef __CYGWIN__
 # include "safewindows.h"
