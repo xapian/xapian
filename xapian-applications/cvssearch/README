@@ -28,7 +28,7 @@ apt-get install exuberant-ctags libdb4.0++-dev libxml2-dev
   make
   make install
 
-* download Xapian 0.7 or higher from
+* download Xapian 0.8.0 or higher from
   http://www.xapian.org/download.php
 
   From the main directory, type
@@ -57,7 +57,7 @@ Note 1:
   installed under their default output directory: /usr/local.
 
 * One solution is to install these two packages in the user home directory
-  by append "--prefix=$HOME" to the configure command (not for CVSSearch)
+  by append "--prefix=$HOME" to the configure commands (not for CVSSearch)
   and set the following environment variable before compiling CVSSearch
 
 * for csh:
