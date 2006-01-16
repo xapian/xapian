@@ -4,6 +4,7 @@
  *
  *  (c) 2001 Amir Michail (amir@users.sourceforge.net)
  *  Modified by Andrew Yao (andrewy@users.sourceforge.net)
+ *  Copyright (C) 2006 Olly Betts
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,6 +30,12 @@
 #include <iostream>
 #include <assert.h>
 using namespace std;
+
+inline string uint_to_string(unsigned int v) {
+    char buf[32];
+    sprintf(buf, "%u", v);
+    return string(buf);
+}
 
 /**
  * constructor.
