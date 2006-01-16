@@ -1,4 +1,4 @@
-/* safewindows.h: #include <windows.h> without all bloat and damange.
+/* safewindows.h: #include <windows.h> without all the bloat and damage.
  *
  * Copyright (C) 2005 Olly Betts
  *

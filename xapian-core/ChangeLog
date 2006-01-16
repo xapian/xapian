@@ -1,3 +1,7 @@
+Mon Jan 16 17:18:56 GMT 2006  Olly Betts <olly@survex.com>
+
+	* common/safewindows.h: Fix typo in file description.
+
 Mon Jan 16 13:29:48 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: Reverse order of errno includes
