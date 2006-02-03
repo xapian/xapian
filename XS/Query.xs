@@ -88,7 +88,7 @@ TermIterator *
 Query::get_terms_end()
     CODE:
         RETVAL = new TermIterator();
-        *RETVAL = THIS->get_terms_begin();
+        *RETVAL = THIS->get_terms_end();
     OUTPUT:
         RETVAL
 
