@@ -1,3 +1,10 @@
+Fri Feb 03 03:15:02 GMT 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,php/util.i,xapian-version.h.in: Put our
+	  PACKAGE_VERSION into xapian-version.h so we can #include that from
+	  php/util.i without clashing with PACKAGE_VERSION, etc defined by
+	  php_config.h.
+
 Thu Jan 12 19:51:52 GMT 2006  Olly Betts <olly@survex.com>
 
 	* TODO: Updated.

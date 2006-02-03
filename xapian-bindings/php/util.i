@@ -36,7 +36,7 @@ namespace Xapian {
     }
 }
 
-#include <config.h> /* for PACKAGE_VERSION */
+#include "../xapian-version.h"
 %}
 
 /* Add a section to the output from phpinfo(). */
@@ -44,7 +44,8 @@ namespace Xapian {
     const char * linked_version = Xapian::xapian_version_string();
     php_info_print_table_start();
     php_info_print_table_row(2, \"Xapian Support\", \"enabled\");
-    php_info_print_table_row(2, \"Xapian Compiled Version\", PACKAGE_VERSION);
+    php_info_print_table_row(2, \"Xapian Compiled Version\",
+			     XAPIAN_BINDINGS_VERSION);
     php_info_print_table_row(2, \"Xapian Linked Version\", linked_version);
     php_info_print_table_end();
 "

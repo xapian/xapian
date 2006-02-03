@@ -405,6 +405,7 @@ AC_SUBST(JAVA_CXXFLAGS)
 AM_CXXFLAGS=
 
 AC_CONFIG_FILES([Makefile
+ xapian-version.h
  python/Makefile python/docs/Makefile
  php/Makefile php/docs/Makefile
  java/Makefile java/native/Makefile java/org/Makefile java/org/xapian/Makefile
