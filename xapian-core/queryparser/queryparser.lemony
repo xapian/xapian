@@ -591,6 +591,7 @@ class TermList {
 }
 
 // Operators, grouped in order of increasing precedence:
+%nonassoc ERROR.
 %left NOT OR XOR.
 %left AND.
 %left NEAR.
@@ -678,6 +679,9 @@ expr(E) ::= bool_arg(A) AND bool_arg(B).
 expr(E) ::= bool_arg(A) NOT bool_arg(B).
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "NOT"); }
 
+expr(E) ::= bool_arg(A) AND NOT bool_arg(B). [NOT]
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
+
 expr(E) ::= bool_arg(A) OR bool_arg(B).
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_OR, B, "OR"); }
 
@@ -691,7 +695,7 @@ expr(E) ::= bool_arg(A) XOR bool_arg(B).
 
 bool_arg(A) ::= expr(E). { A = E; }
 
-bool_arg(A) ::= . {
+bool_arg(A) ::= . [ERROR] {
     // Set the argument to NULL, which enables the bool_arg-using rules in
     // expr above to report uses of AND, OR, etc which don't have two
     // arguments.

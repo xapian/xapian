@@ -1,3 +1,8 @@
+Sun Feb 05 06:19:29 GMT 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: The
+	  QueryParser now recognises "AND NOT" as a synonym for "NOT".
+
 Mon Jan 16 18:19:26 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_utils.h: Fix compiler warning.
