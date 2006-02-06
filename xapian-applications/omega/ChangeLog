@@ -1,3 +1,7 @@
+Mon Feb 06 15:19:17 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.txt: Fix typo.
+
 Sat Jan 14 22:40:43 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Copy over fixed snprintf checks from xapian-core.

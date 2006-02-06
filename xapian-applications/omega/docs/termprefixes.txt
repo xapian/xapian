@@ -64,7 +64,7 @@ will be indexed by one of XGENDERm, XGENDERf, or XGENDERx.
 You can then restrict a search in Omega by passing a B parameter with one
 of these as the value, e.g. B=XGENDERf
 
-You can also allow the use to restrict a search with a boolean filter
+You can also allow the user to restrict a search with a boolean filter
 specified in text query (e.g. sex:f -> XGENDERf) by adding this to the
 start of your omegascript template:
 
