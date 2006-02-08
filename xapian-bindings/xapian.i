@@ -101,7 +101,7 @@ using namespace std;
 // FIXME: throw errors as PHP classes corresponding to the Xapian error
 // classes.
 #define XapianException(TYPE, MSG) \
-    zend_throw_exception(NULL, (TYPE) TSRMLS_CC, MSG.c_str() TSRMLS_CC)
+    zend_throw_exception(NULL, (MSG).c_str(), (TYPE) TSRMLS_CC)
 #endif
 
 #ifndef XapianException
