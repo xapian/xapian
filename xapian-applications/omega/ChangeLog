@@ -1,3 +1,8 @@
+Wed Feb 08 10:08:24 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/overview.txt: Add pointer to documentation of the supported
+	  query syntax.
+
 Mon Feb 06 15:19:17 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/termprefixes.txt: Fix typo.

@@ -9,8 +9,9 @@ more than one database at once.
 
 The CGI program's parameters are documented in cgiparams.txt, and OmegaScript,
 the language used to define its web interface, is documented in
-omegascript.txt.
-
+omegascript.txt.  Omega parses queries using the Xapian::QueryParser class -
+for the supported syntax, see queryparser.html in the xapian-core documentation
+- available online at: http://www.xapian.org/docs/queryparser.html
 
 Term construction
 =================
