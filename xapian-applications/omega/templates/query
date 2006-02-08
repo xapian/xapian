@@ -30,7 +30,7 @@ $def{NEXT,$if{$ne{$last,$msize},<INPUT TYPE=submit NAME="&gt;" VALUE="Next">}}
 
 $set{topterms,$or{$ne{$msize,0},$query}}
 <head>
-<title>$if{$query,Omega search results for `$html{$query}',New Omega Search}</title>
+<title>$if{$query,Omega Search: $html{$query},Omega Search}</title>
 $if{$opt{topterms},$include{toptermsjs}}
 </head>
 <body bgcolor="#ffffff">

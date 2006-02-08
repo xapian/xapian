@@ -1,3 +1,8 @@
+Wed Feb 08 13:01:15 GMT 2006  Olly Betts <olly@survex.com>
+
+	* templates/query: Make the page title shorter so there's more chance
+	  it will fit on icon bars, etc.
+
 Wed Feb 08 10:08:24 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/overview.txt: Add pointer to documentation of the supported
