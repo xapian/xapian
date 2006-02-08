@@ -1,3 +1,13 @@
+Wed Feb 08 08:22:09 GMT 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Now use libtool 1.5.22 for generating snapshots and
+	  releases (includes a number of bug-fixes).
+	* HACKING,docs/doxygen_api_header.html_tmpl,
+	  docs/doxygen_full_header.html_tmpl: Now use doxygen 1.4.6 for
+	  generating snapshots and releases (nicer output).
+	* docs/doxygen_full_header.html_tmpl: Title "Internal Source
+	  Documentation" rather than "Full source documentation".
+
 Sun Feb 05 06:19:29 GMT 2006  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,tests/queryparsertest.cc: The

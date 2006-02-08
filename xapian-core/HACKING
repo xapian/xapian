@@ -215,11 +215,11 @@ writing, we require the following versions:
 		automake 1.8.5 is sufficient for bootstrapping sources from
 		SVN.
 
-	GNU libtool 1.5.20
+	GNU libtool 1.5.22
 		libtool 1.5 was the first version to properly support linking
-		C++ libraries, and 1.5.20 is largely 1.5 plus bug fixes and
+		C++ libraries, and 1.5.22 is largely 1.5 plus bug fixes and
 		portability enhancements.  (Note: nothing actually enforces
-		the requirement for 1.5.20, but this is the version which
+		the requirement for 1.5.22, but this is the version which
 		snapshots and release tarballs are currently bootstrapped
 		with).
 
@@ -248,7 +248,7 @@ told to install dvips than to upload a tarball with no postscript manual).
 
 These tools are:
 
-doxygen (v1.3.8 is used for snapshots, releases, and the source documentation)
+doxygen (v1.4.6 is used for snapshots, releases, and the source documentation)
 dot (part of the graphviz package)
 perl 5
 latex
