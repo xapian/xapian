@@ -1,3 +1,8 @@
+Thu Feb 09 10:48:10 GMT 2006  Olly Betts <olly@survex.com>
+
+	* net/socketserver.cc: Add missing '#include <iostream>'
+	  when TIMING_PATCH is defined.
+
 Wed Feb 08 08:22:09 GMT 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Now use libtool 1.5.22 for generating snapshots and

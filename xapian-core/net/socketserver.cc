@@ -46,6 +46,9 @@ using std::istringstream;
 #include <strstream.h>
 #endif
 #ifdef TIMING_PATCH
+#include <iostream>
+using std::cout;
+
 #include <sys/time.h>
 
 #define uint64_t unsigned long long
