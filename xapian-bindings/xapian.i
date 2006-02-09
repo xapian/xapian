@@ -87,25 +87,22 @@ using namespace std;
 %include typemaps.i
 %include exception.i
 
-#ifdef SWIGCSHARP
 %{
-#ifndef SWIG_exception
-# define SWIG_exception(code, msg) SWIG_CSharpException(code, msg)
-#endif
-%}
-#endif
-
-%{
-#if defined SWIGPHP && PHP_MAJOR_VERSION >= 5
-#include <zend_exceptions.h>
+#if defined SWIGPHP
+# if PHP_MAJOR_VERSION >= 5
+#  include <zend_exceptions.h>
 // FIXME: throw errors as PHP classes corresponding to the Xapian error
 // classes.
-#define XapianException(TYPE, MSG) \
-    zend_throw_exception(NULL, (MSG).c_str(), (TYPE) TSRMLS_CC)
+#  define XapianException(TYPE, MSG) \
+	zend_throw_exception(NULL, (MSG).c_str(), (TYPE) TSRMLS_CC)
+#endif
+#elif defined SWIGCSHARP
+// In C#, we don't get SWIG_exception in the generated C++ wrapper sources.
+# define XapianException(TYPE, MSG) SWIG_CSharpException(TYPE, (MSG).c_str())
 #endif
 
 #ifndef XapianException
-#define XapianException(TYPE, MSG) SWIG_exception((TYPE), (MSG).c_str())
+# define XapianException(TYPE, MSG) SWIG_exception((TYPE), (MSG).c_str())
 #endif
  
 static int XapianExceptionHandler(string & msg) {
@@ -469,6 +466,8 @@ class RSet {
 
 class Database;
 class Query;
+
+%template() std::pair<Xapian::TermIterator, Xapian::TermIterator>;
 
 class Enquire {
   public:

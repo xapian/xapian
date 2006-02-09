@@ -1,3 +1,10 @@
+Thu Feb 09 20:41:28 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Tidy up new exception handling code.
+	* xapian.i: Add "%template() std::pair<Xapian::TermIterator,
+	  Xapian::TermIterator>;" which stops SWIG from using SwigValueWrapper
+	  on that type.
+
 Thu Feb 09 20:18:02 GMT 2006  Olly Betts <olly@survex.com>
 
 	* .: svn:ignore xapian-version.h.
