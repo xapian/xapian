@@ -39,13 +39,13 @@ using namespace Xapian;
 #define __XAPIAN_JNI_H__
 
 //
-// Macro's for dealing with C++ exceptions
+// Macros for dealing with C++ exceptions
 //
 
 #define TRY try {
 
 //
-// when catching an exceeption, the first thing we want to do
+// when catching an exception, the first thing we want to do
 // is see if we have a pending java exception to deal with.
 // if not, we we need to translate any Xapian::Error we might
 // have caught into the Java equivalant.

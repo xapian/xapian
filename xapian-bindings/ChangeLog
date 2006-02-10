@@ -1,3 +1,7 @@
+Fri Feb 10 18:20:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/xapian_jni.h: Fix 2 typos in comments.
+
 Fri Feb 10 10:17:12 GMT 2006  Olly Betts <olly@survex.com>
 
 	* TODO: Update: SwigValueWrapper is no longer used for std::pair;
