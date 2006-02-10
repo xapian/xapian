@@ -1,3 +1,9 @@
+Fri Feb 10 08:06:26 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: SWIG CVS HEAD now generates the same .cs
+	  filenames for templates as 1.3.27 did, so remove workaround
+	  for handling both cases.
+
 Fri Feb 10 06:51:03 GMT 2006  Olly Betts <olly@survex.com>
 
 	* csharp/docs/: svn:ignore Makefile and Makefile.in.
