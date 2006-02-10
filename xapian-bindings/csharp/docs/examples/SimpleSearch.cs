@@ -34,7 +34,7 @@ class SimpleIndex {
 
 	    Xapian.Query q = null, term;
 	    for (int i = 1; i < argv.Length; ++i) {
-		term = new Xapian.Query(stemmer.stem_word(argv[i].ToLower()));
+		term = new Xapian.Query(stemmer.StemWord(argv[i].ToLower()));
 		if (q == null) {
 		    q = term;
 		} else {
@@ -42,16 +42,16 @@ class SimpleIndex {
 		}
 	    }
 		
-	    Console.WriteLine("Performing query `" + q.get_description()+ "'");
+	    Console.WriteLine("Performing query `" + q.GetDescription()+ "'");
 
-	    enquire.set_query(q);
-	    Xapian.MSet matches = enquire.get_mset(0, 10);
+	    enquire.SetQuery(q);
+	    Xapian.MSet matches = enquire.GetMSet(0, 10);
 
-	    Console.WriteLine("{0} results found", matches.get_matches_estimated());
+	    Console.WriteLine("{0} results found", matches.GetMatchesEstimated());
 
 	    Xapian.MSetIterator m = matches.begin();
 	    while (m != matches.end()) {
-		Console.WriteLine("ID {0} {1}% [{2}]", m.get_docid(), m.get_percent(), m.get_document().get_data());
+		Console.WriteLine("ID {0} {1}% [{2}]", m.GetDocId(), m.GetPercent(), m.GetDocument().GetData());
 		++m;
 	    }
 	} catch (Exception e) {

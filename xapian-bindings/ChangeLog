@@ -1,3 +1,10 @@
+Fri Feb 10 06:47:21 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: For C#, get_mset -> GetMSet; get_eset -> GetESet.
+	* csharp/SmokeTest.cs,csharp/docs/examples/SimpleIndex.cs,
+	  csharp/docs/examples/SimpleSearch.cs,csharp/util.i: Update
+	  for CamelCase changes.
+
 Fri Feb 10 06:33:10 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i,csharp/docs/bindings.html: Rename method names to

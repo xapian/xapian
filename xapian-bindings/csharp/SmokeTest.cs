@@ -1,6 +1,6 @@
 // Simple test that we can load the xapian module and run a simple test
 //
-// Copyright (C) 2004,2005 Olly Betts
+// Copyright (C) 2004,2005,2006 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,24 +22,24 @@ class SmokeTest {
 	try {
 	    Xapian.Stem stem = new Xapian.Stem("english");
 	    Xapian.Document doc = new Xapian.Document();
-	    doc.set_data("is there anybody out there?");
-	    doc.add_term("XYzzy");
-	    doc.add_posting(stem.stem_word("is"), 1);
-	    doc.add_posting(stem.stem_word("there"), 2);
-	    doc.add_posting(stem.stem_word("anybody"), 3);
-	    doc.add_posting(stem.stem_word("out"), 4);
-	    doc.add_posting(stem.stem_word("there"), 5);
-	    Xapian.WritableDatabase db = Xapian.InMemory.open();
-	    db.add_document(doc);
-	    if (db.get_doccount() != 1) {
+	    doc.SetData("is there anybody out there?");
+	    doc.AddTerm("XYzzy");
+	    doc.AddPosting(stem.StemWord("is"), 1);
+	    doc.AddPosting(stem.StemWord("there"), 2);
+	    doc.AddPosting(stem.StemWord("anybody"), 3);
+	    doc.AddPosting(stem.StemWord("out"), 4);
+	    doc.AddPosting(stem.StemWord("there"), 5);
+	    Xapian.WritableDatabase db = Xapian.InMemory.Open();
+	    db.AddDocument(doc);
+	    if (db.GetDoccount() != 1) {
 		System.Environment.Exit(1);
 	    }
-	    if (doc.termlist_count() != 5) {
+	    if (doc.TermlistCount() != 5) {
 		System.Environment.Exit(1);
 	    }
 	    int count = 0;
-	    Xapian.TermIterator i = doc.termlist_begin();
-	    while (!i.Equals(doc.termlist_end())) {
+	    Xapian.TermIterator i = doc.TermlistBegin();
+	    while (i != doc.TermlistEnd()) {
 		++count;
 		++i;
 	    }

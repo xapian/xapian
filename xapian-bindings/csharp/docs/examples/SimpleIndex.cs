@@ -50,7 +50,7 @@ class SimpleIndex {
 		if (line == "") {
 		    if (para != "") {
 			Xapian.Document doc = new Xapian.Document();
-			doc.set_data(para);
+			doc.SetData(para);
 			uint pos = 0;
 			int i = 0;
 			while (true) {
@@ -59,13 +59,13 @@ class SimpleIndex {
 			    Group g = match.Groups[1];
 			    if (g.Length <= MAX_PROB_TERM_LENGTH) {
 				string term = g.Value.ToLower();
-				term = stemmer.stem_word(term);
-				doc.add_posting(term, pos);
+				term = stemmer.StemWord(term);
+				doc.AddPosting(term, pos);
 				++pos;
 			    }
 			    i = match.Index + match.Length;
 			}
-			database.add_document(doc);
+			database.AddDocument(doc);
 			para = "";
 		    }
 		} else {

@@ -121,6 +121,8 @@ using namespace std;
 %rename("GetAvLength") get_avlength;
 %rename("StopListBegin") stoplist_begin;
 %rename("StopListEnd") stoplist_end;
+%rename("GetMSet") get_mset;
+%rename("GetESet") get_eset;
 
 #endif
 

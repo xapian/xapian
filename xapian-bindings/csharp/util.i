@@ -1,7 +1,7 @@
 %{
 /* csharp/util.i: custom C# typemaps for xapian-bindings
  *
- * Copyright (c) 2005 Olly Betts
+ * Copyright (c) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,23 +24,23 @@ namespace Xapian {
 
 %typemap(cscode) class MSetIterator %{
     public static MSetIterator operator++(MSetIterator it) {
-	return it.next();
+	return it.Next();
     }
     public static MSetIterator operator--(MSetIterator it) {
-	return it.prev();
+	return it.Prev();
     }
     public override bool Equals(object o) {
-	return o is MSetIterator && equals((MSetIterator)o);
+	return o is MSetIterator && Equals((MSetIterator)o);
     }
     public static bool operator==(MSetIterator a, MSetIterator b) {
 	if ((object)a == (object)b) return true;
 	if ((object)a == null || (object)b == null) return false;
-	return a.equals(b);
+	return a.Equals(b);
     }
     public static bool operator!=(MSetIterator a, MSetIterator b) {
 	if ((object)a == (object)b) return false;
 	if ((object)a == null || (object)b == null) return true;
-	return !a.equals(b);
+	return !a.Equals(b);
     }
     // Implementing GetHashCode() to always return 0 is rather lame, but
     // using iterators as keys in a hash table would be rather strange.
@@ -49,23 +49,23 @@ namespace Xapian {
 
 %typemap(cscode) ESetIterator %{
     public static ESetIterator operator++(ESetIterator it) {
-	return it.next();
+	return it.Next();
     }
     public static ESetIterator operator--(ESetIterator it) {
-	return it.prev();
+	return it.Prev();
     }
     public override bool Equals(object o) {
-	return o is ESetIterator && equals((ESetIterator)(ESetIterator)o);
+	return o is ESetIterator && Equals((ESetIterator)o);
     }
     public static bool operator==(ESetIterator a, ESetIterator b) {
 	if ((object)a == (object)b) return true;
 	if ((object)a == null || (object)b == null) return false;
-	return a.equals(b);
+	return a.Equals(b);
     }
     public static bool operator!=(ESetIterator a, ESetIterator b) {
 	if ((object)a == (object)b) return false;
 	if ((object)a == null || (object)b == null) return true;
-	return !a.equals(b);
+	return !a.Equals(b);
     }
     // Implementing GetHashCode() to always return 0 is rather lame, but
     // using iterators as keys in a hash table would be rather strange.
@@ -74,20 +74,20 @@ namespace Xapian {
 
 %typemap(cscode) TermIterator %{
     public static TermIterator operator++(TermIterator it) {
-	return it.next();
+	return it.Next();
     }
     public override bool Equals(object o) {
-	return o is TermIterator && equals((TermIterator)(TermIterator)o);
+	return o is TermIterator && Equals((TermIterator)o);
     }
     public static bool operator==(TermIterator a, TermIterator b) {
 	if ((object)a == (object)b) return true;
 	if ((object)a == null || (object)b == null) return false;
-	return a.equals(b);
+	return a.Equals(b);
     }
     public static bool operator!=(TermIterator a, TermIterator b) {
 	if ((object)a == (object)b) return false;
 	if ((object)a == null || (object)b == null) return true;
-	return !a.equals(b);
+	return !a.Equals(b);
     }
     // Implementing GetHashCode() to always return 0 is rather lame, but
     // using iterators as keys in a hash table would be rather strange.
@@ -96,20 +96,20 @@ namespace Xapian {
 
 %typemap(cscode) ValueIterator %{
     public static ValueIterator operator++(ValueIterator it) {
-	return it.next();
+	return it.Next();
     }
     public override bool Equals(object o) {
-	return o is ValueIterator && equals((ValueIterator)o);
+	return o is ValueIterator && Equals((ValueIterator)o);
     }
     public static bool operator==(ValueIterator a, ValueIterator b) {
 	if ((object)a == (object)b) return true;
 	if ((object)a == null || (object)b == null) return false;
-	return a.equals(b);
+	return a.Equals(b);
     }
     public static bool operator!=(ValueIterator a, ValueIterator b) {
 	if ((object)a == (object)b) return false;
 	if ((object)a == null || (object)b == null) return true;
-	return !a.equals(b);
+	return !a.Equals(b);
     }
     // Implementing GetHashCode() to always return 0 is rather lame, but
     // using iterators as keys in a hash table would be rather strange.
@@ -118,20 +118,20 @@ namespace Xapian {
 
 %typemap(cscode) PostingIterator %{
     public static PostingIterator operator++(PostingIterator it) {
-	return it.next();
+	return it.Next();
     }
     public override bool Equals(object o) {
-	return o is PostingIterator && equals((PostingIterator)o);
+	return o is PostingIterator && Equals((PostingIterator)o);
     }
     public static bool operator==(PostingIterator a, PostingIterator b) {
 	if ((object)a == (object)b) return true;
 	if ((object)a == null || (object)b == null) return false;
-	return a.equals(b);
+	return a.Equals(b);
     }
     public static bool operator!=(PostingIterator a, PostingIterator b) {
 	if ((object)a == (object)b) return false;
 	if ((object)a == null || (object)b == null) return true;
-	return !a.equals(b);
+	return !a.Equals(b);
     }
     // Implementing GetHashCode() to always return 0 is rather lame, but
     // using iterators as keys in a hash table would be rather strange.
@@ -140,20 +140,20 @@ namespace Xapian {
 
 %typemap(cscode) PositionIterator %{
     public static PositionIterator operator++(PositionIterator it) {
-	return it.next();
+	return it.Next();
     }
     public override bool Equals(object o) {
-	return o is PositionIterator && equals((PositionIterator)o);
+	return o is PositionIterator && Equals((PositionIterator)o);
     }
     public static bool operator==(PositionIterator a, PositionIterator b) {
 	if ((object)a == (object)b) return true;
 	if ((object)a == null || (object)b == null) return false;
-	return a.equals(b);
+	return a.Equals(b);
     }
     public static bool operator!=(PositionIterator a, PositionIterator b) {
 	if ((object)a == (object)b) return false;
 	if ((object)a == null || (object)b == null) return true;
-	return !a.equals(b);
+	return !a.Equals(b);
     }
     // Implementing GetHashCode() to always return 0 is rather lame, but
     // using iterators as keys in a hash table would be rather strange.
