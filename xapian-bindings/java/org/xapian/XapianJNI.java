@@ -346,6 +346,8 @@ public class XapianJNI {
 
     public static native void enquire_set_query(long eid, long queryid) throws XapianError;
 
+    public static native void enquire_set_query(long eid, long queryid, int qlen) throws XapianError;
+
     public static native long enquire_get_query(long eid) throws XapianError;
 //    public static native void enquire_set_weighting_scheme(long eid, long weightid) throws XapianError;
     public static native void enquire_set_collapse_key(long eid, long collapse_key) throws XapianError;

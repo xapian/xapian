@@ -954,10 +954,10 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1new
 /*
  * Class:     org_xapian_XapianJNI
  * Method:    enquire_set_query
- * Signature: (JJ)V
+ * Signature: (JJI)V
  */
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query
-  (JNIEnv *, jclass, jlong, jlong);
+  (JNIEnv *, jclass, jlong, jlong, jint);
 
 /*
  * Class:     org_xapian_XapianJNI

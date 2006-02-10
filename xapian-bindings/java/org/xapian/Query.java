@@ -30,7 +30,7 @@ import org.xapian.errors.XapianRuntimeError;
 //import org.xapian.query_parser.ParseException;
 //import org.xapian.query_parser.QueryParser;
 
-import java.io.StringReader;
+//import java.io.StringReader;
 
 public class Query {
     public static final int OP_AND = 1;

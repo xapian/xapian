@@ -129,6 +129,16 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1new (JNIEnv *env, jcl
     CATCH(-1)
 }
 
+JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *env, jclass clazz, jlong eid, jlong qid) {
+    TRY
+        Enquire *e = _enquire->get(eid);
+        Query *tmp = _query->get(qid);
+        MyQuery *q = new MyQuery(*tmp);
+        q->setMyID(qid);
+        e->set_query(*q);
+    CATCH(;)
+}
+
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *env, jclass clazz, jlong eid, jlong qid, jint qlen) {
     TRY
         Enquire *e = _enquire->get(eid);
@@ -179,16 +189,13 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1mset (JNIEnv *en
     TRY
         Enquire *e = _enquire->get(eid);
         RSet *rset;
+	MatchDecider *mdecider;
         MSet *mset;
-        
-        if (rsetid > -1) {
-            rset = _rset->get(rsetid);
-            mset = new MSet (e->get_mset(first, maxitems, rset, md ? new JavaMatchDecider(env, clazz, md) : NULL));
-        } else {
-            rset = 0;
-            mset = new MSet (e->get_mset(first, maxitems, rset, md ? new JavaMatchDecider(env, clazz, md) : NULL));
-        }
-        
+
+	rset = rsetid > -1 ?_rset->get(rsetid) : NULL;
+	mdecider = md ? new JavaMatchDecider(env, clazz, md) : NULL;
+	mset = new MSet (e->get_mset(first, maxitems, rset, mdecider));
+
         return _mset->put(mset);
     CATCH(-1)
 }

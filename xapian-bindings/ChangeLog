@@ -1,3 +1,13 @@
+Fri Feb 10 08:15:54 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/Enquire.cc,java/native/org_xapian_XapianJNI.h,
+	  java/org/xapian/XapianJNI.java: Fix updated wrapper for
+	  Enquire::set_query.
+	* java/native/Enquire.cc: Clearer code in wrapper for
+	  Enquire::get_mset.
+	* java/org/xapian/Query.java: Commented out unused
+	  'import java.io.StringReader;'.
+
 Fri Feb 10 08:10:51 GMT 2006  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs: Corrected TermlistCount -> TermListCount, etc.
