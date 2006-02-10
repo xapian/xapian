@@ -1,3 +1,8 @@
+Fri Feb 10 06:33:10 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i,csharp/docs/bindings.html: Rename method names to
+	  CamelCase for C#.
+
 Thu Feb 09 20:41:28 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Tidy up new exception handling code.

@@ -16,6 +16,14 @@ C# bindings based on the simple examples from <code>xapian-examples</code>:
 <a href="examples/SimpleSearch.cs">SimpleSearch.cs</a>.
 </p>
 
+<h2>Method Naming Conventions</h2>
+
+<p>
+   Methods are renamed to use the "CamelCase" capitalisation convention which C#
+   normally uses.  So in C# you use <code>GetDescription</code> instead of
+   <code>get_description</code>.
+</p>
+
 <h2>Exceptions</h2>
 
 <p>
@@ -51,16 +59,16 @@ C# bindings based on the simple examples from <code>xapian-examples</code>:
 
 <table title='Iterator deferencing methods'>
 <thead><td>Iterator</td><td>Dereferencing method</td></thead>
-<tr><td>PositionIterator</td>	<td><code>get_termpos()</code></td></tr>
-<tr><td>PostingIterator</td>	<td><code>get_docid()</code></td></tr>
-<tr><td>TermIterator</td>	<td><code>get_term()</code></td></tr>
-<tr><td>ValueIterator</td>	<td><code>get_value()</code></td></tr>
-<tr><td>MSetIterator</td>	<td><code>get_docid()</code></td></tr>
-<tr><td>ESetIterator</td>	<td><code>get_termname()</code></td></tr>
+<tr><td>PositionIterator</td>	<td><code>GetTermPos()</code></td></tr>
+<tr><td>PostingIterator</td>	<td><code>GetDocId()</code></td></tr>
+<tr><td>TermIterator</td>	<td><code>GetTerm()</code></td></tr>
+<tr><td>ValueIterator</td>	<td><code>GetValue()</code></td></tr>
+<tr><td>MSetIterator</td>	<td><code>GetDocId()</code></td></tr>
+<tr><td>ESetIterator</td>	<td><code>GetTermName()</code></td></tr>
 </table>
 
 <p>
-   Other methods, such as <code>MSetIterator.get_document()</code>, are
+   Other methods, such as <code>MSetIterator.GetDocument()</code>, are
    available unchanged.
 </p>
    
@@ -73,19 +81,19 @@ C# bindings based on the simple examples from <code>xapian-examples</code>:
 
 <table title='MSet additional methods'>
 <thead><td>Method name</td><td>Explanation</td></thead>
-<tr><td><code>get_hit(index)</code></td><td>returns MSetIterator at index</td></tr>
-<tr><td><code>get_document_percentage(index)</code></td><td><code>convert_to_percent(get_hit(index))</code></td></tr>
-<tr><td><code>get_document(index)</code></td><td><code>get_hit(index).get_document()</code></td></tr>
-<tr><td><code>get_document_id(index)</code></td><td><code>get_hit(index).get_docid()</code></td></tr>
+<tr><td><code>GetHit(index)</code></td><td>returns MSetIterator at index</td></tr>
+<tr><td><code>GetDocumentPercentage(index)</code></td><td><code>ConvertToPercent(GetHit(index))</code></td></tr>
+<tr><td><code>GetDocument(index)</code></td><td><code>GetHit(index).GetDocument()</code></td></tr>
+<tr><td><code>GetDocumentId(index)</code></td><td><code>GetHit(index).GetDocId()</code></td></tr>
 </table>
 
 <h2>Database Factory Functions</h2>
 
 <ul>
-<li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>Xapian.Auto.open_stub()</code>
-<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>Xapian.Quartz.open()</code>
-<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian.InMemory.open()</code>
-<li> <code>Xapian::Remote::open()</code> is wrapped as <code>Xapian.Remote.open()</code> (only
+<li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>Xapian.Auto.OpenStub()</code>
+<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>Xapian.Quartz.Open()</code>
+<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian.InMemory.Open()</code>
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>Xapian.Remote.Open()</code> (only
 the TCP version is currently wrapped, the "program" version isn't).
 </ul>
 
@@ -128,7 +136,7 @@ actually seems useful...
 <h2>Enquire</h2>
 
 <p>
-   There is an additional method <code>get_matching_terms()</code> which takes
+   There is an additional method <code>GetMatchingTerms()</code> which takes
    an MSetIterator and returns a list of terms in the current query which
    match the document given by that iterator.  You may find this
    more convenient than using the TermIterator directly.
