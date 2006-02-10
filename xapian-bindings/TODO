@@ -8,11 +8,7 @@ The "smoketest" is now a bit misnamed as it is rather more than a smoketest in
 most cases, and also the different versions aren't in step as to what is
 tested...
 
-SWIG uses SwigValueWrapper for std::pair even when it has a default ctor).
-
-Rename methods to CamelCase for languages where that's the norm?
-
-See if we can reduce the compiled size of the glue code and the time it takes
+Try to further reduce the compiled size of the glue code and the time it takes
 to compile.  Reworking exception handling made a huge difference!
 
 C#
