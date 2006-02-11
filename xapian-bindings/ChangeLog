@@ -1,3 +1,8 @@
+Sat Feb 11 13:10:04 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/Query.java: Comment out no longer used nativeStuff
+	  and nativeOperator.
+
 Fri Feb 10 18:20:36 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/native/xapian_jni.h: Fix 2 typos in comments.

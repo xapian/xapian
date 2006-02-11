@@ -45,10 +45,10 @@ public class Query {
 
     private Query _left = null, _right = null;
     long id = -1;
-
+/*
     private String _nativeStuff;
     private String _nativeOperator;
-/*
+
     public static Query parse(String query) throws ParseException, XapianError {
         if (query == null || query.trim().length() == 0)
             throw new ParseException("Empty Queries are not allowed");
@@ -130,6 +130,7 @@ public class Query {
         id = XapianJNI.query_new(operator, q.id);
     }
 
+/*
     public String getNativeStuff() {
         return _nativeStuff;
     }
@@ -145,6 +146,7 @@ public class Query {
     void setNativeOperator(String str) {
         _nativeOperator = str;
     }
+*/
 
     public long getLength() throws XapianError {
         return XapianJNI.query_get_length(id);
