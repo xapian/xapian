@@ -1,3 +1,8 @@
+Sun Feb 12 07:28:11 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/Query.cc: Fixed memory leak in
+	  Query-from-array-of-strings constructor.
+
 Sun Feb 12 07:22:39 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/README: Add note about how wrapped methods are named.
