@@ -1,3 +1,7 @@
+Sun Feb 12 18:31:26 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Expanded smoketest to cover more features.
+
 Sun Feb 12 16:01:29 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/README: Note that the bindings work with the Eclipse javac

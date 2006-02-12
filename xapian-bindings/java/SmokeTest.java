@@ -1,6 +1,6 @@
 // Simple test that we can use xapian from java
 //
-// Copyright (C) 2005 Olly Betts
+// Copyright (C) 2005,2006 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -14,15 +14,19 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 // USA
 
 import org.xapian.*;
+import org.xapian.errors.*;
 
 public class SmokeTest {
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
 	try {
 	    Stem stem = new Stem("english");
+	    if (!stem.toString().equals("Xapian::Stem(english)")) {
+		System.exit(1);
+	    }
 	    Document doc = new Document();
 	    doc.setData("is there anybody out there?");
 	    doc.addTerm("XYzzy");
@@ -34,6 +38,42 @@ public class SmokeTest {
 	    WritableDatabase db = Xapian.InMemory.open();
 	    db.addDocument(doc);
 	    if (db.getDocCount() != 1) {
+		System.exit(1);
+	    }
+
+	    String[] terms = { "smoke", "test", "terms" };
+	    Query query = new Query(Query.OP_OR, terms);
+	    if (!query.toString().equals("Xapian::Query((smoke OR test OR terms))")) {
+		System.exit(1);
+	    }
+	    String[] subqs = { "a", "b" };
+	    Query query3 = new Query(Query.OP_OR, subqs);
+	    if (!query3.toString().equals("Xapian::Query((a OR b))")) {
+		System.exit(1);
+	    }
+	    Enquire enq = new Enquire(db);
+	    enq.setQuery(new Query(Query.OP_OR, "there", "is"));
+	    MSet mset = enq.getMSet(0, 10);
+	    if (mset.size() != 1) {
+		System.exit(1);
+	    }
+	    String term_str = "";
+	    TermIterator itor = enq.getMatchingTerms(mset.getElement(0));
+	    while (itor.hasNext()) {
+		term_str += itor.next();
+		if (itor.hasNext()) term_str += ' ';
+	    }
+	    if (!term_str.equals("is there")) {
+		System.exit(1);
+	    }
+	    boolean ok = false;
+	    try {
+		Database db_fail = new Database("NOsuChdaTabASe");
+		int foo = db_fail.getDocCount();
+	    } catch (DatabaseOpeningError e) {
+		ok = true;
+	    }
+	    if (!ok) {
 		System.exit(1);
 	    }
 	} catch (Exception e) {
