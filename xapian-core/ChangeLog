@@ -1,3 +1,10 @@
+Sun Feb 12 18:29:55 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/database.cc,tests/api_nodb.cc: Trying to open a database
+	  for reading which doesn't exist now fails with DatabaseOpeningError
+	  instead of FeatureUnavailableError.  Added regression test
+	  nosuchdb1.
+
 Thu Feb 09 10:48:10 GMT 2006  Olly Betts <olly@survex.com>
 
 	* net/socketserver.cc: Add missing '#include <iostream>'

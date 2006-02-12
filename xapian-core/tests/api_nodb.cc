@@ -1,9 +1,8 @@
 /* api_nodb.cc: tests which don't use any of the backends
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -308,6 +306,15 @@ static bool test_weight1()
     return true;
 }
 
+// Regression test.
+static bool test_nosuchdb1()
+{
+    // This is a "nodb" test because it doesn't test a particular backend.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Database db("NOsuChdaTabASe"));
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -324,5 +331,6 @@ test_desc nodb_tests[] = {
     {"singlesubq1",	   test_singlesubq1},
     {"stemlangs1",	   test_stemlangs1},
     {"weight1",		   test_weight1},
+    {"nosuchdb1",	   test_nosuchdb1},
     {0, 0}
 };
