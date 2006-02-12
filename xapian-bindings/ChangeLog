@@ -1,3 +1,7 @@
+Sun Feb 12 07:22:39 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/README: Add note about how wrapped methods are named.
+
 Sun Feb 12 07:13:36 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/native/org_xapian_XapianJNI.cc,java/native/utils.cc,
