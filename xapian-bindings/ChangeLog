@@ -1,3 +1,8 @@
+Sun Feb 12 16:01:29 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/README: Note that the bindings work with the Eclipse javac
+	  and GIJ 4.0.1.
+
 Sun Feb 12 13:30:15 GMT 2006  Olly Betts <olly@survex.com>
 
 	* guile/util.i: Replace with a rewrite which doesn't cause SWIG
