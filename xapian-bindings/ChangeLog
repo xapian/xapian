@@ -1,3 +1,8 @@
+Sun Feb 12 07:30:50 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/Query.java: OP_* code 9 no longer exists, so add
+	  it to those rejected by the validity check.
+
 Sun Feb 12 07:28:11 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/native/Query.cc: Fixed memory leak in

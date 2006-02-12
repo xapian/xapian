@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -63,7 +64,7 @@ public class Query {
     }
 */
     private static final void validateOperator(int op) throws IllegalArgumentException {
-        if (op < 1 || op > 10)
+        if (op < 1 || op > 10 || op == 9)
             throw new IllegalArgumentException("operator " + op + " is not valid");
     }
 
