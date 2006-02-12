@@ -1,3 +1,10 @@
+Sun Feb 12 07:13:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/org_xapian_XapianJNI.cc,java/native/utils.cc,
+	  java/native/xapian_jni.h: Eliminate the "_errormap" hashmap -
+	  we don't need to use RTTI here, since Xapian::Error subclasses
+	  can tell you their typename directly (using get_type()).
+
 Sat Feb 11 13:10:04 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/org/xapian/Query.java: Comment out no longer used nativeStuff

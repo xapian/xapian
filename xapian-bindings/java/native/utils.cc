@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -37,28 +38,6 @@ bool check_for_java_exception(JNIEnv *env) {
     }
 
     return false;
-}
-
-void setup_errormap() {
-    _errormap[typeid(Xapian::Error).name()] = "org/xapian/errors/XapianError";
-    _errormap[typeid(Xapian::LogicError).name()] = "org/xapian/errors/LogicError";
-    _errormap[typeid(Xapian::RuntimeError).name()] = "org/xapian/errors/RuntimeError";
-    _errormap[typeid(Xapian::AssertionError).name()] = "org/xapian/errors/AssertionError";
-    _errormap[typeid(Xapian::UnimplementedError).name()] = "org/xapian/errors/UnimplementedError";
-    _errormap[typeid(Xapian::InvalidArgumentError).name()] = "org/xapian/errors/InvalidArgumentError";
-    _errormap[typeid(Xapian::InvalidOperationError).name()] = "org/xapian/errors/InvalidOperationError";
-    _errormap[typeid(Xapian::DocNotFoundError).name()] = "org/xapian/errors/DocNotFoundError";
-    _errormap[typeid(Xapian::RangeError).name()] = "org/xapian/errors/RangeError";
-    _errormap[typeid(Xapian::InternalError).name()] = "org/xapian/errors/InternalError";
-    _errormap[typeid(Xapian::DatabaseError).name()] = "org/xapian/errors/DatabaseError";
-    _errormap[typeid(Xapian::FeatureUnavailableError).name()] = "org/xapian/errors/FeatureUnavailableError";
-    _errormap[typeid(Xapian::NetworkError).name()] = "org/xapian/errors/NetworkError";
-    _errormap[typeid(Xapian::NetworkTimeoutError).name()] = "org/xapian/errors/NetworkTimeoutError";
-    _errormap[typeid(Xapian::DatabaseCorruptError).name()] = "org/xapian/errors/DatabaseCorruptError";
-    _errormap[typeid(Xapian::DatabaseCreateError).name()] = "org/xapian/errors/DatabaseCreateError";
-    _errormap[typeid(Xapian::DatabaseOpeningError).name()] = "org/xapian/errors/DatabaseOpeningError";
-    _errormap[typeid(Xapian::DatabaseLockError).name()] = "org/xapian/errors/DatabaseLockError";
-    _errormap[typeid(Xapian::DatabaseModifiedError).name()] = "org/xapian/errors/DatabaseModifiedError";
 }
 
 string *toArray(JNIEnv *env, jobjectArray j_array, int len) {

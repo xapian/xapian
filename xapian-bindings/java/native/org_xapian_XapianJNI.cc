@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -35,8 +36,6 @@ using namespace std;
 // define the things that were declared as 'extern'al
 //
 
-hash_map<const char *, string, hash<char *>, streq> _errormap;
-
 XapianObjectHolder<void *> *_database;    // for Xapian::Database *and* Xapian::WritableDatabase
 XapianObjectHolder<Document *> *_document;
 XapianObjectHolder<Enquire *> *_enquire;
@@ -54,21 +53,19 @@ XapianObjectHolder<TermIterator *> *_termiterator;
  * Optional JNI function that java calls when it loads this library.
  */
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
-    setup_errormap();
-	
-	_database = new XapianObjectHolder <void *> ();    // for Xapian::Database *and* Xapian::WritableDatabase
-	_document = new XapianObjectHolder <Document *> ();
-	_enquire = new XapianObjectHolder <Enquire *> ();
-	_eset = new XapianObjectHolder <ESet *> ();
-	_esetiterator = new XapianObjectHolder <ESetIterator *> ();
-	_mset = new XapianObjectHolder <MSet *> ();
-	_msetiterator = new XapianObjectHolder <MSetIterator *> ();
-	_positioniterator = new XapianObjectHolder <PositionIterator *> ();
-	_query = new XapianObjectHolder <Query *> ();
-	_rset = new XapianObjectHolder <RSet *> ();
-	_stem = new XapianObjectHolder <Stem *> ();
-	_termiterator = new XapianObjectHolder <TermIterator *> ();
-	
+    _database = new XapianObjectHolder <void *> ();    // for Xapian::Database *and* Xapian::WritableDatabase
+    _document = new XapianObjectHolder <Document *> ();
+    _enquire = new XapianObjectHolder <Enquire *> ();
+    _eset = new XapianObjectHolder <ESet *> ();
+    _esetiterator = new XapianObjectHolder <ESetIterator *> ();
+    _mset = new XapianObjectHolder <MSet *> ();
+    _msetiterator = new XapianObjectHolder <MSetIterator *> ();
+    _positioniterator = new XapianObjectHolder <PositionIterator *> ();
+    _query = new XapianObjectHolder <Query *> ();
+    _rset = new XapianObjectHolder <RSet *> ();
+    _stem = new XapianObjectHolder <Stem *> ();
+    _termiterator = new XapianObjectHolder <TermIterator *> ();
+
     return JNI_VERSION_1_2;
 }
 

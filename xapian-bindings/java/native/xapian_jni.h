@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -56,9 +57,9 @@ using namespace Xapian;
                     env->ThrowNew(env->FindClass("java/lang/RuntimeException"), message); \
                 } catch(const Xapian::Error &error) { \
                     if (check_for_java_exception(env)) { return _rc_; } \
-                    const char *errorname = typeid(error).name(); \
-                    string classname = _errormap[errorname]; \
-                    env->ThrowNew(env->FindClass((const char *) classname.c_str()), (const char *) error.get_msg().c_str()); \
+		    string classname("org/xapian/errors/"); \
+		    classname += error.get_type(); \
+		    env->ThrowNew(env->FindClass(classname.c_str()), error.get_msg().c_str()); \
                 } catch(...) { \
                     if (check_for_java_exception(env)) { return _rc_; } \
                     env->ThrowNew(env->FindClass("java/lang/RuntimeException"), "Unknown error occurred"); \
@@ -79,9 +80,6 @@ struct streq {
 //
 // variable declarations
 //
-
-/** mapping of XapianError-->Java exception */
-extern hash_map<const char *, string, hash<char *>, streq> _errormap;
 
 /** holder objects for each Xapian type.  */
 extern XapianObjectHolder<void *> *_database;    // for Xapian::Database *and* Xapian::WritableDatabase
@@ -106,12 +104,6 @@ extern XapianObjectHolder<TermIterator *> *_termiterator;
  * If yes, then we "throw" it, and return true.  Otherwise, we return false.
  */
 extern bool check_for_java_exception(JNIEnv *env);
-
-/**
- * Populates our error lookup map.  Keys are what the RTI's 'typeid' function thinks
- * the .name() of the class is, and the value is the Java classname that needs to be thrown
- */
-extern void setup_errormap();
 
 /**
  * takes a java object array (of Strings), and converts it into a C++ string array
