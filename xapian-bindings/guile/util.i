@@ -1,9 +1,7 @@
 %{
-/* guile/util.i: the Xapian scripting guile interface helpers.
+/* guile/util.i: custom guile typemaps for xapian-bindings
  *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright (c) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,31 +15,36 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 %}
 
-%typemap(guile, in) const string &(string temp) {
-    if (!gh_string_p($input)) {
-//        OMSWIG_exception(SWIG_TypeError,
-//	                 "Expected string argument");
-    } else {
+/* SWIG provides typemaps for std::string, but they aren't zero byte safe
+ * so we provide our own versions which are. */
+
+%typemap(in) const std::string & (std::string temp) {
+    if (gh_string_p($input)) {
 	int len;
-	char *ctemp;
-	ctemp = gh_scm2newstr($input, &len);
-//	cout << "ctemp = " << ctemp << endl;
-	temp = string(ctemp, len);
-	$1 = &temp;
-        if (temp) scm_must_free(temp);
+	char * p;
+#ifdef SWIGGUILE_GH
+	p = gh_scm2newstr($input, &len);
+#else
+	p = SWIG_Guile_scm2newstr($input, &len);
+#endif
+	if (p) {
+	    temp.assign(p, len);
+	    scm_must_free(p);
+	}
+	$1 = temp;
+    } else {
+        SWIG_exception(SWIG_TypeError, "string expected");
     }
 }
 
-%typemap(guile, out) string {
-    $result = gh_str2scm((char *)$1->c_str(), $1->length());
-}
-
-%typemap(guilde, out) const string & {
-    $result = gh_str2scm((char *)$1->c_str(), $1->length());
+%typemap(out) string {
+    /* gh_str2scm takes char* (but doesn't appear to modify the string) so
+     * we have to cast away const. */
+    char * p = const_cast<char *>($1->data());
+    $result = gh_str2scm(p, $1->size());
 }
