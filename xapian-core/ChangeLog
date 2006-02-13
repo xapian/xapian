@@ -1,3 +1,18 @@
+Mon Feb 13 15:16:02 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,xapian-config.in: Some Linux distros have an
+	  unhelpful policy of not packaging .la files, and on Linux
+	  link_all_deplibs_CXX=no so we don't actually need to link
+	  in the dependency_libs.  So use the value of link_all_deplibs_CXX
+	  from configure to control whether we link against dependency_libs.
+	* xapian-config.in: Factor out common code into shell functions,
+	  and tidy up --help output.
+	* xapian-config.in: Re entry "Tue May 11 20:55:56 BST 2004": the (C)
+	  dates I mined from CVS included a BrightStation (C), but the few
+	  fragments of that version which survive are actually from
+	  glib-config (or one of the myriad of *-config scripts which look
+	  very like it), and are just standard Bourne shell idioms anyway.
+
 Mon Feb 13 13:59:02 GMT 2006  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: td174 is gone.

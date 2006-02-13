@@ -843,6 +843,9 @@ AC_SUBST(AM_CXXFLAGS)
 dnl See if large file support is available
 AC_SYS_LARGEFILE
 
+dnl Libtool sets this (to yes|no|unknown) and we use it in xapian-config.
+AC_SUBST(link_all_deplibs_CXX)
+
 dnl **************************
 dnl * Build the output files *
 dnl **************************
