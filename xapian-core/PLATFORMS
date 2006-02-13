@@ -128,11 +128,11 @@ ia64  |#Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed|
 ia64  |+Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.5~|Passed|
 ia64  |#Linux 2.4 RHEL AS3 GCC 3.4.1   | 0.8.5 |Passed|
 ia64  |+Linux 2.4 RHEL AS3 IntelC++ 8.1| 0.8.5~|Passed| [11]
-ia64  |=Linux 2.6 RHEL AS4 GCC 3.2.3   |~0.9.3 |Passed| (td174,177)
-ia64  |=Linux 2.6 RHEL AS4 GCC 3.4.4   |~0.9.3 |Passed| (td174,177)
-ia64  |=Linux 2.6 RHEL AS4 GCC 4.0.1   |~0.9.3 |Passed| (td174,177)
-ia64  |=Linux 2.6 RHEL AS4 IntelC++ 8.1|~0.9.3 |Passed| (td174,177) [11]
-ia64  |=Linux 2.6 RHEL AS4 IntelC++ 9.0|~0.9.3 |Passed| (td174,177) [11]
+ia64  |=Linux 2.6 RHEL AS4 GCC 3.2.3   |~0.9.3 |Passed| (td177)
+ia64  |=Linux 2.6 RHEL AS4 GCC 3.4.4   |~0.9.3 |Passed| (td177)
+ia64  |=Linux 2.6 RHEL AS4 GCC 4.0.1   |~0.9.3 |Passed| (td177)
+ia64  |=Linux 2.6 RHEL AS4 IntelC++ 8.1|~0.9.3 |Passed| (td177) [11]
+ia64  |=Linux 2.6 RHEL AS4 IntelC++ 9.0|~0.9.3 |Passed| (td177) [11]
 ia64  |=Linux 2.6 SuSE 9 GCC 3.3.3     | 0.9.2 |Passed| (td187)
 ia64  |=Linux 2.6 SuSE 9 GCC 3.4.1     | 0.8.5~|Passed|
 ia64  |=Linux 2.6 SuSE 9 IntelC++ 8.1  | 0.9.1 |Passed| (td187)
@@ -153,9 +153,9 @@ arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [5]
 ------+--------------------------------+-------+------+------------------------
 
 Attempts to build Xapian with Compaq's C++ compiler (on Tru64, HPUX, and
-Linux) have so far failed.  Some progress has been made, but it appears
-that this compiler lacks sufficient support for C++ templates.  This minimal
-testcase fails to compile:
+Linux) have so far failed.  Older versions of the compiler simply seem
+to lack sufficient support for C++ templates.  This minimal testcase fails to
+compile:
 
   #include <xapian/base.h>
 
@@ -164,6 +164,9 @@ testcase fails to compile:
     Xapian::Internal::RefCntPtr<Internal> internal;
     template <class SubQ> Query(SubQ q) : internal(0) { } 
   };
+
+This problem is fixed in Compaq C++ 7.1 (or perhaps earlier), but the build
+now fails to link a binary.  Further investigation is required.
 
 These are older success reports lacking an update for a more recent Xapian
 version (typically because the machine in question was upgraded, or we no

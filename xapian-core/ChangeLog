@@ -1,3 +1,9 @@
+Mon Feb 13 13:59:02 GMT 2006  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: td174 is gone.
+	* PLATFORMS: Compaq C++ 7.1 seems to have better template support
+	  (but fails to link binaries).
+
 Mon Feb 13 12:22:23 GMT 2006  Olly Betts <olly@survex.com>
 
 	* HACKING,testsuite/testsuite.cc: XAPIAN_TESTSUITE_PLAIN_OUTPUT
