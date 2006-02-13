@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-# We require at least one argument.
+# This script requires at least one argument.
 [ 0 != "$#" ] || show_usage 1 1>&2
 
 # Show usage information and exit with the specified exit status.
@@ -70,6 +70,45 @@ set_I_for_uninstalled() {
     # in the include path if it's different to srcdir.
     [ "@abs_srcdir@" != "@abs_builddir@" ] && I="-I@abs_builddir@/include "
     I="$I-I@abs_srcdir@/include"
+}
+
+# Extract dependency_libs recursively from a libtool .la file, converting
+# .la references into appropriate -L and -l options.
+extract_dependency_libs() {
+    deps=
+    # Multiple whitespace (space or tab).
+    mws='[ 	][ 	]*'
+    la='\(/[^ ]*\)\(/lib\)\([^ ]*\).la'
+    pat='\(.* \)'"$la"'\( .*\)'
+    extract_dependency_libs_ "$1"
+    dependency_libs=`echo "$deps"|sed 's/  */ /g;s/^ //;s/ $//'`
+}
+
+# Internal helper function for extract_dependency_libs.
+extract_dependency_libs_() {
+    dependency_libs=
+    eval `grep ^dependency_libs= "$1"`
+    dependency_libs=`echo " $dependency_libs "|sed "s/$mws/ /g"`
+    while true ; do
+	file=`echo "$dependency_libs"|sed "s,$pat"',\2\3\4.la,'`
+	case $file in
+	*.la)
+	    # Replace "/path/to/libfoo.la" with "-L/path/to -lfoo".
+	    deps="$deps "`echo "$dependency_libs"|sed "s,$pat"',\1-L\2 -l\4,'`
+	    # Put the trailing part in $1 which is a local variable.
+	    set "`echo "$dependency_libs"|sed "s,$pat"',\5,'`"
+	    # And expand any dependency libs from libfoo.la.
+	    extract_dependency_libs_ "$file"
+	    # Set dependency_libs to the trailing part, ready for the
+	    # next pass of the loop which checks for more .la files.
+	    dependency_libs=$1
+	    ;;
+	*)
+	    deps=$deps$dependency_libs
+	    break
+	    ;;
+	esac
+    done
 }
 
 builddir=`echo $0|sed 's![^/]*$!!'`
@@ -149,15 +188,7 @@ while arg=$1 && shift ; do
 	D=
 	# Only pull in dependency_libs if libtool would.
 	if [ no != "@link_all_deplibs_CXX@" ]; then
-	    eval `grep ^dependency_libs= "@libdir@/libxapian.la"`
-	    # Replace "/path/to/libfoo.la" with "-L/path/to -lfoo" which doesn't
-	    # take into account any dependency_libs which libfoo.la may pull in
-	    # but the only .la that we're likely to see is libstdc++.la and it'll
-	    # hopefully work there as any dependency libs will probably be pulled
-	    # in by the compiler for us.  Recursively pulling in dependency_libs
-	    # is probably too hard to do in sh - we'd need to reimplement
-	    # xapian-config in C or C++.
-	    dependency_libs=`echo " $dependency_libs "|sed 's![     ][      ]*!  !g;s! \(/[^ ]*\)/lib\([^ ]*\).la ! -L\1 -l\2 !g;s!  ! !g;s!^ !!;s! $!!'`
+	    extract_dependency_libs "@libdir@/libxapian.la"
 	    [ -n "$dependency_libs" ] && D=" $dependency_libs"
 	fi
 	echo "$F$L-lxapian$D"

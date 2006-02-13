@@ -1,3 +1,9 @@
+Mon Feb 13 17:43:08 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Expand dependency_libs recursively.  It's not
+	  *that* hard, and we're just storing up problems for the future
+	  by ignoring the issue.
+
 Mon Feb 13 16:57:36 GMT 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Devlopers also need makeindex installed for documentation
