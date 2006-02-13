@@ -255,7 +255,8 @@ doxygen (v1.4.6 is used for snapshots, releases, and the source documentation)
 dot (part of the graphviz package)
 perl 5
 latex
-dvips
+dvips (usually packaged with TeX)
+makeindex (usually packaged with TeX)
 
 Use of C++ Features:
 ====================
