@@ -1,3 +1,8 @@
+Mon Feb 13 12:22:23 GMT 2006  Olly Betts <olly@survex.com>
+
+	* HACKING,testsuite/testsuite.cc: XAPIAN_TESTSUITE_PLAIN_OUTPUT
+	  -> XAPIAN_TESTSUITE_OUTPUT=plain.
+
 Sun Feb 12 18:29:55 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/database.cc,tests/api_nodb.cc: Trying to open a database

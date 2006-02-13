@@ -134,11 +134,14 @@ which you might find useful:
     XAPIAN_TESTSUITE_SIG_DFL to any value to prevent the testsuite harness
     from installing its own signal handling.
 
- XAPIAN_TESTSUITE_PLAIN_OUTPUT:
+  XAPIAN_TESTSUITE_OUTPUT:
     By default, the testsuite harness uses ANSI escape sequences to give
-    colour output if stdout is a tty.  You can disable this feature by
-    setting XAPIAN_TESTSUITE_PLAIN_OUTPUT to any value.  Alternatively,
-    piping the output (through cat or more) will have the same effect.
+    colour output if stdout is a tty.  You can disable this feature by setting
+    XAPIAN_TESTSUITE_OUTPUT=plain (alternatively, piping the output (e.g.
+    through cat or more) will have the same effect).  Auto-detection can be
+    explicitly specified with XAPIAN_TESTSUITE_OUTPUT=auto (or empty).  Any
+    other value forces the use of colour.  Colour output is always disabled on
+    Microsoft Windows, so XAPIAN_TESTSUITE_OUTPUT has no effect there.
 
 Using various debugging, profiling, and leak-finding tools:
 ===========================================================

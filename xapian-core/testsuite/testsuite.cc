@@ -520,7 +520,14 @@ test_driver::parse_command_line(int argc, char **argv)
     argv0 = argv[0];
 
 #ifndef __WIN32__
-    if (isatty(1) && (getenv("XAPIAN_TESTSUITE_PLAIN_OUTPUT") == NULL)) {
+    bool colourise = true;
+    const char *p = getenv("XAPIAN_TESTSUITE_OUTPUT");
+    if (p == NULL || !*p || strcmp(p, "auto") == 0) {
+	colourise = isatty(1);
+    } else if (strcmp(p, "plain") == 0) {
+	colourise = false;
+    }
+    if (colourise) {
 	col_red = "\x1b[1m\x1b[31m";
 	col_green = "\x1b[1m\x1b[32m";
 	col_yellow = "\x1b[1m\x1b[33m";
