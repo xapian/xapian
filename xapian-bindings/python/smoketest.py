@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005 Olly Betts
+# Copyright (C) 2004,2005,2006 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -57,7 +57,6 @@ try:
     if mset.size() != 1:
         sys.exit(1)
     terms = " ".join(enq.get_matching_terms(mset.get_hit(0)))
-    print terms
     if terms != "is there":
         sys.exit(1)
 except:
