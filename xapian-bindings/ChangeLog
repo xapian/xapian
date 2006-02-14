@@ -1,3 +1,11 @@
+Tue Feb 14 14:22:35 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Change calls to AC_PATH_PROG(FOO, foo, ...)
+	  to AC_PATH_PROGS(FOO, [$FOO foo], ...) so that the user
+	  can do "./configure FOO=myfoo".  By itself, AC_PATH_PROG
+	  ignore an explicitly specified FOO unless it has an absolute
+	  path.
+
 Tue Feb 14 11:31:36 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian-bindings.spec.in: Various updates, mostly from a patch by

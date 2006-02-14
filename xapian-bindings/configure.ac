@@ -66,7 +66,11 @@ AM_MAINTAINER_MODE
 
 if test x$USE_MAINTAINER_MODE = xyes; then
   dnl Check for swig - this does most of the work for the bindings.
-  AC_PATH_PROG(SWIG, swig, [])
+  dnl AC_PATH_PROGS only honours an already set SWIG is it's a full
+  dnl path.  Listing it in the "to be searched" list like this allows
+  dnl ./configure SWIG=myswig to work.
+  AC_PATH_PROGS(SWIG, [$SWIG swig], [])
+  AC_ARG_VAR(SWIG, [SWIG interface generator])
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
@@ -141,7 +145,9 @@ esac
 BINDINGS=
 
 if test no != "$with_python" ; then
-  AC_PATH_PROG(PYTHON, python, [])
+  dnl See comment for AC_PATH_PROGS(SWIG, ...).
+  AC_PATH_PROGS(PYTHON, [$PYTHON python], [])
+  AC_ARG_VAR(PYTHON, [Python interpreter])
   if test -n "$PYTHON" ; then
     dnl Require Python 2.1 or newer.  James says:
     dnl  2.0 as a minimum. I'm using __cmp__ / __eq__ tricks to get the
@@ -198,39 +204,41 @@ if test no != "$with_python" ; then
 fi
 
 if test no != "$with_php" ; then
-  AC_PATH_PROG(PHP_CONFIG, [php-config], [])
+  dnl See comment for AC_PATH_PROGS(SWIG, ...).
+  AC_PATH_PROGS(PHP_CONFIG, [$PHP_CONFIG php-config], [])
+  AC_ARG_VAR(PHP_CONFIG, [php-config utility])
+  AC_ARG_VAR(PHP, [php interpreter to optionally run testsuite with])
   if test -n "$PHP_CONFIG" ; then
     version=`$PHP_CONFIG --version 2> /dev/null`
     case $version in
     4.*)
       dnl If the php interpreter can't be found, skip the php tests.
-      AC_PATH_PROGS(PHP, [php4 php], [\$(top_srcdir)/skiptest])
-      PHP_INC=`$PHP_CONFIG --includes`
-      AC_SUBST(PHP_INC)
-      PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
-      AC_SUBST(PHP_EXTENSION_DIR)
-      BINDINGS="$BINDINGS php"
+      AC_PATH_PROGS(PHP, ["$PHP" php4 php], [\$(top_srcdir)/skiptest])
       ;;
     5.*)
       dnl If the php interpreter can't be found, skip the php tests.
-      AC_PATH_PROGS(PHP, [php5 php], [\$(top_srcdir)/skiptest])
+      AC_PATH_PROGS(PHP, ["$PHP" php5 php], [\$(top_srcdir)/skiptest])
+      ;;
+    *)
+      if test yes = "$with_php" ; then
+	AC_MSG_ERROR([Only PHP4 and PHP5 are supported ($PHP_CONFIG reports version $version)])
+      fi
+      with_php=no
+      ;;
+    esac
+    if test no != "$with_php" ; then
       PHP_INC=`$PHP_CONFIG --includes`
       AC_SUBST(PHP_INC)
       PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
       AC_SUBST(PHP_EXTENSION_DIR)
       BINDINGS="$BINDINGS php"
-      ;;
-    *)
-      if test yes = "$with_php" ; then
-	AC_MSG_ERROR([Only PHP4 and PHP5 are supported ($PHP_CONFIG reports $version)])
-      fi
-      ;;
-    esac
+    fi
   fi
 fi
 
 if test no != "$with_tcl" ; then
-  AC_PATH_PROG(TCLSH, tclsh, [])
+  AC_PATH_PROGS(TCLSH, [$TCLSH tclsh], [])
+  AC_ARG_VAR(TCLSH, [Tcl interpreter])
   if test -n "$TCLSH" ;  then
     # We need Tcl 8.1 or later for TCL_STUBS.
     # Note: The bindings can easily be made to work with Tcl 8.0 (just
@@ -270,7 +278,8 @@ if test no != "$with_tcl" ; then
 fi
 
 if test yes == "$with_guile" ; then
-  AC_PATH_PROG(GUILE, guile, [])
+  AC_PATH_PROGS(GUILE, [$GUILE guile], [])
+  AC_ARG_VAR(GUILE, [guile interpreter])
   if test -n "$GUILE" ;  then
     dnl test guile version?
     dnl any paths?
@@ -283,7 +292,8 @@ if test yes == "$with_guile" ; then
 fi
 
 if test no != "$with_csharp" ; then
-  AC_PATH_PROG(CSC, mcs, [])
+  AC_PATH_PROGS(CSC, [$CSC mcs], [])
+  AC_ARG_VAR(CSC, [C# compiler command])
   if test -n "$CSC" ; then
     # There are other tools called mcs (such as /usr/bin/mcs on Tru64),
     # so we check that the mcs we found understands --version which is
@@ -291,8 +301,10 @@ if test no != "$with_csharp" ; then
     AC_MSG_CHECKING([whether $CSC is from GNU Mono])
     if (exec >&5 2>&5;$CSC --version </dev/null;exit $?) ; then
       AC_MSG_RESULT(yes)
-      AC_PATH_PROG(GACUTIL, gacutil, [])
-      AC_PATH_PROG(SN, sn, [])
+      AC_PATH_PROGS(GACUTIL, [$GACUTIL gacutil], [])
+      AC_PATH_PROGS(SN, [$SN sn], [])
+      AC_ARG_VAR(GACUTIL, [gacutil utility to use for C# bindings])
+      AC_ARG_VAR(SN, [sn utility to use for C# bindings])
       if test -n "$GACUTIL" -a -n "$SN" ; then
 	BINDINGS="$BINDINGS csharp"
       else
@@ -319,12 +331,15 @@ if test no != "$with_csharp" ; then
 fi
 
 if test no != "$with_java" ; then
-  AC_PATH_PROG(JAVA, java, [],
+  AC_PATH_PROGS(JAVA, [$JAVA java], [],
   	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
-  AC_PATH_PROG(JAVAC, javac, [],
+  AC_PATH_PROGS(JAVAC, [$JAVAC javac], [],
   	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
-  AC_PATH_PROG(JAR, jar, [],
+  AC_PATH_PROGS(JAR, [$JAR jar], [],
   	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
+  AC_ARG_VAR(JAVA, [Java interpreter command])
+  AC_ARG_VAR(JAVAC, [Java compiler command])
+  AC_ARG_VAR(JAR, [java jar utility])
   if test -n "$JAVA" -a -n "$JAVAC" -a -n "$JAR" ; then
     dnl Eric says:
     dnl  The JNI library *requires* "Java 2", which is 1.2 or better.
