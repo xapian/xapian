@@ -1,3 +1,10 @@
+Tue Feb 14 14:37:15 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: zend_throw_exception takes a non-const char * as the
+	  message to throw.  Presumably it doesn't modify it, but there's
+	  no documentation so it's hard to be sure.  Just cast away the const
+	  for now.
+
 Tue Feb 14 14:22:35 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Change calls to AC_PATH_PROG(FOO, foo, ...)

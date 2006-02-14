@@ -132,10 +132,11 @@ using namespace std;
 %{
 # if PHP_MAJOR_VERSION >= 5
 #  include <zend_exceptions.h>
+// zend_throw_exception takes a non-const char * parameter (sigh).
 // FIXME: throw errors as PHP classes corresponding to the Xapian error
 // classes.
 #  define XapianException(TYPE, MSG) \
-	zend_throw_exception(NULL, (MSG).c_str(), (TYPE) TSRMLS_CC)
+	zend_throw_exception(NULL, (char*)(MSG).c_str(), (TYPE) TSRMLS_CC)
 # endif
 %}
 #elif defined SWIGCSHARP
