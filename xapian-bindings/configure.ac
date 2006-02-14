@@ -39,6 +39,16 @@ dnl the bindings only have a use for dynamic ones.
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
+dnl -no-undefined causes problems on MacOS X with some at least some
+dnl MACOSX_DEPLOYMENT_TARGET settings, so only pass -no-undefined on
+dnl platforms where it is required in order to link a shared library at
+dnl all (Windows is main one).
+NO_UNDEFINED=
+if test unsupported = "$allow_undefined_flag" ; then
+  NO_UNDEFINED=-no-undefined
+fi
+AC_SUBST(NO_UNDEFINED)
+
 dnl Checks for programs.
 AC_PROG_CXX
 

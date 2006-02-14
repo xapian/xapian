@@ -5,7 +5,7 @@ EXTRA_DIST = util.i $(BUILT_SOURCES)
 noinst_LTLIBRARIES = xapianc.la
 
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
-xapianc_la_LDFLAGS = -avoid-version -module -no-undefined
+xapianc_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
 nodist_xapianc_la_SOURCES = xapian_wrap.cc
 xapianc_la_LIBADD = $(XAPIAN_LIBS)
 

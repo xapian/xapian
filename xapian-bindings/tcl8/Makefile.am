@@ -21,7 +21,7 @@ install-data-hook:
 
 AM_CPPFLAGS = @TCL_CPPFLAGS@ -DUSE_TCL_STUBS
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
-xapian_la_LDFLAGS = -avoid-version -module -no-undefined
+xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
 nodist_xapian_la_SOURCES = xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS)
 

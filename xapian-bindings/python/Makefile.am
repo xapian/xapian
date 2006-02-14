@@ -31,7 +31,7 @@ install-data-hook:
 
 AM_CPPFLAGS = -I@PYTHON_INC@
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(PYTHON_CXXFLAGS) $(XAPIAN_CXXFLAGS)
-_xapian_la_LDFLAGS = -avoid-version -module -no-undefined
+_xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
 _xapian_la_SOURCES = @PYTHON_MODERN_OR_OLDE@/xapian_wrap.cc \
 	@PYTHON_MODERN_OR_OLDE@/xapian_wrap.h
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)

@@ -1,3 +1,11 @@
+Tue Feb 14 17:13:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,guile/Makefile.am,
+	  java/native/Makefile.am,php/Makefile.am,python/Makefile.am,
+	  tcl8/Makefile.am: Only pass -no-undefined on platforms where it
+	  is required in order to link a shared library at all (it causes
+	  problems on MacOS X in some cases).
+
 Tue Feb 14 14:45:34 GMT 2006  Olly Betts <olly@survex.com>
 
 	* python/smoketest.py: Remove stray print statement left over from
