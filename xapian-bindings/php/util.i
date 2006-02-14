@@ -60,7 +60,13 @@ namespace Xapian {
     $1 = (SWIG_ConvertPtr(*$input, (void **)&ptr, $&1_descriptor, 0) == 0);
 }
 
-%typemap(typecheck, precedence=SWIG_TYPECHECK_STRING) const std::string & {
+/* STRING has a lower precedence that numbers, but the SWIG PHP check for
+ * number (in 1.3.28 at least) includes IS_STRING which means that for a
+ * method taking either int or string, the int version will always be used.
+ * Simplest workaround is to set the precedence here higher that the numeric
+ * precedences - i.e. SWIG_TYPECHECK_VOIDPTR instead of SWIG_TYPECHECK_STRING.
+ */
+%typemap(typecheck, precedence=SWIG_TYPECHECK_VOIDPTR) const std::string & {
     $1 = (Z_TYPE_PP($input) == IS_STRING);
 }
 
