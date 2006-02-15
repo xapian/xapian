@@ -49,17 +49,7 @@ TODO list:
 
 The majority of the C++ API is wrapped, with a few exceptions still to be done:
 
-* [DONE] Remove Query::set_length(), set_elite_set_size() and set_window().
-
 * Wrap optional parameter "parameter" for Query ctor.
-
-* [DONE] Wrap wqf and pos optional parameters to Query(term) ctor.
-
-* [DONE] Wrap optional second parameter (length) to Enquire::set_query().
-
-* [DONE] Remove OP_WEIGHT_CUTOFF.
-
-* [DONE] Remove MSet::max_size().
 
 * Wrap new QueryParser API.
 
@@ -71,14 +61,10 @@ The majority of the C++ API is wrapped, with a few exceptions still to be done:
 
 * Wrap the new optional third parameter to Enquire::set_sorting().
 
-* [DONE] Wrap operator-- as prev() for MSetIterator and ESetIterator.
-
-* [DONE] Added constructors to Database and WritableDatabase which fulfil the
-  role that the Auto::open() factory functions currently do.  Auto::open() is
-  now deprecated.
-
 * Third (optional) argument to Document::add_posting() isn't wrapped.
 
 * Wrap Xapian::Weight and standard subclasses.
 
 * Allow user derived weight classes to be implemented in Java (less important).
+
+* Fix string passing to be zero-byte clean.
