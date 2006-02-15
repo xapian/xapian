@@ -1,9 +1,8 @@
 /* quartzcheck.cc: use Btree::check to check consistency of a quartz database
  * or btree.  Also check the structures inside the tables.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -96,6 +94,9 @@ main(int argc, char **argv)
 		doclens.reserve(db.get_lastdocid());
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
+		cout << "Database couldn't be opened for reading: "
+		     << e.get_msg() << "\nContinuing check anyway" << endl;
+		++errors;
 	    }
 	    // Assume it's a quartz directory and try to check all the btrees
 	    // Note: it's important to check termlist before postlist so

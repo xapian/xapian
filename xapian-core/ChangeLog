@@ -1,3 +1,8 @@
+Wed Feb 15 21:26:48 GMT 2006  Olly Betts <olly@survex.com>
+
+	* bin/quartzcheck.cc: If the database is too broken to open, emit a
+	  warning message and bump the error count.
+
 Wed Feb 15 21:23:38 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/queryparser.html: Document right-truncation.
