@@ -1,3 +1,8 @@
+Wed Feb 15 21:08:37 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Fixed to output usage correctly if no arguments
+	  are specified.
+
 Mon Feb 13 17:43:08 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Expand dependency_libs recursively.  It's not

@@ -18,9 +18,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-# This script requires at least one argument.
-[ 0 != "$#" ] || show_usage 1 1>&2
-
 # Show usage information and exit with the specified exit status.
 show_usage() {
     cat <<EOF
@@ -37,6 +34,9 @@ EOF
 
     exit $1
 }
+
+# This script requires at least one argument.
+[ 0 != "$#" ] || show_usage 1 1>&2
 
 # Cached value.  Note that this a return code, so 0 means uninstalled!
 is_uninstalled_cache=
