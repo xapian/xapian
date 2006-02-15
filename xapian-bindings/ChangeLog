@@ -1,3 +1,10 @@
+Wed Feb 15 23:18:22 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add missing ";;" on the last alternative in some
+	  case statements.
+	* configure.ac: Try to enable PHP bindings to build out of the
+	  box on cygwin (needs testing).
+
 Wed Feb 15 21:02:42 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/README: Updated the java TODO list.

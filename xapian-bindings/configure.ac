@@ -31,7 +31,7 @@ darwin*)
   10.[[012]])
     AC_MSG_WARN([Overriding MACOSX_DEPLOYMENT_TARGET from $MACOSX_DEPLOYMENT_TARGET to 10.3])
     MACOSX_DEPLOYMENT_TARGET=10.3 ;;
-  esac
+  esac ;;
 esac
 
 dnl Use libtool to manage our libraries, but don't build static libraries as
@@ -199,7 +199,7 @@ if test no != "$with_python" ; then
 	mingw* | pw32*)
 	  PYTHON_LIBS=`$PYTHON -c 'import os,sys;print "-L"+os.path.join(sys.prefix,"libs").replace(os.sep,"/"),"-lpython"+sys.version[[:3]].replace(".","")'` ;;
 	*)
-	  PYTHON_LIBS=
+	  PYTHON_LIBS= ;;
 	esac
 	AC_SUBST(PYTHON_LIBS)
 	BINDINGS="$BINDINGS python"
@@ -224,10 +224,12 @@ if test no != "$with_php" ; then
     4.*)
       dnl If the php interpreter can't be found, skip the php tests.
       AC_PATH_PROGS(PHP, ["$PHP" php4 php], [\$(top_srcdir)/skiptest])
+      php_version=4
       ;;
     5.*)
       dnl If the php interpreter can't be found, skip the php tests.
       AC_PATH_PROGS(PHP, ["$PHP" php5 php], [\$(top_srcdir)/skiptest])
+      php_version=5
       ;;
     *)
       if test yes = "$with_php" ; then
@@ -241,6 +243,16 @@ if test no != "$with_php" ; then
       AC_SUBST(PHP_INC)
       PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
       AC_SUBST(PHP_EXTENSION_DIR)
+      case $host_os in
+      mingw* | pw32*)
+	dnl This is a bit of an informed guess, pending more information from
+	dnl someone who actually has cygwin and wants to build the PHP bindings
+	dnl there.  FIXME.
+	PHP_LIBS="-L`$PHP_CONFIG --prefix` -lphp${php_version}ts" ;;
+      *)
+	PHP_LIBS= ;;
+      esac
+      AC_SUBST(PHP_LIBS)
       BINDINGS="$BINDINGS php"
     fi
   fi
