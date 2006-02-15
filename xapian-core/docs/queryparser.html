@@ -58,5 +58,11 @@ match the unstemmed form.
 <H3>Searching for already stemmed forms</H3>
 <P>A term which ends with a dot is assumed to be already stemmed.  This isn't
 useful for users, but omega uses it sometimes for terms added from topterms.
+<H3>Wildcards</H3>
+<P>The QueryParser supports using a trailing '*' wildcard, which matches any
+number of trailing characters, so <code>wildc*</code> would match wildcard,
+wildcarded, wildcards, wildcat, wildcats, etc.  This feature is disabled
+by default - pass Xapian::QueryParser::FLAG_WILDCARD in the flags argument
+to Xapian::QueryParser::parse_query() to enable it.
 </BODY>
 </HTML>

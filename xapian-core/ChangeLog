@@ -1,3 +1,7 @@
+Wed Feb 15 21:23:38 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.html: Document right-truncation.
+
 Wed Feb 15 21:08:37 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Fixed to output usage correctly if no arguments
