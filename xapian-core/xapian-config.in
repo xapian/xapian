@@ -114,7 +114,9 @@ extract_dependency_libs_() {
 builddir=`echo $0|sed 's![^/]*$!!'`
 xo_lib_xapian=no
 
-while arg=$1 && shift ; do
+while [ 0 != "$#" ] ; do
+    arg=$1
+    shift
     case $arg in
     --help)
 	show_usage 0

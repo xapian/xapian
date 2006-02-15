@@ -1,3 +1,7 @@
+Wed Feb 15 21:58:23 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Fix option loop to work on shells other than bash.
+
 Wed Feb 15 21:38:38 GMT 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Tweak wording of a documentation comment.
