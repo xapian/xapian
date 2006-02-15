@@ -95,11 +95,11 @@ class QueryParser {
 	FLAG_BOOLEAN = 1,
 	/// Support quoted phrases.
 	FLAG_PHRASE = 2,
-	// Support + and -.
+	/// Support + and -.
 	FLAG_LOVEHATE = 4,
-	// Support AND, OR, etc even if they aren't in ALLCAPS.
+	/// Support AND, OR, etc even if they aren't in ALLCAPS.
 	FLAG_BOOLEAN_ANY_CASE = 8,
-	// Support right truncation (e.g. Xap*).
+	/// Support right truncation (e.g. Xap*).
 	FLAG_WILDCARD = 16
     } feature_flag;
 
@@ -147,7 +147,13 @@ class QueryParser {
     /// Specify the database being searched.
     void set_database(const Database &db);
 
-    /// Parse a query.
+    /** Parse a query.
+     * 
+     *  @param query_string  A free-text query as entered by a user
+     *  @param flags         Zero or more Query::feature_flag specifying
+     *		what features the QueryParser should support.  Combine
+     *		multiple values with bitwise-or (|).
+     */
     Query parse_query(const std::string &query_string,
 		      unsigned flags = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE);
 

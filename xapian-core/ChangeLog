@@ -1,3 +1,10 @@
+Wed Feb 15 21:34:55 GMT 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Fix documentation comments for the
+	  values of QueryParser::feature_flag so doxygen actually pulls out
+	  the documentation for them.  Add documentation for the parameters
+	  of QueryParser::parse_query().
+
 Wed Feb 15 21:26:48 GMT 2006  Olly Betts <olly@survex.com>
 
 	* bin/quartzcheck.cc: If the database is too broken to open, emit a
