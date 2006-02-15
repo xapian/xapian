@@ -1,3 +1,7 @@
+Wed Feb 15 21:38:38 GMT 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Tweak wording of a documentation comment.
+
 Wed Feb 15 21:34:55 GMT 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Fix documentation comments for the

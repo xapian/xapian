@@ -1,10 +1,9 @@
 /** \file database.h
  * \brief API for working with Xapian databases
  */
-/* ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,9 +17,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef XAPIAN_INCLUDED_DATABASE_H
@@ -176,8 +174,8 @@ class Database {
 	/** Return the total number of occurrences of the given term.
 	 *
 	 *  This is the sum of the number of ocurrences of the term in each
-	 *  document: ie, the sum of the within document frequencies of the
-	 *  term.
+	 *  document it indexes: ie, the sum of the within document frequencies
+	 *  of the term.
 	 *
 	 *  @param tname  The term whose collection frequency is being
 	 *  requested.
