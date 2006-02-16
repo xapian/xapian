@@ -1,3 +1,8 @@
+Thu Feb 16 10:15:51 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Need to set exec_prefix and prefix at top of
+	  script as they're used by various @SUBSTITUTIONS@.
+
 Thu Feb 16 00:09:34 GMT 2006  Olly Betts <olly@survex.com>
 
 	* NEWS,PLATFORMS,configure.ac: Updated for 0.9.3.
