@@ -1,3 +1,16 @@
+xapian-core (0.9.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * API additions: some new functions to get version information, useful
+    when using a shared library of Xapian.
+  * Query parser bug fix with "+" terms when default op is AND.
+  * Query parser supports "AND NOT" as a synonym for "NOT".
+  * Various bug fixes - some errors threw unhelpful exception types. 
+  * Use updated versions of automake and libtool.
+  * Various documentation, debug and packaging updates.
+
+ -- Richard Boulton <richard@tartarus.org>  Thu, 16 Feb 2006 12:59:27 +0000
+
 xapian-core (0.9.2-1) unstable; urgency=low
 
   * New upstream release.
