@@ -1,3 +1,173 @@
+Xapian-core 0.9.3 (2006-02-16):
+
+API:
+
+* Added 4 functions to report version information for the library version being
+  used (which may not be the same as that compiled against if shared libraries
+  are in use):  xapian_version_string(), xapian_major_version(),
+  xapian_minor_version(), xapian_revision().
+
+* Xapian::QueryParser:
+
+  + Fix handling of "+" terms in a query when the default query operator is
+    AND.  Added regression test for this.
+
+  + Added "AND NOT" as a synonym for "NOT".  Added feature tests for this.
+
+* Fix prototype for ESet::operator[] to take parameter of type termcount
+  instead of doccount (doccount and termcount are both typedefs to the same
+  type so this really just makes the prototype more consistent).
+
+* Xapian::Stem: Check for malloc and calloc failing to allocate memory and
+  throw an exception.  Richard has fixed this upstream in snowball, so this is
+  a temporary fix until we import a new version of snowball.
+
+* Xapian::Database: Trying to open a database for reading which doesn't exist
+  now fails with DatabaseOpeningError instead of FeatureUnavailableError.
+  Added regression test for this.
+
+* Add Stopper::get_description() and SimpleStopper::get_description().
+
+testsuite:
+
+* Fixed testsuite harness to work with valgrind on 64 bit platforms.
+
+* Merged the "running tests" section of docs/tests.html into the similar
+  section in HACKING, and make docs/tests.html refer the reader to HACKING for
+  more information.
+
+* Tidied and enhanced environmental variables which the test suite harness
+  recongnises:
+ 
+  + OM_TEST_BACKEND: Removed support since the "-b" switch to apitest allows
+    you control which backend is used, making OM_TEST_BACKEND pretty much
+    redundant.
+
+  + XAPIAN_SIG_DFL: Renamed to XAPIAN_TESTSUITE_SIG_DFL.
+
+  + XAPIAN_TESTSUITE_OUTPUT: New environmental variable to control use of
+    ANSI colour escape sequences in test output (set to "plain" to disable
+    them, unset, empty, or "auto" to check if stdout is a tty, or anything
+    else to force colour).
+
+flint backend:
+
+* xapian-compact: Added "--multipass" option to merge postlists in pairs or
+  triples until all are merged.  Generally this is faster than an N-way merge,
+  but it does require more disk space for temporary files so it's not the
+  default.
+
+quartz backend:
+
+* quartzcheck: If the database is too broken to open, emit a warning message
+  and bump the error count.
+
+build system:
+
+* Now generate snapshots and releases with automake 1.9.6 (was 1.9.5) and
+  libtool 1.5.22 (was 1.5.18).
+
+* configure: If not cross-compiling, try to actually run a test program built
+  with the C++ compiler, not just link one.
+
+* configure: Fix to actually skip the check for valgrind if VALGRIND is set to
+  an empty value.
+
+* configure: Add sanity check for MS Windows that "find" is Unix-like find, not
+  MSDOS-like.
+
+* Fix conditional compilation of flint backend - it was being disabled when
+  quartz was, not when flint was supposed to be.
+
+documentation:
+
+* INSTALL,README: Updated.
+
+* Give pointer to replacements for the deprecated Enquire sorting methods
+  in the doxygen collated documentation.
+
+* PLATFORMS: Added success reports for ppc64 linux and Fedora Core 4.  Updated
+  from the tinderbox.
+
+* HACKING: Note platforms valgrind now has solid support for; Improve
+  phrasing in a few places.
+
+* Upgrade to using doxygen 1.4.6 for generating API documentation.
+
+* Change title of the "full source" documentation to "Internal Source
+  Documentation" rather than "Full source documentation" to make it
+  clearer it's only useful if you want to modify Xapian itself.
+
+* Fix documentation comments for the values of QueryParser::feature_flag so
+  doxygen actually pulls out the documentation for them.  Add documentation for
+  the parameters of QueryParser::parse_query().
+
+* queryparser.html: Document wildcards.
+
+portability: 
+
+* Fix compilation with GCC 4.0.1 and later (need to forward declare class
+  InMemoryDatabase) (bug #69).
+
+* Fix compilation under cygwin (broken in 0.9.2).
+
+* Don't pass NULL for the second parameter of execl() - the Linux man page
+  says execl takes "one or more pointers to null-terminated strings".  Also
+  cast the NULL to (void*) to avoid "missing sentinel" warning from GCC4.
+
+* Use snprintf instead of sprintf where available (we were attempting to
+  do this in some places before, but the configure test was broken so
+  sprintf was always being used).
+
+* Enable more warnings under aCC and fix minor issues highlighted.  Suppress
+  "Entire translation unit was empty" warning which isn't useful to us.
+
+* Write top-bit set characters in the source using \xXX notation to avoid
+  warnings from Intel's C++ compiler.
+
+* configure: TYPE_SOCKLEN_T fails hard, so only run it if we've successfully
+  run other socket tests.
+
+* queryparser/accentnormalisingitor.h: #include <limits.h> for CHAR_BIT.
+
+* bin/xapian-compact.cc: Fix printf type mismatch on 64 bit platforms.
+
+* Replace pair<bool, string> with a simple class BoolAndString - the pair
+  results in a 4328 byte symbol on HP-UX which gets truncated (to 4000 bytes).
+  Most likely this is harmless, but it causes a warning.
+
+* configure: Disable flint backend by default if building for djgpp or msdos.
+
+* xapian-config: Previously when linking without libtool we've always thrown
+  in dependency_libs, even though only some platforms need it (because it's
+  generally pretty harmless).  However some Linux distros have an unhelpful
+  policy of not packaging .la files, so libxapian.la isn't available to
+  extract dependency_libs from.  Linux is a platform which doesn't require
+  dependency_libs to be explicitly linked, so extend xapian-config to not
+  pull in dependency_libs if libtool's link_all_deplibs_CXX=no.
+
+* xapian-config: If the current platform needs dependency_libs and
+  libxapian.la's dependency_libs contains another .la file, transform it into a
+  pair of -L and -l options, and recursively expand its dependency_libs (if
+  any).
+
+* Don't pass functions with C++ linkage to places wanting pointers to functions
+  with C linkage.  So far this has worked for us, but it causes warnings with
+  some compilers, and may not be portable.
+
+* Compaq C++ 7.1 doesn't suffer from the problem which previously prevented
+  it from building Xapian.  This release includes workarounds for some
+  oddities with errno.h support in this compiler, but currently the build
+  fails when trying to link a binary with the library.
+
+packaging:
+
+* RPM: Invoke %setup correctly in xapian.spec.
+
+debug code:
+
+* Add missing '#include <iostream>' when TIMING_PATCH is defined.
+
 Xapian-core 0.9.2 (2005-07-15):
 
 API:

@@ -8,7 +8,7 @@ dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT(xapian-core, 0.9.2)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-core, 0.9.3)dnl FIXME: bugreport addr as third argument
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -51,13 +51,11 @@ dnl 4:0:1 0.8.2 (Xapian::ESet::back and many other methods added)
 dnl 4:1:1 0.8.3 No API changes
 dnl 5:0:0 0.8.4 BM25Weight ctor parameters reordered
 dnl 5:1:0 0.8.5 No API changes
-dnl and for the next release:
 dnl 6:0:0 0.9.0 QueryParser API overhauled, etc
 dnl 7:0:0 0.9.1 Query::get_terms_end() now inline in header
 dnl 8:0:0 0.9.2 QueryParser::parse_query has new optional argument
-dnl and currently:
 dnl 9:0:1 0.9.3 Added xapian_version_string(), etc
-LIBRARY_VERSION_INFO=8:0:0
+LIBRARY_VERSION_INFO=9:0:1
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Check the build directory doesn't contain a space, so we die early with
