@@ -1,3 +1,9 @@
+Thu Feb 16 00:11:00 GMT 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.9.3.
+	* php/Makefile.am: Missing change for trying to enable PHP bindings
+	  to build out of the box on cygwin.
+
 Wed Feb 15 23:18:22 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add missing ";;" on the last alternative in some
