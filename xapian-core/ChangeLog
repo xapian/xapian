@@ -1,3 +1,7 @@
+Thu Feb 16 10:16:31 GMT 2006  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated from tinderbox.
+
 Thu Feb 16 10:15:51 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Need to set exec_prefix and prefix at top of

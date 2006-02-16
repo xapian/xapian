@@ -54,7 +54,7 @@ x86   |=Linux 2.6 RHEL AS4 IntelC++ 9.0| 0.9.3 |Passed| (td163,185)
 x86   |=Linux 2.6 RHEL ES4 GCC 3.4.4   | 0.9.3 |Passed| (td141)
 x86   |=Linux 2.6 RHEL ES4 GCC 4.0.1   | 0.9.3 |Passed| (td141)
 x86   |=Linux 2.6 RHEL ES4 IntelC++ 8.1| 0.9.3 |Passed| (td141)
-x86   |=Linux 2.6 RHEL ES4 IntelC++ 9.0|~0.9.3 |Passed| (td141)
+x86   |=Linux 2.6 RHEL ES4 IntelC++ 9.0| 0.9.3 |Passed| (td141)
 x86   | Linux 2.4 Slackw. 9.1 GCC 3.2.3|~0.8.1 |Passed| from tweakers.net
 x86   | Linux 2.6 Debian 3.0 GCC 2.95.4| 0.8.2 |Passed| from gmane.org
 x86   |*Linux 2.6 RedHat FC2 GCC 3.3.3 | 0.9.3 |Passed| (x86-linux2)
@@ -79,8 +79,8 @@ x86   |*NetBSD 2.0 GCC 3.3.3           | 0.9.3 |Passed| (x86-netbsd1)
 x86   |=NetBSD 2.0 GCC 3.3.3           | 0.9.3 |Passed| (td143)
 x86   |#OpenBSD 3.4 GCC 2.95.3         | 0.9.0 |Passed| (was x86-openbsd1)
 x86   |*OpenBSD 3.8 GCC 3.3.5          | 0.9.3 |Passed| (x86-openbsd1)
-x86   |*Solaris 9 GCC 3.3.2            |~0.9.3 |Passed| (x86-solaris1)
-x86   |*Solaris 9 Sun Workshop C++ 5.5 |~0.9.3 |Passed| (x86-solaris1) [2]
+x86   |*Solaris 9 GCC 3.3.2            | 0.9.3 |Passed| (x86-solaris1)
+x86   |*Solaris 9 Sun Workshop C++ 5.5 | 0.9.3 |Passed| (x86-solaris1) [2]
 x86   | Cygwin 1.5.10 GCC 3.3.3 XP sp2 |~0.8.4 |Passed| [4] from Mike Boone
 x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
 x86   | MinGW 3.1.0                    |~0.8.4 |Passed| from Michael Sisolak
