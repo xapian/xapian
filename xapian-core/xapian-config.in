@@ -18,10 +18,10 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-# ${prefix} and ${exec_prefix} are used in some @SUBSTITUTIONS@, and
-# ${prefix} is usually used in ${prefix}.
-prefix="/opt/xapian"
-exec_prefix="${prefix}"
+# ${prefix} and ${exec_prefix} are used in some @-substitutions, and
+# ${prefix} is usually used in the exec_prefix @-substitution.
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
 
 # Show usage information and exit with the specified exit status.
 show_usage() {

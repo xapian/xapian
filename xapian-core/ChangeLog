@@ -1,3 +1,8 @@
+Thu Feb 16 10:23:59 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Oops, fix previous fix (I'd pasted the substituted
+	  result from testing the patch...)
+
 Thu Feb 16 10:16:31 GMT 2006  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated from tinderbox.
