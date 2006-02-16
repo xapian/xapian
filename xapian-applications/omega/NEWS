@@ -1,3 +1,88 @@
+Omega 0.9.3 (2006-02-16):
+
+documentation:
+
+* overview.txt: The U prefix (URL term) was grouped with the date searching
+  prefixes, but it makes more sense to group it with the prefixes relating to
+  parts of the URL (H for hostname, P for path, etc).
+
+* overview.txt: Add pointer to documentation of the supported query syntax.
+
+* omegascript.txt: Improve descriptions of $cgi, $collapsed, $value, $version.
+
+* termprefixes.txt: Fix typo.
+
+indexers:
+
+* omindex: add --preserve-nonduplicates / -p option to not delete any documents
+  that aren't updated, in replace duplicates mode (so that multiple runs of
+  omindex on different subsites don't stomp on each other).
+
+* omindex,scriptindex: Add "--stemmer" option to omindex and scriptindex
+  to allow the stemming language to be set.  Fixes bug#11.
+
+* omindex,scriptindex: More consistent --help and --version output.
+
+* omindex: Add support for OpenDocument format mimetypes and extensions out of
+  the box.  Previously you could index them but had to pass a "-m" option for
+  each OpenDocument filename extension you wanted to handle.
+
+* scriptindex: The "-q" option no longer actually controls anything.  Just
+  ignore it for backwards compatibility (and don't document it in --help).
+
+omega:
+
+* If executing an OmegaScript command causes a Xapian exception to be thrown,
+  catch it and copy the error message into error_msg (which is read by the
+  $error command).  This allows such errors to reported in a nicer way.
+
+* Added "SORTREVERSE" CGI parameter which allows the sort order to be reversed
+  when sorting on a value.  Removed "SORTBANDS" CGI parameter since it no
+  longer does anything.
+ 
+* Added	$find{LIST,STRING} to return the subscript of the first occurence of
+  string STRING in list LIST.
+
+* Added $lookup{CDBFILE,KEY} OmegaScript command to perform a lookup in a CDB
+  file.
+
+* Added new feature which allows you to avoid storing fieldnames in every
+  document.  Instead you just store the field values, one per line, and add
+  something like "$set{fieldnames,$split{caption sample url}}" to the
+  OmegaScript template to specify the fieldnames to use.  This can save a lot
+  of disk space for a large database.
+
+* Add new "$split{}" OmegaScript command which splits a string to give an
+  OmegaScript list.
+
+* Fix $url{} to escape "+" to "%2b".  Also fix encoding of top-bit-set
+  characters on platforms where char is signed by default.
+
+* Speed up $highlight{} - only compare terms which are the same length.
+
+* Reduce memory usage if a lot of documents are marked as relevant.
+
+templates:
+
+* query: Make the page title shorter so there's more chance it will fit on icon
+  bars, etc.
+
+* opensearch: Add missing escaping.
+
+* godmode: If a non-existent docid is specified, report the error and prompt
+  the user to enter another docid.  Fixes bug#60.
+
+portability:
+
+* omega: Fix printf type mismatch on 64 bit platforms.
+
+* omega: Cast time_t to unsigned long to avoid problems on 64bit platforms.
+
+* Use snprintf where available.
+
+* Write top-bit set characters using \xXX notation to avoid warnings from
+  Intel's C++ compiler.
+
 Omega 0.9.2 (2005-07-15):
 
 * omega: Changed $highlight so if OPEN and CLOSE aren't specified, they default
@@ -14,7 +99,7 @@ Omega 0.9.2 (2005-07-15):
 
 * scriptindex: Fix infinite loop if there's no newline at the end of a dumpfile.
 
-* docs/termprefixes.txt: Explain who to use termprefixes with scriptindex and
+* docs/termprefixes.txt: Explain how to use termprefixes with scriptindex and
   omega, since that's what most people will want to know.
 
 * docs/omegascript.txt: Use standard "S" prefix for title in example for

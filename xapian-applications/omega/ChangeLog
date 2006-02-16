@@ -1,3 +1,7 @@
+Thu Feb 16 00:10:22 GMT 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.9.3.
+
 Wed Feb 08 13:01:15 GMT 2006  Olly Betts <olly@survex.com>
 
 	* templates/query: Make the page title shorter so there's more chance
