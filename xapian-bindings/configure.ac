@@ -23,16 +23,22 @@ dnl
 dnl NB we must do this *BEFORE* AC_PROG_LIBTOOL since that is what checks
 dnl MACOSX_DEPLOYMENT_TARGET.
 AC_CANONICAL_HOST
+OVERRIDE_MACOSX_DEPLOYMENT_TARGET=
 case $host_os in
 darwin*)
   case $MACOSX_DEPLOYMENT_TARGET in
   "")
-    MACOSX_DEPLOYMENT_TARGET=10.3 ;;
+    OVERRIDE_MACOSX_DEPLOYMENT_TARGET=10.3 ;;
   10.[[012]])
     AC_MSG_WARN([Overriding MACOSX_DEPLOYMENT_TARGET from $MACOSX_DEPLOYMENT_TARGET to 10.3])
-    MACOSX_DEPLOYMENT_TARGET=10.3 ;;
+    OVERRIDE_MACOSX_DEPLOYMENT_TARGET=10.3 ;;
   esac ;;
 esac
+AM_CONDITIONAL(OVERRIDE_MACOSX_DEPLOYMENT_TARGET, test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET")
+AC_SUBST(OVERRIDE_MACOSX_DEPLOYMENT_TARGET)
+if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
+  MACOSX_DEPLOYMENT_TARGET=$OVERRIDE_MACOSX_DEPLOYMENT_TARGET
+fi
 
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
@@ -244,7 +250,7 @@ if test no != "$with_php" ; then
       PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
       AC_SUBST(PHP_EXTENSION_DIR)
       case $host_os in
-      mingw* | pw32*)
+      cygwin* | mingw* | pw32*)
 	dnl This is a bit of an informed guess, pending more information from
 	dnl someone who actually has cygwin and wants to build the PHP bindings
 	dnl there.  FIXME.

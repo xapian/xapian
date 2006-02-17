@@ -5,6 +5,11 @@ TESTS_ENVIRONMENT = $(TCLSH)
 ## Test programs to be run
 TESTS = smoketest.tcl
 
+if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
+# This requires GNU make, but apparently that's the default on OS X.
+export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
+endif
+
 EXTRA_DIST = util.i $(TESTS) $(BUILT_SOURCES)
 SUBDIRS = docs
 

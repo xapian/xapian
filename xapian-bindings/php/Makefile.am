@@ -5,6 +5,11 @@ TESTS_ENVIRONMENT = $(PHP) -n -d extension_dir=.libs
 ## Test programs to be run
 TESTS = smoketest.php
 
+if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
+# This requires GNU make, but apparently that's the default on OS X.
+export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
+endif
+
 EXTRA_DIST = util.i xapian.php $(TESTS)
 SUBDIRS = docs
 

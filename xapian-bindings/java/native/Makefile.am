@@ -1,3 +1,10 @@
+## Process this file with automake to produce Makefile.in
+
+if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
+# This requires GNU make, but apparently that's the default on OS X.
+export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
+endif
+
 # directory to install xapian_jni.{so,dynlib,dll,sl,...} in
 jnidir = `pwd`/../built
 jni_LTLIBRARIES = libxapian_jni.la

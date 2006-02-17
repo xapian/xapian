@@ -5,6 +5,11 @@ TESTS_ENVIRONMENT =
 ## Test programs to be run
 TESTS = SmokeTest.exe
 
+if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
+# This requires GNU make, but apparently that's the default on OS X.
+export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
+endif
+
 EXTRA_DIST = util.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
 
 SUBDIRS = docs

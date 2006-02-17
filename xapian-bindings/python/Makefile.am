@@ -5,6 +5,11 @@ TESTS_ENVIRONMENT = PYTHONPATH="@PYTHON_MODERN_OR_OLDE@$(PYTHON_PATHSEP).libs" $
 ## Test programs to be run
 TESTS = smoketest.py
 
+if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
+# This requires GNU make, but apparently that's the default on OS X.
+export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
+endif
+
 # Interleave modern and olde as the .cc-s and .h-s are probably identical,
 # the .py-s are very similar, and gzip will compress this redundancy away if
 # its close enough together for it to notice.

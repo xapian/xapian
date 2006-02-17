@@ -1,5 +1,10 @@
 ## Process this file with automake to produce Makefile.in
 
+if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
+# This requires GNU make, but apparently that's the default on OS X.
+export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
+endif
+
 EXTRA_DIST = util.i $(BUILT_SOURCES)
 
 noinst_LTLIBRARIES = xapianc.la
