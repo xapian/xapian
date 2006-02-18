@@ -1,12 +1,40 @@
 Revision history for Perl extension Search::Xapian.
 
+0.9.2.4  Fri Feb 15 14:59:23 2006
 	- Catch C++ exceptions from QueryParser and rethrow them as Perl
 	  exceptions.
 
-Changes from
+0.9.2.3  Thu Feb 16 16:57:43 2006
+	[Changes contributed by Benjamin Smith]
+	- Corrected module names advertised in the POD.
+	- Added new_term method to Search:Xapian::Query.
+	- Fixed the package statement in BoolWeight.pm.
+	- Removed useless prototypes in Search::Xapian::Query.
+	- some extraneous blank lines removed (from >1 lines to just 1 line)
+	[Changes contributed by Peter Karman]
+	- Added set_sort_by_value method  to Search::Xapian::Enquire
+	[Changes contributed by Marcus Ramberg]
+	- Fixed get_term_end in Search::Xapian::Query
+	- Added set_stemmer in Search::Xapian::QueryParser
+	- Added get_terms in Search::Xapian::Query
+
+0.9.2.2  Tue Sep  6 16:48:30 2005
+	[Changes contributed by Marcus Ramberg]
+	- Added a lot of documentation.
+	- Added support for setting weighting schemes in ::Enquire
+	- Added add_prefix and add_boolean_prefix to QueryParser.
+	- Added support for flags to parse_query
+	- Added basic exception handling for QueryParser.
+
 0.9.2.1  Mon Aug  8 12:24:34 2005
 	- Let perl know Search::Xapian::WritableDatabase is a subclass of 
 	  Search::Xapian::Database by adding the latter to the former's @INC.
+
+0.9.2.0  Mon Aug  8 12:08:25 2005
+	- Removed 'set_window', 'set_cutoff', 'set_elite_set_size' and
+	  'set_length' methods from Xapian::Query class
+	- Switched Search::Xapian::Stopper from using now abstract
+	  Xapian::Stopper class to Xapian::SimpleStopper subclass.
 
 0.9.0.0  ??? Jun ?? ??:??:?? 2005
 	[Changes contributed by Olly Betts and Tim Brody]

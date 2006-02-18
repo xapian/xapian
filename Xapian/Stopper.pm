@@ -22,4 +22,21 @@ our @EXPORT = qw( );
 
 # Preloaded methods go here.
 
+sub new() {
+  my $class = shift;
+  my $stopper;
+  my $invalid_args;
+  if( scalar(@_) == 0 ) {
+    $stopper = new1();
+  } else {
+    $stopper = new2(@_);
+  }
+  if( $invalid_args ) {
+    Carp::carp( "USAGE: $class->new(), $class->new(\@words)" );
+    exit;
+  }
+  bless $stopper, $class;
+  return $stopper;
+}
+
 1;

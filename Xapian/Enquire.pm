@@ -21,6 +21,7 @@ our @EXPORT_OK = ( );
 
 our @EXPORT = qw( );
 
+
 # Preloaded methods go here.
 
 sub set_query {
@@ -80,4 +81,79 @@ sub get_matching_terms_end {
   exit;
 }
 
+=head1 NAME
+
+Search::Xapian::Enquire - Make queries against a database
+
+=head1 DESCRIPTION
+
+This class provides an interface to the information retrieval system for the 
+purpose of searching.
+
+=head1 METHODS
+
+=over 4
+
+=item new
+
+=item set_query
+
+takes either a ready made L<Search::Xapian::Query> or a scalar containing
+a query, which in that case will be passed to L<Search::Xapian::Query>'s
+constructor, together with any other passed arguments.
+
+=item set_query_object <query>
+
+=item get_query
+
+=item matches <start> <size>
+
+Takes the start element, and maximum number of elements, and
+returns an array tied to L<Search::Xapian::MSet::Tied>. 
+
+=item get_matching_terms_begin
+
+Returns a L<Search::Xapian::TermIterator>, pointing to the start
+of the stream.
+
+=item get_matching_terms_end 
+
+Returns a L<Search::Xapian::TermIterator>, pointing to the end 
+of the stream.
+
+=item set_collapse_key <collapse_key>
+
+=item set_sort_forward <sort_forward>
+
+=item set_cutoff <percent_cutoff> [<weight_cutoff>]
+
+=item set_sorting <sort_key> <sort_bands> [<sort_by_relevance>]
+
+=item set_bias <bias_weight>=item set_sorting <sort_key> <sort_bands> [<sort_by_relevance>]
+
+=item set_bias <bias_weight> <bias_halflife>
+
+=item get_mset
+
+Get match set.
+
+=item get_eset
+
+=item register_match_decoder <name> <mdecider>
+
+See xapian api doc for these functions.
+
+=item get_description
+
+Returns a description of the object (for introspection).
+
+=back
+
+=head1 SEE ALSO
+
+L<Search::Xapian::Query>, L<Search::Xapian::Database>
+
+=cut
+
 1;
+

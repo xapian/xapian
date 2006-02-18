@@ -5,6 +5,8 @@ use strict;
 use warnings;
 use Carp;
 
+use UNIVERSAL qw( isa );
+
 require Exporter;
 require DynaLoader;
 
@@ -19,6 +21,60 @@ our @EXPORT_OK = ( );
 
 our @EXPORT = qw( );
 
+=head1 NAME 
+
+Search::Xapian::PositionIterator - Iterate over sets of positions.
+
+=head1 DESCRIPTION
+
+This iterator represents a stream of positions for a term. It overloads 
+++ for incrementing the iterator, or you can explicitly call the inc 
+method.  This class also overloads 'eq',ne, and "" (stringification)
+
+=head1 METHODS
+
+=over 4
+
+=item new 
+
+Constructor. Defaults to a uninitialized iterator.
+
+=item clone
+
+=item inc
+
+Increase the iterator by one. (Called implictly by '++' overloading )
+
+=item skip_to <tname>
+
+Skip the iterator to term tname, or the first term after tname if tname 
+isn't in the list of terms being iterated. 
+
+=item get_position
+
+Returns the current position.
+
+=item get_description
+
+Returns a string describing this object.  (for introspection)
+
+=item equal <term>
+
+Checks if a term is the same as this term. Also overloaded to the 'eq'
+operator.
+
+=item nequal <term>
+
+Checks if a term is dfferent from this term. Also overloaded to the 'ne'
+operator.
+
+=item get_termpos <term>
+
+Return the term position the iterator is currently on. also implemented
+as stringification.
+
+=cut
+
 
 # Preloaded methods go here.
 
@@ -28,7 +84,8 @@ use overload '++' => sub { $_[0]->inc() },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             '""' => sub { $_[0]->get_termpos() },
+             '""' => sub { $_[0]->get_description() },
+             '0+' => sub { $_[0]->get_termpos() },
              'fallback' => 1;
 
 sub clone() {
@@ -38,6 +95,25 @@ sub clone() {
   bless $copy, $class;
   return $copy;
 }
+
+sub equal() {
+  my ($self, $other) = @_;
+  if( isa($other, 'Search::Xapian::PositionIterator') ) {
+    $self->equal1($other);
+  } else {
+    ($self+0) == ($other+0);
+  }
+}
+
+sub nequal() {
+  my ($self, $other) = @_;
+  if( isa($other, 'Search::Xapian::PositionIterator') ) {
+    $self->nequal1($other);
+  } else {
+    ($self+0) != +($other+0);
+  }
+}
+
 
 sub new() {
   my $class = shift;
@@ -59,3 +135,12 @@ sub new() {
 }
 
 1;
+
+=back
+
+=head1 SEE ALSO
+
+L<Search::Xapian>,L<Search::Xapian::Document>
+
+=cut
+

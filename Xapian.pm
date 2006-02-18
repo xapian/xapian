@@ -16,10 +16,12 @@ use Search::Xapian::PostingIterator;
 use Search::Xapian::Query;
 use Search::Xapian::QueryParser;
 use Search::Xapian::RSet;
-use Search::Xapian::Stopper;
 use Search::Xapian::TermIterator;
 use Search::Xapian::ValueIterator;
 use Search::Xapian::WritableDatabase;
+
+use Search::Xapian::BM25Weight;
+use Search::Xapian::BoolWeight;
 
 use Search::Xapian::SimpleStopper;
 use Search::Xapian::PerlStopper;
@@ -54,6 +56,11 @@ our %EXPORT_TAGS = (
                                  DB_CREATE_OR_OPEN
                                  DB_CREATE_OR_OVERWRITE
                                  ) ],
+                    'enq_order' => [ qw(
+ 				 ENQ_DESCENDING
+ 				 ENQ_ASCENDING
+ 				 ENQ_DONT_CARE
+                                   ) ],
                     'qpflags' => [ qw(
 				 FLAG_BOOLEAN
 				 FLAG_PHRASE
@@ -69,7 +76,7 @@ $EXPORT_TAGS{standard} = [ @{ $EXPORT_TAGS{'ops'} },
 			   @{ $EXPORT_TAGS{'db'} },
 			   @{ $EXPORT_TAGS{'qpflags'} },
 			   @{ $EXPORT_TAGS{'qpstem'} } ];
-$EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} } ];
+$EXPORT_TAGS{all} = [ @{ $EXPORT_TAGS{'standard'} }, @{ $EXPORT_TAGS{'enq_order'} } ];
 
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
@@ -77,7 +84,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.9.0.0';
+our $VERSION = '0.9.2.4';
 
 bootstrap Search::Xapian $VERSION;
 
@@ -154,6 +161,76 @@ be found on the Xapian web site).
 =head2 EXPORT
 
 None by default.
+
+=head1 :db
+
+=over 4
+
+=item DB_OPEN
+
+Open a database, fail if database doesn't exist.
+
+=item DB_CREATE
+
+Create a new database, fail if database exists.
+
+=item DB_CREATE_OR_OPEN
+
+open the existing database, without destorying data, or create new.
+
+=item DB_CREATE_OR_OVERWRITE
+
+overwrite database if it exists
+
+=back
+
+=head1 :ops
+
+=over 4
+
+=item OP_AND
+
+Match if both subqueries are satisfied
+
+=item OP_OR
+
+Match if either subquery is satisfied.
+
+=item OP_AND_NOT
+
+Match if left but not right subquery is satisfied.
+
+=item OP_XOR
+
+Match if left or right, but not both queries are satisfied.
+
+=item OP_AND_MAYBE
+
+Match if left is satisfied, but use weights from both.
+
+=item OP_FILTER
+
+Like OP_AND, but only weight using the left query.
+
+=item OP_NEAR
+
+Match if the words are near eachother. The window should be specified, as
+a parameter to C<Search::Xapian::Query::Query>. but it defaults to the 
+number of terms in the list.
+
+=item OP_PHRASE
+
+Match as a phrase (All words in order).
+
+=item OP_ELITE_SET
+
+Select an elite set from the subqueries, and perform a query with these combined as an OR query. 
+
+=back
+
+=head1 :standard
+
+Standard is db + ops
 
 =head1 TODO
 

@@ -63,7 +63,8 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian
 PROTOTYPES: ENABLE
 
 
-INCLUDE: XS/Stem.xs
+INCLUDE: XS/BM25Weight.xs
+INCLUDE: XS/BoolWeight.xs
 INCLUDE: XS/Database.xs
 INCLUDE: XS/Document.xs
 INCLUDE: XS/Enquire.xs
@@ -74,14 +75,16 @@ INCLUDE: XS/ESetIterator.xs
 INCLUDE: XS/RSet.xs
 INCLUDE: XS/Query.xs
 INCLUDE: XS/QueryParser.xs
+INCLUDE: XS/SimpleStopper.xs
+INCLUDE: XS/Stem.xs
 INCLUDE: XS/Stopper.xs
 INCLUDE: XS/TermIterator.xs
 INCLUDE: XS/PostingIterator.xs
 INCLUDE: XS/PositionIterator.xs
 INCLUDE: XS/ValueIterator.xs
 INCLUDE: XS/WritableDatabase.xs
-
-INCLUDE: XS/SimpleStopper.xs
+INCLUDE: XS/Weight.xs
+ 
 
 BOOT:
     {
@@ -102,6 +105,10 @@ BOOT:
         newCONSTSUB( mHvStash, "DB_CREATE_OR_OPEN", newSViv(DB_CREATE_OR_OPEN) );
         newCONSTSUB( mHvStash, "DB_CREATE_OR_OVERWRITE", newSViv(DB_CREATE_OR_OVERWRITE) );
 
+        newCONSTSUB( mHvStash, "ENQ_DESCENDING", newSViv(Enquire::DESCENDING) );
+        newCONSTSUB( mHvStash, "ENQ_ASCENDING", newSViv(Enquire::ASCENDING) );
+        newCONSTSUB( mHvStash, "ENQ_DONT_CARE", newSViv(Enquire::DONT_CARE) );
+ 
         newCONSTSUB( mHvStash, "FLAG_BOOLEAN", newSViv(QueryParser::FLAG_BOOLEAN) );
         newCONSTSUB( mHvStash, "FLAG_PHRASE", newSViv(QueryParser::FLAG_PHRASE) );
         newCONSTSUB( mHvStash, "FLAG_LOVEHATE", newSViv(QueryParser::FLAG_LOVEHATE) );

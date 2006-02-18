@@ -38,12 +38,6 @@ Enquire::set_collapse_key(collapse_key)
         THIS->set_collapse_key(collapse_key);
 
 void
-Enquire::set_docid_order(order)
-    int         order
-    CODE:
-        THIS->set_docid_order(static_cast<Enquire::docid_order>(order));
-
-void
 Enquire::set_sort_forward(sort_forward)
     bool        sort_forward
     CODE:
@@ -84,17 +78,6 @@ Enquire::set_sort_by_value(sort_key, ascending = NO_INIT)
 	    THIS->set_sort_by_value(sort_key, ascending);
 	} else {
 	    THIS->set_sort_by_value(sort_key);
-	}
-
-void
-Enquire::set_sort_by_value_then_relevance(sort_key, ascending = NO_INIT)
-    valueno	sort_key
-    bool	ascending
-    CODE:
-	if (items == 3) { /* items includes the hidden this pointer */
-	    THIS->set_sort_by_value_then_relevance(sort_key, ascending);
-	} else {
-	    THIS->set_sort_by_value_then_relevance(sort_key);
 	}
 
 void
@@ -165,6 +148,19 @@ Enquire::register_match_decoder(name, mdecider)
     CODE:   
         THIS->register_match_decider(name, mdecider);
 
+void
+Enquire::set_docid_order(order)
+	int order    
+    CODE:
+	THIS->set_docid_order(static_cast<Enquire::docid_order>(order));
+
+void 
+Enquire::set_weighting_scheme(weight_)
+	Weight *  weight_
+    CODE:
+	THIS->set_weighting_scheme( *weight_);
+
+	
 string
 Enquire::get_description()
 
