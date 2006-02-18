@@ -250,9 +250,9 @@ if test no != "$with_php" ; then
       PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
       AC_SUBST(PHP_EXTENSION_DIR)
       case $host_os in
-      cygwin* | mingw* | pw32*)
+      mingw* | pw32*)
 	dnl This is a bit of an informed guess, pending more information from
-	dnl someone who actually has cygwin and wants to build the PHP bindings
+	dnl someone who actually has mingw and wants to build the PHP bindings
 	dnl there.  FIXME.
 	PHP_LIBS="-L`$PHP_CONFIG --prefix` -lphp${php_version}ts" ;;
       *)

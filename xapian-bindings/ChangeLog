@@ -1,3 +1,8 @@
+Sat Feb 18 15:35:06 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Actually, the windows special case code for PHP
+	  should *NOT* be active for cygwin too!
+
 Sat Feb 18 15:34:10 GMT 2006  Olly Betts <olly@survex.com>
 
 	* php/util.i: Fix so that generated code compiles with ZTS-enabled
