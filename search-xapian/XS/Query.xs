@@ -11,6 +11,16 @@ new1(term);
         RETVAL
 
 Query *
+new1weight(term, wqf, pos);
+    string	term
+    termcount	wqf
+    termpos	pos
+    CODE:
+	RETVAL = new Query(term, wqf, pos);
+    OUTPUT:
+	RETVAL
+
+Query *
 new2sv(op, subq);
     int		op
     string	subq

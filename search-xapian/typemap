@@ -7,7 +7,7 @@ Enquire *		O_OBJECT
 Query			O_QUERY
 Query *			O_QUERY
 QueryParser		O_QUERYPARSER
-QueryParser *	O_QUERYPARSER
+QueryParser *		O_QUERYPARSER
 Stopper			O_STOPPER
 Stopper *		O_STOPPER
 SimpleStopper		O_SIMPLESTOPPER
@@ -28,6 +28,12 @@ Document		O_DOC
 Document *		O_DOC
 MatchDecider		O_OBJECT
 MatchDecider *		O_OBJECT
+Weight			O_WEIGHT
+Weight *		O_WEIGHT
+BM25Weight		O_WEIGHT
+BM25Weight *		O_WEIGHT
+BoolWeight		O_WEIGHT
+BoolWeight *		O_WEIGHT
 
 TermIterator		O_TERM_I
 TermIterator *		O_TERM_I
@@ -191,12 +197,21 @@ O_VALUE_I
 		XSRETURN_UNDEF;
 	}
 
+O_WEIGHT
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::Weight\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::Weight\\\" object\" );
+		XSRETURN_UNDEF;
+	}
 
 OUTPUT
 STRING
 	sv_setpvn((SV*)$arg, (char *) ($var.data()), ($var.size()));
 O_MSET
 	sv_setref_pv( $arg, "Search::Xapian::MSet", (void*)$var );
+O_WEIGHT
+	sv_setref_pv( $arg, "Search::Xapian::Weight", (void*)$var );
 O_RSET
 	sv_setref_pv( $arg, "Search::Xapian::RSet", (void*)$var );
 O_ESET

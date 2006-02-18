@@ -26,7 +26,7 @@ PositionIterator::inc()
         ++(*THIS);
 
 bool
-PositionIterator::equal(that)
+PositionIterator::equal1(that)
     PositionIterator *	that
     CODE:
         RETVAL = ((*THIS) == (*that));
@@ -34,7 +34,7 @@ PositionIterator::equal(that)
         RETVAL
 
 bool
-PositionIterator::nequal(that)
+PositionIterator::nequal1(that)
     PositionIterator *	that
     CODE:
         RETVAL = ((*THIS) != (*that));

@@ -368,6 +368,7 @@ WritableDatabase::keep_alive()
             croak( "Exception: %s", error.get_msg().c_str() );
         }
 
+
 Document *
 WritableDatabase::get_document(docid did)
     CODE:

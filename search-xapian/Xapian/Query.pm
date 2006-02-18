@@ -71,6 +71,23 @@ sub new() {
   return $query;
 }
 
+sub new_term {
+  my $class = shift;
+  my $query;
+
+  if (@_ < 1 or @_ > 3) {
+    Carp::carp( "new_term takes 1, 2 or 3 arguments only" );
+  }
+  my ($term, $wqf, $pos) = @_;
+  $wqf = 1 unless defined $wqf;
+  $pos = 0 unless defined $pos;
+
+  $query = new1weight($term, $wqf, $pos);
+
+  bless $query, $class;
+  return $query;
+}
+
 sub _all_equal {
   my $first = shift;
   while(@_) {
@@ -78,5 +95,17 @@ sub _all_equal {
   }
   return 1;
 }
+
+sub get_terms {
+    my $self = shift;
+    my @terms;
+    my $q=$self->get_terms_begin;
+    while ($q ne $self->get_terms_end) {
+        push @terms,$q->get_termname;
+        $q++;
+    }
+    return @terms;
+}
+
 
 1;

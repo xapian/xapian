@@ -5,6 +5,8 @@ use strict;
 use warnings;
 use Carp;
 
+use Search::Xapian::Stopper;
+
 require Exporter;
 require DynaLoader;
 
