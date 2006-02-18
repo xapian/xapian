@@ -25,17 +25,6 @@
 #define COMPILE_DL_XAPIAN 1
 #endif
 
-namespace Xapian {
-    Query *get_php_query(zval *obj) {
-	Query * retval = 0;
-	if (SWIG_ConvertPtr(obj, (void **)&retval,
-			    SWIGTYPE_p_Xapian__Query, 0) < 0) {
-	    retval = 0;
-	}
-	return retval;
-    }
-}
-
 #include "../xapian-version.h"
 %}
 
@@ -98,7 +87,11 @@ namespace Xapian {
 	    const char *p = Z_STRVAL_PP(item);
 	    v.push_back(Xapian::Query(string(p, len)));
 	} else {
-	    Xapian::Query *subq = Xapian::get_php_query(*item);
+	    Xapian::Query *subq = 0;
+	    if (SWIG_ConvertPtr(*item, (void **)&subq,
+				SWIGTYPE_p_Xapian__Query, 0) < 0) {
+		subq = 0;
+	    }
 	    if (!subq) {
 		SWIG_PHP_Error(E_ERROR, "expected string or query object");
 	    }
