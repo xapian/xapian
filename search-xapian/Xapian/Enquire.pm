@@ -21,7 +21,6 @@ our @EXPORT_OK = ( );
 
 our @EXPORT = qw( );
 
-
 # Preloaded methods go here.
 
 sub set_query {
@@ -156,4 +155,3 @@ L<Search::Xapian::Query>, L<Search::Xapian::Database>
 =cut
 
 1;
-

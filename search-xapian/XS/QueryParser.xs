@@ -47,14 +47,14 @@ QueryParser::set_database(database)
 	THIS->set_database(*database);
 
 Query *
-QueryParser::parse_query(q)
+QueryParser::parse_query(q, flags = 7)
     string q
+    int flags
     CODE:
 	try {
 	    RETVAL = new Query();
-	    *RETVAL = THIS->parse_query(q);
-	}
-	catch (const char * err_msg) {
+	    *RETVAL = THIS->parse_query(q,flags);
+	} catch (const char * err_msg) {
 	    croak( "Exception: %s", err_msg );
 	}
     OUTPUT:

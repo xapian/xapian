@@ -48,6 +48,7 @@ Document::add_posting(tname, tpos, wdfinc = NO_INIT)
     termpos	tpos
     termcount	wdfinc
     CODE:
+	/* FIXME: catch exceptions for case where tname is empty? */
         if (items == 4) { /* items includes the hidden this pointer */
             THIS->add_posting(tname, tpos, wdfinc);
         } else {

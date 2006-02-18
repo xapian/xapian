@@ -21,15 +21,11 @@ our @EXPORT = qw( );
 
 =head1 NAME
 
-Search::Xapian::Document - Search database object
+Search::Xapian::Document - Document object
 
 =head1 DESCRIPTION
 
-This class represents a Xapian database for searching. See 
-L<Xapian::WriteableDatabase> for an object suitable for indexing.
-To perform searches, this class works with the L<Search::Xapian::Query>
-object.
-
+This class represents a document in a Xapian database.
 
 =head1 METHODS
 
@@ -39,8 +35,7 @@ object.
 
 =item new
 
-Class constructor. Can either take a path to an existing datbase
-or another database class as the first parameter
+Class constructor.
 
 =item clone
 

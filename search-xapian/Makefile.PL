@@ -5,6 +5,11 @@ my $CC = $ENV{"CXX"} || 'g++';
 my $xapian_config = $ENV{XAPIAN_CONFIG} || 'xapian-config';
 my $libs = `$xapian_config --libs`;
 my $inc  = `$xapian_config --cxxflags`;
+my $xver = `$xapian_config --version`;
+chomp($libs);
+chomp($inc);
+chomp($xver);
+$xver =~ s/.*\s//; # xapian 0.9.3 -> 0.9.3
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
@@ -26,6 +31,40 @@ WriteMakefile(
     'XSOPT'             => '-C++',
     'TYPEMAPS'          => ['perlobject.map','typemap'],
 );
+
+my $VERSION = "unknown";
+open F, "Makefile" or die $!;
+while (<F>) {
+    if (/^VERSION\s*=\s*(\S*)/) {
+	$VERSION = $1;
+	last;
+    }
+}
+close F;
+
+if ($VERSION !~ /^\Q$xver\E(?:\..*)?$/) {
+    warn "Warning: Xapian version $xver may be incompatible with Search::Xapian $VERSION\n";
+}
+
+my @bad;
+for my $file (qw(Changes META.yml README)) {
+    open F, $file or next;
+    my $ok;
+    while (<F>) {
+	if (/\b\Q$VERSION\E\b/) {
+	    $ok = 1;
+	    last;
+	}
+    }
+    close F;
+    if (!$ok) {
+	push @bad, $file;
+    }
+}
+if (scalar @bad) {
+    unlink "Makefile";
+    die(join(",",@bad).": No mention current version: $VERSION\n");
+}
 
 
 sub MY::postamble {

@@ -28,7 +28,7 @@ Search::Xapian::Database - Search database object
 =head1 DESCRIPTION
 
 This class represents a Xapian database for searching. See 
-L<Search::Xapian::WriteableDatabase> for an object suitable for indexing.
+L<Search::Xapian::WritableDatabase> for an object suitable for indexing.
 To perform searches, this class works with the L<Search::Xapian::Query>
 object.
 
@@ -39,7 +39,7 @@ object.
 
 =item new <database>
 
-Class constructor. Can either take a path to an existing datbase
+Class constructor. Can either take a path to an existing database
 or another database class as the first parameter
 
 =item clone
@@ -88,11 +88,7 @@ Get the number of documents in the database indexed by a given term.
 
 =item term_exists <term>
 
-returns true this term exists in the database, or false otherwise.
-
-=item termcount <term>
-
-Return the total number of occurrences of the given term. 
+returns true if this term exists in the database, or false otherwise.
 
 =item get_description
 
@@ -133,14 +129,14 @@ of the position list for a given term in the given document.
 Returns a L<Search::Xapian::PostingIterator> pointing to the 
 start of the posting list for a given term.
 
-=item keep_alive
-
-Send a "keep-alive" to remote databases to stop them timing out. 
-
 =item postlist_end <term>
 
 Returns a L<Search::Xapian::PostingIterator> pointing to the 
 end of the posting list for a given term.
+
+=item keep_alive
+
+Send a "keep-alive" to remote databases to stop them timing out. 
 
 =item get_collection_freq <term>
 
