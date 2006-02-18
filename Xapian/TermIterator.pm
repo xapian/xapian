@@ -26,7 +26,7 @@ Search::Xapian::TermIterator - Iterate over sets of terms.
 =head1 DESCRIPTION
 
 This object represents a stream of terms. It overloads ++ for
-incrementing the iterator, or you can explicitly call the inc method.
+advancing the iterator, or you can explicitly call the inc method.
 This class also overloads 'eq',ne, and "" (stringification)
 
 =head1 METHODS
@@ -41,7 +41,7 @@ Constructor. Defaults to a uninitialized iterator.
 
 =item inc
 
-Increase the iterator by one. (Called implictly by '++' overloading )
+Advance the iterator by one. (Called implictly by '++' overloading )
 
 =item skip_to <tname>
 
@@ -72,15 +72,15 @@ Return L<Search::Xapian:::PositionIterator> pointing to end of positionlist for 
 
 Returns a string describing this object. 
 
-=item equal <term>
+=item equal <termiterator>
 
-Checks if a term is the same as this term. Also overloaded to the 'eq'
-operator.
+Checks if a termiterator is the same as this termiterator. Also overloaded as
+the 'eq' and '!=' operators.
 
-=item nequal <term>
+=item nequal <termiterator>
 
-Checks if a term is dfferent from this term. Also overloaded to the 'ne'
-operator.
+Checks if a termiterator is different from this termiterator. Also overloaded
+as the 'ne' and '!=' operators.
 
 =cut
 

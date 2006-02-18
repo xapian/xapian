@@ -24,7 +24,7 @@ our @EXPORT = qw( );
 use overload '""' => sub { $_[0]->get_description() }, # FIXME: perhaps unwise?
              'fallback' => 1;
 
-sub new() {
+sub new {
   my $class = shift;
   my $query;
   my $invalid_args;
@@ -106,6 +106,5 @@ sub get_terms {
     }
     return @terms;
 }
-
 
 1;

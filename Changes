@@ -1,5 +1,20 @@
 Revision history for Perl extension Search::Xapian.
 
+0.9.3.0
+	[Changes contributed by Olly Betts]
+	- Wrap the BM25Weight constructor which takes parameters
+	  (the default one is much less useful, since Xapian defaults
+	  to BM25Weight with the default parameters anyway!)
+	- Wrap Enquire::set_sort_by_value_then_relevance()
+	- Wrap the optional flags parameter to QueryParser::parse_query().
+	- Fix typos and other problems in the POD documentation.
+	- Update the list of unwrapped classes and methods.
+	- Update the version in the README file.  Add code to Makefile.PL
+	  to check that the various references to the current version are
+	  all up-to-date.
+	- Makefile.PL now checks that the Xapian version and Search::Xapian
+	  version match, and if not issues a non-fatal warning (for now).
+
 0.9.2.4  Fri Feb 15 14:59:23 2006
 	- Catch C++ exceptions from QueryParser and rethrow them as Perl
 	  exceptions.
@@ -12,7 +27,7 @@ Revision history for Perl extension Search::Xapian.
 	- Removed useless prototypes in Search::Xapian::Query.
 	- some extraneous blank lines removed (from >1 lines to just 1 line)
 	[Changes contributed by Peter Karman]
-	- Added set_sort_by_value method  to Search::Xapian::Enquire
+	- Added set_sort_by_value method to Search::Xapian::Enquire
 	[Changes contributed by Marcus Ramberg]
 	- Fixed get_term_end in Search::Xapian::Query
 	- Added set_stemmer in Search::Xapian::QueryParser

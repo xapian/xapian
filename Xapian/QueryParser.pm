@@ -48,7 +48,7 @@ __END__
 
 =head1 NAME
 
-Search::Xapian::QueryParser - Parse a query string into a Query object
+Search::Xapian::QueryParser - Parse a query string into a Search::Xapian::Query object
 
 =head1 DESCRIPTION
 
@@ -62,7 +62,7 @@ a whole new syntax.
   use Search::Xapian qw/:standard/;
 
   my $qp = new Search::Xapian::QueryParser( [$database] );
-  $qp->set_stemming_options("english",1); # Replace 1 with 0 if you want to disable stemming
+  $qp->set_stemmer(new Search::Xapian::Stem("english"));
   $qp->set_default_op(OP_AND);
 
   $database->enquire($qp->parse_query('a word OR two NEAR "a phrase" NOT (too difficult) +eh'));
@@ -75,19 +75,22 @@ a whole new syntax.
 
 QueryParser constructor.
 
-=item set_stemming_options <language> <enabled>
+=item set_stemmer <stemmer>
 
-Set language for stemming, and weither it's going to be used at all
-enable can be 1 or 0.
+Set the Search::Xapian::Stem object to be used for stemming query terms.
 
-Currently supported options for language: danish, dutch, english, finnish, 
-french, german, italian, norwegian, portuguese, russian, spanish, and swedish
- 
+=item set_stemming_strategy <strategy>
+
+Set the stemming strategy.  Valid values are STEM_ALL, STEM_SOME, STEM_NONE.
+
+=item set_stopper <stopper>
+
+Set the Search::Xapian::Stopper object to be used for identifying stopwords.
+
 =item set_default_op <operator>
 
-Set default operator for joining elements. Can be one of  OP_AND, OP_OR,
-OP_AND_NOT, OP_XOR, OP_AND_MAYBE, OP_FILTER,OP_NEAR,OP_PHRASE or OP_ELITE_SET.
-See L<Search::Xapian> for descriptions of these constants.
+Set default operator for joining elements. Useful values are
+OP_AND and OP_OR.  See L<Search::Xapian> for descriptions of these constants.
 
 =item get_default_op
 
@@ -95,28 +98,32 @@ Returns the default operator for joining elements.
 
 =item set_database <database>
 
-Pass a L<Search::Xapian::Database> object to be used for searching.
+Pass a L<Search::Xapian::Database> object which is used to check whether
+terms exist in some situations.
 
 =item parse_query <query_string> [<flags>]
 
 parses the query string according to the rules defined in the query parser
 documentation below. Allows you to specify certain flags to modify the
-searching behavior:
+searching behaviour:
 
-  FLAG_BOOLEAN=1, FLAG_PHRASE=2, FLAG_LOVEHATE=4, 
-  FLAG_BOOLEAN_ANY_CASE=8, FLAG_WILDCARD = 16 
+  FLAG_BOOLEAN=1, FLAG_PHRASE=2, FLAG_LOVEHATE=4,
+  FLAG_BOOLEAN_ANY_CASE=8, FLAG_WILDCARD = 16
 
-default flags are FLAG_PHRASE,FLAG_BOOLEAN and FLAG_LOVEHATE
+default flags are FLAG_PHRASE, FLAG_BOOLEAN and FLAG_LOVEHATE
 
 =item add_prefix <field> <prefix>
 
 Add a probabilistic term prefix.  E.g. $qp->add_prefix("author", "A");
 
-Allows the user to search for author:orwell which will search for the term "Aorwel" (assuming English stemming is in use). Multiple fields can be mapped to the same prefix (so you can e.g. make title: and subject: aliases for each other).
+Allows the user to search for author:orwell which will search for the term
+"Aorwel" (assuming English stemming is in use). Multiple fields can be mapped
+to the same prefix (so you can e.g. make title: and subject: aliases for each
+other).
 
 Parameters:
 field 	The user visible field name
-prefix 	The term prefix to map this to 
+prefix 	The term prefix to map this to
 
 =item add_boolean_prefix <field> prefix
 
@@ -132,19 +139,25 @@ and domain: aliases for each other).
 
 Parameters:
 field 	The user visible field name
-prefix 	The term prefix to map this t 
+prefix 	The term prefix to map this to
 
-=item 
+=item stoplist_begin
+
+=item stoplist_end
+
+=item unstem_begin
+
+=item unstem_end
+
+=item get_description
+
+Returns a string describing this object.  (for introspection)
 
 =back
- 
+
 =head1 REFERENCE
 
   http://www.xapian.org/docs/queryparser.html
   http://www.xapian.org/docs/sourcedoc/html/classXapian_1_1QueryParser.html
-
-=head1 TODO
-
-Implement Xapian::Stopper.
 
 =cut
