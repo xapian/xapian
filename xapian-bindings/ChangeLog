@@ -1,3 +1,10 @@
+Sun Feb 19 01:10:14 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrap Stopper::get_description().
+	* xapian.i: Wrap xapian_version_string() and related functions.
+	* python/smoketest.py: Test wrapping of xapian_version_string()
+	  and related functions.
+
 Sat Feb 18 15:35:06 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Actually, the windows special case code for PHP

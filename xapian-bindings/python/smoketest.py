@@ -22,6 +22,12 @@ import sys
 import xapian
 
 try:
+    # Test the version number reporting functions give plausible results.
+    v = "%d.%d.%d" % (xapian.xapian_major_version(),
+                      xapian.xapian_minor_version(),
+                      xapian.xapian_revision())
+    if v != xapian.xapian_version_string():
+        sys.exit(1)
     stem = xapian.Stem("english")
     if stem.get_description() != "Xapian::Stem(english)":
         sys.exit(1)

@@ -241,6 +241,13 @@ static int XapianExceptionHandler(string & msg) {
 
 namespace Xapian {
 
+// from xapian/version.h
+
+const char * xapian_version_string();
+int xapian_major_version();
+int xapian_minor_version();
+int xapian_revision();
+
 class ExpandDecider;
 class MatchDecider;
 class Weight;
@@ -933,6 +940,7 @@ public:
 #endif
     virtual bool operator()(const std::string & term) const = 0;
     virtual ~Stopper() { }
+    virtual std::string get_description() const;
 };
 
 class SimpleStopper : public Stopper {
@@ -949,6 +957,7 @@ class SimpleStopper : public Stopper {
     }
 
     virtual ~SimpleStopper() { }
+    virtual std::string get_description() const;
 };
 
 class QueryParser {
