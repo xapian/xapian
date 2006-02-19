@@ -1,3 +1,8 @@
+Sun Feb 19 22:46:49 GMT 2006  Olly Betts <olly@survex.com>
+
+	* README: Add pointer to HACKING.  Change "CVS access" to "SVN
+	  access".
+
 Sun Feb 19 01:46:00 GMT 2006  Olly Betts <olly@survex.com>
 
 	* api/version.cc: Correct typo in name of function xapian_revision().
