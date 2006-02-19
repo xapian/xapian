@@ -1,6 +1,6 @@
 // version.cc: Return library version information
 //
-// Copyright (C) 2005 Olly Betts
+// Copyright (C) 2005,2006 Olly Betts
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,6 +26,6 @@ int xapian_major_version() { return XAPIAN_MAJOR_VERSION; }
 
 int xapian_minor_version() { return XAPIAN_MINOR_VERSION; }
 
-int xapain_revision() { return XAPIAN_REVISION; }
+int xapian_revision() { return XAPIAN_REVISION; }
 
 }
