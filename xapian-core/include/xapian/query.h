@@ -176,8 +176,8 @@ class Query {
 	 */
 	bool empty() const;
 
-	/** Deprecated alias for empty() */
-	bool is_empty() const { return empty(); }
+	/** @deprecated Deprecated alias for empty() */
+	XAPIAN_DEPRECATED(bool is_empty() const) { return empty(); }
 
 	/** Returns a string representing the query.
 	 *  Introspection method.

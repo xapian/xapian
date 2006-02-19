@@ -50,6 +50,7 @@ Database open_stub(const std::string &file);
  *
  * @param path  pathname of the file or directory containing the database.
  */
+XAPIAN_DEPRECATED(Database open(const std::string &path));
 inline Database open(const std::string &path) {
     return Database(path);
 }
@@ -63,6 +64,7 @@ inline Database open(const std::string &path) {
  *
  * @param path  pathname of the file or directory containing the database.
  */
+XAPIAN_DEPRECATED(WritableDatabase open(const std::string &path, int action));
 inline WritableDatabase open(const std::string &path, int action) {
     return WritableDatabase(path, action);
 }

@@ -1,3 +1,9 @@
+Sun Feb 19 23:18:09 GMT 2006  Olly Betts <olly@survex.com>
+
+	* include/Makefile.am,include/xapian/: Flag deprecated methods such
+	  that the compiler gives a warning, for compilers which support
+	  such a feature.
+
 Sun Feb 19 22:58:55 GMT 2006  Olly Betts <olly@survex.com>
 
 	* COPYING: Update second occurrence of old FSF address.

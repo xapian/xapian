@@ -25,6 +25,8 @@
 #ifndef XAPIAN_INCLUDED_BASE_H
 #define XAPIAN_INCLUDED_BASE_H
 
+#include <xapian/deprecated.h>
+
 namespace Xapian {
 namespace Internal {
 

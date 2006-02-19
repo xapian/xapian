@@ -126,9 +126,9 @@ class QueryParser {
     /// Set the stopper.
     void set_stopper(const Stopper *stop = NULL);
 
-    /// Deprecated method for backward compatibility.
-    void set_stemming_options(const std::string &lang, bool stem_all = false,
-			      const Stopper *stop = NULL) {
+    /// @deprecated Deprecated method for backward compatibility.
+    XAPIAN_DEPRECATED(void set_stemming_options(const std::string &lang, bool stem_all = false,
+			      const Stopper *stop = NULL)) {
 	set_stemmer(Xapian::Stem(lang));
 	if (lang.empty() || lang == "none") {
 	    set_stemming_strategy(STEM_NONE);

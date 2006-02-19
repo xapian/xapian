@@ -37,7 +37,7 @@ namespace Xapian {
 
 class Database;
 
-/** A wrapper class for a termname which returns the termname if dereferenced 
+/** A wrapper class for a termname which returns the termname if dereferenced
  *  with *.  We need this to implement input_iterator semantics.
  */
 class TermNameWrapper {
@@ -45,7 +45,7 @@ class TermNameWrapper {
 	std::string tname;
     public:
 	TermNameWrapper(const std::string & tname_) : tname(tname_) { }
-	std::string operator*() const { return tname; }
+	const std::string & operator*() const { return tname; }
 };
 
 /** An iterator pointing to items in a list of terms.
@@ -63,14 +63,14 @@ class TermIterator {
 	TermIterator();
 
 	/// Destructor.
-        ~TermIterator();
+	~TermIterator();
 
-        /** Copying is allowed.  The internals are reference counted, so
+	/** Copying is allowed.  The internals are reference counted, so
 	 *  copying is also cheap.
 	 */
 	TermIterator(const TermIterator &other);
 
-        /** Assignment is allowed.  The internals are reference counted,
+	/** Assignment is allowed.  The internals are reference counted,
 	 *  so assignment is also cheap.
 	 */
 	void operator=(const TermIterator &other);
