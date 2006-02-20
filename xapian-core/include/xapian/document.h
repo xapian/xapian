@@ -121,18 +121,7 @@ class Document {
 	 *  @deprecated	This method is deprecated and present only for backward
 	 *  compatibility.  Use add_term() instead.
 	 */
-	XAPIAN_DEPRECATED(void add_term_nopos(const std::string & term)) {
-	    add_term(term, 1);
-	}
-
-	/** Old name for add_term().
-	 *
-	 *  @deprecated	This method is deprecated and present only for backward
-	 *  compatibility.  Use add_term() instead.
-	 */
-	XAPIAN_DEPRECATED(void add_term_nopos(const std::string & term, Xapian::termcount wdfinc)) {
-	    add_term(term, wdfinc);
-	}
+	XAPIAN_DEPRECATED(void add_term_nopos(const std::string & term, Xapian::termcount wdfinc = 1));
 
 	/** Remove a posting of a term from the document.
 	 *

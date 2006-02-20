@@ -86,6 +86,19 @@ QueryParser::set_stopper(const Stopper * stopper)
 }
 
 void
+QueryParser::set_stemming_options(const std::string &lang, bool stem_all,
+				  const Stopper *stop)
+{
+    set_stemmer(Xapian::Stem(lang));
+    if (lang.empty() || lang == "none") {
+	set_stemming_strategy(STEM_NONE);
+    } else {
+	set_stemming_strategy(stem_all ? STEM_ALL : STEM_SOME);
+    }
+    set_stopper(stop);
+}
+
+void
 QueryParser::set_default_op(Query::op default_op)
 {
     internal->default_op = default_op;

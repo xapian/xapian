@@ -1,3 +1,11 @@
+Mon Feb 20 21:15:46 GMT 2006  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,api/omenquire.cc,api/omquery.cc,include/xapian/,
+	  queryparser/queryparser.cc: GCC 3.2 actually doesn't like
+	  __attribute__((deprecated)) on method definitions, so just
+	  put declarations of deprecated methods in the headers, and
+	  move definitions into the library.
+
 Mon Feb 20 16:04:33 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc,tests/api_db.cc,tests/api_nodb.cc: Update uses

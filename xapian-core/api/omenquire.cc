@@ -1,9 +1,8 @@
 /* omenquire.cc: External interface for running queries
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -947,6 +945,12 @@ Enquire::set_docid_order(Enquire::docid_order order)
 }
 
 void
+Enquire::set_sort_forward(bool sort_forward)
+{
+    Enquire::set_docid_order(sort_forward ? ASCENDING : DESCENDING);
+}
+
+void
 Enquire::set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff)
 {
     internal->percent_cutoff = percent_cutoff;
@@ -975,6 +979,22 @@ Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key,
     internal->sort_key = sort_key;
     internal->sort_by_relevance = true;
     internal->sort_value_forward = ascending;
+}
+
+void
+Enquire::set_sorting(Xapian::valueno sort_key, int sort_bands,
+		     bool sort_by_relevance)
+{
+    if (sort_bands > 1) {
+	throw Xapian::UnimplementedError("sort bands are no longer supported");
+    }
+    if (sort_bands == 0 || sort_key == Xapian::valueno(-1)) {
+	Enquire::set_sort_by_relevance();
+    } else if (!sort_by_relevance) {
+	Enquire::set_sort_by_value(sort_key);
+    } else {
+	Enquire::set_sort_by_value_then_relevance(sort_key);
+    }
 }
 
 void

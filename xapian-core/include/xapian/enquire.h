@@ -741,11 +741,10 @@ class Enquire {
 	/** For compatibility with Xapian 0.8.5 and earlier.
 	 *
 	 *  @deprecated	This method is now deprecated, use set_docid_order()
-	 *  instead.
+	 *  instead - set_sort_forward(true) -> set_docid_order(ASCENDING)
+	 *  and set_sort_forward(false) -> set_docid_order(DESCENDING).
 	 */
-	XAPIAN_DEPRECATED(void set_sort_forward(bool sort_forward)) {
-	    set_docid_order(sort_forward ? ASCENDING : DESCENDING);
-	}
+	XAPIAN_DEPRECATED(void set_sort_forward(bool sort_forward));
 
 	/** Set the percentage and/or weight cutoffs.
 	 *
@@ -772,20 +771,19 @@ class Enquire {
 	 *  @deprecated This method is now deprecated, use
 	 *  set_sort_by_relevance(), set_sort_by_value(), or
 	 *  set_sort_by_value_then_relevance() instead.
+	 *
+	 *  set_sorting(KEY, 1) -> set_sort_by_value(KEY)
+	 *
+	 *  set_sorting(KEY, 1, false) -> set_sort_by_value(KEY)
+	 *
+	 *  set_sorting(KEY, 1, true) -> set_sort_by_value_then_relevance(KEY)
+	 *
+	 *  set_sorting(ANYTHING, 0) -> set_sort_by_relevance()
+	 *
+	 *  set_sorting(Xapian::valueno(-1), ANYTHING) -> set_sort_by_relevance()
 	 */
 	XAPIAN_DEPRECATED(void set_sorting(Xapian::valueno sort_key, int sort_bands,
-			 bool sort_by_relevance = false)) {
-	    if (sort_bands > 1) {
-		throw Xapian::UnimplementedError("sort bands are no longer supported");
-	    }
-	    if (sort_bands == 0 || sort_key == Xapian::valueno(-1)) {
-		set_sort_by_relevance();
-	    } else if (!sort_by_relevance) {
-		set_sort_by_value(sort_key);
-	    } else {
-		set_sort_by_value_then_relevance(sort_key);
-	    }
-	}
+			  bool sort_by_relevance = false));
 
 	/** Set the sorting to be by relevance only.
          */
