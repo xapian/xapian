@@ -1,3 +1,9 @@
+Mon Feb 20 15:47:31 GMT 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/document.h: __attribute__((deprecated)) doesn't
+	  work on method definitions with default parameters on GCC 3.2
+	  so fix header to overload instead.
+
 Mon Feb 20 13:44:14 GMT 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Add documentation comment for
