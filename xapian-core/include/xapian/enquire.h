@@ -1,10 +1,9 @@
 /** \file enquire.h
  * \brief API for running queries
  */
-/* ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,9 +17,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef XAPIAN_INCLUDED_ENQUIRE_H
@@ -793,7 +791,7 @@ class Enquire {
          */
 	void set_sort_by_relevance();
 
-	/** Set the sorting to be used.
+	/** Set the sorting to be by value only.
 	 *
 	 * @param sort_key value number to reorder on.  Sorting is with a
 	 *	string compare.  If ascending is true (the default) higher
@@ -804,8 +802,21 @@ class Enquire {
 	 *		 is reversed.  (default true)
          */
 	void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
+
+	/** Set the sorting to be by value, then by relevance for documents
+	 *  with the same value.
+	 *
+	 * @param sort_key value number to reorder on.  Sorting is with a
+	 *	string compare.  If ascending is true (the default) higher
+	 *	is better; if ascending is false, lower is better.
+	 *
+	 * @param ascending  If true, documents values which sort higher by
+	 *		 string compare are better.  If false, the sort order
+	 *		 is reversed.  (default true)
+         */
 	void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
 					      bool ascending = true);
+
 // FIXME: consider implementing this:
 //	void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 //					      bool ascending);

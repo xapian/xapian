@@ -1,3 +1,8 @@
+Mon Feb 20 13:44:14 GMT 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Add documentation comment for
+	  Enquire::set_sort_by_value_then_relevance().
+
 Sun Feb 19 23:18:09 GMT 2006  Olly Betts <olly@survex.com>
 
 	* include/Makefile.am,include/xapian/: Flag deprecated methods such
