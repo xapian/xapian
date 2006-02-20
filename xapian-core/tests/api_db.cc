@@ -1,9 +1,8 @@
 /* api_db.cc: tests which need a backend
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -89,12 +87,14 @@ static bool test_stubdb1()
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
     }
+#if 0
     { // Now deprecated in favour of the previous form.
 	Xapian::Database db = Xapian::Auto::open("stubdb1");
 	Xapian::Enquire enquire(db);
 	enquire.set_query(Xapian::Query("word"));
 	enquire.get_mset(0, 10);
     }
+#endif
 
     unlink("stubdb1");
 
@@ -1053,7 +1053,7 @@ static bool test_sortvalue1()
     for (int pass = 1; pass <= 2; ++pass) {
 	for (Xapian::valueno value_no = 1; value_no < 7; ++value_no) {
 	    tout << "Sorting on value " << value_no << endl;
-	    enquire.set_sorting(value_no, 1);
+	    enquire.set_sort_by_value(value_no);
 	    Xapian::MSet allbset = enquire.get_mset(0, 100);
 	    Xapian::MSet partbset1 = enquire.get_mset(0, 3);
 	    Xapian::MSet partbset2 = enquire.get_mset(3, 97);
@@ -1082,7 +1082,7 @@ static bool test_sortvalue1()
 	    if (!ok)
 		FAIL_TEST("Split msets aren't consistent with unsplit");
 	}
-	enquire.set_sort_forward(false);
+	enquire.set_docid_order(Xapian::Enquire::DESCENDING);
     }
 
     return true;
@@ -1154,7 +1154,7 @@ static bool test_flintdatabaseopeningerror1()
 static bool test_sortrel1()
 {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
-    enquire.set_sorting(1, 1);
+    enquire.set_sort_by_value(1);
     enquire.set_query(Xapian::Query("woman"));
 
     const Xapian::docid order1[] = { 1,2,3,4,5,6,7,8,9 };
@@ -1174,7 +1174,7 @@ static bool test_sortrel1()
 	TEST_EQUAL(*mset[i], order1[i]);
     }
 
-    enquire.set_sorting(1, 1, true);
+    enquire.set_sort_by_value_then_relevance(1);
 
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order2) / sizeof(Xapian::docid));
@@ -1182,7 +1182,7 @@ static bool test_sortrel1()
 	TEST_EQUAL(*mset[i], order2[i]);
     }
 
-    enquire.set_sorting(1, 1, false);
+    enquire.set_sort_by_value(1);
 
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order1) / sizeof(Xapian::docid));
@@ -1190,8 +1190,8 @@ static bool test_sortrel1()
 	TEST_EQUAL(*mset[i], order1[i]);
     }
 
-    enquire.set_sorting(1, 1, true);
-    enquire.set_sort_forward(false);
+    enquire.set_sort_by_value_then_relevance(1);
+    enquire.set_docid_order(Xapian::Enquire::DESCENDING);
 
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order2) / sizeof(Xapian::docid));
@@ -1199,8 +1199,8 @@ static bool test_sortrel1()
 	TEST_EQUAL(*mset[i], order2[i]);
     }
 
-    enquire.set_sorting(1, 1, false);
-    enquire.set_sort_forward(false);
+    enquire.set_sort_by_value(1);
+    enquire.set_docid_order(Xapian::Enquire::DESCENDING);
 
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order3) / sizeof(Xapian::docid));
@@ -1209,7 +1209,7 @@ static bool test_sortrel1()
     }
 
     enquire.set_sort_by_value(1, false);
-    enquire.set_sort_forward(true);
+    enquire.set_docid_order(Xapian::Enquire::ASCENDING);
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order4) / sizeof(Xapian::docid));
     for (i = 0; i < sizeof(order4) / sizeof(Xapian::docid); ++i) {
@@ -1217,7 +1217,7 @@ static bool test_sortrel1()
     }
 
     enquire.set_sort_by_value(1, false);
-    enquire.set_sort_forward(false);
+    enquire.set_docid_order(Xapian::Enquire::DESCENDING);
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order5) / sizeof(Xapian::docid));
     for (i = 0; i < sizeof(order5) / sizeof(Xapian::docid); ++i) {
@@ -1225,7 +1225,7 @@ static bool test_sortrel1()
     }
 
     enquire.set_sort_by_value_then_relevance(1, false);
-    enquire.set_sort_forward(true);
+    enquire.set_docid_order(Xapian::Enquire::ASCENDING);
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order6) / sizeof(Xapian::docid));
     for (i = 0; i < sizeof(order6) / sizeof(Xapian::docid); ++i) {
@@ -1233,7 +1233,7 @@ static bool test_sortrel1()
     }
 
     enquire.set_sort_by_value_then_relevance(1, false);
-    enquire.set_sort_forward(false);
+    enquire.set_docid_order(Xapian::Enquire::DESCENDING);
     mset = enquire.get_mset(0, 10);
     TEST_EQUAL(mset.size(), sizeof(order7) / sizeof(Xapian::docid));
     for (i = 0; i < sizeof(order7) / sizeof(Xapian::docid); ++i) {

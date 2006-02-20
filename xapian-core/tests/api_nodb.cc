@@ -34,8 +34,6 @@
 
 using namespace std;
 
-typedef list<string> om_termname_list;
-
 // always succeeds
 static bool test_trivial1()
 {
@@ -45,7 +43,7 @@ static bool test_trivial1()
 // tests that get_query_terms() returns the terms in the right order
 static bool test_getqterms1()
 {
-    om_termname_list answers_list;
+    list<string> answers_list;
     answers_list.push_back("one");
     answers_list.push_back("two");
     answers_list.push_back("three");
@@ -59,15 +57,15 @@ static bool test_getqterms1()
 		    Xapian::Query("four", 1, 4),
 		    Xapian::Query("two", 1, 2)));
 
-    om_termname_list list;
+    list<string> list1;
     {
         Xapian::TermIterator t;
         for (t = myquery.get_terms_begin(); t != myquery.get_terms_end(); ++t) 
-            list.push_back(*t);
+            list1.push_back(*t);
     }
-    TEST(list == answers_list);
+    TEST(list1 == answers_list);
 #ifndef __SUNPRO_CC
-    om_termname_list list2(myquery.get_terms_begin(), myquery.get_terms_end());
+    list<string> list2(myquery.get_terms_begin(), myquery.get_terms_end());
     TEST(list2 == answers_list);
 #endif
     return true;
@@ -85,14 +83,14 @@ static bool test_getqterms2()
 // tests that empty queries work correctly
 static bool test_emptyquery1()
 {
-    // test that an empty query is_empty
-    TEST(Xapian::Query().is_empty());
+    // test that Query::empty() is true for an empty query.
+    TEST(Xapian::Query().empty());
     // test that an empty query has length 0
     TEST(Xapian::Query().get_length() == 0);
     vector<Xapian::Query> v;
-    TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).is_empty());
+    TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).empty());
     TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).get_length() == 0);
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query("").is_empty());
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query("").empty());
     return true;
 }
 
@@ -111,6 +109,7 @@ static bool test_querylen1()
 			      Xapian::Query("spoon")));
 
     TEST_EQUAL(myquery.get_length(), 4);
+    TEST(!myquery.empty());
     return true;
 }
 

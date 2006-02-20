@@ -1,3 +1,8 @@
+Mon Feb 20 16:04:33 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc,tests/api_db.cc,tests/api_nodb.cc: Update uses
+	  of deprecated methods and functions.
+
 Mon Feb 20 15:47:31 GMT 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/document.h: __attribute__((deprecated)) doesn't

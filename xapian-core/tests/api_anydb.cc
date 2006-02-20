@@ -1,9 +1,8 @@
 /* api_anydb.cc: tests which work with any backend
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -37,8 +35,6 @@
 #include <list>
 
 using namespace std;
-
-typedef list<string> om_termname_list;
 
 static void
 print_mset_weights(const Xapian::MSet &mset)
@@ -662,9 +658,9 @@ static bool test_reversebool1()
     TEST_AND_EXPLAIN(mymset1.size() > 1,
 		     "Mset was too small to test properly");
 
-    enquire.set_sort_forward(true);
+    enquire.set_docid_order(Xapian::Enquire::ASCENDING);
     Xapian::MSet mymset2 = enquire.get_mset(0, 100);
-    enquire.set_sort_forward(false);
+    enquire.set_docid_order(Xapian::Enquire::DESCENDING);
     Xapian::MSet mymset3 = enquire.get_mset(0, 100);
 
     // mymset1 and mymset2 should be identical
@@ -716,10 +712,10 @@ static bool test_reversebool2()
     TEST_AND_EXPLAIN(mymset1.size() > 1,
 		     "Mset was too small to test properly");
 
-    enquire.set_sort_forward(true);
+    enquire.set_docid_order(Xapian::Enquire::ASCENDING);
     Xapian::doccount msize = mymset1.size() / 2;
     Xapian::MSet mymset2 = enquire.get_mset(0, msize);
-    enquire.set_sort_forward(false);
+    enquire.set_docid_order(Xapian::Enquire::DESCENDING);
     Xapian::MSet mymset3 = enquire.get_mset(0, msize);
 
     // mymset2 should be first msize items of mymset1
@@ -761,7 +757,7 @@ static bool test_reversebool2()
 // tests that get_matching_terms() returns the terms in the right order
 static bool test_getmterms1()
 {
-    om_termname_list answers_list;
+    list<string> answers_list;
     answers_list.push_back("one");
     answers_list.push_back("two");
     answers_list.push_back("three");
@@ -784,7 +780,7 @@ static bool test_getmterms1()
 
     TEST_MSET_SIZE(mymset, 1);
 #ifdef __SUNPRO_CC
-    om_termname_list list;
+    list<string> list;
     {
         Xapian::TermIterator t;
         for (t = enquire.get_matching_terms_begin(mymset.begin());
@@ -793,7 +789,7 @@ static bool test_getmterms1()
 	}
     }
 #else
-    om_termname_list list(enquire.get_matching_terms_begin(mymset.begin()),
+    list<string> list(enquire.get_matching_terms_begin(mymset.begin()),
 			  enquire.get_matching_terms_end(mymset.begin()));
 #endif
     TEST(list == answers_list);
@@ -804,7 +800,7 @@ static bool test_getmterms1()
 // tests that get_matching_terms() returns the terms only once
 static bool test_getmterms2()
 {
-    om_termname_list answers_list;
+    list<string> answers_list;
     answers_list.push_back("one");
     answers_list.push_back("two");
     answers_list.push_back("three");
@@ -826,7 +822,7 @@ static bool test_getmterms2()
 
     TEST_MSET_SIZE(mymset, 1);
 #ifdef __SUNPRO_CC
-    om_termname_list list;
+    list<string> list;
     {
         Xapian::TermIterator t;
         for (t = enquire.get_matching_terms_begin(mymset.begin());
@@ -835,7 +831,7 @@ static bool test_getmterms2()
 	}
     }
 #else
-    om_termname_list list(enquire.get_matching_terms_begin(mymset.begin()),
+    list<string> list(enquire.get_matching_terms_begin(mymset.begin()),
 			  enquire.get_matching_terms_end(mymset.begin()));
 #endif
     TEST(list == answers_list);
