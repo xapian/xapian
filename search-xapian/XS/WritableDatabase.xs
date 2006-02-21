@@ -47,6 +47,7 @@ WritableDatabase::flush()
             croak( "Exception: %s", error.get_msg().c_str() );
         }
 
+/*
 void
 WritableDatabase::begin_transaction()
    CODE:
@@ -76,6 +77,7 @@ WritableDatabase::cancel_transaction()
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
         }
+*/
 
 docid
 WritableDatabase::add_document(document)
