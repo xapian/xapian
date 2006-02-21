@@ -1,4 +1,4 @@
-MODULE = Search::Xapian  		PACKAGE = Search::Xapian::Query		
+MODULE = Search::Xapian			PACKAGE = Search::Xapian::Query
 
 PROTOTYPES: ENABLE
 
