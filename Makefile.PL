@@ -50,7 +50,7 @@ if ($VERSION !~ /^\Q$xver\E(?:\..*)?$/) {
 }
 
 my @bad;
-for my $file (qw(Changes META.yml README)) {
+for my $file (qw(Changes README)) {
     open F, $file or next;
     my $ok;
     while (<F>) {
