@@ -17,6 +17,7 @@ Revision history for Perl extension Search::Xapian.
 	- Update the version in the README file.  Add code to Makefile.PL
 	  to check that the various references to the current version are
 	  all up-to-date.
+	- Makefile.PL now refuses to proceed if it can't find Xapian.
 	- Makefile.PL now checks that the Xapian version and Search::Xapian
 	  version match, and if not issues a non-fatal warning (for now).
 
