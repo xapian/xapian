@@ -81,7 +81,7 @@ and '==' operators.
 
 =item nequal <term>
 
-Checks if a term is dfferent from this term. Also overloaded to the 'ne'
+Checks if a term is different from this term. Also overloaded to the 'ne'
 and '!=' operators.
 
 =item get_description
@@ -98,7 +98,8 @@ use overload '++' => sub { $_[0]->inc() },
 	     'ne' => sub { $_[0]->nequal($_[1]) },
 	     '==' => sub { $_[0]->equal($_[1]) },
 	     '!=' => sub { $_[0]->nequal($_[1]) },
-             '""' => sub { $_[0]->get_docid() },
+             '""' => sub { $_[0]->get_description() },
+             '0+' => sub { $_[0]->get_docid() },
              'fallback' => 1;
 
 sub clone() {
@@ -108,6 +109,25 @@ sub clone() {
   bless $copy, $class;
   return $copy;
 }
+
+sub equal() {
+  my ($self, $other) = @_;
+  if( isa($other, 'Search::Xapian::PostingIterator') ) {
+    $self->equal1($other);
+  } else {
+    ($self+0) == ($other+0);
+  }
+}
+
+sub nequal() {
+  my ($self, $other) = @_;
+  if( isa($other, 'Search::Xapian::PostingIterator') ) {
+    $self->nequal1($other);
+  } else {
+    ($self+0) != ($other+0);
+  }
+}
+
 
 sub new() {
   my $class = shift;
