@@ -1,3 +1,7 @@
+Tue Feb 21 23:02:18 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fix so "make check" works in VPATH builds.
+
 Tue Feb 21 21:15:10 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/native/,xapian.i: Override deprecation warnings for Xapian
