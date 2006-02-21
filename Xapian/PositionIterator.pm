@@ -61,7 +61,7 @@ and '==' operators.
 
 =item nequal <term>
 
-Checks if a term is dfferent from this term. Also overloaded to the 'ne'
+Checks if a term is different from this term. Also overloaded to the 'ne'
 and '!=' operators.
 
 =item get_termpos <term>
@@ -110,7 +110,7 @@ sub nequal() {
   if( isa($other, 'Search::Xapian::PositionIterator') ) {
     $self->nequal1($other);
   } else {
-    ($self+0) != +($other+0);
+    ($self+0) != ($other+0);
   }
 }
 

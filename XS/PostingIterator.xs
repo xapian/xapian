@@ -26,7 +26,7 @@ PostingIterator::inc()
         ++(*THIS);
 
 bool
-PostingIterator::equal(that)
+PostingIterator::equal1(that)
     PostingIterator *	that
     CODE:
         RETVAL = ((*THIS) == (*that));
@@ -34,7 +34,7 @@ PostingIterator::equal(that)
         RETVAL
 
 bool
-PostingIterator::nequal(that)
+PostingIterator::nequal1(that)
     PostingIterator *	that
     CODE:
         RETVAL = ((*THIS) != (*that));
