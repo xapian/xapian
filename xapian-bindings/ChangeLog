@@ -1,3 +1,8 @@
+Tue Feb 21 12:12:48 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't quote $PHP in AC_PATH_PROGS to avoid
+	  "checking for ... no" message.
+
 Tue Feb 21 00:19:57 GMT 2006  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Updated for 0.9.4.

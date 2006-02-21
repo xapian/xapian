@@ -229,12 +229,12 @@ if test no != "$with_php" ; then
     case $version in
     4.*)
       dnl If the php interpreter can't be found, skip the php tests.
-      AC_PATH_PROGS(PHP, ["$PHP" php4 php], [\$(top_srcdir)/skiptest])
+      AC_PATH_PROGS(PHP, [$PHP php4 php], [\$(top_srcdir)/skiptest])
       php_version=4
       ;;
     5.*)
       dnl If the php interpreter can't be found, skip the php tests.
-      AC_PATH_PROGS(PHP, ["$PHP" php5 php], [\$(top_srcdir)/skiptest])
+      AC_PATH_PROGS(PHP, [$PHP php5 php], [\$(top_srcdir)/skiptest])
       php_version=5
       ;;
     *)
