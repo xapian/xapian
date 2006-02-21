@@ -33,12 +33,11 @@ L<Xapian::Database>, which is used for searching.
 
 =over 4
 
-=item new <database> <options>
+=item new <database> or new <path> <mode>
 
-Class constructor. Can either take a path to an existing database
-or another database class as the first parameter. the options can be
-DB_OPEN,DB_CREATE,DB_CREATE_OR_OPEN or DB_CREATE_OR_OVERWRITE. these are
-exported by L<Search::Xapian> with the 'db' option.
+Class constructor. Takes either a database object, or a path and one
+of DB_OPEN, DB_CREATE, DB_CREATE_OR_OPEN or DB_CREATE_OR_OVERWRITE.
+These are exported by L<Search::Xapian> with the 'db' option.
 
 =item clone
 
@@ -63,10 +62,6 @@ deletion operation has either been fully performed or not performed at all:
 it is then up to the application to work out which operations need to be 
 repeated.
 
-If called within a transaction, this will flush database modifications made 
-before the transaction was begun, but will not flush modifications made since 
-begin_transaction() was called.
-
 Beware of calling flush too frequently: this will have a severe performance 
 cost.
 
@@ -74,44 +69,9 @@ Note that flush need not be called explicitly: it will be called automatically
 when the database is closed, or when a sufficient number of modifications 
 have been made.
 
-=item begin_transaction
-
-Begin a transaction.
-
-For the purposes of Xapian, a transaction is a group of modifications to the 
-database which are grouped together such that either all or none of them will 
-succeed. Even in the case of a power failure, this characteristic should be 
-preserved (as long as the filesystem isn't corrupted, etc).
-
-Transactions are only available with certain access methods, and as you might 
-expect will generally have a fairly high performance cost.
-
-=item commit_transaction
-
-End the transaction currently in progress, committing the modifications made
-to the database.
-
-If this completes successfully, all the database modifications made during 
-the transaction will have been committed to the database.
-
-If an error occurs, an exception will be thrown, and none of the modifications
-made to the database during the transaction will have been applied to the
-database.
-
-Whatever occurs, after this method the transaction will no longer be in 
-progress.
-
-=item cancel_transaction
-
-End the transaction currently in progress, cancelling the potential 
-modifications made to the database.
-
-If an error occurs in this method, an exception will be thrown, but the 
-transaction will be cancelled anyway.
-
 =item add_document <document>
 
-dd a new document to the database.
+Add a new document to the database.
 
 This method adds the specified document to the database, returning a newly 
 allocated document ID.
@@ -173,7 +133,10 @@ to terms in Xapian, although this method probably has other uses.
 Note that this does not mean the document(s) will immediately change in the 
 database; see flush() for more details.
 
-As with all database modification operations, the effect is atomic: the document(s) will either be fully replaced, or the document(s) fail to be replaced and an exception is thrown (possibly at a later time when flush is called or the database is closed).
+As with all database modification operations, the effect is atomic: the
+document(s) will either be fully replaced, or the document(s) fail to be
+replaced and an exception is thrown (possibly at a later time when flush is
+called or the database is closed).
 
 =item reopen
 
