@@ -65,6 +65,8 @@ our %EXPORT_TAGS = (
 				 FLAG_BOOLEAN
 				 FLAG_PHRASE
 				 FLAG_LOVEHATE
+				 FLAG_BOOLEAN_ANY_CASE
+				 FLAG_WILDCARD
                                  ) ],
                     'qpstem' => [ qw(
 				 STEM_NONE
@@ -229,9 +231,72 @@ Select an elite set from the subqueries, and perform a query with these combined
 
 =back
 
+=head1 :qpflags
+
+=over 4
+
+=item FLAG_BOOLEAN
+
+Support AND, OR, etc and bracketted subexpressions.
+
+=item FLAG_LOVEHATE
+
+Support + and -.
+
+=item FLAG_PHRASE
+
+Support quoted phrases.
+
+=item FLAG_BOOLEAN_ANY_CASE
+
+Support AND, OR, etc even if they aren't in ALLCAPS.
+
+=item FLAG_WILDCARD
+
+Support right truncation (e.g. Xap*).
+
+=back
+
+=head1 :qpstem
+
+=over 4
+
+=item STEM_ALL
+
+Stem all terms.
+
+=item STEM_NONE
+
+Don't stem any terms.
+
+=item STEM_SOME
+
+Stem some terms, in a manner compatible with Omega (capitalised words aren't
+stemmed, and get an 'R' prefix).
+
+=back
+
+=head1 :enq_order
+
+=over 4
+
+=item ENQ_ASCENDING
+
+docids sort in ascending order (default)
+
+=item ENQ_DESCENDING
+
+docids sort in descending order
+
+=item ENQ_DONT_CARE
+
+docids sort in whatever order is most efficient for the backend
+
+=back
+
 =head1 :standard
 
-Standard is db + ops
+Standard is db + ops + qpflags + qpstem
 
 =head1 TODO
 

@@ -12,7 +12,9 @@ Revision history for Perl extension Search::Xapian.
 	  useful to wrap it at present.
 	- Fix PostingIterator != and == to handle both other PostingIterators
 	  and numbers like PositionIterator does.
-	- Fix typos and other problems in the POD documentation.
+	- Wrap constants FLAG_BOOLEAN_ANY_CASE and FLAG_WILDCARD.
+	- Fix typos and other problems in the POD documentation.  Document all
+	  constants.
 	- Update the list of unwrapped classes and methods.
 	- Update the version in the README file.  Add code to Makefile.PL
 	  to check that the various references to the current version are
