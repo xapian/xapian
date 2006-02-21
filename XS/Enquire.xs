@@ -171,7 +171,7 @@ Enquire::set_weighting_scheme(weight_)
     CODE:
 	THIS->set_weighting_scheme(*weight_);
 
-	
+
 string
 Enquire::get_description()
 
