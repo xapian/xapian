@@ -1,3 +1,31 @@
+Xapian-core 0.9.4 (2006-02-21):
+
+API:
+
+* Flag deprecated methods such that the compiler gives a warning, for compilers
+  which support such a feature (most notably GCC >= 3.1).
+
+* Correct typo in name of definition of function xapian_revision().
+
+testsuite:
+
+* Updated uses of deprecated methods in the testsuite.
+
+build system:
+
+* xapian-config: Set exec_prefix and prefix at top of script so that
+  xapian-config works after xapian-core is installed.
+
+documentation:
+
+* Add documentation comment for Enquire::set_sort_by_value_then_relevance().
+
+* README: Add pointer to HACKING.  Change "CVS access" to "SVN access".
+
+* PLATFORMS: Updated from tinderbox.
+
+* COPYING: Update second occurrence of old FSF address.
+
 Xapian-core 0.9.3 (2006-02-16):
 
 API:
