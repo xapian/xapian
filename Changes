@@ -7,6 +7,9 @@ Revision history for Perl extension Search::Xapian.
 	  to BM25Weight with the default parameters anyway!)
 	- Wrap Enquire::set_sort_by_value_then_relevance()
 	- Wrap the optional flags parameter to QueryParser::parse_query().
+	- Disable the wrappers for the transaction API to WritableDatabase
+	  - it's not implemented by any database backend yet, so it's not
+	  useful to wrap it at present.
 	- Fix PostingIterator != and == to handle both other PostingIterators
 	  and numbers like PositionIterator does.
 	- Fix typos and other problems in the POD documentation.
