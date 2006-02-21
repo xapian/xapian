@@ -1,3 +1,7 @@
+Tue Feb 21 00:18:25 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,NEWS: Updated for 0.9.4.
+
 Sun Feb 19 23:20:49 GMT 2006  Olly Betts <olly@survex.com>
 
 	* COPYING: Updated FSF address.
