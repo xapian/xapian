@@ -1,3 +1,29 @@
+Xapian-core 0.9.4 (2006-02-21):
+
+Documentation:
+
+* COPYING: Updated FSF address.
+
+General:
+
+* Wrap Stopper::get_description().
+
+* Wrap xapian_version_string() and related functions.
+
+Portability:
+
+* If we're overriding MACOSX_DEPLOYMENT_TARGET then override it for commands
+  run from "make" too.
+
+PHP:
+
+* Fix so that generated code compiles with ZTS-enabled PHP (which is the
+  default on Windows).
+
+Python:
+
+* smoketest.py: Test wrapping of xapian_version_string() and related functions.
+
 Xapian-core 0.9.3 (2006-02-16):
 
 Documentation:
