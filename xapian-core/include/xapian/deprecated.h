@@ -19,14 +19,19 @@
 #ifndef XAPIAN_INCLUDED_DEPRECATED_H
 #define XAPIAN_INCLUDED_DEPRECATED_H
 
-#if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 0))
+// xapian-bindings needs to wrap deprecated functions without warnings,
+// so check if XAPIAN_DEPRECATED is defined so xapian-bindings can override
+// it.
+#ifndef XAPIAN_DEPRECATED
+# if defined __GNUC__ && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 0))
 // __attribute__((deprecated)) is supported by GCC 3.1 and later.
-# define XAPIAN_DEPRECATED(D) D __attribute__((deprecated))
-#elif defined _MSC_VER && _MSC_VER >= 1300
+#  define XAPIAN_DEPRECATED(D) D __attribute__((deprecated))
+# elif defined _MSC_VER && _MSC_VER >= 1300
 // __declspec(deprecated) is supported by MSVC 7.0 and later.
-# define XAPIAN_DEPRECATED(D) __declspec(deprecated) D
-#else
-# define XAPIAN_DEPRECATED(D) D
+#  define XAPIAN_DEPRECATED(D) __declspec(deprecated) D
+# else
+#  define XAPIAN_DEPRECATED(D) D
+# endif
 #endif
 
 #endif
