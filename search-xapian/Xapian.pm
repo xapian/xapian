@@ -308,7 +308,8 @@ Error handling for all methods liable to generate them.
 
 =item Documentation
 
-Brief descriptions of classes, possibly just adapted from Xapian docs.
+Add POD documentation for all classes, where possible just adapted from Xapian
+docs.
 
 =item Unwrapped classes
 
@@ -322,7 +323,6 @@ The following methods are not yet wrapped:
 Enquire::get_eset(...) with more than two arguments,
 Enquire::get_mset(...) with more than two arguments,
 Enquire::register_match_decider(...) with one argument,
-Enquire::set_weighting_scheme(const Weight &weight);
 Query ctor optional "parameter" parameter,
 Remote::open(...),
 static Stem::get_available_languages().
