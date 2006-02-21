@@ -20,6 +20,7 @@ Revision history for Perl extension Search::Xapian.
 	- Makefile.PL now refuses to proceed if it can't find Xapian.
 	- Makefile.PL now checks that the Xapian version and Search::Xapian
 	  version match, and if not issues a non-fatal warning (for now).
+	- Add MANIFEST.SKIP.
 
 0.9.2.4  Fri Feb 15 14:59:23 2006
 	- Catch C++ exceptions from QueryParser and rethrow them as Perl
