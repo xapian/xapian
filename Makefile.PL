@@ -3,12 +3,15 @@ use ExtUtils::MakeMaker;
 my $CC = $ENV{"CXX"} || 'g++';
 
 my $xapian_config = $ENV{XAPIAN_CONFIG} || 'xapian-config';
+my $xver = `$xapian_config --version`;
+if ($xver eq '') {
+    die("$xapian_config not found - set XAPIAN_CONFIG if Xapian isn't installed on your PATH.\n");
+}
 my $libs = `$xapian_config --libs`;
 my $inc  = `$xapian_config --cxxflags`;
-my $xver = `$xapian_config --version`;
+chomp($xver);
 chomp($libs);
 chomp($inc);
-chomp($xver);
 $xver =~ s/.*\s//; # xapian 0.9.3 -> 0.9.3
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
