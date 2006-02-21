@@ -1,3 +1,8 @@
+Tue Feb 21 17:55:17 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc: Note that "flicklock" should be
+	  "flintlock"!
+
 Tue Feb 21 14:13:08 GMT 2006  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated.
