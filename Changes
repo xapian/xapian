@@ -23,8 +23,29 @@ Revision history for Perl extension Search::Xapian.
 	- Add MANIFEST.SKIP.
 
 0.9.2.4  Fri Feb 15 14:59:23 2006
+	[Changes contributed by Olly Betts and Tim Brody]
 	- Catch C++ exceptions from QueryParser and rethrow them as Perl
 	  exceptions.
+	- Makefile.PL now checks environmental variable CXX for the C++
+	  compiler to use.
+	- Fixed cross-wired methods inside Enquire::get_matching_terms_begin
+	  and Enquire::get_matching_terms_end (thanks to Arne Georg Gleditsch
+	  for reporting this).
+	- $q = Query(op, @termlist) now handles terms with embedded zero bytes.
+	- Removed Query::clone() and = overload - they would die if ever used
+	  and aren't useful since a Query object is essentially immutable once
+	  constructed.
+	- Removed MSet::max_size - C++ only has it so MSet works as an STL
+	  container.
+	- RSet::size() returns doccount not termcount (though they're currently
+	  the same type underneath so this is an aesthetic internal change).
+	- Wrap most of the changed Xapian::QueryParser API.
+	- Wrap new SimpleStopper class (with test cases).
+	- Added PerlStopper class which can be subclassed in Perl to implement
+	  your own stop word algorithm.
+	- Wrap new Enquire sorting API methods.
+	- Updated list of unwrapped classes and methods in documentation.
+	- Make != and == work for comparing iterators (as well as ne and eq).
 
 0.9.2.3  Thu Feb 16 16:57:43 2006
 	[Changes contributed by Benjamin Smith]
@@ -49,7 +70,7 @@ Revision history for Perl extension Search::Xapian.
 	- Added basic exception handling for QueryParser.
 
 0.9.2.1  Mon Aug  8 12:24:34 2005
-	- Let perl know Search::Xapian::WritableDatabase is a subclass of 
+	- Let perl know Search::Xapian::WritableDatabase is a subclass of
 	  Search::Xapian::Database by adding the latter to the former's @INC.
 
 0.9.2.0  Mon Aug  8 12:08:25 2005
@@ -57,29 +78,6 @@ Revision history for Perl extension Search::Xapian.
 	  'set_length' methods from Xapian::Query class
 	- Switched Search::Xapian::Stopper from using now abstract
 	  Xapian::Stopper class to Xapian::SimpleStopper subclass.
-
-0.9.0.0  ??? Jun ?? ??:??:?? 2005
-	[Changes contributed by Olly Betts and Tim Brody]
-	- Makefile.PL now checks environmental variable CXX for the C++
-	  compiler to use.
-	- Fixed cross-wired methods inside Enquire::get_matching_terms_begin
-	  and Enquire::get_matching_terms_end (thanks to Arne Georg Gleditsch
-	  for reporting this).
-	- $q = Query(op, @termlist) now handles terms with embedded zero bytes.
-	- Removed Query::clone() and = overload - they would die if ever used
-	  and aren't useful since a Query object is essentially immutable once
-	  constructed.
-	- Removed MSet::max_size - C++ only has it so MSet works as an STL
-	  container.
-	- RSet::size() returns doccount not termcount (though they're currently
-	  the same type underneath so this is an aesthetic internal change).
-	- Wrap changed Xapian::QueryParser API.
-	- Wrap new SimpleStopper class (with test cases).
-	- Added PerlStopper class which can be subclassed in Perl to implement
-	  your own stop word algorithm.
-	- Wrap new Enquire sorting API methods.
-	- Updated list of unwrapped classes and methods in documentation.
-	- Make != and == work for comparing iterators (as well as ne and eq).
 
 0.8.4.0  Wed Dec  8 03:36:13 2004
 	[Changes contributed by Olly Betts]
@@ -117,7 +115,7 @@ Revision history for Perl extension Search::Xapian.
 	  the second argument and always incremented once).
 	- Cleaned up wrapping of ++ methods for all iterators.
 	- Wrap missing ESet methods: back().
-	- Fixed wrapping of ESetIterator methods: ==, !=. 
+	- Fixed wrapping of ESetIterator methods: ==, !=.
 	- Wrap 3 argument form of Enquire::set_sorting().
 	- Wrap missing method PositionIterator::get_description().
 	- Fixed return value for Query::set_length().
@@ -134,7 +132,7 @@ Revision history for Perl extension Search::Xapian.
 
 0.8.0.3  Thu Jun  3 13:14:39 2004
 	- Makefile.PL now uses xapian-config to determine
-	  library/include path 
+	  library/include path
 	[Changes contributed by Olly Betts]
 	- Wrapped Database::postlist_begin() and postlist_end()
 	- Database::get_doccount(), get_avlength(), and get_termfreq()
@@ -155,14 +153,14 @@ Revision history for Perl extension Search::Xapian.
 	- Optional arguments now supported for most methods
 
 0.8.0.1  Wed May 12 18:58:46 2004
-        - Improved Query class which uses new C++ constructor methods
-          to allow the combination of an unlimited number of terms 
+	- Improved Query class which uses new C++ constructor methods
+	  to allow the combination of an unlimited number of terms
 	- More verbose tests, covering all query operations
 
 0.8.0.0  Tue May  4 16:06:41 2004
 	- New version numbering scheme chases xapian version
-	- Added overloaded function for TermIterator class	
-	- Wrapped all methods for Xapian::Enquire (except 
+	- Added overloaded function for TermIterator class
+	- Wrapped all methods for Xapian::Enquire (except
 	  set_weighting_scheme, which is passed a Weight object - a
 	  class for which wrappers do not yet exist).
 	- Replaced AUTOLOAD method designed to reduce code redundancy
@@ -179,48 +177,48 @@ Revision history for Perl extension Search::Xapian.
 	  the same as Search::Xapian::Database::allterms_begin()
 
 0.05  Tue Jan 14 01:43:45 2003
-        - OM_DB_CREATE_OR_* symbols wrapped
-        - Extra tests for argument validity for Search::Xapian::Query
-          constructor 
-        - Makefile.PL now prints where it has located om/om.h and
-          libxapian.so files
-        [Changes contributed by Olly Betts]
+	- OM_DB_CREATE_OR_* symbols wrapped
+	- Extra tests for argument validity for Search::Xapian::Query
+	  constructor
+	- Makefile.PL now prints where it has located om/om.h and
+	  libxapian.so files
+	[Changes contributed by Olly Betts]
 	- Most methods wrapped for OmESet, OmESetIterator, OmRSet
 	- OmMSet::empty() returns bool, not om_weight
 	- Fixed eq and ne for Search::Xapian::MSetIterator
 	- Fixed Search::Xapian::MSet::convert_to_percent()
 	- Moved #include-s to top of Xapian.xs to fix compilation
-          problems 
+	  problems
 	- Added 14 new test cases
 
 0.04  Thu Dec 26 18:17:54 2002
-        - Convenience method: $enq->set_query( $op, @terms ... );
-          now autogenerates a query object with the arguments passed
-          if the first of them is not itself a query object
-        - Convenience method: $enq = $db->enquire( [$query] );
-          which autogenerates Enquire object, calling set_query() if
-          it is passed a query with which to do so
-        - Added tests for tied MSet class
-        - Added $enquire->matches() method returning tied MSet object
-        - Removed deprecated OmSettings class
+	- Convenience method: $enq->set_query( $op, @terms ... );
+	  now autogenerates a query object with the arguments passed
+	  if the first of them is not itself a query object
+	- Convenience method: $enq = $db->enquire( [$query] );
+	  which autogenerates Enquire object, calling set_query() if
+	  it is passed a query with which to do so
+	- Added tests for tied MSet class
+	- Added $enquire->matches() method returning tied MSet object
+	- Removed deprecated OmSettings class
 
 0.03  Fri Nov  8 16:53:22 2002
-        - All methods wrapped for OmDatabase, OmWritableDatabase,
-          OmDocument, OmEnquire, OmMSet, OmMSetIterator, OmQuery and
-          OmSettings classes
-        - Overload pragma: copy constructor for all classes that
-          support copying
-        - Overload pragma: '++' for MatchSetIterator
-        - Interface to all overloaded C++ constructors
-        - Mapping for OmQuery::op enumerated type to exported symbols
-        - Removed non-functioning 'MatchSet' method
+	- All methods wrapped for OmDatabase, OmWritableDatabase,
+	  OmDocument, OmEnquire, OmMSet, OmMSetIterator, OmQuery and
+	  OmSettings classes
+	- Overload pragma: copy constructor for all classes that
+	  support copying
+	- Overload pragma: '++' for MatchSetIterator
+	- Interface to all overloaded C++ constructors
+	- Mapping for OmQuery::op enumerated type to exported symbols
+	- Removed non-functioning 'MatchSet' method
 
 0.02  Sun Sep 15 19:48:32 2002
-        - Added bindings to create databases and index documents
-        - Added error handling for Database constructors
-        - 3 test scripts; create, index and search
-        - Fixed MatchSetIterator->get_docid returning wrong value
-        - Fixed string typemap
+	- Added bindings to create databases and index documents
+	- Added error handling for Database constructors
+	- 3 test scripts; create, index and search
+	- Fixed MatchSetIterator->get_docid returning wrong value
+	- Fixed string typemap
 
 0.01  Tue Sep 10 16:03:23 2002
 	- original version; created by h2xs 1.21 with options
