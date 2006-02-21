@@ -1,3 +1,8 @@
+Tue Feb 21 23:23:59 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Catch the case where the user has python installed
+	  but not the module "distutils.sysconfig".
+
 Tue Feb 21 23:02:18 GMT 2006  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Fix so "make check" works in VPATH builds.
