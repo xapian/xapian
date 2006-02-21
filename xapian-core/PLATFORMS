@@ -99,7 +99,7 @@ x86_64|*Linux 2.6 RedHat FC3 GCC 3.4.2 | 0.9.4 |Passed| (amd64-linux2)
 x86_64|*Linux 2.6 RedHat FC3 GCC 4.0.0 | 0.9.4 |Passed| (amd64-linux2)
 x86_64| Linux 2.6 Ubuntu 5.04 GCC 3.3.5| 0.9.0 |Passed| from Olly Betts
 alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4| 0.9.3 |Passed| (alpha-linux1)
-alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.9.3 |Passed| (alpha-linux1) [6]
+alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.9.4 |Passed| (alpha-linux1) [6]
 alpha |=Linux 2.4 Debian 3.1 GCC 3.3.5 | 0.9.4 |Passed| (td142,161)
 alpha |=Linux 2.4 RedHat 7.2 GCC 3.4.1 | 0.9.2 |Passed| (td144)
 alpha |#FreeBSD 5.2.1 GCC 3.3.3        | 0.8.5 |Passed| (was td149)
