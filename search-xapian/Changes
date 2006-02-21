@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-0.9.3.0
+0.9.4.0  ??? Feb 2? ??:??:?? 2006
 	[Changes contributed by Olly Betts]
 	- Wrap the BM25Weight constructor which takes parameters
 	  (the default one is much less useful, since Xapian defaults
