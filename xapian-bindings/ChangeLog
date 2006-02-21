@@ -1,3 +1,8 @@
+Tue Feb 21 21:15:10 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/,xapian.i: Override deprecation warnings for Xapian
+	  methods/functions/etc.
+
 Tue Feb 21 12:12:48 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Don't quote $PHP in AC_PATH_PROGS to avoid

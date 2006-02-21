@@ -25,7 +25,6 @@
  THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-#include <jni.h>
 #include "xapian_jni.h"
 #include "org_xapian_XapianJNI.h"
 

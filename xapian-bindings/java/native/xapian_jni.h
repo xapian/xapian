@@ -28,6 +28,8 @@
 #include <jni.h>
 #include <hash_map.h>
 #include <typeinfo>
+// Disable any deprecation warnings for Xapian methods/functions/classes.
+#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include "org_xapian_XapianJNI.h"
