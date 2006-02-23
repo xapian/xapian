@@ -38,10 +38,10 @@ using namespace std;
 namespace Xapian {
 #ifndef XAPIAN_HAS_QUARTZ_BACKEND
     namespace Quartz {
-	Database open() {
+	static Database open() {
 	    throw FeatureUnavailableError("Quartz backend not supported");
 	}
-	WritableDatabase open(const string &, int, int = 8192) {
+	static WritableDatabase open(const string &, int, int = 8192) {
 	    throw FeatureUnavailableError("Quartz backend not supported");
 	}
     }
@@ -49,7 +49,7 @@ namespace Xapian {
 
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     namespace InMemory {
-	WritableDatabase open() {
+	static WritableDatabase open() {
 	    throw FeatureUnavailableError("InMemory backend not supported");
 	}
     }
@@ -57,16 +57,16 @@ namespace Xapian {
 
 #ifndef XAPIAN_HAS_MUSCAT36_BACKEND
     namespace Muscat36 {
-	Database open_da(const string &, const string &, bool = true) {
+	static Database open_da(const string &, const string &, bool = true) {
 	    throw FeatureUnavailableError("Muscat36 backend not supported");
 	}
-	Database open_da(const string &, const string &, const string &, bool = true) {
+	static Database open_da(const string &, const string &, const string &, bool = true) {
 	    throw FeatureUnavailableError("Muscat36 backend not supported");
 	}
-	Database open_db(const string &, size_t = 30) {
+	static Database open_db(const string &, size_t = 30) {
 	    throw FeatureUnavailableError("Muscat36 backend not supported");
 	}
-	Database open_db(const string &, const string &, size_t = 30) {
+	static Database open_db(const string &, const string &, size_t = 30) {
 	    throw FeatureUnavailableError("Muscat36 backend not supported");
 	}
     }
@@ -74,7 +74,7 @@ namespace Xapian {
 
 #ifndef XAPIAN_HAS_REMOTE_BACKEND
     namespace Remote {
-	Database open(const string &, unsigned int, timeout = 0, timeout = 0) {
+	static Database open(const string &, unsigned int, timeout = 0, timeout = 0) {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
     }

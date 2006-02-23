@@ -1,3 +1,7 @@
+Thu Feb 23 16:15:41 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Make the stub definitions for disabled backends static.
+
 Tue Feb 21 23:23:59 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Catch the case where the user has python installed
