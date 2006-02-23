@@ -1,4 +1,5 @@
 use ExtUtils::MakeMaker;
+use strict;
 
 my $CC = $ENV{"CXX"} || 'g++';
 
