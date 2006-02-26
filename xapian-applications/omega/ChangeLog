@@ -1,3 +1,9 @@
+Sun Feb 26 00:25:10 GMT 2006  Olly Betts <olly@survex.com>
+
+	* query.cc: Fix $opt[fieldnames] handling.  Previously it would try
+	  to kick in if you didn't set fieldnames but set any alphabetically
+	  later option!
+
 Tue Feb 21 00:18:25 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,NEWS: Updated for 0.9.4.

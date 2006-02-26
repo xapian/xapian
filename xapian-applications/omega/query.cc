@@ -2014,17 +2014,16 @@ print_caption(const string &fmt, const vector<string> &param)
     // Parse document data.
     field.clear();
     string::size_type i = 0;
-    map<string, string>::const_iterator opt = option.lower_bound("fieldnames");
-    if (opt != option.end() && !opt->second.empty()) {
+    string fieldnames = option["fieldnames"];
+    if (!fieldnames.empty()) {
 	// Each line is a field, with fieldnames taken from corresponding
 	// entries in the tab-separated list specified by $opt{fieldnames}.
-	const string & list = opt->second;
 	string::size_type n = 0, n2;
 	while (true) {
-	    n2 = list.find('\t', n);
+	    n2 = fieldnames.find('\t', n);
 	    string::size_type old_i = i;
 	    i = text.find('\n', i);
-	    field[list.substr(n, n2 - n)] = text.substr(old_i, i - old_i);
+	    field[fieldnames.substr(n, n2 - n)] = text.substr(old_i, i - old_i);
 	    if (n2 == string::npos || i == string::npos) break;
 	    ++i;
 	    n = n2 + 1;
