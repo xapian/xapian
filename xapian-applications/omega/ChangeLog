@@ -1,3 +1,11 @@
+Tue Feb 28 23:46:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Report a useless weight action, even if it's
+	  followed by another non-useless action (e.g. field); convert weight
+	  actions into a numeric parameter on index and indexnopos Action
+	  objects; add explanatory text "(note that actions are executed from
+	  left to right)" when reporting useless actions.
+ 
 Sun Feb 26 00:25:10 GMT 2006  Olly Betts <olly@survex.com>
 
 	* query.cc: Fix $opt[fieldnames] handling.  Previously it would try

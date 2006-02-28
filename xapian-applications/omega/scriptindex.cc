@@ -122,10 +122,22 @@ public:
     Action(type action_, string arg = "") : action(action_), string_arg(arg) {
 	num_arg = atoi(string_arg.c_str());
     }
+    Action(type action_, string arg, int num) : action(action_), string_arg(arg), num_arg(num) { }
     type get_action() const { return action; }
     int get_num_arg() const { return num_arg; }
     string get_string_arg() const { return string_arg; }
 };
+
+static void
+report_useless_action(const string &file, size_t line, size_t pos,
+		      const string &action)
+{
+    cout << file << ':' << line;
+    if (pos != string::npos) cout << ':' << pos;
+    cout << ": Warning: Index action '" << action << "' has no effect "
+	    "(note that actions are executed from left to right)"
+	 << endl;
+}
 
 static map<string, vector<Action> > index_spec;
 
@@ -164,12 +176,15 @@ parse_index_script(const string &filename)
 		exit(1);
 	    }
 	}
+	Xapian::termcount weight = 1;
+	size_t useless_weight_pos = string::npos;
 	j = i;
 	while (j != s.end()) {
 	    i = find_if(j, s.end(), p_notalpha);
 	    string action = s.substr(j - s.begin(), i - j);
 	    Action::type code = Action::BAD;
 	    enum {NO, OPT, YES} arg = NO;
+	    bool takes_integer_argument = false;
 	    if (!action.empty()) {
 		switch (action[0]) {
 		    case 'b':
@@ -208,6 +223,7 @@ parse_index_script(const string &filename)
 			if (action == "truncate") {
 			    code = Action::TRUNCATE;  
 			    arg = YES;
+			    takes_integer_argument = true;
 			}
 			break;
 		    case 'u':
@@ -222,19 +238,21 @@ parse_index_script(const string &filename)
 			if (action == "value") {
 			    code = Action::VALUE;  
 			    arg = YES;
+			    takes_integer_argument = true;
 			}
 			break;
 		    case 'w':
 			if (action == "weight") {
-			    code = Action::WEIGHT;  
+			    code = Action::WEIGHT;
 			    arg = YES;
+			    takes_integer_argument = true;
 			}
 			break;
 		}
 	    }
 	    if (code == Action::BAD) {
 		cout << filename << ':' << line_no
-		     << ": unknown index action `" << action << "'" << endl;
+		     << ": Unknown index action '" << action << "'" << endl;
 		exit(1);
 	    }
 	    i = find_if(i, s.end(), p_notspace);
@@ -242,7 +260,7 @@ parse_index_script(const string &filename)
 	    if (i != s.end() && *i == '=') {
 		if (arg == NO) {
 		    cout << filename << ':' << line_no
-			 << ": index action `" << action
+			 << ": Index action '" << action
 			 << "' doesn't take an argument" << endl;
 		    exit(1);
 		}
@@ -250,12 +268,31 @@ parse_index_script(const string &filename)
 		j = find_if(i, s.end(), p_notspace);
 		i = find_if(j, s.end(), p_space);
 		string arg = string(j, i);
+		if (takes_integer_argument) {
+		    if (arg.find('.') != string::npos) {
+			cout << filename << ':' << line_no
+			     << ": Warning: Index action '" << action
+			     << "' takes an integer argument" << endl;
+		    }
+		}
 		if (code == Action::INDEX && arg == "nopos") {
 		    // index used to take an optional argument which could
 		    // be "nopos" to mean the same that indexnopos now does.
 		    // translate this to allow older scripts to work (this
 		    // is safe to do since nopos isn't a sane prefix value)
 		    actions.push_back(Action(Action::INDEXNOPOS));
+		} else if (code == Action::WEIGHT) {
+		    // We don't push an Action for WEIGHT - instead we store
+		    // in ready to use in the INDEX and INDEXNOPOS Actions.
+		    weight = atoi(arg.c_str());
+		    if (useless_weight_pos != string::npos) {
+			report_useless_action(filename, line_no,
+					      useless_weight_pos, action);
+		    }
+		    useless_weight_pos = j - s.begin();
+		} else if (code == Action::INDEX || code == Action::INDEXNOPOS) {
+		    actions.push_back(Action(code, arg, weight));
+		    useless_weight_pos = string::npos;
 		} else {
 		    actions.push_back(Action(code, arg));
 		}
@@ -263,13 +300,17 @@ parse_index_script(const string &filename)
 	    } else {
 		if (arg == YES) {
 		    cout << filename << ':' << line_no
-			 << ": index action `" << action
+			 << ": Index action '" << action
 			 << "' must have an argument" << endl;
 		    exit(1);
 		}
 		actions.push_back(Action(code));
 	    }
 	    j = i;
+	}
+	if (useless_weight_pos != string::npos) {
+	    report_useless_action(filename, line_no, useless_weight_pos,
+				  "weight");
 	}
 	while (!actions.empty()) {
 	    bool done = true;
@@ -278,11 +319,9 @@ parse_index_script(const string &filename)
 		case Action::LOWER:
 		case Action::TRUNCATE:
 		case Action::UNHTML:
-		case Action::WEIGHT:
 		    done = false;
-		    cout << filename << ':' << line_no
-			 << ": Warning: Action " << action_names[action]
-			 << " has no effect" << endl;
+		    report_useless_action(filename, line_no, string::npos,
+					  action_names[action]);
 		    actions.pop_back();
 		    break;
 		default:
@@ -344,7 +383,6 @@ index_file(const char *fname, istream &stream,
 		value += line;
 	    }
 
-	    Xapian::termcount weight = 1;
 	    vector<Action> &v = index_spec[field];
 	    string old_value = value;
 	    vector<Action>::const_iterator i;
@@ -369,14 +407,15 @@ index_file(const char *fname, istream &stream,
 			}
 			break;
 		    case Action::INDEX:
-			wordcount = index_text(value, doc, stemmer, weight,
+			wordcount = index_text(value, doc, stemmer,
+					       i->get_num_arg(),
 					       i->get_string_arg(), wordcount);
 			break;
 		    case Action::INDEXNOPOS:
 			// No positional information so phrase searching
 			// won't work.  However, the database will use much
 			// less diskspace.
-			index_text(value, doc, stemmer, weight,
+			index_text(value, doc, stemmer, i->get_num_arg(),
 				   i->get_string_arg());	
 			break;
 		    case Action::BOOLEAN:
@@ -445,9 +484,6 @@ again:
 		    case Action::VALUE:
 			if (!value.empty())
 			    doc.add_value(i->get_num_arg(), value);
-			break;
-		    case Action::WEIGHT:
-			weight = i->get_num_arg();
 			break;
 		    case Action::DATE: {
 			string type = i->get_string_arg();
