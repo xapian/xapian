@@ -1,3 +1,10 @@
+Wed Mar 01 02:28:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Don't repeat the "note" part of warnings; Warn if
+	  "unique=<prefix>" is used without a corresponding "boolean=<prefix>";
+	  Warn that "index=nopos" is deprecated and should be replaced by
+	  "indexnopos".
+
 Tue Feb 28 23:46:57 GMT 2006  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Report a useless weight action, even if it's

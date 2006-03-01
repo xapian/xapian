@@ -58,13 +58,13 @@ static int addcount;
 static int repcount;
 static int delcount;
 
-inline static bool 
+inline static bool
 p_space(unsigned int c)
 {
     return isspace(c);
 }
 
-inline static bool 
+inline static bool
 p_notspace(unsigned int c)
 {
     return !isspace(c);
@@ -76,7 +76,7 @@ p_notalpha(unsigned int c)
     return !isalpha(c);
 }
 
-inline static bool 
+inline static bool
 p_alnum(unsigned int c)
 {
     return isalnum(c);
@@ -134,9 +134,15 @@ report_useless_action(const string &file, size_t line, size_t pos,
 {
     cout << file << ':' << line;
     if (pos != string::npos) cout << ':' << pos;
-    cout << ": Warning: Index action '" << action << "' has no effect "
-	    "(note that actions are executed from left to right)"
-	 << endl;
+    cout << ": Warning: Index action '" << action << "' has no effect" << endl;
+
+    static bool given_left_to_right_warning = false;
+    if (!given_left_to_right_warning) {
+	given_left_to_right_warning = true;
+	cout << file << ':' << line
+	     << ": Warning: Note that actions are executed from left to right"
+	     << endl;
+    }
 }
 
 static map<string, vector<Action> > index_spec;
@@ -178,6 +184,7 @@ parse_index_script(const string &filename)
 	}
 	Xapian::termcount weight = 1;
 	size_t useless_weight_pos = string::npos;
+	map<string, Action::type> boolmap;
 	j = i;
 	while (j != s.end()) {
 	    i = find_if(j, s.end(), p_notalpha);
@@ -189,19 +196,19 @@ parse_index_script(const string &filename)
 		switch (action[0]) {
 		    case 'b':
 			if (action == "boolean") {
-			    code = Action::BOOLEAN;  
+			    code = Action::BOOLEAN;
 			    arg = OPT;
 			}
 			break;
 		    case 'd':
 			if (action == "date") {
-			    code = Action::DATE;  
+			    code = Action::DATE;
 			    arg = YES;
 			}
 			break;
 		    case 'f':
 			if (action == "field") {
-			    code = Action::FIELD;  
+			    code = Action::FIELD;
 			    arg = OPT;
 			}
 			break;
@@ -216,27 +223,27 @@ parse_index_script(const string &filename)
 			break;
 		    case 'l':
 			if (action == "lower") {
-			    code = Action::LOWER;  
+			    code = Action::LOWER;
 			}
 			break;
 		    case 't':
 			if (action == "truncate") {
-			    code = Action::TRUNCATE;  
+			    code = Action::TRUNCATE;
 			    arg = YES;
 			    takes_integer_argument = true;
 			}
 			break;
 		    case 'u':
 			if (action == "unhtml") {
-			    code = Action::UNHTML;  
+			    code = Action::UNHTML;
 			} else if (action == "unique") {
-			    code = Action::UNIQUE;  
+			    code = Action::UNIQUE;
 			    arg = YES;
 			}
 			break;
 		    case 'v':
 			if (action == "value") {
-			    code = Action::VALUE;  
+			    code = Action::VALUE;
 			    arg = YES;
 			    takes_integer_argument = true;
 			}
@@ -275,26 +282,48 @@ parse_index_script(const string &filename)
 			     << "' takes an integer argument" << endl;
 		    }
 		}
-		if (code == Action::INDEX && arg == "nopos") {
-		    // index used to take an optional argument which could
-		    // be "nopos" to mean the same that indexnopos now does.
-		    // translate this to allow older scripts to work (this
-		    // is safe to do since nopos isn't a sane prefix value)
-		    actions.push_back(Action(Action::INDEXNOPOS));
-		} else if (code == Action::WEIGHT) {
-		    // We don't push an Action for WEIGHT - instead we store
-		    // in ready to use in the INDEX and INDEXNOPOS Actions.
-		    weight = atoi(arg.c_str());
-		    if (useless_weight_pos != string::npos) {
-			report_useless_action(filename, line_no,
-					      useless_weight_pos, action);
-		    }
-		    useless_weight_pos = j - s.begin();
-		} else if (code == Action::INDEX || code == Action::INDEXNOPOS) {
-		    actions.push_back(Action(code, arg, weight));
-		    useless_weight_pos = string::npos;
-		} else {
-		    actions.push_back(Action(code, arg));
+		switch (code) {
+		    case Action::INDEX:
+			if (arg == "nopos") {
+			    // INDEX used to take an optional argument which
+			    // could be "nopos" to mean the same that
+			    // INDEXNOPOS now does.
+			    cout << filename << ':' << line_no
+				 << ": Warning: Index action '" << action
+				 << '=' << arg << "' is deprecated - "
+				    "use action 'indexnopos' instead" << endl;
+			    // Translate this to allow older scripts to work
+			    // (this is safe to do since nopos isn't a sane
+			    // prefix value).
+			    code = Action::INDEXNOPOS;
+			    arg = "";
+			}
+			/* FALLTHRU */
+		    case Action::INDEXNOPOS:
+			actions.push_back(Action(code, arg, weight));
+			useless_weight_pos = string::npos;
+			break;
+		    case Action::WEIGHT:
+			// We don't push an Action for WEIGHT - instead we
+			// store it ready to use in the INDEX and INDEXNOPOS
+			// Actions.
+			weight = atoi(arg.c_str());
+			if (useless_weight_pos != string::npos) {
+			    report_useless_action(filename, line_no,
+						  useless_weight_pos, action);
+			}
+			useless_weight_pos = j - s.begin();
+			break;
+		    case Action::UNIQUE:
+			if (boolmap.find(arg) == boolmap.end())
+			    boolmap[arg] = Action::UNIQUE;
+			actions.push_back(Action(code, arg));
+			break;
+		    case Action::BOOLEAN:
+			boolmap[arg] = Action::BOOLEAN;
+			/* FALLTHRU */
+		    default:
+			actions.push_back(Action(code, arg));
 		}
 		i = find_if(i, s.end(), p_notspace);
 	    } else {
@@ -308,10 +337,12 @@ parse_index_script(const string &filename)
 	    }
 	    j = i;
 	}
+
 	if (useless_weight_pos != string::npos) {
 	    report_useless_action(filename, line_no, useless_weight_pos,
 				  "weight");
 	}
+
 	while (!actions.empty()) {
 	    bool done = true;
 	    Action::type action = actions.back().get_action();
@@ -329,6 +360,23 @@ parse_index_script(const string &filename)
 	    }
 	    if (done) break;
 	}
+
+	map<string, Action::type>::const_iterator boolpfx;
+	for (boolpfx = boolmap.begin(); boolpfx != boolmap.end(); ++boolpfx) {
+	    if (boolpfx->second == Action::UNIQUE) {
+		cout << filename << ':' << line_no
+		     << ": Warning: Index action 'unique=" << boolpfx->first
+		     << "' without 'boolean=" << boolpfx->first << "'" << endl;
+		static bool given_doesnt_imply_boolean_warning = false;
+		if (!given_doesnt_imply_boolean_warning) {
+		    given_doesnt_imply_boolean_warning = true;
+		    cout << filename << ':' << line_no
+			 << ": Warning: Note 'unique' doesn't implicitly add "
+			    "a boolean term" << endl;
+		}
+	    }
+	}
+
 	vector<string>::const_iterator field;
 	for (field = fields.begin(); field != fields.end(); ++field) {
 	    vector<Action> &v = index_spec[*field];
@@ -416,13 +464,13 @@ index_file(const char *fname, istream &stream,
 			// won't work.  However, the database will use much
 			// less diskspace.
 			index_text(value, doc, stemmer, i->get_num_arg(),
-				   i->get_string_arg());	
+				   i->get_string_arg());
 			break;
 		    case Action::BOOLEAN:
 			doc.add_term(i->get_string_arg() + value);
 			break;
 		    case Action::LOWER:
-			lowercase_term(value); 
+			lowercase_term(value);
 			break;
 		    case Action::TRUNCATE: {
 			string::size_type l = i->get_num_arg();
@@ -591,7 +639,7 @@ main(int argc, char **argv)
     // If the database already exists, default to updating not overwriting.
     int database_mode = Xapian::DB_CREATE_OR_OPEN;
     verbose = false;
-    Xapian::Stem stemmer("english"); 
+    Xapian::Stem stemmer("english");
 
     argv0 = argv[0];
     static const struct option longopts[] = {
@@ -652,14 +700,14 @@ main(int argc, char **argv)
 		"on the command line.  If no files are specified, data is read from stdin.\n\n"
 		"  -v, --verbose\t\tdisplay additional messages to aid debugging\n"
 		"      --overwrite\tcreate the database anew (the default is to update if\n"
-	        "\t\t\tthe database already exists)\n";
+		"\t\t\tthe database already exists)\n";
 	print_stemmer_help();
 	print_help_and_version_help('V');
 	exit(show_help ? 0 : 1);
     }
-    
+
     parse_index_script(argv[1]);
-    
+
     // Catch any Xapian::Error exceptions thrown.
     try {
 	// Open the database.
