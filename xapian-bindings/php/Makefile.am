@@ -1,6 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-TESTS_ENVIRONMENT = $(PHP) -n -d extension_dir=.libs
+# Override system php.ini with one which just makes sure we can use dl().
+TESTS_ENVIRONMENT = $(PHP) -c php.ini -d extension_dir=.libs
 
 ## Test programs to be run
 TESTS = smoketest.php
@@ -10,7 +11,7 @@ if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
 endif
 
-EXTRA_DIST = util.i xapian.php $(TESTS)
+EXTRA_DIST = php.ini util.i xapian.php $(TESTS)
 SUBDIRS = docs
 
 phpextdir = @PHP_EXTENSION_DIR@

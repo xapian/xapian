@@ -1,3 +1,11 @@
+Thu Mar 02 02:45:00 GMT 2006  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am,php/php.ini: php -n avoids reading any php.ini, but
+	  the compiled in default may be to enable the dubiously named
+	  "safe_mode" which prevents dl() being used so "make check" fails.
+	  So instead provide a very simple php.ini which turns off safe_mode
+	  and makes sure enable_dl is on.
+
 Thu Feb 23 16:15:41 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Make the stub definitions for disabled backends static.
