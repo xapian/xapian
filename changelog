@@ -1,3 +1,10 @@
+xapian-core (0.9.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * A couple of small, but important, fixes.
+
+ -- Richard Boulton <richard@tartarus.org>  /bin/bash: 822-date: command not found
+
 xapian-core (0.9.3-1) unstable; urgency=low
 
   * New upstream release.
