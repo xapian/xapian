@@ -190,16 +190,17 @@ if test no != "$with_python" ; then
     esac
     if test -n "$PYTHON" ; then
       AC_SUBST(PYTHON_MODERN_OR_OLDE)
-      PYTHON_INC=`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_inc().replace(os.sep,"/")'`
-      if test 0 != "$?" ; then
+      if $PYTHON -c 'import distutils.sysconfig' 2>/dev/null ; then
+	PYTHON_INC=`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_inc().replace(os.sep,"/")'`
+	AC_SUBST(PYTHON_INC)
+      else
 	if test yes = "$with_python" ; then
-	  AC_MSG_ERROR([Couldn't import Python module distutils.sysconfig])
+	  AC_MSG_ERROR([Couldn't import Python module distutils.sysconfig - you probably need to install a python-dev or python-devel package])
 	else
-	  AC_MSG_WARN([Couldn't import Python module distutils.sysconfig])
+	  AC_MSG_WARN([Couldn't import Python module distutils.sysconfig - you probably don't have a python-dev or python-devel package installed])
 	  PYTHON=
 	fi
       fi
-      AC_SUBST(PYTHON_INC)
     fi
     if test -n "$PYTHON" ; then
       dnl Check that Python.h is there, which is a good way to check that

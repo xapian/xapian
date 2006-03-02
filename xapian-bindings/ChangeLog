@@ -1,3 +1,10 @@
+Thu Mar 02 04:26:14 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add a better check for Python's distutils.sysconfig
+	  not being available (the previous check didn't actually work), and
+	  mention in the warning/error that we give that the solution is
+	  probably to install a python-dev or python-devel package.
+
 Thu Mar 02 02:45:00 GMT 2006  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am,php/php.ini: php -n avoids reading any php.ini, but
