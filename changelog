@@ -1,3 +1,9 @@
+xapian-core (0.9.4-3) unstable; urgency=low
+
+  * Add new header "deprecated.h"
+
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:59:10 +0000
+
 xapian-core (0.9.4-2) unstable; urgency=low
 
   * Fix invalid date line in previous changelog entry. 

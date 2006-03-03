@@ -3,6 +3,7 @@ usr/include/xapian.h
 usr/include/xapian/base.h
 usr/include/xapian/database.h
 usr/include/xapian/dbfactory.h
+usr/include/xapian/deprecated.h
 usr/include/xapian/document.h
 usr/include/xapian/enquire.h
 usr/include/xapian/error.h
