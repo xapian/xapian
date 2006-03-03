@@ -1,3 +1,9 @@
+xapian-bindings (0.9.4-2) unstable; urgency=low
+
+  * Fix invalid date line in previous changelog entry.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:32:31 +0000
+
 xapian-bindings (0.9.4-1) unstable; urgency=low
 
   * New upstream release.  (No package was made of 0.9.3)
@@ -6,7 +12,7 @@ xapian-bindings (0.9.4-1) unstable; urgency=low
   * Improved tests. 
   * Other small fixes.
 
- -- Richard Boulton <richard@tartarus.org>  /bin/bash: 822-date: command not found
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:32:31 +0000
 
 xapian-bindings (0.9.2-1) unstable; urgency=low
 
