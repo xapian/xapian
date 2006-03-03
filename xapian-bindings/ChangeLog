@@ -1,3 +1,8 @@
+Fri Mar 03 00:51:08 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Report which languages we're building bindings for
+	  just before configure finishes.
+
 Thu Mar 02 04:26:14 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add a better check for Python's distutils.sysconfig

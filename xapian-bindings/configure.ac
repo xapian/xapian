@@ -465,3 +465,7 @@ AC_CONFIG_FILES([Makefile
  csharp/AssemblyInfo.cs
  xapian-bindings.spec])
 AC_OUTPUT
+
+echo ""
+echo "*** Building bindings for languages:" $BINDINGS
+echo ""
