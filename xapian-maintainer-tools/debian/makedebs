@@ -36,9 +36,9 @@ sleep 5;
 set -e
 
 COMPONENT=stable
-VERSION='0.9.2'
+VERSION='0.9.4'
 DEBVER_CORE='1'
-DEBVER_BINDINGS='1'
+DEBVER_BINDINGS='2'
 DEBVER_OMEGA='1'
 
 # Options to pass to dpkg-buildpackage when building binary packages.
@@ -70,6 +70,8 @@ case $COMPONENT in
     echo "Building for $COMPONENT" ;;
   (unstable)
     echo "Building for $COMPONENT" ;;
+  (breezy)
+    echo "Building for $COMPONENT" ;;
   (*)
     echo "Component \"$COMPONENT\" not known - try \"stable\" or \"unstable\""
     exit 1
@@ -91,13 +93,14 @@ fi
 # This variable will be used when we finish support for snapshot packages.
 EXTRA_VERSION_UPSTREAM=
 
-# If we're building for the unstable distribution, we need to add a bit
+# If we're building for anything other than the stable distribution, we need to add a bit
 # to the debian version number, to avoid conflicts with the package in
-# stable.  We add "99unstable" since it should sort before any other
+# stable.  We add "99$COMPONENT" since it should sort before any other
 # modification.
+
 EXTRA_VERSION_DEBIAN=""
-if [ "x$COMPONENT" == "xunstable" ] ; then
-  EXTRA_VERSION_DEBIAN=".99unstable"
+if [ "x$COMPONENT" != "xstable" ] ; then
+  EXTRA_VERSION_DEBIAN=".99$COMPONENT"
 fi
 
 # TARGETDIR is the location that all generated files will be stored in.
