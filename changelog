@@ -1,9 +1,15 @@
+xapian-core (0.9.4-2) unstable; urgency=low
+
+  * Fix invalid date line in previous changelog entry. 
+
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:33:08 +0000
+
 xapian-core (0.9.4-1) unstable; urgency=low
 
   * New upstream release.
   * A couple of small, but important, fixes.
 
- -- Richard Boulton <richard@tartarus.org>  /bin/bash: 822-date: command not found
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:31:23 +0000
 
 xapian-core (0.9.3-1) unstable; urgency=low
 
