@@ -1,3 +1,28 @@
+xapian-omega (0.9.4-1) unstable; urgency=low
+
+  * New upstream release (no package was made for 0.9.3)
+  * Documentation improvements. 
+  * omindex: new option --preserve-nonduplicates
+  * omindex,scriptindex: new option --stemmer to choose stemmer.
+  * omindex: Add support for OpenDocument formats.
+  * scriptindex: -q no longer does anything.
+  * omega: Nicer error reports.
+  * omega: Add reverse sorting on values.
+  * omega: new command $find{}
+  * omega: new command $lookup{}
+  * omega: new function to avoid storing fieldnames in every document.
+  * omega: new command $split{}
+  * omega: fixes to $url{}
+  * omega: speed up $highlight{}
+  * omega: reduce memory usage with lots of relevant documents.
+  * templates: query - make page title shorter.
+  * templates: opensearch - add missing escaping.
+  * templates: godmode - cope with non-existent docids better.
+  * omega: portability fixes.
+
+
+ -- Richard Boulton <richard@tartarus.org>  /bin/bash: 822-date: command not found
+
 xapian-omega (0.9.2-1) unstable; urgency=low
 
   * New upstream release.
