@@ -21,8 +21,6 @@
 # Usage: ./makesources [COMPONENT]
 # COMPONENT defaults to "stable".
 # Currently, the only sensible alternate value is "unstable".
-# (Though at present (15 Jun 2005), stable and unstable packages are
-# compatible, so there is no need to do a separate build for unstable.)
 
 set -e
 
@@ -64,6 +62,8 @@ fi
 
 # Check that the component is sane.
 case $COMPONENT in
+  (breezy)
+    echo "Building for $COMPONENT" ;;
   (stable)
     echo "Building for $COMPONENT" ;;
   (unstable)
@@ -123,13 +123,13 @@ DEBTAG_CORE="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-core/debian/changelog 
 DEBTAG_BINDINGS="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-bindings/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
 DEBTAG_OMEGA="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-applications/omega/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
 
-# If we're building for the unstable distribution, we need to add a bit
-# to the debian version number, to avoid conflicts with the package in
-# stable.  We add "99unstable" since it should sort before any other
+# If we're building for anything other than the stable distribution, we need to
+# add a bit to the debian version number, to avoid conflicts with the package
+# in stable.  We add "99$COMPONENT" since it should sort before any other
 # modification.
-if [ "x$COMPONENT" == "xunstable" ] ; then
-  EXTRA_VERSION_DEBIAN=".99unstable"
-  CHANGE_MSG="$CHANGE_MSG  * Built for unstable distribution.
+if [ "x$COMPONENT" != "xstable" ] ; then
+  EXTRA_VERSION_DEBIAN=".99$COMPONENT"
+  CHANGE_MSG="$CHANGE_MSG  * Built for $COMPONENT distribution.
 "
 fi
 
