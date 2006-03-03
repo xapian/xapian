@@ -37,9 +37,9 @@ set -e
 
 COMPONENT=stable
 VERSION='0.9.4'
-DEBVER_CORE='1'
-DEBVER_BINDINGS='1'
-DEBVER_OMEGA='1'
+DEBVER_CORE='2'
+DEBVER_BINDINGS='2'
+DEBVER_OMEGA='2'
 
 # Options to pass to dpkg-buildpackage when building binary packages.
 BUILDPACKAGE_BIN_OPTS="-us -uc -b"
