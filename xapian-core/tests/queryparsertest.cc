@@ -602,7 +602,6 @@ static bool test_queryparser4()
     db.add_document(doc);
     Xapian::QueryParser queryparser;
     queryparser.set_database(db);
-    queryparser.set_database(db);
     Xapian::Query qobj = queryparser.parse_query("ab*", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(abc:(pos=1))");
     qobj = queryparser.parse_query("muscle*", Xapian::QueryParser::FLAG_WILDCARD);
@@ -612,6 +611,10 @@ static bool test_queryparser4()
     qobj = queryparser.parse_query("musc*", Xapian::QueryParser::FLAG_WILDCARD);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1)))");
     qobj = queryparser.parse_query("mutt*", Xapian::QueryParser::FLAG_WILDCARD);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
+    // Regression test (we weren't lowercasing terms before checking if they
+    // were in the database or not):
+    qobj = queryparser.parse_query("mUTTON++");
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
     return true;
 }

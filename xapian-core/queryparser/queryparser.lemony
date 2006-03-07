@@ -376,7 +376,15 @@ phrased_term:
 		    // non-suffixed term does.  This also takes care of
 		    // the case when QueryParser::set_database() hasn't
 		    // been called.
-		    if (db.term_exists(suff_term) || !db.term_exists(term)) {
+		    bool use_suff_term = false;
+		    string lc = downcase_term(suff_term);
+		    if (db.term_exists(lc)) {
+			use_suff_term = true;
+		    } else {
+			lc = downcase_term(term);
+			if (!db.term_exists(lc)) use_suff_term = true;
+		    }
+		    if (use_suff_term) {
 			term = suff_term;
 			it = p;
 		    }

@@ -1,3 +1,10 @@
+Tue Mar 07 19:59:54 GMT 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc:
+	  Fix QueryParser's handling of terms with trailing "#", "+",
+	  or "-" when set_database has been called and the term doesn't
+	  exist in the database with the suffix.
+
 Tue Feb 21 21:14:22 GMT 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/deprecated.h: Allow xapian-bindings to override
