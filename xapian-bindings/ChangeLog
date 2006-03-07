@@ -1,3 +1,9 @@
+Tue Mar 07 04:30:45 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Use the fairly new "swig -O" option for the
+	  "modern" python bindings as it generates a smaller glue library
+	  and runs faster.
+
 Fri Mar 03 00:51:08 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Report which languages we're building bindings for

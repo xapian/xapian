@@ -10,9 +10,9 @@ if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
 endif
 
-# Interleave modern and olde as the .cc-s and .h-s are probably identical,
-# the .py-s are very similar, and gzip will compress this redundancy away if
-# its close enough together for it to notice.
+# Interleave modern and olde as the .cc-s and .py-s are pretty similar and the
+# .h-s are probably identical and gzip will compress this redundancy away if
+# it falls within gzip's window size.
 BUILT_SOURCES = \
 	modern/xapian_wrap.cc olde/xapian_wrap.cc \
 	modern/xapian_wrap.h olde/xapian_wrap.h \
@@ -63,7 +63,7 @@ if MAINTAINER_MODE
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i extra.i
 	test -d modern || mkdir modern
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow -modern \
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow -modern -O \
 	    -outdir modern -o modern/xapian_wrap.cc $(srcdir)/../xapian.i
 
 olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i extra.i
