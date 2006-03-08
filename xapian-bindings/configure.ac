@@ -48,7 +48,7 @@ AC_PROG_LIBTOOL
 dnl -no-undefined causes problems on MacOS X with some at least some
 dnl MACOSX_DEPLOYMENT_TARGET settings, so only pass -no-undefined on
 dnl platforms where it is required in order to link a shared library at
-dnl all (Windows is main one).
+dnl all (Windows is the main one).
 NO_UNDEFINED=
 if test unsupported = "$allow_undefined_flag" ; then
   NO_UNDEFINED=-no-undefined

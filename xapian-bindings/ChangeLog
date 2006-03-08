@@ -1,3 +1,7 @@
+Wed Mar 08 23:39:34 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix poor English in comment.
+
 Wed Mar 08 22:49:57 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/SmokeTest.java: Write a helpful diagnostic to stderr if a check
