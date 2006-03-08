@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-0.9.4.0  ??? Feb 2? ??:??:?? 2006
+0.9.4.0  ??? Mar ?? ??:??:?? 2006
 	[Changes contributed by Olly Betts]
 	- Wrap the BM25Weight constructor which takes parameters
 	  (the default one is much less useful, since Xapian defaults
@@ -22,6 +22,7 @@ Revision history for Perl extension Search::Xapian.
 	- Makefile.PL now refuses to proceed if it can't find Xapian.
 	- Makefile.PL now checks that the Xapian version and Search::Xapian
 	  version match, and if not issues a non-fatal warning (for now).
+	- Add feature test for Document::termlist_begin().
 	[Changes contributed by Tim Brody]
 	- Add MANIFEST.SKIP to allow "make manifest".
 
