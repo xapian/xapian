@@ -543,7 +543,7 @@ static bool test_queryparser1()
 }
 
 // With default_op = OP_AND.
-static bool test_queryparser2()
+static bool test_qp_default_op1()
 {
     Xapian::QueryParser queryparser;
     queryparser.set_stemmer(Xapian::Stem("english"));
@@ -577,7 +577,7 @@ static bool test_queryparser2()
 }
 
 // Test query with odd characters in.
-static bool test_queryparser3()
+static bool test_qp_odd_chars1()
 {
     Xapian::QueryParser queryparser;
     string query("\x01weird\x00stuff\x7f", 13);
@@ -588,7 +588,7 @@ static bool test_queryparser3()
 }
 
 // Test right truncation.
-static bool test_queryparser4()
+static bool test_qp_flag_wildcard1()
 {
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     Xapian::Document doc;
@@ -619,12 +619,30 @@ static bool test_queryparser4()
     return true;
 }
 
+static bool test_qp_flag_bool_any_case1()
+{
+    using Xapian::QueryParser;
+    Xapian::QueryParser qp;
+    Xapian::Query qobj;
+    qobj = qp.parse_query("to and fro", QueryParser::FLAG_BOOLEAN | QueryParser::FLAG_BOOLEAN_ANY_CASE);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) AND fro:(pos=2)))");
+    qobj = qp.parse_query("to and fro", QueryParser::FLAG_BOOLEAN);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) OR and:(pos=2) OR fro:(pos=3)))");
+    // Regression test for bug in 0.9.4 and earlier.
+    qobj = qp.parse_query("to And fro", QueryParser::FLAG_BOOLEAN | QueryParser::FLAG_BOOLEAN_ANY_CASE);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) AND fro:(pos=2)))");
+    qobj = qp.parse_query("to And fro", QueryParser::FLAG_BOOLEAN);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) OR and:(pos=2) OR fro:(pos=3)))");
+    return true;
+}
+
 // Tests to perform:
 test_desc tests[] = {
-    {"queryparser1",	test_queryparser1},
-    {"queryparser2",	test_queryparser2},
-    {"queryparser3",	test_queryparser3},
-    {"queryparser4",	test_queryparser4},
+    {"queryparser1",		test_queryparser1},
+    {"qp_default_op1",		test_qp_default_op1},
+    {"qp_odd_chars1",		test_qp_odd_chars1},
+    {"qp_flag_wildcard1",	test_qp_flag_wildcard1},
+    {"qp_flag_bool_any_case1",	test_qp_flag_bool_any_case1},
     {0, 0}
 };
 

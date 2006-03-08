@@ -397,7 +397,7 @@ phrased_term:
 	    // Don't want to interpret A.N.D. or ÁND as an AND operator.
 	    if (!was_acronym && transliterations == it.transliterations()) {
 		if (prefix.empty() && !term.empty() && C_isalpha(term[0])) {
-		    if (C_isupper(term[0])) {
+		    if (!(flags & FLAG_BOOLEAN_ANY_CASE)) {
 			if (term == "AND") {
 			    Parse(pParser, AND, NULL, &state);
 			    continue;
@@ -414,21 +414,23 @@ phrased_term:
 			    Parse(pParser, XOR, NULL, &state);
 			    continue;
 			}
-		    } else if (flags & FLAG_BOOLEAN_ANY_CASE) {
+		    } else {
+			// FIXME: add upcase_term and merge this into the
+			// case above.
 			string lcterm = downcase_term(term);
-			if (term == "and") {
+			if (lcterm == "and") {
 			    Parse(pParser, AND, NULL, &state);
 			    continue;
-			} else if (term == "or") {
+			} else if (lcterm == "or") {
 			    Parse(pParser, OR, NULL, &state);
 			    continue;
-			} else if (term == "not") {
+			} else if (lcterm == "not") {
 			    Parse(pParser, NOT, NULL, &state);
 			    continue;
-			} else if (term == "near") {
+			} else if (lcterm == "near") {
 			    Parse(pParser, NEAR, NULL, &state);
 			    continue;
-			} else if (term == "xor") {
+			} else if (lcterm == "xor") {
 			    Parse(pParser, XOR, NULL, &state);
 			    continue;
 			}

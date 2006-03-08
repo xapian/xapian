@@ -1,3 +1,13 @@
+Wed Mar 08 02:32:49 GMT 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix FLAG_BOOLEAN_ANY_CASE to really
+	  allow any case combination - previously it only allowed all
+	  uppercase or all lowercase.
+	* tests/queryparsertest.cc: Add feature and regression tests for
+	  FLAG_BOOLEAN_ANY_CASE.
+	* tests/queryparsertest.cc: Rename test cases to more descriptive
+	  names.
+
 Tue Mar 07 19:59:54 GMT 2006  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,tests/queryparsertest.cc:
