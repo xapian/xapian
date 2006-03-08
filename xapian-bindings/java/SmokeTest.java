@@ -25,6 +25,7 @@ public class SmokeTest {
 	try {
 	    Stem stem = new Stem("english");
 	    if (!stem.toString().equals("Xapian::Stem(english)")) {
+		System.err.println("Unexpected stem.toString()");
 		System.exit(1);
 	    }
 	    Document doc = new Document();
@@ -38,23 +39,27 @@ public class SmokeTest {
 	    WritableDatabase db = Xapian.InMemory.open();
 	    db.addDocument(doc);
 	    if (db.getDocCount() != 1) {
+		System.err.println("Unexpected db.getDocCount()");
 		System.exit(1);
 	    }
 
 	    String[] terms = { "smoke", "test", "terms" };
 	    Query query = new Query(Query.OP_OR, terms);
 	    if (!query.toString().equals("Xapian::Query((smoke OR test OR terms))")) {
+		System.err.println("Unexpected query.toString()");
 		System.exit(1);
 	    }
 	    String[] subqs = { "a", "b" };
 	    Query query3 = new Query(Query.OP_OR, subqs);
 	    if (!query3.toString().equals("Xapian::Query((a OR b))")) {
+		System.err.println("Unexpected query3.toString()");
 		System.exit(1);
 	    }
 	    Enquire enq = new Enquire(db);
 	    enq.setQuery(new Query(Query.OP_OR, "there", "is"));
 	    MSet mset = enq.getMSet(0, 10);
 	    if (mset.size() != 1) {
+		System.err.println("Unexpected mset.size()");
 		System.exit(1);
 	    }
 	    String term_str = "";
@@ -64,6 +69,7 @@ public class SmokeTest {
 		if (itor.hasNext()) term_str += ' ';
 	    }
 	    if (!term_str.equals("is there")) {
+		System.err.println("Unexpected term_str");
 		System.exit(1);
 	    }
 	    boolean ok = false;
@@ -74,9 +80,11 @@ public class SmokeTest {
 		ok = true;
 	    }
 	    if (!ok) {
+		System.err.println("Managed to open non-existent database");
 		System.exit(1);
 	    }
 	} catch (Exception e) {
+	    System.err.println("Caught unexpected exception " + e.toString());
 	    System.exit(1);
 	}
     }

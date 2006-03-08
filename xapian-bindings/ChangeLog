@@ -1,3 +1,8 @@
+Wed Mar 08 22:49:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Write a helpful diagnostic to stderr if a check
+	  fails so we have some idea what went wrong!
+
 Tue Mar 07 04:30:45 GMT 2006  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Use the fairly new "swig -O" option for the
