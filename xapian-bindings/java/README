@@ -48,6 +48,10 @@ getMSet, etc.  Also get_description is wrapped as toString.
 TODO list:
 ==========
 
+* OSF/1 on alpha needs "-pthread".  Other platforms may need something too...
+
+* Fix string passing to be zero-byte clean.
+
 The majority of the C++ API is wrapped, with a few exceptions still to be done:
 
 * Wrap optional parameter "parameter" for Query ctor.
@@ -67,5 +71,3 @@ The majority of the C++ API is wrapped, with a few exceptions still to be done:
 * Wrap Xapian::Weight and standard subclasses.
 
 * Allow user derived weight classes to be implemented in Java (less important).
-
-* Fix string passing to be zero-byte clean.

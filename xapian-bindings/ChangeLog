@@ -1,3 +1,8 @@
+Thu Mar 09 20:08:17 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/README: Note that some platforms need "-pthread" or similar
+	  flags.
+
 Thu Mar 09 17:50:51 GMT 2006  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs,xapian.i: Rename Database::GetDoccount() to
