@@ -1,3 +1,8 @@
+Thu Mar 09 14:57:20 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am: Use JAVA_PATHSEP when specifying the classpath for
+	  compiling .java files to .class files.
+
 Thu Mar 09 06:12:44 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/README,java/native/Makefile.am,java/run-java-test: Causing the

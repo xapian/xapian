@@ -2,8 +2,6 @@
 
 SUBDIRS = native org .
 
-## Test programs to be run
-
 TESTS_ENVIRONMENT = JAVA=$(JAVA) PATHSEP=$(JAVA_PATHSEP) ./run-java-test
 
 ## Test programs to be run
@@ -16,7 +14,7 @@ CLEANFILES = SmokeTest.class built/xapian_jni.jar
 SmokeTest: SmokeTest.class
 
 .java.class:
-	$(JAVAC) -classpath $(srcdir):. -d . $<
+	$(JAVAC) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
 
 # directory to install xapian_jni.jar in
 # `pwd`/
