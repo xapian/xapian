@@ -1,6 +1,7 @@
 /**
-Copyright (c) 2003, Technology Concepts & Design, Inc.
-All rights reserved.
+ Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2006, Olly Betts
+ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted 
 provided that the following conditions are met:
@@ -31,7 +32,19 @@ THE POSSIBILITY OF SUCH DAMAGE.
 #include <pthread.h>
 #include <string>
 #include <typeinfo>
+
+#if defined __GNUC__ && __GNUC__ >= 3
+#include <ext/hash_map>
+using __gnu_cxx::hash_map;
+using __gnu_cxx::hash;
+#elif defined _MSC_VER && _MSC_VER >= 1310
+// 1310 is MSVC 2003, aka MSVC7.1.
+#include <hash_map>
+using stdext::hash_map;
+using stdext::hash;
+#else
 #include <hash_map.h>
+#endif
 
 using namespace std;
 

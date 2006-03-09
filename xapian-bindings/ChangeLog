@@ -1,3 +1,9 @@
+Thu Mar 09 05:16:19 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/XapianObjectHolder.h,java/native/xapian_jni.h: Rework
+	  how we include headers to get hash_map to avoid compiler warnings
+	  since it's usually not in the std namespace nowadays.
+
 Wed Mar 08 23:39:34 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix poor English in comment.
