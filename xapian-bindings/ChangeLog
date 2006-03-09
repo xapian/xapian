@@ -1,3 +1,11 @@
+Thu Mar 09 06:12:44 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/README,java/native/Makefile.am,java/run-java-test: Causing the
+	  "all" target to run the "install" target seems to be very
+	  problematic, so change "make check" to use the uninstalled JNI glue
+	  library, and update the instructions to say that "make install" is
+	  now required.
+
 Thu Mar 09 05:16:19 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/native/XapianObjectHolder.h,java/native/xapian_jni.h: Rework

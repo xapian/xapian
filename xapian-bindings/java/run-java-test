@@ -1,3 +1,3 @@
 #!/bin/sh
 arg=`echo "$1"|sed 's!^\./!!'`
-LD_LIBRARY_PATH=built $JAVA -classpath built/xapian_jni.jar${PATHSEP-:}. "$arg"
+LD_LIBRARY_PATH=native/.libs $JAVA -classpath built/xapian_jni.jar${PATHSEP-:}. "$arg"

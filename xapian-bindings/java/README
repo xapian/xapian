@@ -1,8 +1,9 @@
 How to build the bindings:
 ==========================
 
-Running "make" will "install" a JNI glue shared library into a "built"
-subdirectory.  The jar file is built into the "built" subdirectory too.
+Running "make" and then "make install" will "install" a JNI glue shared library
+into a "built" subdirectory of the java build directory.  The jar file is built
+into the "built" subdirectory too.
 
 You can copy these two files into your java installation, or just use them
 in-place.
