@@ -1,3 +1,8 @@
+Thu Mar 09 17:50:51 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs,xapian.i: Rename Database::GetDoccount() to
+	  Database::GetDocCount() for consistency.
+
 Thu Mar 09 14:57:20 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/Makefile.am: Use JAVA_PATHSEP when specifying the classpath for

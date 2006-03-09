@@ -31,7 +31,7 @@ class SmokeTest {
 	    doc.AddPosting(stem.StemWord("there"), 5);
 	    Xapian.WritableDatabase db = Xapian.InMemory.Open();
 	    db.AddDocument(doc);
-	    if (db.GetDoccount() != 1) {
+	    if (db.GetDocCount() != 1) {
 		System.Environment.Exit(1);
 	    }
 	    if (doc.TermListCount() != 5) {
