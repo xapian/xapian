@@ -20,6 +20,7 @@ XAPIAN_CLASS_FILES = AssertionError.class DatabaseCorruptError.class\
 noinst_DATA = $(XAPIAN_CLASS_FILES)
 
 .java.class:
-	$(JAVAC) -classpath $(srcdir)/../../..:../../.. -d ../../.. $<
+	-rm -f ../../../built/xapian_jni.jar
+	$(JAVAC) -classpath $(srcdir)/../../..$(JAVA_PATHSEP)../../.. -d ../../.. $<
 
 CLEANFILES = $(XAPIAN_CLASS_FILES)

@@ -115,6 +115,20 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3Ljava_lang_Stri
     CATCH(-1)
 }
 
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3J (JNIEnv *env, jclass clazz, jint op, jlongArray qids) {
+    TRY
+	jsize len = env->GetArrayLength(qids);
+	Query **queries = new Query*[len];
+	jlong *qid_ptr = env->GetLongArrayElements(qids, NULL);
+	for (int x=0; x<len; x++) {
+	    queries[x] = _query->get(qid_ptr[x]);
+	}
+        Query *q = new Query(op_table[op-1], queries, queries+len);
+	delete queries;
+        return _query->put(q);
+    CATCH(-1)
+}
+
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_query_1get_1description (JNIEnv *env, jclass clazz, jlong qid) {
     TRY
         Query *q = _query->get(qid);

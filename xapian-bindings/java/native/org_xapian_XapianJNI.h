@@ -882,6 +882,14 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3Ljava_lang_Stri
 /*
  * Class:     org_xapian_XapianJNI
  * Method:    query_new
+ * Signature: (I[J)J
+ */
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3J
+  (JNIEnv *, jclass, jint, jlongArray);
+
+/*
+ * Class:     org_xapian_XapianJNI
+ * Method:    query_new
  * Signature: (IJ)J
  */
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__IJ

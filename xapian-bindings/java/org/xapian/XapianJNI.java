@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -326,6 +327,8 @@ public class XapianJNI {
     public static native long query_new(int operator, String left, String right) throws XapianError;
 
     public static native long query_new(int operator, String[] terms) throws XapianError;
+
+    public static native long query_new(int operator, long[] queries) throws XapianError;
 
     public static native long query_new(int operator, long id) throws XapianError;
 

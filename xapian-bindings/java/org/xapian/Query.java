@@ -120,6 +120,15 @@ public class Query {
         id = XapianJNI.query_new(operator, left, right);
     }
 
+    public Query(int operator, Query[] queries) throws XapianError {
+        validateOperator(operator);
+	long[] query_ids = new long[queries.length];
+	for (int i = 0; i < queries.length; ++i) {
+	    query_ids[i] = queries[i].id;
+	}
+	id = XapianJNI.query_new(operator, query_ids);
+    }
+
     public Query(int operator, String[] terms) throws XapianError {
         validateOperator(operator);
         id = XapianJNI.query_new(operator, terms);

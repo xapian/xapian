@@ -1,3 +1,13 @@
+Thu Mar 09 20:11:32 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java,java/native/Query.cc,
+	  java/native/org_xapian_XapianJNI.h,java/org/xapian/Query.java,
+	  java/org/xapian/XapianJNI.java: Add a new Query constructor
+	  wrapper which take an OP_xxx and an array of Query objects.
+	* java/org/xapian/Makefile.am,java/org/xapian/errors/Makefile.am:
+	  Compiling a .java file to a .class file now deletes the .jar file
+	  to ensure it gets updated.
+
 Thu Mar 09 20:08:17 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/README: Note that some platforms need "-pthread" or similar

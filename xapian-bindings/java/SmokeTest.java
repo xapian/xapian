@@ -49,6 +49,12 @@ public class SmokeTest {
 		System.err.println("Unexpected query.toString()");
 		System.exit(1);
 	    }
+	    Query[] queries = { new Query("smoke"), query, new Query("string") };
+	    Query query2 = new Query(Query.OP_XOR, queries);
+	    if (!query2.toString().equals("Xapian::Query((smoke XOR (smoke OR test OR terms) XOR string))")) {
+		System.err.println("Unexpected query2.toString()");
+		System.exit(1);
+	    }
 	    String[] subqs = { "a", "b" };
 	    Query query3 = new Query(Query.OP_OR, subqs);
 	    if (!query3.toString().equals("Xapian::Query((a OR b))")) {
