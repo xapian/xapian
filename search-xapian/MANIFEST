@@ -1,6 +1,5 @@
 MANIFEST			This list of files
 MANIFEST.SKIP
-META.yml
 README
 Changes
 Makefile.PL
