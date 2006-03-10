@@ -1,3 +1,7 @@
+Fri Mar 10 02:55:48 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/overview.html: Bring up to date.
+
 Wed Mar 08 02:32:49 GMT 2006  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix FLAG_BOOLEAN_ANY_CASE to really

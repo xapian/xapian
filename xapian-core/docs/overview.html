@@ -9,7 +9,7 @@
 
 <P>
 This document provides an introduction to the native C++ Xapian API.
-This API provides programmers with the ability to search through
+This API provides programmers with the ability to index and search through
 (potentially very large) bodies of data using probabilistic methods.
 </P>
 
@@ -18,11 +18,6 @@ This API provides programmers with the ability to search through
 The portion of the API currently documented here covers only the part
 of Xapian concerned with searching through existing databases, not that
 concerned with creating them.
-</P>
-
-<P>
-<EM>Note:</EM>
-This document is out of date in places.
 </P>
 
 <P>
@@ -51,13 +46,20 @@ in our distributions, and also keep the
 <H2>Design Priciples</H2>
 
 <P>
+API classes are either very lightweight or a wrapper around a reference counted
+pointer (this style of class design is sometimes known as PIMPL for "Private
+IMPLementation").  In either case copying is a cheap operation as classes
+are at most a few words of memory.
+</P>
+
+<P>
 API objects keep a reference to other objects they rely on so the user
 doesn't need to worry about whether an object is still valid or not.
 </P>
 
 <P>
-Most API classes are handles - copying is like copying a pointer.  The
-exception is the iterator classes, which act like STL iterators.
+Where appropriate, API classes can be used as containers and iterators just
+like those in the C++ STL.
 </P>
 
 <H2>Errors and exceptions</H2>
@@ -179,9 +181,7 @@ any of the other methods in any order.
 Many operations performed by the Xapian::Enquire class are performed lazily (ie,
 just before their results are needed).  This need not concern the user
 except to note that, as a result, errors may not be reported as soon as
-would otherwise be expected.  In particular, errors regarding opening of
-the database may be reported when a query is performed (although they
-may not: you should catch exceptions in both situations).
+would otherwise be expected.
 </P>
 
 <H2>Specifying a database</H2>
@@ -228,6 +228,21 @@ You access a Quartz database using Xapian::Database and Xapian::WritableDatabase
 constructed by the factory function <A
 HREF="apidoc/html/database_8h.html"><CODE>Xapian::Quartz::open()</CODE></A>.
 <!-- FIXME: hard to link direct to functions, as the name ids may change... -->
+</P>
+</TD></TR>
+<TR><TD VALIGN="top"><B>flint</B></TD><TD>
+<P>
+Flint is a "next generation" database backend for Xapian. It takes lessons learned from studying Quartz in action, and should be substantially faster (both when indexing and searching), more compact, and better in other ways too (better locking, and better statistics from the matcher for example).
+</P>
+<P>
+Flint is very much a work in progress. The aim is to have it stable and working at any given point (and Xapian's extensive test suite should help give us some reassurance of this), but the database format will change frequently and there'll be no migration path during development (except for rebuilding your index from the source data, or alternatively using copydatabase to copy the old-flint database to a quartz database, upgrading, then using copydatabase to copy the quartz database to a new-flint one).
+</P>
+<P>
+That said flint already outperforms quartz, and Gmane, tweakers.net and
+srpko.com are all running production systems using the flint backend.
+</P>
+<P>
+For more information, see the <a href="http://wiki.xapian.org/FlintBackend">Xapian Wiki</a>.
 </P>
 </TD></TR>
 <TR><TD VALIGN="top"><B>da_flimsy</B></TD><TD>
@@ -302,11 +317,16 @@ single one.  Simply call
 for each database that you wish to search through.
 </P>
 <P>
+You can also set up "pre-canned" listed of databases to search over using
+a "stub database" - see above for details.
+</P>
+<!-- I don't really think this says anything useful...
+<P>
 Other operations, such as setting the query, may be performed before or after
 this call.  It is even possible to perform a query, add a further database,
 and then perform the query again to get the results with the extra database
 (although this isn't very likely to be useful in practice).
-</P>
+</P>-->
 
 <H2>Specifying a query</H2>
 
@@ -335,7 +355,7 @@ being used to retrieve documents in English in a database
 containing English and French documents.
 A word like
 &quot;<EM>grand</EM>&quot;,
-exists in both languages (with similar meanings), but is commoner in French
+exists in both languages (with similar meanings), but is more common in French
 than English. In the English subset it could therefore be expected to have a higher
 weight than it would get in the joint English and French
 databases.
@@ -352,16 +372,16 @@ In reality, Xapian performs the combined boolean and probabilistic searches
 simultaneously.  This allows various optimisations to be performed, such
 as giving up on calculating a boolean AND operation when the probabilistic
 weights that could result from further documents can have no effect on the
-result set.  These optimisations have been found to give a two- or
-three-fold performance increase in certain cases.  The performance is
-particularly good for queries containing many terms.
+result set.  These optimisations have been found to often give a several-fold
+performance increase.  The performance is particularly good for queries
+containing many terms.
 </P>
 
 <H3>A query for a single term</H3>
 <P>
 All queries are represented by
 <A HREF="apidoc/html/classXapian_1_1Query.html"><CODE>Xapian::Query</CODE></A>
-objects.  The simplest possible (non-trivial) query is one which searches
+objects.  The simplest possible useful query is one which searches
 for a single term.  This can be created as follows (where <CODE>tname</CODE> is the term to be searched for):
 </P>
 <PRE>
@@ -386,9 +406,9 @@ Xapian::Query(const string &amp; tname_,
 The <CODE>wqf</CODE> (<B>W</B>ithin <B>Q</B>uery <B>F</B>requency) is
 a measure of how common a term is in the query.  This is particularly useful
 when generating a query from an existing document, but may also be used
-as a crude way of increasing the importance of a term in a query.  Note that,
+to increase the "importance" of a term in a query.  Note that,
 if the intention is simply to ensure that a particular term is in the query
-results, you should use a boolean AND rather than set a high wqf.
+results, you should use a boolean AND or AND_MAYBE rather than set a high wqf.
 </P>
 <P>
 The <CODE>term_pos</CODE> represents the position of the term in the query.
@@ -411,10 +431,10 @@ are exactly equivalent.
 
 <H3>Compound queries</H3>
 <P>
-Out of single term queries, compound queries can be built up. A compound
-is made up from two sub-queries with a connecting operator, where each
-sub-query is a compound query or a single term query. This is done using
-the following constructor:
+Compound queries can be built up from single term queries by combining
+them a connecting operator. Most operators can operate on either
+a single term query or a compound query. You can combine pair-wise
+using the following constructor:
 </P>
 <PRE>
 Xapian::Query(Xapian::Query::op op_,
@@ -479,37 +499,12 @@ a query with all those terms combined as an OR query.
 <H3>Understanding queries</H3>
 
 <P>
-Each term, t, in the query has a weight, w<sub>Q</sub>(t), given by
-
-<PRE>
-                     (K' + 1) f'<sub>t</sub>
-             w<sub>Q</sub>(t) = ------------- w(t)
-                      K'L' + f'<sub>t</sub>
-
-</PRE>
-
-where f'<sub>t</sub> is the wqf of t in the query, L' is the nql, or normalised query
-length, and K' is a constant. And the weight w(t) is given by,
-
-
-<PRE>
-                   (r + h) (N - R - n + r + h)
-        w(t) = log ---------------------------, where h = 1/2
-                    (R - r + h) (n - r + h)
-</PRE>
-
-See the <A HREF="intro_ir.html">Introduction to Information Retrieval</A>
-for a full discussion. For any particular document, D, if t indexes D, there
-is a weight w<sub>D</sub>(t), which is the contribution, or partial score, of
-term t to the total score for document D, and it is given by,
-
-<PRE>
-                     (K + 1) f<sub>t</sub>
-             w<sub>D</sub>(t) = ---------- w<sub>Q</sub>(t)
-                      KL + f<sub>t</sub>
-
-</PRE>
-
+Each term in the query has a weight in each document.  Each document may also
+have an additional weights not associated with any of the terms.  By default
+the probabilistic weighting scheme BM25 is used to provide the formulae which
+give these weights.  See the <A
+HREF="intro_ir.html">Introduction to Information Retrieval</A> for a fuller
+discussion.
 </P>
 <P>
 A query can be thought of as a tree structure. At each node is
@@ -637,7 +632,9 @@ the M set in weight order.
 It is important to realise that within Xapian the structure of a query is
 optimised for best performance, and it undergoes various transformations as the
 query progresses. The precise way in which the query is built up is therefore
-of little importance.
+of little importance to Xapian - for example, you can AND together terms
+pair-by-pair, or combine several using AND on a std::vector of terms, and
+Xapian will build the same structure internally.
 </P>
 
 <H3>Using queries</H3>
@@ -696,16 +693,9 @@ probabilistic query with a Boolean filter,
     query = Xapian::Query(Xapian::Query::OP_FILTER, query, bquery);
 </PRE>
 
-<!-- This doesn't work - you need to set a boolean weight object
-This is the general technique for processing boolean queries, so to run a
-pure boolean query, attach it as a filter to an undefined query:
-
-<PRE>
-    bquery = Xapian::Query(Xapian::Query::OP_FILTER, Xapian::Query(), bquery);
-    // bquery will now run as a pure boolean
-</PRE>
--->
-
+If you want to run a pure boolean query, then set BoolWeight as the weighting
+scheme (by calling Enquire::set_weighting_scheme() with argument BoolWeight()).
+<P>
 A common requirement in search engine functionality is to run a
 probabilistic query where some terms are required to index all the
 retrieved documents (`+' terms), and others are required to
@@ -904,10 +894,11 @@ Some weighting functions may frequently result in several documents being
 returned with the same weight.  In this case, by default, the documents
 will be returned in ascending document id order.  This can be changed
 by using
-<CODE>set_sort_forward()</A></CODE>
-to set the sort direction.  <CODE>set_sort_forward(false)</CODE> may be
+<CODE>set_docid_order()</A></CODE>
+to set the sort direction.  <CODE>set_sort_forward(Xapian::Enquire::DESCENDING)</CODE> may be
 useful, for example, when it would be best to return the newest documents,
-and new documents are being added to the end of the database.
+and new documents are being added to the end of the database (which is
+what happens by default).
 </TD></TR>
 </TABLE>
 
@@ -922,7 +913,7 @@ a decision based on the document values via <CODE>Xapian::Document::get_value(Xa
 </p>
 <p>
 The functor will also have access to the document data stored in the
-database (via <CODE>Xapian::Document::get_data()</CODE>), but beware that, for
+database (via <CODE>Xapian::Document::get_data()</CODE>), but beware that for
 most database backends, this is an expensive operation and is likely to slow
 down the search considerably.
 </P>
