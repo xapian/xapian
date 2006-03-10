@@ -1,3 +1,8 @@
+Fri Mar 10 04:29:46 GMT 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Note that we now use a lightly patched version of libtool
+	  1.5.22.
+
 Fri Mar 10 02:55:48 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/overview.html: Bring up to date.
