@@ -1,3 +1,7 @@
+Fri Mar 10 04:55:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* INSTALL: Improve wording.
+
 Fri Mar 10 04:49:09 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/quartz/bcursor.h: Fix incorrect method name in
