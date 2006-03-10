@@ -2,18 +2,35 @@ use ExtUtils::MakeMaker;
 use strict;
 
 my $CC = $ENV{"CXX"} || 'g++';
+my $LD = '$(CC)';
 
 my $xapian_config = $ENV{XAPIAN_CONFIG} || 'xapian-config';
 my $xver = `$xapian_config --version`;
 if ($xver eq '') {
-    die("$xapian_config not found - set XAPIAN_CONFIG if Xapian isn't installed on your PATH.\n");
+    die "$xapian_config not found - set XAPIAN_CONFIG if Xapian isn't installed on your PATH.\n";
 }
-my $libs = `$xapian_config --libs`;
 my $inc  = `$xapian_config --cxxflags`;
+my $libsvar = 'LIBS';
+my $libs = `$xapian_config --libs 2> /dev/null`;
+if ($?) {
+    my $libtool = $xapian_config;
+    unless ($libtool =~ s/\bxapian-config$/libtool/ && -x $libtool) {
+	die "You've asked me to link against what appears to be an uninstalled xapian-core tree, but I can't find libtool in that tree\n";
+    }
+    # Assume we're being asked to build against an uninstalled xapian-core.
+    # We can't pass a .la file in LIBS since MakeMaker "knows better" and
+    # ignores it.  Passing it in LDLOADLIBS generates a warning, but works.
+    print "Please ignore the warning that LDLOADLIBS is not a known parameter!\n";
+    $libsvar = 'LDLOADLIBS';
+    $libs = `$xapian_config --ltlibs`;
+    $LD = "$libtool --tag=CXX --mode=link $CC -avoid-version -module -no-install";
+    $CC = "$libtool --mode=compile $CC -prefer-pic";
+}
+
 chomp($xver);
 chomp($libs);
 chomp($inc);
-$xver =~ s/.*\s//; # xapian 0.9.3 -> 0.9.3
+$xver =~ s/.*\s//; # "xapian 0.9.3" -> "0.9.3"
 
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
@@ -24,10 +41,10 @@ WriteMakefile(
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM => 'Xapian.pm', # retrieve abstract from module
        AUTHOR     => 'Alex Bowley <kilinrax@cpan.org>') : ()),
-    'LIBS'		=> $libs, # e.g., '-lm'
+    $libsvar		=> $libs, # e.g., '-lm'
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
     'CC'                => $CC,
-    'LD'                => '$(CC)',
+    'LD'                => $LD,
 	# Insert -I. if you add *.h files later:
     'INC'		=> $inc, # e.g., '-I/usr/include/other'
 	# Un-comment this if you add C files to link with later:
