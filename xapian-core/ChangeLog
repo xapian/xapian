@@ -1,3 +1,8 @@
+Fri Mar 10 04:49:09 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/quartz/bcursor.h: Fix incorrect method name in
+	  documentation comment.
+
 Fri Mar 10 04:39:45 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h: Btree::find_key()
