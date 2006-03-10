@@ -1,8 +1,7 @@
 /* btree.h: Btree implementation
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_BTREE_H
@@ -413,16 +411,12 @@ class Btree {
 	 */
 	bool get_exact_entry(const string & key, string & tag) const;
 
-	/** Find a key in the Btree.
-	 * 
-	 *  The result is true iff the specified key is found in the Btree.
-	 */
-	bool find_key(const string &key) const;
-
 	/** Find a key in the Btree and read its tag.
 	 *
-	 *  Similar to Btree::find_key(), but when the key is found the tag is
-	 *  copied to tag.  If the key is not found tag is left unchanged.
+	 *  If the key is found the tag is copied to tag.  If the key is not
+	 *  found tag is left unchanged.
+	 * 
+	 *  The result is true iff the specified key is found in the Btree.
 	 *
 	 *  e.g.
 	 *

@@ -1,3 +1,8 @@
+Fri Mar 10 04:39:45 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/btree.h: Btree::find_key()
+	  is unused so remove it.
+
 Fri Mar 10 04:29:46 GMT 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Note that we now use a lightly patched version of libtool

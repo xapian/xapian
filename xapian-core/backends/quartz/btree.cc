@@ -1209,14 +1209,6 @@ Btree::get_exact_entry(const string &key, string & tag) const
 }
 
 bool
-Btree::find_key(const string &key) const
-{
-    DEBUGCALL(DB, bool, "Btree::find_key", key);
-    form_key(key);
-    RETURN(find(C));
-}
-
-bool
 Btree::find_tag(const string &key, string * tag) const
 {
     DEBUGCALL(DB, bool, "Btree::find_tag", key << ", &tag");
