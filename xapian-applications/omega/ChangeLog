@@ -1,3 +1,8 @@
+Fri Mar 10 05:21:13 GMT 2006  Olly Betts <olly@survex.com>
+
+	* dbi2omega: Check DBIDRIVER environmental variable to allow a driver
+	  other than mysql to be specified without modifying the script.
+
 Wed Mar 01 02:28:57 GMT 2006  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Don't repeat the "note" part of warnings; Warn if

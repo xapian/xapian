@@ -4,7 +4,7 @@
 # interface to be installed (on Debian systems, this is provided by the
 # libdbi-perl package).
 #
-# Copyright 2002 Olly Betts
+# Copyright (c) 2002,2006 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
 use strict;
@@ -31,10 +31,14 @@ my $table = shift @ARGV;
 my $fields = join ",", @ARGV;
 my $username = $ENV{'DBUSER'} || $ENV{USER} || $ENV{LOGNAME} || '';
 my $password = $ENV{'DBPASSWORD'} || '';
+# 0.9.4 and earlier were hardwired to use mysql here.  DBI defaults
+# to DBIDRIVER if you specify a datasource of "DBI::$database", so
+# it's an appropriate environment variable to check.
+my $driver = $ENV{'DBIDRIVER'} || 'mysql';
 
 length $fields or $fields = "*";
 
-my $dbh = DBI->connect("DBI:mysql:$database",$username,$password)
+my $dbh = DBI->connect("DBI:$driver:$database", $username, $password)
   or die "Couldn't connect to database: " . DBI->errstr;
 
 my $sth = $dbh->prepare("SELECT $fields FROM $table")
@@ -54,6 +58,6 @@ while (defined($data = $sth->fetchrow_arrayref())) {
   }
   print "\n";
 }
-$sth->err and die "Couldn't fetchrow: " . $sth->errstr;
+$sth->err and die "Couldn't fetch row: " . $sth->errstr;
 
 $dbh->disconnect;
