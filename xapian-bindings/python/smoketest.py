@@ -62,6 +62,12 @@ try:
     mset = enq.get_mset(0, 10)
     if mset.size() != 1:
         sys.exit(1)
+    # Feature test for MSetIter
+    msize = 0
+    for match in mset:
+        ++msize
+    if msize != mset.size():
+        sys.exit(1)
     terms = " ".join(enq.get_matching_terms(mset.get_hit(0)))
     if terms != "is there":
         sys.exit(1)
