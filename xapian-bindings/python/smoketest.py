@@ -26,10 +26,13 @@ try:
     v = "%d.%d.%d" % (xapian.xapian_major_version(),
                       xapian.xapian_minor_version(),
                       xapian.xapian_revision())
-    if v != xapian.xapian_version_string():
+    v2 = xapian.xapian_version_string()
+    if v != v2:
+        print >> sys.stderr, "Unexpected version output (%s != %s)" % (v, v2)
         sys.exit(1)
     stem = xapian.Stem("english")
     if stem.get_description() != "Xapian::Stem(english)":
+        print >> sys.stderr, "Unexpected stem.get_description()"
         sys.exit(1)
     doc = xapian.Document()
     doc.set_data("is there anybody out there?")
@@ -42,36 +45,45 @@ try:
     db = xapian.inmemory_open()
     db.add_document(doc)
     if db.get_doccount() != 1:
+        print >> sys.stderr, "Unexpected db.get_doccount()"
         sys.exit(1)
     terms = ["smoke", "test", "terms"]
     query = xapian.Query(xapian.Query.OP_OR, terms)
     if query.get_description() != "Xapian::Query((smoke OR test OR terms))":
+        print >> sys.stderr, "Unexpected query.get_description()"
         sys.exit(1)
     query1 = xapian.Query(xapian.Query.OP_PHRASE, ("smoke", "test", "tuple"))
     if query1.get_description() != "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))":
+        print >> sys.stderr, "Unexpected query1.get_description()"
         sys.exit(1)
     query2 = xapian.Query(xapian.Query.OP_XOR, (xapian.Query("smoke"), query1, "string"))
     if query2.get_description() != "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))":
+        print >> sys.stderr, "Unexpected query2.get_description()"
         sys.exit(1)
     subqs = ["a", "b"]
     query3 = xapian.Query(xapian.Query.OP_OR, subqs)
     if query3.get_description() != "Xapian::Query((a OR b))":
+        print >> sys.stderr, "Unexpected query3.get_description()"
         sys.exit(1)
     enq = xapian.Enquire(db)
     enq.set_query(xapian.Query(xapian.Query.OP_OR, "there", "is"))
     mset = enq.get_mset(0, 10)
     if mset.size() != 1:
+        print >> sys.stderr, "Unexpected mset.size()"
         sys.exit(1)
     # Feature test for MSetIter
     msize = 0
     for match in mset:
         ++msize
     if msize != mset.size():
+        print >> sys.stderr, "Unexpected number of entries in mset (%d != %d)" % (msize, mset.size())
         sys.exit(1)
     terms = " ".join(enq.get_matching_terms(mset.get_hit(0)))
     if terms != "is there":
+        print >> sys.stderr, "Unexpected terms"
         sys.exit(1)
 except:
+    print >> sys.stderr, "Unexpected exception"
     sys.exit(1)
 
 # vim:syntax=python:set expandtab:

@@ -1,3 +1,8 @@
+Wed Mar 15 02:21:53 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py: If a check fails, write a diagnostic message to
+	  stderr so we know which check it was!
+
 Wed Mar 15 01:41:40 GMT 2006  Olly Betts <olly@survex.com>
 
 	* python/smoketest.py: Add feature test for MSetIter.
