@@ -59,6 +59,11 @@
     $1 = (Z_TYPE_PP($input) == IS_STRING);
 }
 
+/* The SWIG overloading doesn't handle this correctly by default. */
+%typemap(typecheck, precedence=SWIG_TYPECHECK_BOOL) bool {
+    $1 = (Z_TYPE_PP($input) == IS_BOOL || Z_TYPE_PP($input) == IS_LONG);
+}
+
 %typemap(in) const std::string & (std::string temp) {
     convert_to_string_ex($input);
     temp.assign(Z_STRVAL_PP($input), Z_STRLEN_PP($input));
