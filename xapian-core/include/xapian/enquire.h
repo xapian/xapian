@@ -30,6 +30,7 @@
 #include <xapian/base.h>
 #include <xapian/error.h>
 #include <xapian/types.h>
+#include <xapian/termiterator.h>
 
 namespace Xapian {
 
@@ -38,7 +39,6 @@ class Document;
 class ErrorHandler;
 class MSetIterator;
 class Query;
-class TermIterator;
 class Weight;
 
 /** A match set (MSet).
@@ -946,7 +946,9 @@ class Enquire {
 	TermIterator get_matching_terms_begin(Xapian::docid did) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	TermIterator get_matching_terms_end(Xapian::docid did) const;
+	TermIterator get_matching_terms_end(Xapian::docid did) const {
+	    return TermIterator(NULL);
+	}
 
 	/** Get terms which match a given document, by match set item.
 	 *
@@ -973,7 +975,9 @@ class Enquire {
 	TermIterator get_matching_terms_begin(const MSetIterator &it) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	TermIterator get_matching_terms_end(const MSetIterator &it) const;
+	TermIterator get_matching_terms_end(const MSetIterator &it) const {
+	    return TermIterator(NULL);
+	}
 
 	/** Register a MatchDecider.
 	 *

@@ -1065,18 +1065,6 @@ Enquire::get_matching_terms_begin(Xapian::docid did) const
     }
 }
 
-TermIterator
-Enquire::get_matching_terms_end(const MSetIterator &/*it*/) const
-{
-    return TermIterator(NULL);
-}
-
-TermIterator
-Enquire::get_matching_terms_end(Xapian::docid /*did*/) const
-{
-    return TermIterator(NULL);
-}
-
 void
 Enquire::register_match_decider(const string &name,
 				  const MatchDecider *mdecider)

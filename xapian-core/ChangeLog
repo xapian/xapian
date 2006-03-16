@@ -1,3 +1,8 @@
+Thu Mar 16 05:20:16 GMT 2006  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,include/xapian/enquire.h:  Move 
+	  Enquire::get_matching_terms_end() inline in header.
+
 Thu Mar 16 04:28:20 GMT 2006  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc,configure.ac,include/xapian/document.h: Move
