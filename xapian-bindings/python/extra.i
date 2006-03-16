@@ -2,7 +2,7 @@
 /* python/extra.i: Xapian scripting python interface additional code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,9 +57,14 @@ class ESetIter:
             return r
 
 class TermIter:
-    def __init__(self, start, end):
+    HAS_NOTHING = 0
+    HAS_TERMFREQS = 1
+    HAS_POSITIONS = 2
+
+    def __init__(self, start, end, has = HAS_NOTHING):
         self.iter = start
         self.end = end
+        self.has = has
 
     def __iter__(self):
         return self
@@ -68,7 +73,14 @@ class TermIter:
         if self.iter==self.end:
             raise StopIteration
         else:
-            r = [self.iter.get_term(), self.iter.get_wdf(), self.iter.get_termfreq(), PositionIter(self.iter.positionlist_begin(), self.iter.positionlist_end())]
+            termfreq = 0
+            if self.has & TermIter.HAS_TERMFREQS:
+                termfreq = self.iter.get_termfreq()
+            if self.has & TermIter.HAS_POSITIONS:
+                positer = PositionIter(self.iter.positionlist_begin(), self.iter.positionlist_end())
+            else:
+                positer = PositionIter()
+            r = [self.iter.get_term(), self.iter.get_wdf(), termfreq, positer]
             self.iter.next()
             return r
 
@@ -89,7 +101,7 @@ class PostingIter:
             return r
 
 class PositionIter:
-    def __init__(self, start, end):
+    def __init__(self, start = 0, end = 0):
         self.iter = start
         self.end = end
 
@@ -142,14 +154,14 @@ def query_gen_iter(self):
 Query.__iter__ = query_gen_iter
 
 def database_gen_allterms_iter(self):
-    return TermIter(self.allterms_begin(), self.allterms_end())
+    return TermIter(self.allterms_begin(), self.allterms_end(), TermIter.HAS_TERMFREQS)
 
 Database.__iter__ = database_gen_allterms_iter
 
 def database_gen_postlist_iter(self, tname):
     return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
 def database_gen_termlist_iter(self, docid):
-    return TermIter(self.termlist_begin(docid), self.termlist_end(docid))
+    return TermIter(self.termlist_begin(docid), self.termlist_end(docid), TermIter.HAS_TERMFREQS)
 def database_gen_positionlist_iter(self, docid, tname):
     return PositionIter(self.positionlist_begin(docid, tname), self.positionlist_end(docid, tname))
 
@@ -159,7 +171,7 @@ Database.termlist = database_gen_termlist_iter
 Database.positionlist = database_gen_positionlist_iter
 
 def document_gen_termlist_iter(self):
-    return TermIter(self.termlist_begin(), self.termlist_end())
+    return TermIter(self.termlist_begin(), self.termlist_end(), TermIter.HAS_POSITIONS)
 def document_gen_values_iter(self):
     return ValueIter(self.values_begin(), self.values_end())
 

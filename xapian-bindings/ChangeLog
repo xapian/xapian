@@ -1,3 +1,10 @@
+Thu Mar 16 02:48:16 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Fix TermIter not to try to read termfreqs or
+	  positions when they aren't meaningful for the current TermIter.
+	* python/smoketest.py: Add feature tests for the various pythonic
+	  iterator wrappers; catch Exception objects and print them.
+
 Wed Mar 15 02:21:53 GMT 2006  Olly Betts <olly@survex.com>
 
 	* python/smoketest.py: If a check fails, write a diagnostic message to
