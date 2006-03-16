@@ -176,13 +176,6 @@ Document::termlist_begin() const
     RETURN(TermIterator(internal->open_term_list()));
 }
 
-TermIterator
-Document::termlist_end() const
-{
-    DEBUGAPICALL(TermIterator, "Document::termlist_end", "");
-    RETURN(TermIterator(NULL));
-}
-
 Xapian::termcount
 Document::values_count() const {
     DEBUGAPICALL(Xapian::termcount, "Document::values_count", "");

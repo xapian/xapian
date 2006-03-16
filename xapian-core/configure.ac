@@ -56,6 +56,7 @@ dnl 7:0:0 0.9.1 Query::get_terms_end() now inline in header
 dnl 8:0:0 0.9.2 QueryParser::parse_query has new optional argument
 dnl 9:0:1 0.9.3 Added xapian_version_string(), etc
 dnl 10:0:0 0.9.4 Fixed typo in name of xapian_revision()
+dnl ?????? 0.9.5 Document::termlist_end() now inline in header
 LIBRARY_VERSION_INFO=10:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 

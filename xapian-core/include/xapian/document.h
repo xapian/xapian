@@ -28,10 +28,10 @@
 
 #include <xapian/base.h>
 #include <xapian/types.h>
+#include <xapian/termiterator.h>
 
 namespace Xapian {
 
-class TermIterator;
 class ValueIterator;
 
 /// A document in the database - holds data, values, terms, and postings
@@ -165,7 +165,9 @@ class Document {
 	TermIterator termlist_begin() const;
 
 	/// Equivalent end iterator for termlist_begin().
-	TermIterator termlist_end() const;
+	TermIterator termlist_end() const {
+	    return TermIterator(NULL);
+	}
 
 	/// Count the values in this document.
 	Xapian::termcount values_count() const;

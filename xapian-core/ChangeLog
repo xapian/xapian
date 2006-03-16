@@ -1,3 +1,8 @@
+Thu Mar 16 04:28:20 GMT 2006  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,configure.ac,include/xapian/document.h: Move
+	  Document::termlist_end() inline in header.
+
 Fri Mar 10 04:55:57 GMT 2006  Olly Betts <olly@survex.com>
 
 	* INSTALL: Improve wording.
