@@ -1,8 +1,7 @@
 /* net_termlist.h
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2005 Olly Betts
+ * Copyright 2003,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_NET_TERMLIST_H
@@ -115,6 +113,8 @@ class NetworkTermList : public LeafTermList {
 	Xapian::doccount get_termfreq() const;
 	TermList * next();
 	bool   at_end() const;
+
+	Xapian::PositionIterator positionlist_begin() const;
 };
 
 #endif /* OM_HGUARD_NET_TERMLIST_H */

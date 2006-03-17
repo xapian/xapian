@@ -1,8 +1,7 @@
 /* net_termlist.cc
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -119,4 +117,12 @@ NetworkTermList::at_end() const
 {
     Assert(started);
     return (current_position == items.end());
+}
+
+Xapian::PositionIterator
+NetworkTermList::positionlist_begin() const
+{
+    /* FIXME: NetworkDatabase doesn't support open_position_list() yet. */
+    throw Xapian::UnimplementedError("positionlist_begin not supported by remote backend");
+    /*return this_db->open_position_list(did, get_termname());*/
 }

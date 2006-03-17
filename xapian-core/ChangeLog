@@ -1,3 +1,15 @@
+Fri Mar 17 09:22:54 GMT 2006  Olly Betts <olly@survex.com>
+
+	* api/vectortermlist.h,backends/net/net_termlist.cc,
+	  backends/net/net_termlist.h,common/alltermslist.h,common/termlist.h,
+	  matcher/branchtermlist.h: Make TermList::positionlist_begin() pure
+	  virtual and put dummy implementations in BranchTermList and other
+	  subclasses which can't (or don't) implement it.  This makes it
+	  hard to accidentally fail to implement it in a backend's TermList
+	  subclass.
+	* backends/net/net_termlist.h: positionlist_begin() now throws
+	  UnimplementedError instead of InvalidOperationError.
+
 Fri Mar 17 08:46:52 GMT 2006  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: There's no need for the MultiTermList wrapper in
