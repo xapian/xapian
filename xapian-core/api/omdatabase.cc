@@ -1,9 +1,8 @@
 /* omdatabase.cc: External interface for running queries
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -142,12 +140,18 @@ Database::termlist_begin(Xapian::docid did) const
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
-    Assert(multiplier != 0);
-    Xapian::doccount n = (did - 1) % multiplier; // which actual database
-    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
-
     LeafTermList *tl;
-    tl = new MultiTermList(internal[n]->open_term_list(m), internal[n], *this);
+    if (multiplier == 1) {
+	// There's no need for the MultiTermList wrapper in the common case
+	// where we're only dealing with a single database.
+	tl = internal[0]->open_term_list(did);
+    } else {
+	Assert(multiplier != 0);
+	Xapian::doccount n = (did - 1) % multiplier; // which actual database
+	Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
+
+	tl = new MultiTermList(internal[n]->open_term_list(m), internal[n], *this);
+    }
     RETURN(TermIterator(tl));
 }
 

@@ -1,3 +1,8 @@
+Fri Mar 17 08:46:52 GMT 2006  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: There's no need for the MultiTermList wrapper in
+	  the common case where we're only dealing with a single database.
+
 Fri Mar 17 07:54:54 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/net/net_termlist.h: Remove unused "positions" member.
