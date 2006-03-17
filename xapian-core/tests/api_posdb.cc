@@ -1,9 +1,8 @@
 /* api_posdb.cc: tests which need a backend with positional information
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -622,6 +620,19 @@ static bool test_poslist3()
     return true;
 }
 
+// Regression test - in 0.9.4 (and many previous versions)
+// you couldn't get a PositionIterator from a TermIterator from
+// Database::term list_begin().
+static bool test_positfromtermit1()
+{
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::TermIterator t(db.termlist_begin(7));
+    Xapian::PositionIterator p = t.positionlist_begin();
+    TEST_NOT_EQUAL(p, t.positionlist_end());
+
+    return true;
+}
+
 // # End of test cases: now we list the tests to run.
 
 /// The tests which need a backend which supports positional information
@@ -641,5 +652,6 @@ test_desc localpositionaldb_tests[] = {
     {"poslist1",	   test_poslist1},
     {"poslist2",	   test_poslist2},
     {"poslist3",	   test_poslist3},
+    {"positfromtermit1",   test_positfromtermit1},
     {0, 0}
 };

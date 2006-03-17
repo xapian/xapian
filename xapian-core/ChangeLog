@@ -1,3 +1,9 @@
+Fri Mar 17 07:07:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/multi/multi_termlist.cc,backends/multi/multi_termlist.h,
+	  tests/api_posdb.cc: Fix TermIterator::positionlist_begin() to work
+	  on TermIterator from Database::termlist_begin().
+
 Fri Mar 17 03:47:04 GMT 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Fix "unused parameter" warning from
