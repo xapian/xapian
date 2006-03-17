@@ -946,7 +946,7 @@ class Enquire {
 	TermIterator get_matching_terms_begin(Xapian::docid did) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	TermIterator get_matching_terms_end(Xapian::docid did) const {
+	TermIterator get_matching_terms_end(Xapian::docid /*did*/) const {
 	    return TermIterator(NULL);
 	}
 
@@ -975,7 +975,7 @@ class Enquire {
 	TermIterator get_matching_terms_begin(const MSetIterator &it) const;
 
 	/** End iterator corresponding to get_matching_terms_begin() */
-	TermIterator get_matching_terms_end(const MSetIterator &it) const {
+	TermIterator get_matching_terms_end(const MSetIterator &/*it*/) const {
 	    return TermIterator(NULL);
 	}
 
