@@ -2,7 +2,7 @@
  *
  * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,17 +55,6 @@ class NetworkTermListItem {
 	 *  should have a value of 0.
 	 */
 	Xapian::termcount wdf;
-
-	/** Sorted list of positions
-	 *
-	 *  This information may not be present, in which case the vector
-	 *  will be empty.
-	 *
-	 *  Note that, if this information _is_ present, the wdf information
-	 *  should also be present (but need not neccessarily agree with
-	 *  the length of the position vector, for various reasons).
-	 */
-	vector<Xapian::termpos> positions;
 };
 
 /** A term list for a database on the other side of a network connection.
