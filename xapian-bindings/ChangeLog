@@ -1,3 +1,8 @@
+Tue Mar 28 21:58:21 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Use "%{_libdir}" instead of "/usr/lib" for
+	  Python bindings.  Add package for C# bindings.
+
 Thu Mar 16 08:15:43 GMT 2006  Olly Betts <olly@survex.com>
 
 	* php/util.i: Fix handling of bool parameters when resolving

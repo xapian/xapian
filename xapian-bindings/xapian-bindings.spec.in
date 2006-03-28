@@ -19,6 +19,9 @@ BuildRequires: php-devel >= 4.3
 %if 0%{?!_without_tcl8:1}
 BuildRequires: tcl-devel >= 8.1
 %endif
+%if 0%{?!_without_csharp:1}
+BuildRequires: mono-devel >= 1.1 
+%endif
 Source0: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -65,12 +68,25 @@ indexing and search facilities to applications. This package provides the
 files needed for developing TCL scripts which use Xapian.
 %endif
 
+%if 0%{?!_without_csharp:1}
+%package csharp
+Group: Development/Libraries
+Summary: Files needed for developing C# applications which use Xapian.
+Requires: %{name} = %{version}, mono-core
+
+%description csharp
+Xapian is an Open Source Probabilistic Information Retrieval framework. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for developing C# applications which use Xapian.
+%endif
+
 %prep
 %setup -q -n %{name}-%{version}
 
 %build
 # Only build the bindings we want.
-%configure --with-python %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl}
+%configure --with-python %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp}
 make
 
 %install
@@ -83,6 +99,9 @@ mkdir -p %{buildroot}/usr/share/doc/
 mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/python %{buildroot}/usr/share/doc/%{name}-python-%{version}
 %{?!_without_php: mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/php %{buildroot}/usr/share/doc/%{name}-php-%{version}}
 %{?!_without_tcl8: mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/tcl8 %{buildroot}/usr/share/doc/%{name}-tcl8-%{version}}
+%{?!_without_csharp: mv %{buildroot}%{buildroot}%{_libdir}/XapianSharp.* %{buildroot}%{_libdir}}
+%{?!_without_csharp: mv %{buildroot}%{buildroot}%{_libdir}/mono %{buildroot}%{_libdir}/mono}
+%{?!_without_csharp: mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/csharp %{buildroot}/usr/share/doc/%{name}-csharp-%{version}}
 rm -rf %{buildroot}%{buildroot}/usr/share/doc/%{name}/
 
 %clean
@@ -95,9 +114,10 @@ rm -rf %{buildroot}%{buildroot}/usr/share/doc/%{name}/
 
 %files python
 %defattr(-, root, root)
-/usr/lib/python%{python_ver}/site-packages/_xapian.so
-/usr/lib/python%{python_ver}/site-packages/xapian.py
-/usr/lib/python%{python_ver}/site-packages/xapian.pyc
+%{_libdir}/python%{python_ver}/site-packages/_xapian.so
+%{_libdir}/python%{python_ver}/site-packages/xapian.py
+%{_libdir}/python%{python_ver}/site-packages/xapian.pyc
+%ghost %{_libdir}/python%{python_ver}/site-packages/xapian.pyo
 %doc /usr/share/doc/%{name}-python-%{version}
 
 %if 0%{?!_without_php:1}
@@ -112,4 +132,14 @@ rm -rf %{buildroot}%{buildroot}/usr/share/doc/%{name}/
 %defattr(-, root, root)
 /usr/share/xapian%{version}
 %doc /usr/share/doc/%{name}-tcl8-%{version}
+%endif
+
+%if 0%{?!_without_csharp:1}
+%files csharp
+%defattr(-, root, root)
+%{_libdir}/XapianSharp.la
+%{_libdir}/XapianSharp.so
+%{_libdir}/mono/XapianSharp
+%{_libdir}/mono/gac/XapianSharp
+%doc /usr/share/doc/%{name}-csharp-%{version}
 %endif
