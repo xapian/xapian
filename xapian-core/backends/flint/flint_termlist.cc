@@ -180,7 +180,7 @@ FlintTermList::next()
 	    throw Xapian::RangeError("Size of wdf out of range, in termlist.");
 	}
     }
- 
+
     // Read termfreq, if stored
     if (has_termfreqs) {
 	if (!unpack_uint(&pos, end, &current_termfreq)) {
@@ -190,11 +190,11 @@ FlintTermList::next()
     } else {
 	current_termfreq = 0;
     }
- 
-    DEBUGLINE(DB, "FlintTermList::next() - " <<
-		  "current_tname=" << current_tname <<
-		  "current_wdf=" << current_wdf <<
-		  "current_termfreq=" << current_termfreq);
+
+    DEBUGLINE(DB, "FlintTermList::next() -" <<
+		  " current_tname=" << current_tname <<
+		  " current_wdf=" << current_wdf <<
+		  " current_termfreq=" << current_termfreq);
     RETURN(0);
 }
 

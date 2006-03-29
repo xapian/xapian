@@ -1,3 +1,8 @@
+Wed Mar 29 19:39:05 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_termlist.cc,backends/quartz/quartz_termlist.cc:
+	  Add missing spaces in debug output.
+
 Fri Mar 17 09:22:54 GMT 2006  Olly Betts <olly@survex.com>
 
 	* api/vectortermlist.h,backends/net/net_termlist.cc,
