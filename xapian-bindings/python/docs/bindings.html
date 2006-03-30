@@ -54,7 +54,7 @@ which shows how to define a MatchDecider in Python.
    follows:
 </p>
 
-<table title='Iterator deferencing methods'>
+<table title="Iterator deferencing methods">
 <thead><td>Iterator</td><td>Dereferencing method</td></thead>
 <tr><td>PositionIterator</td>	<td><code>get_termpos()</code></td></tr>
 <tr><td>PostingIterator</td>	<td><code>get_docid()</code></td></tr>
@@ -74,10 +74,12 @@ which shows how to define a MatchDecider in Python.
 <p>
 Many classes that support C++-style iterators also support Pythonic
 iterators which do the same thing in a Python style. The following are
-supported (where marked as default iterator, it means __iter__() does the right thing so you can for instance use <code>for term in document</code> to iterate over terms in the Document):
+supported (where marked as default iterator, it means __iter__() does the right
+thing so you can for instance use <code>for term in document</code> to
+iterate over terms in the Document):
 </p>
 
-<table title='Python iterators'>
+<table title="Python iterators">
 <thead><td>Class</td><td>Method</td><td>Equivalent to</td><td>Iterator type</td></thead>
 <tr><td><code>MSet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>MSetIter</code></td></tr>
 <tr><td><code>ESet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>ESetIter</code></td></tr>
@@ -114,7 +116,7 @@ The Pythonic iterators will all return lists representing the appropriate item w
    work using the C++ array dereferencing):
 </p>
 
-<table title='MSet additional methods'>
+<table title="MSet additional methods">
 <thead><td>Method name</td><td>Explanation</td></thead>
 <tr><td><code>get_hit(index)</code></td><td>returns MSetIterator at index</td></tr>
 <tr><td><code>get_document_percentage(index)</code></td><td><code>convert_to_percent(get_hit(index))</code></td></tr>
@@ -123,10 +125,12 @@ The Pythonic iterators will all return lists representing the appropriate item w
 </table>
 
 <p>
-Additionally, the MSet has a property, <code>mset.items</code>, which returns a list of tuples representing the MSet; this may be more convenient than using the MSetIterator. The members of the tuple are as follows.
+Additionally, the MSet has a property, <code>mset.items</code>, which returns a
+list of tuples representing the MSet; this may be more convenient than using
+the MSetIterator. The members of the tuple are as follows.
 </p>
 
-<table title='MSet.items member members'>
+<table title="MSet.items member members">
 <thead><td>Index</td><td>Contents</td></thead>
 <tr><td><code>xapian.MSET_DID</code></td><td>Document id</td></tr>
 <tr><td><code>xapian.MSET_WT</code></td><td>Weight</td></tr>
@@ -135,16 +139,20 @@ Additionally, the MSet has a property, <code>mset.items</code>, which returns a 
 </table>
 
 <p>
-Two MSet objects are equal if they have the same number and maximum possible number of members, and if every document member of the first MSet exists at the same index in the second MSet, with the same weight.
+Two MSet objects are equal if they have the same number and maximum possible
+number of members, and if every document member of the first MSet exists at the
+same index in the second MSet, with the same weight.
 </p>
 
 <h2>ESet</h2>
 
 <p>
-The ESet has a property, <code>eset.items</code>, which returns a list of tuples representing the ESet; this may be more convenient than using the ESetIterator. The members of the tuple are as follows.
+The ESet has a property, <code>eset.items</code>, which returns a list of
+tuples representing the ESet; this may be more convenient than using the
+ESetIterator. The members of the tuple are as follows.
 </p>
 
-<table title='ESet.items member members'>
+<table title="ESet.items member members">
 <thead><td>Index</td><td>Contents</td></thead>
 <tr><td><code>xapian.ESET_TNAME</code></td><td>Term name</td></tr>
 <tr><td><code>xapian.ESET_WT</code></td><td>Weight</td></tr>

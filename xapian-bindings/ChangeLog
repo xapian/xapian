@@ -1,3 +1,8 @@
+Thu Mar 30 15:32:44 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html: Wrap unwrapped paragraphs.  Use " to
+	  quote attribute values for consistency.
+	  
 Thu Mar 30 15:26:21 BST 2006  James Aylett <james@tartarus.org>
 
 	* python/docs/bindings.html: Document the Pythonic iterators.
