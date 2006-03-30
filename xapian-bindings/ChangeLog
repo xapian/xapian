@@ -1,3 +1,7 @@
+Thu Mar 30 15:26:21 BST 2006  James Aylett <james@tartarus.org>
+
+	* python/docs/bindings.html: Document the Pythonic iterators.
+
 Thu Mar 30 15:23:16 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/extra.i: Database's termlist iterator now supports positions.

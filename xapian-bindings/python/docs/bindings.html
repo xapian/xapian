@@ -68,6 +68,44 @@ which shows how to define a MatchDecider in Python.
    Other methods, such as <code>MSetIterator.get_document()</code>, are
    available unchanged.
 </p>
+
+<h2>Pythonic iterators</h2>
+
+<p>
+Many classes that support C++-style iterators also support Pythonic
+iterators which do the same thing in a Python style. The following are
+supported (where marked as default iterator, it means __iter__() does the right thing so you can for instance use <code>for term in document</code> to iterate over terms in the Document):
+</p>
+
+<table title='Python iterators'>
+<thead><td>Class</td><td>Method</td><td>Equivalent to</td><td>Iterator type</td></thead>
+<tr><td><code>MSet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>MSetIter</code></td></tr>
+<tr><td><code>ESet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>ESetIter</code></td></tr>
+<tr><td><code>Enquire</code></td><td><code>matching_terms()</code></td><td><code>get_matching_terms_begin()</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Query</code></td><td>default iterator</td><td><code>get_terms_begin()</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>allterms()</code></td><td><code>allterms_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>postlist(tname)</code></td><td><code>postlist_begin(tname)</code></td><td><code>PostingIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>termlist(docid)</code></td><td><code>termlist_begin(docid)</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>positionlist(docid, tname)</code></td><td><code>positionlist_begin(docid, tname)</code></td><td><code>PositionIter</code></td></tr>
+<tr><td><code>Document</code></td><td><code>values()</code></td><td><code>values_begin()</code></td><td><code>ValueIter</code></td></tr>
+<tr><td><code>Document</code></td><td><code>termlist()</code></td><td><code>termlist_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
+<tr><td><code>QueryParser</code></td><td><code>stoplist()</code></td><td><code>stoplist_begin()</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>QueryParser</code></td><td><code>unstemlist(tname)</code></td><td><code>unstem_begin(tname)</code></td><td><code>TermIter</code></td></tr>
+</table>
+
+<p>
+The Pythonic iterators will all return lists representing the appropriate item when their <code>next()</code> method is called, except PositionIter which just returns a single value:
+</p>
+
+<table>
+<thead><td>Class</td><td>Returns</td></thead>
+<tr><td><code>MSetIter</code></td><td>[docid, weight, rank, percentage, document]</td></tr>
+<tr><td><code>ESetIter</code></td><td>[termname, weight]</td></tr>
+<tr><td><code>TermIter</code></td><td>[term, wdf, termfreq, position iterator]</td></tr>
+<tr><td><code>PostingIter</code></td><td>[docid, doclength, wdf, position iterator]</td></tr>
+<tr><td><code>PositionIter</code></td><td>termpos</td></tr>
+<tr><td><code>ValueIter</code></td><td>[valueno, value]</td></tr>
+</table>
    
 <h2>MSet</h2>
 
