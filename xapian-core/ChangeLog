@@ -1,3 +1,8 @@
+Thu Mar 30 11:51:21 BST 2006  Philip Neustrom
+
+	* docs/remote_protocol.html: Document messages for requesting and
+	  sending a termlist and a document.
+
 Wed Mar 29 19:39:05 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_termlist.cc,backends/quartz/quartz_termlist.cc:

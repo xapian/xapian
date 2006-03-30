@@ -21,7 +21,10 @@ When: At connection setting up time.
 
 Message 2:
 Direction: Client-&gt;Server
-Format: Q&lt;query string&gt;\n&lt;options&gt;\n&lt;weighting&gt;\n&lt;R-set&gt;
+Format: Q&lt;serialised query string&gt;
+        &lt;options&gt;
+	&lt;weighting&gt;
+	&lt;R-set&gt;
 Description: The query, options, weighting formula and parameters, and R-set.
 When: At prepare_match() time
 
@@ -32,7 +35,8 @@ Description: The local database statistics
 
 Message 4:
 Direction: Client-&gt;Server
-Format: G&lt;serialised global stats&gt;\nM&lt;first item&gt; &lt;max items&gt;
+Format: G&lt;serialised global stats&gt;
+        M&lt;first item&gt; &lt;max items&gt;
 Description: The global statistics for all databases are sent,
 	     and the MSet requested.
 When: At get_mset() time.
@@ -43,6 +47,29 @@ Format: O&lt;first&gt; &lt;lower bound&gt; &lt;estimated&gt; &lt;upper bound&gt;
         &lt;#items&gt; [&lt;weight&gt; &lt;doc id&gt; &lt;collapse key value&gt;]...\
         [&lt;term&gt; &lt;frequency&gt; &lt;weight&gt;]...
 Description: The returned MSet.
+
+Message TermlistRequest:
+Direction: Client-&gt;Server
+Format: T&lt;docid&gt;
+Description: The docid of the document we wish to get the termlist for.
+
+Message TermlistResponse:
+Direction: Server-&gt;Client
+Format: [&lt;within document frequency of term&gt; &lt;term frequency&gt; term]
+        ...
+        Z
+
+Message GetDocumentRequest:
+Direction: Client-&gt;Server
+Format: D&lt;docid&gt;
+Descrption: The docid of the document we wish to get.
+
+Message GetDocumentResponse:
+Direction: Server-&gt;Client
+Format: O&lt;data from the document, encoded using encode_tname&gt;
+        &lt;value number&gt; &lt;value string, encoded using encode_tname&gt;
+	...
+        Z
 </pre>
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
