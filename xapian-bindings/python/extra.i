@@ -161,7 +161,7 @@ Database.__iter__ = database_gen_allterms_iter
 def database_gen_postlist_iter(self, tname):
     return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
 def database_gen_termlist_iter(self, docid):
-    return TermIter(self.termlist_begin(docid), self.termlist_end(docid), TermIter.HAS_TERMFREQS)
+    return TermIter(self.termlist_begin(docid), self.termlist_end(docid), TermIter.HAS_TERMFREQS|TermIter.HAS_POSITIONS)
 def database_gen_positionlist_iter(self, docid, tname):
     return PositionIter(self.positionlist_begin(docid, tname), self.positionlist_end(docid, tname))
 

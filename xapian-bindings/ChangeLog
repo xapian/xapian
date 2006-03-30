@@ -1,3 +1,7 @@
+Thu Mar 30 15:23:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Database's termlist iterator now supports positions.
+
 Tue Mar 28 21:58:21 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian-bindings.spec.in: Use "%{_libdir}" instead of "/usr/lib" for
