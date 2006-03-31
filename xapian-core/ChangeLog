@@ -1,3 +1,7 @@
+Fri Mar 31 16:20:24 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/omtcpsrv.cc: Added --help and --version options.
+
 Thu Mar 30 11:51:21 BST 2006  Philip Neustrom
 
 	* docs/remote_protocol.html: Document messages for requesting and

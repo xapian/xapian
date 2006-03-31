@@ -1,9 +1,8 @@
-/* omtcpsrv.cc: Match server to be used with TcpClient
+/* xapian-tcpsrv.cc: tcp daemon for use with Xapian's remote backend
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,31 +16,52 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
+
 #include <iostream>
-#include <iomanip>
 #include <string>
 
 #include "gnu_getopt.h"
 
-#include "database.h"
 #include <xapian/error.h>
 #include <xapian/enquire.h>
 #include "tcpserver.h"
 
 using namespace std;
 
+const int MSECS_IDLE_TIMEOUT_DEFAULT = 60000;
+const int MSECS_ACTIVE_TIMEOUT_DEFAULT = 15000;
+
+#define PROG_NAME "xapian-tcpsrv"
+#define PROG_DESC "TCP daemon for use with Xapian's remote backend"
+
+#define OPT_HELP -1
+#define OPT_VERSION -2
+
+static void show_usage() {
+    cout << PROG_NAME" - "PROG_DESC"\n\n"
+"Usage: "PROG_NAME" [OPTIONS] DATABASE_DIRECTORY...\n\n"
+"  --port PORTNUM          listen on port PORTNUM for connections (no default)\n"
+"  --idle-timeout MSECS    set timeout for idle connections (default " << MSECS_IDLE_TIMEOUT_DEFAULT << "ms)\n"
+"  --active-timeout MSECS  set timeout for active connections (default " << MSECS_ACTIVE_TIMEOUT_DEFAULT << "ms)\n"
+"  --timeout MSECS         set both timeout values\n"
+"  --one-shot              serve a single connection and exit\n"
+"  --quiet                 disable information messages to stdout\n"
+#ifdef TIMING_PATCH
+"  --timing                enable code to time operations\n"
+#endif /* TIMING_PATCH */
+"  --help                  display this help and exit\n"
+"  --version               output version information and exit" << endl;
+}
+
 int main(int argc, char **argv) {
     int port = 0;
-    int msecs_active_timeout = 15000;
-    int msecs_idle_timeout   = 60000;
-
-    string progname = argv[0];
+    int msecs_active_timeout = MSECS_ACTIVE_TIMEOUT_DEFAULT;
+    int msecs_idle_timeout   = MSECS_IDLE_TIMEOUT_DEFAULT;
 
     bool one_shot = false;
     bool verbose = true;
@@ -57,6 +77,8 @@ int main(int argc, char **argv) {
 	{"timeout",		required_argument, 0, 't'},
 	{"one-shot",		no_argument, 0, 'o'},
 	{"quiet",		no_argument, 0, 'q'},
+	{"help",		no_argument, 0, OPT_HELP},
+	{"version",		no_argument, 0, OPT_VERSION},
 #ifdef TIMING_PATCH
 	{"timing",		no_argument, 0, 'T'},
 #endif /* TIMING_PATCH */
@@ -66,6 +88,12 @@ int main(int argc, char **argv) {
     int c;
     while ((c = gnu_getopt_long(argc, argv, "p:a:i:t:oq", opts, NULL)) != EOF) {
 	switch (c) {
+	    case OPT_HELP:
+		show_usage();
+		exit(0);
+	    case OPT_VERSION:
+		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		exit(0);
 	    case 'p':
                 port = atoi(optarg);
 	        break;
@@ -95,22 +123,16 @@ int main(int argc, char **argv) {
     }
 
     if (syntax_error || argv[optind] == NULL) {
-	cerr << "Syntax: " << progname << " [OPTIONS] DATABASE_DIRECTORY...\n"
-		"\t--port NUM\n"
-		"\t--idle-timeout MSECS\n"
-		"\t--active-timeout MSECS\n"
-		"\t--timeout MSECS\n"
-		"\t--one-shot\n"
-		"\t--quiet" << endl;
+	show_usage();
 	exit(1);
     }
-    
+
     if (port <= 0 || port >= 65536) {
 	cerr << "Error: must specify a valid port number (between 1 and 65535)."
 		" We actually got " << port << endl;
 	exit(1);
     }
-    
+
     try {
         Xapian::Database mydbs;
 	while (argv[optind]) {
@@ -139,7 +161,7 @@ int main(int argc, char **argv) {
 	cerr << e.get_type() << ": " << e.get_msg() << endl;
 	exit(1);
     } catch (const exception &e) {
-	cerr << "Caught standard exception" << endl;
+	cerr << "Caught standard exception: " << e.what() << endl;
 	exit(1);
     } catch (...) {
 	cerr << "Caught unknown exception" << endl;
