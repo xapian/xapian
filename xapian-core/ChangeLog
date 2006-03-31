@@ -1,3 +1,9 @@
+Fri Mar 31 17:43:25 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Include --help and --version in --help output.
+	* bin/quartzdump.cc: Add --help and --version options.  Terminate list
+	  of long options so that "quartzdump --foo" no longer segfaults.
+
 Fri Mar 31 17:27:09 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc: Tweak --help and --version output for

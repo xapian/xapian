@@ -1,9 +1,8 @@
-/* quartzdump.cc
+/* quartzdump.cc - dump a quartz table for debugging purposes
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -36,6 +34,21 @@
 #include "gnu_getopt.h"
 
 using namespace std;
+
+#define PROG_NAME "quartzdump"
+#define PROG_DESC "Dump a quartz table for debugging purposes"
+
+#define OPT_HELP 1
+#define OPT_VERSION 2
+
+static void show_usage() {
+    cout << "Usage: "PROG_NAME" [OPTIONS] TABLE...\n\n"
+"  -r, --revision=REVNO   Revision number to open (default: highest)\n"
+"  -s, --start-key=START  Start at key START\n"
+"  -e, --end-key=END      End at key END\n"
+"  --help                 display this help and exit\n"
+"  --version              output version information and exit" << endl;
+}
 
 static string hex_encode(const string & input) {
     const char * table = "0123456789abcdef";
@@ -58,8 +71,6 @@ static string hex_encode(const string & input) {
 int
 main(int argc, char *argv[])
 {
-    const char *progname = argv[0];
- 
     vector<string> tables;
     quartz_revision_number_t revnum = 0;
     bool use_revno = false;
@@ -73,6 +84,9 @@ main(int argc, char *argv[])
 	{"revision",	required_argument, 0, 'r'},
 	{"start-key",	required_argument, 0, 's'},
 	{"end-key",	required_argument, 0, 'e'},
+	{"help",	no_argument, 0, OPT_HELP},
+	{"version",	no_argument, 0, OPT_VERSION},
+	{NULL,		0, 0, 0}
     };
 
     int c;
@@ -89,6 +103,13 @@ main(int argc, char *argv[])
 		endkey = optarg;
 		use_endkey = true;
 		break;
+	    case OPT_HELP:
+		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		show_usage();
+		exit(0);
+	    case OPT_VERSION:
+		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		exit(0);
             default:
                 syntax_error = true;
 		break;
@@ -100,10 +121,7 @@ main(int argc, char *argv[])
     }
 
     if (syntax_error || tables.empty()) {
-	cout << "Syntax: " << progname << " [<options>] <table>...\n"
-		"  -r, --revision=REVNO   Revision number to open (default: highest)\n"
-		"  -s, --start-key=START  Start at key START\n"
-		"  -e, --end-key=END      End at key END" << endl;
+	show_usage();
 	exit(1);
     }
 
@@ -129,7 +147,7 @@ main(int argc, char *argv[])
 
 	    cout << "table contains " << entrycount <<
 		    (entrycount == 1 ? " entry" : " entries") << endl;
-	    
+
 	    AutoPtr<Bcursor> cursor(table.cursor_get());
 
 	    string key = startkey;
@@ -138,7 +156,7 @@ main(int argc, char *argv[])
 	    if (startkey.empty() || cursor->current_key < startkey) {
 		cursor->next();
 	    }
-	    
+
 	    while (!cursor->after_end()) {
 		if (use_endkey && cursor->current_key > endkey) break;
 		cursor->read_tag();

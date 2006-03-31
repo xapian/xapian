@@ -51,7 +51,9 @@ static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTION] SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
 "  -n, --no-full  Disable full compaction\n"
 "  -F, --fuller   Enable fuller compaction (not recommended if you plan to\n"
-"                 update the compacted database)" << endl;
+"                 update the compacted database)\n"
+"  --help         display this help and exit\n"
+"  --version      output version information and exit" << endl;
 }
 
 static inline bool
