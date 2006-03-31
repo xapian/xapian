@@ -59,13 +59,16 @@ static vector<Xapian::termcount> doclens;
 int
 main(int argc, char **argv)
 {
-    if (strcmp(argv[1], "--help") == 0) {
-	cout << PROG_NAME" - "PROG_DESC"\n\n";
-	show_usage();
-	exit(0);
-    } else if (strcmp(argv[1], "--version") == 0) {
-	cout << PROG_NAME" - "PACKAGE_STRING << endl;
-	exit(0);
+    if (argc > 1 && argv[1][0] == '-') {
+	if (strcmp(argv[1], "--help") == 0) {
+	    cout << PROG_NAME" - "PROG_DESC"\n\n";
+	    show_usage();
+	    exit(0);
+	}
+	if (strcmp(argv[1], "--version") == 0) {
+	    cout << PROG_NAME" - "PACKAGE_STRING << endl;
+	    exit(0);
+	}
     }
     if (argc < 2 || argc > 3) {
 	show_usage();

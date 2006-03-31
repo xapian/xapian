@@ -1,3 +1,8 @@
+Fri Mar 31 19:01:25 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/quartzcheck.cc: Fix SEGV when run with no arguments (introduced
+	  by last change).
+
 Fri Mar 31 17:57:27 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/quartzcheck.cc: Add --version option.  Tidy up output from
