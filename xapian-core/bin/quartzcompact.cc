@@ -44,16 +44,14 @@
 
 using namespace std;
 
-static void
-usage(const char * progname)
-{
-    cout << "Usage: " << progname
-	 << " [OPTION] <path to source database>... "
-	    "<path to destination database>\n\n"
-	    "  -n, --no-full  Disable full compaction\n"
-	    "  -F, --fuller   Enable fuller compaction (not recommended if you plan to"
-	    "                 update the compacted database)"
-	 << endl;
+#define PROG_NAME "quartzcompact"
+#define PROG_DESC "Compact a quartz database, or merge and compact several"
+
+static void show_usage() {
+    cout << "Usage: "PROG_NAME" [OPTION] SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
+"  -n, --no-full  Disable full compaction\n"
+"  -F, --fuller   Enable fuller compaction (not recommended if you plan to\n"
+"                 update the compacted database)" << endl;
 }
 
 static inline bool
@@ -209,6 +207,7 @@ main(int argc, char **argv)
 	{"fuller",	no_argument, 0, 'F'},
 	{"help",	no_argument, 0, 'h'},
 	{"version",	no_argument, 0, 'v'},
+	{NULL,		0, 0, 0}
     };
 
     bool full_compaction = true;
@@ -225,19 +224,20 @@ main(int argc, char **argv)
 		block_capacity = 1;
 		break;
             case 'h':
-		usage(argv[0]);
+		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		show_usage();
 		exit(0);
 	    case 'v':
-		cout << "quartzcompact (xapian) "XAPIAN_VERSION << endl; 
+		cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		exit(0);
             default:
-		usage(argv[0]);
+		show_usage();
 		exit(1);
         }
     }
 
     if (argc - optind < 2) {
-	usage(argv[0]);
+	show_usage();
 	exit(1);
     }
 

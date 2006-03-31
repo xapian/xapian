@@ -1,3 +1,9 @@
+Fri Mar 31 17:27:09 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Tweak --help and --version output for
+	  consistency with other binaries.  Terminate list of long options so
+	  that "quartzcompact --foo" no longer segfaults.
+
 Fri Mar 31 16:47:02 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/omtcpsrv.cc: Make OPT_HELP and OPT_VERSION positive numbers.
