@@ -41,19 +41,22 @@
 
 using namespace std;
 
-static void
-usage(const char * progname)
-{
-    cout << "Usage: " << progname
-	 << " [OPTION] <source database>... "
-	    "<destination database>\n\n"
-	    "  -n, --no-full    Disable full compaction\n"
-	    "  -F, --fuller     Enable fuller compaction (not recommended if you plan to\n"
-	    "                   update the compacted database)\n"
-	    "  -m, --multipass  If merging more than 3 databases, merge the postlists in\n"
-	    "                   multiple passes (which is generally faster but requires\n"
-	    "                   more disk space for temporary files)"
-	 << endl;
+#define PROG_NAME "xapian-compact"
+#define PROG_DESC "Compact a flint database, or merge and compact several"
+
+#define OPT_HELP 1
+#define OPT_VERSION 2
+
+static void show_usage() {
+    cout << "Usage: "PROG_NAME" [OPTIONS] SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
+"  -n, --no-full    Disable full compaction\n"
+"  -F, --fuller     Enable fuller compaction (not recommended if you plan to\n"
+"                   update the compacted database)\n"
+"  -m, --multipass  If merging more than 3 databases, merge the postlists in\n"
+"                   multiple passes (which is generally faster but requires\n"
+"                   more disk space for temporary files)\n"
+"  --help           display this help and exit\n"
+"  --version        output version information and exit" << endl;
 }
 
 static inline bool
@@ -225,9 +228,6 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
     }
 }
 
-#define OPT_HELP 1
-#define OPT_VERSION 2
-
 int
 main(int argc, char **argv)
 {
@@ -237,6 +237,7 @@ main(int argc, char **argv)
 	{"multipass",	no_argument, 0, 'm'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
+	{NULL,		0, 0, 0}
     };
 
     enum { STANDARD, FULL, FULLER } compaction = FULL;
@@ -255,17 +256,21 @@ main(int argc, char **argv)
             case 'm':
 		multipass = true;
                 break;
+	    case OPT_HELP:
+		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		show_usage();
+		exit(0);
 	    case OPT_VERSION:
-		cout << argv[0] << " (xapian) "XAPIAN_VERSION << endl;
+		cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		exit(0);
             default:
-		usage(argv[0]);
-		exit(c != OPT_HELP);
+		show_usage();
+		exit(1);
         }
     }
 
     if (argc - optind < 2) {
-	usage(argv[0]);
+	show_usage();
 	exit(1);
     }
 

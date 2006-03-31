@@ -39,12 +39,11 @@ const int MSECS_ACTIVE_TIMEOUT_DEFAULT = 15000;
 #define PROG_NAME "xapian-tcpsrv"
 #define PROG_DESC "TCP daemon for use with Xapian's remote backend"
 
-#define OPT_HELP -1
-#define OPT_VERSION -2
+#define OPT_HELP 1
+#define OPT_VERSION 2
 
 static void show_usage() {
-    cout << PROG_NAME" - "PROG_DESC"\n\n"
-"Usage: "PROG_NAME" [OPTIONS] DATABASE_DIRECTORY...\n\n"
+    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE_DIRECTORY...\n\n"
 "  --port PORTNUM          listen on port PORTNUM for connections (no default)\n"
 "  --idle-timeout MSECS    set timeout for idle connections (default " << MSECS_IDLE_TIMEOUT_DEFAULT << "ms)\n"
 "  --active-timeout MSECS  set timeout for active connections (default " << MSECS_ACTIVE_TIMEOUT_DEFAULT << "ms)\n"
@@ -89,6 +88,7 @@ int main(int argc, char **argv) {
     while ((c = gnu_getopt_long(argc, argv, "p:a:i:t:oq", opts, NULL)) != EOF) {
 	switch (c) {
 	    case OPT_HELP:
+		cout << PROG_NAME" - "PROG_DESC"\n\n";
 		show_usage();
 		exit(0);
 	    case OPT_VERSION:

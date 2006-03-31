@@ -1,3 +1,11 @@
+Fri Mar 31 16:47:02 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/omtcpsrv.cc: Make OPT_HELP and OPT_VERSION positive numbers.
+	  Only give synopsis line for --help, not for syntax error.
+	* bin/xapian-compact.cc: List --help and --version in --help output.
+	  Terminate list of long options so that "xapian-compact --foo" no
+	  longer segfaults.
+
 Fri Mar 31 16:20:24 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/omtcpsrv.cc: Added --help and --version options.
