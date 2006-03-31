@@ -1,3 +1,8 @@
+Fri Mar 31 17:57:27 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/quartzcheck.cc: Add --version option.  Tidy up output from
+	  --help.
+
 Fri Mar 31 17:43:25 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc: Include --help and --version in --help output.

@@ -33,9 +33,24 @@
 
 using namespace std;
 
+#define PROG_NAME "quartzcheck"
+#define PROG_DESC "Check the consistency of quartz database or table"
+
 // FIXME: We don't currently cross-check wdf between postlist and termlist.
 // It's hard to see how to efficiently.  We do cross-check doclens, but that
 // "only" requires (4 * last_docid()) bytes.
+
+static void show_usage() {
+    cout << "Usage: "PROG_NAME" <path to btree and prefix>|<quartz directory> [[t][f][b][v][+]]\n\n"
+"The btree(s) is/are always checked - control the output verbosity with:\n"
+" t = short tree printing\n"
+" f = full tree printing\n"
+" b = show bitmap\n"
+" v = show stats about B-tree (default)\n"
+" + = same as tbv\n"
+" e.g. "PROG_NAME" /var/lib/xapian/data/default\n"
+"      "PROG_NAME" /var/lib/xapian/data/default/postlist_ fbv" << endl;
+}
 
 static size_t check_table(const char *table, int opts);
 
@@ -44,20 +59,16 @@ static vector<Xapian::termcount> doclens;
 int
 main(int argc, char **argv)
 {
-    if (argc < 2 || argc > 3 || strcmp(argv[1], "--help") == 0) {
-	cout << "usage: " << argv[0]
-	     << " <path to btree and prefix>|<quartz directory> [[t][f][b][v][+]]\n"
-	        "The btree(s) is/are always checked - control the output verbosity with:\n"
-		" t = short tree printing\n"
-		" f = full tree printing\n"
-		" b = show bitmap\n"
-		" v = show stats about B-tree (default)\n"
-		" + = same as tbv\n"
-		" e.g. " << argv[0]
-	     << " /var/lib/xapian/data/default"
-		"      " << argv[0]
-	     << " /var/lib/xapian/data/default/postlist_ fbv"
-	     << endl;
+    if (strcmp(argv[1], "--help") == 0) {
+	cout << PROG_NAME" - "PROG_DESC"\n\n";
+	show_usage();
+	exit(0);
+    } else if (strcmp(argv[1], "--version") == 0) {
+	cout << PROG_NAME" - "PACKAGE_STRING << endl;
+	exit(0);
+    }
+    if (argc < 2 || argc > 3) {
+	show_usage();
 	exit(1);
     }
 
@@ -73,11 +84,9 @@ main(int argc, char **argv)
 	    case '+':
 		opts |= OPT_SHORT_TREE | OPT_SHOW_BITMAP | OPT_SHOW_STATS;
 		break;
-	    case '?':
-		cerr << "use t,f,b,v or + in the option string\n";
-		exit(0);
 	    default:
 		cerr << "option " << opt_string << " unknown\n";
+		cerr << "use t,f,b,v and/or + in the option string\n";
 		exit(1);
 	}
     }
