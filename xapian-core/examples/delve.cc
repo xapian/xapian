@@ -1,9 +1,8 @@
-/* delve.cc - Allow inspection of the contents of a Xapian database
+/* delve.cc: Allow inspection of the contents of a Xapian database
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,10 +16,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
+
+#include <config.h>
 
 #include <xapian.h>
 
@@ -39,19 +39,21 @@ static bool verbose = false;
 static bool showvalues = false;
 static bool showdocdata = false;
 
-static void
-syntax(const char *progname)
-{
-    cout << "Syntax: " << progname << " [<options>] <database>...\n"
-	"  -r <recno>            for term list(s)\n"
-	"  -t <term>             for posting list(s)\n"
-	"  -t <term> -r <recno>  for position list(s)\n"
-	"  -1                    output one list entry per line\n"
-	"  -k                    output values for each document referred to\n"
-	"  -d                    output document data for each document\n"
-	"  -v                    extra info (wdf and len for postlist;\n"
-	"                        wdf termfreq for termlist; number of terms for db)\n";
-    exit(1);
+#define PROG_NAME "delve"
+#define PROG_DESC "Inspect the contents of a Xapian database"
+
+static void show_usage() {
+    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE...\n\n"
+"  -r <recno>            for term list(s)\n"
+"  -t <term>             for posting list(s)\n"
+"  -t <term> -r <recno>  for position list(s)\n"
+"  -1                    output one list entry per line\n"
+"  -k                    output values for each document referred to\n"
+"  -d                    output document data for each document\n"
+"  -v                    extra info (wdf and len for postlist;\n"
+"                        wdf termfreq for termlist; number of terms for db)\n"
+"      --help            display this help and exit\n"
+"      --version         output version information and exit" << endl;
 }
 
 static void
@@ -143,6 +145,18 @@ show_termlists(Database &db,
 int
 main(int argc, char **argv)
 {
+    if (argc > 1 && argv[1][0] == '-') {
+	if (strcmp(argv[1], "--help") == 0) {
+	    cout << PROG_NAME" - "PROG_DESC"\n\n";
+	    show_usage();
+	    exit(0);
+	}
+	if (strcmp(argv[1], "--version") == 0) {
+	    cout << PROG_NAME" - "PACKAGE_STRING << endl;
+	    exit(0);
+	}
+    }
+
     vector<docid> recnos;
     vector<string> terms;
     vector<string> dbs;
@@ -169,16 +183,20 @@ main(int argc, char **argv)
 		verbose = true;
 		break;
 	    default:
-		syntax(argv[0]);
+		show_usage();
+		exit(1);
 	}
     }
 
     while (argv[optind]) dbs.push_back(argv[optind++]);
 
-    if (dbs.empty()) syntax(argv[0]);
+    if (dbs.empty()) {
+	show_usage();
+	exit(1);
+    }
 
     std::sort(recnos.begin(), recnos.end());
-    
+
     Database db;
     {
 	vector<string>::const_iterator i;

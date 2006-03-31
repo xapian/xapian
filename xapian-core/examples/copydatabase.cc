@@ -1,9 +1,8 @@
 /* copydatabase.cc: Document-by-document copy of one or more Xapian databases
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,10 +16,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
+
+#include <config.h>
 
 #include <xapian.h>
 
@@ -29,15 +29,34 @@
 using namespace Xapian;
 using namespace std;
 
+#define PROG_NAME "copydatabase"
+#define PROG_DESC "Perform a document-by-document copy of one or more Xapian databases"
+
+static void show_usage() {
+    cout << "Usage: "PROG_NAME" SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
+"  --help           display this help and exit\n"
+"  --version        output version information and exit" << endl;
+}
+
 int
 main(int argc, char **argv)
 {
+    if (argc > 1 && argv[1][0] == '-') {
+	if (strcmp(argv[1], "--help") == 0) {
+	    cout << PROG_NAME" - "PROG_DESC"\n\n";
+	    show_usage();
+	    exit(0);
+	}
+	if (strcmp(argv[1], "--version") == 0) {
+	    cout << PROG_NAME" - "PACKAGE_STRING << endl;
+	    exit(0);
+	}
+    }
+
     // We take at least two arguments - one or more paths to source databases
     // and the path to the database to create
     if (argc < 3) {
-	cout << "usage: " << argv[0]
-	     << " <path to source database>... <path to destination database>"
-	     << endl;
+	show_usage();
 	exit(1);
     }
 

@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004, 2005 Olly Betts
+ * Copyright (C) 2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
 
@@ -28,6 +28,9 @@
 
 using namespace std;
 
+#define PROG_NAME "quest"
+#define PROG_DESC "Xapian command line search tool"
+
 static const char * sw[] = {
     "a", "about", "an", "and", "are", "as", "at",
     "be", "by",
@@ -40,16 +43,13 @@ static const char * sw[] = {
     "was", "what", "when", "where", "which", "who", "why", "will", "with"
 };
 
-static void
-show_help(const char * argv0)
-{
-    cout << "Usage: " << argv0 << " [OPTIONS] 'QUERY'\n"
-	 << "NB: query should be quoted to protect it from the shell.\n"
-	 << "\n"
-	 << "  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
-	 << "  -m, --msize=MSIZE   maximum number of matches to return\n"
-	 << "  -h, --help          display this help and exit\n"
-	 << "  -v, --version       output version information and exit\n";
+static void show_usage() {
+    cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
+"NB: query should be quoted to protect it from the shell.\n\n"
+"  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
+"  -m, --msize=MSIZE   maximum number of matches to return\n"
+"  -h, --help          display this help and exit\n"
+"  -v, --version       output version information and exit\n";
 }
 
 int
@@ -83,21 +83,21 @@ main(int argc, char **argv)
 		    have_database = true;
 		    break;
 		case 'v':
-		    cout << argv[0] << " (" << PACKAGE_NAME << ") "
-			 << VERSION << endl;
+		    cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		    exit(0);
 		case 'h':
-		    show_help(argv[0]);
+		    cout << PROG_NAME" - "PROG_DESC"\n\n";
+		    show_usage();
 		    exit(0);
 		case ':': // missing parameter
 		case '?': // unknown option
-		    show_help(argv[0]);
+		    show_usage();
 		    exit(1);
 	    }
 	}
 
 	if (!have_database || argc - optind != 1) {
-	    show_help(argv[0]);
+	    show_usage();
 	    exit(1);
 	}
 

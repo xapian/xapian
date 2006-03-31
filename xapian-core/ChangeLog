@@ -1,3 +1,9 @@
+Fri Mar 31 22:32:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* examples/copydatabase.cc,examples/quest.cc: Add --help and --version
+	  options.
+	* examples/delve.cc: Tidy up output from --help and --version options.
+
 Fri Mar 31 19:01:25 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/quartzcheck.cc: Fix SEGV when run with no arguments (introduced
