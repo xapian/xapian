@@ -1,9 +1,8 @@
 /* socketcommon.h: Various useful Socket{Server,Client}-related utilities
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2005 Olly Betts
+ * Copyright 2002,2003,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_SOCKETCOMMON_H
@@ -36,7 +34,8 @@ using std::map;
 
 // 18: Removed OP_WEIGHT_CUTOFF
 // 19: Remote backend now supports sorting on a value
-#define XAPIAN_SOCKET_PROTOCOL_VERSION 19
+// 20: sort_by_relevance bool -> sort_by enum
+#define XAPIAN_SOCKET_PROTOCOL_VERSION 20
 
 class Stats;
 class OmTime;

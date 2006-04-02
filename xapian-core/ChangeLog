@@ -1,3 +1,11 @@
+Sun Apr 02 13:28:31 BST 2006  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/,docs/remote_protocol.html,
+	  matcher/multimatch.cc,matcher/networkmatch.cc,matcher/networkmatch.h,
+	  net/socketclient.cc,net/socketserver.cc: Change bool
+	  sort_by_relevance to enum sort_by in preparation for adding
+	  "sort_by_relevance_then_value".
+
 Fri Mar 31 22:32:16 BST 2006  Olly Betts <olly@survex.com>
 
 	* examples/copydatabase.cc,examples/quest.cc: Add --help and --version
@@ -82,7 +90,7 @@ Fri Mar 17 03:47:04 GMT 2006  Olly Betts <olly@survex.com>
 
 Thu Mar 16 05:20:16 GMT 2006  Olly Betts <olly@survex.com>
 
-	* api/omenquire.cc,include/xapian/enquire.h:  Move 
+	* api/omenquire.cc,include/xapian/enquire.h:  Move
 	  Enquire::get_matching_terms_end() inline in header.
 
 Thu Mar 16 04:28:20 GMT 2006  Olly Betts <olly@survex.com>

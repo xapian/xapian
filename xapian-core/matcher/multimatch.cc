@@ -1,9 +1,8 @@
 /* multimatch.cc
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  *
@@ -19,9 +18,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -278,7 +276,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       int percent_cutoff_, Xapian::weight weight_cutoff_,
 		       Xapian::Enquire::docid_order order_,
 		       Xapian::valueno sort_key_,
-		       bool sort_by_relevance_,
+		       Xapian::Enquire::Internal::sort_setting sort_by_,
 		       bool sort_value_forward_,
 		       time_t bias_halflife_,
 		       Xapian::weight bias_weight_,
@@ -288,8 +286,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	: gatherer(gatherer_), db(db_), query(query_),
 	  collapse_key(collapse_key_), percent_cutoff(percent_cutoff_),
 	  weight_cutoff(weight_cutoff_), order(order_),
-	  sort_key(sort_key_),
-	  sort_by_relevance(sort_by_relevance_),
+	  sort_key(sort_key_), sort_by(sort_by_),
 	  sort_value_forward(sort_value_forward_),
 	  bias_halflife(bias_halflife_), bias_weight(bias_weight_),
 	  errorhandler(errorhandler_), weight(weight_)
@@ -297,8 +294,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
 	      qlen << ", " <<
 	      omrset << ", " << collapse_key_ << ", " << percent_cutoff_ <<
-	      ", " << weight_cutoff_ << ", " << int(order) << ", " <<
-	      sort_key_ << ", " << sort_by_relevance_ <<
+	      ", " << weight_cutoff_ << ", " << int(order_) << ", " <<
+	      sort_key_ << ", " << int(sort_by_) <<
 	      ", " << sort_value_forward_ << ", " << bias_halflife_ << ", " <<
 	      bias_weight_ << ", " << errorhandler_ <<
 	      ", [gatherer_], [weight_]");
@@ -345,7 +342,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		smatch = Xapian::Internal::RefCntPtr<SubMatch>(
 			new RemoteSubMatch(netdb, query, qlen,
 			    *subrset, collapse_key, order,
-			    sort_key, sort_by_relevance, sort_value_forward,
+			    sort_key, sort_by, sort_value_forward,
 			    percent_cutoff, weight_cutoff,
 			    gatherer.get(), weight));
 	    } else {
@@ -599,32 +596,41 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // sort values are identical.
     bool sort_forward = (order != Xapian::Enquire::DESCENDING);
     bool (* mcmp_fn)(const Xapian::Internal::MSetItem &, const Xapian::Internal::MSetItem &);
-    if (sort_key == Xapian::valueno(-1)) {
-	mcmp_fn = (sort_forward ? msetcmp_forward : msetcmp_reverse);
-    } else if (sort_forward) {
-	if (sort_by_relevance) {
-	    if (sort_value_forward)
-		mcmp_fn = msetcmp_sort_forward_relevance;
-	    else
-		mcmp_fn = msetcmp_reverse_sort_forward_relevance;
-	} else {
-	    if (sort_value_forward)
-		mcmp_fn = msetcmp_sort_forward;
-	    else
-		mcmp_fn = msetcmp_reverse_sort_forward;
-	}
-    } else {
-	if (sort_by_relevance) {
-	    if (sort_value_forward)
-		mcmp_fn = msetcmp_sort_reverse_relevance;
-	    else
-		mcmp_fn = msetcmp_reverse_sort_reverse_relevance;
-	} else {
-	    if (sort_value_forward)
-		mcmp_fn = msetcmp_sort_reverse;
-	    else
-		mcmp_fn = msetcmp_reverse_sort_reverse;
-	}
+    switch (sort_by) {
+	case Xapian::Enquire::Internal::REL:
+	    mcmp_fn = (sort_forward ? msetcmp_forward : msetcmp_reverse);
+	    break;
+	case Xapian::Enquire::Internal::VAL:
+	    if (sort_forward) {
+		if (sort_value_forward)
+		    mcmp_fn = msetcmp_sort_forward;
+		else
+		    mcmp_fn = msetcmp_reverse_sort_forward;
+	    } else {
+		if (sort_value_forward)
+		    mcmp_fn = msetcmp_sort_reverse;
+		else
+		    mcmp_fn = msetcmp_reverse_sort_reverse;
+	    }
+	    break;
+	case Xapian::Enquire::Internal::VAL_REL:
+	    if (sort_forward) {
+		if (sort_value_forward)
+		    mcmp_fn = msetcmp_sort_forward_relevance;
+		else
+		    mcmp_fn = msetcmp_reverse_sort_forward_relevance;
+	    } else {
+		if (sort_value_forward)
+		    mcmp_fn = msetcmp_sort_reverse_relevance;
+		else
+		    mcmp_fn = msetcmp_reverse_sort_reverse_relevance;
+	    }
+	    break;
+	default:
+	case Xapian::Enquire::Internal::REL_VAL:
+	    /* FIXME implement this */
+	    Assert("Shouldn't get here");
+	    return;
     }
 
     OmMSetCmp mcmp(mcmp_fn);

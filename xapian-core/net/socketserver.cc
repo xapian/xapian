@@ -285,7 +285,8 @@ SocketServer::run_match(const string &firstmessage)
     Xapian::termcount qlen;
     Xapian::Enquire::docid_order order;
     Xapian::valueno sort_key;
-    bool sort_by_relevance, sort_value_forward;
+    Xapian::Enquire::Internal::sort_setting sort_by;
+    bool sort_value_forward;
     Xapian::valueno collapse_key;
     int percent_cutoff;
     Xapian::weight weight_cutoff;
@@ -297,11 +298,12 @@ SocketServer::run_match(const string &firstmessage)
 #else
 	istrstream is(message.data(), message.length());
 #endif
-	int order_int;
+	int order_int, sort_by_int;
 	is >> qlen >> collapse_key >> order_int
-	   >> sort_key >> sort_by_relevance >> sort_value_forward
+	   >> sort_key >> sort_by_int >> sort_value_forward
 	   >> percent_cutoff >> weight_cutoff;
 	order = Xapian::Enquire::docid_order(order_int);
+	sort_by = Xapian::Enquire::Internal::sort_setting(sort_by_int);
     }
 
     // extract the weight object
@@ -319,7 +321,7 @@ SocketServer::run_match(const string &firstmessage)
 
     MultiMatch match(db, query, qlen, omrset, collapse_key, percent_cutoff,
 		     weight_cutoff, order,
-		     sort_key, sort_by_relevance, sort_value_forward,
+		     sort_key, sort_by, sort_value_forward,
 		     0, 0, NULL, gatherer, wt.get());
 
 #if 0

@@ -658,8 +658,7 @@ MSetIterator::get_description() const
 Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
   : db(db_), query(), collapse_key(Xapian::valueno(-1)),
     order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
-    sort_key(Xapian::valueno(-1)), sort_by_relevance(false),
-    sort_value_forward(true),
+    sort_key(Xapian::valueno(-1)), sort_by(REL), sort_value_forward(true),
     bias_halflife(0), bias_weight(0), errorhandler(errorhandler_), weight(0)
 {
 }
@@ -700,8 +699,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     if (rset == 0) {
 	::MultiMatch match(db, query.internal.get(), qlen, RSet(), collapse_key,
 		       percent_cutoff, weight_cutoff,
-		       order, sort_key, sort_by_relevance,
-		       sort_value_forward,
+		       order, sort_key, sort_by, sort_value_forward,
 		       bias_halflife, bias_weight, errorhandler,
 		       new LocalStatsGatherer(), weight);
 	// Run query and put results into supplied Xapian::MSet object.
@@ -709,8 +707,7 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     } else {
 	::MultiMatch match(db, query.internal.get(), qlen, *rset, collapse_key,
 		       percent_cutoff, weight_cutoff,
-		       order, sort_key, sort_by_relevance,
-		       sort_value_forward,
+		       order, sort_key, sort_by, sort_value_forward,
 		       bias_halflife, bias_weight, errorhandler,
 		       new LocalStatsGatherer(), weight);
 	// Run query and put results into supplied Xapian::MSet object.
@@ -960,15 +957,14 @@ Enquire::set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff
 void
 Enquire::set_sort_by_relevance()
 {
-    internal->sort_key = Xapian::valueno(-1);
-    internal->sort_by_relevance = true;
+    internal->sort_by = Internal::REL;
 }
 
 void
 Enquire::set_sort_by_value(Xapian::valueno sort_key, bool ascending)
 {
     internal->sort_key = sort_key;
-    internal->sort_by_relevance = false;
+    internal->sort_by = Internal::VAL;
     internal->sort_value_forward = ascending;
 }
 
@@ -977,7 +973,7 @@ Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key,
 					  bool ascending)
 {
     internal->sort_key = sort_key;
-    internal->sort_by_relevance = true;
+    internal->sort_by = Internal::VAL_REL;
     internal->sort_value_forward = ascending;
 }
 

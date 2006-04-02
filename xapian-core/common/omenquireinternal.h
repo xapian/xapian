@@ -1,9 +1,8 @@
 /* omenquireinternal.h: Internals
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_OMENQUIREINTERNAL_H
@@ -138,6 +136,8 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	void operator=(const Internal &);
 
     public:
+	typedef enum { REL, VAL, VAL_REL, REL_VAL } sort_setting;
+
 	Xapian::valueno collapse_key;
 
 	Xapian::Enquire::docid_order order;
@@ -147,7 +147,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	Xapian::weight weight_cutoff;
 
 	Xapian::valueno sort_key;
-	bool sort_by_relevance;
+	sort_setting sort_by;
 	bool sort_value_forward;
 
 	time_t bias_halflife;
