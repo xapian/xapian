@@ -1019,7 +1019,7 @@ public:
     static string get_available_languages();
 };
 
-#ifdef SWIGPYTHON
+#if defined SWIGPYTHON && !defined PYTHON_OLDE
 %include extra.i
 #endif
 

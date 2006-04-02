@@ -57,18 +57,25 @@ if MAINTAINER_MODE
 # "modern" versions are for Python 2.2 and up;  "olde" versions are for earlier
 # Python versions (which in our case means 2.1).
 
+# SWIG optimisation options for generating bindings for Python 2.2 and later.
+MODERN=-modern -O
+
+# SWIG optimisation options for generating bindings for Python 2.1.
+OLDE=-DPYTHON_OLDE -noproxydel -fvirtual -fastproxy -fastdispatch -nobuildnone \
+    -dirvtable -fastinit -fastquery
+
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i extra.i
 	test -d modern || mkdir modern
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow -modern -O \
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow $(MODERN) \
 	    -outdir modern -o modern/xapian_wrap.cc $(srcdir)/../xapian.i
 
-olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i extra.i
+olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i
 	test -d olde || mkdir olde
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow \
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow $(OLDE) \
 	    -outdir olde -o olde/xapian_wrap.cc $(srcdir)/../xapian.i
 
 CLEANFILES = $(BUILT_SOURCES) xapian.py xapian.pyc

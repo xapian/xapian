@@ -1,3 +1,10 @@
+Sun Apr 02 03:11:38 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Pass suitable SWIG optimisation options for
+	  olde bindings.
+	* python/Makefile.am,xapian.i: Exclude pythonic iterator code from
+	  olde bindings.
+
 Sat Apr 01 16:34:32 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/docs/bindings.html,python/smoketest.py: Pythonic iterators
