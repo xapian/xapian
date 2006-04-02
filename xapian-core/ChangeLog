@@ -1,3 +1,10 @@
+Sun Apr 02 16:37:38 BST 2006  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Don't perform a name lookup on the IP address
+	  which an incoming connection is from as that could easily slow
+	  down the search response - instead just print the IP address itself
+	  if output is verbose.
+
 Sun Apr 02 13:28:31 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/,docs/remote_protocol.html,

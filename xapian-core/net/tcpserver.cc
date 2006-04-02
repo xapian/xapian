@@ -34,6 +34,7 @@
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
+#include <arpa/inet.h>
 #ifdef __WIN32__
 # include <winsock2.h>
 #else
@@ -142,44 +143,9 @@ TcpServer::get_connected_socket()
 	throw Xapian::NetworkError("accept: unexpected remote address size");
     }
 
-    struct in_addr address = remote_address.sin_addr;
-    struct hostent *hent = gethostbyaddr(reinterpret_cast<char *>(&address),
-					 sizeof(address),
-					 AF_INET);
-
-    if (hent == 0) {
-	close(con_socket);
-	string errmsg = "gethostbyaddr: ";
-	switch(h_errno) {
-	    case HOST_NOT_FOUND:
-		errmsg += "Unknown host";
-		break;
-	    case NO_DATA:
-#if NO_DATA != NO_ADDRESS
-		/* Is this ever different? */
-	    case NO_ADDRESS:
-#endif
-		errmsg += "No address for hostname";
-		break;
-	    case NO_RECOVERY:
-		errmsg += "Unrecoverable name server error";
-		break;
-	    case TRY_AGAIN:
-		errmsg += "Temporary nameserver error";
-		break;
-	    default:
-		errmsg += "Unknown error.";
-	}
-	throw Xapian::NetworkError(errmsg);
-    }
-
     if (verbose) {
-	cout << "Connection from " << hent->h_name << ", port " <<
-#ifndef TIMING_PATCH
-	    remote_address.sin_port << endl;
-#else /* TIMING_PATCH */
-	    remote_address.sin_port << ". (tcpserver.cc)" << endl;
-#endif /* TIMING_PATCH */
+	cout << "Connection from " << inet_ntoa(remote_address.sin_addr)
+	     << ", port " << remote_address.sin_port << endl;
     }
 
     return con_socket;
