@@ -218,53 +218,6 @@ msetcmp_reverse_sort_reverse_relevance(const Xapian::Internal::MSetItem &a,
     return (a.did > b.did);
 }
 
-class MSetSortCmp {
-    private:
-	Xapian::Database db;
-	double factor;
-	Xapian::valueno sort_key;
-	bool forward;
-	bool forward_value;
-	int bands;
-    public:
-	MSetSortCmp(const Xapian::Database &db_, int bands_,
-		    double percent_scale, Xapian::valueno sort_key_,
-		    bool forward_, bool forward_value_)
-	    : db(db_), factor(percent_scale * bands_ / 100.0),
-	      sort_key(sort_key_), forward(forward_),
-	      forward_value(forward_value_), bands(bands_) {
-	}
-	bool operator()(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b) const {
-	    int band_a = int(ceil(a.wt * factor));
-	    int band_b = int(ceil(b.wt * factor));
-	    if (band_a > bands) band_a = bands;
-	    if (band_b > bands) band_b = bands;
-
-	    if (band_a != band_b) return band_a > band_b;
-	    if (sort_key != Xapian::valueno(-1)) {
-		if (a.sort_key.empty()) {
-		    Xapian::Document doc = db.get_document(a.did);
-		    a.sort_key = doc.get_value(sort_key);
-		}
-		if (b.sort_key.empty()) {
-		    Xapian::Document doc = db.get_document(b.did);
-		    b.sort_key = doc.get_value(sort_key);
-		}
-		if (forward_value) {
-		    // "bigger is better"
-		    if (a.sort_key > b.sort_key) return true;
-		    if (a.sort_key < b.sort_key) return false;
-		} else {
-		    // "smaller is better"
-		    if (a.sort_key > b.sort_key) return false;
-		    if (a.sort_key < b.sort_key) return true;
-		}
-	    }
-	    if (forward) return a.did < b.did;
-	    return a.did > b.did;
-	}
-};
-
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////

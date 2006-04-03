@@ -1,3 +1,7 @@
+Mon Apr 03 02:03:12 BST 2006  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Removed dead code (class MSetSortCmp).
+
 Sun Apr 02 16:37:38 BST 2006  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Don't perform a name lookup on the IP address
