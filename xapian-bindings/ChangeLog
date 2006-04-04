@@ -1,3 +1,7 @@
+Tue Apr 04 16:41:44 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrap Enquire::set_sort_by_relevance_then_value().
+
 Sun Apr 02 03:11:38 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Pass suitable SWIG optimisation options for

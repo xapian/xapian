@@ -551,6 +551,8 @@ class Enquire {
     void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
     void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
 					  bool ascending = true);
+    void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
+					  bool ascending = true);
  
     void set_bias(weight bias_weight, time_t bias_halflife);
 
