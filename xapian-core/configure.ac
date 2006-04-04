@@ -363,6 +363,12 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$DVIPS" && AC_MSG_ERROR([dvips is required in maintainer mode])
 fi
 
+dnl Check for help2man. (Needed to make man pages from "--help" output).
+AC_PATH_PROG(HELP2MAN, help2man, [])
+if test x$USE_MAINTAINER_MODE = xyes; then
+  test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required in maintainer mode])
+fi
+
 dnl Check whether we need -ldl for dlsym() etc.
 dnl No longer used...
 dnl AC_TRY_LINK_FUNC(dlsym, ,

@@ -4,14 +4,17 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I${top_builddir}/incl
 
 if BUILD_BACKEND_QUARTZ
 quartz_bin_programs = quartzcheck quartzcompact quartzdump
+quartz_mans = quartzcheck.1 quartzcompact.1 quartzdump.1
 endif
 
 if BUILD_BACKEND_FLINT
 flint_bin_programs = xapian-compact
+flint_mans = xapian-compact.1
 endif
 
 if BUILD_BACKEND_REMOTE
 remote_bin_programs = xapian-tcpsrv
+remote_mans = xapian-tcpsrv.1
 remote_check_programs = xapian-progsrv
 endif
 
@@ -33,12 +36,35 @@ quartzdump_SOURCES = quartzdump.cc
 quartzdump_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
 
 xapian_progsrv_CXXFLAGS = -I$(top_srcdir)/testsuite
-xapian_progsrv_SOURCES = omprogsrv.cc
+xapian_progsrv_SOURCES = xapian-progsrv.cc
 xapian_progsrv_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
 
-xapian_tcpsrv_SOURCES = omtcpsrv.cc
+xapian_tcpsrv_SOURCES = xapian-tcpsrv.cc
 xapian_tcpsrv_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
 
 xapian_compact_CXXFLAGS = -I$(top_srcdir)/backends/flint
 xapian_compact_SOURCES = xapian-compact.cc
 xapian_compact_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la 
+
+man_MANS = $(quartz_mans) $(flint_mans) $(remote_mans)
+
+MAINTAINERCLEANFILES = $(man_MANS)
+
+if MAINTAINER_MODE
+CLEANFILES = $(man_MANS)
+
+quartzcheck.1: quartzcheck ../config.h
+	$(HELP2MAN) -o quartzcheck.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/quartzcheck.cc`" ./quartzcheck
+
+quartzcompact.1: quartzcompact ../config.h
+	$(HELP2MAN) -o quartzcompact.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/quartzcompact.cc`" ./quartzcompact
+
+quartzdump.1: quartzdump ../config.h
+	$(HELP2MAN) -o quartzdump.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/quartzdump.cc`" ./quartzdump
+
+xapian-tcpsrv.1: xapian-tcpsrv ../config.h
+	$(HELP2MAN) -o xapian-tcpsrv.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-tcpsrv.cc`" ./xapian-tcpsrv
+
+xapian-compact.1: xapian-compact ../config.h
+	$(HELP2MAN) -o xapian-compact.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-compact.cc`" ./xapian-compact
+endif

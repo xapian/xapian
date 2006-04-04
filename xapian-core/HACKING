@@ -262,6 +262,7 @@ perl 5
 latex
 dvips (usually packaged with TeX)
 makeindex (usually packaged with TeX)
+help2man
 
 Use of C++ Features:
 ====================
