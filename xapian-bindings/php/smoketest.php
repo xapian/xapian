@@ -64,3 +64,8 @@ if ($doc2 != null) {
 }
 if ($old_error_reporting & E_WARNING)
     error_reporting($old_error_reporting);
+
+# Regression test - overload resolution involving boolean types failed.
+Enquire_set_sort_by_value($enq, 1, TRUE);
+
+?>

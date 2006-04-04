@@ -1,3 +1,8 @@
+Tue Apr 04 22:05:37 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Added regression test to make sure that overload
+	  resolution involving boolean types works.
+
 Tue Apr 04 16:41:44 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Wrap Enquire::set_sort_by_relevance_then_value().
