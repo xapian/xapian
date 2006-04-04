@@ -90,7 +90,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.28
+  dnl Check for swig >= 1.3.29
   dnl 1.3.23 adds support for optional arguments in C#.
   dnl 1.3.24 tweaks C# enums
   dnl 1.3.26 fixes PHP overloading
@@ -98,13 +98,14 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl 1.3.28 contains many useful fixes and changes - one thing we need it
   dnl for is a ability to automatically rename method names for C# (e.g.
   dnl get_description becomes getDescription).
+  dnl 1.3.29 fixes PHP to give an error if an overload can't be resolved
   dnl You can see the latest SWIG changes here:
   dnl http://cvs.sourceforge.net/viewcvs.py/*checkout*/swig/SWIG/CHANGES
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
-   [1.3.2[8-9]|1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
+   [1.3.29|1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
    *)
-     AC_MSG_ERROR([SWIG >= 1.3.28 required (you have $v)]) ;;
+     AC_MSG_ERROR([SWIG >= 1.3.29 required (you have $v)]) ;;
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
