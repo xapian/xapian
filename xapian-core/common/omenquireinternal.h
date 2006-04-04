@@ -100,12 +100,11 @@ class MSetItem {
 	 * It is not neccessarily an indication of how many collapses
 	 * might be done if an exhaustive match was done
 	 */
-	 Xapian::doccount collapse_count;
+	Xapian::doccount collapse_count;
 
-	/** For use by match_sort_key option - FIXME: document if this stays */
-	/* FIXME: this being mutable is a gross hack */
+	/** Used when sorting by value. */
 	/* FIXME: why not just cache the Xapian::Document here!?! */
-	mutable string sort_key;
+	string sort_key;
 
 	/** Returns a string representing the mset item.
 	 *  Introspection method.

@@ -1,3 +1,8 @@
+Tue Apr 04 01:05:41 BST 2006  Olly Betts <olly@survex.com>
+
+	* common/omenquireinternal.h: sort_key no longer needs to be mutable
+	  now that MSetSortCmp has been removed.
+
 Mon Apr 03 02:03:12 BST 2006  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Removed dead code (class MSetSortCmp).
