@@ -1150,7 +1150,10 @@ static bool test_flintdatabaseopeningerror1()
     return true;
 }
 
-// feature test for Enquire: sort by value, then relevance.
+// feature test for Enquire:
+// set_sort_by_value
+// set_sort_by_value_then_relevance
+// set_sort_by_relevance_then_value
 static bool test_sortrel1()
 {
     Xapian::Enquire enquire(get_database("apitest_sortrel"));
@@ -1164,6 +1167,8 @@ static bool test_sortrel1()
     const Xapian::docid order5[] = { 9,8,7,6,5,4,3,2,1 };
     const Xapian::docid order6[] = { 7,9,8,6,5,4,2,1,3 };
     const Xapian::docid order7[] = { 7,9,8,6,5,4,2,1,3 };
+    const Xapian::docid order8[] = { 7,6,2,9,5,1,8,4,3 };
+    const Xapian::docid order9[] = { 2,6,7,1,5,9,3,4,8 };
 
     Xapian::MSet mset;
     size_t i;
@@ -1240,6 +1245,38 @@ static bool test_sortrel1()
 	TEST_EQUAL(*mset[i], order7[i]);
     }
 
+    enquire.set_sort_by_relevance_then_value(1);
+    enquire.set_docid_order(Xapian::Enquire::ASCENDING);
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order8) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order8) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order8[i]);
+    }
+
+    enquire.set_sort_by_relevance_then_value(1);
+    enquire.set_docid_order(Xapian::Enquire::DESCENDING);
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order8) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order8) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order8[i]);
+    }
+
+    enquire.set_sort_by_relevance_then_value(1, false);
+    enquire.set_docid_order(Xapian::Enquire::ASCENDING);
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order9) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order9) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order9[i]);
+    }
+
+    enquire.set_sort_by_relevance_then_value(1, false);
+    enquire.set_docid_order(Xapian::Enquire::DESCENDING);
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.size(), sizeof(order9) / sizeof(Xapian::docid));
+    for (i = 0; i < sizeof(order9) / sizeof(Xapian::docid); ++i) {
+	TEST_EQUAL(*mset[i], order9[i]);
+    }
+
     return true;
 }
 
@@ -1274,7 +1311,6 @@ static bool test_userweight1()
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, query,
 				    query + sizeof(query) / sizeof(query[0])));
     Xapian::MSet mymset1 = enquire.get_mset(0, 100);
-
     // MyWeight scores 1 for each matching term, so the weight should equal
     // the number of matching terms.
     for (Xapian::MSetIterator i = mymset1.begin(); i != mymset1.end(); ++i) {
@@ -1368,6 +1404,7 @@ test_desc remotedb_tests[] = {
     {"keepalive1",	   test_keepalive1},
     {"termstats",	   test_termstats},
     {"sortvalue1",	   test_sortvalue1},
+    {"sortrel1",	   test_sortrel1},
     {0, 0}
 };
 

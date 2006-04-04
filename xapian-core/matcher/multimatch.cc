@@ -46,6 +46,8 @@
 #include "match.h"
 #include "stats.h"
 
+#include "msetcmp.h"
+
 #include <xapian/errorhandler.h>
 
 #include <algorithm>
@@ -55,168 +57,6 @@
 #include <set>
 
 using namespace std;
-
-// Comparison functions to determine the order of elements in the MSet
-// Return true if a should be listed before b
-typedef bool (* mset_cmp)(const Xapian::Internal::MSetItem &, const Xapian::Internal::MSetItem &);
-
-/// Compare a Xapian::Internal::MSetItem, using a custom function
-class OmMSetCmp {
-    private:
-	bool (* fn)(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b);
-    public:
-	OmMSetCmp(bool (* fn_)(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b))
-		: fn(fn_) {}
-	bool operator()(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b) const {
-	    return fn(a, b);
-	}
-};
-
-// Comparison which sorts equally weighted MSetItems in docid order
-static bool
-msetcmp_forward(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b)
-{
-    if (a.wt > b.wt) return true;
-    if (a.wt < b.wt) return false;
-    // Two special cases to make min_item compares work when did == 0
-    // NB note the ordering: if a.did == b.did == 0, we should return false
-    if (a.did == 0) return false;
-    if (b.did == 0) return true;
-    return (a.did < b.did);
-}
-
-// Comparison which sorts equally weighted MSetItems in reverse docid order
-static bool
-msetcmp_reverse(const Xapian::Internal::MSetItem &a, const Xapian::Internal::MSetItem &b)
-{
-    if (a.wt > b.wt) return true;
-    if (a.wt < b.wt) return false;
-    return (a.did > b.did);
-}
-
-// Comparison which sorts by a value.
-// If sort keys compare equal, return documents in docid order.
-static bool
-msetcmp_sort_forward(const Xapian::Internal::MSetItem &a,
-		     const Xapian::Internal::MSetItem &b)
-{
-    // "bigger is better"
-    if (a.sort_key > b.sort_key) return true;
-    if (a.sort_key < b.sort_key) return false;
-    // two special cases to make min_item compares work when did == 0
-    if (a.did == 0) return false;
-    if (b.did == 0) return true;
-    return (a.did < b.did);
-}
-
-// Comparison which sorts by a value.
-// If sort keys compare equal, return documents in weight, then docid order.
-static bool
-msetcmp_sort_forward_relevance(const Xapian::Internal::MSetItem &a,
-			       const Xapian::Internal::MSetItem &b)
-{
-    // "bigger is better"
-    if (a.sort_key > b.sort_key) return true;
-    if (a.sort_key < b.sort_key) return false;
-    if (a.wt > b.wt) return true;
-    if (a.wt < b.wt) return false;
-    // two special cases to make min_item compares work when did == 0
-    if (a.did == 0) return false;
-    if (b.did == 0) return true;
-    return (a.did < b.did);
-}
-
-// Comparison which sorts by a value.
-// If sort keys compare equal, return documents in reverse docid order.
-static bool
-msetcmp_sort_reverse(const Xapian::Internal::MSetItem &a,
-		     const Xapian::Internal::MSetItem &b)
-{
-    // "bigger is better"
-    if (a.sort_key > b.sort_key) return true;
-    if (a.sort_key < b.sort_key) return false;
-    return (a.did > b.did);
-}
-
-// Comparison which sorts by a value.
-// If sort keys compare equal, return documents in reverse docid order.
-static bool
-msetcmp_sort_reverse_relevance(const Xapian::Internal::MSetItem &a,
-			       const Xapian::Internal::MSetItem &b)
-{
-    // "bigger is better"
-    if (a.sort_key > b.sort_key) return true;
-    if (a.sort_key < b.sort_key) return false;
-    if (a.wt > b.wt) return true;
-    if (a.wt < b.wt) return false;
-    return (a.did > b.did);
-}
-
-// Reverse sort by value versions:
-
-// Comparison which reverse sorts by a value.
-// If sort keys compare equal, return documents in docid order.
-static bool
-msetcmp_reverse_sort_forward(const Xapian::Internal::MSetItem &a,
-			     const Xapian::Internal::MSetItem &b)
-{
-    // two special cases to make min_item compares work when did == 0
-    if (a.did == 0) return false;
-    if (b.did == 0) return true;
-    // "smaller is better"
-    if (a.sort_key > b.sort_key) return false;
-    if (a.sort_key < b.sort_key) return true;
-    return (a.did < b.did);
-}
-
-// Comparison which reverse sorts by a value.
-// If sort keys compare equal, return documents in weight, then docid order.
-static bool
-msetcmp_reverse_sort_forward_relevance(const Xapian::Internal::MSetItem &a,
-				       const Xapian::Internal::MSetItem &b)
-{
-    // two special cases to make min_item compares work when did == 0
-    if (a.did == 0) return false;
-    if (b.did == 0) return true;
-    // "smaller is better"
-    if (a.sort_key > b.sort_key) return false;
-    if (a.sort_key < b.sort_key) return true;
-    if (a.wt > b.wt) return true;
-    if (a.wt < b.wt) return false;
-    return (a.did < b.did);
-}
-
-// Comparison which reverse sorts by a value.
-// If sort keys compare equal, return documents in reverse docid order.
-static bool
-msetcmp_reverse_sort_reverse(const Xapian::Internal::MSetItem &a,
-		     const Xapian::Internal::MSetItem &b)
-{
-    // two special cases to make min_item compares work when did == 0
-    if (a.did == 0) return false;
-    if (b.did == 0) return true;
-    // "smaller is better"
-    if (a.sort_key > b.sort_key) return false;
-    if (a.sort_key < b.sort_key) return true;
-    return (a.did > b.did);
-}
-
-// Comparison which reverse sorts by a value.
-// If sort keys compare equal, return documents in reverse docid order.
-static bool
-msetcmp_reverse_sort_reverse_relevance(const Xapian::Internal::MSetItem &a,
-				       const Xapian::Internal::MSetItem &b)
-{
-    // two special cases to make min_item compares work when did == 0
-    if (a.did == 0) return false;
-    if (b.did == 0) return true;
-    // "smaller is better"
-    if (a.sort_key > b.sort_key) return false;
-    if (a.sort_key < b.sort_key) return true;
-    if (a.wt > b.wt) return true;
-    if (a.wt < b.wt) return false;
-    return (a.did > b.did);
-}
 
 ////////////////////////////////////
 // Initialisation and cleaning up //
@@ -545,48 +385,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     map<string, pair<Xapian::Internal::MSetItem,Xapian::weight> > collapse_tab;
 
     /// Comparison functor for sorting MSet
-    // When sorting by a value we only need to compare weights when the
-    // sort values are identical.
     bool sort_forward = (order != Xapian::Enquire::DESCENDING);
-    bool (* mcmp_fn)(const Xapian::Internal::MSetItem &, const Xapian::Internal::MSetItem &);
-    switch (sort_by) {
-	case Xapian::Enquire::Internal::REL:
-	    mcmp_fn = (sort_forward ? msetcmp_forward : msetcmp_reverse);
-	    break;
-	case Xapian::Enquire::Internal::VAL:
-	    if (sort_forward) {
-		if (sort_value_forward)
-		    mcmp_fn = msetcmp_sort_forward;
-		else
-		    mcmp_fn = msetcmp_reverse_sort_forward;
-	    } else {
-		if (sort_value_forward)
-		    mcmp_fn = msetcmp_sort_reverse;
-		else
-		    mcmp_fn = msetcmp_reverse_sort_reverse;
-	    }
-	    break;
-	case Xapian::Enquire::Internal::VAL_REL:
-	    if (sort_forward) {
-		if (sort_value_forward)
-		    mcmp_fn = msetcmp_sort_forward_relevance;
-		else
-		    mcmp_fn = msetcmp_reverse_sort_forward_relevance;
-	    } else {
-		if (sort_value_forward)
-		    mcmp_fn = msetcmp_sort_reverse_relevance;
-		else
-		    mcmp_fn = msetcmp_reverse_sort_reverse_relevance;
-	    }
-	    break;
-	default:
-	case Xapian::Enquire::Internal::REL_VAL:
-	    /* FIXME implement this */
-	    Assert("Shouldn't get here");
-	    return;
-    }
-
-    OmMSetCmp mcmp(mcmp_fn);
+    MSetCmp mcmp(get_msetcmp_function(sort_by, sort_forward, sort_value_forward));
 
     // Perform query
 
@@ -745,13 +545,13 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		if (!is_heap) {
 		    is_heap = true;
 		    make_heap<vector<Xapian::Internal::MSetItem>::iterator,
-			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+			      MSetCmp>(items.begin(), items.end(), mcmp);
 		} else {
 		    push_heap<vector<Xapian::Internal::MSetItem>::iterator,
-			      OmMSetCmp>(items.begin(), items.end(), mcmp);
+			      MSetCmp>(items.begin(), items.end(), mcmp);
 		}
 		pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
-			 OmMSetCmp>(items.begin(), items.end(), mcmp);
+			 MSetCmp>(items.begin(), items.end(), mcmp);
 		items.pop_back();
 		if (sort_key != Xapian::valueno(-1)) {
 		    Xapian::weight tmp = min_item.wt;
@@ -786,12 +586,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    if (!is_heap) {
 			is_heap = true;
 			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
-				  OmMSetCmp>(items.begin(), items.end(),
-						  mcmp);
+				  MSetCmp>(items.begin(), items.end(), mcmp);
 		    }
 		    while (!items.empty() && items.front().wt < min_item.wt) {
 			pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
-				 OmMSetCmp>(items.begin(), items.end(), mcmp);
+				 MSetCmp>(items.begin(), items.end(), mcmp);
 			Assert(items.back().wt < min_item.wt);
 			items.pop_back();
 		    }
@@ -857,11 +656,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    if (!is_heap) {
 		is_heap = true;
 		make_heap<vector<Xapian::Internal::MSetItem>::iterator,
-			  OmMSetCmp>(items.begin(), items.end(), mcmp);
+			  MSetCmp>(items.begin(), items.end(), mcmp);
 	    }
 	    while (!items.empty() && items.front().wt < min_wt) {
 		pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
-			 OmMSetCmp>(items.begin(), items.end(), mcmp);
+			 MSetCmp>(items.begin(), items.end(), mcmp);
 		Assert(items.back().wt < min_wt);
 		items.pop_back();
 	    }

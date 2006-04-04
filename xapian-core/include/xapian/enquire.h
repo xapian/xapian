@@ -811,13 +811,28 @@ class Enquire {
 	 * @param ascending  If true, documents values which sort higher by
 	 *		 string compare are better.  If false, the sort order
 	 *		 is reversed.  (default true)
-         */
+	 */
 	void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
 					      bool ascending = true);
 
-// FIXME: consider implementing this:
-//	void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
-//					      bool ascending);
+	/** Set the sorting to be by relevance then value.
+	 *
+	 *  Note that with the default BM25 weighting scheme parameters,
+	 *  non-identical documents will rarely have the same weight, so
+	 *  this setting will give very similar results to
+	 *  set_sort_by_relevance().  It becomes more useful with particular
+	 *  BM25 parameter settings or custom weighting schemes.
+	 *
+	 * @param sort_key value number to reorder on.  Sorting is with a
+	 *	string compare.  If ascending is true (the default) higher
+	 *	is better; if ascending is false, lower is better.
+	 *
+	 * @param ascending  If true, documents values which sort higher by
+	 *		 string compare are better.  If false, the sort order
+	 *		 is reversed.  (default true)
+	 */
+	void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
+					      bool ascending = true);
 
 	/** Set the bias functor parameters.
 	 *

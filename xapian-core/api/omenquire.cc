@@ -978,6 +978,15 @@ Enquire::set_sort_by_value_then_relevance(Xapian::valueno sort_key,
 }
 
 void
+Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key,
+					  bool ascending)
+{
+    internal->sort_key = sort_key;
+    internal->sort_by = Internal::REL_VAL;
+    internal->sort_value_forward = ascending;
+}
+
+void
 Enquire::set_sorting(Xapian::valueno sort_key, int sort_bands,
 		     bool sort_by_relevance)
 {
