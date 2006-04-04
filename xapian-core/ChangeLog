@@ -1,3 +1,8 @@
+Wed Apr 05 00:59:53 BST 2006  Olly Betts <olly@survex.com>
+
+	* examples/Makefile.am: Use help2man to generate manpages for the
+	  installed binaries in examples.
+
 Wed Apr 05 00:56:11 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/omtcpsrv.cc: Rename to bin/xapian-tcpsrv.cc.
