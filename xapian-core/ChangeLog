@@ -1,3 +1,8 @@
+Tue Apr 04 16:44:54 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Note example of BM25Weight parameters
+	  which make set_sort_by_relevance_then_value useful.
+
 Tue Apr 04 16:35:58 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,include/xapian/enquire.h,matcher/,tests/api_db.cc:

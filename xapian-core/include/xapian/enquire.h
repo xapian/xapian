@@ -821,7 +821,8 @@ class Enquire {
 	 *  non-identical documents will rarely have the same weight, so
 	 *  this setting will give very similar results to
 	 *  set_sort_by_relevance().  It becomes more useful with particular
-	 *  BM25 parameter settings or custom weighting schemes.
+	 *  BM25 parameter settings (e.g. BM25Weight(1,0,1,0,0)) or custom
+	 *  weighting schemes.
 	 *
 	 * @param sort_key value number to reorder on.  Sorting is with a
 	 *	string compare.  If ascending is true (the default) higher
