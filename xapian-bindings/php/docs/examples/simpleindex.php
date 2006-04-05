@@ -2,7 +2,7 @@
 /* Index each paragraph in a textfile as a document
  *
  * Copyright (C) 2004 James Aylett
- * Copyright (C) 2004,2005 Olly Betts
+ * Copyright (C) 2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -83,7 +83,7 @@ foreach ($lines as $line) {
 		    $j = $k;
 		}
 		if ($j-$i <= MAX_PROB_TERM_LENGTH and $j > $i) {
-		    $term = stem_stem_word($stemmer, substr($para, $i, $j-$i));
+		    $term = stem_stem_word($stemmer, strtolower(substr($para, $i, $j-$i)));
 		    Document_add_posting($doc, $term, $pos);
 		    $pos ++;
 		}
