@@ -1,3 +1,7 @@
+Wed Apr 05 02:44:15 BST 2006  Olly Betts <olly@survex.com>
+
+	* ./,examples: svn:ignore man pages.
+
 Wed Apr 05 02:43:08 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.am,examples/Makefile.am: No need to make man pages
