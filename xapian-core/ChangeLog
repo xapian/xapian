@@ -1,3 +1,7 @@
+Wed Apr 05 16:26:15 BST 2006  Fabrice Colin
+
+	* xapian.spec.in: Package man pages.
+
 Wed Apr 05 16:23:49 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,bin/Makefile.am,examples/Makefile.am: Include generated
