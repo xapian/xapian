@@ -1,3 +1,8 @@
+Wed Apr 05 16:23:49 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,bin/Makefile.am,examples/Makefile.am: Include generated
+	  man pages in the distribution tarball.
+
 Wed Apr 05 02:48:27 BST 2006  Olly Betts <olly@survex.com>
 
 	* debian/TODO: Updated.

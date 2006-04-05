@@ -23,6 +23,8 @@ simplesearch_LDADD = @ldflags@ ../libxapian.la
 simpleexpand_SOURCES = simpleexpand.cc
 simpleexpand_LDADD = @ldflags@ ../libxapian.la
 
+EXTRA_DIST = $(man_MANS)
+
 man_MANS = quest.1 delve.1 copydatabase.1
 
 MAINTAINERCLEANFILES = $(man_MANS)

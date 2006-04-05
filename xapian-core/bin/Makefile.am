@@ -46,6 +46,8 @@ xapian_compact_CXXFLAGS = -I$(top_srcdir)/backends/flint
 xapian_compact_SOURCES = xapian-compact.cc
 xapian_compact_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la 
 
+EXTRA_DIST = $(man_MANS)
+
 man_MANS = $(quartz_mans) $(flint_mans) $(remote_mans)
 
 MAINTAINERCLEANFILES = $(man_MANS)
