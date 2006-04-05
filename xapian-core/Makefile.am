@@ -49,3 +49,14 @@ libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info $(LIBRARY_VE
 libxapian_la_LIBADD = common/libcommon.la backends/libbackend.la \
  matcher/libmatcher.la languages/liblanguages.la api/libapi.la $(LIBNET_LA) \
  queryparser/libqueryparser.la
+
+man_MANS = xapian-config.1
+
+MAINTAINERCLEANFILES = $(man_MANS)
+
+if MAINTAINER_MODE
+CLEANFILES += $(man_MANS)
+
+xapian-config.1: xapian-config
+	$(HELP2MAN) -o xapian-config.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^PROG_DESC=\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-config`" ./xapian-config
+endif

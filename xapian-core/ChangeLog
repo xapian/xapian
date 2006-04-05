@@ -1,3 +1,7 @@
+Wed Apr 05 02:42:42 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Generate man page for xapian-config.
+
 Wed Apr 05 00:59:53 BST 2006  Olly Betts <olly@survex.com>
 
 	* examples/Makefile.am: Use help2man to generate manpages for the
