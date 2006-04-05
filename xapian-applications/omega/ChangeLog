@@ -1,3 +1,12 @@
+Wed Apr 05 19:29:14 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/scriptindex.txt,hashterm.cc,hashterm.h,
+	  omindex.cc,scriptindex.cc: Add new "hash" command to allow hashed
+	  terms to be generated from long URLs like omindex does.
+	* htdig2omega.script: Use new "hash" command.
+	* scriptindex.cc: Fix "useless weight" warning to not incorrectly
+	  fire when "index" or "indexnopos" has no parameter.
+
 Wed Apr 05 15:03:28 BST 2006  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Check if we successfully opened the index script

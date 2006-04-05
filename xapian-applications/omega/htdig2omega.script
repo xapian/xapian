@@ -1,4 +1,4 @@
-url : field=url boolean=Q unique=Q
+url : field=url hash boolean=Q unique=Q
 caption : weight=3 index truncate=80 field=caption
 lastmod : field=lastmod
 size : field=size

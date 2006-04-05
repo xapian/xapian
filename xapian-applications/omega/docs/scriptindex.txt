@@ -35,6 +35,13 @@ field[=FIELDNAME]
 	a given field: all instances will be processed and stored in the
 	Xapian record.
 
+hash[=LENGTH]
+	Xapian has a limit on the length of a term.  To handle arbitrarily
+	long URLs as terms, omindex implements a scheme where the end of
+	a long URL is hashed (short URLs are left as-is).  You can use this
+	same scheme in scriptindex.  LENGTH defaults to 239, which if you
+	index with prefix "U" produces url terms compatible with omindex.
+
 index[=PREFIX]
 	split text into words and index probabilistically (with prefix PREFIX
 	if specified).  For backwards compatibility, the prefix "nopos" is

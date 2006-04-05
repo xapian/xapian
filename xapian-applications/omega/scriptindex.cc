@@ -38,6 +38,7 @@
 #include <unistd.h>
 
 #include "commonhelp.h"
+#include "hashterm.h"
 #include "indextext.h"
 #include "myhtmlparse.h"
 #include "utils.h"
@@ -104,7 +105,7 @@ p_notfieldnamechar(unsigned int c)
 
 const char * action_names[] = {
     "bad", "new",
-    "boolean", "date", "field", "index", "indexnopos", "lower",
+    "boolean", "date", "field", "hash", "index", "indexnopos", "lower",
     "truncate", "unhtml", "unique", "value", "weight"
 };
 
@@ -112,7 +113,7 @@ class Action {
 public:
     typedef enum {
 	BAD, NEW,
-	BOOLEAN, DATE, FIELD, INDEX, INDEXNOPOS, LOWER,
+	BOOLEAN, DATE, FIELD, HASH, INDEX, INDEXNOPOS, LOWER,
 	TRUNCATE, UNHTML, UNIQUE, VALUE, WEIGHT
     } type;
 private:
@@ -214,6 +215,12 @@ parse_index_script(const string &filename)
 		    case 'f':
 			if (action == "field") {
 			    code = Action::FIELD;
+			    arg = OPT;
+			}
+			break;
+		    case 'h':
+			if (action == "hash") {
+			    code = Action::HASH;
 			    arg = OPT;
 			}
 			break;
@@ -338,6 +345,9 @@ parse_index_script(const string &filename)
 			 << "' must have an argument" << endl;
 		    exit(1);
 		}
+		if (code == Action::INDEX || code == Action::INDEXNOPOS) {
+		    useless_weight_pos = string::npos;
+		}
 		actions.push_back(Action(code));
 	    }
 	    j = i;
@@ -352,6 +362,7 @@ parse_index_script(const string &filename)
 	    bool done = true;
 	    Action::type action = actions.back().get_action();
 	    switch (action) {
+		case Action::HASH:
 		case Action::LOWER:
 		case Action::TRUNCATE:
 		case Action::UNHTML:
@@ -474,6 +485,14 @@ index_file(const char *fname, istream &stream,
 		    case Action::BOOLEAN:
 			doc.add_term(i->get_string_arg() + value);
 			break;
+		    case Action::HASH: {
+			unsigned int max_length = i->get_num_arg();
+			if (max_length == 0)
+			    max_length = MAX_SAFE_TERM_LENGTH - 1;
+			if (value.length() > max_length)
+			    value = hash_long_term(value, max_length);
+			break;
+		    }
 		    case Action::LOWER:
 			lowercase_term(value);
 			break;

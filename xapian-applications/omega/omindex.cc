@@ -48,6 +48,7 @@
 #include <xapian.h>
 
 #include "commonhelp.h"
+#include "hashterm.h"
 #include "indextext.h"
 #include "myhtmlparse.h"
 #include "utils.h"
@@ -78,62 +79,10 @@ static Xapian::WritableDatabase db;
 static Xapian::Stem stemmer("english");
 static vector<bool> updated;
 
-static const unsigned int MAX_URL_LENGTH = 240;
-
 inline static bool
 p_notalnum(unsigned int c)
 {
     return !isalnum(c);
-}
-
-/* Hash is computed as an unsigned long, and then converted to a
- * string by writing 6 bits of it to each output byte.  So length is
- * ceil(4 * 8 / 6) (we use 4 rather than sizeof(unsigned long) so
- * that the hash is the same regardless of the platform).
- */
-#define HASH_LEN ((4 * 8 + 5) / 6)
-
-/* Make a hash of a string - this isn't a very good hashing algorithm, but
- * it's fast.  A collision would result in a document overwriting a different
- * document, which is not desirable, but also wouldn't be a total disaster.
- */
-static string
-hash_string(const string &s)
-{
-    unsigned long int h = 1;
-    for (string::const_iterator i = s.begin(); i != s.end(); ++i) {
-	h += (h << 5) + static_cast<unsigned char>(*i);
-    }
-    h &= 0xffffffff; // In case sizeof(unsigned long) > 4
-    // FIXME: It's quirky that we make leading zeros ' ' here, but "embedded"
-    // zeros become char(33) below.  Not a problem, but perhaps change ' ' to
-    // char(33) if we need to break backwards compatiblity for some other
-    // reason.
-    string result = string(HASH_LEN, ' ');
-    int i = 0;
-    while (h != 0) {
-	char ch = char((h & 63) + 33);
-	result[i++] = ch;
-	h = h >> 6;
-    }
-    return result;
-}
-
-/* Make a term for a url, ensuring that it's not longer than the maximum
- * length.  The term is "U"+baseurl+url, unless this would be too long, in
- * which case it is truncated to (maximum length - length of the hash),
- * and has a hash of the removed part appended.
- */
-static string
-make_url_term(const string &url)
-{
-    string result = "U" + baseurl + url;
-    if (result.length() > MAX_URL_LENGTH) {
-	result = result.substr(0, MAX_URL_LENGTH - HASH_LEN) +
-		 hash_string(result.substr(MAX_URL_LENGTH - HASH_LEN));
-	//printf("Using '%s' as the url term\n", result.c_str());
-    }
-    return result;
 }
 
 /* Truncate a string to a given maxlength, avoiding cutting off midword
@@ -251,11 +200,15 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 {
     string file = root + url;
     string title, sample, keywords, dump;
-    string urlterm;
 
     cout << "Indexing \"" << url << "\" as " << mimetype << " ... ";
 
-    urlterm = make_url_term(url);
+    string urlterm("U");
+    urlterm += baseurl;
+    urlterm += url;
+
+    if (urlterm.length() > MAX_SAFE_TERM_LENGTH)
+	urlterm = hash_long_term(urlterm, MAX_SAFE_TERM_LENGTH);
 
     if (skip_duplicates && db.term_exists(urlterm)) {
 	cout << "duplicate. Ignored." << endl;
