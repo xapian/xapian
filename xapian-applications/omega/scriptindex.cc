@@ -33,6 +33,7 @@
 #include <string>
 #include <vector>
 
+#include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -151,6 +152,10 @@ static void
 parse_index_script(const string &filename)
 {
     ifstream script(filename.c_str());
+    if (!script.is_open()) {
+	cout << filename << ": " << strerror(errno) << endl;
+	exit(1);
+    }
     string line;
     size_t line_no = 0;
     while (getline(script, line)) {

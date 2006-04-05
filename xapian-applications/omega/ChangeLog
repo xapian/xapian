@@ -1,3 +1,8 @@
+Wed Apr 05 15:03:28 BST 2006  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Check if we successfully opened the index script
+	  and give an error if not.
+
 Fri Mar 10 05:21:13 GMT 2006  Olly Betts <olly@survex.com>
 
 	* dbi2omega: Check DBIDRIVER environmental variable to allow a driver
