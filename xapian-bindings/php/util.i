@@ -108,6 +108,15 @@
     $1 = &v;
 }
 
+/* SWIG's default typemap accepts "Null" when an object is passed by
+   reference, and the C++ wrapper code then dereferences a NULL pointer
+   which causes a SEGV. */
+%typemap(in) SWIGTYPE & {
+    if (SWIG_ConvertPtr(*$input, (void**)&$1, $1_descriptor, 0) < 0 || $1 == NULL) {
+	SWIG_PHP_Error(E_ERROR, "Type error in argument $argnum of $symname. Expected $1_descriptor");
+    }
+}
+
 %typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
     if (array_init($result) == FAILURE) {
 	SWIG_PHP_Error(E_ERROR, "array_init failed");

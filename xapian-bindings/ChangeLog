@@ -1,3 +1,9 @@
+Wed Apr 05 03:42:58 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/util.i: Add custom typemap for SWIGTYPE& to avoid SEGV when
+	  "Null" is passed where C++ wants an object passed by reference.
+	  Fixes bug#74.
+
 Wed Apr 05 03:06:07 BST 2006  Olly Betts <olly@survex.com>
 
 	* php/docs/examples/simpleindex.php: Lowercase terms before stemming.
