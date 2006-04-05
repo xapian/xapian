@@ -53,18 +53,18 @@ MAINTAINERCLEANFILES = $(man_MANS)
 if MAINTAINER_MODE
 CLEANFILES = $(man_MANS)
 
-quartzcheck.1: quartzcheck ../config.h
+quartzcheck.1: quartzcheck
 	$(HELP2MAN) -o quartzcheck.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/quartzcheck.cc`" ./quartzcheck
 
-quartzcompact.1: quartzcompact ../config.h
+quartzcompact.1: quartzcompact
 	$(HELP2MAN) -o quartzcompact.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/quartzcompact.cc`" ./quartzcompact
 
-quartzdump.1: quartzdump ../config.h
+quartzdump.1: quartzdump
 	$(HELP2MAN) -o quartzdump.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/quartzdump.cc`" ./quartzdump
 
-xapian-tcpsrv.1: xapian-tcpsrv ../config.h
+xapian-tcpsrv.1: xapian-tcpsrv
 	$(HELP2MAN) -o xapian-tcpsrv.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-tcpsrv.cc`" ./xapian-tcpsrv
 
-xapian-compact.1: xapian-compact ../config.h
+xapian-compact.1: xapian-compact
 	$(HELP2MAN) -o xapian-compact.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-compact.cc`" ./xapian-compact
 endif

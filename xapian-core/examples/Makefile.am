@@ -30,12 +30,12 @@ MAINTAINERCLEANFILES = $(man_MANS)
 if MAINTAINER_MODE
 CLEANFILES = $(man_MANS)
 
-quest.1: quest ../config.h
+quest.1: quest
 	$(HELP2MAN) -o quest.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/quest.cc`" ./quest
 
-delve.1: delve ../config.h
+delve.1: delve
 	$(HELP2MAN) -o delve.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/delve.cc`" ./delve
 
-copydatabase.1: copydatabase ../config.h
+copydatabase.1: copydatabase
 	$(HELP2MAN) -o copydatabase.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/copydatabase.cc`" ./copydatabase
 endif
