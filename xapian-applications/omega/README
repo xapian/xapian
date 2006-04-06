@@ -7,6 +7,10 @@ provide a search over a collection of documents.
 
 See INSTALL for installation instructions.
 
+Once you've built and installed Omega, you can find documentation explaining
+how to use it in the docs subdirectory of the omega source code.  A good
+place to start is to read docs/quickstart.txt followed by docs/overview.txt.
+
 Developers
 ==========
 

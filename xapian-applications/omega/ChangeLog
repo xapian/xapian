@@ -1,3 +1,7 @@
+Thu Apr 06 14:28:08 BST 2006  Olly Betts <olly@survex.com>
+
+	* README: Add pointer to documentation.
+
 Thu Apr 06 03:32:21 BST 2006  Olly Betts <olly@survex.com>
 
 	* omega.spec.in: Include man pages in RPM.
