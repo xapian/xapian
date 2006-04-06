@@ -1,3 +1,8 @@
+Thu Apr 06 01:29:21 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/,examples/copydatabase.cc,examples/delve.cc,examples/quest.cc:
+	  In the "--help" output, add "Options:" before the list of options.
+
 Thu Apr 06 01:11:31 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Tweak to improve help2man output.

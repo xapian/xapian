@@ -44,6 +44,7 @@ const int MSECS_ACTIVE_TIMEOUT_DEFAULT = 15000;
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE_DIRECTORY...\n\n"
+"Options:\n"
 "  --port PORTNUM          listen on port PORTNUM for connections (no default)\n"
 "  --idle-timeout MSECS    set timeout for idle connections (default " << MSECS_IDLE_TIMEOUT_DEFAULT << "ms)\n"
 "  --active-timeout MSECS  set timeout for active connections (default " << MSECS_ACTIVE_TIMEOUT_DEFAULT << "ms)\n"

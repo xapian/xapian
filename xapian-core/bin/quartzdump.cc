@@ -43,6 +43,7 @@ using namespace std;
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] TABLE...\n\n"
+"Options:\n"
 "  -r, --revision=REVNO   Revision number to open (default: highest)\n"
 "  -s, --start-key=START  Start at key START\n"
 "  -e, --end-key=END      End at key END\n"

@@ -44,6 +44,7 @@ static bool showdocdata = false;
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE...\n\n"
+"Options:\n"
 "  -r <recno>            for term list(s)\n"
 "  -t <term>             for posting list(s)\n"
 "  -t <term> -r <recno>  for position list(s)\n"

@@ -45,7 +45,8 @@ static const char * sw[] = {
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] 'QUERY'\n"
-"NB: query should be quoted to protect it from the shell.\n\n"
+"NB: QUERY should be quoted to protect it from the shell.\n\n"
+"Options:\n"
 "  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
 "  -m, --msize=MSIZE   maximum number of matches to return\n"
 "  -h, --help          display this help and exit\n"

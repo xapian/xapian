@@ -34,6 +34,7 @@ using namespace std;
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
+"Options:\n"
 "  --help           display this help and exit\n"
 "  --version        output version information and exit" << endl;
 }

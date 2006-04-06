@@ -49,6 +49,7 @@ using namespace std;
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
+"Options:\n"
 "  -n, --no-full    Disable full compaction\n"
 "  -F, --fuller     Enable fuller compaction (not recommended if you plan to\n"
 "                   update the compacted database)\n"
