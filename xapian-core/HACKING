@@ -242,8 +242,10 @@ a configure script in the top level which allows you to configure xapian-core
 and any other modules you've checked out with one command.
 
 When running bootstrap, you may need to add extra macro directories to the path
-searched by aclocal (which is part of autoconf) - you may do this by specifying
-these in the ACLOCAL_FLAGS environment variable.
+searched by aclocal (which is part of automake) - you can do this by specifying
+these in the ACLOCAL_FLAGS environment variable, e.g.:
+
+ACLOCAL_FLAGS=-I/extra/macro/directory ./bootstrap
 
 There is a good overview of the GNU autotools at
 <http://sources.redhat.com/autobook/>.

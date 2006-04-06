@@ -1,3 +1,7 @@
+Thu Apr 06 14:41:29 BST 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: aclocal is part of automake, not autoconf.
+
 Thu Apr 06 01:29:21 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/,examples/copydatabase.cc,examples/delve.cc,examples/quest.cc:
