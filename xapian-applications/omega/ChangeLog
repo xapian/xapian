@@ -1,3 +1,7 @@
+Thu Apr 06 02:56:09 BST 2006  Olly Betts <olly@survex.com>
+
+	* mbox2omega.script: Use new "hash" command.
+
 Wed Apr 05 19:29:14 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,docs/scriptindex.txt,hashterm.cc,hashterm.h,
@@ -31,7 +35,7 @@ Tue Feb 28 23:46:57 GMT 2006  Olly Betts <olly@survex.com>
 	  actions into a numeric parameter on index and indexnopos Action
 	  objects; add explanatory text "(note that actions are executed from
 	  left to right)" when reporting useless actions.
- 
+
 Sun Feb 26 00:25:10 GMT 2006  Olly Betts <olly@survex.com>
 
 	* query.cc: Fix $opt[fieldnames] handling.  Previously it would try
@@ -213,7 +217,7 @@ Sun Dec 11 09:27:18 GMT 2005  Olly Betts <olly@survex.com>
 	  CGI parameter which allows the sort order to be reversed when
 	  sorting on a value.  Remove "SORTBANDS" CGI parameter since it
 	  no longer does anything.
- 
+
 Sun Dec 11 09:26:14 GMT 2005  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Improve wording of comment.
