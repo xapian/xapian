@@ -62,6 +62,7 @@ EXTRA_DIST = templates/query \
 	images/score-9.png \
 	omega.spec omega.conf \
 	$(omega_docs) \
+	$(man_MANS) \
 	dbi2omega htdig2omega htdig2omega.script mbox2omega mbox2omega.script
 
 AM_CPPFLAGS = -DCONFIGFILE_SYSTEM=\"@sysconfdir@/omega.conf\"
@@ -91,3 +92,17 @@ omindex_LDADD = $(XAPIAN_LIBS)
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
  getopt.cc commonhelp.cc utils.cc hashterm.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
+
+man_MANS = omindex.1 scriptindex.1
+
+MAINTAINERCLEANFILES = $(man_MANS)
+
+if MAINTAINER_MODE
+CLEANFILES = $(man_MANS)
+
+omindex.1: omindex
+	$(HELP2MAN) -o omindex.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/omindex.cc`" ./omindex
+
+scriptindex.1: scriptindex
+	$(HELP2MAN) -o scriptindex.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/scriptindex.cc`" ./scriptindex
+endif

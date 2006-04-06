@@ -1,6 +1,6 @@
 /* commonhelp.h: handle command line help common to omindex and scriptindex
  *
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,5 +19,5 @@
  */
 
 void print_package_info(const char *name);
-void print_stemmer_help();
-void print_help_and_version_help(char short_version = 'v');
+void print_stemmer_help(const char *spaces);
+void print_help_and_version_help(const char *spaces, char short_version = 'v');

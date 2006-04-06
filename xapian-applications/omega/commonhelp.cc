@@ -1,6 +1,6 @@
 /* commonhelp.cc: handle command line help common to omindex and scriptindex
  *
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,26 +28,26 @@
 using namespace std;
 
 void print_package_info(const char *name) {
-    cout << name << " (" PACKAGE ") " VERSION "\n";
+    cout << name << " - "PACKAGE_STRING << endl;
 }
 
-void print_stemmer_help() {
-    cout << "  -s, --stemmer\t\tset the stemming language ('none' to disable stemming)\n";
+void print_stemmer_help(const char * spaces) {
+    cout << "  -s, --stemmer=LANG  " << spaces << "set the stemming language ('none' disables stemming)\n";
     string wrap = "Possible values: " + Xapian::Stem::get_available_languages();
-    const size_t WRAP_AT = 79 - 24;
+    const size_t WRAP_AT = 79 - 22 - strlen(spaces);
     while (wrap.size() > WRAP_AT) {
 	size_t i;
 	for (i = WRAP_AT; i > 0 && wrap[i] != ' '; --i) { }
 	if (i == 0) break;
-	cout << "\t\t\t" << wrap.substr(0, i) << "\n";
+	cout << string(22, ' ') << spaces << wrap.substr(0, i) << "\n";
 	wrap.erase(0, i + 1);
     }
-    cout << "\t\t\t" << wrap << endl;
+    cout << string(22, ' ') << spaces << wrap << endl;
 }
 
-void print_help_and_version_help(char short_version) {
-    cout << "  -h, --help\t\tdisplay this help and exit\n"
-	    "  -" << short_version << ", --version\t\toutput version information and exit\n"
+void print_help_and_version_help(const char * spaces, char short_version) {
+    cout << "  -h, --help          " << spaces << "display this help and exit\n"
+	    "  -" << short_version << ", --version       " << spaces << "output version information and exit\n"
 	    "\n"
 	    "Please report bugs using bugzilla:\n"
 	    "http://www.xapian.org/bugs.php" << endl;

@@ -16,6 +16,9 @@ XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
+dnl disable "maintainer only" rules by default
+AM_MAINTAINER_MODE
+
 dnl Checks for programs.
 AC_PROG_CXX
 
@@ -105,6 +108,12 @@ case $ac_cv_func_snprintf in
        [Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
     ;;
 esac
+
+dnl Check for help2man. (Needed to make man pages from "--help" output).
+AC_PATH_PROG(HELP2MAN, help2man, [])
+if test x$USE_MAINTAINER_MODE = xyes; then
+  test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required in maintainer mode])
+fi
 
 dnl Disabled XML stuff as we don't currently build omindex-config
 dnl dnl Check for libxml or libxml2.  We do this by looking for xml-config.

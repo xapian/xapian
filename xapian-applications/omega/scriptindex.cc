@@ -47,6 +47,9 @@
 
 using namespace std;
 
+#define PROG_NAME "scriptindex"
+#define PROG_DESC "index arbitrary data as described by an index script"
+
 #ifdef __WIN32__
 inline unsigned int sleep(unsigned int secs) {
     _sleep(secs * 1000);
@@ -54,7 +57,6 @@ inline unsigned int sleep(unsigned int secs) {
 }
 #endif
 
-static const char *argv0;
 static bool verbose;
 static int addcount;
 static int repcount;
@@ -665,7 +667,6 @@ main(int argc, char **argv)
     verbose = false;
     Xapian::Stem stemmer("english");
 
-    argv0 = argv[0];
     static const struct option longopts[] = {
 	{ "help",	no_argument,	NULL, 'h' },
 	{ "version",	no_argument,	NULL, 'V' },
@@ -688,7 +689,7 @@ main(int argc, char **argv)
 		more = false;
 		break;
 	    case 'V': // --version
-		cout << "scriptindex (" << PACKAGE << ") " << VERSION << endl;
+		print_package_info(PROG_NAME);
 		return 0;
 	    case 'o': // --overwrite
 		database_mode = Xapian::DB_CREATE_OR_OVERWRITE;
@@ -718,15 +719,16 @@ main(int argc, char **argv)
     argv += optind;
     argc -= optind;
     if (show_help || argc < 2) {
-	print_package_info("scriptindex");
-	cout << "Usage: " << argv0 << " [OPTION]... DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n\n"
-		"Creates or updates a Xapian database with the data from the input files listed\n"
-		"on the command line.  If no files are specified, data is read from stdin.\n\n"
-		"  -v, --verbose\t\tdisplay additional messages to aid debugging\n"
-		"      --overwrite\tcreate the database anew (the default is to update if\n"
-		"\t\t\tthe database already exists)\n";
-	print_stemmer_help();
-	print_help_and_version_help('V');
+	cout << PROG_NAME" - "PROG_DESC"\n"
+"Usage: "PROG_NAME" [OPTIONS] DATABASE INDEXER_SCRIPT [INPUT_FILE]...\n\n"
+"Creates or updates a Xapian database with the data from the input files listed\n"
+"on the command line.  If no files are specified, data is read from stdin.\n\n"
+"Options:\n"
+"  -v, --verbose       display additional messages to aid debugging\n"
+"      --overwrite     create the database anew (the default is to update if\n"
+"                      the database already exists)\n";
+	print_stemmer_help("");
+	print_help_and_version_help("", 'V');
 	exit(show_help ? 0 : 1);
     }
 

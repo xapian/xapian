@@ -67,7 +67,8 @@
 
 using namespace std;
 
-#define OMINDEX "omindex"
+#define PROG_NAME "omindex"
+#define PROG_DESC "Index static website data via the filesystem"
 
 static bool skip_duplicates = false;
 static bool follow_symlinks = false;
@@ -615,27 +616,26 @@ main(int argc, char **argv)
     while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:lp", longopts, NULL))!=EOF) {
 	switch (getopt_ret) {
 	case 'h': {
-	    print_package_info(OMINDEX);
-	    cout << "Usage: " << argv[0] << " [OPTION]... --db DATABASE\n"
-		 << "\t--url BASEURL [BASEDIRECTORY] DIRECTORY\n\n"
-		 << "Index static website data via the filesystem.\n\n"
-		 << "  -d, --duplicates\tset duplicate handling ('ignore' or 'replace')\n"
-	         << "  -p, --preserve-nonduplicates\n"
-		"\t\t\tdon't delete unupdated documents in\n"
-		"\t\t\tduplicate replace mode\n"
-		 << "  -D, --db\t\tpath to database to use\n"
-		 << "  -U, --url\t\tbase url DIRECTORY represents\n"
-	         << "  -M, --mime-type\tadditional MIME mapping ext:type\n"
-		 << "  -l, --depth-limit=LIMIT\tset recursion limit (0 = unlimited)\n"
-		 << "  -f, --follow\t\tfollow symbolic links\n"
-		 << "      --overwrite\tcreate the database anew (the default is to update if\n"
-	        "\t\t\tthe database already exists)\n";
-	    print_stemmer_help();
-	    print_help_and_version_help();
+	    cout << PROG_NAME" - "PROG_DESC"\n\n"
+"Usage: "PROG_NAME" [OPTIONS] --db DATABASE --url BASEURL [BASEDIR] DIRECTORY\n\n"
+"Options:\n"
+"  -d, --duplicates         set duplicate handling ('ignore' or 'replace')\n"
+"  -p, --preserve-nonduplicates  don't delete unupdated documents in\n"
+"                                duplicate replace mode\n"
+"  -D, --db                 path to database to use\n"
+"  -U, --url                base url DIRECTORY represents\n"
+"  -M, --mime-type          additional MIME mapping ext:type\n"
+"  -l, --depth-limit=LIMIT  set recursion limit (0 = unlimited)\n"
+"  -f, --follow             follow symbolic links\n"
+"      --overwrite          create the database anew (the default is to update\n"
+"                           the database already exists)" << endl;
+	    print_stemmer_help("     ");
+	    print_help_and_version_help("     ");
 	    return 0;
 	}
 	case 'v':
-	    cout << OMINDEX << " (" << PACKAGE << ") " << VERSION << "\n"
+	    print_package_info(PROG_NAME);
+	    cout << "\n"
 		 << "Copyright (c) 1999,2000,2001 BrightStation PLC.\n"
 		 << "Copyright (c) 2001,2005 James Aylett\n"
 		 << "Copyright (c) 2001,2002 Ananova Ltd\n"
@@ -709,11 +709,11 @@ main(int argc, char **argv)
     }
 
     if (dbpath.empty()) {
-	cerr << OMINDEX << ": you must specify a database with --db.\n";
+	cerr << PROG_NAME": you must specify a database with --db.\n";
 	return 1;
     }
     if (baseurl.empty()) {
-	cerr << OMINDEX << ": you must specify a base URL with --url.\n";
+	cerr << PROG_NAME": you must specify a base URL with --url.\n";
 	return 1;
     }
     // baseurl mustn't end '/' or you end up with the wrong URL
@@ -726,7 +726,7 @@ main(int argc, char **argv)
     }
 
     if (optind >= argc || optind + 2 < argc) {
-	cerr << OMINDEX << ": you must specify a directory to index.\n"
+	cerr << PROG_NAME": you must specify a directory to index.\n"
 "Do this either as a single directory (corresponding to the base URL)\n"
 "or two directories - the first corresponding to the base URL and the second\n"
 "a subdirectory of that to index." << endl;
