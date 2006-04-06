@@ -1,3 +1,7 @@
+Thu Apr 06 03:32:21 BST 2006  Olly Betts <olly@survex.com>
+
+	* omega.spec.in: Include man pages in RPM.
+
 Thu Apr 06 03:06:56 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,commonhelp.cc,commonhelp.h,configure.ac,omindex.cc,
