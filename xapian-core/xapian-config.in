@@ -18,6 +18,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
+PROG_NAME=xapian-config
+PROG_DESC="report information about the installed version of xapian"
+
 # ${prefix} and ${exec_prefix} are used in some @-substitutions, and
 # ${prefix} is usually used in the exec_prefix @-substitution.
 prefix="@prefix@"
@@ -26,7 +29,7 @@ exec_prefix="@exec_prefix@"
 # Show usage information and exit with the specified exit status.
 show_usage() {
     cat <<EOF
-Usage: $0 [OPTION]...
+Usage: $PROG_NAME OPTION...
 
 Options:
   --cxxflags   output all preprocessor and C++ compiler flags
@@ -124,6 +127,8 @@ while [ 0 != "$#" ] ; do
     shift
     case $arg in
     --help)
+	echo "$PROG_NAME - $PROG_DESC"
+	echo
 	show_usage 0
 	;;
 

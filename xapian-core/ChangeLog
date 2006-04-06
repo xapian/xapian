@@ -1,3 +1,7 @@
+Thu Apr 06 01:11:31 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Tweak to improve help2man output.
+
 Wed Apr 05 16:26:15 BST 2006  Fabrice Colin
 
 	* xapian.spec.in: Package man pages.
