@@ -1,3 +1,9 @@
+Thu Apr 06 23:33:55 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simpleindex.php: Flushing after every call to
+	  WritableDatabase_add_document isn't required and will kill
+	  performance, so stop doing it.
+
 Wed Apr 05 03:42:58 BST 2006  Olly Betts <olly@survex.com>
 
 	* php/util.i: Add custom typemap for SWIGTYPE& to avoid SEGV when

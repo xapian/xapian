@@ -90,7 +90,6 @@ foreach ($lines as $line) {
 		$i = $j;
 	    }
 	    WritableDatabase_add_document($database, $doc);
-	    WritableDatabase_flush($database);
 	    $para = "";
 	}
     } else {
