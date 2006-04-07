@@ -1,3 +1,8 @@
+Fri Apr 07 22:54:54 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Special case setting of compiler warnings to account
+	  for Intel's C++ compiler (which configure detects as GCC.
+
 Fri Apr 07 17:33:39 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Distribute HACKING.

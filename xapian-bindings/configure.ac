@@ -427,20 +427,18 @@ fi
 
 AC_SUBST(BINDINGS)
 
-dnl extra flags for building with gcc
+dnl Set flags to control warnings (enable more, or disable annoying ones)
+dnl and other compiler specific flags.
+AM_CXXFLAGS=
 SWIG_CXXFLAGS=
 JAVA_CXXFLAGS=
 if test yes = "$GXX" ; then
-  dnl Swig generated code gives lots of unused and uninitialized warnings.
-  dnl They're non-harmful, so suppress them.
-  SWIG_CXXFLAGS="-Wall -Wno-unused -Wno-uninitialized"
-  dnl The Java JNI wrappers have a few unused variables.
-  JAVA_CXXFLAGS="-Wall -W -Wno-unused"
   dnl Python itself is compiled with -fno-strict-aliasing, and it appears
   dnl it's safest to follow this lead when compiling the SWIG generated
   dnl interface code.  E.g.:
   dnl   http://article.gmane.org/gmane.comp.gcc.devel/74692
   PYTHON_CXXFLAGS="-fno-strict-aliasing"
+
   dnl We need to explicitly link against -lstdc++ on OpenBSD (discovered
   dnl on OpenBSD 3.7 with GCC 3.3.5 but this appears to be due to a
   dnl deliberate decision on the part of OpenBSD developers).  Luckily
@@ -448,11 +446,43 @@ if test yes = "$GXX" ; then
   dnl compiler and libtool will eliminate the duplicate on other
   dnl platforms.
   XAPIAN_LIBS="$XAPIAN_LIBS -lstdc++"
+
+  dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
+  dnl which we actually have.
+  AC_EGREP_CPP(yes,
+    [#ifdef __INTEL_COMPILER
+     yes
+     #endif
+    ],
+    [
+      dnl Intel's compiler:
+      dnl
+      dnl -w1 stops the avalanche of uninteresting "remark" messages.
+      dnl -wd... disables warnings which don't have good code workarounds.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+      dnl Swig generated code gives lots of unused and uninitialized warnings.
+      dnl They're non-harmful, so suppress them.
+      SWIG_CXXFLAGS="-Wall -Wno-unused -Wno-uninitialized"
+      dnl The Java JNI wrappers have a few unused variables.
+      JAVA_CXXFLAGS="-Wall -Wno-unused"
+    ],
+    [
+      dnl GCC:
+      dnl
+      dnl Swig generated code gives lots of unused and uninitialized warnings.
+      dnl They're non-harmful, so suppress them.
+      SWIG_CXXFLAGS="-Wall -Wno-unused -Wno-uninitialized"
+      dnl The Java JNI wrappers have a few unused variables.
+      JAVA_CXXFLAGS="-Wall -W -Wno-unused"
+    ])
 fi
+AC_SUBST(AM_CXXFLAGS)
 AC_SUBST(SWIG_CXXFLAGS)
 AC_SUBST(JAVA_CXXFLAGS)
-
-AM_CXXFLAGS=
 
 AC_CONFIG_FILES([Makefile
  xapian-version.h
