@@ -1,3 +1,7 @@
+Fri Apr 07 16:02:40 BST 2006  Olly Betts <olly@survex.com>
+
+	* AUTHORS: Updated.
+
 Fri Apr 07 15:58:31 BST 2006  Olly Betts <olly@survex.com>
 
 	* debian/control.in: copydatabase and xapian-compact are packaged

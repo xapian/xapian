@@ -1,5 +1,7 @@
 Email about this project should be directed first to the
-xapian-discuss mailing list (see <http://www.xapian.org/lists.php>).
+xapian-discuss mailing list (see <http://www.xapian.org/lists.php>).  Please
+don't mail individual developers directly - you'll get a faster, more
+comprehensive answer by using the mailing list.
 
 Xapian has been developed by many individuals who voluntarily contributed
 their code to the Xapian project.  These people are:
@@ -47,5 +49,8 @@ Helpful comments, bug reports, small patches:
 	Mike Boone
 	Michael Schlenker
 	Michael Sisolak
-        Sidnei da Silva
+	Sidnei da Silva
 	Christiano Anderson
+	Sungsoo Kim
+	Philip Neustrom
+	Alec Lind
