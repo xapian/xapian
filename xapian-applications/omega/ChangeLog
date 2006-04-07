@@ -1,3 +1,7 @@
+Fri Apr 07 03:23:22 BST 2006  Olly Betts <olly@survex.com>
+
+	* omega.spec.in: Man pages may be gzipped.
+
 Thu Apr 06 14:28:08 BST 2006  Olly Betts <olly@survex.com>
 
 	* README: Add pointer to documentation.

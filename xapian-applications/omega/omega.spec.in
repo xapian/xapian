@@ -67,5 +67,6 @@ mv %{buildroot}/usr/share/doc/omega %{buildroot}/usr/share/doc/%{name}-%{version
 %config(noreplace) /etc/omega.conf
 %docdir /usr/share/doc/%{name}-%{version}
 %doc AUTHORS ChangeLog COPYING NEWS README TODO
-%{_mandir}/man1/omindex.1
-%{_mandir}/man1/scriptindex.1
+# man pages may be gzipped, hence the trailing wildcard.
+%{_mandir}/man1/omindex.1*
+%{_mandir}/man1/scriptindex.1*
