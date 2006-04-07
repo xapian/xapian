@@ -889,7 +889,7 @@ static bool test_multiexpand1()
     return true;
 }
 
-// tests that opening a non-existant postlist return an empty list
+// tests that opening a non-existent postlist return an empty list
 static bool test_postlist1()
 {
     Xapian::Database db(get_database("apitest_simpledata"));

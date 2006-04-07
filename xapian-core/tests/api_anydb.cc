@@ -1254,7 +1254,7 @@ static bool test_qterminfo1()
 
     TEST_NOT_EQUAL(mymset1a.get_termweight(term1), 0);
     TEST_NOT_EQUAL(mymset1a.get_termweight(term2), 0);
-    // non-existant terms still have weight
+    // non-existent terms still have weight
     TEST_NOT_EQUAL(mymset1a.get_termweight(term3), 0);
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError,
@@ -1396,7 +1396,7 @@ static bool test_qlen1()
     return true;
 }
 
-// tests that opening a non-existant termlist throws the correct exception
+// tests that opening a non-existent termlist throws the correct exception
 static bool test_termlist1()
 {
     Xapian::Database db(get_database("apitest_onedoc"));

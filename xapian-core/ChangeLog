@@ -1,3 +1,8 @@
+Fri Apr 07 23:53:08 BST 2006  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc,tests/api_db.cc,tests/btreetest.cc: Correct
+	  spelling of "existant" to "existent".
+
 Fri Apr 07 19:13:24 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: We don't use strcasecmp, so don't probe for it.
@@ -10783,7 +10788,7 @@ Mon Dec 11 16:03:46 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
 	  omdatabaseinternal.cc
 
 	* If a document object doesn't come from the database, when iterating
-	  through its termlist don't open postlists from the nonexistant
+	  through its termlist don't open postlists from the nonexistent
 	  database; open them from the DocumentTerm objects in the document
 	  instead.
 

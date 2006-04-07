@@ -792,7 +792,7 @@ static bool test_table5()
 	delete cursor;
     }
     {
-	// Check that opening a nonexistant revision returns false (and doesn't
+	// Check that opening a nonexistent revision returns false (and doesn't
 	// throw an exception).
 	Btree table_ro(tablename, false);
 	TEST(!table_ro.open(new_revision + 10));
