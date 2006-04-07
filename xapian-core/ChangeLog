@@ -1,3 +1,9 @@
+Fri Apr 07 15:58:31 BST 2006  Olly Betts <olly@survex.com>
+
+	* debian/control.in: copydatabase and xapian-compact are packaged
+	  in xapian-tools, so add them to the documented list of tools
+	  included.
+
 Fri Apr 07 15:12:43 BST 2006  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Set xapian-tcpsrv to allow 5 connections in the
