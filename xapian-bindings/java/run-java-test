@@ -1,3 +1,5 @@
 #!/bin/sh
 arg=`echo "$1"|sed 's!^\./!!'`
-LD_LIBRARY_PATH=native/.libs $JAVA -classpath built/xapian_jni.jar${PATHSEP-:}. "$arg"
+# Find the variable equivalent to LD_LIBRARY_PATH on this platform.
+eval `../libtool --config | grep "^shlibpath_var="`
+$shlibpath_var=native/.libs $JAVA -classpath built/xapian_jni.jar${PATHSEP-:}. "$arg"
