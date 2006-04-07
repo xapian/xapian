@@ -1,3 +1,7 @@
+Fri Apr 07 13:28:15 BST 2006  Olly Betts <olly@survex.com>
+
+	* tests/remotetest.cc: Check mset size in tcpmatch1.
+
 Fri Apr 07 01:26:03 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Man pages may be gzipped.
