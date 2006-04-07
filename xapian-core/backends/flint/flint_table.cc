@@ -1260,14 +1260,6 @@ FlintTable::get_exact_entry(const string &key, string & tag) const
 }
 
 bool
-FlintTable::find_key(const string &key) const
-{
-    DEBUGCALL(DB, bool, "FlintTable::find_key", key);
-    form_key(key);
-    RETURN(find(C));
-}
-
-bool
 FlintTable::find_tag(const string &key, string * tag) const
 {
     DEBUGCALL(DB, bool, "FlintTable::find_tag", key << ", &tag");

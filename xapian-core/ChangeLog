@@ -1,3 +1,10 @@
+Fri Apr 07 16:04:08 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_cursor.h: Fix incorrect example code in
+	  documentation comment.
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Remove unused method FlintTable::find_key().
+
 Fri Apr 07 16:02:40 BST 2006  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Updated.
