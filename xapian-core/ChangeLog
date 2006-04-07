@@ -1,3 +1,7 @@
+Fri Apr 07 01:26:03 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: Man pages may be gzipped.
+
 Thu Apr 06 14:41:29 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: aclocal is part of automake, not autoconf.

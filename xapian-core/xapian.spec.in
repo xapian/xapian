@@ -80,14 +80,15 @@ cp AUTHORS ChangeLog COPYING NEWS PLATFORMS README %{buildroot}%{_datadir}/doc/%
 %{_bindir}/simpleexpand
 %{_bindir}/xapian-compact
 %doc %{_datadir}/doc/%{name}-%{version}
-%{_mandir}/man1/xapian-tcpsrv.1
-%{_mandir}/man1/quartzcheck.1
-%{_mandir}/man1/quartzcompact.1
-%{_mandir}/man1/quartzdump.1
-%{_mandir}/man1/quest.1
-%{_mandir}/man1/delve.1
-%{_mandir}/man1/copydatabase.1
-%{_mandir}/man1/xapian-compact.1
+# man pages may be gzipped, hence the trailing wildcard.
+%{_mandir}/man1/xapian-tcpsrv.1*
+%{_mandir}/man1/quartzcheck.1*
+%{_mandir}/man1/quartzcompact.1*
+%{_mandir}/man1/quartzdump.1*
+%{_mandir}/man1/quest.1*
+%{_mandir}/man1/delve.1*
+%{_mandir}/man1/copydatabase.1*
+%{_mandir}/man1/xapian-compact.1*
 
 %files libs
 %defattr(-, root, root)
@@ -103,4 +104,5 @@ cp AUTHORS ChangeLog COPYING NEWS PLATFORMS README %{buildroot}%{_datadir}/doc/%
 %{_libdir}/libxapian.la
 %{_datadir}/aclocal/xapian.m4
 %doc %{_datadir}/doc/%{name}-devel-%{version}
-%{_mandir}/man1/xapian-config.1
+# man pages may be gzipped, hence the trailing wildcard.
+%{_mandir}/man1/xapian-config.1*
