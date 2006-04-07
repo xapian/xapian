@@ -1,3 +1,8 @@
+Fri Apr 07 17:31:40 BST 2006  Olly Betts <olly@survex.com>
+
+	* HACKING,README: Split off HACKING to contain information which is
+	  only relevant to those wishing to modify the bindings.
+
 Fri Apr 07 16:49:37 BST 2006  Olly Betts <olly@survex.com>
 
 	* java/run-java-test: Fix to work on platforms where LD_LIBRARY_PATH
