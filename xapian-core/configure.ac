@@ -317,9 +317,6 @@ AC_CHECK_HEADERS(sstream, [], [], [ ])
 dnl Check for a new streams implementation.
 AC_CHECK_HEADERS(streambuf, [], [], [ ])
 
-dnl check for strcasecmp.
-AC_CHECK_FUNCS([strcasecmp])
-
 dnl Checks for perl (needed to regenerate some of the documentation)
 AC_PATH_PROG(PERL, perl, [])
 if test x$USE_MAINTAINER_MODE = xyes; then

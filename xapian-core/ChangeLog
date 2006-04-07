@@ -1,3 +1,7 @@
+Fri Apr 07 19:13:24 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: We don't use strcasecmp, so don't probe for it.
+
 Fri Apr 07 18:30:40 BST 2006  Olly Betts <olly@survex.com>
 
 	* common/utils.h: Fixes for MSVC7 compilation.
