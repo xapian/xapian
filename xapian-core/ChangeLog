@@ -1,3 +1,8 @@
+Fri Apr 07 17:19:43 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Fixes for
+	  MSVC compilation.
+
 Fri Apr 07 16:04:08 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_cursor.h: Fix incorrect example code in

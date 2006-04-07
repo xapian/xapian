@@ -73,10 +73,10 @@ PWRITE_PROTOTYPE
 
 #ifdef __WIN32__
 # include <io.h> // for _commit()
-// FIXME: does MSVC really need this?  If so, why?
-//# ifdef _MSC_VER
-//#  include "safewindows.h"
-//# endif
+# ifdef _MSC_VER
+// MSVC needs this to get SSIZE_T defined.
+#  include "safewindows.h"
+# endif
 #endif
 
 // Only useful for platforms like Windows which distinguish between text and
