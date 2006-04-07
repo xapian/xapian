@@ -114,8 +114,7 @@ TcpServer::get_listening_socket(int port)
 	throw Xapian::NetworkError("bind failed", saved_errno);
     }
 
-    // FIXME: backlog argument should perhaps be larger.
-    retval = listen(socketfd, 1);
+    retval = listen(socketfd, 5);
 
     if (retval < 0) {
 	int saved_errno = errno; // note down in case close hits an error
