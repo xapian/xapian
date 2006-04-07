@@ -1,3 +1,37 @@
+Fri Apr 07 16:48:50 BST 2006  Olly Betts <olly@survex.com>
+
+	* :
+
+
+
+Property changes on: php
+___________________________________________________________________
+Name: svn:ignore
+   - .*.swp
+*.lo
+Makefile.in
+Makefile
+.deps
+.libs
+xapian_wrap.cc
+xapian.php
+php_xapian.h
+xapian.la
+util.i
+   + .*.swp
+*.lo
+Makefile.in
+Makefile
+.deps
+.libs
+xapian_wrap.cc
+xapian.php
+php_xapian.h
+xapian.la
+util.i
+
+
+
 Thu Apr 06 23:33:55 BST 2006  Olly Betts <olly@survex.com>
 
 	* php/docs/examples/simpleindex.php: Flushing after every call to
