@@ -1,3 +1,7 @@
+Fri Apr 07 17:33:39 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Distribute HACKING.
+
 Fri Apr 07 17:31:40 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING,README: Split off HACKING to contain information which is
