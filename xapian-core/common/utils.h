@@ -70,6 +70,9 @@ inline int open(const char *filename, int flags) {
 #endif
 
 #ifdef _MSC_VER
+#if 0
+// We used to have this here "for MSVC", but it conflicts with similar
+// code in io.h for MSVC7.
 inline int open(const char *filename, int flags, int mode) {
     return _open(filename, flags, mode);
 }
@@ -77,10 +80,12 @@ inline int open(const char *filename, int flags, int mode) {
 inline int open(const char *filename, int flags) {
     return _open(filename, flags);
 }
+#endif
 
 #define S_ISREG(m) (((m)&_S_IFMT) == _S_IFREG)
 #define S_ISDIR(m) (((m)&_S_IFMT) == _S_IFDIR)
 
+#undef ssize_t // In case configure already defined it.
 #define ssize_t SSIZE_T
 #endif
 
@@ -178,12 +183,13 @@ inline void touch(const string &filename) {
 
 /// Remove a directory and contents.
 void rmdir(const string &filename);
-# ifdef __WIN32__
+
+#ifdef __WIN32__
 inline unsigned int sleep(unsigned int secs) {
     _sleep(secs * 1000);
     return 0;
 }
-# endif
+#endif
 
 // Like C's isXXXXX() but:
 //  (a) always work in the C locale
