@@ -65,6 +65,10 @@
 # endif
 #endif
 
+#ifdef _MSC_VER
+# define popen _popen
+#endif
+
 using namespace std;
 
 #define PROG_NAME "omindex"

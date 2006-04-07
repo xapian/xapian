@@ -63,6 +63,10 @@
 
 #include <xapian/queryparser.h>
 
+#ifdef _MSC_VER
+# define strcasecmp stricmp
+#endif
+
 using namespace std;
 
 #ifndef SNPRINTF
