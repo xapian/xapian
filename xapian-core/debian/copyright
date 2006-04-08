@@ -1,7 +1,7 @@
 This package was Debianized by Richard Boulton <richard@tartarus.org> on
 Sun, 9 May 2004 16:30:30 +0100.
 
-It was checked out from the xapian CVS module at cvs.xapian.org:/home/cvs
+It was downloaded from http://www.xapian.org/download.php
 
 Upstream Authors:
 
@@ -30,7 +30,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-USA
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-See /usr/share/common-licenses/GPL
+See /usr/share/common-licenses/GPL for the full text of the GNU GPL.
