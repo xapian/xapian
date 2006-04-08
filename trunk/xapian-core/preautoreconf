@@ -1,0 +1,87 @@
+#!/usr/bin/perl -w
+use strict;
+
+sub parse_makefile_am($);
+
+my @makefile_am;
+
+if ($0 =~ m!(.*)/!) {
+    chdir $1 or die $!;
+}
+
+my %s;
+for (parse_makefile_am("")) {
+    $s{$_} = 1;
+}
+my @apidoc_src;
+my @sourcedoc_src;
+for (sort keys %s) {
+    s/^\.\///;
+    if (/^include\//) {
+	push @apidoc_src, $_ unless $_ eq "include/xapian/version.h";
+    } else {
+	push @sourcedoc_src, $_ unless /^tests\//;
+    }
+}
+
+open MAKEFRAG, ">docs/docsource.tmp" or die $!;
+print MAKEFRAG "APIDOC_SRC=\$T/", join("\\\n\t\$T/", @apidoc_src), "\n";
+print MAKEFRAG "SOURCEDOC_SRC=\$T/", join("\\\n\t\$T/", @sourcedoc_src), "\n";
+close MAKEFRAG or do { unlink "docs/docsource.tmp"; die $! };
+rename "docs/docsource.tmp", "docs/docsource.mk" or do { unlink "docs/docsource.tmp"; die $! };
+
+open MAKEFRAG, ">docsource.tmp" or die $!;
+print MAKEFRAG "docsource.mk: preautoreconf ", join(" ", @makefile_am), "\n";
+print MAKEFRAG "\t./preautoreconf\n";
+close MAKEFRAG or do { unlink "docsource.tmp"; die $! };
+rename "docsource.tmp", "docsource.mk" or do { unlink "docsource.tmp"; die $! };
+
+exit 0;
+
+sub parse_makefile_am($) {
+    my $dir = shift;
+    my %v = ();
+    my @l;
+    my $makefile_am = $dir . "Makefile.am";
+    open M, "<$makefile_am" or die "$makefile_am: $!\n";
+    push @makefile_am, $makefile_am;
+    while (<M>) {
+	chomp;
+	while (s/\\$/ /) {
+	    $_ .= <M>;
+	    chomp;
+	}
+	if (/(\w+)\s*=\s*(.*?)\s*(?:#.*)?$/) {
+	    my $var = $1;
+	    if (exists $v{$var}) {
+		$v{$var} .= " $2";
+	    } else {
+		$v{$var} = $2;
+	    }
+	    if ($var =~ /_(?:SOURCES|HEADERS)$/) {
+		push @l, $var;
+	    }
+	}
+    }
+    close M;
+
+    my @src;
+    for (@l) {
+	push @src, map {/^$/ ? () : "$dir$_"} split /\s+/, expand($_, \%v);
+    }
+
+    my $subdirs = $v{DIST_SUBDIRS} || $v{SUBDIRS} || '';
+    for (split /\s+/, $subdirs) {
+	next if $_ eq ".";
+	push @src, parse_makefile_am("$dir$_/");
+    }
+    return @src;
+}
+
+sub expand {
+   my $var = shift;
+   my $vref = shift;
+   $var = $$vref{$var};
+   $var =~ s/\$\((\w+)\)/expand($1, $vref)/eg;
+   return $var;
+}

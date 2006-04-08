@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Xapian: Remote Backend</TITLE>
+</HEAD>
+<BODY BGCOLOR="white" TEXT="black">
+
+<H1>Remote Backend</H1>
+
+<P>This document describes how to make use of the facilities in Xapian
+for distributed searches.
+
+<H2>Overview</H2>
+
+<P>There are two sides to the distributed searching.  The client end is the
+program initiating the search on behalf of a user, and the server end is
+the program which provides a searching interface over a set of databases
+for the client.  There can be many servers, with many clients sharing
+them.  In theory, a server can also be a client to other servers, but
+this may not be very useful or efficient.
+
+<P>The client runs queries in the same way that it would on local databases,
+but with different database arguments.  Instead of type, eg, "quartz",
+use "remote".  The extra parameters describe how to connect to the server.
+Once the database is opened, the query process is identical to any other.
+Using a stub database with autobackend is a good way to wrap up access to
+a remote database in a neat way.
+
+<P>The remote backend currently support two client/server methods: prog and
+tcp.  They both use the same protocol, although different means to contact
+the server.
+
+<H2>The Prog Method</H2>
+
+<P>The prog method spawns a program when the database is opened, and
+communicates with it over a Unix domain socket.  This isn't intended for
+production use, but is useful for debugging and testing.  The xapian-progsrv
+program, which is designed to be the program spawned, currently only uses
+text files indexed into inmemory databases.
+
+<P>From the client end, create the database with <code>Xapian::Database database(Xapian::Remote::open(<i>program</i>, <i>args</i>));</code> - for example:
+
+<pre>
+Xapian::Database database(Xapian::Remote::open("xapian-progsrv", "file1.txt file2.txt"));
+</pre>
+
+If the program has no path, the PATH environment variable is used.  The
+args are a list of one or more names of text files to be indexed into an
+inmemory database.  Any number can be specified.
+
+<h2>The TCP Method</h2>
+
+<P>The tcp method uses TCP/IP sockets to connect to a running server on a remote
+(or indeed local) machine.
+
+<P>From the client end, create the database with <code>Xapian::Database database(Xapian::Remote::open(<i>host</i>, <i>port</i>));</code> - for example:
+
+<pre>
+Xapian::Database database(Xapian::Remote::open("searchserver", 33333));
+</pre>
+
+The host is the server's hostname, the port is the tcp port on the server to
+use.
+
+<P>The server is xapian-tcpsrv, which is installed by xapian-core's
+"<code>make&nbsp;install</code>".
+This should be started and left running in the background before searches
+are performed.
+
+<P>The arguments xapian-tcpsrv currently knows are:
+<dl>
+<dt> --port PORTNUM
+<dd>        (required) the port to listen on.
+<dt>    --one-shot
+<dd>        Handle one connection, and then exit.  If --one-shot is not used,
+	then the server runs until it is killed manually.
+<dt>    --idle-timeout MSECS
+<dd>	Set the timeout on a idle connection.
+<dt>    --active-timeout MSECS
+<dd>	Set the timeout waiting for responses when the connection is active.
+<dt>    --timeout MSECS
+<dd>	Set the idle and active timeouts to the same value.
+<dt>    --quiet
+<dd>	Minimal output.
+</dl>
+One or more databases need to be specified by listing their directories - they
+are opened using the "auto" pseudo-backend.
+
+<P>Once started, the server will run and listen for connections on the
+configured port, currently handling them one by one (although this will
+change at some point).
+
+<H2>Notes</H2>
+
+<P>A remote search should behave just like the equivalent local one, with the
+exception of a few currently unimplemented features (e.g. match decision
+functors).
+
+<P>Exceptions are propagated across the link and thrown again at the client end.
+
+<!-- FOOTER $Author$ $Date$ $Id$ -->
+</BODY>
+</HTML>

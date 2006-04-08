@@ -1,0 +1,1135 @@
+Tue Apr 05 00:39:56 BST 2005  Olly Betts <olly@survex.com>
+
+	* .cvsignore: Remove .cvsignore files, as they're not used by SVN.
+
+Wed Mar 02 03:16:46 GMT 2005  Olly Betts <olly@survex.com>
+
+	* quest.cc: Update to use new QueryParser API.
+
+Thu Dec 23 17:39:48 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,NEWS: Version 0.8.5.
+
+Thu Dec 23 17:38:40 GMT 2004  Olly Betts <olly@survex.com>
+
+	* INSTALL,README: Added better installation instructions.
+
+Wed Dec 08 16:03:22 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Final update for 0.8.4.
+
+Tue Dec 07 16:44:26 GMT 2004  Olly Betts <olly@survex.com>
+
+	* copydatabase.cc,delve.cc,quest.cc,simpleexpand.cc,simpleindex.cc,
+	  simplesearch.cc: Use the new style Database/WritableDatabase
+	  constructor rather than factory functions.
+	* simpleindex.cc: Move the try block to wrap all of main().
+
+Tue Nov 30 22:43:23 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.8.4 release.
+
+Tue Nov 09 03:03:48 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,Makefile.am: We now get -AA or -std strict_ansi from
+	  xapian-config, so we don't need to probe for them ourselves.
+
+Sun Nov 07 04:51:51 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: rearrange so that libtool is active when we test if
+	  the c++ compiler can link a program so it can pull in libstdc++
+	  through a .la file.
+
+Sat Nov 06 14:45:31 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Removed unused code which probes for stlport.  We need
+	  to use stlport for everything or nothing anyway.
+
+Fri Nov 05 16:45:12 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: AM_CONFIG_HEADER -> AC_CONFIG_HEADERS; Run tests using
+	  the C++ compiler; select ANSI mode for aCC and cxx; Check GXX not
+	  GCC when chosing warning flags.
+
+Wed Nov 03 20:09:20 GMT 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am,delve.cc,getopt.cc,getopt.h,getopt1.cc,gnu_getopt.h,
+	  quest.cc: Updated to reworked getopt from xapian-core.
+
+Wed Nov 03 04:10:13 GMT 2004  Olly Betts <olly@survex.com>
+
+	* getopt.cc: Defining _NO_PROTO is a really bad idea for C++ code!
+
+Tue Nov 02 18:52:39 GMT 2004  Olly Betts <olly@survex.com>
+
+	* getopt.cc: Protect getopt definition for possible getopt macro
+	  declared in getopt.h.
+
+Tue Nov 02 06:53:23 GMT 2004  Olly Betts <olly@survex.com>
+
+	* getopt.cc,getopt1.cc: Fixed function declarations to not use K&R C
+	  syntax.
+
+Tue Nov 02 05:35:13 GMT 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,getopt.c,getopt.cc,getopt1.c,getopt1.cc:
+	  Compile everything as C++.
+
+Mon Sep 20 14:45:05 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Version 0.8.3.
+
+Mon Sep 20 14:42:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Require same versions of autoconf and
+	  automake that xapian-core does.
+
+Mon Sep 20 14:40:09 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Fixed to actually use AM_CFLAGS and
+	  AM_CXXFLAGS set by configure.
+
+Mon Sep 20 14:25:17 BST 2004  Olly Betts <olly@survex.com>
+
+	* .cvsignore,Makefile.am,createdatabase.cc: Removed createdatabase
+	  example - it's rather pointless now that Quartz creates the
+	  containing directory if required.
+
+Mon Sep 13 03:20:51 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Version 0.8.2.
+
+Tue Aug 24 14:02:45 BST 2004  Olly Betts <olly@survex.com>
+
+	* indexer/: Removed unused indexer example.
+
+Sun Aug 22 13:09:38 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,configure.in: Renamed configure.in to configure.ac.
+
+Wed Aug 18 12:43:44 BST 2004  Olly Betts <olly@survex.com>
+
+	* delve.cc: Report name of database in the "failed to open" message.
+
+Wed Jun 30 18:11:06 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.in: Version 0.8.1.
+
+Wed Jun 30 15:03:33 BST 2004  Olly Betts <olly@survex.com>
+
+	* copydatabase.cc: Make use of new get_lastdocid() method; output
+	  an extra space after the progress report so that we don't get
+	  "... docs to goooo"!
+
+Mon Apr 19 14:44:10 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Final update for 0.8.0.
+
+Mon Apr 12 00:53:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.in: Version 0.8.0.
+
+Thu Apr 01 01:10:43 BST 2004  Olly Betts <olly@survex.com>
+
+	* delve.cc: `delve -v DATABASE' now reports the number of terms.
+
+Thu Apr 01 01:09:16 BST 2004  Olly Betts <olly@survex.com>
+
+	* quest.cc,simpleexpand.cc,simpleindex.cc,simplesearch.cc: Added
+	  or improved the short description of the example at the top
+	  of the source file.
+
+Tue Mar 30 01:11:39 BST 2004  Olly Betts <olly@survex.com>
+
+	* .cvsignore,Makefile.am,msearch.cc,quest.cc: Replaced the rather
+	  peculiar msearch with quest - a simpler command line search program
+	  which use Xapian::QueryParser.
+
+Thu Mar 18 23:14:04 GMT 2004  Olly Betts <olly@survex.com>
+
+	* simpleindex.cc: We were ignoring the last paragraph if it had no
+	  trailing \n - fixed (bug#24).
+
+Fri Aug 08 01:39:21 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.3.
+
+Fri Aug 01 15:37:40 BST 2003  Olly Betts <olly@survex.com>
+
+	* msearch.cc: Quick fix to get mingw building going.
+
+Wed Jul 30 19:09:00 BST 2003  Olly Betts <olly@survex.com>
+
+	* getopt.h: Copied over latest getopt.h from xapian-core.
+	* Makefile.am: Reverse change which linked delve with getopt1.c - it's
+	  no longer needed.
+
+Sun Jul 27 17:16:48 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am: delve now needs getopt1.c thanks to our C++ tweaks to
+	  getopt.h.
+
+Sun Jul 27 16:36:49 BST 2003  Olly Betts <olly@survex.com>
+
+	* getopt.c,getopt.h: Copied getopt tweaks over from xapian-core.
+
+Sat Jul 26 20:04:43 BST 2003  Olly Betts <olly@survex.com>
+
+	* simplesearch.cc: Stem search terms.
+
+Sat Jul 26 19:15:45 BST 2003  Olly Betts <olly@survex.com>
+
+	* simpleindex.cc: Fixed not to run words together between lines.
+
+Sat Jul 26 18:34:28 BST 2003  Olly Betts <olly@survex.com>
+
+	* simpleindex.cc: Create database if it doesn't exist.
+
+Mon Jul 21 01:15:08 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Use libtool; OM_PATH_XAPIAN -> XO_LIB_XAPIAN.
+
+Sun Jul 20 18:32:20 BST 2003  Olly Betts <olly@survex.com>
+
+	* indexergui/: Removed indexergui directory - it was moved to
+	  xapian-application/xapview some time ago.
+
+Thu Jul 17 01:41:14 BST 2003  Olly Betts <olly@survex.com>
+
+	* acinclude.m4: Removed - we no longer need the GTK macros, and should
+	  get OM_PATH_XAPIAN from xapian.m4.
+
+Thu Jul 17 00:49:43 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: Removed bootstrap in favour of top-level bootstrap.
+
+Fri Jul 11 15:10:59 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.2.
+
+Fri Jul 11 02:34:48 BST 2003  Olly Betts <olly@survex.com>
+
+	* copydatabase.cc,createdatabase.cc: Xapian now creates the database
+	  directory for us.
+
+Fri Jul 04 22:11:13 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: add missing ';;' as case pattern delimiter
+
+Thu Jul 03 23:48:47 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.0.
+
+Mon Jun 23 21:11:03 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: Check for Bison 1.875 which doesn't work with Xapian.
+
+Mon Jun 23 16:58:19 BST 2003  Olly Betts <olly@survex.com>
+
+	* delve.cc: PostListIterator -> PostingIterator; PositionListIterator
+	  -> PositionIterator.
+
+Mon May 26 23:18:54 BST 2003  Olly Betts <olly@survex.com>
+
+	* copydatabase.cc,createdatabase.cc,delve.cc,msearch.cc,
+	  simpleexpand.cc,simpleindex.cc,simplesearch.cc: Updated to use new
+	  Xapian namespace.
+
+Mon May 26 22:53:10 BST 2003  Olly Betts <olly@survex.com>
+
+	* delve.cc: Corrected odd use of std::string::erase() (instead of
+	  `str = str.erase(n, m)' just use `str.erase(n,m)').
+
+Mon May 26 22:37:12 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Don't use libtool; Use AC_CONFIG_FILES - it's the new
+	  autoconf way!
+
+Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
+
+	* Fix success message in bootstrap when building in non-src dir
+	  as configure is written to the src dir
+
+Sat Dec 14 13:30:17 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.6.3.
+	* msearch.cc: Fixed compilation problem.
+
+Sat Dec 14 01:00:56 GMT 2002  Olly Betts <olly@survex.com>
+
+	* copydatabase.cc,createdatabase.cc,delve.cc,simpleexpand.cc,
+	  simpleindex.cc,simplesearch.cc: Make examples code more consistent
+	  with each other.
+
+Sat Dec 14 00:18:01 GMT 2002  Olly Betts <olly@survex.com>
+
+	* indexer/indexfile.cc,msearch.cc: Updated in line with removal
+	  of OmSettings; set exit code if exception caught.
+
+Sat Dec 07 21:25:59 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.6.2.
+
+Wed Dec 04 18:05:34 GMT 2002  Olly Betts <olly@survex.com>
+
+	* copydatabase.cc,createdatabase.cc,delve.cc,msearch.cc,
+	  simpleexpand.cc,simpleindex.cc,simplesearch.cc: Updated in line
+	  with OmSettings related changes to the API.
+
+Wed Nov 27 05:10:44 GMT 2002  Olly Betts <olly@survex.com>
+
+	* simpleindex.cc: "const static ..." -> "static const ..."
+
+Wed Nov 27 05:02:34 GMT 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Updated version to 0.6.0; build with "-Wall -W" under
+	  GCC (rather than -Wall -Wunused, which is a subset).
+
+Tue Nov 12 00:41:42 GMT 2002  Olly Betts <olly@survex.com>
+
+	* simpleindex.cc: Added MAX_PROB_TERM_LENGTH as in the omega
+	  indexers - it's a good idea to exclude junk terms so the
+	  example indexer probably should.
+
+Wed Oct 30 02:12:37 GMT 2002  Olly Betts <olly@survex.com>
+
+	* buildall: Removed in favour of bootstrap script.
+
+Sat Oct 12 17:06:52 BST 2002  Olly Betts <olly@survex.com>
+
+	* .cvsignore: Removed libtool.
+
+Wed Oct 02 16:42:33 BST 2002  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.in: require automake 1.6.3 and autoconf 2.54
+	  since xapian-core does anyway, and it neatens configure.in slightly.
+
+Wed Oct 02 16:38:19 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.5.1.
+
+Wed Oct 02 16:35:04 BST 2002  Olly Betts <olly@survex.com>
+
+	* bootstrap: Added replacement for buildall.
+
+Fri Sep 20 15:34:56 BST 2002  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.5.0.
+
+Sun Aug 11 13:20:41 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* delve.cc: Add -d option, to display document data for examined
+	  documents..
+
+Thu Jul 04 00:38:47 BST 2002  Olly Betts <olly@survex.com>
+
+	* .cvsignore: updated.
+
+Wed Jul 03 22:51:57 BST 2002  Olly Betts <olly@survex.com>
+
+	* Tidied up autotools stuff a bit; cleaned up msearch.cc slightly.
+
+Fri Jun 28 03:03:50 BST 2002  Olly Betts <olly@survex.com>
+
+	* Use auto pseudo-backend rather than explicitly requesting quartz
+	  databases; std:: cleansing; minor fettling.
+
+Thu Jun 27 21:36:47 BST 2002  Olly Betts <olly@survex.com>
+
+	* AUTHORS, README, TODO: updated.
+
+	* simple/indexnasty.cc, simple/Makefile: removed (sorry Sam!)
+
+Thu Jun 27 15:33:00 BST 2002  Olly Betts <olly@survex.com>
+
+	* copydatabase: enhanced to also allow several databases to be merged
+	  into one (which has more obvious real-world applications than a
+	  simple copy).
+
+Tue Jun 18 08:46:16 BST 2002  Sam Liddicott <sam@ananova.com>
+
+	* copydatabase: new example created.
+
+Wed Jun  5 20:50:15 BST 2002  James Aylett  <tartarus@users.sourceforge.net>
+
+	* simpleindex.cc: delete database pointer (otherwise never
+	  destructed, and the new document is never written out)
+
+Wed Jun  5 17:57:44 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* simple/Makefile: update to use --cxxflags rather than -cflags.
+
+Wed May 22 15:23:55 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* msearch.cc: Add --sortvalue and --sortbands options to allow
+	  results to be sorted within relevance bands by an arbitrary key.
+
+Mon May 20 17:58:56 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* createdatabase.cc: Use strerror instead of sys_nerr and
+	  sys_errlist[].  This is more portable (and actually compiles
+	  on my system).
+
+Mon May 20 15:08:50 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* Make -k parameter display values for all documents in a postlist.
+	  (Previously only worked for document ids specified on command
+	  line)
+
+Fri May 17 15:03:38 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* Add -k parameter to delve, to display the list of values for all
+	  documents being inspected.
+
+Fri May 17 14:45:28 BST 2002  Olly Betts <ollybe@ananova.net>
+
+	* .cvsignore: Updated.
+
+	* simplesearch and simpleexpand moved out of simple and into autotools
+	  build system.
+
+Mon May 13 13:36:26 BST 2002  Olly Betts <olly@survex.com>
+
+	* Started to clean up simple examples and move them into the main
+	  build system.
+
+	* Link with GNU getopt where required.
+
+Fri May 10 14:52:34 BST 2002  Olly Betts <olly@survex.com>
+
+	* indexnasty: add_key -> add_value.
+
+Fri May 03 16:23:47 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated wrt key->value change in xapian-core.
+
+Thu May 02 16:02:19 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated to reflect removal of OmData.
+
+Tue Apr 23 15:16:07 BST 2002  Olly Betts <olly@survex.com>
+
+	* .cvsignore: updated.
+
+Tue Apr 23 15:15:06 BST 2002  Olly Betts <olly@survex.com>
+
+	* Make buildall smart enough to generate aclocal.m4 properly and
+	  remove acinclude.m4.  It now also extracts the package name from
+	  configure.in so we can use the same buildall everywhere.
+
+Tue Apr 23 14:23:54 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated for xapian-config and xapian.m4 changes.
+
+Thu Apr 18 14:27:48 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated buildall in line with buildall in xapian-core.
+
+Wed Apr 17 12:29:49 BST 2002  Olly Betts <olly@survex.com>
+
+	* xapian-config: Removed --uninst support - it's very hard to make it
+	  work reliably and we're better off directing our efforts towards
+	  improving the library than trying to get it working and keep it
+	  working.
+
+Mon Apr 15 12:10:29 BST 2002  Olly Betts <olly@survex.com>
+
+	* getopt usage fixes.
+
+Mon Apr 15 11:34:40 BST 2002  Olly Betts <olly@survex.com>
+
+	* Fixed getopt_long usage.
+
+Fri Apr 12 16:24:48 BST 2002  Olly Betts <olly@survex.com>
+
+	* Require automake 1.5.
+
+Fri Apr 12 12:25:21 BST 2002  Olly Betts <olly@survex.com>
+
+	* msearch: Use getopt.
+
+Fri Apr 12 11:50:33 BST 2002  Olly Betts <olly@survex.com>
+
+	* Tidied up examples build system.
+
+Fri Apr 12 12:42:31 BST 2002  Olly Betts <olly@survex.com>
+
+	* Failed to "cvs add" msearch.cc and delve.cc in last check-in.
+
+Fri Apr 12 11:43:44 BST 2002  Olly Betts <olly@survex.com>
+
+	* delve moved here (was in tests subdirectory of xapian-core
+	  for now irrelevant historical reasons); moved msearch out
+	  of its own directory.
+
+Fri Apr 12 11:36:34 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed unused and superfluous stuff.
+
+Fri Apr 12 11:34:26 BST 2002  Olly Betts <olly@survex.com>
+
+	* Removed remaining files from gui subdirectory.
+
+Tue Apr  9 19:00:36 BST 2002  Richard Boulton <richard@tartarus.org>
+
+	* msearch: Remove GTK and LIBGLADE cflags, which were unwanted and
+	  causing problems for me.
+
+Thu Dec 20 16:29:27 GMT 2001  Richard Boulton <richard@tartarus.org>
+
+	* Remove querygui (moved to xapview in the applications module).
+	  Remove gui directory tree, and update configure.in and
+	  Makefile.am accordingly.
+
+Mon Dec 10 10:00:11 GMT 2001  Olly Betts <olly@survex.com>
+
+	* indexnasty: Index terms which start with a digit too.
+
+Fri Dec 07 14:21:29 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Give raw (unstemmed) terms prefix 'R'.
+
+Wed Dec 05 14:46:05 GMT 2001  Olly Betts <olly@survex.com>
+
+	* indexnasty: parsing terms from text is now twice as fast.
+
+Thu Nov 22 17:39:59 GMT 2001  Olly Betts <olly@survex.com>
+
+	* querygui: fixed compiler warnings.
+
+Thu Nov 22 17:33:46 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Added key support to indexnasty and tried to make it a bit less nasty
+	  (it now compiles cleanly on GCC3.0).
+
+	* Updated simpleexpand for recent OmQuery changes.
+
+Wed Nov 14 11:30:45 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed to work with revised OmQuery interface.
+
+Wed Nov 14 11:24:33 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed gui to compile on GCC3.0.
+
+Mon Nov  5 12:38:56 GMT 2001 Richard Boulton <richard@tartarus.org>
+
+	* Move omega into separate "applications" module.
+
+Thu Nov  1 20:43:25 GMT 2001 Richard Boulton <richard@tartarus.org>
+
+	* omega: Put template dir into a variable, defined at same place as
+	  db_dir.  Make db_dir non-const, ready for making its value read
+	  from a configuration file.  Change db_dir to database_dir.
+
+	* Add very simple configuration file reading code: reads
+	  ./omega.conf and if that isn't readable /etc/omega.conf, to get
+	  database_dir and template_dir.
+
+	* Fix problem with automake 1.5: didn't like AM_CXXFLAGS being
+	  assigned with += without it being assigned with = first.
+
+Thu Nov  1 20:32:47 GMT 2001  Richard Boulton <richard@tartarus.org>
+
+	* Use xml2 if available.  If it is available, compile
+	  omindex-config.
+
+Thu Nov  1 19:33:09 GMT 2001  Richard Boulton <richard@tartarus.org>
+
+	* omega/{omindex.cc,query.h}: Small fixes to compile with g++ 3.0
+
+Tue Oct 30 17:38:14 GMT 2001  Olly Betts <olly@survex.com>
+
+	* Fixed msearch to actually work.
+
+Wed Oct 24 11:31:13 BST 2001  Olly Betts <olly@survex.com>
+
+	* Added in "unique" flag (* prefix).
+
+Tue Oct 23 14:57:02 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Project name change Xapian.
+
+Fri Apr 27 15:15:32 2001  James Aylett  <tartarus@users.sourceforge.net>
+
+	* Project name change to Omseek.
+
+Wed Apr 11 10:56:33 BST 2001 Olly Betts
+
+	* Settled on "/home/omega" as location of databases (for now, later
+	  this should be configurable).
+
+	* Format names can now contain anything except "..".
+
+Sat Mar 31 15:06:23 BST 2001 Olly Betts
+
+	* Tidied up issues in omega with ammended $map and new $include.
+	  Not tested, so there may still be issues...
+
+Thu Mar 29 17:54:11 BST 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fix parsequerytest to work with changed format for
+	  OmQuery::get_description().
+
+	* Add "using std::string" to parsequery.h, so queryparser compiles
+	  on its own.
+
+Mon Mar 19 17:46:36 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fix omindex-config.cc to compile with STL port.  Now only complains
+	  about issues to do with libxml.
+
+Mon Mar 19 17:44:36 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Disable compilation of omindex-config, since it currently depends
+	  on libxml2 which we have no configure checks for.  It should
+	  probably only depend on libxml (1 or 2), anyway.
+
+Mon Mar 19 16:03:21 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Use updated omsee.m4 macro.
+
+Mon Mar 19 13:14:28 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Updated licenses, to include year 2001.
+
+Sun Mar 18 12:59:36 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Some modifications to fix omega compilation to work with latest
+	  version of the omsee API.
+
+	* Some modifications towards getting omindex-config to compile with
+	  libxml1: doesn't yet work.
+
+Sat Mar 17 12:09:30 GMT 2001 Olly Betts
+
+	* gui/glade/querygui.cc: Adding missing `#include <vector>'
+	  which stops it compiling on freebsd.
+
+Thu Feb 22 18:18:40 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Updated indexfile.xml after omregexfilter node output name change.
+
+Thu Feb 22 12:55:00 GMT 2001 Mark Shinwell
+
+	* omega: Initial commit of omindex-config.
+
+Mon Feb 19 17:36:42 GMT 2001 Olly Betts
+
+	* Removed RJB_FIND_STLPORT from configure.in and acinclude.m4 -
+	  omsee-config should take care of whether stlport needs to be used
+	  or not.
+
+Fri Feb  2 16:34:26 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fix a reference to the old style of OmDocument::add_posting() - now
+	  uses add_term()
+
+Wed Jan 31 00:31:11 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add simplecreate to distributions.
+
+Mon Jan 29 16:06:52 GMT 2001 Chris Emerson <chris.emerson@omsee.com>
+
+	* Changed a mention of omus to omsee
+
+	* indexfile works if the database already exists
+
+	* Tweaked the XML file, since the vector parameters are gone.
+
+Fri Jan 26 11:54:25 GMT 2001 Olly Betts
+
+	* omega: Added $and{}, $include{}, $setmap{}; throw error if we
+	  can't open a format template.
+
+Fri Jan 26 11:40:39 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Fix README references to omus
+
+Thu Jan 25 14:40:11 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Modify examples in simple/ to comply with recent changes.
+
+	* Partial modifications to examples in indexer/
+
+Thu Jan 25 11:45:55 GMT 2001  Richard Boulton <richard.boulton@omsee.com>
+
+	* Updated for project name change to Omsee.
+
+Wed Jan 24 12:42:41 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Updated to comply with OmEnquire::get_doc() changing to
+	  OmDatabase::get_document()
+
+Fri Jan 12 13:25:11 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove unwanted macros from acinclude.m4, which are part of automake
+	  and should never have gone in there.
+
+Fri Jan 12 13:20:31 GMT 2001 Olly Betts
+
+	* Truncate CGI parameter names at first space.
+
+Fri Jan 12 11:22:24 GMT 2001 Olly Betts
+
+	* Suppressed warnings in query.cc.
+
+	* Removed unused relevant_cached flag.
+
+	* Updated docs.
+
+Fri Jan 12 11:18:34 GMT 2001  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Update acinclude.m4
+
+Thu Jan 11 13:59:18 GMT 2001 Olly Betts
+
+	* $date now takes an optional format argument.
+
+	* $select removed; $relevant and $record now take an optional document
+	  id argument.
+
+Thu Jan 11 12:48:23 GMT 2001 Olly Betts
+
+	* filter_map is now a multimap to allow multiple values for the same
+	  boolean filter.
+
+Wed Jan 10 16:49:10 GMT 2001 Olly Betts
+
+	* MAXHITS/maxhits/list_size renamed to
+	  HITSPERPAGE/hitsperpage/hits_per_page.
+
+	* catch by const reference.
+
+	* MATCHOP renamed to DEFAULTOP.
+
+	* Reference to THRESHOLD removed.
+
+Sun Dec 17 16:17:17 GMT 2000 Olly Betts
+
+	* Updated to use OmTermIterator.
+
+Fri Dec 15 12:56:40 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove begin_session() and end_session() from omindex.cc
+
+Wed Dec 13 15:36:28 GMT 2000 Olly Betts
+
+	* Updated to use OmMSet::operator[]().
+
+Tue Dec 12 19:40:53 GMT 2000 Olly Betts
+
+	* Partially updated to the new OmMSet interface (partially because
+	  it's time I went home!)
+
+Mon Dec 11 13:37:17 GMT 2000 Olly Betts
+
+	* Updated to reflect OmRSet encapsulation.
+
+Sun Dec 10 17:28:21 GMT 2000 Olly Betts
+
+	* OmDocumentContents -> OmDocument.
+
+Sun Dec 10 17:04:14 GMT 2000 Olly Betts
+
+	* OmESetItem -> OmESetIterator.
+
+Tue Dec  5 16:26:24 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fixes to compile with stlport.
+
+	* Fixes to use the new matches_{{lower,upper}_bound,estimated}
+	  interface.
+
+Tue Nov 28 15:07:19 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Updated indexer/indexfile.xml to use the omsplitonchars node
+	  instead of the omregexsplit node.
+
+Fri Nov 24 16:05:03 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.4.1
+
+Fri Nov 24 13:35:05 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add --remote parameter to msearch.
+
+Thu Nov 23 15:31:08 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Chris is slightly sleepy, so I changed indexfile back from using
+	  sleepycat to quartz.
+
+Thu Nov 23 15:16:05 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* For some reason indexfile.cc was broken.
+
+Thu Nov 23 12:44:01 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Append to string, rather than replace it.  Tiny change to
+	  omindex, big speedup with large files.
+
+Thu Nov 23 11:55:27 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Remove dependency on index_utils.h, which has been removed.
+
+Wed Nov 22 16:05:01 GMT 2000 Olly Betts
+
+	* Corrected a comment.
+
+Wed Nov 22 13:07:59 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Change examples to use quartz rather than sleepycat.
+
+Fri Nov 17 16:38:57 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.4.0
+
+Fri Nov 17 16:28:06 GMT 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix build system of indexergui so that it can build with an
+	  uninstalled library.
+
+Tue Nov 14 19:32:46 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The indexer GUI can load graphs from XML files and display them
+	  in a partly sensible manner.  Nodes can be dragged around.
+
+Mon Nov 13 18:43:24 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Added lots of file for the indexer GUI stuff (as yet incomplete).
+
+Tue Oct 31 18:19:06 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Rearranged the code in the example indexer.
+
+Tue Oct 31 16:16:31 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* The example indexer now seems to work.
+
+Mon Oct 30 19:03:56 GMT 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Nearly complete example XML-described indexer
+
+Fri Oct 27 19:57:44 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Put together more of the indexer's XML description.
+
+Thu Oct 26 18:30:07 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Indexer example added (incomplete)
+
+Wed Sep 20 16:09:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.3.1
+
+Tue Sep 19 16:19:07 BST 2000 Olly Betts
+
+	* omega: Improved output when using lynx; added link to
+	  open.muscat.com.
+
+Tue Sep 19 14:52:24 BST 2000 Olly Betts
+
+	* makesymboltabh.pl: ''' -> '\'' in generated code.
+
+	* omega: renamed op to default_op; size_t -> std::string::size_type;
+	  now lookup macro commands in a map; removed $pagemax which was
+	  indentical to $lastpage; godmode template improved.
+
+Fri Sep  8 11:59:47 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add option to msearch to turn off stemming of terms.
+
+Thu Sep  7 08:33:45 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Correct spelling in Makefile.am: simplexpand -> simpleexpand.cc
+
+Wed Sep 06 11:01:10 BST 2000 Olly Betts
+
+	* omega: weren't distributing omega templates (d'oh!)
+
+Tue Sep 05 10:44:28 BST 2000 Olly Betts
+
+	* msearch: --multidb option no longer exists, so removed from
+	  syntax message; complain if operator doesn't have 2 arguments;
+	  Implicitly AND in boolean queries.
+
+	* simpleindex: Setting sleepy_dir corrected to sleepycat_dir.
+
+Mon Sep  4 17:44:23 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Add simple/simpleexpand.cc to nightly snapshots.
+
+Wed Aug 23 15:19:00 BST 2000 Olly Betts
+
+	* Updated to reflect merger of OmDatabase and OmDatabaseGroup.
+
+Mon Aug 21 19:17:31 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.3.0
+
+Mon Aug 21 18:33:32 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix omega to reflect om_queryop -> OmQuery::op api changes.
+
+Mon Aug 21 15:57:00 BST 2000 Olly Betts
+
+	* Updated to reflect om_queryop -> OmQuery::op api changes.
+
+Mon Aug 21 09:51:00 BST 2000 Olly Betts
+
+	* omega: Changed remaining references from /usr/om to /usr/omega
+
+Fri Aug 18 16:24:00 BST 2000 Olly Betts
+
+	* OmSettings::get_value* -> OmSettings::get*
+	  OmSettings::set_value -> OmSettings::set
+
+Fri Aug 18 14:20:37 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Update simple examples to reflect change to OmSettings.
+
+Thu Aug 17 10:33:00 BST 2000 Olly Betts
+
+	* Updated examples to reflect OmMatchOptions/OmExpandOptions ->
+	  OmSettings change.
+
+Thu Aug 17 10:19:00 BST 2000 Olly Betts
+
+	* Updated examples to reflect API changes
+
+	* gui, msearch: removed slew of backend switches - now open database
+	  with auto backend
+
+Thu Aug 10 12:00:35 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Declare this to be version 0.2.1
+
+Thu Aug 10 12:00:07 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* omega: Moved default directory to be /usr/omega (instead of /usr/om)
+
+Thu Jul 20 11:13:00 BST 2000 Olly Betts
+
+	* omindex: fixed meta robots handling; file reading was losing \n;
+	  fixed segfault on filenames with no extensions; added uncaught
+	  exception catcher
+
+Thu Jul 20 11:07:00 BST 2000 Olly Betts
+
+	* omega/htmlparse.cc: force parameter names to lower case
+
+Thu Jul 20 10:41:00 BST 2000 Olly Betts
+
+	* Correct fix for missing YACC
+
+Mon Jul 17 13:21:28 BST 2000  Richard Boulton <richard.boulton@open.muscat.com>
+
+	* Fix Automake rule for building .yy sources, by defining
+	  YACC=$BISON (with a flag to output to the expected place).
+
+	* Fix a typo in omega.cc
+
+Sun Jul 16 15:13:00 BST 2000 Olly Betts
+
+	* omega: no_stem test was reversed
+
+Sun Jul 16 11:39:00 BST 2000 Olly Betts
+
+	* omindex: adding indexing of PostScript documents; put mimetype in
+	  a field and add a boolean tag; treat .shtml as text/html; added
+	  crude command line processing
+
+Sat Jul 15 19:57:00 BST 2000 Olly Betts
+
+	* omindex: added META tag handling for HTML
+
+Sat Jul 15 19:22:00 BST 2000 Olly Betts
+
+	* omindex: added parsers for text/plain and text/pdf
+
+Sat Jul 15 18:23:00 BST 2000 Olly Betts
+
+	* omega: hooked in parsequerytest to `make check'; `size_t' now
+	  means the same as `size-t' and `"size t"'; tweaked templates/query
+	  to improve output when there's no search
+
+Sat Jul 15 17:59:00 BST 2000 Olly Betts
+
+	* omega: added tests for QueryParser (not yet hooked into make check);
+	  improved QueryParser to understand `gtk+', `gnome--', etc as terms;
+
+	* omindex: index `gtk+', `gnome--', etc as terms
+
+Sat Jul 15 15:21:00 BST 2000 Olly Betts
+
+	* omega: started to encapsulate query parser in QueryParser class
+
+Fri Jul 14 16:55:00 BST 2000 Olly Betts
+
+	* omega: query parser now treats `a-b' as `"a b"' while `a -b' means
+	  `a NOT b'; fixed exception parsing empty query
+
+Thu Jul 13 18:15:00 BST 2000 Olly Betts
+
+	* omega: tweaked log format; don't calculate topdoc if we're only
+	  going to throw away the answer; percentage scores now reach 100%
+	  when all terms match top document; fixed record to field
+	  splitting; created omega/README; miscellaneous fettling
+
+Wed Jul 12 15:57:00 BST 2000 Olly Betts
+
+	* omega: removed some unused system headers
+
+Wed Jul 12 15:25:00 BST 2000 Olly Betts
+
+	* omega: tidied and made more consistent
+
+Wed Jul 12 15:00:00 BST 2000 Olly Betts
+
+	* omega: added split() to split string into a vector; split out
+	  utils.{cc,h} to house split(), int_to_string(), and string_to_int;
+	  R CGI parameter can now list many document ids separated by `.';
+	  dead declarations pruned
+
+Wed Jul 12 13:27:00 BST 2000 Olly Betts
+
+	* omega: allow multiple DB parameters and DB parameters listing
+	  several databases (e.g. DB=one/two/three); merged logged
+	  information into one file; added $dbname; general tidying
+
+Tue Jul 11 18:17:00 BST 2000 Olly Betts
+
+	* omega: implemented `exampl.' in query parser to mean an already
+	  stemmed term.  Made `example.com' work as before too (same as
+	  `example com')
+
+Tue Jul 11 14:17:00 BST 2000 Olly Betts
+
+	* omega: replaced LEX based query parser with YACC based parser
+	  which handles phrases and boolean queries
+
+	* omindex: lowercase tag names; added virtual destructor for
+	  HtmlParser class; generate index terms from title
+
+Mon Jul 10 15:05:00 BST 2000 Olly Betts
+
+	* omega: MORELIKE now works; godmode works to some extent; mset
+	  moved into query.cc; empty query handling now less icky; $pages
+	  replaced by macro language version; fixed bug which mishandled
+	  $xxx{} and $xxx{,...}; added $lastpage, $thispage, $min, $max;
+	  $if now takes optional 3rd argument (else clause); now use FMT
+	  to choose template
+
+Sun Jul 09 16:47:00 BST 2000 Olly Betts
+
+	* omindex: fixed double slash at start of pathnames
+
+	* omega: bodge for empty query; added %{...} for commenting out
+	  code; turned on "selected" gif for current page of hits
+
+Sun Jul 09 13:40:00 BST 2000 Olly Betts
+
+	* omindex: added "&quot;" to entity list as stopgap measure; now put
+	  http: urls in index instead of file:
+
+	* omega: page, hit, and "god mode" extracted into template files;
+	  $if* rationalised into just $if plus $ne, $eq, etc.; added $map;
+	  text page links extracted into macro code; $topterms now produces
+	  list can be turned into html with $map; added int_to_string() and
+	  string_to_int()
+
+Sat Jul 08 15:46:00 BST 2000 Olly Betts
+
+	* omega: page links working (needs cleaning up still)
+
+Sat Jul 08 14:40:00 BST 2000 Olly Betts
+
+	* omega: matching terms now listed in query order
+
+	* omega: added "11-20 of at least 407 documents matching query" stuff;
+	  added $add{...} operator to facilitate this
+
+Sat Jul 08 12:46:00 BST 2000 Olly Betts
+
+	* omega: cured occasional bogus term being parsed from query
+
+Sat Jul 08 12:14:00 BST 2000 Olly Betts
+
+	* omindex: Put title in index; limit sample to around 300 characters;
+	  translate common entities e.g. "&lt;" -> "<"; lowercase and stem
+	  terms
+
+	* omega: $topdoc changed to return "0" instead of "" for first page
+
+Fri Jul 07 11:54:00 BST 2000 Olly Betts
+
+	* omega: added omindex - simple web site indexer
+
+	* omega: fixed up various problems with default page template
+
+	* omega: Fixed up problem with query generating no matches
+
+Thu Jul 06 14:46:00 BST 2000 Olly Betts
+
+	* omega: more work on macro language
+
+Thu Jul 06 14:46:00 BST 2000 Olly Betts
+
+	* omega: fixed up problems with lex stuff
+
+Thu Jul 06 12:17:00 BST 2000 Olly Betts
+
+	* Renamed ferretfx to omega
+
+Thu Jul 06 11:33:00 BST 2000 Olly Betts
+
+	* ferretfx: replacement combined parser for page and hit templates
+
+Tue Jul 04 12:41:00 BST 2000 Olly Betts
+
+	* ferretfx: can now actually search OM databases
+
+Mon Jul 03 13:19:00 BST 2000 Olly Betts
+
+	* ferretfx: cleaned out EuroFerret specific stuff
+
+Fri Jun 23 13:58:00 BST 2000 Olly Betts
+
+	* ferretfx: more work
+
+Fri Jun 23 11:40:00 BST 2000 Olly Betts
+
+	* ferretfx: resolved many FIXMEs; tidied up code some more.
+
+Thu Jun 22 18:51:00 BST 2000 Olly Betts
+
+	* ferretfx: since most people don't have ferret databases lying
+	  around, this example is at best an esoteic curio.  So I've begun
+	  reworking it into a general purpose cgi frontend to om databases.
+
+Wed Jun 21 18:06:00 BST 2000 Olly Betts
+
+	* ferretfx: should now display matching terms correctly
+
+Tue Jun 20 14:29:29 BST 2000 Chris Emerson <chris.emerson@open.muscat.com>
+
+	* Don't need omassert.h either.  Fixed ECHO to use abort() rather
+	  than Assert(0)
+
+Mon Jun 19 17:24:00 BST 2000 Olly Betts
+
+	* Don't need `common' in the include search path
+
+Mon Jun 19 16:55:00 BST 2000 Olly Betts
+
+	* Removed `foreign' option from all Makefile.am-s
+
+Mon Jun 19 16:16:00 BST 2000 Olly Betts
+
+	* Started ChangeLog
+
+	* Updated README to reflect ferretfx now building again
+
+	* Updated licence on all files
+
+	* Added AUTHORS and NEWS files

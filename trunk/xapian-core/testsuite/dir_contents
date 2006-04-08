@@ -1,0 +1,6 @@
+<Directory>testsuite</Directory>
+
+<Description>
+This contains the test suite engine, which is linked with by most of the
+C++ test programs to perform a set of tests.
+</Description>

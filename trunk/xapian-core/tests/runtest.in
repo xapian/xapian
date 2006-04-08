@@ -1,0 +1,81 @@
+#!/bin/sh
+# @configure_input@
+#
+# Wrapper script for running test programs (using libtool and valgrind if
+# required).
+#
+# Copyright (C) 2003,2004 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA
+
+if test 0 = "$#"; then
+   echo "syntax: $0 <test program> [<arguments>]"
+   echo "syntax: $0 gdb <test program> [<arguments>]"
+   echo "syntax: $0 <tool> <test program> [<arguments>]"
+   exit 1
+fi
+
+# Set srcdir if it isn't already.
+: ${srcdir="@srcdir@"}
+export srcdir
+
+case "$2" in
+*test)
+   case "$1" in
+   *gdb|"*gdb *")
+      # gdb needs special handling (--args)
+      gdb="$1"
+      shift
+      : ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
+      export top_builddir
+      LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`"
+      echo "Running test '$@' under $gdb"
+      exec $LIBTOOL --mode=execute $gdb --args "$@" ;;
+   *)
+      # Handles any tool which can just be run as:
+      #   TOOL TOOL-ARGS PROGRAM PROGRAM-ARGS
+      tool="$1"
+      shift
+      : ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
+      export top_builddir
+      LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`"
+      echo "Running test '$@' under $tool"
+      exec $LIBTOOL --mode=execute $tool "$@" ;;
+   esac
+esac
+
+# Allow configure probed value for VALGRIND to be overridden by e.g.
+#   VALGRIND= ./runtest ./apitest
+test -z "${VALGRIND+set}" && VALGRIND="@VALGRIND@"
+if test -z "$VALGRIND" ; then
+   # valgrind isn't involved, so just run the test program.
+   exec "$@"
+   exit 1
+fi
+
+# Irritatingly, --logfile-fd was renamed to --log-fd in valgrind 2.1.2
+# with no support for the old option name, so we must probe...
+if $VALGRIND -q --log-fd=1 true > /dev/null 2>&1 ; then
+   VG_LOG_FD=--log-fd
+else
+   VG_LOG_FD=--logfile-fd
+fi
+# Get libtool to run the test program under valgrind.
+: ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
+export top_builddir
+LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`"
+echo "Running test '$@' under valgrind"
+exec $LIBTOOL --mode=execute $VALGRIND $VG_LOG_FD=255 "$@"

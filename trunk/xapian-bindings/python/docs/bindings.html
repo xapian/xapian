@@ -1,0 +1,218 @@
+<html><head><title>Python bindings for Xapian</title></head>
+<body>
+<h1>Python bindings for Xapian</h1>
+
+<p>
+The Python bindings for Xapian are packaged in the <code>xapian</code> module,
+and largely follow the C++ API, with the following differences and
+additions. Python strings and lists, etc., are converted automatically
+in the bindings, so generally it should just work as expected.
+</p>
+
+<p>
+The <code>examples</code> subdirectory contains examples showing how to use the
+Python bindings based on the simple examples from <code>xapian-examples</code>:
+<a href="examples/simpleindex.py">simpleindex.py</a>,
+<a href="examples/simplesearch.py">simplesearch.py</a>,
+<a href="examples/simpleexpand.py">simpleexpand.py</a>.
+There's also 
+<a href="examples/simplematchdecider.py">simplematchdecider.py</a>
+which shows how to define a MatchDecider in Python.
+</p>
+
+<h2>Exceptions</h2>
+
+<p>
+   Exceptions are thrown as SWIG exceptions instead of Xapian
+   exceptions. This isn't done well at the moment; in future we will
+   throw wrapped Xapian exceptions. For now, it's probably easier to
+   catch all exceptions and try to take appropriate action based on
+   their associated string.
+</p>
+
+<h2>Iterators</h2>
+
+<p>
+   All iterators support <code>next()</code> and <code>equals()</code> methods
+   to move through and test iterators (as for all language bindings).
+   MSetIterator and ESetIterator also support <code>prev()</code>.
+   Python-wrapped iterators also support direct comparison, so something like:
+</p>
+
+<pre>
+   m=mset.begin()
+   while m!=mset.end():
+     # do something
+     m.next()
+</pre>
+
+<h2>Iterator dereferencing</h2>
+
+<p>
+   C++ iterators are often dereferenced to get information, eg
+   <code>(*it)</code>. With Python these are all mapped to named methods, as
+   follows:
+</p>
+
+<table title="Iterator deferencing methods">
+<thead><td>Iterator</td><td>Dereferencing method</td></thead>
+<tr><td>PositionIterator</td>	<td><code>get_termpos()</code></td></tr>
+<tr><td>PostingIterator</td>	<td><code>get_docid()</code></td></tr>
+<tr><td>TermIterator</td>	<td><code>get_term()</code></td></tr>
+<tr><td>ValueIterator</td>	<td><code>get_value()</code></td></tr>
+<tr><td>MSetIterator</td>	<td><code>get_docid()</code></td></tr>
+<tr><td>ESetIterator</td>	<td><code>get_termname()</code></td></tr>
+</table>
+
+<p>
+   Other methods, such as <code>MSetIterator.get_document()</code>, are
+   available unchanged.
+</p>
+
+<h2>Pythonic iterators</h2>
+
+<p>
+Provided you're using Python 2.2 or newer, many classes that support C++-style
+iterators also support Pythonic
+iterators which do the same thing in a Python style. The following are
+supported (where marked as default iterator, it means __iter__() does the right
+thing so you can for instance use <code>for term in document</code> to
+iterate over terms in the Document):
+</p>
+
+<table title="Python iterators">
+<thead><td>Class</td><td>Method</td><td>Equivalent to</td><td>Iterator type</td></thead>
+<tr><td><code>MSet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>MSetIter</code></td></tr>
+<tr><td><code>ESet</code></td><td>default iterator</td><td><code>begin()</code></td><td><code>ESetIter</code></td></tr>
+<tr><td><code>Enquire</code></td><td><code>matching_terms()</code></td><td><code>get_matching_terms_begin()</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Query</code></td><td>default iterator</td><td><code>get_terms_begin()</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>allterms()</code></td><td><code>allterms_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>postlist(tname)</code></td><td><code>postlist_begin(tname)</code></td><td><code>PostingIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>termlist(docid)</code></td><td><code>termlist_begin(docid)</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>Database</code></td><td><code>positionlist(docid, tname)</code></td><td><code>positionlist_begin(docid, tname)</code></td><td><code>PositionIter</code></td></tr>
+<tr><td><code>Document</code></td><td><code>values()</code></td><td><code>values_begin()</code></td><td><code>ValueIter</code></td></tr>
+<tr><td><code>Document</code></td><td><code>termlist()</code></td><td><code>termlist_begin()</code> (also as default iterator)</td><td><code>TermIter</code></td></tr>
+<tr><td><code>QueryParser</code></td><td><code>stoplist()</code></td><td><code>stoplist_begin()</code></td><td><code>TermIter</code></td></tr>
+<tr><td><code>QueryParser</code></td><td><code>unstemlist(tname)</code></td><td><code>unstem_begin(tname)</code></td><td><code>TermIter</code></td></tr>
+</table>
+
+<p>
+The Pythonic iterators will all return lists representing the appropriate item when their <code>next()</code> method is called, except PositionIter which just returns a single value:
+</p>
+
+<table>
+<thead><td>Class</td><td>Returns</td></thead>
+<tr><td><code>MSetIter</code></td><td>[docid, weight, rank, percentage, document]</td></tr>
+<tr><td><code>ESetIter</code></td><td>[termname, weight]</td></tr>
+<tr><td><code>TermIter</code></td><td>[term, wdf, termfreq, position iterator]</td></tr>
+<tr><td><code>PostingIter</code></td><td>[docid, doclength, wdf, position iterator]</td></tr>
+<tr><td><code>PositionIter</code></td><td>termpos</td></tr>
+<tr><td><code>ValueIter</code></td><td>[valueno, value]</td></tr>
+</table>
+   
+<h2>MSet</h2>
+
+<p>
+   MSet objects have some additional methods to simplify access (these
+   work using the C++ array dereferencing):
+</p>
+
+<table title="MSet additional methods">
+<thead><td>Method name</td><td>Explanation</td></thead>
+<tr><td><code>get_hit(index)</code></td><td>returns MSetIterator at index</td></tr>
+<tr><td><code>get_document_percentage(index)</code></td><td><code>convert_to_percent(get_hit(index))</code></td></tr>
+<tr><td><code>get_document(index)</code></td><td><code>get_hit(index).get_document()</code></td></tr>
+<tr><td><code>get_document_id(index)</code></td><td><code>get_hit(index).get_docid()</code></td></tr>
+</table>
+
+<p>
+Additionally, the MSet has a property, <code>mset.items</code>, which returns a
+list of tuples representing the MSet; this may be more convenient than using
+the MSetIterator. The members of the tuple are as follows.
+</p>
+
+<table title="MSet.items member members">
+<thead><td>Index</td><td>Contents</td></thead>
+<tr><td><code>xapian.MSET_DID</code></td><td>Document id</td></tr>
+<tr><td><code>xapian.MSET_WT</code></td><td>Weight</td></tr>
+<tr><td><code>xapian.MSET_RANK</code></td><td>Rank</td></tr>
+<tr><td><code>xapian.MSET_PERCENT</code></td><td>Percentage weight</td></tr>
+</table>
+
+<p>
+Two MSet objects are equal if they have the same number and maximum possible
+number of members, and if every document member of the first MSet exists at the
+same index in the second MSet, with the same weight.
+</p>
+
+<h2>ESet</h2>
+
+<p>
+The ESet has a property, <code>eset.items</code>, which returns a list of
+tuples representing the ESet; this may be more convenient than using the
+ESetIterator. The members of the tuple are as follows.
+</p>
+
+<table title="ESet.items member members">
+<thead><td>Index</td><td>Contents</td></thead>
+<tr><td><code>xapian.ESET_TNAME</code></td><td>Term name</td></tr>
+<tr><td><code>xapian.ESET_WT</code></td><td>Weight</td></tr>
+</table>
+
+<h2>Database Factory Functions</h2>
+
+<ul>
+<li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian.open_stub()</code>
+<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian.quartz_open()</code>
+<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian.inmemory_open()</code>
+<li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian.remote_open()</code> (only
+the TCP version is currently wrapped, the "program" version isn't).
+</ul>
+
+<h2>Query</h2>
+
+<p>
+   In C++ there's a Xapian::Query constructor which takes a query operator and
+   start/end iterators specifying a number of terms or queries, plus an optional
+   parameter.  In Python, this is wrapped to accept any Python sequence (for
+   example a list or tuple) to give the terms/queries, and you can specify
+   a mixture of terms and queries if you wish.  For example:
+</p>
+
+<pre>
+   subq = xapian.Query(xapian.Query.OP_AND, "hello", "world")
+   q = xapian.Query(xapian.Query.OP_AND, [subq, "foo", xapian.Query("bar", 2)])
+</pre>
+
+<h2>Enquire</h2>
+
+<p>
+   There is an additional method <code>get_matching_terms()</code> which takes
+   an MSetIterator and returns a list of terms in the current query which
+   match the document given by that iterator.  You may find this
+   more convenient than using the TermIterator directly.
+</p>
+
+<h2>MatchDecider</h2>
+
+<p>
+Custom MatchDeciders can be created in Python; simply subclass
+xapian.MatchDecider, ensure you call the super-constructor, and define a
+__call__ method that will do the work. The simplest example (which does nothing
+useful) would be as follows:
+</p>
+
+<pre>
+class mymatcher(xapian.MatchDecider):
+  def __init__(self):
+    xapian.MatchDecider.__init__(self)
+
+  def __call__(self, doc):
+    return 1
+</pre>
+
+<address>
+Last updated $Date$
+</address>
+</body>
+</html>

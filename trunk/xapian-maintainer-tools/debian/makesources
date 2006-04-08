@@ -1,0 +1,375 @@
+#!/bin/sh -x
+# Make Debian source packages from a xapian source tree.
+#
+# Copyright (C) 2004 Richard Boulton
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA
+
+# Usage: ./makesources [COMPONENT]
+# COMPONENT defaults to "stable".
+# Currently, the only sensible alternate value is "unstable".
+
+set -e
+
+# Set this to the tag of a snapshot build, or empty to build the latest
+# release.
+# FIXME - snapshot builds are currently broken.  This should be fixed and
+# integrated with nightly snapshot generation.
+SNAPSHOT=
+#SNAPSHOT=trunk
+
+# Debian component to build for (libc version being the most important factor)
+# This will be overridden by $1, if set.
+COMPONENT=stable
+
+# Options to pass to dpkg-buildpackage when building source packages
+BUILDPACKAGE_SRC_OPTS="-us -uc -d -S"
+# Options to pass to dpkg-buildpackage when building binary packages
+BUILDPACKAGE_BIN_OPTS="-us -uc -d -b"
+
+# Location to place the generated apt repository
+PUBDIR="/usr/data/www/xapian.org/debian"
+
+
+## Items after this point should not normally need to be modified
+
+# Location to checkout source from.
+SVNROOT="svn+ssh+userv://xapian-svn@svn.xapian.org/xapian/"
+
+# Location to download tarballs from
+DOWNLOAD_BASE="http://www.oligarchy.co.uk/xapian/"
+
+## BEGIN PROCESSING ##
+trap "echo \"makedebs failed\"" EXIT
+
+# Get the component specified by the user.
+if [ "x$1" != "x" ] ; then
+  COMPONENT=$1
+fi
+
+# Check that the component is sane.
+case $COMPONENT in
+  (breezy)
+    echo "Building for $COMPONENT" ;;
+  (stable)
+    echo "Building for $COMPONENT" ;;
+  (unstable)
+    echo "Building for $COMPONENT" ;;
+  (*)
+    echo "Component \"$COMPONENT\" not known - try \"stable\" or \"unstable\""
+    exit 1
+    ;;
+esac
+
+# Determine the architecture we're building on
+DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
+
+# Detect if we're on the machine that Xapian SVN is held on, and don't use
+# network to check out sources if so.
+if [ "x`hostname`" == "xixion" ] ; then
+  if [ -r '/home/xapian-svn' ] ; then
+    SVNROOT="svn+xapian:///xapian/"
+  fi
+fi
+
+# Calculate the version which we're building.
+
+# $VERSION holds the version number as defined in configure.in.
+# $EXTRA_VERSION_UPSTREAM holds a suffix to be added to the upstream
+# version number (empty when building a release)
+# $EXTRA_VERSION_DEBIAN holds a suffix to be added to the debian
+# version number (empty when building for the current distribution)
+# $SVNTAG hold the SVN tag to use to check out Xapian sources
+
+# If we are building a version other than that specified in the
+# debian control file, we need to make an entry in the debian changelog.
+# $CHANGE_MSG holds the message to put in the entry.
+
+# If we failed to parse the tag into a version number, we are not building
+# a tagged release.  We will therefore have to get the version number from
+# the source code.
+if [ "x$SNAPSHOT" != "x" ] ; then
+  VERSION="`svn cat ${SVNROOT}/$SNAPSHOT/xapian-core/configure.ac | grep AC_INIT | head -n 1 | sed 's/^.*xapian-core, \([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)[^0-9].*$/\1.\2.\3/g'`"
+  SVNTAG="$SNAPSHOT"
+  # For now, append the current date to snapshot builds.
+  # FIXME - should use the date of last modification to the snapshot, or the revision number of the snapshot.
+  EXTRA_VERSION_UPSTREAM=".`date '+%Y%m%d'`"
+  CHANGE_MSG="  * Snapshot build.
+"
+else
+  VERSION="`svn cat ${SVNROOT}/trunk/xapian-core/configure.ac | grep AC_INIT | head -n 1 | sed 's/^.*xapian-core, \([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)[^0-9].*$/\1.\2.\3/g'`"
+  SVNTAG="tags/$VERSION"
+  EXTRA_VERSION_UPSTREAM=""
+  EXTRA_VERSION_DEBIAN=""
+  CHANGE_MSG=""
+fi
+
+# Calculate CVS tags to use to check out Debian control files
+DEBTAG_BASE="debian-"
+DEBTAG_CORE="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-core/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
+DEBTAG_BINDINGS="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-bindings/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
+DEBTAG_OMEGA="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-applications/omega/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
+
+# If we're building for anything other than the stable distribution, we need to
+# add a bit to the debian version number, to avoid conflicts with the package
+# in stable.  We add "99$COMPONENT" since it should sort before any other
+# modification.
+if [ "x$COMPONENT" != "xstable" ] ; then
+  EXTRA_VERSION_DEBIAN=".99$COMPONENT"
+  CHANGE_MSG="$CHANGE_MSG  * Built for $COMPONENT distribution.
+"
+fi
+
+# $SNAP_VERSION will be set to "$VERSION$EXTRA_VERSION_UPSTREAM"
+# (and will therefore be identical to $VERSION when building a release).
+SNAP_VERSION="$VERSION$EXTRA_VERSION_UPSTREAM"
+
+# Finish the contents of the changelog entry, if one is to be made.
+if [ "x$CHANGE_MSG" != "x" ] ; then
+  CHANGE_MSG="
+$CHANGE_MSG
+ -- Richard Boulton <richard@tartarus.org>  `822-date`
+"
+fi
+
+# Checkout debian control files from SVN
+rm -rf control
+mkdir -p control
+cd control
+  svn co -q ${SVNROOT}/tags/${DEBTAG_CORE}/xapian-core xapian-core
+  svn co -q ${SVNROOT}/tags/${DEBTAG_BINDINGS}/xapian-bindings xapian-bindings
+  svn co -q ${SVNROOT}/tags/${DEBTAG_OMEGA}/xapian-omega xapian-omega
+cd ..
+
+# TARGETDIR is the location that all generated files will be stored in.
+if [ "x$EXTRA_VERSION_UPSTREAM" == "x" ] ; then
+  TARGETDIR="dists/$COMPONENT/main"
+else
+  TARGETDIR="dists/$COMPONENT/snapshot"
+fi
+SRCDIR="$TARGETDIR/source"
+POOLDIR="pool/$VERSION"
+mkdir -p "$PUBDIR/$SRCDIR"
+
+# Calculate location that tarballs should be found at
+TARBALL_CORE="${PUBDIR}/${POOLDIR}/source/xapian-core_${SNAP_VERSION}.orig.tar.gz"
+TARBALL_BINDINGS="${PUBDIR}/${POOLDIR}/source/xapian-bindings_${SNAP_VERSION}.orig.tar.gz"
+TARBALL_OMEGA="${PUBDIR}/${POOLDIR}/source/xapian-omega_${SNAP_VERSION}.orig.tar.gz"
+
+# Download tarballs, if we don't already have some
+if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ];
+then
+  # Distribution tarballs all exist
+  true
+else
+  URL_CORE="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-core-${SNAP_VERSION}.tar.gz"
+  URL_BINDINGS="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-bindings-${SNAP_VERSION}.tar.gz"
+  URL_OMEGA="${DOWNLOAD_BASE}/${SNAP_VERSION}/omega-${SNAP_VERSION}.tar.gz"
+
+  # Make download directory
+  rm -rf downloads
+  mkdir -p downloads
+  cd downloads
+    wget -q ${URL_CORE}
+    wget -q ${URL_BINDINGS}
+    wget -q ${URL_OMEGA}
+
+    # Omega package isn't named with a xapian- prefix, so unpack it, rename it,
+    # and repack it with the prefix.
+    tar zxf "omega-${SNAP_VERSION}.tar.gz"
+    mv "omega-${SNAP_VERSION}" "xapian-omega-${SNAP_VERSION}"
+    tar zcf "xapian-omega-${SNAP_VERSION}.tar.gz" "xapian-omega-${SNAP_VERSION}"
+
+    # If we've got all the packages, move them into place.
+    if [ -e "xapian-core-${SNAP_VERSION}.tar.gz" -a \
+         -e "xapian-bindings-${SNAP_VERSION}.tar.gz" -a \
+         -e "xapian-omega-${SNAP_VERSION}.tar.gz" ];
+    then
+      # Make source directory
+      mkdir -p "${PUBDIR}/${POOLDIR}/source"
+
+      mv "xapian-core-${SNAP_VERSION}.tar.gz" ${TARBALL_CORE};
+      mv "xapian-bindings-${SNAP_VERSION}.tar.gz" ${TARBALL_BINDINGS};
+      mv "xapian-omega-${SNAP_VERSION}.tar.gz" ${TARBALL_OMEGA};
+    fi
+  cd ..
+  rm -rf downloads
+fi
+
+# Make tarballs, if we still don't have some
+if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ];
+then
+  # Distribution tarballs all exist
+  true
+else
+  # Make source directory
+  mkdir -p "${PUBDIR}/${POOLDIR}/source"
+
+  # Checkout original packages from SVN
+  rm -rf origsrc
+  mkdir -p origsrc
+  cd origsrc
+    svn co ${SVNROOT}/${SVNTAG}/ xapian
+    cd xapian
+      ./bootstrap
+      ./configure --enable-maintainer-mode
+      if [ -e ${TARBALL_CORE} ]; then true; else
+        cd xapian-core
+	  make dist
+	  if [ $VERSION != $SNAP_VERSION ] ; then
+	    rm -rf distdir
+	    mkdir -p distdir
+	    tar zxf xapian-core-${VERSION}.tar.gz
+	    mv xapian-core-${VERSION} xapian-core-${SNAP_VERSION}
+	    tar zcf xapian-core-${SNAP_VERSION}.tar.gz xapian-core-${SNAP_VERSION}
+	  fi
+	  cp xapian-core-${SNAP_VERSION}.tar.gz ${TARBALL_CORE}
+	cd ..
+      fi
+      if [ -e ${TARBALL_BINDINGS} ]; then true; else
+        cd xapian-bindings
+	  # We have to invoke automake here because otherwise what looks like
+	  # a bug in autoreconf causes the generated Makefile.in to miss
+	  # depcomp from the list of files to include in distributions.
+	  # Running automake explicitly works around the problem.
+	  automake
+	  make dist
+	  if [ $VERSION != $SNAP_VERSION ] ; then
+	    rm -rf distdir
+	    mkdir -p distdir
+	    tar zxf xapian-bindings-${VERSION}.tar.gz
+	    mv xapian-bindings-${VERSION} xapian-bindings-${SNAP_VERSION}
+	    tar zcf xapian-bindings-${SNAP_VERSION}.tar.gz xapian-bindings-${SNAP_VERSION}
+	  fi
+	  cp xapian-bindings-${SNAP_VERSION}.tar.gz ${TARBALL_BINDINGS}
+	cd ..
+      fi
+      if [ -e ${TARBALL_OMEGA} ]; then true; else
+        cd xapian-applications/omega
+	  make dist
+	  rm -rf distdir
+	  mkdir -p distdir
+	  tar zxf omega-${VERSION}.tar.gz
+	  mv omega-${VERSION} xapian-omega-${SNAP_VERSION}
+	  tar zcf xapian-omega-${SNAP_VERSION}.tar.gz xapian-omega-${SNAP_VERSION}
+	  cp xapian-omega-${SNAP_VERSION}.tar.gz ${TARBALL_OMEGA}
+	cd ../..
+      fi
+    cd ..
+  cd ..
+  rm -rf origsrc
+fi
+
+# Unpack distribution tarballs, and put the debian control files into place,
+# and build source packages
+rm -rf build
+mkdir -p build
+cd build
+  # Build packages from xapian-core
+  cp -a ${TARBALL_CORE} .
+  tar zxf ${TARBALL_CORE}
+  cd xapian-core-${SNAP_VERSION}
+    mkdir -p debian
+    cp -af ../../control/xapian-core/* debian/
+    rm -rf debian/.svn
+    if [ "x$CHANGE_MSG" != "x" ] ; then
+      head -n 1 debian/changelog | sed "s/(\([^-]*\)\(.*\)).*$/(\1$EXTRA_VERSION_UPSTREAM\2$EXTRA_VERSION_DEBIAN) unstable; urgency=low/" > debian/changelog.new
+      echo "$CHANGE_MSG" >> debian/changelog.new
+      cat debian/changelog >> debian/changelog.new
+      mv debian/changelog.new debian/changelog
+    fi
+
+    debian/rules # Generates generate control from control.in
+    fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
+  cd ..
+
+  # Build packages from xapian-bindings
+  cp -a ${TARBALL_BINDINGS} .
+  tar zxf ${TARBALL_BINDINGS}
+  cd xapian-bindings-${SNAP_VERSION}
+    mkdir -p debian
+    cp -af ../../control/xapian-bindings/* debian/
+    rm -rf debian/.svn
+    if [ "x$CHANGE_MSG" != "x" ] ; then
+      head -n 1 debian/changelog | sed "s/(\([^-]*\)\(.*\)).*$/(\1$EXTRA_VERSION_UPSTREAM\2$EXTRA_VERSION_DEBIAN) unstable; urgency=low/" > debian/changelog.new
+      echo "$CHANGE_MSG" >> debian/changelog.new
+      cat debian/changelog >> debian/changelog.new
+      mv debian/changelog.new debian/changelog
+    fi
+    if [ -r debian/patch ]; then
+      patch -p0 <debian/patch
+    fi
+    echo "$COMPONENT" >debian/component
+    debian/rules # Generates control from control.in and control-python.in
+    fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
+  cd ..
+
+  # Build packages from xapian-omega
+  cp -a ${TARBALL_OMEGA} .
+  tar zxf ${TARBALL_OMEGA}
+  cd xapian-omega-${SNAP_VERSION}
+    mkdir -p debian
+    cp -af ../../control/xapian-omega/* debian/
+    rm -rf debian/.svn
+    if [ "x$CHANGE_MSG" != "x" ] ; then
+      head -n 1 debian/changelog | sed "s/(\([^-]*\)\(.*\)).*$/(\1$EXTRA_VERSION_UPSTREAM\2$EXTRA_VERSION_DEBIAN) unstable; urgency=low/" > debian/changelog.new
+      echo "$CHANGE_MSG" >> debian/changelog.new
+      cat debian/changelog >> debian/changelog.new
+      mv debian/changelog.new debian/changelog
+    fi
+    fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
+  cd ..
+
+# Leave the build directory
+cd ..
+
+# Create source package repository
+src_files="build/xapian*.dsc build/xapian*.diff.gz build/xapian*.changes build/xapian*.tar.gz"
+rm -rf "upload-sources"
+mkdir -p "upload-sources/$SRCDIR"
+mkdir -p "upload-sources/${POOLDIR}/source"
+mkdir -p "upload-sources/${POOLDIR}/binary"
+mv $src_files upload-sources/${POOLDIR}/source
+cat >upload-sources/$SRCDIR/Release <<EOF
+Archive: $COMPONENT
+Component: main
+Origin: Xapian
+Label: Xapian
+Architecture: source
+EOF
+cd upload-sources
+  dpkg-scansources . /dev/null | gzip -9 > $SRCDIR/Sources.gz
+cd ..
+
+# Check that I own all files in $PUBDIR
+for file in `find "${PUBDIR}" -type f -and -not -user richard`;
+do
+  cp "${file}" "${file}_";
+  mv "${file}_" "${file}";
+done
+
+# Upload to $PUBDIR
+mkdir -p ${PUBDIR}
+chgrp -R xapian upload-sources/*
+chmod -R g+w upload-sources/*
+cp -af upload-sources/* ${PUBDIR}
+chgrp -R xapian ${PUBDIR}/*
+chmod -R g+w ${PUBDIR}/*
+
+# Source packages are now generated and uploaded.
+
+trap EXIT
+echo "Made Debian source packages for $COMPONENT successfully"

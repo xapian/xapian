@@ -1,0 +1,40 @@
+Basic instructions:
+===================
+
+1.      Use omindex to build an index of your website:
+
+$ ./omindex --db DBPATH --url / WEBPATH
+
+Where DBPATH is where you want the database, such as
+/var/lib/omega/data/default and WEBPATH is the directory containing
+all your web documents - e.g. /var/www.
+
+To start off with, it is advisable to have the final directory of the
+database be called 'default'. This is what Omega expects, although it
+can be changed once you've got things going.
+
+2.      Edit omega.conf:
+
+This contains 3 settings, written one per line as "<SETTING> <VALUE>":
+
+* database_dir - this should point to the directory containing your database,
+  such as /var/lib/omega/data (it should contain the 'default' directory
+  that is the actual database you indexed to above).
+
+* template_dir - where the templates are - e.g. /var/lib/omega/templates
+
+* log_dir - the directory which the omegascript $log command writes log files
+  to - e.g. /var/log/omega
+
+3.      Test omega from the command line:
+
+$ ./omega 'P=my search terms' HITSPERPAGE=10
+
+You then get a large-ish HTML file.  This is the test mode - useful for
+checking that everything works independent of your webserver configuration.
+To actually use omega, you should install it as a CGI by copying or
+linking the omega executable into your cgi-bin directory.
+
+For more information, see overview.txt.  Descriptions of the CGI parameters
+which omega accepts are in cgiparams.txt; omegascript.txt describes the
+OmegaScript language used to control the format of omega's output.

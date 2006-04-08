@@ -1,0 +1,2214 @@
+Sat Apr 08 20:09:39 BST 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.9.5.
+
+Sat Apr 08 20:08:07 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Disable "--with-guile" option.
+
+Fri Apr 07 22:54:54 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Special case setting of compiler warnings to account
+	  for Intel's C++ compiler (which configure detects as GCC.
+
+Fri Apr 07 17:33:39 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Distribute HACKING.
+
+Fri Apr 07 17:31:40 BST 2006  Olly Betts <olly@survex.com>
+
+	* HACKING,README: Split off HACKING to contain information which is
+	  only relevant to those wishing to modify the bindings.
+
+Fri Apr 07 16:49:37 BST 2006  Olly Betts <olly@survex.com>
+
+	* java/run-java-test: Fix to work on platforms where LD_LIBRARY_PATH
+	  has a different name.
+
+Thu Apr 06 23:33:55 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simpleindex.php: Flushing after every call to
+	  WritableDatabase_add_document isn't required and will kill
+	  performance, so stop doing it.
+
+Wed Apr 05 03:42:58 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/util.i: Add custom typemap for SWIGTYPE& to avoid SEGV when
+	  "Null" is passed where C++ wants an object passed by reference.
+	  Fixes bug#74.
+
+Wed Apr 05 03:06:07 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simpleindex.php: Lowercase terms before stemming.
+	  Fixes bug#73.
+
+Wed Apr 05 00:48:00 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Require SWIG 1.3.29.
+
+Tue Apr 04 22:05:37 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Added regression test to make sure that overload
+	  resolution involving boolean types works.
+
+Tue Apr 04 16:41:44 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrap Enquire::set_sort_by_relevance_then_value().
+
+Sun Apr 02 03:11:38 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Pass suitable SWIG optimisation options for
+	  olde bindings.
+	* python/Makefile.am,xapian.i: Exclude pythonic iterator code from
+	  olde bindings.
+
+Sat Apr 01 16:34:32 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html,python/smoketest.py: Pythonic iterators
+	  require Python 2.2 or newer.
+
+Thu Mar 30 15:32:44 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html: Wrap unwrapped paragraphs.  Use " to
+	  quote attribute values for consistency.
+	  
+Thu Mar 30 15:26:21 BST 2006  James Aylett <james@tartarus.org>
+
+	* python/docs/bindings.html: Document the Pythonic iterators.
+
+Thu Mar 30 15:23:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Database's termlist iterator now supports positions.
+
+Tue Mar 28 21:58:21 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Use "%{_libdir}" instead of "/usr/lib" for
+	  Python bindings.  Add package for C# bindings.
+
+Thu Mar 16 08:15:43 GMT 2006  Olly Betts <olly@survex.com>
+
+	* php/util.i: Fix handling of bool parameters when resolving
+	  overloaded methods and/or default arguments.  This fixes
+	  Enquire_sort_by_value() to work when the second argument
+	  is specified.
+
+Thu Mar 16 02:48:16 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Fix TermIter not to try to read termfreqs or
+	  positions when they aren't meaningful for the current TermIter.
+	* python/smoketest.py: Add feature tests for the various pythonic
+	  iterator wrappers; catch Exception objects and print them.
+
+Wed Mar 15 02:21:53 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py: If a check fails, write a diagnostic message to
+	  stderr so we know which check it was!
+
+Wed Mar 15 01:41:40 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py: Add feature test for MSetIter.
+
+Thu Mar 09 20:11:32 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java,java/native/Query.cc,
+	  java/native/org_xapian_XapianJNI.h,java/org/xapian/Query.java,
+	  java/org/xapian/XapianJNI.java: Add a new Query constructor
+	  wrapper which take an OP_xxx and an array of Query objects.
+	* java/org/xapian/Makefile.am,java/org/xapian/errors/Makefile.am:
+	  Compiling a .java file to a .class file now deletes the .jar file
+	  to ensure it gets updated.
+
+Thu Mar 09 20:08:17 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/README: Note that some platforms need "-pthread" or similar
+	  flags.
+
+Thu Mar 09 17:50:51 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs,xapian.i: Rename Database::GetDoccount() to
+	  Database::GetDocCount() for consistency.
+
+Thu Mar 09 14:57:20 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am: Use JAVA_PATHSEP when specifying the classpath for
+	  compiling .java files to .class files.
+
+Thu Mar 09 06:12:44 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/README,java/native/Makefile.am,java/run-java-test: Causing the
+	  "all" target to run the "install" target seems to be very
+	  problematic, so change "make check" to use the uninstalled JNI glue
+	  library, and update the instructions to say that "make install" is
+	  now required.
+
+Thu Mar 09 05:16:19 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/XapianObjectHolder.h,java/native/xapian_jni.h: Rework
+	  how we include headers to get hash_map to avoid compiler warnings
+	  since it's usually not in the std namespace nowadays.
+
+Wed Mar 08 23:39:34 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix poor English in comment.
+
+Wed Mar 08 22:49:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Write a helpful diagnostic to stderr if a check
+	  fails so we have some idea what went wrong!
+
+Tue Mar 07 04:30:45 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Use the fairly new "swig -O" option for the
+	  "modern" python bindings as it generates a smaller glue library
+	  and runs faster.
+
+Fri Mar 03 00:51:08 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Report which languages we're building bindings for
+	  just before configure finishes.
+
+Thu Mar 02 04:26:14 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add a better check for Python's distutils.sysconfig
+	  not being available (the previous check didn't actually work), and
+	  mention in the warning/error that we give that the solution is
+	  probably to install a python-dev or python-devel package.
+
+Thu Mar 02 02:45:00 GMT 2006  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am,php/php.ini: php -n avoids reading any php.ini, but
+	  the compiled in default may be to enable the dubiously named
+	  "safe_mode" which prevents dl() being used so "make check" fails.
+	  So instead provide a very simple php.ini which turns off safe_mode
+	  and makes sure enable_dl is on.
+
+Thu Feb 23 16:15:41 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Make the stub definitions for disabled backends static.
+
+Tue Feb 21 23:23:59 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Catch the case where the user has python installed
+	  but not the module "distutils.sysconfig".
+
+Tue Feb 21 23:02:18 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fix so "make check" works in VPATH builds.
+
+Tue Feb 21 21:15:10 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/,xapian.i: Override deprecation warnings for Xapian
+	  methods/functions/etc.
+
+Tue Feb 21 12:12:48 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Don't quote $PHP in AC_PATH_PROGS to avoid
+	  "checking for ... no" message.
+
+Tue Feb 21 00:19:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.9.4.
+
+Sun Feb 19 23:21:29 GMT 2006  Olly Betts <olly@survex.com>
+
+	* COPYING: Updated FSF address.
+
+Sun Feb 19 01:10:14 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrap Stopper::get_description().
+	* xapian.i: Wrap xapian_version_string() and related functions.
+	* python/smoketest.py: Test wrapping of xapian_version_string()
+	  and related functions.
+
+Sat Feb 18 15:35:06 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Actually, the windows special case code for PHP
+	  should *NOT* be active for cygwin too!
+
+Sat Feb 18 15:34:10 GMT 2006  Olly Betts <olly@survex.com>
+
+	* php/util.i: Fix so that generated code compiles with ZTS-enabled
+	  PHP (which is the default on Windows).
+
+Fri Feb 17 14:10:08 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,guile/Makefile.am,
+	  java/native/Makefile.am,php/Makefile.am,python/Makefile.am,
+	  tcl8/Makefile.am: If we're overriding MACOSX_DEPLOYMENT_TARGET
+	  then override it for commands run from "make" too.
+	* configure.ac: The windows special case code for PHP should be
+	  active for cygwin too.
+
+Thu Feb 16 00:11:00 GMT 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.9.3.
+	* php/Makefile.am: Missing change for trying to enable PHP bindings
+	  to build out of the box on cygwin.
+
+Wed Feb 15 23:18:22 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add missing ";;" on the last alternative in some
+	  case statements.
+	* configure.ac: Try to enable PHP bindings to build out of the
+	  box on cygwin (needs testing).
+
+Wed Feb 15 21:02:42 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/README: Updated the java TODO list.
+
+Tue Feb 14 17:13:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,guile/Makefile.am,
+	  java/native/Makefile.am,php/Makefile.am,python/Makefile.am,
+	  tcl8/Makefile.am: Only pass -no-undefined on platforms where it
+	  is required in order to link a shared library at all (it causes
+	  problems on MacOS X in some cases).
+
+Tue Feb 14 14:45:34 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py: Remove stray print statement left over from
+	  debugging.
+
+Tue Feb 14 14:37:15 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: zend_throw_exception takes a non-const char * as the
+	  message to throw.  Presumably it doesn't modify it, but there's
+	  no documentation so it's hard to be sure.  Just cast away the const
+	  for now.
+
+Tue Feb 14 14:22:35 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Change calls to AC_PATH_PROG(FOO, foo, ...)
+	  to AC_PATH_PROGS(FOO, [$FOO foo], ...) so that the user
+	  can do "./configure FOO=myfoo".  By itself, AC_PATH_PROG
+	  ignore an explicitly specified FOO unless it has an absolute
+	  path.
+
+Tue Feb 14 11:31:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Various updates, mostly from a patch by
+	  Fabrice Colin:
+	  + Automatically detect the python version.
+	  + Automatically detect the PHP extension directory.
+	  + Relax Tcl requirement to >= 8.1, since that's what we actually
+	    require.
+	  + Add support for "--without php" and --without tcl8" options to
+	    rpmbuild.
+	  + Rename "php4" references to "php".
+
+Tue Feb 14 09:21:52 GMT 2006  Olly Betts <olly@survex.com>
+
+	* php/util.i: In SWIG 1.3.28, the PHP typecheck for numbers includes
+	  IS_STRING so force std::string to have a higher priority so that
+	  number/string overloads can be resolved as string.  Fixes bug#68.
+
+Sun Feb 12 18:31:26 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Expanded smoketest to cover more features.
+
+Sun Feb 12 16:01:29 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/README: Note that the bindings work with the Eclipse javac
+	  and GIJ 4.0.1.
+
+Sun Feb 12 13:30:15 GMT 2006  Olly Betts <olly@survex.com>
+
+	* guile/util.i: Replace with a rewrite which doesn't cause SWIG
+	  warnings and is zero-byte safe.  The guile bindings are still
+	  a long way from actually working though.
+
+Sun Feb 12 12:31:21 GMT 2006  Olly Betts <olly@survex.com>
+
+	* README: SWIG 1.3.28 now released so change "will add" to "added".
+
+Sun Feb 12 07:30:50 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/Query.java: OP_* code 9 no longer exists, so add
+	  it to those rejected by the validity check.
+
+Sun Feb 12 07:28:11 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/Query.cc: Fixed memory leak in
+	  Query-from-array-of-strings constructor.
+
+Sun Feb 12 07:22:39 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/README: Add note about how wrapped methods are named.
+
+Sun Feb 12 07:13:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/org_xapian_XapianJNI.cc,java/native/utils.cc,
+	  java/native/xapian_jni.h: Eliminate the "_errormap" hashmap -
+	  we don't need to use RTTI here, since Xapian::Error subclasses
+	  can tell you their typename directly (using get_type()).
+
+Sat Feb 11 13:10:04 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/Query.java: Comment out no longer used nativeStuff
+	  and nativeOperator.
+
+Fri Feb 10 18:20:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/xapian_jni.h: Fix 2 typos in comments.
+
+Fri Feb 10 10:17:12 GMT 2006  Olly Betts <olly@survex.com>
+
+	* TODO: Update: SwigValueWrapper is no longer used for std::pair;
+	  CamelCase is now used for C#.
+	* Makefile.am: Ship TODO.
+	* README: Add reference to TODO.
+
+Fri Feb 10 08:15:54 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/Enquire.cc,java/native/org_xapian_XapianJNI.h,
+	  java/org/xapian/XapianJNI.java: Fix updated wrapper for
+	  Enquire::set_query.
+	* java/native/Enquire.cc: Clearer code in wrapper for
+	  Enquire::get_mset.
+	* java/org/xapian/Query.java: Commented out unused
+	  'import java.io.StringReader;'.
+
+Fri Feb 10 08:10:51 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs: Corrected TermlistCount -> TermListCount, etc.
+
+Fri Feb 10 08:10:12 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Fix compilation issues with recent changes.
+
+Fri Feb 10 08:06:26 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: SWIG CVS HEAD now generates the same .cs
+	  filenames for templates as 1.3.27 did, so remove workaround
+	  for handling both cases.
+
+Fri Feb 10 06:51:03 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/docs/: svn:ignore Makefile and Makefile.in.
+
+Fri Feb 10 06:49:07 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Require SWIG 1.3.28 (for automatic renaming to
+	  CamelCase for C#).
+
+Fri Feb 10 06:47:21 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: For C#, get_mset -> GetMSet; get_eset -> GetESet.
+	* csharp/SmokeTest.cs,csharp/docs/examples/SimpleIndex.cs,
+	  csharp/docs/examples/SimpleSearch.cs,csharp/util.i: Update
+	  for CamelCase changes.
+
+Fri Feb 10 06:33:10 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i,csharp/docs/bindings.html: Rename method names to
+	  CamelCase for C#.
+
+Thu Feb 09 20:41:28 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Tidy up new exception handling code.
+	* xapian.i: Add "%template() std::pair<Xapian::TermIterator,
+	  Xapian::TermIterator>;" which stops SWIG from using SwigValueWrapper
+	  on that type.
+
+Thu Feb 09 20:18:02 GMT 2006  Olly Betts <olly@survex.com>
+
+	* .: svn:ignore xapian-version.h.
+
+Wed Feb 08 15:24:23 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Fix typo in exception throwing code for PHP5.
+
+Fri Feb 03 03:15:02 GMT 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,php/util.i,xapian-version.h.in: Put our
+	  PACKAGE_VERSION into xapian-version.h so we can #include that from
+	  php/util.i without clashing with PACKAGE_VERSION, etc defined by
+	  php_config.h.
+
+Thu Jan 12 19:51:52 GMT 2006  Olly Betts <olly@survex.com>
+
+	* TODO: Updated.
+
+Thu Jan 12 17:23:23 GMT 2006  Olly Betts <olly@survex.com>
+
+	* INSTALL: Note that compile time (and probably memory usage) are much
+	  reduced in 0.9.3.
+
+Thu Jan 12 17:18:10 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Pull out much of the common exception handling code into
+	  a helper function, drastically reducing the size of the compiled
+	  code for other languages like I recently did for tcl.
+
+Thu Jan 12 15:28:16 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: "import _xapian;" before we "import xapian;" to
+	  avoid creating a broken xapian.pyc is the shared library can't be
+	  loaded for some reason.
+
+Fri Jan 06 00:30:50 GMT 2006  Olly Betts <olly@survex.com>
+
+	* php/util.i: Fix so that PACKAGE_VERSION is defined when compiling
+	  the SWIG generated C++ source code.
+
+Thu Jan 05 18:29:20 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: SWIG/Tcl ignores the SWIG_XXXError code passed to
+	  SWIG_exception so special-case Tcl's %exception block to only
+	  look for the Xapian::Error baseclass.  This cuts the compile
+	  time by about a factor of 3 and halves the size of the stripped
+	  library!
+
+Wed Jan 04 20:21:39 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Include default constructors for all classes so that SWIG
+	  knows it doesn't have to use SwigValueWrapper for them.
+
+Tue Jan 03 01:56:32 GMT 2006  Olly Betts <olly@survex.com>
+
+	* README: Note that bindings for additional languages need a
+	  smoketest, documentation, and examples.
+
+Tue Jan 03 01:48:29 GMT 2006  Olly Betts <olly@survex.com>
+
+	* TODO: Updated.
+
+Tue Jan 03 01:45:11 GMT 2006  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html,php/smoketest.php,xapian.i: Translate Xapian
+	  exceptions to PHP exceptions for PHP5.  For PHP4, handle
+	  DocNotFoundError and FeatureUnavailableError by issuing a warning
+	  and making the method return "Null".
+
+Tue Jan 03 01:41:11 GMT 2006  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simplesearch.php: Use newly wrapped Query from
+	  list constructor.
+
+Tue Jan 03 01:40:24 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simpleindex.tcl: Fix typo in comment.
+	* tcl8/docs/examples/simplesearch.tcl: Fix to lowercase and stem query
+	  terms.
+
+Mon Jan 02 23:40:04 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simpleindex.tcl,
+	  tcl8/docs/examples/simplesearch.tcl: Need explicit "xapian::" on
+	  constants.
+	* tcl8/docs/examples/simplesearch.tcl: Use the new Query from list
+	  constructor.
+	* tcl8/docs/examples/simpleindex.tcl: Tweak regex to not tokenise
+	  "foo--bar" as "foo-" and "bar".
+	* tcl8/smoketest.tcl: Removed commented out unused line.
+
+Mon Jan 02 23:25:48 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/bindings.html,tcl8/smoketest.tcl,tcl8/util.i,xapian.i:
+	  Implement custom typemaps for Tcl, so that you can now construct
+	  a Query from a list of Query objects and/or strings, and
+	  Enquire::get_matching_terms is now wrapped.
+
+Mon Jan 02 18:59:21 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,php/docs/Makefile.am,php/docs/examples/Makefile.am,
+	  python/docs/Makefile.am,python/docs/examples/Makefile.am,
+	  tcl8/docs/Makefile.am,tcl8/docs/examples/Makefile.am: Eliminate
+	  separate Makefile in each examples subdirectory, which makes the
+	  build system simpler, smaller, and a little faster.
+
+Mon Jan 02 18:57:47 GMT 2006  Olly Betts <olly@survex.com>
+
+	* README: Note that Python 2.0 and Tcl 8.0 wouldn't be too hard to
+	  support in case anyone is sufficiently motivated.
+
+Mon Jan 02 18:47:03 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/docs/Makefile.am: Fix path for SimpleIndex.cs; add
+	  SimpleSearch.cs.
+
+Mon Jan 02 18:12:59 GMT 2006  Olly Betts <olly@survex.com>
+
+	* README: C# bindings are now usable.
+
+Mon Jan 02 07:06:58 GMT 2006  Olly Betts <olly@survex.com>
+
+	* TODO,csharp/TODO: Move C# TODO to top level, update C# entries, and
+	  add entry for tcl.
+
+Mon Jan 02 07:05:05 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/docs/Makefile.am,csharp/docs/bindings.html,
+	  csharp/docs/examples/: Add C# examples.
+	* csharp/docs/bindings.html: Document the slightly odd names that
+	  constants are currently wrapped as.
+
+Mon Jan 02 06:49:48 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/util.i: Fixed to work!
+
+Mon Jan 02 02:48:35 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Don't use $(ASSEMBLY).cc for the generated C++
+	  source.  It doesn't work everywhere, so it's confusing to use it
+	  in just some places.
+	* csharp/util.i: Implement operator== and operator!= for the iterator
+	  classes so that comparisons with the end iterator work as expected.
+	* csharp/SmokeTest.cs: Add test for this.
+	* csharp/docs/bindings.html: Document.
+
+Sat Dec 31 14:15:41 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Removed another reference to
+	  SWIGTYPE_p_std__list_Tstd__string_t.
+
+Sat Dec 31 13:25:31 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: SWIGTYPE_p_std__list_Tstd__string_t.cs is no
+	  longer generated.
+
+Sat Dec 31 06:43:37 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove php/util.i from AC_CONFIG_FILES.
+
+Sat Dec 31 06:42:41 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py: Add more tests.
+
+Sat Dec 31 06:41:21 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add more tests.
+
+Sat Dec 31 06:40:24 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html: Update documentation to include new
+	  features.
+
+Sat Dec 31 06:39:17 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Clean up now php/util.i is no longer a generated
+	  file.
+
+Sat Dec 31 06:29:24 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/util.i,php/util.i.in: Generating php/util.i from configure
+	  is unnecessary and risks lost changes if you fail to notice
+	  and edit the wrong file, so stop doing it.  Redo Xapian section in
+	  phpinfo() to look more like most other modules; New PHP typemaps:
+	  you can now construct a Query object from an array of strings or
+	  Query objects (or a mixture).
+	* php/util.i,python/util.i,xapian.i: Change the %extend method
+	  Enquire::get_matching_terms() to generate the PHP/Python list
+	  directly from the TermIterator rather than constructing a
+	  temporary C++ std::list.
+	* python/util.i: Check for errors in more places.
+
+Sat Dec 31 06:17:56 GMT 2005  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/bindings.html: We've not implemented the typemaps
+	  which allow Enquire::get_matching_terms() to work yet, so
+	  comment out that section of the documentation.
+
+Sat Dec 31 06:15:55 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/TODO,csharp/docs/bindings.html: Note that we need to write
+	  the custom typemaps for Enquire::get_matching_terms() and the
+	  Query list constructors.
+
+Mon Dec 26 18:14:37 GMT 2005  Olly Betts <olly@survex.com>
+
+	* README: Added note about supported platforms.
+
+Sat Dec 24 15:10:53 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Added csharp/docs/Makefile to AC_CONFIG_FILES.
+
+Sat Dec 24 14:27:56 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/util.i.in: Remove language name from %typemap as it's deprecated
+	  by SWIG and not needed since we only include the appropriate util.i
+	  for the language we're building bindings for.
+
+Sat Dec 24 13:13:26 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/extra.i,guile/Makefile.am,guile/extra.i,
+	  php/Makefile.am,php/extra.i,python/util.i,tcl8/Makefile.am,
+	  tcl8/extra.i,xapian.i: Eliminate all the empty extra.i files.
+	  Python's isn't empty, but we can just include that from Python's
+	  util.i.
+
+Sat Dec 24 13:08:16 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/util.i,xapian.i: Make ++ and -- work on iterators.
+
+Sat Dec 24 12:21:59 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/TODO,csharp/docs/Makefile.am,
+	  csharp/docs/bindings.html: Added documentation for C# bindings.
+
+Thu Dec 22 23:31:40 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i: Comment out unused "get_py_int".  Use
+	  PyString_AsStringAndSize() to get string and size in one.
+
+Wed Dec 21 09:27:19 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Fix SWIG invocation rule to cope with either
+	  SWIG 1.3.27 or SWIG CVS HEAD (which uses a slightly different file
+	  naming convention for templates).
+
+Wed Dec 21 09:04:54 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i: Remove the language name from the %typemap arguments
+	  - it's superfluous (since we only include this file for python) and
+	  seems to be deprecated in SWIG.
+
+Tue Dec 20 20:40:57 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i: Test return value of SWIG_ConvertPtr < 0 for
+	  consistency with usage elsewhere.
+
+Tue Dec 20 16:51:49 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs,csharp/TODO: SWIG now supports optional
+	  parameters in C# so no need to specify them.  Also the
+	  get_description() problem I noticed seems to have been
+	  fixed by a newer version of SWIG.
+
+Tue Dec 20 15:50:41 GMT 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Added a missing ";" and two missing "static" from the
+	  previous change.
+
+Tue Dec 20 13:05:07 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/: svn:ignore SmokeTest.exe, and adjust other ignores to be
+	  more specific.
+	* csharp/Makefile.am,csharp/SmokeTest.cs,csharp/TODO,xapian.i:
+	  SmokeTest now passes and reports exceptions verbosely.
+	  Xapian::InMemory::open() is wrapped as Xapian.InMemory.open(), and
+	  similarly for other database factory functions.
+	* xapian.i: Removed workaround for SWIG 1.3.22's missing std_XXX.i
+	  typemap files for C#.  Added workaround for SWIG 1.3.27's missing
+	  SWIG_exception() for C#.  Stop renaming methods for PHP as it now
+	  support overloading.  Add dtors for MSetIterator and ESetIterator
+	  as the classes do have them (they just do nothing) and SWIG will
+	  try to wrap the default ones anyway (and get it slightly wrong).
+
+Tue Dec 20 09:48:56 GMT 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Heed compatibility warnings and use different
+	  forms for command-line switches to the C# compiler (presumably for
+	  compatibility with Microsoft's compiler, though the warnings don't
+	  actually say that explicitly).
+
+Mon Dec 19 12:51:19 GMT 2005  Olly Betts <olly@survex.com>
+
+	* tcl8/util.i: Remove typemaps for handling std::string since SWIG
+	  supplies those now.
+
+Mon Dec 19 11:45:39 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html,php/docs/examples/simpleindex.php: You aren't
+	  meant to call delete_CLASS() directly from PHP (and in fact it's
+	  usually not wrapped now).
+
+Mon Dec 19 11:37:16 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add feature tests for new Query wrapping stuff.
+
+Mon Dec 19 11:34:44 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i: Convert C++ strings to python ones in a zero-byte
+	  clean way.
+
+Mon Dec 19 11:01:31 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: If using GCC, compile the python
+	  bindings with -fno-strict-aliasing (python itself is compiled with
+	  this option to avoid problems and it appears we ought to use it too
+	  to avoid the same problems).
+
+Mon Dec 12 11:15:34 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/util.i.in: Use std::string::data() instead of c_str() as it may
+	  be more efficient for some implementations.
+
+Mon Dec 12 04:26:24 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix java separator configure test to actually work.
+
+Mon Dec 12 02:54:10 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,java/Makefile.am: Compile a small java program and
+	  run it to find what java wants as path separator in -classpath.
+
+Mon Dec 12 02:11:44 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am,java/run-java-test: Use $(PATH_SEPARATOR) to
+	  separate entries in the java -classpath command line option so
+	  that it'll work on platforms where $(PATH_SEPARATOR) isn't ":".
+
+Sun Dec 11 07:58:51 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i,xapian.i: Support a mixture of xapian.Query objects
+	  and strings in the python xapian.Query(OP, SEQUENCE [, PARAM])
+	  ctor.
+	* python/smoketest.py: Add feature test.
+	* python/docs/bindings.html: Update documentation to mention recent
+	  fixes/improvements.
+
+Sun Dec 11 07:31:21 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i,xapian.i: Fix wrapper for Xapian::Query ctor taking
+	  operator and list of strings, plus optional parameter to work again.
+	  Add a new wrapper which is similar but takes a list of xapian.query
+	  objects instead of strings.
+	* python/smoketest.py: Add regression test and feature test for
+	  the above changes.
+
+Thu Dec 08 03:39:25 GMT 2005  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/util.i: Tweak layout for better readability;
+	  Update FSF address.
+	* python/extra.i: Add vim modeline.
+
+Thu Dec 08 02:05:13 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simpleindex.php,
+	  php/docs/examples/simplesearch.php: Add a more useful error message
+	  if a database can't be opened; Fix inconsistent whitespace; Update
+	  FSF address.
+
+Thu Dec 08 01:58:04 GMT 2005  Olly Betts <olly@survex.com>
+
+	* INSTALL: Improved phrasing.
+	* NEWS: Added draft entry for next release.
+
+Wed Dec 07 02:46:53 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html: Fix typo.
+
+Wed Dec 07 02:42:51 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html: Fix typo; note that SWIG doesn't currently
+	  support proxy classes in PHP5.
+
+Wed Nov 30 00:22:33 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/README,java/native/Enquire.cc,java/org/xapian/Enquire.java:
+	  Wrap optional second parameter (query length) to
+	  Enquire::set_query().
+
+Tue Nov 29 04:31:44 GMT 2005  Olly Betts <olly@survex.com>
+
+	* README: Improved.
+
+Tue Nov 29 04:11:18 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,php/Makefile.am: Bump required SWIG version to 1.3.26
+	  and drop the special requirement for 1.3.22 for PHP (hurrah!)
+
+Tue Nov 29 03:46:40 GMT 2005  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am,php/php.ini: Instead of "$(PHP) -c $(srcdir)" and
+	  having an empty php.ini in srcdir (which we were failing to
+	  distribute anyway), use "$(PHP) -n" which tells PHP not to use any
+	  php.ini file.
+
+Tue Nov 29 00:48:06 GMT 2005  Olly Betts <olly@survex.com>
+
+	* README: Updated list of languages SWIG supports.
+
+Sun Oct 02 14:19:20 BST 2005  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Fixed "php4" -> "php" in DIST_SUBDIRS.
+
+Sun Oct 02 00:15:06 BST 2005  Olly Betts <olly@survex.com>
+
+	* INSTALL,configure.ac: Add -lstdc++ to XAPIAN_LIBS if we're using
+	  GCC.  OpenBSD needs it to be explicitly specified and libtool
+	  handles this if it would have been implicitly linked with anyway.
+	* INSTALL: Improved and expanded the text in a few places.
+
+Sat Oct 01 14:04:51 BST 2005  Olly Betts <olly@survex.com>
+
+	* README,configure.ac,php/,php4/: Fabrice Colin reports that the PHP4
+	  bindings also work with PHP5 so extend configure test to look for
+	  PHP5 too, rename "php4" directory to "php", and change other
+	  references to PHP4 too.
+
+Mon Sep 26 22:39:01 BST 2005  Olly Betts <olly@survex.com>
+
+	* INSTALL,configure.ac: On darwin, ensure MACOSX_DEPLOYMENT_TARGET is
+	  set to at least 10.3.  This is required to link the bindings, and
+	  it doesn't seem to be possible to link them on 10.1 or 10.2 anyway.
+	* INSTALL: Update to reflect --with and --without option changes.
+	* INSTALL: Added notes about OpenBSD issues and issues with compiling
+	  the bindings requiring a lot of memory.
+
+Mon Sep 19 13:19:59 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Change how which bindings to build are selected.  If
+	  no --with* arguments are passed, then we default to building
+	  bindings we detect the required tools for.  But instead of requiring
+	  users to deselect bindings they don't want, they now select bindings
+	  they do want.  So "./configure --with-python" will only build the
+	  python bindings (and will fail if the required tools aren't
+	  installed).
+
+Sun Sep 18 23:58:08 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,guile/Makefile.am,
+	  java/native/Makefile.am,php4/Makefile.am,python/Makefile.am,
+	  tcl8/Makefile.am: Rework how XAPIAN_CXXFLAGS is passed through
+	  so that the user can override CXXFLAGS like so: make CXXFLAGS=-g
+
+Fri Jul 15 11:12:13 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Updated for 0.9.2.
+
+Fri Jul 15 10:21:17 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Added semicolon missing from recent change.
+
+Fri Jul 15 02:15:10 BST 2005  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated for 0.9.2.
+
+Fri Jul 15 02:10:07 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Added wrappers for new optional flags argument to
+	  QueryParser::parse_query().
+
+Fri Jun 24 12:00:19 BST 2005  Olly Betts <olly@survex.com>
+
+	* java/README: Add success report for Sun java 1.4.1_01a.
+
+Fri Jun 24 11:13:03 BST 2005  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am: Actually distribute SmokeTest.java.
+
+Fri Jun 17 03:18:19 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: csharp build uses a tool from GNU Mono called "mcs"
+	  but some UNIX variants ship with a tool called "mcs" which does
+	  something else.  For now, simply check the "mcs --version" is
+	  understood.
+
+Thu Jun 16 19:12:41 BST 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i: When converting a python list to vector<string> we
+	  know the number of elements so reserve that number in the vector.
+
+Thu Jun 16 19:02:03 BST 2005  Olly Betts <olly@survex.com>
+
+	* python/util.i: Remove bogus ";" after closing "}" of "namespace {}".
+
+Mon Jun 06 18:50:54 BST 2005  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated for 0.9.1.
+
+Mon Jun 06 18:48:42 BST 2005  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/bindings.html: Added information from Michael Schlenker
+	  about how to delete a database object such that the destructor
+	  gets called.
+
+Mon Jun 06 17:58:16 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,NEWS: Updated for 0.9.1.
+
+Fri May 13 00:34:22 BST 2005  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated with Java information for 0.9.0.
+
+Fri May 13 00:29:31 BST 2005  Olly Betts <olly@survex.com>
+
+	* java/native/Query.cc,java/native/org_xapian_XapianJNI.h,
+	  java/org/xapian/Query.java,java/org/xapian/XapianJNI.java,
+	  java/README: Wrap optional parameters of Query(term) ctor.
+
+Fri May 13 00:26:24 BST 2005  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.9.0.
+
+Wed May 11 02:15:23 BST 2005  Olly Betts <olly@survex.com>
+
+	* java/native/Query.cc,java/native/MSet.cc,
+	  java/native/org_xapian_XapianJNI.h,java/org/xapian/Query.java,
+	  java/org/xapian/MSet.java,java/org/xapian/XapianJNI.java: Updates to
+	  enable compilation with 0.9.0.
+	* java/Makefile.am: Add .java.class: rule so SmokeTest can be built.
+	* java/README: List API additions still to be wrapped.
+
+Tue May 10 21:01:57 BST 2005  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Should be ValueIter not ValueIterator, and fixed up
+	  a few typos in the code.
+
+Tue May 10 01:24:59 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: Quote another setting of
+	  PYTHONPATH; Don't set PYTHON_LIBS on cygwin; fix undoubled []
+	  in setting of PYTHON_LIBS.
+
+Mon May 09 20:37:42 BST 2005  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated again.
+
+Mon May 09 18:47:46 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: Changes to help building the python
+	  bindings under mingw.
+
+Mon May 09 15:22:30 BST 2005  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Add "" around PYTHONPATH setting in
+	  TESTS_ENVIRONMENT to protect PYTHON_PATHSEP from the shell
+	  (PYTHON_PATHSEP is ';' under Windows).
+	* python/Makefile.am: Explicitly pass -outdir to SWIG because Windows
+	  versions of SWIG only consider '\' as a directory separator when
+	  extracting the directory from the argument to -o.
+
+Mon May 09 11:02:08 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: If python is found, also check that Python.h exists
+	  (it may not be if the python-dev package (or similar) isn't
+	  installed).
+
+Mon May 09 11:00:08 BST 2005  Olly Betts <olly@survex.com>
+
+	* python/extra.i: Removed python iter wrappers for removed methods
+	  QueryParser::termlist_begin() and termlist_end().
+
+Mon May 09 10:54:47 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Removed wrappers for removed methods
+	  QueryParser::termlist_begin() and termlist_end().
+
+Fri May 06 23:22:28 BST 2005  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated in preparation for 0.9.0.
+
+Fri May 06 20:39:50 BST 2005  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Use correct path separator in PYTHONPATH when
+	  generating .pyc file.
+
+Fri May 06 17:57:05 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: Make configure probe for correct
+	  separator to use in PYTHONPATH.
+
+Thu May 05 13:17:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* skiptest: Add skiptest script needed by last-but-one commit.
+
+Thu May 05 12:44:01 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Back out PHP4 specific hacks added since 0.8.5 which
+	  were only needed for SWIG 1.3.23 and later,
+
+Wed May 04 18:07:49 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,Makefile.am: Setting PHP4 to "exit 77 #" doesn't
+	  actually work right, so use a trivial shell script to skip PHP
+	  tests if we can't find the PHP interpreter.
+
+Wed May 04 02:00:31 BST 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,python/Makefile.am,java/native/Makefile.am,
+	  guile/Makefile.am,tcl8/Makefile.am,php4/Makefile.am: Pass
+	  -no-undefined in *_la_LDFLAGS because libtool requires in on
+	  MS Windows.  Also use $(PATH_SEPARATOR) instead of ':' when
+	  specifying search paths.
+
+Fri Apr 29 09:57:17 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Rename second version of Muscat36::open_da() for guile
+	  like we do for PHP4.
+	* configure.ac: Disable guile by default, as it needs more work.
+
+Thu Apr 28 21:21:23 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: If a backend is disabled in the xapian-core we're building
+	  against, provide stub definitions of the database factory functions
+	  so there isn't a link failure.
+	* xapian.i: This means we can now wrap the Muscat36 factory functions.
+	* xapian.i: QueryParser::set_stemming_options() has been renamed to
+	  set_stemming_strategy().
+
+Fri Apr 22 01:33:41 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Updated to reflect 0.9.0 API.
+
+Thu Apr 07 23:49:51 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Removed superfluous ';' after 'namespace { ... }'.
+
+Tue Apr 05 15:23:44 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix version test to allow for any _svn6789 suffix.
+
+Tue Apr 05 00:50:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* csharp/.cvsignore,python/docs/.cvsignore,
+	  python/docs/examples/.cvsignore,python/.cvsignore,
+	  java/native/.cvsignore,java/org/xapian/errors/.cvsignore,
+	  java/org/xapian/.cvsignore,java/org/xapian/examples/.cvsignore,
+	  java/org/.cvsignore,java/.cvsignore,debian/.cvsignore,
+	  guile/.cvsignore,tcl8/docs/.cvsignore,tcl8/docs/examples/.cvsignore,
+	  tcl8/.cvsignore,php4/docs/.cvsignore,php4/docs/examples/.cvsignore,
+	  php4/.cvsignore,.cvsignore: Remove .cvsignore files, as they're not
+	  used by SVN.
+
+Tue Apr 05 00:34:09 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,php4/Makefile.am: There are problems with the PHP glue
+	  code produced by SWIG 1.3.23 and later - optional arguments aren't
+	  optional.  So add back the SWIG_1_3_22 machinery.
+
+Tue Mar 29 15:14:11 BST 2005  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Updated list of generated .cs files.
+
+Tue Mar 29 14:48:21 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: Fix C# warnings.
+
+Tue Mar 29 13:57:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* xapian.i: For PHP4, rename default Database ctor to Database_empty
+	  instead of suppressing the Database(const string &path) ctor.
+
+Tue Mar 29 13:39:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Pass -Werror to SWIG.
+	* xapian.i: Fix all the SWIG warnings which are now errors.
+
+Tue Mar 29 13:29:47 BST 2005  James Aylett  <james@tartarus.org>
+
+	* don't wrap MSet::max_size() as it's there for STL
+	  compatibility rather than useful functionality.
+
+Tue Mar 29 11:55:26 BST 2005  James Aylett  <james@tartarus.org>
+
+	* when running PHP4 tests, use a blank config file so that if
+	  the xapian bindings are already installed as an extension and
+	  loaded automatically in the default config, they won't be
+	  during the test run.
+
+	  The tests use dl(), so will pick up the version we've just
+	  built.
+
+Tue Mar 29 10:32:36 BST 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,php4/Makefile.am: SWIG > 1.3.22 *does* work for PHP -
+	  the problem was that I had an older PHP SWIG glue shared library
+	  installed and this clashes with new glue libraries (but not older
+	  ones).  So strip out the machinery to use a different SWIG version
+	  for PHP.
+	* configure.ac: Require SWIG >= 1.3.24.
+
+Mon Mar 21 09:37:45 GMT 2005  James Aylett  <james@tartarus.org>
+
+	* xapian.i: updated SWIG-based bindings to latest API
+
+	* python/extra.i: more Python-style iterators
+
+	* tcl8/docs/.cvsignore, tcl8/docs/examples/.cvsignore: ignore
+	  autogenerated Makefile.in, Makefile
+
+Mon Mar 21 07:01:14 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac,php4/Makefile.am: Use SWIG 1.3.22 for PHP bindings
+	  as more recent versions don't work.
+	* configure.ac: If configure can't find the php interpreter (as php4
+	  or php), it probably just means it's not on PATH.  We only need it
+	  for running the smoketest, so substitute "exit 77 #" instead which
+	  will cause the test to skip (previously we substituted "missing"
+	  which causes the test to fail).
+
+Wed Feb 23 04:08:55 GMT 2005  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated for 0.8.5.1.
+
+Wed Feb 23 04:07:48 GMT 2005  Olly Betts <olly@survex.com>
+
+	* README: Refer reader to java/README for java specific information.
+
+Tue Feb 22 16:12:55 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am,java/README,java/native/Makefile.am,
+	  java/org/xapian/Makefile.am,java/org/xapian/errors/Makefile.am:
+	  Fixed how the jar file is made, and build it directory to the built
+	  subdirectory rather than requiring an "install" step.  Updated the
+	  README to add a "how to build" section.  Tweak the java commands in
+	  the README for running the examples to work around a bug in Debian
+	  gij's java wrapper script.  Added a README section about tested java
+	  platforms.  Automatically "install" the JNI glue library in "built"
+	  and remove the .la file (which is useless here).
+
+Tue Feb 22 01:38:14 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Set version to 0.8.5.1 and fix version check.
+
+Mon Feb 21 20:17:07 GMT 2005  Olly Betts <olly@survex.com>
+
+	* COPYING: This code is under the GPL (except the Java bindings which
+	  are MIT-style, but that's GPL compatible anyway).
+
+Mon Feb 21 20:11:36 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Run tests using the C++ compiler; Allow bindings
+	  version to have an extra "patchlevel", yet still match with
+	  corresponding xapian-core version (e.g. 0.8.5.1 and 0.8.5);
+	  Use "-Wno-unused" when compiling JNI C++ code to ignore harmless
+	  warnings in generated code (we were specially passing "-Wunused"
+	  which was a thinko I believe!)
+
+Mon Feb 21 20:08:56 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am,java/org/xapian/examples/Makefile.am: "make clean"
+	  should remove the generated class files.
+
+Mon Feb 21 20:06:19 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/README: Added list of unwrapped methods and classes.
+
+Mon Feb 21 20:03:06 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/.cvsignore: Add "built" directory.
+
+Mon Feb 21 20:02:17 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am,java/run-java-test: Run SmokeTest on "make check".
+
+Mon Feb 21 18:42:32 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/ExpandDecider.java,
+	  java/org/xapian/MatchDecider.java: Fix GCJ warning.
+
+Mon Feb 21 18:42:03 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/errors/Makefile.am: Remove lingering reference to
+	  InvalidDataError.java and InvalidDataError.class.
+
+Mon Feb 21 05:16:28 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/.cvsignore,java/SmokeTest.java,java/native/,java/org/xapian/,
+	  java/org/xapian/errors/,java/org/xapian/examples/:
+	  Added missing .java sources and removed unused ones; Added java
+	  smoketest (not yet run automatically); Added .cvsignore files for
+	  generated files; Updated to use new ctors for Database and
+	  WritableDatabase which replace Auto::open(); Wrap
+	  Database::get_lastdocid(); Wrap ESetIterator::prev() and
+	  MSetIterator::prev(); Fixed glitches in automake build system;
+	  Prefer Query::empty() to Query::is_empty(); Wrap InMemory::open();
+	  Disable Eric's QueryParser - for consistency we should wrap the
+	  C++ version by default; Removed forced flush() from
+	  WritableDatabase::delete_document() wrapper.
+	* java/org/xapian/examples/SimpleSearch.java: tweaked to be more like
+	  the C++ version.
+
+Mon Feb 21 05:02:30 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/README: Need . in -classpath.
+
+Tue Jan 18 02:27:06 GMT 2005  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/Xapian.java: Another missing java source!
+
+Sun Jan 09 13:59:17 GMT 2005  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check for "php" as well as "php4", and fall-back to
+	  missing so the error message from "make check" is better.
+
+Thu Dec 23 19:17:39 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,NEWS: Version 0.8.5.
+
+Thu Dec 23 19:16:53 GMT 2004  Olly Betts <olly@survex.com>
+
+	* INSTALL,README: Added better installation instructions.
+
+Mon Dec 20 16:29:01 GMT 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Simpler .pyc fix.
+
+Fri Dec 10 17:13:52 GMT 2004  Richard Boulton <richard@tartarus.org>
+
+	* python/Makefile.am: Fixed bytecode compilation of xapian.py.
+	  xapian.pyc was being generated in the same directory
+	  as xapian.py, but Makefile.am was looking in current directory
+	  when installing it.  Additionally, VPATH builds were broken.
+
+Wed Dec 08 16:18:39 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Fixed typo, bumped date.
+
+Wed Dec 08 02:13:25 GMT 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/bindings.html,python/docs/bindings.html,
+	  tcl8/docs/bindings.html: Reworked text about Xapian::Auto namespace
+	  and a few other tweaks.
+
+Tue Dec 07 19:55:48 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i,php4/docs/examples/simpleindex.php,
+	  php4/docs/examples/simplesearch.php,python/docs/examples/,
+	  tcl8/docs/bindings.html,tcl8/docs/examples/simpleindex.tcl,
+	  tcl8/docs/examples/simplesearch.tcl: Wrap the new constructors
+	  for Database and WritableDatabase, use these in the examples,
+	  and removed mentions of Auto::open() from the documentation.
+	  Don't wrap the WritableDatabase forms of Auto::open() and
+	  Quartz::open() in tcl8 since the destructor never gets called.
+
+Tue Dec 07 19:53:48 GMT 2004  Olly Betts <olly@survex.com>
+
+	* README: Updated to list fully supported languages and improved
+	  wording.
+
+Thu Dec 02 13:31:40 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Weight::clone is for internal use - don't wrap it.
+	* xapian.i: For PHP4, rename the default BM25Weight ctor to
+	  BM25Weight_default and the default TradWeight ctor to
+	  TradWeight_default.
+
+Thu Dec 02 13:30:55 GMT 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: test -d before mkdir to avoid worrying looking
+	  warning from make.
+
+Thu Dec 02 03:40:16 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated.
+
+Thu Dec 02 03:37:06 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: SWIG 1.3.23 causes warnings (and quite likely problems)
+	  with PHP4.  It helps C#, but since that's unfinished, PHP4
+	  definitely matters more, so drop back to SWIG 1.3.22.
+
+Thu Dec 02 03:27:37 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Added tcl8/docs/Makefile tcl8/docs/examples/Makefile
+	  to AC_CONFIG_FILES.
+
+Thu Dec 02 03:05:11 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,xapian.i: Removed the director for Xapian::Weight for now,
+	  since it was causing swig to generate code which didn't compile.
+
+Thu Dec 02 03:03:39 GMT 2004  Olly Betts <olly@survex.com>
+
+	* python/.cvsignore: Updated.
+
+Thu Dec 02 03:00:56 GMT 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fixed PYTHONPATH for running smoketest.py.
+
+Wed Dec 01 21:32:02 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Prototype Weight::clone() method so that SWIG directors
+	  know about it.
+
+Wed Dec 01 16:11:32 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/Makefile.am,tcl8/docs/Makefile.am,
+	  tcl8/docs/examples/Makefile.am: Ship and install docs and examples
+	  for tcl8 bindings.
+
+Wed Dec 01 15:41:56 GMT 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Distribute xapian-bindings.spec.in.
+
+Wed Dec 01 15:39:55 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: No longer need "BuildRequires: swig";
+	  disable building of csharp bindings; package tcl8 documentation;
+	  updated to package the tcl8 bindings at their new location.
+
+Wed Dec 01 05:59:24 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: It's now tomorrow, so bump the 0.8.4 release date.
+
+Wed Dec 01 05:57:41 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simplesearch.tcl: Need Tcl 8.1 or later.
+
+Wed Dec 01 05:54:45 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simpleindex.tcl: Tweaked to actually work.
+
+Wed Dec 01 05:18:18 GMT 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simpleindex.tcl: Simpler, more idiomatic code
+	  which doesn't rely on features added since Tcl 8.1.
+
+Tue Nov 30 22:42:14 GMT 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.8.4 release.
+
+Mon Nov 29 04:17:42 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,guile/Makefile.am,php4/Makefile.am,
+	  python/Makefile.am,tcl8/Makefile.am: Instead of requiring the user
+	  to have a really recent SWIG installed, ship the files SWIG
+	  generates.  Disable all the SWIG rules unless configure is run
+	  with --enable-maintainer-mode to make sure they aren't triggered
+	  accidentally by make with dodgy VPATH or anything else.
+	* csharp/Makefile.am: Updated the list of generated .cs files to
+	  include the subclasses of Weight.
+
+Sun Nov 28 02:51:37 GMT 2004  Olly Betts <olly@survex.com>
+
+	* csharp/TODO: Note that SWIG 1.3.23 apparently implements optional
+	  parameters for C#.
+
+Sun Nov 28 01:50:45 GMT 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Wrapping for Xapian::Weight means we need to add
+	  Weight.cs to the list of generated sources.
+
+Sat Nov 27 03:00:24 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Mark Weight as needing a director for Python.
+
+Tue Nov 16 02:59:18 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,guile/Makefile.am,php4/Makefile.am,
+	  python/Makefile.am,tcl8/Makefile.am: Use newly added option
+	  `xapian-config --swigflags` which (a) avoids always passing
+	  -I/usr/include which could cause problems if we're using a Xapian
+	  install not in /usr and there's another one in /usr and (b) avoids
+	  problems if `xapian-config --cxxflags` contains flags other than
+	  -I<something>.
+
+Sun Nov 14 06:30:47 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrapped Xapian::Weight and subclasses (compiles, but
+	  otherwise totally untested).  Nothing special is done about
+	  directors, so deriving your own Weight subclass in the scripting
+	  language probably won't currently work.
+
+Wed Nov 10 03:32:23 GMT 2004  Olly Betts <olly@survex.com>
+
+	* README: Improved a bit.
+
+Wed Nov 10 03:24:08 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: %name is deprecated, so use %rename instead.  This also
+	  works around a bug currently in SWIG CVS HEAD.
+
+Wed Nov 10 01:47:33 GMT 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Second argument to Document::add_posting() isn't optional.
+
+Tue Nov 09 03:06:56 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am,guile/Makefile.am,
+	  java/native/Makefile.am,php4/Makefile.am,python/Makefile.am,
+	  tcl8/Makefile.am: We now get -AA or -std strict_ansi from
+	  xapian-config, so we don't need to probe for them ourselves.
+
+Sat Nov 06 16:19:30 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check GXX instead of GCC when deciding whether to pass
+	  GCC specific warning flags.
+
+Sat Nov 06 13:04:52 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Reinstated the check that the bindings version matches
+	  the version of the xapian library.  It was added in 0.8.2, but
+	  accidentally removed in 0.8.3.
+
+Sat Nov 06 12:44:40 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Protect tcl header version test by prepending x to
+	  both the strings being tested.
+
+Tue Nov 02 05:59:54 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Removed pointless probe for a C compiler.
+
+Tue Nov 02 05:54:45 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Require SWIG 1.3.22 (for guile).
+
+Sat Oct 30 19:51:10 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Contents of xxx_SOURCES must be literal.
+
+Thu Oct 28 04:45:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/SmokeTest.cs: Added a smoketest.
+	  Currently it fails.
+	* csharp/Makefile.am: Updated list of generated .cs files.
+
+Thu Oct 28 04:37:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: In the Query ctor which takes a vector of terms, only
+	  call set_window if window is non-zero.  Otherwise things go wrong
+	  if we're passed an empty vector.
+
+Wed Oct 27 03:34:10 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Added note that the bindings can easily be compiled
+	  for use with Tcl 8.0, in case anybody needs that for some reason.
+
+Sun Oct 24 02:07:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleindex.py: Trim spaces from the start as
+	  well as from the end of each line.  Simplify the loop slightly.
+
+Sun Oct 24 01:54:17 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/bindings.html,tcl8/docs/examples/simpleindex.tcl: Added
+	  Tcl version of simpleindex from xapian-examples.
+
+Sat Oct 23 15:57:00 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,tcl8/Makefile.am: Use the TCL_STUBS mechanism so that
+	  compiled extensions are portable between different versions of Tcl.
+	  This needs Tcl 8.1, so bump the required Tcl version (was 8.0).
+	  Also install in the directory above $tcl_library so the built
+	  extension can be found by other Tcl versions.
+
+Fri Oct 22 03:24:11 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/bindings.html,python/docs/bindings.html,
+	  tcl8/docs/bindings.html: Mention the example scripts near the start
+	  of the documentation, not right at the end.
+	* php4/docs/bindings.html: Remove documentation explicitly saying
+	  how we wrap Xapian::QueryParser and Xapian::Stem since we wrap them
+	  exactly as we wrap everything else we don't mention!
+
+Fri Oct 22 03:21:20 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/.cvsignore,tcl8/Makefile.am: Pass -pkgversion to SWIG to set
+	  the Tcl package version; create pkgIndex.tcl so the package can
+	  be loaded in the usual Tcl way; install in "xapian<VERSION>"
+	  subdirectory of the Tcl library directory, as is the convention.
+
+Fri Oct 22 02:36:00 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/bindings.html: Added documentation for tcl8.
+
+Fri Oct 22 02:21:48 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleexpand.py,
+	  python/docs/examples/simplematchdecider.py,
+	  python/docs/examples/simplesearch.py: Changed to use James' newly
+	  wrapped Query from list of terms ctor.
+	* python/docs/examples/simplematchdecider.py: Make the example
+	  MatchDecider exclude documents matching a value, rather than a term.
+	  The latter is a very inefficient way to do what AND_NOT does, and
+	  we don't want examples to mislead like that.
+
+Thu Oct 21 18:00:14 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html: Note that you can construct a query
+	  from a list of terms, even if you can't from a list of queries.
+	  Add HTML links to the examples.
+
+Thu Oct 21 17:44:19 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html: Remove documentation explicitly saying
+	  how we wrap Xapian::QueryParser and Xapian::Stem since we wrap them
+	  exactly as we wrap everything else we don't mention!  Also mention
+	  simpleexpand example.
+
+Thu Oct 21 16:59:03 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/Makefile.am: Note why we pass -I. to SWIG.
+
+Thu Oct 21 02:45:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: It turns out that we do need to wrap MSet::MSet() after
+	  all (simpleexpand.py uses it, for example).
+
+Thu Oct 21 02:43:34 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/: Report messages for Xapian exceptions.
+	  Removed MAX_PROB_TERM_LENGTH from scripts which don't use it.
+
+Thu Oct 21 01:39:08 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/smoketest.tcl: Explicitly require at least Tcl version 8.
+
+Thu Oct 21 01:35:28 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simplesearch.tcl: Use more idiomatic (and less
+	  idiotic) Tcl thanks to contributions from Michael Schlenker.
+
+Wed Oct 20 05:29:57 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simplesearch.tcl: Sussed out what Query::OP_OR
+	  is wrapped as.
+
+Wed Oct 20 05:18:36 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simplesearch.tcl: Translated simplesearch into
+	  Tcl.
+
+Tue Oct 19 21:07:06 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Added xapian_wrap.h as a target for the rule
+	  which runs SWIG.
+
+Tue Oct 19 21:05:11 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/Makefile.am: Wrap in a tcl8 namespace "Xapian".
+	* tcl8/Makefile.am,tcl8/smoketest.tcl: Added a smoketest.
+
+Wed Oct  6 17:28:54 BST 2004  James Aylett  <james@tartarus.org>
+
+	* get overloaded Query(Query::op, vector<string>*, termpos)
+	  constructor working in Python
+
+Thu Sep 30 02:29:13 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* csharp/Makefile.am: Add XapianSharp.snk to CLEANFILES.
+	  Place generated bindings into C# namespace "Xapian".
+	  Change module name to Xapian. (Assembly remains as XapianSharp).
+	  Remove -noproxy option from swig.
+	  Update list of csharp source file to work with new swig options.
+	* csharp/.cvsignore: Add XapianSharp.snk, now it's a generated
+	  file.
+
+Wed Sep 29 19:04:41 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Reenabled inclusion of typemaps.i and exception.i for
+	  Guile.  This was disabled in June 2000.  4 years later SWIG seems
+	  to process them successfully.
+
+Wed Sep 29 19:01:28 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,csharp/Makefile.am: Get configure to find sn.
+
+Wed Sep 29 17:23:23 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* csharp/: Generate strong name file automatically.
+
+Wed Sep 29 14:17:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Added "touch op.cs" so the build system works
+	  on SWIG <= 1.3.21 as well as SWIG 1.3.22.
+
+Wed Sep 29 14:11:48 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: CSharp bindings now build, so enable them if the
+	  required tools are available.
+
+Wed Sep 29 03:00:05 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Removed hardcoded values for GACUTIL and CSC
+	  which were overriding any values configure tried to set.
+
+Wed Sep 29 02:57:07 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Fixed to build when srcdir != builddir.
+
+Tue Sep 28 20:33:21 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: The guile bindings do now build (though I don't
+	  know guile so can't test them), so enable the guile detection
+	  machinery in configure.
+
+Tue Sep 28 19:32:33 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Add op.cs to XAPIAN_SWIG_CS_SRCS.
+
+Tue Sep 28 19:06:02 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: AC_PATH_PROG calls AC_SUBST, so we don't need to.
+
+Tue Sep 28 19:04:17 BST 2004  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Set AM_CXXFLAGS.
+
+Tue Sep 28 16:45:25 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Workaround not being able to include stl.i with C#.
+
+Tue Sep 28 16:22:47 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* csharp/AssemblyInfo.cs.in: New file - includes strong name
+	  in the assembly.
+	* csharp/Makefile.am: Build assembly with a strong name, to
+	  make gacutil happy.  Use gacutil to install the assembly.
+	  Change xapian_wrap.cc to XapianSharp.cc
+	* csharp/XapianSharp.snk: New file - strong name for XapianSharp.
+	* csharp/.cvsignore: Ignore XapianSharp.{cc,loT}
+	* configure.ac: Generate csharp/AssemblyInfo.cs
+
+Sun Sep 26 19:34:54 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* README: Mention that I'm working on C# bindings.
+	* csharp/.cvsignore: Ignore generated .cs and .dll files
+
+Sat Sep 25 02:51:22 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* configure.ac,Makefile.am,csharp/: Add C sharp bindings, created
+	  with SWIG.  Build disabled by default for now, because these are
+	  completely untested, and probably need quite a bit of work.  In
+	  addition, all the SWIG packages I've found seem to require a
+	  patch to work correctly with csharp (various stl_*.i packages are
+	  reported missing, creating them with "touch" seems to work, but
+	  may break things subtly).  I need to learn C# before I can test
+	  these bindings...
+
+Mon Sep 20 15:28:04 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Version 0.8.3.
+
+Mon Sep 20 15:10:57 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/.cvsignore,java/org/xapian/errors/.cvsignore:
+	  Updated to ignore .class files.
+
+Sun Sep 19 23:28:14 BST 2004  Olly Betts <olly@survex.com>
+
+	* .cvsignore,Makefile.am,configure.ac,xapian-bindings.spec.in:
+	  Added spec file contributed by Fabrice Colin.
+
+Sun Sep 19 17:56:32 BST 2004  Olly Betts <olly@survex.com>
+
+	* guile/.cvsignore: Added xapian_wrap.cc and xapianc.la.
+
+Fri Sep 17 10:00:59 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/Makefile.am: Include php4/docs/bindings.html in the
+	  tarball.
+
+Fri Sep 17 00:54:12 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/Makefile.am,python/Makefile.am: DIST_SUBDIRS is superfluous
+	  when it's identical to SUBDIRS.
+
+Fri Sep 17 00:52:47 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/Makefile.am,java/org/xapian/errors/Makefile.am:
+	  Pass -classpath to javac; make sure errors subdirectory is built
+	  before we try to build the jar file.
+
+Fri Sep 17 00:00:25 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,tcl8/Makefile.am: Improved check for tcl.h to work with
+	  Fedora Core 2.
+
+Thu Sep 16 23:02:28 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/native/Makefile.am,java/org/xapian/Makefile.am: Fixed "make
+	  install" to not give libtool error.
+
+Thu Sep 16 22:51:26 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/examples/Makefile.am: Include simplesearch.php and
+	  simpleindex.php in the tarball.
+
+Wed Sep 15 18:47:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Noted that -modern affects xapian.py (xapian_wrap.cc
+	  is unchanged).
+
+Wed Sep 15 18:22:23 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,php4/Makefile.am: Removed the recently added
+	  SWIG_PHP_LDFLAGS machinery.  We only need to pass those if
+	  we use swig's -noruntime option (which we don't do).
+
+Wed Sep 15 17:38:02 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: Use swig's -modern switch for
+	  Python 2.2 and up - it gives cleaner, leaner, faster wrapper code.
+
+Tue Sep 14 03:37:55 BST 2004  Olly Betts <olly@survex.com>
+
+	* guile/Makefile.am,guile/extra.i: Added empty extra.i which
+	  will be required when these bindings get ressurected.
+
+Tue Sep 14 03:37:23 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/Makefile.am: Don't install xapian.la.
+
+Tue Sep 14 03:35:57 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/extra.i: This had been copied from php4/extra.i without
+	  changing reference in comments from PHP4 to Tcl - fixed.
+
+Mon Sep 13 05:08:51 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Version 0.8.2.
+
+Mon Sep 13 04:59:54 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,xapian.i,php4/docs/bindings.html,python/docs/bindings.html:
+	  Wrap ESet::back(), Database::get_lastdocid(), and the new optional
+	  third parameter to Enquire::set_sorting().  Don't wrap MSet::MSet().
+	  Wrap operator-- as prev() for MSetIterator and ESetIterator.  Wrap
+	  Quartz, InMemory, and Remote database factory functions as
+	  quartz_open(), inmemory_open(), and remote_open().  Wrap static
+	  Stem::get_available_languages() and Stem::get_description().
+	* php4/smoketest.php,python/smoketest.py: Open an InMemory database
+	  and add the document to it as an additional test.
+
+Sun Sep 12 14:31:17 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Add back is_empty() aliases for compatibility.
+
+Thu Sep 09 04:19:54 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,php4/Makefile.am,php4/smoketest.php: Added smoke test
+	  for PHP4 bindings.
+	* python/Makefile.am: Fixed multiple setting of EXTRA_DIST.
+
+Thu Sep 09 03:21:30 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/examples/simpleindex.php,
+	  php4/docs/examples/simplesearch.php: Removed "dl('xapian.so')" -
+	  instead document how to configure PHP to load the module.
+
+Thu Sep 09 03:14:57 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Started to updated for next release.
+
+Thu Sep 09 03:07:43 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/bindings.html: Added documentation on how to install the
+	  PHP4 bindings.
+
+Thu Sep 09 02:45:24 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html: Word-wrapped HTML source.
+
+Thu Sep 09 02:40:17 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/bindings.html,python/docs/bindings.html: Removed
+	  documentation of renaming of empty() methods.
+
+Wed Sep 08 22:16:52 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Updated for Query->is_empty() -> Query->empty().
+
+Wed Sep 08 20:39:03 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am,python/smoketest.py: Added a simple testcase
+	  to at least ensure the python bindings can be initialise and
+	  some simple operations work.
+
+Wed Sep 08 15:23:38 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove renaming of empty() methods to is_empty().
+
+Wed Sep 08 05:34:10 BST 2004  Olly Betts <olly@survex.com>
+
+	* README: Pike support is now in SWIG it seems.
+
+Wed Sep 08 05:30:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* README: Updated list of languages which SWIG supports.
+
+Wed Sep 08 04:53:07 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac: Disable tcl8 bindings if the tcl8.X-dev package
+	  isn't installed.
+
+Wed Sep 08 04:52:19 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/.cvsignore: Ignore xapian.la.
+
+Wed Sep 08 04:49:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* tcl8/.cvsignore: Ignore generated xapian_wrap.cc.
+
+Wed Sep 08 04:15:06 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,guile/Makefile.am,java/native/Makefile.am,
+	  php4/Makefile.am,python/Makefile.am,tcl8/Makefile.am:
+	  Use special SWIG PHP ldflags when linking the PHP glue library;
+	  Only pass -W* switches when building with GCC; Suppress compiler
+	  warnings by passing -Wno-uninitialized when building SWIG glue code;
+	  Python bindings now delete generated xapian_wrap.h on "make clean".
+
+Wed Sep 08 04:06:02 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/util.i: Suppress SWIG warning about MatchDecider::operator()
+	  director discarding const.
+
+Wed Sep 08 02:37:17 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/.cvsignore: Updated.
+
+Wed Sep 08 01:27:54 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,php4/.cvsignore,php4/Makefile.am,
+	  php4/docs/bindings.html,php4/docs/examples/simpleindex.php,
+	  php4/docs/examples/simplesearch.php: Actually ship docs and
+	  examples; fixed bug in includes introduced in last checkin; output
+	  swig wrapper as xapian_wrap.cc not xapian_wrap.cpp for consitency
+	  with other bindings; fixed documentation of wrapping of
+	  Xapian::Query::OP_*; example scripts now load the xapian PHP
+	  extension; simplesearch now works with multi-term queries.
+
+Tue Sep 07 22:20:16 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,php4/.cvsignore,php4/Makefile.am: Don't use -phpfull
+	  option to swig.  It's actually as easy to build and install the
+	  shared library ourselves, and then we can link with an uninstalled
+	  xapian library.
+
+Tue Sep 07 22:18:20 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fixed to use xapian_wrap.cpp not $@ - otherwise
+	  "make xapian.py" doesn't work correctly.  Fixed typo in comment.
+
+Fri Sep 03 18:44:56 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/.cvsignore: Added xapian.pyc.
+
+Fri Sep 03 18:41:34 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated.
+
+Fri Sep 03 18:34:21 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,configure.in: Renamed configure.in to configure.ac.
+
+Fri Sep 03 18:28:54 BST 2004  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Require automake 1.8.5.
+	* configure.in: Require autoconf 2.59.  Note that SWIG 1.3.22 doesn't
+	  seem to have any changes relevant to us.
+
+Fri Sep 03 18:14:15 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fixed to remove _xapian.la after it is installed
+	  (preventing it being installed is really hard to do).  And
+	  xapian.py and xapian.pyc aren't BUILT_SOURCES so just put them
+	  directly in CLEANFILES.
+
+Fri Sep 03 13:04:42 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Byte compile the python code and install that
+	  too.
+
+Fri Sep 03 13:03:55 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Tell libtool not to build static libraries as the
+	  bindings all need dynamic ones which can be loaded at runtime.
+
+Wed Sep 01 12:07:08 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Require Python >= 2.1 for __cmp__ and __eq__.
+
+Thu Aug 19 17:20:45 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/bindings.html: Document that the 2 argument form of
+	  Xapian::Auto::open() for opening a writable database is wrapped
+	  as open_writable() (bug #32).
+
+Thu Aug 12 13:26:16 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Check that the bindings version matches the version of
+	  the xapian library.
+
+Thu Aug 12 13:15:01 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in,php4/: Include xapian version in output from phpinfo().
+
+Fri Jul 02 14:27:42 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/docs/bindings.html: Reference to Xapian::Auto::DB_* should be
+	  Xapian::DB_*.
+
+Wed Jun 30 14:54:48 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.8.1; Corrected --without-tcl help to say
+	  it disables Tcl (not Java!) and list the SWIG bindings which
+	  --without-swig disables; note that SWIG 1.3.21 isn't relevant
+	  and the SWIG changelog URL.
+
+Wed Jun 30 00:09:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated for 0.8.1 release.
+
+Tue Jun 29 23:26:36 BST 2004  Eric B. Ridge <ebr@tcdi.com>
+
+	* java/native/,java/org/xapian/: Updates to java bindings:
+	  - cleanup usages of XapianObjectHolder to be explicitly created
+	    during library initialization
+	  - make finalize() methods of Database and WritableDatabase public so
+	    they can be called from the outside world (should probably have
+	    added explicit close() methods instead).
+	  - deprecate document_add_term_nopos(); completely remove from C++
+	    wrapper
+
+Tue Jun 29 17:30:17 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* Makefile.am: Remove Debian files from distribution tarballs,
+	  since there will often be multiple patch releases for each
+	  release.  Debian files will be available from an apt repository
+	  in future.
+
+Tue Jun 29 01:20:22 BST 2004  Eric B. Ridge <ebr@tcdi.com>
+
+	* java/org/xapian/errors/: Removed wrappers for unused error classes
+	  which have been pruned from C++.
+
+Sun Jun 27 00:57:25 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/errors/.cvsignore,
+	  java/org/xapian/examples/.cvsignore: Created.
+
+Fri May 28 14:35:29 BST 2004  James Aylett  <james@tartarus.org>
+
+	* Add basic documentation and examples to PHP4 bindings.
+
+	* For PHP4, rename overloaded methods and constructors.
+
+	* Add simple access to the prefixes map in QueryParser.
+
+	* Correct simpleindex ports to never generate empty termnames.
+
+Wed May 26 16:18:47 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Require SWIG 1.3.20 or higher.
+
+Wed May 26 14:51:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Removed bogus extra ")".
+
+Wed May 26 04:04:06 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Fixed the %exception handler to cover all the exceptions
+	  Xapian can throw, not just a subset.
+
+Thu May 20 15:55:36 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* python/docs/: Add examples and documentation to dist (were being
+	  installed, but not added to dist, causing make distcheck, and
+	  dpkg-buildpackage, to fail).
+
+Thu May 20 15:06:54 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* Makefile.am: Add debian packaging files to distribution tarball.
+
+Wed May 19 11:27:42 BST 2004  Olly Betts <olly@survex.com>
+
+	* php4/util.i: Make sure that PHP bindings build a module which
+	  exports get_module() so PHP is able to load it.
+
+Thu May 13 17:57:50 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/native/WritableDatabase.cc,java/native/org_xapian_XapianJNI.h,
+	  java/org/xapian/WritableDatabase.java,
+	  java/org/xapian/XapianJNI.java: repalce -> replace.
+
+Thu May 13 10:41:29 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Test phpize can actually be run, rather than just that
+	  it's a readable file or directory.
+
+Wed May 12 01:52:44 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* configure.in: Revert "test -x" to "test -n", and change
+	  previously extant "test -x" to "test -r": test -x isn't
+	  portable.
+
+Tue May 11 20:04:36 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* configure.in: Use $PYTHON instead of python when running python
+	  to determine and library and include paths and version number.
+	  Also, change tests for non-zeroness of interpreter paths to tests
+	  for existence and executability of interpreter paths: this is
+	  relevant if configure is passed an interpreter path by the user
+	  which doesn't exist (as my debian packaging makefile just did).
+
+Tue May 11 18:06:06 BST 2004  Richard Boulton <richard@tartarus.org>
+
+	* guile/Makefile.am,php4/Makefile.am,python/Makefile.am,
+	  tcl8/Makefile.am: Add "-I/usr/include" to the swig line.  This is
+	  needed when xapian is installed with a prefix of /usr, since
+	  "xapian-config --cxxflags" assumes that it doesn't need to emit
+	  -I/usr/include in this situation (presumably on the basis that
+	  any sane C compiler will already have that on its path).
+
+Tue Apr 20 03:20:22 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Generate Makefiles for new directories under java/.
+
+Tue Apr 20 02:27:07 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS: Final update for 0.8.0.
+
+Tue Apr 20 02:22:18 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/Makefile.am,java/org/xapian/errors/: Added missing
+	  sources for error classes.
+	* java/org/xapian/examples/: Added examples of a simple indexer and
+	  searcher in java.
+	* java/README: Added details of how to run the Java examples.
+
+Tue Apr 20 02:14:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* python/.cvsignore: Ignore generated file xapian_wrap.h.
+
+Mon Apr 19 19:25:05 BST 2004  Olly Betts <olly@survex.com>
+
+	* NEWS,README,configure.in: Version 0.8.0.
+
+Mon Apr 05 22:23:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* README: Added details on adding support for recent languages.
+
+Sun Apr 04 18:53:58 BST 2004  Olly Betts <olly@survex.com>
+
+	* java/native/Document.cc,java/native/org_xapian_XapianJNI.h,
+	  java/org/xapian/: Applied update from Eric B. Ridge.  Added
+	  support for Xapian::Document::add_term() - new name for
+	  add_term_nopos().
+
+Sun Apr 04 18:53:00 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapian.i: Added add_term() - new name for add_term_nopos().
+
+Wed Mar 03 19:04:04 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Only enable python bindings for python 1.5 or later
+	  (since that's what SWIG supports).
+
+Sun Feb 22 04:28:18 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Changed --disable-LANGUAGE to be --without-LANGUAGE
+	  (fits better with autoconf's intended usages).
+
+Sun Feb 22 02:41:20 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Added --disable-LANGUAGE options to allow bindings to
+	  be forcibly disabled.  Added (disabled) checks for Guile, as it
+	  looks like support will be resurrected soon.
+
+Tue Jan 13 01:50:27 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Check PHP version is at least 4.0.
+	* configure.in,tcl8/Makefile.am: Look for tclsh and enable building
+	  tcl bindings if it's at least version 8.0; get lib and include
+	  directories from tclsh and use those for building the bindings.
+
+Mon Jan 12 17:52:39 GMT 2004  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html: OMMSET_* and OMESET_* -> MSET_* and
+	  ESET_* (in line with recent change to python/util.i).  Also
+	  corrected a few typos.
+
+Mon Jan 12 17:49:30 GMT 2004  Olly Betts <olly@survex.com>
+
+	* configure.in: Check for jni.h before enabling java bindings.
+
+Tue Jan  6 10:15:00 2004  James Aylett  <james@tartarus.org>
+
+	* TCL bindings: get them to build (not built automatically)
+
+Thu Jan  1 22:46:51 2004  James Aylett  <james@tartarus.org>
+
+	* Python bindings: MSet provides a Python iterator
+	  (new target language-specific interface file extra.i
+	  included at end of xapian.i to accomodate this)
+
+Thu Jan  1 22:45:26 2004  James Aylett  <james@tartarus.org>
+
+	* python/util.i: OMMSET_* and OMESET_* -> MSET_* and ESET_*
+
+Thu Jan  1 22:42:57 2004  James Aylett  <james@tartarus.org>
+
+	* xapian.i: a couple of Xapian::Query constructors weren't being
+	  wrapped, including one explicitly used in some of my Python
+	  binding examples :-(
+
+Sun Dec 28 16:06:50 2003  James Aylett  <james@tartarus.org>
+
+	* Python bindings: enable directors for MatchDecider, to allow
+	  subclassing in Python. Add documentation and an example.
+
+	* Add a Python example equivalent to simpleexpand in xapian-examples
+
+Mon Dec 08 02:12:09 GMT 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.in,java/: Initial check-in of Eric B. Ridge's
+	  JNI bindings.  Needs more work.
+
+Mon Dec 08 02:11:03 GMT 2003  Olly Betts <olly@survex.com>
+
+	* python/docs/.cvsignore,python/docs/examples/.cvsignore: Ignore
+	  Makefile too.
+
+Sun Dec  7 13:11:56 BST 2003  James Aylett  <james@tartarus.org>
+
+	* Added basic documentation, and two examples, for Python bindings
+
+Thu Oct 02 17:34:47 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.4.
+
+Tue Sep  2 17:01:08 BST 2003  James Aylett  <james@tartarus.org>
+
+	* xapian.i: using namespace std in SWIG parsed segment to sort out
+	  typemaps.
+
+Fri Aug 08 21:36:20 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.3.
+
+Fri Aug  8 12:26:45 BST 2003  Richard Boulton <richard@tartarus.org>
+
+	* configure.in: Check for absence of SWIG, and report error more
+	  nicely if so.
+
+Sat Jul 26 21:04:06 BST 2003  Olly Betts <olly@survex.com>
+
+	* php4/Makefile.am: lib omqueryparser is now xapianqueryparser.
+	* python/Makefile.am: XAPIAN_LIBS now includes -lxapianqueryparser.
+
+Sat Jul 26 18:33:42 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Converted to use XO_LIB_XAPIAN.
+
+Fri Jul 25 11:02:43 2003  James Aylett  <james@tartarus.org>
+
+	* {tcl8,guile}/util.i: convert typemaps to SWIG 1.3 style
+
+Fri Jul 25 11:01:15 2003  James Aylett  <james@tartarus.org>
+
+	* python/Makefile.am: add -lomqueryparser to complete link
+
+Tue Jul 15 13:50:25 2003  James Aylett  <james@tartarus.org>
+
+	* [langdir]/Makefile.am: use -I$(srcdir) not -I. so VPATH
+	  builds work again
+
+Fri Jul 11 15:10:27 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Version 0.7.2.
+
+Fri Jul 11 14:53:35 BST 2003  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.in: Include code for partly done guile and
+	  tcl8 bindings in the distribution - it may inspire somebody to
+	  finish them off.
+	* guile/Makefile.am,tcl8/Makefile.am: Removed -shadow from swig
+	  invocation.
+	* php4/Makefile.am: Fixed not to build subproject every time.
+
+Fri Jul 11 14:42:42 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Added check for location of Xapian installation.
+	* guile/Makefile.am,php4/Makefile.am,python/Makefile.am,
+	  tcl8/Makefile.am: Added -I for Xapian.
+
+Fri Jul 11 14:27:04 BST 2003  Olly Betts <olly@survex.com>
+
+	* Moved bindings out of xapian-core into their own module.

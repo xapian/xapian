@@ -1,0 +1,33 @@
+Entities.pm:
+
+  Copyright 1995-1998 Gisle Aas. All rights reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the same terms as Perl itself.
+
+pstream.h is from http://pstreams.sourceforge.net/:
+
+  Copyright (C) 2001,2002,2003,2004 Jonathan Wakely
+
+  This file is part of PStreams.
+
+  PStreams is free software; you can redistribute it and/or modify
+  it under the terms of the GNU Lesser General Public License as
+  published by the Free Software Foundation; either version 2.1 of
+  the License, or (at your option) any later version.
+
+popup.js:
+
+  Copyright © 2000 by Apple Computer, Inc., All Rights Reserved.
+
+  You may incorporate this Apple sample code into your own code
+  without restriction. This Apple sample code has been provided "AS IS"
+  and the responsibility for its operation is yours. You may redistribute
+  this code, but you are not permitted to redistribute it as
+  "Apple sample code" after having made changes.
+
+xmlxx/*.{h,cpp}:
+
+  libxml++ and this file are copyright (C) 2000 by Ari Johnson, and
+  are covered by the GNU General Public License, which should be
+  included with libxml++ as the file COPYING.

@@ -1,0 +1,31 @@
+#!/bin/sh
+# Tag the latest versions of the debian control files.   Automatically
+# works out the version numbers and tag names.
+
+set -e
+
+SVNROOT="svn+ssh+userv://xapian-svn@svn.xapian.org/xapian/"
+DEBTAG_BASE="debian-"
+
+
+# Tag the release in SVN.
+for module in xapian-core xapian-bindings xapian-omega;
+do
+  MODULE_NAME=$module
+  if [ "x$module" == "xxapian-omega" ];
+  then
+    MODULE_NAME=xapian-applications/omega
+  fi
+
+  VERSION="`svn cat ${SVNROOT}/trunk/$MODULE_NAME/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
+  DEBTAG="${DEBTAG_BASE}${VERSION}"
+
+  svn ls ${SVNROOT}tags/$DEBTAG/ >/dev/null 2>&1 || \
+    svn mkdir -m "Tag for $DEBTAG release." \
+            ${SVNROOT}tags/$DEBTAG/
+
+  svn ls ${SVNROOT}tags/$DEBTAG/$module/ >/dev/null 2>&1 || \
+    svn cp -m "Tagging $module for $DEBTAG release." \
+      ${SVNROOT}trunk/$MODULE_NAME/debian \
+      ${SVNROOT}tags/"$DEBTAG"/$module/
+done

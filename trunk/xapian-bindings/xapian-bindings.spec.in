@@ -1,0 +1,145 @@
+# RedHat-style .spec file for Xapian
+# @configure_input@
+%define python_ver %(%{__python} -c "import sys; print sys.version[:3]")
+%define php_extension_dir %(php-config --extension-dir)
+
+Summary: Bindings for the Xapian Probabilistic Information Retrieval Library.
+Name: xapian-bindings
+Version: @VERSION@
+Release: 1
+License: GPL
+Vendor: www.xapian.org
+Group: Development/Libraries
+URL: http://www.xapian.org/
+Requires: xapian-core-libs = %{version}
+BuildRequires: python-devel >= 2.1
+%if 0%{?!_without_php:1}
+BuildRequires: php-devel >= 4.3
+%endif
+%if 0%{?!_without_tcl8:1}
+BuildRequires: tcl-devel >= 8.1
+%endif
+%if 0%{?!_without_csharp:1}
+BuildRequires: mono-devel >= 1.1 
+%endif
+Source0: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
+Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
+
+%description
+Xapian is an Open Source Probabilistic Information Retrieval Library. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for scripts which use Xapian.
+
+%package python
+Group: Development/Libraries
+Summary: Files needed for developing Python scripts which use Xapian.
+Requires: %{name} = %{version}, python >= %{python_ver}
+
+%description python
+Xapian is an Open Source Probabilistic Information Retrieval framework. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for developing Python scripts which use Xapian.
+
+%if 0%{?!_without_php:1}
+%package php
+Group: Development/Libraries
+Summary: Files needed for developing PHP scripts which use Xapian.
+Requires: %{name} = %{version}, php
+
+%description php
+Xapian is an Open Source Probabilistic Information Retrieval framework. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for developing PHP scripts which use Xapian.
+%endif
+
+%if 0%{?!_without_tcl8:1}
+%package tcl8
+Group: Development/Libraries
+Summary: Files needed for developing TCL scripts which use Xapian.
+Requires: %{name} = %{version}, tcl
+
+%description tcl8
+Xapian is an Open Source Probabilistic Information Retrieval framework. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for developing TCL scripts which use Xapian.
+%endif
+
+%if 0%{?!_without_csharp:1}
+%package csharp
+Group: Development/Libraries
+Summary: Files needed for developing C# applications which use Xapian.
+Requires: %{name} = %{version}, mono-core
+
+%description csharp
+Xapian is an Open Source Probabilistic Information Retrieval framework. It
+offers a highly adaptable toolkit that allows developers to easily add advanced
+indexing and search facilities to applications. This package provides the
+files needed for developing C# applications which use Xapian.
+%endif
+
+%prep
+%setup -q -n %{name}-%{version}
+
+%build
+# Only build the bindings we want.
+%configure --with-python %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp}
+make
+
+%install
+[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+mkdir -p %{buildroot}
+# Installation of some files does not obey prefix, DESTDIR is required
+%makeinstall DESTDIR=%{buildroot}
+# Move the docs to the right place, and correct the effects of prefix+DESTDIR
+mkdir -p %{buildroot}/usr/share/doc/
+mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/python %{buildroot}/usr/share/doc/%{name}-python-%{version}
+%{?!_without_php: mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/php %{buildroot}/usr/share/doc/%{name}-php-%{version}}
+%{?!_without_tcl8: mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/tcl8 %{buildroot}/usr/share/doc/%{name}-tcl8-%{version}}
+%{?!_without_csharp: mv %{buildroot}%{buildroot}%{_libdir}/XapianSharp.* %{buildroot}%{_libdir}}
+%{?!_without_csharp: mv %{buildroot}%{buildroot}%{_libdir}/mono %{buildroot}%{_libdir}/mono}
+%{?!_without_csharp: mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/csharp %{buildroot}/usr/share/doc/%{name}-csharp-%{version}}
+rm -rf %{buildroot}%{buildroot}/usr/share/doc/%{name}/
+
+%clean
+[ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
+
+%files
+%defattr(-, root, root)
+# There are no common files at the moment
+%doc AUTHORS ChangeLog COPYING NEWS README
+
+%files python
+%defattr(-, root, root)
+%{_libdir}/python%{python_ver}/site-packages/_xapian.so
+%{_libdir}/python%{python_ver}/site-packages/xapian.py
+%{_libdir}/python%{python_ver}/site-packages/xapian.pyc
+%ghost %{_libdir}/python%{python_ver}/site-packages/xapian.pyo
+%doc /usr/share/doc/%{name}-python-%{version}
+
+%if 0%{?!_without_php:1}
+%files php
+%defattr(-, root, root)
+%{php_extension_dir}/xapian.so
+%doc /usr/share/doc/%{name}-php-%{version}
+%endif
+
+%if 0%{?!_without_tcl8:1}
+%files tcl8
+%defattr(-, root, root)
+/usr/share/xapian%{version}
+%doc /usr/share/doc/%{name}-tcl8-%{version}
+%endif
+
+%if 0%{?!_without_csharp:1}
+%files csharp
+%defattr(-, root, root)
+%{_libdir}/XapianSharp.la
+%{_libdir}/XapianSharp.so
+%{_libdir}/mono/XapianSharp
+%{_libdir}/mono/gac/XapianSharp
+%doc /usr/share/doc/%{name}-csharp-%{version}
+%endif

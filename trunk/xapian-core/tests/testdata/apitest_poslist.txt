@@ -1,0 +1,8 @@
+This file is for testing opening positionlists.  This first document
+is pure fluff, which will be ignored.  The next one will contain sponges
+in strategic positions.
+
+Sponge sponge sponge!  What sponge?  Why, my sponge.  Can you guess the
+sponge pattern yet?  Yes, this very clever soft sponge likes
+Fibonacci numbers.  What a good kitchen implement this yellow and green
+sponge is.

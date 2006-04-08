@@ -1,0 +1,81 @@
+Tue Apr 05 00:43:38 BST 2005  Olly Betts <olly@survex.com>
+
+	* .cvsignore: Remove .cvsignore files, as they're not used by SVN.
+
+Sun Aug 22 14:03:31 BST 2004  Olly Betts <olly@survex.com>
+
+	* configure.ac,configure.in: Renamed configure.in to configure.ac.
+
+Sun Aug 22 14:02:09 BST 2004  Olly Betts <olly@survex.com>
+
+	* xapview.cpp: Convert from Om and om_ to Xapian::.
+
+Mon Jul 21 01:18:26 BST 2003  Olly Betts <olly@survex.com>
+
+	* configure.in: Use libtool; OM_PATH_XAPIAN -> XO_LIB_XAPIAN.
+
+Thu Jul 17 00:52:13 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: Removed bootstrap in favour of top-level bootstrap.
+
+Fri Jul 04 22:12:44 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: add missing ';;' as case pattern delimiter
+
+Mon Jun 23 21:11:56 BST 2003  Olly Betts <olly@survex.com>
+
+	* bootstrap: Check for Bison 1.875 which doesn't work with Xapian.
+
+Wed Feb 26 09:58:01 GMT 2003  Sam Liddicott <sam.liddicott@orange.co.uk>
+
+	* bootstrap: Fix success message when building in non-src dir
+	  as configure is written to the src dir.
+
+Sat Dec 14 01:49:02 GMT 2002  Olly Betts <olly@survex.com>
+
+	* xapview.cpp: Fixed to not use OmSettings.  Not compile tested
+	  as I don't have the relevant libraries installed here.
+
+Wed Oct 30 02:00:26 GMT 2002  Olly Betts <olly@survex.com>
+
+	* bootstrap,buildall: Removed buildall in favour of bootstrap script.
+
+Thu Jul 04 00:21:34 BST 2002  Olly Betts <olly@survex.com>
+
+	* xapview.cpp: fixed to actually compile and run successfully.
+
+Fri May 17 14:08:10 BST 2002  Olly Betts <ollybe@ananova.net>
+
+	* .cvsignore: updated.
+
+Mon May 13 13:26:21 BST 2002  Olly Betts <olly@survex.com>
+
+	* Autoconf 2.50.
+
+	* Using std::X.
+
+Thu May 02 16:08:02 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated to reflect removal of OmData.
+
+Tue Apr 23 15:06:36 BST 2002  Olly Betts <olly@survex.com>
+
+	* .cvsignore: updated.
+
+Tue Apr 23 15:03:01 BST 2002  Olly Betts <olly@survex.com>
+
+	* Make buildall smart enough to generate aclocal.m4 properly and
+	  remove acinclude.m4.  It now also extracts the package name from
+	  configure.in so we can use the same buildall everywhere.
+
+Tue Apr 23 14:28:05 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated for xapian-config and xapian.m4 changes.
+
+Thu Apr 18 14:39:22 BST 2002  Olly Betts <olly@survex.com>
+
+	* Updated buildall; minor tweaks to configure.in.
+
+Fri Apr 12 16:20:58 BST 2002  Olly Betts <olly@survex.com>
+
+	* Require automake 1.5.

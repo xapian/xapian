@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Xapian: Remote Backend Protocol</TITLE>
+</HEAD>
+<BODY BGCOLOR="white" TEXT="black">
+
+<H1>Remote Backend Protocol</H1>
+
+<p>
+This is a brief description of the wire protocol used by the remote
+backend.  This should be up to date for protocol version 20, but hasn't
+been thoroughly checked yet:
+
+<pre>
+Message 1:
+Direction: Server-&gt;Client
+Format: OM &lt;protocol version&gt; &lt;document count&gt; &lt;average length&gt;
+Description: Identifies protocol version and sends basic statistics.
+When: At connection setting up time.
+
+Message 2:
+Direction: Client-&gt;Server
+Format: Q&lt;serialised query string&gt;
+        &lt;options&gt;
+	&lt;weighting&gt;
+	&lt;R-set&gt;
+Description: The query, options, weighting formula and parameters, and R-set.
+When: At prepare_match() time
+
+Message 3:
+Direction: Server-&gt;Client
+Format: L&lt;serialised local stats&gt;
+Description: The local database statistics
+
+Message 4:
+Direction: Client-&gt;Server
+Format: G&lt;serialised global stats&gt;
+        M&lt;first item&gt; &lt;max items&gt;
+Description: The global statistics for all databases are sent,
+	     and the MSet requested.
+When: At get_mset() time.
+
+Message 5:
+Direction: Server-&gt;Client
+Format: O&lt;first&gt; &lt;lower bound&gt; &lt;estimated&gt; &lt;upper bound&gt; &lt;max_possible&gt; &lt;max_attained&gt;\
+        &lt;#items&gt; [&lt;weight&gt; &lt;doc id&gt; &lt;collapse key value&gt;]...\
+        [&lt;term&gt; &lt;frequency&gt; &lt;weight&gt;]...
+Description: The returned MSet.
+
+Message TermlistRequest:
+Direction: Client-&gt;Server
+Format: T&lt;docid&gt;
+Description: The docid of the document we wish to get the termlist for.
+
+Message TermlistResponse:
+Direction: Server-&gt;Client
+Format: [&lt;within document frequency of term&gt; &lt;term frequency&gt; term]
+        ...
+        Z
+
+Message GetDocumentRequest:
+Direction: Client-&gt;Server
+Format: D&lt;docid&gt;
+Descrption: The docid of the document we wish to get.
+
+Message GetDocumentResponse:
+Direction: Server-&gt;Client
+Format: O&lt;data from the document, encoded using encode_tname&gt;
+        &lt;value number&gt; &lt;value string, encoded using encode_tname&gt;
+	...
+        Z
+</pre>
+<!-- FOOTER $Author$ $Date$ $Id$ -->
+</BODY>
+</HTML>

@@ -1,0 +1,315 @@
+CVSSearch
+=========
+
+===========================================================================
+INSTALLATION
+============
+
+If you're using Debian testing or unstable you should be able to install all
+the required dependencies apart from Xapian using:
+
+apt-get install exuberant-ctags libdb4.0++-dev libxml2-dev
+
+* install ctags 5.0 or higher (warning: version 4.x won't work) from
+  http://ctags.sourceforge.net
+
+  Make sure this version of ctags is in your path *and* is executed
+  by default
+
+* install a suitable release of the sleepycat database from
+  http://www.sleepycat.com/download/index.shtml
+
+  The cvssearch source should build with either 4.0.x or 4.1.x.  4.2.x hasn't
+  been released at the time of writing.  Older versions have not been tested.
+
+  From the dist/ directory, type
+
+  ./configure --enable-cxx [see Note 1 below]
+  make
+  make install
+
+* download Xapian 0.8.0 or higher from
+  http://www.xapian.org/download.php
+
+  From the main directory, type
+
+  ./configure [configure options]
+  make
+  make install
+
+* install the latest version of libxml from
+  ftp://xmlsoft.org/
+
+  From the main directory, type
+
+  ./configure [see Note 1 below]
+  make
+  make install
+
+* now configure CVSSearch, compile, and install:
+
+  ./configure --bindir=<your cgi-bin directory> [see Note 2 below]
+  make
+  make install
+
+Note 1:
+* If you do not have root access, then sleepycat, Xapian, libxml cannot be
+  installed under their default output directory: /usr/local.
+
+* One solution is to install these two packages in the user home directory
+  by append "--prefix=$HOME" to the configure commands (not for CVSSearch)
+  and set the following environment variable before compiling CVSSearch
+
+* for csh:
+  setenv LD_LIBRARY_PATH "$HOME/lib"
+  setenv LDFLAGS "-L$HOME/lib -O3 -Wall"
+  setenv CXXFLAGS "-I$HOME/include -O3 -Wall"
+  setenv CFLAGS "-I$HOME/include -O3 -Wall"
+  setenv CPPFLAGS "-I$HOME/include -O3 -Wall"
+
+  or
+
+* for bash:
+  export LD_LIBRARY_PATH="$HOME/lib"
+  export LDFLAGS="-L$HOME/lib -O3 -Wall"
+  export CXXFLAGS="-I$HOME/include -O3 -Wall"
+  export CFLAGS="-I$HOME/include -O3 -Wall"
+  export CPPFLAGS="-I$HOME/include -O3 -Wall"
+
+Note 2:
+* there is no need to specify --prefix because we want to output
+  all the executables, scripts to a directory with cgi access.
+
+
+===========================================================================
+Building a CVSSearch Database
+=============================
+You can index modules (may also be called packages) from a repository by
+
+1. cd <cgi-bin directory>
+
+   [ this cgi-bin directory contains all the scripts/executables. this is
+     necessary because the command building the database uses other
+     programs/scripts that it assumes to be in the same directory as
+     cvsbuilddb ]
+
+2. Export CVSDATA environment variable to the path to CVSSearch databases.
+
+   [ this path may be an absolute path or a path relative to the
+     cgi-bin directory in step 1. ]
+
+   e.g. say CVSSearch database output is to be stored under a directory
+        called cvsdata relative to the cgi-bin directory containing the
+        executables. ie CVSSearch databases are stored under
+        <cgi-bin directory>/cvsdata, do
+
+   for csh:
+   setenv CVSDATA cvsdata
+
+   for bash:
+   export CVSDATA=cvsdata
+
+3. Export CVSROOT environment variable to the path to CVS repository.
+   [ this step is usually already done. type "echo $CVSROOT" to find out]
+
+   for csh:
+   setenv CVSROOT ROOT [ROOT = path of CVS repository]
+
+   for bash:
+   export CVSROOT=ROOT [ROOT = path of CVS repository]
+
+
+4. Build the database type
+
+   ./cvsbuilddb -f module.list
+
+   [ module.list is file containing a list of modules [See Note 3 below]
+     in CVS repository to index. ./ before cvsbuilddb is necessary because
+     the cgi-bin directory is usually not in the path ]
+
+         or
+
+   ./cvsbuilddb module1 module2 ...
+
+   [ module1 module2 are modules [See Note 3 below] in CVS repository to
+     index]
+
+Note 3:
+a module is something that you can "cvs checkout".. this can be
+
+* a single dot "." to index the entire repository
+
+  [ this is NOT recommended as a single database will be created for that
+    and files produced are likely to be very large ]
+
+
+* a single directory e.g. "kdebase" to index all modules
+  below kdebase directory
+
+  [ this is ok, but not desirable if it is a large repository because
+    again a single database will be created for that.]
+
+
+* a multi-level directory e.g. "kdebase/konqueror" to index the module
+  kdebase/konqueror
+
+  [ this is recommended. konqueror is a stand-alone package ]
+
+you can always add additional modules at a later time.
+
+
+
+===========================================================================
+Building Multiple Databases for Multiple CVS Repositories
+=========================================================
+
+CVSSearch supports multiple CVS repositories so a single query can search
+from multiple repositories.
+
+[See Directory Structure section on how this is done]
+
+If you have already indexed modules from one repository and want to index
+other repositories then
+
+1. Perform step 1 and 2 from the previous section.
+
+   [multiple repositories can use the same database path, so no need to
+    use different CVSDATA setting for different repositories]
+
+2. ./cvsbuilddb -d ANOTHER_CVSROOT -f module.list
+       or
+   ./cvsbuilddb -d ANOTHER_CVSROOT module1 module2 ...
+
+   [-d ANOTHER_CVSROOT is used to overide the current $CVSROOT
+    environment variable or if $CVSROOT is not set, this can be an
+    anonymous CVS server but not a secured CVS server.]
+
+
+===========================================================================
+Searching a CVSSearch Database
+==============================
+
+To search the database, use the URL
+   http://<Your Domain Name>/<your cgi-bin dir>/Query.cgi
+
+To see how code alignment works, use the URL
+   http://<Your Domain Name>/<your cgi-bin dir>/Compare.cgi
+
+
+Security & File Permissions
+===========================
+
+* the user to build the database must have read and write access to the
+  repository. A cache directory with mode 775 is created to store temporary
+  files during query time. [ this directory may be cleaned from time to time ]
+
+* the user the server uses to run the cgi-script must have read/execute access
+  to the scripts/executables, and read access to the configuration file found
+  under cgi-bin directory: cvssearch.conf
+
+* to use Compare.cgi, the user the server uses to run the cgi-script
+  must have read/write access to the repository.
+
+* to use Query.cgi, There will be a cache directory created under your
+  cgi-bin directory that has mode 775.
+
+
+Directory structure
+===================
+
+This section describes the directory format for $CVSDATA, the directory
+where all the databases/statistic information goes under.
+
+The directory structure:
+----------------------------------------------------------------------
+
+                   $CVSDATA
+   +-------------------+------------------------------+----------...
+CVSROOTS              root1                         root2        ...
+            +-----------+------------+            +---+---+
+           db          src       dbcontent        db  src dbcontent
+        +-----...       +----...                  +   +   +
+
+----------------------------------------------------------------------
+
+CVSROOTS is a file, that maps each CVSROOT to a directory where the
+database for that CVSROOT is stored, so it looks something like this:
+
+  /home/.../cvsroot        root0
+  /home/.../another_root   root1
+  ...
+
+
+this means information for /home/.../cvsroot repository is
+stored under root0, etc...
+
+Under each rootx directory, we have
+db directory:
+
+   contains Xapian and sleepycat database files for each projects.
+   so it looks something like this:
+   (suppose dir1/prject1 dir2/project2 are indexed):
+   db/
+       dir1_project1.db       contains berkeley databases
+       dir1_project1.cmt      contains line-comment mappings
+       dir1_project1.om       contains a Xapian database
+(not currently built:
+       dir1_project1.om2      contains another Xapian database)
+       dir1_project1.offset   contains in the format
+                             [ file_path index <into the cmt file>^B]
+       dir1_project1.st       contains statistics for dir/project1
+
+       dir2_project2.db
+       dir2_project2.cmt
+       ...
+
+src directory:
+
+   contains the checked out source files for this CVSROOT.
+   so it looks something like this:
+   src/
+       dir/
+           project1/
+               file1.cc
+               file2.cc
+           project2/
+               file3.cc
+               ...
+
+dbcontent file:
+
+   contains all the module names built under this root, with
+   every slash '/' changed to a '_', so it looks something like this:
+
+   dir_project1
+   dir_project2
+   ...
+
+===========================================================================
+FAQ
+===
+
+Q) What do I do if I need to move my CVS repository?
+A) Modify the file $CVSDATA/CVSROOTS and change the old CVSROOT value to the new CVSROOT value
+
+Q) What do I do if the cgi script shows an error?
+A) Permission is usually the culprit.
+
+   Check the following:
+   1. the user id that runs the cgi-script from your local web adminstrator.
+   2. check Security & File Permissions.
+
+   [ a package called cgi-wrap may be used to execute the script with the
+    user id of the scripts/executables ]
+
+Q) What happens if you run cvsbuilddb twice on the same input? Does it work
+properly?  Does it erase all existing databases before recreating them?
+A) It still works properly. Yes, it erases all existing databases
+before recreating them.
+
+Q) In that case, is the contentdb file updated properly?  Or does it contain
+duplicate entries?  Does it matter if it does?
+A) Yes it is updated properly (in the above case): contentdb file contains
+no duplicate entries.
+(Note: If it does contain duplicate entries, the same database will be
+searched multiple times)

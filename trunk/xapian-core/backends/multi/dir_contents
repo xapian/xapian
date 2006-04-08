@@ -1,0 +1,12 @@
+<Directory>backends/multi</Directory>
+
+<Description>
+The MultiDatabase backend, which enables
+searches to be performed across several databases.  Opening this
+database involves opening each of the sub-databases and merging
+them together.
+
+Searches are performed across the sub-databases via MultiPostList
+and MultiTermList objects, which represent merged sets of postlist
+and termlist objects.
+</Description>
