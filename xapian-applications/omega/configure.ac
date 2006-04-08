@@ -4,7 +4,7 @@ dnl Need autoconf 2.50 or later for many features
 dnl automake 1.6.3 requires autoconf 2.54
 dnl autoconf 2.59 is what xapian-core requires, so be consistent
 AC_PREREQ(2.59)
-AC_INIT(omega, 0.9.4)dnl FIXME: bugreport addr as third argument
+AC_INIT(omega, 0.9.5)dnl FIXME: bugreport addr as third argument
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR(omega.cc)
 

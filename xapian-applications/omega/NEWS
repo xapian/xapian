@@ -1,3 +1,50 @@
+Omega 0.9.5 (2006-04-08):
+
+documentation:
+
+* README: Add pointer to documentation.
+
+* Added man pages for omindex and scriptindex, generated using help2man.
+
+indexers:
+
+* scriptindex:
+
+  + If we fail to open the index script, die with an error (previously we
+    acted as if an empty file was specified).
+
+  + Warn about a useless "weight" action, even if it's followed by another
+    non-useless action (e.g. "field") - previously we only warned if it
+    was last or followed only by other useless actions.
+
+  + Warn if "unique=<prefix>" is used without a corresponding
+    "boolean=<prefix>" on the same line.
+
+  + Warn that "index=nopos" is deprecated and should be replaced by
+    "indexnopos".
+
+  + Add explanatory text "(note that actions are executed from left to right)"
+    when reporting useless actions.
+
+  + Added new "hash" command to allow hashed terms to be generated from long
+    URLs like omindex does.
+    
+* htdig2omega.script,mbox2omega.script: Make use of the new scriptindex "hash"
+  command.
+
+* dbi2omega: Check DBIDRIVER environmental variable to allow a driver other
+  than mysql to be specified without modifying the script.
+
+omega:
+
+* Fix $opt[fieldnames] handling.  Previously it would try to kick in if you
+  didn't set fieldnames but set any alphabetically later option!  The symptom
+  was that $field{} would stop working (bug#72).
+
+portability:
+
+* omindex,omega: Tweaks for MSVC compilation.
+
 Omega 0.9.4 (2006-02-21):
 
 documentation:

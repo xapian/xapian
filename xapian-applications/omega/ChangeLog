@@ -1,3 +1,7 @@
+Sat Apr 08 20:04:33 BST 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.9.5.
+
 Fri Apr 07 16:45:36 BST 2006  Olly Betts <olly@survex.com>
 
 	* omindex.cc,query.cc: Tweak for MSVC compilation.
