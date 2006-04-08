@@ -2,6 +2,7 @@ xapian-core (0.9.5-1) unstable; urgency=low
 
   * New upstream release.
     + All installed binaries now have man pages.
+  * "Standards-Version: 3.6.2" - no changes required.
   * debian/copyright: Update FSF address and give download URL for releases
     instead of obsolete CVS location.
   * debian/control.in: copydatabase and xapian-compact are packaged in
@@ -10,7 +11,7 @@ xapian-core (0.9.5-1) unstable; urgency=low
   * debian/TODO: Updated.
   * New maintainer.
 
- -- Olly Betts <olly@survex.com>  Sat,  8 Apr 2006 23:26:22 +0100
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 00:41:22 +0100
 
 xapian-core (0.9.4-3) unstable; urgency=low
 
