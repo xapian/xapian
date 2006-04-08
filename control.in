@@ -20,7 +20,7 @@ Description: Search engine library
  their own applications.  It implements the probabilistic model of information
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching. It is highly scalable, and is capable of
+ simultaneous update and searching.  It is highly scalable, and is capable of
  working with collections containing many millions of documents.
  .
  The Xapian query parser is a flexible query parser, accepting a syntax
@@ -41,7 +41,7 @@ Description: Development files for Xapian search engine library
  their own applications.  It implements the probabilistic model of information
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching. It is highly scalable, and is capable of
+ simultaneous update and searching.  It is highly scalable, and is capable of
  working with collections containing many millions of documents.
  .
  The Xapian query parser is a flexible query parser, accepting a syntax
@@ -69,7 +69,7 @@ Description: Basic tools for Xapian search engine library
  their own applications.  It implements the probabilistic model of information
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching. It is highly scalable, and is capable of
+ simultaneous update and searching.  It is highly scalable, and is capable of
  working with collections containing many millions of documents.
 
 Package: xapian-doc
@@ -85,5 +85,5 @@ Description: Core Xapian documentation
  their own applications.  It implements the probabilistic model of information
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching. It is highly scalable, and is capable of
+ simultaneous update and searching.  It is highly scalable, and is capable of
  working with collections containing many millions of documents.
