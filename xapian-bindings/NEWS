@@ -1,3 +1,117 @@
+Xapian-core 0.9.5 (2006-04-08):
+
+Documentation:
+
+* HACKING,README: Split off HACKING to contain information which is only
+  relevant to those wishing to modify the bindings.
+
+General:
+
+* SWIG-based bindings are now built with SWIG 1.3.29.
+
+* configure: Report which languages we're building bindings for just before
+  configure finishes.
+
+* xapian.i: Make the stub definitions for disabled backends static.
+
+* configure: Don't quote $PHP in AC_PATH_PROGS to avoid "checking for ... no"
+  message.
+
+* xapian.i: Wrap new method Enquire::set_sort_by_relevance_then_value().
+
+Packaging:
+
+* RPMs: xapian-bindings.spec.in: Use "%{_libdir}" instead of "/usr/lib" for
+  Python bindings to support 64 bit systems.
+
+* RPMs: Package the C# bindings.
+
+Portability:
+
+* java/run-java-test: Fix to work on platforms where LD_LIBRARY_PATH has a
+  different name.
+
+* configure: Detect Intel's C++ compiler and set suitable warning flags to
+  avoid noise from compiling generated code.
+
+CSharp:
+
+* Rename Database::GetDoccount() to Database::GetDocCount() for consistency.
+
+Guile:
+
+* configure: Disable --with-guile since Guile support doesn't currently work.
+
+Java:
+
+* Override deprecation warnings for Xapian methods/functions/etc.
+
+* SmokeTest.java: Write a helpful diagnostic to stderr if a check fails so we
+  have some idea what went wrong!
+
+* Rework how we include headers to get hash_map to avoid compiler warnings
+  since it's usually not in the std namespace nowadays.
+
+* Previously the "all" target also ran the "install" target, but this has
+  proved very problematic, so change "make check" to use the uninstalled JNI
+  glue library, and update the instructions to say that "make install" is now
+  required.
+
+* Use JAVA_PATHSEP when specifying the classpath for compiling .java files to
+  .class files.
+
+* README: Note that some platforms need "-pthread" or similar flags.
+
+* Add a new Query constructor wrapper which take an OP_xxx and an array of
+  Query objects.
+
+* Compiling a .java file to a .class file now deletes the .jar file to ensure
+  it gets updated.
+
+PHP:
+
+* php -n avoids reading any php.ini, but the compiled in default may be to
+  enable the dubiously named "safe_mode" which prevents dl() being used so
+  "make check" fails.  So instead provide a very simple php.ini which turns off
+  safe_mode and makes sure enable_dl is on.
+
+* Fix handling of bool parameters when resolving overloaded methods and/or
+  default arguments.  This fixes Enquire_sort_by_value() to work when the
+  second argument is specified.  Added regression test for this case.
+
+* simpleindex.php: Lowercase terms before stemming.  Fixes bug#73.
+
+* Fix segmentation fault when PHP "Null" is passed where C++ wants an object
+  passed by reference.  Fixes bug#74.
+
+* simpleindex.php: Flushing after every call to WritableDatabase_add_document
+  isn't required and will kill performance, so stop doing it.  Fixes bug#75.
+
+Python:
+
+* Use the fairly new "swig -O" option for the "modern" python bindings as
+  it generates a smaller glue library and runs faster.  Some of the features
+  enabled also work on python 2.1, so enable these for the "olde" bindings.
+
+* configure: Catch the case where the user has python installed but not the
+  module "distutils.sysconfig" and explain that they probably need to install a
+  python-dev or python-devel package.
+
+* "make check" now works in VPATH builds.
+
+* smoketest.py: If a check fails, write a diagnostic message to stderr so we
+  know which check it was!
+
+* smoketest.py: catch Exception objects and print them.
+
+* smoketest.py: Add feature tests for the various pythonic iterator
+  wrappers
+
+* python/docs/bindings.html: Document the Pythonic iterators.
+
+* Fix TermIter not to try to read termfreqs or positions if they aren't
+  meaningful for the current TermIter.
+
 Xapian-core 0.9.4 (2006-02-21):
 
 Documentation:
