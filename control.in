@@ -8,7 +8,7 @@ Build-Depends: debhelper (>= 4.1.22), autotools-dev
 Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any
 Section: libs
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: xapian-tools
 Conflicts: libxapian2
 Description: Search engine library
@@ -30,7 +30,7 @@ Description: Search engine library
 Package: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev
 Architecture: any
 Section: libdevel
-Depends: libxapian@LIBXAPIAN_SOVERSION@ (= ${Source-Version}), libc6-dev | libc-dev
+Depends: libxapian@LIBXAPIAN_SOVERSION@ (= ${Source-Version}), libc6-dev | libc-dev, ${misc:Depends}
 Recommends: xapian-doc (= ${Source-Version})
 Description: Development files for Xapian search engine library
  This package contains development libraries and headers for the core Xapian
@@ -51,7 +51,7 @@ Description: Development files for Xapian search engine library
 Package: xapian-tools
 Architecture: any
 Section: utils
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Basic tools for Xapian search engine library
  This package contains several tools related to Xapian.
   - copydatabase: Copy one or more Xapian databases.
