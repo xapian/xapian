@@ -132,10 +132,13 @@ AC_ARG_WITH(tcl,
   [],
   [with_tcl=$with_swig])
 
-AC_ARG_WITH(guile,
-  AC_HELP_STRING([--with-guile], [enable Guile bindings]),
-  [],
-  [with_guile=$with_swig])
+dnl Guile support doesn't currently work, so avoid user disappointment by
+dnl not advertising it in "./configure --help"
+dnl AC_ARG_WITH(guile,
+dnl   AC_HELP_STRING([--with-guile], [enable Guile bindings]),
+dnl   [],
+dnl   [with_guile=$with_swig])
+with_guile=no
 
 AC_ARG_WITH(csharp,
   AC_HELP_STRING([--with-csharp], [enable CSharp bindings]),
