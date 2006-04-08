@@ -1,3 +1,4 @@
+usr/bin/copydatabase
 usr/bin/delve
 usr/bin/quartzcheck
 usr/bin/quartzcompact
@@ -5,3 +6,11 @@ usr/bin/quartzdump
 usr/bin/quest
 usr/bin/xapian-tcpsrv
 usr/bin/xapian-compact
+usr/share/man/man1/copydatabase.1
+usr/share/man/man1/delve.1
+usr/share/man/man1/quartzcheck.1
+usr/share/man/man1/quartzcompact.1
+usr/share/man/man1/quartzdump.1
+usr/share/man/man1/quest.1
+usr/share/man/man1/xapian-tcpsrv.1
+usr/share/man/man1/xapian-compact.1

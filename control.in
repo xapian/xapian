@@ -1,7 +1,7 @@
 Source: xapian-core
 Section: libs
 Priority: optional
-Maintainer: Richard Boulton <richard@tartarus.org>
+Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.6.1
 Build-Depends: debhelper (>= 4.1.22), autotools-dev
 

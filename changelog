@@ -8,8 +8,9 @@ xapian-core (0.9.5-1) unstable; urgency=low
     xapian-tools, so add them to the list of tools in the package description.
   * debian/rules: Increase DH_COMPAT from 3 to 4.
   * debian/TODO: Updated.
+  * New maintainer.
 
- -- Olly Betts <olly@survex.com>  Sat,  8 Apr 2006 23:08:22 +0100
+ -- Olly Betts <olly@survex.com>  Sat,  8 Apr 2006 23:26:22 +0100
 
 xapian-core (0.9.4-3) unstable; urgency=low
 
