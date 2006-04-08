@@ -1,14 +1,14 @@
 Source: xapian-bindings
 Section: libs
 Priority: optional
-Maintainer: Richard Boulton <richard@tartarus.org>
+Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @PYTHON_BUILD_DEPENDS@ debhelper (>= 4.1.67), libxapian-dev, autotools-dev
-Standards-Version: 3.6.1
+Standards-Version: 3.6.2
 
 Package: python-xapian
 Section: python
 Architecture: all
-Depends: ${python:Depends}
+Depends: ${python:Depends}, ${misc:Depends}
 Description: Xapian search engine interface for Python [dummy package]
  This package is an empty package that always depends on the Xapian python
  bindings built for Debian's default Python version.
@@ -18,7 +18,7 @@ Description: Xapian search engine interface for Python [dummy package]
  their own applications.  It implements the probabilistic model of information
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching. It is highly scalable, and is capable of
+ simultaneous update and searching.  It is highly scalable, and is capable of
  working with collections containing many millions of documents.
  .
  The Xapian python bindings provide an interface to the Xapian library from the

@@ -2,7 +2,7 @@
 Package: python@PYTHON_VERSION@-xapian
 Section: python
 Architecture: any
-Depends: ${python:Depends}, ${shlibs:Depends}
+Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Description: Xapian search engine interface for Python (@PYTHON_VERSION@.x)
  This package provides Xapian python bindings built for Python @PYTHON_VERSION@.x.
  .
@@ -11,7 +11,7 @@ Description: Xapian search engine interface for Python (@PYTHON_VERSION@.x)
  their own applications.  It implements the probabilistic model of information
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching. It is highly scalable, and is capable of
+ simultaneous update and searching.  It is highly scalable, and is capable of
  working with collections containing many millions of documents.
  .
  The Xapian python bindings provide an interface to the Xapian library from the
