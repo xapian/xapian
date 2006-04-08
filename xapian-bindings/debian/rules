@@ -6,9 +6,8 @@ PYVER      := $(word 1,$(PYVER_FULL)).$(word 2,$(PYVER_FULL))
 PYTHON_VERSION_MAIN := $(PYVER)
 
 # The python versions to build for
-PYTHON_VERSIONS := 2.2 2.3 2.4
+PYTHON_VERSIONS := 2.1 2.2 2.3 2.4
 
-export DH_COMPAT=3
 export DH_OPTIONS
 
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
@@ -40,13 +39,14 @@ commonconfflags := \
 	--sysconfdir=/etc
 
 
-maint: \
-	debian/control
+maint: debian/control
 
 maintclean: clean
 	rm -f debian/control
 
 debian/control: debian/rules debian/control.in debian/control-python.in
+	test -n "$(PYTHON_VERSION_MAIN)" || \
+		( echo "python package doesn't seem to be installed" ; exit 1 )
 	cat debian/control.in | \
 		sed "s/@PYTHON_VERSION_MAIN@/$(PYTHON_VERSION_MAIN)/g" | \
 		sed "s/@PYTHON_BUILD_DEPENDS@/$(PYTHON_BUILD_DEPENDS)/g" \
@@ -71,9 +71,7 @@ debian/configure-stamp:
 	    set -e; \
 	    mkdir -p build-python$$v; \
 	    cd build-python$$v; \
-	    ../configure $(commonconfflags) \
-	     --without-php --without-tcl --without-java --without-guile \
-	     --without-csharp \
+	    ../configure $(commonconfflags) --with-python \
 	     PYTHON=/usr/bin/python$$v; \
 	    cd ..; \
 	done
@@ -85,9 +83,7 @@ debian/build-stamp:
 	dh_testdir
 	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    cd build-python$$v; \
-	    $(MAKE); \
-	    cd ..; \
+	    $(MAKE) -C build-python$$v; \
 	done
 	touch $@
 
@@ -101,9 +97,7 @@ install: build
 	# Install the files into debian/tmp
 	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    cd build-python$$v; \
-	    $(MAKE) DESTDIR=$(CURDIR)/debian/tmp install; \
-	    cd ..; \
+	    $(MAKE) -C build-python$$v DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
 
 	# Reads the *.install files to decide where to install everything
