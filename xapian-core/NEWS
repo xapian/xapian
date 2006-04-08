@@ -1,3 +1,96 @@
+Xapian-core 0.9.5 (2006-04-08):
+
+API:
+
+* QueryParser:
+
+  + Fix FLAG_BOOLEAN_ANY_CASE to really allow any case combination - previously
+    it only allowed all uppercase or all lowercase.
+
+  + Fix QueryParser's handling of terms with trailing "#", "+", or "-" when
+    set_database has been called and the term doesn't exist in the database
+    with the suffix.
+
+* Add mechanism to allow xapian-bindings to override deprecation warnings so
+  we can continue to wrap deprecated methods without lots of warnings.
+
+* Move Enquire::get_matching_terms_end() and Document::termlist_end() inline in
+  header.
+
+* Database::termlist_begin(): Eliminate the MultiTermList wrapper in the common
+  case where we're only dealing with a single database.
+
+* Fix TermIterator::positionlist_begin() to work on TermIterator from
+  Database::termlist_begin().  Make TermList::positionlist_begin() pure
+  virtual and put dummy implementations in BranchTermList and other
+  subclasses which can't (or don't) implement it.  This makes it hard to
+  accidentally fail to implement it in a backend's TermList subclass.
+
+* TermIterator::positionlist_begin() with the remote backend now throws
+  UnimplementedError instead of InvalidOperationError.
+
+* Implement Enquire::set_sort_by_relevance_then_value().
+
+testsuite:
+
+* Added missing feature test for QueryParser::FLAG_BOOLEAN_ANY_CASE.
+
+* remotetest: Check mset size in tcpmatch1.
+
+flint backend:
+
+* xapian-compact: Fixed segfault from passing an unknown option (e.g.
+  "xapian-compact --foo").
+
+quartz backend:
+
+* quartzdump,quartzcompact: Fixed segfault from passing an unknown option
+  (e.g.  "quartzdump --foo").
+
+remote backend:
+
+* xapian-tcpsrv: Don't perform a name lookup on the IP address which an
+  incoming connection is from as that could easily slow down the search
+  response - instead just print the IP address itself if output is verbose.
+
+* xapian-tcpsrv: Allow up to 5 connections in the listen queue instead of just
+  one.
+
+build system:
+
+* Removed unused code from the matcher and the remote, quartz, and flint
+  backends.
+
+documentation:
+
+* All installed binaries now support --help and --version and have a man page
+  (which is generated using help2man).
+
+* docs/overview.html: Bring up to date.
+
+* docs/remote_protocol.html: Document messages for requesting and sending a
+  termlist and a document.
+
+* PLATFORMS, AUTHORS: Updated.
+
+* INSTALL: Improve wording.
+
+* HACKING: Note that we now use a lightly patched version of libtool 1.5.22.
+
+* HACKING: aclocal is part of automake, not autoconf.
+
+portability: 
+
+* Added some tweaks to help support compilation with MSVC.
+
+packaging:
+
+* RPMs: package the new man pages.
+
+debug code:
+
+* Add missing spaces in some debug output.
+
 Xapian-core 0.9.4 (2006-02-21):
 
 API:

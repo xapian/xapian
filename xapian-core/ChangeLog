@@ -1,3 +1,7 @@
+Sat Apr 08 20:02:19 BST 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.ac: Updated for 0.9.5.
+
 Fri Apr 07 23:53:08 BST 2006  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc,tests/api_db.cc,tests/btreetest.cc: Correct
