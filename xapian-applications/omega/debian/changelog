@@ -1,3 +1,10 @@
+xapian-omega (0.9.5-2) unstable; urgency=low
+
+  * Really package the man pages.
+  * debian/control: Need to list the non-virtual alternative first.
+
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 18:49:58 +0100
+
 xapian-omega (0.9.5-1) unstable; urgency=low
 
   * New upstream release.
