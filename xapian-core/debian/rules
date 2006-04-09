@@ -123,7 +123,7 @@ install: build \
 
 	# Reads the *.install files to decide where to install everything
 	dh_install --sourcedir=debian/tmp --fail-missing \
-		-exclude=usr/bin/simple
+		--exclude=usr/bin/simple
 
 
 binary: binary-arch binary-indep
