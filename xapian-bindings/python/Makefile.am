@@ -24,7 +24,9 @@ SUBDIRS = docs
 
 pylibdir = @PYTHON_LIB@
 
-pylib_SCRIPTS = @PYTHON_MODERN_OR_OLDE@/xapian.py xapian.pyc
+# Install as _DATA rather than _SCRIPTS because we don't want to make these
+# executable (they don't have a #! line).
+pylib_DATA = @PYTHON_MODERN_OR_OLDE@/xapian.py xapian.pyc
 
 pylib_LTLIBRARIES = _xapian.la
 

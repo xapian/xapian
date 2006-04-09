@@ -1,3 +1,9 @@
+Sun Apr 09 16:47:15 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Install xapian.py and xapian.pyc as _DATA not
+	  _SCRIPTS because we don't want to make them executable (they don't
+	  have a #! line).
+
 Sat Apr 08 20:09:39 BST 2006  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Updated for 0.9.5.
