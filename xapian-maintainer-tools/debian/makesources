@@ -2,6 +2,7 @@
 # Make Debian source packages from a xapian source tree.
 #
 # Copyright (C) 2004 Richard Boulton
+# Copyright (C) 2006 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -15,14 +16,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
+
+set -e
 
 # Usage: ./makesources [COMPONENT]
 # COMPONENT defaults to "stable".
-# Currently, the only sensible alternate value is "unstable".
+# Currently, the possible values are:
 
-set -e
+COMPONENTS='breezy|stable|unstable'
 
 # Set this to the tag of a snapshot build, or empty to build the latest
 # release.
@@ -31,7 +34,8 @@ set -e
 SNAPSHOT=
 #SNAPSHOT=trunk
 
-# Debian component to build for (libc version being the most important factor)
+# Debian component to build for (libc version and the GCC C++ ABI are typically
+# important factors).
 # This will be overridden by $1, if set.
 COMPONENT=stable
 
@@ -56,20 +60,16 @@ DOWNLOAD_BASE="http://www.oligarchy.co.uk/xapian/"
 trap "echo \"makedebs failed\"" EXIT
 
 # Get the component specified by the user.
-if [ "x$1" != "x" ] ; then
+if [ -n "$1" ] ; then
   COMPONENT=$1
 fi
 
 # Check that the component is sane.
 case $COMPONENT in
-  (breezy)
-    echo "Building for $COMPONENT" ;;
-  (stable)
-    echo "Building for $COMPONENT" ;;
-  (unstable)
+  ($COMPONENTS)
     echo "Building for $COMPONENT" ;;
   (*)
-    echo "Component \"$COMPONENT\" not known - try \"stable\" or \"unstable\""
+    echo "Component \"$COMPONENT\" not known - try \"`echo \"$COMPONENTS\"|sed 's/|/\" or \"/g'`\""
     exit 1
     ;;
 esac
@@ -79,7 +79,7 @@ DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
 
 # Detect if we're on the machine that Xapian SVN is held on, and don't use
 # network to check out sources if so.
-if [ "x`hostname`" == "xixion" ] ; then
+if [ "x`hostname`" = "xixion" ] ; then
   if [ -r '/home/xapian-svn' ] ; then
     SVNROOT="svn+xapian:///xapian/"
   fi
@@ -101,8 +101,8 @@ fi
 # If we failed to parse the tag into a version number, we are not building
 # a tagged release.  We will therefore have to get the version number from
 # the source code.
-if [ "x$SNAPSHOT" != "x" ] ; then
-  VERSION="`svn cat ${SVNROOT}/$SNAPSHOT/xapian-core/configure.ac | grep AC_INIT | head -n 1 | sed 's/^.*xapian-core, \([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)[^0-9].*$/\1.\2.\3/g'`"
+if [ -n "$SNAPSHOT" ] ; then
+  VERSION=`svn cat ${SVNROOT}/$SNAPSHOT/xapian-core/configure.ac | grep AC_INIT | head -n 1 | sed 's/^.*xapian-core, \([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)[^0-9].*$/\1.\2.\3/g'`
   SVNTAG="$SNAPSHOT"
   # For now, append the current date to snapshot builds.
   # FIXME - should use the date of last modification to the snapshot, or the revision number of the snapshot.
@@ -110,14 +110,14 @@ if [ "x$SNAPSHOT" != "x" ] ; then
   CHANGE_MSG="  * Snapshot build.
 "
 else
-  VERSION="`svn cat ${SVNROOT}/trunk/xapian-core/configure.ac | grep AC_INIT | head -n 1 | sed 's/^.*xapian-core, \([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)[^0-9].*$/\1.\2.\3/g'`"
+  VERSION=`svn cat ${SVNROOT}/trunk/xapian-core/configure.ac | grep AC_INIT | head -n 1 | sed 's/^.*xapian-core, \([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)[^0-9].*$/\1.\2.\3/g'`
   SVNTAG="tags/$VERSION"
   EXTRA_VERSION_UPSTREAM=""
   EXTRA_VERSION_DEBIAN=""
   CHANGE_MSG=""
 fi
 
-# Calculate CVS tags to use to check out Debian control files
+# Calculate SVN tags to use to check out Debian control files
 DEBTAG_BASE="debian-"
 DEBTAG_CORE="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-core/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
 DEBTAG_BINDINGS="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-bindings/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
@@ -138,10 +138,19 @@ fi
 SNAP_VERSION="$VERSION$EXTRA_VERSION_UPSTREAM"
 
 # Finish the contents of the changelog entry, if one is to be made.
-if [ "x$CHANGE_MSG" != "x" ] ; then
+if [ -n "$CHANGE_MSG" ] ; then
+  case $USER in
+    richard) MAINTAINTER_NAME='Richard Boulton <richard@tartarus.org>' ;;
+    olly) MAINTAINTER_NAME='Olly Betts <olly@survex.com>' ;;
+    *)
+      echo "Don't know user $USER"
+      exit 1
+      ;;
+  esac
+
   CHANGE_MSG="
 $CHANGE_MSG
- -- Richard Boulton <richard@tartarus.org>  `822-date`
+ -- $MAINTAINTER_NAME  `822-date`
 "
 fi
 
@@ -155,7 +164,7 @@ cd control
 cd ..
 
 # TARGETDIR is the location that all generated files will be stored in.
-if [ "x$EXTRA_VERSION_UPSTREAM" == "x" ] ; then
+if [ -z "$EXTRA_VERSION_UPSTREAM" ] ; then
   TARGETDIR="dists/$COMPONENT/main"
 else
   TARGETDIR="dists/$COMPONENT/snapshot"
@@ -170,7 +179,7 @@ TARBALL_BINDINGS="${PUBDIR}/${POOLDIR}/source/xapian-bindings_${SNAP_VERSION}.or
 TARBALL_OMEGA="${PUBDIR}/${POOLDIR}/source/xapian-omega_${SNAP_VERSION}.orig.tar.gz"
 
 # Download tarballs, if we don't already have some
-if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ];
+if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ]
 then
   # Distribution tarballs all exist
   true
@@ -196,21 +205,21 @@ else
     # If we've got all the packages, move them into place.
     if [ -e "xapian-core-${SNAP_VERSION}.tar.gz" -a \
          -e "xapian-bindings-${SNAP_VERSION}.tar.gz" -a \
-         -e "xapian-omega-${SNAP_VERSION}.tar.gz" ];
+         -e "xapian-omega-${SNAP_VERSION}.tar.gz" ]
     then
       # Make source directory
       mkdir -p "${PUBDIR}/${POOLDIR}/source"
 
-      mv "xapian-core-${SNAP_VERSION}.tar.gz" ${TARBALL_CORE};
-      mv "xapian-bindings-${SNAP_VERSION}.tar.gz" ${TARBALL_BINDINGS};
-      mv "xapian-omega-${SNAP_VERSION}.tar.gz" ${TARBALL_OMEGA};
+      mv "xapian-core-${SNAP_VERSION}.tar.gz" ${TARBALL_CORE}
+      mv "xapian-bindings-${SNAP_VERSION}.tar.gz" ${TARBALL_BINDINGS}
+      mv "xapian-omega-${SNAP_VERSION}.tar.gz" ${TARBALL_OMEGA}
     fi
   cd ..
   rm -rf downloads
 fi
 
 # Make tarballs, if we still don't have some
-if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ];
+if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ]
 then
   # Distribution tarballs all exist
   true
@@ -355,10 +364,10 @@ cd upload-sources
 cd ..
 
 # Check that I own all files in $PUBDIR
-for file in `find "${PUBDIR}" -type f -and -not -user richard`;
+for file in `find "${PUBDIR}" -type f -and -not -user "$USER"`
 do
-  cp "${file}" "${file}_";
-  mv "${file}_" "${file}";
+  cp "${file}" "${file}_"
+  mv "${file}_" "${file}"
 done
 
 # Upload to $PUBDIR
