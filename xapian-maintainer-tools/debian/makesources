@@ -52,6 +52,13 @@ PUBDIR="/usr/data/www/xapian.org/debian"
 
 # Location to checkout source from.
 SVNROOT="svn+ssh+userv://xapian-svn@svn.xapian.org/xapian/"
+# Detect if we're on the machine that Xapian SVN is held on, and don't use
+# network to check out sources if so.
+if [ "x`hostname`" = "xixion" ] ; then
+  if [ -r '/home/xapian-svn' ] ; then
+    SVNROOT="svn+xapian:///xapian/"
+  fi
+fi
 
 # Location to download tarballs from
 DOWNLOAD_BASE="http://www.oligarchy.co.uk/xapian/"
@@ -65,25 +72,16 @@ if [ -n "$1" ] ; then
 fi
 
 # Check that the component is sane.
-case $COMPONENT in
-  ($COMPONENTS)
-    echo "Building for $COMPONENT" ;;
-  (*)
-    echo "Component \"$COMPONENT\" not known - try \"`echo \"$COMPONENTS\"|sed 's/|/\" or \"/g'`\""
-    exit 1
-    ;;
-esac
+if expr "$COMPONENT" : '\('"`echo \"$COMPONENTS\"|sed 's/|/\\\\|/g'`"'\)$'
+then
+  echo "Building for $COMPONENT"
+else
+  echo "Component \"$COMPONENT\" not known - try \"`echo \"$COMPONENTS\"|sed 's/|/\" or \"/g'`\""
+  exit 1
+fi
 
 # Determine the architecture we're building on
 DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
-
-# Detect if we're on the machine that Xapian SVN is held on, and don't use
-# network to check out sources if so.
-if [ "x`hostname`" = "xixion" ] ; then
-  if [ -r '/home/xapian-svn' ] ; then
-    SVNROOT="svn+xapian:///xapian/"
-  fi
-fi
 
 # Calculate the version which we're building.
 
@@ -374,7 +372,7 @@ done
 mkdir -p ${PUBDIR}
 chgrp -R xapian upload-sources/*
 chmod -R g+w upload-sources/*
-cp -af upload-sources/* ${PUBDIR}
+(cd upload-sources && tar cf - .)|(cd ${PUBDIR} && tar xf -)
 chgrp -R xapian ${PUBDIR}/*
 chmod -R g+w ${PUBDIR}/*
 
