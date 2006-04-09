@@ -2,8 +2,9 @@ xapian-core (0.9.5-2) unstable; urgency=low
 
   * Use debian/compat instead of setting DH_COMPAT.
   * dh_install with --fail-missing intead of just --list-missing.
+  * dh_install now explicitly excludes the simple* examples.
 
- -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 19:05:32 +0100
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 21:17:32 +0100
 
 xapian-core (0.9.5-1) unstable; urgency=low
 

@@ -122,7 +122,8 @@ install: build \
 	$(MAKE) -C build-nodebug DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the *.install files to decide where to install everything
-	dh_install --sourcedir=debian/tmp --fail-missing
+	dh_install --sourcedir=debian/tmp --fail-missing \
+		-exclude=usr/bin/simple
 
 
 binary: binary-arch binary-indep
