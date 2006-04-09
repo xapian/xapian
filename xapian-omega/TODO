@@ -1,0 +1,4 @@
+Sort out permissions of /var/log/omega/, and rotate logfiles generated in
+there.
+
+Ensure that logfiles are removed when package is purged.
