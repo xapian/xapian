@@ -31,7 +31,6 @@ libxapian_soversion:=$(shell echo $$(($(libxapian_soversion))))
 # files.  Changes to the API should be rare, so this seems reasonable.
 libxapian_dev_soversion=
 
-export DH_COMPAT=4
 export DH_OPTIONS
 
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
@@ -123,7 +122,7 @@ install: build \
 	$(MAKE) -C build-nodebug DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the *.install files to decide where to install everything
-	dh_install --sourcedir=debian/tmp --list-missing
+	dh_install --sourcedir=debian/tmp --fail-missing
 
 
 binary: binary-arch binary-indep
