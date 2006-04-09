@@ -2,8 +2,9 @@ xapian-bindings (0.9.5-2) unstable; urgency=low
 
   * Added packages for PHP bindings (for both PHP4 and PHP5).
   * Don't install .py wrapper as executable (fixes Lintian warning).
+  * dh_install with --fail-missing intead of just --list-missing.
 
- -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 18:55:03 +0100
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 19:54:03 +0100
 
 xapian-bindings (0.9.5-1) unstable; urgency=low
 
