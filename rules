@@ -143,6 +143,11 @@ install: build
 	    set -e; \
 	    $(MAKE) -C build-python$$v DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
+	# These .py scripts don't have a #! line and shouldn't be executable.
+	# Fixed in SVN after 0.9.5 - this bodge can be removed for the next
+	# release (FIXME).
+	chmod 644 $(CURDIR)/debian/tmp/usr/lib/python*/site-packages/*.py
+
 	for v in $(PHP_VERSIONS); do \
 	    set -e; \
 	    $(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp install; \
