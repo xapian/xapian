@@ -59,6 +59,8 @@ do
             ${SVNROOT}tags/$DEBTAG/
 
   if [ x"$1" = x--force ] ; then
+    svn rm -m "Retagging $module for $DEBTAG release." \
+      ${SVNROOT}tags/"$DEBTAG"/$module/
     svn cp -m "Retagging $module for $DEBTAG release." \
       ${SVNROOT}trunk/$MODULE_NAME/debian \
       ${SVNROOT}tags/"$DEBTAG"/$module/
