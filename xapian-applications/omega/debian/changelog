@@ -4,8 +4,9 @@ xapian-omega (0.9.5-2) unstable; urgency=low
   * debian/control: Need to list the non-virtual alternative first.
   * Use debian/compat instead of setting DH_COMPAT.
   * dh_install with --fail-missing intead of just --list-missing.
+  * Include mbox2omega and mbox2omega.script in the examples directory.
 
- -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 19:52:58 +0100
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 23:59:58 +0100
 
 xapian-omega (0.9.5-1) unstable; urgency=low
 
