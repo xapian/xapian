@@ -27,8 +27,15 @@ PYTHON_VERSION_MAIN := $(PYVER)
 # The python versions to build for
 PYTHON_VERSIONS := 2.1 2.2 2.3 2.4
 
+# Component we're building packages for
+COMPONENT ?= unknown
+
 # The PHP versions to build for
+ifeq ($(COMPONENT), stable)
+PHP_VERSIONS := 4 # Debian stable doesn't have PHP5
+else
 PHP_VERSIONS := 4 5
+endif
 
 export DH_OPTIONS
 
@@ -108,12 +115,14 @@ debian/configure-stamp:
 	done
 
 	for v in $(PHP_VERSIONS); do \
-	    set -e; \
-	    mkdir -p build-php$$v; \
-	    cd build-php$$v; \
-	    ../configure $(commonconfflags) --with-php \
-	     PHP_CONFIG=/usr/bin/php-config$$v; \
-	    cd ..; \
+	    if test -x /usr/bin/php-config$$v ; then \
+		set -e; \
+		mkdir -p build-php$$v; \
+		cd build-php$$v; \
+		../configure $(commonconfflags) --with-php \
+		 PHP_CONFIG=/usr/bin/php-config$$v; \
+		cd ..; \
+	    fi \
 	done
 
 	touch $@
@@ -126,8 +135,10 @@ debian/build-stamp:
 	    $(MAKE) -C build-python$$v; \
 	done
 	for v in $(PHP_VERSIONS); do \
-	    set -e; \
-	    $(MAKE) -C build-php$$v; \
+	    if test -x /usr/bin/php-config$$v ; then \
+		set -e; \
+		$(MAKE) -C build-php$$v; \
+	    fi \
 	done
 	touch $@
 
@@ -149,8 +160,10 @@ install: build
 	chmod 644 $(CURDIR)/debian/tmp/usr/lib/python*/site-packages/*.py
 
 	for v in $(PHP_VERSIONS); do \
-	    set -e; \
-	    $(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp install; \
+	    if test -x /usr/bin/php-config$$v ; then \
+		set -e; \
+		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp install; \
+	    fi \
 	done
 
 	# Reads the *.install files to decide where to install everything
