@@ -366,7 +366,7 @@ cd ..
 # Check that I own all files in $PUBDIR
 for file in `find "${PUBDIR}" -type f -and -not -user "$USER"`
 do
-  cp "${file}" "${file}_"
+  cp -p "${file}" "${file}_"
   mv "${file}_" "${file}"
 done
 
