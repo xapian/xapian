@@ -154,7 +154,7 @@ install: build
 	done
 
 	# Reads the *.install files to decide where to install everything
-	dh_install --sourcedir=debian/tmp --list-missing --exclude=.pyc
+	dh_install --sourcedir=debian/tmp --fail-missing --exclude=.pyc
 
 binary: binary-arch binary-indep
 binary-indep: DH_OPTIONS=-i
