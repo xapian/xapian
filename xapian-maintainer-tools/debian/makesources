@@ -25,7 +25,7 @@ set -e
 # COMPONENT defaults to "stable".
 # Currently, the possible values are:
 
-COMPONENTS='breezy|stable|unstable'
+COMPONENTS='breezy|dapper|stable|unstable'
 
 # Set this to the tag of a snapshot build, or empty to build the latest
 # release.
@@ -373,8 +373,10 @@ mkdir -p ${PUBDIR}
 chgrp -R xapian upload-sources/*
 chmod -R g+w upload-sources/*
 (cd upload-sources && tar cf - .)|(cd ${PUBDIR} && tar xf -)
-chgrp -R xapian ${PUBDIR}/*
-chmod -R g+w ${PUBDIR}/*
+# This may fail if a different user owns one of the directories.
+chgrp -R xapian ${PUBDIR}/* || true
+# This may fail if a different user owns one of the directories.
+chmod -R g+w ${PUBDIR}/* || true
 
 # Source packages are now generated and uploaded.
 
