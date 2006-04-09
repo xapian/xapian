@@ -2,8 +2,10 @@ xapian-omega (0.9.5-2) unstable; urgency=low
 
   * Really package the man pages.
   * debian/control: Need to list the non-virtual alternative first.
+  * Use debian/compat instead of setting DH_COMPAT.
+  * dh_install with --fail-missing intead of just --list-missing.
 
- -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 18:49:58 +0100
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 19:52:58 +0100
 
 xapian-omega (0.9.5-1) unstable; urgency=low
 

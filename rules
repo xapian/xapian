@@ -18,7 +18,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-export DH_COMPAT=4
 export DH_OPTIONS
 
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
@@ -81,7 +80,7 @@ install: build
 	$(MAKE) -C build-nodebug DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the *.install files to decide where to install everything
-	dh_install --sourcedir=debian/tmp --list-missing
+	dh_install --sourcedir=debian/tmp --fail-missing
 
 binary: binary-arch binary-indep
 binary-indep: DH_OPTIONS=-i
