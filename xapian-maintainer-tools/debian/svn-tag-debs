@@ -1,24 +1,58 @@
 #!/bin/sh
 # Tag the latest versions of the debian control files.   Automatically
 # works out the version numbers and tag names.
+#
+# Copyright (C) 2004 Richard Boulton
+# Copyright (C) 2006 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
 
 set -e
 
-SVNROOT="svn+ssh+userv://xapian-svn@svn.xapian.org/xapian/"
+if [ ixion.tartarus.org = "`hostname -f`" ] ; then
+  SVNROOT="svn+userv:///xapian/"
+else
+  SVNROOT="svn+ssh+userv://xapian-svn@svn.xapian.org/xapian/"
+fi
+
 DEBTAG_BASE="debian-"
 
-
 # Tag the release in SVN.
-for module in xapian-core xapian-bindings xapian-omega;
+for module in xapian-core xapian-bindings xapian-omega
 do
   MODULE_NAME=$module
-  if [ "x$module" == "xxapian-omega" ];
+  if [ "x$module" = "xxapian-omega" ]
   then
     MODULE_NAME=xapian-applications/omega
   fi
 
-  VERSION="`svn cat ${SVNROOT}/trunk/$MODULE_NAME/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
+  ERRLOG=`mktemp /tmp/svn-tag-debs.XXXXXXXXXX` || exit 1
+
+  VERSION=`svn cat ${SVNROOT}/trunk/$MODULE_NAME/debian/changelog 2>> "$ERRLOG" | head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`
   DEBTAG="${DEBTAG_BASE}${VERSION}"
+
+  if [ -z "$VERSION" ] ; then
+    cat "$ERRLOG"
+    rm -f "$ERRLOG"
+    echo "Couldn't get version for module $MODULE_NAME"
+    exit 1
+  fi
+  rm -f "$ERRLOG"
+
+  echo "Tagging $MODULE_NAME as $DEBTAG"
 
   svn ls ${SVNROOT}tags/$DEBTAG/ >/dev/null 2>&1 || \
     svn mkdir -m "Tag for $DEBTAG release." \
