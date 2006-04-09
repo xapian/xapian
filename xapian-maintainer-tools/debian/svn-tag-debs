@@ -23,7 +23,7 @@
 set -e
 
 if [ ixion.tartarus.org = "`hostname -f`" ] ; then
-  SVNROOT="svn+userv:///xapian/"
+  SVNROOT="svn+xapian:///xapian/"
 else
   SVNROOT="svn+ssh+userv://xapian-svn@svn.xapian.org/xapian/"
 fi
