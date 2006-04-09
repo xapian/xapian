@@ -58,8 +58,14 @@ do
     svn mkdir -m "Tag for $DEBTAG release." \
             ${SVNROOT}tags/$DEBTAG/
 
-  svn ls ${SVNROOT}tags/$DEBTAG/$module/ >/dev/null 2>&1 || \
-    svn cp -m "Tagging $module for $DEBTAG release." \
+  if [ x"$1" = x--force ] ; then
+    svn cp -m "Retagging $module for $DEBTAG release." \
       ${SVNROOT}trunk/$MODULE_NAME/debian \
       ${SVNROOT}tags/"$DEBTAG"/$module/
+  else
+    svn ls ${SVNROOT}tags/$DEBTAG/$module/ >/dev/null 2>&1 || \
+      svn cp -m "Tagging $module for $DEBTAG release." \
+	${SVNROOT}trunk/$MODULE_NAME/debian \
+	${SVNROOT}tags/"$DEBTAG"/$module/
+  fi
 done
