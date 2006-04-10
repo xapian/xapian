@@ -284,7 +284,7 @@ main(int argc, char **argv)
 	const size_t out_of = argc - 1 - optind;
 	vector<Xapian::docid> offset(out_of);
 	Xapian::docid tot_off = 0;
-	for (int i = 0; i < out_of; ++i) {
+	for (size_t i = 0; i < out_of; ++i) {
 	    Xapian::Database db(argv[i + optind]);
 	    Xapian::docid last = db.get_lastdocid();
 	    offset[i] = tot_off;
@@ -322,7 +322,7 @@ main(int argc, char **argv)
 	    if (*t == "postlist") {
 		priority_queue<PostlistCursor *, vector<PostlistCursor *>,
 			       CursorGt> pq;
-		for (int i = 0; i < out_of; ++i) {
+		for (size_t i = 0; i < out_of; ++i) {
 		    Xapian::docid off = offset[i];
 		    const char *srcdir = argv[i + optind];
 		    string src(srcdir);
@@ -391,7 +391,7 @@ main(int argc, char **argv)
 	    } else if (*t == "position") {
 		priority_queue<PositionCursor *, vector<PositionCursor *>,
 			       CursorGt> pq;
-		for (int i = 0; i < out_of; ++i) {
+		for (size_t i = 0; i < out_of; ++i) {
 		    Xapian::docid off = offset[i];
 		    const char *srcdir = argv[i + optind];
 		    string src(srcdir);
@@ -429,7 +429,7 @@ main(int argc, char **argv)
 		// Record, Termlist, Value
 		priority_queue<DocIDKeyedCursor *, vector<DocIDKeyedCursor *>,
 			       CursorGt> pq;
-		for (int i = 0; i < out_of; ++i) {
+		for (size_t i = 0; i < out_of; ++i) {
 		    Xapian::docid off = offset[i];
 		    const char *srcdir = argv[i + optind];
 		    string src(srcdir);

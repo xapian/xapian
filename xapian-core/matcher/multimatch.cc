@@ -108,10 +108,10 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	}
 
 	const set<Xapian::docid> & items = omrset.internal->items;
-	set<Xapian::docid>::const_iterator i;
-	for (i = items.begin(); i != items.end(); ++i) {
-	    Xapian::doccount local_docid = (*i - 1) / number_of_leaves + 1;
-	    Xapian::doccount subdatabase = (*i - 1) % number_of_leaves;
+	set<Xapian::docid>::const_iterator j;
+	for (j = items.begin(); j != items.end(); ++j) {
+	    Xapian::doccount local_docid = (*j - 1) / number_of_leaves + 1;
+	    Xapian::doccount subdatabase = (*j - 1) % number_of_leaves;
 	    subrsets[subdatabase].add_document(local_docid);
 	}
     }

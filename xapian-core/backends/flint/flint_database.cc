@@ -361,7 +361,7 @@ FlintDatabase::apply()
 	    // This cancel() causes any buffered changes to be thrown away,
 	    // and the buffer to be reinitialised with the old entry count.
 	    cancel();
-	} catch (const Xapian::Error & e) {
+	} catch (const Xapian::Error &) {
 	    throw Xapian::DatabaseError("Modifications failed, and cannot set revision numbers in database to a consistent state");
 	}
 	throw;

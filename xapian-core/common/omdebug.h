@@ -1,9 +1,8 @@
 /* omdebug.h: Provide debugging message facilities
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005 Olly Betts
+ * Copyright 2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 // Note: we use macros to define our assertions, since with a template
@@ -237,8 +235,8 @@ using std::endl;
 
 #elif defined(XAPIAN_DEBUG_PROFILE)
 
-#define DEBUGMSG(a,b)
-#define DEBUGLINE(a,b)
+#define DEBUGMSG(a,b) (void)0
+#define DEBUGLINE(a,b) (void)0
 #define RETURN(A) return (A)
 
 #include <sys/time.h>
@@ -373,12 +371,12 @@ class Xapian::Internal::Timer {
 
 #else
 
-#define DEBUGMSG(a,b)
-#define DEBUGLINE(a,b)
+#define DEBUGMSG(a,b) (void)0
+#define DEBUGLINE(a,b) (void)0
 #define RETURN(A) return (A)
 
-#define DEBUGCALL(r,t,a,b)
-#define DEBUGCALL_STATIC(r,t,a,b)
+#define DEBUGCALL(r,t,a,b) (void)0
+#define DEBUGCALL_STATIC(r,t,a,b) (void)0
 #endif /* XAPIAN_DEBUG_VERBOSE */
 
 #define DEBUGAPICALL(r,a,b) DEBUGCALL(APICALL,r,a,b)

@@ -1,4 +1,10 @@
 
+#ifdef _MSC_VER
+// The snowball generated code often has unused labels - suppress MSVC's
+// warning about this.
+#pragma warning(disable:4102)
+#endif
+
 #include <limits.h>
 
 #include "api.h"

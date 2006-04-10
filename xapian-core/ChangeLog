@@ -1,3 +1,11 @@
+Mon Apr 10 14:46:34 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_utils.h,
+	  backends/quartz/quartz_utils.h,bin/quartzcompact.cc,
+	  bin/xapian-compact.cc,common/omdebug.h,common/utils.h,
+	  include/xapian/query.h,languages/header.h,matcher/multimatch.cc:
+	  Fix assorted MSVC7 warnings.
+
 Sun Apr 09 04:56:09 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Expand on details of what's required when changing Xapian

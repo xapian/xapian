@@ -131,7 +131,7 @@ pack_uint(T value)
     string result;
 
     while (value != 0) {
-	om_byte part = value & 0x7f;
+	om_byte part = static_cast<om_byte>(value & 0x7f);
 	value = value >> 7;
 	if (value) part |= 0x80;
 	result.append(1u, char(part));
@@ -226,7 +226,7 @@ pack_uint_preserving_sort(T value)
 
     string result;
     while (value != 0) {
-	om_byte part = value & 0xff;
+	om_byte part = static_cast<om_byte>(value & 0xff);
 	value = value >> 8;
 	result.insert(string::size_type(0), 1u, char(part));
     }

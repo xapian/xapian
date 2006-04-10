@@ -215,7 +215,7 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
 class Query::Internal : public Xapian::Internal::RefCntBase {
     friend class ::MultiMatch;
     friend class ::LocalSubMatch;
-    friend class ::SortPosName;
+    friend struct ::SortPosName;
     public:
         static const int OP_LEAF = -1;
 

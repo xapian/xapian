@@ -1,9 +1,8 @@
 /* flint_utils.h: Generic functions for flint
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_FLINT_UTILS_H
@@ -105,7 +103,7 @@ unpack_uint(const char ** src,
 	    }
 	}
 
-	result += (part & 0x7f) << shift;
+	result += T(part & 0x7f) << shift;
 	shift += 7;
 
 	if ((part & 0x80) == 0) {
@@ -133,7 +131,7 @@ pack_uint(T value)
     string result;
 
     while (value != 0) {
-	om_byte part = value & 0x7f;
+	om_byte part = static_cast<om_byte>(value & 0x7f);
 	value = value >> 7;
 	if (value) part |= 0x80;
 	result.append(1u, char(part));
@@ -228,7 +226,7 @@ pack_uint_preserving_sort(T value)
 
     string result;
     while (value != 0) {
-	om_byte part = value & 0xff;
+	om_byte part = static_cast<om_byte>(value & 0xff);
 	value = value >> 8;
 	result.insert(string::size_type(0), 1u, char(part));
     }

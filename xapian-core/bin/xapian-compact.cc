@@ -413,7 +413,7 @@ main(int argc, char **argv)
 		}
 		merge_postlists(&out, off.begin(), tmp.begin(), tmp.end(), tot_off);
 		if (c > 0) {
-		    for (int k = 0; k < tmp.size(); ++k) {
+		    for (size_t k = 0; k < tmp.size(); ++k) {
 			unlink((tmp[k] + "DB").c_str());
 			unlink((tmp[k] + "baseA").c_str());
 			unlink((tmp[k] + "baseB").c_str());
