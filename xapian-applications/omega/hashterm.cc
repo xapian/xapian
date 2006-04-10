@@ -48,10 +48,10 @@ hash_string(const string &s)
     // char(33) if we need to break backwards compatiblity for some other
     // reason.
     string result = string(HASH_LEN, ' ');
-    int i = 0;
+    size_t j = 0;
     while (h != 0) {
 	char ch = char((h & 63) + 33);
-	result[i++] = ch;
+	result[j++] = ch;
 	h = h >> 6;
     }
     return result;

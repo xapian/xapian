@@ -79,7 +79,8 @@ static int my_snprintf(char *str, size_t size, const char *format, ...)
     va_start(ap, format);
     str[size - 1] = '\0';
     res = vsprintf(str, format, ap);
-    if (str[size - 1] || res >= size) abort(); /* Overflowed! */
+    if (str[size - 1] || res < 0 || size_t(res) >= size)
+	abort(); /* Overflowed! */
     va_end(ap);
     return res;
 }
@@ -590,6 +591,12 @@ static int word_in_list(const string& word, const string& list)
     return -1;
 }
 
+#ifdef _MSC_VER
+// MSVC shut up pointless "performance warning" about conversion to bool -
+// these methods are inlined so it'll be optimised away if it isn't required.
+# pragma warning(disable:4800)
+#endif
+
 inline static bool
 p_alnum(unsigned int c)
 {
@@ -621,6 +628,11 @@ p_plusminus(unsigned int c)
 {
     return c == '+' || c == '-';
 }
+
+#ifdef _MSC_VER
+// Restore default setting for this warning.
+# pragma warning(default:4800)
+#endif
 
 // FIXME: shares algorithm with indextext.cc!
 static string
@@ -1676,7 +1688,7 @@ eval(const string &fmt, const vector<string> &param)
 		while (true) {
 		    j = pos.find('\t', i);
 		    int item = string_to_int(pos.substr(i, j - i));
-		    if (item >= 0 && item < items.size()) {
+		    if (item >= 0 && size_t(item) < items.size()) {
 			if (have_added) value += '\t';
 			value += items[item];
 			have_added = true;
@@ -2192,7 +2204,7 @@ ensure_query_parsed()
 	// consistent with the naming of other CGI parameters.
 	if (val == cgi_params.end()) val = cgi_params.find("RAW_SEARCH");
 	if (val != cgi_params.end()) {
-	    raw_search = bool(atol(val->second.c_str()));
+	    raw_search = static_cast<bool>(atol(val->second.c_str()));
 	}
 
 	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;

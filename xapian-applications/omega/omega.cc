@@ -159,7 +159,7 @@ try {
 	}
 	enquire = new Xapian::Enquire(db);
     }
-    catch (const Xapian::Error &e) {
+    catch (const Xapian::Error &) {
 	enquire = NULL;
     }
 
@@ -262,9 +262,9 @@ try {
 	    }
 	}
 	sort(filter_v.begin(), filter_v.end());
-	vector<string>::const_iterator i;
-	for (i = filter_v.begin(); i != filter_v.end(); ++i) {
-	    filters += *i;
+	vector<string>::const_iterator j;
+	for (j = filter_v.begin(); j != filter_v.end(); ++j) {
+	    filters += *j;
 	    filters += filter_sep;
 	}
     }

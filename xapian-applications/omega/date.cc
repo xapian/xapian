@@ -53,7 +53,8 @@ static int my_snprintf(char *str, size_t size, const char *format, ...)
     va_start(ap, format);
     str[size - 1] = '\0';
     res = vsprintf(str, format, ap);
-    if (str[size - 1] || res >= size) abort(); /* Overflowed! */
+    if (str[size - 1] || res < 0 || size_t(res) >= size)
+	abort(); /* Overflowed! */
     va_end(ap);
     return res;
 }

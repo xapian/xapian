@@ -62,6 +62,12 @@ static int addcount;
 static int repcount;
 static int delcount;
 
+#ifdef _MSC_VER
+// MSVC shut up pointless "performance warning" about conversion to bool -
+// these methods are inlined so it'll be optimised away if it isn't required.
+# pragma warning(disable:4800)
+#endif
+
 inline static bool
 p_space(unsigned int c)
 {
@@ -104,6 +110,11 @@ p_notfieldnamechar(unsigned int c)
 {
     return !isalnum(c) && c != '_';
 }
+
+#ifdef _MSC_VER
+// Restore default setting for this warning.
+# pragma warning(default:4800)
+#endif
 
 const char * action_names[] = {
     "bad", "new",
@@ -706,7 +717,7 @@ main(int argc, char **argv)
 	    case 's':
 		try {
 		    stemmer = Xapian::Stem(optarg);
-		} catch (const Xapian::Error &e) {
+		} catch (const Xapian::Error &) {
 		    cerr << "Unknown stemming language '" << optarg << "'.\n";
 		    cerr << "Available language names are: "
 			 << Xapian::Stem::get_available_languages() << endl;
@@ -742,7 +753,7 @@ main(int argc, char **argv)
 	    try {
 		database = Xapian::WritableDatabase(argv[0], database_mode);
 		break;
-	    } catch (const Xapian::DatabaseLockError &error) {
+	    } catch (const Xapian::DatabaseLockError &) {
 		// Sleep and retry if we get a Xapian::DatabaseLockError -
 		// this just means that another process is updating the
 		// database.
