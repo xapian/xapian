@@ -1,3 +1,8 @@
+Mon Apr 10 15:56:52 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Another MSVC7 warning fix.  Should be free
+	  of warnings now.
+
 Mon Apr 10 14:46:34 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc,backends/flint/flint_utils.h,

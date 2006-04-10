@@ -36,7 +36,7 @@
 // compile.
 class MultiMatch;
 class LocalSubMatch;
-class SortPosName;
+struct SortPosName;
 
 namespace Xapian {
 
