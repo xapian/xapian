@@ -1,6 +1,6 @@
 
 Package: php@PHP_VERSION@-xapian
-Section: php
+Section: web
 Architecture: any
 Depends: php@PHP_VERSION@|php@PHP_VERSION@-cli, ${shlibs:Depends}, ${misc:Depends}
 Description: Xapian search engine interface for PHP@PHP_VERSION@
