@@ -1,3 +1,8 @@
+Tue Apr 11 00:45:55 BST 2006  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updates from boxes which were down when I did the
+	  release.
+
 Mon Apr 10 17:06:46 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,backends/flint/flint_btreebase.cc,

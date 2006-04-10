@@ -129,7 +129,7 @@ hppa  |#HP-UX 11.11 aCC B3910B A.03.57 | 0.8.5 |Passed| (was td192) [9]
 hppa  |=HP-UX 11.23 aCC B3910B A.03.63 | 0.9.5 |Passed| (td191) [9]
 hppa  |=HP-UX 11.11 aCC B3910B A.03.67 | 0.9.5 |Passed| (td192) [9]
 ia64  |#Linux 2.4 Debian 3.0 GCC 2.96  | 0.9.1 |Passed| (was td156)
-ia64  |=Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.9.4 |Passed| (td156)
+ia64  |=Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.9.5 |Passed| (td156)
 ia64  |#Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed|
 ia64  |+Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.5~|Passed|
 ia64  |#Linux 2.4 RHEL AS3 GCC 3.4.1   | 0.8.5 |Passed|
@@ -147,7 +147,8 @@ ia64  |=FreeBSD 6.0 GCC 3.4.4 	       | 0.9.5 |Passed| (td150)
 ia64  |#HP-UX 11.23 GCC 3.4.1          | 0.8.5 |Passed| (was td176)
 ia64  |=HP-UX 11.23 GCC 3.4.3          | 0.9.3 |Passed| (td176)
 ia64  |=HP-UX 11.23 aCC B3910B A.06.00 | 0.9.2 |Passed| (td196)
-ia64  |=HP-UX 11.23 aCC B3910B A.06.02 | 0.9.5 |Passed| (td176)
+ia64  |#HP-UX 11.23 aCC B3910B A.06.02 | 0.9.4 |Passed| (was td176)
+ia64  |=HP-UX 11.23 aCC B3910B A.06.07 | 0.9.5 |Passed| (td164,176)
 ------+--------------------------------+-------+------+------------------------
 x86   |&Linux cross to mingw GCC 2.95.3| 0.9.5 |Built | [1] Using MSVCRT.DLL
 x86   |*Linux cross to mingw GCC 3.4.2 | 0.9.4 |Built | [1] Using MSVCRT.DLL
