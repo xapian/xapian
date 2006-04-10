@@ -764,7 +764,7 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     }
 
     expand.expand(maxitems, retval, &rseti, edecider,
-		  bool(flags & Enquire::use_exact_termfreq), k);
+		  static_cast<bool>(flags & Enquire::use_exact_termfreq), k);
 
     return retval;
 }

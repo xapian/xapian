@@ -72,10 +72,10 @@
 #define AssertEq(a,b) if ((a) == (b)) { } else throw Xapian::AssertionError(ASSERT_LOCN(a)" - expected equal values: had " + om_tostring(a) + " and " + om_tostring(b))
 #define AssertNe(a,b) if ((a) != (b)) { } else throw Xapian::AssertionError(ASSERT_LOCN(a)" - expected different values: had " + om_tostring(a))
 #else
-#define Assert(a)
-#define AssertEqDouble(a,b)
-#define AssertEq(a,b)
-#define AssertNe(a,b)
+#define Assert(a) (void)0
+#define AssertEqDouble(a,b) (void)0
+#define AssertEq(a,b) (void)0
+#define AssertNe(a,b) (void)0
 #endif
 
 // CompileTimeAssert(expr); takes a constant expression, expr, and causes

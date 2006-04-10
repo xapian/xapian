@@ -140,6 +140,21 @@ pack_uint(T value)
     return result;
 }
 
+/** Generates a packed representation of a bool.
+ *
+ *  This is a specialisation of the template above.
+ *
+ *  @param value  The bool to represent.
+ *
+ *  @result       A string containing the representation of the bool.
+ */
+template<>
+inline string
+pack_uint<bool>(bool value)
+{
+    return string(1, static_cast<char>(value));
+}
+
 /** Reads an unsigned integer from a string starting at a given position.
  *  This encoding requires that we know the encoded length from out-of-band
  *  information (so is suitable when only one integer is encoded, or for

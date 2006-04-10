@@ -1,3 +1,10 @@
+Mon Apr 10 17:06:46 BST 2006  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,backends/flint/flint_btreebase.cc,
+	  backends/flint/flint_utils.h,backends/quartz/btree_base.cc,
+	  backends/quartz/quartz_utils.h,common/omassert.h:
+	  Fix more MSVC7 warnings (I spoke too soon).
+
 Mon Apr 10 15:56:52 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/query.h: Another MSVC7 warning fix.  Should be free
