@@ -124,11 +124,10 @@ install: build \
 	# Install the example source code
 	mkdir -p debian/tmp/usr/share/doc/xapian-examples/examples
 	cp examples/*.cc debian/tmp/usr/share/doc/xapian-examples/examples
-	ln -s /usr/lib/xapian-examples/examples debian/tmp/usr/share/doc/xapian-examples/examples/built-$(DEB_HOST_GNU_TYPE)
+	ln -s ../../../../lib/xapian-examples/examples debian/tmp/usr/share/doc/xapian-examples/examples/built-$(DEB_HOST_GNU_TYPE)
 
 	# Reads the *.install files to decide where to install everything
-	dh_install --sourcedir=debian/tmp --fail-missing \
-		--exclude=usr/bin/simple
+	dh_install --sourcedir=debian/tmp --fail-missing
 
 
 binary: binary-arch binary-indep
