@@ -462,16 +462,12 @@ if test yes = "$GXX" ; then
       dnl
       dnl -w1 stops the avalanche of uninteresting "remark" messages.
       dnl -wd... disables warnings which don't have good code workarounds.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
-      dnl Automatically add -Werror if maintainer mode is enabled.
-      if test x$USE_MAINTAINER_MODE = xyes; then
-	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
-      fi
+      dnl
       dnl Swig generated code gives lots of unused and uninitialized warnings.
       dnl They're non-harmful, so suppress them.
-      SWIG_CXXFLAGS="-Wall -Wno-unused -Wno-uninitialized"
+      SWIG_CXXFLAGS="-Wall -w1 -wd177,1572"
       dnl The Java JNI wrappers have a few unused variables.
-      JAVA_CXXFLAGS="-Wall -Wno-unused"
+      JAVA_CXXFLAGS="-Wall -w1 -wd177,1572"
     ],
     [
       dnl GCC:
@@ -483,7 +479,6 @@ if test yes = "$GXX" ; then
       JAVA_CXXFLAGS="-Wall -W -Wno-unused"
     ])
 fi
-AC_SUBST(AM_CXXFLAGS)
 AC_SUBST(SWIG_CXXFLAGS)
 AC_SUBST(JAVA_CXXFLAGS)
 
