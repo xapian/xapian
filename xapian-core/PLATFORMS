@@ -3,10 +3,29 @@ and passed "make check" on.  It will probably work on many more platforms
 - lack of an entry here shouldn't be assumed to mean it won't work, just that
 we've not had any reports.
 
+The list is getting rather long these days, so to summarise, Xapian should
+compile on any fairly modern Unix or Unix-like platform with a compiler
+with decent ISO C++ support.  If you're using GCC, 2.95 is probably the
+minimum required version.  The only tested compiler we've failed to build with
+so far is Compaq C++ (see below for more information).
+
+64 bit platforms are well supported (we do a lot of development work on x86-64
+Linux), as are both big and little endian platforms.  Any sane Linux
+distribution should work, and we regularly test build on several.
+
+Additionally, Xapian can be built on Microsoft Windows using cygwin or mingw
+GCC, or with MSVC.
+
+We have automated builds on all the platforms we can get access to.  It's
+easier to list the common Unix-like platforms that (at least as far as we know)
+have never been tested - they're AIX and GNU HURD.  And nobody's reported
+trying to build on IRIX since Xapian 0.8.5.
+
 If you try a platform not listed here (or try a newer version on a listed
 platform) we'd love to hear - please at least include the OS version (e.g.
 output from "uname -a"), compiler and version (e.g. output from g++ -v), and
-any switches you passed to configure.
+any switches you passed to configure.  Please also run "make check" and
+tell us if any tests fail.
 
 Two notes about GCC 2.95:
 
