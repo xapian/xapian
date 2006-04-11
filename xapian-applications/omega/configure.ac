@@ -167,6 +167,12 @@ if test yes = "$GXX"; then
   AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -fno-gnu-keywords"
 fi
 
+AH_BOTTOM(
+[/* Disable stupid MSVC "performance" warning for converting int to bool. */
+#ifdef _MSC_VER
+# pragma warning(disable:4800)
+#endif])
+
 dnl **************************
 dnl * Build the output files *
 dnl **************************

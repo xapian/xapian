@@ -33,12 +33,6 @@ using std::find_if;
 
 map<string, unsigned int> HtmlParser::named_ents;
 
-#ifdef _MSC_VER
-// MSVC shut up pointless "performance warning" about conversion to bool -
-// these methods are inlined so it'll be optimised away if it isn't required.
-# pragma warning(disable:4800)
-#endif
-
 inline static bool
 p_alpha(char c)
 {
@@ -86,11 +80,6 @@ p_whitespaceeqgt(char c)
 {
     return isspace(c) || c == '=' || c == '>';
 }
-
-#ifdef _MSC_VER
-// Restore default setting for this warning.
-# pragma warning(default:4800)
-#endif
 
 HtmlParser::HtmlParser()
 {

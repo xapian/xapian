@@ -62,12 +62,6 @@ static int addcount;
 static int repcount;
 static int delcount;
 
-#ifdef _MSC_VER
-// MSVC shut up pointless "performance warning" about conversion to bool -
-// these methods are inlined so it'll be optimised away if it isn't required.
-# pragma warning(disable:4800)
-#endif
-
 inline static bool
 p_space(unsigned int c)
 {
@@ -110,11 +104,6 @@ p_notfieldnamechar(unsigned int c)
 {
     return !isalnum(c) && c != '_';
 }
-
-#ifdef _MSC_VER
-// Restore default setting for this warning.
-# pragma warning(default:4800)
-#endif
 
 const char * action_names[] = {
     "bad", "new",

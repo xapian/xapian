@@ -1,3 +1,9 @@
+Tue Apr 11 19:29:34 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,htmlparse.cc,query.cc,scriptindex.cc: Disable MSVC
+	  warning 4800 (on int to bool conversions) in config.h and then we
+	  can remove the "fixes" elsewhere.
+
 Mon Apr 10 16:26:08 BST 2006  Olly Betts <olly@survex.com>
 
 	* date.cc,hashterm.cc,htmlparse.cc,omega.cc,omindex.cc,query.cc,

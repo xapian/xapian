@@ -591,12 +591,6 @@ static int word_in_list(const string& word, const string& list)
     return -1;
 }
 
-#ifdef _MSC_VER
-// MSVC shut up pointless "performance warning" about conversion to bool -
-// these methods are inlined so it'll be optimised away if it isn't required.
-# pragma warning(disable:4800)
-#endif
-
 inline static bool
 p_alnum(unsigned int c)
 {
@@ -628,11 +622,6 @@ p_plusminus(unsigned int c)
 {
     return c == '+' || c == '-';
 }
-
-#ifdef _MSC_VER
-// Restore default setting for this warning.
-# pragma warning(default:4800)
-#endif
 
 // FIXME: shares algorithm with indextext.cc!
 static string
@@ -2204,7 +2193,7 @@ ensure_query_parsed()
 	// consistent with the naming of other CGI parameters.
 	if (val == cgi_params.end()) val = cgi_params.find("RAW_SEARCH");
 	if (val != cgi_params.end()) {
-	    raw_search = static_cast<bool>(atol(val->second.c_str()));
+	    raw_search = bool(atol(val->second.c_str()));
 	}
 
 	if (!raw_search) topdoc = (topdoc / hits_per_page) * hits_per_page;
