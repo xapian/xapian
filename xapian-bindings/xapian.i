@@ -429,7 +429,7 @@ class MSet {
 	const Document get_document(doccount i) const {
 	    return ((*self)[i]).get_document();
 	}
-	const docid get_document_id(doccount i) const {
+	docid get_document_id(doccount i) const {
 	    return *((*self)[i]);
 	}
     }
