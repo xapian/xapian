@@ -1,3 +1,9 @@
+xapian-core (0.9.5-3) unstable; urgency=low
+
+  * Create xapian-examples package.
+
+ -- Olly Betts <olly@survex.com>  Tue, 11 Apr 2006 03:20:51 +0100
+
 xapian-core (0.9.5-2) unstable; urgency=low
 
   * Use debian/compat instead of setting DH_COMPAT.

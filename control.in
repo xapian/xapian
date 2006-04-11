@@ -31,7 +31,7 @@ Package: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev
 Architecture: any
 Section: libdevel
 Depends: libxapian@LIBXAPIAN_SOVERSION@ (= ${Source-Version}), libc6-dev | libc-dev, ${misc:Depends}
-Recommends: xapian-doc (= ${Source-Version})
+Recommends: xapian-doc (= ${Source-Version}), xapian-examples (= ${Source-Version})
 Description: Development files for Xapian search engine library
  This package contains development libraries and headers for the core Xapian
  library, and the Xapian query parser.
@@ -79,6 +79,24 @@ Recommends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${Source-Version})
 Description: Core Xapian documentation
  This package contains general documentation about Xapian, and more detailed
  API documentation.
+ .
+ The Xapian search engine library is designed to be a highly adaptable toolkit
+ to allow developers to easily add advanced indexing and search facilities to
+ their own applications.  It implements the probabilistic model of information
+ retrieval, and provides facilities for performing ranked free-text searches,
+ relevance feedback, phrase searching, boolean searching, stemming, and
+ simultaneous update and searching.  It is highly scalable, and is capable of
+ working with collections containing many millions of documents.
+
+Package: xapian-examples
+Architecture: all
+Section: doc
+Depends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${Source-Version})
+Description: Xapian simple example programs
+ This package contains source code for some example programs which use the
+ Xapian library.  The 3 simple examples are also included in binary form;
+ binaries for the other examples can be found in the xapian-tools package
+ (since they're useful tools in their own right.)
  .
  The Xapian search engine library is designed to be a highly adaptable toolkit
  to allow developers to easily add advanced indexing and search facilities to
