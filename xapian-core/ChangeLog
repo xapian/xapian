@@ -1,3 +1,8 @@
+Tue Apr 11 19:56:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* matcher/Makefile.am: Need to add "-I${top_builddir}/include" to
+	  INCLUDES so that xapian/version.h is found.
+
 Tue Apr 11 19:24:59 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/database.cc,configure.ac,include/xapian/version_h.cc,
