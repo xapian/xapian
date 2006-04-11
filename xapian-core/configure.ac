@@ -829,6 +829,12 @@ else
     AM_CXXFLAGS="$WARNING_CXXFLAGS"
 fi
 
+AH_BOTTOM(
+[/* Disable stupid MSVC "performance" warning for converting int to bool. */
+#ifdef _MSC_VER
+# pragma warning(disable:4800)
+#endif])
+
 dnl modify flags for building with stlport
 STLPORT_CXXFLAGS=
 if test yes = "$use_stlport"; then

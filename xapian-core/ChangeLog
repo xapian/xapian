@@ -1,3 +1,10 @@
+Tue Apr 11 17:52:24 BST 2006  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,backends/flint/flint_btreebase.cc,
+	  backends/quartz/btree_base.cc,common/utils.h,configure.ac:
+	  Disable MSVC warning 4800 (on int to bool conversions) in config.h
+	  and then we can remove the "fixes" elsewhere.
+
 Tue Apr 11 16:28:01 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Simpler check for VALGRIND being set to empty value.

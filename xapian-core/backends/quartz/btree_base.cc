@@ -217,11 +217,11 @@ Btree_base::read(const string & name, char ch, string &err_msg)
     DO_UNPACK_UINT_ERRCHECK(&start, end, last_block);
     uint4 have_fakeroot_;
     DO_UNPACK_UINT_ERRCHECK(&start, end, have_fakeroot_);
-    have_fakeroot = static_cast<bool>(have_fakeroot_);
+    have_fakeroot = have_fakeroot_;
 
     uint4 sequential_;
     DO_UNPACK_UINT_ERRCHECK(&start, end, sequential_);
-    sequential = static_cast<bool>(sequential_);
+    sequential = sequential_;
 
     if (have_fakeroot && !sequential) {
 	sequential = true; // FIXME : work out why we need this...

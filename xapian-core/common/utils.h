@@ -216,12 +216,6 @@ namespace Xapian {
 // Warning (suggestion) 818: [...] # Type `int' is larger than type `bool',
 // truncation in value may result.
 
-#ifdef _MSC_VER
-// MSVC shut up pointless "performance warning" about conversion to bool -
-// these methods are inlined so it'll be optimised away if it isn't required.
-# pragma warning(disable:4800)
-#endif
-
 inline bool C_isdigit(char ch) {
     using namespace Xapian::Internal;
     return bool(is_tab[static_cast<unsigned char>(ch)] & IS_DIGIT);
@@ -266,11 +260,6 @@ inline bool C_isupdig(char ch) {
     using namespace Xapian::Internal;
     return bool(is_tab[static_cast<unsigned char>(ch)] & (IS_UPPER|IS_DIGIT));
 }
-
-#ifdef _MSC_VER
-// Restore default setting for this warning.
-# pragma warning(default:4800)
-#endif
 
 inline bool C_isnotdigit(char ch) { return !C_isdigit(ch); }
 inline bool C_isnotxdigit(char ch) { return !C_isxdigit(ch); }
