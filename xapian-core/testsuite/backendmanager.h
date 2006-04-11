@@ -1,8 +1,7 @@
 /* backendmanager.h
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_BACKENDMANAGER_H
@@ -63,7 +61,7 @@ class BackendManager {
 	/// Throw an exception.
 	Xapian::WritableDatabase getwritedb_void(const std::vector<std::string> &dbnames);
 
-#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	/// Get an inmemory database instance.
 	Xapian::Database getdb_inmemory(const std::vector<std::string> &dbnames);
 
@@ -85,7 +83,7 @@ class BackendManager {
 	Xapian::WritableDatabase getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames);
 #endif
 
-#ifdef XAPIAN_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 	/// Get a remote database instance
 	Xapian::Database getdb_remote(const std::vector<std::string> &dbnames);
 
@@ -93,7 +91,7 @@ class BackendManager {
 	Xapian::WritableDatabase getwritedb_remote(const std::vector<std::string> &dbnames);
 #endif
 
-#ifdef XAPIAN_BUILD_BACKEND_FLINT
+#ifdef XAPIAN_HAS_FLINT_BACKEND
 	/// Get a flint database instance.
 	Xapian::Database getdb_flint(const std::vector<std::string> &dbnames);
 
@@ -101,7 +99,7 @@ class BackendManager {
 	Xapian::WritableDatabase getwritedb_flint(const std::vector<std::string> &dbnames);
 #endif
 
-#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
 	/// Get a quartz database instance.
 	Xapian::Database getdb_quartz(const std::vector<std::string> &dbnames);
 
@@ -109,7 +107,7 @@ class BackendManager {
 	Xapian::WritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
 #endif
 
-#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
 	/// Get a da database instance.
 	Xapian::Database getdb_da(const std::vector<std::string> &dbnames);
 

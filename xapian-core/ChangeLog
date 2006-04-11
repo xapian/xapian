@@ -1,3 +1,11 @@
+Tue Apr 11 19:24:59 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/database.cc,configure.ac,include/xapian/version_h.cc,
+	  matcher/multimatch.cc,matcher/stats.cc,tests/apitest.cc,
+	  testsuite/backendmanager.cc,testsuite/backendmanager.h:
+	  Eliminate XAPIAN_BUILD_BACKEND_* from config.h and just use
+	  XAPIAN_HAS_*_BACKEND from xapian/version.h instead.
+
 Tue Apr 11 18:32:52 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/Makefile.am: Add xapian/version.h.timestamp as a dependency

@@ -538,6 +538,7 @@ AC_ARG_ENABLE(backend_remote,
   no)  build_remote=false ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-remote) ;;
 esac],[build_remote=true])
+
 dnl check for fork - if we don't have it, the remote backend won't build
 AC_CHECK_FUNCS(fork)
 if test "$ac_cv_func_fork" = no ; then
@@ -605,33 +606,6 @@ AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test true = "$build_inmemory")
 AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test true = "$build_remote")
 dnl Set a flag for AM when shared libraries are enabled.
 dnl AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
-
-dnl Set defines to specify what we compile
-
-if test true = "$build_muscat36"; then
-AC_DEFINE(XAPIAN_BUILD_BACKEND_MUSCAT36,,
-  [Define if you want to build the (old) Muscat 3.6 database backend])
-fi
-
-if test true = "$build_quartz"; then
-AC_DEFINE(XAPIAN_BUILD_BACKEND_QUARTZ,,
-  [Define if you want to build the quartz database backend])
-fi
-
-if test true = "$build_flint"; then
-AC_DEFINE(XAPIAN_BUILD_BACKEND_FLINT,,
-  [Define if you want to build the flint database backend])
-fi
-
-if test true = "$build_inmemory"; then
-AC_DEFINE(XAPIAN_BUILD_BACKEND_INMEMORY,,
-  [Define if you want to build the inmemory database backend])
-fi
-
-if test true = "$build_remote"; then
-  AC_DEFINE(XAPIAN_BUILD_BACKEND_REMOTE,,
-    [Define if you want to build the remote database backend])
-fi
 
 dnl See if we have fdatasync, and what libraries are needed for it.
 SAVE_LIBS="$LIBS"
@@ -895,9 +869,15 @@ MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 test -d include/xapian || mkdir include/xapian
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
+cxxcpp_flags=-I.
+for backend in MUSCAT36 QUARTZ FLINT INMEMORY REMOTE ; do
+  if test -z "`eval echo \"\\$BUILD_BACKEND_${backend}_TRUE\"`" ; then
+    cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"
+  fi
+done
 dnl Use @ around $MAIN_VERSION so we get " in the final output.
 rm -f include/xapian/version.h.tmp
-$CXXCPP -I. -DSTRING_VERSION="\"@$MAIN_VERSION@\"" -DMAJOR_VERSION="\"$MAJOR_VERSION\"" -DMINOR_VERSION="\"$MINOR_VERSION\"" -DREVISION="\"$REVISION\"" $srcdir/include/xapian/version_h.cc|grep '"'|${SED-sed} 's/^ *//;s/ *$//;/^#/d;s/" *,//;s/"//g;s/@/"/g;s/  */ /g;s/,$//' > include/xapian/version.h.tmp
+$CXXCPP $cxxcpp_flags -DSTRING_VERSION="\"@$MAIN_VERSION@\"" -DMAJOR_VERSION="\"$MAJOR_VERSION\"" -DMINOR_VERSION="\"$MINOR_VERSION\"" -DREVISION="\"$REVISION\"" $srcdir/include/xapian/version_h.cc|grep '"'|${SED-sed} 's/^ *//;s/ *$//;/^#/d;s/" *,//;s/"//g;s/@/"/g;s/  */ /g;s/,$//' > include/xapian/version.h.tmp
 dnl Only update the file if it has changed, so we don't alter the timestamp
 dnl and cause lots of rebuilding needlessly.  However, the build system
 dnl needs a timestamp to know when to regenerate version.h because version_h.cc

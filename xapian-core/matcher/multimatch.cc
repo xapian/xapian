@@ -36,10 +36,6 @@
 #include "mergepostlist.h"
 #include "biaspostlist.h"
 
-#ifdef XAPIAN_BUILD_BACKEND_REMOTE
-#include "networkmatch.h"
-#endif /* XAPIAN_BUILD_BACKEND_REMOTE */
-
 #include "document.h"
 #include "omqueryinternal.h"
 
@@ -49,6 +45,11 @@
 #include "msetcmp.h"
 
 #include <xapian/errorhandler.h>
+#include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
+
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+#include "networkmatch.h"
+#endif /* XAPIAN_HAS_REMOTE_BACKEND */
 
 #include <algorithm>
 #include <queue>
@@ -126,7 +127,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	Xapian::Internal::RefCntPtr<SubMatch> smatch;
 	try {
 	    // There is currently only one special case, for network databases.
-#ifdef XAPIAN_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    const NetworkDatabase *netdb = subdb->as_networkdatabase();
 	    if (netdb) {
 		if (bias_halflife) {
@@ -139,11 +140,11 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 			    percent_cutoff, weight_cutoff,
 			    gatherer.get(), weight));
 	    } else {
-#endif /* XAPIAN_BUILD_BACKEND_REMOTE */
+#endif /* XAPIAN_HAS_REMOTE_BACKEND */
 		smatch = Xapian::Internal::RefCntPtr<SubMatch>(new LocalSubMatch(subdb, query, qlen, *subrset, gatherer.get(), weight));
-#ifdef XAPIAN_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    }
-#endif /* XAPIAN_BUILD_BACKEND_REMOTE */
+#endif /* XAPIAN_HAS_REMOTE_BACKEND */
 	} catch (Xapian::Error & e) {
 	    if (!errorhandler) throw;
 	    DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");

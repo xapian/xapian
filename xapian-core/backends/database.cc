@@ -25,6 +25,7 @@
 #include "utils.h" // for om_tostring
 #include <xapian/dbfactory.h>
 #include <xapian/error.h>
+#include <xapian/version.h> // For XAPIAN_HAS_XXX_BACKEND
 
 #include <fstream>
 #include <string>
@@ -32,20 +33,20 @@
 using namespace std;
 
 // Include headers for all the enabled database backends
-#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
 #include "muscat36/da_database.h"
 #include "muscat36/db_database.h"
 #endif
-#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 #include "inmemory/inmemory_database.h"
 #endif
-#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
 #include "quartz/quartz_database.h"
 #endif
-#ifdef XAPIAN_BUILD_BACKEND_FLINT
+#ifdef XAPIAN_HAS_FLINT_BACKEND
 #include "flint/flint_database.h"
 #endif
-#ifdef XAPIAN_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 // These headers are all in common
 #include "net_database.h"
 #include "progclient.h"
@@ -54,7 +55,7 @@ using namespace std;
 
 namespace Xapian {
 
-#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
 Database
 Quartz::open(const string &dir) {
     DEBUGAPICALL_STATIC(Database, "Quartz::open", dir);
@@ -70,7 +71,7 @@ Quartz::open(const string &dir, int action, int block_size) {
 }
 #endif
 
-#ifdef XAPIAN_BUILD_BACKEND_FLINT
+#ifdef XAPIAN_HAS_FLINT_BACKEND
 Database
 Flint::open(const string &dir) {
     DEBUGAPICALL_STATIC(Database, "Flint::open", dir);
@@ -85,7 +86,7 @@ Flint::open(const string &dir, int action, int block_size) {
 }
 #endif
 
-#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 // Note: a read-only inmemory database will always be empty, and so there's
 // not much use in allowing one to be created.
 WritableDatabase
@@ -95,7 +96,7 @@ InMemory::open() {
 }
 #endif
 
-#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
 Database
 Muscat36::open_da(const string &R, const string &T, bool heavy_duty) {
     DEBUGAPICALL_STATIC(Database, "Muscat36::open_da", R << ", " << T << ", " <<
@@ -126,7 +127,7 @@ Muscat36::open_db(const string &DB, const string &values, size_t cache_size) {
 }
 #endif
 
-#ifdef XAPIAN_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 Database
 Remote::open(const string &program, const string &args, unsigned int timeout)
 {
@@ -164,17 +165,17 @@ open_stub(Database *db, const string &file)
 	    if (type == "auto") {
 		db->add_database(Database(line));
 		ok = true;
-#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
 	    } else if (type == "quartz") {
 		db->add_database(Quartz::open(line));
 		ok = true;
 #endif
-#ifdef XAPIAN_BUILD_BACKEND_FLINT
+#ifdef XAPIAN_HAS_FLINT_BACKEND
 	    } else if (type == "flint") {
 		db->add_database(Flint::open(line));
 		ok = true;
 #endif
-#ifdef XAPIAN_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    } else if (type == "remote") {
 		string::size_type colon = line.find(':');
 		if (colon == 0) {
@@ -202,7 +203,7 @@ open_stub(Database *db, const string &file)
 		}
 #endif
 	    }
-#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
 	    // FIXME: da and db too, but I'm too slack to do those right now!
 #endif
 	}
@@ -240,19 +241,19 @@ open_database(Database * db, const string &path)
 	return;
     }
 
-#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
     if (file_exists(path + "/record_DB")) {
 	db->internal.push_back(new QuartzDatabase(path));
 	return;
     }
 #endif
-#ifdef XAPIAN_BUILD_BACKEND_FLINT
+#ifdef XAPIAN_HAS_FLINT_BACKEND
     if (file_exists(path + "/iamflint")) {
 	db->internal.push_back(new FlintDatabase(path));
 	return;
     }
 #endif
-#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
     if (file_exists(path + "/R") && file_exists(path + "/T")) {
 	// can't easily tell flimsy from heavyduty so assume hd
 	string keyfile = path + "/keyfile";
@@ -280,7 +281,7 @@ open_database(Database * db, const string &path)
 void
 open_writable_database(Database *db, const string &path, int action)
 {
-#if defined XAPIAN_BUILD_BACKEND_FLINT && defined XAPIAN_BUILD_BACKEND_QUARTZ
+#if defined XAPIAN_HAS_FLINT_BACKEND && defined XAPIAN_HAS_QUARTZ_BACKEND
     // Both Flint and Quartz are enabled.
     bool use_flint = false;
     const char *p = getenv("XAPIAN_PREFER_FLINT");
@@ -294,10 +295,10 @@ open_writable_database(Database *db, const string &path, int action)
     } else {
 	db->internal.push_back(new QuartzWritableDatabase(path, action, 8192));
     }
-#elif defined XAPIAN_BUILD_BACKEND_FLINT
+#elif defined XAPIAN_HAS_FLINT_BACKEND
     // Only Flint is enabled.
     db->internal.push_back(new FlintWritableDatabase(path, action, 8192));
-#elif defined XAPIAN_BUILD_BACKEND_QUARTZ
+#elif defined XAPIAN_HAS_QUARTZ_BACKEND
     // Only Quartz is enabled.
     db->internal.push_back(new QuartzWritableDatabase(path, action, 8192));
 #else

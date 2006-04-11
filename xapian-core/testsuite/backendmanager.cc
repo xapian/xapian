@@ -56,7 +56,7 @@ index_files_to_database(Xapian::WritableDatabase & database,
     }
 }
 
-#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
 static void
 index_files_to_m36(const string &prog, const string &dbdir,
 		   const vector<string> & paths)
@@ -106,7 +106,7 @@ BackendManager::set_dbtype(const string &type)
     if (type == current_type) {
 	// leave it as it is.
     } else if (type == "inmemory") {
-#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	do_getdb = &BackendManager::getdb_inmemory;
 	do_getwritedb = &BackendManager::getwritedb_inmemory;
 #else
@@ -114,7 +114,7 @@ BackendManager::set_dbtype(const string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
 #endif
 #if 0
-#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
     } else if (type == "inmemoryerr") {
 	do_getdb = &BackendManager::getdb_inmemoryerr;
 	do_getwritedb = &BackendManager::getwritedb_inmemoryerr;
@@ -132,7 +132,7 @@ BackendManager::set_dbtype(const string &type)
 #endif
 #endif
     } else if (type == "flint") {
-#ifdef XAPIAN_BUILD_BACKEND_FLINT
+#ifdef XAPIAN_HAS_FLINT_BACKEND
 	do_getdb = &BackendManager::getdb_flint;
 	do_getwritedb = &BackendManager::getwritedb_flint;
 	rmdir(".flint");
@@ -141,7 +141,7 @@ BackendManager::set_dbtype(const string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
 #endif
     } else if (type == "quartz") {
-#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
 	do_getdb = &BackendManager::getdb_quartz;
 	do_getwritedb = &BackendManager::getwritedb_quartz;
 	rmdir(".quartz");
@@ -150,14 +150,14 @@ BackendManager::set_dbtype(const string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
 #endif
     } else if (type == "remote") {
-#ifdef XAPIAN_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 	do_getdb = &BackendManager::getdb_remote;
 	do_getwritedb = &BackendManager::getwritedb_remote;
 #else
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
 #endif
-#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
     } else if (type == "da") {
 	do_getdb = &BackendManager::getdb_da;
 	do_getwritedb = &BackendManager::getwritedb_da;
@@ -232,7 +232,7 @@ BackendManager::change_names_to_paths(const vector<string> &dbnames)
     return paths;
 }
 
-#ifdef XAPIAN_BUILD_BACKEND_INMEMORY
+#ifdef XAPIAN_HAS_INMEMORY_BACKEND
 Xapian::Database
 BackendManager::getdb_inmemory(const vector<string> &dbnames)
 {
@@ -319,7 +319,7 @@ bool create_dir_if_needed(const string &dirname)
     return false; // Already a directory.
 }
 
-#ifdef XAPIAN_BUILD_BACKEND_FLINT
+#ifdef XAPIAN_HAS_FLINT_BACKEND
 Xapian::Database
 BackendManager::getdb_flint(const vector<string> &dbnames)
 {
@@ -364,7 +364,7 @@ BackendManager::getwritedb_flint(const vector<string> &dbnames)
 }
 #endif
 
-#ifdef XAPIAN_BUILD_BACKEND_QUARTZ
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
 Xapian::Database
 BackendManager::getdb_quartz(const vector<string> &dbnames)
 {
@@ -409,7 +409,7 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
 }
 #endif
 
-#ifdef XAPIAN_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 Xapian::Database
 BackendManager::getdb_remote(const vector<string> &dbnames)
 {
@@ -443,7 +443,7 @@ BackendManager::getwritedb_remote(const vector<string> &/*dbnames*/)
 }
 #endif
 
-#ifdef XAPIAN_BUILD_BACKEND_MUSCAT36
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
 Xapian::Database
 BackendManager::getdb_da(const vector<string> &dbnames)
 {

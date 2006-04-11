@@ -1,9 +1,8 @@
 /* stats.cc
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,15 +16,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
 
 #include "stats.h"
 #include "omdebug.h"
+
+#include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 
 void
 StatsGatherer::add_child(Xapian::Weight::Internal *source) {
@@ -66,7 +66,7 @@ LocalStatsGatherer::get_stats() const
     RETURN((&total_stats));
 }
 
-#ifdef XAPIAN_BUILD_BACKEND_REMOTE
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 
 #include "netserver.h"
 #include "netclient.h"
@@ -150,7 +150,7 @@ NetworkStatsSource::take_remote_stats(Stats stats)
     have_remote_stats = true;
 }
 
-#endif /* XAPIAN_BUILD_BACKEND_REMOTE */
+#endif /* XAPIAN_HAS_REMOTE_BACKEND */
 
 LocalStatsSource::LocalStatsSource(StatsGatherer * gatherer_)
 	: Xapian::Weight::Internal(gatherer_)
