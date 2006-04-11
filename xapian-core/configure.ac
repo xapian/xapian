@@ -251,7 +251,7 @@ else
       ANSI_CXXFLAGS="-AA"
       dnl +w turns on more warnings.
       dnl +W<n1>,<n2>,... suppresses warnings n1, n2, ...
-      dnl 336 is "Entire translation unit was empty"
+      dnl 336 is "Entire translation unit was empty" (which dummy.cc is).
       WARNING_CXXFLAGS="+w +W336" ;;
     cxx|*/cxx)
       dnl Select ANSI mode ('-std strict_ansi' is needed for ANSI iostream
@@ -378,7 +378,7 @@ AC_CHECK_HEADERS(fcntl.h limits.h sys/errno.h, [], [], [ ])
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
 dnl don't use valgrind.
-if test "${VALGRIND+set}" != "set" || test -n "$VALGRIND" ; then
+if test -n "${VALGRIND-unset}" ; then
   AC_PATH_PROG(VALGRIND, valgrind, [])
   if test -n "$VALGRIND" ; then
     dnl Check that the valgrind version installed supports the most recently

@@ -1,3 +1,7 @@
+Tue Apr 11 16:28:01 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Simpler check for VALGRIND being set to empty value.
+
 Tue Apr 11 01:04:32 BST 2006  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Add a summary.
