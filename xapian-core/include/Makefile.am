@@ -15,6 +15,8 @@ xapianinclude_HEADERS = xapian/base.h xapian/database.h xapian/dbfactory.h \
 nodist_xapianinclude_HEADERS = xapian/version.h
 
 # Regenerate xapian/version.h if its template has been changed.
+all-local: xapian/version.h.timestamp
+
 xapian/version.h.timestamp: xapian/version_h.cc
 	cd $(top_builddir) && $(SHELL) ./config.status --recheck
 

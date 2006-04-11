@@ -1,3 +1,9 @@
+Tue Apr 11 18:32:52 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/Makefile.am: Add xapian/version.h.timestamp as a dependency
+	  on all-local so that xapian/version.h actually gets regenerated
+	  when required.
+
 Tue Apr 11 17:52:24 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,backends/flint/flint_btreebase.cc,
