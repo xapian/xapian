@@ -7,7 +7,7 @@ xapian-bindings (0.9.5-3) unstable; urgency=low
     dependency for us, so remove the PYTHON_VERSION_MAIN mechanism (which
     wasn't actually being used anyway!)
 
- -- Olly Betts <olly@survex.com>  Wed,  9 Apr 2006 04:12:23 +0100
+ -- Olly Betts <olly@survex.com>  Wed, 12 Apr 2006 19:03:23 +0100
 
 xapian-bindings (0.9.5-2) unstable; urgency=low
 

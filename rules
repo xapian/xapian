@@ -155,7 +155,6 @@ install: build
 	    if test -x $$c ; then \
 		set -e; \
 		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp install; \
-		echo "php$$v:Depends=phpapi-`$$c --phpapi`, php$$v-common" >> debian/php$$v-xapian.substvars; \
 	    fi \
 	done
 
@@ -170,6 +169,7 @@ binary-indep: build install
 	dh_installdocs
 	dh_installexamples
 	dh_installmenu
+	dh_installdebconf
 	dh_installman
 	dh_installchangelogs ChangeLog
 	dh_compress
@@ -197,6 +197,15 @@ binary-arch: build install
 	dh_python
 	dh_installdeb
 	dh_shlibdeps
+
+	for v in $(PHP_VERSIONS); do \
+	    c=/usr/bin/php-config$$v; \
+	    if test -x $$c ; then \
+		set -e; \
+		echo "php$$v:Depends=phpapi-`$$c --phpapi`, php$$v-common" >> debian/php$$v-xapian.substvars; \
+	    fi \
+	done
+
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
@@ -212,6 +221,7 @@ clean:
 	    set -e; \
 	    rm -rf build-php$$v; \
 	done
+	debconf-updatepo
 	rm -f config.sub config.guess
 	dh_clean
 	rm -f debian/build-stamp debian/configure-stamp
