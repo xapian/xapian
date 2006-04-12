@@ -1,3 +1,7 @@
+Wed Apr 12 18:42:31 BST 2006  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: More updates for 0.9.5.
+
 Tue Apr 11 19:56:16 BST 2006  Olly Betts <olly@survex.com>
 
 	* matcher/Makefile.am: Need to add "-I${top_builddir}/include" to
