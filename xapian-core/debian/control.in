@@ -89,7 +89,7 @@ Description: Core Xapian documentation
  working with collections containing many millions of documents.
 
 Package: xapian-examples
-Architecture: all
+Architecture: any
 Section: doc
 Depends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${Source-Version})
 Description: Xapian simple example programs
