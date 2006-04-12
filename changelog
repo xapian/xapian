@@ -1,3 +1,14 @@
+xapian-bindings (0.9.5-3) unstable; urgency=low
+
+  * PHP bindings packages now have the correct "Depends:" and are able to
+    automatically modify php.ini upon installation (using debconf to ask if
+    this should be done) and removal.
+  * dh_python automatically generates the xapian-python->xapian-python2.X
+    dependency for us, so remove the PYTHON_VERSION_MAIN mechanism (which
+    wasn't actually being used anyway!)
+
+ -- Olly Betts <olly@survex.com>  Wed,  9 Apr 2006 04:12:23 +0100
+
 xapian-bindings (0.9.5-2) unstable; urgency=low
 
   * Added packages for PHP bindings (for both PHP4 and PHP5).
