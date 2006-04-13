@@ -17,9 +17,9 @@ Known Issues
 
          make CXXFLAGS=-g
 
-     Version 0.9.3 reduces the compile time by something like a factor of 3
-     and probably also reduces memory usage significantly, but you might still
-     encounter this issue on slower machines with less memory.
+     Xapian-bindings version 0.9.3 reduces the compile time by something like a
+     factor of 3 and probably also reduces memory usage significantly, but you
+     might still encounter this issue on slower machines with less memory.
 
 Quick Installation Guide
 ========================
@@ -59,7 +59,9 @@ The simplest way to compile this package is:
      Running `configure' takes a while.  While running, it prints some
      messages telling which features it is checking for.
 
-  2. Type `make' to compile the package.
+  2. Type `make' to compile the package (if you don't have root access
+     and want to compile any of the bindings other than Java and C#,
+     read the next section).
 
   3. Optionally, type `make check' to run the self-tests that come with
      the package.
@@ -75,6 +77,58 @@ The simplest way to compile this package is:
      for the package's developers.  If you use it, you may have to get
      all sorts of other programs in order to regenerate files that came
      with the distribution.
+
+Installing without root access
+==============================
+
+     By default the bindings for all languages apart from Java and C# will
+     automatically detect where the language interpreter expects extension
+     modules to be installed and try to install there.  This is a problem
+     if you want to install them and don't have root access.  In this case
+     follow the instructions for the particular language below (note: you
+     still build several at once - just pass the arguments listed below
+     for each language to "./configure", to "make", and to "make install".)
+
+  PHP:
+
+     ./configure --with-php
+     make phpextdir=$HOME/my_php_extensions
+     make install phpextdir=$HOME/my_php_extensions
+     
+     And you'll need to load the Xapian module in your PHP code using something
+     like:
+     
+     dl("../../../home/USERNAME/my_php_extensions/xapian.so");
+
+     The number of ".."s you need depends on what extension_dir is set to
+     in php.ini.
+
+  Python:
+
+     ./configure --with-python
+     make pylibdir=$HOME/my_python_modules
+     make install pylibdir=$HOME/my_python_modules
+
+     And then you'll need to tell Python to look for modules in this directory.
+     Here are two possible ways to do that.
+
+     setenv PYTHONPATH=$HOME/my_python_modules python myscript.py
+
+     Or you can add this to your Python script:
+
+     import sys
+     sys.path.insert(0, "/home/USERNAME/my_python_modules")
+     import xapian
+
+  Tcl8:
+
+     ./configure --with-tcl
+     make tcllibdir=$HOME/my_python_modules
+     make install tcllibdir=$HOME/my_python_modules
+
+     And then add the following to the start of your script to load Xapian:
+
+     load [file join "/home/USERNAME/my_python_modules" xapian.so]
 
 Compilers and Options
 =====================

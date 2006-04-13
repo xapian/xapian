@@ -1,3 +1,7 @@
+Thu Apr 13 19:50:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* INSTALL: Add section describing how to install without root access.
+
 Wed Apr 12 00:38:39 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix warning flags passed for Intel C++ compiler.
