@@ -66,6 +66,8 @@ static test test_or_queries[] = {
     { "site:xapian.org mail", "(mail:(pos=1) FILTER Hxapian.org)" },
     { "-site:xapian.org mail", "(mail:(pos=1) AND_NOT Hxapian.org)" },
     { "site:xapian.org", "Hxapian.org" },
+    { "mug +site:xapian.org -site:cvs.xapian.org", "((mug:(pos=1) AND_NOT Hcvs.xapian.org) FILTER Hxapian.org)" },
+    { "mug -site:cvs.xapian.org +site:xapian.org", "((mug:(pos=1) AND_NOT Hcvs.xapian.org) FILTER Hxapian.org)" },
     { "NOT windows", "Syntax: <expression> NOT <expression>" },
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
     { "gordian NOT", "Syntax: <expression> NOT <expression>" },

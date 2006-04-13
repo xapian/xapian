@@ -1,3 +1,9 @@
+Thu Apr 13 14:49:48 BST 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Add rules
+	  to handle a boolean filter with a "+" in front (such as
+	  +site:xapian.org).
+
 Wed Apr 12 18:42:31 BST 2006  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: More updates for 0.9.5.

@@ -794,6 +794,21 @@ prob(P) ::= prob(Q) BOOLEAN_FILTER(T). {
     delete T;
 }
 
+prob(P) ::= LOVE BOOLEAN_FILTER(T). {
+    // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
+    P = new ProbQuery;
+    P->filter = T->as_query_object();
+    delete T;
+}
+
+prob(P) ::= prob(Q) LOVE BOOLEAN_FILTER(T). {
+    // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
+    P = Q;
+    // FIXME we should OR filters with the same prefix...
+    add_to_query(P->filter, Query::OP_AND, T->as_query_object());
+    delete T;
+}
+
 // stop_term - A term which should be checked against the stopword list,
 // or a quoted phrase (with or without prefix) or a phrased_term or a near_expr
 // or a bracketed subexpression (with or without prefix).
