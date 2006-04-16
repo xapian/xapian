@@ -1,3 +1,9 @@
+Sun Apr 16 03:48:08 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Translated tests of the version number functions
+	  from smoketest.py.  Failing tests now print a diagnostic before
+	  dying (again like smoketest.py).
+
 Thu Apr 13 19:50:16 BST 2006  Olly Betts <olly@survex.com>
 
 	* INSTALL: Add section describing how to install without root access.
