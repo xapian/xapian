@@ -1,6 +1,7 @@
 # RedHat-style .spec file for Xapian
 # @configure_input@
 %define contentdir /var/lib
+%define logdir /var/log
 
 Summary: A CGI search frontend and indexers built on Xapian.
 Name: xapian-omega
@@ -34,8 +35,10 @@ mkdir -p %{buildroot}
 # CGI application
 mkdir -p %{buildroot}/var/www/cgi-bin/
 mv %{buildroot}%{_libdir}/omega/bin/omega %{buildroot}/var/www/cgi-bin
-# Create the data directory
+# Create /var directories
 mkdir -p %{buildroot}%{contentdir}/omega/data
+mkdir -p %{buildroot}%{contentdir}/omega/cdb
+mkdir -p %{buildroot}%{logdir}/omega
 # Default templates
 mkdir -p %{buildroot}%{contentdir}/omega/templates
 cp templates/* %{buildroot}%{contentdir}/omega/templates/
@@ -61,6 +64,7 @@ mv %{buildroot}/usr/share/doc/omega %{buildroot}/usr/share/doc/%{name}-%{version
 %{_bindir}/htdig2omega
 %{_bindir}/mbox2omega
 %{contentdir}/omega
+%{logdir}/omega
 /var/www/cgi-bin/omega
 /var/www/icons/omega
 %{_datadir}/%{name}
