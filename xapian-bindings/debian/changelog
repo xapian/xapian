@@ -1,3 +1,6 @@
+  * Debian unstable no longer include Python 2.1 or 2.2, so don't package
+    Python bindings for them.
+
 xapian-bindings (0.9.5-3) unstable; urgency=low
 
   * PHP bindings packages now have the correct "Depends:" and are able to
