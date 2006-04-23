@@ -349,8 +349,10 @@ parse_index_script(const string &filename)
 		}
 		if (code == Action::INDEX || code == Action::INDEXNOPOS) {
 		    useless_weight_pos = string::npos;
+		    actions.push_back(Action(code, "", weight));
+		} else {
+		    actions.push_back(Action(code));
 		}
-		actions.push_back(Action(code));
 	    }
 	    j = i;
 	}

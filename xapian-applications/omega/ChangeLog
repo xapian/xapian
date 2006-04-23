@@ -1,3 +1,8 @@
+Sun Apr 23 18:32:20 BST 2006  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Fix "index" and "indexnopos" without a prefix to
+	  set the weight correctly (bug introduced in 0.9.5).
+
 Wed Apr 19 13:37:15 BST 2006  Fabrice Colin
 
 	* omega.spec.in: Create and package /var/lib/omega/cdb and
