@@ -19,14 +19,20 @@
 # USA
 
 # The python versions to build for
+ifeq ($(COMPONENT), unstable)
+# Debian unstable doesn't have Python 2.1 or 2.2
+PYTHON_VERSIONS := 2.3 2.4
+else
 PYTHON_VERSIONS := 2.1 2.2 2.3 2.4
+endif
 
 # Component we're building packages for
 COMPONENT ?= unknown
 
 # The PHP versions to build for
 ifeq ($(COMPONENT), stable)
-PHP_VERSIONS := 4 # Debian stable doesn't have PHP5
+# Debian stable doesn't have PHP5
+PHP_VERSIONS := 4
 else
 PHP_VERSIONS := 4 5
 endif
