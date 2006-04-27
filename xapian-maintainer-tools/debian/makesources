@@ -64,7 +64,7 @@ fi
 DOWNLOAD_BASE="http://www.oligarchy.co.uk/xapian/"
 
 ## BEGIN PROCESSING ##
-trap "echo \"makedebs failed\"" EXIT
+trap "echo \"makesources failed\"" EXIT
 
 # Get the component specified by the user.
 if [ -n "$1" ] ; then
