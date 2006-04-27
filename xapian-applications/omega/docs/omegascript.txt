@@ -111,6 +111,22 @@ $filters
 	DAYSMINUS, and DEFAULTOP) - set xFILTERS to this so that Omega
 	can detect when the filters have changed and force the first page.
 
+$filterterms{PREFIX}
+	list of all terms in the database with prefix PREFIX, intended to be
+	used to allow drop-down lists and sets of radio buttons to be
+	dynamically generated, e.g.:
+
+	Hostname:
+	<SELECT NAME="B">
+	<OPTION VALUE=""
+	$if{$map{$cgilist{B},$eq{$substr{$_,0,1},H}},,SELECTED}> Any
+	$map{$filterterms{H},
+	<OPTION VALUE="$html{$_}" $if{$find{$cgilist{B},$html{$_}},SELECTED}>
+	$html{$substr{$_,1}}
+	</OPTION>
+	}
+	</SELECT>
+
 $find{LIST,STRING}
 	returns the number of the first entry in LIST which is equal to STRING
 	(starting from 0) or the empty string if no entry matches.
@@ -366,6 +382,17 @@ $split{SPLIT,STRING}
 $stoplist
 	returns a list of any terms in the query which were ignored as
 	stopwords.
+
+$substr{STRING,START[,LENGTH]}
+	returns the substring of STRING which starts at position START (the
+	start of the string being 0) and is LENGTH characters long (or to the
+	end of STRING if STRING is less than START+LENGTH characters long).
+
+	If LENGTH is omitted, the substring from START to the end of STRING is
+	returned.
+
+	If START is negative, it counts back from the end of STRING (so
+	"$substr{hello,-1}" is "o").
 
 $terms
 	list of matching terms for current hit.

@@ -1,3 +1,8 @@
+Thu Apr 27 23:45:26 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt,query.cc: Added new OmegaScript commands
+	  $filterterms and $substr.
+
 Thu Apr 27 18:37:50 BST 2006  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Use const reference instead of just a reference.

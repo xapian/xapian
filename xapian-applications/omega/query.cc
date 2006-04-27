@@ -428,82 +428,6 @@ run_query()
     }
 }
 
-#if 0
-// generate a sorted picker  FIXME: should be generatable by script language
-//
-// output looks like this:
-//
-// <SELECT NAME=B>
-// <OPTION VALUE="" SELECTED>
-// <OPTION VALUE="Mtext/html">HTML
-// <OPTION VALUE="Mapplication/postscript">PostScript
-// <OPTION VALUE="Mtext/plain">Text
-// </SELECT>
-static void
-do_picker(string prefix, const char **opts)
-{
-    const char **p;
-    bool do_current = false;
-    string current;
-    vector<string> picker;
-
-    // FIXME: what if multiple values present for a prefix???
-    FMCI i = filter_map.find(prefix);
-    if (i != filter_map.end() && i->second.length() > prefix.length()) {
-	current = i->second.substr(prefix.length());
-	do_current = true;
-    }
-
-    cout << "<SELECT NAME=B>\n<OPTION VALUE=\"\"";
-
-    // Some versions of MSIE don't default to selecting the first option,
-    // so we explicitly have to
-    if (!do_current) cout << " SELECTED";
-
-    cout << '>';
-
-    string tmp = option[string('B') + prefix];
-    if (!tmp.empty())
-	cout << tmp;
-    else
-	cout << "-Any-";
-
-    for (p = opts; *p; p++) {
-	string trans = option[string('B') + prefix + *p];
-	if (trans.empty()) {
-	    // FIXME: nasty special casing on prefix...
-	    if (prefix == "N")
-		trans = string(".") + *p;
-	    else
-		trans = "[" + string(*p) + "]";
-	}
-	if (do_current && current == *p) {
-	    trans += '\n';
-	    do_current = false;
-	}
-	picker.push_back(trans + '\t' + string(*p));
-    }
-
-    sort(picker.begin(), picker.end());
-
-    vector<string>::const_iterator i2;
-    for (i2 = picker.begin(); i2 != picker.end(); i2++) {
-	string::size_type j = (*i2).find('\t');
-	if (j == string::npos) continue;
-	const char *p = (*i2).c_str();
-	cout << "\n<OPTION VALUE=" << prefix << string(p + j + 1);
-	if (j >= 1 && p[j - 1] == '\n') cout << " SELECTED";
-	cout << '>' << string(p, j);
-    }
-
-    if (do_current) {
-	cout << "\n<OPTION VALUE=\"" << prefix << current << "\" SELECTED>"
-             << current;
-    }
-    cout << "</SELECT>\n";
-}
-#endif
-
 static string
 percent_encode(const string &str)
 {
@@ -783,6 +707,7 @@ CMD_error,
 CMD_field,
 CMD_filesize,
 CMD_filters,
+CMD_filterterms,
 CMD_find,
 CMD_fmt,
 CMD_freq,
@@ -838,6 +763,7 @@ CMD_slice,
 CMD_split,
 CMD_stoplist,
 CMD_sub,
+CMD_substr,
 CMD_terms,
 CMD_thispage,
 CMD_time,
@@ -896,6 +822,7 @@ T(eq,		   2, 2, N, 0), // test equality
 T(field,	   1, 1, N, 0), // lookup field in record
 T(filesize,	   1, 1, N, 0), // pretty printed filesize
 T(filters,	   0, 0, N, 0), // serialisation of current filters
+T(filterterms,	   1, 1, N, 0), // list of terms with a given prefix
 T(find,		   2, 2, N, 0), // find entry in list
 T(fmt,		   0, 0, N, 0), // name of current format
 T(freq,		   1, 1, N, 0), // frequency of a term
@@ -953,6 +880,7 @@ T(slice,	   2, 2, N, 0), // slice a list using a second list
 T(split,	   1, 2, N, 0), // split a string to give a list
 T(stoplist,	   0, 0, N, Q), // return list of stopped terms
 T(sub,		   2, 2, N, 0), // subtract
+T(substr,	   2, 3, N, 0), // substring
 T(terms,	   0, 0, N, M), // list of matching terms
 T(thispage,	   0, 0, N, M), // page number of current page
 T(time,		   0, 0, N, M), // how long the match took (in seconds)
@@ -1235,6 +1163,19 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_filters:
 		value = filters;
 		break;
+	    case CMD_filterterms: {
+		Xapian::TermIterator term = db.allterms_begin();
+		term.skip_to(args[0]);
+		while (term != db.allterms_end()) {
+		    string t = *term;
+		    if (t.substr(0, args[0].size()) != args[0]) break;
+		    value = value + t + '\t';
+		    ++term;
+		}
+
+		if (!value.empty()) value.erase(value.size() - 1);
+		break;
+	    }
 	    case CMD_find: {
 		string l = args[0], s = args[1];
 		string::size_type i = 0, j = 0;
@@ -1724,6 +1665,23 @@ eval(const string &fmt, const vector<string> &param)
 		value = int_to_string(string_to_int(args[0]) -
 				      string_to_int(args[1]));
 		break;
+	    case CMD_substr: {
+		int start = string_to_int(args[1]);
+		if (start < 0) {
+		    if (start >= args[0].size()) {
+			start = 0;
+		    } else {
+			start = static_cast<int>(args[0].size()) - start;
+		    }
+		}
+		size_t len = string::npos;
+		if (args.size() > 2) {
+		    int int_len = string_to_int(args[2]);
+		    if (int_len >= 0) len = size_t(int_len);
+		}
+		value = args[0].substr(start, len);
+		break;
+	    }
 	    case CMD_terms:
 		if (enquire) {
 		    // list of matching terms
@@ -2184,7 +2142,7 @@ ensure_query_parsed()
 
 	// raw_search means don't snap TOPDOC to a multiple of HITSPERPAGE.
 	// Normally we snap TOPDOC like this so that things work nicely if
-	// HITSPERPAGE is in a picker or on radio buttons.  If we're
+	// HITSPERPAGE is in a <select> or on radio buttons.  If we're
 	// postprocessing the output of omega and want variable sized pages,
 	// this is unhelpful.
 	bool raw_search = false;
