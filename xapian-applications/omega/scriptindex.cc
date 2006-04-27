@@ -451,7 +451,7 @@ index_file(const char *fname, istream &stream,
 		value += line;
 	    }
 
-	    vector<Action> &v = index_spec[field];
+	    const vector<Action> &v = index_spec[field];
 	    string old_value = value;
 	    vector<Action>::const_iterator i;
 	    bool this_field_is_content = true;

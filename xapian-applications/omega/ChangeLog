@@ -1,3 +1,7 @@
+Thu Apr 27 18:37:50 BST 2006  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Use const reference instead of just a reference.
+
 Sun Apr 23 18:32:20 BST 2006  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Fix "index" and "indexnopos" without a prefix to
