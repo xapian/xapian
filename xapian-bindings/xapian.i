@@ -91,46 +91,6 @@ using namespace std;
 %include typemaps.i
 %include exception.i
 
-#ifdef SWIGCSHARP
-// Rename function and method names to match C# conventions (e.g. from
-// get_description() to GetDescription()).
-%rename("%(camelcase)s",%$isfunction) "";
-
-// Fix up API methods which aren't split by '_' on word boundaries.
-%rename("GetTermPos") get_termpos;
-%rename("GetTermFreq") get_termfreq;
-%rename("GetTermWeight") get_termweight;
-%rename("GetTermName") get_termname;
-%rename("GetDocCount") get_doccount;
-%rename("GetDocId") get_docid;
-%rename("GetDocLength") get_doclength;
-%rename("GetDocumentId") get_document_id;
-%rename("PositionListBegin") positionlist_begin;
-%rename("PositionListEnd") positionlist_end;
-%rename("GetValueNo") get_valueno;
-%rename("GetValueNo") get_valueno;
-%rename("TermListCount") termlist_count;
-%rename("TermListBegin") termlist_begin;
-%rename("TermListEnd") termlist_end;
-%rename("GetFirstItem") get_firstitem;
-%rename("GetSumPart") get_sumpart;
-%rename("GetMaxPart") get_maxpart;
-%rename("GetSumExtra") get_sumextra;
-%rename("GetMaxExtra") get_maxextra;
-%rename("GetSumPartNeedsDocLength") get_sumpart_needs_doclength;
-%rename("PostListBegin") postlist_begin;
-%rename("PostListEnd") postlist_end;
-%rename("AllTermsBegin") allterms_begin;
-%rename("AllTermsEnd") allterms_end;
-%rename("GetLastDocId") get_lastdocid;
-%rename("GetAvLength") get_avlength;
-%rename("StopListBegin") stoplist_begin;
-%rename("StopListEnd") stoplist_end;
-%rename("GetMSet") get_mset;
-%rename("GetESet") get_eset;
-
-#endif
-
 #if defined SWIGPHP
 // PHP_MAJOR_VERSION isn't defined by older versions of PHP4 (e.g. PHP 4.1.2).
 %{
