@@ -15,7 +15,7 @@ Known Issues
      the simplest way).  Alternatively you can compile the bindings without
      optimisation using:
 
-         make CXXFLAGS=-g
+	 make CXXFLAGS=-g
 
      Xapian-bindings version 0.9.3 reduces the compile time by something like a
      factor of 3 and probably also reduces memory usage significantly, but you
@@ -42,20 +42,20 @@ The simplest way to compile this package is:
      exactly which bindings you want to build by passing one or more of the
      following options to configure:
 
-       --with-swig          enable all bindings which depend on SWIG
-                            (currently: Python PHP Tcl Guile CSharp)
-       --with-python        enable Python bindings
-       --with-php           enable PHP bindings
-       --with-tcl           enable Tcl bindings
-       --with-java          enable Java bindings
-       --with-guile         enable Guile bindings
-       --with-csharp        enable CSharp bindings
+       --with-swig	    enable all bindings which depend on SWIG
+			    (currently: Python PHP Tcl Guile CSharp)
+       --with-python	    enable Python bindings
+       --with-php	    enable PHP bindings
+       --with-tcl	    enable Tcl bindings
+       --with-java	    enable Java bindings
+       --with-guile	    enable Guile bindings
+       --with-csharp	    enable CSharp bindings
 
      If you've requested particular bindings using these options, then
      configure will fail with an error if it is missing the prerequisite
      tools, libraries, header files, etc required to build bindings for
      any of the specified languages.
- 
+
      Running `configure' takes a while.  While running, it prints some
      messages telling which features it is checking for.
 
@@ -88,16 +88,18 @@ Installing without root access
      follow the instructions for the particular language below (note: you
      still build several at once - just pass the arguments listed below
      for each language to "./configure", to "make", and to "make install".)
+     Note that you also need to pass a "--prefix" option to configure so that
+     the documentation and examples can be installed.
 
   PHP:
 
-     ./configure --with-php
+     ./configure --with-php --prefix=$HOME/install
      make phpextdir=$HOME/my_php_extensions
      make install phpextdir=$HOME/my_php_extensions
-     
+
      And you'll need to load the Xapian module in your PHP code using something
      like:
-     
+
      dl("../../../home/USERNAME/my_php_extensions/xapian.so");
 
      The number of ".."s you need depends on what extension_dir is set to
@@ -105,7 +107,7 @@ Installing without root access
 
   Python:
 
-     ./configure --with-python
+     ./configure --with-python --prefix=$HOME/install
      make pylibdir=$HOME/my_python_modules
      make install pylibdir=$HOME/my_python_modules
 
@@ -122,7 +124,7 @@ Installing without root access
 
   Tcl8:
 
-     ./configure --with-tcl
+     ./configure --with-tcl --prefix=$HOME/install
      make tcllibdir=$HOME/my_python_modules
      make install tcllibdir=$HOME/my_python_modules
 
