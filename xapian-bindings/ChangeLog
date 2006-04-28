@@ -1,3 +1,8 @@
+Fri Apr 28 14:32:22 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Fix SWIG_RuntimeError to be handled as an exception in
+	  PHP5.
+
 Fri Apr 28 14:26:20 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Mark the calls which return version strings as "throw()"

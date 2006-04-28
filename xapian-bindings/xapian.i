@@ -217,10 +217,16 @@ static int XapianExceptionHandler(string & msg) {
     } catch (...) {
 	string msg;
 	int code = XapianExceptionHandler(msg);
-#if defined SWIGPHP && PHP_MAJOR_VERSION < 5
-	if (code == SWIG_RuntimeError) {
-	    zend_error(E_WARNING, const_cast<char *>(msg.c_str()));
-	    return;
+#if defined SWIGPHP
+	/* We can't use #if here, but the compiler should optimise "if" with
+	 * a constant expression equally well. */
+	if (PHP_MAJOR_VERSION < 5) {
+	    if (code == SWIG_RuntimeError) {
+		zend_error(E_WARNING, const_cast<char *>(msg.c_str()));
+		/* FIXME: destructors don't have return_value to set. */
+		// ZVAL_NULL(return_value);
+		return;
+	    }
 	}
 #endif
 	XapianException(code, msg);
