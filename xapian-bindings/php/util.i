@@ -70,6 +70,7 @@
     $1 = &temp;
 }
 
+#define XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 %typemap(typecheck, precedence=500) const vector<Xapian::Query> & {
     $1 = (Z_TYPE_PP($input) == IS_ARRAY);
     /* FIXME: if we add more array typemaps, we'll need to check the elements
@@ -117,6 +118,7 @@
     }
 }
 
+#define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
 %typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
     if (array_init($result) == FAILURE) {
 	SWIG_PHP_Error(E_ERROR, "array_init failed");

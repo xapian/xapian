@@ -31,6 +31,7 @@ namespace Xapian {
 }
 %}
 
+#define XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 %typemap(typecheck, precedence=500) const vector<Xapian::Query> & {
     int dummy;
     $1 = (Tcl_ListObjLength(interp, $input, &dummy) == TCL_OK);
@@ -59,6 +60,7 @@ namespace Xapian {
     $1 = &v;
 }
 
+#define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
 %typemap(out) std::pair<Xapian::TermIterator, Xapian::TermIterator> {
     Tcl_Obj * list = Tcl_NewListObj(0, NULL);
 

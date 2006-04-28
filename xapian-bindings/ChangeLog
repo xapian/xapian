@@ -1,3 +1,11 @@
+Fri Apr 28 16:43:53 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/util.i,python/util.i,tcl8/util.i,xapian.i: Add
+	  XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP and
+	  XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP which util.i can #define to
+	  specify which optional typemaps it provides so we don't need to
+	  encode this information in xapian.i.
+
 Fri Apr 28 14:32:22 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Fix SWIG_RuntimeError to be handled as an exception in

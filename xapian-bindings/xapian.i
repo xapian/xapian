@@ -234,7 +234,7 @@ static int XapianExceptionHandler(string & msg) {
 }
 
 // This includes a language specific util.i, thanks to judicious setting of
-// the include path
+// the include path.
 %include "util.i"
 
 // In C#, we wrap ++ and -- as ++ and --.
@@ -585,8 +585,8 @@ class Enquire {
 
     void register_match_decider(const std::string& name, const MatchDecider* mdecider=NULL);
 
-/* We've not written the required custom typemap for all languages yet. */
-#if defined SWIGPYTHON || defined SWIGPHP || defined SWIGTCL
+#ifdef XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
+    /* We've not written the required custom typemap for all languages yet. */
     %extend {
 	std::pair<Xapian::TermIterator, Xapian::TermIterator>
 	get_matching_terms(const MSetIterator &hit) const {
@@ -903,9 +903,9 @@ class Query {
 	Query(Query::op op_, const string & left, const string & right);
 	Query(const Query& copyme);
         %extend {
-#if !defined(SWIGPYTHON) && !defined(SWIGPHP4) && !defined(SWIGTCL)
-	    /* For Python, PHP, and TCL we handle strings in the vector<Query>
-	     * case. */
+#ifndef XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
+	    /* For some languages we handle strings in the vector<Query>
+	     * case, so we don't need to wrap this ctor. */
 
 	    /** Constructs a query from a vector of terms merged with the
 	     *  specified operator. */
