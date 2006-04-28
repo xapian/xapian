@@ -246,10 +246,10 @@ namespace Xapian {
 
 // from xapian/version.h
 
-const char * xapian_version_string();
-int xapian_major_version();
-int xapian_minor_version();
-int xapian_revision();
+const char * xapian_version_string() throw();
+int xapian_major_version() throw();
+int xapian_minor_version() throw();
+int xapian_revision() throw();
 
 class ExpandDecider;
 class MatchDecider;
