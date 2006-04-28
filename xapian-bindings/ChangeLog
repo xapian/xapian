@@ -1,3 +1,9 @@
+Fri Apr 28 14:11:32 BST 2006  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am,java/run-java-test: Simplify (and improve
+	  portability of) run-java-test by using "libtool --mode=execute"'s
+	  -dlopen option.
+
 Sun Apr 16 03:48:08 BST 2006  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Translated tests of the version number functions

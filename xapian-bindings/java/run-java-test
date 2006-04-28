@@ -1,5 +1,6 @@
 #!/bin/sh
 arg=`echo "$1"|sed 's!^\./!!'`
-# Find the variable equivalent to LD_LIBRARY_PATH on this platform.
-eval `../libtool --config | grep "^shlibpath_var="`
-$shlibpath_var=native/.libs $JAVA -classpath built/xapian_jni.jar${PATHSEP-:}. "$arg"
+# Use libtool's -dlopen option to ensure that libxapian_jni.so (or whatever)
+# is in the shared library path.
+${LIBTOOL-../libtool} --mode=execute -dlopen native/libxapian_jni.la \
+  ${JAVA-java} -classpath built/xapian_jni.jar${PATHSEP-:}. "$arg"

@@ -2,7 +2,8 @@
 
 SUBDIRS = native org .
 
-TESTS_ENVIRONMENT = JAVA=$(JAVA) PATHSEP=$(JAVA_PATHSEP) ./run-java-test
+TESTS_ENVIRONMENT = \
+  LIBTOOL="$(LIBTOOL)" JAVA="$(JAVA)" PATHSEP="$(JAVA_PATHSEP)" ./run-java-test
 
 ## Test programs to be run
 TESTS = SmokeTest
