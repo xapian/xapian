@@ -132,8 +132,9 @@ using namespace std;
 #endif
 
 #if defined SWIGPHP
+// PHP_MAJOR_VERSION isn't defined by older versions of PHP4 (e.g. PHP 4.1.2).
 %{
-# if PHP_MAJOR_VERSION >= 5
+# if PHP_MAJOR_VERSION-0 >= 5
 #  include <zend_exceptions.h>
 // zend_throw_exception takes a non-const char * parameter (sigh).
 // FIXME: throw errors as PHP classes corresponding to the Xapian error
@@ -162,7 +163,7 @@ static int XapianExceptionHandler(string & msg) {
 	msg = e.get_type();
 	msg += ": ";
 	msg += e.get_msg();
-#if defined SWIGPHP && PHP_MAJOR_VERSION < 5
+#if defined SWIGPHP && PHP_MAJOR_VERSION-0 < 5
 	try {
 	    // Re-rethrow the previous exception so we can handle the type in a
 	    // fine-grained way, but only in one place to avoid bloating the
@@ -218,16 +219,14 @@ static int XapianExceptionHandler(string & msg) {
 	string msg;
 	int code = XapianExceptionHandler(msg);
 #if defined SWIGPHP
-	/* We can't use #if here, but the compiler should optimise "if" with
-	 * a constant expression equally well. */
-	if (PHP_MAJOR_VERSION < 5) {
-	    if (code == SWIG_RuntimeError) {
-		zend_error(E_WARNING, const_cast<char *>(msg.c_str()));
-		/* FIXME: destructors don't have return_value to set. */
-		// ZVAL_NULL(return_value);
-		return;
-	    }
+%#if PHP_MAJOR_VERSION-0 < 5
+	if (code == SWIG_RuntimeError) {
+	    zend_error(E_WARNING, const_cast<char *>(msg.c_str()));
+	    /* FIXME: destructors don't have return_value to set. */
+	    // ZVAL_NULL(return_value);
+	    return;
 	}
+%#endif
 #endif
 	XapianException(code, msg);
     }
