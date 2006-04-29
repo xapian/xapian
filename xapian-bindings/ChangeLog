@@ -1,3 +1,10 @@
+Sat Apr 29 13:57:49 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html,python/docs/bindings.html,
+	  tcl8/docs/bindings.html,xapian.i: Rename get_document_id to
+	  get_docid for consistency.  Keep get_document_id as an alias
+	  for now for backward compatibility.
+
 Sat Apr 29 02:48:54 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Fixed ESet::empty() to return bool instead of

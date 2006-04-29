@@ -114,7 +114,7 @@ using namespace std;
 #ifndef XapianException
 # define XapianException(TYPE, MSG) SWIG_exception((TYPE), (MSG).c_str())
 #endif
- 
+
 static int XapianExceptionHandler(string & msg) {
     try {
 	// Rethrow so we can look at the exception if it was a Xapian::Error.
@@ -394,6 +394,10 @@ class MSet {
 	const Document get_document(doccount i) const {
 	    return ((*self)[i]).get_document();
 	}
+	docid get_docid(doccount i) const {
+	    return *((*self)[i]);
+	}
+	/* For consistency this has been replaced by get_docid(). */
 	docid get_document_id(doccount i) const {
 	    return *((*self)[i]);
 	}
@@ -518,7 +522,7 @@ class Enquire {
 					  bool ascending = true);
     void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					  bool ascending = true);
- 
+
     void set_bias(weight bias_weight, time_t bias_halflife);
 
     MSet get_mset(doccount first,
@@ -861,7 +865,7 @@ class Query {
 	Query(Query::op op_, const Query & left, const Query & right);
 	Query(Query::op op_, const string & left, const string & right);
 	Query(const Query& copyme);
-        %extend {
+	%extend {
 #ifndef XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 	    /* For some languages we handle strings in the vector<Query>
 	     * case, so we don't need to wrap this ctor. */
