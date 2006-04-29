@@ -1,3 +1,10 @@
+Sat Apr 29 22:16:51 BST 2006  Olly Betts <olly@survex.com>
+
+	* INSTALL,configure.ac: Remove mentions of guile from
+	  "./configure --help" and installation instructions.
+	* Makefile.am: Don't include guile subdirectory in the tarball.
+	* INSTALL: Mention --with-ruby.
+
 Sat Apr 29 21:46:36 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING,Makefile.am,README,TODO,configure.ac,ruby/Makefile.am,

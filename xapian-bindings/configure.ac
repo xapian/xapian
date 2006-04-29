@@ -113,7 +113,7 @@ fi
 
 AC_ARG_WITH(swig,
   AC_HELP_STRING([--with-swig],
-		 [enable all bindings which depend on SWIG (currently: Python PHP Tcl Guile CSharp Ruby)]),
+		 [enable all bindings which depend on SWIG (currently: CSharp PHP Python Ruby Tcl)]),#Guile currently disabled
   [],
   [with_swig=])
 
@@ -326,19 +326,19 @@ if test no != "$with_tcl" ; then
   fi
 fi
 
-if test yes == "$with_guile" ; then
-  AC_PATH_PROGS(GUILE, [$GUILE guile], [])
-  AC_ARG_VAR(GUILE, [guile interpreter])
-  if test -n "$GUILE" ;  then
-    dnl test guile version?
-    dnl any paths?
-    BINDINGS="$BINDINGS guile"
-  else
-    if test yes = "$with_guile" ; then
-      AC_MSG_ERROR([guile not found])
-    fi
-  fi
-fi
+dnl if test yes == "$with_guile" ; then
+dnl   AC_PATH_PROGS(GUILE, [$GUILE guile], [])
+dnl   AC_ARG_VAR(GUILE, [guile interpreter])
+dnl   if test -n "$GUILE" ;  then
+dnl     dnl test guile version?
+dnl     dnl any paths?
+dnl     BINDINGS="$BINDINGS guile"
+dnl   else
+dnl     if test yes = "$with_guile" ; then
+dnl       AC_MSG_ERROR([guile not found])
+dnl     fi
+dnl   fi
+dnl fi
 
 if test no != "$with_csharp" ; then
   AC_PATH_PROGS(CSC, [$CSC mcs], [])

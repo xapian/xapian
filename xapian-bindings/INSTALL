@@ -43,12 +43,12 @@ The simplest way to compile this package is:
      following options to configure:
 
        --with-swig	    enable all bindings which depend on SWIG
-			    (currently: Python PHP Tcl Guile CSharp)
+			    (currently: CSharp PHP Python Ruby Tcl)
        --with-python	    enable Python bindings
        --with-php	    enable PHP bindings
+       --with-ruby	    enable Ruby bindings
        --with-tcl	    enable Tcl bindings
        --with-java	    enable Java bindings
-       --with-guile	    enable Guile bindings
        --with-csharp	    enable CSharp bindings
 
      If you've requested particular bindings using these options, then
