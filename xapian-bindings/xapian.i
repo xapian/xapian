@@ -378,9 +378,13 @@ class MSet {
     weight get_max_attained();
     doccount size() const;
     bool empty() const;
+#ifndef SWIGRUBY
+    // We don't wrap methods which were already deprecated when the Ruby
+    // bindings were added.
     %extend {
 	bool is_empty() const { return self->empty(); }
     }
+#endif
     MSetIterator begin() const;
     MSetIterator end() const;
     MSetIterator back() const;
@@ -397,10 +401,14 @@ class MSet {
 	docid get_docid(doccount i) const {
 	    return *((*self)[i]);
 	}
+#ifndef SWIGRUBY
+	// We don't wrap methods which were already deprecated when the Ruby
+	// bindings were added.
 	/* For consistency this has been replaced by get_docid(). */
 	docid get_document_id(doccount i) const {
 	    return *((*self)[i]);
 	}
+#endif
     }
     string get_description() const;
 };
@@ -438,9 +446,13 @@ class ESet {
     termcount get_ebound() const;
     termcount size() const;
     bool empty() const;
+#ifndef SWIGRUBY
+    // We don't wrap methods which were already deprecated when the Ruby
+    // bindings were added.
     %extend {
 	bool is_empty() const { return self->empty(); }
     }
+#endif
     ESetIterator begin() const;
     ESetIterator end() const;
     ESetIterator back() const;
@@ -473,9 +485,13 @@ class RSet {
     ~RSet();
     doccount size() const;
     bool empty() const;
+#ifndef SWIGRUBY
+    // We don't wrap methods which were already deprecated when the Ruby
+    // bindings were added.
     %extend {
 	bool is_empty() const { return self->empty(); }
     }
+#endif
     void add_document(docid did);
     void add_document(MSetIterator& i);
     void remove_document(docid did);
@@ -897,7 +913,11 @@ class Query {
 	TermIterator get_terms_begin() const;
 	TermIterator get_terms_end() const;
 	bool empty() const;
+#ifndef SWIGRUBY
+	// We don't wrap methods which were already deprecated when the Ruby
+	// bindings were added.
 	bool is_empty() const; /* DEPRECATED alias */
+#endif
 
 	string get_description();
 };

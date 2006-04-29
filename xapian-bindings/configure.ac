@@ -113,7 +113,7 @@ fi
 
 AC_ARG_WITH(swig,
   AC_HELP_STRING([--with-swig],
-		 [enable all bindings which depend on SWIG (currently: Python PHP Tcl Guile CSharp)]),
+		 [enable all bindings which depend on SWIG (currently: Python PHP Tcl Guile CSharp Ruby)]),
   [],
   [with_swig=])
 
@@ -126,6 +126,11 @@ AC_ARG_WITH(php,
   AC_HELP_STRING([--with-php], [enable PHP bindings]),
   [],
   [with_php=$with_swig])
+
+AC_ARG_WITH(ruby,
+  AC_HELP_STRING([--with-ruby], [enable Ruby bindings]),
+  [],
+  [with_ruby=$with_swig])
 
 AC_ARG_WITH(tcl,
   AC_HELP_STRING([--with-tcl], [enable Tcl bindings]),
@@ -150,7 +155,7 @@ AC_ARG_WITH(java,
   [],
   [with_java=])
 
-case $with_swig$with_python$with_php$with_tcl$with_guile$with_csharp$with_java in
+case $with_swig$with_python$with_php$with_ruby$with_tcl$with_guile$with_csharp$with_java in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
@@ -159,6 +164,7 @@ case $with_swig$with_python$with_php$with_tcl$with_guile$with_csharp$with_java i
   test -z "$with_guile" && with_guile=no
   test -z "$with_csharp" && with_csharp=no
   test -z "$with_java" && with_java=no
+  test -z "$with_ruby" && with_ruby=no
   ;;
 esac
 
@@ -428,6 +434,55 @@ if test no != "$with_java" ; then
   fi
 fi
 
+if test no != "$with_ruby" ; then
+  dnl See comment for AC_PATH_PROGS(SWIG, ...).
+  AC_PATH_PROGS(RUBY, [$RUBY ruby], [])
+  AC_ARG_VAR(RUBY, [Ruby interpreter])
+  if test -n "$RUBY" ; then
+    dnl Require Ruby 1.8 or newer.  Paul says:
+    dnl  I'm using 1.8.4.  I imagine anything in the 1.8.x series will be fine,
+    dnl  not sure about 1.6 but hardly anyone uses <1.8.
+    dnl
+    dnl Brief testing with Ruby 1.6.8 show the bindings probably work there,
+    dnl but smoketest.rb doesn't because the test/unit module isn't available.
+    version=`$RUBY --version 2>/dev/null`
+    case $version in
+    [ruby\ 1.[89]*]) ;; # Ruby 1.8, 1.9
+    [ruby\ 1.[1-9][0-9]*]) ;; # Ruby 1.10+
+    [ruby\ [2-9]*]) ;; # Ruby 2-Ruby 9
+    [ruby\ 1[0-9]*]) ;; # Ruby 10+
+    *)
+      if test yes = "$with_ruby" ; then
+	AC_MSG_ERROR([Only Ruby 1.8 or newer is supported ($ruby is $version)])
+      fi
+      RUBY=
+      ;;
+    esac
+    if test -n "$RUBY" ; then
+      RUBY_INC=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["archdir"]]'`
+      AC_SUBST(RUBY_INC)
+      dnl Check that ruby.h is there, which is a good way to check that
+      dnl the appropriate ruby-dev package has been installed.
+      AC_MSG_CHECKING([for $RUBY_INC/ruby.h])
+      if test -f "$RUBY_INC/ruby.h" ; then
+	AC_MSG_RESULT(yes)
+	RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["rubylibdir"]]'`
+	AC_SUBST(RUBY_LIB)
+	dnl Ruby seems to keep ruby.h in the same directory where C/C++
+	dnl extensions shared libraries go.
+	RUBY_LIB_ARCH=$RUBY_INC
+	AC_SUBST(RUBY_LIB_ARCH)
+	BINDINGS="$BINDINGS ruby"
+      else
+	AC_MSG_RESULT([no (install ruby-dev or ruby-devel package or similar)])
+	if test yes = "$with_ruby" ; then
+	  AC_MSG_ERROR([ruby.h not found])
+	fi
+      fi
+    fi
+  fi
+fi
+
 AC_SUBST(BINDINGS)
 
 dnl Set flags to control warnings (enable more, or disable annoying ones)
@@ -492,6 +547,7 @@ AC_CONFIG_FILES([Makefile
  tcl8/Makefile tcl8/docs/Makefile
  csharp/Makefile csharp/docs/Makefile
  csharp/AssemblyInfo.cs
+ ruby/Makefile ruby/docs/Makefile
  xapian-bindings.spec])
 AC_OUTPUT
 

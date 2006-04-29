@@ -20,3 +20,18 @@ Write custom typemaps for constructing a query from list of Query objects
 and/or terms.
 
 Perhaps write custom typemaps for Enquire::get_matching_terms().
+
+Ruby
+----
+
+Should we be renaming get_* methods which take parameters?
+
+Should we be reanming set_* methods which don't take exactly one parameter?
+
+Should we wrap the extra method Enquire::get_matching_terms()?  It seems
+to rather duplicate the iterator->arrays mapping.
+
+Merge the Xapian C++ documentation with the RDoc.
+One way to do this would be to make a stub Ruby file defining empty methods
+according to the Xapian API with appropriate RDoc comments for the purpose of
+generating RDocs.

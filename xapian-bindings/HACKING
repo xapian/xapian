@@ -55,7 +55,6 @@ These are the other languages which SWIG supports, but which nobody has yet
 worked on producing Xapian bindings for (from http://www.swig.org/compare.html
 and SWIG release notes):
 
-Ruby		Supported by SWIG 1.3.6 onwards
 Mzscheme	Supported by SWIG 1.3.6 onwards
 Ocaml		Supported by SWIG 1.3.14 onwards
 Pike		Supported by SWIG 1.3.14 onwards
