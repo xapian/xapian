@@ -433,7 +433,7 @@ class ESet {
     ~ESet();
     termcount get_ebound() const;
     termcount size() const;
-    termcount empty() const;
+    bool empty() const;
     %extend {
 	bool is_empty() const { return self->empty(); }
     }

@@ -1,3 +1,8 @@
+Sat Apr 29 02:48:54 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Fixed ESet::empty() to return bool instead of
+	  Xapian::termcount (this was probably a largely harmless error).
+
 Fri Apr 28 17:52:31 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/util.i,xapian.i: Move the C# specific %rename list to
