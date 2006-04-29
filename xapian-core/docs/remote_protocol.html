@@ -48,6 +48,16 @@ Format: O&lt;first&gt; &lt;lower bound&gt; &lt;estimated&gt; &lt;upper bound&gt;
         [&lt;term&gt; &lt;frequency&gt; &lt;weight&gt;]...
 Description: The returned MSet.
 
+Message KeepAlive:
+Direction: Client-&gt;Server
+Format: K
+Description: Dummy message to stop the connection timing out.
+
+Message KeepAliveResponse
+Direction: Server-&gt;Client
+Format: OK
+Description: Dummy message to stop the connection timing out.
+
 Message TermlistRequest:
 Direction: Client-&gt;Server
 Format: T&lt;docid&gt;
