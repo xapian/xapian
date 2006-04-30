@@ -91,12 +91,12 @@ if test x$USE_MAINTAINER_MODE = xyes; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
   dnl Check for swig >= 1.3.29
-  dnl 1.3.23 adds support for optional arguments in C#.
-  dnl 1.3.24 tweaks C# enums
+  dnl 1.3.23 adds support for optional arguments in CSharp.
+  dnl 1.3.24 tweaks CSharp enums
   dnl 1.3.26 fixes PHP overloading
   dnl 1.3.27 contains a few fixes, none of which affect us
   dnl 1.3.28 contains many useful fixes and changes - one thing we need it
-  dnl for is a ability to automatically rename method names for C# (e.g.
+  dnl for is a ability to automatically rename method names for CSharp (e.g.
   dnl get_description becomes getDescription).
   dnl 1.3.29 fixes PHP to give an error if an overload can't be resolved
   dnl You can see the latest SWIG changes here:
@@ -181,17 +181,21 @@ if test no != "$with_python" ; then
     dnl  work without 2.1; I'd be happy to require 2.1 though, because it's
     dnl  been out for a long time, and 2.0 wasn't around for all that long as
     dnl  I remember.
+    AC_MSG_CHECKING([$PYTHON version])
     version=`$PYTHON -c 'import sys;print sys.version[[:3]]' 2>/dev/null`
     case $version in
     2.1)
+      AC_MSG_RESULT([$version])
       PYTHON_MODERN_OR_OLDE=olde
       ;;
     [2.[1-9]*|[3-9].*])
+      AC_MSG_RESULT([$version])
       dnl Use output from swig -modern for Python 2.2 and up for
       dnl cleaner, leaner, faster wrapper code in xapian.py.
       PYTHON_MODERN_OR_OLDE=modern
       ;;
     *)
+      AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_python" ; then
 	AC_MSG_ERROR([Only python 2.1 or newer is supported ($python is $version)])
       fi
@@ -244,21 +248,21 @@ if test no != "$with_php" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
   AC_PATH_PROGS(PHP_CONFIG, [$PHP_CONFIG php-config], [])
   AC_ARG_VAR(PHP_CONFIG, [php-config utility])
-  AC_ARG_VAR(PHP, [php interpreter to optionally run testsuite with])
+  AC_ARG_VAR(PHP, [php interpreter (optional - only needed to run testsuite with)])
   if test -n "$PHP_CONFIG" ; then
-    version=`$PHP_CONFIG --version 2> /dev/null`
+    AC_MSG_CHECKING([$PHP_CONFIG version])
+    version=`$PHP_CONFIG --version 2>/dev/null`
     case $version in
     4.*)
-      dnl If the php interpreter can't be found, skip the php tests.
-      AC_PATH_PROGS(PHP, [$PHP php4 php], [\$(top_srcdir)/skiptest])
+      AC_MSG_RESULT([$version])
       php_version=4
       ;;
     5.*)
-      dnl If the php interpreter can't be found, skip the php tests.
-      AC_PATH_PROGS(PHP, [$PHP php5 php], [\$(top_srcdir)/skiptest])
+      AC_MSG_RESULT([$version])
       php_version=5
       ;;
     *)
+      AC_MSG_RESULT([$version (not supported)])
       if test yes = "$with_php" ; then
 	AC_MSG_ERROR([Only PHP4 and PHP5 are supported ($PHP_CONFIG reports version $version)])
       fi
@@ -266,6 +270,41 @@ if test no != "$with_php" ; then
       ;;
     esac
     if test no != "$with_php" ; then
+      PHP_found=no
+      case $PHP in
+	"")
+	  dnl Try $prefix/bin/phpN then $prefix/bin/php
+	  php_prefix=`$PHP_CONFIG --prefix 2>/dev/null`
+	  php_bin="$php_prefix/bin/php"
+	  for php in $php_bin$php_version $php_bin ; do
+	    AC_MSG_CHECKING([for $php])
+	    for ac_exec_ext in '' $ac_executable_extensions; do
+	      if $as_executable_p "$php$ac_exec_ext"; then
+		PHP=$php$ac_exec_ext
+		AC_MSG_RESULT([$PHP])
+		PHP_found=yes
+		break 2
+	      fi
+	    done
+	    AC_MSG_RESULT([no])
+	  done
+	  ;;	
+	[[\\/]* | ?:[\\/]*]) ;;
+	*)
+	  dnl Handle PHP passed in without a path - e.g. PHP=php5
+	  AC_PATH_PROGS(PHP, [$PHP], [])
+	  test -n "$PHP" && PHP_found=yes   
+	  ;;
+      esac
+      if test yes != "$PHP_tried" ; then
+	dnl Try phpN then php.  If the PHP interpreter can't be found, skip the
+	dnl PHP bindings tests.
+	AC_PATH_PROGS(PHP, [php$php_version php], [\$(top_srcdir)/skiptest])
+      fi
+      if test -z "$PHP" ; then
+	AC_MSG_WARN([No PHP interpreter found - PHP bindings tests will be skipped])
+      fi
+
       PHP_INC=`$PHP_CONFIG --includes`
       AC_SUBST(PHP_INC)
       PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
@@ -288,11 +327,13 @@ fi
 if test no != "$with_tcl" ; then
   AC_PATH_PROGS(TCLSH, [$TCLSH tclsh], [])
   AC_ARG_VAR(TCLSH, [Tcl interpreter])
-  if test -n "$TCLSH" ;  then
+  if test -n "$TCLSH" ; then
     # We need Tcl 8.1 or later for TCL_STUBS.
     # Note: The bindings can easily be made to work with Tcl 8.0 (just
     # don't pass -DUSE_TCL_STUBS when compiling) should you need that.
+    AC_MSG_CHECKING([$TCLSH version])
     if `echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null` ; then
+      AC_MSG_RESULT([>= 8.1])
       TCL_LIB=`echo 'puts $tcl_library'|$TCLSH`
       AC_SUBST(TCL_LIB)
       dnl There's no obvious way to get "/usr/include/tcl8.N" directly...
@@ -301,27 +342,37 @@ if test no != "$with_tcl" ; then
       dnl Check that the headers are there (the tcl8.N-dev package
       dnl may not be installed).
       TCL_CPPFLAGS=
+      AC_MSG_CHECKING([for tcl.h for version $TCL_VERSION])
       if test -f "$TCL_INC/tcl.h" ; then
+	AC_MSG_RESULT([$TCL_INC/tcl.h])
 	BINDINGS="$BINDINGS tcl8"
 	TCL_CPPFLAGS="-I$TCL_INC"
       elif test -f "/usr/include/tcl.h" ; then
 	if test x`awk '($1 == "#define" && $2 == "TCL_VERSION") {print $3}' /usr/include/tcl.h` = x'"'`echo 'puts $tcl_version'|$TCLSH`'"' ; then
+	  AC_MSG_RESULT([/usr/include/tcl.h])
 	  BINDINGS="$BINDINGS tcl8"
 	else
+	  AC_MSG_RESULT([not found])
 	  if test yes = "$with_tcl" ; then
 	    AC_MSG_ERROR([Can't find tcl.h for version $TCL_VERSION])
 	  fi
 	fi
       else
+	AC_MSG_RESULT([not found])
 	if test yes = "$with_tcl" ; then
 	  AC_MSG_ERROR([Can't find tcl.h])
 	fi
       fi
       AC_SUBST(TCL_CPPFLAGS)
+    else
+      AC_MSG_RESULT([< 8.1 (too old)])
+      if test yes = "$with_tcl" ; then
+	AC_MSG_ERROR([$TCLSH too old (Tcl 8.1 or newer required)])
+      fi
     fi
   else
     if test yes = "$with_tcl" ; then
-      AC_MSG_ERROR([tclsh not found or too old (Tcl 8.1 or newer required)])
+      AC_MSG_ERROR([tclsh not found])
     fi
   fi
 fi
@@ -341,51 +392,70 @@ dnl   fi
 dnl fi
 
 if test no != "$with_csharp" ; then
-  AC_PATH_PROGS(CSC, [$CSC mcs], [])
-  AC_ARG_VAR(CSC, [C# compiler command])
-  if test -n "$CSC" ; then
-    # There are other tools called mcs (such as /usr/bin/mcs on Tru64),
-    # so we check that the mcs we found understands --version which is
-    # sufficient to distinguish mono's mcs from the Tru64 one.
-    AC_MSG_CHECKING([whether $CSC is from GNU Mono])
-    if (exec >&5 2>&5;$CSC --version </dev/null;exit $?) ; then
-      AC_MSG_RESULT(yes)
-      AC_PATH_PROGS(GACUTIL, [$GACUTIL gacutil], [])
-      AC_PATH_PROGS(SN, [$SN sn], [])
-      AC_ARG_VAR(GACUTIL, [gacutil utility to use for C# bindings])
-      AC_ARG_VAR(SN, [sn utility to use for C# bindings])
-      if test -n "$GACUTIL" -a -n "$SN" ; then
-	BINDINGS="$BINDINGS csharp"
+  csc_note=
+  AC_ARG_VAR(CSC, [CSharp compiler command])
+  AC_PATH_PROGS(CSC, [$CSC], [])
+  if test -z "$CSC" ; then
+    AC_PATH_PROGS(CSC, [mcs], [])
+    if test -n "$CSC" ; then
+      # There are other tools called mcs (such as /usr/bin/mcs on Tru64),
+      # so we check that the mcs we found understands --version which is
+      # sufficient to distinguish mono's mcs from the Tru64 one.
+      AC_MSG_CHECKING([whether $CSC is from GNU Mono])
+      if (exec >&5 2>&5;$CSC --version </dev/null;exit $?) ; then
+	AC_MSG_RESULT(yes)
       else
-	if test yes = "$with_csharp" ; then
-	  if test -z "$GACUTIL" ; then
-	    AC_MSG_ERROR([Mono gacutil not found])
-          elif test -z "$SN" ; then
-	    AC_MSG_ERROR([Mono sn not found])
-	  fi
-	fi
+	AC_MSG_RESULT(no)
+	CSC=
+	csc_note=" (found different mcs program)"
       fi
+    fi
+  fi
+  if test -z "$CSC" ; then
+    AC_PATH_PROGS(CSC, [csc], [])
+    # Chicken (the Scheme-to-C compiler) includes a tool called csc so we check
+    # if the output from "csc -version" includes the word chicken which is
+    # sufficient to distinguish Chicken's csc from Microsoft's csc.exe.
+    AC_MSG_CHECKING([whether $CSC is for CSharp])
+    csc_tmp=`$CSC -version 2>/dev/null|grep chicken`
+    if test -z "$csc_tmp" ; then
+      AC_MSG_RESULT(yes)
     else
       AC_MSG_RESULT(no)
-      if test yes = "$with_csharp" ; then
-	AC_MSG_ERROR([Mono mcs not found (found different mcs program)])
-      fi
       CSC=
+      csc_note="$csc_note (found Chicken csc program)"
+    fi
+  fi
+  if test -n "$CSC" ; then
+    AC_PATH_PROGS(GACUTIL, [$GACUTIL gacutil], [])
+    AC_PATH_PROGS(SN, [$SN sn], [])
+    AC_ARG_VAR(GACUTIL, [gacutil utility to use for CSharp bindings])
+    AC_ARG_VAR(SN, [sn utility to use for CSharp bindings])
+    if test -n "$GACUTIL" -a -n "$SN" ; then
+      BINDINGS="$BINDINGS csharp"
+    else
+      if test yes = "$with_csharp" ; then
+	if test -z "$GACUTIL" ; then
+	  AC_MSG_ERROR([Mono gacutil not found])
+	elif test -z "$SN" ; then
+	  AC_MSG_ERROR([Mono sn not found])
+	fi
+      fi
     fi
   else
     if test yes = "$with_csharp" ; then
-      AC_MSG_ERROR([Mono mcs not found])
+      AC_MSG_ERROR([CSharp compiler not found$csc_note])
     fi
   fi
 fi
 
 if test no != "$with_java" ; then
   AC_PATH_PROGS(JAVA, [$JAVA java], [],
-  	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
+	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
   AC_PATH_PROGS(JAVAC, [$JAVAC javac], [],
-  	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
+	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
   AC_PATH_PROGS(JAR, [$JAR jar], [],
-  	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
+	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
   AC_ARG_VAR(JAVA, [Java interpreter command])
   AC_ARG_VAR(JAVAC, [Java compiler command])
   AC_ARG_VAR(JAR, [java jar utility])
@@ -418,7 +488,7 @@ if test no != "$with_java" ; then
       fi
       if test no = "$java_ok" ; then
 	AC_MSG_RESULT([test failed])
-        test yes = "$with_java" && AC_MSG_ERROR([Couldn't compile and run simple Java program])
+	test yes = "$with_java" && AC_MSG_ERROR([Couldn't compile and run a simple Java program])
       fi
     fi
   else
@@ -445,6 +515,7 @@ if test no != "$with_ruby" ; then
     dnl
     dnl Brief testing with Ruby 1.6.8 show the bindings probably work there,
     dnl but smoketest.rb doesn't because the test/unit module isn't available.
+    AC_MSG_CHECKING([$RUBY version])
     version=`$RUBY --version 2>/dev/null`
     case $version in
     [ruby\ 1.[89]*]) ;; # Ruby 1.8, 1.9
@@ -452,6 +523,7 @@ if test no != "$with_ruby" ; then
     [ruby\ [2-9]*]) ;; # Ruby 2-Ruby 9
     [ruby\ 1[0-9]*]) ;; # Ruby 10+
     *)
+      AC_MSG_RESULT([$version (too old)])
       if test yes = "$with_ruby" ; then
 	AC_MSG_ERROR([Only Ruby 1.8 or newer is supported ($ruby is $version)])
       fi
@@ -459,6 +531,7 @@ if test no != "$with_ruby" ; then
       ;;
     esac
     if test -n "$RUBY" ; then
+      AC_MSG_RESULT([$version])
       RUBY_INC=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["archdir"]]'`
       AC_SUBST(RUBY_INC)
       dnl Check that ruby.h is there, which is a good way to check that

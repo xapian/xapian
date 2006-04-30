@@ -1,3 +1,12 @@
+Sun Apr 30 01:27:06 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: The "#" in "C#" seems to sometimes confuse autoconf so
+	  always say "CSharp" instead.  Add some missing "checking ..."
+	  messages so the user has more idea what is going on.  Look for PHP
+	  interpreter first in prefix given by "php-config --prefix".  Look
+	  for CSharp compiler as "csc" (if "mcs" isn't found) but check we
+	  don't find the unrelated Chicken csc program.
+
 Sat Apr 29 22:16:51 BST 2006  Olly Betts <olly@survex.com>
 
 	* INSTALL,configure.ac: Remove mentions of guile from
