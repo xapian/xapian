@@ -54,6 +54,7 @@ static test test_or_queries[] = {
     { "author:(twain OR poe) OR flight", "(Atwain:(pos=1) OR Apoe:(pos=2) OR flight:(pos=3))" },
     { "author:(twain OR title:pit OR poe)", "(Atwain:(pos=1) OR XTpit:(pos=2) OR Apoe:(pos=3))" },
     { "title:2001 title:space", "(XT2001:(pos=1) OR XTspace:(pos=2))" },
+    { "(title:help)", "XThelp:(pos=1)" },
     { "beer NOT \"orange juice\"", "(beer:(pos=1) AND_NOT (orang:(pos=2) PHRASE 2 juic:(pos=3)))" },
     { "beer AND NOT lager", "(beer:(pos=1) AND_NOT lager:(pos=2))" },
     { "one AND two", "(one:(pos=1) AND two:(pos=2))" },

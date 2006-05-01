@@ -1,3 +1,8 @@
+Mon May 01 21:49:46 BST 2006  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add another prefix testcase to improve
+	  coverage.
+
 Sat Apr 29 20:16:46 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/remote_protocol.html: Document keep-alive messages.
