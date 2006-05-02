@@ -1,3 +1,9 @@
+Tue May 02 03:00:15 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simplematchdecider.py: Rename confusingly-named
+	  "mymatcher" to "mymatchdecider".  Add description of what this
+	  example does.
+
 Sun Apr 30 01:27:06 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: The "#" in "C#" seems to sometimes confuse autoconf so

@@ -26,11 +26,15 @@
 import sys
 import xapian
 
+# This example runs a query like simplesearch does, but uses a MatchDecider
+# (mymatchdecider) to discard any document for which value 0 is equal to
+# the string pass as the second command line argument.
+
 if len(sys.argv) < 4:
     print >> sys.stderr, "usage: %s <path to database> <avoid value> <search terms>" % sys.argv[0]
     sys.exit(1)
 
-class mymatcher(xapian.MatchDecider):
+class mymatchdecider(xapian.MatchDecider):
     def __init__(self, avoidvalue):
         xapian.MatchDecider.__init__(self)
         self.avoidvalue = avoidvalue
@@ -50,7 +54,7 @@ try:
     print "Performing query `%s'" % query.get_description()
 
     enquire.set_query(query)
-    matcher = mymatcher(sys.argv[2])
+    matcher = mymatchdecider(sys.argv[2])
     matches = enquire.get_mset(0, 10, None, matcher)
 
     print "%i results found" % matches.get_matches_estimated()
