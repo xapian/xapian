@@ -145,28 +145,6 @@
 %ignore add_term_nopos;
 %ignore Xapian::Auto::open;
 
-%header %{
-  // global variables used in our %init section
-  VALUE xapian_Term_class; // will hold Ruby class Xapian::Term
-  %}
-
-/*
-%init %{
-  // Here we define some Ruby wrappers for the Iterators used in Xapian, so we
-  // can iterate according to the Ruby idiom (calling each on an Array).
-  // This also sidesteps issues with the input_iterators (that is, that they
-  // become invalid once the code iterates to the next iterator object) by
-  // copying their data into these wrappers.
-
-  // Ruby class Xapian::Term
-  // wraps C++ class Xapian::TermIterator
-  //xapian_Term_class = rb_define_class("Xapian::Term", rb_cObject);
-  xapian_Term_class = rb_define_class_under(mXapian, "Term", rb_cObject);
-  rb_iv_set(xapian_Term_class, "@data", Qnil);
-
-  %} // end %init
-*/
-
 #define XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 /*
  * Check to see what is equivalent to a C++ Vector for the purposes of a Query

@@ -1,3 +1,7 @@
+Fri May 05 00:49:22 BST 2006  Paul Legato
+
+	* ruby/util.i: Remove code left over from before we created xapian.rb.
+
 Thu May 04 18:30:26 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove guile/Makefile from AC_CONFIG_FILES.
