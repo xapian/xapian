@@ -1,3 +1,7 @@
+Fri May 05 02:36:41 BST 2006  Olly Betts <olly@survex.com>
+
+	* ruby/Makefile.am: Actually ship xapian.rb!
+
 Fri May 05 00:49:22 BST 2006  Paul Legato
 
 	* ruby/util.i: Remove code left over from before we created xapian.rb.

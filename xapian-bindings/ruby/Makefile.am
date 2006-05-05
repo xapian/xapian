@@ -12,7 +12,7 @@ endif
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 
-EXTRA_DIST = util.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = util.i xapian.rb $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
