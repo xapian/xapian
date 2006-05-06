@@ -324,9 +324,9 @@ class Document {
     Document(const Document& other);
     ~Document();
 
-    string get_value(valueno value) const;
-    void add_value(valueno value, const string & value);
-    void remove_value(valueno value);
+    string get_value(valueno valueno) const;
+    void add_value(valueno valueno, const string & value);
+    void remove_value(valueno valueno);
     void clear_values();
 
     string get_data() const;
@@ -622,11 +622,11 @@ class BoolWeight : public Weight {
 	~BoolWeight();
 	std::string name() const;
 	std::string serialise() const;
-	BoolWeight * unserialise(const std::string & /*s*/) const;
-	Xapian::weight get_sumpart(Xapian::termcount /*wdf*/, Xapian::doclength /*len*/) const;
+	BoolWeight * unserialise(const std::string & s) const;
+	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
 	Xapian::weight get_maxpart() const;
 
-	Xapian::weight get_sumextra(Xapian::doclength /*len*/) const;
+	Xapian::weight get_sumextra(Xapian::doclength len) const;
 	Xapian::weight get_maxextra() const;
 
 	bool get_sumpart_needs_doclength() const;

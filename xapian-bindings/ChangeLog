@@ -1,3 +1,9 @@
+Sat May 06 18:34:41 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Uncomment commented-out parameter names and fix duplicate
+	  parameter names (for the benefit of bindings which use the parameter
+	  names, like the OO PHP5 patch for SWIG I'm working on...)
+
 Fri May 05 02:36:41 BST 2006  Olly Betts <olly@survex.com>
 
 	* ruby/Makefile.am: Actually ship xapian.rb!
