@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-TESTS_ENVIRONMENT = $(RUBY) -I.libs
+TESTS_ENVIRONMENT = $(RUBY) -I.libs -I$(srcdir)
 
 ## Test programs to be run
 TESTS = smoketest.rb
