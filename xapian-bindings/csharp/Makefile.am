@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-TESTS_ENVIRONMENT =
+TESTS_ENVIRONMENT = $(RUN_CSHARP)
 
 ## Test programs to be run
 TESTS = SmokeTest.exe

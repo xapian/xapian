@@ -248,7 +248,7 @@ if test no != "$with_php" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
   AC_PATH_PROGS(PHP_CONFIG, [$PHP_CONFIG php-config], [])
   AC_ARG_VAR(PHP_CONFIG, [php-config utility])
-  AC_ARG_VAR(PHP, [php interpreter (optional - only needed to run testsuite with)])
+  AC_ARG_VAR(PHP, [php interpreter (optional - only needed to run PHP testsuite with)])
   if test -n "$PHP_CONFIG" ; then
     AC_MSG_CHECKING([$PHP_CONFIG version])
     version=`$PHP_CONFIG --version 2>/dev/null`
@@ -432,7 +432,40 @@ if test no != "$with_csharp" ; then
     AC_ARG_VAR(GACUTIL, [gacutil utility to use for CSharp bindings])
     AC_ARG_VAR(SN, [sn utility to use for CSharp bindings])
     if test -n "$GACUTIL" -a -n "$SN" ; then
-      BINDINGS="$BINDINGS csharp"
+      AC_MSG_CHECKING([whether the CSharp compiler works])
+      [echo 'class conftest { public static void Main() { System.Console.WriteLine("OK"); } }' > conftest.cs]
+      if (exec >&5 2>&5;$CSC conftest.cs;exit $?) ; then
+	AC_MSG_RESULT(yes)
+	AC_MSG_CHECKING([whether CSharp programs can just be run])
+	if test OK = "`./conftest.exe 2> /dev/null`" ; then
+	  AC_MSG_RESULT(yes)
+	  RUN_CSHARP=
+	else
+	  AC_MSG_RESULT(no)
+	  AC_PATH_PROGS(MONO, [$MONO mono], [])
+	  AC_ARG_VAR(MONO, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
+	  if test -n "$MONO" ; then
+	    AC_MSG_CHECKING([whether $MONO can run CSharp programs])
+	    if OK = "`$MONO ./conftest.exe 2> /dev/null`" ; then
+	      AC_MSG_RESULT(yes)
+	      RUN_CSHARP=mono
+	    else
+	      AC_MSG_RESULT([no - CSharp tests will be skipped])
+	      RUN_CSHARP='\$(top_srcdir)/skiptest'
+	    fi
+	  else
+	    AC_MSG_RESULT([not found - CSharp tests will be skipped])
+	    RUN_CSHARP='\$(top_srcdir)/skiptest'
+	  fi
+	fi
+	AC_SUBST(RUN_CSHARP)
+	BINDINGS="$BINDINGS csharp"
+      else
+	AC_MSG_RESULT(no)
+	if test yes = "$with_csharp" ; then
+	  AC_MSG_ERROR([CSharp compiler $CSC doesn't work])
+	fi
+      fi
     else
       if test yes = "$with_csharp" ; then
 	if test -z "$GACUTIL" ; then
