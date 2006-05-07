@@ -1,3 +1,9 @@
+Sun May 07 15:01:24 BST 2006  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am: Need to make sure "built" subdirectory exists or
+	  building from clean fails.
+	* java/Makefile.am: Fix "make check" to work when srcdir != builddir.
+
 Sun May 07 03:48:30 BST 2006  Olly Betts <olly@survex.com>
 
 	* ruby/smoketest.rb: Use hit instead of get_hit.

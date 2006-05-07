@@ -3,7 +3,7 @@
 SUBDIRS = native org .
 
 TESTS_ENVIRONMENT = \
-  LIBTOOL="$(LIBTOOL)" JAVA="$(JAVA)" PATHSEP="$(JAVA_PATHSEP)" ./run-java-test
+  LIBTOOL="$(LIBTOOL)" JAVA="$(JAVA)" PATHSEP="$(JAVA_PATHSEP)" $(srcdir)/run-java-test
 
 ## Test programs to be run
 TESTS = SmokeTest
@@ -17,11 +17,8 @@ SmokeTest: SmokeTest.class
 .java.class:
 	$(JAVAC) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
 
-# directory to install xapian_jni.jar in
-# `pwd`/
-jardir = built
-
 noinst_DATA = built/xapian_jni.jar
 
 built/xapian_jni.jar:
+	-mkdir built
 	$(JAR) -cf built/xapian_jni.jar org/xapian/*.class org/xapian/errors/*.class
