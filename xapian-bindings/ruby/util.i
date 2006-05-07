@@ -201,6 +201,9 @@
 }
 
 
+#if 0
+// We don't want to generate get_matching_terms this way for Ruby - instead
+// we define it in xapian.rb.
 /*
  * Convert a begin/end pair of TermIterators into Arrays of Terms.
  */
@@ -213,3 +216,4 @@
 	rb_ary_push($result, str);
     }
 }
+#endif

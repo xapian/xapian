@@ -102,9 +102,9 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal(1, mset.size())
 
     # Feature test for Enquire.matching_terms()
-    assert_equal(2, @enq.matching_terms(mset.get_hit(0)).size())
+    assert_equal(2, @enq.matching_terms(mset.hit(0)).size())
     assert_equal([Xapian::Term.new("is", 1), Xapian::Term.new("there", 1)],
-                 @enq.matching_terms(mset.get_hit(0)))
+                 @enq.matching_terms(mset.hit(0)))
   end # test_enquire
 
   def test_004_mset_iterator
