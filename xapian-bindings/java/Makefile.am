@@ -6,7 +6,7 @@ TESTS_ENVIRONMENT = \
   LIBTOOL="$(LIBTOOL)" JAVA="$(JAVA)" PATHSEP="$(JAVA_PATHSEP)" $(srcdir)/run-java-test
 
 ## Test programs to be run
-TESTS = SmokeTest
+TESTS = SmokeTest.class
 
 EXTRA_DIST = run-java-test SmokeTest.java
 

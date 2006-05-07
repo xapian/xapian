@@ -1,3 +1,8 @@
+Sun May 07 22:03:01 BST 2006  Olly Betts <olly@survex.com>
+
+	* java/Makefile.am,java/run-java-test: Another fix "make check" when
+	  srcdir != builddir.
+
 Sun May 07 15:01:24 BST 2006  Olly Betts <olly@survex.com>
 
 	* java/Makefile.am: Need to make sure "built" subdirectory exists or
