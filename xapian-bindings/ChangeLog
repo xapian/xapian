@@ -1,3 +1,10 @@
+Sun May 07 01:16:25 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Using "php -c myphp.ini" still loads the system
+	  php.ini (at least for PHP 4.3.10), so use "php -n" and then set the
+	  options we specifically want using "-d".  Also, fix the smoketest
+	  invocation to work better when srcdir != builddir.
+
 Sat May 07 01:13:58 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,csharp/Makefile.am: Not all machines are set up to run
