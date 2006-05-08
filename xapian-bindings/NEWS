@@ -1,3 +1,104 @@
+Sun May 07 22:03:01 BST 2006  Olly Betts <olly@survex.com>
+
+Xapian-core 0.9.6 (2006-05-??):
+
+Documentation:
+
+* INSTALL: Add section describing how to install without root access.
+
+General:
+
+* In PHP, Python, and Tcl bindings, rename get_document_id to get_docid for
+  consistency.  Keep get_document_id as an alias for now for backward
+  compatibility.
+
+* Fixed ESet::empty() to return bool instead of Xapian::termcount (this was
+  probably a largely harmless error).
+
+* Mark the calls which return version strings as "throw()" so that SWIG knows
+  it can omit exception handling wrappers.
+
+* xapian.i: Removed superfluous "const" from return type "docid" which is just
+  a typedef for an unsigned integer type.
+
+* configure: Add some missing "checking ..." messages so the user has more idea
+  what is going on.  
+
+* Language specific util.i files can now define
+  XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP and
+  XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP to indicate which optional typemaps
+  are provided for each language.  This avoids needing to keep this
+  information in two different places.
+
+* xapian.i: Uncomment commented-out parameter names and fix duplicate
+  parameter names (for the benefit of bindings which use the parameter names,
+  like the OO PHP5 patch for SWIG I'm working on...)
+
+Packaging:
+
+Portability:
+
+* configure: Fix warning flags passed for Intel C++ compiler.
+
+CSharp:
+
+* In configure.ac, the "#" in "C#" seems to sometimes confuse autoconf so
+  always say "CSharp" instead.
+
+* Not all machines are set up to run compiled C# programs when invoked
+  directly, so get configure to probe if we can, or if using mono works.
+  If not, just skip the tests.
+
+* configure: We now look for a CSharp compiler as "csc" if "mcs" isn't found
+  (and check that csc isn't the unrelated Chicken csc program).
+
+* Move the C# specific %rename list to csharp/util.i.
+
+Guile:
+
+* The Guile bindings don't work and aren't being actively worked on, so we're
+  no longer including them in the distributed tarball to avoid disappointing
+  users who notice a "guile" subdirectory.
+
+Java:
+
+* Simplify (and improve portability of) run-java-test by using "libtool
+  --mode=execute"'s -dlopen option.
+
+* Need to make sure "built" subdirectory exists or building from clean fails.
+
+* Fix "make check" to work when srcdir != builddir.
+
+PHP:
+
+* Using "php -c myphp.ini" still loads the system php.ini (at least for PHP
+  4.3.10), so use "php -n" and then set the options we specifically want using
+  "-d".
+
+* Fix the smoketest invocation to work better when srcdir != builddir.
+
+* Look for PHP interpreter first in prefix given by "php-config --prefix".
+
+* Fix SWIG_RuntimeError to be handled as an exception in PHP5.
+
+* smoketest.php: Translated tests of the version number functions from
+  smoketest.py.  Failing tests now print a diagnostic before dying (again like
+  smoketest.py).
+
+Python:
+
+* Install xapian.py and xapian.pyc as _DATA not _SCRIPTS because we don't want
+  to make them executable (they don't have a #! line).
+
+* simplematchdecider.py: Rename confusingly-named "mymatcher" to
+  "mymatchdecider".  Add description of what this example does.
+
+Ruby:
+
+* Added new Ruby bindings from Paul Legato.
+
+Tcl:
+
 Xapian-core 0.9.5 (2006-04-08):
 
 Documentation:

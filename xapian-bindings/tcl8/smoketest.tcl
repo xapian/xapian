@@ -68,3 +68,5 @@ set terms [join [enq get_matching_terms [$mset get_hit 0]] " "]
 if { $terms != "is there" } {
     exit 1
 }
+xapian::WritableDatabase database [xapian::open "tcl_tmp_db" $xapian::DB_CREATE_OR_OPEN]
+rename database ""
