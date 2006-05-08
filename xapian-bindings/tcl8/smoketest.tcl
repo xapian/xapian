@@ -26,6 +26,15 @@ if { [stem get_description] != "Xapian::Stem(english)" } {
     exit 1
 }
 xapian::Document doc
+doc set_data "a\0b"
+if { [doc get_data] == "a" } {
+    puts "get_data+set_data truncates at a zero byte"
+    exit 1
+}
+if { [doc get_data] != "a\0b" } {
+    puts "get_data+set_data doesn't transparently handle a zero byte"
+    exit 1
+}
 doc set_data "is there anybody out there?"
 doc add_term "XYzzy"
 doc add_posting [stem stem_word "is"] 1
@@ -68,5 +77,3 @@ set terms [join [enq get_matching_terms [$mset get_hit 0]] " "]
 if { $terms != "is there" } {
     exit 1
 }
-xapian::WritableDatabase database [xapian::open "tcl_tmp_db" $xapian::DB_CREATE_OR_OPEN]
-rename database ""

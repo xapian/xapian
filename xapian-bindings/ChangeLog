@@ -1,3 +1,8 @@
+Mon May 08 21:57:49 BST 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/smoketest.tcl: Added simple test that zero-bytes are handled
+	  when passing strings to and from Xapian.
+
 Sun May 07 22:03:01 BST 2006  Olly Betts <olly@survex.com>
 
 	* java/Makefile.am,java/run-java-test: Another fix "make check" when
