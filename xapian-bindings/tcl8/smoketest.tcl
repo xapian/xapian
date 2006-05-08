@@ -21,10 +21,23 @@
 package require Tcl 8
 
 load [file join ".libs" xapian.so]
-xapian::Stem stem "english"
-if { [stem get_description] != "Xapian::Stem(english)" } {
+
+# Test the version number reporting functions give plausible results.
+set v [format {%d.%d.%d} [xapian::xapian_major_version] \
+			 [xapian::xapian_minor_version] \
+			 [xapian::xapian_revision]]
+set v2 [xapian::xapian_version_string]
+if { $v != $v2 } {
+    puts "Unexpected version output ($v != $v2)"
     exit 1
 }
+
+xapian::Stem stem "english"
+if { [stem get_description] != "Xapian::Stem(english)" } {
+    puts "Unexpected stem.get_description()"
+    exit 1
+}
+
 xapian::Document doc
 doc set_data "a\0b"
 if { [doc get_data] == "a" } {
@@ -42,38 +55,48 @@ doc add_posting [stem stem_word "there"] 2
 doc add_posting [stem stem_word "anybody"] 3
 doc add_posting [stem stem_word "out"] 4
 doc add_posting [stem stem_word "there"] 5
+
 xapian::WritableDatabase db [xapian::inmemory_open]
 db add_document doc
 if { [db get_doccount] != 1 } {
+    puts "Unexpected db.get_doccount()"
     exit 1
 }
+
 set terms [list "smoke" "test" "terms"]
 xapian::Query query $xapian::Query_OP_OR $terms
 if { [query get_description] != "Xapian::Query((smoke OR test OR terms))" } {
+    puts "Unexpected query.get_description()"
     exit 1
 }
 xapian::Query query1 $xapian::Query_OP_PHRASE [list "smoke" "test" "tuple"]
 if { [query1 get_description] != "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))" } {
+    puts "Unexpected query1.get_description()"
     exit 1
 }
 xapian::Query smoke "smoke"
 xapian::Query query2 $xapian::Query_OP_XOR [list smoke query1 "string" ]
 if { [query2 get_description] != "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))" } {
+    puts "Unexpected query2.get_description()"
     exit 1
 }
 set subqs [list "a" "b"]
 xapian::Query query3 $xapian::Query_OP_OR $subqs
 if { [query3 get_description] != "Xapian::Query((a OR b))" } {
+    puts "Unexpected query3.get_description()"
     exit 1
 }
+
 xapian::Enquire enq db
 xapian::Query q $xapian::Query_OP_OR "there" "is"
 enq set_query q
 set mset [enq get_mset 0 10]
 if { [$mset size] != 1 } {
+    puts "Unexpected number of entries in mset ([$mset size] != 1)"
     exit 1
 }
 set terms [join [enq get_matching_terms [$mset get_hit 0]] " "]
 if { $terms != "is there" } {
+    puts "Unexpected terms"
     exit 1
 }

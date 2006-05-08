@@ -1,3 +1,8 @@
+Tue May 09 00:50:00 BST 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/smoketest.tcl: Add test for version reporting functions; if a
+	  test fails, say which one to aid debugging.
+
 Mon May 08 21:57:49 BST 2006  Olly Betts <olly@survex.com>
 
 	* tcl8/smoketest.tcl: Added simple test that zero-bytes are handled
