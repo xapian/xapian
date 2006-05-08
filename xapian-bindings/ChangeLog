@@ -7,6 +7,9 @@ Sun May 07 22:03:01 BST 2006  Olly Betts <olly@survex.com>
 
 	* java/Makefile.am,java/run-java-test: Another fix "make check" when
 	  srcdir != builddir.
+	* HACKING: Add estimation of approximate effort required to implement
+	  bindings for another language.
+	* NEWS: Updated ready for next release.
 
 Sun May 07 15:01:24 BST 2006  Olly Betts <olly@survex.com>
 
