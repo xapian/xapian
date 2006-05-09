@@ -20,6 +20,20 @@
 class SmokeTest {
     public static void Main() {
 	try {
+	    // Test the version number reporting functions give plausible
+	    // results.
+	    string v = "";
+	    v += Xapian.Xapian.XapianMajorVersion();
+	    v += ".";
+	    v += Xapian.Xapian.XapianMinorVersion();
+	    v += ".";
+	    v += Xapian.Xapian.XapianRevision();
+	    string v2 = Xapian.Xapian.XapianVersionString();
+	    if (v != v2) {
+		System.Console.WriteLine("Unexpected version output (" + v + " != " + v2 + ")");
+		System.Environment.Exit(1);
+	    }
+
 	    Xapian.Stem stem = new Xapian.Stem("english");
 	    Xapian.Document doc = new Xapian.Document();
 	    doc.SetData("is there anybody out there?");
