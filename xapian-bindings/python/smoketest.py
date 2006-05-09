@@ -30,11 +30,20 @@ try:
     if v != v2:
         print >> sys.stderr, "Unexpected version output (%s != %s)" % (v, v2)
         sys.exit(1)
+
     stem = xapian.Stem("english")
     if stem.get_description() != "Xapian::Stem(english)":
         print >> sys.stderr, "Unexpected stem.get_description()"
         sys.exit(1)
+
     doc = xapian.Document()
+    doc.set_data("a\0b")
+    if doc.get_data() == "a":
+        print >> std.err, "get_data+set_data truncates at a zero byte"
+        sys.exit(1)
+    if doc.get_data() != "a\0b":
+        print >> std.err, "get_data+set_data doesn't transparently handle a zero byte"
+        sys.exit(1)
     doc.set_data("is there anybody out there?")
     doc.add_term("XYzzy")
     doc.add_posting(stem.stem_word("is"), 1)
@@ -42,6 +51,7 @@ try:
     doc.add_posting(stem.stem_word("anybody"), 3)
     doc.add_posting(stem.stem_word("out"), 4)
     doc.add_posting(stem.stem_word("there"), 5)
+
     db = xapian.inmemory_open()
     db.add_document(doc)
     if db.get_doccount() != 1:
