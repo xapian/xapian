@@ -1,3 +1,8 @@
+Tue May 09 03:21:44 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Added simple test that zero-bytes are handled
+	  when passing strings to and from Xapian.
+
 Tue May 09 03:12:03 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/smoketest.py: Added simple test that zero-bytes are handled

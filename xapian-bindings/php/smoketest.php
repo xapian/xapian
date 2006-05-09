@@ -35,6 +35,15 @@ if (Stem_get_description($stem) != "Xapian::Stem(english)") {
     exit(1);
 }
 $doc = new_Document();
+Document_set_data($doc, "a\x00b");
+if (Document_get_data($doc) == "a") {
+    print "get_data+set_data truncates at a zero byte\n";
+    exit(1);
+}
+if (Document_get_data($doc) != "a\x00b") {
+    print "get_data+set_data doesn't transparently handle a zero byte\n";
+    exit(1);
+}
 Document_set_data($doc, "is there anybody out there?");
 Document_add_term($doc, "XYzzy");
 Document_add_posting($doc, Stem_stem_word($stem, "is"), 1);
@@ -42,6 +51,7 @@ Document_add_posting($doc, Stem_stem_word($stem, "there"), 2);
 Document_add_posting($doc, Stem_stem_word($stem, "anybody"), 3);
 Document_add_posting($doc, Stem_stem_word($stem, "out"), 4);
 Document_add_posting($doc, Stem_stem_word($stem, "there"), 5);
+
 $db = inmemory_open();
 // Check virtual function dispatch.
 if (WritableDatabase_get_description($db) != Database_get_description($db)) {
@@ -53,6 +63,7 @@ if (Database_get_doccount($db) != 1) {
     print "Unexpected db.get_doccount()\n";
     exit(1);
 }
+
 $terms = array("smoke", "test", "terms");
 $query = new_Query(Query_OP_OR, $terms);
 if (Query_get_description($query) != "Xapian::Query((smoke OR test OR terms))") {
