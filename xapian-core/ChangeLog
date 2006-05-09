@@ -1,3 +1,9 @@
+Tue May 09 19:17:23 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.am: Remove trailing whitespace.
+	* bin/xapian-compact.cc: Fix renaming of "iamflint.tmp" for MS Windows
+	  where you can't rename an open file.
+
 Tue May 09 15:57:26 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix reversed conditional in test for snprintf (which

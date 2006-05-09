@@ -531,6 +531,7 @@ main(int argc, char **argv)
 		 << strerror(errno) << endl;
 	    exit(1);
 	}
+	output.close();
 
 	string meta = destdir;
 	meta += "/iamflint";
