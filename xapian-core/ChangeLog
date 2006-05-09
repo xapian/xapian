@@ -1,3 +1,8 @@
+Tue May 09 15:57:26 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix reversed conditional in test for snprintf (which
+	  affects cygwin).
+
 Mon May 01 21:49:46 BST 2006  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add another prefix testcase to improve

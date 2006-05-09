@@ -469,7 +469,7 @@ case $ac_cv_func_snprintf in
   no)
     AC_MSG_CHECKING(for working non-ISO C90 conforming snprintf)
     AC_MSG_RESULT([$ac_cv_func_snprintf_noniso])
-    if test no = "$ac_cv_func_snprintf_noniso" ; then
+    if test no != "$ac_cv_func_snprintf_noniso" ; then
       AC_DEFINE_UNQUOTED(SNPRINTF, [$ac_cv_func_snprintf_noniso],
 	[Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
     fi
