@@ -1,3 +1,8 @@
+Wed May 10 18:25:59 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Remove bogus documentation for a
+	  parameter which doesn't exist.
+
 Tue May 09 19:17:23 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.am: Remove trailing whitespace.

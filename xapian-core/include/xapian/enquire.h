@@ -309,8 +309,6 @@ class MSetIterator {
 	 *  data is returned, and that the document has not been deleted
 	 *  or changed since the query was performed.
 	 *
-	 *  @param it   The MSetIterator for which to retrieve the data.
-	 *
 	 *  @return     A Xapian::Document object containing the document data.
 	 *
 	 *  @exception Xapian::DocNotFoundError The document specified could not
