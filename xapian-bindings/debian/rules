@@ -57,11 +57,22 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-# Build depends needed for python
+# Build depends needed for Python.
 PYTHON_BUILD_DEPENDS=$(PYTHON_VERSIONS:%=python%-dev,)
 
-# Build depends needed for PHP
+# Build depends needed for PHP.
 PHP_BUILD_DEPENDS=$(PHP_VERSIONS:%=php%-dev,)
+
+# Build depends needed for Tcl.  We use Tcl's stubs mechanism, so the built
+# bindings will work with any Tcl version from 8.0.6 upwards, whichever
+# version they were built against.
+#
+# Currently all the distributions which we want to build packages for have
+# tcl8.4-dev, so just build against that.
+TCL_BUILD_DEPENDS=tcl8.4-dev
+TCLSH=/usr/bin/tclsh8.4
+
+BUILD_DEPS=$(PYTHON_BUILD_DEPENDS) $(PHP_BUILD_DEPENDS) $(TCL_BUILD_DEPENDS)
 
 commonconfflags := \
 	$(confflags) \
@@ -77,20 +88,13 @@ maintclean: clean
 	rm -f debian/control
 
 debian/control: debian/rules debian/control.in debian/control-python.in
-	cat debian/control.in | \
-		sed "s/@PYTHON_BUILD_DEPENDS@/$(PYTHON_BUILD_DEPENDS)/g" | \
-		sed "s/@PHP_BUILD_DEPENDS@/$(PHP_BUILD_DEPENDS)/g" \
-		> debian/control
+	sed "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" debian/control.in > debian/control
 	for v in $(PYTHON_VERSIONS); do \
-		cat debian/control-python.in | \
-			sed "s/@PYTHON_VERSION@/$$v/g" \
-			>> debian/control; \
-	done
+	    sed "s/@PYTHON_VERSION@/$$v/g" debian/control-python.in \
+	done >> debian/control
 	for v in $(PHP_VERSIONS); do \
-		cat debian/control-php.in | \
-			sed "s/@PHP_VERSION@/$$v/g" \
-			>> debian/control; \
-	done
+	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in \
+	done >> debian/control
 
 configure: debian/configure-stamp
 debian/configure-stamp:
@@ -122,6 +126,9 @@ debian/configure-stamp:
 	    fi \
 	done
 
+	mkdir -p build-tcl
+	cd build-tcl && ../configure $(commonconfflags) --with-tcl8 TCLSH=$(TCLSH)
+
 	touch $@
 
 build: configure debian/build-stamp
@@ -137,6 +144,7 @@ debian/build-stamp:
 		$(MAKE) -C build-php$$v; \
 	    fi \
 	done
+	$(MAKE) -C build-tcl
 	touch $@
 
 install: DH_OPTIONS=
@@ -163,6 +171,8 @@ install: build
 		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp install; \
 	    fi \
 	done
+
+	$(MAKE) -C build-tcl DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the *.install files to decide where to install everything
 	dh_install --sourcedir=debian/tmp --fail-missing --exclude=.pyc
@@ -215,6 +225,10 @@ binary-arch: build install
 	    fi \
 	done
 
+	# sarge onwards don't have tcl8.2 or earlier, though we would work with
+	# 8.2 and 8.1 if they were packaged.
+	echo "tcl:Depends=tcl8.4|tcl8.3"
+
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
@@ -230,6 +244,7 @@ clean:
 	    set -e; \
 	    rm -rf build-php$$v; \
 	done
+	rm -rf build-tcl
 	debconf-updatepo
 	rm -f config.sub config.guess
 	dh_clean
