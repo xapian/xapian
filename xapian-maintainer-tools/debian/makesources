@@ -22,7 +22,7 @@
 set -e
 
 # Usage: ./makesources [COMPONENT]
-# COMPONENT defaults to "stable".
+# COMPONENT defaults to "unstable".
 # Currently, the possible values are:
 
 COMPONENTS='breezy|dapper|stable|unstable'
@@ -37,7 +37,7 @@ SNAPSHOT=
 # Debian component to build for (libc version and the GCC C++ ABI are typically
 # important factors).
 # This will be overridden by $1, if set.
-COMPONENT=stable
+COMPONENT=unstable
 
 # Options to pass to dpkg-buildpackage when building source packages
 BUILDPACKAGE_SRC_OPTS="-us -uc -d -S"
@@ -63,6 +63,20 @@ fi
 # Location to download tarballs from
 DOWNLOAD_BASE="http://www.oligarchy.co.uk/xapian/"
 
+# Add entry to changelog if we're backporting.
+adjust_changelog() {
+  if [ -n "$CHANGE_MSG" ] ; then
+    package_ver=`head -n 1 debian/changelog | sed "s/([^-]*-\(.*\)).*$/\1/"`	
+    if [ stable = "$COMPONENT" ] ; then
+      package_ver=`expr $package_ver - 1`
+    fi
+    head -n 1 debian/changelog | sed "s/(\([^-]*\)-.*).*$/(\1$EXTRA_VERSION_UPSTREAM-$package_ver$EXTRA_VERSION_DEBIAN) $COMPONENT; urgency=low/" > debian/changelog.new
+    echo "$CHANGE_MSG" >> debian/changelog.new
+    cat debian/changelog >> debian/changelog.new
+    mv debian/changelog.new debian/changelog
+  fi
+}
+
 ## BEGIN PROCESSING ##
 trap "echo \"makesources failed\"" EXIT
 
@@ -87,13 +101,14 @@ DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
 
 # $VERSION holds the version number as defined in configure.in.
 # $EXTRA_VERSION_UPSTREAM holds a suffix to be added to the upstream
-# version number (empty when building a release)
+# version number (empty when building a release).
 # $EXTRA_VERSION_DEBIAN holds a suffix to be added to the debian
-# version number (empty when building for the current distribution)
+# version number (empty when building for unstable).
 # $SVNTAG hold the SVN tag to use to check out Xapian sources
 
 # If we are building a version other than that specified in the
-# debian control file, we need to make an entry in the debian changelog.
+# debian control file, we need to make an entry in the debian changelog
+# which the sh function "adjust_changelog" does for us.
 # $CHANGE_MSG holds the message to put in the entry.
 
 # If we failed to parse the tag into a version number, we are not building
@@ -110,9 +125,8 @@ if [ -n "$SNAPSHOT" ] ; then
 else
   VERSION=`svn cat ${SVNROOT}/trunk/xapian-core/configure.ac | grep AC_INIT | head -n 1 | sed 's/^.*xapian-core, \([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)[^0-9].*$/\1.\2.\3/g'`
   SVNTAG="tags/$VERSION"
-  EXTRA_VERSION_UPSTREAM=""
-  EXTRA_VERSION_DEBIAN=""
-  CHANGE_MSG=""
+  EXTRA_VERSION_UPSTREAM=
+  CHANGE_MSG=
 fi
 
 # Calculate SVN tags to use to check out Debian control files
@@ -121,15 +135,26 @@ DEBTAG_CORE="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-core/debian/changelog 
 DEBTAG_BINDINGS="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-bindings/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
 DEBTAG_OMEGA="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-applications/omega/debian/changelog 2>/dev/null| head -n 1 | sed 's/^.*(\([^)]*\).*$/\1/'`"
 
-# If we're building for anything other than the stable distribution, we need to
-# add a bit to the debian version number, to avoid conflicts with the package
-# in stable.  We add "99$COMPONENT" since it should sort before any other
-# modification.
-if [ "x$COMPONENT" != "xstable" ] ; then
-  EXTRA_VERSION_DEBIAN=".99$COMPONENT"
-  CHANGE_MSG="$CHANGE_MSG  * Built for $COMPONENT distribution.
+# If we're building for anything other than the unstable distribution, we need
+# to add a bit to the debian version number, to avoid conflicts with the
+# package in unstable.  For Ubuntu we add ".99$COMPONENT" since it should sort
+# before any other modification.  For stable we decrement the change number
+# and append .stable.1.
+case $COMPONENT in
+unstable)
+  EXTRA_VERSION_DEBIAN=
+  ;;
+stable)
+  EXTRA_VERSION_DEBIAN=".$COMPONENT.1"
+  CHANGE_MSG="$CHANGE_MSG  * Backported to $COMPONENT distribution.
 "
-fi
+  ;;
+*)
+  EXTRA_VERSION_DEBIAN=".99$COMPONENT"
+  CHANGE_MSG="$CHANGE_MSG  * Backported to $COMPONENT distribution.
+"
+  ;;
+esac
 
 # $SNAP_VERSION will be set to "$VERSION$EXTRA_VERSION_UPSTREAM"
 # (and will therefore be identical to $VERSION when building a release).
@@ -138,8 +163,8 @@ SNAP_VERSION="$VERSION$EXTRA_VERSION_UPSTREAM"
 # Finish the contents of the changelog entry, if one is to be made.
 if [ -n "$CHANGE_MSG" ] ; then
   case $USER in
-    richard) MAINTAINTER_NAME='Richard Boulton <richard@tartarus.org>' ;;
-    olly) MAINTAINTER_NAME='Olly Betts <olly@survex.com>' ;;
+    richard) MAINTAINER_NAME='Richard Boulton <richard@tartarus.org>' ;;
+    olly) MAINTAINER_NAME='Olly Betts <olly@survex.com>' ;;
     *)
       echo "Don't know user $USER"
       exit 1
@@ -148,7 +173,7 @@ if [ -n "$CHANGE_MSG" ] ; then
 
   CHANGE_MSG="
 $CHANGE_MSG
- -- $MAINTAINTER_NAME  `822-date`
+ -- $MAINTAINER_NAME  `822-date`
 "
 fi
 
@@ -292,13 +317,7 @@ cd build
     mkdir -p debian
     cp -af ../../control/xapian-core/* debian/
     rm -rf debian/.svn
-    if [ "x$CHANGE_MSG" != "x" ] ; then
-      head -n 1 debian/changelog | sed "s/(\([^-]*\)\(.*\)).*$/(\1$EXTRA_VERSION_UPSTREAM\2$EXTRA_VERSION_DEBIAN) unstable; urgency=low/" > debian/changelog.new
-      echo "$CHANGE_MSG" >> debian/changelog.new
-      cat debian/changelog >> debian/changelog.new
-      mv debian/changelog.new debian/changelog
-    fi
-
+    adjust_changelog
     # Generates control from control.in
     debian/rules COMPONENT=$COMPONENT 
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
@@ -311,12 +330,7 @@ cd build
     mkdir -p debian
     cp -af ../../control/xapian-bindings/* debian/
     rm -rf debian/.svn
-    if [ "x$CHANGE_MSG" != "x" ] ; then
-      head -n 1 debian/changelog | sed "s/(\([^-]*\)\(.*\)).*$/(\1$EXTRA_VERSION_UPSTREAM\2$EXTRA_VERSION_DEBIAN) unstable; urgency=low/" > debian/changelog.new
-      echo "$CHANGE_MSG" >> debian/changelog.new
-      cat debian/changelog >> debian/changelog.new
-      mv debian/changelog.new debian/changelog
-    fi
+    adjust_changelog
     if [ -r debian/patch ]; then
       patch -p0 <debian/patch
     fi
@@ -333,12 +347,7 @@ cd build
     mkdir -p debian
     cp -af ../../control/xapian-omega/* debian/
     rm -rf debian/.svn
-    if [ "x$CHANGE_MSG" != "x" ] ; then
-      head -n 1 debian/changelog | sed "s/(\([^-]*\)\(.*\)).*$/(\1$EXTRA_VERSION_UPSTREAM\2$EXTRA_VERSION_DEBIAN) unstable; urgency=low/" > debian/changelog.new
-      echo "$CHANGE_MSG" >> debian/changelog.new
-      cat debian/changelog >> debian/changelog.new
-      mv debian/changelog.new debian/changelog
-    fi
+    adjust_changelog
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
   cd ..
 
