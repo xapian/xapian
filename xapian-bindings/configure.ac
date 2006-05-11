@@ -396,6 +396,7 @@ if test no != "$with_csharp" ; then
   AC_ARG_VAR(CSC, [CSharp compiler command])
   AC_PATH_PROGS(CSC, [$CSC], [])
   if test -z "$CSC" ; then
+    dnl mcs is the Mono CSharp compiler.
     AC_PATH_PROGS(CSC, [mcs], [])
     if test -n "$CSC" ; then
       # There are other tools called mcs (such as /usr/bin/mcs on Tru64),
@@ -412,6 +413,11 @@ if test no != "$with_csharp" ; then
     fi
   fi
   if test -z "$CSC" ; then
+    dnl cscc is the Portable.NET CSharp compiler.
+    AC_PATH_PROGS(CSC, [cscc], [])
+  fi
+  if test -z "$CSC" ; then
+    dnl csc is the Microsoft CSharp compiler.
     AC_PATH_PROGS(CSC, [csc], [])
     # Chicken (the Scheme-to-C compiler) includes a tool called csc so we check
     # if the output from "csc -version" includes the word chicken which is
@@ -427,8 +433,10 @@ if test no != "$with_csharp" ; then
     fi
   fi
   if test -n "$CSC" ; then
-    AC_PATH_PROGS(GACUTIL, [$GACUTIL gacutil], [])
+    AC_PATH_PROGS(GACUTIL, [$GACUTIL gacutil ilgac], [])
     AC_PATH_PROGS(SN, [$SN sn], [])
+    dnl FIXME: pnet doesn't support strong naming yet and ilgac doesn't require
+    dnl assemblies to be strong named before adding them to the GAC.
     AC_ARG_VAR(GACUTIL, [gacutil utility to use for CSharp bindings])
     AC_ARG_VAR(SN, [sn utility to use for CSharp bindings])
     if test -n "$GACUTIL" -a -n "$SN" ; then
@@ -442,7 +450,7 @@ if test no != "$with_csharp" ; then
 	  RUN_CSHARP=
 	else
 	  AC_MSG_RESULT(no)
-	  AC_PATH_PROGS(MONO, [$MONO mono], [])
+	  AC_PATH_PROGS(MONO, [$MONO mono ilrun], [])
 	  AC_ARG_VAR(MONO, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
 	  if test -n "$MONO" ; then
 	    AC_MSG_CHECKING([whether $MONO can run CSharp programs])

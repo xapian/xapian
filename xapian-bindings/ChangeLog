@@ -1,3 +1,9 @@
+Fri May 12 00:32:41 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add partial support for the Portable.NET C# compiler.
+	  Currently the lack of strong naming support is a problem because
+	  our build system assumes we have it...
+
 Fri May 12 00:31:51 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Wrap optional length parameter to Enquire::set_query().
