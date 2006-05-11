@@ -2,6 +2,7 @@
 # Make the Debian binary packages from the source packages.
 #
 # Copyright (C) 2004 Richard Boulton
+# Copyright (C) 2006 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -15,12 +16,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
 # Usage: ./makedebs [COMPONENT]
-# COMPONENT defaults to "stable".
-# Currently, the only sensible alternate value is "unstable".
+# COMPONENT defaults to "unstable".
+# Currently, the possible values are:
+
+COMPONENTS='breezy|dapper|stable|unstable'
 
 cat <<EOF
 WARNING - this script will attempt to install some of the generated packages
@@ -35,7 +38,7 @@ sleep 5;
 
 set -e
 
-COMPONENT=stable
+COMPONENT=unstable
 VERSION='0.9.4'
 DEBVER_CORE='3'
 DEBVER_BINDINGS='2'
@@ -60,20 +63,16 @@ REMOTE_HOST="ixion.tartarus.org"
 trap "(rm -rf $TMPDIR;echo \"makedebs failed\")" EXIT
 
 # Get the component specified by the user.
-if [ "x$1" != "x" ] ; then
+if [ -n "$1" ] ; then
   COMPONENT=$1
 fi
 
 # Check that the component is sane.
 case $COMPONENT in
-  (stable)
-    echo "Building for $COMPONENT" ;;
-  (unstable)
-    echo "Building for $COMPONENT" ;;
-  (breezy)
+  ($COMPONENTS)
     echo "Building for $COMPONENT" ;;
   (*)
-    echo "Component \"$COMPONENT\" not known - try \"stable\" or \"unstable\""
+    echo "Component \"$COMPONENT\" not known - try \"`echo \"$COMPONENTS\"|sed 's/|/\" or \"/g'`\""
     exit 1
     ;;
 esac
@@ -84,7 +83,7 @@ DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
 # Detect if we're on the machine that Xapian apt repository is held on, so
 # that we don't transfer the packages over the network if we don't need to.
 ONIXION=no
-if [ "x`hostname -f`" == "xixion.tartarus.org" ] ; then
+if [ "x`hostname -f`" = "xixion.tartarus.org" ] ; then
   if [ -r '/home/xapian-svn' ] ; then
     ONIXION=yes
   fi
@@ -104,7 +103,7 @@ if [ "x$COMPONENT" != "xstable" ] ; then
 fi
 
 # TARGETDIR is the location that all generated files will be stored in.
-if [ "x$EXTRA_VERSION_UPSTREAM" == "x" ] ; then
+if [ -z "$EXTRA_VERSION_UPSTREAM" ] ; then
   TARGETDIR="dists/$COMPONENT/main"
 else
   TARGETDIR="dists/$COMPONENT/snapshot"
@@ -117,7 +116,7 @@ FILEBASE_CORE="xapian-core_${VERSION}-${DEBVER_CORE}${EXTRA_VERSION_DEBIAN}"
 FILEBASE_BINDINGS="xapian-bindings_${VERSION}-${DEBVER_BINDINGS}${EXTRA_VERSION_DEBIAN}"
 FILEBASE_OMEGA="xapian-omega_${VERSION}-${DEBVER_OMEGA}${EXTRA_VERSION_DEBIAN}"
 
-if [ $ONIXION == yes ] ; then
+if [ $ONIXION = yes ] ; then
   CONTROL_CORE="${PUBDIR}/${POOLDIR}/source/${FILEBASE_CORE}.dsc"
   CONTROL_BINDINGS="${PUBDIR}/${POOLDIR}/source/${FILEBASE_BINDINGS}.dsc"
   CONTROL_OMEGA="${PUBDIR}/${POOLDIR}/source/${FILEBASE_OMEGA}.dsc"
@@ -202,14 +201,12 @@ Label: Xapian
 Architecture: $DEB_HOST_ARCH
 EOF
 cd upload-packages
-  touch Override
-  dpkg-scanpackages ${POOLDIR}/binary Override | gzip -9 > $PKGDIR/Packages.gz
-  rm Override
+  dpkg-scanpackages ${POOLDIR}/binary /dev/null | gzip -9 > $PKGDIR/Packages.gz
   chmod ugo+r -R *
   chmod ug+w -R *
 cd ..
 
-if [ $ONIXION == yes ] ; then
+if [ $ONIXION = yes ] ; then
   mkdir -p ${PUBDIR}
   cp -af upload-packages/* ${PUBDIR}
 else
