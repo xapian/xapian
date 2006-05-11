@@ -513,7 +513,7 @@ class Enquire {
     Enquire(const Database &databases);
     ~Enquire();
 
-    void set_query(const Query &query);
+    void set_query(const Query & query, termcount qlen = 0);
     const Query& get_query();
 
     void set_weighting_scheme(const Weight& weight);
