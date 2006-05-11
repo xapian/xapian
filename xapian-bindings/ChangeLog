@@ -1,3 +1,8 @@
+Fri May 12 00:30:51 BST 2006  Olly Betts <olly@survex.com>
+
+	* ruby/util.i: Rename set_sort_by_relevance to sort_by_relevance!
+	  instead of sort_by_relevance= (as it doesn't take any parameters).
+
 Tue May 09 03:39:03 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs: Add test of version functions.

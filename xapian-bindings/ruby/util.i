@@ -126,7 +126,7 @@
 %rename("default_op=") set_default_op;
 %rename("docid_order=") set_docid_order;
 %rename("query=") set_query;
-%rename("sort_by_relevance=") set_sort_by_relevance;
+%rename("sort_by_relevance!") set_sort_by_relevance;
 %rename("sort_by_relevance_then_value=") set_sort_by_relevance_then_value;
 %rename("sort_by_value_then_relevance=") set_sort_by_value_then_relevance;
 %rename("sort_by_value=") set_sort_by_value;
