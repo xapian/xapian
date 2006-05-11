@@ -204,11 +204,14 @@ binary-arch: build install
 	dh_installdeb
 	dh_shlibdeps
 
+	# php-config4 in sarge doesn't understand --phpapi and we want to
+	# support backporting so use --extension-dir and remove the path
+	# with sed.
 	for v in $(PHP_VERSIONS); do \
 	    c=/usr/bin/php-config$$v; \
 	    if test -x $$c ; then \
 		set -e; \
-		echo "php$$v:Depends=phpapi-`$$c --phpapi`, php$$v-common" >> debian/php$$v-xapian.substvars; \
+		echo "php$$v:Depends=phpapi-`$$c --extension-dir|sed 's,.*/,,'`, php$$v-common" >> debian/php$$v-xapian.substvars; \
 	    fi \
 	done
 
