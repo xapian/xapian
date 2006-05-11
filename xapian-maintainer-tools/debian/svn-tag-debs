@@ -30,11 +30,22 @@ fi
 
 DEBTAG_BASE="debian-"
 
+if [ x"$1" = x--help ] ; then
+  echo "Usage: $0 [--force] [xapian-core] [xapian-bindings] [xapian-omega]"
+  exit 0
+fi
+
+force=
+if [ x"$1" = x--force ] ; then
+  shift
+  force=1
+fi
+
 # Tag the release in SVN.
-for module in xapian-core xapian-bindings xapian-omega
+for module in ${*-xapian-core xapian-bindings xapian-omega}
 do
   MODULE_NAME=$module
-  if [ "x$module" = "xxapian-omega" ]
+  if [ xapian-omega = "$module" ]
   then
     MODULE_NAME=xapian-applications/omega
   fi
@@ -58,7 +69,7 @@ do
     svn mkdir -m "Tag for $DEBTAG release." \
             ${SVNROOT}tags/$DEBTAG/
 
-  if [ x"$1" = x--force ] ; then
+  if [ -n "$force" ] ; then
     svn rm -m "Retagging $module for $DEBTAG release." \
       ${SVNROOT}tags/"$DEBTAG"/$module/
     svn cp -m "Retagging $module for $DEBTAG release." \
