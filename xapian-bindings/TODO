@@ -16,17 +16,26 @@ C#
 
 Sort out names which constants get wrapped as.
 
+Sort out names which version functions are wrapped as - it's silly to have
+Xapian.Xapian.MajorVersion()!
+
 Write custom typemaps for constructing a query from list of Query objects
 and/or terms.
 
 Perhaps write custom typemaps for Enquire::get_matching_terms().
+
+Passing string from C++ to C# and back isn't zero byte safe currently.
+
+Sort out support for the Portable.NET C# compiler.  Currently Portable.NET
+lacks strong naming support which is a problem because our build system assumes
+we have it...
 
 Ruby
 ----
 
 Should we be renaming get_* methods which take parameters?
 
-Should we be reanming set_* methods which don't take exactly one parameter?
+Should we be renaming set_* methods which don't take exactly one parameter?
 
 Should we wrap the extra method Enquire::get_matching_terms()?  It seems
 to rather duplicate the iterator->arrays mapping.
