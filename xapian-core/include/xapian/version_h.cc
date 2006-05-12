@@ -36,12 +36,12 @@ const char * dummy = {
 // After preprocessing with "g++ -E" or similar (which will expand macros,
 // strip comments such as this block, etc) we remove lines starting with a
 // '#', remove blank lines, and collapse multiple spaces.  And we strip out
-// double quotes, then replace '@' with '"', and drop ',' at the end of a
+// double quotes, then replace '@@' with '"', and drop ',' at the end of a
 // line (the purpose of the ',' is to prevent certain preprocessors from
 // concatenating literal strings).
 //
 // So for lines we want in the output, we quote parts of the line which we
-// don't want substituting, and use @ where we really want " in the output.
+// don't want substituting, and use @@ where we really want " in the output.
 #define V2(A,B) J2(A,B)
 #define J2(A,B) g++ A##.##B
 #define V3(A,B,C) J3(A,B,C)
@@ -103,7 +103,7 @@ const char * dummy = {
 "  */",
 "int major_version();",
 "",
-"/** For compatibility with Xapian 0.9.5 and earlier.
+"/** For compatibility with Xapian 0.9.5 and earlier.",
 " *",
 " *  @deprecated This function is now deprecated, use Xapian::major_version()",
 " *  instead.",
@@ -116,7 +116,7 @@ const char * dummy = {
 "  */",
 "int minor_version();",
 "",
-"/** For compatibility with Xapian 0.9.5 and earlier.
+"/** For compatibility with Xapian 0.9.5 and earlier.",
 " *",
 " *  @deprecated This function is now deprecated, use Xapian::minor_version()",
 " *  instead.",
@@ -129,7 +129,7 @@ const char * dummy = {
 "  */",
 "int revision();",
 "",
-"/** For compatibility with Xapian 0.9.5 and earlier.
+"/** For compatibility with Xapian 0.9.5 and earlier.",
 " *",
 " *  @deprecated This function is now deprecated, use Xapian::revision()",
 " *  instead.",

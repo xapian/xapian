@@ -1,3 +1,8 @@
+Fri May 12 20:43:47 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,include/xapian/version_h.cc: Replace @@ with " instead
+	  of @, so we can write @deprecated.  Fix more compilation problems.
+
 Fri May 12 19:00:08 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/version_h.cc: Fix compilation problem.
