@@ -1,3 +1,10 @@
+Sat May 13 00:56:44 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/docs/bindings.html: Note that the passing of strings from C#
+	  into Xapian and back isn't currently zero byte safe.  If you try to
+	  handle string containing zero bytes, you'll find they get truncated
+	  at the zero byte.
+
 Sat May 13 00:55:55 BST 2006  Olly Betts <olly@survex.com>
 
 	* TODO: Update.

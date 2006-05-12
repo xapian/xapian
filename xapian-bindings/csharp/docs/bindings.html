@@ -16,6 +16,12 @@ C# bindings based on the simple examples from <code>xapian-examples</code>:
 <a href="examples/SimpleSearch.cs">SimpleSearch.cs</a>.
 </p>
 
+<p>
+Note: the passing of strings from C# into Xapian and back isn't currently
+zero byte safe.  If you try to handle string containing zero bytes, you'll
+find they get truncated at the zero byte.
+</p>
+
 <h2>Method Naming Conventions</h2>
 
 <p>
