@@ -1,3 +1,8 @@
+Fri May 12 03:39:31 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Reinstate -noproxy which I accidentally removed on
+	  2006-05-07.
+
 Fri May 12 00:32:41 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add partial support for the Portable.NET C# compiler.
@@ -272,7 +277,7 @@ Thu Mar 30 15:32:44 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/docs/bindings.html: Wrap unwrapped paragraphs.  Use " to
 	  quote attribute values for consistency.
-	  
+
 Thu Mar 30 15:26:21 BST 2006  James Aylett <james@tartarus.org>
 
 	* python/docs/bindings.html: Document the Pythonic iterators.
