@@ -1,3 +1,8 @@
+Fri May 12 03:55:56 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleexpand.py: Don't define
+	  MAX_PROB_TERM_LENGTH as it isn't used.
+
 Fri May 12 03:46:45 BST 2006  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Whitespace tweak.
