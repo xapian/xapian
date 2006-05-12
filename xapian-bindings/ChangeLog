@@ -1,3 +1,8 @@
+Fri May 12 03:46:06 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/simplesearch.php: MAX_PROB_TERM_LENGTH isn't used
+	  here so remove it.
+
 Fri May 12 03:39:31 BST 2006  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am: Reinstate -noproxy which I accidentally removed on

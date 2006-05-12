@@ -20,8 +20,6 @@
  * USA
  */
 
-define('MAX_PROB_TERM_LENGTH', 64);
-
 if (!isset($_SERVER['argv']) or count($_SERVER['argv']) < 3) {
     print "usage: {$_SERVER['argv'][0]} <path to database> <search terms>\n";
     exit;
