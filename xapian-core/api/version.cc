@@ -20,6 +20,16 @@
 
 namespace Xapian {
 
+const char * version_string() { return XAPIAN_VERSION; }
+
+int major_version() { return XAPIAN_MAJOR_VERSION; }
+
+int minor_version() { return XAPIAN_MINOR_VERSION; }
+
+int revision() { return XAPIAN_REVISION; }
+
+// Deprecated aliases.
+
 const char * xapian_version_string() { return XAPIAN_VERSION; }
 
 int xapian_major_version() { return XAPIAN_MAJOR_VERSION; }

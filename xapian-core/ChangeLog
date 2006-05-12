@@ -1,3 +1,10 @@
+Fri May 12 01:19:14 BST 2006  Olly Betts <olly@survex.com>
+
+	* api/version.cc,include/xapian/version_h.cc: Rename
+	  Xapian::xapian_version_string() and companions to
+	  Xapian::version_string().  Keep the old functions as aliases
+	  which are marked as deprecated.
+
 Wed May 10 18:25:59 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Remove bogus documentation for a
