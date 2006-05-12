@@ -39,6 +39,15 @@
     php_info_print_table_end();
 "
 
+%ignore Xapian::xapian_version_string;
+%rename("xapian_version_string") Xapian::version_string;
+%ignore Xapian::xapian_major_version;
+%rename("xapian_major_version") Xapian::major_version;
+%ignore Xapian::xapian_minor_version;
+%rename("xapian_minor_version") Xapian::minor_version;
+%ignore Xapian::xapian_revision;
+%rename("xapian_revision") Xapian::revision;
+
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER) const SWIGTYPE & {
     void *ptr;
     $1 = (SWIG_ConvertPtr(*$input, (void **)&ptr, $1_descriptor, 0) == 0);

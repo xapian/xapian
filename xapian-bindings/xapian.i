@@ -211,6 +211,12 @@ namespace Xapian {
 
 // from xapian/version.h
 
+const char * version_string() throw();
+int major_version() throw();
+int minor_version() throw();
+int revision() throw();
+
+// Aliases deprecated in 0.9.6:
 const char * xapian_version_string() throw();
 int xapian_major_version() throw();
 int xapian_minor_version() throw();

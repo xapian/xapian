@@ -23,10 +23,10 @@ import xapian
 
 try:
     # Test the version number reporting functions give plausible results.
-    v = "%d.%d.%d" % (xapian.xapian_major_version(),
-                      xapian.xapian_minor_version(),
-                      xapian.xapian_revision())
-    v2 = xapian.xapian_version_string()
+    v = "%d.%d.%d" % (xapian.major_version(),
+                      xapian.minor_version(),
+                      xapian.revision())
+    v2 = xapian.version_string()
     if v != v2:
         print >> sys.stderr, "Unexpected version output (%s != %s)" % (v, v2)
         sys.exit(1)

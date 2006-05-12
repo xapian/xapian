@@ -23,12 +23,12 @@ class SmokeTest {
 	    // Test the version number reporting functions give plausible
 	    // results.
 	    string v = "";
-	    v += Xapian.Xapian.XapianMajorVersion();
+	    v += Xapian.Xapian.MajorVersion();
 	    v += ".";
-	    v += Xapian.Xapian.XapianMinorVersion();
+	    v += Xapian.Xapian.MinorVersion();
 	    v += ".";
-	    v += Xapian.Xapian.XapianRevision();
-	    string v2 = Xapian.Xapian.XapianVersionString();
+	    v += Xapian.Xapian.Revision();
+	    string v2 = Xapian.Xapian.VersionString();
 	    if (v != v2) {
 		System.Console.WriteLine("Unexpected version output (" + v + " != " + v2 + ")");
 		System.Environment.Exit(1);
@@ -36,6 +36,17 @@ class SmokeTest {
 
 	    Xapian.Stem stem = new Xapian.Stem("english");
 	    Xapian.Document doc = new Xapian.Document();
+	    /*
+	    doc.SetData("a\0b");
+	    if (doc.GetData() == "a") {
+		System.Console.WriteLine("get_data+set_data truncates at a zero byte");
+		System.Environment.Exit(1);
+	    }
+	    if (doc.GetData() != "a\0b") {
+		System.Console.WriteLine("get_data+set_data doesn't transparently handle a zero byte");
+		System.Environment.Exit(1);
+	    }
+	    */
 	    doc.SetData("is there anybody out there?");
 	    doc.AddTerm("XYzzy");
 	    doc.AddPosting(stem.StemWord("is"), 1);

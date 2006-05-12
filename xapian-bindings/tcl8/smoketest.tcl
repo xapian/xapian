@@ -23,10 +23,10 @@ package require Tcl 8
 load [file join ".libs" xapian.so]
 
 # Test the version number reporting functions give plausible results.
-set v [format {%d.%d.%d} [xapian::xapian_major_version] \
-			 [xapian::xapian_minor_version] \
-			 [xapian::xapian_revision]]
-set v2 [xapian::xapian_version_string]
+set v [format {%d.%d.%d} [xapian::major_version] \
+			 [xapian::minor_version] \
+			 [xapian::revision]]
+set v2 [xapian::version_string]
 if { $v != $v2 } {
     puts "Unexpected version output ($v != $v2)"
     exit 1

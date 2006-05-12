@@ -1,3 +1,10 @@
+Fri May 12 03:57:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs,php/util.i,python/smoketest.py,ruby/util.i,
+	  tcl8/smoketest.tcl,xapian.i: Updated to reflect the
+	  Xapian::xapian_version_string -> Xapian::version_string change
+	  in xapian-core.
+
 Fri May 12 03:55:56 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/docs/examples/simpleexpand.py: Don't define
