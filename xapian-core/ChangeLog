@@ -1,3 +1,7 @@
+Fri May 12 19:00:08 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/version_h.cc: Fix compilation problem.
+
 Fri May 12 01:19:14 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/version.cc,include/xapian/version_h.cc: Rename

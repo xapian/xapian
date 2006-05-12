@@ -90,7 +90,7 @@ const char * dummy = {
 "  */",
 "const char * version_string();",
 "",
-"/** For compatibility with Xapian 0.9.5 and earlier.
+"/** For compatibility with Xapian 0.9.5 and earlier.",
 " *",
 " *  @deprecated This function is now deprecated, use Xapian::version_string()",
 " *  instead.",
