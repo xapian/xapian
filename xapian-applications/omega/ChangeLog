@@ -1,3 +1,7 @@
+Fri May 12 20:12:40 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt: Clarified description of $now.
+
 Thu Apr 27 23:45:26 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt,query.cc: Added new OmegaScript commands

@@ -254,14 +254,15 @@ $msize
 	estimated number of matches.
 
 $msizeexact
-	return "true" if $msize if exact (or "" if it is estimated).
+	return "true" if $msize is exact (or "" if it is estimated).
 
 $nice{number}
 	pretty print integer (with thousands separator).
 
 $now
-	number of seconds since the epoch (suitable for feeding to $date) -
-	whether $now returns the same value for repeated calls is unspecified.
+	number of seconds since the epoch (suitable for feeding to $date).
+	Whether $now returns the same value for repeated calls in the same
+	Omega search session is unspecified.
 
 $opt{OPT}
 	lookup an option value (as set by $set).
