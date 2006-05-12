@@ -29,11 +29,13 @@ if ($v != $v2) {
     print "Unexpected version output ($v != $v2)\n";
     exit(1);
 }
+
 $stem = new_Stem("english");
 if (Stem_get_description($stem) != "Xapian::Stem(english)") {
     print "Unexpected stem.get_description()\n";
     exit(1);
 }
+
 $doc = new_Document();
 Document_set_data($doc, "a\x00b");
 if (Document_get_data($doc) == "a") {

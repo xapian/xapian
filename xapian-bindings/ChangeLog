@@ -1,3 +1,7 @@
+Fri May 12 03:46:45 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Whitespace tweak.
+
 Fri May 12 03:46:06 BST 2006  Olly Betts <olly@survex.com>
 
 	* php/docs/examples/simplesearch.php: MAX_PROB_TERM_LENGTH isn't used
