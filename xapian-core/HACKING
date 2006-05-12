@@ -218,18 +218,26 @@ writing, we require the following versions:
 		automake 1.8.5 is sufficient for bootstrapping sources from
 		SVN.
 
-	GNU libtool 1.5.22 + a patch
-		We currently use a patched build of libtool 1.5.22.  This is
-		the patch, which fixes a libtool bug on HP-UX:
-
-		http://article.gmane.org/gmane.comp.gnu.libtool.general/7083
-
+	GNU libtool 1.5.22 + patches
 		libtool 1.5 was the first version to properly support linking
 		C++ libraries, and 1.5.22 is largely 1.5 plus bug fixes and
 		portability enhancements.  (Note: nothing actually enforces
 		the requirement for 1.5.22, but this is the version which
 		snapshots and release tarballs are currently bootstrapped
 		with).
+
+		We currently use a patched build of libtool 1.5.22.  There
+		patches are (append /raw to the gmane URLs to get plaintext
+		versions):
+
+		A fix for libtool bug on HP-UX:
+
+		http://article.gmane.org/gmane.comp.gnu.libtool.general/7083
+
+		And 2 fixes for regressions on BSDs introduced in 1.5.22:
+
+		http://article.gmane.org/gmane.comp.gnu.libtool.patches/6862
+		http://article.gmane.org/gmane.comp.gnu.libtool.patches/6861
 
 Please tell us if you find that older or newer versions of any of these
 tools work or fail to work.

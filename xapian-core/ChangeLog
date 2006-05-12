@@ -1,3 +1,7 @@
+Fri May 12 21:49:33 BST 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Update with the libtool patches we're now using.
+
 Fri May 12 21:43:02 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/version_h.cc: Trim trailing whitespace.
