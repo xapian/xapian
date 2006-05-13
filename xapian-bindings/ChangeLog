@@ -1,3 +1,7 @@
+Sat May 13 21:14:24 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Fix to work when srcdir != builddir.
+
 Sat May 13 06:05:37 BST 2006  Olly Betts <olly@survex.com>
 
 	* ruby/util.i: Rename set_XXX functions which take more than one

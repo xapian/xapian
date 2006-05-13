@@ -57,7 +57,9 @@ XapianSharp.snk:
 	$(SN) -k $@
 
 $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
-	$(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs
+	$(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll \
+	    `for f in $(XAPIAN_SWIG_CS_SRCS); do if test -f "$$f"; then echo $$f; else echo $(srcdir)/$$f ; fi ; done` \
+	    AssemblyInfo.cs
 
 BUILT_SOURCES = xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS)
 
