@@ -1,3 +1,8 @@
+Sat May 13 04:52:53 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Tweak version.h generation to cope with CXXCPP putting
+	  carriage returns into its output as can happen on cygwin.
+
 Fri May 12 21:49:33 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Update with the libtool patches we're now using.
