@@ -5,6 +5,7 @@
  * Based on the php4 and python util.i files.
  *
  * Copyright (C) 2006 Networked Knowledge Systems, Inc. 
+ * Copyright (C) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -118,18 +119,19 @@
 
 
 // Setters
-%rename("bias=") set_bias;
+%rename("bias!") set_bias;
 %rename("collapse_key=") set_collapse_key;
-%rename("cutoff=") set_cutoff;
+%rename("cutoff!") set_cutoff;
 %rename("data=") set_data;
 %rename("database=") set_database;
 %rename("default_op=") set_default_op;
 %rename("docid_order=") set_docid_order;
-%rename("query=") set_query;
+%rename("query=") set_query(const Query &);
+%rename("query!") set_query(const Query &, termcount qlen);
 %rename("sort_by_relevance!") set_sort_by_relevance;
-%rename("sort_by_relevance_then_value=") set_sort_by_relevance_then_value;
-%rename("sort_by_value_then_relevance=") set_sort_by_value_then_relevance;
-%rename("sort_by_value=") set_sort_by_value;
+%rename("sort_by_relevance_then_value!") set_sort_by_relevance_then_value;
+%rename("sort_by_value_then_relevance!") set_sort_by_value_then_relevance;
+%rename("sort_by_value!") set_sort_by_value;
 %ignore set_sort_forward; // Deprecated method
 %ignore set_sorting; // Deprecated method
 %rename("stemmer=") set_stemmer;

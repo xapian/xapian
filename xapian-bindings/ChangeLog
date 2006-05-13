@@ -1,3 +1,10 @@
+Sat May 13 06:05:37 BST 2006  Olly Betts <olly@survex.com>
+
+	* ruby/util.i: Rename set_XXX functions which take more than one
+	  parameter to XXX! rather than XXX=.  set_query is almost always
+	  called with a single argument, so make than form XXX= and the
+	  two argument form XXX!.
+
 Sat May 13 05:52:03 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Adding "throw()" to version functions doesn't actually
