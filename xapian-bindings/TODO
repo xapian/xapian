@@ -32,7 +32,8 @@ Ruby
 
 Should we be renaming get_* methods which take parameters?
 
-Should we be renaming set_* methods which don't take exactly one parameter?
+If a set_XXX method can take more than one parameter, but also has a one
+parameter form, should we overload that form as XXX=?
 
 Should we wrap the extra method Enquire::get_matching_terms()?  It seems
 to rather duplicate the iterator->arrays mapping.

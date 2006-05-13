@@ -1,3 +1,7 @@
+Sat May 13 23:32:04 BST 2006  Olly Betts <olly@survex.com>
+
+	* TODO: Update ruby todo list.
+
 Sat May 13 23:20:01 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: When building SmokeTest.exe, pass
