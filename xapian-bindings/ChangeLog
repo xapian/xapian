@@ -1,3 +1,9 @@
+Sat May 13 05:52:03 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Adding "throw()" to version functions doesn't actually
+	  seem to suppress %exception, so explicitly specify no-op %exception 
+	  for them.
+
 Sat May 13 02:00:27 BST 2006  Olly Betts <olly@survex.com>
 
 	* TODO,csharp/Makefile.am,csharp/SmokeTest.cs,

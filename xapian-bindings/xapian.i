@@ -211,16 +211,24 @@ namespace Xapian {
 
 // from xapian/version.h
 
-const char * version_string() throw();
-int major_version() throw();
-int minor_version() throw();
-int revision() throw();
+%exception version_string "$action"
+%exception major_version "$action"
+%exception minor_version "$action"
+%exception revision "$action"
+const char * version_string();
+int major_version();
+int minor_version();
+int revision();
 
 // Aliases deprecated in 0.9.6:
-const char * xapian_version_string() throw();
-int xapian_major_version() throw();
-int xapian_minor_version() throw();
-int xapian_revision() throw();
+%exception xapian_version_string "$action"
+%exception xapian_major_version "$action"
+%exception xapian_minor_version "$action"
+%exception xapian_revision "$action"
+const char * xapian_version_string();
+int xapian_major_version();
+int xapian_minor_version();
+int xapian_revision();
 
 class ExpandDecider;
 class MatchDecider;
