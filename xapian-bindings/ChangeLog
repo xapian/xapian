@@ -1,3 +1,9 @@
+Sat May 13 23:20:01 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: When building SmokeTest.exe, pass
+	  -out:SmokeTest.exe because the Portable.NET compiler defaults to
+	  naming the output a.out.
+
 Sat May 13 21:14:24 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Fix to work when srcdir != builddir.

@@ -85,7 +85,7 @@ uninstall-local:
 	$(GACUTIL) /u $(ASSEMBLY) /f /package $(ASSEMBLY) /gacdir $(libdir) /root $(DESTDIR)$(libdir)
 
 SmokeTest.exe: SmokeTest.cs $(ASSEMBLY).dll
-	$(CSC) -unsafe -target:exe SmokeTest.cs -r:$(ASSEMBLY).dll
+	$(CSC) -unsafe -target:exe -out:SmokeTest.exe SmokeTest.cs -r:$(ASSEMBLY).dll
 
 all-am: $(ASSEMBLY).dll
 
