@@ -411,6 +411,8 @@ if test no != "$with_csharp" ; then
 	csc_note=" (found different mcs program)"
       fi
     fi
+    dnl gmcs is another name for the Mono CSharp compiler.
+    AC_PATH_PROGS(CSC, [gmcs], [])
   fi
   if test -z "$CSC" ; then
     dnl cscc is the Portable.NET CSharp compiler.
@@ -435,14 +437,19 @@ if test no != "$with_csharp" ; then
   if test -n "$CSC" ; then
     AC_PATH_PROGS(GACUTIL, [$GACUTIL gacutil ilgac], [])
     AC_PATH_PROGS(SN, [$SN sn], [])
-    dnl FIXME: pnet doesn't support strong naming yet and ilgac doesn't require
-    dnl assemblies to be strong named before adding them to the GAC.
     AC_ARG_VAR(GACUTIL, [gacutil utility to use for CSharp bindings])
     AC_ARG_VAR(SN, [sn utility to use for CSharp bindings])
+    if test -z "$SN" ; then
+      case $GACUTIL in
+      dnl Portable.net doesn't support strong naming yet and ilgac doesn't
+      dnl require assemblies to be strong named before adding them to the GAC.
+      *ilgac*) SN=/bin/true ;;
+      esac
+    fi
     if test -n "$GACUTIL" -a -n "$SN" ; then
       AC_MSG_CHECKING([whether the CSharp compiler works])
       [echo 'class conftest { public static void Main() { System.Console.WriteLine("OK"); } }' > conftest.cs]
-      if (exec >&5 2>&5;$CSC conftest.cs;exit $?) ; then
+      if (exec >&5 2>&5;$CSC /out:conftest.exe conftest.cs;exit $?) ; then
 	AC_MSG_RESULT(yes)
 	AC_MSG_CHECKING([whether CSharp programs can just be run])
 	if test OK = "`./conftest.exe 2> /dev/null`" ; then

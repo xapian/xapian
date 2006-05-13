@@ -23,10 +23,6 @@ Perhaps write custom typemaps for Enquire::get_matching_terms().
 
 Passing string from C++ to C# and back isn't zero byte safe currently.
 
-Sort out support for the Portable.NET C# compiler.  Currently Portable.NET
-lacks strong naming support which is a problem because our build system assumes
-we have it...
-
 Ruby
 ----
 

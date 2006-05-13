@@ -1,3 +1,13 @@
+Sat May 13 23:40:07 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Passing /out: when compile a CSharp .exe as the
+	  Portable.NET compiler defaults to a.out.  If we're using ilgac
+	  and sn isn't found, set SN=/bin/true since we don't need the
+	  strongname.
+	* configure.ac: Look for mcs as gmcs too (since it's sometimes
+	  installed as that.)
+	* README,TODO: We now support building with Portable.NET.
+
 Sat May 13 23:32:04 BST 2006  Olly Betts <olly@survex.com>
 
 	* TODO: Update ruby todo list.

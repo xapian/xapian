@@ -33,7 +33,7 @@ Ruby		Requires Ruby 1.8 or later (brief tests show the bindings
 		apparently Ruby versions < 1.8 are no longer in common use).
 Tcl		Requires Tcl 8.1 or later (Tcl 8.0 could be made to work
 		without too much work).
-C#		Tested with Mono C# 1.0.8.
+C#		Tested with Mono C# 1.0.8 and 1.1.8 and Portable.NET 0.6.12.
 
 If you're interest in getting other languages supported, see the "Adding
 support for other programming languages" section in the file HACKING.
