@@ -1,3 +1,14 @@
+Sat May 13 02:00:27 BST 2006  Olly Betts <olly@survex.com>
+
+	* TODO,csharp/Makefile.am,csharp/SmokeTest.cs,
+	  csharp/docs/bindings.html,csharp/util.i: Wrap the version functions
+	  as more sensible names and document them (and continue to provide
+	  the older undocumented names for now just in case anyone was using
+	  them.)
+	* csharp/Makefile.am: For consistency with other bindings, and
+	  to reduce the number of files called XapianSharp.*, rename
+	  XapianSharp.cc to xapian_wrap.cc.
+
 Sat May 13 00:56:44 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/docs/bindings.html: Note that the passing of strings from C#

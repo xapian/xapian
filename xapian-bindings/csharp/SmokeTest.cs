@@ -23,12 +23,12 @@ class SmokeTest {
 	    // Test the version number reporting functions give plausible
 	    // results.
 	    string v = "";
-	    v += Xapian.Xapian.MajorVersion();
+	    v += Xapian.Version.Major();
 	    v += ".";
-	    v += Xapian.Xapian.MinorVersion();
+	    v += Xapian.Version.Minor();
 	    v += ".";
-	    v += Xapian.Xapian.Revision();
-	    string v2 = Xapian.Xapian.VersionString();
+	    v += Xapian.Version.Revision();
+	    string v2 = Xapian.Version.String();
 	    if (v != v2) {
 		System.Console.WriteLine("Unexpected version output (" + v + " != " + v2 + ")");
 		System.Environment.Exit(1);

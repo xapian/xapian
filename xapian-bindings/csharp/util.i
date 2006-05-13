@@ -57,7 +57,31 @@
 %rename("GetMSet") get_mset;
 %rename("GetESet") get_eset;
 
+%inline {
 namespace Xapian {
+
+// Wrap Xapian::version_string as Xapian.Version.String() as C# can't have
+// functions outside a class and we don't want Xapian.Xapian.VersionString()!
+class Version {
+  private:
+    Version();
+    ~Version();
+  public:
+    static const char * String() { return Xapian::version_string(); }
+    static int Major() { return Xapian::major_version(); }
+    static int Minor() { return Xapian::minor_version(); }
+    static int Revision() { return Xapian::revision(); }
+};
+
+}
+}
+
+namespace Xapian {
+
+%ignore version_string;
+%ignore major_version;
+%ignore minor_version;
+%ignore revision;
 
 %typemap(cscode) class MSetIterator %{
     public static MSetIterator operator++(MSetIterator it) {

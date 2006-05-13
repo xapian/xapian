@@ -93,14 +93,26 @@ find they get truncated at the zero byte.
 <tr><td><code>GetDocumentId(index)</code></td><td><code>GetHit(index).GetDocId()</code></td></tr>
 </table>
 
-<h2>Database Factory Functions</h2>
+<h2>Non-Class Functions</h2>
 
+<p>The C++ API contains a few non-class functions (the Database factory
+functions, and some functions reporting version information), but C# doesn't
+allow functions which aren't in a class so these are wrapped as static
+member functions of abstract classes like so:
+<ul>
+<ul>
+<li> <code>Xapian::version_string()</code> is wrapped as <code>Xapian.Version.String()</code>
+<li> <code>Xapian::major_version()</code> is wrapped as <code>Xapian.Version.Major()</code>
+<li> <code>Xapian::minor_version()</code> is wrapped as <code>Xapian.Version.Minor()</code>
+<li> <code>Xapian::revision()</code> is wrapped as <code>Xapian.Version.Revision()</code>
+</ul>
 <ul>
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>Xapian.Auto.OpenStub()</code>
 <li> <code>Xapian::Quartz::open()</code> is wrapped as <code>Xapian.Quartz.Open()</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian.InMemory.Open()</code>
 <li> <code>Xapian::Remote::open()</code> is wrapped as <code>Xapian.Remote.Open()</code> (only
 the TCP version is currently wrapped, the "program" version isn't).
+</ul>
 </ul>
 
 <h2>Constants</h2>

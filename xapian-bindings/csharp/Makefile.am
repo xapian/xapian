@@ -47,6 +47,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	TermIterator.cs \
 	TradWeight.cs \
 	ValueIterator.cs \
+	Version.cs \
 	Weight.cs \
 	WritableDatabase.cs \
 	Xapian.cs \
@@ -58,21 +59,21 @@ XapianSharp.snk:
 $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 	$(CSC) -unsafe -target:library -out:$(ASSEMBLY).dll $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs
 
-BUILT_SOURCES = XapianSharp.cc $(XAPIAN_SWIG_CS_SRCS)
+BUILT_SOURCES = xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS)
 
 if MAINTAINER_MODE
-XapianSharp.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i
+xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_CS_SRCS)
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -dllimport XapianSharp -o XapianSharp.cc $(srcdir)/../xapian.i
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -dllimport XapianSharp -o xapian_wrap.cc $(srcdir)/../xapian.i
 endif
 
 lib_LTLIBRARIES = XapianSharp.la
 
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 XapianSharp_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
-nodist_XapianSharp_la_SOURCES = XapianSharp.cc
+nodist_XapianSharp_la_SOURCES = xapian_wrap.cc
 XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
 
 install-data-local: $(ASSEMBLY).dll

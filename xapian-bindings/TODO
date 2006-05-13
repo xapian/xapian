@@ -16,9 +16,6 @@ C#
 
 Sort out names which constants get wrapped as.
 
-Sort out names which version functions are wrapped as - it's silly to have
-Xapian.Xapian.MajorVersion()!
-
 Write custom typemaps for constructing a query from list of Query objects
 and/or terms.
 
