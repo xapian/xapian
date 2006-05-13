@@ -1,3 +1,7 @@
+Sat May 13 20:43:08 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update snprintf detection to match xapian-core.
+
 Fri May 12 20:12:40 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt: Clarified description of $now.
