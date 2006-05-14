@@ -75,6 +75,7 @@ if test "$COMPAT_VERSION" != "$XAPIAN_VERSION" ; then
   dnl 0.8.2 was the first version which set XAPIAN_VERSION
   AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION])
 fi
+AC_SUBST(COMPAT_VERSION)
 
 dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
