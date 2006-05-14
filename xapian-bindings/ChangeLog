@@ -1,3 +1,7 @@
+Sun May 14 03:26:11 BST 2006  Olly Betts <olly@survex.com>
+
+	* README: Note that Python bindings have been built with MSVC.
+
 Sun May 14 02:52:40 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs: Add URL for Portable.NET bug which means that

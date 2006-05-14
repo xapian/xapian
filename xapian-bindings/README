@@ -11,8 +11,8 @@ stories for at least MacOS X and OpenBSD, and the tinderbox builds pass "make
 check" on FreeBSD and NetBSD).
 
 The Python bindings have been successfully built on Microsoft Windows using
-mingw.  The other bindings may need a few build tweaks to work - contact us
-via the mailing lists if you want to get them working.
+mingw and MSVC.  The other bindings may need a few build tweaks to work -
+contact us via the mailing lists if you want to get them working.
 
 Supported Languages
 -------------------
