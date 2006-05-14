@@ -17,8 +17,12 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 // USA
 
-// The Portable.NET compiler seems to need this to be able to see static
-// member functions such as Xapian.Version.Major().
+// The Portable.NET compiler has a bug which prevents it finding static
+// member functions such as Xapian.Version.Major():
+//
+// http://savannah.gnu.org/bugs/?func=detailitem&item_id=12231
+//
+// The workaround is to add an explicit "using Xapian;" here:
 using Xapian;
 
 class SmokeTest {

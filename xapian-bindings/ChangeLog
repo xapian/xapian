@@ -1,3 +1,8 @@
+Sun May 14 02:52:40 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs: Add URL for Portable.NET bug which means that
+	  "using Xapian;" is required.
+
 Sun May 14 01:25:07 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs: The Portable.NET compiler seems to need "using
