@@ -1,6 +1,6 @@
 /* flint_lock.h: database locking for flint backend.
  *
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,6 +29,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#ifdef _NEWLIB_VERSION
+// Workaround bug in newlib (at least some versions) - socklen_t doesn't
+// get defined if you just "#include <sys/socket.h>".
+#include <netinet/in.h>
+#endif
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/types.h>
