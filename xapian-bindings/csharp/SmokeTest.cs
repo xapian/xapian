@@ -17,6 +17,10 @@
 // Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 // USA
 
+// The Portable.NET compiler seems to need this to be able to see static
+// member functions such as Xapian.Version.Major().
+using Xapian;
+
 class SmokeTest {
     public static void Main() {
 	try {
@@ -36,6 +40,8 @@ class SmokeTest {
 
 	    Xapian.Stem stem = new Xapian.Stem("english");
 	    Xapian.Document doc = new Xapian.Document();
+	    // Currently SWIG doesn't generate zero-byte clean code for
+	    // transferring string between C# and C++.
 	    /*
 	    doc.SetData("a\0b");
 	    if (doc.GetData() == "a") {
@@ -54,11 +60,13 @@ class SmokeTest {
 	    doc.AddPosting(stem.StemWord("anybody"), 3);
 	    doc.AddPosting(stem.StemWord("out"), 4);
 	    doc.AddPosting(stem.StemWord("there"), 5);
+
 	    Xapian.WritableDatabase db = Xapian.InMemory.Open();
 	    db.AddDocument(doc);
 	    if (db.GetDocCount() != 1) {
 		System.Environment.Exit(1);
 	    }
+
 	    if (doc.TermListCount() != 5) {
 		System.Environment.Exit(1);
 	    }
