@@ -21,7 +21,7 @@
 
 set -e
 
-# Usage: ./makesources [COMPONENT]
+# Usage: ./make-source-packages [COMPONENT]
 # COMPONENT defaults to "unstable".
 # Currently, the possible values are:
 
@@ -66,9 +66,9 @@ DOWNLOAD_BASE="http://www.oligarchy.co.uk/xapian/"
 # Add entry to changelog if we're backporting.
 adjust_changelog() {
   if [ -n "$CHANGE_MSG" ] ; then
-    package_ver=`head -n 1 debian/changelog | sed "s/([^-]*-\(.*\)).*$/\1/"`	
+    package_ver=`head -n 1 debian/changelog | sed "s/^.*([^-]*-\(.*\)).*$/\1/"`	
     if [ stable = "$COMPONENT" ] ; then
-      package_ver=`expr $package_ver - 1`
+      package_ver=`expr $package_ver - 1||true`
     fi
     head -n 1 debian/changelog | sed "s/(\([^-]*\)-.*).*$/(\1$EXTRA_VERSION_UPSTREAM-$package_ver$EXTRA_VERSION_DEBIAN) $COMPONENT; urgency=low/" > debian/changelog.new
     echo "$CHANGE_MSG" >> debian/changelog.new
@@ -78,7 +78,7 @@ adjust_changelog() {
 }
 
 ## BEGIN PROCESSING ##
-trap "echo \"makesources failed\"" EXIT
+trap "echo \"make-source-packages failed\"" EXIT
 
 # Get the component specified by the user.
 if [ -n "$1" ] ; then
