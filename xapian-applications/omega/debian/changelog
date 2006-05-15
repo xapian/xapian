@@ -1,9 +1,10 @@
 xapian-omega (0.9.6-1) unstable; urgency=low
 
   * New upstream release.
+  * "Standards-Version: 3.7.0" - no changes required.
   * Recommends: httpd-cgi rather than httpd.
 
- -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 03:59:53 +0100
+ -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 04:04:53 +0100
 
 xapian-omega (0.9.5-2) unstable; urgency=low
 
