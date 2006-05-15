@@ -1,3 +1,7 @@
+Mon May 15 02:18:01 BST 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.9.6.
+
 Sat May 13 20:43:08 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update snprintf detection to match xapian-core.

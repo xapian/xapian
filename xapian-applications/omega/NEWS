@@ -1,3 +1,28 @@
+Omega 0.9.6 (2006-05-15):
+
+documentation:
+
+* docs/omegascript.txt: Clarified description of $now.
+
+indexers:
+
+* scriptindex: Fix "index" and "indexnopos" without a prefix to set the weight
+  correctly (bug introduced in 0.9.5).
+
+omega:
+
+* Added new OmegaScript commands $filterterms and $substr.
+
+portability:
+
+* configure: Update snprintf detection to match xapian-core.
+
+* Fix MSVC warnings.
+
+packaging:
+
+* omega.spec.in: Create and package /var/lib/omega/cdb and /var/log/omega.
+
 Omega 0.9.5 (2006-04-08):
 
 documentation:
