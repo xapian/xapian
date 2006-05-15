@@ -1,0 +1,70 @@
+#!/bin/sh
+# Create a chroot for a specified Debian or Ubuntu distribution
+# suitable for package building.
+#
+# Copyright (C) 2006 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+CHROOT_BASE_PATH=/chroot
+
+set -e
+if [ 1 != $# ] ; then
+  echo "Usage: $0 DISTRO"
+  echo "e.g. $0 sarge"
+  exit 1
+fi
+
+if [ test sid = "$1" ] ; then
+  _C=-c
+fi
+
+chroot_path=$CHROOT_BASE_PATH/$1
+
+mkdir "$chroot_path"
+case $1 in
+  sid|woody|sarge|etch)
+    pbuilder create --distribution "$1" --no-targz --buildplace "$chroot_path"
+    ;;
+  warty|hoary|breezy|dapper)
+    if [ dapper = "$1" ] && [ ! -f /usr/lib/debootstrap/scripts/dapper ] ; then
+      cat <<END
+Your debootstrap installation doesn't know how to bootstrap a dapper chroot.
+You can fix this as follows:
+
+wget http://gb.archive.ubuntu.com/ubuntu/pool/main/d/debootstrap/debootstrap_0.3.3.0ubuntu2_all.deb
+ar x debootstrap_0.3.3.0ubuntu2_all.deb data.tar.gz
+tar zxvf data.tar.gz ./usr/lib/debootstrap/scripts/dapper
+mv -i ./usr/lib/debootstrap/scripts/dapper /usr/lib/debootstrap/scripts
+rm data.tar.gz
+rm debootstrap_0.3.3.0ubuntu2_all.deb
+END
+      exit 1	
+    fi
+    debootstrap --variant=buildd "$1" "$chroot_path" http://gb.archive.ubuntu.com/ubuntu
+    # Need universe for (e.g.) python 2.1 and 2.2 on breezy
+    echo "deb http://gb.archive.ubuntu.com/ubuntu $1 universe" >> "$chroot_path/etc/apt/sources.list"
+    dchroot -c "$1" -- $_C 'apt-get update'
+    ;;
+  *)
+    echo "Don't know about suite '$1' yet"
+    exit 1
+esac
+
+if ! grep "^$1"'\>' /etc/dchroot ; then
+  echo "$1 $chroot_path" >> /etc/dchroot.conf
+fi
+
+dchroot -c "$1" -- $_C 'apt-get install python'
