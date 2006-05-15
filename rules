@@ -58,8 +58,9 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-# Build depends needed for Python.
-PYTHON_BUILD_DEPENDS=$(PYTHON_VERSIONS:%=python%-dev,)
+# Build depends needed for Python.  We need python itself for dh_python to
+# work.
+PYTHON_BUILD_DEPENDS=python, $(PYTHON_VERSIONS:%=python%-dev,)
 
 # Build depends needed for PHP.
 PHP_BUILD_DEPENDS=$(PHP_VERSIONS:%=php%-dev,)
@@ -137,7 +138,7 @@ debian/build-stamp:
 	dh_testdir
 	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    $(MAKE) -C build-python$$v PYTHON_PATHSEP=: ; \
+	    $(MAKE) -C build-python$$v; \
 	done
 	for v in $(PHP_VERSIONS); do \
 	    if test -x /usr/bin/php-config$$v ; then \
@@ -158,7 +159,7 @@ install: build
 	# Install the files into debian/tmp
 	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    $(MAKE) -C build-python$$v PYTHON_PATHSEP=: DESTDIR=$(CURDIR)/debian/tmp install; \
+	    $(MAKE) -C build-python$$v DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
 
 	for v in $(PHP_VERSIONS); do \
