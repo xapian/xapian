@@ -90,10 +90,10 @@ maintclean: clean
 debian/control: debian/rules debian/control.in debian/control-python.in
 	sed "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" debian/control.in > debian/control
 	for v in $(PYTHON_VERSIONS); do \
-	    sed "s/@PYTHON_VERSION@/$$v/g" debian/control-python.in \
+	    sed "s/@PYTHON_VERSION@/$$v/g" debian/control-python.in ;\
 	done >> debian/control
 	for v in $(PHP_VERSIONS); do \
-	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in \
+	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
 	done >> debian/control
 
 configure: debian/configure-stamp
