@@ -1,3 +1,7 @@
+Mon May 15 06:59:01 BST 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Update debian package building checklist.
+
 Mon May 15 03:53:53 BST 2006  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Update one more result before the actual release.

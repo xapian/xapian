@@ -708,9 +708,10 @@ updated as follows:
   debian control directory with the tag "debian-VERSION-1" - eg, for a new
   release of version 0.8.1, tag with "debian-0.8.1-1".
 
-* Use xapian-maintainer-tools/debian/makesources to make and upload
-  new source packages, for both the stable and unstable distributions.
+* Use xapian-maintainer-tools/debian/make-sources-packages to make and
+  upload new source packages (for stable, unstable, breezy, and dapper.)
 
-* Build debs for stable, unstable, and breezy.  I'm currently working on
-  a set of scripts to allow building these in chroots on a single machine
-  using pbuilder.
+* Build debs for stable, unstable, breezy, and dapper.  The scripts
+  xapian-maintainer-tools/debian/create-chroot and
+  xapian-maintainer-tools/debian/build-packages allow building these in
+  a series of chroots on a single machine using pbuilder.
