@@ -69,7 +69,7 @@ PHP_BUILD_DEPENDS=$(PHP_VERSIONS:%=php%-dev,)
 #
 # Currently all the distributions which we want to build packages for have
 # tcl8.4-dev, so just build against that.
-TCL_BUILD_DEPENDS=tcl8.4-dev
+TCL_BUILD_DEPENDS=tcl8.4-dev,# NB Trailing ',' required here!
 TCLSH=/usr/bin/tclsh8.4
 
 BUILD_DEPS=$(PYTHON_BUILD_DEPENDS) $(PHP_BUILD_DEPENDS) $(TCL_BUILD_DEPENDS)
