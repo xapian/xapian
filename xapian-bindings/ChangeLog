@@ -1,3 +1,8 @@
+Mon May 15 05:03:19 BST 2006  Olly Betts <olly@survex.com>
+
+	* NEWS: Fix the recent headings which said "Xapian-core" to say
+	  "Xapian-bindings".
+
 Mon May 15 02:54:25 BST 2006  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Version 0.9.6.

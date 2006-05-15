@@ -1,4 +1,4 @@
-Xapian-core 0.9.6 (2006-05-15):
+Xapian-bindings 0.9.6 (2006-05-15):
 
 Documentation:
 
@@ -144,7 +144,7 @@ Tcl:
   + Added simple test that zero-bytes are handled correctly when passing
     strings to and from Xapian.
 
-Xapian-core 0.9.5 (2006-04-08):
+Xapian-bindings 0.9.5 (2006-04-08):
 
 Documentation:
 
@@ -258,7 +258,7 @@ Python:
 * Fix TermIter not to try to read termfreqs or positions if they aren't
   meaningful for the current TermIter.
 
-Xapian-core 0.9.4 (2006-02-21):
+Xapian-bindings 0.9.4 (2006-02-21):
 
 Documentation:
 
@@ -284,7 +284,7 @@ Python:
 
 * smoketest.py: Test wrapping of xapian_version_string() and related functions.
 
-Xapian-core 0.9.3 (2006-02-16):
+Xapian-bindings 0.9.3 (2006-02-16):
 
 Documentation:
 
