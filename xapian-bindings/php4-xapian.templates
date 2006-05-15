@@ -1,7 +1,0 @@
-Template: php4-xapian/modifyphpini
-Type: boolean
-Default: true
-_Description: Do you want php.ini to be configured to load Xapian?
- This package can automatically modify the PHP4 ini file to add the necessary
- entry to always load Xapian into PHP.  Alternatively any PHP script which uses
- Xapian can load it explicitly with 'dl("xapian.so");'.
