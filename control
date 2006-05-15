@@ -3,7 +3,7 @@ Section: web
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: debhelper (>= 4.1.22), libxapian-dev, autotools-dev
-Standards-Version: 3.6.2
+Standards-Version: 3.7.2
 
 Package: xapian-omega
 Section: web
