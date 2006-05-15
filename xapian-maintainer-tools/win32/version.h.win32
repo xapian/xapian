@@ -1,0 +1,57 @@
+// version.h: Define preprocesor symbols for the library version.
+//
+// Win32 / Visual C++
+// 
+// Note that on Unix this is built automatically, but for Windows we have to manually
+// edit this file. config.h.win32 also contains some version strings
+//
+
+#ifndef XAPIAN_INCLUDED_VERSION_H
+#define XAPIAN_INCLUDED_VERSION_H
+
+#define XAPIAN_VERSION "0.9.6"
+#define XAPIAN_MAJOR_VERSION 0
+#define XAPIAN_MINOR_VERSION 9
+#define XAPIAN_REVISION 6
+
+namespace Xapian {
+/** Report the version string of the library which the program is linked against.
+  * This may be different to the version compiled against (given by
+  * XAPIAN_VERSION) if shared libraries are being used.
+  */
+const char * version_string();
+
+/** Report the major version of the library which the program is linked against.
+  * This may be different to the version compiled against (given by
+  * XAPIAN_MAJOR_VERSION) if shared libraries are being used.
+  */
+int major_version();
+
+/** Report the minor version of the library which the program is linked against.
+  * This may be different to the version compiled against (given by
+  * XAPIAN_MINOR_VERSION) if shared libraries are being used.
+  */
+int minor_version();
+
+/** Report the revision of the library which the program is linked against.
+  * This may be different to the version compiled against (given by
+  * XAPIAN_REVISION) if shared libraries are being used.
+  */
+int revision();
+
+
+/* Deprecated aliases */
+
+const char * xapian_version_string();
+int xapian_major_version();
+int xapian_minor_version();
+int xapian_revision();
+}
+
+#define XAPIAN_HAS_FLINT_BACKEND 1
+#define XAPIAN_HAS_QUARTZ_BACKEND 1
+#define XAPIAN_HAS_INMEMORY_BACKEND 1
+#undef XAPIAN_HAS_MUSCAT36_BACKEND 
+#undef XAPIAN_HAS_REMOTE_BACKEND 
+
+#endif
