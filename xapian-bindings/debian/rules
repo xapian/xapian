@@ -137,7 +137,7 @@ debian/build-stamp:
 	dh_testdir
 	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    $(MAKE) -C build-python$$v; \
+	    $(MAKE) -C build-python$$v PYTHON_PATHSEP=: ; \
 	done
 	for v in $(PHP_VERSIONS); do \
 	    if test -x /usr/bin/php-config$$v ; then \
@@ -158,12 +158,8 @@ install: build
 	# Install the files into debian/tmp
 	for v in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    $(MAKE) -C build-python$$v DESTDIR=$(CURDIR)/debian/tmp install; \
+	    $(MAKE) -C build-python$$v PYTHON_PATHSEP=: DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
-	# These .py scripts don't have a #! line and shouldn't be executable.
-	# Fixed in SVN after 0.9.5 - this bodge can be removed for the next
-	# release (FIXME).
-	chmod 644 $(CURDIR)/debian/tmp/usr/lib/python*/site-packages/*.py
 
 	for v in $(PHP_VERSIONS); do \
 	    c=/usr/bin/php-config$$v; \

@@ -6,8 +6,13 @@ xapian-bindings (0.9.6-1) unstable; urgency=low
     Python bindings for them (backports can easily reenable them.)
   * Add packages for the TCL bindings (which should work with any Tcl version
     from 8.1 onwards.)
+  * We no longer need to change the permissions of xapian.py and xapian.pyc
+    as they are now set correctly by the upstream "make install".
+  * Add workaround for broken test for PYTHON_PATHSEP - it uses "python"
+    instead of "$PYTHON" so PYTHON_PATHSEP is empty if there's no "python"
+    in the path (we may only have python2.3 and python2.4.)
 
- -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 19:05:41 +0100
+ -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 20:05:41 +0100
   
 xapian-bindings (0.9.5-3) unstable; urgency=low
 
