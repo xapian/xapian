@@ -10,7 +10,7 @@ Section: web
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: unzip, antiword, libwpd-tools, unrtf, xpdf-utils, pstotext, perl
-Recommends: apache2|httpd
+Recommends: apache2|httpd-cgi
 Description: CGI search interface and indexers using Xapian
  This package contains the "omega" CGI application which provides a
  customisable web interface for searching Xapian databases.
