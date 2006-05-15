@@ -1,3 +1,61 @@
+Xapian-core 0.9.6 (2006-05-15):
+
+API:
+
+* Rename Xapian::xapian_version_string() and companions to
+  Xapian::version_string(), etc.  Keep the old functions as aliases which are
+  marked as deprecated.
+
+* QueryParser: Add rules to handle a boolean filter with a "+" in front (such
+  as +site:xapian.org).
+
+testsuite:
+
+* queryparsertest: Add another prefix testcase to improve coverage.
+
+build system:
+
+* configure: Simpler check for VALGRIND being set to empty value.
+
+* include/Makefile.am: Add xapian/version.h.timestamp as a dependency on
+  all-local so that xapian/version.h actually gets regenerated when required.
+
+* Eliminate XAPIAN_BUILD_BACKEND_* from config.h and just use
+  XAPIAN_HAS_*_BACKEND from xapian/version.h instead.
+
+documentation:
+
+* remote_protocol.html: Document keep-alive messages.
+
+* xapian/enquire.h: Remove bogus documentation for a parameter which doesn't
+  exist.
+
+* PLATFORMS: Added a summary.  Updated and pruned old entries for which we
+  have a newer close match.
+
+* HACKING: Expand on details of what's required when changing Xapian (discuss
+  documentation requirements, and more on why feature tests are vital).
+
+* HACKING: Update section on building debian packages.
+
+portability: 
+
+* The tarball is generated with a patched version of libtool 1.5.22 which
+  fixes libtool bugs on HP-UX and some BSD platforms.
+
+* configure: Fix problems with test for snprintf which affected cygwin, and
+  possibly some other platforms.
+
+* configure: Tweak version.h generation to cope with CXXCPP putting carriage
+  returns into its output as can happen on cygwin.
+
+* Fix renaming of "iamflint.tmp" for MS Windows where you can't rename an open
+  file.
+
+* Fixed MSVC7 warnings.
+
+* Added workaround for newlib header bug.
+
 Xapian-core 0.9.5 (2006-04-08):
 
 API:
