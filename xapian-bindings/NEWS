@@ -1,12 +1,15 @@
-Sun May 07 22:03:01 BST 2006  Olly Betts <olly@survex.com>
-
-Xapian-core 0.9.6 (2006-05-??):
+Xapian-core 0.9.6 (2006-05-15):
 
 Documentation:
 
 * INSTALL: Add section describing how to install without root access.
 
 General:
+
+* Updated to reflect the renaming of Xapian::xapian_version_string and
+  companions to Xapian::version_string.
+
+* Wrap optional length parameter to Enquire::set_query().
 
 * In PHP, Python, and Tcl bindings, rename get_document_id to get_docid for
   consistency.  Keep get_document_id as an alias for now for backward
@@ -15,8 +18,8 @@ General:
 * Fixed ESet::empty() to return bool instead of Xapian::termcount (this was
   probably a largely harmless error).
 
-* Mark the calls which return version strings as "throw()" so that SWIG knows
-  it can omit exception handling wrappers.
+* Stop SWIG from adding exception handling wrappers to the calls which return
+  version strings, since they can't throw exceptions.
 
 * xapian.i: Removed superfluous "const" from return type "docid" which is just
   a typedef for an unsigned integer type.
@@ -34,31 +37,50 @@ General:
   parameter names (for the benefit of bindings which use the parameter names,
   like the OO PHP5 patch for SWIG I'm working on...)
 
-Packaging:
-
 Portability:
 
 * configure: Fix warning flags passed for Intel C++ compiler.
 
 CSharp:
 
+* We now support building with Portable.NET.
+
+* Note that the passing of strings from C# into Xapian and back isn't currently
+  zero byte safe.  If you try to handle string containing zero bytes, you'll
+  find they get truncated at the zero byte.
+
+* C# bindings now build and pass tests when srcdir != builddir.
+
 * In configure.ac, the "#" in "C#" seems to sometimes confuse autoconf so
   always say "CSharp" instead.
 
 * Not all machines are set up to run compiled C# programs when invoked
-  directly, so get configure to probe if we can, or if using mono works.
-  If not, just skip the tests.
+  directly, so get configure to check if we can, and otherwise see if using
+  mono or ilrun works.  If not, just skip the C# tests.
 
-* configure: We now look for a CSharp compiler as "csc" if "mcs" isn't found
-  (and check that csc isn't the unrelated Chicken csc program).
+* configure: If "mcs" isn't found, we now look for a CSharp compiler as "gmcs"
+  (alternative name for "mcs"), "cscc" (Portable.NET), and then "csc"
+  (Microsoft, but we check it isn't the unrelated Chicken csc program.)
 
 * Move the C# specific %rename list to csharp/util.i.
+
+* Store the strong name key in the key container so we reuse it for later
+  builds.
+
+* Wrap the version functions as more sensible names and document them (and
+  continue to provide the older undocumented names for now just in case anyone
+  was using them.)
+
+* Set the version of XapianSharp.dll correctly when building a snapshot from
+  SVN and set informational attributes (which e.g. MS Windows Explorer shows.)
+
+* SmokeTest.cs: Add test of version functions.
 
 Guile:
 
 * The Guile bindings don't work and aren't being actively worked on, so we're
   no longer including them in the distributed tarball to avoid disappointing
-  users who notice a "guile" subdirectory.
+  users who notice a "guile" subdirectory.  It also makes the download smaller.
 
 Java:
 
@@ -81,11 +103,20 @@ PHP:
 
 * Fix SWIG_RuntimeError to be handled as an exception in PHP5.
 
-* smoketest.php: Translated tests of the version number functions from
-  smoketest.py.  Failing tests now print a diagnostic before dying (again like
-  smoketest.py).
+* simplesearch.php: MAX_PROB_TERM_LENGTH isn't used here so remove it.
+
+* smoketest.php:
+
+  + Add test for version reporting functions
+
+  + If a test fails, say which one to aid debugging.
+
+  + Added simple test that zero-bytes are handled correctly when passing
+    strings to and from Xapian.
 
 Python:
+
+* README: Note that Python bindings have been built with MSVC.
 
 * Install xapian.py and xapian.pyc as _DATA not _SCRIPTS because we don't want
   to make them executable (they don't have a #! line).
@@ -93,11 +124,25 @@ Python:
 * simplematchdecider.py: Rename confusingly-named "mymatcher" to
   "mymatchdecider".  Add description of what this example does.
 
+* simpleexpand.py: Don't define MAX_PROB_TERM_LENGTH as it isn't used.
+
+* smoketest.py: Added simple test that zero-bytes are handled when passing
+  strings to and from Xapian.
+
 Ruby:
 
 * Added new Ruby bindings from Paul Legato.
 
 Tcl:
+
+* smoketest.tcl:
+
+  + Add test for version reporting functions
+
+  + If a test fails, say which one to aid debugging.
+
+  + Added simple test that zero-bytes are handled correctly when passing
+    strings to and from Xapian.
 
 Xapian-core 0.9.5 (2006-04-08):
 

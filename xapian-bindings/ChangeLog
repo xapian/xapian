@@ -1,3 +1,7 @@
+Mon May 15 02:54:25 BST 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Version 0.9.6.
+
 Sun May 14 04:15:07 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: Fix compiling SmokeTest.cs when srcdir !=
