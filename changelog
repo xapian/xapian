@@ -1,3 +1,10 @@
+xapian-core (0.9.6-1) unstable; urgency=low
+
+  * New upstream release.
+  * "Standards-Version: 3.7.0" - no changes required.
+
+ -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 03:58:07 +0100
+ 
 xapian-core (0.9.5-3) unstable; urgency=low
 
   * Create xapian-examples package.
