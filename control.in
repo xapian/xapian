@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Build-Depends: @BUILD_DEPS@ debhelper (>= 4.1.67), po-debconf, libxapian-dev, autotools-dev
-Standards-Version: 3.6.2
+Standards-Version: 3.7.2
 
 Package: tclxapian
 Section: libs

@@ -13,7 +13,7 @@ xapian-bindings (0.9.6-1) unstable; urgency=low
     instead of "$PYTHON" so PYTHON_PATHSEP is empty if there's no "python"
     in the path.
 
- -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 20:33:41 +0100
+ -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 21:11:41 +0100
   
 xapian-bindings (0.9.5-3) unstable; urgency=low
 
