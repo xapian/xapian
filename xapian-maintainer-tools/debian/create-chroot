@@ -27,7 +27,7 @@ if [ 1 != $# ] ; then
   exit 1
 fi
 
-if [ test sid = "$1" ] ; then
+if [ sid = "$1" ] ; then
   _C=-c
 fi
 
