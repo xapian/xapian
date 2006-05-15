@@ -225,7 +225,9 @@ if test no != "$with_python" ; then
 	AC_MSG_RESULT(yes)
 	PYTHON_LIB=`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_lib(1).replace(os.sep,"/")'`
 	AC_ARG_VAR(PYTHON_LIB, [Directory to install python bindings in])
-	PYTHON_PATHSEP=`python -c 'import os;print os.pathsep'`
+	AC_MSG_CHECKING([for Python path separator])
+	PYTHON_PATHSEP=`$PYTHON -c 'import os;print os.pathsep'`
+	AC_MSG_RESULT([$PYTHON_PATHSEP])
 	AC_SUBST(PYTHON_PATHSEP)
 	case $host_os in
 	mingw* | pw32*)

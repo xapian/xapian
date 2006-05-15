@@ -1,3 +1,8 @@
+Mon May 15 23:34:55 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fixed check for PYTHON_PATHSEP to use $PYTHON rather
+	  than python, and also report the check and its result to the user.
+
 Mon May 15 05:03:19 BST 2006  Olly Betts <olly@survex.com>
 
 	* NEWS: Fix the recent headings which said "Xapian-core" to say
