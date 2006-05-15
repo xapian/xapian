@@ -1,6 +1,14 @@
-  * Debian unstable no longer include Python 2.1 or 2.2, so don't package
-    Python bindings for them.
+xapian-bindings (0.9.6-1) unstable; urgency=low
 
+  * New upstream release.
+  * "Standards-Version: 3.7.2" - no changes required.
+  * Debian unstable no longer includes Python 2.1 or 2.2, so don't package
+    Python bindings for them (backports can easily reenable them.)
+  * Add packages for the TCL bindings (which should work with any Tcl version
+    from 8.1 onwards.)
+
+ -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 04:18:41 +0100
+  
 xapian-bindings (0.9.5-3) unstable; urgency=low
 
   * PHP bindings packages now have the correct "Depends:" and are able to
