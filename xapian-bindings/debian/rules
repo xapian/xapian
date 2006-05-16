@@ -22,17 +22,22 @@
 # to that named in debian/component and if that's not given, use "unstable".
 COMPONENT ?= $(shell cat debian/component 2>/dev/null||echo unstable)
 
-# The python versions to build for
+# The python versions to build for:
 ifeq ($(COMPONENT), unstable)
-# Debian unstable doesn't have Python 2.1 or 2.2
+# Debian unstable doesn't have Python 2.1 or 2.2.
 PYTHON_VERSIONS := 2.3 2.4
+else
+ifeq ($(COMPONENT), dapper)
+# Dapper doesn't have Python 2.1.
+PYTHON_VERSIONS := 2.2 2.3 2.4
 else
 PYTHON_VERSIONS := 2.1 2.2 2.3 2.4
 endif
+endif
 
-# The PHP versions to build for
+# The PHP versions to build for:
 ifeq ($(COMPONENT), stable)
-# Debian stable doesn't have PHP5
+# Debian stable doesn't have PHP5.
 PHP_VERSIONS := 4
 else
 PHP_VERSIONS := 4 5
