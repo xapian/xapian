@@ -1,3 +1,7 @@
+Tue May 16 06:55:14 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove unused variable from snprintf testing code.
+
 Tue May 16 04:32:34 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Expand on the debian package building checklist.
