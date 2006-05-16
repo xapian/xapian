@@ -22,12 +22,12 @@ our @EXPORT = qw( );
 
 =head1 NAME
 
-Xapian::Search::WritableDatabase - writable database object
+Search::Xapian::WritableDatabase - writable database object
 
 =head1 DESCRIPTION
 
 This class represents a Xapian database for indexing. It's a subclass of
-L<Xapian::Database>, which is used for searching.
+L<Search::Xapian::Database>, which is used for searching.
 
 =head1 METHODS
 

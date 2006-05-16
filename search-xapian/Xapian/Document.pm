@@ -105,12 +105,12 @@ Return number of defined values for this document.
 
 =item values_begin
 
-Return a L<Xapian::Search::ValueIterator> pointing at the start of the
+Return a L<Search::Xapian::ValueIterator> pointing at the start of the
 values in this document.
 
 =item values_end
 
-Return a L<Xapian::Search::ValueIterator> pointing at the end of the
+Return a L<Search::Xapian::ValueIterator> pointing at the end of the
 values in this document.
 
 =item get_description

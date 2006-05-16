@@ -2,6 +2,8 @@ Revision history for Perl extension Search::Xapian.
 
 0.9.6.0  ??? May ?? ??:??:?? 2006
 	[Changes contributed by Olly Betts]
+	- Correct several occurrences of "Xapian::Search::" to
+	  "Search::Xapian::".
 	- Wrap Enquire::set_docid_order (and document set_sort_forward
 	  as deprecated.)
 	- Wrap new method Enquire::set_sort_by_relevance_then_value.
