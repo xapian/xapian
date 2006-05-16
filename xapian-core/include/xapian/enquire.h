@@ -784,6 +784,8 @@ class Enquire {
 			  bool sort_by_relevance = false));
 
 	/** Set the sorting to be by relevance only.
+	 *
+	 *  This is the default.
          */
 	void set_sort_by_relevance();
 
