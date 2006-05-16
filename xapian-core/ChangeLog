@@ -1,3 +1,8 @@
+Tue May 16 10:09:53 BST 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Update details of the debian stable backport version
+	  numbering scheme.
+
 Tue May 16 06:55:14 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove unused variable from snprintf testing code.

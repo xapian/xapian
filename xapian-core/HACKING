@@ -712,7 +712,7 @@ updated as follows:
   upload new source packages (for stable, unstable, breezy, and dapper.)
   The source packages for the distributions other than stable are done
   as "backports" - if unstable's version is 0.9.6-1, then stable's
-  version is 0.9.6-0.stable.1 (so that it's older than the unstable version
+  version is 0.9.6-0stable1 (so that it's older than the unstable version
   so that upgrading between distributions works).  The corresponding breezy
   version would be 0.9.6-1.99breezy (and similarly for dapper.)
 
