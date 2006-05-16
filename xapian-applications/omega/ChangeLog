@@ -1,3 +1,7 @@
+Tue May 16 06:56:26 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove unused variable from snprintf testing code.
+
 Mon May 15 02:18:01 BST 2006  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Updated for 0.9.6.

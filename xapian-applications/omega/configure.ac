@@ -69,7 +69,6 @@ for func in snprintf _snprintf ; do
       dnl check failed by consulting config.log.
       [[
 	char buffer[4] = "abc";
-	int exit_status = 0;
 	int res1 = $func(buffer, 2, "%s", "XYZ");
 	if (memcmp(buffer, "X\0c", 4) != 0) return 2;
 	int res2 = $func(buffer, 2, "%x", 0x12);
