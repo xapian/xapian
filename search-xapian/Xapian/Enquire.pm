@@ -122,13 +122,86 @@ of the stream.
 
 =item set_collapse_key <collapse_key>
 
+=item set_docid_order <order>
+
+Set the direction in which documents are ordered by document id
+in the returned MSet.
+
+This order only has an effect on documents which would otherwise
+have equal rank.  For a weighted probabilistic match with no sort
+value, this means documents with equal weight.  For a boolean match,
+with no sort value, this means all documents.  And if a sort value
+is used, this means documents with equal sort value (and also equal
+weight if ordering on relevance after the sort).
+
+order can be ENQ_ASCENDING (the default, docids sort in ascending order),
+ENQ_DESCENDING (docds sort in descending order), or ENQ_DONT_CARE (docids sort
+in whatever order is most efficient for the backend.)
+
+Note: If you add documents in strict date order, then a boolean
+search - i.e. set_weighting_scheme(Search::Xapian::BoolWeight->new())
+- with set_docid_order(ENQ_DESCENDING) is a very efficient
+way to perform "sort by date, newest first".
+
 =item set_sort_forward <sort_forward>
+
+Deprecated - use set_docid_order instead.
 
 =item set_cutoff <percent_cutoff> [<weight_cutoff>]
 
+=item set_sort_by_relevance
+
+Set the sorting to be by relevance only.  This is the default.
+
+=item set_sort_by_value <sort_key> [<ascending>]
+
+Set the sorting to be by value only.
+
+sort_key - value number to reorder on.  Sorting is with a
+string compare.  If ascending is true (the default) higher
+is better; if ascending is false, lower is better.
+
+ascending - If true, documents values which sort higher by
+string compare are better.  If false, the sort order
+is reversed.  (default true)
+
+=item set_sort_by_value_then_relevance <sort_key> <ascending>
+
+Set the sorting to be by value, then by relevance for documents
+with the same value.
+
+sort_key - value number to reorder on.  Sorting is with a
+string compare.  If ascending is true (the default) higher
+is better; if ascending is false, lower is better.
+
+ascending - If true, documents values which sort higher by
+string compare are better.  If false, the sort order
+is reversed.  (default true)
+
+=item set_sort_by_relevance_then_value <sort_key> <ascending>
+
+Set the sorting to be by relevance then value.
+
+Note that with the default BM25 weighting scheme parameters,
+non-identical documents will rarely have the same weight, so
+this setting will give very similar results to
+set_sort_by_relevance().  It becomes more useful with particular
+BM25 parameter settings (e.g. BM25Weight(1,0,1,0,0)) or custom
+weighting schemes.
+
+sort_key - value number to reorder on.  Sorting is with a
+string compare.  If ascending is true (the default) higher
+is better; if ascending is false, lower is better.
+
+ascending - If true, documents values which sort higher by
+string compare are better.  If false, the sort order
+is reversed.  (default true)
+
 =item set_sorting <sort_key> <sort_bands> [<sort_by_relevance>]
 
-=item set_bias <bias_weight>=item set_sorting <sort_key> <sort_bands> [<sort_by_relevance>]
+Deprecated - use set_sort_by_* instead.
+
+=item set_bias <bias_weight>
 
 =item set_bias <bias_weight> <bias_halflife>
 
