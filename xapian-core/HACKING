@@ -706,10 +706,15 @@ updated as follows:
 
 * Use xapian-maintainer-tools/debian/svn-tag-debs to tag all the files in the
   debian control directory with the tag "debian-VERSION-1" - eg, for a new
-  release of version 0.8.1, tag with "debian-0.8.1-1".
+  release of version 0.9.6, tag with "debian-0.9.6-1".
 
 * Use xapian-maintainer-tools/debian/make-sources-packages to make and
   upload new source packages (for stable, unstable, breezy, and dapper.)
+  The source packages for the distributions other than stable are done
+  as "backports" - if unstable's version is 0.9.6-1, then stable's
+  version is 0.9.6-0.stable.1 (so that it's older than the unstable version
+  so that upgrading between distributions works).  The corresponding breezy
+  version would be 0.9.6-1.99breezy (and similarly for dapper.)
 
 * Build debs for stable, unstable, breezy, and dapper.  The scripts
   xapian-maintainer-tools/debian/create-chroot and
