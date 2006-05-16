@@ -1,3 +1,9 @@
+xapian-bindings (0.9.6-2) unstable; urgency=low
+
+  * Add packages for the Ruby bindings, built for Ruby 1.8.
+
+ -- Olly Betts <olly@survex.com>  Tue, 16 May 2006 23:39:10 +0100
+
 xapian-bindings (0.9.6-1) unstable; urgency=low
 
   * New upstream release.
