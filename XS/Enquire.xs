@@ -98,6 +98,17 @@ Enquire::set_sort_by_value_then_relevance(sort_key, ascending = NO_INIT)
 	}
 
 void
+Enquire::set_sort_by_relevance_then_value(sort_key, ascending = NO_INIT)
+    valueno	sort_key
+    bool	ascending
+    CODE:
+	if (items == 3) { /* items includes the hidden this pointer */
+	    THIS->set_sort_by_relevance_then_value(sort_key, ascending);
+	} else {
+	    THIS->set_sort_by_relevance_then_value(sort_key);
+	}
+
+void
 Enquire::set_bias(bias_weight, bias_halflife)
     weight      bias_weight
     time_t      bias_halflife
