@@ -86,7 +86,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.9.4.0';
+our $VERSION = '0.9.6.0';
 
 bootstrap Search::Xapian $VERSION;
 
@@ -153,12 +153,12 @@ could rapidly become redundant.
 Apologies to those of you considering using this module. For the time
 being, I would suggest garnering what you can from the tests and
 examples provided, or reading through the Xapian documentation on
-http://www.xapian.org/, notably the API documentation at
-http://www.xapian.org/docs/apidoc/html/annotated.html
+L<http://www.xapian.org/>, notably the API documentation at
+L<http://www.xapian.org/docs/apidoc/html/annotated.html>.
 
 If you encounter problems, email either me or preferably the
 Xapian-discuss mailing list (which I am on - subscription details can
-be found on the Xapian web site).
+be found on the Xapian web site L<http://www.xapian.org/lists.php>).
 
 =head2 EXPORT
 
