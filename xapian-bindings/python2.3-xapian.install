@@ -1,0 +1,4 @@
+usr/lib/python2.3/site-packages/*.so
+usr/lib/python2.3/site-packages/*.py
+usr/share/doc/xapian-bindings/python/bindings.html usr/share/doc/python2.3-xapian
+usr/share/doc/xapian-bindings/python/examples/*.py usr/share/doc/python2.3-xapian/examples
