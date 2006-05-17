@@ -1,3 +1,7 @@
+Wed May 17 15:28:01 BST 2006  Olly Betts <olly@survex.com>
+
+	* omega.spec.in: Fix so that the documentation gets packaged.
+
 Tue May 16 06:56:26 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove unused variable from snprintf testing code.

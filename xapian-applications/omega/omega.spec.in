@@ -52,6 +52,7 @@ install -D -m644 omega.conf %{buildroot}/etc/omega.conf
 mv %{buildroot}/usr/share/omega %{buildroot}%{_datadir}/%{name}
 # Move the docs to the right place
 mv %{buildroot}/usr/share/doc/omega %{buildroot}/usr/share/doc/%{name}-%{version}
+cp AUTHORS ChangeLog COPYING NEWS README TODO %{buildroot}/usr/share/doc/%{name}-%{version}
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -69,8 +70,7 @@ mv %{buildroot}/usr/share/doc/omega %{buildroot}/usr/share/doc/%{name}-%{version
 /var/www/icons/omega
 %{_datadir}/%{name}
 %config(noreplace) /etc/omega.conf
-%docdir /usr/share/doc/%{name}-%{version}
-%doc AUTHORS ChangeLog COPYING NEWS README TODO
+%doc %{_datadir}/doc/%{name}-%{version}
 # man pages may be gzipped, hence the trailing wildcard.
 %{_mandir}/man1/omindex.1*
 %{_mandir}/man1/scriptindex.1*
