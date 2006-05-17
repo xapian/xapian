@@ -66,7 +66,7 @@ XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so set AM_CXXFLAGS
 dnl here and unset them later.
-AM_CXXFLAGS="$XAPIAN_CXXFLAGS"
+AM_CXXFLAGS=$XAPIAN_CXXFLAGS
 
 dnl Allow for bindings being version 0.8.5.1 which xapian-core is 0.8.5.
 dnl Also ignore any _svn6789 suffix which snapshots will have.
@@ -291,12 +291,12 @@ if test no != "$with_php" ; then
 	    done
 	    AC_MSG_RESULT([no])
 	  done
-	  ;;	
+	  ;;
 	[[\\/]* | ?:[\\/]*]) ;;
 	*)
 	  dnl Handle PHP passed in without a path - e.g. PHP=php5
 	  AC_PATH_PROGS(PHP, [$PHP], [])
-	  test -n "$PHP" && PHP_found=yes   
+	  test -n "$PHP" && PHP_found=yes
 	  ;;
       esac
       if test yes != "$PHP_tried" ; then
@@ -654,6 +654,23 @@ if test yes = "$GXX" ; then
       dnl Swig generated code gives lots of unused and uninitialized warnings.
       dnl They're non-harmful, so suppress them.
       SWIG_CXXFLAGS="-Wall -Wno-unused -Wno-uninitialized"
+      AC_MSG_CHECKING([whether to use -fvisibility=hidden])
+      dnl To be robust, we check both that -fvisibility=hidden is recognised
+      dnl and that SWIG will have added the visibility attributes.
+      SAVE_CXXFLAGS=$CXXFLAGS
+      CXXFLAGS="-fvisibility=hidden"
+      AC_TRY_COMPILE([], [
+#if (__GNUC__ >= 4) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
+  /* SWIG only adds visibility attributes if this condition is true. */
+#else
+  choke me
+#endif
+],
+		     AC_MSG_RESULT(yes)
+		     SWIG_CXXFLAGS="$SWIG_CXXFLAGS -fvisibility=hidden"
+		     ,
+		     AC_MSG_RESULT(no))
+      CXXFLAGS=$SAVE_CXXFLAGS
       dnl The Java JNI wrappers have a few unused variables.
       JAVA_CXXFLAGS="-Wall -W -Wno-unused"
     ])

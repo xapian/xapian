@@ -1,3 +1,10 @@
+Wed May 17 05:35:59 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: If we're building with GCC 3.4 or higher, pass
+	  -fvisibility=hidden when compiling SWIG generated code so to make
+	  the compiled modules a few percent smaller and perhaps a little
+	  faster.
+
 Mon May 15 23:34:55 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fixed check for PYTHON_PATHSEP to use $PYTHON rather
