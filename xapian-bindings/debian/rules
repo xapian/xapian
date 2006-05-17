@@ -64,10 +64,10 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 endif
 
 # Build depends for Python.  We need python itself for dh_python to work.
-PYTHON_BUILD_DEPENDS=python, $(PYTHON_VERSIONS:%=python%-dev,)
+BUILD_DEPS += python, $(PYTHON_VERSIONS:%=python%-dev,)
 
 # Build depends for PHP.
-PHP_BUILD_DEPENDS=$(PHP_VERSIONS:%=php%-dev,)
+BUILD_DEPS += $(PHP_VERSIONS:%=php%-dev,)
 
 # Build depends for Tcl.  We use Tcl's stubs mechanism, so the built
 # bindings will work with any Tcl version from 8.0.6 upwards, whichever
@@ -75,15 +75,12 @@ PHP_BUILD_DEPENDS=$(PHP_VERSIONS:%=php%-dev,)
 #
 # Currently all the distributions which we want to build packages for have
 # tcl8.4-dev, so just build against that.
-TCL_BUILD_DEPENDS=tcl8.4-dev,# NB Trailing ',' required here!
+BUILD_DEPS += tcl8.4-dev,# NB Trailing ',' required here!
 TCLSH=/usr/bin/tclsh8.4
 
 # Build depends for Ruby.
-RUBY_BUILD_DEPENDS=ruby1.8-dev,# NB Trailing ',' required here!
+BUILD_DEPS += ruby1.8-dev, ruby1.8,# NB Trailing ',' required here!
 RUBY=/usr/bin/ruby1.8
-
-BUILD_DEPS=$(PYTHON_BUILD_DEPENDS) $(PHP_BUILD_DEPENDS) $(TCL_BUILD_DEPENDS)\
-	$(RUBY_BUILD_DEPENDS)
 
 commonconfflags := \
 	$(confflags) \
