@@ -1,3 +1,10 @@
+Thu May 18 14:12:13 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/overview.txt,docs/quickstart.txt: Use the default path to the
+	  database directories in examples.  Tweak the formatting in a few
+	  places.  Give a path to the omega CGI binary in the example showing
+	  how to run it from the command line.
+
 Wed May 17 15:28:01 BST 2006  Olly Betts <olly@survex.com>
 
 	* omega.spec.in: Fix so that the documentation gets packaged.

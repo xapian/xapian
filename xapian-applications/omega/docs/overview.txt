@@ -163,17 +163,18 @@ If the entire website is stored in the file system under the directory
 passes, one for the '/press' site and one for the '/product' site. You
 might use the following commands:
 
-$ omindex -p --db /www/omega --url '/press' /www/example/press
-$ omindex -p --db /www/omega --url '/product' /www/example/product
+$ omindex -p --db /var/lib/omega/data/default --url /press /www/example/press
+$ omindex -p --db /var/lib/omega/data/default --url /product /www/example/product
 
 If you add a new large product, but don't want to reindex the whole of
 the product section, you could do:
 
-$ omindex -p --db /www/omega --url '/product' /www/example/product large
+$ omindex -p --db /var/lib/omega/data/default --url /product /www/example/product large
 
-and just the large products will be reindexed. You need to do it like that, and not as:
+and just the large products will be reindexed. You need to do it like that, and
+not as:
 
-$ omindex -p --db /www/omega --url '/product/large' /www/example/product/large
+$ omindex -p --db /var/lib/omega/data/default --url /product/large /www/example/product/large
 
 because that would make the large products part of a new site,
 '/product/large', which is unlikely to be what you want, as large
@@ -201,7 +202,7 @@ Currently omindex can index:
 If you have additional extensions that represent one of these types, you need
 to add an additional MIME mapping using the --mime-type option. For instance:
 
-$ omindex --db /www/omega --url /press /www/example/press \
+$ omindex --db /var/lib/omega/data/default --url /press /www/example/press \
           --mime-type doc:application/postscript
 
 The syntax of --mime-type is 'ext:type', where ext is the extension of
@@ -244,8 +245,8 @@ of:
     application/vnd.sun.xml.writer.template
     application/vnd.wordperfect
 
-If you wish to remove a MIME mapping, you can do this by omitting the type - for example
-to not index .doc files, use: --mime-type doc:
+If you wish to remove a MIME mapping, you can do this by omitting the type -
+for example to not index .doc files, use: --mime-type doc:
 
 --duplicates configures how omindex handles duplicates (detected on
 URL). 'ignore' means to ignore a document if it already appears to be
@@ -342,12 +343,12 @@ between multiple users.
 Document data construction
 ==========================
 
-(This is only useful if you need to inject your own documents into the
+This is only useful if you need to inject your own documents into the
 database independently of omindex, such as if you are indexing
 dynamically-generated documents that are served using a server-side
 system such as PHP or ASP, but which you can determine the contents of
 in some way, such as documents generated from reasonably static
-database contents.)
+database contents.
 
 The document data field stores some summary information about the
 document, in the following (sample) format:
