@@ -49,7 +49,7 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 # the .py file to the build directory instead.  We "import _xapian" first
 # so that if we fail to import the glue library we don't generate a broken
 # xapian.pyc.
-xapian.pyc: xapian.py
+xapian.pyc: xapian.py _xapian.la
 	PYTHONPATH=".$(PYTHON_PATHSEP).libs" $(PYTHON) -c "import _xapian;import xapian"
 
 xapian.py: @PYTHON_MODERN_OR_OLDE@/xapian.py
