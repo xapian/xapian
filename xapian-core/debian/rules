@@ -47,9 +47,6 @@ ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 else
 	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
 endif
-ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	INSTALL_PROGRAM += -s
-endif
 
 commonconfflags := \
 	$(confflags) \
