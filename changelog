@@ -1,3 +1,10 @@
+xapian-core (0.9.6-2) unstable; urgency=low
+
+  * dh_strip handles nostrip in DEB_BUILD_OPTIONS for us, so there's no
+    need to check by hand.
+
+ -- Olly Betts <olly@survex.com>  Thu, 18 May 2006 01:01:10 +0100
+ 
 xapian-core (0.9.6-1) unstable; urgency=low
 
   * New upstream release.
