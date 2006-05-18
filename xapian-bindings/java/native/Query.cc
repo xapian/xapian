@@ -110,7 +110,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3Ljava_lang_Stri
         jsize size = env->GetArrayLength(terms);
         string *array = toArray(env, terms, size);
         Query *q = new Query(op_table[op-1], array, array+size);
-	delete array;
+	delete[] array;
         return _query->put(q);
     CATCH(-1)
 }
@@ -124,7 +124,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3J (JNIEnv *env,
 	    queries[x] = _query->get(qid_ptr[x]);
 	}
         Query *q = new Query(op_table[op-1], queries, queries+len);
-	delete queries;
+	delete[] queries;
         return _query->put(q);
     CATCH(-1)
 }

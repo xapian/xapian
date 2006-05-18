@@ -1,3 +1,7 @@
+Thu May 18 19:18:00 BST 2006  Olly Betts <olly@survex.com>
+
+	* java/native/Query.cc: Correct two misuses of delete to delete[].
+
 Thu May 18 18:27:16 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: xapian.pyc can't be generated until _xapian.la
