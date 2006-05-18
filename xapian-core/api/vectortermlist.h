@@ -67,7 +67,7 @@ class VectorTermList : public TermList {
 	    Assert(false); // should never get called
             throw Xapian::InvalidOperationError("VectorTermList::get_weighting() not supported");
 	}
-	    
+
 	// Gets current termname
 	string get_termname() const {
 	    Assert(!before_start && offset < terms.size());
@@ -107,7 +107,7 @@ class VectorTermList : public TermList {
 	    Assert(false);
             throw Xapian::InvalidOperationError("VectorTermList::skip_to() not supported");
 	}
-	
+
 	// True if we're off the end of the list
 	bool at_end() const {
 	    return !before_start && offset == terms.size();
