@@ -50,6 +50,8 @@ using namespace std;
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
 "Options:\n"
+"  -b, --blocksize  Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
+"                   (must be between 2K and 64K and a power of 2, default 8K)\n"
 "  -n, --no-full    Disable full compaction\n"
 "  -F, --fuller     Enable fuller compaction (not recommended if you plan to\n"
 "                   update the compacted database)\n"
@@ -236,18 +238,35 @@ main(int argc, char **argv)
 	{"fuller",	no_argument, 0, 'F'},
 	{"no-full",	no_argument, 0, 'n'},
 	{"multipass",	no_argument, 0, 'm'},
+	{"blocksize",	required_argument, 0, 'b'},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
 	{NULL,		0, 0, 0}
     };
 
     enum { STANDARD, FULL, FULLER } compaction = FULL;
-    const size_t block_size = 8192;
+    size_t block_size = 8192;
     bool multipass = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "nFm", long_opts, 0)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "b:nFm", long_opts, 0)) != EOF) {
         switch (c) {
+            case 'b': {
+		char *p;
+		block_size = strtoul(optarg, &p, 10);	
+		if (block_size <= 64 && (*p == 'K' || *p == 'k')) {
+		    ++p;
+		    block_size *= 1024;
+		}
+		if (*p || block_size < 2048 || block_size > 65536 ||
+		    (block_size & (block_size - 1)) != 0) {
+		    cerr << PROG_NAME": Bad value '" << optarg
+			 << "' passed for blocksize, must be a power of 2 between 2K and 64K"
+			 << endl;
+		    exit(1);
+		}
+		break;
+	    }
             case 'n':
 		compaction = STANDARD;
                 break;

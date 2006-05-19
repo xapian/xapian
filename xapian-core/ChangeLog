@@ -1,3 +1,8 @@
+Fri May 19 07:47:13 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Add --blocksize option to allow the blocksize
+	  to be set (default is 8K as before.)
+
 Thu May 18 11:24:17 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/vectortermlist.h: Whitespace tweak.
