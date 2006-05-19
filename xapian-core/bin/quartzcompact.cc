@@ -50,11 +50,13 @@ using namespace std;
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTION] SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
 "Options:\n"
-"  -n, --no-full  Disable full compaction\n"
-"  -F, --fuller   Enable fuller compaction (not recommended if you plan to\n"
-"                 update the compacted database)\n"
-"  --help         display this help and exit\n"
-"  --version      output version information and exit" << endl;
+"  -b, --blocksize  Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
+"                   (must be between 2K and 64K and a power of 2, default 8K)\n"
+"  -n, --no-full    Disable full compaction\n"
+"  -F, --fuller     Enable fuller compaction (not recommended if you plan to\n"
+"                   update the compacted database)\n"
+"  --help           display this help and exit\n"
+"  --version        output version information and exit" << endl;
 }
 
 static inline bool
@@ -208,6 +210,7 @@ main(int argc, char **argv)
     const struct option long_opts[] = {
 	{"no-full",	no_argument, 0, 'n'},
 	{"fuller",	no_argument, 0, 'F'},
+	{"blocksize",	required_argument, 0, 'b'},
 	{"help",	no_argument, 0, 'h'},
 	{"version",	no_argument, 0, 'v'},
 	{NULL,		0, 0, 0}
@@ -215,11 +218,27 @@ main(int argc, char **argv)
 
     bool full_compaction = true;
     size_t block_capacity = 0;
-    const size_t block_size = 8192;
+    size_t block_size = 8192;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "nFhv", long_opts, 0)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "b:nFhv", long_opts, 0)) != EOF) {
         switch (c) {
+            case 'b': {
+		char *p;
+		block_size = strtoul(optarg, &p, 10);	
+		if (block_size <= 64 && (*p == 'K' || *p == 'k')) {
+		    ++p;
+		    block_size *= 1024;
+		}
+		if (*p || block_size < 2048 || block_size > 65536 ||
+		    (block_size & (block_size - 1)) != 0) {
+		    cerr << PROG_NAME": Bad value '" << optarg
+			 << "' passed for blocksize, must be a power of 2 between 2K and 64K"
+			 << endl;
+		    exit(1);
+		}
+		break;
+	    }
             case 'n':
 		full_compaction = false;
                 break;

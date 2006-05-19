@@ -1,3 +1,8 @@
+Fri May 19 07:52:23 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/quartzcompact.cc: Add --blocksize option to allow the blocksize
+	  to be set (default is 8K as before.)
+
 Fri May 19 07:47:13 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Add --blocksize option to allow the blocksize
