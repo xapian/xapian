@@ -1,12 +1,18 @@
+Fri May 19 05:35:01 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Work out the name of the module we need to load.
+	  Check the return value of dl().
+
 Thu May 18 19:18:00 BST 2006  Olly Betts <olly@survex.com>
 
 	* java/native/Query.cc: Correct two misuses of delete to delete[].
+	  Fixes bug#78.
 
 Thu May 18 18:27:16 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: xapian.pyc can't be generated until _xapian.la
 	  has been built, so add an explicit dependency so that this works
-	  reliably to parallel builds.
+	  reliably to parallel builds.  Fixes bug#77.
 
 Wed May 17 05:35:59 BST 2006  Olly Betts <olly@survex.com>
 

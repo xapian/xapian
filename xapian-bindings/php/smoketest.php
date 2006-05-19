@@ -20,7 +20,14 @@
  * USA
  */
 
-dl("xapian.so");
+// PHP_SHLIB_SUFFIX is available as of PHP 4.3.0, for older PHP assume 'so'.
+// It gives 'dylib' on MacOS X which is for libraries, modules are 'so'.
+$ext = PHP_SHLIB_SUFFIX;
+if ($ext === 'PHP_SHLIB_SUFFIX' || $ext === 'dylib') $ext = 'so';
+if (!dl('xapian.'.$ext)) {
+    print "dl('xapian.$ext') failed\n";
+    exit(1);
+}
 
 // Test the version number reporting functions give plausible results.
 $v = xapian_major_version().'.'.xapian_minor_version().'.'.xapian_revision();
