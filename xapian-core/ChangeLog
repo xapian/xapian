@@ -1,3 +1,10 @@
+Fri May 19 08:12:51 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/scalability.html: quartzcompact and xapian-compact now allow
+	  you to set the blocksize, so there's no need to use copydatabase
+	  if you want to migrate a database to a larger blocksize.  Mention
+	  gmane.  Other minor tweaks.
+
 Fri May 19 07:52:23 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/quartzcompact.cc: Add --blocksize option to allow the blocksize

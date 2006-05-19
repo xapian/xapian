@@ -10,7 +10,11 @@
 <P>People often want to know how Xapian will scale.  The short answer is "very
 well" - a previous version of the software powered BrightStation's Webtop
 search engine, which offered a search over around 500 million web pages (around
-1.5 terabytes of database files).  Searches took less than a second.
+1.5 terabytes of database files).  Searches took less than a second.</P>
+
+<P>The largest recent installation is probably <A
+HREF="http://search.gmane.org/">gmane</A>, which currently indexes
+just under 34 million mail messages.</P>
 
 <H2>Benchmarking</H2>
 
@@ -29,43 +33,51 @@ leaf blocks.</P>
 the limiting factor.  So you want a RAID setup optimised for fast reading,
 lots of RAM in the box so the OS can cache lots of disk blocks (the access
 patterns typically mean that you only need to cache a few percent of the
-database to eliminate most disk cache misses).
+database to eliminate most disk cache misses).</P>
 
-<P>It also means that reducing the database size is usually a win.  Quartz
-compresses the information in the tables in ways which work well given the
-nature of the data but aren't too expensive to unpack (e.g. lists of sorted
-docids are stored as differences with smaller values encoded in fewer bytes).
-There is further potential for improving the encodings used.
+<P>It also means that reducing the database size is usually a win.  The Quartz
+and Flint backends both compress the information in the tables in ways which
+work well given the nature of the data but aren't too expensive to unpack (e.g.
+lists of sorted docids are stored as differences with smaller values encoded in
+fewer bytes).  There is further potential for improving the encodings used.</P>
 
-<P>Another way to reduce disk I/O is to run databases through quartzcompact.
-Quartz usually leaves some spare space in each block so that updates are more
-efficient - quartzcompact makes all blocks as full as possible, and so reduces
-the size of the database.  It also produces a database with revision 1 which is
-inherently faster to search.  The penalty is that updates will be slow for a
-while, as they'll result in a lot of block splitting when all blocks are full.
+<P>Another way to reduce disk I/O is to run databases through quartzcompact
+(or xapian-compact for flint databases).
+The Btree managers usually leave some spare space in each block so that updates
+are more efficient (though there are heuristics which will fill blocks fuller
+if they detect a long sequence of sequential insertions so adding documents
+to the end of an empty database will produce fairly compact tables, apart from
+the postlist table).  Compacting makes all blocks as full as possible, and so
+reduces the size of the database.  It also produces a database with revision 1
+which is inherently faster to search.  The penalty is that updates will be slow
+for a while, as they'll result in a lot of block splitting when all blocks are
+full.</P>
 
 <P>Splitting the data over several databases is generally a good strategy.
-Once each has finished being updated, run it through quartzcompact
-to make it small and faster to search.
+Once each has finished being updated, compact it
+to make it small and faster to search.</P>
 
 <P>A multiple-database scheme works particularly well if you want a rolling web
 index where the contents of the oldest database can be rechecked and live links
 put back into a new database which, once built, replaces the oldest database.
 It's also good for a news-type application where older documents should expire
-from the index.
+from the index.</P>
 
 <P>You could take this idea further by implementing an ultra-compact read-only
-backend which would take a quartz b-tree and convert it to something like a cdb
-hashed file.  The same information would be stored, but with less overhead than
-quartz b-trees (which need to allow for update).  If you need serious
-performance, implementing such a backend is worth considering.
+backend which would take a quartz/flint b-tree and convert it to something like
+a cdb hashed file.  The same information would be stored, but with less
+overhead than the quartz or flint b-trees (which need to allow for update).  If
+you need serious performance, implementing such a backend is worth
+considering.</P>
 
 <H2>Size Limits in Xapian</H2>
 
-<P>The quartz database backend (which is the backend you'd usually use) stores
+<P>The quartz and flint database backends (which are the backends you'd usually
+use) store
 the indexes in several files containing B-tree tables.  If you're indexing with
 positional information (for phrase searching) the term positions table is
-usually the largest.
+usually the largest (though it's significantly more compact in flint than
+in quartz.)</P>
 
 <P>
 The current limits are:
@@ -82,10 +94,11 @@ The current limits are:
 
 <li>
   If you search many databases concurrently, you may hit the per-process
-  file-descriptor limit - each quartz database uses 5 fds.  Some Unix-like OSes
+  file-descriptor limit - each quartz or flint database uses 5 fds.  Some
+  Unix-like OSes
   allow this limit to be raised.  Another way to avoid it (and to spread the
   search load) is to use the remote backend to search databases on a cluster of
-  machines.  Quartz could be made to not open fds for tables which aren't being
+  machines.  Flint could be made to not open fds for tables which aren't being
   used during search (values and positions may not be), or to juggle fds - the
   record table is typically only used for results, while the posting table is
   typically only used during matching.
@@ -94,8 +107,8 @@ The current limits are:
   If the OS has a filesize limit, that obviously applies to Xapian (a 2GB limit
   is common for older operating systems).  The old Muscat36 system supported
   splitting the B-tree over multiple 1GB files, but native support for larger
-  files is available in any serious modern OS so quartz doesn't support this
-  (something similar could be implemented, but it no longer seems necessary).
+  files is available in any serious modern OS so we don't support this in
+  the modern backends as it no longer seems necessary.
   <P>
   So what is the limit for a modern OS?  Taking Linux 2.4 with the ext2
   filing system as an example, quoting from
@@ -117,20 +130,22 @@ The current limits are:
   The B-trees use a 32-bit unsigned block count.  The default blocksize is 8K
   which limits you to 32TB tables.  You can increase the blocksize if this
   is a problem, but it's best to do it before you create the database as
-  otherwise you need to use copydatabase to rebuild the database with the
-  new blocksize, and that will take a while for such a large database.
-  The maximum blocksize quartz allows is 64K, which limits you to 256TB
-  tables.
+  otherwise you need to use quartzcompact or xapian-compact to rebuild the
+  database with the new blocksize, and that will take a while for such a large
+  database.  The maximum blocksize allowed is 64K, which limits you to
+  256TB tables.
 
 <li>
-  Quartz stores the total length (i.e. number of terms) of all the documents in
+  Quartz and flint store the total length (i.e. number of terms) of all the
+  documents in
   a database so it can calculate the average document length.  This is
   currently stored as an unsigned 64-bit quantity so it's not likely to be a
   limit you'll hit.  It's listed for completeness.
 </ul>
 
-If you've further questions about scalability, ask on the mailing lists - people
-using Xapian to search large databases may be able to make further suggestions.
+If you've further questions about scalability, ask on the mailing lists -
+people using Xapian to search large databases may be able to make further
+suggestions.
 
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
