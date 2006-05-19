@@ -176,7 +176,8 @@ INCLUDE_PATH           = @top_builddir@/include
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = 
 EXPAND_AS_DEFINED      = DEFINE_ERROR_BASECLASS \
-                         DEFINE_ERROR_CLASS
+			 DEFINE_ERROR_CLASS \
+			 XAPIAN_DEPRECATED
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to external references   

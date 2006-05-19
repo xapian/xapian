@@ -1,3 +1,10 @@
+Fri May 19 14:43:47 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am,docs/doxygen_api_conf.in,docs/doxygen_full_conf.in:
+	  Remove "XAPIAN_DEPRECATED" from generated documentation.
+	* docs/Makefile.am: Fix dependencies for regenerating the doxygen
+	  documentation.
+
 Fri May 19 08:12:51 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/scalability.html: quartzcompact and xapian-compact now allow

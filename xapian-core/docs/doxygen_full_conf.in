@@ -180,7 +180,8 @@ INCLUDE_PATH           =
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = XAPIAN_BUILD_BACKEND_QUARTZ
 EXPAND_AS_DEFINED      = DEFINE_ERROR_BASECLASS \
-                         DEFINE_ERROR_CLASS
+			 DEFINE_ERROR_CLASS \
+			 XAPIAN_DEPRECATED
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to external references   
