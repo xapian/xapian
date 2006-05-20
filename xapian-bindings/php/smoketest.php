@@ -108,17 +108,7 @@ if ($terms != "is there") {
     exit(1);
 }
 
-# Check PHP4 handling of Xapian::DocNotFoundError
-$old_error_reporting = error_reporting();
-if ($old_error_reporting & E_WARNING)
-    error_reporting($old_error_reporting ^ E_WARNING);
-$doc2 = Database_get_document($db, 2);
-if ($doc2 != null) {
-    print "Retrieved non-existent document\n";
-    exit(1);
-}
-if ($old_error_reporting & E_WARNING)
-    error_reporting($old_error_reporting);
+include "smoketest".substr(PHP_VERSION, 0, 1).".php";
 
 # Regression test - overload resolution involving boolean types failed.
 Enquire_set_sort_by_value($enq, 1, TRUE);

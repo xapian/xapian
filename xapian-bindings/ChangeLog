@@ -1,3 +1,9 @@
+Sat May 20 18:09:32 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/: Now that we're throwing PHP exceptions with PHP5 we need
+	  separate versions of the exception handling test for PHP4 and
+	  PHP5.  Fixed bug#76.
+
 Sat May 20 16:56:51 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs: Added exception handling test.
