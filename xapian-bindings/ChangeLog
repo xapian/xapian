@@ -1,3 +1,7 @@
+Sat May 20 09:24:46 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py: Add test of exception handling.
+
 Sat May 20 06:18:43 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Specify required automake version in
