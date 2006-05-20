@@ -54,6 +54,6 @@ if {[catch {
             [$i get_docid] [$i get_percent] [document get_data]]
     }
 } exception]} {
-    puts stderr "Exception: $exception"
+    puts stderr "Exception: $errorCode $exception"
     exit 1
 }

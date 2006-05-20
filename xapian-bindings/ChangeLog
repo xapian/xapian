@@ -1,3 +1,9 @@
+Sat May 20 16:36:30 BST 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simpleindex.tcl,
+	  tcl8/docs/examples/simplesearch.tcl: Print $errorCode in
+	  the exception handler.
+
 Sat May 20 16:30:48 BST 2006  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/bindings.html,tcl8/smoketest.tcl,tcl8/util.i,xapian.i:

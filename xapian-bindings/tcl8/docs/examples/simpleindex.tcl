@@ -1,7 +1,7 @@
 #!/usr/bin/env tclsh
 # Index each paragraph of a textfile as a document
 #
-# Copyright (C) 2004 Olly Betts
+# Copyright (C) 2004,2006 Olly Betts
 # Copyright (C) 2004 Michael Schlenker
 #
 # This program is free software; you can redistribute it and/or
@@ -77,6 +77,6 @@ if {[catch {
     # pending changes are flushed and the lock file is removed.
     database -delete
 } exception]} {
-    puts stderr "Exception: $exception"
+    puts stderr "Exception: $errorCode $exception"
     exit 1
 }
