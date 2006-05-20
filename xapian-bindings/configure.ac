@@ -7,7 +7,8 @@ dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
 AC_INIT(xapian-bindings, 0.9.6)dnl FIXME: bugreport addr as third argument
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([1.8.5])
+
 AC_CONFIG_SRCDIR(xapian.i)
 
 AM_CONFIG_HEADER(config.h)
