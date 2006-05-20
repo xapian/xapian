@@ -65,12 +65,18 @@ rename $db ""
 <h2>Exceptions</h2>
 
 <p>
-   Exceptions are thrown as SWIG exceptions instead of Xapian
-   exceptions. This isn't done well at the moment; in future we will
-   throw wrapped Xapian exceptions. For now, it's probably easier to
-   catch all exceptions and try to take appropriate action based on
-   their associated string.
+Xapian::Error exceptions can be handled in Tcl like so:
 </p>
+
+<pre>
+if [catch {
+    # Code which might throw an exception.
+} msg] {
+    # Code to handle exceptions.
+    # $errorCode is "XAPIAN <error_class>" (e.g. "XAPIAN DocNotFoundError".)
+    # $msg is the result of calling get_msg() on the Xapian::Error object.
+}
+</pre>
 
 <h2>Iterators</h2>
 

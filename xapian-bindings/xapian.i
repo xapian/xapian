@@ -91,6 +91,11 @@ using namespace std;
 %include typemaps.i
 %include exception.i
 
+// This includes a language specific util.i, thanks to judicious setting of
+// the include path.
+%include "util.i"
+
+#ifndef XAPIAN_EXCEPTION_HANDLER
 #if defined SWIGPHP
 // PHP_MAJOR_VERSION isn't defined by older versions of PHP4 (e.g. PHP 4.1.2).
 %{
@@ -123,7 +128,10 @@ static int XapianExceptionHandler(string & msg) {
 	msg = e.get_type();
 	msg += ": ";
 	msg += e.get_msg();
-#if defined SWIGPHP && PHP_MAJOR_VERSION-0 < 5
+%}
+#ifdef SWIGPHP
+%{
+#if PHP_MAJOR_VERSION-0 < 5
 	try {
 	    // Re-rethrow the previous exception so we can handle the type in a
 	    // fine-grained way, but only in one place to avoid bloating the
@@ -143,7 +151,10 @@ static int XapianExceptionHandler(string & msg) {
 	} catch (...) {
 	    return SWIG_UnknownError;
 	}
-#elif !defined SWIGTCL // SWIG/Tcl ignores the SWIG_XXXError code.
+#endif
+%}
+#else
+%{
 	try {
 	    // Re-rethrow the previous exception so we can handle the type in a
 	    // fine-grained way, but only in one place to avoid bloating the
@@ -164,7 +175,9 @@ static int XapianExceptionHandler(string & msg) {
 	} catch (...) {
 	    return SWIG_UnknownError;
 	}
+%}
 #endif
+%{
     } catch (...) {
 	msg = "unknown error in Xapian";
     }
@@ -191,10 +204,7 @@ static int XapianExceptionHandler(string & msg) {
 	XapianException(code, msg);
     }
 }
-
-// This includes a language specific util.i, thanks to judicious setting of
-// the include path.
-%include "util.i"
+#endif
 
 // In C#, we wrap ++ and -- as ++ and --.
 #ifdef SWIGCSHARP

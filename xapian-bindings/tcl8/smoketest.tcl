@@ -108,8 +108,10 @@ if [catch {
     exit 1
 } e] {
     # We expect DocNotFoundError
-    if { [string range $e 0 28] != "RuntimeError DocNotFoundError" } {
-	puts stderr "Unexpected exception from accessing non-existent document: $e"
+    if { $errorCode != "XAPIAN DocNotFoundError" } {
+	puts stderr "Unexpected exception from accessing non-existent document:"
+	puts stderr "errorCode: $errorCode"
+	puts stderr "message: $e"
 	exit 1
     }
 }

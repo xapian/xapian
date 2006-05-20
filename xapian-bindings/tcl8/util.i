@@ -72,3 +72,36 @@ namespace Xapian {
 
     Tcl_SetObjResult(interp, list);
 }
+
+%{
+    static int XapianTclHandleError(Tcl_Interp * interp, const Xapian::Error &e) {
+	Tcl_ResetResult(interp);
+	Tcl_SetErrorCode(interp, "XAPIAN", e.get_type().c_str(), NULL);
+	Tcl_AppendResult(interp, e.get_msg().c_str(), NULL);
+	return TCL_ERROR;
+    }
+
+    static int XapianTclHandleError(Tcl_Interp * interp) {
+	Tcl_ResetResult(interp);
+	Tcl_SetErrorCode(interp, "XAPIAN ?", NULL);
+	Tcl_AppendResult(interp, "Unknown Error", NULL);
+	return TCL_ERROR;
+    }
+%}
+
+#define XAPIAN_EXCEPTION_HANDLER
+%exception {
+    try {
+	$function
+    } catch (const Xapian::Error &e) {
+	string msg;
+	try {
+	    // Rethrow so we can look at the exception if it was a Xapian::Error.
+	    throw;
+	} catch (const Xapian::Error &e) {
+	    return XapianTclHandleError(interp, e);
+	} catch (...) {
+	    return XapianTclHandleError(interp);
+	}
+    }
+}

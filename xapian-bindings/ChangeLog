@@ -1,3 +1,8 @@
+Sat May 20 16:30:48 BST 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/bindings.html,tcl8/smoketest.tcl,tcl8/util.i,xapian.i:
+	  Implement saner exception handling for Tcl and document it.
+
 Sat May 20 14:28:39 BST 2006  Olly Betts <olly@survex.com>
 
 	* tcl8/smoketest.tcl: Send error messages to stderr.
