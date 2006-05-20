@@ -83,7 +83,7 @@ include docsource.mk
 
 # "make refman.ps" sometimes fails for no obvious reason on the first attempt.
 # Repeating the command works, so just do that!
-apidoc.ps apidoc/html/index.html: $(APIDOC_SRC) $(srcdir)/doxygen_api_conf \
+apidoc.ps apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
 		$(srcdir)/doxygen_api_header.html_tmpl \
 		$(srcdir)/doxygen_api_footer.html_tmpl
 	rm -rf apidoc
@@ -94,7 +94,7 @@ apidoc.ps apidoc/html/index.html: $(APIDOC_SRC) $(srcdir)/doxygen_api_conf \
 # "make refman.ps" sometimes fails for no obvious reason on the first attempt.
 # Repeating the command works, so just do that!
 sourcedoc.ps sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
-		$(srcdir)/doxygen_full_conf \
+		doxygen_full_conf \
 		$(srcdir)/doxygen_full_header.html_tmpl \
 		$(srcdir)/doxygen_full_footer.html_tmpl
 	rm -rf sourcedoc
