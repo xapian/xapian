@@ -1,3 +1,8 @@
+Sat May 20 14:28:39 BST 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/smoketest.tcl: Send error messages to stderr.
+	* tcl8/smoketest.tcl: Add test of exception handling.
+
 Sat May 20 09:24:46 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/smoketest.py: Add test of exception handling.
@@ -105,7 +110,7 @@ Sat May 13 06:05:37 BST 2006  Olly Betts <olly@survex.com>
 Sat May 13 05:52:03 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Adding "throw()" to version functions doesn't actually
-	  seem to suppress %exception, so explicitly specify no-op %exception 
+	  seem to suppress %exception, so explicitly specify no-op %exception
 	  for them.
 
 Sat May 13 02:00:27 BST 2006  Olly Betts <olly@survex.com>
