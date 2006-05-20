@@ -1,3 +1,9 @@
+Sat May 20 10:14:52 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: automake adds suitable rules for rebuilding
+	  doxygen_api_conf and doxygen_source_conf, so remove our less
+	  accurate versions.
+
 Fri May 19 14:43:47 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am,docs/doxygen_api_conf.in,docs/doxygen_full_conf.in:

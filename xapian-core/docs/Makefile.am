@@ -68,9 +68,6 @@ doxygen_source_docs: sourcedoc/html/index.html
 doxygen_api_docs: apidoc/html/index.html
 doxygen_docs: doxygen_source_docs doxygen_api_docs
 
-doxygen_api_conf: doxygen_api_conf.in $(top_srcdir)/configure.ac
-doxygen_full_conf: doxygen_full_conf.in $(top_srcdir)/configure.ac
-
 if MAINTAINER_MODE
 # Depend on configure.ac so we rebuild if VERSION changes.
 code_structure.html: mkdoc.pl $(top_srcdir)/configure.ac
