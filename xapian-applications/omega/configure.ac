@@ -5,7 +5,10 @@ dnl automake 1.6.3 requires autoconf 2.54
 dnl autoconf 2.59 is what xapian-core requires, so be consistent
 AC_PREREQ(2.59)
 AC_INIT(omega, 0.9.6)dnl FIXME: bugreport addr as third argument
-AM_INIT_AUTOMAKE
+# Need 1.5 for AM_CXXFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
+# 1.8.5 contains a lot of fixes over 1.6.3
+AM_INIT_AUTOMAKE([1.8.5])
+
 AC_CONFIG_SRCDIR(omega.cc)
 
 AC_CONFIG_HEADERS(config.h)

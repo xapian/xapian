@@ -1,3 +1,8 @@
+Sat May 20 06:16:27 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Specify required automake version in
+	  the call to AM_INIT_AUTOMAKE in configure.ac.
+
 Thu May 18 14:12:13 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/overview.txt,docs/quickstart.txt: Use the default path to the
