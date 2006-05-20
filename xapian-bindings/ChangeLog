@@ -1,3 +1,7 @@
+Sat May 20 16:56:51 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs: Added exception handling test.
+
 Sat May 20 16:36:30 BST 2006  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/examples/simpleindex.tcl,

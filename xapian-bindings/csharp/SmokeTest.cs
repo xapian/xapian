@@ -49,11 +49,11 @@ class SmokeTest {
 	    /*
 	    doc.SetData("a\0b");
 	    if (doc.GetData() == "a") {
-		System.Console.WriteLine("get_data+set_data truncates at a zero byte");
+		System.Console.WriteLine("GetData+SetData truncates at a zero byte");
 		System.Environment.Exit(1);
 	    }
 	    if (doc.GetData() != "a\0b") {
-		System.Console.WriteLine("get_data+set_data doesn't transparently handle a zero byte");
+		System.Console.WriteLine("GetData+SetData doesn't transparently handle a zero byte");
 		System.Environment.Exit(1);
 	    }
 	    */
@@ -82,6 +82,19 @@ class SmokeTest {
 	    }
 	    if (count != 5) {
 		System.Environment.Exit(1);
+	    }
+	    
+	    // Check exception handling for Xapian::DocNotFoundError.
+	    try {
+		Xapian.Document doc2 = db.GetDocument(2);
+		System.Console.WriteLine("Retrieved non-existent document: " + doc2.ToString());
+		System.Environment.Exit(1);
+	    } catch (System.Exception e) {
+		// We expect DocNotFoundError
+		if (e.Message.Substring(0, 16) != "DocNotFoundError") {
+                    System.Console.WriteLine("Unexpected exception from accessing non-existent document: " + e.Message);
+		    System.Environment.Exit(1);
+		}
 	    }
 	} catch (System.Exception e) {
 	     System.Console.WriteLine("Exception: " + e.ToString());
