@@ -38,3 +38,7 @@ Merge the Xapian C++ documentation with the RDoc.
 One way to do this would be to make a stub Ruby file defining empty methods
 according to the Xapian API with appropriate RDoc comments for the purpose of
 generating RDocs.
+
+Add test for zero byte clean string passing.
+
+Add test of exception handling.

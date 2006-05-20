@@ -1,3 +1,7 @@
+Sat May 20 19:27:27 BST 2006  Olly Betts <olly@survex.com>
+
+	* TODO: Add 2 entries for smoketest.rb.
+
 Sat May 20 18:09:32 BST 2006  Olly Betts <olly@survex.com>
 
 	* php/: Now that we're throwing PHP exceptions with PHP5 we need
