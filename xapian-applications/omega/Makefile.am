@@ -1,17 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
- myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
- gnu_getopt.h commonhelp.h cdb.h cdb_int.h hashterm.h
-
-# Non-generated documentation.
-omega_docs = docs/cgiparams.txt \
-	docs/omegascript.txt \
-	docs/overview.txt \
-	docs/quickstart.txt \
-	docs/scriptindex.txt \
-	docs/termprefixes.txt
-
 EXTRA_DIST = templates/query \
 	templates/opensearch \
 	templates/godmode \
@@ -56,26 +44,33 @@ EXTRA_DIST = templates/query \
 	images/score-7.png \
 	images/score-8.png \
 	images/score-9.png \
-	omega.spec omega.conf \
-	$(omega_docs) \
-	$(man_MANS) \
-	dbi2omega htdig2omega htdig2omega.script mbox2omega mbox2omega.script
+	omega.spec
 
-AM_CPPFLAGS = -DCONFIGFILE_SYSTEM=\"@sysconfdir@/omega.conf\"
+AM_CPPFLAGS = -DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\"
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex
-bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
+dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
 # Install documentation.
 docdatadir   = $(datadir)/doc/omega
-docdata_DATA = $(omega_docs)
+dist_docdata_DATA = \
+	docs/cgiparams.txt \
+	docs/omegascript.txt \
+	docs/overview.txt \
+	docs/quickstart.txt \
+	docs/scriptindex.txt \
+	docs/termprefixes.txt
 
 omegadatadir = $(datadir)/omega
-omegadata_DATA = htdig2omega.script mbox2omega.script
+dist_omegadata_DATA = htdig2omega.script mbox2omega.script
 
-sysconf_DATA = omega.conf
+dist_sysconf_DATA = omega.conf
+
+noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
+ myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
+ gnu_getopt.h commonhelp.h cdb.h cdb_int.h hashterm.h
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc
@@ -89,12 +84,12 @@ scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
  getopt.cc commonhelp.cc utils.cc hashterm.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
-man_MANS = omindex.1 scriptindex.1
+dist_man_MANS = omindex.1 scriptindex.1
 
-MAINTAINERCLEANFILES = $(man_MANS)
+MAINTAINERCLEANFILES = $(dist_man_MANS)
 
 if MAINTAINER_MODE
-CLEANFILES = $(man_MANS)
+CLEANFILES = $(dist_man_MANS)
 
 omindex.1: omindex
 	$(HELP2MAN) -o omindex.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/omindex.cc`" ./omindex

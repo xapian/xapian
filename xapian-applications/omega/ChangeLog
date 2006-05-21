@@ -1,3 +1,10 @@
+Sun May 21 11:42:54 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Make use of the dist_ prefix to avoid having to list
+	  files in EXTRA_DIST as well as in *_SCRIPTS, *_DATA, and man_MANS.
+	* Makefile.am: Prefer $(sysconfdir) to @sysconfdir@ since the former
+	  can be overridden on the "make" command line.
+
 Sat May 20 06:16:27 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Specify required automake version in
