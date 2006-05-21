@@ -23,14 +23,12 @@ simplesearch_LDADD = @ldflags@ ../libxapian.la
 simpleexpand_SOURCES = simpleexpand.cc
 simpleexpand_LDADD = @ldflags@ ../libxapian.la
 
-EXTRA_DIST = $(man_MANS)
+dist_man_MANS = quest.1 delve.1 copydatabase.1
 
-man_MANS = quest.1 delve.1 copydatabase.1
-
-MAINTAINERCLEANFILES = $(man_MANS)
+MAINTAINERCLEANFILES = $(dist_man_MANS)
 
 if MAINTAINER_MODE
-CLEANFILES = $(man_MANS)
+CLEANFILES = $(dist_man_MANS)
 
 quest.1: quest
 	$(HELP2MAN) -o quest.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/quest.cc`" ./quest

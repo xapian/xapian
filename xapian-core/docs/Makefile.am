@@ -14,21 +14,16 @@ HTMLDOCS = index.html install.html intro_ir.html overview.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = mkdoc.pl \
-	doxygen_api_conf.in doxygen_full_conf.in \
-	$(HTMLDOCS) \
-	doxygen_api_header.html_tmpl \
-	doxygen_api_footer.html_tmpl \
-	doxygen_full_header.html_tmpl \
-	doxygen_full_footer.html_tmpl \
-	apidoc.ps
+EXTRA_DIST = mkdoc.pl doxygen_api_conf.in doxygen_full_conf.in \
+	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
+	doxygen_full_header.html_tmpl doxygen_full_footer.html_tmpl
 
 # Build API docs with doxygen
 all-local: doxygen_api_docs
 
 # Data to install, in the usual automake way
 docdatadir   = $(datadir)/doc/@PACKAGE@
-docdata_DATA = $(HTMLDOCS) apidoc.ps
+dist_docdata_DATA = $(HTMLDOCS) apidoc.ps
 
 dist-hook:
 	$(mkinstalldirs) $(distdir)/apidoc

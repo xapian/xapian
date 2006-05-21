@@ -46,14 +46,12 @@ xapian_compact_CXXFLAGS = -I$(top_srcdir)/backends/flint
 xapian_compact_SOURCES = xapian-compact.cc
 xapian_compact_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
 
-EXTRA_DIST = $(man_MANS)
+dist_man_MANS = $(quartz_mans) $(flint_mans) $(remote_mans)
 
-man_MANS = $(quartz_mans) $(flint_mans) $(remote_mans)
-
-MAINTAINERCLEANFILES = $(man_MANS)
+MAINTAINERCLEANFILES = $(dist_man_MANS)
 
 if MAINTAINER_MODE
-CLEANFILES = $(man_MANS)
+CLEANFILES = $(dist_man_MANS)
 
 quartzcheck.1: quartzcheck
 	$(HELP2MAN) -o quartzcheck.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/quartzcheck.cc`" ./quartzcheck
