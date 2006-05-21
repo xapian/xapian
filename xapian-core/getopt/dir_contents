@@ -1,0 +1,5 @@
+<Directory>getopt</Directory>
+
+<Description>
+Code for processing command line options.
+</Description>

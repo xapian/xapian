@@ -1,0 +1,5 @@
+<Directory>api</Directory>
+
+<Description>
+API classes and their PIMPL internals.
+</Description>

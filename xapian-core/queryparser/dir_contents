@@ -1,0 +1,5 @@
+<Directory>queryparser</Directory>
+
+<Description>
+Implementation of the Xapian::QueryParser class.
+</Description>
