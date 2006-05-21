@@ -1,3 +1,7 @@
+Sun May 21 05:45:44 BST 2006  Olly Betts <olly@survex.com>
+
+	* tests/remotetest.cc: Remove unnecessary "#include <sys/wait.h>".
+
 Sat May 20 11:02:43 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: doxygen_api_conf and doxygen_full_conf are

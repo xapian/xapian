@@ -32,7 +32,6 @@
 
 #include <sys/types.h>
 //#include <signal.h> // for kill()
-#include <sys/wait.h>
 
 using namespace std;
 
