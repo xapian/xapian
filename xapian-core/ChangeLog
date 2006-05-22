@@ -1,3 +1,9 @@
+Mon May 22 08:51:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* common/omtime.h: Fix OmTime::operator> which failed to return false
+	  if the seconds were strictly less but the microsecond fraction was
+	  more.
+
 Sun May 21 11:53:29 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,bin/Makefile.am,docs/Makefile.am,examples/Makefile.am:
