@@ -57,8 +57,6 @@ PWRITE_PROTOTYPE
 #include <string.h>   /* for memmove */
 #include <limits.h>   /* for CHAR_BIT */
 
-#include "autoptr.h"
-
 #include "btree.h"
 #include "btree_util.h"
 #include "btree_base.h"

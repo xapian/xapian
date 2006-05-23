@@ -1,3 +1,7 @@
+Tue May 23 10:08:02 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc: Remove superfluous '#include <autoptr.h>'.
+
 Tue May 23 09:42:52 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/Makefile.am,backends/database.cc,
