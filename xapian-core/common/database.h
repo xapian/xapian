@@ -1,9 +1,8 @@
 /* database.h: database class declarations
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_DATABASE_H
@@ -106,7 +104,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	/** Send a keep-alive signal to a remote database, to stop
 	 *  it from timing out.
 	 */
-	virtual void keep_alive() const;
+	virtual void keep_alive();
 
 	//////////////////////////////////////////////////////////////////
 	// Database statistics:
@@ -260,11 +258,10 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Reopen the database to the latest available revision.
 	 *
-	 *  Some database implementations may do nothing.
+	 *  Database backends which don't support simultaneous update and
+	 *  reading probably don't need to do anything here.
 	 */
-	virtual void reopen() {
-	    /* Default is to do nothing. */
-	}
+	virtual void reopen() { }
 
 	//////////////////////////////////////////////////////////////////
 	// Modifying the database:
@@ -352,7 +349,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  LocalSubMatch or a RemoteSubMatch to perform a search over the
 	 *  database.
 	 */
-	virtual const NetworkDatabase * as_networkdatabase() const {
+	virtual NetworkDatabase * as_networkdatabase() {
 	    return NULL;
 	}
 };

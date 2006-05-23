@@ -46,12 +46,6 @@ using namespace std;
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 #include "flint/flint_database.h"
 #endif
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-// These headers are all in common
-#include "net_database.h"
-#include "progclient.h"
-#include "tcpclient.h"
-#endif
 
 namespace Xapian {
 
@@ -124,27 +118,6 @@ Muscat36::open_db(const string &DB, const string &values, size_t cache_size) {
     DEBUGAPICALL_STATIC(Database, "Muscat36::open_db", DB << ", " << values <<
 			", " << cache_size);
     return Database(new DBDatabase(DB, values, cache_size));
-}
-#endif
-
-#ifdef XAPIAN_HAS_REMOTE_BACKEND
-Database
-Remote::open(const string &program, const string &args, unsigned int timeout)
-{
-    DEBUGAPICALL_STATIC(Database, "Remote::open", args << ", " << timeout);
-    Xapian::Internal::RefCntPtr<NetClient> link(new ProgClient(program, args, timeout));
-    return Database(new NetworkDatabase(link));
-}
-
-Database
-Remote::open(const string &host, unsigned int port,
-	unsigned int timeout, unsigned int connect_timeout)
-{
-    DEBUGAPICALL_STATIC(Database, "Remote::open", host << ", " << port <<
-			", " << timeout << ", " << connect_timeout);
-    if (connect_timeout == 0) connect_timeout = timeout;
-    Xapian::Internal::RefCntPtr<NetClient> link(new TcpClient(host, port, timeout, connect_timeout));
-    return Database(new NetworkDatabase(link));
 }
 #endif
 
@@ -320,7 +293,7 @@ Database::Internal::~Internal()
 }
 
 void
-Database::Internal::keep_alive() const
+Database::Internal::keep_alive()
 {
     // For the normal case of local databases, nothing needs to be done.
 }

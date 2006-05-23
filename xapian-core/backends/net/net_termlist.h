@@ -28,7 +28,6 @@
 #include <xapian/error.h>
 #include "termlist.h"
 #include "expandweight.h"
-#include "netclient.h"
 #include "net_database.h"
 
 using namespace std;
@@ -99,7 +98,7 @@ class NetworkTermList : public LeafTermList {
 	 */
 	NetworkTermList(Xapian::doclength average_length_,
 			Xapian::doccount  database_size_,
-			const vector<NetClient::TermListItem> &items_,
+			const vector<NetworkDatabase::TermListItem> &items_,
 			Xapian::Internal::RefCntPtr<const NetworkDatabase> this_db_);
     public:
 

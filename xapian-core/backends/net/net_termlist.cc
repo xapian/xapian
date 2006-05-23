@@ -31,7 +31,7 @@
 
 NetworkTermList::NetworkTermList(Xapian::doclength /*average_length*/,
 				 Xapian::doccount database_size_,
-				 const std::vector<NetClient::TermListItem> &items_,
+				 const std::vector<NetworkDatabase::TermListItem> &items_,
 				 Xapian::Internal::RefCntPtr<const NetworkDatabase> this_db_)
 	: items(),
 	  current_position(items.begin()),
@@ -42,7 +42,7 @@ NetworkTermList::NetworkTermList(Xapian::doclength /*average_length*/,
     // FIXME: set length
     document_length = 1;
 
-    std::vector<NetClient::TermListItem>::const_iterator i;
+    std::vector<NetworkDatabase::TermListItem>::const_iterator i;
     for (i = items_.begin(); i != items_.end(); ++i) {
 	NetworkTermListItem item;
 	item.tname = i->tname;

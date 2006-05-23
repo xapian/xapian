@@ -33,7 +33,7 @@ class RemoteSubMatch : public SubMatch {
     private:
 	bool is_prepared;
 
-	const NetworkDatabase *db;
+	NetworkDatabase *db;
 
 	PendingMSetPostList *postlist; // FIXME used in get_term_info() - do this better
 
@@ -60,7 +60,7 @@ class RemoteSubMatch : public SubMatch {
 	Xapian::Weight * mk_weight(const Xapian::Query::Internal *query = NULL);
 
     public:
-	RemoteSubMatch(const NetworkDatabase *db_,
+	RemoteSubMatch(NetworkDatabase *db_,
 		       const Xapian::Query::Internal * query,
 		       Xapian::termcount qlen,
 		       const Xapian::RSet & omrset,

@@ -35,7 +35,8 @@ using std::map;
 // 18: Removed OP_WEIGHT_CUTOFF
 // 19: Remote backend now supports sorting on a value
 // 20: sort_by_relevance bool -> sort_by enum
-#define XAPIAN_SOCKET_PROTOCOL_VERSION 20
+// 21: writable remote backend!
+#define XAPIAN_SOCKET_PROTOCOL_VERSION 21
 
 class Stats;
 class OmTime;
@@ -71,9 +72,12 @@ class OmSocketLineBuf : public OmLineBuf {
 	 */
 	void do_writeline(string s, const OmTime & end_time);
 
-	/** Attempt to read some data
+	/** Attempt to read some data with an optional timeout.
+	 *
+	 *  If end_time == OmTime(), then there's no timeout.
 	 */
 	void attempt_to_read(const OmTime & end_time);
+
     public:
 	/** The main constructor.  The arguments are the
 	 *  input and output filedescriptors to use.
@@ -92,11 +96,11 @@ class OmSocketLineBuf : public OmLineBuf {
 
 	/** Block until at least a line of data has been read.
 	 *
-	 *  @param msecs  The timeout in milliseconds (or infinite
-	 *		  if zero).  An exception will be thrown if
-	 *		  the timeout is exceeded.
+	 *  @param msecs  The timeout in milliseconds (or infinite if zero
+	 *		  or omitted).  An exception will be thrown if the
+	 *		  timeout is exceeded.
 	 */
-	void wait_for_data(int msecs);
+	void wait_for_data(int msecs = 0);
 };
 
 /** Convert a Stats object into a string representation.

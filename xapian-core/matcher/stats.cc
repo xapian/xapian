@@ -69,7 +69,7 @@ LocalStatsGatherer::get_stats() const
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 
 #include "netserver.h"
-#include "netclient.h"
+#include "net_database.h"
 
 NetworkStatsGatherer::NetworkStatsGatherer(NetServer *nserv_)
 	: have_global_stats(false), nserv(nserv_)
@@ -122,7 +122,7 @@ NetworkStatsGatherer::fetch_global_stats() const
 }
 
 NetworkStatsSource::NetworkStatsSource(StatsGatherer * gatherer_,
-				       Xapian::Internal::RefCntPtr<NetClient> nclient_)
+				       Xapian::Internal::RefCntPtr<NetworkDatabase> nclient_)
 	: Xapian::Weight::Internal(gatherer_), nclient(nclient_),
           have_remote_stats(false)
 {

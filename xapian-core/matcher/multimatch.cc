@@ -128,7 +128,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	try {
 	    // There is currently only one special case, for network databases.
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    const NetworkDatabase *netdb = subdb->as_networkdatabase();
+	    NetworkDatabase *netdb = subdb->as_networkdatabase();
 	    if (netdb) {
 		if (bias_halflife) {
 		    throw Xapian::UnimplementedError("bias_halflife and bias_weight not supported with remote backend");

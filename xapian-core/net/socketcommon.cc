@@ -51,29 +51,6 @@ using namespace std;
 
 string stats_to_string(const Stats &stats)
 {
-#if 0
-    ostrstream os;
-
-    os << stats.collection_size << ' ';
-    os << stats.average_length << ' ';
-
-    map<string, Xapian::doccount>::const_iterator i;
-
-    for (i=stats.termfreq.begin(); i != stats.termfreq.end(); ++i) {
-	os << 'T' << encode_tname(i->first) << ' ' << i->second << ' ';
-    }
-
-    for (i = stats.reltermfreq.begin(); i != stats.reltermfreq.end(); ++i) {
-	os << 'R' << encode_tname(i->first) << ' ' << i->second << ' ';
-    }
-
-    // FIXME: should be eos.
-    os << '\0';
-
-    string result(os.str());
-
-    os.freeze(0);
-#endif
     string result;
 
     result += om_tostring(stats.collection_size);
@@ -175,17 +152,23 @@ OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
     FD_ZERO(&fdset);
     FD_SET(readfd, &fdset);
 
-    OmTime time_diff(end_time - OmTime::now());
-    if (time_diff.sec < 0) time_diff = OmTime(0);
+    int retval;
+    bool timeout = end_time.is_set();
+    if (timeout) {
+	OmTime time_diff(end_time - OmTime::now());
+	if (time_diff.sec < 0) time_diff = OmTime(0);
 
-    struct timeval tv;
-    tv.tv_sec = time_diff.sec;
-    tv.tv_usec = time_diff.usec;
+	struct timeval tv;
+	tv.tv_sec = time_diff.sec;
+	tv.tv_usec = time_diff.usec;
 
-    DEBUGLINE(UNKNOWN, "readfd=" << readfd << ", " <<
-	      "tv.tv_sec=" << tv.tv_sec << ", " <<
-	      "tv.tv_usec=" << tv.tv_usec);
-    int retval = select(readfd + 1, &fdset, 0, &fdset, &tv);
+	DEBUGLINE(UNKNOWN, "readfd=" << readfd << ", " <<
+		  "tv.tv_sec=" << tv.tv_sec << ", " <<
+		  "tv.tv_usec=" << tv.tv_usec);
+	retval = select(readfd + 1, &fdset, 0, &fdset, &tv);
+    } else {
+	retval = select(readfd + 1, &fdset, 0, &fdset, NULL);
+    }
 
     if (retval < 0) {
 	if (errno == EINTR) {
@@ -199,7 +182,7 @@ OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
 	}
     } else if (retval == 0) {
 	// Check timeout
-	if (OmTime::now() > end_time) {
+	if (timeout && OmTime::now() > end_time) {
 	    // Timeout has expired, and no data is waiting
 	    // (especially if we've been waiting on a different node's
 	    // timeout)
@@ -218,7 +201,7 @@ OmSocketLineBuf::attempt_to_read(const OmTime & end_time)
 	    return;
 	} else if (errno == EAGAIN) {
 	    // Check timeout
-	    if (OmTime::now() > end_time) {
+	    if (timeout && OmTime::now() > end_time) {
 		// Timeout has expired, and no data is waiting
 		// (especially if we've been waiting on a different node's
 		// timeout)
@@ -241,7 +224,8 @@ void
 OmSocketLineBuf::wait_for_data(int msecs)
 {
     DEBUGCALL(UNKNOWN, string, "OmSocketLineBuf::wait_for_data", msecs);
-    OmTime end_time = OmTime::now() + OmTime(msecs);
+    OmTime end_time;
+    if (msecs) end_time = OmTime::now() + OmTime(msecs);
     // wait for input to be available.
     while (buffer.find_first_of('\n') == buffer.npos) {
 	attempt_to_read(end_time);

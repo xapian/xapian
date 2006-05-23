@@ -76,6 +76,8 @@ class OmTime {
 	    return (usec > rhs.usec);
 	}
 
+	bool is_set() const { return sec != 0 || usec != 0; }
+
 	long int sec;
 	long int usec;
 };

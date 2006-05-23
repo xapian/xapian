@@ -206,6 +206,7 @@ open(const std::string &dir, int action, int block_size = 8192);
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 namespace Remote {
 
+//@{
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a TCP connection.
  *
@@ -223,7 +224,9 @@ namespace Remote {
  *				Xapian::NetworkTimeoutError is throw.  (Default
  *				is to be the same as timeout).
  */
-Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000, Xapian::timeout connect_timeout = 0);
+Database open(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
+Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
+//@}
 
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a program.

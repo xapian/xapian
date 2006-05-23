@@ -10,7 +10,7 @@ noinst_HEADERS = \
  match.h multimatch.h expand.h rset.h \
  utils.h omqueryinternal.h \
  document.h documentterm.h \
- netclient.h progclient.h net_database.h \
+ progclient.h net_database.h \
  netutils.h omtime.h netserver.h progserver.h socketclient.h socketserver.h \
  socketcommon.h positionlist.h tcpclient.h \
  tcpserver.h omerr_string.h omdebug.h omlinebuf.h omstringstream.h \

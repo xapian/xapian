@@ -1,9 +1,8 @@
 /* msetpostlist.cc: MSET of two posting lists
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -27,7 +25,7 @@
 #include "net_database.h"
 #include "omdebug.h"
 
-MSetPostList::MSetPostList(const Xapian::MSet mset_, const NetworkDatabase *db_)
+MSetPostList::MSetPostList(const Xapian::MSet mset_, NetworkDatabase *db_)
     : mset(mset_), db(db_), current(-1)
 {
     DEBUGCALL(MATCH, void, "MSetPostList::MSetPostList", mset_ << ", " << db_);
@@ -64,8 +62,8 @@ PendingMSetPostList::make_pl()
 {
     if (pl) return;
     Xapian::MSet mset;
-    while (!db->link->get_mset(0, maxitems, mset)) {
-	db->link->wait_for_input();
+    while (!db->get_mset(0, maxitems, mset)) {
+	db->wait_for_input();
     }
     pl = new MSetPostList(mset, db);
 }

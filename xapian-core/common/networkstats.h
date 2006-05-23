@@ -1,8 +1,7 @@
 /* networkstats.h: Handling of statistics needed for network searches.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_NETWORKSTATS_H
@@ -69,15 +67,15 @@ class NetworkStatsGatherer : public StatsGatherer {
 	virtual void set_global_stats(Xapian::doccount /*rset_size*/) {}
 };
 
-class NetClient;
+class NetworkDatabase;
 
 /** NetworkStatsSource: a virtual Xapian::Weight::Internal which is part of the
  *  glue between a StatsGatherer and the remote matching process.
  */
 class NetworkStatsSource : public Xapian::Weight::Internal {
     private:
-	/// The NetClient object used for communications.
-	Xapian::Internal::RefCntPtr<NetClient> nclient;
+	/// The NetworkDatabase object used for communications.
+	Xapian::Internal::RefCntPtr<NetworkDatabase> nclient;
 
 	/** A flag indicating whether or not we have the remote
 	 *  statistics yet.
@@ -86,7 +84,7 @@ class NetworkStatsSource : public Xapian::Weight::Internal {
     public:
 	/// Constructor
 	NetworkStatsSource(StatsGatherer * gatherer_,
-			   Xapian::Internal::RefCntPtr<NetClient> nclient_);
+			   Xapian::Internal::RefCntPtr<NetworkDatabase> nclient_);
 
 	/// Destructor
 	~NetworkStatsSource();

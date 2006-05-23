@@ -1,9 +1,8 @@
 /* msetpostlist.h: mset postlists from different databases
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_MSETPOSTLIST_H
@@ -41,7 +39,7 @@ class MSetPostList : public PostList {
 	MSetPostList & operator=(const MSetPostList &);
 
 	Xapian::MSet mset;
-	const NetworkDatabase *db;
+	NetworkDatabase *db;
 	int current;
 
     public:
@@ -71,7 +69,7 @@ class MSetPostList : public PostList {
 	virtual PositionList * read_position_list();
 	virtual PositionList * open_position_list() const;
 
-	MSetPostList(const Xapian::MSet mset_, const NetworkDatabase *db_);
+	MSetPostList(const Xapian::MSet mset_, NetworkDatabase *db_);
 	~MSetPostList();
 };
 
@@ -80,7 +78,7 @@ class MSetPostList : public PostList {
 class PendingMSetPostList : public PostList {
     friend class RemoteSubMatch;
     private:
-	const NetworkDatabase *db;
+	NetworkDatabase *db;
 	MSetPostList *pl;
 	Xapian::doccount maxitems;
 
@@ -144,7 +142,7 @@ class PendingMSetPostList : public PostList {
 	    return 0;
 	}
 
-	PendingMSetPostList(const NetworkDatabase *db_, Xapian::doccount maxitems_)
+	PendingMSetPostList(NetworkDatabase *db_, Xapian::doccount maxitems_)
 		: db(db_), pl(NULL), maxitems(maxitems_) { }
 	~PendingMSetPostList();
 };

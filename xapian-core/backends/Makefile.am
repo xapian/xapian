@@ -7,6 +7,9 @@ noinst_HEADERS =
 noinst_LTLIBRARIES = libbackend.la
 
 libbackend_la_SOURCES = database.cc
+if BUILD_BACKEND_REMOTE
+libbackend_la_SOURCES += dbfactory_remote.cc
+endif
 
 # Define backend libraries to include.  To add a new one:
 # i)   Add lines to configure.ac to define the automake conditional

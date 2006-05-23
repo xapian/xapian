@@ -1,4 +1,4 @@
-/* socketclient.h: implementation of NetClient over a socket
+/* socketclient.h: implementation of NetworkDatabase over a socket
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
@@ -23,18 +23,18 @@
 #ifndef OM_HGUARD_SOCKETCLIENT_H
 #define OM_HGUARD_SOCKETCLIENT_H
 
-#include "netclient.h"
+#include "net_database.h"
 #include "socketcommon.h"
 #include "rset.h"
 #include <deque>
 using std::deque;
 #include "omtime.h"
 
-/** An implementation of the NetClient interface using a program.
+/** An implementation of the NetworkDatabase interface using a program.
  *  ProgClient gets a socket by spawning a separate program, rather
  *  than connecting to a remote machine.
  */
-class SocketClient : public NetClient {
+class SocketClient : public NetworkDatabase {
     private:
 	// disallow copies
 	SocketClient(const SocketClient &);
@@ -47,7 +47,7 @@ class SocketClient : public NetClient {
 	bool close_socket;
 
 	/// The line buffer which does the I/O
-	OmSocketLineBuf buf;
+	mutable OmSocketLineBuf buf;
 
 	/// The conversation state
 	enum {
@@ -100,7 +100,7 @@ class SocketClient : public NetClient {
 	string context;
 
 	/// The queue of requested docids, in the right order
-	deque<Xapian::docid> requested_docs;
+	mutable deque<Xapian::docid> requested_docs;
 	/* This would be a queue<Xapian::docid>, but that conflicts with
 	 * some networking headers on Solaris.  Maybe when the 
 	 * namespace actually works properly it can go back. */
@@ -111,19 +111,20 @@ class SocketClient : public NetClient {
 	 *  but removed from the cache on the first collect(), causing
 	 *  an error on the second.
 	 */
-	map<Xapian::docid, unsigned int> request_count;
+	mutable map<Xapian::docid, unsigned int> request_count;
 
 	struct cached_doc {
 	    string data;
 	    map<Xapian::valueno, string> values;
 	    int users;  // number of clients wanting to retrieve this document
 	};
+
 	/** A store of the undecoded documents we've collected from the
 	 *  other end
 	 */
-	map<Xapian::docid, cached_doc> collected_docs;
+	mutable map<Xapian::docid, cached_doc> collected_docs;
 
-	void get_requested_docs();
+	void get_requested_docs() const;
 
     protected:
 	/** Constructor.  The constructor is protected so that raw instances
@@ -146,8 +147,8 @@ class SocketClient : public NetClient {
 		     bool close_socket_ = true);
 
 	/// functions which actually do the work
-	string do_read();
-	void do_write(string data);
+	string do_read() const;
+	void do_write(string data) const;
 
 	/// Close the socket
 	void do_close();
@@ -157,20 +158,18 @@ class SocketClient : public NetClient {
 	/// The timeout value used in network communications, in milliseconds
 	int msecs_timeout;
 
-	/** The time at which the current operation will (eg a full
-	 *  match) will time out.
+	/** The time at which the current operation will time out.
+	 *
+	 *  If !end_time.is_set(), then no timeout is currently set.
 	 */
-	OmTime end_time;
-
-	/// Whether the timeout is valid
-	bool end_time_set;
+	mutable OmTime end_time;
 
     public:
 	/// Initialise end_time to current time + msecs_timeout
-	void init_end_time();
+	void init_end_time() const;
 
 	/// Clear end_time
-	void close_end_time();
+	void close_end_time() const;
 
 	/** Destructor. */
 	virtual ~SocketClient();
@@ -219,19 +218,19 @@ class SocketClient : public NetClient {
 
 	/** get the remote termlist */
 	void get_tlist(Xapian::docid did,
-		       vector<NetClient::TermListItem> &items);
+		       vector<NetworkDatabase::TermListItem> &items) const;
 
 	/** Retrieve a remote document */
 	void get_doc(Xapian::docid did,
 		     string &doc,
-		     map<Xapian::valueno, string> &values);
+		     map<Xapian::valueno, string> &values) const;
 
 	/** Request a remote document */
-	void request_doc(Xapian::docid did);
+	void request_document(Xapian::docid did) const;
 
 	/** Collect a remote document */
 	void collect_doc(Xapian::docid did, string &doc,
-			 map<Xapian::valueno, string> &values);
+			 map<Xapian::valueno, string> &values) const;
 
 	/** Get the document count. */
 	Xapian::doccount get_doccount() const;
@@ -240,14 +239,10 @@ class SocketClient : public NetClient {
 	Xapian::doclength get_avlength() const;
 
 	/// Find out if term exists
-	virtual bool term_exists(const string & tname);
+	bool term_exists(const string & tname) const;
 
 	/// Find frequency of term
-	virtual Xapian::doccount get_termfreq(const string & tname);
-
-	/** Determine if any data is waiting to be read.
-	 */
-	bool data_is_available();
+	Xapian::doccount get_termfreq(const string & tname) const;
 };
 
 #endif  /* OM_HGUARD_SOCKETCLIENT_H */

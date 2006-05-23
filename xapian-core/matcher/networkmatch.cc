@@ -30,7 +30,7 @@
 #include "networkstats.h"
 #include "net_database.h"
 
-RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
+RemoteSubMatch::RemoteSubMatch(NetworkDatabase *db_,
 			       const Xapian::Query::Internal * query,
 			       Xapian::termcount qlen,
 			       const Xapian::RSet & omrset,
@@ -52,12 +52,12 @@ RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
     Assert(db);
     Assert(query);
     Assert(gatherer_);
-    statssource = new NetworkStatsSource(gatherer_, db->link);
+    statssource = new NetworkStatsSource(gatherer_, db);
 
-    db->link->set_query(query, qlen, collapse_key, order,
+    db->set_query(query, qlen, collapse_key, order,
 			sort_key, sort_by, sort_value_forward,
 			percent_cutoff, weight_cutoff, wtscheme, omrset);
-    db->link->register_statssource(statssource);
+    db->register_statssource(statssource);
 
     AutoPtr<RSetI> new_rset(new RSetI(db, omrset));
     rset = new_rset;
@@ -66,7 +66,7 @@ RemoteSubMatch::RemoteSubMatch(const NetworkDatabase *db_,
 RemoteSubMatch::~RemoteSubMatch()
 {
     DEBUGCALL(MATCH, void, "~RemoteSubMatch", "");
-    db->link->close_end_time();
+    db->close_end_time();
     delete statssource;
 }
 
@@ -84,27 +84,27 @@ RemoteSubMatch::prepare_match(bool nowait)
 {
     DEBUGCALL(MATCH, bool, "RemoteSubMatch::prepare_match", nowait);
     if (!is_prepared) {
-	bool finished_query = db->link->finish_query();
+	bool finished_query = db->finish_query();
 
 	if (!finished_query) {
 	    if (nowait) {
 		RETURN(false);
 	    } else {
 		do {
-		    db->link->wait_for_input();
-		} while (!db->link->finish_query());
+		    db->wait_for_input();
+		} while (!db->finish_query());
 	    }
 	}
 
 	// Read the remote statistics and give them to the stats source
 	//
 	Stats mystats;
-	bool read_remote_stats = db->link->get_remote_stats(mystats);
+	bool read_remote_stats = db->get_remote_stats(mystats);
 	if (!read_remote_stats) {
 	    if (nowait) RETURN(false);
 	    do {
-		db->link->wait_for_input();
-	    } while (!db->link->get_remote_stats(mystats));
+		db->wait_for_input();
+	    } while (!db->get_remote_stats(mystats));
 	}
 	statssource->take_remote_stats(mystats);
 
@@ -118,12 +118,12 @@ RemoteSubMatch::start_match(Xapian::doccount maxitems)
 {
     DEBUGCALL(MATCH, void, "RemoteSubMatch::start_match", maxitems);
     Assert(is_prepared);
-    db->link->send_global_stats(*(gatherer->get_stats()));
+    db->send_global_stats(*(gatherer->get_stats()));
     Xapian::MSet mset;
-    bool res = db->link->get_mset(0, maxitems, mset);
+    bool res = db->get_mset(0, maxitems, mset);
     (void)res;
     // FIXME: improve this
-    // link should always return false for first call to get_mset
+    // db->get_mset() should always return false for the first call.
     Assert(res == false);
 }
 

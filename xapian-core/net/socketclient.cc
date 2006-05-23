@@ -1,4 +1,4 @@
-/* socketclient.cc: implementation of NetClient using a socket
+/* socketclient.cc: implementation of NetworkDatabase using a socket
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
@@ -53,7 +53,7 @@ SocketClient::SocketClient(int socketfd_,
 	  global_stats_valid(false),
 	  context(context_),
 	  msecs_timeout(msecs_timeout_),
-	  end_time_set(false)
+	  end_time()
 {
     // ignore SIGPIPE - we check return values instead, and that
     // way we can easily throw an exception.
@@ -79,8 +79,8 @@ SocketClient::SocketClient(int socketfd_,
 
     if (version != XAPIAN_SOCKET_PROTOCOL_VERSION) {
 	throw Xapian::NetworkError(string("Mismatched protocol version: found ") +
-			     om_tostring(version) + " expected " +
-			     om_tostring(XAPIAN_SOCKET_PROTOCOL_VERSION),
+			     om_tostring(version) + " expected "
+			     STRINGIZE(XAPIAN_SOCKET_PROTOCOL_VERSION),
 			     context);
     }
 }
@@ -102,9 +102,9 @@ class TimerSentry {
         TimerSentry(const TimerSentry &);
         TimerSentry & operator=(const TimerSentry &);
 
-	SocketClient *client;
+	const SocketClient *client;
     public:
-	TimerSentry(SocketClient *client_) : client(client_) {
+	TimerSentry(const SocketClient *client_) : client(client_) {
 	    client->init_end_time();
 	}
 	~TimerSentry() {
@@ -113,24 +113,24 @@ class TimerSentry {
 };
 
 void
-SocketClient::init_end_time()
+SocketClient::init_end_time() const
 {
     end_time = OmTime::now() + OmTime(msecs_timeout);
 
-    end_time_set = true;
     DEBUGLINE(UNKNOWN, "init_end_time() - set timer to " <<
 	      end_time.sec << "." << end_time.usec <<
 	      " (" << msecs_timeout << " msecs)");
 }
 
 void
-SocketClient::close_end_time()
+SocketClient::close_end_time() const
 {
-    end_time_set = false;
+    end_time = OmTime();
+
     DEBUGLINE(UNKNOWN, "close_end_time()");
 }
 
-NetClient::TermListItem
+NetworkDatabase::TermListItem
 string_to_tlistitem(const string &s)
 {
 #ifdef HAVE_SSTREAM
@@ -138,7 +138,7 @@ string_to_tlistitem(const string &s)
 #else
     istrstream is(s.data(), s.length());
 #endif
-    NetClient::TermListItem item;
+    NetworkDatabase::TermListItem item;
     string tencoded;
 
     is >> item.wdf >> item.termfreq >> tencoded;
@@ -149,7 +149,7 @@ string_to_tlistitem(const string &s)
 
 void
 SocketClient::get_tlist(Xapian::docid did,
-			vector<NetClient::TermListItem> &items) {
+			vector<NetworkDatabase::TermListItem> &items) const {
     /* avoid confusing the protocol if there are requested documents
      * being returned.
      */
@@ -157,7 +157,7 @@ SocketClient::get_tlist(Xapian::docid did,
     do_write(string("T") + om_tostring(did));
 
     TimerSentry timersentry(this);
-    while (1) {
+    while (true) {
 	string message = do_read();
 	if (message == "Z") break;
 	items.push_back(string_to_tlistitem(message));
@@ -165,8 +165,9 @@ SocketClient::get_tlist(Xapian::docid did,
 }
 
 void
-SocketClient::request_doc(Xapian::docid did)
+SocketClient::request_document(Xapian::docid did) const
 {
+    if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");
     map<Xapian::docid, unsigned int>::iterator i = request_count.find(did);
     if (i != request_count.end()) {
 	/* This document has been requested already - just count it again. */
@@ -179,7 +180,7 @@ SocketClient::request_doc(Xapian::docid did)
 }
 
 void
-SocketClient::get_requested_docs()
+SocketClient::get_requested_docs() const
 {
     while (!requested_docs.empty()) {
 	TimerSentry timersentry(this);
@@ -217,7 +218,7 @@ SocketClient::get_requested_docs()
 
 void
 SocketClient::collect_doc(Xapian::docid did, string &doc,
-			  map<Xapian::valueno, string> &values)
+			  map<Xapian::valueno, string> &values) const
 {
     /* First check that the data isn't in our temporary cache */
     map<Xapian::docid, cached_doc>::iterator i;
@@ -242,7 +243,7 @@ SocketClient::collect_doc(Xapian::docid did, string &doc,
     /* Since we've missed our cache, the did being collected must be
      * in our queue of requested documents.  We now fetch all of them
      * into the cache.  Fetching only until the requested doc would
-     * defeat the point of a seperate request_doc to some extent.
+     * defeat the point of a seperate request_document to some extent.
      */
     get_requested_docs();
 
@@ -272,9 +273,9 @@ SocketClient::collect_doc(Xapian::docid did, string &doc,
 void
 SocketClient::get_doc(Xapian::docid did,
 		      string &doc,
-		      map<Xapian::valueno, string> &values)
+		      map<Xapian::valueno, string> &values) const
 {
-    request_doc(did);
+    request_document(did);
     collect_doc(did, doc, values);
 }
 
@@ -291,8 +292,9 @@ SocketClient::get_avlength() const
 }
 
 bool
-SocketClient::term_exists(const string & tname)
+SocketClient::term_exists(const string & tname) const
 {
+    Assert(!tname.empty());
     do_write(string("t") + encode_tname(tname));
     string message = do_read();
     Assert(!message.empty() && message[0] == 't');
@@ -300,8 +302,9 @@ SocketClient::term_exists(const string & tname)
 }
 
 Xapian::doccount
-SocketClient::get_termfreq(const string & tname)
+SocketClient::get_termfreq(const string & tname) const
 {
+    Assert(!tname.empty());
     do_write(string("F") + encode_tname(tname));
     string message = do_read();
     Assert(!message.empty() && message[0] == 'F');
@@ -316,10 +319,10 @@ SocketClient::get_termfreq(const string & tname)
 }
 
 string
-SocketClient::do_read()
+SocketClient::do_read() const
 {
     string retval;
-    if (end_time_set) {
+    if (end_time.is_set()) {
 	retval = buf.readline(end_time);
     } else {
 	TimerSentry timersentry(this);
@@ -336,21 +339,15 @@ SocketClient::do_read()
 }
 
 void
-SocketClient::do_write(string data)
+SocketClient::do_write(string data) const
 {
     DEBUGLINE(UNKNOWN, "do_write(): " << data.substr(0, data.find_last_of('\n')));
-    if (end_time_set) {
+    if (end_time.is_set()) {
 	buf.writeline(data, end_time);
     } else {
 	TimerSentry timersentry(this);
 	buf.writeline(data, end_time);
     }
-}
-
-bool
-SocketClient::data_is_available()
-{
-    return buf.data_waiting();
 }
 
 void
@@ -480,7 +477,7 @@ SocketClient::send_global_stats(const Stats &stats)
 {
     Assert(conv_state >= state_sendglobal);
     if (conv_state == state_sendglobal) {
-	Assert(end_time_set);
+	Assert(end_time.is_set());
 	global_stats = stats;
 	global_stats_valid = true;
 	conv_state = state_getmset;
@@ -559,9 +556,7 @@ SocketClient::get_posting(Xapian::docid &did, Xapian::weight &w, string &value)
 	case state_getresult: {
 
 	    DEBUGLINE(MATCH, "about to see if data is waiting");
-	    if (!buf.data_waiting()) {
-		RETURN(false);
-	    }
+	    buf.wait_for_data();
 
 	    DEBUGLINE(MATCH, "data is waiting");
 	    string message = do_read();
