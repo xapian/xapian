@@ -1,9 +1,7 @@
 /** \file errorhandler.h
- *  \brief Classes for handling exceptions.
+ *  \brief Decide if a Xapian::Error exception should be ignored.
  */
-/* ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+/* Copyright (C) 2003,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA
- * -----END-LICENCE-----
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #ifndef XAPIAN_INCLUDED_ERRORHANDLER_H
@@ -27,50 +23,65 @@
 
 #include <xapian/error.h>
 
-/// Error handling class
+/** Decide if a Xapian::Error exception should be ignored.
+ *
+ *  You can create your own subclass of this class and pass in an instance
+ *  of it when you construct a Xapian::Enquire object.  Xapian::Error
+ *  exceptions which happen during the match process are passed to this
+ *  object and it can decide whether they should propagate or whether
+ *  Enquire should attempt to continue.
+ *
+ *  The motivation is to allow searching over remote databases to handle a
+ *  remote server which has died (both to allow results to be returned, and
+ *  also so that such errors can be logged and dead servers temporarily removed
+ *  from use).
+ */
 class Xapian::ErrorHandler {
-    private:
-	/// Assignment is not allowed
-	void operator=(const Xapian::ErrorHandler &copyme);
+    /// Don't allow assignment.
+    void operator=(const Error &o);
 
-	/// Copying is not allowed
-	ErrorHandler(const Xapian::ErrorHandler &copyme);
+    /// Don't allow copying,
+    ErrorHandler(const Xapian::ErrorHandler &o);
 
-	/** Method called to handle an error.
-	 *
-	 *  This method must be implemented by a subclass of Xapian::ErrorHandler,
-	 *  and is called when an error occurs.  It should return true if it
-	 *  has handled the error and would like execution to continue as well
-	 *  as possible, or false if it would like execution to stop and the
-	 *  error to be propagated.
-	 *
-	 *  Even if the method returns true, execution may stop if the error
-	 *  condition cannot be recovered from.
-	 *
-	 *  @param   error    The error which has occurred.
-	 * 
-	 *  @return  true to continue with operation, false to propagate the
-	 *  error.
-	 */
-	virtual bool handle_error(Xapian::Error & error) = 0;
+    /** Perform user-specified error handling.
+     *
+     *  This virtual method must be defined by the APU user to specify
+     *  how a Xapian::Error is to be handled.
+     *
+     *  If you want execution to continue (where possible), then return
+     *  true.  If you want the Error to be rethrown and propagate out
+     *  of the library, then return false.
+     *
+     *  Note that it's not always possible to continue execution, so
+     *  the error may be rethrown even if you return true.  The ErrorHandler
+     *  is still called in this situation as you may want to log that a
+     *  particular remote backend server isn't responding, and perhaps
+     *  remove it from those being searched temporarily.
+     *
+     *  @param error	The Xapian::Error object under consideration.
+     *
+     *  @return  true to attempt to continue; false to rethrow the error.
+     */
+    virtual bool handle_error(Xapian::Error &error) = 0;
 
-    public:
-	/** Standard constructor
-	 */
-        ErrorHandler() {}
+  public:
+    /// Default constructor.
+    ErrorHandler() {}
 
-        /** Standard destructor
-	 */
-	virtual ~ErrorHandler() {}
+    /// We require a virtual destructor because we have virtual methods.
+    virtual ~ErrorHandler() {}
 
-	/** Method called to handle an error.
-	 *
-	 *  This method is called when an error occurs, and calls
-	 *  handle_error() for user handlers to deal with the error.
-	 *
-	 *  @param   error    The error which has occurred.
-	 */
-	void operator()(Xapian::Error & error);
+    /** Handle a Xapian::Error object.
+     *
+     *  This method is called when a Xapian::Error object is thrown and
+     *  caught inside Enquire.  If this is the first ErrorHandler that
+     *  the Error has been passed to, then the handle_error() virtual
+     *  method is called, which allows the API user to decide how to
+     *  handle the error.
+     *
+     *  @param error	The Xapian::Error object under consideration.
+     */
+    void operator()(Xapian::Error &error);
 };
 
 #endif /* XAPIAN_INCLUDED_ERRORHANDLER_H */
