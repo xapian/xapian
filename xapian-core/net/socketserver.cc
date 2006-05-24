@@ -94,7 +94,7 @@ SocketServer::SocketServer(const Xapian::Database &db_, int readfd_, int writefd
     wtschemes[wt->name()] = wt;
 }
 
-SocketServer::SocketServer(const Xapian::Database &db_, AutoPtr<OmLineBuf> buf_,
+SocketServer::SocketServer(const Xapian::Database &db_, AutoPtr<OmSocketLineBuf> buf_,
 			   int msecs_active_timeout_, int msecs_idle_timeout_
 #ifdef TIMING_PATCH
 			   , bool timing_

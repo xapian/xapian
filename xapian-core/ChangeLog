@@ -1,3 +1,7 @@
+Wed May 24 08:28:40 BST 2006  Olly Betts <olly@survex.com>
+
+	* net/socketserver.cc: OmLineBuf -> OmSocketLineBuf.
+
 Wed May 24 08:27:22 BST 2006  Olly Betts <olly@survex.com>
 
 	* common/socketserver.h: OmLineBuf -> OmSocketLineBuf.
