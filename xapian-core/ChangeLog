@@ -1,3 +1,11 @@
+Wed May 24 07:50:51 BST 2006  Olly Betts <olly@survex.com>
+
+	* common/Makefile.am,common/omlinebuf.h,common/socketcommon.h,
+	  net/Makefile.am,net/omlinebuf.cc,net/socketcommon.cc:
+	  Merge OmLineBuf into OmSocketLineBuf.
+	* common/Makefile.am: Fix netutils.cc to be conditionally included
+	  when the remote backend is enabled, not the quartz backend!
+
 Tue May 23 18:59:09 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/Makefile.am,api/errorhandler.cc,api/omerror.cc,

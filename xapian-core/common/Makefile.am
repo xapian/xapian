@@ -13,7 +13,7 @@ noinst_HEADERS = \
  progclient.h net_database.h \
  netutils.h omtime.h netserver.h progserver.h socketclient.h socketserver.h \
  socketcommon.h positionlist.h tcpclient.h \
- tcpserver.h omerr_string.h omdebug.h omlinebuf.h omstringstream.h \
+ tcpserver.h omerr_string.h omdebug.h omstringstream.h \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \
  autoptr.h \
  alltermslist.h multialltermslist.h \
@@ -21,7 +21,7 @@ noinst_HEADERS = \
 
 noinst_LTLIBRARIES = libcommon.la
 
-if BUILD_BACKEND_QUARTZ
+if BUILD_BACKEND_REMOTE
 remote_sources = netutils.cc
 else
 remote_sources =

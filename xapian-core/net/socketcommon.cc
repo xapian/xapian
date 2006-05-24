@@ -43,7 +43,6 @@
 #include "utils.h"
 #include <xapian/enquire.h>
 #include <xapian/document.h>
-#include "omlinebuf.h"
 #include "omenquireinternal.h"
 #include "netutils.h"
 
@@ -305,6 +304,25 @@ OmSocketLineBuf::do_writeline(string s, const OmTime & end_time)
 
 	s.erase(0, written);
     }
+}
+
+std::string
+OmSocketLineBuf::readline(const OmTime & end_time)
+{
+    std::string retval;
+    if (line_buffer.length() > 0) {
+	retval = line_buffer;
+	line_buffer = "";
+    } else {
+	retval = do_readline(end_time);
+    }
+    return retval;
+}
+
+void
+OmSocketLineBuf::writeline(std::string msg, const OmTime & end_time)
+{
+    do_writeline(msg, end_time);
 }
 
 string

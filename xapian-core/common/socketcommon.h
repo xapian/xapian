@@ -25,9 +25,8 @@
 
 #include <string>
 #include <map>
-#include <sys/time.h>
 
-#include "omlinebuf.h"
+#include "omtime.h"
 #include "omenquireinternal.h"
 
 using std::map;
@@ -44,9 +43,21 @@ class OmTime;
 /** The OmSocketLineBuf class implements a two-way line discipline
  *  using Unix filedescriptors, allowing the client to read
  *  and write a line at a time conveniently.
+ *
+ *  @exception Xapian::NetworkTimeoutError is thrown if a timeout is exceeded
+ *                                   waiting for remote input.
+ *
+ *  @exception Xapian::NetworkError is thrown for any non-timeout network error,
+ *                            for example remote closed socket.
  */
-class OmSocketLineBuf : public OmLineBuf {
+class OmSocketLineBuf {
     private:
+	/// disallow copies
+	OmSocketLineBuf(const OmSocketLineBuf &other);
+	void operator=(const OmSocketLineBuf &other);
+
+	std::string line_buffer;
+
 	/// The filedescriptor used for reading
 	int readfd;
 	/// The filedescriptor used for writing
@@ -57,10 +68,6 @@ class OmSocketLineBuf : public OmLineBuf {
 
 	/// The context to report with errors
 	string errcontext;
-
-	/// disallow copies
-	OmSocketLineBuf(const OmSocketLineBuf &other);
-	void operator=(const OmSocketLineBuf &other);
 
 	/** Read one line from readfd
 	 *  @param end_time	The time at which the read will
@@ -101,6 +108,16 @@ class OmSocketLineBuf : public OmLineBuf {
 	 *		  timeout is exceeded.
 	 */
 	void wait_for_data(int msecs = 0);
+
+	/** Read one line
+	 *  @param end_time	The time at which the read will
+	 *			fail with a timeout error.
+	 */
+	std::string readline(const OmTime & end_time);
+
+	/** Write one line to writefd
+	 */
+	void writeline(std::string s, const OmTime & end_time);
 };
 
 /** Convert a Stats object into a string representation.
