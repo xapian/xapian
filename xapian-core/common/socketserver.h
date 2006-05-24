@@ -1,8 +1,7 @@
 /* socketserver.h: class for socket-based server
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_SOCKETSERVER_H
@@ -32,7 +30,7 @@
 #include "autoptr.h"
 
 class NetworkStatsGatherer;
-class OmLineBuf;
+class OmSocketLineBuf;
 
 /** The base class of the network server object.
  *  A NetServer object is used by server programs to take care
@@ -67,7 +65,7 @@ class SocketServer : public NetServer {
 
 #endif /* TIMING_PATCH */
 	/// The line buffer for doing the actual I/O
-	AutoPtr<OmLineBuf> buf;
+	AutoPtr<OmSocketLineBuf> buf;
 
 	/// The various states of the conversation we can be in
 	enum conv_states {
@@ -141,7 +139,7 @@ class SocketServer : public NetServer {
 
 	/** Default constructor.
 	 *  @param db		The database on which searches are done.
-	 *  @param buffer	OmLineBuf already connected to remote end.
+	 *  @param buffer	OmSocketLineBuf already connected to remote end.
 	 *  @param msecs_active_timeout_	The timeout (in milliseconds)
 	 *  			used while waiting for data from the client
 	 *  			during the handling of a request.
@@ -150,7 +148,7 @@ class SocketServer : public NetServer {
 	 *  			client while idle.
 	 */
 	SocketServer(const Xapian::Database &db,
-		     AutoPtr<OmLineBuf> buffer,
+		     AutoPtr<OmSocketLineBuf> buffer,
 		     int msecs_active_timeout_ = 10000,
 #ifndef TIMING_PATCH
 		     int msecs_idle_timeout_ = 60000);
