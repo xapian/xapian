@@ -26,6 +26,6 @@ try {
 	print "Retrieved non-existent document\n";
 	exit(1);
     }
-} catch (e) {
+} catch (Exception $e) {
 }
 ?>

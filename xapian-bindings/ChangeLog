@@ -1,3 +1,7 @@
+Thu May 25 08:09:15 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/smoketest5.php: Fix syntax of catch.
+
 Sat May 20 19:27:27 BST 2006  Olly Betts <olly@survex.com>
 
 	* TODO: Add 2 entries for smoketest.rb.
