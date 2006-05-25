@@ -354,11 +354,6 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	}
 };
 
-namespace Internal {
-void open_database(Database *db, const string &path);
-void open_writable_database(Database *db, const string &path, int action);
-}
-
 }
 
 #endif /* OM_HGUARD_DATABASE_H */

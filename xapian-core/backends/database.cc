@@ -202,27 +202,25 @@ Auto::open_stub(const string &file)
     return db;
 }
 
-namespace Internal {
-
-void
-open_database(Database * db, const string &path)
+Database::Database(const string &path)
 {
+    DEBUGAPICALL(void, "Database::Database", path);
     // Check for path actually being a file - if so, assume it to be
     // a stub database.
     if (file_exists(path)) {
-	open_stub(db, path);
+	open_stub(this, path);
 	return;
     }
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
     if (file_exists(path + "/record_DB")) {
-	db->internal.push_back(new QuartzDatabase(path));
+	internal.push_back(new QuartzDatabase(path));
 	return;
     }
 #endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     if (file_exists(path + "/iamflint")) {
-	db->internal.push_back(new FlintDatabase(path));
+	internal.push_back(new FlintDatabase(path));
 	return;
     }
 #endif
@@ -231,8 +229,8 @@ open_database(Database * db, const string &path)
 	// can't easily tell flimsy from heavyduty so assume hd
 	string keyfile = path + "/keyfile";
 	if (!file_exists(path + "/keyfile")) keyfile = "";
-	db->internal.push_back(new DADatabase(path + "/R", path + "/T",
-					      keyfile, true));
+	internal.push_back(new DADatabase(path + "/R", path + "/T",
+					  keyfile, true));
 	return;
     }
     string dbfile = path + "/DB";
@@ -243,7 +241,7 @@ open_database(Database * db, const string &path)
     if (!dbfile.empty()) {
 	string keyfile = path + "/keyfile";
 	if (!file_exists(path + "/keyfile")) keyfile = "";
-	db->internal.push_back(new DBDatabase(dbfile, keyfile));
+	internal.push_back(new DBDatabase(dbfile, keyfile));
 	return;
     }
 #endif
@@ -251,9 +249,11 @@ open_database(Database * db, const string &path)
     throw DatabaseOpeningError("Couldn't detect type of database");
 }
 
-void
-open_writable_database(Database *db, const string &path, int action)
+WritableDatabase::WritableDatabase(const std::string &path, int action)
+    : Database()
 {
+    DEBUGAPICALL(void, "WritableDatabase::WritableDatabase",
+		 path << ", " << action);
 #if defined XAPIAN_HAS_FLINT_BACKEND && defined XAPIAN_HAS_QUARTZ_BACKEND
     // Both Flint and Quartz are enabled.
     bool use_flint = false;
@@ -264,21 +264,19 @@ open_writable_database(Database *db, const string &path, int action)
 	use_flint = file_exists(path + "/iamflint");
     }
     if (use_flint) {
-	db->internal.push_back(new FlintWritableDatabase(path, action, 8192));
+	internal.push_back(new FlintWritableDatabase(path, action, 8192));
     } else {
-	db->internal.push_back(new QuartzWritableDatabase(path, action, 8192));
+	internal.push_back(new QuartzWritableDatabase(path, action, 8192));
     }
 #elif defined XAPIAN_HAS_FLINT_BACKEND
     // Only Flint is enabled.
-    db->internal.push_back(new FlintWritableDatabase(path, action, 8192));
+    internal.push_back(new FlintWritableDatabase(path, action, 8192));
 #elif defined XAPIAN_HAS_QUARTZ_BACKEND
     // Only Quartz is enabled.
-    db->internal.push_back(new QuartzWritableDatabase(path, action, 8192));
+    internal.push_back(new QuartzWritableDatabase(path, action, 8192));
 #else
     throw FeatureUnavailableError("No disk-based writable backend is enabled");
 #endif
-}
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////

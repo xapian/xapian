@@ -43,12 +43,6 @@ Database::Database()
     DEBUGAPICALL(void, "Database::Database", "");
 }
 
-Database::Database(const string &path)
-{
-    DEBUGAPICALL(void, "Database::Database", path);
-    Xapian::Internal::open_database(this, path);
-}
-
 Database::Database(Database::Internal *internal_)
 {
     DEBUGAPICALL(void, "Database::Database", "Database::Internal");
@@ -326,14 +320,6 @@ Database::get_description() const
 WritableDatabase::WritableDatabase() : Database()
 {
     DEBUGAPICALL(void, "WritableDatabase::WritableDatabase", "");
-}
-
-WritableDatabase::WritableDatabase(const std::string &path, int action)
-    : Database()
-{
-    DEBUGAPICALL(void, "WritableDatabase::WritableDatabase",
-		 path << ", " << action);
-    Xapian::Internal::open_writable_database(this, path, action);
 }
 
 WritableDatabase::WritableDatabase(Database::Internal *internal_)
