@@ -1,3 +1,8 @@
+Sun May 28 22:02:30 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/errorhandler.h: Fix typos in private assignment
+	  operator and copy ctor (Error -> ErrorHandler!)
+
 Sun May 28 21:54:05 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,tests/Makefile.am: Add "check-remote" target which runs

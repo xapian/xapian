@@ -38,10 +38,10 @@
  */
 class Xapian::ErrorHandler {
     /// Don't allow assignment.
-    void operator=(const Error &o);
+    void operator=(const ErrorHandler &);
 
-    /// Don't allow copying,
-    ErrorHandler(const Xapian::ErrorHandler &o);
+    /// Don't allow copying.
+    ErrorHandler(const Xapian::ErrorHandler &);
 
     /** Perform user-specified error handling.
      *
