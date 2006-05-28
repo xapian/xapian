@@ -1,3 +1,8 @@
+Sun May 28 23:01:45 BST 2006  Olly Betts <olly@survex.com>
+
+	* common/omtime.h: Add operator+ and operator+= with argument of
+	  type Xapian::timeout.
+
 Sun May 28 22:02:30 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/errorhandler.h: Fix typos in private assignment

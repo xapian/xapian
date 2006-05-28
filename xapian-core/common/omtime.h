@@ -32,6 +32,8 @@
 #endif
 #include <time.h>
 
+#include <xapian/types.h>
+
 /// A class representing a time
 class OmTime {
     public:
@@ -45,10 +47,24 @@ class OmTime {
 	OmTime(long int msec) : sec(msec / 1000), usec((msec % 1000) * 1000) {}
 	OmTime(long int sec_, long int usec_) : sec(sec_), usec(usec_) {}
 
+	void operator+= (Xapian::timeout msecs) {
+	    usec += msecs * 1000;
+	    sec += usec / 1000000;
+	    usec %= 1000000;
+	}
+
 	void operator+= (const OmTime &add) {
 	    usec += add.usec;
 	    sec += add.sec + usec / 1000000;
 	    usec %= 1000000;
+	}
+
+	OmTime operator+ (Xapian::timeout msecs) const {
+	    OmTime result;
+	    result.usec = usec + msecs * 1000;
+	    result.sec = sec + result.usec / 1000000;
+	    result.usec %= 1000000;
+	    return result;
 	}
 
 	OmTime operator+ (const OmTime &add) const {
