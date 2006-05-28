@@ -5,6 +5,10 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsu
 TESTS_ENVIRONMENT = ./runtest
 
 if BUILD_BACKEND_REMOTE
+check-remote: remotetest$(EXEEXT) apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./remotetest
+	$(TESTS_ENVIRONMENT) ./apitest -b remote
+
 remote_check_programs = remotetest
 remote_tests = remotetest$(EXEEXT)
 endif

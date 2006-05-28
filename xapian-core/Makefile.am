@@ -1,6 +1,10 @@
 ## Process this file with automake to produce Makefile.in
 
 if BUILD_BACKEND_REMOTE
+check-remote:
+	$(MAKE) -C bin check
+	$(MAKE) -C tests check-remote
+
 remote_subdirs = net
 LIBNET_LA = net/libnet.la
 endif
