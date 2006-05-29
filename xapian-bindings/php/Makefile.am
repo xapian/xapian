@@ -16,7 +16,7 @@ if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
 endif
 
-EXTRA_DIST = util.i xapian.php $(TESTS)
+EXTRA_DIST = util.i xapian.php $(TESTS) smoketest4.php smoketest5.php
 SUBDIRS = docs
 
 phpextdir = $(PHP_EXTENSION_DIR)

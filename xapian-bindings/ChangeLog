@@ -1,3 +1,7 @@
+Mon May 29 11:19:32 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/Makefile.am: Distribute smoketest4.php and smoketest5.php.
+
 Thu May 25 08:09:15 BST 2006  Olly Betts <olly@survex.com>
 
 	* php/smoketest5.php: Fix syntax of catch.
