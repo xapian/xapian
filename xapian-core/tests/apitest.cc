@@ -87,7 +87,7 @@ int main(int argc, char **argv)
     test_driver::add_command_line_option("backend", 'b', &backend);
 
     test_driver::parse_command_line(argc, argv);
-    
+
     string srcdir = test_driver::get_srcdir();
 
     int result = 0;
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
     RUNTESTS("inmemory", multivalue);
 #endif
 
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
+#ifdef XAPIAN_HAS_FLINT_BACKEND
     RUNTESTS("flint", anydb);
     RUNTESTS("flint", specchar);
     RUNTESTS("flint", writabledb);
