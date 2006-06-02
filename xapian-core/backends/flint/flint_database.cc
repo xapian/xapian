@@ -547,7 +547,7 @@ FlintWritableDatabase::~FlintWritableDatabase()
 void
 FlintWritableDatabase::flush()
 {
-    if (changes_made) do_flush_const();
+    if (changes_made && !transaction_in_progress) do_flush_const();
 }
 
 void
@@ -646,13 +646,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	database_ro.cancel();
-	total_length = database_ro.postlist_table.get_total_length();
-	lastdocid = database_ro.get_lastdocid();
-	freq_deltas.clear();
-	doclens.clear();
-	mod_plists.clear();
-	changes_made = 0;
+	cancel();
 	throw;
     }
 
@@ -734,13 +728,7 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	database_ro.cancel();
-	total_length = database_ro.postlist_table.get_total_length();
-	lastdocid = database_ro.get_lastdocid();
-	freq_deltas.clear();
-	doclens.clear();
-	mod_plists.clear();
-	changes_made = 0;
+	cancel();
 	throw;
     }
 
@@ -887,13 +875,7 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	database_ro.cancel();
-	total_length = database_ro.postlist_table.get_total_length();
-	lastdocid = database_ro.get_lastdocid();
-	freq_deltas.clear();
-	doclens.clear();
-	mod_plists.clear();
-	changes_made = 0;
+	cancel();
 	throw;
     }
 
@@ -1046,4 +1028,34 @@ FlintWritableDatabase::open_allterms() const
     do_flush_const();
     RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),
 				 &database_ro.postlist_table));
+}
+
+void
+FlintWritableDatabase::cancel()
+{
+    database_ro.cancel();
+    total_length = database_ro.postlist_table.get_total_length();
+    lastdocid = database_ro.get_lastdocid();
+    freq_deltas.clear();
+    doclens.clear();
+    mod_plists.clear();
+    changes_made = 0;
+}
+
+void
+FlintWritableDatabase::begin_transaction_()
+{
+    if (changes_made) do_flush_const();
+}
+
+void
+FlintWritableDatabase::commit_transaction_()
+{
+    if (changes_made) do_flush_const();
+}
+
+void
+FlintWritableDatabase::cancel_transaction_()
+{
+    if (changes_made) cancel();
 }

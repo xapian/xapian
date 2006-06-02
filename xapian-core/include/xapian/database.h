@@ -214,7 +214,7 @@ class WritableDatabase : public Database {
 	 *
 	 *  If there are no copies of this object remaining, the database
 	 *  will be closed.  If there are any transactions in progress
-	 *  these will be ended.
+	 *  these will be aborted as if cancel_transaction had been called.
 	 */
 	virtual ~WritableDatabase();
 
@@ -276,10 +276,7 @@ class WritableDatabase : public Database {
 	 *  performed or not performed at all: it is then up to the
 	 *  application to work out which operations need to be repeated.
 	 *
-	 *  If called within a transaction, this will flush database
-	 *  modifications made before the transaction was begun, but will
-	 *  not flush modifications made since begin_transaction() was
-	 *  called.
+	 *  It's not valid to call flush within a transaction.
 	 *
 	 *  Beware of calling flush too frequently: this will have a severe
 	 *  performance cost.
@@ -301,15 +298,26 @@ class WritableDatabase : public Database {
 
 	/** Begin a transaction.
 	 *
-	 *  For the purposes of Xapian, a transaction is a group of
-	 *  modifications to the database which are grouped together such
-	 *  that either all or none of them will succeed.  Even in the case
-	 *  of a power failure, this characteristic should be preserved (as
-	 *  long as the filesystem isn't corrupted, etc).
+	 *  In Xapian a transaction is a group of modifications to the database
+	 *  which are linked such that either all will be applied
+	 *  simultaneously or none will be applied at all.  Even in the case of
+	 *  a power failure, this characteristic should be preserved (as long
+	 *  as the filesystem isn't corrupted, etc).
 	 *
-	 *  Transactions are only available with certain access methods,
-	 *  and as you might expect will generally have a fairly high
-	 *  performance cost.
+	 *  A transaction implicitly calls flush before and after
+	 *  so that the modifications stand and fall without affecting
+	 *  modifications before or after.
+	 *
+	 *  The downside is that a lot of small transactions means that
+	 *  modifications are frequently flushed which can harm indexing
+	 *  performance in the same way that explicitly calling flush
+	 *  frequently can.
+	 *
+	 *  A transaction is started with begin_transaction() and can
+	 *  either be committed by calling commit_transaction() or aborted
+	 *  by calling cancel_transaction().
+	 *
+	 *  Transactions are only available with certain database backends.
 	 *
 	 *  @exception Xapian::UnimplementedError will be thrown if transactions
 	 *             are not available for this database type.
@@ -320,7 +328,7 @@ class WritableDatabase : public Database {
 	 */
 	void begin_transaction();
 
-	/** End the transaction currently in progress, committing the
+	/** Complete the transaction currently in progress, committing the
 	 *  modifications made to the database.
 	 *
 	 *  If this completes successfully, all the database modifications
@@ -331,8 +339,7 @@ class WritableDatabase : public Database {
 	 *  the modifications made to the database during the transaction
 	 *  will have been applied to the database.
 	 *
-	 *  Whatever occurs, after this method the transaction will no
-	 *  longer be in progress.
+	 *  In all cases the transaction will no longer be in progress.
 	 *
 	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
 	 *             while modifying the database.
@@ -348,7 +355,7 @@ class WritableDatabase : public Database {
 	 */
 	void commit_transaction();
 
-	/** End the transaction currently in progress, cancelling the
+	/** Abort the transaction currently in progress, discarding the
 	 *  potential modifications made to the database.
 	 *
 	 *  If an error occurs in this method, an exception will be thrown,

@@ -55,11 +55,11 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	/// Assignment is not allowed.
 	void operator=(const Internal &);
 
+    protected:
 	/// Flag recording whether a transaction is in progress
 	bool transaction_in_progress;
 
-    protected:
-    	/** Create a database - called only by derived classes.
+	/** Create a database - called only by derived classes.
 	 */
 	Internal();
 
@@ -89,7 +89,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
     public:
 	/** Destroy the database.
-	 *  
+	 *
 	 *  This method should not be called until all objects using the
 	 *  database have been cleaned up.
 	 *
@@ -272,27 +272,34 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  See WritableDatabase::flush() for more information.
 	 */
 	virtual void flush() {
-	    // Writable databases should override this method. 
+	    // Writable databases should override this method.
 	    Assert(false);
 	}
 
- 	/** Begin a transaction.
- 	 *
- 	 *  See WritableDatabase::begin_transaction() for more information.
- 	 */
- 	void begin_transaction();
- 
- 	/** Commit a transaction.
- 	 *
- 	 *  See WritableDatabase::commit_transaction() for more information.
- 	 */
- 	void commit_transaction();
- 
- 	/** Cancel a transaction.
- 	 *
- 	 *  See WritableDatabase::cancel_transaction() for more information.
- 	 */
- 	void cancel_transaction();
+	/** Begin a transaction.
+	 *
+	 *  See WritableDatabase::begin_transaction() for more information.
+	 */
+	void begin_transaction();
+
+	/** Commit a transaction.
+	 *
+	 *  See WritableDatabase::commit_transaction() for more information.
+	 */
+	void commit_transaction();
+
+	/** Cancel a transaction.
+	 *
+	 *  See WritableDatabase::cancel_transaction() for more information.
+	 */
+	void cancel_transaction();
+
+	/** Backend implementations of transactions. */
+	//@{
+	virtual void begin_transaction_();
+	virtual void commit_transaction_();
+	virtual void cancel_transaction_();
+	//@}
 
 	/** Add a new document to the database.
 	 *

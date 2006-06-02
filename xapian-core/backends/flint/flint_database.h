@@ -1,9 +1,8 @@
 /* flint_database.h: C++ class definition for flint database
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_FLINT_DATABASE_H
@@ -255,6 +253,9 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 
 	void do_flush_const() const;
 
+	/** Cancel any outstanding changes to the tables. */
+	void cancel();
+
 	virtual Xapian::docid add_document(const Xapian::Document & document);
 	Xapian::docid add_document_(Xapian::docid did, const Xapian::Document & document);
 	virtual void delete_document(Xapian::docid did);
@@ -291,6 +292,9 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
+	void begin_transaction_();
+	void commit_transaction_();
+	void cancel_transaction_();
 	//@}
 };
 

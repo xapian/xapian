@@ -301,18 +301,15 @@ Database::Internal::keep_alive()
 void
 Database::Internal::dtor_called()
 {
-    if (transaction_in_progress) {
-	try {
-	    transaction_in_progress = false;
-	    // cancel the current transaction
-	    throw Xapian::UnimplementedError("transactions aren't implemented");
-	} catch (...) {
-	}
-    }
-
     try {
-	flush();
+	if (transaction_in_progress) {
+	    cancel_transaction();
+	} else {
+	    flush();
+	}
     } catch (...) {
+	// We can't safely throw exceptions from a destructor in case an
+	// exception is already active and causing us to be destroyed.
     }
 }
 
@@ -321,8 +318,7 @@ Database::Internal::begin_transaction()
 {
     if (transaction_in_progress)
 	throw InvalidOperationError("Cannot begin transaction - transaction already in progress");
-    // begin transaction
-    throw Xapian::UnimplementedError("transactions aren't implemented");
+    begin_transaction_();
     transaction_in_progress = true;
 }
 
@@ -331,8 +327,8 @@ Database::Internal::commit_transaction()
 {
     if (!transaction_in_progress)
 	throw InvalidOperationError("Cannot commit transaction - no transaction currently in progress");
-    // commit transaction
-    throw Xapian::UnimplementedError("transactions aren't implemented");
+    transaction_in_progress = false;
+    commit_transaction_();
 }
 
 void
@@ -341,8 +337,30 @@ Database::Internal::cancel_transaction()
     if (!transaction_in_progress)
 	throw InvalidOperationError("Cannot cancel transaction - no transaction currently in progress");
     transaction_in_progress = false;
-    // cancel transaction
+    cancel_transaction_();
+}
+
+// Default to not implementing transactions.
+static void transactions_not_implemented() {
     throw Xapian::UnimplementedError("transactions aren't implemented");
+}
+
+void
+Database::Internal::begin_transaction_()
+{
+    transactions_not_implemented();
+}
+
+void
+Database::Internal::commit_transaction_()
+{
+    transactions_not_implemented();
+}
+
+void
+Database::Internal::cancel_transaction_()
+{
+    transactions_not_implemented();
 }
 
 Xapian::docid

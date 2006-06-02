@@ -40,6 +40,7 @@ using namespace std;
 #include "api_db.h"
 #include "api_wrdb.h"
 #include "api_anydb.h"
+#include "api_transdb.h"
 
 BackendManager backendmanager;
 
@@ -121,6 +122,7 @@ int main(int argc, char **argv)
     RUNTESTS("flint", allterms);
     RUNTESTS("flint", multivalue);
     RUNTESTS("flint", flint);
+    RUNTESTS("flint", transactiondb);
 #endif
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND

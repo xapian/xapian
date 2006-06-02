@@ -1,3 +1,11 @@
+Sat Jun 03 00:23:46 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/database.cc,backends/flint/dir_contents,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
+	  backends/quartz/dir_contents,common/database.h,
+	  include/xapian/database.h,tests/: Implement transactions for
+	  flint.
+
 Sat Jun 03 00:14:37 BST 2006  Olly Betts <olly@survex.com>
 
 	* tests/apitest.cc: Run tests on flint if flint is enabled, rather
