@@ -4,7 +4,7 @@
 This backend uses a custom written Btree management system to store
 posting lists and termlists.  This is a reasonably efficient
 backend, using compression to store the postlists.  Positional
-information is supported, but transactions aren't.  Quartz is
+information and transactions are both supported.  Quartz is
 currently the default backend, but once Flint stabilises that will
 become the default and Quartz will be deprecated and eventually
 retired.

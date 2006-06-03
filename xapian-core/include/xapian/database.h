@@ -50,6 +50,10 @@ class Document;
  */
 class Database {
     public:
+	class Internal;
+	/// @internal Reference counted internals.
+	std::vector<Xapian::Internal::RefCntPtr<Internal> > internal;
+
 	/** Add an existing database (or group of databases) to those
 	 *  accessed by this object.
 	 *
@@ -57,12 +61,6 @@ class Database {
 	 */
 	void add_database(const Database & database);
 
-    public:
-	class Internal;
-	/// @internal Reference counted internals.
-	std::vector<Xapian::Internal::RefCntPtr<Internal> > internal;
-
-    public:
 	/** Create a Database with no databases in.
 	 */
 	Database();
@@ -304,20 +302,29 @@ class WritableDatabase : public Database {
 	 *  a power failure, this characteristic should be preserved (as long
 	 *  as the filesystem isn't corrupted, etc).
 	 *
-	 *  A transaction implicitly calls flush before and after
-	 *  so that the modifications stand and fall without affecting
-	 *  modifications before or after.
-	 *
-	 *  The downside is that a lot of small transactions means that
-	 *  modifications are frequently flushed which can harm indexing
-	 *  performance in the same way that explicitly calling flush
-	 *  frequently can.
-	 *
 	 *  A transaction is started with begin_transaction() and can
 	 *  either be committed by calling commit_transaction() or aborted
 	 *  by calling cancel_transaction().
 	 *
-	 *  Transactions are only available with certain database backends.
+	 *  By default, a transaction implicitly calls flush before and after
+	 *  so that the modifications stand and fall without affecting
+	 *  modifications before or after.
+	 *
+	 *  The downside of this flushing is that small transactions cause
+	 *  modifications to be frequently flushed which can harm indexing
+	 *  performance in the same way that explicitly calling flush
+	 *  frequently can.
+	 *
+	 *  If you're applying atomic groups of changes and only wish to
+	 *  ensure that each group is either applied or not applied, then
+	 *  you can prevent the automatic flush before and after the
+	 *  transaction by starting the transaction with
+	 *  begin_transaction(false).  However, if cancel_transaction is
+	 *  called (or if commit_transaction isn't called before the
+	 *  WritableDatabase object is destroyed) then any changes which
+	 *  were pending before the transaction began will also be discarded.
+	 *
+	 *  Transactions aren't currently supported by the InMemory backend.
 	 *
 	 *  @exception Xapian::UnimplementedError will be thrown if transactions
 	 *             are not available for this database type.
@@ -326,12 +333,12 @@ class WritableDatabase : public Database {
 	 *             called at an invalid time, such as when a transaction
 	 *             is already in progress.
 	 */
-	void begin_transaction();
+	void begin_transaction(bool flushed=true);
 
-	/** Complete the transaction currently in progress, committing the
-	 *  modifications made to the database.
+	/** Complete the transaction currently in progress.
 	 *
-	 *  If this completes successfully, all the database modifications
+	 *  If this method completes successfully and this is a flushed
+	 *  transaction, all the database modifications
 	 *  made during the transaction will have been committed to the
 	 *  database.
 	 *

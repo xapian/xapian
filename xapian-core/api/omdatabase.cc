@@ -355,10 +355,10 @@ WritableDatabase::flush()
 }
 
 void
-WritableDatabase::begin_transaction()
+WritableDatabase::begin_transaction(bool flushed)
 {
     DEBUGAPICALL(void, "WritableDatabase::begin_transaction", "");
-    internal[0]->begin_transaction();
+    internal[0]->begin_transaction(flushed);
 }
 
 void

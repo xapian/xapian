@@ -249,11 +249,11 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	//@{
 	/** Implementation of virtual methods: see Database for details.
 	 */
-	virtual void flush();
+	void flush();
 
 	void do_flush_const() const;
 
-	/** Cancel any outstanding changes to the tables. */
+	/** Cancel pending modifications to the database. */
 	void cancel();
 
 	virtual Xapian::docid add_document(const Xapian::Document & document);

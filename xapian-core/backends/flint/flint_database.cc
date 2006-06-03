@@ -547,7 +547,7 @@ FlintWritableDatabase::~FlintWritableDatabase()
 void
 FlintWritableDatabase::flush()
 {
-    if (changes_made && !transaction_in_progress) do_flush_const();
+    if (changes_made && !transaction_active()) do_flush_const();
 }
 
 void
@@ -1040,22 +1040,4 @@ FlintWritableDatabase::cancel()
     doclens.clear();
     mod_plists.clear();
     changes_made = 0;
-}
-
-void
-FlintWritableDatabase::begin_transaction_()
-{
-    if (changes_made) do_flush_const();
-}
-
-void
-FlintWritableDatabase::commit_transaction_()
-{
-    if (changes_made) do_flush_const();
-}
-
-void
-FlintWritableDatabase::cancel_transaction_()
-{
-    if (changes_made) cancel();
 }

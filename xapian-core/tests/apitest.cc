@@ -121,8 +121,8 @@ int main(int argc, char **argv)
     RUNTESTS("flint", collfreq);
     RUNTESTS("flint", allterms);
     RUNTESTS("flint", multivalue);
-    RUNTESTS("flint", flint);
     RUNTESTS("flint", transactiondb);
+    RUNTESTS("flint", flint);
 #endif
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
@@ -136,6 +136,7 @@ int main(int argc, char **argv)
     RUNTESTS("quartz", collfreq);
     RUNTESTS("quartz", allterms);
     RUNTESTS("quartz", multivalue);
+    RUNTESTS("quartz", transactiondb);
     RUNTESTS("quartz", quartz);
 #endif
 

@@ -282,7 +282,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 ///////////////////////////////////////////////////////////////////////////////
 
 Database::Internal::Internal()
-	: transaction_in_progress(false)
+	: transaction_state(TRANSACTION_NONE)
 {
 }
 
@@ -302,7 +302,7 @@ void
 Database::Internal::dtor_called()
 {
     try {
-	if (transaction_in_progress) {
+	if (transaction_active()) {
 	    cancel_transaction();
 	} else {
 	    flush();
@@ -314,53 +314,84 @@ Database::Internal::dtor_called()
 }
 
 void
-Database::Internal::begin_transaction()
+Database::Internal::flush()
 {
-    if (transaction_in_progress)
+    // Writable databases should override this method.
+    Assert(false);
+}
+
+void
+Database::Internal::cancel()
+{
+    // Writable databases should override this method.
+    Assert(false);
+}
+
+void
+Database::Internal::begin_transaction(bool flushed)
+{
+    if (transaction_state != TRANSACTION_NONE) {
+	if (transaction_state == TRANSACTION_UNIMPLEMENTED)
+	    throw Xapian::UnimplementedError("This backend doesn't implement transactions");
 	throw InvalidOperationError("Cannot begin transaction - transaction already in progress");
-    begin_transaction_();
-    transaction_in_progress = true;
+    }
+    if (flushed) {
+	// N.B. Call flush() before we set transaction_state since flush()
+	// isn't allowing during a transaction.
+	flush();
+	transaction_state = TRANSACTION_FLUSHED;
+    } else {
+	transaction_state = TRANSACTION_UNFLUSHED;
+    }
 }
 
 void
 Database::Internal::commit_transaction()
 {
-    if (!transaction_in_progress)
+    if (!transaction_active()) {
+	if (transaction_state == TRANSACTION_UNIMPLEMENTED)
+	    throw Xapian::UnimplementedError("This backend doesn't implement transactions");
 	throw InvalidOperationError("Cannot commit transaction - no transaction currently in progress");
-    transaction_in_progress = false;
-    commit_transaction_();
+    }
+    bool flushed = (transaction_state == TRANSACTION_FLUSHED);
+    transaction_state = TRANSACTION_NONE;
+    // N.B. Call flush() after we clear transaction_state since flush()
+    // isn't allowing during a transaction.
+    if (flushed) flush();
 }
 
 void
 Database::Internal::cancel_transaction()
 {
-    if (!transaction_in_progress)
+    if (!transaction_active()) {
+	if (transaction_state == TRANSACTION_UNIMPLEMENTED)
+	    throw Xapian::UnimplementedError("This backend doesn't implement transactions");
 	throw InvalidOperationError("Cannot cancel transaction - no transaction currently in progress");
-    transaction_in_progress = false;
-    cancel_transaction_();
+    }
+    transaction_state = TRANSACTION_NONE;
+    cancel();
 }
 
-// Default to not implementing transactions.
-static void transactions_not_implemented() {
-    throw Xapian::UnimplementedError("transactions aren't implemented");
+Xapian::docid
+Database::Internal::add_document(const Xapian::Document &)
+{
+    // Writable databases should override this method.
+    Assert(false);
+    return 0;
 }
 
 void
-Database::Internal::begin_transaction_()
+Database::Internal::delete_document(Xapian::docid)
 {
-    transactions_not_implemented();
+    // Writable databases should override this method.
+    Assert(false);
 }
 
 void
-Database::Internal::commit_transaction_()
+Database::Internal::replace_document(Xapian::docid, const Xapian::Document &)
 {
-    transactions_not_implemented();
-}
-
-void
-Database::Internal::cancel_transaction_()
-{
-    transactions_not_implemented();
+    // Writable databases should override this method.
+    Assert(false);
 }
 
 Xapian::docid

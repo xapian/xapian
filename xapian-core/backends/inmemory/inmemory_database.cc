@@ -1,9 +1,8 @@
 /* inmemory_database.cc
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -263,6 +261,8 @@ InMemoryTermList::positionlist_begin() const
 InMemoryDatabase::InMemoryDatabase()
 	: totdocs(0), totlen(0), positions_present(false)
 {
+    // Updates are applied immediately so we can't support transactions.
+    transaction_state = TRANSACTION_UNIMPLEMENTED;
 }
 
 InMemoryDatabase::~InMemoryDatabase()
@@ -389,8 +389,15 @@ InMemoryDatabase::add_values(Xapian::docid /*did*/,
     valuelists.push_back(values_);
 }
 
+// We implicitly flush each modification right away, so nothing to do here.
 void
 InMemoryDatabase::flush()
+{
+}
+
+// We implicitly flush each modification right away, so nothing to do here.
+void
+InMemoryDatabase::cancel()
 {
 }
 

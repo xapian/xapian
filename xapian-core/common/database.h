@@ -56,8 +56,15 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	void operator=(const Internal &);
 
     protected:
-	/// Flag recording whether a transaction is in progress
-	bool transaction_in_progress;
+	/// Transaction state.
+	enum {
+	    TRANSACTION_UNIMPLEMENTED = -1, // Used by InMemory.
+	    TRANSACTION_NONE = 0,
+	    TRANSACTION_UNFLUSHED = 1,
+	    TRANSACTION_FLUSHED = 2
+	} transaction_state;
+
+	bool transaction_active() const { return int(transaction_state) > 0; }
 
 	/** Create a database - called only by derived classes.
 	 */
@@ -267,20 +274,20 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	// Modifying the database:
 	// =======================
 
-	/** Flush modifications to the database.
+	/** Flush pending modifications to the database.
 	 *
 	 *  See WritableDatabase::flush() for more information.
 	 */
-	virtual void flush() {
-	    // Writable databases should override this method.
-	    Assert(false);
-	}
+	virtual void flush();
+
+	/** Cancel pending modifications to the database. */
+	virtual void cancel();
 
 	/** Begin a transaction.
 	 *
 	 *  See WritableDatabase::begin_transaction() for more information.
 	 */
-	void begin_transaction();
+	void begin_transaction(bool flushed);
 
 	/** Commit a transaction.
 	 *
@@ -294,40 +301,23 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	void cancel_transaction();
 
-	/** Backend implementations of transactions. */
-	//@{
-	virtual void begin_transaction_();
-	virtual void commit_transaction_();
-	virtual void cancel_transaction_();
-	//@}
-
 	/** Add a new document to the database.
 	 *
 	 *  See WritableDatabase::add_document() for more information.
 	 */
-	virtual Xapian::docid add_document(const Xapian::Document & /*document*/) {
-	    // Writable databases should override this method. 
-	    Assert(false);
-	    return 0;
-	}
+	virtual Xapian::docid add_document(const Xapian::Document & document);
 
 	/** Delete a document in the database.
 	 *
 	 *  See WritableDatabase::delete_document() for more information.
 	 */
-	virtual void delete_document(Xapian::docid /*did*/) {
-	    // Writable databases should override this method. 
-	    Assert(false);
-	}
+	virtual void delete_document(Xapian::docid did);
 
 	/** Replace a given document in the database.
 	 *
 	 *  See WritableDatabase::replace_document() for more information.
 	 */
-	virtual void replace_document(Xapian::docid /*did*/, const Xapian::Document & /*document*/) {
-	    // Writable databases should override this method. 
-	    Assert(false);
-	}
+	virtual void replace_document(Xapian::docid did, const Xapian::Document & document);
 
 	/** Request and later collect a document from the database.
 	 *  Multiple documents can be requested with request_document(),

@@ -1,3 +1,14 @@
+Sat Jun 03 04:03:00 BST 2006  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/database.cc,
+	  backends/flint/flint_database.cc,backends/flint/flint_database.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,backends/quartz/dir_contents,
+	  backends/quartz/quartz_database.cc,backends/quartz/quartz_database.h,
+	  common/database.h,include/xapian/database.h,tests/apitest.cc:
+	  Rework transactions to support "unflushed" transactions, and so
+	  they work with quartz as well as with flint.
+
 Sat Jun 03 03:18:22 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Document "make check-remote".

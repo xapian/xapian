@@ -690,7 +690,7 @@ QuartzWritableDatabase::~QuartzWritableDatabase()
 void
 QuartzWritableDatabase::flush()
 {
-    if (changes_made) do_flush_const();
+    if (changes_made && !transaction_active()) do_flush_const();
 }
 
 void
@@ -789,13 +789,7 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	database_ro.cancel();
-	total_length = database_ro.record_table.get_total_length();
-	lastdocid = database_ro.get_lastdocid();
-	freq_deltas.clear();
-	doclens.clear();
-	mod_plists.clear();
-	changes_made = 0;
+	cancel();
 	throw;
     }
 
@@ -877,13 +871,7 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	database_ro.cancel();
-	total_length = database_ro.record_table.get_total_length();
-	lastdocid = database_ro.get_lastdocid();
-	freq_deltas.clear();
-	doclens.clear();
-	mod_plists.clear();
-	changes_made = 0;
+	cancel();
 	throw;
     }
 
@@ -1030,13 +1018,7 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 	// transaction, the modifications so far must be cleared before
 	// returning control to the user - otherwise partial modifications will
 	// persist in memory, and eventually get written to disk.
-	database_ro.cancel();
-	total_length = database_ro.record_table.get_total_length();
-	lastdocid = database_ro.get_lastdocid();
-	freq_deltas.clear();
-	doclens.clear();
-	mod_plists.clear();
-	changes_made = 0;
+	cancel();
 	throw;
     }
 
@@ -1191,4 +1173,16 @@ QuartzWritableDatabase::open_allterms() const
     AutoPtr<Bcursor> pl_cursor(t->cursor_get());
     RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzWritableDatabase>(this),
 				  pl_cursor, t->get_entry_count()));
+}
+
+void
+QuartzWritableDatabase::cancel()
+{
+    database_ro.cancel();
+    total_length = database_ro.record_table.get_total_length();
+    lastdocid = database_ro.get_lastdocid();
+    freq_deltas.clear();
+    doclens.clear();
+    mod_plists.clear();
+    changes_made = 0;
 }
