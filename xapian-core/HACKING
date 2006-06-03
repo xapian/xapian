@@ -98,7 +98,9 @@ Running test programs
 =====================
 
 To run all tests, use "make check".  You can also run just the subset of
-tests which exercise the remote backend using "make check-remote".
+tests which exercise the remote, quartz, or flint backend using
+"make check-remote", "make check-quartz", or "make check-flint" respectively.
+These are handy shortcuts when doing development work on a particular backend.
 
 The runtest script (in the tests subdirectory) takes care of the details of
 running the test programs (including setting up the environment so they work
