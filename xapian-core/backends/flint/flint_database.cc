@@ -547,7 +547,9 @@ FlintWritableDatabase::~FlintWritableDatabase()
 void
 FlintWritableDatabase::flush()
 {
-    if (changes_made && !transaction_active()) do_flush_const();
+    if (transaction_active())
+	throw Xapian::InvalidOperationError("Can't flush during a transaction");
+    if (changes_made) do_flush_const();
 }
 
 void
@@ -572,17 +574,16 @@ FlintWritableDatabase::add_document(const Xapian::Document & document)
 {
     DEBUGCALL(DB, Xapian::docid,
 	      "FlintWritableDatabase::add_document", document);
-    RETURN(add_document_(0, document));
+    // Use the next unused document ID.
+    RETURN(add_document_(++lastdocid, document));
 }
 
 Xapian::docid
 FlintWritableDatabase::add_document_(Xapian::docid did,
-				      const Xapian::Document & document)
+				     const Xapian::Document & document)
 {
+    Assert(did != 0);
     try {
-	// Use the next unused document ID.
-	if (did == 0) did = ++lastdocid;
-
 	// Add the record using that document ID.
 	database_ro.record_table.replace_record(document.get_data(), did);
 
@@ -660,7 +661,8 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
     // cout << "+++ mod_plists.size() " << mod_plists.size() <<
     //     ", doclens.size() " << doclens.size() <<
     //	   ", freq_deltas.size() " << freq_deltas.size() << endl;
-    if (++changes_made >= flush_threshold) flush();
+    if (++changes_made >= flush_threshold && !transaction_active())
+	do_flush_const();
 
     return did;
 }
@@ -672,13 +674,6 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
     Assert(did != 0);
 
     try {
-	if (doclens.find(did) != doclens.end()) {
-	    // This document was added or modified in the batch currently
-	    // being buffered.  This should be unusual, and it's fiddly
-	    // to handle, so we just flush and then handle as normal.
-	    do_flush_const();
-	}
-
 	// Remove the record.
 	database_ro.record_table.delete_record(did);
 
@@ -715,8 +710,15 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
 		map<docid, pair<char, termcount> > m;
 		j = mod_plists.insert(make_pair(tname, m)).first;
 	    }
-	    Assert(j->second.find(did) == j->second.end());
-	    j->second.insert(make_pair(did, make_pair('D', 0u)));
+
+	    map<docid, pair<char, termcount> >::iterator k;
+	    k = j->second.find(did);
+	    if (k == j->second.end()) {
+		j->second.insert(make_pair(did, make_pair('D', 0u)));
+	    } else {
+		// Deleting a document we added/modified since the last flush.
+		k->second = make_pair('D', 0u);
+	    }
 
 	    termlist.next();
 	}
@@ -732,25 +734,25 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
 	throw;
     }
 
-    if (++changes_made >= flush_threshold) flush();
+    if (++changes_made >= flush_threshold && !transaction_active())
+	do_flush_const();
 }
 
 void
 FlintWritableDatabase::replace_document(Xapian::docid did,
-					 const Xapian::Document & document)
+					const Xapian::Document & document)
 {
     DEBUGCALL(DB, void, "FlintWritableDatabase::replace_document", did << ", " << document);
     Assert(did != 0);
 
     try {
-	if (doclens.find(did) != doclens.end()) {
-	    // This document was added or modified in the batch currently
-	    // being buffered.  This should be unusual, and it's fiddly
-	    // to handle, so we just flush and then handle as normal.
-	    do_flush_const();
+	if (did > lastdocid) {
+	    lastdocid = did;
+	    // If this docid is above the highwatermark, then we can't be
+	    // replacing an existing document.
+	    (void)add_document_(did, document);
+	    return;
 	}
-
-	if (did > lastdocid) lastdocid = did;
 
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
@@ -779,8 +781,15 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		map<docid, pair<char, termcount> > m;
 		j = mod_plists.insert(make_pair(tname, m)).first;
 	    }
-	    Assert(j->second.find(did) == j->second.end());
-	    j->second.insert(make_pair(did, make_pair('D', 0u)));
+
+	    map<docid, pair<char, termcount> >::iterator k;
+	    k = j->second.find(did);
+	    if (k == j->second.end()) {
+		j->second.insert(make_pair(did, make_pair('D', 0u)));
+	    } else {
+		// Modifying a document we added/modified since the last flush.
+		k->second = make_pair('D', 0u);
+	    }
 
 	    termlist.next();
 	}
@@ -870,6 +879,7 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	total_length += new_doclen;
     } catch (const Xapian::DocNotFoundError &) {
 	(void)add_document_(did, document);
+	return;
     } catch (...) {
 	// If an error occurs while replacing a document, or doing any other
 	// transaction, the modifications so far must be cleared before
@@ -879,7 +889,8 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	throw;
     }
 
-    if (++changes_made >= flush_threshold) flush();
+    if (++changes_made >= flush_threshold && !transaction_active())
+	do_flush_const();
 }
 
 Xapian::doccount
@@ -962,28 +973,28 @@ FlintWritableDatabase::do_open_post_list(const string& tname) const
     // Need to flush iff we've got buffered changes to this term's postlist.
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
     j = mod_plists.find(tname);
-    if (j != mod_plists.end()) do_flush_const();
+    if (j != mod_plists.end()) {
+	if (transaction_active())
+	    throw Xapian::UnimplementedError("Can't open modified postlist during a transaction");
+	do_flush_const();
+    }
 
     Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
     return(new FlintPostList(ptrtothis,
-			      &database_ro.postlist_table,
-			      &database_ro.positionlist_table,
-			      tname));
+			     &database_ro.postlist_table,
+			     &database_ro.positionlist_table,
+			     tname));
 }
 
 LeafTermList *
 FlintWritableDatabase::open_term_list(Xapian::docid did) const
 {
-    DEBUGCALL(DB, LeafTermList *, "FlintWritableDatabase::open_term_list",
-	      did);
+    DEBUGCALL(DB, LeafTermList *, "FlintWritableDatabase::open_term_list", did);
     Assert(did != 0);
-
-    // Only need to flush if document #did has been modified.
-    if (doclens.find(did) != doclens.end()) do_flush_const();
 
     Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
     RETURN(new FlintTermList(ptrtothis, &database_ro.termlist_table, did,
-			      get_doccount()));
+			     get_doccount()));
 }
 
 Xapian::Document::Internal *
@@ -995,9 +1006,9 @@ FlintWritableDatabase::open_document(Xapian::docid did, bool lazy) const
 
     Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
     RETURN(new FlintDocument(ptrtothis,
-			      &database_ro.value_table,
-			      &database_ro.record_table,
-			      did, lazy));
+			     &database_ro.value_table,
+			     &database_ro.record_table,
+			     did, lazy));
 }
 
 PositionList *
@@ -1024,6 +1035,8 @@ TermList *
 FlintWritableDatabase::open_allterms() const
 {
     DEBUGCALL(DB, TermList *, "FlintWritableDatabase::open_allterms", "");
+    if (transaction_active())
+	throw Xapian::UnimplementedError("Can't open allterms iterator during a transaction");
     // Terms may have been added or removed, so we need to flush.
     do_flush_const();
     RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),

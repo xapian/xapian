@@ -1,3 +1,16 @@
+Sat Jun 03 21:38:43 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_termlist.cc,
+	  backends/quartz/quartz_database.cc,tests/api_wrdb.cc: We can't flush
+	  during a transaction, which means that we can't use flush to avoid
+	  having to handle corner cases (like deleting a document right after
+	  adding it before it's been flushed) so handle corner cases properly
+	  (except for postlist_begin() and allterms_begin() which are
+	  harder - these now throw UnimplementedError at least...)
+	* backends/flint/flint_database.cc,backends/quartz/quartz_database.cc:
+	  replace_document(did, doc) was double-incrementing the "changes"
+	  counter when document did didn't exist - fixed.
+
 Sat Jun 03 17:53:41 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Document "make check-flint" and "make check-quartz".

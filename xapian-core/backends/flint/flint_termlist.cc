@@ -1,9 +1,8 @@
 /* flint_termlist.cc: Termlists in a flint database
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -38,7 +36,7 @@ FlintTermListTable::set_entries(Xapian::docid did,
 			    flint_doclen_t doclen_,
 			    bool store_termfreqs)
 {
-    DEBUGCALL(DB, void, "FlintTermList::set_entries", did << ", " << t << ", " << t_end << ", " << doclen_ << ", " << store_termfreqs);
+    DEBUGCALL(DB, void, "FlintTermListTable::set_entries", did << ", " << t << ", " << t_end << ", " << doclen_ << ", " << store_termfreqs);
     string tag = pack_uint(doclen_);
 
     string v;
@@ -80,13 +78,13 @@ FlintTermListTable::set_entries(Xapian::docid did,
     tag += v;
     add(flint_docid_to_key(did), tag);
 
-    DEBUGLINE(DB, "FlintTermList::set_entries() - new entry is `" + tag + "'");
+    DEBUGLINE(DB, "FlintTermListTable::set_entries() - new entry is `" + tag + "'");
 }
 
 void
 FlintTermListTable::delete_termlist(Xapian::docid did)
 {
-    DEBUGCALL_STATIC(DB, void, "FlintTermList::delete_termlist", did);
+    DEBUGCALL_STATIC(DB, void, "FlintTermListTable::delete_termlist", did);
     del(flint_docid_to_key(did));
 }
 

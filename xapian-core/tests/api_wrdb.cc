@@ -1,10 +1,9 @@
 /* api_wrdb.cc: tests which need a writable backend
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,9 +17,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -570,6 +568,52 @@ static bool test_deldoc4()
     return true;
 }
 
+// Test deleting a document which was added in the same batch.
+static bool test_deldoc5()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    Xapian::Document doc1;
+
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("bar", 2);
+    doc1.add_posting("aardvark", 3);
+
+    Xapian::docid did = db.add_document(doc1);
+    TEST_EQUAL(did, 1);
+
+    doc1.remove_term("bar");
+    doc1.add_term("hello");
+
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 2);
+
+    doc1.add_term("world", 1);
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 3);
+
+    db.delete_document(2);
+
+    db.flush();
+
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
+
+    TEST_EQUAL(db.get_termfreq("foo"), 2);
+    TEST_EQUAL(db.get_termfreq("aardvark"), 2);
+    TEST_EQUAL(db.get_termfreq("hello"), 1);
+
+    Xapian::PostingIterator p = db.postlist_begin("foo");
+    TEST_NOT_EQUAL(p, db.postlist_end("foo"));
+    TEST_EQUAL(*p, 1);
+    ++p;
+    TEST_NOT_EQUAL(p, db.postlist_end("foo"));
+    TEST_EQUAL(*p, 3);
+    ++p;
+    TEST_EQUAL(p, db.postlist_end("foo"));
+
+    return true;
+}
+
 static bool test_replacedoc1()
 {
     Xapian::WritableDatabase db = get_writable_database("");
@@ -665,6 +709,126 @@ static bool test_replacedoc2()
     TEST_EQUAL(db.get_doccount(), 2);
 
     TEST_EXCEPTION(Xapian::InvalidArgumentError, db.replace_document(0, doc2));
+
+    return true;
+}
+
+// Test replacing a document which was added in the same batch.
+static bool test_replacedoc3()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    Xapian::Document doc1;
+
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("bar", 2);
+    doc1.add_posting("aardvark", 3);
+
+    Xapian::docid did = db.add_document(doc1);
+    TEST_EQUAL(did, 1);
+
+    doc1.remove_term("bar");
+    doc1.add_term("hello");
+
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 2);
+
+    doc1.add_term("world", 1);
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 3);
+
+    Xapian::Document doc2;
+    doc2.add_term("world");
+    db.replace_document(2, doc2);
+
+    db.flush();
+
+    // Check that the document exists (no DocNotFoundError).
+    doc2 = db.get_document(2);
+
+    TEST_EQUAL(db.get_termfreq("foo"), 2);
+    TEST_EQUAL(db.get_termfreq("aardvark"), 2);
+    TEST_EQUAL(db.get_termfreq("hello"), 1);
+    TEST_EQUAL(db.get_termfreq("world"), 2);
+
+    Xapian::PostingIterator p = db.postlist_begin("foo");
+    TEST_NOT_EQUAL(p, db.postlist_end("foo"));
+    TEST_EQUAL(*p, 1);
+    ++p;
+    TEST_NOT_EQUAL(p, db.postlist_end("foo"));
+    TEST_EQUAL(*p, 3);
+    ++p;
+    TEST_EQUAL(p, db.postlist_end("foo"));
+
+    p = db.postlist_begin("world");
+    TEST_NOT_EQUAL(p, db.postlist_end("world"));
+    TEST_EQUAL(*p, 2);
+    ++p;
+    TEST_NOT_EQUAL(p, db.postlist_end("world"));
+    TEST_EQUAL(*p, 3);
+    ++p;
+    TEST_EQUAL(p, db.postlist_end("world"));
+
+    return true;
+}
+
+// Test replacing a document which was deleted in the same batch.
+static bool test_replacedoc4()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    Xapian::Document doc1;
+
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("bar", 2);
+    doc1.add_posting("aardvark", 3);
+
+    Xapian::docid did = db.add_document(doc1);
+    TEST_EQUAL(did, 1);
+
+    doc1.remove_term("bar");
+    doc1.add_term("hello");
+
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 2);
+
+    doc1.add_term("world", 1);
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 3);
+
+    db.delete_document(2);
+
+    Xapian::Document doc2;
+    doc2.add_term("world");
+    db.replace_document(2, doc2);
+
+    db.flush();
+
+    // Check that the document exists (no DocNotFoundError).
+    doc2 = db.get_document(2);
+
+    TEST_EQUAL(db.get_termfreq("foo"), 2);
+    TEST_EQUAL(db.get_termfreq("aardvark"), 2);
+    TEST_EQUAL(db.get_termfreq("hello"), 1);
+    TEST_EQUAL(db.get_termfreq("world"), 2);
+
+    Xapian::PostingIterator p = db.postlist_begin("foo");
+    TEST_NOT_EQUAL(p, db.postlist_end("foo"));
+    TEST_EQUAL(*p, 1);
+    ++p;
+    TEST_NOT_EQUAL(p, db.postlist_end("foo"));
+    TEST_EQUAL(*p, 3);
+    ++p;
+    TEST_EQUAL(p, db.postlist_end("foo"));
+
+    p = db.postlist_begin("world");
+    TEST_NOT_EQUAL(p, db.postlist_end("world"));
+    TEST_EQUAL(*p, 2);
+    ++p;
+    TEST_NOT_EQUAL(p, db.postlist_end("world"));
+    TEST_EQUAL(*p, 3);
+    ++p;
+    TEST_EQUAL(p, db.postlist_end("world"));
 
     return true;
 }
@@ -840,8 +1004,11 @@ test_desc writabledb_tests[] = {
     {"deldoc2",		   test_deldoc2},
     {"deldoc3",		   test_deldoc3},
     {"deldoc4",		   test_deldoc4},
+    {"deldoc5",		   test_deldoc5},
     {"replacedoc1",	   test_replacedoc1},
     {"replacedoc2",	   test_replacedoc2},
+    {"replacedoc3",	   test_replacedoc3},
+    {"replacedoc4",	   test_replacedoc4},
     {"uniqueterm1",	   test_uniqueterm1},
     {"phraseorneartoand1", test_phraseorneartoand1},
     {"longpositionlist1",  test_longpositionlist1},
