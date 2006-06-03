@@ -97,6 +97,9 @@ VALGRIND= ./runtest ./apitest
 Running test programs
 =====================
 
+To run all tests, use "make check".  You can also run just the subset of
+tests which exercise the remote backend using "make check-remote".
+
 The runtest script (in the tests subdirectory) takes care of the details of
 running the test programs (including setting up the environment so they work
 when srcdir != builddir and handling libtool dynamically linked binaries).  To

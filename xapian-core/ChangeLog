@@ -1,3 +1,7 @@
+Sat Jun 03 03:18:22 BST 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Document "make check-remote".
+
 Sat Jun 03 00:23:46 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/database.cc,backends/flint/dir_contents,
