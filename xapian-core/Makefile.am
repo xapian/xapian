@@ -9,6 +9,16 @@ remote_subdirs = net
 LIBNET_LA = net/libnet.la
 endif
 
+if BUILD_BACKEND_FLINT
+check-flint:
+	$(MAKE) -C tests check-flint
+endif
+
+if BUILD_BACKEND_FLINT
+check-quartz:
+	$(MAKE) -C tests check-quartz
+endif
+
 # Order is relevant: when building, tests must be last.
 # FIXME: when installing, should we install the xapian-config script and
 # xapian.m4 last, in case of failure (disk full for example)?

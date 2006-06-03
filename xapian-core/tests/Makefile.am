@@ -6,16 +6,26 @@ TESTS_ENVIRONMENT = ./runtest
 
 if BUILD_BACKEND_REMOTE
 check-remote: remotetest$(EXEEXT) apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./remotetest
-	$(TESTS_ENVIRONMENT) ./apitest -b remote
+	$(TESTS_ENVIRONMENT) ./remotetest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remote
 
 remote_check_programs = remotetest
 remote_tests = remotetest$(EXEEXT)
 endif
 
 if BUILD_BACKEND_QUARTZ
+check-quartz: btreetest$(EXEEXT) quartztest$(EXEEXT) apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./btreetest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./quartztest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b quartz
+
 quartz_check_programs = btreetest quartztest
 quartz_tests= btreetest$(EXEEXT) quartztest$(EXEEXT)
+endif
+
+if BUILD_BACKEND_FLINT
+check-flint: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b flint
 endif
 
 ## Test programs to be run

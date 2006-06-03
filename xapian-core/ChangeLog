@@ -1,3 +1,9 @@
+Sat Jun 03 17:49:25 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,tests/Makefile.am: Added make targets "check-flint" and
+	  "check-quartz" which run the subset of tests which test the flint
+	  and quartz backends respectively.
+
 Sat Jun 03 04:03:00 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/database.cc,
