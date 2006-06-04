@@ -88,20 +88,27 @@ class FlintPostListTable : public FlintTable {
 /** A postlist in a flint database.
  */
 class FlintPostList : public LeafPostList {
-    private:
+    protected: // FlintModifiedPostList needs to access these.
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us.
 	 */
 	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db;
 
+	/// The termname for this postlist.
+	string tname;
+
+	/// Whether we've started reading the list yet.
+	bool have_started;
+
+	/// The position list object for this posting list.
+	FlintPositionList positionlist;
+
+    private:
 	/// The table containing the postlist.
 	const FlintTable * table;
 
 	/// The table containing positionlists.
 	const FlintTable * positiontable;
-
-	/// The termname for this postlist.
-	string tname;
 
 	/// Cursor pointing to current chunk of postlist.
 	AutoPtr<FlintCursor> cursor;
@@ -133,17 +140,12 @@ class FlintPostList : public LeafPostList {
 	/// Whether we've run off the end of the list yet.
 	bool is_at_end;
 
-	/// Whether we've started reading the list yet.
-	bool have_started;
-
 	/// The number of entries in the posting list.
 	Xapian::doccount number_of_entries;
 
 	/// The number of occurrences of the term in the posting list.
 	Xapian::termcount collection_freq;
 
-	/// The position list object for this posting list.
-	FlintPositionList positionlist;
 
 	/// Copying is not allowed.
 	FlintPostList(const FlintPostList &);

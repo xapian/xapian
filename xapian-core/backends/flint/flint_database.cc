@@ -32,6 +32,7 @@
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
 
+#include "flint_modifiedpostlist.h"
 #include "flint_postlist.h"
 #include "flint_termlist.h"
 #include "flint_positionlist.h"
@@ -970,17 +971,21 @@ FlintWritableDatabase::do_open_post_list(const string& tname) const
     DEBUGCALL(DB, LeafPostList *, "FlintWritableDatabase::do_open_post_list", tname);
     Assert(!tname.empty());
 
-    // Need to flush iff we've got buffered changes to this term's postlist.
+    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
+
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
     j = mod_plists.find(tname);
     if (j != mod_plists.end()) {
-	if (transaction_active())
-	    throw Xapian::UnimplementedError("Can't open modified postlist during a transaction");
-	do_flush_const();
+	// We've got buffered changes to this term's postlist, so we need to
+	// use a FlintModifiedPostList.
+	RETURN(new FlintModifiedPostList(ptrtothis,
+				 &database_ro.postlist_table,
+				 &database_ro.positionlist_table,
+				 tname,
+				 j->second));
     }
 
-    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
-    return(new FlintPostList(ptrtothis,
+    RETURN(new FlintPostList(ptrtothis,
 			     &database_ro.postlist_table,
 			     &database_ro.positionlist_table,
 			     tname));

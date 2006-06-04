@@ -6,6 +6,7 @@ noinst_HEADERS =       flint_types.h \
                        flint_database.h \
 		       flint_termlist.h \
 		       flint_postlist.h \
+		       flint_modifiedpostlist.h \
 		       flint_positionlist.h \
 		       flint_record.h \
 		       flint_values.h \
@@ -22,6 +23,7 @@ noinst_HEADERS =       flint_types.h \
 libflint_la_SOURCES =  flint_database.cc \
 		       flint_termlist.cc \
 		       flint_postlist.cc \
+		       flint_modifiedpostlist.cc \
 		       flint_positionlist.cc \
 		       flint_record.cc \
 		       flint_values.cc \

@@ -1,3 +1,8 @@
+Sun Jun 04 17:36:01 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/: Remove forced flush when iterating the posting list
+	  of a term which has modified posting pending.
+
 Sat Jun 03 21:38:43 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc,backends/flint/flint_termlist.cc,

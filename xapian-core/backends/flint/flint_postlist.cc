@@ -695,12 +695,12 @@ FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const Xapian::Database:
 			       const FlintTable * positiontable_,
 			       const string & tname_)
 	: this_db(this_db_),
+	  tname(tname_),
+	  have_started(false),
 	  table(table_),
 	  positiontable(positiontable_),
-	  tname(tname_),
 	  cursor(table->cursor_get()),
-	  is_at_end(false),
-	  have_started(false)
+	  is_at_end(false)
 {
     DEBUGCALL(DB, void, "FlintPostList::FlintPostList",
 	      this_db_.get() << ", " << table_ << ", " <<
@@ -726,7 +726,7 @@ FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const Xapian::Database:
 			      &number_of_entries, &collection_freq);
     first_did_in_chunk = did;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
-	    				    &is_last_chunk);
+					    &is_last_chunk);
     read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
 
@@ -794,7 +794,7 @@ FlintPostList::next_chunk()
 
     first_did_in_chunk = did;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
-	    				    &is_last_chunk);
+					    &is_last_chunk);
     read_wdf_and_length(&pos, end, &wdf, &doclength);
 }
 
@@ -896,7 +896,7 @@ FlintPostList::move_to_chunk_containing(Xapian::docid desired_did)
 
     first_did_in_chunk = did;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
-	    				    &is_last_chunk);
+					    &is_last_chunk);
     read_wdf_and_length(&pos, end, &wdf, &doclength);
 
     // Possible, since desired_did might be after end of this chunk and before
