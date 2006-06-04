@@ -19,10 +19,11 @@ chomp($inc);
 my $libsvar = 'LIBS';
 my $libs = `$xapian_config --libs 2> /dev/null`;
 chomp($libs);
-if ($?) {
+my ($xapian_config_dir) = $xapian_config =~ /^(.*?)[^\/]*$/;
+if ($? || -f "$xapian_config_dir/Makefile") {
     # Assume we're being asked to build against an uninstalled xapian-core.
-    my $libtool = $xapian_config;
-    unless ($libtool =~ s/\bxapian-config$/libtool/ && -x $libtool) {
+    my $libtool = "$xapian_config_dir/libtool";
+    unless (-x $libtool) {
 	die "You've asked me to link against what appears to be an uninstalled xapian-core tree, but I can't find libtool in that tree\n";
     }
 
@@ -43,7 +44,8 @@ WriteMakefile(
     'PREREQ_PM'		=> {}, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM => 'Xapian.pm', # retrieve abstract from module
-       AUTHOR     => 'Alex Bowley <kilinrax@cpan.org>') : ()),
+       AUTHOR     => 'Alex Bowley <xapian-discuss@lists.xapian.org>') : ()),
+#       AUTHOR     => 'Alex Bowley <kilinrax@cpan.org>') : ()),
     $libsvar		=> $libs, # e.g., '-lm'
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
     'CC'                => $CC,

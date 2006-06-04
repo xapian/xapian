@@ -1,7 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
-0.9.6.0  ??? May ?? ??:??:?? 2006
+0.9.6.0  Sun Jun 04 01:14:00 2006
 	[Changes contributed by Olly Betts]
+	- Alex's CPAN email address bounces, so change occurences of it
+	  to direct users to the xapian-discuss mailing list for now.
 	- Correct several occurrences of "Xapian::Search::" to
 	  "Search::Xapian::".
 	- Wrap Enquire::set_docid_order (and document set_sort_forward
