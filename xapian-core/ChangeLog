@@ -1,3 +1,9 @@
+Thu Jun 08 21:36:54 BST 2006  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Don't fetch the document data when fetching
+	  the value to sort on.  Simple benchmarking showed this to speed
+	  up sort by value by a factor of between 3 and 9!
+
 Sun Jun 04 17:36:01 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/: Remove forced flush when iterating the posting list

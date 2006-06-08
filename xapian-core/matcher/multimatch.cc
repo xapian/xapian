@@ -437,8 +437,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
 	if (sort_key != Xapian::valueno(-1)) {
-	    Xapian::Document doc = db.get_document(new_item.did);
-	    new_item.sort_key = doc.get_value(sort_key);
+	    const unsigned int multiplier = db.internal.size();
+	    Assert(multiplier != 0);
+	    Xapian::doccount n = (new_item.did - 1) % multiplier; // which actual database
+	    Xapian::docid m = (new_item.did - 1) / multiplier + 1; // real docid in that database
+	    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc(db.internal[n]->open_document(m, true));
+	    new_item.sort_key = doc->get_value(sort_key);
 	}
 
 	// Test if item has high enough weight (or sort key) to get into
