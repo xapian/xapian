@@ -739,7 +739,7 @@ class WritableDatabase : public Database {
 
 	void flush();
 
-	void begin_transaction();
+	void begin_transaction(bool flushed = true);
 	void commit_transaction();
 	void cancel_transaction();
 
