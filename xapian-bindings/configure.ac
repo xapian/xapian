@@ -521,8 +521,16 @@ if test no != "$with_java" ; then
     dnl So we could check for that if we want to check for a particular
     dnl JDK version...
     java_ok=no
-    AC_CHECK_HEADER(jni.h, [java_ok=yes],
-      [test yes = "$with_java" && AC_MSG_ERROR([jni.h not found])])
+    AC_CHECK_HEADER(jni.h, [java_ok=yes],[
+      dnl We need to look for jni.h in /usr/lib/jvm/java-gcj/include on some
+      dnl Debian and Ubuntu boxes at least.
+      SAVE_CPPFLAGS=$CPPFLAGS
+      CPPFLAGS="$CPPFLAGS -I/usr/lib/jvm/java-gcj/include"
+      AC_CHECK_HEADER(jni.h,
+	[java_ok=yes;JAVA_CPPFLAGS=-I/usr/lib/jvm/java-gcj/include],
+	[test yes = "$with_java" && AC_MSG_ERROR([jni.h not found])])
+      CPPFLAGS=$SAVE_CPPFLAGS])
+    AC_SUBST(JAVA_CPPFLAGS)
     if test yes = $java_ok ; then
       AC_MSG_CHECKING([for Java path separator])
       [echo 'public class conftest { public static void main(String[] args) { System.out.println(System.getProperty("path.separator")); } }' > conftest.java]
