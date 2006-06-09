@@ -304,7 +304,7 @@ void
 Xapian::Document::Internal::add_value(Xapian::valueno valueno, const string &value)
 {
     need_values();
-    values.insert(make_pair(valueno, value));	
+    values[valueno] = value;
     value_nos.clear();
 }
 

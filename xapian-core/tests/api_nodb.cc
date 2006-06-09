@@ -314,6 +314,17 @@ static bool test_nosuchdb1()
     return true;
 }
 
+// Regression test for add_value on an existing value (bug#82).
+static bool test_addvalue1()
+{
+    Xapian::Document doc;
+    doc.add_value(1, "original");
+    doc.add_value(1, "replacement");
+    TEST_EQUAL(doc.get_value(1), "replacement");
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -331,5 +342,6 @@ test_desc nodb_tests[] = {
     {"stemlangs1",	   test_stemlangs1},
     {"weight1",		   test_weight1},
     {"nosuchdb1",	   test_nosuchdb1},
+    {"addvalue1",	   test_addvalue1},
     {0, 0}
 };

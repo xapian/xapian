@@ -1,3 +1,9 @@
+Fri Jun 09 01:48:25 BST 2006  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,tests/api_nodb.cc: add_value failed to replace an
+	  existing value with the same number, contrary to what the
+	  documentation says (bug #82).
+
 Thu Jun 08 21:36:54 BST 2006  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Don't fetch the document data when fetching
