@@ -1,8 +1,12 @@
 xapian-bindings (0.9.6-2) unstable; urgency=low
 
+  * dh_strip checks for nostrip in DEB_BUILD_OPTIONS, so we don't need to.
+  * configure with --disable-depending-tracking to reduce build time and
+    space requirements a little.
+  * Fix debian/control generation not to leave a partial file if interrupted.
   * Add packages for the Ruby bindings, built for Ruby 1.8.
 
- -- Olly Betts <olly@survex.com>  Tue, 17 May 2006 02:10:10 +0100
+ -- Olly Betts <olly@survex.com>  Fri,  9 Jun 2006 02:33:10 +0100
 
 xapian-bindings (0.9.6-1) unstable; urgency=low
 

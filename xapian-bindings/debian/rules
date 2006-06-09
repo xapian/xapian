@@ -59,9 +59,6 @@ ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 else
 	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
 endif
-ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	INSTALL_PROGRAM += -s
-endif
 
 # Build depends for Python.  We need python itself for dh_python to work.
 BUILD_DEPS += python, $(PYTHON_VERSIONS:%=python%-dev,)
@@ -89,6 +86,9 @@ commonconfflags := \
 	--infodir=\$${prefix}/share/info \
 	--sysconfdir=/etc
 
+# With GCC3 and later this won't make a huge difference, but it'll save
+# a bit of time and diskspace while building.
+commonconfflags += --disable-dependency-tracking
 
 maint: debian/control
 
@@ -96,13 +96,16 @@ maintclean: clean
 	rm -f debian/control
 
 debian/control: debian/rules debian/control.in debian/control-python.in
-	sed "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" debian/control.in > debian/control
+	rm -f debian/control.tmp
+	sed "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" debian/control.in \
+	    > debian/control.tmp
 	for v in $(PYTHON_VERSIONS); do \
 	    sed "s/@PYTHON_VERSION@/$$v/g" debian/control-python.in ;\
-	done >> debian/control
+	done >> debian/control.tmp
 	for v in $(PHP_VERSIONS); do \
 	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
-	done >> debian/control
+	done >> debian/control.tmp
+	mv debian/control.tmp debian/control
 
 configure: debian/configure-stamp
 debian/configure-stamp:
