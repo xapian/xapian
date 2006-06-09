@@ -55,6 +55,10 @@ commonconfflags := \
 	--infodir=\$${prefix}/share/info \
 	--sysconfdir=/etc
 
+# With GCC3 and later this won't make a huge difference, but it'll save
+# a bit of time and diskspace while building.
+commonconfflags += --disable-dependency-tracking
+
 maint: \
 	debian/control \
 	debian/libxapian$(libxapian_soversion).install \

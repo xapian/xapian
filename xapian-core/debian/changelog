@@ -2,8 +2,10 @@ xapian-core (0.9.6-2) unstable; urgency=low
 
   * dh_strip handles nostrip in DEB_BUILD_OPTIONS for us, so there's no
     need to check by hand.
+  * configure with --disable-dependency-tracking which will save us some
+    diskspace and a little time during the build.
 
- -- Olly Betts <olly@survex.com>  Thu, 18 May 2006 01:01:10 +0100
+ -- Olly Betts <olly@survex.com>  Fri,  9 Jun 2006 02:29:10 +0100
  
 xapian-core (0.9.6-1) unstable; urgency=low
 
