@@ -1,3 +1,8 @@
+Fri Jun 09 13:51:03 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Add note that FLAG_WILDCARD requires
+	  you to call set_database.
+
 Fri Jun 09 13:49:34 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Don't compile query serialisation if the

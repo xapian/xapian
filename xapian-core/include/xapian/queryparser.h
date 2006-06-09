@@ -59,7 +59,7 @@ class SimpleStopper : public Stopper {
     template <class Iterator>
     SimpleStopper(Iterator begin, Iterator end) : stop_words(begin, end) { }
 #else
-    // Sun's C++ doesn't cope with the Iterator points to const char *.
+    // Sun's C++ doesn't cope with the Iterator pointing to const char *.
     template <class Iterator>
     SimpleStopper(Iterator begin, Iterator end) {
 	while (begin != end) stop_words.insert(*begin++);
@@ -99,7 +99,11 @@ class QueryParser {
 	FLAG_LOVEHATE = 4,
 	/// Support AND, OR, etc even if they aren't in ALLCAPS.
 	FLAG_BOOLEAN_ANY_CASE = 8,
-	/// Support right truncation (e.g. Xap*).
+	/** Support right truncation (e.g. Xap*).
+	 *
+	 *  NB: You need to tell the QueryParser object which database to
+	 *  expand wildcards from using set_database.
+	 */
 	FLAG_WILDCARD = 16
     } feature_flag;
 
