@@ -44,6 +44,10 @@ commonconfflags := \
 
 # With GCC3 and later this won't make a huge difference, but it'll save
 # a bit of time and diskspace while building.
+# With GCC3 and later this won't make a huge difference, but it'll save
+# a bit of time and diskspace while building.
+commonconfflags += --disable-dependency-tracking
+
 commonconfflags += --disable-dependency-tracking
 
 configure: configure-stamp
@@ -114,4 +118,4 @@ clean:
 	dh_clean
 	rm -f build-stamp configure-stamp
 
-.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean
+.PHONY: configure build install binary binary-arch binary-indep clean
