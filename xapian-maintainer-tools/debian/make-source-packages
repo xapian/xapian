@@ -86,7 +86,7 @@ if [ -n "$1" ] ; then
 fi
 
 # Check that the component is sane.
-if expr "$COMPONENT" : '\('"`echo \"$COMPONENTS\"|sed 's/|/\\\\|/g'`"'\)$'
+if expr "$COMPONENT" : '\('"`echo \"$COMPONENTS\"|sed 's/|/\\\\|/g'`"'\)$' >/dev/null
 then
   echo "Building for $COMPONENT"
 else
@@ -139,13 +139,13 @@ DEBTAG_OMEGA="$DEBTAG_BASE`svn cat ${SVNROOT}/trunk/xapian-applications/omega/de
 # to add a bit to the debian version number, to avoid conflicts with the
 # package in unstable.  For Ubuntu we add ".99$COMPONENT" since it should sort
 # before any other modification.  For stable we decrement the change number
-# and append .stable.1.
+# and append stable1.
 case $COMPONENT in
 unstable)
   EXTRA_VERSION_DEBIAN=
   ;;
 stable)
-  EXTRA_VERSION_DEBIAN=".$COMPONENT.1"
+  EXTRA_VERSION_DEBIAN="${COMPONENT}1"
   CHANGE_MSG="$CHANGE_MSG  * Backported to $COMPONENT distribution.
 "
   ;;
@@ -181,9 +181,9 @@ fi
 rm -rf control
 mkdir -p control
 cd control
-  svn co -q ${SVNROOT}/tags/${DEBTAG_CORE}/xapian-core xapian-core
-  svn co -q ${SVNROOT}/tags/${DEBTAG_BINDINGS}/xapian-bindings xapian-bindings
-  svn co -q ${SVNROOT}/tags/${DEBTAG_OMEGA}/xapian-omega xapian-omega
+  svn export -q ${SVNROOT}/tags/${DEBTAG_CORE}/xapian-core xapian-core
+  svn export -q ${SVNROOT}/tags/${DEBTAG_BINDINGS}/xapian-bindings xapian-bindings
+  svn export -q ${SVNROOT}/tags/${DEBTAG_OMEGA}/xapian-omega xapian-omega
 cd ..
 
 # TARGETDIR is the location that all generated files will be stored in.
@@ -254,7 +254,7 @@ else
   rm -rf origsrc
   mkdir -p origsrc
   cd origsrc
-    svn co ${SVNROOT}/${SVNTAG}/ xapian
+    svn export ${SVNROOT}/${SVNTAG}/ xapian
     cd xapian
       ./bootstrap
       ./configure --enable-maintainer-mode
@@ -316,7 +316,6 @@ cd build
   cd xapian-core-${SNAP_VERSION}
     mkdir -p debian
     cp -af ../../control/xapian-core/* debian/
-    rm -rf debian/.svn
     adjust_changelog
     # Generates control from control.in
     debian/rules COMPONENT=$COMPONENT 
@@ -329,7 +328,6 @@ cd build
   cd xapian-bindings-${SNAP_VERSION}
     mkdir -p debian
     cp -af ../../control/xapian-bindings/* debian/
-    rm -rf debian/.svn
     adjust_changelog
     if [ -r debian/patch ]; then
       patch -p0 <debian/patch
@@ -346,7 +344,6 @@ cd build
   cd xapian-omega-${SNAP_VERSION}
     mkdir -p debian
     cp -af ../../control/xapian-omega/* debian/
-    rm -rf debian/.svn
     adjust_changelog
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
   cd ..
