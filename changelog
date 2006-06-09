@@ -4,8 +4,9 @@ xapian-omega (0.9.6-2) unstable; urgency=low
     need to check by hand.
   * configure with --disable-dependency-tracking which will save us some
     diskspace and a little time during the build.
+  * We don't have maint or maint-clean targets, so remove them from .PHONY.
 
- -- Olly Betts <olly@survex.com>  Fri,  9 Jun 2006 02:27:07 +0100
+ -- Olly Betts <olly@survex.com>  Fri,  9 Jun 2006 02:32:07 +0100
 
 xapian-omega (0.9.6-1) unstable; urgency=low
 
