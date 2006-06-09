@@ -34,9 +34,6 @@ ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 else
 	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
 endif
-ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	INSTALL_PROGRAM += -s
-endif
 
 commonconfflags := \
 	$(confflags) \
@@ -45,6 +42,9 @@ commonconfflags := \
 	--infodir=\$${prefix}/share/info \
 	--sysconfdir=/etc
 
+# With GCC3 and later this won't make a huge difference, but it'll save
+# a bit of time and diskspace while building.
+commonconfflags += --disable-dependency-tracking
 
 configure: configure-stamp
 configure-stamp:
