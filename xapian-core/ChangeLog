@@ -1,3 +1,8 @@
+Fri Jun 09 13:49:34 BST 2006  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Don't compile query serialisation if the
+	  remote backend is disabled.
+
 Fri Jun 09 01:48:25 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc,tests/api_nodb.cc: add_value failed to replace an
