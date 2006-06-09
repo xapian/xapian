@@ -1,3 +1,8 @@
+Fri Jun 09 15:21:07 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.html: Add pointer to set_database when describing
+	  FLAG_WILDCARD.
+
 Fri Jun 09 13:51:03 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Add note that FLAG_WILDCARD requires

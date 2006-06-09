@@ -62,7 +62,10 @@ useful for users, but omega uses it sometimes for terms added from topterms.
 <P>The QueryParser supports using a trailing '*' wildcard, which matches any
 number of trailing characters, so <code>wildc*</code> would match wildcard,
 wildcarded, wildcards, wildcat, wildcats, etc.  This feature is disabled
-by default - pass Xapian::QueryParser::FLAG_WILDCARD in the flags argument
-to Xapian::QueryParser::parse_query() to enable it.
+by default - pass <code>Xapian::QueryParser::FLAG_WILDCARD</code> in the flags
+argument of
+<code>Xapian::QueryParser::parse_query(<i>query_string</i>, <i>flags</i>)</code>
+to enable it, and tell the QueryParser which database to expand wildcards from
+using the <code>QueryParser::set_database(<i>database</i>)</code> method.
 </BODY>
 </HTML>
