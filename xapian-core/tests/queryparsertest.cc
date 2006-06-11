@@ -25,6 +25,9 @@
 
 using namespace std;
 
+#define TESTCASE(S) {#S, test_##S}
+#define END_OF_TESTCASES {0, 0}
+
 #include "testsuite.h"
 
 struct test {
@@ -510,6 +513,21 @@ static test test_and_queries[] = {
     // Regression test for bug in 0.9.2 and earlier - this would give
     // (two:(pos=2) AND_MAYBE (one:(pos=1) AND three:(pos=3)))
     { "one +two three", "(one:(pos=1) AND two:(pos=2) AND three:(pos=3))" },
+    { "hello -title:\"hello world\"", "(hello:(pos=1) AND_NOT (XThello:(pos=2) PHRASE 2 XTworld:(pos=3)))" },
+    { NULL, NULL }
+};
+
+static test test_stop_queries[] = {
+    { "test the queryparser", "(test:(pos=1) AND queryparser:(pos=3))" },
+    // Regression test for bug in 0.9.6 and earlier.  This would fail to
+    // parse.
+    { "test AND the AND queryparser", "(test:(pos=1) AND the:(pos=2) AND queryparser:(pos=3))" },
+    // 0.9.6 and earlier ignored a stopword even if it was the only term.
+    // We don't ignore it in this case, which is probably better.  But
+    // an all-stopword query with multiple terms doesn't work, which
+    // prevents 'to be or not to be' for being searchable unless made
+    // into a phrase query.
+    { "the", "the:(pos=1)" },
     { NULL, NULL }
 };
 
@@ -639,14 +657,45 @@ static bool test_qp_flag_bool_any_case1()
     return true;
 }
 
-// Tests to perform:
-test_desc tests[] = {
-    {"queryparser1",		test_queryparser1},
-    {"qp_default_op1",		test_qp_default_op1},
-    {"qp_odd_chars1",		test_qp_odd_chars1},
-    {"qp_flag_wildcard1",	test_qp_flag_wildcard1},
-    {"qp_flag_bool_any_case1",	test_qp_flag_bool_any_case1},
-    {0, 0}
+static bool test_qp_stopper1()
+{
+    Xapian::QueryParser qp;
+    const char * stopwords[] = { "a", "an", "the" };
+    Xapian::SimpleStopper stop(stopwords, stopwords + 3);
+    qp.set_stopper(&stop);
+    qp.set_default_op(Xapian::Query::OP_AND);
+    for (test *p = test_stop_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_msg();
+	} catch (const char *s) {
+	    parsed = s;
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
+/// Test cases for the QueryParser.
+static test_desc tests[] = {
+    TESTCASE(queryparser1),
+    TESTCASE(qp_default_op1),
+    TESTCASE(qp_odd_chars1),
+    TESTCASE(qp_flag_wildcard1),
+    TESTCASE(qp_flag_bool_any_case1),
+    TESTCASE(qp_stopper1),
+    END_OF_TESTCASES
 };
 
 int main(int argc, char **argv)

@@ -273,7 +273,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 	    if (p != end && *p == ':' && ++p != end) {
 		unsigned char ch = *p;
 		if (C_isalnum(ch) ||
-		    ((flags & FLAG_PHRASE) && ch == '"') || 
+		    ((flags & FLAG_PHRASE) && ch == '"') ||
 		    ((flags & FLAG_BOOLEAN) && ch == '(')) {
 		    string field;
 		    p = it;
@@ -466,7 +466,7 @@ phrased_term:
 	if (need_to_stem) {
 	    if (stem_action == STEM_SOME && C_isupper(unstemmed_term[0]))
 		term = 'R' + term;
-	    else 
+	    else
 		term = stemmer.stem_word(term);
 	}
 
@@ -650,38 +650,8 @@ query ::= . {
 %type expr {Query *}
 %destructor expr {delete $$;}
 
-expr(E) ::= prob(P). {
-    E = new Query(P->query);
-    // Handle any "+ terms".
-    if (!P->love.empty()) {
-	if (E->empty()) {
-	    *E = P->love;
-	} else {
-	    *E = Query(Query::OP_AND_MAYBE, P->love, *E);
-	}
-    }
-    // Handle any "- terms".
-    if (!P->hate.empty()) {
-	if (E->empty()) {
-	    delete E;
-	    // Can't just hate!
-	    yy_parse_failed(yypParser);
-	    return;
-	}
-	*E = Query(Query::OP_AND_NOT, *E, P->hate);
-    }
-    // Handle any boolean filters.
-    if (!P->filter.empty()) {
-	if (E->empty()) {
-	    *E = P->filter;
-	    // FIXME and make the query boolean somehow...
-	} else {
-	    *E = Query(Query::OP_FILTER, *E, P->filter);
-	}
-    }
-    // FIXME what if E->empty() (only one term, which is a stopword)?
-    delete P;
-}
+expr(E) ::= prob_expr(P).
+	{ E = P; }
 
 expr(E) ::= bool_arg(A) AND bool_arg(B).
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND, B, "AND"); }
@@ -712,6 +682,48 @@ bool_arg(A) ::= . [ERROR] {
     A = NULL;
 }
 
+// prob_expr - a single compound term, or a prob.
+
+%type prob_expr {Query *}
+%destructor prob_expr {delete $$;}
+
+prob_expr(E) ::= prob(P). {
+    E = new Query(P->query);
+    // Handle any "+ terms".
+    if (!P->love.empty()) {
+	if (E->empty()) {
+	    *E = P->love;
+	} else {
+	    *E = Query(Query::OP_AND_MAYBE, P->love, *E);
+	}
+    }
+    // Handle any "- terms".
+    if (!P->hate.empty()) {
+	if (E->empty()) {
+	    delete E;
+	    // Can't just hate!
+	    yy_parse_failed(yypParser);
+	    return;
+	}
+	*E = Query(Query::OP_AND_NOT, *E, P->hate);
+    }
+    // Handle any boolean filters.
+    if (!P->filter.empty()) {
+	if (E->empty()) {
+	    *E = P->filter;
+	    // FIXME and make the query boolean somehow...
+	} else {
+	    *E = Query(Query::OP_FILTER, *E, P->filter);
+	}
+    }
+    // FIXME what if E->empty() (all terms are stopwords)?
+    delete P;
+}
+
+prob_expr(E) ::= term(T). {
+    E = T;
+}
+
 // prob - a probabilistic sub-expression consisting of stop_terms, "+" terms,
 // and/or "-" terms.
 //
@@ -720,10 +732,13 @@ bool_arg(A) ::= . [ERROR] {
 %type prob {ProbQuery *}
 %destructor prob {delete $$;}
 
-prob(P) ::= stop_term(T). {
+prob(P) ::= stop_term(T) stop_term(U). {
     P = new ProbQuery;
     P->query = *T;
     delete T;
+    if (!U->empty())
+	add_to_query(P->query, state->default_op(), *U);
+    delete U;
 }
 
 prob(P) ::= prob(Q) stop_term(T). {
@@ -744,7 +759,7 @@ prob(P) ::= LOVE term(T). {
     delete T;
 }
 
-prob(P) ::= prob(Q) LOVE term(T). {
+prob(P) ::= stop_prob(Q) LOVE term(T). {
     P = Q;
     if (state->default_op() == Query::OP_AND) {
 	/* The default op is AND, so we just put loved terms into the query
@@ -763,7 +778,7 @@ prob(P) ::= HATE term(T). {
     delete T;
 }
 
-prob(P) ::= prob(Q) HATE term(T). {
+prob(P) ::= stop_prob(Q) HATE term(T). {
     P = Q;
     add_to_query(P->hate, Query::OP_OR, *T);
     delete T;
@@ -775,7 +790,7 @@ prob(P) ::= HATE BOOLEAN_FILTER(T). {
     delete T;
 }
 
-prob(P) ::= prob(Q) HATE BOOLEAN_FILTER(T). {
+prob(P) ::= stop_prob(Q) HATE BOOLEAN_FILTER(T). {
     P = Q;
     add_to_query(P->hate, Query::OP_OR, T->as_query_object());
     delete T;
@@ -787,7 +802,7 @@ prob(P) ::= BOOLEAN_FILTER(T). {
     delete T;
 }
 
-prob(P) ::= prob(Q) BOOLEAN_FILTER(T). {
+prob(P) ::= stop_prob(Q) BOOLEAN_FILTER(T). {
     P = Q;
     // FIXME we should OR filters with the same prefix...
     add_to_query(P->filter, Query::OP_AND, T->as_query_object());
@@ -801,7 +816,7 @@ prob(P) ::= LOVE BOOLEAN_FILTER(T). {
     delete T;
 }
 
-prob(P) ::= prob(Q) LOVE BOOLEAN_FILTER(T). {
+prob(P) ::= stop_prob(Q) LOVE BOOLEAN_FILTER(T). {
     // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
     P = Q;
     // FIXME we should OR filters with the same prefix...
@@ -809,12 +824,25 @@ prob(P) ::= prob(Q) LOVE BOOLEAN_FILTER(T). {
     delete T;
 }
 
+// stop_prob - A prob or a stop_term.
+
+%type stop_prob {ProbQuery *}
+%destructor stop_prob {delete $$;}
+
+stop_prob(P) ::= prob(Q).
+    { P = Q; }
+
+stop_prob(P) ::= stop_term(T). {
+    P = new ProbQuery;
+    P->query = *T;
+    delete T;
+}
+
 // stop_term - A term which should be checked against the stopword list,
-// or a quoted phrase (with or without prefix) or a phrased_term or a near_expr
-// or a bracketed subexpression (with or without prefix).
+// or a compound_term.
 //
 // If a term is loved, hated, or in a phrase, we don't want to consult the
-// stopword list, so stop_term isn't used there.
+// stopword list, so stop_term isn't used there (instead term is).
 
 %type stop_term {Query *}
 %destructor stop_term {delete $$;}
@@ -829,37 +857,11 @@ stop_term(T) ::= TERM(U). {
     delete U;
 }
 
-stop_term(T) ::= WILD_TERM(U). {
-    T = U->as_wildcarded_query(state);
-    delete U;
+stop_term(T) ::= compound_term(U). {
+    T = U;
 }
 
-stop_term(T) ::= PREFIX_QUOTE phrase(P) QUOTE. {
-    // Remove the prefix which the lexer pushed as it generated PREFIX_QUOTE.
-    state->pop_prefix();
-    T = P->as_phrase_query();
-}
-
-stop_term(T) ::= QUOTE phrase(P) QUOTE.
-	{ T = P->as_phrase_query(); }
-
-stop_term(T) ::= phrased_term(P).
-	{ T = P->as_phrase_query(); }
-
-stop_term(T) ::= near_expr(P).
-	{ T = P->as_near_query(); }
-
-stop_term(T) ::= BRA expr(E) KET.
-	{ T = E; }
-
-stop_term(T) ::= PREFIX_BRA expr(E) KET. {
-    // Remove the prefix which the lexer pushed as it generated PREFIX_BRA.
-    state->pop_prefix();
-    T = E;
-}
-
-// term - A term, or a phrase (quoted, hyphenated, or NEARed), or a general
-// expression in brackets.
+// term - A term or a compound_term.
 
 %type term {Query *}
 %destructor term {delete $$;}
@@ -869,22 +871,44 @@ term(T) ::= TERM(U). {
     delete U;
 }
 
-term(T) ::= WILD_TERM(U). {
+term(T) ::= compound_term(U). {
+    T = U;
+}
+
+// compound_term - A quoted phrase (with or without prefix) or a phrased_term
+// or a near_expr or a bracketed subexpression (with or without prefix).
+
+%type compound_term {Query *}
+%destructor compound_term {delete $$;}
+
+compound_term(T) ::= WILD_TERM(U). {
     T = U->as_wildcarded_query(state);
     delete U;
 }
 
-term(T) ::= QUOTE phrase(P) QUOTE.
+compound_term(T) ::= PREFIX_QUOTE phrase(P) QUOTE. {
+    // Remove the prefix which the lexer pushed as it generated PREFIX_QUOTE.
+    state->pop_prefix();
+    T = P->as_phrase_query();
+}
+
+compound_term(T) ::= QUOTE phrase(P) QUOTE.
 	{ T = P->as_phrase_query(); }
 
-term(T) ::= phrased_term(P).
+compound_term(T) ::= phrased_term(P).
 	{ T = P->as_phrase_query(); }
 
-term(T) ::= near_expr(P).
+compound_term(T) ::= near_expr(P).
 	{ T = P->as_near_query(); }
 
-term(T) ::= BRA expr(E) KET.
+compound_term(T) ::= BRA expr(E) KET.
 	{ T = E; }
+
+compound_term(T) ::= PREFIX_BRA expr(E) KET. {
+    // Remove the prefix which the lexer pushed as it generated PREFIX_BRA.
+    state->pop_prefix();
+    T = E;
+}
 
 // phrase - The "inside the quotes" part of a double-quoted phrase.
 
