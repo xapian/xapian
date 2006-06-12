@@ -83,6 +83,9 @@ done
 
 rm -rf "$CHROOT"/tmp/*
 
+dchroot -c "$1" -- $_C 'apt-get update'
+dchroot -c "$1" -- $_C 'apt-get --force-yes dist-upgrade'
+
 if expr "$PACKAGES" : '.*core' ; then
   build_package xapian-core_*.dsc
 
