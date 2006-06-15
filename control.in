@@ -12,8 +12,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: xapian-tools
 Conflicts: libxapian2
 Description: Search engine library
- This package contains the core Xapian runtime library, and the Xapian query
- parser library.
+ This package contains the core Xapian runtime library.
  .
  The Xapian search engine library is designed to be a highly adaptable toolkit
  to allow developers to easily add advanced indexing and search facilities to
@@ -21,11 +20,9 @@ Description: Search engine library
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
  simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing many millions of documents.
+ working with collections containing hundreds of millions of documents.
  .
- The Xapian query parser is a flexible query parser, accepting a syntax
- similar to that of popular web search engines, and converting this to a query
- object suitable for use in the Xapian search engine library.
+ Homepage: http://www.xapian.org/
 
 Package: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev
 Architecture: any
@@ -34,7 +31,7 @@ Depends: libxapian@LIBXAPIAN_SOVERSION@ (= ${Source-Version}), libc6-dev | libc-
 Recommends: xapian-doc (= ${Source-Version}), xapian-examples (= ${Source-Version})
 Description: Development files for Xapian search engine library
  This package contains development libraries and headers for the core Xapian
- library, and the Xapian query parser.
+ library.
  .
  The Xapian search engine library is designed to be a highly adaptable toolkit
  to allow developers to easily add advanced indexing and search facilities to
@@ -42,11 +39,9 @@ Description: Development files for Xapian search engine library
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
  simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing many millions of documents.
+ working with collections containing hundreds of millions of documents.
  .
- The Xapian query parser is a flexible query parser, accepting a syntax
- similar to that of popular web search engines, and converting this to a query
- object suitable for use in the Xapian search engine library.
+ Homepage: http://www.xapian.org/
 
 Package: xapian-tools
 Architecture: any
@@ -70,7 +65,9 @@ Description: Basic tools for Xapian search engine library
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
  simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing many millions of documents.
+ working with collections containing hundreds of millions of documents.
+ .
+ Homepage: http://www.xapian.org/
 
 Package: xapian-doc
 Architecture: all
@@ -86,7 +83,9 @@ Description: Core Xapian documentation
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
  simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing many millions of documents.
+ working with collections containing hundreds of millions of documents.
+ .
+ Homepage: http://www.xapian.org/
 
 Package: xapian-examples
 Architecture: any
@@ -104,4 +103,6 @@ Description: Xapian simple example programs
  retrieval, and provides facilities for performing ranked free-text searches,
  relevance feedback, phrase searching, boolean searching, stemming, and
  simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing many millions of documents.
+ working with collections containing hundreds of millions of documents.
+ .
+ Homepage: http://www.xapian.org/

@@ -1,3 +1,13 @@
+xapian-core (0.9.6-3) unstable; urgency=low
+
+  * debian/control: Updated description:
+    + The queryparser is no longer a separate library.
+    + The claimed scalability was overly modest - we can certainly handle
+      "hundreds of millions of documents".
+    + Add a link to the homepage.
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Jun 2006 04:14:49 +0100
+ 
 xapian-core (0.9.6-2) unstable; urgency=low
 
   * dh_strip handles nostrip in DEB_BUILD_OPTIONS for us, so there's no
