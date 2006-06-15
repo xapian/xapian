@@ -118,7 +118,7 @@ maintclean: clean
 debian/control: debian/rules debian/control.in
 	rm -f debian/control.tmp
 	sed -e "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" \
-	    -e "s/@PYTHON_OLD_PACKAGES@/$(PYTHON_VERSIONS:%=%-xapian (<< 0.9.6-3))/" \
+	    -e "s/@PYTHON_OLD_PACKAGES@/$(PYTHON_VERSIONS:%=%-xapian (<<0.9.6-3))/" \
 	    < debian/control.in > debian/control.tmp
 	for v in $(PHP_VERSIONS); do \
 	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
