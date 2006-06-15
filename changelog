@@ -1,3 +1,11 @@
+xapian-omega (0.9.6-3) unstable; urgency=low
+
+  * debian/control: Add homepage to description.
+  * debian/rules: Only add --disable-dependency-tracking to the flags passed
+    to configure once!
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Jun 2006 04:11:07 +0100
+
 xapian-omega (0.9.6-2) unstable; urgency=low
 
   * dh_strip handles nostrip in DEB_BUILD_OPTIONS for us, so there's no
