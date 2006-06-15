@@ -1,3 +1,14 @@
+xapian-bindings (0.9.6-3) unstable; urgency=low
+
+  * Tweak description and add "Homepage: http://www.xapian.org/".
+  * tclxapian package wasn't depending on the tcl interpreter due to a typo
+    in debian/rules.
+  * libxapian-ruby1.8 package wasn't depending on the ruby interpreter due to
+    a typo in debian/rules.
+  * Update python packages to follow new python packaging policy.
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Jun 2006 03:58:10 +0100
+
 xapian-bindings (0.9.6-2) unstable; urgency=low
 
   * dh_strip checks for nostrip in DEB_BUILD_OPTIONS, so we don't need to.
