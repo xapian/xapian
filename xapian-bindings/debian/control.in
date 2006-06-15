@@ -2,7 +2,8 @@ Source: xapian-bindings
 Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
-Build-Depends: @BUILD_DEPS@ debhelper (>= 4.1.67), po-debconf, libxapian-dev, autotools-dev
+Build-Depends: @BUILD_DEPS@ po-debconf, libxapian-dev, autotools-dev
+XS-Python-Version: all
 Standards-Version: 3.7.2
 
 Package: tclxapian
@@ -46,11 +47,15 @@ Description: Xapian search engine interface for Ruby 1.8
 
 Package: python-xapian
 Section: python
-Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}
-Description: Xapian search engine interface for Python [dummy package]
- This package is an empty package that always depends on the Xapian python
- bindings built for Debian's default Python version.
+Architecture: any
+Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Replaces: @PYTHON_OLD_PACKAGES@
+Conflicts: @PYTHON_OLD_PACKAGES@
+Provides: ${python:Provides}
+XB-Python-Version: ${python:Versions}
+Description: Xapian search engine interface for Python
+ This package provides Xapian python bindings for all the packaged versions
+ of Python.
  .
  The Xapian search engine library is designed to be a highly adaptable toolkit
  to allow developers to easily add advanced indexing and search facilities to
