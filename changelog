@@ -7,7 +7,7 @@ xapian-bindings (0.9.6-3) unstable; urgency=low
     a typo in debian/rules.
   * Update python packages to follow new python packaging policy.
 
- -- Olly Betts <olly@survex.com>  Thu, 15 Jun 2006 22:28:49 +0100
+ -- Olly Betts <olly@survex.com>  Thu, 15 Jun 2006 23:26:49 +0100
 
 xapian-bindings (0.9.6-2) unstable; urgency=low
 
