@@ -21,11 +21,11 @@
 
 set -e
 
-# Usage: ./make-source-packages [COMPONENT]
-# COMPONENT defaults to "unstable".
+# Usage: ./make-source-packages [COMPONENT...]
+# COMPONENT defaults to building all of them,
 # Currently, the possible values are:
 
-COMPONENTS='breezy|dapper|stable|unstable'
+VALID_COMPONENTS='unstable stable dapper breezy'
 
 # Set this to the tag of a snapshot build, or empty to build the latest
 # release.
@@ -37,7 +37,7 @@ SNAPSHOT=
 # Debian component to build for (libc version and the GCC C++ ABI are typically
 # important factors).
 # This will be overridden by $1, if set.
-COMPONENT=unstable
+COMPONENTS=$VALID_COMPONENTS
 
 # Options to pass to dpkg-buildpackage when building source packages
 BUILDPACKAGE_SRC_OPTS="-us -uc -d -S"
@@ -81,16 +81,18 @@ adjust_changelog() {
 trap "echo \"make-source-packages failed\"" EXIT
 
 # Get the component specified by the user.
-if [ -n "$1" ] ; then
-  COMPONENT=$1
+if [ -n "$*" ] ; then
+  COMPONENTS=$*
 fi
 
+for COMPONENT in $COMPONENTS ; do
 # Check that the component is sane.
-if expr "$COMPONENT" : '\('"`echo \"$COMPONENTS\"|sed 's/|/\\\\|/g'`"'\)$' >/dev/null
+if expr "$COMPONENT" : '\('"`echo \"$VALID_COMPONENTS\"|sed 's/ /\\\\|/g'`"'\)$' >/dev/null
 then
   echo "Building for $COMPONENT"
 else
-  echo "Component \"$COMPONENT\" not known - try \"`echo \"$COMPONENTS\"|sed 's/|/\" or \"/g'`\""
+  echo "Component \"$COMPONENT\" not known."
+  echo "Known components are: $VALID_COMPONENTS"
   exit 1
 fi
 
@@ -388,5 +390,7 @@ chmod -R g+w ${PUBDIR}/* || true
 
 # Source packages are now generated and uploaded.
 
-trap EXIT
 echo "Made Debian source packages for $COMPONENT successfully"
+done
+
+trap EXIT
