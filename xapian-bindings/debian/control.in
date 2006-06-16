@@ -49,8 +49,8 @@ Package: python-xapian
 Section: python
 Architecture: any
 Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
-Replaces: @PYTHON_OLD_PACKAGES@
 Conflicts: @PYTHON_OLD_PACKAGES@
+Replaces: @PYTHON_OLD_PACKAGES@
 Provides: ${python:Provides}
 XB-Python-Version: ${python:Versions}
 Description: Xapian search engine interface for Python
