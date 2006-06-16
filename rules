@@ -268,9 +268,9 @@ binary-arch: build install
 
 	# sarge onwards don't have tcl8.2 or earlier, though we would work with
 	# 8.2 and 8.1 if they were packaged.
-	echo "tcl:Depends=tcl8.4|tcl8.3" > debian/tclxapian.substvars
+	echo "tcl:Depends=tcl8.4|tcl8.3" >> debian/tclxapian.substvars
 
-	echo "ruby:Depends=libruby1.8" > libxapian-ruby1.8.substvars
+	echo "ruby:Depends=libruby1.8" >> debian/libxapian-ruby1.8.substvars
 
 	dh_gencontrol
 	dh_md5sums
