@@ -4,6 +4,8 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsu
 
 TESTS_ENVIRONMENT = ./runtest
 
+.PHONY: check-remote check-flint check-quartz
+
 if BUILD_BACKEND_REMOTE
 check-remote: remotetest$(EXEEXT) apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./remotetest$(EXEEXT)
@@ -11,6 +13,11 @@ check-remote: remotetest$(EXEEXT) apitest$(EXEEXT)
 
 remote_check_programs = remotetest
 remote_tests = remotetest$(EXEEXT)
+endif
+
+if BUILD_BACKEND_FLINT
+check-flint: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b flint
 endif
 
 if BUILD_BACKEND_QUARTZ
@@ -21,11 +28,6 @@ check-quartz: btreetest$(EXEEXT) quartztest$(EXEEXT) apitest$(EXEEXT)
 
 quartz_check_programs = btreetest quartztest
 quartz_tests= btreetest$(EXEEXT) quartztest$(EXEEXT)
-endif
-
-if BUILD_BACKEND_FLINT
-check-flint: apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b flint
 endif
 
 ## Test programs to be run

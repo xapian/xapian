@@ -1,9 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
+.PHONY: check-remote check-flint check-quartz
+
 if BUILD_BACKEND_REMOTE
 check-remote:
-	$(MAKE) -C bin check
-	$(MAKE) -C tests check-remote
+	cd bin && $(MAKE) $(AM_MAKEFLAGS) check
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remote
 
 remote_subdirs = net
 LIBNET_LA = net/libnet.la
@@ -11,12 +13,12 @@ endif
 
 if BUILD_BACKEND_FLINT
 check-flint:
-	$(MAKE) -C tests check-flint
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-flint
 endif
 
-if BUILD_BACKEND_FLINT
+if BUILD_BACKEND_QUARTZ
 check-quartz:
-	$(MAKE) -C tests check-quartz
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-quartz
 endif
 
 # Order is relevant: when building, tests must be last.
