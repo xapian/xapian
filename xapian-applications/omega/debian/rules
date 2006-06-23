@@ -57,8 +57,8 @@ configure-stamp:
 	ln -s /usr/share/misc/config.guess config.guess
 
 	# Configure in a subdirectory, for neatness.
-	mkdir -p build-nodebug
-	cd build-nodebug && ../configure $(commonconfflags)
+	mkdir -p build
+	cd build && ../configure $(commonconfflags)
 
 	# Touch the stamp file, to avoid repeating the configure step.
 	touch $@
@@ -66,7 +66,7 @@ configure-stamp:
 build: configure build-stamp
 build-stamp:
 	dh_testdir
-	$(MAKE) -C build-nodebug
+	$(MAKE) -C build
 	touch $@
 
 install: DH_OPTIONS=
@@ -77,7 +77,35 @@ install: build
 	dh_installdirs
 
 	# Install the files into debian/tmp
-	$(MAKE) -C build-nodebug DESTDIR=$(CURDIR)/debian/tmp install
+	$(MAKE) -C build DESTDIR=$(CURDIR)/debian/tmp install
+
+	# Replace omega.conf with one with paths suitable for debian
+	rm -f debian/tmp/etc/omega.conf
+	install -m 644 omega.conf.debian debian/tmp/etc/omega.conf
+
+	# Install the icons
+	install -d -m 755 debian/tmp/usr/share/images/xapian-omega
+	install -m 644 images/*.png debian/tmp/usr/share/images/xapian-omega
+
+	# Install the omegascript templates
+	install -d -m 755 debian/tmp/usr/share/xapian-omega/templates
+	install -m 644 templates/[a-z]* debian/tmp/usr/share/doc/xapian-omega/templates
+
+	# Fix paths in query template, and install that instead
+	sed 's!/icons/omega/!/images/xapian-omega!g' templates/query > debian/query.tmp
+	install -m 644 debian/query.tmp debian/tmp/usr/share/xapian-omega/templates/query
+	rm -f debian/query.tmp
+
+	# Symlink them in as examples (they can't just go under /usr/share/doc
+	# because policy 12.3 says "Packages must not require the existence of
+	# any files in `/usr/share/doc/' in order to function").
+	install -m 755 debian/tmp/usr/share/doc/xapian-omega/examples
+        ln -s ../../../xapian-omega/templates debian/tmp/usr/share/doc/xapian-omega/examples/templates
+
+	# Create the /var directories
+	install -d -m 755 /var/lib/xapian-omega/data
+	install -d -m 755 /var/lib/xapian-omega/cdb
+	install -d -m 755 /var/log/xapian-omega
 
 	# Reads the *.install files to decide where to install everything
 	dh_install --sourcedir=debian/tmp --fail-missing
@@ -109,7 +137,7 @@ binary-arch: build install
 clean:
 	dh_testdir
 	dh_testroot
-	rm -rf build-nodebug
+	rm -rf build
 	rm -f config.sub config.guess
 	dh_clean
 	rm -f build-stamp configure-stamp

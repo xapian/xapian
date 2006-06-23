@@ -1,3 +1,11 @@
+xapian-omega (0.9.6-4) unstable; urgency=low
+
+  * Install images so they appear in /images/xapian-omega on the webserver.
+    Adjust the URLs for images in the query template to match this.
+  * Install the templates such that searching works out of the box.
+
+ -- Olly Betts <olly@survex.com>  Thu, 23 Jun 2006 07:40:31 +0100
+
 xapian-omega (0.9.6-3) unstable; urgency=low
 
   * debian/control: Add homepage to description.
