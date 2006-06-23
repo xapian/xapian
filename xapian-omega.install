@@ -12,5 +12,8 @@ usr/share/doc/omega/overview* usr/share/doc/xapian-omega/
 usr/share/doc/omega/quickstart* usr/share/doc/xapian-omega/
 usr/share/doc/omega/scriptindex* usr/share/doc/xapian-omega/
 usr/share/doc/omega/termprefixes* usr/share/doc/xapian-omega/
+usr/share/images
 etc/omega.conf
 usr/share/man
+var/lib/xapian-omega
+var/log/xapian-omega
