@@ -100,7 +100,7 @@ install: build
 	# because policy 12.3 says "Packages must not require the existence of
 	# any files in `/usr/share/doc/' in order to function").
 	install -m 755 debian/tmp/usr/share/doc/xapian-omega/examples
-        ln -s ../../../xapian-omega/templates debian/tmp/usr/share/doc/xapian-omega/examples/templates
+	ln -s ../../../xapian-omega/templates debian/tmp/usr/share/doc/xapian-omega/examples/templates
 
 	# Create the /var directories
 	install -d -m 755 /var/lib/xapian-omega/data
