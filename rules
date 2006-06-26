@@ -210,7 +210,7 @@ install: build
 	# Reads the '*.install' files to decide where to install everything.
 	dh_install --sourcedir=debian/tmp --fail-missing --exclude=.pyc
 
-binary: binary-arch binary-indep
+binary: binary-arch
 binary-arch: DH_OPTIONS=-a
 binary-arch: build install
 	dh_testdir
