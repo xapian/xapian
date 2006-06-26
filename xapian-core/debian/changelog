@@ -2,7 +2,7 @@ xapian-core (0.9.6-4) unstable; urgency=low
 
   * debian/copyright: Update with a thorough list of copyrights and licences.
 
- -- Olly Betts <olly@survex.com>  Mon, 26 Jun 2006 03:54:12 +0100
+ -- Olly Betts <olly@survex.com>  Mon, 26 Jun 2006 16:00:12 +0100
 
 xapian-core (0.9.6-3) unstable; urgency=low
 
