@@ -1,3 +1,7 @@
+Mon Jun 26 23:56:02 BST 2006  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Added success reports for MSVC and sparc linux.
+
 Sat Jun 17 02:01:35 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,tests/Makefile.am: Tweak new check-* rules to be more

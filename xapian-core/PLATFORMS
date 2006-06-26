@@ -95,9 +95,10 @@ x86   |#OpenBSD 3.4 GCC 2.95.3         | 0.9.0 |Passed| (was x86-openbsd1)
 x86   |*OpenBSD 3.8 GCC 3.3.5          | 0.9.6 |Passed| (x86-openbsd1)
 x86   |*Solaris 9 GCC 3.3.2            | 0.9.6 |Passed| (x86-solaris1)
 x86   |*Solaris 9 Sun Workshop C++ 5.5 | 0.9.6 |Passed| (x86-solaris1) [2]
-x86   | Cygwin 1.5.10 GCC 3.3.3 XP sp2 |~0.8.4 |Passed| [4] from Mike Boone
+x86   | Cygwin 1.5.10 GCC 3.3.3 XP sp2 |~0.8.4 |Passed| from Mike Boone [4]
 x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
 x86   | MinGW 3.1.0                    |~0.8.4 |Passed| from Michael Sisolak
+x86   | WindowsXP sp2 MSVC Toolkit 2003| 0.9.6 |Passed| from Charlie Hull [12]
 x86_64|#Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed|
 x86_64|#Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.5 |Passed|
 x86_64|=Linux 2.6 RHEL AS4 GCC 3.2.3   | 0.9.6 |Passed| (td189)
@@ -120,6 +121,7 @@ alpha |#FreeBSD 5.3 GCC 3.4.2          | 0.9.0 |Passed| (was td149)
 alpha |#FreeBSD 5.4 GCC 3.4.2          | 0.9.2 |Passed| (was td149)
 alpha |=FreeBSD 6.0 GCC 3.4.4          | 0.9.4 |Passed| (td149)
 alpha |=DEC OSF 5.1 GCC 3.3            | 0.9.6 |Passed| (td171) [9]
+sparc | Linux 2.6 Debian sid GCC 4.0.4 | 0.9.6 |Passed| from Alex Deucher [11]
 sparc |*Solaris 9 GCC 3.3.2            | 0.9.6 |Passed| (sparc-solaris1) [2]
 sparc |*Solaris 9 Sun Workshop C++ 5.5 | 0.9.6 |Passed| (sparc-solaris1) [2]
 ppc   |*MacOS X 10.1.4 GCC 2.95.2      | 0.9.2 |Passed| (ppc-osx1) [7]
@@ -165,7 +167,7 @@ x86   |*Linux cross to DJGPP GCC 3.4.3 | 0.9.4 |Built | [1] [3]
 x86   |*Linux cross to DJGPP GCC 4.0.1 | 0.9.6 |Built | [1] [3]
 ------+--------------------------------+-------+------+------------------------
 arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [5]
-ppc   | AIX 5.2 GCC 3.3.2              | 0.9.5 |Failed| [10] from J.F. Dockes
+ppc   | AIX 5.2 GCC 3.3.2              | 0.9.5 |Failed| from J.F. Dockes [10]
 ------+--------------------------------+-------+------+------------------------
 
 Attempts to build Xapian with Compaq's C++ compiler (on Tru64, HPUX, and
@@ -248,3 +250,13 @@ testsuite.
 to be a known problem with the GNU STL on AIX, so you have to configure
 xapian-core with --disable-largefile.  Xapian-core builds, but btreetest,
 quartztest, apitest, and queryparsertest all dump core.
+
+[11] Compiling matcher/andmaybepostlist.cc with -O2 causes the compiler to
+die with an "internal compiler error".  Recompiling just this file with -O1
+allows the build to complete and pass the testsuite.
+
+[12] Requires the MSVC specific makefiles written by Ulrik Petersen and
+Charlie Hull available from:
+http://www.lemurconsulting.com/Products/Xapian/096/
+Currently the remote backend isn't supported, and only the bindings for
+Python have so far been built.
