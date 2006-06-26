@@ -52,8 +52,13 @@ perl -ni -e 'print unless /^\Q'"$distro_arch"'\E\b/' /etc/dchroot.conf
 mkdir "$chroot_path"
 case $DISTRO in
   sid|woody|sarge|etch)
+    if [ sarge-amd64 = "$distro_arch" ] ; then
+      mirror=http://ftp.de.debian.org/debian-amd64/debian
+    else
+      mirror=http://ftp.de.debian.org/debian
+    fi
     # Need to specify --mirror to allow running on Ubuntu.
-    debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" http://ftp.de.debian.org/debian/
+    debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" "$mirror"
     ;;
   warty|hoary|breezy|dapper|edgy)
     if [ ! -f /usr/lib/debootstrap/scripts/$DISTRO ] ; then
