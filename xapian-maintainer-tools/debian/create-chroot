@@ -21,50 +21,66 @@
 CHROOT_BASE_PATH=/chroot
 
 set -e
-if [ 1 != $# ] ; then
-  echo "Usage: $0 DISTRO"
-  echo "e.g. $0 sarge"
+if [ 1 != $# -a 2 != $# ] ; then
+  echo "Usage: $0 DISTRO [arch]"
+  echo "e.g. $0 sarge i386"
   exit 1
 fi
 
-if [ sid = "$1" ] ; then
-  _C=-c
-fi
+DISTRO=$1
 
-chroot_path=$CHROOT_BASE_PATH/$1
+_C=
+#if [ sid = "$DISTRO" ] ; then
+#  _C=-c
+#fi
+
+if [ 2 == $# ] ; then
+  DEBIAN_BUILD_ARCH=$2
+  export DEBIAN_BUILD_ARCH
+  DEBIAN_HOST_ARCH=$2
+  export DEBIAN_HOST_ARCH
+#  DEBIAN_BUILDARCH=$2
+# export DEBIAN_BUILDARCH
+fi 
+
+eval "`dpkg-architecture|grep ^DEBIAN_BUILD_ARCH=`"
+distro_arch=$DISTRO-$DEBIAN_BUILD_ARCH
+chroot_path=$CHROOT_BASE_PATH/$distro_arch
+
+perl -ni -e 'print unless /^\Q'"$distro_arch"'\E\b/' /etc/dchroot.conf
 
 mkdir "$chroot_path"
-case $1 in
+case $DISTRO in
   sid|woody|sarge|etch)
-    pbuilder create --distribution "$1" --no-targz --buildplace "$chroot_path"
+    # Need to specify --mirror to allow running on Ubuntu.
+    debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" http://ftp.de.debian.org/debian/
     ;;
-  warty|hoary|breezy|dapper)
-    if [ dapper = "$1" ] && [ ! -f /usr/lib/debootstrap/scripts/dapper ] ; then
+  warty|hoary|breezy|dapper|edgy)
+    if [ ! -f /usr/lib/debootstrap/scripts/$DISTRO ] ; then
       cat <<END
-Your debootstrap installation doesn't know how to bootstrap a dapper chroot.
-You can fix this as follows:
+Your debootstrap installation doesn't know how to bootstrap a $DISTRO chroot.
+You can fix this something like this (this works for dapper):
 
 wget http://gb.archive.ubuntu.com/ubuntu/pool/main/d/debootstrap/debootstrap_0.3.3.0ubuntu2_all.deb
 ar x debootstrap_0.3.3.0ubuntu2_all.deb data.tar.gz
-tar zxvf data.tar.gz ./usr/lib/debootstrap/scripts/dapper
-mv -i ./usr/lib/debootstrap/scripts/dapper /usr/lib/debootstrap/scripts
+tar zxvf data.tar.gz ./usr/lib/debootstrap/scripts/$DISTRO
+mv -i ./usr/lib/debootstrap/scripts/$DISTRO /usr/lib/debootstrap/scripts
 rm data.tar.gz
 rm debootstrap_0.3.3.0ubuntu2_all.deb
 END
       exit 1	
     fi
-    debootstrap --variant=buildd "$1" "$chroot_path" http://gb.archive.ubuntu.com/ubuntu
+    debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" http://gb.archive.ubuntu.com/ubuntu
     # Need universe for (e.g.) python 2.1 and 2.2 on breezy
-    echo "deb http://gb.archive.ubuntu.com/ubuntu $1 universe" >> "$chroot_path/etc/apt/sources.list"
-    dchroot -c "$1" -- $_C 'apt-get update'
+    echo "deb http://gb.archive.ubuntu.com/ubuntu $DISTRO universe" >> "$chroot_path/etc/apt/sources.list"
     ;;
   *)
-    echo "Don't know about suite '$1' yet"
+    echo "Don't know about suite '$DISTRO' yet"
     exit 1
 esac
 
-if ! grep "^$1"'\>' /etc/dchroot ; then
-  echo "$1 $chroot_path" >> /etc/dchroot.conf
-fi
+echo "$distro_arch $chroot_path" >> /etc/dchroot.conf
 
-dchroot -c "$1" -- $_C 'apt-get install python'
+dchroot -c "$distro_arch" -- $_C 'apt-get --force-yes update'
+# gnupg is needed for signed packages in newer distros.
+dchroot -c "$distro_arch" -- $_C 'apt-get --force-yes install gnupg python'
