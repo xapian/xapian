@@ -1,9 +1,11 @@
 xapian-bindings (0.9.6-4) unstable; urgency=low
 
+  * debian/rules: Since the python packaging change we no longer have any
+    "Architecture: all" packages to build so remove the binary-indep target.
   * Fix prerm file comments which said "postinst".
   * debian/copyright: Update with a thorough list of copyrights and licences.
 
- -- Olly Betts <olly@survex.com>  Mon, 26 Jun 2006 03:50:37 +0100
+ -- Olly Betts <olly@survex.com>  Mon, 26 Jun 2006 15:53:37 +0100
 
 xapian-bindings (0.9.6-3) unstable; urgency=low
 
