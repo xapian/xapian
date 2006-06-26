@@ -1,4 +1,4 @@
-xapian-bindings (0.9.6-2) unstable; urgency=low
+xapian-bindings (0.9.6-4) unstable; urgency=low
 
   * Fix prerm file comments which said "postinst".
   * debian/copyright: Update with a thorough list of copyrights and licences.
