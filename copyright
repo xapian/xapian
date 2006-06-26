@@ -1,35 +1,55 @@
-This package was Debianized by Richard Boulton <richard@tartarus.org> on
-Wed, 19 May 2004 14:03:05 +0100.
+This is the Debian package of the Xapian Omega search system.  This
+package was originally created and maintained by Richard Boulton
+<richard@tartarus.org>.  It is currently maintained by Olly Betts
+<olly@survex.com>.
 
 It was downloaded from http://www.xapian.org/download.php
 
 Upstream Authors:
 
         Olly Betts <olly@survex.com>
-        Hein Ragas <hragas@users.sourceforge.net>
         James Aylett <tartarus@users.sourceforge.net>
         Sam Liddicott <samjam@users.sourceforge.net>
-        and others.
+	Ananova Ltd
+	BrightStation PLC
+	Intercede 1749 Ltd
+	Lemur Consulting Ltd
 
 Copyright:
 
-Xapian copyright is held by a number of parties, in particular much of the
-code is jointly owned by BrightStation PLC, Ananova Ltd and Olly Betts.
+  Copyright (C) 2002,2003,2004,2005,2006 Olly Betts
+  Copyright (C) 2001,2005 James Aylett
+  Copyright (C) 2001 Sam Liddicott
+  Copyright (C) 2001,2002 Ananova Ltd
+  Copyright (C) 1999,2000,2001 BrightStation PLC
+  Copyright (C) 2002 Intercede 1749 Ltd
+  Copyright (C) 2001,2003 Lemur Consulting Ltd.
 
-See the header of each source file for detailed attributions.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of the
+  License, or (at your option) any later version.
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the
-License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+  See /usr/share/common-licenses/GPL for the full text of the GNU GPL.
 
-See /usr/share/common-licenses/GPL for the full text of the GNU GPL.
+The cdb reading code in files cdb.h, cdb_int.h, cdb_init.cc, cdb_find.cc,
+cdb_hash.cc, and cdb_unpack.cc is based on code from tinycdb released into the
+public domain by Michael Tokarev:
+
+  This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
+  Public domain.
+
+The Debian packaging is also licensed under the GPL v2 or later (see above)
+and the copyright details are:
+
+  Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
+  Copyright (C) 2006 Olly Betts
