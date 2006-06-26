@@ -89,7 +89,7 @@ install: build
 
 	# Install the omegascript templates
 	install -d -m 755 debian/tmp/usr/share/xapian-omega/templates
-	install -m 644 templates/[a-z]* debian/tmp/usr/share/doc/xapian-omega/templates
+	install -m 644 templates/[a-z]* debian/tmp/usr/share/xapian-omega/templates
 
 	# Fix paths in query template, and install that instead
 	sed 's!/icons/omega/!/images/xapian-omega!g' templates/query > debian/query.tmp
