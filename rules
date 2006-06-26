@@ -81,7 +81,7 @@ install: build
 
 	# Replace omega.conf with one with paths suitable for debian
 	rm -f debian/tmp/etc/omega.conf
-	install -m 644 omega.conf.debian debian/tmp/etc/omega.conf
+	install -m 644 debian/omega.conf.debian debian/tmp/etc/omega.conf
 
 	# Install the icons
 	install -d -m 755 debian/tmp/usr/share/images/xapian-omega
