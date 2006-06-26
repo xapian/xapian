@@ -17,3 +17,5 @@ etc/omega.conf
 usr/share/man
 var/lib/xapian-omega
 var/log/xapian-omega
+usr/share/doc/xapian-omega/examples/templates
+usr/share/xapian-omega/templates/
