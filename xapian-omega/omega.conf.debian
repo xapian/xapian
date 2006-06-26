@@ -1,0 +1,4 @@
+database_dir /var/lib/xapian-omega/data
+template_dir /var/lib/xapian-omega/templates
+log_dir /var/log/xapian-omega
+cdb_dir /var/lib/xapian-omega/cdb
