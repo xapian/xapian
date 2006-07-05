@@ -959,7 +959,7 @@ static bool test_longpositionlist1()
 	++p;
     }
     TEST(p == pend);
- 
+
     ++t;
     TEST(t != tend);
     TEST_EQUAL(*t, "knife");
@@ -983,7 +983,7 @@ static bool test_longpositionlist1()
 	++p;
     }
     TEST(p == pend);
- 
+
     ++t;
     TEST(t == tend);
 
