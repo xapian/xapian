@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 # Make Debian source packages from a xapian source tree.
 #
 # Copyright (C) 2004 Richard Boulton
@@ -21,11 +21,15 @@
 
 set -e
 
-# Usage: ./make-source-packages [COMPONENT...]
-# COMPONENT defaults to building all of them,
-# Currently, the possible values are:
-
 VALID_COMPONENTS='unstable stable dapper breezy'
+
+if [ x"$1" = x--help ] ; then
+  echo "Usage: $0 [COMPONENT...]"
+  echo
+  echo 'If no components are specified, the default is to build for all of them'
+  echo "Currently, the recognised values are: $VALID_COMPONENTS"
+  exit 0
+fi
 
 # Set this to the tag of a snapshot build, or empty to build the latest
 # release.
