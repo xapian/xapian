@@ -1,3 +1,11 @@
+xapian-omega (0.9.6-5) unstable; urgency=low
+
+  * debian/control: Add extra space before "Homepage:" as is recommended
+    by the Debian Developer's Reference.
+  * debian/omega.conf.debian: Add comments as well as is currently possible.
+
+ -- Olly Betts <olly@survex.com>  Sun,  9 Jul 2006 01:48:54 +0100
+
 xapian-omega (0.9.6-4) unstable; urgency=low
 
   * Install images so they appear in /images/xapian-omega on the webserver.
