@@ -63,11 +63,14 @@ endif
 
 export DH_OPTIONS
 
+buildtargets := all
+
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
 	confflags += --build $(DEB_HOST_GNU_TYPE)
+	buildtargets += check
 else
 	confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
 endif
@@ -170,16 +173,16 @@ debian/build-stamp:
 	dh_testdir
 	for python in $(PYTHON_VERSIONS); do \
 	    set -e; \
-	    $(MAKE) -C build-$$python; \
+	    $(MAKE) -C build-$$python $(buildtargets) ; \
 	done
 	for v in $(PHP_VERSIONS); do \
 	    if test -x /usr/bin/php-config$$v ; then \
 		set -e; \
-		$(MAKE) -C build-php$$v; \
+		$(MAKE) -C build-php$$v $(buildtargets) ; \
 	    fi \
 	done
-	$(MAKE) -C build-tcl
-	$(MAKE) -C build-ruby
+	$(MAKE) -C build-tcl $(buildtargets)
+	$(MAKE) -C build-ruby $(buildtargets) 
 	touch $@
 
 install: DH_OPTIONS=
