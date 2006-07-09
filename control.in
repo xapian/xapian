@@ -14,13 +14,13 @@ Description: Xapian search engine interface for Tcl
  This package provides Xapian Tcl bindings which should work with any version
  of Tcl >= 8.1 (by using Tcl's stubs mechanism.)
  .
- The Xapian search engine library is designed to be a highly adaptable toolkit
- to allow developers to easily add advanced indexing and search facilities to
- their own applications.  It implements the probabilistic model of information
- retrieval, and provides facilities for performing ranked free-text searches,
- relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing hundreds of millions of documents.
+ The Xapian search engine library is a highly adaptable toolkit to allow
+ developers to easily add advanced indexing and search facilities to their own
+ applications.  It implements the probabilistic model of information retrieval,
+ and provides facilities for performing ranked free-text searches, relevance
+ feedback, phrase searching, boolean searching, stemming, and simultaneous
+ update and searching.  It is highly scalable, and is capable of working with
+ collections containing hundreds of millions of documents.
  .
  The Xapian Tcl bindings provide an interface to the Xapian library from the
  Tcl programming language, allowing both indexing and retrieval operations.
@@ -34,13 +34,13 @@ Depends: ${ruby:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Description: Xapian search engine interface for Ruby 1.8
  This package provides Xapian Ruby bindings built for Ruby 1.8.
  .
- The Xapian search engine library is designed to be a highly adaptable toolkit
- to allow developers to easily add advanced indexing and search facilities to
- their own applications.  It implements the probabilistic model of information
- retrieval, and provides facilities for performing ranked free-text searches,
- relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing hundreds of millions of documents.
+ The Xapian search engine library is a highly adaptable toolkit to allow
+ developers to easily add advanced indexing and search facilities to their own
+ applications.  It implements the probabilistic model of information retrieval,
+ and provides facilities for performing ranked free-text searches, relevance
+ feedback, phrase searching, boolean searching, stemming, and simultaneous
+ update and searching.  It is highly scalable, and is capable of working with
+ collections containing hundreds of millions of documents.
  .
  The Xapian Ruby bindings provide an interface to the Xapian library from the
  Ruby programming language, allowing both indexing and retrieval operations.
@@ -57,13 +57,13 @@ Description: Xapian search engine interface for Python
  This package provides Xapian python bindings for all the packaged versions
  of Python.
  .
- The Xapian search engine library is designed to be a highly adaptable toolkit
- to allow developers to easily add advanced indexing and search facilities to
- their own applications.  It implements the probabilistic model of information
- retrieval, and provides facilities for performing ranked free-text searches,
- relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing hundreds of millions of documents.
+ The Xapian search engine library is a highly adaptable toolkit to allow
+ developers to easily add advanced indexing and search facilities to their own
+ applications.  It implements the probabilistic model of information retrieval,
+ and provides facilities for performing ranked free-text searches, relevance
+ feedback, phrase searching, boolean searching, stemming, and simultaneous
+ update and searching.  It is highly scalable, and is capable of working with
+ collections containing hundreds of millions of documents.
  .
  The Xapian python bindings provide an interface to the Xapian library from the
  Python programming language, allowing both indexing and retrieval operations.

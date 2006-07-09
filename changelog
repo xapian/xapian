@@ -1,3 +1,15 @@
+xapian-bindings (0.9.6-5) unstable; urgency=low
+
+  * debian/copyright: Add Java bindings copyrights and licences.
+  * debian/rules: Run "make check" on each of the built bindings.  It's a very
+    lightweight test but will at least ensure that the basics work.  It also
+    serves to check the core library is working - xapian-core's own testsuite
+    is probably too slow to justify devoting autobuilder time to.
+  * debian/control.in,debian/control-php.in: Remove "designed to be" from the
+    package description at Wookey's suggestion.
+
+ -- Olly Betts <olly@survex.com>  Sun, 09 Jul 2006 01:31:02 +0100
+
 xapian-bindings (0.9.6-4) unstable; urgency=low
 
   * debian/rules: Since the python packaging change we no longer have any
