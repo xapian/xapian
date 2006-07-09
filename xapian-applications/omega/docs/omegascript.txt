@@ -31,6 +31,10 @@ immediately followed by a letter, digit, or "_", you can use a comment to
 prevent the parser treating the following character as part of a command name.
 E.g. $simplecommand${}k rather than $simplecommandk
 
+Note that (by design) OmegaScript has no unbounded looping constructs.  You
+can loop over entries in a list, but you can't loop until some arbitrary
+condition is met.  This means that it's not possible to accidentally or
+deliberately write an OmegaScript template which contains an infinite loop.
 
 OmegaScript literals
 ====================
