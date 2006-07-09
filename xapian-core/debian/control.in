@@ -14,15 +14,15 @@ Conflicts: libxapian2
 Description: Search engine library
  This package contains the core Xapian runtime library.
  .
- The Xapian search engine library is designed to be a highly adaptable toolkit
- to allow developers to easily add advanced indexing and search facilities to
- their own applications.  It implements the probabilistic model of information
- retrieval, and provides facilities for performing ranked free-text searches,
- relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing hundreds of millions of documents.
+ The Xapian search engine library is a highly adaptable toolkit to allow
+ developers to easily add advanced indexing and search facilities to their own
+ applications.  It implements the probabilistic model of information retrieval,
+ and provides facilities for performing ranked free-text searches, relevance
+ feedback, phrase searching, boolean searching, stemming, and simultaneous
+ update and searching.  It is highly scalable, and is capable of working with
+ collections containing hundreds of millions of documents.
  .
- Homepage: http://www.xapian.org/
+  Homepage: http://www.xapian.org/
 
 Package: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev
 Architecture: any
@@ -33,15 +33,15 @@ Description: Development files for Xapian search engine library
  This package contains development libraries and headers for the core Xapian
  library.
  .
- The Xapian search engine library is designed to be a highly adaptable toolkit
- to allow developers to easily add advanced indexing and search facilities to
- their own applications.  It implements the probabilistic model of information
- retrieval, and provides facilities for performing ranked free-text searches,
- relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing hundreds of millions of documents.
+ The Xapian search engine library is a highly adaptable toolkit to allow
+ developers to easily add advanced indexing and search facilities to their own
+ applications.  It implements the probabilistic model of information retrieval,
+ and provides facilities for performing ranked free-text searches, relevance
+ feedback, phrase searching, boolean searching, stemming, and simultaneous
+ update and searching.  It is highly scalable, and is capable of working with
+ collections containing hundreds of millions of documents.
  .
- Homepage: http://www.xapian.org/
+  Homepage: http://www.xapian.org/
 
 Package: xapian-tools
 Architecture: any
@@ -59,15 +59,15 @@ Description: Basic tools for Xapian search engine library
   - xapian-tcpsrv: A simple TCP based server, used for searching across remote
     databases.
  .
- The Xapian search engine library is designed to be a highly adaptable toolkit
- to allow developers to easily add advanced indexing and search facilities to
- their own applications.  It implements the probabilistic model of information
- retrieval, and provides facilities for performing ranked free-text searches,
- relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing hundreds of millions of documents.
+ The Xapian search engine library is a highly adaptable toolkit to allow
+ developers to easily add advanced indexing and search facilities to their own
+ applications.  It implements the probabilistic model of information retrieval,
+ and provides facilities for performing ranked free-text searches, relevance
+ feedback, phrase searching, boolean searching, stemming, and simultaneous
+ update and searching.  It is highly scalable, and is capable of working with
+ collections containing hundreds of millions of documents.
  .
- Homepage: http://www.xapian.org/
+  Homepage: http://www.xapian.org/
 
 Package: xapian-doc
 Architecture: all
@@ -77,15 +77,15 @@ Description: Core Xapian documentation
  This package contains general documentation about Xapian, and more detailed
  API documentation.
  .
- The Xapian search engine library is designed to be a highly adaptable toolkit
- to allow developers to easily add advanced indexing and search facilities to
- their own applications.  It implements the probabilistic model of information
- retrieval, and provides facilities for performing ranked free-text searches,
- relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing hundreds of millions of documents.
+ The Xapian search engine library is a highly adaptable toolkit to allow
+ developers to easily add advanced indexing and search facilities to their own
+ applications.  It implements the probabilistic model of information retrieval,
+ and provides facilities for performing ranked free-text searches, relevance
+ feedback, phrase searching, boolean searching, stemming, and simultaneous
+ update and searching.  It is highly scalable, and is capable of working with
+ collections containing hundreds of millions of documents.
  .
- Homepage: http://www.xapian.org/
+  Homepage: http://www.xapian.org/
 
 Package: xapian-examples
 Architecture: any
@@ -93,16 +93,16 @@ Section: doc
 Depends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${Source-Version})
 Description: Xapian simple example programs
  This package contains source code for some example programs which use the
- Xapian library.  The 3 simple examples are also included in binary form;
- binaries for the other examples can be found in the xapian-tools package
- (since they're useful tools in their own right.)
+ Xapian library.  The three "simple" examples are also included in binary
+ form; binaries for the other examples can be found in the xapian-tools
+ package (since they're useful tools in their own right).
  .
- The Xapian search engine library is designed to be a highly adaptable toolkit
- to allow developers to easily add advanced indexing and search facilities to
- their own applications.  It implements the probabilistic model of information
- retrieval, and provides facilities for performing ranked free-text searches,
- relevance feedback, phrase searching, boolean searching, stemming, and
- simultaneous update and searching.  It is highly scalable, and is capable of
- working with collections containing hundreds of millions of documents.
+ The Xapian search engine library is a highly adaptable toolkit to allow
+ developers to easily add advanced indexing and search facilities to their own
+ applications.  It implements the probabilistic model of information retrieval,
+ and provides facilities for performing ranked free-text searches, relevance
+ feedback, phrase searching, boolean searching, stemming, and simultaneous
+ update and searching.  It is highly scalable, and is capable of working with
+ collections containing hundreds of millions of documents.
  .
- Homepage: http://www.xapian.org/
+  Homepage: http://www.xapian.org/
