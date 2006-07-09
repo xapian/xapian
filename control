@@ -26,4 +26,4 @@ Description: CGI search interface and indexers using Xapian
  The package also contains some example scripts for converting data from
  different sources into a form suitable for processing with "scriptindex".
  .
- Homepage: http://www.xapian.org/
+  Homepage: http://www.xapian.org/
