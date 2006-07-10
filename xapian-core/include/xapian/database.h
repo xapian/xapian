@@ -385,7 +385,9 @@ class WritableDatabase : public Database {
 	/** Add a new document to the database.
 	 *
 	 *  This method adds the specified document to the database,
-	 *  returning a newly allocated document ID.
+	 *  returning a newly allocated document ID.  Automatically allocated
+	 *  document IDs come from a per-database monotonically increasing
+	 *  counter, so IDs from deleted documents won't be reused.
 	 *
 	 *  Note that this does not mean the document will immediately
 	 *  appear in the database; see flush() for more details.
