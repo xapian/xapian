@@ -61,7 +61,6 @@ class Term {
 class State {
   private:
     QueryParser::Internal * qpi;
-    list<string> prefix_stack;
 
   public:
     Query query;
@@ -77,18 +76,6 @@ class State {
 
     bool is_stopword(const Term *term) const {
 	return qpi->stopper && (*qpi->stopper)(term->name);
-    }
-
-    void push_prefix(const string & prefix) {
-	prefix_stack.push_back(prefix);
-    }
-
-    void pop_prefix() {
-	prefix_stack.pop_back();
-    }
-
-    string get_current_prefix() const {
-	return prefix_stack.empty() ? "" : prefix_stack.back();
     }
 
     Database get_database() {
@@ -170,7 +157,14 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 
     State state(this);
 
-    enum { DEFAULT, IN_QUOTES, IN_PHRASED_TERM } mode = DEFAULT;
+    list<string> prefix_stack;
+    // Simplify reading the current prefix by pushing an empty string.
+    prefix_stack.push_back("");
+
+    enum {
+	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM
+    } mode = DEFAULT;
+
     unsigned char newprev = ' ';
     while (it != end) {
 	if (mode == IN_PHRASED_TERM) mode = DEFAULT;
@@ -189,7 +183,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 	      case '"':
 		// Skip whitespace.
 		it = find_if(it, end, C_isnotspace);
-		if (mode != IN_QUOTES) {
+		if (mode == DEFAULT) {
 		    if (it == end) {
 			// Ignore an unmatched " at the end of the query to
 			// avoid generating an empty set of QUOTE which will
@@ -206,10 +200,13 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 		}
 		if (flags & FLAG_PHRASE) {
 		    Parse(pParser, QUOTE, NULL, &state);
-		    if (mode == IN_QUOTES) {
-			mode = DEFAULT;
-		    } else {
+		    if (mode == DEFAULT) {
 			mode = IN_QUOTES;
+		    } else {
+			// Remove the prefix we pushed for this phrase.
+			if (mode == IN_PREFIXED_QUOTES)
+			    prefix_stack.pop_back();
+			mode = DEFAULT;
 		    }
 		}
 		continue;
@@ -246,8 +243,10 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 		    newprev = *it++;
 		    continue;
 		}
-		if (mode == DEFAULT && (flags & FLAG_BOOLEAN))
+		if (mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
+		    prefix_stack.push_back(prefix_stack.back());
 		    Parse(pParser, BRA, NULL, &state);
+		}
 		continue;
 
 	      case ')':
@@ -255,8 +254,13 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 		    // Ignore ) at start of query.
 		    continue;
 		}
-		if (mode == DEFAULT && (flags & FLAG_BOOLEAN))
+		if (mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
+		    // Remove the prefix we pushed for the corresponding BRA.
+		    // If brackets are unmatched, it's a syntax error, but
+		    // that's no excuse to SEGV!
+		    if (prefix_stack.size() > 1) prefix_stack.pop_back();
 		    Parse(pParser, KET, NULL, &state);
+		}
 		continue;
 	    }
 	    // Skip any other characters.
@@ -289,15 +293,15 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 			    if (!C_isalnum(ch)) {
 				newprev = ch;
 				++it;
-				state.push_prefix(f->second.str);
+				prefix_stack.push_back(f->second.str);
 				// Prefixed sub-expr: title:(fast NEAR food)
 				if (ch == '(') {
-				    Parse(pParser, PREFIX_BRA, NULL, &state);
+				    Parse(pParser, BRA, NULL, &state);
 				    continue;
 				}
 				// Prefixed phrase: subject:"space flight"
-				Parse(pParser, PREFIX_QUOTE, NULL, &state);
-				mode = IN_QUOTES;
+				Parse(pParser, QUOTE, NULL, &state);
+				mode = IN_PREFIXED_QUOTES;
 				continue;
 			    }
 			    prefix = f->second.str;
@@ -470,7 +474,7 @@ phrased_term:
 		term = stemmer.stem_word(term);
 	}
 
-	if (prefix.empty()) prefix = state.get_current_prefix();
+	if (prefix.empty()) prefix = prefix_stack.back();
 	if (!prefix.empty()) {
 	    if (prefix_needs_colon(prefix, term[0])) prefix += ':';
 	    term = prefix + term;
@@ -886,12 +890,6 @@ compound_term(T) ::= WILD_TERM(U). {
     delete U;
 }
 
-compound_term(T) ::= PREFIX_QUOTE phrase(P) QUOTE. {
-    // Remove the prefix which the lexer pushed as it generated PREFIX_QUOTE.
-    state->pop_prefix();
-    T = P->as_phrase_query();
-}
-
 compound_term(T) ::= QUOTE phrase(P) QUOTE.
 	{ T = P->as_phrase_query(); }
 
@@ -903,12 +901,6 @@ compound_term(T) ::= near_expr(P).
 
 compound_term(T) ::= BRA expr(E) KET.
 	{ T = E; }
-
-compound_term(T) ::= PREFIX_BRA expr(E) KET. {
-    // Remove the prefix which the lexer pushed as it generated PREFIX_BRA.
-    state->pop_prefix();
-    T = E;
-}
 
 // phrase - The "inside the quotes" part of a double-quoted phrase.
 

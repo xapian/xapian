@@ -50,6 +50,10 @@ static test test_or_queries[] = {
     { "a#b", "(a:(pos=1) OR b:(pos=2))" },
     { "O.K. U.N.C.L.E XY.Z.", "(Rok:(pos=1) OR Runcle:(pos=2) OR (Rxy:(pos=3) PHRASE 2 Rz:(pos=4)))" },
     { "author:orwell animal farm", "(Aorwel:(pos=1) OR anim:(pos=2) OR farm:(pos=3))" },
+    // Regression test for bug reported in 0.9.6.
+    { "author:\"orwell\" title:\"animal\"", "(Aorwel:(pos=1) OR XTanim:(pos=2))" },
+    // Regression test for bug related to one reported in 0.9.6.
+    { "author:(orwell) title:(animal)", "(Aorwel:(pos=1) OR XTanim:(pos=2))" },
     { "h\xf6hle", "hoehl:(pos=1)" },
     { "one +two three", "(two:(pos=2) AND_MAYBE (one:(pos=1) OR three:(pos=3)))" },
     { "subject:test other", "(XTtest:(pos=1) OR other:(pos=2))" },

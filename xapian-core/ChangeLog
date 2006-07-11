@@ -1,3 +1,9 @@
+Tue Jul 11 03:32:48 BST 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix bug in how we handle prefixed
+	  quoted phrases and prefixed brackets.
+	* tests/queryparsertest.cc: Add regression tests.
+
 Mon Jul 10 23:17:58 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Note that automatically allocated
