@@ -54,6 +54,12 @@ static test test_or_queries[] = {
     { "author:\"orwell\" title:\"animal\"", "(Aorwel:(pos=1) OR XTanim:(pos=2))" },
     // Regression test for bug related to one reported in 0.9.6.
     { "author:(orwell) title:(animal)", "(Aorwel:(pos=1) OR XTanim:(pos=2))" },
+    // Regression test for bug caused by fix for previous bug.
+    { "author:\"milne, a.a.\"", "(Amiln:(pos=1) PHRASE 3 Aa:(pos=2) PHRASE 3 Aa:(pos=3))" },
+    { "author:\"milne a.a.\"", "(Amiln:(pos=1) PHRASE 3 Aa:(pos=2) PHRASE 3 Aa:(pos=3))" },
+    { "\"1.4\"", "(1:(pos=1) PHRASE 2 4:(pos=2))" },
+    { "\"1.\"", "1:(pos=1)" },
+    { "\"A#.B.\"", "(Ra#:(pos=1) PHRASE 2 Rb:(pos=2))" },
     { "h\xf6hle", "hoehl:(pos=1)" },
     { "one +two three", "(two:(pos=2) AND_MAYBE (one:(pos=1) OR three:(pos=3)))" },
     { "subject:test other", "(XTtest:(pos=1) OR other:(pos=2))" },

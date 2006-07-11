@@ -1,3 +1,10 @@
+Tue Jul 11 18:41:07 BST 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix problem I believe was introduced
+	  by previous fix.
+	* tests/queryparsertest.cc: Add regression test and some additional
+	  related test cases.
+
 Tue Jul 11 03:32:48 BST 2006  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix bug in how we handle prefixed

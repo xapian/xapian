@@ -186,7 +186,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 		if (mode == DEFAULT) {
 		    if (it == end) {
 			// Ignore an unmatched " at the end of the query to
-			// avoid generating an empty set of QUOTE which will
+			// avoid generating an empty pair of QUOTEs which will
 			// cause a parse error.
 			goto done;
 		    }
@@ -490,7 +490,7 @@ phrased_term:
 	    Parse(pParser, PHR_TERM, new Term(term, term_pos++), &state);
 	} else {
 	    if (flags & FLAG_WILDCARD) {
-		if (mode != IN_QUOTES && it != end && *it == '*') {
+		if (mode == DEFAULT && it != end && *it == '*') {
 		    ++it;
 		    if (it == end || !C_isalnum(*it)) {
 			// Wildcard at end of term (also know as
@@ -503,7 +503,7 @@ phrased_term:
 	    }
 
 	    Parse(pParser, TERM, new Term(term, term_pos++), &state);
-	    if (mode == IN_QUOTES) continue;
+	    if (mode != DEFAULT) continue;
 	}
 
 	if (it != end && is_phrase_generator(*it)) {
@@ -521,7 +521,8 @@ phrased_term:
     }
 done:
     // Implicitly close any unclosed quotes...
-    if (mode == IN_QUOTES) Parse(pParser, QUOTE, NULL, &state);
+    if (mode == IN_QUOTES || mode == IN_PREFIXED_QUOTES)
+	Parse(pParser, QUOTE, NULL, &state);
     Parse(pParser, 0, NULL, &state);
     ParseFree(pParser);
 
