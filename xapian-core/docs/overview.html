@@ -828,27 +828,42 @@ These methods return a value in the range 0 to 100, which will be
 0 if and only if the item did not match the query at all.
 </P>
 
-<H3>Getting the document's data</H3>
+<H3>Accessing a document</H3>
 <P>
-Each document in the database has some data associated with it,
-represented by an
-<A HREF="apidoc/html/classXapian_1_1Document.html"><CODE>Xapian::Document</CODE></A> object.
-There are some arbitrary numeric keys (which are not yet available,
-and mainly useful in the match process) and an arbitrary lump of
-data.  To get the <CODE>Xapian::Document</CODE> object, use
-<A HREF="apidoc/html/classXapian_1_1Enquire.html"><CODE>Xapian::Enquire::get_doc()</CODE></A>.
-The returned <CODE>Xapian::Document</CODE> is fairly cheap to copy around.
-</P> <P>
-This data can be used to store a summary of the document along
-with a URL, for example, or anything else the application developer
-would like.
-</P><P>
-The data can be retrieved with
-<A HREF="apidoc/html/classXapian_1_1Document.html"><CODE>Xapian::Document::get_data()</CODE></A>
-from the <CODE>Xapian::Document</CODE> object.  This returns
-a C++ string containing the data.  It can include embedded nulls
-or other special characters.
+A document in the database is accessed via a
+<A HREF="apidoc/html/classXapian_1_1Document.html"><CODE>Xapian::Document</CODE></A>
+object.
+This can be obtained by calling
+<A HREF="apidoc/html/classXapian_1_1Database.html"><CODE>Xapian::Database::get_document()</CODE></A>.
+The returned <CODE>Xapian::Document</CODE> is a reference counted handle so
+copying is cheap.
 </P>
+
+<P>
+Each document can have the following types of information associated with it:
+</P>
+
+<ul>
+<li> document data - this is an arbitrary block of data accessed using
+<A HREF="apidoc/html/classXapian_1_1Document.html"><CODE>Xapian::Document::get_data()</CODE></A>.
+The contents of the document data can be whatever you want and in whatever
+format.  Often it contains fields such as a URL or other external UID, a
+document title, and an excerpt from the document text.  If you wish to
+interoperate with Omega, it should contain name=value pairs, one per line
+(recent versions of Omega also support one field value per line, and
+can assign names to line numbers in the query template).
+
+<li> terms and positional information - terms index the document (like index
+entries in the back of a book); positional information records the word
+offset into the document of each occurrence of a particular term.  This is
+used to implement phrase searching and the NEAR operator.
+
+<li> document values - these are arbitrary pieces of data which are stored
+so they can be accessed rapidly during the match process (to allow sorting
+collapsing of duplicates, etc).  Each value is stored in a numbered slot
+so you can have several for each document.  There's currently no length limit,
+but you should keep them short for efficiency.
+</ul>
 
 <H2>Specifying a relevance set</H2>
 <P>

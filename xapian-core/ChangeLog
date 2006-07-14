@@ -1,3 +1,8 @@
+Fri Jul 14 15:01:04 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/overview.html: Rewrite the section on Xapian::Document to
+	  remove some very out-of-date information and make it clearer.
+
 Tue Jul 11 18:41:07 BST 2006  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix problem I believe was introduced
