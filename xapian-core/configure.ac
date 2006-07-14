@@ -332,7 +332,7 @@ dnl AC_DEFINE_DIR(DATADIR, datadir, [Location of platform independent support fi
 dnl Checks for dot.  (Diagrams in the documentation)
 AC_PATH_PROG(DOT, dot)
 if test x$USE_MAINTAINER_MODE = xyes; then
-  test -z "$DOT" && AC_MSG_ERROR([dot is required in maintainer mode])
+  test -z "$DOT" && AC_MSG_ERROR([dot (part of the graphviz package) is required in maintainer mode])
 fi
 DOXYGEN_DOT_PATH=`echo "$DOT" | sed 's!/dot$!!'`
 AC_SUBST(DOXYGEN_DOT_PATH)
