@@ -865,6 +865,23 @@ so you can have several for each document.  There's currently no length limit,
 but you should keep them short for efficiency.
 </ul>
 
+<P>
+There's some overlap in what you can do with terms and with values.  A
+simple boolean operator (e.g. document language) is definitely better
+done using a term and OP_FILTER.
+</P>
+
+<P>
+Using a value allows you to do things you can't do with terms, such as
+"sort by price", or "show only the best match for each website".  You
+can also perform filtering with a value which is more sophisticated
+than can easily be achieved with terms, for example: find matches
+with a price between $100 and $900.  Omega uses boolean terms to perform
+date range filtering, but this might actually be better done using a
+value (the code in Omega was written before values were added to
+Xapian).
+</P>
+
 <H2>Specifying a relevance set</H2>
 <P>
 Xapian supports the idea of relevance feedback: that is, of allowing the user
