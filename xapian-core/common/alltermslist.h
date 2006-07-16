@@ -88,6 +88,10 @@ class AllTermsList : public TermList
 	// True if we're off the end of the list
 	virtual bool at_end() const = 0;
 
+	virtual Xapian::termcount positionlist_count() const {
+	    throw Xapian::InvalidOperationError("AllTermsList::positionlist_count() isn't meaningful");
+	}
+
 	virtual Xapian::PositionIterator positionlist_begin() const {
 	    throw Xapian::InvalidOperationError("AllTermsList::positionlist_begin() isn't meaningful");
 	}

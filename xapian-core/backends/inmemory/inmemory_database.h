@@ -184,6 +184,7 @@ class InMemoryTermList : public LeafTermList {
 	Xapian::doccount get_termfreq() const;  // Number of docs indexed by term
 	TermList * next();
 	bool at_end() const;
+	Xapian::termcount positionlist_count() const;
 	Xapian::PositionIterator positionlist_begin() const;
 };
 

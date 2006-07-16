@@ -280,4 +280,6 @@ inline char C_toupper(char ch) {
     return up_tab[static_cast<unsigned char>(ch)];
 }
 
+double C_strtod(const char *str, char ** endPtr);
+
 #endif /* OM_HGUARD_UTILS_H */

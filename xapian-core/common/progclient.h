@@ -1,7 +1,7 @@
-/* progclient.h: implementation of NetClient which spawns a program.
+/* progclient.h: implementation of RemoteDatabase which spawns a program.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,22 +15,21 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_PROGCLIENT_H
 #define OM_HGUARD_PROGCLIENT_H
 
-#include "socketclient.h"
-#include "socketcommon.h"
+#include "remote-database.h"
 
-/** An implementation of the NetClient interface using a program.
- *  ProgClient gets a socket by spawning a separate program, rather
- *  than connecting to a remote machine.
+/** An implementation of the RemoteDatabase interface using a program.
+ *
+ *  ProgClient gets a socket by spawning a separate program connected
+ *  via a pipe.
  */
-class ProgClient : public SocketClient {
+class ProgClient : public RemoteDatabase {
     private:
 	// disallow copies
 	ProgClient(const ProgClient &);

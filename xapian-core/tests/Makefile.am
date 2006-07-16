@@ -10,6 +10,7 @@ if BUILD_BACKEND_REMOTE
 check-remote: remotetest$(EXEEXT) apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./remotetest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remote
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
 
 remote_check_programs = remotetest
 remote_tests = remotetest$(EXEEXT)

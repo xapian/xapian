@@ -26,11 +26,8 @@
 
 #include "tcpserver.h"
 #include "stats.h"
-#include "netutils.h"
-#include "socketcommon.h"
 #include "utils.h"
 
-#include <string.h>
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
@@ -44,31 +41,37 @@
 #include <netdb.h>
 #include <signal.h>
 #include <sys/wait.h>
-#ifdef TIMING_PATCH
-#include <sys/time.h>
-
-#define uint64_t unsigned long long
-#endif /* TIMING_PATCH */
 
 #include <iostream>
+
 using namespace std;
+
+// Handle older systems.
+#if !defined SIGCHLD && defined SIGCLD
+# define SIGCHLD SIGCLD
+#endif
 
 /// The TcpServer constructor, taking a database and a listening port.
 TcpServer::TcpServer(Xapian::Database db_, int port_,
 		     int msecs_active_timeout_,
 		     int msecs_idle_timeout_,
-#ifndef TIMING_PATCH
 		     bool verbose_)
-#else /* TIMING_PATCH */
-		     bool verbose_, bool timing_)
-#endif /* TIMING_PATCH */
-	: port(port_), db(db_), listen_socket(get_listening_socket(port_)),
+	: port(port_), writable(false), db(db_), listen_socket(get_listening_socket(port_)),
 	  msecs_active_timeout(msecs_active_timeout_),
 	  msecs_idle_timeout(msecs_idle_timeout_),
 	  verbose(verbose_)
-#ifdef TIMING_PATCH
-          , timing(timing_)
-#endif /* TIMING_PATCH */
+{
+
+}
+
+TcpServer::TcpServer(Xapian::WritableDatabase wdb_, int port_,
+		     int msecs_active_timeout_,
+		     int msecs_idle_timeout_,
+		     bool verbose_)
+	: port(port_), writable(true), wdb(wdb_), listen_socket(get_listening_socket(port_)),
+	  msecs_active_timeout(msecs_active_timeout_),
+	  msecs_idle_timeout(msecs_idle_timeout_),
+	  verbose(verbose_)
 {
 
 }
@@ -159,29 +162,22 @@ void
 TcpServer::run_once()
 {
     int connected_socket = get_connected_socket();
-#ifdef TIMING_PATCH
-    struct timeval stp, etp;
-    // record start time
-    int returnval = gettimeofday(&stp,NULL);
-    if (returnval != 0) {
-	cerr << "Could not get time of day...\n";
-    }
-#endif /* TIMING_PATCH */
     int pid = fork();
     if (pid == 0) {
 	// child code
 	close(listen_socket);
 	try {
-#ifndef TIMING_PATCH
-	    SocketServer sserv(db, connected_socket, -1,
-			       msecs_active_timeout,
-			       msecs_idle_timeout);
-#else /* TIMING_PATCH */
-	    SocketServer sserv(db, connected_socket, -1,
-			       msecs_active_timeout,
-			       msecs_idle_timeout, timing);
-#endif /* TIMING_PATCH */
-	    sserv.run();
+	    if (writable) {
+		RemoteServer sserv(&wdb, connected_socket, connected_socket,
+				   msecs_active_timeout,
+				   msecs_idle_timeout);
+		sserv.run();
+	    } else {
+		RemoteServer sserv(&db, connected_socket, connected_socket,
+				   msecs_active_timeout,
+				   msecs_idle_timeout);
+		sserv.run();
+	    }
 	} catch (const Xapian::Error &err) {
 	    cerr << "Got exception " << err.get_type()
 		 << ": " << err.get_msg() << endl;
@@ -190,17 +186,7 @@ TcpServer::run_once()
 	}
 	close(connected_socket);
 
-#ifndef TIMING_PATCH
 	if (verbose) cout << "Closing connection.\n";
-#else /* TIMING_PATCH */
-	// record end time
-	returnval = gettimeofday(&etp, NULL);
-	if (returnval != 0) {
-	    cerr << "Could not get time of day...\n";
-	}
-	uint64_t total = ((1000000 * etp.tv_sec) + etp.tv_usec) - ((1000000 * stp.tv_sec) + stp.tv_usec);
-	if (verbose) cout << "Connection held open for " <<  total << " usecs. (tcpserver.cc)\n\n";
-#endif /* TIMING_PATCH */
 	exit(0);
     } else if (pid > 0) {
 	// parent code
@@ -226,9 +212,9 @@ on_SIGTERM(int /*sig*/)
     exit (0);
 }
 
-extern "C" void 
+extern "C" void
 on_SIGCHLD(int /*sig*/)
-{    
+{
     int status;
     while (waitpid(-1, &status, WNOHANG) > 0);
 }
@@ -237,17 +223,13 @@ void
 TcpServer::run()
 {
     // set up signal handlers
-    /* NOTE: Changed from SIGCLD to SIGCHLD, as I believe it to be
-     * more portable.  If any systems only understand SIGCLD, then
-     * we'll have to add a define, but it may not be necessary.
-     */
 #ifndef HAVE_WAITPID
     signal(SIGCHLD, SIG_IGN);
 #else
     signal(SIGCHLD, on_SIGCHLD);
 #endif
     signal(SIGTERM, on_SIGTERM);
-    while (1) {
+    while (true) {
 	try {
 	    run_once();
 	} catch (const Xapian::DatabaseModifiedError &) {

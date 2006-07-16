@@ -40,8 +40,8 @@ BUILDSUBDIR_INMEMORY = inmemory
 LIBADD_INMEMORY = inmemory/libinmemory.la
 
 if BUILD_BACKEND_REMOTE
-BUILDSUBDIR_REMOTE = net
-LIBADD_REMOTE = net/libremote.la
+BUILDSUBDIR_REMOTE = remote
+LIBADD_REMOTE = remote/libremote.la
 endif
 
 SUBDIRS = $(BUILDSUBDIR_MUSCAT36) \
@@ -50,7 +50,7 @@ SUBDIRS = $(BUILDSUBDIR_MUSCAT36) \
           $(BUILDSUBDIR_INMEMORY) \
 	  $(BUILDSUBDIR_REMOTE) multi .
 
-DIST_SUBDIRS = muscat36 quartz flint inmemory net multi .
+DIST_SUBDIRS = muscat36 quartz flint inmemory remote multi .
 
 libbackend_la_LIBADD = \
           $(LIBADD_MUSCAT36) \

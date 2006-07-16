@@ -24,7 +24,6 @@
 #include "omdebug.h"
 #include "omqueryinternal.h"
 #include "utils.h"
-#include "netutils.h"
 
 #include <xapian/error.h>
 #include <xapian/enquire.h>

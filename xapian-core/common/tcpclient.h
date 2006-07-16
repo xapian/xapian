@@ -1,7 +1,7 @@
-/* tcpclient.h: implementation of NetClient which opens a TCP/IP socket
+/* tcpclient.h: implementation of RemoteDatabase which opens a TCP/IP socket
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,21 +15,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_TCPCLIENT_H
 #define OM_HGUARD_TCPCLIENT_H
 
-#include "socketclient.h"
-#include "socketcommon.h"
+#include "remote-database.h"
 
-/** An implementation of the NetClient interface using a program.
- *  TcpClient opens a TCP/IP socket to a remote machine.
+/** An implementation of the RemoteDatabase interface using a TCP connection.
+ *
+ *  TcpClient opens a TCP/IP socket to a xapian-tcpsrv on a remote machine.
  */
-class TcpClient : public SocketClient {
+class TcpClient : public RemoteDatabase {
     private:
 	// disallow copies
 	TcpClient(const TcpClient &);
@@ -55,7 +54,7 @@ class TcpClient : public SocketClient {
 	 *  @param hostname The name of the remote host
 	 *  @param port	    The TCP port to connect to.
 	 *  @param msecs_timeout_ The timeout in milliseconds before assuming
-	 *  			the remote end has failed.
+	 *			the remote end has failed.
 	 */
 	TcpClient(std::string hostname, int port,
 		  int msecs_timeout_, int msecs_timeout_connect_);

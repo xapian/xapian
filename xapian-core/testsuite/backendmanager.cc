@@ -157,6 +157,14 @@ BackendManager::set_dbtype(const string &type)
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
 #endif
+    } else if (type == "remotetcp") {
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+	do_getdb = &BackendManager::getdb_remotetcp;
+	do_getwritedb = &BackendManager::getwritedb_remotetcp;
+#else
+	do_getdb = &BackendManager::getdb_void;
+	do_getwritedb = &BackendManager::getwritedb_void;
+#endif
 #ifdef XAPIAN_HAS_MUSCAT36_BACKEND
     } else if (type == "da") {
 	do_getdb = &BackendManager::getdb_da;
@@ -185,7 +193,7 @@ BackendManager::set_dbtype(const string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
 	throw Xapian::InvalidArgumentError(
-		"Expected inmemory, flint, quartz, remote, da, db, "
+		"Expected inmemory, flint, quartz, remote, remotetcp, da, db, "
 		"daflimsy, dbflimsy, or void");
     }
     current_type = type;
@@ -320,8 +328,8 @@ bool create_dir_if_needed(const string &dirname)
 }
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
-Xapian::Database
-BackendManager::getdb_flint(const vector<string> &dbnames)
+string
+BackendManager::createdb_flint(const vector<string> &dbnames)
 {
     string parent_dir = ".flint";
     create_dir_if_needed(parent_dir);
@@ -337,7 +345,13 @@ BackendManager::getdb_flint(const vector<string> &dbnames)
 	Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
 	index_files_to_database(db, change_names_to_paths(dbnames));
     }
-    return Xapian::Flint::open(dbdir);
+    return dbdir;
+}
+
+Xapian::Database
+BackendManager::getdb_flint(const vector<string> &dbnames)
+{
+    return Xapian::Flint::open(createdb_flint(dbnames));
 }
 
 Xapian::WritableDatabase
@@ -349,10 +363,6 @@ BackendManager::getwritedb_flint(const vector<string> &dbnames)
     // Add 'w' to distinguish writable dbs (which need to be recreated on each
     // use) from readonly ones (which can be reused).
     string dbdir = parent_dir + "/dbw";
-    for (vector<string>::const_iterator i = dbnames.begin();
-	 i != dbnames.end(); ++i) {
-	dbdir += "=" + *i;
-    }
     // For a writable database we need to start afresh each time.
     rmdir(dbdir);
     (void)create_dir_if_needed(dbdir);
@@ -365,8 +375,8 @@ BackendManager::getwritedb_flint(const vector<string> &dbnames)
 #endif
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
-Xapian::Database
-BackendManager::getdb_quartz(const vector<string> &dbnames)
+string
+BackendManager::createdb_quartz(const vector<string> &dbnames)
 {
     string parent_dir = ".quartz";
     create_dir_if_needed(parent_dir);
@@ -382,7 +392,13 @@ BackendManager::getdb_quartz(const vector<string> &dbnames)
 	Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
 	index_files_to_database(db, change_names_to_paths(dbnames));
     }
-    return Xapian::Quartz::open(dbdir);
+    return dbdir;
+}
+
+Xapian::Database
+BackendManager::getdb_quartz(const vector<string> &dbnames)
+{
+    return Xapian::Quartz::open(createdb_quartz(dbnames));
 }
 
 Xapian::WritableDatabase
@@ -394,10 +410,6 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
     // Add 'w' to distinguish writable dbs (which need to be recreated on each
     // use) from readonly ones (which can be reused).
     string dbdir = parent_dir + "/dbw";
-    for (vector<string>::const_iterator i = dbnames.begin();
-	 i != dbnames.end(); ++i) {
-	dbdir += "=" + *i;
-    }
     // For a writable database we need to start afresh each time.
     rmdir(dbdir);
     (void)create_dir_if_needed(dbdir);
@@ -413,33 +425,103 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
 Xapian::Database
 BackendManager::getdb_remote(const vector<string> &dbnames)
 {
-    // run an xapian-progsrv for now.  Later we should also use xapian-tcpsrv
-    string args = datadir;
-    bool timeout = false;
-    vector<string>::const_iterator i;
-    for (i = dbnames.begin(); i != dbnames.end(); ++i) {
-	if (*i == "#TIMEOUT#") {
-	    ++i;
-	    if (i == dbnames.end()) {
-		throw Xapian::InvalidArgumentError("Missing timeout parameter");
-	    }
-	    args += " -t" + *i;
-	    timeout = true;
-	} else {
-	    args += ' ';
-	    args += *i;
+    // Uses xapian-progsrv as the server.
+
+    vector<string> paths;
+    string args = "-t";
+    if (!dbnames.empty() && dbnames[0] == "#TIMEOUT#") {
+	if (dbnames.size() < 2) {
+	    throw Xapian::InvalidArgumentError("Missing timeout parameter");
 	}
+	args += dbnames[1];
+	paths.assign(dbnames.begin() + 2, dbnames.end());
+    } else {
+	// Default to a long (5 minute) timeout so that tests won't fail just
+	// because the host if slow or busy.
+	args += "300000";
+	paths = dbnames;
     }
-    // Nice long timeout (5 minutes) so we don't timeout just because
-    // the host is slow.
-    if (!timeout) args += " -t300000";
+
+    args += ' ';
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += createdb_flint(paths);
+#else
+    args += createdb_quartz(paths);
+#endif
     return Xapian::Remote::open("../bin/xapian-progsrv", args);
 }
 
 Xapian::WritableDatabase
-BackendManager::getwritedb_remote(const vector<string> &/*dbnames*/)
+BackendManager::getwritedb_remote(const vector<string> &dbnames)
 {
-    throw Xapian::InvalidArgumentError("Attempted to open writable remote database");
+    // Uses xapian-progsrv as the server.
+
+    // Default to a long (5 minute) timeout so that tests won't fail just
+    // because the host if slow or busy.
+    string args = "-t300000 --writable ";
+
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    (void)getwritedb_flint(dbnames);
+    args += ".flint/dbw";
+#else
+    (void)getwritedb_quartz(dbnames);
+    args += ".quartz/dbw";
+#endif
+    return Xapian::Remote::open_writable("../bin/xapian-progsrv", args);
+}
+
+Xapian::Database
+BackendManager::getdb_remotetcp(const vector<string> &dbnames)
+{
+    // Uses xapian-tcpsrv as the server.
+
+    vector<string> paths;
+    string args = "-t";
+    if (!dbnames.empty() && dbnames[0] == "#TIMEOUT#") {
+	if (dbnames.size() < 2) {
+	    throw Xapian::InvalidArgumentError("Missing timeout parameter");
+	}
+	args += dbnames[1];
+	paths.assign(dbnames.begin() + 2, dbnames.end());
+    } else {
+	// Default to a long (5 minute) timeout so that tests won't fail just
+	// because the host if slow or busy.
+	args += "300000";
+	paths = dbnames;
+    }
+
+    args += ' ';
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    args += createdb_flint(paths);
+#else
+    args += createdb_quartz(paths);
+#endif
+    string cmd = "../bin/xapian-tcpsrv --one-shot --quiet --port 1239 " + args + " &";
+    system(cmd);
+    sleep(1);
+    return Xapian::Remote::open("127.0.0.1", 1239);
+}
+
+Xapian::WritableDatabase
+BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
+{
+    // Uses xapian-tcpsrv as the server.
+
+    // Default to a long (5 minute) timeout so that tests won't fail just
+    // because the host if slow or busy.
+    string args = "-t300000 --writable ";
+
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+    (void)getwritedb_flint(dbnames);
+    args += ".flint/dbw";
+#else
+    (void)getwritedb_quartz(dbnames);
+    args += ".quartz/dbw";
+#endif
+    string cmd = "../bin/xapian-tcpsrv --writable --one-shot --quiet --port 1239 " + args + " &";
+    system(cmd);
+    sleep(1);
+    return Xapian::Remote::open_writable("127.0.0.1", 1239);
 }
 #endif
 

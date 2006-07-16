@@ -72,7 +72,8 @@ static bool test_stubdb1()
 {
     ofstream out("stubdb1");
     TEST(out.is_open());
-    out << "remote :../bin/xapian-progsrv " << backendmanager.get_datadir() << " apitest_simpledata\n";
+    // FIXME: not very reliable...
+    out << "remote :../bin/xapian-progsrv .flint/db=apitest_simpledata\n";
     out.close();
 
     {

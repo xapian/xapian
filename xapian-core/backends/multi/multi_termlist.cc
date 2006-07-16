@@ -82,6 +82,12 @@ bool MultiTermList::at_end() const
     return tl->at_end();
 }
 
+Xapian::termpos
+MultiTermList::positionlist_count() const
+{
+    return tl->positionlist_count();
+}
+
 Xapian::PositionIterator
 MultiTermList::positionlist_begin() const
 {

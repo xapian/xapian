@@ -1,6 +1,7 @@
-/* nettest.cc: tests for the network matching code.
- *
- * Copyright 1999,2000,2001 BrightStation PLC
+/** @file remotetest.cc
+ *  @brief tests for the remote backend
+ */
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
@@ -117,6 +118,7 @@ static bool test_netexpand1()
     return true;
 }
 
+#if 0
 // test a tcp match
 static bool test_tcpmatch1()
 {
@@ -146,6 +148,7 @@ static bool test_tcpmatch1()
 
     return true;
 }
+#endif
 
 #if 0
 // test a tcp match when the remote end dies
@@ -198,10 +201,10 @@ static bool test_tcpdead1()
 
 //    tout << pid << endl;
 //    system("ps x | grep omtcp");
-    
+
     time_t t = time(NULL);
     try {
-	enq.set_query(Xapian::Query("word"));	
+	enq.set_query(Xapian::Query("word"));
 	Xapian::MSet mset(enq.get_mset(0, 10));
     }
     catch (const Xapian::NetworkError &e) {
@@ -217,6 +220,72 @@ static bool test_tcpdead1()
 }
 #endif
 
+// Test network stats and local stats give the same results.
+static bool test_netstats1()
+{
+    BackendManager remote_manager;
+    remote_manager.set_dbtype("remote");
+    remote_manager.set_datadir(datadir);
+
+    BackendManager local_manager;
+    local_manager.set_dbtype("flint");
+    local_manager.set_datadir(datadir);
+
+    const char * words[] = { "paragraph", "word" };
+    Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);
+    const size_t MSET_SIZE = 10;
+
+    Xapian::RSet rset;
+    rset.add_document(4);
+    rset.add_document(9);
+
+    Xapian::MSet mset_alllocal;
+    {
+	Xapian::Database db;
+	db.add_database(local_manager.get_database("apitest_simpledata"));
+	db.add_database(local_manager.get_database("apitest_simpledata2"));
+
+	Xapian::Enquire enq(db);
+	enq.set_query(query);
+	mset_alllocal = enq.get_mset(0, MSET_SIZE, &rset);
+    }
+
+    {
+	Xapian::Database db;
+	db.add_database(local_manager.get_database("apitest_simpledata"));
+	db.add_database(remote_manager.get_database("apitest_simpledata2"));
+
+	Xapian::Enquire enq(db);
+	enq.set_query(query);
+	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
+	TEST_EQUAL(mset, mset_alllocal);
+    }
+
+    {
+	Xapian::Database db;
+	db.add_database(remote_manager.get_database("apitest_simpledata"));
+	db.add_database(local_manager.get_database("apitest_simpledata2"));
+
+	Xapian::Enquire enq(db);
+	enq.set_query(query);
+	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
+	TEST_EQUAL(mset, mset_alllocal);
+    }
+
+    {
+	Xapian::Database db;
+	db.add_database(remote_manager.get_database("apitest_simpledata"));
+	db.add_database(remote_manager.get_database("apitest_simpledata2"));
+
+	Xapian::Enquire enq(db);
+	enq.set_query(query);
+	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
+	TEST_EQUAL(mset, mset_alllocal);
+    }
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases.
 
@@ -224,9 +293,10 @@ test_desc tests[] = {
     {"netmatch1",	test_netmatch1},
     {"netmatch2",	test_netmatch2},
     {"netexpand1",      test_netexpand1},
-    {"tcpmatch1",	test_tcpmatch1},
+    //{"tcpmatch1",	test_tcpmatch1},
 // disable until we can work out how to kill the right process cleanly
     //{"tcpdead1",	test_tcpdead1},
+    {"netstats1",	test_netstats1},
     {0,			0},
 };
 

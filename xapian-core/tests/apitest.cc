@@ -143,10 +143,21 @@ int main(int argc, char **argv)
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     RUNTESTS("remote", anydb);
     RUNTESTS("remote", specchar);
+    RUNTESTS("remote", writabledb);
     RUNTESTS("remote", remotedb);
     RUNTESTS("remote", positionaldb);
     RUNTESTS("remote", doclendb);
     RUNTESTS("remote", multivalue);
+    RUNTESTS("remote", transactiondb);
+
+    RUNTESTS("remotetcp", anydb);
+    RUNTESTS("remotetcp", specchar);
+    RUNTESTS("remotetcp", writabledb);
+    RUNTESTS("remotetcp", remotedb);
+    RUNTESTS("remotetcp", positionaldb);
+    RUNTESTS("remotetcp", doclendb);
+    RUNTESTS("remotetcp", multivalue);
+    RUNTESTS("remotetcp", transactiondb);
 #endif
 
 #ifdef XAPIAN_HAS_MUSCAT36_BACKEND

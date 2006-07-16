@@ -304,7 +304,7 @@ Database::Internal::dtor_called()
     try {
 	if (transaction_active()) {
 	    cancel_transaction();
-	} else {
+	} else if (transaction_state == TRANSACTION_NONE) {
 	    flush();
 	}
     } catch (...) {

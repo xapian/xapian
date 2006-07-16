@@ -27,7 +27,6 @@
 #include "progclient.h"
 #include <xapian/error.h>
 #include "utils.h"
-#include "netutils.h"
 #include "omdebug.h"
 
 #include <string>
@@ -44,10 +43,9 @@
 using namespace std;
 
 ProgClient::ProgClient(string progname, const string &args, int msecs_timeout_)
-	: SocketClient(get_spawned_socket(progname, args),
-		       msecs_timeout_,
-		       get_progcontext(progname, args),
-		       false /* closing socket our responsibility */)
+	: RemoteDatabase(get_spawned_socket(progname, args),
+			 msecs_timeout_,
+			 get_progcontext(progname, args))
 {
     DEBUGCALL(DB, void, "ProgClient::ProgClient", progname << ", " << args <<
 	      ", " << msecs_timeout_);
@@ -57,7 +55,7 @@ string
 ProgClient::get_progcontext(string progname, const string &args)
 {
     DEBUGCALL_STATIC(DB, string, "ProgClient::get_progcontext", progname <<
-	   	    ", " << args);
+		     ", " << args);
     RETURN("remote:prog(" + progname + " " + args);
 }
 
@@ -131,7 +129,7 @@ ProgClient::get_spawned_socket(string progname, const string &args)
 
 ProgClient::~ProgClient()
 {
-    // close the socket and reap the child.
+    // Close the socket and reap the child.
     do_close();
     waitpid(pid, 0, 0);
 }

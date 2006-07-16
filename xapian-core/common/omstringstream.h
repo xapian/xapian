@@ -1,9 +1,8 @@
 /* omstringstream.h: A replacement for stringstream.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_OMSTRINGSTREAM_H
@@ -28,9 +26,18 @@
 // So that we can use the output functions declared here.
 #include <xapian/output.h>
 
+#include "omtime.h"
+
+#include <iomanip>
+
 #ifdef HAVE_SSTREAM
 #include <sstream>
 typedef std::ostringstream om_ostringstream;
+
+inline std::ostream &
+operator<<(std::ostream & os, const OmTime & om_time) {
+    return os << om_time.sec << '.' << std::setw(6) << std::setfill('0') << om_time.usec;
+}
 
 #else // HAVE_SSTREAM
 
@@ -78,6 +85,11 @@ class om_ostringstream {
 	/// The string so far
 	std::string mystring;
 };
+
+inline om_ostringstream &
+operator << (om_ostringstream &os, const OmTime &om_time) {
+    return os << om_time.sec << '.' << std::setw(6) << std::setfill('0') << om_time.usec << std::setw(0);
+}
 
 #define OSTRINGSTREAMFUNC(X) \
     inline om_ostringstream & \

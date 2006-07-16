@@ -56,7 +56,7 @@ class ESetItem {
 	Xapian::weight wt;
 	/// Term suggested.
 	string tname;
-	
+
 	/** Returns a string representing the eset item.
 	 *  Introspection method.
 	 */
@@ -69,11 +69,16 @@ class ESetItem {
  */
 class MSetItem {
     public:
-	MSetItem(Xapian::weight wt_, Xapian::docid did_) 
+	MSetItem(Xapian::weight wt_, Xapian::docid did_)
 		: wt(wt_), did(did_), collapse_count(0) {}
 
 	MSetItem(Xapian::weight wt_, Xapian::docid did_, const string &key_)
 		: wt(wt_), did(did_), collapse_key(key_), collapse_count(0) {}
+
+	MSetItem(Xapian::weight wt_, Xapian::docid did_, const string &key_,
+		 Xapian::doccount collapse_count_)
+		: wt(wt_), did(did_), collapse_key(key_),
+		  collapse_count(collapse_count_) {}
 
 	/** Weight calculated. */
 	Xapian::weight wt;
@@ -313,17 +318,13 @@ class ESet::Internal : public Xapian::Internal::RefCntBase {
 
 class RSet::Internal : public Xapian::Internal::RefCntBase {
     friend class Xapian::RSet;
-    friend class ::RSetI;
-    friend class ::OmExpand;
-    friend class ::MultiMatch;
 
     private:
 	/// Items in the relevance set.
 	set<Xapian::docid> items;
 
     public:
-	std::string to_string() const;
-
+	const set<Xapian::docid> & get_items() const { return items; }
 	/** Returns a string representing the rset.
 	 *  Introspection method.
 	 */

@@ -23,10 +23,11 @@
  */
 
 #include <config.h>
+
 #include "multimatch.h"
-#include "match.h"
+#include "submatch.h"
 #include "localmatch.h"
-#include "emptymatch.h"
+#include "emptysubmatch.h"
 #include "omdebug.h"
 #include "omenquireinternal.h"
 
@@ -39,7 +40,7 @@
 #include "document.h"
 #include "omqueryinternal.h"
 
-#include "match.h"
+#include "submatch.h"
 #include "stats.h"
 
 #include "msetcmp.h"
@@ -48,7 +49,8 @@
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-#include "networkmatch.h"
+#include "remotesubmatch.h"
+#include "remote-database.h"
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 
 #include <algorithm>
@@ -108,7 +110,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	    subrsets.push_back(Xapian::RSet());
 	}
 
-	const set<Xapian::docid> & items = omrset.internal->items;
+	const set<Xapian::docid> & items = omrset.internal->get_items();
 	set<Xapian::docid>::const_iterator j;
 	for (j = items.begin(); j != items.end(); ++j) {
 	    Xapian::doccount local_docid = (*j - 1) / number_of_leaves + 1;
@@ -128,20 +130,19 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	try {
 	    // There is currently only one special case, for network databases.
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	    NetworkDatabase *netdb = subdb->as_networkdatabase();
-	    if (netdb) {
+	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
+	    if (rem_db) {
 		if (bias_halflife) {
 		    throw Xapian::UnimplementedError("bias_halflife and bias_weight not supported with remote backend");
 		}
-		smatch = Xapian::Internal::RefCntPtr<SubMatch>(
-			new RemoteSubMatch(netdb, query, qlen,
-			    *subrset, collapse_key, order,
-			    sort_key, sort_by, sort_value_forward,
-			    percent_cutoff, weight_cutoff,
-			    gatherer.get(), weight));
+		rem_db->set_query(query, qlen, collapse_key, order, sort_key,
+				  sort_by, sort_value_forward, percent_cutoff,
+				  weight_cutoff, weight, *subrset);
+		smatch = new RemoteSubMatch(rem_db, gatherer.get(),
+					    sort_key != Xapian::valueno(-1));
 	    } else {
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
-		smatch = Xapian::Internal::RefCntPtr<SubMatch>(new LocalSubMatch(subdb, query, qlen, *subrset, gatherer.get(), weight));
+		smatch = new LocalSubMatch(subdb, query, qlen, *subrset, gatherer.get(), weight);
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    }
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
@@ -150,7 +151,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	    DEBUGLINE(EXCEPTION, "Calling error handler for creation of a SubMatch from a database and query.");
 	    (*errorhandler)(e);
 	    // Continue match without this sub-postlist.
-	    smatch = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
+	    smatch = new EmptySubMatch;
 	}
 	leaves.push_back(smatch);
 	++subrset;
@@ -158,43 +159,35 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
     Assert(subrset == subrsets.end());
 
     gatherer->set_global_stats(omrset.size());
-    prepare_matchers();
-}
 
-MultiMatch::~MultiMatch()
-{
-    DEBUGCALL(MATCH, void, "~MultiMatch", "");
-}
-
-void
-MultiMatch::prepare_matchers()
-{
-    DEBUGCALL(MATCH, void, "MultiMatch::prepare_matchers", "");
-    Assert(query);
-    bool prepared;
+    // We use a vector<bool> to track which SubMatches we're already prepared.
+    vector<bool> prepared;
+    prepared.resize(leaves.size(), false);
+    size_t unprepared = leaves.size();
     bool nowait = true;
-    do {
-	prepared = true;
-	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
-	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
+    while (unprepared) {
+	for (size_t leaf = 0; leaf < leaves.size(); ++leaf) {
+	    if (prepared[leaf]) continue;
 	    try {
-		if (!(*leaf)->prepare_match(nowait)) prepared = false;
-	    } catch (Xapian::Error & e) {
-		if (errorhandler) {
-		    DEBUGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
-		    (*errorhandler)(e);
-		    // Continue match without this sub-match.
-		    *leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
-		    prepared = false;
-		} else {
-		    throw;
+		if (leaves[leaf]->prepare_match(nowait)) {
+		    prepared[leaf] = true;
+		    --unprepared;
 		}
+	    } catch (Xapian::Error & e) {
+		if (!errorhandler) throw;
+
+		DEBUGLINE(EXCEPTION, "Calling error handler for prepare_match() on a SubMatch.");
+		(*errorhandler)(e);
+		// Continue match without this sub-match.
+		leaves[leaf] = new EmptySubMatch();
+		prepared[leaf] = true;
+		--unprepared;
 	    }
 	}
 	// Use blocking IO on subsequent passes, so that we don't go into
 	// a tight loop.
 	nowait = false;
-    } while (!prepared);
+    }
 }
 
 string
@@ -271,43 +264,30 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	}
     }
 
-    // Get postlists
+    // Get postlists and term info
     vector<PostList *> postlists;
-    {
-	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator i;
-	for (i = leaves.begin(); i != leaves.end(); ++i) {
-	    // FIXME: errorhandler here? (perhaps not needed if this simply makes a pending postlist)
-	    postlists.push_back((*i)->get_postlist(first + check_at_least, this));
-	}
-    }
-
-    // Get term info
     map<string, Xapian::MSet::Internal::TermFreqAndWeight> termfreqandwts;
+    map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts_ptr;
+    termfreqandwts_ptr = &termfreqandwts;
     {
 	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
-	vector<PostList * >::iterator pl_iter;
-	Assert(leaves.size() == postlists.size());
-	for (leaf = leaves.begin(), pl_iter = postlists.begin();
-	     leaf != leaves.end();
-	     ++leaf, ++pl_iter) {
+	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
+	    PostList *pl;
 	    try {
-		termfreqandwts = (*leaf)->get_term_info();
-		break;
+		pl = (*leaf)->get_postlist_and_term_info(this, termfreqandwts_ptr);
+		if (termfreqandwts_ptr && !termfreqandwts.empty())
+		    termfreqandwts_ptr = NULL;
 	    } catch (Xapian::Error & e) {
-		if (e.get_type() == "Xapian::InternalError" &&
-		    e.get_msg().substr(0, 13) == "EmptySubMatch") {
-		    DEBUGLINE(MATCH, "leaf is an EmptySubMatch, trying next");
-		} else {
-		    if (!errorhandler) throw;
-		    DEBUGLINE(EXCEPTION, "Calling error handler for "
-			      "get_term_info() on a SubMatch.");
-		    (*errorhandler)(e);
-		    // Continue match without this sub-match.
-		    *leaf = Xapian::Internal::RefCntPtr<SubMatch>(new EmptySubMatch());
-		    delete *pl_iter;
-		    *pl_iter = new EmptyPostList;
-		}
+		if (!errorhandler) throw;
+		DEBUGLINE(EXCEPTION, "Calling error handler for "
+			  "get_term_info() on a SubMatch.");
+		(*errorhandler)(e);
+		// FIXME: check if *ALL* the remote servers have failed!
+		// Continue match without this sub-match.
+		*leaf = new EmptySubMatch();
+		pl = new EmptyPostList;
 	    }
+	    postlists.push_back(pl);
 	}
     }
 

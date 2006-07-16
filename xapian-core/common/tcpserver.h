@@ -1,8 +1,7 @@
 /* tcpserver.h: class for TCP/IP-based server.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,16 +15,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_TCPSERVER_H
 #define OM_HGUARD_TCPSERVER_H
 
-#include "socketserver.h"
-#include "socketcommon.h"
+#include "remoteserver.h"
 
 /** A TCP server class, which uses SocketServer.
  */
@@ -38,8 +35,14 @@ class TcpServer {
 	/// The listening port number.
 	int port;
 
+	// If wdb is set, true; if db is set, false.
+	bool writable;
+
 	/// The database we're using.
 	Xapian::Database db;
+
+	/// The writable database we're using.
+	Xapian::WritableDatabase wdb;
 
 	/// The listening socket
 	int listen_socket;
@@ -75,20 +78,21 @@ class TcpServer {
 	 *  @param db_		The database used for matches etc.
 	 *  @param port_	The port on which to listen for connections.
 	 *  @param msecs_active_timeout_	The timeout (in milliseconds)
-	 *  			used while waiting for data from the client
-	 *  			during the handling of a request.
+	 *			used while waiting for data from the client
+	 *			during the handling of a request.
 	 *  @param msecs_idle_timeout_		The timeout (in milliseconds)
-	 *  			used while waiting for a request from the
-	 *  			client while idle.
+	 *			used while waiting for a request from the
+	 *			client while idle.
 	 */
 	TcpServer(Xapian::Database db_, int port_,
 		  int msecs_normal_timeout_ = 10000,
 		  int msecs_idle_timeout_ = 60000,
-#ifndef TIMING_PATCH
 		  bool verbose_ = true);
-#else /* TIMING_PATCH */
-		  bool verbose_ = true, bool timing_ = false);
-#endif /* TIMING_PATCH */
+
+	TcpServer(Xapian::WritableDatabase db_, int port_,
+		  int msecs_normal_timeout_ = 10000,
+		  int msecs_idle_timeout_ = 60000,
+		  bool verbose_ = true);
 
 	/** Destructor. */
 	~TcpServer();

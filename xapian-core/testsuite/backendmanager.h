@@ -89,9 +89,19 @@ class BackendManager {
 
 	/// Get a writable remote database instance
 	Xapian::WritableDatabase getwritedb_remote(const std::vector<std::string> &dbnames);
+
+	/// Get a remote database instance using xapian-tcpsrv
+	Xapian::Database getdb_remotetcp(const std::vector<std::string> &dbnames);
+
+	/// Get a writable remote database instance using xapian-tcpsrv
+	Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &dbnames);
 #endif
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
+    private:
+	std::string BackendManager::createdb_flint(const std::vector<std::string> &dbnames);
+
+    public:
 	/// Get a flint database instance.
 	Xapian::Database getdb_flint(const std::vector<std::string> &dbnames);
 
@@ -100,6 +110,10 @@ class BackendManager {
 #endif
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
+    private:
+	std::string BackendManager::createdb_quartz(const std::vector<std::string> &dbnames);
+
+    public:
 	/// Get a quartz database instance.
 	Xapian::Database getdb_quartz(const std::vector<std::string> &dbnames);
 
@@ -143,7 +157,8 @@ class BackendManager {
 	/** Set the database type to use.
 	 *
 	 *  Valid values for dbtype are "inmemory", "flint", "quartz",
-	 *  "void", "da", "daflimsy", "db", "dbflimsy", and "remote".
+	 *  "void", "da", "daflimsy", "db", "dbflimsy", "remote", and
+	 *  "remotetcp".
 	 */
 	void set_dbtype(const std::string &type);
 

@@ -48,6 +48,8 @@ class MultiTermList : public LeafTermList {
 	TermList * next();
 	bool   at_end() const;
 
+	Xapian::termpos positionlist_count() const;
+
 	Xapian::PositionIterator positionlist_begin() const;
 
 	~MultiTermList();

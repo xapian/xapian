@@ -1,8 +1,7 @@
 /* postlist.h
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_POSTLIST_H
@@ -53,11 +51,6 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase
 	//
 	// These may be called at any point
 
-	/** Return an upper bound on the number of documents in this postlist.
-	 *  This should be as tight a bound as possible.
-	 */
-	virtual Xapian::doccount get_termfreq_max() const = 0;
-
 	/** Return a lower bound on the number of documents in this postlist.
 	 *  This should be as tight a bound as possible.
 	 */
@@ -68,6 +61,11 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase
 	 *  bounds.
 	 */
 	virtual Xapian::doccount get_termfreq_est() const = 0;
+
+	/** Return an upper bound on the number of documents in this postlist.
+	 *  This should be as tight a bound as possible.
+	 */
+	virtual Xapian::doccount get_termfreq_max() const = 0;
 
 	/** Return an upper bound on the value of get_weight() for this
 	 *  postlist.  This is used for optimisation purposes, and should
@@ -155,7 +153,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase
 
 	/// Move to the next docid
 	Internal *next() { return next(-9e20); } // FIXME: do this more neatly
-	
+
 	/** Move to next docid with weight greater than w_min
 	 *
 	 * w_min in next() and skip_to() is simply a hint - documents with

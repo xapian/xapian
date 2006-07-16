@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I${top_builddir}/include -I$(top_srcdir)/testsuite
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I${top_builddir}/include
 
 if BUILD_BACKEND_QUARTZ
 quartz_bin_programs = quartzcheck quartzcompact quartzdump
@@ -13,17 +13,16 @@ flint_mans = xapian-compact.1
 endif
 
 if BUILD_BACKEND_REMOTE
-remote_bin_programs = xapian-tcpsrv
+remote_bin_programs = xapian-tcpsrv xapian-progsrv
 remote_mans = xapian-tcpsrv.1
-remote_check_programs = xapian-progsrv
 endif
 
 EXTRA_PROGRAMS = quartzcheck quartzcompact quartzdump\
     xapian-compact xapian-tcpsrv xapian-progsrv
 bin_PROGRAMS = $(quartz_bin_programs) $(remote_bin_programs) $(flint_bin_programs)
-check_PROGRAMS = $(remote_check_programs)
 
-quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz
+# testsuite needed for btreecheck.h
+quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz -I$(top_srcdir)/testsuite
 quartzcheck_SOURCES = quartzcheck.cc
 quartzcheck_LDADD = @ldflags@ ../testsuite/libbtreecheck.la ../libxapian.la
 
@@ -35,9 +34,8 @@ quartzdump_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzdump_SOURCES = quartzdump.cc
 quartzdump_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
 
-xapian_progsrv_CXXFLAGS = -I$(top_srcdir)/testsuite
 xapian_progsrv_SOURCES = xapian-progsrv.cc
-xapian_progsrv_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
+xapian_progsrv_LDADD = @ldflags@ ../libxapian.la
 
 xapian_tcpsrv_SOURCES = xapian-tcpsrv.cc
 xapian_tcpsrv_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la

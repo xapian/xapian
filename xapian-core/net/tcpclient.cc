@@ -41,10 +41,8 @@
 #include "utils.h"
 
 TcpClient::TcpClient(std::string hostname, int port, int msecs_timeout_, int msecs_timeout_connect_)
-	: SocketClient(get_remote_socket(hostname, port, msecs_timeout_connect_),
-		       msecs_timeout_,
-		       get_tcpcontext(hostname, port),
-		       true)
+	: RemoteDatabase(get_remote_socket(hostname, port, msecs_timeout_connect_),
+		         msecs_timeout_, get_tcpcontext(hostname, port))
 {
 
 }
@@ -60,8 +58,8 @@ TcpClient::get_remote_socket(std::string hostname,
 			     int port,
 			     int msecs_timeout_connect_)
 {
-    // Note: can't use the msecs_timeout member in SocketClient because this
-    // hasn't yet been initialised.
+    // Note: can't use RemoteDatabase::timeout because it won't yet have
+    // been initialised.
 
     // FIXME: timeout on gethostbyname() ?
     struct hostent *host = gethostbyname(hostname.c_str());
@@ -104,7 +102,7 @@ TcpClient::get_remote_socket(std::string hostname,
 	tv.tv_usec = msecs_timeout_connect_ % 1000 * 1000;
 
 	retval = select(socketfd + 1, 0, &fdset, &fdset, &tv);
-	
+
 	if (retval == 0) {
 	    close(socketfd);
 	    throw Xapian::NetworkTimeoutError("Couldn't connect", get_tcpcontext(hostname, port), ETIMEDOUT);
@@ -116,7 +114,7 @@ TcpClient::get_remote_socket(std::string hostname,
 	/* On Solaris 5.6, the fourth argument is char *. */
 	retval = getsockopt(socketfd, SOL_SOCKET, SO_ERROR,
 			    reinterpret_cast<void *>(&err), &len);
-	
+
 	if (retval < 0) {
 	    int saved_errno = errno; // note down in case close hits an error
 	    close(socketfd);
@@ -135,4 +133,5 @@ TcpClient::get_remote_socket(std::string hostname,
 
 TcpClient::~TcpClient()
 {
+    do_close();
 }

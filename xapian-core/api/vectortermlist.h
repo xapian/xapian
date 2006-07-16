@@ -116,6 +116,10 @@ class VectorTermList : public TermList {
 	Xapian::PositionIterator positionlist_begin() const {
 	    throw Xapian::InvalidOperationError("VectorTermList::positionlist_begin() isn't meaningful");
 	}
+
+	Xapian::termcount positionlist_count() const {
+	    throw Xapian::InvalidOperationError("VectorTermList::positionlist_count() isn't meaningful");
+	}
 };
 
 #endif // OM_HGUARD_VECTORTERMLIST_H

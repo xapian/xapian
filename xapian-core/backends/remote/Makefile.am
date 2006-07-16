@@ -6,4 +6,4 @@ noinst_HEADERS = net_termlist.h net_document.h
 
 noinst_LTLIBRARIES = libremote.la
 
-libremote_la_SOURCES = net_database.cc net_termlist.cc net_document.cc
+libremote_la_SOURCES = remote-database.cc net_termlist.cc net_document.cc

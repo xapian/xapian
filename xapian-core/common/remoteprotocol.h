@@ -1,0 +1,74 @@
+/** @file remoteprotocol.h
+ *  @brief Remote protocol version and message numbers
+ */
+/* Copyright (C) 2006 Olly Betts
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ */
+
+#ifndef XAPIAN_INCLUDED_REMOTEPROTOCOL_H
+#define XAPIAN_INCLUDED_REMOTEPROTOCOL_H
+
+// Versions:
+// 21: Overhauled remote backend supporting WritableDatabase
+#define XAPIAN_REMOTE_PROTOCOL_VERSION 21
+
+/// Message types (client -> server).
+enum message_type {
+    MSG_ALLTERMS,		// All Terms
+    MSG_COLLFREQ,		// Get Collection Frequency
+    MSG_DOCUMENT,		// Get Document
+    MSG_TERMEXISTS,		// Term Exists?
+    MSG_TERMFREQ,		// Get Term Frequency
+    MSG_KEEPALIVE,		// Keep-alive
+    MSG_DOCLENGTH,		// Get Doc Length
+    MSG_QUERY,			// Run Query
+    MSG_TERMLIST,		// Get TermList
+    MSG_POSITIONLIST,		// Get PositionList
+    MSG_REOPEN,			// Reopen
+    MSG_UPDATE,			// Get Updated DocCount and AvLength
+    MSG_ADDDOCUMENT,		// Add Document
+    MSG_CANCEL,			// Cancel
+    MSG_DELETEDOCUMENT,		// Delete Document
+    MSG_FLUSH,			// Flush
+    MSG_REPLACEDOCUMENT,	// Replace Document
+    MSG_GETMSET,		// Get MSet
+    MSG_SHUTDOWN,		// Shutdown
+    MSG_MAX
+};
+
+/// Reply types (server -> client).
+enum reply_type {
+    REPLY_GREETING,		// Greeting
+    REPLY_EXCEPTION,		// Exception
+    REPLY_DONE,			// Done sending list
+    REPLY_ALLTERMS,		// All Terms
+    REPLY_COLLFREQ,		// Get Collection Frequency
+    REPLY_DOCDATA,		// Get Document
+    REPLY_TERMDOESNTEXIST,	// Term Doesn't Exist
+    REPLY_TERMEXISTS,		// Term Exists
+    REPLY_TERMFREQ,		// Get Term Frequency
+    REPLY_DOCLENGTH,		// Get Doc Length
+    REPLY_RESULTS,		// Results (MSet)
+    REPLY_STATS,		// Stats
+    REPLY_TERMLIST,		// Get Termlist
+    REPLY_POSITIONLIST,		// Get PositionList
+    REPLY_UPDATE,		// Get Updated DocCount and AvLength
+    REPLY_VALUE,		// Document Value
+    REPLY_ADDDOCUMENT,		// Add Document
+    REPLY_MAX
+};
+
+#endif // XAPIAN_INCLUDED_REMOTEPROTOCOL_H

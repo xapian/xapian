@@ -1,9 +1,8 @@
 /* localmatch.cc
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,12 +16,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
+
 #include "localmatch.h"
 #include "omdebug.h"
 
@@ -39,8 +38,6 @@
 #include "extraweightpostlist.h"
 
 #include "omqueryinternal.h"
-
-#include "match.h"
 
 #include <algorithm>
 #include "autoptr.h"
@@ -111,23 +108,15 @@ class CmpMaxOrTerms {
 LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
 	const Xapian::Query::Internal * query, Xapian::termcount qlen_,
 	const Xapian::RSet & omrset, StatsGatherer *gatherer,
-	const Xapian::Weight *wtscheme_)
-	: statssource(new LocalStatsSource(gatherer)),
-	  is_prepared(false), users_query(*query), qlen(qlen_), db(db_),
-	  wtscheme(wtscheme_)
+	const Xapian::Weight *wt_factory_)
+	: statssource(gatherer), orig_query(*query), qlen(qlen_), db(db_),
+	  rset(db, omrset), wt_factory(wt_factory_)
 {
     DEBUGCALL(MATCH, void, "LocalSubMatch::LocalSubMatch",
 	      db << ", " << query << ", " << qlen_ << ", " << omrset << ", " <<
-	      gatherer << ", [wtscheme]");
-    AutoPtr<RSetI> new_rset(new RSetI(db, omrset));
-    rset = new_rset;
+	      gatherer << ", [wt_factory]");
 
-    statssource->take_my_stats(db->get_doccount(), db->get_avlength());
-}
-
-LocalSubMatch::~LocalSubMatch()
-{
-    DEBUGCALL(MATCH, void, "LocalSubMatch::~LocalSubMatch", "");
+    statssource.take_my_stats(db->get_doccount(), db->get_avlength());
 }
 
 PostList *
@@ -401,11 +390,11 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	    if (is_bool) {
 		wt = new Xapian::BoolWeight();
 	    } else {
-		wt = wtscheme->create(statssource.get(), qlen, query->wqf,
+		wt = wt_factory->create(&statssource, qlen, query->wqf,
 				      query->tname);
 #ifdef XAPIAN_DEBUG_PARANOID
 		// Check that max_extra weight is really right
-		AutoPtr<Xapian::Weight> temp_wt(wtscheme->create(statssource.get(),
+		AutoPtr<Xapian::Weight> temp_wt(wt_factory->create(&statssource,
 					  qlen, 1, ""));
 		AssertEqDouble(wt->get_maxextra(), temp_wt->get_maxextra());
 #endif
@@ -418,7 +407,7 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 		info.termweight = wt->get_maxpart();
 
 		// MULTI - this statssource should be the combined one...
-		info.termfreq = statssource->get_total_termfreq(query->tname);
+		info.termfreq = statssource.get_total_termfreq(query->tname);
 
 		DEBUGLINE(MATCH, " weight = " << info.termweight <<
 			  ", frequency = " << info.termfreq);
@@ -484,6 +473,12 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
     RETURN(NULL);
 }
 
+void
+LocalSubMatch::register_term(const string &tname)
+{
+    statssource.my_termfreq_is(tname, db->get_termfreq(tname));
+}
+
 ////////////////////////
 // Building the query //
 ////////////////////////
@@ -492,43 +487,40 @@ bool
 LocalSubMatch::prepare_match(bool /*nowait*/)
 {
     DEBUGCALL(MATCH, bool, "LocalSubMatch::prepare_match", "/*nowait*/");
-    if (!is_prepared) {
-	DEBUGLINE(MATCH, "LocalSubMatch::prepare_match() - Gathering my statistics");
-	Xapian::TermIterator terms = users_query.get_terms();
-	Xapian::TermIterator terms_end(NULL);
-	for ( ; terms != terms_end; terms++) {
-	    // MULTI
-	    register_term(*terms);
-	    if (rset.get() != 0) rset->will_want_reltermfreq(*terms);
-	}
-
-	if (rset.get() != 0) {
-	    rset->calculate_stats();
-	    rset->give_stats_to_statssource(statssource.get());
-	}
-	is_prepared = true;
+    Xapian::TermIterator terms = orig_query.get_terms();
+    Xapian::TermIterator terms_end(NULL);
+    for ( ; terms != terms_end; ++terms) {
+	// MULTI
+	register_term(*terms);
+	rset.will_want_reltermfreq(*terms);
     }
+
+    // FIXME: is there's no RSet, we probably can skip this stuff.
+    rset.calculate_stats();
+    rset.give_stats_to_statssource(&statssource);
     RETURN(true);
 }
 
-PostList *
-LocalSubMatch::get_postlist(Xapian::doccount maxitems, MultiMatch *matcher)
+void
+LocalSubMatch::start_match(Xapian::doccount)
 {
-    DEBUGCALL(MATCH, PostList *, "LocalSubMatch::get_postlist", maxitems << ", " << matcher);
-    (void)maxitems; // Avoid warning in non-debug build
-    PostList *pl = postlist_from_query(&users_query, matcher, false);
-    // don't bother with an ExtraWeightPostList if there's no extra weight
-    // contribution.
-    AutoPtr<Xapian::Weight> extra_wt(wtscheme->create(statssource.get(),
-			       qlen, 1, ""));
-    if (extra_wt->get_maxextra() == 0) {
-	RETURN(pl);
-    }
-    RETURN(new ExtraWeightPostList(pl, extra_wt.release(), matcher));
+    // Nothing to do here for a local match.
 }
 
-const map<string, Xapian::MSet::Internal::TermFreqAndWeight>
-LocalSubMatch::get_term_info() const
+PostList *
+LocalSubMatch::get_postlist_and_term_info(MultiMatch * matcher,
+	map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts)
 {
-    return term_info;
+    PostList * pl = postlist_from_query(&orig_query, matcher, false);
+    // postlist_from_query builds the term_info.
+    if (termfreqandwts) *termfreqandwts = term_info;
+    // We only need an ExtraWeightPostList if there's an extra weight
+    // contribution.
+    Xapian::Weight * extra_wt = wt_factory->create(&statssource, qlen, 1, "");
+    if (extra_wt->get_maxextra() != 0.0) {
+	pl = new ExtraWeightPostList(pl, extra_wt, matcher);
+    } else {
+	delete extra_wt;
+    }
+    return pl;
 }

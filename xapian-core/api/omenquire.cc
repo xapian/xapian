@@ -147,19 +147,6 @@ RSet::get_description() const
 }
 
 string
-RSet::Internal::to_string() const
-{
-    string result = om_tostring(items.size());
-
-    set<Xapian::docid>::const_iterator i;
-    for (i = items.begin(); i != items.end(); ++i) {
-	result += ' ';
-	result += om_tostring(*i);
-    }
-    return result;
-}
-
-string
 RSet::Internal::get_description() const
 {
     DEBUGCALL(INTRO, string, "RSet::get_description", "");
@@ -632,6 +619,12 @@ Xapian::weight
 MSetIterator::get_weight() const
 {
     return mset.internal->items[index].wt;
+}
+
+std::string
+MSetIterator::get_collapse_key() const
+{
+    return mset.internal->items[index].collapse_key;
 }
 
 Xapian::doccount

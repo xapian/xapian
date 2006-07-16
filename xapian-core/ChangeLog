@@ -1,3 +1,23 @@
+Sun Jul 16 01:58:25 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/,backends/Makefile.am,backends/database.cc,
+	  backends/dbfactory_remote.cc,backends/flint/flint_database.cc,
+	  backends/flint/flint_termlist.cc,backends/flint/flint_termlist.h,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_termlist.cc,backends/multi/multi_termlist.h,
+	  backends/net/,backends/quartz/quartz_termlist.cc,
+	  backends/quartz/quartz_termlist.h,backends/remote/,bin/Makefile.am,
+	  bin/xapian-progsrv.cc,bin/xapian-tcpsrv.cc,common/,configure.ac,
+	  docs/remote_protocol.html,include/xapian/,matcher/,net/,tests/,
+	  testsuite/backendmanager.cc,testsuite/backendmanager.h: Rewrite
+	  most of the remote backend.  It now supports most operations
+	  which a local database does (including writing!), the protocol
+	  used is more compact, and a number of layers of classes have
+	  been eliminated and the sequences of method calls simplified, so the
+	  code should be easier to understand and maintain despite doing more.
+	  A number of bugs have been fixed in the process.
+
 Sat Jul 15 05:10:38 BST 2006  Olly Betts <olly@survex.com>
 
 	* tests/api_nodb.cc: Doesn't need <iostream>.

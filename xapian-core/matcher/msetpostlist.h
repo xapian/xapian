@@ -1,13 +1,12 @@
-/* msetpostlist.h: mset postlists from different databases
+/** @file msetpostlist.h
+ *  @brief PostList returning entries from an MSet
+ */
+/* Copyright (C) 2006 Olly Betts
  *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,135 +15,75 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_MSETPOSTLIST_H
-#define OM_HGUARD_MSETPOSTLIST_H
+#ifndef XAPIAN_INCLUDED_MSETPOSTLIST_H
+#define XAPIAN_INCLUDED_MSETPOSTLIST_H
 
 #include <xapian/enquire.h>
+
 #include "postlist.h"
-#include "omdebug.h"
 
-class RemoteSubMatch;
-class NetworkDatabase;
-
-/// A postlist taking postings from an already formed mset
+/** PostList returning entries from an MSet.
+ *
+ *  This class is used with the remote backend.  We perform a match on the
+ *  remote server, then serialise the resulting MSet and pass it back to the
+ *  client where we include it in the match by wrapping it in an MSetPostList.
+ */
 class MSetPostList : public PostList {
-    friend class RemoteSubMatch;
-    private:
-	// Prevent copying
-	MSetPostList(const MSetPostList &);
-	MSetPostList & operator=(const MSetPostList &);
+    /// Don't allow assignment.
+    void operator=(const MSetPostList &);
 
-	Xapian::MSet mset;
-	NetworkDatabase *db;
-	int current;
+    /// Don't allow copying.
+    MSetPostList(const MSetPostList &);
 
-    public:
-	Xapian::doccount get_termfreq_max() const;
-	Xapian::doccount get_termfreq_min() const;
-	Xapian::doccount get_termfreq_est() const;
+    /// The MSet element that this PostList is pointing to.
+    int cursor;
 
-	Xapian::docid  get_docid() const;
-	Xapian::weight get_weight() const;
-	const string * get_collapse_key() const;
+    /// The MSet::Internal object which we're returning entries from.
+    Xapian::Internal::RefCntPtr<Xapian::MSet::Internal> mset_internal;
 
-	Xapian::weight get_maxweight() const;
+    /// Is the MSet sorted on a value?
+    bool sorted;
 
-	Xapian::weight recalc_maxweight();
+  public:
+    MSetPostList(const Xapian::MSet mset, bool sorted_)
+	: cursor(-1), mset_internal(mset.internal), sorted(sorted_) { }
 
-	PostList *next(Xapian::weight w_min);
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
-	bool   at_end() const;
+    Xapian::doccount get_termfreq_min() const;
 
-	string get_description() const;
+    Xapian::doccount get_termfreq_est() const;
 
-	/** Return the document length of the document the current term
-	 *  comes from.
-	 */
-	virtual Xapian::doclength get_doclength() const;
+    Xapian::doccount get_termfreq_max() const;
 
-	virtual PositionList * read_position_list();
-	virtual PositionList * open_position_list() const;
+    Xapian::weight get_maxweight() const;
 
-	MSetPostList(const Xapian::MSet mset_, NetworkDatabase *db_);
-	~MSetPostList();
+    Xapian::docid get_docid() const;
+
+    Xapian::weight get_weight() const;
+
+    const string * get_collapse_key() const;
+
+    /// Not implemented for MSetPostList.
+    Xapian::doclength get_doclength() const;
+
+    Xapian::weight recalc_maxweight();
+
+    /// Not implemented for MSetPostList.
+    PositionList * read_position_list();
+
+    /// Not implemented for MSetPostList.
+    PositionList * open_position_list() const;
+
+    PostList *next(Xapian::weight w_min);
+
+    /// Not meaningful for MSetPostList.
+    PostList *skip_to(Xapian::docid did, Xapian::weight w_min);
+
+    bool at_end() const;
+
+    string get_description() const;
 };
 
-/// Stands in for an MSetPostList until the MSet is available at which point
-/// it prunes, returning an MSetPostList
-class PendingMSetPostList : public PostList {
-    friend class RemoteSubMatch;
-    private:
-	NetworkDatabase *db;
-	MSetPostList *pl;
-	Xapian::doccount maxitems;
-
-	void make_pl();
-
-    public:
-	Xapian::doccount get_termfreq_max() const {
-	    Assert(pl);
-	    return pl->get_termfreq_max();
-	}
-
-	Xapian::doccount get_termfreq_min() const {
-	    Assert(pl);
-	    return pl->get_termfreq_min();
-	}
-
-	Xapian::doccount get_termfreq_est() const {
-	    Assert(pl);
-	    return pl->get_termfreq_est();
-	}
-
-	Xapian::docid  get_docid() const { Assert(false); return 0; }
-	Xapian::weight get_weight() const { Assert(false); return 0; }
-	Xapian::weight get_maxweight() const { Assert(false); return 0; }
-
-	Xapian::weight recalc_maxweight() {
-	    make_pl();
-	    return pl->recalc_maxweight();
-	}
-
-	PostList *next(Xapian::weight w_min) {
-	    make_pl();
-	    PostList *pl2 = pl->next(w_min);
-	    Assert(pl2 == NULL); // MSetPostList-s don't prune
-	    pl2 = pl;
-	    pl = NULL;
-	    return pl2;
-	}
-
-	PostList *skip_to(Xapian::docid /*did*/, Xapian::weight /*w_min*/) {
-	    // MSetPostList doesn't return documents in docid order, so skip_to
-	    // isn't a meaningful operation.
-	    throw Xapian::UnimplementedError("PendingMSetPostList doesn't support skip_to");
-	}
-
-	bool at_end() const { Assert(false); return true; }
-
-	string get_description() const {
-	    if (pl) return "PendingMset(" + pl->get_description() + ")";
-	    return "PendingMSet()";
-	}
-
-	/** Return the document length of the document the current term
-	 *  comes from.
-	 */
-	virtual Xapian::doclength get_doclength() const { Assert(false); return 1; }
-
-	virtual PositionList * read_position_list() { Assert(false); return 0; }
-	virtual PositionList * open_position_list() const {
-	    Assert(false);
-	    return 0;
-	}
-
-	PendingMSetPostList(NetworkDatabase *db_, Xapian::doccount maxitems_)
-		: db(db_), pl(NULL), maxitems(maxitems_) { }
-	~PendingMSetPostList();
-};
-
-#endif /* OM_HGUARD_MSETPOSTLIST_H */
+#endif /* XAPIAN_INCLUDED_MSETPOSTLIST_H */

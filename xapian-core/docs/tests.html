@@ -67,7 +67,8 @@ existing one.
 <P>You'll notice in apitest.cc that it runs all appropriate test groups against
 each backend that is being built. We don't build any of the Muscat 3.6
 compatibility backends by default any more, so the backends are inmemory,
-quartz and remote. If you need to create a new test group with different
+quartz, flint, remote and remotetcp. If you need to create a new test group
+with different
 requirements to any current ones, put it in the appropriate api_ file (or
 create a new one, and add it into Makefile.am) and remember to add the group to
 all pertinent backends in apitest.cc.

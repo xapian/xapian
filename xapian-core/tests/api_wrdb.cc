@@ -602,7 +602,12 @@ static bool test_deldoc5()
     TEST_EQUAL(db.get_termfreq("aardvark"), 2);
     TEST_EQUAL(db.get_termfreq("hello"), 1);
 
-    Xapian::PostingIterator p = db.postlist_begin("foo");
+    Xapian::PostingIterator p;
+    try {
+	p = db.postlist_begin("foo");
+    } catch (const Xapian::UnimplementedError & e) {
+	SKIP_TEST("Database::postlist_begin not implemented");
+    }
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 1);
     ++p;
@@ -751,7 +756,12 @@ static bool test_replacedoc3()
     TEST_EQUAL(db.get_termfreq("hello"), 1);
     TEST_EQUAL(db.get_termfreq("world"), 2);
 
-    Xapian::PostingIterator p = db.postlist_begin("foo");
+    Xapian::PostingIterator p;
+    try {
+	p = db.postlist_begin("foo");
+    } catch (const Xapian::UnimplementedError & e) {
+	SKIP_TEST("Database::postlist_begin not implemented");
+    }
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 1);
     ++p;
@@ -812,7 +822,12 @@ static bool test_replacedoc4()
     TEST_EQUAL(db.get_termfreq("hello"), 1);
     TEST_EQUAL(db.get_termfreq("world"), 2);
 
-    Xapian::PostingIterator p = db.postlist_begin("foo");
+    Xapian::PostingIterator p;
+    try {
+	p = db.postlist_begin("foo");
+    } catch (const Xapian::UnimplementedError & e) {
+	SKIP_TEST("Database::postlist_begin not implemented");
+    }
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 1);
     ++p;
@@ -863,7 +878,11 @@ static bool test_uniqueterm1()
 	    doc.add_term(om_tostring(n ^ 9));
 	    doc.add_term("all");
 	    doc.set_data("pass2");
-	    db.replace_document(uterm, doc);
+	    try {
+		db.replace_document(uterm, doc);
+	    } catch (const Xapian::UnimplementedError & e) {
+		SKIP_TEST("WritableDatabase::replace_document(TERM) not implemented");
+	    }
 	}
     }
 

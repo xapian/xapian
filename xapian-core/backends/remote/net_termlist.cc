@@ -31,28 +31,17 @@
 
 NetworkTermList::NetworkTermList(Xapian::doclength /*average_length*/,
 				 Xapian::doccount database_size_,
-				 const std::vector<NetworkDatabase::TermListItem> &items_,
-				 Xapian::Internal::RefCntPtr<const NetworkDatabase> this_db_)
+				 Xapian::Internal::RefCntPtr<const RemoteDatabase> this_db_,
+				 Xapian::docid did_)
 	: items(),
 	  current_position(items.begin()),
 	  started(false),
 	  database_size(database_size_),
-	  this_db(this_db_)
+	  this_db(this_db_),
+	  did(did_)
 {
     // FIXME: set length
     document_length = 1;
-
-    std::vector<NetworkDatabase::TermListItem>::const_iterator i;
-    for (i = items_.begin(); i != items_.end(); ++i) {
-	NetworkTermListItem item;
-	item.tname = i->tname;
-	item.termfreq = i->termfreq;
-	item.wdf = i->wdf;
-
-	items.push_back(item);
-    }
-
-    current_position = items.begin();
 }
 
 Xapian::termcount
@@ -119,10 +108,14 @@ NetworkTermList::at_end() const
     return (current_position == items.end());
 }
 
+Xapian::termcount
+NetworkTermList::positionlist_count() const
+{
+    throw Xapian::UnimplementedError("NetworkTermList::positionlist_count() not implemented");
+}
+
 Xapian::PositionIterator
 NetworkTermList::positionlist_begin() const
 {
-    /* FIXME: NetworkDatabase doesn't support open_position_list() yet. */
-    throw Xapian::UnimplementedError("positionlist_begin not supported by remote backend");
-    /*return this_db->open_position_list(did, get_termname());*/
+    return Xapian::PositionIterator(this_db->open_position_list(did, get_termname()));
 }

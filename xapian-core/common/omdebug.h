@@ -96,6 +96,9 @@ enum om_debug_types {
      */
     OM_DEBUG_INTRO,
 
+    /** Type for messages to do with the remote backend. */
+    OM_DEBUG_REMOTE,
+
     /** A value equal to the number of known types.
      */
     OM_DEBUG_NUMTYPES

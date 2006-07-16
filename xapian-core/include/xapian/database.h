@@ -128,6 +128,9 @@ class Database {
 	    return TermIterator(NULL);
 	}
 
+	/** Does this database have any positional information? */
+	bool has_positions() const;
+
 	/** An iterator pointing to the start of the position list
 	 *  for a given term in a given document.
 	 */

@@ -158,7 +158,6 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 FlintDatabase::~FlintDatabase()
 {
     DEBUGCALL(DB, void, "~FlintDatabase", "");
-    // Only needed for a writable database: dtor_called();
     if (lock) lock.release();
 }
 

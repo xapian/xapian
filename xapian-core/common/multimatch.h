@@ -22,16 +22,14 @@
 #ifndef OM_HGUARD_MULTIMATCH_H
 #define OM_HGUARD_MULTIMATCH_H
 
-#include "match.h"
 #include "stats.h"
 
 #include "omqueryinternal.h"
+#include "submatch.h"
 
 #include <vector>
 #include <map>
 #include "autoptr.h"  // auto_ptr
-
-class SubMatch;
 
 class MultiMatch
 {
@@ -74,13 +72,6 @@ class MultiMatch
 	 *  while query is running.
 	 */
         bool recalculate_w_max;
-
-	/** Prepare all the sub matchers.
-	 *
-	 *  This calls prepare_match() on all the sub matchers until they
-	 *  all return true to signal that they are prepared.
-	 */
-	void prepare_matchers();
 
 	/// get the collapse key
 	string get_collapse_key(PostList *pl,
@@ -128,7 +119,6 @@ class MultiMatch
 		   Xapian::ErrorHandler * errorhandler,
 		   StatsGatherer * gatherer_,
 		   const Xapian::Weight *wtscheme);
-	~MultiMatch();
 
 	void get_mset(Xapian::doccount first,
 		      Xapian::doccount maxitems,

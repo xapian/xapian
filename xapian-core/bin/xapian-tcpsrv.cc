@@ -33,6 +33,13 @@
 
 using namespace std;
 
+static void register_user_weighting_schemes(TcpServer &server) {
+    (void)server; // Suppress "unused parameter" warning.
+    // If you have defined your own weighting scheme, register it here
+    // like so:
+    // server.register_weighting_scheme(FooWeight());
+}
+
 const int MSECS_IDLE_TIMEOUT_DEFAULT = 60000;
 const int MSECS_ACTIVE_TIMEOUT_DEFAULT = 15000;
 
@@ -51,9 +58,7 @@ static void show_usage() {
 "  --timeout MSECS         set both timeout values\n"
 "  --one-shot              serve a single connection and exit\n"
 "  --quiet                 disable information messages to stdout\n"
-#ifdef TIMING_PATCH
-"  --timing                enable code to time operations\n"
-#endif /* TIMING_PATCH */
+"  --writable              allow updates (only one database directory allowed)\n"
 "  --help                  display this help and exit\n"
 "  --version               output version information and exit" << endl;
 }
@@ -65,9 +70,7 @@ int main(int argc, char **argv) {
 
     bool one_shot = false;
     bool verbose = true;
-#ifdef TIMING_PATCH
-    bool timing = false;
-#endif /* TIMING_PATCH */
+    bool writable = false;
     bool syntax_error = false;
 
     struct option opts[] = {
@@ -77,11 +80,9 @@ int main(int argc, char **argv) {
 	{"timeout",		required_argument, 0, 't'},
 	{"one-shot",		no_argument, 0, 'o'},
 	{"quiet",		no_argument, 0, 'q'},
+	{"writable",		no_argument, 0, 'w'},
 	{"help",		no_argument, 0, OPT_HELP},
 	{"version",		no_argument, 0, OPT_VERSION},
-#ifdef TIMING_PATCH
-	{"timing",		no_argument, 0, 'T'},
-#endif /* TIMING_PATCH */
 	{NULL,			0, 0, 0}
     };
 
@@ -113,11 +114,9 @@ int main(int argc, char **argv) {
 	    case 'q':
 		verbose = false;
 		break;
-#ifdef TIMING_PATCH
-	    case 'T':
-		timing = true;
+	    case 'w':
+		writable = true;
 		break;
-#endif /* TIMING_PATCH */
 	    default:
 		syntax_error = true;
 	}
@@ -134,29 +133,47 @@ int main(int argc, char **argv) {
 	exit(1);
     }
 
+    if (writable && (argc - optind) != 1) {
+	cerr << "Error: only one database directory allowed with '--writable'." << endl;
+	exit(1);
+    }
+
     try {
-        Xapian::Database mydbs;
-	while (argv[optind]) {
-	    mydbs.add_database(Xapian::Database(argv[optind++]));
-	}
+	if (writable) {
+	    Xapian::WritableDatabase db(argv[optind], Xapian::DB_CREATE_OR_OPEN);
 
-	if (verbose) cout << "Opening server on port " << port << "..." << endl;
+	    if (verbose)
+		cout << "Starting writable server on port " << port << endl;
 
-#ifndef TIMING_PATCH
-	TcpServer server(mydbs, port, msecs_active_timeout,
-			 msecs_idle_timeout, verbose);
-#else /* TIMING_PATCH */
-	TcpServer server(mydbs, port, msecs_active_timeout,
-			 msecs_idle_timeout, verbose, timing);
-#endif /* TIMING_PATCH */
-	// If you have defined your own weighting scheme, register it here
-	// like so:
-	// server.register_weighting_scheme(FooWeight());
+	    TcpServer server(db, port, msecs_active_timeout,
+			     msecs_idle_timeout, verbose);
 
-	if (one_shot) {
-	    server.run_once();
+	    register_user_weighting_schemes(server);
+
+	    if (one_shot) {
+		server.run_once();
+	    } else {
+		server.run();
+	    }
 	} else {
-	    server.run();
+	    Xapian::Database db;
+	    while (argv[optind]) {
+		db.add_database(Xapian::Database(argv[optind++]));
+	    }
+
+	    if (verbose)
+		cout << "Starting server on port " << port << endl;
+
+	    TcpServer server(db, port, msecs_active_timeout,
+			     msecs_idle_timeout, verbose);
+
+	    register_user_weighting_schemes(server);
+
+	    if (one_shot) {
+		server.run_once();
+	    } else {
+		server.run();
+	    }
 	}
     } catch (const Xapian::Error &e) {
 	cerr << e.get_type() << ": " << e.get_msg() << endl;

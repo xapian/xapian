@@ -25,6 +25,8 @@
 #ifndef OM_HGUARD_DOCUMENTTERM_H
 #define OM_HGUARD_DOCUMENTTERM_H
 
+#include "omdebug.h"
+
 #include <string>
 #include <xapian/types.h>
 

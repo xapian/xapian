@@ -4,7 +4,6 @@
 
 if BUILD_BACKEND_REMOTE
 check-remote:
-	cd bin && $(MAKE) $(AM_MAKEFLAGS) check
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remote
 
 remote_subdirs = net

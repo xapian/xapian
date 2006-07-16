@@ -22,10 +22,11 @@
 #ifndef OM_HGUARD_NETWORKSTATS_H
 #define OM_HGUARD_NETWORKSTATS_H
 
+#include "remote-database.h"
 #include "stats.h"
 
 // forward declaration for NetworkStatsGatherer
-class NetServer;
+class RemoteServer;
 
 /** A "slave" StatsGatherer used for the remote matcher
  */
@@ -34,15 +35,15 @@ class NetworkStatsGatherer : public StatsGatherer {
 	/// Flag indicating that the global stats are uptodate.
 	mutable bool have_global_stats;
 
-	/** The NetServer object using us.
+	/** The RemoteServer object using us.
 	 *  It is used to communicate with the remote statistics
 	 *  node.
 	 */
-	NetServer *nserv;
+	RemoteServer *nserv;
 
 	/** Fetch the global statistics, once we have all the
 	 *  local ones.
-	 *  The object will use the NetServer to do the exchange.
+	 *  The object will use the RemoteServer to do the exchange.
 	 */
 	void fetch_global_stats() const;
 
@@ -51,7 +52,7 @@ class NetworkStatsGatherer : public StatsGatherer {
 	void fetch_local_stats() const;
 
     public:
-	NetworkStatsGatherer(NetServer *nserv);
+	NetworkStatsGatherer(RemoteServer *nserv);
 
 	/// See StatsGatherer::get_stats()
 	const Stats *get_stats() const;
@@ -74,20 +75,20 @@ class NetworkDatabase;
  */
 class NetworkStatsSource : public Xapian::Weight::Internal {
     private:
-	/// The NetworkDatabase object used for communications.
-	Xapian::Internal::RefCntPtr<NetworkDatabase> nclient;
+	/// The RemoteDatabase object used for communications.
+	Xapian::Internal::RefCntPtr<RemoteDatabase> db;
 
 	/** A flag indicating whether or not we have the remote
 	 *  statistics yet.
 	 */
 	bool have_remote_stats;
+
     public:
 	/// Constructor
 	NetworkStatsSource(StatsGatherer * gatherer_,
-			   Xapian::Internal::RefCntPtr<NetworkDatabase> nclient_);
-
-	/// Destructor
-	~NetworkStatsSource();
+			   Xapian::Internal::RefCntPtr<RemoteDatabase> db_)
+	    : Xapian::Weight::Internal(gatherer_), db(db_),
+	      have_remote_stats(false) { }
 
 	/** Contribute all the statistics that don't depend on global
 	 *  stats.  Used by StatsGatherer.

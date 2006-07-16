@@ -24,7 +24,7 @@
 #include "omdebug.h"
 #include "omqueryinternal.h"
 #include "utils.h"
-#include "netutils.h"
+#include "serialise.h"
 
 #include <xapian/error.h>
 #include <xapian/enquire.h>
@@ -100,14 +100,14 @@ is_leaf(Xapian::Query::Internal::op_t op)
  *  The format is designed to be relatively easy
  *  to parse, as well as encodable in one line of text.
  *
- *  A single-term query becomes `[<encodedtname> @<termpos>#<wqf>'
+ *  A single-term query becomes `[<encodedtname>@<termpos>#<wqf>'
  *  where:
- *  	<wqf> is the decimal within query frequency (1 if omitted),
- *  	<termpos> is the decimal term position (index of term if omitted).
+ *	<wqf> is the decimal within query frequency (1 if omitted),
+ *	<termpos> is the decimal term position (index of term if omitted).
  *
  *  A compound query becomes `(<subqueries><op>', where:
- *  	<subqueries> is the list of subqueries
- *  	<op> is one of: &|%+-^
+ *	<subqueries> is the list of subqueries
+ *	<op> is one of: &|%+-^
  *  also ~N "N >F *N (N unsigned int; F floating point)
  * 
  *  If querylen != sum(wqf) we append `=len' (at present we always do this
@@ -122,8 +122,9 @@ Xapian::Query::Internal::serialise() const
     string result;
 
     if (op == Xapian::Query::Internal::OP_LEAF) {
-	result += "[" + encode_tname(tname);
-	result += ' ';
+	result += '[';
+	result += encode_length(tname.length());
+	result += tname;
        	if (term_pos != curpos) result += '@' + om_tostring(term_pos);
 	if (wqf != 1) result += '#' + om_tostring(wqf);
 	++curpos;
@@ -246,10 +247,10 @@ Xapian::Query::Internal::accumulate_terms(
         // We're a leaf, so just return our term.
         terms.push_back(make_pair(tname, term_pos));
     } else {
-    	subquery_list::const_iterator end = subqs.end();
+	subquery_list::const_iterator end = subqs.end();
         // not a leaf, concatenate results from all subqueries
 	for (subquery_list::const_iterator i = subqs.begin(); i != end; ++i) {
- 	    (*i)->accumulate_terms(terms);
+	    (*i)->accumulate_terms(terms);
 	}
     }
 }
@@ -276,7 +277,7 @@ Xapian::Query::Internal::get_terms() const
     // remove adjacent duplicates, and return an iterator pointing
     // to just after the last unique element
     vector<pair<string, Xapian::termpos> >::iterator newlast =
-	    	unique(terms.begin(), terms.end());
+		unique(terms.begin(), terms.end());
     // and remove the rest...  (See Stroustrup 18.6.3)
     terms.erase(newlast, terms.end());
 
@@ -291,18 +292,19 @@ Xapian::Query::Internal::get_terms() const
 }
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-// Methods 
+// Methods.
 
 class QUnserial {
   private:
     const char *p;
+    const char *end;
     Xapian::termpos curpos;
- 
+
     Xapian::Query::Internal * readquery();
     Xapian::Query::Internal * readcompound();
-    
+
   public:
-    QUnserial(const char *p_) : p(p_), curpos(1) { }
+    QUnserial(const string & s) : p(s.c_str()), end(p + s.size()), curpos(1) { }
     Xapian::Query::Internal * decode();
 };
 
@@ -310,22 +312,23 @@ Xapian::Query::Internal *
 QUnserial::decode() {
     DEBUGLINE(UNKNOWN, "QUnserial::decode(" << p << ")");
     Xapian::Query::Internal * qint = readquery();
-    DEBUGLINE(UNKNOWN, "Remainder of query (should be none) is `" << p << "'");
-    Assert(*p == '\0');
+    Assert(p == end);
     return qint;
 }
 
 Xapian::Query::Internal *
 QUnserial::readquery() {
+    if (p == end)
+	throw Xapian::InvalidArgumentError("Bad serialised query");
     switch (*p++) {
 	case '[': {
-	    const char *q = strchr(p, ' ');
-	    if (!q) q = p + strlen(p);
-	    string tname = decode_tname(string(p, q - p));
+	    size_t length = decode_length(&p, end);
+	    string tname(p, length);
+	    p += length;
 	    Xapian::termpos term_pos = curpos;
 	    Xapian::termcount wqf = 1;
-	    p = q;
-	    if (*p == ' ') ++p;
+	    if (p == end)
+		throw Xapian::InvalidArgumentError("Bad serialised query");
 	    if (*p == '@') {
 		char *tmp; // avoid compiler warning
 		term_pos = strtol(p + 1, &tmp, 10);
@@ -364,6 +367,8 @@ Xapian::Query::Internal *
 QUnserial::readcompound() {
     vector<Xapian::Query::Internal *> subqs;
     while (true) {
+	if (p == end)
+	    throw Xapian::InvalidArgumentError("Bad serialised query");
 	switch (*p++) {
 	    case '[':
 		--p;
@@ -415,7 +420,7 @@ Xapian::Query::Internal *
 Xapian::Query::Internal::unserialise(const string &s)
 {
     Assert(s.length() > 1);
-    QUnserial u(s.c_str());
+    QUnserial u(s);
     Xapian::Query::Internal * qint = u.decode();
     AssertEq(s, qint->serialise());
     return qint;

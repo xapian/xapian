@@ -248,6 +248,12 @@ InMemoryTermList::at_end() const
     return (pos == end);
 }
 
+Xapian::termcount
+InMemoryTermList::positionlist_count() const
+{
+    throw Xapian::UnimplementedError("InMemoryTermList::positionlist_count() not implemented");
+}
+
 Xapian::PositionIterator
 InMemoryTermList::positionlist_begin() const
 {

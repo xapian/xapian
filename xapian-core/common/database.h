@@ -38,7 +38,7 @@ using namespace std;
 
 class LeafPostList;
 class LeafTermList;
-class NetworkDatabase;
+class RemoteDatabase;
 
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
@@ -164,16 +164,6 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	virtual Xapian::termcount get_collection_freq(const string & tname) const = 0;
 
 	/** Check whether a given term is in the database.
-	 *
-	 *  This method should normally be functionally equivalent to
-	 *  (get_termfreq() != 0), but this equivalence should not be
-	 *  relied upon.  For example, in a database which allowed
-	 *  deleting, get_termfreq() might return the term frequency before
-	 *  the term was deleted, whereas term_exists() might be more
-	 *  up-to-date.
-	 *
-	 *  This method will also often be considerably more efficient than
-	 *  get_termfreq().
 	 *
 	 *  @param tname  The term whose presence is being checked.
 	 */
@@ -340,13 +330,13 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	// Introspection methods:
 	// ======================
 
-	/** Return a pointer to this object as a NetworkDatabase, or NULL.
+	/** Return a pointer to this object as a RemoteDatabase, or NULL.
 	 *
 	 *  This method is used by MultiMatch to decide whether to use a
 	 *  LocalSubMatch or a RemoteSubMatch to perform a search over the
 	 *  database.
 	 */
-	virtual NetworkDatabase * as_networkdatabase() {
+	virtual RemoteDatabase * as_remotedatabase() {
 	    return NULL;
 	}
 };

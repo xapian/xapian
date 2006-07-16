@@ -102,8 +102,8 @@ Database::postlist_begin(const string &tname) const
 {
     DEBUGAPICALL(PostingIterator, "Database::postlist_begin", tname);
     if (tname.empty())
-       	throw InvalidArgumentError("Zero length terms are invalid");
- 
+	throw InvalidArgumentError("Zero length terms are invalid");
+
     // Don't bother checking that the term exists first.  If it does, we
     // just end up doing more work, and if it doesn't, we save very little
     // work.
@@ -168,13 +168,25 @@ Database::allterms_begin() const
     RETURN(TermIterator(new MultiAllTermsList(lists)));
 }
 
+bool
+Database::has_positions() const
+{
+    DEBUGAPICALL(bool, "Database::has_positions", "");
+    // If any sub-database has positions, the combined database does.
+    vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
+    for (i = internal.begin(); i != internal.end(); ++i) {
+	if ((*i)->has_positions()) RETURN(true);
+    }
+    RETURN(false);
+}
+
 PositionIterator
 Database::positionlist_begin(Xapian::docid did, const string &tname) const
 {
     DEBUGAPICALL(PositionIterator, "Database::positionlist_begin",
 		 did << ", " << tname);
     if (tname.empty())
-       	throw InvalidArgumentError("Zero length terms are invalid");
+	throw InvalidArgumentError("Zero length terms are invalid");
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();

@@ -2,18 +2,18 @@
 
 INCLUDES = -I$(top_srcdir)/include
 
-noinst_HEADERS = \
+noinst_HEADERS = serialise.h \
  omassert.h \
  database.h termlist.h postlist.h \
  leafpostlist.h \
  expandweight.h stats.h networkstats.h \
- match.h multimatch.h expand.h rset.h \
+ multimatch.h submatch.h expand.h rset.h \
  utils.h omqueryinternal.h \
  document.h documentterm.h \
- progclient.h net_database.h \
- netutils.h omtime.h netserver.h progserver.h socketclient.h socketserver.h \
- socketcommon.h positionlist.h tcpclient.h \
- tcpserver.h omerr_string.h omdebug.h omstringstream.h \
+ progclient.h remote-database.h \
+ omtime.h remoteserver.h \
+ remoteconnection.h positionlist.h tcpclient.h \
+ tcpserver.h omdebug.h omstringstream.h \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \
  autoptr.h \
  alltermslist.h multialltermslist.h \
@@ -21,10 +21,4 @@ noinst_HEADERS = \
 
 noinst_LTLIBRARIES = libcommon.la
 
-if BUILD_BACKEND_REMOTE
-remote_sources = netutils.cc
-else
-remote_sources =
-endif
-
-libcommon_la_SOURCES = utils.cc omdebug.cc omstringstream.cc $(remote_sources)
+libcommon_la_SOURCES = utils.cc omdebug.cc omstringstream.cc c_strtod.cc

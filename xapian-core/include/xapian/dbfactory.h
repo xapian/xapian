@@ -1,7 +1,7 @@
 /** \file dbfactory.h
  * \brief Factory functions for constructing Database and WritableDatabase objects
  */
-/* Copyright (C) 2005 Olly Betts
+/* Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
 
@@ -228,6 +228,11 @@ Database open(const std::string &host, unsigned int port, Xapian::timeout timeou
 Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
 //@}
 
+//@{
+WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
+WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
+//@}
+
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a program.
  *
@@ -242,6 +247,8 @@ Database open(const std::string &host, unsigned int port, Xapian::timeout timeou
  *			10000ms, which is 10 seconds).
  */
 Database open(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
+
+WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
 
 }
 #endif

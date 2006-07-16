@@ -33,25 +33,23 @@ the server.
 <H2>The Prog Method</H2>
 
 <P>The prog method spawns a program when the database is opened, and
-communicates with it over a Unix domain socket.  This isn't intended for
-production use, but is useful for debugging and testing.  The xapian-progsrv
-program, which is designed to be the program spawned, currently only uses
-text files indexed into inmemory databases.
+communicates with it over a pipe.  This can be used to connect to a
+remote Xapian database across an SSH tunnel for example, providing
+authentication and encryption.  The xapian-progsrv program is designed
+to be the program at the far end of the connection.
 
 <P>From the client end, create the database with <code>Xapian::Database database(Xapian::Remote::open(<i>program</i>, <i>args</i>));</code> - for example:
 
 <pre>
-Xapian::Database database(Xapian::Remote::open("xapian-progsrv", "file1.txt file2.txt"));
+Xapian::Database database(Xapian::Remote::open("ssh", "search.example.com xapian-progsrv /var/lib/xapian/data/db1"));
 </pre>
 
-If the program has no path, the PATH environment variable is used.  The
-args are a list of one or more names of text files to be indexed into an
-inmemory database.  Any number can be specified.
+<P>If the program has no path, the PATH environment variable is used.
 
 <h2>The TCP Method</h2>
 
 <P>The tcp method uses TCP/IP sockets to connect to a running server on a remote
-(or indeed local) machine.
+machine (or indeed a local one, but that's rather pointless!)
 
 <P>From the client end, create the database with <code>Xapian::Database database(Xapian::Remote::open(<i>host</i>, <i>port</i>));</code> - for example:
 
@@ -98,6 +96,10 @@ functors).
 
 <P>Exceptions are propagated across the link and thrown again at the client end.
 
+<P>The remote backend now support writable databases.  Just start
+<code>xapian-progsrv</code> or <code>xapian-tcpsrv</code> with the
+option <code>--writable</code>.  Only one database may be specified.
+Most operations are supported.
 <!-- FOOTER $Author$ $Date$ $Id$ -->
 </BODY>
 </HTML>

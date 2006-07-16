@@ -329,6 +329,10 @@ class MSetIterator {
 	/// Get the weight of the document at the current position
 	Xapian::weight get_weight() const;
 
+	/** Get the collapse key for this document.
+	 */
+	std::string get_collapse_key() const;
+
 	/** Get an estimate of the number of documents that have been collapsed
 	 *  into this one.
 	 *
@@ -1012,14 +1016,14 @@ class Enquire {
 
 }
 
-class SocketServer;
+class RemoteServer;
 
 namespace Xapian {
 
 /// Abstract base class for weighting schemes
 class Weight {
     friend class Enquire; // So Enquire can clone us
-    friend class ::SocketServer; // So SocketServer can clone us - FIXME
+    friend class ::RemoteServer; // So RemoteServer can clone us - FIXME
     public:
 	class Internal;
     protected:

@@ -28,7 +28,7 @@
 #include <xapian/error.h>
 #include "termlist.h"
 #include "expandweight.h"
-#include "net_database.h"
+#include "remote-database.h"
 
 using namespace std;
 
@@ -59,7 +59,7 @@ class NetworkTermListItem {
  *  object on the client side.
  */
 class NetworkTermList : public LeafTermList {
-    friend class NetworkDatabase;
+    friend class RemoteDatabase;
     private:
 	/** The list of items comprising the termlist.
 	 */
@@ -88,18 +88,21 @@ class NetworkTermList : public LeafTermList {
 	Xapian::doccount database_size;
 
 	///  Keep a reference to our database
-	Xapian::Internal::RefCntPtr<const NetworkDatabase> this_db;
+	Xapian::Internal::RefCntPtr<const RemoteDatabase> this_db;
+
+	/// The id of the document this termlist came from (or 0 if not applicable).
+	Xapian::docid did;
 
 	/** Standard constructor is private: NetworkTermLists are created
-	 *  by NetworkDatabase object only, which is a friend.
+	 *  by RemoteDatabase object only, which is a friend.
 	 *
 	 *  @param average_length_  The average length of a document
 	 *  @param database_size_
 	 */
 	NetworkTermList(Xapian::doclength average_length_,
 			Xapian::doccount  database_size_,
-			const vector<NetworkDatabase::TermListItem> &items_,
-			Xapian::Internal::RefCntPtr<const NetworkDatabase> this_db_);
+			Xapian::Internal::RefCntPtr<const RemoteDatabase> this_db_,
+			Xapian::docid did_);
     public:
 
 	/** Get the number of terms in the termlist.
@@ -113,6 +116,7 @@ class NetworkTermList : public LeafTermList {
 	TermList * next();
 	bool   at_end() const;
 
+	Xapian::termcount positionlist_count() const;
 	Xapian::PositionIterator positionlist_begin() const;
 };
 

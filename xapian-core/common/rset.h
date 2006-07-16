@@ -1,8 +1,7 @@
 /* rset.h
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2005 Olly Betts
+ * Copyright 2003,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_RSET_H
@@ -70,7 +68,7 @@ class RSetI {
 inline
 RSetI::RSetI(const Xapian::Database &root_, const Xapian::RSet & rset)
 	: root(root_), dbroot(NULL), calculated_reltermfreqs(false),
-	  documents(rset.internal->items)
+	  documents(rset.internal->get_items())
 {
 }
 
@@ -78,7 +76,7 @@ RSetI::RSetI(const Xapian::Database &root_, const Xapian::RSet & rset)
 inline
 RSetI::RSetI(const Xapian::Database::Internal *dbroot_, const Xapian::RSet & rset)
 	: dbroot(dbroot_), calculated_reltermfreqs(false),
-	  documents(rset.internal->items)
+	  documents(rset.internal->get_items())
 {
 }
 

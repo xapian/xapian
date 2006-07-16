@@ -1,9 +1,8 @@
 /* internaltest.cc: test of the Xapian internals
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -30,6 +28,8 @@ using namespace std;
 #include <xapian.h>
 #include "testsuite.h"
 #include "omstringstream.h"
+
+#include "serialise.h"
 
 static bool test_except1()
 {
@@ -183,6 +183,48 @@ static bool test_omstringstream1()
     return true;
 }
 
+// Check serialisation of lengths.
+static bool test_serialiselength1()
+{
+    size_t n = 0;
+    while (n < 0xff000000) {
+	string s = encode_length(n);
+	const char *p = s.data();
+	const char *p_end = p + s.size();
+	size_t decoded_n = decode_length(&p, p_end);
+	if (n != decoded_n || p != p_end) tout << "[" << s << "]" << endl;
+	TEST_EQUAL(n, decoded_n);
+	TEST_EQUAL(p_end - p, 0);
+	if (n < 5000) {
+	    ++n;
+	} else {
+	    n += 53643;
+	}
+    }
+
+    return true;
+}
+
+// Check serialisation of documents.
+static bool test_serialisedoc1()
+{
+    Xapian::Document doc;
+
+    string s;
+
+    s = serialise_document(doc);
+    TEST(serialise_document(unserialise_document(s)) == s);
+
+    doc.set_data("helllooooo");
+    doc.add_term("term");
+    doc.add_value(1, "foo");
+
+    s = serialise_document(doc);
+    TEST(serialise_document(unserialise_document(s)) == s);
+
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests                                            #
 // ##################################################################
@@ -195,6 +237,8 @@ test_desc tests[] = {
     {"refcnt2",			test_refcnt2},
     {"stringcomp1",		test_stringcomp1},
     {"omstringstream1",		test_omstringstream1},
+    {"serialiselength1",	test_serialiselength1},
+    {"serialisedoc1",		test_serialisedoc1},
     {0, 0}
 };
 

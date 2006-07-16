@@ -42,6 +42,10 @@ class BranchTermList : public TermList {
 	    if (r) delete r;
 	}
 
+	Xapian::termcount positionlist_count() const {
+	    throw Xapian::InvalidOperationError("BranchTermList::positionlist_count() isn't meaningful");
+	}
+
 	Xapian::PositionIterator positionlist_begin() const {
 	    throw Xapian::InvalidOperationError("BranchTermList::positionlist_begin() isn't meaningful");
 	}

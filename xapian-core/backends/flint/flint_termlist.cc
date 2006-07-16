@@ -236,6 +236,12 @@ FlintTermList::get_weighting() const
     return wt->get_bits(current_wdf, doclen, get_termfreq(), doccount);
 }
 
+Xapian::termcount
+FlintTermList::positionlist_count() const
+{
+    throw Xapian::UnimplementedError("FlintTermList::positionlist_count() not implemented");
+}
+
 Xapian::PositionIterator
 FlintTermList::positionlist_begin() const
 {

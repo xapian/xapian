@@ -1,14 +1,12 @@
-/* localmatch.h: class for performing the match calculations on postlists
+/** @file localmatch.h
+ *  @brief SubMatch class for a local database.
+ */
+/* Copyright (C) 2006 Olly Betts
  *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,100 +15,117 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA
- * -----END-LICENCE-----
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_LOCALMATCH_H
-#define OM_HGUARD_LOCALMATCH_H
+#ifndef XAPIAN_INCLUDED_LOCALMATCH_H
+#define XAPIAN_INCLUDED_LOCALMATCH_H
 
+#include "database.h"
 #include "omqueryinternal.h"
-#include "match.h"
-#include "stats.h"
 #include "rset.h"
+#include "stats.h"
+#include "submatch.h"
 
-namespace Xapian {
-    class Weight;
-}
-typedef Xapian::PostingIterator::Internal PostList;
+namespace Xapian { class Weight; }
 
-#include <vector>
-using std::vector;
 #include <map>
-using std::map;
-#include "autoptr.h"
+#include <vector>
 
 class LocalSubMatch : public SubMatch {
-    private:
-	// Prevent copying
-	LocalSubMatch(const LocalSubMatch &);
-	LocalSubMatch & operator=(const LocalSubMatch &);
+    /// Don't allow assignment.
+    void operator=(const LocalSubMatch &);
 
-	AutoPtr<Xapian::Weight::Internal> statssource;
+    /// Don't allow copying.
+    LocalSubMatch(const LocalSubMatch &);
 
-	bool is_prepared;
+    /// Our StatsSource.
+    LocalStatsSource statssource;
 
-	/// Query to be run
-	Xapian::Query::Internal users_query;
+    /// The original query before any rearrangement.
+    Xapian::Query::Internal orig_query;
 
-	/// The size of the query (passed to Xapian::Weight objects)
-	Xapian::termcount qlen;
+    /// The query length (used by some weighting schemes).
+    Xapian::termcount qlen;
 
-	const Xapian::Database::Internal *db;
+    /// The (sub-)Database we're searching.
+    const Xapian::Database::Internal *db;
 
-	/// RSet to be used (affects weightings)
-	AutoPtr<RSetI> rset;
+    /** The (sub-)RSet (used to calculate R and r).
+     *
+     *  R and r are used in probabilistic weighting formulae.
+     */
+    RSetI rset;
 
-	/// Weighting scheme object
-	const Xapian::Weight * wtscheme;
+    /// Weight object (used as a factory by calling create on it).
+    const Xapian::Weight * wt_factory;
 
-	/// The weights and termfreqs of terms in the query.
-	map<string, Xapian::MSet::Internal::TermFreqAndWeight> term_info;
+    /// The termfreqs and weights of terms used in orig_query.
+    std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> term_info;
 
 
-	PostList * build_xor_tree(vector<PostList *> &postlists,
-				  MultiMatch *matcher);
+    /// Build an optimised AndPostList tree from a vector of PostLists.
+    PostList * build_and_tree(std::vector<PostList *> &PostLists,
+			      MultiMatch *matcher);
 
-	PostList * build_and_tree(vector<PostList *> &postlists,
-				  MultiMatch *matcher);
+    /// Build an optimised OrPostList tree from a vector of PostLists.
+    PostList * build_or_tree(std::vector<PostList *> &PostLists,
+			     MultiMatch *matcher);
 
-	PostList * build_or_tree(vector<PostList *> &postlists,
-				 MultiMatch *matcher);
+    /// Build an optimised XorPostList tree from a vector of PostLists.
+    PostList * build_xor_tree(std::vector<PostList *> &postlists,
+			      MultiMatch *matcher);
 
-	/** Make a postlist from the subqueries of a query objects.
-	 * 
-	 * Operation must be either AND, OR, XOR, PHRASE, NEAR, or ELITE_SET.
-	 * Optimise query by building tree carefully.
-	 */
-	PostList *postlist_from_queries(Xapian::Query::Internal::op_t op,
-		const Xapian::Query::Internal *query, MultiMatch *matcher,
-		bool is_bool);
+    /** Convert the sub-queries of a Query into an optimised PostList tree.
+     *
+     *  We take the sub-queries from @a query, but use @op instead of
+     *  query->op (this allows us to convert OP_PHRASE and OP_NEAR to OP_AND
+     *  if there's no positional information.
+     *
+     *  @param op	@a op must be either OP_AND, OP_OR, OP_XOR,
+     *			OP_PHRASE, OP_NEAR, or OP_ELITE_SET.
+     *  @param query	Pointer to the query to process.
+     *  @param matcher	Pointer to the matcher.
+     *  @param is_bool	Is this a boolean part of the query?  E.g. the right
+     *			branch of an AND_NOT or FILTER.
+     *  @return		The root of the PostList tree.
+     */
+    PostList *postlist_from_queries(Xapian::Query::Internal::op_t op,
+				    const Xapian::Query::Internal *query,
+				    MultiMatch *matcher, bool is_bool);
 
-	/// Make a postlist from a query object
-	PostList *postlist_from_query(const Xapian::Query::Internal * query,
-				      MultiMatch *matcher,
-				      bool is_bool);
+    /** Convert a Query into an optimised PostList tree.
+     *
+     *  @param query	Pointer to the query to process.
+     *  @param matcher	Pointer to the matcher.
+     *  @param is_bool	Is this a boolean part of the query?  E.g. the right
+     *			branch of an AND_NOT or FILTER.
+     *  @return		The root of the PostList tree.
+     */
+    PostList *postlist_from_query(const Xapian::Query::Internal * query,
+				  MultiMatch *matcher, bool is_bool);
 
-	void register_term(const string &tname) {
-	    statssource->my_termfreq_is(tname, db->get_termfreq(tname));
-	}
+    /// Register term @a tname with the StatsSource.
+    void register_term(const string &tname);
 
-    public:
-	LocalSubMatch(const Xapian::Database::Internal *db_,
-		      const Xapian::Query::Internal * query_,
-		      Xapian::termcount qlen_,
-		      const Xapian::RSet & omrset, StatsGatherer *gatherer,
-		      const Xapian::Weight *wtscheme_);
+  public:
+    /// Constructor.
+    LocalSubMatch(const Xapian::Database::Internal *db,
+		  const Xapian::Query::Internal * query,
+		  Xapian::termcount qlen,
+		  const Xapian::RSet & omrset,
+		  StatsGatherer *gatherer,
+		  const Xapian::Weight *wt_factory);
 
-	~LocalSubMatch();
+    /// Fetch and collate statistics.
+    bool prepare_match(bool nowait);
 
-	/// Calculate the statistics for the query
-	bool prepare_match(bool nowait);
+    /// Start the match.
+    void start_match(Xapian::doccount maxitems);
 
-	PostList * get_postlist(Xapian::doccount maxitems, MultiMatch *matcher);
-
-	const map<string, Xapian::MSet::Internal::TermFreqAndWeight> get_term_info() const;
+    /// Get PostList and term info.
+    PostList * get_postlist_and_term_info(MultiMatch *matcher,
+	std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts);
 };
 
-#endif /* OM_HGUARD_LOCALMATCH_H */
+#endif /* XAPIAN_INCLUDED_LOCALMATCH_H */

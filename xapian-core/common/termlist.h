@@ -101,6 +101,8 @@ class Xapian::TermIterator::Internal : public Xapian::Internal::RefCntBase
 	// True if we're off the end of the list
 	virtual bool at_end() const = 0;
 
+	virtual Xapian::termcount positionlist_count() const = 0;
+
 	virtual Xapian::PositionIterator positionlist_begin() const = 0;
 };
 

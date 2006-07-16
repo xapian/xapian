@@ -1,9 +1,8 @@
 /* omprogsrv.cc: Match server to be used with ProgClient
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -28,78 +26,81 @@
 #include <string>
 #include <algorithm>
 #include <xapian/error.h>
-#include "netutils.h"
-#include "progserver.h"
-#include "omerr_string.h"
-#include "backendmanager.h"
+#include "remoteserver.h"
+#include "serialise.h"
 
 using namespace std;
 
 int main(int argc, char **argv) {
-    if (argc < 3) {
-	cerr << "Wrong number of arguments" << endl;
-	cout << "ERROR" << endl;
-	exit(-1);
-    }
-
     /* variables needed in both try/catch blocks */
+    Xapian::WritableDatabase wdb;
     Xapian::Database dbs;
     unsigned int timeout = 60000;
+    bool writable = false;
 
     /* Trap exceptions related to setting up the database */
     try {
-	// open the database to return results
-	BackendManager backendmanager;
-	backendmanager.set_datadir(argv[1]);
-	backendmanager.set_dbtype("inmemory");
-
 	vector<string> paths;
 
-	for (int i = 2; i < argc; ++i) {
+	for (int i = 1; i < argc; ++i) {
 	    string arg = argv[i];
 	    if (arg.length() >= 2 && arg[0] == '-') {
+		if (arg == "--writable") {
+		    writable = true;
+		    continue;
+		}
 		if (arg[1] == 't') {
 		    timeout = atoi(arg.c_str() + 2);
 		    continue;
 		}
-		if (arg[1] == 'e') {
-		    if (arg == "-e") {
-			backendmanager.set_dbtype("inmemoryerr");
-			continue;
-		    }
-		    if (arg == "-e2") {
-			backendmanager.set_dbtype("inmemoryerr2");
-			continue;
-		    }
-		    if (arg == "-e3") {
-			backendmanager.set_dbtype("inmemoryerr3");
-			continue;
-		    }
-		}
 		// FIXME: better to complain about unknown options that to
 		// treat them as paths?
 	    }
-	    paths.push_back(argv[i]);
+	    paths.push_back(arg);
 	}
 
-	Xapian::Database db = backendmanager.get_database(paths);
-	dbs.add_database(db);
+	if (paths.empty()) {
+	    cerr << "Error: No database directories specified." << endl;
+	    exit(1);
+	}
+
+	if (writable) {
+	    if (paths.size() > 1) {
+		cerr << "Error: at most one database directory allowed with '--writable'." << endl;
+		exit(1);
+	    }
+	    wdb = Xapian::WritableDatabase(paths[0], Xapian::DB_CREATE_OR_OPEN);
+	} else {
+	    vector<string>::const_iterator i;
+	    for (i = paths.begin(); i != paths.end(); ++i) {
+		dbs.add_database(Xapian::Database(*i));
+	    }
+	}
     } catch (const Xapian::Error &e) {
-	cout << 'E' << omerror_to_string(e) << endl;
+	cout << '?' << serialise_error(e) << flush;
     } catch (...) {
-	cout << "EUNKNOWN" << endl;
+	cout << '?' << '\0' << flush;
     }
 
     /* Catch exceptions from running the server, but don't pass them
-     * on to the remote end, as SocketServer will do that itself.
+     * on to the remote end, as the RemoteServer will do that itself.
      */
     try {
-	ProgServer server(dbs, 0, 1, timeout, timeout);
-	// If you have defined your own weighting scheme, register it here
-	// like so:
-	// server.register_weighting_scheme(FooWeight());
+	if (writable) {
+	    RemoteServer server(&wdb, 0, 1, timeout, timeout);
+	    // If you have defined your own weighting scheme, register it here
+	    // like so:
+	    // server.register_weighting_scheme(FooWeight());
 
-	server.run();
+	    server.run();
+	} else {
+	    RemoteServer server(&dbs, 0, 1, timeout, timeout);
+	    // If you have defined your own weighting scheme, register it here
+	    // like so:
+	    // server.register_weighting_scheme(FooWeight());
+
+	    server.run();
+	}
     } catch (...) {
     }
 }
