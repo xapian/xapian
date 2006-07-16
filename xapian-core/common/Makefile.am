@@ -11,7 +11,7 @@ noinst_HEADERS = serialise.h \
  utils.h omqueryinternal.h \
  document.h documentterm.h \
  progclient.h remote-database.h \
- omtime.h remoteserver.h \
+ omtime.h remoteserver.h remoteprotocol.h \
  remoteconnection.h positionlist.h tcpclient.h \
  tcpserver.h omdebug.h omstringstream.h \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \
