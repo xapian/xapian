@@ -477,6 +477,9 @@ index_file(const char *fname, istream &stream,
 			abort();
 		    case Action::NEW:
 			value = old_value;
+			// We're processing the same field again - give it a
+			// reprieve.
+			this_field_is_content = true;
 			break;
 		    case Action::FIELD:
 			if (!value.empty()) {
