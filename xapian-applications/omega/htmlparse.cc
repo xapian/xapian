@@ -1,9 +1,8 @@
 /* htmlparse.cc: simple HTML parser for omega indexer
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Ananova Ltd
- * Copyright 2002 Olly Betts
+ * Copyright 2002,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -278,19 +276,32 @@ HtmlParser::parse_html(const string &body)
 	    if (++start == body.end()) break;
 	    // comment or SGML declaration
 	    if (*(start - 1) == '-' && *start == '-') {
-		start = find(start + 1, body.end(), '>');
-		// unterminated comment swallows rest of document
-		// (like NS, but unlike MSIE iirc)
-		if (start == body.end()) break;
-		
-		p = start;
+		++start;
+		string::const_iterator close = find(start, body.end(), '>');
+		// An unterminated comment swallows rest of document
+		// (like Netscape, but unlike MSIE IIRC)
+		if (close == body.end()) break;
+
+		p = close;
 		// look for -->
 		while (p != body.end() && (*(p - 1) != '-' || *(p - 2) != '-'))
 		    p = find(p + 1, body.end(), '>');
 
-		// If we found --> skip to there, otherwise
-		// skip to the first > we found (as Netscape does)
-		if (p != body.end()) start = p;
+		if (p != body.end()) {
+		    // Check for htdig's "ignore this bit" comments.
+		    if (p - start == 15 && string(start, p - 2) == "htdig_noindex") {
+			string::size_type i;
+			i = body.find("<!--/htdig_noindex-->", p + 1 - body.begin());
+			if (i == string::npos) break;
+			start = body.begin() + i + 21;
+			continue;
+		    }
+		    // If we found --> skip to there.
+		    start = p;
+		} else {
+		    // Otherwise skip to the first > we found (as Netscape does).
+		    start = close;
+		}
 	    } else {
 		// just an SGML declaration, perhaps giving the DTD - ignore it
 		start = find(start - 1, body.end(), '>');

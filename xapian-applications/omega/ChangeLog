@@ -1,3 +1,7 @@
+Thu Aug 24 21:40:10 BST 2006  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc: Support htdig's "ignore this bit" comments.
+
 Thu Aug 24 12:55:26 BST 2006  Olly Betts <olly@survex.com>
 
 	* query.cc: Fix $highlight{} to work with capitalised words (it used
