@@ -115,4 +115,9 @@ if [catch {
     }
 }
 
+if { $xapian::Query_OP_ELITE_SET != 10 } {
+    puts stderr "OP_ELITE_SET == $xapian::Query_OP_ELITE_SET not 10"
+    exit 1
+}
+
 exit 0
