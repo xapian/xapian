@@ -1,6 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-TESTS_ENVIRONMENT = $(TCLSH)
+TESTS_ENVIRONMENT = \
+ LIBTOOL="$(LIBTOOL)" TCLSH="$(TCLSH)" $(srcdir)/run-tcl-test
 
 ## Test programs to be run
 TESTS = smoketest.tcl
@@ -10,7 +11,7 @@ if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
 endif
 
-EXTRA_DIST = util.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = util.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl
 SUBDIRS = docs
 
 tcllibdir = @TCL_LIB@/../xapian@VERSION@

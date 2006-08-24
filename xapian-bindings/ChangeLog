@@ -1,3 +1,10 @@
+Thu Aug 24 18:03:47 BST 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/: Rework how the smoketest gets run to eliminate special code
+	  for using uninstalled bindings from smoketest.tcl itself.  This
+	  allows the smoketest to be run using install bindings, and also
+	  make the smoketest a better example program.
+
 Fri Jun 09 04:10:18 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: We need to look for jni.h in

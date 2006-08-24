@@ -19,8 +19,7 @@
 
 # We need at least Tcl version 8
 package require Tcl 8
-
-load [file join ".libs" xapian.so]
+package require xapian 0.9.6
 
 # Test the version number reporting functions give plausible results.
 set v [format {%d.%d.%d} [xapian::major_version] \
@@ -115,3 +114,5 @@ if [catch {
 	exit 1
     }
 }
+
+exit 0
