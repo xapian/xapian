@@ -29,6 +29,7 @@ dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 dnl Check for time functions.
+AC_FUNC_STRFTIME
 AC_CHECK_FUNCS(gettimeofday ftime)
 
 dnl See if ftime returns void (as it does on mingw)

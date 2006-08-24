@@ -1,3 +1,7 @@
+Thu Aug 24 12:05:23 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check for strftime.
+
 Sun Jul 09 01:40:09 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt: Note that (by design) an omegascript template
