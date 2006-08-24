@@ -81,7 +81,7 @@ omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
 omindex_LDADD = $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
- getopt.cc commonhelp.cc utils.cc hashterm.cc
+ getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
 dist_man_MANS = omindex.1 scriptindex.1

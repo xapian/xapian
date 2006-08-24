@@ -1,3 +1,9 @@
+Thu Aug 24 12:35:32 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,docs/scriptindex.txt,loadfile.cc,loadfile.h,
+	  scriptindex.cc: Add new "load" action to allow the contents of an
+	  external file to be loaded.
+
 Thu Aug 24 12:05:23 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Check for strftime.

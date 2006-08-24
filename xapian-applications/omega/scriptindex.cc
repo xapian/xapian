@@ -40,6 +40,7 @@
 #include "commonhelp.h"
 #include "hashterm.h"
 #include "indextext.h"
+#include "loadfile.h"
 #include "myhtmlparse.h"
 #include "utils.h"
 
@@ -107,15 +108,18 @@ p_notfieldnamechar(unsigned int c)
 
 const char * action_names[] = {
     "bad", "new",
-    "boolean", "date", "field", "hash", "index", "indexnopos", "lower",
+    "boolean", "date", "field", "hash", "index", "indexnopos", "load", "lower",
     "truncate", "unhtml", "unique", "value", "weight"
 };
+
+// For debugging:
+#define DUMP_ACTION(A) cout << action_names[(A).get_action()] << "(" << (A).get_string_arg() << "," << (A).get_num_arg() << ")" << endl
 
 class Action {
 public:
     typedef enum {
 	BAD, NEW,
-	BOOLEAN, DATE, FIELD, HASH, INDEX, INDEXNOPOS, LOWER,
+	BOOLEAN, DATE, FIELD, HASH, INDEX, INDEXNOPOS, LOAD, LOWER,
 	TRUNCATE, UNHTML, UNIQUE, VALUE, WEIGHT
     } type;
 private:
@@ -129,7 +133,7 @@ public:
     Action(type action_, string arg, int num) : action(action_), string_arg(arg), num_arg(num) { }
     type get_action() const { return action; }
     int get_num_arg() const { return num_arg; }
-    string get_string_arg() const { return string_arg; }
+    const string & get_string_arg() const { return string_arg; }
 };
 
 static void
@@ -238,6 +242,8 @@ parse_index_script(const string &filename)
 		    case 'l':
 			if (action == "lower") {
 			    code = Action::LOWER;
+			} else if (action == "load") {
+			    code = Action::LOAD;
 			}
 			break;
 		    case 't':
@@ -245,6 +251,16 @@ parse_index_script(const string &filename)
 			    code = Action::TRUNCATE;
 			    arg = YES;
 			    takes_integer_argument = true;
+			    if (!actions.empty() &&
+				actions.back().get_action() == Action::LOAD) {
+				/* Turn "load truncate=n" into "load" with
+				 * num_arg n, so that we don't needlessly
+				 * allocate memory and read data we're just
+				 * going to ignore.
+				 */
+				actions.pop_back();
+				code = Action::TRUNCATE;
+			    }
 			}
 			break;
 		    case 'u':
@@ -500,13 +516,25 @@ index_file(const char *fname, istream &stream,
 		    case Action::LOWER:
 			lowercase_term(value);
 			break;
+		    case Action::LOAD: {
+			bool truncated = false;
+			if (!load_file(value, i->get_num_arg(), true,
+				       value, truncated)) {
+			    cerr << "Couldn't load file '" << value << "': "
+				 << strerror(errno) << endl;
+			    value.resize(0);
+			}
+			if (!truncated) break;
+			/* FALLTHRU (conditionally) */
+		    }
 		    case Action::TRUNCATE: {
 			string::size_type l = i->get_num_arg();
 			if (l < value.size()) {
+			    // Trim back to (and including) previous whitespace.
 			    while (l > 0 && !isspace(value[l - 1])) --l;
 			    while (l > 0 && isspace(value[l - 1])) --l;
 
-			    // If the first word is too long, just truncate it
+			    // If the first word is too long, just truncate it.
 			    if (l == 0) l = i->get_num_arg();
 
 			    value = value.substr(0, l);
