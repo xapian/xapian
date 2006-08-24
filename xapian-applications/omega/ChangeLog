@@ -1,3 +1,8 @@
+Thu Aug 24 12:55:26 BST 2006  Olly Betts <olly@survex.com>
+
+	* query.cc: Fix $highlight{} to work with capitalised words (it used
+	  to work but regressed in 0.8.2).
+
 Thu Aug 24 12:38:50 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,omindex.cc,query.cc: Use the new routines in loadfile.cc

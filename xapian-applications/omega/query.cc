@@ -614,12 +614,13 @@ html_highlight(const string &s, const string &list,
 	    }
 	}
 	j = last;
+	unsigned char first_char = term[0];
 	lowercase_term(term);
 	int match = -1;
 	// As of 0.8.0, raw terms won't start with a digit.  But we may
 	// be searching an older database where it does, so keep the
 	// isdigit check for now...
-	if (isupper(term[0]) || isdigit(term[0])) {
+	if (isupper(first_char) || isdigit(first_char)) {
 	    match = word_in_list('R' + term, list);
 	}
 	if (match == -1)
