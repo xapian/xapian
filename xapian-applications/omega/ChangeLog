@@ -1,3 +1,8 @@
+Thu Aug 24 12:38:50 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex.cc,query.cc: Use the new routines in loadfile.cc
+	  to replace code to do the same thing in omindex and omega.
+
 Thu Aug 24 12:37:16 BST 2006  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Fix handling of check whether a record has content

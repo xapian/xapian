@@ -73,11 +73,11 @@ noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
  gnu_getopt.h commonhelp.h cdb.h cdb_int.h hashterm.h
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
- cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc
+ cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc
 omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
- getopt.cc commonhelp.cc utils.cc hashterm.cc
+ getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc
 omindex_LDADD = $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\

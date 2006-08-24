@@ -23,12 +23,6 @@
 
 #include <config.h>
 
-#ifdef HAVE_POSIX_FADVISE
-# ifdef __linux__
-#  define _POSIX_C_SOURCE 200112L // for posix_fadvise from fcntl.h
-#  define _BSD_SOURCE 1 // Need this to get lstat() as well
-# endif
-#endif
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -50,20 +44,11 @@
 #include "commonhelp.h"
 #include "hashterm.h"
 #include "indextext.h"
+#include "loadfile.h"
 #include "myhtmlparse.h"
 #include "utils.h"
 
 #include "gnu_getopt.h"
-
-#ifndef O_STREAMING
-# ifdef __linux__
-// This is the value used by rml's O_STREAMING patch for 2.4.
-#  define O_STREAMING	04000000
-# else
-// Define as 0 otherwise, so we don't need ifdefs in the code.
-#  define O_STREAMING	0
-# endif
-#endif
 
 #ifdef _MSC_VER
 # define popen _popen
@@ -149,35 +134,7 @@ static string
 file_to_string(const string &file)
 {
     string out;
-    struct stat st;
-    int fd = open(file.c_str(), O_RDONLY|O_STREAMING);
-    if (fd == -1) throw ReadError();
-    if (fstat(fd, &st) == -1 || !S_ISREG(st.st_mode)) {
-	close(fd);
-	throw ReadError();
-    }
-
-    if (st.st_size > 0) {
-#ifdef HAVE_POSIX_FADVISE
-	posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE); // or POSIX_FADV_SEQUENTIAL
-#endif
-	out.reserve(st.st_size);
-	char blk[4096];
-	while (true) {
-	    int r = read(fd, blk, sizeof(blk));
-	    if (r < 0) {
-		if (errno == EINTR) continue;
-		close(fd);
-		throw ReadError();
-	    }
-	    if (r == 0) break; // end of file
-	    out.append(blk, r);
-	}
-#ifdef HAVE_POSIX_FADVISE
-	posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
-#endif
-    }
-    close(fd);
+    if (!load_file(file, out)) throw ReadError();
     return out;
 }
 

@@ -60,6 +60,7 @@
 #include "query.h"
 #include "cgiparam.h"
 #include "indextext.h"
+#include "loadfile.h"
 
 #include <xapian/queryparser.h>
 
@@ -1878,37 +1879,13 @@ eval_file(const string &fmtfile)
     string err;
     if (vet_filename(fmtfile)) {
 	string file = template_dir + fmtfile;
-	struct stat st;
-	int fd = open(file.c_str(), O_RDONLY);
-	if (fd >= 0) {
-	    if (fstat(fd, &st) == 0 && S_ISREG(st.st_mode)) {
-		char *blk;
-		blk = (char*)malloc(st.st_size);
-		if (blk) {
-		    char *p = blk;
-		    int len = st.st_size;
-		    while (len) {
-			int r = read(fd, p, len);
-			if (r < 0) break;
-			p += r;
-			len -= r;
-		    }
-		    if (len == 0) {
-			string fmt = string(blk, st.st_size);
-			free(blk);
-			close(fd);
-			vector<string> noargs;
-			noargs.resize(1);
-			return eval(fmt, noargs);
-		    }
-		    free(blk);
-		}
-	    }
-	    err = strerror(errno);
-	    close(fd);
-	} else {
-	    err = strerror(errno);
+	string fmt;
+	if (load_file(file, fmt)) {
+	    vector<string> noargs;
+	    noargs.resize(1);
+	    return eval(fmt, noargs);
 	}
+	err = strerror(errno);
     } else {
 	err = "name contains `..'";
     }
