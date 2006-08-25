@@ -312,6 +312,24 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
+    } else if (mimetype == "application/vnd.ms-excel") {
+	string cmd = "xls2csv -q0 -d8859-1 " + shell_protect(file);
+	//string cmd = "xls2csv -q0 -dutf-8 " + shell_protect(file);
+	try {
+	    dump = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    return;
+	}
+    } else if (mimetype == "application/vnd.ms-powerpoint") {
+	string cmd = "catppt -d8859-1 " + shell_protect(file);
+	//string cmd = "catppt -dutf-8 " + shell_protect(file);
+	try {
+	    dump = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    return;
+	}
     } else if (mimetype == "application/vnd.wordperfect") {
 	string cmd = "wpd2text " + shell_protect(file);
 	try {
@@ -567,8 +585,15 @@ main(int argc, char **argv)
     mime_map["stw"] = "application/vnd.sun.xml.writer.template";
     // Some other word processor formats:
     mime_map["doc"] = "application/msword";
+    mime_map["dot"] = "application/msword"; // Word template
     mime_map["wpd"] = "application/vnd.wordperfect";
     mime_map["rtf"] = "text/rtf";
+    // Other MS formats:
+    mime_map["xls"] = "application/vnd.ms-excel";
+    mime_map["xlb"] = "application/vnd.ms-excel";
+    mime_map["xlt"] = "application/vnd.ms-excel"; // Excel template
+    mime_map["ppt"] = "application/vnd.ms-powerpoint";
+    mime_map["pps"] = "application/vnd.ms-powerpoint"; // Powerpoint slideshow
     // Perl:
     mime_map["pl"] = "text/x-perl";
     mime_map["pm"] = "text/x-perl";

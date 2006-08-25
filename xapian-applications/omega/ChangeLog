@@ -1,3 +1,8 @@
+Fri Aug 25 22:55:23 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/overview.txt,omindex.cc: Run xls2csv on MS Excel files; run
+	  catppt on MS Powerpoint files; also index MS Word templates (.dot).
+
 Thu Aug 24 21:40:10 BST 2006  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc: Support htdig's "ignore this bit" comments.
