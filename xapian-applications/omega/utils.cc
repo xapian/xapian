@@ -57,6 +57,12 @@ int_to_string(int val)
 }
 
 string
+long_to_string(long val)
+{
+    CONVERT_TO_STRING("%ld")
+}
+
+string
 date_to_string(int y, int m, int d)
 {
     char buf[11];

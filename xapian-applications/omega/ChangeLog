@@ -1,3 +1,10 @@
+Sun Aug 27 00:36:12 BST 2006  Olly Betts <olly@survex.com>
+
+	* omindex.cc,templates/query,utils.cc,utils.h: Store the file's last
+	  modified time in the document data as "modtime" so it shows up in
+	  search results (and tweak the query template so the display of this
+	  information looks nicer).
+
 Fri Aug 25 22:55:23 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/overview.txt,omindex.cc: Run xls2csv on MS Excel files; run

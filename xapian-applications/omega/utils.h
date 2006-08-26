@@ -25,4 +25,5 @@ using std::string;
 
 int string_to_int(const string &s);
 string int_to_string(int i);
+string long_to_string(long val);
 string date_to_string(int y, int m, int d);

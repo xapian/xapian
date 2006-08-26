@@ -376,6 +376,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	record += "\ncaption=" + truncate_to_word(title, 100);
     }
     record += "\ntype=" + mimetype;
+    record += "\nmodtime=" + long_to_string(last_mod);
     newdocument.set_data(record);
 
     // Add postings for terms to the document

@@ -71,9 +71,9 @@ ALT="$percentage%" HEIGHT=16 WIDTH=32></TD>
 <TD VALIGN=top><TABLE BORDER=0 CELLPADDING=1><TR><TD BGCOLOR="#ccffcc">
 <INPUT TYPE=checkbox NAME=R VALUE=$id$if{$relevant, CHECKED}>
 </TD></TR></TABLE></TD>
-<TD><B><small>$html{$date{$field{modtime},%Y-%m-%d %H:%M}}</small>
-<A HREF="$field{url}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
-<small>$highlight{$field{sample},$terms}$if{$field{sample},...}</small><br>
+<TD><B><A HREF="$field{url}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B>
+<small>$if{$field{modtime},($html{$date{$field{modtime},%Y-%m-%d %H:%M}})}<br>
+$highlight{$field{sample},$terms}$if{$field{sample},...}</small><br>
 <A HREF="$field{url}">$html{$field{url}}</A><br>
 <small>
 $if{$field{language},Language: <b>$html{$field{language}}</b>}
