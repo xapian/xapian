@@ -1,3 +1,7 @@
+Sat Aug 26 15:28:22 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/index.html: Add links to the wiki.
+
 Sun Jul 16 03:48:26 BST 2006  Olly Betts <olly@survex.com>
 
 	* common/Makefile.am: Ship remoteprotocol.h.
