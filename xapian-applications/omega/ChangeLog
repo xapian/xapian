@@ -1,3 +1,8 @@
+Sun Aug 27 01:11:45 BST 2006  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Added "size" field to document data; don't add "modtime"
+	  field if the timestamp is (time_t)-1.
+
 Sun Aug 27 00:36:12 BST 2006  Olly Betts <olly@survex.com>
 
 	* omindex.cc,templates/query,utils.cc,utils.h: Store the file's last

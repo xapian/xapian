@@ -158,7 +158,7 @@ stdout_to_string(const string &cmd)
 }
 
 static void
-index_file(const string &url, const string &mimetype, time_t last_mod)
+index_file(const string &url, const string &mimetype, time_t last_mod, off_t size)
 {
     string file = root + url;
     string title, sample, keywords, dump;
@@ -376,7 +376,10 @@ index_file(const string &url, const string &mimetype, time_t last_mod)
 	record += "\ncaption=" + truncate_to_word(title, 100);
     }
     record += "\ntype=" + mimetype;
-    record += "\nmodtime=" + long_to_string(last_mod);
+    if (last_mod != (time_t)-1)
+	record += "\nmodtime=" + long_to_string(last_mod);
+    if (size)
+	record += "\nsize=" + long_to_string(size);
     newdocument.set_data(record);
 
     // Add postings for terms to the document
@@ -501,8 +504,10 @@ index_directory(size_t depth_limit, const string &dir,
 
 	    map<string,string>::const_iterator mt;
 	    if ((mt = mime_map.find(ext))!=mime_map.end()) {
-	      // If it's in our MIME map, presumably we know how to index it
-	      index_file(indexroot + url, mt->second, statbuf.st_mtime);
+		// If it's in our MIME map, presumably we know how to index it
+		const string & mimetype = mt->second;
+		index_file(indexroot + url, mimetype, statbuf.st_mtime,
+			   statbuf.st_size);
 	    }
 	    continue;
 	}
