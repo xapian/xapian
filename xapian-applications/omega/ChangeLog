@@ -1,3 +1,8 @@
+Sun Aug 27 01:36:40 BST 2006  Olly Betts <olly@survex.com>
+
+	* indextext.cc: Don't generate terms with more than 3 trailing
+	  symbols ('-', '+', or '#').
+
 Sun Aug 27 01:11:45 BST 2006  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Added "size" field to document data; don't add "modtime"
