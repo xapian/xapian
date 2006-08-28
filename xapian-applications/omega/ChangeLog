@@ -1,3 +1,7 @@
+Mon Aug 28 18:09:28 BST 2006  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Don't generate 'W' terms since omega doesn't use them.
+
 Mon Aug 28 03:06:46 BST 2006  Olly Betts <olly@survex.com>
 
 	* query.cc,templates/query: Use '\t' to separate terms in xP since

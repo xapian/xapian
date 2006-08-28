@@ -411,10 +411,12 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     struct tm *tm = localtime(&last_mod);
     string date_term = "D" + date_to_string(tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday);
     newdocument.add_term(date_term); // Date (YYYYMMDD)
+#if 0 // "Weak" terms aren't currently used by omega
     date_term.resize(8);
     date_term[0] = 'W';
     if (date_term[7] == '3') date_term[7] = '2';
     newdocument.add_term(date_term); // "Weak" - 10ish day interval
+#endif
     date_term.resize(7);
     date_term[0] = 'M';
     newdocument.add_term(date_term); // Month (YYYYMM)
