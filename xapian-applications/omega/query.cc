@@ -218,30 +218,40 @@ set_probabilistic(const string &oldp)
     }
 
     // Check new query against the previous one
-    const char *pend;
-    const char *term;
-    unsigned int n_old_terms = 0;
-
     if (oldp.empty()) return query_string.empty() ? SAME_QUERY : NEW_QUERY;
 
     // We used to use "word1#word2#" (with trailing #) but some broken old
     // browsers (versions of MSIE) don't quote # in form GET submissions
     // and everything after the # gets interpreted as an anchor.
-    // So now we use "word1.word2." instead.
-    term = oldp.c_str();
-    pend = term;
-    while ((pend = strchr(pend, '.')) != NULL) {
-	pend++;
-	n_old_terms++;
+    //
+    // So we switched to using "word1.word2." but that doesn't work if
+    // the terms contain "." themselves (e.g. Tapplication/vnd.ms-excel)
+    // so now we use "word1\tword2" instead (with no trailing separator).
+    //
+    // However for compatibility with templates which haven't been updated and
+    // bookmarked queries from Omega 0.9.6 and earlier we still support ".".
+    char separator = '\t';
+    unsigned int n_old_terms = count(oldp.begin(), oldp.end(), '\t') + 1;
+    if (n_old_terms == 1 && oldp[oldp.size() - 1] == '.') {
+	separator = '.';
+	n_old_terms = count(oldp.begin(), oldp.end(), '.');
     }
+
     // short-cut: if the new query has fewer terms, it must be a new one
     if (n_new_terms < n_old_terms) return NEW_QUERY;
 
-    while ((pend = strchr(term, '.')) != NULL) {
+    const char *term = oldp.c_str();
+    const char *pend;
+    while ((pend = strchr(term, separator)) != NULL) {
 	if (termset.find(string(term, pend - term)) == termset.end())
 	    return NEW_QUERY;
 	term = pend + 1;
     }
+    if (*term) {
+	if (termset.find(string(term)) == termset.end())
+	    return NEW_QUERY;
+    }
+
     // Use termset.size() rather than n_new_terms so we correctly handle
     // the case when the query has repeated terms.
     // This works wrongly in the case when the user extends the query

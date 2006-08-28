@@ -109,7 +109,7 @@ $if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
 $if{$ne{$hitsperpage,10},<INPUT TYPE=hidden NAME=HITSPERPAGE VALUE=$hitsperpage>}
 $if{$fmt,<INPUT TYPE=hidden NAME=FMT VALUE="$html{$fmt}">}
 $if{$cgi{COLLAPSE},<INPUT TYPE=hidden NAME=COLLAPSE VALUE="$html{$cgi{COLLAPSE}}">}
-$list{$queryterms,<INPUT TYPE=hidden NAME=xP VALUE=",.,.">}
+$if{$queryterms,<INPUT TYPE=hidden NAME=xP VALUE="$html{$queryterms}">}
 <INPUT TYPE=hidden NAME=xDB VALUE="$html{$dbname}">
 <INPUT TYPE=hidden NAME=xFILTERS VALUE="$html{$filters}">
 $list{$relevants,<INPUT TYPE=hidden NAME=R VALUE=",.,">}
