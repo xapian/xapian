@@ -70,7 +70,7 @@ dist_sysconf_DATA = omega.conf
 
 noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
- gnu_getopt.h commonhelp.h cdb.h cdb_int.h hashterm.h
+ gnu_getopt.h commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc
