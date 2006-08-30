@@ -877,13 +877,12 @@ for backend in MUSCAT36 QUARTZ FLINT INMEMORY REMOTE ; do
   fi
 done
 rm -f include/xapian/version.h.tmp
-dnl "\r" in sed is a GNUism, but it's only going to appear on MS Windows
-dnl where we'll always have GNU sed, and the surrounding \(...\)* mean that
-dnl it'll just be ignored on platforms where it means something different
-dnl anyway (e.g. Solaris sed seems to interpret "\r" as "r".)
+dnl "\r" in sed is a GNUism, but we only need to remove it on MS Windows
+dnl where we'll always have GNU sed, and other sed's will just interpret
+dnl it as "r" (Solaris sed) or maybe literal "\r" which won't match.
 dnl
 dnl Use @@ around $MAIN_VERSION so we get " in the final output.
-$CXXCPP $cxxcpp_flags -DSTRING_VERSION="\"@@$MAIN_VERSION@@\"" -DMAJOR_VERSION="\"$MAJOR_VERSION\"" -DMINOR_VERSION="\"$MINOR_VERSION\"" -DREVISION="\"$REVISION\"" $srcdir/include/xapian/version_h.cc|${SED-sed} '/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/,\(\r\)*$//' > include/xapian/version.h.tmp
+$CXXCPP $cxxcpp_flags -DSTRING_VERSION="\"@@$MAIN_VERSION@@\"" -DMAJOR_VERSION="\"$MAJOR_VERSION\"" -DMINOR_VERSION="\"$MINOR_VERSION\"" -DREVISION="\"$REVISION\"" $srcdir/include/xapian/version_h.cc|${SED-sed} '/"/!d;s/^ *//;/^#/d;s/ *$//;s/" *,//;s/"//g;s/@@/"/g;s/  */ /g;s/ *,\r$//;s/ *,$//' > include/xapian/version.h.tmp
 dnl Only update the file if it has changed, so we don't alter the timestamp
 dnl and cause lots of rebuilding needlessly.  However, the build system
 dnl needs a timestamp to know when to regenerate version.h because version_h.cc
