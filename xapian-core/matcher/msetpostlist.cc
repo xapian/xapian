@@ -22,7 +22,6 @@
 
 #include "msetpostlist.h"
 #include "omdebug.h"
-#include "omenquireinternal.h"
 
 Xapian::doccount
 MSetPostList::get_termfreq_min() const

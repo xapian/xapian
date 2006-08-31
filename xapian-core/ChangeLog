@@ -1,3 +1,9 @@
+Thu Aug 31 17:08:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* matcher/msetpostlist.cc,matcher/msetpostlist.h: Move #include
+	  "omenquireinternal.h" into the header to fix compilation error
+	  with older versions of GCC.
+
 Thu Aug 31 16:38:33 BST 2006  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Added success report for Nexenta (alpha 5).
