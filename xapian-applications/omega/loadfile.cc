@@ -28,8 +28,9 @@
 
 #include <string>
 
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #ifndef O_STREAMING
 # ifdef __linux__

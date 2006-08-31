@@ -1,3 +1,7 @@
+Thu Aug 31 01:53:31 BST 2006  Olly Betts <olly@survex.com>
+
+	* loadfile.cc: Add #include <unistd.h>.
+
 Wed Aug 30 23:21:49 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Include loadfile.h in the tarball.
