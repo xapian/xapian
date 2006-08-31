@@ -1,3 +1,9 @@
+Fri Sep 01 00:29:10 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remote-database.h:
+	  Fix RemoteDatabase::reopen() to not be const so it actually
+	  overrides the virtual method it is supposed to.
+
 Thu Aug 31 21:40:53 BST 2006  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.h: Remove unneeded BackendManager::

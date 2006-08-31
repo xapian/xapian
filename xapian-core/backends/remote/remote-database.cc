@@ -203,7 +203,7 @@ RemoteDatabase::has_positions() const
 }
 
 void
-RemoteDatabase::reopen() const
+RemoteDatabase::reopen()
 {
     update_stats(MSG_REOPEN);
 }

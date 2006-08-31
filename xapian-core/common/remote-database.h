@@ -159,7 +159,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     bool has_positions() const;
 
-    void reopen() const;
+    void reopen();
 
     LeafPostList * do_open_post_list(const string & tname) const;
 
