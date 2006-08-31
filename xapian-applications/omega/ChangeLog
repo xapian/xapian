@@ -1,3 +1,7 @@
+Thu Aug 31 02:35:36 BST 2006  Olly Betts <olly@survex.com>
+
+	* loadfile.cc: More missing #include-s.
+
 Thu Aug 31 01:53:31 BST 2006  Olly Betts <olly@survex.com>
 
 	* loadfile.cc: Add #include <unistd.h>.
