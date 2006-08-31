@@ -1,3 +1,7 @@
+Thu Aug 31 20:22:33 BST 2006  Olly Betts <olly@survex.com>
+
+	* loadfile.cc: #include <algorithm> for std::min().
+
 Thu Aug 31 02:35:36 BST 2006  Olly Betts <olly@survex.com>
 
 	* loadfile.cc: More missing #include-s.

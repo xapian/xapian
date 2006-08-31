@@ -26,6 +26,7 @@
 # endif
 #endif
 
+#include <algorithm>
 #include <string>
 
 #include <errno.h>
