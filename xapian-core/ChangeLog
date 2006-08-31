@@ -1,3 +1,7 @@
+Thu Aug 31 16:38:33 BST 2006  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Added success report for Nexenta (alpha 5).
+
 Wed Aug 30 23:41:08 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix generation of version.h to work with Solaris sed.

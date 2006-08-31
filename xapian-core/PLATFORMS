@@ -95,6 +95,7 @@ x86   |#OpenBSD 3.4 GCC 2.95.3         | 0.9.0 |Passed| (was x86-openbsd1)
 x86   |*OpenBSD 3.8 GCC 3.3.5          | 0.9.6 |Passed| (x86-openbsd1)
 x86   |*Solaris 9 GCC 3.3.2            | 0.9.6 |Passed| (x86-solaris1)
 x86   |*Solaris 9 Sun Workshop C++ 5.5 | 0.9.6 |Passed| (x86-solaris1) [2]
+x86   | OpenSol. 11 Nexenta GCC 4.0.3  | 0.9.6 |Passed| from Fabrice Colin
 x86   | Cygwin 1.5.10 GCC 3.3.3 XP sp2 |~0.8.4 |Passed| from Mike Boone [4]
 x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
 x86   | MinGW 3.1.0                    |~0.8.4 |Passed| from Michael Sisolak
