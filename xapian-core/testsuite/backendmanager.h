@@ -99,7 +99,7 @@ class BackendManager {
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     private:
-	std::string BackendManager::createdb_flint(const std::vector<std::string> &dbnames);
+	std::string createdb_flint(const std::vector<std::string> &dbnames);
 
     public:
 	/// Get a flint database instance.
@@ -111,7 +111,7 @@ class BackendManager {
 
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
     private:
-	std::string BackendManager::createdb_quartz(const std::vector<std::string> &dbnames);
+	std::string createdb_quartz(const std::vector<std::string> &dbnames);
 
     public:
 	/// Get a quartz database instance.

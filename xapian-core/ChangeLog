@@ -1,3 +1,8 @@
+Thu Aug 31 21:40:53 BST 2006  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.h: Remove unneeded BackendManager::
+	  qualifications.
+
 Thu Aug 31 17:08:16 BST 2006  Olly Betts <olly@survex.com>
 
 	* matcher/msetpostlist.cc,matcher/msetpostlist.h: Move #include
