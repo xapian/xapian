@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
 TESTS_ENVIRONMENT = \
- LIBTOOL="$(LIBTOOL)" TCLSH="$(TCLSH)" $(srcdir)/run-tcl-test
+ srcdir="$(srcdir)" LIBTOOL="$(LIBTOOL)" TCLSH="$(TCLSH)" $(srcdir)/run-tcl-test
 
 ## Test programs to be run
 TESTS = smoketest.tcl
