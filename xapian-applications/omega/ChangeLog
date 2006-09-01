@@ -1,3 +1,7 @@
+Fri Sep 01 04:37:09 BST 2006  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Tweak comment and whitespace.
+
 Fri Sep 01 04:19:39 BST 2006  Olly Betts <olly@survex.com>
 
 	* README: Update reference to "CVS" to say "SVN".

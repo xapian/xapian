@@ -101,7 +101,7 @@ truncate_to_word(string & input, string::size_type maxlen)
     }
 
     // replace newlines with spaces
-    size_t i = 0;    
+    size_t i = 0;
     while ((i = output.find('\n', i)) != string::npos) output[i] = ' ';
     return output;
 }
@@ -224,7 +224,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	} catch (ReadError) {
 	    title = "";
 	}
-	    
+
 	try {
 	    keywords = stdout_to_string("pdfinfo " + safefile +
 					"|sed 's/^Keywords: *//p;d'");
@@ -357,7 +357,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    return;
 	}
     } else {
-	// Don't know how to index this
+	// Don't know how to index this type.
 	cout << "unknown MIME type - skipping\n";
 	return;
     }
@@ -473,19 +473,19 @@ index_directory(size_t depth_limit, const string &dir,
 	url += ent->d_name;
 	string file = root + indexroot + url;
 #ifdef HAVE_LSTAT
-        if (follow_symlinks) {
+	if (follow_symlinks) {
 #endif
-            if (stat(file.c_str(), &statbuf) == -1) {
-                cout << "Can't stat \"" << file << "\" - skipping\n";
-                continue;
-            }
+	    if (stat(file.c_str(), &statbuf) == -1) {
+		cout << "Can't stat \"" << file << "\" - skipping\n";
+		continue;
+	    }
 #ifdef HAVE_LSTAT
-        } else {
-            if (lstat(file.c_str(), &statbuf) == -1) {
-                cout << "Can't stat \"" << file << "\" - skipping\n";
-                continue;
-            }
-        }
+	} else {
+	    if (lstat(file.c_str(), &statbuf) == -1) {
+		cout << "Can't stat \"" << file << "\" - skipping\n";
+		continue;
+	    }
+	}
 #endif
 	if (S_ISDIR(statbuf.st_mode)) {
 	    if (depth_limit == 1) continue;
