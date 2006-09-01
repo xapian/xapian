@@ -14,5 +14,5 @@ place to start is to read docs/quickstart.txt followed by docs/overview.txt.
 Developers
 ==========
 
-If you are trying to build from CVS, see the HACKING documentation in the
+If you are trying to build from SVN, see the HACKING documentation in the
 xapian-core tarball for details.
