@@ -274,6 +274,9 @@ $opt{OPT}
 $opt{MAP,OPT}
 	lookup an option within a map (as set by $setmap).
 
+$pack{NUMBER}
+	converts a number to a 4 byte big-endian binary string
+
 $percentage
 	percentage score of current hit (in range 1-100).
 
@@ -422,6 +425,12 @@ $transform{REGEXP,SUBST,STRING}
 
 $uniq{LIST}
 	remove duplicates from a sorted list
+
+$unpack{BINARYSTRING}
+	converts a 4 byte big-endian binary string to a number
+
+	For example:
+	$date{$unpack{$value{0}}}
 
 $unstem{TERM}
 	maps a stemmed term to a list of the unstemmed forms of it used in

@@ -1,3 +1,13 @@
+Sat Sep 02 02:07:30 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,docs/omegascript.txt,md5.cc,md5.h,
+	  md5wrap.cc,md5wrap.h,omindex.cc,query.cc,values.h: Generate
+	  an MD5 checksum of each file indexed and store it in value #1
+	  to allow duplicates to be collapsed.  Add $pack and $unpack 
+	  OmegaScript commands to allow big endian binary values to
+	  be encoded and decoded.  Add the file last modified time
+	  as value #0.
+
 Fri Sep 01 04:37:09 BST 2006  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Tweak comment and whitespace.

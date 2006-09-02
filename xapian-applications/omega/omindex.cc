@@ -45,8 +45,10 @@
 #include "hashterm.h"
 #include "indextext.h"
 #include "loadfile.h"
+#include "md5wrap.h"
 #include "myhtmlparse.h"
 #include "utils.h"
+#include "values.h"
 
 #include "gnu_getopt.h"
 
@@ -177,6 +179,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	return;
     }
 
+    string md5;
     if (mimetype == "text/html") {
 	string text;
 	try {
@@ -200,6 +203,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	title = p.title;
 	keywords = p.keywords;
 	sample = p.sample;
+	md5_string(text, md5);
     } else if (mimetype == "text/plain") {
 	try {
 	    dump = file_to_string(file);
@@ -207,6 +211,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    cout << "can't read \"" << file << "\" - skipping\n";
 	    return;
 	}
+	md5_string(dump, md5);
     } else if (mimetype == "application/pdf") {
 	string safefile = shell_protect(file);
 	string cmd = "pdftotext " + safefile + " -";
@@ -362,6 +367,12 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	return;
     }
 
+    // Compute the MD5 of the file if we haven't already.
+    if (md5.empty() && md5_file(file, md5) == 0) {
+	cout << "failed to read file to calculate MD5 checksum - skipping\n";
+	return;
+    }
+
     // Produce a sample
     if (sample.empty()) {
 	sample = truncate_to_word(dump, 300);
@@ -425,6 +436,12 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     newdocument.add_term(date_term); // Year (YYYY)
 
     newdocument.add_term(urlterm); // Url
+
+    // Add last_mod as a value to allow "sort by date".
+    newdocument.add_value(VALUE_LASTMOD, int_to_binary_string((uint32_t)last_mod));
+
+    // Add MD5 as a value to allow duplicate documents to be collapsed together.
+    newdocument.add_value(VALUE_MD5, md5);
 
     if (!skip_duplicates) {
 	// If this document has already been indexed, update the existing

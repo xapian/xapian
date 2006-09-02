@@ -28,6 +28,9 @@ AC_PROG_CXX
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
+dnl Check for headers.
+AC_CHECK_HEADERS([netinet/in.h arpa/inet.h])
+
 dnl Check for time functions.
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS(gettimeofday ftime)
@@ -112,6 +115,9 @@ case $ac_cv_func_snprintf in
        [Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
     ;;
 esac
+
+dnl Check processor endianness.
+AC_C_BIGENDIAN
 
 dnl Check for help2man. (Needed to make man pages from "--help" output).
 AC_PATH_PROG(HELP2MAN, help2man, [])

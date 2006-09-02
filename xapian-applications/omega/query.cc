@@ -61,6 +61,7 @@
 #include "cgiparam.h"
 #include "indextext.h"
 #include "loadfile.h"
+#include "values.h"
 
 #include <xapian/queryparser.h>
 
@@ -758,6 +759,7 @@ CMD_not,
 CMD_now,
 CMD_opt,
 CMD_or,
+CMD_pack,
 CMD_percentage,
 CMD_prettyterm,
 CMD_query,
@@ -785,6 +787,7 @@ CMD_topterms,
 CMD_transform,
 #endif
 CMD_uniq,
+CMD_unpack,
 CMD_unstem,
 CMD_url,
 CMD_value,
@@ -875,6 +878,7 @@ T(not,		   1, 1, N, 0), // logical not
 T(now,		   0, 0, N, 0), // current date/time as a time_t
 T(opt,		   1, 2, N, 0), // lookup an option value
 T(or,		   1, N, 0, 0), // logical shortcutting or of a list of values
+T(pack,		   1, 1, N, 0), // convert a number to a 4 byte big endian binary string
 T(percentage,	   0, 0, N, 0), // percentage score of current hit
 T(prettyterm,	   1, 1, N, Q), // pretty print term name
 T(query,	   0, 0, N, Q), // query
@@ -904,6 +908,7 @@ T(topterms,	   0, 1, N, M), // list of up to N top relevance feedback terms
 T(transform,	   3, 3, N, 0), // transform with a regexp
 #endif
 T(uniq,		   1, 1, N, 0), // removed duplicates from a sorted list
+T(unpack,	   1, 1, N, 0), // convert 4 byte big endian binary string to a number
 T(unstem,	   1, 1, N, Q), // return list of probabilistic terms from
 				// the query which stemmed to this term
 T(url,		   1, 1, N, 0), // url encode argument
@@ -1536,6 +1541,9 @@ eval(const string &fmt, const vector<string> &param)
 	        }
 		break;
 	    }
+	    case CMD_pack:
+		value = int_to_binary_string(string_to_int(args[0]));
+		break;
 	    case CMD_percentage:
 		// percentage score
 		value = int_to_string(percent);
@@ -1840,6 +1848,9 @@ eval(const string &fmt, const vector<string> &param)
 		} while (split2 != string::npos);
 		break;
 	    }
+	    case CMD_unpack:
+		value = int_to_string(binary_string_to_int(args[0]));
+		break;
 	    case CMD_unstem: {
 		const string &term = args[0];
 		Xapian::TermIterator i = qp.unstem_begin(term);
