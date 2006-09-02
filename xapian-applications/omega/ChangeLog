@@ -1,3 +1,10 @@
+Sat Sep 02 04:29:12 BST 2006  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Call pclose() not fclose() on a FILE* obtained from
+	  popen().  If a filter program isn't installed, then don't try it
+	  again for the same extension (not perfect but an improvement -
+	  previously we indexed an empty document!)
+
 Sat Sep 02 02:07:30 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,docs/omegascript.txt,md5.cc,md5.h,

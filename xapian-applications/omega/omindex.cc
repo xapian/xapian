@@ -33,6 +33,7 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -54,6 +55,7 @@
 
 #ifdef _MSC_VER
 # define popen _popen
+# define pclose _pclose
 #endif
 
 using namespace std;
@@ -131,6 +133,7 @@ shell_protect(const string & file)
 }
 
 struct ReadError {};
+struct NoSuchFilter {};
 
 static string
 file_to_string(const string &file)
@@ -150,12 +153,18 @@ stdout_to_string(const string &cmd)
 	char buf[4096];
 	size_t len = fread(buf, 1, 4096, fh);
 	if (ferror(fh)) {
-	    (void)fclose(fh);
+	    (void)pclose(fh);
 	    throw ReadError();
 	}
 	out.append(buf, len);
     }
-    if (fclose(fh) == -1) throw ReadError();
+    int status = pclose(fh);
+    if (status != 0) {
+	if (WIFEXITED(status) && WEXITSTATUS(status) == 127) {
+	    throw NoSuchFilter();
+	}
+	throw ReadError();
+    }
     return out;
 }
 
@@ -165,7 +174,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     string file = root + url;
     string title, sample, keywords, dump;
 
-    cout << "Indexing \"" << url << "\" as " << mimetype << " ... ";
+    cout << "Indexing \"" << url << "\" as " << mimetype << " ... " << flush;
 
     string urlterm("U");
     urlterm += baseurl;
@@ -468,7 +477,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 
 static void
 index_directory(size_t depth_limit, const string &dir,
-		const map<string, string>& mime_map)
+		map<string, string>& mime_map)
 {
     DIR *d;
     struct dirent *ent;
@@ -521,12 +530,18 @@ index_directory(size_t depth_limit, const string &dir,
 	    string::size_type dot = url.find_last_of('.');
 	    if (dot != string::npos) ext = url.substr(dot + 1);
 
-	    map<string,string>::const_iterator mt;
-	    if ((mt = mime_map.find(ext))!=mime_map.end()) {
-		// If it's in our MIME map, presumably we know how to index it
+	    map<string,string>::iterator mt = mime_map.find(ext);
+	    if (mt != mime_map.end()) {
+		// It's in our MIME map so we know how to index it.
 		const string & mimetype = mt->second;
-		index_file(indexroot + url, mimetype, statbuf.st_mtime,
-			   statbuf.st_size);
+		try {
+		    index_file(indexroot + url, mimetype, statbuf.st_mtime,
+			       statbuf.st_size);
+		} catch (NoSuchFilter) {
+		    // FIXME: we ought to ignore by mime-type not extension.
+		    cout << "Filter for \"" << mimetype << "\" not installed - ignoring extension \"" << ext << "\"" << endl;
+		    mime_map.erase(mt);
+		}
 	    }
 	    continue;
 	}
