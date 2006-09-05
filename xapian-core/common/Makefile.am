@@ -21,4 +21,4 @@ noinst_HEADERS = serialise.h \
 
 noinst_LTLIBRARIES = libcommon.la
 
-libcommon_la_SOURCES = utils.cc omdebug.cc omstringstream.cc c_strtod.cc
+libcommon_la_SOURCES = utils.cc omdebug.cc omstringstream.cc

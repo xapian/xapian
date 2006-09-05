@@ -1,9 +1,8 @@
 /* tradweight.cc: C++ class for weight calculation routines
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,19 +16,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
 
 #include <math.h>
 
-#include "stats.h"
 #include <xapian/enquire.h>
-#include "rset.h"
+
 #include "omdebug.h"
+#include "serialise.h"
+#include "stats.h"
 
 namespace Xapian {
 
@@ -40,11 +39,15 @@ TradWeight * TradWeight::clone() const {
 std::string TradWeight::name() const { return "Trad"; }
 
 string TradWeight::serialise() const {
-    return om_tostring(param_k);
+    return serialise_double(param_k);
 }
 
 TradWeight * TradWeight::unserialise(const std::string & s) const {
-    return new TradWeight(strtod(s.c_str(), NULL));
+    const char *p = s.data();
+    const char *p_end = p + s.size();
+    double param_k_ = unserialise_double(&p, p_end);
+    // FIXME: should check that (p == p_end).
+    return new TradWeight(param_k_);
 }
 
 // Calculate weights using statistics retrieved from databases

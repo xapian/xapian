@@ -21,6 +21,9 @@
  */
 
 #include <config.h>
+
+#include <float.h>
+
 #include <string>
 
 using namespace std;
@@ -205,6 +208,51 @@ static bool test_serialiselength1()
     return true;
 }
 
+static void check_double_serialisation(double u)
+{
+    tout << u << flush;
+    string encoded = serialise_double(u);
+    tout << " encoded length = " << encoded.size() << flush;
+    tout << " encoded[0] = 0x" << hex << (int)(unsigned char)encoded[0];
+    tout << " encoded[1] = 0x" << (int)(unsigned char)encoded[1] << dec << flush;
+    const char * ptr = encoded.data();
+    const char * end = ptr + encoded.size();
+    double v = unserialise_double(&ptr, end);
+    tout << " difference = " << v - u << endl;
+    TEST(ptr == end);
+    TEST_EQUAL(u, v);
+}
+
+// Check serialisation of doubles.
+static bool test_serialisedouble1()
+{
+    static const double test_values[] = {
+	3.14159265,
+	1e57,
+	123.1,
+	257.12,
+	1234.567e123,
+	1.0,
+	255.5,
+	256.125,
+	257.03125,
+	DBL_MAX
+    };
+
+    check_double_serialisation(0.0);
+
+    const double *p;
+    for (p = test_values; p < test_values + sizeof(test_values) / sizeof(double); ++p) {
+	double val = *p;
+	check_double_serialisation(val);
+	check_double_serialisation(-val);
+	check_double_serialisation(1.0 / val);
+	check_double_serialisation(-1.0 / val);
+    }
+
+    return true;
+}
+
 // Check serialisation of documents.
 static bool test_serialisedoc1()
 {
@@ -238,6 +286,7 @@ test_desc tests[] = {
     {"stringcomp1",		test_stringcomp1},
     {"omstringstream1",		test_omstringstream1},
     {"serialiselength1",	test_serialiselength1},
+    {"serialisedouble1",	test_serialisedouble1},
     {"serialisedoc1",		test_serialisedoc1},
     {0, 0}
 };

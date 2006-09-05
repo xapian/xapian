@@ -1,9 +1,8 @@
 /* bm25weight.cc: Class for BM25 weight calculation
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,17 +16,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
 
 #include <math.h>
 
-#include "omdebug.h"
 #include <xapian/enquire.h>
+
+#include "omdebug.h"
+#include "serialise.h"
 #include "stats.h"
 
 namespace Xapian {
@@ -39,22 +39,24 @@ BM25Weight * BM25Weight::clone() const {
 std::string BM25Weight::name() const { return "BM25"; }
 
 string BM25Weight::serialise() const {
-    return om_tostring(k1) + ' ' + om_tostring(k2) + ' ' +
-	   om_tostring(k3) + ' ' + om_tostring(b) + ' ' +
-	   om_tostring(min_normlen);
+    string result = serialise_double(k1);
+    result += serialise_double(k2);
+    result += serialise_double(k3);
+    result += serialise_double(b);
+    result += serialise_double(min_normlen);
+    return result;
 }
 
 BM25Weight * BM25Weight::unserialise(const string & s) const {
-    // We never actually modify through p, but strtod takes a char **
-    // as the second parameter and we can't pass &p if p is const char *
-    // (sigh)
-    char *p = const_cast<char *>(s.c_str());
-    double k1_, k2_, k3_, b_;
-    k1_ = strtod(p, &p);
-    k2_ = strtod(p, &p);
-    k3_ = strtod(p, &p);
-    b_ = strtod(p, &p);
-    return new BM25Weight(k1_, k2_, k3_, b_, strtod(p, NULL));
+    const char *p = s.data();
+    const char *p_end = p + s.size();
+    double k1_ = unserialise_double(&p, p_end);
+    double k2_ = unserialise_double(&p, p_end);
+    double k3_ = unserialise_double(&p, p_end);
+    double b_ = unserialise_double(&p, p_end);
+    double min_normlen_ = unserialise_double(&p, p_end);
+    // FIXME: should check that (p == p_end).
+    return new BM25Weight(k1_, k2_, k3_, b_, min_normlen_);
 }
 
 // Calculate weights using statistics retrieved from databases
@@ -100,7 +102,7 @@ BM25Weight::calc_termweight() const
 	tw = tw / 2 + 1;
     }
     tw = log(tw);
-    
+
     tw *= (k3 + 1) * wqf / (k3 + wqf);
 
     DEBUGLINE(WTCALC, " => termweight = " << tw);
@@ -168,7 +170,7 @@ BM25Weight::get_maxextra() const
     RETURN(maxextra);
 }
 
-bool BM25Weight::get_sumpart_needs_doclength() const { 
+bool BM25Weight::get_sumpart_needs_doclength() const {
     return (b != 0 && k1 != 0 && lenpart != 0);
 }
 

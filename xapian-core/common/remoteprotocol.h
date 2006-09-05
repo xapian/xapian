@@ -23,7 +23,8 @@
 
 // Versions:
 // 21: Overhauled remote backend supporting WritableDatabase
-#define XAPIAN_REMOTE_PROTOCOL_VERSION 21
+// 22: Lossless double serialisation
+#define XAPIAN_REMOTE_PROTOCOL_VERSION 22
 
 /// Message types (client -> server).
 enum message_type {

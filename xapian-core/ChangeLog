@@ -1,3 +1,13 @@
+Tue Sep 05 03:19:12 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/,docs/remote_protocol.html,
+	  matcher/bm25weight.cc,matcher/tradweight.cc,net/remoteserver.cc,
+	  net/serialise.cc,tests/internaltest.cc: Change how doubles are
+	  serialised by TradWeight, BM25Weight, and in the remote backend
+	  protocol.  The new encoding allows us to transfer any double
+	  value which can be represented by both machines precisely and
+	  compactly.
+
 Tue Sep 05 02:27:36 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/queryparser.html,queryparser/queryparser.lemony,

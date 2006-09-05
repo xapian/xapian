@@ -7,7 +7,7 @@
 <h1>Remote Backend Protocol</h1>
 
 <p>
-This document describes <em>version 21</em> of the protocol used by Xapian's
+This document describes <em>version 22</em> of the protocol used by Xapian's
 remote backend.  The protocol assumes a reliable two-way connection across which
 arbitrary data can be sent - this could be provided by a TCP socket for example
 (as it is with xapian-tcpsrv), but any such connection could be used.  For
@@ -43,10 +43,10 @@ Integers are encoded using the same encoding used for string lengths
 </p>
 
 <p>
-Floating pointing values are passed as strings.  Currently we always
-pass these as the last or only thing in the reply contents (and never
-pass them in any message).  This is indicated by <code>F&lt;...&gt;</code>
-below.
+Floating pointing values are passed using a bit packed encoding of the sign
+and exponent and a base-256 encoding of the mantissa which avoids any rounding
+issues (assuming that both machines have FLT_RADIX equal to some power of 2).
+This is indicated by <code>F&lt;...&gt;</code> below.
 </p>
 
 <p>

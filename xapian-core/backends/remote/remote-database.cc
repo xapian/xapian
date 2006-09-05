@@ -78,13 +78,12 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
 
     doccount = decode_length(&p, p_end);
     if (p == p_end) {
-	throw Xapian::NetworkError("Bad greeting message received", context);
+	throw Xapian::NetworkError("Bad greeting message received (bool)", context);
     }
     has_positional_info = (*p++ == '1');
-    char * tmp;
-    avlength = C_strtod(p, &tmp);
-    if (tmp == p || tmp != p_end || avlength < 0) {
-	throw Xapian::NetworkError("Bad greeting message received", context);
+    avlength = unserialise_double(&p, p_end);
+    if (p != p_end || avlength < 0) {
+	throw Xapian::NetworkError("Bad greeting message received (double)", context);
     }
 }
 
@@ -252,9 +251,8 @@ RemoteDatabase::update_stats(message_type msg_code) const
 	throw Xapian::NetworkError("Bad message received", context);
     }
     has_positional_info = (*p++ == '1');
-    char * tmp;
-    avlength = C_strtod(p, &tmp);
-    if (tmp == p || tmp != p_end || avlength < 0) {
+    avlength = unserialise_double(&p, p_end);
+    if (p != p_end || avlength < 0) {
 	throw Xapian::NetworkError("Bad message received", context);
     }
     cached_stats_valid = true;
@@ -320,9 +318,8 @@ RemoteDatabase::get_doclength(Xapian::docid did) const
     get_message(message, REPLY_DOCLENGTH);
     const char * p = message.c_str();
     const char * p_end = p + message.size();
-    char * tmp;
-    Xapian::doclength doclen = C_strtod(p, &tmp);
-    if (tmp == p || tmp != p_end || doclen < 0) {
+    Xapian::doclength doclen = unserialise_double(&p, p_end);
+    if (p != p_end || doclen < 0) {
 	throw Xapian::NetworkError("Bad message received", context);
     }
     return doclen;
@@ -383,8 +380,7 @@ RemoteDatabase::set_query(const Xapian::Query::Internal *query,
     message += char('0' + sort_by);
     message += char('0' + sort_value_forward);
     message += char(percent_cutoff);
-    message += om_tostring(weight_cutoff);
-    message += ' ';
+    message += serialise_double(weight_cutoff);
 
     tmp = wtscheme->name();
     message += encode_length(tmp.size());

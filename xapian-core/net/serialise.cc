@@ -31,6 +31,10 @@
 #include "stats.h"
 #include "utils.h"
 
+#include <float.h>
+#include <math.h>
+
+#include <algorithm>
 #include <string>
 
 using namespace std;
@@ -60,7 +64,7 @@ encode_length(size_t len)
 size_t
 decode_length(const char ** p, const char *end)
 {
-    if (*p == end) {abort();
+    if (*p == end) {
 	throw Xapian::NetworkError("Bad encoded length: no data");
     }
 
@@ -77,6 +81,168 @@ decode_length(const char ** p, const char *end)
 	shift += 7;
     } while ((ch & 0x80) == 0);
     return len + 255;
+}
+
+// The serialisation we use for doubles is inspired by a comp.lang.c post
+// by Jens Moeller:
+//
+// http://groups.google.com/group/comp.lang.c/browse_thread/thread/6558d4653f6dea8b/75a529ec03148c98
+//
+// The clever part is that the mantissa is encoded as a base-256 number which
+// means there's no rounding error provided both ends have FLT_RADIX as some
+// power of two.
+//
+// FLT_RADIX == 2 seems to be ubiquitous on modern UNIX platforms, while
+// some older platforms used FLT_RADIX == 16 (IBM machines for example).
+// FLT_RADIX == 10 seems to be very rare (the only instance Google finds
+// is for a cross-compiler to some TI calculators).
+
+#if FLT_RADIX == 2
+# define MAX_MANTISSA_BYTES ((DBL_MANT_DIG + 7 + 7) / 8)
+# define MAX_EXP ((DBL_MAX_EXP + 1) / 8)
+# define MAX_MANTISSA (1 << (DBL_MAX_EXP & 7))
+#elif FLT_RADIX == 16
+# define MAX_MANTISSA_BYTES ((DBL_MANT_DIG + 1 + 1) / 2)
+# define MAX_EXP ((DBL_MAX_EXP + 1) / 2)
+# define MAX_MANTISSA (1 << ((DBL_MAX_EXP & 1) * 4))
+#elif
+# error FLT_RADIX is a value not currently handled (not 2 or 16)
+// # define MAX_MANTISSA_BYTES (sizeof(double) + 1)
+#endif
+
+static int base256ify_double(double &v) {
+    int exp;
+    v = frexp(v, &exp);
+    // v is now in the range [0.5, 1.0)
+    --exp;
+    v = ldexp(v, (exp & 7) + 1);
+    // v is now in the range [1.0, 256.0)
+    exp >>= 3;
+    return exp;
+}
+
+std::string serialise_double(double v)
+{
+    /* First byte:
+     *  bit 7 Negative flag
+     *  bit 4..6 Mantissa length - 1
+     *  bit 0..3 --- 0-13 -> Exponent + 7
+     *            \- 14 -> Exponent given by next byte
+     *             - 15 -> Exponent given by next 2 bytes
+     *
+     * Then optional medium (1 byte) or large exponent (2 bytes, lsb first)
+     *
+     * Then mantissa (0 iff value is 0)
+     */
+
+    bool negative = (v < 0.0);
+
+    if (negative) v = -v;
+
+    int exp = base256ify_double(v);
+
+    string result;
+
+    if (exp <= 6 && exp >= -7) {
+	unsigned char b = (unsigned char)(exp + 7);
+	if (negative) b |= '\x80';
+	result += char(b);
+    } else {
+	if (exp >= -128 && exp < 127) {
+	    result += negative ? '\x8e' : '\x0e';
+	    result += char(exp + 128);
+	} else {
+	    if (exp < -32768 || exp > 32767) {
+		throw Xapian::InternalError("Insane exponent in floating point number");
+	    }
+	    result += negative ? '\x8f' : '\x0f';
+	    result += char(unsigned(exp + 32768) & 0xff);
+	    result += char(unsigned(exp + 32768) >> 8);
+	}
+    }
+
+    int maxbytes = min(MAX_MANTISSA_BYTES, 8);
+
+    size_t n = result.size();
+    do {
+	unsigned char byte = static_cast<unsigned char>(v);
+	result += (char)byte;
+	v -= double(byte);
+	v *= 256.0;
+    } while (v != 0.0 && --maxbytes);
+
+    n = result.size() - n;
+    if (n > 1) {
+	Assert(n <= 8);
+	result[0] = (unsigned char)result[0] | ((n - 1) << 4);
+    }
+
+    return result;
+}
+
+double unserialise_double(const char ** p, const char *end)
+{
+    if (end - *p < 2) {
+	throw Xapian::NetworkError("Bad encoded double: insufficient data");
+    }
+    unsigned char first = *(*p)++;
+    if (first == 0 && *(*p) == 0) {
+	++*p;
+	return 0.0;
+    }
+
+    bool negative = first & 0x80;
+    size_t mantissa_len = ((first >> 4) & 0x07) + 1;
+
+    int exp = first & 0x0f;
+    if (exp >= 14) {
+	int bigexp = static_cast<unsigned char>(*(*p)++);
+	if (exp == 15) {
+	    if (*p == end) {
+		throw Xapian::NetworkError("Bad encoded double: short large exponent");
+	    }
+	    exp = bigexp | (static_cast<unsigned char>(*(*p)++) << 8);
+	    exp -= 32768;
+	} else {
+	    exp = bigexp - 128;
+	}
+    } else {
+	exp -= 7;
+    }
+
+    if (size_t(end - *p) < mantissa_len) {
+	throw Xapian::NetworkError("Bad encoded double: short mantissa");
+    }
+
+    double v = 0.0;
+
+    static double dbl_max_mantissa = DBL_MAX;
+    static int dbl_max_exp = base256ify_double(dbl_max_mantissa);
+    *p += mantissa_len;
+    if (exp > dbl_max_exp ||
+	(exp == dbl_max_exp && double(**p) > dbl_max_mantissa)) {
+	// The mantissa check should be precise provided that FLT_RADIX
+	// is a power of 2.
+	v = HUGE_VAL;
+    } else {
+	const char *q = *p;
+	while (mantissa_len--) {
+	    v *= 0.00390625; // 1/256
+	    v += double(static_cast<unsigned char>(*--q));
+	}
+
+	if (exp) v = ldexp(v, exp * 8);
+
+#if 0
+	if (v == 0.0) {
+	    // FIXME: handle underflow
+	}
+#endif
+    }
+
+    if (negative) v = -v;
+
+    return v;
 }
 
 string
@@ -134,8 +300,7 @@ string serialise_stats(const Stats &stats)
 
     result += encode_length(stats.collection_size);
     result += encode_length(stats.rset_size);
-    result += om_tostring(stats.average_length);
-    result += ' ';
+    result += serialise_double(stats.average_length);
 
     map<string, Xapian::doccount>::const_iterator i;
 
@@ -165,13 +330,7 @@ unserialise_stats(const string &s)
 
     stat.collection_size = decode_length(&p, p_end);
     stat.rset_size = decode_length(&p, p_end);
-
-    char * tmp;
-    stat.average_length = C_strtod(p, &tmp);
-    if (tmp == p || *tmp != ' ') {
-	throw Xapian::NetworkError("Problem reading Xapian::MSet from string");
-    }
-    p = tmp + 1;
+    stat.average_length = unserialise_double(&p, p_end);
 
     size_t n = decode_length(&p, p_end);
     while (n--) {
@@ -200,14 +359,11 @@ serialise_mset(const Xapian::MSet &mset)
     result += encode_length(mset.get_matches_lower_bound());
     result += encode_length(mset.get_matches_estimated());
     result += encode_length(mset.get_matches_upper_bound());
-    result += om_tostring(mset.get_max_possible());
-    result += ' ';
-    result += om_tostring(mset.get_max_attained());
-    result += ' ';
+    result += serialise_double(mset.get_max_possible());
+    result += serialise_double(mset.get_max_attained());
     result += encode_length(mset.size());
     for (Xapian::MSetIterator i = mset.begin(); i != mset.end(); ++i) {
-	result += om_tostring(i.get_weight());
-	result += ' ';
+	result += serialise_double(i.get_weight());
 	result += encode_length(*i);
 	result += encode_length(i.get_collapse_key().size());
 	result += i.get_collapse_key();
@@ -222,8 +378,7 @@ serialise_mset(const Xapian::MSet &mset)
 	result += encode_length(j->first.size());
 	result += j->first;
 	result += encode_length(j->second.termfreq);
-	result += om_tostring(j->second.termweight);
-	result += ' ';
+	result += serialise_double(j->second.termweight);
     }
 
     return result;
@@ -239,26 +394,12 @@ unserialise_mset(const string &s)
     Xapian::doccount matches_lower_bound = decode_length(&p, p_end);
     Xapian::doccount matches_estimated = decode_length(&p, p_end);
     Xapian::doccount matches_upper_bound = decode_length(&p, p_end);
-    // Parameter 2 of C_strtod() must be char**.
-    char * tmp;
-    Xapian::weight max_possible = C_strtod(p, &tmp);
-    if (tmp == p || *tmp != ' ') {
-	throw Xapian::NetworkError("Problem reading Xapian::MSet from string");
-    }
-    p = tmp + 1;
-    Xapian::weight max_attained = C_strtod(p, &tmp);
-    if (tmp == p || *tmp != ' ') {
-	throw Xapian::NetworkError("Problem reading Xapian::MSet from string");
-    }
-    p = tmp + 1;
+    Xapian::weight max_possible = unserialise_double(&p, p_end);
+    Xapian::weight max_attained = unserialise_double(&p, p_end);
     vector<Xapian::Internal::MSetItem> items;
     size_t msize = decode_length(&p, p_end);
     while (msize-- > 0) {
-	Xapian::weight wt = C_strtod(p, &tmp);
-	if (tmp == p || *tmp != ' ') {
-	    throw Xapian::NetworkError("Problem reading Xapian::MSet from string");
-	}
-	p = tmp + 1;
+	Xapian::weight wt = unserialise_double(&p, p_end);
 	Xapian::docid did = decode_length(&p, p_end);
 	size_t len = decode_length(&p, p_end);
 	string key(p, len);
@@ -274,11 +415,7 @@ unserialise_mset(const string &s)
 	string term(p, len);
 	p += len;
 	tfaw.termfreq = decode_length(&p, p_end);
-	tfaw.termweight = C_strtod(p, &tmp);
-	if (tmp == p || *tmp != ' ') {
-	    throw Xapian::NetworkError("Problem reading Xapian::MSet from string");
-	}
-	p = tmp + 1;
+	tfaw.termweight = unserialise_double(&p, p_end);
 	terminfo.insert(make_pair(term, tfaw));
     }
 

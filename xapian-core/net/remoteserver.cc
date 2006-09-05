@@ -74,7 +74,7 @@ RemoteServer::initialise()
     message += char(XAPIAN_REMOTE_PROTOCOL_VERSION);
     message += encode_length(db->get_doccount());
     message += (db->has_positions() ? '1' : '0');
-    message += om_tostring(db->get_avlength());
+    message += serialise_double(db->get_avlength());
     send_message(REPLY_GREETING, message);
 
     // Register weighting schemes.
@@ -243,7 +243,7 @@ RemoteServer::msg_update(const string &)
 
     string message = encode_length(db->get_doccount());
     message += (db->has_positions() ? '1' : '0');
-    message += om_tostring(db->get_avlength());
+    message += serialise_double(db->get_avlength());
     send_message(REPLY_UPDATE, message);
 }
 
@@ -265,7 +265,7 @@ RemoteServer::msg_query(const string &message_in)
 
     Xapian::valueno collapse_key = decode_length(&p, p_end);
 
-    if (*p < '0' || *p > '2') {
+    if (p_end - p < 4 || *p < '0' || *p > '2') {
 	throw Xapian::NetworkError("bad message (docid_order)");
     }
     Xapian::Enquire::docid_order order;
@@ -289,13 +289,10 @@ RemoteServer::msg_query(const string &message_in)
 	throw Xapian::NetworkError("bad message (percent_cutoff)");
     }
 
-    // Parameter 2 of C_strtod() must be char**.
-    char * tmp;
-    Xapian::weight weight_cutoff = C_strtod(p, &tmp);
-    if (tmp == p || *tmp != ' ' || weight_cutoff < 0) {
+    Xapian::weight weight_cutoff = unserialise_double(&p, p_end);
+    if (weight_cutoff < 0) {
 	throw Xapian::NetworkError("bad message (weight_cutoff)");
     }
-    p = tmp + 1;
 
     // Unserialise the Weight object.
     len = decode_length(&p, p_end);
@@ -393,7 +390,7 @@ RemoteServer::msg_doclength(const string &message)
     Xapian::docid did = decode_length(&p, p_end);
     // FIXME: get_doclength should always return an integer, but
     // Xapian::doclength is a double...
-    send_message(REPLY_DOCLENGTH, om_tostring(db->get_doclength(did)));
+    send_message(REPLY_DOCLENGTH, serialise_double(db->get_doclength(did)));
 }
 
 void
