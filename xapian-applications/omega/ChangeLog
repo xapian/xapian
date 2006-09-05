@@ -1,3 +1,8 @@
+Tue Sep 05 03:53:00 BST 2006  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc,htmlparse.h: Don't get confused by "a<b" in
+	  Javascript in a <script> tag.  Fixes bug#91.
+
 Sat Sep 02 04:29:12 BST 2006  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Call pclose() not fclose() on a FILE* obtained from

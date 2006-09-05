@@ -81,7 +81,7 @@ p_whitespaceeqgt(char c)
 
 HtmlParser::HtmlParser()
 {
-    static struct ent { const char *n; unsigned int v; } ents[] = {
+    static const struct ent { const char *n; unsigned int v; } ents[] = {
 	{ "quot", 34 },
 	{ "amp", 38 },
 	{ "lt", 60 },
@@ -187,7 +187,7 @@ HtmlParser::HtmlParser()
 	{ NULL, 0 }
     };
     if (named_ents.empty()) {
-	struct ent *i = ents;
+	const struct ent *i = ents;
 	while (i->n) {
 	    named_ents[string(i->n)] = i->v;
 	    ++i;
@@ -240,6 +240,8 @@ HtmlParser::decode_entities(string &s)
 void
 HtmlParser::parse_html(const string &body)
 {
+    in_script = false;
+
     map<string,string> Param;
     string::const_iterator start = body.begin();
 
@@ -253,7 +255,7 @@ HtmlParser::parse_html(const string &body)
 	    if (p == body.end()) break;
 	    char ch = *(p + 1);
 	    // Tag, closing tag, comment (or SGML declaration), or PHP.
-	    if (isalpha(ch) || ch == '/' || ch == '!' || ch == '?') break;
+	    if ((!in_script && isalpha(ch)) || ch == '/' || ch == '!' || ch == '?') break;
 	    p++; 
 	}
 
@@ -338,6 +340,7 @@ HtmlParser::parse_html(const string &body)
 	       
 	    if (closing) {
 		closing_tag(tag);
+		if (in_script && tag == "script") in_script = false;
 		   
 		/* ignore any bogus parameters on closing tags */
 		p = find(start, body.end(), '>');
@@ -392,6 +395,9 @@ HtmlParser::parse_html(const string &body)
 		}
 		opening_tag(tag, Param);
 		Param.clear();
+
+		// In <script> tags we ignore opening tags to avoid problems with "a<b".
+		if (tag == "script") in_script = true;
 
 		if (start != body.end() && *start == '>') ++start;
 	    }
