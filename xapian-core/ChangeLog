@@ -1,3 +1,10 @@
+Tue Sep 05 03:23:14 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.html,queryparser/queryparser.lemony,
+	  tests/queryparsertest.cc: Implement "ADJ" operator - like
+	  "NEAR" except the terms must appear in matching documents in the
+	  same order as in the query.
+
 Tue Sep 05 03:19:12 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,common/,docs/remote_protocol.html,

@@ -101,6 +101,9 @@ static test test_or_queries[] = {
     { "+\"must have\" optional", "((must:(pos=1) PHRASE 2 have:(pos=2)) AND_MAYBE option:(pos=3))" },
     { "something NEAR/3 else", "(someth:(pos=1) NEAR 4 els:(pos=2))" },
     { "a NEAR/6 b NEAR c", "(a:(pos=1) NEAR 8 b:(pos=2) NEAR 8 c:(pos=3))" },
+    { "something ADJ else", "(someth:(pos=1) PHRASE 11 els:(pos=2))" },
+    { "something ADJ/3 else", "(someth:(pos=1) PHRASE 4 els:(pos=2))" },
+    { "a ADJ/6 b ADJ c", "(a:(pos=1) PHRASE 8 b:(pos=2) PHRASE 8 c:(pos=3))" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(Rcall:(pos=1) OR to:(pos=2) OR undefin:(pos=3) OR function:(pos=4) OR imagecr:(pos=5))" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "((mysql:(pos=1) PHRASE 3 fetch:(pos=2) PHRASE 3 row:(pos=3)) OR suppli:(pos=4) OR argument:(pos=5) OR is:(pos=6) OR not:(pos=7) OR a:(pos=8) OR valid:(pos=9) OR Rmysql:(pos=10) OR result:(pos=11) OR resourc:(pos=12))" },

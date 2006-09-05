@@ -42,6 +42,12 @@ You can also use + and - on phrases and on bracketed expressions.
 <P><code>one NEAR two NEAR three</code> matches documents containing those
 words within 10 words of each other.  You can set the threshold to <i>n</i>
 by using <code>NEAR/<i>n</i> like so: <code>one NEAR/6 two</code>.
+<H3>ADJ</H3>
+<P><code>ADJ</code> is like <code>NEAR</code> but only matches if the words
+appear in the same order as in the query.  So <code>one ADJ two ADJ
+three</code> matches documents containing those three words in that order
+and within 10 words of each other.  You can set the threshold to <i>n</i>
+by using <code>ADJ/<i>n</i> like so: <code>one ADJ/6 two</code>.
 <H3>Phrase searches</H3>
 <P>A phrase surrounded with double quotes ("") matches documents containing
 that exact phrase.  Hyphenated words are also treated as phrases, as are

@@ -421,6 +421,22 @@ phrased_term:
 		} else if (op == "XOR") {
 		    Parse(pParser, XOR, NULL, &state);
 		    continue;
+		} else if (op == "ADJ") {
+		    if (it != end && *it == '/') {
+			size_t width = 0;
+			AccentNormalisingItor p = it;
+			while (++p != end && C_isdigit(*p)) {
+			    width = (width * 10) + (*p - '0');
+			}
+			if (width && (p == end || C_isspace(*p))) {
+			    it = p;
+			    Parse(pParser, ADJ, new Term("", width), &state);
+			    continue;
+			}
+		    }
+
+		    Parse(pParser, ADJ, NULL, &state);
+		    continue;
 		}
 	    } else if (op.size() == 2) {
 		if (op == "OR") {
@@ -559,7 +575,7 @@ class TermList {
 	if (alternative_window > window) window = alternative_window;
     }
 
-    /// Convert to a Xapian::Query * using OP_PHRASE.
+    /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
     Query * as_phrase_query() const {
 	Query * term;
 	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end(),
@@ -577,6 +593,20 @@ class TermList {
 	size_t w = window;
 	if (w == 0) w = 10;
 	term = new Query(Query::OP_NEAR, terms.begin(), terms.end(),
+			 terms.size() + w - 1);
+	delete this;
+	return term;
+    }
+
+    /// Convert to a Xapian::Query * using OP_PHRASE to implement ADJ.
+    Query * as_adj_query() const {
+	Query * term;
+	// The common meaning of 'a ADJ b' is "a at most 10 terms before b",
+	// which means a window size of 11.  For more than 2 terms, we just add
+	// one to the window size for each extra term.
+	size_t w = window;
+	if (w == 0) w = 10;
+	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end(),
 			 terms.size() + w - 1);
 	delete this;
 	return term;
@@ -623,7 +653,7 @@ class TermList {
 %nonassoc ERROR.
 %left NOT OR XOR.
 %left AND.
-%left NEAR.
+%left NEAR ADJ.
 %left LOVE HATE.
 
 // Destructors for terminal symbols:
@@ -894,8 +924,8 @@ term(T) ::= compound_term(U). {
     T = U;
 }
 
-// compound_term - A quoted phrase (with or without prefix) or a phrased_term
-// or a near_expr or a bracketed subexpression (with or without prefix).
+// compound_term - A quoted phrase (with or without prefix), a phrased_term,
+// near_expr, adj_expr, or a bracketed subexpression (with or without prefix).
 
 %type compound_term {Query *}
 %destructor compound_term {delete $$;}
@@ -913,6 +943,9 @@ compound_term(T) ::= phrased_term(P).
 
 compound_term(T) ::= near_expr(P).
 	{ T = P->as_near_query(); }
+
+compound_term(T) ::= adj_expr(P).
+	{ T = P->as_adj_query(); }
 
 compound_term(T) ::= BRA expr(E) KET.
 	{ T = E; }
@@ -952,7 +985,7 @@ phrased_term(P) ::= phrased_term(Q) PHR_TERM(T). {
 }
 
 // near_expr - 2 or more terms with NEAR in between.  There must be at least 2
-// terms in order to be able to have punctuation between the terms!
+// terms in order for there to be any NEAR operators!
 
 %type near_expr {TermList *}
 %destructor near_expr {$$->destroy();}
@@ -968,6 +1001,31 @@ near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
 }
 
 near_expr(P) ::= near_expr(Q) NEAR(N) TERM(T). {
+    P = Q;
+    P->add_term(T);
+    if (N) {
+	P->adjust_window(N->get_termpos());
+	delete N;
+    }
+}
+
+// adj_expr - 2 or more terms with ADJ in between.  There must be at least 2
+// terms in order for there to be any ADJ operators!
+
+%type adj_expr {TermList *}
+%destructor adj_expr {$$->destroy();}
+
+adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
+    P = new TermList;
+    P->add_term(T);
+    P->add_term(U);
+    if (N) {
+	P->adjust_window(N->get_termpos());
+	delete N;
+    }
+}
+
+adj_expr(P) ::= adj_expr(Q) ADJ(N) TERM(T). {
     P = Q;
     P->add_term(T);
     if (N) {
