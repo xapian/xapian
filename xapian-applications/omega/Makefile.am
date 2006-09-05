@@ -50,8 +50,11 @@ AM_CPPFLAGS = -DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\"
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
-bin_PROGRAMS = omindex scriptindex htmlparsetest
+bin_PROGRAMS = omindex scriptindex
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
+
+check_PROGRAMS = htmlparsetest
+TESTS = htmlparsetest$(EXEEXT)
 
 # Install documentation.
 docdatadir   = $(datadir)/doc/omega

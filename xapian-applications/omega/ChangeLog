@@ -1,3 +1,7 @@
+Tue Sep 05 06:49:30 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Run htmlparsetest on "make check".
+
 Tue Sep 05 06:46:18 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,htmlparse.cc,htmlparse.h,metaxmlparse.cc,metaxmlparse.h,
