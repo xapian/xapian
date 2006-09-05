@@ -1,3 +1,9 @@
+Tue Sep 05 21:14:33 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Need to AC_SUBST(PYTHON_CXXFLAGS) so that we really
+	  add "-fno-strict-aliasing" when compiling the python bindings with
+	  g++.
+
 Thu Aug 31 20:27:42 BST 2006  Olly Betts <olly@survex.com>
 
 	* tcl8/Makefile.am,tcl8/run-tcl-test: Fix to work in VPATH build.

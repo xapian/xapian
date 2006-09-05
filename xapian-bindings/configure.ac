@@ -629,6 +629,7 @@ if test yes = "$GXX" ; then
   dnl interface code.  E.g.:
   dnl   http://article.gmane.org/gmane.comp.gcc.devel/74692
   PYTHON_CXXFLAGS="-fno-strict-aliasing"
+  AC_SUBST(PYTHON_CXXFLAGS)
 
   dnl We need to explicitly link against -lstdc++ on OpenBSD (discovered
   dnl on OpenBSD 3.7 with GCC 3.3.5 but this appears to be due to a
