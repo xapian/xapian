@@ -1,3 +1,7 @@
+Tue Sep 05 04:36:46 BST 2006  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Note UTF-8 runes for pdfinfo and pdftotext.
+
 Tue Sep 05 04:29:21 BST 2006  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Only run pdfinfo once and pull out the

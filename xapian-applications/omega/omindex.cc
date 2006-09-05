@@ -224,6 +224,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     } else if (mimetype == "application/pdf") {
 	string safefile = shell_protect(file);
 	string cmd = "pdftotext " + safefile + " -";
+	//string cmd = "pdftotext -enc UTF-8 " + safefile + " -";
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
@@ -233,6 +234,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 
 	try {
 	    string pdfinfo = stdout_to_string("pdfinfo " + safefile);
+	    //string pdfinfo = stdout_to_string("pdfinfo -enc UTF-8 " + safefile);
 
 	    string::size_type idx;
 
