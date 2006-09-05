@@ -1,3 +1,8 @@
+Tue Sep 05 21:07:40 BST 2006  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Fix warning when remote backend
+	  is disabled.
+
 Tue Sep 05 20:58:52 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Add extra dependencies so that parallel make

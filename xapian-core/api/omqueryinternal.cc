@@ -427,7 +427,7 @@ Xapian::Query::Internal::unserialise(const string &s)
 }
 #else
 Xapian::Query::Internal *
-Xapian::Query::Internal::unserialise(const string &s)
+Xapian::Query::Internal::unserialise(const string &)
 {
     throw Xapian::InternalError("query serialisation not compiled in");
 }
