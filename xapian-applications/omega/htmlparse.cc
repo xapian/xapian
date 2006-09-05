@@ -64,7 +64,7 @@ p_notwhitespace(char c)
 inline static bool
 p_nottag(char c)
 {
-    return !isalnum(c) && c != '.' && c != '-';
+    return !isalnum(c) && c != '.' && c != '-' && c != ':'; // ':' for XML namespaces.
 }
 
 inline static bool
@@ -84,6 +84,7 @@ HtmlParser::HtmlParser()
     static const struct ent { const char *n; unsigned int v; } ents[] = {
 	{ "quot", 34 },
 	{ "amp", 38 },
+	{ "apos", 39 },
 	{ "lt", 60 },
 	{ "gt", 62 },
 	{ "AElig", 198 },

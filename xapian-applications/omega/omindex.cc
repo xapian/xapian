@@ -47,9 +47,11 @@
 #include "indextext.h"
 #include "loadfile.h"
 #include "md5wrap.h"
+#include "metaxmlparse.h"
 #include "myhtmlparse.h"
 #include "utils.h"
 #include "values.h"
+#include "xmlparse.h"
 
 #include "gnu_getopt.h"
 
@@ -285,65 +287,27 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     {
 	// Inspired by http://mjr.towers.org.uk/comp/sxw2text
 	string safefile = shell_protect(file);
-#define OOO_XML_SED_DECODE_ENTITIES \
-	"'s/&lt;/</g;s/&gt;/>/g;s/&apos;/'\\''/g;s/&quot;/\"/g;s/&amp;/\\&/g'"
-	string cmd = "unzip -p " + safefile + " content.xml"
-		     "|sed 's/<[^>]*>/ /g;'"OOO_XML_SED_DECODE_ENTITIES;
+	string cmd = "unzip -p " + safefile + " content.xml";
 	try {
-	    dump = stdout_to_string(cmd);
+	    XmlParser xmlparser;
+	    // <?xml version="1.0" encoding="UTF-8"?>
+	    xmlparser.parse_html(stdout_to_string(cmd));
+	    dump = xmlparser.dump;
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
 
-	// FIXME: unzip meta.xml once and parse the output ourselves
+	cmd = "unzip -p " + safefile + " meta.xml";
 	try {
-	    cmd = "unzip -p " + safefile + " meta.xml"
-		  "|sed 's/.*<dc:title>\\([^<]*\\).*/\\1/p;d'"
-		  "|sed "OOO_XML_SED_DECODE_ENTITIES;
-	    title = stdout_to_string(cmd);
+	    MetaXmlParser metaxmlparser;
+	    // <?xml version="1.0" encoding="UTF-8"?>
+	    metaxmlparser.parse_html(stdout_to_string(cmd));
+	    title = metaxmlparser.title;
+	    keywords = metaxmlparser.keywords;
+	    sample = metaxmlparser.sample;
 	} catch (ReadError) {
-	    title = "";
-	}
-
-	try {
-	    // e.g.:
-	    // <meta:keywords>
-	    // <meta:keyword>information retrieval</meta:keyword>
-	    // </meta:keywords>
-	    cmd = "unzip -p " + safefile + " meta.xml"
-		  "|sed 's/.*<meta:keywords>//;s!</meta:keywords>.*!!;"
-			"s/<[^>]*>/ /g;'"OOO_XML_SED_DECODE_ENTITIES;
-	    keywords = stdout_to_string(cmd);
-	} catch (ReadError) {
-	    keywords = "";
-	}
-
-	try {
-	    // dc:subject is "Subject and Keywords":
-	    // "Typically, Subject will be expressed as keywords, key phrases
-	    // or classification codes that describe a topic of the resource."
-	    // OpenOffice uses meta:keywords for keywords - dc:subject
-	    // comes from a text field labelled "Subject".  Let's just treat
-	    // it as more keywords.
-	    cmd = "unzip -p " + safefile + " meta.xml"
-		  "|sed 's/.*<dc:subject>\\([^<]*\\).*/\\1/p;d'"
-		  "|sed "OOO_XML_SED_DECODE_ENTITIES;
-	    string subject = stdout_to_string(cmd);
-	    if (!subject.empty()) {
-		keywords += ' ';
-		keywords += subject;
-	    }
-	} catch (ReadError) {
-	}
-
-	try {
-	    cmd = "unzip -p " + safefile + " meta.xml"
-		  "|sed 's/.*<dc:description>\\([^<]*\\).*/\\1/p;d'"
-		  "|sed "OOO_XML_SED_DECODE_ENTITIES;
-	    sample = stdout_to_string(cmd);
-	} catch (ReadError) {
-	    sample = "";
+	    // It's probably best to index the document even if this fails.
 	}
     } else if (mimetype == "application/msword") {
 	string cmd = "antiword " + shell_protect(file);

@@ -1,3 +1,10 @@
+Tue Sep 05 06:46:18 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,htmlparse.cc,htmlparse.h,metaxmlparse.cc,metaxmlparse.h,
+	  myhtmlparse.h,omindex.cc,xmlparse.cc,xmlparse.h: Parse the XML from
+	  OpenDocument and OpenOffice using new subclasses of HtmlParser.
+	  Only extract meta.xml once.
+
 Tue Sep 05 06:45:02 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,htmlparsetest.cc: Add htmlparsetest which tests the

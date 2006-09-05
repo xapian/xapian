@@ -1,4 +1,4 @@
-/* htmlparse.cc: simple HTML parser for omega indexer
+/* htmlparse.h: simple HTML parser for omega indexer
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2006 Olly Betts
@@ -18,6 +18,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+
+#ifndef INCLUDED_HTMLPARSE_H
+#define INCLUDED_HTMLPARSE_H
 
 #include <string>
 #include <map>
@@ -39,3 +42,5 @@ class HtmlParser {
 	HtmlParser();
 	virtual ~HtmlParser() { }
 };
+
+#endif
