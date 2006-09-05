@@ -1,3 +1,8 @@
+Tue Sep 05 06:45:02 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,htmlparsetest.cc: Add htmlparsetest which tests the
+	  MyHtmlParser class.
+
 Tue Sep 05 04:36:46 BST 2006  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Note UTF-8 runes for pdfinfo and pdftotext.

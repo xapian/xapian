@@ -50,7 +50,7 @@ AM_CPPFLAGS = -DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\"
 
 pkglibbindir = $(pkglibdir)/bin
 pkglibbin_PROGRAMS = omega
-bin_PROGRAMS = omindex scriptindex
+bin_PROGRAMS = omindex scriptindex htmlparsetest
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
 # Install documentation.
@@ -84,6 +84,8 @@ omindex_LDADD = $(XAPIAN_LIBS)
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
  getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
+
+htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc
 
 dist_man_MANS = omindex.1 scriptindex.1
 
