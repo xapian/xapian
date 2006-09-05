@@ -1,3 +1,9 @@
+Tue Sep 05 02:27:36 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.html,queryparser/queryparser.lemony,
+	  tests/queryparsertest.cc: Allow a distance to be specified
+	  for NEAR - e.g. "cats NEAR/3 dogs" (bug#92).
+
 Fri Sep 01 00:29:10 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,common/remote-database.h:

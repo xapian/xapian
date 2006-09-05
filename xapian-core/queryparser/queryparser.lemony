@@ -50,6 +50,8 @@ class Term {
   public:
     Term(const string &name_, termpos pos_) : name(name_), pos(pos_) { }
 
+    termpos get_termpos() const { return pos; }
+
     Query * as_query() const { return new Query(name, 1, pos); }
 
     Query * as_wildcarded_query(State * state) const;
@@ -397,48 +399,51 @@ phrased_term:
 	}
 
 	// Boolean operators.
-	if (mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
+	if (mode == DEFAULT && (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. or ÁND as an AND operator.
-	    if (!was_acronym && transliterations == it.transliterations()) {
-		if (prefix.empty() && !term.empty() && C_isalpha(term[0])) {
-		    if (!(flags & FLAG_BOOLEAN_ANY_CASE)) {
-			if (term == "AND") {
-			    Parse(pParser, AND, NULL, &state);
-			    continue;
-			} else if (term == "OR") {
-			    Parse(pParser, OR, NULL, &state);
-			    continue;
-			} else if (term == "NOT") {
-			    Parse(pParser, NOT, NULL, &state);
-			    continue;
-			} else if (term == "NEAR") {
-			    Parse(pParser, NEAR, NULL, &state);
-			    continue;
-			} else if (term == "XOR") {
-			    Parse(pParser, XOR, NULL, &state);
-			    continue;
+	    !was_acronym && transliterations == it.transliterations() &&
+	    prefix.empty() &&
+	    term.size() >= 2 && term.size() <= 4 && C_isalpha(term[0])) {
+
+	    string op = term;
+	    if (flags & FLAG_BOOLEAN_ANY_CASE) {
+		for (string::iterator i = op.begin(); i != op.end(); ++i) {
+		    *i = C_toupper(*i);
+		}
+	    }
+	    if (op.size() == 3) {
+		if (op == "AND") {
+		    Parse(pParser, AND, NULL, &state);
+		    continue;
+		} else if (op == "NOT") {
+		    Parse(pParser, NOT, NULL, &state);
+		    continue;
+		} else if (op == "XOR") {
+		    Parse(pParser, XOR, NULL, &state);
+		    continue;
+		}
+	    } else if (op.size() == 2) {
+		if (op == "OR") {
+		    Parse(pParser, OR, NULL, &state);
+		    continue;
+		}
+	    } else if (op.size() == 4) {
+		if (op == "NEAR") {
+		    if (it != end && *it == '/') {
+			size_t width = 0;
+			AccentNormalisingItor p = it;
+			while (++p != end && C_isdigit(*p)) {
+			    width = (width * 10) + (*p - '0');
 			}
-		    } else {
-			// FIXME: add upcase_term and merge this into the
-			// case above.
-			string lcterm = downcase_term(term);
-			if (lcterm == "and") {
-			    Parse(pParser, AND, NULL, &state);
-			    continue;
-			} else if (lcterm == "or") {
-			    Parse(pParser, OR, NULL, &state);
-			    continue;
-			} else if (lcterm == "not") {
-			    Parse(pParser, NOT, NULL, &state);
-			    continue;
-			} else if (lcterm == "near") {
-			    Parse(pParser, NEAR, NULL, &state);
-			    continue;
-			} else if (lcterm == "xor") {
-			    Parse(pParser, XOR, NULL, &state);
+			if (width && (p == end || C_isspace(*p))) {
+			    it = p;
+			    Parse(pParser, NEAR, new Term("", width), &state);
 			    continue;
 			}
 		    }
+
+		    Parse(pParser, NEAR, NULL, &state);
+		    continue;
 		}
 	    }
 	}
@@ -539,12 +544,19 @@ struct ProbQuery {
 
 class TermList {
     list<Query> terms;
+    size_t window;
 
   public:
+    TermList() : window(0) { }
+
     /// Add a Term object to this TermList object.
     void add_term(Term * term) {
 	terms.push_back(term->as_query_object());
 	delete term;
+    }
+
+    void adjust_window(size_t alternative_window) {
+	if (alternative_window > window) window = alternative_window;
     }
 
     /// Convert to a Xapian::Query * using OP_PHRASE.
@@ -562,8 +574,10 @@ class TermList {
 	// The common meaning of 'a NEAR b' is "a within 10 terms of b", which
 	// means a window size of 11.  For more than 2 terms, we just add one
 	// to the window size for each extra term.
+	size_t w = window;
+	if (w == 0) w = 10;
 	term = new Query(Query::OP_NEAR, terms.begin(), terms.end(),
-			 terms.size() + 9);
+			 terms.size() + w - 1);
 	delete this;
 	return term;
     }
@@ -943,15 +957,23 @@ phrased_term(P) ::= phrased_term(Q) PHR_TERM(T). {
 %type near_expr {TermList *}
 %destructor near_expr {$$->destroy();}
 
-near_expr(P) ::= TERM(T) NEAR TERM(U). {
+near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
     P = new TermList;
     P->add_term(T);
     P->add_term(U);
+    if (N) {
+	P->adjust_window(N->get_termpos());
+	delete N;
+    }
 }
 
-near_expr(P) ::= near_expr(Q) NEAR TERM(T). {
+near_expr(P) ::= near_expr(Q) NEAR(N) TERM(T). {
     P = Q;
     P->add_term(T);
+    if (N) {
+	P->adjust_window(N->get_termpos());
+	delete N;
+    }
 }
 
 // Select appropriate syntax highlighting in vim editor: vim: syntax=lemon
