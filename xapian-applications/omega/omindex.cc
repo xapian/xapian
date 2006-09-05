@@ -231,19 +231,44 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    return;
 	}
 
-	// FIXME: run pdfinfo once and parse the output ourselves
 	try {
-	    title = stdout_to_string("pdfinfo " + safefile +
-				     "|sed 's/^Title: *//p;d'");
-	} catch (ReadError) {
-	    title = "";
-	}
+	    string pdfinfo = stdout_to_string("pdfinfo " + safefile);
 
-	try {
-	    keywords = stdout_to_string("pdfinfo " + safefile +
-					"|sed 's/^Keywords: *//p;d'");
+	    string::size_type idx;
+
+	    if (strncmp(pdfinfo.c_str(), "Title:", 6) == 0) {
+		idx = 0;
+	    } else {
+		idx = pdfinfo.find("\nTitle:");
+	    }
+	    if (idx != string::npos) {
+		if (idx) ++idx;
+		idx = pdfinfo.find_first_not_of(' ', idx + 6);
+		string::size_type end = pdfinfo.find('\n', idx);
+		if (end != string::npos) {
+		    if (pdfinfo[end - 1] == '\r') --end;
+		    end -= idx;
+		}
+		title = pdfinfo.substr(idx, end);
+	    }
+
+	    if (strncmp(pdfinfo.c_str(), "Keywords:", 9) == 0) {
+		idx = 0;
+	    } else {
+		idx = pdfinfo.find("\nKeywords:");
+	    }
+	    if (idx != string::npos) {
+		if (idx) ++idx;
+		idx = pdfinfo.find_first_not_of(' ', idx + 9);
+		string::size_type end = pdfinfo.find('\n', idx);
+		if (end != string::npos) {
+		    if (pdfinfo[end - 1] == '\r') --end;
+		    end -= idx;
+		}
+		keywords = pdfinfo.substr(idx, end);
+	    }
 	} catch (ReadError) {
-	    keywords = "";
+	    // It's probably best to index the document even if pdfinfo fails.
 	}
     } else if (mimetype == "application/postscript") {
 	string cmd = "pstotext " + shell_protect(file);

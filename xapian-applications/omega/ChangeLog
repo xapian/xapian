@@ -1,3 +1,9 @@
+Tue Sep 05 04:29:21 BST 2006  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Only run pdfinfo once and pull out the
+	  fields we want using string operations, instead of
+	  running it twice filtered through sed.
+
 Tue Sep 05 03:53:00 BST 2006  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc,htmlparse.h: Don't get confused by "a<b" in
