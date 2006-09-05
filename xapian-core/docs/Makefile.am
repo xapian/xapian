@@ -22,7 +22,7 @@ EXTRA_DIST = mkdoc.pl doxygen_api_conf.in doxygen_full_conf.in \
 all-local: doxygen_api_docs
 
 # Data to install, in the usual automake way
-docdatadir   = $(datadir)/doc/@PACKAGE@
+docdatadir = $(datadir)/doc/@PACKAGE@
 dist_docdata_DATA = $(HTMLDOCS) apidoc.ps
 
 dist-hook:
@@ -86,6 +86,10 @@ apidoc.ps apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
 	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.ps||pool_size=750000 $(MAKE) refman.ps)
 	mv apidoc/latex/refman.ps apidoc.ps
 
+# This dependency is required so that parallel make doesn't try to run latex
+# twice simultaneously.
+apidoc/html/index/html: apidoc.ps
+
 # "make refman.ps" sometimes fails for no obvious reason on the first attempt.
 # Repeating the command works, so just do that!
 sourcedoc.ps sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
@@ -96,6 +100,10 @@ sourcedoc.ps sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_full_conf
 	cd sourcedoc/latex && (pool_size=750000 $(MAKE) refman.ps||pool_size=750000 $(MAKE) refman.ps)
 	mv sourcedoc/latex/refman.ps sourcedoc.ps
+
+# This dependency is required so that parallel make doesn't try to run latex
+# twice simultaneously.
+sourcedoc/html/index/html: sourcedoc.ps
 endif
 
 # We used to do: $(LATEX) "\scrollmode\input" refman.tex

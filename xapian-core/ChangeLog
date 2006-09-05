@@ -1,3 +1,8 @@
+Tue Sep 05 20:58:52 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Add extra dependencies so that parallel make
+	  doesn't try to run latex twice simultaneously.
+
 Tue Sep 05 20:58:13 BST 2006  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Updated.
