@@ -151,7 +151,7 @@ stdout_to_string(const string &cmd)
 {
     string out;
     FILE * fh = popen(cmd.c_str(), "r");
-    if (fh == NULL) return out;
+    if (fh == NULL) throw ReadError();
     while (!feof(fh)) {
 	char buf[4096];
 	size_t len = fread(buf, 1, 4096, fh);

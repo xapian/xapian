@@ -1,3 +1,7 @@
+Wed Sep 06 01:26:17 BST 2006  Olly Betts <olly@survex.com>
+
+	* omindex.cc: If popen() fails, treat it as a read error.
+
 Wed Sep 06 00:49:47 BST 2006  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fix escaping of filenames to cast characters to
