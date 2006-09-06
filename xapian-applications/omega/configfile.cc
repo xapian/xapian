@@ -24,7 +24,6 @@
 
 #include <fstream>
 #include <iostream>
-using std::ifstream;
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -32,6 +31,8 @@ using std::ifstream;
 #include <stdlib.h>
 
 #include "configfile.h"
+
+using namespace std;
 
 static const char * configfile_local = "omega.conf";
 static const char * configfile_system = CONFIGFILE_SYSTEM;
@@ -50,7 +51,7 @@ file_exists(const char * fname)
     struct stat sbuf;
     // exists && is a regular file or symlink
     return stat(fname, &sbuf) >= 0 && !S_ISDIR(sbuf.st_mode);
-}   
+}
 
 static bool
 try_read_config_file(const char * cfile)
@@ -63,8 +64,28 @@ try_read_config_file(const char * cfile)
     }
 
     while (in) {
-	string name, value;
-	in >> name >> value;
+	char line[1024];
+	in.getline(line, sizeof(line));
+
+	char *p = line;
+	while (isspace((unsigned char)*p)) ++p;
+	if (!*p || *p == '#') continue; // Ignore blank line and comments
+
+	char *q = p;
+	while (*q && !isspace((unsigned char)*q)) ++q;
+	string name(p, q - p);
+
+	p = q;
+	while (isspace((unsigned char)*p)) ++p;
+	q = p;
+	while (*q && !isspace((unsigned char)*q)) ++q;
+	string value(p, q - p);
+
+	while (*q && isspace((unsigned char)*q)) ++q;
+	if (value.empty() || (*q && *q != '#')) {
+	    throw string("Bad line in configuration file `") + cfile + "'";
+	}
+
 	if (name == "database_dir") {
 	    database_dir = value + "/";
 	} else if (name == "template_dir") {
@@ -102,4 +123,3 @@ read_config_file()
     // Just use the default configuration.
     return;
 }
-

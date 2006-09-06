@@ -1,3 +1,10 @@
+Wed Sep 06 03:46:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* configfile.cc,omega.conf: Fix code which reads omega.conf to be line
+	  based as documented rather than the wacky whitespace based scheme
+	  that was actually implemented.  Allow "#" comments and blank lines
+	  in omega.conf.
+
 Wed Sep 06 01:26:17 BST 2006  Olly Betts <olly@survex.com>
 
 	* omindex.cc: If popen() fails, treat it as a read error.
