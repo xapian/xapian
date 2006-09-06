@@ -1,3 +1,10 @@
+Wed Sep 06 03:52:27 BST 2006  Olly Betts <olly@survex.com>
+
+	* configfile.cc: Changed my mind - don't allow comments on the end of
+	  lines.
+	* docs/overview.txt: Document that omega.conf can have comments and
+	  blank lines in.
+
 Wed Sep 06 03:46:16 BST 2006  Olly Betts <olly@survex.com>
 
 	* configfile.cc,omega.conf: Fix code which reads omega.conf to be line
@@ -59,7 +66,7 @@ Sat Sep 02 02:07:30 BST 2006  Olly Betts <olly@survex.com>
 	* Makefile.am,configure.ac,docs/omegascript.txt,md5.cc,md5.h,
 	  md5wrap.cc,md5wrap.h,omindex.cc,query.cc,values.h: Generate
 	  an MD5 checksum of each file indexed and store it in value #1
-	  to allow duplicates to be collapsed.  Add $pack and $unpack 
+	  to allow duplicates to be collapsed.  Add $pack and $unpack
 	  OmegaScript commands to allow big endian binary values to
 	  be encoded and decoded.  Add the file last modified time
 	  as value #0.

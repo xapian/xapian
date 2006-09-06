@@ -82,7 +82,7 @@ try_read_config_file(const char * cfile)
 	string value(p, q - p);
 
 	while (*q && isspace((unsigned char)*q)) ++q;
-	if (value.empty() || (*q && *q != '#')) {
+	if (value.empty() || *q) {
 	    throw string("Bad line in configuration file `") + cfile + "'";
 	}
 

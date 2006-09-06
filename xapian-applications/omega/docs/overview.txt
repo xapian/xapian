@@ -325,9 +325,12 @@ various locations:
  - Finally, if no configuration file is found, default values are used.
 
 The format of the file is very simple: a line per option, with the
-option name followed by its value, separated by a space. The current
-options are 'database_dir' (the directory containing all the Omega
-databases), 'template_dir' (the directory containing the Omega
+option name followed by its value, separated by a whitespace.  Blank
+lines are ignored.  If the first non-whitespace character on a line
+is a '#', omega treats the line as a comment and ignores it.
+
+The current options are 'database_dir' (the directory containing all the
+Omega databases), 'template_dir' (the directory containing the Omega
 templates), and 'log_dir' (the directory which the omegascript $log command
 writes log files to).
 
