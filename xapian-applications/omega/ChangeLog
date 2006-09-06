@@ -1,3 +1,7 @@
+Wed Sep 06 21:31:33 BST 2006  Olly Betts <olly@survex.com>
+
+	* md5wrap.cc: #include <unistd.h>
+
 Wed Sep 06 18:03:23 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Ship values.h.

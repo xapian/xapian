@@ -30,6 +30,7 @@
 
 #include <fcntl.h>
 #include <errno.h>
+#include <unistd.h>
 
 #ifndef O_STREAMING
 # ifdef __linux__
