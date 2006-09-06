@@ -1,3 +1,7 @@
+Wed Sep 06 18:03:23 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Ship values.h.
+
 Wed Sep 06 03:52:27 BST 2006  Olly Betts <olly@survex.com>
 
 	* configfile.cc: Changed my mind - don't allow comments on the end of
