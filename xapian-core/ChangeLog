@@ -1,3 +1,9 @@
+Thu Sep 07 00:09:41 BST 2006  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.cc: Discard stderr from xapian-tcpsrv
+	  so we don't get "write error" messages appearing in the testsuite
+	  output when we've just closed the connection at the client side.
+
 Tue Sep 05 21:07:40 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Fix warning when remote backend

@@ -496,7 +496,7 @@ BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 #else
     args += createdb_quartz(paths);
 #endif
-    string cmd = "../bin/xapian-tcpsrv --one-shot --quiet --port 1239 " + args + " &";
+    string cmd = "../bin/xapian-tcpsrv --one-shot --quiet --port 1239 " + args + " 2>/dev/null &";
     system(cmd);
     sleep(1);
     return Xapian::Remote::open("127.0.0.1", 1239);
@@ -518,7 +518,7 @@ BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
     (void)getwritedb_quartz(dbnames);
     args += ".quartz/dbw";
 #endif
-    string cmd = "../bin/xapian-tcpsrv --writable --one-shot --quiet --port 1239 " + args + " &";
+    string cmd = "../bin/xapian-tcpsrv --writable --one-shot --quiet --port 1239 " + args + " 2>/dev/null &";
     system(cmd);
     sleep(1);
     return Xapian::Remote::open_writable("127.0.0.1", 1239);
