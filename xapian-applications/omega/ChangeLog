@@ -1,3 +1,10 @@
+Wed Sep 06 00:49:47 BST 2006  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix escaping of filenames to cast characters to
+	  "unsigned char" so that isalnum() works correctly everywhere.
+	  Not a security hole as dangerous characters were still being
+	  escaped.
+
 Tue Sep 05 06:49:30 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Run htmlparsetest on "make check".

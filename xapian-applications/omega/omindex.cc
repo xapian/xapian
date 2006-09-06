@@ -124,8 +124,9 @@ shell_protect(const string & file)
 	p = 2;
     }
     while (p < safefile.size()) {
-	// Exclude a few safe characters which are common in filenames
-	if (!isalnum(safefile[p]) && strchr("/._-", safefile[p]) == NULL) {
+	// Don't escape some safe characters which are common in filenames.
+	unsigned char ch = safefile[p];
+	if (!isalnum(ch) && strchr("/._-", ch) == NULL) {
 	    safefile.insert(p, "\\");
 	    ++p;
 	}
