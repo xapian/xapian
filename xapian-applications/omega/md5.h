@@ -26,12 +26,12 @@
  * + Removed MD5_CTX.
  */
 
-// Include these to get uint32_t
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
+// Include these to get uint32_t.
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
 #endif
 
 struct MD5Context {
