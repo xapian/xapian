@@ -34,6 +34,7 @@
 #include "networkstats.h"
 #include "remoteserver.h"
 #include "serialise.h"
+#include "serialise-double.h"
 #include "utils.h"
 
 /// Class to throw when we receive the connection closing message.

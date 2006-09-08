@@ -30,6 +30,7 @@
 #include "net_document.h"
 #include "omassert.h"
 #include "serialise.h"
+#include "serialise-double.h"
 #include "stats.h"
 #include "utils.h"
 

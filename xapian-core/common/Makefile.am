@@ -2,7 +2,7 @@
 
 INCLUDES = -I$(top_srcdir)/include
 
-noinst_HEADERS = serialise.h \
+noinst_HEADERS = serialise.h serialise-double.h \
  omassert.h \
  database.h termlist.h postlist.h \
  leafpostlist.h \
@@ -21,4 +21,4 @@ noinst_HEADERS = serialise.h \
 
 noinst_LTLIBRARIES = libcommon.la
 
-libcommon_la_SOURCES = utils.cc omdebug.cc omstringstream.cc
+libcommon_la_SOURCES = utils.cc omdebug.cc omstringstream.cc serialise-double.cc

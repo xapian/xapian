@@ -33,6 +33,7 @@ using namespace std;
 #include "omstringstream.h"
 
 #include "serialise.h"
+#include "serialise-double.h"
 
 static bool test_except1()
 {

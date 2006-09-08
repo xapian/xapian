@@ -27,7 +27,7 @@
 #include <xapian/enquire.h>
 
 #include "omdebug.h"
-#include "serialise.h"
+#include "serialise-double.h"
 #include "stats.h"
 
 namespace Xapian {
