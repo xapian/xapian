@@ -69,6 +69,10 @@
 # define strcasecmp stricmp
 #endif
 
+#ifdef __SUNPRO_CC
+# define count(B, E, T) std::count((B), (T), (E) - (B))
+#endif
+
 using namespace std;
 
 #ifndef SNPRINTF
@@ -1350,14 +1354,7 @@ eval(const string &fmt, const vector<string> &param)
 		if (args[0].empty()) {
 		    value = "0";
 		} else {
-#ifdef __SUNPRO_CC
-		    size_t length = 0;
-		    for (string::const_iterator i = args[0].begin(); i != args[0].end(); ++i) {
-			if (*i == '\t') ++length;
-		    }
-#else
 		    size_t length = count(args[0].begin(), args[0].end(), '\t');
-#endif
 		    value = int_to_string(length + 1);
 		}
 		break;
