@@ -35,11 +35,11 @@ BUILT_SOURCES = xapian_wrap.cc
 
 if MAINTAINER_MODE
 xapian_wrap.cc: ../xapian.i util.i
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -tcl8 -namespace -pkgversion @VERSION@ -o $@ $(srcdir)/../xapian.i
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -tcl8 -namespace -pkgversion @VERSION_NO_SNAPSHOT@ -o $@ $(srcdir)/../xapian.i
 endif
 
 pkgIndex.tcl: Makefile.am
-	echo 'package ifneeded xapian @VERSION@ [list load [file join $$dir xapian[info sharedlibextension]]]' > pkgIndex.tcl
+	echo 'package ifneeded xapian @VERSION_NO_SNAPSHOT@ [list load [file join $$dir xapian[info sharedlibextension]]]' > pkgIndex.tcl
 
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 CLEANFILES = pkgIndex.tcl

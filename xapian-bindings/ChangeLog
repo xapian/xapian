@@ -1,3 +1,8 @@
+Fri Sep 08 03:27:36 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,tcl8/Makefile.am: For Tcl, remove any _svn6789 suffix
+	  from the version number.
+
 Tue Sep 05 21:14:33 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Need to AC_SUBST(PYTHON_CXXFLAGS) so that we really
