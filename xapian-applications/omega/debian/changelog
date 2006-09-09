@@ -1,3 +1,12 @@
+xapian-omega (0.9.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/copyright: Add copyright details for new md5 code.
+  * debian/omega.conf.debian: Config file reading code now understands
+    comments so change comments to take advantage of this.
+
+ -- Olly Betts <olly@survex.com>  Sat,  9 Sep 2006 02:05:20 +0100
+
 xapian-omega (0.9.6-5) unstable; urgency=low
 
   * debian/control: Add extra space before "Homepage:" as is recommended

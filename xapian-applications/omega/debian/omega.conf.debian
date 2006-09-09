@@ -1,8 +1,11 @@
-# Directory_containing_Xapian_databases:
+# Directory containing Xapian databases:
 database_dir /var/lib/xapian-omega/data
-# Directory_containing_OmegaScript_templates:
+
+# Directory containing OmegaScript templates:
 template_dir /var/lib/xapian-omega/templates
-# Directory_to_write_Omega_logs_to:
+
+# Directory to write Omega logs to:
 log_dir /var/log/xapian-omega
-# Directory_containing_any_cdb_files_for_the_$lookup_OmegaScript_command:
+
+# Directory containing any cdb files for the $lookup OmegaScript command:
 cdb_dir /var/lib/xapian-omega/cdb
