@@ -48,6 +48,12 @@ public domain by Michael Tokarev:
   This file is a part of tinycdb package by Michael Tokarev, mjt@corpit.ru.
   Public domain.
 
+The code to produce MD5 message-digests in files md5.cc and md5.h is based on
+code written and released into the public domain by Colin Plumb:
+
+  This code was written by Colin Plumb in 1993, no copyright is claimed.
+  This code is in the public domain; do with it what you wish.
+
 The Debian packaging is also licensed under the GPL v2 or later (see above)
 and the copyright details are:
 
