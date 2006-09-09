@@ -63,7 +63,7 @@
 #  define WIFEXITED(status) (status != -1)
 # endif
 # ifndef WEXITSTATUS
-#  define WIFEXITED(status) (status)
+#  define WEXITSTATUS(status) (status)
 # endif
 #endif
 

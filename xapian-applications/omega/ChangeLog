@@ -1,3 +1,7 @@
+Sat Sep 09 19:19:15 BST 2006  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Fix typo in previous commit.
+
 Sat Sep 09 17:11:40 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,omindex.cc: Mingw doesn't have sys/wait.h or
