@@ -1,3 +1,7 @@
+Sat Sep 09 16:44:29 BST 2006  Olly Betts <olly@survex.com>
+
+	* md5.h,values.h: On MS Windows, we need to #include <winsock.h>.
+
 Fri Sep 08 08:01:15 BST 2006  Olly Betts <olly@survex.com>
 
 	* query.cc: Sun C++'s std::count() isn't very "std" -- it has the

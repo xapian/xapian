@@ -19,12 +19,15 @@
 
 #include <string>
 
-// Include these to get uint32_t.
+// Include these to get uint32_t and htonl, etc.
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
+#endif
+#ifdef __WIN32__
+# include <winsock.h>
 #endif
 
 enum value_slot {

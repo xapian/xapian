@@ -33,6 +33,9 @@
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
+#ifdef __WIN32__
+# include <winsock.h>
+#endif
 
 struct MD5Context {
     uint32_t buf[4];
