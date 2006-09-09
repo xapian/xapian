@@ -1,3 +1,8 @@
+Sat Sep 09 17:11:40 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,omindex.cc: Mingw doesn't have sys/wait.h or
+	  WEXITSTATUS.
+
 Sat Sep 09 16:44:29 BST 2006  Olly Betts <olly@survex.com>
 
 	* md5.h,values.h: On MS Windows, we need to #include <winsock.h>.

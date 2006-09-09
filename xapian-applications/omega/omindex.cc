@@ -33,7 +33,6 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -54,6 +53,19 @@
 #include "xmlparse.h"
 
 #include "gnu_getopt.h"
+
+#ifdef HAVE_SYS_WAIT_H
+# include <sys/wait.h>
+#endif
+
+#ifdef __WIN32__
+# ifndef WIFEXITED
+#  define WIFEXITED(status) (status != -1)
+# endif
+# ifndef WEXITSTATUS
+#  define WIFEXITED(status) (status)
+# endif
+#endif
 
 #ifdef _MSC_VER
 # define popen _popen
