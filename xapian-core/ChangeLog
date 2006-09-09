@@ -1,3 +1,8 @@
+Sat Sep 09 04:19:44 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Ensure that if _GLIBCXX_DEBUG has been specified that
+	  it also passed when generating version.h.
+
 Sat Sep 09 04:01:40 BST 2006  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Give more useful output should the double

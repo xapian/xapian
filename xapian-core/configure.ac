@@ -876,6 +876,15 @@ for backend in MUSCAT36 QUARTZ FLINT INMEMORY REMOTE ; do
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"
   fi
 done
+if test yes = "$GXX" ; then
+    dnl If _GLIBCXX_DEBUG is being deliberately set or unset, do the same
+    dnl when generating version.h.
+    for flag in $CXXFLAGS $CPPFLAGS ; do
+      case $flag in
+      -[DU]_GLIBCXX_DEBUG*) cxxcpp_flags="$cxxcpp_flags $flag" ;;
+      esac
+    done
+fi
 rm -f include/xapian/version.h.tmp
 dnl "\r" in sed is a GNUism, but we only need to remove it on MS Windows
 dnl where we'll always have GNU sed, and other sed's will just interpret
