@@ -28,6 +28,7 @@
 #endif
 #ifdef __WIN32__
 # include <winsock.h>
+# define uint32_t u_long
 #endif
 
 enum value_slot {

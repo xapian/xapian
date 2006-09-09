@@ -1,3 +1,8 @@
+Sat Sep 09 21:48:22 BST 2006  Olly Betts <olly@survex.com>
+
+	* md5.h,values.h: Sigh, winsock.h uses u_long instead of uint32_t
+	  in the htonl prototype.
+
 Sat Sep 09 19:19:15 BST 2006  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fix typo in previous commit.
