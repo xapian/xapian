@@ -38,7 +38,7 @@ FlintModifiedPostList::skip_deletes(Xapian::weight w_min)
 	++it;
 	FlintPostList::next(w_min);
     }
-    while (it->second.first == 'D' && ++it != mods.end()) { }
+    while (it != mods.end() && it->second.first == 'D') ++it;
 }
 
 Xapian::doccount

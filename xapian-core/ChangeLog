@@ -1,3 +1,8 @@
+Sat Sep 09 02:55:38 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_modifiedpostlist.cc: Fix potential access to
+	  iterator which has already reached its end.
+
 Fri Sep 08 04:05:28 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,common/,matcher/bm25weight.cc,
