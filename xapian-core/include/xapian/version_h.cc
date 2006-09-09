@@ -33,6 +33,9 @@ const char * dummy = {
 // the first source file which uses Xapian in the user's application, rather
 // than during the first attempt to link with Xapian.
 //
+// We also check that the setting of _GLIBCXX_DEBUG matches since that
+// introduces ABI-like incompatibilities.
+//
 // After preprocessing with "g++ -E" or similar (which will expand macros,
 // strip comments such as this block, etc) we remove lines starting with a
 // '#', remove blank lines, and collapse multiple spaces.  And we strip out
@@ -64,7 +67,7 @@ const char * dummy = {
 "#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 96)",
 #endif
 "#error The C++ ABI version of compiler you are using does not match",
-"#error that of the compiler used to build the library. The versions",
+"#error that of the compiler used to build the library.  The versions",
 "#error must match or your program will not work correctly.",
 #ifdef __GNUC_PATCHLEVEL__
 "#error The Xapian library was built with ",V3(__GNUC__,__GNUC_MINOR__,__GNUC_PATCHLEVEL__),
@@ -72,6 +75,20 @@ const char * dummy = {
 "#error The Xapian library was built with ",V2(__GNUC__,__GNUC_MINOR__),
 #endif
 "#endif",
+"",
+#ifdef _GLIBCXX_DEBUG
+"#ifndef _GLIBCXX_DEBUG",
+"#error This library was compiled with _GLIBCXX_DEBUG defined, but you",
+"#error have not specified this flag.  The settings must match or your",
+"#error program will not work correctly.",
+"#endif",
+#else
+"#ifdef _GLIBCXX_DEBUG",
+"#error You are compiling with _GLIBCXX_DEBUG defined, but the library",
+"#error was not compiled with this flag.  The settings must match or your",
+"#error program will not work correctly.",
+"#endif",
+#endif
 "#endif",
 #endif
 "",

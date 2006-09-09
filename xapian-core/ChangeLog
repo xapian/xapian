@@ -1,3 +1,8 @@
+Sat Sep 09 03:19:20 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/version_h.cc: Add a check that _GLIBCXX_DEBUG is
+	  set compatibly if we're compiling with GNU C++.
+
 Sat Sep 09 02:55:38 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_modifiedpostlist.cc: Fix potential access to
