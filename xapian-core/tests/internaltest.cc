@@ -211,15 +211,15 @@ static bool test_serialiselength1()
 
 static void check_double_serialisation(double u)
 {
-    tout << u << flush;
     string encoded = serialise_double(u);
-    tout << " encoded length = " << encoded.size() << flush;
-    tout << " encoded[0] = 0x" << hex << (int)(unsigned char)encoded[0];
-    tout << " encoded[1] = 0x" << (int)(unsigned char)encoded[1] << dec << flush;
     const char * ptr = encoded.data();
     const char * end = ptr + encoded.size();
     double v = unserialise_double(&ptr, end);
-    tout << " difference = " << v - u << endl;
+    if (ptr != end || u != v) {
+	tout << u << " -> " << v << ", difference = " << v - u << endl;
+	tout << "FLT_RADIX = " << FLT_RADIX << endl;
+	tout << "DBL_MAX_EXP = " << DBL_MAX_EXP << endl;
+    }
     TEST(ptr == end);
     TEST_EQUAL(u, v);
 }
