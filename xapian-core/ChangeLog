@@ -1,3 +1,7 @@
+Sun Sep 10 02:24:47 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix last check-in to actually work.
+
 Sat Sep 09 04:19:44 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Ensure that if _GLIBCXX_DEBUG has been specified that

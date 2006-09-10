@@ -881,7 +881,7 @@ if test yes = "$GXX" ; then
     dnl when generating version.h.
     for flag in $CXXFLAGS $CPPFLAGS ; do
       case $flag in
-      -[DU]_GLIBCXX_DEBUG*) cxxcpp_flags="$cxxcpp_flags $flag" ;;
+      -D_GLIBCXX_DEBUG*|-U_GLIBCXX_DEBUG*) cxxcpp_flags="$cxxcpp_flags $flag" ;;
       esac
     done
 fi
