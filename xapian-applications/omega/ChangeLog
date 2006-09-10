@@ -1,3 +1,9 @@
+Sun Sep 10 19:04:17 BST 2006  Olly Betts <olly@survex.com>
+
+	* md5.h,values.h: Using htonl from winsock.h requires use to link
+	  with the winsock DLL, which is overkill so just add a simple
+	  implementation for htonl - we know MS Windows is little-endian.
+
 Sat Sep 09 21:48:22 BST 2006  Olly Betts <olly@survex.com>
 
 	* md5.h,values.h: Sigh, winsock.h uses u_long instead of uint32_t

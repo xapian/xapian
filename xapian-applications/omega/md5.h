@@ -34,8 +34,7 @@
 # include <netinet/in.h>
 #endif
 #ifdef __WIN32__
-# include <winsock.h>
-# define uint32_t u_long
+typedef unsigned int uint32_t;
 #endif
 
 struct MD5Context {

@@ -27,8 +27,11 @@
 # include <netinet/in.h>
 #endif
 #ifdef __WIN32__
-# include <winsock.h>
-# define uint32_t u_long
+# define uint32_t unsigned int
+inline uint32_t htonl(uint32_t v) {
+    return (v << 24) | ((v & 0xff00) << 8) | ((v >> 8) & 0xff00) | (v >> 24);
+}
+# define ntohl(V) htonl(V)
 #endif
 
 enum value_slot {
