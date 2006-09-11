@@ -1,3 +1,7 @@
+Mon Sep 11 06:51:25 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix broken sed command in previous checkin.
+
 Fri Sep 08 03:27:36 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,tcl8/Makefile.am: For Tcl, remove any _svn6789 suffix
