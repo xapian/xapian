@@ -50,21 +50,9 @@ namespace Xapian {
    
 ExpandDeciderFilterTerms::ExpandDeciderFilterTerms(TermIterator terms,
 						   TermIterator termsend)
-#ifndef __SUNPRO_CC
     : tset(terms, termsend)
 {
 }
-#else
-{
-    // I'd prefer using an initialiser list for this, but it seems
-    // that Solaris' CC doesn't like initialising a set with list
-    // iterators or Xapian::TermIterators.
-    while (terms != termsend) {
-        tset.insert(*terms);
-	++terms;
-    }
-}
-#endif
 
 int
 ExpandDeciderFilterTerms::operator()(const string &tname) const

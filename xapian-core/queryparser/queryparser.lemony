@@ -501,11 +501,7 @@ phrased_term:
 	    term = prefix + term;
 	}
 
-#ifndef __SUNPRO_CC
 	unstem.insert(make_pair(term, unstemmed_term));
-#else
-	unstem.insert(make_pair<const string, string>(term, unstemmed_term));
-#endif
 
 	if (mode == IN_PHRASED_TERM) {
 	    Parse(pParser, PHR_TERM, new Term(term, term_pos++), &state);

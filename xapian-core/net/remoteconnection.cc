@@ -29,6 +29,15 @@
 #include "remoteconnection.h"
 #include "serialise.h"
 
+#ifdef HAVE_SYS_SELECT_H
+# include <sys/select.h>
+#else
+# include <sys/time.h>
+# include <sys/types.h>
+# include <unistd.h>
+#endif
+#include <string.h> // Solaris needs this as FDSET uses memset but fails to prototype it.
+
 RemoteConnection::RemoteConnection(int fdin_, int fdout_,
 				   const string & context_)
     : fdin(fdin_), fdout(fdout_), context(context_)

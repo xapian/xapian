@@ -932,15 +932,7 @@ static bool test_postlist2()
     Xapian::PostingIterator p_clone(p);
     TEST_EQUAL(p, p_clone);
 
-#ifdef __SUNPRO_CC
-    vector<Xapian::docid> v;
-    while (p != pend) {
-	v.push_back(*p);
-	++p;
-    }
-#else
     vector<Xapian::docid> v(p, pend);
-#endif
 
     p = db.postlist_begin("this");
     pend = db.postlist_end("this");

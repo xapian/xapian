@@ -35,8 +35,15 @@
 #else
 # include <sys/socket.h>
 #endif
-#include <sys/time.h>
-#include <sys/types.h>
+
+#ifdef HAVE_SYS_SELECT_H
+# include <sys/select.h>
+#else
+# include <sys/time.h>
+# include <sys/types.h>
+# include <unistd.h>
+#endif
+#include <string.h> // Solaris needs this as FDSET uses memset but fails to prototype it.
 
 #include "utils.h"
 

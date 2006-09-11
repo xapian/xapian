@@ -187,12 +187,7 @@ FlintPositionListTable::set_positionlist(Xapian::docid did,
     Assert(pos != pos_end);
 
     // FIXME: avoid the need for this copy!
-#ifndef __SUNPRO_CC
     vector<Xapian::termpos> poscopy(pos, pos_end);
-#else
-    vector<Xapian::termpos> poscopy;
-    while (pos != pos_end) poscopy.push_back(*pos++);
-#endif
 
     string key = make_key(did, tname);
 

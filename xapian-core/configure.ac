@@ -260,8 +260,19 @@ else
       dnl If this proves to be a problem, try '-std ansi -D__USE_STD_IOSTREAM'
       ANSI_CXXFLAGS="-std strict_ansi" ;;
     CC|*/CC)
-      dnl Select ANSI mode for SGI's CC
-      ANSI_CXXFLAGS="-LANG:std" ;;
+      dnl Could be Sun's, SGI's, or something else entirely.
+      dnl FIXME Don't know how to detect SGI's CC so just try the SGI flags if
+      dnl it's not Sun's CC.
+      case `$CC -V 2>&1` in
+      *Sun\ C++*)
+	dnl Select ANSI conforming STL - for more information see:
+	dnl http://developers.sun.com/prodtech/cc/articles/cmp_stlport_libCstd.html
+	ANSI_CXXFLAGS="-library=stlport4" ;;
+      *)
+	dnl Select ANSI mode for SGI's CC
+	ANSI_CXXFLAGS="-LANG:std" ;;
+      esac
+      ;;
   esac
 
   dnl Check that the compiler recognises any flags we picked above to avoid
@@ -374,7 +385,7 @@ dnl	[AC_CHECK_LIB(dl, dlsym, [DL_LIBS="-ldl"])])
 dnl AC_SUBST(DL_LIBS)
 
 dnl Checks for header files.
-AC_CHECK_HEADERS(fcntl.h limits.h sys/errno.h, [], [], [ ])
+AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
 
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and

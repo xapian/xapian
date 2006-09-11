@@ -64,10 +64,8 @@ static bool test_getqterms1()
             list1.push_back(*t);
     }
     TEST(list1 == answers_list);
-#ifndef __SUNPRO_CC
     list<string> list2(myquery.get_terms_begin(), myquery.get_terms_end());
     TEST(list2 == answers_list);
-#endif
     return true;
 }
 

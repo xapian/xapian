@@ -681,13 +681,7 @@ static bool test_reversebool1()
 
     {
 	Xapian::MSetIterator i = mymset1.begin();
-#ifdef __SUNPRO_CC
-	vector<Xapian::docid> rev;
-	for (Xapian::MSetIterator t = mymset3.begin(); t != mymset3.end(); ++t)
-	    rev.push_back(*t);
-#else
 	vector<Xapian::docid> rev(mymset3.begin(), mymset3.end());
-#endif
 	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
 	vector<Xapian::docid>::reverse_iterator j = rev.rbegin();
 	for ( ; i != mymset1.end(); ++i, j++) {
@@ -734,13 +728,7 @@ static bool test_reversebool2()
     // mymset3 should be last msize items of mymset1, in reverse order
     TEST_EQUAL(msize, mymset3.size());
     {
-#ifdef __SUNPRO_CC
-	vector<Xapian::docid> rev;
-	for (Xapian::MSetIterator t = mymset1.begin(); t != mymset1.end(); ++t)
-	    rev.push_back(*t);
-#else
 	vector<Xapian::docid> rev(mymset1.begin(), mymset1.end());
-#endif
 	// Next iterator not const because of compiler brokenness (egcs 1.1.2)
 	vector<Xapian::docid>::reverse_iterator i = rev.rbegin();
 	Xapian::MSetIterator j = mymset3.begin();
@@ -779,19 +767,8 @@ static bool test_getmterms1()
     Xapian::MSet mymset = enquire.get_mset(0, 10);
 
     TEST_MSET_SIZE(mymset, 1);
-#ifdef __SUNPRO_CC
-    list<string> list;
-    {
-        Xapian::TermIterator t;
-        for (t = enquire.get_matching_terms_begin(mymset.begin());
-	     t != enquire.get_matching_terms_end(mymset.begin()); ++t) {
-            list.push_back(*t);
-	}
-    }
-#else
     list<string> list(enquire.get_matching_terms_begin(mymset.begin()),
 			  enquire.get_matching_terms_end(mymset.begin()));
-#endif
     TEST(list == answers_list);
 
     return true;
@@ -821,19 +798,8 @@ static bool test_getmterms2()
     Xapian::MSet mymset = enquire.get_mset(0, 10);
 
     TEST_MSET_SIZE(mymset, 1);
-#ifdef __SUNPRO_CC
-    list<string> list;
-    {
-        Xapian::TermIterator t;
-        for (t = enquire.get_matching_terms_begin(mymset.begin());
-	     t != enquire.get_matching_terms_end(mymset.begin()); ++t) {
-            list.push_back(*t);
-	}
-    }
-#else
     list<string> list(enquire.get_matching_terms_begin(mymset.begin()),
 			  enquire.get_matching_terms_end(mymset.begin()));
-#endif
     TEST(list == answers_list);
 
     return true;
@@ -1427,15 +1393,7 @@ static bool test_termlist2()
     Xapian::TermIterator t_clone(t);
     TEST_EQUAL(t, t_clone);
 
-#ifdef __SUNPRO_CC
-    vector<string> v;
-    while (t != tend) {
-	v.push_back(*t);
-	++t;
-    }
-#else
     vector<string> v(t, tend);
-#endif
 
     t = db.termlist_begin(1);
     tend = db.termlist_end(1);
