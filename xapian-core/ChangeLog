@@ -1,3 +1,8 @@
+Mon Sep 11 23:42:28 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check $CXX not $CC to identify which C++ compiler we
+	  have.
+
 Mon Sep 11 16:32:37 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,api/vectortermlist.h,

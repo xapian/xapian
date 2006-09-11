@@ -263,7 +263,7 @@ else
       dnl Could be Sun's, SGI's, or something else entirely.
       dnl FIXME Don't know how to detect SGI's CC so just try the SGI flags if
       dnl it's not Sun's CC.
-      case `$CC -V 2>&1` in
+      case `$CXX -V 2>&1` in
       *Sun\ C++*)
 	dnl Select ANSI conforming STL - for more information see:
 	dnl http://developers.sun.com/prodtech/cc/articles/cmp_stlport_libCstd.html
