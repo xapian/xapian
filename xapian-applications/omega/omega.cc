@@ -89,12 +89,7 @@ try {
 
     char *method;
     MCI val;
-#ifdef __SUNPRO_CC
-    pair<multimap<string, string>::iterator,
-	 multimap<string, string>::iterator> g;
-#else
     pair<MCI, MCI> g;
-#endif
 
     // set default thousands and decimal separators: e.g. "16,729 hits" "1.4K"
     option["decimal"] = ".";

@@ -1,3 +1,9 @@
+Mon Sep 11 16:36:54 BST 2006  Olly Betts <olly@survex.com>
+
+	* omega.cc,query.cc: Now xapian-config will switch Sun's C++ compiler
+	  into ANSI C++ compliant mode, so clean out all our special cased
+	  bits of code.
+
 Mon Sep 11 14:23:44 BST 2006  Olly Betts <olly@survex.com>
 
 	* md5.h,values.h: Apply previous fix for DJGPP too.

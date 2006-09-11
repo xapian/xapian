@@ -69,10 +69,6 @@
 # define strcasecmp stricmp
 #endif
 
-#ifdef __SUNPRO_CC
-# define count(B, E, T) std::count((B), (T), (E) - (B))
-#endif
-
 using namespace std;
 
 #ifndef SNPRINTF
@@ -1078,12 +1074,7 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    }
 	    case CMD_cgilist: {
-#ifdef __SUNPRO_CC
-		pair<multimap<string, string>::iterator,
-		     multimap<string, string>::iterator> g;
-#else
 		pair<MCI, MCI> g;
-#endif
 		g = cgi_params.equal_range(args[0]);
 		for (MCI i = g.first; i != g.second; i++)
 		    value = value + i->second + '\t';
@@ -2039,12 +2030,7 @@ ensure_query_parsed()
     query_parsed = true;
 
     MCI val;
-#ifdef __SUNPRO_CC
-    pair<multimap<string, string>::iterator,
-	 multimap<string, string>::iterator> g;
-#else
     pair<MCI, MCI> g;
-#endif
 
     // Should we discard the existing R-set recorded in R CGI parameters?
     bool discard_rset = true;
