@@ -28,10 +28,12 @@
 #endif
 #if defined __WIN32__ || defined __DJGPP__
 # define uint32_t unsigned int
+# ifdef __WIN32__
 inline uint32_t htonl(uint32_t v) {
     return (v << 24) | ((v & 0xff00) << 8) | ((v >> 8) & 0xff00) | (v >> 24);
 }
-# define ntohl(V) htonl(V)
+#  define ntohl(V) htonl(V)
+# endif
 #endif
 
 enum value_slot {
