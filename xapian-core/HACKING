@@ -151,6 +151,29 @@ which you might find useful:
 Using various debugging, profiling, and leak-finding tools:
 ===========================================================
 
+To turn on debugging iterators, etc in the GNU C++ STL (note: all C++ code must
+be compiled with this defined or you'll get problems - Xapian 0.9.7 and later
+add a suitable check to xapian/version.h to prevent you making this mistake):
+
+  ./configure CPPFLAGS=-D_GLIBCXX_DEBUG
+
+To use valgrind (http://www.valgrind.org/), no special build options are
+required, but make sure you compile with debugging information (on by default
+for GCC) and the valgrind documentation recommends disabling optimisation (with
+optimisation, line numbers in error messages can be confusing due to code
+inlining, etc):
+
+  ./configure CXXFLAGS='-O0 -g'
+
+To use gdb (http://www.gnu.org/software/gdb/), no special build options are
+required, but make sure you compile with debugging information (on by default
+for GCC).  You'll probably find debugging easier if you compile without
+optimisation (with optimisation, line numbers in error messages can be
+confusing due to code inlining, etc, and the values of some variables can't be
+printed because they've been eliminated from the code completely):
+
+  ./configure CXXFLAGS='-O0 -g'
+
 To enable profiling for gprof:
 
   ./configure CXXFLAGS=-pg LDFLAGS=-pg
