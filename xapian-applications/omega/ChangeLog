@@ -1,3 +1,7 @@
+Mon Sep 11 14:23:44 BST 2006  Olly Betts <olly@survex.com>
+
+	* md5.h,values.h: Apply previous fix for DJGPP too.
+
 Sun Sep 10 19:04:17 BST 2006  Olly Betts <olly@survex.com>
 
 	* md5.h,values.h: Using htonl from winsock.h requires use to link

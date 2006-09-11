@@ -26,7 +26,7 @@
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
-#ifdef __WIN32__
+#if defined __WIN32__ || defined __DJGPP__
 # define uint32_t unsigned int
 inline uint32_t htonl(uint32_t v) {
     return (v << 24) | ((v & 0xff00) << 8) | ((v >> 8) & 0xff00) | (v >> 24);

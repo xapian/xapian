@@ -33,7 +33,7 @@
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
-#ifdef __WIN32__
+#if defined __WIN32__ || defined __DJGPP__
 typedef unsigned int uint32_t;
 #endif
 
