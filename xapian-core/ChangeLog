@@ -1,3 +1,9 @@
+Mon Sep 11 16:01:20 BST 2006  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Speed up deldoc4 when run in verbose mode
+	  - some stringstream implementations are very inefficient when
+	  the string grows long.
+
 Mon Sep 11 05:30:29 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Add some advice regarding debugging using -D_GLIBCXX_DEBUG,

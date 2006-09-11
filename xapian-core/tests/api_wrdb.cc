@@ -542,6 +542,12 @@ static bool test_deldoc4()
     TEST_EQUAL(db.postlist_begin("three"), db.postlist_end("three"));
 
     for (Xapian::docid i = 1; i <= maxdoc; ++i) {
+	// TEST_EXCEPTION writes to tout each time if the test is run
+	// in verbose mode and some string stream implementations get
+	// very inefficient with large strings, so clear tout on each pass of
+	// the loop to speed up the test since the older information isn't
+	// interesting anyway.
+	tout.str("");
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.termlist_begin(i));
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_doclength(i));
 	TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(i));
