@@ -25,6 +25,8 @@
 
 #include "indextext.h" // for lowercase_term()
 
+#include <string.h>
+
 void
 MyHtmlParser::process_text(const string &text)
 {

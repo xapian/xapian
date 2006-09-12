@@ -1,3 +1,7 @@
+Tue Sep 12 11:57:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc: Need "#include <string.h>" for strchr.
+
 Mon Sep 11 20:24:27 BST 2006  Olly Betts <olly@survex.com>
 
 	* values.h: Only want our own ntohl for MS Windows.
