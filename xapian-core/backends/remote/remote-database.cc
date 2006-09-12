@@ -419,11 +419,9 @@ RemoteDatabase::send_global_stats(Xapian::doccount first,
     send_message(MSG_GETMSET, message);
 }
 
-bool
+void
 RemoteDatabase::get_mset(Xapian::MSet &mset)
 {
-    if (!link.ready_to_read()) return false;
-
     string message;
     get_message(message, REPLY_RESULTS);
     mset = unserialise_mset(message);

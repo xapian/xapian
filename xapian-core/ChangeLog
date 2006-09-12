@@ -1,3 +1,9 @@
+Tue Sep 12 18:56:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remote-database.h:
+	  Fix bug in remote backend which incorrectly returned an empty MSet
+	  under certain circumstances!
+
 Tue Sep 12 11:51:31 BST 2006  Olly Betts <olly@survex.com>
 
 	* matcher/msetcmp.cc: "static inline" -> "inline" since the static is

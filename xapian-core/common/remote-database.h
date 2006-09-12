@@ -149,7 +149,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 			   const Stats &stats);
 
     /// Get the MSet from the remote server.
-    bool get_mset(Xapian::MSet &mset);
+    void get_mset(Xapian::MSet &mset);
 
     /// Get remote termlist.
     LeafTermList * open_term_list(Xapian::docid did) const;
