@@ -1,3 +1,8 @@
+Tue Sep 12 11:51:31 BST 2006  Olly Betts <olly@survex.com>
+
+	* matcher/msetcmp.cc: "static inline" -> "inline" since the static is
+	  superfluous and Sun's C++ warns.
+
 Mon Sep 11 23:42:28 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Check $CXX not $CC to identify which C++ compiler we
