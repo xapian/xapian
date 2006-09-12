@@ -425,8 +425,6 @@ RemoteDatabase::get_mset(Xapian::MSet &mset)
     string message;
     get_message(message, REPLY_RESULTS);
     mset = unserialise_mset(message);
-
-    return true;
 }
 
 void
