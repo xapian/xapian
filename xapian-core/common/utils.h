@@ -85,6 +85,9 @@ inline int open(const char *filename, int flags) {
 #define S_ISREG(m) (((m)&_S_IFMT) == _S_IFREG)
 #define S_ISDIR(m) (((m)&_S_IFMT) == _S_IFDIR)
 
+// MSVC needs this to get SSIZE_T defined.
+#include "safewindows.h"
+
 #undef ssize_t // In case configure already defined it.
 #define ssize_t SSIZE_T
 #endif

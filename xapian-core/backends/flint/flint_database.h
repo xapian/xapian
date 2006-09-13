@@ -24,12 +24,12 @@
 #define OM_HGUARD_FLINT_DATABASE_H
 
 #include "database.h"
-#include "flint_metafile.h"
 #include "flint_positionlist.h"
 #include "flint_postlist.h"
 #include "flint_record.h"
 #include "flint_termlist.h"
 #include "flint_values.h"
+#include "flint_version.h"
 #include "flint_lock.h"
 
 class FlintTermList;
@@ -59,7 +59,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 *  This file has information about the format of the database
 	 *  which can't easily be stored in any of the individual tables.
 	 */
-	FlintMetaFile metafile;
+	FlintVersion version_file;
 
 	/** Table storing posting lists.
 	 *

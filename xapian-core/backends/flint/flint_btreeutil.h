@@ -1,6 +1,5 @@
 /* btree_util.h: common macros/functions in the Btree implementation.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2004 Olly Betts
  *
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_FLINT_BTREEUTIL_H
@@ -97,9 +95,5 @@ setint4(byte *p, int c, int x)
     p[c + 2] = x >> 8;
     p[c + 3] = x;
 }
-
-string sys_read_n_bytes(int h, size_t max);
-void sys_write_n_bytes(int h, size_t n, const char *p);
-int sys_sync(int h);
 
 #endif /* OM_HGUARD_FLINT_BTREEUTIL_H */

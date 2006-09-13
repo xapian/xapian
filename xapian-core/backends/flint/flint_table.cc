@@ -57,6 +57,7 @@ PWRITE_PROTOTYPE
 #include <string.h>   /* for memmove */
 #include <limits.h>   /* for CHAR_BIT */
 
+#include "flint_io.h"
 #include "flint_table.h"
 #include "flint_btreeutil.h"
 #include "flint_btreebase.h"
@@ -70,22 +71,6 @@ PWRITE_PROTOTYPE
 
 #include <algorithm>  // for std::min()
 #include <string>
-
-#ifdef __WIN32__
-# include <io.h> // for _commit()
-# ifdef _MSC_VER
-// MSVC needs this to get SSIZE_T defined.
-#  include "safewindows.h"
-# endif
-#endif
-
-// Only useful for platforms like Windows which distinguish between text and
-// binary files.
-#ifndef __WIN32__
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
-#endif
 
 using std::min;
 using std::string;
@@ -141,72 +126,6 @@ static int sys_open_for_readwrite(const string & name)
 	throw Xapian::DatabaseOpeningError(message);
     }
     return fd;
-}
-
-void sys_write_n_bytes(int h, size_t n_, const char * p)
-{
-    ssize_t n = n_;
-    Assert(n >= 0);
-    while (true) {
-	ssize_t bytes_written = write(h, p, n);
-	if (bytes_written == n) {
-	    // normal case - write succeeded, so return.
-	    return;
-	} else if (bytes_written == -1) {
-	    if (errno == EINTR) continue;
-	    string message = "Error writing block: ";
-	    message += strerror(errno);
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_written == 0) {
-	    string message = "Error writing block: wrote no data";
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_written < n) {
-	    /* Wrote part of the block, which is not an error.  We should
-	     * continue writing the rest of the block.
-	     */
-	    n -= bytes_written;
-	    p += bytes_written;
-	}
-    }
-}
-
-string sys_read_n_bytes(int h, size_t bytes_to_read)
-{
-    ssize_t bytes_read;
-    string retval;
-    while (true) {
-	char buf[1024];
-	bytes_read = read(h, buf, min(sizeof(buf), bytes_to_read));
-	if (bytes_read > 0) {
-	    // add byte to string, continue unless we reached max
-	    retval.append(buf, bytes_read);
-	    bytes_to_read -= bytes_read;
-	    if (bytes_to_read == 0) {
-		break;
-	    }
-	} else if (bytes_read == 0) {
-	    // end of file, we're finished
-	    break;
-	} else if (bytes_read == -1) {
-	    if (errno == EINTR) continue;
-	    string message = "Error reading all bytes: ";
-	    message += strerror(errno);
-	    throw Xapian::DatabaseError(message);
-	}
-    }
-    return retval;
-}
-
-int sys_sync(int h) {
-#if defined HAVE_FDATASYNC
-    return (fdatasync(h) != -1);
-#elif defined HAVE_FSYNC
-    return (fsync(h) != -1);
-#elif defined __WIN32__
-    return (_commit(h) != -1);
-#else
-#error "Have neither fsync() nor fdatasync() nor _commit() - cannot sync."
-#endif
 }
 
 static void sys_unlink(const string &filename)
@@ -354,27 +273,7 @@ FlintTable::read_block(uint4 n, byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    int m = block_size;
-    while (true) {
-	ssize_t bytes_read = read(handle, reinterpret_cast<char *>(p), m);
-	// normal case - read succeeded, so return.
-	if (bytes_read == m) return;
-	if (bytes_read == -1) {
-	    if (errno == EINTR) continue;
-	    string message = "Error reading block " + om_tostring(n) + ": ";
-	    message += strerror(errno);
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_read == 0) {
-	    string message = "Error reading block " + om_tostring(n) + ": got end of file";
-	    throw Xapian::DatabaseError(message);
-	} else if (bytes_read < m) {
-	    /* Read part of the block, which is not an error.  We should
-	     * continue reading the rest of the block.
-	     */
-	    m -= bytes_read;
-	    p += bytes_read;
-	}
-    }
+    flint_io_read(handle, reinterpret_cast<char *>(p), block_size, block_size);
 #endif
 }
 
@@ -437,7 +336,7 @@ FlintTable::write_block(uint4 n, const byte * p) const
 	throw Xapian::DatabaseError(message);
     }
 
-    sys_write_n_bytes(handle, block_size, (const char *)p);
+    flint_io_write(handle, reinterpret_cast<const char *>(p), block_size);
 #endif
 }
 
@@ -1653,10 +1552,10 @@ FlintTable::commit(flint_revision_number_t revision)
 	}
     }
 
-    if (!sys_sync(handle)) {
+    if (!flint_io_sync(handle)) {
 	if (!dont_close_handle) (void)::close(handle);
 	handle = -1;
-	throw Xapian::DatabaseError("Can't commit new revision - failed to close DB");
+	throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
     }
 
     if (Btree_modified) {

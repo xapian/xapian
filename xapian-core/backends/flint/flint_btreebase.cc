@@ -24,20 +24,13 @@
 #include "safeerrno.h"
 
 #include "flint_btreebase.h"
+#include "flint_io.h"
 #include "flint_utils.h"
 #include "utils.h"
 #include <xapian/error.h>
 #include "omassert.h"
 
 using namespace std;
-
-// Only useful for platforms like Windows which distinguish between text and
-// binary files.
-#ifndef __WIN32__
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
-#endif
 
 /** A tiny class used to close a filehandle safely in the presence
  *  of exceptions.
@@ -191,7 +184,7 @@ do { \
 } while(0)
 
 /* How much of the base file to read at the first go (in bytes).
- * This should be big enough that the base file without bitmap
+ * This must be big enough that the base file without bitmap
  * will fit in to this size with no problem.  Other than that
  * it's fairly arbitrary, but shouldn't be big enough to cause
  * serious memory problems!
@@ -208,10 +201,11 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
 	return false;
     }
     fdcloser closefd(h);
-    string buf(sys_read_n_bytes(h, REASONABLE_BASE_SIZE));
 
-    const char *start = buf.data();
-    const char *end = start + buf.length();
+    char buf[REASONABLE_BASE_SIZE];
+
+    const char *start = buf;
+    const char *end = buf + flint_io_read(h, buf, REASONABLE_BASE_SIZE, 0);
 
     DO_UNPACK_UINT_ERRCHECK(&start, end, revision);
     uint4 format;
@@ -225,17 +219,6 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
     DO_UNPACK_UINT_ERRCHECK(&start, end, root);
     DO_UNPACK_UINT_ERRCHECK(&start, end, level);
     DO_UNPACK_UINT_ERRCHECK(&start, end, bit_map_size);
-    /* Now that we know the size of the bit map, (possibly)
-     * read in more data from the base file in case
-     * REASONABLE_BASE_SIZE is too small.  We need to update
-     * start and end.
-     */
-    {
-	unsigned long start_offset = start - buf.data();
-	buf += sys_read_n_bytes(h, bit_map_size);
-	start = buf.data() + start_offset;
-	end = buf.data() + buf.length();
-    }
     DO_UNPACK_UINT_ERRCHECK(&start, end, item_count);
     DO_UNPACK_UINT_ERRCHECK(&start, end, last_block);
     uint4 have_fakeroot_;
@@ -266,13 +249,6 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
 	return false;
     }
 
-    /* Read the bitmap */
-    if (uint4(end - start) <= bit_map_size) {
-	err_msg += "Not enough space for bitmap in base file " +
-		basename + "\n";
-	return false;
-    }
-
     /* It's ok to delete a zero pointer */
     delete [] bit_map0;
     bit_map0 = 0;
@@ -281,13 +257,26 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
 
     bit_map0 = new byte[bit_map_size];
     bit_map = new byte[bit_map_size];
-    memcpy(bit_map0, start, bit_map_size);
+
+    size_t n = end - start;
+    memcpy(bit_map0, start, n);
+    if (n < bit_map_size) {
+	(void)flint_io_read(h, reinterpret_cast<char *>(bit_map0) + n,
+			    bit_map_size - n, bit_map_size - n);
+	n = 0;
+    } else {
+	n -= bit_map_size;
+	if (n) memmove(buf, start + bit_map_size, n);
+    }
     memcpy(bit_map, bit_map0, bit_map_size);
-    start += bit_map_size;
+
+    start = buf;
+    end = buf + n;
+    end += flint_io_read(h, buf + n, REASONABLE_BASE_SIZE - n, 0);
 
     uint4 revision3;
     if (!unpack_uint(&start, end, &revision3)) {
-	err_msg += "Couldn't read revision2 from base file " +
+	err_msg += "Couldn't read revision3 from base file " +
 	basename + "\n";
 	return false;
     }
@@ -295,7 +284,7 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
     if (revision != revision3) {
 	err_msg += "Revision number mismatch in " +
 		basename + ": " +
-		om_tostring(revision) + " vs " + om_tostring(revision2) + "\n";
+		om_tostring(revision) + " vs " + om_tostring(revision3) + "\n";
 	return false;
     }
 
@@ -335,8 +324,8 @@ FlintTable_base::write_to_file(const string &filename)
     }
     fdcloser closefd(h);
 
-    sys_write_n_bytes(h, buf.length(), buf.data());
-    sys_sync(h);
+    flint_io_write(h, buf.data(), buf.size());
+    flint_io_sync(h);
 }
 
 /*

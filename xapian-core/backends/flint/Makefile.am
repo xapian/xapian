@@ -13,11 +13,12 @@ noinst_HEADERS =       flint_types.h \
 		       flint_utils.h \
 		       flint_document.h \
 		       flint_alltermslist.h \
-		       flint_metafile.h \
 		       flint_table.h \
 		       flint_cursor.h \
 		       flint_btreeutil.h \
 		       flint_btreebase.h \
+		       flint_version.h \
+		       flint_io.h \
 		       flint_lock.h
 
 libflint_la_SOURCES =  flint_database.cc \
@@ -29,10 +30,11 @@ libflint_la_SOURCES =  flint_database.cc \
 		       flint_values.cc \
 		       flint_document.cc \
 		       flint_alltermslist.cc \
-		       flint_metafile.cc \
 		       flint_table.cc \
 		       flint_cursor.cc \
 		       flint_btreebase.cc \
+		       flint_version.cc \
+		       flint_io.cc \
 		       flint_lock.cc
 
 noinst_LTLIBRARIES = libflint.la

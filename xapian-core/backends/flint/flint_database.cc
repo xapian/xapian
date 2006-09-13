@@ -71,7 +71,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 			       unsigned int block_size)
 	: db_dir(flint_dir),
 	  readonly(action == XAPIAN_DB_READONLY),
-	  metafile(db_dir + "/iamflint"),
+	  version_file(db_dir),
 	  postlist_table(db_dir, readonly),
 	  positionlist_table(db_dir, readonly),
 	  termlist_table(db_dir, readonly),
@@ -179,7 +179,7 @@ FlintDatabase::create_and_open_tables(unsigned int block_size)
 
     // Create postlist_table first, and record_table last.  Existence of
     // record_table is considered to imply existence of the database.
-    metafile.create();
+    version_file.create();
     postlist_table.create(block_size);
     positionlist_table.create(block_size);
     termlist_table.create(block_size);
@@ -188,7 +188,6 @@ FlintDatabase::create_and_open_tables(unsigned int block_size)
 
     Assert(database_exists());
 
-    metafile.open();
     record_table.open();
     value_table.open();
     termlist_table.open();
@@ -218,7 +217,7 @@ FlintDatabase::open_tables_consistent()
     // go back and open record_table again, until record_table has
     // the same revision as the last time we opened it.
 
-    metafile.open();
+    version_file.read_and_check();
     record_table.open();
     flint_revision_number_t revision = record_table.get_open_revision_number();
 
@@ -265,7 +264,7 @@ void
 FlintDatabase::open_tables(flint_revision_number_t revision)
 {
     DEBUGCALL(DB, void, "FlintDatabase::open_tables", revision);
-    metafile.open();
+    version_file.read_and_check();
     record_table.open(revision);
     value_table.open(revision);
     termlist_table.open(revision);
