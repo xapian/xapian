@@ -26,24 +26,7 @@
 
 #include "flint_io.h"
 
-#ifdef __WIN32__
-# include <io.h> // for _commit()
-#endif
-
-bool flint_io_sync(int fd)
-{
-    // If we have it, prefer fdatasync() as it avoids updating the access time
-    // so is probably a little more efficient.
-#if defined HAVE_FDATASYNC
-    return fdatasync(fd) == 0;
-#elif defined HAVE_FSYNC
-    return fsync(fd) == 0;
-#elif defined __WIN32__
-    return _commit(fd) == 0;
-#else
-# error Cannot implement flint_io_sync() without fdatasync(), fsync(), or _commit()
-#endif
-}
+#include <unistd.h>
 
 size_t flint_io_read(int fd, char * p, size_t n, size_t min)
 {

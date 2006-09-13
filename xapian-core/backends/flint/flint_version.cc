@@ -31,6 +31,8 @@
 
 #include <string>
 
+#include <string.h> // for memcmp
+
 using std::string;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
@@ -50,10 +52,10 @@ void FlintVersion::create()
 {
     char buf[VERSIONFILE_SIZE] = MAGIC_STRING;
     unsigned char *v = reinterpret_cast<unsigned char *>(buf) + MAGIC_LEN;
-    v[0] = FLINT_VERSION;
-    v[1] = FLINT_VERSION >> 8;
-    v[2] = FLINT_VERSION >> 16;
-    v[3] = FLINT_VERSION >> 24;
+    v[0] = char(FLINT_VERSION);
+    v[1] = char(FLINT_VERSION >> 8);
+    v[2] = char(FLINT_VERSION >> 16);
+    v[3] = char(FLINT_VERSION >> 24);
 
     int fd = ::open(filename.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
 

@@ -24,6 +24,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
+
+#ifdef __WIN32__
+# include <io.h> // for _commit()
+#endif
 
 /* O_BINARY is only meaningful (and defined) on platforms which still make
  * the somewhat antiquated distinction between text and binary files.
@@ -39,7 +44,20 @@
  *
  *  Returns false if this could not be done.
  */
-bool flint_io_sync(int fd);
+inline bool flint_io_sync(int fd)
+{
+    // If we have it, prefer fdatasync() as it avoids updating the access time
+    // so is probably a little more efficient.
+#if defined HAVE_FDATASYNC
+    return fdatasync(fd) == 0;
+#elif defined HAVE_FSYNC
+    return fsync(fd) == 0;
+#elif defined __WIN32__
+    return _commit(fd) == 0;
+#else
+# error Cannot implement flint_io_sync() without fdatasync(), fsync(), or _commit()
+#endif
+}
 
 /** Read n bytes (or until EOF) into block pointed to by p from file descriptor
  *  fd.
