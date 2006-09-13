@@ -29,7 +29,7 @@ dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 dnl Check for headers.
-AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h])
+AC_CHECK_HEADERS([stdint.h netinet/in.h arpa/inet.h sys/wait.h])
 
 dnl Check for time functions.
 AC_FUNC_STRFTIME

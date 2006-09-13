@@ -20,20 +20,23 @@
 #include <string>
 
 // Include these to get uint32_t and htonl, etc.
+#ifdef HAVE_STDINT_H
+# include <stdint.h>
+#endif
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
 #endif
-#if defined __WIN32__ || defined __DJGPP__
-# define uint32_t unsigned int
-# ifdef __WIN32__
+#ifdef __WIN32__
+# ifndef HAVE_STDINT_H
+typedef unsigned int uint32_t;
+# endif
 inline uint32_t htonl(uint32_t v) {
     return (v << 24) | ((v & 0xff00) << 8) | ((v >> 8) & 0xff00) | (v >> 24);
 }
-#  define ntohl(V) htonl(V)
-# endif
+# define ntohl(V) htonl(V)
 #endif
 
 enum value_slot {
