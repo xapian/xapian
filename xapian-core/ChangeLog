@@ -1,3 +1,10 @@
+Thu Sep 14 23:49:48 BST 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/,tests/queryparsertest.cc: Update to work with UTF-8.
+	  Stop normalising accents - the general sentiment seems to be firmly
+	  against it, and where it is still appropriate we should get the
+	  stemmers to do it.
+
 Thu Sep 14 02:01:58 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_version.cc: Fix warning from GCC 4.1.0.
