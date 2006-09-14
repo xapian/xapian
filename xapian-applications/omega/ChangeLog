@@ -1,3 +1,7 @@
+Thu Sep 14 15:41:33 BST 2006  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc: Include <stdlib.h> so atoi() is prototyped.
+
 Wed Sep 13 16:37:32 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,md5.h,values.h: Use stdint.h if we have it.

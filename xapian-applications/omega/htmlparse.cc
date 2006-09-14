@@ -27,6 +27,7 @@ using std::find;
 using std::find_if;
 #include "htmlparse.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 map<string, unsigned int> HtmlParser::named_ents;
