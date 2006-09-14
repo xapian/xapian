@@ -1,3 +1,11 @@
+Thu Sep 14 23:55:20 BST 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,htmlparse.cc,htmlparse.h,indextext.cc,indextext.h,
+	  makesymboltabh.pl,myhtmlparse.cc,myhtmlparse.h,namedentities.h,
+	  omindex.cc,query.cc,scriptindex.cc,symboltab.h,tclUniData.cc,
+	  tclUniData.h,utf8convert.cc,utf8convert.h,utf8itor.cc,utf8itor.h,
+	  utf8test.cc: Convert to work in UTF-8.
+
 Thu Sep 14 15:41:33 BST 2006  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc: Include <stdlib.h> so atoi() is prototyped.

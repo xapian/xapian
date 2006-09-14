@@ -516,9 +516,14 @@ index_file(const char *fname, istream &stream,
 			    value = hash_long_term(value, max_length);
 			break;
 		    }
-		    case Action::LOWER:
-			lowercase_term(value);
+		    case Action::LOWER: {
+			string::iterator i = value.begin();
+			while (i != value.end()) {
+			    *i = tolower(*i);
+			    i++;
+			}
 			break;
+		    }
 		    case Action::LOAD: {
 			bool truncated = false;
 			if (!load_file(value, i->get_num_arg(), true,

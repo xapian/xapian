@@ -1,8 +1,7 @@
 /* myhtmlparse.cc: subclass of HtmlParser for extracting text
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,14 +15,30 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include "myhtmlparse.h"
 
-#include "indextext.h" // for lowercase_term()
+inline void
+lowercase_string(string &term)
+{
+    string::iterator i = term.begin();
+    while (i != term.end()) {
+	*i = tolower(*i);
+	i++;
+    }
+}
+
+void
+MyHtmlParser::parse_html(const string &text)
+{
+    // Default HTML character set is latin 1, though not specifying one is
+    // deprecated these days.
+    charset = "ISO-8859-1";
+    HtmlParser::parse_html(text);
+}
 
 #include <string.h>
 
@@ -106,7 +121,7 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 		if ((i = p.find("content")) != p.end()) {
 		    if ((j = p.find("name")) != p.end()) {
 			string name = j->second;
-			lowercase_term(name);
+			lowercase_string(name);
 			if (name == "description") {
 			    if (sample.empty()) {
 				sample = i->second;
@@ -120,12 +135,44 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 			} else if (name == "robots") {
 			    string val = i->second;
 			    decode_entities(val);
-			    lowercase_term(val);
+			    lowercase_string(val);
 			    if (val.find("none") != string::npos ||
 				val.find("noindex") != string::npos) {
 				indexing_allowed = false;
 				throw true;
 			    }
+			}
+		    }
+		    if ((j = p.find("http-equiv")) != p.end()) {
+			string hdr = j->second;
+			lowercase_string(hdr);
+			if (hdr == "content-type") {
+			    string value = i->second;
+			    lowercase_string(value);
+			    size_t i = value.find("charset=");
+			    if (i == string::npos) break;
+			    i += 8;
+			    if (i == value.size()) break;
+			    size_t end = i;
+			    if (value[i] != '"') {
+				while (end < value.size()) {
+				    unsigned char ch = value[end];
+				    if (ch <= 32 || ch >= 127 ||
+					strchr(";()<>@,:\\\"/[]?={}", ch))
+					break;
+				    ++end;
+				}
+			    } else {
+				++i;
+				++end;
+				while (end < value.size()) {
+				    unsigned char ch = value[end];
+				    if (ch == '"') break;
+				    if (ch == '\\') value.erase(end, 1);
+				    ++end;
+				}
+			    }
+			    charset = value.substr(i, end - i);
 			}
 		    }
 		}

@@ -48,6 +48,7 @@
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "myhtmlparse.h"
+#include "utf8convert.h"
 #include "utils.h"
 #include "values.h"
 #include "xmlparse.h"
@@ -73,6 +74,9 @@
 #endif
 
 using namespace std;
+
+#define TITLE_SIZE 128
+#define SAMPLE_SIZE 512
 
 #define PROG_NAME "omindex"
 #define PROG_DESC "Index static website data via the filesystem"
@@ -108,7 +112,26 @@ truncate_to_word(string & input, string::size_type maxlen)
 	if (space != string::npos && space > maxlen / 2) {
 	    string::size_type nonspace;
 	    nonspace = output.find_last_not_of(WHITESPACE, space);
-	    if (nonspace != string::npos) output.erase(nonspace);
+	    if (nonspace != string::npos) output.resize(nonspace + 1);
+	} else {
+	    // Trim off any partial UTF-8 character.
+	    size_t l = output.size();
+	    while (l && (output[l - 1] & 0xc0) == 0x80) --l;
+	    switch (output.size() - l) {
+		case 0:
+		    l = string::npos;
+		    break;
+		case 1:
+		    if ((output[l - 1] & 0xe0) == 0xc0) l = string::npos;
+		    break;
+		case 2:
+		    if ((output[l - 1] & 0xf0) == 0xe0) l = string::npos;
+		    break;
+		case 3:
+		    if ((output[l - 1] & 0xf8) == 0xf0) l = string::npos;
+		    break;
+	    }
+	    if (l != string::npos) output.resize(l - 1);
 	}
 
 	if (output.length() == maxlen && !isspace(input[maxlen])) {
@@ -230,6 +253,8 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	md5_string(text, md5);
     } else if (mimetype == "text/plain") {
 	try {
+	    // Currently we assume that text files are UTF-8.
+	    // FIXME: What charset is the file?  Look for BOM?  Look at contents?
 	    dump = file_to_string(file);
 	} catch (ReadError) {
 	    cout << "can't read \"" << file << "\" - skipping\n";
@@ -238,8 +263,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	md5_string(dump, md5);
     } else if (mimetype == "application/pdf") {
 	string safefile = shell_protect(file);
-	string cmd = "pdftotext " + safefile + " -";
-	//string cmd = "pdftotext -enc UTF-8 " + safefile + " -";
+	string cmd = "pdftotext -enc UTF-8 " + safefile + " -";
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
@@ -248,8 +272,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	}
 
 	try {
-	    string pdfinfo = stdout_to_string("pdfinfo " + safefile);
-	    //string pdfinfo = stdout_to_string("pdfinfo -enc UTF-8 " + safefile);
+	    string pdfinfo = stdout_to_string("pdfinfo -enc UTF-8 " + safefile);
 
 	    string::size_type idx;
 
@@ -288,9 +311,12 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    // It's probably best to index the document even if pdfinfo fails.
 	}
     } else if (mimetype == "application/postscript") {
+	// pstotext always outputs ISO-8859-1.  There doesn't seem to be a
+	// unicode capable PostScript to text convertor.
 	string cmd = "pstotext " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
+	    convert_to_utf8(dump, "ISO-8859-1");
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
@@ -303,7 +329,6 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	string cmd = "unzip -p " + safefile + " content.xml";
 	try {
 	    XmlParser xmlparser;
-	    // <?xml version="1.0" encoding="UTF-8"?>
 	    xmlparser.parse_html(stdout_to_string(cmd));
 	    dump = xmlparser.dump;
 	} catch (ReadError) {
@@ -314,7 +339,6 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	cmd = "unzip -p " + safefile + " meta.xml";
 	try {
 	    MetaXmlParser metaxmlparser;
-	    // <?xml version="1.0" encoding="UTF-8"?>
 	    metaxmlparser.parse_html(stdout_to_string(cmd));
 	    title = metaxmlparser.title;
 	    keywords = metaxmlparser.keywords;
@@ -323,7 +347,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    // It's probably best to index the document even if this fails.
 	}
     } else if (mimetype == "application/msword") {
-	string cmd = "antiword " + shell_protect(file);
+	string cmd = "antiword -mUTF-8.txt " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
@@ -331,8 +355,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-excel") {
-	string cmd = "xls2csv -q0 -d8859-1 " + shell_protect(file);
-	//string cmd = "xls2csv -q0 -dutf-8 " + shell_protect(file);
+	string cmd = "xls2csv -q0 -dutf-8 " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
@@ -340,8 +363,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-powerpoint") {
-	string cmd = "catppt -d8859-1 " + shell_protect(file);
-	//string cmd = "catppt -dutf-8 " + shell_protect(file);
+	string cmd = "catppt -dutf-8 " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
@@ -349,6 +371,9 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    return;
 	}
     } else if (mimetype == "application/vnd.wordperfect") {
+	// Looking at the source of wpd2html and wpd2text I think both output
+	// utf-8, but it's hard to be sure without sample Unicode .wpd files
+	// as they don't seem to be at all well documented.
 	string cmd = "wpd2text " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
@@ -357,19 +382,34 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    return;
 	}
     } else if (mimetype == "text/rtf") {
-	string cmd = "unrtf --nopict --text 2>/dev/null " +
-		     shell_protect(file) +
-		     "|sed '/^### .*/d'";
+	// The --text option unhelpfully converts all non-ASCII characters to
+	// "?" so we use --html instead, which write HTML entities.
+	string cmd = "unrtf --nopict --html 2>/dev/null " + shell_protect(file);
+	MyHtmlParser p;
 	try {
-	    dump = stdout_to_string(cmd);
+	    p.parse_html(stdout_to_string(cmd));
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
+	} catch (bool) {
+	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
+	    // indexing is disallowed
 	}
+	if (!p.indexing_allowed) {
+	    cout << "indexing disallowed by meta tag - skipping\n";
+	    return;
+	}
+	dump = p.dump;
+	title = p.title;
+	keywords = p.keywords;
+	sample = p.sample;
     } else if (mimetype == "text/x-perl") {
+	// pod2text's output character set doesn't seem to be documented, but
+	// from inspecting the source it looks like it's probably iso-8859-1.
 	string cmd = "pod2text " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
+	    convert_to_utf8(dump, "ISO-8859-1");
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
@@ -388,16 +428,16 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 
     // Produce a sample
     if (sample.empty()) {
-	sample = truncate_to_word(dump, 300);
+	sample = truncate_to_word(dump, SAMPLE_SIZE);
     } else {
-	sample = truncate_to_word(sample, 300);
+	sample = truncate_to_word(sample, SAMPLE_SIZE);
     }
 
     // Put the data in the document
     Xapian::Document newdocument;
     string record = "url=" + baseurl + url + "\nsample=" + sample;
     if (!title.empty()) {
-	record += "\ncaption=" + truncate_to_word(title, 100);
+	record += "\ncaption=" + truncate_to_word(title, TITLE_SIZE);
     }
     record += "\ntype=" + mimetype;
     if (last_mod != (time_t)-1)

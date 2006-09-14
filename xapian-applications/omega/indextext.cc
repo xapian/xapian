@@ -1,4 +1,4 @@
-/* indextext.cc: split text into terms
+/* indextext.cc: tokenise text to produce terms
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
@@ -23,18 +23,10 @@
 #include <config.h>
 
 #include "indextext.h"
-
-#include "symboltab.h"
-
-#include <ctype.h>
+#include "tclUniData.h"
+#include "utf8itor.h"
 
 using namespace std;
-
-inline static bool
-p_plusminus(unsigned int c)
-{
-    return c == '+' || c == '-';
-}
 
 Xapian::termpos
 index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
@@ -49,60 +41,63 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 	rprefix += ':';
     rprefix += 'R';
 
-    AccentNormalisingItor j(s.begin());
-    const AccentNormalisingItor s_end(s.end());
+    char buf[4];
+
+    Utf8Iterator j(s);
+    const Utf8Iterator s_end;
     while (true) {
-	AccentNormalisingItor first = j;
-	while (first != s_end && !isalnum(*first)) ++first;
+	Utf8Iterator first = j;
+	while (first != s_end && !is_wordchar(*first)) ++first;
 	if (first == s_end) break;
-	AccentNormalisingItor last;
+	Utf8Iterator last;
 	string term;
-	if (isupper(*first)) {
+	if (*first < 128 && isupper(*first)) {
 	    j = first;
-	    term = *j;
-	    while (++j != s_end && *j == '.' && ++j != s_end && isupper(*j)) {
-		term += *j;
-	    } 
-	    if (term.length() < 2 || (j != s_end && isalnum(*j))) {
+	    term.append(buf, to_utf8(*j, buf));
+	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && isupper(*j)) {
+		term.append(buf, to_utf8(*j, buf));
+	    }
+	    if (term.length() < 2 || (j != s_end && is_wordchar(*j))) {
 		term = "";
 	    }
 	    last = j;
 	}
 	if (term.empty()) {
 	    j = first;
-	    while (isalnum(*j)) {
-		term += *j;
+	    while (is_wordchar(*j)) {
+		term.append(buf, to_utf8(*j, buf));
 		++j;
 		if (j == s_end) break;
 		if (*j == '&') {
-		    AccentNormalisingItor next = j;
+		    Utf8Iterator next = j;
 		    ++next;
-		    if (next == s_end || !isalnum(*next)) break;
+		    if (next == s_end || !is_wordchar(*next)) break;
 		    term += '&';
 		    j = next;
 		}
 	    }
 	    last = j;
-	    if (j != s_end && (*j == '#' || p_plusminus(*j))) {
+	    if (j != s_end && (*j == '+' || *j == '-' || *j == '#')) {
 		string::size_type len = term.length();
 		if (*j == '#') {
 		    term += '#';
 		    do { ++j; } while (j != s_end && *j == '#');
 		} else {
-		    while (j != s_end && p_plusminus(*j)) {
-			term += *j;
+		    while (j != s_end && (*j == '+' || *j == '-')) {
+			term.append(buf, to_utf8(*j, buf));
 			++j;
 		    }
 		}
-		if (term.size() - len > 3 || (j != s_end && isalnum(*j))) {
+		if (term.size() - len > 3 || (j != s_end && is_wordchar(*j))) {
 		    term.resize(len);
 		} else {
 		    last = j;
 		}
 	    }
 	}
+	j = last;
 	if (term.length() <= MAX_PROB_TERM_LENGTH) {
-	    lowercase_term(term);
+	    term = U_downcase_term(term);
 	    if (isupper(*first)) {
 		if (pos != static_cast<Xapian::termpos>(-1)
 			// Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()

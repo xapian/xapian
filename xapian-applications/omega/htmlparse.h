@@ -32,6 +32,7 @@ class HtmlParser {
     protected:
 	void decode_entities(string &s);
 	bool in_script;
+	string charset;
 	static map<string, unsigned int> named_ents;
     public:
 	virtual void process_text(const string &/*text*/) { }
