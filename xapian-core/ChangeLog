@@ -1,3 +1,10 @@
+Fri Sep 15 06:29:55 BST 2006  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: 1/DBL_MAX may be less than DBL_MIN but on
+	  platforms like x86 which hold results in registers with extra
+	  precision, this is still representable, but not reliably so
+	  the test sometimes fails.
+
 Fri Sep 15 02:40:52 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_btreebase.cc: Avoid copying beyond the end of

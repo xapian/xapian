@@ -233,14 +233,18 @@ static bool test_serialisedouble1()
 	123.1,
 	257.12,
 	1234.567e123,
-	1.0,
 	255.5,
 	256.125,
 	257.03125,
-	DBL_MAX
     };
 
     check_double_serialisation(0.0);
+    check_double_serialisation(1.0);
+    check_double_serialisation(-1.0);
+    check_double_serialisation(DBL_MAX);
+    check_double_serialisation(-DBL_MAX);
+    check_double_serialisation(DBL_MIN);
+    check_double_serialisation(-DBL_MIN);
 
     const double *p;
     for (p = test_values; p < test_values + sizeof(test_values) / sizeof(double); ++p) {
