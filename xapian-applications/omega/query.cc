@@ -34,6 +34,10 @@
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
+#include <string.h>
+#ifdef HAVE_STRINGS_H
+# include <strings.h> // Needed on Solaris for strcasecmp
+#endif
 #include <time.h>
 
 #include <unistd.h>
