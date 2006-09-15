@@ -1,3 +1,7 @@
+Fri Sep 15 06:03:50 BST 2006  Olly Betts <olly@survex.com>
+
+	* utf8convert.cc: Compilation fix for Sun C++.
+
 Thu Sep 14 23:55:20 BST 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,htmlparse.cc,htmlparse.h,indextext.cc,indextext.h,

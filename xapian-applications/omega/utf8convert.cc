@@ -26,6 +26,9 @@
 #include <errno.h>
 #include <iconv.h>
 #include <string.h>
+#ifdef HAVE_STRINGS_H
+# include <strings.h> // Needed on Solaris for strcasecmp
+#endif
 
 #ifdef _MSC_VER
 # define strcasecmp stricmp
