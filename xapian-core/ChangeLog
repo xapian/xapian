@@ -1,3 +1,8 @@
+Fri Sep 15 02:40:52 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_btreebase.cc: Avoid copying beyond the end of
+	  the bitmap block.
+
 Thu Sep 14 02:01:58 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_version.cc: Fix warning from GCC 4.1.0.

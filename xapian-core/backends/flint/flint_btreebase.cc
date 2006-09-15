@@ -259,12 +259,13 @@ FlintTable_base::read(const string & name, char ch, string &err_msg)
     bit_map = new byte[bit_map_size];
 
     size_t n = end - start;
-    memcpy(bit_map0, start, n);
     if (n < bit_map_size) {
+	memcpy(bit_map0, start, n);
 	(void)flint_io_read(h, reinterpret_cast<char *>(bit_map0) + n,
 			    bit_map_size - n, bit_map_size - n);
 	n = 0;
     } else {
+	memcpy(bit_map0, start, bit_map_size);
 	n -= bit_map_size;
 	if (n) memmove(buf, start + bit_map_size, n);
     }
