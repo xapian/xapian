@@ -1,3 +1,7 @@
+Fri Sep 15 16:56:49 BST 2006  Olly Betts <olly@survex.com>
+
+	* cgiparam.cc: Compilation fix for Sun C++.
+
 Fri Sep 15 06:00:50 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,query.cc: Compilation fix for Sun C++.
