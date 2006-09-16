@@ -1,3 +1,8 @@
+Sat Sep 16 02:13:22 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/xapian-progsrv.cc: Fix messages send by xapian-progsrv if an
+	  exception is thrown while opening the database.
+
 Fri Sep 15 06:29:55 BST 2006  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: 1/DBL_MAX may be less than DBL_MIN but on

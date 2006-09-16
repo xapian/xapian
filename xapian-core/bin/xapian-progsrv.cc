@@ -77,9 +77,12 @@ int main(int argc, char **argv) {
 	    }
 	}
     } catch (const Xapian::Error &e) {
-	cout << '?' << serialise_error(e) << flush;
+	// FIXME: we shouldn't build messages by hand here.
+	string msg = serialise_error(e);
+	cout << char(REPLY_EXCEPTION) << encode_length(msg) << msg << flush;
     } catch (...) {
-	cout << '?' << '\0' << flush;
+	// FIXME: we shouldn't build messages by hand here.
+	cout << char(REPLY_EXCEPTION) << encode_length(0) << flush;
     }
 
     /* Catch exceptions from running the server, but don't pass them
