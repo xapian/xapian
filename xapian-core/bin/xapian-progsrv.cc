@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
     } catch (const Xapian::Error &e) {
 	// FIXME: we shouldn't build messages by hand here.
 	string msg = serialise_error(e);
-	cout << char(REPLY_EXCEPTION) << encode_length(msg) << msg << flush;
+	cout << char(REPLY_EXCEPTION) << encode_length(msg.size()) << msg << flush;
     } catch (...) {
 	// FIXME: we shouldn't build messages by hand here.
 	cout << char(REPLY_EXCEPTION) << encode_length(0) << flush;

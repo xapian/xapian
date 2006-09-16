@@ -1,3 +1,7 @@
+Sat Sep 16 03:04:57 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/xapian-progsrv.cc: Oops, fix compilation error.
+
 Sat Sep 16 02:13:22 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/xapian-progsrv.cc: Fix messages send by xapian-progsrv if an
