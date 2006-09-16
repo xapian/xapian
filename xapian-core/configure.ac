@@ -258,7 +258,10 @@ else
       dnl Select ANSI mode ('-std strict_ansi' is needed for ANSI iostream
       dnl as '-std ansi' gives a pre-standard AT&T-compatible version).
       dnl If this proves to be a problem, try '-std ansi -D__USE_STD_IOSTREAM'
-      ANSI_CXXFLAGS="-std strict_ansi" ;;
+      ANSI_CXXFLAGS="-std strict_ansi"
+      dnl Check that the compiler recognises these flags to avoid problems
+      dnl with other compilers named cxx.
+      AC_TRY_COMPILE([], [], , ANSI_CXXFLAGS=) ;;
     CC|*/CC)
       dnl Could be Sun's, SGI's, or something else entirely.
       dnl FIXME Don't know how to detect SGI's CC so just try the SGI flags if
@@ -267,20 +270,20 @@ else
       *Sun\ C++*)
 	dnl Select ANSI conforming STL - for more information see:
 	dnl http://developers.sun.com/prodtech/cc/articles/cmp_stlport_libCstd.html
-	ANSI_CXXFLAGS="-library=stlport4" ;;
+	dnl and:
+	dnl http://developers.sun.com/prodtech/cc/documentation/ss9_docs/mr/READMEs/c++_faq.html#bb13
+	dnl (Looks like -features=tmplife was added around 2000 so just pass
+	dnl it unconditionally)
+	ANSI_CXXFLAGS="-library=stlport4 -features=tmplife" ;;
       *)
 	dnl Select ANSI mode for SGI's CC
-	ANSI_CXXFLAGS="-LANG:std" ;;
+	ANSI_CXXFLAGS="-LANG:std"
+	dnl Check that the compiler recognises these flags to avoid problems
+	dnl with other compilers named CC.
+	AC_TRY_COMPILE([], [], , ANSI_CXXFLAGS=) ;;
       esac
       ;;
   esac
-
-  dnl Check that the compiler recognises any flags we picked above to avoid
-  dnl problems with compilers whose names clash with those above.
-  dnl E.g. Solaris, FreeBSD, and MacOS X all have a "CC" which isn't SGI's.
-  if test -n "$ANSI_CXXFLAGS" ; then
-    AC_TRY_COMPILE([], [], , ANSI_CXXFLAGS=)
-  fi
 
   if test -n "$ANSI_CXXFLAGS" ; then
     AC_MSG_RESULT([$ANSI_CXXFLAGS])
