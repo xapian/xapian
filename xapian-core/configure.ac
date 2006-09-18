@@ -304,6 +304,17 @@ dnl Make 'xapian-config --cxxflags' turn on any such flags for code linking
 dnl with Xapian.
 AC_SUBST(ANSI_CXXFLAGS)
 
+dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
+AC_MSG_CHECKING([if -lm is required for maths functions])
+AC_TRY_LINK([#include <math.h>], [double a = log(42);], [AC_MSG_RESULT(no)], [
+    saved_LIBS=$LIBS
+    LIBS="-lm $LIBS"
+    AC_TRY_LINK([#include <math.h>], [double a = log(42);],
+	[AC_MSG_RESULT(yes)],
+	[AC_MSG_ERROR([Failed to link a C++ program using log()])
+    ])
+])
+    
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 

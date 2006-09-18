@@ -1,6 +1,11 @@
+Mon Sep 18 07:03:51 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: We reportedly need "-lm" to get maths functions on
+	  some versions of Sun's C++ compiler.
+
 Sat Sep 16 12:08:25 BST 2006  Olly Betts <olly@survex.com>
 
-	* configure.ac: Sun's C++ compiler implements non-standards conforming
+	* configure.ac: Sun's C++ compiler implements non-standards-conforming
 	  lifetimes for temporary objects (for "backwards compatibility" with
 	  old Sun C++ specific code).  We don't care about such code, so
 	  always pass "-features=tmplife" for Sun C++.
