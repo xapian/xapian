@@ -1,3 +1,8 @@
+Mon Sep 18 22:58:19 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Xapian::Weight's copy constructor should
+	  be private not protected (direct copying isn't allowed).
+
 Mon Sep 18 07:03:51 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: We reportedly need "-lm" to get maths functions on

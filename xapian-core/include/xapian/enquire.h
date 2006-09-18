@@ -1026,9 +1026,8 @@ class Weight {
     friend class ::RemoteServer; // So RemoteServer can clone us - FIXME
     public:
 	class Internal;
-    protected:
-	Weight(const Weight &);
     private:
+	Weight(const Weight &);
 	void operator=(Weight &);
 
 	/** Return a new weight object of this type.
