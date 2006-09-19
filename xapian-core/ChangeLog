@@ -1,3 +1,9 @@
+Tue Sep 19 06:28:47 BST 2006  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Check that the the destructor on a temporary
+	  object gets called at the correct time (Sun C++ deliberately gets
+	  this wrong by default).
+
 Tue Sep 19 04:32:04 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Revert change to Xapian::Weight's copy

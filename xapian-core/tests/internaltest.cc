@@ -278,6 +278,30 @@ static bool test_serialisedoc1()
     return true;
 }
 
+// By default Sun's C++ compiler doesn't call the destructor on a
+// temporary object until the end of the block (contrary to what
+// ISO C++ requires).  This is done in the name of "compatibility".
+// Passing -features=tmplife to CC fixes this.  This check ensures
+// that this actually works for Sun's C++ and any other compilers
+// that might have this problem.
+struct TempDtorTest {
+    static int count;
+    static TempDtorTest factory() { return TempDtorTest(); }
+    TempDtorTest() { ++count; }
+    ~TempDtorTest() { --count; }
+};
+
+int TempDtorTest::count = 0;
+
+static bool test_temporarydtor1()
+{
+    TEST_EQUAL(TempDtorTest::count, 0);
+    TempDtorTest::factory();
+    TEST_EQUAL(TempDtorTest::count, 0);
+
+    return true;
+}
+
 // ##################################################################
 // # End of actual tests                                            #
 // ##################################################################
@@ -293,6 +317,7 @@ test_desc tests[] = {
     {"serialiselength1",	test_serialiselength1},
     {"serialisedouble1",	test_serialisedouble1},
     {"serialisedoc1",		test_serialisedoc1},
+    {"temporarydtor1",		test_temporarydtor1},
     {0, 0}
 };
 
