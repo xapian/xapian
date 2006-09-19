@@ -305,11 +305,12 @@ dnl with Xapian.
 AC_SUBST(ANSI_CXXFLAGS)
 
 dnl Some versions of Sun's C++ compiler reportedly need an explicit -lm.
+dnl The maths functions we use include: exp log ceil fabs sqrt
 AC_MSG_CHECKING([if -lm is required for maths functions])
-AC_TRY_LINK([#include <math.h>], [double a = log(42);], [AC_MSG_RESULT(no)], [
+AC_TRY_LINK([#include <math.h>], [double a = log(42.0);], [AC_MSG_RESULT(no)], [
     saved_LIBS=$LIBS
     LIBS="-lm $LIBS"
-    AC_TRY_LINK([#include <math.h>], [double a = log(42);],
+    AC_TRY_LINK([#include <math.h>], [double a = log(42.0);],
 	[AC_MSG_RESULT(yes)],
 	[AC_MSG_ERROR([Failed to link a C++ program using log()])
     ])

@@ -1,3 +1,8 @@
+Tue Sep 19 04:01:14 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Make the argument of log() a double to avoid
+	  potential compiler warnings.
+
 Mon Sep 18 22:58:19 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: Xapian::Weight's copy constructor should
