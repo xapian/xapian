@@ -1,3 +1,8 @@
+Tue Sep 19 04:32:04 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Revert change to Xapian::Weight's copy
+	  constructor because it prevents Omega from compiling.
+
 Tue Sep 19 04:01:14 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Make the argument of log() a double to avoid
