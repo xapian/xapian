@@ -103,7 +103,7 @@ fi
 dnl Need 1.5 for AM_CXXFLAGS, etc; also so generated files in EXTRA_DIST work
 dnl Need 1.6.3 for tests/internaltest to build with Solaris make
 dnl 1.8.5 contains a lot of fixes over 1.6.3
-AM_INIT_AUTOMAKE([1.8.5])
+AM_INIT_AUTOMAKE([1.8.5 -Wportability])
 AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 
 AC_CONFIG_HEADERS(config.h)

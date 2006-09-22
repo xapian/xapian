@@ -1,3 +1,8 @@
+Fri Sep 22 03:30:25 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Turn on -Wportability to help ensure our Makefile.am's
+	  are written in a portable way.
+
 Fri Sep 22 03:29:25 BST 2006  Olly Betts <olly@survex.com>
 
 	* tests/runtest.in: Turn on GLIBCXX_FORCE_NEW when running tests under
