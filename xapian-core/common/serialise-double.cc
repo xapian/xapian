@@ -96,7 +96,7 @@ std::string serialise_double(double v)
 
     if (exp <= 6 && exp >= -7) {
 	unsigned char b = static_cast<unsigned char>(exp + 7);
-	if (negative) b |= char(0x80);
+	if (negative) b |= static_cast<unsigned char>(0x80);
 	result += char(b);
     } else {
 	if (exp >= -128 && exp < 127) {

@@ -1,3 +1,7 @@
+Fri Sep 22 07:48:32 BST 2006  Olly Betts <olly@survex.com>
+
+	* common/serialise-double.cc: Fix warning with aCC.
+
 Fri Sep 22 04:43:06 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Expand note on _GLIBCXX_DEBUG;  Now using autoconf 2.60 for
