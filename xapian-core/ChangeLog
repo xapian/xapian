@@ -1,3 +1,11 @@
+Fri Sep 22 04:43:06 BST 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Expand note on _GLIBCXX_DEBUG;  Now using autoconf 2.60 for
+	  snapshots and releases;  Now using a libtool patch which improves
+	  support for -library=stlport4 with Sun's C++;  Give URL to Alexandre
+	  Duret-Lutz's autotools tutorial, which is much more up-to-date than
+	  the "goat book".
+
 Fri Sep 22 04:42:08 BST 2006  Olly Betts <olly@survex.com>
 
 	* common/serialise-double.cc: Fix a few compiler warnings.

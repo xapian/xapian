@@ -151,11 +151,17 @@ which you might find useful:
 Using various debugging, profiling, and leak-finding tools:
 ===========================================================
 
-To turn on debugging iterators, etc in the GNU C++ STL (note: all C++ code must
-be compiled with this defined or you'll get problems - Xapian 0.9.7 and later
-add a suitable check to xapian/version.h to prevent you making this mistake):
+If you're using GCC 3.4 or newer, you can turn on debugging iterators, etc in
+the GNU C++ STL by defining _GLIBCXX_DEBUG:
 
   ./configure CPPFLAGS=-D_GLIBCXX_DEBUG
+
+For documentation of this option, see:
+http://gcc.gnu.org/onlinedocs/libstdc++/debug.html
+
+Note: all C++ code must be compiled with this defined or you'll get problems -
+Xapian 0.9.7 and later add a suitable check to xapian/version.h to prevent you
+making this mistake.
 
 To use valgrind (http://www.valgrind.org/), no special build options are
 required, but make sure you compile with debugging information (on by default
@@ -219,7 +225,9 @@ writing, we require the following versions:
 		2.57 fixes the annoying chmod warning on FreeBSD.  2.54 is
 		required by automake 1.6.3; autoconf 2.50 is needed for many
 		reasons anyway.  automake 1.8.5 needs at least 2.58, and 2.59
-		was released the same day as 2.58 to fix a problem.
+		was released the same day as 2.58 to fix a problem.  Currently
+		snapshots and release tarballs are generated with autoconf 2.60
+		but this isn't yet a hard requirement.
 
 	automake (GNU automake) 1.8.5
 		automake 1.4 has problems with "make dist" in a VPATH build,
@@ -262,6 +270,16 @@ writing, we require the following versions:
 
 		http://article.gmane.org/gmane.comp.gnu.libtool.general/7083
 
+		A fix for compiling with -library=stlport4 using Sun C++.
+		This thread discusses the patches:
+		
+		http://thread.gmane.org/gmane.comp.gnu.libtool.patches/7041
+
+		The complete patch isn't there in one piece - it was extracted
+		from branch branch-1-5 of libtool's CVS using:
+		
+		cvs diff -r1.314.2.160 -r1.314.2.162 libtool.m4
+
 		And 2 fixes for regressions on BSDs introduced in 1.5.22:
 
 		http://article.gmane.org/gmane.comp.gnu.libtool.patches/6862
@@ -283,8 +301,8 @@ these in the ACLOCAL_FLAGS environment variable, e.g.:
 
 ACLOCAL_FLAGS=-I/extra/macro/directory ./bootstrap
 
-There is a good overview of the GNU autotools at
-<http://sources.redhat.com/autobook/>.
+There is a good GNU autotools tutorial at
+<http://www-src.lip6.fr/homepages/Alexandre.Duret-Lutz/autotools.html>.
 
 If you want to be able to build distribution tarballs (with "make dist") then
 you'll also need some further tools.  The build system is designed to fail with
