@@ -1,3 +1,8 @@
+Fri Sep 22 03:39:12 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/version_h.cc: Only check _GLIBCXX_DEBUG for GCC 3.4
+	  and later (which are the versions which support it).
+
 Fri Sep 22 03:37:02 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/xapian-tcpsrv.cc: Report errno if we catch a Xapian::Error which
