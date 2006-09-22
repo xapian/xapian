@@ -1,3 +1,8 @@
+Fri Sep 22 03:37:02 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/xapian-tcpsrv.cc: Report errno if we catch a Xapian::Error which
+	  has it set.
+
 Fri Sep 22 03:30:25 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Turn on -Wportability to help ensure our Makefile.am's
