@@ -95,18 +95,18 @@ std::string serialise_double(double v)
     string result;
 
     if (exp <= 6 && exp >= -7) {
-	unsigned char b = (unsigned char)(exp + 7);
-	if (negative) b |= '\x80';
+	unsigned char b = static_cast<unsigned char>(exp + 7);
+	if (negative) b |= char(0x80);
 	result += char(b);
     } else {
 	if (exp >= -128 && exp < 127) {
-	    result += negative ? '\x8e' : '\x0e';
+	    result += negative ? char(0x8e) : char(0x0e);
 	    result += char(exp + 128);
 	} else {
 	    if (exp < -32768 || exp > 32767) {
 		throw Xapian::InternalError("Insane exponent in floating point number");
 	    }
-	    result += negative ? '\x8f' : '\x0f';
+	    result += negative ? char(0x8f) : char(0x0f);
 	    result += char(unsigned(exp + 32768) & 0xff);
 	    result += char(unsigned(exp + 32768) >> 8);
 	}
@@ -125,7 +125,7 @@ std::string serialise_double(double v)
     n = result.size() - n;
     if (n > 1) {
 	Assert(n <= 8);
-	result[0] = (unsigned char)result[0] | ((n - 1) << 4);
+	result[0] = static_cast<unsigned char>(result[0] | ((n - 1) << 4));
     }
 
     return result;
@@ -142,7 +142,7 @@ double unserialise_double(const char ** p, const char *end)
 	return 0.0;
     }
 
-    bool negative = first & 0x80;
+    bool negative = (first & 0x80) != 0;
     size_t mantissa_len = ((first >> 4) & 0x07) + 1;
 
     int exp = first & 0x0f;
