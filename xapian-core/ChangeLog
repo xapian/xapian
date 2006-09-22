@@ -1,3 +1,8 @@
+Fri Sep 22 03:29:25 BST 2006  Olly Betts <olly@survex.com>
+
+	* tests/runtest.in: Turn on GLIBCXX_FORCE_NEW when running tests under
+	  valgrind.
+
 Tue Sep 19 06:28:47 BST 2006  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Check that the the destructor on a temporary
