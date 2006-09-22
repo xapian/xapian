@@ -21,6 +21,8 @@
 #include <config.h>
 
 #ifndef __WIN32__
+#include "safeerrno.h"
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -73,7 +75,8 @@ FlintLock::lock(bool exclusive) {
 	fl.l_whence = SEEK_SET;
 	fl.l_start = 0;
 	fl.l_len = 1;
-	if (fcntl(lockfd, F_SETLK, &fl) == -1) {
+	while (fcntl(lockfd, F_SETLK, &fl) == -1) {
+	    if (errno == EINTR) continue; /* Interrupted by a signal. */
 	    // Lock failed.
 	    // Just exit and the parent will realise.
 	    exit(0);
@@ -130,6 +133,9 @@ FlintLock::release() {
     fd = -1;
     int status;
     kill(pid, SIGHUP);
-    waitpid(pid, &status, 0);
+    int r;
+    while ((r = waitpid(pid, &status, 0)) < 0) {
+	if (errno != EINTR) break;
+    }
 #endif
 }

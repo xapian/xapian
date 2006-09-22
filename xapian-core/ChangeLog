@@ -1,3 +1,7 @@
+Fri Sep 22 04:29:18 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc: Retry on EINTR from fcntl or waitpid.
+
 Fri Sep 22 03:39:12 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/version_h.cc: Only check _GLIBCXX_DEBUG for GCC 3.4
