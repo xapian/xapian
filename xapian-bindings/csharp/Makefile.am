@@ -61,7 +61,7 @@ $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 	    `for f in $(XAPIAN_SWIG_CS_SRCS); do if test -f "$$f"; then echo $$f; else echo $(srcdir)/$$f ; fi ; done` \
 	    AssemblyInfo.cs
 
-BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
+BUILT_SOURCES = xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS)
 
 if MAINTAINER_MODE
 xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i
@@ -75,7 +75,7 @@ lib_LTLIBRARIES = XapianSharp.la
 
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
 XapianSharp_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
-XapianSharp_la_SOURCES = xapian_wrap.cc
+nodist_XapianSharp_la_SOURCES = xapian_wrap.cc
 XapianSharp_la_LIBADD = $(XAPIAN_LIBS)
 
 install-data-local: $(ASSEMBLY).dll
