@@ -100,9 +100,9 @@ class SmokeTest {
 	    // Check that OP_ELITE_SET works (in 0.9.6 and earlier it had the
 	    // wrong value in C#).
 	    try {
-		string[] terms = { "hello", "world" };
-		Xapian.Query foo2 = new Xapian.Query(Xapian.Query.op.OP_OR, terms, 1);
-		Xapian.Query foo = new Xapian.Query(Xapian.Query.op.OP_ELITE_SET, terms, 1);
+		Xapian.Query foo = new Xapian.Query(Xapian.Query.op.OP_OR, "hello", "world");
+		Xapian.Query foo2 = new Xapian.Query(Xapian.Query.op.OP_ELITE_SET, foo);
+		foo = foo2; // Avoid "unused variable" warning.
 	    } catch (System.Exception e) {
 		System.Console.WriteLine("Using OP_ELITE_SET causes an exception");
 		System.Environment.Exit(1);

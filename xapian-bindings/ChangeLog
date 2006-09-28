@@ -1,3 +1,11 @@
+Thu Sep 28 12:09:52 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs: Fix check that OP_ELITE_SET works to actually
+	  work, and also not give compiler warnings.
+	* csharp/Makefile.am: Latest swig generates a "xapian_wrap.h" file, so
+	  ship that.  Also don't mark xapian_wrap.cc as "nodist" in one place
+	  since we want to distribute it (and mark it so elsewhere).
+
 Thu Sep 28 11:54:46 BST 2006  Olly Betts <olly@survex.com>
 
 	* java/SmokeTest.java,python/smoketest.py,ruby/smoketest.rb: Check
