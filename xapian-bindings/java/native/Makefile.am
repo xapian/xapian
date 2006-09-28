@@ -21,5 +21,6 @@ libxapian_jni_la_SOURCES = Database.cc Document.cc ESet.cc ESetIterator.cc \
  org_xapian_XapianJNI.h xapian_jni.h XapianObjectHolder.h
 
 AM_CXXFLAGS = $(JAVA_CXXFLAGS) $(XAPIAN_CXXFLAGS)
+AM_CPPFLAGS = $(JAVA_CPPFLAGS)
 libxapian_jni_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
 libxapian_jni_la_LIBADD = $(XAPIAN_LIBS)
