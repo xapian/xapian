@@ -1,3 +1,8 @@
+Thu Sep 28 11:54:46 BST 2006  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java,python/smoketest.py,ruby/smoketest.rb: Check
+	  that OP_ELITE_SET has the correct numerical value.
+
 Thu Sep 28 09:47:01 BST 2006  Olly Betts <olly@survex.com>
 
 	* java/native/Makefile.am: Actually use JAVA_CPPFLAGS.

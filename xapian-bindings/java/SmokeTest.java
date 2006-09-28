@@ -89,6 +89,11 @@ public class SmokeTest {
 		System.err.println("Managed to open non-existent database");
 		System.exit(1);
 	    }
+
+	    if (Query.OP_ELITE_SET != 10) {
+		System.err.println("OP_ELITE_SET is " + Query.OP_ELITE_SET.toString() + " not 10");
+		System.exit(1);
+	    }
 	} catch (Exception e) {
 	    System.err.println("Caught unexpected exception " + e.toString());
 	    System.exit(1);

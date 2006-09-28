@@ -187,11 +187,15 @@ try:
             doc2 = db.get_document(2)
             print >> sys.stderr, "Retrieved non-existent document"
             sys.exit(1)
-        except Exception, e:        
+        except Exception, e:
             # We expect DocNotFoundError
             if str(e)[0:16] != "DocNotFoundError":
                 print >> sys.stderr, "Unexpected exception from accessing non-existent document: %s" % str(e)
                 sys.exit(1)
+
+        if xapian.Query.OP_ELITE_SET != 10:
+            print >> sys.stderr, "OP_ELITE_SET is %d not 10" % xapian.Query.OP_ELITE_SET
+            sys.exit(1)
 
 except Exception, e:
     print >> sys.stderr, "Exception: %s" % str(e)

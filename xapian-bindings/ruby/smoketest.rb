@@ -90,6 +90,7 @@ class XapianSmoketest < Test::Unit::TestCase
                   Xapian::Term.new("test", 1), 
                   Xapian::Term.new("tuple", 1)], xorQuery.terms())
 
+    assert_equal(Xapian::Query::OP_ELITE_SET, 10)
   end # test_queries
 
   def test_003_enquire
