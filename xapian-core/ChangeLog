@@ -1,3 +1,8 @@
+Thu Sep 28 02:00:05 BST 2006  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Reserve the right number of entries in the
+	  subrsets vector.
+
 Fri Sep 22 07:48:32 BST 2006  Olly Betts <olly@survex.com>
 
 	* common/serialise-double.cc: Fix warning with aCC.
