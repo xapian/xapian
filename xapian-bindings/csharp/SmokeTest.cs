@@ -83,7 +83,7 @@ class SmokeTest {
 	    if (count != 5) {
 		System.Environment.Exit(1);
 	    }
-
+	    
 	    // Check exception handling for Xapian::DocNotFoundError.
 	    try {
 		Xapian.Document doc2 = db.GetDocument(2);
@@ -95,18 +95,6 @@ class SmokeTest {
                     System.Console.WriteLine("Unexpected exception from accessing non-existent document: " + e.Message);
 		    System.Environment.Exit(1);
 		}
-	    }
-
-	    // Check that OP_ELITE_SET works (up to 0.9.6 it had the wrong
-	    // value in C#).
-	    try {
-		string[] terms = { "hello", "world" };
-		Xapian.Query foo2 = new Xapian.Query(Xapian.Query.op.OP_OR, terms, 1);
-		Xapian.Query foo = new Xapian.Query(Xapian.Query.op.OP_ELITE_SET, terms, 1);
-		System.Console.WriteLine(foo.GetDescription());
-	    } catch (System.Exception e) {
-		System.Console.WriteLine("Using OP_ELITE_SET causes an exception");
-		System.Environment.Exit(1);
 	    }
 	} catch (System.Exception e) {
 	     System.Console.WriteLine("Exception: " + e.ToString());

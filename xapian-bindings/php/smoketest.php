@@ -108,14 +108,9 @@ if ($terms != "is there") {
     exit(1);
 }
 
-if (Query_OP_ELITE_SET != 10) {
-    print "OP_ELITE_SET is " . Query_OP_ELITE_SET . " not 10\n";
-    exit(1);
-}
+include "smoketest".substr(PHP_VERSION, 0, 1).".php";
 
 # Regression test - overload resolution involving boolean types failed.
 Enquire_set_sort_by_value($enq, 1, TRUE);
-
-include "smoketest".substr(PHP_VERSION, 0, 1).".php";
 
 ?>
