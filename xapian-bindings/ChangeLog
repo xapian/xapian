@@ -1,3 +1,7 @@
+Thu Sep 28 15:05:07 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/extra.i,python/smoketest.py: Wrap TermIterator::skip_to().
+
 Thu Sep 28 12:09:52 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs: Fix check that OP_ELITE_SET works to actually

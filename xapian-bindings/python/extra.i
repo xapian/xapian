@@ -84,6 +84,9 @@ class TermIter:
             self.iter.next()
             return r
 
+    def skip_to(self, term):
+        self.iter.skip_to(term)
+
 class PostingIter:
     def __init__(self, start, end):
         self.iter = start

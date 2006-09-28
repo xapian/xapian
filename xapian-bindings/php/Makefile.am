@@ -40,7 +40,7 @@ BUILT_SOURCES = xapian_wrap.cc php_xapian.h
 if MAINTAINER_MODE
 xapian_wrap.cc php_xapian.h xapian.php: ../xapian.i util.i
 	$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -php4 -noproxy -o xapian_wrap.cc $(srcdir)/../xapian.i
-	: #$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -php4 -prefix Xapian -o xapian_wrap.cc $(srcdir)/../xapian.i
+	: #$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -php5 -prefix Xapian -o xapian_wrap.cc $(srcdir)/../xapian.i
 endif
 
 MAINTAINERCLEANFILES = $(BUILT_SOURCES) xapian.php

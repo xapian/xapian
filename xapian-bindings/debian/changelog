@@ -1,3 +1,10 @@
+xapian-bindings (0.9.7-1) unstable; urgency=low
+
+  * debian/po/: Added newly translated debconf messages for fr, cs, pt, sv
+    (Closes: #380341, #382933, #383396, #387533).
+
+ -- Olly Betts <olly@survex.com>  Fri, 15 Sep 2006 02:17:35 +0100
+
 xapian-bindings (0.9.6-5) unstable; urgency=low
 
   * debian/copyright: Add Java bindings copyrights and licences.

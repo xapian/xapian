@@ -174,6 +174,17 @@ try:
             print >> sys.stderr, "Unexpected number of entries in doc.termlist (%d)" % count
             sys.exit(1)
 
+        # Feature test for TermIter.skip_to
+        term = doc.termlist()
+        term.skip_to('n')
+        while True:
+            try:
+                x = term.next()
+            except StopIteration:
+                break
+            if x[0] < 'n':
+                print >> sys.stderr, "TermIter.skip_to didn't skip term '%s'" % x[0]
+
         # Feature test for Document.values
         count = 0
         for term in doc.values():

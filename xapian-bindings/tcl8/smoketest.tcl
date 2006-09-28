@@ -38,12 +38,12 @@ if { [stem get_description] != "Xapian::Stem(english)" } {
 }
 
 xapian::Document doc
-doc set_data "a\0b"
+doc set_data "a\x00b"
 if { [doc get_data] == "a" } {
     puts stderr "get_data+set_data truncates at a zero byte"
     exit 1
 }
-if { [doc get_data] != "a\0b" } {
+if { [doc get_data] != "a\x00b" } {
     puts stderr "get_data+set_data doesn't transparently handle a zero byte"
     exit 1
 }
