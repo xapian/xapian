@@ -1,3 +1,8 @@
+Thu Sep 28 09:03:30 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs: Check the OP_ELITE_SET has the correct
+	  numerical value (up to 0.9.6 it had the wrong value in C#).
+
 Thu Sep 28 09:01:12 BST 2006  Olly Betts <olly@survex.com>
 
 	* php/smoketest.php: Check OP_ELITE_SET has the correct numerical
