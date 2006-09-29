@@ -37,6 +37,9 @@ if { [stem get_description] != "Xapian::Stem(english)" } {
     exit 1
 }
 
+# Tcl stores zero bytes as \xc0\x80 so this doesn't actually exactly test that
+# strings containing zero bytes can be passed from Tcl to C++ and back.  But
+# it is still a useful test to perform.
 xapian::Document doc
 doc set_data "a\0b"
 if { [doc get_data] == "a" } {
@@ -47,6 +50,7 @@ if { [doc get_data] != "a\0b" } {
     puts stderr "get_data+set_data doesn't transparently handle a zero byte"
     exit 1
 }
+
 doc set_data "is there anybody out there?"
 doc add_term "XYzzy"
 doc add_posting [stem stem_word "is"] 1

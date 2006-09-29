@@ -1,3 +1,8 @@
+Fri Sep 29 07:02:10 BST 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/smoketest.tcl: Add comment about Tcl storing zero bytes as
+	  \xc0\x80.
+
 Thu Sep 28 15:05:07 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/extra.i,python/smoketest.py: Wrap TermIterator::skip_to().
