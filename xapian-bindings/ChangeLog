@@ -1,3 +1,10 @@
+Fri Sep 29 10:06:37 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix typo - PHP_tried should be PHP_found.  This might
+	  have caused the PHP interpreter not to be found in some cases when
+	  it was actually available, but it's only use to run the smoketest
+	  not for building the bindings.
+
 Fri Sep 29 07:02:10 BST 2006  Olly Betts <olly@survex.com>
 
 	* tcl8/smoketest.tcl: Add comment about Tcl storing zero bytes as

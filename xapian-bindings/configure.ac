@@ -304,7 +304,7 @@ if test no != "$with_php" ; then
 	  test -n "$PHP" && PHP_found=yes
 	  ;;
       esac
-      if test yes != "$PHP_tried" ; then
+      if test yes != "$PHP_found" ; then
 	dnl Try phpN then php.  If the PHP interpreter can't be found, skip the
 	dnl PHP bindings tests.
 	AC_PATH_PROGS(PHP, [php$php_version php], [\$(top_srcdir)/skiptest])
