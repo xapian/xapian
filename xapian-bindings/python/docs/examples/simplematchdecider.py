@@ -28,7 +28,7 @@ import xapian
 
 # This example runs a query like simplesearch does, but uses a MatchDecider
 # (mymatchdecider) to discard any document for which value 0 is equal to
-# the string pass as the second command line argument.
+# the string passed as the second command line argument.
 
 if len(sys.argv) < 4:
     print >> sys.stderr, "usage: %s <path to database> <avoid value> <search terms>" % sys.argv[0]
