@@ -571,7 +571,7 @@ fi
 
 if test no != "$with_ruby" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  AC_PATH_PROGS(RUBY, [$RUBY ruby], [])
+  AC_PATH_PROGS(RUBY, [$RUBY ruby1.8 ruby], [])
   AC_ARG_VAR(RUBY, [Ruby interpreter])
   if test -n "$RUBY" ; then
     dnl Require Ruby 1.8 or newer.  Paul says:

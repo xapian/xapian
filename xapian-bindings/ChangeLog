@@ -1,3 +1,8 @@
+Sat Sep 30 03:22:10 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Look for ruby interpreter as "ruby1.8" since it's
+	  called that (with no "ruby" alias) on Ubuntu dapper at least.
+
 Sat Sep 30 03:03:30 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/docs/examples/simplematchdecider.py: Fix typo in comment.
