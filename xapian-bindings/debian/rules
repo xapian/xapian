@@ -89,7 +89,8 @@ BUILD_DEPS += $(PYTHON_VERSIONS:%=%-dev,)
 PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_VERSIONS:%=%-xapian (<< 0.9.6-3$),)"|sed 's/,$$//')
 
 # Build depends for PHP.
-BUILD_DEPS += $(PHP_VERSIONS:%=php%-dev,)
+# We only need phpN-cli so we can run "make check" on the bindings.
+BUILD_DEPS += $(PHP_VERSIONS:%=php%-dev,php%-cli,)
 
 # Build depends for Tcl.  We use Tcl's stubs mechanism, so the built
 # bindings will work with any Tcl version from 8.0.6 upwards, whichever
@@ -161,7 +162,7 @@ debian/configure-stamp:
 	done
 
 	mkdir -p build-tcl
-	cd build-tcl && ../configure $(commonconfflags) --with-tcl8 TCLSH=$(TCLSH)
+	cd build-tcl && ../configure $(commonconfflags) --with-tcl TCLSH=$(TCLSH)
 
 	mkdir -p build-ruby
 	cd build-ruby && ../configure $(commonconfflags) --with-ruby RUBY=$(RUBY)

@@ -1,9 +1,12 @@
 xapian-bindings (0.9.7-1) unstable; urgency=low
 
+  * debian/rules: Fix typo in configure invocation for Tcl so that we only
+    build the Tcl bindings in that source tree.
+  * debian/rules: Build-Depends on phpN-cli so that we can run "make check".
   * debian/po/: Added newly translated debconf messages for fr, cs, pt, sv
     (Closes: #380341, #382933, #383396, #387533).
 
- -- Olly Betts <olly@survex.com>  Fri, 15 Sep 2006 02:17:35 +0100
+ -- Olly Betts <olly@survex.com>  Fri, 29 Sep 2006 15:07:35 +0100
 
 xapian-bindings (0.9.6-5) unstable; urgency=low
 
