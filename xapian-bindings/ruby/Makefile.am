@@ -12,12 +12,12 @@ endif
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 
-EXTRA_DIST = util.i xapian.rb $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = util.i $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
 rubylibdir = $(RUBY_LIB)
-rubylib_DATA = xapian.rb
+dist_rubylib_DATA = xapian.rb
 
 rubylibarchdir = $(RUBY_LIB_ARCH)
 rubylibarch_LTLIBRARIES = _xapian.la
@@ -35,10 +35,10 @@ _xapian_la_SOURCES = xapian_wrap.cc xapian_wrap.h
 _xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 if MAINTAINER_MODE
-xapian_wrap.cc xapian_wrap.h xapian.rb: ../xapian.i util.i
+xapian_wrap.cc xapian_wrap.h: ../xapian.i util.i
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -feature _xapian -ruby -o xapian_wrap.cc $(srcdir)/../xapian.i
 
-CLEANFILES = $(BUILT_SOURCES) xapian.rb
+CLEANFILES = $(BUILT_SOURCES)
 else
-MAINTAINERCLEANFILES = $(BUILT_SOURCES) xapian.rb
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif

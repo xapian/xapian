@@ -1,3 +1,9 @@
+Sat Sep 30 03:30:33 BST 2006  Olly Betts <olly@survex.com>
+
+	* ruby/Makefile.am: Oops, xapian.rb isn't a generated file.  Undo
+	  last change, use the "dist_" prefix and let "make clean" remove
+	  the BUILT_SOURCES if we're in MAINTAINER_MODE.
+
 Sat Sep 30 03:28:19 BST 2006  Olly Betts <olly@survex.com>
 
 	* ruby/Makefile.am: Add dependencies and clean rules for xapian.rb.
