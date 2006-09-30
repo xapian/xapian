@@ -1,3 +1,9 @@
+Sat Sep 30 03:01:22 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Prefer $(PYTHON_MODERN_OR_OLDE) to
+	  @PYTHON_MODERN_OR_OLDE@.  No need to list xapian_wrap.h in
+	  _xapian_la_SOURCES.
+
 Sat Sep 30 03:00:01 BST 2006  Olly Betts <olly@survex.com>
 
 	* php/Makefile.am: When running smoketest.php, pass the "-q" option,

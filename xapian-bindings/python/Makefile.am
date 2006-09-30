@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-TESTS_ENVIRONMENT = PYTHONPATH="@PYTHON_MODERN_OR_OLDE@$(PYTHON_PATHSEP).libs$(PYTHON_PATHSEP)." $(PYTHON)
+TESTS_ENVIRONMENT = PYTHONPATH="$(PYTHON_MODERN_OR_OLDE)$(PYTHON_PATHSEP).libs$(PYTHON_PATHSEP)." $(PYTHON)
 
 ## Test programs to be run
 TESTS = smoketest.py
@@ -12,7 +12,7 @@ endif
 
 # Interleave modern and olde as the .cc-s and .py-s are pretty similar and the
 # .h-s are probably identical and gzip will compress this redundancy away if
-# it falls within gzip's window size.
+# it falls within the compressor's window size.
 BUILT_SOURCES = \
 	modern/xapian_wrap.cc olde/xapian_wrap.cc \
 	modern/xapian_wrap.h olde/xapian_wrap.h \
@@ -26,7 +26,7 @@ pylibdir = @PYTHON_LIB@
 
 # Install as _DATA rather than _SCRIPTS because we don't want to make these
 # executable (they don't have a #! line).
-pylib_DATA = @PYTHON_MODERN_OR_OLDE@/xapian.py xapian.pyc
+pylib_DATA = $(PYTHON_MODERN_OR_OLDE)/xapian.py xapian.pyc
 
 pylib_LTLIBRARIES = _xapian.la
 
@@ -39,8 +39,7 @@ install-data-hook:
 AM_CPPFLAGS = -I@PYTHON_INC@
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(PYTHON_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 _xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
-_xapian_la_SOURCES = @PYTHON_MODERN_OR_OLDE@/xapian_wrap.cc \
-	@PYTHON_MODERN_OR_OLDE@/xapian_wrap.h
+_xapian_la_SOURCES = $(PYTHON_MODERN_OR_OLDE)/xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 
 # In a distribution, xapian.py is in $(srcdir), and python will always
@@ -52,8 +51,8 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 xapian.pyc: xapian.py _xapian.la
 	PYTHONPATH=".$(PYTHON_PATHSEP).libs" $(PYTHON) -c "import _xapian;import xapian"
 
-xapian.py: @PYTHON_MODERN_OR_OLDE@/xapian.py
-	cp `test -f @PYTHON_MODERN_OR_OLDE@/xapian.py || echo '$(srcdir)/'`@PYTHON_MODERN_OR_OLDE@/xapian.py xapian.py
+xapian.py: $(PYTHON_MODERN_OR_OLDE)/xapian.py
+	cp `test -f $(PYTHON_MODERN_OR_OLDE)/xapian.py || echo '$(srcdir)/'`$(PYTHON_MODERN_OR_OLDE)/xapian.py xapian.py
 
 if MAINTAINER_MODE
 # "modern" versions are for Python 2.2 and up;  "olde" versions are for earlier
