@@ -16,7 +16,15 @@ if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
 endif
 
-EXTRA_DIST = util.i xapian.php $(TESTS) smoketest4.php smoketest5.php
+# Interleave php4 and php5 as the .cc-s and .h-s are identical (currently
+# at least) and gzip will compress this redundancy away if it falls within the
+# compressor's window size.
+BUILT_SOURCES = php4/xapian_wrap.cc php5/xapian_wrap.cc \
+		php4/php_xapian.h php5/php_xapian.h \
+		php4/xapian.php php5/xapian.php
+
+EXTRA_DIST = util.i $(TESTS) smoketest4.php smoketest5.php $(BUILT_SOURCES)
+
 SUBDIRS = docs
 
 phpextdir = $(PHP_EXTENSION_DIR)
@@ -32,15 +40,25 @@ install-data-hook:
 AM_CPPFLAGS = $(PHP_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
-xapian_la_SOURCES = xapian_wrap.cc php_xapian.h
+xapian_la_SOURCES = php$(PHP_MAJOR_VERSION)/xapian_wrap.cc
 xapian_la_LIBADD = $(XAPIAN_LIBS) $(PHP_LIBS)
 
-BUILT_SOURCES = xapian_wrap.cc php_xapian.h
-
 if MAINTAINER_MODE
-xapian_wrap.cc php_xapian.h xapian.php: ../xapian.i util.i
-	$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -php4 -noproxy -o xapian_wrap.cc $(srcdir)/../xapian.i
-	: #$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -php4 -prefix Xapian -o xapian_wrap.cc $(srcdir)/../xapian.i
-endif
+# We need to explicitly set -outdir because on Windows, SWIG splits paths at
+# "\" when extracting the output directory from the value passed to the -o
+# option.
 
-MAINTAINERCLEANFILES = $(BUILT_SOURCES) xapian.php
+php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: ../xapian.i util.i
+	test -d php4 || mkdir php4
+	$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -php4 -noproxy \
+	    -outdir php4 -o php4/xapian_wrap.cc $(srcdir)/../xapian.i
+
+php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: ../xapian.i util.i
+	test -d php5 || mkdir php5
+	$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -php5 -prefix Xapian \
+	    -outdir php5 -o php5/xapian_wrap.cc $(srcdir)/../xapian.i
+
+CLEANFILES = $(BUILT_SOURCES)
+else
+MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+endif

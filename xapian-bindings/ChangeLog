@@ -1,3 +1,8 @@
+Sat Sep 30 02:57:24 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,php/Makefile.am: Build PHP bindings for both PHP4 and
+	  PHP5 (using SWIG's new support for generating OO PHP5 wrappers).
+
 Sat Sep 30 02:41:23 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/smoketest.py: Added missing "sys.exit(1)" in

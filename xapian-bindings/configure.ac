@@ -263,11 +263,11 @@ if test no != "$with_php" ; then
     case $version in
     4.*)
       AC_MSG_RESULT([$version])
-      php_version=4
+      PHP_MAJOR_VERSION=4
       ;;
     5.*)
       AC_MSG_RESULT([$version])
-      php_version=5
+      PHP_MAJOR_VERSION=5
       ;;
     *)
       AC_MSG_RESULT([$version (not supported)])
@@ -277,6 +277,7 @@ if test no != "$with_php" ; then
       with_php=no
       ;;
     esac
+    AC_SUBST(PHP_MAJOR_VERSION)
     if test no != "$with_php" ; then
       PHP_found=no
       case $PHP in
@@ -284,7 +285,7 @@ if test no != "$with_php" ; then
 	  dnl Try $prefix/bin/phpN then $prefix/bin/php
 	  php_prefix=`$PHP_CONFIG --prefix 2>/dev/null`
 	  php_bin="$php_prefix/bin/php"
-	  for php in $php_bin$php_version $php_bin ; do
+	  for php in $php_bin$PHP_MAJOR_VERSION $php_bin ; do
 	    AC_MSG_CHECKING([for $php])
 	    for ac_exec_ext in '' $ac_executable_extensions; do
 	      if $as_executable_p "$php$ac_exec_ext"; then
@@ -307,7 +308,7 @@ if test no != "$with_php" ; then
       if test yes != "$PHP_found" ; then
 	dnl Try phpN then php.  If the PHP interpreter can't be found, skip the
 	dnl PHP bindings tests.
-	AC_PATH_PROGS(PHP, [php$php_version php], [\$(top_srcdir)/skiptest])
+	AC_PATH_PROGS(PHP, [php$PHP_MAJOR_VERSION php], [\$(top_srcdir)/skiptest])
       fi
       if test -z "$PHP" ; then
 	AC_MSG_WARN([No PHP interpreter found - PHP bindings tests will be skipped])
@@ -322,7 +323,7 @@ if test no != "$with_php" ; then
 	dnl This is a bit of an informed guess, pending more information from
 	dnl someone who actually has mingw and wants to build the PHP bindings
 	dnl there.  FIXME.
-	PHP_LIBS="-L`$PHP_CONFIG --prefix` -lphp${php_version}ts" ;;
+	PHP_LIBS="-L`$PHP_CONFIG --prefix` -lphp${PHP_MAJOR_VERSION}ts" ;;
       *)
 	PHP_LIBS= ;;
       esac
