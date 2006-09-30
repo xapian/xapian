@@ -54,8 +54,8 @@ try:
     print "Performing query `%s'" % query.get_description()
 
     enquire.set_query(query)
-    matcher = mymatchdecider(sys.argv[2])
-    matches = enquire.get_mset(0, 10, None, matcher)
+    mdecider = mymatchdecider(sys.argv[2])
+    matches = enquire.get_mset(0, 10, None, mdecider)
 
     print "%i results found" % matches.get_matches_estimated()
     for match in matches:

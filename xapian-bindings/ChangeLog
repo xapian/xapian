@@ -1,3 +1,9 @@
+Sat Sep 30 19:49:18 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simplematchdecider.py: Call the MyMatchDecider
+	  instance "mdecider" rather than "matcher", to avoid confusing the
+	  reader.
+
 Sat Sep 30 03:30:33 BST 2006  Olly Betts <olly@survex.com>
 
 	* ruby/Makefile.am: Oops, xapian.rb isn't a generated file.  Undo
