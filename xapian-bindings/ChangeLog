@@ -1,3 +1,10 @@
+Sat Sep 30 02:41:23 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py: Added missing "sys.exit(1)" in
+	  TermIter.skip_to() test.  Run exception handling tests and test for
+	  OP_ELITE_SET value whatever the python version is.  Add test that
+	  MatchDecider can be subclassed successfully.
+
 Fri Sep 29 10:06:37 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix typo - PHP_tried should be PHP_found.  This might

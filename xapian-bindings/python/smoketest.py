@@ -184,6 +184,7 @@ try:
                 break
             if x[0] < 'n':
                 print >> sys.stderr, "TermIter.skip_to didn't skip term '%s'" % x[0]
+                sys.exit(1)
 
         # Feature test for Document.values
         count = 0
@@ -193,20 +194,43 @@ try:
             print >> sys.stderr, "Unexpected number of entries in doc.values (%d)" % count
             sys.exit(1)
 
-        # Check exception handling for Xapian::DocNotFoundError
-        try:
-            doc2 = db.get_document(2)
-            print >> sys.stderr, "Retrieved non-existent document"
+    # Check exception handling for Xapian::DocNotFoundError
+    try:
+        doc2 = db.get_document(2)
+        print >> sys.stderr, "Retrieved non-existent document"
+        sys.exit(1)
+    except Exception, e:
+        # We expect DocNotFoundError
+        if str(e)[0:16] != "DocNotFoundError":
+            print >> sys.stderr, "Unexpected exception from accessing non-existent document: %s" % str(e)
             sys.exit(1)
-        except Exception, e:
-            # We expect DocNotFoundError
-            if str(e)[0:16] != "DocNotFoundError":
-                print >> sys.stderr, "Unexpected exception from accessing non-existent document: %s" % str(e)
-                sys.exit(1)
 
-        if xapian.Query.OP_ELITE_SET != 10:
-            print >> sys.stderr, "OP_ELITE_SET is %d not 10" % xapian.Query.OP_ELITE_SET
-            sys.exit(1)
+    if xapian.Query.OP_ELITE_SET != 10:
+        print >> sys.stderr, "OP_ELITE_SET is %d not 10" % xapian.Query.OP_ELITE_SET
+        sys.exit(1)
+
+    # Feature test for MatchDecider
+    doc = xapian.Document()
+    doc.set_data("Two")
+    doc.add_posting(stem.stem_word("out"), 1)
+    doc.add_posting(stem.stem_word("source"), 2)
+    doc.add_value(0, "yes")
+    db.add_document(doc)
+
+    class testmatchdecider(xapian.MatchDecider):
+        def __call__(self, doc):
+            return doc.get_value(0) == "yes"
+
+    query = xapian.Query(stem.stem_word("out"))
+    enquire = xapian.Enquire(db)
+    enquire.set_query(query)
+    mset = enquire.get_mset(0, 10, None, testmatchdecider())
+    if mset.size() != 1:
+        print >> sys.stderr, "MatchDecider found %d documents, expected 1" % mset.size()
+        sys.exit(1)
+    if mset.get_docid(0) != 2:
+        print >> sys.stderr, "MatchDecider mset has wrong docid in"
+        sys.exit(1)
 
 except Exception, e:
     print >> sys.stderr, "Exception: %s" % str(e)
