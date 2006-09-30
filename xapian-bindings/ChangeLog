@@ -1,3 +1,7 @@
+Sat Sep 30 03:28:19 BST 2006  Olly Betts <olly@survex.com>
+
+	* ruby/Makefile.am: Add dependencies and clean rules for xapian.rb.
+
 Sat Sep 30 03:22:10 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Look for ruby interpreter as "ruby1.8" since it's

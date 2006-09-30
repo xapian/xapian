@@ -35,8 +35,10 @@ _xapian_la_SOURCES = xapian_wrap.cc xapian_wrap.h
 _xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 if MAINTAINER_MODE
-xapian_wrap.cc xapian_wrap.h: ../xapian.i util.i
+xapian_wrap.cc xapian_wrap.h xapian.rb: ../xapian.i util.i
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -feature _xapian -ruby -o xapian_wrap.cc $(srcdir)/../xapian.i
-endif
 
-MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES) xapian.rb
+else
+MAINTAINERCLEANFILES = $(BUILT_SOURCES) xapian.rb
+endif
