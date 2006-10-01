@@ -34,22 +34,19 @@ enquire = Xapian::Enquire.new(database)
 stemmer = Xapian::Stem.new("english")
 terms = []
 ARGV[1..-1].each {|term|
-  terms.push(stemmer.stem_word(term))
+  terms.push(stemmer.stem_word(term.downcase))
 }
- 
+
 query = Xapian::Query.new(Xapian::Query::OP_OR, terms)
 
 puts "Performing query '#{query.description()}'..."
 
 enquire.query = query
-matchset = enquire.mset(0,10)
+matchset = enquire.mset(0, 10)
 
 puts "#{matchset.matches_estimated()} results found.\nFirst ten:"
 
 matchset.matches.each {|match|
-  puts "\n - #{match.to_s}: weight #{match.weight} (#{match.percent}%), rank #{match.rank}, collapse count #{match.collapse_count}, docid #{match.docid}"
+  puts "docid #{match.docid}, weight #{match.weight} (#{match.percent}%), rank #{match.rank}, collapse count #{match.collapse_count}"
   puts "  Document contents: \n#{match.document.data}\n"
 }
-
-puts "\n * Done.\n"
-

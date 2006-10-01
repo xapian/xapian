@@ -1,3 +1,10 @@
+Sun Oct 01 06:17:14 BST 2006  Olly Betts <olly@survex.com>
+
+	* ruby/docs/examples/simplesearch.rb: Lowercase terms before stemming.
+	  Tweak output a bit.
+	* ruby/docs/examples/simplematchdecider.rb: Implemented, but the
+	  bindings don't currently enable directors for Ruby.
+
 Sun Oct 01 06:14:52 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am: SWIG C# now supports directors, so we get a

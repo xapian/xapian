@@ -2,9 +2,8 @@
 #
 # Simple command-line match decider example
 #
-# Originally by Paul Legato (plegato@nks.net), 4/22/06.
-# Based on simplematchdecider.py.
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
+# Copyright (C) 2006 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -28,6 +27,35 @@ if ARGV.size < 3
   exit 99
 end
 
-class myMatcher < Xapian::MatchDecider
- # TODO: not implemented yet
+class MyMatchDecider < Xapian::MatchDecider
+  def initialize(avoidvalue)
+    @avoidvalue = avoidvalue
+  end
+
+  def __call__(doc)
+    return doc.get_value(1) != @avoidvalue
+  end
 end
+
+database = Xapian::Database.new(ARGV[0])
+enquire = Xapian::Enquire.new(database)
+stemmer = Xapian::Stem.new("english")
+terms = []
+ARGV[2..-1].each {|term|
+  terms.push(stemmer.stem_word(term.downcase))
+}
+
+query = Xapian::Query.new(Xapian::Query::OP_OR, terms)
+
+puts "Performing query '#{query.description()}'..."
+
+enquire.query = query
+mdecider = MyMatchDecider.new(ARGV[1])
+matchset = enquire.mset(0, 10, nil, mdecider)
+
+puts "#{matchset.matches_estimated()} results found.\nMatches 1-#{matchset.size}:\n"
+
+matchset.matches.each {|match|
+  puts "docid #{match.docid}, weight #{match.weight} (#{match.percent}%), rank #{match.rank}, collapse count #{match.collapse_count}"
+  puts "  Document contents: \n#{match.document.data}\n"
+}
