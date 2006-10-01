@@ -44,7 +44,7 @@ puts "Performing query '#{query.description()}'..."
 enquire.query = query
 matchset = enquire.mset(0, 10)
 
-puts "#{matchset.matches_estimated()} results found.\nFirst ten:"
+puts "#{matchset.matches_estimated()} results found.\nMatches 1-#{matchset.size}:\n"
 
 matchset.matches.each {|match|
   puts "docid #{match.docid}, weight #{match.weight} (#{match.percent}%), rank #{match.rank}, collapse count #{match.collapse_count}"

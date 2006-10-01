@@ -1,3 +1,10 @@
+Sun Oct 01 13:40:49 BST 2006  Olly Betts <olly@survex.com>
+
+	* ruby/docs/examples/simplesearch.rb: "First ten" is inaccurate since
+	  we may have less than 10 matches.  Say "1-<N>" instead.
+	* ruby/docs/examples/simplematchdecider.rb: Need to initialise
+	  super-class, and fix the value test in MyMatchDecider.
+
 Sun Oct 01 06:31:37 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Use SWIGPHP instead of SWIGPHP4 since we want those

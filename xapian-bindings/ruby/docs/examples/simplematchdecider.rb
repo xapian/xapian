@@ -30,10 +30,11 @@ end
 class MyMatchDecider < Xapian::MatchDecider
   def initialize(avoidvalue)
     @avoidvalue = avoidvalue
+    super()
   end
 
   def __call__(doc)
-    return doc.get_value(1) != @avoidvalue
+    return doc.value(0) != @avoidvalue
   end
 end
 
