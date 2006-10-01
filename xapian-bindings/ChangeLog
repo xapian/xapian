@@ -1,3 +1,11 @@
+Sun Oct 01 06:14:52 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: SWIG C# now supports directors, so we get a
+	  xapian_wrap.h file generated too which we need to ship.  Also
+	  remove the "nodist_" prefix from "XapianSharp_la_SOURCES" since
+	  we do want to distribute xapian_wrap.cc (and already mark it
+	  for explicit distribution elsewhere!)
+
 Sat Sep 30 19:49:18 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/docs/examples/simplematchdecider.py: Call the MyMatchDecider
