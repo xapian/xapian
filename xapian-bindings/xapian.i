@@ -762,7 +762,7 @@ class WritableDatabase : public Database {
 
 #ifndef SWIGCSHARP
 namespace Auto {
-#ifdef SWIGPHP4
+#ifdef SWIGPHP
     /* PHP4 lacks namespaces so fake them rather than having a function just
      * called "open".  Also rename open_stub, open_da, etc for consistency. */
     %rename(auto_open) open;
@@ -803,7 +803,7 @@ namespace Muscat36 {
     %rename(open_db_values) open_db;
     Database open_db(const std::string &DB, const std::string &values);
 #else
-#ifdef SWIGPHP4
+#ifdef SWIGPHP
     /* PHP4 lacks namespaces so fake them rather than having a function just
      * called "open".  Also rename open_stub, open_da, etc for consistency. */
     %rename(muscat36_open_da) open_da;
