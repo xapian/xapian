@@ -1,3 +1,8 @@
+Mon Oct 02 04:45:43 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Only enable visibility annotations with GCC 4.0 or
+	  later.
+
 Sun Oct 01 13:40:49 BST 2006  Olly Betts <olly@survex.com>
 
 	* ruby/docs/examples/simplesearch.rb: "First ten" is inaccurate since

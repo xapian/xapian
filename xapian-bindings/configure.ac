@@ -672,11 +672,16 @@ if test yes = "$GXX" ; then
       AC_MSG_CHECKING([whether to use -fvisibility=hidden])
       dnl To be robust, we check both that -fvisibility=hidden is recognised
       dnl and that SWIG will have added the visibility attributes.
+      dnl The GCC wiki says it's supported from GCC 4.0 onwards.  GCC 3.4
+      dnl also supports -fvisibility, but doesn't allow visibility to be
+      dnl specified for classes, which probably breaks throwing exception
+      dnl classes from dnl the library.  We want that to work, so only
+      dnl switch this on for GCC 4.0 onwards.
       SAVE_CXXFLAGS=$CXXFLAGS
       CXXFLAGS="-fvisibility=hidden"
       AC_TRY_COMPILE([], [
-#if (__GNUC__ >= 4) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
-  /* SWIG only adds visibility attributes if this condition is true. */
+#if __GNUC__ >= 4
+  /* GCC supports -fvisibility and allows specifying visibility for classes. */
 #else
   choke me
 #endif
