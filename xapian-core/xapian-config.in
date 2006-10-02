@@ -68,7 +68,7 @@ set_F_to_extra_ldflags() {
 # -L option required (if any).
 set_L_to_library_path() {
     L=
-    [ /usr/lib != "@libdir" ] && L="-L@libdir@ "
+    [ /usr/lib != "@libdir@" ] && L="-L@libdir@ "
 }
 
 # -I options for compiling against an uninstalled xapian.

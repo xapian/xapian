@@ -1,3 +1,9 @@
+Mon Oct 02 13:57:56 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Fix typo - "@libdir" should be "@libdir@".
+	  This would lead to -L/usr/lib not being pruned, which is really
+	  just a cosmetic problem (the typo was introduced in 0.9.3).
+
 Thu Sep 28 02:00:05 BST 2006  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Reserve the right number of entries in the
