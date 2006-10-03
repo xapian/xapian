@@ -313,7 +313,7 @@ serve_client(int sock)
          filteriter != filters.end();
          filteriter++)
     {
-        if (filterquery.is_empty()) {
+        if (filterquery.empty()) {
             filterquery = filteriter->second;
         } else {
             filterquery = Xapian::Query(Xapian::Query::OP_AND, filterquery,
@@ -322,10 +322,10 @@ serve_client(int sock)
     }
 
     Xapian::Query query;
-    if (filterquery.is_empty()) {
+    if (filterquery.empty()) {
         query = probquery;
     } else {
-        if (probquery.is_empty()) {
+        if (probquery.empty()) {
             query = filterquery;
         } else {
             query = Xapian::Query(Xapian::Query::OP_FILTER,
