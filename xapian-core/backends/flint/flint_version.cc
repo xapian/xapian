@@ -1,4 +1,4 @@
-/** @file flint_version.cc
+100/** @file flint_version.cc
  * @brief FlintVersion class
  */
 /* Copyright (C) 2006 Olly Betts
@@ -53,9 +53,9 @@ void FlintVersion::create()
     char buf[VERSIONFILE_SIZE] = MAGIC_STRING;
     unsigned char *v = reinterpret_cast<unsigned char *>(buf) + MAGIC_LEN;
     v[0] = static_cast<unsigned char>(FLINT_VERSION & 0xff);
-    v[1] = static_cast<unsigned char>(FLINT_VERSION >> 8);
-    v[2] = static_cast<unsigned char>(FLINT_VERSION >> 16);
-    v[3] = static_cast<unsigned char>(FLINT_VERSION >> 24);
+    v[1] = static_cast<unsigned char>((FLINT_VERSION >> 8) & 0xff);
+    v[2] = static_cast<unsigned char>((FLINT_VERSION >> 16) & 0xff);
+    v[3] = static_cast<unsigned char>((FLINT_VERSION >> 24) & 0xff);
 
     int fd = ::open(filename.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
 
