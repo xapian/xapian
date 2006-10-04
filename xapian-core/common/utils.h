@@ -41,6 +41,7 @@ using std::vector;
 
 #include <fcntl.h>
 
+#ifndef _MSC_VER
 #ifdef open
 // On older versions of Solaris, Sun's fcntl.h pollutes the namespace by
 // #define-ing open to open64 when largefile support is enabled (also creat to
@@ -68,8 +69,13 @@ inline int open(const char *filename, int flags) {
     return fcntl_open(filename, flags);
 }
 #endif
+#endif
 
 #ifdef _MSC_VER
+# ifdef open
+#  undef open
+# endif
+
 #if 0
 // We used to have this here "for MSVC", but it conflicts with similar
 // code in io.h for MSVC7.
