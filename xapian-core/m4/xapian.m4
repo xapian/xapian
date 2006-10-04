@@ -1,5 +1,5 @@
 # macro to get the libs/cxxflags for compiling with the xapian library
-# serial 5
+# serial 6
 
 # AC_PROVIDE_IFELSE(MACRO-NAME, IF-PROVIDED, IF-NOT-PROVIDED)
 # -----------------------------------------------------------
@@ -43,22 +43,22 @@ dnl If AC_PROG_LIBTOOL (or the deprecated older version AM_PROG_LIBTOOL)
 dnl has already been expanded, enable libtool support now, otherwise add
 dnl hooks to the end of AC_PROG_LIBTOOL and AM_PROG_LIBTOOL to enable it
 dnl if either is expanded later.
-    XAPIAN_VERSION="`$XAPIAN_CONFIG --version|sed 's/.* //;s/_svn[[0-9]]*$//'`"
-    XAPIAN_CXXFLAGS="`$XAPIAN_CONFIG --cxxflags`"
+    XAPIAN_VERSION=`$XAPIAN_CONFIG --version|sed 's/.* //;s/_svn[[0-9]]*$//'`
+    XAPIAN_CXXFLAGS=`$XAPIAN_CONFIG --cxxflags`
     AC_PROVIDE_IFELSE([AC_PROG_LIBTOOL],
-      [XAPIAN_LIBS="`$XAPIAN_CONFIG --ltlibs`"],
+      [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`],
       [AC_PROVIDE_IFELSE([AM_PROG_LIBTOOL],
-	[XAPIAN_LIBS="`$XAPIAN_CONFIG --ltlibs`"],
+	[XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`],
 	dnl Pass magic option so xapian-config knows we called it (so it
 	dnl can choose a more appropriate error message if asked to link
 	dnl with an uninstalled libxapian).  Also pass ac_top_srcdir
 	dnl so the error message can correctly say "configure.ac" or
 	dnl "configure.in" according to which is in use.
-	[XAPIAN_LIBS="`ac_top_srcdir=\"$ac_top_srcdir\" $XAPIAN_CONFIG --from-xo-lib-xapian --libs`"
+	[XAPIAN_LIBS=`ac_top_srcdir="$ac_top_srcdir" $XAPIAN_CONFIG --from-xo-lib-xapian --libs`
 	define([AC_PROG_LIBTOOL], defn([AC_PROG_LIBTOOL])
-	       [XAPIAN_LIBS="`$XAPIAN_CONFIG --ltlibs`"])
+	       [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])
 	define([AM_PROG_LIBTOOL], defn([AM_PROG_LIBTOOL])
-	       [XAPIAN_LIBS="`$XAPIAN_CONFIG --ltlibs`"])])])
+	       [XAPIAN_LIBS=`$XAPIAN_CONFIG --ltlibs`])])])
     ifelse([$1], , :, [$1])
   fi
   AC_SUBST(XAPIAN_CXXFLAGS)

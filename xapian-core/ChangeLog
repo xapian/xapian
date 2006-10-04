@@ -1,3 +1,7 @@
+Wed Oct 04 20:32:43 BST 2006  Olly Betts <olly@survex.com>
+
+	* m4/xapian.m4: Remove overquoting.
+
 Wed Oct  4 13:28:09 BST 2006  Richard Boulton <richard@lemurconsulting.com>
 
         * common/utils.h: MSVC seems to #define open.  However, the
