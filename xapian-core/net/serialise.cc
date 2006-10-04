@@ -41,15 +41,15 @@ encode_length(size_t len)
 {
     string result;
     if (len < 255) {
-	result += static_cast<char>(len);
+	result += static_cast<unsigned char>(len);
     } else {
 	result += '\xff';
 	len -= 255;
 	while (true) {
-	    char byte = static_cast<char>(len & 0x7f);
+	    unsigned char byte = static_cast<unsigned char>(len & 0x7f);
 	    len >>= 7;
 	    if (!len) {
-		result += (byte | static_cast<char>(0x80));
+		result += (byte | static_cast<unsigned char>(0x80));
 		break;
 	    }
 	    result += byte;

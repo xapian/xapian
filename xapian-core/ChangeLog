@@ -1,3 +1,9 @@
+Wed Oct  4 13:26:18 BST 2006  Richard Boulton <richard@lemurconsulting.com>
+
+        * net/serialise.cc: Use "unsigned char" instead of "char" when
+          serialising lengths, to avoid problems on platforms where char is
+          signed (eg, windows).
+
 Wed Oct 04 12:25:51 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_version.cc: Remove "100" from start of file so
