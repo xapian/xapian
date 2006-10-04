@@ -1,4 +1,4 @@
-100/** @file flint_version.cc
+/** @file flint_version.cc
  * @brief FlintVersion class
  */
 /* Copyright (C) 2006 Olly Betts

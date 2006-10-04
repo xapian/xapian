@@ -1,3 +1,8 @@
+Wed Oct 04 12:25:51 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_version.cc: Remove "100" from start of file so
+	  it actually compiles.
+
 Mon Oct 02 13:57:56 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Fix typo - "@libdir" should be "@libdir@".
