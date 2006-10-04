@@ -36,8 +36,8 @@ pylib_LTLIBRARIES = _xapian.la
 install-data-hook:
 	rm -f $(DESTDIR)$(pylibdir)/_xapian.la
 
-AM_CPPFLAGS = -I@PYTHON_INC@
-AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(PYTHON_CXXFLAGS) $(XAPIAN_CXXFLAGS)
+AM_CPPFLAGS = -I$(PYTHON_INC)
+AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 _xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
 _xapian_la_SOURCES = $(PYTHON_MODERN_OR_OLDE)/xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
@@ -71,12 +71,12 @@ OLDE=-DPYTHON_OLDE -noproxydel -fvirtual -fastproxy -fastdispatch -nobuildnone \
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i extra.i
 	test -d modern || mkdir modern
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow $(MODERN) \
+	$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -python -shadow $(MODERN) \
 	    -outdir modern -o modern/xapian_wrap.cc $(srcdir)/../xapian.i
 
 olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i
 	test -d olde || mkdir olde
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -python -shadow $(OLDE) \
+	$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -python -shadow $(OLDE) \
 	    -outdir olde -o olde/xapian_wrap.cc $(srcdir)/../xapian.i
 
 CLEANFILES = $(BUILT_SOURCES) xapian.py xapian.pyc

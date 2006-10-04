@@ -633,8 +633,12 @@ if test yes = "$GXX" ; then
   dnl it's safest to follow this lead when compiling the SWIG generated
   dnl interface code.  E.g.:
   dnl   http://article.gmane.org/gmane.comp.gcc.devel/74692
-  PYTHON_CXXFLAGS="-fno-strict-aliasing"
-  AC_SUBST(PYTHON_CXXFLAGS)
+  dnl The code SWIG generates for other languages seems to have similar
+  dnl issues too, so just turn this on for all of them.
+  dnl
+  dnl There's no need to check -fno-strict-aliasing is supported as it works
+  dnl with GCC 2.95 and we don't support anything older.
+  SWIG_CXXFLAGS="-fno-strict-aliasing"
 
   dnl We need to explicitly link against -lstdc++ on OpenBSD (discovered
   dnl on OpenBSD 3.7 with GCC 3.3.5 but this appears to be due to a
@@ -659,7 +663,7 @@ if test yes = "$GXX" ; then
       dnl
       dnl Swig generated code gives lots of unused and uninitialized warnings.
       dnl They're non-harmful, so suppress them.
-      SWIG_CXXFLAGS="-Wall -w1 -wd177,1572"
+      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall -w1 -wd177,1572"
       dnl The Java JNI wrappers have a few unused variables.
       JAVA_CXXFLAGS="-Wall -w1 -wd177,1572"
     ],
@@ -668,7 +672,7 @@ if test yes = "$GXX" ; then
       dnl
       dnl Swig generated code gives lots of unused and uninitialized warnings.
       dnl They're non-harmful, so suppress them.
-      SWIG_CXXFLAGS="-Wall -Wno-unused -Wno-uninitialized"
+      SWIG_CXXFLAGS="$SWIG_CXXFLAGS -Wall -Wno-unused -Wno-uninitialized"
       AC_MSG_CHECKING([whether to use -fvisibility=hidden])
       dnl To be robust, we check both that -fvisibility=hidden is recognised
       dnl and that SWIG will have added the visibility attributes.

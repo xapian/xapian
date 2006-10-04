@@ -1,3 +1,8 @@
+Wed Oct 04 17:47:32 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,python/Makefile.am: Use -fno-strict-aliasing when
+	  compiling all SWIG bindings, not just python.
+
 Mon Oct 02 04:45:43 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Only enable visibility annotations with GCC 4.0 or
