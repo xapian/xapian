@@ -102,7 +102,7 @@ class Error {
  * visibility support.  This can go away once we add GCC visibility support
  * to the main library.
  */
-#ifdef SWIGEXPORT
+#if defined(SWIGEXPORT) && defined(__GNUC__) && (__GNUC__ >= 4)
 # define XAPIAN_EXCEPTION_EXPORT SWIGEXPORT
 #else
 # define XAPIAN_EXCEPTION_EXPORT

@@ -1,20 +1,25 @@
+Thu Oct 05 14:13:55 BST 2006  Olly Betts <olly@survex.com>
+
+	* include/xapian/error.h: Only enable the SWIG visibility hook when
+	  using GCC 4 or later.
+
 Wed Oct 04 20:32:43 BST 2006  Olly Betts <olly@survex.com>
 
 	* m4/xapian.m4: Remove overquoting.
 
 Wed Oct  4 13:28:09 BST 2006  Richard Boulton <richard@lemurconsulting.com>
 
-        * common/utils.h: MSVC seems to #define open.  However, the
-          workaround for this problem implemented for old versions of
-          solaris doesn't work for windows, so avoid applying the fix for
-          windows, and just #undef open.  (Windows seems to define some
-          open() functions, as well as #defining open!)
+	* common/utils.h: MSVC seems to #define open.  However, the
+	  workaround for this problem implemented for old versions of
+	  solaris doesn't work for windows, so avoid applying the fix for
+	  windows, and just #undef open.  (Windows seems to define some
+	  open() functions, as well as #defining open!)
 
 Wed Oct  4 13:26:18 BST 2006  Richard Boulton <richard@lemurconsulting.com>
 
-        * net/serialise.cc: Use "unsigned char" instead of "char" when
-          serialising lengths, to avoid problems on platforms where char is
-          signed (eg, windows).
+	* net/serialise.cc: Use "unsigned char" instead of "char" when
+	  serialising lengths, to avoid problems on platforms where char is
+	  signed (eg, windows).
 
 Wed Oct 04 12:25:51 BST 2006  Olly Betts <olly@survex.com>
 
