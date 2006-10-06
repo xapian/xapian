@@ -357,8 +357,10 @@ qint_from_vector(Xapian::Query::op op,
 {
     Xapian::Query::Internal * qint = new Xapian::Query::Internal(op, parameter);
     vector<Xapian::Query::Internal *>::const_iterator i;
-    for (i = vec.begin(); i != vec.end(); i++)
+    for (i = vec.begin(); i != vec.end(); i++) {
 	qint->add_subquery(**i);
+	delete *i;
+    }
     qint->end_construction();
     return qint;
 }

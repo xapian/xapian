@@ -1,15 +1,19 @@
+Fri Oct 06 17:44:21 BST 2006  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Fix memory leak in query unserialisation.
+
 Fri Oct  6 17:34:59 BST 2006  Richard Boulton <richard@lemurconsulting.com>
 
-        * tests/runtest.in: Cache result of test for $VG_LOG_FD if we
-          find the new option.  Saves 2 seconds for each invocation on my
-          machine, which is half the time when running just a single simple
-          test.
+	* tests/runtest.in: Cache result of test for $VG_LOG_FD if we
+	  find the new option.  Saves 2 seconds for each invocation on my
+	  machine, which is half the time when running just a single simple
+	  test.
 
 Fri Oct  6 16:35:46 BST 2006  Richard Boulton <richard@lemurconsulting.com>
 
-        * tests/internaltest.cc: Check serialisation and unserialisation of
-          Query objects.  Currently fails under valgrind due to a memory
-          leak somewhere in the unserialisation code.
+	* tests/internaltest.cc: Check serialisation and unserialisation of
+	  Query objects.  Currently fails under valgrind due to a memory
+	  leak somewhere in the unserialisation code.
 
 Thu Oct 05 14:13:55 BST 2006  Olly Betts <olly@survex.com>
 
