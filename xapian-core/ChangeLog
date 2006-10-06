@@ -1,3 +1,19 @@
+Fri Oct  6 18:27:13 BST 2006  Richard Boulton <richard@lemurconsulting.com>
+
+        * tests/runtest.in: export $LIBTOOL, $VALGRIND and $VG_LOG_FD.
+        * testsuite/backendmanager.cc: If $LIBTOOL, $VALGRIND and
+          $VG_LOG_FD are set, run progsrv under valgrind.  Fixes
+          Bug #94.
+        * net/remoteserver.cc: Use an AutoPtr to hold the unserialised
+          query, so it gets deleted if an exception is thrown.
+        * api/omqueryinternal.cc: Use AutoPtr in one place, and a try-catch
+          in another, to ensure that partially unserialised queries get
+          deleted if exceptions are thrown.
+        * tests/internaltest.cc: Add copyright notices to file for recent
+          change.
+        * AUTHORS: Add myself as a current developer, now that I've started
+          committing to the core again.
+
 Fri Oct 06 17:44:21 BST 2006  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Fix memory leak in query unserialisation.

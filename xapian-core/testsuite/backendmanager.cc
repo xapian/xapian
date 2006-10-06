@@ -448,7 +448,23 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 #else
     args += createdb_quartz(paths);
 #endif
-    return Xapian::Remote::open("../bin/xapian-progsrv", args);
+    const char *vgcmd = getenv("VALGRIND");
+    const char *ltcmd = getenv("LIBTOOL");
+    const char *vglogfd = getenv("VG_LOG_FD");
+    if (vgcmd != NULL && *vgcmd && ltcmd != NULL && *ltcmd && vglogfd != NULL && *vglogfd) {
+        string cmd(ltcmd);
+        string preargs;
+        string::size_type i = cmd.find(' ');
+        if (i != string::npos) {
+            preargs = cmd.substr(i + 1) + " ";
+            cmd = cmd.substr(0, i);
+        }
+        preargs += string("--mode=execute ") + vgcmd + " " + vglogfd + "=255 ../bin/xapian-progsrv ";
+
+        return Xapian::Remote::open(cmd, preargs + args);
+    } else {
+        return Xapian::Remote::open("../bin/xapian-progsrv", args);
+    }
 }
 
 Xapian::WritableDatabase
@@ -467,7 +483,23 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
     (void)getwritedb_quartz(dbnames);
     args += ".quartz/dbw";
 #endif
-    return Xapian::Remote::open_writable("../bin/xapian-progsrv", args);
+    const char *vgcmd = getenv("VALGRIND");
+    const char *ltcmd = getenv("LIBTOOL");
+    const char *vglogfd = getenv("VG_LOG_FD");
+    if (vgcmd != NULL && *vgcmd && ltcmd != NULL && *ltcmd && vglogfd != NULL && *vglogfd) {
+        string cmd(ltcmd);
+        string preargs;
+        string::size_type i = cmd.find(' ');
+        if (i != string::npos) {
+            preargs = cmd.substr(i + 1) + " ";
+            cmd = cmd.substr(0, i);
+        }
+        preargs += string("--mode=execute ") + vgcmd + " " + vglogfd + "=255 ../bin/xapian-progsrv ";
+ 
+        return Xapian::Remote::open_writable(cmd, preargs + args);
+    } else {
+        return Xapian::Remote::open_writable("../bin/xapian-progsrv", args);
+    }
 }
 
 Xapian::Database

@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -311,9 +312,10 @@ class QUnserial {
 Xapian::Query::Internal *
 QUnserial::decode() {
     DEBUGLINE(UNKNOWN, "QUnserial::decode(" << p << ")");
-    Xapian::Query::Internal * qint = readquery();
-    Assert(p == end);
-    return qint;
+    AutoPtr<Xapian::Query::Internal> qint(readquery());
+    if (p != end)
+        throw Xapian::InvalidArgumentError("Bad serialised query");
+    return qint.release();
 }
 
 Xapian::Query::Internal *
@@ -368,53 +370,60 @@ qint_from_vector(Xapian::Query::op op,
 Xapian::Query::Internal *
 QUnserial::readcompound() {
     vector<Xapian::Query::Internal *> subqs;
-    while (true) {
-	if (p == end)
-	    throw Xapian::InvalidArgumentError("Bad serialised query");
-	switch (*p++) {
-	    case '[':
-		--p;
-		subqs.push_back(readquery());
-		break;
-	    case '(': {
-		subqs.push_back(readcompound());
-		break;
+    try {
+        while (true) {
+	    if (p == end)
+	        throw Xapian::InvalidArgumentError("Bad serialised query");
+	    switch (*p++) {
+	        case '[':
+		    --p;
+		    subqs.push_back(readquery());
+		    break;
+	        case '(': {
+		    subqs.push_back(readcompound());
+		    break;
+	        }
+	        case '&':
+		    return qint_from_vector(Xapian::Query::OP_AND, subqs);
+	        case '|':
+		    return qint_from_vector(Xapian::Query::OP_OR, subqs);
+	        case '%':
+		    return qint_from_vector(Xapian::Query::OP_FILTER, subqs);
+	        case '^':
+		    return qint_from_vector(Xapian::Query::OP_XOR, subqs);
+	        case '+':
+		    return qint_from_vector(Xapian::Query::OP_AND_MAYBE, subqs);
+	        case '-':
+		    return qint_from_vector(Xapian::Query::OP_AND_NOT, subqs);
+	        case '~': {
+		    char *tmp; // avoid compiler warning
+		    Xapian::termcount window(strtol(p, &tmp, 10));
+		    p = tmp;
+		    return qint_from_vector(Xapian::Query::OP_NEAR, subqs, window);
+	        }
+	        case '"': {
+		    char *tmp; // avoid compiler warning
+		    Xapian::termcount window(strtol(p, &tmp, 10));
+		    p = tmp;
+		    return qint_from_vector(Xapian::Query::OP_PHRASE, subqs, window);
+	        }
+	        case '*': {
+		    char *tmp; // avoid compiler warning
+		    Xapian::termcount elite_set_size(strtol(p, &tmp, 10));
+		    p = tmp;
+		    return qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs,
+					    elite_set_size);
+	        }
+	        default:
+		    DEBUGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
+		    throw Xapian::InvalidArgumentError("Invalid query string");
 	    }
-	    case '&':
-		return qint_from_vector(Xapian::Query::OP_AND, subqs);
-	    case '|':
-		return qint_from_vector(Xapian::Query::OP_OR, subqs);
-	    case '%':
-		return qint_from_vector(Xapian::Query::OP_FILTER, subqs);
-	    case '^':
-		return qint_from_vector(Xapian::Query::OP_XOR, subqs);
-	    case '+':
-		return qint_from_vector(Xapian::Query::OP_AND_MAYBE, subqs);
-	    case '-':
-		return qint_from_vector(Xapian::Query::OP_AND_NOT, subqs);
-	    case '~': {
-		char *tmp; // avoid compiler warning
-		Xapian::termcount window(strtol(p, &tmp, 10));
-		p = tmp;
-		return qint_from_vector(Xapian::Query::OP_NEAR, subqs, window);
-	    }
-	    case '"': {
-		char *tmp; // avoid compiler warning
-		Xapian::termcount window(strtol(p, &tmp, 10));
-		p = tmp;
-		return qint_from_vector(Xapian::Query::OP_PHRASE, subqs, window);
-	    }
-	    case '*': {
-		char *tmp; // avoid compiler warning
-		Xapian::termcount elite_set_size(strtol(p, &tmp, 10));
-		p = tmp;
-		return qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs,
-					elite_set_size);
-	    }
-	    default:
-		DEBUGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
-		throw Xapian::InvalidArgumentError("Invalid query string");
-	}
+        }
+    } catch(...) {
+        vector<Xapian::Query::Internal *>::iterator i;
+        for (i = subqs.begin(); i != subqs.end(); i++)
+            delete *i;
+        throw;
     }
 }
 

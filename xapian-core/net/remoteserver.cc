@@ -2,6 +2,7 @@
  *  @brief Xapian remote backend server base class
  */
 /* Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -257,8 +258,7 @@ RemoteServer::msg_query(const string &message_in)
 
     // Unserialise the Query.
     len = decode_length(&p, p_end);
-    Xapian::Query::Internal * query;
-    query = Xapian::Query::Internal::unserialise(string(p, len));
+    AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len)));
     p += len;
 
     // Unserialise assorted Enquire settings.
@@ -313,7 +313,7 @@ RemoteServer::msg_query(const string &message_in)
 
     NetworkStatsGatherer * gatherer = new NetworkStatsGatherer(this);
 
-    MultiMatch match(*db, query, qlen, rset, collapse_key,
+    MultiMatch match(*db, query.get(), qlen, rset, collapse_key,
 		     percent_cutoff, weight_cutoff, order,
 		     sort_key, sort_by, sort_value_forward,
 		     0, 0, NULL, gatherer, wt.get());

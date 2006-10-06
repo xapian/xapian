@@ -5,6 +5,7 @@
 # required).
 #
 # Copyright (C) 2003,2004 Olly Betts
+# Copyright (C) 2006 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -88,4 +89,7 @@ LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_
 echo "Running test '$@' under valgrind"
 GLIBCXX_FORCE_NEW=1
 export GLIBCXX_FORCE_NEW
+export LIBTOOL
+export VALGRIND
+export VG_LOG_FD
 exec $LIBTOOL --mode=execute $VALGRIND $VG_LOG_FD=255 "$@"
