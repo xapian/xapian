@@ -68,10 +68,18 @@ fi
 
 # Irritatingly, --logfile-fd was renamed to --log-fd in valgrind 2.1.2
 # with no support for the old option name, so we must probe...
-if $VALGRIND -q --log-fd=1 true > /dev/null 2>&1 ; then
+# If we find the new option, cache it to save wasting time on repeated tests.
+# Don't cache if we find the old option, so we will still work when valgrind
+# is upgraded.
+if test -f ".have_new_vg_log_fd" ; then
    VG_LOG_FD=--log-fd
 else
-   VG_LOG_FD=--logfile-fd
+   if $VALGRIND -q --log-fd=1 true > /dev/null 2>&1 ; then
+      VG_LOG_FD=--log-fd
+      echo "1" > .have_new_vg_log_fd
+   else
+      VG_LOG_FD=--logfile-fd
+   fi
 fi
 # Get libtool to run the test program under valgrind.
 : ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
