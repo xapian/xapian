@@ -1,3 +1,9 @@
+Fri Oct  6 16:35:46 BST 2006  Richard Boulton <richard@lemurconsulting.com>
+
+        * tests/internaltest.cc: Check serialisation and unserialisation of
+          Query objects.  Currently fails under valgrind due to a memory
+          leak somewhere in the unserialisation code.
+
 Thu Oct 05 14:13:55 BST 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/error.h: Only enable the SWIG visibility hook when

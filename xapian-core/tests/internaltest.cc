@@ -25,6 +25,7 @@
 #include <float.h>
 
 #include <string>
+#include <list>
 
 using namespace std;
 
@@ -34,6 +35,7 @@ using namespace std;
 
 #include "serialise.h"
 #include "serialise-double.h"
+#include "omqueryinternal.h"
 
 static bool test_except1()
 {
@@ -278,6 +280,40 @@ static bool test_serialisedoc1()
     return true;
 }
 
+// Check serialisation of queries.
+static bool test_serialisequery1()
+{
+    string s;
+    list<Xapian::Query> queries;
+    
+    queries.push_back(Xapian::Query("foo"));
+
+    const char * words[] = { "paragraph", "word" };
+    queries.push_back(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
+
+    list<Xapian::Query>::const_iterator query;
+    for(query = queries.begin(); query != queries.end(); query++) {
+        Xapian::Query::Internal * qint;
+
+        try {
+            s = query->internal->serialise();
+        } catch (const Xapian::InternalError & e) {
+            SKIP_TEST("query serialisation not compiled in");
+        }
+
+        try {
+            qint = Xapian::Query::Internal::unserialise(s);
+        } catch (const Xapian::InternalError & e) {
+            SKIP_TEST("query unserialisation not compiled in");
+        }
+
+        TEST(qint->serialise() == s);
+        delete qint;
+    }
+
+    return true;
+}
+
 // By default Sun's C++ compiler doesn't call the destructor on a
 // temporary object until the end of the block (contrary to what
 // ISO C++ requires).  This is done in the name of "compatibility".
@@ -318,6 +354,7 @@ test_desc tests[] = {
     {"serialisedouble1",	test_serialisedouble1},
     {"serialisedoc1",		test_serialisedoc1},
     {"temporarydtor1",		test_temporarydtor1},
+    {"serialisequery1",		test_serialisequery1},
     {0, 0}
 };
 
