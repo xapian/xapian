@@ -1,3 +1,10 @@
+Fri Oct 06 21:40:09 BST 2006  Olly Betts <olly@survex.com>
+
+	* php/: Rely on xapian.php to load the extension module for us.
+	  PHP4 bindings now generate proxy classes.  Rewrite smoketest to
+	  handle either PHP4 or PHP5 proxy classes.  Fix smoketest error
+	  messages to use PHP style code.
+
 Wed Oct 04 17:47:32 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,python/Makefile.am: Use -fno-strict-aliasing when

@@ -53,7 +53,7 @@ if MAINTAINER_MODE
 
 php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: ../xapian.i util.i
 	test -d php4 || mkdir php4
-	$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -php4 -noproxy \
+	$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -php4 \
 	    -outdir php4 -o php4/xapian_wrap.cc $(srcdir)/../xapian.i
 
 php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: ../xapian.i util.i

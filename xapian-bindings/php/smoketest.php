@@ -20,102 +20,117 @@
  * USA
  */
 
-// PHP_SHLIB_SUFFIX is available as of PHP 4.3.0, for older PHP assume 'so'.
-// It gives 'dylib' on MacOS X which is for libraries, modules are 'so'.
-$ext = PHP_SHLIB_SUFFIX;
-if ($ext === 'PHP_SHLIB_SUFFIX' || $ext === 'dylib') $ext = 'so';
-if (!dl('xapian.'.$ext)) {
-    print "dl('xapian.$ext') failed\n";
-    exit(1);
-}
+$php_version = substr(PHP_VERSION, 0, 1);
+
+include "php$php_version/xapian.php";
 
 // Test the version number reporting functions give plausible results.
-$v = xapian_major_version().'.'.xapian_minor_version().'.'.xapian_revision();
-$v2 = xapian_version_string();
+if ($php_version == 4) {
+    $v = xapian_major_version().'.'.xapian_minor_version().'.'.xapian_revision();
+    $v2 = xapian_version_string();
+} else {
+    $v = Xapian::major_version().'.'.Xapian::minor_version().'.'.Xapian::revision();
+    $v2 = Xapian::version_string();
+}
 if ($v != $v2) {
     print "Unexpected version output ($v != $v2)\n";
     exit(1);
 }
 
-$stem = new_Stem("english");
-if (Stem_get_description($stem) != "Xapian::Stem(english)") {
-    print "Unexpected stem.get_description()\n";
+$stem = new XapianStem("english");
+if ($stem->get_description() != "Xapian::Stem(english)") {
+    print "Unexpected \$stem->get_description()\n";
     exit(1);
 }
 
-$doc = new_Document();
-Document_set_data($doc, "a\x00b");
-if (Document_get_data($doc) == "a") {
+$doc = new XapianDocument();
+$doc->set_data("a\x00b");
+if ($doc->get_data() === "a") {
     print "get_data+set_data truncates at a zero byte\n";
     exit(1);
 }
-if (Document_get_data($doc) != "a\x00b") {
+if ($doc->get_data() !== "a\x00b") {
     print "get_data+set_data doesn't transparently handle a zero byte\n";
     exit(1);
 }
-Document_set_data($doc, "is there anybody out there?");
-Document_add_term($doc, "XYzzy");
-Document_add_posting($doc, Stem_stem_word($stem, "is"), 1);
-Document_add_posting($doc, Stem_stem_word($stem, "there"), 2);
-Document_add_posting($doc, Stem_stem_word($stem, "anybody"), 3);
-Document_add_posting($doc, Stem_stem_word($stem, "out"), 4);
-Document_add_posting($doc, Stem_stem_word($stem, "there"), 5);
+$doc->set_data("is there anybody out there?");
+$doc->add_term("XYzzy");
+$doc->add_posting($stem->stem_word("is"), 1);
+$doc->add_posting($stem->stem_word("there"), 2);
+$doc->add_posting($stem->stem_word("anybody"), 3);
+$doc->add_posting($stem->stem_word("out"), 4);
+$doc->add_posting($stem->stem_word("there"), 5);
 
-$db = inmemory_open();
+if ($php_version == 4) {
+    $db = inmemory_open();
+} else {
+    $db = Xapian::inmemory_open();
+}
 // Check virtual function dispatch.
-if (WritableDatabase_get_description($db) != Database_get_description($db)) {
-    print "Virtual function dispatch didn't work as expected\n";
+if (substr($db->get_description(), 0, 17) !== "WritableDatabase(") {
+    print "Unexpected \$db->get_description()\n";
     exit(1);
 }
-WritableDatabase_add_document($db, $doc);
-if (Database_get_doccount($db) != 1) {
-    print "Unexpected db.get_doccount()\n";
+$db->add_document($doc);
+if ($db->get_doccount() != 1) {
+    print "Unexpected \$db->get_doccount()\n";
     exit(1);
 }
 
+if ($php_version == 4) {
+    $op_or = XapianQuery_OP_OR;
+    $op_phrase = XapianQuery_OP_PHRASE;
+    $op_xor = XapianQuery_OP_XOR;
+    $op_elite_set = XapianQuery_OP_ELITE_SET;
+} else {
+    $op_or = XapianQuery::OP_OR;
+    $op_phrase = XapianQuery::OP_PHRASE;
+    $op_xor = XapianQuery::OP_XOR;
+    $op_elite_set = XapianQuery::OP_ELITE_SET;
+}
 $terms = array("smoke", "test", "terms");
-$query = new_Query(Query_OP_OR, $terms);
-if (Query_get_description($query) != "Xapian::Query((smoke OR test OR terms))") {
-    print "Unexpected query.get_description()\n";
+$query = new XapianQuery($op_or, $terms);
+if ($query->get_description() != "Xapian::Query((smoke OR test OR terms))") {
+    print "Unexpected \$query->get_description()\n";
     exit(1);
 }
-$query1 = new_Query(Query_OP_PHRASE, array("smoke", "test", "tuple"));
-if (Query_get_description($query1) != "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))") {
-    print "Unexpected query1.get_description()\n";
+$query1 = new XapianQuery($op_phrase, array("smoke", "test", "tuple"));
+if ($query1->get_description() != "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))") {
+    print "Unexpected \$query1->get_description()\n";
     exit(1);
 }
-$query2 = new_Query(Query_OP_XOR, array(new_Query("smoke"), $query1, "string"));
-if (Query_get_description($query2) != "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))") {
-    print "Unexpected query2.get_description()\n";
+$query2 = new XapianQuery($op_xor, array(new XapianQuery("smoke"), $query1, "string"));
+if ($query2->get_description() != "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))") {
+    print "Unexpected \$query2->get_description()\n";
     exit(1);
 }
 $subqs = array("a", "b");
-$query3 = new_Query(Query_OP_OR, $subqs);
-if (Query_get_description($query3) != "Xapian::Query((a OR b))") {
-    print "Unexpected query3.get_description()\n";
+$query3 = new XapianQuery($op_or, $subqs);
+if ($query3->get_description() != "Xapian::Query((a OR b))") {
+    print "Unexpected \$query3->get_description()\n";
     exit(1);
 }
-$enq = new_Enquire($db);
-Enquire_set_query($enq, new_Query(Query_OP_OR, "there", "is"));
-$mset = Enquire_get_mset($enq, 0, 10);
-if (MSet_size($mset) != 1) {
-    print "Unexpected mset.size()\n";
+$enq = new XapianEnquire($db);
+$enq->set_query(new XapianQuery($op_or, "there", "is"));
+$mset = $enq->get_mset(0, 10);
+if ($mset->size() != 1) {
+    print "Unexpected \$mset->size()\n";
     exit(1);
 }
-$terms = join(" ", Enquire_get_matching_terms($enq, MSet_get_hit($mset, 0)));
+$terms = join(" ", $enq->get_matching_terms($mset->get_hit(0)));
 if ($terms != "is there") {
     print "Unexpected matching terms: $terms\n";
     exit(1);
 }
 
-if (Query_OP_ELITE_SET != 10) {
-    print "OP_ELITE_SET is " . Query_OP_ELITE_SET . " not 10\n";
+if ($op_elite_set != 10) {
+    print "OP_ELITE_SET is $op_elite_set not 10\n";
     exit(1);
 }
 
 # Regression test - overload resolution involving boolean types failed.
-Enquire_set_sort_by_value($enq, 1, TRUE);
+$enq->set_sort_by_value(1, TRUE);
 
-include "smoketest".substr(PHP_VERSION, 0, 1).".php";
+include "smoketest$php_version.php";
 
 ?>

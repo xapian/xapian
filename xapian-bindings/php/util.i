@@ -40,13 +40,46 @@
 "
 
 %ignore Xapian::xapian_version_string;
-%rename("xapian_version_string") Xapian::version_string;
 %ignore Xapian::xapian_major_version;
-%rename("xapian_major_version") Xapian::major_version;
 %ignore Xapian::xapian_minor_version;
-%rename("xapian_minor_version") Xapian::minor_version;
 %ignore Xapian::xapian_revision;
+
+#ifdef SWIGPHP4
+%rename("XapianBM25Weight") Xapian::BM25Weight;
+%rename("XapianBoolWeight") Xapian::BoolWeight;
+%rename("XapianDatabase") Xapian::Database;
+%rename("XapianDocument") Xapian::Document;
+%rename("XapianEnquire") Xapian::Enquire;
+%rename("XapianESet") Xapian::ESet;
+%rename("XapianESetIterator") Xapian::ESetIterator;
+%rename("XapianMSet") Xapian::MSet;
+%rename("XapianMSetIterator") Xapian::MSetIterator;
+%rename("XapianPositionIterator") Xapian::PositionIterator;
+%rename("XapianPostingIterator") Xapian::PostingIterator;
+%rename("XapianQuery") Xapian::Query;
+%rename("XapianQueryParser") Xapian::QueryParser;
+%rename("XapianRSet") Xapian::RSet;
+%rename("XapianSimpleStopper") Xapian::SimpleStopper;
+%rename("XapianStem") Xapian::Stem;
+%rename("XapianStopper") Xapian::Stopper;
+%rename("XapianTermIterator") Xapian::TermIterator;
+%rename("XapianTradWeight") Xapian::TradWeight;
+%rename("XapianValueIterator") Xapian::ValueIterator;
+%rename("XapianWeight") Xapian::Weight;
+%rename("XapianWritableDatabase") Xapian::WritableDatabase;
+
+%rename("xapian_version_string") Xapian::version_string;
+%rename("xapian_major_version") Xapian::major_version;
+%rename("xapian_minor_version") Xapian::minor_version;
 %rename("xapian_revision") Xapian::revision;
+#else
+%ignore Xapian::MSet::empty() const;
+%ignore Xapian::ESet::empty() const;
+%ignore Xapian::RSet::empty() const;
+%ignore Xapian::Query::empty() const;
+
+%rename("clone_object") clone() const;
+#endif
 
 %typemap(typecheck, precedence=SWIG_TYPECHECK_POINTER) const SWIGTYPE & {
     void *ptr;

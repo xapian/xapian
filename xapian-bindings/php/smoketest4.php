@@ -23,7 +23,7 @@
 $old_error_reporting = error_reporting();
 if ($old_error_reporting & E_WARNING)
     error_reporting($old_error_reporting ^ E_WARNING);
-$doc2 = Database_get_document($db, 2);
+$doc2 = $db->get_document(2);
 if ($doc2 != null) {
     print "Retrieved non-existent document\n";
     exit(1);
