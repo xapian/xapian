@@ -19,6 +19,16 @@
  * USA
  */
 
+# Test the version number reporting functions give plausible results.
+$v = xapian_major_version().'.'.xapian_minor_version().'.'.xapian_revision();
+$v2 = xapian_version_string();
+if ($v != $v2) {
+    print "Unexpected version output ($v != $v2)\n";
+    exit(1);
+}
+
+$db = inmemory_open();
+
 # Check PHP4 handling of Xapian::DocNotFoundError
 $old_error_reporting = error_reporting();
 if ($old_error_reporting & E_WARNING)
@@ -30,4 +40,10 @@ if ($doc2 != null) {
 }
 if ($old_error_reporting & E_WARNING)
     error_reporting($old_error_reporting);
+
+$op_or = XapianQuery_OP_OR;
+$op_phrase = XapianQuery_OP_PHRASE;
+$op_xor = XapianQuery_OP_XOR;
+$op_elite_set = XapianQuery_OP_ELITE_SET;
+
 ?>

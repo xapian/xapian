@@ -24,18 +24,8 @@ $php_version = substr(PHP_VERSION, 0, 1);
 
 include "php$php_version/xapian.php";
 
-// Test the version number reporting functions give plausible results.
-if ($php_version == 4) {
-    $v = xapian_major_version().'.'.xapian_minor_version().'.'.xapian_revision();
-    $v2 = xapian_version_string();
-} else {
-    $v = Xapian::major_version().'.'.Xapian::minor_version().'.'.Xapian::revision();
-    $v2 = Xapian::version_string();
-}
-if ($v != $v2) {
-    print "Unexpected version output ($v != $v2)\n";
-    exit(1);
-}
+# Include PHP version specific code.
+include "smoketest$php_version.php";
 
 $stem = new XapianStem("english");
 if ($stem->get_description() != "Xapian::Stem(english)") {
@@ -61,11 +51,6 @@ $doc->add_posting($stem->stem_word("anybody"), 3);
 $doc->add_posting($stem->stem_word("out"), 4);
 $doc->add_posting($stem->stem_word("there"), 5);
 
-if ($php_version == 4) {
-    $db = inmemory_open();
-} else {
-    $db = Xapian::inmemory_open();
-}
 // Check virtual function dispatch.
 if (substr($db->get_description(), 0, 17) !== "WritableDatabase(") {
     print "Unexpected \$db->get_description()\n";
@@ -77,17 +62,6 @@ if ($db->get_doccount() != 1) {
     exit(1);
 }
 
-if ($php_version == 4) {
-    $op_or = XapianQuery_OP_OR;
-    $op_phrase = XapianQuery_OP_PHRASE;
-    $op_xor = XapianQuery_OP_XOR;
-    $op_elite_set = XapianQuery_OP_ELITE_SET;
-} else {
-    $op_or = XapianQuery::OP_OR;
-    $op_phrase = XapianQuery::OP_PHRASE;
-    $op_xor = XapianQuery::OP_XOR;
-    $op_elite_set = XapianQuery::OP_ELITE_SET;
-}
 $terms = array("smoke", "test", "terms");
 $query = new XapianQuery($op_or, $terms);
 if ($query->get_description() != "Xapian::Query((smoke OR test OR terms))") {
@@ -130,7 +104,5 @@ if ($op_elite_set != 10) {
 
 # Regression test - overload resolution involving boolean types failed.
 $enq->set_sort_by_value(1, TRUE);
-
-include "smoketest$php_version.php";
 
 ?>
