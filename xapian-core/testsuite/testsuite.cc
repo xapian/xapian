@@ -55,13 +55,14 @@
 #include "omdebug.h"
 #include "utils.h"
 
-// fd that we elsewhere tell valgrind to log to (with --logfile-fd=N)
-#define LOG_FD_FOR_VG 255
-
 using namespace std;
 
 /// The global verbose flag.
 bool verbose;
+
+#ifdef HAVE_VALGRIND
+static int vg_log_fd = -1;
+#endif
 
 /// The exception type we were expecting in TEST_EXCEPTION
 //  We use this to attempt to diagnose when the code fails to catch an
@@ -206,8 +207,11 @@ test_driver::runtest(const test_desc *test)
 		int vg_errs = VALGRIND_COUNT_ERRORS;
 		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
 		VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
-		ftruncate(LOG_FD_FOR_VG, 0);
-		lseek(LOG_FD_FOR_VG, 0, SEEK_SET);
+		while (true) {
+		    char buf[1024];
+		    ssize_t c = read(vg_log_fd, buf, sizeof(buf));
+		    if (c == 0 || (c < 0 && errno != EINTR)) break;
+		}
 #endif
 		if (!test->run()) {
 		    string s = tout.str();
@@ -227,9 +231,8 @@ test_driver::runtest(const test_desc *test)
 	        tout.str("");
 #define REPORT_FAIL_VG(M) do { \
     if (verbose) { \
-	lseek(LOG_FD_FOR_VG, 0, SEEK_SET); \
 	while (true) { \
-	    ssize_t c = read(LOG_FD_FOR_VG, buf, sizeof(buf)); \
+	    ssize_t c = read(vg_log_fd, buf, sizeof(buf)); \
 	    if (c == 0 || (c < 0 && errno != EINTR)) break; \
 	    if (c > 0) out << string(buf, c); \
 	} \
@@ -237,9 +240,8 @@ test_driver::runtest(const test_desc *test)
     out << " " << col_red << M << col_reset; \
 } while (0)
 		char buf[1024];
-		lseek(LOG_FD_FOR_VG, 0, SEEK_SET);
 		while (true) {
-		    ssize_t c = read(LOG_FD_FOR_VG, buf, sizeof(buf));
+		    ssize_t c = read(vg_log_fd, buf, sizeof(buf));
 		    if (c == 0 || (c < 0 && errno != EINTR)) {
 			buf[0] = 0;
 			break;
@@ -258,7 +260,6 @@ test_driver::runtest(const test_desc *test)
 			break;
 		    }
 		}
-		lseek(LOG_FD_FOR_VG, 0, SEEK_END);
 		VALGRIND_DO_LEAK_CHECK;
 		int vg_errs2 = VALGRIND_COUNT_ERRORS;
 		vg_errs = vg_errs2 - vg_errs;
@@ -311,6 +312,7 @@ test_driver::runtest(const test_desc *test)
 		    REPORT_FAIL_VG("FAILED TO RELEASE " << vg_reachable << " BYTES");
 		    return FAIL;
 		}
+REPORT_FAIL_VG("NO PROBLEM");
 #endif
 	    } catch (const TestFail &) {
 		string s = tout.str();
@@ -580,18 +582,11 @@ test_driver::parse_command_line(int argc, char **argv)
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	// Open a temporary file for valgrind to log to.
-	FILE * f = tmpfile();
-	if (f) {
-	    int fd = fileno(f);
-	    if (fd != -1) {
-		fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_APPEND);
-		if (fd != LOG_FD_FOR_VG) {
-		    dup2(fd, LOG_FD_FOR_VG);
-		    fclose(f);
-		}
-	    }
-	}
+	// Open the valgrind log file, and unlink it.
+	char fname[64];
+	sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
+	vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
+	unlink(fname);
     }
 #endif
 

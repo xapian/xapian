@@ -5,7 +5,6 @@
 # required).
 #
 # Copyright (C) 2003,2004 Olly Betts
-# Copyright (C) 2006 Richard Boulton
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -33,26 +32,26 @@ fi
 : ${srcdir="@srcdir@"}
 export srcdir
 
-case "$2" in
+case $2 in
 *test)
-   case "$1" in
+   case $1 in
    *gdb|"*gdb *")
       # gdb needs special handling (--args)
-      gdb="$1"
+      gdb=$1
       shift
-      : ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
+      : ${top_builddir=`echo "$0"|sed 's![^/]*$!..!'`}
       export top_builddir
-      LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`"
+      LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
       echo "Running test '$@' under $gdb"
       exec $LIBTOOL --mode=execute $gdb --args "$@" ;;
    *)
       # Handles any tool which can just be run as:
       #   TOOL TOOL-ARGS PROGRAM PROGRAM-ARGS
-      tool="$1"
+      tool=$1
       shift
-      : ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
+      : ${top_builddir=`echo "$0"|sed 's![^/]*$!..!'`}
       export top_builddir
-      LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`"
+      LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
       echo "Running test '$@' under $tool"
       exec $LIBTOOL --mode=execute $tool "$@" ;;
    esac
@@ -67,29 +66,17 @@ if test -z "$VALGRIND" ; then
    exit 1
 fi
 
-# Irritatingly, --logfile-fd was renamed to --log-fd in valgrind 2.1.2
-# with no support for the old option name, so we must probe...
-# If we find the new option, cache it to save wasting time on repeated tests.
-# Don't cache if we find the old option, so we will still work when valgrind
-# is upgraded.
-if test -f ".have_new_vg_log_fd" ; then
-   VG_LOG_FD=--log-fd
-else
-   if $VALGRIND -q --log-fd=1 true > /dev/null 2>&1 ; then
-      VG_LOG_FD=--log-fd
-      echo "1" > .have_new_vg_log_fd
-   else
-      VG_LOG_FD=--logfile-fd
-   fi
-fi
-# Get libtool to run the test program under valgrind.
-: ${top_builddir="`echo \"$0\"|sed 's![^/]*$!..!'`"}
+# Get libtool to run the test program under valgrind.  We have to use
+# libtool --mode=execute because we want to run valgrind on the compiled
+# C++ test program, not on the shell running the shell script wrapper libtool
+# generates.
+: ${top_builddir=`echo "$0"|sed 's![^/]*$!..!'`}
 export top_builddir
-LIBTOOL="`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`"
-echo "Running test '$@' under valgrind"
+LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
+# For GCC 3.4 and newer, force the GNU C++ STL to not pool memory, which gives
+# more accurate memory leak reports with valgrind.
 GLIBCXX_FORCE_NEW=1
 export GLIBCXX_FORCE_NEW
-export LIBTOOL
-export VALGRIND
-export VG_LOG_FD
-exec $LIBTOOL --mode=execute $VALGRIND $VG_LOG_FD=255 "$@"
+vg_opts=@VALGRIND_LOG_FILE_OPT@=.valgrind.log
+echo "Running test '$@' under valgrind"
+exec $LIBTOOL --mode=execute $VALGRIND $vg_opts "$@"

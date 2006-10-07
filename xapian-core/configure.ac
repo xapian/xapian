@@ -405,6 +405,10 @@ AC_CHECK_HEADERS([fcntl.h limits.h sys/errno.h sys/select.h], [], [], [ ])
 dnl If valgrind is installed and new enough, we use it for leak checking in the
 dnl testsuite.  If VALGRIND is set to an empty value, then skip the check and
 dnl don't use valgrind.
+dnl
+dnl Default to what modern valgrind knows, so the user can specify valgrind
+dnl when running runtest even if it doesn't get picked up here.
+VALGRIND_LOG_FILE_OPT=--log-file
 if test -n "${VALGRIND-unset}" ; then
   AC_PATH_PROG(VALGRIND, valgrind, [])
   if test -n "$VALGRIND" ; then
@@ -420,24 +424,36 @@ if test -n "${VALGRIND-unset}" ; then
       [VALGRIND=])
 
     dnl Check that the installed valgrind version works, and see if it needs
-    dnl --tool=memcheck to work.
-    if $VALGRIND -q true 2> /dev/null ; then
-       dnl All is OK.
-       :
-    elif $VALGRIND --tool=memcheck -q true 2> /dev/null ; then
-       dnl The valgrind version installed requires --tool=memcheck
-       VALGRIND="$VALGRIND --tool=memcheck"
+    dnl --tool=memcheck to work (older and newer versions don't, but some in
+    dnl between do).  Valgrind 2.1.2 and later have a --log-file option but
+    dnl 2.1.1 and older had --logfile instead, so we need to check this too.
+    if $VALGRIND --log-file=/dev/null -q true 2> /dev/null ; then
+      dnl Test the case which matches a modern valgrind first so we handle
+      dnl the common case quickly with a single test.
+      :
     else
-       dnl The valgrind detected doesn't work!  Perhaps this is an x86_64 box
-       dnl with a 32 bit valgrind.
-       VALGRIND=
+      dnl Now we have to test individual options.
+      if $VALGRIND --tool=memcheck -q true 2> /dev/null ; then
+	dnl This valgrind version requires --tool=memcheck
+	VALGRIND="$VALGRIND --tool=memcheck"
+      fi
+      if $VALGRIND --log-file=/dev/null -q true 2>/dev/null ; then
+        :
+      elif $VALGRIND --logfile=/dev/null -q true 2>/dev/null ; then
+	VALGRIND_LOG_FILE_OPT=--logfile
+      else
+	dnl The valgrind detected doesn't seem to work!  Perhaps this is an
+	dnl x86_64 box with a 32 bit valgrind.
+	VALGRIND=
+      fi
     fi
   fi
 fi
+AC_SUBST(VALGRIND_LOG_FILE_OPT)
 
 if test -n "$VALGRIND" ; then
   AC_DEFINE(HAVE_VALGRIND, 1,
-	    [Define if valgrind is installed and it supports VALGRIND_COUNT_LEAKS])
+	    [Define if valgrind is installed and supports VALGRIND_COUNT_LEAKS])
 fi
 
 dnl Checks for library functions.
@@ -665,8 +681,8 @@ case $host_os in
 #include <unistd.h>
 $p
 	      ],[
-	        char b[256];
-	        pread(1, b, 256, 20);
+		char b[256];
+		pread(1, b, 256, 20);
 	      ],[
 		xo_cv_pread_prototype="$p"
 		break
@@ -697,8 +713,8 @@ $p
 #include <unistd.h>
 $p
 	      ],[
-	        const char *p = "hello";
-	        pwrite(1, p, 5, 20);
+		const char *p = "hello";
+		pwrite(1, p, 5, 20);
 	      ],[
 		xo_cv_pwrite_prototype="$p"
 		break

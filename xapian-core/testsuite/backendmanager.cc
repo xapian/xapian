@@ -22,6 +22,10 @@
 
 #include <config.h>
 
+#ifdef HAVE_VALGRIND
+# include <valgrind/memcheck.h>
+#endif
+
 #include "safeerrno.h"
 
 #include <fstream>
@@ -437,7 +441,7 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 	paths.assign(dbnames.begin() + 2, dbnames.end());
     } else {
 	// Default to a long (5 minute) timeout so that tests won't fail just
-	// because the host if slow or busy.
+	// because the host is slow or busy.
 	args += "300000";
 	paths = dbnames;
     }
@@ -448,23 +452,12 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 #else
     args += createdb_quartz(paths);
 #endif
-    const char *vgcmd = getenv("VALGRIND");
-    const char *ltcmd = getenv("LIBTOOL");
-    const char *vglogfd = getenv("VG_LOG_FD");
-    if (vgcmd != NULL && *vgcmd && ltcmd != NULL && *ltcmd && vglogfd != NULL && *vglogfd) {
-        string cmd(ltcmd);
-        string preargs;
-        string::size_type i = cmd.find(' ');
-        if (i != string::npos) {
-            preargs = cmd.substr(i + 1) + " ";
-            cmd = cmd.substr(0, i);
-        }
-        preargs += string("--mode=execute ") + vgcmd + " " + vglogfd + "=255 ../bin/xapian-progsrv ";
-
-        return Xapian::Remote::open(cmd, preargs + args);
-    } else {
-        return Xapian::Remote::open("../bin/xapian-progsrv", args);
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+        return Xapian::Remote::open("./runtest ../bin/xapian-progsrv", args);
     }
+#endif
+    return Xapian::Remote::open("../bin/xapian-progsrv", args);
 }
 
 Xapian::WritableDatabase
@@ -483,23 +476,12 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
     (void)getwritedb_quartz(dbnames);
     args += ".quartz/dbw";
 #endif
-    const char *vgcmd = getenv("VALGRIND");
-    const char *ltcmd = getenv("LIBTOOL");
-    const char *vglogfd = getenv("VG_LOG_FD");
-    if (vgcmd != NULL && *vgcmd && ltcmd != NULL && *ltcmd && vglogfd != NULL && *vglogfd) {
-        string cmd(ltcmd);
-        string preargs;
-        string::size_type i = cmd.find(' ');
-        if (i != string::npos) {
-            preargs = cmd.substr(i + 1) + " ";
-            cmd = cmd.substr(0, i);
-        }
-        preargs += string("--mode=execute ") + vgcmd + " " + vglogfd + "=255 ../bin/xapian-progsrv ";
- 
-        return Xapian::Remote::open_writable(cmd, preargs + args);
-    } else {
-        return Xapian::Remote::open_writable("../bin/xapian-progsrv", args);
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+        return Xapian::Remote::open("./runtest ../bin/xapian-progsrv", args);
     }
+#endif
+    return Xapian::Remote::open_writable("../bin/xapian-progsrv", args);
 }
 
 Xapian::Database
@@ -529,6 +511,9 @@ BackendManager::getdb_remotetcp(const vector<string> &dbnames)
     args += createdb_quartz(paths);
 #endif
     string cmd = "../bin/xapian-tcpsrv --one-shot --quiet --port 1239 " + args + " 2>/dev/null &";
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
+#endif
     system(cmd);
     sleep(1);
     return Xapian::Remote::open("127.0.0.1", 1239);
@@ -551,6 +536,9 @@ BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
     args += ".quartz/dbw";
 #endif
     string cmd = "../bin/xapian-tcpsrv --writable --one-shot --quiet --port 1239 " + args + " 2>/dev/null &";
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
+#endif
     system(cmd);
     sleep(1);
     return Xapian::Remote::open_writable("127.0.0.1", 1239);
