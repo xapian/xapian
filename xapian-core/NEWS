@@ -1,3 +1,193 @@
+Xapian-core 0.9.7 (2006-10-08):
+
+API:
+
+* QueryParser:
+
+  + Allow a distance to be optionally specified for NEAR - e.g.
+    "cats NEAR/3 dogs" (bug#92).
+
+  + Implement "ADJ" operator - like "NEAR" except the terms must
+    appear in matching documents in the same order as in the query.
+
+  + Fix bug in how we handle prefixed quoted phrases and prefixed brackets.
+
+  + Fix parsing of loved and hated prefixed phrases and bracketted expressions.
+
+  + Fix handling of stopwords in boolean expressions.
+  
+  + Don't ignore a stopword if it's the only query term.
+	  
+* Document::add_value() failed to replace an existing value with the same
+  number, contrary to what the documentation says (bug #82).
+
+* Enquire::set_sort_by_value(): Don't fetch the document data when fetching
+  the value to sort on.  Simple benchmarking showed this to speed up sort by
+  value by a factor of between 3 and 9!
+
+* Implement transactions for flint and quartz.  Also supported are "unflushed"
+  transactions, which provided an efficient way to atomically group a number
+  of database modifications.
+
+* The Xapian::Error and Xapian::ErrorHandler classes have been reimplemented.
+  The new versions have better, clearer documentation comments and are cleaner
+  internally.
+
+* Change how doubles are serialised by TradWeight, BM25Weight, and in the
+  remote backend protocol.  The new encoding allows us to transfer any double
+  value which can be represented by both machines precisely and compactly.
+
+testsuite:
+
+* Add targets "check-flint", "check-quartz", and "check-remote" in tests and at
+  the top level which run the subset of tests which test the respective backend.
+
+* apitest: Run tests on flint if flint is enabled, rather than if quartz is
+  enabled!
+
+* apitest: Speed up deldoc4 when run in verbose mode - some stringstream
+  implementations are very inefficient when the string grows long.
+
+* Turn on GLIBCXX_FORCE_NEW when running tests under valgrind to stop the GNU
+  C++ STL from using a pooling allocator.  This helps make velgrind's leak
+  tracking more reliable.
+
+* Probe for required valgrind logging options at configure time rather than
+  when running the test program.  This saves about 2 seconds per test program
+  invocation.
+
+* Fix testsuite harness to show valgrind output when a test fails (when running
+  under valgrind in verbose mode).  This had stopped working, probably due to
+  changes in valgrind 3.
+
+* internaltest: Check that the the destructor on a temporary object gets called
+  at the correct time (Sun C++ deliberately gets this wrong by default, and it
+  would be good to catch any other compilers which do the same).
+
+* apitest: When running tests on the remote backend and running under valgrind,
+  run xapian-tcpsrv and xapian-progsrv under valgrind too to avoid issues
+  with the precision of doubles (bug#94).
+
+flint backend:
+
+* Retry on EINTR from fcntl or waitpid when creating or releasing the flint
+  lock file.
+
+* xapian-compact: Add --blocksize option to allow the blocksize to be set
+  (default is 8K as before.)
+
+* WritableDatabase::replace_document(did, doc) was double-incrementing the
+  "changes" counter when document did didn't exist so it would flush twice
+  as often - fixed.
+
+* WritableDatabase::postlist_begin(): Remove forced flush when iterating the
+  posting list of a term which has modified postings pending.
+
+quartz backend:
+
+* quartzcompact: Add --blocksize option to allow the blocksize to be set
+  (default is 8K as before.)
+
+* WritableDatabase::replace_document(did, doc) was double-incrementing the
+  "changes" counter when document did didn't exist so it would flush twice
+  as often - fixed.
+
+remote backend:
+
+* Most of the remote backend has been rewritten.  It now supports most
+  operations which a local database does (including writing!), the protocol
+  used is more compact, and a number of layers of classes have been eliminated
+  and the sequences of method calls simplified, so the code should be easier to
+  understand and maintain despite doing more.  A number of bugs have been fixed
+  in the process.
+
+* xapian-tcpsrv: Report errno if we catch a Xapian::Error which has it set.
+
+* xapian-tcpsrv: Fix memory leak in query unserialisation.
+
+build system:
+
+* Now using autoconf 2.60 for snapshots and releases.  Also now using a
+  libtool patch which improves support for Sun C++'s -library=stlport4 option.
+
+* configure: Fix generation of version.h to work with Solaris sed.
+
+* automake adds suitable rules for rebuilding doxygen_api_conf and
+  doxygen_source_conf, so remove our less accurate versions.  Also fix
+  dependencies for regenerating the doxygen documentation, and make the
+  documentation build work with parallel make.
+
+* Make use of the dist_ prefix to avoid having to list files in EXTRA_DIST as
+  well as in *_DATA and man_MANS.
+
+* Removed a few unused #include-s.
+
+* include/xapian/error.h: Add hook to allow SWIG bindings to be built using
+  GCC's visibility support.
+
+* configure: Turn on automake's -Wportability to help ensure our Makefile.am's
+  are written in a portable way.
+
+* configure: Disable probing and short-cut tests for a FORTRAN compiler.  We
+  don't use one, but current libtool versions always check for it regardless.
+
+* xapian-config: Prune -L/usr/lib from output of `xapian-config --libs'.
+
+documentation:
+
+* docs/scalability.html: quartzcompact and xapian-compact now allow you to set
+  the blocksize, so there's no need to use copydatabase if you want to migrate
+  a database to a larger blocksize.  Mention gmane.  Other minor tweaks.
+
+* Eliminate "XAPIAN_DEPRECATED" from generated documentation.
+
+* PLATFORMS: Added success report for Nexenta (alpha 5), MSVC, and sparc linux.
+  Updated other results from tinderbox.
+
+* Add links to the wiki from README and the documentation index.
+
+* docs/overview.html: Add discussion of uses of terms vs values.
+
+* docs/overview.html: Rewrite the section on Xapian::Document to remove some
+  very out-of-date information and make it clearer.
+
+* include/xapian/database.h: Note that automatically allocated document IDs
+  don't reuse IDs from deleted documents.
+
+* include/xapian/enquire.h: Note that "set_sort_by_relevance" is the default
+  setting.
+
+* docs/queryparser.html,include/xapian/queryparser.h: Add note that
+  FLAG_WILDCARD requires you to call set_database.
+
+* HACKING: Add some advice regarding debugging using -D_GLIBCXX_DEBUG,
+  valgrind, and gdb.
+
+* HACKING: Give URL to Alexandre Duret-Lutz's autotools tutorial, which is much
+  more up-to-date than the "goat book".
+
+* HACKING: Update and expand the information about the debian packaging.
+
+* Add missing dir_contents files.
+
+portability: 
+
+* xapian/version.h: Add a check that _GLIBCXX_DEBUG is set compatibly if we're
+  compiling with GNU C++ 3.4 or newer.
+
+* Add configure check to see if "-lm" is needed to get maths functions since
+  newer versions of Sun's C++ compiler seem to require this.
+
+* Automatically put Sun's C++ compiler into "ANSI C++ compliant library" mode
+  (using -library=stlport4).  This allows us to remove most of the special
+  case bits of code we've accumulated for just this compiler, which improves
+  maintainability.
+
+* Sun's C++ compiler implements non-standards-conforming lifetimes for
+  temporary objects by default.  This means database locks don't get released
+  when they should, so we now always pass "-features=tmplife" for Sun C++
+  which selects the behaviour specified by the C++ standard.
+
 Xapian-core 0.9.6 (2006-05-15):
 
 API:

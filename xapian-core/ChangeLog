@@ -1,3 +1,7 @@
+Sun Oct 08 21:41:04 BST 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,PLATFORMS,configure.ac: Update for 0.9.7.
+
 Sun Oct 08 10:06:51 BST 2006  Olly Betts <olly@survex.com>
 
 	* testsuite/testsuite.cc: Use lseek() to skip existing valgrind output
