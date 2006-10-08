@@ -100,6 +100,10 @@ elif test -n "$CCC" ; then
   original_CXX="CCC=$CCC"
 fi
 
+dnl We don't use Fortran, but libtool 1.5 insists on probing for it, so skip
+dnl detection and run all the fortran tests on ":" to speed up configure.
+F77=:
+
 dnl Need 1.5 for AM_CXXFLAGS, etc; also so generated files in EXTRA_DIST work
 dnl Need 1.6.3 for tests/internaltest to build with Solaris make
 dnl 1.8.5 contains a lot of fixes over 1.6.3

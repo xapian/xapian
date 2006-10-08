@@ -1,3 +1,9 @@
+Sun Oct 08 05:36:36 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Disable probing and short-cut tests for a FORTRAN
+	  compiler.  We don't use one, but current libtool versions always
+	  check for it regardless.
+
 Sat Oct 07 21:19:35 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,tests/runtest.in,testsuite/backendmanager.cc,
