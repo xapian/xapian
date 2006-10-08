@@ -1,3 +1,9 @@
+Sun Oct 08 10:06:51 BST 2006  Olly Betts <olly@survex.com>
+
+	* testsuite/testsuite.cc: Use lseek() to skip existing valgrind output
+	  instead of repeated calls to read.  Handle the old valgrind naming
+	  convention for log files.
+
 Sun Oct 08 09:35:59 BST 2006  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fix a couple of typos in comments.

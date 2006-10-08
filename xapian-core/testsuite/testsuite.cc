@@ -207,11 +207,8 @@ test_driver::runtest(const test_desc *test)
 		int vg_errs = VALGRIND_COUNT_ERRORS;
 		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
 		VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
-		while (true) {
-		    char buf[1024];
-		    ssize_t c = read(vg_log_fd, buf, sizeof(buf));
-		    if (c == 0 || (c < 0 && errno != EINTR)) break;
-		}
+		// Skip past any unread log output.
+		lseek(vg_log_fd, 0, SEEK_END);
 #endif
 		if (!test->run()) {
 		    string s = tout.str();
@@ -228,7 +225,7 @@ test_driver::runtest(const test_desc *test)
 		// leak checks, otherwise the buffers holding the output may
 		// be identified as a memory leak (especially if >1K of output
 		// has been buffered it appears...)
-	        tout.str("");
+		tout.str("");
 #define REPORT_FAIL_VG(M) do { \
     if (verbose) { \
 	while (true) { \
@@ -467,7 +464,7 @@ void
 test_driver::usage()
 {
     cout << "Usage: " << argv0 << " [-v|--verbose] [-o|--abort-on-error] " << opt_help
-         << "[TESTNAME]..." << endl;
+	 << "[TESTNAME]..." << endl;
     cout << "       " << argv0 << " [-h|--help]" << endl;
     exit(1);
 }
@@ -586,6 +583,11 @@ test_driver::parse_command_line(int argc, char **argv)
 	char fname[64];
 	sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
 	vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
+	if (vg_log_fd == -1 && errno == ENOENT) {
+	    // Older valgrind versions named the log output differently.
+	    sprintf(fname, ".valgrind.log.pid%lu", (unsigned long)getpid());
+	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
+	}
 	unlink(fname);
     }
 #endif
