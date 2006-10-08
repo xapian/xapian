@@ -1,3 +1,7 @@
+Sun Oct 08 21:43:16 BST 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 0.9.7.
+
 Fri Sep 15 16:56:49 BST 2006  Olly Betts <olly@survex.com>
 
 	* cgiparam.cc: Compilation fix for Sun C++.

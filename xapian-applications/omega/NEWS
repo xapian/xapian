@@ -1,3 +1,108 @@
+Omega 0.9.7 (2006-10-08):
+
+documentation:
+
+* docs/omegascript.txt: Note that (by design) an omegascript template can't
+  contain an infinite loop.
+
+* Use the default paths to the database directories and the omega CGI binary in
+  examples.
+
+* README: Update reference to "CVS" to say "SVN".
+
+indexers:
+
+* Don't get confused by "a<b" in Javascript in a <script> tag.  Fixes bug#91.
+
+* Support htdig's "ignore this bit" comments.
+
+* Don't generate terms with more than 3 trailing symbols ('-', '+', or '#').
+
+* omindex:
+
+  + Add the file last modified time as value #0.
+
+  + Generate an MD5 checksum of each file indexed and store it in value #1
+    to allow duplicates to be collapsed.
+
+  + Store the file's last modified time in the document data as "modtime" so it
+    shows up in search results (and tweak the query template so the display of
+    this information looks nicer).  Don't add "modtime" field if the timestamp
+    is (time_t)-1.
+
+  + Run pdfinfo once and pull out the fields we want using string operations,
+    instead of running it twice filtered through sed.
+
+  + Parse the XML from OpenDocument and OpenOffice using new subclasses of
+    HtmlParser.  Only extract meta.xml once.
+
+  + Add "size" field to document data.
+
+  + Run xls2csv on MS Excel files, run catppt on MS Powerpoint files, and also
+    index MS Word templates (.dot) the same way as .doc files.
+
+  + Don't generate 'W' terms since omega doesn't use them.
+
+  + If a filter program isn't installed, then don't try it again for the same
+    extension (not perfect but an improvement - previously we indexed an empty
+    document!)
+
+  + If popen() fails, treat it as a read error.
+
+* scriptindex:
+
+  + Add new "load" action to allow the contents of an external file to be
+    loaded and parsed.
+
+  + Fix check for whether a record has content in the case where the same field
+    is processed more than once.
+
+omega:
+
+* Add $pack and $unpack OmegaScript commands to allow big endian binary values
+  to be encoded and decoded (for use with omindex's lastmod in value #1).
+
+* omega.conf: Fix code which reads omega.conf to be line based as documented
+  rather than the wacky whitespace based scheme that was actually implemented.
+  Also we now allow "#" comments and blank lines in omega.conf.
+
+* Fix $highlight{} to work with capitalised words (it used to work but
+  regressed in 0.8.2).
+
+* Use '\t' to separate terms in xP since filter terms might contain '.'.  Fixes
+  bug#87.
+
+testsuite:
+
+* Add htmlparsetest which tests the MyHtmlParser class.
+
+build system:
+
+* Makefile.am: Make use of the dist_ prefix to avoid having to list files in
+  EXTRA_DIST as well as in *_SCRIPTS, *_DATA, and man_MANS.
+
+* Makefile.am: Prefer $(sysconfdir) to @sysconfdir@ since the former can be
+  overridden on the "make" command line.
+
+portability:
+
+* xapian-config will now switch Sun's C++ compiler into ANSI C++ compliant
+  mode, so remove all the special case bits of code added for just this one
+  compiler.
+
+* omindex: Fix escaping of filenames to cast characters to "unsigned char" so
+  that isalnum() works correctly everywhere.  Not a security hole as dangerous
+  characters were still being escaped.
+
+* Call pclose() not fclose() on a FILE* obtained from popen().  This bug could
+  cause us to run out of file descriptors on some platforms.
+
+* configure: Check for strftime.
+
+packaging:
+
+* omega.spec.in: Include documentation in the RPM package.
+
 Omega 0.9.6 (2006-05-15):
 
 documentation:
@@ -53,7 +158,7 @@ indexers:
 
   + Added new "hash" command to allow hashed terms to be generated from long
     URLs like omindex does.
-    
+
 * htdig2omega.script,mbox2omega.script: Make use of the new scriptindex "hash"
   command.
 
@@ -117,7 +222,7 @@ omega:
 * Added "SORTREVERSE" CGI parameter which allows the sort order to be reversed
   when sorting on a value.  Removed "SORTBANDS" CGI parameter since it no
   longer does anything.
- 
+
 * Added	$find{LIST,STRING} to return the subscript of the first occurence of
   string STRING in list LIST.
 
@@ -201,7 +306,7 @@ Omega 0.9.0 (2005-05-13):
 
 omega:
 
-* The configuration file is now looked for differently - you can now set 
+* The configuration file is now looked for differently - you can now set
   the environmental variable OMEGA_CONFIG_FILE.  See docs/overview.txt for
   details.
 
@@ -268,7 +373,7 @@ Omega 0.8.5 (2004-12-23):
 
 * scriptindex: Fixed "Unknown Exception" when trying to "unhtml" text which
   contains "</body>" (bug#61).  This bug was introduced in 0.8.4.
- 
+
 * omindex/scriptindex: <h1> - <h6> and </h1> - </h6> now leave a space in the
   dumped HTML.  This bug was introduced in 0.8.4 - before that any tag left
   a space in the dumped HTML.
@@ -352,7 +457,7 @@ Omega 0.8.2 (2004-09-13):
 
 * templates/query: Always report if the database is not found - previously we
   only did so if there was a query.
-	  
+
 * templates/query: Fixed missing </center> tag which happened in certain cases.
 
 * docs/omegascript.txt: Added note about that $add{$hit,1} gives
