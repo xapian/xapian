@@ -516,6 +516,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			// handling
 			is_heap = false;
 		    }
+
 		    // Keep the old weight as it is now second best so far
 		    oldkey->second = make_pair(new_item,
 					       oldkey->second.first.wt);
@@ -770,7 +771,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // We may need to qualify any collapse_count to see if the highest weight
     // collapsed item would have qualified percent_cutoff
-    // We WILL need tp restore collapse_count to the mset by taking from
+    // We WILL need to restore collapse_count to the mset by taking from
     // collapse_tab; this is what comes of copying around whole objects
     // instead of taking references, we find it hard to update collapse_count
     // of an item that has already been pushed-back as we don't know where it is
@@ -792,7 +793,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		// so we can quit early.  Therefore each time we find an item
 		// with a collapse_key the collapse_key must be in collapse_tab
 		Assert(key != collapse_tab.end());
-		// If weight of top collapsed item is not relevent enough
+		// If weight of top collapsed item is not relevant enough
 		// then collapse count is bogus in every way
 		// FIXME: Should this be <=?
 		if (key->second.second < min_wt)

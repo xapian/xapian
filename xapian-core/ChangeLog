@@ -1,3 +1,7 @@
+Sun Oct 08 09:35:59 BST 2006  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix a couple of typos in comments.
+
 Sun Oct 08 05:36:36 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Disable probing and short-cut tests for a FORTRAN
