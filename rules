@@ -92,7 +92,7 @@ install: build
 	install -m 644 templates/[a-z]* debian/tmp/usr/share/xapian-omega/templates
 
 	# Fix paths in query template, and install that instead.
-	sed 's!/icons/omega/!/images/xapian-omega!g' templates/query > debian/query.tmp
+	sed 's!/icons/omega/!/images/xapian-omega/!g' templates/query > debian/query.tmp
 	install -m 644 debian/query.tmp debian/tmp/usr/share/xapian-omega/templates/query
 	rm -f debian/query.tmp
 

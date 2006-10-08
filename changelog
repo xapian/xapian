@@ -1,11 +1,15 @@
 xapian-omega (0.9.7-1) unstable; urgency=low
 
   * New upstream release.
+  * debian/rules: Fix the missing "/" after "/images/xapian-omega" so that
+    images load correctly in the default search template (bug reported by Jeff
+    Breidenbach by email).
+  * debian/control: add catdoc to "Suggests:" for csv2xls and catppt.
   * debian/copyright: Add copyright details for new md5 code.
   * debian/omega.conf.debian: Config file reading code now understands
     comments so change comments to take advantage of this.
 
- -- Olly Betts <olly@survex.com>  Sat,  9 Sep 2006 02:05:20 +0100
+ -- Olly Betts <olly@survex.com>  Sun,  8 Oct 2006 21:45:20 +0100
 
 xapian-omega (0.9.6-5) unstable; urgency=low
 
