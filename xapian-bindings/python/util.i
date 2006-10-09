@@ -304,14 +304,3 @@ namespace Xapian {
 	%mutable;
     }
 }
-
-#pragma SWIG nowarn=515 /* Suppress warning that const is discarded by operator() */
-namespace Xapian {
-    %feature("director") MatchDecider;
-    class MatchDecider {
-    public:
-	virtual int operator() (const Xapian::Document &doc) const = 0;
-	virtual ~MatchDecider() { }
-    };
-}
-#pragma SWIG nowarn=

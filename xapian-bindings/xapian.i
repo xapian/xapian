@@ -525,7 +525,18 @@ class RSet {
     string get_description() const;
 };
 
-// FIXME: wrap class MatchDecider; (wrapped for python in python/util.i)
+#ifndef SWIGPHP
+/* MatchDecider isn't a useful class unless you can subclass it, which requires
+ * that directors be supported.  FIXME: only wrap it in this case? */
+#pragma SWIG nowarn=515 /* Suppress warning that const is discarded by operator() */
+%feature("director") MatchDecider;
+class MatchDecider {
+public:
+    virtual int operator() (const Xapian::Document &doc) const = 0;
+    virtual ~MatchDecider() { }
+};
+#pragma SWIG nowarn=
+#endif
 
 // FIXME: wrap class ExpandDecider;
 
@@ -612,6 +623,8 @@ class Enquire {
  * mechanism doesn't generate a wrapper for the clone() function (presumably
  * because it's private). This is wrong, because the director is then
  * abstract, which the SWIG generated code can't cope with.
+ *
+ * Also having a factory method might be a problem?
  */
 /*
 #ifdef SWIGPYTHON
@@ -948,9 +961,7 @@ class Query {
 
 // xapian/queryparser.h
 
-#ifdef SWIGPYTHON
 %feature("director") Stopper;
-#endif
 class Stopper {
 public:
 #ifndef SWIGPYTHON
