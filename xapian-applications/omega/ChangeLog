@@ -1,3 +1,8 @@
+Mon Oct 09 18:26:14 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/termprefixes.txt: "$setmap{title,S}" should be
+	  "$setmap{prefix,title,S}".
+
 Sun Oct 08 21:43:16 BST 2006  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 0.9.7.

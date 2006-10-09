@@ -95,7 +95,7 @@ You then need to tell Xapian::QueryParser that "title:" maps to an "S" prefix.
 If you're using Omega, then you do so by adding this to your omegascript
 template (at the start is best):
 
-    $setmap{title,S}
+    $setmap{prefix,title,S}
 
 Or if you're writing your own search frontend, like this:
 
