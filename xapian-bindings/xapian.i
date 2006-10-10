@@ -215,6 +215,14 @@ static int XapianExceptionHandler(string & msg) {
 #define PREV(CLASS) void prev() { --(*self); }
 #endif
 
+#ifndef SWIGPYTHON
+#ifdef SWIGCSHARP
+%rename(Apply) operator();
+#else
+%rename(apply) operator();
+#endif
+#endif
+
 %include <xapian/types.h>
 
 namespace Xapian {
@@ -964,9 +972,6 @@ class Query {
 %feature("director") Stopper;
 class Stopper {
 public:
-#ifndef SWIGPYTHON
-    %rename(apply) operator();
-#endif
     virtual bool operator()(const std::string & term) const = 0;
     virtual ~Stopper() { }
     virtual std::string get_description() const;
@@ -978,9 +983,6 @@ class SimpleStopper : public Stopper {
 
     void add(const std::string word) { stop_words.insert(word); }
 
-#ifndef SWIGPYTHON
-    %rename(apply) operator();
-#endif
     virtual bool operator()(const std::string & term) const {
 	return stop_words.find(term) != stop_words.end();
     }
@@ -1034,9 +1036,6 @@ public:
     explicit Stem(const string &language);
     ~Stem();
 
-#ifndef SWIGPYTHON
-    %rename(apply) operator();
-#endif
     string operator()(const string &word) const;
     string stem_word(const string &word); // DEPRECATED
 

@@ -26,6 +26,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	ESetIterator.cs \
 	Enquire.cs \
 	InMemory.cs \
+	MatchDecider.cs \
 	MSet.cs \
 	MSetIterator.cs \
 	Muscat36.cs \
@@ -37,7 +38,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	Remote.cs \
 	RSet.cs \
 	SWIGTYPE_p_Xapian__ExpandDecider.cs \
-	SWIGTYPE_p_Xapian__MatchDecider.cs \
 	SWIGTYPE_p_std__vectorTstd__string_t.cs \
 	SWIGTYPE_p_std__vectorTXapian__Query_t.cs \
 	SWIGTYPE_p_time_t.cs \

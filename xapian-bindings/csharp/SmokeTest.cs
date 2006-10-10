@@ -25,6 +25,12 @@
 // The workaround is to add an explicit "using Xapian;" here:
 using Xapian;
 
+class TestMatchDecider : Xapian.MatchDecider {
+    public override int Apply(Xapian.Document doc) {
+	return (doc.GetValue(0) == "yes") ? 1 : 0;
+    }
+}
+
 class SmokeTest {
     public static void Main() {
 	try {
@@ -45,7 +51,7 @@ class SmokeTest {
 	    Xapian.Stem stem = new Xapian.Stem("english");
 	    Xapian.Document doc = new Xapian.Document();
 	    // Currently SWIG doesn't generate zero-byte clean code for
-	    // transferring string between C# and C++.
+	    // transferring strings between C# and C++.
 	    /*
 	    doc.SetData("a\0b");
 	    if (doc.GetData() == "a") {
@@ -92,7 +98,7 @@ class SmokeTest {
 	    } catch (System.Exception e) {
 		// We expect DocNotFoundError
 		if (e.Message.Substring(0, 16) != "DocNotFoundError") {
-                    System.Console.WriteLine("Unexpected exception from accessing non-existent document: " + e.Message);
+		    System.Console.WriteLine("Unexpected exception from accessing non-existent document: " + e.Message);
 		    System.Environment.Exit(1);
 		}
 	    }
@@ -107,9 +113,30 @@ class SmokeTest {
 		System.Console.WriteLine("Using OP_ELITE_SET causes an exception");
 		System.Environment.Exit(1);
 	    }
+
+	    // Feature test for MatchDecider.
+	    doc = new Xapian.Document();
+	    doc.SetData("Two");
+	    doc.AddPosting(stem.StemWord("out"), 1);
+	    doc.AddPosting(stem.StemWord("source"), 2);
+	    doc.AddValue(0, "yes");
+	    db.AddDocument(doc);
+
+	    Xapian.Query query = new Xapian.Query(stem.StemWord("out"));
+	    Xapian.Enquire enquire = new Xapian.Enquire(db);
+	    enquire.SetQuery(query);
+	    Xapian.MSet mset = enquire.GetMSet(0, 10, null, new TestMatchDecider());
+	    if (mset.Size() != 1) {
+		System.Console.WriteLine("MatchDecider found " + mset.Size().ToString() + " documents, expected 1");
+		System.Environment.Exit(1);
+	    }
+	    if (mset.GetDocId(0) != 2) {
+		System.Console.WriteLine("MatchDecider mset has wrong docid in");
+		System.Environment.Exit(1);
+	    }
 	} catch (System.Exception e) {
-	     System.Console.WriteLine("Exception: " + e.ToString());
-	     System.Environment.Exit(1);
+	    System.Console.WriteLine("Exception: " + e.ToString());
+	    System.Environment.Exit(1);
 	}
     }
 }

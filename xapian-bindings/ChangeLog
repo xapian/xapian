@@ -1,3 +1,8 @@
+Tue Oct 10 13:16:08 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/SmokeTest.cs,xapian.i: Add test of
+	  MatchDecider subclassing in C#.
+
 Tue Oct 10 11:39:46 BST 2006  Olly Betts <olly@survex.com>
 
 	* ruby/util.i: Allow bool to be returned by ruby subclasses of
