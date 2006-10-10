@@ -20,6 +20,9 @@
  */
 %}
 
+// Use SWIG directors for C# wrappers.
+#define XAPIAN_SWIG_DIRECTORS
+
 // Rename function and method names to match C# conventions (e.g. from
 // get_description() to GetDescription()).
 %rename("%(camelcase)s",%$isfunction) "";

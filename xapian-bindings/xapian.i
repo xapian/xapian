@@ -536,7 +536,7 @@ class RSet {
 /* MatchDecider is an abstract class, only useful if it can be subclassed,
  * which requires that directors be supported.  So we only wrap it for
  * languages which support directors. */
-#ifdef SWIG_DIRECTOR_TYPEMAPS
+#ifdef XAPIAN_SWIG_DIRECTORS
 #pragma SWIG nowarn=515 /* Suppress warning that const is discarded by operator() */
 %feature("director") MatchDecider;
 class MatchDecider {

@@ -1,3 +1,10 @@
+Tue Oct 10 22:08:21 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,csharp/util.i,python/util.i,ruby/util.i,xapian.i:
+	  SWIG_DIRECTOR_TYPEMAPS isn't a reliable thing to test it appears, so
+	  define XAPIAN_SWIG_DIRECTORS ourselves for languages where SWIG
+	  supports directors and we are able to make use of them.
+
 Tue Oct 10 17:15:43 BST 2006  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Updated for 0.9.7.

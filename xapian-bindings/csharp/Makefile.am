@@ -10,8 +10,6 @@ if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
 endif
 
-EXTRA_DIST = util.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
-
 SUBDIRS = docs
 
 ASSEMBLY=XapianSharp
@@ -62,6 +60,8 @@ $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 	    AssemblyInfo.cs
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
+
+EXTRA_DIST = util.i AssemblyInfo.cs.in SmokeTest.cs $(BUILT_SOURCES)
 
 lib_LTLIBRARIES = XapianSharp.la
 

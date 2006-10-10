@@ -26,6 +26,9 @@
 
 %}
 
+// Use SWIG directors for Ruby wrappers.
+#define XAPIAN_SWIG_DIRECTORS
+
 /////////////////////////////////////
 // Rename function and method names to match Ruby conventions
 // e.g. from get_data to data and from set_data to data=
