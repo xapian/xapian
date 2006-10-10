@@ -161,6 +161,23 @@ actually seems useful...
 </p>
 -->
 
+<h2>MatchDecider</h2>
+
+<p>
+Custom MatchDeciders can be created in C#; simply subclass
+Xapian.MatchDecider, and define an
+Apply method that will do the work. The simplest example (which does nothing
+useful) would be as follows:
+</p>
+
+<pre>
+class MyMatchDecider : Xapian.MatchDecider {
+    public override int Apply(Xapian.Document doc) {
+	return 1;
+    }
+}
+</pre>
+
 <address>
 Last updated $Date: 2005-12-12T02:56:23.742308Z $
 </address>
