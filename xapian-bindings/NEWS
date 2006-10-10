@@ -25,8 +25,6 @@ General:
 * In maintainer-mode, "make clean" now removes the SWIG generated files
   which would otherwise only be removed on "make maintainer-clean".
 
-Portability:
-
 CSharp:
 
 * Xapian::MatchDecider can now be subclassed in C#.

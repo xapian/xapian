@@ -1,3 +1,7 @@
+Wed Oct 11 00:17:49 BST 2006  Olly Betts <olly@survex.com>
+
+	* NEWS: Remove empty "Portability:" subheading.
+
 Tue Oct 10 22:08:21 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,csharp/util.i,python/util.i,ruby/util.i,xapian.i:
