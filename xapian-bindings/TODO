@@ -11,6 +11,9 @@ tested...
 Try to further reduce the compiled size of the glue code and the time it takes
 to compile.  Reworking exception handling made a huge difference!
 
+Sort out wrapping of Xapian::Weight so that users can subclass where directors
+are supported.
+
 C#
 --
 
