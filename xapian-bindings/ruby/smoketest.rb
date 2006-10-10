@@ -25,6 +25,12 @@
 require 'test/unit'
 require 'xapian'
 
+class TestMatchDecider < Xapian::MatchDecider
+  def __call__(doc)
+    return doc.value(0) == "yes"
+  end
+end
+
 class XapianSmoketest < Test::Unit::TestCase
 
   def setup 
@@ -158,5 +164,20 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal(0, @doc.values().size())
   end
 
+  def test_011_matchdecider
+    @doc = Xapian::Document.new()
+    @doc.data = "Two"
+    @doc.add_posting(@stem.stem_word("out"), 1)
+    @doc.add_posting(@stem.stem_word("source"), 2)
+    @doc.add_value(0, "yes")
+    @db.add_document(@doc)
+
+    @query = Xapian::Query.new(@stem.stem_word("out"))
+    enquire = Xapian::Enquire.new(@db)
+    enquire.query = @query
+    mset = enquire.mset(0, 10, nil, TestMatchDecider.new)
+    assert_equal(mset.size(), 1)
+    assert_equal(mset.docid(0), 2)
+  end
 
 end # class XapianSmoketest

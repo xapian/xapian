@@ -1,3 +1,9 @@
+Tue Oct 10 11:39:46 BST 2006  Olly Betts <olly@survex.com>
+
+	* ruby/util.i: Allow bool to be returned by ruby subclasses of
+	  MatchDecider.
+	* ruby/smoketest.rb: Add test of MatchDecider subclassing.
+
 Mon Oct 09 15:14:27 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/util.i,xapian.i: Enable directors everywhere that SWIG
