@@ -19,11 +19,9 @@ Ruby bindings based on the simple examples from <code>xapian-examples</code>:
 <a href="examples/simpleindex.rb">simpleindex.rb</a>,
 <a href="examples/simplesearch.rb">simplesearch.rb</a>,
 <a href="examples/simpleexpand.rb">simpleexpand.rb</a>.
-<!--
 There's also 
 <a href="examples/simplematchdecider.rb">simplematchdecider.rb</a>
 which shows how to define a MatchDecider in Ruby.
--->
 </p>
 
 <h2>Usage</h2>
@@ -150,25 +148,22 @@ the TCP version is currently wrapped, the "program" version isn't).
    q = Xapian::Query.new(Xapian::Query::OP_AND, [subq, "foo", Xapian::Query.new("bar", 2)])
 </pre>
 
-<!--
 <h2>MatchDecider</h2>
 
 <p>
-Custom MatchDeciders can be created in Python; simply subclass
-xapian.MatchDecider, ensure you call the super-constructor, and define a
+Custom MatchDeciders can be created in Ruby; simply subclass
+Xapian::MatchDecider, ensure you call the superclass constructor, and define a
 __call__ method that will do the work. The simplest example (which does nothing
 useful) would be as follows:
 </p>
 
 <pre>
-class mymatcher(xapian.MatchDecider):
-  def __init__(self):
-    xapian.MatchDecider.__init__(self)
-
-  def __call__(self, doc):
-    return 1
+class MyMatchDecider &lt; Xapian::MatchDecider
+  def __call__(doc):
+    return true
+  end
+end
 </pre>
--->
 
 <address>
 Last updated $Date: 2006-04-01 16:35:10 +0100 (Sat, 01 Apr 2006) $

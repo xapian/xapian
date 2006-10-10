@@ -1,3 +1,7 @@
+Tue Oct 10 16:04:40 BST 2006  Olly Betts <olly@survex.com>
+
+	* ruby/docs/bindings.html: Document MatchDecider subclassing.
+
 Tue Oct 10 15:58:32 BST 2006  Olly Betts <olly@survex.com>
 
 	* TODO: Update.
