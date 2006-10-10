@@ -1,3 +1,7 @@
+Tue Oct 10 17:21:13 BST 2006  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for actual 0.9.7 release.
+
 Mon Oct 09 18:26:14 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/termprefixes.txt: "$setmap{title,S}" should be

@@ -1,9 +1,11 @@
-Omega 0.9.7 (2006-10-08):
+Omega 0.9.7 (2006-10-10):
 
 documentation:
 
-* docs/omegascript.txt: Note that (by design) an omegascript template can't
+* omegascript.txt: Note that (by design) an omegascript template can't
   contain an infinite loop.
+
+* termprefixes.txt: "$setmap{title,S}" should be "$setmap{prefix,title,S}".
 
 * Use the default paths to the database directories and the omega CGI binary in
   examples.
