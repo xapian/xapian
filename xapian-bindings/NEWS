@@ -1,3 +1,132 @@
+Xapian-bindings 0.9.7 (2006-10-10):
+
+Documentation:
+
+* NEWS: Fix the recent headings which said "Xapian-core" to say
+  "Xapian-bindings".
+
+General:
+
+* Specify required automake version in the call to AM_INIT_AUTOMAKE in
+  configure.ac.
+
+* If we're building with GCC 4.0 or higher, pass -fvisibility=hidden when
+  compiling SWIG generated code which makes the compiled modules a few percent
+  smaller and perhaps a little faster.
+
+* Wrap the newly implemented transaction API.
+
+* configure: Use "-fno-strict-aliasing" when compiling all the SWIG bindings
+  (this option was supposed to be used to compile the Python bindings from
+  0.9.3 onwards, but this wasn't actually working correctly).
+
+* Use CVS snapshot of SWIG to generate files (fixes bugs #83, #85).
+
+* In maintainer-mode, "make clean" now removes the SWIG generated files
+  which would otherwise only be removed on "make maintainer-clean".
+
+Portability:
+
+CSharp:
+
+* Xapian::MatchDecider can now be subclassed in C#.
+
+* The value of OP_ELITE_SET was wrong in C# which caused an error if you tried
+  to use it.  This has been fixed and a regression test added.
+
+* SmokeTest.cs: Added exception handling test.
+
+Java:
+
+* Correct two misuses of delete to delete[].  Fixes bug#78.
+
+* configure: We need to look for jni.h in /usr/lib/jvm/java-gcj/include on some
+  Debian and Ubuntu boxes at least.
+
+PHP:
+
+* We now generate class wrappers for PHP5.
+
+* We now generate proxy classes for PHP4, which is an incompatible change
+  from previous versions of xapian-bindings.  A perl script to upgrade
+  your scripts is included.
+
+* smoketest.php:
+
+  + Now that we're throwing PHP exceptions with PHP5 we need separate versions
+    of the exception handling test for PHP4 and PHP5.  Fixes bug#76.
+
+  + Rely on xapian.php to load the extension module for us.
+
+  + Fix error messages to show PHP code, not Python code.
+
+* When running smoketest.php, pass the "-q" option to php, which suppresses
+  HTTP header output for PHP < 4.3 and is ignored for compatibility by more
+  recent versions of PHP.
+
+* configure: Fix typo - PHP_tried should be PHP_found.  This might have caused
+  the PHP interpreter not to be found in some cases when it was actually
+  available, but it's only used to run the smoketest not for building the
+  bindings.
+
+Python:
+
+* configure: Fixed check for PYTHON_PATHSEP to use $PYTHON rather than python,
+  and also report the check and its result to the user.
+
+* python/Makefile.am: xapian.pyc can't be generated until _xapian.la has been
+  built, so add an explicit dependency so that this works reliably in parallel
+  builds.  Fixes bug#77.
+
+* In examples and documentation, don't call the MatchDecider class/object
+  "matcher", since we use the term "matcher" to mean something else in
+  the library documentation.
+
+* smoketest.py:
+
+  + Add test of exception handling.
+
+  + Add test that MatchDecider can be subclassed successfully.
+
+* Wrap TermIterator::skip_to() so that it can be used from the TermIter
+  pythonic iterator class.
+
+Ruby:
+
+* Xapian::MatchDecider can now be subclassed in Ruby.
+
+* configure: Look for ruby interpreter as "ruby1.8" since it's called that
+  (with no "ruby" alias) on Ubuntu dapper at least.
+
+* simplesearch.rb: Lowercase terms before stemming.  "First ten" is inaccurate
+  since we may have less than 10 matches, so say "1-<N>" instead.
+
+* simplematchdecider.rb: Implemented.
+
+Tcl:
+
+* Implement saner exception handling for Tcl and document it.
+
+* smoketest.tcl:
+
+  + Add check that xapian::Query_OP_ELITE_SET has the right value.
+
+  + Rework how the smoketest gets run to eliminate special code for using
+    uninstalled bindings from smoketest.tcl itself.  This allows the smoketest
+    to be run using installed bindings, and also makes it a better example
+    program.
+
+  + Add test for exception handling.
+
+  + Send error messages to stderr.
+
+  + Add comment about Tcl storing zero bytes as \xc0\x80.
+
+* simpleindex.tcl,simplesearch.tcl: Print $errorCode in the exception handler.
+
+* For SVN snapshots, remove any _svn6789 suffix from the Xapian version number
+  used for the Tcl bindings.
+
 Xapian-bindings 0.9.6 (2006-05-15):
 
 Documentation:
@@ -25,7 +154,7 @@ General:
   a typedef for an unsigned integer type.
 
 * configure: Add some missing "checking ..." messages so the user has more idea
-  what is going on.  
+  what is going on.
 
 * Language specific util.i files can now define
   XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP and

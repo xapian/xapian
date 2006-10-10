@@ -1,3 +1,7 @@
+Tue Oct 10 17:15:43 BST 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Updated for 0.9.7.
+
 Tue Oct 10 17:04:40 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,guile/Makefile.am,tcl8/Makefile.am: In
