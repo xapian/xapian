@@ -1,3 +1,8 @@
+Tue Oct 10 16:05:02 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html: Call the example MatchDecider subclass
+	  "mymatchdecider" not "mymatcher".
+
 Tue Oct 10 16:04:40 BST 2006  Olly Betts <olly@survex.com>
 
 	* ruby/docs/bindings.html: Document MatchDecider subclassing.
