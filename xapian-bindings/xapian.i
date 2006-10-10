@@ -533,9 +533,10 @@ class RSet {
     string get_description() const;
 };
 
-#ifndef SWIGPHP
-/* MatchDecider isn't a useful class unless you can subclass it, which requires
- * that directors be supported.  FIXME: only wrap it in this case? */
+/* MatchDecider is an abstract class, only useful if it can be subclassed,
+ * which requires that directors be supported.  So we only wrap it for
+ * languages which support directors. */
+#ifdef SWIG_DIRECTOR_TYPEMAPS
 #pragma SWIG nowarn=515 /* Suppress warning that const is discarded by operator() */
 %feature("director") MatchDecider;
 class MatchDecider {
