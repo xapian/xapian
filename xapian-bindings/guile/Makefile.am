@@ -19,6 +19,8 @@ BUILT_SOURCES = xapian_wrap.cc
 if MAINTAINER_MODE
 xapian_wrap.cc: ../xapian.i util.i
 	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -guile -o $@ $(srcdir)/../xapian.i
-endif
 
+CLEANFILES = $(BUILT_SOURCES)
+else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+endif

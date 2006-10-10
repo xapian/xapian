@@ -63,14 +63,6 @@ $(ASSEMBLY).dll: $(XAPIAN_SWIG_CS_SRCS) AssemblyInfo.cs XapianSharp.snk
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS)
 
-if MAINTAINER_MODE
-xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i
-	: # Make sure that we don't package stale generated sources in the
-	: # case where SWIG changes its mind as to which files it generates.
-	-rm -f $(XAPIAN_SWIG_CS_SRCS)
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -dllimport XapianSharp -o xapian_wrap.cc $(srcdir)/../xapian.i
-endif
-
 lib_LTLIBRARIES = XapianSharp.la
 
 AM_CXXFLAGS = @SWIG_CXXFLAGS@ $(XAPIAN_CXXFLAGS)
@@ -91,4 +83,14 @@ all-am: $(ASSEMBLY).dll
 
 CLEANFILES = XapianSharp.snk AssemblyInfo.cs $(ASSEMBLY).dll SmokeTest.exe
 
+if MAINTAINER_MODE
+xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i
+	: # Make sure that we don't package stale generated sources in the
+	: # case where SWIG changes its mind as to which files it generates.
+	-rm -f $(XAPIAN_SWIG_CS_SRCS)
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -dllimport XapianSharp -o xapian_wrap.cc $(srcdir)/../xapian.i
+
+CLEANFILES += $(BUILT_SOURCES)
+else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
+endif

@@ -33,13 +33,15 @@ xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 BUILT_SOURCES = xapian_wrap.cc
 
-if MAINTAINER_MODE
-xapian_wrap.cc: ../xapian.i util.i
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -tcl8 -namespace -pkgversion @VERSION_NO_SNAPSHOT@ -o $@ $(srcdir)/../xapian.i
-endif
-
 pkgIndex.tcl: Makefile.am
 	echo 'package ifneeded xapian @VERSION_NO_SNAPSHOT@ [list load [file join $$dir xapian[info sharedlibextension]]]' > pkgIndex.tcl
 
+if MAINTAINER_MODE
+xapian_wrap.cc: ../xapian.i util.i
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -tcl8 -namespace -pkgversion @VERSION_NO_SNAPSHOT@ -o $@ $(srcdir)/../xapian.i
+
+CLEANFILES = $(BUILT_SOURCES) pkgIndex.tcl
+else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 CLEANFILES = pkgIndex.tcl
+endif

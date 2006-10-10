@@ -1,3 +1,9 @@
+Tue Oct 10 17:04:40 BST 2006  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,guile/Makefile.am,tcl8/Makefile.am: In
+	  maintainer-mode, "make clean" should remove the SWIG generated files
+	  which would otherwise only be removed on "make maintainer-clean".
+
 Tue Oct 10 16:22:28 BST 2006  Olly Betts <olly@survex.com>
 
 	* csharp/docs/bindings.html: Document MatchDecider subclassing.
