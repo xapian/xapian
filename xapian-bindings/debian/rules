@@ -90,7 +90,10 @@ PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_VERSIONS:%=%-xapian (<< 0.9.6-3$),
 
 # Build depends for PHP.
 # We only need phpN-cli so we can run "make check" on the bindings.
-BUILD_DEPS += $(PHP_VERSIONS:%=php%-dev,php%-cli,)
+# Only the first % in the replacement part is substituted, so we need
+# to do this in two goes.
+BUILD_DEPS += $(PHP_VERSIONS:%=php%-dev,)
+BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli,)
 
 # Build depends for Tcl.  We use Tcl's stubs mechanism, so the built
 # bindings will work with any Tcl version from 8.0.6 upwards, whichever
