@@ -83,7 +83,7 @@ apidoc.ps apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
 		$(srcdir)/doxygen_api_footer.html_tmpl
 	rm -rf apidoc
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api_conf
-	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.ps||pool_size=750000 $(MAKE) refman.ps)
+	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.ps||pool_size=750000 $(MAKE) refman.ps||(cat refman.log;exit 1))
 	mv apidoc/latex/refman.ps apidoc.ps
 
 # This dependency is required so that parallel make doesn't try to run latex
@@ -98,7 +98,7 @@ sourcedoc.ps sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 		$(srcdir)/doxygen_full_footer.html_tmpl
 	rm -rf sourcedoc
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_full_conf
-	cd sourcedoc/latex && (pool_size=750000 $(MAKE) refman.ps||pool_size=750000 $(MAKE) refman.ps)
+	cd sourcedoc/latex && (pool_size=750000 $(MAKE) refman.ps||pool_size=750000 $(MAKE) refman.ps||(cat refman.log;exit 1))
 	mv sourcedoc/latex/refman.ps sourcedoc.ps
 
 # This dependency is required so that parallel make doesn't try to run latex

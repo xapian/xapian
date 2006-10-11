@@ -1,3 +1,8 @@
+Wed Oct 11 23:35:08 BST 2006  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: If running latex on refman.ps fails, cat
+	  refman.log since that is likely to show what failed.
+
 Tue Oct 10 17:24:00 BST 2006  Olly Betts <olly@survex.com>
 
 	* NEWS: Bump release date.
