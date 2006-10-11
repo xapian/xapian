@@ -1,3 +1,9 @@
+Thu Oct 12 00:49:47 BST 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Note that on Debian, tetex-extra is needed for
+	  fancyhdr.sty.
+	* HACKING: Note that dch can be used to update debian/changelog.
+
 Wed Oct 11 23:35:08 BST 2006  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: If running latex on refman.ps fails, cat

@@ -315,7 +315,7 @@ These tools are:
 doxygen (v1.4.6 is used for snapshots, releases, and the source documentation)
 dot (part of the graphviz package)
 perl 5
-latex
+latex (on Debian, tetex-extra is also required for fancyhdr.sty)
 dvips (usually packaged with TeX)
 makeindex (usually packaged with TeX)
 help2man
@@ -740,7 +740,8 @@ and xapian-applications/omega).  After each release, these should be
 updated as follows:
 
 * Update the debian/changelog file, being sure to keep it in the
-  standard Debian format.  The new version number should be the
+  standard Debian format (the easiest way is to use the dch utility
+  like so: "dch -v 0.9.7-1".  The new version number should be the
   version number of the release followed by "-1" (ie, a debian
   patch number of 1).  The changelog message should indicate that
   there is a new upstream release, and should mention any significant
@@ -754,7 +755,7 @@ updated as follows:
   debian control directory with the tag "debian-VERSION-1" - eg, for a new
   release of version 0.9.6, tag with "debian-0.9.6-1".
 
-* Use xapian-maintainer-tools/debian/make-sources-packages to make and
+* Use xapian-maintainer-tools/debian/make-source-packages to make and
   upload new source packages (for stable, unstable, breezy, and dapper.)
   The source packages for the distributions other than stable are done
   as "backports" - if unstable's version is 0.9.6-1, then stable's
