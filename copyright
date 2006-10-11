@@ -16,6 +16,7 @@ Upstream Authors:
 	Dr Martin Porter
 	Free Software Foundation, Inc.
 	Silicon Graphics Computer Systems, Inc.
+	Richard Boulton
 
 Copyright:
 
@@ -25,6 +26,7 @@ Copyright:
   Copyright (C) 2003 Orange PCS Ltd
   Copyright (C) 1999,2000,2001 BrightStation PLC
   Copyright (C) 2001 Hein Ragas
+  Copyright (C) 2006 Richard Boulton
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as

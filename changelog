@@ -1,3 +1,10 @@
+xapian-core (0.9.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/copyright: Add Richard Boulton.
+
+ -- Olly Betts <olly@survex.com>  Wed, 11 Oct 2006 02:10:47 +0100
+
 xapian-core (0.9.6-5) unstable; urgency=low
 
   * debian/control.in: Remove "designed to be" from the package description at
