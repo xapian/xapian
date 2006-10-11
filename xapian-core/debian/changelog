@@ -1,9 +1,10 @@
 xapian-core (0.9.7-1) unstable; urgency=low
 
   * New upstream release.
+  * debian/xapian-tools.install: Install /usr/bin/xapian-progsrv.
   * debian/copyright: Add Richard Boulton.
 
- -- Olly Betts <olly@survex.com>  Wed, 11 Oct 2006 02:10:47 +0100
+ -- Olly Betts <olly@survex.com>  Wed, 11 Oct 2006 17:44:47 +0100
 
 xapian-core (0.9.6-5) unstable; urgency=low
 
