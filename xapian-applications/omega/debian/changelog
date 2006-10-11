@@ -9,7 +9,7 @@ xapian-omega (0.9.7-1) unstable; urgency=low
   * debian/omega.conf.debian: Config file reading code now understands
     comments so change comments to take advantage of this.
 
- -- Olly Betts <olly@survex.com>  Sun,  8 Oct 2006 21:45:20 +0100
+ -- Olly Betts <olly@survex.com>  Wed, 11 Oct 2006 02:08:20 +0100
 
 xapian-omega (0.9.6-5) unstable; urgency=low
 
