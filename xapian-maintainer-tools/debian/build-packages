@@ -24,10 +24,11 @@ set -e
 REPO_URL=http://www.xapian.org/debian
 
 LINTIAN_FLAGS="-l0 -I"
+LINDA_FLAGS="-t E,W,X,I"
 
 if [ x"$1" = x--help -o "$#" -lt 2 ] ; then
-  echo "Usage: $0 DISTRO VERSION [PACKAGES...]"
-  echo "e.g. $0 sarge 0.9.5"
+  echo "Usage: $0 DISTROARCH VERSION [PACKAGES...]"
+  echo "e.g. $0 sarge-i386 0.9.5"
   exit 1
 fi
 
@@ -38,24 +39,25 @@ build_package() {
 
 rm -rf Sources.gz *.dsc *.orig.tar.gz *.diff.gz pool dists
 
-DISTRO=$1
+DISTRO_ARCH=$1
 VERSION=$2
 shift
 shift
 PACKAGES=${*-"core bindings omega"}
 
-case $DISTRO in
-  sarge) DIR=stable ;;
-  sid) DIR=unstable ;;
-  *) DIR=$DISTRO ;;
+case $DISTRO_ARCH in
+  sarge*) DIR=stable ;;
+  sid*) DIR=unstable ;;
+  *) DIR=`echo "$DISTRO_ARCH"|sed 's/-.*//'` ;;
 esac
 
 POOL="pool/$VERSION/binary"
-CHROOT="/chroot/$DISTRO"
+CHROOT="/chroot/$DISTRO_ARCH"
 
-if [ sid = "$1" ] ; then
-  _C=-c
-fi
+_C=
+#if [ sid = "$1" ] ; then
+#  _C=-c
+#fi
 
 mkdir -p "$POOL"
 
@@ -83,14 +85,14 @@ done
 
 rm -rf "$CHROOT"/tmp/*
 
-dchroot -c "$1" -- $_C 'apt-get update'
-dchroot -c "$1" -- $_C 'apt-get --force-yes dist-upgrade'
+dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get update'
+dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get -y dist-upgrade'
 
 if expr "$PACKAGES" : '.*core' ; then
   build_package xapian-core_*.dsc
 
   # Install xapian so we can build the bindings and omega.
-  dchroot -c "$DISTRO" -- $_C 'dpkg -i /tmp/buildd/libxapian*.deb'
+  dchroot -c "$DISTRO_ARCH" -- $_C 'dpkg -i /tmp/buildd/libxapian*.deb'
 
   rm -rf "$CHROOT"/tmp/*
 else
@@ -101,7 +103,7 @@ if expr "$PACKAGES" : '.*bindings' ; then
   # Need to ensure python is installed in the chroot so that the xapian-bindings
   # install script can discover the default python version.
   # FIXME : not sure this is actually required now...
-  dchroot -c "$DISTRO" -- $_C 'apt-get install python'
+  dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get install python'
 
   build_package xapian-bindings_*.dsc
   rm -rf "$CHROOT"/tmp/*
@@ -127,9 +129,10 @@ else
 fi
 
 # Don't remove these so we can support building just a changed omega package...
-# dchroot -c "$DISTRO" -- $_C 'apt-get -y remove libxapian.\*'
+# dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get -y remove libxapian.\*'
 
 lintian $LINTIAN_FLAGS *.dsc pool/$VERSION/binary/*.deb
+#linda $LINDA_FLAGS *.dsc pool/$VERSION/binary/*.deb
 
 cat <<END > "$ARCHDIR/Release"
 Archive: $DIR
