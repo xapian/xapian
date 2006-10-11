@@ -66,14 +66,14 @@ case $DISTRO in
 Your debootstrap installation doesn't know how to bootstrap a $DISTRO chroot.
 You can fix this something like this (this works for dapper):
 
-wget http://gb.archive.ubuntu.com/ubuntu/pool/main/d/debootstrap/debootstrap_0.3.3.0ubuntu2_all.deb
-ar x debootstrap_0.3.3.0ubuntu2_all.deb data.tar.gz
+wget http://gb.archive.ubuntu.com/ubuntu/pool/main/d/debootstrap/debootstrap_0.3.3.0ubuntu6_all.deb
+ar x debootstrap_0.3.3.0ubuntu6_all.deb data.tar.gz
 tar zxvf data.tar.gz ./usr/lib/debootstrap/scripts/$DISTRO
 mv -i ./usr/lib/debootstrap/scripts/$DISTRO /usr/lib/debootstrap/scripts
 rm data.tar.gz
-rm debootstrap_0.3.3.0ubuntu2_all.deb
+rm debootstrap_0.3.3.0ubuntu6_all.deb
 END
-      exit 1	
+      exit 1
     fi
     debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" http://gb.archive.ubuntu.com/ubuntu
     # Need universe for (e.g.) python 2.1 and 2.2 on breezy
