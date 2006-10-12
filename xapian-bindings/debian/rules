@@ -27,9 +27,9 @@ XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
 
 # Debian "unstable" (and "etch" onwards) and Ubuntu "edgy" (and later) have
 # pyversions.
-USE_PYVERSIONS := yes
-ifeq ($(findstring .$(COMPONENT)., .stable.dapper.breezy.), )
 USE_PYVERSIONS := no
+ifeq ($(findstring .$(COMPONENT)., .stable.dapper.breezy.), )
+USE_PYVERSIONS := yes
 endif
 
 ifeq ($(USE_PYVERSIONS), yes)
