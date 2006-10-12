@@ -18,6 +18,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
+# Version without the "-N" suffix.
+XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
+
 export DH_OPTIONS
 
 export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
@@ -35,6 +38,11 @@ else
 	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
 endif
 
+BUILD_DEPS := debhelper (>= 4.1.22),
+# We need a versioned build dependency on libxapian-dev.
+BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
+BUILD_DEPS += libxapian-dev (<= $(XAPIAN_VERSION)-9999),# NB Trailing ',' required here!
+
 commonconfflags := \
 	$(confflags) \
 	--prefix=/usr \
@@ -45,6 +53,17 @@ commonconfflags := \
 # With GCC3 and later this won't make a huge difference, but it'll save
 # a bit of time and diskspace while building.
 commonconfflags += --disable-dependency-tracking
+
+maint: debian/control
+
+maintclean: clean
+	rm -f debian/control
+
+debian/control: debian/rules debian/control.in
+	rm -f debian/control.tmp
+	sed -e "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" \
+	    < debian/control.in > debian/control.tmp
+	mv debian/control.tmp debian/control
 
 configure: configure-stamp
 configure-stamp:
