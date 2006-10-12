@@ -1,3 +1,10 @@
+xapian-omega (0.9.7-2) unstable; urgency=low
+
+  * debian/control,debian/control.in,debian/rules: Build dependency on
+    libxapian-dev should be versioned.
+
+ -- Olly Betts <olly@ixion.tartarus.org>  Thu, 12 Oct 2006 14:09:54 +0100
+
 xapian-omega (0.9.7-1) unstable; urgency=low
 
   * New upstream release.
