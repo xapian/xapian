@@ -1,3 +1,7 @@
+Thu Oct 12 13:30:05 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: Package xapian-progsrv.
+
 Thu Oct 12 00:49:47 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Note that on Debian, tetex-extra is needed for

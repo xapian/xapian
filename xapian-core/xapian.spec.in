@@ -69,6 +69,7 @@ cp AUTHORS ChangeLog COPYING NEWS PLATFORMS README %{buildroot}%{_datadir}/doc/%
 %files
 %defattr(-, root, root)
 %{_bindir}/xapian-tcpsrv
+%{_bindir}/xapian-progsrv
 %{_bindir}/quartzcheck
 %{_bindir}/quartzcompact
 %{_bindir}/quartzdump
