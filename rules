@@ -22,7 +22,17 @@
 # to that named in debian/component and if that's not given, use "unstable".
 COMPONENT ?= $(shell cat debian/component 2>/dev/null||echo unstable)
 
-ifeq ($(COMPONENT), unstable)
+# Version without the "-N" suffix.
+XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
+
+# Debian "unstable" (and "etch" onwards) and Ubuntu "edgy" (and later) have
+# pyversions.
+USE_PYVERSIONS := yes
+ifeq ($(findstring .$(COMPONENT)., .stable.dapper.breezy.), )
+USE_PYVERSIONS := no
+endif
+
+ifeq ($(USE_PYVERSIONS), yes)
 
 # The python versions to build for:
 PYTHON_VERSIONS := $(shell pyversions -r debian/control)
@@ -39,7 +49,9 @@ ifeq ($(COMPONENT), dapper)
 # Dapper doesn't have Python 2.1.
 PYTHON_VERSIONS := 2.2 2.3 2.4
 else
-PYTHON_VERSIONS := 2.1 2.2 2.3 2.4
+# Debian stable does have Python 2.1, but olde/xapian.py in 0.9.7 doesn't work
+# it.
+PYTHON_VERSIONS := 2.2 2.3 2.4
 endif
 # We need python itself for dh_python to work.
 PYTHON_VERSIONS := $(PYTHON_VERSIONS:%=python%)
@@ -107,6 +119,10 @@ TCLSH=/usr/bin/tclsh8.4
 # Build depends for Ruby.
 BUILD_DEPS += ruby1.8-dev, ruby1.8,# NB Trailing ',' required here!
 RUBY=/usr/bin/ruby1.8
+
+# We need a versioned build dependency on libxapian-dev.
+BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
+BUILD_DEPS += libxapian-dev (<= $(XAPIAN_VERSION)-9999),# NB Trailing ',' required here!
 
 commonconfflags := \
 	$(confflags) \
