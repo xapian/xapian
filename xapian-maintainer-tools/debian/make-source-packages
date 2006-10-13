@@ -21,7 +21,7 @@
 
 set -e
 
-VALID_COMPONENTS='unstable stable etch dapper'
+VALID_COMPONENTS='unstable stable edgy dapper'
 
 if [ x"$1" = x--help ] ; then
   echo "Usage: $0 [COMPONENT...]"
