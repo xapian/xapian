@@ -21,12 +21,14 @@
 
 set -e
 
-VALID_COMPONENTS='unstable stable dapper breezy'
+VALID_COMPONENTS='unstable stable etch dapper'
 
 if [ x"$1" = x--help ] ; then
   echo "Usage: $0 [COMPONENT...]"
   echo
-  echo 'If no components are specified, the default is to build for all of them'
+  echo 'If no components are specified, the default is to make source packages'
+  echo 'for all of them.'
+  echo
   echo "Currently, the recognised values are: $VALID_COMPONENTS"
   exit 0
 fi
@@ -93,14 +95,14 @@ for COMPONENT in $COMPONENTS ; do
 # Check that the component is sane.
 if expr "$COMPONENT" : '\('"`echo \"$VALID_COMPONENTS\"|sed 's/ /\\\\|/g'`"'\)$' >/dev/null
 then
-  echo "Building for $COMPONENT"
+  echo "Making source packages for $COMPONENT"
 else
   echo "Component \"$COMPONENT\" not known."
   echo "Known components are: $VALID_COMPONENTS"
   exit 1
 fi
 
-# Determine the architecture we're building on
+# Determine the architecture we're running on.
 DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
 
 # Calculate the version which we're building.
@@ -211,7 +213,7 @@ TARBALL_OMEGA="${PUBDIR}/${POOLDIR}/source/xapian-omega_${SNAP_VERSION}.orig.tar
 if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ]
 then
   # Distribution tarballs all exist
-  true
+  :
 else
   URL_CORE="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-core-${SNAP_VERSION}.tar.gz"
   URL_BINDINGS="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-bindings-${SNAP_VERSION}.tar.gz"
@@ -247,68 +249,14 @@ else
   rm -rf downloads
 fi
 
-# Make tarballs, if we still don't have some
+# Check that actually worked!
 if [ -e ${TARBALL_CORE} -a -e ${TARBALL_BINDINGS} -a -e ${TARBALL_OMEGA} ]
 then
   # Distribution tarballs all exist
-  true
+  :
 else
-  # Make source directory
-  mkdir -p "${PUBDIR}/${POOLDIR}/source"
-
-  # Checkout original packages from SVN
-  rm -rf origsrc
-  mkdir -p origsrc
-  cd origsrc
-    svn export ${SVNROOT}/${SVNTAG}/ xapian
-    cd xapian
-      ./bootstrap
-      ./configure --enable-maintainer-mode
-      if [ -e ${TARBALL_CORE} ]; then true; else
-        cd xapian-core
-	  make dist
-	  if [ $VERSION != $SNAP_VERSION ] ; then
-	    rm -rf distdir
-	    mkdir -p distdir
-	    tar zxf xapian-core-${VERSION}.tar.gz
-	    mv xapian-core-${VERSION} xapian-core-${SNAP_VERSION}
-	    tar zcf xapian-core-${SNAP_VERSION}.tar.gz xapian-core-${SNAP_VERSION}
-	  fi
-	  cp xapian-core-${SNAP_VERSION}.tar.gz ${TARBALL_CORE}
-	cd ..
-      fi
-      if [ -e ${TARBALL_BINDINGS} ]; then true; else
-        cd xapian-bindings
-	  # We have to invoke automake here because otherwise what looks like
-	  # a bug in autoreconf causes the generated Makefile.in to miss
-	  # depcomp from the list of files to include in distributions.
-	  # Running automake explicitly works around the problem.
-	  automake
-	  make dist
-	  if [ $VERSION != $SNAP_VERSION ] ; then
-	    rm -rf distdir
-	    mkdir -p distdir
-	    tar zxf xapian-bindings-${VERSION}.tar.gz
-	    mv xapian-bindings-${VERSION} xapian-bindings-${SNAP_VERSION}
-	    tar zcf xapian-bindings-${SNAP_VERSION}.tar.gz xapian-bindings-${SNAP_VERSION}
-	  fi
-	  cp xapian-bindings-${SNAP_VERSION}.tar.gz ${TARBALL_BINDINGS}
-	cd ..
-      fi
-      if [ -e ${TARBALL_OMEGA} ]; then true; else
-        cd xapian-applications/omega
-	  make dist
-	  rm -rf distdir
-	  mkdir -p distdir
-	  tar zxf omega-${VERSION}.tar.gz
-	  mv omega-${VERSION} xapian-omega-${SNAP_VERSION}
-	  tar zcf xapian-omega-${SNAP_VERSION}.tar.gz xapian-omega-${SNAP_VERSION}
-	  cp xapian-omega-${SNAP_VERSION}.tar.gz ${TARBALL_OMEGA}
-	cd ../..
-      fi
-    cd ..
-  cd ..
-  rm -rf origsrc
+  echo "Not all the tarballs exist"
+  exit 1
 fi
 
 # Unpack distribution tarballs, and put the debian control files into place,
@@ -351,6 +299,8 @@ cd build
     mkdir -p debian
     cp -af ../../control/xapian-omega/* debian/
     adjust_changelog
+    # Generates control from control.in
+    debian/rules COMPONENT=$COMPONENT 
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
   cd ..
 
