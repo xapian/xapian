@@ -181,24 +181,13 @@ if test no != "$with_python" ; then
   AC_PATH_PROGS(PYTHON, [$PYTHON python], [])
   AC_ARG_VAR(PYTHON, [Python interpreter])
   if test -n "$PYTHON" ; then
-    dnl Require Python 2.1 or newer.  James says:
-    dnl  2.0 as a minimum. I'm using __cmp__ / __eq__ tricks to get the
-    dnl  iterators to behave like Python iterators, so not all aspects will
-    dnl  work without 2.1; I'd be happy to require 2.1 though, because it's
-    dnl  been out for a long time, and 2.0 wasn't around for all that long as
-    dnl  I remember.
+    dnl Require Python 2.2 or newer.  We need 2.2 to use SWIG's -modern option,
+    dnl for Pythonic iterator support, and it's now > 4.5 years since the last
+    dnl 2.1.x release and 2.5 is out.
     AC_MSG_CHECKING([$PYTHON version])
     version=`$PYTHON -c 'import sys;print sys.version[[:3]]' 2>/dev/null`
     case $version in
-    2.1)
-      AC_MSG_RESULT([$version])
-      PYTHON_MODERN_OR_OLDE=olde
-      ;;
-    [2.[1-9]*|[3-9].*])
-      AC_MSG_RESULT([$version])
-      dnl Use output from swig -modern for Python 2.2 and up for
-      dnl cleaner, leaner, faster wrapper code in xapian.py.
-      PYTHON_MODERN_OR_OLDE=modern
+    [2.[2-9]*|2.1[0-9]*|[3-9].*])
       ;;
     *)
       AC_MSG_RESULT([$version (too old)])
@@ -208,8 +197,8 @@ if test no != "$with_python" ; then
       PYTHON=
       ;;
     esac
+    AC_MSG_RESULT([$version])
     if test -n "$PYTHON" ; then
-      AC_SUBST(PYTHON_MODERN_OR_OLDE)
       if $PYTHON -c 'import distutils.sysconfig' 2>/dev/null ; then
 	PYTHON_INC=`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_inc().replace(os.sep,"/")'`
 	AC_SUBST(PYTHON_INC)

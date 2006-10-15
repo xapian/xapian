@@ -1,3 +1,7 @@
+Sun Oct 15 01:41:44 BST 2006  Olly Betts <olly@survex.com>
+
+	* README,configure.ac,python/Makefile.am: Drop support for Python 2.1.
+
 Wed Oct 11 00:17:49 BST 2006  Olly Betts <olly@survex.com>
 
 	* NEWS: Remove empty "Portability:" subheading.

@@ -25,8 +25,9 @@ Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
 Perl		Perl XS bindings contributed by Alex Bowley are available
 		from CPAN (module Search::Xapian).
 PHP		Requires PHP 4 or 5.
-Python		Requires Python 2.1 or later (Python 2.0 could be made to work
-		without too much work).
+Python		Requires Python 2.2 or later (Python 2.0 or 2.1 could be made
+		to work with somewhat reduced functionality, but are no longer
+		in common use).
 Ruby		Requires Ruby 1.8 or later (brief tests show the bindings
 		probably work with at least Ruby 1.6.8 too, but smoketest.rb
 		doesn't because the test/unit module isn't available and
