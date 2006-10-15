@@ -1,3 +1,7 @@
+Sun Oct 15 17:55:21 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fix to work again in VPATH SVN checkout builds.
+
 Sun Oct 15 01:41:44 BST 2006  Olly Betts <olly@survex.com>
 
 	* README,configure.ac,python/Makefile.am: Drop support for Python 2.1.

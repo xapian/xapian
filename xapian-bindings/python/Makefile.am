@@ -10,7 +10,7 @@ if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
 endif
 
-BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h xapian.py
+BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
 EXTRA_DIST = util.i extra.i $(TESTS) $(BUILT_SOURCES)
 
@@ -33,32 +33,33 @@ install-data-hook:
 AM_CPPFLAGS = -I$(PYTHON_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 _xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
-_xapian_la_SOURCES = xapian_wrap.cc
+_xapian_la_SOURCES = modern/xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 
-# In a distribution, xapian.py is in $(srcdir), and python will always
+# In a distribution, xapian.py is in $(srcdir)/modern, and python will always
 # generate the .pyc file in the same directory as the .py file.  However,
 # $(srcdir) might be shared between builds for different python versions
 # so we can't let the .pyc file get written there.  Hence we copy the .py
-# file to the build directory if this is a VPATH build.
-@abs_builddir@/xapian.py: $(srcdir)/xapian.py
-	cp $(srcdir)/xapian.py .
+# file to the build directory from wherever it actually is and use the copy.
+xapian.py: modern/xapian.py
+	cp modern/xapian.py .
 
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken xapian.pyc.
-xapian.pyc: @abs_builddir@/xapian.py _xapian.la
+xapian.pyc: xapian.py _xapian.la
 	PYTHONPATH=".$(PYTHON_PATHSEP).libs" $(PYTHON) -c "import _xapian;import xapian"
 
-CLEANFILES = xapian.pyc
+CLEANFILES = xapian.py xapian.pyc
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-xapian_wrap.cc xapian_wrap.h xapian.py: ../xapian.i util.i extra.i
+modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i extra.i
+	test -d modern || mkdir modern
 	$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -python -shadow -modern -O \
-	    -outdir . -o xapian_wrap.cc $(srcdir)/../xapian.i
+	    -outdir modern -o modern/xapian_wrap.cc $(srcdir)/../xapian.i
 
 CLEANFILES += $(BUILT_SOURCES)
 else
