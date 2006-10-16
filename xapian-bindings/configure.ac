@@ -92,7 +92,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl path.  Listing it in the "to be searched" list like this allows
   dnl ./configure SWIG=myswig to work.
   AC_PATH_PROGS(SWIG, [$SWIG swig], [])
-  AC_ARG_VAR(SWIG, [SWIG interface generator])
+  AC_ARG_VAR(SWIG, [SWIG interface generator (only needed by Xapian developers)])
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
