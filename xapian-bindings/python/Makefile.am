@@ -42,7 +42,7 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 # so we can't let the .pyc file get written there.  Hence we copy the .py
 # file to the build directory from wherever it actually is and use the copy.
 xapian.py: modern/xapian.py
-	cp modern/xapian.py .
+	cp `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py .
 
 # We "import _xapian" first so that if we fail to import the glue library
 # we don't generate a broken xapian.pyc.

@@ -1,3 +1,7 @@
+Mon Oct 16 11:16:46 BST 2006  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Fix Python VPATH build to work again.
+
 Mon Oct 16 01:39:37 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Note that SWIG is only useful for Xapian developers.
