@@ -1,3 +1,8 @@
+Mon Oct 16 01:31:30 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: If we failed to find any languages to build for, give
+	  a more helpful message.
+
 Sun Oct 15 17:55:21 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Fix to work again in VPATH SVN checkout builds.

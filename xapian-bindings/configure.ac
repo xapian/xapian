@@ -706,5 +706,11 @@ dnl guile/Makefile
 AC_OUTPUT
 
 echo ""
-echo "*** Building bindings for languages:" $BINDINGS
+if test -z "$BINDINGS" ; then
+  echo "*** Not found the tools to build any bindings!"
+  echo "*** To point configure at tools not on PATH, see: ./configure --help"
+  echo "*** You may need to install -dev or -devel packages to build bindings"
+else
+  echo "*** Building bindings for languages:" $BINDINGS
+fi
 echo ""
