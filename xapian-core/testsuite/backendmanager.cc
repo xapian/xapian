@@ -478,7 +478,7 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
 #endif
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-        return Xapian::Remote::open("./runtest ../bin/xapian-progsrv", args);
+        return Xapian::Remote::open_writable("./runtest ../bin/xapian-progsrv", args);
     }
 #endif
     return Xapian::Remote::open_writable("../bin/xapian-progsrv", args);

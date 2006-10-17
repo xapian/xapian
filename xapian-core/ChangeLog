@@ -1,3 +1,8 @@
+Tue Oct 17 02:16:37 BST 2006  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.cc: Fix compilation when valgrind is
+	  detected by configure.
+
 Thu Oct 12 13:30:05 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Package xapian-progsrv.
