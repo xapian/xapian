@@ -1,3 +1,8 @@
+Fri Oct 20 13:56:50 BST 2006  Richard Boulton <richard@lemurconsulting.com>
+
+        * backends/flint/flint_io.cc: Fix compilation on windows (needs to
+          #include "safewindows.h" to get definition of SSIZE_T).
+
 Tue Oct 17 02:16:37 BST 2006  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.cc: Fix compilation when valgrind is

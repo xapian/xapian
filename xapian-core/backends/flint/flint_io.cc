@@ -28,6 +28,13 @@
 
 #include <unistd.h>
 
+#ifdef __WIN32__
+# ifdef _MSC_VER
+// MSVC needs this to get SSIZE_T defined.
+#  include "safewindows.h"
+# endif
+#endif
+
 size_t flint_io_read(int fd, char * p, size_t n, size_t min)
 {
     size_t total = 0;
