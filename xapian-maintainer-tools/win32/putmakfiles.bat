@@ -48,5 +48,6 @@ echo ..Make file copy is done.
 
 cd ..\xapian-core-0.9.7\
 nmake -f win32.mak
-cd ..\xapian-bindings-0.9.7\
+cd ..\xapian-bindings-0.9.7\python\
 nmake -f win32.mak
+cd ..\..\win32

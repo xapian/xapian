@@ -15,10 +15,10 @@
 SWIG_PYTHON=yes
 
 #PYTHON_INCLUDE : Set this to the directory that contains python.h
-PYTHON_INCLUDE=f:\python24\include
+PYTHON_INCLUDE=c:\python24\include
 
 # PYTHON_LIB : Set this to the python library including path for linking with
-PYTHON_LIB=f:\python24\libs\python24.lib
+PYTHON_LIB=c:\python24\libs\python24.lib
 
 # Modern or olde: Define exactly the one you want and leave the other one 
 # uncommented out
