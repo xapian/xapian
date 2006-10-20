@@ -59,6 +59,7 @@ APITEST_OBJS= \
 	"$(OUTDIR)\api_db.obj" \
 	"$(OUTDIR)\api_nodb.obj" \
 	"$(OUTDIR)\api_posdb.obj" \
+	"$(OUTDIR)\api_transdb.obj" \
 	"$(OUTDIR)\api_wrdb.obj" 
 	
 BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
@@ -118,6 +119,7 @@ LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  "$(OUTLIBDIR)\libmulti.lib" \
  "$(OUTLIBDIR)\libmatcher.lib"  \
  "$(OUTLIBDIR)\liblanguages.lib"  \
+ "$(OUTLIBDIR)\libnet.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib"  
 
@@ -199,6 +201,11 @@ PROGRAM_DEPENDENCIES =
 <<
 
 "$(INTDIR)\api_posdb.obj" : ".\api_posdb.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\api_transdb.obj" : ".\api_transdb.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<

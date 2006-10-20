@@ -32,6 +32,7 @@ XAPIAN_DEPENDENCIES = \
  "$(OUTLIBDIR)\libmulti.lib" \
  "$(OUTLIBDIR)\libmatcher.lib"  \
  "$(OUTLIBDIR)\liblanguages.lib"  \
+ "$(OUTLIBDIR)\libnet.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib" \
  $(PYTHON_LIB)

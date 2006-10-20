@@ -39,12 +39,14 @@ LIBMATCHER_OBJS= \
                  $(INTDIR)\bm25weight.obj \
                  $(INTDIR)\tradweight.obj \
                  $(INTDIR)\localmatch.obj \
+                 $(INTDIR)\matchcmp.obj \
                  $(INTDIR)\multimatch.obj \
                  $(INTDIR)\expand.obj \
                  $(INTDIR)\stats.obj \
                  $(INTDIR)\mergepostlist.obj \
                  $(INTDIR)\msetpostlist.obj \
-				 $(INTDIR)\msetcmp.obj
+                 $(INTDIR)\msetcmp.obj \
+                 $(INTDIR)\emptysubmatch.obj
 
 CLEAN :
 	-@erase "$(OUTDIR)\libmatcher.lib"
@@ -175,6 +177,11 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 <<
 
 
+"$(INTDIR)\matchcmp.obj" : ".\matchcmp.cc"
+       $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
 "$(INTDIR)\mergepostlist.obj" : ".\mergepostlist.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
@@ -193,6 +200,11 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 <<
 
 "$(INTDIR)\msetcmp.obj" : ".\msetcmp.cc"
+       $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\emptysubmatch.obj" : ".\emptysubmatch.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<

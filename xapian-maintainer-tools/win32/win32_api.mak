@@ -26,18 +26,18 @@ INTDIR=.\
 ALL : "$(OUTDIR)\libapi.lib" 
 
 LIBAPI_OBJS= \
+             $(INTDIR)\errorhandler.obj  \
              $(INTDIR)\omenquire.obj  \
              $(INTDIR)\omquery.obj  \
              $(INTDIR)\omqueryinternal.obj  \
              $(INTDIR)\omdatabase.obj  \
              $(INTDIR)\omstem.obj  \
              $(INTDIR)\omdocument.obj  \
-             $(INTDIR)\omerror.obj  \
              $(INTDIR)\ompostlistiterator.obj  \
              $(INTDIR)\ompositionlistiterator.obj  \
              $(INTDIR)\omtermlistiterator.obj  \
              $(INTDIR)\omvalueiterator.obj \
-			 $(INTDIR)\version.obj
+             $(INTDIR)\version.obj
 
 
 CLEAN :
@@ -63,6 +63,11 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 "$(OUTDIR)\LIBAPI.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBAPI_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libapi.lib" $(DEF_FLAGS) $(LIBAPI_OBJS)
+<<
+
+"$(INTDIR)\errorhandler.obj" : ".\errorhandler.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
 <<
 
 "$(INTDIR)\omenquire.obj" : ".\omenquire.cc"
@@ -96,12 +101,6 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 
 "$(INTDIR)\omdocument.obj" : ".\omdocument.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\omerror.obj" : ".\omerror.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<

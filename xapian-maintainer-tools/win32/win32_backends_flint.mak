@@ -29,15 +29,18 @@ LIBFLINT_OBJS= \
                $(INTDIR)\flint_database.obj \
                $(INTDIR)\flint_termlist.obj \
                $(INTDIR)\flint_postlist.obj \
+               $(INTDIR)\flint_modifiedpostlist.obj \
                $(INTDIR)\flint_positionlist.obj \
                $(INTDIR)\flint_record.obj \
                $(INTDIR)\flint_values.obj \
                $(INTDIR)\flint_document.obj \
+               $(INTDIR)\flint_alldocspostlist.obj \
                $(INTDIR)\flint_alltermslist.obj \
-               $(INTDIR)\flint_metafile.obj \
                $(INTDIR)\flint_table.obj \
                $(INTDIR)\flint_cursor.obj \
                $(INTDIR)\flint_btreebase.obj \
+               $(INTDIR)\flint_version.obj \
+               $(INTDIR)\flint_io.obj \
                $(INTDIR)\flint_lock.obj
 
 CLEAN :
@@ -86,6 +89,12 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 <<
 
 
+"$(INTDIR)\flint_modifiedpostlist.obj" : "flint_modifiedpostlist.cc"
+       $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+
 "$(INTDIR)\flint_positionlist.obj" : "flint_positionlist.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
@@ -110,13 +119,13 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 <<
 
 
-"$(INTDIR)\flint_alltermslist.obj" : "flint_alltermslist.cc"
+"$(INTDIR)\flint_alldocspostlist.obj" : "flint_alldocspostlist.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
 
-"$(INTDIR)\flint_metafile.obj" : "flint_metafile.cc"
+"$(INTDIR)\flint_alltermslist.obj" : "flint_alltermslist.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<
@@ -135,6 +144,18 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 
 "$(INTDIR)\flint_btreebase.obj" : "flint_btreebase.cc"
+       $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+
+"$(INTDIR)\flint_version.obj" : "flint_version.cc"
+       $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+
+"$(INTDIR)\flint_io.obj" : "flint_io.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<
