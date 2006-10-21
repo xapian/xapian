@@ -254,6 +254,10 @@ writing, we require the following versions:
 		automake 1.8.5 is sufficient for bootstrapping sources from
 		SVN.
 
+		automake 1.10 is now out, but still quite new.  It requires
+		autoconf 2.60.  I've not yet tested it with Xapian, but I
+		don't expect any problems.
+
 	GNU libtool 1.5.22 + patches
 		libtool 1.5 was the first version to properly support linking
 		C++ libraries, and 1.5.22 is largely 1.5 plus bug fixes and

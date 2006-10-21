@@ -1,3 +1,7 @@
+Sat Oct 21 20:42:52 BST 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Mention automake 1.10 is out but we've not tested it yet.
+
 Sat Oct 21 20:39:57 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Add entries to release checklist: make sure new API methods
