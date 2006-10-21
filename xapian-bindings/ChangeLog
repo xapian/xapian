@@ -1,3 +1,9 @@
+Sat Oct 21 20:34:30 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrap the "prog" form of Remote::open() (which is
+	  suitable for general purpose use as of 0.9.7) and the
+	  Remote::open_writable() methods (new in 0.9.7).
+
 Mon Oct 16 11:16:46 BST 2006  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Fix Python VPATH build to work again.

@@ -77,6 +77,18 @@ namespace Xapian {
 	static Database open(const string &, unsigned int, timeout = 0, timeout = 0) {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
+
+	static WritableDatabase open_writable(const string &, unsigned int, timeout = 0, timeout = 0) {
+	    throw FeatureUnavailableError("Remote backend not supported");
+	}
+
+	static Database open(const string &, const string &, timeout = 0) {
+	    throw FeatureUnavailableError("Remote backend not supported");
+	}
+	
+	static WritableDatabase open_writable(const string &, const string &, timeout = 0) {
+	    throw FeatureUnavailableError("Remote backend not supported");
+	}
     }
 #endif
 }
@@ -839,10 +851,18 @@ namespace Muscat36 {
 }
 
 namespace Remote {
-    // FIXME: prog factory function not currently wrapped - is it useful?
     %rename(remote_open) open;
-    Database open(const std::string &host, unsigned int port,
-	timeout timeout = 10000, timeout connect_timeout = 0);
+    %rename(remote_open_writable) open_writable;
+
+    Database open(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
+    Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
+
+    WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
+    WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
+
+    Database open(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
+
+    WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
 }
 #else
 /* Lie to SWIG that Auto, etc are classes with static methods rather than
@@ -900,10 +920,21 @@ class Remote {
     Remote();
     ~Remote();
   public:
-    // FIXME: prog factory function not currently wrapped - is it useful?
     static
-    Database open(const std::string &host, unsigned int port,
-	timeout timeout = 10000, timeout connect_timeout = 0);
+    Database open(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
+    static
+    Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
+
+    static
+    WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
+    static
+    WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
+
+    static
+    Database open(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
+
+    static
+    WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
 };
 #endif
 
