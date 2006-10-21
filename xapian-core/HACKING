@@ -696,6 +696,9 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Email Fabrice Colin so he can check RPM spec files.
 
+* Make sure that any new/changed/removed API methods in xapian-core have been
+  wrapped/updated/removed in xapian-bindings.
+
 * Update the NEWS files using information from the ChangeLog files
 
 * Update the PLATFORMS file.  Don't forget to use reports from the tinderbox:
@@ -709,6 +712,7 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Move any bugs fixed by this release from "RESOLVED FIXED" -> "CLOSED"
   http://www.xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED
+  Make sure the submitters are mentioned in the "thanks" list in AUTHORS.
 
 * svn tag the source trees for the new revision - use the svn-tag-release
   script, running it with the new version number, for example:
