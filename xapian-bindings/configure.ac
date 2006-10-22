@@ -520,10 +520,13 @@ if test no != "$with_java" ; then
       dnl Debian and Ubuntu boxes at least.
       SAVE_CPPFLAGS=$CPPFLAGS
       CPPFLAGS="$CPPFLAGS -I/usr/lib/jvm/java-gcj/include"
-      AC_CHECK_HEADER(jni.h,
-	[java_ok=yes;JAVA_CPPFLAGS=-I/usr/lib/jvm/java-gcj/include],
-	[test yes = "$with_java" && AC_MSG_ERROR([jni.h not found])])
-      CPPFLAGS=$SAVE_CPPFLAGS])
+      AC_MSG_CHECKING([for jni.h in /usr/lib/jvm/java-gcj/include])
+      AC_COMPILE_IFELSE([#include <jni.h>],
+	[AC_MSG_RESULT(yes)
+	 java_ok=yes;JAVA_CPPFLAGS=-I/usr/lib/jvm/java-gcj/include],
+	[AC_MSG_RESULT(no)
+	 test yes = "$with_java" && AC_MSG_ERROR([jni.h not found])])
+      CPPFLAGS=$SAVE_CPPFLAGS], [ ])
     AC_SUBST(JAVA_CPPFLAGS)
     if test yes = $java_ok ; then
       AC_MSG_CHECKING([for Java path separator])

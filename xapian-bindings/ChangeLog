@@ -1,3 +1,9 @@
+Sun Oct 22 02:41:09 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix check for jni.h in /usr/lib/jvm/java-gcj/include
+	  to actually work rather than using the cached failure of the first
+	  jni.h check.
+
 Sun Oct 22 02:29:09 BST 2006  Olly Betts <olly@survex.com>
 
 	* java/SmokeTest.java: Fix check for value of Query.OP_ELITE_SET.
