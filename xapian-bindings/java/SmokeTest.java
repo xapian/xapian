@@ -81,7 +81,8 @@ public class SmokeTest {
 	    boolean ok = false;
 	    try {
 		Database db_fail = new Database("NOsuChdaTabASe");
-		int foo = db_fail.getDocCount();
+		// Ignore the return value.
+		db_fail.getDocCount();
 	    } catch (DatabaseOpeningError e) {
 		ok = true;
 	    }
@@ -91,7 +92,7 @@ public class SmokeTest {
 	    }
 
 	    if (Query.OP_ELITE_SET != 10) {
-		System.err.println("OP_ELITE_SET is " + Query.OP_ELITE_SET.toString() + " not 10");
+		System.err.println("OP_ELITE_SET is " + Query.OP_ELITE_SET + " not 10");
 		System.exit(1);
 	    }
 	} catch (Exception e) {

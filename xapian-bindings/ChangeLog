@@ -1,3 +1,8 @@
+Sun Oct 22 02:29:09 BST 2006  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Fix check for value of Query.OP_ELITE_SET.
+	* java/SmokeTest.java: Avoid gcj "set but not used" warning.
+
 Sat Oct 21 20:34:30 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Wrap the "prog" form of Remote::open() (which is
