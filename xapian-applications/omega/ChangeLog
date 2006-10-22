@@ -1,3 +1,9 @@
+Sun Oct 22 03:30:11 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Tell AC_CHECK_HEADERS to suppress its backward
+	  compatibility mode, so it only checks headers with the compiler.
+	  This speeds up configure a little, and is what we do elsewhere.
+
 Tue Oct 10 17:21:13 BST 2006  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for actual 0.9.7 release.
