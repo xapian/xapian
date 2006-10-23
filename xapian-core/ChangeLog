@@ -1,3 +1,9 @@
+Tue Oct 24 00:31:25 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc: Only force a flush on
+	  WritableDatabase::allterms_begin() if there are actually pending
+	  changes.
+
 Mon Oct 23 23:49:52 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc: Only force a flush on

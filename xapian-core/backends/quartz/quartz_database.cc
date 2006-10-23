@@ -1182,7 +1182,7 @@ QuartzWritableDatabase::open_allterms() const
     if (transaction_active())
 	throw Xapian::UnimplementedError("Can't open allterms iterator during a transaction");
     // Terms may have been added or removed, so we need to flush.
-    do_flush_const();
+    if (changes_made) do_flush_const();
     QuartzPostListTable *t = &database_ro.postlist_table;
     AutoPtr<Bcursor> pl_cursor(t->cursor_get());
     RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzWritableDatabase>(this),
