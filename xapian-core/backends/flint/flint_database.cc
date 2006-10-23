@@ -1040,8 +1040,9 @@ FlintWritableDatabase::open_allterms() const
     DEBUGCALL(DB, TermList *, "FlintWritableDatabase::open_allterms", "");
     if (transaction_active())
 	throw Xapian::UnimplementedError("Can't open allterms iterator during a transaction");
-    // Terms may have been added or removed, so we need to flush.
-    do_flush_const();
+    // If there are changes, terms may have been added or removed, and so we
+    // need to flush.
+    if (changes_made) do_flush_const();
     RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),
 				 &database_ro.postlist_table));
 }

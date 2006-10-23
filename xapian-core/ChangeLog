@@ -1,3 +1,9 @@
+Mon Oct 23 23:49:52 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc: Only force a flush on
+	  WritableDatabase::allterms_begin() if there are actually pending
+	  changes.
+
 Mon Oct 23 02:24:12 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: When checking if we need -lm, don't use a constant
