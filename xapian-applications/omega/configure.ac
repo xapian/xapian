@@ -28,8 +28,14 @@ AC_PROG_CXX
 dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
+dnl IRIX helpfully won't allow stdint.h to be included from C++ code,
+dnl so we can't just use AC_CHECK_HEADERS.
+AC_TRY_COMPILE([#include <stdint.h>],
+  [],
+  AC_DEFINE(HAVE_STDINT_H, 1, [Define to 1 if you have the <stdint.h> header file and it can be used in C++ code.]))
+
 dnl Check for headers.
-AC_CHECK_HEADERS([stdint.h netinet/in.h arpa/inet.h sys/wait.h strings.h],
+AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h strings.h],
 		 [], [], [ ])
 
 dnl Check for time functions.

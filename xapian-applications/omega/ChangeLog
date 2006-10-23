@@ -1,3 +1,8 @@
+Tue Oct 24 00:46:06 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: IRIX doesn't allow stdint.h to be included from C++
+	  code, so we need a smarter configure test than AC_CHECK_HEADERS.
+
 Sun Oct 22 03:30:11 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Tell AC_CHECK_HEADERS to suppress its backward
