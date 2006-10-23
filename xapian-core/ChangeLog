@@ -1,3 +1,9 @@
+Mon Oct 23 02:24:12 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: When checking if we need -lm, don't use a constant
+	  argument to log as the compiler might simply evaluate the whole
+	  expression at compile time.
+
 Sat Oct 21 20:42:52 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Mention automake 1.10 is out but we've not tested it yet.
