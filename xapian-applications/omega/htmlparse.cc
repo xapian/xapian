@@ -33,12 +33,6 @@ using std::find_if;
 map<string, unsigned int> HtmlParser::named_ents;
 
 inline static bool
-p_alpha(char c)
-{
-    return isalpha(c);
-}
-
-inline static bool
 p_notdigit(char c)
 {
     return !isdigit(c);

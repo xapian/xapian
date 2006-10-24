@@ -531,18 +531,6 @@ static int word_in_list(const string& word, const string& list)
     return -1;
 }
 
-inline static bool
-p_alnum(unsigned int c)
-{
-    return isalnum(c);
-}
-
-inline static bool
-p_notalnum(unsigned int c)
-{
-    return !isalnum(c);
-}
-
 // Not a character in an identifier
 inline static bool
 p_notid(unsigned int c)
@@ -1940,18 +1928,6 @@ pretty_term(const string & term)
 	return term + '.';
 
     return term;
-}
-
-/* return a sane (1-100) percentage value for ratio */
-static int
-percentage(double ratio)
-{
-    /* default to 100 so pure boolean queries give 100% not 0%) */
-    long int percent = 100;
-    percent = (long)(100.0 * ratio + 0.5);
-    if (percent > 100) percent = 100;
-    else if (percent < 1) percent = 1;
-    return (int)percent;
 }
 
 static string

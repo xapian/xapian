@@ -1,3 +1,8 @@
+Tue Oct 24 02:11:11 BST 2006  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc,query.cc,scriptindex.cc: Remove unused static
+	  functions.
+
 Tue Oct 24 01:51:05 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Pass magic options to SGI's C++ compiler to allow

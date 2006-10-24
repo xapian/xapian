@@ -81,24 +81,6 @@ p_notalpha(unsigned int c)
     return !isalpha(c);
 }
 
-inline static bool
-p_alnum(unsigned int c)
-{
-    return isalnum(c);
-}
-
-inline static bool
-p_notalnum(unsigned int c)
-{
-    return !isalnum(c);
-}
-
-inline static bool
-p_notplusminus(unsigned int c)
-{
-    return c != '+' && c != '-';
-}
-
 // Characters allowed as second or subsequent characters in a fieldname
 inline static bool
 p_notfieldnamechar(unsigned int c)
