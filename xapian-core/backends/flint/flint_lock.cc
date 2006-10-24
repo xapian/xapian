@@ -133,8 +133,7 @@ FlintLock::release() {
     fd = -1;
     int status;
     kill(pid, SIGHUP);
-    int r;
-    while ((r = waitpid(pid, &status, 0)) < 0) {
+    while (waitpid(pid, &status, 0) < 0) {
 	if (errno != EINTR) break;
     }
 #endif

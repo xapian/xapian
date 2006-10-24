@@ -526,8 +526,6 @@ check_table(const char *filename, int opts)
 	    pos = cursor->current_tag.data();
 	    end = pos + cursor->current_tag.size();
 
-	    bool bad = false;
-
 	    bool first = true;
 	    Xapian::valueno last_value_no = 0;
 	    while (pos && pos != end) {
@@ -540,7 +538,6 @@ check_table(const char *filename, int opts)
 		    else
 			cout << "Value number in value table is too large" << endl;
 		    ++errors;
-		    bad = true;
 		    break;
 		}
 
@@ -550,7 +547,6 @@ check_table(const char *filename, int opts)
 		    else
 			cout << "Item in value table is too large" << endl;
 		    ++errors;
-		    bad = true;
 		    break;
 		}
 

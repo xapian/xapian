@@ -1,3 +1,8 @@
+Tue Oct 24 04:17:58 BST 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc,bin/quartzcheck.cc: Eliminate
+	  a couple of variables whose value is never used.
+
 Tue Oct 24 00:31:25 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: Only force a flush on
