@@ -1,3 +1,8 @@
+Tue Oct 24 01:51:05 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Pass magic options to SGI's C++ compiler to allow
+	  linking of templates to work.
+
 Tue Oct 24 00:46:06 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: IRIX doesn't allow stdint.h to be included from C++

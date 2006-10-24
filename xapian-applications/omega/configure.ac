@@ -179,9 +179,17 @@ dnl ******************************
 dnl * Set special compiler flags *
 dnl ******************************
 
-dnl extra flags for building with gcc
 if test yes = "$GXX"; then
+  dnl Extra flags for building with gcc.
   AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -fno-gnu-keywords"
+else
+  dnl With SGI's C++ compiler, we have to specify "-no_prelink -ptused" or
+  dnl we get strange template linking errors.
+  AC_TRY_COMPILE([],
+    [#ifndef _SGI_COMPILER_VERSION
+  choke me
+#endif],
+    [AM_CXXFLAGS="$AM_CXXFLAGS -O2 -no_prelink -ptused"])
 fi
 
 AH_BOTTOM(
