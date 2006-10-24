@@ -36,7 +36,7 @@
 
 using namespace std;
 
-const static char filter_sep = '-';
+const char filter_sep = '-';
 // Any choice of character for filter_sep could conceivably lead to
 // false positives, but the situation is contrived, and just means that if
 // someone changed a filter, the first page wouldn't be forced.

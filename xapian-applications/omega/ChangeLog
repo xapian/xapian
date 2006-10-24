@@ -1,8 +1,6 @@
-Tue Oct 24 02:11:38 BST 2006  Olly Betts <olly@survex.com>
+Tue Oct 24 02:12:13 BST 2006  Olly Betts <olly@survex.com>
 
-	* :
-
-
+	* metaxmlparse.cc,omega.h: Fix warnings from SGI's C++ compiler.
 
 Tue Oct 24 02:11:11 BST 2006  Olly Betts <olly@survex.com>
 

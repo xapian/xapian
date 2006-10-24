@@ -71,7 +71,7 @@ MetaXmlParser::opening_tag(const string &tag, const map<string,string> &)
 }
 
 void
-MetaXmlParser::closing_tag(const string &tag)
+MetaXmlParser::closing_tag(const string &)
 {
     field = NONE;
 }
