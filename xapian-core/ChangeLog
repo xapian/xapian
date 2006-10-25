@@ -1,3 +1,9 @@
+Wed Oct 25 01:19:24 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Redhat's GCC 2.96 doesn't support -Wundef even
+	  though real GCC version before and after it do!  Also, use
+	  -Wshadow and -Wendif-labels even when not in maintainer mode.
+
 Tue Oct 24 04:17:58 BST 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_lock.cc,bin/quartzcheck.cc: Eliminate

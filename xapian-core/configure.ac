@@ -832,20 +832,35 @@ if test yes = "$GXX"; then
       dnl All these options were supported by g++ 2.95 and there's little
       dnl likelihood Xapian will build with any earlier version, so there's
       dnl not much point worrying about whether older versions had them or not.
-      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wundef -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
+
+      dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
+      dnl but somewhere in the 3.X series the output became more verbose.
+      dnl So for simplicitly, we test for the earlier versions.
+      gxx_version=`$CXX --version 2>&1`
+
+      dnl Oddly, GCC 2.95 and 3.0 onwards have -Wundef, but Redhat's "2.96"
+      dnl doesn't!
+      case $gxx_version in
+      2.96) dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
+	    dnl GCC versions before and after it do!
+        ;;
+      [[12]].*) dnl GCC < 3
+        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
+      3.0*) dnl -Wshadow spews false positives with GCC 3.0.4
+        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wendif-labels -Werror" ;;
+      *)
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow -Wendif-labels -Werror" ;;
+      esac
+
       dnl Automatically add -Werror if maintainer mode is enabled and we're
       dnl using GCC3 or newer.  We don't do this for older GCCs as GCC 2.95
       dnl issues spurious warnings.
       dnl Also only add -Wendif-labels in this case (it was added in GCC 3.0).
       if test x$USE_MAINTAINER_MODE = xyes; then
-	dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
-	dnl but somewhere in the 3.X series the output became more verbose.
-	dnl So for simplicitly, we test for the earlier versions.
-	case `$CXX --version 2>&1` in
+	case $gxx_version in
 	[[12]].*) ;; dnl GCC < 3
-	3.0*) AM_CXXFLAGS="$AM_CXXFLAGS -Wendif-labels -Werror" ;;
-	dnl -Wshadow spews false positives with GCC 3.0.4
-	*) AM_CXXFLAGS="$AM_CXXFLAGS -Wshadow -Wendif-labels -Werror" ;;
+	*) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
 	esac
       fi
     ])
