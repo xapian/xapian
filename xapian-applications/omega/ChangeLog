@@ -1,3 +1,8 @@
+Wed Oct 25 01:36:43 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Need a more sophisticated test for the stdint.h
+	  problem on IRIX.
+
 Tue Oct 24 02:12:13 BST 2006  Olly Betts <olly@survex.com>
 
 	* metaxmlparse.cc,omega.h: Fix warnings from SGI's C++ compiler.
