@@ -836,7 +836,8 @@ if test yes = "$GXX"; then
 
       dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
       dnl but somewhere in the 3.X series the output became more verbose.
-      dnl So for simplicitly, we test for the earlier versions.
+      dnl 3.2 has the new style output - not sure about 3.1, so we test for
+      dnl both forms below.
       gxx_version=`$CXX --version 2>&1`
 
       dnl Oddly, GCC 2.95 and 3.0 onwards have -Wundef, but Redhat's "2.96"
@@ -848,9 +849,14 @@ if test yes = "$GXX"; then
       [[12]].*) dnl GCC < 3
         AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
       3.0*) dnl -Wshadow spews false positives with GCC 3.0.4
-        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wendif-labels -Werror" ;;
+        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
+      dnl A closing bracket in the pattern can't be escaped portably according
+      dnl to the autoconf manual, so just use "?" around GCC instead of
+      dnl brackets.
+      3.1* | g++\ ?GCC?\ 3.[[12]]*) dnl -Wendif-labels is new in GCC 3.3
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
       *)
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow -Wendif-labels -Werror" ;;
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow -Wendif-labels" ;;
       esac
 
       dnl Automatically add -Werror if maintainer mode is enabled and we're
@@ -865,8 +871,8 @@ if test yes = "$GXX"; then
       fi
     ])
 else
-    dnl WARNING_CXXFLAGS is set above.
-    AM_CXXFLAGS="$WARNING_CXXFLAGS"
+  dnl WARNING_CXXFLAGS is set above.
+  AM_CXXFLAGS="$WARNING_CXXFLAGS"
 fi
 
 AH_BOTTOM(
@@ -937,7 +943,8 @@ dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
 for backend in MUSCAT36 QUARTZ FLINT INMEMORY REMOTE ; do
-  if test -z "`eval echo \"\\$BUILD_BACKEND_${backend}_TRUE\"`" ; then
+  val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
+  if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"
   fi
 done

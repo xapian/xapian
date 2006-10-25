@@ -1,3 +1,11 @@
+Wed Oct 25 23:30:26 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: -Wendif-labels is new in GCC 3.3.
+	* configure.ac: Revert accidental change which turned on -Werror in
+	  non-maintainer builds.
+	* configure.ac: Avoid non-portable use of double quotes in
+	  double-quoted backticks.
+
 Wed Oct 25 01:19:24 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Redhat's GCC 2.96 doesn't support -Wundef even
