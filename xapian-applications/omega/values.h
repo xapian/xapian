@@ -20,7 +20,7 @@
 #include <string>
 
 // Include these to get uint32_t and htonl, etc.
-#ifdef HAVE_STDINT_H
+#ifdef HAVE_WORKING_STDINT_H
 # include <stdint.h>
 #endif
 #ifdef HAVE_ARPA_INET_H
@@ -30,7 +30,7 @@
 # include <netinet/in.h>
 #endif
 #ifdef __WIN32__
-# ifndef HAVE_STDINT_H
+# ifndef HAVE_WORKING_STDINT_H
 typedef unsigned int uint32_t;
 # endif
 inline uint32_t htonl(uint32_t v) {

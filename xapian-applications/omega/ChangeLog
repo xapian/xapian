@@ -1,3 +1,9 @@
+Fri Oct 27 00:36:34 BST 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,md5.h,values.h: HAVE_STDINT_H is already defined
+	  by autoconf based on trying the C compiler with AC_CHECK_HEADERS
+	  so define HAVE_WORKING_STDINT_H instead.
+
 Wed Oct 25 01:36:43 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Need a more sophisticated test for the stdint.h

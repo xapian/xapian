@@ -27,7 +27,7 @@
  */
 
 // To get uint32_t:
-#ifdef HAVE_STDINT_H
+#ifdef HAVE_WORKING_STDINT_H
 # include <stdint.h>
 #else
 # ifdef HAVE_ARPA_INET_H
