@@ -1,3 +1,10 @@
+Thu Oct 26 22:12:20 BST 2006  Richard Boulton <richard@lemurconsulting.com>
+
+        * bin/quartzcheck.cc: Catch (and display) any exceptions which are
+          of type "const char *error".  btreecheck.cc raises an exception
+          of this type if a btree error is found, and this avoids
+          quartzcheck dying quite so horribly in this case.
+
 Wed Oct 25 23:30:26 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: -Wendif-labels is new in GCC 3.3.
