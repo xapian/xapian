@@ -1,3 +1,10 @@
+Fri Oct 27 11:28:48 BST 2006  Richard Boulton <richard@lemurconsulting.com>
+
+        * xapian.i: Catch exceptions of type "std:string", since the query
+          parser currently throws these.  This should probably be fixed in
+          the query parser for release 1.0, but this fix prevents crashes
+          due to these exceptions in a backwards compatible manner.
+
 Sun Oct 22 02:41:09 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix check for jni.h in /usr/lib/jvm/java-gcj/include
