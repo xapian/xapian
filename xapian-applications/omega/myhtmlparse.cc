@@ -21,6 +21,7 @@
 
 #include "myhtmlparse.h"
 
+#include <ctype.h>
 #include <string.h>
 
 static inline void

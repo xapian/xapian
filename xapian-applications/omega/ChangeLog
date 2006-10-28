@@ -1,3 +1,7 @@
+Sat Oct 28 12:31:31 BST 2006  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc: Add missing "#include <ctype.h>".
+
 Sat Oct 28 02:23:09 BST 2006  Olly Betts <olly@survex.com>
 
 	* htmlparse.cc,indextext.cc,indextext.h,myhtmlparse.cc,omega.cc,
