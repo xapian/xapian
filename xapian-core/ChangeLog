@@ -1,3 +1,7 @@
+Sat Oct 28 04:12:13 BST 2006  Olly Betts <olly@survex.com>
+
+	* bin/quartzcheck.cc: Add catch for unknown exceptions.
+
 Sat Oct 28 03:49:19 BST 2006  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.ac,docs/Makefile.am,docs/doxygen_api_conf.in,
@@ -1449,8 +1453,8 @@ Fri Jan 13 18:25:04 GMT 2006  Olly Betts <olly@survex.com>
 
 Fri Jan 13 03:22:26 GMT 2006  Olly Betts <olly@survex.com>
 
-        * configure.ac: The configure test for snprintf uses memcmp, so
-          we need to "#include <string.h>" for it to work reliably.
+	* configure.ac: The configure test for snprintf uses memcmp, so
+	  we need to "#include <string.h>" for it to work reliably.
 
 Wed Jan 11 03:14:30 GMT 2006  Olly Betts <olly@survex.com>
 

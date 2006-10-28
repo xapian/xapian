@@ -140,6 +140,9 @@ main(int argc, char **argv)
     } catch (const Xapian::Error &error) {
 	cerr << argv[0] << ": " << error.get_msg() << endl;
 	exit(1);
+    } catch (...) {
+	cerr << argv[0] << ": Unknown exception" << endl;
+	exit(1);
     }
 }
 
