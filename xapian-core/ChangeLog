@@ -4,7 +4,8 @@ Sat Oct 28 03:49:19 BST 2006  Olly Betts <olly@survex.com>
 	  docs/doxygen_full_conf.in: Produce a PDF for apidoc rather than
 	  PostScript, since the PDF is smaller, and easier to view for most
 	  users.  Use pdflatex to generate the PDF directly rather than
-	  going via a DVI file.
+	  going via a DVI file.  This also avoids problems on some Linux
+	  distros where latex is a symlink to pdfelatex (bug#81, bug#95).
 
 Thu Oct 26 22:12:20 BST 2006  Richard Boulton <richard@lemurconsulting.com>
 
