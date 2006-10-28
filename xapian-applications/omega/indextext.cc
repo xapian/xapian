@@ -53,31 +53,36 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
     const AccentNormalisingItor s_end(s.end());
     while (true) {
 	AccentNormalisingItor first = j;
-	while (first != s_end && !isalnum(*first)) ++first;
+	while (first != s_end && !isalnum(static_cast<unsigned char>(*first)))
+	    ++first;
 	if (first == s_end) break;
 	AccentNormalisingItor last;
 	string term;
-	if (isupper(*first)) {
+	if (isupper(static_cast<unsigned char>(*first))) {
 	    j = first;
 	    term = *j;
-	    while (++j != s_end && *j == '.' && ++j != s_end && isupper(*j)) {
+	    while (++j != s_end && *j == '.' && ++j != s_end &&
+		   isupper(static_cast<unsigned char>(*j))) {
 		term += *j;
 	    } 
-	    if (term.length() < 2 || (j != s_end && isalnum(*j))) {
+	    if (term.length() < 2 ||
+		(j != s_end && isalnum(static_cast<unsigned char>(*j)))) {
 		term = "";
 	    }
 	    last = j;
 	}
 	if (term.empty()) {
 	    j = first;
-	    while (isalnum(*j)) {
+	    while (isalnum(static_cast<unsigned char>(*j))) {
 		term += *j;
 		++j;
 		if (j == s_end) break;
 		if (*j == '&') {
 		    AccentNormalisingItor next = j;
 		    ++next;
-		    if (next == s_end || !isalnum(*next)) break;
+		    if (next == s_end ||
+			!isalnum(static_cast<unsigned char>(*next)))
+			break;
 		    term += '&';
 		    j = next;
 		}
@@ -94,7 +99,8 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 			++j;
 		    }
 		}
-		if (term.size() - len > 3 || (j != s_end && isalnum(*j))) {
+		if (term.size() - len > 3 ||
+		    (j != s_end && isalnum(static_cast<unsigned char>(*j)))) {
 		    term.resize(len);
 		} else {
 		    last = j;
@@ -103,7 +109,7 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 	}
 	if (term.length() <= MAX_PROB_TERM_LENGTH) {
 	    lowercase_term(term);
-	    if (isupper(*first)) {
+	    if (isupper(static_cast<unsigned char>(*first))) {
 		if (pos != static_cast<Xapian::termpos>(-1)
 			// Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()
 		   ) {

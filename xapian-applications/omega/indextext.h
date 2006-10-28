@@ -1,9 +1,8 @@
 /* indextext.h: split text into terms
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <xapian.h>
@@ -38,10 +36,8 @@ static const unsigned int MAX_PROB_TERM_LENGTH = 64;
 static inline void
 lowercase_term(string &term)
 {
-    string::iterator i = term.begin();
-    while (i != term.end()) {
-	*i = tolower(*i);
-	i++;
+    for (string::iterator i = term.begin(); i != term.end(); ++i) {
+	*i = tolower(static_cast<unsigned char>(*i));
     }
 }
 

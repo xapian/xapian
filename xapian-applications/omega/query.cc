@@ -275,7 +275,7 @@ void add_bterm(const string &term) {
     string prefix;
     if (term[0] == 'X') {
 	string::const_iterator i = term.begin() + 1;
-	while (i != term.end() && isupper(*i)) ++i;
+	while (i != term.end() && isupper(static_cast<unsigned char>(*i))) ++i;
 	if (i != term.end() && *i == ':') ++i;
 	prefix = string(term.begin(), i);
     } else {
@@ -535,14 +535,14 @@ static int word_in_list(const string& word, const string& list)
 inline static bool
 p_notid(unsigned int c)
 {
-    return !isalnum(c) && c != '_';
+    return !isalnum(static_cast<unsigned char>(c)) && c != '_';
 }
 
 // Not a character in an HTML tag name
 inline static bool
 p_nottag(unsigned int c)
 {
-    return !isalnum(c) && c != '.' && c != '-';
+    return !isalnum(static_cast<unsigned char>(c)) && c != '.' && c != '-';
 }
 
 inline static bool
@@ -566,7 +566,8 @@ html_highlight(const string &s, const string &list,
     const AccentNormalisingItor s_end(s.end());
     while (true) {
 	AccentNormalisingItor first = j;
-	while (first != s_end && !isalnum(*first)) ++first;
+	while (first != s_end && !isalnum(static_cast<unsigned char>(*first)))
+	    ++first;
 	if (first == s_end) break;
 	AccentNormalisingItor last;
 	string term;
@@ -575,24 +576,28 @@ html_highlight(const string &s, const string &list,
 	if (isupper(*first)) {
 	    j = first;
 	    term = *j;
-	    while (++j != s_end && *j == '.' && ++j != s_end && isupper(*j)) {
+	    while (++j != s_end && *j == '.' && ++j != s_end &&
+		   isupper(static_cast<unsigned char>(*j))) {
 		term += *j;
 	    }
-	    if (term.length() < 2 || (j != s_end && isalnum(*j))) {
+	    if (term.length() < 2 ||
+		(j != s_end && isalnum(static_cast<unsigned char>(*j)))) {
 		term = "";
 	    }
 	    last = j;
 	}
 	if (term.empty()) {
 	    j = first;
-	    while (isalnum(*j)) {
+	    while (isalnum(static_cast<unsigned char>(*j))) {
 		term += *j;
 		++j;
 		if (j == s_end) break;
 		if (*j == '&') {
 		    AccentNormalisingItor next = j;
 		    ++next;
-		    if (next == s_end || !isalnum(*next)) break;
+		    if (next == s_end ||
+			!isalnum(static_cast<unsigned char>(*next)))
+			break;
 		    term += '&';
 		    j = next;
 		}
@@ -609,7 +614,7 @@ html_highlight(const string &s, const string &list,
 			++j;
 		    }
 		}
-		if (j != s_end && isalnum(*j)) {
+		if (j != s_end && isalnum(static_cast<unsigned char>(*j))) {
 		    term.resize(len);
 		} else {
 		    last = j;
@@ -1903,8 +1908,11 @@ pretty_term(const string & term)
 {
     if (term.empty()) return term;
 
-    if (term.length() >= 2 && term[0] == 'R')
-	return char(toupper(term[1])) + term.substr(2);
+    if (term.length() >= 2 && term[0] == 'R') {
+	string result = term.substr(1);
+	result[0] = toupper(static_cast<unsigned char>(result[0]));
+	return result;
+    }
 
     // If there's an unstemmed version in the query, use that.
     // If the multiple forms with the same stem appear, we arbitrarily pick

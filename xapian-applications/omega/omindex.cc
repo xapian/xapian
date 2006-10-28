@@ -90,7 +90,7 @@ static vector<bool> updated;
 inline static bool
 p_notalnum(unsigned int c)
 {
-    return !isalnum(c);
+    return !isalnum(static_cast<unsigned char>(c));
 }
 
 /* Truncate a string to a given maxlength, avoiding cutting off midword
@@ -111,7 +111,8 @@ truncate_to_word(string & input, string::size_type maxlen)
 	    if (nonspace != string::npos) output.erase(nonspace);
 	}
 
-	if (output.length() == maxlen && !isspace(input[maxlen])) {
+	if (output.length() == maxlen &&
+	    !isspace(static_cast<unsigned char>(input[maxlen]))) {
 	    output += "...";
 	} else {
 	    output += " ...";

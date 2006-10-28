@@ -35,43 +35,44 @@ map<string, unsigned int> HtmlParser::named_ents;
 inline static bool
 p_notdigit(char c)
 {
-    return !isdigit(c);
+    return !isdigit(static_cast<unsigned char>(c));
 }
 
 inline static bool
 p_notxdigit(char c)
 {
-    return !isxdigit(c);
+    return !isxdigit(static_cast<unsigned char>(c));
 }
 
 inline static bool
 p_notalnum(char c)
 {
-    return !isalnum(c);
+    return !isalnum(static_cast<unsigned char>(c));
 }
 
 inline static bool
 p_notwhitespace(char c)
 {
-    return !isspace(c);
+    return !isspace(static_cast<unsigned char>(c));
 }
 
 inline static bool
 p_nottag(char c)
 {
-    return !isalnum(c) && c != '.' && c != '-' && c != ':'; // ':' for XML namespaces.
+    return !isalnum(static_cast<unsigned char>(c)) &&
+	c != '.' && c != '-' && c != ':'; // ':' for XML namespaces.
 }
 
 inline static bool
 p_whitespacegt(char c)
 {
-    return isspace(c) || c == '>';
+    return isspace(static_cast<unsigned char>(c)) || c == '>';
 }
 
 inline static bool
 p_whitespaceeqgt(char c)
 {
-    return isspace(c) || c == '=' || c == '>';
+    return isspace(static_cast<unsigned char>(c)) || c == '=' || c == '>';
 }
 
 HtmlParser::HtmlParser()
@@ -202,7 +203,7 @@ HtmlParser::decode_entities(string &s)
 	string::const_iterator end, p = amp + 1;
 	if (p != s_end && *p == '#') {
 	    p++;
-	    if (p != s_end && tolower(*p) == 'x') {
+	    if (p != s_end && (*p == 'x' || *p == 'X')) {
 		// hex
 		p++;
 		end = find_if(p, s_end, p_notxdigit);
@@ -249,7 +250,7 @@ HtmlParser::parse_html(const string &body)
 	while (true) {
 	    p = find(p, body.end(), '<');
 	    if (p == body.end()) break;
-	    char ch = *(p + 1);
+	    unsigned char ch = *(p + 1);
 	    // Tag, closing tag, comment (or SGML declaration), or PHP.
 	    if ((!in_script && isalpha(ch)) || ch == '/' || ch == '!' || ch == '?') break;
 	    p++; 
@@ -331,8 +332,8 @@ HtmlParser::parse_html(const string &body)
 	    start = find_if(start, body.end(), p_nottag);
 	    string tag = body.substr(p - body.begin(), start - p);
 	    // convert tagname to lowercase
-	    for (string::iterator i = tag.begin(); i != tag.end(); i++)
-		*i = tolower(*i);
+	    for (string::iterator i = tag.begin(); i != tag.end(); ++i)
+		*i = tolower(static_cast<unsigned char>(*i));
 	       
 	    if (closing) {
 		closing_tag(tag);
@@ -380,8 +381,8 @@ HtmlParser::parse_html(const string &body)
 			if (name.size()) {
 			    // convert parameter name to lowercase
 			    string::iterator i;
-			    for (i = name.begin(); i != name.end(); i++)
-				*i = tolower(*i);
+			    for (i = name.begin(); i != name.end(); ++i)
+				*i = tolower(static_cast<unsigned char>(*i));
 			    // in case of multiple entries, use the first
 			    // (as Netscape does)
 			    if (Param.find(name) == Param.end())
@@ -392,7 +393,8 @@ HtmlParser::parse_html(const string &body)
 		opening_tag(tag, Param);
 		Param.clear();
 
-		// In <script> tags we ignore opening tags to avoid problems with "a<b".
+		// In <script> tags we ignore opening tags to avoid problems
+		// with "a<b".
 		if (tag == "script") in_script = true;
 
 		if (start != body.end() && *start == '>') ++start;

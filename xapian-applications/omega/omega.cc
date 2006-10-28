@@ -251,7 +251,7 @@ try {
 	for (MCI i = g.first; i != g.second; i++) {
 	    const string & v = i->second;
 	    // we'll definitely get empty B fields from "-ALL-" options
-	    if (!v.empty() && isalnum(v[0])) {
+	    if (!v.empty() && isalnum(static_cast<unsigned char>(v[0]))) {
 		add_bterm(v);
 		filter_v.push_back(v);
 	    }

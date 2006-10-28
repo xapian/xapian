@@ -66,26 +66,26 @@ static int delcount;
 inline static bool
 p_space(unsigned int c)
 {
-    return isspace(c);
+    return isspace(static_cast<unsigned char>(c));
 }
 
 inline static bool
 p_notspace(unsigned int c)
 {
-    return !isspace(c);
+    return !isspace(static_cast<unsigned char>(c));
 }
 
 inline static bool
 p_notalpha(unsigned int c)
 {
-    return !isalpha(c);
+    return !isalpha(static_cast<unsigned char>(c));
 }
 
 // Characters allowed as second or subsequent characters in a fieldname
 inline static bool
 p_notfieldnamechar(unsigned int c)
 {
-    return !isalnum(c) && c != '_';
+    return !isalnum(static_cast<unsigned char>(c)) && c != '_';
 }
 
 const char * action_names[] = {
@@ -156,7 +156,7 @@ parse_index_script(const string &filename)
 	i = find_if(s.begin(), s.end(), p_notspace);
 	if (i == s.end() || *i == '#') continue;
 	while (true) {
-	    if (!isalnum(*i)) {
+	    if (!isalnum(static_cast<unsigned char>(*i))) {
 		cout << filename << ':' << line_no
 		     << ": field name must start with alphanumeric" << endl;
 		exit(1);
@@ -516,8 +516,8 @@ index_file(const char *fname, istream &stream,
 			string::size_type l = i->get_num_arg();
 			if (l < value.size()) {
 			    // Trim back to (and including) previous whitespace.
-			    while (l > 0 && !isspace(value[l - 1])) --l;
-			    while (l > 0 && isspace(value[l - 1])) --l;
+			    while (l > 0 && !isspace(static_cast<unsigned char>(value[l - 1]))) --l;
+			    while (l > 0 && isspace(static_cast<unsigned char>(value[l - 1]))) --l;
 
 			    // If the first word is too long, just truncate it.
 			    if (l == 0) l = i->get_num_arg();

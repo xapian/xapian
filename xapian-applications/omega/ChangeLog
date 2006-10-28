@@ -1,3 +1,11 @@
+Sat Oct 28 02:23:09 BST 2006  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc,indextext.cc,indextext.h,myhtmlparse.cc,omega.cc,
+	  omega.h,omindex.cc,query.cc,scriptindex.cc: Ensure that we always
+	  pass an unsigned char value to isupper(), toupper(), etc as they
+	  are undefined on other values (glibc makes them work for signed
+	  char values too, but this is an extension).
+
 Fri Oct 27 00:36:34 BST 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,md5.h,values.h: HAVE_STDINT_H is already defined
