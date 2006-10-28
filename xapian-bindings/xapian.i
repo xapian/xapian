@@ -190,8 +190,11 @@ static int XapianExceptionHandler(string & msg) {
 %}
 #endif
 %{
-    } catch (const std::string & e) {
-	msg = e;
+    } catch (const char * str) {
+	/* QueryParser failed to parse the query. */
+	msg = "QueryParserError: ";
+	msg += str;
+	return SWIG_RuntimeError;
     } catch (...) {
 	msg = "unknown error in Xapian";
     }

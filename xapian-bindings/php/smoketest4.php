@@ -29,6 +29,12 @@ if ($v != $v2) {
 
 $db = inmemory_open();
 
+function my_errhandler($type, $str) {
+    global $last_exception;
+    if ($type == E_WARNING) $last_exception = $str;
+}
+
+$old_errhandler = set_error_handler("my_errhandler");
 # Check PHP4 handling of Xapian::DocNotFoundError
 $old_error_reporting = error_reporting();
 if ($old_error_reporting & E_WARNING)
@@ -38,8 +44,20 @@ if ($doc2 != null) {
     print "Retrieved non-existent document\n";
     exit(1);
 }
+if ($last_exception !== "DocNotFoundError: Docid 2 not found") {
+    print "Exception string not as expected, got: '$last_exception'\n";
+    exit(1);
+}
+# Check QueryParser parsing error.
+$qp = new XapianQueryParser;
+$qp->parse_query("test AND");
+if ($last_exception !== "QueryParserError: Syntax: <expression> AND <expression>") {
+    print "Exception string not as expected, got: '$last_exception'\n";
+    exit(1);
+}
 if ($old_error_reporting & E_WARNING)
     error_reporting($old_error_reporting);
+set_error_handler($old_errhandler);
 
 $op_or = XapianQuery_OP_OR;
 $op_phrase = XapianQuery_OP_PHRASE;

@@ -32,11 +32,26 @@ $db = Xapian::inmemory_open();
 # Check PHP5 handling of Xapian::DocNotFoundError
 try {
     $doc2 = Database_get_document($db, 2);
-    if ($doc2 != null) {
-	print "Retrieved non-existent document\n";
+    print "Retrieved non-existent document\n";
+    exit(1);
+} catch (Exception $e) {
+    if ($e->getMessage() !== "DocNotFoundError: Docid 2 not found") {
+	print "Exception string not as expected, got: '$e->getMessage()'\n";
 	exit(1);
     }
+}
+
+# Check QueryParser parsing error.
+try {
+    $qp = new XapianQueryParser;
+    $qp->parse_query("test AND");
+    print "Successfully parsed bad query\n";
+    exit(1);
 } catch (Exception $e) {
+    if ($e->getMessage() !== "QueryParserError: Syntax: <expression> AND <expression>") {
+	print "Exception string not as expected, got: '$e->getMessage()'\n";
+	exit(1);
+    }
 }
 
 $op_or = XapianQuery::OP_OR;

@@ -1,9 +1,21 @@
+Sat Oct 28 03:40:39 BST 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: QueryParser::parse_query() throws const char *, not
+	  std::string.  Make these exceptions look as if they are of
+	  type QueryParserError so this works the same way as 1.0 will.
+	  Also, return as SWIG_RuntimeError rather than SWIG_UnknownError - in
+	  particular so PHP4 turns this exception into a trappable warning
+	  rather than a hard error.
+	* php/smoketest4.php,php/smoketest5.php: Add tests for the above.
+	  Also check the exception message given by the DocNotFoundError
+	  testcase.
+
 Fri Oct 27 11:28:48 BST 2006  Richard Boulton <richard@lemurconsulting.com>
 
-        * xapian.i: Catch exceptions of type "std:string", since the query
-          parser currently throws these.  This should probably be fixed in
-          the query parser for release 1.0, but this fix prevents crashes
-          due to these exceptions in a backwards compatible manner.
+	* xapian.i: Catch exceptions of type "std:string", since the query
+	  parser currently throws these.  This should probably be fixed in
+	  the query parser for release 1.0, but this fix prevents crashes
+	  due to these exceptions in a backwards compatible manner.
 
 Sun Oct 22 02:41:09 BST 2006  Olly Betts <olly@survex.com>
 
