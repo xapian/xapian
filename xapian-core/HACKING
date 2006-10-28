@@ -312,15 +312,14 @@ If you want to be able to build distribution tarballs (with "make dist") then
 you'll also need some further tools.  The build system is designed to fail with
 a suitable message if you lack any of the required tools (the alternative is to
 build a tarball with various bits missing, which is best avoided - better to be
-told to install dvips than to upload a tarball with no postscript manual).
+told to install pdflatex than to upload a tarball with no PDF manual).
 
 These tools are:
 
 doxygen (v1.4.6 is used for snapshots, releases, and the source documentation)
 dot (part of the graphviz package)
 perl 5
-latex (on Debian, tetex-extra is also required for fancyhdr.sty)
-dvips (usually packaged with TeX)
+pdflatex (on Debian, tetex-extra is also required for fancyhdr.sty)
 makeindex (usually packaged with TeX)
 help2man
 

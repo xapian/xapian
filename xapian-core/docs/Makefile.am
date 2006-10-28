@@ -5,7 +5,7 @@
 # being run.  For "make all", "make check", etc we carefully skip any docs
 # which we don't have the tools to generate.
 
-# FIXME: add "xapian hacker docs" option to build sourcedoc.ps and HTML
+# FIXME: add "xapian hacker docs" option to build sourcedoc.pdf and HTML
 
 HTMLDOCS = index.html install.html intro_ir.html overview.html \
  stemming.html quickstart.html remote.html remote_protocol.html \
@@ -23,7 +23,7 @@ all-local: doxygen_api_docs
 
 # Data to install, in the usual automake way
 docdatadir = $(datadir)/doc/@PACKAGE@
-dist_docdata_DATA = $(HTMLDOCS) apidoc.ps
+dist_docdata_DATA = $(HTMLDOCS) apidoc.pdf
 
 dist-hook:
 	$(mkinstalldirs) $(distdir)/apidoc
@@ -55,7 +55,7 @@ uninstall-local:
 	rm -rf $(DESTDIR)$(docdatadir)/apidoc
 
 MAINTAINERCLEANFILES = doxygen_api_conf doxygen_full_conf \
-	code_structure.html apidoc.ps sourcedoc.ps
+	code_structure.html apidoc.pdf sourcedoc.pdf
 
 .PHONY: doxygen_source_docs doxygen_api_docs doxygen_docs
 
@@ -76,35 +76,28 @@ T=$(top_srcdir)
 # it running autoreconf.
 include docsource.mk
 
-# "make refman.ps" sometimes fails for no obvious reason on the first attempt.
-# Repeating the command works, so just do that!
-apidoc.ps apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
+apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
 		$(srcdir)/doxygen_api_header.html_tmpl \
 		$(srcdir)/doxygen_api_footer.html_tmpl
 	rm -rf apidoc
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api_conf
-	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.ps||pool_size=750000 $(MAKE) refman.ps||(cat refman.log;exit 1))
-	mv apidoc/latex/refman.ps apidoc.ps
+	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
+	mv apidoc/latex/refman.pdf apidoc.pdf
 
 # This dependency is required so that parallel make doesn't try to run latex
 # twice simultaneously.
-apidoc/html/index/html: apidoc.ps
+apidoc/html/index/html: apidoc.pdf
 
-# "make refman.ps" sometimes fails for no obvious reason on the first attempt.
-# Repeating the command works, so just do that!
-sourcedoc.ps sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
+sourcedoc.pdf sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 		doxygen_full_conf \
 		$(srcdir)/doxygen_full_header.html_tmpl \
 		$(srcdir)/doxygen_full_footer.html_tmpl
 	rm -rf sourcedoc
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_full_conf
-	cd sourcedoc/latex && (pool_size=750000 $(MAKE) refman.ps||pool_size=750000 $(MAKE) refman.ps||(cat refman.log;exit 1))
-	mv sourcedoc/latex/refman.ps sourcedoc.ps
+	cd sourcedoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
+	mv sourcedoc/latex/refman.pdf sourcedoc.pdf
 
 # This dependency is required so that parallel make doesn't try to run latex
 # twice simultaneously.
-sourcedoc/html/index/html: sourcedoc.ps
+sourcedoc/html/index/html: sourcedoc.pdf
 endif
-
-# We used to do: $(LATEX) "\scrollmode\input" refman.tex
-# doxygen does: latex refman.tex

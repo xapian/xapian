@@ -371,11 +371,8 @@ fi
 DOXYGEN_DOT_PATH=`echo "$DOT" | sed 's!/dot$!!'`
 AC_SUBST(DOXYGEN_DOT_PATH)
 
-dnl Check for latex. (Needed to make some more of the documentation)
-AC_PATH_PROG(LATEX, latex, [])
-if test x$USE_MAINTAINER_MODE = xyes; then
-  test -z "$LATEX" && AC_MSG_ERROR([latex is required in maintainer mode])
-fi
+dnl FIXME: pdflatex is needed to make some more of the documentation but
+dnl doxygen expects it to be on PATH.
 
 dnl Check for makeindex. (Needed to make some more of the documentation)
 AC_PATH_PROG(MAKEINDEX, makeindex, [])
@@ -387,12 +384,6 @@ dnl Check for doxygen. (Needed to make some more of the documentation)
 AC_PATH_PROG(DOXYGEN, doxygen, [])
 if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required in maintainer mode])
-fi
-
-dnl Check for dvips. (Needed to make some more of the documentation)
-AC_PATH_PROG(DVIPS, dvips, [])
-if test x$USE_MAINTAINER_MODE = xyes; then
-  test -z "$DVIPS" && AC_MSG_ERROR([dvips is required in maintainer mode])
 fi
 
 dnl Check for help2man. (Needed to make man pages from "--help" output).
