@@ -232,6 +232,18 @@ try:
         print >> sys.stderr, "MatchDecider mset has wrong docid in"
         sys.exit(1)
 
+    # Check QueryParser parsing error.
+    qp = xapian.QueryParser()
+    try:
+        qp.parse_query("test AND")
+        print >> sys.stderr, "QueryParser doesn't report errors"
+        sys.exit(1)
+    except RuntimeError, e:
+        if str(e) != "QueryParserError: Syntax: <expression> AND <expression>":
+            print "Exception string not as expected, got: '%s'\n" % str(e)
+            sys.exit(1)
+
+
 except Exception, e:
     print >> sys.stderr, "Exception: %s" % str(e)
     raise e

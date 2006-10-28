@@ -1,3 +1,8 @@
+Sat Oct 28 08:40:46 BST 2006  Richard Boulton <richard@lemurconsulting.com>
+
+        * python/smoketest.py: Add test to check QueryParser error
+          handling.
+
 Sat Oct 28 03:40:39 BST 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: QueryParser::parse_query() throws const char *, not
