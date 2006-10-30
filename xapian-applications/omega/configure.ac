@@ -189,8 +189,10 @@ else
     [#ifndef _SGI_COMPILER_VERSION
   choke me
 #endif],
-    [AM_CXXFLAGS="$AM_CXXFLAGS -O2 -no_prelink -ptused"])
+    [AM_CXXFLAGS="$AM_CXXFLAGS -O2 -ptused"])
 fi
+
+AC_SUBST(AM_CXXFLAGS)
 
 AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */

@@ -1,3 +1,8 @@
+Mon Oct 30 21:01:26 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Actually substitute AM_CXXFLAGS in the Makefile.
+	* configure.ac: Fix AM_CXXFLAGS for IRIX.
+
 Sat Oct 28 12:31:31 BST 2006  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc: Add missing "#include <ctype.h>".
