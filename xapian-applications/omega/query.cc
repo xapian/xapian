@@ -1673,7 +1673,7 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_substr: {
 		int start = string_to_int(args[1]);
 		if (start < 0) {
-		    if (start >= args[0].size()) {
+		    if (static_cast<size_t>(-start) >= args[0].size()) {
 			start = 0;
 		    } else {
 			start = static_cast<int>(args[0].size()) - start;

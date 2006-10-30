@@ -1,3 +1,8 @@
+Mon Oct 30 23:57:09 GMT 2006  Olly Betts <olly@survex.com>
+
+	* query.cc: $substr where the start is negative and longer than the
+	  string (e.g. $substr{abcd,-5,1}) should now work as intended.
+
 Mon Oct 30 21:02:18 GMT 2006  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Fix GCC warnings uncovered by actually substituting
