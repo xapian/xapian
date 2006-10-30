@@ -112,7 +112,8 @@ public:
     Action(type action_, string arg = "") : action(action_), string_arg(arg) {
 	num_arg = atoi(string_arg.c_str());
     }
-    Action(type action_, string arg, int num) : action(action_), string_arg(arg), num_arg(num) { }
+    Action(type action_, string arg, int num)
+	: action(action_), num_arg(num), string_arg(arg) { }
     type get_action() const { return action; }
     int get_num_arg() const { return num_arg; }
     const string & get_string_arg() const { return string_arg; }
@@ -616,6 +617,10 @@ again:
 			doc.add_term("Y" + value);
 			break;
 		    }
+		    default:
+			/* Empty default case to avoid "unhandled enum value"
+			 * warnings. */
+			break;
 		}
 	    }
 	    if (this_field_is_content) seen_content = true;

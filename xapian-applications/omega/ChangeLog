@@ -1,3 +1,8 @@
+Mon Oct 30 21:02:18 GMT 2006  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Fix GCC warnings uncovered by actually substituting
+	  AM_CXXFLAGS.
+
 Mon Oct 30 21:01:26 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Actually substitute AM_CXXFLAGS in the Makefile.
