@@ -1,7 +1,11 @@
+Tue Oct 31 01:45:45 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Now tested on MacOS X 10.2, so update comment.
+
 Sat Oct 28 08:40:46 BST 2006  Richard Boulton <richard@lemurconsulting.com>
 
-        * python/smoketest.py: Add test to check QueryParser error
-          handling.
+	* python/smoketest.py: Add test to check QueryParser error
+	  handling.
 
 Sat Oct 28 03:40:39 BST 2006  Olly Betts <olly@survex.com>
 
