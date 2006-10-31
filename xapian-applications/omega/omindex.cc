@@ -484,13 +484,12 @@ static void
 index_directory(size_t depth_limit, const string &dir,
 		map<string, string>& mime_map)
 {
-    DIR *d;
     struct dirent *ent;
     string path = root + indexroot + dir;
 
     cout << "[Entering directory " << dir << "]" << endl;
 
-    d = opendir(path.c_str());
+    DIR *d = opendir(path.c_str());
     if (d == NULL) {
 	cout << "Can't open directory \"" << path << "\" - skipping\n";
 	return;

@@ -46,7 +46,7 @@ static const testcase tests[] = {
 };
 
 int
-main(int argc, char **argv)
+main()
 {
     for (size_t i = 0; tests[i].html; ++i) {
 	MyHtmlParser p;

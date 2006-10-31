@@ -1,3 +1,7 @@
+Tue Oct 31 00:02:19 GMT 2006  Olly Betts <olly@survex.com>
+
+	* htmlparsetest.cc,omindex.cc: Fix GCC warnings.
+
 Mon Oct 30 23:57:09 GMT 2006  Olly Betts <olly@survex.com>
 
 	* query.cc: $substr where the start is negative and longer than the
