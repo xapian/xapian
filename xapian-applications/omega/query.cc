@@ -569,7 +569,7 @@ html_highlight(const string &s, const string &list,
 	while (first != s_end && !isalnum(static_cast<unsigned char>(*first)))
 	    ++first;
 	if (first == s_end) break;
-	AccentNormalisingItor last;
+	AccentNormalisingItor term_end;
 	string term;
 	string word;
 	string::const_iterator l = j.raw();
@@ -584,7 +584,7 @@ html_highlight(const string &s, const string &list,
 		(j != s_end && isalnum(static_cast<unsigned char>(*j)))) {
 		term = "";
 	    }
-	    last = j;
+	    term_end = j;
 	}
 	if (term.empty()) {
 	    j = first;
@@ -602,7 +602,7 @@ html_highlight(const string &s, const string &list,
 		    j = next;
 		}
 	    }
-	    last = j;
+	    term_end = j;
 	    if (j != s_end && (*j == '#' || p_plusminus(*j))) {
 		string::size_type len = term.length();
 		if (*j == '#') {
@@ -617,11 +617,11 @@ html_highlight(const string &s, const string &list,
 		if (j != s_end && isalnum(static_cast<unsigned char>(*j))) {
 		    term.resize(len);
 		} else {
-		    last = j;
+		    term_end = j;
 		}
 	    }
 	}
-	j = last;
+	j = term_end;
 	unsigned char first_char = term[0];
 	lowercase_term(term);
 	int match = -1;
@@ -982,9 +982,9 @@ eval(const string &fmt, const vector<string> &param)
 	}
 	p = find_if(fmt.begin() + q, fmt.end(), p_notid) - fmt.begin();
 	string var = fmt.substr(q, p - q);
-	map<string, const struct func_attrib *>::const_iterator i;
-	i = func_map.find(var);
-	if (i == func_map.end()) {
+	map<string, const struct func_attrib *>::const_iterator func;
+	func = func_map.find(var);
+	if (func == func_map.end()) {
 	    throw "Unknown function `" + var + "'";
 	}
 	vector<string> args;
@@ -1000,7 +1000,7 @@ eval(const string &fmt, const vector<string> &param)
 		} else {
 		    if (nest == 1) {
 			// should we split the args
-			if (i->second->minargs != N) {
+			if (func->second->minargs != N) {
 			    args.push_back(fmt.substr(q, p - q));
 			    q = p + 1;
 			}
@@ -1008,31 +1008,32 @@ eval(const string &fmt, const vector<string> &param)
 		    if (fmt[p] == '}' && --nest == 0) break;
 		}
 	    }
-	    if (i->second->minargs == N) args.push_back(fmt.substr(q, p - q));
+	    if (func->second->minargs == N)
+		args.push_back(fmt.substr(q, p - q));
 	    p++;
 	}
 
-	if (i->second->minargs != N) {
-	    if ((int)args.size() < i->second->minargs)
+	if (func->second->minargs != N) {
+	    if ((int)args.size() < func->second->minargs)
 		throw "too few arguments to $" + var;
-	    if (i->second->maxargs != N &&
-		(int)args.size() > i->second->maxargs)
+	    if (func->second->maxargs != N &&
+		(int)args.size() > func->second->maxargs)
 		throw "too many arguments to $" + var;
 
 	    vector<string>::size_type n;
-	    if (i->second->evalargs != N)
-		n = i->second->evalargs;
+	    if (func->second->evalargs != N)
+		n = func->second->evalargs;
 	    else
 		n = args.size();
 
 	    for (vector<string>::size_type j = 0; j < n; j++)
 		args[j] = eval(args[j], param);
 	}
-	if (i->second->ensure == 'Q' || i->second->ensure == 'M')
+	if (func->second->ensure == 'Q' || func->second->ensure == 'M')
 	    ensure_query_parsed();
-	if (i->second->ensure == 'M') ensure_match();
+	if (func->second->ensure == 'M') ensure_match();
 	string value;
-	switch (i->second->tag) {
+	switch (func->second->tag) {
 	    case CMD_:
 	        break;
 	    case CMD_add: {
@@ -1090,9 +1091,9 @@ eval(const string &fmt, const vector<string> &param)
 		    if (date != (time_t)-1) {
 			struct tm *then;
 			then = gmtime(&date);
-			string fmt = "%Y-%m-%d";
-			if (args.size() > 1) fmt = eval(args[1], param);
-			strftime(buf, sizeof buf, fmt.c_str(), then);
+			string date_fmt = "%Y-%m-%d";
+			if (args.size() > 1) date_fmt = eval(args[1], param);
+			strftime(buf, sizeof buf, date_fmt.c_str(), then);
 		    }
 		    value = buf;
 		}
@@ -1413,9 +1414,9 @@ eval(const string &fmt, const vector<string> &param)
 
 		if (cdb_find(&cdb, args[1].data(), args[1].length()) > 0) {
 		    size_t datalen = cdb_datalen(&cdb);
-		    const void * p = cdb_get(&cdb, datalen, cdb_datapos(&cdb));
-		    if (p) {
-			value = string(static_cast<const char *>(p), datalen);
+		    const void *dat = cdb_get(&cdb, datalen, cdb_datapos(&cdb));
+		    if (q) {
+			value = string(static_cast<const char *>(dat), datalen);
 		    }
 		}
 
@@ -1430,12 +1431,12 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_map:
 		if (!args[0].empty()) {
 		    string l = args[0], pat = args[1];
-		    vector<string> p(param);
+		    vector<string> new_args(param);
 		    string::size_type i = 0, j;
 		    while (true) {
 			j = l.find('\t', i);
-			p[0] = l.substr(i, j - i);
-			value += eval(pat, p);
+			new_args[0] = l.substr(i, j - i);
+			value += eval(pat, new_args);
 			if (j == string::npos) break;
 			value += '\t';
 			i = j + 1;
@@ -1862,10 +1863,10 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    default: {
 		args.insert(args.begin(), param[0]);
-		int n = i->second->tag - CMD_MACRO;
-		assert(n >= 0 && (unsigned int)n < macros.size());
+		int macro_no = func->second->tag - CMD_MACRO;
+		assert(macro_no >= 0 && (unsigned int)macro_no < macros.size());
 		// throw "Unknown function `" + var + "'";
-		value = eval(macros[n], args);
+		value = eval(macros[macro_no], args);
 		break;
 	    }
 	}
@@ -2131,10 +2132,10 @@ ensure_query_parsed()
 	// put documents marked as relevant into the rset
 	g = cgi_params.equal_range("R");
 	for (MCI i = g.first; i != g.second; i++) {
-	    const string & v = i->second;
-	    for (size_t i = 0; i < v.size(); i = v.find('.', i)) {
-		while (v[i] == '.') ++i;
-		Xapian::docid d = atoi(v.c_str() + i);
+	    const string & value = i->second;
+	    for (size_t j = 0; j < value.size(); j = value.find('.', j)) {
+		while (value[j] == '.') ++j;
+		Xapian::docid d = atoi(value.c_str() + j);
 		if (d) {
 		    rset.add_document(d);
 		    ticked[d] = true;

@@ -180,8 +180,60 @@ dnl * Set special compiler flags *
 dnl ******************************
 
 if test yes = "$GXX"; then
-  dnl Extra flags for building with gcc.
-  AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -fno-gnu-keywords"
+  dnl Intel's C++ compiler is identified as "GXX" by autoconf's test - check
+  dnl which we actually have.
+  AC_EGREP_CPP(yes,
+    [#ifdef __INTEL_COMPILER
+     yes
+     #endif
+    ],
+    [
+      dnl Intel's compiler:
+      dnl
+      dnl -w1 stops the avalanche of uninteresting "remark" messages.
+      dnl -wd... disables warnings which don't have good code workarounds.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -w1 -wd177,1572"
+      dnl Automatically add -Werror if maintainer mode is enabled.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	AM_CXXFLAGS="$AM_CXXFLAGS -Werror"
+      fi
+    ],
+    [
+      dnl GCC:
+      dnl
+      dnl All these options were supported by g++ 2.95 and there's little
+      dnl likelihood Xapian will build with any earlier version, so there's
+      dnl not much point worrying about whether older versions had them or not.
+      AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
+
+      dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
+      dnl but somewhere in the 3.X series the output became more verbose
+      dnl (3.2 has the new style output - not sure about 3.1).  So we test
+      dnl for older version numbers where possible.
+      gxx_version=`$CXX --version 2>&1`
+
+      case $gxx_version in
+      2.96) dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
+	    dnl GCC versions before and after it do!
+        ;;
+      [[12]].*) dnl GCC < 3
+        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
+      3.0*) dnl -Wshadow spews false positives with GCC 3.0.4
+        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
+      *)
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
+      esac
+
+      dnl Automatically add -Werror if maintainer mode is enabled and we're
+      dnl using GCC3 or newer.  We don't do this for older GCCs as GCC 2.95
+      dnl issues spurious warnings.
+      if test x$USE_MAINTAINER_MODE = xyes; then
+	case $gxx_version in
+	[[12]].*) ;; dnl GCC < 3
+	*) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
+	esac
+      fi
+    ])
 else
   dnl With SGI's C++ compiler, we have to specify "-no_prelink -ptused" or
   dnl we get strange template linking errors.

@@ -1,3 +1,9 @@
+Tue Oct 31 02:47:23 GMT 2006  Olly Betts <olly@survex.com>
+
+	* cdb_init.cc,configure.ac,getopt.cc,omega.cc,query.cc,scriptindex.cc:
+	  Enable more warnings for GCC (and fix them in the code).  Enable
+	  appropriate warnings for Intel's C++ compiler.
+
 Tue Oct 31 00:02:19 GMT 2006  Olly Betts <olly@survex.com>
 
 	* htmlparsetest.cc,omindex.cc: Fix GCC warnings.

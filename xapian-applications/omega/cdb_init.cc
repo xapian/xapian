@@ -103,8 +103,8 @@ cdb_init(struct cdb *cdbp, int fd)
 class VoidStarOrCharStar {
     void *p;
   public:
-    VoidStarOrCharStar(const void *p_) : p((void*)p_) { }
-    VoidStarOrCharStar(const char *p_) : p((void*)p_) { }
+    VoidStarOrCharStar(const void *p_) : p(const_cast<void*>(p_)) { }
+    VoidStarOrCharStar(const char *p_) : p(const_cast<char*>(p_)) { }
     operator void*() { return p; }
     operator char*() { return (char*)p; }
 };

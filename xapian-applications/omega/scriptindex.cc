@@ -287,9 +287,9 @@ parse_index_script(const string &filename)
 		++i;
 		j = find_if(i, s.end(), p_notspace);
 		i = find_if(j, s.end(), p_space);
-		string arg = string(j, i);
+		string val = string(j, i);
 		if (takes_integer_argument) {
-		    if (arg.find('.') != string::npos) {
+		    if (val.find('.') != string::npos) {
 			cout << filename << ':' << line_no
 			     << ": Warning: Index action '" << action
 			     << "' takes an integer argument" << endl;
@@ -297,30 +297,30 @@ parse_index_script(const string &filename)
 		}
 		switch (code) {
 		    case Action::INDEX:
-			if (arg == "nopos") {
+			if (val == "nopos") {
 			    // INDEX used to take an optional argument which
 			    // could be "nopos" to mean the same that
 			    // INDEXNOPOS now does.
 			    cout << filename << ':' << line_no
 				 << ": Warning: Index action '" << action
-				 << '=' << arg << "' is deprecated - "
+				 << '=' << val << "' is deprecated - "
 				    "use action 'indexnopos' instead" << endl;
 			    // Translate this to allow older scripts to work
 			    // (this is safe to do since nopos isn't a sane
 			    // prefix value).
 			    code = Action::INDEXNOPOS;
-			    arg = "";
+			    val = "";
 			}
 			/* FALLTHRU */
 		    case Action::INDEXNOPOS:
-			actions.push_back(Action(code, arg, weight));
+			actions.push_back(Action(code, val, weight));
 			useless_weight_pos = string::npos;
 			break;
 		    case Action::WEIGHT:
 			// We don't push an Action for WEIGHT - instead we
 			// store it ready to use in the INDEX and INDEXNOPOS
 			// Actions.
-			weight = atoi(arg.c_str());
+			weight = atoi(val.c_str());
 			if (useless_weight_pos != string::npos) {
 			    report_useless_action(filename, line_no,
 						  useless_weight_pos, action);
@@ -328,15 +328,15 @@ parse_index_script(const string &filename)
 			useless_weight_pos = j - s.begin();
 			break;
 		    case Action::UNIQUE:
-			if (boolmap.find(arg) == boolmap.end())
-			    boolmap[arg] = Action::UNIQUE;
-			actions.push_back(Action(code, arg));
+			if (boolmap.find(val) == boolmap.end())
+			    boolmap[val] = Action::UNIQUE;
+			actions.push_back(Action(code, val));
 			break;
 		    case Action::BOOLEAN:
-			boolmap[arg] = Action::BOOLEAN;
+			boolmap[val] = Action::BOOLEAN;
 			/* FALLTHRU */
 		    default:
-			actions.push_back(Action(code, arg));
+			actions.push_back(Action(code, val));
 		}
 		i = find_if(i, s.end(), p_notspace);
 	    } else {
@@ -470,9 +470,9 @@ index_file(const char *fname, istream &stream,
 			    if (f.empty()) f = field;
 			    // replace newlines with spaces
 			    string s = value;
-			    string::size_type i = 0;
-			    while ((i = s.find('\n', i)) != string::npos)
-				s[i] = ' ';
+			    string::size_type j = 0;
+			    while ((j = s.find('\n', j)) != string::npos)
+				s[j] = ' ';
 			    fields[f].push_back(s);
 			}
 			break;

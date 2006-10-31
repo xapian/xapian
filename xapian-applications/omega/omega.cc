@@ -78,9 +78,9 @@ Xapian::valueno collapse_key = 0;
 bool collapse = false;
 
 static string
-map_dbname_to_dir(const string &dbname)
+map_dbname_to_dir(const string &database_name)
 {
-    return database_dir + dbname;
+    return database_dir + database_name;
 }
 
 int main(int argc, char *argv[])
