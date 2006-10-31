@@ -1,3 +1,7 @@
+Tue Oct 31 02:01:43 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Sanity check PHP_EXTENSION_DIR and PHP_INC.
+
 Tue Oct 31 01:45:45 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Now tested on MacOS X 10.2, so update comment.

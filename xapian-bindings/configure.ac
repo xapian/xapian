@@ -266,6 +266,29 @@ if test no != "$with_php" ; then
       ;;
     esac
     AC_SUBST(PHP_MAJOR_VERSION)
+
+    if test no != "$with_php" ; then
+      AC_MSG_CHECKING([for PHP extension directory])
+      PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
+      AC_SUBST(PHP_EXTENSION_DIR)
+      if test -d "$PHP_EXTENSION_DIR" ; then
+        AC_MSG_RESULT([$PHP_EXTENSION_DIR])
+      else
+	AC_MSG_RESULT(['$PHP_CONFIG --extension-dir' reports '$PHP_EXTENSION_DIR' but that directory doesn't exist!])
+	with_php=no
+      fi
+    fi
+
+    if test no != "$with_php" ; then
+      PHP_INC=`$PHP_CONFIG --includes`
+      AC_SUBST(PHP_INC)
+      save_CPPFLAGS=$CPPFLAGS
+      CPPFLAGS="$CPPFLAGS $PHP_INC"
+      dnl One of SGI's SuSE boxes has php-config but no headers.
+      AC_CHECK_HEADER(zend.h, [], [with_php=no], [ ])
+      CPPFLAGS=$save_CPPFLAGS
+    fi
+
     if test no != "$with_php" ; then
       PHP_found=no
       case $PHP in
@@ -302,10 +325,6 @@ if test no != "$with_php" ; then
 	AC_MSG_WARN([No PHP interpreter found - PHP bindings tests will be skipped])
       fi
 
-      PHP_INC=`$PHP_CONFIG --includes`
-      AC_SUBST(PHP_INC)
-      PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
-      AC_SUBST(PHP_EXTENSION_DIR)
       case $host_os in
       mingw* | pw32*)
 	dnl This is a bit of an informed guess, pending more information from
