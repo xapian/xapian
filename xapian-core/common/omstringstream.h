@@ -88,7 +88,17 @@ class om_ostringstream {
 
 inline om_ostringstream &
 operator << (om_ostringstream &os, const OmTime &om_time) {
-    return os << om_time.sec << '.' << std::setw(6) << std::setfill('0') << om_time.usec << std::setw(0);
+    char buf[256];
+#ifdef SNPRINTF
+    int len = SNPRINTF(buf, sizeof(buf), "%l.%06l", om_time.sec, om_time.usec);
+    if (len == -1 || len > sizeof(buf)) len = sizeof(buf);
+    return os << string(buf, len);
+#else
+    buf[sizeof(buf) - 1] = '\0';
+    sprintf(buf, "%l.%06l", om_time.sec, om_time.usec);
+    if (buf[sizeof(buf) - 1]) abort(); /* Uh-oh, buffer overrun */
+    return os << buf;
+#endif
 }
 
 #define OSTRINGSTREAMFUNC(X) \

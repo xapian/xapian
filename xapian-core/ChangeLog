@@ -1,3 +1,8 @@
+Wed Nov 01 15:33:12 GMT 2006  Olly Betts <olly@survex.com>
+
+	* common/omstringstream.h: Fix our implementation of om_ostringstream
+	  to work with OmTime.
+
 Wed Nov 01 03:27:36 GMT 2006  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Don't
