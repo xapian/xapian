@@ -122,7 +122,7 @@ cdb_free(struct cdb *cdbp)
 #ifdef _WIN32
     hFile = (HANDLE) _get_osfhandle(cdbp->cdb_fd);
     hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-    UnmapViewOfFile((void*) cdbp->cdb_mem);
+    UnmapViewOfFile((const void*) cdbp->cdb_mem);
     CloseHandle(hMapping);
 #else
     free((void*)cdbp->cdb_mem);
