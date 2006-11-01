@@ -276,46 +276,43 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 	if (mode == DEFAULT && !prefixes.empty()) {
 	    // Check for fieldname prefixes (e.g. title:historical).
 	    AccentNormalisingItor p = find_if(it, end, C_isnotalnum);
-	    if (p != end && *p == ':' && ++p != end) {
-		unsigned char ch = *p;
-		if (C_isalnum(ch) ||
-		    ((flags & FLAG_PHRASE) && ch == '"') ||
-		    ((flags & FLAG_BOOLEAN) && ch == '(')) {
-		    string field;
-		    p = it;
-		    while (*p != ':') field += *p++;
-		    map<string, BoolAndString>::const_iterator f;
-		    f = prefixes.find(field);
-		    if (f != prefixes.end()) {
+	    if (p != end && *p == ':' && ++p != end && *p > ' ' && *p != ')') {
+		string field;
+		p = it;
+		while (*p != ':') field += *p++;
+		map<string, BoolAndString>::const_iterator f;
+		f = prefixes.find(field);
+		if (f != prefixes.end()) {
+		    unsigned char ch = *++p;
+		    bool boolean_filter = f->second.flag;
+		    if (boolean_filter || C_isalnum(ch) ||
+			((flags & FLAG_PHRASE) && ch == '"') ||
+			((flags & FLAG_BOOLEAN) && ch == '(')) {
+			it = p;
 			// Can't boolean prefix a subexpression or phrase.
-			bool boolean_filter = f->second.flag;
-			if (!boolean_filter || C_isalnum(ch)) {
-			    it = p;
+			if (!boolean_filter && !C_isalnum(ch)) {
+			    newprev = ch;
 			    ++it;
-			    if (!C_isalnum(ch)) {
-				newprev = ch;
-				++it;
-				prefix_stack.push_back(f->second.str);
+			    prefix_stack.push_back(f->second.str);
+			    if (ch == '(') {
 				// Prefixed sub-expr: title:(fast NEAR food)
-				if (ch == '(') {
-				    Parse(pParser, BRA, NULL, &state);
-				    continue;
-				}
-				// Prefixed phrase: subject:"space flight"
-				Parse(pParser, QUOTE, NULL, &state);
-				mode = IN_PREFIXED_QUOTES;
+				Parse(pParser, BRA, NULL, &state);
 				continue;
 			    }
-			    prefix = f->second.str;
-			    if (boolean_filter) {
-				if (prefix_needs_colon(prefix, *it))
-				    prefix += ':';
-				while (it != end && *it > ' ' && *it != ')')
-				    prefix += *it++;
-				Parse(pParser, BOOLEAN_FILTER,
-				      new Term(prefix, 0), &state);
-				continue;
-			    }
+			    // Prefixed phrase: subject:"space flight"
+			    Parse(pParser, QUOTE, NULL, &state);
+			    mode = IN_PREFIXED_QUOTES;
+			    continue;
+			}
+			prefix = f->second.str;
+			if (boolean_filter) {
+			    if (prefix_needs_colon(prefix, *it))
+				prefix += ':';
+			    while (it != end && *it > ' ' && *it != ')')
+				prefix += *it++;
+			    Parse(pParser, BOOLEAN_FILTER,
+				  new Term(prefix, 0), &state);
+			    continue;
 			}
 		    }
 		}

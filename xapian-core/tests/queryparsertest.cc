@@ -57,6 +57,8 @@ static test test_or_queries[] = {
     // Regression test for bug caused by fix for previous bug.
     { "author:\"milne, a.a.\"", "(Amiln:(pos=1) PHRASE 3 Aa:(pos=2) PHRASE 3 Aa:(pos=3))" },
     { "author:\"milne a.a.\"", "(Amiln:(pos=1) PHRASE 3 Aa:(pos=2) PHRASE 3 Aa:(pos=3))" },
+    // Regression test for bug reported in 0.9.7.
+    { "site:/path/name", "H/path/name" },
     { "\"1.4\"", "(1:(pos=1) PHRASE 2 4:(pos=2))" },
     { "\"1.\"", "1:(pos=1)" },
     { "\"A#.B.\"", "(Ra#:(pos=1) PHRASE 2 Rb:(pos=2))" },

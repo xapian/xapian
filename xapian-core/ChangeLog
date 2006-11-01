@@ -1,3 +1,10 @@
+Wed Nov 01 03:27:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Don't
+	  require a prefixed boolean term to start with an alphanumeric
+	  - allow the same set of characters as we do for the second and
+	  subsequent characters.
+
 Sat Oct 28 04:12:13 BST 2006  Olly Betts <olly@survex.com>
 
 	* bin/quartzcheck.cc: Add catch for unknown exceptions.
