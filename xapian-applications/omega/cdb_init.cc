@@ -119,13 +119,18 @@ cdb_free(struct cdb *cdbp)
 #endif
 
 #ifndef HAVE_MMAP
+#ifdef __cplusplus
+    void * p = const_cast<void*>((const void*)cdbp->cdb_mem);
+#else
+    void * p = (void*)cdbp->cdb_mem;
+#endif
 #ifdef _WIN32
     hFile = (HANDLE) _get_osfhandle(cdbp->cdb_fd);
     hMapping = CreateFileMapping(hFile, NULL, PAGE_READONLY, 0, 0, NULL);
-    UnmapViewOfFile((const void*) cdbp->cdb_mem);
+    UnmapViewOfFile(p);
     CloseHandle(hMapping);
 #else
-    free((void*)cdbp->cdb_mem);
+    free(p);
 #endif
 #else
 #ifdef __cplusplus

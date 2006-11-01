@@ -1,3 +1,7 @@
+Wed Nov 01 16:23:13 GMT 2006  Olly Betts <olly@survex.com>
+
+	* cdb_init.cc: Fix warning in mingw build.
+
 Wed Nov 01 13:43:54 GMT 2006  Olly Betts <olly@survex.com>
 
 	* cdb_init.cc,query.cc: Fix warnings.
