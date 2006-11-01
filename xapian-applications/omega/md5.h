@@ -24,6 +24,7 @@
  * + uint32 -> uint32_t.
  * + MD5Transform is an internal helper so prototype moved to md5.cc.
  * + Removed MD5_CTX.
+ * + Changed MD5Context.in to uint32_t instead of unsigned char.
  */
 
 // To get uint32_t:
@@ -44,7 +45,7 @@ typedef unsigned int uint32_t;
 struct MD5Context {
     uint32_t buf[4];
     uint32_t bits[2];
-    unsigned char in[64];
+    uint32_t in[16];
 };
 
 void MD5Init(struct MD5Context *context);

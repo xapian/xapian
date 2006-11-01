@@ -1,3 +1,8 @@
+Wed Nov 01 04:00:20 GMT 2006  Olly Betts <olly@survex.com>
+
+	* md5.cc,md5.h: Fix warnings about changing alignment requirements
+	  when casting pointers.
+
 Tue Oct 31 02:47:23 GMT 2006  Olly Betts <olly@survex.com>
 
 	* cdb_init.cc,configure.ac,getopt.cc,omega.cc,query.cc,scriptindex.cc:
