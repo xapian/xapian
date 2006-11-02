@@ -1,3 +1,8 @@
+Thu Nov 02 13:43:31 GMT 2006  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs: Test QueryParser parse error.  Fix warning
+	  about unused variable in OP_ELITE_SET check.
+
 Tue Oct 31 02:01:43 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Sanity check PHP_EXTENSION_DIR and PHP_INC.

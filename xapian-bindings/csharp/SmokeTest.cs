@@ -103,6 +103,19 @@ class SmokeTest {
 		}
 	    }
 
+	    // Check QueryParser parsing error.
+	    try {
+		Xapian.QueryParser qp = new Xapian.QueryParser();
+		qp.ParseQuery("test AND");
+		System.Console.WriteLine("Successfully parsed bad query");
+		System.Environment.Exit(1);
+	    } catch (System.Exception e) {
+		if (e.Message != "QueryParserError: Syntax: <expression> AND <expression>") {
+		    System.Console.WriteLine("Exception string not as expected, got: '" + e.Message + "'");
+		    System.Environment.Exit(1);
+		}
+	    }
+
 	    // Check that OP_ELITE_SET works (in 0.9.6 and earlier it had the
 	    // wrong value in C#).
 	    try {
@@ -110,7 +123,7 @@ class SmokeTest {
 		Xapian.Query foo2 = new Xapian.Query(Xapian.Query.op.OP_ELITE_SET, foo);
 		foo = foo2; // Avoid "unused variable" warning.
 	    } catch (System.Exception e) {
-		System.Console.WriteLine("Using OP_ELITE_SET causes an exception");
+		System.Console.WriteLine("Using OP_ELITE_SET cause exception '" + e.Message + "'");
 		System.Environment.Exit(1);
 	    }
 
