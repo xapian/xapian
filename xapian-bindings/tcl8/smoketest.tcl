@@ -106,6 +106,28 @@ if { $terms != "is there" } {
 
 # Check exception handling for Xapian::DocNotFoundError
 if [catch {
+    xapian::QueryParser qp
+    [qp parse_query "test AND"]
+    puts stderr "QueryParser doesn't report errors"
+    exit 1
+} e] {
+    # We expect QueryParserError
+    if { $errorCode != "XAPIAN QueryParserError" } {
+	puts stderr "Unexpected errorCode from parsing bad query"
+	puts stderr "errorCode: $errorCode"
+	puts stderr "message: $e"
+	exit 1
+    }
+    if { $e != "Syntax: <expression> AND <expression>" } {
+	puts stderr "Unexpected exception message from parsing bad query"
+	puts stderr "errorCode: $errorCode"
+	puts stderr "message: $e"
+	exit 1
+    }
+}
+
+# Check exception handling for Xapian::DocNotFoundError
+if [catch {
     xapian::Document doc2 [db get_document 2]
     puts stderr "Retrieved non-existent document"
     exit 1

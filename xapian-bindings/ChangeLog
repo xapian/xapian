@@ -1,3 +1,10 @@
+Thu Nov 02 17:54:41 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tcl8/run-tcl-test: Fix to work when /bin/sh is dash.
+	* tcl8/util.i: Add handling for QueryParser std::string exceptions.
+	  Fix handling of unknown errors.
+	* tcl8/smoketest.tcl: Add test.
+
 Thu Nov 02 13:43:31 GMT 2006  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs: Test QueryParser parse error.  Fix warning

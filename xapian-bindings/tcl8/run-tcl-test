@@ -1,6 +1,6 @@
 #!/bin/sh
 ${LIBTOOL-../libtool} --config > libtoolconfig.$$
-. libtoolconfig.$$
+. ./libtoolconfig.$$
 rm -f libtoolconfig.$$
 module=yes
 eval shlibext=$shrext_cmds

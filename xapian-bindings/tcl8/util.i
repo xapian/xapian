@@ -81,6 +81,13 @@ namespace Xapian {
 	return TCL_ERROR;
     }
 
+    static int XapianTclHandleError(Tcl_Interp * interp, const char *e) {
+	Tcl_ResetResult(interp);
+	Tcl_SetErrorCode(interp, "XAPIAN", "QueryParserError", NULL);
+	Tcl_AppendResult(interp, e, NULL);
+	return TCL_ERROR;
+    }
+
     static int XapianTclHandleError(Tcl_Interp * interp) {
 	Tcl_ResetResult(interp);
 	Tcl_SetErrorCode(interp, "XAPIAN ?", NULL);
@@ -94,14 +101,10 @@ namespace Xapian {
     try {
 	$function
     } catch (const Xapian::Error &e) {
-	string msg;
-	try {
-	    // Rethrow so we can look at the exception if it was a Xapian::Error.
-	    throw;
-	} catch (const Xapian::Error &e) {
-	    return XapianTclHandleError(interp, e);
-	} catch (...) {
-	    return XapianTclHandleError(interp);
-	}
+	return XapianTclHandleError(interp, e);
+    } catch (const char * str) {
+	return XapianTclHandleError(interp, str);
+    } catch (...) {
+	return XapianTclHandleError(interp);
     }
 }
