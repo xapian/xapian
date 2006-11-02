@@ -1,3 +1,36 @@
+Omega 0.9.8 (2006-11-02):
+
+omega:
+
+* $substr where the start is negative and longer than the string (e.g.
+  $substr{abcd,-5,1}) wasn't working as intended.
+
+build system:
+
+* configure: Tell AC_CHECK_HEADERS to suppress its backward compatibility mode,
+  so it only checks headers with the compiler.  This speeds up configure a
+  little, and is what we do elsewhere.
+
+* configure: Warning flags for GCC weren't actually getting used.  Fix this to
+  work and use the same warning flags for GCC and Intel C++ as xapian-core does.
+  Fix all the warnings this uncovered!
+
+* omega,omindex,scriptindex: Remove some old unused code.
+
+portability:
+
+* Ensure that we always pass an unsigned char value to isupper(), toupper(),
+  etc as they are undefined on other values (glibc makes them work for signed
+  char values too, but this is an extension).
+
+* configure: Pass magic options to SGI's C++ compiler to allow linking of
+  templates to work.
+
+* configure: IRIX doesn't allow stdint.h to be included from C++ so we need
+  a smarter configure test than AC_CHECK_HEADERS.
+
+* Fix warnings from SGI's C++ compiler.
+
 Omega 0.9.7 (2006-10-10):
 
 documentation:

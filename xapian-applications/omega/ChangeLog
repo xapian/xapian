@@ -1,3 +1,7 @@
+Thu Nov 02 16:08:27 GMT 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 0.9.8.
+
 Thu Nov 02 15:43:31 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update comment about "-ptused".
