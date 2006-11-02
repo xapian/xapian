@@ -235,8 +235,8 @@ if test yes = "$GXX"; then
       fi
     ])
 else
-  dnl With SGI's C++ compiler, we have to specify "-no_prelink -ptused" or
-  dnl we get strange template linking errors.
+  dnl With SGI's C++ compiler, we have to specify "-ptused" or we get strange
+  dnl template linking errors.
   AC_TRY_COMPILE([],
     [#ifndef _SGI_COMPILER_VERSION
   choke me
