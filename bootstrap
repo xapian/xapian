@@ -105,8 +105,8 @@ TOP_OF_CONFIGURE
 srcdir_abs=`cd "${srcdir-.}"&&pwd`
 # This section is unquoted so we can substitute variables.
 cat <<MIDDLE_OF_CONFIGURE >> configure.tmp
-srcdir=$srcdir_abs
-modules=$modules
+srcdir="$srcdir_abs"
+modules="$modules"
 MIDDLE_OF_CONFIGURE
 
 cat <<'END_OF_CONFIGURE' >> configure.tmp
