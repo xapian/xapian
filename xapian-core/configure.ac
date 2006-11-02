@@ -826,13 +826,11 @@ if test yes = "$GXX"; then
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
 
       dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
-      dnl but somewhere in the 3.X series the output became more verbose.
-      dnl 3.2 has the new style output - not sure about 3.1, so we test for
-      dnl both forms below.
+      dnl but somewhere in the 3.X series the output became more verbose
+      dnl (3.2 has the new style output - not sure about 3.1).  So we test
+      dnl for older version numbers where possible.
       gxx_version=`$CXX --version 2>&1`
 
-      dnl Oddly, GCC 2.95 and 3.0 onwards have -Wundef, but Redhat's "2.96"
-      dnl doesn't!
       case $gxx_version in
       2.96) dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
 	    dnl GCC versions before and after it do!
@@ -841,19 +839,13 @@ if test yes = "$GXX"; then
         AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
       3.0*) dnl -Wshadow spews false positives with GCC 3.0.4
         AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
-      dnl A closing bracket in the pattern can't be escaped portably according
-      dnl to the autoconf manual, so just use "?" around GCC instead of
-      dnl brackets.
-      3.1* | g++\ ?GCC?\ 3.[[12]]*) dnl -Wendif-labels is new in GCC 3.3
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
       *)
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow -Wendif-labels" ;;
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
       esac
 
       dnl Automatically add -Werror if maintainer mode is enabled and we're
       dnl using GCC3 or newer.  We don't do this for older GCCs as GCC 2.95
       dnl issues spurious warnings.
-      dnl Also only add -Wendif-labels in this case (it was added in GCC 3.0).
       if test x$USE_MAINTAINER_MODE = xyes; then
 	case $gxx_version in
 	[[12]].*) ;; dnl GCC < 3
