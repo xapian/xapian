@@ -1,3 +1,7 @@
+Thu Nov 02 19:09:49 GMT 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 0.9.8.
+
 Thu Nov 02 17:54:41 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tcl8/run-tcl-test: Fix to work when /bin/sh is dash.
