@@ -1,3 +1,7 @@
+Thu Nov 02 00:22:44 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/remote/dir_contents: Update.
+
 Wed Nov 01 15:33:12 GMT 2006  Olly Betts <olly@survex.com>
 
 	* common/omstringstream.h: Fix our implementation of om_ostringstream
