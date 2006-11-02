@@ -1,3 +1,7 @@
+Thu Nov 02 15:20:05 GMT 2006  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Update from tinderbox.
+
 Thu Nov 02 11:53:53 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: GCC's -Wendif-labels is enabled by default on versions
