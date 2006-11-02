@@ -1,3 +1,81 @@
+Xapian-core 0.9.8 (2006-11-02):
+
+API:
+
+* QueryParser: Don't require a prefixed boolean term to start with an
+  alphanumeric - allow the same set of characters as we do for the second
+  and subsequent characters.
+
+flint backend:
+
+* Only force a flush on WritableDatabase::allterms_begin() if there are
+  actually pending changes.
+
+quartz backend:
+
+* Only force a flush on WritableDatabase::allterms_begin() if there are
+  actually pending changes.
+
+* quartzcheck: Avoid dying because of an unhandled exception if the Btree
+  checking code finds an error in the low-level Btree structure.  Add a
+  catch for any other unknown exceptions.
+
+build system:
+
+* When building with GCC, turn on warning flag -Wshadow even when not in
+  maintainer mode (provided it is supported by the GCC version being used).
+
+* testsuite/backendmanager.cc: Fix compilation when valgrind is detected by
+  configure.
+
+* If generating apidoc.pdf fails, display the logfile pdflatex generates since
+  that is likely to show what failed.
+
+documentation:
+
+* Produce a PDF for apidoc rather than PostScript, since the PDF is smaller,
+  plus at least as easy to print and easier to view for most users.  Use
+  pdflatex to generate the PDF directly rather than going via a DVI file which
+  apparently produces a better result and also avoids problems on some Linux
+  distros where latex is a symlink to pdfelatex (bug#81, bug#95).
+
+* HACKING: Mention automake 1.10 is out but we've not tested it yet.
+
+* HACKING: Add entries to release checklist: make sure new API methods
+  are wrapped by the bindings, and that bug submitters are thanked.
+
+* HACKING: Note that on Debian, tetex-extra is needed for
+  fancyhdr.sty.
+
+* HACKING: Note that dch can be used to update debian/changelog.
+
+* docs/code_structure.html: Document backends/remote.
+
+* PLATFORMS: Update from tinderbox.
+
+portability: 
+
+* configure: When checking if we need -lm, don't use a constant argument to
+  log() as the compiler might simply evaluate the whole expression at compile
+  time.
+
+* configure: Redhat's GCC 2.96 doesn't support -Wundef even though real GCC
+  version before and after it do!
+
+* configure: Avoid use of double quotes in double-quoted backticks since
+  it causes problems on some platforms.
+
+* backends/flint/flint_io.cc: Fix compilation on windows (needs to
+  #include "safewindows.h" to get definition of SSIZE_T).
+
+* Fix our implementation of om_ostringstream to compile so that the build
+  works once more on older compilers without <sstream> (regression probably
+  introduced in 0.9.7).
+
+packaging:
+
+* xapian.spec: Package xapian-progsrv.
+
 Xapian-core 0.9.7 (2006-10-10):
 
 API:

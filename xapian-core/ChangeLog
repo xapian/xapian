@@ -1,3 +1,7 @@
+Thu Nov 02 15:41:46 GMT 2006  Olly Betts <olly@survex.com>
+
+	* HACKING,NEWS,configure.ac: Update for 0.9.8.
+
 Thu Nov 02 15:20:05 GMT 2006  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Update from tinderbox.

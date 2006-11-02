@@ -8,7 +8,7 @@ dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT(xapian-core, 0.9.7)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-core, 0.9.8)dnl FIXME: bugreport addr as third argument
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -59,6 +59,7 @@ dnl 10:0:0 0.9.4 Fixed typo in name of xapian_revision()
 dnl 11:0:0 0.9.5 Document::termlist_end() now inline in header, etc
 dnl 12:0:1 0.9.6 Added Xapian::version_string(), etc
 dnl 13:0:0 0.9.7 Rewritten Xapian::Error class
+dnl 13:1:0 0.9.8 No API changes
 LIBRARY_VERSION_INFO=13:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 

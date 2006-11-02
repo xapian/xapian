@@ -770,7 +770,7 @@ updated as follows:
   so that upgrading between distributions works).  The corresponding breezy
   version would be 0.9.6-1.99breezy (and similarly for dapper.)
 
-* Build debs for stable, unstable, breezy, and dapper.  The scripts
+* Build debs for stable, unstable, dapper, and edgy.  The scripts
   xapian-maintainer-tools/debian/create-chroot and
   xapian-maintainer-tools/debian/build-packages allow building these in
   a series of chroots on a single machine using pbuilder.
