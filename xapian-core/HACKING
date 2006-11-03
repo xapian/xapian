@@ -763,12 +763,12 @@ updated as follows:
   release of version 0.9.6, tag with "debian-0.9.6-1".
 
 * Use xapian-maintainer-tools/debian/make-source-packages to make and
-  upload new source packages (for stable, unstable, breezy, and dapper.)
+  upload new source packages (for stable, unstable, dapper, and edgy).
   The source packages for the distributions other than stable are done
   as "backports" - if unstable's version is 0.9.6-1, then stable's
   version is 0.9.6-0stable1 (so that it's older than the unstable version
-  so that upgrading between distributions works).  The corresponding breezy
-  version would be 0.9.6-1.99breezy (and similarly for dapper.)
+  so that upgrading between distributions works).  The corresponding dapper
+  version would be 0.9.6-1.99dapper (and similarly for edgy).
 
 * Build debs for stable, unstable, dapper, and edgy.  The scripts
   xapian-maintainer-tools/debian/create-chroot and

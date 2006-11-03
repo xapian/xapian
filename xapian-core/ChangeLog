@@ -1,3 +1,7 @@
+Fri Nov 03 02:09:26 GMT 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Update debian packaging checklist.
+
 Fri Nov 03 00:57:35 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Building sourcedoc.pdf needs a larger pool_size
