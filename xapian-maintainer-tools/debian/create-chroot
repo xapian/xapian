@@ -34,7 +34,7 @@ _C=
 #  _C=-c
 #fi
 
-if [ 2 == $# ] ; then
+if [ 2 = $# ] ; then
   DEBIAN_BUILD_ARCH=$2
   export DEBIAN_BUILD_ARCH
   DEBIAN_HOST_ARCH=$2
