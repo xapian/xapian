@@ -1,3 +1,11 @@
+xapian-core (0.9.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/xapian-doc.doc-base.apidocs: The printable API documentation is now
+    a PDF rather than PostScript.
+
+ -- Olly Betts <olly@survex.com>  Fri,  3 Nov 2006 01:47:01 +0100
+
 xapian-core (0.9.7-1) unstable; urgency=low
 
   * New upstream release.
