@@ -1,3 +1,14 @@
+xapian-bindings (0.9.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Add no-op "binary-indep" target (Closes: #395761).
+  * debian/rules: Don't try to build PHP bindings on hurd-i386 (PHP hasn't
+    been ported, but Python, Tcl, and Ruby have).
+  * debian/rules: Upstream no longer support Python 2.1 bindings so update
+    comments regarding the Python versions supported by the sarge backport.
+
+ -- Olly Betts <olly@survex.com>  Fri,  3 Nov 2006 02:00:25 +0000
+
 xapian-bindings (0.9.7-2) unstable; urgency=low
 
   * debian/control.in,debian/rules: Build dependency on libxapian-dev
