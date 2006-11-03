@@ -97,6 +97,11 @@ configure-stamp:
 	ln -s /usr/share/misc/config.sub config.sub
 	ln -s /usr/share/misc/config.guess config.guess
 
+	# Report kernel and compiler version so upstream PLATFORMS file can be
+	# updated from buildd logs.
+	-uname -a
+	-g++ --version
+
 	# Configure in a subdirectory, for neatness.
 	mkdir -p build-nodebug
 	cd build-nodebug && ../configure $(commonconfflags)
