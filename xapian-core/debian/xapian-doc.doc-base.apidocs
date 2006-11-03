@@ -4,8 +4,8 @@ Abstract: This manual describes the native C++ API of the Xapian
  search engine library.
 Section: Apps/Programming
 
-Format: postscript
-Files: /usr/share/doc/xapian-doc/apidoc.ps.gz
+Format: PDF
+Files: /usr/share/doc/xapian-doc/apidoc.pdf
 
 Format: HTML
 Index: /usr/share/doc/xapian-doc/apidoc/html/index.html
