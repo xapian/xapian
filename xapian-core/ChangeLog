@@ -1,3 +1,8 @@
+Fri Nov 03 00:57:35 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Building sourcedoc.pdf needs a larger pool_size
+	  now.
+
 Thu Nov 02 19:12:34 GMT 2006  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Updated.
