@@ -1,0 +1,21 @@
+usr/bin/dbi2omega usr/share/doc/xapian-omega/examples/
+usr/bin/htdig2omega usr/share/doc/xapian-omega/examples/
+usr/share/omega/htdig2omega.script usr/share/doc/xapian-omega/examples/
+usr/bin/mbox2omega usr/share/doc/xapian-omega/examples/
+usr/share/omega/mbox2omega.script usr/share/doc/xapian-omega/examples/
+usr/bin/omindex
+usr/bin/scriptindex
+usr/lib/omega/bin/omega usr/lib/cgi-bin/omega
+usr/share/doc/omega/cgiparams* usr/share/doc/xapian-omega/
+usr/share/doc/omega/omegascript* usr/share/doc/xapian-omega/
+usr/share/doc/omega/overview* usr/share/doc/xapian-omega/
+usr/share/doc/omega/quickstart* usr/share/doc/xapian-omega/
+usr/share/doc/omega/scriptindex* usr/share/doc/xapian-omega/
+usr/share/doc/omega/termprefixes* usr/share/doc/xapian-omega/
+usr/share/images
+etc/omega.conf
+usr/share/man
+var/lib/xapian-omega
+var/log/xapian-omega
+usr/share/doc/xapian-omega/examples/templates
+usr/share/xapian-omega/templates/
