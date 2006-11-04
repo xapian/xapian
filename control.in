@@ -10,6 +10,7 @@ Package: tclxapian
 Section: libs
 Architecture: any
 Depends: ${tcl:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Suggests: xapian-doc
 Description: Xapian search engine interface for Tcl
  This package provides Xapian Tcl bindings which should work with any version
  of Tcl >= 8.1 (by using Tcl's stubs mechanism.)
@@ -31,6 +32,7 @@ Package: libxapian-ruby1.8
 Section: libs
 Architecture: any
 Depends: ${ruby:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Suggests: xapian-doc
 Description: Xapian search engine interface for Ruby 1.8
  This package provides Xapian Ruby bindings built for Ruby 1.8.
  .
@@ -49,6 +51,7 @@ Package: python-xapian
 Section: python
 Architecture: any
 Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
+Suggests: xapian-doc
 Conflicts: @PYTHON_OLD_PACKAGES@
 Replaces: @PYTHON_OLD_PACKAGES@
 Provides: ${python:Provides}
