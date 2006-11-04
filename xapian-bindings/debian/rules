@@ -46,7 +46,8 @@ else
 
 # The python versions to build for.  Debian stable also has Python 2.1, but
 # xapian-bindings no longer supports it.
-PYTHON_VERSIONS := $(2.2 2.3 2.4:%=python%)
+PYTHON_VERSIONS := 2.2 2.3 2.4
+PYTHON_VERSIONS := $(PYTHON_VERSIONS:%=python%)
 
 # We need python itself for dh_python to work.
 BUILD_DEPS := debhelper (>= 4.1.67), python,
