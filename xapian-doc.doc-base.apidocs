@@ -5,7 +5,7 @@ Abstract: This manual describes the native C++ API of the Xapian
 Section: Apps/Programming
 
 Format: PDF
-Files: /usr/share/doc/xapian-doc/apidoc.pdf
+Files: /usr/share/doc/xapian-doc/apidoc.pdf*
 
 Format: HTML
 Index: /usr/share/doc/xapian-doc/apidoc/html/index.html
