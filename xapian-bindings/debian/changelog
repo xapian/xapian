@@ -6,8 +6,11 @@ xapian-bindings (0.9.8-1) unstable; urgency=low
     been ported, but Python, Tcl, and Ruby have).
   * debian/rules: Upstream no longer support Python 2.1 bindings so update
     comments regarding the Python versions supported by the sarge backport.
+  * debian/control.in,debian/control-php.in: Add "Suggests: xapian-doc" since
+    the xapian-core documentation is useful reading for people developing
+    using xapian-bindings.
 
- -- Olly Betts <olly@survex.com>  Fri,  3 Nov 2006 02:00:25 +0000
+ -- Olly Betts <olly@survex.com>  Sat,  4 Nov 2006 15:29:05 +0000
 
 xapian-bindings (0.9.7-2) unstable; urgency=low
 
