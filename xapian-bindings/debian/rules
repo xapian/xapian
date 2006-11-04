@@ -40,17 +40,19 @@ ifeq ($(PYTHON_VERSIONS), )
 PYTHON_VERSIONS := python2.3 python2.4
 endif
 # python >= 2.3.5-7 is required for the pyversions command.
-BUILD_DEPS := debhelper (>= 5.0.37.1), python (>= 2.3.5-7), python-central (>= 0.4.10),
+BUILD_DEPS := debhelper (>= 5.0.37.1), python (>= 2.3.5-7), python-central (>= 0.4.10), python-all-dev,
 
 else
 
-# The python versions to build for.  Debian stable also has Python 2.1, but
-# xapian-bindings no longer supports it.
-PYTHON_VERSIONS := 2.2 2.3 2.4
-PYTHON_VERSIONS := $(PYTHON_VERSIONS:%=python%)
+# When we finally drop support for all of sarge, breezy, and dapper, we
+# can remove this branch of the code.
+
+# The python versions to build for (Debian stable also has Python 2.1, but
+# xapian-bindings no longer supports it):
+PYTHON_VERSIONS := python2.2 python2.3 python2.4
 
 # We need python itself for dh_python to work.
-BUILD_DEPS := debhelper (>= 4.1.67), python,
+BUILD_DEPS := debhelper (>= 4.1.67), python, $(PYTHON_VERSIONS:%=%-dev,)
 
 endif
 
@@ -86,12 +88,10 @@ else
 	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
 endif
 
-# Build depends for Python.
-# Once the current (2006-06-15) unstable has spread everywhere, then
-# we can just use python-all-dev here instead.
-BUILD_DEPS += $(PYTHON_VERSIONS:%=%-dev,)
+# Python versions which had packages before the Python policy transition.
+PYTHON_OLD_VERSIONS := 2.1 2.2 2.3 2.4
 # For use in Conflicts: and Replaces:
-PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_VERSIONS:%=%-xapian (<< 0.9.6-3$),)"|sed 's/,$$//')
+PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_OLD_VERSIONS:%=%-xapian (<< 0.9.6-3$),)"|sed 's/,$$//')
 
 # Build depends for PHP.  We only need phpN-cli so we can run "make check" on
 # the bindings.
