@@ -37,4 +37,3 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       btree_base.cc
 
 libbtreecheck_la_SOURCES = btreecheck.cc
-libbtreecheck_la_LDFLAGS = ../../libxapian.la

@@ -1,3 +1,10 @@
+Sun Nov 05 19:55:26 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/quartz/Makefile.am: Remove explicit dependency of
+	  libbtreecheck.la on libxapian.la.  We always link in libxapian.la
+	  and the explicit dependency makes it hard to build things in a
+	  sane order.
+
 Sun Nov 05 19:29:17 GMT 2006  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Don't define on_SIGCHLD() unless we'll use it.
