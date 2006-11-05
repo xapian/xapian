@@ -212,21 +212,23 @@ on_SIGTERM(int /*sig*/)
     exit (0);
 }
 
+#ifdef HAVE_WAITPID
 extern "C" void
 on_SIGCHLD(int /*sig*/)
 {
     int status;
     while (waitpid(-1, &status, WNOHANG) > 0);
 }
+#endif
 
 void
 TcpServer::run()
 {
     // set up signal handlers
-#ifndef HAVE_WAITPID
-    signal(SIGCHLD, SIG_IGN);
-#else
+#ifdef HAVE_WAITPID
     signal(SIGCHLD, on_SIGCHLD);
+#else
+    signal(SIGCHLD, SIG_IGN);
 #endif
     signal(SIGTERM, on_SIGTERM);
     while (true) {

@@ -39,7 +39,12 @@
 
 #ifdef HAVE_FORK
 # include <sys/types.h>
+# include <sys/wait.h>
 # include <unistd.h>
+// Some older systems had SIGCLD rather than SIGCHLD.
+# if !defined SIGCHLD && defined SIGCLD
+#  define SIGCHLD SIGCLD
+# endif
 #endif
 
 #include <xapian.h>
@@ -47,11 +52,6 @@
 #include "backendmanager.h"
 #include "omdebug.h"
 #include "utils.h"
-
-// Some older systems had SIGCLD rather than SIGCHLD.
-#if !defined SIGCHLD && defined SIGCLD
-# define SIGCHLD SIGCLD
-#endif
 
 using namespace std;
 
@@ -117,14 +117,27 @@ index_files_to_m36(const string &prog, const string &dbdir,
 }
 #endif
 
+#if defined HAVE_FORK && defined HAVE_WAITPID
+extern "C" void
+on_SIGCHLD(int /*sig*/)
+{
+    int status;
+    while (waitpid(-1, &status, WNOHANG) > 0);
+}
+#endif
+
 BackendManager::BackendManager() :
     do_getdb(&BackendManager::getdb_void),
     do_getwritedb(&BackendManager::getwritedb_void)
 {
 #ifdef HAVE_FORK
-    // We spawn child processes to close the pipes we open to run xapian-tcpsrv
-    // processes, but we don't really care when they finish.
+    // Clean up child processes forked to close the pipes we open to run
+    // xapian-tcpsrv.
+#ifdef HAVE_WAITPID
+    signal(SIGCHLD, on_SIGCHLD);
+#else
     signal(SIGCHLD, SIG_IGN);
+#endif
 #endif
 }
 
