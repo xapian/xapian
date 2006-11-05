@@ -510,12 +510,36 @@ BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 #else
     args += createdb_quartz(paths);
 #endif
-    string cmd = "../bin/xapian-tcpsrv --one-shot --quiet --port 1239 " + args + " 2>/dev/null &";
+    string cmd = "../bin/xapian-tcpsrv --one-shot --port 1239 " + args + " 2>/dev/null";
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
 #endif
-    system(cmd);
-    sleep(1);
+    FILE * fh = popen(cmd.c_str(), "r");
+    if (fh == NULL) {
+	string msg("Failed to run command '");
+	msg += cmd;
+	msg += "'";
+	throw msg;
+    }
+    while (true) {
+	char buf[256];
+	if (fgets(buf, sizeof(buf), fh) == NULL) {
+	    string msg("Failed to get 'Listening...' from command '");
+	    msg += cmd;
+	    msg += "'";
+	    throw msg;
+	}
+	if (strcmp(buf, "Listening...\n") == 0) break;
+    }
+    pid_t child = fork();
+    if (child == 0) {
+	// Child process.
+	pclose(fh);
+	exit(0);
+    }
+    if (child == -1) {
+	// FIXME : handle fork() failing...
+    }
     return Xapian::Remote::open("127.0.0.1", 1239);
 }
 
@@ -535,12 +559,36 @@ BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
     (void)getwritedb_quartz(dbnames);
     args += ".quartz/dbw";
 #endif
-    string cmd = "../bin/xapian-tcpsrv --writable --one-shot --quiet --port 1239 " + args + " 2>/dev/null &";
+    string cmd = "../bin/xapian-tcpsrv --writable --one-shot --port 1239 " + args + " 2>/dev/null &";
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
 #endif
-    system(cmd);
-    sleep(1);
+    FILE * fh = popen(cmd.c_str(), "r");
+    if (fh == NULL) {
+	string msg("Failed to run command '");
+	msg += cmd;
+	msg += "'";
+	throw msg;
+    }
+    while (true) {
+	char buf[256];
+	if (fgets(buf, sizeof(buf), fh) == NULL) {
+	    string msg("Failed to get 'Listening...' from command '");
+	    msg += cmd;
+	    msg += "'";
+	    throw msg;
+	}
+	if (strcmp(buf, "Listening...\n") == 0) break;
+    }
+    pid_t child = fork();
+    if (child == 0) {
+	// Child process.
+	pclose(fh);
+	exit(0);
+    }
+    if (child == -1) {
+	// FIXME : handle fork() failing...
+    }
     return Xapian::Remote::open_writable("127.0.0.1", 1239);
 }
 #endif

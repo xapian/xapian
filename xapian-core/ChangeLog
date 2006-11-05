@@ -1,3 +1,11 @@
+Sun Nov 05 03:51:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* bin/xapian-tcpsrv.cc: Output "Listening..." once the socket is
+	  open and read for connections.
+	* testsuite/backendmanager.cc: Use popen() to run xapian-tcpsrv
+	  and wait for "Listening..." before returning rather than just
+	  sleeping for 1 second and hoping that's enough.
+
 Sun Nov 05 02:54:23 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Remove unnecessary inclusion of backendmanager.h.

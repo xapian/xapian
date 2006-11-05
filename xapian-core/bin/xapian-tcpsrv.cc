@@ -148,6 +148,9 @@ int main(int argc, char **argv) {
 	    TcpServer server(db, port, msecs_active_timeout,
 			     msecs_idle_timeout, verbose);
 
+	    if (verbose)
+		cout << "Listening..." << endl;
+
 	    register_user_weighting_schemes(server);
 
 	    if (one_shot) {
@@ -166,6 +169,9 @@ int main(int argc, char **argv) {
 
 	    TcpServer server(db, port, msecs_active_timeout,
 			     msecs_idle_timeout, verbose);
+
+	    if (verbose)
+		cout << "Listening..." << endl;
 
 	    register_user_weighting_schemes(server);
 
