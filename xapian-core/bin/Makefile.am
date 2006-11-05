@@ -21,10 +21,9 @@ EXTRA_PROGRAMS = quartzcheck quartzcompact quartzdump\
     xapian-compact xapian-tcpsrv xapian-progsrv
 bin_PROGRAMS = $(quartz_bin_programs) $(remote_bin_programs) $(flint_bin_programs)
 
-# tests/harness needed for btreecheck.h
-quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz -I$(top_srcdir)/tests/harness
+quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcheck_SOURCES = quartzcheck.cc
-quartzcheck_LDADD = @ldflags@ ../tests/harness/libbtreecheck.la ../libxapian.la
+quartzcheck_LDADD = @ldflags@ ../backends/quartz/libbtreecheck.la ../libxapian.la
 
 quartzcompact_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcompact_SOURCES = quartzcompact.cc

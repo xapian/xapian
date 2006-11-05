@@ -1,3 +1,12 @@
+Sun Nov 05 19:11:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/quartz/Makefile.am,backends/quartz/btreecheck.cc,
+	  backends/quartz/btreecheck.h,bin/Makefile.am,tests/Makefile.am,
+	  tests/harness/: Use _exit(0) instead of exit(0) in the child
+	  process which closes the pipe to xapian-tcpsrv in BackendManager
+	  since we don't want to call atexit functions from the child.  Move
+	  btreecheck stuff into backends/quartz.
+
 Sun Nov 05 17:12:05 GMT 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,bin/Makefile.am,configure.ac,tests/Makefile.am,

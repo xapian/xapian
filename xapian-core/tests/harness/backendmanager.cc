@@ -562,7 +562,7 @@ BackendManager::getdb_remotetcp(const vector<string> &dbnames)
     if (child == 0) {
 	// Child process.
 	pclose(fh);
-	exit(0);
+	_exit(0);
     }
     if (child == -1) {
 	// FIXME : handle fork() failing...
@@ -615,7 +615,7 @@ BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
     if (child == 0) {
 	// Child process.
 	pclose(fh);
-	exit(0);
+	_exit(0);
     }
     if (child == -1) {
 	// FIXME : handle fork() failing...

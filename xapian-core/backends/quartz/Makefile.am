@@ -2,6 +2,8 @@
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_builddir)/include
 
+noinst_LTLIBRARIES = libquartz.la libbtreecheck.la
+
 noinst_HEADERS =       quartz_types.h \
                        quartz_database.h \
 		       quartz_termlist.h \
@@ -17,7 +19,8 @@ noinst_HEADERS =       quartz_types.h \
 		       btree.h \
 		       bcursor.h \
 		       btree_util.h \
-		       btree_base.h
+		       btree_base.h \
+		       btreecheck.h
 
 libquartz_la_SOURCES = quartz_database.cc \
 		       quartz_termlist.cc \
@@ -33,4 +36,5 @@ libquartz_la_SOURCES = quartz_database.cc \
 		       bcursor.cc \
 		       btree_base.cc
 
-noinst_LTLIBRARIES = libquartz.la
+libbtreecheck_la_SOURCES = btreecheck.cc
+libbtreecheck_la_LDFLAGS = ../../libxapian.la

@@ -52,27 +52,35 @@ noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h api_wrdb.h \
 
 apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc api_wrdb.cc \
  api_anydb.cc api_transdb.cc
-apitest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
+apitest_LDFLAGS = @ldflags@
+apitest_LDADD = harness/libharness.la ../libxapian.la
 
 stemtest_SOURCES = stemtest.cc
-stemtest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
+stemtest_LDFLAGS = @ldflags@
+stemtest_LDADD = harness/libharness.la ../libxapian.la
 
 internaltest_SOURCES = internaltest.cc
-internaltest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
+internaltest_LDFLAGS = @ldflags@
+internaltest_LDADD = harness/libharness.la ../libxapian.la
 
+btreetest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 btreetest_SOURCES = btreetest.cc
-btreetest_LDADD = @ldflags@ harness/libharness.la harness/libbtreecheck.la \
-	../libxapian.la
+btreetest_LDFLAGS = @ldflags@
+btreetest_LDADD = harness/libharness.la \
+	../backends/quartz/libbtreecheck.la ../libxapian.la
 
 quartztest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartztest_SOURCES = quartztest.cc
-quartztest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
+quartzetest_LDFLAGS = @ldflags@
+quartztest_LDADD = harness/libharness.la ../libxapian.la
 
 remotetest_SOURCES = remotetest.cc
-remotetest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
+remotetest_LDFLAGS = @ldflags@
+remotetest_LDADD = harness/libharness.la ../libxapian.la
 
 queryparsertest_SOURCES = queryparsertest.cc
-queryparsertest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
+queryparsertest_LDFLAGS = @ldflags@
+queryparsertest_LDADD = harness/libharness.la ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST = runtest.in \
