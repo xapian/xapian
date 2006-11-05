@@ -1,3 +1,9 @@
+Sun Nov 05 16:36:56 GMT 2006  Olly Betts <olly@survex.com>
+
+	* testsuite/backendmanager.cc,testsuite/backendmanager.h: Now needs
+	  <stdio.h>.  Set SIG_IGN for SIG_CHLD so we don't get zombie child
+	  processes.
+
 Sun Nov 05 03:53:24 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tests/apitest.cc: Make backendmanager static.

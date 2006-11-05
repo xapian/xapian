@@ -32,13 +32,26 @@
 #include <string>
 #include <vector>
 
+#include <signal.h>
+#include <stdio.h>
+
 #include <sys/stat.h>
+
+#ifdef HAVE_FORK
+# include <sys/types.h>
+# include <unistd.h>
+#endif
 
 #include <xapian.h>
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "omdebug.h"
 #include "utils.h"
+
+// Some older systems had SIGCLD rather than SIGCHLD.
+#if !defined SIGCHLD && defined SIGCLD
+# define SIGCHLD SIGCLD
+#endif
 
 using namespace std;
 
@@ -103,6 +116,17 @@ index_files_to_m36(const string &prog, const string &dbdir,
     unlink(dump);
 }
 #endif
+
+BackendManager::BackendManager() :
+    do_getdb(&BackendManager::getdb_void),
+    do_getwritedb(&BackendManager::getwritedb_void)
+{
+#ifdef HAVE_FORK
+    // We spawn child processes to close the pipes we open to run xapian-tcpsrv
+    // processes, but we don't really care when they finish.
+    signal(SIGCHLD, SIG_IGN);
+#endif
+}
 
 void
 BackendManager::set_dbtype(const string &type)
@@ -487,6 +511,9 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
 Xapian::Database
 BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 {
+#ifndef HAVE_FORK
+    throw string("Can't run remotetcp tests without fork()");
+#else
     // Uses xapian-tcpsrv as the server.
 
     vector<string> paths;
@@ -541,11 +568,15 @@ BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 	// FIXME : handle fork() failing...
     }
     return Xapian::Remote::open("127.0.0.1", 1239);
+#endif
 }
 
 Xapian::WritableDatabase
 BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
 {
+#ifndef HAVE_FORK
+    throw string("Can't run remotetcp tests without fork()");
+#else
     // Uses xapian-tcpsrv as the server.
 
     // Default to a long (5 minute) timeout so that tests won't fail just
@@ -590,6 +621,7 @@ BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
 	// FIXME : handle fork() failing...
     }
     return Xapian::Remote::open_writable("127.0.0.1", 1239);
+#endif
 }
 #endif
 
