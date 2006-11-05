@@ -1,3 +1,8 @@
+Sun Nov 05 17:08:48 GMT 2006  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: The "date" action was modifying the value it
+	  operated on, which it isn't meant to do - fixed.
+
 Sun Nov 05 02:25:48 GMT 2006  Olly Betts <olly@survex.com>
 
 	* query.cc: Report an error if $setmap is called with an even number

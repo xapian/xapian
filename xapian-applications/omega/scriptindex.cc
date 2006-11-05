@@ -576,45 +576,32 @@ again:
 			    doc.add_value(i->get_num_arg(), value);
 			break;
 		    case Action::DATE: {
-			string type = i->get_string_arg();
-			switch (type[0]) {
-			    case 'u':
-				if (type == "unix") {
-				    struct tm *tm;
-				    time_t t = atoi(value.c_str());
-				    tm = localtime(&t);
-				    value = date_to_string(tm->tm_year + 1900,
-							   tm->tm_mon + 1,
-							   tm->tm_mday);
-				    break;
-				}
-				value = "";
-				break;
-			    case 'y':
-				if (type == "yyyymmdd") {
-				    if (value.length() == 8) break;
-				}
-				value = "";
-				break;
-			    default:
-				value = "";
-				break;
+			const string & type = i->get_string_arg();
+			string yyyymmdd;
+			if (type == "unix") {
+			    time_t t = atoi(value.c_str());
+			    struct tm *tm = localtime(&t);
+			    int y = tm->tm_year + 1900;
+			    int m = tm->tm_mon + 1;
+			    yyyymmdd = date_to_string(y, m, tm->tm_mday);
+			} else if (type == "yyyymmdd") {
+			    if (value.length() == 8) yyyymmdd = value;
 			}
-			if (value.empty()) break;
+			if (yyyymmdd.empty()) break;
 			// Date (YYYYMMDD)
-			doc.add_term("D" + value);
+			doc.add_term("D" + yyyymmdd);
 #if 0 // "Weak" terms aren't currently used by omega
-			value.resize(7);
-			if (value[6] == '3') value[6] = '2';
+			yyyymmdd.resize(7);
+			if (yyyymmdd[6] == '3') yyyymmdd[6] = '2';
 			// "Weak" - 10ish day interval
-			newdocument.add_term("W" + value);
+			newdocument.add_term("W" + yyyymmdd);
 #endif
-			value.resize(6);
+			yyyymmdd.resize(6);
 			// Month (YYYYMM)
-			doc.add_term("M" + value);
-			value.resize(4);
+			doc.add_term("M" + yyyymmdd);
+			yyyymmdd.resize(4);
 			// Year (YYYY)
-			doc.add_term("Y" + value);
+			doc.add_term("Y" + yyyymmdd);
 			break;
 		    }
 		    default:
