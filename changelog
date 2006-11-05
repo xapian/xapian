@@ -1,3 +1,6 @@
+  * debian/rules: Build tcl and ruby bindings in the same build tree to save
+    a bit of diskspace and time.
+
 xapian-bindings (0.9.8-1) unstable; urgency=low
 
   * New upstream release.
