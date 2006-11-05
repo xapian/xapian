@@ -1,3 +1,8 @@
+Sun Nov 05 02:25:48 GMT 2006  Olly Betts <olly@survex.com>
+
+	* query.cc: Report an error if $setmap is called with an even number
+	  of parameters.
+
 Thu Nov 02 16:08:27 GMT 2006  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 0.9.8.
