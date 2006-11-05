@@ -30,7 +30,6 @@
 #include <xapian.h>
 #include "testsuite.h"
 #include "testutils.h"
-#include "backendmanager.h"
 #include "utils.h"
 
 #include "apitest.h"
@@ -39,8 +38,6 @@
 #include <list>
 
 using namespace std;
-
-extern BackendManager backendmanager;
 
 static Xapian::Query
 query(const string &t)
