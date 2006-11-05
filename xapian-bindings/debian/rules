@@ -179,11 +179,8 @@ debian/configure-stamp:
 	    fi \
 	done
 
-	mkdir -p build-tcl
-	cd build-tcl && ../configure $(commonconfflags) --with-tcl TCLSH=$(TCLSH)
-
-	mkdir -p build-ruby
-	cd build-ruby && ../configure $(commonconfflags) --with-ruby RUBY=$(RUBY)
+	mkdir -p build-tcl-and-ruby
+	cd build-tcl-and-ruby && ../configure $(commonconfflags) --with-tcl TCLSH=$(TCLSH) --with-ruby RUBY=$(RUBY)
 
 	touch $@
 
@@ -200,8 +197,7 @@ debian/build-stamp:
 		$(MAKE) -C build-php$$v $(buildtargets) ; \
 	    fi \
 	done
-	$(MAKE) -C build-tcl $(buildtargets)
-	$(MAKE) -C build-ruby $(buildtargets) 
+	$(MAKE) -C build-tcl-and-ruby $(buildtargets)
 	touch $@
 
 install: DH_OPTIONS=
@@ -225,9 +221,7 @@ install: build
 	    fi \
 	done
 
-	$(MAKE) -C build-tcl DESTDIR=$(CURDIR)/debian/tmp install
-
-	$(MAKE) -C build-ruby DESTDIR=$(CURDIR)/debian/tmp install
+	$(MAKE) -C build-tcl-and-ruby DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the '*.install' files to decide where to install everything.
 	dh_install --sourcedir=debian/tmp --fail-missing --exclude=.pyc
@@ -290,7 +284,7 @@ clean:
 	    set -e; \
 	    rm -rf build-php$$v; \
 	done
-	rm -rf build-tcl build-ruby
+	rm -rf build-tcl-and-ruby
 	debconf-updatepo
 	rm -f config.sub config.guess
 	dh_clean
