@@ -1,3 +1,7 @@
+Sun Nov 05 03:53:24 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tests/apitest.cc: Make backendmanager static.
+
 Sun Nov 05 03:51:36 GMT 2006  Olly Betts <olly@survex.com>
 
 	* bin/xapian-tcpsrv.cc: Output "Listening..." once the socket is

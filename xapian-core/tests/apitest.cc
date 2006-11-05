@@ -42,7 +42,7 @@ using namespace std;
 #include "api_anydb.h"
 #include "api_transdb.h"
 
-BackendManager backendmanager;
+static BackendManager backendmanager;
 
 Xapian::Database
 get_database(const string &dbname)
