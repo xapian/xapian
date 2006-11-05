@@ -25,11 +25,11 @@ endif
 # xapian.m4 last, in case of failure (disk full for example)?
 SUBDIRS = include getopt common \
           api backends matcher languages $(remote_subdirs) \
-	  queryparser . testsuite bin examples docs tests
+	  queryparser . bin examples docs tests
 
 DIST_SUBDIRS = include getopt common \
                api backends matcher languages net \
-	       queryparser . bin examples docs testsuite tests
+	       queryparser . bin examples docs tests
 
 bin_SCRIPTS = xapian-config
 

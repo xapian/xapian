@@ -1,3 +1,9 @@
+Sun Nov 05 17:12:05 GMT 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,bin/Makefile.am,configure.ac,tests/Makefile.am,
+	  tests/harness/Makefile.am,tests/harness/dir_contents,testsuite/:
+	  Move the testsuite harness from "testsuite/" to "tests/harness/".
+
 Sun Nov 05 16:36:56 GMT 2006  Olly Betts <olly@survex.com>
 
 	* testsuite/backendmanager.cc,testsuite/backendmanager.h: Now needs

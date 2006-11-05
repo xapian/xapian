@@ -1,0 +1,6 @@
+<Directory>tests/harness</Directory>
+
+<Description>
+This contains the test suite harness, which is linked with by most of the
+C++ test programs to perform sets of tests.
+</Description>

@@ -891,7 +891,6 @@ dnl **************************
 
 AC_CONFIG_FILES([
  Makefile
- testsuite/Makefile
  include/Makefile
  common/Makefile
  backends/Makefile
@@ -905,6 +904,7 @@ AC_CONFIG_FILES([
  matcher/Makefile
  api/Makefile
  tests/Makefile
+ tests/harness/Makefile
  docs/Makefile
  net/Makefile
  bin/Makefile

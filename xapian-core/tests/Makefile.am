@@ -1,10 +1,12 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_srcdir)/testsuite -I${top_builddir}/include
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -Iharness -I${top_builddir}/include
 
 TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-remote check-flint check-quartz
+
+SUBDIRS = harness
 
 if BUILD_BACKEND_REMOTE
 check-remote: remotetest$(EXEEXT) apitest$(EXEEXT)
@@ -50,27 +52,27 @@ noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h api_wrdb.h \
 
 apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc api_wrdb.cc \
  api_anydb.cc api_transdb.cc
-apitest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
+apitest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
 
 stemtest_SOURCES = stemtest.cc
-stemtest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
+stemtest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
 
 internaltest_SOURCES = internaltest.cc
-internaltest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
+internaltest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
 
 btreetest_SOURCES = btreetest.cc
-btreetest_LDADD = @ldflags@ ../testsuite/libtest.la \
-	../testsuite/libbtreecheck.la ../libxapian.la
+btreetest_LDADD = @ldflags@ harness/libharness.la harness/libbtreecheck.la \
+	../libxapian.la
 
 quartztest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartztest_SOURCES = quartztest.cc
-quartztest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
+quartztest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
 
 remotetest_SOURCES = remotetest.cc
-remotetest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
+remotetest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
 
 queryparsertest_SOURCES = queryparsertest.cc
-queryparsertest_LDADD = @ldflags@ ../testsuite/libtest.la ../libxapian.la
+queryparsertest_LDADD = @ldflags@ harness/libharness.la ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST = runtest.in \
