@@ -190,6 +190,7 @@ static bool test_omstringstream1()
     return true;
 }
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 // Check serialisation of lengths.
 static bool test_serialiselength1()
 {
@@ -211,6 +212,7 @@ static bool test_serialiselength1()
 
     return true;
 }
+#endif
 
 static void check_double_serialisation(double u)
 {
@@ -261,6 +263,7 @@ static bool test_serialisedouble1()
     return true;
 }
 
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
 // Check serialisation of documents.
 static bool test_serialisedoc1()
 {
@@ -280,6 +283,7 @@ static bool test_serialisedoc1()
 
     return true;
 }
+#endif
 
 // Check serialisation of queries.
 static bool test_serialisequery1()
@@ -350,11 +354,13 @@ test_desc tests[] = {
     {"refcnt1",			test_refcnt1},
     {"refcnt2",			test_refcnt2},
     {"stringcomp1",		test_stringcomp1},
-    {"omstringstream1",		test_omstringstream1},
-    {"serialiselength1",	test_serialiselength1},
-    {"serialisedouble1",	test_serialisedouble1},
-    {"serialisedoc1",		test_serialisedoc1},
     {"temporarydtor1",		test_temporarydtor1},
+    {"omstringstream1",		test_omstringstream1},
+    {"serialisedouble1",	test_serialisedouble1},
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    {"serialiselength1",	test_serialiselength1},
+    {"serialisedoc1",		test_serialisedoc1},
+#endif
     {"serialisequery1",		test_serialisequery1},
     {0, 0}
 };
