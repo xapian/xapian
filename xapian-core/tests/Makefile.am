@@ -1,6 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -Iharness -I${top_builddir}/include
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
+ -I$(top_builddir)/include -I$(srcdir)/harness
 
 TESTS_ENVIRONMENT = ./runtest
 

@@ -1,3 +1,8 @@
+Mon Nov 06 01:43:37 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Need "harness" in "$(srcdir)" for VPATH builds to
+	  work.
+
 Sun Nov 05 19:55:26 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/quartz/Makefile.am: Remove explicit dependency of
