@@ -52,7 +52,7 @@
 #define PACKAGE "omega"
 
 /* Version of package */
-#define VERSION "0.9.6"
+#define VERSION "0.9.8"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT ""
@@ -61,13 +61,13 @@
 #define PACKAGE_NAME "omega"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "omega 0.9.6"
+#define PACKAGE_STRING "omega 0.9.8"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "omega"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.9.6"
+#define PACKAGE_VERSION "0.9.8"
 
 /* Define to the name of a function implementing snprintf but not caring about
    ISO C90 return value semantics (if one exists) */

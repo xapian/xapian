@@ -8,7 +8,7 @@
 # omega.exe
 # omindex.exe
 
-XAPIAN_DIR=..\xapian-core-0.9.6
+XAPIAN_DIR=..\xapian-core-0.9.8
 
 
 !IF "$(OS)" == "Windows_NT"
@@ -45,7 +45,9 @@ OMEGA_OBJS= \
 	"$(OUTDIR)\cdb_init.obj" \
 	"$(OUTDIR)\cdb_find.obj" \
 	"$(OUTDIR)\cdb_hash.obj" \
+ 	"$(OUTDIR)\loadfile.obj" \
 	"$(OUTDIR)\cdb_unpack.obj" 
+    
 
 OMINDEX_OBJS= \
 	"$(OUTDIR)\omindex.obj" \
@@ -56,7 +58,14 @@ OMINDEX_OBJS= \
 	"$(OUTDIR)\commonhelp.obj" \
 	"$(OUTDIR)\utils.obj" \
 	"$(OUTDIR)\hashterm.obj" \
-	"$(OUTDIR)\dirent.obj"
+	"$(OUTDIR)\dirent.obj" \
+ 	"$(OUTDIR)\loadfile.obj" \
+ 	"$(OUTDIR)\md5.obj" \
+ 	"$(OUTDIR)\md5wrap.obj" \
+ 	"$(OUTDIR)\xmlparse.obj" \
+ 	"$(OUTDIR)\metaxmlparse.obj"    
+
+   
 
 SCRIPTINDEX_OBJS= \
 	"$(OUTDIR)\scriptindex.obj" \
@@ -66,7 +75,8 @@ SCRIPTINDEX_OBJS= \
 	"$(OUTDIR)\getopt.obj" \
 	"$(OUTDIR)\commonhelp.obj" \
 	"$(OUTDIR)\utils.obj" \
-	"$(OUTDIR)\hashterm.obj"
+	"$(OUTDIR)\hashterm.obj" \
+    "$(OUTDIR)\loadfile.obj"
 
 
 CLEAN :
@@ -102,7 +112,6 @@ LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  "$(OUTLIBDIR)\libmulti.lib" \
  "$(OUTLIBDIR)\libmatcher.lib"  \
  "$(OUTLIBDIR)\liblanguages.lib"  \
- "$(OUTLIBDIR)\libnet.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib"  
 
@@ -232,6 +241,32 @@ PROGRAM_DEPENDENCIES =
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
+
+"$(INTDIR)\loadfile.obj" : ".\loadfile.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\md5.obj" : ".\md5.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\md5wrap.obj" : ".\md5wrap.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\xmlparse.obj" : ".\xmlparse.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\metaxmlparse.obj" : ".\metaxmlparse.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
 
 .c{$(CPP_OBJS)}.obj::
    $(CPP) @<<

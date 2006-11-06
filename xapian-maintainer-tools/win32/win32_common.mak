@@ -25,11 +25,11 @@ INTDIR=.\
 ALL : "$(OUTDIR)\libcommon.lib" 
 
 LIBCOMMON_OBJS= \
+	$(INTDIR)\utils.obj \
 	$(INTDIR)\omdebug.obj \
 	$(INTDIR)\omstringstream.obj \
-	$(INTDIR)\serialise-double.obj \
-	$(INTDIR)\utils.obj
-	
+	$(INTDIR)\serialise-double.obj   
+    
 CLEAN :
 	-@erase "$(OUTDIR)\libcommon.lib"
 	-@erase "*.pch"
@@ -50,9 +50,17 @@ CPP_SBRS=.
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo  $(LIBFLAGS)
    
+# Only build netutils if doing QUARTZ backend.
+
+
 "$(OUTDIR)\LIBCOMMON.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBCOMMON_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libcommon.lib" $(DEF_FLAGS) $(LIBCOMMON_OBJS)
+<<
+
+"$(INTDIR)\utils.obj" : ".\utils.cc"
+	$(CPP) @<< 
+   $(CPP_PROJ) $**
 <<
 
 "$(INTDIR)\omdebug.obj" : ".\omdebug.cc"
@@ -66,11 +74,6 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 <<
 
 "$(INTDIR)\serialise-double.obj" : ".\serialise-double.cc"
-	$(CPP) @<< 
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\utils.obj" : ".\utils.cc"
 	$(CPP) @<< 
    $(CPP_PROJ) $**
 <<

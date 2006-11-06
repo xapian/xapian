@@ -9,10 +9,10 @@
 #ifndef XAPIAN_INCLUDED_VERSION_H
 #define XAPIAN_INCLUDED_VERSION_H
 
-#define XAPIAN_VERSION "0.9.6"
+#define XAPIAN_VERSION "0.9.8"
 #define XAPIAN_MAJOR_VERSION 0
 #define XAPIAN_MINOR_VERSION 9
-#define XAPIAN_REVISION 6
+#define XAPIAN_REVISION 8
 
 namespace Xapian {
 /** Report the version string of the library which the program is linked against.

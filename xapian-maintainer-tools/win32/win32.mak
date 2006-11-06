@@ -15,13 +15,13 @@ NULL=nul
 !MESSAGE Building Xapian on Win32
 !MESSAGE
 
-!INCLUDE ..\win32\config.mak
+!INCLUDE .\config.mak
 
 ALL: 
-   copy ..\win32\config.h.win32 config.h
-   copy ..\win32\version.h.win32 include\xapian\version.h
-   copy ..\win32\unistd.h.win32 include\unistd.h
-   cd getopt
+   copy config.h.win32 ..\config.h
+   copy version.h.win32 ..\include\xapian\version.h
+   copy unistd.h.win32 ..\include\unistd.h
+   cd ..\getopt
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
    cd ..\common
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
@@ -32,8 +32,6 @@ ALL:
    cd ..\matcher
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
    cd ..\languages
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
-   cd ..\net
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
    cd ..\queryparser
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
@@ -52,7 +50,7 @@ ALL:
 CLEAN:
 # cd ..\net
 #   nmake /f win32.mak CLEAN
-   cd getopt
+   cd ..\getopt
    nmake /f win32.mak CLEAN
    cd ..\common
    nmake /f win32.mak CLEAN
@@ -63,8 +61,6 @@ CLEAN:
    cd ..\matcher
    nmake /f win32.mak CLEAN
    cd ..\languages
-   nmake /f win32.mak CLEAN
-   cd ..\net
    nmake /f win32.mak CLEAN
    cd ..\queryparser
    nmake /f win32.mak CLEAN
@@ -77,9 +73,9 @@ CLEAN:
    cd ..\tests
    nmake /f win32.mak CLEAN
    cd ..\win32
-   -@erase config.h 
-   -@erase include\xapian\version.h
-   -@erase include\unistd.h
+   -@erase ..\config.h 
+   -@erase ..\include\xapian\version.h
+   -@erase ..\include\unistd.h
    -@erase Release\*.idb
 #   -@rmdir Release\ /s /q
    echo All Win32 parts have been cleaned!

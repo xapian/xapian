@@ -13,10 +13,10 @@ NULL=nul
 !ENDIF 
 
 # Change this to match your environment
-XAPIAN_DIR=..\..\xapian-core-0.9.7
+XAPIAN_DIR=..\..\xapian-core-0.9.8
 OUTLIBDIR=$(XAPIAN_DIR)\win32\Release\libs
 
-!INCLUDE $(XAPIAN_DIR)\..\win32\config.mak
+!INCLUDE $(XAPIAN_DIR)\win32\config.mak
 
 
 
@@ -32,7 +32,6 @@ XAPIAN_DEPENDENCIES = \
  "$(OUTLIBDIR)\libmulti.lib" \
  "$(OUTLIBDIR)\libmatcher.lib"  \
  "$(OUTLIBDIR)\liblanguages.lib"  \
- "$(OUTLIBDIR)\libnet.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib" \
  $(PYTHON_LIB)
@@ -115,7 +114,7 @@ olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i extra.
 <<
 
 
-"$(OUTDIR)\xapian.py" : "modern\xapian.py"
+"$(OUTDIR)\xapian.py" : "$(PYTHON_MODERN_OR_OLDE)\xapian.py"
 	-copy $** "$(OUTDIR)\xapian.py"
 
 "$(OUTDIR)\smoketest.py" : ".\smoketest.py"
@@ -125,7 +124,7 @@ olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i extra.
 # Rules
 #
 
-".\xapian_wrap.obj" : "modern\xapian_wrap.cc"
+".\xapian_wrap.obj" : "$(PYTHON_MODERN_OR_OLDE)\xapian_wrap.cc"
      $(CPP) @<<
   $(CPP_PROJ) $**
 <<

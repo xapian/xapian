@@ -5,3 +5,7 @@ Xapian-core 0.9.5 (2006-04-13):
 Xapian-core 0.9.6 (2006-05-15)
 
  * Omega etc. now report correct versions
+ 
+ Xapian-core 0.9.8 (2006-11-06)
+ 
+ * Note: version 0.9.7 was swiftly superseded by 0.9.8, so build tools for 0.9.8 were not created

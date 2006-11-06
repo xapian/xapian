@@ -34,7 +34,6 @@ LIBQUARTZ_OBJS= \
                 $(INTDIR)\quartz_values.obj \
                 $(INTDIR)\quartz_log.obj \
                 $(INTDIR)\quartz_document.obj \
-                $(INTDIR)\quartz_alldocspostlist.obj \
                 $(INTDIR)\quartz_alltermslist.obj \
                 $(INTDIR)\quartz_metafile.obj \
                 $(INTDIR)\btree.obj \
@@ -112,12 +111,6 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 
 "$(INTDIR)\quartz_document.obj" : "quartz_document.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartz_alldocspostlist.obj" : "quartz_alldocspostlist.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<

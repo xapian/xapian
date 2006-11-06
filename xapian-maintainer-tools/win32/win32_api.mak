@@ -26,7 +26,7 @@ INTDIR=.\
 ALL : "$(OUTDIR)\libapi.lib" 
 
 LIBAPI_OBJS= \
-             $(INTDIR)\errorhandler.obj  \
+             $(INTDIR)\errorhandler.obj \
              $(INTDIR)\omenquire.obj  \
              $(INTDIR)\omquery.obj  \
              $(INTDIR)\omqueryinternal.obj  \
@@ -37,7 +37,9 @@ LIBAPI_OBJS= \
              $(INTDIR)\ompositionlistiterator.obj  \
              $(INTDIR)\omtermlistiterator.obj  \
              $(INTDIR)\omvalueiterator.obj \
-             $(INTDIR)\version.obj
+			 $(INTDIR)\version.obj
+             
+          
 
 
 CLEAN :
@@ -75,7 +77,6 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
    $(CPP_PROJ) $**
 <<
 
-
 "$(INTDIR)\omquery.obj" : ".\omquery.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
@@ -104,6 +105,7 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
+
 
 
 "$(INTDIR)\ompostlistiterator.obj" : ".\ompostlistiterator.cc"
