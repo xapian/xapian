@@ -1,3 +1,9 @@
+Mon Nov 06 01:41:08 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Require SWIG 1.3.30 (1.3.30 isn't out yet, but
+	  1.3.30rc1 is suitable).
+	* configure.ac: Remove unnecessary backticks from tclsh version test.
+
 Thu Nov 02 19:09:49 GMT 2006  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 0.9.8.

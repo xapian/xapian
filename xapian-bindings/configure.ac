@@ -95,7 +95,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.29
+  dnl Check for swig >= 1.3.30
   dnl 1.3.23 adds support for optional arguments in CSharp.
   dnl 1.3.24 tweaks CSharp enums
   dnl 1.3.26 fixes PHP overloading
@@ -104,13 +104,14 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl for is a ability to automatically rename method names for CSharp (e.g.
   dnl get_description becomes getDescription).
   dnl 1.3.29 fixes PHP to give an error if an overload can't be resolved
+  dnl 1.3.30 produces class wrappers for PHP5
   dnl You can see the latest SWIG changes here:
   dnl http://cvs.sourceforge.net/viewcvs.py/*checkout*/swig/SWIG/CHANGES
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
-   [1.3.29|1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
+   [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
    *)
-     AC_MSG_ERROR([SWIG >= 1.3.29 required (you have $v)]) ;;
+     AC_MSG_ERROR([SWIG >= 1.3.30 required (you have $v)]) ;;
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
@@ -348,7 +349,7 @@ if test no != "$with_tcl" ; then
     # Note: The bindings can easily be made to work with Tcl 8.0 (just
     # don't pass -DUSE_TCL_STUBS when compiling) should you need that.
     AC_MSG_CHECKING([$TCLSH version])
-    if `echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null` ; then
+    if echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null ; then
       AC_MSG_RESULT([>= 8.1])
       TCL_LIB=`echo 'puts $tcl_library'|$TCLSH`
       AC_SUBST(TCL_LIB)
