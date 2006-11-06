@@ -72,7 +72,7 @@ btreetest_LDADD = harness/libharness.la \
 
 quartztest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartztest_SOURCES = quartztest.cc
-quartzetest_LDFLAGS = @ldflags@
+quartztest_LDFLAGS = @ldflags@
 quartztest_LDADD = harness/libharness.la ../libxapian.la
 
 remotetest_SOURCES = remotetest.cc
