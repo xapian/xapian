@@ -31,6 +31,7 @@
 #include <netinet/in_systm.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #ifdef __WIN32__
 # include <winsock2.h>
@@ -94,6 +95,12 @@ TcpServer::get_listening_socket(int port)
 			    SO_REUSEADDR,
 			    reinterpret_cast<void *>(&optval),
 			    sizeof(optval));
+
+	if (retval >= 0) {
+	    retval = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
+				reinterpret_cast<void *>(&optval),
+				sizeof(optval));
+	}
     }
 
     if (retval < 0) {

@@ -1,3 +1,8 @@
+Tue Nov 07 21:46:39 GMT 2006  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Turn on TCP_NODELAY for xapian-tcpsrv which
+	  increases throughput for the remote backend over tcp.
+
 Tue Nov 07 21:08:57 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_btreebase.cc: Add missing '#include'-s.
