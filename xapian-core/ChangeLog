@@ -1,3 +1,7 @@
+Tue Nov 07 04:18:27 GMT 2006  Olly Betts <olly@survex.com>
+
+	* common/safefcntl.h: Actually add the new file to SVN.
+
 Tue Nov 07 03:36:59 GMT 2006  Olly Betts <olly@survex.com>
 
 	* HACKING,backends/flint/flint_io.h,backends/flint/flint_lock.cc,
