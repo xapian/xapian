@@ -70,6 +70,7 @@ PWRITE_PROTOTYPE
 
 #include <algorithm>  // for std::min()
 #include <string>
+#include <vector>
 
 #ifdef __WIN32__
 # include <io.h> // for _commit()
@@ -89,6 +90,7 @@ PWRITE_PROTOTYPE
 
 using std::min;
 using std::string;
+using std::vector;
 
 //#define BTREE_DEBUG_FULL 1
 #undef BTREE_DEBUG_FULL

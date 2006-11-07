@@ -29,6 +29,7 @@ using std::string;
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "safefcntl.h"
 #ifdef _MSC_VER
 # include <direct.h>
 # include <io.h>
@@ -36,8 +37,6 @@ using std::string;
 # include <unistd.h>
 #endif
 #include <ctype.h>
-
-#include "safefcntl.h"
 
 #ifdef _MSC_VER
 
