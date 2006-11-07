@@ -29,6 +29,10 @@
 #include <xapian/error.h>
 #include "omassert.h"
 
+#include <limits.h>
+
+#include <algorithm>
+
 using namespace std;
 
 /************ Base file parameters ************/
