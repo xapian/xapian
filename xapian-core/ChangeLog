@@ -1,3 +1,7 @@
+Tue Nov 07 03:21:24 GMT 2006  Olly Betts <olly@survex.com>
+
+	* matcher/biaspostlist.h: Don't need '#include "utils.h"'.
+
 Tue Nov 07 01:15:14 GMT 2006  Olly Betts <olly@survex.com>
 
 	* common/c_strtod.cc: Remove file which was checked in but is unused!

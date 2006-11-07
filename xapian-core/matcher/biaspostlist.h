@@ -1,6 +1,5 @@
 /* biaspostlist.h: add on extra weight based on functor
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2003 Olly Betts
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_BIASPOSTLIST_H
@@ -30,7 +28,6 @@
 #include <xapian/database.h>
 #include "postlist.h"
 #include "multimatch.h"
-#include "utils.h"
 
 // DOCID_BASED doesn't require a key lookup so is more efficient
 // and works if documents are added at a reasonably steady rate
