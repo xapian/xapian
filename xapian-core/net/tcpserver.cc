@@ -23,10 +23,10 @@
 #include <config.h>
 
 #include "safeerrno.h"
+#include "safefcntl.h"
 
 #include "tcpserver.h"
 #include "stats.h"
-#include "utils.h"
 
 #include <netinet/in_systm.h>
 #include <netinet/in.h>

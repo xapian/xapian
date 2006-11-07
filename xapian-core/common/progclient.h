@@ -45,13 +45,13 @@ class ProgClient : public RemoteDatabase {
 	 *  Note: this must not be made into a virtual method of the base
 	 *  class, since then it wouldn't work in constructors.
 	 */
-	static std::string get_progcontext(std::string progname,
+	static std::string get_progcontext(const std::string &progname,
 					   const std::string &args);
 
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */
-	int get_spawned_socket(std::string progname, const std::string &args);
+	int get_spawned_socket(const std::string &progname, const std::string &args);
 
     public:
 	/** Constructor.
@@ -62,7 +62,7 @@ class ProgClient : public RemoteDatabase {
 	 *                        an exception if the remote end is not
 	 *                        responding.
 	 */
-	ProgClient(std::string progname,
+	ProgClient(const std::string &progname,
 		   const std::string &arg,
 		   int msecs_timeout_);
 

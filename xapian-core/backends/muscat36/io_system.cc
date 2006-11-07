@@ -25,7 +25,7 @@
 #include <stdio.h>   /* sprintf etc */
 #include <stdlib.h>  /* exit etc */
 #include <string.h>
-#include <fcntl.h>   /* O_RDONLY etc */
+#include "safefcntl.h" /* O_RDONLY etc */
 #include <sys/types.h> /* lseek */
 #include "utils.h"
 #include "io_system.h"

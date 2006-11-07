@@ -1,3 +1,18 @@
+Tue Nov 07 03:36:59 GMT 2006  Olly Betts <olly@survex.com>
+
+	* HACKING,backends/flint/flint_io.h,backends/flint/flint_lock.cc,
+	  backends/flint/flint_lock.h,backends/muscat36/io_system.cc,common/,
+	  net/tcpserver.cc,tests/harness/backendmanager.cc,
+	  tests/harness/testsuite.cc: Create "safefcntl.h" as a replacement
+	  for <fcntl.h> instead of using "utils.h" for this purpose, since
+	  "utils.h" pulls in many other things we often don't want.
+	* common/utils.cc,common/utils.h,net/progclient.cc: Move split_words
+	  to progclient.cc which is the only user of it.  Rewrite it to not
+	  modified the string being split which risks being O(n^2).
+	* net/progclient.cc,common/progclient.h: Pass std::string by const
+	  reference.
+	* configure.ac: Fix DJGPP build (fork is present but always fails).
+
 Tue Nov 07 03:21:24 GMT 2006  Olly Betts <olly@survex.com>
 
 	* matcher/biaspostlist.h: Don't need '#include "utils.h"'.

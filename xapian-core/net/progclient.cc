@@ -23,10 +23,10 @@
 #include <config.h>
 
 #include "safeerrno.h"
+#include "safefcntl.h"
 
 #include "progclient.h"
 #include <xapian/error.h>
-#include "utils.h"
 #include "omdebug.h"
 
 #include <string>
@@ -42,7 +42,24 @@
 
 using namespace std;
 
-ProgClient::ProgClient(string progname, const string &args, int msecs_timeout_)
+/** Split a string into a vector of strings, using a given separator
+ *  character (default space)
+ */
+static void
+split_words(const string &text, vector<string> &words, char ws = ' ')
+{
+    size_t i = 0;
+    if (i < text.length() && text[0] == ws) {
+	i = text.find_first_not_of(ws, i);
+    }
+    while (i < text.length()) {
+	size_t j = text.find_first_of(ws, i);
+	words.push_back(text.substr(i, j - i));
+	i = text.find_first_not_of(ws, j);
+    }
+}
+
+ProgClient::ProgClient(const string &progname, const string &args, int msecs_timeout_)
 	: RemoteDatabase(get_spawned_socket(progname, args),
 			 msecs_timeout_,
 			 get_progcontext(progname, args))
@@ -52,7 +69,7 @@ ProgClient::ProgClient(string progname, const string &args, int msecs_timeout_)
 }
 
 string
-ProgClient::get_progcontext(string progname, const string &args)
+ProgClient::get_progcontext(const string &progname, const string &args)
 {
     DEBUGCALL_STATIC(DB, string, "ProgClient::get_progcontext", progname <<
 		     ", " << args);
@@ -60,7 +77,7 @@ ProgClient::get_progcontext(string progname, const string &args)
 }
 
 int
-ProgClient::get_spawned_socket(string progname, const string &args)
+ProgClient::get_spawned_socket(const string &progname, const string &args)
 {
     DEBUGCALL(DB, int, "ProgClient::get_spawned_socket", progname << ", " <<
 	      args);

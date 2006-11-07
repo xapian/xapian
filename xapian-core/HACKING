@@ -377,15 +377,12 @@ http://gcc.gnu.org/onlinedocs/libstdc++/17_intro/porting-howto.html
 open() and <fcntl.h>:
 ---------------------
 
-No C++ file should explicitly "#include <fcntl.h>".
+Don't directly '#include <fcntl.h>' - instead '#include "safefcntl.h"'.
 
-When largefile support is enabled, Solaris' fcntl.h will "#define open open64"
-in certain versions, or with certain compilers.  This sadly breaks C++ code
-which has methods called open (as we do).  There's a cunning way to avoid this
-problem, which is implemented in common/utils.h.
-
-Any C++ file which wants to "#include <fcntl.h>" should instead '#include
-"utils.h"'.
+The reason for this is that when largefile support is enabled, Solaris' fcntl.h
+will "#define open open64" in certain versions, or with certain compilers.
+This sadly breaks C++ code which has methods called open (as we do).  There's
+a cunning workaround for this problem in common/safefcntl.h.
 
 <windows.h>:
 ------------

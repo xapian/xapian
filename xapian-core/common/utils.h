@@ -25,8 +25,6 @@
 
 #include <string>
 using std::string;
-#include <vector>
-using std::vector;
 
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -39,54 +37,9 @@ using std::vector;
 #endif
 #include <ctype.h>
 
-#include <fcntl.h>
-
-#ifndef _MSC_VER
-#ifdef open
-// On older versions of Solaris, Sun's fcntl.h pollutes the namespace by
-// #define-ing open to open64 when largefile support is enabled (also creat to
-// creat64, etc but that's not a problem for us).
-
-// We can work around this, but the workaround doesn't work with Sun's C++
-// compiler (at least not when open isn't #define-d) so we only enable the
-// workaround if we have to...
-
-inline int fcntl_open(const char *filename, int flags, mode_t mode) {
-    return open(filename, flags, mode);
-}
-
-inline int fcntl_open(const char *filename, int flags) {
-    return open(filename, flags);
-}
-
-#undef open
-
-inline int open(const char *filename, int flags, mode_t mode) {
-    return fcntl_open(filename, flags, mode);
-}
-
-inline int open(const char *filename, int flags) {
-    return fcntl_open(filename, flags);
-}
-#endif
-#endif
+#include "safefcntl.h"
 
 #ifdef _MSC_VER
-# ifdef open
-#  undef open
-# endif
-
-#if 0
-// We used to have this here "for MSVC", but it conflicts with similar
-// code in io.h for MSVC7.
-inline int open(const char *filename, int flags, int mode) {
-    return _open(filename, flags, mode);
-}
-
-inline int open(const char *filename, int flags) {
-    return _open(filename, flags);
-}
-#endif
 
 #define S_ISREG(m) (((m)&_S_IFMT) == _S_IFREG)
 #define S_ISDIR(m) (((m)&_S_IFMT) == _S_IFDIR)
@@ -96,6 +49,7 @@ inline int open(const char *filename, int flags) {
 
 #undef ssize_t // In case configure already defined it.
 #define ssize_t SSIZE_T
+
 #endif
 
 /// Convert a string to a string!
@@ -121,13 +75,6 @@ string om_tostring(bool a);
 
 /// Convert a pointer to a string
 string om_tostring(const void * a);
-
-/** Split a string into a vector of strings, using a given separator
- *  character (default space)
- */
-void split_words(string text,
-		 vector<string> &words,
-		 char wspace = ' ');
 
 ///////////////////////////////////////////
 // Mapping of types as strings to enums  //

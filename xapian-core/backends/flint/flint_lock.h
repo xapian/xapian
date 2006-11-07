@@ -26,7 +26,7 @@
 #if defined __CYGWIN__ || defined __WIN32__
 #include "safewindows.h"
 #else
-#include <fcntl.h>
+#include "safefcntl.h"
 #include <unistd.h>
 #include <stdlib.h>
 #ifdef _NEWLIB_VERSION

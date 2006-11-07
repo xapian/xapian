@@ -1,6 +1,5 @@
 /* utils.cc: Various useful utilities
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2005 Olly Betts
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -93,19 +91,6 @@ string
 om_tostring(bool val)
 {
     return val ? "1" : "0";
-}
-
-void
-split_words(string text, vector<string> &words, char ws)
-{
-    if (text.length() > 0 && text[0] == ws) {
-	text.erase(0, text.find_first_not_of(ws));
-    }
-    while (text.length() > 0) {
-	words.push_back(text.substr(0, text.find_first_of(ws)));
-	text.erase(0, text.find_first_of(ws));
-	text.erase(0, text.find_first_not_of(ws));
-    }
 }
 
 int

@@ -583,7 +583,13 @@ AC_ARG_ENABLE(backend_remote,
 esac],[build_remote=true])
 
 dnl check for fork - if we don't have it, the remote backend won't build
-AC_CHECK_FUNCS(fork)
+dnl DJGPP has a dummy implementation of fork which always fails.
+case $host_os in
+  *djgpp* | *msdos* ) ac_cv_func_fork=no ;;
+  *)
+    AC_CHECK_FUNCS(fork)
+    ;;
+esac
 if test "$ac_cv_func_fork" = no ; then
   build_remote=false
 else

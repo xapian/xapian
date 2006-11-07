@@ -23,7 +23,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
+#include "safefcntl.h"
 #include <unistd.h>
 
 #ifdef __WIN32__
