@@ -29,6 +29,7 @@
 
 #include <netdb.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <string.h>
 #ifdef __WIN32__
 # include <winsock2.h>
@@ -87,7 +88,21 @@ TcpClient::get_remote_socket(std::string hostname,
     remaddr.sin_port = htons(port);
     memcpy(&remaddr.sin_addr, host->h_addr, sizeof(remaddr.sin_addr));
 
-    fcntl(socketfd, F_SETFL, O_NDELAY);
+    if (fcntl(socketfd, F_SETFL, O_NDELAY) < 0) {
+	int saved_errno = errno; // note down in case close hits an error
+	close(socketfd);
+	throw Xapian::NetworkError("Couldn't set O_NDELAY", get_tcpcontext(hostname,  port), saved_errno);
+    }
+
+    {
+	int optval = 1;
+	if (setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
+		       reinterpret_cast<void *>(&optval), sizeof(optval)) < 0) {
+	    int saved_errno = errno; // note down in case close hits an error
+	    close(socketfd);
+	    throw Xapian::NetworkError("Couldn't set TCP_NODELAY", get_tcpcontext(hostname,  port), saved_errno);
+	}
+    }
 
     int retval = connect(socketfd, reinterpret_cast<sockaddr *>(&remaddr),
 			 sizeof(remaddr));

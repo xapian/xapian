@@ -1,3 +1,7 @@
+Tue Nov 07 22:40:58 GMT 2006  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc: Turn on TCP_NODELAY for the client too.
+
 Tue Nov 07 21:46:39 GMT 2006  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Turn on TCP_NODELAY for xapian-tcpsrv which
