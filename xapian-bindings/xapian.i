@@ -47,6 +47,17 @@ namespace Xapian {
     }
 #endif
 
+#ifndef XAPIAN_HAS_FLINT_BACKEND
+    namespace Flint {
+	static Database open() {
+	    throw FeatureUnavailableError("Flint backend not supported");
+	}
+	static WritableDatabase open(const string &, int, int = 8192) {
+	    throw FeatureUnavailableError("Flint backend not supported");
+	}
+    }
+#endif
+
 #ifndef XAPIAN_HAS_INMEMORY_BACKEND
     namespace InMemory {
 	static WritableDatabase open() {
@@ -828,6 +839,17 @@ namespace Quartz {
 #endif
 }
 
+namespace Flint {
+    %rename(flint_open) open;
+    Database open(const std::string &dir);
+/* SWIG Tcl wrappers don't call destructors for classes returned by factory
+ * functions, so don't wrap them so users are forced to use the
+ * WritableDatabase ctor instead. */
+#ifndef SWIGTCL
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+#endif
+}
+
 namespace InMemory {
     %rename(inmemory_open) open;
     WritableDatabase open();
@@ -889,6 +911,17 @@ class Quartz {
   private:
     Quartz();
     ~Quartz();
+  public:
+    static
+    Database open(const std::string &dir);
+    static
+    WritableDatabase open(const std::string &dir, int action, int block_size = 8192);
+};
+
+class Flint {
+  private:
+    Flint();
+    ~Flint();
   public:
     static
     Database open(const std::string &dir);

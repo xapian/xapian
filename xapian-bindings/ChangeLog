@@ -1,3 +1,7 @@
+Tue Nov 07 03:48:42 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.i: Wrap Flint::open() and Flint::open_writable().
+
 Mon Nov 06 01:41:08 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Require SWIG 1.3.30 (1.3.30 isn't out yet, but
