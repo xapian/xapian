@@ -46,7 +46,25 @@ for module in xapian-core xapian-applications/omega xapian-bindings xapian-appli
     #
     # Use --force so that we update files if autoconf, automake, or libtool
     # has been upgraded.
-    ${AUTORECONF-autoreconf} --install --force "$d"
+    #
+    # If we have a custom INSTALL file, preserve it since autoreconf insists on
+    # replacing INSTALL with "generic installation instructions" when --force
+    # is used.  Be careful to replace it if autoreconf fails.
+    if test -f INSTALL ; then
+      if grep 'generic installation instructions' INSTALL ; then
+	:
+      else
+	mv INSTALL INSTALL.preserved-by-bootstrap
+      fi
+    fi
+    autoreconf_rc=
+    ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
+    if test -f INSTALL.preserved-by-bootstrap ; then
+      mv -f INSTALL.preserved-by-bootstrap INSTALL
+    fi
+    if test -n "$autoreconf_rc" ; then
+      exit $autoreconf_rc
+    fi
     modules="$modules $module"
   fi
 
