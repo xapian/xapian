@@ -1,3 +1,7 @@
+Tue Nov 07 21:08:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_btreebase.cc: Add missing '#include'-s.
+
 Tue Nov 07 17:57:22 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree_base.cc: Add missing '#include'-s.

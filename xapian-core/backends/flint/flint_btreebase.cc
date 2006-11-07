@@ -30,6 +30,10 @@
 #include <xapian/error.h>
 #include "omassert.h"
 
+#include <limits.h>
+
+#include <algorithm>
+
 using namespace std;
 
 /** A tiny class used to close a filehandle safely in the presence
