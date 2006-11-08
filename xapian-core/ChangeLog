@@ -1,3 +1,10 @@
+Wed Nov 08 20:54:31 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: Apply changes from Neal Becker to run "autoreconf
+	  --force" so that we don't set rpath for /usr/lib64, and add "libs"
+	  to %post and %postun.
+	* AUTHORS: Thank Neal Becker.
+
 Wed Nov 08 04:27:17 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/tests.html: Update for "testsuite" -> "tests/harness".  Mark
