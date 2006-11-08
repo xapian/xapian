@@ -1,9 +1,7 @@
-Wed Nov 08 22:46:18 GMT 2006  Olly Betts <olly@survex.com>
+Wed Nov 08 22:47:00 GMT 2006  Olly Betts <olly@survex.com>
 
-	* :
->
-
-
+	* xapian-bindings.spec.in: Run "autoreconf --force" to avoid rpath on
+	  x86_64 FC6.
 
 Tue Nov 07 03:48:42 GMT 2006  Olly Betts <olly@survex.com>
 
