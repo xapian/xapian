@@ -14,7 +14,7 @@ endif
 
 if BUILD_BACKEND_REMOTE
 remote_bin_programs = xapian-tcpsrv xapian-progsrv
-remote_mans = xapian-tcpsrv.1
+remote_mans = xapian-tcpsrv.1 xapian-progsrv.1
 endif
 
 EXTRA_PROGRAMS = quartzcheck quartzcompact quartzdump\
@@ -34,7 +34,7 @@ quartzdump_SOURCES = quartzdump.cc
 quartzdump_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
 
 xapian_progsrv_SOURCES = xapian-progsrv.cc
-xapian_progsrv_LDADD = @ldflags@ ../libxapian.la
+xapian_progsrv_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
 
 xapian_tcpsrv_SOURCES = xapian-tcpsrv.cc
 xapian_tcpsrv_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
@@ -58,6 +58,9 @@ quartzcompact.1: quartzcompact
 
 quartzdump.1: quartzdump
 	$(HELP2MAN) -o quartzdump.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/quartzdump.cc`" ./quartzdump
+
+xapian-progsrv.1: xapian-progsrv
+	$(HELP2MAN) -o xapian-progsrv.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-progsrv.cc`" ./xapian-progsrv
 
 xapian-tcpsrv.1: xapian-tcpsrv
 	$(HELP2MAN) -o xapian-tcpsrv.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-tcpsrv.cc`" ./xapian-tcpsrv

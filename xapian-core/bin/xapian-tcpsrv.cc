@@ -49,6 +49,19 @@ const int MSECS_ACTIVE_TIMEOUT_DEFAULT = 15000;
 #define OPT_HELP 1
 #define OPT_VERSION 2
 
+static const struct option opts[] = {
+    {"port",		required_argument,	0, 'p'},
+    {"active-timeout",	required_argument,	0, 'a'},
+    {"idle-timeout",	required_argument,	0, 'i'},
+    {"timeout",		required_argument,	0, 't'},
+    {"one-shot",	no_argument,		0, 'o'},
+    {"quiet",		no_argument,		0, 'q'},
+    {"writable",	no_argument,		0, 'w'},
+    {"help",		no_argument,		0, OPT_HELP},
+    {"version",		no_argument,		0, OPT_VERSION},
+    {NULL, 0, 0, 0}
+};
+
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE_DIRECTORY...\n\n"
 "Options:\n"
@@ -72,19 +85,6 @@ int main(int argc, char **argv) {
     bool verbose = true;
     bool writable = false;
     bool syntax_error = false;
-
-    struct option opts[] = {
-	{"port",		required_argument, 0, 'p'},
-	{"active-timeout",	required_argument, 0, 'a'},
-	{"idle-timeout",	required_argument, 0, 'i'},
-	{"timeout",		required_argument, 0, 't'},
-	{"one-shot",		no_argument, 0, 'o'},
-	{"quiet",		no_argument, 0, 'q'},
-	{"writable",		no_argument, 0, 'w'},
-	{"help",		no_argument, 0, OPT_HELP},
-	{"version",		no_argument, 0, OPT_VERSION},
-	{NULL,			0, 0, 0}
-    };
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, "p:a:i:t:oq", opts, NULL)) != EOF) {

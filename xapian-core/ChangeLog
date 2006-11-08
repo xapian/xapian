@@ -1,3 +1,9 @@
+Wed Nov 08 02:36:59 GMT 2006  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.am,bin/xapian-progsrv.cc,bin/xapian-tcpsrv.cc:
+	  xapian-progsrv now uses getopt for option processing, and we can
+	  now generate a man page using help2man.  Fixes Bug #98.
+
 Wed Nov 08 01:47:19 GMT 2006  Olly Betts <olly@survex.com>
 
 	* bin/xapian-tcpsrv.cc: If the port requested is in use, exit with

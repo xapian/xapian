@@ -1,4 +1,4 @@
-/* omprogsrv.cc: Match server to be used with ProgClient
+/* xapian-progsrv.cc: Remote server to be used with ProgClient
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
@@ -26,10 +26,34 @@
 #include <string>
 #include <algorithm>
 #include <xapian/error.h>
+#include "gnu_getopt.h"
 #include "remoteserver.h"
 #include "serialise.h"
 
 using namespace std;
+
+#define PROG_NAME "xapian-progsrv"
+#define PROG_DESC "Piped server for use with Xapian's remote backend"
+
+#define OPT_HELP 1
+#define OPT_VERSION 2
+
+static const struct option opts[] = {
+    {"timeout",		required_argument,	0, 't'},
+    {"writable",	no_argument,		0, 'w'},
+    {"help",		no_argument,		0, OPT_HELP},
+    {"version",		no_argument,		0, OPT_VERSION},
+    {NULL, 0, 0, 0}
+};
+
+static void show_usage() {
+    cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE_DIRECTORY...\n\n"
+"Options:\n"
+"  --timeout MSECS         set timeout\n"
+"  --writable              allow updates (only one database directory allowed)\n"
+"  --help                  display this help and exit\n"
+"  --version               output version information and exit" << endl;
+}
 
 int main(int argc, char **argv) {
     /* variables needed in both try/catch blocks */
@@ -37,43 +61,46 @@ int main(int argc, char **argv) {
     Xapian::Database dbs;
     unsigned int timeout = 60000;
     bool writable = false;
+    bool syntax_error = false;
+
+    int c;
+    while ((c = gnu_getopt_long(argc, argv, "t:", opts, NULL)) != EOF) {
+	switch (c) {
+	    case OPT_HELP:
+		cout << PROG_NAME" - "PROG_DESC"\n\n";
+		show_usage();
+		exit(0);
+	    case OPT_VERSION:
+		cout << PROG_NAME" - "PACKAGE_STRING << endl;
+		exit(0);
+	    case 't':
+		timeout = atoi(optarg);
+		break;
+	    case 'w':
+		writable = true;
+		break;
+	    default:
+		syntax_error = true;
+	}
+    }
+
+    if (syntax_error || argv[optind] == NULL) {
+	show_usage();
+	exit(1);
+    }
+
+    if (writable && (argc - optind) != 1) {
+	cerr << "Error: only one database directory allowed with '--writable'." << endl;
+	exit(1);
+    }
 
     /* Trap exceptions related to setting up the database */
     try {
-	vector<string> paths;
-
-	for (int i = 1; i < argc; ++i) {
-	    string arg = argv[i];
-	    if (arg.length() >= 2 && arg[0] == '-') {
-		if (arg == "--writable") {
-		    writable = true;
-		    continue;
-		}
-		if (arg[1] == 't') {
-		    timeout = atoi(arg.c_str() + 2);
-		    continue;
-		}
-		// FIXME: better to complain about unknown options that to
-		// treat them as paths?
-	    }
-	    paths.push_back(arg);
-	}
-
-	if (paths.empty()) {
-	    cerr << "Error: No database directories specified." << endl;
-	    exit(1);
-	}
-
 	if (writable) {
-	    if (paths.size() > 1) {
-		cerr << "Error: at most one database directory allowed with '--writable'." << endl;
-		exit(1);
-	    }
-	    wdb = Xapian::WritableDatabase(paths[0], Xapian::DB_CREATE_OR_OPEN);
+	    wdb = Xapian::WritableDatabase(argv[optind], Xapian::DB_CREATE_OR_OPEN);
 	} else {
-	    vector<string>::const_iterator i;
-	    for (i = paths.begin(); i != paths.end(); ++i) {
-		dbs.add_database(Xapian::Database(*i));
+	    while (argv[optind]) {
+		dbs.add_database(Xapian::Database(argv[optind++]));
 	    }
 	}
     } catch (const Xapian::Error &e) {
