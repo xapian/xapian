@@ -12,7 +12,7 @@ Vendor: www.xapian.org
 Group: Development/Libraries
 URL: http://www.xapian.org/
 Requires: xapian-core-libs = %{version}
-BuildRequires: python-devel >= 2.1
+BuildRequires: python-devel >= 2.2
 %if 0%{?!_without_php:1}
 BuildRequires: php-devel >= 4.3
 %endif
