@@ -14,6 +14,7 @@ URL: http://www.xapian.org/
 # FIXME: once we reach 1.0 "=" should become ">="
 Requires: xapian-core-libs = %{version}, webserver
 BuildRequires: xapian-core-devel = %{version}
+BuildRequires: autoconf automake libtool
 Source0: http://www.oligarchy.co.uk/xapian/%{version}/omega-%{version}.tar.gz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -25,6 +26,12 @@ library to index and search collections of documents.
 %setup -q -n omega-%{version}
 
 %build
+# FC6 (at least) has a patched libtool which knows not to set rpath for
+# /usr/lib64, which upstream libtool fails to do currently.  We can drop
+# this "autoreconf --force" and the "BuildRequires:" for the autotools
+# once upstream libtool is fixed.  Note: this overwrites INSTALL, but
+# that doesn't matter here as we don't package it.
+autoreconf --force
 %configure
 make
 
