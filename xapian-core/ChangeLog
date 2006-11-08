@@ -1,3 +1,7 @@
+Wed Nov 08 03:10:37 GMT 2006  Olly Betts <olly@survex.com>
+
+	* bin/xapian-tcpsrv.cc: Need '#include "safeerrno.h"' for EADDRINUSE.
+
 Wed Nov 08 02:36:59 GMT 2006  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.am,bin/xapian-progsrv.cc,bin/xapian-tcpsrv.cc:

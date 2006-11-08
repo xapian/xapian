@@ -22,6 +22,8 @@
 
 #include <config.h>
 
+#include "safeerrno.h"
+
 #include <iostream>
 #include <string>
 
