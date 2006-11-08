@@ -521,6 +521,57 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
     return Xapian::Remote::open_writable("../bin/xapian-progsrv", args);
 }
 
+#ifdef HAVE_FORK
+static int
+launch_xapian_tcpsrv(const string & args)
+{
+    int port = 1239;
+try_next_port:
+    string cmd = "../bin/xapian-tcpsrv --one-shot --port " + om_tostring(port) + " " + args + " 2>/dev/null";
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
+#endif
+    FILE * fh = popen(cmd.c_str(), "r");
+    if (fh == NULL) {
+	string msg("Failed to run command '");
+	msg += cmd;
+	msg += "'";
+	throw msg;
+    }
+    while (true) {
+	char buf[256];
+	if (fgets(buf, sizeof(buf), fh) == NULL) {
+	    int status = pclose(fh);
+	    if (++port < 65536 && status != 0) {
+		if (WIFEXITED(status) && WEXITSTATUS(status) == 69) {  
+		    // 69 is EX_UNAVAILABLE which xapian-tcpsrv exits
+		    // with if (and only if) the port specified was
+		    // in use.
+		    goto try_next_port;
+		}
+	    }
+	    string msg("Failed to get 'Listening...' from command '");
+	    msg += cmd;
+	    msg += "'";
+	    throw msg;
+	}
+	if (strcmp(buf, "Listening...\n") == 0) break;
+    }
+    pid_t child = fork();
+    if (child == 0) {
+	// Child process.
+	pclose(fh);
+	_exit(0);
+    }
+    if (child == -1) {
+	string msg("fork() failed: ");
+	msg += strerror(errno);
+	throw msg;
+    }
+    return port;
+}
+#endif
+
 Xapian::Database
 BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 {
@@ -550,37 +601,9 @@ BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 #else
     args += createdb_quartz(paths);
 #endif
-    string cmd = "../bin/xapian-tcpsrv --one-shot --port 1239 " + args + " 2>/dev/null";
-#ifdef HAVE_VALGRIND
-    if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
-#endif
-    FILE * fh = popen(cmd.c_str(), "r");
-    if (fh == NULL) {
-	string msg("Failed to run command '");
-	msg += cmd;
-	msg += "'";
-	throw msg;
-    }
-    while (true) {
-	char buf[256];
-	if (fgets(buf, sizeof(buf), fh) == NULL) {
-	    string msg("Failed to get 'Listening...' from command '");
-	    msg += cmd;
-	    msg += "'";
-	    throw msg;
-	}
-	if (strcmp(buf, "Listening...\n") == 0) break;
-    }
-    pid_t child = fork();
-    if (child == 0) {
-	// Child process.
-	pclose(fh);
-	_exit(0);
-    }
-    if (child == -1) {
-	// FIXME : handle fork() failing...
-    }
-    return Xapian::Remote::open("127.0.0.1", 1239);
+
+    int port = launch_xapian_tcpsrv(args);
+    return Xapian::Remote::open("127.0.0.1", port);
 #endif
 }
 
@@ -603,37 +626,9 @@ BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
     (void)getwritedb_quartz(dbnames);
     args += ".quartz/dbw";
 #endif
-    string cmd = "../bin/xapian-tcpsrv --writable --one-shot --port 1239 " + args + " 2>/dev/null &";
-#ifdef HAVE_VALGRIND
-    if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
-#endif
-    FILE * fh = popen(cmd.c_str(), "r");
-    if (fh == NULL) {
-	string msg("Failed to run command '");
-	msg += cmd;
-	msg += "'";
-	throw msg;
-    }
-    while (true) {
-	char buf[256];
-	if (fgets(buf, sizeof(buf), fh) == NULL) {
-	    string msg("Failed to get 'Listening...' from command '");
-	    msg += cmd;
-	    msg += "'";
-	    throw msg;
-	}
-	if (strcmp(buf, "Listening...\n") == 0) break;
-    }
-    pid_t child = fork();
-    if (child == 0) {
-	// Child process.
-	pclose(fh);
-	_exit(0);
-    }
-    if (child == -1) {
-	// FIXME : handle fork() failing...
-    }
-    return Xapian::Remote::open_writable("127.0.0.1", 1239);
+
+    int port = launch_xapian_tcpsrv(args);
+    return Xapian::Remote::open_writable("127.0.0.1", port);
 #endif
 }
 #endif

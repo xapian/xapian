@@ -351,6 +351,18 @@ REPORT_FAIL_VG("NO PROBLEM");
 		    out << endl;
 		}
 		return FAIL;
+	    } catch (const string & msg) {
+		string s = tout.str();
+		if (!s.empty()) {
+		    out << '\n' << tout.str();
+		    if (s[s.size() - 1] != '\n') out << endl;
+		    tout.str("");
+		}
+		out << " " << col_red << "EXCEPT" << col_reset;
+		if (verbose) {
+		    out << msg << endl;
+		}
+		return FAIL;
 	    } catch (...) {
 		string s = tout.str();
 		if (!s.empty()) {

@@ -185,6 +185,7 @@ int main(int argc, char **argv) {
 	cerr << e.get_type() << ": " << e.get_msg();
 	if (e.get_errno()) cerr << " (errno:" << strerror(e.get_errno()) << ")";
 	cerr << endl;
+	if (e.get_errno() == EADDRINUSE) exit(69); // EX_UNAVAILABLE
 	exit(1);
     } catch (const exception &e) {
 	cerr << "Caught standard exception: " << e.what() << endl;

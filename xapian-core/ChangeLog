@@ -1,3 +1,12 @@
+Wed Nov 08 01:47:19 GMT 2006  Olly Betts <olly@survex.com>
+
+	* bin/xapian-tcpsrv.cc: If the port requested is in use, exit with
+	  code 69 (EX_UNAVAILABLE) which is useful if you're trying to
+	  automate launching of xapian-tcpsrv instances.
+	* tests/harness/backendmanager.cc: If we can't start xapian-tcpsrv
+	  because the port is in use, try higher numbered ports.
+	* tests/harness/testsuite.cc: Catch and report std::string exceptions.
+
 Tue Nov 07 22:40:58 GMT 2006  Olly Betts <olly@survex.com>
 
 	* net/tcpclient.cc: Turn on TCP_NODELAY for the client too.
