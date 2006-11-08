@@ -1,3 +1,9 @@
+Wed Nov 08 04:27:17 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/tests.html: Update for "testsuite" -> "tests/harness".  Mark
+	  paths and programs with <code>...</code>.  Improve wording in a few
+	  places.
+
 Wed Nov 08 03:10:37 GMT 2006  Olly Betts <olly@survex.com>
 
 	* bin/xapian-tcpsrv.cc: Need '#include "safeerrno.h"' for EADDRINUSE.
