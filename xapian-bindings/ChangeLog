@@ -1,3 +1,10 @@
+Wed Nov 08 22:46:18 GMT 2006  Olly Betts <olly@survex.com>
+
+	* :
+>
+
+
+
 Tue Nov 07 03:48:42 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian.i: Wrap Flint::open() and Flint::open_writable().
