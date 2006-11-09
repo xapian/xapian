@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Build packages in a chroot.
 #
 # Copyright (C) 2006 Olly Betts
