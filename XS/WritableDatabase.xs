@@ -47,13 +47,16 @@ WritableDatabase::flush()
             croak( "Exception: %s", error.get_msg().c_str() );
         }
 
-#if 0
-
 void
-WritableDatabase::begin_transaction()
-   CODE:
+WritableDatabase::begin_transaction(flushed = NO_INIT)
+    bool flushed
+    CODE:
 	try {
-            THIS->begin_transaction();
+	    if (items == 2) { /* items includes the hidden this pointer */
+		THIS->begin_transaction(flushed);
+	    } else {
+		THIS->begin_transaction();
+	    }
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -61,7 +64,7 @@ WritableDatabase::begin_transaction()
 
 void
 WritableDatabase::commit_transaction()
-   CODE:
+    CODE:
 	try {
             THIS->commit_transaction();
         }
@@ -71,15 +74,13 @@ WritableDatabase::commit_transaction()
 
 void
 WritableDatabase::cancel_transaction()
-   CODE:
+    CODE:
 	try {
             THIS->cancel_transaction();
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
         }
-
-#endif
 
 docid
 WritableDatabase::add_document(document)

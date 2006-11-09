@@ -7,7 +7,7 @@
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 70 };
+BEGIN { plan tests => 71 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -108,5 +108,8 @@ $match = $matches->back();
 ok( $match eq $matches->back() );
 
 ok( $match->get_collapse_count() == 0 );
+
+my $bm25;
+ok( $bm25 = Search::Xapian::BM25Weight->new() );
 
 1;
