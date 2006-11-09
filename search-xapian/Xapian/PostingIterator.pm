@@ -5,6 +5,8 @@ use strict;
 use warnings;
 use Carp;
 
+use UNIVERSAL qw( isa );
+
 require Exporter;
 require DynaLoader;
 

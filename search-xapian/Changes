@@ -1,8 +1,10 @@
 Revision history for Perl extension Search::Xapian.
 
-0.9.x.x  Mon Oct 02 12:44:09 2006
+0.9.9.0  Mon Nov 09 02:31:09 2006
 	[Changes contributed by Olly Betts]
 	- Fix the BM25Weight constructors.
+	- Fix problem with isa not being known in Xapian::PostingIterator.
+	- Wrap the newly implemented transaction API to WritableDatabase.
 
 0.9.6.0  Sun Jun 04 01:14:00 2006
 	[Changes contributed by Olly Betts]
