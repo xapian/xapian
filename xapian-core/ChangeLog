@@ -1,3 +1,9 @@
+Thu Nov 09 01:11:52 GMT 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Reorder the release checklist a little.  I've fixed
+	  update_website.sh to get the latest version from version.php, so
+	  now only version.php needs updating.
+
 Thu Nov 09 00:17:35 GMT 2006  Olly Betts <olly@survex.com>
 
 	* NEWS,PLATFORMS,configure.ac: Update for 0.9.9.

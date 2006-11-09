@@ -707,9 +707,6 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac
 
-* Add the new version to the list of versions in Bugzilla:
-  http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=add
-
 * Move any bugs fixed by this release from "RESOLVED FIXED" -> "CLOSED"
   http://www.xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED
   Make sure the submitters are mentioned in the "thanks" list in AUTHORS.
@@ -722,9 +719,11 @@ This is a (hopefully complete) list of the jobs which need doing:
   This script also generates tarballs for the new release and copies them
   across to the website.
 
-* Update the website - version.php and the version near the top of the website
-  building script .scripts/update_website.sh.  Both of these are in CVS module
-  www.xapian.org
+* Add the new version to the list of versions in Bugzilla:
+  http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=add
+
+* Update the website: version.php in the CVS module www.xapian.org contains the
+  latest version and the date it was released.
 
 * Run /u1/olly/xapian-website-update/update_website.sh
 
