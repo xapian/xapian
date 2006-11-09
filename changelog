@@ -1,8 +1,9 @@
 xapian-core (0.9.9-1) unstable; urgency=low
 
   * New upstream release.
+  * debian/xapian-tools.install: Install xapian-progsrv.1 man page.
 
- -- Olly Betts <olly@survex.com>  Thu,  9 Nov 2006 01:14:02 +0000
+ -- Olly Betts <olly@survex.com>  Thu,  9 Nov 2006 07:39:02 +0000
 
 xapian-core (0.9.8-1) unstable; urgency=low
 
