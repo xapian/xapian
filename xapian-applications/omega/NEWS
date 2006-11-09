@@ -1,3 +1,25 @@
+Omega 0.9.9 (2006-11-09):
+
+documentation:
+
+* Ship our custom INSTALL file rather than the generic one from autoconf which
+  we've accidentally been shipping instead since 0.9.5.
+
+indexers:
+
+* scriptindex: The "date" action no longer modifies the value it operates on
+  (it was never meant to!)
+
+omega:
+
+* Report an error if $setmap is called with an even number of parameters.
+  An incorrect example in the documentation used to suggest this, so it's
+  particularly useful to catch this case.
+
+packaging:
+
+* RPMs: Prevent binaries getting an rpath for /usr/lib64 on FC6.
+
 Omega 0.9.8 (2006-11-02):
 
 omega:

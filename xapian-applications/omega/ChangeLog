@@ -1,3 +1,7 @@
+Thu Nov 09 00:20:19 GMT 2006  Olly Betts <olly@survex.com>
+
+	* NEWS,configure.ac: Update for 0.9.9.
+
 Wed Nov 08 22:45:10 GMT 2006  Olly Betts <olly@survex.com>
 
 	* omega.spec.in: Run "autoreconf --force" to avoid rpath on x86_64
