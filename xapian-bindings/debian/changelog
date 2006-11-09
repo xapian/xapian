@@ -3,8 +3,10 @@ xapian-bindings (0.9.9-1) unstable; urgency=low
   * New upstream release.
   * debian/rules: Build tcl and ruby bindings in the same build tree to save
     a bit of diskspace and time during the build.
+  * debian/rules: Fix the incorrect "Conflicts:" and "Replaces:" we generate
+    for the old "per-version" Python packages (broken in 0.9.8-1).
 
- -- Olly Betts <olly@survex.com>  Thu,  9 Nov 2006 01:16:28 +0000
+ -- Olly Betts <olly@survex.com>  Thu,  9 Nov 2006 03:10:28 +0000
 
 xapian-bindings (0.9.8-1) unstable; urgency=low
 
