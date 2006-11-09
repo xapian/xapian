@@ -1,3 +1,60 @@
+Xapian-core 0.9.9 (2006-11-09):
+
+testsuite:
+
+* Use popen() to run xapian-tcpsrv and wait for "Listening..." before returning
+  rather than just sleeping for 1 second and hoping that's enough.
+
+* If we can't start xapian-tcpsrv because the port is in use, try higher
+  numbered ports.
+
+remote backend:
+
+* xapian-tcpsrv: If the port requested is in use, exit with code 69
+  (EX_UNAVAILABLE) which is useful if you're trying to automate launching of
+  xapian-tcpsrv instances.
+
+* xapian-tcpsrv: Output "Listening..." once the socket is open and read for
+  connections (this allows the testsuite to wait until xapian-tcpsrv is ready
+  before connecting to it).
+
+* xapian-progsrv: Now supports --help, --version, and has a man page.  Fixes
+  Bug #98.
+
+* Turn on TCP_NODELAY for the TCP variant of the remote backend which
+  dramatically improves the latency of operations on the database.
+
+build system:
+
+* internaltest: Disable serialiselength1 and serialisedoc1 when the remote
+  backend is disabled to fix build error in this case.
+
+* Move libbtreecheck.la from testsuite/ to backends/quartz/.
+
+* Move the testsuite harness from testsuite/ to tests/harness/.
+
+documentation:
+
+* Ship our custom INSTALL file rather than the generic one from autoconf which
+  we've accidentally been shipping instead since 0.9.5.
+
+* docs/Makefile.am: Building sourcedoc.pdf needs a larger pool_size now we're
+  using pdflatex.
+
+* HACKING: Update debian packaging checklist.
+
+* PLATFORMS: Updated with results from tinderbox.
+
+portability:
+
+* Create "safefcntl.h" as a replacement for <fcntl.h> instead of using
+  "utils.h" for this purpose, since "utils.h" pulls in many other things we
+  often don't need.
+
+packaging:
+
+* RPMs: Prevent binaries getting an rpath for /usr/lib64 on FC6.
+
 Xapian-core 0.9.8 (2006-11-02):
 
 API:
@@ -53,7 +110,7 @@ documentation:
 
 * PLATFORMS: Update from tinderbox.
 
-portability: 
+portability:
 
 * configure: When checking if we need -lm, don't use a constant argument to
   log() as the compiler might simply evaluate the whole expression at compile
@@ -93,9 +150,9 @@ API:
   + Fix parsing of loved and hated prefixed phrases and bracketted expressions.
 
   + Fix handling of stopwords in boolean expressions.
-  
+
   + Don't ignore a stopword if it's the only query term.
-	  
+
 * Document::add_value() failed to replace an existing value with the same
   number, contrary to what the documentation says (bug #82).
 
@@ -248,7 +305,7 @@ documentation:
 
 * Add missing dir_contents files.
 
-portability: 
+portability:
 
 * xapian/version.h: Add a check that _GLIBCXX_DEBUG is set compatibly if we're
   compiling with GNU C++ 3.4 or newer.
@@ -306,7 +363,7 @@ documentation:
 
 * HACKING: Update section on building debian packages.
 
-portability: 
+portability:
 
 * The tarball is generated with a patched version of libtool 1.5.22 which
   fixes libtool bugs on HP-UX and some BSD platforms.
@@ -405,7 +462,7 @@ documentation:
 
 * HACKING: aclocal is part of automake, not autoconf.
 
-portability: 
+portability:
 
 * Added some tweaks to help support compilation with MSVC.
 
@@ -485,7 +542,7 @@ testsuite:
 
 * Tidied and enhanced environmental variables which the test suite harness
   recongnises:
- 
+
   + OM_TEST_BACKEND: Removed support since the "-b" switch to apitest allows
     you control which backend is used, making OM_TEST_BACKEND pretty much
     redundant.
@@ -551,7 +608,7 @@ documentation:
 
 * queryparser.html: Document wildcards.
 
-portability: 
+portability:
 
 * Fix compilation with GCC 4.0.1 and later (need to forward declare class
   InMemoryDatabase) (bug #69).
@@ -655,13 +712,13 @@ flint backend:
 * The code to encode the position list size, first entry, and last entry
   didn't match the code to decode them!  Reworked both to match, using a
   slightly more compact encoding.
- 
+
 * We were failing to append "DB" to the path when opening a table for reading.
 
 * Rewrite of FlintAllTermsList with several fewer member variables.  The
   rewrite fixes a bug too - the old version wasn't ignoring the metainfo
   entry which is now in the postlist table.
- 
+
 * It seems we need to explicitly kill the child process used for locking.
   Otherwise when we have two databases locked just closing the connection
   doesn't cause the child to die.  I don't understand why it's needed, but this
@@ -723,7 +780,7 @@ documentation:
 
 * HACKING: Minor updates to release checklist.
 
-portability: 
+portability:
 
 * Assorted tweaks towards allowing compilation with MSVC.
 
@@ -762,7 +819,7 @@ flint backend:
 
 * Changed metafile magic to be different from quartz, and make the metafile
   version a datestamp which we'll change each time the format changes.
-  
+
 * Check the return value of close() when writing the metafile.
 
 * Flint position list table now stores entries using interpolative coding
@@ -833,7 +890,7 @@ API:
 
   + Remove Query::set_length() in favour of an optional length
     parameter to Enquire::set_query().
-  
+
   + Eliminated Query::set_elite_set_size() in favour of optional parameter
     to constructor.
 
@@ -845,7 +902,7 @@ API:
 
 * MSet::max_size() (which only exists so that MSet is an STL container) now
   returns MSet::size() and is inlined from the header.
-  
+
 * Added ESet::max_size() (for STL compatibility).
 
 * Fixed Xapian::RSet to have the same "it's a handle" copy semantics as most of
@@ -1018,13 +1075,13 @@ documentation:
 
 * HACKING: Added better description of how reference-counted API
   classes are structured.
- 
+
 * HACKING: Note that '#include <limits>' isn't supported by GCC 2.95,
   and other assorted minor tweaks.
-  
+
 * HACKING: Note how to disable use of VALGRIND on the make check
   command line, or when using runtest directly.
-  
+
 * Updated all documentation mentions of CVS to talk about Subversion
   instead.
 
@@ -1049,7 +1106,7 @@ examples:
 
 * quest: Added stopword handling.
 
-portability: 
+portability:
 
 * configure: autoconf identifies Intel's C++ compiler as GCC, so probe for
   which we actually have.
