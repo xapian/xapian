@@ -91,7 +91,7 @@ endif
 # Python versions which had packages before the Python policy transition.
 PYTHON_OLD_VERSIONS := 2.1 2.2 2.3 2.4
 # For use in Conflicts: and Replaces:
-PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_OLD_VERSIONS:%=%-xapian (<< 0.9.6-3$),)"|sed 's/,$$//')
+PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_OLD_VERSIONS:%=python%-xapian (<< 0.9.6-3$),)"|sed 's/,$$//')
 
 # Build depends for PHP.  We only need phpN-cli so we can run "make check" on
 # the bindings.
