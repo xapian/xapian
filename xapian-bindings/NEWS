@@ -1,3 +1,32 @@
+Xapian-core 0.9.9 (2006-11-09):
+
+Documentation:
+
+* Ship our custom INSTALL file rather than the generic one from autoconf which
+  we've accidentally been shipping instead since 0.9.5.
+
+General:
+
+* Wrap Flint::open() and Flint::open_writable().
+
+* configure: Require SWIG 1.3.30 (1.3.30 isn't out yet, but 1.3.30rc1 is
+  suitable).
+
+Python:
+
+* Generate the bindings using SWIG 1.3.30rc1 which fixes a build error on 64
+  bit platforms with Python 2.5.
+
+Packaging:
+
+* RPMs: Prevent binaries getting an rpath for /usr/lib64 on FC6.
+
+* RPMs: The Python bindings now require Python >= 2.2.
+
+Portability:
+
+* configure: Remove unnecessary backticks from tclsh version test.
+
 Xapian-core 0.9.8 (2006-11-02):
 
 General:
