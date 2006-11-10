@@ -1,6 +1,15 @@
 --- python/modern/xapian_wrap.cc.orig	2006-11-09 00:51:17.000000000 +0000
-+++ python/modern/xapian_wrap.cc	2006-11-09 18:14:27.000000000 +0000
++++ python/modern/xapian_wrap.cc	2006-11-10 03:56:40.000000000 +0000
 @@ -20028,7 +20028,7 @@
+       PyObject *obj = PySequence_GetItem(swig_obj[1], i);
+       if (PyString_Check(obj)) {
+         char * p;
+-        int len;
++        Py_ssize_t len;
+         /* We know this must be a string, so this call can't fail. */
+         (void)PyString_AsStringAndSize(obj, &p, &len);
+         v2.push_back(Xapian::Query(string(p, len)));
+@@ -20101,7 +20101,7 @@
        PyObject *obj = PySequence_GetItem(swig_obj[1], i);
        if (PyString_Check(obj)) {
          char * p;
