@@ -1,5 +1,5 @@
---- xapian-bindings-0.9.9/python/modern/xapian_wrap.cc.orig	2006-11-09 00:51:17.000000000 +0000
-+++ xapian-bindings-0.9.9/python/modern/xapian_wrap.cc	2006-11-09 18:14:27.000000000 +0000
+--- python/modern/xapian_wrap.cc.orig	2006-11-09 00:51:17.000000000 +0000
++++ python/modern/xapian_wrap.cc	2006-11-09 18:14:27.000000000 +0000
 @@ -20028,7 +20028,7 @@
        PyObject *obj = PySequence_GetItem(swig_obj[1], i);
        if (PyString_Check(obj)) {

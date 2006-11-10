@@ -9,7 +9,7 @@ xapian-bindings (0.9.9-1) unstable; urgency=low
     (needed for the Ubuntu etch and any other Debian derived distros with
     Python 2.5).
 
- -- Olly Betts <olly@survex.com>  Fri, 10 Nov 2006 03:07:28 +0000
+ -- Olly Betts <olly@survex.com>  Fri, 10 Nov 2006 03:11:28 +0000
 
 xapian-bindings (0.9.8-1) unstable; urgency=low
 
