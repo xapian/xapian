@@ -1,3 +1,8 @@
+Sun Nov 12 17:07:00 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Need to increase pool_size further still to build
+	  sourcedoc.pdf (2000000 now).
+
 Sun Nov 12 16:24:15 GMT 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Add "update ReleaseNotes on wiki" to release checklist.

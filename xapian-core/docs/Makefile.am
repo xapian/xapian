@@ -94,7 +94,7 @@ sourcedoc.pdf sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 		$(srcdir)/doxygen_full_footer.html_tmpl
 	rm -rf sourcedoc
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_full_conf
-	cd sourcedoc/latex && (pool_size=1500000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
+	cd sourcedoc/latex && (pool_size=2000000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
 	mv sourcedoc/latex/refman.pdf sourcedoc.pdf
 
 # This dependency is required so that parallel make doesn't try to run latex
