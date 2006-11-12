@@ -1,3 +1,7 @@
+Sun Nov 12 00:42:22 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/install.html: Update reference to "CVS" to say "SVN".
+
 Thu Nov 09 01:11:52 GMT 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Reorder the release checklist a little.  I've fixed
