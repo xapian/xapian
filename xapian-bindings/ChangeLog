@@ -1,3 +1,8 @@
+Sun Nov 12 21:35:42 GMT 2006  Olly Betts <olly@survex.com>
+
+	* python/util.i: Need to use Py_ssize_t for length with
+	  PyString_AsStringAndSize() so the build with Python 2.5.
+
 Thu Nov 09 00:23:27 GMT 2006  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 0.9.9.

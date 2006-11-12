@@ -106,7 +106,7 @@ namespace Xapian {
 	PyObject *obj = PySequence_GetItem($input, i);
 	if (PyString_Check(obj)) {
 	    char * p;
-	    int len;
+	    Py_ssize_t len;
 	    /* We know this must be a string, so this call can't fail. */
 	    (void)PyString_AsStringAndSize(obj, &p, &len);
 	    v.push_back(Xapian::Query(string(p, len)));
