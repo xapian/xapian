@@ -1,3 +1,7 @@
+Sun Nov 12 16:24:15 GMT 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Add "update ReleaseNotes on wiki" to release checklist.
+
 Sun Nov 12 16:23:19 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Remove "." from end of "Summary:".  Package

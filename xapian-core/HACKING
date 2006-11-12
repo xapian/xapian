@@ -727,6 +727,11 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Run /u1/olly/xapian-website-update/update_website.sh
 
+* Update the wiki: http://wiki.xapian.org/ReleaseNotes needs copying to 
+  http://wiki.xapian.org/ReleaseNotes/0.9.9 (or whatever) and replacing
+  with a new template ReleaseNotes page.  Then add a link from
+  http://wiki.xapian.org/ReleaseNotes/old to the newly archived page.
+
 * Update the freshmeat entry at:
   http://freshmeat.net/add-release/40427/43070/
 
