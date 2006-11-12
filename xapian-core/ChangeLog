@@ -1,3 +1,7 @@
+Sun Nov 12 00:43:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/stemming.html: Update another "CVS" reference to say "SVN".
+
 Sun Nov 12 00:42:22 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/install.html: Update reference to "CVS" to say "SVN".
