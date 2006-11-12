@@ -1,3 +1,60 @@
+up to:
+Sun Nov 12 19:32:01 GMT 2006  Olly Betts <olly@survex.com>
+
+Xapian-core 0.9.? (2006-??-??):
+
+API:
+
+* Fix WritableDatabase::replace_document() not to lose positional information
+  for a document if it is replaced with itself with unmodified postings.
+
+testsuite:
+
+
+flint backend:
+
+
+quartz backend:
+
+
+remote backend:
+
+* Fix WritableDatabase::has_positions() to refetch the cached value if it
+  might be out of date.
+
+inmemory backend:
+
+
+muscat36 backend:
+
+
+build system:
+
+
+documentation:
+
+* docs/Makefile.am: The larger pool_size we set in 0.9.9 for building
+  sourcedoc.pdf was a bit marginal, so increase it further.
+
+* docs/stemming.html,docs/install.html: Correct 2 references to "CVS" to say
+  "SVN" instead.
+
+* HACKING: Update the release checklist.
+
+examples:
+
+
+portability:
+
+
+packaging:
+
+* RPMs: Remove "." from end of "Summary:".  Package the new man page for
+  xapian-progsrv.
+
+debug code:
+
+
 Xapian-core 0.9.9 (2006-11-09):
 
 testsuite:

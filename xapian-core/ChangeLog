@@ -1,3 +1,8 @@
+Sun Nov 12 22:38:56 GMT 2006  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog file in preparation for branching and
+	  merging.
+
 Sun Nov 12 19:32:01 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc,
