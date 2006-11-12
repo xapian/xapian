@@ -1,7 +1,7 @@
 # RedHat-style .spec file for Xapian
 # @configure_input@
 
-Summary: The Xapian Probabilistic Information Retrieval Library.
+Summary: The Xapian Probabilistic Information Retrieval Library
 Name: @PACKAGE@
 Version: @VERSION@
 Release: 1
@@ -90,6 +90,7 @@ cp AUTHORS ChangeLog COPYING NEWS PLATFORMS README %{buildroot}%{_datadir}/doc/%
 %doc %{_datadir}/doc/%{name}-%{version}
 # man pages may be gzipped, hence the trailing wildcard.
 %{_mandir}/man1/xapian-tcpsrv.1*
+%{_mandir}/man1/xapian-progsrv.1*
 %{_mandir}/man1/quartzcheck.1*
 %{_mandir}/man1/quartzcompact.1*
 %{_mandir}/man1/quartzdump.1*

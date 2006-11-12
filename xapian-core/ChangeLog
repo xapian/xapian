@@ -1,3 +1,8 @@
+Sun Nov 12 16:23:19 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian.spec.in: Remove "." from end of "Summary:".  Package
+	  new man page for xapian-progsrv.
+
 Sun Nov 12 00:43:36 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/stemming.html: Update another "CVS" reference to say "SVN".
