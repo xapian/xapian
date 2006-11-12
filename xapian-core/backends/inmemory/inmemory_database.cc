@@ -480,7 +480,6 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 	    ++posting;
 	}
     }
-    termlists[did - 1] = InMemoryDoc();
 
     doclengths[did - 1] = 0;
     doclists[did - 1] = document.get_data();
@@ -515,6 +514,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 	add_values(did, values);
     }
 
+    InMemoryDoc doc;
     Xapian::TermIterator i = document.termlist_begin();
     Xapian::TermIterator i_end = document.termlist_end();
     for ( ; i != i_end; ++i) {
@@ -527,11 +527,11 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 
 	if (j == j_end) {
 	    /* Make sure the posting exists, even without a position. */
-	    make_posting(*i, did, 0, i.get_wdf(), false);
+	    make_posting(&doc, *i, did, 0, i.get_wdf(), false);
 	} else {
 	    positions_present = true;
 	    for ( ; j != j_end; ++j) {
-		make_posting(*i, did, *j, i.get_wdf());
+		make_posting(&doc, *i, did, *j, i.get_wdf());
 	    }
 	}
 
@@ -541,6 +541,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 	postlists[*i].collection_freq += i.get_wdf();
 	++postlists[*i].term_freq;
     }
+    swap(termlists[did - 1], doc);
 
     totdocs++;
 }
@@ -563,12 +564,14 @@ InMemoryDatabase::make_doc(const string & docdata)
     return termlists.size();
 }
 
-void InMemoryDatabase::make_posting(const string & tname,
+void InMemoryDatabase::make_posting(InMemoryDoc * doc,
+				    const string & tname,
 				    Xapian::docid did,
 				    Xapian::termpos position,
 				    Xapian::termcount wdf,
 				    bool use_position)
 {
+    Assert(doc);
     Assert(postlists.find(tname) != postlists.end());
     Assert(did > 0 && did <= termlists.size());
     Assert(did > 0 && did <= doclengths.size());
@@ -595,7 +598,7 @@ void InMemoryDatabase::make_posting(const string & tname,
     termentry.wdf = wdf;
 
     // Now record the termentry
-    termlists[did - 1].add_posting(termentry);
+    doc->add_posting(termentry);
 }
 
 bool

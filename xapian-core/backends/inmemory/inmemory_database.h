@@ -220,7 +220,8 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	void finish_add_doc(Xapian::docid did, const Xapian::Document &document);
 	void add_values(Xapian::docid did, const map<Xapian::valueno, string> &values_);
 
-	void make_posting(const string & tname,
+	void make_posting(InMemoryDoc * doc,
+			  const string & tname,
 			  Xapian::docid did,
 			  Xapian::termpos position,
 			  Xapian::termcount wdf,

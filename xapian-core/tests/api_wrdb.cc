@@ -854,6 +854,35 @@ static bool test_replacedoc4()
     return true;
 }
 
+// Test replacing a document with itself without modifying postings.
+// Regression test for bug in 0.9.9 and earlier - there flint and quartz
+// lose all positional information for the document when you do this.
+static bool test_replacedoc5()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    Xapian::Document doc1;
+    doc1.add_posting("hello", 1);
+    doc1.add_posting("world", 2);
+
+    Xapian::docid did = db.add_document(doc1);
+    TEST_EQUAL(did, 1);
+    db.flush();
+
+    Xapian::Document doc2 = db.get_document(1);
+    TEST(db.has_positions());
+    TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+    TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+    db.replace_document(1, doc2);
+    db.flush();
+
+    TEST(db.has_positions());
+    TEST(db.positionlist_begin(1, "hello") != db.positionlist_end(1, "hello"));
+    TEST(db.positionlist_begin(1, "world") != db.positionlist_end(1, "world"));
+
+    return true;
+}
+
 // Test of new feature: WritableDatabase::replace_document and delete_document
 // can take a unique termname instead of a document id as of Xapian 0.8.2.
 static bool test_uniqueterm1()
@@ -1034,6 +1063,7 @@ test_desc writabledb_tests[] = {
     {"replacedoc2",	   test_replacedoc2},
     {"replacedoc3",	   test_replacedoc3},
     {"replacedoc4",	   test_replacedoc4},
+    {"replacedoc5",	   test_replacedoc5},
     {"uniqueterm1",	   test_uniqueterm1},
     {"phraseorneartoand1", test_phraseorneartoand1},
     {"longpositionlist1",  test_longpositionlist1},

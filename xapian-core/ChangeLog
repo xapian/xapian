@@ -1,3 +1,17 @@
+Sun Nov 12 19:32:01 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/quartz/quartz_database.cc: Fix replace_document() not to
+	  lose positional information for a document if it is replaced with
+	  itself with unmodified postings.
+	* tests/api_wrdb.cc: Add testcase replace_document5 as regression test
+	  for the replace_document bug.
+	* backends/remote/remote-database.cc: Fix
+	  RemoteDatabase::has_positions() to refetch the cached value if it
+	  might be out of date.
+
 Sun Nov 12 17:07:00 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Need to increase pool_size further still to build

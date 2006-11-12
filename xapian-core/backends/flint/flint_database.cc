@@ -856,14 +856,13 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		    j->second.insert(make_pair(did, make_pair('A', wdf)));
 		}
 
-		// FIXME : this might not work if we replace a positionlist
-		// with itself (e.g. if a document is replaced with itself
-		// with just the values changed)
-		database_ro.positionlist_table.delete_positionlist(did, tname);
-		if (term.positionlist_begin() != term.positionlist_end()) {
+		PositionIterator it = term.positionlist_begin();
+		PositionIterator it_end = term.positionlist_end();
+		if (it != it_end) {
 		    database_ro.positionlist_table.set_positionlist(
-			did, tname,
-			term.positionlist_begin(), term.positionlist_end());
+			did, tname, it, it_end);
+		} else {
+		    database_ro.positionlist_table.delete_positionlist(did, tname);
 		}
 	    }
 	}

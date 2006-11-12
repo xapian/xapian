@@ -199,6 +199,7 @@ RemoteDatabase::open_position_list(Xapian::docid did, const string &term) const
 bool
 RemoteDatabase::has_positions() const
 {
+    if (!cached_stats_valid) update_stats();
     return has_positional_info;
 }
 
