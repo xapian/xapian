@@ -1,3 +1,8 @@
+Sun Nov 12 22:40:06 GMT 2006  Olly Betts <olly@survex.com>
+
+	* NEWS: Update from ChangeLog file in preparation for branching and
+	  merging.
+
 Sun Nov 12 21:35:42 GMT 2006  Olly Betts <olly@survex.com>
 
 	* python/util.i: Need to use Py_ssize_t for length with
