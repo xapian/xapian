@@ -16,7 +16,7 @@ Mon Nov 13 04:02:27 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 	  accept an empty term, and return appropriate values (ie,
 	  get_termfreq("") and get_collection_freq("") return the number of
 	  documents in the database, and term_exists("") returns true
-	  unless the database is empty).
+	  unless the database is empty).  Fixes Bug #47.
 	* docs/quartzdesign.html: Document the inefficiency of all-document
 	  postlists for Quartz.
 	* tests/api_anydb.cc,tests/api_db.cc,tests/api_wrdb.cc: Add tests for
