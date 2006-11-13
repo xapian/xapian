@@ -1,3 +1,7 @@
+Mon Nov 13 05:46:15 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.html: Document the new pure NOT feature.
+
 Mon Nov 13 05:24:30 GMT 2006  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc,queryparser/queryparser.lemony,
