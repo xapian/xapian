@@ -1,3 +1,13 @@
+Mon Nov 13 04:47:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,backends/Makefile.am,backends/database.cc,
+	  backends/muscat36/,configure.ac,docs/overview.html,
+	  docs/quartzdesign.html,docs/tests.html,include/xapian/dbfactory.h,
+	  include/xapian/version_h.cc,tests/api_anydb.cc,tests/apitest.cc,
+	  tests/harness/backendmanager.cc,tests/harness/backendmanager.h,
+	  tests/harness/index_utils.cc: Remove support for the old Muscat 3.6
+	  backends.
+
 Mon Nov 13 04:02:27 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/database.h,api/omdatabase.cc,

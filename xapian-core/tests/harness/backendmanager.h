@@ -121,33 +121,6 @@ class BackendManager {
 	Xapian::WritableDatabase getwritedb_quartz(const std::vector<std::string> &dbnames);
 #endif
 
-#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
-	/// Get a da database instance.
-	Xapian::Database getdb_da(const std::vector<std::string> &dbnames);
-
-	/// Get a writable da database instance.
-	Xapian::WritableDatabase getwritedb_da(const std::vector<std::string> &dbnames);
-
-	/// Get a daflimsy database instance.
-	Xapian::Database getdb_daflimsy(const std::vector<std::string> &dbnames);
-
-	/// Get a writable daflimsy database instance.
-	Xapian::WritableDatabase getwritedb_daflimsy(const std::vector<std::string> &dbnames);
-
-	/// Get a db database instance.
-	Xapian::Database getdb_db(const std::vector<std::string> &dbnames);
-
-	/// Get a writable db database instance.
-	Xapian::WritableDatabase getwritedb_db(const std::vector<std::string> &dbnames);
-
-	/// Get a dbflimsy database instance.
-	Xapian::Database getdb_dbflimsy(const std::vector<std::string> &dbnames);
-
-	/// Get a writable dbflimsy database instance.
-	Xapian::WritableDatabase getwritedb_dbflimsy(const std::vector<std::string> &dbnames);
-#endif
-
-
     public:
 	/// Constructor - set up default state.
 	BackendManager();

@@ -66,8 +66,7 @@ lots of subgroups of tests). It's easiest to base a test on an
 existing one.
 
 <P>You'll notice in <code>apitest.cc</code> that it runs all appropriate test groups against
-each backend that is being built. We don't build any of the Muscat 3.6
-compatibility backends by default any more, so the backends are inmemory,
+each backend that is being built. The backends are inmemory,
 quartz, flint, remote and remotetcp. If you need to create a new test group
 with different
 requirements to any current ones, put it in the appropriate api_ file (or

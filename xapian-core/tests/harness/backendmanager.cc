@@ -73,50 +73,6 @@ index_files_to_database(Xapian::WritableDatabase & database,
     }
 }
 
-#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
-static void
-index_files_to_m36(const string &prog, const string &dbdir,
-		   const vector<string> & paths)
-{
-    string dump = dbdir + "/DATA";
-    ofstream out(dump.c_str());
-    string valuefile = dbdir + "/keyfile";
-    ofstream values(valuefile.c_str());
-    values << "omrocks!"; // magic word
-    vector<string>::const_iterator p;
-    for (p = paths.begin(); p != paths.end(); ++p) {
-	const string & filename = *p;
-	ifstream from(filename.c_str());
-	if (!from)
-	    throw Xapian::DatabaseOpeningError("Cannot open file " + filename +
-		    " for indexing");
-
-	while (from) {
-	    Xapian::Document doc = document_from_stream(from);
-	    out << "#RSTART#\n" << doc.get_data() << "\n#REND#\n#TSTART#\n";
-	    {
-		Xapian::TermIterator i = doc.termlist_begin();
-		Xapian::TermIterator i_end = doc.termlist_end();
-		for ( ; i != i_end; ++i) {
-		    out << *i << endl;
-		}
-	    }
-	    out << "#TEND#\n";
-	    Xapian::ValueIterator value_i = doc.values_begin();
-	    string value = string("\0\0\0\0\0\0\0", 8);
-	    if (value_i != doc.values_end()) value = (*value_i) + value;
-	    value = value.substr(0, 8);
-	    values << value;
-	}
-    }
-    out.close();
-    string cmd = "../../makeda/" + prog + " -source " + dump +
-	" -da " + dbdir + "/ -work " + dbdir + "/tmp- > /dev/null";
-    system(cmd);
-    unlink(dump);
-}
-#endif
-
 #if defined HAVE_FORK && defined HAVE_WAITPID
 extern "C" void
 on_SIGCHLD(int /*sig*/)
@@ -203,29 +159,6 @@ BackendManager::set_dbtype(const string &type)
 	do_getdb = &BackendManager::getdb_remotetcp;
 	do_getwritedb = &BackendManager::getwritedb_remotetcp;
 #else
-	do_getdb = &BackendManager::getdb_void;
-	do_getwritedb = &BackendManager::getwritedb_void;
-#endif
-#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
-    } else if (type == "da") {
-	do_getdb = &BackendManager::getdb_da;
-	do_getwritedb = &BackendManager::getwritedb_da;
-	rmdir(".da");
-    } else if (type == "db") {
-	do_getdb = &BackendManager::getdb_db;
-	do_getwritedb = &BackendManager::getwritedb_db;
-	rmdir(".db");
-    } else if (type == "daflimsy") {
-	do_getdb = &BackendManager::getdb_daflimsy;
-	do_getwritedb = &BackendManager::getwritedb_daflimsy;
-	rmdir(".daflimsy");
-    } else if (type == "dbflimsy") {
-	do_getdb = &BackendManager::getdb_dbflimsy;
-	do_getwritedb = &BackendManager::getwritedb_dbflimsy;
-	rmdir(".dbflimsy");
-#else
-    } else if (type == "da" || type == "db" || type == "daflimsy" ||
-	       type == "dbflimsy") {
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
 #endif
@@ -630,115 +563,6 @@ BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open_writable("127.0.0.1", port);
 #endif
-}
-#endif
-
-#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
-Xapian::Database
-BackendManager::getdb_da(const vector<string> &dbnames)
-{
-    string parent_dir = ".da";
-    create_dir_if_needed(parent_dir);
-
-    string dbdir = parent_dir + "/db";
-    for (vector<string>::const_iterator i = dbnames.begin();
-	 i != dbnames.end();
-	 i++) {
-	dbdir += "=" + *i;
-    }
-    if (create_dir_if_needed(dbdir)) {
-	// directory was created, so do the indexing.
-	// need to build temporary file and run it through makeda (yum)
-	index_files_to_m36("makeDA", dbdir, change_names_to_paths(dbnames));
-    }
-    return Xapian::Muscat36::open_da(dbdir + "/R", dbdir + "/T",
-				     dbdir + "/keyfile");
-}
-
-Xapian::Database
-BackendManager::getdb_daflimsy(const vector<string> &dbnames)
-{
-    string parent_dir = ".daflimsy";
-    create_dir_if_needed(parent_dir);
-
-    string dbdir = parent_dir + "/db";
-    for (vector<string>::const_iterator i = dbnames.begin();
-	 i != dbnames.end();
-	 i++) {
-	dbdir += "=" + *i;
-    }
-    if (create_dir_if_needed(dbdir)) {
-	// directory was created, so do the indexing.
-	// need to build temporary file and run it through makeda (yum)
-	index_files_to_m36("makeDAflimsy", dbdir, change_names_to_paths(dbnames));
-    }
-    return Xapian::Muscat36::open_da(dbdir + "/R", dbdir + "/T",
-				     dbdir + "/keyfile", false);
-}
-
-Xapian::WritableDatabase
-BackendManager::getwritedb_da(const vector<string> &/*dbnames*/)
-{
-    throw Xapian::InvalidArgumentError("Attempted to open writable da database");
-}
-
-Xapian::WritableDatabase
-BackendManager::getwritedb_daflimsy(const vector<string> &/*dbnames*/)
-{
-    throw Xapian::InvalidArgumentError("Attempted to open writable daflimsy database");
-}
-
-Xapian::Database
-BackendManager::getdb_db(const vector<string> &dbnames)
-{
-    string parent_dir = ".db";
-    create_dir_if_needed(parent_dir);
-
-    string dbdir = parent_dir + "/db";
-    for (vector<string>::const_iterator i = dbnames.begin();
-	 i != dbnames.end();
-	 i++) {
-	dbdir += "=" + *i;
-    }
-    if (create_dir_if_needed(dbdir)) {
-	// directory was created, so do the indexing.
-	// need to build temporary file and run it through makedb (yum)
-	index_files_to_m36("makeDB", dbdir, change_names_to_paths(dbnames));
-    }
-    return Xapian::Muscat36::open_db(dbdir + "/DB", dbdir + "/keyfile");
-}
-
-Xapian::Database
-BackendManager::getdb_dbflimsy(const vector<string> &dbnames)
-{
-    string parent_dir = ".dbflimsy";
-    create_dir_if_needed(parent_dir);
-
-    string dbdir = parent_dir + "/db";
-    for (vector<string>::const_iterator i = dbnames.begin();
-	 i != dbnames.end();
-	 i++) {
-	dbdir += "=" + *i;
-    }
-    // should autodetect flimsy - don't specify to test this
-    if (create_dir_if_needed(dbdir)) {
-	// directory was created, so do the indexing.
-	// need to build temporary file and run it through makedb (yum)
-	index_files_to_m36("makeDBflimsy", dbdir, change_names_to_paths(dbnames));
-    }
-    return Xapian::Muscat36::open_db(dbdir + "/DB", dbdir + "/keyfile");
-}
-
-Xapian::WritableDatabase
-BackendManager::getwritedb_db(const vector<string> &/*dbnames*/)
-{
-    throw Xapian::InvalidArgumentError("Attempted to open writable db database");
-}
-
-Xapian::WritableDatabase
-BackendManager::getwritedb_dbflimsy(const vector<string> &/*dbnames*/)
-{
-    throw Xapian::InvalidArgumentError("Attempted to open writable dbflimsy database");
 }
 #endif
 

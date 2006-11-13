@@ -173,11 +173,6 @@ const char * dummy = {
 #else
 "/* #undef XAPIAN_HAS_INMEMORY_BACKEND */",
 #endif
-#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
-"#define XAPIAN_HAS_MUSCAT36_BACKEND 1",
-#else
-"/* #undef XAPIAN_HAS_MUSCAT36_BACKEND */",
-#endif
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 "#define XAPIAN_HAS_REMOTE_BACKEND 1",
 #else

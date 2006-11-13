@@ -535,15 +535,6 @@ dnl ***************************
 
 dnl Find out what we've been asked to build
 
-dnl muscat36 defaults to off
-AC_ARG_ENABLE(backend_muscat36,
-[  --enable-backend-muscat36 Enable (old) Muscat 3.6 databases (default=no)],
-[case ${enableval} in
-  yes) build_muscat36=true ;;
-  no)  build_muscat36=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-muscat36) ;;
-esac],[build_muscat36=false])
-
 AC_ARG_ENABLE(backend_quartz,
 [  --enable-backend-quartz Enable the quartz database backend (default=yes)],
 [case ${enableval} in
@@ -649,7 +640,6 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 dnl Set conditionals to specify what we compile
 
-AM_CONDITIONAL(BUILD_BACKEND_MUSCAT36, test true = "$build_muscat36")
 AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test true = "$build_quartz")
 AM_CONDITIONAL(BUILD_BACKEND_FLINT, test true = "$build_flint")
 AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test true = "$build_inmemory")
@@ -901,7 +891,6 @@ AC_CONFIG_FILES([
  include/Makefile
  common/Makefile
  backends/Makefile
- backends/muscat36/Makefile
  backends/quartz/Makefile
  backends/flint/Makefile
  backends/multi/Makefile
@@ -933,7 +922,7 @@ test -d include/xapian || mkdir include/xapian
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in MUSCAT36 QUARTZ FLINT INMEMORY REMOTE ; do
+for backend in QUARTZ FLINT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"

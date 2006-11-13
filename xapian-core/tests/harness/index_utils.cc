@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <config.h>
@@ -52,9 +52,6 @@ document_from_stream(istream &from)
 
     // Value 0 contains all possible character values so we can check that
     // none of them cause problems.
-    // 
-    // Also, note that the old Muscat3.6 backends only support value 0 and
-    // truncate it to 8 bytes.  So we make the first 8 bytes something useful.
     string value0("X\0\0\0 \1\t"
 	"\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
 	"\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"

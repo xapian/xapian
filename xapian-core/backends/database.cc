@@ -33,10 +33,6 @@
 using namespace std;
 
 // Include headers for all the enabled database backends
-#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
-#include "muscat36/da_database.h"
-#include "muscat36/db_database.h"
-#endif
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 #include "inmemory/inmemory_database.h"
 #endif
@@ -87,37 +83,6 @@ WritableDatabase
 InMemory::open() {
     DEBUGAPICALL_STATIC(Database, "InMemory::open", "");
     return WritableDatabase(new InMemoryDatabase());
-}
-#endif
-
-#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
-Database
-Muscat36::open_da(const string &R, const string &T, bool heavy_duty) {
-    DEBUGAPICALL_STATIC(Database, "Muscat36::open_da", R << ", " << T << ", " <<
-			heavy_duty);
-    return Database(new DADatabase(R, T, "", heavy_duty));
-}
-
-Database
-Muscat36::open_da(const string &R, const string &T, const string &values,
-		  bool heavy_duty) {
-    DEBUGAPICALL_STATIC(Database, "Muscat36::open_da", R << ", " << T << ", " <<
-			values << ", " << heavy_duty);
-    return Database(new DADatabase(R, T, values, heavy_duty));
-}
-
-Database
-Muscat36::open_db(const string &DB, size_t cache_size) {
-    DEBUGAPICALL_STATIC(Database, "Muscat36::open_db", DB << ", " <<
-			cache_size);
-    return Database(new DBDatabase(DB, "", cache_size));
-}
-
-Database
-Muscat36::open_db(const string &DB, const string &values, size_t cache_size) {
-    DEBUGAPICALL_STATIC(Database, "Muscat36::open_db", DB << ", " << values <<
-			", " << cache_size);
-    return Database(new DBDatabase(DB, values, cache_size));
 }
 #endif
 
@@ -176,9 +141,6 @@ open_stub(Database *db, const string &file)
 		}
 #endif
 	    }
-#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
-	    // FIXME: da and db too, but I'm too slack to do those right now!
-#endif
 	}
 	if (!ok) break;
 	++line_no;
@@ -221,27 +183,6 @@ Database::Database(const string &path)
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     if (file_exists(path + "/iamflint")) {
 	internal.push_back(new FlintDatabase(path));
-	return;
-    }
-#endif
-#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
-    if (file_exists(path + "/R") && file_exists(path + "/T")) {
-	// can't easily tell flimsy from heavyduty so assume hd
-	string keyfile = path + "/keyfile";
-	if (!file_exists(path + "/keyfile")) keyfile = "";
-	internal.push_back(new DADatabase(path + "/R", path + "/T",
-					  keyfile, true));
-	return;
-    }
-    string dbfile = path + "/DB";
-    if (!file_exists(dbfile)) {
-	dbfile += ".da";
-	if (!file_exists(dbfile)) dbfile = "";
-    }
-    if (!dbfile.empty()) {
-	string keyfile = path + "/keyfile";
-	if (!file_exists(path + "/keyfile")) keyfile = "";
-	internal.push_back(new DBDatabase(dbfile, keyfile));
 	return;
     }
 #endif

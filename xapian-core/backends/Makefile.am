@@ -19,11 +19,6 @@ endif
 #      of SUBDIRS and libbackend_la_LIBADD at the bottom of this file
 # iv)  Write the backend library
 
-if BUILD_BACKEND_MUSCAT36
-BUILDSUBDIR_MUSCAT36 = muscat36
-LIBADD_MUSCAT36 = muscat36/libmuscat36.la
-endif
-
 if BUILD_BACKEND_QUARTZ
 BUILDSUBDIR_QUARTZ = quartz
 LIBADD_QUARTZ = quartz/libquartz.la
@@ -44,16 +39,14 @@ BUILDSUBDIR_REMOTE = remote
 LIBADD_REMOTE = remote/libremote.la
 endif
 
-SUBDIRS = $(BUILDSUBDIR_MUSCAT36) \
-          $(BUILDSUBDIR_QUARTZ) \
+SUBDIRS = $(BUILDSUBDIR_QUARTZ) \
           $(BUILDSUBDIR_FLINT) \
           $(BUILDSUBDIR_INMEMORY) \
 	  $(BUILDSUBDIR_REMOTE) multi .
 
-DIST_SUBDIRS = muscat36 quartz flint inmemory remote multi .
+DIST_SUBDIRS = quartz flint inmemory remote multi .
 
 libbackend_la_LIBADD = \
-          $(LIBADD_MUSCAT36) \
 	  $(LIBADD_QUARTZ) \
 	  $(LIBADD_FLINT) \
           $(LIBADD_INMEMORY) \

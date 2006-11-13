@@ -160,31 +160,5 @@ int main(int argc, char **argv)
     RUNTESTS("remotetcp", transactiondb);
 #endif
 
-#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
-    // need makeDA, etc tools to build da and db databases
-    if (file_exists("../../makeda/makeDA")) {
-	RUNTESTS("da", anydb);
-	RUNTESTS("da", localdb);
-	RUNTESTS("da", allterms);
-	RUNTESTS("da", mus36);
-    }
-    if (file_exists("../../makeda/makeDAflimsy")) {
-	RUNTESTS("daflimsy", anydb);
-	RUNTESTS("daflimsy", localdb);
-	RUNTESTS("daflimsy", allterms);
-	RUNTESTS("daflimsy", mus36);
-    }
-    if (file_exists("../../makeda/makeDB")) {
-	RUNTESTS("db", anydb);
-	RUNTESTS("db", localdb);
-	RUNTESTS("db", mus36);
-    }
-    if (file_exists("../../makeda/makeDBflimsy")) {
-	RUNTESTS("dbflimsy", anydb);
-	RUNTESTS("dbflimsy", localdb);
-	RUNTESTS("dbflimsy", mus36);
-    }
-#endif
-
     return result;
 }
