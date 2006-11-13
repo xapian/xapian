@@ -500,7 +500,7 @@ index_file(const char *fname, istream &stream,
 			break;
 		    }
 		    case Action::LOWER:
-			lowercase_term(value);
+			value = U_downcase_term(value);
 			break;
 		    case Action::LOAD: {
 			bool truncated = false;

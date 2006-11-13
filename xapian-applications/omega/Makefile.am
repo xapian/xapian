@@ -53,8 +53,8 @@ pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
-check_PROGRAMS = htmlparsetest
-TESTS = htmlparsetest$(EXEEXT)
+check_PROGRAMS = htmlparsetest utf8test
+TESTS = htmlparsetest$(EXEEXT) utf8test$(EXEEXT)
 
 # Install documentation.
 docdatadir   = $(datadir)/doc/omega
@@ -71,25 +71,31 @@ dist_omegadata_DATA = htdig2omega.script mbox2omega.script
 
 dist_sysconf_DATA = omega.conf
 
-noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
+noinst_HEADERS = omega.h query.h cgiparam.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
  gnu_getopt.h commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
- md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h
+ md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
+ namedentities.h utf8itor.h tclUniData.h
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
- cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc
+ cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc indextext.cc\
+ utf8convert.cc utf8itor.cc
 omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
  getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc md5wrap.cc\
- xmlparse.cc metaxmlparse.cc
+ xmlparse.cc metaxmlparse.cc utf8convert.cc utf8itor.cc tclUniData.cc
 omindex_LDADD = $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
- getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc
+ getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc utf8convert.cc\
+ utf8itor.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
-htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc
+htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
+ utf8convert.cc utf8itor.cc 
+
+utf8test_SOURCES = utf8test.cc utf8itor.cc
 
 dist_man_MANS = omindex.1 scriptindex.1
 

@@ -2,8 +2,7 @@
 
 INCLUDES = -I$(top_srcdir)/include -I${top_builddir}/include -I$(top_srcdir)/common -I$(top_srcdir)/api
 
-noinst_HEADERS = accentnormalisingitor.h symboltab.h queryparser_internal.h \
-	queryparser_token.h
+noinst_HEADERS = queryparser_internal.h queryparser_token.h utf8itor.h tclUniData.h
 
 noinst_LTLIBRARIES = libqueryparser.la
 
@@ -24,4 +23,4 @@ BUILT_SOURCES = $(lemon_built_sources)
 MAINTAINERCLEANFILES = lemon $(lemon_built_sources)
 endif
 
-libqueryparser_la_SOURCES = queryparser.cc queryparser_internal.cc
+libqueryparser_la_SOURCES = queryparser.cc queryparser_internal.cc utf8itor.cc tclUniData.cc

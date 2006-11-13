@@ -1,3 +1,14 @@
+Mon Nov 13 02:06:03 GMT 2006  Olly Betts <olly@survex.com>
+
+	* Merge in utf8 branch:
+
+	Thu Sep 14 23:49:48 BST 2006  Olly Betts <olly@survex.com>
+
+		* queryparser/,tests/queryparsertest.cc: Update to work with
+		  UTF-8.  Stop normalising accents - the general sentiment
+		  seems to be firmly against it, and where it is still
+		  appropriate we should get the stemmers to do it.
+
 Sun Nov 12 22:38:56 GMT 2006  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog file in preparation for branching and

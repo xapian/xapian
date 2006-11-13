@@ -65,6 +65,7 @@
 #include "cgiparam.h"
 #include "indextext.h"
 #include "loadfile.h"
+#include "utf8itor.h"
 #include "values.h"
 
 #include <xapian/queryparser.h>
@@ -560,59 +561,55 @@ html_highlight(const string &s, const string &list,
 
     string res;
 
-    AccentNormalisingItor j(s.begin());
-    const AccentNormalisingItor s_end(s.end());
+    char buf[4];
+    Utf8Iterator j(s);
+    const Utf8Iterator s_end;
     while (true) {
-	AccentNormalisingItor first = j;
-	while (first != s_end && !isalnum(static_cast<unsigned char>(*first)))
-	    ++first;
+	Utf8Iterator first = j;
+	while (first != s_end && !is_wordchar(*first)) ++first;
 	if (first == s_end) break;
-	AccentNormalisingItor term_end;
+	Utf8Iterator term_end;
 	string term;
 	string word;
-	string::const_iterator l = j.raw();
-	if (isupper(*first)) {
+	const char *l = j.raw();
+	if (*first < 128 && isupper(*first)) {
 	    j = first;
-	    term = *j;
-	    while (++j != s_end && *j == '.' && ++j != s_end &&
-		   isupper(static_cast<unsigned char>(*j))) {
-		term += *j;
+	    term.append(buf, to_utf8(*j, buf));
+	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && isupper(*j)) {
+		term.append(buf, to_utf8(*j, buf));
 	    }
-	    if (term.length() < 2 ||
-		(j != s_end && isalnum(static_cast<unsigned char>(*j)))) {
+	    if (term.length() < 2 || (j != s_end && is_wordchar(*j))) {
 		term = "";
 	    }
 	    term_end = j;
 	}
 	if (term.empty()) {
 	    j = first;
-	    while (isalnum(static_cast<unsigned char>(*j))) {
-		term += *j;
+	    while (is_wordchar(*j)) {
+		term.append(buf, to_utf8(*j, buf));
 		++j;
 		if (j == s_end) break;
 		if (*j == '&') {
-		    AccentNormalisingItor next = j;
+		    Utf8Iterator next = j;
 		    ++next;
-		    if (next == s_end ||
-			!isalnum(static_cast<unsigned char>(*next)))
-			break;
+		    if (next == s_end || !is_wordchar(*next)) break;
 		    term += '&';
 		    j = next;
 		}
 	    }
 	    term_end = j;
-	    if (j != s_end && (*j == '#' || p_plusminus(*j))) {
+	    if (j != s_end && (*j == '+' || *j == '-' || *j == '#')) {
 		string::size_type len = term.length();
 		if (*j == '#') {
 		    term += '#';
 		    do { ++j; } while (j != s_end && *j == '#');
 		} else {
-		    while (j != s_end && p_plusminus(*j)) {
-			term += *j;
+		    while (j != s_end && (*j == '+' || *j == '-')) {
+			term.append(buf, to_utf8(*j, buf));
 			++j;
 		    }
 		}
-		if (j != s_end && isalnum(static_cast<unsigned char>(*j))) {
+		if (term.size() - len > 3 || (j != s_end && is_wordchar(*j))) {
 		    term.resize(len);
 		} else {
 		    term_end = j;
@@ -621,18 +618,15 @@ html_highlight(const string &s, const string &list,
 	}
 	j = term_end;
 	unsigned char first_char = term[0];
-	lowercase_term(term);
+	term = U_downcase_term(term);
 	int match = -1;
-	// As of 0.8.0, raw terms won't start with a digit.  But we may
-	// be searching an older database where it does, so keep the
-	// isdigit check for now...
-	if (isupper(first_char) || isdigit(first_char)) {
+	if (first_char < 128 && isupper(first_char)) {
 	    match = word_in_list('R' + term, list);
 	}
 	if (match == -1)
 	    match = word_in_list(stemmer->stem_word(term), list);
 	if (match >= 0) {
-	    res += html_escape(s.substr(l - s.begin(), first.raw() - l));
+	    res += html_escape(string(l, first.raw() - l));
 	    if (!bra.empty()) {
 		res += bra;
 	    } else {
@@ -644,7 +638,7 @@ html_highlight(const string &s, const string &list,
 		res += colours[match % (sizeof(colours) / sizeof(colours[0]))];
 		res += "\">";
 	    }
-	    word = s.substr(first.raw() - s.begin(), j.raw() - first.raw());
+	    word = string(first.raw(), j.raw() - first.raw());
 	    res += html_escape(word);
 	    if (!bra.empty()) {
 		res += ket;
@@ -652,10 +646,10 @@ html_highlight(const string &s, const string &list,
 		res += "</b>";
 	    }
 	} else {
-	    res += html_escape(s.substr(l - s.begin(), j.raw() - l));
+	    res += html_escape(string(l, j.raw() - l));
 	}
     }
-    if (j != s_end) res += html_escape(s.substr(j.raw() - s.begin()));
+    if (j != s_end) res += html_escape(string(j.raw(), j.left()));
     return res;
 }
 

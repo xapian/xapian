@@ -22,6 +22,24 @@
 #include "myhtmlparse.h"
 
 #include <ctype.h>
+
+inline void
+lowercase_string(string &str)
+{
+    for (string::iterator i = str.begin(); i != str.end(); ++i) {
+	*i = tolower(static_cast<unsigned char>(*i));
+    }
+}
+
+void
+MyHtmlParser::parse_html(const string &text)
+{
+    // Default HTML character set is latin 1, though not specifying one is
+    // deprecated these days.
+    charset = "ISO-8859-1";
+    HtmlParser::parse_html(text);
+}
+
 #include <string.h>
 
 static inline void
@@ -113,7 +131,7 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 		if ((i = p.find("content")) != p.end()) {
 		    if ((j = p.find("name")) != p.end()) {
 			string name = j->second;
-			lowercase_word(name);
+			lowercase_string(name);
 			if (name == "description") {
 			    if (sample.empty()) {
 				sample = i->second;
@@ -127,12 +145,44 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 			} else if (name == "robots") {
 			    string val = i->second;
 			    decode_entities(val);
-			    lowercase_word(val);
+			    lowercase_string(val);
 			    if (val.find("none") != string::npos ||
 				val.find("noindex") != string::npos) {
 				indexing_allowed = false;
 				throw true;
 			    }
+			}
+		    }
+		    if ((j = p.find("http-equiv")) != p.end()) {
+			string hdr = j->second;
+			lowercase_string(hdr);
+			if (hdr == "content-type") {
+			    string value = i->second;
+			    lowercase_string(value);
+			    size_t start = value.find("charset=");
+			    if (start == string::npos) break;
+			    start += 8;
+			    if (start == value.size()) break;
+			    size_t end = start;
+			    if (value[start] != '"') {
+				while (end < value.size()) {
+				    unsigned char ch = value[end];
+				    if (ch <= 32 || ch >= 127 ||
+					strchr(";()<>@,:\\\"/[]?={}", ch))
+					break;
+				    ++end;
+				}
+			    } else {
+				++start;
+				++end;
+				while (end < value.size()) {
+				    unsigned char ch = value[end];
+				    if (ch == '"') break;
+				    if (ch == '\\') value.erase(end, 1);
+				    ++end;
+				}
+			    }
+			    charset = value.substr(start, end - start);
 			}
 		    }
 		}

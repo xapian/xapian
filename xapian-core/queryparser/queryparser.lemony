@@ -21,8 +21,8 @@
 
 #include <config.h>
 
-#include "accentnormalisingitor.h"
 #include "queryparser_internal.h"
+#include "utf8itor.h"
 #include "utils.h"
 
 // Include the list of token values lemon generates.
@@ -35,6 +35,46 @@
 using namespace std;
 
 using namespace Xapian;
+
+inline bool
+U_isupper(unsigned ch) {
+    return (ch < 128 && C_isupper(ch));
+}
+
+inline bool
+U_isalpha(unsigned ch) {
+    return (ch < 128 && C_isalpha(ch));
+}
+
+inline bool
+U_isspace(unsigned ch) {
+    return (ch < 128 && C_isspace(ch));
+}
+
+inline bool
+U_isnotspace(unsigned ch) {
+    return !U_isspace(ch);
+}
+
+inline bool
+U_isalnum(unsigned ch) {
+    return (ch < 128 && C_isalnum(ch));
+}
+
+inline bool
+U_isnotalnum(unsigned ch) {
+    return !U_isalnum(ch);
+}
+
+inline bool
+U_issign(unsigned ch) {
+    return (ch < 128 && C_issign(ch));
+}
+
+inline bool
+is_not_wordchar(unsigned ch) {
+    return !is_wordchar(ch);
+}
 
 // Disable debug code lemon adds.
 #define NDEBUG
@@ -109,30 +149,19 @@ Term::as_wildcarded_query(State * state) const
     return new Query(q);
 }
 
-static inline string
-downcase_term(const string &term)
-{
-    string t;
-    t.reserve(term.size());
-    AccentNormalisingItor i(term.begin());
-    const AccentNormalisingItor end(term.end());
-    while (i != end) t += C_tolower(*i++);
-    return t;
-}
-
-static inline bool
-is_phrase_generator(unsigned char ch)
+inline bool
+is_phrase_generator(unsigned ch)
 {
     // These characters generate a phrase search.
     // Ordered mostly by frequency of calls to this function done when
     // running queryparsertest.
-    return (ch && strchr(".-/':\\_@", ch) != NULL);
+    return (ch && ch < 128 && strchr(".-/':\\_@", ch) != NULL);
 }
 
-static inline bool
-prefix_needs_colon(const string & prefix, unsigned char ch)
+inline bool
+prefix_needs_colon(const string & prefix, unsigned ch)
 {
-    if (!C_isupper(ch)) return false;
+    if (!U_isupper(ch)) return false;
     string::size_type len = prefix.length();
     return (len > 1 && prefix[len - 1] != ':');
 }
@@ -145,6 +174,7 @@ static void Parse(void *, int, Term *, State *);
 Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 {
+    char ubuf[6];
 #ifndef NDEBUG
     // Set the prefix added to Lemon's debug output, if it's enabled.
     // FIXME: arrange to send this to the Xapian debug log, and turn
@@ -155,7 +185,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
     void * pParser = ParseAlloc();
 
     termpos term_pos = 1;
-    AccentNormalisingItor it(qs.begin()), end(qs.end());
+    Utf8Iterator it(qs), end;
 
     State state(this);
 
@@ -167,24 +197,24 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM
     } mode = DEFAULT;
 
-    unsigned char newprev = ' ';
+    unsigned newprev = ' ';
     while (it != end) {
 	if (mode == IN_PHRASED_TERM) mode = DEFAULT;
-	if (C_isspace(*it)) {
+	if (U_isspace(*it)) {
 	    newprev = ' ';
 	    ++it;
-	    it = find_if(it, end, C_isnotspace);
+	    it = find_if(it, end, U_isnotspace);
 	    if (it == end) break;
 	}
 
-	if (!C_isalnum(*it)) {
-	    unsigned char prev = newprev;
-	    unsigned char ch = *it++;
+	if (!is_wordchar(*it)) {
+	    unsigned prev = newprev;
+	    unsigned ch = *it++;
 	    if (it != end) newprev = *it;
 	    switch (ch) {
 	      case '"':
 		// Skip whitespace.
-		it = find_if(it, end, C_isnotspace);
+		it = find_if(it, end, U_isnotspace);
 		if (mode == DEFAULT) {
 		    if (it == end) {
 			// Ignore an unmatched " at the end of the query to
@@ -220,7 +250,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 		    // Or if not after whitespace or an open bracket.
 		    continue;
 		}
-		if (C_isspace(*it) || *it == '+' || *it == '-') {
+		if (U_isspace(*it) || *it == '+' || *it == '-') {
 		    // Ignore + or - followed by a space, or further + or -.
 		    // Postfix + (such as in C++ and H+) is handled as part of
 		    // the term lexing code below.
@@ -233,7 +263,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 
 	      case '(':
 		// Skip whitespace.
-		it = find_if(it, end, C_isnotspace);
+		it = find_if(it, end, U_isnotspace);
 		// Ignore ( at end of query.
 		if (it == end) goto done;
 		if (prev > ' ' && prev != '(' && prev != ')') {
@@ -275,22 +305,23 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 	string prefix;
 	if (mode == DEFAULT && !prefixes.empty()) {
 	    // Check for fieldname prefixes (e.g. title:historical).
-	    AccentNormalisingItor p = find_if(it, end, C_isnotalnum);
+	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
 	    if (p != end && *p == ':' && ++p != end && *p > ' ' && *p != ')') {
 		string field;
 		p = it;
-		while (*p != ':') field += *p++;
+		while (*p != ':')
+		    field.append(ubuf, to_utf8(*p++, ubuf));
 		map<string, BoolAndString>::const_iterator f;
 		f = prefixes.find(field);
 		if (f != prefixes.end()) {
-		    unsigned char ch = *++p;
+		    unsigned ch = *++p;
 		    bool boolean_filter = f->second.flag;
-		    if (boolean_filter || C_isalnum(ch) ||
+		    if (boolean_filter || is_wordchar(ch) ||
 			((flags & FLAG_PHRASE) && ch == '"') ||
 			((flags & FLAG_BOOLEAN) && ch == '(')) {
 			it = p;
 			// Can't boolean prefix a subexpression or phrase.
-			if (!boolean_filter && !C_isalnum(ch)) {
+			if (!boolean_filter && !is_wordchar(ch)) {
 			    newprev = ch;
 			    ++it;
 			    prefix_stack.push_back(f->second.str);
@@ -321,21 +352,20 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 
 phrased_term:
 	string term;
-	size_t transliterations = it.transliterations();
 	// Look for initials separated by '.' (e.g. P.T.O., U.N.C.L.E).
 	// Don't worry if there's a trailing '.' or not.
-	if (C_isupper(*it)) {
+	if (U_isupper(*it)) {
 	    string t;
-	    AccentNormalisingItor p = it;
+	    Utf8Iterator p = it;
 	    do {
-		t += *p++;
-	    } while (p != end && *p == '.' && ++p != end && C_isupper(*p));
+		t.append(ubuf, to_utf8(*p++, ubuf));
+	    } while (p != end && *p == '.' && ++p != end && U_isupper(*p));
 	    // One letter does not make an acronym!  If we handled a single
 	    // uppercase letter here, we wouldn't catch M&S below.
 	    if (t.length() > 1) {
 		// Check there's not a (lower case) letter or digit
 		// immediately after it.
-		if (p == end || !C_isalnum(*p)) {
+		if (p == end || !is_wordchar(*p)) {
 		    it = p;
 		    swap(term, t);
 		}
@@ -345,19 +375,19 @@ phrased_term:
 
 	if (term.empty()) {
 	    while (it != end) {
-		if (!C_isalnum(*it)) {
+		if (!is_wordchar(*it)) {
 		    // Treat a single embedded '&' as a word character
 		    // (e.g. AT&T).
 		    if (*it != '&') break;
-		    AccentNormalisingItor p = it;
+		    Utf8Iterator p = it;
 		    ++p;
-		    if (p == end || !C_isalnum(*p)) break;
+		    if (p == end || !is_wordchar(*p)) break;
 		}
-		term += *it++;
+		term.append(ubuf, to_utf8(*it++, ubuf));
 	    }
-	    if (it != end && (*it == '#' || C_issign(*it))) {
+	    if (it != end && (*it == '#' || U_issign(*it))) {
 		string suff_term = term;
-		AccentNormalisingItor p = it;
+		Utf8Iterator p = it;
 		if (*p == '#') {
 		    // Keep trailing # (e.g. C#).
 		    suff_term += '#';
@@ -371,20 +401,20 @@ phrased_term:
 		    // much sense - we should probably be more conservative as
 		    // to what combinations are allowed.
 		    do {
-			suff_term += *p++;
-		    } while (p != end && C_issign(*p));
+ 			suff_term.append(ubuf, to_utf8(*p++, ubuf));
+ 		    } while (p != end && U_issign(*p));
 		}
-		if (p == end || !C_isalnum(*p)) {
+ 		if (p == end || !is_wordchar(*p)) {
 		    // If the suffixed term doesn't exist, check that the
 		    // non-suffixed term does.  This also takes care of
 		    // the case when QueryParser::set_database() hasn't
 		    // been called.
 		    bool use_suff_term = false;
-		    string lc = downcase_term(suff_term);
+		    string lc = U_downcase_term(suff_term);
 		    if (db.term_exists(lc)) {
 			use_suff_term = true;
 		    } else {
-			lc = downcase_term(term);
+			lc = U_downcase_term(term);
 			if (!db.term_exists(lc)) use_suff_term = true;
 		    }
 		    if (use_suff_term) {
@@ -397,10 +427,10 @@ phrased_term:
 
 	// Boolean operators.
 	if (mode == DEFAULT && (flags & FLAG_BOOLEAN) &&
-	    // Don't want to interpret A.N.D. or ÁND as an AND operator.
-	    !was_acronym && transliterations == it.transliterations() &&
+	    // Don't want to interpret A.N.D. as an AND operator.
+	    !was_acronym &&
 	    prefix.empty() &&
-	    term.size() >= 2 && term.size() <= 4 && C_isalpha(term[0])) {
+	    term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
 
 	    string op = term;
 	    if (flags & FLAG_BOOLEAN_ANY_CASE) {
@@ -421,7 +451,7 @@ phrased_term:
 		} else if (op == "ADJ") {
 		    if (it != end && *it == '/') {
 			size_t width = 0;
-			AccentNormalisingItor p = it;
+			Utf8Iterator p = it;
 			while (++p != end && C_isdigit(*p)) {
 			    width = (width * 10) + (*p - '0');
 			}
@@ -444,7 +474,7 @@ phrased_term:
 		if (op == "NEAR") {
 		    if (it != end && *it == '/') {
 			size_t width = 0;
-			AccentNormalisingItor p = it;
+			Utf8Iterator p = it;
 			while (++p != end && C_isdigit(*p)) {
 			    width = (width * 10) + (*p - '0');
 			}
@@ -464,19 +494,19 @@ phrased_term:
 	bool need_to_stem = (stem_action != STEM_NONE);
 	string unstemmed_term;
 	if (stem_action == STEM_SOME && it != end && *it == '.') {
-	    AccentNormalisingItor p = it;
+	    Utf8Iterator p = it;
 	    ++p;
 	    // TopTerms won't generate an embedded '.', and we want to
 	    // stem terms in a phrased term with '.' phrase generators -
 	    // e.g. "example.com" should give a phrase search for "exampl"
 	    // and "com", not "example" and "com".
-	    if (p == end || C_isspace(*p)) {
+	    if (p == end || U_isspace(*p)) {
 		it = p;
 		// If topterms added a term with a trailing '.', it will be
 		// lower case.  So if it has an initial capital it must be an
 		// initial in someone's name, a full stop in pasted text or
 		// something like that.
-		if (!C_isupper(term[0])) {
+		if (!U_isupper(term[0])) {
 		    unstemmed_term = term + '.';
 		    need_to_stem = false;
 		}
@@ -484,9 +514,9 @@ phrased_term:
 	}
 
 	if (unstemmed_term.empty()) unstemmed_term = term;
-	term = downcase_term(term);
+	term = U_downcase_term(term);
 	if (need_to_stem) {
-	    if (stem_action == STEM_SOME && C_isupper(unstemmed_term[0]))
+	    if (stem_action == STEM_SOME && U_isupper(unstemmed_term[0]))
 		term = 'R' + term;
 	    else
 		term = stemmer.stem_word(term);
@@ -527,7 +557,7 @@ phrased_term:
 	    } while (it != end && is_phrase_generator(*it));
 	    // Don't generate a phrase unless the phrase generators are
 	    // immediately followed by another term.
-	    if (it != end && C_isalnum(*it)) {
+	    if (it != end && is_wordchar(*it)) {
 		mode = IN_PHRASED_TERM;
 		goto phrased_term;
 	    }
