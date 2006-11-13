@@ -126,7 +126,7 @@ Xapian::Query::Internal::serialise() const
 	result += '[';
 	result += encode_length(tname.length());
 	result += tname;
-       	if (term_pos != curpos) result += '@' + om_tostring(term_pos);
+	if (term_pos != curpos) result += '@' + om_tostring(term_pos);
 	if (wqf != 1) result += '#' + om_tostring(wqf);
 	++curpos;
     } else {
@@ -209,6 +209,7 @@ Xapian::Query::Internal::get_description() const
 	    opstr += "wqf=" + om_tostring(wqf);
 	}
 	if (!opstr.empty()) opstr = ":(" + opstr + ")";
+	if (tname.empty()) return "<alldocuments>" + opstr;
 	return tname + opstr;
     }
 
@@ -490,9 +491,6 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
 	  term_pos(term_pos_),
 	  wqf(wqf_)
 {
-    if (tname.empty()) {
-	throw Xapian::InvalidArgumentError("Termnames may not have zero length.");
-    }
 }
 
 Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
@@ -540,8 +538,6 @@ Xapian::Query::Internal::prevalidate_query() const
 		om_tostring(subqs.size()) + ".");
     }
 
-    // Check that the termname is not null in a leaf query
-    Assert(!is_leaf(op) || !tname.empty());
     // Check that the termname is null in a branch query
     Assert(is_leaf(op) || tname.empty());
 }

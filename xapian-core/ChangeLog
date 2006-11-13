@@ -1,3 +1,9 @@
+Mon Nov 13 05:24:30 GMT 2006  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,queryparser/queryparser.lemony,
+	  tests/queryparsertest.cc: Allow "pure NOT" queries - e.g.
+	  "NOT apples".  Fixes bug #99.
+
 Mon Nov 13 04:54:04 GMT 2006  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Undo changes accidentally committed in last

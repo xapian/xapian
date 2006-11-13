@@ -728,8 +728,11 @@ expr(E) ::= prob_expr(P).
 expr(E) ::= bool_arg(A) AND bool_arg(B).
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND, B, "AND"); }
 
-expr(E) ::= bool_arg(A) NOT bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "NOT"); }
+expr(E) ::= bool_arg(A) NOT bool_arg(B). {
+    // 'NOT foo' -> '<alldocuments> NOT foo'
+    if (!A) A = new Query("");
+    BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "NOT");
+}
 
 expr(E) ::= bool_arg(A) AND NOT bool_arg(B). [NOT]
 	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
