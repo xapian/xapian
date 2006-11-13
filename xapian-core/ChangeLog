@@ -1,3 +1,31 @@
+Mon Nov 13 04:02:27 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/database.h,api/omdatabase.cc,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/quartz/Makefile.am,backends/quartz/quartz_database.cc,
+	  backends/quartz/quartz_alldocspostlist.h,
+	  backends/quartz/quartz_alldocspostlist.cc,
+	  backends/flint/Makefile.am,backends/flint/flint_database.cc,
+	  backends/flint/flint_alldocspostlist.cc,
+	  backends/flint/flint_alldocspostlist.h:
+	  Implement posting lists which return a list of all documents in
+	  the database.  Such a posting list is obtained by calling
+	  Xapian::Database::postlist_begin() with an empty term (ie, "").
+	  Also, all Xapian::Database methods which take a termname now
+	  accept an empty term, and return appropriate values (ie,
+	  get_termfreq("") and get_collection_freq("") return the number of
+	  documents in the database, and term_exists("") returns true
+	  unless the database is empty).
+	* docs/quartzdesign.html: Document the inefficiency of all-document
+	  postlists for Quartz.
+	* tests/api_anydb.cc,tests/api_db.cc,tests/api_wrdb.cc: Add tests for
+	  all-document postlists, and for passing an empty term to all the
+	  applicable database methods.  This defines the new tests
+	  allpostlist1, allpostlist2, emptyterm1, and emptyterm2.  These
+	  tests currently skip for the remote backend where postlist_begin()
+	  isn't yet implemented.
+
 Mon Nov 13 02:06:03 GMT 2006  Olly Betts <olly@survex.com>
 
 	* Merge in utf8 branch:

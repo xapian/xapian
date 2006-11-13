@@ -12,6 +12,7 @@ noinst_HEADERS =       flint_types.h \
 		       flint_values.h \
 		       flint_utils.h \
 		       flint_document.h \
+		       flint_alldocspostlist.h \
 		       flint_alltermslist.h \
 		       flint_table.h \
 		       flint_cursor.h \
@@ -29,6 +30,7 @@ libflint_la_SOURCES =  flint_database.cc \
 		       flint_record.cc \
 		       flint_values.cc \
 		       flint_document.cc \
+		       flint_alldocspostlist.cc \
 		       flint_alltermslist.cc \
 		       flint_table.cc \
 		       flint_cursor.cc \

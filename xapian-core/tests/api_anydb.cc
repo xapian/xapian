@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1575,6 +1576,72 @@ static bool test_checkatleast1()
     return true;
 }
 
+// tests all document postlists
+static bool test_allpostlist1()
+{
+    Xapian::Database db(get_database("apitest_manydocs"));
+    Xapian::PostingIterator i;
+    try {
+	i = db.postlist_begin("");
+    } catch (const Xapian::UnimplementedError & e) {
+	SKIP_TEST("WritableDatabase::replace_document(TERM) not implemented");
+    }
+    unsigned int j = 1;
+    while (i != db.postlist_end("")) {
+	TEST_EQUAL(*i, j);
+	i++;
+	j++;
+    }
+    TEST_EQUAL(j, 513);
+
+    i = db.postlist_begin("");
+    j = 1;
+    while (i != db.postlist_end("")) {
+	TEST_EQUAL(*i, j);
+	i++;
+	j++;
+	if (j == 50) {
+	    j += 10;
+	    i.skip_to(j);
+	}
+    }
+    TEST_EQUAL(j, 513);
+
+    return true;
+}
+
+static void test_emptyterm1_helper(Xapian::Database & db)
+{
+    // Don't bother with postlist_begin() because allpostlist tests cover that.
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.positionlist_begin(1, ""));
+    TEST_EQUAL(db.get_doccount(), db.get_termfreq(""));
+    TEST_EQUAL(db.get_doccount() != 0, db.term_exists(""));
+    TEST_EQUAL(db.get_doccount(), db.get_collection_freq(""));
+}
+
+// tests results of passing an empty term to various methods
+static bool test_emptyterm1()
+{
+    Xapian::Database db(get_database("apitest_manydocs"));
+    try {
+	(void)db.postlist_begin("");
+    } catch (const Xapian::UnimplementedError & e) {
+	SKIP_TEST("Database::postlist_begin not implemented");
+    }
+    TEST_EQUAL(db.get_doccount(), 512);
+    test_emptyterm1_helper(db);
+
+    db = get_database("apitest_onedoc");
+    TEST_EQUAL(db.get_doccount(), 1);
+    test_emptyterm1_helper(db);
+
+    db = get_database("");
+    TEST_EQUAL(db.get_doccount(), 0);
+    test_emptyterm1_helper(db);
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1636,5 +1703,7 @@ test_desc anydb_tests[] = {
     {"getdoc1",		   test_getdoc1},
     {"emptyop1",	   test_emptyop1},
     {"checkatleast1",	   test_checkatleast1},
+    {"allpostlist1",	   test_allpostlist1},
+    {"emptyterm1",	   test_emptyterm1},
     {0, 0}
 };

@@ -4,6 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -108,6 +109,11 @@ class Database {
 
 	/** An iterator pointing to the start of the postlist
 	 *  for a given term.
+	 *
+	 *  If the term name is the empty string, the iterator returned
+	 *  will list all the documents in the database.  Such an iterator
+	 *  will always return a WDF value of 1, since there is no obvious
+	 *  meaning for this quantity in this case.
 	 */
 	PostingIterator postlist_begin(const std::string &tname) const;
 

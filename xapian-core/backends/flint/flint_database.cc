@@ -4,6 +4,7 @@
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +35,7 @@
 
 #include "flint_modifiedpostlist.h"
 #include "flint_postlist.h"
+#include "flint_alldocspostlist.h"
 #include "flint_termlist.h"
 #include "flint_positionlist.h"
 #include "flint_utils.h"
@@ -455,10 +457,15 @@ LeafPostList *
 FlintDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "FlintDatabase::do_open_post_list", tname);
-    Assert(!tname.empty());
-
     Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
-    return(new FlintPostList(ptrtothis,
+
+    if (tname.empty()) {
+	RETURN(new FlintAllDocsPostList(ptrtothis,
+					&termlist_table,
+					get_doccount()));
+    }
+
+    RETURN(new FlintPostList(ptrtothis,
 			      &postlist_table,
 			      &positionlist_table,
 			      tname));
@@ -966,9 +973,13 @@ LeafPostList *
 FlintWritableDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "FlintWritableDatabase::do_open_post_list", tname);
-    Assert(!tname.empty());
-
     Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
+
+    if (tname.empty()) {
+	RETURN(new FlintAllDocsPostList(ptrtothis,
+					&database_ro.termlist_table,
+					get_doccount()));
+    }
 
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
     j = mod_plists.find(tname);

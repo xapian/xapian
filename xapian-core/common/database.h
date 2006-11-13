@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -188,7 +189,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *                use.
 	 */
 	LeafPostList * open_post_list(const string & tname) const {
-	    if (!term_exists(tname)) {
+	    if (!tname.empty() && !term_exists(tname)) {
 		DEBUGLINE(MATCH, tname + " is not in database.");
 		// Term doesn't exist in this database.  However, we create
 		// a (empty) postlist for it to help make distributed searching

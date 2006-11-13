@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -891,8 +892,6 @@ static bool test_multiexpand1()
 static bool test_postlist1()
 {
     Xapian::Database db(get_database("apitest_simpledata"));
-
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.postlist_begin(""));
 
     TEST_EQUAL(db.postlist_begin("rosebud"), db.postlist_end("rosebud"));
 

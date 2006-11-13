@@ -4,6 +4,7 @@
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +34,7 @@
 #include <xapian/valueiterator.h>
 
 #include "quartz_postlist.h"
+#include "quartz_alldocspostlist.h"
 #include "quartz_termlist.h"
 #include "quartz_positionlist.h"
 #include "quartz_utils.h"
@@ -598,10 +600,15 @@ LeafPostList *
 QuartzDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::do_open_post_list", tname);
-    Assert(!tname.empty());
-
     Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
-    return(new QuartzPostList(ptrtothis,
+
+    if (tname.empty()) {
+	RETURN(new QuartzAllDocsPostList(ptrtothis,
+					 &termlist_table,
+					 get_doccount()));
+    }
+
+    RETURN(new QuartzPostList(ptrtothis,
 			      &postlist_table,
 			      &positionlist_table,
 			      tname));
@@ -1110,7 +1117,13 @@ LeafPostList *
 QuartzWritableDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "QuartzWritableDatabase::do_open_post_list", tname);
-    Assert(!tname.empty());
+    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
+
+    if (tname.empty()) {
+	RETURN(new QuartzAllDocsPostList(ptrtothis,
+					 &database_ro.termlist_table,
+					 get_doccount()));
+    }
 
     // Need to flush iff we've got buffered changes to this term's postlist.
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
@@ -1121,8 +1134,7 @@ QuartzWritableDatabase::do_open_post_list(const string& tname) const
 	do_flush_const();
     }
 
-    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
-    return(new QuartzPostList(ptrtothis,
+    RETURN(new QuartzPostList(ptrtothis,
 			      &database_ro.postlist_table,
 			      &database_ro.positionlist_table,
 			      tname));
