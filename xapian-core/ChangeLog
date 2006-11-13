@@ -1,3 +1,8 @@
+Mon Nov 13 04:54:04 GMT 2006  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Undo changes accidentally committed in last
+	  check-in.
+
 Mon Nov 13 04:47:57 GMT 2006  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc,backends/Makefile.am,backends/database.cc,

@@ -490,9 +490,9 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
 	  term_pos(term_pos_),
 	  wqf(wqf_)
 {
-//    if (tname.empty()) {
-//	throw Xapian::InvalidArgumentError("Termnames may not have zero length.");
-//    }
+    if (tname.empty()) {
+	throw Xapian::InvalidArgumentError("Termnames may not have zero length.");
+    }
 }
 
 Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
@@ -541,7 +541,7 @@ Xapian::Query::Internal::prevalidate_query() const
     }
 
     // Check that the termname is not null in a leaf query
-//    Assert(!is_leaf(op) || !tname.empty());
+    Assert(!is_leaf(op) || !tname.empty());
     // Check that the termname is null in a branch query
     Assert(is_leaf(op) || tname.empty());
 }
