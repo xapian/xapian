@@ -1,3 +1,7 @@
+Mon Nov 13 20:22:50 GMT 2006  Olly Betts <olly@survex.com>
+
+	* utf8convert.cc: Need <algorithm> for swap().
+
 Mon Nov 13 02:27:51 GMT 2006  Olly Betts <olly@survex.com>
 
 	* Makefile.am,md5test.cc: Add tests for md5 code.

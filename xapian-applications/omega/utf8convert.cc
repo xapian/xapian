@@ -21,6 +21,7 @@
 
 #include "utf8convert.h"
 
+#include <algorithm>
 #include <string>
 
 #include <errno.h>
