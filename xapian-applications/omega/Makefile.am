@@ -53,8 +53,8 @@ pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
-check_PROGRAMS = htmlparsetest utf8test
-TESTS = htmlparsetest$(EXEEXT) utf8test$(EXEEXT)
+check_PROGRAMS = htmlparsetest md5test utf8test
+TESTS = htmlparsetest$(EXEEXT) md5test$(EXEEXT) utf8test$(EXEEXT)
 
 # Install documentation.
 docdatadir   = $(datadir)/doc/omega
@@ -94,6 +94,8 @@ scriptindex_LDADD = $(XAPIAN_LIBS)
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
  utf8convert.cc utf8itor.cc 
+
+md5test_SOURCES = md5test.cc md5wrap.cc md5.cc
 
 utf8test_SOURCES = utf8test.cc utf8itor.cc
 
