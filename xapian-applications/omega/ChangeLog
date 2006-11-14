@@ -1,3 +1,7 @@
+Tue Nov 14 15:27:09 GMT 2006  Olly Betts <olly@survex.com>
+
+	* md5test.cc: Need <stdio.h> for sprintf.
+
 Tue Nov 14 03:19:13 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Note a couple of platforms which take the different

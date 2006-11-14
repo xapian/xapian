@@ -22,6 +22,8 @@
 #include <iostream>
 #include <string>
 
+#include <stdio.h>
+
 #include "md5wrap.h"
 
 using namespace std;
