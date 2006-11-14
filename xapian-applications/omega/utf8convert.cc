@@ -58,7 +58,7 @@ convert_to_utf8(string & text, const string & charset)
 
     string tmp;
 
-    char * in = const_cast<char *>(text.c_str());
+    ICONV_INPUT_TYPE in = const_cast<char *>(text.c_str());
     size_t in_len = text.size();
     while (in_len) {
 	char * out = buf;

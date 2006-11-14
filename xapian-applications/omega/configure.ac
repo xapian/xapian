@@ -123,6 +123,34 @@ case $ac_cv_func_snprintf in
     ;;
 esac
 
+dnl Check if iconv take "char**" or "const char**" as its input.
+AC_MSG_CHECKING([for type of input pointer for iconv])
+AC_CACHE_VAL([xo_cv_iconv_input],
+  [
+    for t in 'char*' 'const char *' ; do
+      AC_TRY_COMPILE([
+#include <iconv.h>
+      ],[
+	char buf[20];
+	$t in = "hello";
+	size_t in_len = 5;
+	char * out = buf;
+	size_t out_len = 20;
+	iconv((iconv_t)-1, &in, &in_len, &out, &out_len);
+      ],[
+	xo_cv_iconv_input="$t"
+	break
+      ])
+    done
+    if test -z "$xo_cv_iconv_input"; then
+      AC_MSG_RESULT([not found])
+      AC_MSG_ERROR([Failed to work out how to call iconv])
+    fi
+  ])
+AC_MSG_RESULT([$xo_cv_iconv_input])
+AC_DEFINE_UNQUOTED(ICONV_INPUT_TYPE, [$xo_cv_iconv_input],
+		   [type of input pointer for iconv])
+
 dnl Check processor endianness.
 AC_C_BIGENDIAN
 
