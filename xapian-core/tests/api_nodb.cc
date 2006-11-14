@@ -59,9 +59,9 @@ static bool test_getqterms1()
 
     list<string> list1;
     {
-        Xapian::TermIterator t;
-        for (t = myquery.get_terms_begin(); t != myquery.get_terms_end(); ++t) 
-            list1.push_back(*t);
+	Xapian::TermIterator t;
+	for (t = myquery.get_terms_begin(); t != myquery.get_terms_end(); ++t)
+	    list1.push_back(*t);
     }
     TEST(list1 == answers_list);
     list<string> list2(myquery.get_terms_begin(), myquery.get_terms_end());
@@ -88,7 +88,6 @@ static bool test_emptyquery1()
     vector<Xapian::Query> v;
     TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).empty());
     TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).get_length() == 0);
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query("").empty());
     return true;
 }
 
@@ -240,7 +239,7 @@ static bool test_stemlangs1()
 
     while (langs.length() > 0) {
 	langv.push_back(langs.substr(0, next));
-    	if (next == langs.npos) {
+	if (next == langs.npos) {
 	    langs = "";
 	} else {
 	    langs = langs.substr(next);
@@ -285,7 +284,7 @@ static bool test_weight1()
     wt = Xapian::TradWeight().unserialise(tradweight.serialise());
     TEST_EQUAL(tradweight.serialise(), wt->serialise());
     delete wt;
-    
+
     Xapian::TradWeight tradweight2(2.0);
     TEST_NOT_EQUAL(tradweight.serialise(), tradweight2.serialise());
 
@@ -296,7 +295,7 @@ static bool test_weight1()
     wt = Xapian::BM25Weight().unserialise(bm25weight.serialise());
     TEST_EQUAL(bm25weight.serialise(), wt->serialise());
     delete wt;
-    
+
     Xapian::BM25Weight bm25weight2(1, 0.5, 1, 0.5, 0.5);
     TEST_NOT_EQUAL(bm25weight.serialise(), bm25weight2.serialise());
 
@@ -327,7 +326,7 @@ static bool test_addvalue1()
 // # End of test cases: now we list the tests to run.
 
 test_desc nodb_tests[] = {
-    {"trivial1",           test_trivial1},
+    {"trivial1",	   test_trivial1},
     {"getqterms1",	   test_getqterms1},
     {"getqterms2",	   test_getqterms2},
     {"emptyquery1",	   test_emptyquery1},

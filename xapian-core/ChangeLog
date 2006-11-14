@@ -1,3 +1,9 @@
+Tue Nov 14 03:25:19 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tests/api_nodb.cc: Xapian::Query("") now builds a query which
+	  matches all documents rather than throwing InvalidArgumentError
+	  so fix emptyquery1 test.
+
 Tue Nov 14 02:03:29 GMT 2006  Olly Betts <olly@survex.com>
 
 	* api/omdocument.cc: Tweak OmDocumentTerm::add_position() so that
