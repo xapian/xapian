@@ -1,3 +1,9 @@
+Tue Nov 14 19:47:30 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,tests/Makefile.am,tests/harness/Makefile.mk: Use
+	  non-recursive make to build the test harness, so it only gets
+	  built if "make check" is run.
+
 Tue Nov 14 19:43:48 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tests/quartztest.cc: Removed unused static function unlink_table.

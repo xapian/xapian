@@ -900,7 +900,6 @@ AC_CONFIG_FILES([
  matcher/Makefile
  api/Makefile
  tests/Makefile
- tests/harness/Makefile
  docs/Makefile
  net/Makefile
  bin/Makefile
