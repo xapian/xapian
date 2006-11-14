@@ -107,8 +107,10 @@ class State {
   public:
     Query query;
     const char * error;
+    unsigned flags;
 
-    State(QueryParser::Internal * qpi_) : qpi(qpi_), error(NULL) { }
+    State(QueryParser::Internal * qpi_, unsigned flags_)
+	: qpi(qpi_), error(NULL), flags(flags_) { }
 
     void add_to_stoplist(const Term * term) {
 	qpi->stoplist.push_back(term->name);
@@ -187,7 +189,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
     termpos term_pos = 1;
     Utf8Iterator it(qs), end;
 
-    State state(this);
+    State state(this, flags);
 
     list<string> prefix_stack;
     // Simplify reading the current prefix by pushing an empty string.
@@ -230,7 +232,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 			continue;
 		    }
 		}
-		if (flags & FLAG_PHRASE) {
+		if (flags & QueryParser::FLAG_PHRASE) {
 		    Parse(pParser, QUOTE, NULL, &state);
 		    if (mode == DEFAULT) {
 			mode = IN_QUOTES;
@@ -730,7 +732,8 @@ expr(E) ::= bool_arg(A) AND bool_arg(B).
 
 expr(E) ::= bool_arg(A) NOT bool_arg(B). {
     // 'NOT foo' -> '<alldocuments> NOT foo'
-    if (!A) A = new Query("");
+    if (!A && (state->flags & QueryParser::FLAG_PURE_NOT))
+	A = new Query("");
     BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "NOT");
 }
 

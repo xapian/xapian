@@ -104,7 +104,14 @@ class QueryParser {
 	 *  NB: You need to tell the QueryParser object which database to
 	 *  expand wildcards from using set_database.
 	 */
-	FLAG_WILDCARD = 16
+	FLAG_WILDCARD = 16,
+	/** Allow queries such as 'NOT apples'.
+	 *
+	 *  These require the use of a list of all documents in the database
+	 *  which is potentially expensive, so this feature isn't enabled by
+	 *  default.
+	 */
+	FLAG_PURE_NOT = 32
     } feature_flag;
 
     typedef enum { STEM_NONE, STEM_SOME, STEM_ALL } stem_strategy;

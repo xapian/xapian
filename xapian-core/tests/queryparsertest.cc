@@ -84,8 +84,8 @@ static test test_or_queries[] = {
     { "site:xapian.org", "Hxapian.org" },
     { "mug +site:xapian.org -site:cvs.xapian.org", "((mug:(pos=1) AND_NOT Hcvs.xapian.org) FILTER Hxapian.org)" },
     { "mug -site:cvs.xapian.org +site:xapian.org", "((mug:(pos=1) AND_NOT Hcvs.xapian.org) FILTER Hxapian.org)" },
-    { "NOT windows", "(<alldocuments> AND_NOT window:(pos=1))" },
-    { "a AND (NOT b)", "(a:(pos=1) AND (<alldocuments> AND_NOT b:(pos=2)))" },
+    { "NOT windows", "Syntax: <expression> NOT <expression>" },
+    { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
     { "gordian NOT", "Syntax: <expression> NOT <expression>" },
     { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
@@ -549,6 +549,15 @@ static test test_stop_queries[] = {
     { NULL, NULL }
 };
 
+static test test_pure_not_queries[] = {
+    { "NOT windows", "(<alldocuments> AND_NOT window:(pos=1))" },
+    { "a AND (NOT b)", "(a:(pos=1) AND (<alldocuments> AND_NOT b:(pos=2)))" },
+    { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
+    { "gordian NOT", "Syntax: <expression> NOT <expression>" },
+    { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
+    { NULL, NULL }
+};
+
 static bool test_queryparser1()
 {
     Xapian::QueryParser queryparser;
@@ -705,6 +714,37 @@ static bool test_qp_stopper1()
     return true;
 }
 
+static bool test_qp_flag_pure_not1()
+{
+    using Xapian::QueryParser;
+    Xapian::QueryParser qp;
+    qp.set_stemmer(Xapian::Stem("english"));
+    qp.set_stemming_strategy(QueryParser::STEM_SOME);
+    for (test *p = test_pure_not_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query, 
+						QueryParser::FLAG_BOOLEAN |
+						QueryParser::FLAG_PURE_NOT);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_msg();
+	} catch (const char *s) {
+	    parsed = s;
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -713,6 +753,7 @@ static test_desc tests[] = {
     TESTCASE(qp_flag_wildcard1),
     TESTCASE(qp_flag_bool_any_case1),
     TESTCASE(qp_stopper1),
+    TESTCASE(qp_flag_pure_not1),
     END_OF_TESTCASES
 };
 
