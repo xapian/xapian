@@ -22,9 +22,9 @@ to a Database object and several other related objects (PostList, TermList,
 etc...).
 
 <p>
-Quartz is simply the name of only currently supported disk-based backend
-which allows databases to be dynamically updated.  The design of Quartz
-draws on all our past experience to satisfy the following criteria:
+Quartz is simply the name of Xapian's first high-performance backend.
+The design of Quartz draws on all our past experience to satisfy the following
+criteria:
 <ul>
 <li>
   Fast and scalable searches.
@@ -256,8 +256,7 @@ memory since the list is kept in memory in a range-compressed form (but does
 require an iteration over the entirety of one of the tables of the Quartz
 database - no skipping can be done in this case.  This is unlikely to be fixed,
 since we don't believe it can be without changing Quartz's structure.  In any
-case, it is not a priority since Quartz is due to be replaced by Flint as the
-default backend soon.
+case, it is not a priority since Quartz is no longer the default backend.
 
 <h2>Btree implementation</h2>
 

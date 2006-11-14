@@ -1,9 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-<TITLE>Xapian: Overview</TITLE>
-</HEAD>
-<BODY BGCOLOR="white" TEXT="black">
 
 <H1>Overview</H1>
 
@@ -195,7 +189,7 @@ database.  Xapian looks at the path and autodetects the database type.
 </P>
 <P>
 In some cases (with the Remote backend, or if you want more control) you
-need to use a factory function such as <CODE>Xapian::Quartz::open()</CODE>
+need to use a factory function such as <CODE>Xapian::Flint::open()</CODE>
 - each backend type has one or more.  The parameters the function
 takes depend on the backend type, and whether we are creating a read-only
 or a writable database.
@@ -210,30 +204,24 @@ The stub database format specifies one database per line.  For example:
 
 <BLOCKQUOTE><CODE>
 remote localhost:23876<br>
-quartz /var/spool/xapian/webindex<br>
+flint /var/spool/xapian/webindex<br>
 </CODE></BLOCKQUOTE>
 
 <A NAME="database_types"><H3>Database types</H3></A>
 The current types understood by Xapian are:
 </P>
 <TABLE>
-<TR><TD VALIGN="top"><B>quartz</B></TD><TD>
-<P>
-This is the main database type, which should be used in almost all cases.
-The format allows progressive modifications, single-writer multiple-reader
-access to the database, and highly efficient and scalable access to data.
-</P>
-<P>
-You access a Quartz database using Xapian::Database and Xapian::WritableDatabase objects
-constructed by the factory function <A
-HREF="apidoc/html/database_8h.html"><CODE>Xapian::Quartz::open()</CODE></A>.
-<!-- FIXME: hard to link direct to functions, as the name ids may change... -->
-</P>
-</TD></TR>
 <TR><TD VALIGN="top"><B>flint</B></TD><TD>
 <P>
-Flint is a "next generation" database backend for Xapian. It takes lessons learned from studying Quartz in action, and should be substantially faster (both when indexing and searching), more compact, and better in other ways too (better locking, and better statistics from the matcher for example).
+Flint is a default backend as of Xapian 1.0. It supports incremental
+modifications, concurrent single-writer and multiple-reader access to
+a database.  It's very efficient and highly scalable.  Flint takes lessons
+learned from studying Quartz in action, and is appreciably faster
+(both when indexing and searching), more compact, and features an
+improved locking mechanism which automatically releases the lock
+if a writing process dies.
 </P>
+<!--
 <P>
 Flint is very much a work in progress. The aim is to have it stable and working at any given point (and Xapian's extensive test suite should help give us some reassurance of this), but the database format will change frequently and there'll be no migration path during development (except for rebuilding your index from the source data, or alternatively using copydatabase to copy the old-flint database to a quartz database, upgrading, then using copydatabase to copy the quartz database to a new-flint one).
 </P>
@@ -241,16 +229,22 @@ Flint is very much a work in progress. The aim is to have it stable and working 
 That said flint already outperforms quartz, and Gmane, tweakers.net and
 srpko.com are all running production systems using the flint backend.
 </P>
+-->
 <P>
 For more information, see the <a href="http://wiki.xapian.org/FlintBackend">Xapian Wiki</a>.
+</P>
+</TD></TR>
+<TR><TD VALIGN="top"><B>quartz</B></TD><TD>
+<P>
+Quartz was the default backend prior to Xapian 1.0.  New installations should
+use Flint, and existing installations should consider migrating to Flint.
+Support for Quartz will be dropped at some point in the future.
 </P>
 </TD></TR>
 <TR><TD VALIGN="top"><B>inmemory</B></TD><TD>
 This type is a database held entirely in memory.
 It was originally written for testing purposes only, but may
 prove useful for building up temporary small databases.
-<BR>
-It takes no parameters at all.
 </TD></TR>
 </TABLE>
 

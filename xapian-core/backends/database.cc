@@ -103,14 +103,14 @@ open_stub(Database *db, const string &file)
 	    if (type == "auto") {
 		db->add_database(Database(line));
 		ok = true;
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-	    } else if (type == "quartz") {
-		db->add_database(Quartz::open(line));
-		ok = true;
-#endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	    } else if (type == "flint") {
 		db->add_database(Flint::open(line));
+		ok = true;
+#endif
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
+	    } else if (type == "quartz") {
+		db->add_database(Quartz::open(line));
 		ok = true;
 #endif
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -174,15 +174,15 @@ Database::Database(const string &path)
 	return;
     }
 
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-    if (file_exists(path + "/record_DB")) {
-	internal.push_back(new QuartzDatabase(path));
-	return;
-    }
-#endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     if (file_exists(path + "/iamflint")) {
 	internal.push_back(new FlintDatabase(path));
+	return;
+    }
+#endif
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
+    if (file_exists(path + "/record_DB")) {
+	internal.push_back(new QuartzDatabase(path));
 	return;
     }
 #endif
@@ -197,14 +197,7 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 		 path << ", " << action);
 #if defined XAPIAN_HAS_FLINT_BACKEND && defined XAPIAN_HAS_QUARTZ_BACKEND
     // Both Flint and Quartz are enabled.
-    bool use_flint = false;
-    const char *p = getenv("XAPIAN_PREFER_FLINT");
-    if (p != NULL && *p) {
-	use_flint = !file_exists(path + "/record_DB");
-    } else {
-	use_flint = file_exists(path + "/iamflint");
-    }
-    if (use_flint) {
+    if (!file_exists(path + "/record_DB")) {
 	internal.push_back(new FlintWritableDatabase(path, action, 8192));
     } else {
 	internal.push_back(new QuartzWritableDatabase(path, action, 8192));

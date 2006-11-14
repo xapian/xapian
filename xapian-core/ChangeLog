@@ -1,3 +1,10 @@
+Tue Nov 14 04:19:40 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/database.cc,backends/flint/dir_contents,
+	  backends/quartz/dir_contents,docs/overview.html,
+	  docs/quartzdesign.html,docs/scalability.html: Make flint the default
+	  backend.
+
 Tue Nov 14 03:25:19 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tests/api_nodb.cc: Xapian::Query("") now builds a query which
