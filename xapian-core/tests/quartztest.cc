@@ -61,13 +61,6 @@ static void removedir(const string &filename)
     }
 }
 
-static void unlink_table(const string & path)
-{
-    unlink(path + "DB");
-    unlink(path + "baseA");
-    unlink(path + "baseB");
-}
-
 /// Test opening of a quartz database
 static bool test_open1()
 {

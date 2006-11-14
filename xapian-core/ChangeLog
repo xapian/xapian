@@ -1,3 +1,7 @@
+Tue Nov 14 19:43:48 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tests/quartztest.cc: Removed unused static function unlink_table.
+
 Tue Nov 14 17:41:26 GMT 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h,queryparser/queryparser.lemony,
