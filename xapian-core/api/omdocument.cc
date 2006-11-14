@@ -204,11 +204,10 @@ void
 OmDocumentTerm::add_position(Xapian::termpos tpos)
 {
     DEBUGAPICALL(void, "OmDocumentTerm::add_position", tpos);
-    
+
     // We generally expect term positions to be added in approximately
     // increasing order, so check the end first
-    Xapian::termpos last = positions.empty() ? 0 : positions.back();
-    if (tpos > last) {
+    if (!positions.empty() && tpos > positions.back()) {
 	positions.push_back(tpos);
 	return;
     }
