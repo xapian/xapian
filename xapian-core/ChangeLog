@@ -1,3 +1,9 @@
+Tue Nov 14 22:42:05 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tests/harness/Makefile: Add static Makefile so you can make all,
+	  check, and clean from the subdirectory.
+	* tests/harness/Makefile.mk: Ship Makefile.mk and Makefile.
+
 Tue Nov 14 21:53:45 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tests/: Remove muscat36 temporary directories from svn:ignore
