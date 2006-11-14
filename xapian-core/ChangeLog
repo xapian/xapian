@@ -1,3 +1,8 @@
+Tue Nov 14 21:53:45 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tests/: Remove muscat36 temporary directories from svn:ignore
+	  property.
+
 Tue Nov 14 19:47:30 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,tests/Makefile.am,tests/harness/Makefile.mk: Use
