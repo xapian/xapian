@@ -1,3 +1,8 @@
+Tue Nov 14 03:19:13 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Note a couple of platforms which take the different
+	  iconv input types.
+
 Tue Nov 14 03:16:37 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac,utf8convert.cc: The input pointer to iconv can be

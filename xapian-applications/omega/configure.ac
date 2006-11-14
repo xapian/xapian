@@ -124,6 +124,7 @@ case $ac_cv_func_snprintf in
 esac
 
 dnl Check if iconv take "char**" or "const char**" as its input.
+dnl Solaris 2.9 has "const char **"; GNU iconv has "char **".
 AC_MSG_CHECKING([for type of input pointer for iconv])
 AC_CACHE_VAL([xo_cv_iconv_input],
   [
