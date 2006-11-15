@@ -1,3 +1,8 @@
+Wed Nov 15 19:55:57 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/README: Note success with Sun's JDK 1.5.0_06-b05, plus the
+	  requirement to add the linux header directory to the include path.
+
 Sun Nov 12 22:40:06 GMT 2006  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog file in preparation for branching and
