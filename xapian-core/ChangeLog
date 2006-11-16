@@ -1,3 +1,10 @@
+Thu Nov 16 04:22:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* m4/xapian.m4: If XAPIAN_CONFIG wasn't specified and xapian-config
+	  wasn't found, see if the library seems to be present - if so give
+	  a different error message which suggests the user needs to install
+	  a -dev or -devel package.
+
 Thu Nov 16 02:11:34 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/install.html: omega tarball is now xapian-omega.
