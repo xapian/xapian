@@ -11,7 +11,7 @@ AC_CONFIG_HEADERS(config.h)
 
 dnl Check for libxapian
 AC_PROG_LIBTOOL
-XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+XO_LIB_XAPIAN
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
