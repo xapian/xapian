@@ -1,3 +1,8 @@
+Thu Nov 16 02:01:55 GMT 2006  Olly Betts <olly@survex.com>
+
+	* omega.cc: Fix backwards setting of sort_after.  Fix generation of
+	  sort setup flags for filters.
+
 Thu Nov 16 01:21:32 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/cgiparams.txt,omega.cc,omega.h,query.cc: Implement new CGI

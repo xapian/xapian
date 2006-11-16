@@ -345,18 +345,18 @@ try {
 	}
 	val = cgi_params.find("SORTAFTER");
 	if (val != cgi_params.end()) {
-	    sort_after = (atoi(val->second.c_str()) == 0);
+	    sort_after = (atoi(val->second.c_str()) != 0);
 	}
 	// Add the sorting related options to filters too.
 	filters += int_to_string(sort_key);
 	if (sort_after) {
 	    if (sort_ascending) {
-		filters += 'R';
-	    } else {
 		filters += 'F';
+	    } else {
+		filters += 'R';
 	    }
 	} else {
-	    if (sort_ascending) {
+	    if (!sort_ascending) {
 		filters += 'r';
 	    }
 	}
