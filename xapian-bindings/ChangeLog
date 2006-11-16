@@ -1,3 +1,9 @@
+Thu Nov 16 03:05:09 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: As of xapian-core 0.8.0, XO_LIB_XAPIAN doesn't need to
+	  be called with arguments if you want a hard requirement on xapian,
+	  so remove the arguments.
+
 Wed Nov 15 19:55:57 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/README: Note success with Sun's JDK 1.5.0_06-b05, plus the

@@ -62,7 +62,7 @@ dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 dnl Check for libxapian
-XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
+XO_LIB_XAPIAN
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so set AM_CXXFLAGS
 dnl here and unset them later.
