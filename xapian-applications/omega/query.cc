@@ -693,6 +693,7 @@ static map<string, string> field;
 static Xapian::docid q0;
 static Xapian::doccount hit_no;
 static int percent;
+static Xapian::weight weight;
 static Xapian::doccount collapsed;
 
 static string print_caption(const string &fmt, const vector<string> &param);
@@ -789,6 +790,7 @@ CMD_unstem,
 CMD_url,
 CMD_value,
 CMD_version,
+CMD_weight,
 CMD_MACRO // special tag for macro evaluation
 };
 
@@ -911,6 +913,7 @@ T(unstem,	   1, 1, N, Q), // return list of probabilistic terms from
 T(url,		   1, 1, N, 0), // url encode argument
 T(value,	   1, 2, N, 0), // return document value
 T(version,	   0, 0, N, 0), // omega version string
+T(weight,	   0, 0, N, 0), // weight of the current hit
 { NULL,{0,	   0, 0, 0, 0}}
 };
 
@@ -1863,6 +1866,9 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_version:
 		value = "Xapian - "PACKAGE" "VERSION;
 		break;
+	    case CMD_weight:
+		value = double_to_string(weight);
+		break;
 	    default: {
 		args.insert(args.begin(), param[0]);
 		int macro_no = func->second->tag - CMD_MACRO;
@@ -1946,6 +1952,7 @@ print_caption(const string &fmt, const vector<string> &param)
 {
     q0 = *(mset[hit_no]);
 
+    weight = mset[hit_no].get_weight();
     percent = mset.convert_to_percent(mset[hit_no]);
     collapsed = mset[hit_no].get_collapse_count();
 

@@ -1,3 +1,9 @@
+Thu Nov 16 23:06:25 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt,query.cc,utils.cc,utils.h: Add $weight command
+	  to OmegaScript which returns the raw document weight - mostly useful
+	  for debugging purposes.
+
 Thu Nov 16 04:02:10 GMT 2006  Olly Betts <olly@survex.com>
 
 	* omega.spec.in: Remove "." from the end of the Summary.
