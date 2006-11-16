@@ -1,3 +1,7 @@
+Thu Nov 16 02:11:34 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/install.html: omega tarball is now xapian-omega.
+
 Tue Nov 14 22:42:05 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tests/harness/Makefile: Add static Makefile so you can make all,

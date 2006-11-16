@@ -25,10 +25,10 @@ Use the usual tools to unpack the archives.  For example, on a Linux system:
 <blockquote> <code>
 tar zxvf xapian-core-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
 <br>
-tar zxvf omega-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
+tar zxvf xapian-omega-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
 </code> </blockquote>
 These commands should unpack the archives into separate subdirectories
-("xapian-core-N.NN" and "omega-N.NN").
+("xapian-core-N.N.N" and "xapian-omega-N.N.N").
 
 <H3>Configuring and building Xapian</H3>
 Xapian uses the GNU autoconf, automake, and libtool tools.
@@ -61,7 +61,7 @@ you don't have root access to the system you want to install Xapian on).
 Omega can be built in almost exactly the same way as the core library.
 Simply run:
 <pre>
-    cd omega
+    cd xapian-omega
     ./configure
     make
 </pre>
