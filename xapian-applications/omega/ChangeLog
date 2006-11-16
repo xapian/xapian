@@ -1,3 +1,7 @@
+Thu Nov 16 04:02:10 GMT 2006  Olly Betts <olly@survex.com>
+
+	* omega.spec.in: Remove "." from the end of the Summary.
+
 Thu Nov 16 03:03:25 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: As of xapian-core 0.8.0, XO_LIB_XAPIAN doesn't need to
