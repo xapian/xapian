@@ -74,6 +74,9 @@ int threshold = 0;
 bool sort_numeric = false;
 Xapian::valueno sort_key = Xapian::valueno(-1);
 bool sort_ascending = true;
+bool sort_after = false;
+Xapian::Enquire::docid_order docid_order = Xapian::Enquire::ASCENDING;
+
 Xapian::valueno collapse_key = 0;
 bool collapse = false;
 
@@ -304,7 +307,24 @@ try {
 	if (!v.empty()) {
 	    collapse_key = atoi(v.c_str());
 	    collapse = true;
-	    filters += filter_sep + v;
+	    filters += filter_sep + int_to_string(collapse_key);
+	}
+    }
+
+    // docid order
+    val = cgi_params.find("DOCIDORDER");
+    if (val != cgi_params.end()) {
+	const string & v = val->second;
+	if (!v.empty()) {
+	    char ch = v[0];
+	    if (ch == 'D') {
+		docid_order = Xapian::Enquire::DESCENDING;
+		filters += 'D';
+	    } else if (ch != 'A') {
+		docid_order = Xapian::Enquire::DONT_CARE;
+	    } else {
+		filters += 'X';
+	    }
 	}
     }
 
@@ -323,8 +343,23 @@ try {
 	if (val != cgi_params.end()) {
 	    sort_ascending = (atoi(val->second.c_str()) == 0);
 	}
-	// FIXME: add SORT and SORTREVERSE to filters too!  But in a compatible
-	// way ideally...
+	val = cgi_params.find("SORTAFTER");
+	if (val != cgi_params.end()) {
+	    sort_after = (atoi(val->second.c_str()) == 0);
+	}
+	// Add the sorting related options to filters too.
+	filters += int_to_string(sort_key);
+	if (sort_after) {
+	    if (sort_ascending) {
+		filters += 'R';
+	    } else {
+		filters += 'F';
+	    }
+	} else {
+	    if (sort_ascending) {
+		filters += 'r';
+	    }
+	}
     }
 
     // min_hits (fill mset past topdoc+(hits_per_page+1) to

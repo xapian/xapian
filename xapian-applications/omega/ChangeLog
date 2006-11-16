@@ -1,3 +1,11 @@
+Thu Nov 16 01:21:32 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.txt,omega.cc,omega.h,query.cc: Implement new CGI
+	  parameters for finer control of sorting and ranking - SORTAFTER
+	  and DOCIDORDER.
+	* omega.cc: Set up the filters variable so we know to revert to
+	  page 1 if the sorting options are changed.
+
 Tue Nov 14 15:27:09 GMT 2006  Olly Betts <olly@survex.com>
 
 	* md5test.cc: Need <stdio.h> for sprintf.

@@ -345,101 +345,109 @@ run_query()
 	}
     }
 
-    if (enquire && error_msg.empty()) {
-	enquire->set_cutoff(threshold);
+    if (!enquire || !error_msg.empty()) return;
 
-	// Temporary bodge to allow experimentation with Xapian::BiasFunctor
-	MCI i;
-	i = cgi_params.find("bias_weight");
+    enquire->set_cutoff(threshold);
+
+    // Temporary bodge to allow experimentation with Xapian::BiasFunctor
+    MCI i;
+    i = cgi_params.find("bias_weight");
+    if (i != cgi_params.end()) {
+	Xapian::weight bias_weight = atof(i->second.c_str());
+	int half_life = 2 * 24 * 60 * 60; // 2 days
+	i = cgi_params.find("bias_halflife");
 	if (i != cgi_params.end()) {
-	    Xapian::weight bias_weight = atof(i->second.c_str());
-	    int half_life = 2 * 24 * 60 * 60; // 2 days
-	    i = cgi_params.find("bias_halflife");
-	    if (i != cgi_params.end()) {
-		half_life = atoi(i->second.c_str());
-	    }
-	    enquire->set_bias(bias_weight, half_life);
+	    half_life = atoi(i->second.c_str());
 	}
-	if (sort_key != Xapian::valueno(-1)) {
+	enquire->set_bias(bias_weight, half_life);
+    }
+
+    if (sort_key != Xapian::valueno(-1)) {
+	if (sort_after) {
+	    enquire->set_sort_by_relevance_then_value(sort_key, sort_ascending);
+	} else {
 	    enquire->set_sort_by_value_then_relevance(sort_key, sort_ascending);
 	}
-	if (collapse) {
-	    enquire->set_collapse_key(collapse_key);
-	}
+    }
+
+    enquire->set_docid_order(docid_order);
+
+    if (collapse) {
+	enquire->set_collapse_key(collapse_key);
+    }
 
 #ifdef HAVE_GETTIMEOFDAY
-	struct timeval tv;
-	if (gettimeofday(&tv, 0) == 0) {
-	    sec = tv.tv_sec;
-	    usec = tv.tv_usec;
-	}
+    struct timeval tv;
+    if (gettimeofday(&tv, 0) == 0) {
+	sec = tv.tv_sec;
+	usec = tv.tv_usec;
+    }
 #elif defined(FTIME_RETURNS_VOID)
-	struct timeb tp;
-	ftime(&tp);
+    struct timeb tp;
+    ftime(&tp);
+    sec = tp.time;
+    usec = tp.millitm * 1000;
+#elif defined(HAVE_FTIME)
+    struct timeb tp;
+    if (ftime(&tp) == 0) {
 	sec = tp.time;
 	usec = tp.millitm * 1000;
-#elif defined(HAVE_FTIME)
-	struct timeb tp;
-	if (ftime(&tp) == 0) {
-	    sec = tp.time;
-	    usec = tp.millitm * 1000;
-	}
+    }
 #else
-	sec = time(NULL);
-	if (sec != (time_t)-1) usec = 0;
+    sec = time(NULL);
+    if (sec != (time_t)-1) usec = 0;
 #endif
-	if (!query.empty()) {
-	    enquire->set_query(query);
-	    // We could use the value of topdoc as first parameter, but we
-	    // need to know the first few items on the mset to fake a
-	    // relevance set for topterms.
-	    //
-	    // If min_hits isn't set, check at least one extra result so we
-	    // know if we've reached the end of the matches or not - then we
-	    // can avoid offering a "next" button which leads to an empty page.
-	    mset = enquire->get_mset(0, topdoc + hits_per_page,
-				     topdoc + max(hits_per_page + 1, min_hits),
-				     &rset);
-	}
-	if (usec != -1) {
+    if (!query.empty()) {
+	enquire->set_query(query);
+	// We could use the value of topdoc as first parameter, but we
+	// need to know the first few items on the mset to fake a
+	// relevance set for topterms.
+	//
+	// If min_hits isn't set, check at least one extra result so we
+	// know if we've reached the end of the matches or not - then we
+	// can avoid offering a "next" button which leads to an empty page.
+	mset = enquire->get_mset(0, topdoc + hits_per_page,
+				 topdoc + max(hits_per_page + 1, min_hits),
+				 &rset);
+    }
+    if (usec != -1) {
 #ifdef HAVE_GETTIMEOFDAY
-	    if (gettimeofday(&tv, 0) == 0) {
-		sec = tv.tv_sec - sec;
-		usec = tv.tv_usec - usec;
-		if (usec < 0) {
-		    --sec;
-		    usec += 1000000;
-		}
-	    } else {
-		usec = -1;
+	if (gettimeofday(&tv, 0) == 0) {
+	    sec = tv.tv_sec - sec;
+	    usec = tv.tv_usec - usec;
+	    if (usec < 0) {
+		--sec;
+		usec += 1000000;
 	    }
+	} else {
+	    usec = -1;
+	}
 #elif defined(FTIME_RETURNS_VOID)
-	    ftime(&tp);
+	ftime(&tp);
+	sec = tp.time - sec;
+	usec = tp.millitm * 1000 - usec;
+	if (usec < 0) {
+	    --sec;
+	    usec += 1000000;
+	}
+#elif defined(HAVE_FTIME)
+	if (ftime(&tp) == 0) {
 	    sec = tp.time - sec;
 	    usec = tp.millitm * 1000 - usec;
 	    if (usec < 0) {
 		--sec;
 		usec += 1000000;
 	    }
-#elif defined(HAVE_FTIME)
-	    if (ftime(&tp) == 0) {
-		sec = tp.time - sec;
-		usec = tp.millitm * 1000 - usec;
-		if (usec < 0) {
-		    --sec;
-		    usec += 1000000;
-		}
-	    } else {
-		usec = -1;
-	    }
-#else
-	    usec = time(NULL);
-	    if (usec != -1) {
-		sec = sec - usec;
-		usec = 0;
-	    }
-#endif
+	} else {
+	    usec = -1;
 	}
+#else
+	usec = time(NULL);
+	if (usec != -1) {
+	    sec = sec - usec;
+	    usec = 0;
+	}
+#endif
     }
 }
 

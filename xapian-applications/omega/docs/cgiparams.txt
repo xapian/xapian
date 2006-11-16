@@ -120,6 +120,22 @@ SORT
 
 SORTREVERSE
 	if non-zero, reverse the sort order so that lower values are better.
+	This parameter has no effect unless SORT is also specified.
+
+SORTAFTER
+	if non-zero, order results by relevance, only sorting by value to
+	order values with the same relevance score.  This parameter has no
+	effect unless SORT is also specified.
+
+DOCIDORDER
+	set the ordering used when a comparison ends up being by docid (i.e.
+	two documents with equal relevance and/or values).  By default (if
+	DOCIDORDER isn't set or is empty) this puts them in ASCENDING order
+	(the lowest document id ranks highest).  If DOCIDORDER is specified
+	and non-empty it can begin with "D" for DESCENDING order, "A" for
+	ASCENDING order or any other character for DONT_CARE (the Xapian
+	database backend will use whichever order is most efficient).  Any
+	characters after the first are ignored.
 
 Display parameters and navigation
 ---------------------------------
