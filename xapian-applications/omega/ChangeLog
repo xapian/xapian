@@ -1,3 +1,9 @@
+Thu Nov 16 02:07:31 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Change the project name to "xapian-omega" since that's
+	  what the RPMs and Debian packages call it (there's a Rogue-like game
+	  called Omega).
+
 Thu Nov 16 02:01:55 GMT 2006  Olly Betts <olly@survex.com>
 
 	* omega.cc: Fix backwards setting of sort_after.  Fix generation of
