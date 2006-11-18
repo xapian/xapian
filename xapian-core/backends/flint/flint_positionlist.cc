@@ -191,10 +191,11 @@ class BitReader {
 	bool check_all_gone() const {
 	    return (idx == buf.size() && n_bits < 7 && acc == 0);
 	}
+	void decode_interpolative(vector<Xapian::termpos> & pos, int j, int k);
 };
 
-static void
-decode_interpolative(BitReader & rd, vector<Xapian::termpos> & pos, int j, int k)
+void
+BitReader::decode_interpolative(vector<Xapian::termpos> & pos, int j, int k)
 {
     if (j + 1 >= k) return;
 
@@ -203,9 +204,9 @@ decode_interpolative(BitReader & rd, vector<Xapian::termpos> & pos, int j, int k
     // (less some at either end because we must be able to fit
     // all the intervening pos in)
     const size_t outof = pos[k] - pos[j] + j - k + 1;
-    pos[mid] = rd.decode(outof) + (pos[j] + mid - j);
-    decode_interpolative(rd, pos, j, mid);
-    decode_interpolative(rd, pos, mid, k);
+    pos[mid] = decode(outof) + (pos[j] + mid - j);
+    decode_interpolative(pos, j, mid);
+    decode_interpolative(pos, mid, k);
 }
 
 void
@@ -276,7 +277,7 @@ FlintPositionList::read_data(const FlintTable * table, Xapian::docid did,
     positions.resize(pos_size);
     positions[0] = pos_first;
     positions.back() = pos_last;
-    decode_interpolative(rd, positions, 0, pos_size - 1);
+    rd.decode_interpolative(positions, 0, pos_size - 1);
 
     current_pos = positions.begin();
 }
