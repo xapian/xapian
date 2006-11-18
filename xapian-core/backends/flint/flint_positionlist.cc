@@ -1,6 +1,6 @@
 /* flint_positionlist.cc: A position list in a flint database.
  *
- * Copyright (C) 2004,2005 Olly Betts
+ * Copyright (C) 2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,40 @@
 
 using namespace std;
 
+const static unsigned char flstab[256] = {
+    0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
+    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
+};
+
+// Highly optimised fls() implementation.
+inline int my_fls(unsigned mask)
+{
+    int result = 0;
+    if (mask > 0x10000u) {
+	mask >>= 16;
+	result = 16;
+    }
+    if (mask > 0x100u) {
+	mask >>= 8;
+	result += 8;
+    }
+    return result + flstab[mask];
+}
+
 class BitWriter {
     private:
 	string buf;
@@ -42,9 +76,7 @@ class BitWriter {
 	BitWriter(const string & seed) : buf(seed), n_bits(0), acc(0) { }
 	void encode(size_t value, size_t outof) {
 	    Assert(value < outof);
-	    // FIXME: look at replacing this with "fls()" (where available) or
-	    // some integer code.
-	    size_t bits = (size_t)ceil(log(double(outof)) / log(2.0));
+	    size_t bits = my_fls(outof);
 	    const size_t spare = (1 << bits) - outof;
 	    if (spare) {
 		const size_t mid_start = (outof - spare) / 2;
@@ -115,7 +147,7 @@ class BitReader {
     public:
 	BitReader(const string &buf_) : buf(buf_), idx(0), n_bits(0), acc(0) { }
 	Xapian::termpos decode(Xapian::termpos outof) {
-	    size_t bits = (size_t)ceil(log(double(outof)) / log(2.0));
+	    size_t bits = my_fls(outof);
 	    const size_t spare = (1 << bits) - outof;
 	    const size_t mid_start = (outof - spare) / 2;
 	    Xapian::termpos p;
