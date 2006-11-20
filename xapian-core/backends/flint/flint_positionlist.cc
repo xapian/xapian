@@ -55,11 +55,11 @@ static const unsigned char flstab[256] = {
 inline int my_fls(unsigned mask)
 {
     int result = 0;
-    if (mask > 0x10000u) {
+    if (mask >= 0x10000u) {
 	mask >>= 16;
 	result = 16;
     }
-    if (mask > 0x100u) {
+    if (mask >= 0x100u) {
 	mask >>= 8;
 	result += 8;
     }

@@ -1,3 +1,8 @@
+Mon Nov 20 07:21:07 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc: Fix another off-by-one
+	  error (> should be >=).
+
 Mon Nov 20 07:12:11 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc: Fix off-by-one error in code
