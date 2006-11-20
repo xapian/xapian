@@ -1,3 +1,12 @@
+xapian-bindings (0.9.9-2) unstable; urgency=low
+
+  * debian/rules: Fix how we determine the phpapi version to depend on.
+    The previous way was technically wrong, but got the right answer
+    for Debian unstable, and for Ubuntu dapper and edgy (Debian sarge was
+    wrong though).
+
+ -- Olly Betts <olly@survex.com>  Mon, 20 Nov 2006 06:53:55 +0000
+
 xapian-bindings (0.9.9-1) unstable; urgency=low
 
   * New upstream release.

@@ -93,8 +93,8 @@ PYTHON_OLD_VERSIONS := 2.1 2.2 2.3 2.4
 # For use in Conflicts: and Replaces:
 PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_OLD_VERSIONS:%=python%-xapian (<< 0.9.6-3$),)"|sed 's/,$$//')
 
-# Build depends for PHP.  We only need phpN-cli so we can run "make check" on
-# the bindings.
+# Build depends for PHP.  We need phpN-cli so we can run "make check" on
+# the bindings and to get the phpapi version we need to depend on.
 #
 # Currently hurd-i386 doesn't have any PHP packages, but that's no reason to
 # prevent python/tcl/ruby-loving hurd users having packaged xapian bindings.
@@ -250,13 +250,13 @@ binary-arch: build install
 	dh_shlibdeps
 
 	# php-config4 in sarge doesn't understand --phpapi and we want to
-	# support backporting so use --extension-dir and remove the path
-	# with sed.
+	# support backporting so get the api version from the phpN-cli
+	# package's "Provides".
 	for v in $(PHP_VERSIONS); do \
 	    c=/usr/bin/php-config$$v; \
 	    if test -x $$c ; then \
 		set -e; \
-		echo "php$$v:Depends=phpapi-`$$c --extension-dir|sed 's,.*/,,'`, php$$v-common" >> debian/php$$v-xapian.substvars; \
+		echo "php$$v:Depends=`dpkg -s php$$v-cli|sed 's/^Provides: //p;d'|sed 's/, */\n/g'|grep '^phpapi-'`, php$$v-common" >> debian/php$$v-xapian.substvars; \
 	    fi \
 	done
 
