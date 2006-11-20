@@ -76,7 +76,7 @@ class BitWriter {
 	BitWriter(const string & seed) : buf(seed), n_bits(0), acc(0) { }
 	void encode(size_t value, size_t outof) {
 	    Assert(value < outof);
-	    size_t bits = my_fls(outof);
+	    size_t bits = my_fls(outof - 1);
 	    const size_t spare = (1 << bits) - outof;
 	    if (spare) {
 		const size_t mid_start = (outof - spare) / 2;
@@ -147,7 +147,7 @@ class BitReader {
     public:
 	BitReader(const string &buf_) : buf(buf_), idx(0), n_bits(0), acc(0) { }
 	Xapian::termpos decode(Xapian::termpos outof) {
-	    size_t bits = my_fls(outof);
+	    size_t bits = my_fls(outof - 1);
 	    const size_t spare = (1 << bits) - outof;
 	    const size_t mid_start = (outof - spare) / 2;
 	    Xapian::termpos p;

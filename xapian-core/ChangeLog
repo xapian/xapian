@@ -1,3 +1,8 @@
+Mon Nov 20 07:12:11 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc: Fix off-by-one error in code
+	  which calls my_fls().
+
 Sat Nov 18 08:32:08 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc: "const static" -> "static
