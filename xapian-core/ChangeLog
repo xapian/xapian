@@ -1,3 +1,8 @@
+Wed Nov 22 18:55:42 GMT 2006  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: Improve --version output so that help2man produces
+	  a better man page.
+
 Mon Nov 20 07:21:07 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc: Fix another off-by-one

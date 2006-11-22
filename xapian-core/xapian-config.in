@@ -133,7 +133,7 @@ while [ 0 != "$#" ] ; do
 	;;
 
     --version)
-	echo "xapian @VERSION@"
+	echo "$PROG_NAME - @PACKAGE_STRING@"
 	exit 0
 	;;
 
@@ -180,7 +180,7 @@ while [ 0 != "$#" ] ; do
     --libs)
 	if is_uninstalled ; then
 	    if [ no = "$xo_lib_xapian" ]; then
-		echo "$0: Use libtool and 'xapian-config --ltlibs'" 1>&2
+		echo "$0: Use libtool and '$PROG_NAME --ltlibs'" 1>&2
 	    else
 		configure_ac='configure.in (or configure.ac)'
 		# If ac_top_srcdir isn't passed to us, we just end up looking
