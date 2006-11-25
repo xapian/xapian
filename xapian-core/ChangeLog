@@ -1,3 +1,12 @@
+Sat Nov 25 04:17:23 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_version.cc:
+	  The "my_fls()" change actually results in a different interpolative
+	  encoding in a few cases - the old encoding could vary between
+	  architectures so we have to change it.  So bump the FLINT_VERSION
+	  and change the "flicklock" file to be "flintlock" as it should have
+	  been all along!
+
 Wed Nov 22 18:55:42 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Improve --version output so that help2man produces

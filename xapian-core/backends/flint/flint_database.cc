@@ -79,7 +79,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	  termlist_table(db_dir, readonly),
 	  value_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
-	  lock(db_dir + "/flicklock") // FIXME: typo - should be flintlock!
+	  lock(db_dir + "/flintlock")
 {
     DEBUGCALL(DB, void, "FlintDatabase", flint_dir << ", " << action <<
 	      ", " << block_size);

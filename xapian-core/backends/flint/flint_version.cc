@@ -36,7 +36,9 @@
 using std::string;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
-static const unsigned int FLINT_VERSION = 200506110;
+#define FLINT_VERSION 200611200u
+// 200611200 Fixed occasional, architecture-dependent surplus bits in
+//	     interpolative coding; "flicklock" -> "flintlock".
 // 200506110 Fixed interpolative coding to work(!)
 // 200505310 Interpolative coding for position lists
 // 200505280 Total doclen and last docid entry moved to postlist table
