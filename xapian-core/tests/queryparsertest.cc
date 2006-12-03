@@ -745,6 +745,23 @@ static bool test_qp_flag_pure_not1()
     return true;
 }
 
+// Debatable if this is a regression test or a feature test, as it's not
+// obvious is this was a bug fix or a new feature.  Either way, it first
+// appeared in Xapian 1.0.
+static bool test_qp_unstem_boolean_prefix()
+{
+    Xapian::QueryParser qp;
+    qp.add_boolean_prefix("test", "XTEST");
+    Xapian::Query q = qp.parse_query("hello test:foo");
+    TEST_EQUAL(q.get_description(), "Xapian::Query((hello:(pos=1) FILTER XTESTfoo))");
+    Xapian::TermIterator u = qp.unstem_begin("XTESTfoo");
+    TEST(u != qp.unstem_end("XTESTfoo"));
+    TEST_EQUAL(*u, "test:foo");
+    ++u;
+    TEST(u == qp.unstem_end("XTESTfoo"));
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -754,6 +771,7 @@ static test_desc tests[] = {
     TESTCASE(qp_flag_bool_any_case1),
     TESTCASE(qp_stopper1),
     TESTCASE(qp_flag_pure_not1),
+    TESTCASE(qp_unstem_boolean_prefix),
     END_OF_TESTCASES
 };
 

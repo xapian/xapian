@@ -341,8 +341,13 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 			if (boolean_filter) {
 			    if (prefix_needs_colon(prefix, *it))
 				prefix += ':';
+			    string term;
 			    while (it != end && *it > ' ' && *it != ')')
-				prefix += *it++;
+				term.append(ubuf, to_utf8(*it++, ubuf));
+			    prefix += term;
+			    field += ':';
+			    field += term;
+			    unstem.insert(make_pair(prefix, field));
 			    Parse(pParser, BOOLEAN_FILTER,
 				  new Term(prefix, 0), &state);
 			    continue;

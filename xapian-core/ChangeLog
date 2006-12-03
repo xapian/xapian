@@ -1,3 +1,10 @@
+Sun Dec 03 00:34:27 GMT 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Add entries
+	  to the "unstem" map for prefixed boolean filters (e.g. type:html).
+	  Also don't corrupt non-ASCII characters in a prefixed boolean
+	  filter.
+
 Sat Nov 25 04:17:23 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc,backends/flint/flint_version.cc:
