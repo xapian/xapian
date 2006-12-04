@@ -1,3 +1,8 @@
+Mon Dec 04 03:22:35 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java,java/org/xapian/RSet.java: Add missing default
+	  constructor for RSet class - it's not much use without this!
+
 Thu Nov 16 04:01:23 GMT 2006  Olly Betts <olly@survex.com>
 
 	* xapian-bindings.spec.in: Remove "." from the end of the Summary.

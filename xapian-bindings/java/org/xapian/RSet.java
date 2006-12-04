@@ -38,6 +38,10 @@ public class RSet {
         this.id = id;
     }
 
+    public RSet() throws XapianError {
+        id = XapianJNI.rset_new();
+    }
+
     public long size() throws XapianError {
         return XapianJNI.rset_size(id);
     }

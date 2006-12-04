@@ -95,6 +95,9 @@ public class SmokeTest {
 		System.err.println("OP_ELITE_SET is " + Query.OP_ELITE_SET + " not 10");
 		System.exit(1);
 	    }
+
+	    RSet rset = new RSet();
+	    rset.addDocument(2);
 	} catch (Exception e) {
 	    System.err.println("Caught unexpected exception " + e.toString());
 	    System.exit(1);
