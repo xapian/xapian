@@ -1,3 +1,8 @@
+Mon Dec 04 03:31:36 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java,java/native/Enquire.cc,
+	  java/org/xapian/Enquire.java: Fit Enquire.getESet() to be callable.
+
 Mon Dec 04 03:22:35 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/SmokeTest.java,java/org/xapian/RSet.java: Add missing default

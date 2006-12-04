@@ -111,6 +111,10 @@ public class Enquire {
         return new ESet(XapianJNI.enquire_get_eset(id, maxitems, rset.id, flags, k, ed));
     }
 
+    public ESet getESet(long maxitems, RSet rset) throws XapianError {
+        return new ESet(XapianJNI.enquire_get_eset(id, maxitems, rset.id, null));
+    }
+
     public ESet getESet(long maxitems, RSet rset, ExpandDecider ed) throws XapianError {
         return new ESet(XapianJNI.enquire_get_eset(id, maxitems, rset.id, ed));
     }

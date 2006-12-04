@@ -97,7 +97,8 @@ public class SmokeTest {
 	    }
 
 	    RSet rset = new RSet();
-	    rset.addDocument(2);
+	    rset.addDocument(1);
+	    ESet eset = enq.getESet(10, rset);
 	} catch (Exception e) {
 	    System.err.println("Caught unexpected exception " + e.toString());
 	    System.exit(1);
