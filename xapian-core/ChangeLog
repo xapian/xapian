@@ -1,3 +1,11 @@
+Tue Dec 05 21:12:12 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+        * include/xapian/query.h,api/omqueryinternal.cc: Fix query
+          serialisation bug.  Was failing to propagate "curpos" parameter
+          across subqueries, resulting in incorrect serialisation of
+          termpositions.
+        * tests/internaltest.cc: Regression test for this bug.
+
 Tue Dec 05 01:34:07 GMT 2006  Olly Betts <olly@survex.com>
 
 	* HACKING: Clarify how XAPIAN_DEBUG_FLAGS works.

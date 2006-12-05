@@ -116,10 +116,9 @@ is_leaf(Xapian::Query::Internal::op_t op)
  *  be - FIXME).
  */
 string
-Xapian::Query::Internal::serialise() const
+Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-    Xapian::termpos curpos = 1;
     string result;
 
     if (op == Xapian::Query::Internal::OP_LEAF) {
@@ -134,7 +133,7 @@ Xapian::Query::Internal::serialise() const
 	for (subquery_list::const_iterator i = subqs.begin();
 	     i != subqs.end();
 	     ++i) {
-	    result += (*i)->serialise();
+	    result += (*i)->serialise(curpos);
 	}
 	switch (op) {
 	    case Xapian::Query::Internal::OP_LEAF:

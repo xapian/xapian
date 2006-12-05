@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2006 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -292,6 +292,10 @@ static bool test_serialisequery1()
     list<Xapian::Query> queries;
     
     queries.push_back(Xapian::Query("foo"));
+
+    queries.push_back(Xapian::Query(Xapian::Query::OP_OR,
+                                    Xapian::Query("foo", 1, 1),
+                                    Xapian::Query("bar", 1, 1)));
 
     const char * words[] = { "paragraph", "word" };
     queries.push_back(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
