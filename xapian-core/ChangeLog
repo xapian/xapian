@@ -1,3 +1,7 @@
+Tue Dec 05 01:34:07 GMT 2006  Olly Betts <olly@survex.com>
+
+	* HACKING: Clarify how XAPIAN_DEBUG_FLAGS works.
+
 Tue Dec 05 01:23:12 GMT 2006  Olly Betts <olly@survex.com>
 
 	* examples/quest.cc: Add "--stemmer" option to allow stemming language

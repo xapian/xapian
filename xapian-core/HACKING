@@ -60,9 +60,13 @@ message you're interested by setting environment variables.  You can:
    output to be stored in (to override the default of stderr).  The first
    occurrence of %% in the name will be replaced with the process-id.
 
- * set XAPIAN_DEBUG_FLAGS to a bitmap to select the types of debugging message
-   you would like to display (the default value is 0, which displays no debug
-   messages).  To turn on all types, set it to -1.
+ * set XAPIAN_DEBUG_FLAGS to the decimal value of a bitmap indicating the types
+   of debugging message you would like to display (the default value is 0,
+   which displays no debug messages).  To turn on message type N, bitwise OR
+   XAPIAN_DEBUG_FLAGS with (1<<N) - e.g. for message type 3, OR with 8.  To
+   turn on all types, set XAPIAN_DEBUG_FLAGS to -1 (which is all bits set in
+   two's complement binary representation).  Each message gives its numerical
+   type in the debug log output.
 
 These environment only have any effect if you run configure with the
 --enable-debug-verbose option.
