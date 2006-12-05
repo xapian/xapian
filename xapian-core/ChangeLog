@@ -1,3 +1,8 @@
+Tue Dec 05 01:23:12 GMT 2006  Olly Betts <olly@survex.com>
+
+	* examples/quest.cc: Add "--stemmer" option to allow stemming language
+	  to be set, or stemming to be disabled.
+
 Sun Dec 03 00:34:27 GMT 2006  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Add entries
