@@ -1,3 +1,9 @@
+Thu Dec 07 02:08:56 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/ESetIterator.java: Fix bug in ESetIterator.hasNext()
+	  reported by Alex Kushkuley.
+	* java/SmokeTest.java: Add regression test.
+
 Mon Dec 04 03:31:36 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/SmokeTest.java,java/native/Enquire.cc,

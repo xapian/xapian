@@ -99,6 +99,16 @@ public class SmokeTest {
 	    RSet rset = new RSet();
 	    rset.addDocument(1);
 	    ESet eset = enq.getESet(10, rset);
+	    ESetIterator eit = eset.iterator();
+	    int count = 0;
+	    while (eit.hasNext()) {
+		++count;
+		eit.next();
+	    }
+	    if (count != eset.size()) {
+		System.err.println("ESet.size() mismatched number of terms returned by ESetIterator");
+		System.exit(1);
+	    }
 	} catch (Exception e) {
 	    System.err.println("Caught unexpected exception " + e.toString());
 	    System.exit(1);
