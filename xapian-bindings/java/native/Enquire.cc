@@ -57,7 +57,7 @@ class JavaMatchDecider : public Xapian::MatchDecider {
                 _deciderclass = env->GetObjectClass(obj);
                 if (!_deciderclass) goto on_error;
 
-                _acceptmethod = env->GetMethodID(_deciderclass, "accept", "(Lorg/xapian/Document;)I");
+                _acceptmethod = env->GetMethodID(_deciderclass, "accept", "(Lorg/xapian/Document;)Z");
                 if (!_acceptmethod) goto on_error;
 
 on_error:
@@ -103,7 +103,7 @@ class JavaExpandDecider : public Xapian::ExpandDecider {
                 _deciderclass = env->GetObjectClass(obj);
                 if (!_deciderclass) goto on_error;
 
-                _acceptmethod = env->GetMethodID(_deciderclass, "accept", "(Ljava/lang/String;)I");
+                _acceptmethod = env->GetMethodID(_deciderclass, "accept", "(Ljava/lang/String;)Z");
                 if (!_acceptmethod) goto on_error;
 
 on_error:

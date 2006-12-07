@@ -1,3 +1,9 @@
+Thu Dec 07 02:25:25 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/Enquire.cc: Fix MatchDecider and ExpandDecider to look
+	  for an "accept" method with the correct signature (bool return value
+	  not int).  Reported by Alex Kushkuley.
+
 Thu Dec 07 02:08:56 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/org/xapian/ESetIterator.java: Fix bug in ESetIterator.hasNext()
