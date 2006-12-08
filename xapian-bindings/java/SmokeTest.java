@@ -20,6 +20,12 @@
 import org.xapian.*;
 import org.xapian.errors.*;
 
+class MyMatchDecider implements MatchDecider {
+    public boolean accept(Document d) {
+	return false;
+    }
+}
+
 public class SmokeTest {
     public static void main(String[] args) throws Exception {
 	try {
@@ -107,6 +113,11 @@ public class SmokeTest {
 	    }
 	    if (count != eset.size()) {
 		System.err.println("ESet.size() mismatched number of terms returned by ESetIterator");
+		System.exit(1);
+	    }
+	    MSet mset2 = enq.getMSet(0, 10, null, new MyMatchDecider());
+	    if (mset2.size() > 0) {
+		System.err.println("MyMatchDecider wasn't used");
 		System.exit(1);
 	    }
 	} catch (Exception e) {

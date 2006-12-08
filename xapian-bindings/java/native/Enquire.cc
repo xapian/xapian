@@ -73,13 +73,13 @@ on_error:
             jclass documentclass = env->FindClass("org/xapian/Document");
             if (!documentclass) goto on_error;
 
-            ctorid = env->GetMethodID(documentclass, "<init>", "(J)");
+            ctorid = env->GetMethodID(documentclass, "<init>", "(J)V");
             if (!ctorid) goto on_error;
 
             document = env->NewObject(documentclass, ctorid, docid);
             if (!document) goto on_error;
 
-            return env->CallIntMethod(_obj, _acceptmethod, document);
+            return env->CallBooleanMethod(_obj, _acceptmethod, document);
 
 on_error:       // I can also "program" in VisualBasic
         CATCH(-1)
@@ -112,7 +112,7 @@ on_error:
 
     int operator() (const std::string &tname) const {
         TRY
-            return env->CallIntMethod(_obj, _acceptmethod, env->NewStringUTF(tname.c_str()));
+            return env->CallBooleanMethod(_obj, _acceptmethod, env->NewStringUTF(tname.c_str()));
         CATCH(-1)
     }
 };

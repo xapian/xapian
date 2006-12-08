@@ -1,3 +1,9 @@
+Fri Dec 08 04:11:01 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/Enquire.cc: Fix MatchDecider to work.
+	* java/SmokeTest.java: Add feature/regression test for MatchDecider
+	  subclassing.
+
 Thu Dec 07 02:25:25 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/native/Enquire.cc: Fix MatchDecider and ExpandDecider to look
