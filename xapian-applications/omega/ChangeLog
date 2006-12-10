@@ -1,3 +1,8 @@
+Sun Dec 10 03:05:09 GMT 2006  Olly Betts <olly@survex.com>
+
+	* commonhelp.cc: "--help" now says that the default stemming language
+	  is "english"
+
 Thu Nov 16 23:06:25 GMT 2006  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt,query.cc,utils.cc,utils.h: Add $weight command
