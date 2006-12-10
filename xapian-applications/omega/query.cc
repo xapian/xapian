@@ -1682,13 +1682,24 @@ eval(const string &fmt, const vector<string> &param)
 		    if (static_cast<size_t>(-start) >= args[0].size()) {
 			start = 0;
 		    } else {
-			start = static_cast<int>(args[0].size()) - start;
+			start = static_cast<int>(args[0].size()) + start;
 		    }
+		} else {
+		    if (static_cast<size_t>(start) >= args[0].size()) break;
 		}
 		size_t len = string::npos;
 		if (args.size() > 2) {
 		    int int_len = string_to_int(args[2]);
-		    if (int_len >= 0) len = size_t(int_len);
+		    if (int_len >= 0) {
+			len = size_t(int_len);
+		    } else {
+			len = args[0].size() - start;
+			if (static_cast<size_t>(-int_len) >= len) {
+			    len = 0;
+			} else {
+			    len -= static_cast<size_t>(-int_len);
+			}
+		    }
 		}
 		value = args[0].substr(start, len);
 		break;

@@ -402,6 +402,11 @@ $substr{STRING,START[,LENGTH]}
 	If START is negative, it counts back from the end of STRING (so
 	"$substr{hello,-1}" is "o").
 
+	If LENGTH is negative, it instead specifies the number of characters
+	to omit from the end of STRING (so "$substr{example,2,-2}" is "amp").
+	Note that this means that "$substr{STRING,0,N}$substr{STRING,N}" is
+	"STRING" whether N is positive, negative or zero.
+
 $terms
 	list of matching terms for current hit.
 

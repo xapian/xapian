@@ -1,3 +1,10 @@
+Sun Dec 10 04:33:26 GMT 2006  Olly Betts <olly@survex.com>
+
+	* query.cc: Fix $substr{} with negative start to actually work.  Fix
+	  $substr{} to never cause a C++ exception.
+	* docs/omegascript.txt,query.cc: Enhance $substr{} to accept a
+	  negative length (meaning to count back from the end of the string).
+
 Sun Dec 10 03:05:09 GMT 2006  Olly Betts <olly@survex.com>
 
 	* commonhelp.cc: "--help" now says that the default stemming language
