@@ -7,7 +7,7 @@
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 71 };
+BEGIN { plan tests => 73 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -111,5 +111,11 @@ ok( $match->get_collapse_count() == 0 );
 
 my $bm25;
 ok( $bm25 = Search::Xapian::BM25Weight->new() );
+
+my $boolweight;
+ok( $boolweight = Search::Xapian::BoolWeight->new() );
+
+my $tradweight;
+ok( $tradweight = Search::Xapian::TradWeight->new() );
 
 1;

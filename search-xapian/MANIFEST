@@ -28,6 +28,7 @@ Xapian/Stem.pod
 Xapian/SimpleStopper.pm
 Xapian/Stopper.pm
 Xapian/TermIterator.pm
+Xapian/TradWeight.pm
 Xapian/ValueIterator.pm
 Xapian/Weight.pm
 Xapian/WritableDatabase.pm
@@ -51,6 +52,7 @@ XS/SimpleStopper.xs
 XS/Stem.xs
 XS/Stopper.xs
 XS/TermIterator.xs
+XS/TradWeight.xs
 XS/ValueIterator.xs
 XS/Weight.xs
 XS/WritableDatabase.xs

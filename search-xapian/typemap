@@ -34,6 +34,8 @@ BM25Weight		O_WEIGHT
 BM25Weight *		O_WEIGHT
 BoolWeight		O_WEIGHT
 BoolWeight *		O_WEIGHT
+TradWeight		O_WEIGHT
+TradWeight *		O_WEIGHT
 
 TermIterator		O_TERM_I
 TermIterator *		O_TERM_I

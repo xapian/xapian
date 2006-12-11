@@ -3,7 +3,7 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::BoolWeight
 PROTOTYPES: ENABLE
 
 BoolWeight *
-new()
+BoolWeight::new()
     CODE:
         RETVAL = new BoolWeight();
     OUTPUT:

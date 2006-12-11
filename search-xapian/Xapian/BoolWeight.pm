@@ -19,7 +19,7 @@ Search::Xapian::BoolWeight - Boolean Weighting scheme.
 
 =head1 DESCRIPTION
 
-Boolean Weighting scheme. Everything a weight of 0.
+Boolean Weighting scheme. All documents get a weight of 0.
 
 =head1 METHODS
 
