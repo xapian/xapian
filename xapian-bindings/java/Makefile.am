@@ -10,7 +10,8 @@ TESTS = SmokeTest.class
 
 EXTRA_DIST = run-java-test SmokeTest.java
 
-CLEANFILES = SmokeTest.class built/xapian_jni.jar
+CLEANFILES = SmokeTest.class MyMatchDecider.class MyExpandDecider.class \
+	built/xapian_jni.jar
 
 SmokeTest: SmokeTest.class
 
