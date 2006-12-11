@@ -81,6 +81,7 @@ INCLUDE: XS/SimpleStopper.xs
 INCLUDE: XS/Stem.xs
 INCLUDE: XS/Stopper.xs
 INCLUDE: XS/TermIterator.xs
+INCLUDE: XS/TradWeight.xs
 INCLUDE: XS/PostingIterator.xs
 INCLUDE: XS/PositionIterator.xs
 INCLUDE: XS/ValueIterator.xs

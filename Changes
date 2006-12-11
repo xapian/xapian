@@ -1,5 +1,11 @@
 Revision history for Perl extension Search::Xapian.
 
+0.9.9.1  Mon Dec 11 06:08:57 2006
+	[Changes contributed by Olly Betts]
+	- Fix typo in BoolWeight documentation.
+	- Fix BoolWeight default constructor (broken by changes in 0.9.9.0).
+	- Wrap TradWeight class.
+
 0.9.9.0  Mon Nov 09 02:31:09 2006
 	[Changes contributed by Olly Betts]
 	- Fix the BM25Weight constructors.

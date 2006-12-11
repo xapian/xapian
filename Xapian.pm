@@ -22,6 +22,7 @@ use Search::Xapian::WritableDatabase;
 
 use Search::Xapian::BM25Weight;
 use Search::Xapian::BoolWeight;
+use Search::Xapian::TradWeight;
 
 use Search::Xapian::SimpleStopper;
 use Search::Xapian::PerlStopper;
@@ -86,7 +87,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.9.9.0';
+our $VERSION = '0.9.9.1';
 
 bootstrap Search::Xapian $VERSION;
 
@@ -315,7 +316,7 @@ docs.
 
 The following Xapian classes are not yet wrapped:
 Error (and subclasses), ErrorHandler, ExpandDecider (and subclasses),
-MatchDecider, TradWeight, user-defined weight classes.
+MatchDecider, user-defined weight classes.
 
 =item Unwrapped methods
 
