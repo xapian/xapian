@@ -184,7 +184,7 @@ QuartzAllDocsPostList::QuartzAllDocsPostList(Xapian::Internal::RefCntPtr<const X
 	      this_db_.get() << ", " << table << ", " << doccount_);
 
     // Move to initial NULL entry.
-    Bcursor * cursor = table->cursor_get();
+    AutoPtr<Bcursor> cursor(table->cursor_get());
     cursor->find_entry("");
     if (!cursor->after_end())
         cursor->next();

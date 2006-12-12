@@ -1,3 +1,9 @@
+Tue Dec 12 21:18:54 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/quartz/quartz_alldocspostlist.cc: Fix memory leak
+	  discovered by valgrind in QuartzAllDocsPostList constructor: was
+	  failing to delete the Bcursor.
+
 Tue Dec 12 21:05:47 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/queryparser.lemony: Fix parsing of queries of the
