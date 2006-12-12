@@ -1,3 +1,17 @@
+Tue Dec 12 21:05:47 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/queryparser.lemony: Fix parsing of queries of the
+	  form "+foo* bar", where no terms in the database match the
+	  wildcard "foo*", but bar does exist in the database.  Previously,
+	  such queries would be equivalent to "bar".  Now, they will match
+	  no documents.  This required using a new "QpQuery" object
+	  internally so we can distinguish between deliberately "match
+	  nothing" queries, and empty lists of queries.
+	* tests/api_anydb.cc,tests/queryparsertest.cc: Test above fix, and
+	  general parsing of wildcard queries with +terms, and test
+	  performing a match with a query resulting from a wildcard query
+	  which matches nothing.
+
 Tue Dec 12 21:05:15 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_nodb.cc,api/omqueryinternal.cc,api/omquery.cc: Fix some

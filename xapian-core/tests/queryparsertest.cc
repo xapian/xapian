@@ -664,6 +664,29 @@ static bool test_qp_flag_wildcard1()
     // were in the database or not):
     qobj = queryparser.parse_query("mUTTON++");
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
+    // Regression test: check that wildcards work with +terms.
+    unsigned flags = Xapian::QueryParser::FLAG_WILDCARD |
+		     Xapian::QueryParser::FLAG_LOVEHATE;
+    qobj = queryparser.parse_query("+mai* main", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_MAYBE main:(pos=2)))");
+    // Regression test (if we had a +term which was a wildcard and wasn't
+    // present, the query could still match documents).
+    qobj = queryparser.parse_query("foo* main", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
+    qobj = queryparser.parse_query("+foo* main", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("foo* +main", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
+    qobj = queryparser.parse_query("+foo* +main", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("foo* mai", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=2))");
+    qobj = queryparser.parse_query("+foo* mai", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("foo* +mai", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=2))");
+    qobj = queryparser.parse_query("+foo* +mai", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
     return true;
 }
 

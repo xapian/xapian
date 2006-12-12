@@ -208,6 +208,39 @@ static bool test_simplequery3()
     return true;
 }
 
+// tests for the right document count for a wildcard query
+static bool test_wildquery1()
+{
+    Xapian::QueryParser queryparser;
+    unsigned flags = Xapian::QueryParser::FLAG_WILDCARD |
+		     Xapian::QueryParser::FLAG_LOVEHATE;
+    queryparser.set_stemmer(Xapian::Stem("english"));
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
+    Xapian::Database db = get_database("apitest_simpledata");
+    queryparser.set_database(db);
+    Xapian::Enquire enquire(db);
+
+    Xapian::Query qobj = queryparser.parse_query("th*", flags);
+    enquire.set_query(qobj);
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+    // Check that 6 documents were returned.
+    TEST_MSET_SIZE(mymset, 6);
+
+    qobj = queryparser.parse_query("notindb* this", flags);
+    enquire.set_query(qobj);
+    mymset = enquire.get_mset(0, 10);
+    // Check that 6 documents were returned.
+    TEST_MSET_SIZE(mymset, 6);
+
+    qobj = queryparser.parse_query("+notindb* this", flags);
+    enquire.set_query(qobj);
+    mymset = enquire.get_mset(0, 10);
+    // Check that 0 documents were returned.
+    TEST_MSET_SIZE(mymset, 0);
+
+    return true;
+}
+
 // tests a query across multiple databases
 static bool test_multidb1()
 {
@@ -1644,6 +1677,7 @@ test_desc anydb_tests[] = {
     {"simplequery1",       test_simplequery1},
     {"simplequery2",       test_simplequery2},
     {"simplequery3",       test_simplequery3},
+    {"wildquery1",	   test_wildquery1},
     {"multidb1",           test_multidb1},
     {"multidb2",           test_multidb2},
     {"multidb3",           test_multidb3},

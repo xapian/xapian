@@ -79,6 +79,51 @@ is_not_wordchar(unsigned ch) {
 // Disable debug code lemon adds.
 #define NDEBUG
 
+/// Wrapper around a query, allowing us to distinguish between a query
+/// representing an empty list of queries, and a "MatchNothing" query.
+class QpQuery {
+    /// The underlying query object.
+    Query q;
+
+    /// Flag, true iff this represents a "MatchNothing" query.
+    bool match_nothing_;
+
+  public:
+    QpQuery(const QpQuery & tocopy)
+	: q(tocopy.q), match_nothing_(tocopy.match_nothing_)
+    {}
+
+    QpQuery & operator=(const QpQuery & tocopy)
+    {
+    	q = tocopy.q;
+	match_nothing_ = tocopy.match_nothing_;
+	return *this;
+    }
+
+    /** A query consisting of a single term. */
+    QpQuery(const std::string & tname, Xapian::termcount wqf,
+	    Xapian::termpos pos)
+	: q(tname, wqf, pos), match_nothing_(false)
+    {}
+
+    /** A query consisting of two subqueries, opp-ed together. */
+    QpQuery(Query::op op, const QpQuery & left, const QpQuery & right)
+	: q(op, left.get(), right.get()), match_nothing_(false)
+    {}
+
+    QpQuery(const Query & q_) : q(q_), match_nothing_(false) {}
+    QpQuery() : q(), match_nothing_(false) {}
+    QpQuery(bool m) : q(), match_nothing_(m) {}
+    Query & get() { return q; }
+    const Query & get() const { return q; }
+
+    /// True iff the query is defined, and matches nothing.
+    bool match_nothing() { return match_nothing_; }
+
+    /// True iff the query is defined, but empty.
+    bool empty() { return !match_nothing_ && q.empty(); }
+};
+
 /// Class used to pass information about a term from lexer to parser.
 class Term {
     // So State can read our name.
@@ -92,11 +137,11 @@ class Term {
 
     termpos get_termpos() const { return pos; }
 
-    Query * as_query() const { return new Query(name, 1, pos); }
+    QpQuery * as_query() const { return new QpQuery(name, 1, pos); }
 
-    Query * as_wildcarded_query(State * state) const;
+    QpQuery * as_wildcarded_query(State * state) const;
 
-    Query as_query_object() const { return Query(name, 1, pos); }
+    QpQuery as_query_object() const { return QpQuery(name, 1, pos); }
 };
 
 /// Parser State shared between the lexer and the parser.
@@ -105,7 +150,7 @@ class State {
     QueryParser::Internal * qpi;
 
   public:
-    Query query;
+    QpQuery query;
     const char * error;
     unsigned flags;
 
@@ -128,27 +173,31 @@ class State {
 };
 
 static void
-add_to_query(Query & q, Query::op op, const Query &term)
+add_to_query(QpQuery & q, Query::op op, const QpQuery &term)
 {
     if (q.empty()) {
 	q = term;
     } else {
-	q = Query(op, q, term);
+	q = QpQuery(op, q, term);
     }
 }
 
-Query *
+QpQuery *
 Term::as_wildcarded_query(State * state) const
 {
     Database db = state->get_database();
     TermIterator t = db.allterms_begin();
     t.skip_to(name);
-    Query q;
+    QpQuery q;
     while (t != db.allterms_end() && (*t).substr(0, name.size()) == name) {
-	add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
+	add_to_query(q, Query::OP_OR, QpQuery(*t, 1, pos));
 	++t;
     }
-    return new Query(q);
+    if (q.get().empty()) {
+	return new QpQuery(true);
+    } else {
+	return new QpQuery(q);
+    }
 }
 
 inline bool
@@ -578,14 +627,14 @@ done:
     ParseFree(pParser);
 
     errmsg = state.error;
-    return state.query;
+    return state.query.get();
 }
 
 struct ProbQuery {
-    Query query;
-    Query love;
-    Query hate;
-    Query filter;
+    QpQuery query;
+    QpQuery love;
+    QpQuery hate;
+    QpQuery filter;
 };
 
 class TermList {
@@ -597,7 +646,7 @@ class TermList {
 
     /// Add a Term object to this TermList object.
     void add_term(Term * term) {
-	terms.push_back(term->as_query_object());
+	terms.push_back(term->as_query_object().get());
 	delete term;
     }
 
@@ -606,38 +655,38 @@ class TermList {
     }
 
     /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
-    Query * as_phrase_query() const {
-	Query * term;
-	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end(),
-			 terms.size());
+    QpQuery * as_phrase_query() const {
+	QpQuery * term;
+	term = new QpQuery(Query(Query::OP_PHRASE, terms.begin(), terms.end(),
+				 terms.size()));
 	delete this;
 	return term;
     }
 
     /// Convert to a Xapian::Query * using OP_NEAR.
-    Query * as_near_query() const {
-	Query * term;
+    QpQuery * as_near_query() const {
+	QpQuery * term;
 	// The common meaning of 'a NEAR b' is "a within 10 terms of b", which
 	// means a window size of 11.  For more than 2 terms, we just add one
 	// to the window size for each extra term.
 	size_t w = window;
 	if (w == 0) w = 10;
-	term = new Query(Query::OP_NEAR, terms.begin(), terms.end(),
-			 terms.size() + w - 1);
+	term = new QpQuery(Query(Query::OP_NEAR, terms.begin(), terms.end(),
+				 terms.size() + w - 1));
 	delete this;
 	return term;
     }
 
     /// Convert to a Xapian::Query * using OP_PHRASE to implement ADJ.
-    Query * as_adj_query() const {
-	Query * term;
+    QpQuery * as_adj_query() const {
+	QpQuery * term;
 	// The common meaning of 'a ADJ b' is "a at most 10 terms before b",
 	// which means a window size of 11.  For more than 2 terms, we just add
 	// one to the window size for each extra term.
 	size_t w = window;
 	if (w == 0) w = 10;
-	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end(),
-			 terms.size() + w - 1);
+	term = new QpQuery(Query(Query::OP_PHRASE, terms.begin(), terms.end(),
+				 terms.size() + w - 1));
 	delete this;
 	return term;
     }
@@ -655,14 +704,14 @@ class TermList {
 };
 
 // Helper macro for converting a boolean operation into a Xapian::Query.
-#define BOOL_OP_TO_QUERY(E, A, OP, B, OP_TXT) \
+#define BOOL_OP_TO_QPQUERY(E, A, OP, B, OP_TXT) \
     do {\
 	if (!A || !B) {\
 	    state->error = "Syntax: <expression> "OP_TXT" <expression>";\
 	    yy_parse_failed(yypParser);\
 	    return;\
 	}\
-	E = new Query(OP, *A, *B);\
+	E = new QpQuery(OP, *A, *B);\
 	delete A;\
 	delete B;\
     } while (0)
@@ -721,39 +770,40 @@ query ::= expr(E). {
 
 query ::= . {
     // Handle a query string with no terms in.
-    state->query = Query();
+    state->query = QpQuery();
 }
 
 // expr - A query expression.
 
-%type expr {Query *}
+%type expr {QpQuery *}
 %destructor expr {delete $$;}
 
 expr(E) ::= prob_expr(P).
 	{ E = P; }
 
 expr(E) ::= bool_arg(A) AND bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND, B, "AND"); }
+	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_AND, B, "AND"); }
 
 expr(E) ::= bool_arg(A) NOT bool_arg(B). {
     // 'NOT foo' -> '<alldocuments> NOT foo'
-    if (!A && (state->flags & QueryParser::FLAG_PURE_NOT))
-	A = new Query("");
-    BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "NOT");
+    if (!A && (state->flags & QueryParser::FLAG_PURE_NOT)) {
+	A = new QpQuery("", 1, 0);
+    }
+    BOOL_OP_TO_QPQUERY(E, A, Query::OP_AND_NOT, B, "NOT");
 }
 
 expr(E) ::= bool_arg(A) AND NOT bool_arg(B). [NOT]
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
+	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
 
 expr(E) ::= bool_arg(A) OR bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_OR, B, "OR"); }
+	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_OR, B, "OR"); }
 
 expr(E) ::= bool_arg(A) XOR bool_arg(B).
-	{ BOOL_OP_TO_QUERY(E, A, Query::OP_XOR, B, "XOR"); }
+	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_XOR, B, "XOR"); }
 
 // bool_arg - an argument to a boolean operator such as AND or OR.
 
-%type bool_arg {Query *}
+%type bool_arg {QpQuery *}
 %destructor bool_arg {delete $$;}
 
 bool_arg(A) ::= expr(E). { A = E; }
@@ -767,17 +817,17 @@ bool_arg(A) ::= . [ERROR] {
 
 // prob_expr - a single compound term, or a prob.
 
-%type prob_expr {Query *}
+%type prob_expr {QpQuery *}
 %destructor prob_expr {delete $$;}
 
 prob_expr(E) ::= prob(P). {
-    E = new Query(P->query);
+    E = new QpQuery(P->query);
     // Handle any "+ terms".
     if (!P->love.empty()) {
 	if (E->empty()) {
 	    *E = P->love;
 	} else {
-	    *E = Query(Query::OP_AND_MAYBE, P->love, *E);
+	    *E = QpQuery(Query::OP_AND_MAYBE, P->love, *E);
 	}
     }
     // Handle any "- terms".
@@ -788,7 +838,7 @@ prob_expr(E) ::= prob(P). {
 	    yy_parse_failed(yypParser);
 	    return;
 	}
-	*E = Query(Query::OP_AND_NOT, *E, P->hate);
+	*E = QpQuery(Query::OP_AND_NOT, *E, P->hate);
     }
     // Handle any boolean filters.
     if (!P->filter.empty()) {
@@ -796,7 +846,7 @@ prob_expr(E) ::= prob(P). {
 	    *E = P->filter;
 	    // FIXME and make the query boolean somehow...
 	} else {
-	    *E = Query(Query::OP_FILTER, *E, P->filter);
+	    *E = QpQuery(Query::OP_FILTER, *E, P->filter);
 	}
     }
     // FIXME what if E->empty() (all terms are stopwords)?
@@ -927,12 +977,12 @@ stop_prob(P) ::= stop_term(T). {
 // If a term is loved, hated, or in a phrase, we don't want to consult the
 // stopword list, so stop_term isn't used there (instead term is).
 
-%type stop_term {Query *}
+%type stop_term {QpQuery *}
 %destructor stop_term {delete $$;}
 
 stop_term(T) ::= TERM(U). {
     if (state->is_stopword(U)) {
-	T = new Query;
+	T = new QpQuery;
 	state->add_to_stoplist(U);
     } else {
 	T = U->as_query();
@@ -946,7 +996,7 @@ stop_term(T) ::= compound_term(U). {
 
 // term - A term or a compound_term.
 
-%type term {Query *}
+%type term {QpQuery *}
 %destructor term {delete $$;}
 
 term(T) ::= TERM(U). {
@@ -961,7 +1011,7 @@ term(T) ::= compound_term(U). {
 // compound_term - A quoted phrase (with or without prefix), a phrased_term,
 // near_expr, adj_expr, or a bracketed subexpression (with or without prefix).
 
-%type compound_term {Query *}
+%type compound_term {QpQuery *}
 %destructor compound_term {delete $$;}
 
 compound_term(T) ::= WILD_TERM(U). {
