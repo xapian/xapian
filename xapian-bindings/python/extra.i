@@ -88,9 +88,13 @@ class TermIter:
         self.iter.skip_to(term)
 
 class PostingIter:
-    def __init__(self, start, end):
+    HAS_NOTHING = 0
+    HAS_POSITIONS = 1
+
+    def __init__(self, start, end, has=HAS_NOTHING):
         self.iter = start
         self.end = end
+        self.has = has
 
     def __iter__(self):
         return self
@@ -99,7 +103,10 @@ class PostingIter:
         if self.iter==self.end:
             raise StopIteration
         else:
-            r = [self.iter.get_docid(), self.iter.get_doclength(), self.iter.get_wdf(), PositionIter(self.iter.positionlist_begin(), self.iter.positionlist_end())]
+            if self.has & PostingIter.HAS_POSITIONS:
+                r = [self.iter.get_docid(), self.iter.get_doclength(), self.iter.get_wdf(), PositionIter(self.iter.positionlist_begin(), self.iter.positionlist_end())]
+            else:
+                r = [self.iter.get_docid(), self.iter.get_doclength(), self.iter.get_wdf(), PositionIter()]
             self.iter.next()
             return r
 
@@ -162,7 +169,10 @@ def database_gen_allterms_iter(self):
 Database.__iter__ = database_gen_allterms_iter
 
 def database_gen_postlist_iter(self, tname):
-    return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
+    if len(tname) != 0:
+        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname), PostingIter.HAS_POSITIONS)
+    else:
+        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
 def database_gen_termlist_iter(self, docid):
     return TermIter(self.termlist_begin(docid), self.termlist_end(docid), TermIter.HAS_TERMFREQS|TermIter.HAS_POSITIONS)
 def database_gen_positionlist_iter(self, docid, tname):

@@ -150,6 +150,14 @@ try:
             print >> sys.stderr, "Unexpected number of entries in db.postlist (%d)" % count
             sys.exit(1)
 
+        # Feature test for Database.postlist with empty term (alldocspostlist)
+        count = 0
+        for posting in db.postlist(""):
+            count += 1
+        if count != 1:
+            print >> sys.stderr, "Unexpected number of entries in db.postlist('') (%d)" % count
+            sys.exit(1)
+
         # Feature test for Database.termlist
         count = 0
         for term in db.termlist(1):

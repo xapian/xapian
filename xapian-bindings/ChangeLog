@@ -1,3 +1,12 @@
+Tue Dec 12 21:51:23 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Fix PostingIter for all-document iterators - was
+	  broken because positionlist_begin() throws an exception for
+	  all-document iterators.  Fixed by keeping track of this and
+	  returning an empty list for positionlits iterators, in the same
+	  way as TermIter does.
+	* python/smoketest.py: Add test for all-document iterators.
+
 Mon Dec 11 04:01:19 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/Makefile.am: "make clean" now needs to remove
