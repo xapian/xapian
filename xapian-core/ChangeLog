@@ -1,3 +1,10 @@
+Tue Dec 12 20:01:58 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+        * configure.ac: Fix valgrind better: --log-file-exactly isn't what
+          is wanted, because it messes up if multiple processes are traced.
+          Instead, use a temporary file instead of /dev/null, so we don't
+          get the permission denied error.
+
 Tue Dec 12 19:15:20 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
         * configure.ac: Fix detection of valgrind for newer valgrind.  My

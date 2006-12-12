@@ -441,18 +441,16 @@ if test -n "${VALGRIND-unset}" ; then
 	VALGRIND="$VALGRIND --tool=memcheck"
       fi
       AC_MSG_CHECKING([for valgrind log-file syntax])
-      if $VALGRIND --log-file-exactly=/dev/null -q true 2>/dev/null ; then
-	VALGRIND_LOG_FILE_OPT=--log-file-exactly
-        AC_MSG_RESULT(--log-file-exactly)
-      elif $VALGRIND --log-file=/dev/null -q true 2>/dev/null ; then
-        AC_MSG_RESULT(--log-file)
+      if $VALGRIND --log-file=config.valgrind.tmp -q true 2>/dev/null ; then
+	rm -f config.valgrind.tmp*
+	AC_MSG_RESULT(--log-file)
       elif $VALGRIND --logfile=/dev/null -q true 2>/dev/null ; then
 	VALGRIND_LOG_FILE_OPT=--logfile
-        AC_MSG_RESULT(--logfile)
+	AC_MSG_RESULT(--logfile)
       else
 	dnl The valgrind detected doesn't seem to work!  Perhaps this is an
 	dnl x86_64 box with a 32 bit valgrind.
-        AC_MSG_RESULT(valgrind doesn't work)
+	AC_MSG_RESULT(valgrind doesn't work)
 	VALGRIND=
       fi
     fi
