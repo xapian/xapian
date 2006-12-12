@@ -1,3 +1,8 @@
+Tue Dec 12 21:05:15 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_nodb.cc,api/omqueryinternal.cc,api/omquery.cc: Fix some
+	  copyright assertions I missed.
+
 Tue Dec 12 19:38:39 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/query.h,api/omqueryinternal.cc,api/omquery.cc: Add
