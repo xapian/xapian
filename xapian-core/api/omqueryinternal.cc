@@ -360,7 +360,7 @@ qint_from_vector(Xapian::Query::op op,
     Xapian::Query::Internal * qint = new Xapian::Query::Internal(op, parameter);
     vector<Xapian::Query::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++) {
-	qint->add_subquery(**i);
+	qint->add_subquery(*i);
 	delete *i;
     }
     qint->end_construction();
@@ -554,11 +554,76 @@ Xapian::Query::Internal::validate_query() const
     }
 }
 
+bool
+Xapian::Query::Internal::simplify_matchnothing()
+{
+    subquery_list::iterator sq;
+    switch (op) {
+        case OP_PHRASE:
+        case OP_NEAR:
+        case OP_AND:
+        case OP_FILTER:
+            // Doing an "AND" type operation - if we've got any MatchNothing
+            // nodes, we match nothing.
+            for (sq = subqs.begin(); sq != subqs.end(); sq++) {
+                if (*sq == 0) {
+                    for (sq = subqs.begin(); sq != subqs.end(); sq++)
+                        delete *sq;
+                    subqs.clear();
+                    return true;
+                }
+            }
+            break;
+        case OP_ELITE_SET:
+        case OP_OR:
+        case OP_XOR:
+            // Doing an "OR" type operation - if we've got any MatchNothing
+            // subnodes, drop them; except that we mustn't become an empty
+            // node due to this, so we never drop a MatchNothing subnode
+            // if it's the only subnode.
+            sq = subqs.begin();
+            while (sq != subqs.end() && subqs.size() > 1) {
+                if (*sq == 0) {
+                    sq = subqs.erase(sq);
+                } else {
+                    ++sq;
+                }
+            }
+            break;
+        case OP_AND_MAYBE:
+            // If left hand side is MatchNothing, we match nothing.
+            // If right hand side is MatchNothing, replace node with LHS.
+            // So, if either node is MatchNothing, replace node with LHS.
+            // Easiest way to do this is to remove the right hand node,
+            // and let simplify_query() perform the replacement of
+            // the unary operator with 
+            Assert(subqs.size() == 2);
+            if (subqs[0] == 0 || subqs[1] == 0) {
+                sq = subqs.begin();
+                sq++;
+                delete *sq;
+                subqs.erase(sq);
+            }
+
+            break;
+        case OP_LEAF:
+            // Do nothing.
+            break;
+    }
+    return false;
+}
+
 Xapian::Query::Internal *
 Xapian::Query::Internal::simplify_query()
 {
     DEBUGCALL(API, bool, "Xapian::Query::Internal::simplify_query", "");
 
+    // Simplify any MatchNothing nodes.
+    if (simplify_matchnothing()) {
+	return 0;
+    }
+
+    // General simplifications, dependent on operator.
     switch (op) {
 	case OP_LEAF:
 	    return this;
@@ -588,8 +653,9 @@ Xapian::Query::Internal::simplify_query()
 	    break;
     }
 
-    // If we have no subqueries, then we're simply an undefined query.
-    if (subqs.empty()) return 0;
+    // If we have no subqueries, then we're an empty query.
+    if (subqs.empty())
+	return 0;
 
     // Any nodes which are valid with only one subquery can be replaced by
     // that solitary subquery.
@@ -681,7 +747,7 @@ Xapian::Query::Internal::flatten_subqs()
 	    *sq = *j;
 	    *j = 0;
 	    flatten_subqs();
-	    newq.add_subquery(*this);
+	    newq.add_subquery(this);
 	    delete *sq;
 	    *sq = 0;
 	}
@@ -693,16 +759,18 @@ Xapian::Query::Internal::flatten_subqs()
 }
 
 void
-Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal & subq)
+Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal * subq)
 {
     Assert(!is_leaf(op));
-    if (op == subq.op && (op == OP_AND || op == OP_OR || op == OP_XOR)) {
+    if (subq == 0) {
+	subqs.push_back(0);
+    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR)) {
 	// Distribute the subquery.
-	for (subquery_list::const_iterator i = subq.subqs.begin();
-	     i != subq.subqs.end(); i++) {
-	    add_subquery(**i);
+	for (subquery_list::const_iterator i = subq->subqs.begin();
+	     i != subq->subqs.end(); i++) {
+	    add_subquery(*i);
 	}
     } else {
-	subqs.push_back(new Xapian::Query::Internal(subq));
+	subqs.push_back(new Xapian::Query::Internal(*subq));
     }
 }

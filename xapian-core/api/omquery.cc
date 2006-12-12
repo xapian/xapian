@@ -43,9 +43,7 @@ Query::add_subquery(const Query & subq)
 {
     DEBUGAPICALL(void, "Xapian::Query::add_subquery", subq);
     Assert(internal.get());
-    if (!subq.internal.get())
-	throw InvalidArgumentError("Can't compose a query from undefined queries");
-    internal->add_subquery(*(subq.internal));
+    internal->add_subquery(subq.internal.get());
 }
 
 /// Add a subquery by pointer
@@ -57,9 +55,7 @@ Query::add_subquery(const Query * subq)
 	throw InvalidArgumentError("Pointer to subquery may not be null");
     }
     Assert(internal.get());
-    if (!subq->internal.get())
-	throw InvalidArgumentError("Can't compose a query from undefined queries");
-    internal->add_subquery(*(subq->internal));
+    internal->add_subquery(subq->internal.get());
 }
 
 /// Add a subquery which is a single term
@@ -68,7 +64,8 @@ Query::add_subquery(const string & tname)
 {
     DEBUGAPICALL(void, "Xapian::Query::add_subquery", tname);
     Assert(internal.get());
-    internal->add_subquery(tname);
+    Query::Internal subqint(tname);
+    internal->add_subquery(&subqint);
 }
 
 /// Setup the internals for the query, with the appropriate operator.
@@ -209,5 +206,9 @@ Query::Query(Query::op op_, const std::string & left, const std::string & right)
 	throw;
     }
 }
+
+/* Define static members. */
+Xapian::Query Xapian::Query::MatchAll = Xapian::Query("");
+Xapian::Query Xapian::Query::MatchNothing = Xapian::Query();
 
 }

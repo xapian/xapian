@@ -214,9 +214,10 @@ static bool test_emptyquerypart1()
 {
     vector<string> emptyterms;
     Xapian::Query query(Xapian::Query::OP_OR, emptyterms.begin(), emptyterms.end());
-    TEST_EXCEPTION(Xapian::InvalidArgumentError,
-		   Xapian::Query bad_query(Xapian::Query::OP_AND,
-					   query, Xapian::Query("x")));
+    TEST(Xapian::Query(Xapian::Query::OP_AND, query, Xapian::Query("x")).empty());
+    TEST(Xapian::Query(Xapian::Query::OP_AND, query, Xapian::Query("x")).get_length() == 0);
+    TEST(!Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("x")).empty());
+    TEST(Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("x")).get_length() == 1);
     return true;
 }
 

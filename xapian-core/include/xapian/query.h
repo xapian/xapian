@@ -150,6 +150,12 @@ class Query {
 	/** Apply the specified operator to a single Xapian::Query object. */
 	Query(Query::op op_, Xapian::Query q);
 
+	/** A query which matches all documents in the database. */
+	static Xapian::Query MatchAll;
+
+	/** A query which matches no documents. */
+	static Xapian::Query MatchNothing;
+
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically - if you want to override
 	 *  it you can pass a different value to Enquire::set_query().
@@ -285,6 +291,13 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	void validate_query() const;
 
+	/** Simplify any matchnothing subqueries, either eliminating them,
+	 *  or setting this query to matchnothing, depending on the query
+	 *  operator.  Returns true if simplification resulted in a
+	 *  matchnothing query.
+	 */
+	bool simplify_matchnothing();
+
 	/** Get a string describing the given query type.
 	 */
 	static std::string get_op_name(Xapian::Query::Internal::op_t op);
@@ -323,7 +336,7 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Add a subquery.
 	 */
-	void add_subquery(const Query::Internal & subq);
+	void add_subquery(const Query::Internal * subq);
 
 	/** Finish off the construction.
 	 */

@@ -1,30 +1,44 @@
+Tue Dec 12 19:38:39 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/query.h,api/omqueryinternal.cc,api/omquery.cc: Add
+	  two static Query objects: Xapian::Query::MatchAll and
+	  Xapian::Query::MatchNothing, which match all documents and no
+	  documents in the database, respectively.  (Equivalent to
+	  Query("") and Query()).  Allow empty queries such as MatchNothing
+	  to be combined with other queries.  Change methods of
+	  Xapian::Query::Internal to use pointers to query internals
+	  instead of references, so they can handle the NULL pointer
+	  internals of an empty query.
+	* tests/api_nodb.cc: Test combining of MatchNothing queries with
+	  other queries with OP_AND and OP_OR.
+
 Tue Dec 12 20:01:58 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
-        * configure.ac: Fix valgrind better: --log-file-exactly isn't what
-          is wanted, because it messes up if multiple processes are traced.
-          Instead, use a temporary file instead of /dev/null, so we don't
-          get the permission denied error.
+	* configure.ac: Fix valgrind better: --log-file-exactly isn't what
+	  is wanted, because it messes up if multiple processes are traced.
+	  Instead, use a temporary file instead of /dev/null, so we don't
+	  get the permission denied error.
 
 Tue Dec 12 19:15:20 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
-        * configure.ac: Fix detection of valgrind for newer valgrind.  My
-          version of valgrind (valgrind-3.2.1-Debian, from ubuntu feisty)
-          treats the parameter supplied to --log-file as a base path, and
-          appends a process ID. This caused the test for the log-file
-          option to fail with permission denied errors due to trying to
-          write to files of the form '/dev/null.16098'.  Solution - test
-          for the --log-file-exactly option, and use that.  Also, change
-          configure.ac to display the result of the tests for valgrind; was
-          displaying that it had found it, but not mentioning that it
-          couldn't make it work.
+	* configure.ac: Fix detection of valgrind for newer valgrind.  My
+	  version of valgrind (valgrind-3.2.1-Debian, from ubuntu feisty)
+	  treats the parameter supplied to --log-file as a base path, and
+	  appends a process ID. This caused the test for the log-file
+	  option to fail with permission denied errors due to trying to
+	  write to files of the form '/dev/null.16098'.  Solution - test
+	  for the --log-file-exactly option, and use that.  Also, change
+	  configure.ac to display the result of the tests for valgrind; was
+	  displaying that it had found it, but not mentioning that it
+	  couldn't make it work.
 
 Tue Dec 05 21:12:12 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
-        * include/xapian/query.h,api/omqueryinternal.cc: Fix query
-          serialisation bug.  Was failing to propagate "curpos" parameter
-          across subqueries, resulting in incorrect serialisation of
-          termpositions.
-        * tests/internaltest.cc: Regression test for this bug.
+	* include/xapian/query.h,api/omqueryinternal.cc: Fix query
+	  serialisation bug.  Was failing to propagate "curpos" parameter
+	  across subqueries, resulting in incorrect serialisation of
+	  termpositions.
+	* tests/internaltest.cc: Regression test for this bug.
 
 Tue Dec 05 01:34:07 GMT 2006  Olly Betts <olly@survex.com>
 
