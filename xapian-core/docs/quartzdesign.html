@@ -254,9 +254,10 @@ order direct from disk - instead, the list is read into memory to be sorted.
 For databases which do not have sparse document IDs, this should not use much
 memory since the list is kept in memory in a range-compressed form (but does
 require an iteration over the entirety of one of the tables of the Quartz
-database - no skipping can be done in this case.  This is unlikely to be fixed,
-since we don't believe it can be without changing Quartz's structure.  In any
-case, it is not a priority since Quartz is no longer the default backend.
+database - no skipping can be done in this case.)  This is unlikely to be
+fixed, since we don't believe it can be without changing Quartz's structure.
+In any case, it is not a priority since Quartz is no longer the default
+backend.
 
 <h2>Btree implementation</h2>
 

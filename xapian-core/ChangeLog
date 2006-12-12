@@ -1,3 +1,7 @@
+Tue Dec 12 21:33:38 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/quartzdesign.html: Fix an unmatched bracket.
+
 Tue Dec 12 21:18:54 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/quartz/quartz_alldocspostlist.cc: Fix memory leak
