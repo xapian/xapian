@@ -1,3 +1,16 @@
+Tue Dec 12 19:15:20 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+        * configure.ac: Fix detection of valgrind for newer valgrind.  My
+          version of valgrind (valgrind-3.2.1-Debian, from ubuntu feisty)
+          treats the parameter supplied to --log-file as a base path, and
+          appends a process ID. This caused the test for the log-file
+          option to fail with permission denied errors due to trying to
+          write to files of the form '/dev/null.16098'.  Solution - test
+          for the --log-file-exactly option, and use that.  Also, change
+          configure.ac to display the result of the tests for valgrind; was
+          displaying that it had found it, but not mentioning that it
+          couldn't make it work.
+
 Tue Dec 05 21:12:12 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
         * include/xapian/query.h,api/omqueryinternal.cc: Fix query

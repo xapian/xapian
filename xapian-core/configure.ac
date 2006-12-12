@@ -416,12 +416,14 @@ if test -n "${VALGRIND-unset}" ; then
     dnl Check that the valgrind version installed supports the most recently
     dnl added client request which we use - VALGRIND_DO_LEAK_CHECK is ages old,
     dnl VALGRIND_COUNT_ERRORS was added at the same time as VALGRIND_COUNT_LEAKS
+    AC_MSG_CHECKING([for VALGRIND_COUNT_LEAKS])
     AC_EGREP_CPP(yes,
       [#include <valgrind/memcheck.h>
        #ifdef VALGRIND_COUNT_LEAKS
        yes
        #endif
-      ], [],
+      ], AC_MSG_RESULT(found),
+      AC_MSG_RESULT(not supported)
       [VALGRIND=])
 
     dnl Check that the installed valgrind version works, and see if it needs
@@ -438,13 +440,19 @@ if test -n "${VALGRIND-unset}" ; then
 	dnl This valgrind version requires --tool=memcheck
 	VALGRIND="$VALGRIND --tool=memcheck"
       fi
-      if $VALGRIND --log-file=/dev/null -q true 2>/dev/null ; then
-        :
+      AC_MSG_CHECKING([for valgrind log-file syntax])
+      if $VALGRIND --log-file-exactly=/dev/null -q true 2>/dev/null ; then
+	VALGRIND_LOG_FILE_OPT=--log-file-exactly
+        AC_MSG_RESULT(--log-file-exactly)
+      elif $VALGRIND --log-file=/dev/null -q true 2>/dev/null ; then
+        AC_MSG_RESULT(--log-file)
       elif $VALGRIND --logfile=/dev/null -q true 2>/dev/null ; then
 	VALGRIND_LOG_FILE_OPT=--logfile
+        AC_MSG_RESULT(--logfile)
       else
 	dnl The valgrind detected doesn't seem to work!  Perhaps this is an
 	dnl x86_64 box with a 32 bit valgrind.
+        AC_MSG_RESULT(valgrind doesn't work)
 	VALGRIND=
       fi
     fi
