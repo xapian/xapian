@@ -1,3 +1,13 @@
+Wed Dec 13 03:16:44 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Yet more valgrind test improvements!  Give up testing
+	  valgrind features if VALGRIND_COUNT_LEAKS isn't supported.  Fix the
+	  common shortcut case to not try logging to /dev/null.<pid> so it
+	  can actually get used.  Also don't use /dev/null in the --logfile
+	  case either as it will probably cause problems there too (though I
+	  don't have an old enough valgrind handy to verify this).  Also report
+	  results of valgrind tests in a couple more places.
+
 Wed Dec 13 00:31:04 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/Makefile.am: New rules for generating XapianAdminNotes.html

@@ -431,35 +431,39 @@ if test -n "${VALGRIND-unset}" ; then
       ], AC_MSG_RESULT(found),
       AC_MSG_RESULT(not supported)
       [VALGRIND=])
+  fi
 
+  if test -n "$VALGRIND" ; then
     dnl Check that the installed valgrind version works, and see if it needs
     dnl --tool=memcheck to work (older and newer versions don't, but some in
     dnl between do).  Valgrind 2.1.2 and later have a --log-file option but
     dnl 2.1.1 and older had --logfile instead, so we need to check this too.
-    if $VALGRIND --log-file=/dev/null -q true 2> /dev/null ; then
+    AC_MSG_CHECKING([for valgrind options to use])
+    if $VALGRIND --log-file=config.valgrind.tmp -q true 2> /dev/null ; then
       dnl Test the case which matches a modern valgrind first so we handle
       dnl the common case quickly with a single test.
-      :
+      AC_MSG_RESULT([--log-file])
     else
       dnl Now we have to test individual options.
       if $VALGRIND --tool=memcheck -q true 2> /dev/null ; then
 	dnl This valgrind version requires --tool=memcheck
 	VALGRIND="$VALGRIND --tool=memcheck"
+	AC_MSG_RESULT([--tool=memcheck])
+	AC_MSG_CHECKING([for valgrind options to use])
       fi
-      AC_MSG_CHECKING([for valgrind log-file syntax])
       if $VALGRIND --log-file=config.valgrind.tmp -q true 2>/dev/null ; then
-	rm -f config.valgrind.tmp*
-	AC_MSG_RESULT(--log-file)
-      elif $VALGRIND --logfile=/dev/null -q true 2>/dev/null ; then
+	AC_MSG_RESULT([--log-file])
+      elif $VALGRIND --logfile=config.valgrind.tmp -q true 2>/dev/null ; then
 	VALGRIND_LOG_FILE_OPT=--logfile
-	AC_MSG_RESULT(--logfile)
+	AC_MSG_RESULT([--logfile])
       else
 	dnl The valgrind detected doesn't seem to work!  Perhaps this is an
 	dnl x86_64 box with a 32 bit valgrind.
-	AC_MSG_RESULT(valgrind doesn't work)
+	AC_MSG_RESULT([$VALGRIND doesn't work])
 	VALGRIND=
       fi
     fi
+    rm -f config.valgrind.tmp*
   fi
 fi
 AC_SUBST(VALGRIND_LOG_FILE_OPT)
