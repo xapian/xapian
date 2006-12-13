@@ -1,3 +1,7 @@
+Wed Dec 13 03:27:14 GMT 2006  Olly Betts <olly@survex.com>
+
+	* docs/: svn:ignore XapianAdminNotes.html.
+
 Wed Dec 13 03:16:44 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Yet more valgrind test improvements!  Give up testing
