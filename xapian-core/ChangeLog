@@ -1,3 +1,8 @@
+Wed Dec 13 18:07:51 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/document.h: Improve documentation comment for
+	  Document::get_value().
+
 Wed Dec 13 03:38:37 GMT 2006  Olly Betts <olly@survex.com>
 
 	* include/xapian/enquire.h: In the description of the TradWeight
