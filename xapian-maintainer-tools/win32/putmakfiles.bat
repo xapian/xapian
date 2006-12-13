@@ -19,22 +19,22 @@ copy  win32_languages.mak ..\languages\win32.mak
 copy  win32_matcher.mak ..\matcher\win32.mak
 copy  win32_queryparser.mak ..\queryparser\win32.mak
 copy  win32_tests.mak ..\tests\win32.mak
-copy  win32_testsuite.mak ..\testsuite\win32.mak
+copy  win32_testsuite.mak ..\tests\harness\win32.mak
 
 echo ..Copied all core make files.
 
-if not exist ..\..\xapian-bindings-0.9.8\ goto failbindings
-copy win32_bindings_python.mak ..\..\xapian-bindings-0.9.8\python\win32.mak
+if not exist ..\..\xapian-bindings-0.9.9\ goto failbindings
+copy win32_bindings_python.mak ..\..\xapian-bindings-0.9.9\python\win32.mak
 echo ..Copied all bindings make files.
 goto copyapplications
 :failbindings
 echo ERROR: The bindings are not installed. Make files cannot be copied.
 
 :copyapplications
-if not exist ..\..\omega-0.9.8\ goto failomega
-copy win32_applications_omega.mak ..\..\omega-0.9.8\win32.mak
-copy config.mak ..\..\omega-0.9.8
-copy config.h.omega.win32 ..\..\omega-0.9.8\config.h
+if not exist ..\..\omega-0.9.9\ goto failomega
+copy win32_applications_omega.mak ..\..\omega-0.9.9\win32.mak
+copy config.mak ..\..\omega-0.9.9
+copy config.h.omega.win32 ..\..\omega-0.9.9\config.h
 echo ..Copied all applications files.
 goto end
 :failomega

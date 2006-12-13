@@ -41,8 +41,8 @@ LIBFLINT_OBJS= \
 		       $(INTDIR)\flint_io.obj \
                $(INTDIR)\flint_modifiedpostlist.obj \
                $(INTDIR)\flint_lock.obj
-               
-               
+              
+         
 
 CLEAN :
 	-@erase "$(OUTDIR)\libflint.lib"

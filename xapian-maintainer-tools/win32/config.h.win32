@@ -17,7 +17,7 @@
 #define HAVE_FCNTL_H 1
 
 /* Define to 1 if you have the `fork' function. */
-#define HAVE_FORK 1
+/* #undef HAVE_FORK */
 
 /* Define to 1 if you have the `fsync' function. */
 #undef HAVE_FSYNC
@@ -92,13 +92,13 @@
 #define PACKAGE_NAME "xapian-core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "xapian-core 0.9.8"
+#define PACKAGE_STRING "xapian-core 0.9.9"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "xapian-core"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.9.8"
+#define PACKAGE_VERSION "0.9.9"
 
 /* explicit prototype needed for pread (if any) */
 /* #undef PREAD_PROTOTYPE */
@@ -117,7 +117,7 @@
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "0.9.8"
+#define VERSION "0.9.9"
 
 /* Define if you want to build the flint database backend */
 #define XAPIAN_BUILD_BACKEND_FLINT  1

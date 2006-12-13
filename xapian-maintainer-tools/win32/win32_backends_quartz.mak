@@ -23,7 +23,11 @@ RSC=rc.exe
 OUTDIR=..\..\win32\Release\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libquartz.lib" 
+ALL : "$(OUTDIR)\libquartz.lib" "$(OUTDIR)\libbtreecheck.lib" 
+
+
+LIBBTREECHECK_OBJS= \
+                $(INTDIR)\btreecheck.obj
 
 LIBQUARTZ_OBJS= \
                 $(INTDIR)\quartz_database.obj \
@@ -43,8 +47,10 @@ LIBQUARTZ_OBJS= \
 
 CLEAN :
 	-@erase "$(OUTDIR)\libquartz.lib"
+	-@erase "$(OUTDIR)\libbtreecheck.lib"
 	-@erase "*.pch"
     -@erase "$(INTDIR)\getopt.obj"
+    -@erase $(LIBBTREECHECK_OBJS)
 	-@erase $(LIBQUARTZ_OBJS)
 
 
@@ -66,6 +72,17 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libquartz.lib" $(DEF_FLAGS) $(LIBQUARTZ_OBJS)
 <<
 
+
+"$(OUTDIR)\LIBBTREECHECK.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBBTREECHECK_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) /out:"$(OUTDIR)\libbtreecheck.lib" $(DEF_FLAGS) $(LIBBTREECHECK_OBJS)
+<<
+
+
+"$(INTDIR)\btreecheck.obj" : ".\btreecheck.cc"
+    $(CPP) @<<
+  $(CPP_PROJ) $**
+<<
 
 
 "$(INTDIR)\quartz_database.obj" : "quartz_database.cc"

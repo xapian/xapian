@@ -13,7 +13,7 @@ NULL=nul
 !ENDIF 
 
 # Change this to match your environment
-XAPIAN_DIR=..\..\xapian-core-0.9.8
+XAPIAN_DIR=..\..\xapian-core-0.9.9
 OUTLIBDIR=$(XAPIAN_DIR)\win32\Release\libs
 
 !INCLUDE $(XAPIAN_DIR)\win32\config.mak

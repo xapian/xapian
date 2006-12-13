@@ -95,7 +95,7 @@ CLEAN :
 #    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I ".." /I "..\common" /I "..\tests" /I "..\include" /I "..\testsuite" /I"..\backends\quartz" \
+ /I ".." /I "..\common" /I "..\tests" /I "..\include" /I "harness" /I"..\backends\quartz" \
  /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /YX \
  /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP"
 

@@ -8,7 +8,7 @@
 # omega.exe
 # omindex.exe
 
-XAPIAN_DIR=..\xapian-core-0.9.8
+XAPIAN_DIR=..\xapian-core-0.9.9
 
 
 !IF "$(OS)" == "Windows_NT"

@@ -35,9 +35,9 @@ ALL:
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
    cd ..\queryparser
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
-   cd ..\testsuite
+   cd ..\tests\harness
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
-   cd ..\bin
+   cd ..\..\bin
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
    cd ..\examples
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
@@ -64,9 +64,9 @@ CLEAN:
    nmake /f win32.mak CLEAN
    cd ..\queryparser
    nmake /f win32.mak CLEAN
-   cd ..\testsuite
+   cd ..\tests\harness
    nmake /f win32.mak CLEAN
-   cd ..\bin
+   cd ..\..\bin
    nmake /f win32.mak CLEAN
    cd ..\examples
    nmake /f win32.mak CLEAN
