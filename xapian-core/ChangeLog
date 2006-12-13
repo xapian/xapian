@@ -1,3 +1,8 @@
+Tue Dec 12 23:58:13 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/XapianAdminNotes.txt: Add new document giving an
+	  introduction to Xapian concepts for system administrators.
+
 Tue Dec 12 21:33:38 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/quartzdesign.html: Fix an unmatched bracket.
