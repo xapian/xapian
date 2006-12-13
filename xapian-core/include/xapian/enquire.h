@@ -1214,7 +1214,11 @@ class BM25Weight : public Weight {
 	bool get_sumpart_needs_doclength() const;
 };
 
-/** Traditional probabilistic weighting scheme (as used by Muscat 3.6)
+/** Traditional probabilistic weighting scheme.
+ *
+ * This class implements the Traditional Probabilistic Weighting scheme, as
+ * described by the early papers on Probabilistic Retrieval.  BM25 generally
+ * gives better results.
  *
  * The Traditional weighting scheme formula is \f[
  *	\sum_{t}\frac{f_{t,d}}{k.L_{d}+f_{t,d}}.w_{t}
