@@ -68,7 +68,7 @@ class Document {
 	 *  Returns an empty string if no value with the given number is present
 	 *  in the document.
 	 *
-	 *  @param value The number of the value.  This must be >= 0.
+	 *  @param value The number of the value.
 	 */
 	std::string get_value(Xapian::valueno value) const;
 

@@ -1,3 +1,8 @@
+Wed Dec 13 21:15:57 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/document.h: Another tweak to the documentation
+	  comment.
+
 Wed Dec 13 18:07:51 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/document.h: Improve documentation comment for
