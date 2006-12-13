@@ -394,6 +394,12 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required in maintainer mode])
 fi
 
+dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
+AC_PATH_PROG(RST2HTML, rst2html, [])
+if test x$USE_MAINTAINER_MODE = xyes; then
+  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required in maintainer mode])
+fi
+
 dnl Check whether we need -ldl for dlsym() etc.
 dnl No longer used...
 dnl AC_TRY_LINK_FUNC(dlsym, ,

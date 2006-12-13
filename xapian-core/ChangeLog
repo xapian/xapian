@@ -1,3 +1,11 @@
+Wed Dec 13 00:31:04 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/Makefile.am: New rules for generating XapianAdminNotes.html
+	  from XapianAdminNotes.txt
+	* configure.ac: Check for rst2html, and require it in maintainer
+	  mode.
+	* HACKING: document rst2html as a requirement.
+
 Tue Dec 12 23:58:13 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/XapianAdminNotes.txt: Add new document giving an

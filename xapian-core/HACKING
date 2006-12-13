@@ -326,6 +326,7 @@ perl 5
 pdflatex (on Debian, tetex-extra is also required for fancyhdr.sty)
 makeindex (usually packaged with TeX)
 help2man
+rst2html (on Debian/Ubuntu, this is provided by the python-docutils package)
 
 Use of C++ Features:
 ====================
