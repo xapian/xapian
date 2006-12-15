@@ -1,3 +1,9 @@
+Fri Dec 15 16:47:13 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove --with-swig option from configure - it no
+	  longer has a purpose as we now ship the files which are generated
+	  by SWIG.
+
 Tue Dec 12 21:51:23 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i: Fix PostingIter for all-document iterators - was

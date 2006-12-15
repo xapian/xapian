@@ -117,51 +117,45 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   AC_SUBST(SWIG_FLAGS)
 fi
 
-AC_ARG_WITH(swig,
-  AC_HELP_STRING([--with-swig],
-		 [enable all bindings which depend on SWIG (currently: CSharp PHP Python Ruby Tcl)]),#Guile currently disabled
-  [],
-  [with_swig=])
-
 AC_ARG_WITH(python,
   AC_HELP_STRING([--with-python], [enable Python bindings]),
   [],
-  [with_python=$with_swig])
+  [with_python=])
 
 AC_ARG_WITH(php,
   AC_HELP_STRING([--with-php], [enable PHP bindings]),
   [],
-  [with_php=$with_swig])
+  [with_php=])
 
 AC_ARG_WITH(ruby,
   AC_HELP_STRING([--with-ruby], [enable Ruby bindings]),
   [],
-  [with_ruby=$with_swig])
+  [with_ruby=])
 
 AC_ARG_WITH(tcl,
   AC_HELP_STRING([--with-tcl], [enable Tcl bindings]),
   [],
-  [with_tcl=$with_swig])
+  [with_tcl=])
 
 dnl Guile support doesn't currently work, so avoid user disappointment by
 dnl not advertising it in "./configure --help"
 dnl AC_ARG_WITH(guile,
 dnl   AC_HELP_STRING([--with-guile], [enable Guile bindings]),
 dnl   [],
-dnl   [with_guile=$with_swig])
+dnl   [with_guile=])
 with_guile=no
 
 AC_ARG_WITH(csharp,
   AC_HELP_STRING([--with-csharp], [enable CSharp bindings]),
   [],
-  [with_csharp=$with_swig])
+  [with_csharp=])
 
 AC_ARG_WITH(java,
   AC_HELP_STRING([--with-java], [enable Java bindings]),
   [],
   [with_java=])
 
-case $with_swig$with_python$with_php$with_ruby$with_tcl$with_guile$with_csharp$with_java in
+case $with_python$with_php$with_ruby$with_tcl$with_guile$with_csharp$with_java in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
