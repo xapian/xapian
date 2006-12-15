@@ -17,6 +17,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
+#ifndef OMEGA_INCLUDED_VALUES_H
+#define OMEGA_INCLUDED_VALUES_H
+
 #include <string>
 
 // Include these to get uint32_t and htonl, etc.
@@ -57,3 +60,5 @@ inline std::string int_to_binary_string(uint32_t v)
     v = htonl(v);
     return std::string(reinterpret_cast<const char*>(&v), 4);
 }
+
+#endif

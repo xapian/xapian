@@ -1,3 +1,7 @@
+Fri Dec 15 05:43:40 GMT 2006  Olly Betts <olly@survex.com>
+
+	* values.h: Add include guard.
+
 Sun Dec 10 04:33:26 GMT 2006  Olly Betts <olly@survex.com>
 
 	* query.cc: Fix $substr{} with negative start to actually work.  Fix
