@@ -1,3 +1,12 @@
+Sat Dec 16 02:14:50 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac: Remove the sanity check for PHP_EXTENSION_DIR
+	  added in Xapian 0.9.8 - if this is the first PHP extension to be
+	  installed, the extension directory may not exist and "make install"
+	  will create it.
+	* configure.ac: If zend.h isn't found and configure was run with
+	  "--with-php" we now die rather than disabling PHP support.
+
 Fri Dec 15 16:47:13 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove --with-swig option from configure - it no

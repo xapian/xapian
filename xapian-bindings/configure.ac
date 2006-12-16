@@ -266,12 +266,7 @@ if test no != "$with_php" ; then
       AC_MSG_CHECKING([for PHP extension directory])
       PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
       AC_SUBST(PHP_EXTENSION_DIR)
-      if test -d "$PHP_EXTENSION_DIR" ; then
-        AC_MSG_RESULT([$PHP_EXTENSION_DIR])
-      else
-	AC_MSG_RESULT(['$PHP_CONFIG --extension-dir' reports '$PHP_EXTENSION_DIR' but that directory doesn't exist!])
-	with_php=no
-      fi
+      AC_MSG_RESULT([$PHP_EXTENSION_DIR])
     fi
 
     if test no != "$with_php" ; then
@@ -280,7 +275,11 @@ if test no != "$with_php" ; then
       save_CPPFLAGS=$CPPFLAGS
       CPPFLAGS="$CPPFLAGS $PHP_INC"
       dnl One of SGI's SuSE boxes has php-config but no headers.
-      AC_CHECK_HEADER(zend.h, [], [with_php=no], [ ])
+      AC_CHECK_HEADER(zend.h, [], [
+	if test yes = "$with_php" ; then
+	  AC_MSG_ERROR(['$PHP_CONFIG --includes' reports '$PHP_INC' but zend.h can't be included from there])
+	fi
+	with_php=no], [ ])
       CPPFLAGS=$save_CPPFLAGS
     fi
 
