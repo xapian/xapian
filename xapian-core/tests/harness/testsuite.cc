@@ -309,7 +309,6 @@ test_driver::runtest(const test_desc *test)
 		    REPORT_FAIL_VG("FAILED TO RELEASE " << vg_reachable << " BYTES");
 		    return FAIL;
 		}
-REPORT_FAIL_VG("NO PROBLEM");
 #endif
 	    } catch (const TestFail &) {
 		string s = tout.str();
