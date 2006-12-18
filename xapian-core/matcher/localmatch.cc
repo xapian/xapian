@@ -31,6 +31,7 @@
 #include "andnotpostlist.h"
 #include "andmaybepostlist.h"
 #include "filterpostlist.h"
+#include "exactphrasepostlist.h"
 #include "phrasepostlist.h"
 #include "emptypostlist.h"
 #include "leafpostlist.h"
@@ -315,6 +316,9 @@ LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
 	    std::vector<PostList *> postlists_orig = postlists;
 	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
+	    if (query->parameter == postlists_orig.size()) {
+		RETURN(new ExactPhrasePostList(res, postlists_orig));
+	    }
 	    RETURN(new PhrasePostList(res, query->parameter, postlists_orig));
 	}
 
