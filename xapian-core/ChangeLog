@@ -1,3 +1,7 @@
+Tue Dec 19 20:34:16 GMT 2006  Olly Betts <olly@survex.com>
+
+	* queryparser/utf8itor.h: Need <string.h> for strlen.
+
 Tue Dec 19 16:35:58 GMT 2006  Olly Betts <olly@survex.com>
 
 	* common/omstringstream.h: Fix "warning: comparison between signed and
