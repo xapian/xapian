@@ -91,7 +91,7 @@ operator << (om_ostringstream &os, const OmTime &om_time) {
     char buf[256];
 #ifdef SNPRINTF
     int len = SNPRINTF(buf, sizeof(buf), "%l.%06l", om_time.sec, om_time.usec);
-    if (len == -1 || len > sizeof(buf)) len = sizeof(buf);
+    if (len == -1 || len > int(sizeof(buf))) len = sizeof(buf);
     return os << string(buf, len);
 #else
     buf[sizeof(buf) - 1] = '\0';

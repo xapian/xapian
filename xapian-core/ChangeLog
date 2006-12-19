@@ -1,3 +1,8 @@
+Tue Dec 19 16:35:58 GMT 2006  Olly Betts <olly@survex.com>
+
+	* common/omstringstream.h: Fix "warning: comparison between signed and
+	  unsigned".
+
 Tue Dec 19 15:33:19 GMT 2006  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_positionlist.cc: Turn the second (and
