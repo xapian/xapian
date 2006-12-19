@@ -77,6 +77,8 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
  namedentities.h utf8itor.h tclUniData.h
 
+AM_LDFLAGS = $(ICONV_LDFLAGS)
+
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc indextext.cc\
  utf8convert.cc utf8itor.cc

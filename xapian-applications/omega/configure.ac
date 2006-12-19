@@ -152,6 +152,25 @@ AC_MSG_RESULT([$xo_cv_iconv_input])
 AC_DEFINE_UNQUOTED(ICONV_INPUT_TYPE, [$xo_cv_iconv_input],
 		   [type of input pointer for iconv])
 
+ICONV_LDFLAGS=
+AC_SEARCH_LIBS(iconv, iconv, [], [
+  dnl For fink on OS X.
+  if test -f "/sw/etc/fink.conf" ; then
+    AC_CANONICAL_HOST
+    case $host_os in
+    darwin*) ICONV_LDFLAGS=-L/sw/lib ;;
+    esac
+  fi
+  SAVE_LDFLAGS=$LDFLAGS
+  ICONV_LDFLAGS=-L/sw/lib
+  LDFLAGS="$LDFLAGS $ICONV_LDFLAGS"
+  AC_CHECK_LIB(iconv, iconv, [], [
+    AC_MSG_ERROR([Omega requires iconv to build])
+  ])
+  LDFLAGS=$SAVE_LDFLAGS
+])
+AC_SUBST(ICONV_LDFLAGS)
+
 dnl Check processor endianness.
 AC_C_BIGENDIAN
 

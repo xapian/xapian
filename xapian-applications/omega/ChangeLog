@@ -1,3 +1,8 @@
+Tue Dec 19 19:53:52 GMT 2006  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: Add "-liconv" if it's needed.  If we're on
+	  OS X, also check for libiconv installed with fink.
+
 Fri Dec 15 05:43:40 GMT 2006  Olly Betts <olly@survex.com>
 
 	* values.h: Add include guard.
