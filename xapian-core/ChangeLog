@@ -1,3 +1,9 @@
+Tue Dec 19 20:40:27 GMT 2006  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Need libgetopt.la for test programs which
+	  use the test harness for platforms where GNU getopt isn't in
+	  the standard C library.
+
 Tue Dec 19 20:34:16 GMT 2006  Olly Betts <olly@survex.com>
 
 	* queryparser/utf8itor.h: Need <string.h> for strlen.
