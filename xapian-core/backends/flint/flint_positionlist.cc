@@ -125,17 +125,17 @@ class BitWriter {
 static void
 encode_interpolative(BitWriter & wr, const vector<Xapian::termpos> &pos, int j, int k)
 {
-    if (j + 1 >= k) return;
-
-    const size_t mid = (j + k) / 2;
-    // Encode one out of (pos[k] - pos[j] + 1) values
-    // (less some at either end because we must be able to fit
-    // all the intervening pos in)
-    const size_t outof = pos[k] - pos[j] + j - k + 1;
-    const size_t lowest = pos[j] + mid - j;
-    wr.encode(pos[mid] - lowest, outof);
-    encode_interpolative(wr, pos, j, mid);
-    encode_interpolative(wr, pos, mid, k);
+    while (j + 1 < k) {
+	const size_t mid = (j + k) / 2;
+	// Encode one out of (pos[k] - pos[j] + 1) values
+	// (less some at either end because we must be able to fit
+	// all the intervening pos in)
+	const size_t outof = pos[k] - pos[j] + j - k + 1;
+	const size_t lowest = pos[j] + mid - j;
+	wr.encode(pos[mid] - lowest, outof);
+	encode_interpolative(wr, pos, j, mid);
+	j = mid;
+    }
 }
 
 class BitReader {
@@ -197,16 +197,16 @@ class BitReader {
 void
 BitReader::decode_interpolative(vector<Xapian::termpos> & pos, int j, int k)
 {
-    if (j + 1 >= k) return;
-
-    const size_t mid = (j + k) / 2;
-    // Decode one out of (pos[k] - pos[j] + 1) values
-    // (less some at either end because we must be able to fit
-    // all the intervening pos in)
-    const size_t outof = pos[k] - pos[j] + j - k + 1;
-    pos[mid] = decode(outof) + (pos[j] + mid - j);
-    decode_interpolative(pos, j, mid);
-    decode_interpolative(pos, mid, k);
+    while (j + 1 < k) {
+	const size_t mid = (j + k) / 2;
+	// Decode one out of (pos[k] - pos[j] + 1) values
+	// (less some at either end because we must be able to fit
+	// all the intervening pos in)
+	const size_t outof = pos[k] - pos[j] + j - k + 1;
+	pos[mid] = decode(outof) + (pos[j] + mid - j);
+	decode_interpolative(pos, j, mid);
+	j = mid;
+    }
 }
 
 void

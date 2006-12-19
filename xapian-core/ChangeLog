@@ -1,3 +1,10 @@
+Tue Dec 19 15:33:19 GMT 2006  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc: Turn the second (and
+	  potentially slightly deeper) recursion in encode_interpolative
+	  and decode_interpolative into explicit iteration in case the
+	  compiler fails to optimise the tail recursion.
+
 Mon Dec 18 03:39:41 GMT 2006  Olly Betts <olly@survex.com>
 
 	* matcher/: Add ExactPhrasePostList to handle the common special case
