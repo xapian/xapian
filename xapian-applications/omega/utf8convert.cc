@@ -25,7 +25,11 @@
 #include <string>
 
 #include <errno.h>
-#include <iconv.h>
+#ifdef HAVE_LIBICONV
+# include <iconv.h>
+#else
+# include "utf8itor.h"
+#endif
 #include <string.h>
 #ifdef HAVE_STRINGS_H
 # include <strings.h> // Needed on Solaris for strcasecmp
@@ -33,6 +37,7 @@
 
 #ifdef _MSC_VER
 # define strcasecmp stricmp
+# define strncasecmp strnicmp
 #endif
 
 using namespace std;
@@ -53,6 +58,7 @@ convert_to_utf8(string & text, const string & charset)
 
     char buf[1024];
 
+#ifdef USE_ICONV
     iconv_t conv = iconv_open("UTF-8", charset.c_str());
     if (conv == (iconv_t)-1) return;
 
@@ -72,6 +78,31 @@ convert_to_utf8(string & text, const string & charset)
     }
 
     (void)iconv_close(conv);
+#else
+    /* If we don't have iconv, handle iso-8859-1. */
+    const char * p = charset.c_str();
+    if (strncasecmp(p, "iso", 3) == 0) {
+	p += 3;
+	if (*p == '-' || *p == '_') ++p;
+    }
+    if (strncmp(p, "8859", 4) != 0) return;
+    p += 4;
+    if (*p == '-' || *p == '_') ++p;
+    if (strcmp(p, "1") != 0) return;
+
+    string tmp;
+    tmp.reserve(text.size());
+
+    size_t start = 0;
+    for (string::const_iterator i = text.begin(); i != text.end(); ++i) {
+	start += to_utf8(static_cast<unsigned char>(*i), buf + start);
+	if (start >= sizeof(buf) - 4) {
+	    tmp.append(buf, start);
+	    start = 0;
+	}
+    }
+    if (start) tmp.append(buf, start);
+#endif
 
     swap(text, tmp);
 }

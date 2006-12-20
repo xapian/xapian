@@ -123,53 +123,73 @@ case $ac_cv_func_snprintf in
     ;;
 esac
 
-dnl Check if iconv take "char**" or "const char**" as its input.
-dnl Solaris 2.9 has "const char **"; GNU iconv has "char **".
-AC_MSG_CHECKING([for type of input pointer for iconv])
-AC_CACHE_VAL([xo_cv_iconv_input],
-  [
-    for t in 'char*' 'const char *' ; do
-      AC_TRY_COMPILE([
-#include <iconv.h>
-      ],[
-	char buf[20];
-	$t in = "hello";
-	size_t in_len = 5;
-	char * out = buf;
-	size_t out_len = 20;
-	iconv((iconv_t)-1, &in, &in_len, &out, &out_len);
-      ],[
-	xo_cv_iconv_input="$t"
-	break
-      ])
-    done
-    if test -z "$xo_cv_iconv_input"; then
-      AC_MSG_RESULT([not found])
-      AC_MSG_ERROR([Failed to work out how to call iconv])
-    fi
-  ])
-AC_MSG_RESULT([$xo_cv_iconv_input])
-AC_DEFINE_UNQUOTED(ICONV_INPUT_TYPE, [$xo_cv_iconv_input],
-		   [type of input pointer for iconv])
+AC_ARG_WITH(iconv,
+  AC_HELP_STRING([--with-iconv], [force use of iconv (error if not found)])
+  AC_HELP_STRING([--without-iconv], [don't use iconv]),
+  [with_iconv=$withval], [with_iconv=auto])
 
-ICONV_LDFLAGS=
-AC_SEARCH_LIBS(iconv, iconv, [], [
-  dnl For fink on OS X.
-  if test -f "/sw/etc/fink.conf" ; then
-    AC_CANONICAL_HOST
-    case $host_os in
-    darwin*) ICONV_LDFLAGS=-L/sw/lib ;;
-    esac
-  fi
-  SAVE_LDFLAGS=$LDFLAGS
-  ICONV_LDFLAGS=-L/sw/lib
-  LDFLAGS="$LDFLAGS $ICONV_LDFLAGS"
-  AC_CHECK_LIB(iconv, iconv, [], [
-    AC_MSG_ERROR([Omega requires iconv to build])
+if test no != "$with_iconv" ; then
+  ICONV_LDFLAGS=
+  AC_SEARCH_LIBS(iconv, iconv, [], [
+    dnl For fink on OS X.
+    if test -f "/sw/etc/fink.conf" ; then
+      AC_CANONICAL_HOST
+      case $host_os in
+      darwin*) ICONV_LDFLAGS=-L/sw/lib ;;
+      esac
+    fi
+    SAVE_LDFLAGS=$LDFLAGS
+    ICONV_LDFLAGS=-L/sw/lib
+    LDFLAGS="$LDFLAGS $ICONV_LDFLAGS"
+    AC_CHECK_LIB(iconv, iconv, [], [
+      if test yes = "$with_iconv" ; then
+        AC_MSG_ERROR([iconv not found, but --with-iconv specified])
+      fi
+      with_iconv=no
+    ])
+    LDFLAGS=$SAVE_LDFLAGS
   ])
-  LDFLAGS=$SAVE_LDFLAGS
-])
-AC_SUBST(ICONV_LDFLAGS)
+  AC_SUBST(ICONV_LDFLAGS)
+fi
+
+if test no != "$with_iconv" ; then
+  dnl Check if iconv take "char**" or "const char**" as its input.
+  dnl Solaris 2.9 has "const char **"; GNU iconv has "char **".
+  AC_MSG_CHECKING([for type of input pointer for iconv])
+  AC_CACHE_VAL([xo_cv_iconv_input],
+    [
+      for t in 'char*' 'const char *' ; do
+	AC_TRY_COMPILE([
+#include <iconv.h>
+	],[
+	  char buf[20];
+	  $t in = "hello";
+	  size_t in_len = 5;
+	  char * out = buf;
+	  size_t out_len = 20;
+	  iconv((iconv_t)-1, &in, &in_len, &out, &out_len);
+	],[
+	  xo_cv_iconv_input="$t"
+	  break
+	])
+      done
+      if test -z "$xo_cv_iconv_input"; then
+	if test yes = "$with_iconv" ; then
+	  AC_MSG_RESULT([not found])
+	  AC_MSG_ERROR([Failed to work out how to call iconv but --with-iconv specified])
+	fi
+	AC_MSG_RESULT([not found - not using iconv])
+	with_iconv=no
+      fi
+    ])
+  AC_MSG_RESULT([$xo_cv_iconv_input])
+  AC_DEFINE_UNQUOTED(ICONV_INPUT_TYPE, [$xo_cv_iconv_input],
+		     [type of input pointer for iconv])
+fi
+
+if test no != "$with_iconv" ; then
+  AC_DEFINE(USE_ICONV, 1, [Define if iconv() should be used for converting character sets.])
+fi
 
 dnl Check processor endianness.
 AC_C_BIGENDIAN

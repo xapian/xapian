@@ -1,3 +1,11 @@
+Wed Dec 20 23:53:41 GMT 2006  Olly Betts <olly@survex.com>
+
+	* configure.ac,utf8convert.cc: If iconv isn't found by configure, fall
+	  back on simple conversion routines which handle iso-8859-1.
+	  Configuring --without-iconv forces these routines to be used.
+	  Configuring --with-iconv forces configure to fail if it can't find
+	  iconv.
+
 Tue Dec 19 20:35:04 GMT 2006  Olly Betts <olly@survex.com>
 
 	* utf8itor.h: Need <string.h> for strlen.
