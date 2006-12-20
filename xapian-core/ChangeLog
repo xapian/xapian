@@ -1,3 +1,11 @@
+Wed Dec 20 00:53:19 GMT 2006  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Fix "unused parameter" warning when building
+	  with the remote backend disabled.  Also update a comment - the query
+	  serialisation isn't really one line of text since we now store term
+	  names with the length prefixed, and they can contain arbitrary
+	  characters including linefeeds.
+
 Tue Dec 19 20:40:27 GMT 2006  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Need libgetopt.la for test programs which

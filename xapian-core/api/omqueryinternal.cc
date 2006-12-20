@@ -98,8 +98,7 @@ is_leaf(Xapian::Query::Internal::op_t op)
 
 /** serialising method, for network matches.
  *
- *  The format is designed to be relatively easy
- *  to parse, as well as encodable in one line of text.
+ *  The format is designed to be relatively easy to parse.
  *
  *  A single-term query becomes `[<encodedtname>@<termpos>#<wqf>'
  *  where:
@@ -170,6 +169,7 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
     }
     return result;
 #else
+    (void)curpos;
     throw Xapian::InternalError("query serialisation not compiled in");
 #endif
 }
