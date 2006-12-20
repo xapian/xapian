@@ -92,11 +92,13 @@ x86   |!FreeBSD 4.8 GCC 3.2.3          | 0.9.2 |Passed|
 x86   |#FreeBSD 4.10 GCC 2.95.4        | 0.9.2 |Passed| (was x86-freebsd1)
 x86   |*FreeBSD 5.4 GCC 3.4.2          | 0.9.8 |Passed| (x86-freebsd1)
 x86   |=FreeBSD 6.1 GCC 3.4.4          | 0.9.7 |Passed| (td152)
+x86   |:kFreeBSD 6.1 Debian GCC 4.1.2  | 0.9.9 |Passed| core testsuite not run
 x86   |#NetBSD 1.6.1 GCC 2.95.3        | 0.9.0 |Passed| (was x86-netbsd1)
 x86   |*NetBSD 2.0.2 GCC 3.3.3         |~0.9.7 |Passed| (x86-netbsd1)
 x86   |=NetBSD 3.0 GCC 3.3.3           | 0.9.6 |Passed| (td143)
 x86   |#OpenBSD 3.4 GCC 2.95.3         | 0.9.0 |Passed| (was x86-openbsd1)
 x86   |*OpenBSD 3.8 GCC 3.3.5          | 0.9.8 |Passed| (x86-openbsd1)
+x86   |:Hurd 0.3 Debian sid GCC 4.1.2  | 0.9.9 |Passed| core+omega; no tests run
 x86   |*Solaris 9 GCC 3.3.2            |~0.9.7 |Passed| (x86-solaris1)
 x86   |*Solaris 9 Sun Workshop C++ 5.5 | 0.9.6 |Passed| (x86-solaris1) [2]
 x86   | OpenSol. 11 Nexenta GCC 4.0.3  | 0.9.6 |Passed| from Fabrice Colin
@@ -105,6 +107,7 @@ x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
 x86   | MinGW 3.1.0                    |~0.8.4 |Passed| from Michael Sisolak
 x86   | WindowsXP sp2 MSVC Toolkit 2003| 0.9.6 |Passed| from Charlie Hull [12]
 x86_64| Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.8.3~|Passed| from gmane.org
+x86_64|:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
 x86_64|#Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed|
 x86_64|#Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.5 |Passed|
 x86_64|=Linux 2.6 RHEL AS4 GCC 3.2.3   | 0.9.9 |Passed| (td189)
@@ -122,6 +125,7 @@ x86_64| Linux 2.6 Ubuntu 5.04 GCC 3.3.5| 0.9.0 |Passed| from Olly Betts
 alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4| 0.9.3 |Passed| (alpha-linux1)
 alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.9.9 |Passed| (alpha-linux1) [6]
 alpha |=Linux 2.4 Debian 3.1 GCC 3.3.5 |~0.9.7 |Passed| (td161, was td142)
+alpha |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
 alpha |#Linux 2.4 RedHat 7.2 GCC 3.4.1 | 0.9.2 |Passed| (was td144)
 alpha |#FreeBSD 5.2.1 GCC 3.3.3        | 0.8.5 |Passed| (was td149)
 alpha |#FreeBSD 5.3 GCC 3.4.2          | 0.9.0 |Passed| (was td149)
@@ -129,6 +133,7 @@ alpha |#FreeBSD 5.4 GCC 3.4.2          | 0.9.2 |Passed| (was td149)
 alpha |=FreeBSD 6.0 GCC 3.4.4          | 0.9.4 |Passed| (td149)
 alpha |#DEC OSF 5.1 GCC 3.3            | 0.9.6 |Passed| (was td171) [9]
 sparc | Linux 2.6 Debian sid GCC 4.0.4 | 0.9.6 |Passed| from Alex Deucher [11]
+sparc |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
 sparc |*Solaris 9 GCC 2.95.3           | 0.9.9 |Passed| (sparc-solaris1) [2]
 sparc |*Solaris 9 GCC 3.3.2            | 0.9.9 |Passed| (sparc-solaris1) [2]
 sparc |*Solaris 9 Sun Workshop C++ 5.5 | 0.9.9 |Passed| (sparc-solaris1) [2]
@@ -136,19 +141,25 @@ ppc   |*MacOS X 10.1.4 GCC 2.95.2      | 0.9.2 |Passed| (ppc-osx1) [7]
 ppc   |*MacOS X 10.2.8 GCC 2.95.2      | 0.9.1 |Passed| (ppc-osx2)
 ppc   |*MacOS X 10.2.8 GCC 3.1 20020420| 0.9.8 |Passed| (ppc-osx3)
 ppc   |*MacOS X 10.2.8 GCC 3.3         | 0.9.2 |Passed| (ppc-osx2)
+ppc   |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
 ppc64 |*Linux 2.6 SuSE 9 GCC 3.3.3     | 0.9.9 |Passed| (openpower-linux1)
 mips  | IRIX 6.5.22 GCC 3.3            |~0.8.0 |Passed| from Jim Lynch
 mips  |%IRIX 6.5.27 MIPSpro 7.4        | 0.9.9 |Passed| (ferrari.sgi.com) [13]
+mips  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+mipsel|:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
 arm   |^Linux 2.4 Debian sid GCC 3.3.3 | 0.8.0~|Passed|
 arm   |@Linux 2.4 Debian sid GCC 3.4.0 | 0.8.0~|Passed|
-hppa64|#Linux 2.4 Debian 3.0 GCC 3.0.4 | 0.9.0 |Passed| (was td170)
+arm   |:Linux 2.4 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
 hppa  |=HP-UX 11.11 GCC 3.4.2          | 0.9.9 |Passed| (td192)
 hppa  |=HP-UX 11.23 GCC 3.4.3          | 0.9.9 |Passed| (td191)
 hppa  |#HP-UX 11.23 GCC 3.4.3          | 0.9.6 |Passed| (was td191)
 hppa  |=HP-UX 11.11 aCC B3910B A.03.73 | 0.9.9 |Passed| (td192) [8]
 hppa  |=HP-UX 11.23 aCC B3910B A.03.73 | 0.9.9 |Passed| (td191) [8]
+hppa  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+hppa64|#Linux 2.4 Debian 3.0 GCC 3.0.4 | 0.9.0 |Passed| (was td170)
 ia64  |#Linux 2.4 Debian 3.0 GCC 2.96  | 0.9.1 |Passed| (was td156)
 ia64  |=Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.9.9 |Passed| (td156)
+ia64  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
 ia64  |#Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed|
 ia64  |=Linux 2.6 RHEL AS4 GCC 3.2.3   | 0.9.9 |Passed| (td177)
 ia64  |=Linux 2.6 RHEL AS4 GCC 3.4.6   | 0.9.9 |Passed| (td177)
@@ -167,6 +178,8 @@ ia64  |=HP-UX 11.23 GCC 3.4.3          | 0.9.9 |Passed| (td164,176)
 ia64  |#HP-UX 11.23 GCC 4.0.2          | 0.9.6 |Passed| (was td196)
 ia64  |=HP-UX 11.23 GCC 4.1.0          | 0.9.6 |Passed| (td176)
 ia64  |=HP-UX 11.23 aCC B3910B A.06.12 | 0.9.9 |Passed| (td164,176)
+m68k  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+s390  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
 ------+--------------------------------+-------+------+------------------------
 arm   |&Linux cross to arm   GCC 2.95.2| 0.9.9 |Built | [1]
 x86   |#Linux cross to mingw GCC 2.95.3| 0.9.5 |Built | [1] Using MSVCRT.DLL
@@ -222,6 +235,7 @@ sparc |#Solaris 8 GCC 2.95.3           | 0.7.3 |Passed| [2]
 & = "ixion" (James Aylett's colo box)
 ^ = thanks to Wookey for access to this platform
 $ = "roadkill" (Olly's x86 box)
+: = Debian buildd
 
 ~ = Tested version from CVS shortly before this release (or after for ~ suffix)
 

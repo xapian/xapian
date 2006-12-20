@@ -1,3 +1,7 @@
+Wed Dec 20 16:42:24 GMT 2006  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updated with success reports from debian buildds.
+
 Wed Dec 20 00:53:19 GMT 2006  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Fix "unused parameter" warning when building
