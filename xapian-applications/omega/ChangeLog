@@ -1,3 +1,11 @@
+Thu Dec 21 14:39:04 GMT 2006  Olly Betts <olly@survex.com>
+
+	* omega.cc,query.cc: Remove deprecated aliases for CGI parameters
+	  (deprecated in 0.6.3 or 0.6.5, more than 3.5 years ago):
+	  RAW_SEARCH (now RAWSEARCH), DATE1 (now START), DATE2 (now END),
+	  DAYSMINUS (now SPAN but with slightly different semantics),
+	  and MIN_HITS (now MINHITS).
+
 Thu Dec 21 01:04:00 GMT 2006  Olly Betts <olly@survex.com>
 
 	* utf8convert.cc: Fix headers included for iconv and not-iconv.

@@ -226,9 +226,10 @@ set_probabilistic(const string &oldp)
     // Check new query against the previous one
     if (oldp.empty()) return query_string.empty() ? SAME_QUERY : NEW_QUERY;
 
-    // We used to use "word1#word2#" (with trailing #) but some broken old
-    // browsers (versions of MSIE) don't quote # in form GET submissions
-    // and everything after the # gets interpreted as an anchor.
+    // Long, long ago we used "word1#word2#" (with trailing #) but some broken
+    // old browsers (versions of MSIE) don't quote # in form GET submissions
+    // and everything after the # gets interpreted as an anchor.  We now allow
+    // terms like `c#' so we want to avoid '#' anyway.
     //
     // So we switched to using "word1.word2." but that doesn't work if
     // the terms contain "." themselves (e.g. Tapplication/vnd.ms-excel)
@@ -2138,9 +2139,6 @@ ensure_query_parsed()
 	// this is unhelpful.
 	bool raw_search = false;
 	val = cgi_params.find("RAWSEARCH");
-	// In Omega <= 0.6.3, RAWSEARCH was RAW_SEARCH - renamed to be
-	// consistent with the naming of other CGI parameters.
-	if (val == cgi_params.end()) val = cgi_params.find("RAW_SEARCH");
 	if (val != cgi_params.end()) {
 	    raw_search = bool(atol(val->second.c_str()));
 	}

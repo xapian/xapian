@@ -269,24 +269,10 @@ try {
 
     // date range filters
     val = cgi_params.find("START");
-    // DATE1 is the deprecated name - check for backward compatibility
-    if (val == cgi_params.end()) val = cgi_params.find("DATE1");
     if (val != cgi_params.end()) date_start = val->second;
     val = cgi_params.find("END");
-    // DATE2 is the deprecated name - check for backward compatibility
-    if (val == cgi_params.end()) val = cgi_params.find("DATE2");
     if (val != cgi_params.end()) date_end = val->second;
     val = cgi_params.find("SPAN");
-    // DAYSMINUS is the deprecated name - check for backward compatibility
-    if (val == cgi_params.end()) {
-	val = cgi_params.find("DAYSMINUS");
-	if (val != cgi_params.end()) {
-	    // Range used to be DAYSMINUS days before DATE1
-	    // Now it's SPAN days after START or before END
-	    date_end = date_start;
-	    date_start = "";
-	}
-    }
     if (val != cgi_params.end()) date_span = val->second;
 
     filters += date_start + filter_sep + date_end + filter_sep + date_span
@@ -365,9 +351,6 @@ try {
     // min_hits (fill mset past topdoc+(hits_per_page+1) to
     // topdoc+max(hits_per_page+1,min_hits)
     val = cgi_params.find("MINHITS");
-    // In Omega <= 0.6.3, MINHITS was MIN_HITS - renamed to be consistent
-    // with the naming of other CGI parameters.
-    if (val == cgi_params.end()) val = cgi_params.find("MIN_HITS");
     if (val != cgi_params.end()) {
 	min_hits = atol(val->second.c_str());
     }
