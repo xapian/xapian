@@ -2076,32 +2076,7 @@ ensure_query_parsed()
 		force_first_page = false;
 		val = cgi_params.find("xFILTERS");
 		string xfilters;
-		if (val != cgi_params.end()) {
-		    xfilters = val->second;
-		} else {
-		    // compatibility with older xB/xDATE/... scheme
-		    val = cgi_params.find("xB");
-		    if (val != cgi_params.end())
-			xfilters = val->second + filter_sep;
-		    static const char * check_vars[] = {
-			"DATE1", "DATE2", "DAYSMINUS", NULL
-		    };
-		    for (const char **pv = check_vars; *pv; ++pv) {
-			val = cgi_params.find('x' + string(*pv));
-			if (val != cgi_params.end()) xfilters += val->second;
-			xfilters += filter_sep;
-		    }
-		    val = cgi_params.find("xDEFAULTOP");
-		    if (val == cgi_params.end() && xfilters.length() == 3) {
-			// no x values, so don't force first page
-			xfilters = filters;
-		    } else {
-			char ch = 'O';
-			if (val != cgi_params.end() && val->second == "and")
-			    ch = 'A';
-			xfilters[xfilters.length() - 1] = ch;
-		    }
-		}
+		if (val != cgi_params.end()) xfilters = val->second;
 		if (filters != xfilters) {
 		    // Filters changed since last query
 		    force_first_page = true;
