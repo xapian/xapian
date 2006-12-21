@@ -25,7 +25,7 @@
 #include <string>
 
 #include <errno.h>
-#ifdef HAVE_LIBICONV
+#ifdef USE_ICONV
 # include <iconv.h>
 #else
 # include "utf8itor.h"
