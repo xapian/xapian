@@ -22,7 +22,13 @@ import org.xapian.errors.*;
 
 class MyMatchDecider implements MatchDecider {
     public boolean accept(Document d) {
-	return false;
+	// NB It's not normally appropriate to call getData() in a MatchDecider
+	// but we do it here to make sure we don't get an empty document.
+	try {
+	    return d.getData() == "";
+	} catch (XapianError e) {
+	    return true;
+	}
     }
 }
 

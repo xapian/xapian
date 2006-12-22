@@ -1,3 +1,9 @@
+Fri Dec 22 18:30:44 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/SmokeTest.java: Check getData() on the document in
+	  MyMatchDecider returns a non-empty string to make sure we are really
+	  getting the right document and not an empty document.
+
 Sat Dec 16 02:14:50 GMT 2006  Olly Betts <olly@survex.com>
 
 	* configure.ac: Remove the sanity check for PHP_EXTENSION_DIR
