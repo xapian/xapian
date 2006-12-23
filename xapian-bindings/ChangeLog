@@ -1,16 +1,23 @@
+Sat Dec 23 00:41:01 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/org_xapian_XapianJNI.h,java/native/xapian_jni.h:
+	  Move header guards to surround the entire non-comment contents
+	  of the header files, which allows the compiler to optimise
+	  multiple inclusion (at least GCC does this).
+
 Sat Dec 23 00:38:49 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/native/Enquire.cc,java/native/org_xapian_XapianJNI.h,
 	  java/org/xapian/Enquire.java,java/org/xapian/XapianJNI.java:
 	  Enquire::getQuery() is implemented entirely in Java, so strip out
 	  the unused MyQuery mechanism, and so fix a memory link which it
-	  caused.
+	  caused.  Fixes the rest of bug#105.
 	* java/SmokeTest.java: Add feature test for Enquire::getQuery().
 
 Fri Dec 22 18:48:46 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/native/Query.cc: Release the array in the "Query from array"
-	  ctor to avoid a memory leak.
+	  ctor to avoid a memory leak.  Partly fixes bug#105.
 
 Fri Dec 22 18:30:44 GMT 2006  Olly Betts <olly@survex.com>
 

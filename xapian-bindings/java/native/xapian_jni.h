@@ -25,6 +25,9 @@
  THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
+#ifndef __XAPIAN_JNI_H__
+#define __XAPIAN_JNI_H__
+
 #include <jni.h>
 #include <typeinfo>
 // Disable any deprecation warnings for Xapian methods/functions/classes.
@@ -37,8 +40,6 @@
 using namespace std;
 using namespace Xapian;
 
-#ifndef __XAPIAN_JNI_H__
-#define __XAPIAN_JNI_H__
 
 //
 // Macros for dealing with C++ exceptions
