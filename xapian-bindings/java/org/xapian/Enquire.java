@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -54,7 +55,7 @@ public class Enquire {
     }
 
     public Query getQuery() throws XapianError {
-        // TODO: Why would I need to call into the JNI method here?
+        // No need to call the JNI method here.
         return _query;
     }
 

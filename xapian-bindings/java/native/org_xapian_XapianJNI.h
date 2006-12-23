@@ -967,6 +967,8 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1new
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query
   (JNIEnv *, jclass, jlong, jlong, jint);
 
+// We implement get_query in Java and don't use JNI or C++ at all for it.
+#if 0
 /*
  * Class:     org_xapian_XapianJNI
  * Method:    enquire_get_query
@@ -974,6 +976,7 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query
  */
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1query
   (JNIEnv *, jclass, jlong);
+#endif
 
 /*
  * Class:     org_xapian_XapianJNI

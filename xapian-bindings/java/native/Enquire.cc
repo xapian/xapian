@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -28,17 +29,6 @@
 
 using namespace std;
 using namespace Xapian;
-
-class MyQuery : public Xapian::Query {
-    private:
-        long _myid;
-
-    public:
-        MyQuery(const Query &query) : Query(query) { }
-
-        long getMyID() { return _myid; }
-        void setMyID(long id) { _myid = id; }
-};
 
 class JavaMatchDecider : public Xapian::MatchDecider {
     private:
@@ -129,9 +119,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1new (JNIEnv *env, jcl
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *env, jclass clazz, jlong eid, jlong qid) {
     TRY
         Enquire *e = _enquire->get(eid);
-        Query *tmp = _query->get(qid);
-        MyQuery *q = new MyQuery(*tmp);
-        q->setMyID(qid);
+        Query *q = _query->get(qid);
         e->set_query(*q);
     CATCH(;)
 }
@@ -139,20 +127,23 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *en
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *env, jclass clazz, jlong eid, jlong qid, jint qlen) {
     TRY
         Enquire *e = _enquire->get(eid);
-        Query *tmp = _query->get(qid);
-        MyQuery *q = new MyQuery(*tmp);
-        q->setMyID(qid);
+        Query *q = _query->get(qid);
         e->set_query(*q, qlen);
     CATCH(;)
 }
 
+// We don't need this wrapped by the JNI - we just handle it at the Java level
+// instead.
+#if 0
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1query (JNIEnv *env, jclass clazz, jlong eid) {
     TRY
         Enquire *e = _enquire->get(eid);
-        MyQuery q = (MyQuery) e->get_query();
+        Query q = e->get_query();
+	// Insert magic here!
         return q.getMyID();
     CATCH(-1)
 }
+#endif
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1collapse_1key (JNIEnv *env, jclass clazz, jlong eid, jlong collapse_key) {
     TRY

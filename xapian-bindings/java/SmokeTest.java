@@ -135,6 +135,11 @@ public class SmokeTest {
 		System.err.println("MyMatchDecider wasn't used");
 		System.exit(1);
 	    }
+
+	    if (!enq.getQuery().toString().equals("Xapian::Query((there OR is))")) {
+		System.err.println("Enquire::getQuery() returned the wrong query: " + enq.getQuery().toString());
+		System.exit(1);
+	    }
 	} catch (Exception e) {
 	    System.err.println("Caught unexpected exception " + e.toString());
 	    System.exit(1);

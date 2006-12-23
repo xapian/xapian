@@ -1,3 +1,12 @@
+Sat Dec 23 00:38:49 GMT 2006  Olly Betts <olly@survex.com>
+
+	* java/native/Enquire.cc,java/native/org_xapian_XapianJNI.h,
+	  java/org/xapian/Enquire.java,java/org/xapian/XapianJNI.java:
+	  Enquire::getQuery() is implemented entirely in Java, so strip out
+	  the unused MyQuery mechanism, and so fix a memory link which it
+	  caused.
+	* java/SmokeTest.java: Add feature test for Enquire::getQuery().
+
 Fri Dec 22 18:48:46 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/native/Query.cc: Release the array in the "Query from array"
