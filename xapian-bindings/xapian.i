@@ -1068,7 +1068,9 @@ public:
 	FLAG_PHRASE = 2,
 	FLAG_LOVEHATE = 4,
 	FLAG_BOOLEAN_ANY_CASE = 8,
-	FLAG_WILDCARD = 16
+	FLAG_WILDCARD = 16,
+	FLAG_PURE_NOT = 32,
+	FLAG_PARTIAL = 64
     } feature_flag;
 
     typedef enum {

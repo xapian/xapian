@@ -221,6 +221,7 @@ try:
     doc = xapian.Document()
     doc.set_data("Two")
     doc.add_posting(stem.stem_word("out"), 1)
+    doc.add_posting(stem.stem_word("outside"), 1)
     doc.add_posting(stem.stem_word("source"), 2)
     doc.add_value(0, "yes")
     db.add_document(doc)
@@ -251,6 +252,28 @@ try:
             print "Exception string not as expected, got: '%s'\n" % str(e)
             sys.exit(1)
 
+    # Check QueryParser pure NOT option
+    qp = xapian.QueryParser()
+    query4 = qp.parse_query("NOT test", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT)
+    if query4.get_description() != "Xapian::Query((<alldocuments> AND_NOT test:(pos=1)))":
+        print >> sys.stderr, "Unexpected query4.get_description(): " + query4.get_description()
+        sys.exit(1)
+
+    # Check QueryParser partial option
+    qp = xapian.QueryParser()
+    qp.set_database(db)
+    qp.set_default_op(xapian.Query.OP_AND)
+    qp.set_stemming_strategy(qp.STEM_SOME)
+    qp.set_stemmer(xapian.Stem('en'))
+    query5 = qp.parse_query("foo o", qp.FLAG_PARTIAL)
+    if query5.get_description() != "Xapian::Query((foo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2))))":
+        print >> sys.stderr, "Unexpected query5.get_description(): " + query5.get_description()
+        sys.exit(1)
+
+    query6 = qp.parse_query("foo outside", qp.FLAG_PARTIAL)
+    if query6.get_description() != "Xapian::Query((foo:(pos=1) AND outsid:(pos=2)))":
+        print >> sys.stderr, "Unexpected query6.get_description(): " + query6.get_description()
+        sys.exit(1)
 
 except Exception, e:
     print >> sys.stderr, "Exception: %s" % str(e)

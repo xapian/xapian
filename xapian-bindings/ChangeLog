@@ -1,3 +1,8 @@
+Sat Dec 30 14:40:22 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Add queryparser flags FLAG_PURE_NOT and FLAG_PARTIAL.
+	* python/smoketest.py: Add tests for pure not and partial queries.
+
 Sat Dec 23 00:41:01 GMT 2006  Olly Betts <olly@survex.com>
 
 	* java/native/org_xapian_XapianJNI.h,java/native/xapian_jni.h:
