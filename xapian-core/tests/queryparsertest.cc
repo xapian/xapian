@@ -690,6 +690,79 @@ static bool test_qp_flag_wildcard1()
     return true;
 }
 
+// Test partial queries.
+static bool test_qp_flag_partial()
+{
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    Xapian::Document doc;
+    Xapian::Stem stemmer("english");
+    doc.add_term("abc");
+    doc.add_term("main");
+    doc.add_term("muscat");
+    doc.add_term("muscle");
+    doc.add_term("musclebound");
+    doc.add_term("muscular");
+    doc.add_term("mutton");
+    doc.add_term(stemmer("outside"));
+    doc.add_term(stemmer("out"));
+    doc.add_term("Routside");
+    db.add_document(doc);
+    Xapian::QueryParser queryparser;
+    queryparser.set_database(db);
+    queryparser.set_stemmer(stemmer);
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+
+    // Check behaviour with unstemmed terms
+    Xapian::Query qobj = queryparser.parse_query("a", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(abc:(pos=1))");
+    qobj = queryparser.parse_query("ab", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(abc:(pos=1))");
+    qobj = queryparser.parse_query("muscle", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) OR musclebound:(pos=1)))");
+    qobj = queryparser.parse_query("meat", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("musc", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1)))");
+    qobj = queryparser.parse_query("mutt", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
+    qobj = queryparser.parse_query("abc musc", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR muscat:(pos=2) OR muscle:(pos=2) OR musclebound:(pos=2) OR muscular:(pos=2)))");
+    qobj = queryparser.parse_query("a* mutt", Xapian::QueryParser::FLAG_PARTIAL | Xapian::QueryParser::FLAG_WILDCARD);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR mutton:(pos=2)))");
+
+    // Check behaviour with stemmed terms, and stem strategy STEM_SOME.
+    qobj = queryparser.parse_query("o", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outsid:(pos=1)))");
+    qobj = queryparser.parse_query("ou", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outsid:(pos=1)))");
+    qobj = queryparser.parse_query("out", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outsid:(pos=1)))");
+    qobj = queryparser.parse_query("outs", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outsid:(pos=1)))");
+    qobj = queryparser.parse_query("outsi", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(outsid:(pos=1))");
+    qobj = queryparser.parse_query("outsid", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(outsid:(pos=1))");
+    qobj = queryparser.parse_query("outside", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(outsid:(pos=1))");
+
+    // Check behaviour with capitalised terms, and stem strategy STEM_SOME.
+    qobj = queryparser.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(Routside:(pos=1))");
+    qobj = queryparser.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(Routside:(pos=1))");
+
+    // If stemming strategy is STEM_ALL, we don't get rawterms from capitalised
+    // queries (because we assume everything has been stemmed).
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
+    qobj = queryparser.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outsid:(pos=1)))");
+    qobj = queryparser.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(outsid:(pos=1))");
+
+    return true;
+}
+
 static bool test_qp_flag_bool_any_case1()
 {
     using Xapian::QueryParser;
@@ -791,6 +864,7 @@ static test_desc tests[] = {
     TESTCASE(qp_default_op1),
     TESTCASE(qp_odd_chars1),
     TESTCASE(qp_flag_wildcard1),
+    TESTCASE(qp_flag_partial),
     TESTCASE(qp_flag_bool_any_case1),
     TESTCASE(qp_stopper1),
     TESTCASE(qp_flag_pure_not1),

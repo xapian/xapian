@@ -593,12 +593,21 @@ phrased_term:
 		if (mode == DEFAULT && it != end && *it == '*') {
 		    ++it;
 		    if (it == end || !C_isalnum(*it)) {
-			// Wildcard at end of term (also know as
+			// Wildcard at end of term (also known as
 			// "right truncation").
 			Parse(pParser, WILD_TERM, new Term(term, term_pos++),
 			      &state);
 			continue;
 		    }
+		}
+	    }
+	    if (flags & FLAG_PARTIAL) {
+		if (mode == DEFAULT && it == end) {
+		    // Final term of a partial match query, with no following
+		    // characters - treat as a wildcard.
+		    Parse(pParser, WILD_TERM, new Term(term, term_pos++),
+			  &state);
+		    continue;
 		}
 	    }
 

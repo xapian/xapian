@@ -1,3 +1,12 @@
+Sat Dec 30 13:48:54 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/queryparser.lemony,include/xapian/queryparser.h:
+	  Add support for partially entered queries, to better support
+	  incremental searching.  Also fix a typo in a comment.
+	* docs/queryparser.html: Document the new partial query option, and
+	  what it's useful for.
+	* tests/queryparsertest.cc: Test partial queries.
+
 Wed Dec 20 16:42:24 GMT 2006  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Updated with success reports from debian buildds.

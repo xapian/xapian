@@ -111,7 +111,16 @@ class QueryParser {
 	 *  which is potentially expensive, so this feature isn't enabled by
 	 *  default.
 	 */
-	FLAG_PURE_NOT = 32
+	FLAG_PURE_NOT = 32,
+	/** Enable partial matching.
+	 *
+	 *  Partial matching causes the parser to treat the query as a
+	 *  "partially entered" search.  This will automatically treat the
+	 *  final word as a wildcarded match, unless it is followed by
+	 *  whitespace, to produce more stable results from interactive
+	 *  searches.
+	 */
+	FLAG_PARTIAL = 64
     } feature_flag;
 
     typedef enum { STEM_NONE, STEM_SOME, STEM_ALL } stem_strategy;
