@@ -686,7 +686,7 @@ main(int argc, char **argv)
 
     bool more = true, show_help = false;
     while (more) {
-	switch (gnu_getopt_long(argc, argv, "uqv", longopts, NULL)) {
+	switch (gnu_getopt_long(argc, argv, "vs:hVuq", longopts, NULL)) {
 	    case EOF:
 		more = false;
 		break;
