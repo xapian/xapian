@@ -1,3 +1,14 @@
+Mon Jan  1 01:56:56 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* indextext.cc: Fix parsing of text containing certain unicode
+	  characters.  Such text could have resulted in zero length terms
+	  being added to documents.  (The minimal example I found causing
+	  this problem was a document containing only the unicode character
+	  0x28a0f, which is a CJK Unified Ideograph).
+
+	  Addresses bug #106, though may not be a complete fix - see the
+	  bug for details.
+
 Sun Dec 31 17:22:56 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* scriptindex.cc: Update short option list for scriptindex to match
