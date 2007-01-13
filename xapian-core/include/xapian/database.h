@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -398,8 +398,11 @@ class WritableDatabase : public Database {
 	 *  document IDs come from a per-database monotonically increasing
 	 *  counter, so IDs from deleted documents won't be reused.
 	 *
-	 *  Note that this does not mean the document will immediately
-	 *  appear in the database; see flush() for more details.
+	 *  If you want to specify the document ID to be used, you should
+	 *  call replace_document() instead.
+	 *
+	 *  Note that changes to the database won't be immediately committed to
+	 *  disk; see flush() for more details.
 	 *
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document will either be fully added, or the document
@@ -423,8 +426,8 @@ class WritableDatabase : public Database {
 	 *  This method removes the document with the specified document ID
 	 *  from the database.
 	 *
-	 *  Note that this does not mean the document will immediately
-	 *  disappear from the database; see flush() for more details.
+	 *  Note that changes to the database won't be immediately committed to
+	 *  disk; see flush() for more details.
 	 *
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document will either be fully removed, or the document
@@ -463,9 +466,11 @@ class WritableDatabase : public Database {
 	/** Replace a given document in the database.
 	 *
 	 *  This method replaces the document with the specified document ID.
+	 *  If document ID @a did isn't currently used, the document will be
+	 *  added with document ID @a did.
 	 *
-	 *  Note that this does not mean the document will immediately
-	 *  change in the database; see flush() for more details.
+	 *  Note that changes to the database won't be immediately committed to
+	 *  disk; see flush() for more details.
 	 *
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document will either be fully replaced, or the document
@@ -495,8 +500,8 @@ class WritableDatabase : public Database {
 	 *  be mapped to terms in Xapian, although this method probably has
 	 *  other uses.
 	 *
-	 *  Note that this does not mean the document(s) will immediately
-	 *  change in the database; see flush() for more details.
+	 *  Note that changes to the database won't be immediately committed to
+	 *  disk; see flush() for more details.
 	 *
 	 *  As with all database modification operations, the effect is
 	 *  atomic: the document(s) will either be fully replaced, or the
