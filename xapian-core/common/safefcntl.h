@@ -1,6 +1,6 @@
 /* safefcntl.h: #include <fcntl.h>, but working around broken platforms.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,6 +57,15 @@ inline int open(const char *filename, int flags) {
 
 #endif
 
+#endif
+
+// O_BINARY is only useful for platforms like Windows which distinguish between
+// text and binary files, but it's cleaner to define it to 0 here for other
+// platforms so we can avoid #ifdef where we need to use it in the code.
+#ifndef __WIN32__
+# ifndef O_BINARY
+#  define O_BINARY 0
+# endif
 #endif
 
 #endif /* XAPIAN_INCLUDED_SAFEFCNTL_H */

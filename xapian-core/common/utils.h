@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,29 +27,10 @@
 using std::string;
 
 #include <stdlib.h>
-#include <sys/stat.h>
 #include <sys/types.h>
+#include "safesysstat.h"
 #include "safefcntl.h"
-#ifdef _MSC_VER
-# include <direct.h>
-# include <io.h>
-#else
-# include <unistd.h>
-#endif
-#include <ctype.h>
-
-#ifdef _MSC_VER
-
-#define S_ISREG(m) (((m)&_S_IFMT) == _S_IFREG)
-#define S_ISDIR(m) (((m)&_S_IFMT) == _S_IFDIR)
-
-// MSVC needs this to get SSIZE_T defined.
-#include "safewindows.h"
-
-#undef ssize_t // In case configure already defined it.
-#define ssize_t SSIZE_T
-
-#endif
+#include "safeunistd.h"
 
 /// Convert a string to a string!
 inline string om_tostring(const string &s) { return s; }

@@ -402,6 +402,18 @@ more egregious namespace pollution.
 Don't directly '#include <errno.h>' - instead '#include "safeerrno.h"' which
 works around a problem with Compaq's C++ compiler.
 
+<sys/stat.h>:
+-------------
+
+Don't directly '#include <sys/stat.h>' - instead '#include "safesysstat.h"'
+which enables stat to work on files > 2GB under MSVC.
+
+<unistd.h>:
+-------------
+
+Don't directly '#include <unistd.h>' - instead '#include "safeunistd.h"'
+- MSVC doesn't even HAVE unistd.h!
+
 Warning Free Compilation:
 -------------------------
 

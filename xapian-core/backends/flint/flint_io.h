@@ -1,7 +1,7 @@
 /** @file flint_io.h
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,27 +22,8 @@
 #define XAPIAN_INCLUDED_FLINT_IO_H
 
 #include <sys/types.h>
-#include <sys/stat.h>
 #include "safefcntl.h"
-#include <unistd.h>
-
-#ifdef __WIN32__
-# include <io.h> // for _commit()
-# ifdef _MSC_VER
-// Allow 2GB+ index files
-#  define lseek _lseeki64
-#  define off_t __int64
-# endif
-#endif
-
-/* O_BINARY is only meaningful (and defined) on platforms which still make
- * the somewhat antiquated distinction between text and binary files.
- * Just define O_BINARY as 0 elsewhere so that code can just use it. */
-#ifndef __WIN32__
-# ifndef O_BINARY
-#  define O_BINARY 0
-# endif
-#endif
+#include "safeunistd.h"
 
 /** Ensure all data previously written to file descriptor fd has been written to
  *  disk.

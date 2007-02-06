@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@
 #include "flint_lock.h"
 
 #include <sys/types.h>
-#include <sys/stat.h>
+#include "safesysstat.h"
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif

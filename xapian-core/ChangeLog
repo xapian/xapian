@@ -1,3 +1,15 @@
+Tue Feb 06 06:13:48 GMT 2007  Olly Betts <olly@survex.com>
+
+	* AUTHORS,HACKING,backends/flint/,backends/quartz/btree.cc,
+	  backends/quartz/quartz_database.cc,bin/quartzcompact.cc,
+	  bin/xapian-compact.cc,common/,tests/btreetest.cc,
+	  tests/harness/backendmanager.cc,tests/harness/testsuite.cc,
+	  tests/quartztest.cc: Support large files in stat() and fstat()
+	  when building with MSVC.  Factor MSVC specific header magic
+	  into new replacement headers "safeunistd.h" and "safesysstat.h".
+	* AUTHORS: Thanks to Charlie Hull for the original patch to support
+	  stat() on large files with MSVC (and past MSVC related stuff!)
+
 Sat Jan 13 02:06:15 GMT 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Add pointer from

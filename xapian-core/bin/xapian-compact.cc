@@ -1,6 +1,6 @@
 /* xapian-compact.cc: Compact a flint database, or merge and compact several.
  *
- * Copyright (C) 2004,2005,2006 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,7 +28,8 @@
 
 #include <stdio.h> // for rename()
 #include <string.h>
-#include <sys/stat.h>
+#include <sys/types.h>
+#include "safesysstat.h"
 
 #include "flint_table.h"
 #include "flint_cursor.h"

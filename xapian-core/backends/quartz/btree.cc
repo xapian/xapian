@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,7 +51,7 @@ PREAD_PROTOTYPE
 PWRITE_PROTOTYPE
 #endif
 
-#include <sys/stat.h>
+#include "safeunistd.h"
 
 #include <stdio.h>
 #include <string.h>   /* for memmove */
@@ -71,25 +71,6 @@ PWRITE_PROTOTYPE
 #include <algorithm>  // for std::min()
 #include <string>
 #include <vector>
-
-#ifdef __WIN32__
-# include <io.h> // for _commit()
-# ifdef _MSC_VER
-// MSVC needs this to get SSIZE_T defined.
-#  include "safewindows.h"
-// Allow 2GB+ index files
-#  define lseek _lseeki64
-#  define off_t __int64
-# endif
-#endif
-
-// Only useful for platforms like Windows which distinguish between text and
-// binary files.
-#ifndef __WIN32__
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
-#endif
 
 using std::min;
 using std::string;

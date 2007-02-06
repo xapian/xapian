@@ -17,7 +17,7 @@ noinst_HEADERS = serialise.h serialise-double.h \
  inmemory_positionlist.h omenquireinternal.h emptypostlist.h \
  autoptr.h \
  alltermslist.h multialltermslist.h \
- gnu_getopt.h safewindows.h safeerrno.h safefcntl.h
+ gnu_getopt.h safewindows.h safeerrno.h safefcntl.h safesysstat.h safeunistd.h
 
 noinst_LTLIBRARIES = libcommon.la
 
