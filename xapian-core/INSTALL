@@ -17,18 +17,22 @@ Compilers:
 We aim to support compilation with any C++ compiler which supports ISO C++,
 or a reasonable approximation to it.
 
+If you're using MS Visual C++, see the Xapian download page for a link to
+a set of suitable makefiles: http://www.xapian.org/download.php
+
 If you're using GCC, we currently recommend GCC 3.3 or newer.
 
-GCC's C++ support has improved a lot since GCC 2.95, and you may experience
-spurious warning messages or even Internal Compiler Errors if you try to use
-2.95 (in particular, GCC 2.95 for arm fails to compile Xapian).
+We still regularly peform test builds with 2.95.4 so older versions should work,
+but you may experience spurious warning messages.  On some architectures you
+might get Internal Compiler Errors with 2.95 (in particular, GCC 2.95 for arm
+fails to compile Xapian).
 
 The "GCC 2.96" supplied by RedHat is also best avoided.  This isn't based on an
 official GCC release, but rather on a snapshot of GCC somewhere between 2.95
 and 3.0.
 
 Even older GCC compilers (including EGCS) are most unlikely to work at all
-due to lack of support for various C++ features which Xapian uses.
+due to lack of support for various ISO C++ features which Xapian uses.
 
 
 Building in a separate directory:
