@@ -217,10 +217,12 @@ prefix_needs_colon(const string & prefix, unsigned ch)
     return (len > 1 && prefix[len - 1] != ':');
 }
 
+struct yyParser;
+
 // Prototype the functions lemon generates.
-static void *ParseAlloc();
-static void ParseFree(void *);
-static void Parse(void *, int, Term *, State *);
+static yyParser *ParseAlloc();
+static void ParseFree(yyParser *);
+static void Parse(yyParser *, int, Term *, State *);
 
 Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags, const string &default_prefix)
@@ -233,7 +235,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
     ParseTrace(stdout, "LEMON: ");
 #endif
 
-    void * pParser = ParseAlloc();
+    yyParser * pParser = ParseAlloc();
 
     termpos term_pos = 1;
     Utf8Iterator it(qs), end;
