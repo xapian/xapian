@@ -1,7 +1,7 @@
 /* queryparser.cc: The non-lemon-generated parts of the QueryParser
  * class.
  *
- * Copyright (C) 2005,2006 Olly Betts
+ * Copyright (C) 2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -116,16 +116,17 @@ QueryParser::set_database(const Database &db) {
 }
 
 Query
-QueryParser::parse_query(const string &query_string, unsigned flags)
+QueryParser::parse_query(const string &query_string, unsigned flags,
+			 const string &default_prefix)
 {
     internal->unstem.clear();
     internal->errmsg = NULL;
 
     if (query_string.empty()) return Query();
 
-    Query result = internal->parse_query(query_string, flags);
+    Query result = internal->parse_query(query_string, flags, default_prefix);
     if (internal->errmsg && strcmp(internal->errmsg, "parse error") == 0) {
-	result = internal->parse_query(query_string, 0);
+	result = internal->parse_query(query_string, 0, default_prefix);
     }
 
     if (internal->errmsg) throw internal->errmsg;

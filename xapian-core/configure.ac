@@ -61,6 +61,7 @@ dnl 12:0:1 0.9.6 Added Xapian::version_string(), etc
 dnl 13:0:0 0.9.7 Rewritten Xapian::Error class
 dnl 13:0:0 0.9.8 No API changes (failed to bump revision)
 dnl 13:1:0 0.9.9 No API changes
+dnl 14:0:0       QueryParser::parse_query() now takes optional default prefix
 LIBRARY_VERSION_INFO=13:1:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 

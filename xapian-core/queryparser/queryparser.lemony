@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -223,7 +223,7 @@ static void ParseFree(void *);
 static void Parse(void *, int, Term *, State *);
 
 Query
-QueryParser::Internal::parse_query(const string &qs, unsigned flags)
+QueryParser::Internal::parse_query(const string &qs, unsigned flags, const string &default_prefix)
 {
     char ubuf[6];
 #ifndef NDEBUG
@@ -241,8 +241,8 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags)
     State state(this, flags);
 
     list<string> prefix_stack;
-    // Simplify reading the current prefix by pushing an empty string.
-    prefix_stack.push_back("");
+    // We always have the current prefix on the top of the stack.
+    prefix_stack.push_back(default_prefix);
 
     enum {
 	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM

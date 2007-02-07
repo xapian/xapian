@@ -1,7 +1,7 @@
 /** \file  queryparser.h
  *  \brief parsing a user query string to build a Xapian::Query object
  */
-/* Copyright (C) 2005,2006 Olly Betts
+/* Copyright (C) 2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -181,9 +181,12 @@ class QueryParser {
      *  @param flags         Zero or more Query::feature_flag specifying
      *		what features the QueryParser should support.  Combine
      *		multiple values with bitwise-or (|).
+     *	@param default_prefix  The default term prefix to use (default none).
+     *		For example, you can pass "A" when parsing an "Author" field.
      */
     Query parse_query(const std::string &query_string,
-		      unsigned flags = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE);
+		      unsigned flags = FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE,
+		      const std::string &default_prefix = "");
 
     /** Add a probabilistic term prefix.
      *

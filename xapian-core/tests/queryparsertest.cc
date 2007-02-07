@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -624,6 +624,24 @@ static bool test_qp_default_op1()
     return true;
 }
 
+// Feature test for specify the default prefix (new in Xapian 1.0).
+static bool test_qp_default_prefix1()
+{
+    Xapian::QueryParser queryparser;
+    queryparser.set_stemmer(Xapian::Stem("english"));
+    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    queryparser.add_prefix("title", "XT");
+
+    Xapian::Query qobj;
+    qobj = queryparser.parse_query("hello world", 0, "A");
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((Ahello:(pos=1) OR Aworld:(pos=2)))");
+    qobj = queryparser.parse_query("me title:stuff", 0, "A");
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((Ame:(pos=1) OR XTstuff:(pos=2)))");
+    qobj = queryparser.parse_query("title:(stuff) me", Xapian::QueryParser::FLAG_BOOLEAN, "A");
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((XTstuff:(pos=1) OR Ame:(pos=2)))");
+    return true;
+}
+
 // Test query with odd characters in.
 static bool test_qp_odd_chars1()
 {
@@ -869,6 +887,7 @@ static test_desc tests[] = {
     TESTCASE(qp_stopper1),
     TESTCASE(qp_flag_pure_not1),
     TESTCASE(qp_unstem_boolean_prefix),
+    TESTCASE(qp_default_prefix1),
     END_OF_TESTCASES
 };
 
