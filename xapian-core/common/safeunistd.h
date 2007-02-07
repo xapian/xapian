@@ -25,10 +25,13 @@
 # include <unistd.h>
 #else
 
+// sys/types.h has a typedef for off_t so make sure we've seen that before
+// we hide it behind a #define.
+# include <sys/types.h>
+
 // MSVC doesn't even HAVE unistd.h - io.h seems the nearest equivalent.
 // We also need to do some renaming of functions to get versions which
 // work on large files.
-
 # include <io.h>
 
 # ifdef lseek
