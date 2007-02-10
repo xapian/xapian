@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -633,7 +633,7 @@ html_highlight(const string &s, const string &list,
 	    match = word_in_list('R' + term, list);
 	}
 	if (match == -1)
-	    match = word_in_list(stemmer->stem_word(term), list);
+	    match = word_in_list((*stemmer)(term), list);
 	if (match >= 0) {
 	    res += html_escape(string(l, first.raw() - l));
 	    if (!bra.empty()) {
@@ -1774,7 +1774,7 @@ eval(const string &fmt, const vector<string> &param)
 			    string term = *t;
 			    if (term[0] == 'R') {
 				term.erase(0, 1);
-				term = stemmer->stem_word(term);
+				term = (*stemmer)(term);
 			    }
 			    seen.insert(term);
 			}
@@ -1785,7 +1785,7 @@ eval(const string &fmt, const vector<string> &param)
 			if (term[0] == 'R') {
 			    term.erase(0, 1);
 			    if (stopper(term)) continue;
-			    term = stemmer->stem_word(term);
+			    term = (*stemmer)(term);
 			}
 			if (seen.find(term) != seen.end()) continue;
 			seen.insert(term);
@@ -1953,7 +1953,7 @@ pretty_term(const string & term)
 
     // The term is present unstemmed, but if it would stem further it still
     // needs protecting.
-    if (stemmer->stem_word(term) != term)
+    if ((*stemmer)(term) != term)
 	return term + '.';
 
     return term;

@@ -1,3 +1,8 @@
+Sat Feb 10 18:54:33 GMT 2007  Olly Betts <olly@survex.com>
+
+	* indextext.cc,query.cc: Prefer Xapian::Stem::operator() to
+	  Xapian::Stem::stem_word().
+
 Fri Feb 09 05:53:29 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt: Rewrite introductory paragraph.  Note that
