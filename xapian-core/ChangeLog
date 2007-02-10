@@ -1,3 +1,7 @@
+Sat Feb 10 18:34:05 GMT 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Add brief note about coding style.
+
 Sat Feb 10 18:24:28 GMT 2007  Olly Betts <olly@survex.com>
 
 	* preautoreconf: Add licence and copyright notice.  Add support for

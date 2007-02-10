@@ -588,8 +588,17 @@ SVN checkout just use "svn diff" to generate the diff.  If you're working
 from a tarball, compare against the original versions of files using
 "diff -puN" (-p reports the function name for each chunk).
 
-Please set the width of a tab character in your editor to 8 spaces.  Failing to
-do so will make it much harder for us to merge in your changes.
+Please set the width of a tab character in your editor to 8 spaces, and use
+Unix line endings (i.e. LF, not CR+LF).  Failing to do so will make it much
+harder for us to merge in your changes.
+
+We don't currently have a formal coding standards document, but please try
+to follow the style of the existing code.  In particular:
+
+* indent C++ code by 4 spaces for a new indentation level, and set your editor
+  to tab-fill indentation.
+* Put a space before the "(" after control flow constructs like "for", "if",
+  "while", etc.  Don't put a space before the "(" in function calls.
 
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name
