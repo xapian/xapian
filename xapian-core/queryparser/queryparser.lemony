@@ -577,7 +577,7 @@ phrased_term:
 	    if (stem_action == STEM_SOME && U_isupper(unstemmed_term[0]))
 		term = 'R' + term;
 	    else
-		term = stemmer.stem_word(term);
+		term = stemmer(term);
 	}
 
 	if (prefix.empty()) prefix = prefix_stack.back();
