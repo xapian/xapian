@@ -527,18 +527,24 @@ if test no != "$with_java" ; then
     dnl So we could check for that if we want to check for a particular
     dnl JDK version...
     java_ok=no
-    AC_CHECK_HEADER(jni.h, [java_ok=yes],[
+    AC_CHECK_HEADER(jni.h, [java_ok=yes], [
       dnl We need to look for jni.h in /usr/lib/jvm/java-gcj/include on some
-      dnl Debian and Ubuntu boxes at least.
+      dnl Debian and Ubuntu boxes at least.  And on MacOS X, we jni.h lives
+      dnl in /System/Library/Frameworks/JavaVM.framework/Headers.
       SAVE_CPPFLAGS=$CPPFLAGS
-      CPPFLAGS="$CPPFLAGS -I/usr/lib/jvm/java-gcj/include"
-      AC_MSG_CHECKING([for jni.h in /usr/lib/jvm/java-gcj/include])
-      AC_COMPILE_IFELSE([#include <jni.h>],
-	[AC_MSG_RESULT(yes)
-	 java_ok=yes;JAVA_CPPFLAGS=-I/usr/lib/jvm/java-gcj/include],
-	[AC_MSG_RESULT(no)
-	 test yes = "$with_java" && AC_MSG_ERROR([jni.h not found])])
-      CPPFLAGS=$SAVE_CPPFLAGS], [ ])
+      for jnidir in /usr/lib/jvm/java-gcj/include /System/Library/Frameworks/JavaVM.framework/Headers ; do
+	CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
+	AC_MSG_CHECKING([for jni.h in $jnidir])
+	AC_COMPILE_IFELSE([#include <jni.h>], [java_ok=yes])
+	AC_MSG_RESULT([$java_ok])
+	if test yes = $java_ok ; then
+	  JAVA_CPPFLAGS=-I$jnidir
+	  break
+	fi
+      done
+      CPPFLAGS=$SAVE_CPPFLAGS
+      test noyes = $java_ok$with_java && AC_MSG_ERROR([jni.h not found])
+      ], [ ])
     AC_SUBST(JAVA_CPPFLAGS)
     if test yes = $java_ok ; then
       AC_MSG_CHECKING([for Java path separator])

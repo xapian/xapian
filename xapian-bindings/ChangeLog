@@ -1,3 +1,9 @@
+Sat Feb 10 00:23:19 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Automatically look in the standard OS X JVM location
+	  for jni.h.
+	* java/README: Document how to install the jni library on OS X.
+
 Sat Dec 30 14:40:22 GMT 2006  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Add queryparser flags FLAG_PURE_NOT and FLAG_PARTIAL.

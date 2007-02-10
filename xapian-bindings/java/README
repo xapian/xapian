@@ -8,6 +8,14 @@ into the "built" subdirectory too.
 You can copy these two files into your java installation, or just use them
 in-place.
 
+JDK specific issues:
+====================
+
+Sun JDK 1.5 on Linux reportedly need a -I for the linux subdirectory of the
+JDK includes.  So you might need to configure with something like:
+
+./configure CPPFLAGS="-I/path/to/jdk/include -I/path/to/jdk/include/linux"
+
 How to compile the examples:
 ============================
 
@@ -31,6 +39,11 @@ where the libxapian_jni.so library is located.
 (Alternatively, you can set the LD_LIBRARY_PATH environment variable and skip
 the -Djava.library.path setting for java.)
 
+Mac OS X's JVM doesn't seem to support -Djava.library.path, so for OS X you'll
+need to install built/libxapian_jni.so as (note the different extension):
+
+/System/Library/Frameworks/JavaVM.framework/Libraries/libxapian_jni.jnilib
+
 The java bindings have been tested with Debian packages of GCJ 3.4 and GIJ 3.4,
 with Sun java versions 1.4.1_01a and 1.5.0_06-b05, and with Eclipse Java
 Compiler 0.536 and GIJ 4.0.1.
@@ -38,14 +51,6 @@ Compiler 0.536 and GIJ 4.0.1.
 They should work with any java toolchain with suitable JNI support - please
 report success stories or any problems to the development mailing list:
 xapian-devel@lists.xapian.org
-
-JDK specific issues:
-====================
-
-Sun JDK 1.5 on Linux reportedly need a -I for the linux subdirectory of the
-JDK includes.  So you might need to configure with something like:
-
-./configure CPPFLAGS="-I/path/to/jdk/include -I/path/to/jdk/include/linux"
 
 Naming of wrapped methods:
 ==========================
