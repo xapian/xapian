@@ -1,6 +1,6 @@
 /* index_utils.cc - utility functions for indexing testcase data
  *
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -85,7 +85,7 @@ document_from_stream(istream &from)
     while (end != para_end) {
 	string::const_iterator start = find_if(end, para_end, C_isnotspace);
 	end = find_if(start, para_end, C_isspace);
-	string word = stemmer.stem_word(munge_term(string(start, end)));
+	string word = stemmer(munge_term(string(start, end)));
 	if (!word.empty()) doc.add_posting(word, ++pos);
     }
 
