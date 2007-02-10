@@ -1,4 +1,22 @@
 #!/usr/bin/perl -w
+# preautoconf - generate lists of sources for doxygen to extract docs from
+#
+# Copyright (C) 2005,2007 Olly Betts
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
 use strict;
 
 sub parse_makefile_am($);
@@ -43,15 +61,17 @@ sub parse_makefile_am($) {
     my %v = ();
     my @l;
     my $makefile_am = $dir . "Makefile.am";
+    my @pending = ();
     open M, "<$makefile_am" or die "$makefile_am: $!\n";
     push @makefile_am, $makefile_am;
     while (<M>) {
+pending:
 	chomp;
 	while (s/\\$/ /) {
 	    $_ .= <M>;
 	    chomp;
 	}
-	if (/(\w+)\s*=\s*(.*?)\s*(?:#.*)?$/) {
+	if (/^\s*(\w+)\s*=\s*(.*?)\s*(?:#.*)?$/) {
 	    my $var = $1;
 	    if (exists $v{$var}) {
 		$v{$var} .= " $2";
@@ -61,6 +81,18 @@ sub parse_makefile_am($) {
 	    if ($var =~ /_(?:SOURCES|HEADERS)$/) {
 		push @l, $var;
 	    }
+	} elsif (/^\s*include\s*(\S+)/) {
+	    # FIXME: directory for inclusion of nested included file isn't
+	    # correct I suspect.  Currently we don't have any such files
+	    # though.
+	    my $inc = $dir . $1;
+	    open INC, "<$inc" or die "$inc: $!\n";
+	    unshift @pending, <INC>;
+	    close INC;
+	}
+	if (@pending) {
+	    $_ = shift @pending;
+	    goto pending;
 	}
     }
     close M;
@@ -81,7 +113,11 @@ sub parse_makefile_am($) {
 sub expand {
    my $var = shift;
    my $vref = shift;
-   $var = $$vref{$var};
-   $var =~ s/\$\((\w+)\)/expand($1, $vref)/eg;
-   return $var;
+   my $val = $$vref{$var};
+   if (!defined $val) {
+       print STDERR "$0: Unknown variable: \$($var)\n";
+       return "";
+   }
+   $val =~ s/\$\((\w+)\)/expand($1, $vref)/eg;
+   return $val;
 }
