@@ -32,7 +32,7 @@
 #include <string.h>		/* for memcpy() */
 #include "md5.h"
 
-#ifdef WORDS_BIGENDIAN
+#ifndef WORDS_BIGENDIAN
 #define byteReverse(buf, len)	/* Nothing */
 #else
 static void byteReverse(uint32_t *buf, unsigned longs);
