@@ -1,9 +1,8 @@
 /* simpleindex.cc: Index each paragraph in a textfile as a document.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <xapian.h>
@@ -99,7 +97,7 @@ try {
 		    if (len <= MAX_PROB_TERM_LENGTH) {
 			string term = para.substr(i - para.begin(), len);
 			lowercase_term(term);
-			term = stemmer.stem_word(term);
+			term = stemmer(term);
 			doc.add_posting(term, pos++);
 		    }
 		    i = j;

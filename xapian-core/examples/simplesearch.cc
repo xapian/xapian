@@ -1,10 +1,9 @@
 /* simplesearch.cc: Simple command-line search program
  * (See quest for a more complete example with sophisticated query parsing).
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,9 +17,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <xapian.h>
@@ -55,7 +53,7 @@ int main(int argc, char **argv)
 
 	argv += 2;
 	while (*argv) {
-	    stemmed_terms.push_back(stemmer.stem_word(*argv++));
+	    stemmed_terms.push_back(stemmer(*argv++));
 	}
 	    
 	// Build a query by OR-ing together all the terms

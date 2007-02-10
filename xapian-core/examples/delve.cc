@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -240,7 +240,7 @@ main(int argc, char **argv)
 	    if (*(term.end() - 1) == '.') {
 		term.erase(term.size() - 1);
 	    } else {
-		term = stemmer.stem_word(term);
+		term = stemmer(term);
 	    }
 	    PostingIterator p = db.postlist_begin(term);
 	    PostingIterator pend = db.postlist_end(term);
