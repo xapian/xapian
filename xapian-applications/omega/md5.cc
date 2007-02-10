@@ -151,8 +151,8 @@ void MD5Final(unsigned char digest[16], struct MD5Context *ctx)
     } else {
 	/* Pad block to 56 bytes */
 	memset(p, 0, count - 8);
+	byteReverse(ctx->in, 14);
     }
-    byteReverse(ctx->in, 14);
 
     /* Append length in bits and transform */
     ctx->in[14] = ctx->bits[0];
