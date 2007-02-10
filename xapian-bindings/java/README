@@ -28,7 +28,8 @@ How to run the examples:
 
 To run the examples, you need to give Java a special system-property named
 "java.library.path".  The value of this property is the path of the directory
-where the libxapian_jni.so library is located.
+where the libxapian_jni.so (or whatever extension is used on your platform)
+JNI library is located.
 
  java -Djava.library.path=built -classpath built/xapian_jni.jar:. \
       org.xapian.examples.SimpleIndex ./test.db index words like java
@@ -36,13 +37,10 @@ where the libxapian_jni.so library is located.
  java -Djava.library.path=built -classpath built/xapian_jni.jar:. \
       org.xapian.examples.SimpleSearch ./test.db index words like java
 
-(Alternatively, you can set the LD_LIBRARY_PATH environment variable and skip
-the -Djava.library.path setting for java.)
-
-Mac OS X's JVM doesn't seem to support -Djava.library.path, so for OS X you'll
-need to install built/libxapian_jni.so as (note the different extension):
-
-/System/Library/Frameworks/JavaVM.framework/Libraries/libxapian_jni.jnilib
+Alternatively, you can avoid needing the -Djava.library.path setting by
+setting the LD_LIBRARY_PATH environment variable, or by installing the JNI
+library in the appropriate directory so your JVM finds it automatically
+(for example, on MacOS X you can copy it into /Library/Java/Extensions/).
 
 The java bindings have been tested with Debian packages of GCJ 3.4 and GIJ 3.4,
 with Sun java versions 1.4.1_01a and 1.5.0_06-b05, and with Eclipse Java

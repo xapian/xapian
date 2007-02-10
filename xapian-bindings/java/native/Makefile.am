@@ -5,7 +5,7 @@ if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
 export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
 endif
 
-# directory to install xapian_jni.{so,dynlib,dll,sl,...} in
+# directory to install libxapian_jni.{so,dll,sl,...} in
 jnidir = `pwd`/../built
 jni_LTLIBRARIES = libxapian_jni.la
 
@@ -14,6 +14,9 @@ jni_LTLIBRARIES = libxapian_jni.la
 # install-data, so that's where we need to hook.
 install-data-hook:
 	rm -f $(DESTDIR)$(jnidir)/libxapian_jni.la
+if NEED_JNILIB_EXT
+	mv $(DESTDIR)$(jnidir)/libxapian_jni.so $(DESTDIR)$(jnidir)/libxapian_jni.jnilib
+endif
 
 libxapian_jni_la_SOURCES = Database.cc Document.cc ESet.cc ESetIterator.cc \
  Enquire.cc MSet.cc MSetIterator.cc PositionIterator.cc Query.cc RSet.cc \
