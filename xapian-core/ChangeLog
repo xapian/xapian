@@ -1,3 +1,9 @@
+Sat Feb 10 18:19:26 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Conditionalise all the valgrind specific
+	  code on RUNNING_ON_VALGRIND to minimise the overhead if valgrind
+	  is installed but we aren't running tests under it.
+
 Sat Feb 10 17:42:05 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/index_utils.cc,tests/stemtest.cc: Prefer

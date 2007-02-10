@@ -202,12 +202,16 @@ test_driver::runtest(const test_desc *test)
 	    try {
 		expected_exception = NULL;
 #ifdef HAVE_VALGRIND
-		VALGRIND_DO_LEAK_CHECK;
-		int vg_errs = VALGRIND_COUNT_ERRORS;
-		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
-		VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
-		// Skip past any unread log output.
-		lseek(vg_log_fd, 0, SEEK_END);
+		int vg_errs;
+		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0;
+		if (RUNNING_ON_VALGRIND) {
+		    VALGRIND_DO_LEAK_CHECK;
+		    vg_errs = VALGRIND_COUNT_ERRORS;
+		    long dummy;
+		    VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
+		    // Skip past any unread log output.
+		    lseek(vg_log_fd, 0, SEEK_END);
+		}
 #endif
 		if (!test->run()) {
 		    string s = tout.str();
@@ -220,11 +224,12 @@ test_driver::runtest(const test_desc *test)
 		    return FAIL;
 		}
 #ifdef HAVE_VALGRIND
-		// We must empty tout before asking valgrind to perform its
-		// leak checks, otherwise the buffers holding the output may
-		// be identified as a memory leak (especially if >1K of output
-		// has been buffered it appears...)
-		tout.str("");
+		if (RUNNING_ON_VALGRIND) {
+		    // We must empty tout before asking valgrind to perform its
+		    // leak checks, otherwise the buffers holding the output
+		    // may be identified as a memory leak (especially if >1K of
+		    // output has been buffered it appears...)
+		    tout.str("");
 #define REPORT_FAIL_VG(M) do { \
     if (verbose) { \
 	while (true) { \
@@ -235,78 +240,81 @@ test_driver::runtest(const test_desc *test)
     } \
     out << " " << col_red << M << col_reset; \
 } while (0)
-		char buf[1024];
-		while (true) {
-		    ssize_t c = read(vg_log_fd, buf, sizeof(buf));
-		    if (c == 0 || (c < 0 && errno != EINTR)) {
-			buf[0] = 0;
-			break;
+		    char buf[1024];
+		    while (true) {
+			ssize_t c = read(vg_log_fd, buf, sizeof(buf));
+			if (c == 0 || (c < 0 && errno != EINTR)) {
+			    buf[0] = 0;
+			    break;
+			}
+			if (c > 0) {
+			    ssize_t i = 0;
+			    do {
+				while (i < c && buf[i] != ' ') ++i;
+			    } while (++i < c && buf[i] == '\n');
+			    char *p = reinterpret_cast<char *>(memchr(buf + i, '\n', c - i));
+			    if (p == NULL) p = buf + c;
+			    c = p - buf - i;
+			    if (c > 1024) c = 79;
+			    memmove(buf, buf + i, c);
+			    buf[c] = '\0';
+			    break;
+			}
 		    }
-		    if (c > 0) {
-			ssize_t i = 0;
-			do {
-			    while (i < c && buf[i] != ' ') ++i;
-			} while (++i < c && buf[i] == '\n');
-			char *p = reinterpret_cast<char *>(memchr(buf + i, '\n', c - i));
-			if (p == NULL) p = buf + c;
-			c = p - buf - i;
-			if (c > 1024) c = 79;
-			memmove(buf, buf + i, c);
-			buf[c] = '\0';
-			break;
+		    VALGRIND_DO_LEAK_CHECK;
+		    int vg_errs2 = VALGRIND_COUNT_ERRORS;
+		    vg_errs = vg_errs2 - vg_errs;
+		    long vg_leaks2 = 0, vg_dubious2 = 0, vg_reachable2 = 0;
+		    long dummy;
+		    VALGRIND_COUNT_LEAKS(vg_leaks2, vg_dubious2, vg_reachable2,
+					 dummy);
+		    vg_leaks = vg_leaks2 - vg_leaks;
+		    vg_dubious = vg_dubious2 - vg_dubious;
+		    vg_reachable = vg_reachable2 - vg_reachable;
+		    if (vg_errs) {
+			string fail_msg(buf);
+			if (fail_msg.empty())
+			    fail_msg = "VALGRIND DETECTED A PROBLEM";
+			REPORT_FAIL_VG(fail_msg);
+			return FAIL;
 		    }
-		}
-		VALGRIND_DO_LEAK_CHECK;
-		int vg_errs2 = VALGRIND_COUNT_ERRORS;
-		vg_errs = vg_errs2 - vg_errs;
-		long vg_leaks2 = 0, vg_dubious2 = 0, vg_reachable2 = 0;
-		VALGRIND_COUNT_LEAKS(vg_leaks2, vg_dubious2, vg_reachable2,
-				     dummy);
-		vg_leaks = vg_leaks2 - vg_leaks;
-		vg_dubious = vg_dubious2 - vg_dubious;
-		vg_reachable = vg_reachable2 - vg_reachable;
-		if (vg_errs) {
-		    string fail_msg(buf);
-		    if (fail_msg.empty())
-			fail_msg = "VALGRIND DETECTED A PROBLEM";
-		    REPORT_FAIL_VG(fail_msg);
-		    return FAIL;
-		}
-		if (vg_leaks > 0) {
-		    REPORT_FAIL_VG("LEAKED " << vg_leaks << " BYTES");
-		    return FAIL;
-		}
-		if (vg_dubious > 0) {
-		    // If code deliberately holds onto blocks by a pointer not
-		    // to the start (e.g. languages/utilities.c does) then we
-		    // need to rerun the test to see if the leak is real...
-		    if (runcount == 0) {
-			out << " " << col_yellow << "PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
-			++runcount;
-			continue;
+		    if (vg_leaks > 0) {
+			REPORT_FAIL_VG("LEAKED " << vg_leaks << " BYTES");
+			return FAIL;
 		    }
-		    REPORT_FAIL_VG("PROBABLY LEAKED " << vg_dubious << " BYTES");
-		    return FAIL;
-		}
-		if (vg_reachable > 0) {
-		    // FIXME:
-		    // C++ STL implementations often "horde" released
-		    // memory - perhaps we can supply our own allocator
-		    // so we can tell the difference?
-		    //
-		    // See also:
-		    // http://valgrind.org/docs/FAQ/#faq.reports
-		    //
-		    // For now, just use runcount to rerun the test and see
-		    // if more is leaked - hopefully this shouldn't give
-		    // false positives.
-		    if (runcount == 0) {
-			out << " " << col_yellow << "POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
-			++runcount;
-			continue;
+		    if (vg_dubious > 0) {
+			// If code deliberately holds onto blocks by a pointer
+			// not to the start (e.g. languages/utilities.c does)
+			// then we need to rerun the test to see if the leak is
+			// real...
+			if (runcount == 0) {
+			    out << " " << col_yellow << "PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
+			    ++runcount;
+			    continue;
+			}
+			REPORT_FAIL_VG("PROBABLY LEAKED " << vg_dubious << " BYTES");
+			return FAIL;
 		    }
-		    REPORT_FAIL_VG("FAILED TO RELEASE " << vg_reachable << " BYTES");
-		    return FAIL;
+		    if (vg_reachable > 0) {
+			// FIXME:
+			// C++ STL implementations often "horde" released
+			// memory - perhaps we can supply our own allocator
+			// so we can tell the difference?
+			//
+			// See also:
+			// http://valgrind.org/docs/FAQ/#faq.reports
+			//
+			// For now, just use runcount to rerun the test and see
+			// if more is leaked - hopefully this shouldn't give
+			// false positives.
+			if (runcount == 0) {
+			    out << " " << col_yellow << "POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
+			    ++runcount;
+			    continue;
+			}
+			REPORT_FAIL_VG("FAILED TO RELEASE " << vg_reachable << " BYTES");
+			return FAIL;
+		    }
 		}
 #endif
 	    } catch (const TestFail &) {
