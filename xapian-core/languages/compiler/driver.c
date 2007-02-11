@@ -13,7 +13,7 @@ static int eq(char * s1, char * s2) {
 static void print_arglist(void) {
     fprintf(stderr, "options are: file [-o[utput] file]\n"
                     "                  [-s[yntax]]\n"
-#if JAVA_SUPPORT
+#ifdef JAVA_SUPPORT
                     "                  [-j[ava]]\n"
 #endif
                     "                  [-w[idechars]]\n"
@@ -79,7 +79,7 @@ static void read_options(struct options * o, int argc, char * argv[]) {
                 o->name = argv[i++];
                 continue;
             }
-#if JAVA_SUPPORT
+#ifdef JAVA_SUPPORT
             if (eq(s, "-j") || eq(s, "-java")) {
                 o->make_java = true;
                 o->widechars = true;
@@ -180,7 +180,7 @@ extern int main(int argc, char * argv[]) {
                     fclose(o->output_c);
                     fclose(o->output_h);
                 }
-#if JAVA_SUPPORT
+#ifdef JAVA_SUPPORT
                 if (o->make_java) {
                     symbol * b = add_s_to_b(0, s);
                     b = add_s_to_b(b, ".java");
