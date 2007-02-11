@@ -1,3 +1,8 @@
+Sun Feb 11 15:23:51 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/compiler/header.h,languages/compiler/tokeniser.c: Give
+	  syswords and syswords2 .h extensions for clarity.
+
 Sun Feb 11 15:17:28 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,api/Makefile.am,api/omstem.cc,configure.ac,dummy.cc,

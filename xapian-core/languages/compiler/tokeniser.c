@@ -14,7 +14,7 @@ struct system_word {
 
 /* ASCII collating assumed in syswords.c */
 
-#include "syswords"
+#include "syswords.h"
 
 static int smaller(int a, int b) { return a < b ? a : b; }
 

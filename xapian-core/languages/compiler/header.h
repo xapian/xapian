@@ -104,7 +104,7 @@ extern void close_tokeniser(struct tokeniser * t);
 
 enum token_codes {
 
-#include "syswords2"
+#include "syswords2.h"
 
     c_mathassign,
     c_name,
