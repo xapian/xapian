@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -75,16 +75,16 @@ query(Xapian::Query::op op, string t1 = "", string t2 = "",
 {
     vector<string> v;
     Xapian::Stem stemmer("english");
-    if (!t1.empty()) v.push_back(stemmer.stem_word(t1));
-    if (!t2.empty()) v.push_back(stemmer.stem_word(t2));
-    if (!t3.empty()) v.push_back(stemmer.stem_word(t3));
-    if (!t4.empty()) v.push_back(stemmer.stem_word(t4));
-    if (!t5.empty()) v.push_back(stemmer.stem_word(t5));
-    if (!t6.empty()) v.push_back(stemmer.stem_word(t6));
-    if (!t7.empty()) v.push_back(stemmer.stem_word(t7));
-    if (!t8.empty()) v.push_back(stemmer.stem_word(t8));
-    if (!t9.empty()) v.push_back(stemmer.stem_word(t9));
-    if (!t10.empty()) v.push_back(stemmer.stem_word(t10));
+    if (!t1.empty()) v.push_back(stemmer(t1));
+    if (!t2.empty()) v.push_back(stemmer(t2));
+    if (!t3.empty()) v.push_back(stemmer(t3));
+    if (!t4.empty()) v.push_back(stemmer(t4));
+    if (!t5.empty()) v.push_back(stemmer(t5));
+    if (!t6.empty()) v.push_back(stemmer(t6));
+    if (!t7.empty()) v.push_back(stemmer(t7));
+    if (!t8.empty()) v.push_back(stemmer(t8));
+    if (!t9.empty()) v.push_back(stemmer(t9));
+    if (!t10.empty()) v.push_back(stemmer(t10));
     return Xapian::Query(op, v.begin(), v.end());
 }
 
@@ -97,23 +97,23 @@ query(Xapian::Query::op op, Xapian::termcount parameter,
 {
     vector<string> v;
     Xapian::Stem stemmer("english");
-    if (!t1.empty()) v.push_back(stemmer.stem_word(t1));
-    if (!t2.empty()) v.push_back(stemmer.stem_word(t2));
-    if (!t3.empty()) v.push_back(stemmer.stem_word(t3));
-    if (!t4.empty()) v.push_back(stemmer.stem_word(t4));
-    if (!t5.empty()) v.push_back(stemmer.stem_word(t5));
-    if (!t6.empty()) v.push_back(stemmer.stem_word(t6));
-    if (!t7.empty()) v.push_back(stemmer.stem_word(t7));
-    if (!t8.empty()) v.push_back(stemmer.stem_word(t8));
-    if (!t9.empty()) v.push_back(stemmer.stem_word(t9));
-    if (!t10.empty()) v.push_back(stemmer.stem_word(t10));
+    if (!t1.empty()) v.push_back(stemmer(t1));
+    if (!t2.empty()) v.push_back(stemmer(t2));
+    if (!t3.empty()) v.push_back(stemmer(t3));
+    if (!t4.empty()) v.push_back(stemmer(t4));
+    if (!t5.empty()) v.push_back(stemmer(t5));
+    if (!t6.empty()) v.push_back(stemmer(t6));
+    if (!t7.empty()) v.push_back(stemmer(t7));
+    if (!t8.empty()) v.push_back(stemmer(t8));
+    if (!t9.empty()) v.push_back(stemmer(t9));
+    if (!t10.empty()) v.push_back(stemmer(t10));
     return Xapian::Query(op, v.begin(), v.end(), parameter);
 }
 
 static Xapian::Query
 query(const string &t)
 {
-    return Xapian::Query(Xapian::Stem("english").stem_word(t));
+    return Xapian::Query(Xapian::Stem("english")(t));
 }
 
 // #######################################################################
@@ -1091,9 +1091,9 @@ static bool test_eliteset3()
     // make a query
     Xapian::Stem stemmer("english");
 
-    string term1 = stemmer.stem_word("word");
-    string term2 = stemmer.stem_word("rubbish");
-    string term3 = stemmer.stem_word("banana");
+    string term1 = stemmer("word");
+    string term2 = stemmer("rubbish");
+    string term3 = stemmer("banana");
 
     vector<string> terms;
     terms.push_back(term1);
@@ -1168,7 +1168,7 @@ static bool test_termlisttermfreq1()
     Xapian::ESet eset2 = enquire.get_eset(1000, rset2);
 
     // search for weight of term 'another'
-    string theterm = stemmer.stem_word("another");
+    string theterm = stemmer("another");
 
     Xapian::weight wt1 = 0;
     Xapian::weight wt2 = 0;
@@ -1211,9 +1211,9 @@ static bool test_qterminfo1()
     // make a query
     Xapian::Stem stemmer("english");
 
-    string term1 = stemmer.stem_word("word");
-    string term2 = stemmer.stem_word("inmemory");
-    string term3 = stemmer.stem_word("flibble");
+    string term1 = stemmer("word");
+    string term2 = stemmer("inmemory");
+    string term3 = stemmer("flibble");
 
     Xapian::Query myquery(Xapian::Query::OP_OR,
 		    Xapian::Query(term1),
@@ -1264,8 +1264,8 @@ static bool test_qterminfo2()
     // make a query
     Xapian::Stem stemmer("english");
 
-    string term1 = stemmer.stem_word("paragraph");
-    string term2 = stemmer.stem_word("another");
+    string term1 = stemmer("paragraph");
+    string term2 = stemmer("another");
 
     Xapian::Query query(Xapian::Query::OP_AND_NOT, term1,
 	    Xapian::Query(Xapian::Query::OP_AND, term1, term2));
@@ -1496,7 +1496,7 @@ static bool test_spaceterms1()
     Xapian::MSetIterator m;
     Xapian::Stem stemmer("english");
 
-    enquire.set_query(stemmer.stem_word("space man"));
+    enquire.set_query(stemmer("space man"));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
@@ -1508,7 +1508,7 @@ static bool test_spaceterms1()
 	TEST_NOT_EQUAL(mymset.begin().get_document().get_value(value_no), "");
     }
 
-    enquire.set_query(stemmer.stem_word("tab\tby"));
+    enquire.set_query(stemmer("tab\tby"));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
@@ -1524,7 +1524,7 @@ static bool test_spaceterms1()
 	}
     }
 
-    enquire.set_query(stemmer.stem_word("back\\slash"));
+    enquire.set_query(stemmer("back\\slash"));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
@@ -1542,9 +1542,9 @@ static bool test_xor1()
     Xapian::Stem stemmer("english");
 
     vector<string> terms;
-    terms.push_back(stemmer.stem_word("this"));
-    terms.push_back(stemmer.stem_word("word"));
-    terms.push_back(stemmer.stem_word("of"));
+    terms.push_back(stemmer("this"));
+    terms.push_back(stemmer("word"));
+    terms.push_back(stemmer("of"));
 
     Xapian::Query query(Xapian::Query::OP_XOR, terms.begin(), terms.end());
     enquire.set_weighting_scheme(Xapian::BoolWeight());

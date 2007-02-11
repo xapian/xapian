@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -43,7 +43,7 @@ using namespace std;
 static Xapian::Query
 query(const string &t)
 {
-    return Xapian::Query(Xapian::Stem("english").stem_word(t));
+    return Xapian::Query(Xapian::Stem("english")(t));
 }
 
 // #######################################################################
@@ -741,7 +741,7 @@ static bool test_specialterms1()
     Xapian::MSetIterator m;
     Xapian::Stem stemmer("english");
 
-    enquire.set_query(stemmer.stem_word("new\nline"));
+    enquire.set_query(stemmer("new\nline"));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
@@ -760,7 +760,7 @@ static bool test_specialterms1()
 	}
     }
 
-    enquire.set_query(stemmer.stem_word(string("big\0zero", 8)));
+    enquire.set_query(stemmer(string("big\0zero", 8)));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
