@@ -478,7 +478,7 @@ static void make_among(struct analyser * a, struct node * p, struct node * subst
     }
     unless (w1-v == p->number) { fprintf(stderr, "oh! %d %d\n", (int)(w1-v), p->number); exit(1); }
     if (backward) for (w0 = v; w0 < w1; w0++) reverse_b(w0->b);
-    sort(v, w1, sizeof(struct amongvec), compare_amongvec);
+    qsort(v, w1 - v, sizeof(struct amongvec), compare_amongvec);
 
     /* the following loop is O(n squared) */
     for (w0 = w1 - 1; w0 >= v; w0--) {

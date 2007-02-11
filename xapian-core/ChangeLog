@@ -1,3 +1,9 @@
+Sun Feb 11 16:08:49 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/compiler/analyser.c,languages/compiler/header.h: Use qsort
+	  instead the snowball's own sort implementation to reduce the number
+	  of source files we need for the snowball compiler.
+
 Sun Feb 11 16:04:19 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/Makefile: Add stub Makefile to allow "make", "make check",
