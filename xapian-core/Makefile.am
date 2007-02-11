@@ -1,5 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
+
+SUFFIXES =
+noinst_HEADERS =
+BUILT_SOURCES =
+
 .PHONY: check-remote check-flint check-quartz
 
 if BUILD_BACKEND_REMOTE
@@ -24,11 +30,11 @@ endif
 # FIXME: when installing, should we install the xapian-config script and
 # xapian.m4 last, in case of failure (disk full for example)?
 SUBDIRS = include getopt common \
-          api backends matcher languages $(remote_subdirs) \
+          api backends matcher $(remote_subdirs) \
 	  queryparser . bin examples docs tests
 
 DIST_SUBDIRS = include getopt common \
-               api backends matcher languages net \
+               api backends matcher net \
 	       queryparser . bin examples docs tests
 
 bin_SCRIPTS = xapian-config
@@ -48,11 +54,7 @@ dist_m4data_DATA = m4/xapian.m4
 
 lib_LTLIBRARIES = libxapian.la
 
-# libtool requires at least one source file in a library (due to limitations on
-# some operating systems).  Make it a C++ file so that automake knows to link
-# the library as C++.
-libxapian_la_SOURCES = dummy.cc
-EXTRA_libxapian_la_SOURCES =
+libxapian_la_SOURCES =
 
 libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info $(LIBRARY_VERSION_INFO)
 
@@ -61,7 +63,7 @@ libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info $(LIBRARY_VE
 #libxapian_la_LDFLAGS = -export-symbols-regex 'Xapian'
 
 libxapian_la_LIBADD = common/libcommon.la backends/libbackend.la \
- matcher/libmatcher.la languages/liblanguages.la api/libapi.la $(LIBNET_LA) \
+ matcher/libmatcher.la api/libapi.la $(LIBNET_LA) \
  queryparser/libqueryparser.la
 
 dist_man_MANS = xapian-config.1
@@ -74,3 +76,5 @@ CLEANFILES += $(dist_man_MANS)
 xapian-config.1: xapian-config
 	$(HELP2MAN) -o xapian-config.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^PROG_DESC=\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-config`" ./xapian-config
 endif
+
+include languages/Makefile.mk

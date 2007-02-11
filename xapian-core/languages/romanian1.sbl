@@ -1,0 +1,204 @@
+/*
+Department of Computational Linguistics,
+Ruprecht-Karls-University of Heidelberg
+
+Marina Stegarescu: mstegare@hotmail.com
+Doina Gliga: doina_gliga@yahoo.co.uk
+Erwin Glockner: eglockner@hotmail.com
+
+2006.07.15
+*/
+
+routines (
+    mark_regions
+    R1 R2
+    morhological_suffixes
+    deriv_suffixes1
+    deriv_suffixes2
+    exception1
+    verb_suffix
+    residual_suffix
+)
+
+externals ( stem )
+integers ( p1 p2 )
+groupings ( v )
+
+stringescapes {}
+
+stringdef a^        hex  'E2'  // â
+stringdef ab        hex '103'  // ă
+stringdef i^        hex  'EE'  // î
+stringdef s,        hex '15F'  // ş
+stringdef t,        hex '163'  // ţ
+
+define v      'aeiouy{a^}{ab}{i^}'
+
+define mark_regions as (
+    $p1 = limit
+    $p2 = limit
+
+    do(
+        among (
+            'coral' 'moral' 'social' 'canal' 'final' 'papagal' 'special' 'tractor' 'abator'
+            'marar' 'declar' 'suf{ab}r'
+            'polonic' 'voinic'
+            'paravan' 'simultan' 'decan' 'decal' 'tiran'
+            'caracter' 'tiner' 'acoper' 'descoper' 'sufer' 'numer'
+            'orator' 'autor'
+            'exprim' 'prim' 'ultim' 'optim' 'victim' 'antonim' 'sinonim'
+            'adjectiv' 'conjunctiv' 'subjonctiv' 'substantiv' 'pozitiv' 'recidiv' 'infinitiv'
+            'complet' 'absolut' 'debut' 'debit'
+            'miros'
+            'dantel' 'nuvel' 'tutel' 'model' 'cercel'
+            'savant' 'ambulant'
+            'aparat' 'ar{ab}t'
+            'specific' 'critic'
+            'oribil' 'probabil'
+            'bine' 'feroce' 'atroce'
+
+            // ... extensions possible here ...
+        ) or (gopast v  gopast non-v)
+        setmark p1
+        gopast v  gopast non-v  setmark p2
+    )
+)
+
+
+define exception1 as (
+    [substring] atlimit among (
+        'cea' (<-'ce')
+        'cel' (<- 'ce')
+        'cei' (<- 'ce')
+        'celui'(<- 'ce')
+        'celei' (<- 'ce')
+        'celor' (<- 'ce')
+        'destul' 'astfel' 'altfel'
+        'asupra' 'deasupra' 'asemenea' 'afar{ab}'
+        'mai' 'nici' 'aici' 'apoi' 'musai' 'baremi' 'uneori' 'altminteri' 'deseori' 'numai'
+        '{i^}nt{a^}i' 'p{a^}n{ab}' 'dup{ab}'
+        'noi' 'voi' 'imi' 'i{t,}i' 'i{s,}i' 'cine' 'care'
+        'cui' 'ori'
+        'acest' 'pentru' 'sau'
+        'c{ab}tre' 'despre' 'spre' 'dinspre' 'dintre' 'printre' '{i^}ntre' 'devreme' 'aproape' 'departe'
+        'bine' 'feroce' 'atroce'
+        'exprim' 'prim' 'ultim' 'optim' 'victim' 'antonim' 'sinonim'
+        'fonem' 'extrem' 'poem' 'suprem'
+    )
+)
+
+backwardmode (
+
+    define R1 as $p1 <= cursor
+    define R2 as $p2 <= cursor
+
+
+    define morhological_suffixes as (
+        [substring] among (
+            'ului' 'uri' 'urile' 'urilor' 'ul'
+                (delete)
+            'le'
+                ( ('a' or 'o' <- 'l') or delete)
+            'lui' 'lor' 'elor' 'ilor' 'ele' 'ile' 'ei' 'i' 'ii' 'e' 'a' '{ab}'
+                (delete)
+        )
+    )
+
+    define deriv_suffixes1 as (
+        [substring] among (
+            'ism' 'ist' 'i{s,}t'
+                (R2 or R1 non-v delete)
+            'iz' 'ant' '{ab}r' 'ar'
+                (R2 non-v delete)
+
+            'tor' 'toar' 'abil' 'ibil'
+                (R1 or R2 delete)
+
+            'ime' 'esc'
+                (delete)
+            'n{t,}'
+                (R2 <- 'nt')
+        )
+    )
+
+    define deriv_suffixes2 as (
+        [substring] among (
+            '{ab}r' 'ar'
+                (R1 or R2 non-v delete)
+
+            'anie' 'icel' 'giu' 'eal' '{ab}tat'
+                (R2 non-v delete)
+
+
+            'ulte{t,}' 'u{t,}' 'uc' 'u{s,}' 'el' 'oi'
+                (R1 delete)
+
+            'ir' 'im' 'i{s,}' 'iz' 'iv' 'aj' 'an' 'ac'
+                (R1 or R2 non-v delete)
+
+            'ic'
+                (R2 or R1 delete)
+
+            'er'
+                (R1 or R2 non-v or 'i' delete)
+
+            'os' 'o{s,}' 'oas'
+                (('u' or 'i' or 'j' or 'r' or 'p') R1 delete)
+
+            'ant' 'ean' 'liv' 'al'
+                (R1 or R2 delete)
+
+            '{s,}or' '{s,}oar'
+                (R1 or R2 v delete)
+        )
+    )
+
+    define verb_suffix as (
+        [substring] among (
+
+            'eaz{ab}' 'eaza' 'ezi' 'ez' 'z{ab}'
+                (R1 or R2 delete)
+            'esc' 'easc{ab}' 'e{s,}ti' 'e{s,}te' 'im' 'i{t,}i'
+                (R1 or R2 delete)
+
+            'ai' 'a{s,}i' 'i{s,}i' 'am' '{ab}m' 'em'
+            'au' 'r{ab}m' 'ea' 'u'
+                 (R1 or R2 delete)
+            '{t,}i'
+                 (R1 'a' 'e' 'i' 'u' delete)
+            'se' 'sei' 'se{s,}i' 'ser{ab}m' 'ser{ab}{t,}i' 'ser{ab}' 'r{ab}'
+                 (R1 or R2 delete)
+            'ind' '{i^}nd' '{a^}nd'
+                 (R1 or R2 delete)
+        )
+    )
+
+    define residual_suffix as (
+        [substring] among (
+            'a' '{ab}' 'e' 'u' 'i'
+                (R1 or R2 non-v delete)
+
+            'at' 'a{t,}' 'it' 'i{t,}' 'ut' 'u{t,}'
+                (R2 or R1 delete)
+        )
+    )
+)
+
+
+define stem as (
+
+    exception1 or
+    not hop 3 or (
+        do mark_regions
+        backwards (
+
+            do (verb_suffix or morhological_suffixes)
+
+            do deriv_suffixes1
+            do deriv_suffixes2
+            residual_suffix
+
+        )
+    )
+)
+

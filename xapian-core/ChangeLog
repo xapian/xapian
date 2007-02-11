@@ -1,3 +1,12 @@
+Sun Feb 11 15:17:28 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/Makefile.am,api/omstem.cc,configure.ac,dummy.cc,
+	  languages/Makefile.am,languages/Makefile.mk,languages/compiler/,
+	  languages/: Update the stemmers to use utf-8 and the latest snowball
+	  version (based on r421 from snowball SVN).  Further patches are
+	  required to generate C++ classes from snowball, I'm checking in the
+	  vanilla compiler first to help us track the patches.
+
 Sun Feb 11 14:16:35 GMT 2007  Olly Betts <olly@survex.com>
 
 	* api/omstem.cc: Add definition for Xapian::Stem::stem_word().
