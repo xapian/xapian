@@ -1,3 +1,8 @@
+Sun Feb 11 16:04:19 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/Makefile: Add stub Makefile to allow "make", "make check",
+	  and "make clean" from the languages subdirectory.
+
 Sun Feb 11 16:00:51 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/compiler/analyser.c: Cast the arguments, not the function
