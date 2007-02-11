@@ -1,9 +1,8 @@
 /* omstem.cc: Builder for stemming algorithms
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -257,6 +255,14 @@ Xapian::Stem::operator()(const string &word) const
     // FIXME should we look at the return value of the stem function?
     stemmers[internal->langcode].stem(data);
     return string(reinterpret_cast<const char *>(data->p), data->l);
+}
+
+/* For compatibility with Xapian 0.8.5 and earlier. */
+string
+Xapian::Stem::stem_word(const string &word) const
+{
+    DEBUGAPICALL(string, "Xapian::Stem::stem_word", word);
+    return (*this)(word);
 }
 
 string
