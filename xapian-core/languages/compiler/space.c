@@ -25,7 +25,7 @@
             - lose block b
         b = move_to_b(b, n, p);
             - set the data in b to be the n symbols at address p
-        b = addto_to_b(b, n, p);
+        b = add_to_b(b, n, p);
             - add the n symbols at address p to the end of the data in b
         SIZE(b)
             - is the number of symbols in b
