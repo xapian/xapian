@@ -1,3 +1,8 @@
+Sun Feb 11 19:28:50 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/api.h,languages/header.h: Remove headers which are no
+	  longer used.
+
 Sun Feb 11 19:26:50 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/api.cc,languages/utilities.cc: Remove sources which are
