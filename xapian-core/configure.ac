@@ -970,3 +970,7 @@ then
 else
   mv include/xapian/version.h.tmp include/xapian/version.h
 fi
+dnl There are no generated files in languages, and the first thing that we will
+dnl try to build there in an SVN checkout is languages/snowball using a custom
+dnl rule, so make sure that the directory exists for when srcdir != builddir.
+test -d languages || mkdir languages
