@@ -1,3 +1,9 @@
+Mon Feb 12 06:36:58 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: In backward mode, among
+	  can't match if there are fewer characters before the current
+	  position than the minimum length string in the among.
+
 Mon Feb 12 05:56:31 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Make sure that the languages subdirectory exists in

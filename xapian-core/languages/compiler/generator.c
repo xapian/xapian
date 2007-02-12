@@ -884,22 +884,24 @@ static void generate_substring(struct generator * g, struct node * p) {
     int empty_case = -1;
     int n_cases = 0;
     symbol cases[2];
-    int shortest_size = INT_MAX; /* Only if p->mode == m_forward */
+    int shortest_size = INT_MAX;
 
     g->S[0] = p->mode == m_forward ? "" : "_b";
     g->I[0] = x->number;
     g->I[1] = x->literalstring_count;
 
-    if (p->mode == m_forward) {
-	/* In forward mode with non-ASCII UTF-8 characters, the first character
-	 * of the string will often be the same, so instead look at the last
-	 * common character position. */
-	for (c = 0; c < x->literalstring_count; ++c) {
-	    int size = among_cases[c].size;
-	    if (size != 0 && size < shortest_size) {
-		shortest_size = size;
-	    }
-	}
+    /* In forward mode with non-ASCII UTF-8 characters, the first character
+     * of the string will often be the same, so instead look at the last
+     * common character position
+     *
+     * In backward mode, we can't match if there are fewer characters before
+     * the current position than the minimum length.
+     */
+    for (c = 0; c < x->literalstring_count; ++c) {
+       int size = among_cases[c].size;
+       if (size != 0 && size < shortest_size) {
+           shortest_size = size;
+        }
     }
 
     for (c = 0; c < x->literalstring_count; ++c) {
@@ -941,14 +943,22 @@ static void generate_substring(struct generator * g, struct node * p) {
 	char buf[64];
 	g->I[2] = block;
 	g->I[3] = bitmap;
+	g->I[4] = shortest_size - 1;
 	if (p->mode == m_forward) {
 	    sprintf(buf, "z->p[z->c + %d]", shortest_size - 1);
 	    g->S[1] = buf;
-	    g->I[4] = shortest_size - 1;
-	    wp(g, "~Mif (z->c + ~I4 >= z->l || ", p);
+	    if (shortest_size == 1) {
+		wp(g, "~Mif (z->c >= z->l || ", p);
+	    } else {
+		wp(g, "~Mif (z->c + ~I4 >= z->l || ", p);
+	    }
 	} else {
 	    g->S[1] = "z->p[z->c - 1]";
-	    wp(g, "~Mif (z->c <= z->lb || ", p);
+	    if (shortest_size == 1) {
+		wp(g, "~Mif (z->c <= z->lb || ", p);
+	    } else {
+		wp(g, "~Mif (z->c - ~I4 <= z->lb || ", p);
+	    }
 	}
 	if (n_cases == 0) {
 	    /* We get this for the degenerate case: among { '' }
