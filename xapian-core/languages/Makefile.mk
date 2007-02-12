@@ -1,5 +1,3 @@
-## Process this file with automake to produce Makefile.in
-
 SUFFIXES += .sbl
 
 noinst_HEADERS +=\
@@ -65,21 +63,23 @@ if MAINTAINER_MODE
 $(snowball_built_sources): languages/snowball $(snowball_algorithms)
 
 languages/snowball: $(snowball_sources) $(snowball_headers)
-	  $(CC_FOR_BUILD) -o languages/snowball `for f in $(snowball_sources) ; do test -f $$f && echo $$f || echo $(srcdir)/$$f ; done`
+	  $(CC_FOR_BUILD) -o languages/snowball -DDISABLE_JAVA `for f in $(snowball_sources) ; do test -f $$f && echo $$f || echo $(srcdir)/$$f ; done`
 
 .sbl.cc:
-	languages/snowball $< -o `echo $@|sed 's/\.cc$$//'` -u -n InternalStem`echo $<|cut -b1|tr a-z A-Z``echo $<|sed 's/.//;s/\.sbl//'` -p Stem::Internal
+	languages/snowball $< -o `echo $@|sed 's!\.cc$$!!'` -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p Stem::Internal
 
 .sbl.h:
-	languages/snowball $< -o `echo $@|sed 's/\.h$$//'` -u -n InternalStem`echo $<|cut -b1|tr a-z A-Z``echo $<|sed 's/.//;s/\.sbl//'` -p Stem::Internal
+	languages/snowball $< -o `echo $@|sed 's!\.h$$!!'` -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p Stem::Internal
 
 languages/allsnowballheaders.h: Makefile.am
-	for f in $(snowball_built_sources) ; do case $$f in *.h) echo "#include <$$f>" ;; esac ; done > languages/allsnowballheaders.h.tmp
+	for f in $(snowball_built_sources) ; do case $$f in *.h) echo "#include \"$$f\"" ;; esac ; done > languages/allsnowballheaders.h.tmp
 	echo '#define LANGSTRING "'`echo $(snowball_built_sources)|sed 's/[	 ][	 ]*/ /g;s!languages/[^ ]*\.cc languages/!!g;s!\.h!!g'`'"' >> languages/allsnowballheaders.h.tmp
 	mv languages/allsnowballheaders.h.tmp languages/allsnowballheaders.h
 
 BUILT_SOURCES += $(snowball_built_sources) languages/allsnowballheaders.h
 CLEANFILES += languages/snowball $(snowball_built_sources) languages/allsnowballheaders.h
+else
+MAINTAINERCLEANFILES += languages/snowball $(snowball_built_sources) languages/allsnowballheaders.h
 endif
 
 libxapian_la_SOURCES += languages/stem.cc languages/steminternal.cc $(snowball_built_sources)
