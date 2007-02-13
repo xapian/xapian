@@ -388,9 +388,9 @@ static struct node * C_style(struct analyser * a, char * s, int token) {
             get_token(a, c_for); continue;
         case 'S':
             {
-                int token = read_token(a->tokeniser);
-                if (token == c_name) name_to_node(a, p, 's'); else
-                if (token == c_literalstring) p->literalstring = new_literalstring(a);
+                int str_token = read_token(a->tokeniser);
+                if (str_token == c_name) name_to_node(a, p, 's'); else
+                if (str_token == c_literalstring) p->literalstring = new_literalstring(a);
                 else error(a, 2);
             }
             continue;

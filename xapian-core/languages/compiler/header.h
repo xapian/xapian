@@ -273,6 +273,7 @@ struct generator {
     int line_count;      /* counts number of lines output */
     int line_labelled;   /* in ANSI C, will need extra ';' if it is a block end */
     int literalstring_count;
+    int keep_count;	 /* used to number keep/restore pairs to avoid compiler warnings about shadowed variables */
 };
 
 struct options {
@@ -285,9 +286,8 @@ struct options {
     FILE * output_h;
     FILE * output_java;
     byte syntax_tree;
-    byte make_java;
-    byte make_c;
     byte widechars;
+    enum { LANG_JAVA, LANG_C } make_lang;
     char * externals_prefix;
     char * variables_prefix;
     char * runtime_path;
