@@ -30,6 +30,7 @@
 # include "safefcntl.h"
 #endif
 
+#include <algorithm>
 #include <iostream>
 
 #ifdef HAVE_STREAMBUF
@@ -364,8 +365,12 @@ test_driver::runtest(const test_desc *test)
 		    if (s[s.size() - 1] != '\n') out << endl;
 		    tout.str("");
 		}
-		out << " " << col_red << "EXCEPT" << col_reset;
-		if (verbose) {
+		out << " " << col_red << "EXCEPTION: ";
+		size_t cutoff = min(size_t(40), msg.size());
+		cutoff = find(msg.begin(), msg.begin() + cutoff, '\n') - msg.begin();
+		if (cutoff == msg.size()) out << msg; else out << msg.substr(0, cutoff) << "...";
+		out << col_reset;
+		if (verbose && cutoff != msg.size()) {
 		    out << msg << endl;
 		}
 		return FAIL;
@@ -376,10 +381,7 @@ test_driver::runtest(const test_desc *test)
 		    if (s[s.size() - 1] != '\n') out << endl;
 		    tout.str("");
 		}
-		out << " " << col_red << "EXCEPT" << col_reset;
-		if (verbose) {
-		    out << "Unknown exception!" << endl;
-		}
+		out << " " << col_red << "UNKNOWN EXCEPTION" << col_reset;
 		return FAIL;
 	    }
 	} else {
