@@ -17,6 +17,7 @@ static void print_arglist(void) {
 #ifndef DISABLE_JAVA
                     "             [-j[ava]]\n"
 #endif
+		    "             [-c++]\n"
                     "             [-w[idechars]]\n"
                     "             [-u[tf8]]\n"
                     "             [-n[ame] class name]\n"
@@ -24,6 +25,7 @@ static void print_arglist(void) {
                     "             [-vp[refix] string]\n"
                     "             [-i[nclude] directory]\n"
                     "             [-r[untime] path to runtime headers]\n"
+		    "             [-p[arentclassname] parent class name]\n"
            );
     exit(1);
 }
@@ -57,6 +59,7 @@ static void read_options(struct options * o, int argc, char * argv[]) {
     o->externals_prefix = "";
     o->variables_prefix = 0;
     o->runtime_path = 0;
+    o->parent_class_name = 0;
     o->name = "";
     o->make_lang = LANG_C;
     o->widechars = false;
@@ -86,8 +89,13 @@ static void read_options(struct options * o, int argc, char * argv[]) {
                 continue;
             }
 #endif
+            if (eq(s, "-c++")) {
+                o->make_lang = LANG_CPLUSPLUS;
+                continue;
+            }
             if (eq(s, "-w") || eq(s, "-widechars")) {
                 o->widechars = true;
+		o->utf8 = false;
                 continue;
             }
             if (eq(s, "-s") || eq(s, "-syntax")) {
@@ -126,6 +134,12 @@ static void read_options(struct options * o, int argc, char * argv[]) {
             }
             if (eq(s, "-u") || eq(s, "-utf8")) {
                 o->utf8 = true;
+		o->widechars = false;
+                continue;
+            }
+            if (eq(s, "-p") || eq(s, "-parentclassname")) {
+                check_lim(i, argc);
+                o->parent_class_name = argv[i++];
                 continue;
             }
             fprintf(stderr, "'%s' misplaced\n", s);
@@ -165,12 +179,15 @@ extern int main(int argc, char * argv[]) {
                     print_arglist();
                     exit(1);
                 }
-                if (o->make_lang == LANG_C) {
+                if (o->make_lang == LANG_C || o->make_lang == LANG_CPLUSPLUS) {
                     symbol * b = add_s_to_b(0, s);
-                    b = add_s_to_b(b, ".c");
-                    o->output_c = get_output(b);
-                    b[SIZE(b) - 1] = 'h';
-                    o->output_h = get_output(b);
+		    b = add_s_to_b(b, ".h");
+		    o->output_h = get_output(b);
+		    b[SIZE(b) - 1] = 'c';
+		    if (o->make_lang == LANG_CPLUSPLUS) {
+			b = add_s_to_b(b, "c");
+		    }
+		    o->output_c = get_output(b);
                     lose_b(b);
 
                     g = create_generator_c(a, o);

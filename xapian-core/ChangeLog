@@ -1,3 +1,9 @@
+Tue Feb 13 15:40:15 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.mk,languages/compiler/driver.c,
+	  languages/compiler/generator.c,languages/compiler/header.h:
+	  Changes towards getting C++ generation working.
+
 Tue Feb 13 15:39:23 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/steminternal.cc,languages/steminternal.h: Revert to match

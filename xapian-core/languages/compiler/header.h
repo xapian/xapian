@@ -287,10 +287,11 @@ struct options {
     FILE * output_java;
     byte syntax_tree;
     byte widechars;
-    enum { LANG_JAVA, LANG_C } make_lang;
+    enum { LANG_JAVA, LANG_C, LANG_CPLUSPLUS } make_lang;
     char * externals_prefix;
     char * variables_prefix;
     char * runtime_path;
+    char * parent_class_name;
     struct include * includes;
     struct include * includes_end;
     byte utf8;
