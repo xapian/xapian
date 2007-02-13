@@ -1,3 +1,8 @@
+Tue Feb 13 17:46:42 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Fix missing ";" in generated
+	  code.
+
 Tue Feb 13 15:40:15 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/Makefile.mk,languages/compiler/driver.c,

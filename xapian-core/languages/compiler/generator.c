@@ -234,7 +234,7 @@ static void wp(struct generator * g, const char * s, struct node * p) { /* forma
                 continue;
             case 'R': /* restore for c_test */
 		w(g, p->mode == m_forward ? "~zc = c_test;" :
-					    "~zc = ~zl - m_test");
+					    "~zc = ~zl - m_test;");
                 continue;
             case 'i': winc(g, p); continue;
             case 'l': wlim(g, p); continue;
