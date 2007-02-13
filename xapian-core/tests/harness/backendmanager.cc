@@ -460,7 +460,7 @@ launch_xapian_tcpsrv(const string & args)
 {
     int port = 1239;
 try_next_port:
-    string cmd = "../bin/xapian-tcpsrv --one-shot --port " + om_tostring(port) + " " + args + " 2>/dev/null";
+    string cmd = "../bin/xapian-tcpsrv --one-shot --port " + om_tostring(port) + " " + args + " 2>&1";
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
 #endif
@@ -468,9 +468,11 @@ try_next_port:
     if (fh == NULL) {
 	string msg("Failed to run command '");
 	msg += cmd;
-	msg += "'";
+	msg += "': ";
+	msg += strerror(errno);
 	throw msg;
     }
+    string output;
     while (true) {
 	char buf[256];
 	if (fgets(buf, sizeof(buf), fh) == NULL) {
@@ -485,10 +487,13 @@ try_next_port:
 	    }
 	    string msg("Failed to get 'Listening...' from command '");
 	    msg += cmd;
-	    msg += "'";
+	    msg += "' (output: ";
+	    msg += output;
+	    msg += ")";
 	    throw msg;
 	}
 	if (strcmp(buf, "Listening...\n") == 0) break;
+	output += buf;
     }
     pid_t child = fork();
     if (child == 0) {
