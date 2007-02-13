@@ -1,3 +1,11 @@
+Tue Feb 13 10:28:43 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/remotetest.cc: Prune test cases which are redundant now that
+	  apitest tests remote and remotetcp: apitest's simplequery1 performs
+	  a superset of what netmatch1 and tcpmatch1 do; apitest's multidb1
+	  performs a superset of what netmatch2 does; and the coverage given
+	  by our netexpand1 is provided by various apitest tests.
+
 Mon Feb 12 06:36:58 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: In backward mode, among

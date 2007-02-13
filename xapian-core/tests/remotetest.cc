@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,114 +41,6 @@ string datadir;
 
 // #######################################################################
 // # Start of test cases.
-
-// Test a simple network match
-static bool test_netmatch1()
-{
-    BackendManager backendmanager;
-    backendmanager.set_dbtype("remote");
-    backendmanager.set_datadir(datadir);
-
-    Xapian::Database db(backendmanager.get_database("apitest_simpledata"));
-    Xapian::Enquire enq(db);
-    //Xapian::Enquire enq(backendmanager.get_database("apitest_simpledata"));
-
-    enq.set_query(Xapian::Query("word"));
-
-    Xapian::MSet mset(enq.get_mset(0, 10));
-
-    if (verbose) {
-	tout << mset;
-    }
-
-    return true;
-}
-
-// test a network match with two databases
-static bool test_netmatch2()
-{
-    Xapian::Database databases;
-    BackendManager backendmanager;
-    backendmanager.set_dbtype("remote");
-    backendmanager.set_datadir(datadir);
-
-    Xapian::Database db = backendmanager.get_database("apitest_simpledata");
-    databases.add_database(db);
-
-    db = backendmanager.get_database("apitest_simpledata2");
-    databases.add_database(db);
-
-    Xapian::Enquire enq(databases);
-
-    enq.set_query(Xapian::Query("word"));
-
-    Xapian::MSet mset(enq.get_mset(0, 10));
-
-    if (verbose) {
-	tout << mset;
-    }
-
-    return true;
-}
-
-// test a simple network expand
-static bool test_netexpand1()
-{
-    BackendManager backendmanager;
-    backendmanager.set_dbtype("remote");
-    backendmanager.set_datadir(datadir);
-
-    Xapian::Enquire enq(backendmanager.get_database("apitest_simpledata"));
-
-    enq.set_query(Xapian::Query("word"));
-
-    Xapian::MSet mset(enq.get_mset(0, 10));
-
-    if (verbose) {
-	tout << mset;
-    }
-
-    TEST(mset.size() > 0);
-
-    Xapian::RSet rset;
-    rset.add_document(*mset.begin());
-
-    Xapian::ESet eset(enq.get_eset(10, rset));
-
-    return true;
-}
-
-#if 0
-// test a tcp match
-static bool test_tcpmatch1()
-{
-    BackendManager backendmanager;
-    backendmanager.set_dbtype("quartz");
-    backendmanager.set_datadir(datadir);
-    Xapian::Database dbremote = backendmanager.get_database("apitest_simpledata");
-
-    string command = "../bin/xapian-tcpsrv --one-shot --quiet --port 1235 "
-	                  ".quartz/db=apitest_simpledata &";
-    system(command);
-    sleep(3);
-
-    Xapian::Database db = Xapian::Remote::open("127.0.0.1", 1235);
-
-    Xapian::Enquire enq(db);
-
-    enq.set_query(Xapian::Query("word"));
-
-    Xapian::MSet mset(enq.get_mset(0, 10));
-
-    if (verbose) {
-	tout << mset;
-    }
-
-    TEST_EQUAL(mset.size(), 2);
-
-    return true;
-}
-#endif
 
 #if 0
 // test a tcp match when the remote end dies
@@ -290,10 +182,6 @@ static bool test_netstats1()
 // # End of test cases.
 
 test_desc tests[] = {
-    {"netmatch1",	test_netmatch1},
-    {"netmatch2",	test_netmatch2},
-    {"netexpand1",      test_netexpand1},
-    //{"tcpmatch1",	test_tcpmatch1},
 // disable until we can work out how to kill the right process cleanly
     //{"tcpdead1",	test_tcpdead1},
     {"netstats1",	test_netstats1},
