@@ -63,10 +63,10 @@ class Stem::Internal : public Xapian::Internal::RefCntBase {
     int get_utf8(int * slot);
     int get_b_utf8(int * slot);
 
-    int in_grouping_U(const unsigned char * s, int min, int max, int repeat);
-    int in_grouping_b_U(const unsigned char * s, int min, int max, int repeat);
-    int out_grouping_U(const unsigned char * s, int min, int max, int repeat);
-    int out_grouping_b_U(const unsigned char * s, int min, int max, int repeat);
+    int in_grouping_U(const unsigned char * s, int min, int max);
+    int in_grouping_b_U(const unsigned char * s, int min, int max);
+    int out_grouping_U(const unsigned char * s, int min, int max);
+    int out_grouping_b_U(const unsigned char * s, int min, int max);
 
     int eq_s(int s_size, const symbol * s);
     int eq_s_b(int s_size, const symbol * s);
