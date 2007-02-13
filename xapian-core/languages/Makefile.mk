@@ -71,7 +71,7 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 .sbl.h:
 	languages/snowball $< -o `echo $@|sed 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p Stem::Internal
 
-languages/allsnowballheaders.h: Makefile.am
+languages/allsnowballheaders.h: languages/Makefile.mk
 	for f in $(snowball_built_sources) ; do case $$f in *.h) echo "#include \"$$f\"" ;; esac ; done > languages/allsnowballheaders.h.tmp
 	echo '#define LANGSTRING "'`echo $(snowball_built_sources)|sed 's/[	 ][	 ]*/ /g;s!languages/[^ ]*\.cc languages/!!g;s!\.h!!g'`'"' >> languages/allsnowballheaders.h.tmp
 	mv languages/allsnowballheaders.h.tmp languages/allsnowballheaders.h
