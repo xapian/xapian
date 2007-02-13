@@ -1,3 +1,7 @@
+Tue Feb 13 17:48:11 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/steminternal.cc: Fix decoding of 3 byte utf-8 sequences.
+
 Tue Feb 13 17:47:22 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/Makefile.mk: Fix dependency of generated

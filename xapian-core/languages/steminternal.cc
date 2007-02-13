@@ -176,7 +176,7 @@ int Stem::Internal::get_utf8(int * slot) {
     if (b0 < 0xE0 || tmp == l) {   /* 1110 0000 */
         * slot = (b0 & 0x1F) << 6 | (b1 & 0x3F); return 2;
     }
-    * slot = (b0 & 0xF) << 12 | (b1 & 0x3F) << 6 | (*p & 0x3F); return 3;
+    * slot = (b0 & 0xF) << 12 | (b1 & 0x3F) << 6 | (p[tmp] & 0x3F); return 3;
 }
 
 int Stem::Internal::get_b_utf8(int * slot) {
@@ -191,7 +191,7 @@ int Stem::Internal::get_b_utf8(int * slot) {
     if (b1 >= 0xC0 || tmp == lb) {   /* 1100 0000 */
         * slot = (b1 & 0x1F) << 6 | (b0 & 0x3F); return 2;
     }
-    * slot = (*p & 0xF) << 12 | (b1 & 0x3F) << 6 | (b0 & 0x3F); return 3;
+    * slot = (p[tmp] & 0xF) << 12 | (b1 & 0x3F) << 6 | (b0 & 0x3F); return 3;
 }
 
 int Stem::Internal::in_grouping_U(const unsigned char * s, int min, int max) {
