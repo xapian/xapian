@@ -1,3 +1,7 @@
+Wed Feb 14 06:12:29 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness: svn:ignore: remove .dirstamp and depcomp.
+
 Wed Feb 14 06:10:44 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/Makefile.mk: In maintainer-mode, remove snowball and
