@@ -1,0 +1,41 @@
+xapianincludedir = $(includedir)/xapian
+
+include_HEADERS =\
+	include/xapian.h
+
+xapianinclude_HEADERS =\
+	include/xapian/base.h\
+	include/xapian/database.h\
+	include/xapian/dbfactory.h\
+	include/xapian/deprecated.h\
+	include/xapian/document.h\
+	include/xapian/enquire.h\
+	include/xapian/error.h\
+	include/xapian/errorhandler.h\
+	include/xapian/errortypes.h\
+	include/xapian/expanddecider.h\
+	include/xapian/output.h\
+	include/xapian/positioniterator.h\
+	include/xapian/postingiterator.h\
+	include/xapian/query.h\
+	include/xapian/queryparser.h\
+	include/xapian/stem.h\
+	include/xapian/termiterator.h\
+	include/xapian/types.h\
+	include/xapian/valueiterator.h
+
+nodist_xapianinclude_HEADERS =\
+	include/xapian/version.h
+
+# Regenerate include/xapian/version.h if its template has been changed.
+all-local: include/xapian/version.h.timestamp
+
+include/xapian/version.h.timestamp: include/xapian/version_h.cc
+	$(SHELL) ./config.status --recheck
+
+EXTRA_DIST +=\
+	include/xapian/version_h.cc
+
+DISTCLEANFILES +=\
+	include/xapian/version.h\
+	include/xapian/version.h.timestamp

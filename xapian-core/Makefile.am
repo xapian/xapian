@@ -8,6 +8,7 @@ SUFFIXES =
 noinst_HEADERS =
 BUILT_SOURCES =
 noinst_LTLIBRARIES =
+DISTCLEANFILES =
 
 .PHONY: check-remote check-flint check-quartz
 
@@ -29,7 +30,7 @@ endif
 # Order is relevant: when building, tests must be last.
 # FIXME: when installing, should we install the xapian-config script and
 # xapian.m4 last, in case of failure (disk full for example)?
-SUBDIRS = include . bin examples docs tests
+SUBDIRS = . bin examples docs tests
 
 bin_SCRIPTS = xapian-config
 
@@ -71,6 +72,7 @@ include api/Makefile.mk
 include backends/Makefile.mk
 include common/Makefile.mk
 include getopt/Makefile.mk
+include include/Makefile.mk
 include languages/Makefile.mk
 include matcher/Makefile.mk
 include net/Makefile.mk
