@@ -1,3 +1,7 @@
+Wed Feb 14 17:39:50 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/steminternal.h: Don't cast away const.
+
 Wed Feb 14 17:14:14 GMT 2007  Olly Betts <olly@survex.com>
 
 	* include/Makefile: Add stub makefile.

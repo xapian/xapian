@@ -33,9 +33,9 @@ typedef unsigned char symbol;
 
 #define HEAD 2*sizeof(int)
 
-#define SIZE(P)        ((int *)(P))[-1]
+#define SIZE(P)        ((const int *)(P))[-1]
 #define SET_SIZE(P, N) ((int *)(P))[-1] = N
-#define CAPACITY(P)    ((int *)(P))[-2]
+#define CAPACITY(P)    ((const int *)(P))[-2]
 
 typedef int (*among_function)(Xapian::Stem::Internal *);
 
