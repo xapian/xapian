@@ -7,14 +7,12 @@ snowball_algorithms =\
 	languages/danish.sbl\
 	languages/dutch.sbl\
 	languages/english.sbl\
-	languages/finnish.sbl\
 	languages/french.sbl\
 	languages/german2.sbl\
 	languages/german.sbl\
 	languages/hungarian.sbl\
 	languages/italian.sbl\
 	languages/kraaij_pohlmann.sbl\
-	languages/lovins.sbl\
 	languages/norwegian.sbl\
 	languages/porter.sbl\
 	languages/portuguese.sbl\
@@ -24,18 +22,20 @@ snowball_algorithms =\
 	languages/spanish.sbl\
 	languages/swedish.sbl
 
+# Disabled for now:
+#	languages/finnish.sbl
+#	languages/lovins.sbl
+
 snowball_built_sources =\
 	languages/danish.cc		languages/danish.h\
 	languages/dutch.cc		languages/dutch.h\
 	languages/english.cc		languages/english.h\
-	languages/finnish.cc		languages/finnish.h\
 	languages/french.cc		languages/french.h\
 	languages/german2.cc		languages/german2.h\
 	languages/german.cc		languages/german.h\
 	languages/hungarian.cc		languages/hungarian.h\
 	languages/italian.cc		languages/italian.h\
 	languages/kraaij_pohlmann.cc	languages/kraaij_pohlmann.h\
-	languages/lovins.cc		languages/lovins.h\
 	languages/norwegian.cc		languages/norwegian.h\
 	languages/porter.cc		languages/porter.h\
 	languages/portuguese.cc		languages/portuguese.h\
@@ -44,6 +44,10 @@ snowball_built_sources =\
 	languages/russian.cc		languages/russian.h\
 	languages/spanish.cc		languages/spanish.h\
 	languages/swedish.cc		languages/swedish.h
+
+# Disabled for now:
+#	languages/finnish.cc		languages/finnish.h
+#	languages/lovins.cc		languages/lovins.h
 
 snowball_sources =\
 	languages/compiler/space.c\
