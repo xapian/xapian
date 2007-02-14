@@ -1,7 +1,7 @@
 /** @file remote-database.cc
  *  @brief Remote backend database class
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,6 +78,7 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
     ++p;
 
     doccount = decode_length(&p, p_end);
+    lastdocid = decode_length(&p, p_end);
     if (p == p_end) {
 	throw Xapian::NetworkError("Bad greeting message received (bool)", context);
     }
@@ -146,7 +147,7 @@ RemoteDatabase::open_allterms() const {
     send_message(MSG_ALLTERMS, "");
 
     AutoPtr<NetworkTermList> tlist;
-    tlist = new NetworkTermList(get_avlength(), get_doccount(),
+    tlist = new NetworkTermList(avlength, doccount,
 				Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
 				0);
     vector<NetworkTermListItem> & items = tlist->items;
@@ -249,6 +250,7 @@ RemoteDatabase::update_stats(message_type msg_code) const
     const char * p = message.c_str();
     const char * p_end = p + message.size();
     doccount = decode_length(&p, p_end);
+    lastdocid = decode_length(&p, p_end);
     if (p == p_end) {
 	throw Xapian::NetworkError("Bad message received", context);
     }
@@ -265,6 +267,13 @@ RemoteDatabase::get_doccount() const
 {
     if (!cached_stats_valid) update_stats();
     return doccount;
+}
+
+Xapian::docid
+RemoteDatabase::get_lastdocid() const
+{
+    if (!cached_stats_valid) update_stats();
+    return lastdocid;
 }
 
 Xapian::doclength

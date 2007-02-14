@@ -1,7 +1,7 @@
 /** @file remote-database.h
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -52,6 +52,9 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     /// The remote document count, given at open.
     mutable Xapian::doccount doccount;
+
+    /// The remote last docid, given at open.
+    mutable Xapian::docid lastdocid;
 
     /// The remote document avlength, given at open.
     mutable Xapian::doclength avlength;
@@ -171,6 +174,9 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     /// Get the document count.
     Xapian::doccount get_doccount() const;
+
+    /// Get the last used docid.
+    Xapian::docid get_lastdocid() const;
 
     /// Find out the remote average document length.
     Xapian::doclength get_avlength() const;

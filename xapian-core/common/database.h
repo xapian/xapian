@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -124,7 +124,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Return the last used document id of this (sub) database.
 	 */
-	virtual Xapian::docid get_lastdocid() const;
+	virtual Xapian::docid get_lastdocid() const = 0;
 
 	/** Return the average length of a document in this (sub) database.
 	 *
