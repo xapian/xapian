@@ -106,6 +106,6 @@ EXTRA_DIST = runtest.in \
 	     testdata/btreetest_ordnum-
 
 clean-local:
-	rm -rf .da .daflimsy .db .dbflimsy .flint .quartz .quartztmp .btreetmp
+	rm -rf .flint .quartz .quartztmp .btreetmp
 
 include harness/Makefile.mk

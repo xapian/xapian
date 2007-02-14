@@ -1,3 +1,9 @@
+Wed Feb 14 19:08:49 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: There's no longer a need to remove the temporary
+	  directories for muscat36 backend tests, since we've removed the
+	  muscat36 backend code.
+
 Wed Feb 14 18:58:31 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/Makefile.mk: Move adjusting of INCLUDES to the top of the
