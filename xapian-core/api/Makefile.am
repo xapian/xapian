@@ -3,7 +3,7 @@
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
 	   -I$(top_builddir)/include
 
-noinst_HEADERS = maptermlist.h vectortermlist.h
+noinst_HEADERS = maptermlist.h
 noinst_LTLIBRARIES = libapi.la
 
 libapi_la_SOURCES = errorhandler.cc omenquire.cc omquery.cc omqueryinternal.cc \

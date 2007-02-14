@@ -4,7 +4,7 @@ INCLUDES = -I$(top_srcdir)/include
 
 noinst_HEADERS = serialise.h serialise-double.h \
  omassert.h \
- database.h termlist.h postlist.h \
+ database.h termlist.h vectortermlist.h postlist.h \
  leafpostlist.h \
  expandweight.h stats.h networkstats.h \
  multimatch.h submatch.h expand.h rset.h \

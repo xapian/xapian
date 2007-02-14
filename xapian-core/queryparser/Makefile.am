@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include -I${top_builddir}/include -I$(top_srcdir)/common -I$(top_srcdir)/api
+INCLUDES = -I$(top_srcdir)/include -I${top_builddir}/include -I$(top_srcdir)/common
 
 noinst_HEADERS = queryparser_internal.h queryparser_token.h utf8itor.h tclUniData.h
 
