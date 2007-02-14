@@ -1,3 +1,7 @@
+Wed Feb 14 10:56:15 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/Makefile.am: Remove as no longer used.
+
 Wed Feb 14 10:38:27 GMT 2007  Olly Betts <olly@survex.com>
 
 	* backends/quartz/Makefile.mk,bin/Makefile.am,tests/Makefile.am: Move
