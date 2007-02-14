@@ -67,8 +67,9 @@ doxygen_docs: doxygen_source_docs doxygen_api_docs
 
 if MAINTAINER_MODE
 # Depend on configure.ac so we rebuild if VERSION changes.
+# FIXME: doesn't depends on any of the dir_contents files though...
 code_structure.html: mkdoc.pl $(top_srcdir)/configure.ac
-	$(PERL) $(srcdir)/mkdoc.pl "$(VERSION)" $(top_srcdir) $@
+	cd $(top_srcdir) && $(PERL) docs/mkdoc.pl "$(VERSION)" docs/code_structure.html
 
 # We use $T instead of $(top_srcdir) in APIDOC_SRC and SOURCEDOC_SRC to keep
 # their sizes down.

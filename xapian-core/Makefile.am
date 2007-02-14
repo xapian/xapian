@@ -14,9 +14,6 @@ noinst_LTLIBRARIES =
 if BUILD_BACKEND_REMOTE
 check-remote:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remote
-
-remote_subdirs = net
-LIBNET_LA = net/libnet.la
 endif
 
 if BUILD_BACKEND_FLINT
@@ -32,11 +29,7 @@ endif
 # Order is relevant: when building, tests must be last.
 # FIXME: when installing, should we install the xapian-config script and
 # xapian.m4 last, in case of failure (disk full for example)?
-SUBDIRS = include getopt $(remote_subdirs) \
-	  . bin examples docs tests
-
-DIST_SUBDIRS = include getopt net \
-	       . bin examples docs tests
+SUBDIRS = include getopt . bin examples docs tests
 
 bin_SCRIPTS = xapian-config
 
@@ -63,8 +56,6 @@ libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info $(LIBRARY_VE
 # doesn't really work as we'd hope as we get to play with the mangled symbols
 #libxapian_la_LDFLAGS = -export-symbols-regex 'Xapian'
 
-libxapian_la_LIBADD = $(LIBNET_LA)
-
 dist_man_MANS = xapian-config.1
 
 MAINTAINERCLEANFILES = $(dist_man_MANS)
@@ -81,4 +72,5 @@ include backends/Makefile.mk
 include common/Makefile.mk
 include languages/Makefile.mk
 include matcher/Makefile.mk
+include net/Makefile.mk
 include queryparser/Makefile.mk

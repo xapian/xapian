@@ -4,17 +4,17 @@ use strict;
 
 # Declarations
 sub get_descriptions();
-sub expand_dist_subdirs($);
+sub expand_dist_subdirs($$);
 sub tohtml($);
 sub output_html();
 
 # Parse command line parameters
-if ($#ARGV < 2 || $#ARGV > 3) {
-  print "usage: mkdoc.pl <version> <source directory> <destination> [webroot]\n";
+if ($#ARGV < 1 || $#ARGV > 2) {
+  print "usage: mkdoc.pl <version> <destination> [webroot]\n";
   exit 1;
 }
 
-my ($version, $srcdir, $dest, $webroot) = @ARGV;
+my ($version, $dest, $webroot) = @ARGV;
 $webroot = "" unless defined $webroot;
 
 my %descriptions = ();
@@ -25,17 +25,19 @@ output_html();
 
 sub get_descriptions() {
     # Get all the directories in the dist build tree.
-    my @dirs = expand_dist_subdirs($srcdir);
-    scalar @dirs > 0 or die "DIST_SUBDIRS not found in $srcdir/Makefile.am";
+    my @dirs = expand_dist_subdirs("", "DIST_SUBDIRS");
+    scalar @dirs or die "DIST_SUBDIRS/SUBDIRS not found in Makefile.am";
 
-    # Read the contents of any dir_contents's we find.
+    # Read the contents of any dir_contents files we find.
     my $dir;
     foreach $dir (@dirs) {
-	next if $dir =~ m/CVS$/;
 	my $contentsfile = "$dir/dir_contents";
-	next if ! -r $contentsfile;
-	open CONTENTSFILE, $contentsfile or die "Couldn't open $contentsfile ($!)\n";
+	if (! -r $contentsfile) {
+	    print STDERR "No such file: $contentsfile\n";
+	    next;
+	}
 
+	open CONTENTSFILE, $contentsfile or die "Couldn't open $contentsfile ($!)\n";
 	my $contents = "";
 	while (<CONTENTSFILE>) { $contents .= $_; }
 	close CONTENTSFILE;
@@ -46,7 +48,7 @@ sub get_descriptions() {
 	    next;
 	}
 	my $directory = $1;
-	my $tagdir = "$srcdir/";
+	my $tagdir = "";
 	if ($directory ne "ROOT") {
 	    $tagdir .= "$directory/";
 	}
@@ -68,25 +70,52 @@ sub get_descriptions() {
     }
 }
 
-sub expand_dist_subdirs($) {
-    my $dir = shift;
+sub expand_dist_subdirs($$) {
+    my ($dir, $var) = @_;
     my @result;
-    open M, "$dir/Makefile.am" or die $!;
+    my $found = 0;
+    local *M;
+    open M, "${dir}Makefile.am" or die $!;
+    my @pending = ();
     while (<M>) {
-	while (s/\\\n$//) { $_ .= <M>; }
-	if (s/^\s*DIST_SUBDIRS\s*=\s*//) {
+pending:
+	chomp;
+	while (s/\\$//) {
+	    if (@pending) {
+		$_ .= shift @pending;
+	    } else {
+		$_ .= <M>;
+	    }
+	    chomp;
+	}
+	if (!$found && s/^\s*\Q$var\E\s*=\s*//) {
+	    $found = 1;
 	    # remove trailing whitespace and/or comment
 	    s/\s*(?:#.*)?$//;
 	    for (split /\s+/) {
 		next if $_ eq '.';
-		my $d = "$dir/$_";
+		my $d = "$dir$_";
 		push @result, $d;
-		push @result, expand_dist_subdirs($d);
+		push @result, expand_dist_subdirs("$d/", "DIST_SUBDIRS");
 	    }
-	    last;
-        }
+        } elsif ($var eq "DIST_SUBDIRS" && /^\s*include\s+(\S+)/) {
+	    my $inc = "$dir$1";
+	    open INC, "<$inc" or die "$inc: $!\n";
+	    if ($inc =~ m!(.*)/!) {
+		push @result, $1;
+	    }
+	    unshift @pending, <INC>;
+	    close INC;
+	}
+	if (@pending) {
+	    $_ = shift @pending;
+	    goto pending;
+	}
     }
     close M;
+    if (!$found && $var eq "DIST_SUBDIRS") {
+	push @result, expand_dist_subdirs($dir, "SUBDIRS");
+    }
     return @result;
 }
 

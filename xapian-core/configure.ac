@@ -908,7 +908,6 @@ AC_CONFIG_FILES([
  include/Makefile
  tests/Makefile
  docs/Makefile
- net/Makefile
  bin/Makefile
  examples/Makefile
  getopt/Makefile
