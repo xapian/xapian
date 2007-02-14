@@ -1,3 +1,9 @@
+if VPATH_BUILD
+# We need this so that generated sources can find non-generated headers in a
+# VPATH build from SVN.
+INCLUDES += -I$(top_srcdir)/queryparser
+endif
+
 noinst_HEADERS +=\
 	queryparser/queryparser_internal.h\
 	queryparser/queryparser_token.h\
