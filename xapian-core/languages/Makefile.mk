@@ -4,9 +4,9 @@ noinst_HEADERS +=\
 	languages/steminternal.h
 
 if VPATH_BUILD
-# We need this so that generated sources can find non-generated headers in a
-# VPATH build from SVN.
-INCLUDES += -I$(top_srcdir)/languages
+# We need this so that generated sources can find non-generated headers and
+# non-generated sources can find generated headers in a VPATH build from SVN.
+INCLUDES += -I$(top_srcdir)/languages -Ilanguages
 endif
 
 snowball_algorithms =\

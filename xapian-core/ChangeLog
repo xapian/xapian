@@ -1,3 +1,7 @@
+Wed Feb 14 18:38:16 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.mk: Need -Ilanguages for VPATH builds from SVN.
+
 Wed Feb 14 18:37:54 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/steminternal.cc,languages/steminternal.h: Add
