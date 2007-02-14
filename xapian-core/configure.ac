@@ -906,12 +906,6 @@ dnl **************************
 AC_CONFIG_FILES([
  Makefile
  include/Makefile
- backends/Makefile
- backends/quartz/Makefile
- backends/flint/Makefile
- backends/multi/Makefile
- backends/inmemory/Makefile
- backends/remote/Makefile
  tests/Makefile
  docs/Makefile
  net/Makefile
