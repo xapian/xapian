@@ -72,7 +72,11 @@ sub parse_makefile_am($) {
 pending:
 	chomp;
 	while (s/\\$/ /) {
-	    $_ .= <M>;
+	    if (@pending) {
+		$_ .= shift @pending;
+	    } else {
+		$_ .= <M>;
+	    }
 	    chomp;
 	}
 	if (/^\s*(\w+)\s*=\s*(.*?)\s*(?:#.*)?$/) {
@@ -86,9 +90,9 @@ pending:
 		push @l, $var;
 	    }
 	} elsif (/^\s*include\s+(\S+)/ && $1 ne 'docsource.mk') {
-	    # FIXME: directory for inclusion of nested included file isn't
-	    # correct I suspect.  Currently we don't have any such files
-	    # though.
+	    # automake looks for a nested included file starting from the
+	    # directory which the original file was in, so the behaviour
+	    # here is correct.
 	    my $inc = $dir . $1;
 	    open INC, "<$inc" or die "$inc: $!\n";
 	    push @makefile_am, $inc;
