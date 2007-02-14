@@ -57,31 +57,31 @@ noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h api_wrdb.h \
 apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc api_wrdb.cc \
  api_anydb.cc api_transdb.cc $(testharness_sources)
 apitest_LDFLAGS = @ldflags@
-apitest_LDADD = ../getopt/libgetopt.la ../libxapian.la
+apitest_LDADD = ../libgetopt.la ../libxapian.la
 
 stemtest_SOURCES = stemtest.cc $(testharness_sources)
 stemtest_LDFLAGS = @ldflags@
-stemtest_LDADD = ../getopt/libgetopt.la ../libxapian.la
+stemtest_LDADD = ../libgetopt.la ../libxapian.la
 
 internaltest_SOURCES = internaltest.cc $(testharness_sources)
 internaltest_LDFLAGS = @ldflags@
-internaltest_LDADD = ../getopt/libgetopt.la ../libxapian.la
+internaltest_LDADD = ../libgetopt.la ../libxapian.la
 
 btreetest_SOURCES = btreetest.cc $(testharness_sources)
 btreetest_LDFLAGS = @ldflags@
-btreetest_LDADD = ../getopt/libgetopt.la ../libquartzcheck.la ../libxapian.la
+btreetest_LDADD = ../libgetopt.la ../libquartzcheck.la ../libxapian.la
 
 quartztest_SOURCES = quartztest.cc $(testharness_sources)
 quartztest_LDFLAGS = @ldflags@
-quartztest_LDADD = ../getopt/libgetopt.la ../libxapian.la
+quartztest_LDADD = ../libgetopt.la ../libxapian.la
 
 remotetest_SOURCES = remotetest.cc $(testharness_sources)
 remotetest_LDFLAGS = @ldflags@
-remotetest_LDADD = ../getopt/libgetopt.la ../libxapian.la
+remotetest_LDADD = ../libgetopt.la ../libxapian.la
 
 queryparsertest_SOURCES = queryparsertest.cc $(testharness_sources)
 queryparsertest_LDFLAGS = @ldflags@
-queryparsertest_LDADD = ../getopt/libgetopt.la ../libxapian.la
+queryparsertest_LDADD = ../libgetopt.la ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST = runtest.in \

@@ -910,7 +910,6 @@ AC_CONFIG_FILES([
  docs/Makefile
  bin/Makefile
  examples/Makefile
- getopt/Makefile
  docs/doxygen_api_conf
  docs/doxygen_full_conf
  xapian.spec

@@ -6,10 +6,10 @@ bin_PROGRAMS = quest delve copydatabase\
 	simpleindex simplesearch simpleexpand
 
 quest_SOURCES = quest.cc
-quest_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
+quest_LDADD = @ldflags@ ../libgetopt.la ../libxapian.la
 
 delve_SOURCES = delve.cc
-delve_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
+delve_LDADD = @ldflags@ ../libgetopt.la ../libxapian.la
 
 copydatabase_SOURCES = copydatabase.cc
 copydatabase_LDADD = @ldflags@ ../libxapian.la

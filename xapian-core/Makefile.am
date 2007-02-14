@@ -29,7 +29,7 @@ endif
 # Order is relevant: when building, tests must be last.
 # FIXME: when installing, should we install the xapian-config script and
 # xapian.m4 last, in case of failure (disk full for example)?
-SUBDIRS = include getopt . bin examples docs tests
+SUBDIRS = include . bin examples docs tests
 
 bin_SCRIPTS = xapian-config
 
@@ -70,6 +70,7 @@ endif
 include api/Makefile.mk
 include backends/Makefile.mk
 include common/Makefile.mk
+include getopt/Makefile.mk
 include languages/Makefile.mk
 include matcher/Makefile.mk
 include net/Makefile.mk

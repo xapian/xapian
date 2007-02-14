@@ -27,21 +27,21 @@ quartzcheck_LDADD = @ldflags@ ../libquartzcheck.la ../libxapian.la
 
 quartzcompact_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcompact_SOURCES = quartzcompact.cc
-quartzcompact_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
+quartzcompact_LDADD = @ldflags@ ../libgetopt.la ../libxapian.la
 
 quartzdump_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzdump_SOURCES = quartzdump.cc
-quartzdump_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
+quartzdump_LDADD = @ldflags@ ../libgetopt.la ../libxapian.la
 
 xapian_progsrv_SOURCES = xapian-progsrv.cc
-xapian_progsrv_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
+xapian_progsrv_LDADD = @ldflags@ ../libgetopt.la ../libxapian.la
 
 xapian_tcpsrv_SOURCES = xapian-tcpsrv.cc
-xapian_tcpsrv_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
+xapian_tcpsrv_LDADD = @ldflags@ ../libgetopt.la ../libxapian.la
 
 xapian_compact_CXXFLAGS = -I$(top_srcdir)/backends/flint
 xapian_compact_SOURCES = xapian-compact.cc
-xapian_compact_LDADD = @ldflags@ ../getopt/libgetopt.la ../libxapian.la
+xapian_compact_LDADD = @ldflags@ ../libgetopt.la ../libxapian.la
 
 dist_man_MANS = $(quartz_mans) $(flint_mans) $(remote_mans)
 
