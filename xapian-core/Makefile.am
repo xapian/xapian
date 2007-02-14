@@ -2,7 +2,11 @@
 
 AUTOMAKE_OPTIONS = 1.5 subdir-objects
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_builddir)/include
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
+if VPATH_BUILD
+# Needed for the generated file include/xapian/version.h.
+INCLUDES += -I$(top_builddir)/include
+endif
 
 SUFFIXES =
 noinst_HEADERS =

@@ -3,9 +3,11 @@ SUFFIXES += .sbl
 noinst_HEADERS +=\
 	languages/steminternal.h
 
+if VPATH_BUILD
 # We need this so that generated sources can find non-generated headers in a
 # VPATH build from SVN.
 INCLUDES += -I$(top_srcdir)/languages
+endif
 
 snowball_algorithms =\
 	languages/danish.sbl\
