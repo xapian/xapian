@@ -913,7 +913,6 @@ AC_CONFIG_FILES([
  backends/inmemory/Makefile
  backends/remote/Makefile
  matcher/Makefile
- api/Makefile
  tests/Makefile
  docs/Makefile
  net/Makefile
