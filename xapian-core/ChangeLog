@@ -1,3 +1,7 @@
+Wed Feb 14 17:14:14 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/Makefile: Add stub makefile.
+
 Wed Feb 14 17:12:41 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: ac_abs_srcdir, etc aren't available in configure
