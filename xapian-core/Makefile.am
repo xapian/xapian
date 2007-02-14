@@ -31,10 +31,10 @@ endif
 # Order is relevant: when building, tests must be last.
 # FIXME: when installing, should we install the xapian-config script and
 # xapian.m4 last, in case of failure (disk full for example)?
-SUBDIRS = include getopt backends matcher $(remote_subdirs) \
+SUBDIRS = include getopt backends $(remote_subdirs) \
 	  . bin examples docs tests
 
-DIST_SUBDIRS = include getopt backends matcher net \
+DIST_SUBDIRS = include getopt backends net \
 	       . bin examples docs tests
 
 bin_SCRIPTS = xapian-config
@@ -62,8 +62,7 @@ libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info $(LIBRARY_VE
 # doesn't really work as we'd hope as we get to play with the mangled symbols
 #libxapian_la_LDFLAGS = -export-symbols-regex 'Xapian'
 
-libxapian_la_LIBADD = backends/libbackend.la \
- matcher/libmatcher.la $(LIBNET_LA)
+libxapian_la_LIBADD = backends/libbackend.la $(LIBNET_LA)
 
 dist_man_MANS = xapian-config.1
 
@@ -79,4 +78,5 @@ endif
 include api/Makefile.mk
 include common/Makefile.mk
 include languages/Makefile.mk
+include matcher/Makefile.mk
 include queryparser/Makefile.mk
