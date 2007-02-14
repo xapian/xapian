@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+AUTOMAKE_OPTION = subdir-objects
+
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 
 SUFFIXES =
@@ -31,11 +33,11 @@ endif
 # xapian.m4 last, in case of failure (disk full for example)?
 SUBDIRS = include getopt common \
           api backends matcher $(remote_subdirs) \
-	  queryparser . bin examples docs tests
+	  . bin examples docs tests
 
 DIST_SUBDIRS = include getopt common \
                api backends matcher net \
-	       queryparser . bin examples docs tests
+	       . bin examples docs tests
 
 bin_SCRIPTS = xapian-config
 
@@ -63,8 +65,7 @@ libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info $(LIBRARY_VE
 #libxapian_la_LDFLAGS = -export-symbols-regex 'Xapian'
 
 libxapian_la_LIBADD = common/libcommon.la backends/libbackend.la \
- matcher/libmatcher.la api/libapi.la $(LIBNET_LA) \
- queryparser/libqueryparser.la
+ matcher/libmatcher.la api/libapi.la $(LIBNET_LA)
 
 dist_man_MANS = xapian-config.1
 
@@ -78,3 +79,4 @@ xapian-config.1: xapian-config
 endif
 
 include languages/Makefile.mk
+include queryparser/Makefile.mk
