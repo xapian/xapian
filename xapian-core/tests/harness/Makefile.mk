@@ -1,6 +1,5 @@
 EXTRA_DIST +=\
 	harness/dir_contents\
-	harness/Makefile.mk\
 	harness/Makefile
 
 noinst_HEADERS +=\
