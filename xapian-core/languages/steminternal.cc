@@ -73,7 +73,7 @@ extern symbol * create_s() {
     void * mem = malloc(HEAD + (CREATE_SIZE + 1) * sizeof(symbol));
     if (mem == NULL) throw std::bad_alloc();
     symbol * p = (symbol *) (HEAD + (char *) mem);
-    CAPACITY(p) = CREATE_SIZE;
+    SET_CAPACITY(p, CREATE_SIZE);
     SET_SIZE(p, CREATE_SIZE);
     return p;
 }
@@ -133,7 +133,7 @@ static symbol * increase_size(symbol * p, int n) {
         throw std::bad_alloc();
     }
     symbol * q = (symbol *) (HEAD + (char *)mem);
-    CAPACITY(q) = new_size;
+    SET_CAPACITY(q, new_size);
     return q;
 }
 
