@@ -51,6 +51,10 @@ rename "docs/docsource.tmp", "docs/docsource.mk" or do { unlink "docs/docsource.
 open MAKEFRAG, ">docsource.tmp" or die $!;
 print MAKEFRAG "docsource.mk: preautoreconf ", join(" ", @makefile_am), "\n";
 print MAKEFRAG "\t./preautoreconf\n";
+# Add dummy rules so that "make" works even if a Makefile.am is removed.
+for (@makefile_am) {
+    print MAKEFRAG "\n$_:\n";
+}
 close MAKEFRAG or do { unlink "docsource.tmp"; die $! };
 rename "docsource.tmp", "docsource.mk" or do { unlink "docsource.tmp"; die $! };
 
