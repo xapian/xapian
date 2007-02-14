@@ -24,7 +24,7 @@ sub parse_makefile_am($);
 my @makefile_am;
 
 if ($0 =~ m!(.*)/!) {
-    chdir $1 or die $!;
+    $1 eq '.' or chdir $1 or die $!;
 }
 
 my %s;
@@ -85,12 +85,13 @@ pending:
 	    if ($var =~ /_(?:SOURCES|HEADERS)$/) {
 		push @l, $var;
 	    }
-	} elsif (/^\s*include\s*(\S+)/) {
+	} elsif (/^\s*include\s+(\S+)/ && $1 ne 'docsource.mk') {
 	    # FIXME: directory for inclusion of nested included file isn't
 	    # correct I suspect.  Currently we don't have any such files
 	    # though.
 	    my $inc = $dir . $1;
 	    open INC, "<$inc" or die "$inc: $!\n";
+	    push @makefile_am, $inc;
 	    unshift @pending, <INC>;
 	    close INC;
 	}
