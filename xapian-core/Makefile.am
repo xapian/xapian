@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTION = subdir-objects
+AUTOMAKE_OPTIONS = 1.5 subdir-objects
 
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 

@@ -1,3 +1,8 @@
+Wed Feb 14 07:03:27 GMT 2007  Olly Betts <olly@survex.com>
+
+	* .: svn:ignore: Ignore all vim swapfiles.  No need to ignore .deps
+	  now that dummy.cc is history.
+
 Wed Feb 14 06:34:44 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/stemtest.cc: Force ASCII capitals in sample vocabulary to
