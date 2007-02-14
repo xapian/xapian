@@ -1,3 +1,8 @@
+Wed Feb 14 07:22:29 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,common/Makefile,common/Makefile.am,common/Makefile.mk,
+	  configure.ac: Convert common subdirectory to non-recursive make.
+
 Wed Feb 14 07:03:27 GMT 2007  Olly Betts <olly@survex.com>
 
 	* .: svn:ignore: Ignore all vim swapfiles.  No need to ignore .deps

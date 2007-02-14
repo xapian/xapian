@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = 1.5 subdir-objects
 
-INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include -I$(top_builddir)/include
 
 SUFFIXES =
 noinst_HEADERS =
@@ -31,12 +31,10 @@ endif
 # Order is relevant: when building, tests must be last.
 # FIXME: when installing, should we install the xapian-config script and
 # xapian.m4 last, in case of failure (disk full for example)?
-SUBDIRS = include getopt common \
-          api backends matcher $(remote_subdirs) \
+SUBDIRS = include getopt api backends matcher $(remote_subdirs) \
 	  . bin examples docs tests
 
-DIST_SUBDIRS = include getopt common \
-               api backends matcher net \
+DIST_SUBDIRS = include getopt api backends matcher net \
 	       . bin examples docs tests
 
 bin_SCRIPTS = xapian-config
@@ -64,7 +62,7 @@ libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info $(LIBRARY_VE
 # doesn't really work as we'd hope as we get to play with the mangled symbols
 #libxapian_la_LDFLAGS = -export-symbols-regex 'Xapian'
 
-libxapian_la_LIBADD = common/libcommon.la backends/libbackend.la \
+libxapian_la_LIBADD = backends/libbackend.la \
  matcher/libmatcher.la api/libapi.la $(LIBNET_LA)
 
 dist_man_MANS = xapian-config.1
@@ -78,5 +76,6 @@ xapian-config.1: xapian-config
 	$(HELP2MAN) -o xapian-config.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^PROG_DESC=\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-config`" ./xapian-config
 endif
 
+include common/Makefile.mk
 include languages/Makefile.mk
 include queryparser/Makefile.mk
