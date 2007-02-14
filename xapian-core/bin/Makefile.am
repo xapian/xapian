@@ -23,7 +23,7 @@ bin_PROGRAMS = $(quartz_bin_programs) $(remote_bin_programs) $(flint_bin_program
 
 quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcheck_SOURCES = quartzcheck.cc
-quartzcheck_LDADD = @ldflags@ ../backends/quartz/libbtreecheck.la ../libxapian.la
+quartzcheck_LDADD = @ldflags@ ../libquartzcheck.la ../libxapian.la
 
 quartzcompact_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 quartzcompact_SOURCES = quartzcompact.cc

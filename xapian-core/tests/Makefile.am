@@ -69,7 +69,7 @@ internaltest_LDADD = ../getopt/libgetopt.la ../libxapian.la
 
 btreetest_SOURCES = btreetest.cc $(testharness_sources)
 btreetest_LDFLAGS = @ldflags@
-btreetest_LDADD = ../getopt/libgetopt.la ../backends/quartz/libbtreecheck.la ../libxapian.la
+btreetest_LDADD = ../getopt/libgetopt.la ../libquartzcheck.la ../libxapian.la
 
 quartztest_SOURCES = quartztest.cc $(testharness_sources)
 quartztest_LDFLAGS = @ldflags@

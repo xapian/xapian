@@ -39,8 +39,8 @@ libxapian_la_SOURCES +=\
 	backends/quartz/quartz_termlist.cc\
 	backends/quartz/quartz_values.cc
 
-noinst_LTLIBRARIES += backends/quartz/libbtreecheck.la
+noinst_LTLIBRARIES += libquartzcheck.la
 
-backends_quartz_libbtreecheck_la_SOURCES =\
+libquartzcheck_la_SOURCES =\
 	backends/quartz/btreecheck.cc
 endif
