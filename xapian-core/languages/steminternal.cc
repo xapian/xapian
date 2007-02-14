@@ -248,7 +248,7 @@ int Stem::Internal::eq_s_b(int s_size, const symbol * s) {
     return 1;
 }
 
-int Stem::Internal::find_among(const struct among * v, int v_size, const among_function * funcs) {
+int Stem::Internal::find_among(const struct among * v, int v_size) {
     int i = 0;
     int j = v_size;
 
@@ -289,9 +289,9 @@ int Stem::Internal::find_among(const struct among * v, int v_size, const among_f
         const struct among * w = v + i;
         if (common_i >= w->s_size) {
             c = c_orig + w->s_size;
-            if (!funcs || funcs[i] == 0) return w->result;
+            if (w->function == 0) return w->result;
             {
-                int res = (funcs[i])(this);
+                int res = w->function(this);
                 c = c_orig + w->s_size;
                 if (res) return w->result;
             }
@@ -302,7 +302,7 @@ int Stem::Internal::find_among(const struct among * v, int v_size, const among_f
 }
 
 /* find_among_b is for backwards processing. Same comments apply */
-int Stem::Internal::find_among_b(const struct among * v, int v_size, const among_function * funcs) {
+int Stem::Internal::find_among_b(const struct among * v, int v_size) {
     int i = 0;
     int j = v_size;
 
@@ -338,9 +338,9 @@ int Stem::Internal::find_among_b(const struct among * v, int v_size, const among
 	const struct among * w = v + i;
         if (common_i >= w->s_size) {
             c = c_orig - w->s_size;
-            if (!funcs || funcs[i] == 0) return w->result;
+            if (w->function == 0) return w->result;
             {
-                int res = (funcs[i])(this);
+                int res = w->function(this);
 		c = c_orig - w->s_size;
                 if (res) return w->result;
             }

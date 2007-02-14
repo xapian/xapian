@@ -37,14 +37,15 @@ typedef unsigned char symbol;
 #define SET_SIZE(P, N) ((int *)(P))[-1] = N
 #define CAPACITY(P)    ((int *)(P))[-2]
 
+typedef int (*among_function)(Xapian::Stem::Internal *);
+
 struct among {
     int s_size;		/* length of search string (in symbols) */
     const symbol * s;	/* search string */
     int substring_i;	/* index to longest matching substring */
     int result;		/* result of the lookup */
+    among_function function;
 };
-
-typedef int (*among_function)(Xapian::Stem::Internal *);
 
 extern symbol * create_s();
 extern void lose_s(symbol * p);
@@ -73,8 +74,8 @@ class Stem::Internal : public Xapian::Internal::RefCntBase {
     int eq_v(const symbol * v) { return eq_s(SIZE(v), v); }
     int eq_v_b(const symbol * v) { return eq_s_b(SIZE(v), v); }
 
-    int find_among(const struct among * v, int v_size, const among_function * funcs);
-    int find_among_b(const struct among * v, int v_size, const among_function * funcs);
+    int find_among(const struct among * v, int v_size);
+    int find_among_b(const struct among * v, int v_size);
 
     int replace_s(int c_bra, int c_ket, int s_size, const symbol * s);
     int slice_from_s(int s_size, const symbol * s);
