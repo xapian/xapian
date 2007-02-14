@@ -1,3 +1,8 @@
+Wed Feb 14 10:16:29 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Add documentation comments for DB_*
+	  constants.
+
 Wed Feb 14 10:11:37 GMT 2007  Olly Betts <olly@survex.com>
 
 	* examples/.cvsignore: Remove lingering relic of CVS days.

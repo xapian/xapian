@@ -530,9 +530,13 @@ class WritableDatabase : public Database {
 	std::string get_description() const;
 };
 
+/** Open for read/write; create if no db exists. */
 const int DB_CREATE_OR_OPEN = 1;
+/** Create a new database; fail if db exists. */
 const int DB_CREATE = 2;
+/** Overwrite existing db; create if none exists. */
 const int DB_CREATE_OR_OVERWRITE = 3;
+/** Open for read/write; fail if no db exists. */
 const int DB_OPEN = 4;
 // Can't see any sensible use for this one
 // const int DB_OVERWRITE = XXX;
