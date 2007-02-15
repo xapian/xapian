@@ -1,3 +1,7 @@
+Thu Feb 15 09:58:48 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/gen_codestructure_doc.in: Fix to work in a VPATH build.
+
 Thu Feb 15 09:54:55 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: Fix Stem::get_description() to

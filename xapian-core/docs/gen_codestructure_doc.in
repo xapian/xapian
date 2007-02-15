@@ -21,13 +21,15 @@ use strict;
 use POSIX;
 
 if (scalar @ARGV < 2) {
-    die "usage: gen_codestructure_doc <output> <input>...\n";
+    die "usage: gen_codestructure_doc <output> <root input> [<input>...]\n";
 }
 
 my $output = shift @ARGV;
 my $version = html_escape("@PACKAGE_STRING@");
 
 my %desc = ();
+my $rootdir = $ARGV[0];
+$rootdir =~ s![^/]+$!!;
 for my $dir_contents (@ARGV) {
     open DIR_CONTENTS, "<$dir_contents" or die "$dir_contents: $!\n";
     local $/ = undef;
@@ -42,7 +44,9 @@ for my $dir_contents (@ARGV) {
 	$xmldir = "";
     }
     my $dir = $dir_contents;
-    $dir =~ s!^\.\./!!;
+    unless ($dir =~ s!^\Q$rootdir\E!!) {
+	die "$dir_contents: not under `$rootdir'.\n";
+    }
     $dir =~ s![^/]+$!!;
     $dir =~ s!/$!!;
     if ($dir ne $xmldir) {
