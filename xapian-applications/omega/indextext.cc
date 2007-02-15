@@ -70,11 +70,11 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 		term.append(buf, to_utf8(*j, buf));
 		++j;
 		if (j == s_end) break;
-		if (*j == '&') {
+		if (*j == '&' || *j == '\'') {
 		    Utf8Iterator next = j;
 		    ++next;
 		    if (next == s_end || !is_wordchar(*next)) break;
-		    term += '&';
+		    term += *j;
 		    j = next;
 		}
 	    }
