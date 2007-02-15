@@ -1421,10 +1421,14 @@ static void generate_close(struct generator * g) {
     if (g->options->make_lang != LANG_C) {
 	struct name * q = g->analyser->names;
 	const char * dtor;
+	const char * lang;
 	g->S[0] = g->options->name;
 	dtor = strrchr(g->options->name, ':');
 	if (dtor) ++dtor; else dtor = g->options->name;
 	g->S[1] = dtor;
+	lang = strrchr(g->options->output_file, '/');
+	if (lang) ++lang; else lang = g->options->output_file;
+	g->S[2] = lang;
 	w(g, "~N"
 	     "Xapian::~S0::~~~S1()~N"
 	     "{~N");
@@ -1441,7 +1445,7 @@ static void generate_close(struct generator * g) {
 	     "const char *~N"
 	     "Xapian::~S0::get_description() const~N"
 	     "{~N"
-	     "    return \"~S1\";~N"
+	     "    return \"~S2\";~N"
 	     "}~N");
 	return;
     }
