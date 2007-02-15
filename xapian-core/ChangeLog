@@ -1,3 +1,10 @@
+Thu Feb 15 09:26:07 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac,docs/Makefile.am,docs/gen_codestructure_doc.in,
+	  docs/mkdoc.pl,preautoreconf: Rework how code_structure.html
+	  is generated.  Nicer output, and the html document is now
+	  regenerated if any of the dir_contents files change.
+
 Thu Feb 15 07:43:39 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,bin/Makefile.mk,configure.ac,examples/Makefile.mk,
