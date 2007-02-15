@@ -1,3 +1,8 @@
+Thu Feb 15 04:38:32 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: SGI's CC needs -g3 instead of -g if we want to use
+	  any -O option.
+
 Sat Feb 10 20:53:14 GMT 2007  Olly Betts <olly@survex.com>
 
 	* md5.cc: Fix reversed preprocessor conditional so that we generate

@@ -309,7 +309,7 @@ else
     [#ifndef _SGI_COMPILER_VERSION
   choke me
 #endif],
-    [AM_CXXFLAGS="$AM_CXXFLAGS -O2 -ptused"])
+    [AM_CXXFLAGS="$AM_CXXFLAGS -O2 -g3 -ptused"])
 fi
 
 AC_SUBST(AM_CXXFLAGS)
