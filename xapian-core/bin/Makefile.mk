@@ -59,21 +59,21 @@ bin_xapian_tcpsrv_SOURCES = bin/xapian-tcpsrv.cc
 bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la libxapian.la
 
 if MAINTAINER_MODE
-bin/quartzcheck.1: bin/quartzcheck
-	$(HELP2MAN) -o bin/quartzcheck.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/bin/quartzcheck.cc`" bin/quartzcheck
+bin/quartzcheck.1: bin/quartzcheck makemanpage
+	./makemanpage bin/quartzcheck $(srcdir)/bin/quartzcheck.cc bin/quartzcheck.1
 
-bin/quartzcompact.1: bin/quartzcompact
-	$(HELP2MAN) -o bin/quartzcompact.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/bin/quartzcompact.cc`" bin/quartzcompact
+bin/quartzcompact.1: bin/quartzcompact makemanpage
+	./makemanpage bin/quartzcompact $(srcdir)/bin/quartzcompact.cc bin/quartzcompact.1
 
-bin/quartzdump.1: bin/quartzdump
-	$(HELP2MAN) -o bin/quartzdump.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/bin/quartzdump.cc`" bin/quartzdump
+bin/quartzdump.1: bin/quartzdump makemanpage
+	./makemanpage bin/quartzdump $(srcdir)/bin/quartzdump.cc bin/quartzdump.1
 
-bin/xapian-progsrv.1: bin/xapian-progsrv
-	$(HELP2MAN) -o bin/xapian-progsrv.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/bin/xapian-progsrv.cc`" bin/xapian-progsrv
+bin/xapian-progsrv.1: bin/xapian-progsrv makemanpage
+	./makemanpage bin/xapian-progsrv $(srcdir)/bin/xapian-progsrv.cc bin/xapian-progsrv.1
 
-bin/xapian-tcpsrv.1: bin/xapian-tcpsrv
-	$(HELP2MAN) -o bin/xapian-tcpsrv.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/bin/xapian-tcpsrv.cc`" bin/xapian-tcpsrv
+bin/xapian-tcpsrv.1: bin/xapian-tcpsrv makemanpage
+	./makemanpage bin/xapian-tcpsrv $(srcdir)/bin/xapian-tcpsrv.cc bin/xapian-tcpsrv.1
 
-bin/xapian-compact.1: bin/xapian-compact
-	$(HELP2MAN) -o bin/xapian-compact.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/bin/xapian-compact.cc`" bin/xapian-compact
+bin/xapian-compact.1: bin/xapian-compact makemanpage
+	./makemanpage bin/xapian-compact $(srcdir)/bin/xapian-compact.cc bin/xapian-compact.1
 endif

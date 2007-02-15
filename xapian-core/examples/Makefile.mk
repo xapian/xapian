@@ -30,12 +30,12 @@ dist_man_MANS +=\
 	examples/quest.1
 
 if MAINTAINER_MODE
-examples/copydatabase.1: examples/copydatabase
-	$(HELP2MAN) -o examples/copydatabase.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/examples/copydatabase.cc`" examples/copydatabase
+examples/copydatabase.1: examples/copydatabase makemanpage
+	./makemanpage examples/copydatabase $(srcdir)/examples/copydatabase.cc examples/copydatabase.1
 
-examples/delve.1: examples/delve
-	$(HELP2MAN) -o examples/delve.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/examples/delve.cc`" examples/delve
+examples/delve.1: examples/delve makemanpage
+	./makemanpage examples/delve $(srcdir)/examples/delve.cc examples/delve.1
 
-examples/quest.1: examples/quest
-	$(HELP2MAN) -o examples/quest.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/examples/quest.cc`" examples/quest
+examples/quest.1: examples/quest makemanpage
+	./makemanpage examples/quest $(srcdir)/examples/quest.cc examples/quest.1
 endif

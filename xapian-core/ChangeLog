@@ -1,3 +1,11 @@
+Thu Feb 15 07:43:39 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,bin/Makefile.mk,configure.ac,examples/Makefile.mk,
+	  makemanpage.in: Add "makemanpage" script which takes care of all
+	  the magic needed to generate a man page using help2man.  This
+	  script is written in perl, but so is help2man, and they're both
+	  only used in maintainer-mode.
+
 Thu Feb 15 06:33:41 GMT 2007  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk: Fix typos in man page generation rules.

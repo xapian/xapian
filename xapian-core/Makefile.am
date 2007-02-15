@@ -77,6 +77,6 @@ MAINTAINERCLEANFILES += $(dist_man_MANS)
 if MAINTAINER_MODE
 CLEANFILES += $(dist_man_MANS)
 
-xapian-config.1: xapian-config
-	$(HELP2MAN) -o xapian-config.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^PROG_DESC=\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-config`" ./xapian-config
+xapian-config.1: xapian-config makemanpage
+	./makemanpage ./xapian-config xapian-config xapian-config.1
 endif
