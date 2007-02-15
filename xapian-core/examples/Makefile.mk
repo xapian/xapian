@@ -1,4 +1,4 @@
-bin_PROGRAMS +=
+bin_PROGRAMS +=\
 	examples/copydatabase\
 	examples/delve\
 	examples/quest\
@@ -6,23 +6,23 @@ bin_PROGRAMS +=
 	examples/simpleindex\
 	examples/simplesearch
 
-exaples_copydatabase_SOURCES = examples/copydatabase.cc
-exaples_copydatabase_LDADD = $(ldflags) libxapian.la
+examples_copydatabase_SOURCES = examples/copydatabase.cc
+examples_copydatabase_LDADD = $(ldflags) libxapian.la
 
-exaples_delve_SOURCES = examples/delve.cc
-exaples_delve_LDADD = $(ldflags) libgetopt.la libxapian.la
+examples_delve_SOURCES = examples/delve.cc
+examples_delve_LDADD = $(ldflags) libgetopt.la libxapian.la
 
-exaples_quest_SOURCES = examples/quest.cc
-exaples_quest_LDADD = $(ldflags) libgetopt.la libxapian.la
+examples_quest_SOURCES = examples/quest.cc
+examples_quest_LDADD = $(ldflags) libgetopt.la libxapian.la
 
-exaples_simpleexpand_SOURCES = examples/simpleexpand.cc
-exaples_simpleexpand_LDADD = $(ldflags) libxapian.la
+examples_simpleexpand_SOURCES = examples/simpleexpand.cc
+examples_simpleexpand_LDADD = $(ldflags) libxapian.la
 
-exaples_simpleindex_SOURCES = examples/simpleindex.cc
-exaples_simpleindex_LDADD = $(ldflags) libxapian.la
+examples_simpleindex_SOURCES = examples/simpleindex.cc
+examples_simpleindex_LDADD = $(ldflags) libxapian.la
 
-exaples_simplesearch_SOURCES = examples/simplesearch.cc
-exaples_simplesearch_LDADD = $(ldflags) libxapian.la
+examples_simplesearch_SOURCES = examples/simplesearch.cc
+examples_simplesearch_LDADD = $(ldflags) libxapian.la
 
 dist_man_MANS +=\
 	examples/copydatabase.1\
