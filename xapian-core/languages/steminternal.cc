@@ -190,44 +190,52 @@ int Stem::Internal::get_b_utf8(int * slot) {
     * slot = (p[tmp] & 0xF) << 12 | (b1 & 0x3F) << 6 | (b0 & 0x3F); return 3;
 }
 
-int Stem::Internal::in_grouping_U(const unsigned char * s, int min, int max) {
-    int ch;
-    int w = get_utf8(&ch);
-    if (!w) return 0;
-    if (ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0)
-	return 0;
-    c += w;
-    return 1;
+int Stem::Internal::in_grouping_U(const unsigned char * s, int min, int max, int repeat) {
+    do {
+	int ch;
+	int w = get_utf8(&ch);
+	if (!w) return -1;
+	if (ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0)
+	    return w;
+	c += w;
+    } while (repeat);
+    return 0;
 }
 
-int Stem::Internal::in_grouping_b_U(const unsigned char * s, int min, int max) {
-    int ch;
-    int w = get_b_utf8(&ch);
-    if (!w) return 0;
-    if (ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0)
-	return 0;
-    c -= w;
-    return 1;
+int Stem::Internal::in_grouping_b_U(const unsigned char * s, int min, int max, int repeat) {
+    do {
+	int ch;
+	int w = get_b_utf8(&ch);
+	if (!w) return -1;
+	if (ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0)
+	    return w;
+	c -= w;
+    } while (repeat);
+    return 0;
 }
 
-int Stem::Internal::out_grouping_U(const unsigned char * s, int min, int max) {
-    int ch;
-    int w = get_utf8(&ch);
-    if (!w) return 0;
-    if (!(ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0))
-	return 0;
-    c += w;
-    return 1;
+int Stem::Internal::out_grouping_U(const unsigned char * s, int min, int max, int repeat) {
+    do {
+	int ch;
+	int w = get_utf8(&ch);
+	if (!w) return -1;
+	if (!(ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0))
+	    /* FIXME: try adding this so gopast in generated code is simpler: if (repeat == 2) c += w; */ return w;
+	c += w;
+    } while (repeat);
+    return 0;
 }
 
-int Stem::Internal::out_grouping_b_U(const unsigned char * s, int min, int max) {
-    int ch;
-    int w = get_b_utf8(&ch);
-    if (!w) return 0;
-    if (!(ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0))
-	return 0;
-    c -= w;
-    return 1;
+int Stem::Internal::out_grouping_b_U(const unsigned char * s, int min, int max, int repeat) {
+    do {
+	int ch;
+	int w = get_b_utf8(&ch);
+	if (!w) return -1;
+	if (!(ch > max || (ch -= min) < 0 || (s[ch >> 3] & (0X1 << (ch & 0X7))) == 0))
+	    return w;
+	c -= w;
+    } while (repeat);
+    return 0;
 }
 
 int Stem::Internal::eq_s(int s_size, const symbol * s) {

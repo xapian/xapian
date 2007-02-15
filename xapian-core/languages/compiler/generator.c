@@ -596,12 +596,46 @@ static void generate_next(struct generator * g, struct node * p) {
               "~M~i~C", p);
 }
 
+static void generate_GO_grouping(struct generator * g, struct node * p, int is_goto, int complement) {
+
+    struct grouping * q = p->name->grouping;
+    g->S[0] = p->mode == m_forward ? "" : "_b";
+    g->S[1] = complement ? "in" : "out";
+    g->S[2] = g->options->utf8 ? "_U" : "";
+    g->V[0] = p->name;
+    g->I[0] = q->smallest_ch;
+    g->I[1] = q->largest_ch;
+    if (is_goto) {
+	wp(g, "~Mif (~S1_grouping~S0~S2(~V0, ~I0, ~I1, 1) < 0) ~f /* goto */~C", p);
+    } else {
+	wp(g, "~{ /* gopast */~C"
+	      "~Mint ret = ~S1_grouping~S0~S2(~V0, ~I0, ~I1, 1);~N"
+	      "~Mif (ret < 0) ~f~N", p);
+	if (p->mode == m_forward)
+	    w(g, "~M~zc += ret;~N");
+	else
+	    w(g, "~M~zc -= ret;~N");
+	w(g, "~}");
+    }
+}
+
 static void generate_GO(struct generator * g, struct node * p, int style) {
     int keep_c = 0;
 
     int used = g->label_used;
     int a0 = g->failure_label;
     const char * a1 = g->failure_string;
+
+    if (p->left->type == c_grouping || p->left->type == c_non) {
+	/* Special case for "goto" or "gopast" when used on a grouping or an
+	 * inverted grouping - the movement of c by the matching action is
+	 * exactly what we want! */
+#ifdef OPTIMISATION_WARNINGS
+	printf("Optimising %s %s\n", style ? "goto" : "gopast", p->left->type == c_non ? "non" : "grouping");
+#endif
+	generate_GO_grouping(g, p->left, style, p->left->type == c_non);
+	return;
+    }
 
     w(g, "~Mwhile(1) {"); wp(g, "~C~+", p);
 
@@ -932,7 +966,7 @@ static void generate_grouping(struct generator * g, struct node * p, int complem
     g->V[0] = p->name;
     g->I[0] = q->smallest_ch;
     g->I[1] = q->largest_ch;
-    w(g, "~Mif (!(~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1))) ~f~N");
+    w(g, "~Mif (~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1, 0)) ~f~N");
 }
 
 static void generate_namedstring(struct generator * g, struct node * p) {
