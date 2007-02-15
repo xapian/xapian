@@ -206,7 +206,7 @@ is_phrase_generator(unsigned ch)
     // These characters generate a phrase search.
     // Ordered mostly by frequency of calls to this function done when
     // running queryparsertest.
-    return (ch && ch < 128 && strchr(".-/':\\_@", ch) != NULL);
+    return (ch && ch < 128 && strchr(".-/:\\_@", ch) != NULL);
 }
 
 inline bool
@@ -433,15 +433,17 @@ phrased_term:
 
 	if (term.empty()) {
 	    while (it != end) {
-		if (!is_wordchar(*it)) {
-		    // Treat a single embedded '&' as a word character
-		    // (e.g. AT&T).
-		    if (*it != '&') break;
+		unsigned ch = *it;
+		if (!is_wordchar(ch)) {
+		    // Treat a single embedded '&' or "'" as a word character
+		    // (e.g. AT&T, Fred's).
+		    if (ch != '&' && ch != '\'') break;
 		    Utf8Iterator p = it;
 		    ++p;
 		    if (p == end || !is_wordchar(*p)) break;
 		}
-		term.append(ubuf, to_utf8(*it++, ubuf));
+		term.append(ubuf, to_utf8(ch, ubuf));
+		++it;
 	    }
 	    if (it != end && (*it == '#' || U_issign(*it))) {
 		string suff_term = term;

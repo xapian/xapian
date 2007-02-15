@@ -120,14 +120,14 @@ static test test_or_queries[] = {
     { "\"e-cube\" barebone", "((e:(pos=1) PHRASE 2 cube:(pos=2)) OR barebon:(pos=3))" },
     { "\"./httpd: symbol not found: dlopen\"", "(httpd:(pos=1) PHRASE 5 symbol:(pos=2) PHRASE 5 not:(pos=3) PHRASE 5 found:(pos=4) PHRASE 5 dlopen:(pos=5))" },
     { "ERROR 2003: Can't connect to MySQL server on 'localhost' (10061)",
-      "(Rerror:(pos=1) OR 2003:(pos=2) OR (Rcan:(pos=3) PHRASE 2 t:(pos=4)) OR connect:(pos=5) OR to:(pos=6) OR Rmysql:(pos=7) OR server:(pos=8) OR on:(pos=9) OR localhost:(pos=10) OR 10061:(pos=11))" },
+      "(Rerror:(pos=1) OR 2003:(pos=2) OR Rcan't:(pos=3) OR connect:(pos=4) OR to:(pos=5) OR Rmysql:(pos=6) OR server:(pos=7) OR on:(pos=8) OR localhost:(pos=9) OR 10061:(pos=10))" },
     { "location.href = \"\"", "(locat:(pos=1) PHRASE 2 href:(pos=2))" },
     { "method=\"post\" action=\"\">", "(method:(pos=1) OR post:(pos=2) OR action:(pos=3))" },
     { "behuizing 19\" inch", "(behuiz:(pos=1) OR 19:(pos=2) OR inch:(pos=3))" },
     { "19\" rack", "(19:(pos=1) OR rack:(pos=2))" },
     { "3,5\" mainboard", "(3:(pos=1) OR 5:(pos=2) OR mainboard:(pos=3))" },
     { "553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1)",
-      "(553:(pos=1) OR sorri:(pos=2) OR that:(pos=3) OR domain:(pos=4) OR (isn:(pos=5) PHRASE 2 t:(pos=6)) OR in:(pos=7) OR my:(pos=8) OR list:(pos=9) OR of:(pos=10) OR allow:(pos=11) OR rcpthost:(pos=12) OR (5:(pos=13) PHRASE 3 7:(pos=14) PHRASE 3 1:(pos=15)))" },
+      "(553:(pos=1) OR sorri:(pos=2) OR that:(pos=3) OR domain:(pos=4) OR isn't:(pos=5) OR in:(pos=6) OR my:(pos=7) OR list:(pos=8) OR of:(pos=9) OR allow:(pos=10) OR rcpthost:(pos=11) OR (5:(pos=12) PHRASE 3 7:(pos=13) PHRASE 3 1:(pos=14)))" },
     { "data error (clic redundancy check)", "(data:(pos=1) OR error:(pos=2) OR clic:(pos=3) OR redund:(pos=4) OR check:(pos=5))" },
     { "? mediaplayer 9\"", "(mediaplay:(pos=1) OR 9:(pos=2))" },
     { "date(\"w\")", "(date:(pos=1) OR w:(pos=2))" },
@@ -247,7 +247,7 @@ static test test_or_queries[] = {
     { "VXD NAVEX()@)", "(Rvxd:(pos=1) OR Rnavex:(pos=2))" },
     { "\"Iiyama AS4314UT 17\" \"", "(Riiyama:(pos=1) PHRASE 3 Ras4314ut:(pos=2) PHRASE 3 17:(pos=3))" },
     { "include (\"$id.html\");", "(includ:(pos=1) OR (id:(pos=2) PHRASE 2 html:(pos=3)))" },
-    { "include id.Today's date is: <? print (date (\"M d, Y\")); ?>hp", "(includ:(pos=1) OR (id:(pos=2) PHRASE 3 Rtoday:(pos=3) PHRASE 3 s:(pos=4)) OR date:(pos=5) OR is:(pos=6) OR print:(pos=7) OR date:(pos=8) OR (Rm:(pos=9) PHRASE 3 d:(pos=10) PHRASE 3 Ry:(pos=11)) OR hp:(pos=12))" },
+    { "include id.Today's date is: <? print (date (\"M d, Y\")); ?>hp", "(includ:(pos=1) OR (id:(pos=2) PHRASE 2 Rtoday's:(pos=3)) OR date:(pos=4) OR is:(pos=5) OR print:(pos=6) OR date:(pos=7) OR (Rm:(pos=8) PHRASE 3 d:(pos=9) PHRASE 3 Ry:(pos=10)) OR hp:(pos=11))" },
     { "(program files\\common) opstarten", "(program:(pos=1) OR (file:(pos=2) PHRASE 2 common:(pos=3)) OR opstarten:(pos=4))" },
     { "java \" string", "(java:(pos=1) OR string:(pos=2))" },
     { "+=", "" },
@@ -402,7 +402,7 @@ static test test_or_queries[] = {
     { "php ;)  in een array zetten", "(php:(pos=1) OR in:(pos=2) OR een:(pos=3) OR array:(pos=4) OR zetten:(pos=5))" },
     { "De inhoud van uw advertentie is niet geschikt voor plaatsing op marktplaats! (001", "(Rde:(pos=1) OR inhoud:(pos=2) OR van:(pos=3) OR uw:(pos=4) OR advertenti:(pos=5) OR is:(pos=6) OR niet:(pos=7) OR geschikt:(pos=8) OR voor:(pos=9) OR plaats:(pos=10) OR op:(pos=11) OR marktplaat:(pos=12) OR 001:(pos=13))" },
     { "creative (soundblaster OR sb) 128", "(creativ:(pos=1) OR soundblast:(pos=2) OR sb:(pos=3) OR 128:(pos=4))" },
-    { "Can't open file: (errno: 145)", "((Rcan:(pos=1) PHRASE 2 t:(pos=2)) OR open:(pos=3) OR file:(pos=4) OR errno:(pos=5) OR 145:(pos=6))" },
+    { "Can't open file: (errno: 145)", "(Rcan't:(pos=1) OR open:(pos=2) OR file:(pos=3) OR errno:(pos=4) OR 145:(pos=5))" },
     { "Formateren lukt niet(98,XP)", "(Rformateren:(pos=1) OR lukt:(pos=2) OR niet:(pos=3) OR 98:(pos=4) OR Rxp:(pos=5))" },
     { "access denied (java.io.", "(access:(pos=1) OR deni:(pos=2) OR (java:(pos=3) PHRASE 2 io:(pos=4)))" },
     { "(access denied (java.io.)", "(access:(pos=1) OR deni:(pos=2) OR (java:(pos=3) PHRASE 2 io:(pos=4)))" },
@@ -417,7 +417,7 @@ static test test_or_queries[] = {
     { "PPP Closed : LCP Time-out (VPN-0)", "(Rppp:(pos=1) OR Rclosed:(pos=2) OR Rlcp:(pos=3) OR (Rtime:(pos=4) PHRASE 2 out:(pos=5)) OR (Rvpn:(pos=6) PHRASE 2 0:(pos=7)))" },
     { "COM+-gebeurtenissysteem", "(Rcom:(pos=1) OR gebeurtenissysteem:(pos=2))" },
     { "rcpthosts (#5.7.1)", "(rcpthost:(pos=1) OR (5:(pos=2) PHRASE 3 7:(pos=3) PHRASE 3 1:(pos=4)))" },
-    { "Dit apparaat werkt niet goed omdat Windows de voor dit apparaat vereiste stuurprogramma's niet kan laden.  (Code 31)", "(Rdit:(pos=1) OR apparaat:(pos=2) OR werkt:(pos=3) OR niet:(pos=4) OR go:(pos=5) OR omdat:(pos=6) OR Rwindows:(pos=7) OR de:(pos=8) OR voor:(pos=9) OR dit:(pos=10) OR apparaat:(pos=11) OR vereist:(pos=12) OR (stuurprogramma:(pos=13) PHRASE 2 s:(pos=14)) OR niet:(pos=15) OR kan:(pos=16) OR laden:(pos=17) OR Rcode:(pos=18) OR 31:(pos=19))" },
+    { "Dit apparaat werkt niet goed omdat Windows de voor dit apparaat vereiste stuurprogramma's niet kan laden.  (Code 31)", "(Rdit:(pos=1) OR apparaat:(pos=2) OR werkt:(pos=3) OR niet:(pos=4) OR go:(pos=5) OR omdat:(pos=6) OR Rwindows:(pos=7) OR de:(pos=8) OR voor:(pos=9) OR dit:(pos=10) OR apparaat:(pos=11) OR vereist:(pos=12) OR stuurprogramma:(pos=13) OR niet:(pos=14) OR kan:(pos=15) OR laden:(pos=16) OR Rcode:(pos=17) OR 31:(pos=18))" },
     { "window.open( scrollbar", "((window:(pos=1) PHRASE 2 open:(pos=2)) OR scrollbar:(pos=3))" },
     { "T68i truc ->", "(Rt68i:(pos=1) OR truc:(pos=2))" },
     { "T68i ->", "Rt68i:(pos=1)" },
@@ -438,7 +438,7 @@ static test test_or_queries[] = {
     { "PowerDVD does not support the current display mode. (DDraw Overlay mode is recommended)", "(Rpowerdvd:(pos=1) OR doe:(pos=2) OR not:(pos=3) OR support:(pos=4) OR the:(pos=5) OR current:(pos=6) OR display:(pos=7) OR mode:(pos=8) OR Rddraw:(pos=9) OR Roverlay:(pos=10) OR mode:(pos=11) OR is:(pos=12) OR recommend:(pos=13))" },
     { "Warning:  Unexpected character in input:  '' (ASCII=92) state=1  highlight", "(Rwarning:(pos=1) OR Runexpected:(pos=2) OR charact:(pos=3) OR in:(pos=4) OR input:(pos=5) OR Rascii:(pos=6) OR 92:(pos=7) OR state:(pos=8) OR 1:(pos=9) OR highlight:(pos=10))" },
     { "error: Qt-1.4 (headers and libraries) not found. Please check your installation!", "(error:(pos=1) OR (Rqt:(pos=2) PHRASE 3 1:(pos=3) PHRASE 3 4:(pos=4)) OR header:(pos=5) OR and:(pos=6) OR librari:(pos=7) OR not:(pos=8) OR found:(pos=9) OR Rplease:(pos=10) OR check:(pos=11) OR your:(pos=12) OR instal:(pos=13))" },
-    { "Error while initializing the sound driver: device /dev/dsp can't be opened (No such device) The sound server will continue, using the null output device.", "(Rerror:(pos=1) OR while:(pos=2) OR initi:(pos=3) OR the:(pos=4) OR sound:(pos=5) OR driver:(pos=6) OR devic:(pos=7) OR (dev:(pos=8) PHRASE 2 dsp:(pos=9)) OR (can:(pos=10) PHRASE 2 t:(pos=11)) OR be:(pos=12) OR open:(pos=13) OR Rno:(pos=14) OR such:(pos=15) OR devic:(pos=16) OR Rthe:(pos=17) OR sound:(pos=18) OR server:(pos=19) OR will:(pos=20) OR continu:(pos=21) OR use:(pos=22) OR the:(pos=23) OR null:(pos=24) OR output:(pos=25) OR device:(pos=26))" },
+    { "Error while initializing the sound driver: device /dev/dsp can't be opened (No such device) The sound server will continue, using the null output device.", "(Rerror:(pos=1) OR while:(pos=2) OR initi:(pos=3) OR the:(pos=4) OR sound:(pos=5) OR driver:(pos=6) OR devic:(pos=7) OR (dev:(pos=8) PHRASE 2 dsp:(pos=9)) OR can't:(pos=10) OR be:(pos=11) OR open:(pos=12) OR Rno:(pos=13) OR such:(pos=14) OR devic:(pos=15) OR Rthe:(pos=16) OR sound:(pos=17) OR server:(pos=18) OR will:(pos=19) OR continu:(pos=20) OR use:(pos=21) OR the:(pos=22) OR null:(pos=23) OR output:(pos=24) OR device:(pos=25))" },
     { "mag mijn waarschuwing nu weg ? ;)", "(mag:(pos=1) OR mijn:(pos=2) OR waarschuw:(pos=3) OR nu:(pos=4) OR weg:(pos=5))" },
     { "Abit NF7-S (nForce 2 Chipset) Rev 2.0", "(Rabit:(pos=1) OR (Rnf7:(pos=2) PHRASE 2 Rs:(pos=3)) OR nforc:(pos=4) OR 2:(pos=5) OR Rchipset:(pos=6) OR Rrev:(pos=7) OR (2:(pos=8) PHRASE 2 0:(pos=9)))" },
     { "Setup Could Not Verify the Integrity of the File\" Error Message Occurs When You Try to Install Windows XP Service Pack 1", "(Rsetup:(pos=1) OR Rcould:(pos=2) OR Rnot:(pos=3) OR Rverify:(pos=4) OR the:(pos=5) OR Rintegrity:(pos=6) OR of:(pos=7) OR the:(pos=8) OR Rfile:(pos=9) OR (Rerror:(pos=10) PHRASE 13 Rmessage:(pos=11) PHRASE 13 Roccurs:(pos=12) PHRASE 13 Rwhen:(pos=13) PHRASE 13 Ryou:(pos=14) PHRASE 13 Rtry:(pos=15) PHRASE 13 to:(pos=16) PHRASE 13 Rinstall:(pos=17) PHRASE 13 Rwindows:(pos=18) PHRASE 13 Rxp:(pos=19) PHRASE 13 Rservice:(pos=20) PHRASE 13 Rpack:(pos=21) PHRASE 13 1:(pos=22)))" },
@@ -522,7 +522,7 @@ static test test_or_queries[] = {
     { "NEAR 207 46 249 27", "(Rnear:(pos=1) OR 207:(pos=2) OR 46:(pos=3) OR 249:(pos=4) OR 27:(pos=5))" },
     { "- NEAR 12V voeding", "(Rnear:(pos=1) OR 12v:(pos=2) OR voed:(pos=3))" },
     { "waarom \"~\" in directorynaam", "(waarom:(pos=1) OR in:(pos=2) OR directorynaam:(pos=3))" },
-    { "cd'r NEAR toebehoren", "((cd:(pos=1) PHRASE 2 r:(pos=2)) OR Rnear:(pos=3) OR toebehoren:(pos=4))" }, // FIXME: Not ideal - should NEAR work on phrases?
+    { "cd'r NEAR toebehoren", "(cd'r:(pos=1) NEAR 11 toebehoren:(pos=2))" },
     { NULL, NULL }
 };
 
@@ -841,7 +841,7 @@ static bool test_qp_flag_pure_not1()
 	else
 	    expect = "parse error";
 	try {
-	    Xapian::Query qobj = qp.parse_query(p->query, 
+	    Xapian::Query qobj = qp.parse_query(p->query,
 						QueryParser::FLAG_BOOLEAN |
 						QueryParser::FLAG_PURE_NOT);
 	    parsed = qobj.get_description();
