@@ -14,7 +14,7 @@ HTMLDOCS = index.html install.html intro_ir.html overview.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
 # Files which should be put in the distribution by automake
-EXTRA_DIST = mkdoc.pl doxygen_api_conf.in doxygen_full_conf.in \
+EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
 	doxygen_full_header.html_tmpl doxygen_full_footer.html_tmpl \
 	XapianAdminNotes.txt

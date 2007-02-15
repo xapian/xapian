@@ -1,3 +1,7 @@
+Thu Feb 15 10:40:40 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Don't try to ship mkdoc.pl.
+
 Thu Feb 15 09:58:48 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/gen_codestructure_doc.in: Fix to work in a VPATH build.
