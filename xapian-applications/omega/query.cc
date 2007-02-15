@@ -59,6 +59,7 @@
 #endif
 
 #include "date.h"
+#include "datematchdecider.h"
 #include "utils.h"
 #include "omega.h"
 #include "query.h"
@@ -331,18 +332,25 @@ run_query()
 	}
     }
 
+    Xapian::MatchDecider * mdecider = NULL;
     if (!date_start.empty() || !date_end.empty() || !date_span.empty()) {
-	Xapian::Query date_filter(Xapian::Query::OP_OR,
-				  date_range_filter(date_start, date_end,
-						    date_span),
-				  Xapian::Query("Dlatest"));
-
-	// If no probabilistic query is provided then promote the daterange
-	// filter to be THE query instead of filtering an empty query.
-	if (query.empty()) {
-	    query = date_filter;
+	MCI i = cgi_params.find("DATEVALUE");
+	if (i != cgi_params.end()) {
+	    Xapian::valueno datevalue = string_to_int(i->second);
+	    mdecider = new DateMatchDecider(datevalue, date_start, date_end, date_span);
 	} else {
-	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
+	    Xapian::Query date_filter(Xapian::Query::OP_OR,
+				      date_range_filter(date_start, date_end,
+							date_span),
+				      Xapian::Query("Dlatest"));
+
+	    // If no probabilistic query is provided then promote the daterange
+	    // filter to be THE query instead of filtering an empty query.
+	    if (query.empty()) {
+		query = date_filter;
+	    } else {
+		query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
+	    }
 	}
     }
 
@@ -409,7 +417,7 @@ run_query()
 	// can avoid offering a "next" button which leads to an empty page.
 	mset = enquire->get_mset(0, topdoc + hits_per_page,
 				 topdoc + max(hits_per_page + 1, min_hits),
-				 &rset);
+				 &rset, mdecider);
     }
     if (usec != -1) {
 #ifdef HAVE_GETTIMEOFDAY

@@ -1,3 +1,14 @@
+Thu Feb 15 05:38:12 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,datematchdecider.cc,datematchdecider.h,
+	  docs/cgiparams.txt,query.cc: Add an alternative implementation
+	  of date range filtering which uses a MatchDecider.  This allows
+	  everything that the existing implementation does, plus you can
+	  support sorting on a choice of dates (e.g. first published or
+	  last updated), and filtering works to a resolution of a minute
+	  rather than a day.  Since omindex now adds the last modified
+	  date as value 0, this will work with omindex.
+
 Thu Feb 15 04:38:32 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: SGI's CC needs -g3 instead of -g if we want to use

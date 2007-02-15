@@ -75,13 +75,13 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
  gnu_getopt.h commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
- namedentities.h utf8itor.h tclUniData.h
+ namedentities.h utf8itor.h tclUniData.h datematchdecider.h
 
 AM_LDFLAGS = $(ICONV_LDFLAGS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc indextext.cc\
- utf8convert.cc utf8itor.cc
+ utf8convert.cc utf8itor.cc datematchdecider.cc
 omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\

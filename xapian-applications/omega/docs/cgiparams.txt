@@ -82,16 +82,27 @@ COLLAPSE
 	removed from the mset. $value{$cgi{COLLAPSE}} can be used to
 	access the actual value for each hit.
 
+DATEVALUE
+	value number to use for date range filtering.  If this isn't set then
+	date filtering will use the older approach based on D-, M-, and
+	Y-prefixed terms.  The values must be of the format YYYYMMDDHHMM
+	(e.g. 200702142359), YYYYMMDD (e.g. 20070214), or a raw 4 byte big
+	endian value representing a time_t (omindex adds this as value 0
+	by default).
+
 SPAN
 	filter on this number of days up to END (if set), or after
 	START (if set), or before today's date (otherwise).
 	
 START
 	start of date range, in the format YYYYMMDD (defaults to 1st January
-	1970).
+	1970).  If value-based date ranges are used (see DATEVALUE parameter)
+	then the format YYYYMMDDHHMM is also valid.
 
 END
 	end of date range, in the format YYYYMMDD (defaults to today's date).
+	If value-based date ranges are used (see DATEVALUE parameter) then the
+	format YYYYMMDDHHMM is also valid.
 
 xFILTERS
 	used to spot when the filters have changed from the previous search.
