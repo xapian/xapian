@@ -103,14 +103,17 @@ foreach my $dir (sort keys(%desc)) {
     if ($d > 6) {
        $d = 6;
     }
+    my $url = "http://svn.xapian.org/tags/@VERSION@/xapian-core/$dir";
     if ($dir eq "") {
        	$dir = "ROOT";
+    } else {
+	$url .= "/";
     }
     my $id = $dir;
     $id =~ s!_!__!g;
     $id =~ s!/+!_!g;
     print OUTPUT "<div id=\"$id\">\n";
-    print OUTPUT "<h$d>$dir</h$d>\n";
+    print OUTPUT "<a href=\"$url\"><h$d>$dir</h$d></a>\n";
     print OUTPUT "<p>", html_escape($desc), "</p>\n";
     print OUTPUT "</div>\n\n";
 }

@@ -1,3 +1,8 @@
+Thu Feb 15 09:44:54 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/gen_codestructure_doc.in: Add links to viewvcs on
+	  svn.xapian.org.
+
 Thu Feb 15 09:26:07 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac,docs/Makefile.am,docs/gen_codestructure_doc.in,
