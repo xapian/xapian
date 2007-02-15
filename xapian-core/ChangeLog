@@ -1,3 +1,7 @@
+Thu Feb 15 06:33:41 GMT 2007  Olly Betts <olly@survex.com>
+
+	* bin/Makefile.mk: Fix typos in man page generation rules.
+
 Thu Feb 15 06:30:54 GMT 2007  Olly Betts <olly@survex.com>
 
 	* examples/Makefile.mk: Fix typos in previous commit.

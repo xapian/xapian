@@ -68,12 +68,12 @@ bin/quartzcompact.1: bin/quartzcompact
 bin/quartzdump.1: bin/quartzdump
 	$(HELP2MAN) -o bin/quartzdump.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/bin/quartzdump.cc`" bin/quartzdump
 
-bin/xapian-bin/progsrv.1: bin/xapian-bin/progsrv
+bin/xapian-progsrv.1: bin/xapian-progsrv
 	$(HELP2MAN) -o bin/xapian-progsrv.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/bin/xapian-progsrv.cc`" bin/xapian-progsrv
 
-bin/xapian-bin/tcpsrv.1: bin/xapian-bin/tcpsrv
+bin/xapian-tcpsrv.1: bin/xapian-tcpsrv
 	$(HELP2MAN) -o bin/xapian-tcpsrv.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/bin/xapian-tcpsrv.cc`" bin/xapian-tcpsrv
 
-bin/xapian-bin/compact.1: bin/xapian-bin/compact
+bin/xapian-compact.1: bin/xapian-compact
 	$(HELP2MAN) -o bin/xapian-compact.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/bin/xapian-compact.cc`" bin/xapian-compact
 endif
