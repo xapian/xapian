@@ -913,7 +913,6 @@ AC_CONFIG_FILES([
  Makefile
  tests/Makefile
  docs/Makefile
- examples/Makefile
  docs/doxygen_api_conf
  docs/doxygen_full_conf
  xapian.spec

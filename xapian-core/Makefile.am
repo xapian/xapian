@@ -8,6 +8,9 @@ if VPATH_BUILD
 INCLUDES += -I$(top_builddir)/include
 endif
 
+# Order is relevant: when building, tests must be after ".".
+SUBDIRS = . docs tests
+
 SUFFIXES =
 noinst_HEADERS =
 BUILT_SOURCES =
@@ -34,11 +37,6 @@ check-quartz:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-quartz
 endif
 
-# Order is relevant: when building, tests must be last.
-# FIXME: when installing, should we install the xapian-config script and
-# xapian.m4 last, in case of failure (disk full for example)?
-SUBDIRS = . examples docs tests
-
 bin_SCRIPTS = xapian-config
 
 CLEANFILES = xapian-config
@@ -58,11 +56,7 @@ lib_LTLIBRARIES = libxapian.la
 
 libxapian_la_SOURCES =
 
-libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info $(LIBRARY_VERSION_INFO)
-
-# FIXME:
-# doesn't really work as we'd hope as we get to play with the mangled symbols
-#libxapian_la_LDFLAGS = -export-symbols-regex 'Xapian'
+libxapian_la_LDFLAGS = $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
 
 dist_man_MANS = xapian-config.1
 
@@ -70,6 +64,7 @@ include api/Makefile.mk
 include bin/Makefile.mk
 include backends/Makefile.mk
 include common/Makefile.mk
+include examples/Makefile.mk
 include getopt/Makefile.mk
 include include/Makefile.mk
 include languages/Makefile.mk
