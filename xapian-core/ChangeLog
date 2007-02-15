@@ -1,3 +1,7 @@
+Thu Feb 15 12:43:04 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/stem.cc: Add support for two letter ISO 639 codes.
+
 Thu Feb 15 10:40:40 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Don't try to ship mkdoc.pl.
