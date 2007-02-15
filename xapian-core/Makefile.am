@@ -13,6 +13,9 @@ noinst_HEADERS =
 BUILT_SOURCES =
 noinst_LTLIBRARIES =
 DISTCLEANFILES =
+MAINTAINERCLEANFILES =
+bin_PROGRAMS =
+EXTRA_PROGRAMS =
 
 .PHONY: check-remote check-flint check-quartz
 
@@ -34,7 +37,7 @@ endif
 # Order is relevant: when building, tests must be last.
 # FIXME: when installing, should we install the xapian-config script and
 # xapian.m4 last, in case of failure (disk full for example)?
-SUBDIRS = . bin examples docs tests
+SUBDIRS = . examples docs tests
 
 bin_SCRIPTS = xapian-config
 
@@ -63,16 +66,8 @@ libxapian_la_LDFLAGS = @XAPIAN_LDFLAGS@ -no-undefined -version-info $(LIBRARY_VE
 
 dist_man_MANS = xapian-config.1
 
-MAINTAINERCLEANFILES = $(dist_man_MANS)
-
-if MAINTAINER_MODE
-CLEANFILES += $(dist_man_MANS)
-
-xapian-config.1: xapian-config
-	$(HELP2MAN) -o xapian-config.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^PROG_DESC=\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-config`" ./xapian-config
-endif
-
 include api/Makefile.mk
+include bin/Makefile.mk
 include backends/Makefile.mk
 include common/Makefile.mk
 include getopt/Makefile.mk
@@ -81,3 +76,12 @@ include languages/Makefile.mk
 include matcher/Makefile.mk
 include net/Makefile.mk
 include queryparser/Makefile.mk
+
+MAINTAINERCLEANFILES += $(dist_man_MANS)
+
+if MAINTAINER_MODE
+CLEANFILES += $(dist_man_MANS)
+
+xapian-config.1: xapian-config
+	$(HELP2MAN) -o xapian-config.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^PROG_DESC=\"\(.*\)\".*/\1/p;d' $(srcdir)/xapian-config`" ./xapian-config
+endif

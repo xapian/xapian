@@ -1,3 +1,8 @@
+Thu Feb 15 05:48:38 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,bin/Makefile,bin/Makefile.am,bin/Makefile.mk,
+	  configure.ac: Convert bin subdirectory to use non-recursive make.
+
 Wed Feb 14 19:08:49 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: There's no longer a need to remove the temporary
