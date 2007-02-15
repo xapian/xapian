@@ -33,10 +33,12 @@ typedef unsigned char symbol;
 
 #define HEAD 2*sizeof(int)
 
-#define SIZE(P)        ((const int *)(P))[-1]
-#define SET_SIZE(P, N) ((int *)(P))[-1] = N
-#define CAPACITY(P)    ((const int *)(P))[-2]
-#define SET_CAPACITY(P, N) ((int *)(P))[-2] = N
+// Cast via (void*) to avoid warnings about alignment (the pointers *are*
+// appropriately aligned).
+#define SIZE(P)        ((const int *)(const void *)(P))[-1]
+#define SET_SIZE(P, N) ((int *)(void *)(P))[-1] = N
+#define CAPACITY(P)    ((const int *)(const void *)(P))[-2]
+#define SET_CAPACITY(P, N) ((int *)(void *)(P))[-2] = N
 
 typedef int (*among_function)(Xapian::Stem::Internal *);
 
@@ -49,7 +51,10 @@ struct among {
 };
 
 extern symbol * create_s();
-extern void lose_s(symbol * p);
+
+inline void lose_s(symbol * p) {
+    if (p) free((char *) p - HEAD);
+}
 
 extern int skip_utf8(const symbol * p, int c, int lb, int l, int n);
 

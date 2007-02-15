@@ -78,10 +78,6 @@ extern symbol * create_s() {
     return p;
 }
 
-extern void lose_s(symbol * p) {
-    if (p) free((char *) p - HEAD);
-}
-
 /*
    new_c = skip_utf8(p, c, lb, l, n); skips n characters forwards from p + c
    if n +ve, or n characters backwards from p + c - 1 if n -ve. new_c is the new
@@ -147,7 +143,7 @@ Stem::Internal::Internal()
 
 Stem::Internal::~Internal()
 {
-    if (p) lose_s(p);
+    lose_s(p);
 }
 
 string

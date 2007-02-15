@@ -1435,7 +1435,7 @@ static void generate_close(struct generator * g) {
 	while (q) {
 	    if (q->type == t_string) {
 		g->V[0] = q;
-		w(g, "    if (~W0) lose_s(~W0);~N");
+		w(g, "    lose_s(~W0);~N");
 	    }
 	    q = q->next;
 	}
