@@ -606,10 +606,10 @@ static void generate_GO_grouping(struct generator * g, struct node * p, int is_g
     g->I[0] = q->smallest_ch;
     g->I[1] = q->largest_ch;
     if (is_goto) {
-	wp(g, "~Mif (~S1_grouping~S0~S2(~V0, ~I0, ~I1, 1) < 0) ~f /* goto */~C", p);
+	wp(g, "~Mif (~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1, 1) < 0) ~f /* goto */~C", p);
     } else {
 	wp(g, "~{ /* gopast */~C"
-	      "~Mint ret = ~S1_grouping~S0~S2(~V0, ~I0, ~I1, 1);~N"
+	      "~Mint ret = ~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1, 1);~N"
 	      "~Mif (ret < 0) ~f~N", p);
 	if (p->mode == m_forward)
 	    w(g, "~M~zc += ret;~N");
