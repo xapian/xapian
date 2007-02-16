@@ -578,3 +578,6 @@ Omega 0.8.0 (2004-04-19):
   boolean term.
 
 * docs/cgiparams.txt: Note that START and END should be in the format YYYYMMDD.
+
+For NEWS entries for Omega versions prior to 0.8.0, see the xapian-core NEWS
+file.
