@@ -7,6 +7,7 @@
  *	modify this file by hand.
  *
  * Copyright (c) 1998 by Scriptics Corporation.
+ * Copyright (c) 2007 Olly Betts
  * All rights reserved.
  *
  * RCS: @(#) $Id: tclUniData.c,v 1.4 2001/05/28 04:45:43 hobbs Exp $
@@ -78,7 +79,13 @@ enum {
  * Unicode character tables.
  */
 
+/* Xapian-specific change: Removed doing "& 0xffff" of the argument, since we
+ * always check we're in the BMP before calling this macro. */
+#if 0
 #define GetUniCharInfo(ch) (groups[groupMap[(pageMap[(((int)(ch)) & 0xffff) >> OFFSET_BITS] << OFFSET_BITS) | ((ch) & ((1 << OFFSET_BITS)-1))]])
+#else
+#define XapianGetUniCharInfo(ch) (groups[groupMap[(pageMap[((int)(ch)) >> OFFSET_BITS] << OFFSET_BITS) | ((ch) & ((1 << OFFSET_BITS)-1))]])
+#endif
 
 extern unsigned char pageMap[];
 extern unsigned char groupMap[];
