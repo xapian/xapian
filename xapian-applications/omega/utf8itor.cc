@@ -1,6 +1,6 @@
 /* utf8itor.cc: iterate over a utf8 string.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ unsigned Utf8Iterator::operator*() const {
     if (seqlen == 1) return ch;
     if (seqlen == 2) return ((ch & 0x1f) << 6) | (p[1] & 0x3f);
     if (seqlen == 3)
-	return ((ch & 0x1f) << 12) | ((p[1] & 0x3f) << 6) | (p[2] & 0x3f);
-    return ((ch & 0x1f) << 18) | ((p[1] & 0x3f) << 12) |
+	return ((ch & 0x0f) << 12) | ((p[1] & 0x3f) << 6) | (p[2] & 0x3f);
+    return ((ch & 0x07) << 18) | ((p[1] & 0x3f) << 12) |
 	    ((p[2] & 0x3f) << 6) | (p[3] & 0x3f);
 }
