@@ -1,6 +1,6 @@
 /* utf8itor.h: iterate over a utf8 string.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,12 +120,17 @@ const unsigned int WORDCHAR_MASK =
 	(1 << OTHER_NUMBER);
 
 inline bool is_wordchar(unsigned ch) {
-    return ((WORDCHAR_MASK >> GetCategory(GetUniCharInfo(ch))) & 1);
+    // The TCL Unicode routines only support the BMP.  For now, just assume
+    // all characters outside the BMP are word characters.
+    return (ch >= 0x10000) || ((WORDCHAR_MASK >> GetCategory(XapianGetUniCharInfo(ch))) & 1);
 }
 
 inline unsigned U_tolower(unsigned ch) {
-    int info = GetUniCharInfo(ch);
-    if (!(GetCaseType(info) & 2)) return ch;
+    int info;
+    // The TCL Unicode routines only support the BMP.  For now, just assume
+    // all characters outside the BMP can't have their case converted.
+    if (ch >= 0x10000 || !(GetCaseType((info = XapianGetUniCharInfo(ch))) & 2))
+	return ch;
     return ch + GetDelta(info);
 }
 
