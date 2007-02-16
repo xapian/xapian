@@ -98,7 +98,8 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 	    }
 	}
 	j = last;
-	if (!term.empty() && term.length() <= MAX_PROB_TERM_LENGTH) {
+
+	if (term.length() <= MAX_PROB_TERM_LENGTH) {
 	    term = U_downcase_term(term);
 	    if (isupper(static_cast<unsigned char>(*first))) {
 		if (pos != static_cast<Xapian::termpos>(-1)
