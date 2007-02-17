@@ -382,6 +382,15 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
+    } else if (mimetype == "application/vnd.ms-works") {
+	// wps2text produces UTF-8 output from the sample files I've tested.
+	string cmd = "wps2text " + shell_protect(file);
+	try {
+	    dump = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    return;
+	}
     } else if (mimetype == "text/rtf") {
 	// The --text option unhelpfully converts all non-ASCII characters to
 	// "?" so we use --html instead, which write HTML entities.
@@ -675,6 +684,8 @@ main(int argc, char **argv)
     mime_map["doc"] = "application/msword";
     mime_map["dot"] = "application/msword"; // Word template
     mime_map["wpd"] = "application/vnd.wordperfect";
+    mime_map["wps"] = "application/vnd.ms-works";
+    mime_map["wpt"] = "application/vnd.ms-works"; // Works template
     mime_map["rtf"] = "text/rtf";
     // Other MS formats:
     mime_map["xls"] = "application/vnd.ms-excel";

@@ -1,3 +1,8 @@
+Sat Feb 17 19:25:04 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/overview.txt,omindex.cc: Add support for indexing MS Works
+	  documents using wps2text (part of libwps).
+
 Sat Feb 17 19:06:03 GMT 2007  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Don't index empty files.

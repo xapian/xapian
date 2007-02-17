@@ -198,6 +198,7 @@ Currently omindex can index:
 * MS Excel documents (.xls, .xlb, .xlt) if xls2csv is available (comes with catdoc)
 * MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with catdoc)
 * Wordperfect documents (.wpd) if wpd2text is available (comes with libwpd)
+* MS Works documents (.wps, .wpt) if wps2text is available (comes with libwps)
 * Rich Text Format documents (.rtf) if unrtf is available
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available
 
@@ -220,6 +221,7 @@ of:
     application/postscript
     application/vnd.ms-excel
     application/vnd.ms-powerpoint
+    application/vnd.ms-works
     application/vnd.oasis.opendocument.text
     application/vnd.oasis.opendocument.spreadsheet
     application/vnd.oasis.opendocument.presentation
