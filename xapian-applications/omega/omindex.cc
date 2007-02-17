@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -570,6 +570,10 @@ index_directory(size_t depth_limit, const string &dir,
 	    continue;
 	}
 	if (S_ISREG(statbuf.st_mode)) {
+	    if (statbuf.st_size == 0) {
+		cout << "Skipping empty file: \"" << file << "\"" << endl;
+		continue;
+	    }
 	    string ext;
 	    string::size_type dot = url.find_last_of('.');
 	    if (dot != string::npos) ext = url.substr(dot + 1);
