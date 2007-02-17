@@ -142,8 +142,10 @@ static void sys_unlink(const string &filename)
 static inline byte *zeroed_new(size_t size)
 {
     byte *temp = new byte[size];
-    if (temp) memset(temp, 0, size);
-
+    // No need to check if temp is NULL, new throws std::bad_alloc if
+    // allocation fails.
+    Assert(temp);
+    memset(temp, 0, size);
     return temp;
 }
 
@@ -584,9 +586,6 @@ FlintTable::split_root(uint4 split_n)
     }
 
     byte * q = zeroed_new(block_size);
-    if (q == 0) {
-	throw std::bad_alloc();
-    }
     C[level].p = q;
     C[level].c = DIR_START;
     C[level].n = base.next_free_block();
@@ -1313,9 +1312,6 @@ FlintTable::basic_open(bool revision_supplied, flint_revision_number_t revision_
 
     /* kt holds constructed items as well as keys */
     kt = Item_wr_(zeroed_new(block_size));
-    if (kt.get_address() == 0) {
-	throw std::bad_alloc();
-    }
 
     set_max_item_size(BLOCK_CAPACITY);
 
@@ -1406,9 +1402,6 @@ FlintTable::do_open_to_write(bool revision_supplied, flint_revision_number_t rev
     read_root();
 
     buffer = zeroed_new(block_size);
-    if (buffer == 0) {
-	throw std::bad_alloc();
-    }
 
     // swap for writing
     other_base_letter = base_letter == 'A' ? 'B' : 'A';

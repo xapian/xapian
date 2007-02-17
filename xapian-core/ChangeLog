@@ -1,3 +1,8 @@
+Sat Feb 17 15:38:05 GMT 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc: new throws if allocation fails
+	  so we don't need to check the return value.
+
 Sat Feb 17 02:08:22 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/flint_table.cc: Fix memory double-frees if
