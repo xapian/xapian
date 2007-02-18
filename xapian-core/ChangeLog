@@ -1,3 +1,10 @@
+Sun Feb 18 22:36:46 GMT 2007  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/omstringstream.h,common/output.h,
+	  include/Makefile.mk,include/xapian/output.h: Move
+	  "<xapian/output.h>" to being an internal header in "common/" since
+	  it hasn't been included by "<xapian.h>" since 0.7.0.
+
 Sun Feb 18 22:18:33 GMT 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/dbfactory.h: Add documentation comment for the "prog"

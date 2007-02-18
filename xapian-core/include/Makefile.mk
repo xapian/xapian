@@ -14,7 +14,6 @@ xapianinclude_HEADERS =\
 	include/xapian/errorhandler.h\
 	include/xapian/errortypes.h\
 	include/xapian/expanddecider.h\
-	include/xapian/output.h\
 	include/xapian/positioniterator.h\
 	include/xapian/postingiterator.h\
 	include/xapian/query.h\
