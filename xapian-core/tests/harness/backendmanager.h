@@ -1,7 +1,7 @@
 /* backendmanager.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,6 +31,10 @@ class Xapian::WritableDatabase; // Sun's CC appears to need this to compile this
 
 class BackendManager {
     private:
+	/// Index data from zero or more text files into a database.
+	void index_files_to_database(Xapian::WritableDatabase & database,
+				     const std::vector<std::string> & dbnames);
+
 	/// The type of a get_database member function
 	typedef Xapian::Database (BackendManager::*getdb_func)
 				   (const std::vector<std::string> &dbnames);
@@ -51,10 +55,6 @@ class BackendManager {
 	/// The current backend type
 	std::string current_type;
 
-	/// Change names of databases into paths to them, within the datadir
-	std::vector<std::string>
-		change_names_to_paths(const std::vector<std::string> &dbnames);
-
 	/// Throw an exception.
 	Xapian::Database getdb_void(const std::vector<std::string> &dbnames);
 
@@ -68,6 +68,7 @@ class BackendManager {
 	/// Get a writable inmemory database instance.
 	Xapian::WritableDatabase getwritedb_inmemory(const std::vector<std::string> &dbnames);
 
+#if 0
 	/** Get an inmemory database instance, which will throw an error when
 	 *  next is called.
 	 */
@@ -81,6 +82,7 @@ class BackendManager {
 	Xapian::WritableDatabase getwritedb_inmemoryerr(const std::vector<std::string> &dbnames);
 	Xapian::WritableDatabase getwritedb_inmemoryerr2(const std::vector<std::string> &dbnames);
 	Xapian::WritableDatabase getwritedb_inmemoryerr3(const std::vector<std::string> &dbnames);
+#endif
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND

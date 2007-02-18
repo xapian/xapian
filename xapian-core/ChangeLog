@@ -1,3 +1,14 @@
+Sun Feb 18 18:27:40 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc,tests/harness/backendmanager.h:
+	  Merge BackendManager::change_names_to_paths() into
+	  index_files_to_database() and make the latter a method of
+	  class BackendManager.
+	* tests/harness/backendmanager.cc: Remove mention of muscat36 backends
+	  from error message listing valid backends.
+	* tests/harness/backendmanager.h: Comment out prototypes for currently
+	  disabled methods getdb_inmemoryerr, getwritedb_inmemory, etc.
+
 Sat Feb 17 15:38:05 GMT 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_table.cc: new throws if allocation fails

@@ -55,13 +55,23 @@
 
 using namespace std;
 
-static void
-index_files_to_database(Xapian::WritableDatabase & database,
-                        const vector<string> & paths)
+void
+BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
+					const vector<string> & dbnames)
 {
     vector<string>::const_iterator p;
-    for (p = paths.begin(); p != paths.end(); ++p) {
-	const string & filename = *p;
+    for (p = dbnames.begin(); p != dbnames.end(); ++p) {
+	if (p->empty()) continue;
+	string filename;
+	if (datadir.empty()) {
+	    filename = *p;
+	} else {
+	    filename = datadir;
+	    filename += '/';
+	    filename += *p;
+	    filename += ".txt";
+	}
+
 	ifstream from(filename.c_str());
 	if (!from)
 	    throw Xapian::DatabaseOpeningError("Cannot open file " + filename +
@@ -167,8 +177,7 @@ BackendManager::set_dbtype(const string &type)
 	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
 	throw Xapian::InvalidArgumentError(
-		"Expected inmemory, flint, quartz, remote, remotetcp, da, db, "
-		"daflimsy, dbflimsy, or void");
+	    "Expected inmemory, flint, quartz, remote, remotetcp, or void");
     }
     current_type = type;
 }
@@ -197,23 +206,6 @@ BackendManager::getwritedb_void(const vector<string> &)
     throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
 }
 
-vector<string>
-BackendManager::change_names_to_paths(const vector<string> &dbnames)
-{
-    vector<string> paths;
-    vector<string>::const_iterator i;
-    for (i = dbnames.begin(); i != dbnames.end(); ++i) {
-	if (!i->empty()) {
-	    if (datadir.empty()) {
-		paths.push_back(*i);
-	    } else {
-		paths.push_back(datadir + "/" + *i + ".txt");
-	    }
-	}
-    }
-    return paths;
-}
-
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 Xapian::Database
 BackendManager::getdb_inmemory(const vector<string> &dbnames)
@@ -225,7 +217,7 @@ Xapian::WritableDatabase
 BackendManager::getwritedb_inmemory(const vector<string> &dbnames)
 {
     Xapian::WritableDatabase db(Xapian::InMemory::open());
-    index_files_to_database(db, change_names_to_paths(dbnames));
+    index_files_to_database(db, dbnames);
     return db;
 }
 
@@ -241,7 +233,7 @@ BackendManager::getwritedb_inmemoryerr(const vector<string> &dbnames)
 {
     // FIXME: params.set("inmemory_errornext", 1);
     Xapian::WritableDatabase db(Xapian::InMemory::open());
-    index_files_to_database(db, change_names_to_paths(dbnames));
+    index_files_to_database(db, dbnames);
 
     return db;
 }
@@ -257,7 +249,7 @@ BackendManager::getwritedb_inmemoryerr2(const vector<string> &dbnames)
 {
     // FIXME: params.set("inmemory_abortnext", 1);
     Xapian::WritableDatabase db(Xapian::InMemory::open());
-    index_files_to_database(db, change_names_to_paths(dbnames));
+    index_files_to_database(db, dbnames);
 
     return db;
 }
@@ -273,7 +265,7 @@ BackendManager::getwritedb_inmemoryerr3(const vector<string> &dbnames)
 {
     // params.set("inmemory_abortnext", 2);
     Xapian::WritableDatabase db(Xapian::InMemory::open());
-    index_files_to_database(db, change_names_to_paths(dbnames));
+    index_files_to_database(db, dbnames);
 
     return db;
 }
@@ -317,7 +309,7 @@ BackendManager::createdb_flint(const vector<string> &dbnames)
     if (create_dir_if_needed(dbdir)) {
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
-	index_files_to_database(db, change_names_to_paths(dbnames));
+	index_files_to_database(db, dbnames);
     }
     return dbdir;
 }
@@ -343,7 +335,7 @@ BackendManager::getwritedb_flint(const vector<string> &dbnames)
     touch(dbdir + "/log");
     // directory was created, so do the indexing.
     Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
-    index_files_to_database(db, change_names_to_paths(dbnames));
+    index_files_to_database(db, dbnames);
     return db;
 }
 #endif
@@ -364,7 +356,7 @@ BackendManager::createdb_quartz(const vector<string> &dbnames)
     if (create_dir_if_needed(dbdir)) {
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
-	index_files_to_database(db, change_names_to_paths(dbnames));
+	index_files_to_database(db, dbnames);
     }
     return dbdir;
 }
@@ -390,7 +382,7 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
     touch(dbdir + "/log");
     // directory was created, so do the indexing.
     Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
-    index_files_to_database(db, change_names_to_paths(dbnames));
+    index_files_to_database(db, dbnames);
     return db;
 }
 #endif
