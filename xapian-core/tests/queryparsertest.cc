@@ -102,6 +102,7 @@ static test test_or_queries[] = {
     { "\"missing quote", "(miss:(pos=1) PHRASE 2 quot:(pos=2))" },
     { "DVD+RW", "(Rdvd:(pos=1) OR Rrw:(pos=2))" }, // Would a phrase be better?
     { "+\"must have\" optional", "((must:(pos=1) PHRASE 2 have:(pos=2)) AND_MAYBE option:(pos=3))" },
+    { "one NEAR two NEAR three", "(one:(pos=1) NEAR 12 two:(pos=2) NEAR 12 three:(pos=3))" },
     { "something NEAR/3 else", "(someth:(pos=1) NEAR 4 els:(pos=2))" },
     { "a NEAR/6 b NEAR c", "(a:(pos=1) NEAR 8 b:(pos=2) NEAR 8 c:(pos=3))" },
     { "something ADJ else", "(someth:(pos=1) PHRASE 11 els:(pos=2))" },
