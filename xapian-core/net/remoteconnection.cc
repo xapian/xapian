@@ -1,7 +1,7 @@
 /** @file  remoteconnection.cc
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -224,7 +224,7 @@ RemoteConnection::get_message(string &result, const OmTime & end_time)
     do {
 	if (i == buffer.end() || shift > 28) {
 	    // Something is very wrong...
-	    throw Xapian::InternalError("Insane length specified!");
+	    throw Xapian::NetworkError("Insane message length specified!");
 	}
 	ch = *i++;
 	len |= size_t(ch & 0x7f) << shift;
