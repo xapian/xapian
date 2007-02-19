@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+SUFFIXES = .rst
+
 # Note: we don't want dist tarballs built with docs missing, so for simplicity
 # this Makefile.am blindly assumes the tools are in place when "make dist" is
 # being run.  For "make all", "make check", etc we carefully skip any docs
@@ -13,18 +15,21 @@ HTMLDOCS = index.html install.html intro_ir.html overview.html \
  bm25.html code_structure.html queryparser.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
+RSTDOCS = admin_notes.rst
+RSTHTML = admin_notes.html
+
 # Files which should be put in the distribution by automake
 EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
 	doxygen_full_header.html_tmpl doxygen_full_footer.html_tmpl \
-	XapianAdminNotes.txt
+	$(RSTDOCS)
 
 # Build API docs with doxygen
-all-local: doxygen_api_docs XapianAdminNotes.html
+all-local: doxygen_api_docs $(RSTHTML)
 
 # Data to install, in the usual automake way
 docdatadir = $(datadir)/doc/@PACKAGE@
-dist_docdata_DATA = $(HTMLDOCS) apidoc.pdf XapianAdminNotes.html
+dist_docdata_DATA = $(HTMLDOCS) apidoc.pdf
 
 dist-hook:
 	$(mkinstalldirs) $(distdir)/apidoc
@@ -57,7 +62,7 @@ uninstall-local:
 
 MAINTAINERCLEANFILES = doxygen_api_conf doxygen_full_conf \
 	code_structure.html apidoc.pdf sourcedoc.pdf \
-	XapianAdminNotes.html
+	$(RSTHTML)
 
 .PHONY: doxygen_source_docs doxygen_api_docs doxygen_docs
 
@@ -102,6 +107,6 @@ sourcedoc.pdf sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 # twice simultaneously.
 sourcedoc/html/index.html: sourcedoc.pdf
 
-XapianAdminNotes.html: XapianAdminNotes.txt
-	$(RST2HTML) $(srcdir)/XapianAdminNotes.txt >$@
+.rst.html:
+	$(RST2HTML) $< $@
 endif

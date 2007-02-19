@@ -1,3 +1,12 @@
+Mon Feb 19 09:48:02 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am,docs/XapianAdminNotes.txt,docs/admin_notes.rst:
+	  Generated file "XapianAdminNotes.html" doesn't fit the naming
+	  conventions of other files at all, so renamed to "admin_notes.html".
+	  Rename the source to ".rst" so we can use an implicit rule for
+	  the conversion, in anticipation of other documentation in ReST
+	  format.
+
 Mon Feb 19 09:10:48 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Fix typos which stopped parallel make from working
