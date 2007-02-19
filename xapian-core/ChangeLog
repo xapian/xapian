@@ -1,3 +1,8 @@
+Mon Feb 19 09:10:48 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Fix typos which stopped parallel make from working
+	  correctly in "docs" subdirectory.
+
 Sun Feb 18 22:36:46 GMT 2007  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/omstringstream.h,common/output.h,

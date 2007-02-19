@@ -87,7 +87,7 @@ apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
 
 # This dependency is required so that parallel make doesn't try to run latex
 # twice simultaneously.
-apidoc/html/index/html: apidoc.pdf
+apidoc/html/index.html: apidoc.pdf
 
 sourcedoc.pdf sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 		doxygen_full_conf \
@@ -100,7 +100,7 @@ sourcedoc.pdf sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 
 # This dependency is required so that parallel make doesn't try to run latex
 # twice simultaneously.
-sourcedoc/html/index/html: sourcedoc.pdf
+sourcedoc/html/index.html: sourcedoc.pdf
 
 XapianAdminNotes.html: XapianAdminNotes.txt
 	$(RST2HTML) $(srcdir)/XapianAdminNotes.txt >$@
