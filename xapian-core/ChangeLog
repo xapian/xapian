@@ -1,3 +1,10 @@
+Mon Feb 19 18:12:21 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Just disable serialisequery1 if the remote
+	  backend is disabled, like we do for serialiselength1 and
+	  serialisedoc1 rather than assuming InternalError is due to the
+	  code being disabled.
+
 Mon Feb 19 09:48:02 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am,docs/XapianAdminNotes.txt,docs/admin_notes.rst:

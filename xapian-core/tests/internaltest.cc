@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006 Olly Betts
+ * Copyright 2002,2003,2006,2007 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -290,7 +290,7 @@ static bool test_serialisequery1()
 {
     string s;
     list<Xapian::Query> queries;
-    
+
     queries.push_back(Xapian::Query("foo"));
 
     queries.push_back(Xapian::Query(Xapian::Query::OP_OR,
@@ -301,20 +301,11 @@ static bool test_serialisequery1()
     queries.push_back(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
 
     list<Xapian::Query>::const_iterator query;
-    for(query = queries.begin(); query != queries.end(); query++) {
+    for (query = queries.begin(); query != queries.end(); query++) {
         Xapian::Query::Internal * qint;
 
-        try {
-            s = query->internal->serialise();
-        } catch (const Xapian::InternalError & e) {
-            SKIP_TEST("query serialisation not compiled in");
-        }
-
-        try {
-            qint = Xapian::Query::Internal::unserialise(s);
-        } catch (const Xapian::InternalError & e) {
-            SKIP_TEST("query unserialisation not compiled in");
-        }
+	s = query->internal->serialise();
+	qint = Xapian::Query::Internal::unserialise(s);
 
         TEST(qint->serialise() == s);
         delete qint;
@@ -364,8 +355,8 @@ test_desc tests[] = {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     {"serialiselength1",	test_serialiselength1},
     {"serialisedoc1",		test_serialisedoc1},
-#endif
     {"serialisequery1",		test_serialisequery1},
+#endif
     {0, 0}
 };
 
