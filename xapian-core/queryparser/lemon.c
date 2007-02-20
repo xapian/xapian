@@ -7,6 +7,7 @@
 ** The authors of this program disclaim copyright.
 **
 ** Modified to add "-o" and "-h" command line options.  Olly Betts 2005-02-14
+** Modified to fix a number of compiler warnings.  Olly Betts 2007-02-20
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -20,6 +21,10 @@
 #   endif
 #endif
 
+#ifndef __WIN32__
+#   include <unistd.h>
+#endif
+
 /* #define PRIVATE static */
 #define PRIVATE
 
@@ -30,7 +35,7 @@
 #endif
 
 char *msort();
-extern void *malloc();
+/* ISO C prototypes malloc in stdlib.h: extern void *malloc(); */
 
 /******** From the file "action.h" *************************************/
 struct action *Action_new();
@@ -72,7 +77,9 @@ struct s_options {
   enum { OPT_FLAG=1,  OPT_INT,  OPT_DBL,  OPT_STR,
          OPT_FFLAG, OPT_FINT, OPT_FDBL, OPT_FSTR} type;
   char *label;
-  char *arg;
+  void *arg;
+  void(*func)();
+
   char *message;
 };
 int    OptInit(/* char**,struct s_options*,FILE* */);
@@ -368,7 +375,8 @@ struct action *ap2;
 struct action *Action_sort(ap)
 struct action *ap;
 {
-  ap = (struct action *)msort((char *)ap,(char **)&ap->next,actioncmp);
+  /* Cast to "char **" via "void *" to avoid aliasing problems. */
+  ap = (struct action *)msort((char *)ap,(char **)(void *)&ap->next,actioncmp);
   return ap;
 }
 
@@ -673,9 +681,9 @@ struct lemon *lemp;
     sp = Symbol_find(lemp->start);
     if( sp==0 ){
       ErrorMsg(lemp->filename,0,
-"The specified start symbol \"%s\" is not \
-in a nonterminal of the grammar.  \"%s\" will be used as the start \
-symbol instead.",lemp->start,lemp->rule->lhs->name);
+"The specified start symbol \"%s\" is not "
+"in a nonterminal of the grammar.  \"%s\" will be used as the start "
+"symbol instead.",lemp->start,lemp->rule->lhs->name);
       lemp->errorcnt++;
       sp = lemp->rule->lhs;
     }
@@ -691,9 +699,9 @@ symbol instead.",lemp->start,lemp->rule->lhs->name);
     for(i=0; i<rp->nrhs; i++){
       if( rp->rhs[i]==sp ){
         ErrorMsg(lemp->filename,0,
-"The start symbol \"%s\" occurs on the \
-right-hand side of a rule. This will result in a parser which \
-does not work properly.",sp->name);
+"The start symbol \"%s\" occurs on the "
+"right-hand side of a rule. This will result in a parser which "
+"does not work properly.",sp->name);
         lemp->errorcnt++;
       }
     }
@@ -936,7 +944,7 @@ struct lemon *lemp;
       for(nap=ap->next; nap && nap->sp==ap->sp; nap=nap->next){
          /* The two actions "ap" and "nap" have the same lookahead.
          ** Figure out which one should be used */
-         lemp->nconflict += resolve_conflict(ap,nap,lemp->errsym);
+         lemp->nconflict += resolve_conflict(ap,nap);
       }
     }
   }
@@ -957,7 +965,7 @@ struct lemon *lemp;
 }
 
 /* Resolve a conflict between the two given actions.  If the
-** conflict can't be resolve, return non-zero.
+** conflict can't be resolved, return non-zero.
 **
 ** NO LONGER TRUE:
 **   To resolve a conflict, first look to see if either action
@@ -969,10 +977,9 @@ struct lemon *lemp;
 ** If either action is a SHIFT, then it must be apx.  This
 ** function won't work if apx->type==REDUCE and apy->type==SHIFT.
 */
-static int resolve_conflict(apx,apy,errsym)
+static int resolve_conflict(apx,apy)
 struct action *apx;
 struct action *apy;
-struct symbol *errsym;   /* The error symbol (if defined.  NULL otherwise) */
 {
   struct symbol *spx, *spy;
   int errcnt = 0;
@@ -1182,14 +1189,16 @@ struct lemon *lemp;
 
 /* Sort the configuration list */
 void Configlist_sort(){
-  current = (struct config *)msort((char *)current,(char **)&(current->next),Configcmp);
+  /* Cast to "char **" via "void *" to avoid aliasing problems. */
+  current = (struct config *)msort((char *)current,(char **)(void *)&(current->next),Configcmp);
   currentend = 0;
   return;
 }
 
 /* Sort the basis configuration list */
 void Configlist_sortbasis(){
-  basis = (struct config *)msort((char *)current,(char **)&(current->bp),Configcmp);
+  /* Cast to "char **" via "void *" to avoid aliasing problems. */
+  basis = (struct config *)msort((char *)current,(char **)(void *)&(current->bp),Configcmp);
   basisend = 0;
   return;
 }
@@ -1378,26 +1387,27 @@ char **argv;
   static int statistics = 0;
   static int mhflag = 0;
   static struct s_options options[] = {
-    {OPT_FLAG, "b", (char*)&basisflag, "Print only the basis in report."},
-    {OPT_FLAG, "c", (char*)&compress, "Don't compress the action table."},
-    {OPT_FSTR, "D", (char*)handle_D_option, "Define an %ifdef macro."},
-    {OPT_FLAG, "g", (char*)&rpflag, "Print grammar without actions."},
-    {OPT_FLAG, "m", (char*)&mhflag, "Output a makeheaders compatible file"},
-    {OPT_FLAG, "q", (char*)&quiet, "(Quiet) Don't print the report file."},
-    {OPT_FLAG, "s", (char*)&statistics,
+    {OPT_FLAG, "b", (void*)&basisflag, 0, "Print only the basis in report."},
+    {OPT_FLAG, "c", (void*)&compress, 0, "Don't compress the action table."},
+    {OPT_FSTR, "D", 0, handle_D_option, "Define an %ifdef macro."},
+    {OPT_FLAG, "g", (void*)&rpflag, 0, "Print grammar without actions."},
+    {OPT_FLAG, "m", (void*)&mhflag, 0, "Output a makeheaders compatible file"},
+    {OPT_FLAG, "q", (void*)&quiet, 0, "(Quiet) Don't print the report file."},
+    {OPT_FLAG, "s", (void*)&statistics, 0,
                                    "Print parser stats to standard output."},
-    {OPT_FLAG, "x", (char*)&version, "Print the version number."},
-    {OPT_FSTR, "o", (char*)handle_o_option, "Specify output filename."},
-    {OPT_FSTR, "h", (char*)handle_h_option, "Specify output header filename."},
-    {OPT_FLAG,0,0,0}
+    {OPT_FLAG, "x", (void*)&version, 0, "Print the version number."},
+    {OPT_FSTR, "o", 0, handle_o_option, "Specify output filename."},
+    {OPT_FSTR, "h", 0, handle_h_option, "Specify output header filename."},
+    {OPT_FLAG,0,0,0,0}
   };
   int i;
   struct lemon lem;
 
+  (void)argc; /* Suppress "unused argument" warning. */
   OptInit(argv,options,stderr);
   if( version ){
-     printf("Lemon version 1.0\n");
-     exit(0); 
+     printf("Lemon version 1.0 (patched for Xapian)\n");
+     exit(0);
   }
   if( OptNArgs()!=1 ){
     fprintf(stderr,"Exactly one filename argument is required.\n");
@@ -1698,9 +1708,9 @@ FILE *err;
   }else if( op[j].type==OPT_FLAG ){
     *((int*)op[j].arg) = v;
   }else if( op[j].type==OPT_FFLAG ){
-    (*(void(*)())(op[j].arg))(v);
+    (op[j].func)(v);
   }else if( op[j].type==OPT_FSTR ){
-    (*(void(*)())(op[j].arg))(&argv[i][2]);
+    (op[j].func)(&argv[i][2]);
   }else{
     if( err ){
       fprintf(err,"%smissing argument on switch.\n",emsg);
@@ -1782,19 +1792,19 @@ FILE *err;
         *(double*)(op[j].arg) = dv;
         break;
       case OPT_FDBL:
-        (*(void(*)())(op[j].arg))(dv);
+        (op[j].func)(dv);
         break;
       case OPT_INT:
         *(int*)(op[j].arg) = lv;
         break;
       case OPT_FINT:
-        (*(void(*)())(op[j].arg))((int)lv);
+        (op[j].func)((int)lv);
         break;
       case OPT_STR:
         *(char**)(op[j].arg) = sv;
         break;
       case OPT_FSTR:
-        (*(void(*)())(op[j].arg))(sv);
+        (op[j].func)(sv);
         break;
     }
   }
@@ -1983,13 +1993,13 @@ struct pstate *psp;
       }else if( x[0]=='{' ){
         if( psp->prevrule==0 ){
           ErrorMsg(psp->filename,psp->tokenlineno,
-"There is not prior rule opon which to attach the code \
-fragment which begins on this line.");
+"There is not prior rule opon which to attach the code "
+"fragment which begins on this line.");
           psp->errorcnt++;
 	}else if( psp->prevrule->code!=0 ){
           ErrorMsg(psp->filename,psp->tokenlineno,
-"Code fragment beginning on this line is not the first \
-to follow the previous rule.");
+"Code fragment beginning on this line is not the first "
+"to follow the previous rule.");
           psp->errorcnt++;
         }else{
           psp->prevrule->line = psp->tokenlineno;
@@ -2015,8 +2025,8 @@ to follow the previous rule.");
         psp->errorcnt++;
       }else if( psp->prevrule->precsym!=0 ){
         ErrorMsg(psp->filename,psp->tokenlineno,
-"Precedence mark on this line is not the first \
-to follow the previous rule.");
+"Precedence mark on this line is not the first "
+"to follow the previous rule.");
         psp->errorcnt++;
       }else{
         psp->prevrule->precsym = Symbol_new(x);
@@ -2335,12 +2345,12 @@ to follow the previous rule.");
 ** macros.  This routine looks for "%ifdef" and "%ifndef" and "%endif" and
 ** comments them out.  Text in between is also commented out as appropriate.
 */
-static preprocess_input(char *z){
+static void preprocess_input(char *z){
   int i, j, k, n;
   int exclude = 0;
-  int start;
+  int start = -1;
   int lineno = 1;
-  int start_lineno;
+  int start_lineno = -1;
   for(i=0; z[i]; i++){
     if( z[i]=='\n' ) lineno++;
     if( z[i]!='%' || (i>0 && z[i-1]!='\n') ) continue;
@@ -2361,7 +2371,7 @@ static preprocess_input(char *z){
         for(n=0; z[j+n] && !isspace(z[j+n]); n++){}
         exclude = 1;
         for(k=0; k<nDefine; k++){
-          if( strncmp(azDefine[k],&z[j],n)==0 && strlen(azDefine[k])==n ){
+          if( strncmp(azDefine[k],&z[j],n)==0 && (int)strlen(azDefine[k])==n ){
             exclude = 0;
             break;
           }
@@ -2398,6 +2408,7 @@ struct lemon *gp;
   char *cp, *nextcp;
   int startline = 0;
 
+  memset(&ps, 0, sizeof(struct pstate));
   ps.gp = gp;
   ps.filename = gp->filename;
   ps.errorcnt = 0;
@@ -2412,6 +2423,11 @@ struct lemon *gp;
   }
   fseek(fp,0,2);
   filesize = ftell(fp);
+  if( filesize==-1 ){
+    ErrorMsg(ps.filename,0,"Couldn't read size of this file.");
+    gp->errorcnt++;
+    return;
+  }
   rewind(fp);
   filebuf = (char *)malloc( filesize+1 );
   if( filebuf==0 ){
@@ -2420,7 +2436,7 @@ struct lemon *gp;
     gp->errorcnt++;
     return;
   }
-  if( fread(filebuf,1,filesize,fp)!=filesize ){
+  if( fread(filebuf,1,filesize,fp)!=(size_t)filesize ){
     ErrorMsg(ps.filename,0,"Can't read in all %d bytes of this file.",
       filesize);
     free(filebuf);
@@ -3083,7 +3099,7 @@ PRIVATE char *append_str(char *zText, int n, int p1, int p2){
     }
     n = strlen(zText);
   }
-  if( n+sizeof(zInt)*2+used >= alloced ){
+  if( n+sizeof(zInt)*2+used >= (size_t)alloced ){
     alloced = n + sizeof(zInt)*2 + used + 200;
     z = realloc(z,  alloced);
   }
