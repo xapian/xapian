@@ -1,7 +1,7 @@
 /* @file serialise.cc
  * @brief functions to convert Xapian objects to strings and back
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -120,10 +120,7 @@ unserialise_error(const string &error_string, const string &prefix,
 	context = new_context;
     }
 
-#define XAPIAN_DEFINE_ERROR_BASECLASS(CLASS, BASECLASS)
-#define XAPIAN_DEFINE_ERROR_CLASS(CLASS, BASECLASS) \
-    if (type == #CLASS) throw Xapian::CLASS(msg, context)
-#include <xapian/errortypes.h>
+#include <xapian/errordispatch.h>
 
     msg = "Unknown remote exception type " + type + ": " + msg;
     throw Xapian::InternalError(msg, context);
@@ -370,4 +367,3 @@ unserialise_document(const string &s)
     doc.set_data(string(p, p_end - p));
     return doc;
 }
-

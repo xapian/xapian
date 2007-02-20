@@ -129,7 +129,7 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 	result = internal->parse_query(query_string, 0, default_prefix);
     }
 
-    if (internal->errmsg) throw internal->errmsg;
+    if (internal->errmsg) throw Xapian::QueryParserError(internal->errmsg);
     return result;
 }
 

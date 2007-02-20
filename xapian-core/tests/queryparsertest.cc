@@ -580,8 +580,6 @@ static bool test_queryparser1()
 	    expect = string("Xapian::Query(") + expect + ')';
 	} catch (const Xapian::Error &e) {
 	    parsed = e.get_msg();
-	} catch (const char *s) {
-	    parsed = s;
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
@@ -614,8 +612,6 @@ static bool test_qp_default_op1()
 	    expect = string("Xapian::Query(") + expect + ')';
 	} catch (const Xapian::Error &e) {
 	    parsed = e.get_msg();
-	} catch (const char *s) {
-	    parsed = s;
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
@@ -818,8 +814,6 @@ static bool test_qp_stopper1()
 	    expect = string("Xapian::Query(") + expect + ')';
 	} catch (const Xapian::Error &e) {
 	    parsed = e.get_msg();
-	} catch (const char *s) {
-	    parsed = s;
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
@@ -849,8 +843,6 @@ static bool test_qp_flag_pure_not1()
 	    expect = string("Xapian::Query(") + expect + ')';
 	} catch (const Xapian::Error &e) {
 	    parsed = e.get_msg();
-	} catch (const char *s) {
-	    parsed = s;
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}

@@ -1,3 +1,14 @@
+Tue Feb 20 12:10:18 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,generate-exceptions.in,include/Makefile.mk,
+	  include/xapian/error.h,include/xapian/errortypes.h,net/serialise.cc:
+	  Replace macro gymnastics with errortypes.h by a perl script which
+	  generates the headers we require.  It's more flexible, and easier to
+	  get doxygen to generate documentation from.
+	* queryparser/queryparser.cc,tests/queryparsertest.cc: Throw new
+	  Error subclass QueryParserError instead of throwing const char *
+	  (fixes bug#101).
+
 Tue Feb 20 10:37:54 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/steminternal.cc: p is never NULL once the class is

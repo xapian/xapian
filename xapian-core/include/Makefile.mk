@@ -10,9 +10,7 @@ xapianinclude_HEADERS =\
 	include/xapian/deprecated.h\
 	include/xapian/document.h\
 	include/xapian/enquire.h\
-	include/xapian/error.h\
 	include/xapian/errorhandler.h\
-	include/xapian/errortypes.h\
 	include/xapian/expanddecider.h\
 	include/xapian/positioniterator.h\
 	include/xapian/postingiterator.h\
