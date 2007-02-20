@@ -82,6 +82,8 @@ CLEANFILES += $(dist_man_MANS)
 xapian-config.1: xapian-config makemanpage
 	./makemanpage ./xapian-config xapian-config xapian-config.1
 
+BUILT_SOURCES += include/xapian/error.h include/xapian/errordispatch.h
+
 include/xapian/error.h include/xapian/errordispatch.h: generate-exceptions.in
 	./generate-exceptions
 endif

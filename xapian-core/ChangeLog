@@ -1,3 +1,7 @@
+Tue Feb 20 13:26:19 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Put generated exception headers in BUILT_SOURCES.
+
 Tue Feb 20 12:10:18 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,generate-exceptions.in,include/Makefile.mk,
