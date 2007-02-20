@@ -31,14 +31,19 @@ my %s;
 for (parse_makefile_am("")) {
     $s{$_} = 1;
 }
-my @apidoc_src;
-my @sourcedoc_src;
+my @apidoc_src = ();
+my @sourcedoc_src = ();
 for (sort keys %s) {
     s/^\.\///;
-    if (/^include\//) {
-	push @apidoc_src, $_ unless $_ eq "include/xapian/version.h";
+    next if m!^tests/! || $_ eq 'include/xapian/errordispatch.h';
+    my $p = '$T/';
+    if (m!^include/!) {
+	if (m!^include/xapian/(?:version|error)\.h$!) {
+	    $p = '$(top_builddir)/';
+	}
+	push @apidoc_src, $p.$_;
     } else {
-	push @sourcedoc_src, $_ unless /^tests\//;
+	push @sourcedoc_src, $p.$_;
     }
 }
 
@@ -76,8 +81,8 @@ for (map {m!^(.*?)[^/]*$!; $1} @makefile_am) {
 }
 
 open MAKEFRAG, ">docs/docsource.tmp" or die $!;
-print MAKEFRAG "APIDOC_SRC=", join("\\\n\t\$T/", "", @apidoc_src), "\n";
-print MAKEFRAG "SOURCEDOC_SRC=", join("\\\n\t\$T/", "", @sourcedoc_src), "\n";
+print MAKEFRAG "APIDOC_SRC=", join("\\\n\t", "", @apidoc_src), "\n";
+print MAKEFRAG "SOURCEDOC_SRC=", join("\\\n\t", "", @sourcedoc_src), "\n";
 print MAKEFRAG "DIR_CONTENTS_FILES=", join("\\\n\t\$T/", "", @dir_contents), "\n";
 close MAKEFRAG or do { unlink "docs/docsource.tmp"; die $! };
 rename "docs/docsource.tmp", "docs/docsource.mk" or do { unlink "docs/docsource.tmp"; die $! };
