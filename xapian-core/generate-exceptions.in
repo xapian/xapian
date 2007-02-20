@@ -295,6 +295,8 @@ EOF
 
 print HDR <<'EOF';
 
+}
+
 #endif /* XAPIAN_INCLUDED_ERROR_H */
 EOF
 
