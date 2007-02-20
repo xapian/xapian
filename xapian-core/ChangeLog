@@ -1,6 +1,15 @@
+Tue Feb 20 14:28:02 GMT 2007  Charlie Hull
+
+	* backends/flint/flint_btreebase.cc,backends/flint/flint_table.cc,
+	  backends/quartz/btree.cc: Use MS Windows API calls to delete
+	  files and open files we might want to delete while they are
+	  still open (i.e. the flint and quartz btree base files).  This
+	  fixes a problem when a writer can't discard an old revision at the
+	  exact moment a reader is opening it (bug #108).
+
 Tue Feb 20 14:13:43 GMT 2007  Richard Boulton <richard@tartarus.org>
 
-	* .: Add generate-exceptions to svn:ignore property/
+	* .: Add generate-exceptions to svn:ignore property.
 
 Tue Feb 20 13:36:27 GMT 2007  Olly Betts <olly@survex.com>
 

@@ -22,6 +22,9 @@
 #include <config.h>
 
 #include "safeerrno.h"
+#ifdef _MSC_VER
+# include "safewindows.h"
+#endif
 
 #include "flint_btreebase.h"
 #include "flint_io.h"
@@ -199,7 +202,45 @@ bool
 FlintTable_base::read(const string & name, char ch, string &err_msg)
 {
     string basename = name + "base" + ch;
+#ifdef _MSC_VER
+    /* open file using Windows API, as we may need to delete it while it is
+     * still open - FILE_SHARE_DELETE allows this */
+    int h = -1;
+    HANDLE handleWin =
+	CreateFile(basename.c_str(),
+		GENERIC_READ,
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		NULL,
+		OPEN_EXISTING,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+    if (handleWin == INVALID_HANDLE_VALUE) {
+	switch (GetLastError()) {
+	    /* TODO : Incomplete list of possible error codes */
+	    case ERROR_FILE_NOT_FOUND:
+	    case ERROR_PATH_NOT_FOUND:
+	    case ERROR_BAD_PATHNAME:
+		_set_errno(ENOENT);
+		break;
+	    case ERROR_ACCESS_DENIED:
+	    case ERROR_LOCK_VIOLATION:
+	    case ERROR_NETWORK_ACCESS_DENIED:
+	    case ERROR_DRIVE_LOCKED:
+	    case ERROR_SEEK_ON_DEVICE:
+		_set_errno(EACCES);
+		break;
+	    default:
+		_set_errno(EINVAL);
+		break;
+	}
+    } else {
+	/* Now return a standard file descriptor */
+	h = _open_osfhandle((intptr_t)handleWin, O_RDONLY | O_BINARY);
+    }
+#else
     int h = open(basename.c_str(), O_RDONLY | O_BINARY);
+#endif
+
     if (h == -1) {
 	err_msg += "Couldn't open " + basename + ": " + strerror(errno) + "\n";
 	return false;
@@ -321,7 +362,47 @@ FlintTable_base::write_to_file(const string &filename)
     buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
     buf += pack_uint(revision);  // REVISION2
 
+#ifdef _MSC_VER
+    /* open file using Windows API, as we may need to delete it while it is
+     * still open - FILE_SHARE_DELETE allows this */
+    int h = -1;
+    HANDLE handleWin =
+	CreateFile(filename.c_str(),
+		GENERIC_WRITE,
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL);
+    if (handleWin == INVALID_HANDLE_VALUE) {
+	switch (GetLastError()) {
+	    /* TODO : Incomplete list of possible error codes */
+	    case ERROR_ALREADY_EXISTS:
+		_set_errno(EEXIST);
+		break;
+	    case ERROR_FILE_NOT_FOUND:
+	    case ERROR_PATH_NOT_FOUND:
+	    case ERROR_BAD_PATHNAME:
+		_set_errno(ENOENT);
+		break;
+	    case ERROR_ACCESS_DENIED:
+	    case ERROR_LOCK_VIOLATION:
+	    case ERROR_NETWORK_ACCESS_DENIED:
+	    case ERROR_DRIVE_LOCKED:
+	    case ERROR_SEEK_ON_DEVICE:
+		_set_errno(EACCES);
+		break;
+	    default:
+		_set_errno(EINVAL);
+		break;
+	}
+    } else {
+	/* Now return a standard file descriptor */
+	h = _open_osfhandle((intptr_t)handleWin, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
+    }
+#else
     int h = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
+#endif
     if (h < 0) {
 	string message = string("Couldn't open base ")
 		+ filename + " to write: " + strerror(errno);
