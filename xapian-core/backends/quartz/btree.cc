@@ -1359,7 +1359,6 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	}
 
 	// FIXME: assumption that there are only two bases
-	if (base_ok[0] && base_ok[1]) both_bases = true;
 	if (!base_ok[0] && !base_ok[1]) {
 	    string message = "Error opening table `";
 	    message += name;
@@ -1367,6 +1366,7 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	    message += err_msg;
 	    throw Xapian::DatabaseOpeningError(message);
 	}
+	both_bases = (base_ok[0] && base_ok[1]);
 
 	if (revision_supplied) {
 	    bool found_revision = false;
