@@ -1,3 +1,8 @@
+Tue Feb 20 10:37:54 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/steminternal.cc: p is never NULL once the class is
+	  successfully constructed, so just use Assert() to confirm this.
+
 Tue Feb 20 10:29:25 GMT 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Fix compiler warnings.

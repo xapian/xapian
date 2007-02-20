@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2001, Dr Martin Porter
  * Copyright (c) 2004,2005, Richard Boulton
- * Copyright (c) 2006, Olly Betts
+ * Copyright (c) 2006,2007 Olly Betts
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,6 +55,7 @@
 
 #include <xapian/error.h>
 
+#include "omassert.h"
 #include "steminternal.h"
 
 #if 0
@@ -136,9 +137,8 @@ static symbol * increase_size(symbol * p, int n) {
 namespace Xapian {
 
 Stem::Internal::Internal()
-    : p(NULL), c(0), l(0), lb(0), bra(0), ket(0)
+    : p(create_s()), c(0), l(0), lb(0), bra(0), ket(0)
 {
-    p = create_s();
 }
 
 Stem::Internal::~Internal()
@@ -153,6 +153,7 @@ Stem::Internal::operator()(const string & word)
     replace_s(0, l, word.size(), s);
     c = 0;
     if (stem() < 0) {
+	// FIXME: Is there a better choice of exception class?
 	throw Xapian::InternalError("stemming exception!");
     }
     return string(reinterpret_cast<const char *>(p), l);
@@ -359,10 +360,7 @@ Stem::Internal::replace_s(int c_bra, int c_ket, int s_size, const symbol * s)
 {
     int adjustment;
     int len;
-    // FIXME : do we need this?
-    if (p == NULL) {
-        p = create_s();
-    }
+    Assert(p);
     adjustment = s_size - (c_ket - c_bra);
     len = SIZE(p);
     if (adjustment != 0) {
@@ -385,7 +383,8 @@ Stem::Internal::replace_s(int c_bra, int c_ket, int s_size, const symbol * s)
 }
 
 int Stem::Internal::slice_check() {
-    if (bra < 0 || bra > ket || ket > l || p == NULL) {
+    Assert(p);
+    if (bra < 0 || bra > ket || ket > l) {
 #if 0
         fprintf(stderr, "faulty slice operation:\n");
         debug(z, -1, 0);
