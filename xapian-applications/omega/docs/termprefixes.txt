@@ -61,8 +61,37 @@ a standard prefix, so you might allocated "XGENDER".  And then lowercase
 the field contents to avoid needing to always add a colon.  So documents
 will be indexed by one of XGENDERm, XGENDERf, or XGENDERx.
 
+If you're indexing using scriptindex, and have a field in the input file
+which can be "gender=M", etc, then your index script would have a rule
+such as:
+
+    gender : lowercase boolean=XGENDER
+
 You can then restrict a search in Omega by passing a B parameter with one
 of these as the value, e.g. B=XGENDERf
+
+In your HTML search form, you can allow the user to select this using a set of
+radio buttons:
+
+    Gender:<br>
+    <input type="radio" name="B" value=""> any<br>
+    <input type="radio" name="B" value="XGENDERf"> female<br>
+    <input type="radio" name="B" value="XGENDERm"> male<br>
+
+If you want to have multiple sets of radio buttons for selecting different
+boolean filters, you can make use of Omega's preprocessing of CGI parameter
+names by calling them "B 1", "B 2", etc (names are truncated at the first
+space - see cgiparams.txt for full details).
+
+You can also use a select tag:
+
+    Gender:
+    <select name="B">
+    <option value="">any</option>
+    <option value="XGENDERf">female</option>
+    <option value="XGENDERm">male</option>
+    <option value="XGENDERx">unknown</option>
+    </select>
 
 You can also allow the user to restrict a search with a boolean filter
 specified in text query (e.g. sex:f -> XGENDERf) by adding this to the
