@@ -133,10 +133,31 @@ static void wm(struct generator * g) {       /* margin */
 static void wc(struct generator * g, struct node * p) { /* comment */
 
     ws(g, " /* ");
-    ws(g, (char *) name_of_token(p->type));
-    unless (p->name == 0) {
-        ws(g, " ");
-        str_append_b(g->outbuf, p->name->b);
+    switch (p->type) {
+	case c_mathassign:
+	case c_plusassign:
+	case c_minusassign:
+	case c_multiplyassign:
+	case c_divideassign:
+        case c_eq:
+        case c_ne:
+        case c_gr:
+        case c_ge:
+        case c_ls:
+        case c_le:
+	    if (p->name) {
+		str_append_b(g->outbuf, p->name->b);
+		ws(g, " ");
+	    }
+	    ws(g, (char *) name_of_token(p->type));
+	    ws(g, " <integer expression>");
+	    break;
+	default:
+	    ws(g, (char *) name_of_token(p->type));
+	    if (p->name) {
+		ws(g, " ");
+		str_append_b(g->outbuf, p->name->b);
+	    }
     }
     ws(g, ", line "); wi(g, p->line_number); ws(g, " */");
     wnl(g);
@@ -608,8 +629,7 @@ static void generate_GO_grouping(struct generator * g, struct node * p, int is_g
     if (is_goto) {
 	wp(g, "~Mif (~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1, 1) < 0) ~f /* goto */~C", p);
     } else {
-	wp(g, "~{ /* gopast */~C"
-	      "~Mint ret = ~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1, 1);~N"
+	wp(g, "~{int ret = ~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1, 1); /* gopast */~C"
 	      "~Mif (ret < 0) ~f~N", p);
 	if (p->mode == m_forward)
 	    w(g, "~M~zc += ret;~N");
@@ -747,14 +767,14 @@ static void generate_hop(struct generator * g, struct node * p) {
 	(g->options->make_lang == LANG_C ? "z->lb" : "lb");
     if (g->options->utf8) {
         w(g, "~{int ret = skip_utf8(~zp, ~zc, ~S1, ~zl, ~S0 ");
-        generate_AE(g, p->AE); w(g, ");~N");
+        generate_AE(g, p->AE); wp(g, ");~C", p);
         w(g, "~Mif (ret < 0) ~f~N");
     } else {
         w(g, "~{int ret = ~zc ~S0 ");
-        generate_AE(g, p->AE); w(g, ";~N");
+        generate_AE(g, p->AE); wp(g, ";~C", p);
         w(g, "~Mif (~S1 > ret || ret > ~zl) ~f~N");
     }
-    wp(g, "~M~zc = ret;~C"
+    wp(g, "~M~zc = ret;~N"
           "~}", p);
 }
 
@@ -939,14 +959,14 @@ static void generate_integer_assign(struct generator * g, struct node * p, char 
 
     g->V[0] = p->name;
     g->S[0] = s;
-    w(g, "~M~V0 ~S0 "); generate_AE(g, p->AE); w(g, ";~N");
+    w(g, "~M~V0 ~S0 "); generate_AE(g, p->AE); wp(g, ";~C", p);
 }
 
 static void generate_integer_test(struct generator * g, struct node * p, char * s) {
 
     g->V[0] = p->name;
     g->S[0] = s;
-    w(g, "~Mif (!(~V0 ~S0 "); generate_AE(g, p->AE); w(g, ")) ~f~N");
+    w(g, "~Mif (!(~V0 ~S0 "); generate_AE(g, p->AE); wp(g, ")) ~f~C", p);
 }
 
 static void generate_call(struct generator * g, struct node * p) {
@@ -966,7 +986,7 @@ static void generate_grouping(struct generator * g, struct node * p, int complem
     g->V[0] = p->name;
     g->I[0] = q->smallest_ch;
     g->I[1] = q->largest_ch;
-    w(g, "~Mif (~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1, 0)) ~f~N");
+    wp(g, "~Mif (~S1_grouping~S0~S2(~Z~V0, ~I0, ~I1, 0)) ~f~C", p);
 }
 
 static void generate_namedstring(struct generator * g, struct node * p) {
@@ -982,7 +1002,7 @@ static void generate_literalstring(struct generator * g, struct node * p) {
     g->I[0] = SIZE(b);
     g->L[0] = b;
 
-    w(g, "~Mif (!(eq_s~S0(~Z~I0, ~L0))) ~f~N");
+    wp(g, "~Mif (!(eq_s~S0(~Z~I0, ~L0))) ~f~C", p);
 }
 
 static void generate_define(struct generator * g, struct node * p) {
@@ -1019,6 +1039,7 @@ static void generate_substring(struct generator * g, struct node * p) {
     int n_cases = 0;
     symbol cases[2];
     int shortest_size = INT_MAX;
+    int shown_comment = 0;
 
     g->S[0] = p->mode == m_forward ? "" : "_b";
     g->I[0] = x->number;
@@ -1120,21 +1141,25 @@ static void generate_substring(struct generator * g, struct node * p) {
 	     * so not matching the bitmap means we match the empty string.
 	     */
 	    g->I[4] = among_cases[empty_case].result;
-	    wp(g, "among_var = ~I4; else~N", p);
+	    wp(g, "among_var = ~I4; else~C", p);
 	} else {
-	    wp(g, "~f~N", p);
+	    wp(g, "~f~C", p);
 	}
+	shown_comment = 1;
     } else {
 #ifdef OPTIMISATION_WARNINGS
 	printf("Couldn't shortcut among %d\n", x->number);
 #endif
     }
 
-    if (x->command_count == 0 && x->starter == 0)
-        wp(g, "~Mif (!(find_among~S0(~Za_~I0, ~I1))) ~f~C", p);
-    else
-        wp(g, "~Mamong_var = find_among~S0(~Za_~I0, ~I1);~C"
-              "~Mif (!(among_var)) ~f~N", p);
+    if (x->command_count == 0 && x->starter == 0) {
+        wp(g, "~Mif (!(find_among~S0(~Za_~I0, ~I1))) ~f", p);
+	wp(g, shown_comment ? "~N" : "~C", p);
+    } else {
+        wp(g, "~Mamong_var = find_among~S0(~Za_~I0, ~I1);", p);
+	wp(g, shown_comment ? "~N" : "~C", p);
+        wp(g, "~Mif (!(among_var)) ~f~N", p);
+    }
 }
 
 static void generate_among(struct generator * g, struct node * p) {
@@ -1147,10 +1172,11 @@ static void generate_among(struct generator * g, struct node * p) {
 
     unless (x->starter == 0) generate(g, x->starter);
 
+    wp(g, "~Mswitch(among_var) {~C~+"
+              "~Mcase 0: ~f~N", p);
+
     p = p->left;
     if (p != 0 && p->type != c_literalstring) p = p->right;
-    w(g, "~Mswitch(among_var) {~N~+"
-             "~Mcase 0: ~f~N");
 
     until (p == 0) {
          if (p->type == c_bra && p->left != 0) {
