@@ -257,14 +257,16 @@ struct generator {
     int next_label;
     int margin;
 
-    const char * failure_string;     /* String to output in case of a failure. */
-    struct str * failure_str;  /* This is used by the java generator instead of failure_string */
+    int failure_keep_count;    /* if > 0, keep_count to restore in case of a failure; if < 0, the negated keep_count for the limit to restore in case of failure. */
+#ifndef DISABLE_JAVA
+    struct str * failure_str;  /* This is used by the java generator. */
+#endif
 
     int label_used;     /* Keep track of whether the failure label is used. */
     int failure_label;
     int debug_count;
 
-    const char * S[10];        /* strings */
+    const char * S[10];  /* strings */
     symbol * B[10];      /* blocks */
     int I[10];           /* integers */
     struct name * V[5];  /* variables */
@@ -284,7 +286,9 @@ struct options {
     char * name;
     FILE * output_c;
     FILE * output_h;
+#ifndef DISABLE_JAVA
     FILE * output_java;
+#endif
     byte syntax_tree;
     byte widechars;
     enum { LANG_JAVA, LANG_C, LANG_CPLUSPLUS } make_lang;
@@ -303,9 +307,10 @@ extern void close_generator_c(struct generator * g);
 
 extern void generate_program_c(struct generator * g);
 
+#ifndef DISABLE_JAVA
 /* Generator for Java code. */
 extern struct generator * create_generator_java(struct analyser * a, struct options * o);
 extern void close_generator_java(struct generator * g);
 
 extern void generate_program_java(struct generator * g);
-
+#endif
