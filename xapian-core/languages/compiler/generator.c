@@ -573,19 +573,24 @@ static void generate_fail(struct generator * g, struct node * p) {
 /* generate_test() also implements 'reverse' */
 
 static void generate_test(struct generator * g, struct node * p) {
-    int keep_c = K_needed(g, p->left);
-    if (keep_c) {
-	w(g, p->mode == m_forward ? "~{int c_test = ~zc;" :
-				    "~{int m_test = ~zl - ~zc;");
+    int keep_c = 0;
+    if (K_needed(g, p->left)) {
+	keep_c = ++g->keep_count;
+	w(g, p->mode == m_forward ? "~{int c_test" :
+				    "~{int m_test");
+	wi(g, keep_c);
+	w(g, p->mode == m_forward ? " = ~zc;" :
+				    " = ~zl - ~zc;");
 	wp(g, "~C", p);
     } else wp(g, "~M~C", p);
 
     generate(g, p->left);
 
     if (keep_c) {
-	w(g, p->mode == m_forward ? "~M~zc = c_test;" :
-				    "~M~zc = ~zl - m_test;");
-	wp(g, "~N~}", p);
+	w(g, p->mode == m_forward ? "~M~zc = c_test" :
+				    "~M~zc = ~zl - m_test");
+	wi(g, keep_c);
+	wp(g, ";~N~}", p);
     }
 }
 
