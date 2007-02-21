@@ -7,7 +7,7 @@
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 73 };
+BEGIN { plan tests => 75 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -59,6 +59,9 @@ ok( $enq = $db->enquire( OP_OR, 'test', 'help' ), "in-line db queries return ok"
 my $matches;
 ok( $matches = $enq->get_mset( 0, 10 ), "match set returned ok" );
 is( $matches->get_matches_estimated(), 2, "match set contains correct number of results" );
+my $matches2;
+ok( $matches2 = $enq->get_mset( 0, 1, 3 ), "match set with check_at_least returned ok" );
+is( $matches2->get_matches_estimated(), 2, "match set contains correct number of results" );
 
 my $match;
 ok( $match = $matches->begin(), "match set iterator returned ok" );
