@@ -1,3 +1,8 @@
+Wed Feb 21 19:01:06 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/turkish.sbl: Make some simplifications to the code of the
+	  turkish stemmer.
+
 Wed Feb 21 19:00:11 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/Makefile.mk,languages/stem.cc,languages/turkish.sbl:

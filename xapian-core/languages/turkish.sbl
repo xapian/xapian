@@ -130,9 +130,9 @@ backwardmode (
 	// if the last consonant before suffix is not n then only delete the suffix
 	// assumption: slice beginning is set correctly
 	define mark_suffix_with_optional_n_consonant as (
-		((test 'n') next (test vowel))
+		('n' (test vowel))
 		or
-		((not(test 'n')) test(next (test vowel)))
+		((not(test 'n')) test(next vowel))
 
 	)
 	
@@ -141,9 +141,9 @@ backwardmode (
 	// if the last consonant before suffix is not s then only delete the suffix
 	// assumption: slice beginning is set correctly
 	define mark_suffix_with_optional_s_consonant as (
-		((test 's') next (test vowel))
+		('s' (test vowel))
 		or
-		((not(test 's')) test(next (test vowel)))
+		((not(test 's')) test(next vowel))
 	)
 	
 	// if the last consonant before suffix is vowel and y then advance and delete
@@ -151,15 +151,15 @@ backwardmode (
 	// if the last consonant before suffix is not y then only delete the suffix
 	// assumption: slice beginning is set correctly
 	define mark_suffix_with_optional_y_consonant as (
-		((test 'y') next (test vowel))
+		('y' (test vowel))
 		or
-		((not(test 'y')) test(next (test vowel)))
+		((not(test 'y')) test(next vowel))
 	)
 	
 	define mark_suffix_with_optional_U_vowel as (
-		((test U) next (test non-vowel))
+		(U (test non-vowel))
 		or
-		((not(test U)) test(next (test non-vowel)))
+		((not(test U)) test(next non-vowel))
 
 	)
 	
