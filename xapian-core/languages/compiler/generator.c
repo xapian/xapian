@@ -208,15 +208,6 @@ static void wrestorelimit(struct generator * g, struct node * p, int keep_token)
     wi(g, keep_token); ws(g, ";");
 }
 
-static void wrestorelimit(struct generator * g, struct node * p, int keep_token) {     /* restore limit c */
-    if (p->mode == m_forward) {
-	w(g, "~zl += mlimit");
-    } else {
-	w(g, "~zlb = mlimit");
-    }
-    wi(g, keep_token); ws(g, ";");
-}
-
 static void winc(struct generator * g, struct node * p) {     /* increment c */
     w(g, p->mode == m_forward ? "~zc++;" :
                                 "~zc--;");

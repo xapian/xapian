@@ -1,3 +1,8 @@
+Wed Feb 21 18:07:50 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c: Remove duplicate copy of function
+	  resulting from ham-fisted reverting and applying of patches.
+
 Wed Feb 21 18:03:12 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c,languages/compiler/header.h: Number
