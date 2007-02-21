@@ -42,7 +42,7 @@ class PerlStopper : public Stopper {
 	    SPAGAIN ;
 
 	    if (count != 1)
-		croak("Perl callback badness in PerlStopper::operator()\n");
+		croak("callback function should return 1 value, got %d", count);
 
 	    // Breaks with SvTRUE(POPs) ?!?!?!
 	    bool r = SvTRUE(SP[0]);
@@ -59,6 +59,54 @@ class PerlStopper : public Stopper {
 	SV * SV_stopper_ref;
 };
 
+class perlMatchDecider : public Xapian::MatchDecider {
+    private:
+	SV *callback;
+    public:
+	perlMatchDecider(SV *func) {
+	    callback = newSVsv(func);
+	}
+
+	~perlMatchDecider() {
+	    SvREFCNT_dec(callback);
+	}
+
+	int operator()(const Xapian::Document &doc) const {
+	    dSP;
+	    Document *pdoc;
+
+	    ENTER;
+	    SAVETMPS;
+
+	    PUSHMARK(SP);
+
+	    pdoc = new Document();
+	    *pdoc = doc;
+
+	    SV *arg;
+	    arg = sv_newmortal();
+	    sv_setref_pv(arg, "Search::Xapian::Document", (void *)pdoc);
+	    XPUSHs(arg);
+
+	    PUTBACK;
+
+	    int count = call_sv(callback, G_SCALAR);
+
+	    SPAGAIN;
+	    if (count != 1)
+		croak("callback function should return 1 value, got %d", count);
+
+	    SV *decide_result = POPs;
+	    int decide_actual_result = SvIV(decide_result);
+
+	    PUTBACK;
+
+	    FREETMPS;
+	    LEAVE;
+
+	    return decide_actual_result;
+	}
+};
 
 MODULE = Search::Xapian		PACKAGE = Search::Xapian
 

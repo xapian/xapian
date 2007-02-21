@@ -44,9 +44,13 @@ sub set_query {
 }
 
 sub matches {
-  my ($self, $start, $size) = @_;
+  my ($self, $start, $size, $check_at_least) = @_;
   my @array;
-  tie( @array, 'Search::Xapian::MSet::Tied', $self->get_mset($start, $size) );
+  if (scalar(@_) == 3) {
+    tie( @array, 'Search::Xapian::MSet::Tied', $self->get_mset($start, $size) );
+  } else {
+    tie( @array, 'Search::Xapian::MSet::Tied', $self->get_mset($start, $size, $check_at_least) );
+  }
   return @array;
 }
 
@@ -105,10 +109,11 @@ constructor, together with any other passed arguments.
 
 =item get_query
 
-=item matches <start> <size>
+=item matches <start> <size> [<check_at_least>]
 
-Takes the start element, and maximum number of elements, and
-returns an array tied to L<Search::Xapian::MSet::Tied>. 
+Takes the start element, and maximum number of elements (and optionally
+the minimum number of matches to check), and returns an array tied to
+L<Search::Xapian::MSet::Tied>. 
 
 =item get_matching_terms_begin
 

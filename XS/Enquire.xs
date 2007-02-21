@@ -116,14 +116,31 @@ Enquire::set_bias(bias_weight, bias_halflife)
         THIS->set_bias(bias_weight, bias_halflife);
 
 MSet *
-Enquire::get_mset(first, maxitems)
+Enquire::get_mset(first, maxitems, checkatleast = NO_INIT)
+    doccount    first
+    doccount    maxitems
+    doccount    checkatleast
+    CODE:
+	RETVAL = new MSet();
+	if (items == 4) { /* items includes the hidden this pointer */
+	    *RETVAL = THIS->get_mset(first, maxitems, checkatleast);
+	} else {
+	    *RETVAL = THIS->get_mset(first, maxitems);
+	}
+    OUTPUT:
+	RETVAL
+
+MSet *
+Enquire::get_mset_decider(first, maxitems, SV *func)
     doccount    first
     doccount    maxitems
     CODE:
-        RETVAL = new MSet();
-        *RETVAL = THIS->get_mset(first, maxitems);
+	perlMatchDecider d = perlMatchDecider(func);
+
+	RETVAL = new MSet();
+	*RETVAL = THIS->get_mset(first, maxitems, 0, &d);
     OUTPUT:
-        RETVAL
+	RETVAL
 
 ESet *
 Enquire::get_eset(maxitems, rset)

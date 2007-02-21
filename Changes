@@ -1,5 +1,13 @@
 Revision history for Perl extension Search::Xapian.
 
+0.9.9.2  ??? Feb ?? ??:??:?? 2007
+	[Changes contributed by Rusty Conover]
+	- Wrap MatchDecider
+	- Wrap check_at_least parameter of Enquire::get_mset()
+	[Changes contributed by Olly Betts]
+	- Make check_at_least available via Enquire::matcher()
+	- Add test for check_at_least parameter of Enquire::get_mset()
+
 0.9.9.1  Mon Dec 11 06:08:57 2006
 	[Changes contributed by Olly Betts]
 	- Fix typo in BoolWeight documentation.
