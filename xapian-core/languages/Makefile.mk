@@ -26,7 +26,8 @@ snowball_algorithms =\
 	languages/romanian2.sbl\
 	languages/russian.sbl\
 	languages/spanish.sbl\
-	languages/swedish.sbl
+	languages/swedish.sbl\
+	languages/turkish.sbl
 
 # Disabled for now:
 #	languages/finnish.sbl
@@ -49,7 +50,8 @@ snowball_built_sources =\
 	languages/romanian2.cc		languages/romanian2.h\
 	languages/russian.cc		languages/russian.h\
 	languages/spanish.cc		languages/spanish.h\
-	languages/swedish.cc		languages/swedish.h
+	languages/swedish.cc		languages/swedish.h\
+	languages/turkish.cc		languages/turkish.h
 
 # Disabled for now:
 #	languages/finnish.cc		languages/finnish.h

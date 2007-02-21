@@ -161,6 +161,12 @@ Stem::Stem(const std::string &language) : internal(0) {
 		return;
 	    }
 	    break;
+	case 't':
+	    if (language == "tr" || language == "turkish") {
+		internal = new InternalStemTurkish;
+		return;
+	    }
+	    break;
     }
     throw Xapian::InvalidArgumentError("Language code " + language + " unknown");
 }

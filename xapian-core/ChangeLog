@@ -1,3 +1,8 @@
+Wed Feb 21 19:00:11 GMT 2007  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.mk,languages/stem.cc,languages/turkish.sbl:
+	  Add turkish stemmer.
+
 Wed Feb 21 18:55:03 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/compiler/generator.c: Number m_test and c_test variables
