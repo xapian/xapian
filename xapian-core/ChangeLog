@@ -1,3 +1,7 @@
+Thu Feb 22 09:04:30 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Ship generated RSTHTML files.
+
 Wed Feb 21 19:01:06 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/turkish.sbl: Make some simplifications to the code of the

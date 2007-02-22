@@ -22,7 +22,7 @@ RSTHTML = admin_notes.html
 EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
 	doxygen_full_header.html_tmpl doxygen_full_footer.html_tmpl \
-	$(RSTDOCS)
+	$(RSTDOCS) $(RSTHTML)
 
 # Build API docs with doxygen
 all-local: doxygen_api_docs $(RSTHTML)
