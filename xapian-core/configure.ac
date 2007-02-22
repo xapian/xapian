@@ -235,7 +235,7 @@ dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST(ldflags)
 
 WARNING_CXXFLAGS=
-AC_MSG_CHECKING([for $CXX option to enable ANSI C++ mode])
+AC_MSG_CHECKING([for $CXX options to enable ANSI C++ mode])
 if test yes = "$GXX"; then
   AC_MSG_RESULT([none required])
 else
@@ -272,8 +272,6 @@ else
       AC_TRY_COMPILE([], [], , ANSI_CXXFLAGS=) ;;
     CC|*/CC)
       dnl Could be Sun's, SGI's, or something else entirely.
-      dnl FIXME Don't know how to detect SGI's CC so just try the SGI flags if
-      dnl it's not Sun's CC.
       case `$CXX -V 2>&1` in
       *Sun\ C++*)
 	dnl Select ANSI conforming STL - for more information see:
@@ -284,11 +282,14 @@ else
 	dnl it unconditionally)
 	ANSI_CXXFLAGS="-library=stlport4 -features=tmplife" ;;
       *)
-	dnl Select ANSI mode for SGI's CC
-	ANSI_CXXFLAGS="-LANG:std"
-	dnl Check that the compiler recognises these flags to avoid problems
-	dnl with other compilers named CC.
-	AC_TRY_COMPILE([], [], , ANSI_CXXFLAGS=) ;;
+        case `$CXX -v 2>&1` in
+	MIPSpro*)
+	  dnl On stderr: MIPSpro Compilers: Version 7.4.2m
+	  dnl Select ANSI mode for SGI's CC with "-LANG:std".  Also, we have to
+	  dnl specify "-ptused" or we get strange template linking errors.
+	  ANSI_CXXFLAGS="-LANG:std -ptused" ;;
+	esac
+	;;
       esac
       ;;
   esac
