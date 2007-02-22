@@ -28,10 +28,12 @@ if ($? || -f "$xapian_config_dir/Makefile") {
     }
 
     # We can't pass a .la file in LIBS since MakeMaker "knows better" and
-    # ignores it.  Passing it in LDLOADLIBS generates a warning, but works.
-    print "Please ignore the warning that LDLOADLIBS is not a known parameter!\n";
-    $libsvar = 'LDLOADLIBS';
+    # ignores it.  Passing it in LDLOADLIBS works, but generates a warning.
+    # We can avoid the warning by setting LDLOADLIBS using 'macro'.
+    $libsvar = 'macro';
     $libs = `$xapian_config --ltlibs`;
+    chomp($libs);
+    $libs = {'LDLOADLIBS' => $libs};
     $LD = "$libtool --tag=CXX --mode=link $CC -avoid-version -module -no-install";
     $CC = "$libtool --mode=compile $CC";
 }
