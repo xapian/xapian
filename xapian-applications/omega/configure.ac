@@ -302,14 +302,6 @@ if test yes = "$GXX"; then
 	esac
       fi
     ])
-else
-  dnl With SGI's C++ compiler, we have to specify "-ptused" or we get strange
-  dnl template linking errors.
-  AC_TRY_COMPILE([],
-    [#ifndef _SGI_COMPILER_VERSION
-  choke me
-#endif],
-    [AM_CXXFLAGS="$AM_CXXFLAGS -ptused"])
 fi
 
 AC_SUBST(AM_CXXFLAGS)

@@ -1,3 +1,8 @@
+Thu Feb 22 15:45:25 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: xapian-config --cxxflags now includes -ptused for
+	  SGI's C++ compiler, so we don't need to probe for it here.
+
 Wed Feb 21 15:17:07 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/termprefixes.txt: Expand section on boolean prefixes, showing
