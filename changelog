@@ -1,3 +1,6 @@
+  * debian/po/de.po: Added newly translated debconf messages for de.
+    (Closes #412250).
+
 xapian-bindings (0.9.9-2) unstable; urgency=low
 
   * debian/rules: Fix how we determine the phpapi version to depend on.
