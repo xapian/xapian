@@ -1,3 +1,10 @@
+Sat Feb 24 19:35:41 GMT 2007  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc: If replace_document is used
+	  to set the docid of a newly added document which has previously
+	  existed, then we need to mark that document as valid (caught by
+	  existing test replacedoc4 in a debug build).
+
 Sat Feb 24 17:11:22 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: Add regression test consistency2 for bug#110
