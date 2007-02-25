@@ -1,7 +1,7 @@
 /** @file remotesubmatch.h
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,14 +43,17 @@ class RemoteSubMatch : public SubMatch {
     /// The NetworkStatsSource object handles statistics for the remote db.
     NetworkStatsSource stats_source;
 
-    /// Are we sorting by a value?
-    bool sorted;
+    /** Is the sort order such the relevance decreases down the MSet?
+     *
+     *  This is true for sort_by_relevance and sort_by_relevance_then_value.
+     */
+    bool decreasing_relevance;
 
   public:
     /// Constructor.
-    RemoteSubMatch(RemoteDatabase *db_, StatsGatherer *gatherer_, bool sorted_)
+    RemoteSubMatch(RemoteDatabase *db_, StatsGatherer *gatherer_, bool decreasing_relevance_)
 	: db(db_), gatherer(gatherer_), stats_source(gatherer_, db_),
-	  sorted(sorted_)
+	  decreasing_relevance(decreasing_relevance_)
     {
     }
 

@@ -1,7 +1,7 @@
 /** @file msetpostlist.cc
  *  @brief PostList returning entries from an MSet
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,13 +52,11 @@ MSetPostList::get_maxweight() const
     // value gets used to set max_possible in the combined MSet.
     if (cursor == -1) RETURN(mset_internal->max_possible);
 
-    // If we're not sorting on a value, the MSet will be sorted in descending
-    // weight order, so the maxweight we can return from now on is the weight
-    // of the current item.
-    if (!sorted) RETURN(mset_internal->items[cursor].did);
+    // If the MSet is sorted in descending weight order, then the maxweight we
+    // can return from now on is the weight of the current item.
+    if (decreasing_relevance) RETURN(mset_internal->items[cursor].did);
 
-    // If we're sorting on a value then max_attained is the best answer we can
-    // give.
+    // Otherwise max_attained is the best answer we can give.
     RETURN(mset_internal->max_attained);
 }
 
@@ -117,17 +115,16 @@ MSetPostList::next(Xapian::weight w_min)
     DEBUGCALL(MATCH, PostList *, "MSetPostList::next", w_min);
     Assert(cursor == -1 || !at_end());
     ++cursor;
-    if (!at_end()) {
-	if (sorted) {
-	    // Skip to the next entry with enough weight.
-	    while (!at_end() && mset_internal->items[cursor].wt < w_min)
-		++cursor;
-	} else {
-	    // MSet items are in decreasing weight order, so we can skip right
-	    // to the end if the current item doesn't have enough weight.
-	    if (!at_end() && mset_internal->items[cursor].wt < w_min)
-		cursor = mset_internal->items.size();
-	}
+    if (decreasing_relevance) {
+	// MSet items are in decreasing weight order, so if the current item
+	// doesn't have enough weight, none of the remaining items will, so
+	// skip straight to the end.
+	if (!at_end() && mset_internal->items[cursor].wt < w_min)
+	    cursor = mset_internal->items.size();
+    } else {
+	// Otherwise, skip to the next entry with enough weight.
+	while (!at_end() && mset_internal->items[cursor].wt < w_min)
+	    ++cursor;
     }
     RETURN(NULL);
 }

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  *
@@ -139,8 +139,11 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		rem_db->set_query(query, qlen, collapse_key, order, sort_key,
 				  sort_by, sort_value_forward, percent_cutoff,
 				  weight_cutoff, weight, *subrset);
+		bool decreasing_relevance =
+		    (sort_by == Xapian::Enquire::Internal::REL ||
+		     sort_by == Xapian::Enquire::Internal::REL_VAL);
 		smatch = new RemoteSubMatch(rem_db, gatherer.get(),
-					    sort_key != Xapian::valueno(-1));
+					    decreasing_relevance);
 	    } else {
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
 		smatch = new LocalSubMatch(subdb, query, qlen, *subrset, gatherer.get(), weight);

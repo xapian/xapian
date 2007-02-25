@@ -1,7 +1,7 @@
 /** @file remotesubmatch.cc
  *  @brief SubMatch class for a remote database.
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,5 +52,5 @@ RemoteSubMatch::get_postlist_and_term_info(MultiMatch *,
     Xapian::MSet mset;
     db->get_mset(mset);
     if (termfreqandwts) *termfreqandwts = mset.internal->termfreqandwts;
-    return new MSetPostList(mset, sorted);
+    return new MSetPostList(mset, decreasing_relevance);
 }
