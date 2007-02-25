@@ -1,5 +1,5 @@
-  * debian/po/de.po: Added newly translated debconf messages for de.
-    (Closes #412250).
+  * debian/po/: Added newly translated debconf messages for de, ru.
+    (Closes: #412250, #412274).
 
 xapian-bindings (0.9.9-2) unstable; urgency=low
 
