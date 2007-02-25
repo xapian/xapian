@@ -366,15 +366,15 @@ InMemoryDatabase::do_open_post_list(const string & tname) const
     if (tname.empty()) {
 	if (termlists.empty())
 	    return new EmptyPostList();
-	return new InMemoryAllDocsPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this));
+	Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
+	return new InMemoryAllDocsPostList(ptrtothis);
     }
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end() || i->second.term_freq == 0)
 	return new EmptyPostList();
 
-    LeafPostList * pl;
-    pl = new InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this),
-			      i->second);
+    Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
+    LeafPostList * pl = new InMemoryPostList(ptrtothis, i->second);
     Assert(!pl->at_end());
     return pl;
 }
