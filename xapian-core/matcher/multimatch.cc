@@ -61,6 +61,15 @@
 
 using namespace std;
 
+const Xapian::Enquire::Internal::sort_setting REL =
+	Xapian::Enquire::Internal::REL;
+const Xapian::Enquire::Internal::sort_setting REL_VAL =
+	Xapian::Enquire::Internal::REL_VAL;
+const Xapian::Enquire::Internal::sort_setting VAL =
+	Xapian::Enquire::Internal::VAL;
+const Xapian::Enquire::Internal::sort_setting VAL_REL =
+	Xapian::Enquire::Internal::VAL_REL;
+
 ////////////////////////////////////
 // Initialisation and cleaning up //
 ////////////////////////////////////
@@ -140,8 +149,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 				  sort_by, sort_value_forward, percent_cutoff,
 				  weight_cutoff, weight, *subrset);
 		bool decreasing_relevance =
-		    (sort_by == Xapian::Enquire::Internal::REL ||
-		     sort_by == Xapian::Enquire::Internal::REL_VAL);
+		    (sort_by == REL || sort_by == REL_VAL);
 		smatch = new RemoteSubMatch(rem_db, gatherer.get(),
 					    decreasing_relevance);
 	    } else {
@@ -420,7 +428,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
-	if (sort_key != Xapian::valueno(-1)) {
+	if (sort_by != REL) {
 	    const unsigned int multiplier = db.internal.size();
 	    Assert(multiplier != 0);
 	    Xapian::doccount n = (new_item.did - 1) % multiplier; // which actual database
@@ -431,7 +439,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 	// Test if item has high enough weight (or sort key) to get into
 	// proto-mset.
-	if (sort_key != Xapian::valueno(-1) || min_item.wt > 0.0)
+	if (sort_by != REL || min_item.wt > 0.0)
 	    if (!mcmp(new_item, min_item)) continue;
 
 	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
@@ -479,8 +487,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		} else {
 		    ++duplicates_found;
 		    Xapian::Internal::MSetItem &old_item = oldkey->second.first;
-		    // FIXME: what about sort_key != Xapian::valueno(-1) case
-		    // here?
+		    // FIXME: what about the (sort_by != REL) case here?
 		    if (mcmp(old_item, new_item)) {
 			DEBUGLINE(MATCH, "collapsem: better exists: " <<
 				  new_item.collapse_key);
@@ -498,7 +505,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 		    // This is best match with this key so far:
 		    // remove the old one from the MSet
-		    if ((sort_key == Xapian::valueno(-1) && min_item.wt <= 0.0) ||
+		    if ((sort_by != VAL && min_item.wt <= 0.0) ||
 			mcmp(old_item, min_item)) {
 			// Old one hasn't fallen out of MSet yet
 			// Scan through (unsorted) MSet looking for entry
@@ -543,7 +550,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
 			 MSetCmp>(items.begin(), items.end(), mcmp);
 		items.pop_back();
-		if (sort_key != Xapian::valueno(-1)) {
+		if (sort_by == REL || sort_by == REL_VAL) {
 		    Xapian::weight tmp = min_item.wt;
 		    min_item = items.front();
 		    min_item.wt = tmp;
@@ -557,7 +564,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    } else {
 		items.push_back(new_item);
 		is_heap = false;
-		if (sort_key == Xapian::valueno(-1) && items.size() == max_msize) {
+		if (sort_by == REL && items.size() == max_msize) {
 		    // We're done if this is a forward boolean match
 		    // (bodgetastic, FIXME better if we can)
 		    if (max_weight == 0 && sort_forward) break;

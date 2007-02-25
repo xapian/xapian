@@ -1,3 +1,9 @@
+Sun Feb 25 19:20:33 GMT 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix inconsistent ordering between pages with
+	  set_sort_by_value_then_relevance (fixes bug#110).
+	* tests/api_wrdb.cc: Enabled test consistency2.
+
 Sun Feb 25 17:28:09 GMT 2007  Olly Betts <olly@survex.com>
 
 	* matcher/: Also apply the "decreasing weights with remote database"

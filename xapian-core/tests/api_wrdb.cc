@@ -1143,7 +1143,6 @@ static bool test_longpositionlist1()
 // set_sort_by_value_then_relevance.
 bool test_consistency2()
 {
-    SKIP_TEST("Regression test for unfixed bug"); /* Test currently fails. */
     Xapian::WritableDatabase db = get_writable_database("");
     char buf[2] = "X";
     int i = 0;
