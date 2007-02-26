@@ -1,3 +1,10 @@
+Mon Feb 26 19:19:34 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/Makefile.am: touch apidoc/html/index.html after apidoc.pdf
+	  is created so that make doesn't attempt to regenerate it due to
+	  the dependency of apidoc/html/index.html on apidoc.pdf.
+	  Similarly for sourcedoc/html/index.html.
+
 Mon Feb 26 18:36:22 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc: Indent with tabs not spaces.

@@ -89,9 +89,12 @@ apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_api_conf
 	cd apidoc/latex && (pool_size=750000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
 	mv apidoc/latex/refman.pdf apidoc.pdf
+	touch apidoc/html/index.html
 
 # This dependency is required so that parallel make doesn't try to run latex
-# twice simultaneously.
+# twice simultaneously.  We touch apidoc/html/index.html after apidoc.pdf is
+# created so that make doesn't attempt to regenerate it due to the dependency
+# of index.html on apidoc.pdf
 apidoc/html/index.html: apidoc.pdf
 
 sourcedoc.pdf sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
@@ -102,9 +105,12 @@ sourcedoc.pdf sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_full_conf
 	cd sourcedoc/latex && (pool_size=2000000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
 	mv sourcedoc/latex/refman.pdf sourcedoc.pdf
+	touch sourcedoc/html/index.html
 
 # This dependency is required so that parallel make doesn't try to run latex
-# twice simultaneously.
+# twice simultaneously.  We touch sourcedoc/html/index.html after sourcedoc.pdf
+# is created so that make doesn't attempt to regenerate it due to the
+# dependency of index.html on sourcedoc.pdf
 sourcedoc/html/index.html: sourcedoc.pdf
 
 .rst.html:
