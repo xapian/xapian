@@ -1001,34 +1001,40 @@ static void test_emptyterm2_helper(Xapian::WritableDatabase & db)
 // equivalent of emptyterm1 for a writable database
 static bool test_emptyterm2()
 {
-    Xapian::WritableDatabase db(get_writable_database("apitest_manydocs"));
-    try {
-	(void)db.postlist_begin("");
-    } catch (const Xapian::UnimplementedError & e) {
-	SKIP_TEST("Database::postlist_begin not implemented");
+    {
+	Xapian::WritableDatabase db(get_writable_database("apitest_manydocs"));
+	try {
+	    (void)db.postlist_begin("");
+	} catch (const Xapian::UnimplementedError & e) {
+	    SKIP_TEST("Database::postlist_begin not implemented");
+	}
+	TEST_EQUAL(db.get_doccount(), 512);
+	test_emptyterm2_helper(db);
+	db.delete_document(1);
+	TEST_EQUAL(db.get_doccount(), 511);
+	test_emptyterm2_helper(db);
+	db.delete_document(50);
+	TEST_EQUAL(db.get_doccount(), 510);
+	test_emptyterm2_helper(db);
+	db.delete_document(512);
+	TEST_EQUAL(db.get_doccount(), 509);
+	test_emptyterm2_helper(db);
     }
-    TEST_EQUAL(db.get_doccount(), 512);
-    test_emptyterm2_helper(db);
-    db.delete_document(1);
-    TEST_EQUAL(db.get_doccount(), 511);
-    test_emptyterm2_helper(db);
-    db.delete_document(50);
-    TEST_EQUAL(db.get_doccount(), 510);
-    test_emptyterm2_helper(db);
-    db.delete_document(512);
-    TEST_EQUAL(db.get_doccount(), 509);
-    test_emptyterm2_helper(db);
 
-    db = get_writable_database("apitest_onedoc");
-    TEST_EQUAL(db.get_doccount(), 1);
-    test_emptyterm2_helper(db);
-    db.delete_document(1);
-    TEST_EQUAL(db.get_doccount(), 0);
-    test_emptyterm2_helper(db);
+    {
+	Xapian::WritableDatabase db(get_writable_database("apitest_onedoc"));
+	TEST_EQUAL(db.get_doccount(), 1);
+	test_emptyterm2_helper(db);
+	db.delete_document(1);
+	TEST_EQUAL(db.get_doccount(), 0);
+	test_emptyterm2_helper(db);
+    }
 
-    db = get_writable_database("");
-    TEST_EQUAL(db.get_doccount(), 0);
-    test_emptyterm2_helper(db);
+    {
+	Xapian::WritableDatabase db(get_writable_database(""));
+	TEST_EQUAL(db.get_doccount(), 0);
+	test_emptyterm2_helper(db);
+    }
 
     return true;
 }

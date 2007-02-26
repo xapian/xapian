@@ -1,3 +1,14 @@
+Mon Feb 26 19:23:50 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.c: test_emptyterm2 used to delete a writable
+	  database whilst the database was open.  Unfortunately, this
+	  doesn't work on windows (and it doesn't seem to be easy to make
+	  it work), so this patch changes the test to close each database
+	  before opening the next writable database at the same path.
+	  Fortunately, this seems to be the only test which behaves like
+	  this.  Also, added a note to the win32 README file to document
+	  this restriction.
+
 Mon Feb 26 19:19:34 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/Makefile.am: touch apidoc/html/index.html after apidoc.pdf
