@@ -43,6 +43,15 @@ Hence, the remote backend can't be compiled.)
 
 - Any other bindings
 
+- Warning: unlike Unix, windows does not usually allow open files to be
+  deleted.  This caused a serious problem with releases of Xapian on
+  Windows before version 0.9.10, potentially leading to database
+  corruption.  This is believed to be fixed in version 0.9.10, but there
+  remains a restriction that you must close databases before deleting the
+  folder (and the files in the folder) containing the database.  We do not
+  expect this restriction to be lifted in future releases - equally, we do
+  not expect it to cause serious problems.
+
 TODOS
 =====
 
