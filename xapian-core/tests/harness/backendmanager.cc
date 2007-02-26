@@ -78,7 +78,10 @@ BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
 		    " for indexing");
 
 	while (from) {
-	    database.add_document(document_from_stream(from));
+            Xapian::Document doc(document_from_stream(from));
+            if (doc.termlist_count() == 0)
+                break;
+            database.add_document(doc);
 	}
     }
 }

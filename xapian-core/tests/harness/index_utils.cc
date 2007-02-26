@@ -48,6 +48,7 @@ document_from_stream(istream &from)
 
     Xapian::Document doc;
     string para = get_paragraph(from);
+    if(para.size() == 0) return Xapian::Document();
     doc.set_data(para);
 
     // Value 0 contains all possible character values so we can check that
