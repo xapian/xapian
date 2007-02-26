@@ -1,3 +1,19 @@
+Mon Feb 26 16:05:07 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/quartz/btree_base.cc,backends/flint/flint_btreebase.cc:
+	  Fix for windows: string append method with a pointer and length
+	  causes a segfault-type error on windows if the pointer is NULL,
+	  even if the length is also 0.  Check for this case when appending
+	  the bitmap to the base block, since a NULL pointer is passed for
+	  an empty bitmap when a new database is being created.
+
+	  Also, initialise the bit_map0 and bitmap members to 0 in the
+	  FlintTable_base constructor which takes a string and a char
+	  argument - they had been omitted from this and were only being
+	  initialised by the constructor which takes no argument.  This
+	  didn't seem to be having any negative effect, but doing it makes
+	  the code neater.
+
 Sun Feb 25 23:21:11 GMT 2007  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.cc: Create the RefCntPtr to this
