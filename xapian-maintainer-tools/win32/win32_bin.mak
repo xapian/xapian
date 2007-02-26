@@ -50,10 +50,9 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I ".." /I "..\common" /I "..\testsuite" /I "..\include" /I"..\backends\quartz" /I"..\backends\flint" \
- /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /YX \
- /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP"
+CPP_PROJ=$(CPPFLAGS_EXTRA)  \
+ /I ".." /I "..\testsuite" /I"..\backends\quartz" /I"..\backends\flint" \
+ /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME)
 
 CPP_OBJS=..\win32\Release
 CPP_SBRS=.
@@ -76,8 +75,14 @@ LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib"  
 
-
+ 
 PROGRAM_DEPENDENCIES = 
+
+
+
+
+
+
 
 
 "$(OUTDIR)\quartzcheck.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZCHECK_OBJS) \

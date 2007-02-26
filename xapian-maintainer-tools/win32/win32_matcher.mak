@@ -45,7 +45,8 @@ LIBMATCHER_OBJS= \
                  $(INTDIR)\mergepostlist.obj \
                  $(INTDIR)\msetpostlist.obj \
 				 $(INTDIR)\msetcmp.obj \
-                 $(INTDIR)\emptysubmatch.obj                 
+                 $(INTDIR)\emptysubmatch.obj \
+                 $(INTDIR)\exactphrasepostlist.obj                 
                  
 
 CLEAN :
@@ -58,10 +59,10 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I ".." /I "..\include" /I"..\common" /I"..\languages" \
- /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /Fo"$(INTDIR)\\" \
- /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP"
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
+ /I"..\languages" \
+ /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ 
 CPP_OBJS=..\win32\Release
 CPP_SBRS=.
 
@@ -200,6 +201,11 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 <<
 
 "$(INTDIR)\emptysubmatch.obj" : ".\emptysubmatch.cc"
+       $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\exactphrasepostlist.obj" : ".\exactphrasepostlist.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<

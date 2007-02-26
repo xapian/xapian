@@ -8,8 +8,9 @@
 # omega.exe
 # omindex.exe
 
-XAPIAN_DIR=..\xapian-core-0.9.9
-
+# Where the core is, relative to the Omega application
+# Change this to match your environment
+XAPIAN_CORE_REL_OMEGA=..\..\xapian-core
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
@@ -17,7 +18,7 @@ NULL=
 NULL=nul
 !ENDIF 
 
-!INCLUDE $(XAPIAN_DIR)\win32\config.mak
+!INCLUDE $(XAPIAN_CORE_REL_OMEGA)\win32\config.mak
 
 
 CPP=cl.exe
@@ -26,12 +27,10 @@ RSC=rc.exe
 
 OUTDIR=.
 INTDIR=.
-OUTLIBDIR=$(XAPIAN_DIR)\win32\Release\libs
-OUTEXEDIR=$(XAPIAN_DIR)\win32\Release
+OUTLIBDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\Release\libs
+OUTEXEDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\Release
 
 PROGRAMS =   "$(OUTEXEDIR)\scriptindex.exe" "$(OUTEXEDIR)\omindex.exe" "$(OUTEXEDIR)\omega.exe" 
-
-#	copy $(XAPIAN_DIR)\win32\config.h.win32 ..\config.h 
 
 ALL : $(PROGRAMS)
 
@@ -88,11 +87,10 @@ CLEAN :
 #"$(OUTDIR)" :
 #    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I "." /I ".." /I "$(XAPIAN_DIR)" /I "$(XAPIAN_DIR)\common" /I "$(XAPIAN_DIR)\include" /I "$(XAPIAN_DIR)\win32" \
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
+ /I "." /I "$(XAPIAN_CORE_REL_OMEGA)" /I "$(XAPIAN_CORE_REL_OMEGA)\common" /I "$(XAPIAN_CORE_REL_OMEGA)\include" /I "$(XAPIAN_CORE_REL_OMEGA)\win32" \
  /DCONFIGFILE_SYSTEM=NULL \
- /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /YX \
- /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP"
+ /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME) 
 
 CPP_OBJS=..\win32\Release
 CPP_SBRS=.
@@ -141,7 +139,7 @@ PROGRAM_DEPENDENCIES =
   $(LINK32_FLAGS) /out:"$(OUTEXEDIR)\scriptindex.exe" $(DEF_FLAGS) $(SCRIPTINDEX_OBJS)
 <<
 
-"$(INTDIR)\dirent.obj" : "$(XAPIAN_DIR)\win32\dirent.c"
+"$(INTDIR)\dirent.obj" : "$(XAPIAN_CORE_REL_OMEGA)\win32\dirent.c"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<

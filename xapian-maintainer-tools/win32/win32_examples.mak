@@ -30,25 +30,33 @@ OUTDIR=..\win32\Release\
 
 INTDIR=.\
 
-PROGRAMS = "$(OUTDIR)\copydatabase.exe" "$(OUTDIR)\delve.exe" "$(OUTDIR)\quest.exe" \
-"$(OUTDIR)\simpleexpand.exe" "$(OUTDIR)\simpleindex.exe" "$(OUTDIR)\simplesearch.exe" 
+EXAMPLE_OBJS =  $(INTDIR)\delve.obj \
+		$(INTDIR)\quest.obj \
+		$(INTDIR)\simpleexpand.obj \
+		$(INTDIR)\simpleindex.obj \
+		$(INTDIR)\simplesearch.obj \
+		$(INTDIR)\copydatabase.obj
+
+PROGRAMS = "$(OUTDIR)\delve.exe" "$(OUTDIR)\quest.exe" \
+"$(OUTDIR)\simpleexpand.exe" "$(OUTDIR)\simpleindex.exe" "$(OUTDIR)\simplesearch.exe" "$(OUTDIR)\copydatabase.exe" 
 
 ALL : $(PROGRAMS)
 
 CLEAN :
 	-@erase $(PROGRAMS)
+	-@erase $(EXAMPLE_OBJS)
 
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I ".." /I "..\common" /I "..\include" \
- /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /YX \
- /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP"
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
+ /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME)
 
 CPP_OBJS=..\win32\Release
 CPP_SBRS=.
+
+
 
 LINK32=link.exe
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\

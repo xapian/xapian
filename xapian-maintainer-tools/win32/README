@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-8.5.2006
+22.2.2007
 
 Make files, some extra headers and associated tools for compiling Xapian on Win32 using
 the Microsoft Visual C++ compilers. This is particularly useful if you're using the 
@@ -62,12 +62,17 @@ xapian\xapian-core-0.x.y
 xapian\xapian-bindings-0.x.y
 xapian\omega-0.x.y
 
-where x and y are revision numbers. 
+where x and y are revision numbers. If you are building from SVN-HEAD, you will have a slightly different structure:
+
+xapian\xapian-core
+xapian\xapian-bindings
+xapian\xapian-applications
+
 
 2. Download win32.zip for the appropriate Xapian release from Lemur Consulting and place in xapian\xapian-core-0.x.y . 
 3. Install your favourite unZIP tool (e.g. from http://www.7-zip.org/). 
 4. Extract the files to the win32/ folder (usually, right click on the ZIP file and select Extract Here). 
-5. IMPORTANT - Run putmakfiles.bat to make sure the various individual mak files end up in the right folders. 
+5. IMPORTANT - Edit config.mak to make sure the various individual mak files end up in the right folders. You will also need to edit the  win32_applications_omega.mak and win32_bindings_python.mak files, and the .mak files for any other bindings. Note that all the .mak files in the win32/ folder are automatically copied to the correct places at the beginning of the build process
 
 
 What do I need to compile it?
@@ -86,11 +91,12 @@ You will need:
   OR...
   
 - You can also compile with 
-Visual C++ Toolkit 2003 available free from:
-http://msdn.microsoft.com/visualc/vctoolkit2003/
+Visual C++ Express Edition available free from:
+http://msdn.microsoft.com/vstudio/express/visualc/default.aspx 
+
 In this case you'll also need the Platforms SDK:
 http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
-which contains headers, libs and NMAKE.
+which contains headers, libs and NMAKE. Make sure once you have installed this that you create LIB and INCLUDE environment variables to point to the appropriate Platform SDK folders.
 
 - SWIG can be useful for recompiling the bindings, but this is done by the Xapian
 core maintainers, so you shouldn't need to do this.

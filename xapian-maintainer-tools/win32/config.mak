@@ -14,23 +14,47 @@
 # uncomment to enable Python
 SWIG_PYTHON=yes
 
+# Python folder
+PYTHON_DIR=c:\Program Files\Python24
+# Python executable
+PYTHON_EXE=$(PYTHON_DIR)\python.exe 
 #PYTHON_INCLUDE : Set this to the directory that contains python.h
-PYTHON_INCLUDE=f:\python24\include
-
+PYTHON_INCLUDE=$(PYTHON_DIR)\include
 # PYTHON_LIB : Set this to the python library including path for linking with
-PYTHON_LIB=f:\python24\libs\python24.lib
-
+PYTHON_LIB=$(PYTHON_DIR)\libs\python24.lib
 # Modern or olde: Define exactly the one you want and leave the other one 
 # uncommented out
 PYTHON_MODERN_OR_OLDE = modern
 #PYTHON_MODERN_OR_OLDE = olde
 
+# Swig executable
+SWIG=\tools\swigwin-1.3.28\swig.exe
 
 # ----------------------------------------------
 # Xapian build definitions
 # ----------------------------------------------
 
+# EDIT THESE to match where your applications and bindings are, if you are compiling them
+# Also edit:
+# win32_applications_omega.mak
+# win32_bindings_python.mak
+# and any other bindings mak files
+XAPIAN_APPLICATIONS=..\xapian-applications
+XAPIAN_BINDINGS=..\xapian-bindings
 
-CPPFLAGS_EXTRA=/I..\include /I..\common
-LIBFLAGS=
+# We build with the following compiler options:
+# /W3 Set warning level to 3
+# /O2 Optimisations:Maximise speed
+# /EHc extern "C" defaults to nothrow
+# /EHs enable C++ EH (no SEH exceptions)
+# /c compile, don't link
+# /MT Link multithreaded static
+CPPFLAGS_EXTRA=/I.. /I..\include /I..\common /W3 /EHsc /O2 /MT /c \
+/D "NDEBUG" /D "WIN32" /D "__WIN32__" /D "_WINDOWS" \
+/D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /D "_USE_32BIT_TIME_T" \
+/D_CRT_SECURE_NO_DEPRECATE
+
+
+LIBFLAGS_EXTRA=
+LINKFLAGS_EXTRA=
 

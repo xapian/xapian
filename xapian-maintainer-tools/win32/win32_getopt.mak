@@ -32,10 +32,11 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I ".." /I "..\include" /D "NDEBUG" /D\
- "WIN32" /D "_WINDOWS" /Fo"$(INTDIR)\\" \
- /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /Tp$(INPUTNAME)
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
+ /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ 
+
+ 
 CPP_OBJS=..\win32\Release
 CPP_SBRS=.
 

@@ -5,6 +5,11 @@
 /* Disable some pointless warnings */
 #ifdef _MSC_VER
 #pragma warning(disable:4800)
+/* in VC Express edition Dec06 this is upgraded to an error */
+#pragma warning(disable:4716)
+/* in VC Express edition Dec06 this shows lots of deprecation messages */
+#pragma warning(disable:4996)
+ 
 #endif
 
 /* Define if ftime returns void */
@@ -132,7 +137,7 @@
 #define XAPIAN_BUILD_BACKEND_QUARTZ 1
 
 /* Define if you want to build the remote database backend */
-#undef XAPIAN_BUILD_BACKEND_REMOTE 
+#define XAPIAN_BUILD_BACKEND_REMOTE 1
 
 /* Define if you want debugging to be enabled (will cause some slow down) */
 /* #undef XAPIAN_DEBUG */

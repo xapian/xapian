@@ -26,7 +26,9 @@ ALL :  "$(INTDIR)\lemon.exe" "$(OUTDIR)\libqueryparser.lib"
 
 LIBQUERYPARSER_OBJS= \
                 $(INTDIR)\queryparser.obj \
-                $(INTDIR)\queryparser_internal.obj
+                $(INTDIR)\queryparser_internal.obj \
+		$(INTDIR)\utf8itor.obj \
+		$(INTDIR)\tclUniData.obj
 
 
 CLEAN :
@@ -36,15 +38,19 @@ CLEAN :
 	-@erase $(LIBQUERYPARSER_OBJS)
 	-@erase queryparser_internal.cc
 	-@erase lemon.exe
+	-@erase lemon.obj
 
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I".." /I"..\include" /I"..\api" /I"..\common" /I"..\languages" \
- /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /Fo"$(INTDIR)\\" \
- /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /Tp$(INPUTNAME)
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
+ /I"..\api" /I"..\languages" \
+ /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ 
+CPP_PROJ_LEMON=$(CPPFLAGS_EXTRA) \
+ /Fo"$(INTDIR)\\" /Tc$(INPUTNAME)
+
 CPP_OBJS=..\win32\Release
 CPP_SBRS=.
 
@@ -69,9 +75,21 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 "$(INTDIR)\lemon.obj" : ".\lemon.c"
     $(CPP) ".\lemon.c" @<<
+  $(CPP_PROJ_LEMON) $**
 <<
 
 "$(INTDIR)\queryparser.obj" : ".\queryparser.cc"
+    $(CPP) @<<
+  $(CPP_PROJ) $**
+<<
+
+
+"$(INTDIR)\utf8itor.obj" : ".\utf8itor.cc"
+    $(CPP) @<<
+  $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\tclUniData.obj" : ".\tclUniData.cc"
     $(CPP) @<<
   $(CPP_PROJ) $**
 <<

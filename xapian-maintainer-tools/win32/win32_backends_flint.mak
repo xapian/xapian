@@ -34,6 +34,7 @@ LIBFLINT_OBJS= \
                $(INTDIR)\flint_values.obj \
                $(INTDIR)\flint_document.obj \
                $(INTDIR)\flint_alltermslist.obj \
+			   $(INTDIR)\flint_alldocspostlist.obj \
                $(INTDIR)\flint_table.obj \
                $(INTDIR)\flint_cursor.obj \
                $(INTDIR)\flint_btreebase.obj \
@@ -54,10 +55,9 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
  /I "..\.." /I "..\..\include" /I"..\..\common" /I"..\..\languages" \
- /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /Fo"$(INTDIR)\\" \
- /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP"
+ /Fo"$(INTDIR)\\" 
 CPP_OBJS=..\..\win32\Release
 CPP_SBRS=.
 
@@ -83,6 +83,11 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
    $(CPP_PROJ) $**
 <<
 
+
+"$(INTDIR)\flint_alldocspostlist.obj" : "flint_alldocspostlist.cc"
+       $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
 
 "$(INTDIR)\flint_postlist.obj" : "flint_postlist.cc"
        $(CPP) @<<
