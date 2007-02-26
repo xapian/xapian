@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-22.2.2007
+2007-02-26
 
 Make files, some extra headers and associated tools for compiling Xapian on Win32 using
 the Microsoft Visual C++ compilers. This is particularly useful if you're using the 
@@ -28,7 +28,7 @@ What works?
 - The quartz binaries quartzcheck, quartzcompact, quartzdump
 - The xapian-compact binary
 - The Xapian example binaries
-- The libtest.lib and libtreecheck libraries
+- The libtest.lib and libbtreecheck libraries
 - The various tests that use the above, which are run as part of the makefile in tests/
 - Omega, Omindex and Scriptindex
 
@@ -36,7 +36,6 @@ What doesn't work?
 ==================
 
 - The following backends
-   - muscat 3.6
    - remote
 (libnet.lib can't be compiled under Microsoft's compiler, simply because there
 is way too much Unix in there for it to be ported easily to Win32. 
