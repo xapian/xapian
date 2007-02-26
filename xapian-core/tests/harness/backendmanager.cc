@@ -78,10 +78,10 @@ BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
 		    " for indexing");
 
 	while (from) {
-            Xapian::Document doc(document_from_stream(from));
-            if (doc.termlist_count() == 0)
-                break;
-            database.add_document(doc);
+	    Xapian::Document doc(document_from_stream(from));
+	    if (doc.termlist_count() == 0)
+		break;
+	    database.add_document(doc);
 	}
     }
 }
@@ -287,7 +287,7 @@ bool create_dir_if_needed(const string &dirname)
     if (result < 0) {
 	if (errno != ENOENT)
 	    throw Xapian::DatabaseOpeningError("Can't stat directory");
-        if (mkdir(dirname, 0700) < 0)
+	if (mkdir(dirname, 0700) < 0)
 	    throw Xapian::DatabaseOpeningError("Can't create directory");
 	return true; // Successfully created a directory.
     }
@@ -419,7 +419,7 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 #endif
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-        return Xapian::Remote::open("./runtest ../bin/xapian-progsrv", args);
+	return Xapian::Remote::open("./runtest ../bin/xapian-progsrv", args);
     }
 #endif
     return Xapian::Remote::open("../bin/xapian-progsrv", args);
@@ -443,7 +443,7 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
 #endif
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-        return Xapian::Remote::open_writable("./runtest ../bin/xapian-progsrv", args);
+	return Xapian::Remote::open_writable("./runtest ../bin/xapian-progsrv", args);
     }
 #endif
     return Xapian::Remote::open_writable("../bin/xapian-progsrv", args);
