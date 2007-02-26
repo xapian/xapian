@@ -1,3 +1,9 @@
+Mon Feb 26 20:18:51 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* stemming/: Use new snowball vocab lists and stemmed word lists -
+	  changes character set to UTF-8, and updates some of the stemmings
+	  to reflect changes in the snowball stemmers.
+
 Mon Oct 14 00:04:54 BST 2002  Olly Betts <olly@survex.com>
 
 	* stemming/: Use Snowball vocab lists instead of the old Xapian ones;

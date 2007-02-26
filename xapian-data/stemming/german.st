@@ -5712,7 +5712,7 @@ bzw
 ca
 cabaret
 cad
-café
+cafÃ©
 camelia
 canaill
 canaill
@@ -10263,7 +10263,7 @@ fragsucht
 fragt
 fragt
 fragt
-françois
+franÃ§ois
 frank
 frank
 frankfurt
@@ -20612,7 +20612,7 @@ nachstlieg
 nacht
 nachtarbeit
 nachtcaf
-nachtcafé
+nachtcafÃ©
 nachtclub
 nacht
 nachteil
@@ -22874,7 +22874,7 @@ redn
 redner
 redsel
 redt
-réduit
+rÃ©duit
 reduktion
 reduktion
 reed

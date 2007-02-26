@@ -1,6 +1,6 @@
 a
 a
-à
+Ã 
 aa
 aach
 aachener
@@ -869,11 +869,11 @@ addyl
 adel
 adelborst
 adel
-adèl
+adÃ¨l
 adel
 adeletj
-adèletj
-adèletjes
+adÃ¨letj
+adÃ¨letjes
 adelie
 adelien
 adelientj
@@ -912,7 +912,7 @@ administration
 admiral
 adolf
 adolfin
-adòlfin
+adÃ²lfin
 adopter
 adorp
 adotfin
@@ -1864,13 +1864,13 @@ allaert
 allah
 allang
 all
-àlle
+Ã lle
 allebei
 alledag
 allee
 allen
 allen
-allèen
+allÃ¨en
 allen
 allen
 alleenop
@@ -2113,7 +2113,7 @@ amover
 ampa
 ampas
 amper
-ampèr
+ampÃ¨r
 ampolex
 amro
 amstel
@@ -2419,7 +2419,7 @@ area
 areaal
 areas
 arebei
-arebèi
+arebÃ¨i
 arend
 argelos
 argentijn
@@ -3044,7 +3044,7 @@ barones
 baronn
 barrel
 barrett
-barrières
+barriÃ¨res
 bar
 bar
 barseback
@@ -3203,7 +3203,7 @@ bedekt
 bedelar
 bedelaarster
 bedenk
-bedènk
+bedÃ¨nk
 bedenk
 bedenk
 bedenk
@@ -3971,7 +3971,7 @@ bemoei
 bemoeid
 bemoeid
 bemoei
-bemòei
+bemÃ²ei
 bemoei
 bemoeilijk
 bemoeilijkt
@@ -3985,7 +3985,7 @@ bemonsteringsfout
 bemonsteringsmethod
 bemonsteringstechniek
 ben
-bèn
+bÃ¨n
 benaauwd
 benadeeld
 benadeeld
@@ -4218,18 +4218,18 @@ beroepszak
 beroepszak
 beroepsziekt
 beroerd
-beroèrd
+beroÃ¨rd
 beroerd
 beroerd
 beroerdst
-beroèrrd
+beroÃ¨rrd
 beroert
 berokken
 berouw
 berouwlos
 berten
 bertha
-bèrtha
+bÃ¨rtha
 berucht
 berust
 berust
@@ -4487,7 +4487,7 @@ bestuursrechtsprak
 bestuursvoorzitter
 bestuurszak
 beta
-bèta
+bÃ¨ta
 betal
 betal
 betal
@@ -4501,7 +4501,7 @@ betal
 betal
 betalingsbalan
 betalingsvoorwaard
-bètastral
+bÃ¨tastral
 betek
 betek
 beteken
@@ -5304,7 +5304,7 @@ blankt
 blankt
 blansch
 blar
-blâren
+blÃ¢ren
 blauw
 blauwd
 blauw
@@ -5600,7 +5600,7 @@ boenderbos
 boeng
 boenink
 boer
-boèr
+boÃ¨r
 boerderij
 boerderij
 boerdonk
@@ -6190,7 +6190,7 @@ breedvoer
 breedwerk
 brek
 breekt
-breèkt
+breÃ¨kt
 bret
 bregg
 breid
@@ -6597,7 +6597,7 @@ burgerfamilie
 burgerinitiativ
 burgerkled
 burger
-bùrgerlijk
+bÃ¹rgerlijk
 burger
 burger
 burgerluchtvaart
@@ -6794,8 +6794,8 @@ carpoolplat
 carpoolplek
 carr
 carree
-carrièr
-carrièremaker
+carriÃ¨r
+carriÃ¨remaker
 carrier
 carrosserie
 carrot
@@ -7049,7 +7049,7 @@ chiba
 chic
 chicago
 chick
-chiffonnières
+chiffonniÃ¨res
 chili
 chimie
 chimney
@@ -7609,7 +7609,7 @@ consolidation
 consortia
 consortium
 constanc
-cònstanc
+cÃ²nstanc
 constanc
 constand
 constan
@@ -7744,7 +7744,7 @@ controlekost
 controlelijst
 controlepunt
 controler
-contrôler
+contrÃ´ler
 controler
 controles
 controleschema
@@ -7840,10 +7840,10 @@ cost
 costa
 coster
 costumes
-côterie
-côterieen
-côterietj
-côtillon
+cÃ´terie
+cÃ´terieen
+cÃ´terietj
+cÃ´tillon
 cotran
 cotton
 coudoyer
@@ -7884,7 +7884,7 @@ creatinin
 creativ
 creativ
 creatur
-crèches
+crÃ¨ches
 creeert
 crer
 creil
@@ -7892,7 +7892,7 @@ crem
 crematie
 crematies
 crematorium
-crèm
+crÃ¨m
 creosot
 creosootolie
 cresson
@@ -7917,7 +7917,7 @@ crockett
 cromstrij
 cron
 crosfield
-croût
+croÃ»t
 crow
 crowcon
 crowding
@@ -7966,7 +7966,7 @@ cumulatiev
 cuneraweg
 cup
 cur
-curaçao
+curaÃ§ao
 curatel
 curatief
 cur
@@ -8184,7 +8184,7 @@ dassenpopulatie
 dassenproject
 dassentunnel
 dat
-dàt
+dÃ t
 data
 databank
 databank
@@ -8220,15 +8220,15 @@ dcs
 dd
 ddam
 dddam
-ddòl
-ddòll
+ddÃ²l
+ddÃ²ll
 ddouan
 ddr
 dds
 ddt
 de
-dè
-debâcles
+dÃ¨
+debÃ¢cles
 debat
 debatteerd
 debat
@@ -8336,7 +8336,7 @@ deftig
 deftiger
 degelijk
 degelijk
-dègelijk
+dÃ¨gelijk
 degelijk
 degelijk
 degelijker
@@ -8455,12 +8455,12 @@ denemark
 dengriza
 denitrificatie
 denk
-dènk
+dÃ¨nk
 denkbar
 denkbeeld
 denkelijk
 denk
-dènk
+dÃ¨nk
 denkend
 denkend
 denkensstilt
@@ -8468,7 +8468,7 @@ denkensvermoeid
 denker
 denksport
 denkt
-dènkt
+dÃ¨nkt
 denkwijz
 denn
 dennebom
@@ -8514,7 +8514,7 @@ derhalv
 derived
 derk
 dermat
-derrièr
+derriÃ¨r
 dertien
 dertiend
 dertienduiz
@@ -8524,7 +8524,7 @@ dertig
 dertigtal
 derving
 des
-dès
+dÃ¨s
 desalniettemin
 desastreus
 desastreuz
@@ -8695,7 +8695,7 @@ dicofol
 dictatorial
 didam
 die
-diè
+diÃ¨
 dief
 diefstal
 dieg
@@ -9040,7 +9040,7 @@ dodewaard
 doding
 doe
 doek
-doèk
+doÃ¨k
 doek
 doekenfilter
 doekenfilter
@@ -9077,7 +9077,7 @@ doemd
 doemdenk
 doem
 doen
-dòen
+dÃ²en
 doenbar
 doend
 doenerij
@@ -9101,7 +9101,7 @@ dokumentatiedienst
 dokweg
 dokwerker
 dol
-dòl
+dÃ²l
 dol
 dolf
 dolfijn
@@ -9391,7 +9391,7 @@ dorpsspitsjes
 dorpswinkel
 dorr
 dorst
-dòrst
+dÃ²rst
 dorst
 dorstig
 dorstig
@@ -10003,7 +10003,7 @@ dwingend
 dwingt
 dwl
 dwong
-dwòng
+dwÃ²ng
 dwong
 dww
 dyas
@@ -10174,9 +10174,9 @@ eemsmondgebied
 eemszijlvest
 een
 een
-èen
+Ã¨en
 een
-eèn
+eÃ¨n
 een
 eendag
 eendekros
@@ -10202,7 +10202,7 @@ eenmansbedien
 eenricht
 een
 een
-èen
+Ã¨en
 een
 eensgezind
 eensklap
@@ -10345,7 +10345,7 @@ egyptisch
 eh
 ehs
 ei
-èi
+Ã¨i
 eia
 eib
 eic
@@ -10374,7 +10374,7 @@ eigengemaakt
 eigengrondgebruik
 eigenhand
 eigen
-èigen
+Ã¨igen
 eigen
 eigen
 eigenlijkst
@@ -10619,7 +10619,7 @@ ellend
 ellendel
 ellendel
 ellend
-ellènd
+ellÃ¨nd
 ellend
 ellend
 ellend
@@ -10646,7 +10646,7 @@ emigrer
 emih
 emilie
 emilietj
-emiliètj
+emiliÃ¨tj
 emirat
 emissie
 emissiearm
@@ -10717,7 +10717,7 @@ emv
 emveka
 en
 en
-èn
+Ã¨n
 enbb
 encanailler
 enceb
@@ -10949,11 +10949,11 @@ enkhuiz
 enorm
 enorm
 enormiteit
-enquêt
-enquêtecommissie
-enquêteerd
-enquêtes
-enrôleerd
+enquÃªt
+enquÃªtecommissie
+enquÃªteerd
+enquÃªtes
+enrÃ´leerd
 ensched
 enschedes
 enserink
@@ -11060,7 +11060,7 @@ erfpachtbasis
 erfpachtcontract
 erfverhard
 erg
-èrg
+Ã¨rg
 erg
 ergen
 erger
@@ -11114,7 +11114,7 @@ erotisch
 erover
 erp
 erra
-èrrg
+Ã¨rrg
 ers
 erteg
 ertoe
@@ -11169,8 +11169,8 @@ estuarium
 esva
 et
 etag
-etagèr
-etagêr
+etagÃ¨r
+etagÃªr
 etalag
 etalag
 etb
@@ -11856,7 +11856,7 @@ flauwiteit
 flauwt
 flauwtes
 flauwtjes
-flèbbeld
+flÃ¨bbeld
 flebbel
 flec
 fleischmann
@@ -11902,7 +11902,7 @@ floers
 flonkerd
 flor
 floortj
-flòortj
+flÃ²ortj
 floortjes
 flot
 flor
@@ -12011,7 +12011,7 @@ forel
 forell
 forest
 forestal
-fôrest
+fÃ´rest
 forfait
 forfaitair
 forma
@@ -12751,7 +12751,7 @@ gedaagd
 gedaald
 gedan
 gedacht
-gedaçht
+gedaÃ§ht
 gedacht
 gedachtelos
 gedachtelos
@@ -12905,7 +12905,7 @@ gen
 geenerveerd
 geenerveerd
 geengageerd
-geenquêteerd
+geenquÃªteerd
 geent
 geent
 geenterd
@@ -12983,7 +12983,7 @@ geglimpt
 gegloeid
 gegoed
 gegolfd
-gegòlfd
+gegÃ²lfd
 gegolfd
 gegooid
 gegot
@@ -13115,7 +13115,7 @@ geitenhouderij
 gejaagd
 gejokt
 gek
-gèk
+gÃ¨k
 gekalmeerd
 gekamd
 gekanaliseerd
@@ -13143,7 +13143,7 @@ geklaagd
 gekled
 gekled
 geklemd
-geklê
+geklÃª
 geklet
 gekleurd
 gekleurd
@@ -13222,7 +13222,7 @@ gelat
 gelat
 gelaten
 geld
-gèld
+gÃ¨ld
 geldbedrag
 geldbeslommer
 geldbespar
@@ -13594,7 +13594,7 @@ genetisch
 genetisch
 geneurie
 geneutraliseerd
-genèv
+genÃ¨v
 genez
 genez
 genformeerd
@@ -13763,7 +13763,7 @@ gepulst
 gepyrolyseerd
 gequaterniseerd
 gequoteerd
-gèr
+gÃ¨r
 geraadpleegd
 geraakt
 geraakt
@@ -13869,7 +13869,7 @@ gerrk
 gerst
 gertr
 gertrud
-gertrùd
+gertrÃ¹d
 gerucht
 gerucht
 geruchtmak
@@ -13953,7 +13953,7 @@ geselecteerd
 gesel
 gesel
 gesell
-gesèll
+gesÃ¨ll
 gesellschaft
 gesel
 geshredderd
@@ -14424,7 +14424,7 @@ gezant
 gezeefd
 gezeefd
 gezegd
-gezègd
+gezÃ¨gd
 gezegd
 gezegeld
 gezegevierd
@@ -14509,10 +14509,10 @@ ghoed
 ghoedig
 gholamreza
 gholland
-ghollând
+ghollÃ¢nd
 gholland
 gholland
-ghôtel
+ghÃ´tel
 ghr
 ghrot
 ghuil
@@ -14769,7 +14769,7 @@ godsdienst
 godsnam
 godverdomm
 goed
-goèd
+goÃ¨d
 goedbedoeld
 goed
 goeder
@@ -15355,7 +15355,7 @@ grootmacht
 grootmama
 grootmarna
 grootmeesteres
-gròotmeesteres
+grÃ²otmeesteres
 grootmoeder
 grootouder
 grootpapa
@@ -15405,7 +15405,7 @@ grupp
 gruwel
 gruwelijk
 gruwelijk
-gruyèr
+gruyÃ¨r
 gs
 gt
 gti
@@ -15562,7 +15562,7 @@ halfgeleider
 halfheid
 halfjar
 halfjar
-halfjaarlÿk
+halfjaarlÃ¿k
 halfjaarresultat
 halflast
 halflicht
@@ -15882,7 +15882,7 @@ hdpe
 hdr
 he
 he
-hè
+hÃ¨
 head
 health
 heat
@@ -15890,9 +15890,9 @@ heathrow
 heating
 heavy
 heb
-hèb
+hÃ¨b
 hebb
-hèbb
+hÃ¨bb
 hebbend
 hebh
 hebreeuw
@@ -15919,9 +15919,9 @@ hedwigepolder
 heeft
 hel
 hel
-hèel
+hÃ¨el
 hel
-heèl
+heÃ¨l
 heelal
 heemkund
 heemraadschap
@@ -16078,7 +16078,7 @@ helsinki
 helvoirt
 helvoirt
 hem
-hèm
+hÃ¨m
 hemd
 hemd
 hemdenfabrikant
@@ -16097,9 +16097,9 @@ hemmetj
 hemmetjes
 hemweg
 hemzelf
-hèmzelf
+hÃ¨mzelf
 hen
-hèn
+hÃ¨n
 hendrik
 hendrik
 hendrix
@@ -16111,7 +16111,7 @@ henriet
 hensley
 henzelf
 her
-hèr
+hÃ¨r
 herademd
 heradem
 heradem
@@ -16324,7 +16324,7 @@ hessenenergie
 hessenwind
 hessing
 het
-hèt
+hÃ¨t
 het
 heteluchtballon
 het
@@ -16343,7 +16343,7 @@ heup
 heup
 heur
 heus
-hèus
+hÃ¨us
 heus
 heuvel
 heuvelrug
@@ -16419,7 +16419,7 @@ hinderbelev
 hinderd
 hinderd
 hinder
-hinderenquêt
+hinderenquÃªt
 hindergren
 hinder
 hindernis
@@ -16467,7 +16467,7 @@ hochtief
 hodgson
 hody
 hoe
-hoè
+hoÃ¨
 hoechst
 hoed
 hoedan
@@ -16509,12 +16509,12 @@ hoeverr
 hoewel
 hoezer
 hof
-hòf
+hÃ²f
 hofaristocratie
 hofbal
 hofbal
 hofcostumes
-hofcôterie
+hofcÃ´terie
 hoffelijk
 hoffelijk
 hofj
@@ -16566,7 +16566,7 @@ holland
 hollandsch
 holland
 holland
-hòlland
+hÃ²lland
 hollandst
 holl
 holl
@@ -16799,10 +16799,10 @@ hospital
 hospital
 hoss
 hot
-hôte
+hÃ´te
 hotel
-hôtel
-hôtelkamer
+hÃ´tel
+hÃ´telkamer
 hotel
 hotsend
 hotst
@@ -17058,7 +17058,7 @@ humusboekhoud
 humusgehalt
 humusverhal
 hun
-hùn
+hÃ¹n
 hunkemoller
 hunn
 hunn
@@ -17068,7 +17068,7 @@ hunzedal
 hur
 hurk
 hurkt
-hûs
+hÃ»s
 hur
 huurappartement
 huurcoup
@@ -17214,9 +17214,9 @@ iepziekt
 ierland
 ier
 iet
-ièt
+iÃ¨t
 iet
-ièt
+iÃ¨t
 ietsj
 ietwat
 if
@@ -18628,15 +18628,15 @@ jolig
 jon
 jones
 jong
-jòng
+jÃ²ng
 jongblauw
 jong
-jònge
+jÃ²nge
 jongeher
 jongelui
 jongemeisjesdrom
 jong
-jòngen
+jÃ²ngen
 jongen
 jongensgebar
 jongensgezicht
@@ -19342,7 +19342,7 @@ kga
 khambhat
 khz
 kibbel
-kibbèl
+kibbÃ¨l
 kibbeld
 kibbel
 kibbel
@@ -19591,7 +19591,7 @@ kleilag
 kleilag
 kleimineral
 klein
-klèin
+klÃ¨in
 kleinbedrijf
 kleinchemie
 kleindochter
@@ -20007,10 +20007,10 @@ komst
 komt
 kon
 kon
-kòn
+kÃ²n
 konakovo
 kond
-kònden
+kÃ²nden
 kondigd
 kondigd
 kondig
@@ -20021,7 +20021,7 @@ konijn
 koning
 koningin
 koningin
-kòningin
+kÃ²ningin
 koninginnegracht
 koningschap
 koningsgalerie
@@ -20152,7 +20152,7 @@ kord
 kordes
 korea
 koreaan
-korèk
+korÃ¨k
 kor
 korenromp
 korenslang
@@ -20544,7 +20544,7 @@ kund
 kundig
 kundig
 kunn
-kùnnen
+kÃ¹nnen
 kunnend
 kunst
 kunstband
@@ -20600,7 +20600,7 @@ kunstvoorwerp
 kunstwerk
 kunstwerk
 kunt
-kùnt
+kÃ¹nt
 kur
 kurk
 kurkeik
@@ -21328,7 +21328,7 @@ lekker
 lekkerder
 lekker
 lekkerkerk
-lèkkertjes
+lÃ¨kkertjes
 lekolie
 lekt
 lekt
@@ -21503,7 +21503,7 @@ levy
 leys
 leyt
 lez
-lèz
+lÃ¨z
 lezend
 lezend
 lezer
@@ -21629,7 +21629,7 @@ lieshout
 liesveld
 liet
 liet
-liètj
+liÃ¨tj
 lieu
 liev
 lievel
@@ -22189,7 +22189,7 @@ lutterad
 luttmer
 luvo
 luw
-lùwen
+lÃ¹wen
 luwt
 lux
 luxemburg
@@ -22377,7 +22377,7 @@ maissoort
 maisstro
 maisteelt
 maitres
-maîtres
+maÃ®tres
 maizena
 majak
 majesteit
@@ -22523,7 +22523,7 @@ marieantoinet
 mariendorf
 marien
 marietj
-mariètj
+mariÃ¨tj
 marietjes
 marijk
 marijniss
@@ -22805,7 +22805,7 @@ medium
 medvedev
 mee
 mee
-mèe
+mÃ¨e
 mee
 meebetal
 meebouw
@@ -23135,7 +23135,7 @@ menselijk
 menselijk
 menselijkst
 mens
-mèns
+mÃ¨ns
 mensenhar
 mensenkennis
 mensenlev
@@ -24063,7 +24063,7 @@ mini
 miniair
 minicontainer
 miniem
-minièr
+miniÃ¨r
 minimal
 minimal
 minimaliser
@@ -24118,7 +24118,7 @@ misdrag
 mis
 misener
 miserabel
-misèr
+misÃ¨r
 misev
 misgund
 mishag
@@ -24194,7 +24194,7 @@ mobiliteitsbeleid
 moby
 mocht
 mocht
-mòcht
+mÃ²cht
 mocht
 modal
 modal
@@ -24251,7 +24251,7 @@ moedelos
 moedelos
 moedeloz
 moeder
-moèder
+moÃ¨der
 moederbedrijf
 moederbedrijv
 moeder
@@ -24261,7 +24261,7 @@ moederlijkjes
 moeder
 moedermeisj
 moedermelk
-moedèrr
+moedÃ¨rr
 moeder
 moedertj
 moedertjes
@@ -24275,7 +24275,7 @@ moedwill
 moeheid
 moeiigjes
 moeilijk
-moèilijk
+moÃ¨ilijk
 moeilijk
 moeilijker
 moeilijk
@@ -24304,16 +24304,16 @@ moermansk
 moes
 moesj
 moest
-moèst
+moÃ¨st
 moest
 moest
-moèst
+moÃ¨st
 moet
-mòet
-moèt
+mÃ²et
+moÃ¨t
 moet
-mòet
-moèt
+mÃ²et
+moÃ¨t
 mof
 mogadishu
 mog
@@ -24674,7 +24674,7 @@ mzo
 n
 na
 na
-nà
+nÃ 
 naadloz
 naafhoogt
 naaid
@@ -25079,7 +25079,7 @@ nem
 neemt
 nen
 nen
-neènn
+neÃ¨nn
 ner
 neerbrokkeld
 neerbuig
@@ -25115,7 +25115,7 @@ neerkniel
 neerkom
 neerkomt
 neerland
-neêrland
+neÃªrland
 neerlegg
 neerreg
 neerslan
@@ -25309,14 +25309,14 @@ niendorf
 nier
 niet
 niet
-nièt
+niÃ¨t
 nietholland
 niethoud
 nietig
 nietig
 nietlev
 niet
-nièt
+niÃ¨t
 nietsbeteken
 nietszegg
 niettegenstaand
@@ -25448,7 +25448,7 @@ niveaus
 niveauschakelar
 niveausensor
 niveauverschil
-nivô
+nivÃ´
 nix
 nizhnevartovsk
 nizna
@@ -25496,7 +25496,7 @@ noemenswaard
 noemt
 nog
 nog
-nòg
+nÃ²g
 nogal
 nogepa
 nogh
@@ -25538,7 +25538,7 @@ noodzakelijkerwijs
 noodzak
 nooit
 nooit
-noòit
+noÃ²it
 nooit
 noopt
 noorbek
@@ -25689,7 +25689,7 @@ nta
 nts
 nu
 nu
-nù
+nÃ¹
 nuancer
 nuarimol
 nubl
@@ -25865,7 +25865,7 @@ oeververbind
 oezbek
 of
 of
-òf
+Ã²f
 ofelia
 off
 offensiev
@@ -25921,7 +25921,7 @@ okd
 oke
 oklahoma
 oko
-økologisk
+Ã¸kologisk
 oksel
 oktaangehalt
 oktober
@@ -26038,7 +26038,7 @@ ols
 olympisch
 om
 om
-òm
+Ã²m
 oma
 omarm
 ombouw
@@ -26771,7 +26771,7 @@ onmacht
 onmacht
 onmachtssfinx
 onmens
-onmèns
+onmÃ¨ns
 onmerk
 onmet
 onmet
@@ -26839,7 +26839,7 @@ onrust
 onrust
 onrustpolder
 ons
-òns
+Ã²ns
 onsamenhang
 onschad
 onschad
@@ -27330,7 +27330,7 @@ ony
 onzat
 onz
 onz
-ònze
+Ã²nze
 onzed
 onzed
 onzeg
@@ -27371,7 +27371,7 @@ ooit
 ooit
 ook
 ook
-òok
+Ã²ok
 ook
 ookal
 ookwel
@@ -27445,7 +27445,7 @@ ooykas
 ooypolder
 op
 op
-òp
+Ã²p
 opadem
 opak
 opal
@@ -28311,7 +28311,7 @@ oudpapier
 oudpapierbedrijf
 oudpapiermarkt
 oudst
-òudst
+Ã²udst
 oudst
 oudwoud
 ouest
@@ -28320,7 +28320,7 @@ out
 outplacement
 output
 ouw
-oùw
+oÃ¹w
 ouweher
 ouwelijk
 ouwelijk
@@ -28599,7 +28599,7 @@ overschrijd
 overschrijd
 overschrijd
 overschrijdt
-overschrÿdt
+overschrÃ¿dt
 overseas
 overslan
 overslaand
@@ -28998,7 +28998,7 @@ partner
 partnerbeur
 partner
 partnership
-parvenùacht
+parvenÃ¹acht
 parzer
 pas
 pas
@@ -29033,7 +29033,7 @@ past
 pastoral
 pastoral
 pastoraler
-pâte
+pÃ¢te
 patent
 patentaanvrag
 patent
@@ -29513,7 +29513,7 @@ plantaard
 plantag
 plantages
 plant
-planteavlforsøg
+planteavlforsÃ¸g
 plant
 plantengroei
 plantenkas
@@ -29906,7 +29906,7 @@ portegijs
 portemonnee
 portie
 portier
-portièr
+portiÃ¨r
 portillo
 portret
 portret
@@ -30050,7 +30050,7 @@ premie
 premiebetal
 premier
 premier
-premièr
+premiÃ¨r
 premier
 premies
 premiestelsel
@@ -30705,7 +30705,7 @@ pur
 pur
 purmer
 purper
-pùrper
+pÃ¹rper
 purperd
 purper
 purpos
@@ -30808,7 +30808,7 @@ rac
 races
 racket
 rad
-råd
+rÃ¥d
 radar
 radarreflexies
 radarsystem
@@ -30916,7 +30916,7 @@ ransel
 ransuil
 rantsoensamenstell
 ranz
-raoût
+raoÃ»t
 rap
 rap
 rapp
@@ -31042,7 +31042,7 @@ recetor
 recherch
 rechercheschol
 recht
-rècht
+rÃ¨cht
 rechtbank
 rechtbank
 rechtbankzit
@@ -31368,7 +31368,7 @@ reger
 reger
 regeringsbeleid
 regeringscoalitie
-regeringscôterie
+regeringscÃ´terie
 regeringsdelegaties
 regeringsfracties
 regeringsgebond
@@ -31801,7 +31801,7 @@ rheingold
 rhen
 rhinoceros
 rhizopus
-rhône
+rhÃ´ne
 rhon
 rhythm
 rhythmisch
@@ -32063,7 +32063,7 @@ river
 riverclear
 river
 rivier
-rivièra
+riviÃ¨ra
 rivierbed
 rivierbeher
 rivierbodem
@@ -32190,7 +32190,7 @@ roman
 romanschrijver
 rombout
 rom
-ròme
+rÃ²me
 romein
 romein
 romelt
@@ -32798,8 +32798,8 @@ scarabee
 scarborough
 scenario
 scenariobereken
-scèn
-scènes
+scÃ¨n
+scÃ¨nes
 scepsis
 scepticism
 scepticismetj
@@ -32959,7 +32959,7 @@ schei
 scheid
 scheid
 scheid
-schèid
+schÃ¨id
 scheider
 scheider
 scheiding
@@ -32992,7 +32992,7 @@ scheldt
 scheldwoord
 schel
 schel
-schèl
+schÃ¨l
 schell
 scheller
 schelletjes
@@ -33145,7 +33145,7 @@ schitterd
 schitterd
 schitter
 schitter
-schitterènd
+schitterÃ¨nd
 schitter
 schitterendst
 schitter
@@ -33214,7 +33214,7 @@ schoolmelkbeker
 schoolplein
 schoolvorm
 schon
-schòon
+schÃ²on
 schoonbagger
 schoonborstelt
 schoonbroer
@@ -33300,7 +33300,7 @@ schreid
 schrei
 schreijer
 schreit
-schrèit
+schrÃ¨it
 schrev
 schriftelijk
 schriftelijk
@@ -33475,10 +33475,10 @@ sedimentmonster
 seeder
 sed
 seg
-sèg
+sÃ¨g
 segar
 seger
-sègh
+sÃ¨gh
 segment
 segment
 seignet
@@ -33874,7 +33874,7 @@ slepend
 sleping
 sleping
 slet
-slèt
+slÃ¨t
 sleurd
 sleurmen
 sleutel
@@ -34073,7 +34073,7 @@ smeermiddel
 smeermiddel
 smeerolie
 smet
-smeèt
+smeÃ¨t
 smet
 smekel
 smek
@@ -35191,7 +35191,7 @@ stepp
 ster
 stereo
 sterf
-stèrf
+stÃ¨rf
 sterfbed
 sterfgevall
 sterft
@@ -35445,7 +35445,7 @@ stolling
 stolp
 stolwijk
 stom
-stòm
+stÃ²m
 stom
 stomm
 stommeld
@@ -37082,7 +37082,7 @@ toby
 toc
 toch
 toch
-tòch
+tÃ²ch
 tocht
 tochtdeur
 tochtdicht
@@ -37091,7 +37091,7 @@ tochtj
 tochtjes
 tocht
 toe
-toè
+toÃ¨
 toean
 toebehoord
 toebehor
@@ -37215,8 +37215,8 @@ toelicht
 toeliet
 toen
 toen
-tòen
-toèn
+tÃ²en
+toÃ¨n
 toenader
 toenam
 toenam
@@ -37613,7 +37613,7 @@ treinverker
 treinwagon
 treiter
 trek
-trèk
+trÃ¨k
 trekapparatur
 trek
 trekkend
@@ -37714,7 +37714,7 @@ troebel
 troebleerd
 troef
 troep
-troèp
+troÃ¨p
 troep
 troepj
 troev
@@ -39030,7 +39030,7 @@ veersystem
 veertien
 veertiend
 veertig
-veèrtig
+veÃ¨rtig
 veesoort
 veestall
 veestapel
@@ -39178,7 +39178,7 @@ venushar
 veoorzaakt
 vepakkingsregel
 ver
-vèr
+vÃ¨r
 veracht
 veracht
 veradem
@@ -39398,7 +39398,7 @@ verdel
 verdenk
 verdenkt
 verder
-vèrder
+vÃ¨rder
 verder
 verderf
 verdergaand
@@ -39428,7 +39428,7 @@ verdoen
 verdoet
 verdoezeld
 verdomd
-verdòmd
+verdÃ²md
 verdomd
 verdomd
 verdomm
@@ -39658,7 +39658,7 @@ vergoelijk
 vergoelijk
 vergoelijkt
 vergoelijkt
-vergoèlijkt
+vergoÃ¨lijkt
 vergrijz
 vergroen
 vergroen
@@ -39670,7 +39670,7 @@ vergruizer
 vergt
 verguld
 vergun
-vergùn
+vergÃ¹n
 vergund
 vergund
 vergunn
@@ -39729,7 +39729,7 @@ verheff
 verheij
 verhelderd
 verhelderd
-vèrhelderd
+vÃ¨rhelderd
 verhelderd
 verhelder
 verhelder
@@ -40883,7 +40883,7 @@ verwoest
 verwoest
 verwonderd
 verwonderd
-verwònderd
+verwÃ²nderd
 verwonderd
 verwonder
 verwonder
@@ -41103,7 +41103,7 @@ vietnam
 vietnames
 viev
 viez
-vièz
+viÃ¨z
 viezig
 vifka
 vigilant
@@ -41155,7 +41155,7 @@ viltstift
 vinamul
 vincent
 vincot
-vinçot
+vinÃ§ot
 vind
 vind
 vindend
@@ -41545,11 +41545,11 @@ voeg
 voegmassa
 voegt
 voel
-voèl
+voÃ¨l
 voelarm
 voelbar
 voeld
-voèld
+voÃ¨ld
 voeld
 voel
 voelend
@@ -41627,7 +41627,7 @@ vogt
 vogtlander
 voil
 vol
-vòl
+vÃ²l
 volautomatisch
 volautomatisch
 volbracht
@@ -41742,9 +41742,9 @@ voogdij
 voogt
 vor
 vor
-vòor
+vÃ²or
 vor
-voòr
+voÃ²r
 vor
 vooraanstaand
 vooraanstaand
@@ -42641,7 +42641,7 @@ wal
 walaansluit
 walburcht
 walcher
-wâldwei
+wÃ¢ldwei
 wales
 walgd
 walgelijk
@@ -43204,7 +43204,7 @@ weend
 weend
 wen
 wer
-weêr
+weÃªr
 weerbestend
 weercondities
 weerd
@@ -43462,13 +43462,13 @@ wekt
 wekt
 wekt
 wel
-wèl
+wÃ¨l
 welbehag
 welbehag
 welbehag
 welch
 welck
-wèlck
+wÃ¨lck
 welck
 welck
 welckj
@@ -43783,7 +43783,7 @@ wetboek
 wetbudep
 wet
 wet
-wetèn
+wetÃ¨n
 wetend
 wetend
 weten
@@ -44403,7 +44403,7 @@ woordwein
 word
 word
 word
-wòrden
+wÃ²rden
 wordend
 wordend
 wording
@@ -44465,7 +44465,7 @@ wrc
 wred
 wreder
 wred
-wrèed
+wrÃ¨ed
 wreedaard
 wreedheid
 wreedheid
@@ -44577,7 +44577,7 @@ zaait
 zak
 zaakgelastigd
 zal
-zaâl
+zaÃ¢l
 zaaltjes
 zaanstad
 zaanstrek
@@ -44735,7 +44735,7 @@ zeehav
 zeehaven
 zeehond
 zeehond
-zeehondencrèch
+zeehondencrÃ¨ch
 zeehondendeskund
 zeehondenjager
 zeehondenkolonie
@@ -44790,7 +44790,7 @@ zeezijd
 zeezoogdier
 zeg
 zeg
-zèg
+zÃ¨g
 zegbar
 zegel
 zeg
@@ -44798,7 +44798,7 @@ zegevierd
 zegevierd
 zegevier
 zegg
-zègg
+zÃ¨gg
 zeggend
 zeggend
 zeggenschap
@@ -44835,7 +44835,7 @@ zeld
 zeldzam
 zeldzam
 zelf
-zèlf
+zÃ¨lf
 zelfbedrijv
 zelfbedrog
 zelfbedwang
@@ -44989,7 +44989,7 @@ zicht
 zichzelf
 zichzelv
 zie
-ziè
+ziÃ¨
 zied
 ziedeld
 zied
@@ -45137,7 +45137,7 @@ zjores
 zmo
 zo
 zo
-zò
+zÃ²
 zoab
 zoabclean
 zoabreiniger
@@ -45285,7 +45285,7 @@ zonneceltechniek
 zonnecentrales
 zonnecollector
 zonnecollector
-zonnecrèm
+zonnecrÃ¨m
 zonnedag
 zonnedauw
 zonnedorp
@@ -45352,7 +45352,7 @@ zos
 zotteklap
 zou
 zoud
-zoùd
+zoÃ¹d
 zoudt
 zout
 zout
@@ -45476,7 +45476,7 @@ zulk
 zulk
 zulk
 zull
-zùllen
+zÃ¹llen
 zult
 zum
 zur
@@ -45493,7 +45493,7 @@ zuster
 zusterorganisatie
 zusterorganisaties
 zuster
-zùster
+zÃ¹ster
 zusterveren
 zusterziel
 zutph
