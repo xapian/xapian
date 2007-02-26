@@ -1,3 +1,7 @@
+Mon Feb 26 21:53:41 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/findheaders.pl: Remove long unused perl script.
+
 Mon Feb 26 19:23:50 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_wrdb.c: test_emptyterm2 used to delete a writable
