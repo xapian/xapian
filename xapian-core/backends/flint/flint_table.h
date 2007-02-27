@@ -484,8 +484,10 @@ class FlintTable {
     protected:
 
 	/** Perform the opening operation to read.
+	 *
+	 *  Return true iff the open succeeded.
 	 */
-	void do_open_to_read(bool revision_supplied, flint_revision_number_t revision_);
+	bool do_open_to_read(bool revision_supplied, flint_revision_number_t revision_);
 
 	/** Perform the opening operation to read.
 	 *

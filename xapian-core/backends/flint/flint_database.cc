@@ -254,11 +254,13 @@ FlintDatabase::open_tables_consistent()
 		// is inconsistent.
 		throw Xapian::DatabaseCorruptError("Cannot open tables at consistent revisions");
 	    }
+	    revision = newrevision;
 	}
     }
 
     if (!fully_opened) {
 	throw Xapian::DatabaseOpeningError("Cannot open tables at stable revision - changing too fast");
+	throw Xapian::DatabaseModifiedError("Cannot open tables at stable revision - changing too fast");
     }
 }
 
