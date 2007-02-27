@@ -1,3 +1,8 @@
+Tue Feb 27 12:45:00 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc: Fix how we start xapian-progsrv
+	  when running under valgrind.
+
 Tue Feb 27 11:34:22 GMT 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc: Remove the old throw for
