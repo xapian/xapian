@@ -50,8 +50,9 @@ static void show_usage() {
 "  -t <term> -r <recno>  for position list(s)\n"
 "  -s, --stemmer=LANG    set the stemming language, the default is 'none'\n"
 "  -1                    output one list entry per line\n"
-"  -k                    output values for each document referred to\n"
-"  -d                    output document data for each document\n"
+"  -V                    output values for each document referred to\n"
+"  -V<valueno>           output value valueno for each document in the database\n"
+"  -d                    output document data for each document referred to\n"
 "  -v                    extra info (wdf and len for postlist;\n"
 "                        wdf termfreq for termlist; number of terms for db)\n"
 "      --help            display this help and exit\n"
@@ -165,8 +166,11 @@ main(int argc, char **argv)
     vector<string> terms;
     vector<string> dbs;
 
+    valueno valno = 0; // Avoid "may be used uninitialised" warnings.
+    bool valno_set = false;
+
     int c;
-    while ((c = gnu_getopt(argc, argv, "r:t:s:1vkd")) != EOF) {
+    while ((c = gnu_getopt(argc, argv, "r:t:s:1vkV::d")) != EOF) {
 	switch (c) {
 	    case 'r':
 		recnos.push_back(atoi(optarg));
@@ -180,8 +184,12 @@ main(int argc, char **argv)
 	    case '1':
 		separator = '\n';
 		break;
-	    case 'k':
+	    case 'V': case 'k': /* -k for backward compatibility */
 		showvalues = true;
+		if (optarg) {
+		    valno = atoi(optarg);
+		    valno_set = true;
+		}
 		break;
 	    case 'd':
 		showdocdata = true;
@@ -219,7 +227,7 @@ main(int argc, char **argv)
     }
 
     try {
-	if (terms.empty() && recnos.empty()) {
+	if (terms.empty() && recnos.empty() && !valno_set) {
 	    show_db_stats(db);
 	    return 0;
 	}
@@ -232,6 +240,24 @@ main(int argc, char **argv)
 	    if (showdocdata) {
 		show_docdata(db, recnos.begin(), recnos.end());
 	    }
+	}
+
+	if (valno_set) {
+	    doccount n = db.get_doccount();
+	    docid did = 0;
+	    docid hwm = db.get_lastdocid();
+	    cout << "Value " << valno << " for each document:";
+	    while (n && did != hwm) {
+		try {
+		    Document doc = db.get_document(++did);
+		    string val = doc.get_value(valno);
+		    if (!val.empty())
+			cout << separator << did << ':' << doc.get_value(valno);
+		    --n;
+		} catch (DocNotFoundError &) {
+		}
+	    }
+	    cout << endl;
 	}
 
 	if (terms.empty()) {
@@ -289,7 +315,7 @@ main(int argc, char **argv)
 	    }
 	}
     } catch (const Error &e) {
-	cout << "Error: " << e.get_msg() << endl;
+	cout << "\nError: " << e.get_msg() << endl;
 	return 1;
     }
 }
