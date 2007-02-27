@@ -1775,10 +1775,17 @@ Btree::cancel()
 
 /************ B-tree reading ************/
 
-void
+bool
 Btree::do_open_to_read(bool revision_supplied, quartz_revision_number_t revision_)
 {
     if (!basic_open(revision_supplied, revision_)) {
+	if (revision_supplied) {
+	    // The requested revision was not available.
+	    // This could be because the database was modified underneath us, or
+	    // because a base file is missing.  Return false, and work out what
+	    // the problem was at a higher level.
+	    return false;
+	}
 	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
     }
 
@@ -1801,6 +1808,7 @@ Btree::do_open_to_read(bool revision_supplied, quartz_revision_number_t revision
     }
 
     read_root();
+    return true;
 }
 
 void
@@ -1811,7 +1819,8 @@ Btree::open()
     close();
 
     if (!writable) {
-	do_open_to_read(false, 0);
+	// Any errors are thrown if revision_supplied is false
+	(void)do_open_to_read(false, 0);
 	return;
     }
 
@@ -1827,9 +1836,13 @@ Btree::open(quartz_revision_number_t revision)
     close();
 
     if (!writable) {
-	do_open_to_read(true, revision);
-	AssertEq(revision_number, revision);
-	RETURN(true);
+	if (do_open_to_read(true, revision)) {
+	    AssertEq(revision_number, revision);
+	    RETURN(true);
+	} else {
+	    close();
+	    RETURN(false);
+	}
     }
 
     if (!do_open_to_write(true, revision)) {
