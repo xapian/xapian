@@ -1,3 +1,12 @@
+Tue Feb 27 01:25:00 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/doxygen_api_conf.in,docs/doxygen_full_conf.in: Need to
+	  define DOXYGEN so that the previous change to the generated
+	  errordispatch.h works.  Remove obsolete macros from
+	  EXPAND_AS_DEFINED and PREDEFINED.
+	* docs/doxygen_full_conf.in: Increase MAX_DOT_GRAPH_WIDTH from
+	  800 to 1024 to match doxygen_api_conf.in.
+
 Tue Feb 27 00:41:47 GMT 2007  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fix warning with SGI's CC.
