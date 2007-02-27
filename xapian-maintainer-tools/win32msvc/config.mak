@@ -39,8 +39,8 @@ SWIG=\tools\swigwin-1.3.28\swig.exe
 # win32_applications_omega.mak
 # win32_bindings_python.mak
 # and any other bindings mak files
-XAPIAN_APPLICATIONS=..\xapian-applications
-XAPIAN_BINDINGS=..\xapian-bindings
+XAPIAN_APPLICATIONS=..\..\xapian-applications
+XAPIAN_BINDINGS=..\..\xapian-bindings
 
 # We build with the following compiler options:
 # /W3 Set warning level to 3

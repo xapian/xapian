@@ -17,7 +17,7 @@ NULL=nul
 
 !INCLUDE .\config.mak
 
-ALL: 
+ALL:
    copy config.h.win32 ..\config.h
    copy version.h.win32 ..\include\xapian\version.h
    copy unistd.h.win32 ..\include\unistd.h

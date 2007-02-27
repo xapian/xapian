@@ -48,9 +48,9 @@ DOTEST :
 	btreetest
 	internaltest
 	quartztest
-	remotetest
 	queryparsertest
 	stemtest
+#	remotetest
 
 # object files
  
