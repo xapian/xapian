@@ -1,3 +1,9 @@
+Tue Feb 27 21:27:17 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc,tests/harness/backendmanager.h:
+	  Inline trivial getter and setter methods in the header.  Make
+	  getter method const.
+
 Tue Feb 27 20:22:58 GMT 2007  Olly Betts <olly@survex.com>
 
 	* examples/delve.cc: Change to not stem terms by default.  Add

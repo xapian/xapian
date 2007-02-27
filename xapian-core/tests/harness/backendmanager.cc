@@ -185,18 +185,6 @@ BackendManager::set_dbtype(const string &type)
     current_type = type;
 }
 
-void
-BackendManager::set_datadir(const string &datadir_)
-{
-    datadir = datadir_;
-}
-
-string
-BackendManager::get_datadir()
-{
-    return datadir;
-}
-
 Xapian::Database
 BackendManager::getdb_void(const vector<string> &)
 {

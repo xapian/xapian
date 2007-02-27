@@ -140,11 +140,11 @@ class BackendManager {
 
 	/** Set the directory to store data in.
 	 */
-	void set_datadir(const std::string &datadir_);
+	void set_datadir(const std::string &datadir_) { datadir = datadir_; }
 
 	/** Get the directory to store data in.
 	 */
-	std::string get_datadir();
+	const std::string & get_datadir() const { return datadir; }
 
 	/// Get a database instance of the current type.
 	Xapian::Database get_database(const std::vector<std::string> &dbnames);
