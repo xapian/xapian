@@ -1,3 +1,10 @@
+Tue Feb 27 16:58:56 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.cc: Enhance crashrecovery1 to check that the
+	  readers reference a database with the expected number of
+	  documents.  This checks that the base files which were removed
+	  were the correct ones to leave the current database valid.
+
 Tue Feb 27 16:54:31 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/quartz/btree.cc,backends/quartz/btree.h,

@@ -1216,23 +1216,32 @@ static bool test_crashrecovery1()
     Xapian::Document doc;
     {
 	Xapian::WritableDatabase db = get_writable_database("");
+	Xapian::Database dbr(path);
+	TEST_EQUAL(dbr.get_doccount(), 0);
+
 	// Xapian::Database has full set of baseA, no baseB
 
 	db.add_document(doc);
 	db.flush();
+	dbr.reopen();
+	TEST_EQUAL(dbr.get_doccount(), 1);
 
 	// Xapian::Database has full set of baseB, old baseA
 
 	db.add_document(doc);
 	db.flush();
+	dbr.reopen();
+	TEST_EQUAL(dbr.get_doccount(), 2);
 
 	// Xapian::Database has full set of baseA, old baseB
-	Xapian::Database dbr(path);
 
 	// Simulate a transaction starting, some of the baseB getting removed,
 	// but then the transaction fails.
 	unlink(path + "/record" + base_ext);
 	unlink(path + "/termlist" + base_ext);
+
+	dbr.reopen();
+	TEST_EQUAL(dbr.get_doccount(), 2);
     }
 
     Xapian::WritableDatabase db(path, Xapian::DB_OPEN);
@@ -1241,15 +1250,15 @@ static bool test_crashrecovery1()
 
     db.add_document(doc);
     db.flush();
+    dbr.reopen();
+    TEST_EQUAL(dbr.get_doccount(), 3);
 
     // Xapian::Database has full set of baseB, old baseA
 
-    dbr = Xapian::Database(path);
-
     db.add_document(doc);
     db.flush();
-
-    dbr = Xapian::Database(path);
+    dbr.reopen();
+    TEST_EQUAL(dbr.get_doccount(), 4);
 
     return true;
 }
