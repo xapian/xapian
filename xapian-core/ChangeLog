@@ -1,3 +1,8 @@
+Tue Feb 27 23:51:34 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Turn subdir-objects back on here so that the
+	  harness objects end up in the harness subdirectory.
+
 Tue Feb 27 22:45:04 GMT 2007  Olly Betts <olly@survex.com>
 
 	* examples/delve.cc: Rename "-k" to "-V" since "keys" were renamed to
