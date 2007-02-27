@@ -1661,7 +1661,7 @@ bool
 FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revision_)
 {
     if (!basic_open(revision_supplied, revision_)) {
-	if (revision_) {
+	if (revision_supplied) {
 	    // The requested revision was not available.
 	    // This could be because the database was modified underneath us, or
 	    // because a base file is missing.  Return false, and work out what

@@ -1,3 +1,8 @@
+Tue Feb 27 17:50:13 GMT 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc: Test revision_supplied rather than
+	  revision_ so that behaviour matches comments.
+
 Tue Feb 27 16:58:56 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_wrdb.cc: Enhance crashrecovery1 to check that the
