@@ -29,7 +29,8 @@ Search::Xapian::PositionIterator - Iterate over sets of positions.
 
 This iterator represents a stream of positions for a term. It overloads
 ++ for advancing the iterator, or you can explicitly call the inc method.
-This class also overloads 'eq', 'ne', '==', '!=', and "" (stringification).
+This class also overloads 'eq', 'ne', '==', '!=', "" (stringification),
+and +0 (conversion to an integer).
 
 =head1 METHODS
 
@@ -45,14 +46,10 @@ Constructor. Defaults to an uninitialized iterator.
 
 Advance the iterator by one. (Called implictly by '++' overloading).
 
-=item skip_to <tname>
+=item skip_to <termpos>
 
-Skip the iterator to term tname, or the first term after tname if tname
-isn't in the list of terms being iterated.
-
-=item get_position
-
-Returns the current position.
+Skip the iterator to term position termpos, or the first term position after
+termpos if termpos isn't in the list of term positions being iterated.
 
 =item equal <term>
 
@@ -64,14 +61,15 @@ and '==' operators.
 Checks if a term is different from this term. Also overloaded to the 'ne'
 and '!=' operators.
 
-=item get_termpos <term>
+=item get_termpos
 
-Return the term position the iterator is currently on. Also implemented
-as stringification.
+Return the term position the iterator is currently on. Also implemented as
+conversion to an integer.
 
 =item get_description
 
-Returns a string describing this object.  (for introspection)
+Returns a string describing this object (for introspection). Also implemented
+as stringification.
 
 =cut
 

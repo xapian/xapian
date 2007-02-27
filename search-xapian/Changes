@@ -9,6 +9,8 @@ Revision history for Perl extension Search::Xapian.
 	- Add test for check_at_least parameter of Enquire::get_mset()
 	- Avoid warning from MakeMaker when generating Makefile for linking 
 	  against an uninstalled xapian-core tree.
+	- Correct several errors in the pod documentation for
+	  Search::Xapian::PositionIterator.
 
 0.9.9.1  Mon Dec 11 06:08:57 2006
 	[Changes contributed by Olly Betts]
