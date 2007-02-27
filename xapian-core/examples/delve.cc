@@ -48,6 +48,7 @@ static void show_usage() {
 "  -r <recno>            for term list(s)\n"
 "  -t <term>             for posting list(s)\n"
 "  -t <term> -r <recno>  for position list(s)\n"
+"  -s, --stemmer=LANG    set the stemming language, the default is 'none'\n"
 "  -1                    output one list entry per line\n"
 "  -k                    output values for each document referred to\n"
 "  -d                    output document data for each document\n"
@@ -143,6 +144,8 @@ show_termlists(Database &db,
     }
 }
 
+static Stem stemmer;
+
 int
 main(int argc, char **argv)
 {
@@ -163,13 +166,16 @@ main(int argc, char **argv)
     vector<string> dbs;
 
     int c;
-    while ((c = gnu_getopt(argc, argv, "r:t:1vkd")) != EOF) {
+    while ((c = gnu_getopt(argc, argv, "r:t:s:1vkd")) != EOF) {
 	switch (c) {
 	    case 'r':
 		recnos.push_back(atoi(optarg));
 		break;
 	    case 't':
 		terms.push_back(optarg);
+		break;
+	    case 's':
+		stemmer = Stem(optarg);
 		break;
 	    case '1':
 		separator = '\n';
@@ -235,13 +241,7 @@ main(int argc, char **argv)
 
 	vector<string>::const_iterator i;
 	for (i = terms.begin(); i != terms.end(); i++) {
-	    string term = *i;
-	    Stem stemmer("english");
-	    if (*(term.end() - 1) == '.') {
-		term.erase(term.size() - 1);
-	    } else {
-		term = stemmer(term);
-	    }
+	    string term = stemmer(*i);
 	    PostingIterator p = db.postlist_begin(term);
 	    PostingIterator pend = db.postlist_end(term);
 	    if (p == pend) {
