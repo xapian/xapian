@@ -259,7 +259,6 @@ FlintDatabase::open_tables_consistent()
     }
 
     if (!fully_opened) {
-	throw Xapian::DatabaseOpeningError("Cannot open tables at stable revision - changing too fast");
 	throw Xapian::DatabaseModifiedError("Cannot open tables at stable revision - changing too fast");
     }
 }
