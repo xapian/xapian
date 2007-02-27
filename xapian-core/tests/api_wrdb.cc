@@ -1199,6 +1199,61 @@ bool test_consistency2()
     return true;
 }
 
+static bool test_crashrecovery1()
+{
+    const string & dbtype = get_dbtype();
+    string path, base_ext;
+    if (dbtype == "flint") {
+	path = ".flint/dbw";
+	base_ext = ".baseB";
+    } else if (dbtype == "quartz") {
+	path = ".quartz/dbw";
+	base_ext = "_baseB";
+    } else {
+	SKIP_TEST("Test only supported for flint and quartz backends");
+    }
+
+    Xapian::Document doc;
+    {
+	Xapian::WritableDatabase db = get_writable_database("");
+	// Xapian::Database has full set of baseA, no baseB
+
+	db.add_document(doc);
+	db.flush();
+
+	// Xapian::Database has full set of baseB, old baseA
+
+	db.add_document(doc);
+	db.flush();
+
+	// Xapian::Database has full set of baseA, old baseB
+	Xapian::Database dbr(path);
+
+	// Simulate a transaction starting, some of the baseB getting removed,
+	// but then the transaction fails.
+	unlink(path + "/record" + base_ext);
+	unlink(path + "/termlist" + base_ext);
+    }
+
+    Xapian::WritableDatabase db(path, Xapian::DB_OPEN);
+    // Xapian::Database has full set of baseA, some old baseB
+    Xapian::Database dbr = Xapian::Database(path);
+
+    db.add_document(doc);
+    db.flush();
+
+    // Xapian::Database has full set of baseB, old baseA
+
+    dbr = Xapian::Database(path);
+
+    db.add_document(doc);
+    db.flush();
+
+    dbr = Xapian::Database(path);
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1225,5 +1280,6 @@ test_desc writabledb_tests[] = {
     {"longpositionlist1",  test_longpositionlist1},
     {"allpostlist2",	   test_allpostlist2},
     {"consistency2",	   test_consistency2},
+    {"crashrecovery1",	   test_crashrecovery1},
     {0, 0}
 };

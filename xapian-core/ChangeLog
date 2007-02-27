@@ -1,3 +1,13 @@
+Tue Feb 27 13:12:31 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.h: Add get_dbtype() method to allow the
+	  current backend type to be read.
+	* tests/apitest.cc,tests/apitest.h: Add get_dbtype() function to allow
+	  BackendManager::get_dbtype() to be called by tests.
+	* tests/api_wrdb.cc: Add new test crashrecovery1 to verify that the
+	  backend can recover from the latest revision missing some of the
+	  base files.
+
 Tue Feb 27 12:45:00 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc: Fix how we start xapian-progsrv

@@ -135,6 +135,9 @@ class BackendManager {
 	 */
 	void set_dbtype(const std::string &type);
 
+	/** Get the database type currently in use. */
+	const std::string & get_dbtype() const { return current_type; }
+
 	/** Set the directory to store data in.
 	 */
 	void set_datadir(const std::string &datadir_);
