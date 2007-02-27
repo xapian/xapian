@@ -255,6 +255,8 @@ print DISPATCH <<'EOF';
  * is the simplest way to make inclusion work in a VPATH build.
  */
 
+// DOXYGEN gets confused by this header-with-code.
+#ifndef DOXYGEN
 EOF
 
 for (@baseclasses) {
@@ -298,6 +300,10 @@ print HDR <<'EOF';
 }
 
 #endif /* XAPIAN_INCLUDED_ERROR_H */
+EOF
+
+print DISPATCH <<'EOF';
+#endif /* DOXYGEN */
 EOF
 
 close HDR or die $!;
