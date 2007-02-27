@@ -112,79 +112,12 @@ static bool test_tcpdead1()
 }
 #endif
 
-// Test network stats and local stats give the same results.
-static bool test_netstats1()
-{
-    BackendManager remote_manager;
-    remote_manager.set_dbtype("remote");
-    remote_manager.set_datadir(datadir);
-
-    BackendManager local_manager;
-    local_manager.set_dbtype("flint");
-    local_manager.set_datadir(datadir);
-
-    const char * words[] = { "paragraph", "word" };
-    Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);
-    const size_t MSET_SIZE = 10;
-
-    Xapian::RSet rset;
-    rset.add_document(4);
-    rset.add_document(9);
-
-    Xapian::MSet mset_alllocal;
-    {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	mset_alllocal = enq.get_mset(0, MSET_SIZE, &rset);
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(remote_manager.get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(remote_manager.get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(remote_manager.get_database("apitest_simpledata"));
-	db.add_database(remote_manager.get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
-    }
-
-    return true;
-}
-
 // #######################################################################
 // # End of test cases.
 
 test_desc tests[] = {
 // disable until we can work out how to kill the right process cleanly
     //{"tcpdead1",	test_tcpdead1},
-    {"netstats1",	test_netstats1},
     {0,			0},
 };
 

@@ -29,6 +29,8 @@
 #include <vector>
 
 #include <xapian.h>
+
+#include "backendmanager.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -1269,6 +1271,74 @@ static bool test_sortrel1()
     return true;
 }
 
+// Test network stats and local stats give the same results.
+static bool test_netstats1()
+{
+    BackendManager local_manager;
+#if defined XAPIAN_HAS_FLINT_BACKEND
+    local_manager.set_dbtype("flint");
+#elif defined XAPIAN_HAS_QUARTZ_BACKEND
+    local_manager.set_dbtype("quartz");
+#else
+    SKIP_TEST("No suitable local database backend enabled");
+#endif
+    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
+
+    const char * words[] = { "paragraph", "word" };
+    Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);
+    const size_t MSET_SIZE = 10;
+
+    Xapian::RSet rset;
+    rset.add_document(4);
+    rset.add_document(9);
+
+    Xapian::MSet mset_alllocal;
+    {
+	Xapian::Database db;
+	db.add_database(local_manager.get_database("apitest_simpledata"));
+	db.add_database(local_manager.get_database("apitest_simpledata2"));
+
+	Xapian::Enquire enq(db);
+	enq.set_query(query);
+	mset_alllocal = enq.get_mset(0, MSET_SIZE, &rset);
+    }
+
+    {
+	Xapian::Database db;
+	db.add_database(local_manager.get_database("apitest_simpledata"));
+	db.add_database(get_database("apitest_simpledata2"));
+
+	Xapian::Enquire enq(db);
+	enq.set_query(query);
+	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
+	TEST_EQUAL(mset, mset_alllocal);
+    }
+
+    {
+	Xapian::Database db;
+	db.add_database(get_database("apitest_simpledata"));
+	db.add_database(local_manager.get_database("apitest_simpledata2"));
+
+	Xapian::Enquire enq(db);
+	enq.set_query(query);
+	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
+	TEST_EQUAL(mset, mset_alllocal);
+    }
+
+    {
+	Xapian::Database db;
+	db.add_database(get_database("apitest_simpledata"));
+	db.add_database(get_database("apitest_simpledata2"));
+
+	Xapian::Enquire enq(db);
+	enq.set_query(query);
+	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
+	TEST_EQUAL(mset, mset_alllocal);
+    }
+
+    return true;
+}
+
 // Coordinate matching - scores 1 for each matching term
 class MyWeight : public Xapian::Weight {
     public:
@@ -1394,6 +1464,7 @@ test_desc remotedb_tests[] = {
     {"termstats",	   test_termstats},
     {"sortvalue1",	   test_sortvalue1},
     {"sortrel1",	   test_sortrel1},
+    {"netstats1",	   test_netstats1},
     {0, 0}
 };
 
