@@ -1,3 +1,8 @@
+Tue Feb 27 21:35:35 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am,tests/remotetest.cc: Get rid of remotetest since
+	  it no longer does anything.
+
 Tue Feb 27 21:28:28 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc,tests/remotetest.cc: Move netstats1 from remotetest

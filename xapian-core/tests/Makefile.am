@@ -8,13 +8,9 @@ TESTS_ENVIRONMENT = ./runtest
 .PHONY: check-remote check-flint check-quartz
 
 if BUILD_BACKEND_REMOTE
-check-remote: remotetest$(EXEEXT) apitest$(EXEEXT)
-	$(TESTS_ENVIRONMENT) ./remotetest$(EXEEXT)
+check-remote: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remote
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
-
-remote_check_programs = remotetest
-remote_tests = remotetest$(EXEEXT)
 endif
 
 if BUILD_BACKEND_FLINT
@@ -38,12 +34,12 @@ INCLUDES += -I$(top_srcdir)/backends/quartz
 endif
 
 ## Test programs to be run
-TESTS = $(quartz_tests) $(remote_tests) \
+TESTS = $(quartz_tests) \
  apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
  queryparsertest$(EXEEXT)
 
 ## Programs to build
-check_PROGRAMS = $(quartz_check_programs) $(remote_check_programs) \
+check_PROGRAMS = $(quartz_check_programs) \
  apitest internaltest stemtest queryparsertest
 
 # Make sure runtest is up to date before running tests
@@ -74,10 +70,6 @@ btreetest_LDADD = ../libgetopt.la ../libquartzcheck.la ../libxapian.la
 quartztest_SOURCES = quartztest.cc $(testharness_sources)
 quartztest_LDFLAGS = @ldflags@
 quartztest_LDADD = ../libgetopt.la ../libxapian.la
-
-remotetest_SOURCES = remotetest.cc $(testharness_sources)
-remotetest_LDFLAGS = @ldflags@
-remotetest_LDADD = ../libgetopt.la ../libxapian.la
 
 queryparsertest_SOURCES = queryparsertest.cc $(testharness_sources)
 queryparsertest_LDFLAGS = @ldflags@
