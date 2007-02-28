@@ -1,3 +1,8 @@
+Wed Feb 28 20:13:35 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc: Really tweak OmDocumentTerm::add_position() so
+	  that adding position 0 to an empty termlist takes the shortcut.
+
 Wed Feb 28 15:04:25 GMT 2007  Olly Betts <olly@survex.com>
 
 	* common/safeerrno.h: Correct <safeerrno.h> to "safeerrno.h" in

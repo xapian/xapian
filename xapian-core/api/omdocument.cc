@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006 Olly Betts
+ * Copyright 2003,2004,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -207,7 +207,7 @@ OmDocumentTerm::add_position(Xapian::termpos tpos)
 
     // We generally expect term positions to be added in approximately
     // increasing order, so check the end first
-    if (!positions.empty() && tpos > positions.back()) {
+    if (positions.empty() || tpos > positions.back()) {
 	positions.push_back(tpos);
 	return;
     }
