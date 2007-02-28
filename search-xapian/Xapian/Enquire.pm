@@ -43,14 +43,29 @@ sub set_query {
   }
 }
 
-sub matches {
-  my ($self, $start, $size, $check_at_least) = @_;
-  my @array;
-  if (scalar(@_) == 3) {
-    tie( @array, 'Search::Xapian::MSet::Tied', $self->get_mset($start, $size) );
-  } else {
-    tie( @array, 'Search::Xapian::MSet::Tied', $self->get_mset($start, $size, $check_at_least) );
+sub get_mset {
+  my $self = shift;
+  my $nargs = scalar(@_);
+  if( $nargs == 3 ) {
+    my $type = ref( $_[2] );
+    if ( $type eq 'CODE' ) {
+      # get_mset(first, max, matchdecider) [perl extra]
+      splice @_, 2, 0, (0, 0);
+    } elsif ( $type eq 'Search::Xapian::RSet' ) {
+      # get_mset(first, max, rset)
+      splice @_, 2, 0, (0);
+    }
+  } elsif( $nargs == 4 && ref( $_[3] ) eq 'CODE' ) {
+    # get_mset(first, max, rset, matchdecider)
+    splice @_, 2, 0, (0);
   }
+  return $self->get_mset1( @_ );
+}
+
+sub matches {
+  my $self = shift;
+  my @array;
+  tie( @array, 'Search::Xapian::MSet::Tied', $self->get_mset(@_) );
   return @array;
 }
 

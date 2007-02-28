@@ -7,7 +7,7 @@
 
 use Test::More;
 use Devel::Peek;
-BEGIN { plan tests => 75 };
+BEGIN { plan tests => 79 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -86,6 +86,12 @@ ok( !$rset->contains( 2 ), "relevance set correctly fails to match document it d
 $rset->remove_document( 1 );
 ok( !$rset->contains( 1 ), "document removed from relevance set successfully" );
 $rset->add_document( 1 );
+
+my $matches3;
+ok( $matches3 = $enq->get_mset(0, 10, $rset), "get_mset with rset" );
+is( $matches3->size, $matches->size, "rset doesn't change mset size" );
+ok( $matches3 = $enq->get_mset(0, 10, 11, $rset), "get_mset with check_at_least and rset" );
+is( $matches3->size, $matches->size, "rset and check_at_least don't change mset size" );
 
 my $eset;
 ok( $eset = $enq->get_eset( 10, $rset ), "can get expanded terms set" );
