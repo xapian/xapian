@@ -18,6 +18,7 @@ noinst_HEADERS +=\
 	matcher/phrasepostlist.h\
 	matcher/remotesubmatch.h\
 	matcher/selectpostlist.h\
+	matcher/valuerangepostlist.h\
 	matcher/xorpostlist.h
 
 EXTRA_DIST +=\
@@ -54,4 +55,5 @@ libxapian_la_SOURCES +=\
 	matcher/selectpostlist.cc\
 	matcher/stats.cc\
 	matcher/tradweight.cc\
+	matcher/valuerangepostlist.cc\
 	matcher/xorpostlist.cc

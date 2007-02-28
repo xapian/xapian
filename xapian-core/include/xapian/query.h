@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -92,6 +92,9 @@ class Query {
 	     */
 	    OP_PHRASE,
 
+	    /** Filter by a range test on a document value. */
+	    OP_VALUE_RANGE,
+
 	    /** Select an elite set from the subqueries, and perform
 	     *  a query with these combined as an OR query.
 	     */
@@ -149,6 +152,10 @@ class Query {
 
 	/** Apply the specified operator to a single Xapian::Query object. */
 	Query(Query::op op_, Xapian::Query q);
+
+	/** Construct a range query on a document value. */
+	Query(Query::op op_, Xapian::valueno valno,
+	      const std::string &begin, const std::string &end);
 
 	/** A query which matches all documents in the database. */
 	static Xapian::Query MatchAll;
@@ -238,16 +245,25 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 
 	/// Sub queries on which to perform operation
 	subquery_list subqs;
-	
+
 	/** For NEAR or PHRASE, how close terms must be to match: all terms
 	 *  within the operation must occur in a window of this size.
 	 *
 	 * For ELITE_SET, the number of terms to select from those specified.
+	 *
+	 * For RANGE, the value number to apply the range test to.
 	 */
 	Xapian::termcount parameter;
 
-	/// Term that this node represents - leaf node only
+	/** Term that this node represents, or start of a range query.
+	 *
+	 *  For a leaf node, this hold the term name.  For an OP_VALUE_RANGE query
+	 *  this holds the start of the range.
+	 */
 	std::string tname;
+
+	/** Used to store the end of a range query. */
+	std::string str_parameter;
 
 	/// Position in query of this term - leaf node only
 	Xapian::termpos term_pos;
@@ -328,6 +344,10 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Create internals given only the operator and a parameter. */
 	Internal(op_t op_, Xapian::termcount parameter);
+
+	/** Construct a range query on a document value. */
+	Internal(op_t op_, Xapian::valueno valno,
+		 const std::string &begin, const std::string &end);
 
 	/** Destructor. */
 	~Internal();

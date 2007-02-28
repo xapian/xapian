@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -54,6 +54,7 @@ get_min_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_NEAR:
 	case Xapian::Query::OP_PHRASE:
 	case Xapian::Query::OP_ELITE_SET:
+	case Xapian::Query::OP_VALUE_RANGE:
 	    return 0;
 	case Xapian::Query::OP_FILTER:
 	case Xapian::Query::OP_AND_MAYBE:
@@ -70,6 +71,7 @@ get_max_subqs(Xapian::Query::Internal::op_t op)
 {
     switch (op) {
 	case Xapian::Query::Internal::OP_LEAF:
+	case Xapian::Query::OP_VALUE_RANGE:
 	    return 0;
 	case Xapian::Query::OP_FILTER:
 	case Xapian::Query::OP_AND_MAYBE:
@@ -502,6 +504,17 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
 {
     if (parameter != 0 && op != OP_PHRASE && op != OP_NEAR && op != OP_ELITE_SET)
 	throw Xapian::InvalidArgumentError("parameter is only meaningful for OP_NEAR, OP_PHRASE, or OP_ELITE_SET");
+}
+
+Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
+				  const string &begin, const string &end)
+	: op(op_),
+	  parameter(Xapian::termcount(valno)),
+	  tname(begin),
+	  str_parameter(end)
+{
+    if (op != OP_VALUE_RANGE)
+	throw Xapian::InvalidArgumentError("This constructor is only meaningful for OP_VALUE_RANGE");
 }
 
 Xapian::Query::Internal::~Internal()

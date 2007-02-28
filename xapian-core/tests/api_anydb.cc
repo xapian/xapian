@@ -1667,12 +1667,36 @@ static bool test_emptyterm1()
     return true;
 }
 
+// Feature test for Query::OP_VALUE_RANGE.
+static bool test_valuerange1() {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    static const char * vals[] = {
+	"", " ", "a", "aa", "abcd", "e", "g", "h", "hzz", "i", "l", "z", NULL
+    };
+    for (const char **start = vals; *start; ++start) {
+	for (const char **end = vals; *end; ++end) {
+	    Xapian::Query query(Xapian::Query::OP_VALUE_RANGE, 1, *start, *end);
+	    enq.set_query(query);
+	    Xapian::MSet mset = enq.get_mset(1, 20);
+	    Xapian::MSetIterator i;
+	    for (i = mset.begin(); i != mset.end(); ++i) {
+		string value = db.get_document(*i).get_value(1);
+		tout << *start << " <= " << value << " <= " << *end << endl;
+		TEST(value >= *start);
+		TEST(value <= *end);
+	    }
+	}
+    }
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
 /// The tests which work with any backend
 test_desc anydb_tests[] = {
-    {"zerodocid1", 	   test_zerodocid1},
+    {"zerodocid1",	   test_zerodocid1},
     {"emptyquery1",	   test_emptyquery1},
     {"simplequery1",       test_simplequery1},
     {"simplequery2",       test_simplequery2},
@@ -1731,5 +1755,6 @@ test_desc anydb_tests[] = {
     {"checkatleast1",	   test_checkatleast1},
     {"allpostlist1",	   test_allpostlist1},
     {"emptyterm1",	   test_emptyterm1},
+    {"valuerange1",	   test_valuerange1},
     {0, 0}
 };

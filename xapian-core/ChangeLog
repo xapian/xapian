@@ -1,3 +1,11 @@
+Wed Feb 28 01:15:00 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/omquery.cc,api/omqueryinternal.cc,include/xapian/query.h,
+	  matcher/: Add new Query operator OP_VALUE_RANGE which allows
+	  a query to be filtered by checking if a value lies between
+	  two limits.
+	* tests/api_anydb.cc: Add feature test valuerange1.
+
 Wed Feb 28 01:07:53 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Only hook the testsuite into valgrind if

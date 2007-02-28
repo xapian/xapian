@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,6 +37,7 @@
 #include "leafpostlist.h"
 #include "mergepostlist.h"
 #include "extraweightpostlist.h"
+#include "valuerangepostlist.h"
 
 #include "omqueryinternal.h"
 
@@ -472,6 +473,9 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 					postlist_from_query(query->subqs[1], matcher, is_bool),
 					matcher,
 					db->get_doccount());
+	case Xapian::Query::OP_VALUE_RANGE:
+	    RETURN(new ValueRangePostList(db, Xapian::valueno(query->parameter),
+					  query->tname, query->str_parameter));
     }
     Assert(false);
     RETURN(NULL);
