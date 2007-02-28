@@ -300,8 +300,6 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Check query is well formed.
 	 *  Throw an exception if not.
-	 *  This is called at construction time, so doesn't check parameters
-	 *  which must be set separately.
 	 *  This performs all checks in prevalidate_query(), and some others
 	 *  as well.
 	 */

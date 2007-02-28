@@ -1,3 +1,10 @@
+Wed Feb 28 14:59:29 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Removed documentation comment for
+	  Xapian::Query::Internal which is no longer relevant (Query objects
+	  are now immutable once constructed, so parameters can no longer be
+	  set separately).
+
 Wed Feb 28 02:42:31 GMT 2007  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Add support for serialising OP_VALUE_RANGE
