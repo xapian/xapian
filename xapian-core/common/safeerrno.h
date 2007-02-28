@@ -1,6 +1,6 @@
 /* safeerrno.h: #include <errno.h>, but working around broken platforms.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,7 +22,7 @@
 #define XAPIAN_INCLUDED_SAFEERRNO_H
 
 #ifndef PACKAGE
-# error You must #include <config.h> before #include <safeerrno.h>
+# error You must #include <config.h> before #include "safeerrno.h"
 #endif
 
 // Compaq's C++ compiler requires sys/errno.h to be included, followed by
