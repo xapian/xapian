@@ -1,3 +1,11 @@
+Wed Feb 28 01:07:53 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: Only hook the testsuite into valgrind if
+	  env var XAPIAN_TESTSUITE_VALGRIND is set, to make it simple to run a
+	  test program under valgrind normally.
+	* tests/runtest.in: Set XAPIAN_TESTSUITE_VALGRIND if automatically
+	  running a test program under valgrind.
+
 Tue Feb 27 23:51:34 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Turn subdir-objects back on here so that the

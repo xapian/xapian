@@ -205,7 +205,7 @@ test_driver::runtest(const test_desc *test)
 #ifdef HAVE_VALGRIND
 		int vg_errs;
 		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0;
-		if (RUNNING_ON_VALGRIND) {
+		if (vg_log_fd != -1) {
 		    VALGRIND_DO_LEAK_CHECK;
 		    vg_errs = VALGRIND_COUNT_ERRORS;
 		    long dummy;
@@ -225,7 +225,7 @@ test_driver::runtest(const test_desc *test)
 		    return FAIL;
 		}
 #ifdef HAVE_VALGRIND
-		if (RUNNING_ON_VALGRIND) {
+		if (vg_log_fd != -1) {
 		    // We must empty tout before asking valgrind to perform its
 		    // leak checks, otherwise the buffers holding the output
 		    // may be identified as a memory leak (especially if >1K of
@@ -599,16 +599,18 @@ test_driver::parse_command_line(int argc, char **argv)
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	// Open the valgrind log file, and unlink it.
-	char fname[64];
-	sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
-	vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
-	if (vg_log_fd == -1 && errno == ENOENT) {
-	    // Older valgrind versions named the log output differently.
-	    sprintf(fname, ".valgrind.log.pid%lu", (unsigned long)getpid());
+	if (getenv("XAPIAN_TESTSUITE_VALGRIND") != NULL) {
+	    // Open the valgrind log file, and unlink it.
+	    char fname[64];
+	    sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
 	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
+	    if (vg_log_fd == -1 && errno == ENOENT) {
+		// Older valgrind versions named the log output differently.
+		sprintf(fname, ".valgrind.log.pid%lu", (unsigned long)getpid());
+		vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
+	    }
+	    if (vg_log_fd != -1) unlink(fname);
 	}
-	unlink(fname);
     }
 #endif
 

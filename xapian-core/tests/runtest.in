@@ -32,29 +32,27 @@ fi
 : ${srcdir="@srcdir@"}
 export srcdir
 
-case $2 in
-*test)
-   case $1 in
-   *gdb|"*gdb *")
-      # gdb needs special handling (--args)
-      gdb=$1
-      shift
-      : ${top_builddir=`echo "$0"|sed 's![^/]*$!..!'`}
-      export top_builddir
-      LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
-      echo "Running test '$@' under $gdb"
-      exec $LIBTOOL --mode=execute $gdb --args "$@" ;;
-   *)
-      # Handles any tool which can just be run as:
-      #   TOOL TOOL-ARGS PROGRAM PROGRAM-ARGS
-      tool=$1
-      shift
-      : ${top_builddir=`echo "$0"|sed 's![^/]*$!..!'`}
-      export top_builddir
-      LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
-      echo "Running test '$@' under $tool"
-      exec $LIBTOOL --mode=execute $tool "$@" ;;
-   esac
+case $1 in
+  *test|*xapian-*srv) ;;
+  *gdb|"*gdb *")
+    # gdb needs special handling (--args)
+    gdb=$1
+    shift
+    : ${top_builddir=`echo "$0"|sed 's![^/]*$!..!'`}
+    export top_builddir
+    LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
+    echo "Running test '$@' under $gdb"
+    exec $LIBTOOL --mode=execute $gdb --args "$@" ;;
+  *)
+    # Handles any tool which can just be run as:
+    #   TOOL TOOL-ARGS PROGRAM PROGRAM-ARGS
+    tool=$1
+    shift
+    : ${top_builddir=`echo "$0"|sed 's![^/]*$!..!'`}
+    export top_builddir
+    LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
+    echo "Running test '$@' under $tool"
+    exec $LIBTOOL --mode=execute $tool "$@" ;;
 esac
 
 # Allow configure probed value for VALGRIND to be overridden by e.g.
@@ -73,10 +71,16 @@ fi
 : ${top_builddir=`echo "$0"|sed 's![^/]*$!..!'`}
 export top_builddir
 LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_builddir"',g'`
+
 # For GCC 3.4 and newer, force the GNU C++ STL to not pool memory, which gives
 # more accurate memory leak reports with valgrind.
 GLIBCXX_FORCE_NEW=1
 export GLIBCXX_FORCE_NEW
+
+# Tell the testsuite to hook into valgrind
+XAPIAN_TESTSUITE_VALGRIND=1
+export XAPIAN_TESTSUITE_VALGRIND
+
 vg_opts=@VALGRIND_LOG_FILE_OPT@=.valgrind.log
 echo "Running test '$@' under valgrind"
 exec $LIBTOOL --mode=execute $VALGRIND $vg_opts "$@"
