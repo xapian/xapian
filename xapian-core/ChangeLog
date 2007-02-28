@@ -1,3 +1,13 @@
+Wed Feb 28 02:42:31 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Add support for serialising OP_VALUE_RANGE
+	  queries.  Add support for OP_VALUE_RANGE queries to
+	  Query::get_description().  If an OP_VALUE_RANGE query has a start
+	  bound strictly greater than its end bound, simplify it by knowing
+	  that it can't match anything.
+	* common/remoteprotocol.h,docs/remote_protocol.html: Bump remote
+	  protocol version to 24.
+
 Wed Feb 28 01:15:00 GMT 2007  Olly Betts <olly@survex.com>
 
 	* api/omquery.cc,api/omqueryinternal.cc,include/xapian/query.h,

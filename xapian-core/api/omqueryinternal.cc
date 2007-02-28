@@ -167,6 +167,14 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 	    case Xapian::Query::OP_ELITE_SET:
 		result += "*" + om_tostring(parameter);
 		break;
+	    case Xapian::Query::OP_VALUE_RANGE:
+		result += "]";
+		result += encode_length(tname.length());
+		result += tname;
+		result += encode_length(str_parameter.length());
+		result += str_parameter;
+		result += om_tostring(parameter);
+		break;
 	}
     }
     return result;
@@ -191,6 +199,7 @@ Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_NEAR:            name = "NEAR"; break;
 	case Xapian::Query::OP_PHRASE:          name = "PHRASE"; break;
 	case Xapian::Query::OP_ELITE_SET:       name = "ELITE_SET"; break;
+	case Xapian::Query::OP_VALUE_RANGE:     name = "VALUE_RANGE"; break;
     }
     return name;
 }
@@ -217,8 +226,15 @@ Xapian::Query::Internal::get_description() const
     opstr = " " + get_op_name(op) + " ";
     if (op == Xapian::Query::OP_NEAR ||
 	op == Xapian::Query::OP_PHRASE ||
-	op == Xapian::Query::OP_ELITE_SET)
+	op == Xapian::Query::OP_ELITE_SET ||
+	op == Xapian::Query::OP_VALUE_RANGE)
 	opstr += om_tostring(parameter) + " ";
+
+    if (op == Xapian::Query::OP_VALUE_RANGE) {
+	opstr += tname;
+	opstr += ' ';
+	opstr += str_parameter;
+    }
 
     string description;
     subquery_list::const_iterator i;
@@ -415,6 +431,19 @@ QUnserial::readcompound() {
 		    p = tmp;
 		    return qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs,
 					    elite_set_size);
+		}
+		case ']': {
+		    size_t len = decode_length(&p, end);
+		    string start(p, len);
+		    p += len;
+		    len = decode_length(&p, end);
+		    string stop(p, len);
+		    p += len;
+		    char *tmp; // avoid compiler warning
+		    Xapian::valueno valno = strtoul(p, &tmp, 10);
+		    p = tmp;
+		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_RANGE, valno,
+						       start, stop);
 	        }
 	        default:
 		    DEBUGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
@@ -639,6 +668,11 @@ Xapian::Query::Internal::simplify_query()
     // General simplifications, dependent on operator.
     switch (op) {
 	case OP_LEAF:
+	    return this;
+	case OP_VALUE_RANGE:
+	    // If the start of the range is greater than the end then we won't
+	    // match anything.
+	    if (tname > str_parameter) return 0;
 	    return this;
 	case OP_PHRASE: case OP_NEAR:
 	    // Default to the number of subqueries.

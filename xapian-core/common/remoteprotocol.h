@@ -25,7 +25,8 @@
 // 21: Overhauled remote backend supporting WritableDatabase
 // 22: Lossless double serialisation
 // 23: Support get_lastdocid() on remote databases
-#define XAPIAN_REMOTE_PROTOCOL_VERSION 23
+// 24: Support for OP_VALUE_RANGE in query serialisation
+#define XAPIAN_REMOTE_PROTOCOL_VERSION 24
 
 /// Message types (client -> server).
 enum message_type {
