@@ -1,3 +1,7 @@
+Thu Mar 01 04:57:50 GMT 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Revert changes to the release checklist since 0.9.9.
+
 Thu Mar 01 04:38:51 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport bug-fix from trunk:
