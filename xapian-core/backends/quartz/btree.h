@@ -558,7 +558,7 @@ class Btree {
 	 */
 	bool do_open_to_read(bool revision_supplied, quartz_revision_number_t revision_);
 
-	/** Perform the opening operation to read.
+	/** Perform the opening operation to write.
 	 *
 	 *  Return true iff the open succeeded.
 	 */
