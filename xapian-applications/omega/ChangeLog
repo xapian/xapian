@@ -1,3 +1,8 @@
+Thu Mar 01 18:02:37 GMT 2007  Olly Betts <olly@survex.com>
+
+	* myhtmlparse.cc: Remove unused function.  Move "#include <string.h>"
+	  before any code.
+
 Thu Feb 22 15:45:25 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: xapian-config --cxxflags now includes -ptused for
