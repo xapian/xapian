@@ -1,3 +1,12 @@
+Thu Mar 01 03:00:14 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport bug-fix from trunk:
+	* backends/flint/flint_table.cc: Fix memory double-frees if
+	  FlintTable::close() is called twice on a table (without an open()
+	  being called in between).  This was happening after a transaction
+	  failed when the table was next opened.
+	* backends/quartz/btree.cc: Fix double-frees, similarly.
+
 Thu Mar 01 02:38:20 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport bug-fix from trunk:

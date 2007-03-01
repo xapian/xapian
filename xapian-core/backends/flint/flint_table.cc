@@ -1525,11 +1525,15 @@ void FlintTable::close() {
 
     for (int j = level; j >= 0; j--) {
 	delete [] C[j].p;
+	C[j].p = 0;
     }
     delete [] split_p;
+    split_p = 0;
 
     delete [] kt.get_address();
+    kt = 0;
     delete [] buffer;
+    buffer = 0;
 }
 
 void
