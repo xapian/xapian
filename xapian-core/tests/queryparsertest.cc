@@ -707,9 +707,9 @@ static bool test_qp_flag_wildcard1()
     qobj = queryparser.parse_query("main -foo*", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
     qobj = queryparser.parse_query("main -foo* -bar", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1) NOT bar:(pos=3))");
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_NOT bar:(pos=3)))");
     qobj = queryparser.parse_query("main -bar -foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1) NOT bar:(pos=2))");
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_NOT bar:(pos=2)))");
     return true;
 }
 
