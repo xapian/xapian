@@ -3,7 +3,7 @@
 %define contentdir /var/lib
 %define logdir /var/log
 
-Summary: A CGI search frontend and indexers built on Xapian.
+Summary: A CGI search frontend and indexers built on Xapian
 Name: xapian-omega
 Version: @VERSION@
 Release: 1
