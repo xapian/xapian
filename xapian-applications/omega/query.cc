@@ -1677,8 +1677,10 @@ eval(const string &fmt, const vector<string> &param)
 		    if (static_cast<size_t>(-start) >= args[0].size()) {
 			start = 0;
 		    } else {
-			start = static_cast<int>(args[0].size()) - start;
+			start = static_cast<int>(args[0].size()) + start;
 		    }
+		} else {
+		    if (static_cast<size_t>(start) >= args[0].size()) break;
 		}
 		size_t len = string::npos;
 		if (args.size() > 2) {

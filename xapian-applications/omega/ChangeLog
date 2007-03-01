@@ -1,3 +1,9 @@
+Thu Mar 01 05:17:04 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport bug-fix from trunk:
+	* query.cc: Fix $substr{} with negative start to actually work.  Fix
+	  $substr{} to never cause a C++ exception.
+
 Thu Mar 01 05:06:30 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport bug-fix from trunk:
