@@ -1,9 +1,10 @@
 OmegaScript
 ===========
 
-OmegaScript basically works by adding processed text-generation
-commands of the form $command{comma-separated-arguments} or
-$simplecommand to plain HTML. A simple example:
+OmegaScript adds processed text-generation commands to text templates
+(which will usually be HTML, but can be XML or another textual format).
+Commands take the form $command{comma,separated,arguments} or
+$simplecommand.
 
 ----------------------------------------------------------------------
 <html>
@@ -31,10 +32,14 @@ immediately followed by a letter, digit, or "_", you can use a comment to
 prevent the parser treating the following character as part of a command name.
 E.g. $simplecommand${}k rather than $simplecommandk
 
+It is important to realise that all whitespace is signficant in OmegaScript
+- e.g. if you put whitespace around a "," which separates two command arguments
+then the whitespace will be part of the respective arguments.
+
 Note that (by design) OmegaScript has no unbounded looping constructs.  You
 can loop over entries in a list, but you can't loop until some arbitrary
-condition is met.  This means that it's not possible to accidentally or
-deliberately write an OmegaScript template which contains an infinite loop.
+condition is met.  This means that it's not possible to accidentally (or
+deliberately!) write an OmegaScript template which contains an infinite loop.
 
 OmegaScript literals
 ====================
@@ -344,7 +349,7 @@ $setrelevant{docids}
 $setmap{MAP,NAME1,VALUE1,...}
 	set a map of option values which may be looked up against using
 	$opt{MAP,NAME} (maps with the same name are merged rather than
-	overwritten).
+	the old map being completely replaced).
 
 	Omega uses the "prefix" map to set the prefixes understood by the query
 	parser.  So if you wish to translate a prefix of "author:" to A and
@@ -357,6 +362,9 @@ $setmap{MAP,NAME1,VALUE1,...}
 	would use:
 
 	$setmap{boolprefix,group,G}
+
+	Don't be tempted to add whitespace around the commas, unless you want
+	it to be included in the names and values!
 
 	Note: you must set the prefix maps before the query is parsed.  This
 	is done as late as possible - the following commands require the
