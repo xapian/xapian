@@ -103,7 +103,7 @@ unsigned nonascii_to_utf8(unsigned ch, char * buf);
 // buf should be at least 4 bytes.
 inline unsigned to_utf8(unsigned ch, char *buf) {
     if (ch < 128) {
-	*buf = ch;
+	*buf = (unsigned char)ch;
 	return 1;
     }
     return nonascii_to_utf8(ch, buf);
