@@ -1,3 +1,10 @@
+Thu Mar  1 15:27:09 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/utils.c,common/utils.h: For windows, add an om_tostring()
+	  function for 64 bit integers: time() and GetProcessId() return
+	  these, and without this, backends/quartz/quartz_log.cc reports
+	  an error.
+
 Thu Mar  1 13:48:46 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/queryparser.lemony: Fix handling of hated wildcards

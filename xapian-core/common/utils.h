@@ -47,6 +47,11 @@ string om_tostring(long int a);
 /// Convert an unsigned long integer to a string
 string om_tostring(unsigned long int a);
 
+#ifdef __WIN32__
+/// Convert a 64 bit integer to a string
+string om_tostring(__int64 a);
+#endif
+
 /// Convert a double to a string
 string om_tostring(double a);
 

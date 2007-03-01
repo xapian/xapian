@@ -75,6 +75,14 @@ om_tostring(unsigned long int val)
     CONVERT_TO_STRING("%lu")
 }
 
+#ifdef __WIN32__
+string
+om_tostring(__int64 val)
+{
+    CONVERT_TO_STRING("%I64d")
+}
+#endif
+
 string
 om_tostring(double val)
 {
