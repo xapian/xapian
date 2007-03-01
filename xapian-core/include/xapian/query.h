@@ -4,7 +4,6 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2005,2006 Olly Betts
- * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,7 +37,6 @@
 class MultiMatch;
 class LocalSubMatch;
 struct SortPosName;
-
 namespace Xapian {
 
 /** Class representing a query.
@@ -212,11 +210,16 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
     }
 }
 
+std::string serialise_qint_(const Xapian::Query::Internal * qint, Xapian::termpos & curpos);
+
 /// Internal class, implementing most of Xapian::Query
 class Query::Internal : public Xapian::Internal::RefCntBase {
     friend class ::MultiMatch;
     friend class ::LocalSubMatch;
     friend struct ::SortPosName;
+    // We want to avoid changing the ABI between 0.9.9 and 0.9.10, so use a
+    // friend function instead of a new method.
+    friend std::string Xapian::serialise_qint_(const Xapian::Query::Internal * qint, Xapian::termpos & curpos);
     public:
         static const int OP_LEAF = -1;
 
@@ -298,9 +301,6 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	void flatten_subqs();
 
-        /** Implementation of serialisation; called recursively. */
-	std::string serialise(Xapian::termpos & curpos) const;
-
     public:
 	/** Copy constructor. */
 	Internal(const Query::Internal & copyme);
@@ -331,10 +331,7 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	/** Return a string in an easily parsed form
 	 *  which contains all the information in a query.
 	 */
-	std::string serialise() const {
-            Xapian::termpos curpos = 1;
-            return serialise(curpos);
-        }
+	std::string serialise() const;
 
 	/** Returns a string representing the query.
 	 * Introspection method.

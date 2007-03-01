@@ -115,27 +115,28 @@ is_leaf(Xapian::Query::Internal::op_t op)
  *  for compound queries as it's simpler than working out what sum(wqf) would
  *  be - FIXME).
  */
-string
-Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
-{
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
+std::string
+Xapian::serialise_qint_(const Xapian::Query::Internal * qint, Xapian::termpos & curpos)
+{
     string result;
 
-    if (op == Xapian::Query::Internal::OP_LEAF) {
+    if (qint->op == Xapian::Query::Internal::OP_LEAF) {
 	result += '[';
-	result += encode_length(tname.length());
-	result += tname;
-       	if (term_pos != curpos) result += '@' + om_tostring(term_pos);
-	if (wqf != 1) result += '#' + om_tostring(wqf);
+	result += encode_length(qint->tname.length());
+	result += qint->tname;
+	if (qint->term_pos != curpos) result += '@' + om_tostring(qint->term_pos);
+	if (qint->wqf != 1) result += '#' + om_tostring(qint->wqf);
 	++curpos;
     } else {
 	result += "(";
-	for (subquery_list::const_iterator i = subqs.begin();
-	     i != subqs.end();
+	Xapian::Query::Internal::subquery_list::const_iterator i;
+	for (i = qint->subqs.begin();
+	     i != qint->subqs.end();
 	     ++i) {
-	    result += (*i)->serialise(curpos);
+	    result += serialise_qint_(*i, curpos);
 	}
-	switch (op) {
+	switch (qint->op) {
 	    case Xapian::Query::Internal::OP_LEAF:
 		Assert(false);
 		break;
@@ -158,17 +159,26 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		result += "^";
 		break;
 	    case Xapian::Query::OP_NEAR:
-		result += "~" + om_tostring(parameter);
+		result += "~" + om_tostring(qint->parameter);
 		break;
 	    case Xapian::Query::OP_PHRASE:
-		result += "\"" + om_tostring(parameter);
+		result += "\"" + om_tostring(qint->parameter);
 		break;
 	    case Xapian::Query::OP_ELITE_SET:
-		result += "*" + om_tostring(parameter);
+		result += "*" + om_tostring(qint->parameter);
 		break;
 	}
     }
     return result;
+}
+#endif
+
+string
+Xapian::Query::Internal::serialise() const
+{
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    Xapian::termpos curpos = 1;
+    return Xapian::serialise_qint_(this, curpos);
 #else
     throw Xapian::InternalError("query serialisation not compiled in");
 #endif
