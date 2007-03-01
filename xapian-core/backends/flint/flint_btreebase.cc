@@ -110,7 +110,9 @@ FlintTable_base::FlintTable_base(const string &name_, char ch)
 	  last_block(0),
 	  have_fakeroot(false),
 	  sequential(false),
-	  bit_map_low(0)
+	  bit_map_low(0),
+	  bit_map0(0),
+	  bit_map(0)
 {
     string err_msg;
     if (!read(name_, ch, err_msg)) {
@@ -359,7 +361,9 @@ FlintTable_base::write_to_file(const string &filename)
     buf += pack_uint(have_fakeroot);
     buf += pack_uint(sequential);
     buf += pack_uint(revision);
-    buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
+    if (bit_map_size > 0) {
+	buf.append(reinterpret_cast<const char *>(bit_map), bit_map_size);
+    }
     buf += pack_uint(revision);  // REVISION2
 
 #ifdef _MSC_VER
