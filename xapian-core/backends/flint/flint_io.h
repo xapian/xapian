@@ -28,6 +28,11 @@
 
 #ifdef __WIN32__
 # include <io.h> // for _commit()
+# ifdef _MSC_VER
+// Allow 2GB+ index files
+#  define lseek _lseeki64
+#  define off_t __int64
+# endif
 #endif
 
 /* O_BINARY is only meaningful (and defined) on platforms which still make

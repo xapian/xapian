@@ -77,6 +77,9 @@ PWRITE_PROTOTYPE
 # ifdef _MSC_VER
 // MSVC needs this to get SSIZE_T defined.
 #  include "safewindows.h"
+// Allow 2GB+ index files
+#  define lseek _lseeki64
+#  define off_t __int64
 # endif
 #endif
 
