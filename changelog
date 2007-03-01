@@ -1,7 +1,7 @@
   * debian/po/: Added newly translated debconf messages for de, ru, gl, eu,
-    ca (Closes: #412250, #412274, #412338, #412420, #412579).
-    Thanks to Matthias Julius, Yuri Kozlov, Jacobo Tarrio, and Piarres
-    Beobide, and Jord Polo.
+    ca, ro (Closes: #412250, #412274, #412338, #412420, #412579, #412933).
+    Thanks to Matthias Julius, Yuri Kozlov, Jacobo Tarrio, Piarres Beobide,
+    Jorda Polo, and Eddy Petrisor.
 
 xapian-bindings (0.9.9-2) unstable; urgency=low
 
