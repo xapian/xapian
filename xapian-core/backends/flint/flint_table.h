@@ -485,7 +485,7 @@ class FlintTable {
 
 	/** Perform the opening operation to read.
 	 */
-	void do_open_to_read(bool revision_supplied, flint_revision_number_t revision_);
+	bool do_open_to_read(bool revision_supplied, flint_revision_number_t revision_);
 
 	/** Perform the opening operation to read.
 	 *

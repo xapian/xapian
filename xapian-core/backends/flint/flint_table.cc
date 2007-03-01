@@ -1666,10 +1666,12 @@ FlintTable::cancel()
 
 /************ B-tree reading ************/
 
-void
+bool
 FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revision_)
 {
     if (!basic_open(revision_supplied, revision_)) {
+	// The requested revision is not available.
+	if (revision_supplied) return false;
 	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
     }
 
@@ -1697,6 +1699,7 @@ FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revi
     }
 
     read_root();
+    return true;
 }
 
 void
@@ -1707,7 +1710,8 @@ FlintTable::open()
     close();
 
     if (!writable) {
-	do_open_to_read(false, 0);
+	// Any errors are thrown if revision_supplied is false
+	(void)do_open_to_read(false, 0);
 	return;
     }
 
@@ -1723,7 +1727,10 @@ FlintTable::open(flint_revision_number_t revision)
     close();
 
     if (!writable) {
-	do_open_to_read(true, revision);
+	if (!do_open_to_read(true, revision)) {
+	    close();
+	    RETURN(false);
+	}
 	AssertEq(revision_number, revision);
 	RETURN(true);
     }

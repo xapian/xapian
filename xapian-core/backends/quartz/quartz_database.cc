@@ -283,12 +283,13 @@ QuartzDatabase::open_tables_consistent()
 		log.make_entry("Cannot open all tables at revision in record table: " + om_tostring(revision));
 		throw Xapian::DatabaseCorruptError("Cannot open tables at consistent revisions");
 	    }
+	    revision = newrevision;
 	}
     }
 
     if (!fully_opened) {
 	log.make_entry("Cannot open all tables in a consistent state - keep changing too fast, giving up after " + om_tostring(tries) + " attempts");
-	throw Xapian::DatabaseOpeningError("Cannot open tables at stable revision - changing too fast");
+	throw Xapian::DatabaseModifiedError("Cannot open tables at stable revision - changing too fast");
     }
 
     log.make_entry("Opened tables at revision " + om_tostring(revision));
