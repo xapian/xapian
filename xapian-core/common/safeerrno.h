@@ -33,4 +33,11 @@
 #endif
 #include <errno.h>
 
+#if defined _MSC_VER
+// Some of Microsoft's C++ compiler versions earlier than 2005 do not have _set_errno
+# ifndef _set_errno
+#  define _set_errno(x) errno=x
+# endif
+#endif
+
 #endif // XAPIAN_INCLUDED_SAFEERRNO_H

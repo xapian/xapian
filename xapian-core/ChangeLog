@@ -1,3 +1,9 @@
+Thu Mar  1 11:58:48 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/safeerrno.h: Some of Microsoft's C++ compiler versions
+	  earlier than 2005 do not have _set_errno, so #define it in this
+	  case.
+
 Thu Mar 01 04:57:50 GMT 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Revert changes to the release checklist since 0.9.9.
