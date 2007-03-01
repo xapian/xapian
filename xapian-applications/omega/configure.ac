@@ -135,19 +135,20 @@ if test no != "$with_iconv" ; then
     if test -f "/sw/etc/fink.conf" ; then
       AC_CANONICAL_HOST
       case $host_os in
-      darwin*) ICONV_LDFLAGS=-L/sw/lib ;;
+      darwin*)
+	ICONV_LDFLAGS=-L/sw/lib
+	SAVE_LDFLAGS=$LDFLAGS
+	LDFLAGS="$LDFLAGS $ICONV_LDFLAGS"
+	AC_CHECK_LIB(iconv, iconv, [], [
+	  if test yes = "$with_iconv" ; then
+	    AC_MSG_ERROR([iconv not found, but --with-iconv specified])
+	  fi
+	  ICONV_LDFLAGS=
+	  with_iconv=no
+	])
+	LDFLAGS=$SAVE_LDFLAGS
       esac
     fi
-    SAVE_LDFLAGS=$LDFLAGS
-    ICONV_LDFLAGS=-L/sw/lib
-    LDFLAGS="$LDFLAGS $ICONV_LDFLAGS"
-    AC_CHECK_LIB(iconv, iconv, [], [
-      if test yes = "$with_iconv" ; then
-        AC_MSG_ERROR([iconv not found, but --with-iconv specified])
-      fi
-      with_iconv=no
-    ])
-    LDFLAGS=$SAVE_LDFLAGS
   ])
   AC_SUBST(ICONV_LDFLAGS)
 fi
@@ -158,18 +159,23 @@ if test no != "$with_iconv" ; then
   AC_MSG_CHECKING([for type of input pointer for iconv])
   AC_CACHE_VAL([xo_cv_iconv_input],
     [
+      xo_cv_iconv_input=
       for t in 'char*' 'const char *' ; do
-	AC_TRY_COMPILE([
-#include <iconv.h>
-	],[
-	  char buf[20];
-	  $t in = "hello";
-	  size_t in_len = 5;
-	  char * out = buf;
-	  size_t out_len = 20;
-	  iconv((iconv_t)-1, &in, &in_len, &out, &out_len);
-	],[
-	  xo_cv_iconv_input="$t"
+	dnl Use a link check as just compiling was falsely detecting a
+	dnl working iconv installation on some platforms.
+	AC_LINK_IFELSE(
+	  [AC_LANG_PROGRAM(
+	    [#include <iconv.h>],
+	    [[
+	      char buf[20];
+	      $t in = "hello";
+	      size_t in_len = 5;
+	      char * out = buf;
+	      size_t out_len = 20;
+	      iconv((iconv_t)-1, &in, &in_len, &out, &out_len);
+	    ]])],
+	  [
+	  xo_cv_iconv_input=$t
 	  break
 	])
       done

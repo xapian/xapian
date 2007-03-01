@@ -1,3 +1,9 @@
+Thu Mar 01 21:00:56 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Check we can link with libiconv, not just compile.
+	  Some of the HP-UX hosts in the HP testdrive seem to have headers
+	  but no matching library.
+
 Thu Mar 01 18:02:37 GMT 2007  Olly Betts <olly@survex.com>
 
 	* myhtmlparse.cc: Remove unused function.  Move "#include <string.h>"
