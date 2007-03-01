@@ -1,3 +1,16 @@
+Thu Mar 01 04:13:29 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport bug-fix from trunk:
+	* tests/harness/index_utils.cc,tests/harness/backendmanager.cc:
+	  Fix for windows: windows file handling seems to have a bug
+	  causing end of file conditions in ifstream to be missed.  As a
+	  result, an empty string was being returned from the get_paragraph
+	  function in the test harness, resulting in an out-of-bounds error
+	  when generating a value from the paragraph.  Add a check that the
+	  paragraph returned isn't empty, and return an empty document if
+	  it is.  Then, check for empty documents (ie, contain some terms)
+	  before adding them to the test database.
+
 Thu Mar 01 03:55:22 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport bug-fix from trunk:
