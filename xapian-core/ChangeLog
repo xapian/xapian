@@ -1,3 +1,11 @@
+Thu Mar 01 03:39:43 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport bug-fix from trunk:
+	* backends/inmemory/inmemory_database.cc: If replace_document is used
+	  to set the docid of a newly added document which has previously
+	  existed, then we need to mark that document as valid (caught by
+	  existing test replacedoc4 in a debug build).
+
 Thu Mar 01 03:35:18 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport bug-fix from trunk:

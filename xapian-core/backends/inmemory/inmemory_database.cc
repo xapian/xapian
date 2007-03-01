@@ -461,6 +461,8 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 	doclengths.resize(did);
 	doclists.resize(did);
 	valuelists.resize(did);
+    } else {
+	termlists[did - 1].is_valid = true;
     }
 
     vector<InMemoryTermEntry>::const_iterator i;
