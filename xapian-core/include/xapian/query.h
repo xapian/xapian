@@ -4,6 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2005,2006 Olly Betts
+ * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -169,7 +170,7 @@ class Query {
 	    return TermIterator(NULL);
 	}
 
-	/** Test is the query is empty (i.e. was constructed using
+	/** Test if the query is empty (i.e. was constructed using
 	 *  the default ctor or with an empty iterator ctor).
 	 */
 	bool empty() const;
@@ -297,6 +298,9 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	void flatten_subqs();
 
+        /** Implementation of serialisation; called recursively. */
+	std::string serialise(Xapian::termpos & curpos) const;
+
     public:
 	/** Copy constructor. */
 	Internal(const Query::Internal & copyme);
@@ -327,7 +331,10 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	/** Return a string in an easily parsed form
 	 *  which contains all the information in a query.
 	 */
-	std::string serialise() const;
+	std::string serialise() const {
+            Xapian::termpos curpos = 1;
+            return serialise(curpos);
+        }
 
 	/** Returns a string representing the query.
 	 * Introspection method.

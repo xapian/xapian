@@ -1,3 +1,12 @@
+Thu Mar 01 02:27:13 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport bug-fix from trunk:
+	* include/xapian/query.h,api/omqueryinternal.cc: Fix query
+	  serialisation bug.  Was failing to propagate "curpos" parameter
+	  across subqueries, resulting in incorrect serialisation of
+	  termpositions.
+	* tests/internaltest.cc: Regression test for this bug.
+
 Sun Nov 12 22:38:56 GMT 2006  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog file in preparation for branching and
