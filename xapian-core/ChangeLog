@@ -1,3 +1,7 @@
+Thu Mar 01 04:21:52 GMT 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.h: Correct comment ("read" -> "write").
+
 Thu Mar 01 01:30:02 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add some test cases for hated wildcards
