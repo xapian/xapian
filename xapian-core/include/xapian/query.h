@@ -37,6 +37,7 @@
 class MultiMatch;
 class LocalSubMatch;
 struct SortPosName;
+
 namespace Xapian {
 
 /** Class representing a query.
