@@ -638,11 +638,11 @@ Xapian::Query::Internal::simplify_matchnothing()
             // So, if either node is MatchNothing, replace node with LHS.
             // Easiest way to do this is to remove the right hand node,
             // and let simplify_query() perform the replacement of
-            // the unary operator with 
+            // the unary operator with its one remaining child.
             Assert(subqs.size() == 2);
             if (subqs[0] == 0 || subqs[1] == 0) {
                 sq = subqs.begin();
-                sq++;
+                ++sq;
                 delete *sq;
                 subqs.erase(sq);
             }
