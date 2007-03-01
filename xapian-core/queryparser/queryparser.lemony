@@ -38,17 +38,22 @@ using namespace Xapian;
 
 inline bool
 U_isupper(unsigned ch) {
-    return (ch < 128 && C_isupper(ch));
+    return (ch < 128 && C_isupper((unsigned char)ch));
+}
+
+inline bool
+U_isdigit(unsigned ch) {
+    return (ch < 128 && C_isdigit((unsigned char)ch));
 }
 
 inline bool
 U_isalpha(unsigned ch) {
-    return (ch < 128 && C_isalpha(ch));
+    return (ch < 128 && C_isalpha((unsigned char)ch));
 }
 
 inline bool
 U_isspace(unsigned ch) {
-    return (ch < 128 && C_isspace(ch));
+    return (ch < 128 && C_isspace((unsigned char)ch));
 }
 
 inline bool
@@ -57,18 +62,8 @@ U_isnotspace(unsigned ch) {
 }
 
 inline bool
-U_isalnum(unsigned ch) {
-    return (ch < 128 && C_isalnum(ch));
-}
-
-inline bool
-U_isnotalnum(unsigned ch) {
-    return !U_isalnum(ch);
-}
-
-inline bool
 U_issign(unsigned ch) {
-    return (ch < 128 && C_issign(ch));
+    return (ch < 128 && C_issign((unsigned char)ch));
 }
 
 inline bool
@@ -521,10 +516,10 @@ phrased_term:
 		    if (it != end && *it == '/') {
 			size_t width = 0;
 			Utf8Iterator p = it;
-			while (++p != end && C_isdigit(*p)) {
+			while (++p != end && U_isdigit(*p)) {
 			    width = (width * 10) + (*p - '0');
 			}
-			if (width && (p == end || C_isspace(*p))) {
+			if (width && (p == end || U_isspace(*p))) {
 			    it = p;
 			    Parse(pParser, ADJ, new Term("", width), &state);
 			    continue;
@@ -544,10 +539,10 @@ phrased_term:
 		    if (it != end && *it == '/') {
 			size_t width = 0;
 			Utf8Iterator p = it;
-			while (++p != end && C_isdigit(*p)) {
+			while (++p != end && U_isdigit(*p)) {
 			    width = (width * 10) + (*p - '0');
 			}
-			if (width && (p == end || C_isspace(*p))) {
+			if (width && (p == end || U_isspace(*p))) {
 			    it = p;
 			    Parse(pParser, NEAR, new Term("", width), &state);
 			    continue;
@@ -605,7 +600,7 @@ phrased_term:
 	    if (flags & FLAG_WILDCARD) {
 		if (mode == DEFAULT && it != end && *it == '*') {
 		    ++it;
-		    if (it == end || !C_isalnum(*it)) {
+		    if (it == end || !is_wordchar(*it)) {
 			// Wildcard at end of term (also known as
 			// "right truncation").
 			Parse(pParser, WILD_TERM, new Term(term, term_pos++),

@@ -1,3 +1,13 @@
+Thu Mar 01 22:51:42 GMT 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Add casts to U_isupper(), etc to
+	  suppress warnings from aCC.
+	* queryparser/queryparser.lemony: Use U_isdigit() instead of
+	  C_isdigit(), etc - the truncation to a char can cause false
+	  positives.
+	* tests/queryparsertest.cc: Add a (rather contrived) regression test
+	  for the above change.
+
 Thu Mar 01 21:49:37 GMT 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/utf8itor.h: Add cast to suppress warning from aCC.
