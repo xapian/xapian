@@ -117,11 +117,20 @@ class QpQuery {
     Query & get() { return q; }
     const Query & get() const { return q; }
 
-    /// True iff the query is defined, and matches nothing.
-    bool match_nothing() { return match_nothing_; }
+    /// True iff the query is not empty, and doesn't explicitly match nothing.
+    bool can_match() { return (!q.empty() && !match_nothing_); }
 
     /// True iff the query is defined, but empty.
     bool empty() { return !match_nothing_ && q.empty(); }
+
+    /// Get a description of the query
+    std::string get_description() {
+	if (match_nothing_) {
+	    return "[MATCH_NOTHING]";
+	} else {
+	    return q.get_description();
+	}
+    }
 };
 
 /// Class used to pass information about a term from lexer to parser.
@@ -844,7 +853,7 @@ prob_expr(E) ::= prob(P). {
 	}
     }
     // Handle any "- terms".
-    if (!P->hate.empty()) {
+    if (P->hate.can_match()) {
 	if (E->empty()) {
 	    delete E;
 	    // Can't just hate!
