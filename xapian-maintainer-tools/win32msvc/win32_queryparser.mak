@@ -19,7 +19,7 @@ CPP=cl.exe
 RSC=rc.exe
 
 
-OUTDIR=..\win32\Release\libs
+OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 ALL :  "$(INTDIR)\lemon.exe" "$(OUTDIR)\libqueryparser.lib"
@@ -51,7 +51,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_PROJ_LEMON=$(CPPFLAGS_EXTRA) \
  /Fo"$(INTDIR)\\" /Tc$(INPUTNAME)
 
-CPP_OBJS=..\win32\Release
+CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 LINK32=link.exe

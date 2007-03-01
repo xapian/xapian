@@ -4,7 +4,6 @@
 # Originally by Ulrik Petersen
 # Modified by Charlie Hull, Lemur Consulting Ltd.
 # www.lemurconsulting.com
-# 17th March 2006
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
@@ -42,7 +41,9 @@ ALL:
    copy  win32_queryparser.mak ..\queryparser\win32.mak
    copy  win32_tests.mak ..\tests\win32.mak
    copy  win32_testsuite.mak ..\tests\harness\win32.mak
+   if exist $(XAPIAN_BINDINGS) copy $(XAPIAN_BINDINGS)\xapian-version.h.in $(XAPIAN_BINDINGS)\xapian-version.h
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_python.mak $(XAPIAN_BINDINGS)\python\win32.mak
+#   if exist $(XAPIAN_BINDINGS) copy win32_bindings_php.mak $(XAPIAN_BINDINGS)\php\win32.mak
    if exist $(XAPIAN_APPLICATIONS) copy win32_applications_omega.mak $(XAPIAN_APPLICATIONS)\omega\win32.mak
    if exist $(XAPIAN_APPLICATIONS) copy config.mak $(XAPIAN_APPLICATIONS)\omega
    if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\omega\config.h
@@ -109,8 +110,8 @@ CLEAN:
    -@erase ..\include\xapian\error.h
    -@erase ..\include\xapian\errordispatch.h
    -@erase ..\languages\allsnowballheaders.h
-   -@erase Release\*.idb
-#   -@rmdir Release\ /s /q
+   -@erase $(XAPIAN_DEBUG_OR_RELEASE)\*.idb
+   rmdir $(XAPIAN_DEBUG_OR_RELEASE)\ /s /q
    echo All Win32 parts have been cleaned!
 
 DISTCLEAN: CLEAN

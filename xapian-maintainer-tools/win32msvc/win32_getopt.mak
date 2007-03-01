@@ -19,7 +19,7 @@ CPP=cl.exe
 RSC=rc.exe
 
 
-OUTDIR=..\win32\Release\libs
+OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 ALL : "$(OUTDIR)\libgetopt.lib" 
@@ -37,7 +37,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
  
 
  
-CPP_OBJS=..\win32\Release
+CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 LIB32=link.exe -lib

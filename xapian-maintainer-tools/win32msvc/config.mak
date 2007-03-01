@@ -2,15 +2,12 @@
 # Thanks to Ulrik Petersen
 # Modified by Charlie Hull, Lemur Consulting Ltd.
 # www.lemurconsulting.com
-# 17th March 2006
 #
 # Modify this file to set the Python configuration and any extra Xapian build flags
 # Note that you should only use a Windows Python built using Visual C++, i.e. the standard Windows
 # binary distribution
-# ----------------------------------------------
-# SWIG Python support
-# ----------------------------------------------
 
+# -------------Python settings-------------
 # uncomment to enable Python
 SWIG_PYTHON=yes
 
@@ -26,9 +23,10 @@ PYTHON_LIB=$(PYTHON_DIR)\libs\python24.lib
 # uncommented out
 PYTHON_MODERN_OR_OLDE = modern
 #PYTHON_MODERN_OR_OLDE = olde
+# -------------end Python settings-------------
 
 # Swig executable
-SWIG=\tools\swigwin-1.3.28\swig.exe
+SWIG=\work\tools\swigwin-1.3.31\swig.exe
 
 # ----------------------------------------------
 # Xapian build definitions
@@ -48,12 +46,21 @@ XAPIAN_BINDINGS=..\..\xapian-bindings
 # /EHc extern "C" defaults to nothrow
 # /EHs enable C++ EH (no SEH exceptions)
 # /c compile, don't link
-# /MT Link multithreaded static
-CPPFLAGS_EXTRA=/I.. /I..\include /I..\common /W3 /EHsc /O2 /MT /c \
-/D "NDEBUG" /D "WIN32" /D "__WIN32__" /D "_WINDOWS" \
+# /MD Link multithreaded dynamic
+
+# Release build
+CPPFLAGS_EXTRA=/I.. /I..\include /I..\common /W3 /EHsc /O2 /MD /c /D "NDEBUG" \
+/D "WIN32" /D "__WIN32__" /D "_WINDOWS" \
 /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /D "_USE_32BIT_TIME_T" \
 /D_CRT_SECURE_NO_DEPRECATE
+XAPIAN_DEBUG_OR_RELEASE=Release
 
+# Debug build
+# CPPFLAGS_EXTRA=/I.. /I..\include /I..\common /W3 /EHsc /Ox /MDd /c /D "_DEBUG" \
+#/D "WIN32" /D "__WIN32__" /D "_WINDOWS" \
+#/D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /D "_USE_32BIT_TIME_T" \
+#/D_CRT_SECURE_NO_DEPRECATE
+#XAPIAN_DEBUG_OR_RELEASE=Debug
 
 LIBFLAGS_EXTRA=
 LINKFLAGS_EXTRA=

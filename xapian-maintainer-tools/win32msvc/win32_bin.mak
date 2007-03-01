@@ -19,8 +19,8 @@ NULL=nul
 CPP=cl.exe
 RSC=rc.exe
 
-OUTDIR=..\win32\Release
-OUTLIBDIR=..\win32\Release\libs
+OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
+OUTLIBDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 PROGRAMS = "$(OUTDIR)\quartzcheck.exe" "$(OUTDIR)\quartzcompact.exe" "$(OUTDIR)\quartzdump.exe" "$(OUTDIR)\xapian-compact.exe" 
@@ -54,13 +54,13 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  \
  /I ".." /I "..\testsuite" /I"..\backends\quartz" /I"..\backends\flint" \
  /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME)
 
-CPP_OBJS=..\win32\Release
+CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 LINK32=link.exe
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
- wsock32.lib odbccp32.lib /subsystem:console \
+ wsock32.lib odbccp32.lib /subsystem:console /DEBUG \
  "$(OUTLIBDIR)\libgetopt.lib"  \
  "$(OUTLIBDIR)\libcommon.lib"  \
  "$(OUTLIBDIR)\libbtreecheck.lib"  \

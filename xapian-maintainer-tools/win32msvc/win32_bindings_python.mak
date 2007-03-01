@@ -16,7 +16,7 @@ NULL=
 NULL=nul
 !ENDIF 
 
-OUTLIBDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\Release\libs
+OUTLIBDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 !INCLUDE $(XAPIAN_CORE_REL_PYTHON)\win32\config.mak
 
@@ -34,7 +34,7 @@ XAPIAN_DEPENDENCIES = \
  "$(OUTLIBDIR)\liblanguages.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib" \
- $(PYTHON_LIB)
+ "$(PYTHON_LIB)"
 
 LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" 
 
@@ -43,7 +43,7 @@ LIB_XAPIAN_OBJS= ".\xapian_wrap.obj"
 CPP=cl.exe
 RSC=rc.exe
 
-OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\Release\Python
+OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python
 INTDIR=.\
 
 ALL : "$(OUTDIR)\_xapian.dll" "$(OUTDIR)\xapian.py" "$(OUTDIR)\smoketest.py"
@@ -66,7 +66,7 @@ CLEANSWIG :
 	
 DOTEST :
 	cd "$(OUTDIR)"
-	$(PYTHON) smoketest.py
+	"$(PYTHON_EXE)" smoketest.py
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -75,7 +75,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
  /I "$(XAPIAN_CORE_REL_PYTHON)" /I "$(XAPIAN_CORE_REL_PYTHON)\include" \
  /I "$(PYTHON_INCLUDE)" /I"." \
  /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
-CPP_OBJS=$(XAPIAN_CORE_REL_PYTHON)\win32\Release\
+CPP_OBJS=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
 
 LIB32=link.exe 

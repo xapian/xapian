@@ -24,9 +24,9 @@ NULL=nul
 CPP=cl.exe
 RSC=rc.exe
 
-OUTLIBDIR=..\win32\Release\libs\
+OUTLIBDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs\
 
-OUTDIR=..\win32\Release\
+OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 
 INTDIR=.\
 
@@ -53,7 +53,7 @@ CLEAN :
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
  /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME)
 
-CPP_OBJS=..\win32\Release
+CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 

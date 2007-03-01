@@ -19,7 +19,7 @@ CPP=cl.exe
 RSC=rc.exe
 
 
-OUTDIR=..\win32\Release\libs
+OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 ALL : "$(OUTDIR)\libmatcher.lib" 
@@ -44,9 +44,10 @@ LIBMATCHER_OBJS= \
                  $(INTDIR)\stats.obj \
                  $(INTDIR)\mergepostlist.obj \
                  $(INTDIR)\msetpostlist.obj \
-				 $(INTDIR)\msetcmp.obj \
+		 $(INTDIR)\msetcmp.obj \
                  $(INTDIR)\emptysubmatch.obj \
-                 $(INTDIR)\exactphrasepostlist.obj                 
+                 $(INTDIR)\exactphrasepostlist.obj \
+		 $(INTDIR)\valuerangepostlist.obj            
                  
 
 CLEAN :
@@ -63,7 +64,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
  /I"..\languages" \
  /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
  
-CPP_OBJS=..\win32\Release
+CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 LIB32=link.exe -lib
@@ -206,6 +207,11 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 <<
 
 "$(INTDIR)\exactphrasepostlist.obj" : ".\exactphrasepostlist.cc"
+       $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\valuerangepostlist.obj" : ".\valuerangepostlist.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<
