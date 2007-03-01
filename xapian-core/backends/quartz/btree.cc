@@ -1378,7 +1378,7 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	}
 
 	// FIXME: assumption that there are only two bases
-	if (base_ok[0] && base_ok[1]) both_bases = true;
+	both_bases = (base_ok[0] && base_ok[1]);
 	if (!base_ok[0] && !base_ok[1]) {
 	    string message = "Error opening table `";
 	    message += name;
