@@ -1044,6 +1044,60 @@ static bool test_longpositionlist1()
     return true;
 }
 
+// Regression test for bug#110: Inconsistent sort order between pages with
+// set_sort_by_value_then_relevance.
+bool test_consistency2()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+    char buf[2] = "X";
+    int i = 0;
+
+    // Add 5 documents indexed by "test" with wdf 1.
+    for (i = 0; i < 5; ++i) {
+	Xapian::Document doc;
+	*buf = '0' + i;
+	doc.add_value(0, buf);
+	doc.add_term("test");
+	db.add_document(doc);
+    }
+
+    // Add 5 documents indexed by "test" with wdf 2.
+    for (i = 0; i < 5; ++i) {
+	Xapian::Document doc;
+	*buf = '0' + i;
+	doc.add_value(0, buf);
+	doc.add_term("test", 2);
+	db.add_document(doc);
+    }
+
+    db.flush();
+
+    Xapian::Enquire enq(db);
+    enq.set_query(Xapian::Query("test"));
+
+    enq.set_sort_by_value_then_relevance(0, true);
+
+    // 10 results, unpaged.
+    Xapian::MSet mset1 = enq.get_mset(0, 10);
+    TEST_EQUAL(mset1.size(), 10);
+
+    // 10 results, split.
+    Xapian::MSet mset2a = enq.get_mset(0, 1);
+    TEST_EQUAL(mset2a.size(), 1);
+    Xapian::MSet mset2b = enq.get_mset(1, 1);
+    TEST_EQUAL(mset2b.size(), 1);
+    Xapian::MSet mset2c = enq.get_mset(2, 8);
+    TEST_EQUAL(mset2c.size(), 8);
+
+    TEST_EQUAL(*mset1[0], *mset2a[0]);
+    TEST_EQUAL(*mset1[1], *mset2b[0]);
+    for (i = 0; i < 8; ++i) {
+	TEST_EQUAL(*mset1[i + 2], *mset2c[i]);
+    }
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1067,5 +1121,6 @@ test_desc writabledb_tests[] = {
     {"uniqueterm1",	   test_uniqueterm1},
     {"phraseorneartoand1", test_phraseorneartoand1},
     {"longpositionlist1",  test_longpositionlist1},
+    {"consistency2",	   test_consistency2},
     {0, 0}
 };

@@ -1,3 +1,10 @@
+Thu Mar 01 03:53:04 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport bug-fix from trunk:
+	* matcher/multimatch.cc: Fix inconsistent ordering between pages with
+	  set_sort_by_value_then_relevance (fixes bug#110).
+	* tests/api_wrdb.cc: Add regression test consistency2 for bug#110.
+
 Thu Mar 01 03:39:43 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport bug-fix from trunk:
