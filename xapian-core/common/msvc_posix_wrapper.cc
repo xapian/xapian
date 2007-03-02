@@ -32,89 +32,89 @@ msvc_set_errno_from_getlasterror()
     int e;
     unsigned long winerr = GetLastError();
     switch (winerr) {
-        case ERROR_FILENAME_EXCED_RANGE:
-        case ERROR_FILE_NOT_FOUND:
-        case ERROR_PATH_NOT_FOUND:
-        case ERROR_INVALID_DRIVE:
-        case ERROR_NO_MORE_FILES:
-        case ERROR_BAD_NETPATH:
-        case ERROR_BAD_NET_NAME:
-        case ERROR_BAD_PATHNAME:
+	case ERROR_FILENAME_EXCED_RANGE:
+	case ERROR_FILE_NOT_FOUND:
+	case ERROR_PATH_NOT_FOUND:
+	case ERROR_INVALID_DRIVE:
+	case ERROR_NO_MORE_FILES:
+	case ERROR_BAD_NETPATH:
+	case ERROR_BAD_NET_NAME:
+	case ERROR_BAD_PATHNAME:
 	    e = ENOENT;
 	    break;
-        case ERROR_ARENA_TRASHED:
-        case ERROR_NOT_ENOUGH_MEMORY:
-        case ERROR_INVALID_BLOCK:
-        case ERROR_NOT_ENOUGH_QUOTA:
+	case ERROR_ARENA_TRASHED:
+	case ERROR_NOT_ENOUGH_MEMORY:
+	case ERROR_INVALID_BLOCK:
+	case ERROR_NOT_ENOUGH_QUOTA:
 	    e = ENOMEM;
 	    break;
-        case ERROR_LOCK_VIOLATION:
-        case ERROR_LOCK_FAILED:
-        case ERROR_SEEK_ON_DEVICE:
-        case ERROR_NETWORK_ACCESS_DENIED:
-        case ERROR_NOT_LOCKED:
-        case ERROR_ACCESS_DENIED:
-        case ERROR_CANNOT_MAKE:
-        case ERROR_FAIL_I24:
-        case ERROR_DRIVE_LOCKED:
-        case ERROR_CURRENT_DIRECTORY:
+	case ERROR_LOCK_VIOLATION:
+	case ERROR_LOCK_FAILED:
+	case ERROR_SEEK_ON_DEVICE:
+	case ERROR_NETWORK_ACCESS_DENIED:
+	case ERROR_NOT_LOCKED:
+	case ERROR_ACCESS_DENIED:
+	case ERROR_CANNOT_MAKE:
+	case ERROR_FAIL_I24:
+	case ERROR_DRIVE_LOCKED:
+	case ERROR_CURRENT_DIRECTORY:
 	    e = EACCES;
 	    break;
-        case ERROR_INVALID_FUNCTION:
-        case ERROR_INVALID_ACCESS:
-        case ERROR_NEGATIVE_SEEK:
-        case ERROR_INVALID_DATA:
-        case ERROR_INVALID_PARAMETER:
+	case ERROR_INVALID_FUNCTION:
+	case ERROR_INVALID_ACCESS:
+	case ERROR_NEGATIVE_SEEK:
+	case ERROR_INVALID_DATA:
+	case ERROR_INVALID_PARAMETER:
 	    e = EINVAL;
 	    break;
-        case ERROR_NO_PROC_SLOTS:
-        case ERROR_NESTING_NOT_ALLOWED:
-        case ERROR_MAX_THRDS_REACHED:
+	case ERROR_NO_PROC_SLOTS:
+	case ERROR_NESTING_NOT_ALLOWED:
+	case ERROR_MAX_THRDS_REACHED:
 	    e = EAGAIN;
 	    break;
-        case ERROR_INVALID_HANDLE:
-        case ERROR_INVALID_TARGET_HANDLE:
-        case ERROR_DIRECT_ACCESS_HANDLE:
+	case ERROR_INVALID_HANDLE:
+	case ERROR_INVALID_TARGET_HANDLE:
+	case ERROR_DIRECT_ACCESS_HANDLE:
 	    e = EBADF;
 	    break;
 	case ERROR_ALREADY_EXISTS:
 	case ERROR_FILE_EXISTS:
 	    e = EEXIST;
 	    break;
-        case ERROR_BROKEN_PIPE:            
-	    e = EPIPE; 
+	case ERROR_BROKEN_PIPE:
+	    e = EPIPE;
 	    break;
-        case ERROR_DISK_FULL:              
-	    e = ENOSPC; 
+	case ERROR_DISK_FULL:
+	    e = ENOSPC;
 	    break;
-        case ERROR_TOO_MANY_OPEN_FILES:    
-	    e = EMFILE; 
+	case ERROR_TOO_MANY_OPEN_FILES:
+	    e = EMFILE;
 	    break;
-        case ERROR_WAIT_NO_CHILDREN:       
-	    e = ECHILD; 
+	case ERROR_WAIT_NO_CHILDREN:
+	    e = ECHILD;
 	    break;
-        case ERROR_CHILD_NOT_COMPLETE:     
-	    e = ECHILD; 
+	case ERROR_CHILD_NOT_COMPLETE:
+	    e = ECHILD;
 	    break;
-        case ERROR_DIR_NOT_EMPTY:         
-     	    e = ENOTEMPTY; 
+	case ERROR_DIR_NOT_EMPTY:
+     	    e = ENOTEMPTY;
 	    break;
-        case ERROR_BAD_ENVIRONMENT:        
-	    e = E2BIG; 
+	case ERROR_BAD_ENVIRONMENT:
+	    e = E2BIG;
 	    break;
-        case ERROR_BAD_FORMAT:             
-	    e = ENOEXEC; 
+	case ERROR_BAD_FORMAT:
+	    e = ENOEXEC;
 	    break;
-        case ERROR_NOT_SAME_DEVICE:        
-	    e = EXDEV; 
+	case ERROR_NOT_SAME_DEVICE:
+	    e = EXDEV;
 	    break;
 	default:
 	    if (winerr >= ERROR_WRITE_PROTECT && winerr <= ERROR_SHARING_BUFFER_EXCEEDED)
 		e = EACCES;
-            else if (winerr >= ERROR_INVALID_STARTING_CODESEG && winerr <= ERROR_INFLOOP_IN_RELOC_CHAIN)
-                e = ENOEXEC;
-            else
-                e = EINVAL;
+	    else if (winerr >= ERROR_INVALID_STARTING_CODESEG && winerr <= ERROR_INFLOOP_IN_RELOC_CHAIN)
+		e = ENOEXEC;
+	    else
+		e = EINVAL;
 	    break;
     }
     /* Some versions of Microsoft's C++ compiler earlier than 2005 do not have
