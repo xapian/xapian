@@ -66,23 +66,6 @@ namespace Xapian {
     }
 #endif
 
-#ifndef XAPIAN_HAS_MUSCAT36_BACKEND
-    namespace Muscat36 {
-	static Database open_da(const string &, const string &, bool = true) {
-	    throw FeatureUnavailableError("Muscat36 backend not supported");
-	}
-	static Database open_da(const string &, const string &, const string &, bool = true) {
-	    throw FeatureUnavailableError("Muscat36 backend not supported");
-	}
-	static Database open_db(const string &, size_t = 30) {
-	    throw FeatureUnavailableError("Muscat36 backend not supported");
-	}
-	static Database open_db(const string &, const string &, size_t = 30) {
-	    throw FeatureUnavailableError("Muscat36 backend not supported");
-	}
-    }
-#endif
-
 #ifndef XAPIAN_HAS_REMOTE_BACKEND
     namespace Remote {
 	static Database open(const string &, unsigned int, timeout = 0, timeout = 0) {
@@ -850,28 +833,6 @@ namespace InMemory {
     WritableDatabase open();
 }
 
-namespace Muscat36 {
-#ifdef SWIGGUILE
-    Database open_da(const std::string &R, const std::string &T);
-    %rename(open_da_values) open_da;
-    Database open_da(const std::string &R, const std::string &T, const std::string &values);
-    Database open_db(const std::string &DB);
-    %rename(open_db_values) open_db;
-    Database open_db(const std::string &DB, const std::string &values);
-#else
-#ifdef SWIGPHP
-    /* PHP4 lacks namespaces so fake them rather than having a function just
-     * called "open".  Also rename open_stub, open_da, etc for consistency. */
-    %rename(muscat36_open_da) open_da;
-    %rename(muscat36_open_db) open_db;
-#endif
-    Database open_da(const std::string &R, const std::string &T, bool heavy_duty = true);
-    Database open_da(const std::string &R, const std::string &T, const std::string &values, bool heavy_duty = true);
-    Database open_db(const std::string &DB, size_t cache_size = 30);
-    Database open_db(const std::string &DB, const std::string &values, size_t cache_size = 30);
-#endif
-}
-
 namespace Remote {
     %rename(remote_open) open;
     %rename(remote_open_writable) open_writable;
@@ -931,21 +892,6 @@ class InMemory {
   public:
     static
     WritableDatabase open();
-};
-
-class Muscat36 {
-  private:
-    Muscat36();
-    ~Muscat36();
-  public:
-    static
-    Database open_da(const std::string &R, const std::string &T, bool heavy_duty = true);
-    static
-    Database open_da(const std::string &R, const std::string &T, const std::string &values, bool heavy_duty = true);
-    static
-    Database open_db(const std::string &DB, size_t cache_size = 30);
-    static
-    Database open_db(const std::string &DB, const std::string &values, size_t cache_size = 30);
 };
 
 class Remote {
