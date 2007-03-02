@@ -146,14 +146,56 @@ msvc_posix_unlink(const char * filename)
 int
 msvc_posix_open(const char *filename, int flags)
 {
-    /* Open file using Windows API, as we may need to delete it while it is
-     * still open - FILE_SHARE_DELETE allows this. */
+    /* Translate ANSI read mode to Windows access mode */
+    DWORD dwDesiredAccess;
+    switch (flags & (O_RDONLY | O_RDWR | O_WRONLY))
+    {
+	case O_RDONLY:
+	    dwDesiredAccess = GENERIC_READ;
+	    break;
+	case O_RDWR:
+	    dwDesiredAccess = GENERIC_READ | GENERIC_WRITE;
+	    break;
+	case O_WRONLY:
+	    dwDesiredAccess = GENERIC_WRITE;
+	    break;
+    }
+    /* Subsequent operations may open this file to read, write or delete it */
+    DWORD dwShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
+
+    /* Translate ANSI creation mode to Windows creation mode */
+    DWORD dwCreationDisposition = OPEN_EXISTING;
+    switch (flags & (O_CREAT | O_TRUNC | O_EXCL))
+    {
+	case _O_EXCL:
+	    dwCreationDisposition = OPEN_EXISTING;
+	    break;
+
+	case _O_CREAT:
+	    dwCreationDisposition = OPEN_ALWAYS;
+	    break;
+
+	case _O_CREAT | _O_TRUNC:
+	    dwCreationDisposition = CREATE_ALWAYS;
+	    break;
+
+	case _O_CREAT | _O_EXCL:
+	case _O_CREAT | _O_TRUNC | _O_EXCL:
+	    dwCreationDisposition = CREATE_NEW;
+	    break;
+
+	case _O_TRUNC:
+	case _O_TRUNC | _O_EXCL:
+	    dwCreationDisposition = TRUNCATE_EXISTING;
+	    break;
+    }
+
     HANDLE handleWin =
 	CreateFile(filename,
-		(flags & O_RDONLY) ? GENERIC_READ : GENERIC_WRITE,
-		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+		dwDesiredAccess,
+		dwShareMode,
 		NULL,
-		(flags & O_CREAT) ? CREATE_ALWAYS : OPEN_EXISTING,
+		dwCreationDisposition,
 		FILE_ATTRIBUTE_NORMAL,
 		NULL);
     if (handleWin == INVALID_HANDLE_VALUE) {
