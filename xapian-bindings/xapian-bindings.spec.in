@@ -1,7 +1,21 @@
 # RedHat-style .spec file for Xapian
 # @configure_input@
+#
+# If you don't want to try building packages for all the supported bindings,
+# you can disable particular bindings by passing these options to rpmbuild:
+#
+#	--without csharp	Disable C# bindings
+#	--without php		Disable PHP bindings
+#	--without python	Disable Python bindings
+#	--without tcl8		Disable Tcl8 bindings
+
+%if 0%{?!_without_python:1}
 %define python_ver %(%{__python} -c "import sys; print sys.version[:3]")
+%endif
+
+%if 0%{?!_without_php:1}
 %define php_extension_dir %(php-config --extension-dir)
+%endif
 
 Summary: Bindings for the Xapian Probabilistic Information Retrieval Library
 Name: xapian-bindings
@@ -12,7 +26,9 @@ Vendor: www.xapian.org
 Group: Development/Libraries
 URL: http://www.xapian.org/
 Requires: xapian-core-libs = %{version}
+%if 0%{?!_without_python:1}
 BuildRequires: python-devel >= 2.2
+%endif
 %if 0%{?!_without_php:1}
 BuildRequires: php-devel >= 4.3
 %endif
@@ -32,6 +48,7 @@ offers a highly adaptable toolkit that allows developers to easily add advanced
 indexing and search facilities to applications. This package provides the
 files needed for scripts which use Xapian.
 
+%if 0%{?!_without_python:1}
 %package python
 Group: Development/Libraries
 Summary: Files needed for developing Python scripts which use Xapian.
@@ -42,6 +59,7 @@ Xapian is an Open Source Probabilistic Information Retrieval framework. It
 offers a highly adaptable toolkit that allows developers to easily add advanced
 indexing and search facilities to applications. This package provides the
 files needed for developing Python scripts which use Xapian.
+%endif
 
 %if 0%{?!_without_php:1}
 %package php
@@ -93,7 +111,7 @@ files needed for developing C# applications which use Xapian.
 # that doesn't matter here as we don't package it.
 autoreconf --force
 # Only build the bindings we want.
-%configure --with-python %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp}
+%configure %{?!_without_python:--with-python} %{?!_without_php:--with-php} %{?!_without_tcl8:--with-tcl} %{?!_without_csharp:--with-csharp}
 make
 
 %install
@@ -103,7 +121,7 @@ mkdir -p %{buildroot}
 %makeinstall DESTDIR=%{buildroot}
 # Move the docs to the right place, and correct the effects of prefix+DESTDIR
 mkdir -p %{buildroot}/usr/share/doc/
-mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/python %{buildroot}/usr/share/doc/%{name}-python-%{version}
+%{?!_without_python: mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/python %{buildroot}/usr/share/doc/%{name}-python-%{version}}
 %{?!_without_php: mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/php %{buildroot}/usr/share/doc/%{name}-php-%{version}}
 %{?!_without_tcl8: mv %{buildroot}%{buildroot}/usr/share/doc/%{name}/tcl8 %{buildroot}/usr/share/doc/%{name}-tcl8-%{version}}
 %{?!_without_csharp: mv %{buildroot}%{buildroot}%{_libdir}/XapianSharp.* %{buildroot}%{_libdir}}
@@ -119,6 +137,7 @@ rm -rf %{buildroot}%{buildroot}/usr/share/doc/%{name}/
 # There are no common files at the moment
 %doc AUTHORS ChangeLog COPYING NEWS README
 
+%if 0%{?!_without_python:1}
 %files python
 %defattr(-, root, root)
 %{_libdir}/python%{python_ver}/site-packages/_xapian.so
@@ -126,6 +145,7 @@ rm -rf %{buildroot}%{buildroot}/usr/share/doc/%{name}/
 %{_libdir}/python%{python_ver}/site-packages/xapian.pyc
 %ghost %{_libdir}/python%{python_ver}/site-packages/xapian.pyo
 %doc /usr/share/doc/%{name}-python-%{version}
+%endif
 
 %if 0%{?!_without_php:1}
 %files php

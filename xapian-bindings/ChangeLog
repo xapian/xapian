@@ -1,3 +1,9 @@
+Fri Mar 02 02:22:12 GMT 2007  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Add support for passing "--without python"
+	  to rpmbuild.  Document the various "--without" options in a comment
+	  at the start of the .spec file.
+
 Tue Feb 20 12:48:22 GMT 2007  Olly Betts <olly@survex.com>
 
 	* xapian.i: QueryParserError is now a real error, so remove
