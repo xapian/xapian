@@ -37,6 +37,7 @@ using namespace std;
 #include "serialise.h"
 #include "serialise-double.h"
 #include "omqueryinternal.h"
+#include "utils.h"
 
 static bool test_except1()
 {
@@ -186,6 +187,26 @@ static bool test_omstringstream1()
     om_ostringstream oss;
     oss << "foo" << 4 << "bar";
     TEST_EQUAL(oss.str(), "foo4bar");
+
+    return true;
+}
+
+static bool test_omtostring1()
+{
+    string str;
+    str = om_tostring(10);
+    TEST_EQUAL(str, "10");
+
+#ifdef __WIN32__
+    /* Test the 64 bit integer conversion to string.
+     * (Currently only exists for windows.)
+     */
+    str = om_tostring(10ll);
+    TEST_EQUAL(str, "10");
+
+    str = om_tostring(0x200000000ll);
+    TEST_EQUAL(str, "8589934592");
+#endif
 
     return true;
 }
@@ -351,6 +372,7 @@ test_desc tests[] = {
     {"stringcomp1",		test_stringcomp1},
     {"temporarydtor1",		test_temporarydtor1},
     {"omstringstream1",		test_omstringstream1},
+    {"omtostring1",		test_omtostring1},
     {"serialisedouble1",	test_serialisedouble1},
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     {"serialiselength1",	test_serialiselength1},

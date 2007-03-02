@@ -1,3 +1,10 @@
+Fri Mar 02 14:31:11 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/internaltest.cc: Add a test for om_tostring(), mainly
+	  aimed at 64 bit types on windows platforms.  Mingw builds report
+	  a warning in this code, which merits further investigation - see
+	  Bug #112 for details.
+
 Fri Mar 02 14:15:44 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/msvc_posix_wrapper.cc: Improve accuracy of emulation of
