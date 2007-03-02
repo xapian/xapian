@@ -657,7 +657,9 @@ introduction to the Xapian test system in docs/tests.html .
 --------------------------------------
 
  * Add an entry to the ChangeLog file at the top of the module.  The
-   text of this can be identical to the SVN commit message.
+   text of this can be identical to the SVN commit message.  The datestamps in
+   our ChangeLog entries are as produced by the Unix date utility when invoked
+   as `date "+%a %b %d %T %Z %Y"'.
  * Commit to the repository.
 
 Then you can update any patch, bug or feature request items in Bugzilla
