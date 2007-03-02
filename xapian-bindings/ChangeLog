@@ -1,3 +1,7 @@
+Fri Mar 02 20:09:55 GMT 2007  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am: Remove Muscat36.cs.
+
 Fri Mar 02 19:49:12 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Try `$(PHP_CONFIG) --php-binary` when looking for a

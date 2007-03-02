@@ -27,7 +27,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	MatchDecider.cs \
 	MSet.cs \
 	MSetIterator.cs \
-	Muscat36.cs \
 	PositionIterator.cs \
 	PostingIterator.cs \
 	Quartz.cs \
