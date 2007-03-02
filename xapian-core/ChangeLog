@@ -1,3 +1,12 @@
+Fri Mar 02 14:25:25 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* Backport fix from trunk:
+	* common/msvc_posix_wrapper.cc: Improve accuracy of emulation of
+	  posix open, and fix a bug which caused it to misinterpret the
+	  "flags" argument - files were always being opened for writing:
+	  O_RDONLY is 0, so the old test (flags & O_RDONLY) always
+	  failed.
+
 Fri Mar 02 12:27:11 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/msvc_posix_wrapper.cc: Fix whitespace issues.
