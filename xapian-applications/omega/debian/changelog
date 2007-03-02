@@ -1,3 +1,13 @@
+xapian-omega (0.9.10-1) unstable; urgency=low
+
+  * New upstream release:
+    + omindex: Generate correct MD5 checksums on big-endian platforms.
+    + omega: Fix $substr{} with negative start to actually work.  Fix
+      $substr{} to never cause a C++ exception.
+    + Documentation improvements.
+
+ -- Olly Betts <olly@survex.com>  Fri,  2 Mar 2007 01:49:15 +0000
+
 xapian-omega (0.9.9-1) unstable; urgency=low
 
   * New upstream release.
