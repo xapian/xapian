@@ -22,7 +22,8 @@ if [ -d "/usr/data/www/oligarchy.co.uk/xapian/$version" ] ; then
 fi
 
 # Add the version to the list in Bugzilla.
-wget -o- "http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=new&version=$version" > /dev/null 2> /dev/null
+# FIXME this doesn't work, as I need to be logged in to do this!
+#wget -o- "http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=new&version=$version" > /dev/null 2> /dev/null
 
 # Tag the release in SVN.
 svn cp -m"$version release." svn+userv:///xapian/trunk svn+userv:///xapian/tags/"$version"
