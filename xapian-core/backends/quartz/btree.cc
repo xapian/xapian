@@ -24,7 +24,7 @@
 
 #include "safeerrno.h"
 #ifdef _MSC_VER
-# include "safewindows.h"
+# include "msvc_posix_wrapper.h"
 #endif
 
 // Define to use "dangerous" mode - in this mode we write modified btree
@@ -126,40 +126,7 @@ static void report_cursor(int N, Btree * B, Cursor * C)
 int sys_open_to_read_no_except(const string & name)
 {
 #ifdef _MSC_VER
-    /* open file using Windows API, as we may need to delete it while it is
-     * still open - FILE_SHARE_DELETE allows this */
-    int fd = -1;
-    HANDLE handleWin =
-	CreateFile(name.c_str(),
-		GENERIC_READ,
-		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-		NULL,
-		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);
-    if (handleWin == INVALID_HANDLE_VALUE) {
-	switch (GetLastError()) {
-	    /* TODO : Incomplete list of possible error codes */
-	    case ERROR_FILE_NOT_FOUND:
-	    case ERROR_PATH_NOT_FOUND:
-	    case ERROR_BAD_PATHNAME:
-		_set_errno(ENOENT);
-		break;
-	    case ERROR_ACCESS_DENIED:
-	    case ERROR_LOCK_VIOLATION:
-	    case ERROR_NETWORK_ACCESS_DENIED:
-	    case ERROR_DRIVE_LOCKED:
-	    case ERROR_SEEK_ON_DEVICE:
-		_set_errno(EACCES);
-		break;
-	    default:
-		_set_errno(EINVAL);
-		break;
-	}
-    } else {
-	/* Now return a standard file descriptor */
-	fd = _open_osfhandle((intptr_t)handleWin, O_RDONLY | O_BINARY);
-    }
+    int fd = msvc_posix_open(name.c_str(), O_RDONLY | O_BINARY);
 #else
     int fd = open(name.c_str(), O_RDONLY | O_BINARY);
 #endif
@@ -180,43 +147,7 @@ int sys_open_to_read(const string & name)
 static int sys_open_to_write_no_except(const string & name)
 {
 #ifdef _MSC_VER
-    /* open file using Windows API, as we may need to delete it while it is still open
-    - FILE_SHARE_DELETE allows this*/
-    int fd = -1;
-    HANDLE handleWin =
-	CreateFile(name.c_str(),
-		GENERIC_WRITE,
-		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-		NULL,
-		CREATE_ALWAYS,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);
-    if (handleWin == INVALID_HANDLE_VALUE) {
-	switch (GetLastError()) {
-	    /* TODO : Incomplete list of possible error codes */
-	    case ERROR_ALREADY_EXISTS:
-		_set_errno(EEXIST);
-		break;
-	    case ERROR_FILE_NOT_FOUND:
-	    case ERROR_PATH_NOT_FOUND:
-	    case ERROR_BAD_PATHNAME:
-		_set_errno(ENOENT);
-		break;
-	    case ERROR_ACCESS_DENIED:
-	    case ERROR_LOCK_VIOLATION:
-	    case ERROR_NETWORK_ACCESS_DENIED:
-	    case ERROR_DRIVE_LOCKED:
-	    case ERROR_SEEK_ON_DEVICE:
-		_set_errno(EACCES);
-		break;
-	    default:
-		_set_errno(EINVAL);
-		break;
-	}
-    } else {
-	/* Now return a standard file descriptor */
-	fd = _open_osfhandle((intptr_t)handleWin, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
-    }
+    int fd = msvc_posix_open(name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
 #else
     int fd = open(name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
 #endif
@@ -318,21 +249,7 @@ int sys_flush(int h) {
 static void sys_unlink(const string &filename)
 {
 #ifdef _MSC_VER
-    /* We must use DeleteFile as this can delete files that are open */
-    if (DeleteFile(filename.c_str()) == 0) {
-	DWORD dwErr = GetLastError();
-	switch(dwErr) {
-	    case ERROR_FILE_NOT_FOUND:
-		_set_errno(ENOENT);
-		break;
-	    case ERROR_SHARING_VIOLATION:
-		/* The file should have been opened with FILE_SHARE_DELETE if
-		 * it is allowed to be deleted, so if we get a sharing
-		 * violation something's gone wrong */
-	    case ERROR_ACCESS_DENIED:
-		_set_errno(EACCES);
-		break;
-	}
+    if (msvc_posix_unlink(filename.c_str()) == -1) {
 #else
     if (unlink(filename) == -1) {
 #endif

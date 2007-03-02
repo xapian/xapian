@@ -1,6 +1,6 @@
-/* safeerrno.h: #include <errno.h>, but working around broken platforms.
+/* msvc_posix_wrapper.h: Provides wrappers with POSIX semantics under MSVC.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,19 +18,16 @@
  * USA
  */
 
-#ifndef XAPIAN_INCLUDED_SAFEERRNO_H
-#define XAPIAN_INCLUDED_SAFEERRNO_H
+#ifndef OM_HGUARD_MSVC_POSIX_WRAPPER_H
+#define OM_HGUARD_MSVC_POSIX_WRAPPER_H
 
-#ifndef PACKAGE
-# error You must #include <config.h> before #include <safeerrno.h>
-#endif
+/** Version of unlink() with POSIX-like semantics (open files can be unlinked).
+ *
+ *  NB The file must have been opened with msvc_posix_open() for this to work.
+ */
+int msvc_posix_unlink(const char * filename);
 
-// Compaq's C++ compiler requires sys/errno.h to be included, followed by
-// errno.h, otherwise you don't get EINTR or most of the other EXXX codes
-// defined.
-#if defined __DECCXX && defined HAVE_SYS_ERRNO_H
-# include <sys/errno.h>
-#endif
-#include <errno.h>
+/** Version of open() which allows the file to be unlinked while open. */
+int msvc_posix_open(const char *filename, int flags);
 
-#endif // XAPIAN_INCLUDED_SAFEERRNO_H
+#endif /* OM_HGUARD_MSVC_POSIX_WRAPPER_H */

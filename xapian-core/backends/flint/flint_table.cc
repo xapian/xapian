@@ -24,7 +24,7 @@
 
 #include "safeerrno.h"
 #ifdef _MSC_VER
-# include "safewindows.h"
+# include "msvc_posix_wrapper.h"
 #endif
 
 // Define to use "dangerous" mode - in this mode we write modified btree
@@ -136,19 +136,7 @@ static int sys_open_for_readwrite(const string & name)
 static void sys_unlink(const string &filename)
 {
 #ifdef _MSC_VER
-    /* We must use DeleteFile as this can delete files that are open */
-    if (DeleteFile(filename.c_str()) == 0) {
-	DWORD dwErr = GetLastError();
-	switch (dwErr) {
-	    case ERROR_FILE_NOT_FOUND:
-		_set_errno(ENOENT); break;
-	    case ERROR_SHARING_VIOLATION:
-		/* The file should have been opened with FILE_SHARE_DELETE if
-		 * it is allowed to be deleted while open, so if we get a
-		 * sharing violation something's gone wrong */
-	    case ERROR_ACCESS_DENIED:
-		_set_errno(EACCES); break;
-	}
+    if (msvc_posix_unlink(filename.c_str()) == -1) {
 #else
     if (unlink(filename) == -1) {
 #endif
