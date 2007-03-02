@@ -1,3 +1,8 @@
+Fri Mar 02 00:18:09 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Perform a link test for posix_fadvise to fix
+	  misdetection on HP-UX.
+
 Thu Mar 01 21:48:57 GMT 2007  Olly Betts <olly@survex.com>
 
 	* utf8itor.h: Add cast to suppress warning from aCC.
