@@ -1,3 +1,11 @@
+Sat Mar 03 03:25:05 GMT 2007  Olly Betts <olly@survex.com>
+
+	* generate-exceptions.in: The GCC visibility docs aren't clear whether
+	  you need to make *thrown* exception types visible, or also *caught*
+	  exception types.  But I've just been having odd problems catching
+	  Xapian::DocNotFoundError with "const Xapian::Error &", so let's mark
+	  the exception virtual baseclass Xapian::Error as visible too.
+
 Fri Mar 02 22:34:04 GMT 2007  Olly Betts <olly@survex.com>
 
 	* languages/Makefile.mk,languages/generate-allsnowballheaders.in:

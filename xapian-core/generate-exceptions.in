@@ -166,12 +166,22 @@ namespace Xapian {
 
 class ErrorHandler;
 
+/* This hook is needed to allow SWIG generated-bindings to use GCC's
+ * visibility support.  This can go away once we add GCC visibility support
+ * to the main library.
+ */
+#if defined(SWIGEXPORT) && defined(__GNUC__) && (__GNUC__ >= 4)
+# define XAPIAN_EXCEPTION_EXPORT SWIGEXPORT
+#else
+# define XAPIAN_EXCEPTION_EXPORT
+#endif
+
 /** All exceptions thrown by Xapian are subclasses of Xapian::Error.
  *
  *  This class can not be instantiated directly - instead a subclass should
  *  be used.
  */
-class Error {
+class XAPIAN_EXCEPTION_EXPORT Error {
     // ErrorHandler needs to be able to access Error::already_handled.
     friend class ErrorHandler;
 
@@ -236,16 +246,6 @@ class Error {
      */
     int get_errno() const { return my_errno; }
 };
-
-/* This hook is needed to allow SWIG generated-bindings to use GCC's
- * visibility support.  This can go away once we add GCC visibility support
- * to the main library.
- */
-#if defined(SWIGEXPORT) && defined(__GNUC__) && (__GNUC__ >= 4)
-# define XAPIAN_EXCEPTION_EXPORT SWIGEXPORT
-#else
-# define XAPIAN_EXCEPTION_EXPORT
-#endif
 EOF
 
 print DISPATCH <<'EOF';
