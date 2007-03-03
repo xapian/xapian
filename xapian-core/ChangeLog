@@ -1,3 +1,16 @@
+Sat Mar 03 16:01:17 GMT 2007  Olly Betts <olly@survex.com>
+
+	* common/msvc_posix_wrapper.cc: Change `#include <fcntl.h>' to
+	  `#include "safefcntl.h"' (currently makes no difference on
+	  Windows, but it's more consistent to always use the safeXXX
+	  headers).
+	* common/msvc_posix_wrapper.cc: Merge two ECHILD cases.
+	* common/msvc_posix_wrapper.cc: Make sure dwCreationDisposition
+	  is initialised even if flags has a bogus value.
+	* common/msvc_posix_wrapper.cc: Be consistent and always use O_CREAT,
+	  etc, instead of sometimes using the MS alternative forms _O_CREAT,
+	  etc.
+
 Sat Mar 03 03:25:05 GMT 2007  Olly Betts <olly@survex.com>
 
 	* generate-exceptions.in: The GCC visibility docs aren't clear whether
