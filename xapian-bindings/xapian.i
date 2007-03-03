@@ -781,10 +781,16 @@ class WritableDatabase : public Database {
 	string get_description() const;
 };
 
-%constant int DB_CREATE_OR_OPEN = 1;
-%constant int DB_CREATE = 2;
-%constant int DB_CREATE_OR_OVERWRITE = 3;
-%constant int DB_OPEN = 4;
+%constant int DB_CREATE_OR_OPEN = Xapian::DB_CREATE_OR_OPEN;
+%constant int DB_CREATE = Xapian::DB_CREATE;
+%constant int DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
+%constant int DB_OPEN = Xapian::DB_OPEN;
+#ifdef SWIGPHP4
+%constant int Xapian_DB_CREATE_OR_OPEN = Xapian::DB_CREATE_OR_OPEN;
+%constant int Xapian_DB_CREATE = Xapian::DB_CREATE;
+%constant int Xapian_DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
+%constant int Xapian_DB_OPEN = Xapian::DB_OPEN;
+#endif
 
 // Database factory functions:
 
