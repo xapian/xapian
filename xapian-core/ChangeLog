@@ -1,3 +1,11 @@
+Sat Mar 03 19:49:11 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc: Rework how we start and handle
+	  xapian-tcpsrv - it's now started by exec from a child process.
+	  This means that the mechanism to try higher port numbers works
+	  reliably, and we no longer leak file descriptors (which was causing
+	  tests to fail on some platforms).
+
 Sat Mar 03 19:46:03 GMT 2007  Olly Betts <olly@survex.com>
 
 	* bin/xapian-tcpsrv.cc: Put "e.get_errno()" in a variable for clearer

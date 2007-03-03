@@ -39,6 +39,8 @@
 
 #ifdef HAVE_FORK
 # include <signal.h>
+# include <sys/types.h>
+# include <sys/socket.h>
 # include <sys/wait.h>
 # include <unistd.h>
 // Some older systems had SIGCLD rather than SIGCHLD.
@@ -86,28 +88,10 @@ BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
     }
 }
 
-#if defined HAVE_FORK && defined HAVE_WAITPID
-extern "C" void
-on_SIGCHLD(int /*sig*/)
-{
-    int status;
-    while (waitpid(-1, &status, WNOHANG) > 0);
-}
-#endif
-
 BackendManager::BackendManager() :
     do_getdb(&BackendManager::getdb_void),
     do_getwritedb(&BackendManager::getwritedb_void)
 {
-#ifdef HAVE_FORK
-    // Clean up child processes forked to close the pipes we open to run
-    // xapian-tcpsrv.
-#ifdef HAVE_WAITPID
-    signal(SIGCHLD, on_SIGCHLD);
-#else
-    signal(SIGCHLD, SIG_IGN);
-#endif
-#endif
 }
 
 void
@@ -440,16 +424,57 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
 }
 
 #ifdef HAVE_FORK
+extern "C" void
+on_SIGCHLD(int /*sig*/)
+{
+    int status;
+    while (waitpid(-1, &status, WNOHANG) > 0);
+}
+
 static int
 launch_xapian_tcpsrv(const string & args)
 {
     int port = 1239;
+    // We want to be able to get the exit status of the child process we fork
+    // in xapian-tcpsrv doesn't start listening successfully.
+    signal(SIGCHLD, SIG_DFL);
 try_next_port:
-    string cmd = "../bin/xapian-tcpsrv --one-shot --port " + om_tostring(port) + " " + args + " 2>&1";
+    string cmd = "../bin/xapian-tcpsrv --one-shot --port " + om_tostring(port) + " " + args;
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
 #endif
-    FILE * fh = popen(cmd.c_str(), "r");
+    int fds[2];
+    if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
+	string msg("Couldn't create socketpair: ");
+	msg += strerror(errno);
+	throw msg;
+    }
+
+    pid_t child = fork();
+    if (child == 0) {
+	// Child process.
+	close(fds[0]);
+	// Connect stdout and stderr to the socket.
+	dup2(fds[1], 1);
+	dup2(fds[1], 2);
+	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
+	_exit(-1);
+    }
+
+    close(fds[1]);
+    if (child == -1) {
+	// Couldn't fork.
+	int fork_errno = errno;
+	close(fds[0]);
+	string msg("Couldn't fork: ");
+	msg += strerror(fork_errno);
+	throw msg;
+    }
+   
+    // Parent process.
+
+    // Wrap the file descriptor in a FILE * so we can read lines using fgets().
+    FILE * fh = fdopen(fds[0], "r");
     if (fh == NULL) {
 	string msg("Failed to run command '");
 	msg += cmd;
@@ -461,7 +486,13 @@ try_next_port:
     while (true) {
 	char buf[256];
 	if (fgets(buf, sizeof(buf), fh) == NULL) {
-	    int status = pclose(fh);
+	    fclose(fh);
+	    int status;
+	    if (waitpid(child, &status, 0) == -1) {
+		string msg("waitpid failed: ");
+		msg += strerror(errno);
+		throw msg;
+	    }
 	    if (++port < 65536 && status != 0) {
 		if (WIFEXITED(status) && WEXITSTATUS(status) == 69) {  
 		    // 69 is EX_UNAVAILABLE which xapian-tcpsrv exits
@@ -480,17 +511,11 @@ try_next_port:
 	if (strcmp(buf, "Listening...\n") == 0) break;
 	output += buf;
     }
-    pid_t child = fork();
-    if (child == 0) {
-	// Child process.
-	pclose(fh);
-	_exit(0);
-    }
-    if (child == -1) {
-	string msg("fork() failed: ");
-	msg += strerror(errno);
-	throw msg;
-    }
+
+    // Set a signal handler to clean up the xapian-tcpsrv child process when it
+    // finally exits.
+    signal(SIGCHLD, on_SIGCHLD);
+
     return port;
 }
 #endif
