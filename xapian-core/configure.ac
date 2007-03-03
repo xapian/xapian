@@ -259,9 +259,11 @@ else
       dnl but otherwise is needed to allow "cout << (long long)42;".
       ANSI_CXXFLAGS="-AA"
       dnl +w turns on more warnings.
+      dnl +wlint turns on "lint-like" warnings.
       dnl +W<n1>,<n2>,... suppresses warnings n1, n2, ...
-      dnl 336 is "Entire translation unit was empty" (which dummy.cc is).
-      WARNING_CXXFLAGS="+w +W336" ;;
+      dnl 2340 is "remark" "value copied to temporary, reference to temporary use", in: throw Xapian::UnimplementedError("...");
+      dnl 4255 is "remark" "padding size of struct "..." with ... bytes to alignment boundary".
+      WARNING_CXXFLAGS="+w +wlint +W2340,4255" ;;
     cxx|*/cxx)
       dnl Select ANSI mode ('-std strict_ansi' is needed for ANSI iostream
       dnl as '-std ansi' gives a pre-standard AT&T-compatible version).
