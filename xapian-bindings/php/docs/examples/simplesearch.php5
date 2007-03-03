@@ -2,7 +2,7 @@
 /* Simple command-line search program
  *
  * Copyright (C) 2004 James Aylett
- * Copyright (C) 2004,2005,2006 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,36 +20,38 @@
  * USA
  */
 
+include "php5/xapian.php";
+
 if (!isset($_SERVER['argv']) or count($_SERVER['argv']) < 3) {
     print "usage: {$_SERVER['argv'][0]} <path to database> <search terms>\n";
     exit;
 }
 
-$database = new_Database($_SERVER['argv'][1]);
+$database = new XapianDatabase($_SERVER['argv'][1]);
 if (!$database) {
     print "Couldn't open database '{$_SERVER['argv'][1]}'\n";
     exit;
 }
 
-$enquire = new_Enquire($database);
-$stemmer = new_Stem("english");
+$enquire = new XapianEnquire($database);
+$stemmer = new XapianStem("english");
 $terms = array();
 foreach (array_slice($_SERVER['argv'], 2) as $term) {
-    array_push($terms, Stem_stem_word($stemmer, strtolower($term)));
+    array_push($terms, $stemmer->stem_word(strtolower($term)));
 }
-$query = new_Query(Query_OP_OR, $terms);
+$query = new XapianQuery(XapianQuery::OP_OR, $terms);
 
-print "Performing query `" . Query_get_description($query) . "'\n";
+print "Performing query `" . $query->get_description() . "'\n";
 
-Enquire_set_query($enquire, $query);
-$matches = Enquire_get_mset($enquire, 0, 10);
+$enquire->set_query($query);
+$matches = $enquire->get_mset(0, 10);
 
-print MSet_get_matches_estimated($matches) . " results found\n";
-$mseti = MSet_begin($matches);
-while (! MSetIterator_equals($mseti, MSet_end($matches))) {
-    print "ID " . MSetIterator_get_docid($mseti) . " " .
-	MSetIterator_get_percent($mseti) . "% [" .
-	Document_get_data(MSetIterator_get_document($mseti)) . "]\n";
-    MSetIterator_next($mseti);
+print $matches->get_matches_estimated() . " results found\n";
+$mseti = $matches->begin();
+while (!$mseti->equals($matches->end())) {
+    print "ID " . $mseti->get_docid() . " " .
+	$mseti->get_percent() . "% [" .
+	$mseti->get_document()->get_data() . "]\n";
+    $mseti->next();
 }
 ?>

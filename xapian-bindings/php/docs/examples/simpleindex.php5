@@ -2,7 +2,7 @@
 /* Index each paragraph in a textfile as a document
  *
  * Copyright (C) 2004 James Aylett
- * Copyright (C) 2004,2005,2006 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,6 +19,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+
+include "php5/xapian.php";
 
 define('MAX_PROB_TERM_LENGTH', 64);
 
@@ -41,7 +43,7 @@ function find_p($string, $start, $predicate)
 {
     while ($start < strlen($string) and
 	   !$predicate(substr($string, $start, 1))) {
-	$start ++;
+	$start++;
     }
     return $start;
 }
@@ -51,20 +53,20 @@ if (!isset($_SERVER['argv']) or count($_SERVER['argv']) != 2) {
     exit;
 }
 
-$database = new_WritableDatabase($_SERVER['argv'][1], DB_CREATE_OR_OPEN);
+$database = new XapianWritableDatabase($_SERVER['argv'][1], Xapian::DB_CREATE_OR_OPEN);
 if (!$database) {
     print "Couldn't create database '{$_SERVER['argv'][1]}'\n";
     exit;
 }
-$stemmer = new_Stem("english");
+$stemmer = new XapianStem("english");
 $para = '';
 $lines = file("php://stdin");
 foreach ($lines as $line) {
     $line = rtrim($line);
     if ($line == "") {
 	if ($para != "") {
-	    $doc = new_Document();
-	    Document_set_data($doc, $para);
+	    $doc = new XapianDocument();
+	    $doc->set_data($para);
 	    $pos = 0;
 	    /*
 	     * At each point, find the next alnum character (i), then
@@ -83,13 +85,13 @@ foreach ($lines as $line) {
 		    $j = $k;
 		}
 		if ($j-$i <= MAX_PROB_TERM_LENGTH and $j > $i) {
-		    $term = stem_stem_word($stemmer, strtolower(substr($para, $i, $j-$i)));
-		    Document_add_posting($doc, $term, $pos);
-		    $pos ++;
+		    $term = $stemmer->stem_word(strtolower(substr($para, $i, $j-$i)));
+		    $doc->add_posting($term, $pos);
+		    $pos++;
 		}
 		$i = $j;
 	    }
-	    WritableDatabase_add_document($database, $doc);
+	    $database->add_document($doc);
 	    $para = "";
 	}
     } else {
