@@ -906,6 +906,15 @@ AC_SYS_LARGEFILE
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapian-config.
 AC_SUBST(link_all_deplibs_CXX)
 
+MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
+[MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
+[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
+
+dnl AC_SUBST these for msvc/version.h
+AC_SUBST(MAJOR_VERSION)
+AC_SUBST(MINOR_VERSION)
+AC_SUBST(REVISION)
+
 dnl **************************
 dnl * Build the output files *
 dnl **************************
@@ -917,6 +926,7 @@ AC_CONFIG_FILES([
  docs/doxygen_api_conf
  docs/doxygen_full_conf
  xapian.spec
+ msvc/version.h
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([xapian-config], [chmod +x xapian-config])
@@ -935,9 +945,8 @@ if test yes = "$vpath_build" ; then
   done
 fi
 
-MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
-[MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
-[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
+dnl Generate include/xapian/version.h:
+
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
