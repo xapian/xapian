@@ -1,3 +1,10 @@
+Sun Mar 04 17:40:28 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport fix from trunk:
+	* configure.ac: Automatically look in the standard OS X JVM location
+	  for jni.h.
+	* java/README: Document how to install the jni library on OS X.
+
 Sun Mar 04 17:30:01 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport fix from trunk:
