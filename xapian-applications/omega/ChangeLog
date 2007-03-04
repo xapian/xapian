@@ -1,3 +1,8 @@
+Sun Mar 04 14:49:42 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* TODO: Remove entries which have already been done!
+
 Fri Mar 02 01:44:18 GMT 2007  Olly Betts <olly@survex.com>
 
 	* NEWS,configure.ac: Update for 0.9.10.
