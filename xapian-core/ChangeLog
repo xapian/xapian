@@ -1,3 +1,17 @@
+Sun Mar 04 02:12:17 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* common/msvc_posix_wrapper.cc: Change `#include <fcntl.h>' to
+	  `#include "safefcntl.h"' (currently makes no difference on
+	  Windows, but it's more consistent to always use the safeXXX
+	  headers).
+	* common/msvc_posix_wrapper.cc: Merge two ECHILD cases.
+	* common/msvc_posix_wrapper.cc: Make sure dwCreationDisposition
+	  is initialised even if flags has a bogus value.
+	* common/msvc_posix_wrapper.cc: Be consistent and always use O_CREAT,
+	  etc, instead of sometimes using the MS alternative forms _O_CREAT,
+	  etc.
+
 Fri Mar 02 14:25:25 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* Backport fix from trunk:
