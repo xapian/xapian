@@ -1,3 +1,9 @@
+Sun Mar 04 15:57:14 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* java/README: Note success with Sun's JDK 1.5.0_06-b05, plus the
+	  requirement to add the linux header directory to the include path.
+
 Sun Nov 12 22:40:06 GMT 2006  Olly Betts <olly@survex.com>
 
 	* NEWS: Update from ChangeLog file in preparation for branching and
