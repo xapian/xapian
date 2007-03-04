@@ -75,7 +75,7 @@ public class ESetIterator implements Iterator {
 
     public boolean hasNext() {
         try {
-            return XapianJNI.esetiterator_equals(id, _end_id);
+            return !XapianJNI.esetiterator_equals(id, _end_id);
         } catch (XapianError xe) {
             throw new XapianRuntimeError(xe);
         }

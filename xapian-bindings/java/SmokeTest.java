@@ -20,6 +20,22 @@
 import org.xapian.*;
 import org.xapian.errors.*;
 
+class MyMatchDecider implements MatchDecider {
+    public boolean accept(Document d) {
+	// NB It's not normally appropriate to call getData() in a MatchDecider
+	// but we do it here to make sure we don't get an empty document.
+	try {
+	    return d.getData() == "";
+	} catch (XapianError e) {
+	    return true;
+	}
+    }
+}
+
+class MyExpandDecider implements ExpandDecider {
+    public boolean accept(String s) { return s.substring(0, 1) != "a"; }
+}
+
 public class SmokeTest {
     public static void main(String[] args) throws Exception {
 	try {
@@ -93,6 +109,35 @@ public class SmokeTest {
 
 	    if (Query.OP_ELITE_SET != 10) {
 		System.err.println("OP_ELITE_SET is " + Query.OP_ELITE_SET + " not 10");
+		System.exit(1);
+	    }
+
+	    RSet rset = new RSet();
+	    rset.addDocument(1);
+	    ESet eset = enq.getESet(10, rset, new MyExpandDecider());
+	    ESetIterator eit = eset.iterator();
+	    int count = 0;
+	    while (eit.hasNext()) {
+		if (eit.getTerm().substring(0, 1) == "a") {
+		    System.err.println("MyExpandDecider wasn't used");
+		    System.exit(1);
+		}
+		++count;
+		eit.next();
+	    }
+	    if (count != eset.size()) {
+		System.err.println("ESet.size() mismatched number of terms returned by ESetIterator");
+		System.exit(1);
+	    }
+
+	    MSet mset2 = enq.getMSet(0, 10, null, new MyMatchDecider());
+	    if (mset2.size() > 0) {
+		System.err.println("MyMatchDecider wasn't used");
+		System.exit(1);
+	    }
+
+	    if (!enq.getQuery().toString().equals("Xapian::Query((there OR is))")) {
+		System.err.println("Enquire::getQuery() returned the wrong query: " + enq.getQuery().toString());
 		System.exit(1);
 	    }
 	} catch (Exception e) {

@@ -1,5 +1,6 @@
 /**
  Copyright (c) 2003, Technology Concepts & Design, Inc.
+ Copyright (c) 2006, Olly Betts
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without modification, are permitted
@@ -29,17 +30,6 @@
 using namespace std;
 using namespace Xapian;
 
-class MyQuery : public Xapian::Query {
-    private:
-        long _myid;
-
-    public:
-        MyQuery(const Query &query) : Query(query) { }
-
-        long getMyID() { return _myid; }
-        void setMyID(long id) { _myid = id; }
-};
-
 class JavaMatchDecider : public Xapian::MatchDecider {
     private:
         JNIEnv *env;
@@ -57,7 +47,7 @@ class JavaMatchDecider : public Xapian::MatchDecider {
                 _deciderclass = env->GetObjectClass(obj);
                 if (!_deciderclass) goto on_error;
 
-                _acceptmethod = env->GetMethodID(_deciderclass, "accept", "(Lorg/xapian/Document;)I");
+                _acceptmethod = env->GetMethodID(_deciderclass, "accept", "(Lorg/xapian/Document;)Z");
                 if (!_acceptmethod) goto on_error;
 
 on_error:
@@ -73,13 +63,13 @@ on_error:
             jclass documentclass = env->FindClass("org/xapian/Document");
             if (!documentclass) goto on_error;
 
-            ctorid = env->GetMethodID(documentclass, "<init>", "(J)");
+            ctorid = env->GetMethodID(documentclass, "<init>", "(J)V");
             if (!ctorid) goto on_error;
 
             document = env->NewObject(documentclass, ctorid, docid);
             if (!document) goto on_error;
 
-            return env->CallIntMethod(_obj, _acceptmethod, document);
+            return env->CallBooleanMethod(_obj, _acceptmethod, document);
 
 on_error:       // I can also "program" in VisualBasic
         CATCH(-1)
@@ -103,7 +93,7 @@ class JavaExpandDecider : public Xapian::ExpandDecider {
                 _deciderclass = env->GetObjectClass(obj);
                 if (!_deciderclass) goto on_error;
 
-                _acceptmethod = env->GetMethodID(_deciderclass, "accept", "(Ljava/lang/String;)I");
+                _acceptmethod = env->GetMethodID(_deciderclass, "accept", "(Ljava/lang/String;)Z");
                 if (!_acceptmethod) goto on_error;
 
 on_error:
@@ -112,7 +102,7 @@ on_error:
 
     int operator() (const std::string &tname) const {
         TRY
-            return env->CallIntMethod(_obj, _acceptmethod, env->NewStringUTF(tname.c_str()));
+            return env->CallBooleanMethod(_obj, _acceptmethod, env->NewStringUTF(tname.c_str()));
         CATCH(-1)
     }
 };
@@ -129,9 +119,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1new (JNIEnv *env, jcl
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *env, jclass clazz, jlong eid, jlong qid) {
     TRY
         Enquire *e = _enquire->get(eid);
-        Query *tmp = _query->get(qid);
-        MyQuery *q = new MyQuery(*tmp);
-        q->setMyID(qid);
+        Query *q = _query->get(qid);
         e->set_query(*q);
     CATCH(;)
 }
@@ -139,20 +127,23 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *en
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1query (JNIEnv *env, jclass clazz, jlong eid, jlong qid, jint qlen) {
     TRY
         Enquire *e = _enquire->get(eid);
-        Query *tmp = _query->get(qid);
-        MyQuery *q = new MyQuery(*tmp);
-        q->setMyID(qid);
+        Query *q = _query->get(qid);
         e->set_query(*q, qlen);
     CATCH(;)
 }
 
+// We don't need this wrapped by the JNI - we just handle it at the Java level
+// instead.
+#if 0
 JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1query (JNIEnv *env, jclass clazz, jlong eid) {
     TRY
         Enquire *e = _enquire->get(eid);
-        MyQuery q = (MyQuery) e->get_query();
+        Query q = e->get_query();
+	// Insert magic here!
         return q.getMyID();
     CATCH(-1)
 }
+#endif
 
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1collapse_1key (JNIEnv *env, jclass clazz, jlong eid, jlong collapse_key) {
     TRY
@@ -197,7 +188,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1mset (JNIEnv *en
     CATCH(-1)
 }
 
-JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1eset__JJJIDLcom_tcdi_app_xapian_ExpandDecider_2 (JNIEnv *env, jclass clazz, jlong eid, jlong maxitems, jlong rsetid, jint flags, jdouble k, jobject ed) {
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1eset__JJJIDLorg_xapian_ExpandDecider_2 (JNIEnv *env, jclass clazz, jlong eid, jlong maxitems, jlong rsetid, jint flags, jdouble k, jobject ed) {
     TRY
         Enquire *e = _enquire->get(eid);
         RSet *rset = _rset->get(rsetid);
@@ -206,7 +197,7 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1eset__JJJIDLcom_
     CATCH(-1)
 }
 
-JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1eset__JJJLcom_tcdi_app_xapian_ExpandDecider_2 (JNIEnv *env, jclass clazz, jlong eid, jlong maxitems, jlong rsetid, jobject ed) {
+JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_enquire_1get_1eset__JJJLorg_xapian_ExpandDecider_2 (JNIEnv *env, jclass clazz, jlong eid, jlong maxitems, jlong rsetid, jobject ed) {
     TRY
         Enquire *e = _enquire->get(eid);
         RSet *rset = _rset->get(rsetid);

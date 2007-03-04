@@ -124,6 +124,10 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_query_1new__I_3J (JNIEnv *env,
 	    queries[x] = _query->get(qid_ptr[x]);
 	}
         Query *q = new Query(op_table[op-1], queries, queries+len);
+	/* We don't change the array so use JNI_ABORT to avoid any work
+	 * copying back non-existent changes if the JVM gave us a copy
+	 * of the array data. */
+	env->ReleaseLongArrayElements(qids, qid_ptr, JNI_ABORT);
 	delete[] queries;
         return _query->put(q);
     CATCH(-1)

@@ -1,3 +1,40 @@
+Sun Mar 04 17:26:37 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport lots of java fixes from trunk:
+	* java/SmokeTest.java,java/org/xapian/RSet.java: Add missing default
+	  constructor for RSet class - it's not much use without this!
+	* java/SmokeTest.java,java/native/Enquire.cc,
+	  java/org/xapian/Enquire.java: Fit Enquire.getESet() to be callable.
+	* java/org/xapian/ESetIterator.java: Fix bug in ESetIterator.hasNext()
+	  reported by Alex Kushkuley.
+	* java/SmokeTest.java: Add regression test.
+	* java/native/Enquire.cc: Fix MatchDecider and ExpandDecider to look
+	  for an "accept" method with the correct signature (bool return value
+	  not int).  Reported by Alex Kushkuley.
+	* java/native/Enquire.cc: Fix MatchDecider to work.
+	* java/SmokeTest.java: Add feature/regression test for MatchDecider
+	  subclassing.
+	* java/SmokeTest.java: Add feature/regression test for ExpandDecider
+	  which also now works thanks to the last checkin.
+	* java/Makefile.am: "make clean" now needs to remove
+	  MyMatchDecider.class and MyExpandDecider.class which are generated
+	  from SmokeTest.java.
+	* java/SmokeTest.java: Check getData() on the document in
+	  MyMatchDecider returns a non-empty string to make sure we are really
+	  getting the right document and not an empty document.
+	* java/native/Query.cc: Release the array in the "Query from array"
+	  ctor to avoid a memory leak.  Partly fixes bug#105.
+	* java/native/Enquire.cc,java/native/org_xapian_XapianJNI.h,
+	  java/org/xapian/Enquire.java,java/org/xapian/XapianJNI.java:
+	  Enquire::getQuery() is implemented entirely in Java, so strip out
+	  the unused MyQuery mechanism, and so fix a memory link which it
+	  caused.  Fixes the rest of bug#105.
+	* java/SmokeTest.java: Add feature test for Enquire::getQuery().
+	* java/native/org_xapian_XapianJNI.h,java/native/xapian_jni.h:
+	  Move header guards to surround the entire non-comment contents
+	  of the header files, which allows the compiler to optimise
+	  multiple inclusion (at least GCC does this).
+
 Sun Mar 04 15:58:35 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport change from trunk:
