@@ -1,7 +1,7 @@
 /** \file errorhandler.h
  *  \brief Decide if a Xapian::Error exception should be ignored.
  */
-/* Copyright (C) 2003,2006 Olly Betts
+/* Copyright (C) 2003,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -69,7 +69,7 @@ class Xapian::ErrorHandler {
     ErrorHandler() {}
 
     /// We require a virtual destructor because we have virtual methods.
-    virtual ~ErrorHandler() {}
+    virtual ~ErrorHandler();
 
     /** Handle a Xapian::Error object.
      *
