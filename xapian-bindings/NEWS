@@ -1,11 +1,66 @@
-up to:
-Sun Nov 12 21:35:42 GMT 2006  Olly Betts <olly@survex.com>
+Xapian-core 0.9.10 (2007-03-04):
 
-Xapian-core 0.9.? (2006-11-??):
+Java:
+
+* Under Mac OS X, automatically look in the standard location for jni.h,
+  and automatically rename the JNI library we build to ".jnilib", as is
+  required by the OS X JVM.
+
+* java/README: Note success with Sun's JDK 1.5.0_06-b05, plus the requirement
+  to add the linux header directory to the include path when using this JDK.
+
+* Add missing default constructor for RSet class - it's not much use without
+  this!
+
+* Fix Enquire.getESet() to actually work.
+
+* Fix bug in ESetIterator.hasNext().
+
+* Fix MatchDecider and ExpandDecider so subclassing in Java actually works.
+
+* Fix memory leak with some JVMs in the "Query from array" constructor.
+
+* Fix memory leak in Enquire.setQuery().
+
+* SmokeTest.java: Add regression tests for RSet default constructor,
+  Enquire.getESet(), ESetIterator.hasNext(), MatchDecider, ExpandDecider.
+  Add feature tests for Enquire.getQuery(), and to make sure we get passed
+  the right document in a java subclass of MatchDecider.
+
+PHP:
+
+* Update the documentation to fix out-of-date information and document the
+  differences between the PHP4 and PHP5 wrappers.
+
+* Update the examples to use the new Object Oriented API, and provide versions
+  for both PHP4 and PHP5.
+
+* Add a "simpleexpand" example.
+
+* For PHP4, Xapian::DB_CREATE_OR_OPEN should be wrapped as
+  Xapian_DB_CREATE_OR_OPEN not DB_CREATE_OR_OPEN, so wrap it with the
+  new name, but keep the old name for now for backward compatibility.
+
+* configure: Try `$(PHP_CONFIG) --php-binary` when looking for a PHP
+  interpreter - this works with PHP5.
+
+* configure: Remove the sanity check for PHP_EXTENSION_DIR added in Xapian
+  0.9.8 - if Xapian is the first PHP extension to be installed, the extension
+  directory may not exist and "make install" will create it.
+
+* configure: If zend.h isn't found and configure was run with "--with-php",
+  exit with an error rather than automatically disabling PHP support.
 
 Python:
 
 * Fix a problem which preventing building for Python 2.5 on 64 bit platforms.
+
+Packaging:
+
+* RPMs: Add support for passing "--without python" to rpmbuild.  Document the
+  various "--without" options in a comment at the start of the .spec file.
+
+* RPMs: Remove "." from the end of the Summary.
 
 Xapian-core 0.9.9 (2006-11-09):
 

@@ -6,7 +6,7 @@ dnl 2.57 fixes the annoying warnings from configure on FreeBSD
 dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
-AC_INIT(xapian-bindings, 0.9.9)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-bindings, 0.9.10)dnl FIXME: bugreport addr as third argument
 AM_INIT_AUTOMAKE([1.8.5])
 
 AC_CONFIG_SRCDIR(xapian.i)
@@ -99,7 +99,10 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.30
+  dnl Check for swig >= 1.3.32
+  dnl (1.3.32 isn't released at the time of writing, but SWIG SVN trunk
+  dnl rev 9651 or later is required, and this identifies itself as 1.3.32).
+  dnl
   dnl 1.3.23 adds support for optional arguments in CSharp.
   dnl 1.3.24 tweaks CSharp enums
   dnl 1.3.26 fixes PHP overloading
@@ -111,11 +114,12 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl 1.3.30 produces class wrappers for PHP5
   dnl You can see the latest SWIG changes here:
   dnl http://cvs.sourceforge.net/viewcvs.py/*checkout*/swig/SWIG/CHANGES
+  dnl 1.3.32 fixes PHP5 wrappers for overloaded forms with default arguments.
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
    [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
    *)
-     AC_MSG_ERROR([SWIG >= 1.3.30 required (you have $v)]) ;;
+     AC_MSG_ERROR([SWIG >= 1.3.32 (SVN rev 9651 or later) required (you have $v)]) ;;
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
