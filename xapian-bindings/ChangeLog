@@ -1,3 +1,12 @@
+Sun Mar 04 18:36:31 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport changes from trunk:
+	* php/docs/Makefile.am,php/docs/bindings.html,php/docs/examples/:
+	  Update the documentation and examples to fix out-of-date information
+	  and document the differences between the PHP4 and PHP5 wrappers.
+	* php/docs/example/simpleexpand.php4,
+	  php/docs/example/simpleexpand.php5: Add versions of simpleexpand.
+
 Sun Mar 04 18:33:42 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport fix from trunk:

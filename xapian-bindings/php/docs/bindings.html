@@ -3,17 +3,43 @@
 <h1>PHP bindings for Xapian</h1>
 
 <p>
-The PHP bindings for Xapian are packaged in the <code>xapian.so</code>
-extension, and largely follow the C++ API.  This document lists the differences
-and additions. PHP strings and arrays, etc., are converted automatically
-in the bindings, so generally it should just work as expected.
+The PHP bindings for Xapian are packaged in the <code>xapian</code>
+extension.  The PHP API provided by this extension largely follows Xapian's C++
+API.  This document lists the differences and additions.
+</p>
+
+<p>
+These bindings can be built for either PHP4 or PHP5, though there are some
+differences in how the C++ API is wrapped for each version due to differences
+between PHP4 and PHP5.
+</p>
+
+<p>
+PHP strings, arrays, etc., are converted automatically to and from the
+corresponding C++ types in the bindings, so generally you can pass arguments as
+you would expect.  One thing to be aware of though is that SWIG implements
+dispatch functions for overloaded methods based on the types of the parameters,
+ so you can't always pass in a string containing a number (e.g.
+"42") where a number is expected as you usually can in PHP.  You need to
+explicitly convert to the type required - e.g. use <code>(int)</code> to
+convert to an integer, <code>(string)</code> to string, <code>(double)</code>
+to a floating point number.
 </p>
 
 <p>
 The <code>examples</code> subdirectory contains examples showing how to use the
 PHP bindings based on the simple examples from <code>xapian-examples</code>:
-<a href="examples/simpleindex.php">simpleindex.php</a>,
-<a href="examples/simplesearch.php">simplesearch.php</a>.
+
+<ul>
+<li> PHP4:
+<a href="examples/simpleindex.php4">simpleindex.php4</a>,
+<a href="examples/simplesearch.php4">simplesearch.php4</a>,
+<a href="examples/simpleexpand.php4">simpleexpand.php4</a>.
+<li> PHP5:
+<a href="examples/simpleindex.php5">simpleindex.php5</a>,
+<a href="examples/simplesearch.php5">simplesearch.php5</a>,
+<a href="examples/simpleexpand.php5">simpleexpand.php5</a>.
+</ul>
 </p>
 
 <h2>Installation</h2>
@@ -37,13 +63,29 @@ as the extension, and MS Windows uses <code>.dll</code>).
 </p>
 
 <p>
-Depending how PHP is setup, you may need to restart the webserver for this
-change to take effect.
+If you're using PHP as a webserver module (e.g. mod_php with Apache), you
+may need to restart the webserver for this change to take effect.
 </p>
 
 <p>
-Alternatively you can add the following line to the start of your PHP scripts:
-<code>dl('xapian.so');</code>
+Alternatively, you can get scripts which use Xapian to explicitly load it.
+This approach is useful if you don't have root access and so can't make
+changes to php.ini.  The simplest set up is to copy <code>xapian.so</code> into
+the same directory as your PHP script, and then add the following line to the
+start of your PHP scripts which use Xapian: <code>dl('xapian.so');</code>
+</p>
+
+<p>
+You can put <code>xapian.so</code> elsewhere (and it's probably better to)
+but note that <code>dl()</code> requires a <b>relative</b> path so you
+might have to use something insane-looking like:
+<code>dl('../../../../usr/lib/php5/20051025/xapian.so');</code>
+
+<p>
+If you're using PHP5, you also need to add <code>include&nbsp;"xapian.php"</code>
+to your PHP scripts which use Xapian in order to get the PHP class wrappers.
+The PHP4 class wrappers are implementing by the module you load with
+<code>dl()</code>.
 </p>
 
 <h2>Exceptions</h2>
@@ -55,8 +97,8 @@ which are thrown into the PHP script.
 
 <p>
 Unfortunately, exception handling with <code>try</code> and <code>catch</code>
-isn't supported in PHP4, and the alternatives aren't great.
-Most C++ exceptions are converted to a PHP fatal error.
+isn't supported in PHP4, and there isn't really a good alternative approach.
+Most Xapian exceptions are converted to a PHP fatal error.
 However, for exceptions which might be commonly encountered we instead
 produce a PHP warning and the method returns <code>null</code>.  You can
 then check for and handle the exception like so:
@@ -86,13 +128,19 @@ be in this list is particularly welcome):</p>
 <h2>Object orientation</h2>
 
 <p>
-The PHP bindings do not currently use a PHP object oriented style
-(unfortunately SWIG's support for this is currently buggy for PHP4 and
-unimplemented for PHP5). In order to construct an object, use
-<code>$object = new_ClassName(...);</code>.  You can't explicitly destroy
-an object from PHP, but <code>unset($object);</code> or <code>$object = Null;</code> will cause the destructor
-to be called.
-Invoke methods on an object using <code>ClassName_method_name($object, ...)</code>.
+As of Xapian 0.9.7, the PHP bindings use a PHP object oriented style.  This
+is very similar for PHP4 and PHP5, but there are a few differences.
+</p>
+
+<p>
+In order to construct an object, use
+<code>$object = new XapianClassName(...);</code>.  Objects are destroyed
+when they go out of scope - to explicitly destroy an object you can use
+<code>unset($object);</code> or <code>$object = Null;</code>
+</p>
+
+<p>
+You invoke a method on an object using <code>$object-&gt;method_name()</code>.
 </p>
 
 <h2>Iterators</h2>
@@ -122,7 +170,7 @@ Invoke methods on an object using <code>ClassName_method_name($object, ...)</cod
 </table>
 
 <p>
-   Other methods, such as <code>MSetIterator.get_document()</code>, are
+   Other methods, such as <code>MSetIterator::get_document()</code>, are
    available unchanged.
 </p>
    
@@ -143,21 +191,39 @@ Invoke methods on an object using <code>ClassName_method_name($object, ...)</cod
 
 <h2>Database Factory Functions</h2>
 
+<p>For PHP4:</p>
+
 <ul>
 <li> <code>Xapian::Auto::open_stub(<i>file</i>)</code> is wrapped as <code>open_stub(<i>file</i>)</code>
 <li> <code>Xapian::Quartz::open(...)</code> is wrapped as <code>quartz_open(...)</code>
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>inmemory_open()</code>
-<li> <code>Xapian::Remote::open()</code> is wrapped as <code>remote_open()</code> (only
-the TCP version is currently wrapped, the "program" version isn't).
+<li> <code>Xapian::Remote::open(...)</code> is wrapped as <code>remote_open(...)</code>
+</ul>
+
+<p>For PHP5:</p>
+
+<ul>
+<li> <code>Xapian::Auto::open_stub(<i>file</i>)</code> is wrapped as <code>Xapian::auto_open_stub(<i>file</i>)</code>
+<li> <code>Xapian::Quartz::open(...)</code> is wrapped as <code>Xapian::quartz_open(...)</code>
+<li> <code>Xapian::InMemory::open()</code> is wrapped as <code>Xapian::inmemory_open()</code>
+<li> <code>Xapian::Remote::open(...)</code> is wrapped as <code>Xapian::remote_open(...)</code>
 </ul>
 
 <h2>Constants</h2>
 
 <p>
-   Constants are wrapped with the Xapian namespace removed, so
-   <code>Xapian::DB_CREATE_OR_OPEN</code> is available as
-   <code>DB_CREATE_OR_OPEN</code>, <code>Xapian::Query::OP_OR</code> is
-   available as <code>Query_OP_OR</code>, and so on.
+   For PHP4, constants are wrapped in a similar way to class methods.
+   So <code>Xapian::DB_CREATE_OR_OPEN</code> is available as
+   <code>Xapian_DB_CREATE_OR_OPEN</code>, <code>Xapian::Query::OP_OR</code> is
+   available as <code>XapianQuery_OP_OR</code>, and so on.
+</p>
+
+<p>
+   For PHP5, constants are wrapped as <code>const</code> members of the
+   appropriate class.
+   So <code>Xapian::DB_CREATE_OR_OPEN</code> is available as
+   <code>Xapian::DB_CREATE_OR_OPEN</code>, <code>Xapian::Query::OP_OR</code> is
+   available as <code>XapianQuery::OP_OR</code>, and so on.
 </p>
 
 <h2>Query</h2>
@@ -167,12 +233,21 @@ the TCP version is currently wrapped, the "program" version isn't).
    start/end iterators specifying a number of terms or queries, plus an optional
    parameter.  In PHP, this is wrapped to accept an array listing the terms
    and/or queries (you can specify a mixture of terms and queries if you wish)
-   For example:
+   For example, for PHP4:
 </p>
 
 <pre>
-   subq = new_Query(Query_OP_AND, "hello", "world");
-   q = new_Query(xapian.Query.OP_AND, array(subq, "foo", new_Query("bar", 2)));
+   subq = new XapianQuery(XapianQuery_OP_AND, "hello", "world");
+   q = new XapianQuery(XapianQuery_OP_AND, array(subq, "foo", new XapianQuery("bar", 2)));
+</pre>
+
+<p>
+   And for PHP5:
+</p>
+
+<pre>
+   subq = new XapianQuery(XapianQuery::OP_AND, "hello", "world");
+   q = new XapianQuery(XapianQuery::OP_AND, array(subq, "foo", new XapianQuery("bar", 2)));
 </pre>
 
 <h2>Enquire</h2>
