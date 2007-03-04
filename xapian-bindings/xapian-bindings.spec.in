@@ -3,7 +3,7 @@
 %define python_ver %(%{__python} -c "import sys; print sys.version[:3]")
 %define php_extension_dir %(php-config --extension-dir)
 
-Summary: Bindings for the Xapian Probabilistic Information Retrieval Library.
+Summary: Bindings for the Xapian Probabilistic Information Retrieval Library
 Name: xapian-bindings
 Version: @VERSION@
 Release: 1
