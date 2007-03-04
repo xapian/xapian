@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -282,8 +282,6 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Check query is well formed.
 	 *  Throw an exception if not.
-	 *  This is called at construction time, so doesn't check parameters
-	 *  which must be set separately.
 	 *  This performs all checks in prevalidate_query(), and some others
 	 *  as well.
 	 */

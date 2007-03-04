@@ -1,7 +1,7 @@
 /** \file dbfactory.h
  * \brief Factory functions for constructing Database and WritableDatabase objects
  */
-/* Copyright (C) 2005,2006 Olly Betts
+/* Copyright (C) 2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -240,7 +240,7 @@ WritableDatabase open_writable(const std::string &host, unsigned int port, Xapia
  * communicating with it on stdin/stdout.
  *
  * @param program	the external program to run.
- * @param arguments	space-separated list of arguments to pass to program.
+ * @param args		space-separated list of arguments to pass to program.
  * @param timeout	timeout in milliseconds.  If this timeout is exceeded
  *			for any individual operation on the remote database
  *			then Xapian::NetworkTimeoutError is thrown (default is
@@ -248,6 +248,19 @@ WritableDatabase open_writable(const std::string &host, unsigned int port, Xapia
  */
 Database open(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
 
+/** Construct a WritableDatabase object for update access to a remote database
+ *  accessed via a program.
+ *
+ * Access to the remote database is done by running an external program and
+ * communicating with it on stdin/stdout.
+ *
+ * @param program	the external program to run.
+ * @param args		space-separated list of arguments to pass to program.
+ * @param timeout	timeout in milliseconds.  If this timeout is exceeded
+ *			for any individual operation on the remote database
+ *			then Xapian::NetworkTimeoutError is thrown (default is
+ *			10000ms, which is 10 seconds).
+ */
 WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
 
 }

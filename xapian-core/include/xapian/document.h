@@ -63,7 +63,13 @@ class Document {
 	/// Destructor
 	~Document();
 
-	/// Get value by number (>= 0)
+	/** Get value by number.
+	 *
+	 *  Returns an empty string if no value with the given number is present
+	 *  in the document.
+	 *
+	 *  @param value The number of the value.
+	 */
 	std::string get_value(Xapian::valueno value) const;
 
 	/** Add a new value.  It will replace any existing value with the
