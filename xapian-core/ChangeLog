@@ -1,3 +1,11 @@
+Sun Mar 04 00:40:44 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,include/xapian/enquire.h,matcher/Makefile.mk,
+	  matcher/weight.cc: Move virtual method definitions out of headers
+	  for MatchDecider, ExpandDecider, Weight, BoolWeight.  This fixes
+	  warnings from aCC, and it's rare that the compiler would be able
+	  to inline a virtual method anyway.
+
 Sat Mar 03 21:40:43 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: For HP's aCC, we no longer need to suppress warning

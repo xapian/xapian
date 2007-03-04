@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -598,7 +598,7 @@ class MatchDecider {
 	virtual int operator()(const Xapian::Document &doc) const = 0;
 
 	/// Destructor.
-	virtual ~MatchDecider() {}
+	virtual ~MatchDecider();
 };
 
 /** Base class for expand decision functor.
@@ -610,7 +610,7 @@ class ExpandDecider {
 	virtual int operator()(const std::string & tname) const = 0;
 
 	/// Destructor.
-	virtual ~ExpandDecider() {}
+	virtual ~ExpandDecider();
 };
 
 /** This class provides an interface to the information retrieval
@@ -1050,7 +1050,7 @@ class Weight {
 
     public:
 	Weight() { }
-	virtual ~Weight() { }
+	virtual ~Weight();
 
 	/** Create a new weight object of the same type as this and initialise
 	 *  it with the specified statistics.
@@ -1065,14 +1065,7 @@ class Weight {
 	 *  @param tname_     Term which this object is associated with.
 	 */
 	Weight * create(const Internal * internal_, Xapian::doclength querysize_,
-			  Xapian::termcount wqf_, std::string tname_) const {
-	    Weight * wt = clone();
-	    wt->internal = internal_;
-	    wt->querysize = querysize_;
-	    wt->wqf = wqf_;
-	    wt->tname = tname_;
-	    return wt;
-	}
+			Xapian::termcount wqf_, const std::string & tname_) const;
 
 	/** Name of the weighting scheme.
 	 *
@@ -1119,29 +1112,25 @@ class Weight {
 	virtual Xapian::weight get_maxextra() const = 0;
 
 	/// return false if the weight object doesn't need doclength
-	virtual bool get_sumpart_needs_doclength() const { return true; }
+	virtual bool get_sumpart_needs_doclength() const; /* { return true; } */
 };
 
 /// Boolean weighting scheme (everything gets 0)
 class BoolWeight : public Weight {
     public:
-	BoolWeight * clone() const {
-	    return new BoolWeight;
-	}
+	BoolWeight * clone() const;
 	BoolWeight() { }
-	~BoolWeight() { }
-	std::string name() const { return "Bool"; }
-	std::string serialise() const { return ""; }
-	BoolWeight * unserialise(const std::string & /*s*/) const {
-	    return new BoolWeight;
-	}
-	Xapian::weight get_sumpart(Xapian::termcount /*wdf*/, Xapian::doclength /*len*/) const { return 0; }
-	Xapian::weight get_maxpart() const { return 0; }
+	~BoolWeight();
+	std::string name() const;
+	std::string serialise() const;
+	BoolWeight * unserialise(const std::string & s) const;
+	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
+	Xapian::weight get_maxpart() const;
 
-	Xapian::weight get_sumextra(Xapian::doclength /*len*/) const { return 0; }
-	Xapian::weight get_maxextra() const { return 0; }
+	Xapian::weight get_sumextra(Xapian::doclength len) const;
+	Xapian::weight get_maxextra() const;
 
-	bool get_sumpart_needs_doclength() const { return false; }
+	bool get_sumpart_needs_doclength() const;
 };
 
 /** BM25 weighting scheme
