@@ -1,3 +1,13 @@
+Sun Mar 04 17:30:01 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport fix from trunk:
+	* configure.ac: Remove the sanity check for PHP_EXTENSION_DIR
+	  added in Xapian 0.9.8 - if this is the first PHP extension to be
+	  installed, the extension directory may not exist and "make install"
+	  will create it.
+	* configure.ac: If zend.h isn't found and configure was run with
+	  "--with-php" we now die rather than disabling PHP support.
+
 Sun Mar 04 17:26:37 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport lots of java fixes from trunk:
