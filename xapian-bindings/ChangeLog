@@ -1,3 +1,8 @@
+Sun Mar 04 18:52:25 GMT 2007  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/: Oops, failed to "svn add" and "svn rm" the
+	  changed examples for the last backport.
+
 Sun Mar 04 18:36:31 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:
