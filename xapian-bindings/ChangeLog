@@ -1,3 +1,10 @@
+Sun Mar 04 18:33:42 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport fix from trunk:
+	* xapian.i: For PHP4, Xapian::DB_CREATE_OR_OPEN should be wrapped as
+	  Xapian_DB_CREATE_OR_OPEN not DB_CREATE_OR_OPEN, so wrap it with the
+	  new name, but keep the old name for now for backward compatibility.
+
 Sun Mar 04 17:47:09 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport changes from trunk:

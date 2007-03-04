@@ -807,6 +807,12 @@ class WritableDatabase : public Database {
 %constant int DB_CREATE = 2;
 %constant int DB_CREATE_OR_OVERWRITE = 3;
 %constant int DB_OPEN = 4;
+#ifdef SWIGPHP4
+%constant int Xapian_DB_CREATE_OR_OPEN = 1;
+%constant int Xapian_DB_CREATE = 2;
+%constant int Xapian_DB_CREATE_OR_OVERWRITE = 3;
+%constant int Xapian_DB_OPEN = 4;
+#endif
 
 // Database factory functions:
 
