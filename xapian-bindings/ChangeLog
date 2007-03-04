@@ -1,3 +1,10 @@
+Sun Mar 04 17:45:48 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Backport change from trunk:
+	* xapian-bindings.spec.in: Add support for passing "--without python"
+	  to rpmbuild.  Document the various "--without" options in a comment
+	  at the start of the .spec file.
+
 Sun Mar 04 17:44:53 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Backport fix from trunk:
