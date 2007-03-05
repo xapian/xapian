@@ -1,3 +1,7 @@
+Mon Mar 05 02:52:49 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Suppress more unhelpful aCC warnings.
+
 Mon Mar 05 02:15:29 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Add testcase autoptr1 which tests that an

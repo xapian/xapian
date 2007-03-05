@@ -262,9 +262,21 @@ else
       dnl +w turns on more warnings.
       dnl +wlint turns on "lint-like" warnings.
       dnl +W<n1>,<n2>,... suppresses warnings n1, n2, ...
-      dnl 2340 is "remark" "value copied to temporary, reference to temporary use", in: throw Xapian::UnimplementedError("...");
-      dnl 4255 is "remark" "padding size of struct "..." with ... bytes to alignment boundary".
-      WARNING_CXXFLAGS="+w +wlint +W2340,4255" ;;
+      dnl 2340 (remark) "value copied to temporary, reference to temporary
+      dnl	use", in: throw Xapian::UnimplementedError("...");
+      dnl 2401 "destructor for base class ... is non-virtual" (we don't need a
+      dnl	virtual destructor for RefCntBase, since we never delete its
+      dnl	subclasses by a RefCntBase *).
+      dnl 4255 (remark) "padding size of struct "..." with ... bytes to
+      dnl	alignment boundary".
+      dnl 4273 "floating-point equality and inequality comparisons may be
+      dnl	inappropriate due to roundoff common in floating-point computation"
+      dnl	No obvious workaround for when you really do want == or !=.
+      dnl 4285 "operator= does not have a check for the sourc and destination
+      dnl	addresses being non-identical" - fires for AutoPtr which
+      dnl	includes such a check indirectly (internaltest's autoptr1 check this).
+      dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
+      WARNING_CXXFLAGS="+w +wlint +W2340,2401,4255,4273,4285,20201" ;;
     cxx|*/cxx)
       dnl Select ANSI mode ('-std strict_ansi' is needed for ANSI iostream
       dnl as '-std ansi' gives a pre-standard AT&T-compatible version).
