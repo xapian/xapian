@@ -61,7 +61,7 @@ dnl 12:0:1 0.9.6 Added Xapian::version_string(), etc
 dnl 13:0:0 0.9.7 Rewritten Xapian::Error class
 dnl 13:0:0 0.9.8 No API changes (failed to bump revision)
 dnl 13:1:0 0.9.9 No API changes
-dnl 13:2:0 0.9.9 No API changes
+dnl 13:2:0 0.9.10 No API changes
 LIBRARY_VERSION_INFO=13:2:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
