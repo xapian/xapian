@@ -1,3 +1,7 @@
+Mon Mar 05 01:18:17 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update in line with 0.9.10.
+
 Sun Mar 04 23:58:29 GMT 2007  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add reporters of bugs fixed in 0.9.10 to the "thanks" list.
