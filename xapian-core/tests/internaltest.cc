@@ -191,21 +191,25 @@ static bool test_omstringstream1()
     return true;
 }
 
-static bool test_omtostring1()
+static bool test_tostring1()
 {
-    string str;
-    str = om_tostring(10);
-    TEST_EQUAL(str, "10");
+    TEST_EQUAL(om_tostring(0), "0");
+    TEST_EQUAL(om_tostring(10), "10");
+    TEST_EQUAL(om_tostring(10u), "10");
+    TEST_EQUAL(om_tostring(-10), "-10");
+    TEST_EQUAL(om_tostring(0xffffffff), "4294967295");
+    TEST_EQUAL(om_tostring(0x7fffffff), "2147483647");
+    TEST_EQUAL(om_tostring(0x7fffffffu), "2147483647");
+    TEST_EQUAL(om_tostring(-0x7fffffff), "-2147483647");
 
 #ifdef __WIN32__
     /* Test the 64 bit integer conversion to string.
      * (Currently only exists for windows.)
      */
-    str = om_tostring(10ll);
-    TEST_EQUAL(str, "10");
-
-    str = om_tostring(0x200000000ll);
-    TEST_EQUAL(str, "8589934592");
+    TEST_EQUAL(om_tostring(10ll), "10");
+    TEST_EQUAL(om_tostring(-10ll), "-10");
+    TEST_EQUAL(om_tostring(0x200000000ll), "8589934592");
+    TEST_EQUAL(om_tostring(0x200000000ull), "8589934592");
 #endif
 
     return true;
@@ -372,7 +376,7 @@ test_desc tests[] = {
     {"stringcomp1",		test_stringcomp1},
     {"temporarydtor1",		test_temporarydtor1},
     {"omstringstream1",		test_omstringstream1},
-    {"omtostring1",		test_omtostring1},
+    {"tostring1",		test_tostring1},
     {"serialisedouble1",	test_serialisedouble1},
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     {"serialiselength1",	test_serialiselength1},

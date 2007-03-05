@@ -1,3 +1,9 @@
+Mon Mar 05 02:05:53 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Rename "omtostring1" to "tostring1" (we don't
+	  want to perpetuate references to "om"!)  Add more test cases to this
+	  test.
+
 Mon Mar 05 01:18:17 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update in line with 0.9.10.
