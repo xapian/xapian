@@ -1,3 +1,8 @@
+Mon Mar 05 02:15:29 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Add testcase autoptr1 which tests that an
+	  autoptr correctly handles self-assignment.
+
 Mon Mar 05 02:05:53 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Rename "omtostring1" to "tostring1" (we don't

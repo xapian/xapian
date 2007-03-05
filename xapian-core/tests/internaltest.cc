@@ -31,6 +31,8 @@
 using namespace std;
 
 #include <xapian.h>
+
+#include "autoptr.h"
 #include "testsuite.h"
 #include "omstringstream.h"
 
@@ -138,6 +140,44 @@ static bool test_refcnt2()
     
     TEST_AND_EXPLAIN(!deleted, "Object deleted by self-assignment");
 
+    return true;
+}
+
+// Class for testing AutoPtr<>.
+class test_autoptr {
+    bool &deleted;
+  public:
+    test_autoptr(bool &deleted_) : deleted(deleted_) {
+	tout << "test_autoptr constructor\n";
+    }
+    ~test_autoptr() {
+	deleted = true;
+	tout << "test_autoptr destructor\n";
+    }
+};
+
+// Test autoptr self-assignment.
+static bool test_autoptr1()
+{
+    bool deleted = false;
+
+    test_autoptr * raw_ptr = new test_autoptr(deleted);
+    {
+	AutoPtr<test_autoptr> ptr(raw_ptr);
+
+	TEST_EQUAL(ptr.get(), raw_ptr);
+
+	TEST(!deleted);
+
+	ptr = ptr;
+
+	TEST_EQUAL(ptr.get(), raw_ptr);
+
+	TEST(!deleted);
+    }
+
+    TEST(deleted);
+    
     return true;
 }
 
@@ -373,6 +413,7 @@ test_desc tests[] = {
     {"exception1",              test_exception1},
     {"refcnt1",			test_refcnt1},
     {"refcnt2",			test_refcnt2},
+    {"autoptr1",		test_autoptr1},
     {"stringcomp1",		test_stringcomp1},
     {"temporarydtor1",		test_temporarydtor1},
     {"omstringstream1",		test_omstringstream1},
