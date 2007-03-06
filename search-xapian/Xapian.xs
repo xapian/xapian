@@ -165,6 +165,8 @@ BOOT:
         newCONSTSUB( mHvStash, "FLAG_LOVEHATE", newSViv(QueryParser::FLAG_LOVEHATE) );
 	newCONSTSUB( mHvStash, "FLAG_BOOLEAN_ANY_CASE", newSViv(QueryParser::FLAG_BOOLEAN_ANY_CASE) );
 	newCONSTSUB( mHvStash, "FLAG_WILDCARD", newSViv(QueryParser::FLAG_WILDCARD) );
+	newCONSTSUB( mHvStash, "FLAG_PURE_NOT", newSViv(QueryParser::FLAG_PURE_NOT) );
+	newCONSTSUB( mHvStash, "FLAG_PARTIAL", newSViv(QueryParser::FLAG_PARTIAL) );
 
         newCONSTSUB( mHvStash, "STEM_NONE", newSViv(QueryParser::STEM_NONE) );
         newCONSTSUB( mHvStash, "STEM_SOME", newSViv(QueryParser::STEM_SOME) );
