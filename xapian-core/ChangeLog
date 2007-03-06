@@ -1,3 +1,9 @@
+Tue Mar 06 22:46:30 GMT 2007  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Use the "inline test || echo" idiom to merge the
+	  VPATH and non-VPATH cases for distributing and installing the HTML
+	  apidocs.
+
 Tue Mar 06 22:13:03 GMT 2007  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Fix Query::get_description() on an

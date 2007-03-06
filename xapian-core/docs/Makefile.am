@@ -33,19 +33,11 @@ dist_docdata_DATA = $(HTMLDOCS) apidoc.pdf
 
 dist-hook:
 	$(mkinstalldirs) $(distdir)/apidoc
-	if test -f apidoc/html/index.html ; then \
-	  cp -a apidoc/* $(distdir)/apidoc/ ; \
-	else \
-	  cp -a $(srcdir)/apidoc/* $(distdir)/apidoc/ ; \
-	fi
+	cp -a `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/* $(distdir)/apidoc/
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html
-	if test -f apidoc/html/index.html ; then \
-	  $(INSTALL_DATA) apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html ; \
-	else \
-	  $(INSTALL_DATA) $(srcdir)/apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html ; \
-	fi
+	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html
 
 ###############################
 # How to clean up local files #
