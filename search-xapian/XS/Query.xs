@@ -39,6 +39,17 @@ new2obj(op, subq);
         RETVAL
 
 Query *
+new4range(op, valno, start, end);
+    int		op
+    valueno	valno
+    string	start
+    string	end
+    CODE:
+        RETVAL = new Query( (Query::op) op, valno, start, end );
+    OUTPUT:
+        RETVAL
+
+Query *
 newXsv(op, ...);
     int		op
     PREINIT:

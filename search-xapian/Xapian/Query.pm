@@ -27,44 +27,41 @@ use overload '""' => sub { $_[0]->get_description() }, # FIXME: perhaps unwise?
 sub new {
   my $class = shift;
   my $query;
-  my $invalid_args;
 
   if( scalar(@_) == 1 ) {
     $query = new1(@_);
-  }
-  else {
+  } else {
     my $op = shift;
     if( $op !~ /^[-+]?\d+$/ ) {
       Carp::carp( "new()'s first argument must be an OP when called with more than one argument" );
-      $invalid_args++;
-    }
-    else {
-      if( !_all_equal( map { ref } @_ ) ) {
-        Carp::carp( "all of new()'s arguments after the first must be of identical type (either all search terms (scalars) or $class objects)");
-        $invalid_args++;
+    } elsif( $op == 8 ) { # FIXME: 8 is OP_VALUE_RANGE; eliminate hardcoded literal
+      if( scalar(@_) != 3 ) {
+	Carp::carp( "new() must have 4 arguments when OP is OP_VALUE_RANGE" );
+      } else {
+	$query = new4range( $op, @_ );
+      }
+    } elsif( !_all_equal( map { ref } @_ ) ) {
+      Carp::carp( "all of new()'s arguments after the first must be of identical type (either all search terms (scalars) or $class objects)");
+    } else {
+      # remaining arguments are scalars
+      if( !ref($_[0]) ) {
+	scalar(@_) == 1 ?
+	  $query = new2sv($op, @_) :
+	    $query = newXsv($op, @_);
+      }
+      # remaining arguments objects
+      elsif( ref($_[0]) eq $class ) {
+	scalar(@_) == 1 ?
+	  $query = new2obj($op, @_) :
+	    $query = newXobj($op, @_);
       }
       else {
-        # remaining arguments are scalars
-        if( !ref($_[0]) ) {
-          scalar(@_) == 1 ?
-            $query = new2sv($op, @_) :
-              $query = newXsv($op, @_);
-        }
-        # remaining arguments objects
-        elsif( ref($_[0]) eq $class ) {
-          scalar(@_) == 1 ?
-            $query = new2obj($op, @_) :
-              $query = newXobj($op, @_);
-        }
-        else {
-          Carp::carp( "all of new()'s arguments after the first must be search terms (scalars), or $class objects" );
-          $invalid_args++;
-        }
+	Carp::carp( "all of new()'s arguments after the first must be search terms (scalars), or $class objects" );
       }
     }
   }
-  if( $invalid_args ) {
-    Carp::carp( "USAGE: $class->new('term'), $class->new(OP, \@terms) or $class->new(OP, \@queries)" );
+  unless( defined $query ) {
+    Carp::carp( "USAGE: $class->new('term'), $class->new(OP, \@terms), $class->new(OP, \@queries), or $class->new(OP_VALUE_RANGE, VALNO, START, END)" );
     exit;
   }
   bless $query, $class;

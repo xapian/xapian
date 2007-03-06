@@ -49,6 +49,7 @@ our %EXPORT_TAGS = (
                                   OP_FILTER
                                   OP_NEAR
                                   OP_PHRASE
+				  OP_VALUE_RANGE
                                   OP_ELITE_SET
                                  ) ],
                     'db' => [ qw(
@@ -230,7 +231,11 @@ Match as a phrase (All words in order).
 
 =item OP_ELITE_SET
 
-Select an elite set from the subqueries, and perform a query with these combined as an OR query. 
+Select an elite set from the subqueries, and perform a query with these combined as an OR query.
+
+=item OP_VALUE_RANGE
+
+Filter by a range test on a document value.
 
 =back
 
