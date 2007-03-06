@@ -68,6 +68,8 @@ our %EXPORT_TAGS = (
 				 FLAG_LOVEHATE
 				 FLAG_BOOLEAN_ANY_CASE
 				 FLAG_WILDCARD
+				 FLAG_PURE_NOT
+				 FLAG_PARTIAL
                                  ) ],
                     'qpstem' => [ qw(
 				 STEM_NONE
@@ -255,6 +257,24 @@ Support AND, OR, etc even if they aren't in ALLCAPS.
 =item FLAG_WILDCARD
 
 Support right truncation (e.g. Xap*).
+
+=item FLAG_PURE_NOT
+
+Allow queries such as 'NOT apples'.
+
+These require the use of a list of all documents in the database
+which is potentially expensive, so this feature isn't enabled by
+default.
+
+=item FLAG_PARTIAL
+
+Enable partial matching.
+
+Partial matching causes the parser to treat the query as a
+"partially entered" search.  This will automatically treat the
+final word as a wildcarded match, unless it is followed by
+whitespace, to produce more stable results from interactive
+searches.
 
 =back
 

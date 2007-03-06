@@ -1,5 +1,7 @@
 Revision history for Perl extension Search::Xapian.
 
+	- Wrap new QueryParser flags FLAG_PURE_NOT and FLAG_PARTIAL.
+
 0.9.10.0  Tue Mar 06 02:27:02 2007
 	[Changes contributed by Rusty Conover]
 	- Wrap MatchDecider and make it usable with Enquire::get_mset()
