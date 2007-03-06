@@ -45,8 +45,8 @@ rmdir(const string &filename)
     if (filename.empty() || stat(filename, &sb) != 0 || !S_ISDIR(sb.st_mode))
 	return;
 
-    string safefile = filename;
 #ifdef __WIN32__
+    string safefile = filename;
     string::iterator i;
     for (i = safefile.begin(); i != safefile.end(); ++i) {
 	if (*i == '/') {
@@ -78,21 +78,22 @@ rmdir(const string &filename)
 	system("rd /s /q \"" + safefile + "\"");
     }
 #else
-    string::size_type p = 0;
+    string cmd("rm -rf ");
+    cmd.reserve(filename.size() + 16);
+
     // Prevent a leading "-" on the filename being interpreted as a command line
     // option.
-    if (safefile[0] == '-') {
-	safefile.insert(0, "./");
-	p = 3;
-    }
-    while (p < safefile.size()) {
+    if (filename[0] == '-') cmd += "./";
+
+    string::const_iterator i;
+    for (i = filename.begin(); i != filename.end(); ++i) {
 	// Don't escape a few safe characters which are common in filenames
-	if (!C_isalnum(safefile[p]) && strchr("/._-", safefile[p]) == NULL) {
-	    safefile.insert(p, '\\');
-	    ++p;
+	if (!C_isalnum(*i) && strchr("/._-", *i) == NULL) {
+	    cmd += '\\';
 	}
-	++p;
+	cmd += *i;
     }
-    system("rm -rf " + safefile);
+
+    system(cmd);
 #endif
 }
