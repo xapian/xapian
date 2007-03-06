@@ -44,6 +44,7 @@ foreach my $backend ("inmemory", "auto") {
     $docs{$num}->add_posting( $term, 0 );
     $docs{$num}->add_posting( $num, 1 );
 
+    $docs{$num}->add_value(0, $num);
     ok( $docid = $database->add_document( $docs{$num} ) );
   }
   $database->delete_document( $docid );
