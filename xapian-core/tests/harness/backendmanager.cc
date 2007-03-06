@@ -53,6 +53,7 @@
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "omdebug.h"
+#include "rmdir.h"
 #include "utils.h"
 
 using namespace std;

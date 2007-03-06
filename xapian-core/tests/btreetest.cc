@@ -25,6 +25,7 @@
 #include "safeerrno.h"
 
 #include "btreecheck.h"
+#include "rmdir.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"

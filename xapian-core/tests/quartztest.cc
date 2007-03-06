@@ -24,6 +24,7 @@
 
 #include "safeerrno.h"
 
+#include "rmdir.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include <xapian/error.h>

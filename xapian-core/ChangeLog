@@ -1,3 +1,11 @@
+Tue Mar 06 01:49:55 GMT 2007  Olly Betts <olly@survex.com>
+
+	* common/utils.cc,tests/btreetest.cc,tests/harness/,
+	  tests/quartztest.cc: rmdir() is only used in the test suite, and not
+	  in the library code, so move it into the testsuite.  Also, bow out
+	  early if the pathname passed is empty, and on Unix protect against
+	  filenames which start with "-".
+
 Mon Mar 05 02:52:49 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Suppress more unhelpful aCC warnings.
