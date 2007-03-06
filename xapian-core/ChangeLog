@@ -1,3 +1,9 @@
+Tue Mar 06 09:03:33 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* HACKING: Note on running preautoreconf and autoreconf to keep SVN
+	  builds working.
+	* PLATFORMS: Update with success reports for windows builds.
+
 Tue Mar 06 01:57:23 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/internaltest.cc: Comment out the "unsigned long long" testcase

@@ -312,6 +312,15 @@ ACLOCAL_FLAGS=-I/extra/macro/directory ./bootstrap
 There is a good GNU autotools tutorial at
 <http://www-src.lip6.fr/homepages/Alexandre.Duret-Lutz/autotools.html>.
 
+If you are tracking development in SVN, there will sometimes be changes to the
+build system sources which require regeneration of the generated makefiles and
+associated machinery.  In most cases, this will automatically be spotted when
+you next run make, but on occasion it will be necessary to run a script
+manually to generate the new files.  Running the bootstrap script should always
+fix the problem, but you can often fix the problem more quickly by running:
+
+  ./preautoreconf;autoreconf
+
 If you want to be able to build distribution tarballs (with "make dist") then
 you'll also need some further tools.  The build system is designed to fail with
 a suitable message if you lack any of the required tools (the alternative is to
