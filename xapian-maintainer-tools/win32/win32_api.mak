@@ -20,7 +20,7 @@ CPP=cl.exe
 RSC=rc.exe
 
 
-OUTDIR=..\win32\Release\libs
+OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 ALL : "$(OUTDIR)\libapi.lib" 
@@ -29,9 +29,9 @@ LIBAPI_OBJS= \
              $(INTDIR)\errorhandler.obj \
              $(INTDIR)\omenquire.obj  \
              $(INTDIR)\omquery.obj  \
+	     $(INTDIR)\omstem.obj  \
              $(INTDIR)\omqueryinternal.obj  \
              $(INTDIR)\omdatabase.obj  \
-             $(INTDIR)\omstem.obj  \
              $(INTDIR)\omdocument.obj  \
              $(INTDIR)\ompostlistiterator.obj  \
              $(INTDIR)\ompositionlistiterator.obj  \
@@ -51,11 +51,10 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I ".." /I "..\include" /I"..\common" /I"..\languages" \
- /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /Fo"$(INTDIR)\\" \
- /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /Tp$(INPUTNAME)
-CPP_OBJS=..\win32\Release
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
+ /I"..\languages" \
+ /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 LIB32=link.exe -lib
@@ -82,6 +81,10 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
    $(CPP_PROJ) $**
 <<
 
+"$(INTDIR)\omstem.obj" : ".\omstem.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
 
 "$(INTDIR)\omqueryinternal.obj" : ".\omqueryinternal.cc"
         $(CPP) @<<
@@ -90,12 +93,6 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 
 "$(INTDIR)\omdatabase.obj" : ".\omdatabase.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\omstem.obj" : ".\omstem.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<

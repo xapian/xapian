@@ -18,36 +18,44 @@ NULL=nul
 CPP=cl.exe
 RSC=rc.exe
 
-OUTLIBDIR= ..\win32\Release\libs
+OUTLIBDIR= ..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 OUTDIR= ..\tests
 INTDIR= ..\tests
+
 
 PROGRAM_APITEST= "$(OUTDIR)\apitest.exe" 
 PROGRAM_BTREETEST= "$(OUTDIR)\btreetest.exe" 
 PROGRAM_INTERNALTEST= "$(OUTDIR)\internaltest.exe" 
 PROGRAM_QUARTZTEST= "$(OUTDIR)\quartztest.exe" 
 PROGRAM_QUERYPARSERTEST= "$(OUTDIR)\queryparsertest.exe"
-#PROGRAM_REMOTETEST= "$(OUTDIR)\remotetest.exe" 
 PROGRAM_STEMTEST= "$(OUTDIR)\stemtest.exe"
 
 ALL : $(PROGRAM_APITEST) $(PROGRAM_BTREETEST) $(PROGRAM_INTERNALTEST) \
- $(PROGRAM_QUARTZTEST) $(PROGRAM_QUERYPARSERTEST) $(PROGRAM_REMOTETEST) $(PROGRAM_STEMTEST)
+ $(PROGRAM_QUARTZTEST) $(PROGRAM_QUERYPARSERTEST) $(PROGRAM_STEMTEST)
  
-APITEST : $(PROGRAM_APITEST)  
+ 
+APITEST : $(PROGRAM_APITEST) 
 STEMTEST : $(PROGRAM_STEMTEST)  
 BTREETEST : $(PROGRAM_BTREETEST)  
 INTERNALTEST : $(PROGRAM_INTERNALTEST)  
 QUARTZTEST : $(PROGRAM_QUARTZTEST)  
 QUERYPARSERTEST : $(PROGRAM_QUERYPARSERTEST)  
-#REMOTETEST : $(PROGRAM_REMOTETEST)  
+
 
 DOTEST :
+	set srcdir=.
 	apitest
 	btreetest
 	internaltest
 	quartztest
 	queryparsertest
 	stemtest
+
+	
+#	remotetest
+#  $(PROGRAM_REMOTETEST) not built
+# REMOTETEST : $(PROGRAM_REMOTETEST)  
+#PROGRAM_REMOTETEST= "$(OUTDIR)\remotetest.exe" 
 
 # object files
  
@@ -78,7 +86,7 @@ CLEAN :
 	-@erase $(PROGRAM_INTERNALTEST) 
  	-@erase $(PROGRAM_QUARTZTEST) 
 	-@erase $(PROGRAM_QUERYPARSERTEST) 
-#	-@erase $(PROGRAM_REMOTETEST)
+	-@erase $(PROGRAM_REMOTETEST)
 	-@erase $(PROGRAM_STEMTEST)
 	-@erase $(APITEST_OBJS)
 	-@erase $(BTREETEST_OBJS)
@@ -91,15 +99,11 @@ CLEAN :
 	if exist ".quartz" rmdir ".quartz" /s /q
 	if exist ".quartztmp" rmdir ".quartztmp" /s /q
 	
-#"$(OUTDIR)" :
-#    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
+ /I ".." /I "..\tests" /I "harness" /I"..\backends\quartz" \
+ /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME) 
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I ".." /I "..\common" /I "..\tests" /I "..\include" /I "..\testsuite" /I"..\backends\quartz" \
- /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /YX \
- /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP"
-
-CPP_OBJS=..\win32\TestsRelease
+CPP_OBJS=..\win32\Tests$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 

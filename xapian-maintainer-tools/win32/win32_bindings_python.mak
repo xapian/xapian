@@ -6,19 +6,19 @@
 
 # Will build the Python bindings 
 
+# Where the core is, relative to the Python bindings
+# Change this to match your environment
+XAPIAN_CORE_REL_PYTHON=..\..\xapian-core
+
 !IF "$(OS)" == "Windows_NT"
 NULL=
 !ELSE 
 NULL=nul
 !ENDIF 
 
-# Change this to match your environment
-XAPIAN_DIR=..\..\xapian-core-0.9.8
-OUTLIBDIR=$(XAPIAN_DIR)\win32\Release\libs
+OUTLIBDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
-!INCLUDE $(XAPIAN_DIR)\win32\config.mak
-
-
+!INCLUDE $(XAPIAN_CORE_REL_PYTHON)\win32\config.mak
 
 XAPIAN_DEPENDENCIES = \
  "$(OUTLIBDIR)\libgetopt.lib"  \
@@ -34,17 +34,16 @@ XAPIAN_DEPENDENCIES = \
  "$(OUTLIBDIR)\liblanguages.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib" \
- $(PYTHON_LIB)
+ "$(PYTHON_LIB)"
 
 LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" 
 
-SWIG=\tools\swigwin-1.3.28\swig.exe
-PYTHON=\python24\python.exe 
+
 
 CPP=cl.exe
 RSC=rc.exe
 
-OUTDIR=$(XAPIAN_DIR)\win32\Release\Python
+OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python
 INTDIR=.\
 
 ALL : "$(OUTDIR)\_xapian.dll" "$(OUTDIR)\xapian.py" "$(OUTDIR)\smoketest.py"
@@ -67,18 +66,16 @@ CLEANSWIG :
 	
 DOTEST :
 	cd "$(OUTDIR)"
-	$(PYTHON) smoketest.py
+	"$(PYTHON_EXE)" smoketest.py
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /EHsc /GR /O2 \
- /I "$(XAPIAN_DIR)" /I "$(XAPIAN_DIR)\include" \
+CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
+ /I "$(XAPIAN_CORE_REL_PYTHON)" /I "$(XAPIAN_CORE_REL_PYTHON)\include" \
  /I "$(PYTHON_INCLUDE)" /I"." \
- /D "NDEBUG" /D "WIN32" /D "__WIN32__" /D "_WINDOWS" \
- /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" \
- /Fo"$(INTDIR)\\" /c
-CPP_OBJS=$(XAPIAN_DIR)\win32\Release\
+ /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+CPP_OBJS=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
 
 LIB32=link.exe 
@@ -93,13 +90,13 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS) \
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i extra.i
 	-erase /Q modern
 	-md modern
-	$(SWIG) -I"$(XAPIAN_DIR)" -I"$(XAPIAN_DIR)\include" -Werror -c++ -python -shadow -modern \
+	$(SWIG) -I"$(XAPIAN_CORE_REL_PYTHON)" -I"$(XAPIAN_CORE_REL_PYTHON)\include" -Werror -c++ -python -shadow -modern \
 	    -outdir modern -o modern/xapian_wrap.cc ../xapian.i
 
 olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i extra.i
 	-erase /Q olde
 	-md olde
-	$(SWIG) -I"$(XAPIAN_DIR)" -I"$(XAPIAN_DIR)\include"  -Werror -c++ -python -shadow \
+	$(SWIG) -I"$(XAPIAN_CORE_REL_PYTHON)" -I"$(XAPIAN_CORE_REL_PYTHON)\include"  -Werror -c++ -python -shadow \
 	    -outdir olde -o olde/xapian_wrap.cc ../xapian.i
 
 
@@ -116,6 +113,7 @@ olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i extra.
 
 "$(OUTDIR)\xapian.py" : "$(PYTHON_MODERN_OR_OLDE)\xapian.py"
 	-copy $** "$(OUTDIR)\xapian.py"
+	$(MANIFEST) "$(OUTDIR)\_xapian.dll.manifest" -outputresource:"$(OUTDIR)\_xapian.dll;2"
 
 "$(OUTDIR)\smoketest.py" : ".\smoketest.py"
 	-copy $** "$(OUTDIR)\smoketest.py"

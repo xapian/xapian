@@ -1,11 +1,10 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
-# Originally by Ulrik Petersen
-# Modified by Charlie Hull, Lemur Consulting Ltd.
+# Originally by Charlie Hull, Lemur Consulting Ltd.
 # www.lemurconsulting.com
-# 17th March 2006
+# 3rd Jan 2007
 
 
-# Will build a Win32 static library (non-debug) libinmemory.lib
+# Will build a Win32 static library (non-debug) libremote.lib
 
 
 !IF "$(OS)" == "Windows_NT"
@@ -24,19 +23,18 @@ RSC=rc.exe
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libinmemory.lib" 
+ALL : "$(OUTDIR)\libremote.lib" 
 
-LIBINMEMORY_OBJS= \
-                 $(INTDIR)\inmemory_database.obj \
-                 $(INTDIR)\inmemory_document.obj \
-                 $(INTDIR)\inmemory_positionlist.obj \
-                 $(INTDIR)\inmemory_alltermslist.obj \
+LIBREMOTE_OBJS= \
+                 $(INTDIR)\remote-database.obj \
+                 $(INTDIR)\net_document.obj \
+                 $(INTDIR)\net_termlist.obj \
 
 CLEAN :
-	-@erase "$(OUTDIR)\libinmemory.lib"
+	-@erase "$(OUTDIR)\libremote.lib"
 	-@erase "*.pch"
     -@erase "$(INTDIR)\getopt.obj"
-	-@erase $(LIBINMEMORY_OBJS)
+	-@erase $(LIBREMOTE_OBJS)
 
 
 "$(OUTDIR)" :
@@ -52,34 +50,29 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 
-"$(OUTDIR)\LIBINMEMORY.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBINMEMORY_OBJS)
+"$(OUTDIR)\LIBREMOTE.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBREMOTE_OBJS)
     $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libinmemory.lib" $(DEF_FLAGS) $(LIBINMEMORY_OBJS)
+  $(LIB32_FLAGS) /out:"$(OUTDIR)\libremote.lib" $(DEF_FLAGS) $(LIBREMOTE_OBJS)
 <<
 
 
 
-"$(INTDIR)\inmemory_database.obj" : "inmemory_database.cc"
+"$(INTDIR)\remote-database.obj" : "remote-database.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<
    
-"$(INTDIR)\inmemory_document.obj" : "inmemory_document.cc"
+"$(INTDIR)\net_document.obj" : "net_document.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
 
-"$(INTDIR)\inmemory_positionlist.obj" : "inmemory_positionlist.cc"
+"$(INTDIR)\net_termlist.obj" : "net_termlist.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
-
-"$(INTDIR)\inmemory_alltermslist.obj" : "inmemory_alltermslist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
 
 
 

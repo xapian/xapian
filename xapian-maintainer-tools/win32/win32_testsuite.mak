@@ -13,23 +13,20 @@ NULL=
 NULL=nul
 !ENDIF 
 
-!INCLUDE ..\win32\config.mak
+!INCLUDE ..\..\win32\config.mak
 
 
 CPP=cl.exe
 RSC=rc.exe
 
 
-OUTDIR=..\win32\Release\libs
+OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-BUILD_LIBRARIES = "$(OUTDIR)\libbtreecheck.lib" "$(OUTDIR)\libtest.lib"
+BUILD_LIBRARIES = "$(OUTDIR)\libtest.lib"
 
 
 ALL : $(BUILD_LIBRARIES) 
-
-LIBBTREECHECK_OBJS= \
-                $(INTDIR)\btreecheck.obj
 
 LIBTEST_OBJS= \
                 $(INTDIR)\testsuite.obj \
@@ -40,44 +37,26 @@ LIBTEST_OBJS= \
 CLEAN :
 	-@erase $(BUILD_LIBRARIES)
 	-@erase "*.pch"
-        -@erase $(LIBBTREECHECK_OBJS)
         -@erase $(LIBTEST_OBJS)
 
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I".." /I"..\include" /I"..\api" /I"..\common" /I"..\languages" \
- /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /Fo"$(INTDIR)\\" \
- /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP"
-CPP_OBJS=..\win32\Release
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
+ /I"..\.." /I"..\..\include" /I"..\..\api" /I"..\..\common" /I"..\..\languages" \
+ /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 
-
-
-"$(OUTDIR)\LIBBTREECHECK.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBBTREECHECK_OBJS)
-    $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libbtreecheck.lib" $(DEF_FLAGS) $(LIBBTREECHECK_OBJS)
-<<
-
-
 "$(OUTDIR)\LIBTEST.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBTEST_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libtest.lib" $(DEF_FLAGS) $(LIBTEST_OBJS)
 <<
-
-
-
-"$(INTDIR)\btreecheck.obj" : ".\btreecheck.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
-
 
 "$(INTDIR)\testsuite.obj" : ".\testsuite.cc"
     $(CPP) @<<

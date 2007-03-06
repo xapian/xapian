@@ -5,6 +5,11 @@
 /* Disable some pointless warnings */
 #ifdef _MSC_VER
 #pragma warning(disable:4800)
+/* in VC Express edition Dec06 this is upgraded to an error */
+#pragma warning(disable:4716)
+/* in VC Express edition Dec06 this shows lots of deprecation messages */
+#pragma warning(disable:4996)
+ 
 #endif
 
 /* Define if ftime returns void */
@@ -17,7 +22,7 @@
 #define HAVE_FCNTL_H 1
 
 /* Define to 1 if you have the `fork' function. */
-#define HAVE_FORK 1
+/* #undef HAVE_FORK */
 
 /* Define to 1 if you have the `fsync' function. */
 #undef HAVE_FSYNC
@@ -92,13 +97,13 @@
 #define PACKAGE_NAME "xapian-core"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "xapian-core 0.9.8"
+#define PACKAGE_STRING "xapian-core 0.9.10"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "xapian-core"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.9.8"
+#define PACKAGE_VERSION "0.9.10"
 
 /* explicit prototype needed for pread (if any) */
 /* #undef PREAD_PROTOTYPE */
@@ -117,7 +122,7 @@
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "0.9.8"
+#define VERSION "0.9.10"
 
 /* Define if you want to build the flint database backend */
 #define XAPIAN_BUILD_BACKEND_FLINT  1
@@ -132,7 +137,7 @@
 #define XAPIAN_BUILD_BACKEND_QUARTZ 1
 
 /* Define if you want to build the remote database backend */
-#undef XAPIAN_BUILD_BACKEND_REMOTE 
+#define XAPIAN_BUILD_BACKEND_REMOTE 1
 
 /* Define if you want debugging to be enabled (will cause some slow down) */
 /* #undef XAPIAN_DEBUG */

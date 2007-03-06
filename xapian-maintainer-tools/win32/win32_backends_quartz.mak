@@ -20,10 +20,14 @@ CPP=cl.exe
 RSC=rc.exe
 
 
-OUTDIR=..\..\win32\Release\libs
+OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libquartz.lib" 
+ALL : "$(OUTDIR)\libquartz.lib" "$(OUTDIR)\libbtreecheck.lib" 
+
+
+LIBBTREECHECK_OBJS= \
+                $(INTDIR)\btreecheck.obj
 
 LIBQUARTZ_OBJS= \
                 $(INTDIR)\quartz_database.obj \
@@ -43,19 +47,21 @@ LIBQUARTZ_OBJS= \
 
 CLEAN :
 	-@erase "$(OUTDIR)\libquartz.lib"
+	-@erase "$(OUTDIR)\libbtreecheck.lib"
 	-@erase "*.pch"
     -@erase "$(INTDIR)\getopt.obj"
+    -@erase $(LIBBTREECHECK_OBJS)
 	-@erase $(LIBQUARTZ_OBJS)
 
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
  /I "..\.." /I "..\..\include" /I"..\..\common" /I"..\..\languages" \
- /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /Fo"$(INTDIR)\\" \
- /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" 
-CPP_OBJS=..\..\win32\Release
+ /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ 
+CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 LIB32=link.exe -lib
@@ -66,6 +72,17 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libquartz.lib" $(DEF_FLAGS) $(LIBQUARTZ_OBJS)
 <<
 
+
+"$(OUTDIR)\LIBBTREECHECK.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBBTREECHECK_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) /out:"$(OUTDIR)\libbtreecheck.lib" $(DEF_FLAGS) $(LIBBTREECHECK_OBJS)
+<<
+
+
+"$(INTDIR)\btreecheck.obj" : ".\btreecheck.cc"
+    $(CPP) @<<
+  $(CPP_PROJ) $**
+<<
 
 
 "$(INTDIR)\quartz_database.obj" : "quartz_database.cc"
@@ -79,12 +96,10 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
    $(CPP_PROJ) $**
 <<
 
-
 "$(INTDIR)\quartz_postlist.obj" : "quartz_postlist.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
-
 
 "$(INTDIR)\quartz_positionlist.obj" : "quartz_positionlist.cc"
         $(CPP) @<<

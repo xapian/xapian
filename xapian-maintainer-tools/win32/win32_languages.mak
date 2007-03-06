@@ -19,54 +19,54 @@ CPP=cl.exe
 RSC=rc.exe
 
 
-OUTDIR=..\win32\Release\libs
+OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
+
 
 ALL : "$(OUTDIR)\liblanguages.lib" 
 
 LIBLANGUAGES_OBJS= \
                  $(INTDIR)\api.obj \
+                 $(INTDIR)\utilities.obj \
                  $(INTDIR)\snowball_danish.obj \
                  $(INTDIR)\snowball_dutch.obj \
                  $(INTDIR)\snowball_english.obj \
-                 $(INTDIR)\snowball_finnish.obj \
                  $(INTDIR)\snowball_french.obj \
                  $(INTDIR)\snowball_german.obj \
+		 $(INTDIR)\snowball_finnish.obj \
                  $(INTDIR)\snowball_italian.obj \
-                 $(INTDIR)\snowball_lovins.obj \
+		 $(INTDIR)\snowball_lovins.obj \
                  $(INTDIR)\snowball_norwegian.obj \
                  $(INTDIR)\snowball_porter.obj \
                  $(INTDIR)\snowball_portuguese.obj \
                  $(INTDIR)\snowball_russian.obj \
                  $(INTDIR)\snowball_spanish.obj \
                  $(INTDIR)\snowball_swedish.obj \
-                 $(INTDIR)\utilities.obj 
-				 
+
 CLEAN :
 	-@erase "$(OUTDIR)\liblanguages.lib"
 	-@erase "*.pch"
         -@erase $(LIBLANGUAGES_OBJS)
+	
 
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I ".." /I "..\include" /I"..\common" /I"..\languages" \
- /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /Fo"$(INTDIR)\\" \
- /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP"
-CPP_OBJS=..\win32\Release
+CPP_PROJ=$(CPPFLAGS_EXTRA)  \
+ /I"..\languages" \
+ /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
-
-
 "$(OUTDIR)\LIBLANGUAGES.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBLANGUAGES_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\liblanguages.lib" $(DEF_FLAGS) $(LIBLANGUAGES_OBJS)
 <<
+
 
 
 "$(INTDIR)\api.obj" : ".\api.cc"
@@ -163,5 +163,3 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
     $(CPP) @<<
   $(CPP_PROJ) $**
 <<
-
-

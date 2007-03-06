@@ -19,7 +19,7 @@ CPP=cl.exe
 RSC=rc.exe
 
 
-OUTDIR=..\win32\Release\libs
+OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 ALL : "$(OUTDIR)\libcommon.lib" 
@@ -28,7 +28,8 @@ LIBCOMMON_OBJS= \
 	$(INTDIR)\utils.obj \
 	$(INTDIR)\omdebug.obj \
 	$(INTDIR)\omstringstream.obj \
-	$(INTDIR)\serialise-double.obj   
+	$(INTDIR)\serialise-double.obj  \
+	$(INTDIR)\msvc_posix_wrapper.obj
     
 CLEAN :
 	-@erase "$(OUTDIR)\libcommon.lib"
@@ -40,11 +41,10 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
- /I ".." /I "..\include" /D "NDEBUG" \
- /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /Fo"$(INTDIR)\\" \
- /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /Tp$(INPUTNAME)
-CPP_OBJS=..\win32\Release
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
+ /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ 
+CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 LIB32=link.exe -lib
@@ -74,6 +74,11 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 <<
 
 "$(INTDIR)\serialise-double.obj" : ".\serialise-double.cc"
+	$(CPP) @<< 
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\msvc_posix_wrapper.obj" : ".\msvc_posix_wrapper.cc"
 	$(CPP) @<< 
    $(CPP_PROJ) $**
 <<

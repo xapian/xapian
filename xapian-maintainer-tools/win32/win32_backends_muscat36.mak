@@ -20,7 +20,7 @@ CPP=cl.exe
 RSC=rc.exe
 
 
-OUTDIR=..\..\win32\Release\libs
+OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 ALL : "$(OUTDIR)\libmuscat36.lib" 
@@ -46,11 +46,11 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /W3 /GX /O2 \
+CPP_PROJ=$(CPPFLAGS_EXTRA) \
  /I "..\.." /I "..\..\include" /I"..\..\common" /I"..\..\languages" \
- /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "__WIN32__" /Fo"$(INTDIR)\\" \
- /c  /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP"
-CPP_OBJS=..\..\win32\Release
+ /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ 
+CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 LIB32=link.exe -lib

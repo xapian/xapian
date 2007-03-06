@@ -15,7 +15,11 @@
 #define S_IRUSR  (_S_IREAD)
 #define S_IWUSR  (_S_IWRITE)
 #define ssize_t  SSIZE_T
+
+/*
+--This removed for Xapian 0.9.9 - it caused obscure link problems with Flint. 
 #define open _open
+*/
 #undef min
 #define min _cpp_min
 #undef max
