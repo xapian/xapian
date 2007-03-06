@@ -105,6 +105,8 @@ In this case you'll also need the Platforms SDK:
 http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
 which contains headers, libs and NMAKE. Make sure once you have installed this that you create LIB and INCLUDE environment variables to point to the appropriate Platform SDK folders, and that the path to the SDK's BIN folder is in your PATH.
 
+- Perl 5 (some headers etc. are automatically built from .in files and Perl is needed for this). Make sure the paths to this are set correctly in config.mak.
+
 - SWIG can be useful for recompiling the bindings, but this is done by the Xapian
 core maintainers, so you shouldn't need to do this.
 

@@ -28,8 +28,9 @@ LIBCOMMON_OBJS= \
 	$(INTDIR)\utils.obj \
 	$(INTDIR)\omdebug.obj \
 	$(INTDIR)\omstringstream.obj \
-	$(INTDIR)\serialise-double.obj   
-    
+	$(INTDIR)\serialise-double.obj \
+	$(INTDIR)\msvc_posix_wrapper.obj
+	
 CLEAN :
 	-@erase "$(OUTDIR)\libcommon.lib"
 	-@erase "*.pch"
@@ -73,6 +74,11 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 <<
 
 "$(INTDIR)\serialise-double.obj" : ".\serialise-double.cc"
+	$(CPP) @<< 
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\msvc_posix_wrapper.obj" : ".\msvc_posix_wrapper.cc"
 	$(CPP) @<< 
    $(CPP_PROJ) $**
 <<

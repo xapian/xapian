@@ -25,7 +25,7 @@ INTDIR=.\
 SBL_OPTIONS=-c++ -u 
 SBL=compiler\snowball.exe
 
-ALL : "$(OUTDIR)\liblanguages.lib" 
+ALL : MAKEFROMSBL "$(OUTDIR)\liblanguages.lib" 
 
 LIBLANGUAGES_OBJS= \
                  $(INTDIR)\stem.obj \
@@ -70,29 +70,30 @@ LIBLANGUAGES_SOURCES= \
 		 $(INTDIR)\turkish.cc 
 
 LIBLANGUAGES_HEADERS= \
-                 $(INTDIR)\danish.cc \
-                 $(INTDIR)\dutch.cc \
-                 $(INTDIR)\english.cc \
-                 $(INTDIR)\french.cc \
-                 $(INTDIR)\german.cc \
-		 $(INTDIR)\german2.cc \
-		 $(INTDIR)\hungarian.cc \
-                 $(INTDIR)\italian.cc \
-                 $(INTDIR)\norwegian.cc \
-                 $(INTDIR)\porter.cc \
-                 $(INTDIR)\portuguese.cc \
-                 $(INTDIR)\russian.cc \
-                 $(INTDIR)\spanish.cc \
-                 $(INTDIR)\swedish.cc \
-		 $(INTDIR)\romanian1.cc \
-		 $(INTDIR)\romanian2.cc \
-		 $(INTDIR)\kraaij_pohlmann.cc \
-		 $(INTDIR)\turkish.cc 
+                 danish.h \
+                 dutch.h \
+                 english.h \
+                 french.h \
+                 german.h \
+		 german2.h \
+		 hungarian.h \
+                 italian.h \
+                 norwegian.h \
+                 porter.h \
+                 portuguese.h \
+                 russian.h \
+                 spanish.h \
+                 swedish.h \
+		 romanian1.h \
+		 romanian2.h \
+		 kraaij_pohlmann.h \
+		 turkish.h 
 		 
 
 #                 $(INTDIR)\snowball_finnish.obj \ AND .cc and .h
 #                 $(INTDIR)\snowball_lovins.obj \AND .cc and .h
 
+MAKEFROMSBL: $(LIBLANGUAGES_SOURCES) ".\allsnowballheaders.h"
 		 
 CLEAN :
 	-@erase "$(OUTDIR)\liblanguages.lib"
@@ -100,8 +101,8 @@ CLEAN :
         -@erase $(LIBLANGUAGES_OBJS)
 	-@erase $(LIBLANGUAGES_SOURCES)
 	-@erase $(LIBLANGUAGES_HEADERS)
-	
-
+	-@erase allsnowballheaders.h
+	-@erase generate-allsnowballheaders
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -186,13 +187,23 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 #	$(SBL) lovins.sbl $(SBL_OPTIONS) -o lovins -n InternalStemLovins -p Stem::Internal
 
 
-"$(INTDIR)\stem.obj" : ".\stem.cc" $(LIBLANGUAGES_SOURCES)
+"$(INTDIR)\stem.obj" : ".\stem.cc" 
     $(CPP) @<<
   $(CPP_PROJ) $**
 <<
 
 
-"$(INTDIR)\steminternal.obj" : ".\steminternal.cc" 
+"$(INTDIR)\steminternal.obj" : ".\steminternal.cc" $(LIBLANGUAGES_SOURCES)
     $(CPP) @<<
   $(CPP_PROJ) $**
 <<
+
+".\allsnowballheaders.h": ".\generate-allsnowballheaders" 
+    md languages
+    $(PERL_EXE) generate-allsnowballheaders $(LIBLANGUAGES_HEADERS)
+    copy languages\allsnowballheaders.h
+    del languages\allsnowballheaders.h
+    rmdir languages
+    
+".\generate-allsnowballheaders": ".\generate-allsnowballheaders.in"
+    $(PERL_EXE) -pe 's,$(PERL_DIR),$(PERL_EXE),' generate-allsnowballheaders.in > generate-allsnowballheaders

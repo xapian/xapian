@@ -32,7 +32,8 @@ LIBTEST_OBJS= \
                 $(INTDIR)\testsuite.obj \
                 $(INTDIR)\testutils.obj \
                 $(INTDIR)\backendmanager.obj \
-                $(INTDIR)\index_utils.obj
+                $(INTDIR)\index_utils.obj \
+		$(INTDIR)\rmdir.obj
 
 CLEAN :
 	-@erase $(BUILD_LIBRARIES)
@@ -77,6 +78,11 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 
 "$(INTDIR)\index_utils.obj" : ".\index_utils.cc"
+    $(CPP) @<<
+  $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\rmdir.obj" : ".\rmdir.cc"
     $(CPP) @<<
   $(CPP_PROJ) $**
 <<

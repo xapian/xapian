@@ -10,11 +10,11 @@ Xapian-core 0.9.6 (2006-05-15)
  
  * Note: versions 0.9.7 and 0.9.8 were swiftly superseded by 0.9.9, so build tools for these were not created
  
- Xapian-core SVN-HEAD (2007-03-01)
+ Xapian-core version 0.9.10 (2007-2-28)
  
  * Removed putmakfiles and put everything into win32.mak. 
  * Readme now suggests Visual C++ 2005 Express Edition 
- * New make files for Snowball compiler, note allsnowballheaders.h has to be hand created for Win32
- * error.h and errordispatch.h also has to be hand created
+ * New make files for Snowball compiler
+ * error.h and errordispatch.h, and allsnowballheaders.h now automatically created
  * Debug and release builds can now be produced
  

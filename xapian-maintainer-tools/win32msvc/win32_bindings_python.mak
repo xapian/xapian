@@ -113,6 +113,8 @@ olde/xapian_wrap.cc olde/xapian_wrap.h olde/xapian.py: ../xapian.i util.i extra.
 
 "$(OUTDIR)\xapian.py" : "$(PYTHON_MODERN_OR_OLDE)\xapian.py"
 	-copy $** "$(OUTDIR)\xapian.py"
+	$(MANIFEST) "$(OUTDIR)\_xapian.dll.manifest" -outputresource:"$(OUTDIR)\_xapian.dll;2"
+
 
 "$(OUTDIR)\smoketest.py" : ".\smoketest.py"
 	-copy $** "$(OUTDIR)\smoketest.py"

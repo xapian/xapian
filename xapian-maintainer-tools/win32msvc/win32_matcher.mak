@@ -47,7 +47,9 @@ LIBMATCHER_OBJS= \
 		 $(INTDIR)\msetcmp.obj \
                  $(INTDIR)\emptysubmatch.obj \
                  $(INTDIR)\exactphrasepostlist.obj \
-		 $(INTDIR)\valuerangepostlist.obj            
+		 $(INTDIR)\valuerangepostlist.obj \
+		 $(INTDIR)\weight.obj
+                 
                  
 
 CLEAN :
@@ -212,6 +214,11 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
 <<
 
 "$(INTDIR)\valuerangepostlist.obj" : ".\valuerangepostlist.cc"
+       $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\weight.obj" : ".\weight.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<

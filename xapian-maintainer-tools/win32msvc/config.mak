@@ -2,15 +2,23 @@
 # Thanks to Ulrik Petersen
 # Modified by Charlie Hull, Lemur Consulting Ltd.
 # www.lemurconsulting.com
+# 17th March 2006
 #
 # Modify this file to set the Python configuration and any extra Xapian build flags
 # Note that you should only use a Windows Python built using Visual C++, i.e. the standard Windows
 # binary distribution
 
-# -------------Python settings-------------
-# uncomment to enable Python
-SWIG_PYTHON=yes
+# ------------SWIG settings-------------
+SWIG_FLAGS= -Werror -noproxy
 
+# -------------Perl settings-------------
+#Perl folder
+PERL_DIR=c:\work\Perl
+#Perl executable
+PERL_EXE=C:\work\Perl\bin\perl.exe
+# -------------end Perl settings-------------
+
+# -------------Python settings-------------
 # Python folder
 PYTHON_DIR=c:\Program Files\Python24
 # Python executable
@@ -24,6 +32,7 @@ PYTHON_LIB=$(PYTHON_DIR)\libs\python24.lib
 PYTHON_MODERN_OR_OLDE = modern
 #PYTHON_MODERN_OR_OLDE = olde
 # -------------end Python settings-------------
+
 
 # Swig executable
 SWIG=\work\tools\swigwin-1.3.31\swig.exe
@@ -65,3 +74,4 @@ XAPIAN_DEBUG_OR_RELEASE=Release
 LIBFLAGS_EXTRA=
 LINKFLAGS_EXTRA=
 
+MANIFEST=mt.exe /manifest

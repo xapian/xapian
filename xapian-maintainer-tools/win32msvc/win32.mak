@@ -16,19 +16,14 @@ NULL=nul
 
 !INCLUDE .\config.mak
 
-ALL:
+ALL: MAKEHEADERS
    copy config.h.win32 ..\config.h
    copy version.h.win32 ..\include\xapian\version.h
-   copy unistd.h.win32 ..\include\unistd.h
-   copy error.h.win32 ..\include\xapian\error.h
-   copy errordispatch.h.win32 ..\include\xapian\errordispatch.h
-   copy allsnowballheaders.h.win32 ..\languages\allsnowballheaders.h
    copy  win32_api.mak ..\api\win32.mak
    copy  win32_backends.mak ..\backends\win32.mak
    copy  win32_backends_flint.mak ..\backends\flint\win32.mak
    copy  win32_backends_inmemory.mak ..\backends\inmemory\win32.mak
    copy  win32_backends_multi.mak ..\backends\multi\win32.mak
-#   rem copy  win32_backends_muscat36.mak ..\backends\muscat36\win32.mak
    copy  win32_backends_remote.mak ..\backends\remote\win32.mak
    copy  win32_backends_quartz.mak ..\backends\quartz\win32.mak
    copy  win32_bin.mak ..\bin\win32.mak
@@ -47,7 +42,7 @@ ALL:
    if exist $(XAPIAN_APPLICATIONS) copy win32_applications_omega.mak $(XAPIAN_APPLICATIONS)\omega\win32.mak
    if exist $(XAPIAN_APPLICATIONS) copy config.mak $(XAPIAN_APPLICATIONS)\omega
    if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\omega\config.h
-
+   
    cd ..\getopt
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
    cd ..\common
@@ -106,14 +101,23 @@ CLEAN:
    cd ..\win32
    -@erase ..\config.h 
    -@erase ..\include\xapian\version.h
-   -@erase ..\include\unistd.h
+   -@erase ..\generate-exceptions
    -@erase ..\include\xapian\error.h
    -@erase ..\include\xapian\errordispatch.h
-   -@erase ..\languages\allsnowballheaders.h
    -@erase $(XAPIAN_DEBUG_OR_RELEASE)\*.idb
    rmdir $(XAPIAN_DEBUG_OR_RELEASE)\ /s /q
    echo All Win32 parts have been cleaned!
 
 DISTCLEAN: CLEAN
 
+# Header files generated automatically from various .in files
+MAKEHEADERS: ..\include\xapian\error.h 
 
+..\generate-exceptions: ..\generate-exceptions.in
+    $(PERL_EXE) -pe 's,$(PERL_DIR),$(PERL_EXE),' ..\generate-exceptions.in > ..\generate-exceptions
+
+..\include\xapian\error.h: ..\generate-exceptions
+    cd..
+    $(PERL_EXE) generate-exceptions
+    cd win32
+       
