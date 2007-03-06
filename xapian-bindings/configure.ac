@@ -72,13 +72,10 @@ dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so set AM_CXXFLAGS
 dnl here and unset them later.
 AM_CXXFLAGS=$XAPIAN_CXXFLAGS
 
-dnl Allow for bindings being version 0.8.5.1 which xapian-core is 0.8.5.
-dnl Also ignore any _svn6789 suffix which snapshots will have.
+dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.
+dnl We allow for bindings being version 0.8.5.1 while xapian-core is 0.8.5.
+dnl COMPAT_VERSION also ignores any _svn6789 suffix which snapshots will have.
 COMPAT_VERSION=[`echo "$PACKAGE_VERSION"|sed 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/'`]
-if test "$COMPAT_VERSION" != "$XAPIAN_VERSION" ; then
-  dnl 0.8.2 was the first version which set XAPIAN_VERSION
-  AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION])
-fi
 AC_SUBST(COMPAT_VERSION)
 
 dnl VERSION_NO_SNAPSHOT simply has any _svn6789 suffix removed.
@@ -745,3 +742,7 @@ else
   echo "*** Building bindings for languages:" $BINDINGS
 fi
 echo ""
+if test "$COMPAT_VERSION" != "$XAPIAN_VERSION" ; then
+  dnl 0.8.2 was the first version which set XAPIAN_VERSION
+  AC_MSG_WARN([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION - we strongly recommend using matching versions.])
+fi
