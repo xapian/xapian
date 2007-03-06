@@ -1,3 +1,10 @@
+Tue Mar 06 23:47:58 GMT 2007  Olly Betts <olly@survex.com>
+
+	* common/utils.cc,common/utils.h: Remove map_string_to_value() which
+	  is no longer used.
+	* common/utils.h: Remove prototype for rmdir() which I failed to
+	  remove with the earlier commit.
+
 Tue Mar 06 22:51:51 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/rmdir.cc: Fix rmdir() on Unix to not be O(n^2) in the

@@ -97,16 +97,6 @@ om_tostring(bool val)
     return val ? "1" : "0";
 }
 
-int
-map_string_to_value(const StringAndValue * haystack, const string & needle)
-{
-    while (haystack->name[0] != '\0') {
-	if (haystack->name == needle) break;
-	haystack++;
-    }
-    return haystack->value;
-}
-
 /** Return true if the file fname exists
  */
 bool
