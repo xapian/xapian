@@ -149,6 +149,7 @@ BOOT:
         newCONSTSUB( mHvStash, "OP_FILTER", newSViv(Query::OP_FILTER) );
         newCONSTSUB( mHvStash, "OP_NEAR", newSViv(Query::OP_NEAR) );
         newCONSTSUB( mHvStash, "OP_PHRASE", newSViv(Query::OP_PHRASE) );
+        newCONSTSUB( mHvStash, "OP_VALUE_RANGE", newSViv(Query::OP_VALUE_RANGE) );
         newCONSTSUB( mHvStash, "OP_ELITE_SET", newSViv(Query::OP_ELITE_SET) );
 
         newCONSTSUB( mHvStash, "DB_OPEN", newSViv(DB_OPEN) );
