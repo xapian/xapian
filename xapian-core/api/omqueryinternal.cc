@@ -223,18 +223,22 @@ Xapian::Query::Internal::get_description() const
 	return tname + opstr;
     }
 
-    opstr = " " + get_op_name(op) + " ";
-    if (op == Xapian::Query::OP_NEAR ||
-	op == Xapian::Query::OP_PHRASE ||
-	op == Xapian::Query::OP_ELITE_SET ||
-	op == Xapian::Query::OP_VALUE_RANGE)
-	opstr += om_tostring(parameter) + " ";
-
     if (op == Xapian::Query::OP_VALUE_RANGE) {
+	opstr = get_op_name(op);
+	opstr += ' ';
+	opstr += om_tostring(parameter);
+	opstr += ' ';
 	opstr += tname;
 	opstr += ' ';
 	opstr += str_parameter;
+	return opstr;
     }
+
+    opstr = " " + get_op_name(op) + " ";
+    if (op == Xapian::Query::OP_NEAR ||
+	op == Xapian::Query::OP_PHRASE ||
+	op == Xapian::Query::OP_ELITE_SET)
+	opstr += om_tostring(parameter) + " ";
 
     string description;
     subquery_list::const_iterator i;
