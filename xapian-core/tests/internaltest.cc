@@ -249,7 +249,9 @@ static bool test_tostring1()
     TEST_EQUAL(om_tostring(10ll), "10");
     TEST_EQUAL(om_tostring(-10ll), "-10");
     TEST_EQUAL(om_tostring(0x200000000ll), "8589934592");
-    TEST_EQUAL(om_tostring(0x200000000ull), "8589934592");
+// We don't currently have an "unsigned long long" version since it's not required
+// anywhere in the library.
+//    TEST_EQUAL(om_tostring(0x200000000ull), "8589934592");
 #endif
 
     return true;
