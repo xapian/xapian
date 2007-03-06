@@ -1,7 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
+	[Changes contributed by Olly Betts]
 	- Wrap new QueryParser flags FLAG_PURE_NOT and FLAG_PARTIAL.
  	- Wrap new Query op OP_VALUE_RANGE and associated constructor.
+	- Test WritableDatabase::add_value() in t/index.t.
 
 0.9.10.0  Tue Mar 06 02:27:02 2007
 	[Changes contributed by Rusty Conover]
