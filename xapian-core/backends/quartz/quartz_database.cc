@@ -45,6 +45,7 @@
 
 #include <sys/types.h>
 #include "safesysstat.h"
+#include "safefcntl.h"
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif

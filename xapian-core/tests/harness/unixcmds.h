@@ -1,5 +1,5 @@
-/** @file rmdir.h
- *  @brief rmdir(DIR) recursively deletes directory DIR.
+/** @file unixcmds.h
+ *  @brief C++ function versions of useful Unix commands.
  */
 /* Copyright (C) 2007 Olly Betts
  *
@@ -18,12 +18,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifdef XAPIAN_INCLUDED_RMDIR_H
-#define XAPIAN_INCLUDED_RMDIR_H
+#ifdef XAPIAN_INCLUDED_UNIXCMDS_H
+#define XAPIAN_INCLUDED_UNIXCMDS_H
 
 #include <string>
 
 /// Remove a directory and contents.
 void rmdir(const std::string &filename);
 
-#endif // XAPIAN_INCLUDED_RMDIR_H
+/// Touch a file.
+void touch(const std::string &filename);
+
+#endif // XAPIAN_INCLUDED_UNIXCMDS_H

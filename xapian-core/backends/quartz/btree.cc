@@ -23,6 +23,7 @@
 #include <config.h>
 
 #include "safeerrno.h"
+#include "safefcntl.h"
 #ifdef _MSC_VER
 # include "msvc_posix_wrapper.h"
 #endif

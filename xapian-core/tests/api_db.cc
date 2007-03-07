@@ -33,7 +33,7 @@
 #include "backendmanager.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "utils.h"
+#include "unixcmds.h"
 
 #include "apitest.h"
 #include "api_db.h"

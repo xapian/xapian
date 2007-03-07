@@ -29,7 +29,6 @@ using std::string;
 #include <stdlib.h>
 #include <sys/types.h>
 #include "safesysstat.h"
-#include "safefcntl.h"
 #include "safeunistd.h"
 
 /// Convert a string to a string!
@@ -95,12 +94,6 @@ inline int mkdir(const string &filename, mode_t mode) {
 /// Allow stat to work directly on C++ strings.
 inline int stat(const string &filename, struct stat *buf) {
     return stat(filename.c_str(), buf);
-}
-
-/// Touch a file.
-inline void touch(const string &filename) {
-   int fd = open(filename.c_str(), O_CREAT|O_WRONLY, 0644);
-   if (fd >= 0) close(fd);
 }
 
 #ifdef __WIN32__

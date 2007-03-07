@@ -1,3 +1,16 @@
+Wed Mar 07 02:22:30 GMT 2007  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree.cc,backends/quartz/quartz_database.cc,
+	  backends/quartz/quartz_log.cc,common/utils.h,net/remoteconnection.cc,
+	  net/tcpclient.cc,tests/api_db.cc,tests/btreetest.cc,tests/harness/,
+	  tests/quartztest.cc: Rename rmdir() to rm_rf() since it does the
+	  same as "rm -rf" not "rmdir".  The "touch()" function is only used
+	  in the testsuite so move it from common/utils.h into
+	  tests/harness/rmdir.cc and rename rmdir.cc to unixcmds.cc.
+	  common/utils.h no longer include safefcntl.h, so add explicit
+	  includes to the files which were previous relying on utils.h pulling
+	  it in.
+
 Wed Mar 07 02:21:18 GMT 2007  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Include ChangeLog.examples.

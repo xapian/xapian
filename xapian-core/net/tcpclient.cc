@@ -23,6 +23,7 @@
 #include <config.h>
 
 #include "safeerrno.h"
+#include "safefcntl.h"
 
 #include "tcpclient.h"
 #include <xapian/error.h>

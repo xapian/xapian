@@ -21,6 +21,7 @@
 #include <config.h>
 
 #include "safeerrno.h"
+#include "safefcntl.h"
 
 #include <string>
 

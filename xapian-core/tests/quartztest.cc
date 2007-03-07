@@ -24,7 +24,7 @@
 
 #include "safeerrno.h"
 
-#include "rmdir.h"
+#include "unixcmds.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include <xapian/error.h>
@@ -54,7 +54,7 @@ static void makedir(const string &filename)
 
 static void removedir(const string &filename)
 {
-    rmdir(filename);
+    rm_rf(filename);
     struct stat buf;
     if (stat(filename, &buf) == 0 || errno != ENOENT) {
 	FAIL_TEST("Failed to remove directory `" << filename << "' (" <<

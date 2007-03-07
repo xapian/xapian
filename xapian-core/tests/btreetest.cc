@@ -25,7 +25,7 @@
 #include "safeerrno.h"
 
 #include "btreecheck.h"
-#include "rmdir.h"
+#include "unixcmds.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -121,7 +121,7 @@ static void do_create(const string & btree_dir, int block_size = 2048)
     string no_slash = btree_dir;
     if (no_slash[no_slash.size() - 1] == '/')
 	no_slash.resize(no_slash.size() - 1);
-    rmdir(no_slash);
+    rm_rf(no_slash);
     make_dir(no_slash);
 
     Btree dummy(btree_dir, false);
@@ -1287,7 +1287,7 @@ int main(int argc, char **argv)
     } else {
 	tmpdir = ".btreetmp";
     }
-    rmdir(tmpdir);
+    rm_rf(tmpdir);
     make_dir(tmpdir);
     test_driver::parse_command_line(argc, argv);
     datadir = test_driver::get_srcdir() + "/testdata/btreetest_";

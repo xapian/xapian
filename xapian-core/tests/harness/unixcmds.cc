@@ -1,7 +1,7 @@
-/** @file rmdir.cc
- *  @brief rmdir(DIR) recursively deletes directory DIR.
+/** @file unixcmds.cc
+ *  @brief C++ function versions of useful Unix commands.
  */
-/* Copyright (C) 2004,2007 Olly Betts
+/* Copyright (C) 2003,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,13 +20,14 @@
 
 #include <config.h>
 
-#include "rmdir.h"
+#include "unixcmds.h"
 
 #include <string>
 #include <stdlib.h>
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safeunistd.h"
+#include "safefcntl.h"
 
 #ifdef __WIN32__
 # include "safewindows.h"
@@ -36,10 +37,8 @@
 
 using namespace std;
 
-/// Remove a directory and contents.
-void
-rmdir(const string &filename)
-{
+/// Remove a directory and contents, just like the Unix "rm -rf" command.
+void rm_rf(const string &filename) {
     // Check filename exists and is actually a directory
     struct stat sb;
     if (filename.empty() || stat(filename, &sb) != 0 || !S_ISDIR(sb.st_mode))
@@ -96,4 +95,10 @@ rmdir(const string &filename)
 
     system(cmd);
 #endif
+}
+
+/// Touch a file, just like the Unix "touch" command.
+void touch(const string &filename) {
+   int fd = open(filename.c_str(), O_CREAT|O_WRONLY, 0644);
+   if (fd >= 0) close(fd);
 }
