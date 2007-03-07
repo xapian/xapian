@@ -1,5 +1,27 @@
-/* except.i: Language independent exception handling.
+/* swig/defaults/except.i: Language independent exception handling.
  *
+ * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2001,2002 Ananova Ltd
+ * Copyright 2002,2003,2005 James Aylett
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ */
+/*
  * This file is included from xapian.i for any languages which don't have
  * language specific handling for exceptions.
  *
@@ -8,7 +30,6 @@
  * before looking in alternative include paths.
  */
 
-#ifndef XAPIAN_EXCEPTION_HANDLER
 #if defined SWIGPHP
 // PHP_MAJOR_VERSION isn't defined by older versions of PHP4 (e.g. PHP 4.1.2).
 %{
@@ -35,12 +56,12 @@
 
 static int XapianExceptionHandler(string & msg) {
     try {
-        // Rethrow so we can look at the exception if it was a Xapian::Error.
-        throw;
+	// Rethrow so we can look at the exception if it was a Xapian::Error.
+	throw;
     } catch (const Xapian::Error &e) {
-        msg = e.get_type();
-        msg += ": ";
-        msg += e.get_msg();
+	msg = e.get_type();
+	msg += ": ";
+	msg += e.get_msg();
 %}
 #ifdef SWIGPHP
 %{
@@ -117,6 +138,5 @@ static int XapianExceptionHandler(string & msg) {
 	XapianException(code, msg);
     }
 }
-#endif
 
-/* vim:syntax=python:set expandtab: */
+/* vim:set syntax=cpp:set noexpandtab: */

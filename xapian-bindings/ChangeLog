@@ -1,3 +1,16 @@
+Wed Mar 07 21:49:52 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tcl/except.i: New file, overriding swig/defaults/except.i for tcl.
+	* tcl/util.i: Remove exception handling stuff - moved to except.i.
+	  No longer sets XAPIAN_EXCEPTION_HANDLER - presence of except.i has
+	  similar effect.
+	* tcl/Makefile.am: Add except.i to dist and dependencies.
+	* swig/defaults/except.i: Remove checking of XAPIAN_EXCEPTION_HANDLER:
+	  no longer needed.  Also, tweak comments (add licence and copyright;
+	  copyright is just copied from xapian.i, which this file was split
+	  from, and may thus claim copyright for people who never worked on
+	  this exact code).  Also, fix whitespace.
+
 Wed Mar 07 16:35:13 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* Makefile.am: Add swig/defaults/except.i to EXTRA_DIST.

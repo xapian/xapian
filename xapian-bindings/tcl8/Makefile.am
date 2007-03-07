@@ -8,7 +8,7 @@ TESTS_ENVIRONMENT = \
 ## Test programs to be run
 TESTS = smoketest.tcl
 
-EXTRA_DIST = util.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl
+EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl
 SUBDIRS = docs
 
 tcllibdir = @TCL_LIB@/../xapian@VERSION@
@@ -34,7 +34,7 @@ pkgIndex.tcl: Makefile.am
 	echo 'package ifneeded xapian @VERSION_NO_SNAPSHOT@ [list load [file join $$dir xapian[info sharedlibextension]]]' > pkgIndex.tcl
 
 if MAINTAINER_MODE
-xapian_wrap.cc: $(SWIG_sources) util.i
+xapian_wrap.cc: $(SWIG_sources) except.i util.i
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -tcl8 -namespace -pkgversion @VERSION_NO_SNAPSHOT@ \
 	    -o xapian_wrap.cc $(SWIG_mainsource)
