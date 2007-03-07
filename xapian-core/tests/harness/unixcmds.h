@@ -18,13 +18,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifdef XAPIAN_INCLUDED_UNIXCMDS_H
+#ifndef XAPIAN_INCLUDED_UNIXCMDS_H
 #define XAPIAN_INCLUDED_UNIXCMDS_H
 
 #include <string>
 
 /// Remove a directory and contents.
-void rmdir(const std::string &filename);
+void rm_rf(const std::string &filename);
 
 /// Touch a file.
 void touch(const std::string &filename);

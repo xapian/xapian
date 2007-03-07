@@ -34,6 +34,7 @@
 #include "testsuite.h"
 #include "testutils.h"
 #include "unixcmds.h"
+#include "utils.h"
 
 #include "apitest.h"
 #include "api_db.h"

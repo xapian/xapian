@@ -1,3 +1,10 @@
+Wed Mar 07 03:07:49 GMT 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/unixcmds.h: Fixed reverse sense include guard test.
+	* tests/api_db.cc: Still need #include "utils.h".
+	* tests/harness/backendmanager.cc: Update for rmdir.h -> unixcmds.h
+	  and rmdir() -> rm_rf().
+
 Wed Mar 07 02:22:30 GMT 2007  Olly Betts <olly@survex.com>
 
 	* backends/quartz/btree.cc,backends/quartz/quartz_database.cc,

@@ -53,7 +53,7 @@
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "omdebug.h"
-#include "rmdir.h"
+#include "unixcmds.h"
 #include "utils.h"
 
 using namespace std;
@@ -130,7 +130,7 @@ BackendManager::set_dbtype(const string &type)
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	do_getdb = &BackendManager::getdb_flint;
 	do_getwritedb = &BackendManager::getwritedb_flint;
-	rmdir(".flint");
+	rm_rf(".flint");
 #else
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
@@ -139,7 +139,7 @@ BackendManager::set_dbtype(const string &type)
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
 	do_getdb = &BackendManager::getdb_quartz;
 	do_getwritedb = &BackendManager::getwritedb_quartz;
-	rmdir(".quartz");
+	rm_rf(".quartz");
 #else
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
@@ -306,7 +306,7 @@ BackendManager::getwritedb_flint(const vector<string> &dbnames)
     // use) from readonly ones (which can be reused).
     string dbdir = parent_dir + "/dbw";
     // For a writable database we need to start afresh each time.
-    rmdir(dbdir);
+    rm_rf(dbdir);
     (void)create_dir_if_needed(dbdir);
     touch(dbdir + "/log");
     // directory was created, so do the indexing.
@@ -353,7 +353,7 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
     // use) from readonly ones (which can be reused).
     string dbdir = parent_dir + "/dbw";
     // For a writable database we need to start afresh each time.
-    rmdir(dbdir);
+    rm_rf(dbdir);
     (void)create_dir_if_needed(dbdir);
     touch(dbdir + "/log");
     // directory was created, so do the indexing.
