@@ -61,6 +61,20 @@ Options to give to configure:
 	the backends.  By default, all backends for which the appropriate
 	libraries and OS support are available will be enabled.
 
+When compiling with GCC, by default Xapian will be built with _FORTIFY_SOURCE
+set to 2.  This enables some compile time and runtime checking of values passed
+to library functions when building with GCC >= 4.1 and glibc >= 2.34 (some
+Linux distros may have backported support to older GCC and/or glibc).  If you
+wish to disable this for any reason, you can just configure like so:
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=0
+
+Or you can set the "fortification level" to 1 instead of 2:
+
+./configure CPPFLAGS=-D_FORTIFY_SOURCE=1
+
+If you're disabling it because it causes problems, please also report this to
+us (via the bug tracker or mailing lists).
 
 Compiling with STLport
 ======================

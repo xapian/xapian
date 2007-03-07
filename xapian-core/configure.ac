@@ -862,12 +862,6 @@ if test yes = "$GXX"; then
       dnl not much point worrying about whether older versions had them or not.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
 
-      dnl _FORTIFY_SOURCE is only supported by GCC >= 4.1 and glibc >= 2.3.4,
-      dnl but it shouldn't cause a problem to define it where it's not
-      dnl supported and some distros may have backported support so hardcoding
-      dnl version checks is counter-productive.
-      AM_CXXFLAGS="$AM_CXXFLAGS -D_FORTIFY_SOURCE=2"
-
       dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
       dnl but somewhere in the 3.X series the output became more verbose
       dnl (3.2 has the new style output - not sure about 3.1).  So we test
@@ -905,6 +899,18 @@ AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */
 #ifdef _MSC_VER
 # pragma warning(disable:4800)
+#endif
+
+/* _FORTIFY_SOURCE is only supported by GCC >= 4.1 and glibc >= 2.3.4, but it
+ * shouldn't cause a problem to define it where it's not supported and some
+ * distros may have backported support, so hardcoding version checks is
+ * counter-productive.
+ *
+ * Check if _FORTIFY_SOURCE is already defined to allow the user to override
+ * our choice with "./configure CPPFLAGS=-D_FORTIFY_SOURCE=0" or "...=1".
+ */
+#if defined __GNUC__ && !defined _FORTIFY_SOURCE                                                                             
+# define _FORTIFY_SOURCE 2
 #endif])
 
 dnl modify flags for building with stlport
