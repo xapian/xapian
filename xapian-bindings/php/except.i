@@ -1,4 +1,4 @@
-/* swig/defaults/except.i: Language independent exception handling.
+/* php/except.i: Custom PHP exception handling.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
@@ -21,21 +21,18 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-/*
- * This file is included from xapian.i for any languages which don't have
- * language specific handling for exceptions.
- *
- * This file needs to be in a different directory than xapian.i, because swig
- * always tries to include files from the same directory as the source file
- * before looking in alternative include paths.
- */
 
-#if defined SWIGCSHARP
+// PHP_MAJOR_VERSION isn't defined by older versions of PHP4 (e.g. PHP 4.1.2).
 %{
-// In C#, we don't get SWIG_exception in the generated C++ wrapper sources.
-# define XapianException(TYPE, MSG) SWIG_CSharpException(TYPE, (MSG).c_str())
+# if PHP_MAJOR_VERSION-0 >= 5
+#  include <zend_exceptions.h>
+// zend_throw_exception takes a non-const char * parameter (sigh).
+// FIXME: throw errors as PHP classes corresponding to the Xapian error
+// classes.
+#  define XapianException(TYPE, MSG) \
+	zend_throw_exception(NULL, (char*)(MSG).c_str(), (TYPE) TSRMLS_CC)
+# endif
 %}
-#endif
 
 %{
 #ifndef XapianException
@@ -50,26 +47,27 @@ static int XapianExceptionHandler(string & msg) {
 	msg = e.get_type();
 	msg += ": ";
 	msg += e.get_msg();
+#if PHP_MAJOR_VERSION-0 < 5
 	try {
 	    // Re-rethrow the previous exception so we can handle the type in a
 	    // fine-grained way, but only in one place to avoid bloating the
 	    // file.
 	    throw;
-	} catch (const Xapian::InvalidArgumentError &e) {
-	    return SWIG_ValueError;
 	} catch (const Xapian::RangeError &e) {
-	    return SWIG_IndexError;
+	    // FIXME: RangeError DatabaseError and NetworkError are all
+	    // subclasses of RuntimeError - how should we handle those for
+	    // PHP4?
+	    return SWIG_UnknownError;
 	} catch (const Xapian::DatabaseError &) {
-	    return SWIG_IOError;
+	    return SWIG_UnknownError;
 	} catch (const Xapian::NetworkError &) {
-	    return SWIG_IOError;
-	} catch (const Xapian::InternalError &) {
-	    return SWIG_RuntimeError;
+	    return SWIG_UnknownError;
 	} catch (const Xapian::RuntimeError &) {
 	    return SWIG_RuntimeError;
 	} catch (...) {
 	    return SWIG_UnknownError;
 	}
+#endif
     } catch (...) {
 	msg = "unknown error in Xapian";
     }
@@ -83,6 +81,16 @@ static int XapianExceptionHandler(string & msg) {
     } catch (...) {
 	string msg;
 	int code = XapianExceptionHandler(msg);
+#if defined SWIGPHP
+%#if PHP_MAJOR_VERSION-0 < 5
+	if (code == SWIG_RuntimeError) {
+	    zend_error(E_WARNING, const_cast<char *>(msg.c_str()));
+	    /* FIXME: destructors don't have return_value to set. */
+	    // ZVAL_NULL(return_value);
+	    return;
+	}
+%#endif
+#endif
 	XapianException(code, msg);
     }
 }

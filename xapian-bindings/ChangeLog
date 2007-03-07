@@ -1,3 +1,10 @@
+Wed Mar 07 22:33:52 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* php/except.i,swig/defaults/except.i: Split the PHP exception
+	  handling into a new file, since almost half the original file was
+	  conditionally compiled for PHP.
+	* php/Makefile.am: Add php/except.i to dist and dependencies.
+
 Wed Mar 07 21:49:52 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tcl/except.i: New file, overriding swig/defaults/except.i for tcl.

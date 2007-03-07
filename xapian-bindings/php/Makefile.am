@@ -23,7 +23,7 @@ BUILT_SOURCES = php4/xapian_wrap.cc php5/xapian_wrap.cc \
 		php4/php_xapian.h php5/php_xapian.h \
 		php4/xapian.php php5/xapian.php
 
-EXTRA_DIST = util.i $(TESTS) smoketest4.php smoketest5.php $(BUILT_SOURCES)
+EXTRA_DIST = except.i util.i $(TESTS) smoketest4.php smoketest5.php $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
@@ -48,13 +48,13 @@ if MAINTAINER_MODE
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: $(SWIG_sources) util.i
+php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: $(SWIG_sources) except.i util.i
 	test -d php4 || mkdir php4
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -php4 -outdir php4 \
 	    -o php4/xapian_wrap.cc $(SWIG_mainsource)
 
-php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: $(SWIG_sources) util.i
+php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: $(SWIG_sources) except.i util.i
 	test -d php5 || mkdir php5
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -php5 -prefix Xapian -outdir php5 \
