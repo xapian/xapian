@@ -1270,7 +1270,7 @@ int max;
 */
 #define ERRMSGSIZE  10000 /* Hope this is big enough.  No way to error check */
 #define LINEWIDTH      79 /* Max width of any output line */
-#define PREFIXLIMIT    30 /* Max width of the prefix on each line */
+#define PREFIXLIMIT    60 /* Max width of the prefix on each line */
 void ErrorMsg(const char *filename, int lineno, const char *format, ...){
   char errmsg[ERRMSGSIZE];
   char prefix[PREFIXLIMIT+10];
