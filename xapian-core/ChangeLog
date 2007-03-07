@@ -1,3 +1,8 @@
+Wed Mar 07 15:57:15 GMT 2007  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Ship common/msvc_posix_wrapper.h and
+	  common/msvc_posix_wrapper.cc.
+
 Wed Mar 07 10:01:31 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* configure.ac: Add -D_FORTIFY_SOURCE to AM_CXXFLAGS for GCC

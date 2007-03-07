@@ -44,6 +44,8 @@ noinst_HEADERS +=\
 	common/vectortermlist.h
 
 EXTRA_DIST +=\
+	common/msvc_posix_wrapper.h\
+	common/msvc_posix_wrapper.cc\
 	common/dir_contents\
 	common/Makefile
 
