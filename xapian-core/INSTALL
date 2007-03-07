@@ -59,9 +59,7 @@ Options to give to configure:
 	These options enable the compiling of each of the backends.  (Database
 	access methods.)  Use "./configure --help" to get a full list of
 	the backends.  By default, all backends for which the appropriate
-	libraries and OS support are available will be enabled, except for the
-	muscat36 backend which offers legacy support for databases built with
-	the proprietary Muscat 3.6.
+	libraries and OS support are available will be enabled.
 
 
 Compiling with STLport
