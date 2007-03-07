@@ -67,5 +67,6 @@ t/index.t
 t/parser.t
 t/search.t
 t/tied.t
+t/valuerange.t
 
 examples/simplesearch.pl
