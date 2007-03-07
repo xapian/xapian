@@ -1678,13 +1678,24 @@ static bool test_valuerange1() {
 	for (const char **end = vals; *end; ++end) {
 	    Xapian::Query query(Xapian::Query::OP_VALUE_RANGE, 1, *start, *end);
 	    enq.set_query(query);
-	    Xapian::MSet mset = enq.get_mset(1, 20);
+	    Xapian::MSet mset = enq.get_mset(0, 20);
+	    // Check that documents in the MSet match the value range filter.
+	    set<Xapian::docid> matched;
 	    Xapian::MSetIterator i;
 	    for (i = mset.begin(); i != mset.end(); ++i) {
+		matched.insert(*i);
 		string value = db.get_document(*i).get_value(1);
-		tout << *start << " <= " << value << " <= " << *end << endl;
+		tout << "'" << *start << "' <= '" << value << "' <= '" << *end << "'" << endl;
 		TEST(value >= *start);
 		TEST(value <= *end);
+	    }
+	    // Check that documents not in the MSet don't match the value range filter.
+	    for (Xapian::docid j = db.get_lastdocid(); j != 0; --j) {
+		if (matched.find(j) == matched.end()) {
+		    string value = db.get_document(j).get_value(1);
+		    tout << value << " < '" << *start << "' or > '" << *end << "'" << endl;
+		    TEST(value < *start || value > *end);
+		}
 	    }
 	}
     }

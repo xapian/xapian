@@ -1,3 +1,11 @@
+Wed Mar 07 04:49:01 GMT 2007  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Include str_parameter in swap() and the copy
+	  constructor.
+	* tests/api_anydb.cc: get_mset(0, 20) not get_mset(1, 20)!  Also check
+	  that we didn't miss any documents which should match the filter, not
+	  just that we didn't get any documents which shouldn't.
+
 Wed Mar 07 03:07:49 GMT 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/unixcmds.h: Fixed reverse sense include guard test.

@@ -493,6 +493,7 @@ Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
     subqs.swap(other.subqs);
     std::swap(parameter, other.parameter);
     std::swap(tname, other.tname);
+    std::swap(str_parameter, other.str_parameter);
     std::swap(term_pos, other.term_pos);
     std::swap(wqf, other.wqf);
 }
@@ -503,6 +504,7 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	  subqs(),
 	  parameter(copyme.parameter),
 	  tname(copyme.tname),
+	  str_parameter(copyme.str_parameter),
 	  term_pos(copyme.term_pos),
 	  wqf(copyme.wqf)
 {
