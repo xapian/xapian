@@ -32,8 +32,8 @@ docdatadir = $(datadir)/doc/@PACKAGE@
 dist_docdata_DATA = $(HTMLDOCS) apidoc.pdf
 
 dist-hook:
-	$(mkinstalldirs) $(distdir)/apidoc
-	cp -a `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/* $(distdir)/apidoc/
+	$(mkinstalldirs) $(distdir)/apidoc/html
+	cp -a `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/* $(distdir)/apidoc/html
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html
