@@ -4,7 +4,7 @@
 # Wrapper script for running test programs (using libtool and valgrind if
 # required).
 #
-# Copyright (C) 2003,2004 Olly Betts
+# Copyright (C) 2003,2004,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -59,9 +59,24 @@ esac
 #   VALGRIND= ./runtest ./apitest
 test -z "${VALGRIND+set}" && VALGRIND="@VALGRIND@"
 if test -z "$VALGRIND" ; then
-   # valgrind isn't involved, so just run the test program.
-   exec "$@"
-   exit 1
+    # valgrind isn't involved, so just run the test program directly.
+
+    # If we're using glibc, tell it to call abort if malloc heap corruption is
+    # detected.  This incurs a small time penalty, but is probably worth it.
+    # See "man malloc" on a recent Linux distro for details.
+    MALLOC_CHECK_=2
+    export MALLOC_CHECK_
+
+    # If we're using glibc, tell it to fill newly allocated memory (unless
+    # allocated by calloc) with this byte value and overwrite memory released
+    # by free with this value xor 0xff.
+    # http://udrepper.livejournal.com/11429.html
+    # Just some value, y'know?
+    MALLOC_PERTURB_=42
+    export MALLOC_PERTURB_
+
+    exec "$@"
+    exit 1
 fi
 
 # Get libtool to run the test program under valgrind.  We have to use
@@ -77,7 +92,7 @@ LIBTOOL=`echo '@LIBTOOL@'|sed 's,\$(SHELL),@SHELL@,g;s,\$(top_builddir),'"$top_b
 GLIBCXX_FORCE_NEW=1
 export GLIBCXX_FORCE_NEW
 
-# Tell the testsuite to hook into valgrind
+# Tell the testsuite to hook into valgrind.
 XAPIAN_TESTSUITE_VALGRIND=1
 export XAPIAN_TESTSUITE_VALGRIND
 
