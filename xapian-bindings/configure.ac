@@ -9,7 +9,7 @@ AC_PREREQ(2.59)
 AC_INIT(xapian-bindings, 0.9.10)dnl FIXME: bugreport addr as third argument
 AM_INIT_AUTOMAKE([1.8.5])
 
-AC_CONFIG_SRCDIR(xapian.i)
+AC_CONFIG_SRCDIR(swig/xapian.i)
 
 AM_CONFIG_HEADER(config.h)
 

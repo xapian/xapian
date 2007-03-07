@@ -1,6 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-EXTRA_DIST = xapian.i xapian-bindings.spec.in xapian-bindings.spec skiptest\
+EXTRA_DIST = swig/xapian.i \
+    xapian-bindings.spec.in xapian-bindings.spec skiptest \
     xapian-version.h.in xapian-version.h HACKING TODO
 DISTCLEANFILES = xapian-version.h
 

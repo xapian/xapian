@@ -1,9 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
-# This requires GNU make, but apparently that's the default on OS X.
-export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
-endif
+include ../swig/Makefile.mk
 
 EXTRA_DIST = util.i $(BUILT_SOURCES)
 
@@ -17,8 +14,10 @@ xapianc_la_LIBADD = $(XAPIAN_LIBS)
 BUILT_SOURCES = xapian_wrap.cc
 
 if MAINTAINER_MODE
-xapian_wrap.cc: ../xapian.i util.i
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -guile -o $@ $(srcdir)/../xapian.i
+xapian_wrap.cc: $(SWIG_sources) util.i
+	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
+	    -guile \
+	    -o xapian_wrap.cc $(SWIG_mainsource)
 
 CLEANFILES = $(BUILT_SOURCES)
 else

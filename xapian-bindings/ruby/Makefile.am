@@ -1,14 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
+include ../swig/Makefile.mk
+
 TESTS_ENVIRONMENT = $(RUBY) -I.libs -I$(srcdir)
 
 ## Test programs to be run
 TESTS = smoketest.rb
-
-if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
-# This requires GNU make, but apparently that's the default on OS X.
-export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
-endif
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h
 
@@ -35,8 +32,10 @@ _xapian_la_SOURCES = xapian_wrap.cc xapian_wrap.h
 _xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 if MAINTAINER_MODE
-xapian_wrap.cc xapian_wrap.h: ../xapian.i util.i
-	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -feature _xapian -ruby -o xapian_wrap.cc $(srcdir)/../xapian.i
+xapian_wrap.cc xapian_wrap.h: $(SWIG_sources) util.i
+	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
+	    -feature _xapian -ruby \
+	    -o xapian_wrap.cc $(SWIG_mainsource)
 
 CLEANFILES = $(BUILT_SOURCES)
 else

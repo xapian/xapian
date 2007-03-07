@@ -1,14 +1,11 @@
 ## Process this file with automake to produce Makefile.in
 
+include ../swig/Makefile.mk
+
 TESTS_ENVIRONMENT = PYTHONPATH=".libs$(PYTHON_PATHSEP)." $(PYTHON)
 
 ## Test programs to be run
 TESTS = smoketest.py
-
-if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
-# This requires GNU make, but apparently that's the default on OS X.
-export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
-endif
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
@@ -56,10 +53,11 @@ if MAINTAINER_MODE
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i extra.i
+modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: $(SWIG_sources) util.i extra.i
 	test -d modern || mkdir modern
-	$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -python -shadow -modern -O \
-	    -outdir modern -o modern/xapian_wrap.cc $(srcdir)/../xapian.i
+	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
+	    -python -shadow -modern -O -outdir modern \
+	    -o modern/xapian_wrap.cc $(SWIG_mainsource)
 
 CLEANFILES += $(BUILT_SOURCES)
 else
