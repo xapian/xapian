@@ -6,8 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-use Devel::Peek;
-BEGIN { plan tests => 79 };
+BEGIN { plan tests => 80 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -92,6 +91,9 @@ ok( $matches3 = $enq->get_mset(0, 10, $rset), "get_mset with rset" );
 is( $matches3->size, $matches->size, "rset doesn't change mset size" );
 ok( $matches3 = $enq->get_mset(0, 10, 11, $rset), "get_mset with check_at_least and rset" );
 is( $matches3->size, $matches->size, "rset and check_at_least don't change mset size" );
+
+# This was generating a warning converting "0" to an RSet object:
+ok( $matches3 = $enq->get_mset(0, 10, sub { return 1; }), "get_mset with matchdecider" );
 
 my $eset;
 ok( $eset = $enq->get_eset( 10, $rset ), "can get expanded terms set" );

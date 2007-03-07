@@ -50,14 +50,15 @@ sub get_mset {
     my $type = ref( $_[2] );
     if ( $type eq 'CODE' ) {
       # get_mset(first, max, matchdecider) [perl extra]
-      splice @_, 2, 0, (0, 0);
-    } elsif ( $type eq 'Search::Xapian::RSet' ) {
+      return $self->get_mset2(@_);
+    }
+    if ( $type eq 'Search::Xapian::RSet' ) {
       # get_mset(first, max, rset)
-      splice @_, 2, 0, (0);
+      splice @_, 2, 0, (0); # insert checkatleast
     }
   } elsif( $nargs == 4 && ref( $_[3] ) eq 'CODE' ) {
     # get_mset(first, max, rset, matchdecider)
-    splice @_, 2, 0, (0);
+    splice @_, 2, 0, (0); # insert checkatleast
   }
   return $self->get_mset1( @_ );
 }

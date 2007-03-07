@@ -146,6 +146,18 @@ Enquire::get_mset1(first, maxitems, checkatleast = NO_INIT, rset = NO_INIT, func
     OUTPUT:
 	RETVAL
 
+MSet *
+Enquire::get_mset2(first, maxitems, func)
+    doccount    first
+    doccount    maxitems
+    SV *	func
+    CODE:
+	RETVAL = new MSet();
+	perlMatchDecider d = perlMatchDecider(func);
+	*RETVAL = THIS->get_mset(first, maxitems, 0, NULL, &d);
+    OUTPUT:
+	RETVAL
+
 ESet *
 Enquire::get_eset(maxitems, rset)
     doccount    maxitems
