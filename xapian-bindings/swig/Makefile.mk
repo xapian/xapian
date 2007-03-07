@@ -11,8 +11,10 @@ SWIG_mainsource = \
 	$(srcdir)/../swig/xapian.i
 
 SWIG_sources = \
-	$(SWIG_mainsource)
+	$(SWIG_mainsource) \
+	$(srcdir)/../swig/defaults/except.i
 
 SWIG_includes = \
-	-I$(srcdir)
+	-I$(srcdir) \
+	-I$(srcdir)/../swig/defaults
 

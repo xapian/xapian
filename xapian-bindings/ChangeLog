@@ -1,3 +1,13 @@
+Wed Mar 07 16:35:13 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am: Add swig/defaults/except.i to EXTRA_DIST.
+	* swig/Makefile.mk: Add swig/defaults/except.i to SWIG_sources, and
+	  add swig/defaults/ to SWIG_includes, after language specific
+	  path entry (so language specific except.i files can be created to
+	  override the contents of swig/defaults/except.i).
+	* swig/xapian.i,swig/defaults/except.i: Move the exception handling
+	  code out of swig/xapian.i and into swig/defaults/except.i
+
 Wed Mar 07 16:16:54 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i,swig/xapian.i: Move swig source file to a subdirectory,
