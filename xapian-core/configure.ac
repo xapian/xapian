@@ -862,6 +862,11 @@ if test yes = "$GXX"; then
       dnl not much point worrying about whether older versions had them or not.
       AM_CXXFLAGS="$AM_CXXFLAGS -Wall -W -Wredundant-decls -Wpointer-arith -Wcast-qual -Wcast-align -Wno-multichar -Wno-long-long -fno-gnu-keywords"
 
+      dnl -D_FORTIFY_SOURCE is only supported by gcc/glibc versions released
+      dnl later than 2004 (I couldn't find the exact version it was introduced
+      dnl at), but shouldn't cause a problem if it's not supported.
+      AM_CXXFLAGS="$AM_CXXFLAGS -D_FORTIFY_SOURCE=2"
+
       dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
       dnl but somewhere in the 3.X series the output became more verbose
       dnl (3.2 has the new style output - not sure about 3.1).  So we test

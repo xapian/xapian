@@ -1,3 +1,12 @@
+Wed Mar 07 10:01:31 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Add -D_FORTIFY_SOURCE to AM_CXXFLAGS for GCC
+	  builds.  According to glibc CVS support for this was added in
+	  October 2004, but it doesn't seem to be documented very well,
+	  other than in features.h.  This adds some extra checking for
+	  array bounds, partially at compile time, but doesn't currently
+	  find any problems (or cause any noticeable slowdown).
+
 Wed Mar 07 04:49:01 GMT 2007  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Include str_parameter in swap() and the copy
