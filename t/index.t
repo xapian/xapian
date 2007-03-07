@@ -5,9 +5,8 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
-use Test;
-use Devel::Peek;
-BEGIN { plan tests => 40 };
+use Test::More;
+BEGIN { plan tests => 44 };
 use Search::Xapian qw(:standard);
 
 #########################
@@ -48,11 +47,14 @@ foreach my $backend ("inmemory", "auto") {
     ok( $docid = $database->add_document( $docs{$num} ) );
   }
   $database->delete_document( $docid );
-  ok( $database->get_doccount(), 2 );
-  ok( $database->get_lastdocid(), 3 );
+  is( $database->get_doccount(), 2 );
+  is( $database->get_lastdocid(), 3 );
 
   # regression test - add_posting with 2 parameters set wdfinc 0 in <=0.8.3.0
   ok( $database->get_doclength(1) == 2 );
+
+  is( $database->get_document(1)->get_value(0), "one" );
+  is( $database->get_document(2)->get_value(0), "two" );
 
   my $posit = $database->positionlist_begin(1, $term);
   ok( $posit ne $database->positionlist_end(1, $term) );
