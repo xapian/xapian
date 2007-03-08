@@ -881,7 +881,8 @@ static bool test_qp_unstem_boolean_prefix()
     return true;
 }
 
-static bool test_qp_value_range()
+// Simple test of ValueRangeProcessor class.
+static bool test_qp_value_range1()
 {
     Xapian::QueryParser qp;
     qp.add_boolean_prefix("test", "XTEST");
@@ -889,6 +890,26 @@ static bool test_qp_value_range()
     qp.add_valuerangeprocessor(&vrp);
     Xapian::Query q = qp.parse_query("a..b");
     TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 a b)");
+    return true;
+}
+
+// Test chaining of ValueRangeProcessor classes.
+static bool test_qp_value_range2()
+{
+    Xapian::QueryParser qp;
+    qp.add_boolean_prefix("test", "XTEST");
+    Xapian::DateValueRangeProcessor vrp_date(1);
+    Xapian::NumberValueRangeProcessor vrp_num(2);
+    Xapian::StringValueRangeProcessor vrp_str(3);
+    qp.add_valuerangeprocessor(&vrp_date);
+    qp.add_valuerangeprocessor(&vrp_num);
+    qp.add_valuerangeprocessor(&vrp_str);
+    Xapian::Query q = qp.parse_query("a..b");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 3 a b)");
+    q = qp.parse_query("1..12");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 2 1 12)");
+    q = qp.parse_query("20070201..20070228");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 20070201 20070228)");
     return true;
 }
 
@@ -904,7 +925,8 @@ static test_desc tests[] = {
     TESTCASE(qp_flag_pure_not1),
     TESTCASE(qp_unstem_boolean_prefix),
     TESTCASE(qp_default_prefix1),
-    TESTCASE(qp_value_range),
+    TESTCASE(qp_value_range1),
+    TESTCASE(qp_value_range2),
     END_OF_TESTCASES
 };
 

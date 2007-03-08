@@ -1,3 +1,10 @@
+Thu Mar 08 07:34:22 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,tests/queryparsertest.cc: Add simple
+	  implementations of DateValueRangeProcessor and
+	  NumberValueRangeProcessor and add qp_value_range2 to check that
+	  chaining ValueRangeProcessor subclasses works as intended.
+
 Thu Mar 08 06:06:15 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/overview.html: Fix links to error classes in generated API

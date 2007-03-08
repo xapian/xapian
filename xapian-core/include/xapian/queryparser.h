@@ -98,6 +98,42 @@ class StringValueRangeProcessor : public ValueRangeProcessor {
     }
 };
 
+class DateValueRangeProcessor : public ValueRangeProcessor {
+    Xapian::valueno valno;
+
+  public:
+    DateValueRangeProcessor(Xapian::valueno valno_)
+	: valno(valno_) { }
+
+    Xapian::valueno operator()(std::string &begin, std::string &end) {
+	if (begin.size() != 8 || end.size() != 8 ||
+	    strspn(begin.c_str(), "0123456789") != 8 ||
+	    strspn(end.c_str(), "0123456789") != 8) {
+	    // Not YYYYMMDD.
+	    return Xapian::BAD_VALUENO;
+	}
+	return valno;
+    }
+};
+
+class NumberValueRangeProcessor : public ValueRangeProcessor {
+    Xapian::valueno valno;
+
+  public:
+    NumberValueRangeProcessor(Xapian::valueno valno_)
+	: valno(valno_) { }
+
+    Xapian::valueno operator()(std::string &begin, std::string &end) {
+	if (strspn(begin.c_str(), "0123456789") != begin.size() ||
+	    strspn(end.c_str(), "0123456789") != end.size()) {
+	    // Not a number.
+	    return Xapian::BAD_VALUENO;
+	}
+	// FIXME: need to "adjust" begin and end now.
+	return valno;
+    }
+};
+
 /// Build a Xapian::Query object from a user query string.
 class QueryParser {
   public:
