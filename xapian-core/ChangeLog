@@ -1,3 +1,9 @@
+Thu Mar 08 17:09:21 GMT 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Keep any
+	  non-whitespace, non-term prefix for a term in case it turns out
+	  to be the start of a range, so "$50..100" works.
+
 Thu Mar 08 16:21:14 GMT 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Add my "create docs/GNUmakefile" trick to avoid doxygen

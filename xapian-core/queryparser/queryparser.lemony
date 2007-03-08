@@ -290,14 +290,18 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
 	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM, IN_RANGE
     } mode = DEFAULT;
 
+    string range_prefix;
     unsigned newprev = ' ';
     while (it != end) {
+	if (mode != DEFAULT) range_prefix.resize(0);
+
 	if (mode == IN_PHRASED_TERM) mode = DEFAULT;
 	if (U_isspace(*it)) {
 	    newprev = ' ';
 	    ++it;
 	    it = find_if(it, end, U_isnotspace);
 	    if (it == end) break;
+	    range_prefix.resize(0);
 	}
 
 	if (!is_wordchar(*it)) {
@@ -388,7 +392,10 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
 		}
 		continue;
 	    }
-	    // Skip any other characters.
+	    // Skip any other characters, but append them to range_prefix if
+	    // we might have ranges and we're not it a phrase or similar...
+	    if (mode == DEFAULT && value_ranges)
+	       	range_prefix.append(ubuf, to_utf8(ch, ubuf));
 	    continue;
 	}
 
@@ -612,6 +619,9 @@ phrased_term:
 		++q;
 		if (q != end && is_wordchar(*q)) {
 		    it = q;
+		    swap(term, range_prefix);
+		    term += range_prefix;
+		    range_prefix.resize(0);
 		    Parse(pParser, RANGE_START, new Term(term, 0), &state);
 		    mode = IN_RANGE;
 		    continue;

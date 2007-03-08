@@ -890,6 +890,8 @@ static bool test_qp_value_range1()
     qp.add_valuerangeprocessor(&vrp);
     Xapian::Query q = qp.parse_query("a..b");
     TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 a b)");
+    q = qp.parse_query("$50..100");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 $50 100)");
     return true;
 }
 
