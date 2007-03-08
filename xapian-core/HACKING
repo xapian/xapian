@@ -314,12 +314,10 @@ There is a good GNU autotools tutorial at
 
 If you are tracking development in SVN, there will sometimes be changes to the
 build system sources which require regeneration of the generated makefiles and
-associated machinery.  In most cases, this will automatically be spotted when
-you next run make, but on occasion it will be necessary to run a script
-manually to generate the new files.  Running the bootstrap script should always
-fix the problem, but you can often fix the problem more quickly by running:
-
-  ./preautoreconf;autoreconf
+associated machinery.  We aim to make the build system automatically regenerate
+the necessary files, but in the event that a build fails after an update, it
+may be worth re-running the bootstrap script to regenerate the build system
+from scratch, before looking for the cause of the error elsewhere.
 
 If you want to be able to build distribution tarballs (with "make dist") then
 you'll also need some further tools.  The build system is designed to fail with
