@@ -146,26 +146,6 @@ class QueryParser {
     /// Set the stopper.
     void set_stopper(const Stopper *stop = NULL);
 
-    /** @deprecated Deprecated method for backward compatibility.
-     *
-     *  Use set_stemmer, set_stemming_strategy and/or set_stopper instead.
-     *
-     *  set_stemming_options("") -> set_stemming_strategy(Xapian::QueryParser::STEM_NONE)
-     *
-     *  set_stemming_options("none") -> set_stemming_strategy(Xapian::QueryParser::STEM_NONE)
-     *  
-     *  set_stemming_options(LANG) -> set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_SOME)
-     *  
-     *  set_stemming_options(LANG, false) -> set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_SOME)
-     *
-     *  set_stemming_options(LANG, true) -> set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_ALL)
-     *
-     * If a third parameter is passed, set_stopper(PARAM3) and treat the first
-     * two parameters as above.
-     */
-    XAPIAN_DEPRECATED(void set_stemming_options(const std::string &lang, bool stem_all = false,
-			      const Stopper *stop = NULL));
-
     /** Set the default boolean operator. */
     void set_default_op(Query::op default_op);
 

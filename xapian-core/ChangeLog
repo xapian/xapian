@@ -1,3 +1,9 @@
+Thu Mar 08 04:27:54 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc: Remove
+	  QueryParser::set_stemming_options() which has been deprecated
+	  since 0.9.0.
+
 Thu Mar 08 03:37:07 GMT 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_lock.cc: Handle write failing to send a single
