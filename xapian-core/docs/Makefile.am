@@ -22,7 +22,7 @@ RSTHTML = admin_notes.html
 EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
 	doxygen_full_header.html_tmpl doxygen_full_footer.html_tmpl \
-	$(RSTDOCS) $(RSTHTML)
+	$(RSTDOCS) $(RSTHTML) apidoc/html
 
 # Build API docs with doxygen
 all-local: doxygen_api_docs $(RSTHTML)
@@ -30,10 +30,6 @@ all-local: doxygen_api_docs $(RSTHTML)
 # Data to install, in the usual automake way
 docdatadir = $(datadir)/doc/@PACKAGE@
 dist_docdata_DATA = $(HTMLDOCS) apidoc.pdf
-
-dist-hook:
-	$(mkinstalldirs) $(distdir)/apidoc/html
-	cp -a `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/* $(distdir)/apidoc/html
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html
