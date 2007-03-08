@@ -881,6 +881,17 @@ static bool test_qp_unstem_boolean_prefix()
     return true;
 }
 
+static bool test_qp_value_range()
+{
+    Xapian::QueryParser qp;
+    qp.add_boolean_prefix("test", "XTEST");
+    Xapian::StringValueRangeProcessor vrp(1);
+    qp.add_valuerangeprocessor(&vrp);
+    Xapian::Query q = qp.parse_query("a..b");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 a b)");
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -893,6 +904,7 @@ static test_desc tests[] = {
     TESTCASE(qp_flag_pure_not1),
     TESTCASE(qp_unstem_boolean_prefix),
     TESTCASE(qp_default_prefix1),
+    TESTCASE(qp_value_range),
     END_OF_TESTCASES
 };
 

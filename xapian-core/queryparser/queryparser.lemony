@@ -76,6 +76,9 @@ is_not_wordchar(unsigned ch) {
 
 /// Wrapper around a query, allowing us to distinguish between a query
 /// representing an empty list of queries, and a "MatchNothing" query.
+/* FIXME: can we replace this by using Query * and NULL vs MatchNothing?
+ * We pass round Query * generally, so that should dovetail quite nicely!
+ */
 class QpQuery {
     /// The underlying query object.
     Query q;
@@ -90,7 +93,7 @@ class QpQuery {
 
     QpQuery & operator=(const QpQuery & tocopy)
     {
-    	q = tocopy.q;
+	q = tocopy.q;
 	match_nothing_ = tocopy.match_nothing_;
 	return *this;
     }
@@ -104,6 +107,11 @@ class QpQuery {
     /** A query consisting of two subqueries, opp-ed together. */
     QpQuery(Query::op op, const QpQuery & left, const QpQuery & right)
 	: q(op, left.get(), right.get()), match_nothing_(false)
+    {}
+
+    QpQuery(Query::op op_, Xapian::valueno valno,
+	  const std::string &begin, const std::string &end)
+	: q(op_, valno, begin, end), match_nothing_(false)
     {}
 
     QpQuery(const Query & q_) : q(q_), match_nothing_(false) {}
@@ -163,6 +171,30 @@ class State {
 
     void add_to_stoplist(const Term * term) {
 	qpi->stoplist.push_back(term->name);
+    }
+
+    QpQuery * value_range(Term *a, Term *b) {
+	string start = a->name;
+	string end = b->name;
+	delete a;
+	delete b;
+	Xapian::valueno valno = Xapian::BAD_VALUENO;
+	list<ValueRangeProcessor *>::const_iterator i;
+	for (i = qpi->valrangeprocs.begin(); i != qpi->valrangeprocs.end(); ++i) {
+	    valno = (**i)(start, end);
+	    if (valno != Xapian::BAD_VALUENO) break;
+	}
+	if (valno == Xapian::BAD_VALUENO) {
+	    // FIXME: Do we want to report an error for this?  If not we need
+	    // to perform the above check in the tokeniser and if none of the
+	    // ValueRangeProcessor classes like the range, we rollback to
+	    // parsing the query without treating this as a range.  Needs
+	    // more thought and probably a look at queries users actually
+	    // enter.
+	    error = "Unknown range operation";
+	    return NULL;
+	}
+	return new QpQuery(Query::OP_VALUE_RANGE, valno, start, end);
     }
 
     Query::op default_op() const { return qpi->default_op; }
@@ -241,6 +273,10 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
 
     yyParser * pParser = ParseAlloc();
 
+    // Set value_ranges if we may have to handle value ranges in the query.
+    bool value_ranges;
+    value_ranges = !valrangeprocs.empty() && (qs.find("..") != string::npos);
+
     termpos term_pos = 1;
     Utf8Iterator it(qs), end;
 
@@ -251,7 +287,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
     prefix_stack.push_back(default_prefix);
 
     enum {
-	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM
+	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM, IN_RANGE
     } mode = DEFAULT;
 
     unsigned newprev = ' ';
@@ -427,6 +463,7 @@ phrased_term:
 	    if (t.length() > 1) {
 		// Check there's not a (lower case) letter or digit
 		// immediately after it.
+		// FIXME: should I.B.M..P.T.O be a range search?
 		if (p == end || !is_wordchar(*p)) {
 		    it = p;
 		    swap(term, t);
@@ -465,10 +502,10 @@ phrased_term:
 		    // much sense - we should probably be more conservative as
 		    // to what combinations are allowed.
 		    do {
- 			suff_term.append(ubuf, to_utf8(*p++, ubuf));
- 		    } while (p != end && U_issign(*p));
+			suff_term.append(ubuf, to_utf8(*p++, ubuf));
+		    } while (p != end && U_issign(*p));
 		}
- 		if (p == end || !is_wordchar(*p)) {
+		if (p == end || !is_wordchar(*p)) {
 		    // If the suffixed term doesn't exist, check that the
 		    // non-suffixed term does.  This also takes care of
 		    // the case when QueryParser::set_database() hasn't
@@ -487,6 +524,12 @@ phrased_term:
 		    }
 		}
 	    }
+	}
+
+	if (mode == IN_RANGE) {
+	    Parse(pParser, RANGE_END, new Term(term, 0), &state);
+	    mode = DEFAULT;
+	    continue;
 	}
 
 	// Boolean operators.
@@ -557,14 +600,28 @@ phrased_term:
 
 	bool need_to_stem = (stem_action != STEM_NONE);
 	string unstemmed_term;
-	if (stem_action == STEM_SOME && it != end && *it == '.') {
+	bool could_be_range = (mode == DEFAULT && value_ranges);
+	if ((could_be_range || stem_action == STEM_SOME) &&
+	    it != end && *it == '.') {
+	    // Might be a trailing "." meaning "already stemmed" or
+	    // a ".." between two words meaning "value range".
 	    Utf8Iterator p = it;
 	    ++p;
-	    // TopTerms won't generate an embedded '.', and we want to
-	    // stem terms in a phrased term with '.' phrase generators -
-	    // e.g. "example.com" should give a phrase search for "exampl"
-	    // and "com", not "example" and "com".
-	    if (p == end || U_isspace(*p)) {
+	    if (could_be_range && p != end && *p == '.') {
+		Utf8Iterator q = p;
+		++q;
+		if (q != end && is_wordchar(*q)) {
+		    it = q;
+		    Parse(pParser, RANGE_START, new Term(term, 0), &state);
+		    mode = IN_RANGE;
+		    continue;
+		}
+	    }
+	    if (stem_action == STEM_SOME && (p == end || U_isspace(*p))) {
+		// TopTerms won't generate an embedded '.', and we want to
+		// stem terms in a phrased term with '.' phrase generators -
+		// e.g. "example.com" should give a phrase search for "exampl"
+		// and "com", not "example" and "com".
 		it = p;
 		// If topterms added a term with a trailing '.', it will be
 		// lower case.  So if it has an initial capital it must be an
@@ -817,6 +874,11 @@ expr(E) ::= bool_arg(A) OR bool_arg(B).
 
 expr(E) ::= bool_arg(A) XOR bool_arg(B).
 	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_XOR, B, "XOR"); }
+
+expr(E) ::= RANGE_START(A) RANGE_END(B). {
+    E = state->value_range(A, B);
+    if (E == NULL) yy_parse_failed(yypParser);
+}
 
 // bool_arg - an argument to a boolean operator such as AND or OR.
 

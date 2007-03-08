@@ -51,6 +51,8 @@ SimpleStopper::get_description() const
     return desc;
 }
 
+ValueRangeProcessor::~ValueRangeProcessor() { }
+
 QueryParser::QueryParser(const QueryParser & o) : internal(o.internal) { }
 
 QueryParser &
@@ -153,6 +155,13 @@ QueryParser::unstem_begin(const std::string &term) const
 	++i;
     }
     return TermIterator(new VectorTermList(l.begin(), l.end()));
+}
+
+void
+QueryParser::add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc)
+{
+    Assert(internal);
+    internal->valrangeprocs.push_back(vrproc);
 }
 
 std::string

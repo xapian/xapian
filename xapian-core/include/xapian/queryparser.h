@@ -81,6 +81,23 @@ class SimpleStopper : public Stopper {
     virtual std::string get_description() const;
 };
 
+struct ValueRangeProcessor {
+    virtual ~ValueRangeProcessor();
+    virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
+};
+
+class StringValueRangeProcessor : public ValueRangeProcessor {
+    Xapian::valueno valno;
+
+  public:
+    StringValueRangeProcessor(Xapian::valueno valno_)
+	: valno(valno_) { }
+
+    Xapian::valueno operator()(std::string &, std::string &) {
+	return valno;
+    }
+};
+
 /// Build a Xapian::Query object from a user query string.
 class QueryParser {
   public:
@@ -210,6 +227,9 @@ class QueryParser {
     TermIterator unstem_end(const std::string &) const {
 	return TermIterator(NULL);
     }
+
+    /// Register a ValueRangeProcessor.
+    void add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc);
 
     /// Return a string describing this object.
     std::string get_description() const;

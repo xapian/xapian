@@ -56,6 +56,9 @@ class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
     // "foobar" -> "XFOO"
     // bool is true if this is a boolean filter.
     map<string, BoolAndString> prefixes;
+
+    list<Xapian::ValueRangeProcessor *> valrangeprocs;
+
   public:
     Internal() : stem_action(STEM_NONE), stopper(NULL),
 	default_op(Xapian::Query::OP_OR), errmsg(NULL) { }
