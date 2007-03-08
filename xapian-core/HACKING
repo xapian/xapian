@@ -604,8 +604,20 @@ to follow the style of the existing code.  In particular:
 
 * indent C++ code by 4 spaces for a new indentation level, and set your editor
   to tab-fill indentation.
+
 * Put a space before the "(" after control flow constructs like "for", "if",
-  "while", etc.  Don't put a space before the "(" in function calls.
+  "while", etc.  Don't put a space before the "(" in function calls.  So
+  write "if (strlen(p) > 10)" not "if(strlen (p) > 10)".
+
+* If incrementing an iterator, prefer "++i" to "i++" unless you're actually
+  making use of the returned value ("++i" may be more efficient for some
+  iterators with some compilers).
+
+* Prefer "container.empty()" to "container.size() == 0" (and
+  "!container.empty()" to "container.size() != 0" or "container.size() > 0").
+  Finding the size of a container may not be a constant time operation for
+  all containers (e.g. std::list may not be); also the "empty()" form makes
+  the intent of the test more explicit.
 
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name

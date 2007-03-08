@@ -1,3 +1,7 @@
+Thu Mar 08 16:13:39 GMT 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: A few more coding guidelines.
+
 Thu Mar 08 14:26:21 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* HACKING: Adjust wording to indicate that the build system is
