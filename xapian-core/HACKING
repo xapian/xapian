@@ -736,6 +736,24 @@ of the prefix form as described by Joe Buck on the gcc mailing list
 Xapian's PostingIterator, TermIterator, and PositionIterator all have only one
 data member which fits in a register.
 
+Handy tips for aiding development
+=================================
+
+If you are find you are repeatedly changing the API headers (in include/)
+during development, then you may become annoyed that the docs/ subdirectory
+will rebuild the doxygen documentation every time you run "make" since this
+takes a while.  You can disable this temporarily (if you're using GNU make),
+by creating a file "docs/GNUmakefile" containing these two lines:
+
+%:
+	@echo "Skipping 'make $@' in docs"
+
+Note that the whitespace at the start of the second line needs to be a
+single "tab" character!
+
+Don't forget to remove (or rename) this and check the documentation builds
+before committing or generating a patch though!
+
 How to make a release
 =====================
 

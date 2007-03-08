@@ -1,3 +1,8 @@
+Thu Mar 08 16:21:14 GMT 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Add my "create docs/GNUmakefile" trick to avoid doxygen
+	  delays.
+
 Thu Mar 08 16:13:39 GMT 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: A few more coding guidelines.
