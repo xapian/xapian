@@ -641,9 +641,9 @@ MSetIterator::get_description() const
 // Methods for Xapian::Enquire::Internal
 
 Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
-  : db(db_), query(), collapse_key(Xapian::valueno(-1)),
+  : db(db_), query(), collapse_key(Xapian::BAD_VALUENO),
     order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
-    sort_key(Xapian::valueno(-1)), sort_by(REL), sort_value_forward(true),
+    sort_key(Xapian::BAD_VALUENO), sort_by(REL), sort_value_forward(true),
     bias_halflife(0), bias_weight(0), errorhandler(errorhandler_), weight(0)
 {
 }
@@ -978,7 +978,7 @@ Enquire::set_sorting(Xapian::valueno sort_key, int sort_bands,
     if (sort_bands > 1) {
 	throw Xapian::UnimplementedError("sort bands are no longer supported");
     }
-    if (sort_bands == 0 || sort_key == Xapian::valueno(-1)) {
+    if (sort_bands == 0 || sort_key == Xapian::BAD_VALUENO) {
 	Enquire::set_sort_by_relevance();
     } else if (!sort_by_relevance) {
 	Enquire::set_sort_by_value(sort_key);

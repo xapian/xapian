@@ -705,7 +705,7 @@ class Enquire {
 	 *	you can offer a link to a non-collapsed search restricted to
 	 *	that thread using a boolean filter.
 	 *
-	 *	(default is Xapian::valueno(-1) which means no collapsing).
+	 *	(default is Xapian::BAD_VALUENO which means no collapsing).
 	 */
 	void set_collapse_key(Xapian::valueno collapse_key);
 
@@ -782,7 +782,7 @@ class Enquire {
 	 *
 	 *  set_sorting(ANYTHING, 0) -> set_sort_by_relevance()
 	 *
-	 *  set_sorting(Xapian::valueno(-1), ANYTHING) -> set_sort_by_relevance()
+	 *  set_sorting(Xapian::BAD_VALUENO, ANYTHING) -> set_sort_by_relevance()
 	 */
 	XAPIAN_DEPRECATED(void set_sorting(Xapian::valueno sort_key, int sort_bands,
 			  bool sort_by_relevance = false));

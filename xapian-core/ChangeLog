@@ -1,3 +1,11 @@
+Thu Mar 08 02:52:26 GMT 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/types.h: Rewritten, with more accurate documentation
+	  comments.  Add constant Xapian::BAD_VALUENO which is -1 cast to
+	  Xapian::valueno.
+	* api/omenquire.cc,include/xapian/enquire.h,matcher/multimatch.cc: Use
+	  Xapian::BAD_VALUENO instead of Xapian::valueno(-1).
+
 Thu Mar 08 01:47:08 GMT 2007  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Try putting apidoc/html in EXTRA_DIST instead of

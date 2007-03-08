@@ -348,7 +348,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // Lower bound must be set to 0 as the match decider could discard
 	    // all hits.
 	    matches_lower_bound = 0;
-	} else if (collapse_key != Xapian::valueno(-1)) {
+	} else if (collapse_key != Xapian::BAD_VALUENO) {
 	    // Lower bound must be set to no more than 1, since it's possible
 	    // that all hits will be collapsed to a single hit.
 	    if (matches_lower_bound > 1) matches_lower_bound = 1;
@@ -472,7 +472,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	documents_considered++;
 
 	// Perform collapsing on key if requested.
-	if (collapse_key != Xapian::valueno(-1)) {
+	if (collapse_key != Xapian::BAD_VALUENO) {
 	    new_item.collapse_key = get_collapse_key(pl, did, collapse_key,
 						     doc);
 
@@ -706,7 +706,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Assert(matches_estimated >= matches_lower_bound);
 	Assert(matches_estimated <= matches_upper_bound);
 
-	if (collapse_key != Xapian::valueno(-1)) {
+	if (collapse_key != Xapian::BAD_VALUENO) {
 	    // Lower bound must be set to no more than the number of collapse
 	    // values we've got, since it's possible that all further hits
 	    // will be collapsed to a single value.
@@ -789,7 +789,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // of an item that has already been pushed-back as we don't know where it is
     // any more.  If we keep or find references we won't need to mess with
     // is_heap so much maybe?
-    if (collapse_key != Xapian::valueno(-1) && /*percent_cutoff &&*/ !items.empty() &&
+    if (collapse_key != Xapian::BAD_VALUENO && /*percent_cutoff &&*/ !items.empty() &&
 	!collapse_tab.empty()) {
 	// Nicked this formula from above, but for some reason percent_scale
 	// has since been multiplied by 100 so we take that into account

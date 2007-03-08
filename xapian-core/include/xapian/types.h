@@ -1,11 +1,7 @@
-/** \file types.h
- * \brief Common types used
+/** @file xapian/types.h
+ *  @brief typedefs for Xapian
  */
-/*
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003 Olly Betts
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,70 +15,95 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA
- * -----END-LICENCE-----
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
-/* Keep this file free from C++ style comments (//) so it can be used from C
- * (although it's probably no longer used from C) */
 
 #ifndef XAPIAN_INCLUDED_TYPES_H
 #define XAPIAN_INCLUDED_TYPES_H
 
-#ifdef __cplusplus
 namespace Xapian {
-#endif
 
-/** A unique id for a document.
- *  Document ids start at 1.  A zero docid isn't valid, and may be used to
- *  indicate "no document".
+/** A count of documents.
+ *
+ *  This is used to hold values such as the number of documents in a database
+ *  and the frequency of a term in the database.
  */
-typedef unsigned int docid;
+typedef unsigned doccount;
 
-/** Type for counts of documents. */
-typedef docid     doccount;
-
-/** Type for signed difference between counts of documents. */
-typedef int	     doccount_diff;
-
-/** Type for counts of terms (eg, wdf, wqf). */
-typedef unsigned int termcount;
-
-/** Type for signed difference between counts of terms. */
-typedef int	     termcount_diff;
-
-/** Type for term positions within documents.
- *  These start at 1.  A value of 0 means that the positional information
- *  is not available for that term.
+/** A signed difference between two counts of documents.
+ *
+ *  This is used by the Xapian classes which are STL containers of documents
+ *  for "difference_type".
  */
-typedef unsigned int termpos;
+typedef int doccount_diff; /* FIXME: can overflow with more than 2^31 docs. */
 
-/** Type for signed difference between term positions. */
-typedef int	     termpos_diff;
-
-/** Type for (normalised) lengths of documents. */
-typedef double       doclength;
-
-/** Type for referring to the number of a value in document. */
-typedef unsigned int valueno;
-
-/** Type for signed difference between two valueno-s. */
-typedef int	     valueno_diff;
-
-/** A calculated weight, for a term or document. */
-typedef double       weight;
-
-/** A percentage weight, for a term or document. */
-typedef int	     percent;
-
-/** Type for specifying a timeout.  This refers to a time in microseconds:
- *  ie. a timeout value of 1000000 corresponds to a timeout of 1 second.
+/** A unique identifier for a document.
+ *
+ *  Docid 0 is invalid, providing an "out of range" value which can be
+ *  used to mean "not a valid document".
  */
-typedef unsigned int timeout;
+typedef unsigned docid;
 
-#ifdef __cplusplus
+/** A normalised document length.
+ *
+ *  The normalised document length is the document length divided by the
+ *  average document length in the database.
+ */
+typedef double doclength;
+
+/** The percentage score for a document in an MSet. */
+typedef int percent;
+
+/** A counts of terms.
+ *
+ *  This is used to hold values such as the Within Document Frequency (wdf).
+ */
+typedef unsigned termcount;
+
+/** A signed difference between two counts of terms.
+ *
+ *  This is used by the Xapian classes which are STL containers of terms
+ *  for "difference_type".
+ */
+typedef int termcount_diff; /* FIXME: can overflow with more than 2^31 terms. */
+
+/** A term position within a document or query.
+ */
+typedef unsigned termpos;
+
+/** A signed difference between two term positions.
+ *
+ *  This is used by the Xapian classes which are STL containers of positions
+ *  for "difference_type".
+ */
+typedef int termpos_diff; /* FIXME: can overflow. */
+
+/** A timeout value in microseconds.
+ *
+ *  There are 1 million microseconds in a second, so for example, to set a
+ *  timeout of 5 seconds use 5000000.
+ */
+typedef unsigned timeout;
+
+/** The number for a value slot in a document.
+ *
+ *  Any value slot number except Xapian::BAD_VALUENO is valid.
+ */
+typedef unsigned valueno;
+
+/** A signed difference between two value slot numbers.
+ *
+ *  This is used by the Xapian classes which are STL containers of values
+ *  for "difference_type".
+ */
+typedef int valueno_diff; /* FIXME: can overflow. */
+
+/** The weight of a document or term. */
+typedef double weight;
+
+/** Reserved value to indicate "no valueno". */
+const valueno BAD_VALUENO = static_cast<valueno>(-1);
+
 }
-#endif
 
 #endif /* XAPIAN_INCLUDED_TYPES_H */
