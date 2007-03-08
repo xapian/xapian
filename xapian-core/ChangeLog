@@ -1,3 +1,11 @@
+Thu Mar 08 19:46:46 GMT 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,languages/Makefile.mk: Depend on the autoconf
+	  substituted version of a script, not the template version.  The
+	  only thing we substitute is @PERL@, but configure won't update
+	  a substituted file which hasn't changed so it's better to put
+	  the dependency on the script itself where it belongs.
+
 Thu Mar 08 17:09:21 GMT 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Keep any

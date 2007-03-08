@@ -86,7 +86,7 @@ languages/snowball: $(snowball_sources) $(snowball_headers)
 .sbl.h:
 	languages/snowball $< -o `echo $@|sed 's!\.h$$!!'` -c++ -u -n InternalStem`echo $<|sed 's!.*/\(.\).*!\1!'|tr a-z A-Z``echo $<|sed 's!.*/.!!;s!\.sbl!!'` -p Stem::Internal
 
-languages/allsnowballheaders.h: languages/generate-allsnowballheaders.in languages/Makefile.mk
+languages/allsnowballheaders.h: languages/generate-allsnowballheaders languages/Makefile.mk
 	languages/generate-allsnowballheaders $(snowball_built_sources)
 
 BUILT_SOURCES += $(snowball_built_sources)\

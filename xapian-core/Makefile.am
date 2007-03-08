@@ -84,6 +84,6 @@ xapian-config.1: xapian-config makemanpage
 
 BUILT_SOURCES += include/xapian/error.h include/xapian/errordispatch.h
 
-include/xapian/error.h include/xapian/errordispatch.h: generate-exceptions.in
+include/xapian/error.h include/xapian/errordispatch.h: generate-exceptions
 	./generate-exceptions
 endif
