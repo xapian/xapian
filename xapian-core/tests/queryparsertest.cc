@@ -892,6 +892,11 @@ static bool test_qp_value_range1()
     TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 a b)");
     q = qp.parse_query("$50..100");
     TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 $50 100)");
+    q = qp.parse_query("$50..$100");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 $50 $100)");
+    // FIXME: We don't current handle arbitrary strings in a range start.
+    q = qp.parse_query("dummy..10/12/1980");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 dummy 10/12/1980)");
     return true;
 }
 

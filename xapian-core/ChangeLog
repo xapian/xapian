@@ -1,3 +1,9 @@
+Thu Mar 08 20:39:46 GMT 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony,tests/queryparsertest.cc: Allow
+	  arbitrary characters in a range end (anything except whitespace
+	  and ')').
+
 Thu Mar 08 19:46:46 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,languages/Makefile.mk: Depend on the autoconf

@@ -287,13 +287,14 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
     prefix_stack.push_back(default_prefix);
 
     enum {
-	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM, IN_RANGE
+	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM
     } mode = DEFAULT;
 
     string range_prefix;
     unsigned newprev = ' ';
     while (it != end) {
-	if (mode != DEFAULT) range_prefix.resize(0);
+	if (mode != DEFAULT)
+	    range_prefix.resize(0);
 
 	if (mode == IN_PHRASED_TERM) mode = DEFAULT;
 	if (U_isspace(*it)) {
@@ -324,7 +325,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
 			// IN_QUOTES as we don't merge two adjacent quoted
 			// phrases!)
 			newprev = *it++;
-			continue;
+			break;
 		    }
 		}
 		if (flags & QueryParser::FLAG_PHRASE) {
@@ -338,25 +339,25 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
 			mode = DEFAULT;
 		    }
 		}
-		continue;
+		break;
 
 	      case '+': case '-':
 		// Ignore + or - at end of query.
 		if (it == end) goto done;
 		if (prev > ' ' && prev != '(') {
 		    // Or if not after whitespace or an open bracket.
-		    continue;
+		    break;
 		}
 		if (U_isspace(*it) || *it == '+' || *it == '-') {
 		    // Ignore + or - followed by a space, or further + or -.
 		    // Postfix + (such as in C++ and H+) is handled as part of
 		    // the term lexing code below.
 		    newprev = *it++;
-		    continue;
+		    break;
 		}
 		if (mode == DEFAULT && (flags & FLAG_LOVEHATE))
 		    Parse(pParser, (ch == '+' ? LOVE : HATE), NULL, &state);
-		continue;
+		break;
 
 	      case '(':
 		// Skip whitespace.
@@ -365,23 +366,23 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
 		if (it == end) goto done;
 		if (prev > ' ' && prev != '(' && prev != ')') {
 		    // Or if not after whitespace or a bracket.
-		    continue;
+		    break;
 		}
 		if (*it == ')') {
 		    // Ignore empty ().
 		    newprev = *it++;
-		    continue;
+		    break;
 		}
 		if (mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
 		    prefix_stack.push_back(prefix_stack.back());
 		    Parse(pParser, BRA, NULL, &state);
 		}
-		continue;
+		break;
 
 	      case ')':
 		if (term_pos == 1) {
 		    // Ignore ) at start of query.
-		    continue;
+		    break;
 		}
 		if (mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
 		    // Remove the prefix we pushed for the corresponding BRA.
@@ -390,12 +391,17 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
 		    if (prefix_stack.size() > 1) prefix_stack.pop_back();
 		    Parse(pParser, KET, NULL, &state);
 		}
+		break;
+
+	      default:
+		// Skip any other characters, but append them to range_prefix
+		// if we might have ranges and we're not in a phrase or
+		// similar...
+		if (mode == DEFAULT && value_ranges)
+		    range_prefix.append(ubuf, to_utf8(ch, ubuf));
 		continue;
 	    }
-	    // Skip any other characters, but append them to range_prefix if
-	    // we might have ranges and we're not it a phrase or similar...
-	    if (mode == DEFAULT && value_ranges)
-	       	range_prefix.append(ubuf, to_utf8(ch, ubuf));
+	    range_prefix.resize(0);
 	    continue;
 	}
 
@@ -533,12 +539,6 @@ phrased_term:
 	    }
 	}
 
-	if (mode == IN_RANGE) {
-	    Parse(pParser, RANGE_END, new Term(term, 0), &state);
-	    mode = DEFAULT;
-	    continue;
-	}
-
 	// Boolean operators.
 	if (mode == DEFAULT && (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
@@ -617,13 +617,18 @@ phrased_term:
 	    if (could_be_range && p != end && *p == '.') {
 		Utf8Iterator q = p;
 		++q;
-		if (q != end && is_wordchar(*q)) {
+		if (q != end && *q > ' ' && *q != ')') {
 		    it = q;
-		    swap(term, range_prefix);
-		    term += range_prefix;
+		    range_prefix += term;
+		    Parse(pParser, RANGE_START, new Term(range_prefix, 0), &state);
 		    range_prefix.resize(0);
-		    Parse(pParser, RANGE_START, new Term(term, 0), &state);
-		    mode = IN_RANGE;
+		    term.resize(0);
+		    // Allow any character except whitespace and ')' in a
+		    // RANGE_END.
+		    do {
+			term.append(ubuf, to_utf8(*it++, ubuf));
+		    } while (it != end && *it > ' ' && *it != ')');
+		    Parse(pParser, RANGE_END, new Term(term, 0), &state);
 		    continue;
 		}
 	    }
