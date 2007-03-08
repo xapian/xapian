@@ -80,7 +80,13 @@ FlintLock::lock(bool exclusive) {
 	    // Just exit and the parent will realise.
 	    exit(0);
 	}
-	write(fds[1], "", 1); // Signal OK to parent.
+	// Signal OK to parent.
+	while (write(fds[1], "", 1) < 0) {
+	    // EINTR means a signal interrupted us, so retry.
+	    // Otherwise we're DOOMED!  The best we can do is just exit and
+	    // the parent process should get EOF and know the lock failed.
+	    if (errno != EINTR) exit(1);
+	}
 	//shutdown(fds[1], 1); // Disable further sends.
 	// Connect pipe to stdin.
 	dup2(fds[1], 0);
@@ -100,15 +106,16 @@ FlintLock::lock(bool exclusive) {
 	close(fds[1]);
 	return false;
     }
-   
+
     // Parent process.
     close(fds[1]);
     while (true) {
 	char ch;
 	int n = read(fds[0], &ch, 1);
 	if (n == 1) break; // Got the lock.
-	if (n == 0) {
-	    // EOF means lock failed.
+	if (n == 0 || errno != EINTR) {
+	    // EOF means the lock failed; we also treat unexpected errors from
+	    // read() the same way.
 	    close(fds[0]);
 	    return false;
 	}

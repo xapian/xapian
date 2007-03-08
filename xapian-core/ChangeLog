@@ -1,3 +1,11 @@
+Thu Mar 08 03:37:07 GMT 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc: Handle write failing to send a single
+	  byte down down the pipe to tell the parent we've got the lock (a
+	  potential bug noticed by _FORTIFY_SOURCE!)  Handle read() failing
+	  with an unexpected error on the parent side by failing the lock
+	  attempt rather than risking an infinite loop.
+
 Thu Mar 08 02:52:26 GMT 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/types.h: Rewritten, with more accurate documentation
