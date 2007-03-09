@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2007-02-28
+2007-03-09
 
 Make files, some extra headers and associated tools for compiling Xapian on Win32 using
 the Microsoft Visual C++ compilers. This is particularly useful if you're using the 
@@ -24,13 +24,13 @@ What works?
   - inmemory
   - multi
 
-- The Python bindings
+- The Python & PHP bindings
 - The quartz binaries quartzcheck, quartzcompact, quartzdump
 - The xapian-compact binary
 - The Xapian example binaries
 - The libtest.lib and libbtreecheck libraries
 - The various tests that use the above, which are run as part of the makefile in tests/
-- Omega, Omindex and Scriptindex
+- Omega, Omindex and Scriptindex (although these may have difficulty parsing Windows directory paths).
 
 What doesn't work?
 ==================
@@ -79,7 +79,7 @@ xapian\xapian-applications
 2. Download win32.zip for the appropriate Xapian release from Lemur Consulting and place in xapian\xapian-core-0.x.y . 
 3. Install your favourite unZIP tool (e.g. from http://www.7-zip.org/). 
 4. Extract the files to the win32/ folder (usually, right click on the ZIP file and select Extract Here). 
-5. IMPORTANT - Edit config.mak to make sure the various individual mak files end up in the right folders, and add the correct paths for any other binding languages. You will also need to edit the  win32_applications_omega.mak and win32_bindings_python.mak files, and the .mak files for any other bindings. Note that all the .mak files in the win32/ folder are automatically copied to the correct places at the beginning of the build process
+5. IMPORTANT - Edit config.mak to make sure the various individual mak files end up in the right folders, and add the correct paths for any other binding languages. You may also need to edit the  win32_applications_omega.mak and win32_bindings_python.mak files, and the .mak files for any other bindings. Note that all the .mak files in the win32/ folder are automatically copied to the correct places at the beginning of the build process, so edit them here rather than where they end up.
 
 
 What do I need to compile it?
@@ -105,12 +105,33 @@ In this case you'll also need the Platforms SDK:
 http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
 which contains headers, libs and NMAKE. Make sure once you have installed this that you create LIB and INCLUDE environment variables to point to the appropriate Platform SDK folders, and that the path to the SDK's BIN folder is in your PATH.
 
-- Perl 5 (some headers etc. are automatically built from .in files and Perl is needed for this). Make sure the paths to this are set correctly in config.mak.
-
 - SWIG can be useful for recompiling the bindings, but this is done by the Xapian
 core maintainers, so you shouldn't need to do this.
 
 - To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak.
+
+- To compile the PHP 4/5 bindings you need:
+  a. the PHP sources from www.php.net (we have used PHP 4.4.6 and 5.2.1). Make sure the paths to this are set correctly in config.mak. 
+
+  b(i). You may be able to drop in the built .lib files from a Windows binary distribution and link against these. 
+  
+  b(ii). Otherwise you may have to build PHP on your system using MSVC; difficult with PHP4 but easier with PHP5.
+  http://uk2.php.net/manual/en/install.windows.building.php has some details.
+  You will also need specially built versions of Libxml, Zlib and Iconv:
+  http://ctindustries.net/libxml/ has Windows downloads. NOTE: you will also have to add the paths to the various \include and \lib folders for all of these to the environment variables INCLUDE and LIB for PHP building to work. The PATH will also need to contain the path to the SDK's
+  BIN folder and the win32build\bin folder.
+  Further references on getting/building PHP using Visual C++:
+  http://kromann.info/article.php?Id=11062862408280000
+
+  c. Patch php_config.h as follows:
+  line 603: #define HAVE_ASSERT_H 1
+  line 693: #define HAVE_STRING_H
+  line 2842: remove any #undef ZEND_DEBUG lines
+
+  d. Rename xapian_version.h.in to xapian_version.h
+  
+  e. Change config.mak to select the version of PHP to build.
+
 
 
 How do I compile it?
@@ -128,12 +149,12 @@ This will set up the appropriate paths.
 4) nmake /f win32.mak CLEAN
 5) nmake /f win32.mak
 
-6) cd to ..\..\xapian-bindings-0.x.y\python 
-7) edit win32.mak to suit your environment (XAPIAN_DIR) if necessary
+6) cd to ..\..\xapian-bindings-0.x.y\python or ..\..\xapian-bindings-0.x.y\php
+7) edit win32.mak to suit your environment (XAPIAN_CORE_REL_PYTHON) if necessary
 8) nmake /f win32.mak 
 
 8) cd to ..\..\omega-0.x.y
-9) edit win32.mak to suit your environment (XAPIAN_DIR) if necessary
+9) edit win32.mak to suit your environment (XAPIAN_CORE_REL_PYTHON) if necessary
 10) nmake /f win32.mak
 
 The binaries end up in xapian-core-0.x.y\win32\Release or \Debug, depending on a setting in config.mak

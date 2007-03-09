@@ -7,17 +7,7 @@
 # Will build quartzcheck.exe, quartzcompact.exe, quartdump.exe and xapian_compact.exe
 
 
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
-
 !INCLUDE ..\win32\config.mak
-
-
-CPP=cl.exe
-RSC=rc.exe
 
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 OUTLIBDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
@@ -27,17 +17,13 @@ PROGRAMS = "$(OUTDIR)\quartzcheck.exe" "$(OUTDIR)\quartzcompact.exe" "$(OUTDIR)\
 
 ALL : $(PROGRAMS)
 
-QUARTZCHECK_OBJS= \
-	"$(INTDIR)\quartzcheck.obj" 
+QUARTZCHECK_OBJS= "$(INTDIR)\quartzcheck.obj" 
 
-QUARTZCOMPACT_OBJS= \
-	"$(INTDIR)\quartzcompact.obj" 
+QUARTZCOMPACT_OBJS= "$(INTDIR)\quartzcompact.obj" 
 
-QUARTZDUMP_OBJS= \
-	"$(INTDIR)\quartzdump.obj" 
+QUARTZDUMP_OBJS= "$(INTDIR)\quartzdump.obj" 
 
-XAPIAN_COMPACT_OBJS= \
-	"$(INTDIR)\xapian-compact.obj" 
+XAPIAN_COMPACT_OBJS= "$(INTDIR)\xapian-compact.obj" 
 
 	
 CLEAN :
@@ -57,10 +43,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  \
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-LINK32=link.exe
-LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
- advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
- wsock32.lib odbccp32.lib /subsystem:console /DEBUG \
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) \
  "$(OUTLIBDIR)\libgetopt.lib"  \
  "$(OUTLIBDIR)\libcommon.lib"  \
  "$(OUTLIBDIR)\libbtreecheck.lib"  \
@@ -75,39 +58,31 @@ LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib"  
 
- 
-PROGRAM_DEPENDENCIES = 
-
-
-
-
-
-
 
 
 "$(OUTDIR)\quartzcheck.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZCHECK_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\quartzcheck.exe" $(DEF_FLAGS) $(QUARTZCHECK_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\quartzcheck.exe" $(DEF_FLAGS) $(QUARTZCHECK_OBJS)
 <<
 
 
 "$(OUTDIR)\quartzcompact.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZCOMPACT_OBJS) \
                                  $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\quartzcompact.exe" $(DEF_FLAGS) $(QUARTZCOMPACT_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\quartzcompact.exe" $(DEF_FLAGS) $(QUARTZCOMPACT_OBJS)
 <<
 
 "$(OUTDIR)\quartzdump.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZDUMP_OBJS) \
                              $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\quartzdump.exe" $(DEF_FLAGS) $(QUARTZDUMP_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\quartzdump.exe" $(DEF_FLAGS) $(QUARTZDUMP_OBJS)
 <<
 
 "$(OUTDIR)\xapian-compact.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_COMPACT_OBJS) \
                              $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\xapian-compact.exe" $(DEF_FLAGS) $(XAPIAN_COMPACT_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-compact.exe" $(DEF_FLAGS) $(XAPIAN_COMPACT_OBJS)
 <<
 
     

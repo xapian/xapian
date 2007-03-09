@@ -5,17 +5,7 @@
 
 # Will build a Win32 executable snowball.exe
 
-
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
-
 !INCLUDE ..\..\win32\config.mak
-
-CPP=cl.exe
-RSC=rc.exe
 
 OUTDIR =..\compiler
 INTDIR=..\compiler
@@ -42,14 +32,8 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\compiler
 CPP_SBRS=.
 
-LINK32=link.exe
-LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
- advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
- wsock32.lib odbccp32.lib /subsystem:console \
 
-
-"$(OUTDIR)\snowball.exe" : "$(OUTDIR)" $(DEF_FILE) $(SNOWBALL_OBJS) \
-                      $(PROGRAM_DEPENDENCIES)
+"$(OUTDIR)\snowball.exe" : "$(OUTDIR)" $(DEF_FILE) $(SNOWBALL_OBJS) 
     $(LINK32) @<<
   $(LINK32_FLAGS) /out:"$(OUTDIR)\snowball.exe" $(DEF_FLAGS) $(SNOWBALL_OBJS)
 <<

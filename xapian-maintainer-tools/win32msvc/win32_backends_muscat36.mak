@@ -6,19 +6,7 @@
 
 # Will build a Win32 static library (non-debug) libmuscat36.lib
 
-
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
-
 !INCLUDE ..\..\win32\config.mak
-
-
-CPP=cl.exe
-RSC=rc.exe
-
 
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
@@ -52,9 +40,6 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
  
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
-
-LIB32=link.exe -lib
-LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 
 "$(OUTDIR)\libmuscat36.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBMUSCAT36_OBJS)

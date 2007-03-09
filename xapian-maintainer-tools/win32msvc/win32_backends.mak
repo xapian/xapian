@@ -6,27 +6,15 @@
 
 # Will build a Win32 static library (non-debug) libbackend.lib
 
-
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
-
 !INCLUDE ..\win32\config.mak
-
-CPP=cl.exe
-RSC=rc.exe
-
 
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 DEPLIBS = "$(OUTDIR)\libinmemory.lib" \
           "$(OUTDIR)\libmulti.lib"  \
-		  "$(OUTDIR)\libquartz.lib" \
-	      "$(OUTDIR)\libflint.lib" 
-#		  "$(OUTDIR)\libmuscat36.lib"
+	  "$(OUTDIR)\libquartz.lib" \
+	  "$(OUTDIR)\libflint.lib" 
 
 ALL : $(DEPLIBS) "$(OUTDIR)\libbackend.lib" 
 
@@ -43,8 +31,6 @@ CLEAN :
 	nmake /f win32.mak CLEAN
 	cd ..\multi
 	nmake /f win32.mak CLEAN
-#	cd ..\muscat36
-# nmake /f win32.mak CLEAN
 	cd ..
 
 
@@ -58,10 +44,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-LIB32=link.exe -lib
-LIB32_FLAGS=/nologo  $(LIBFLAGS)
 LIBBACKEND_OBJS= $(INTDIR)\database.obj 
-
 
 "$(OUTDIR)\LIBBACKEND.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBBACKEND_OBJS)
     $(LIB32) @<<
@@ -104,7 +87,3 @@ LIBBACKEND_OBJS= $(INTDIR)\database.obj
        nmake /f win32.mak 
        cd ..
 
-# "$(OUTDIR)\libmuscat36.lib":
-# cd muscat36
-#nmake /f win32.mak 
-#       cd ..

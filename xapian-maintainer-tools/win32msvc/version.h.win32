@@ -33,4 +33,38 @@
 #define XAPIAN_HAS_INMEMORY_BACKEND 1
 #undef XAPIAN_HAS_REMOTE_BACKEND
 
+namespace Xapian {
+/** Report the version string of the library which the program is linked against.
+  * This may be different to the version compiled against (given by
+  * XAPIAN_VERSION) if shared libraries are being used.
+  */
+const char * version_string();
+
+/** Report the major version of the library which the program is linked against.
+  * This may be different to the version compiled against (given by
+  * XAPIAN_MAJOR_VERSION) if shared libraries are being used.
+  */
+int major_version();
+
+/** Report the minor version of the library which the program is linked against.
+  * This may be different to the version compiled against (given by
+  * XAPIAN_MINOR_VERSION) if shared libraries are being used.
+  */
+int minor_version();
+
+/** Report the revision of the library which the program is linked against.
+  * This may be different to the version compiled against (given by
+  * XAPIAN_REVISION) if shared libraries are being used.
+  */
+int revision();
+
+
+/* Deprecated aliases */
+
+const char * xapian_version_string();
+int xapian_major_version();
+int xapian_minor_version();
+int xapian_revision();
+}
+
 #endif /* XAPIAN_INCLUDED_VERSION_H */

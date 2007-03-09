@@ -7,18 +7,7 @@
 # Will build a Win32 static library (non-debug) libquartz.lib
 
 
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
-
 !INCLUDE ..\..\win32\config.mak
-
-
-CPP=cl.exe
-RSC=rc.exe
-
 
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
@@ -50,8 +39,8 @@ CLEAN :
 	-@erase "$(OUTDIR)\libquartz.lib"
 	-@erase "$(OUTDIR)\libbtreecheck.lib"
 	-@erase "*.pch"
-    -@erase "$(INTDIR)\getopt.obj"
-    -@erase $(LIBBTREECHECK_OBJS)
+        -@erase "$(INTDIR)\getopt.obj"
+        -@erase $(LIBBTREECHECK_OBJS)
 	-@erase $(LIBQUARTZ_OBJS)
 
 
@@ -64,9 +53,6 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
  
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
-
-LIB32=link.exe -lib
-LIB32_FLAGS=/nologo  $(LIBFLAGS)
 
 "$(OUTDIR)\LIBQUARTZ.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBQUARTZ_OBJS)
     $(LIB32) @<<

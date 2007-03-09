@@ -6,19 +6,7 @@
 
 # Will build a Win32 static library (non-debug) libflint.lib
 
-
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
-
 !INCLUDE ..\..\win32\config.mak
-
-
-CPP=cl.exe
-RSC=rc.exe
-
 
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
@@ -34,12 +22,12 @@ LIBFLINT_OBJS= \
                $(INTDIR)\flint_values.obj \
                $(INTDIR)\flint_document.obj \
                $(INTDIR)\flint_alltermslist.obj \
-			   $(INTDIR)\flint_alldocspostlist.obj \
+	       $(INTDIR)\flint_alldocspostlist.obj \
                $(INTDIR)\flint_table.obj \
                $(INTDIR)\flint_cursor.obj \
                $(INTDIR)\flint_btreebase.obj \
                $(INTDIR)\flint_version.obj \
-		       $(INTDIR)\flint_io.obj \
+	       $(INTDIR)\flint_io.obj \
                $(INTDIR)\flint_modifiedpostlist.obj \
                $(INTDIR)\flint_lock.obj
               
@@ -48,7 +36,7 @@ LIBFLINT_OBJS= \
 CLEAN :
 	-@erase "$(OUTDIR)\libflint.lib"
 	-@erase "*.pch"
-    -@erase "$(INTDIR)\getopt.obj"
+        -@erase "$(INTDIR)\getopt.obj"
 	-@erase $(LIBFLINT_OBJS)
 
 
@@ -61,15 +49,10 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-LIB32=link.exe -lib
-LIB32_FLAGS=/nologo  $(LIBFLAGS)
-
-
 "$(OUTDIR)\LIBFLINT.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBFLINT_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libflint.lib" $(DEF_FLAGS) $(LIBFLINT_OBJS)
 <<
-
 
 
 "$(INTDIR)\flint_database.obj" : "flint_database.cc"

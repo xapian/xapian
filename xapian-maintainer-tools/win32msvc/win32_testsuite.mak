@@ -6,25 +6,12 @@
 
 # Will build a Win32 static library (non-debug) libbtreecheck.lib
 
-
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
-
 !INCLUDE ..\..\win32\config.mak
-
-
-CPP=cl.exe
-RSC=rc.exe
-
 
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
 BUILD_LIBRARIES = "$(OUTDIR)\libtest.lib"
-
 
 ALL : $(BUILD_LIBRARIES) 
 
@@ -33,7 +20,7 @@ LIBTEST_OBJS= \
                 $(INTDIR)\testutils.obj \
                 $(INTDIR)\backendmanager.obj \
                 $(INTDIR)\index_utils.obj \
-		$(INTDIR)\rmdir.obj
+		$(INTDIR)\unixcmds.obj
 
 CLEAN :
 	-@erase $(BUILD_LIBRARIES)
@@ -49,10 +36,6 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
  /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
-
-LIB32=link.exe -lib
-LIB32_FLAGS=/nologo  $(LIBFLAGS)
-
 
 "$(OUTDIR)\LIBTEST.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBTEST_OBJS)
     $(LIB32) @<<
@@ -82,7 +65,8 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
   $(CPP_PROJ) $**
 <<
 
-"$(INTDIR)\rmdir.obj" : ".\rmdir.cc"
+
+"$(INTDIR)\unixcmds.obj" : ".\unixcmds.cc"
     $(CPP) @<<
   $(CPP_PROJ) $**
 <<

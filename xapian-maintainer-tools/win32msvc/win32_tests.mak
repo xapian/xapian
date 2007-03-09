@@ -6,17 +6,7 @@
 
 # Will build and run tests
 
-
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
-
 !INCLUDE ..\win32\config.mak
-
-CPP=cl.exe
-RSC=rc.exe
 
 OUTLIBDIR= ..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 OUTDIR= ..\tests
@@ -67,7 +57,7 @@ APITEST_OBJS= \
 	"$(OUTDIR)\api_db.obj" \
 	"$(OUTDIR)\api_nodb.obj" \
 	"$(OUTDIR)\api_posdb.obj" \
-    "$(OUTDIR)\api_transdb.obj" \
+        "$(OUTDIR)\api_transdb.obj" \
 	"$(OUTDIR)\api_wrdb.obj" 
     
 BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
@@ -107,11 +97,8 @@ CPP_OBJS=..\win32\Tests$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 
-
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
- advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
- wsock32.lib odbccp32.lib /subsystem:console \
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) \
  "$(OUTLIBDIR)\libgetopt.lib"  \
  "$(OUTLIBDIR)\libcommon.lib"  \
  "$(OUTLIBDIR)\libbtreecheck.lib"  \
@@ -125,59 +112,53 @@ LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  "$(OUTLIBDIR)\liblanguages.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib"  
-
-
 	
-	
-PROGRAM_DEPENDENCIES = 
-
 # executables
-
 "$(OUTDIR)\stemtest.exe" : "$(OUTDIR)" $(DEF_FILE) $(STEMTEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\stemtest.exe" $(DEF_FLAGS) $(STEMTEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\stemtest.exe" $(DEF_FLAGS) $(STEMTEST_OBJS)
 <<
 
 "$(OUTDIR)\btreetest.exe" : "$(OUTDIR)" $(DEF_FILE) $(BTREETEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\btreetest.exe" $(DEF_FLAGS) $(BTREETEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\btreetest.exe" $(DEF_FLAGS) $(BTREETEST_OBJS)
 <<
 
 "$(OUTDIR)\internaltest.exe" : "$(OUTDIR)" $(DEF_FILE) $(INTERNALTEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\internaltest.exe" $(DEF_FLAGS) $(INTERNALTEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\internaltest.exe" $(DEF_FLAGS) $(INTERNALTEST_OBJS)
 <<
 
 "$(OUTDIR)\quartztest.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZTEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\quartztest.exe" $(DEF_FLAGS) $(QUARTZTEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\quartztest.exe" $(DEF_FLAGS) $(QUARTZTEST_OBJS)
 <<
 
 "$(OUTDIR)\queryparsertest.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUERYPARSERTEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\queryparsertest.exe" $(DEF_FLAGS) $(QUERYPARSERTEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\queryparsertest.exe" $(DEF_FLAGS) $(QUERYPARSERTEST_OBJS)
 <<
 
 "$(OUTDIR)\apitest.exe" : "$(OUTDIR)" $(DEF_FILE) $(APITEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\apitest.exe" $(DEF_FLAGS) $(APITEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\apitest.exe" $(DEF_FLAGS) $(APITEST_OBJS)
 <<
 
 "$(OUTDIR)\remotetest.exe" : "$(OUTDIR)" $(DEF_FILE) $(REMOTETEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\remotetest.exe" $(DEF_FLAGS) $(REMOTETEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\remotetest.exe" $(DEF_FLAGS) $(REMOTETEST_OBJS)
 <<
 
 
 # cc files
-    
+  
 "$(INTDIR)\stemtest.obj" : ".\stemtest.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**

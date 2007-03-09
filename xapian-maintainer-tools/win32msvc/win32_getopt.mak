@@ -6,18 +6,7 @@
 
 # Will build a Win32 static library (non-debug) libgetopt.lib
 
-
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
-
 !INCLUDE ..\win32\config.mak
-
-CPP=cl.exe
-RSC=rc.exe
-
 
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
@@ -35,16 +24,11 @@ CLEAN :
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
  /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
  
-
  
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-LIB32=link.exe -lib
-LIB32_FLAGS=/nologo  $(LIBFLAGS)
-LIBGETOPT_OBJS= \
-	$(INTDIR)\getopt.obj \
-
+LIBGETOPT_OBJS= $(INTDIR)\getopt.obj 
 
 "$(OUTDIR)\LIBGETOPT.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBGETOPT_OBJS)
     $(LIB32) @<<

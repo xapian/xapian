@@ -7,17 +7,8 @@
 # Will build a Win32 static library (non-debug) libapi.lib
 
 
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
 
 !INCLUDE ..\win32\config.mak
-
-
-CPP=cl.exe
-RSC=rc.exe
 
 
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
@@ -36,15 +27,13 @@ LIBAPI_OBJS= \
              $(INTDIR)\ompositionlistiterator.obj  \
              $(INTDIR)\omtermlistiterator.obj  \
              $(INTDIR)\omvalueiterator.obj \
-			 $(INTDIR)\version.obj
-             
-          
+	     $(INTDIR)\version.obj
 
 
 CLEAN :
 	-@erase "$(OUTDIR)\libapi.lib"
 	-@erase "*.pch"
-    -@erase $(LIBAPI_OBJS)
+        -@erase $(LIBAPI_OBJS)
 
 
 "$(OUTDIR)" :
@@ -55,10 +44,6 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
  /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
-
-LIB32=link.exe -lib
-LIB32_FLAGS=/nologo  $(LIBFLAGS)
-
 
 "$(OUTDIR)\LIBAPI.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBAPI_OBJS)
     $(LIB32) @<<
