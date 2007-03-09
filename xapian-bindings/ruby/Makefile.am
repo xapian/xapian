@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-include ../swig/Makefile.mk
+include ../generic/generic.mk
 
 TESTS_ENVIRONMENT = $(RUBY) -I.libs -I$(srcdir)
 

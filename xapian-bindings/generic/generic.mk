@@ -8,13 +8,13 @@ export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
 endif
 
 SWIG_mainsource = \
-	$(srcdir)/../swig/xapian.i
+	$(srcdir)/../xapian.i
 
 SWIG_sources = \
 	$(SWIG_mainsource) \
-	$(srcdir)/../swig/defaults/except.i
+	$(srcdir)/../generic/except.i
 
 SWIG_includes = \
 	-I$(srcdir) \
-	-I$(srcdir)/../swig/defaults
+	-I$(srcdir)/../generic
 

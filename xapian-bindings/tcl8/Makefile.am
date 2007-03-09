@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-include ../swig/Makefile.mk
+include ../generic/generic.mk
 
 TESTS_ENVIRONMENT = \
  srcdir="$(srcdir)" LIBTOOL="$(LIBTOOL)" TCLSH="$(TCLSH)" $(srcdir)/run-tcl-test
