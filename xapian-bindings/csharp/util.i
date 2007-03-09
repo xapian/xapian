@@ -39,7 +39,6 @@
 %rename("PositionListBegin") positionlist_begin;
 %rename("PositionListEnd") positionlist_end;
 %rename("GetValueNo") get_valueno;
-%rename("GetValueNo") get_valueno;
 %rename("TermListCount") termlist_count;
 %rename("TermListBegin") termlist_begin;
 %rename("TermListEnd") termlist_end;
