@@ -1,3 +1,11 @@
+Thu Mar 08 17:16:08 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* generate-exceptions.in,exception_data.pm: Split definitions of
+	  the exception hierarchy into a separate file, so it can be reused
+	  elsewhere.
+	* Makefile.am: Add exception_data.pm as a dependency for generating
+	  error.h, and add it to EXTRA_DIST.
+
 Fri Mar 09 06:42:40 GMT 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_cursor.cc,backends/flint/flint_cursor.h: We
