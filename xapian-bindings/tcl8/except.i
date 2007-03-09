@@ -1,3 +1,4 @@
+%{
 /* tcl8/except.i: Custom tcl8 exception handling.
  *
  * Copyright (c) 2006 Olly Betts
@@ -18,7 +19,6 @@
  * USA
  */
 
-%{
     static int XapianTclHandleError(Tcl_Interp * interp, const Xapian::Error &e) {
 	Tcl_ResetResult(interp);
 	Tcl_SetErrorCode(interp, "XAPIAN", e.get_type().c_str(), NULL);
