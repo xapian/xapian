@@ -267,6 +267,7 @@ else
       dnl 2401 "destructor for base class ... is non-virtual" (we don't need a
       dnl	virtual destructor for RefCntBase, since we never delete its
       dnl	subclasses by a RefCntBase *).
+      dnl 3348 "declaration hides constant ..." which seems to misfire!
       dnl 4255 (remark) "padding size of struct "..." with ... bytes to
       dnl	alignment boundary".
       dnl 4273 "floating-point equality and inequality comparisons may be
@@ -276,7 +277,7 @@ else
       dnl	addresses being non-identical" - fires for AutoPtr which
       dnl	includes such a check indirectly (internaltest's autoptr1 check this).
       dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
-      WARNING_CXXFLAGS="+w +wlint +W2340,2401,4255,4273,4285,20201" ;;
+      WARNING_CXXFLAGS="+w +wlint +W2340,2401,3348,4255,4273,4285,20201" ;;
     cxx|*/cxx)
       dnl Select ANSI mode ('-std strict_ansi' is needed for ANSI iostream
       dnl as '-std ansi' gives a pre-standard AT&T-compatible version).
