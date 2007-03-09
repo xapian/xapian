@@ -207,10 +207,9 @@ try:
         doc2 = db.get_document(2)
         print >> sys.stderr, "Retrieved non-existent document"
         sys.exit(1)
-    except Exception, e:
-        # We expect DocNotFoundError
-        if str(e)[0:16] != "DocNotFoundError":
-            print >> sys.stderr, "Unexpected exception from accessing non-existent document: %s" % str(e)
+    except xapian.DocNotFoundError, e:
+        if str(e) != "Docid 2 not found":
+            print "Exception string not as expected, got: '%s'\n" % str(e)
             sys.exit(1)
 
     if xapian.Query.OP_ELITE_SET != 10:
@@ -247,8 +246,8 @@ try:
         qp.parse_query("test AND")
         print >> sys.stderr, "QueryParser doesn't report errors"
         sys.exit(1)
-    except RuntimeError, e:
-        if str(e) != "QueryParserError: Syntax: <expression> AND <expression>":
+    except xapian.QueryParserError, e:
+        if str(e) != "Syntax: <expression> AND <expression>":
             print "Exception string not as expected, got: '%s'\n" % str(e)
             sys.exit(1)
 
@@ -274,6 +273,11 @@ try:
     if query6.get_description() != "Xapian::Query((foo:(pos=1) AND outsid:(pos=2)))":
         print >> sys.stderr, "Unexpected query6.get_description(): " + query6.get_description()
         sys.exit(1)
+
+except xapian.Error, e:
+    print >> sys.stderr, "Xapian Error: %s" % str(e)
+    raise e
+    sys.exit(1)
 
 except Exception, e:
     print >> sys.stderr, "Exception: %s" % str(e)

@@ -1,3 +1,20 @@
+Fri Mar 09 13:07:41 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/generate-python-exceptions.in: New file - generates a
+	  python/except.i file from the exception_data.pm file in
+	  xapian-core.  Only use in maintainer mode - requires the
+	  xapian-core module to exist in the same directory as the
+	  xapian-bindings module (eg, as would happen in a SVN checkout).
+	  This file changes the handling of xapian exceptions in the Python
+	  bindings - they are now translated into Python exception classes
+	  in a hierarchy matching that of the C++ exception hierarchy.
+	* configure.ac: Require perl in maintainer mode, and add rules to
+	  generate python/generate-python-exceptions
+	* python/Makefile.am: Add except.i to distribution, and add rules
+	  to generate and use it in maintainer mode.
+	* python/smoketest.py: Change tests to expect xapian.Error
+	  subclasses.
+
 Fri Mar 09 12:53:54 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tcl8/except.i: Tweak to add the license statement back into

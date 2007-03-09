@@ -9,7 +9,7 @@ TESTS = smoketest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
-EXTRA_DIST = util.i extra.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = util.i extra.i except.i $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
@@ -53,7 +53,11 @@ if MAINTAINER_MODE
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: $(SWIG_sources) util.i extra.i
+BUILT_SOURCES += except.i
+except.i: generate-python-exceptions ../../xapian-core/exception_data.pm
+	./generate-python-exceptions
+
+modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: $(SWIG_sources) util.i except.i extra.i
 	test -d modern || mkdir modern
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -python -shadow -modern -O -outdir modern \

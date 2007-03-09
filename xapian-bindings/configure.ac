@@ -116,6 +116,9 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
+  AC_PATH_PROGS(PERL, [$PERL perl], [])
+  dnl Need perl in maintainer mode to generate the except.i file for python.
+  test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
 
 AC_ARG_WITH(python,
@@ -731,6 +734,8 @@ AC_CONFIG_FILES([Makefile
  ruby/Makefile ruby/docs/Makefile
  xapian-bindings.spec])
 dnl guile/Makefile
+AC_CONFIG_FILES([python/generate-python-exceptions],
+		[chmod +x python/generate-python-exceptions])
 AC_OUTPUT
 
 echo ""
