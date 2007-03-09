@@ -75,6 +75,8 @@ include matcher/Makefile.mk
 include net/Makefile.mk
 include queryparser/Makefile.mk
 
+xapianinclude_HEADERS += include/xapian/error.h
+
 MAINTAINERCLEANFILES += $(dist_man_MANS)
 
 if MAINTAINER_MODE
