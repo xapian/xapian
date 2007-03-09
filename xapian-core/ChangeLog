@@ -1,3 +1,10 @@
+Fri Mar 09 06:42:40 GMT 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_cursor.cc,backends/flint/flint_cursor.h: We
+	  always ignore the return value from FlintCursor::get_key() because
+	  we only call it when it shouldn't fail, so restructure the code so
+	  it can't fail and change the return value to void.
+
 Fri Mar 09 06:33:09 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Suppress another aCC warning.

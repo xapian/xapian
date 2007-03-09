@@ -96,10 +96,9 @@ class FlintCursor {
 
 	/** Get the key.
 	 *
-	 *  If the cursor is unpositioned, the result is false.
+	 *  The key of the item at the cursor is copied into key.
 	 *
-	 *  If the cursor is positioned, the key of the item at the cursor
-	 *  is copied into key and the result is then true.
+	 *  The cursor must be positioned before calling this method.
 	 *
 	 *  e.g.
 	 *
@@ -110,11 +109,11 @@ class FlintCursor {
          *    BC.find_entry(""); // must give result true
 	 *
 	 *    while (BC.next()) {
-	 *        BC.get_key(&key)) {
+	 *        BC.get_key(&key);
 	 *        do_something_to(key);
 	 *    }
 	 */
-	bool get_key(string * key) const;
+	void get_key(string * key) const;
 
     public:
 	/** Create a cursor attached to a Btree.
