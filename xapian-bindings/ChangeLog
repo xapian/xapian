@@ -1,3 +1,10 @@
+Tue Mar 20 19:00:13 GMT 2007  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html: Add note that PHP examples are written for
+	  CLI version of PHP, but that the bindings work with any version.
+	* php/docs/examples/: Add check to all PHP examples that they are
+	  being run under a CLI version of PHP.
+
 Fri Mar 09 14:14:47 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* swig/xapian.i,xapian.i: Move swig/xapian.i back to top level.
