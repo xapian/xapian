@@ -13,6 +13,16 @@ AC_CONFIG_SRCDIR(omega.cc)
 
 AC_CONFIG_HEADERS(config.h)
 
+dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
+dnl makes configure take longer to run.  We force it not to using the method
+dnl suggested here (which also reduces configure size):
+dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/8172
+m4_defun([_LT_AC_LANG_F77_CONFIG], [:])
+dnl Eliminating the unused code for gcj and rc probes further reduces the size
+dnl of the generated configure script (by 29% in total):
+m4_defun([_LT_AC_LANG_GCJ_CONFIG], [:])
+m4_defun([_LT_AC_LANG_RC_CONFIG], [:])
+
 dnl Check for libxapian
 AC_PROG_LIBTOOL
 XO_LIB_XAPIAN
