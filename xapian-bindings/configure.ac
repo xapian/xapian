@@ -44,6 +44,16 @@ if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
 fi
 AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
 
+dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
+dnl makes configure take longer to run.  We force it not to using the method
+dnl suggested here (which also reduces configure size):
+dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/8172
+m4_defun([_LT_AC_LANG_F77_CONFIG], [:])
+dnl Eliminating the unused code for gcj and rc probes further reduces the size
+dnl of the generated configure script (by 29% in total):
+m4_defun([_LT_AC_LANG_GCJ_CONFIG], [:])
+m4_defun([_LT_AC_LANG_RC_CONFIG], [:])
+
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
 AC_DISABLE_STATIC

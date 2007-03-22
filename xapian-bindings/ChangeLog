@@ -1,3 +1,8 @@
+Thu Mar 22 01:28:48 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Eliminate libtool probe code for f77, gcj, and rc
+	  which speeds up configure and knocks 28% off its size.
+
 Tue Mar 20 19:00:13 GMT 2007  Olly Betts <olly@survex.com>
 
 	* php/docs/bindings.html: Add note that PHP examples are written for
