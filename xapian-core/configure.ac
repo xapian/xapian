@@ -105,10 +105,6 @@ elif test -n "$CCC" ; then
   original_CXX="CCC=$CCC"
 fi
 
-dnl We don't use Fortran, but libtool 1.5 insists on probing for it, so skip
-dnl detection and run all the fortran tests on ":" to speed up configure.
-F77=:
-
 dnl Need 1.5 for AM_CXXFLAGS, etc; also so generated files in EXTRA_DIST work
 dnl Need 1.6.3 for tests/internaltest to build with Solaris make
 dnl 1.8.5 contains a lot of fixes over 1.6.3
@@ -116,6 +112,16 @@ AM_INIT_AUTOMAKE([1.8.5 -Wportability])
 AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 
 AC_CONFIG_HEADERS(config.h)
+
+dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
+dnl makes configure take longer to run.  We force it not to using the method
+dnl suggested here (which also reduces configure size by 12%):
+dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/8172
+m4_defun([_LT_AC_LANG_F77_CONFIG], [:])
+dnl Eliminating the unused code for gcj and rc probes reduces the size of the
+dnl generated configure script by a further 15%!
+m4_defun([_LT_AC_LANG_GCJ_CONFIG], [:])
+m4_defun([_LT_AC_LANG_RC_CONFIG], [:])
 
 dnl Use libtool to manage our libraries
 AC_PROG_LIBTOOL
