@@ -106,7 +106,10 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
   fi
-  dnl Check for swig >= 1.3.30
+  dnl Check for swig >= 1.3.32
+  dnl (1.3.32 isn't released at the time of writing, but SWIG SVN trunk
+  dnl rev 9651 or later is required, and this identifies itself as 1.3.32).
+  dnl
   dnl 1.3.23 adds support for optional arguments in CSharp.
   dnl 1.3.24 tweaks CSharp enums
   dnl 1.3.26 fixes PHP overloading
@@ -122,7 +125,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   case $v in
    [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
    *)
-     AC_MSG_ERROR([SWIG >= 1.3.30 required (you have $v)]) ;;
+     AC_MSG_ERROR([SWIG >= 1.3.32 (SVN rev 9651 or later) required (you have $v)]) ;;
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
