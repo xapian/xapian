@@ -1,3 +1,8 @@
+Sat Mar 24 00:02:36 GMT 2007  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleexpand.py: Print the document weight as
+	  a floating point value, not an integer.
+
 Fri Mar 23 23:53:10 GMT 2007  Olly Betts <olly@survex.com>
 
 	* Forwardport change from branches/0.9:
