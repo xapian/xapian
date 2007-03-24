@@ -148,8 +148,6 @@ int xapian_major_version();
 int xapian_minor_version();
 int xapian_revision();
 
-class ExpandDecider;
-class MatchDecider;
 class Weight;
 class Stopper;
 
@@ -493,6 +491,7 @@ class Enquire {
 
     void set_bias(weight bias_weight, time_t bias_halflife);
 
+#ifdef XAPIAN_SWIG_DIRECTORS
     MSet get_mset(doccount first,
 	    doccount maxitems,
 	    doccount checkatleast = 0,
@@ -508,13 +507,29 @@ class Enquire {
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0,
 	    const ExpandDecider *edecider = 0) const;
+#else
+    MSet get_mset(doccount first,
+	    doccount maxitems,
+	    doccount checkatleast = 0,
+	    const RSet *omrset = 0) const;
+    MSet get_mset(doccount first,
+	    doccount maxitems,
+	    const RSet *omrset) const;
+
+    // FIXME wrap form without flags and k?
+    ESet get_eset(termcount maxitems,
+	    const RSet &omrset,
+	    int flags = 0, double k = 1.0) const;
+#endif
 
     TermIterator get_matching_terms_begin(docid did) const;
     TermIterator get_matching_terms_end(docid did) const;
     TermIterator get_matching_terms_begin(const MSetIterator& i) const;
     TermIterator get_matching_terms_end(const MSetIterator& i) const;
 
+#ifdef XAPIAN_SWIG_DIRECTORS
     void register_match_decider(const std::string& name, const MatchDecider* mdecider=NULL);
+#endif
 
 #ifdef XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
     /* We've not written the required custom typemap for all languages yet. */
