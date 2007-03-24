@@ -124,7 +124,7 @@ static string error_msg;
 
 static long int sec = 0, usec = -1;
 
-static const char * DEFAULT_LOG_ENTRY =
+static const char DEFAULT_LOG_ENTRY[] =
 	"$or{$env{REMOTE_HOST},$env{REMOTE_ADDR},-}\t"
 	"[$date{$now,%d/%b/%Y:%H:%M:%S} +0000]\t"
 	"$if{$cgi{X},add,$if{$cgi{MORELIKE},morelike,query}}\t"
