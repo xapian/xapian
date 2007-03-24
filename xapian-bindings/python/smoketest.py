@@ -240,6 +240,21 @@ try:
         print >> sys.stderr, "MatchDecider mset has wrong docid in"
         sys.exit(1)
 
+    # Feature test for ExpandDecider
+    class testexpanddecider(xapian.ExpandDecider):
+        def __call__(self, term):
+            return (not term.startswith('a'))
+
+    enquire = xapian.Enquire(db)
+    rset = xapian.RSet()
+    rset.add_document(1)
+    eset = enquire.get_eset(10, rset, 0, 1.0, testexpanddecider())
+    eset_terms = [term[xapian.ESET_TNAME] for term in eset.items]
+    if len(eset_terms) != eset.size():
+        print >> sys.stderr, "ESet.size() mismatched number of terms in eset.items"
+    if filter(lambda t: t.startswith('a'), eset_terms):
+        print >> sys.stderr, "ExpandDecider was not used"
+
     # Check QueryParser parsing error.
     qp = xapian.QueryParser()
     try:
