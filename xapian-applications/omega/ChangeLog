@@ -1,3 +1,8 @@
+Sat Mar 24 17:16:49 GMT 2007  Olly Betts <olly@survex.com>
+
+	* configfile.cc: Prefer static char[] to static char * (gives better
+	  generated code).
+
 Thu Mar 22 01:11:52 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Eliminate libtool probe code for f77, gcj, and rc

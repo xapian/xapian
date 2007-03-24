@@ -2,7 +2,7 @@
  *
  * Copyright 2001 Lemur Consulting Ltd.
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2005 Olly Betts
+ * Copyright 2003,2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,9 +34,9 @@
 
 using namespace std;
 
-static const char * configfile_local = "omega.conf";
-static const char * configfile_system = CONFIGFILE_SYSTEM;
-static const char * configfile_envvar = "OMEGA_CONFIG_FILE";
+static const char configfile_local[] = "omega.conf";
+static const char configfile_system[] = CONFIGFILE_SYSTEM;
+static const char configfile_envvar[] = "OMEGA_CONFIG_FILE";
 
 string database_dir = "/var/lib/omega/data/";
 string template_dir = "/var/lib/omega/templates/";
