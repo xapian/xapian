@@ -1,3 +1,9 @@
+Sat Mar 24 01:30:17 GMT 2007  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: Bump the automake required version to 1.9.5.
+	  It was in Debian sarge, so any modern Linux distro should include
+	  packages, and we've actually been bootstrapping with 1.9.6 for ages.
+
 Thu Mar 22 00:53:35 GMT 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Disable probes for f77 more completely by preventing
@@ -5,7 +11,7 @@ Thu Mar 22 00:53:35 GMT 2007  Olly Betts <olly@survex.com>
 	  eliminate the code for gcj and rc probes - in total these changes
 	  reduce the size of configure by 209KB (~25%).
 
-Fri Mar 09 14:28:01 GMT 2007  Richard Boulton <richard@>
+Fri Mar 09 14:28:01 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* Makefile.am: Add include/xapian/error.h to list of headers to
 	  install.
