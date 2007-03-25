@@ -1,6 +1,7 @@
 Revision history for Perl extension Search::Xapian.
 
 	[Changes contributed by Olly Betts]
+	- Add "make check" as an alias for "make test".
 	- Test WritableDatabase::add_value() in t/index.t.
 	- Wrap new QueryParser flags FLAG_PURE_NOT and FLAG_PARTIAL.
  	- Wrap new Query op OP_VALUE_RANGE and associated constructor.

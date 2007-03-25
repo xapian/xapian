@@ -58,6 +58,8 @@ WriteMakefile(
     # 'OBJECT'		=> '$(O_FILES)', # link all the C files too
     'XSOPT'             => '-C++',
     'TYPEMAPS'          => ['perlobject.map','typemap'],
+    # Add "make check" as alias for "make test".
+    'depend'		=> { 'check' => 'test' },
 );
 
 my $VERSION = "unknown";
