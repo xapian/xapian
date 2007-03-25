@@ -55,6 +55,7 @@ newXsv(op, ...);
     PREINIT:
         vector<string> terms;
     CODE:
+        terms.reserve(items);
         for( int i = 1; i <= items; i++ ) {
             SV *sv = ST (i);
 	    if( SvOK(sv) && SvPOK(sv) ) {
@@ -78,6 +79,7 @@ newXobj(op, ...);
     PREINIT:
         vector<Query> queries;
     CODE:
+        queries.reserve(items);
         for( int i = 1; i <= items; i++ ) {
             SV *sv = ST (i);
 	    if( sv_isobject(sv) ) {
