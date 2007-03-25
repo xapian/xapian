@@ -1,3 +1,6 @@
+  * debian/po/nb.po: New debconf translation from Hans Fredrik Nordhaug
+    (Closes: #414461).
+
   * debian/po/: Added newly translated debconf messages for de, ru, gl, eu,
     ca, ro (Closes: #412250, #412274, #412338, #412420, #412579, #412933).
     Thanks to Matthias Julius, Yuri Kozlov, Jacobo Tarrio, Piarres Beobide,
