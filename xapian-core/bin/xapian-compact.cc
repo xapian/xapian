@@ -324,9 +324,18 @@ main(int argc, char **argv)
 	    // No point trying to merge empty databases!
 	    if (db.get_doccount() != 0) {
 		Xapian::docid last = db.get_lastdocid();
+		// FIXME: prune unused docids off the end of each source db...
+
+		// Prune any unused docids off the start of this source database.
+		Xapian::PostingIterator it = db.postlist_begin("");
+		// This test should never fail, since db.get_doccount() is non-zero!
+		if (it != db.postlist_end("")) {
+		    // tot_off could wrap here, but it's unsigned, so that's OK.
+		    tot_off -= (*it - 1);
+		}
+
 		offset.push_back(tot_off);
 		tot_off += last;
-		// FIXME: prune unused docids off the start and end of each range...
 		sources.push_back(string(srcdir) + '/');
 	    }
 	}
