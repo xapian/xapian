@@ -49,6 +49,15 @@ ValueIterator *		O_VALUE_I
 Error			O_OBJECT
 Error *			O_OBJECT
 
+ValueRangeProcessor	O_OBJECT
+ValueRangeProcessor *	O_OBJECT
+DateValueRangeProcessor		O_OBJECT
+DateValueRangeProcessor *	O_OBJECT
+NumberValueRangeProcessor	O_OBJECT
+NumberValueRangeProcessor *	O_OBJECT
+StringValueRangeProcessor	O_OBJECT
+StringValueRangeProcessor *	O_OBJECT
+
 string			STRING
 
 docid			T_UV

@@ -104,4 +104,7 @@ string
 QueryParser::get_description()
 
 void
+QueryParser::add_valuerangeprocessor(ValueRangeProcessor * vrproc)
+
+void
 QueryParser::DESTROY()

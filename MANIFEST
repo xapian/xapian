@@ -57,6 +57,10 @@ XS/ValueIterator.xs
 XS/Weight.xs
 XS/WritableDatabase.xs
 
+XS/DateValueRangeProcessor.xs
+XS/NumberValueRangeProcessor.xs
+XS/StringValueRangeProcessor.xs
+
 t/01use.t
 t/02pod.t
 t/03podcoverage.t

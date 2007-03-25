@@ -136,6 +136,9 @@ INCLUDE: XS/ValueIterator.xs
 INCLUDE: XS/WritableDatabase.xs
 INCLUDE: XS/Weight.xs
 
+INCLUDE: XS/DateValueRangeProcessor.xs
+INCLUDE: XS/NumberValueRangeProcessor.xs
+INCLUDE: XS/StringValueRangeProcessor.xs
 
 BOOT:
     {

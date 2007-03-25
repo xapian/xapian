@@ -5,7 +5,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 16 };
+BEGIN { plan tests => 25 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -42,5 +42,20 @@ foreach (qw(one two three four five)) {
     ok( !$stopper->stop_word($_) );
 }
 ok( $qp->set_stopper($stopper), undef );
+
+$qp->add_boolean_prefix("test", "XTEST");
+
+my $vrp;
+ok( $vrp = new Search::Xapian::StringValueRangeProcessor(1) );
+$qp->add_valuerangeprocessor($vrp);
+ok( $query = $qp->parse_query("a..b") );
+ok( $query->get_description(), "Xapian::Query(VALUE_RANGE 1 a b)" );
+ok( $query = $qp->parse_query('$50..100') );
+ok( $query->get_description(), 'Xapian::Query(VALUE_RANGE 1 $50 100)' );
+ok( $query = $qp->parse_query('$50..$100') );
+ok( $query->get_description(), 'Xapian::Query(VALUE_RANGE 1 $50 $100)' );
+# FIXME: We don't current handle arbitrary strings in a range start.
+ok( $query = $qp->parse_query('dummy..10/12/1980') );
+ok( $query->get_description(), "Xapian::Query(VALUE_RANGE 1 dummy 10/12/1980)" );
 
 1;
