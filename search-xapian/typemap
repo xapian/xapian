@@ -67,7 +67,7 @@ STRING
 	{
 		STRLEN len;
 		const char * tmp = SvPV($arg, len);
-		$var = string(tmp, len);
+		$var.assign(tmp, len);
 	}
 
 O_MSET
