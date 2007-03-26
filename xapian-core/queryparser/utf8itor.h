@@ -125,6 +125,12 @@ inline bool is_wordchar(unsigned ch) {
     return (ch >= 0x10000) || ((WORDCHAR_MASK >> GetCategory(XapianGetUniCharInfo(ch))) & 1);
 }
 
+inline bool is_currency(unsigned ch) {
+    // The TCL Unicode routines only support the BMP.  For now, just assume
+    // no characters outside the BMP are currency characters.
+    return (ch < 0x10000) && (GetCategory(XapianGetUniCharInfo(ch)) == XXX_CURRENCY_SYMBOL);
+}
+
 inline unsigned U_tolower(unsigned ch) {
     int info;
     // The TCL Unicode routines only support the BMP.  For now, just assume

@@ -290,19 +290,51 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
 	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM
     } mode = DEFAULT;
 
-    string range_prefix;
     unsigned newprev = ' ';
     while (it != end) {
-	if (mode != DEFAULT)
-	    range_prefix.resize(0);
-
 	if (mode == IN_PHRASED_TERM) mode = DEFAULT;
 	if (U_isspace(*it)) {
 	    newprev = ' ';
 	    ++it;
 	    it = find_if(it, end, U_isnotspace);
 	    if (it == end) break;
-	    range_prefix.resize(0);
+	}
+
+	if (mode == DEFAULT && value_ranges) {
+	    // Scan forward to see if this could be the "start of range"
+	    // token.  Sadly this has O(n^2) tendencies, though at least
+	    // "n" is the number of words in a query which is likely to
+	    // remain fairly small.  FIXME: can we tokenise more elegantly?
+	    Utf8Iterator p = it;
+	    unsigned ch = 0;
+	    while (p != end) {
+		if (ch == '.' && *p == '.') {
+		    ++p;
+		    if (p == end || *p <= ' ' || *p == ')') break;
+
+		    string r;
+		    do {
+			r.append(ubuf, to_utf8(*it++, ubuf));
+		    } while (it != p);
+		    // Trim off the trailing "..".
+		    r.resize(r.size() - 2);
+		    Parse(pParser, RANGE_START, new Term(r, 0), &state);
+		    r.resize(0);
+		    // Allow any character except whitespace and ')' in a
+		    // RANGE_END.  Or should we be consistent with RANGE_START?
+		    do {
+			r.append(ubuf, to_utf8(*p++, ubuf));
+		    } while (p != end && *p > ' ' && *p != ')');
+		    Parse(pParser, RANGE_END, new Term(r, 0), &state);
+		    it = p;
+		    break;
+		}
+		ch = *p;
+		if (!(is_wordchar(ch) || is_currency(ch) ||
+		      (ch < 128 && strchr("%,-./:@_", ch)))) break;
+		++p;
+	    }
+	    if (p == it) continue;
 	}
 
 	if (!is_wordchar(*it)) {
@@ -392,16 +424,8 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
 		    Parse(pParser, KET, NULL, &state);
 		}
 		break;
-
-	      default:
-		// Skip any other characters, but append them to range_prefix
-		// if we might have ranges and we're not in a phrase or
-		// similar...
-		if (mode == DEFAULT && value_ranges)
-		    range_prefix.append(ubuf, to_utf8(ch, ubuf));
-		continue;
 	    }
-	    range_prefix.resize(0);
+	    // Skip any other characters.
 	    continue;
 	}
 
@@ -607,31 +631,10 @@ phrased_term:
 
 	bool need_to_stem = (stem_action != STEM_NONE);
 	string unstemmed_term;
-	bool could_be_range = (mode == DEFAULT && value_ranges);
-	if ((could_be_range || stem_action == STEM_SOME) &&
-	    it != end && *it == '.') {
-	    // Might be a trailing "." meaning "already stemmed" or
-	    // a ".." between two words meaning "value range".
+	if (stem_action == STEM_SOME && it != end && *it == '.') {
+	    // Might be a trailing "." meaning "already stemmed".
 	    Utf8Iterator p = it;
 	    ++p;
-	    if (could_be_range && p != end && *p == '.') {
-		Utf8Iterator q = p;
-		++q;
-		if (q != end && *q > ' ' && *q != ')') {
-		    it = q;
-		    range_prefix += term;
-		    Parse(pParser, RANGE_START, new Term(range_prefix, 0), &state);
-		    range_prefix.resize(0);
-		    term.resize(0);
-		    // Allow any character except whitespace and ')' in a
-		    // RANGE_END.
-		    do {
-			term.append(ubuf, to_utf8(*it++, ubuf));
-		    } while (it != end && *it > ' ' && *it != ')');
-		    Parse(pParser, RANGE_END, new Term(term, 0), &state);
-		    continue;
-		}
-	    }
 	    if (stem_action == STEM_SOME && (p == end || U_isspace(*p))) {
 		// TopTerms won't generate an embedded '.', and we want to
 		// stem terms in a phrased term with '.' phrase generators -
@@ -1212,5 +1215,5 @@ adj_expr(P) ::= adj_expr(Q) ADJ(N) TERM(T). {
     }
 }
 
-// Select appropriate syntax highlighting in vim editor: vim: syntax=lemon
-// (lemon syntax colouring isn't supplied by default though).
+// Select yacc syntax highlighting in vim editor: vim: syntax=yacc
+// (lemon syntax colouring isn't supplied by default; yacc does an OK job).

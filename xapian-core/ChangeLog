@@ -1,3 +1,12 @@
+Mon Mar 26 22:26:48 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/utf8itor.h: Add is_currency() predicate function.
+	* queryparser/queryparser.lemony: Rejig parsing of RANGE_START to
+	  allow all characters which are likely to be required.
+	* tests/queryparsertest.cc: Test RANGE_START can contain "/".
+	* queryparser/queryparser.lemony: Set "syntax=yacc" for vim, which
+	  give fairly decent syntax highlighting.
+
 Mon Mar 26 15:43:50 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Use m4 comments not shell (dnl not #).
