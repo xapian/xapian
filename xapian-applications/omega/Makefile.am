@@ -57,8 +57,7 @@ check_PROGRAMS = htmlparsetest md5test utf8test
 TESTS = htmlparsetest$(EXEEXT) md5test$(EXEEXT) utf8test$(EXEEXT)
 
 # Install documentation.
-docdatadir   = $(datadir)/doc/omega
-dist_docdata_DATA = \
+dist_doc_DATA = \
 	docs/cgiparams.txt \
 	docs/omegascript.txt \
 	docs/overview.txt \

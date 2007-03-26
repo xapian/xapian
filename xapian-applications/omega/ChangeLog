@@ -1,3 +1,11 @@
+Mon Mar 26 15:47:53 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add code to ensure that docdir is set for autoconf
+	  2.59 (starting from 2.60, it is defined as standard).
+	* Makefile.am: Use docdir for installing docs.  This means that the
+	  documentation now goes in $prefix/share/doc/xapian-omega rather
+	  than $prefix/share/doc/omega, which is better really.
+
 Sat Mar 24 17:21:32 GMT 2007  Olly Betts <olly@survex.com>
 
 	* query.cc: Prefer static char[] to static char * (gives better
