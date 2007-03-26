@@ -385,8 +385,8 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
 
-# We only need to set docdir for compatibility with autoconf < 2.60 - this
-# code can be removed once we move to requiring autoconf 2.60 or newer.
+dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
+dnl code can be removed once we move to requiring autoconf 2.60 or newer.
 test -n "$docdir" || docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
 AC_SUBST(docdir)
 
