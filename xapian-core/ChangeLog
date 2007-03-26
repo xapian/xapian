@@ -1,3 +1,9 @@
+Mon Mar 26 15:41:41 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add code to ensure that docdir is set for autoconf
+	  2.59 (starting from 2.60, it is defined as standard).
+	* docs/Makefile.am: Use docdir for installing docs.
+
 Sun Mar 25 15:41:16 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Prune unused docids off the start of each

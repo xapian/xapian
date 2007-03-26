@@ -385,6 +385,11 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
 
+# We only need to set docdir for compatibility with autoconf < 2.60 - this
+# code can be removed once we move to requiring autoconf 2.60 or newer.
+test -n "$docdir" || docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
+AC_SUBST(docdir)
+
 dnl Make DATADIR available to the library
 dnl This isn't currently used.  If we reenable it, it needs to be renamed
 dnl to avoid a clash with a mingw header.

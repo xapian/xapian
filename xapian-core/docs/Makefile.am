@@ -27,13 +27,11 @@ EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
 # Build API docs with doxygen
 all-local: doxygen_api_docs $(RSTHTML)
 
-# Data to install, in the usual automake way
-docdatadir = $(datadir)/doc/@PACKAGE@
-dist_docdata_DATA = $(HTMLDOCS) apidoc.pdf
+dist_doc_DATA = $(HTMLDOCS) apidoc.pdf
 
 install-data-local:
-	$(mkinstalldirs) $(DESTDIR)$(docdatadir)/apidoc/html
-	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/* $(DESTDIR)$(docdatadir)/apidoc/html
+	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
+	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/* $(DESTDIR)$(docdir)/apidoc/html
 
 ###############################
 # How to clean up local files #
@@ -46,7 +44,7 @@ maintainer-clean-local:
 # How to uninstall local files #
 ################################
 uninstall-local:
-	rm -rf $(DESTDIR)$(docdatadir)/apidoc
+	rm -rf $(DESTDIR)$(docdir)/apidoc
 
 MAINTAINERCLEANFILES = doxygen_api_conf doxygen_full_conf \
 	code_structure.html apidoc.pdf sourcedoc.pdf \
