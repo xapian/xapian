@@ -1,3 +1,9 @@
+Tue Mar 27 04:44:52 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/stemtest.cc: Remove lower casing of dictionary words before
+	  stemming - instead we'll make sure the dictionary is already the
+	  right case.
+
 Tue Mar 27 04:28:10 BST 2007  Olly Betts <olly@survex.com>
 
 	* languages/compiler/analyser.c,languages/compiler/generator.c,

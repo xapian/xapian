@@ -141,9 +141,6 @@ test_stemdict()
 	getline(txt, word);
 	getline(st, expect);
 
-	for (string::iterator i = word.begin(); i != word.end(); ++i) {
-	    if (*i >= 'A' && *i <= 'Z') *i += 'a' - 'A';
-	}
 	stem = stemmer(word);
 
 	TEST_EQUAL(stem, expect);
