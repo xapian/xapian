@@ -7,7 +7,7 @@ routines (
 
 externals ( stem )
 
-integers ( p1 p2 )
+integers ( p1 p2 x )
 
 groupings ( v s_ending st_ending )
 
@@ -50,8 +50,10 @@ define mark_regions as (
     $p1 = limit
     $p2 = limit
 
+    test(hop 3 setmark x)
+
     gopast v  gopast non-v  setmark p1
-    try($p1 < 3  $p1 = 3)  // at least 3
+    try($p1 < x  $p1 = x)  // at least 3
     gopast v  gopast non-v  setmark p2
 
 )
