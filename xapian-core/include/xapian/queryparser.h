@@ -100,36 +100,15 @@ class StringValueRangeProcessor : public ValueRangeProcessor {
 
 class DateValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno valno;
+    bool prefer_mdy;
+    int epoch_year;
 
   public:
-    DateValueRangeProcessor(Xapian::valueno valno_)
-	: valno(valno_) { }
+    DateValueRangeProcessor(Xapian::valueno valno_, bool prefer_mdy_ = false,
+			    int epoch_year_ = 1970)
+	: valno(valno_), prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
 
-    Xapian::valueno operator()(std::string &begin, std::string &end) {
-	if (begin.size() == 8 && end.size() == 8 &&
-	    begin.find_first_not_of("0123456789") == std::string::npos &&
-	    end.find_first_not_of("0123456789") == std::string::npos) {
-	    // YYYYMMDD
-	    return valno;
-	}
-	if (begin.size() == 10 && end.size() == 10 &&
-	    begin.find_first_not_of("0123456789") == 4 &&
-	    end.find_first_not_of("0123456789") == 4 &&
-	    begin.find_first_not_of("0123456789", 5) == 7 &&
-	    end.find_first_not_of("0123456789", 5) == 7 &&
-	    begin.find_first_not_of("0123456789", 8) == std::string::npos &&
-	    end.find_first_not_of("0123456789", 8) == std::string::npos &&
-	    begin[4] == begin[7] && end[4] == end[7] && begin[4] == end[4] &&
-	    (end[4] == '-' || end[4] == '.' || end[4] == '/')) {
-	    // YYYY-MM-DD
-	    begin.erase(7, 1);
-	    begin.erase(4, 1);
-	    end.erase(7, 1);
-	    end.erase(4, 1);
-	    return valno;
-	}
-	return Xapian::BAD_VALUENO;
-    }
+    Xapian::valueno operator()(std::string &begin, std::string &end);
 };
 
 class NumberValueRangeProcessor : public ValueRangeProcessor {
@@ -145,62 +124,7 @@ class NumberValueRangeProcessor : public ValueRangeProcessor {
 			      bool prefix_ = true)
 	: valno(valno_), prefix(prefix_), str(str_) { }
 
-    Xapian::valueno operator()(std::string &begin, std::string &end) {
-	size_t b_b = 0, e_b = 0;
-	size_t b_e = std::string::npos, e_e = std::string::npos;
-
-	if (str.size()) {
-	    if (prefix) {
-		// If there's a prefix, require it on the start.
-		if (begin.size() <= str.size() ||
-		    begin.substr(0, str.size()) != str) {
-		    // Prefix not given.
-		    return Xapian::BAD_VALUENO;
-		}
-		b_b = str.size();
-		// But it's optional on the end, e.g. $10..50
-		if (end.size() > str.size() &&
-			end.substr(0, str.size()) == str) {
-		    e_b = str.size();
-		}
-	    } else {
-		// If there's a suffix, require it on the end.
-		if (end.size() <= str.size() ||
-		    end.substr(end.size() - str.size()) != str) {
-		    // Prefix not given.
-		    return Xapian::BAD_VALUENO;
-		}
-		e_e = end.size() - str.size();
-		// But it's optional on the start, e.g. 10..50kg
-		if (begin.size() > str.size() &&
-		    begin.substr(begin.size() - str.size()) == str) {
-		    b_e = begin.size() - str.size();
-		}
-	    }
-	}
-
-	if (begin.find_first_not_of("0123456789", b_b) != b_e)
-	    // Not a number.
-	    return Xapian::BAD_VALUENO;
-
-	if (end.find_first_not_of("0123456789", e_b) != e_e)
-	    // Not a number.
-	    return Xapian::BAD_VALUENO;
-
-	// Adjust begin string if necessary.
-	if (b_b)
-	    begin.erase(0, b_b);
-	else if (b_e != std::string::npos)
-	    begin.resize(b_e);
-
-	// Adjust end string if necessary.
-	if (e_b)
-	    end.erase(0, e_b);
-	else if (e_e != std::string::npos)
-	    end.resize(e_e);
-
-	return valno;
-    }
+    Xapian::valueno operator()(std::string &begin, std::string &end);
 };
 
 /// Build a Xapian::Query object from a user query string.
@@ -278,7 +202,7 @@ class QueryParser {
     void set_database(const Database &db);
 
     /** Parse a query.
-     * 
+     *
      *  @param query_string  A free-text query as entered by a user
      *  @param flags         Zero or more Query::feature_flag specifying
      *		what features the QueryParser should support.  Combine

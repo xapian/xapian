@@ -1,3 +1,11 @@
+Tue Mar 27 18:39:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk,api/valuerangeproc.cc,include/xapian/queryparser.h:
+	  Move NumberValueRangeProcessor::operator()() out of the header as
+	  it's too complex for sane inlining.  Implement handling of dmy and
+	  mdy dates and epochs for 2 digit years.
+	* tests/queryparsertest.cc: Add tests.
+
 Tue Mar 27 11:57:53 BST 2007  Richard Boulton <richard@>
 
 	* languages/romanian.sbl: Add Martin Porter's new romanian stemming

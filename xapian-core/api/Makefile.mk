@@ -16,4 +16,5 @@ libxapian_la_SOURCES +=\
 	api/omqueryinternal.cc\
 	api/omtermlistiterator.cc\
 	api/omvalueiterator.cc\
+	api/valuerangeproc.cc\
 	api/version.cc
