@@ -1,3 +1,7 @@
+Tue Mar 27 21:49:15 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/valuerangeproc.cc: Refactor to simplify and reduce duplication.
+
 Tue Mar 27 21:41:38 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: datarootdir is new in 2.60 too, so use datadir when
