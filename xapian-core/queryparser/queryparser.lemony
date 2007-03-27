@@ -291,6 +291,7 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
     } mode = DEFAULT;
 
     unsigned newprev = ' ';
+main_lex_loop:
     while (it != end) {
 	if (mode == IN_PHRASED_TERM) mode = DEFAULT;
 	if (U_isspace(*it)) {
@@ -327,14 +328,13 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
 		    } while (p != end && *p > ' ' && *p != ')');
 		    Parse(pParser, RANGE_END, new Term(r, 0), &state);
 		    it = p;
-		    break;
+		    goto main_lex_loop;
 		}
 		ch = *p;
 		if (!(is_wordchar(ch) || is_currency(ch) ||
 		      (ch < 128 && strchr("%,-./:@_", ch)))) break;
 		++p;
 	    }
-	    if (p == it) continue;
 	}
 
 	if (!is_wordchar(*it)) {
@@ -893,11 +893,6 @@ expr(E) ::= bool_arg(A) OR bool_arg(B).
 expr(E) ::= bool_arg(A) XOR bool_arg(B).
 	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_XOR, B, "XOR"); }
 
-expr(E) ::= RANGE_START(A) RANGE_END(B). {
-    E = state->value_range(A, B);
-    if (E == NULL) yy_parse_failed(yypParser);
-}
-
 // bool_arg - an argument to a boolean operator such as AND or OR.
 
 %type bool_arg {QpQuery *}
@@ -955,12 +950,27 @@ prob_expr(E) ::= term(T). {
 }
 
 // prob - a probabilistic sub-expression consisting of stop_terms, "+" terms,
-// and/or "-" terms.
+// "-" terms, boolean filters, and/or value ranges.
 //
 // Note: stop_term can also be several other things other than a simple term!
 
 %type prob {ProbQuery *}
 %destructor prob {delete $$;}
+
+prob(P) ::= RANGE_START(A) RANGE_END(B). {
+    QpQuery * range = state->value_range(A, B);
+    if (range == NULL) yy_parse_failed(yypParser);
+    P = new ProbQuery;
+    P->filter = *range;
+    delete range;
+}
+
+prob(P) ::= stop_prob(Q) RANGE_START(A) RANGE_END(B). {
+    QpQuery * range = state->value_range(A, B);
+    if (range == NULL) yy_parse_failed(yypParser);
+    P = Q;
+    add_to_query(P->filter, Query::OP_AND, range);
+}
 
 prob(P) ::= stop_term(T) stop_term(U). {
     P = new ProbQuery;

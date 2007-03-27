@@ -899,6 +899,25 @@ static bool test_qp_value_range1()
     return true;
 }
 
+static test test_value_range2_queries[] = {
+    { "a..b", "VALUE_RANGE 3 a b" },
+    { "1..12", "VALUE_RANGE 2 1 12" },
+    { "20070201..20070228", "VALUE_RANGE 1 20070201 20070228" },
+    { "$10..20", "VALUE_RANGE 4 10 20" },
+    { "$10..$20", "VALUE_RANGE 4 10 20" },
+    { "12..42kg", "VALUE_RANGE 5 12 42" },
+    { "12kg..42kg", "VALUE_RANGE 5 12 42" },
+    { "12kg..42", "VALUE_RANGE 3 12kg 42" },
+    { "10..$20", "VALUE_RANGE 3 10 $20" },
+    { "1999-03-12..2020-12-30", "VALUE_RANGE 1 19990312 20201230" },
+    { "1999/03/12..2020/12/30", "VALUE_RANGE 1 19990312 20201230" },
+    { "1999.03.12..2020.12.30", "VALUE_RANGE 1 19990312 20201230" },
+    { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
+    { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
+    { "(test:a..test:b hello)", "(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)" },
+    { NULL, NULL }
+};
+
 // Test chaining of ValueRangeProcessor classes.
 static bool test_qp_value_range2()
 {
@@ -914,34 +933,24 @@ static bool test_qp_value_range2()
     qp.add_valuerangeprocessor(&vrp_cash);
     qp.add_valuerangeprocessor(&vrp_weight);
     qp.add_valuerangeprocessor(&vrp_str);
-    Xapian::Query q = qp.parse_query("a..b");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 3 a b)");
-    q = qp.parse_query("1..12");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 2 1 12)");
-    q = qp.parse_query("20070201..20070228");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 20070201 20070228)");
-    q = qp.parse_query("$10..20");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 4 10 20)");
-    q = qp.parse_query("$10..$20");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 4 10 20)");
-    q = qp.parse_query("12..42kg");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 5 12 42)");
-    q = qp.parse_query("12kg..42kg");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 5 12 42)");
-    q = qp.parse_query("12kg..42");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 3 12kg 42)");
-    q = qp.parse_query("10..$20");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 3 10 $20)");
-    q = qp.parse_query("1999-03-12..2020-12-30");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 19990312 20201230)");
-    q = qp.parse_query("1999/03/12..2020/12/30");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 19990312 20201230)");
-    q = qp.parse_query("1999.03.12..2020.12.30");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 19990312 20201230)");
-    q = qp.parse_query("12/03/99..12/04/01");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 19990312 20010412)");
-    q = qp.parse_query("03-12-99..04-14-01");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 19990312 20010414)");
+    for (test *p = test_value_range2_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_msg();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_EQUAL(parsed, expect);
+    }
     return true;
 }
 
