@@ -92,6 +92,11 @@ dnl VERSION_NO_SNAPSHOT simply has any _svn6789 suffix removed.
 VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_svn[0-9]*$//'`]
 AC_SUBST(VERSION_NO_SNAPSHOT)
 
+dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
+dnl code can be removed once we move to requiring autoconf 2.60 or newer.
+test -n "$docdir" || docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
+AC_SUBST(docdir)
+
 dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
 AM_MAINTAINER_MODE
