@@ -1,3 +1,10 @@
+Tue Mar 27 04:24:37 BST 2007  Olly Betts <olly@survex.com>
+
+	* languages/steminternal.cc: Fix typo bug in slice_to - if we needed
+	  to increase the capacity of a snowball string variable, we trashed
+	  the variable with p (bug discovered while trying to enable the
+	  finnish stemmer).
+
 Tue Mar 27 02:55:51 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Implement handling of ISO format dates

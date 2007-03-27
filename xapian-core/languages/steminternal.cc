@@ -411,7 +411,7 @@ symbol * Stem::Internal::slice_to(symbol * v) {
     {
         int len = ket - bra;
         if (CAPACITY(v) < len) {
-            v = increase_size(p, len);
+            v = increase_size(v, len);
         }
         memmove(v, p + bra, len * sizeof(symbol));
         SET_SIZE(v, len);
