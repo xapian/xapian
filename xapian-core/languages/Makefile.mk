@@ -24,8 +24,7 @@ snowball_algorithms =\
 	languages/norwegian.sbl\
 	languages/porter.sbl\
 	languages/portuguese.sbl\
-	languages/romanian1.sbl\
-	languages/romanian2.sbl\
+	languages/romanian.sbl\
 	languages/russian.sbl\
 	languages/spanish.sbl\
 	languages/swedish.sbl\
@@ -46,8 +45,7 @@ snowball_built_sources =\
 	languages/norwegian.cc		languages/norwegian.h\
 	languages/porter.cc		languages/porter.h\
 	languages/portuguese.cc		languages/portuguese.h\
-	languages/romanian1.cc		languages/romanian1.h\
-	languages/romanian2.cc		languages/romanian2.h\
+	languages/romanian.cc		languages/romanian.h\
 	languages/russian.cc		languages/russian.h\
 	languages/spanish.cc		languages/spanish.h\
 	languages/swedish.cc		languages/swedish.h\

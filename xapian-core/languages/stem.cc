@@ -138,12 +138,8 @@ Stem::Stem(const std::string &language) : internal(0) {
 		internal = new InternalStemRussian;
 		return;
 	    }
-	    if (language == "ro" || language == "romanian1") {
-		internal = new InternalStemRomanian1;
-		return;
-	    }
-	    if (language == "romanian2") {
-		internal = new InternalStemRomanian2;
+	    if (language == "ro" || language == "romanian") {
+		internal = new InternalStemRomanian;
 		return;
 	    }
 	    break;

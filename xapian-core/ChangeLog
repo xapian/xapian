@@ -1,3 +1,15 @@
+Tue Mar 27 11:57:53 BST 2007  Richard Boulton <richard@>
+
+	* languages/romanian.sbl: Add Martin Porter's new romanian stemming
+	  algorithm.
+	* languages/romanian1.sbl,langauges/romanian2.sbl: Remove old
+	  romanian stemming algorithms.
+	* languages/Makefile.mk: Replace romanian1 and romanian2 by
+	  romanian.
+	* languages/stem.cc: Use romanian stemmer when asked for "ro" or
+	  "romanian".  No longer give a stemmer for "romanian1" or
+	  "romanian2".
+
 Tue Mar 27 04:50:36 BST 2007  Olly Betts <olly@survex.com>
 
 	* languages/german2.sbl: Copy over "hop 3" in utf-8 case from
