@@ -1172,10 +1172,22 @@ static void generate_substring(struct generator * g, struct node * p) {
     }
 
     if (x->command_count == 0 && x->starter == 0) {
-        wp(g, "~Mif (!(find_among~S0(~Za_~I0, ~I1))) ~f", p);
+        w(g, "~Mif (!(find_among~S0(~Za_~I0, ~I1, ");
+	if (x->have_funcs) {
+	    w(g, "af_~I0");
+	} else {
+	    ws(g, "0");
+	}
+	wp(g, "))) ~f", p);
 	wp(g, shown_comment ? "~N" : "~C", p);
     } else {
-        wp(g, "~Mamong_var = find_among~S0(~Za_~I0, ~I1);", p);
+        w(g, "~Mamong_var = find_among~S0(~Za_~I0, ~I1, ");
+	if (x->have_funcs) {
+	    w(g, "af_~I0");
+	} else {
+	    ws(g, "0");
+	}
+	wp(g, ");", p);
 	wp(g, shown_comment ? "~N" : "~C", p);
         wp(g, "~Mif (!(among_var)) ~f~N", p);
     }
@@ -1367,6 +1379,7 @@ static void generate_routine_headers(struct generator * g) {
 static void generate_among_table(struct generator * g, struct among * x) {
 
     struct amongvec * v = x->b;
+    int have_funcs = 0;
 
     g->I[0] = x->number;
     {
@@ -1398,18 +1411,54 @@ static void generate_among_table(struct generator * g, struct among * x) {
             w(g, "/*~J1 */ { ~I2, ");
             if (v->size == 0) w(g, "0,");
                          else w(g, "s_~I0_~I1,");
-            w(g, " ~I3, ~I4, ");
-            if (v->function == 0) w(g, "0"); else
-                                  wvn(g, v->function);
+            w(g, " ~I3, ~I4");
+            if (v->function) have_funcs = 1;
             w(g, "}~S0~N");
             v++;
         }
     }
     w(g, "};~N~N");
+
+    x->have_funcs = have_funcs;
+    if (have_funcs) {
+	g->I[1] = x->literalstring_count;
+	w(g, "~Mstatic const among_function af_~I0[~I1] =~N{~N");
+
+	v = x->b;
+	{
+	    int i;
+	    for (i = 0; i < x->literalstring_count; i++) {
+		g->I[1] = i;
+
+		w(g, "/*~J1 */ ");
+		if (v[i].function == 0) {
+		    w(g, "0");
+		} else {
+		    g->V[0] = v[i].function;
+		    w(g, "t~W0");
+		}
+		if (i < x->literalstring_count - 1) w(g, ",~N");
+	    }
+        }
+	w(g, "~N};~N~N");
+    }
 }
 
 static void generate_amongs(struct generator * g) {
     struct among * x = g->analyser->amongs;
+    struct name * q;
+
+    g->S[0] = g->options->name;
+    for (q = g->analyser->names; q; q = q->next) {
+        if (q->type == t_routine && q->routine_called_from_among) {
+	    g->V[0] = q;
+	    w(g, "static int t~V0(Xapian::Stem::Internal * this_ptr) {~N"
+		 "    return (static_cast<Xapian::~S0 *>(this_ptr))->~V0();~N"
+		 "}~N"
+		 "~N");
+	}
+    }
+
     until (x == 0) {
         generate_among_table(g, x);
         x = x->next;

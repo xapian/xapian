@@ -47,7 +47,6 @@ struct among {
     const symbol * s;	/* search string */
     int substring_i;	/* index to longest matching substring */
     int result;		/* result of the lookup */
-    among_function function;
 };
 
 extern symbol * create_s();
@@ -80,8 +79,8 @@ class Stem::Internal : public Xapian::Internal::RefCntBase {
     int eq_v(const symbol * v) { return eq_s(SIZE(v), v); }
     int eq_v_b(const symbol * v) { return eq_s_b(SIZE(v), v); }
 
-    int find_among(const struct among * v, int v_size);
-    int find_among_b(const struct among * v, int v_size);
+    int find_among(const struct among * v, int v_size, const among_function * f);
+    int find_among_b(const struct among * v, int v_size, const among_function * f);
 
     int replace_s(int c_bra, int c_ket, int s_size, const symbol * s);
     int slice_from_s(int s_size, const symbol * s);

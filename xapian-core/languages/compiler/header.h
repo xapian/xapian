@@ -131,6 +131,7 @@ struct name {
     struct grouping * grouping; /* for grouping names */
     byte referenced;
     byte used;
+    byte routine_called_from_among; /* used in routine definitions */
 
 };
 
@@ -159,6 +160,7 @@ struct among {
     int number;               /* amongs are numbered 0, 1, 2 ... */
     int literalstring_count;  /* in this among */
     int command_count;        /* in this among */
+    int have_funcs;	      /* does this among have any funcs? */
     struct node * starter;    /* i.e. among( (starter) 'string' ... ) */
     struct node * substring;  /* i.e. substring ... among ( ... ) */
 };

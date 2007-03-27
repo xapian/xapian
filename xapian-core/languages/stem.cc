@@ -71,12 +71,10 @@ Stem::Stem(const std::string &language) : internal(0) {
 	    }
 	    break;
 	case 'f':
-#if 0
 	    if (language == "fi" || language == "finnish") {
 		internal = new InternalStemFinnish;
 		return;
 	    }
-#endif
 	    if (language == "fr" || language == "french") {
 		internal = new InternalStemFrench;
 		return;
@@ -110,14 +108,12 @@ Stem::Stem(const std::string &language) : internal(0) {
 		return;
 	    }
 	    break;
-#if 0
 	case 'l':
 	    if (language == "lovins") {
 		internal = new InternalStemLovins;
 		return;
 	    }
 	    break;
-#endif
 	case 'n':
 	    if (language == "no" || language == "norwegian") {
 		internal = new InternalStemNorwegian;
