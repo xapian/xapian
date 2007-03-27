@@ -22,6 +22,8 @@
 
 #include <xapian/queryparser.h>
 
+#include <stdio.h>
+
 #include <string>
 
 using namespace std;
