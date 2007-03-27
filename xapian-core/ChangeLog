@@ -1,3 +1,9 @@
+Tue Mar 27 02:55:51 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Implement handling of ISO format dates
+	  in DateValueRangeProcessor.
+	* tests/queryparsertest.cc: Add feature tests.
+
 Tue Mar 27 01:47:36 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Implement prefix and suffix handling

@@ -932,6 +932,12 @@ static bool test_qp_value_range2()
     TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 3 12kg 42)");
     q = qp.parse_query("10..$20");
     TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 3 10 $20)");
+    q = qp.parse_query("1999-03-12..2020-12-30");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 19990312 20201230)");
+    q = qp.parse_query("1999/03/12..2020/12/30");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 19990312 20201230)");
+    q = qp.parse_query("1999.03.12..2020.12.30");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 19990312 20201230)");
     return true;
 }
 

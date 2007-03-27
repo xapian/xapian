@@ -106,13 +106,29 @@ class DateValueRangeProcessor : public ValueRangeProcessor {
 	: valno(valno_) { }
 
     Xapian::valueno operator()(std::string &begin, std::string &end) {
-	if (begin.size() != 8 || end.size() != 8 ||
-	    strspn(begin.c_str(), "0123456789") != 8 ||
-	    strspn(end.c_str(), "0123456789") != 8) {
-	    // Not YYYYMMDD.
-	    return Xapian::BAD_VALUENO;
+	if (begin.size() == 8 && end.size() == 8 &&
+	    begin.find_first_not_of("0123456789") == std::string::npos &&
+	    end.find_first_not_of("0123456789") == std::string::npos) {
+	    // YYYYMMDD
+	    return valno;
 	}
-	return valno;
+	if (begin.size() == 10 && end.size() == 10 &&
+	    begin.find_first_not_of("0123456789") == 4 &&
+	    end.find_first_not_of("0123456789") == 4 &&
+	    begin.find_first_not_of("0123456789", 5) == 7 &&
+	    end.find_first_not_of("0123456789", 5) == 7 &&
+	    begin.find_first_not_of("0123456789", 8) == std::string::npos &&
+	    end.find_first_not_of("0123456789", 8) == std::string::npos &&
+	    begin[4] == begin[7] && end[4] == end[7] && begin[4] == end[4] &&
+	    (end[4] == '-' || end[4] == '.' || end[4] == '/')) {
+	    // YYYY-MM-DD
+	    begin.erase(7, 1);
+	    begin.erase(4, 1);
+	    end.erase(7, 1);
+	    end.erase(4, 1);
+	    return valno;
+	}
+	return Xapian::BAD_VALUENO;
     }
 };
 
