@@ -118,18 +118,71 @@ class DateValueRangeProcessor : public ValueRangeProcessor {
 
 class NumberValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno valno;
+    bool prefix;
+    std::string str;
 
   public:
     NumberValueRangeProcessor(Xapian::valueno valno_)
-	: valno(valno_) { }
+	: valno(valno_), prefix(false) { }
+
+    NumberValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+			      bool prefix_ = true)
+	: valno(valno_), prefix(prefix_), str(str_) { }
 
     Xapian::valueno operator()(std::string &begin, std::string &end) {
-	if (strspn(begin.c_str(), "0123456789") != begin.size() ||
-	    strspn(end.c_str(), "0123456789") != end.size()) {
+	size_t b_b = 0, e_b = 0;
+	size_t b_e = std::string::npos, e_e = std::string::npos;
+
+	if (str.size()) {
+	    if (prefix) {
+		// If there's a prefix, require it on the start.
+		if (begin.size() <= str.size() ||
+		    begin.substr(0, str.size()) != str) {
+		    // Prefix not given.
+		    return Xapian::BAD_VALUENO;
+		}
+		b_b = str.size();
+		// But it's optional on the end, e.g. $10..50
+		if (end.size() > str.size() &&
+			end.substr(0, str.size()) == str) {
+		    e_b = str.size();
+		}
+	    } else {
+		// If there's a suffix, require it on the end.
+		if (end.size() <= str.size() ||
+		    end.substr(end.size() - str.size()) != str) {
+		    // Prefix not given.
+		    return Xapian::BAD_VALUENO;
+		}
+		e_e = end.size() - str.size();
+		// But it's optional on the start, e.g. 10..50kg
+		if (begin.size() > str.size() &&
+		    begin.substr(begin.size() - str.size()) == str) {
+		    b_e = begin.size() - str.size();
+		}
+	    }
+	}
+
+	if (begin.find_first_not_of("0123456789", b_b) != b_e)
 	    // Not a number.
 	    return Xapian::BAD_VALUENO;
-	}
-	// FIXME: need to "adjust" begin and end now.
+
+	if (end.find_first_not_of("0123456789", e_b) != e_e)
+	    // Not a number.
+	    return Xapian::BAD_VALUENO;
+
+	// Adjust begin string if necessary.
+	if (b_b)
+	    begin.erase(0, b_b);
+	else if (b_e != std::string::npos)
+	    begin.resize(b_e);
+
+	// Adjust end string if necessary.
+	if (e_b)
+	    end.erase(0, e_b);
+	else if (e_e != std::string::npos)
+	    end.resize(e_e);
+
 	return valno;
     }
 };

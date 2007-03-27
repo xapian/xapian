@@ -907,8 +907,12 @@ static bool test_qp_value_range2()
     Xapian::DateValueRangeProcessor vrp_date(1);
     Xapian::NumberValueRangeProcessor vrp_num(2);
     Xapian::StringValueRangeProcessor vrp_str(3);
+    Xapian::NumberValueRangeProcessor vrp_cash(4, "$");
+    Xapian::NumberValueRangeProcessor vrp_weight(5, "kg", false);
     qp.add_valuerangeprocessor(&vrp_date);
     qp.add_valuerangeprocessor(&vrp_num);
+    qp.add_valuerangeprocessor(&vrp_cash);
+    qp.add_valuerangeprocessor(&vrp_weight);
     qp.add_valuerangeprocessor(&vrp_str);
     Xapian::Query q = qp.parse_query("a..b");
     TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 3 a b)");
@@ -916,6 +920,18 @@ static bool test_qp_value_range2()
     TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 2 1 12)");
     q = qp.parse_query("20070201..20070228");
     TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 20070201 20070228)");
+    q = qp.parse_query("$10..20");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 4 10 20)");
+    q = qp.parse_query("$10..$20");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 4 10 20)");
+    q = qp.parse_query("12..42kg");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 5 12 42)");
+    q = qp.parse_query("12kg..42kg");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 5 12 42)");
+    q = qp.parse_query("12kg..42");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 3 12kg 42)");
+    q = qp.parse_query("10..$20");
+    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 3 10 $20)");
     return true;
 }
 

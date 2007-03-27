@@ -1,3 +1,9 @@
+Tue Mar 27 01:47:36 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Implement prefix and suffix handling
+	  for NumberValueRangeProcessor.
+	* tests/queryparsertest.cc: Add feature tests.
+
 Mon Mar 26 22:26:48 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/utf8itor.h: Add is_currency() predicate function.
