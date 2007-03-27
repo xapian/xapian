@@ -95,13 +95,17 @@ Xapian::DateValueRangeProcessor::operator()(string &begin, string &end)
     if (!decode_xxy(begin, b_d, b_m, b_y) || !decode_xxy(end, e_d, e_m, e_y))
 	return Xapian::BAD_VALUENO;
 
-    // FIXME: could also assume "start" <= "end" to decide ambiguous cases.
-    if (!prefer_mdy && vet_dm(b_d, b_m) && vet_dm(e_d, e_m)) {
+    // Check that the month and day are within range.  Also assume "start" <=
+    // "end" to help decide ambiguous cases.
+    if (!prefer_mdy && vet_dm(b_d, b_m) && vet_dm(e_d, e_m) &&
+	(b_y != e_y || b_m < e_m || (b_m == e_m && b_d <= e_d))) {
 	// OK.
-    } else if (vet_dm(b_m, b_d) && vet_dm(e_m, e_d)) {
+    } else if (vet_dm(b_m, b_d) && vet_dm(e_m, e_d) &&
+	(b_y != e_y || b_d < e_d || (b_d == e_d && b_m <= e_m))) {
 	swap(b_m, b_d);
 	swap(e_m, e_d);
-    } else if (prefer_mdy && vet_dm(b_d, b_m) && vet_dm(e_d, e_m)) {
+    } else if (prefer_mdy && vet_dm(b_d, b_m) && vet_dm(e_d, e_m) &&
+	       (b_y != e_y || b_m < e_m || (b_m == e_m && b_d <= e_d))) {
 	// OK.
     } else {
 	return Xapian::BAD_VALUENO;
