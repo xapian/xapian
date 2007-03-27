@@ -387,7 +387,7 @@ fi
 
 dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
 dnl code can be removed once we move to requiring autoconf 2.60 or newer.
-test -n "$docdir" || docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
+test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
 AC_SUBST(docdir)
 
 dnl Make DATADIR available to the library
