@@ -889,6 +889,11 @@ static test test_value_range1_queries[] = {
     { "a..b hello", "(hello:(pos=1) FILTER VALUE_RANGE 1 a b)" },
     { "hello a..b", "(hello:(pos=1) FILTER VALUE_RANGE 1 a b)" },
     { "hello a..b world", "((hello:(pos=1) OR world:(pos=2)) FILTER VALUE_RANGE 1 a b)" },
+    { "hello a..b test:foo", "(hello:(pos=1) FILTER (VALUE_RANGE 1 a b AND XTESTfoo))" },
+    { "-5..7", "VALUE_RANGE 1 -5 7" },
+    { "hello -5..7", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
+    { "-5..7 hello", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
+    { "\"time flies\" 09:00..12:30", "((time:(pos=1) PHRASE 2 flies:(pos=2)) FILTER VALUE_RANGE 1 09:00 12:30)" },
     { NULL, NULL }
 };
 
