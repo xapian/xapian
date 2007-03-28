@@ -969,7 +969,8 @@ prob(P) ::= stop_prob(Q) RANGE_START(A) RANGE_END(B). {
     QpQuery * range = state->value_range(A, B);
     if (range == NULL) yy_parse_failed(yypParser);
     P = Q;
-    add_to_query(P->filter, Query::OP_AND, range);
+    add_to_query(P->filter, Query::OP_AND, *range);
+    delete range;
 }
 
 prob(P) ::= stop_term(T) stop_term(U). {

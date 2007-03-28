@@ -1,3 +1,9 @@
+Wed Mar 28 03:28:37 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix parsing of `hello a..b'.
+	* tests/queryparsertest.cc: Add regression test for above.  Refactor
+	  qp_value_range1 to use a table of queries.
+
 Wed Mar 28 00:35:50 BST 2007  Olly Betts <olly@survex.com>
 
 	* languages: Update svn:ignore for recent romanian changes.

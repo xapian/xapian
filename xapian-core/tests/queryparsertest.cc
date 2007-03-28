@@ -881,6 +881,17 @@ static bool test_qp_unstem_boolean_prefix()
     return true;
 }
 
+static test test_value_range1_queries[] = {
+    { "a..b", "VALUE_RANGE 1 a b" },
+    { "$50..100", "VALUE_RANGE 1 $50 100" },
+    { "$50..$100", "VALUE_RANGE 1 $50 $100" },
+    { "02/03/1979..10/12/1980", "VALUE_RANGE 1 02/03/1979 10/12/1980" },
+    { "a..b hello", "(hello:(pos=1) FILTER VALUE_RANGE 1 a b)" },
+    { "hello a..b", "(hello:(pos=1) FILTER VALUE_RANGE 1 a b)" },
+    { "hello a..b world", "((hello:(pos=1) OR world:(pos=2)) FILTER VALUE_RANGE 1 a b)" },
+    { NULL, NULL }
+};
+
 // Simple test of ValueRangeProcessor class.
 static bool test_qp_value_range1()
 {
@@ -888,14 +899,24 @@ static bool test_qp_value_range1()
     qp.add_boolean_prefix("test", "XTEST");
     Xapian::StringValueRangeProcessor vrp(1);
     qp.add_valuerangeprocessor(&vrp);
-    Xapian::Query q = qp.parse_query("a..b");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 a b)");
-    q = qp.parse_query("$50..100");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 $50 100)");
-    q = qp.parse_query("$50..$100");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 $50 $100)");
-    q = qp.parse_query("02/03/1979..10/12/1980");
-    TEST_EQUAL(q.get_description(), "Xapian::Query(VALUE_RANGE 1 02/03/1979 10/12/1980)");
+    for (test *p = test_value_range1_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_msg();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_EQUAL(parsed, expect);
+    }
     return true;
 }
 
