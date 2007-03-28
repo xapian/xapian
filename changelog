@@ -7,8 +7,9 @@ xapian-bindings (0.9.9-2) unstable; urgency=low
     wrong though).
   * debian/po/nb.po: New debconf translation from Hans Fredrik Nordhaug
     (Closes: #414461).
+  * debian/rules: Ubuntu feisty has dropped php4 support.
 
- -- Olly Betts <olly@survex.com>  Wed, 28 Mar 2007 02:57:13 +0000
+ -- Olly Betts <olly@survex.com>  Wed, 28 Mar 2007 03:02:50 +0000
 
 xapian-bindings (0.9.9-1.1) unstable; urgency=low
 
