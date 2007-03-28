@@ -128,6 +128,7 @@ struct name {
     int mode;                   /*    )_  for routines, externals */
     struct node * definition;   /*    )                           */
     int count;                  /* 0, 1, 2 for each type */
+    int among_func_count;       /* 1, 2, 3 for routines called by among */
     struct grouping * grouping; /* for grouping names */
     byte referenced;
     byte used;

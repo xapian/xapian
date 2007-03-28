@@ -1,3 +1,12 @@
+Wed Mar 28 04:18:14 BST 2007  Olly Betts <olly@survex.com>
+
+	* languages/compiler/generator.c,languages/compiler/header.h,
+	  languages/steminternal.cc,languages/steminternal.h: For among with
+	  functions (only used by finnish and lovins stemmers currently),
+	  change to generating an array of unsigned byte offsets into an array
+	  of function pointers rather than just an array of function pointers
+	  - this generally requires a lot less space.
+
 Wed Mar 28 03:28:37 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix parsing of `hello a..b'.

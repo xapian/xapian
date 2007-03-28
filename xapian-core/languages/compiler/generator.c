@@ -1174,18 +1174,18 @@ static void generate_substring(struct generator * g, struct node * p) {
     if (x->command_count == 0 && x->starter == 0) {
         w(g, "~Mif (!(find_among~S0(~Za_~I0, ~I1, ");
 	if (x->have_funcs) {
-	    w(g, "af_~I0");
+	    w(g, "af_~I0, af");
 	} else {
-	    ws(g, "0");
+	    ws(g, "0, 0");
 	}
 	wp(g, "))) ~f", p);
 	wp(g, shown_comment ? "~N" : "~C", p);
     } else {
         w(g, "~Mamong_var = find_among~S0(~Za_~I0, ~I1, ");
 	if (x->have_funcs) {
-	    w(g, "af_~I0");
+	    w(g, "af_~I0, af");
 	} else {
-	    ws(g, "0");
+	    ws(g, "0, 0");
 	}
 	wp(g, ");", p);
 	wp(g, shown_comment ? "~N" : "~C", p);
@@ -1422,7 +1422,7 @@ static void generate_among_table(struct generator * g, struct among * x) {
     x->have_funcs = have_funcs;
     if (have_funcs) {
 	g->I[1] = x->literalstring_count;
-	w(g, "~Mstatic const among_function af_~I0[~I1] =~N{~N");
+	w(g, "~Mstatic const unsigned char af_~I0[~I1] =~N{~N");
 
 	v = x->b;
 	{
@@ -1434,8 +1434,9 @@ static void generate_among_table(struct generator * g, struct among * x) {
 		if (v[i].function == 0) {
 		    w(g, "0");
 		} else {
+		    wi(g, v[i].function->among_func_count);
 		    g->V[0] = v[i].function;
-		    w(g, "t~W0");
+		    w(g, " /* t~W0 */");
 		}
 		if (i < x->literalstring_count - 1) w(g, ",~N");
 	    }
@@ -1447,16 +1448,36 @@ static void generate_among_table(struct generator * g, struct among * x) {
 static void generate_amongs(struct generator * g) {
     struct among * x = g->analyser->amongs;
     struct name * q;
+    int among_func_count = 0;
 
     g->S[0] = g->options->name;
     for (q = g->analyser->names; q; q = q->next) {
         if (q->type == t_routine && q->routine_called_from_among) {
+	    q->among_func_count = ++among_func_count;
 	    g->V[0] = q;
 	    w(g, "static int t~V0(Xapian::Stem::Internal * this_ptr) {~N"
 		 "    return (static_cast<Xapian::~S0 *>(this_ptr))->~V0();~N"
 		 "}~N"
 		 "~N");
 	}
+    }
+
+    if (among_func_count) {
+	g->I[0] = among_func_count;
+	w(g, "~Mstatic const among_function af[~I0] =~N{~N");
+
+	q = g->analyser->names;
+	g->S[0] = g->options->name;
+	for (q = g->analyser->names; q; q = q->next) {
+	    if (q->type == t_routine && q->routine_called_from_among) {
+		g->V[0] = q;
+		g->I[0] = q->among_func_count;
+		w(g, "/*~J0 */ t~V0");
+		if (q->among_func_count < among_func_count) w(g, ",~N"); else w(g, "~N");
+	    }
+	}
+
+	w(g, "};~N~N");
     }
 
     until (x == 0) {
