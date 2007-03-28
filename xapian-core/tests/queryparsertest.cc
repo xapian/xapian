@@ -980,6 +980,40 @@ static bool test_qp_value_range2()
     return true;
 }
 
+static test test_value_daterange1_queries[] = {
+    { "12/03/99..12/04/01", "VALUE_RANGE 1 19991203 20011204" },
+    { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
+    { "01/30/60..02/02/59", "VALUE_RANGE 1 19600130 20590202" },
+    { NULL, NULL }
+};
+
+// Test DateValueRangeProcessor
+static bool test_qp_value_daterange1()
+{
+    Xapian::QueryParser qp;
+    Xapian::DateValueRangeProcessor vrp_date(1, true, 1960);
+    qp.add_valuerangeprocessor(&vrp_date);
+    for (test *p = test_value_daterange1_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_msg();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -994,6 +1028,7 @@ static test_desc tests[] = {
     TESTCASE(qp_default_prefix1),
     TESTCASE(qp_value_range1),
     TESTCASE(qp_value_range2),
+    TESTCASE(qp_value_daterange1),
     END_OF_TESTCASES
 };
 

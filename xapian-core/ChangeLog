@@ -1,3 +1,8 @@
+Wed Mar 28 17:17:42 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add feature tests for "prefer_mdy" and
+	  "epoch" arguments of DateValueRangeProcessor.
+
 Wed Mar 28 04:52:34 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add more test cases for parsing of value
