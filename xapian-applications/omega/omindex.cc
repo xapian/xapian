@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -90,6 +91,7 @@ static string baseurl;
 static Xapian::WritableDatabase db;
 static Xapian::Stem stemmer("english");
 static vector<bool> updated;
+static string tmpdir;
 
 inline static bool
 p_notalnum(unsigned int c)
@@ -99,7 +101,7 @@ p_notalnum(unsigned int c)
 
 /* Truncate a string to a given maxlength, avoiding cutting off midword
  * if reasonably possible. */
-string
+static string
 truncate_to_word(string & input, string::size_type maxlen)
 {
     string output;
@@ -171,6 +173,25 @@ shell_protect(const string & file)
     return safefile;
 }
 
+static bool ensure_tmpdir() {
+    if (!tmpdir.empty()) return true;
+
+    const char * p = getenv("TMPDIR");
+    if (!p) p = "/tmp";
+    char * dir_template = new char[strlen(p) + 15 + 1];
+    strcpy(dir_template, p);
+    strcat(dir_template, "/omindex-XXXXXX");
+    // FIXME: find PD or BSD or MIT/X mkdtemp implementation for platforms
+    // which lack it.
+    p = mkdtemp(dir_template);
+    if (p) {
+	tmpdir.assign(dir_template);
+	tmpdir += '/';
+    }
+    delete dir_template;
+    return (p != NULL);
+}
+
 struct ReadError {};
 struct NoSuchFilter {};
 
@@ -205,6 +226,48 @@ stdout_to_string(const string &cmd)
 	throw ReadError();
     }
     return out;
+}
+
+static void get_pdf_metainfo(const string & safefile, string &title, string &keywords) {
+    try {
+	string pdfinfo = stdout_to_string("pdfinfo -enc UTF-8 " + safefile);
+
+	string::size_type idx;
+
+	if (strncmp(pdfinfo.c_str(), "Title:", 6) == 0) {
+	    idx = 0;
+	} else {
+	    idx = pdfinfo.find("\nTitle:");
+	}
+	if (idx != string::npos) {
+	    if (idx) ++idx;
+	    idx = pdfinfo.find_first_not_of(' ', idx + 6);
+	    string::size_type end = pdfinfo.find('\n', idx);
+	    if (end != string::npos) {
+		if (pdfinfo[end - 1] == '\r') --end;
+		end -= idx;
+	    }
+	    title = pdfinfo.substr(idx, end);
+	}
+
+	if (strncmp(pdfinfo.c_str(), "Keywords:", 9) == 0) {
+	    idx = 0;
+	} else {
+	    idx = pdfinfo.find("\nKeywords:");
+	}
+	if (idx != string::npos) {
+	    if (idx) ++idx;
+	    idx = pdfinfo.find_first_not_of(' ', idx + 9);
+	    string::size_type end = pdfinfo.find('\n', idx);
+	    if (end != string::npos) {
+		if (pdfinfo[end - 1] == '\r') --end;
+		end -= idx;
+	    }
+	    keywords = pdfinfo.substr(idx, end);
+	}
+    } catch (ReadError) {
+	// It's probably best to index the document even if pdfinfo fails.
+    }
 }
 
 static void
@@ -271,57 +334,42 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
-
-	try {
-	    string pdfinfo = stdout_to_string("pdfinfo -enc UTF-8 " + safefile);
-
-	    string::size_type idx;
-
-	    if (strncmp(pdfinfo.c_str(), "Title:", 6) == 0) {
-		idx = 0;
-	    } else {
-		idx = pdfinfo.find("\nTitle:");
-	    }
-	    if (idx != string::npos) {
-		if (idx) ++idx;
-		idx = pdfinfo.find_first_not_of(' ', idx + 6);
-		string::size_type end = pdfinfo.find('\n', idx);
-		if (end != string::npos) {
-		    if (pdfinfo[end - 1] == '\r') --end;
-		    end -= idx;
-		}
-		title = pdfinfo.substr(idx, end);
-	    }
-
-	    if (strncmp(pdfinfo.c_str(), "Keywords:", 9) == 0) {
-		idx = 0;
-	    } else {
-		idx = pdfinfo.find("\nKeywords:");
-	    }
-	    if (idx != string::npos) {
-		if (idx) ++idx;
-		idx = pdfinfo.find_first_not_of(' ', idx + 9);
-		string::size_type end = pdfinfo.find('\n', idx);
-		if (end != string::npos) {
-		    if (pdfinfo[end - 1] == '\r') --end;
-		    end -= idx;
-		}
-		keywords = pdfinfo.substr(idx, end);
-	    }
-	} catch (ReadError) {
-	    // It's probably best to index the document even if pdfinfo fails.
-	}
+	get_pdf_metainfo(safefile, title, keywords);
     } else if (mimetype == "application/postscript") {
-	// pstotext always outputs ISO-8859-1.  There doesn't seem to be a
-	// unicode capable PostScript to text convertor.
-	string cmd = "pstotext " + shell_protect(file);
-	try {
-	    dump = stdout_to_string(cmd);
-	    convert_to_utf8(dump, "ISO-8859-1");
-	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
+	// There simply doesn't seem to be a Unicode capabable PostScript to
+	// text convertor (e.g. pstotext always outputs ISO-8859-1).  The only
+	// solution seems to be to convert via PDF using ps2pdf and then
+	// pdftotext.  This gives plausible looking UTF-8 output for some
+	// Chinese PostScript files I found using Google.  It also has the
+	// benefit of allowing us to extract meta information from PostScript
+	// files.
+	if (!ensure_tmpdir()) {
+	    // FIXME: should this be fatal?  Or disable indexing postscript?
+	    cout << "Couldn't create temporary directory (" << strerror(errno) << ") - skipping" << endl;
 	    return;
 	}
+	string tmpfile = tmpdir + "/tmp.pdf";
+	string safetmp = shell_protect(tmpfile);
+	string cmd = "ps2pdf " + shell_protect(file) + " " + safetmp;
+	try {
+	    (void)stdout_to_string(cmd);
+	    cmd = "pdftotext -enc UTF-8 " + safetmp + " -";
+	    dump = stdout_to_string(cmd);
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping" << endl;
+	    unlink(tmpfile.c_str());
+	    return;
+	} catch (...) {
+	    unlink(tmpfile.c_str());
+	    throw;
+	}
+	try {
+	    get_pdf_metainfo(safetmp, title, keywords);
+	} catch (...) {
+	    unlink(tmpfile.c_str());
+	    throw;
+	}
+	unlink(tmpfile.c_str());
     } else if (mimetype.substr(0, 24) == "application/vnd.sun.xml." ||
 	       mimetype.substr(0, 35) == "application/vnd.oasis.opendocument.")
     {
@@ -827,6 +875,7 @@ main(int argc, char **argv)
 	indexroot = ""; // index the whole of root
     }
 
+    int exitcode = 1;
     try {
 	if (!overwrite) {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OPEN);
@@ -851,17 +900,19 @@ main(int argc, char **argv)
 	}
 	db.flush();
 	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
+	exitcode = 0;
     } catch (const Xapian::Error &e) {
 	cout << "Exception: " << e.get_msg() << endl;
-	return 1;
     } catch (const string &s) {
 	cout << "Exception: " << s << endl;
-	return 1;
     } catch (const char *s) {
 	cout << "Exception: " << s << endl;
-	return 1;
     } catch (...) {
 	cout << "Caught unknown exception" << endl;
-	return 1;
     }
+
+    // If we created a temporary directory then delete it.
+    if (!tmpdir.empty()) rmdir(tmpdir.c_str());
+
+    return exitcode;
 }
