@@ -75,13 +75,13 @@ TcpClient::get_remote_socket(std::string hostname,
 
     if (host == 0) {
 	throw Xapian::NetworkError(std::string("Couldn't resolve host ") +
-			     hostname, get_tcpcontext(hostname, port));
+			     hostname, get_tcpcontext(hostname, port), socket_errno());
     }
 
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
-	throw Xapian::NetworkError("Couldn't create socket", get_tcpcontext(hostname, port), errno);
+	throw Xapian::NetworkError("Couldn't create socket", get_tcpcontext(hostname, port), socket_errno());
     }
 
     struct sockaddr_in remaddr;
@@ -90,7 +90,7 @@ TcpClient::get_remote_socket(std::string hostname,
     memcpy(&remaddr.sin_addr, host->h_addr, sizeof(remaddr.sin_addr));
 
     if (fcntl(socketfd, F_SETFL, O_NDELAY) < 0) {
-	int saved_errno = errno; // note down in case close hits an error
+	int saved_errno = socket_errno(); // note down in case close hits an error
 	close(socketfd);
 	throw Xapian::NetworkError("Couldn't set O_NDELAY", get_tcpcontext(hostname,  port), saved_errno);
     }
@@ -99,7 +99,7 @@ TcpClient::get_remote_socket(std::string hostname,
 	int optval = 1;
 	if (setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
 		       reinterpret_cast<void *>(&optval), sizeof(optval)) < 0) {
-	    int saved_errno = errno; // note down in case close hits an error
+	    int saved_errno = socket_errno(); // note down in case close hits an error
 	    close(socketfd);
 	    throw Xapian::NetworkError("Couldn't set TCP_NODELAY", get_tcpcontext(hostname,  port), saved_errno);
 	}
@@ -109,8 +109,12 @@ TcpClient::get_remote_socket(std::string hostname,
 			 sizeof(remaddr));
 
     if (retval < 0) {
-	if (errno != EINPROGRESS) {
-	    int saved_errno = errno; // note down in case close hits an error
+#ifdef __WIN32__
+	if (socket_errno() != WSAEWOULDBLOCK) {
+#else
+	if (socket_errno() != EINPROGRESS) {
+#endif
+	    int saved_errno = socket_errno(); // note down in case close hits an error
 	    close(socketfd);
 	    throw Xapian::NetworkError("Couldn't connect", get_tcpcontext(hostname, port), saved_errno);
 	}
@@ -139,7 +143,7 @@ TcpClient::get_remote_socket(std::string hostname,
 			    reinterpret_cast<void *>(&err), &len);
 
 	if (retval < 0) {
-	    int saved_errno = errno; // note down in case close hits an error
+	    int saved_errno = socket_errno(); // note down in case close hits an error
 	    close(socketfd);
 	    throw Xapian::NetworkError("Couldn't get socket options", get_tcpcontext(hostname, port), saved_errno);
 	}

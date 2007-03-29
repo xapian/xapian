@@ -83,7 +83,7 @@ TcpServer::get_listening_socket(int port)
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
-	throw Xapian::NetworkError("socket", errno);
+	throw Xapian::NetworkError("socket", socket_errno());
     }
 
     int retval;
@@ -104,7 +104,7 @@ TcpServer::get_listening_socket(int port)
     }
 
     if (retval < 0) {
-	int saved_errno = errno; // note down in case close hits an error
+	int saved_errno = socket_errno(); // note down in case close hits an error
 	close(socketfd);
 	throw Xapian::NetworkError("setsockopt failed", saved_errno);
     }
@@ -119,7 +119,7 @@ TcpServer::get_listening_socket(int port)
 		      sizeof(addr));
 
     if (retval < 0) {
-	int saved_errno = errno; // note down in case close hits an error
+	int saved_errno = socket_errno(); // note down in case close hits an error
 	close(socketfd);
 	throw Xapian::NetworkError("bind failed", saved_errno);
     }
@@ -127,7 +127,7 @@ TcpServer::get_listening_socket(int port)
     retval = listen(socketfd, 5);
 
     if (retval < 0) {
-	int saved_errno = errno; // note down in case close hits an error
+	int saved_errno = socket_errno(); // note down in case close hits an error
 	close(socketfd);
 	throw Xapian::NetworkError("listen failed", saved_errno);
     }
@@ -145,7 +145,7 @@ TcpServer::get_connected_socket()
 			    &remote_address_size);
 
     if (con_socket < 0) {
-	throw Xapian::NetworkError("accept failed", errno);
+	throw Xapian::NetworkError("accept failed", socket_errno());
     }
 
     if (remote_address_size != sizeof(remote_address)) {
@@ -200,7 +200,7 @@ TcpServer::run_once()
 	close(connected_socket);
     } else {
 	// fork() failed
-	int saved_errno = errno; // note down in case close hits an error
+	int saved_errno = socket_errno(); // note down in case close hits an error
 	close(connected_socket);
 	throw Xapian::NetworkError("fork failed", saved_errno);
     }
