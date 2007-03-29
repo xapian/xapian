@@ -354,7 +354,7 @@ test_driver::runtest(const test_desc *test)
 		    if (!err.get_context().empty())
 			out << " (context:" << err.get_context() << ")";
 		    if (err.get_errno())
-			out << " (errno:" << strerror(err.get_errno()) << ")";
+			out << " (errno:" << strerror(err.get_errno()) << " (" << err.get_errno() << "))";
 		    out << endl;
 		}
 		return FAIL;

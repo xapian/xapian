@@ -1,3 +1,13 @@
+Thu Mar 29 15:36:45 BST 2007  Richard Boulton <richard@>
+
+	* bin/xapian-tcpsrv.cc,tests/harness/testsuite.cc: First of many
+	  parts of a large patch from Mark Hammond working towards enabling
+	  remote databases on windows.  When displaying errors which might
+	  be socket errors, display the error number as well as the output
+	  of strerror - on windows, strerror doesn't display useful
+	  information for socket errors.
+	* AUTHORS: Add Mark Hammond
+
 Thu Mar 29 06:07:35 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Unserialisation shouldn't reject a

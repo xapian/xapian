@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
     } catch (const Xapian::Error &e) {
 	cerr << e.get_type() << ": " << e.get_msg();
 	int my_errno = e.get_errno();
-	if (my_errno) cerr << " (errno:" << strerror(my_errno) << ')';
+	if (my_errno) cerr << " (errno:" << strerror(my_errno) << " (" << my_errno << "))";
 	cerr << endl;
 	if (my_errno == EADDRINUSE) exit(69); // EX_UNAVAILABLE
 	exit(1);
