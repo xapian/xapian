@@ -1,3 +1,8 @@
+Thu Mar 29 03:14:55 BST 2007  Olly Betts <olly@survex.com>
+
+	* omega.spec.in: Update to handle documentation being installed in
+	  $prefix/share/doc/xapian-omega.
+
 Tue Mar 27 21:42:19 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: datarootdir is new in 2.60 too, so use datadir when
