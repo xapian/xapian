@@ -5,7 +5,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 25 };
+BEGIN { plan tests => 47 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -43,19 +43,81 @@ foreach (qw(one two three four five)) {
 }
 ok( $qp->set_stopper($stopper), undef );
 
-$qp->add_boolean_prefix("test", "XTEST");
-
+$qp = new Search::Xapian::QueryParser();
 my $vrp;
 ok( $vrp = new Search::Xapian::StringValueRangeProcessor(1) );
 $qp->add_valuerangeprocessor($vrp);
-ok( $query = $qp->parse_query("a..b") );
-ok( $query->get_description(), "Xapian::Query(VALUE_RANGE 1 a b)" );
-ok( $query = $qp->parse_query('$50..100') );
-ok( $query->get_description(), 'Xapian::Query(VALUE_RANGE 1 $50 100)' );
-ok( $query = $qp->parse_query('$50..$100') );
-ok( $query->get_description(), 'Xapian::Query(VALUE_RANGE 1 $50 $100)' );
-# FIXME: We don't current handle arbitrary strings in a range start.
-ok( $query = $qp->parse_query('dummy..10/12/1980') );
-ok( $query->get_description(), "Xapian::Query(VALUE_RANGE 1 dummy 10/12/1980)" );
+$qp->add_boolean_prefix("test", "XTEST");
+
+my $pair;
+foreach $pair (
+    [ 'a..b', 'VALUE_RANGE 1 a b' ],
+    [ '$50..100', 'VALUE_RANGE 1 $50 100' ],
+    [ '$50..$100', 'VALUE_RANGE 1 $50 $100' ],
+    [ '02/03/1979..10/12/1980', 'VALUE_RANGE 1 02/03/1979 10/12/1980' ],
+    [ 'a..b hello', '(hello:(pos=1) FILTER VALUE_RANGE 1 a b)' ],
+    [ 'hello a..b', '(hello:(pos=1) FILTER VALUE_RANGE 1 a b)' ],
+    [ 'hello a..b world', '((hello:(pos=1) OR world:(pos=2)) FILTER VALUE_RANGE 1 a b)' ],
+    [ 'hello a..b test:foo', '(hello:(pos=1) FILTER (VALUE_RANGE 1 a b AND XTESTfoo))' ],
+    [ '-5..7', 'VALUE_RANGE 1 -5 7' ],
+    [ 'hello -5..7', '(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)' ],
+    [ '-5..7 hello', '(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)' ],
+    [ '"time flies" 09:00..12:30', '((time:(pos=1) PHRASE 2 flies:(pos=2)) FILTER VALUE_RANGE 1 09:00 12:30)' ]
+    ) {
+    my ($str, $res) = @{$pair};
+    my $query = $qp->parse_query($str);
+    ok( $query->get_description(), "Xapian::Query($res)" );
+}
+
+$qp = new Search::Xapian::QueryParser();
+
+my $vrp1 = new Search::Xapian::DateValueRangeProcessor(1);
+my $vrp2 = new Search::Xapian::NumberValueRangeProcessor(2);
+my $vrp3 = new Search::Xapian::StringValueRangeProcessor(3);
+my $vrp4 = new Search::Xapian::NumberValueRangeProcessor(4, '$');
+my $vrp5 = new Search::Xapian::NumberValueRangeProcessor(5, 'kg', 0);
+$qp->add_valuerangeprocessor( $vrp1 );
+$qp->add_valuerangeprocessor( $vrp2 );
+$qp->add_valuerangeprocessor( $vrp4 );
+$qp->add_valuerangeprocessor( $vrp5 );
+$qp->add_valuerangeprocessor( $vrp3 );
+
+$qp->add_boolean_prefix("test", "XTEST");
+foreach $pair (
+    [ 'a..b', 'VALUE_RANGE 3 a b' ],
+    [ '1..12', 'VALUE_RANGE 2 1 12' ],
+    [ '20070201..20070228', 'VALUE_RANGE 1 20070201 20070228' ],
+    [ '$10..20', 'VALUE_RANGE 4 10 20' ],
+    [ '$10..$20', 'VALUE_RANGE 4 10 20' ],
+    [ '12..42kg', 'VALUE_RANGE 5 12 42' ],
+    [ '12kg..42kg', 'VALUE_RANGE 5 12 42' ],
+    [ '12kg..42', 'VALUE_RANGE 3 12kg 42' ],
+    [ '10..$20', 'VALUE_RANGE 3 10 $20' ],
+    [ '1999-03-12..2020-12-30', 'VALUE_RANGE 1 19990312 20201230' ],
+    [ '1999/03/12..2020/12/30', 'VALUE_RANGE 1 19990312 20201230' ],
+    [ '1999.03.12..2020.12.30', 'VALUE_RANGE 1 19990312 20201230' ],
+    [ '12/03/99..12/04/01', 'VALUE_RANGE 1 19990312 20010412' ],
+    [ '03-12-99..04-14-01', 'VALUE_RANGE 1 19990312 20010414' ],
+    [ '(test:a..test:b hello)', '(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)' ],
+    ) {
+    my ($str, $res) = @{$pair};
+    my $query = $qp->parse_query($str);
+    ok( $query->get_description(), "Xapian::Query($res)" );
+}
+
+$qp = new Search::Xapian::QueryParser();
+
+my $vrpdate = new Search::Xapian::DateValueRangeProcessor(1, 1, 1960);
+$qp->add_valuerangeprocessor( $vrpdate );
+
+foreach $pair (
+    [ '12/03/99..12/04/01', 'VALUE_RANGE 1 19991203 20011204' ],
+    [ '03-12-99..04-14-01', 'VALUE_RANGE 1 19990312 20010414' ],
+    [ '01/30/60..02/02/59', 'VALUE_RANGE 1 19600130 20590202' ],
+    ) {
+    my ($str, $res) = @{$pair};
+    my $query = $qp->parse_query($str);
+    ok( $query->get_description(), "Xapian::Query($res)" );
+}
 
 1;
