@@ -1,3 +1,10 @@
+Thu Mar 29 18:54:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Probe for mkdtemp.
+	* Makefile.am: Add portability/mkdtemp.cc to omindex_SOURCES if
+	  configure didn't detect it.
+	* omindex.cc: Prototype mkdtemp if configure didn't detect it.
+
 Thu Mar 29 18:47:50 BST 2007  Olly Betts <olly@survex.com>
 
 	* portability/mkdtemp.cc: Fix to compile as C++.  Replace isdigit()

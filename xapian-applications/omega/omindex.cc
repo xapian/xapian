@@ -74,6 +74,10 @@
 # define pclose _pclose
 #endif
 
+#ifndef HAVE_MKDTEMP
+extern char * mkdtemp(char *);
+#endif
+
 using namespace std;
 
 #define TITLE_SIZE 128

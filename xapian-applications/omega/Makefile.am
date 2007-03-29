@@ -86,6 +86,9 @@ omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
  getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc md5wrap.cc\
  xmlparse.cc metaxmlparse.cc utf8convert.cc utf8itor.cc tclUniData.cc
+if NEED_MKDTEMP
+omindex_SOURCES += portability/mkdtemp.cc
+endif
 omindex_LDADD = $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
