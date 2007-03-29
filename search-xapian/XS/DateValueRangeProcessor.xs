@@ -3,9 +3,9 @@ MODULE = Search::Xapian		PACKAGE = Search::Xapian::DateValueRangeProcessor
 PROTOTYPES: ENABLE
 
 DateValueRangeProcessor *
-new(const char * CLASS, valueno valno)
+new(const char * CLASS, valueno valno, bool prefer_mdy = false, int epoch_year = 1970)
     CODE:
-	RETVAL = new DateValueRangeProcessor(valno);
+	RETVAL = new DateValueRangeProcessor(valno, prefer_mdy, epoch_year);
     OUTPUT:
 	RETVAL
 
