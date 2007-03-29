@@ -620,7 +620,6 @@ aceias
 acel
 acel
 acel
-acel
 acelas
 ace
 acel

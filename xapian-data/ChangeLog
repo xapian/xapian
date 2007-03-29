@@ -1,4 +1,9 @@
-Thu Mar 29 17:49:44 BST 2007  Richard Boulton <richard@>
+Thu Mar 29 17:55:54 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* stemming/romanian.st: Oops - also remove corresponding word from the
+	  expected output file, or it won't work.
+
+Thu Mar 29 17:49:44 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* stemming/romanian.voc: Remove sample word which had a capital
 	  letter, since stemtest doesn't cope with these.
