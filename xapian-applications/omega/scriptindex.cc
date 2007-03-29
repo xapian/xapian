@@ -234,16 +234,6 @@ parse_index_script(const string &filename)
 			    code = Action::TRUNCATE;
 			    arg = YES;
 			    takes_integer_argument = true;
-			    if (!actions.empty() &&
-				actions.back().get_action() == Action::LOAD) {
-				/* Turn "load truncate=n" into "load" with
-				 * num_arg n, so that we don't needlessly
-				 * allocate memory and read data we're just
-				 * going to ignore.
-				 */
-				actions.pop_back();
-				code = Action::TRUNCATE;
-			    }
 			}
 			break;
 		    case 'u':
@@ -326,6 +316,19 @@ parse_index_script(const string &filename)
 						  useless_weight_pos, action);
 			}
 			useless_weight_pos = j - s.begin();
+			break;
+		    case Action::TRUNCATE:
+			if (!actions.empty() &&
+			    actions.back().get_action() == Action::LOAD) {
+			    /* Turn "load truncate=n" into "load" with
+			     * num_arg n, so that we don't needlessly
+			     * allocate memory and read data we're just
+			     * going to ignore.
+			     */
+			    actions.pop_back();
+			    code = Action::LOAD;
+			}
+			actions.push_back(Action(code, val));
 			break;
 		    case Action::UNIQUE:
 			if (boolmap.find(val) == boolmap.end())

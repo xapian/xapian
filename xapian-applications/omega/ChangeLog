@@ -1,3 +1,8 @@
+Thu Mar 29 23:12:20 BST 2007  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Fix optimisation of "load truncate=N" to actually
+	  work!
+
 Thu Mar 29 18:54:11 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Probe for mkdtemp.
