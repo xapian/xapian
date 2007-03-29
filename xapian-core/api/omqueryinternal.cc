@@ -351,17 +351,17 @@ QUnserial::readquery() {
 	    p += length;
 	    Xapian::termpos term_pos = curpos;
 	    Xapian::termcount wqf = 1;
-	    if (p == end)
-		throw Xapian::InvalidArgumentError("Bad serialised query");
-	    if (*p == '@') {
-		char *tmp; // avoid compiler warning
-		term_pos = strtol(p + 1, &tmp, 10);
-		p = tmp;
-	    }
-	    if (*p == '#') {
-		char *tmp; // avoid compiler warning
-		wqf = strtol(p + 1, &tmp, 10);
-		p = tmp;
+	    if (p != end) {
+		if (*p == '@') {
+		    char *tmp; // avoid compiler warning
+		    term_pos = strtol(p + 1, &tmp, 10);
+		    p = tmp;
+		}
+		if (*p == '#') {
+		    char *tmp; // avoid compiler warning
+		    wqf = strtol(p + 1, &tmp, 10);
+		    p = tmp;
+		}
 	    }
 	    ++curpos;
 	    return new Xapian::Query::Internal(tname, wqf, term_pos);

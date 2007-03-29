@@ -1,3 +1,9 @@
+Thu Mar 29 06:07:35 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Unserialisation shouldn't reject a
+	  serialised query which ends after a termname.
+	* tests/internaltest.cc: Add regression test.
+
 Wed Mar 28 17:17:42 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add feature tests for "prefer_mdy" and

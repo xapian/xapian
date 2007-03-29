@@ -360,6 +360,9 @@ static bool test_serialisequery1()
 
     queries.push_back(Xapian::Query("foo"));
 
+    // Regression test for bug in 0.9.10 and earlier.
+    queries.push_back(Xapian::Query("foo", 1, 1));
+
     queries.push_back(Xapian::Query(Xapian::Query::OP_OR,
                                     Xapian::Query("foo", 1, 1),
                                     Xapian::Query("bar", 1, 1)));
