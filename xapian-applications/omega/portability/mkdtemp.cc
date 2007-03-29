@@ -34,7 +34,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <ctype.h>
 #include <errno.h>
 
 static int
@@ -47,7 +46,7 @@ do_mkdtemp(char *path)
 	/* To guarantee multiple calls generate unique names even if
 	   the file is not created. 676 different possibilities with 7
 	   or more X's, 26 with 6 or less. */
-	static char xtra[2] = "aa";
+	static char xtra[2] = { 'a', 'a' };
 	int xcnt = 0;
 
 	pid = getpid();
@@ -57,7 +56,7 @@ do_mkdtemp(char *path)
 		if (*trv == 'X')
 			xcnt++;
 		else
-			xcnt = 0;	
+			xcnt = 0;
 
 	/* Use at least one from xtra.  Use 2 if more than 6 X's. */
 	if (*(trv-1) == 'X')
@@ -115,7 +114,7 @@ do_mkdtemp(char *path)
 			if (*trv == 'z')
 				*trv++ = 'a';
 			else {
-				if (isdigit((unsigned char)*trv))
+				if (*trv >= '0' && *trv <= '9')
 					*trv = 'a';
 				else
 					++*trv;
