@@ -30,19 +30,37 @@
 #include "remoteconnection.h"
 #include "serialise.h"
 
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
-#else
-# include <sys/time.h>
-# include <sys/types.h>
-# include <unistd.h>
+#ifndef __WIN32__
+# ifdef HAVE_SYS_SELECT_H
+#  include <sys/select.h>
+# else
+#  include <sys/time.h>
+#  include <sys/types.h>
+#  include <unistd.h>
+# endif
+# include <string.h> // Solaris needs this as FDSET uses memset but fails to prototype it.
 #endif
-#include <string.h> // Solaris needs this as FDSET uses memset but fails to prototype it.
 
 RemoteConnection::RemoteConnection(int fdin_, int fdout_,
 				   const string & context_)
     : fdin(fdin_), fdout(fdout_), context(context_)
 {
+#ifdef __WIN32__
+    memset(&overlapped, 0, sizeof(overlapped));
+    overlapped.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    if (!overlapped.hEvent)
+	throw Xapian::NetworkError("Failed to setup OVERLAPPED",
+				   context, GetLastError());
+
+#endif
+}
+
+RemoteConnection::~RemoteConnection()
+{
+#ifdef __WIN32__
+    if (overlapped.hEvent)
+	CloseHandle(overlapped.hEvent);
+#endif
 }
 
 void
@@ -53,6 +71,42 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 
     if (buffer.length() >= min_len) return;
 
+#ifdef __WIN32__
+    // If there's no end_time, we pass a NULL overlapped
+    WSAOVERLAPPED *pOverlapped = end_time.is_set() ? &overlapped : NULL;
+    while (true) {
+	char buf[4096];
+	DWORD received;
+	DWORD flags = 0;
+	WSABUF wsabuf = {sizeof(buf), buf};
+	int rc = WSARecv(fdin, &wsabuf, 1, &received, &flags, pOverlapped, NULL);
+	if (rc != 0) {
+	    int errcode = WSAGetLastError();
+	    if (errcode == WSA_IO_PENDING) {
+		// Just wait for the data to be received, or a timeout.
+		DWORD waitrc;
+		waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
+		if (waitrc != WAIT_OBJECT_0) {
+		    DEBUGLINE(REMOTE, "read: timeout has expired");
+		    throw Xapian::NetworkTimeoutError("Timeout expired while trying to read", context);
+		}
+		// Get the final result of the read
+		if (!WSAGetOverlappedResult(fdin, pOverlapped, &received, FALSE, &flags))
+		    throw Xapian::NetworkError("Failed to get overlapped result",
+					       context, WSAGetLastError());
+	    }
+	    else
+		throw Xapian::NetworkError("read failed", context, errcode);
+	}
+	if (received > 0) {
+	    buffer.append(buf, buf + received);
+	    if (buffer.length() >= min_len) break;
+	    continue;
+	}
+	if (received == 0)
+	    throw Xapian::NetworkError("Received EOF", context, 0);
+    }
+#else
     // If there's no end_time, just use blocking I/O.
     if (fcntl(fdin, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
 	throw Xapian::NetworkError("Failed to set fdin non-blocking-ness",
@@ -108,6 +162,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 		throw Xapian::NetworkError("select failed during read", context, errno);
 	}
     }
+#endif
 }
 
 bool
@@ -137,15 +192,44 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
     DEBUGCALL(REMOTE, void, "RemoteConnection::send_message",
 	      type << ", " << message << ", " << end_time);
 
+    string header;
+    header += type;
+    header += encode_length(message.size());
+
+#ifdef __WIN32__
+    // If there's no end_time, we pass a NULL overlapped
+    WSAOVERLAPPED *pOverlapped = end_time.is_set() ? &overlapped : NULL;
+    DWORD sent;
+    // We can send header + message in a single operation.
+    WSABUF wsabuf[2] = {{header.length(), (char *)header.c_str()},
+			{message.length(), (char *)message.c_str()}};
+
+    int rc = WSASend(fdout, wsabuf, 2, &sent, 0, pOverlapped, NULL);
+    if (rc != 0) {
+	int errcode = WSAGetLastError();
+	if (errcode == WSA_IO_PENDING) {
+	    // Just wait for the data to be received, or a timeout.
+	    DWORD waitrc;
+	    waitrc = WaitForSingleObject(overlapped.hEvent, calc_read_wait_msecs(end_time));
+	    if (waitrc != WAIT_OBJECT_0) {
+		DEBUGLINE(REMOTE, "write: timeout has expired");
+		throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
+	    }
+	    // Get the final result
+	    DWORD numBytes, flags;
+	    if (!WSAGetOverlappedResult(fdout, pOverlapped, &numBytes, FALSE, &flags))
+		throw Xapian::NetworkError("Failed to get overlapped result",
+					   context, WSAGetLastError());
+	}
+	else
+	    throw Xapian::NetworkError("write failed", context, errcode);
+    }
+#else
     // If there's no end_time, just use blocking I/O.
     if (fcntl(fdin, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
 	throw Xapian::NetworkError("Failed to set fdout non-blocking-ness",
 				   context, errno);
     }
-
-    string header;
-    header += type;
-    header += encode_length(message.size());
 
     const string * str = &header;
 
@@ -201,6 +285,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 	if (select_result == 0)
 	    throw Xapian::NetworkTimeoutError("Timeout expired while trying to write", context);
     }
+#endif
 }
 
 char
@@ -258,3 +343,32 @@ RemoteConnection::do_close()
     if (fdin != fdout) close(fdout);
     fdout = -1;
 }
+
+#ifdef __WIN32__
+DWORD
+RemoteConnection::calc_read_wait_msecs(const OmTime & end_time)
+{
+    Assert(end_time.is_set());
+
+    // Calculate how far in the future end_time is.
+    OmTime now(OmTime::now());
+
+    DWORD msecs;
+
+    // msecs is unsigned, so we mustn't try and return a negative value
+    if (now > end_time) {
+	// This is possible if we are reading chunks - but if we are
+	// debugging, its far more likely that we are just a little slow
+	// stepping through the code...
+#ifdef DEBUG
+	msecs = 10000;
+#else
+	throw Xapian::NetworkTimeoutError("Timeout expired before starting read", context);
+#endif
+    } else {
+	OmTime time_diff = end_time - now;
+	msecs = time_diff.sec * 1000 + time_diff.usec / 1000;
+    }
+    return msecs;
+}
+#endif

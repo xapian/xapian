@@ -70,10 +70,18 @@ class RemoteConnection {
     // one to finish before starting another (ie, we don't *really* use
     // overlapped IO - no IO is overlapped - its used only to manage timeouts)
     WSAOVERLAPPED overlapped;
+
+    /** Calculate how many milliseconds a read should wait.
+     *
+     *  This will raise a timeout exception if end_time has already passed.
+     */
+    DWORD calc_read_wait_msecs(const OmTime & end_time);
 #endif
   public:
     /// Constructor.
     RemoteConnection(int fdin_, int fdout_, const std::string & context_);
+    /// Destructor
+    ~RemoteConnection();
 
     /** See if there is data available to read.
      *

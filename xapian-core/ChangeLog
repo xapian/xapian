@@ -1,3 +1,14 @@
+Fri Mar 30 14:59:40 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* More code from Mark Hammond's patch
+	* common/remoteconnection.h: Add explicit destructor and (for
+	  windows compiles) a declare a helper method to calculate the
+	  number of milliseconds until a timeout.
+	* net/remoteconnection.cc: Implement windows versions for functions
+	  which need it: constructor and destructor now do create and close
+	  the overlapped IO stuff, read_at_least() and send_message() have
+	  windows specific implementations.
+
 Fri Mar 30 13:05:27 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* More code adapted from Mark Hammond's patch
