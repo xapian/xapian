@@ -28,30 +28,31 @@
 #include "tcpclient.h"
 #include <xapian/error.h>
 
-#include <netdb.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
 #include <string.h>
 #ifdef __WIN32__
-# include <winsock2.h>
+# define SOCKOPT_OPTIONS_TYPE char *
 #else
+# define SOCKOPT_OPTIONS_TYPE void *
+# include <netdb.h>
+# include <netinet/in.h>
+# include <netinet/tcp.h>
 # include <sys/socket.h>
+# ifdef HAVE_SYS_SELECT_H
+#  include <sys/select.h>
+# else
+#  include <sys/time.h>
+#  include <sys/types.h>
+#  include <unistd.h>
+# endif
+# include <string.h> // Solaris needs this as FDSET uses memset but fails to prototype it.
 #endif
 
-#ifdef HAVE_SYS_SELECT_H
-# include <sys/select.h>
-#else
-# include <sys/time.h>
-# include <sys/types.h>
-# include <unistd.h>
-#endif
-#include <string.h> // Solaris needs this as FDSET uses memset but fails to prototype it.
 
 #include "utils.h"
 
 TcpClient::TcpClient(std::string hostname, int port, int msecs_timeout_, int msecs_timeout_connect_)
 	: RemoteDatabase(get_remote_socket(hostname, port, msecs_timeout_connect_),
-		         msecs_timeout_, get_tcpcontext(hostname, port))
+			 msecs_timeout_, get_tcpcontext(hostname, port))
 {
 
 }
@@ -89,7 +90,13 @@ TcpClient::get_remote_socket(std::string hostname,
     remaddr.sin_port = htons(port);
     memcpy(&remaddr.sin_addr, host->h_addr, sizeof(remaddr.sin_addr));
 
-    if (fcntl(socketfd, F_SETFL, O_NDELAY) < 0) {
+#ifdef __WIN32__
+    ULONG enabled = 1;
+    int rc = ioctlsocket(socketfd, FIONBIO, &enabled);
+#else
+    int rc = fcntl(socketfd, F_SETFL, O_NDELAY);
+#endif
+    if (rc < 0) {
 	int saved_errno = socket_errno(); // note down in case close hits an error
 	close(socketfd);
 	throw Xapian::NetworkError("Couldn't set O_NDELAY", get_tcpcontext(hostname,  port), saved_errno);
@@ -98,7 +105,8 @@ TcpClient::get_remote_socket(std::string hostname,
     {
 	int optval = 1;
 	if (setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
-		       reinterpret_cast<void *>(&optval), sizeof(optval)) < 0) {
+		       reinterpret_cast<SOCKOPT_OPTIONS_TYPE>(&optval),
+		       sizeof(optval)) < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
 	    close(socketfd);
 	    throw Xapian::NetworkError("Couldn't set TCP_NODELAY", get_tcpcontext(hostname,  port), saved_errno);
@@ -140,7 +148,7 @@ TcpClient::get_remote_socket(std::string hostname,
 
 	/* On Solaris 5.6, the fourth argument is char *. */
 	retval = getsockopt(socketfd, SOL_SOCKET, SO_ERROR,
-			    reinterpret_cast<void *>(&err), &len);
+			    reinterpret_cast<SOCKOPT_OPTIONS_TYPE>(&err), &len);
 
 	if (retval < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
@@ -153,8 +161,12 @@ TcpClient::get_remote_socket(std::string hostname,
 	}
     }
 
+#ifdef __WIN32__
+    enabled = 0;
+    ioctlsocket(socketfd, FIONBIO, &enabled);
+#else
     fcntl(socketfd, F_SETFL, 0);
-
+#endif
     return socketfd;
 }
 

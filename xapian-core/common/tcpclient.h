@@ -34,6 +34,15 @@ class TcpClient : public RemoteDatabase {
 	TcpClient(const TcpClient &);
 	void operator=(const TcpClient &);
 
+#ifdef __WIN32__
+	/** Member which ensures that winsock is initialised.
+	 *
+	 *  As long as an instance of WinsockInitialiser exists,
+	 *  we can assume that winsock is initialised.
+	 */
+	WinsockInitializer winsock_initialiser;
+#endif
+
 	/** Spawn a program and return a filedescriptor of
 	 *  the local end of a socket to it.
 	 */
