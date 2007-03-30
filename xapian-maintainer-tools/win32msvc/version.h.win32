@@ -31,7 +31,7 @@
 #define XAPIAN_HAS_FLINT_BACKEND 1
 #define XAPIAN_HAS_QUARTZ_BACKEND 1
 #define XAPIAN_HAS_INMEMORY_BACKEND 1
-#undef XAPIAN_HAS_REMOTE_BACKEND
+#define XAPIAN_HAS_REMOTE_BACKEND 1
 
 namespace Xapian {
 /** Report the version string of the library which the program is linked against.

@@ -93,7 +93,7 @@ LIB32_FLAGS=/nologo
 LINK32=link.exe
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
- wsock32.lib odbccp32.lib /subsystem:console
+ wsock32.lib Ws2_32.lib  odbccp32.lib /subsystem:console /debug
 CPP=cl.exe
 RSC=rc.exe
 MANIFEST=mt.exe /manifest
@@ -106,19 +106,27 @@ MANIFEST=mt.exe /manifest
 # /c compile, don't link
 # /MD Link multithreaded dynamic libraries
 
-# Release build
-CPPFLAGS_EXTRA=/I.. /I..\include /I..\common /W3 /EHsc /O2 /MD /c /D "NDEBUG" \
+# Common stuff
+# Note we enable debug flags for a release build - this means that
+# even in release builds, a .pdb file is generated with basic
+# stackframe information, meaning basic debugging on release builds
+# is still possible (so long as the .pdb files are in place - it is
+# assumed these files will *not* ship with a default binary build)
+CPPFLAGS_COMMON=/c /Zi /I.. /I..\include /I..\common /W3 /EHsc \
 /D "WIN32" /D "__WIN32__" /D "_WINDOWS" \
 /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /D "_USE_32BIT_TIME_T" \
 /D_CRT_SECURE_NO_DEPRECATE
-XAPIAN_DEBUG_OR_RELEASE=Release
 
+
+!IF "$(DEBUG)" == "1"
 # Debug build
-# CPPFLAGS_EXTRA=/I.. /I..\include /I..\common /W3 /EHsc /Ox /MDd /c /D "_DEBUG" \
-#/D "WIN32" /D "__WIN32__" /D "_WINDOWS" \
-#/D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /D "_USE_32BIT_TIME_T" \
-#/D_CRT_SECURE_NO_DEPRECATE
-#XAPIAN_DEBUG_OR_RELEASE=Debug
+CPPFLAGS_EXTRA=$(CPPFLAGS_COMMON) /Od /MDd /D DEBUG /D _DEBUG /D XAPIAN_DEBUG
+XAPIAN_DEBUG_OR_RELEASE=Debug
+!ELSE
+# Release build
+CPPFLAGS_EXTRA=$(CPPFLAGS_COMMON) /O2 /MD /D NDEBUG
+XAPIAN_DEBUG_OR_RELEASE=Release
+!ENDIF
 
 #----------------end Visual C++----------------------
 

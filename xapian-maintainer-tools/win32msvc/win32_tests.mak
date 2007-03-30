@@ -69,7 +69,7 @@ QUARTZTEST_OBJS= "$(OUTDIR)\quartztest.obj"
 QUERYPARSERTEST_OBJS= "$(OUTDIR)\queryparsertest.obj"
 	
 REMOTETEST_OBJS= "$(OUTDIR)\remotetest.obj"	
-	
+
 CLEAN :
 	-@erase $(PROGRAM_APITEST) 
 	-@erase $(PROGRAM_BTREETEST)
@@ -96,9 +96,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\win32\Tests$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-
-LINK32=link.exe
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) \
+XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libgetopt.lib"  \
  "$(OUTLIBDIR)\libcommon.lib"  \
  "$(OUTLIBDIR)\libbtreecheck.lib"  \
@@ -109,10 +107,17 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) \
  "$(OUTLIBDIR)\libinmemory.lib" \
  "$(OUTLIBDIR)\libmulti.lib" \
  "$(OUTLIBDIR)\libmatcher.lib"  \
+ "$(OUTLIBDIR)\libnet.lib" \
  "$(OUTLIBDIR)\liblanguages.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
+ "$(OUTLIBDIR)\libremote.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib"  
-	
+
+LINK32=link.exe
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
+
+PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
+
 # executables
 "$(OUTDIR)\stemtest.exe" : "$(OUTDIR)" $(DEF_FILE) $(STEMTEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)

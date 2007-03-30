@@ -48,8 +48,7 @@ CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 
-
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) \
+XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libgetopt.lib"  \
  "$(OUTLIBDIR)\libcommon.lib"  \
  "$(OUTLIBDIR)\libbtreecheck.lib"  \
@@ -62,10 +61,13 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) \
  "$(OUTLIBDIR)\libmatcher.lib"  \
  "$(OUTLIBDIR)\liblanguages.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
+ "$(OUTLIBDIR)\libnet.lib"  \
+ "$(OUTLIBDIR)\libremote.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib"  
 
-	
-PROGRAM_DEPENDENCIES = 
+ALL_LINK32_FLAGS = $(LINK32_FLAGS) $(XAPIAN_LIBS)
+
+PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 
  
 # delve.exe

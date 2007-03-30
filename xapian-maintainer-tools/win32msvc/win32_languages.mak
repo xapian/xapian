@@ -23,19 +23,20 @@ LIBLANGUAGES_OBJS= \
                  $(INTDIR)\danish.obj \
                  $(INTDIR)\dutch.obj \
                  $(INTDIR)\english.obj \
+                 $(INTDIR)\finnish.obj \
                  $(INTDIR)\french.obj \
                  $(INTDIR)\german.obj \
 		 $(INTDIR)\german2.obj \
 		 $(INTDIR)\hungarian.obj \
                  $(INTDIR)\italian.obj \
+                 $(INTDIR)\lovins.obj \
                  $(INTDIR)\norwegian.obj \
                  $(INTDIR)\porter.obj \
                  $(INTDIR)\portuguese.obj \
                  $(INTDIR)\russian.obj \
                  $(INTDIR)\spanish.obj \
                  $(INTDIR)\swedish.obj \
-		 $(INTDIR)\romanian1.obj \
-		 $(INTDIR)\romanian2.obj \
+		 $(INTDIR)\romanian.obj \
 		 $(INTDIR)\kraaij_pohlmann.obj \
 		 $(INTDIR)\turkish.obj 
 
@@ -43,19 +44,20 @@ LIBLANGUAGES_SOURCES= \
                  $(INTDIR)\danish.cc \
                  $(INTDIR)\dutch.cc \
                  $(INTDIR)\english.cc \
+                 $(INTDIR)\finnish.cc \
                  $(INTDIR)\french.cc \
                  $(INTDIR)\german.cc \
 		 $(INTDIR)\german2.cc \
 		 $(INTDIR)\hungarian.cc \
                  $(INTDIR)\italian.cc \
+                 $(INTDIR)\lovins.cc \
                  $(INTDIR)\norwegian.cc \
                  $(INTDIR)\porter.cc \
                  $(INTDIR)\portuguese.cc \
                  $(INTDIR)\russian.cc \
                  $(INTDIR)\spanish.cc \
                  $(INTDIR)\swedish.cc \
-		 $(INTDIR)\romanian1.cc \
-		 $(INTDIR)\romanian2.cc \
+		 $(INTDIR)\romanian.cc \
 		 $(INTDIR)\kraaij_pohlmann.cc \
 		 $(INTDIR)\turkish.cc 
 
@@ -63,25 +65,22 @@ LIBLANGUAGES_HEADERS= \
                  danish.h \
                  dutch.h \
                  english.h \
+                 finnish.h \
                  french.h \
                  german.h \
 		 german2.h \
 		 hungarian.h \
                  italian.h \
+                 lovins.h \
                  norwegian.h \
                  porter.h \
                  portuguese.h \
                  russian.h \
                  spanish.h \
                  swedish.h \
-		 romanian1.h \
-		 romanian2.h \
+		 romanian.h \
 		 kraaij_pohlmann.h \
 		 turkish.h 
-		 
-
-#                 $(INTDIR)\snowball_finnish.obj \ AND .cc and .h
-#                 $(INTDIR)\snowball_lovins.obj \AND .cc and .h
 
 MAKEFROMSBL: $(LIBLANGUAGES_SOURCES) ".\allsnowballheaders.h"
 		 
@@ -156,22 +155,17 @@ CPP_SBRS=.
 ".\kraaij_pohlmann.h" ".\kraaij_pohlmann.cc" : ".\kraaij_pohlmann.sbl"
 	$(SBL) kraaij_pohlmann.sbl $(SBL_OPTIONS) -o kraaij_pohlmann -n InternalStemKraaij_pohlmann -p Stem::Internal
 		
-".\romanian1.h" ".\romanian1.cc" : ".\romanian1.sbl"
-	$(SBL) romanian1.sbl $(SBL_OPTIONS) -o romanian1 -n InternalStemRomanian1 -p Stem::Internal	
-
-".\romanian2.h" ".\romanian2.cc" : ".\romanian2.sbl"
-	$(SBL) romanian2.sbl $(SBL_OPTIONS) -o romanian2 -n InternalStemRomanian2 -p Stem::Internal	
+".\romanian.h" ".\romanian.cc" : ".\romanian.sbl"
+	$(SBL) romanian.sbl $(SBL_OPTIONS) -o romanian -n InternalStemRomanian -p Stem::Internal	
 
 ".\turkish.h" ".\turkish.cc" : ".\turkish.sbl"
 	$(SBL) turkish.sbl $(SBL_OPTIONS) -o turkish -n InternalStemTurkish -p Stem::Internal	
 
-# Currently unused
-#	
-#".\finnish.h" ".\finnish.cc" : ".\finnish.sbl"
-#	$(SBL) finnish.sbl $(SBL_OPTIONS) -o finnish -n InternalStemFinnish -p Stem::Internal
+".\finnish.h" ".\finnish.cc" : ".\finnish.sbl"
+	$(SBL) finnish.sbl $(SBL_OPTIONS) -o finnish -n InternalStemFinnish -p Stem::Internal
 
-#".\lovins.h" ".\lovins.cc" : ".\lovins.sbl"
-#	$(SBL) lovins.sbl $(SBL_OPTIONS) -o lovins -n InternalStemLovins -p Stem::Internal
+".\lovins.h" ".\lovins.cc" : ".\lovins.sbl"
+	$(SBL) lovins.sbl $(SBL_OPTIONS) -o lovins -n InternalStemLovins -p Stem::Internal
 
 
 "$(INTDIR)\stem.obj" : ".\stem.cc" 
@@ -186,7 +180,7 @@ CPP_SBRS=.
 <<
 
 ".\allsnowballheaders.h": ".\generate-allsnowballheaders" 
-    md languages
+    if not exist languages\. md languages
     $(PERL_EXE) generate-allsnowballheaders $(LIBLANGUAGES_HEADERS)
     copy languages\allsnowballheaders.h
     del languages\allsnowballheaders.h

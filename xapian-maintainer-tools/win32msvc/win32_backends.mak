@@ -13,24 +13,29 @@ INTDIR=.\
 
 DEPLIBS = "$(OUTDIR)\libinmemory.lib" \
           "$(OUTDIR)\libmulti.lib"  \
-	  "$(OUTDIR)\libquartz.lib" \
-	  "$(OUTDIR)\libflint.lib" 
+          "$(OUTDIR)\libquartz.lib" \
+          "$(OUTDIR)\libremote.lib" \
+          "$(OUTDIR)\libflint.lib" \
+          $(NULL)
 
 ALL : $(DEPLIBS) "$(OUTDIR)\libbackend.lib" 
 
 CLEAN :
 	-@erase "$(OUTDIR)\libbackend.lib"
-	-@erase "*.pch"
-        -@erase "$(INTDIR)\database.obj"
+	-@erase "$(INTDIR)\*.pch"
+	-@erase "$(INTDIR)\*.pdb"
+	-@erase $(LIBBACKEND_OBJS)
 	-@erase $(CLEANFILES)
 	cd quartz
-	nmake /f win32.mak CLEAN
+	nmake /f win32.mak CLEAN DEBUG=$(DEBUG) 
 	cd ..\flint
-	nmake /f win32.mak CLEAN
+	nmake /f win32.mak CLEAN DEBUG=$(DEBUG) 
 	cd ..\inmemory
-	nmake /f win32.mak CLEAN
+	nmake /f win32.mak CLEAN DEBUG=$(DEBUG) 
 	cd ..\multi
-	nmake /f win32.mak CLEAN
+	nmake /f win32.mak CLEAN DEBUG=$(DEBUG) 
+	cd ..\remote
+	nmake /f win32.mak CLEAN DEBUG=$(DEBUG) 
 	cd ..
 
 
@@ -44,7 +49,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-LIBBACKEND_OBJS= $(INTDIR)\database.obj 
+LIBBACKEND_OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj 
 
 "$(OUTDIR)\LIBBACKEND.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBBACKEND_OBJS)
     $(LIB32) @<<
@@ -52,6 +57,11 @@ LIBBACKEND_OBJS= $(INTDIR)\database.obj
 <<
 
 "$(INTDIR)\database.obj" : ".\database.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\dbfactory_remote.obj" : ".\dbfactory_remote.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
@@ -69,21 +79,25 @@ LIBBACKEND_OBJS= $(INTDIR)\database.obj
 
 "$(OUTDIR)\libquartz.lib":
        cd quartz
-       nmake /f win32.mak 
+       nmake /f win32.mak $(MAKEMACRO) /$(NMAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
 "$(OUTDIR)\libflint.lib":
        cd flint
-       nmake /f win32.mak 
+       nmake /f win32.mak $(MAKEMACRO) /$(NMAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
 "$(OUTDIR)\libinmemory.lib":
        cd inmemory
-       nmake /f win32.mak 
+       nmake /f win32.mak $(MAKEMACRO) /$(NMAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
 "$(OUTDIR)\libmulti.lib":
        cd multi
-       nmake /f win32.mak 
+       nmake /f win32.mak $(MAKEMACRO) /$(NMAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
+"$(OUTDIR)\libremote.lib":
+       cd remote
+       nmake /f win32.mak $(MAKEMACRO) /$(NMAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+       cd ..

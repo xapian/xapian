@@ -14,60 +14,62 @@ ALL: TESTFORTOOLS MAKEHEADERS COPYMAKFILES MAKEALL
 
 MAKEALL:
    cd ..\getopt
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\common
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\api
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\backends
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\matcher
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\languages\compiler
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\queryparser
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\net
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\tests\harness
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\..\bin
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\examples
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\tests
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
 # NOTE THAT THIS MUST BE DONE LAST! running tests depends on all other parts being built   
-   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DOTEST
+   nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)" DOTEST
    cd ..\win32
 
 CLEAN:
-# cd ..\net
-#   nmake /f win32.mak CLEAN
+   cd ..\net
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\getopt
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\common
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\api
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\backends
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\matcher
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\languages\compiler
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\queryparser
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\tests\harness
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\..\bin
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\examples
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\tests
-   nmake /f win32.mak CLEAN
+   nmake /f win32.mak DEBUG="$(DEBUG)" CLEAN
    cd ..\win32
    -@erase ..\config.h 
    -@erase ..\include\xapian\version.h
@@ -98,6 +100,7 @@ COPYMAKFILES:
    copy  win32_languages_compiler.mak ..\languages\compiler\win32.mak
    copy  win32_languages.mak ..\languages\win32.mak
    copy  win32_matcher.mak ..\matcher\win32.mak
+   copy  win32_net.mak ..\net\win32.mak
    copy  win32_queryparser.mak ..\queryparser\win32.mak
    copy  win32_tests.mak ..\tests\win32.mak
    copy  win32_testsuite.mak ..\tests\harness\win32.mak

@@ -13,7 +13,12 @@ OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 OUTLIBDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-PROGRAMS = "$(OUTDIR)\quartzcheck.exe" "$(OUTDIR)\quartzcompact.exe" "$(OUTDIR)\quartzdump.exe" "$(OUTDIR)\xapian-compact.exe" 
+PROGRAMS = "$(OUTDIR)\quartzcheck.exe" \
+           "$(OUTDIR)\quartzcompact.exe" \
+           "$(OUTDIR)\quartzdump.exe" \
+           "$(OUTDIR)\xapian-compact.exe" \
+           "$(OUTDIR)\xapian-progsrv.exe" \
+           "$(OUTDIR)\xapian-tcpsrv.exe"
 
 ALL : $(PROGRAMS)
 
@@ -25,6 +30,12 @@ QUARTZDUMP_OBJS= "$(INTDIR)\quartzdump.obj"
 
 XAPIAN_COMPACT_OBJS= "$(INTDIR)\xapian-compact.obj" 
 
+XAPIAN_PROGSRV_OBJS= \
+	"$(INTDIR)\xapian-progsrv.obj" 
+
+XAPIAN_TCPSRV_OBJS= \
+	"$(INTDIR)\xapian-tcpsrv.obj" 
+
 	
 CLEAN :
 	-@erase $(PROGRAMS)
@@ -32,6 +43,8 @@ CLEAN :
 	-@erase $(QUARTZCOMPACT_OBJS)
 	-@erase $(QUARTZDUMP_OBJS)
 	-@erase $(XAPIAN_COMPACT_OBJS)
+	-@erase $(XAPIAN_PROGSRV_OBJS)
+	-@erase $(XAPIAN_TCPSRV_OBJS)
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -43,7 +56,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  \
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) \
+XAPIAN_LIBS= \
  "$(OUTLIBDIR)\libgetopt.lib"  \
  "$(OUTLIBDIR)\libcommon.lib"  \
  "$(OUTLIBDIR)\libbtreecheck.lib"  \
@@ -51,13 +64,18 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) \
  "$(OUTLIBDIR)\libbackend.lib"  \
  "$(OUTLIBDIR)\libquartz.lib" \
  "$(OUTLIBDIR)\libflint.lib" \
+ "$(OUTLIBDIR)\libremote.lib" \
  "$(OUTLIBDIR)\libinmemory.lib" \
  "$(OUTLIBDIR)\libmulti.lib" \
  "$(OUTLIBDIR)\libmatcher.lib"  \
  "$(OUTLIBDIR)\liblanguages.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
+ "$(OUTLIBDIR)\libnet.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib"  
 
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
+ 
+PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 
 
 "$(OUTDIR)\quartzcheck.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZCHECK_OBJS) \
@@ -105,6 +123,28 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) \
 
 
 "$(INTDIR)\xapian-compact.obj" : ".\xapian-compact.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(OUTDIR)\xapian-progsrv.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_PROGSRV_OBJS) \
+                             $(PROGRAM_DEPENDENCIES)
+    $(LINK32) @<<
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-progsrv.exe" $(DEF_FLAGS) $(XAPIAN_PROGSRV_OBJS)
+<<
+
+"$(INTDIR)\xapian-progsrv.obj" : ".\xapian-progsrv.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(OUTDIR)\xapian-tcpsrv.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_TCPSRV_OBJS) \
+                             $(PROGRAM_DEPENDENCIES)
+    $(LINK32) @<<
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-tcpsrv.exe" $(DEF_FLAGS) $(XAPIAN_TCPSRV_OBJS)
+<<
+
+"$(INTDIR)\xapian-tcpsrv.obj" : ".\xapian-tcpsrv.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<

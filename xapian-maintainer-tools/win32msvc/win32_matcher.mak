@@ -37,10 +37,10 @@ LIBMATCHER_OBJS= \
 		 $(INTDIR)\msetcmp.obj \
                  $(INTDIR)\emptysubmatch.obj \
                  $(INTDIR)\exactphrasepostlist.obj \
-		 $(INTDIR)\valuerangepostlist.obj \
-		 $(INTDIR)\weight.obj
-                 
-                 
+                 $(INTDIR)\valuerangepostlist.obj \
+                 $(INTDIR)\weight.obj \
+                 $(INTDIR)\remotesubmatch.obj \
+                 $(NULL)
 
 CLEAN :
 	-@erase "$(OUTDIR)\libmatcher.lib"
@@ -205,6 +205,11 @@ CPP_SBRS=.
 <<
 
 "$(INTDIR)\weight.obj" : ".\weight.cc"
+       $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\remotesubmatch.obj" : ".\remotesubmatch.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<
