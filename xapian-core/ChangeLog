@@ -1,3 +1,14 @@
+Fri Mar 30 22:43:27 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Correct several inaccuracies: --enable-debug and
+	  --enable-debug=partial don't cause the build system to compile in
+	  debugging symbols (configure defaults to adding "-g" for GCC, while
+	  for other compilers you must enable them by hand).  Also,
+	  --enable-debug doesn't "produce warnings", but causes
+	  Xapian::AssertionError to be thrown.  Add explanation for why
+	  --enable-debug=partial" exists.  CC_FOR_BUILD is now needed for
+	  snowball as well as lemon.
+
 Fri Mar 30 19:53:05 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/utils.cc: Avoid GCC warning on format string "%I64d".

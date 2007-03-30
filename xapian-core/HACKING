@@ -15,13 +15,16 @@ You will probably want to use some of these if you're going to be developing
 Xapian.
 
 --enable-debug
-	This enables compiling of assertion code, to produce warnings if
-	the code gets into an unexpected state, and also compiling into
-	the system of debugging symbols.
+	This enables compiling of assertion code which will throw
+	Xapian::AssertionError if the code detects violating of
+	preconditions, postconditions, or fails other consistency checks.
 
 --enable-debug=partial
-	This option enables debugging symbols, and some assertions.  It does
-	not enable verbose debugging messages or very expensive assertions.
+	This option enables some assertions enabled by "--enable-debug",
+	but not the most expensive.  The intention is that it should be
+	suitable for use in a real-world system for tracking down problems
+	without imposing too much of an overhead (but note that we haven't yet
+	performed timings to measure the overhead...)
 
 --enable-debug-verbose
 	This enables compiling into the system of code to generate verbose
@@ -40,9 +43,10 @@ Xapian.
 	probably need to use a better make program (GNU make is recommended).
 
 If --enable-maintainer-mode is specified, a non-cross-compiling C compiler
-is needed to compile the Lemon parser generator.  The configure script will
-attempt to locate one, but you can override the autodetection by passing
-CC_FOR_BUILD on the command line like so:
+is needed to compile the Lemon parser generator and the Snowball stemming
+algorithm compiler.  The configure script will attempt to locate one, but you
+can override the autodetection by passing CC_FOR_BUILD on the command line like
+so:
 
 ./configure CC_FOR_BUILD=/opt/bin/gcc
 
