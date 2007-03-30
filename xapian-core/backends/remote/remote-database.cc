@@ -47,11 +47,13 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
 	  timeout(timeout_),
 	  end_time()
 {
+#ifndef __WIN32__
     // It's simplest to just ignore SIGPIPE.  We'll still know if the
     // connection dies because we'll get EPIPE back from write().
     if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
 	throw Xapian::NetworkError("Couldn't set SIGPIPE to SIG_IGN", errno);
     }
+#endif
 
     string message;
     char type = get_message(message);

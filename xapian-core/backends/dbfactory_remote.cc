@@ -73,7 +73,11 @@ Remote::open(const string &program, const string &args, Xapian::timeout timeout)
 {
     DEBUGAPICALL_STATIC(Database, "Remote::open",
 	program << ", " << args << ", " << timeout);
+#ifdef __WIN32__
+    throw Xapian::UnimplementedError("ProgClient backend not yet implemented on Windows");
+#else
     return Database(new ProgClient(program, args, timeout));
+#endif
 }
 
 WritableDatabase
@@ -81,7 +85,11 @@ Remote::open_writable(const string &program, const string &args, Xapian::timeout
 {
     DEBUGAPICALL_STATIC(WritableDatabase, "Remote::open_writable",
 	program << ", " << args << ", " << timeout);
+#ifdef __WIN32__
+    throw Xapian::UnimplementedError("ProgClient backend not yet implemented on Windows");
+#else
     return WritableDatabase(new ProgClient(program, args, timeout));
+#endif
 }
 
 }
