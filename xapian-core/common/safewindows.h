@@ -43,8 +43,8 @@
 
 #ifdef XAPIAN_BUILD_BACKEND_REMOTE
 
-// We also need the winsock headers for socket stuff.
 #include "winsock2.h"
+#include <xapian/error.h>
 
 // Re-define some of the unix socket error contants to the winsock ones.
 #define EADDRINUSE WSAEADDRINUSE

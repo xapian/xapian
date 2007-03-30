@@ -1,3 +1,8 @@
+Fri Mar 30 15:42:49 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/safewindows.h: Include xapian/error.h so
+	  WinsockInitialiser can throw an exception.
+
 Fri Mar 30 14:59:40 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* More code from Mark Hammond's patch
