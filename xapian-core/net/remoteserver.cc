@@ -66,10 +66,12 @@ RemoteServer::RemoteServer(Xapian::WritableDatabase * wdb_,
 void
 RemoteServer::initialise()
 {
+#ifndef __WIN32__
     // It's simplest to just ignore SIGPIPE.  We'll still know if the
     // connection dies because we'll get EPIPE back from write().
     if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
 	throw Xapian::NetworkError("Couldn't set SIGPIPE to SIG_IGN", errno);
+#endif
 
     // Send greeting message.
     string message;

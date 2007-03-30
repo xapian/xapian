@@ -64,6 +64,13 @@ class RemoteConnection {
      */
     void read_at_least(size_t min_len, const OmTime & end_time);
 
+#ifdef __WIN32__
+    // On Windows we use overlapped IO.  We share an overlapped structure
+    // for both reading and writing, as we know that we always wait for
+    // one to finish before starting another (ie, we don't *really* use
+    // overlapped IO - no IO is overlapped - its used only to manage timeouts)
+    WSAOVERLAPPED overlapped;
+#endif
   public:
     /// Constructor.
     RemoteConnection(int fdin_, int fdout_, const std::string & context_);

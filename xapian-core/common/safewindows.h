@@ -41,4 +41,46 @@
 # define FOF_NOERRORUI 1024
 #endif
 
+#ifdef XAPIAN_BUILD_BACKEND_REMOTE
+
+// We also need the winsock headers for socket stuff.
+#include "winsock2.h"
+
+// Re-define some of the unix socket error contants to the winsock ones.
+#define EADDRINUSE WSAEADDRINUSE
+#define ETIMEDOUT WSAETIMEDOUT
+#define EINPROGRESS WSAEINPROGRESS
+
+typedef int socklen_t;
+
+/** Class to initialise winsock and keep it initialised while we use it.
+ *
+ *  We need to get WinSock initialised before we use it, and make it clean up
+ *  after we've finished using it.  This class performs this initialisation when
+ *  constructed and cleans up when destructed.  Multiple instances of the class
+ *  may be instantiated - windows keeps a count of the number of times that
+ *  winsock has been initialised, and only performs the cleanup when the cleanup
+ *  function has been called the same number of times.
+ *
+ *  Simply ensure that an instance of this class is initialised whenever we're
+ *  doing socket handling.
+ */
+class WinsockInitializer {
+public:
+    WinsockInitializer() {
+	WSADATA wsadata;
+	int wsaerror = WSAStartup(MAKEWORD(2,2), &wsadata);
+	// FIXME - should we check the returned information in wsadata to check
+	// that we have a version of winsock which is recent enough for us?
+	if (wsaerror != 0) {
+	    throw Xapian::NetworkError("Failed to initialize winsock", "", wsaerror);
+	}
+    }
+    ~WinsockInitializer() {
+	WSACleanup();
+    }
+};
+
+#endif
+
 #endif // XAPIAN_INCLUDED_SAFEWINDOWS_H

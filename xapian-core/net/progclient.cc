@@ -33,11 +33,9 @@
 #include <vector>
 
 #include <sys/types.h>
-#include <sys/wait.h>
-#ifdef __WIN32__
-# include <winsock2.h>
-#else
+#ifndef __WIN32__
 # include <sys/socket.h>
+# include <sys/wait.h>
 #endif
 
 using namespace std;

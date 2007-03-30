@@ -1,3 +1,16 @@
+Fri Mar 30 13:05:27 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* More code adapted from Mark Hammond's patch
+	* common/safewindows.h: When remote databases are compiled in,
+	  include the winsock stuff, and define some useful bits and pieces
+	  for using it.
+	* common/remoteconnection.h: Add a member to RemoteConnection on
+	  windows to hold an overlapped IO structure.
+	* net/progclient.cc: Don't include winsock stuff directly (it's now
+	  brought in by "safewindows.h"), and don't include <sys/wait.h> on
+	  windows.
+	* net/remoteserver.cc: Ignore more SIGPIPE stuff on windows.
+
 Fri Mar 30 12:37:15 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* Patch from Mark Hammond
