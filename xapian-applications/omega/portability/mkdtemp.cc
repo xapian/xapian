@@ -102,8 +102,13 @@ do_mkdtemp(char *path)
 	}
 
 	for (;;) {
+#ifdef __WIN32__
+		if (mkdir(path) >= 0)
+			return (1);
+#else
 		if (mkdir(path, 0700) >= 0)
 			return (1);
+#endif
 		if (errno != EEXIST)
 			return (0);
 
@@ -128,5 +133,5 @@ do_mkdtemp(char *path)
 char *
 mkdtemp(char *path)
 {
-	return (do_mkdtemp(path) ? path : (char *)NULL);
+	return (do_mkdtemp(path) ? path : (char *)0);
 }
