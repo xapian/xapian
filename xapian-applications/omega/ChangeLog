@@ -1,3 +1,11 @@
+Fri Mar 30 02:19:05 BST 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex.cc,sample.cc,sample.h: New sample generating
+	  function which normalises all runs of whitespace to a single space,
+	  and fixes invalid utf-8 in the sample.  This means we can now index
+	  an iso-8859-1 text file and mostly get the same results as if it
+	  were utf-8!
+
 Thu Mar 29 23:12:20 BST 2007  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Fix optimisation of "load truncate=N" to actually

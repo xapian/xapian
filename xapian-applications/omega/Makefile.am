@@ -74,7 +74,7 @@ noinst_HEADERS = omega.h query.h cgiparam.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
  gnu_getopt.h commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
- namedentities.h utf8itor.h tclUniData.h datematchdecider.h
+ namedentities.h utf8itor.h tclUniData.h datematchdecider.h sample.h
 
 AM_LDFLAGS = $(ICONV_LDFLAGS)
 
@@ -85,7 +85,8 @@ omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
  getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc md5wrap.cc\
- xmlparse.cc metaxmlparse.cc utf8convert.cc utf8itor.cc tclUniData.cc
+ xmlparse.cc metaxmlparse.cc utf8convert.cc utf8itor.cc tclUniData.cc\
+ sample.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif

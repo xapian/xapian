@@ -49,6 +49,7 @@
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "myhtmlparse.h"
+#include "sample.h"
 #include "utf8convert.h"
 #include "utils.h"
 #include "values.h"
@@ -101,57 +102,6 @@ inline static bool
 p_notalnum(unsigned int c)
 {
     return !isalnum(static_cast<unsigned char>(c));
-}
-
-/* Truncate a string to a given maxlength, avoiding cutting off midword
- * if reasonably possible. */
-static string
-truncate_to_word(string & input, string::size_type maxlen)
-{
-    string output;
-    if (input.length() <= maxlen) {
-	output = input;
-    } else {
-	output = input.substr(0, maxlen);
-
-	string::size_type space = output.find_last_of(WHITESPACE);
-	if (space != string::npos && space > maxlen / 2) {
-	    string::size_type nonspace;
-	    nonspace = output.find_last_not_of(WHITESPACE, space);
-	    if (nonspace != string::npos) output.resize(nonspace + 1);
-	} else {
-	    // Trim off any partial UTF-8 character.
-	    size_t l = output.size();
-	    while (l && (output[l - 1] & 0xc0) == 0x80) --l;
-	    switch (output.size() - l) {
-		case 0:
-		    l = string::npos;
-		    break;
-		case 1:
-		    if ((output[l - 1] & 0xe0) == 0xc0) l = string::npos;
-		    break;
-		case 2:
-		    if ((output[l - 1] & 0xf0) == 0xe0) l = string::npos;
-		    break;
-		case 3:
-		    if ((output[l - 1] & 0xf8) == 0xf0) l = string::npos;
-		    break;
-	    }
-	    if (l != string::npos) output.resize(l - 1);
-	}
-
-	if (output.length() == maxlen &&
-	    !isspace(static_cast<unsigned char>(input[maxlen]))) {
-	    output += "...";
-	} else {
-	    output += " ...";
-	}
-    }
-
-    // replace newlines with spaces
-    size_t i = 0;
-    while ((i = output.find('\n', i)) != string::npos) output[i] = ' ';
-    return output;
 }
 
 static string
@@ -490,16 +440,16 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 
     // Produce a sample
     if (sample.empty()) {
-	sample = truncate_to_word(dump, SAMPLE_SIZE);
+	sample = generate_sample(dump, SAMPLE_SIZE);
     } else {
-	sample = truncate_to_word(sample, SAMPLE_SIZE);
+	sample = generate_sample(sample, SAMPLE_SIZE);
     }
 
     // Put the data in the document
     Xapian::Document newdocument;
     string record = "url=" + baseurl + url + "\nsample=" + sample;
     if (!title.empty()) {
-	record += "\ncaption=" + truncate_to_word(title, TITLE_SIZE);
+	record += "\ncaption=" + generate_sample(title, TITLE_SIZE);
     }
     record += "\ntype=" + mimetype;
     if (last_mod != (time_t)-1)
