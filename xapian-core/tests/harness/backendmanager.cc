@@ -425,6 +425,7 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
 }
 
 #ifdef HAVE_FORK
+
 extern "C" void
 on_SIGCHLD(int /*sig*/)
 {
@@ -519,12 +520,56 @@ try_next_port:
 
     return port;
 }
+
+#else
+# ifdef __WIN32__
+
+// This implementation uses system() and simple redirection of output to a file.
+static int
+launch_xapian_tcpsrv(const string & args)
+{
+    int port = 1239;
+try_next_port:
+#ifdef DEBUG
+    string d_or_r("Debug");
+#else
+    string d_or_r("Release");
+#endif
+    // *sob* - we are using 'start' to send it to the background, but
+    // the return code handling by cmd.exe is totally screwed:  rc will always
+    // be |1|.  This should be replaced with decent child-process code.
+    string cmd = "start ..\\win32\\" + d_or_r + "\\xapian-tcpsrv --one-shot --port " + om_tostring(port) + " " + args + "> %TEMP%\\xapian-tcpsrv.out 2>&1";
+
+    int rc = system(cmd.c_str());
+    // as per comments above, we will *never* see rc==69 - but we keep the
+    // code for inspiration :)
+    if (port < 65536 && rc == 69) {
+	    // 69 is EX_UNAVAILABLE which xapian-tcpsrv exits
+	    // with if (and only if) the port specified was
+	    // in use.
+	    ++port;
+	    goto try_next_port;
+    }
+    if (rc) {
+	string msg("Program failed with ");
+	msg += om_tostring(rc);
+	msg += ": ";
+	msg += cmd;
+	msg += "' (output should be in %TEMP%\\xapian-tcpsrv.out)";
+	throw msg;
+    }
+    return port;
+}
+
+# endif
 #endif
 
 Xapian::Database
 BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 {
-#ifndef HAVE_FORK
+#if !defined(HAVE_FORK) && !defined(__WIN32__)
+    // We don't need fork on windows.
+    // We don't need fork on windows.
     throw string("Can't run remotetcp tests without fork()");
 #else
     // Uses xapian-tcpsrv as the server.
@@ -559,7 +604,8 @@ BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 Xapian::WritableDatabase
 BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
 {
-#ifndef HAVE_FORK
+#if !defined(HAVE_FORK) && !defined(__WIN32__)
+    // We don't need fork on windows.
     throw string("Can't run remotetcp tests without fork()");
 #else
     // Uses xapian-tcpsrv as the server.
