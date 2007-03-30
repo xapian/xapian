@@ -1,3 +1,7 @@
+Fri Mar 30 19:53:05 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/utils.cc: Avoid GCC warning on format string "%I64d".
+
 Fri Mar 30 16:48:46 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/tcpserver.h,net/tcpserver.cc: Patch from Mark Hammond:

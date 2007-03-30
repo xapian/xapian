@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005 Olly Betts
+ * Copyright 2003,2004,2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -75,7 +75,10 @@ om_tostring(unsigned long int val)
 string
 om_tostring(__int64 val)
 {
-    CONVERT_TO_STRING("%I64d")
+    // Avoid a format string warning from GCC - mingw uses the MS C runtime DLL
+    // which does understand "%I64d", but GCC doesn't know that.
+    static const char fmt[] = { '%', 'I', '6', '4', 'd', 0 };
+    CONVERT_TO_STRING(fmt)
 }
 #endif
 
