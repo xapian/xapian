@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,6 +42,7 @@
 #include "indextext.h"
 #include "loadfile.h"
 #include "myhtmlparse.h"
+#include "utf8truncate.h"
 #include "utils.h"
 
 #include "gnu_getopt.h"
@@ -516,20 +517,9 @@ index_file(const char *fname, istream &stream,
 			if (!truncated) break;
 			/* FALLTHRU (conditionally) */
 		    }
-		    case Action::TRUNCATE: {
-			string::size_type l = i->get_num_arg();
-			if (l < value.size()) {
-			    // Trim back to (and including) previous whitespace.
-			    while (l > 0 && !isspace(static_cast<unsigned char>(value[l - 1]))) --l;
-			    while (l > 0 && isspace(static_cast<unsigned char>(value[l - 1]))) --l;
-
-			    // If the first word is too long, just truncate it.
-			    if (l == 0) l = i->get_num_arg();
-
-			    value = value.substr(0, l);
-			}
+		    case Action::TRUNCATE:
+			utf8_truncate(value, i->get_num_arg());
 			break;
-		    }
 		    case Action::UNHTML: {
 			MyHtmlParser p;
 			try {

@@ -1,3 +1,9 @@
+Fri Mar 30 02:22:59 BST 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,scriptindex.cc,utf8truncate.cc,utf8truncate.h: The
+	  "truncate" action now knows not to chop off a multibyte utf-8
+	  character.
+
 Fri Mar 30 02:19:05 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,omindex.cc,sample.cc,sample.h: New sample generating
