@@ -1,7 +1,12 @@
+Fri Mar 30 12:11:50 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testsuite.cc: Fix srcdir guessing on windows - 
+	  search for windows style directory separators, and remove .exe
+	  suffix from executable name.  Adapted from Mark Hammond's patch.
+
 Thu Mar 29 18:32:18 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
-	* Changes related to Mark Ha 's patch:
-
+	* Changes related to Mark Hammond's patch:
 	* common/safeerrno.h: Define a new inline function "socket_errno()"
 	  which returns an error number relating to the last error caused
 	  by a socket function on platforms which make such a distinction,

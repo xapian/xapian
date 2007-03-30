@@ -92,13 +92,18 @@ test_driver::get_srcdir()
 
     string srcdir = argv0;
     // default srcdir to everything leading up to the last "/" on argv0
-    string::size_type i = srcdir.find_last_of('/');
+#ifdef __WIN32__
+	const char sep = '\\';
+#else
+	const char sep = '/';
+#endif
+    string::size_type i = srcdir.find_last_of(sep);
     string srcfile;
     if (i != string::npos) {
 	srcfile = srcdir.substr(i + 1);
 	srcdir.erase(i);
 	// libtool puts the real executable in .libs...
-	i = srcdir.find_last_of('/');
+	i = srcdir.find_last_of(sep);
 	if (srcdir.substr(i + 1) == ".libs") {
 	    srcdir.erase(i);
 	    if (srcfile.substr(0, 3) == "lt-") srcfile.erase(0, 3);
@@ -109,8 +114,13 @@ test_driver::get_srcdir()
 	srcfile = srcdir;
 	srcdir = ".";
     }
+    // Remove any trailing ".exe" suffix, since some platforms add this.
+    if (srcfile.length() > 4 &&
+	srcfile.substr(srcfile.length() - 4) == ".exe") {
+	srcfile = srcfile.substr(0, srcfile.length() - 4);
+    }
     // sanity check
-    if (!file_exists(srcdir + "/" + srcfile + ".cc")) {
+    if (!file_exists(srcdir + sep + srcfile + ".cc")) {
 	cout << argv0
 	     << ": srcdir not in the environment and I can't guess it!\n"
 		"Run test programs using the runtest script - see HACKING for details"
