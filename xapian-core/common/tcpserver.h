@@ -56,11 +56,20 @@ class TcpServer {
 	/// Output informtive messages?
 	bool verbose;
 
+#ifdef __WIN32__
+	/** Member which ensures that winsock is initialised.
+	 *
+	 *  As long as an instance of WinsockInitialiser exists,
+	 *  we can assume that winsock is initialised.
+	 */
+	WinsockInitializer winsock_initialiser;
+#endif
+
 #ifdef TIMING_PATCH
 	/// Output timing stats?
 	bool timing;
-
 #endif /* TIMING_PATCH */
+
 	/** Open the listening socket and return a filedescriptor to
 	 *  it.
 	 *
@@ -107,6 +116,13 @@ class TcpServer {
 	/** Handle one incoming connection and stop.
 	 */
 	void run_once();
+
+#ifdef __WIN32__
+	/** Handle a single request on an already connected socket.
+	 *  May be called by multiple threads.
+	 */
+	void handle_one_request(int socket);
+#endif
 };
 
 #endif  /* OM_HGUARD_TCPSERVER_H */
