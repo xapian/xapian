@@ -59,7 +59,7 @@ class TcpServer {
 #ifdef __WIN32__
 	/** Member which ensures that winsock is initialised.
 	 *
-	 *  As long as an instance of WinsockInitialiser exists,
+	 *  As long as an instance of WinsockInitializer exists,
 	 *  we can assume that winsock is initialised.
 	 */
 	WinsockInitializer winsock_initialiser;
