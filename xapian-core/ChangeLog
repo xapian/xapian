@@ -1,3 +1,8 @@
+Sat Mar 31 07:19:06 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/remoteserver.h: Stop trying to include "remoteserver.h"
+	  because that's the SAME HEADER!
+
 Sat Mar 31 07:16:23 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/tcpclient.h,common/tcpserver.h: Fix comments - the class is
