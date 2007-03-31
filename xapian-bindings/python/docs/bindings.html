@@ -23,11 +23,16 @@ which shows how to define a MatchDecider in Python.
 <h2>Exceptions</h2>
 
 <p>
-   Exceptions are thrown as SWIG exceptions instead of Xapian
-   exceptions. This isn't done well at the moment; in future we will
-   throw wrapped Xapian exceptions. For now, it's probably easier to
-   catch all exceptions and try to take appropriate action based on
-   their associated string.
+   Xapian exceptions are translated into Python exceptions with the same names
+   and inheritance hierarchy as the C++ exception classes.  The base class of
+   all Xapian exceptions is the <code>xapian.Error</code> class, and this in
+   turn is a child of the standard python <code>exceptions.Exception</code>
+   class.
+</p>
+<p>
+   This means that programs can trap all xapian exceptions using "<code>except
+   xapian.Error</code>", and can trap all exceptions which don't indicate that
+   the program should terminate using "<code>except Exception</code>.
 </p>
 
 <h2>Iterators</h2>
