@@ -350,7 +350,6 @@ static bool test_serialisedoc1()
 
     return true;
 }
-#endif
 
 // Check serialisation of queries.
 static bool test_serialisequery1()
@@ -383,6 +382,7 @@ static bool test_serialisequery1()
 
     return true;
 }
+#endif
 
 // By default Sun's C++ compiler doesn't call the destructor on a
 // temporary object until the end of the block (contrary to what
