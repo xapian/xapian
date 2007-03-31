@@ -1,3 +1,7 @@
+Sat Mar 31 06:52:27 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_nodb.cc: Simplify code in test_stemlangs1().
+
 Sat Mar 31 06:22:26 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Use const_cast to avoid GCC warning
@@ -100,7 +104,7 @@ Fri Mar 30 12:37:15 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 Fri Mar 30 12:11:50 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
-	* tests/harness/testsuite.cc: Fix srcdir guessing on windows - 
+	* tests/harness/testsuite.cc: Fix srcdir guessing on windows -
 	  search for windows style directory separators, and remove .exe
 	  suffix from executable name.  Adapted from Mark Hammond's patch.
 

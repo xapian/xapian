@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -234,33 +234,23 @@ static bool test_singlesubq1()
 
 static bool test_stemlangs1()
 {
-    vector<string> langv;
+    unsigned lang_count = 0;
     string langs = Xapian::Stem::get_available_languages();
 
-    string::size_type next = langs.find_first_of(" ");
+    while (!langs.empty()) {
+	string::size_type spc = langs.find(' ');
+	string language = langs.substr(0, spc);
+	langs.erase(0, spc + 1);
 
-    while (langs.length() > 0) {
-	langv.push_back(langs.substr(0, next));
-	if (next == langs.npos) {
-	    langs = "";
-	} else {
-	    langs = langs.substr(next);
-	}
-	if (langs.length() > 0) {
-	    // skip leading space too
-	    langs = langs.substr(1);
-	}
-	next = langs.find_first_of(" ");
-    }
-
-    TEST(langv.size() != 0);
-
-    vector<string>::const_iterator i;
-    for (i = langv.begin(); i != langv.end(); i++) {
-	// try making a stemmer with the given language -
-	// it should successfully create, and not throw an exception.
+	// Try making a stemmer for this language.  We should be able to create
+	// it without an exception being thrown.
 	Xapian::Stem stemmer(*i);
+
+	++lang_count;
     }
+
+    // Check that we actually had some languages to test.
+    TEST(lang_count > 0);
 
     // Check that we get an exception for a bogus language name.
     TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stemmer("bogus"));
