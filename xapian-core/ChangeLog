@@ -1,3 +1,9 @@
+Sat Mar 31 06:17:35 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Make global variable and function used only in
+	  this file static.  Don't call delete on a void* (that's undefined
+	  behaviour) - delete the cast version of the pointer instead.
+
 Sat Mar 31 06:17:20 BST 2007  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add a number of bug reporters I missed before.

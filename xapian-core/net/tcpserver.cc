@@ -273,7 +273,7 @@ TcpServer::run()
  *
  *  FIXME - is there any way to avoid using a global variable here?
  */
-const int *pShutdownSocket = NULL;
+static const int *pShutdownSocket = NULL;
 
 /// Console interrupt handler.
 BOOL
@@ -356,12 +356,12 @@ struct thread_param
 };
 
 /// The thread entry-point.
-unsigned __stdcall
+static unsigned __stdcall
 run_thread(void *_param)
 {
     thread_param *param(reinterpret_cast<thread_param *>(_param));
     param->server->handle_one_request(param->connected_socket);
-    delete _param;
+    delete param;
     _endthreadex(0);
     return 0;
 }
