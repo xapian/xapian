@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2007-03-09
+2007-03-31
 
 Make files, some extra headers and associated tools for compiling Xapian on Win32 using
 the Microsoft Visual C++ compilers. This is particularly useful if you're using the 
@@ -18,12 +18,6 @@ www.lemurconsulting.com
 What works?
 ===========
 
-- The following backends:
-  - quartz
-  - flint
-  - inmemory
-  - multi
-
 - The Python & PHP bindings
 - The quartz binaries quartzcheck, quartzcompact, quartzdump
 - The xapian-compact binary
@@ -35,11 +29,7 @@ What works?
 What doesn't work?
 ==================
 
-- The following backends
-   - remote
-(libnet.lib can't be compiled under Microsoft's compiler, simply because there
-is way too much Unix in there for it to be ported easily to Win32. 
-Hence, the remote backend can't be compiled.)
+- The "prog" variant of the remote backend
 
 - Any other bindings
 
@@ -56,7 +46,6 @@ TODOS
 =====
 
 Other bindings
-Rewrite the libnet stuff and thus the remote backend
 
 How do I install the sources?
 =============================
