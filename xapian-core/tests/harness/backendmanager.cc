@@ -521,8 +521,18 @@ try_next_port:
     return port;
 }
 
+#elif defined __WIN32__
+
+// Path to xapian-tcpsrv (with \ path separator since we pass this to system).
+#ifdef _MSC_VER
+# ifdef DEBUG
+#  define XAPIAN_TCPSRV "..\\win32\\Debug\\xapian-tcpsrv"
+# else
+#  define XAPIAN_TCPSRV "..\\win32\\Release\\xapian-tcpsrv"
+# endif
 #else
-# ifdef __WIN32__
+#  define XAPIAN_TCPSRV "..\\bin\\xapian-tcpsrv" // mingw
+#endif
 
 // This implementation uses system() and simple redirection of output to a file.
 static int
@@ -530,25 +540,20 @@ launch_xapian_tcpsrv(const string & args)
 {
     int port = 1239;
 try_next_port:
-#ifdef DEBUG
-    string d_or_r("Debug");
-#else
-    string d_or_r("Release");
-#endif
     // *sob* - we are using 'start' to send it to the background, but
     // the return code handling by cmd.exe is totally screwed:  rc will always
     // be |1|.  This should be replaced with decent child-process code.
-    string cmd = "start ..\\win32\\" + d_or_r + "\\xapian-tcpsrv --one-shot --port " + om_tostring(port) + " " + args + "> %TEMP%\\xapian-tcpsrv.out 2>&1";
+    string cmd = "start "XAPIAN_TCPSRV" --one-shot --port " + om_tostring(port) + " " + args + " > %TEMP%\\xapian-tcpsrv.out 2>&1";
 
     int rc = system(cmd.c_str());
     // as per comments above, we will *never* see rc==69 - but we keep the
     // code for inspiration :)
     if (port < 65536 && rc == 69) {
-	    // 69 is EX_UNAVAILABLE which xapian-tcpsrv exits
-	    // with if (and only if) the port specified was
-	    // in use.
-	    ++port;
-	    goto try_next_port;
+	// 69 is EX_UNAVAILABLE which xapian-tcpsrv exits
+	// with if (and only if) the port specified was
+	// in use.
+	++port;
+	goto try_next_port;
     }
     if (rc) {
 	string msg("Program failed with ");
@@ -561,17 +566,13 @@ try_next_port:
     return port;
 }
 
-# endif
+#else
+# error Neither HAVE_FORK nor __WIN32__ is defined
 #endif
 
 Xapian::Database
 BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 {
-#if !defined(HAVE_FORK) && !defined(__WIN32__)
-    // We don't need fork on windows.
-    // We don't need fork on windows.
-    throw string("Can't run remotetcp tests without fork()");
-#else
     // Uses xapian-tcpsrv as the server.
 
     vector<string> paths;
@@ -598,16 +599,11 @@ BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open("127.0.0.1", port);
-#endif
 }
 
 Xapian::WritableDatabase
 BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
 {
-#if !defined(HAVE_FORK) && !defined(__WIN32__)
-    // We don't need fork on windows.
-    throw string("Can't run remotetcp tests without fork()");
-#else
     // Uses xapian-tcpsrv as the server.
 
     // Default to a long (5 minute) timeout so that tests won't fail just
@@ -624,7 +620,6 @@ BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
 
     int port = launch_xapian_tcpsrv(args);
     return Xapian::Remote::open_writable("127.0.0.1", port);
-#endif
 }
 #endif
 

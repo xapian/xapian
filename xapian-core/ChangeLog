@@ -1,3 +1,9 @@
+Sat Mar 31 10:44:26 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc: Sort out path to xapian-tcpsrv
+	  under mingw.  If neither HAVE_FORK nor __WIN32__ is defined,
+	  make compilation fail with a suitable #error.
+
 Sat Mar 31 10:17:06 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/Makefile,backends/Makefile,backends/flint/Makefile,
