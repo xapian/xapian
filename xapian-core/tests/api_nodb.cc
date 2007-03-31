@@ -244,7 +244,7 @@ static bool test_stemlangs1()
 
 	// Try making a stemmer for this language.  We should be able to create
 	// it without an exception being thrown.
-	Xapian::Stem stemmer(*i);
+	Xapian::Stem stemmer(language);
 
 	++lang_count;
     }

@@ -1,3 +1,7 @@
+Sat Mar 31 09:03:26 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_nodb.cc: Fix to compile.
+
 Sat Mar 31 07:53:25 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/safewindows.h,common/safewinsock2.h: safewindows.h is
