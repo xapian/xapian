@@ -116,7 +116,7 @@
 /* #undef SNPRINTF */
 
 /* type to use for 5th parameter to getsockopt */
-#define SOCKLEN_T socklen_t
+#define SOCKLEN_T int
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
