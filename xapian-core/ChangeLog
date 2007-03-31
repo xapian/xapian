@@ -1,3 +1,16 @@
+Sat Mar 31 10:17:06 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/Makefile,backends/Makefile,backends/flint/Makefile,
+	  backends/inmemory/Makefile,backends/multi/Makefile,
+	  backends/quartz/Makefile,backends/remote/Makefile,bin/Makefile,
+	  common/Makefile,examples/Makefile,getopt/Makefile,include/Makefile,
+	  languages/Makefile,matcher/Makefile,net/Makefile,
+	  queryparser/Makefile,tests/harness/Makefile: Don't pass $(MAKEFLAGS)
+	  on the command line to $(MAKE) when invoking the top level Makefile
+	  from a static Makefile.  It's passed automatically anyway, and also
+	  $(MAKEFLAGS) doesn't have a leading '-' so "make -s" tries to do
+	  "make s" at the top level.
+
 Sat Mar 31 09:28:06 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_nodb.cc: Fix end of loop handling.

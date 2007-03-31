@@ -3,7 +3,7 @@
 SHELL = /bin/sh
 
 all check:
-	cd ../.. && $(MAKE) $(MAKEFLAGS) $@
+	cd ../.. && $(MAKE) $@
 
 clean:
 	rm -f *.o *.obj *.lo
