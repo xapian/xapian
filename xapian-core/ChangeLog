@@ -1,3 +1,9 @@
+Sat Mar 31 06:22:26 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Use const_cast to avoid GCC warning
+	  about casting away const.  Use string::data() rather than
+	  string::c_str() since we don't need a terminating zero byte.
+
 Sat Mar 31 06:20:07 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/dbfactory_remote.cc: Suppress "unused parameter" warnings.

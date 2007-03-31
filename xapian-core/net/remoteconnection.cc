@@ -201,8 +201,10 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
     WSAOVERLAPPED *pOverlapped = end_time.is_set() ? &overlapped : NULL;
     DWORD sent;
     // We can send header + message in a single operation.
-    WSABUF wsabuf[2] = {{header.length(), (char *)header.c_str()},
-			{message.length(), (char *)message.c_str()}};
+    WSABUF wsabuf[2] = {
+	{ header.length(), const_cast<char *>(header.data()) },
+	{ message.length(), const_cast<char *>(message.data()) }
+    };
 
     int rc = WSASend(fdout, wsabuf, 2, &sent, 0, pOverlapped, NULL);
     if (rc != 0) {
