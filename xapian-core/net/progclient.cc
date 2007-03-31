@@ -22,6 +22,9 @@
 
 #include <config.h>
 
+// Not ported to Windows yet.
+#ifndef __WIN32__
+
 #include "safeerrno.h"
 #include "safefcntl.h"
 
@@ -148,3 +151,5 @@ ProgClient::~ProgClient()
     do_close();
     waitpid(pid, 0, 0);
 }
+
+#endif
