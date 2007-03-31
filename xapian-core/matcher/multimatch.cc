@@ -96,7 +96,8 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  sort_key(sort_key_), sort_by(sort_by_),
 	  sort_value_forward(sort_value_forward_),
 	  bias_halflife(bias_halflife_), bias_weight(bias_weight_),
-	  errorhandler(errorhandler_), weight(weight_)
+	  errorhandler(errorhandler_), weight(weight_),
+	  is_remote(db.internal.size())
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
 	      qlen << ", " <<
@@ -133,10 +134,9 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 
     vector<Xapian::RSet>::const_iterator subrset = subrsets.begin();
 
-    vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> >::const_iterator i;
-    for (i = db.internal.begin(); i != db.internal.end(); ++i) {
-	Assert(subrset != subrsets.end());
-	Xapian::Database::Internal *subdb = (*i).get();
+    Assert(subrsets.size() == db.internal.size());
+    for (size_t i = 0; i != db.internal.size(); ++i) {
+	Xapian::Database::Internal *subdb = db.internal[i].get();
 	Assert(subdb);
 	Xapian::Internal::RefCntPtr<SubMatch> smatch;
 	try {
@@ -144,19 +144,20 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
 	    if (rem_db) {
+		is_remote[i] = true;
 		if (bias_halflife) {
 		    throw Xapian::UnimplementedError("bias_halflife and bias_weight not supported with remote backend");
 		}
 		rem_db->set_query(query, qlen, collapse_key, order, sort_key,
 				  sort_by, sort_value_forward, percent_cutoff,
-				  weight_cutoff, weight, *subrset);
+				  weight_cutoff, weight, subrsets[i]);
 		bool decreasing_relevance =
 		    (sort_by == REL || sort_by == REL_VAL);
 		smatch = new RemoteSubMatch(rem_db, gatherer.get(),
 					    decreasing_relevance);
 	    } else {
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
-		smatch = new LocalSubMatch(subdb, query, qlen, *subrset, gatherer.get(), weight);
+		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], gatherer.get(), weight);
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    }
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
@@ -168,9 +169,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	    smatch = new EmptySubMatch;
 	}
 	leaves.push_back(smatch);
-	++subrset;
     }
-    Assert(subrset == subrsets.end());
 
     gatherer->set_global_stats(omrset.size());
 
@@ -447,19 +446,22 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
 
 	// Use the decision functor if any.
-	// FIXME: if results are from MSetPostList then we can omit this step
 	if (mdecider != NULL) {
-	    if (doc.get() == 0) {
-		const unsigned int multiplier = db.internal.size();
-		Assert(multiplier != 0);
-		Xapian::doccount n = (did - 1) % multiplier; // which actual database
-		Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
+	    const unsigned int multiplier = db.internal.size();
+	    Assert(multiplier != 0);
+	    Xapian::doccount n = (did - 1) % multiplier; // which actual database
+	    // If the results are from a remote database, then the functor will
+	    // already have been applied there so we can skip this step.
+	    if (!is_remote[n]) {
+		if (doc.get() == 0) {
+		    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-		Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
-		doc = temp;
+		    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
+		    doc = temp;
+		}
+		Xapian::Document mydoc(doc.get());
+		if (!mdecider->operator()(mydoc)) continue;
 	    }
-	    Xapian::Document mydoc(doc.get());
-	    if (!mdecider->operator()(mydoc)) continue;
 	}
 
 	if (min_item.wt <= 0.0) {

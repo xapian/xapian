@@ -1,3 +1,9 @@
+Sat Mar 31 22:17:55 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/multimatch.h,matcher/multimatch.cc: When using a MatchDecider
+	  with remote database(s), don't rerun the MatchDecider on documents
+	  which a remote server has already checked.
+
 Sat Mar 31 10:44:26 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc: Sort out path to xapian-tcpsrv
