@@ -236,17 +236,24 @@ static bool test_stemlangs1()
 {
     unsigned lang_count = 0;
     string langs = Xapian::Stem::get_available_languages();
+    TEST(!langs.empty());
 
-    while (!langs.empty()) {
-	string::size_type spc = langs.find(' ');
-	string language = langs.substr(0, spc);
-	langs.erase(0, spc + 1);
+    string::size_type i = 0;
+    while (true) {
+	string::size_type spc = langs.find(' ', i);
+	// The only spaces in langs should be a single one between each pair
+	// of language names.
+	TEST_NOT_EQUAL(i, spc);
+
+	++lang_count;
 
 	// Try making a stemmer for this language.  We should be able to create
 	// it without an exception being thrown.
+	string language = langs.substr(i, spc - i);
 	Xapian::Stem stemmer(language);
 
-	++lang_count;
+	if (spc == string::npos) break;
+	i = spc + 1;
     }
 
     // Check that we actually had some languages to test.
