@@ -1166,25 +1166,29 @@ eval(const string &fmt, const vector<string> &param)
 		value = field[args[0]];
 		break;
 	    case CMD_filesize: {
-		// FIXME: rounding?
+		// FIXME: rounding?  i18n?
 		int size = string_to_int(args[0]);
 		int intpart = size;
 		int fraction = -1;
 		const char * format = 0;
-		if (size && size < 1024) {
+		if (size < 0) {
+		    // Negative size -> empty result.
+		} else if (size == 1) {
+		    format = "%d byte";
+		} else if (size < 1024) {
 		    format = "%d bytes";
 		} else if (size < 1024*1024) {
 		    intpart = size / 1024;
 		    fraction = size % 1024;
-		    format = "%d.%dK";
+		    format = "%d.%cK";
 		} else if (size < 1024*1024*1024) {
 		    intpart = size / (1024 * 1024);
 		    fraction = size % (1024 * 1024);
-		    format = "%d.%dM";
+		    format = "%d.%cM";
 		} else {
 		    intpart = size / (1024 * 1024 * 1024);
 		    fraction = size % (1024 * 1024 * 1024);
-		    format = "%d.%dG";
+		    format = "%d.%cG";
 		}
 		if (format) {
 		    char buf[200];
@@ -1192,10 +1196,10 @@ eval(const string &fmt, const vector<string> &param)
 		    if (fraction == -1) {
 			len = my_snprintf(buf, sizeof(buf), format, intpart);
 		    } else {
-			fraction = fraction * 10 / 1024;
+			fraction = (fraction * 10 / 1024) + '0';
 			len = my_snprintf(buf, sizeof(buf), format, intpart, fraction);
 		    }
-		    if (len < 0 || len > sizeof(buf)) len = sizeof(buf);
+		    if (len < 0 || (unsigned)len > sizeof(buf)) len = sizeof(buf);
 		    value.assign(buf, len);
 		}
 		break;

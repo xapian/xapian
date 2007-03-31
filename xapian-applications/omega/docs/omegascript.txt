@@ -113,7 +113,8 @@ $field{NAME}
 	  $map{$field{keywords},<b>$html{$_}</b><br>}
 
 $filesize{SIZE}
-	pretty printed filesize (e.g. 100 bytes, 2.1K, 4.0M, 1.3G)
+	pretty printed filesize (e.g. 1 byte, 100 bytes, 2.1K, 4.0M, 1.3G).
+	If SIZE is negative, expands to nothing.
 
 $filters
 	serialised version of filtery type settings (B, DATE1, DATE2,

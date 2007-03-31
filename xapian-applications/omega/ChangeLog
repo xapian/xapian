@@ -1,3 +1,12 @@
+Sat Mar 31 19:58:29 BST 2007  Olly Betts <olly@survex.com>
+
+	* query.cc: $filesize{0} is now "0 bytes", $filesize{1} is now "1
+	  byte", $filesize{SIZE} where SIZE is negative is now "".  Fix
+	  "comparison of signed and unsigned" warning.  Use "%c" to generate
+	  the fractional part.
+	* docs/omegascript.txt: Document that $filesize{SIZE} is "" when SIZE
+	  is negative.
+
 Sat Mar 31 18:25:55 BST 2007  Olly Betts <olly@survex.com>
 
 	* query.cc: Ensure that the result of snprintf is zero terminated
