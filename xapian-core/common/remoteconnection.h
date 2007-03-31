@@ -25,6 +25,40 @@
 
 #include "remoteprotocol.h"
 
+#ifdef __WIN32__
+# include "safewinsock2.h" // Required for WSAOVERLAPPED and DWORD.
+
+# include <xapian/error.h>
+
+/** Class to initialise winsock and keep it initialised while we use it.
+ *
+ *  We need to get WinSock initialised before we use it, and make it clean up
+ *  after we've finished using it.  This class performs this initialisation when
+ *  constructed and cleans up when destructed.  Multiple instances of the class
+ *  may be instantiated - windows keeps a count of the number of times that
+ *  winsock has been initialised, and only performs the cleanup when the cleanup
+ *  function has been called the same number of times.
+ *
+ *  Simply ensure that an instance of this class is initialised whenever we're
+ *  doing socket handling.
+ */
+struct WinsockInitializer {
+    WinsockInitializer() {
+	WSADATA wsadata;
+	int wsaerror = WSAStartup(MAKEWORD(2,2), &wsadata);
+	// FIXME - should we check the returned information in wsadata to check
+	// that we have a version of winsock which is recent enough for us?
+	if (wsaerror != 0) {
+	    throw Xapian::NetworkError("Failed to initialize winsock", "", wsaerror);
+	}
+    }
+
+    ~WinsockInitializer() {
+	WSACleanup();
+    }
+};
+#endif
+
 class OmTime;
 
 /** A RemoteConnection object provides a bidirectional connection to another
@@ -65,10 +99,11 @@ class RemoteConnection {
     void read_at_least(size_t min_len, const OmTime & end_time);
 
 #ifdef __WIN32__
-    // On Windows we use overlapped IO.  We share an overlapped structure
-    // for both reading and writing, as we know that we always wait for
-    // one to finish before starting another (ie, we don't *really* use
-    // overlapped IO - no IO is overlapped - its used only to manage timeouts)
+    /** On Windows we use overlapped IO.  We share an overlapped structure
+     *  for both reading and writing, as we know that we always wait for
+     *  one to finish before starting another (ie, we don't *really* use
+     *  overlapped IO - no IO is overlapped - its used only to manage timeouts)
+     */
     WSAOVERLAPPED overlapped;
 
     /** Calculate how many milliseconds a read should wait.
@@ -77,6 +112,7 @@ class RemoteConnection {
      */
     DWORD calc_read_wait_msecs(const OmTime & end_time);
 #endif
+
   public:
     /// Constructor.
     RemoteConnection(int fdin_, int fdout_, const std::string & context_);

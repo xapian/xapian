@@ -33,6 +33,7 @@ noinst_HEADERS +=\
 	common/safesysstat.h\
 	common/safeunistd.h\
 	common/safewindows.h\
+	common/safewinsock2.h\
 	common/serialise-double.h\
 	common/serialise.h\
 	common/stats.h\

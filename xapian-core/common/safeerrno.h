@@ -27,7 +27,7 @@
 
 // WSAGetLastError() is defined in winsock2.h, according to MSDN
 #ifdef __WIN32__
-# include <winsock2.h>
+# include "safewinsock2.h"
 #endif
 
 // Compaq's C++ compiler requires sys/errno.h to be included, followed by
