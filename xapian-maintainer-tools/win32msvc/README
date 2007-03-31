@@ -8,8 +8,8 @@ Python for Windows binary distribution as this is also compiled with Visual C++;
 the only way to make the Python bindings work is to recompile Python with Cygwin (Xapian 
 compiles happily with Cygwin as standard).
 
-The project was started by Ulrik Petersen (<ulrikp(write.the.sign.here)users.sourceforge|do-t|org>) 
-and continued by Charlie Hull of Lemur Consulting who is intending to maintain it. 
+The project was started by Ulrik Petersen, and continued by Charlie Hull of
+Lemur Consulting who is intending to maintain it. 
 
 If you have any feedback, bug reports or comments about these files,
 please DO NOT contact Ulrik, but please contact us at Lemur Consulting 
