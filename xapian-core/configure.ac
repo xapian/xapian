@@ -579,92 +579,74 @@ dnl ***************************
 dnl * Select modules to build *
 dnl ***************************
 
-dnl Find out what we've been asked to build
+dnl Check which database backends should be built.
 
-AC_ARG_ENABLE(backend_quartz,
-[  --enable-backend-quartz Enable the quartz database backend (default=yes)],
-[case ${enableval} in
-  yes) build_quartz=true ;;
-  no)  build_quartz=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-quartz) ;;
-esac],[build_quartz=true])
+AC_DEFUN([XAPIAN_BACKEND_ENABLE],
+  [AC_ARG_ENABLE(backend_$1,
+    [AS_HELP_STRING([--enable-backend-$1], [build the $1 database backend [default=yes]])],
+    [case $enableval in
+      yes|no) ;;
+      *) AC_MSG_ERROR([Invalid option: '--enable-backend-$1=$enableval']) ;;
+    esac], [enable_backend_$1=yes])
+  ])
 
-AC_ARG_ENABLE(backend_flint,
-[  --enable-backend-flint Enable the flint database backend (default=yes)],
-[case ${enableval} in
-  yes) build_flint=true ;;
-  no)  build_flint=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-flint) ;;
-esac],[
-  dnl We'd need to implement a flint locking strategy for MSDOS before we can
-  dnl build flint there.
+XAPIAN_BACKEND_ENABLE(quartz)
+XAPIAN_BACKEND_ENABLE(flint)
+XAPIAN_BACKEND_ENABLE(inmemory)
+XAPIAN_BACKEND_ENABLE(remote)
+
+if test yes = "$enable_backend_flint" ; then
+  dnl We would need to implement a flint locking strategy for MSDOS before we
+  dnl could build flint there.
   case $host_os in
-    *djgpp* | *msdos* ) build_flint=false ;;
-    *) build_flint=true ;;
+    *djgpp* | *msdos* ) enable_backend_flint=no ;;
   esac
-])
+fi
 
-AC_ARG_ENABLE(backend_inmemory,
-[  --enable-backend-inmemory Enable the inmemory database backend (default=yes)],
-[case ${enableval} in
-  yes) build_inmemory=true ;;
-  no)  build_inmemory=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-inmemory) ;;
-esac],[build_inmemory=true])
-
-AC_ARG_ENABLE(backend_remote,
-[  --enable-backend-remote Enable the remote database backend (default=yes)],
-[case ${enableval} in
-  yes) build_remote=true ;;
-  no)  build_remote=false ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-remote) ;;
-esac],[build_remote=true])
-
-dnl check for fork - if we don't have it, the remote backend won't build
-dnl DJGPP has a dummy implementation of fork which always fails.
-case $host_os in
-  *djgpp* | *msdos* ) ac_cv_func_fork=no ;;
-  *)
-    AC_CHECK_FUNCS(fork)
-    ;;
-esac
-if test "$ac_cv_func_fork" = no ; then
-  build_remote=false
-else
-  REMOTE_LDFLAGS=
-  dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
-  SAVE_LIBS="$LIBS"
-  LIBS=
-  AC_SEARCH_LIBS(socketpair, socket, [REMOTE_LDFLAGS="$LIBS"])
-  LIBS="$SAVE_LIBS"
-  if test "$ac_cv_func_socketpair" = no ; then
-    build_remote=false
-  else
-    dnl Add -lnsl to LDFLAGS if needed (eg Solaris)
-    SAVE_LIBS="$LIBS"
-    LIBS=
-    AC_SEARCH_LIBS(gethostbyname, nsl,
-	    [REMOTE_LDFLAGS="$LIBS $REMOTE_LDFLAGS"],
-	    build_remote=false)
-    LIBS="$SAVE_LIBS"
-    if test false != "$build_remote" ; then
-      SAVE_LIBS="$LIBS"
+REMOTE_LDFLAGS=
+if test "$enable_backend_remote" = yes ; then
+  dnl On Unix, we need fork and socketpair for the remotebackend.
+  case $host_os in
+    *djgpp* | *msdos* )
+      dnl DJGPP has a dummy implementation of fork which always fails.
+      enable_backend_remote=no ;;
+    *mingw* )
+      dnl For mingw and msvc we have an alternative implementation which
+      dnl doesn't need fork().  Also the "prog" variant isn't built
+      dnl currently so socketpair() isn't required either.
+      dnl
+      dnl We need -lws2_32 for gethostbyname(), etc.  Hardcode that knowledge
+      dnl here because AC_SEARCH_LIBS fails to link the test program (I think
+      dnl because its prototype has the wrong calling convention).
+      REMOTE_LDFLAGS=-lws2_32
+      ;;
+    *)
+      AC_CHECK_FUNCS(fork)
+      SAVE_LIBS=$LIBS
       LIBS=
-      AC_SEARCH_LIBS(gethostbyaddr, nsl,
-	      [
-	      case " $REMOTE_LDFLAGS " in
-	      "* -lnsl *") ;;
-	      *) REMOTE_LDFLAGS="$LIBS $REMOTE_LDFLAGS" ;;
-	      esac
-	      ],
-	      build_remote=false)
+      if test "$ac_cv_func_fork" = no ; then
+	enable_backend_remote=no
+      else
+	dnl Check if -lsocket is required for socketpair (Solaris needs it).
+	AC_SEARCH_LIBS(socketpair, socket, [], [enable_backend_remote=no])
+	if test "$enable_backend_remote" = yes ; then
+	  dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
+	  AC_SEARCH_LIBS(gethostbyname, nsl, [], [enable_backend_remote=no])
+	  if test "$enable_backend_remote" = yes ; then
+	    dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
+	    AC_SEARCH_LIBS(gethostbyaddr, nsl, [], [enable_backend_remote=no])
+	    if test "$enable_backend_remote" = yes ; then
+	      REMOTE_LDFLAGS=$LIBS
+	    fi
+	  fi
+	fi
+      fi
       LIBS="$SAVE_LIBS"
+      ;;
+  esac
 
-      dnl check for socklen_t
-      TYPE_SOCKLEN_T
-    fi
-  fi
-  if test false != "$build_remote" ; then
+  if test "$enable_backend_remote" = yes ; then
+    TYPE_SOCKLEN_T
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $REMOTE_LDFLAGS"
   fi
 fi
@@ -692,10 +674,10 @@ dnl Turn off compilation of anything that we don't have the requirements for
 
 dnl Set conditionals to specify what we compile
 
-AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test true = "$build_quartz")
-AM_CONDITIONAL(BUILD_BACKEND_FLINT, test true = "$build_flint")
-AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test true = "$build_inmemory")
-AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test true = "$build_remote")
+AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test yes = "$enable_backend_quartz")
+AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
+AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
+AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
 dnl Set a flag for AM when shared libraries are enabled.
 dnl AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
 
