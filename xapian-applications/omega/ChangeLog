@@ -1,3 +1,11 @@
+Sat Mar 31 18:25:55 BST 2007  Olly Betts <olly@survex.com>
+
+	* query.cc: Ensure that the result of snprintf is zero terminated
+	  since MSVC's snprintf is broken (by design it seems).
+	* query.cc,docs/omegascript.txt: $filesize enhanced to return a
+	  decimal point for K, M, and G (e.g. "2.1K" and "4.0M" rather than
+	  "2K" and "4M").
+
 Fri Mar 30 19:57:00 BST 2007  Olly Betts <olly@survex.com>
 
 	* portability/mkdtemp.cc: Fixes for mingw.

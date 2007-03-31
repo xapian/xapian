@@ -1167,19 +1167,37 @@ eval(const string &fmt, const vector<string> &param)
 		break;
 	    case CMD_filesize: {
 		// FIXME: rounding?
-		// FIXME: for smaller sizes give decimal fractions, e.g. "1.4K"
 		int size = string_to_int(args[0]);
-		char buf[200] = "";
+		int intpart = size;
+		int fraction = -1;
+		const char * format = 0;
 		if (size && size < 1024) {
-		    my_snprintf(buf, sizeof(buf), "%d bytes", size);
+		    format = "%d bytes";
 		} else if (size < 1024*1024) {
-		    my_snprintf(buf, sizeof(buf), "%dK", int(size/1024));
+		    intpart = size / 1024;
+		    fraction = size % 1024;
+		    format = "%d.%dK";
 		} else if (size < 1024*1024*1024) {
-		    my_snprintf(buf, sizeof(buf), "%dM", int(size/1024/1024));
+		    intpart = size / (1024 * 1024);
+		    fraction = size % (1024 * 1024);
+		    format = "%d.%dM";
 		} else {
-		    my_snprintf(buf, sizeof(buf), "%dG", int(size/1024/1024/1024));
+		    intpart = size / (1024 * 1024 * 1024);
+		    fraction = size % (1024 * 1024 * 1024);
+		    format = "%d.%dG";
 		}
-		value = buf;
+		if (format) {
+		    char buf[200];
+		    int len;
+		    if (fraction == -1) {
+			len = my_snprintf(buf, sizeof(buf), format, intpart);
+		    } else {
+			fraction = fraction * 10 / 1024;
+			len = my_snprintf(buf, sizeof(buf), format, intpart, fraction);
+		    }
+		    if (len < 0 || len > sizeof(buf)) len = sizeof(buf);
+		    value.assign(buf, len);
+		}
 		break;
 	    }
 	    case CMD_filters:
@@ -1521,6 +1539,9 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_now: {
 		char buf[64];
 		my_snprintf(buf, sizeof(buf), "%lu", (unsigned long)time(NULL));
+		// MSVC's snprintf omits the zero byte if the string if
+		// sizeof(buf) long.
+		buf[sizeof(buf) - 1] = '\0';
 		value = buf;
 		break;
 	    }
@@ -1735,6 +1756,9 @@ eval(const string &fmt, const vector<string> &param)
 		if (usec != -1) {
 		    char buf[64];
 		    my_snprintf(buf, sizeof(buf), "%ld.%06ld", sec, usec);
+		    // MSVC's snprintf omits the zero byte if the string if
+		    // sizeof(buf) long.
+		    buf[sizeof(buf) - 1] = '\0';
 		    value = buf;
 		}
 		break;
