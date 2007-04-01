@@ -36,11 +36,12 @@
  *  after we've finished using it.  This class performs this initialisation when
  *  constructed and cleans up when destructed.  Multiple instances of the class
  *  may be instantiated - windows keeps a count of the number of times that
- *  winsock has been initialised, and only performs the cleanup when the cleanup
- *  function has been called the same number of times.
+ *  WSAStartup has been successfully called and only performs the actual cleanup
+ *  when WSACleanup has been called the same number of times.
  *
  *  Simply ensure that an instance of this class is initialised whenever we're
- *  doing socket handling.
+ *  doing socket handling.  This class can be used as a mixin class (just
+ *  inherit from it) or instantiated as a class member or local variable).
  */
 struct WinsockInitializer {
     WinsockInitializer() {
@@ -48,6 +49,7 @@ struct WinsockInitializer {
 	int wsaerror = WSAStartup(MAKEWORD(2,2), &wsadata);
 	// FIXME - should we check the returned information in wsadata to check
 	// that we have a version of winsock which is recent enough for us?
+
 	if (wsaerror != 0) {
 	    throw Xapian::NetworkError("Failed to initialize winsock", "", wsaerror);
 	}

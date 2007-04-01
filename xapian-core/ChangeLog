@@ -1,3 +1,8 @@
+Sun Apr 01 18:37:15 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/remoteconnection.h: Note in comments about use as a "mixin"
+	  class.
+
 Sun Apr 01 17:42:19 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests,examples,bin: Add .exe versions of built executables to 
