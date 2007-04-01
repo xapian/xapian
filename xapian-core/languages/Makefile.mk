@@ -31,25 +31,8 @@ snowball_algorithms =\
 	languages/turkish.sbl
 
 snowball_built_sources =\
-	languages/danish.cc		languages/danish.h\
-	languages/dutch.cc		languages/dutch.h\
-	languages/english.cc		languages/english.h\
-	languages/finnish.cc		languages/finnish.h\
-	languages/french.cc		languages/french.h\
-	languages/german2.cc		languages/german2.h\
-	languages/german.cc		languages/german.h\
-	languages/hungarian.cc		languages/hungarian.h\
-	languages/italian.cc		languages/italian.h\
-	languages/kraaij_pohlmann.cc	languages/kraaij_pohlmann.h\
-	languages/lovins.cc		languages/lovins.h\
-	languages/norwegian.cc		languages/norwegian.h\
-	languages/porter.cc		languages/porter.h\
-	languages/portuguese.cc		languages/portuguese.h\
-	languages/romanian.cc		languages/romanian.h\
-	languages/russian.cc		languages/russian.h\
-	languages/spanish.cc		languages/spanish.h\
-	languages/swedish.cc		languages/swedish.h\
-	languages/turkish.cc		languages/turkish.h
+	$(snowball_algorithms:.sbl=.cc)\
+	$(snowball_algorithms:.sbl=.h)
 
 snowball_sources =\
 	languages/compiler/space.c\

@@ -1,3 +1,9 @@
+Sun Apr 01 06:42:14 BST 2007  Olly Betts <olly@survex.com>
+
+	* languages/Makefile.mk: $(snowball_algorithms:.sbl=.cc) is portable
+	  according to the automake list so use that so we only need to list
+	  the .sbl sources.
+
 Sun Apr 01 05:53:29 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/tcpserver.h,net/tcpserver.cc: TcpServer's port member
