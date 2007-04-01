@@ -1,3 +1,8 @@
+Sun Apr 01 05:53:29 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/tcpserver.h,net/tcpserver.cc: TcpServer's port member
+	  variable is set but never used so remove it.
+
 Sun Apr 01 03:27:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk,examples/Makefile.mk: Add $(EXEEXT) to dependency on

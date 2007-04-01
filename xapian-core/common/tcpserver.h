@@ -1,7 +1,7 @@
 /* tcpserver.h: class for TCP/IP-based server.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2006 Olly Betts
+ * Copyright 2003,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,9 +31,6 @@ class TcpServer {
 	// disallow copies
 	TcpServer(const TcpServer &);
 	void operator=(const TcpServer &);
-
-	/// The listening port number.
-	int port;
 
 	// If wdb is set, true; if db is set, false.
 	bool writable;
@@ -85,7 +82,7 @@ class TcpServer {
 	/** Default constructor.
 	 *
 	 *  @param db_		The database used for matches etc.
-	 *  @param port_	The port on which to listen for connections.
+	 *  @param port	The port on which to listen for connections.
 	 *  @param msecs_active_timeout_	The timeout (in milliseconds)
 	 *			used while waiting for data from the client
 	 *			during the handling of a request.
@@ -93,12 +90,12 @@ class TcpServer {
 	 *			used while waiting for a request from the
 	 *			client while idle.
 	 */
-	TcpServer(Xapian::Database db_, int port_,
+	TcpServer(Xapian::Database db_, int port,
 		  int msecs_normal_timeout_ = 10000,
 		  int msecs_idle_timeout_ = 60000,
 		  bool verbose_ = true);
 
-	TcpServer(Xapian::WritableDatabase db_, int port_,
+	TcpServer(Xapian::WritableDatabase db_, int port,
 		  int msecs_normal_timeout_ = 10000,
 		  int msecs_idle_timeout_ = 60000,
 		  bool verbose_ = true);

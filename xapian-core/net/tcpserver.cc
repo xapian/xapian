@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,11 +55,11 @@ using namespace std;
 #endif
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(Xapian::Database db_, int port_,
+TcpServer::TcpServer(Xapian::Database db_, int port,
 		     int msecs_active_timeout_,
 		     int msecs_idle_timeout_,
 		     bool verbose_)
-	: port(port_), writable(false), db(db_), listen_socket(get_listening_socket(port_)),
+	: writable(false), db(db_), listen_socket(get_listening_socket(port)),
 	  msecs_active_timeout(msecs_active_timeout_),
 	  msecs_idle_timeout(msecs_idle_timeout_),
 	  verbose(verbose_)
@@ -67,11 +67,11 @@ TcpServer::TcpServer(Xapian::Database db_, int port_,
 
 }
 
-TcpServer::TcpServer(Xapian::WritableDatabase wdb_, int port_,
+TcpServer::TcpServer(Xapian::WritableDatabase wdb_, int port,
 		     int msecs_active_timeout_,
 		     int msecs_idle_timeout_,
 		     bool verbose_)
-	: port(port_), writable(true), wdb(wdb_), listen_socket(get_listening_socket(port_)),
+	: writable(true), wdb(wdb_), listen_socket(get_listening_socket(port)),
 	  msecs_active_timeout(msecs_active_timeout_),
 	  msecs_idle_timeout(msecs_idle_timeout_),
 	  verbose(verbose_)
