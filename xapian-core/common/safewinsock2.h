@@ -36,8 +36,4 @@
 #define ETIMEDOUT WSAETIMEDOUT
 #define EINPROGRESS WSAEINPROGRESS
 
-#ifdef _MSC_VER
-typedef int socklen_t;
-#endif
-
 #endif // XAPIAN_INCLUDED_SAFEWINSOCK2_H
