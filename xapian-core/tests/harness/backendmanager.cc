@@ -56,6 +56,11 @@
 #include "unixcmds.h"
 #include "utils.h"
 
+// We've had problems on some hosts which run tinderbox tests with "localhost"
+// not being set in /etc/hosts - using the IP address equivalent seems more
+// reliable.
+#define LOCALHOST "127.0.0.1"
+
 using namespace std;
 
 void
@@ -437,11 +442,12 @@ static int
 launch_xapian_tcpsrv(const string & args)
 {
     int port = 1239;
+
     // We want to be able to get the exit status of the child process we fork
     // in xapian-tcpsrv doesn't start listening successfully.
     signal(SIGCHLD, SIG_DFL);
 try_next_port:
-    string cmd = "../bin/xapian-tcpsrv --one-shot --port " + om_tostring(port) + " " + args;
+    string cmd = "../bin/xapian-tcpsrv --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args;
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
 #endif
@@ -539,11 +545,12 @@ static int
 launch_xapian_tcpsrv(const string & args)
 {
     int port = 1239;
+
 try_next_port:
     // *sob* - we are using 'start' to send it to the background, but
     // the return code handling by cmd.exe is totally screwed:  rc will always
     // be |1|.  This should be replaced with decent child-process code.
-    string cmd = "start "XAPIAN_TCPSRV" --one-shot --port " + om_tostring(port) + " " + args + " > %TEMP%\\xapian-tcpsrv.out 2>&1";
+    string cmd = "start /B "XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args + " > %TEMP%\\xapian-tcpsrv.out 2>&1";
 
     int rc = system(cmd.c_str());
     // as per comments above, we will *never* see rc==69 - but we keep the
@@ -556,7 +563,7 @@ try_next_port:
 	goto try_next_port;
     }
     if (rc) {
-	string msg("Program failed with ");
+	string msg("Program failed with exit code ");
 	msg += om_tostring(rc);
 	msg += ": ";
 	msg += cmd;
@@ -598,7 +605,7 @@ BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 #endif
 
     int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open("127.0.0.1", port);
+    return Xapian::Remote::open(LOCALHOST, port);
 }
 
 Xapian::WritableDatabase
@@ -619,7 +626,7 @@ BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
 #endif
 
     int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open_writable("127.0.0.1", port);
+    return Xapian::Remote::open_writable(LOCALHOST, port);
 }
 #endif
 

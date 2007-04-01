@@ -1,3 +1,10 @@
+Mon Apr 02 00:44:56 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc: Factor out localhost address into
+	  LOCALHOST.  Use new xapian-tcpsrv --interface option to only listen
+	  for connections on localhost.  Run xapian-tcpsrv with "start /B" on
+	  MS Windows (this stops the "flickbook of console windows" effect).
+
 Mon Apr 02 00:41:31 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/safesyssocket.h: Oops, I checked
