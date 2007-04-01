@@ -29,13 +29,13 @@
 
 OmDebug om_debug;
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "safefcntl.h"
 #include "safeerrno.h"
+
+#include <string>
 
 using namespace std;
 
