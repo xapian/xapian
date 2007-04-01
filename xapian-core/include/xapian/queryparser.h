@@ -67,7 +67,7 @@ class SimpleStopper : public Stopper {
 #endif
 
     /// Add a single stop word.
-    void add(const std::string word) { stop_words.insert(word); }
+    void add(const std::string & word) { stop_words.insert(word); }
 
     /// Is term a stop-word?
     virtual bool operator()(const std::string & term) const {
