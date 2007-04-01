@@ -107,14 +107,13 @@ OmDebug::display_message(enum om_debug_types type, string msg)
     line += msg;
     size_t written = 0;
     while (written < line.size()) {
-	ssize_t last_write = write(fd, line.data(), line.size());
-	if (last_write < 0) {
-	    if (errno != EINTR)
-		return; // Ignore errors
-	    else
-		last_write = 0;
+	ssize_t n = write(fd, line.data() + written, line.size() - written);
+	if (n < 0) {
+	    if (errno == EINTR)
+		continue;
+	    return; // Ignore errors
 	}
-	written += last_write;
+	written += n;
     }
 }
 
