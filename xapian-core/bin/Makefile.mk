@@ -59,21 +59,21 @@ bin_xapian_tcpsrv_SOURCES = bin/xapian-tcpsrv.cc
 bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la libxapian.la
 
 if MAINTAINER_MODE
-bin/quartzcheck.1: bin/quartzcheck makemanpage
+bin/quartzcheck.1: bin/quartzcheck$(EXEEXT) makemanpage
 	./makemanpage bin/quartzcheck $(srcdir)/bin/quartzcheck.cc bin/quartzcheck.1
 
-bin/quartzcompact.1: bin/quartzcompact makemanpage
+bin/quartzcompact.1: bin/quartzcompact$(EXEEXT) makemanpage
 	./makemanpage bin/quartzcompact $(srcdir)/bin/quartzcompact.cc bin/quartzcompact.1
 
-bin/quartzdump.1: bin/quartzdump makemanpage
+bin/quartzdump.1: bin/quartzdump$(EXEEXT) makemanpage
 	./makemanpage bin/quartzdump $(srcdir)/bin/quartzdump.cc bin/quartzdump.1
 
-bin/xapian-progsrv.1: bin/xapian-progsrv makemanpage
+bin/xapian-progsrv.1: bin/xapian-progsrv$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-progsrv $(srcdir)/bin/xapian-progsrv.cc bin/xapian-progsrv.1
 
-bin/xapian-tcpsrv.1: bin/xapian-tcpsrv makemanpage
+bin/xapian-tcpsrv.1: bin/xapian-tcpsrv$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-tcpsrv $(srcdir)/bin/xapian-tcpsrv.cc bin/xapian-tcpsrv.1
 
-bin/xapian-compact.1: bin/xapian-compact makemanpage
+bin/xapian-compact.1: bin/xapian-compact$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-compact $(srcdir)/bin/xapian-compact.cc bin/xapian-compact.1
 endif

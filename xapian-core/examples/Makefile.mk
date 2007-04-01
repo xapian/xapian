@@ -30,12 +30,12 @@ dist_man_MANS +=\
 	examples/quest.1
 
 if MAINTAINER_MODE
-examples/copydatabase.1: examples/copydatabase makemanpage
+examples/copydatabase.1: examples/copydatabase$(EXEEXT) makemanpage
 	./makemanpage examples/copydatabase $(srcdir)/examples/copydatabase.cc examples/copydatabase.1
 
-examples/delve.1: examples/delve makemanpage
+examples/delve.1: examples/delve$(EXEEXT) makemanpage
 	./makemanpage examples/delve $(srcdir)/examples/delve.cc examples/delve.1
 
-examples/quest.1: examples/quest makemanpage
+examples/quest.1: examples/quest$(EXEEXT) makemanpage
 	./makemanpage examples/quest $(srcdir)/examples/quest.cc examples/quest.1
 endif
