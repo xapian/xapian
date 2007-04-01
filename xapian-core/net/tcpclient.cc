@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2004,2005,2006 Olly Betts
+ * Copyright 2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,36 +37,20 @@
 # include <netinet/in.h>
 # include <netinet/tcp.h>
 # include <sys/socket.h>
-# ifdef HAVE_SYS_SELECT_H
-#  include <sys/select.h>
-# else
-#  include <sys/time.h>
-#  include <sys/types.h>
-#  include <unistd.h>
-# endif
-# include <string.h> // Solaris needs this as FDSET uses memset but fails to prototype it.
+# include "safesysselect.h"
 #endif
-
 
 #include "utils.h"
 
-TcpClient::TcpClient(std::string hostname, int port, int msecs_timeout_, int msecs_timeout_connect_)
-	: RemoteDatabase(get_remote_socket(hostname, port, msecs_timeout_connect_),
-			 msecs_timeout_, get_tcpcontext(hostname, port))
-{
-
-}
-
 std::string
-TcpClient::get_tcpcontext(std::string hostname, int port)
+TcpClient::get_tcpcontext(const std::string & hostname, int port)
 {
     return "remote:tcp(" + hostname + ":" + om_tostring(port) + ")";
 }
 
 int
-TcpClient::get_remote_socket(std::string hostname,
-			     int port,
-			     int msecs_timeout_connect_)
+TcpClient::open_socket(const std::string & hostname, int port,
+		       int msecs_timeout_connect)
 {
     // Note: can't use RemoteDatabase::timeout because it won't yet have
     // been initialised.
@@ -133,8 +117,8 @@ TcpClient::get_remote_socket(std::string hostname,
 	FD_SET(socketfd, &fdset);
 
 	struct timeval tv;
-	tv.tv_sec = msecs_timeout_connect_ / 1000;
-	tv.tv_usec = msecs_timeout_connect_ % 1000 * 1000;
+	tv.tv_sec = msecs_timeout_connect / 1000;
+	tv.tv_usec = msecs_timeout_connect % 1000 * 1000;
 
 	retval = select(socketfd + 1, 0, &fdset, &fdset, &tv);
 

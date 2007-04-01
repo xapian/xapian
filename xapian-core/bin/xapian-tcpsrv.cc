@@ -52,6 +52,7 @@ const int MSECS_ACTIVE_TIMEOUT_DEFAULT = 15000;
 #define OPT_VERSION 2
 
 static const struct option opts[] = {
+    {"interface",	required_argument,	0, 'I'},
     {"port",		required_argument,	0, 'p'},
     {"active-timeout",	required_argument,	0, 'a'},
     {"idle-timeout",	required_argument,	0, 'i'},
@@ -68,6 +69,8 @@ static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] DATABASE_DIRECTORY...\n\n"
 "Options:\n"
 "  --port PORTNUM          listen on port PORTNUM for connections (no default)\n"
+"  --interface ADDRESS     listen on the interface associated with name or\n"
+"                          address ADDRESS (default is all interfaces)\n"
 "  --idle-timeout MSECS    set timeout for idle connections (default " << MSECS_IDLE_TIMEOUT_DEFAULT << "ms)\n"
 "  --active-timeout MSECS  set timeout for active connections (default " << MSECS_ACTIVE_TIMEOUT_DEFAULT << "ms)\n"
 "  --timeout MSECS         set both timeout values\n"
@@ -79,6 +82,7 @@ static void show_usage() {
 }
 
 int main(int argc, char **argv) {
+    string host;
     int port = 0;
     int msecs_active_timeout = MSECS_ACTIVE_TIMEOUT_DEFAULT;
     int msecs_idle_timeout   = MSECS_IDLE_TIMEOUT_DEFAULT;
@@ -89,7 +93,7 @@ int main(int argc, char **argv) {
     bool syntax_error = false;
 
     int c;
-    while ((c = gnu_getopt_long(argc, argv, "p:a:i:t:oq", opts, NULL)) != EOF) {
+    while ((c = gnu_getopt_long(argc, argv, "I:p:a:i:t:oq", opts, NULL)) != EOF) {
 	switch (c) {
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";
@@ -98,6 +102,9 @@ int main(int argc, char **argv) {
 	    case OPT_VERSION:
 		cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		exit(0);
+	    case 'I':
+                host.assign(optarg);
+	        break;
 	    case 'p':
                 port = atoi(optarg);
 	        break;
@@ -144,10 +151,15 @@ int main(int argc, char **argv) {
 	if (writable) {
 	    Xapian::WritableDatabase db(argv[optind], Xapian::DB_CREATE_OR_OPEN);
 
-	    if (verbose)
-		cout << "Starting writable server on port " << port << endl;
+	    if (verbose) {
+		if (host.empty())
+		    cout << "Starting writable server on port ";
+		else
+		    cout << "Starting writable server on host " << host << ", port ";
+		cout << port << endl;
+	    }
 
-	    TcpServer server(db, port, msecs_active_timeout,
+	    TcpServer server(db, host, port, msecs_active_timeout,
 			     msecs_idle_timeout, verbose);
 
 	    if (verbose)
@@ -166,10 +178,15 @@ int main(int argc, char **argv) {
 		db.add_database(Xapian::Database(argv[optind++]));
 	    }
 
-	    if (verbose)
-		cout << "Starting server on port " << port << endl;
+	    if (verbose) {
+		if (host.empty())
+		    cout << "Starting server on port ";
+		else
+		    cout << "Starting server on host " << host << ", port ";
+		cout << port << endl;
+	    }
 
-	    TcpServer server(db, port, msecs_active_timeout,
+	    TcpServer server(db, host, port, msecs_active_timeout,
 			     msecs_idle_timeout, verbose);
 
 	    if (verbose)

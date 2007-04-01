@@ -25,6 +25,7 @@
 #include "safeerrno.h"
 #include "safefcntl.h"
 
+#include "remoteserver.h"
 #include "tcpserver.h"
 #include "stats.h"
 
@@ -55,11 +56,11 @@ using namespace std;
 #endif
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(Xapian::Database db_, int port,
+TcpServer::TcpServer(Xapian::Database db_, const std::string & host, int port,
 		     int msecs_active_timeout_,
 		     int msecs_idle_timeout_,
 		     bool verbose_)
-	: writable(false), db(db_), listen_socket(get_listening_socket(port)),
+	: writable(false), db(db_), listen_socket(get_listening_socket(host, port)),
 	  msecs_active_timeout(msecs_active_timeout_),
 	  msecs_idle_timeout(msecs_idle_timeout_),
 	  verbose(verbose_)
@@ -67,11 +68,11 @@ TcpServer::TcpServer(Xapian::Database db_, int port,
 
 }
 
-TcpServer::TcpServer(Xapian::WritableDatabase wdb_, int port,
+TcpServer::TcpServer(Xapian::WritableDatabase wdb_, const std::string & host, int port,
 		     int msecs_active_timeout_,
 		     int msecs_idle_timeout_,
 		     bool verbose_)
-	: writable(true), wdb(wdb_), listen_socket(get_listening_socket(port)),
+	: writable(true), wdb(wdb_), listen_socket(get_listening_socket(host, port)),
 	  msecs_active_timeout(msecs_active_timeout_),
 	  msecs_idle_timeout(msecs_idle_timeout_),
 	  verbose(verbose_)
@@ -80,7 +81,7 @@ TcpServer::TcpServer(Xapian::WritableDatabase wdb_, int port,
 }
 
 int
-TcpServer::get_listening_socket(int port)
+TcpServer::get_listening_socket(const std::string & host, int port)
 {
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
@@ -114,11 +115,23 @@ TcpServer::get_listening_socket(int port)
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = INADDR_ANY;
+    if (host.empty()) {
+	addr.sin_addr.s_addr = INADDR_ANY;
+    } else {
+	// FIXME: timeout on gethostbyname() ?
+	struct hostent *hostent = gethostbyname(host.c_str());
+
+	if (hostent == 0) {
+	    throw Xapian::NetworkError(string("Couldn't resolve host ") + host,
+					      "", socket_errno());
+	}
+
+	memcpy(&addr.sin_addr, hostent->h_addr, sizeof(addr.sin_addr));
+    }
 
     retval = bind(socketfd,
-		      reinterpret_cast<sockaddr *>(&addr),
-		      sizeof(addr));
+		  reinterpret_cast<sockaddr *>(&addr),
+		  sizeof(addr));
 
     if (retval < 0) {
 	int saved_errno = socket_errno(); // note down in case close hits an error
@@ -137,7 +150,7 @@ TcpServer::get_listening_socket(int port)
 }
 
 int
-TcpServer::get_connected_socket()
+TcpServer::accept_connection()
 {
     struct sockaddr_in remote_address;
     SOCKLEN_T remote_address_size = sizeof(remote_address);
@@ -177,7 +190,7 @@ TcpServer::~TcpServer()
 void
 TcpServer::run_once()
 {
-    int connected_socket = get_connected_socket();
+    int connected_socket = accept_connection();
     int pid = fork();
     if (pid == 0) {
 	// child code
@@ -357,9 +370,9 @@ struct thread_param
 
 /// The thread entry-point.
 static unsigned __stdcall
-run_thread(void *_param)
+run_thread(void * param_)
 {
-    thread_param *param(reinterpret_cast<thread_param *>(_param));
+    thread_param * param(reinterpret_cast<thread_param *>(param_));
     param->server->handle_one_request(param->connected_socket);
     delete param;
     _endthreadex(0);
@@ -379,7 +392,7 @@ TcpServer::run()
 
     while (true) {
 	try {
-	    int connected_socket = get_connected_socket();
+	    int connected_socket = accept_connection();
 	    if (connected_socket == -1) // Shutdown has happened
 		break;
 	    // Spawn a new thread to handle the connection.
@@ -419,7 +432,7 @@ void
 TcpServer::run_once()
 {
     // Runs a single request on the current thread.
-    int connected_socket = get_connected_socket();
+    int connected_socket = accept_connection();
     handle_one_request(connected_socket);
 }
 

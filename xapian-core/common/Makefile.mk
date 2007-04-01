@@ -30,6 +30,7 @@ noinst_HEADERS +=\
 	common/rset.h\
 	common/safeerrno.h\
 	common/safefcntl.h\
+	common/safesyssocket.h\
 	common/safesysstat.h\
 	common/safeunistd.h\
 	common/safewindows.h\

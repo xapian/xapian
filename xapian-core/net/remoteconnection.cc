@@ -31,14 +31,7 @@
 #include "serialise.h"
 
 #ifndef __WIN32__
-# ifdef HAVE_SYS_SELECT_H
-#  include <sys/select.h>
-# else
-#  include <sys/time.h>
-#  include <sys/types.h>
-#  include <unistd.h>
-# endif
-# include <string.h> // Solaris needs this as FDSET uses memset but fails to prototype it.
+# include "safesysselect.h"
 #endif
 
 RemoteConnection::RemoteConnection(int fdin_, int fdout_,
