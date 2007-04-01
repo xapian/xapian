@@ -915,7 +915,7 @@ class SimpleStopper : public Stopper {
   public:
     SimpleStopper() { }
 
-    void add(const std::string word) { stop_words.insert(word); }
+    void add(const std::string & word) { stop_words.insert(word); }
 
     virtual bool operator()(const std::string & term) const {
 	return stop_words.find(term) != stop_words.end();
