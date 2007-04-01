@@ -160,7 +160,7 @@ QueryParser::unstem_begin(const std::string &term) const
 void
 QueryParser::add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc)
 {
-    Assert(internal);
+    Assert(internal.get());
     internal->valrangeprocs.push_back(vrproc);
 }
 
