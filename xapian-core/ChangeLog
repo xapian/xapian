@@ -1,3 +1,5 @@
+Mon Apr 02 00:20:45 BST 2007  Olly Betts <olly@survex.com>
+
 	* bin/xapian-tcpsrv.cc,net/tcpserver.cc: Add "--interface" option to
 	  allow the hostname or address of the interface to listen on to be
 	  specified (default is the previous behaviour of listening on all
