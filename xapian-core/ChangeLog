@@ -1,3 +1,11 @@
+Sun Apr 01 13:32:21 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/omdebug.cc: Include necessary headers to get O_CREAT and
+	  friends defined (according to documentation in linux manpage),
+	  to fix compile error.  Also, don't ignore the return value of
+	  write() to fix compile warning (and to ensure that the whole
+	  output gets written if possible).
+
 Sun Apr 01 13:19:52 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/queryparser.cc: Fix Assert() on a RefCountPtr to

@@ -32,6 +32,10 @@ OmDebug om_debug;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "safefcntl.h"
+#include "safeerrno.h"
 
 using namespace std;
 
@@ -101,7 +105,17 @@ OmDebug::display_message(enum om_debug_types type, string msg)
     string line(om_tostring(int(type)));
     line += ']';
     line += msg;
-    write(fd, line.data(), line.size());
+    size_t written = 0;
+    while (written < line.size()) {
+	ssize_t last_write = write(fd, line.data(), line.size());
+	if (last_write < 0) {
+	    if (errno != EINTR)
+		return; // Ignore errors
+	    else
+		last_write = 0;
+	}
+	written += last_write;
+    }
 }
 
 #endif /* XAPIAN_DEBUG_VERBOSE */
