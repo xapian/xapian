@@ -585,8 +585,9 @@ Xapian::Query::Internal::prevalidate_query() const
 		om_tostring(subqs.size()) + ".");
     }
 
-    // Check that the termname is null in a branch query
-    Assert(is_leaf(op) || tname.empty());
+    // Check that the termname is null in a branch query, unless the op
+    // is OP_VALUE_RANGE.
+    Assert(is_leaf(op) || op == OP_VALUE_RANGE || tname.empty());
 }
 
 void
