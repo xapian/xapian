@@ -2,14 +2,15 @@ README for Xapian/Visual C++ Tools
 ==================================
 2007-03-31
 
-Make files, some extra headers and associated tools for compiling Xapian on Win32 using
-the Microsoft Visual C++ compilers. This is particularly useful if you're using the 
-Python for Windows binary distribution as this is also compiled with Visual C++; otherwise 
-the only way to make the Python bindings work is to recompile Python with Cygwin (Xapian 
-compiles happily with Cygwin as standard).
+Make files, some extra headers and associated tools for compiling Xapian on
+Win32 using the Microsoft Visual C++ compilers. This is particularly useful
+if you're using the Python for Windows binary distribution as this is also
+compiled with Visual C++; otherwise the only way to make the Python
+bindings work is to recompile Python with Cygwin (Xapian compiles happily
+with Cygwin as standard).
 
 The project was started by Ulrik Petersen, and continued by Charlie Hull of
-Lemur Consulting who is intending to maintain it. 
+Lemur Consulting who is now maintaining it. 
 
 If you have any feedback, bug reports or comments about these files,
 please DO NOT contact Ulrik, but please contact us at Lemur Consulting 
@@ -23,8 +24,10 @@ What works?
 - The xapian-compact binary
 - The Xapian example binaries
 - The libtest.lib and libbtreecheck libraries
-- The various tests that use the above, which are run as part of the makefile in tests/
-- Omega, Omindex and Scriptindex (although these may have difficulty parsing Windows directory paths).
+- The various tests that use the above, which are run as part of the makefile
+  in tests/
+- Omega, Omindex and Scriptindex (although these may have difficulty parsing
+  Windows directory paths).
 
 What doesn't work?
 ==================
@@ -47,29 +50,60 @@ TODOS
 
 Other bindings
 
-How do I install the sources?
-=============================
+How do I get the released sources?
+==================================
 
-1. Download and install Xapian, the Xapian bindings and Omega to the same folder. You should have a structure like this (the top level
-folder doesn't have to be called 'xapian').
+You will need an archive tool which can uncompress .zip and .tgz archives.
+A free tool which is suitable for this purpose is available from
+http://www.7-zip.org/. 
+
+1. Download and unpack Xapian, the Xapian bindings and Omega to the same
+   folder. You should have a structure like this (the top level folder
+   doesn't have to be called 'xapian'):
 
 xapian\
 xapian\xapian-core-0.x.y
 xapian\xapian-bindings-0.x.y
 xapian\omega-0.x.y
 
-where x and y are revision numbers. If you are building from SVN-HEAD, you will have a slightly different structure:
+where x and y are revision numbers.
+
+2. Download win32.zip for the appropriate Xapian release from Lemur
+   Consulting and place in xapian\xapian-core-0.x.y.
+3. Extract the files to the win32/ folder (usually, right click on the ZIP
+   file and select Extract Here). 
+4. IMPORTANT - Edit config.mak to make sure the various individual mak
+   files end up in the right folders, and add the correct paths for any
+   other binding languages. You may also need to edit the
+   win32_applications_omega.mak and win32_bindings_python.mak files, and
+   the .mak files for any other bindings. Note that all the .mak files in
+   the win32/ folder are automatically copied to the correct places at the
+   beginning of the build process, so edit them here rather than where they
+   end up.
+
+How do I get the latest development sources?
+============================================
+
+The development sources are held in a revision control system called
+subversion, so you will first need a subversion client installed to build
+the latest development sources.  Details of how to access the xapian
+repository are available at http://xapian.org/bleeding.php
+
+When you check out the xapian sources, you will have a slightly different
+structure than that derived from the release tarballs:
 
 xapian\xapian-core
 xapian\xapian-bindings
 xapian\xapian-applications
+xapian\xapian-maintainer-tools
 
+After checking out the sources, copy the contents of the
+"xapian\xapian-maintainer-tools\win32msvc" directory to a new directory named
+"xapian\xapian-core\win32".
 
-2. Download win32.zip for the appropriate Xapian release from Lemur Consulting and place in xapian\xapian-core-0.x.y . 
-3. Install your favourite unZIP tool (e.g. from http://www.7-zip.org/). 
-4. Extract the files to the win32/ folder (usually, right click on the ZIP file and select Extract Here). 
-5. IMPORTANT - Edit config.mak to make sure the various individual mak files end up in the right folders, and add the correct paths for any other binding languages. You may also need to edit the  win32_applications_omega.mak and win32_bindings_python.mak files, and the .mak files for any other bindings. Note that all the .mak files in the win32/ folder are automatically copied to the correct places at the beginning of the build process, so edit them here rather than where they end up.
-
+You will then need to edit "xapian\xapian-core\win32\config.mak" as
+described in step 4 in the previous section ("How do I get the released
+sources?").
 
 What do I need to compile it?
 =============================

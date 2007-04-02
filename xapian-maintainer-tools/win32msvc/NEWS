@@ -18,8 +18,9 @@ Xapian-core 0.9.6 (2006-05-15)
  * error.h and errordispatch.h also has to be hand created
  * Debug and release builds can now be produced
  
- Xapian SVN-HEAD (2007-3-09)
+ Xapian SVN-HEAD (2007-4-02)
  
  * Moved a lot of general settings into config.mak for consistency
  * win32.mak now has COPYMAKFILES and TESTFORTOOLS targets
  * PHP bindings can now be compiled 
+ * Remote backend now works.
