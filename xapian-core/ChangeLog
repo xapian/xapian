@@ -1,3 +1,8 @@
+Mon Apr 02 09:44:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Don't use SO_REUSEADDR under __CYGWIN__ or
+	  __WIN32__ as it has incorrect semantics.
+
 Mon Apr 02 09:37:14 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc: Pull `1239' out as `DEFAULT_PORT'.

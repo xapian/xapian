@@ -93,15 +93,21 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 	int optval = 1;
 	// 4th argument might need to be void* or char* - cast it to char*
 	// since C++ allows implicit conversion to void* but not from void*.
-	retval = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR,
+	retval = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
 			    reinterpret_cast<char *>(&optval),
 			    sizeof(optval));
 
+	// Windows has screwy semantics for SO_REUSEADDR - it allows the user
+	// to bind to a port which is already bound and listening!  That's
+	// just not suitable as we don't want multiple xapian-tcpsrv processes
+	// listening on the same port!
+#if !defined __CYGWIN__ && !defined __WIN32__
 	if (retval >= 0) {
-	    retval = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
+	    retval = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR,
 				reinterpret_cast<char *>(&optval),
 				sizeof(optval));
 	}
+#endif
     }
 
     if (retval < 0) {
