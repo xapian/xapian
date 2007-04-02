@@ -71,6 +71,9 @@ static bool test_termstats()
 // check that stubdbs work
 static bool test_stubdb1()
 {
+#ifdef __WIN32__
+    SKIP_TEST("prog variant of remote backend not currently supported under Windows");
+#endif
     ofstream out("stubdb1");
     TEST(out.is_open());
     // FIXME: not very reliable...
