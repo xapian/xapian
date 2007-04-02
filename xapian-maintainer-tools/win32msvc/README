@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2007-03-31
+2007-04-02
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -133,29 +133,32 @@ core maintainers, so you shouldn't need to do this.
 
 - To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak.
 
-- To compile the PHP 4/5 bindings you need:
-  a. the PHP sources from www.php.net (we have used PHP 4.4.6 and 5.2.1). Make sure the paths to this are set correctly in config.mak. 
+- To compile the PHP 4 bindings you need:
 
-  b(i). You may be able to drop in the built .lib files from a Windows binary distribution and link against these. 
+  a. the PHP sources from www.php.net (we have used PHP 4.4.6). 
+  b. the built sources from a Windows binary distribution
+  c. to edit config.mak to use the correct paths to PHP and to select the right version of PHP to build.
+
+- To compile the PHP 5 bindings you need:
+	
+  a. the PHP sources from www.php.net (we have used PHP 5.2.1). Make sure the paths to this are set correctly in config.mak. 
+
+  b. to rebuild a patched version of PHP 5.2.1: we have noticed that PHP 5 may crash on exit when Xapian is compiled as an extension; we believe this is due to a fault in PHP 5.2.1 concerning unloading resources at shutdown. 
   
-  b(ii). Otherwise you may have to build PHP on your system using MSVC; difficult with PHP4 but easier with PHP5.
-  http://uk2.php.net/manual/en/install.windows.building.php has some details.
-  You will also need specially built versions of Libxml, Zlib and Iconv:
-  http://ctindustries.net/libxml/ has Windows downloads. NOTE: you will also have to add the paths to the various \include and \lib folders for all of these to the environment variables INCLUDE and LIB for PHP building to work. The PATH will also need to contain the path to the SDK's
-  BIN folder and the win32build\bin folder.
-  Further references on getting/building PHP using Visual C++:
+  http://elizabethmariesmith.com/2006/11/15/how-to-compile-php52-and-php-gtk2-on-windows-using-visual-c-express/2/ has a good guide for how to do this. Further references on getting/building PHP using Visual C++ can be found at:
+  http://uk2.php.net/manual/en/install.windows.building.php
   http://kromann.info/article.php?Id=11062862408280000
 
-  c. Patch php_config.h as follows:
-  line 603: #define HAVE_ASSERT_H 1
-  line 693: #define HAVE_STRING_H
-  line 2842: remove any #undef ZEND_DEBUG lines
-
-  d. Rename xapian_version.h.in to xapian_version.h
-  
-  e. Change config.mak to select the version of PHP to build.
-
-
+  Patch php_config.h as follows:
+    line 603: #define HAVE_ASSERT_H 1
+    line 693: #define HAVE_STRING_H
+    line 2842: remove any #undef ZEND_DEBUG lines
+  Patch php_cli.c as follows by commenting out line 1283:
+	#ifdef ZTS
+	/*    tsrm_shutdown(); */
+	#endif
+	
+  c. to edit config.mak to use the correct paths to PHP and to select the right version of PHP to build.
 
 How do I compile it?
 ====================
@@ -185,7 +188,7 @@ The binaries end up in xapian-core-0.x.y\win32\Release or \Debug, depending on a
 Debug builds
 ===========
 
-To compile Debug builds, you will need to swap some lines in config.mak - these is provided.
+To compile Debug builds, you will need to swap some lines in config.mak - these are provided but commented out.
 It is also possible to create a project in the Visual C++ Express Edition IDE.
 
 

@@ -3,9 +3,7 @@
 # Modified by Charlie Hull, Lemur Consulting Ltd.
 # www.lemurconsulting.com
 #
-# Modify this file to set the Python configuration and any extra Xapian build flags
-# Note that you should only use a Windows Python built using Visual C++, i.e. the standard Windows
-# binary distribution
+# Modify this file to set any extra Xapian build flags
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
@@ -33,6 +31,9 @@ PERL_EXE=$(PERL_DIR)\perl.exe
 
 
 # -------------Python settings-------------
+# Note that you should only use a Windows Python built using Visual C++, i.e. the standard Windows
+# binary distribution
+
 # Python folder
 PYTHON_DIR=c:\Program Files\Python25
 # Python executable
@@ -45,36 +46,39 @@ PYTHON_LIB=$(PYTHON_DIR)\libs\python25.lib
 
 
 # -------------PHP settings-------------
-# PHP folder
-PHP_DIR=\work\php-4.4.6-Win32
-#PHP_INCLUDE : Set this to the directory that contains PHP.h
-PHP_INCLUDE=\work\php-4.4.6
+
+# PHP source folder
+PHP_SRC_DIR=\work\php-5.2.1
+# PHP executable folder
+PHP_EXE_DIR=\work\php-5.2.1\Release_TS
+# for debug, set the above to:
+#PHP_EXE_DIR=\work\php-5.2.1\Debug_TS
+
 PHP_INCLUDE_CPPFLAGS= \
-/I "$(PHP_INCLUDE)" /I "$(PHP_INCLUDE)\tsrm" /I "$(PHP_INCLUDE)\Zend" /I "$(PHP_INCLUDE)\main" /I "$(PHP_INCLUDE)\regex"  \
-/D"HAVE_WIN32STD=1" /D "ZEND_WIN32" /D "PHP_WIN32" /D ZEND_WIN32_FORCE_INLINE /D ZTS 
+/I "$(PHP_SRC_DIR)" /I "$(PHP_SRC_DIR)\tsrm" /I "$(PHP_SRC_DIR)\Zend" /I "$(PHP_SRC_DIR)\main" /I "$(PHP_SRC_DIR)\regex"  \
+/D ZTS=1 /D ZEND_WIN32=1 /D PHP_WIN32=1 /D ZEND_WIN32_FORCE_INLINE \
+
+# add these flags for php 4
+# /D"HAVE_WIN32STD=1"
 
 # version 4 or 5: Define exactly the one you want and leave the other one 
-# uncommented out
-#PHP_MAJOR_VERSION = 5
-PHP_MAJOR_VERSION = 4
+# commented out
+#PHP_MAJOR_VERSION = 4
+PHP_MAJOR_VERSION = 5
 
 #Release build
 #     PHP_LIB : Set this to the PHP library including path for linking with
-#PHP_LIB=$(PHP_DIR)\Release_TS\php-5.2.1\dev\php5ts.lib
-PHP_LIB=$(PHP_DIR)\php4ts.lib
-#    PHP flag for compiling debug versions
-PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
-#    PHP executable
-#PHP_EXE=$(PHP_DIR)\Release_TS\php-5.2.1\PHP.exe 
-PHP_EXE=$(PHP_DIR)\PHP.exe 
+PHP_LIB=$(PHP_EXE_DIR)\php5ts.lib
+# for debug, set the above to:
+#PHP_LIB=$(PHP_EXE_DIR)\php5ts_debug.lib
 
-# Debug build
-#     PHP_LIB : Set this to the PHP library including path for linking with
-#PHP_LIB=$(PHP_DIR)\Debug_TS\php5ts_debug.lib
-#    PHP executable
-#PHP_EXE=$(PHP_DIR)\Debug_TS\PHP.exe 
-#    PHP flag for compiling debug versions
+#    PHP flag for compiling debug/release versions
+PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
+# for debug, set the above to:
 #PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=1"
+
+#    PHP executable
+PHP_EXE=$(PHP_EXE_DIR)\PHP.exe 
 # ------------- end PHP settings-------------
 
 
