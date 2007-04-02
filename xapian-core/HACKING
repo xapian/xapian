@@ -335,6 +335,13 @@ makeindex (usually packaged with TeX)
 help2man
 rst2html (on Debian/Ubuntu, this is provided by the python-docutils package)
 
+Building from SVN on Windows with MSVC:
+---------------------------------------
+
+The windows build process is maintained in the xapian-maintainer-tools
+directory in the subversion repository.  See the win32msvc/README file in that
+directory for details of how to build from subversion.
+
 Use of C++ Features:
 ====================
 
