@@ -21,6 +21,13 @@
 import sys
 import xapian
 
+class TestFail(Exception): pass
+
+def checkquery(query, expected):
+    desc = query.get_description()
+    if desc != expected:
+        raise TestFail("Unexpected query.get_description(): got %r, expected %r" % (desc, expected))
+
 try:
     # Test the version number reporting functions give plausible results.
     v = "%d.%d.%d" % (xapian.major_version(),
@@ -58,23 +65,14 @@ try:
         print >> sys.stderr, "Unexpected db.get_doccount()"
         sys.exit(1)
     terms = ["smoke", "test", "terms"]
-    query = xapian.Query(xapian.Query.OP_OR, terms)
-    if query.get_description() != "Xapian::Query((smoke OR test OR terms))":
-        print >> sys.stderr, "Unexpected query.get_description()"
-        sys.exit(1)
+    checkquery(xapian.Query(xapian.Query.OP_OR, terms),
+               "Xapian::Query((smoke OR test OR terms))")
     query1 = xapian.Query(xapian.Query.OP_PHRASE, ("smoke", "test", "tuple"))
-    if query1.get_description() != "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))":
-        print >> sys.stderr, "Unexpected query1.get_description()"
-        sys.exit(1)
     query2 = xapian.Query(xapian.Query.OP_XOR, (xapian.Query("smoke"), query1, "string"))
-    if query2.get_description() != "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))":
-        print >> sys.stderr, "Unexpected query2.get_description()"
-        sys.exit(1)
+    checkquery(query1, "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))")
+    checkquery(query2, "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))")
     subqs = ["a", "b"]
-    query3 = xapian.Query(xapian.Query.OP_OR, subqs)
-    if query3.get_description() != "Xapian::Query((a OR b))":
-        print >> sys.stderr, "Unexpected query3.get_description()"
-        sys.exit(1)
+    checkquery(xapian.Query(xapian.Query.OP_OR, subqs), "Xapian::Query((a OR b))")
 
     # Python's iterators were added in 2.2.
     vinfo = sys.version_info
@@ -268,10 +266,8 @@ try:
 
     # Check QueryParser pure NOT option
     qp = xapian.QueryParser()
-    query4 = qp.parse_query("NOT test", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT)
-    if query4.get_description() != "Xapian::Query((<alldocuments> AND_NOT test:(pos=1)))":
-        print >> sys.stderr, "Unexpected query4.get_description(): " + query4.get_description()
-        sys.exit(1)
+    checkquery(qp.parse_query("NOT test", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
+               "Xapian::Query((<alldocuments> AND_NOT test:(pos=1)))")
 
     # Check QueryParser partial option
     qp = xapian.QueryParser()
@@ -279,24 +275,28 @@ try:
     qp.set_default_op(xapian.Query.OP_AND)
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem('en'))
-    query5 = qp.parse_query("foo o", qp.FLAG_PARTIAL)
-    if query5.get_description() != "Xapian::Query((foo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2))))":
-        print >> sys.stderr, "Unexpected query5.get_description(): " + query5.get_description()
-        sys.exit(1)
+    checkquery(qp.parse_query("foo o", qp.FLAG_PARTIAL),
+               "Xapian::Query((foo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2))))")
 
-    query6 = qp.parse_query("foo outside", qp.FLAG_PARTIAL)
-    if query6.get_description() != "Xapian::Query((foo:(pos=1) AND outsid:(pos=2)))":
-        print >> sys.stderr, "Unexpected query6.get_description(): " + query6.get_description()
-        sys.exit(1)
+    checkquery(qp.parse_query("foo outside", qp.FLAG_PARTIAL),
+               "Xapian::Query((foo:(pos=1) AND outsid:(pos=2)))")
+
+    # Test supplying unicode strings
+    checkquery(xapian.Query(xapian.Query.OP_OR, (u'foo', u'bar')),
+               'Xapian::Query((foo OR bar))')
+    checkquery(xapian.Query(xapian.Query.OP_OR, ('foo', u'bar\xa3')),
+               'Xapian::Query((foo OR bar\xc2\xa3))')
+    checkquery(xapian.Query(xapian.Query.OP_OR, ('foo', 'bar\xc2\xa3')),
+               'Xapian::Query((foo OR bar\xc2\xa3))')
 
 except xapian.Error, e:
     print >> sys.stderr, "Xapian Error: %s" % str(e)
-    raise e
+    raise
     sys.exit(1)
 
 except Exception, e:
     print >> sys.stderr, "Exception: %s" % str(e)
-    raise e
+    raise
     sys.exit(1)
 
 except:

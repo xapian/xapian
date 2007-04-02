@@ -86,7 +86,7 @@ namespace Xapian {
 	int numitems = PySequence_Size($input);
 	for (int i = 0; i < numitems; ++i) {
 	    PyObject *obj = PySequence_GetItem($input, i);
-	    if (!PyString_Check(obj) && !Xapian::get_py_query(obj)) {
+	    if (!PyUnicode_Check(obj) && !PyString_Check(obj) && !Xapian::get_py_query(obj)) {
 		$1 = 0;
 		break;
 	    }
@@ -104,6 +104,12 @@ namespace Xapian {
     v.reserve(numitems);
     for (int i = 0; i < numitems; ++i) {
 	PyObject *obj = PySequence_GetItem($input, i);
+	if (PyUnicode_Check(obj)) {
+	    PyObject *strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(obj), PyUnicode_GET_SIZE(obj), "ignore");
+	    if (!strobj) SWIG_fail;
+	    Py_DECREF(obj);
+	    obj = strobj;
+	}
 	if (PyString_Check(obj)) {
 	    char * p;
 	    Py_ssize_t len;

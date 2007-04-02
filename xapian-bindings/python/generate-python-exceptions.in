@@ -108,6 +108,8 @@ print FD <<'EOF';
 					     SWIG_POINTER_OWN),
 			  "Xapian::Error",
 			  SWIGTYPE_p_Xapian__Error);
+    } catch (const std::exception& e) {
+        SWIG_Error(SWIG_RuntimeError, e.what());
     } catch (...) {
 	SWIG_Error(SWIG_UnknownError, "unknown error in Xapian");
     }
