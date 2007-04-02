@@ -93,15 +93,15 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 
     {
 	int optval = 1;
-	retval = setsockopt(socketfd,
-			    SOL_SOCKET,
-			    SO_REUSEADDR,
-			    reinterpret_cast<SOCKOPT_OPTIONS_TYPE>(&optval),
+	// 4th argument might need to be void* or char* - cast it to char*
+	// since C++ allows implicit conversion to void* but not from void*.
+	retval = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR,
+			    reinterpret_cast<char *>(&optval),
 			    sizeof(optval));
 
 	if (retval >= 0) {
 	    retval = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
-				reinterpret_cast<SOCKOPT_OPTIONS_TYPE>(&optval),
+				reinterpret_cast<char *>(&optval),
 				sizeof(optval));
 	}
     }
@@ -123,7 +123,16 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 
 	if (hostent == 0) {
 	    throw Xapian::NetworkError(string("Couldn't resolve host ") + host,
-					      "", socket_errno());
+		"",
+#ifdef __WIN32__
+		// "socket_errno()" is just errno on UNIX which is
+		// inappropriate here - if gethostbyname() returns NULL an
+		// error code is available in h_errno (with values
+		// incompatible with errno).  FIXME: it would be good to see
+		// the h_errno error code though...
+		, socket_errno()
+#endif
+		);
 	}
 
 	memcpy(&addr.sin_addr, hostent->h_addr, sizeof(addr.sin_addr));

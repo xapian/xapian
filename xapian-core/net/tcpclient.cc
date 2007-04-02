@@ -29,10 +29,7 @@
 #include <xapian/error.h>
 
 #include <string.h>
-#ifdef __WIN32__
-# define SOCKOPT_OPTIONS_TYPE char *
-#else
-# define SOCKOPT_OPTIONS_TYPE void *
+#ifndef __WIN32__
 # include <netdb.h>
 # include <netinet/in.h>
 # include <netinet/tcp.h>
@@ -59,8 +56,17 @@ TcpClient::open_socket(const std::string & hostname, int port,
     struct hostent *host = gethostbyname(hostname.c_str());
 
     if (host == 0) {
-	throw Xapian::NetworkError(std::string("Couldn't resolve host ") +
-			     hostname, get_tcpcontext(hostname, port), socket_errno());
+	throw Xapian::NetworkError(std::string("Couldn't resolve host ") + hostname,
+		get_tcpcontext(hostname, port)
+#ifdef __WIN32__
+		// "socket_errno()" is just errno on UNIX which is
+		// inappropriate here - if gethostbyname() returns NULL an
+		// error code is available in h_errno (with values
+		// incompatible with errno).  FIXME: it would be good to see
+		// the h_errno error code though...
+		, socket_errno()
+#endif
+		);
     }
 
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
@@ -88,8 +94,10 @@ TcpClient::open_socket(const std::string & hostname, int port,
 
     {
 	int optval = 1;
+	// 4th argument might need to be void* or char* - cast it to char*
+	// since C++ allows implicit conversion to void* but not from void*.
 	if (setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
-		       reinterpret_cast<SOCKOPT_OPTIONS_TYPE>(&optval),
+		       reinterpret_cast<char *>(&optval),
 		       sizeof(optval)) < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error
 	    close(socketfd);
@@ -130,9 +138,10 @@ TcpClient::open_socket(const std::string & hostname, int port,
 	int err = 0;
 	SOCKLEN_T len = sizeof(err);
 
-	/* On Solaris 5.6, the fourth argument is char *. */
+	// 4th argument might need to be void* or char* - cast it to char*
+	// since C++ allows implicit conversion to void* but not from void*.
 	retval = getsockopt(socketfd, SOL_SOCKET, SO_ERROR,
-			    reinterpret_cast<SOCKOPT_OPTIONS_TYPE>(&err), &len);
+			    reinterpret_cast<char *>(&err), &len);
 
 	if (retval < 0) {
 	    int saved_errno = socket_errno(); // note down in case close hits an error

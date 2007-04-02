@@ -1,3 +1,13 @@
+Mon Apr 02 01:16:03 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc,net/tcpserver.cc: Pass the 4th parameter of
+	  setsockopt() as char* which works whether the function actually
+	  takes char* or void* (since C++ allows implicit conversion from
+	  char* to void*).  Only call socket_errno() after gethostbyname()
+	  under __WIN32__ - on UNIX the error code is in h_errno (with
+	  incompatible values to errno) and we don't want to confuse things by
+	  reporting some random value of errno.
+
 Mon Apr 02 00:44:56 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc: Factor out localhost address into
