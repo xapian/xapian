@@ -1,3 +1,8 @@
+Mon Apr 02 01:54:20 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Remove unused variable left over from
+	  recent change.
+
 Mon Apr 02 01:22:56 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Actually remove SOCKOPT_OPTIONS_TYPE.

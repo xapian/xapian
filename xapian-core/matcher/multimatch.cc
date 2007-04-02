@@ -132,8 +132,6 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	}
     }
 
-    vector<Xapian::RSet>::const_iterator subrset = subrsets.begin();
-
     Assert(subrsets.size() == db.internal.size());
     for (size_t i = 0; i != db.internal.size(); ++i) {
 	Xapian::Database::Internal *subdb = db.internal[i].get();
