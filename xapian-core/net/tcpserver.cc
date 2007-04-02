@@ -30,10 +30,8 @@
 #include "stats.h"
 
 #ifdef __WIN32__
-# define SOCKOPT_OPTIONS_TYPE char *
 # include <process.h>    /* _beginthread, _endthread */
 #else
-# define SOCKOPT_OPTIONS_TYPE void *
 # include <sys/socket.h>
 # include <netinet/in_systm.h>
 # include <netinet/in.h>
@@ -123,7 +121,7 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 
 	if (hostent == 0) {
 	    throw Xapian::NetworkError(string("Couldn't resolve host ") + host,
-		"",
+		""
 #ifdef __WIN32__
 		// "socket_errno()" is just errno on UNIX which is
 		// inappropriate here - if gethostbyname() returns NULL an

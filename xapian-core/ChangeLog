@@ -1,3 +1,7 @@
+Mon Apr 02 01:22:56 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Actually remove SOCKOPT_OPTIONS_TYPE.
+
 Mon Apr 02 01:16:03 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/tcpclient.cc,net/tcpserver.cc: Pass the 4th parameter of
