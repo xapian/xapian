@@ -284,8 +284,7 @@ TcpServer::run()
     }
 }
 
-#endif
-#ifdef __WIN32__
+#elif defined __WIN32__
 
 // A threaded, Windows specific, implementation
 
@@ -443,4 +442,6 @@ TcpServer::run_once()
     handle_one_request(connected_socket);
 }
 
-#endif // __WIN32__
+#else
+# error Neither HAVE_FORK nor __WIN32__ are defined.
+#endif
