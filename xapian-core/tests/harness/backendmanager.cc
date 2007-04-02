@@ -61,6 +61,10 @@
 // reliable.
 #define LOCALHOST "127.0.0.1"
 
+// Other ports may be tried (UNIX version tries higher ports until one works;
+// Windows version cycles through 10 ports starting at DEFAULT_PORT.
+#define DEFAULT_PORT 1239
+
 using namespace std;
 
 void
@@ -284,7 +288,8 @@ BackendManager::createdb_flint(const vector<string> &dbnames)
     string dbdir = parent_dir + "/db";
     for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end(); i++) {
-	dbdir += "=" + *i;
+	dbdir += '=';
+	dbdir += *i;
     }
     // If the database is readonly, we can reuse it if it exists.
     if (create_dir_if_needed(dbdir)) {
@@ -331,7 +336,8 @@ BackendManager::createdb_quartz(const vector<string> &dbnames)
     string dbdir = parent_dir + "/db";
     for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end(); i++) {
-	dbdir += "=" + *i;
+	dbdir += '=';
+	dbdir += *i;
     }
     // If the database is readonly, we can reuse it if it exists.
     if (create_dir_if_needed(dbdir)) {
@@ -441,7 +447,7 @@ on_SIGCHLD(int /*sig*/)
 static int
 launch_xapian_tcpsrv(const string & args)
 {
-    int port = 1239;
+    int port = DEFAULT_PORT;
 
     // We want to be able to get the exit status of the child process we fork
     // in xapian-tcpsrv doesn't start listening successfully.
@@ -544,13 +550,22 @@ try_next_port:
 static int
 launch_xapian_tcpsrv(const string & args)
 {
-    int port = 1239;
+    // Cycle through 10 ports (starting at DEFAULT_PORT) so we can have
+    // multiple databases open at once.
+    static int port = DEFAULT_PORT - 1;
+    if (++port == DEFAULT_PORT + 10) port = DEFAULT_PORT;
+
+    // Use a different output filename for each invocation to avoid problems
+    // with not being able to overwrite open files and allow the output to be
+    // inspected more easily.  FIXME: this is far from ideal...
+    static int count = 0;
+    string tmpfile = "%TEMP%\\xapian-tcpsrv" + om_tostring(++count) + ".out";
 
 try_next_port:
     // *sob* - we are using 'start' to send it to the background, but
     // the return code handling by cmd.exe is totally screwed:  rc will always
     // be |1|.  This should be replaced with decent child-process code.
-    string cmd = "start /B "XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args + " > %TEMP%\\xapian-tcpsrv.out 2>&1";
+    string cmd = "start /B "XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args + " > " + tmpfile + " 2>&1";
 
     int rc = system(cmd.c_str());
     // as per comments above, we will *never* see rc==69 - but we keep the
@@ -565,9 +580,11 @@ try_next_port:
     if (rc) {
 	string msg("Program failed with exit code ");
 	msg += om_tostring(rc);
-	msg += ": ";
+	msg += ": '";
 	msg += cmd;
-	msg += "' (output should be in %TEMP%\\xapian-tcpsrv.out)";
+	msg += "' (output should be in ";
+	msg += tmpfile;
+	msg += ')';
 	throw msg;
     }
     return port;
