@@ -1,3 +1,8 @@
+Mon Apr 02 07:14:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Make Enquire constructor explicit since
+	  it can take a single parameter (of type Database).
+
 Mon Apr 02 02:32:23 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Add "#error" if neither HAVE_FORK nor __WIN32__

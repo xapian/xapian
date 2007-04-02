@@ -651,7 +651,7 @@ class Enquire {
 	 *	   is deleted.  To use no error handler, this parameter
 	 *	   should be 0.
 	 */
-	Enquire(const Database &databases, ErrorHandler * errorhandler_ = 0);
+	explicit Enquire(const Database &database, ErrorHandler * errorhandler_ = 0);
 
 	/** Close the Xapian::Enquire object.
 	 */
