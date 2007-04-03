@@ -966,19 +966,16 @@ public:
     std::string get_description() const;
 };
 
-// xapian/stem.h
-class Stem {
-public:
-    explicit Stem(const string &language);
-    ~Stem();
+}
 
-    string operator()(const string &word) const;
-    string stem_word(const string &word); // DEPRECATED
+#define XAPIAN_DEPRECATED(X) X
+%ignore Xapian::Stem::internal;
+%ignore Xapian::Stem::operator=;
+%ignore Xapian::Stem::Stem();
+%ignore Xapian::Stem::Stem(const Stem &);
+%include <xapian/stem.h>
 
-    string get_description() const;
-
-    static string get_available_languages();
-};
+namespace Xapian {
 
 #if defined SWIGPYTHON && !defined PYTHON_OLDE
 %include extra.i
