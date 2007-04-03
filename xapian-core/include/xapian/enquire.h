@@ -580,7 +580,7 @@ class RSet {
 	bool contains(Xapian::docid did) const;
 
 	/// Test if a given document in the relevance set.
-	bool contains(const Xapian::MSetIterator & i) { return contains(*i); }
+	bool contains(const Xapian::MSetIterator & i) const { return contains(*i); }
 
 	/** Introspection method.
 	 *
@@ -671,7 +671,7 @@ class Enquire {
 	 *  @exception Xapian::InvalidArgumentError will be thrown if query has
 	 *	       not yet been set.
 	 */
-	const Xapian::Query & get_query();
+	const Xapian::Query & get_query() const;
 
 	/** Set the weighting scheme to use for queries.
 	 *

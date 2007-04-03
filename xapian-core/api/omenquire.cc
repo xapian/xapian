@@ -895,7 +895,7 @@ Enquire::set_query(const Query & query, termcount len)
 }
 
 const Query &
-Enquire::get_query()
+Enquire::get_query() const
 {
     DEBUGAPICALL(const Xapian::Query &, "Xapian::Enquire::get_query", "");
     try {

@@ -337,8 +337,8 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	void operator=(const Query::Internal & copyme);
 
 	/** A query consisting of a single term. */
-	Internal(const std::string & tname_, Xapian::termcount wqf_ = 1,
-		 Xapian::termpos term_pos_ = 0);
+	explicit Internal(const std::string & tname_, Xapian::termcount wqf_ = 1,
+			  Xapian::termpos term_pos_ = 0);
 
 	/** Create internals given only the operator and a parameter. */
 	Internal(op_t op_, Xapian::termcount parameter);

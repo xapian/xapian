@@ -166,7 +166,7 @@ for (@classes) {
 ${comment}class XAPIAN_EXCEPTION_EXPORT $class : public $parent {
   public:
     /** General purpose constructor. */
-    $class(const std::string \&msg_, const std::string \&context_ = "", int errno_ = 0)
+    explicit $class(const std::string \&msg_, const std::string \&context_ = "", int errno_ = 0)
 	: $parent(msg_, context_, "$class", errno_) {}
     /** Construct from message and errno value. */
     $class(const std::string \&msg_, int errno_)

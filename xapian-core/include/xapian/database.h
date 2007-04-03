@@ -71,7 +71,7 @@ class Database {
 	 *
 	 * @param path directory that the database is stored in.
 	 */
-	Database(const std::string &path);
+	explicit Database(const std::string &path);
 
 	/** @internal Create a Database from its internals.
 	 */
