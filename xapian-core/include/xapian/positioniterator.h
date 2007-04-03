@@ -1,7 +1,7 @@
 /** \file positioniterator.h
  * \brief Classes for iterating through position lists
  */
- * Copyright 1999,2000,2001 BrightStation PLC
+/* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2007 Olly Betts
  *
