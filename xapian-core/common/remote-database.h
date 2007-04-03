@@ -62,11 +62,6 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// Has positional information?
     mutable bool has_positional_info;
 
-    /** Spawn a program and return a filedescriptor of
-     *  the local end of a socket to it.
-     */
-    int get_spawned_socket(string progname, const string & arg);
-
     /// The context to return with any error messages
     string context;
 

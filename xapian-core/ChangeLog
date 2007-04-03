@@ -1,3 +1,8 @@
+Tue Apr 03 14:30:45 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/remote-database.h: Remove unused and undefined method
+	  RemoteDatabase::get_spawned_socket().
+
 Tue Apr 03 09:18:51 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc: Under __WIN32__, launch
