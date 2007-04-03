@@ -292,6 +292,8 @@ try:
                'Xapian::Query((foo OR bar\xc2\xa3))')
     checkquery(xapian.Query(xapian.Query.OP_OR, ('foo', 'bar\xc2\xa3')),
                'Xapian::Query((foo OR bar\xc2\xa3))')
+    checkquery(xapian.Query(xapian.Query.OP_OR, u'foo', u'bar'),
+               'Xapian::Query((foo OR bar))')
 
     checkquery(qp.parse_query(u"NOT t\xe9st", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
                "Xapian::Query((<alldocuments> AND_NOT t\xc3\xa9st:(pos=1)))")

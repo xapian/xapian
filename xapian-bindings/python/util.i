@@ -336,7 +336,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 }
 %}
 
-/* These two typemaps depends somewhat heavily on the internals of SWIG, so
+/* These typemaps depends somewhat heavily on the internals of SWIG, so
  * might break with future versions of SWIG.
  */
 %typemap(in) const std::string &(int res = SWIG_OLDOBJ) {
@@ -350,7 +350,6 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     }
     $1 = ptr;
 }
-
 %typemap(in) std::string {
     std::string *ptr = (std::string *)0;
     int res = SWIG_anystring_as_ptr(&($input), &ptr);
@@ -360,3 +359,12 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     $1 = *ptr;
     if (SWIG_IsNewObj(res)) delete ptr;
 }
+%typemap(freearg,noblock=1,match="in") const std::string & {
+    if (SWIG_IsNewObj(res$argnum)) %delete($1);
+}
+%typemap(typecheck,noblock=1,precedence=900) const std::string & {
+    int res = SWIG_anystring_as_ptr(&($input), (std::string**)(0));
+    $1 = SWIG_CheckState(res);
+
+}
+
