@@ -45,7 +45,8 @@ OUTDIR=$(OUTROOT)\php$(PHP_MAJOR_VERSION)
 INTDIR=.\
 
 	
-ALL : "$(OUTDIR)\php_xapian.dll" "$(OUTDIR)\xapian.php" "$(OUTDIR)\smoketest$(PHP_MAJOR_VERSION).php" $(DOMANIFEST)
+ALL : "$(OUTDIR)\php_xapian.dll" "$(OUTDIR)\xapian.php" \
+	"$(OUTROOT)\smoketest.php" "$(OUTDIR)\smoketest$(PHP_MAJOR_VERSION).php" $(DOMANIFEST)
 
 CLEAN :
 	-@erase "$(OUTDIR)\php_xapian.dll"
@@ -55,16 +56,17 @@ CLEAN :
 	-@erase "$(OUTDIR)\xapian.php"
 	-@erase "$(OUTDIR)\smoketest4.php"
 	-@erase "$(OUTDIR)\smoketest5.php"
+	-@erase "$(OUTROOT)\smoketest.php"
 	
 CLEANSWIG :	
 	-@erase /Q /s php4
 	-@erase /Q /s php5
 	if exist "php4" rmdir "php4" /s /q
 	if exist "php5" rmdir "php5" /s /q
-	
+
 DOTEST :
-	cd "$(OUTDIR)"
-	$(PHP_EXE) -q -n -d safe_mode=off -d enable_dl=on "smoketest$(PHP_MAJOR_VERSION).php"
+	cd "$(OUTROOT)"
+	$(PHP_EXE) -q -n -d safe_mode=off -d enable_dl=on -d extension_dir="php$(PHP_MAJOR_VERSION)" -d include_path="php$(PHP_MAJOR_VERSION)" smoketest.php
 
 	
 "$(OUTROOT)" :	
@@ -91,7 +93,7 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS) \
 php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: ../xapian.i util.i
 	-erase /Q /s php4
 	-md php4
-	$(SWIG) -I"$(XAPIAN_CORE_REL_PHP)\include" $(SWIG_FLAGS) -c++ -php4 -noproxy \
+	$(SWIG) -I"$(XAPIAN_CORE_REL_PHP)\include" $(SWIG_FLAGS) -c++ -php4 \
 	    -outdir php4 -o php4/xapian_wrap.cc $(srcdir)/../xapian.i
 
 php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: ../xapian.i util.i
@@ -115,7 +117,8 @@ php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: ../xapian.i util.i
 	-copy $** "$(OUTDIR)\smoketest5.php"
 "$(OUTDIR)\smoketest4.php" : ".\smoketest4.php"
 	-copy $** "$(OUTDIR)\smoketest4.php"
-
+"$(OUTROOT)\smoketest.php" : ".\smoketest.php"
+	-copy $** "$(OUTROOT)\smoketest.php"
 #
 # Rules
 #
