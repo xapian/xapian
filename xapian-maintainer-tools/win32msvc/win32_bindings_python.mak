@@ -28,6 +28,8 @@ XAPIAN_DEPENDENCIES = \
  "$(OUTLIBDIR)\liblanguages.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib" \
+ "$(OUTLIBDIR)\libremote.lib" \
+ "$(OUTLIBDIR)\libnet.lib" \
  "$(PYTHON_LIB)"
 
 LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" 
@@ -64,7 +66,7 @@ DOTEST :
 
 CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
  /I "$(XAPIAN_CORE_REL_PYTHON)" /I "$(XAPIAN_CORE_REL_PYTHON)\include" \
- /I "$(PYTHON_INCLUDE)" /I"." \
+ /I "$(PYTHON_INCLUDE)" /I "$(PYTHON_INCLUDE_2)" /I"." \
  /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
 CPP_OBJS=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
