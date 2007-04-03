@@ -38,10 +38,19 @@ PERL_EXE=$(PERL_DIR)\perl.exe
 PYTHON_DIR=c:\Program Files\Python25
 # Python executable
 PYTHON_EXE=$(PYTHON_DIR)\python.exe 
-#PYTHON_INCLUDE : Set this to the directory that contains python.h
+ #PYTHON_INCLUDE : Set this to the directory that contains python.h
 PYTHON_INCLUDE=$(PYTHON_DIR)\include
-# PYTHON_LIB : Set this to the python library including path for linking with
-PYTHON_LIB=$(PYTHON_DIR)\libs\python25.lib
+#A 'PC' directory is also included for people building from a source tree.
+PYTHON_INCLUDE_2=$(PYTHON_DIR)\PC
+
+ # PYTHON_LIB : Set this to the python library including path for linking with
+# Currently, a DEBUG xapian implies a DEBUG Python - in the future, it
+# might be desirable to mix-and-match, but for now, we stay consistent.
+!if "$(DEBUG)"=="1"
+PYTHON_LIB=$(PYTHON_DIR)\PCBuild\python25_d.lib
+!else
+PYTHON_LIB=$(PYTHON_DIR)\PCBuild\python25.lib
+!endif
 # -------------end Python settings-------------
 
 
