@@ -49,6 +49,10 @@
 # endif
 #endif
 
+#ifdef __WIN32__
+# include "safefcntl.h"
+#endif
+
 #include <xapian.h>
 #include "index_utils.h"
 #include "backendmanager.h"
@@ -546,47 +550,96 @@ try_next_port:
 #  define XAPIAN_TCPSRV "..\\bin\\xapian-tcpsrv" // mingw
 #endif
 
-// This implementation uses system() and simple redirection of output to a file.
+// This implementation uses the WIN32 API to start xapian-tcpsrv as a child
+// process and read its output using a pipe.
 static int
 launch_xapian_tcpsrv(const string & args)
 {
-    // Cycle through 10 ports (starting at DEFAULT_PORT) so we can have
-    // multiple databases open at once.
-    static int port = DEFAULT_PORT - 1;
-    if (++port == DEFAULT_PORT + 10) port = DEFAULT_PORT;
-
-    // Use a different output filename for each invocation to avoid problems
-    // with not being able to overwrite open files and allow the output to be
-    // inspected more easily.  FIXME: this is far from ideal...
-    static int count = 0;
-    string tmpfile = "%TEMP%\\xapian-tcpsrv" + om_tostring(++count) + ".out";
+    int port = DEFAULT_PORT;
 
 try_next_port:
-    // *sob* - we are using 'start' to send it to the background, but
-    // the return code handling by cmd.exe is totally screwed:  rc will always
-    // be |1|.  This should be replaced with decent child-process code.
-    string cmd = "start /B "XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args + " > " + tmpfile + " 2>&1";
+    string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args;
 
-    int rc = system(cmd.c_str());
-    // as per comments above, we will *never* see rc==69 - but we keep the
-    // code for inspiration :)
-    if (port < 65536 && rc == 69) {
-	// 69 is EX_UNAVAILABLE which xapian-tcpsrv exits
-	// with if (and only if) the port specified was
-	// in use.
-	++port;
-	goto try_next_port;
-    }
-    if (rc) {
-	string msg("Program failed with exit code ");
-	msg += om_tostring(rc);
-	msg += ": '";
-	msg += cmd;
-	msg += "' (output should be in ";
-	msg += tmpfile;
-	msg += ')';
+    // Create a pipe so we can read stdout/stderr from the child process.
+    HANDLE hRead, hWrite;
+    if (!CreatePipe(&hRead, &hWrite, 0, 0)) {
+	string msg("Couldn't create pipe");
+	char * error = 0;
+	DWORD len;
+	len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
+			    0, GetLastError(), 0, (CHAR*)&error, 0, 0);
+	if (len && error) {
+	    msg += ": ";
+	    msg.append(error, len);
+	    LocalFree(error);
+	}
 	throw msg;
     }
+
+    // Set the write handle to be inherited by the child process.
+    SetHandleInformation(hWrite, HANDLE_FLAG_INHERIT, 1);
+ 
+    // Create the child process.
+    PROCESS_INFORMATION procinfo; 
+    memset(&procinfo, 0, sizeof(PROCESS_INFORMATION));
+
+    STARTUPINFO startupinfo;
+    memset(&startupinfo, 0, sizeof(STARTUPINFO));
+    startupinfo.cb = sizeof(STARTUPINFO); 
+    startupinfo.hStdError = hWrite;
+    startupinfo.hStdOutput = hWrite;
+    startupinfo.hStdInput = INVALID_HANDLE_VALUE;
+    startupinfo.dwFlags |= STARTF_USESTDHANDLES;
+ 
+    // For some reason Windows wants a modifiable copy!
+    BOOL ok;
+    char * cmdline = strdup(cmd.c_str());
+    ok = CreateProcess(0, cmdline, 0, 0, TRUE, 0, 0, 0, &startupinfo, &procinfo);
+    free(cmdline);
+    if (!ok) {
+	TCHAR buf[256];
+	string msg("Couldn't create child process");
+	if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), 0, buf, sizeof(buf), 0)) {
+	    msg += ": ";
+	    msg += buf;
+	}
+	throw msg;
+    }
+
+    CloseHandle(hWrite);
+    CloseHandle(procinfo.hThread);
+
+    string output;
+    FILE *fh = fdopen(_open_osfhandle((intptr_t)hRead, O_RDONLY), "r");
+    while (true) {
+	char buf[256];
+	if (fgets(buf, sizeof(buf), fh) == NULL) {
+	    fclose(fh);
+	    DWORD rc;
+	    // This doesn't seem to be necessary on the machine I tested on,
+	    // but I guess it could be on a slow machine...
+	    while (GetExitCodeProcess(procinfo.hProcess, &rc) && rc == STILL_ACTIVE) {
+		Sleep(100);
+	    }
+	    CloseHandle(procinfo.hProcess);
+	    if (++port < 65536 && rc == 69) {
+		// 69 is EX_UNAVAILABLE which xapian-tcpsrv exits
+		// with if (and only if) the port specified was
+		// in use.
+		goto try_next_port;
+	    }
+	    string msg("Failed to get 'Listening...' from command '");
+	    msg += cmd;
+	    msg += "' (output: ";
+	    msg += output;
+	    msg += ")";
+	    throw msg;
+	}
+	if (strcmp(buf, "Listening...\r\n") == 0) break;
+	output += buf;
+    }
+    fclose(fh);
+
     return port;
 }
 
