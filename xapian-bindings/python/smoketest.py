@@ -305,6 +305,39 @@ try:
     term = doc.termlist().next()[0]
     checkeq(term, u"out\xe9r".encode('utf-8'))
 
+    # Check simple stopper
+    stop = xapian.SimpleStopper()
+    qp.set_stopper(stop)
+    checkeq(stop('a'), False)
+    checkquery(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
+               "Xapian::Query((foo:(pos=1) AND bar:(pos=2) AND a:(pos=3)))")
+
+    stop.add('a')
+    checkeq(stop('a'), True)
+    checkquery(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
+               "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
+
+    # Feature test for custom Stopper
+    class my_b_stopper(xapian.Stopper):
+        def __call__(self, term):
+            return term == "b"
+
+        def get_description(self):
+            return u"my_b_stopper"
+
+    stop = my_b_stopper()
+    checkeq(stop.get_description(), u"my_b_stopper")
+    qp.set_stopper(stop)
+    checkeq(stop('a'), False)
+    checkquery(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
+               "Xapian::Query((foo:(pos=1) AND bar:(pos=2) AND a:(pos=3)))")
+
+    checkeq(stop('b'), True)
+    checkquery(qp.parse_query(u"foo bar b", qp.FLAG_BOOLEAN),
+               "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
+
+
+
 except xapian.Error, e:
     print >> sys.stderr, "Xapian Error: %s" % str(e)
     raise

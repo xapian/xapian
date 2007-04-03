@@ -1,3 +1,14 @@
+Tue Apr 03 17:52:54 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/util.i: Add typemap to allow strings to be returned by
+	  implementations of director methods which expect strings:
+	  currently this is only the get_description() method of a Stopper
+	  subclass, which is never actually called by C++, but this might
+	  be more generally useful in future, and covers the last point
+	  where Python strings can get passed to C++.
+	* python/smoketest.py: Add some tests that the stoppers work as
+	  expected.
+
 Tue Apr 03 13:54:16 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/util.i: Add typemap for checking string type in overloaded

@@ -368,3 +368,23 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
 
 }
 
+/* This typemap is only currently needed for returning a value from the
+ * get_description() method of a Stopper subclass to a C++ caller, but might be
+ * more generally useful in future.
+ */
+%typemap(directorout,noblock=1) std::string {
+    std::string *swig_optr = 0;
+    int swig_ores;
+    {
+	PyObject * tmp = $input;
+	Py_INCREF(tmp);
+	swig_ores = SWIG_anystring_as_ptr(&tmp, &swig_optr);
+	Py_DECREF(tmp);
+    }
+    if (!SWIG_IsOK(swig_ores) || !swig_optr) {
+	%dirout_fail((swig_optr ? swig_ores : SWIG_TypeError),"$type");
+    }
+    $result = *swig_optr;
+    if (SWIG_IsNewObj(swig_ores)) %delete(swig_optr);
+}
+
