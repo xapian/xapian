@@ -1,3 +1,9 @@
+Tue Apr 03 06:50:48 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: For __WIN32__ and __CYGWIN__, use
+	  SO_EXCLUSIVEADDRUSE (if available) on on listening sockets for
+	  xapian-tcpsrv.
+
 Tue Apr 03 04:37:02 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/positioniterator.h,include/xapian/postingiterator.h:

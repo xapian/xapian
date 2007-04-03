@@ -97,16 +97,29 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 			    reinterpret_cast<char *>(&optval),
 			    sizeof(optval));
 
+#if !defined __CYGWIN__ && !defined __WIN32__
 	// Windows has screwy semantics for SO_REUSEADDR - it allows the user
 	// to bind to a port which is already bound and listening!  That's
 	// just not suitable as we don't want multiple xapian-tcpsrv processes
 	// listening on the same port!
-#if !defined __CYGWIN__ && !defined __WIN32__
 	if (retval >= 0) {
 	    retval = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR,
 				reinterpret_cast<char *>(&optval),
 				sizeof(optval));
 	}
+#elif defined SO_EXCLUSIVEADDRUSE
+	// NT4 sp4 and later offer SO_EXCLUSIVEADDRUSE which nullifies the
+	// security issues from SO_REUSEADDR (which affect *any* listening
+	// process, even if doesn't use SO_REUSEADDR itself).  There's still no
+	// way of addressing the issue of not being able to listen on a port
+	// which has closed connections in TIME_WAIT state though.
+	//
+	// Note: SO_EXCLUSIVEADDRUSE requires admin privileges prior to XP SP2.
+	// Because of this and the lack support on older versions, we don't
+	// currently check the return value.
+	(void)setsockopt(socketfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
+			 reinterpret_cast<char *>(&optval),
+			 sizeof(optval));
 #endif
     }
 
