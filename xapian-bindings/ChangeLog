@@ -1,3 +1,24 @@
+Tue Apr 03 10:40:51 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/util.i:  Add some (fairly nasty) typedefs which handle
+	  almost all cases where a string object is supplied to an API
+	  function, and make them convert unicode strings to UTF-8 encoded
+	  simple strings automatically.  There are three places left in the
+	  API which aren't covered by these typedefs, and will require
+	  individual handling.  The typedefs are largely the same as the
+	  built-in typedefs for string handling, but point to a different
+	  wrapper function which performs the unicode conversion before
+	  calling the normal string-to-ptr conversion.  Sadly, I can't see
+	  any way to modify the built-in typedefs for string handling
+	  without reproducing them as I have here, but if it is possible to
+	  just cause them to point at a different string-to-ptr routine,
+	  that would be desirable.
+	* python/smoketest.py: Add tests for some of the functions which
+	  should accept unicode strings.
+	* python/docs/bindings.html: Document how unicode handling is
+	  intended to work.  Also document how to normalise unicode strings
+	  with the unicodedata module to make them ready to pass to Xapian.
+
 Tue Apr 03 05:19:52 BST 2007  Olly Betts <olly@survex.com>
 
 	* xapian.i: Replace Xapian::Stem with "%include <xapian/stem.h>" and

@@ -23,6 +23,10 @@ import xapian
 
 class TestFail(Exception): pass
 
+def checkeq(l, r):
+    if l != r:
+        raise TestFail("Expected equality: got %r and %r" % (l, r))
+
 def checkquery(query, expected):
     desc = query.get_description()
     if desc != expected:
@@ -288,6 +292,16 @@ try:
                'Xapian::Query((foo OR bar\xc2\xa3))')
     checkquery(xapian.Query(xapian.Query.OP_OR, ('foo', 'bar\xc2\xa3')),
                'Xapian::Query((foo OR bar\xc2\xa3))')
+
+    checkquery(qp.parse_query(u"NOT t\xe9st", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
+               "Xapian::Query((<alldocuments> AND_NOT t\xc3\xa9st:(pos=1)))")
+
+    doc = xapian.Document()
+    doc.set_data(u"Unicode with an acc\xe9nt")
+    doc.add_posting(stem.stem_word(u"out\xe9r"), 1)
+    checkeq(doc.get_data(), u"Unicode with an acc\xe9nt".encode('utf-8'))
+    term = doc.termlist().next()[0]
+    checkeq(term, u"out\xe9r".encode('utf-8'))
 
 except xapian.Error, e:
     print >> sys.stderr, "Xapian Error: %s" % str(e)

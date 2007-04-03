@@ -35,6 +35,43 @@ which shows how to define a MatchDecider in Python.
    the program should terminate using "<code>except Exception</code>.
 </p>
 
+<h2>Unicode</h2>
+
+<p>
+   The xapian Python bindings accept unicode strings as well as simple strings
+   (ie, "str" type strings) at all places in the API which accept string data.
+   Any unicode strings supplied will automatically be translated into UTF-8
+   simple strings before being passed to the Xapian core.  The Xapian core is
+   largely agnositc about character set, but in those places where it does
+   process data in a character set dependent way it assumes that the data is in
+   UTF-8.  The xapian Python bindings always return string data as simple
+   strings.
+</p>
+<p>
+   Therefore, in order to avoid issues with character sets, you should always
+   pass text data to Xapian as unicode strings, or UTF-8 encoded simple
+   strings.  There is, however, no requirement for simple strings passed into
+   Xapian to be valid UTF-8 encoded strings, unless they are being passed to a
+   text processing routine (such as the query parser, or the stemming
+   algorithms).  For example, it is perfectly valid to pass arbitrary binary
+   data in a simple string to the <code>xapian.Document.set_data()</code>
+   method.
+</p>
+<p>
+   It is often useful to normalise unicode data before passing it to Xapian -
+   Xapian currently has no built-in support for normalising unicode
+   representations of data.  The standard python module
+   "<code>unicodedata</code>" provides support for normalising unicode: you
+   probably want the "<code>NFKD</code>" normalisation scheme: in other words,
+   use something like
+</p>
+<pre>
+   unicodedata.normalize('NFKC', u'foo')
+</pre>
+<p>
+   to normalise the string "foo" before passing it to Xapian.
+</p>
+
 <h2>Iterators</h2>
 
 <p>

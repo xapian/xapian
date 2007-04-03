@@ -313,3 +313,50 @@ namespace Xapian {
 	%mutable;
     }
 }
+
+%{
+/* Forward declaration. */
+SWIGINTERN int
+SWIG_AsPtr_std_string (PyObject * obj, std::string **val);
+
+/* Utility function which works like SWIG_AsPtr_std_string, but
+ * converts unicode strings to UTF-8 simple strings first. */
+SWIGINTERN int
+SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
+{
+    if (PyUnicode_Check(*obj)) {
+	PyObject * strobj = PyUnicode_EncodeUTF8(PyUnicode_AS_UNICODE(*obj), PyUnicode_GET_SIZE(*obj), "ignore");
+	if (strobj == NULL) return SWIG_ERROR;
+	int res = SWIG_AsPtr_std_string(strobj, val);
+	Py_DECREF(strobj);
+	return res;
+    } else {
+	return SWIG_AsPtr_std_string(*obj, val);
+    }
+}
+%}
+
+/* These two typemaps depends somewhat heavily on the internals of SWIG, so
+ * might break with future versions of SWIG.
+ */
+%typemap(in) const std::string &(int res = SWIG_OLDOBJ) {
+    std::string *ptr = (std::string *)0;
+    res = SWIG_anystring_as_ptr(&($input), &ptr);
+    if (!SWIG_IsOK(res)) {
+	%argument_fail(res,"$type",$symname, $argnum); 
+    }
+    if (!ptr) {
+	%argument_nullref("$type",$symname, $argnum); 
+    }
+    $1 = ptr;
+}
+
+%typemap(in) std::string {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_anystring_as_ptr(&($input), &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+	%argument_fail((ptr ? res : SWIG_TypeError),"$type",$symname, $argnum); 
+    }
+    $1 = *ptr;
+    if (SWIG_IsNewObj(res)) delete ptr;
+}
