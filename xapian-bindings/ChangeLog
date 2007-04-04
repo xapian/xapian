@@ -1,3 +1,8 @@
+Wed Apr 04 10:21:37 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* php/util.i: Add %mshutdown section to allow cleanup properly for
+	  windows builds (or other builds with ZTS).
+
 Wed Apr 04 07:33:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* INSTALL: Add details for how to install Ruby bindings in your home
