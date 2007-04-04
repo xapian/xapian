@@ -2,7 +2,6 @@
 /* php4/util.i: custom PHP typemaps for xapian-bindings
  *
  * Copyright (C) 2004,2005,2006 Olly Betts
- * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -179,10 +178,4 @@
 	char * p = const_cast<char *>((*i).data());
 	add_next_index_stringl($result, p, (*i).length(), 1);
     }
-}
-
-%mshutdown {
-%#ifdef ZTS
-    ts_free_id(xapian_globals_id);
-%#endif 
 }
