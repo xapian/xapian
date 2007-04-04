@@ -1,3 +1,9 @@
+Wed Apr 04 11:19:03 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Bump version to 0.9.10.1 so snapshots don't look older
+	  than releases.  Note that SWIG SVN rev >= 9670 is now required for
+	  the PHP5 ZTS MSHUTDOWN fix.
+
 Wed Apr 04 10:31:34 BST 2007  Olly Betts <olly@survex.com>
 
 	* php/util.i: Revert last change - I'm fixing this in SWIG and calling
