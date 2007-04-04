@@ -982,3 +982,5 @@ namespace Xapian {
 #endif
 
 }
+
+/* vim:set syntax=cpp:set noexpandtab: */
