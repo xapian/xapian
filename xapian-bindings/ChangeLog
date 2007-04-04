@@ -1,3 +1,8 @@
+Wed Apr 04 07:33:53 BST 2007  Olly Betts <olly@survex.com>
+
+	* INSTALL: Add details for how to install Ruby bindings in your home
+	  directory.
+
 Wed Apr 04 07:31:37 BST 2007  Olly Betts <olly@survex.com>
 
 	* ./,csharp/,ruby/,java/,php/,guile/,tcl8/,generic/: svn:ignore all
