@@ -1,10 +1,7 @@
-/* swig/defaults/except.i: Language independent exception handling.
+/* generic/except.i: Language independent exception handling.
  *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2005 James Aylett
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2007 Lemur Consulting Ltd
+ * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
