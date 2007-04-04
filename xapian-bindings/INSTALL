@@ -122,6 +122,16 @@ Installing without root access
      sys.path.insert(0, "/home/USERNAME/my_python_modules")
      import xapian
 
+  Ruby:
+
+     ./configure --with-ruby --prefix=$HOME/install
+     make rubylibdir=$HOME/my_ruby_modules rubylibarchdir=$HOME/my_ruby_modules
+     make install rubylibdir=$HOME/my_ruby_modules rubylibarchdir=$HOME/my_ruby_modules
+
+     And then you'll need to tell Ruby to look for modules in this directory:
+
+     ruby -I$HOME/my_ruby_modules myscript.rb
+
   Tcl8:
 
      ./configure --with-tcl --prefix=$HOME/install

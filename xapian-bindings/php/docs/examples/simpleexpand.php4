@@ -20,6 +20,11 @@
  * USA
  */
 
+if (php_sapi_name() != "cli") {
+    print "This example script is written to run under the command line ('cli') version of\nthe PHP interpreter, but you're using the '".php_sapi_name()."' version\n";
+    exit;
+}
+
 include "php4/xapian.php";
 
 if (!isset($_SERVER['argv']) or count($_SERVER['argv']) < 3) {

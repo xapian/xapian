@@ -105,4 +105,8 @@ if ($op_elite_set != 10) {
 # Regression test - overload resolution involving boolean types failed.
 $enq->set_sort_by_value(1, TRUE);
 
+# Regression test - fixed in 0.9.10.1.
+$oqparser = new XapianQueryParser();
+$oquery = $oqparser->parse_query("I like tea");
+
 ?>

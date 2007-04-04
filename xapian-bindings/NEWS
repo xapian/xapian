@@ -1,3 +1,33 @@
+Xapian-core 0.9.10.1 (2007-04-04):
+
+PHP:
+
+* Fix PHP5 class wrapper generation in a few cases for overloaded methods with
+  default parameters.  The most notable case was a missing Query constructor
+  which meant that QueryParser was unusable.
+
+* Fix compilation of the PHP4 bindings with ZTS-enabled versions of PHP
+  (which mostly seems to mean the MS Windows version).
+
+* Fix PHP5 crash on exit with ZTS-enabled versions of PHP (which mostly
+  seems to mean the MS Windows version).
+
+* Add note to the documentation that PHP examples are written for CLI version
+  of PHP, but that the bindings work with any version.
+
+* Add check to all PHP examples that they are being run under a CLI version of
+  PHP.
+
+Python:
+
+* simpleexpand.py: Print each term's expand weight as a floating point value,
+  not an integer.
+
+Ruby:
+
+* INSTALL: document how to install Xapian's Ruby bindings in your home
+  directory.
+
 Xapian-core 0.9.10 (2007-03-04):
 
 Java:
