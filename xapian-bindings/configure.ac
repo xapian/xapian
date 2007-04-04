@@ -106,7 +106,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl AC_PATH_PROGS only honours an already set SWIG is it's a full
   dnl path.  Listing it in the "to be searched" list like this allows
   dnl ./configure SWIG=myswig to work.
-  AC_PATH_PROGS(SWIG, [$SWIG swig], [])
+  AC_PATH_PROGS(SWIG, ["${SWIG-swig}"], [])
   AC_ARG_VAR(SWIG, [SWIG interface generator (only needed by Xapian developers)])
   if test -z "$SWIG" ; then
     AC_MSG_ERROR([Can't find SWIG utility])
@@ -137,7 +137,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
-  AC_PATH_PROGS(PERL, [$PERL perl], [])
+  AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   dnl Need perl in maintainer mode to generate the except.i file for python.
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
@@ -197,7 +197,7 @@ BINDINGS=
 
 if test no != "$with_python" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  AC_PATH_PROGS(PYTHON, [$PYTHON python], [])
+  AC_PATH_PROGS(PYTHON, ["${PYTHON-python}"], [])
   AC_ARG_VAR(PYTHON, [Python interpreter])
   if test -n "$PYTHON" ; then
     dnl Require Python 2.2 or newer.  We need 2.2 to use SWIG's -modern option,
@@ -262,7 +262,7 @@ fi
 
 if test no != "$with_php" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  AC_PATH_PROGS(PHP_CONFIG, [$PHP_CONFIG php-config], [])
+  AC_PATH_PROGS(PHP_CONFIG, ["${PHP_CONFIG-php-config}"], [])
   AC_ARG_VAR(PHP_CONFIG, [php-config utility])
   AC_ARG_VAR(PHP, [php interpreter (optional - only needed to run PHP testsuite with)])
   if test -n "$PHP_CONFIG" ; then
@@ -337,7 +337,7 @@ if test no != "$with_php" ; then
 	[[\\/]* | ?:[\\/]*]) ;;
 	*)
 	  dnl Handle PHP passed in without a path - e.g. PHP=php5
-	  AC_PATH_PROGS(PHP, [$PHP], [])
+	  AC_PATH_PROGS(PHP, ["$PHP"], [])
 	  test -n "$PHP" && PHP_found=yes
 	  ;;
       esac
@@ -366,7 +366,7 @@ if test no != "$with_php" ; then
 fi
 
 if test no != "$with_tcl" ; then
-  AC_PATH_PROGS(TCLSH, [$TCLSH tclsh], [])
+  AC_PATH_PROGS(TCLSH, ["${TCLSH-tclsh}"], [])
   AC_ARG_VAR(TCLSH, [Tcl interpreter])
   if test -n "$TCLSH" ; then
     # We need Tcl 8.1 or later for TCL_STUBS.
@@ -419,7 +419,7 @@ if test no != "$with_tcl" ; then
 fi
 
 dnl if test yes = "$with_guile" ; then
-dnl   AC_PATH_PROGS(GUILE, [$GUILE guile], [])
+dnl   AC_PATH_PROGS(GUILE, ["${GUILE-guile}"], [])
 dnl   AC_ARG_VAR(GUILE, [guile interpreter])
 dnl   if test -n "$GUILE" ;  then
 dnl     dnl test guile version?
@@ -435,7 +435,9 @@ dnl fi
 if test no != "$with_csharp" ; then
   csc_note=
   AC_ARG_VAR(CSC, [CSharp compiler command])
-  AC_PATH_PROGS(CSC, [$CSC], [])
+  if test -n "$CSC" ; then
+    AC_PATH_PROGS(CSC, ["$CSC"], [])
+  fi
   if test -z "$CSC" ; then
     dnl mcs is the Mono CSharp compiler.
     AC_PATH_PROGS(CSC, [mcs], [])
@@ -453,31 +455,31 @@ if test no != "$with_csharp" ; then
       fi
     fi
     dnl gmcs is another name for the Mono CSharp compiler.
-    AC_PATH_PROGS(CSC, [gmcs], [])
-  fi
-  if test -z "$CSC" ; then
     dnl cscc is the Portable.NET CSharp compiler.
-    AC_PATH_PROGS(CSC, [cscc], [])
-  fi
-  if test -z "$CSC" ; then
-    dnl csc is the Microsoft CSharp compiler.
-    AC_PATH_PROGS(CSC, [csc], [])
-    # Chicken (the Scheme-to-C compiler) includes a tool called csc so we check
-    # if the output from "csc -version" includes the word chicken which is
-    # sufficient to distinguish Chicken's csc from Microsoft's csc.exe.
-    AC_MSG_CHECKING([whether $CSC is for CSharp])
-    csc_tmp=`$CSC -version 2>/dev/null|grep chicken`
-    if test -z "$csc_tmp" ; then
-      AC_MSG_RESULT(yes)
-    else
-      AC_MSG_RESULT(no)
-      CSC=
-      csc_note="$csc_note (found Chicken csc program)"
+    AC_PATH_PROGS(CSC, [gmcs cscc], [])
+    if test -z "$CSC" ; then
+      dnl csc is the Microsoft CSharp compiler.
+      AC_PATH_PROGS(CSC, [csc], [])
+      # Chicken (the Scheme-to-C compiler) includes a tool called csc so we check
+      # if the output from "csc -version" includes the word chicken which is
+      # sufficient to distinguish Chicken's csc from Microsoft's csc.exe.
+      AC_MSG_CHECKING([whether $CSC is for CSharp])
+      csc_tmp=`$CSC -version 2>/dev/null|grep chicken`
+      if test -z "$csc_tmp" ; then
+	AC_MSG_RESULT(yes)
+      else
+	AC_MSG_RESULT(no)
+	CSC=
+	csc_note="$csc_note (found Chicken csc program)"
+      fi
     fi
   fi
   if test -n "$CSC" ; then
-    AC_PATH_PROGS(GACUTIL, [$GACUTIL gacutil ilgac], [])
-    AC_PATH_PROGS(SN, [$SN sn], [])
+    AC_PATH_PROGS(GACUTIL, ["${GACUTIL-gacutil}"], [])
+    if test -z "$GACUTIL" ; then
+      AC_PATH_PROGS(GACUTIL, [ilgac], [])
+    fi
+    AC_PATH_PROGS(SN, ["${SN-sn}"], [])
     AC_ARG_VAR(GACUTIL, [gacutil utility to use for CSharp bindings])
     AC_ARG_VAR(SN, [sn utility to use for CSharp bindings])
     if test -z "$SN" ; then
@@ -498,7 +500,10 @@ if test no != "$with_csharp" ; then
 	  RUN_CSHARP=
 	else
 	  AC_MSG_RESULT(no)
-	  AC_PATH_PROGS(MONO, [$MONO mono ilrun], [])
+	  AC_PATH_PROGS(MONO, ["${MONO-mono}"], [])
+	  if test -z "$MONO" ; then
+	    AC_PATH_PROGS(MONO, [ilrun], [])
+	  fi
 	  AC_ARG_VAR(MONO, [CSharp bytecode interpreter (optional - only needed to run CSharp testsuite with)])
 	  if test -n "$MONO" ; then
 	    AC_MSG_CHECKING([whether $MONO can run CSharp programs])
@@ -539,15 +544,16 @@ if test no != "$with_csharp" ; then
 fi
 
 if test no != "$with_java" ; then
-  AC_PATH_PROGS(JAVA, [$JAVA java], [],
+  AC_PATH_PROGS(JAVA, ["${JAVA-java}"], [],
 	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
-  AC_PATH_PROGS(JAVAC, [$JAVAC javac], [],
+  AC_PATH_PROGS(JAVAC, ["${JAVAC-javac}"], [],
 	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
-  AC_PATH_PROGS(JAR, [$JAR jar], [],
+  AC_PATH_PROGS(JAR, ["${JAR-jar}"], [],
 	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
   AC_ARG_VAR(JAVA, [Java interpreter command])
   AC_ARG_VAR(JAVAC, [Java compiler command])
   AC_ARG_VAR(JAR, [java jar utility])
+  AC_ARG_VAR(JNI_INCLUDE_DIR, [Pathname of the directory where jni.h is])
   if test -n "$JAVA" -a -n "$JAVAC" -a -n "$JAR" ; then
     dnl Eric says:
     dnl  The JNI library *requires* "Java 2", which is 1.2 or better.
@@ -612,7 +618,11 @@ fi
 
 if test no != "$with_ruby" ; then
   dnl See comment for AC_PATH_PROGS(SWIG, ...).
-  AC_PATH_PROGS(RUBY, [$RUBY ruby1.8 ruby], [])
+  if test -n "$RUBY" ; then
+    AC_PATH_PROGS(RUBY, ["$RUBY"], [])
+  else
+    AC_PATH_PROGS(RUBY, [ruby1.8 ruby], [])
+  fi
   AC_ARG_VAR(RUBY, [Ruby interpreter])
   if test -n "$RUBY" ; then
     dnl Require Ruby 1.8 or newer.  Paul says:
