@@ -19,7 +19,10 @@ NULL=nul
 ALL: 
    copy config.h.win32 ..\config.h
    copy version.h.win32 ..\include\xapian\version.h
-   copy unistd.h.win32 ..\include\xapian\unistd.h
+   copy unistd.h.win32 ..\include\unistd.h
+   
+   copy msvc_posix_wrapper.h.win32 ..\common\msvc_posix_wrapper.h
+   copy msvc_posix_wrapper.cc.win32 ..\common\msvc_posix_wrapper.cc
  
    copy  win32_api.mak ..\api\win32.mak
    copy  win32_backends.mak ..\backends\win32.mak
@@ -40,9 +43,10 @@ ALL:
    copy  win32_testsuite.mak ..\tests\harness\win32.mak
    if exist $(XAPIAN_BINDINGS) copy $(XAPIAN_BINDINGS)\xapian-version.h.in $(XAPIAN_BINDINGS)\xapian-version.h
    if exist $(XAPIAN_BINDINGS) copy win32_bindings_python.mak $(XAPIAN_BINDINGS)\python\win32.mak
-   if exist $(XAPIAN_APPLICATIONS) copy win32_applications_omega.mak $(XAPIAN_APPLICATIONS)\omega\win32.mak
-   if exist $(XAPIAN_APPLICATIONS) copy config.mak $(XAPIAN_APPLICATIONS)\omega
-   if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\omega\config.h
+   if exist $(XAPIAN_BINDINGS) copy win32_bindings_php.mak $(XAPIAN_BINDINGS)\php\win32.mak
+   if exist $(XAPIAN_APPLICATIONS) copy win32_applications_omega.mak $(XAPIAN_APPLICATIONS)\win32.mak
+   if exist $(XAPIAN_APPLICATIONS) copy config.mak $(XAPIAN_APPLICATIONS)
+   if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\config.h
 
    cd ..\getopt
    nmake /f win32.mak $(MAKEMACRO) CFG="$(CFG)"
@@ -99,6 +103,7 @@ CLEAN:
    -@erase ..\config.h 
    -@erase ..\include\xapian\version.h
    -@erase ..\include\xapian\unistd.h
+   -@erase ..\common\msvc_posix_wrapper.*
    -@erase $(XAPIAN_DEBUG_OR_RELEASE)\*.idb
    rmdir $(XAPIAN_DEBUG_OR_RELEASE)\ /s /q
    echo All Win32 parts have been cleaned!

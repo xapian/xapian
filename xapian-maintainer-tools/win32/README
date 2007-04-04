@@ -1,6 +1,6 @@
-README for Xapian/Visual C++ Tools
-==================================
-2007-02-28
+README for Xapian/Visual C++ Tools - Xapian v0.9.10 & 0.9.10.1 bindings
+=======================================================================
+2007-04-04
 
 Make files, some extra headers and associated tools for compiling Xapian on Win32 using
 the Microsoft Visual C++ compilers. This is particularly useful if you're using the 
@@ -24,7 +24,7 @@ What works?
   - inmemory
   - multi
 
-- The Python bindings
+- The Python & PHP bindings
 - The quartz binaries quartzcheck, quartzcompact, quartzdump
 - The xapian-compact binary
 - The Xapian example binaries
@@ -105,11 +105,17 @@ In this case you'll also need the Platforms SDK:
 http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
 which contains headers, libs and NMAKE. Make sure once you have installed this that you create LIB and INCLUDE environment variables to point to the appropriate Platform SDK folders, and that the path to the SDK's BIN folder is in your PATH.
 
-- SWIG can be useful for recompiling the bindings, but this is done by the Xapian
-core maintainers, so you shouldn't need to do this.
+- SWIG for recompiling the bindings: http://www.swig.org/download.html - we have used version 1.3.31
 
 - To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak.
 
+- To compile the PHP bindings you need:
+
+  a. the PHP sources from www.php.net (we have used PHP 4.4.6 & PHP 5.2.1). 
+  b. the built sources from a Windows binary distribution
+  c. to edit config.mak to use the correct paths to PHP and to select the right version of PHP to build.
+  
+  NOTE: currently the PHP smoketest will fail at line 96 of smoketest.php; this is a known issue and only occurs with Windows.
 
 How do I compile it?
 ====================
@@ -139,7 +145,7 @@ The binaries end up in xapian-core-0.x.y\win32\Release or \Debug, depending on a
 Debug builds
 ===========
 
-To compile Debug builds, you will need to swap some lines in config.mak - these is provided.
+To compile Debug builds, you will need to swap some lines in config.mak - these are provided.
 It is also possible to create a project in the Visual C++ Express Edition IDE.
 
 
