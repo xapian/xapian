@@ -1,3 +1,7 @@
+Wed Apr 04 06:45:44 BST 2007  Olly Betts <olly@survex.com>
+
+	* python/: Oops, it's "except.i" not "exceptions.i".
+
 Wed Apr 04 06:42:27 BST 2007  Olly Betts <olly@survex.com>
 
 	* python/: svn:ignore exceptions.i and all vim swapfiles (not just the
