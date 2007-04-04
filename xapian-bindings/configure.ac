@@ -569,7 +569,7 @@ if test no != "$with_java" ; then
       dnl Debian and Ubuntu boxes at least.  And on MacOS X, we jni.h lives
       dnl in /System/Library/Frameworks/JavaVM.framework/Headers.
       SAVE_CPPFLAGS=$CPPFLAGS
-      for jnidir in /usr/lib/jvm/java-gcj/include /System/Library/Frameworks/JavaVM.framework/Headers ; do
+      for jnidir in ${JAVA_HOME+"$JAVA_HOME/include"} ${JDK_HOME+"$JDK_HOME/include"} /usr/lib/jvm/java-gcj/include /System/Library/Frameworks/JavaVM.framework/Headers ; do
 	CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
 	AC_MSG_CHECKING([for jni.h in $jnidir])
 	AC_COMPILE_IFELSE([#include <jni.h>], [java_ok=yes])

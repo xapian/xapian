@@ -1,3 +1,8 @@
+Wed Apr 04 13:30:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Look for jni.h in $JAVA_HOME/include and
+	  $JDK_HOME/include if the respective variables are set.
+
 Wed Apr 04 13:07:12 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: When passing $SWIG, $PERL, etc to AC_PATH_PROGS
