@@ -4,7 +4,7 @@
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002 Intercede 1749 Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -59,14 +59,12 @@
 #endif
 
 #include "date.h"
-#include "datematchdecider.h"
 #include "utils.h"
 #include "omega.h"
 #include "query.h"
 #include "cgiparam.h"
 #include "indextext.h"
 #include "loadfile.h"
-#include "utf8itor.h"
 #include "values.h"
 
 #include <xapian/queryparser.h>
@@ -124,7 +122,7 @@ static string error_msg;
 
 static long int sec = 0, usec = -1;
 
-static const char DEFAULT_LOG_ENTRY[] =
+static const char * DEFAULT_LOG_ENTRY =
 	"$or{$env{REMOTE_HOST},$env{REMOTE_ADDR},-}\t"
 	"[$date{$now,%d/%b/%Y:%H:%M:%S} +0000]\t"
 	"$if{$cgi{X},add,$if{$cgi{MORELIKE},morelike,query}}\t"
@@ -227,10 +225,9 @@ set_probabilistic(const string &oldp)
     // Check new query against the previous one
     if (oldp.empty()) return query_string.empty() ? SAME_QUERY : NEW_QUERY;
 
-    // Long, long ago we used "word1#word2#" (with trailing #) but some broken
-    // old browsers (versions of MSIE) don't quote # in form GET submissions
-    // and everything after the # gets interpreted as an anchor.  We now allow
-    // terms like `c#' so we want to avoid '#' anyway.
+    // We used to use "word1#word2#" (with trailing #) but some broken old
+    // browsers (versions of MSIE) don't quote # in form GET submissions
+    // and everything after the # gets interpreted as an anchor.
     //
     // So we switched to using "word1.word2." but that doesn't work if
     // the terms contain "." themselves (e.g. Tapplication/vnd.ms-excel)
@@ -332,131 +329,116 @@ run_query()
 	}
     }
 
-    Xapian::MatchDecider * mdecider = NULL;
     if (!date_start.empty() || !date_end.empty() || !date_span.empty()) {
-	MCI i = cgi_params.find("DATEVALUE");
-	if (i != cgi_params.end()) {
-	    Xapian::valueno datevalue = string_to_int(i->second);
-	    mdecider = new DateMatchDecider(datevalue, date_start, date_end, date_span);
-	} else {
-	    Xapian::Query date_filter(Xapian::Query::OP_OR,
-				      date_range_filter(date_start, date_end,
-							date_span),
-				      Xapian::Query("Dlatest"));
+	Xapian::Query date_filter(Xapian::Query::OP_OR,
+				  date_range_filter(date_start, date_end,
+						    date_span),
+				  Xapian::Query("Dlatest"));
 
-	    // If no probabilistic query is provided then promote the daterange
-	    // filter to be THE query instead of filtering an empty query.
-	    if (query.empty()) {
-		query = date_filter;
-	    } else {
-		query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
+	// If no probabilistic query is provided then promote the daterange
+	// filter to be THE query instead of filtering an empty query.
+	if (query.empty()) {
+	    query = date_filter;
+	} else {
+	    query = Xapian::Query(Xapian::Query::OP_FILTER, query, date_filter);
+	}
+    }
+
+    if (enquire && error_msg.empty()) {
+	enquire->set_cutoff(threshold);
+
+	// Temporary bodge to allow experimentation with Xapian::BiasFunctor
+	MCI i;
+	i = cgi_params.find("bias_weight");
+	if (i != cgi_params.end()) {
+	    Xapian::weight bias_weight = atof(i->second.c_str());
+	    int half_life = 2 * 24 * 60 * 60; // 2 days
+	    i = cgi_params.find("bias_halflife");
+	    if (i != cgi_params.end()) {
+		half_life = atoi(i->second.c_str());
 	    }
+	    enquire->set_bias(bias_weight, half_life);
 	}
-    }
-
-    if (!enquire || !error_msg.empty()) return;
-
-    enquire->set_cutoff(threshold);
-
-    // Temporary bodge to allow experimentation with Xapian::BiasFunctor
-    MCI i;
-    i = cgi_params.find("bias_weight");
-    if (i != cgi_params.end()) {
-	Xapian::weight bias_weight = atof(i->second.c_str());
-	int half_life = 2 * 24 * 60 * 60; // 2 days
-	i = cgi_params.find("bias_halflife");
-	if (i != cgi_params.end()) {
-	    half_life = atoi(i->second.c_str());
-	}
-	enquire->set_bias(bias_weight, half_life);
-    }
-
-    if (sort_key != Xapian::valueno(-1)) {
-	if (sort_after) {
-	    enquire->set_sort_by_relevance_then_value(sort_key, sort_ascending);
-	} else {
+	if (sort_key != Xapian::valueno(-1)) {
 	    enquire->set_sort_by_value_then_relevance(sort_key, sort_ascending);
 	}
-    }
-
-    enquire->set_docid_order(docid_order);
-
-    if (collapse) {
-	enquire->set_collapse_key(collapse_key);
-    }
+	if (collapse) {
+	    enquire->set_collapse_key(collapse_key);
+	}
 
 #ifdef HAVE_GETTIMEOFDAY
-    struct timeval tv;
-    if (gettimeofday(&tv, 0) == 0) {
-	sec = tv.tv_sec;
-	usec = tv.tv_usec;
-    }
+	struct timeval tv;
+	if (gettimeofday(&tv, 0) == 0) {
+	    sec = tv.tv_sec;
+	    usec = tv.tv_usec;
+	}
 #elif defined(FTIME_RETURNS_VOID)
-    struct timeb tp;
-    ftime(&tp);
-    sec = tp.time;
-    usec = tp.millitm * 1000;
-#elif defined(HAVE_FTIME)
-    struct timeb tp;
-    if (ftime(&tp) == 0) {
+	struct timeb tp;
+	ftime(&tp);
 	sec = tp.time;
 	usec = tp.millitm * 1000;
-    }
-#else
-    sec = time(NULL);
-    if (sec != (time_t)-1) usec = 0;
-#endif
-    if (!query.empty()) {
-	enquire->set_query(query);
-	// We could use the value of topdoc as first parameter, but we
-	// need to know the first few items on the mset to fake a
-	// relevance set for topterms.
-	//
-	// If min_hits isn't set, check at least one extra result so we
-	// know if we've reached the end of the matches or not - then we
-	// can avoid offering a "next" button which leads to an empty page.
-	mset = enquire->get_mset(0, topdoc + hits_per_page,
-				 topdoc + max(hits_per_page + 1, min_hits),
-				 &rset, mdecider);
-    }
-    if (usec != -1) {
-#ifdef HAVE_GETTIMEOFDAY
-	if (gettimeofday(&tv, 0) == 0) {
-	    sec = tv.tv_sec - sec;
-	    usec = tv.tv_usec - usec;
-	    if (usec < 0) {
-		--sec;
-		usec += 1000000;
-	    }
-	} else {
-	    usec = -1;
-	}
-#elif defined(FTIME_RETURNS_VOID)
-	ftime(&tp);
-	sec = tp.time - sec;
-	usec = tp.millitm * 1000 - usec;
-	if (usec < 0) {
-	    --sec;
-	    usec += 1000000;
-	}
 #elif defined(HAVE_FTIME)
+	struct timeb tp;
 	if (ftime(&tp) == 0) {
+	    sec = tp.time;
+	    usec = tp.millitm * 1000;
+	}
+#else
+	sec = time(NULL);
+	if (sec != (time_t)-1) usec = 0;
+#endif
+	if (!query.empty()) {
+	    enquire->set_query(query);
+	    // We could use the value of topdoc as first parameter, but we
+	    // need to know the first few items on the mset to fake a
+	    // relevance set for topterms.
+	    //
+	    // If min_hits isn't set, check at least one extra result so we
+	    // know if we've reached the end of the matches or not - then we
+	    // can avoid offering a "next" button which leads to an empty page.
+	    mset = enquire->get_mset(0, topdoc + hits_per_page,
+				     topdoc + max(hits_per_page + 1, min_hits),
+				     &rset);
+	}
+	if (usec != -1) {
+#ifdef HAVE_GETTIMEOFDAY
+	    if (gettimeofday(&tv, 0) == 0) {
+		sec = tv.tv_sec - sec;
+		usec = tv.tv_usec - usec;
+		if (usec < 0) {
+		    --sec;
+		    usec += 1000000;
+		}
+	    } else {
+		usec = -1;
+	    }
+#elif defined(FTIME_RETURNS_VOID)
+	    ftime(&tp);
 	    sec = tp.time - sec;
 	    usec = tp.millitm * 1000 - usec;
 	    if (usec < 0) {
 		--sec;
 		usec += 1000000;
 	    }
-	} else {
-	    usec = -1;
-	}
+#elif defined(HAVE_FTIME)
+	    if (ftime(&tp) == 0) {
+		sec = tp.time - sec;
+		usec = tp.millitm * 1000 - usec;
+		if (usec < 0) {
+		    --sec;
+		    usec += 1000000;
+		}
+	    } else {
+		usec = -1;
+	    }
 #else
-	usec = time(NULL);
-	if (usec != -1) {
-	    sec = sec - usec;
-	    usec = 0;
-	}
+	    usec = time(NULL);
+	    if (usec != -1) {
+		sec = sec - usec;
+		usec = 0;
+	    }
 #endif
+	}
     }
 }
 
@@ -578,55 +560,59 @@ html_highlight(const string &s, const string &list,
 
     string res;
 
-    char buf[4];
-    Utf8Iterator j(s);
-    const Utf8Iterator s_end;
+    AccentNormalisingItor j(s.begin());
+    const AccentNormalisingItor s_end(s.end());
     while (true) {
-	Utf8Iterator first = j;
-	while (first != s_end && !is_wordchar(*first)) ++first;
+	AccentNormalisingItor first = j;
+	while (first != s_end && !isalnum(static_cast<unsigned char>(*first)))
+	    ++first;
 	if (first == s_end) break;
-	Utf8Iterator term_end;
+	AccentNormalisingItor term_end;
 	string term;
 	string word;
-	const char *l = j.raw();
-	if (*first < 128 && isupper(*first)) {
+	string::const_iterator l = j.raw();
+	if (isupper(*first)) {
 	    j = first;
-	    term.append(buf, to_utf8(*j, buf));
-	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && isupper(*j)) {
-		term.append(buf, to_utf8(*j, buf));
+	    term = *j;
+	    while (++j != s_end && *j == '.' && ++j != s_end &&
+		   isupper(static_cast<unsigned char>(*j))) {
+		term += *j;
 	    }
-	    if (term.length() < 2 || (j != s_end && is_wordchar(*j))) {
+	    if (term.length() < 2 ||
+		(j != s_end && isalnum(static_cast<unsigned char>(*j)))) {
 		term = "";
 	    }
 	    term_end = j;
 	}
 	if (term.empty()) {
 	    j = first;
-	    while (is_wordchar(*j)) {
-		term.append(buf, to_utf8(*j, buf));
+	    while (isalnum(static_cast<unsigned char>(*j))) {
+		term += *j;
 		++j;
 		if (j == s_end) break;
-		if (*j == '&' || *j == '\'') {
-		    Utf8Iterator next = j;
+		if (*j == '&') {
+		    AccentNormalisingItor next = j;
 		    ++next;
-		    if (next == s_end || !is_wordchar(*next)) break;
-		    term += *j;
+		    if (next == s_end ||
+			!isalnum(static_cast<unsigned char>(*next)))
+			break;
+		    term += '&';
 		    j = next;
 		}
 	    }
 	    term_end = j;
-	    if (j != s_end && (*j == '+' || *j == '-' || *j == '#')) {
+	    if (j != s_end && (*j == '#' || p_plusminus(*j))) {
 		string::size_type len = term.length();
 		if (*j == '#') {
 		    term += '#';
 		    do { ++j; } while (j != s_end && *j == '#');
 		} else {
-		    while (j != s_end && (*j == '+' || *j == '-')) {
-			term.append(buf, to_utf8(*j, buf));
+		    while (j != s_end && p_plusminus(*j)) {
+			term += *j;
 			++j;
 		    }
 		}
-		if (term.size() - len > 3 || (j != s_end && is_wordchar(*j))) {
+		if (j != s_end && isalnum(static_cast<unsigned char>(*j))) {
 		    term.resize(len);
 		} else {
 		    term_end = j;
@@ -635,15 +621,18 @@ html_highlight(const string &s, const string &list,
 	}
 	j = term_end;
 	unsigned char first_char = term[0];
-	term = U_downcase_term(term);
+	lowercase_term(term);
 	int match = -1;
-	if (first_char < 128 && isupper(first_char)) {
+	// As of 0.8.0, raw terms won't start with a digit.  But we may
+	// be searching an older database where it does, so keep the
+	// isdigit check for now...
+	if (isupper(first_char) || isdigit(first_char)) {
 	    match = word_in_list('R' + term, list);
 	}
 	if (match == -1)
-	    match = word_in_list((*stemmer)(term), list);
+	    match = word_in_list(stemmer->stem_word(term), list);
 	if (match >= 0) {
-	    res += html_escape(string(l, first.raw() - l));
+	    res += html_escape(s.substr(l - s.begin(), first.raw() - l));
 	    if (!bra.empty()) {
 		res += bra;
 	    } else {
@@ -655,7 +644,7 @@ html_highlight(const string &s, const string &list,
 		res += colours[match % (sizeof(colours) / sizeof(colours[0]))];
 		res += "\">";
 	    }
-	    word = string(first.raw(), j.raw() - first.raw());
+	    word = s.substr(first.raw() - s.begin(), j.raw() - first.raw());
 	    res += html_escape(word);
 	    if (!bra.empty()) {
 		res += ket;
@@ -663,10 +652,10 @@ html_highlight(const string &s, const string &list,
 		res += "</b>";
 	    }
 	} else {
-	    res += html_escape(string(l, j.raw() - l));
+	    res += html_escape(s.substr(l - s.begin(), j.raw() - l));
 	}
     }
-    if (j != s_end) res += html_escape(string(j.raw(), j.left()));
+    if (j != s_end) res += html_escape(s.substr(j.raw() - s.begin()));
     return res;
 }
 
@@ -702,7 +691,6 @@ static map<string, string> field;
 static Xapian::docid q0;
 static Xapian::doccount hit_no;
 static int percent;
-static Xapian::weight weight;
 static Xapian::doccount collapsed;
 
 static string print_caption(const string &fmt, const vector<string> &param);
@@ -799,7 +787,6 @@ CMD_unstem,
 CMD_url,
 CMD_value,
 CMD_version,
-CMD_weight,
 CMD_MACRO // special tag for macro evaluation
 };
 
@@ -922,7 +909,6 @@ T(unstem,	   1, 1, N, Q), // return list of probabilistic terms from
 T(url,		   1, 1, N, 0), // url encode argument
 T(value,	   1, 2, N, 0), // return document value
 T(version,	   0, 0, N, 0), // omega version string
-T(weight,	   0, 0, N, 0), // weight of the current hit
 { NULL,{0,	   0, 0, 0, 0}}
 };
 
@@ -1166,42 +1152,20 @@ eval(const string &fmt, const vector<string> &param)
 		value = field[args[0]];
 		break;
 	    case CMD_filesize: {
-		// FIXME: rounding?  i18n?
+		// FIXME: rounding?
+		// FIXME: for smaller sizes give decimal fractions, e.g. "1.4K"
 		int size = string_to_int(args[0]);
-		int intpart = size;
-		int fraction = -1;
-		const char * format = 0;
-		if (size < 0) {
-		    // Negative size -> empty result.
-		} else if (size == 1) {
-		    format = "%d byte";
-		} else if (size < 1024) {
-		    format = "%d bytes";
+		char buf[200] = "";
+		if (size && size < 1024) {
+		    my_snprintf(buf, sizeof(buf), "%d bytes", size);
 		} else if (size < 1024*1024) {
-		    intpart = size / 1024;
-		    fraction = size % 1024;
-		    format = "%d.%cK";
+		    my_snprintf(buf, sizeof(buf), "%dK", int(size/1024));
 		} else if (size < 1024*1024*1024) {
-		    intpart = size / (1024 * 1024);
-		    fraction = size % (1024 * 1024);
-		    format = "%d.%cM";
+		    my_snprintf(buf, sizeof(buf), "%dM", int(size/1024/1024));
 		} else {
-		    intpart = size / (1024 * 1024 * 1024);
-		    fraction = size % (1024 * 1024 * 1024);
-		    format = "%d.%cG";
+		    my_snprintf(buf, sizeof(buf), "%dG", int(size/1024/1024/1024));
 		}
-		if (format) {
-		    char buf[200];
-		    int len;
-		    if (fraction == -1) {
-			len = my_snprintf(buf, sizeof(buf), format, intpart);
-		    } else {
-			fraction = (fraction * 10 / 1024) + '0';
-			len = my_snprintf(buf, sizeof(buf), format, intpart, fraction);
-		    }
-		    if (len < 0 || (unsigned)len > sizeof(buf)) len = sizeof(buf);
-		    value.assign(buf, len);
-		}
+		value = buf;
 		break;
 	    }
 	    case CMD_filters:
@@ -1543,9 +1507,6 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_now: {
 		char buf[64];
 		my_snprintf(buf, sizeof(buf), "%lu", (unsigned long)time(NULL));
-		// MSVC's snprintf omits the zero byte if the string if
-		// sizeof(buf) long.
-		buf[sizeof(buf) - 1] = '\0';
 		value = buf;
 		break;
 	    }
@@ -1724,16 +1685,7 @@ eval(const string &fmt, const vector<string> &param)
 		size_t len = string::npos;
 		if (args.size() > 2) {
 		    int int_len = string_to_int(args[2]);
-		    if (int_len >= 0) {
-			len = size_t(int_len);
-		    } else {
-			len = args[0].size() - start;
-			if (static_cast<size_t>(-int_len) >= len) {
-			    len = 0;
-			} else {
-			    len -= static_cast<size_t>(-int_len);
-			}
-		    }
+		    if (int_len >= 0) len = size_t(int_len);
 		}
 		value = args[0].substr(start, len);
 		break;
@@ -1760,9 +1712,6 @@ eval(const string &fmt, const vector<string> &param)
 		if (usec != -1) {
 		    char buf[64];
 		    my_snprintf(buf, sizeof(buf), "%ld.%06ld", sec, usec);
-		    // MSVC's snprintf omits the zero byte if the string if
-		    // sizeof(buf) long.
-		    buf[sizeof(buf) - 1] = '\0';
 		    value = buf;
 		}
 		break;
@@ -1810,7 +1759,7 @@ eval(const string &fmt, const vector<string> &param)
 			    string term = *t;
 			    if (term[0] == 'R') {
 				term.erase(0, 1);
-				term = (*stemmer)(term);
+				term = stemmer->stem_word(term);
 			    }
 			    seen.insert(term);
 			}
@@ -1821,7 +1770,7 @@ eval(const string &fmt, const vector<string> &param)
 			if (term[0] == 'R') {
 			    term.erase(0, 1);
 			    if (stopper(term)) continue;
-			    term = (*stemmer)(term);
+			    term = stemmer->stem_word(term);
 			}
 			if (seen.find(term) != seen.end()) continue;
 			seen.insert(term);
@@ -1914,9 +1863,6 @@ eval(const string &fmt, const vector<string> &param)
 	    case CMD_version:
 		value = "Xapian - "PACKAGE" "VERSION;
 		break;
-	    case CMD_weight:
-		value = double_to_string(weight);
-		break;
 	    default: {
 		args.insert(args.begin(), param[0]);
 		int macro_no = func->second->tag - CMD_MACRO;
@@ -1989,7 +1935,7 @@ pretty_term(const string & term)
 
     // The term is present unstemmed, but if it would stem further it still
     // needs protecting.
-    if ((*stemmer)(term) != term)
+    if (stemmer->stem_word(term) != term)
 	return term + '.';
 
     return term;
@@ -2000,7 +1946,6 @@ print_caption(const string &fmt, const vector<string> &param)
 {
     q0 = *(mset[hit_no]);
 
-    weight = mset[hit_no].get_weight();
     percent = mset.convert_to_percent(mset[hit_no]);
     collapsed = mset[hit_no].get_collapse_count();
 
@@ -2112,7 +2057,32 @@ ensure_query_parsed()
 		force_first_page = false;
 		val = cgi_params.find("xFILTERS");
 		string xfilters;
-		if (val != cgi_params.end()) xfilters = val->second;
+		if (val != cgi_params.end()) {
+		    xfilters = val->second;
+		} else {
+		    // compatibility with older xB/xDATE/... scheme
+		    val = cgi_params.find("xB");
+		    if (val != cgi_params.end())
+			xfilters = val->second + filter_sep;
+		    static const char * check_vars[] = {
+			"DATE1", "DATE2", "DAYSMINUS", NULL
+		    };
+		    for (const char **pv = check_vars; *pv; ++pv) {
+			val = cgi_params.find('x' + string(*pv));
+			if (val != cgi_params.end()) xfilters += val->second;
+			xfilters += filter_sep;
+		    }
+		    val = cgi_params.find("xDEFAULTOP");
+		    if (val == cgi_params.end() && xfilters.length() == 3) {
+			// no x values, so don't force first page
+			xfilters = filters;
+		    } else {
+			char ch = 'O';
+			if (val != cgi_params.end() && val->second == "and")
+			    ch = 'A';
+			xfilters[xfilters.length() - 1] = ch;
+		    }
+		}
 		if (filters != xfilters) {
 		    // Filters changed since last query
 		    force_first_page = true;
@@ -2150,6 +2120,9 @@ ensure_query_parsed()
 	// this is unhelpful.
 	bool raw_search = false;
 	val = cgi_params.find("RAWSEARCH");
+	// In Omega <= 0.6.3, RAWSEARCH was RAW_SEARCH - renamed to be
+	// consistent with the naming of other CGI parameters.
+	if (val == cgi_params.end()) val = cgi_params.find("RAW_SEARCH");
 	if (val != cgi_params.end()) {
 	    raw_search = bool(atol(val->second.c_str()));
 	}

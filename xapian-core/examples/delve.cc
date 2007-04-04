@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -48,11 +48,9 @@ static void show_usage() {
 "  -r <recno>            for term list(s)\n"
 "  -t <term>             for posting list(s)\n"
 "  -t <term> -r <recno>  for position list(s)\n"
-"  -s, --stemmer=LANG    set the stemming language, the default is 'none'\n"
 "  -1                    output one list entry per line\n"
-"  -V                    output values for each document referred to\n"
-"  -V<valueno>           output value valueno for each document in the database\n"
-"  -d                    output document data for each document referred to\n"
+"  -k                    output values for each document referred to\n"
+"  -d                    output document data for each document\n"
 "  -v                    extra info (wdf and len for postlist;\n"
 "                        wdf termfreq for termlist; number of terms for db)\n"
 "      --help            display this help and exit\n"
@@ -145,8 +143,6 @@ show_termlists(Database &db,
     }
 }
 
-static Stem stemmer;
-
 int
 main(int argc, char **argv)
 {
@@ -166,11 +162,8 @@ main(int argc, char **argv)
     vector<string> terms;
     vector<string> dbs;
 
-    valueno valno = 0; // Avoid "may be used uninitialised" warnings.
-    bool valno_set = false;
-
     int c;
-    while ((c = gnu_getopt(argc, argv, "r:t:s:1vkV::d")) != EOF) {
+    while ((c = gnu_getopt(argc, argv, "r:t:1vkd")) != EOF) {
 	switch (c) {
 	    case 'r':
 		recnos.push_back(atoi(optarg));
@@ -178,18 +171,11 @@ main(int argc, char **argv)
 	    case 't':
 		terms.push_back(optarg);
 		break;
-	    case 's':
-		stemmer = Stem(optarg);
-		break;
 	    case '1':
 		separator = '\n';
 		break;
-	    case 'V': case 'k': /* -k for backward compatibility */
+	    case 'k':
 		showvalues = true;
-		if (optarg) {
-		    valno = atoi(optarg);
-		    valno_set = true;
-		}
 		break;
 	    case 'd':
 		showdocdata = true;
@@ -227,7 +213,7 @@ main(int argc, char **argv)
     }
 
     try {
-	if (terms.empty() && recnos.empty() && !valno_set) {
+	if (terms.empty() && recnos.empty()) {
 	    show_db_stats(db);
 	    return 0;
 	}
@@ -242,24 +228,6 @@ main(int argc, char **argv)
 	    }
 	}
 
-	if (valno_set) {
-	    doccount n = db.get_doccount();
-	    docid did = 0;
-	    docid hwm = db.get_lastdocid();
-	    cout << "Value " << valno << " for each document:";
-	    while (n && did != hwm) {
-		try {
-		    Document doc = db.get_document(++did);
-		    string val = doc.get_value(valno);
-		    if (!val.empty())
-			cout << separator << did << ':' << doc.get_value(valno);
-		    --n;
-		} catch (DocNotFoundError &) {
-		}
-	    }
-	    cout << endl;
-	}
-
 	if (terms.empty()) {
 	    show_termlists(db, recnos.begin(), recnos.end());
 	    return 0;
@@ -267,7 +235,13 @@ main(int argc, char **argv)
 
 	vector<string>::const_iterator i;
 	for (i = terms.begin(); i != terms.end(); i++) {
-	    string term = stemmer(*i);
+	    string term = *i;
+	    Stem stemmer("english");
+	    if (*(term.end() - 1) == '.') {
+		term.erase(term.size() - 1);
+	    } else {
+		term = stemmer.stem_word(term);
+	    }
 	    PostingIterator p = db.postlist_begin(term);
 	    PostingIterator pend = db.postlist_end(term);
 	    if (p == pend) {
@@ -315,7 +289,7 @@ main(int argc, char **argv)
 	    }
 	}
     } catch (const Error &e) {
-	cout << "\nError: " << e.get_msg() << endl;
+	cout << "Error: " << e.get_msg() << endl;
 	return 1;
     }
 }

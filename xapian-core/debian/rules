@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 # Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-# Copyright (C) 2006,2007 Olly Betts
+# Copyright (C) 2006 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -75,11 +75,10 @@ maintclean: clean
 	rm -rf debian/tmp
 
 debian/control: debian/rules debian/control.in
-	rm -f debian/control.tmp
-	sed 's/@LIBXAPIAN_SOVERSION@/$(libxapian_soversion)/g; \
-	     s/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g' \
-	     debian/control.in > debian/control.tmp
-	mv debian/control.tmp debian/control
+	cat debian/control.in | \
+		sed 's/@LIBXAPIAN_SOVERSION@/$(libxapian_soversion)/g' | \
+		sed 's/@LIBXAPIAN_DEV_SOVERSION@/$(libxapian_dev_soversion)/g' \
+		> debian/control
 
 debian/libxapian$(libxapian_soversion).install: debian/rules debian/libxapianVERSION.install
 	cp -f debian/libxapianVERSION.install debian/libxapian$(libxapian_soversion).install

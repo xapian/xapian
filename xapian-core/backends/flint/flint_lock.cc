@@ -1,6 +1,6 @@
 /* flint_lock.cc: database locking for flint backend.
  *
- * Copyright (C) 2005,2006,2007 Olly Betts
+ * Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 #include "safefcntl.h"
 #include <unistd.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
@@ -80,13 +81,7 @@ FlintLock::lock(bool exclusive) {
 	    // Just exit and the parent will realise.
 	    exit(0);
 	}
-	// Signal OK to parent.
-	while (write(fds[1], "", 1) < 0) {
-	    // EINTR means a signal interrupted us, so retry.
-	    // Otherwise we're DOOMED!  The best we can do is just exit and
-	    // the parent process should get EOF and know the lock failed.
-	    if (errno != EINTR) exit(1);
-	}
+	write(fds[1], "", 1); // Signal OK to parent.
 	//shutdown(fds[1], 1); // Disable further sends.
 	// Connect pipe to stdin.
 	dup2(fds[1], 0);
@@ -106,16 +101,15 @@ FlintLock::lock(bool exclusive) {
 	close(fds[1]);
 	return false;
     }
-
+   
     // Parent process.
     close(fds[1]);
     while (true) {
 	char ch;
 	int n = read(fds[0], &ch, 1);
 	if (n == 1) break; // Got the lock.
-	if (n == 0 || errno != EINTR) {
-	    // EOF means the lock failed; we also treat unexpected errors from
-	    // read() the same way.
+	if (n == 0) {
+	    // EOF means lock failed.
 	    close(fds[0]);
 	    return false;
 	}

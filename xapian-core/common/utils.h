@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,9 +27,29 @@
 using std::string;
 
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <sys/types.h>
-#include "safesysstat.h"
-#include "safeunistd.h"
+#include "safefcntl.h"
+#ifdef _MSC_VER
+# include <direct.h>
+# include <io.h>
+#else
+# include <unistd.h>
+#endif
+#include <ctype.h>
+
+#ifdef _MSC_VER
+
+#define S_ISREG(m) (((m)&_S_IFMT) == _S_IFREG)
+#define S_ISDIR(m) (((m)&_S_IFMT) == _S_IFDIR)
+
+// MSVC needs this to get SSIZE_T defined.
+#include "safewindows.h"
+
+#undef ssize_t // In case configure already defined it.
+#define ssize_t SSIZE_T
+
+#endif
 
 /// Convert a string to a string!
 inline string om_tostring(const string &s) { return s; }
@@ -46,11 +66,6 @@ string om_tostring(long int a);
 /// Convert an unsigned long integer to a string
 string om_tostring(unsigned long int a);
 
-#ifdef __WIN32__
-/// Convert a 64 bit integer to a string
-string om_tostring(__int64 a);
-#endif
-
 /// Convert a double to a string
 string om_tostring(double a);
 
@@ -59,6 +74,25 @@ string om_tostring(bool a);
 
 /// Convert a pointer to a string
 string om_tostring(const void * a);
+
+///////////////////////////////////////////
+// Mapping of types as strings to enums  //
+///////////////////////////////////////////
+
+struct StringAndValue {
+    const char * name;
+    int value;
+};
+
+/** Get the value associated with the given string.  If the string
+ *  isn't found, the value returned is the value in the terminating
+ *  object (which has a zero length string).
+ *
+ *  Note: this just uses a list of entries, and searches linearly
+ *  through them.  Could at make this do a binary chop, but probably
+ *  not worth doing so, unless list gets large.
+ */
+int map_string_to_value(const StringAndValue * haystack, const string & needle);
 
 /** Return true if the file fname exists.
  */
@@ -95,6 +129,15 @@ inline int mkdir(const string &filename, mode_t mode) {
 inline int stat(const string &filename, struct stat *buf) {
     return stat(filename.c_str(), buf);
 }
+
+/// Touch a file.
+inline void touch(const string &filename) {
+   int fd = open(filename.c_str(), O_CREAT|O_WRONLY, 0644);
+   if (fd >= 0) close(fd);
+}
+
+/// Remove a directory and contents.
+void rmdir(const string &filename);
 
 #ifdef __WIN32__
 inline unsigned int sleep(unsigned int secs) {

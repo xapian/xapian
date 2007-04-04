@@ -2,8 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -124,7 +123,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Return the last used document id of this (sub) database.
 	 */
-	virtual Xapian::docid get_lastdocid() const = 0;
+	virtual Xapian::docid get_lastdocid() const;
 
 	/** Return the average length of a document in this (sub) database.
 	 *
@@ -189,7 +188,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *                use.
 	 */
 	LeafPostList * open_post_list(const string & tname) const {
-	    if (!tname.empty() && !term_exists(tname)) {
+	    if (!term_exists(tname)) {
 		DEBUGLINE(MATCH, tname + " is not in database.");
 		// Term doesn't exist in this database.  However, we create
 		// a (empty) postlist for it to help make distributed searching

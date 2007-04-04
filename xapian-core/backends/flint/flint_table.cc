@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -53,6 +53,8 @@ PREAD_PROTOTYPE
 #if defined HAVE_PWRITE && defined PWRITE_PROTOTYPE
 PWRITE_PROTOTYPE
 #endif
+
+#include <sys/stat.h>
 
 #include <stdio.h>
 #include <string.h>   /* for memmove */
@@ -149,10 +151,8 @@ static void sys_unlink(const string &filename)
 static inline byte *zeroed_new(size_t size)
 {
     byte *temp = new byte[size];
-    // No need to check if temp is NULL, new throws std::bad_alloc if
-    // allocation fails.
-    Assert(temp);
-    memset(temp, 0, size);
+    if (temp) memset(temp, 0, size);
+
     return temp;
 }
 
@@ -593,6 +593,9 @@ FlintTable::split_root(uint4 split_n)
     }
 
     byte * q = zeroed_new(block_size);
+    if (q == 0) {
+	throw std::bad_alloc();
+    }
     C[level].p = q;
     C[level].c = DIR_START;
     C[level].n = base.next_free_block();
@@ -1235,6 +1238,7 @@ FlintTable::basic_open(bool revision_supplied, flint_revision_number_t revision_
 	}
 
 	// FIXME: assumption that there are only two bases
+	both_bases = (base_ok[0] && base_ok[1]);
 	if (!base_ok[0] && !base_ok[1]) {
 	    string message = "Error opening table `";
 	    message += name;
@@ -1242,7 +1246,6 @@ FlintTable::basic_open(bool revision_supplied, flint_revision_number_t revision_
 	    message += err_msg;
 	    throw Xapian::DatabaseOpeningError(message);
 	}
-	both_bases = (base_ok[0] && base_ok[1]);
 
 	if (revision_supplied) {
 	    bool found_revision = false;
@@ -1319,6 +1322,9 @@ FlintTable::basic_open(bool revision_supplied, flint_revision_number_t revision_
 
     /* kt holds constructed items as well as keys */
     kt = Item_wr_(zeroed_new(block_size));
+    if (kt.get_address() == 0) {
+	throw std::bad_alloc();
+    }
 
     set_max_item_size(BLOCK_CAPACITY);
 
@@ -1409,6 +1415,9 @@ FlintTable::do_open_to_write(bool revision_supplied, flint_revision_number_t rev
     read_root();
 
     buffer = zeroed_new(block_size);
+    if (buffer == 0) {
+	throw std::bad_alloc();
+    }
 
     // swap for writing
     other_base_letter = base_letter == 'A' ? 'B' : 'A';
@@ -1649,13 +1658,8 @@ bool
 FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revision_)
 {
     if (!basic_open(revision_supplied, revision_)) {
-	if (revision_supplied) {
-	    // The requested revision was not available.
-	    // This could be because the database was modified underneath us, or
-	    // because a base file is missing.  Return false, and work out what
-	    // the problem was at a higher level.
-	    return false;
-	}
+	// The requested revision is not available.
+	if (revision_supplied) return false;
 	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
     }
 
@@ -1711,13 +1715,12 @@ FlintTable::open(flint_revision_number_t revision)
     close();
 
     if (!writable) {
-	if (do_open_to_read(true, revision)) {
-	    AssertEq(revision_number, revision);
-	    RETURN(true);
-	} else {
+	if (!do_open_to_read(true, revision)) {
 	    close();
 	    RETURN(false);
 	}
+	AssertEq(revision_number, revision);
+	RETURN(true);
     }
 
     if (!do_open_to_write(true, revision)) {

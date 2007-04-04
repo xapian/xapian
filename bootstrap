@@ -35,11 +35,8 @@ esac
 srcdir=`echo "$0"|sed 's![^/]*$!!'`
 # Don't try to build xapian-applications/dbtools or xapview - they need work.
 # As does cvssearch.
-# We no longer snapshot xapian-applications/queryserver - we're overfilling the
-# partition and it hasn't seen a check-in for ages.  Also, ixion seems to be
-# increasingly loaded and this can't help.
 modules=
-for module in xapian-core xapian-applications/omega xapian-bindings ; do
+for module in xapian-core xapian-applications/omega xapian-bindings xapian-applications/queryserver ; do
   d=${srcdir}$module
   if test -f "$d/configure.in" -o -f "$d/configure.ac" ; then
     echo "Bootstrapping \`$module'"

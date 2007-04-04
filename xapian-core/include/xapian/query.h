@@ -4,7 +4,6 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -92,9 +91,6 @@ class Query {
 	     */
 	    OP_PHRASE,
 
-	    /** Filter by a range test on a document value. */
-	    OP_VALUE_RANGE,
-
 	    /** Select an elite set from the subqueries, and perform
 	     *  a query with these combined as an OR query.
 	     */
@@ -152,16 +148,6 @@ class Query {
 
 	/** Apply the specified operator to a single Xapian::Query object. */
 	Query(Query::op op_, Xapian::Query q);
-
-	/** Construct a range query on a document value. */
-	Query(Query::op op_, Xapian::valueno valno,
-	      const std::string &begin, const std::string &end);
-
-	/** A query which matches all documents in the database. */
-	static Xapian::Query MatchAll;
-
-	/** A query which matches no documents. */
-	static Xapian::Query MatchNothing;
 
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically - if you want to override
@@ -225,11 +211,16 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
     }
 }
 
+std::string serialise_qint_(const Xapian::Query::Internal * qint, Xapian::termpos & curpos);
+
 /// Internal class, implementing most of Xapian::Query
 class Query::Internal : public Xapian::Internal::RefCntBase {
     friend class ::MultiMatch;
     friend class ::LocalSubMatch;
     friend struct ::SortPosName;
+    // We want to avoid changing the ABI between 0.9.9 and 0.9.10, so use a
+    // friend function instead of a new method.
+    friend std::string Xapian::serialise_qint_(const Xapian::Query::Internal * qint, Xapian::termpos & curpos);
     public:
         static const int OP_LEAF = -1;
 
@@ -245,25 +236,16 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 
 	/// Sub queries on which to perform operation
 	subquery_list subqs;
-
+	
 	/** For NEAR or PHRASE, how close terms must be to match: all terms
 	 *  within the operation must occur in a window of this size.
 	 *
 	 * For ELITE_SET, the number of terms to select from those specified.
-	 *
-	 * For RANGE, the value number to apply the range test to.
 	 */
 	Xapian::termcount parameter;
 
-	/** Term that this node represents, or start of a range query.
-	 *
-	 *  For a leaf node, this hold the term name.  For an OP_VALUE_RANGE query
-	 *  this holds the start of the range.
-	 */
+	/// Term that this node represents - leaf node only
 	std::string tname;
-
-	/** Used to store the end of a range query. */
-	std::string str_parameter;
 
 	/// Position in query of this term - leaf node only
 	Xapian::termpos term_pos;
@@ -305,13 +287,6 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	void validate_query() const;
 
-	/** Simplify any matchnothing subqueries, either eliminating them,
-	 *  or setting this query to matchnothing, depending on the query
-	 *  operator.  Returns true if simplification resulted in a
-	 *  matchnothing query.
-	 */
-	bool simplify_matchnothing();
-
 	/** Get a string describing the given query type.
 	 */
 	static std::string get_op_name(Xapian::Query::Internal::op_t op);
@@ -325,10 +300,6 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	void flatten_subqs();
 
-        /** Implementation of serialisation; called recursively.
-         */
-	std::string serialise(Xapian::termpos & curpos) const;
-
     public:
 	/** Copy constructor. */
 	Internal(const Query::Internal & copyme);
@@ -337,15 +308,11 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	void operator=(const Query::Internal & copyme);
 
 	/** A query consisting of a single term. */
-	explicit Internal(const std::string & tname_, Xapian::termcount wqf_ = 1,
-			  Xapian::termpos term_pos_ = 0);
+	Internal(const std::string & tname_, Xapian::termcount wqf_ = 1,
+		 Xapian::termpos term_pos_ = 0);
 
 	/** Create internals given only the operator and a parameter. */
 	Internal(op_t op_, Xapian::termcount parameter);
-
-	/** Construct a range query on a document value. */
-	Internal(op_t op_, Xapian::valueno valno,
-		 const std::string &begin, const std::string &end);
 
 	/** Destructor. */
 	~Internal();
@@ -354,7 +321,7 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Add a subquery.
 	 */
-	void add_subquery(const Query::Internal * subq);
+	void add_subquery(const Query::Internal & subq);
 
 	/** Finish off the construction.
 	 */
@@ -363,10 +330,7 @@ class Query::Internal : public Xapian::Internal::RefCntBase {
 	/** Return a string in an easily parsed form
 	 *  which contains all the information in a query.
 	 */
-	std::string serialise() const {
-            Xapian::termpos curpos = 1;
-            return serialise(curpos);
-        }
+	std::string serialise() const;
 
 	/** Returns a string representing the query.
 	 * Introspection method.

@@ -1,7 +1,7 @@
 /* queryparser.cc: The non-lemon-generated parts of the QueryParser
  * class.
  *
- * Copyright (C) 2005,2006,2007 Olly Betts
+ * Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,8 +51,6 @@ SimpleStopper::get_description() const
     return desc;
 }
 
-ValueRangeProcessor::~ValueRangeProcessor() { }
-
 QueryParser::QueryParser(const QueryParser & o) : internal(o.internal) { }
 
 QueryParser &
@@ -88,6 +86,19 @@ QueryParser::set_stopper(const Stopper * stopper)
 }
 
 void
+QueryParser::set_stemming_options(const std::string &lang, bool stem_all,
+				  const Stopper *stop)
+{
+    set_stemmer(Xapian::Stem(lang));
+    if (lang.empty() || lang == "none") {
+	set_stemming_strategy(STEM_NONE);
+    } else {
+	set_stemming_strategy(stem_all ? STEM_ALL : STEM_SOME);
+    }
+    set_stopper(stop);
+}
+
+void
 QueryParser::set_default_op(Query::op default_op)
 {
     internal->default_op = default_op;
@@ -105,20 +116,19 @@ QueryParser::set_database(const Database &db) {
 }
 
 Query
-QueryParser::parse_query(const string &query_string, unsigned flags,
-			 const string &default_prefix)
+QueryParser::parse_query(const string &query_string, unsigned flags)
 {
     internal->unstem.clear();
     internal->errmsg = NULL;
 
     if (query_string.empty()) return Query();
 
-    Query result = internal->parse_query(query_string, flags, default_prefix);
+    Query result = internal->parse_query(query_string, flags);
     if (internal->errmsg && strcmp(internal->errmsg, "parse error") == 0) {
-	result = internal->parse_query(query_string, 0, default_prefix);
+	result = internal->parse_query(query_string, 0);
     }
 
-    if (internal->errmsg) throw Xapian::QueryParserError(internal->errmsg);
+    if (internal->errmsg) throw internal->errmsg;
     return result;
 }
 
@@ -155,13 +165,6 @@ QueryParser::unstem_begin(const std::string &term) const
 	++i;
     }
     return TermIterator(new VectorTermList(l.begin(), l.end()));
-}
-
-void
-QueryParser::add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc)
-{
-    Assert(internal.get());
-    internal->valrangeprocs.push_back(vrproc);
 }
 
 std::string

@@ -2,8 +2,8 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Lemur Consulting Ltd
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -54,7 +54,6 @@ get_min_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_NEAR:
 	case Xapian::Query::OP_PHRASE:
 	case Xapian::Query::OP_ELITE_SET:
-	case Xapian::Query::OP_VALUE_RANGE:
 	    return 0;
 	case Xapian::Query::OP_FILTER:
 	case Xapian::Query::OP_AND_MAYBE:
@@ -71,7 +70,6 @@ get_max_subqs(Xapian::Query::Internal::op_t op)
 {
     switch (op) {
 	case Xapian::Query::Internal::OP_LEAF:
-	case Xapian::Query::OP_VALUE_RANGE:
 	    return 0;
 	case Xapian::Query::OP_FILTER:
 	case Xapian::Query::OP_AND_MAYBE:
@@ -100,7 +98,8 @@ is_leaf(Xapian::Query::Internal::op_t op)
 
 /** serialising method, for network matches.
  *
- *  The format is designed to be relatively easy to parse.
+ *  The format is designed to be relatively easy
+ *  to parse, as well as encodable in one line of text.
  *
  *  A single-term query becomes `[<encodedtname>@<termpos>#<wqf>'
  *  where:
@@ -116,27 +115,28 @@ is_leaf(Xapian::Query::Internal::op_t op)
  *  for compound queries as it's simpler than working out what sum(wqf) would
  *  be - FIXME).
  */
-string
-Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
-{
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
+std::string
+Xapian::serialise_qint_(const Xapian::Query::Internal * qint, Xapian::termpos & curpos)
+{
     string result;
 
-    if (op == Xapian::Query::Internal::OP_LEAF) {
+    if (qint->op == Xapian::Query::Internal::OP_LEAF) {
 	result += '[';
-	result += encode_length(tname.length());
-	result += tname;
-	if (term_pos != curpos) result += '@' + om_tostring(term_pos);
-	if (wqf != 1) result += '#' + om_tostring(wqf);
+	result += encode_length(qint->tname.length());
+	result += qint->tname;
+	if (qint->term_pos != curpos) result += '@' + om_tostring(qint->term_pos);
+	if (qint->wqf != 1) result += '#' + om_tostring(qint->wqf);
 	++curpos;
     } else {
 	result += "(";
-	for (subquery_list::const_iterator i = subqs.begin();
-	     i != subqs.end();
+	Xapian::Query::Internal::subquery_list::const_iterator i;
+	for (i = qint->subqs.begin();
+	     i != qint->subqs.end();
 	     ++i) {
-	    result += (*i)->serialise(curpos);
+	    result += serialise_qint_(*i, curpos);
 	}
-	switch (op) {
+	switch (qint->op) {
 	    case Xapian::Query::Internal::OP_LEAF:
 		Assert(false);
 		break;
@@ -159,27 +159,27 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		result += "^";
 		break;
 	    case Xapian::Query::OP_NEAR:
-		result += "~" + om_tostring(parameter);
+		result += "~" + om_tostring(qint->parameter);
 		break;
 	    case Xapian::Query::OP_PHRASE:
-		result += "\"" + om_tostring(parameter);
+		result += "\"" + om_tostring(qint->parameter);
 		break;
 	    case Xapian::Query::OP_ELITE_SET:
-		result += "*" + om_tostring(parameter);
-		break;
-	    case Xapian::Query::OP_VALUE_RANGE:
-		result += "]";
-		result += encode_length(tname.length());
-		result += tname;
-		result += encode_length(str_parameter.length());
-		result += str_parameter;
-		result += om_tostring(parameter);
+		result += "*" + om_tostring(qint->parameter);
 		break;
 	}
     }
     return result;
+}
+#endif
+
+string
+Xapian::Query::Internal::serialise() const
+{
+#ifdef XAPIAN_HAS_REMOTE_BACKEND
+    Xapian::termpos curpos = 1;
+    return Xapian::serialise_qint_(this, curpos);
 #else
-    (void)curpos;
     throw Xapian::InternalError("query serialisation not compiled in");
 #endif
 }
@@ -199,7 +199,6 @@ Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_NEAR:            name = "NEAR"; break;
 	case Xapian::Query::OP_PHRASE:          name = "PHRASE"; break;
 	case Xapian::Query::OP_ELITE_SET:       name = "ELITE_SET"; break;
-	case Xapian::Query::OP_VALUE_RANGE:     name = "VALUE_RANGE"; break;
     }
     return name;
 }
@@ -219,19 +218,7 @@ Xapian::Query::Internal::get_description() const
 	    opstr += "wqf=" + om_tostring(wqf);
 	}
 	if (!opstr.empty()) opstr = ":(" + opstr + ")";
-	if (tname.empty()) return "<alldocuments>" + opstr;
 	return tname + opstr;
-    }
-
-    if (op == Xapian::Query::OP_VALUE_RANGE) {
-	opstr = get_op_name(op);
-	opstr += ' ';
-	opstr += om_tostring(parameter);
-	opstr += ' ';
-	opstr += tname;
-	opstr += ' ';
-	opstr += str_parameter;
-	return opstr;
     }
 
     opstr = " " + get_op_name(op) + " ";
@@ -351,17 +338,17 @@ QUnserial::readquery() {
 	    p += length;
 	    Xapian::termpos term_pos = curpos;
 	    Xapian::termcount wqf = 1;
-	    if (p != end) {
-		if (*p == '@') {
-		    char *tmp; // avoid compiler warning
-		    term_pos = strtol(p + 1, &tmp, 10);
-		    p = tmp;
-		}
-		if (*p == '#') {
-		    char *tmp; // avoid compiler warning
-		    wqf = strtol(p + 1, &tmp, 10);
-		    p = tmp;
-		}
+	    if (p == end)
+		throw Xapian::InvalidArgumentError("Bad serialised query");
+	    if (*p == '@') {
+		char *tmp; // avoid compiler warning
+		term_pos = strtol(p + 1, &tmp, 10);
+		p = tmp;
+	    }
+	    if (*p == '#') {
+		char *tmp; // avoid compiler warning
+		wqf = strtol(p + 1, &tmp, 10);
+		p = tmp;
 	    }
 	    ++curpos;
 	    return new Xapian::Query::Internal(tname, wqf, term_pos);
@@ -382,7 +369,7 @@ qint_from_vector(Xapian::Query::op op,
     Xapian::Query::Internal * qint = new Xapian::Query::Internal(op, parameter);
     vector<Xapian::Query::Internal *>::const_iterator i;
     for (i = vec.begin(); i != vec.end(); i++) {
-	qint->add_subquery(*i);
+	qint->add_subquery(**i);
 	delete *i;
     }
     qint->end_construction();
@@ -435,19 +422,6 @@ QUnserial::readcompound() {
 		    p = tmp;
 		    return qint_from_vector(Xapian::Query::OP_ELITE_SET, subqs,
 					    elite_set_size);
-		}
-		case ']': {
-		    size_t len = decode_length(&p, end);
-		    string start(p, len);
-		    p += len;
-		    len = decode_length(&p, end);
-		    string stop(p, len);
-		    p += len;
-		    char *tmp; // avoid compiler warning
-		    Xapian::valueno valno = strtoul(p, &tmp, 10);
-		    p = tmp;
-		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_RANGE, valno,
-						       start, stop);
 	        }
 	        default:
 		    DEBUGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
@@ -493,7 +467,6 @@ Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
     subqs.swap(other.subqs);
     std::swap(parameter, other.parameter);
     std::swap(tname, other.tname);
-    std::swap(str_parameter, other.str_parameter);
     std::swap(term_pos, other.term_pos);
     std::swap(wqf, other.wqf);
 }
@@ -504,7 +477,6 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	  subqs(),
 	  parameter(copyme.parameter),
 	  tname(copyme.tname),
-	  str_parameter(copyme.str_parameter),
 	  term_pos(copyme.term_pos),
 	  wqf(copyme.wqf)
 {
@@ -527,6 +499,9 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
 	  term_pos(term_pos_),
 	  wqf(wqf_)
 {
+    if (tname.empty()) {
+	throw Xapian::InvalidArgumentError("Termnames may not have zero length.");
+    }
 }
 
 Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
@@ -539,17 +514,6 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
 {
     if (parameter != 0 && op != OP_PHRASE && op != OP_NEAR && op != OP_ELITE_SET)
 	throw Xapian::InvalidArgumentError("parameter is only meaningful for OP_NEAR, OP_PHRASE, or OP_ELITE_SET");
-}
-
-Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
-				  const string &begin, const string &end)
-	: op(op_),
-	  parameter(Xapian::termcount(valno)),
-	  tname(begin),
-	  str_parameter(end)
-{
-    if (op != OP_VALUE_RANGE)
-	throw Xapian::InvalidArgumentError("This constructor is only meaningful for OP_VALUE_RANGE");
 }
 
 Xapian::Query::Internal::~Internal()
@@ -585,9 +549,10 @@ Xapian::Query::Internal::prevalidate_query() const
 		om_tostring(subqs.size()) + ".");
     }
 
-    // Check that the termname is null in a branch query, unless the op
-    // is OP_VALUE_RANGE.
-    Assert(is_leaf(op) || op == OP_VALUE_RANGE || tname.empty());
+    // Check that the termname is not null in a leaf query
+    Assert(!is_leaf(op) || !tname.empty());
+    // Check that the termname is null in a branch query
+    Assert(is_leaf(op) || tname.empty());
 }
 
 void
@@ -603,83 +568,13 @@ Xapian::Query::Internal::validate_query() const
     }
 }
 
-bool
-Xapian::Query::Internal::simplify_matchnothing()
-{
-    subquery_list::iterator sq;
-    switch (op) {
-        case OP_PHRASE:
-        case OP_NEAR:
-        case OP_AND:
-        case OP_FILTER:
-            // Doing an "AND" type operation - if we've got any MatchNothing
-            // nodes, we match nothing.
-            for (sq = subqs.begin(); sq != subqs.end(); sq++) {
-                if (*sq == 0) {
-                    for (sq = subqs.begin(); sq != subqs.end(); sq++)
-                        delete *sq;
-                    subqs.clear();
-                    return true;
-                }
-            }
-            break;
-        case OP_ELITE_SET:
-        case OP_OR:
-        case OP_XOR:
-            // Doing an "OR" type operation - if we've got any MatchNothing
-            // subnodes, drop them; except that we mustn't become an empty
-            // node due to this, so we never drop a MatchNothing subnode
-            // if it's the only subnode.
-            sq = subqs.begin();
-            while (sq != subqs.end() && subqs.size() > 1) {
-                if (*sq == 0) {
-                    sq = subqs.erase(sq);
-                } else {
-                    ++sq;
-                }
-            }
-            break;
-        case OP_AND_MAYBE:
-            // If left hand side is MatchNothing, we match nothing.
-            // If right hand side is MatchNothing, replace node with LHS.
-            // So, if either node is MatchNothing, replace node with LHS.
-            // Easiest way to do this is to remove the right hand node,
-            // and let simplify_query() perform the replacement of
-            // the unary operator with its one remaining child.
-            Assert(subqs.size() == 2);
-            if (subqs[0] == 0 || subqs[1] == 0) {
-                sq = subqs.begin();
-                ++sq;
-                delete *sq;
-                subqs.erase(sq);
-            }
-
-            break;
-        case OP_LEAF:
-            // Do nothing.
-            break;
-    }
-    return false;
-}
-
 Xapian::Query::Internal *
 Xapian::Query::Internal::simplify_query()
 {
     DEBUGCALL(API, bool, "Xapian::Query::Internal::simplify_query", "");
 
-    // Simplify any MatchNothing nodes.
-    if (simplify_matchnothing()) {
-	return 0;
-    }
-
-    // General simplifications, dependent on operator.
     switch (op) {
 	case OP_LEAF:
-	    return this;
-	case OP_VALUE_RANGE:
-	    // If the start of the range is greater than the end then we won't
-	    // match anything.
-	    if (tname > str_parameter) return 0;
 	    return this;
 	case OP_PHRASE: case OP_NEAR:
 	    // Default to the number of subqueries.
@@ -707,9 +602,8 @@ Xapian::Query::Internal::simplify_query()
 	    break;
     }
 
-    // If we have no subqueries, then we're an empty query.
-    if (subqs.empty())
-	return 0;
+    // If we have no subqueries, then we're simply an undefined query.
+    if (subqs.empty()) return 0;
 
     // Any nodes which are valid with only one subquery can be replaced by
     // that solitary subquery.
@@ -801,7 +695,7 @@ Xapian::Query::Internal::flatten_subqs()
 	    *sq = *j;
 	    *j = 0;
 	    flatten_subqs();
-	    newq.add_subquery(this);
+	    newq.add_subquery(*this);
 	    delete *sq;
 	    *sq = 0;
 	}
@@ -813,18 +707,16 @@ Xapian::Query::Internal::flatten_subqs()
 }
 
 void
-Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal * subq)
+Xapian::Query::Internal::add_subquery(const Xapian::Query::Internal & subq)
 {
     Assert(!is_leaf(op));
-    if (subq == 0) {
-	subqs.push_back(0);
-    } else if (op == subq->op && (op == OP_AND || op == OP_OR || op == OP_XOR)) {
+    if (op == subq.op && (op == OP_AND || op == OP_OR || op == OP_XOR)) {
 	// Distribute the subquery.
-	for (subquery_list::const_iterator i = subq->subqs.begin();
-	     i != subq->subqs.end(); i++) {
-	    add_subquery(*i);
+	for (subquery_list::const_iterator i = subq.subqs.begin();
+	     i != subq.subqs.end(); i++) {
+	    add_subquery(**i);
 	}
     } else {
-	subqs.push_back(new Xapian::Query::Internal(*subq));
+	subqs.push_back(new Xapian::Query::Internal(subq));
     }
 }

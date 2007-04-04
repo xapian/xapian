@@ -17,22 +17,18 @@ Compilers:
 We aim to support compilation with any C++ compiler which supports ISO C++,
 or a reasonable approximation to it.
 
-If you're using MS Visual C++, see the Xapian download page for a link to
-a set of suitable makefiles: http://www.xapian.org/download.php
-
 If you're using GCC, we currently recommend GCC 3.3 or newer.
 
-We still regularly peform test builds with 2.95.4 so older versions should work,
-but you may experience spurious warning messages.  On some architectures you
-might get Internal Compiler Errors with 2.95 (in particular, GCC 2.95 for arm
-fails to compile Xapian).
+GCC's C++ support has improved a lot since GCC 2.95, and you may experience
+spurious warning messages or even Internal Compiler Errors if you try to use
+2.95 (in particular, GCC 2.95 for arm fails to compile Xapian).
 
 The "GCC 2.96" supplied by RedHat is also best avoided.  This isn't based on an
 official GCC release, but rather on a snapshot of GCC somewhere between 2.95
 and 3.0.
 
 Even older GCC compilers (including EGCS) are most unlikely to work at all
-due to lack of support for various ISO C++ features which Xapian uses.
+due to lack of support for various C++ features which Xapian uses.
 
 
 Building in a separate directory:
@@ -59,22 +55,10 @@ Options to give to configure:
 	These options enable the compiling of each of the backends.  (Database
 	access methods.)  Use "./configure --help" to get a full list of
 	the backends.  By default, all backends for which the appropriate
-	libraries and OS support are available will be enabled.
+	libraries and OS support are available will be enabled, except for the
+	muscat36 backend which offers legacy support for databases built with
+	the proprietary Muscat 3.6.
 
-When compiling with GCC, by default Xapian will be built with _FORTIFY_SOURCE
-set to 2.  This enables some compile time and runtime checking of values passed
-to library functions when building with GCC >= 4.1 and glibc >= 2.34 (some
-Linux distros may have backported support to older GCC and/or glibc).  If you
-wish to disable this for any reason, you can just configure like so:
-
-./configure CPPFLAGS=-D_FORTIFY_SOURCE=0
-
-Or you can set the "fortification level" to 1 instead of 2:
-
-./configure CPPFLAGS=-D_FORTIFY_SOURCE=1
-
-If you're disabling it because it causes problems, please also report this to
-us (via the bug tracker or mailing lists).
 
 Compiling with STLport
 ======================
@@ -116,5 +100,5 @@ Developers:
 ===========
 
 There are additional scripts and configure options to help people doing
-development work on Xapian itself, and people who are building from SVN.
+development work on Xapian itself, and people who are building from CVS.
 Read HACKING to find out about them.

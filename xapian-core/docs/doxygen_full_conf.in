@@ -175,10 +175,12 @@ ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
 SEARCH_INCLUDES        = YES
-INCLUDE_PATH           = @top_builddir@/include
+INCLUDE_PATH           = 
 INCLUDE_FILE_PATTERNS  = 
-PREDEFINED             = DOXYGEN
-EXPAND_AS_DEFINED      = XAPIAN_DEPRECATED
+PREDEFINED             = XAPIAN_BUILD_BACKEND_QUARTZ
+EXPAND_AS_DEFINED      = DEFINE_ERROR_BASECLASS \
+			 DEFINE_ERROR_CLASS \
+			 XAPIAN_DEPRECATED
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to external references   
@@ -205,7 +207,7 @@ GRAPHICAL_HIERARCHY    = YES
 DOT_IMAGE_FORMAT       = png
 DOT_PATH               = @DOXYGEN_DOT_PATH@
 DOTFILE_DIRS           = 
-MAX_DOT_GRAPH_WIDTH    = 1024
+MAX_DOT_GRAPH_WIDTH    = 800
 MAX_DOT_GRAPH_HEIGHT   = 1024
 MAX_DOT_GRAPH_DEPTH    = 0
 GENERATE_LEGEND        = YES

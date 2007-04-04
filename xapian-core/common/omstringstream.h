@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007 Olly Betts
+ * Copyright 2002,2003,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,7 @@
 #define OM_HGUARD_OMSTRINGSTREAM_H
 
 // So that we can use the output functions declared here.
-#include "output.h"
+#include <xapian/output.h>
 
 #include "omtime.h"
 
@@ -91,7 +91,7 @@ operator << (om_ostringstream &os, const OmTime &om_time) {
     char buf[256];
 #ifdef SNPRINTF
     int len = SNPRINTF(buf, sizeof(buf), "%l.%06l", om_time.sec, om_time.usec);
-    if (len == -1 || len > int(sizeof(buf))) len = sizeof(buf);
+    if (len == -1 || len > sizeof(buf)) len = sizeof(buf);
     return os << string(buf, len);
 #else
     buf[sizeof(buf) - 1] = '\0';

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +33,10 @@
 using namespace std;
 
 // Include headers for all the enabled database backends
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
+#include "muscat36/da_database.h"
+#include "muscat36/db_database.h"
+#endif
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 #include "inmemory/inmemory_database.h"
 #endif
@@ -86,6 +90,37 @@ InMemory::open() {
 }
 #endif
 
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
+Database
+Muscat36::open_da(const string &R, const string &T, bool heavy_duty) {
+    DEBUGAPICALL_STATIC(Database, "Muscat36::open_da", R << ", " << T << ", " <<
+			heavy_duty);
+    return Database(new DADatabase(R, T, "", heavy_duty));
+}
+
+Database
+Muscat36::open_da(const string &R, const string &T, const string &values,
+		  bool heavy_duty) {
+    DEBUGAPICALL_STATIC(Database, "Muscat36::open_da", R << ", " << T << ", " <<
+			values << ", " << heavy_duty);
+    return Database(new DADatabase(R, T, values, heavy_duty));
+}
+
+Database
+Muscat36::open_db(const string &DB, size_t cache_size) {
+    DEBUGAPICALL_STATIC(Database, "Muscat36::open_db", DB << ", " <<
+			cache_size);
+    return Database(new DBDatabase(DB, "", cache_size));
+}
+
+Database
+Muscat36::open_db(const string &DB, const string &values, size_t cache_size) {
+    DEBUGAPICALL_STATIC(Database, "Muscat36::open_db", DB << ", " << values <<
+			", " << cache_size);
+    return Database(new DBDatabase(DB, values, cache_size));
+}
+#endif
+
 static void
 open_stub(Database *db, const string &file)
 {
@@ -103,14 +138,14 @@ open_stub(Database *db, const string &file)
 	    if (type == "auto") {
 		db->add_database(Database(line));
 		ok = true;
-#ifdef XAPIAN_HAS_FLINT_BACKEND
-	    } else if (type == "flint") {
-		db->add_database(Flint::open(line));
-		ok = true;
-#endif
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
 	    } else if (type == "quartz") {
 		db->add_database(Quartz::open(line));
+		ok = true;
+#endif
+#ifdef XAPIAN_HAS_FLINT_BACKEND
+	    } else if (type == "flint") {
+		db->add_database(Flint::open(line));
 		ok = true;
 #endif
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
@@ -141,6 +176,9 @@ open_stub(Database *db, const string &file)
 		}
 #endif
 	    }
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
+	    // FIXME: da and db too, but I'm too slack to do those right now!
+#endif
 	}
 	if (!ok) break;
 	++line_no;
@@ -174,15 +212,36 @@ Database::Database(const string &path)
 	return;
     }
 
+#ifdef XAPIAN_HAS_QUARTZ_BACKEND
+    if (file_exists(path + "/record_DB")) {
+	internal.push_back(new QuartzDatabase(path));
+	return;
+    }
+#endif
 #ifdef XAPIAN_HAS_FLINT_BACKEND
     if (file_exists(path + "/iamflint")) {
 	internal.push_back(new FlintDatabase(path));
 	return;
     }
 #endif
-#ifdef XAPIAN_HAS_QUARTZ_BACKEND
-    if (file_exists(path + "/record_DB")) {
-	internal.push_back(new QuartzDatabase(path));
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
+    if (file_exists(path + "/R") && file_exists(path + "/T")) {
+	// can't easily tell flimsy from heavyduty so assume hd
+	string keyfile = path + "/keyfile";
+	if (!file_exists(path + "/keyfile")) keyfile = "";
+	internal.push_back(new DADatabase(path + "/R", path + "/T",
+					  keyfile, true));
+	return;
+    }
+    string dbfile = path + "/DB";
+    if (!file_exists(dbfile)) {
+	dbfile += ".da";
+	if (!file_exists(dbfile)) dbfile = "";
+    }
+    if (!dbfile.empty()) {
+	string keyfile = path + "/keyfile";
+	if (!file_exists(path + "/keyfile")) keyfile = "";
+	internal.push_back(new DBDatabase(dbfile, keyfile));
 	return;
     }
 #endif
@@ -197,7 +256,14 @@ WritableDatabase::WritableDatabase(const std::string &path, int action)
 		 path << ", " << action);
 #if defined XAPIAN_HAS_FLINT_BACKEND && defined XAPIAN_HAS_QUARTZ_BACKEND
     // Both Flint and Quartz are enabled.
-    if (!file_exists(path + "/record_DB")) {
+    bool use_flint = false;
+    const char *p = getenv("XAPIAN_PREFER_FLINT");
+    if (p != NULL && *p) {
+	use_flint = !file_exists(path + "/record_DB");
+    } else {
+	use_flint = file_exists(path + "/iamflint");
+    }
+    if (use_flint) {
 	internal.push_back(new FlintWritableDatabase(path, action, 8192));
     } else {
 	internal.push_back(new QuartzWritableDatabase(path, action, 8192));
@@ -326,6 +392,13 @@ Database::Internal::replace_document(Xapian::docid, const Xapian::Document &)
 {
     // Writable databases should override this method.
     Assert(false);
+}
+
+Xapian::docid
+Database::Internal::get_lastdocid() const
+{
+    DEBUGCALL(DB, void, "Database::Internal::get_lastdocid", "");
+    throw Xapian::UnimplementedError("Database::Internal::get_lastdocid() not yet implemented");
 }
 
 }

@@ -3,7 +3,6 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006 Olly Betts
- * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -160,35 +159,6 @@ class InMemoryPostList : public LeafPostList {
 	string get_description() const;
 };
 
-/** A PostList over all docs in an inmemory database.
- */
-class InMemoryAllDocsPostList : public LeafPostList {
-    friend class InMemoryDatabase;
-    private:
-	Xapian::docid did;
-
-	Xapian::Internal::RefCntPtr<const InMemoryDatabase> db;
-
-	InMemoryAllDocsPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db);
-    public:
-	Xapian::doccount get_termfreq() const;
-
-	Xapian::docid       get_docid() const;     // Gets current docid
-	Xapian::doclength   get_doclength() const; // Length of current document
-	Xapian::termcount   get_wdf() const;       // Within Document Frequency
-	PositionList * read_position_list();
-	PositionList * open_position_list() const;
-
-	PostList *next(Xapian::weight w_min);      // Moves to next docid
-
-	PostList *skip_to(Xapian::docid did, Xapian::weight w_min); // Moves to next docid >= specified docid
-
-	// True if we're off the end of the list
-	bool at_end() const;
-
-	string get_description() const;
-};
-
 // Term List
 class InMemoryTermList : public LeafTermList {
     friend class InMemoryDatabase;
@@ -223,7 +193,6 @@ class InMemoryTermList : public LeafTermList {
  *  This is a prototype database, mainly used for debugging and testing.
  */
 class InMemoryDatabase : public Xapian::Database::Internal {
-    friend class InMemoryAllDocsPostList;
     private:
 	map<string, InMemoryTerm> postlists;
 	vector<InMemoryDoc> termlists;

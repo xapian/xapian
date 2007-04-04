@@ -2,8 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -261,89 +260,6 @@ InMemoryTermList::positionlist_begin() const
     return Xapian::PositionIterator(db->open_position_list(did, (*pos).tname));
 }
 
-/////////////////////////////
-// InMemoryAllDocsPostList //
-/////////////////////////////
-
-InMemoryAllDocsPostList::InMemoryAllDocsPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase> db_)
-	: did(0), db(db_)
-{
-}
-
-Xapian::doccount
-InMemoryAllDocsPostList::get_termfreq() const
-{
-    return db->totdocs;
-}
-
-Xapian::docid
-InMemoryAllDocsPostList::get_docid() const
-{
-    Assert(did > 0);
-    Assert(did <= db->termlists.size());
-    Assert(db->termlists[did - 1].is_valid);
-    return did;
-}
-
-Xapian::doclength
-InMemoryAllDocsPostList::get_doclength() const
-{
-    return db->get_doclength(did);
-}
-
-Xapian::termcount
-InMemoryAllDocsPostList::get_wdf() const
-{
-    return 1;
-}
-
-PositionList *
-InMemoryAllDocsPostList::read_position_list()
-{
-    throw Xapian::UnimplementedError("Can't open position list for all docs iterator");
-}
-
-PositionList *
-InMemoryAllDocsPostList::open_position_list() const
-{
-    throw Xapian::UnimplementedError("Can't open position list for all docs iterator");
-}
-
-PostList *
-InMemoryAllDocsPostList::next(Xapian::weight /*w_min*/)
-{
-    Assert(!at_end());
-    do {
-       ++did;
-    } while (did <= db->termlists.size() && !db->termlists[did - 1].is_valid);
-    return NULL;
-}
-
-PostList *
-InMemoryAllDocsPostList::skip_to(Xapian::docid did_, Xapian::weight /*w_min*/)
-{
-    Assert(!at_end());
-    if (did <= did_) {
-	did = did_;
-	while (did <= db->termlists.size() && !db->termlists[did - 1].is_valid) {
-	    ++did;
-	}
-    }
-    return NULL;
-}
-
-bool
-InMemoryAllDocsPostList::at_end() const
-{
-    return (did > db->termlists.size());
-}
-
-string
-InMemoryAllDocsPostList::get_description() const
-{
-    return "InMemoryAllDocsPostList" + om_tostring(did);
-}
-
 ///////////////////////////
 // Actual database class //
 ///////////////////////////
@@ -363,18 +279,14 @@ InMemoryDatabase::~InMemoryDatabase()
 LeafPostList *
 InMemoryDatabase::do_open_post_list(const string & tname) const
 {
-    if (tname.empty()) {
-	if (termlists.empty())
-	    return new EmptyPostList();
-	Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
-	return new InMemoryAllDocsPostList(ptrtothis);
-    }
+    Assert(tname.size() != 0);
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end() || i->second.term_freq == 0)
 	return new EmptyPostList();
 
-    Xapian::Internal::RefCntPtr<const InMemoryDatabase> ptrtothis(this);
-    LeafPostList * pl = new InMemoryPostList(ptrtothis, i->second);
+    LeafPostList * pl;
+    pl = new InMemoryPostList(Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this),
+			      i->second);
     Assert(!pl->at_end());
     return pl;
 }

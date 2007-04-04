@@ -1,7 +1,7 @@
 /* @file serialise-double.cc
  * @brief functions to serialise and unserialise a double
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ std::string serialise_double(double v)
 	    result += char(exp + 128);
 	} else {
 	    if (exp < -32768 || exp > 32767) {
-		throw Xapian::NetworkError("Insane exponent in floating point number");
+		throw Xapian::InternalError("Insane exponent in floating point number");
 	    }
 	    result += negative ? char(0x8f) : char(0x0f);
 	    result += char(unsigned(exp + 32768) & 0xff);

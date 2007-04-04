@@ -1,14 +1,8 @@
-Thu Nov 16 03:06:14 GMT 2006  Olly Betts <olly@survex.com>
-
-	* configure.ac: As of xapian-core 0.8.0, XO_LIB_XAPIAN doesn't need to
-	  be called with arguments if you want a hard requirement on xapian,
-	  so remove the arguments.
-
 Tue Oct  3 22:46:54 BST 2006  Richard Boulton <richard@lemurconsulting.com>
 
-	* queryserver.cpp: Change calls to Xapian::Query::is_empty() to
-	  calls to Xapian::Query::empty(), since the former is now
-	  deprecated.
+        * queryserver.cpp: Change calls to Xapian::Query::is_empty() to
+          calls to Xapian::Query::empty(), since the former is now
+          deprecated.
 
 Wed Apr 06 02:03:41 BST 2005  Olly Betts <olly@survex.com>
 

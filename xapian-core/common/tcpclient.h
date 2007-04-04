@@ -1,7 +1,7 @@
-/** @file tcpclient.h
- *  @brief TCP/IP socket based RemoteDatabase implementation
- */
-/* Copyright (C) 2007 Olly Betts
+/* tcpclient.h: implementation of RemoteDatabase which opens a TCP/IP socket
+ *
+ * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,70 +15,52 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * USA
  */
 
-#ifndef XAPIAN_INCLUDED_TCPCLIENT_H
-#define XAPIAN_INCLUDED_TCPCLIENT_H
+#ifndef OM_HGUARD_TCPCLIENT_H
+#define OM_HGUARD_TCPCLIENT_H
 
 #include "remote-database.h"
 
-#ifdef __WIN32__
-# define SOCKET_INITIALIZER_MIXIN private WinsockInitializer,
-#else
-# define SOCKET_INITIALIZER_MIXIN
-#endif
-
-/** TCP/IP socket based RemoteDatabase implementation.
+/** An implementation of the RemoteDatabase interface using a TCP connection.
  *
- *  Connects via TCP/IP to an instance of xapian-tcpsrv.
+ *  TcpClient opens a TCP/IP socket to a xapian-tcpsrv on a remote machine.
  */
-class TcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
-    /// Don't allow assignment.
-    void operator=(const TcpClient &);
+class TcpClient : public RemoteDatabase {
+    private:
+	// disallow copies
+	TcpClient(const TcpClient &);
+	void operator=(const TcpClient &);
 
-    /// Don't allow copying.
-    TcpClient(const TcpClient &);
+	/** Spawn a program and return a filedescriptor of
+	 *  the local end of a socket to it.
+	 */
+	static int get_remote_socket(std::string hostname,
+				     int port,
+				     int msecs_timeout_);
 
-    /** Attempt to open a TCP/IP socket connection to xapian-tcpsrv.
-     *
-     *  Connect to xapian-tcpsrv running on port @port of host @hostname.
-     *  Give up trying to connect after @msecs_timeout_connect milliseconds.
-     *
-     *  Note: this method is called early on during class construction before
-     *  any member variables or even the base class have been initialised.
-     *  To help avoid accidentally trying to use member variables, this method
-     *  has been deliberately made "static".
-     */
-    static int open_socket(const std::string & hostname, int port,
-			   int msecs_timeout_connect);
+	/** Get the context to return with any error messages.
+	 *  Note: this must not be made into a virtual method of the base
+	 *  class, since then it wouldn't work in constructors.
+	 */
+	static std::string get_tcpcontext(std::string hostname,
+					  int port);
 
-    /** Get a context string for use when constructing Xapian::NetworkError.
-     *
-     *  Note: this method is used from constructors so has been made static to
-     *  avoid problems with trying to use uninitialised member variables.  In
-     *  particular, it can't be made a virtual method of the base class.
-     */
-    static std::string get_tcpcontext(const std::string & hostname, int port);
+    public:
+	/** Constructor.
+	 *
+	 *  @param hostname The name of the remote host
+	 *  @param port	    The TCP port to connect to.
+	 *  @param msecs_timeout_ The timeout in milliseconds before assuming
+	 *			the remote end has failed.
+	 */
+	TcpClient(std::string hostname, int port,
+		  int msecs_timeout_, int msecs_timeout_connect_);
 
-  public:
-    /** Constructor.
-     *
-     *  Attempts to open a TCP/IP connection to xapian-tcpsrv running on port
-     *  @port of host @hostname.
-     *
-     *  @param msecs_timeout_connect	 Timeout for trying to connect (in
-     *					 milliseconds).
-     *  @param msecs_timeout	Timeout during communication after successfully
-     *				connecting (in milliseconds).
-     */
-    TcpClient(const std::string & hostname, int port,
-	      int msecs_timeout, int msecs_timeout_connect)
-	: RemoteDatabase(open_socket(hostname, port, msecs_timeout_connect),
-			 msecs_timeout, get_tcpcontext(hostname, port)) { }
-
-    /** Destructor. */
-    ~TcpClient();
+	/** Destructor. */
+	~TcpClient();
 };
 
-#endif  // XAPIAN_INCLUDED_TCPCLIENT_H
+#endif  /* OM_HGUARD_TCPCLIENT_H */

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,7 +25,6 @@
 #include "safeerrno.h"
 
 #include "btreecheck.h"
-#include "unixcmds.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include "utils.h"
@@ -37,7 +36,7 @@
 using namespace std;
 
 #include <sys/types.h>
-#include "safesysstat.h"
+#include <sys/stat.h>
 
 #ifdef HAVE_SSTREAM
 # define BTREE_CHECK(DIR, OPTS) BtreeCheck::check(DIR, OPTS, tout)
@@ -121,7 +120,7 @@ static void do_create(const string & btree_dir, int block_size = 2048)
     string no_slash = btree_dir;
     if (no_slash[no_slash.size() - 1] == '/')
 	no_slash.resize(no_slash.size() - 1);
-    rm_rf(no_slash);
+    rmdir(no_slash);
     make_dir(no_slash);
 
     Btree dummy(btree_dir, false);
@@ -1287,7 +1286,7 @@ int main(int argc, char **argv)
     } else {
 	tmpdir = ".btreetmp";
     }
-    rm_rf(tmpdir);
+    rmdir(tmpdir);
     make_dir(tmpdir);
     test_driver::parse_command_line(argc, argv);
     datadir = test_driver::get_srcdir() + "/testdata/btreetest_";

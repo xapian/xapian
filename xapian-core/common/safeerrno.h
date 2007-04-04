@@ -1,6 +1,6 @@
 /* safeerrno.h: #include <errno.h>, but working around broken platforms.
  *
- * Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,12 +22,7 @@
 #define XAPIAN_INCLUDED_SAFEERRNO_H
 
 #ifndef PACKAGE
-# error You must #include <config.h> before #include "safeerrno.h"
-#endif
-
-// WSAGetLastError() is defined in winsock2.h, according to MSDN
-#ifdef __WIN32__
-# include "safewinsock2.h"
+# error You must #include <config.h> before #include <safeerrno.h>
 #endif
 
 // Compaq's C++ compiler requires sys/errno.h to be included, followed by
@@ -37,21 +32,5 @@
 # include <sys/errno.h>
 #endif
 #include <errno.h>
-
-/** Get the errno value of the last error to occur due to a socket operation.
- *
- *  This is specific to the calling thread.
- *
- *  This is needed because some platforms (Windows) separate errors due to
- *  socket operations from other errors.  On platforms which don't do this,
- *  the return value will be the value of errno.
- */
-inline int socket_errno() {
-#ifdef __WIN32__
-    return WSAGetLastError();
-#else
-    return errno;
-#endif
-}
 
 #endif // XAPIAN_INCLUDED_SAFEERRNO_H

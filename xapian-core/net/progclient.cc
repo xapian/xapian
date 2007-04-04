@@ -22,9 +22,6 @@
 
 #include <config.h>
 
-// Not ported to Windows yet.
-#ifndef __WIN32__
-
 #include "safeerrno.h"
 #include "safefcntl.h"
 
@@ -36,9 +33,11 @@
 #include <vector>
 
 #include <sys/types.h>
-#ifndef __WIN32__
+#include <sys/wait.h>
+#ifdef __WIN32__
+# include <winsock2.h>
+#else
 # include <sys/socket.h>
-# include <sys/wait.h>
 #endif
 
 using namespace std;
@@ -151,5 +150,3 @@ ProgClient::~ProgClient()
     do_close();
     waitpid(pid, 0, 0);
 }
-
-#endif

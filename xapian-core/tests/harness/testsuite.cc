@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,10 +27,10 @@
 # include <valgrind/memcheck.h>
 # include <stdio.h>
 # include <sys/types.h>
+# include <sys/stat.h>
 # include "safefcntl.h"
 #endif
 
-#include <algorithm>
 #include <iostream>
 
 #ifdef HAVE_STREAMBUF
@@ -92,18 +92,13 @@ test_driver::get_srcdir()
 
     string srcdir = argv0;
     // default srcdir to everything leading up to the last "/" on argv0
-#ifdef __WIN32__
-	const char sep = '\\';
-#else
-	const char sep = '/';
-#endif
-    string::size_type i = srcdir.find_last_of(sep);
+    string::size_type i = srcdir.find_last_of('/');
     string srcfile;
     if (i != string::npos) {
 	srcfile = srcdir.substr(i + 1);
 	srcdir.erase(i);
 	// libtool puts the real executable in .libs...
-	i = srcdir.find_last_of(sep);
+	i = srcdir.find_last_of('/');
 	if (srcdir.substr(i + 1) == ".libs") {
 	    srcdir.erase(i);
 	    if (srcfile.substr(0, 3) == "lt-") srcfile.erase(0, 3);
@@ -114,13 +109,8 @@ test_driver::get_srcdir()
 	srcfile = srcdir;
 	srcdir = ".";
     }
-    // Remove any trailing ".exe" suffix, since some platforms add this.
-    if (srcfile.length() > 4 &&
-	srcfile.substr(srcfile.length() - 4) == ".exe") {
-	srcfile = srcfile.substr(0, srcfile.length() - 4);
-    }
     // sanity check
-    if (!file_exists(srcdir + sep + srcfile + ".cc")) {
+    if (!file_exists(srcdir + "/" + srcfile + ".cc")) {
 	cout << argv0
 	     << ": srcdir not in the environment and I can't guess it!\n"
 		"Run test programs using the runtest script - see HACKING for details"
@@ -213,16 +203,12 @@ test_driver::runtest(const test_desc *test)
 	    try {
 		expected_exception = NULL;
 #ifdef HAVE_VALGRIND
-		int vg_errs;
-		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0;
-		if (vg_log_fd != -1) {
-		    VALGRIND_DO_LEAK_CHECK;
-		    vg_errs = VALGRIND_COUNT_ERRORS;
-		    long dummy;
-		    VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
-		    // Skip past any unread log output.
-		    lseek(vg_log_fd, 0, SEEK_END);
-		}
+		VALGRIND_DO_LEAK_CHECK;
+		int vg_errs = VALGRIND_COUNT_ERRORS;
+		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0, dummy;
+		VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
+		// Skip past any unread log output.
+		lseek(vg_log_fd, 0, SEEK_END);
 #endif
 		if (!test->run()) {
 		    string s = tout.str();
@@ -235,12 +221,11 @@ test_driver::runtest(const test_desc *test)
 		    return FAIL;
 		}
 #ifdef HAVE_VALGRIND
-		if (vg_log_fd != -1) {
-		    // We must empty tout before asking valgrind to perform its
-		    // leak checks, otherwise the buffers holding the output
-		    // may be identified as a memory leak (especially if >1K of
-		    // output has been buffered it appears...)
-		    tout.str("");
+		// We must empty tout before asking valgrind to perform its
+		// leak checks, otherwise the buffers holding the output may
+		// be identified as a memory leak (especially if >1K of output
+		// has been buffered it appears...)
+		tout.str("");
 #define REPORT_FAIL_VG(M) do { \
     if (verbose) { \
 	while (true) { \
@@ -251,82 +236,80 @@ test_driver::runtest(const test_desc *test)
     } \
     out << " " << col_red << M << col_reset; \
 } while (0)
-		    char buf[1024];
-		    while (true) {
-			ssize_t c = read(vg_log_fd, buf, sizeof(buf));
-			if (c == 0 || (c < 0 && errno != EINTR)) {
-			    buf[0] = 0;
-			    break;
-			}
-			if (c > 0) {
-			    ssize_t i = 0;
-			    do {
-				while (i < c && buf[i] != ' ') ++i;
-			    } while (++i < c && buf[i] == '\n');
-			    char *p = reinterpret_cast<char *>(memchr(buf + i, '\n', c - i));
-			    if (p == NULL) p = buf + c;
-			    c = p - buf - i;
-			    if (c > 1024) c = 79;
-			    memmove(buf, buf + i, c);
-			    buf[c] = '\0';
-			    break;
-			}
+		char buf[1024];
+		while (true) {
+		    ssize_t c = read(vg_log_fd, buf, sizeof(buf));
+		    if (c == 0 || (c < 0 && errno != EINTR)) {
+			buf[0] = 0;
+			break;
 		    }
-		    VALGRIND_DO_LEAK_CHECK;
-		    int vg_errs2 = VALGRIND_COUNT_ERRORS;
-		    vg_errs = vg_errs2 - vg_errs;
-		    long vg_leaks2 = 0, vg_dubious2 = 0, vg_reachable2 = 0;
-		    long dummy;
-		    VALGRIND_COUNT_LEAKS(vg_leaks2, vg_dubious2, vg_reachable2,
-					 dummy);
-		    vg_leaks = vg_leaks2 - vg_leaks;
-		    vg_dubious = vg_dubious2 - vg_dubious;
-		    vg_reachable = vg_reachable2 - vg_reachable;
-		    if (vg_errs) {
-			string fail_msg(buf);
-			if (fail_msg.empty())
-			    fail_msg = "VALGRIND DETECTED A PROBLEM";
-			REPORT_FAIL_VG(fail_msg);
-			return FAIL;
-		    }
-		    if (vg_leaks > 0) {
-			REPORT_FAIL_VG("LEAKED " << vg_leaks << " BYTES");
-			return FAIL;
-		    }
-		    if (vg_dubious > 0) {
-			// If code deliberately holds onto blocks by a pointer
-			// not to the start (e.g. languages/utilities.c does)
-			// then we need to rerun the test to see if the leak is
-			// real...
-			if (runcount == 0) {
-			    out << " " << col_yellow << "PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
-			    ++runcount;
-			    continue;
-			}
-			REPORT_FAIL_VG("PROBABLY LEAKED " << vg_dubious << " BYTES");
-			return FAIL;
-		    }
-		    if (vg_reachable > 0) {
-			// FIXME:
-			// C++ STL implementations often "horde" released
-			// memory - perhaps we can supply our own allocator
-			// so we can tell the difference?
-			//
-			// See also:
-			// http://valgrind.org/docs/FAQ/#faq.reports
-			//
-			// For now, just use runcount to rerun the test and see
-			// if more is leaked - hopefully this shouldn't give
-			// false positives.
-			if (runcount == 0) {
-			    out << " " << col_yellow << "POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
-			    ++runcount;
-			    continue;
-			}
-			REPORT_FAIL_VG("FAILED TO RELEASE " << vg_reachable << " BYTES");
-			return FAIL;
+		    if (c > 0) {
+			ssize_t i = 0;
+			do {
+			    while (i < c && buf[i] != ' ') ++i;
+			} while (++i < c && buf[i] == '\n');
+			char *p = reinterpret_cast<char *>(memchr(buf + i, '\n', c - i));
+			if (p == NULL) p = buf + c;
+			c = p - buf - i;
+			if (c > 1024) c = 79;
+			memmove(buf, buf + i, c);
+			buf[c] = '\0';
+			break;
 		    }
 		}
+		VALGRIND_DO_LEAK_CHECK;
+		int vg_errs2 = VALGRIND_COUNT_ERRORS;
+		vg_errs = vg_errs2 - vg_errs;
+		long vg_leaks2 = 0, vg_dubious2 = 0, vg_reachable2 = 0;
+		VALGRIND_COUNT_LEAKS(vg_leaks2, vg_dubious2, vg_reachable2,
+				     dummy);
+		vg_leaks = vg_leaks2 - vg_leaks;
+		vg_dubious = vg_dubious2 - vg_dubious;
+		vg_reachable = vg_reachable2 - vg_reachable;
+		if (vg_errs) {
+		    string fail_msg(buf);
+		    if (fail_msg.empty())
+			fail_msg = "VALGRIND DETECTED A PROBLEM";
+		    REPORT_FAIL_VG(fail_msg);
+		    return FAIL;
+		}
+		if (vg_leaks > 0) {
+		    REPORT_FAIL_VG("LEAKED " << vg_leaks << " BYTES");
+		    return FAIL;
+		}
+		if (vg_dubious > 0) {
+		    // If code deliberately holds onto blocks by a pointer not
+		    // to the start (e.g. languages/utilities.c does) then we
+		    // need to rerun the test to see if the leak is real...
+		    if (runcount == 0) {
+			out << " " << col_yellow << "PROBABLY LEAKED MEMORY - RETRYING TEST" << col_reset;
+			++runcount;
+			continue;
+		    }
+		    REPORT_FAIL_VG("PROBABLY LEAKED " << vg_dubious << " BYTES");
+		    return FAIL;
+		}
+		if (vg_reachable > 0) {
+		    // FIXME:
+		    // C++ STL implementations often "horde" released
+		    // memory - perhaps we can supply our own allocator
+		    // so we can tell the difference?
+		    //
+		    // See also:
+		    // http://valgrind.org/docs/FAQ/#faq.reports
+		    //
+		    // For now, just use runcount to rerun the test and see
+		    // if more is leaked - hopefully this shouldn't give
+		    // false positives.
+		    if (runcount == 0) {
+			out << " " << col_yellow << "POSSIBLE UNRELEASED MEMORY - RETRYING TEST" << col_reset;
+			++runcount;
+			continue;
+		    }
+		    REPORT_FAIL_VG("FAILED TO RELEASE " << vg_reachable << " BYTES");
+		    return FAIL;
+		}
+REPORT_FAIL_VG("NO PROBLEM");
 #endif
 	    } catch (const TestFail &) {
 		string s = tout.str();
@@ -364,7 +347,7 @@ test_driver::runtest(const test_desc *test)
 		    if (!err.get_context().empty())
 			out << " (context:" << err.get_context() << ")";
 		    if (err.get_errno())
-			out << " (errno:" << strerror(err.get_errno()) << " (" << err.get_errno() << "))";
+			out << " (errno:" << strerror(err.get_errno()) << ")";
 		    out << endl;
 		}
 		return FAIL;
@@ -375,12 +358,8 @@ test_driver::runtest(const test_desc *test)
 		    if (s[s.size() - 1] != '\n') out << endl;
 		    tout.str("");
 		}
-		out << " " << col_red << "EXCEPTION: ";
-		size_t cutoff = min(size_t(40), msg.size());
-		cutoff = find(msg.begin(), msg.begin() + cutoff, '\n') - msg.begin();
-		if (cutoff == msg.size()) out << msg; else out << msg.substr(0, cutoff) << "...";
-		out << col_reset;
-		if (verbose && cutoff != msg.size()) {
+		out << " " << col_red << "EXCEPT" << col_reset;
+		if (verbose) {
 		    out << msg << endl;
 		}
 		return FAIL;
@@ -391,7 +370,10 @@ test_driver::runtest(const test_desc *test)
 		    if (s[s.size() - 1] != '\n') out << endl;
 		    tout.str("");
 		}
-		out << " " << col_red << "UNKNOWN EXCEPTION" << col_reset;
+		out << " " << col_red << "EXCEPT" << col_reset;
+		if (verbose) {
+		    out << "Unknown exception!" << endl;
+		}
 		return FAIL;
 	    }
 	} else {
@@ -609,18 +591,16 @@ test_driver::parse_command_line(int argc, char **argv)
 
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	if (getenv("XAPIAN_TESTSUITE_VALGRIND") != NULL) {
-	    // Open the valgrind log file, and unlink it.
-	    char fname[64];
-	    sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
+	// Open the valgrind log file, and unlink it.
+	char fname[64];
+	sprintf(fname, ".valgrind.log.%lu", (unsigned long)getpid());
+	vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
+	if (vg_log_fd == -1 && errno == ENOENT) {
+	    // Older valgrind versions named the log output differently.
+	    sprintf(fname, ".valgrind.log.pid%lu", (unsigned long)getpid());
 	    vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
-	    if (vg_log_fd == -1 && errno == ENOENT) {
-		// Older valgrind versions named the log output differently.
-		sprintf(fname, ".valgrind.log.pid%lu", (unsigned long)getpid());
-		vg_log_fd = open(fname, O_RDONLY|O_NONBLOCK);
-	    }
-	    if (vg_log_fd != -1) unlink(fname);
 	}
+	unlink(fname);
     }
 #endif
 

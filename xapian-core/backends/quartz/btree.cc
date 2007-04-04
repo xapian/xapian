@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +23,6 @@
 #include <config.h>
 
 #include "safeerrno.h"
-#include "safefcntl.h"
 #ifdef _MSC_VER
 # include "msvc_posix_wrapper.h"
 #endif
@@ -55,7 +54,7 @@ PREAD_PROTOTYPE
 PWRITE_PROTOTYPE
 #endif
 
-#include "safeunistd.h"
+#include <sys/stat.h>
 
 #include <stdio.h>
 #include <string.h>   /* for memmove */
@@ -75,6 +74,25 @@ PWRITE_PROTOTYPE
 #include <algorithm>  // for std::min()
 #include <string>
 #include <vector>
+
+#ifdef __WIN32__
+# include <io.h> // for _commit()
+# ifdef _MSC_VER
+// MSVC needs this to get SSIZE_T defined.
+#  include "safewindows.h"
+// Allow 2GB+ index files
+#  define lseek _lseeki64
+#  define off_t __int64
+# endif
+#endif
+
+// Only useful for platforms like Windows which distinguish between text and
+// binary files.
+#ifndef __WIN32__
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+#endif
 
 using std::min;
 using std::string;
@@ -1277,6 +1295,7 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	}
 
 	// FIXME: assumption that there are only two bases
+	both_bases = (base_ok[0] && base_ok[1]);
 	if (!base_ok[0] && !base_ok[1]) {
 	    string message = "Error opening table `";
 	    message += name;
@@ -1284,7 +1303,6 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	    message += err_msg;
 	    throw Xapian::DatabaseOpeningError(message);
 	}
-	both_bases = (base_ok[0] && base_ok[1]);
 
 	if (revision_supplied) {
 	    bool found_revision = false;
@@ -1697,13 +1715,8 @@ bool
 Btree::do_open_to_read(bool revision_supplied, quartz_revision_number_t revision_)
 {
     if (!basic_open(revision_supplied, revision_)) {
-	if (revision_supplied) {
-	    // The requested revision was not available.
-	    // This could be because the database was modified underneath us, or
-	    // because a base file is missing.  Return false, and work out what
-	    // the problem was at a higher level.
-	    return false;
-	}
+	// The requested revision is not available.
+	if (revision_supplied) return false;
 	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
     }
 
@@ -1754,13 +1767,12 @@ Btree::open(quartz_revision_number_t revision)
     close();
 
     if (!writable) {
-	if (do_open_to_read(true, revision)) {
-	    AssertEq(revision_number, revision);
-	    RETURN(true);
-	} else {
+	if (!do_open_to_read(true, revision)) {
 	    close();
 	    RETURN(false);
 	}
+	AssertEq(revision_number, revision);
+	RETURN(true);
     }
 
     if (!do_open_to_write(true, revision)) {

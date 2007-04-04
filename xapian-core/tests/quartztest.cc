@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +24,6 @@
 
 #include "safeerrno.h"
 
-#include "unixcmds.h"
 #include "testsuite.h"
 #include "testutils.h"
 #include <xapian/error.h>
@@ -40,7 +39,7 @@
 using namespace std;
 
 #include <sys/types.h>
-#include "safesysstat.h"
+#include <sys/stat.h>
 
 static string tmpdir;
 
@@ -54,12 +53,19 @@ static void makedir(const string &filename)
 
 static void removedir(const string &filename)
 {
-    rm_rf(filename);
+    rmdir(filename);
     struct stat buf;
     if (stat(filename, &buf) == 0 || errno != ENOENT) {
 	FAIL_TEST("Failed to remove directory `" << filename << "' (" <<
 		  strerror(errno) << ")");
     }
+}
+
+static void unlink_table(const string & path)
+{
+    unlink(path + "DB");
+    unlink(path + "baseA");
+    unlink(path + "baseB");
 }
 
 /// Test opening of a quartz database

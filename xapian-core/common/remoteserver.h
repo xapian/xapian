@@ -25,6 +25,7 @@
 
 #include "omassert.h"
 #include "remoteconnection.h"
+#include "remoteserver.h"
 #include "stats.h"
 
 class NetworkStatsGatherer;

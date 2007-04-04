@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2007 Olly Betts
+ * Copyright 2003,2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,6 +27,10 @@
 #include <stdio.h>
 
 using namespace std;
+
+#ifdef __WIN32__
+#include "safewindows.h"
+#endif
 
 // This ought to be enough for any of the conversions below.
 #define BUFSIZE 100
@@ -71,17 +75,6 @@ om_tostring(unsigned long int val)
     CONVERT_TO_STRING("%lu")
 }
 
-#ifdef __WIN32__
-string
-om_tostring(__int64 val)
-{
-    // Avoid a format string warning from GCC - mingw uses the MS C runtime DLL
-    // which does understand "%I64d", but GCC doesn't know that.
-    static const char fmt[] = { '%', 'I', '6', '4', 'd', 0 };
-    CONVERT_TO_STRING(fmt)
-}
-#endif
-
 string
 om_tostring(double val)
 {
@@ -100,6 +93,16 @@ om_tostring(bool val)
     return val ? "1" : "0";
 }
 
+int
+map_string_to_value(const StringAndValue * haystack, const string & needle)
+{
+    while (haystack->name[0] != '\0') {
+	if (haystack->name == needle) break;
+	haystack++;
+    }
+    return haystack->value;
+}
+
 /** Return true if the file fname exists
  */
 bool
@@ -108,6 +111,71 @@ file_exists(const string &fname)
     struct stat sbuf;
     // exists && is a regular file
     return stat(fname, &sbuf) == 0 && S_ISREG(sbuf.st_mode);
+}
+
+/// Remove a directory and contents.
+void
+rmdir(const string &filename)
+{
+    // Check filename exists and is actually a directory
+    struct stat sb;
+    if (stat(filename, &sb) != 0 || !S_ISDIR(sb.st_mode)) return;
+
+    string safefile = filename;
+#ifdef __WIN32__
+# if 1
+    string::iterator i;
+    for (i = safefile.begin(); i != safefile.end(); ++i) {
+	if (*i == '/') {
+	    // Convert Unix path separators to backslashes.  C library
+	    // functions understand "/" in paths, but Win32 API functions
+	    // don't.
+	    *i = '\\';
+	} else if (*i < 32 || strchr("<>\"|*?", *i)) {
+	    // Check for illegal characters in filename.
+	    return;
+	}
+    }
+
+    static int win95 = -1;
+    if (win95 == -1) {
+	OSVERSIONINFO info;
+	memset(&info, 0, sizeof(OSVERSIONINFO));
+	info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	if (GetVersionEx(&info)) {
+	    win95 = (info.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+	}
+    }
+
+    if (win95) {
+	// for 95 like systems:
+	system("deltree /y \"" + safefile + "\"");
+    } else {
+	// for NT like systems:
+	system("rd /s /q \"" + safefile + "\"");
+    }
+# else
+    safefile.append("\0", 2);
+    SHFILEOPSTRUCT shfo;
+    memset((void*)&shfo, 0, sizeof(shfo));
+    shfo.hwnd = 0;
+    shfo.wFunc = FO_DELETE;
+    shfo.pFrom = safefile.data();
+    shfo.fFlags = FOF_NOCONFIRMATION|FOF_NOERRORUI|FOF_SILENT;
+    (void)SHFileOperation(&shfo);
+# endif
+#else
+    string::size_type p = 0;
+    while (p < safefile.size()) {
+	// Don't escape a few safe characters which are common in filenames
+	if (!C_isalnum(safefile[p]) && strchr("/._-", safefile[p]) == NULL) {
+	    safefile.insert(p, "\\");
+	    ++p;
+	}
+	++p;
+    }
+    system("rm -rf " + safefile);
+#endif
 }
 
 namespace Xapian {

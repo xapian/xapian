@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2005 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +35,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -49,8 +48,6 @@
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "myhtmlparse.h"
-#include "sample.h"
-#include "utf8convert.h"
 #include "utils.h"
 #include "values.h"
 #include "xmlparse.h"
@@ -75,14 +72,7 @@
 # define pclose _pclose
 #endif
 
-#ifndef HAVE_MKDTEMP
-extern char * mkdtemp(char *);
-#endif
-
 using namespace std;
-
-#define TITLE_SIZE 128
-#define SAMPLE_SIZE 512
 
 #define PROG_NAME "omindex"
 #define PROG_DESC "Index static website data via the filesystem"
@@ -96,12 +86,43 @@ static string baseurl;
 static Xapian::WritableDatabase db;
 static Xapian::Stem stemmer("english");
 static vector<bool> updated;
-static string tmpdir;
 
 inline static bool
 p_notalnum(unsigned int c)
 {
     return !isalnum(static_cast<unsigned char>(c));
+}
+
+/* Truncate a string to a given maxlength, avoiding cutting off midword
+ * if reasonably possible. */
+string
+truncate_to_word(string & input, string::size_type maxlen)
+{
+    string output;
+    if (input.length() <= maxlen) {
+	output = input;
+    } else {
+	output = input.substr(0, maxlen);
+
+	string::size_type space = output.find_last_of(WHITESPACE);
+	if (space != string::npos && space > maxlen / 2) {
+	    string::size_type nonspace;
+	    nonspace = output.find_last_not_of(WHITESPACE, space);
+	    if (nonspace != string::npos) output.erase(nonspace);
+	}
+
+	if (output.length() == maxlen &&
+	    !isspace(static_cast<unsigned char>(input[maxlen]))) {
+	    output += "...";
+	} else {
+	    output += " ...";
+	}
+    }
+
+    // replace newlines with spaces
+    size_t i = 0;
+    while ((i = output.find('\n', i)) != string::npos) output[i] = ' ';
+    return output;
 }
 
 static string
@@ -125,25 +146,6 @@ shell_protect(const string & file)
 	++p;
     }
     return safefile;
-}
-
-static bool ensure_tmpdir() {
-    if (!tmpdir.empty()) return true;
-
-    const char * p = getenv("TMPDIR");
-    if (!p) p = "/tmp";
-    char * dir_template = new char[strlen(p) + 15 + 1];
-    strcpy(dir_template, p);
-    strcat(dir_template, "/omindex-XXXXXX");
-    // FIXME: find PD or BSD or MIT/X mkdtemp implementation for platforms
-    // which lack it.
-    p = mkdtemp(dir_template);
-    if (p) {
-	tmpdir.assign(dir_template);
-	tmpdir += '/';
-    }
-    delete dir_template;
-    return (p != NULL);
 }
 
 struct ReadError {};
@@ -180,48 +182,6 @@ stdout_to_string(const string &cmd)
 	throw ReadError();
     }
     return out;
-}
-
-static void get_pdf_metainfo(const string & safefile, string &title, string &keywords) {
-    try {
-	string pdfinfo = stdout_to_string("pdfinfo -enc UTF-8 " + safefile);
-
-	string::size_type idx;
-
-	if (strncmp(pdfinfo.c_str(), "Title:", 6) == 0) {
-	    idx = 0;
-	} else {
-	    idx = pdfinfo.find("\nTitle:");
-	}
-	if (idx != string::npos) {
-	    if (idx) ++idx;
-	    idx = pdfinfo.find_first_not_of(' ', idx + 6);
-	    string::size_type end = pdfinfo.find('\n', idx);
-	    if (end != string::npos) {
-		if (pdfinfo[end - 1] == '\r') --end;
-		end -= idx;
-	    }
-	    title = pdfinfo.substr(idx, end);
-	}
-
-	if (strncmp(pdfinfo.c_str(), "Keywords:", 9) == 0) {
-	    idx = 0;
-	} else {
-	    idx = pdfinfo.find("\nKeywords:");
-	}
-	if (idx != string::npos) {
-	    if (idx) ++idx;
-	    idx = pdfinfo.find_first_not_of(' ', idx + 9);
-	    string::size_type end = pdfinfo.find('\n', idx);
-	    if (end != string::npos) {
-		if (pdfinfo[end - 1] == '\r') --end;
-		end -= idx;
-	    }
-	    keywords = pdfinfo.substr(idx, end);
-	}
-    } catch (ReadError) {
-	// It's probably best to index the document even if pdfinfo fails.
-    }
 }
 
 static void
@@ -271,8 +231,6 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	md5_string(text, md5);
     } else if (mimetype == "text/plain") {
 	try {
-	    // Currently we assume that text files are UTF-8.
-	    // FIXME: What charset is the file?  Look for BOM?  Look at contents?
 	    dump = file_to_string(file);
 	} catch (ReadError) {
 	    cout << "can't read \"" << file << "\" - skipping\n";
@@ -281,49 +239,63 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	md5_string(dump, md5);
     } else if (mimetype == "application/pdf") {
 	string safefile = shell_protect(file);
-	string cmd = "pdftotext -enc UTF-8 " + safefile + " -";
+	string cmd = "pdftotext " + safefile + " -";
+	//string cmd = "pdftotext -enc UTF-8 " + safefile + " -";
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
-	get_pdf_metainfo(safefile, title, keywords);
-    } else if (mimetype == "application/postscript") {
-	// There simply doesn't seem to be a Unicode capabable PostScript to
-	// text convertor (e.g. pstotext always outputs ISO-8859-1).  The only
-	// solution seems to be to convert via PDF using ps2pdf and then
-	// pdftotext.  This gives plausible looking UTF-8 output for some
-	// Chinese PostScript files I found using Google.  It also has the
-	// benefit of allowing us to extract meta information from PostScript
-	// files.
-	if (!ensure_tmpdir()) {
-	    // FIXME: should this be fatal?  Or disable indexing postscript?
-	    cout << "Couldn't create temporary directory (" << strerror(errno) << ") - skipping" << endl;
-	    return;
-	}
-	string tmpfile = tmpdir + "/tmp.pdf";
-	string safetmp = shell_protect(tmpfile);
-	string cmd = "ps2pdf " + shell_protect(file) + " " + safetmp;
+
 	try {
-	    (void)stdout_to_string(cmd);
-	    cmd = "pdftotext -enc UTF-8 " + safetmp + " -";
+	    string pdfinfo = stdout_to_string("pdfinfo " + safefile);
+	    //string pdfinfo = stdout_to_string("pdfinfo -enc UTF-8 " + safefile);
+
+	    string::size_type idx;
+
+	    if (strncmp(pdfinfo.c_str(), "Title:", 6) == 0) {
+		idx = 0;
+	    } else {
+		idx = pdfinfo.find("\nTitle:");
+	    }
+	    if (idx != string::npos) {
+		if (idx) ++idx;
+		idx = pdfinfo.find_first_not_of(' ', idx + 6);
+		string::size_type end = pdfinfo.find('\n', idx);
+		if (end != string::npos) {
+		    if (pdfinfo[end - 1] == '\r') --end;
+		    end -= idx;
+		}
+		title = pdfinfo.substr(idx, end);
+	    }
+
+	    if (strncmp(pdfinfo.c_str(), "Keywords:", 9) == 0) {
+		idx = 0;
+	    } else {
+		idx = pdfinfo.find("\nKeywords:");
+	    }
+	    if (idx != string::npos) {
+		if (idx) ++idx;
+		idx = pdfinfo.find_first_not_of(' ', idx + 9);
+		string::size_type end = pdfinfo.find('\n', idx);
+		if (end != string::npos) {
+		    if (pdfinfo[end - 1] == '\r') --end;
+		    end -= idx;
+		}
+		keywords = pdfinfo.substr(idx, end);
+	    }
+	} catch (ReadError) {
+	    // It's probably best to index the document even if pdfinfo fails.
+	}
+    } else if (mimetype == "application/postscript") {
+	string cmd = "pstotext " + shell_protect(file);
+	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping" << endl;
-	    unlink(tmpfile.c_str());
+	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
-	} catch (...) {
-	    unlink(tmpfile.c_str());
-	    throw;
 	}
-	try {
-	    get_pdf_metainfo(safetmp, title, keywords);
-	} catch (...) {
-	    unlink(tmpfile.c_str());
-	    throw;
-	}
-	unlink(tmpfile.c_str());
     } else if (mimetype.substr(0, 24) == "application/vnd.sun.xml." ||
 	       mimetype.substr(0, 35) == "application/vnd.oasis.opendocument.")
     {
@@ -332,6 +304,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	string cmd = "unzip -p " + safefile + " content.xml";
 	try {
 	    XmlParser xmlparser;
+	    // <?xml version="1.0" encoding="UTF-8"?>
 	    xmlparser.parse_html(stdout_to_string(cmd));
 	    dump = xmlparser.dump;
 	} catch (ReadError) {
@@ -342,6 +315,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	cmd = "unzip -p " + safefile + " meta.xml";
 	try {
 	    MetaXmlParser metaxmlparser;
+	    // <?xml version="1.0" encoding="UTF-8"?>
 	    metaxmlparser.parse_html(stdout_to_string(cmd));
 	    title = metaxmlparser.title;
 	    keywords = metaxmlparser.keywords;
@@ -350,7 +324,7 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    // It's probably best to index the document even if this fails.
 	}
     } else if (mimetype == "application/msword") {
-	string cmd = "antiword -mUTF-8.txt " + shell_protect(file);
+	string cmd = "antiword " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
@@ -358,7 +332,8 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-excel") {
-	string cmd = "xls2csv -q0 -dutf-8 " + shell_protect(file);
+	string cmd = "xls2csv -q0 -d8859-1 " + shell_protect(file);
+	//string cmd = "xls2csv -q0 -dutf-8 " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
@@ -366,7 +341,8 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    return;
 	}
     } else if (mimetype == "application/vnd.ms-powerpoint") {
-	string cmd = "catppt -dutf-8 " + shell_protect(file);
+	string cmd = "catppt -d8859-1 " + shell_protect(file);
+	//string cmd = "catppt -dutf-8 " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
@@ -374,9 +350,6 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    return;
 	}
     } else if (mimetype == "application/vnd.wordperfect") {
-	// Looking at the source of wpd2html and wpd2text I think both output
-	// utf-8, but it's hard to be sure without sample Unicode .wpd files
-	// as they don't seem to be at all well documented.
 	string cmd = "wpd2text " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
@@ -384,44 +357,20 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
-    } else if (mimetype == "application/vnd.ms-works") {
-	// wps2text produces UTF-8 output from the sample files I've tested.
-	string cmd = "wps2text " + shell_protect(file);
+    } else if (mimetype == "text/rtf") {
+	string cmd = "unrtf --nopict --text 2>/dev/null " +
+		     shell_protect(file) +
+		     "|sed '/^### .*/d'";
 	try {
 	    dump = stdout_to_string(cmd);
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
-    } else if (mimetype == "text/rtf") {
-	// The --text option unhelpfully converts all non-ASCII characters to
-	// "?" so we use --html instead, which write HTML entities.
-	string cmd = "unrtf --nopict --html 2>/dev/null " + shell_protect(file);
-	MyHtmlParser p;
-	try {
-	    p.parse_html(stdout_to_string(cmd));
-	} catch (ReadError) {
-	    cout << "\"" << cmd << "\" failed - skipping\n";
-	    return;
-	} catch (bool) {
-	    // MyHtmlParser throws a bool to abandon parsing at </body> or when
-	    // indexing is disallowed
-	}
-	if (!p.indexing_allowed) {
-	    cout << "indexing disallowed by meta tag - skipping\n";
-	    return;
-	}
-	dump = p.dump;
-	title = p.title;
-	keywords = p.keywords;
-	sample = p.sample;
     } else if (mimetype == "text/x-perl") {
-	// pod2text's output character set doesn't seem to be documented, but
-	// from inspecting the source it looks like it's probably iso-8859-1.
 	string cmd = "pod2text " + shell_protect(file);
 	try {
 	    dump = stdout_to_string(cmd);
-	    convert_to_utf8(dump, "ISO-8859-1");
 	} catch (ReadError) {
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
@@ -440,16 +389,16 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 
     // Produce a sample
     if (sample.empty()) {
-	sample = generate_sample(dump, SAMPLE_SIZE);
+	sample = truncate_to_word(dump, 300);
     } else {
-	sample = generate_sample(sample, SAMPLE_SIZE);
+	sample = truncate_to_word(sample, 300);
     }
 
     // Put the data in the document
     Xapian::Document newdocument;
     string record = "url=" + baseurl + url + "\nsample=" + sample;
     if (!title.empty()) {
-	record += "\ncaption=" + generate_sample(title, TITLE_SIZE);
+	record += "\ncaption=" + truncate_to_word(title, 100);
     }
     record += "\ntype=" + mimetype;
     if (last_mod != (time_t)-1)
@@ -581,10 +530,6 @@ index_directory(size_t depth_limit, const string &dir,
 	    continue;
 	}
 	if (S_ISREG(statbuf.st_mode)) {
-	    if (statbuf.st_size == 0) {
-		cout << "Skipping empty file: \"" << file << "\"" << endl;
-		continue;
-	    }
 	    string ext;
 	    string::size_type dot = url.find_last_of('.');
 	    if (dot != string::npos) ext = url.substr(dot + 1);
@@ -686,8 +631,6 @@ main(int argc, char **argv)
     mime_map["doc"] = "application/msword";
     mime_map["dot"] = "application/msword"; // Word template
     mime_map["wpd"] = "application/vnd.wordperfect";
-    mime_map["wps"] = "application/vnd.ms-works";
-    mime_map["wpt"] = "application/vnd.ms-works"; // Works template
     mime_map["rtf"] = "text/rtf";
     // Other MS formats:
     mime_map["xls"] = "application/vnd.ms-excel";
@@ -829,7 +772,6 @@ main(int argc, char **argv)
 	indexroot = ""; // index the whole of root
     }
 
-    int exitcode = 1;
     try {
 	if (!overwrite) {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OPEN);
@@ -854,19 +796,17 @@ main(int argc, char **argv)
 	}
 	db.flush();
 	// cout << "\n\nNow we have " << db.get_doccount() << " documents.\n";
-	exitcode = 0;
     } catch (const Xapian::Error &e) {
 	cout << "Exception: " << e.get_msg() << endl;
+	return 1;
     } catch (const string &s) {
 	cout << "Exception: " << s << endl;
+	return 1;
     } catch (const char *s) {
 	cout << "Exception: " << s << endl;
+	return 1;
     } catch (...) {
 	cout << "Caught unknown exception" << endl;
+	return 1;
     }
-
-    // If we created a temporary directory then delete it.
-    if (!tmpdir.empty()) rmdir(tmpdir.c_str());
-
-    return exitcode;
 }

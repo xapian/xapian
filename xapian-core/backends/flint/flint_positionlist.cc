@@ -1,6 +1,6 @@
 /* flint_positionlist.cc: A position list in a flint database.
  *
- * Copyright (C) 2004,2005,2006 Olly Betts
+ * Copyright (C) 2004,2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,40 +32,6 @@
 
 using namespace std;
 
-static const unsigned char flstab[256] = {
-    0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
-    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
-};
-
-// Highly optimised fls() implementation.
-inline int my_fls(unsigned mask)
-{
-    int result = 0;
-    if (mask >= 0x10000u) {
-	mask >>= 16;
-	result = 16;
-    }
-    if (mask >= 0x100u) {
-	mask >>= 8;
-	result += 8;
-    }
-    return result + flstab[mask];
-}
-
 class BitWriter {
     private:
 	string buf;
@@ -76,7 +42,9 @@ class BitWriter {
 	BitWriter(const string & seed) : buf(seed), n_bits(0), acc(0) { }
 	void encode(size_t value, size_t outof) {
 	    Assert(value < outof);
-	    size_t bits = my_fls(outof - 1);
+	    // FIXME: look at replacing this with "fls()" (where available) or
+	    // some integer code.
+	    size_t bits = (size_t)ceil(log(double(outof)) / log(2.0));
 	    const size_t spare = (1 << bits) - outof;
 	    if (spare) {
 		const size_t mid_start = (outof - spare) / 2;
@@ -125,17 +93,17 @@ class BitWriter {
 static void
 encode_interpolative(BitWriter & wr, const vector<Xapian::termpos> &pos, int j, int k)
 {
-    while (j + 1 < k) {
-	const size_t mid = (j + k) / 2;
-	// Encode one out of (pos[k] - pos[j] + 1) values
-	// (less some at either end because we must be able to fit
-	// all the intervening pos in)
-	const size_t outof = pos[k] - pos[j] + j - k + 1;
-	const size_t lowest = pos[j] + mid - j;
-	wr.encode(pos[mid] - lowest, outof);
-	encode_interpolative(wr, pos, j, mid);
-	j = mid;
-    }
+    if (j + 1 >= k) return;
+
+    const size_t mid = (j + k) / 2;
+    // Encode one out of (pos[k] - pos[j] + 1) values
+    // (less some at either end because we must be able to fit
+    // all the intervening pos in)
+    const size_t outof = pos[k] - pos[j] + j - k + 1;
+    const size_t lowest = pos[j] + mid - j;
+    wr.encode(pos[mid] - lowest, outof);
+    encode_interpolative(wr, pos, j, mid);
+    encode_interpolative(wr, pos, mid, k);
 }
 
 class BitReader {
@@ -147,7 +115,7 @@ class BitReader {
     public:
 	BitReader(const string &buf_) : buf(buf_), idx(0), n_bits(0), acc(0) { }
 	Xapian::termpos decode(Xapian::termpos outof) {
-	    size_t bits = my_fls(outof - 1);
+	    size_t bits = (size_t)ceil(log(double(outof)) / log(2.0));
 	    const size_t spare = (1 << bits) - outof;
 	    const size_t mid_start = (outof - spare) / 2;
 	    Xapian::termpos p;
@@ -191,22 +159,21 @@ class BitReader {
 	bool check_all_gone() const {
 	    return (idx == buf.size() && n_bits < 7 && acc == 0);
 	}
-	void decode_interpolative(vector<Xapian::termpos> & pos, int j, int k);
 };
 
-void
-BitReader::decode_interpolative(vector<Xapian::termpos> & pos, int j, int k)
+static void
+decode_interpolative(BitReader & rd, vector<Xapian::termpos> & pos, int j, int k)
 {
-    while (j + 1 < k) {
-	const size_t mid = (j + k) / 2;
-	// Decode one out of (pos[k] - pos[j] + 1) values
-	// (less some at either end because we must be able to fit
-	// all the intervening pos in)
-	const size_t outof = pos[k] - pos[j] + j - k + 1;
-	pos[mid] = decode(outof) + (pos[j] + mid - j);
-	decode_interpolative(pos, j, mid);
-	j = mid;
-    }
+    if (j + 1 >= k) return;
+
+    const size_t mid = (j + k) / 2;
+    // Decode one out of (pos[k] - pos[j] + 1) values
+    // (less some at either end because we must be able to fit
+    // all the intervening pos in)
+    const size_t outof = pos[k] - pos[j] + j - k + 1;
+    pos[mid] = rd.decode(outof) + (pos[j] + mid - j);
+    decode_interpolative(rd, pos, j, mid);
+    decode_interpolative(rd, pos, mid, k);
 }
 
 void
@@ -277,7 +244,7 @@ FlintPositionList::read_data(const FlintTable * table, Xapian::docid did,
     positions.resize(pos_size);
     positions[0] = pos_first;
     positions.back() = pos_last;
-    rd.decode_interpolative(positions, 0, pos_size - 1);
+    decode_interpolative(rd, positions, 0, pos_size - 1);
 
     current_pos = positions.begin();
 }

@@ -6,7 +6,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2005 James Aylett
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -66,6 +66,23 @@ namespace Xapian {
     }
 #endif
 
+#ifndef XAPIAN_HAS_MUSCAT36_BACKEND
+    namespace Muscat36 {
+	static Database open_da(const string &, const string &, bool = true) {
+	    throw FeatureUnavailableError("Muscat36 backend not supported");
+	}
+	static Database open_da(const string &, const string &, const string &, bool = true) {
+	    throw FeatureUnavailableError("Muscat36 backend not supported");
+	}
+	static Database open_db(const string &, size_t = 30) {
+	    throw FeatureUnavailableError("Muscat36 backend not supported");
+	}
+	static Database open_db(const string &, const string &, size_t = 30) {
+	    throw FeatureUnavailableError("Muscat36 backend not supported");
+	}
+    }
+#endif
+
 #ifndef XAPIAN_HAS_REMOTE_BACKEND
     namespace Remote {
 	static Database open(const string &, unsigned int, timeout = 0, timeout = 0) {
@@ -101,10 +118,121 @@ using namespace std;
 // the include path.
 %include "util.i"
 
-// This includes language specific exception handling if available, or language
-// independent exception handling otherwise, thanks to judicious setting of the
-// include path.
-%include "except.i"
+#ifndef XAPIAN_EXCEPTION_HANDLER
+#if defined SWIGPHP
+// PHP_MAJOR_VERSION isn't defined by older versions of PHP4 (e.g. PHP 4.1.2).
+%{
+# if PHP_MAJOR_VERSION-0 >= 5
+#  include <zend_exceptions.h>
+// zend_throw_exception takes a non-const char * parameter (sigh).
+// FIXME: throw errors as PHP classes corresponding to the Xapian error
+// classes.
+#  define XapianException(TYPE, MSG) \
+	zend_throw_exception(NULL, (char*)(MSG).c_str(), (TYPE) TSRMLS_CC)
+# endif
+%}
+#elif defined SWIGCSHARP
+%{
+// In C#, we don't get SWIG_exception in the generated C++ wrapper sources.
+# define XapianException(TYPE, MSG) SWIG_CSharpException(TYPE, (MSG).c_str())
+%}
+#endif
+
+%{
+#ifndef XapianException
+# define XapianException(TYPE, MSG) SWIG_exception((TYPE), (MSG).c_str())
+#endif
+
+static int XapianExceptionHandler(string & msg) {
+    try {
+	// Rethrow so we can look at the exception if it was a Xapian::Error.
+	throw;
+    } catch (const Xapian::Error &e) {
+	msg = e.get_type();
+	msg += ": ";
+	msg += e.get_msg();
+%}
+#ifdef SWIGPHP
+%{
+#if PHP_MAJOR_VERSION-0 < 5
+	try {
+	    // Re-rethrow the previous exception so we can handle the type in a
+	    // fine-grained way, but only in one place to avoid bloating the
+	    // file.
+	    throw;
+	} catch (const Xapian::RangeError &e) {
+	    // FIXME: RangeError DatabaseError and NetworkError are all
+	    // subclasses of RuntimeError - how should we handle those for
+	    // PHP4?
+	    return SWIG_UnknownError;
+	} catch (const Xapian::DatabaseError &) {
+	    return SWIG_UnknownError;
+	} catch (const Xapian::NetworkError &) {
+	    return SWIG_UnknownError;
+	} catch (const Xapian::RuntimeError &) {
+	    return SWIG_RuntimeError;
+	} catch (...) {
+	    return SWIG_UnknownError;
+	}
+#endif
+%}
+#else
+%{
+	try {
+	    // Re-rethrow the previous exception so we can handle the type in a
+	    // fine-grained way, but only in one place to avoid bloating the
+	    // file.
+	    throw;
+	} catch (const Xapian::InvalidArgumentError &e) {
+	    return SWIG_ValueError;
+	} catch (const Xapian::RangeError &e) {
+	    return SWIG_IndexError;
+	} catch (const Xapian::DatabaseError &) {
+	    return SWIG_IOError;
+	} catch (const Xapian::NetworkError &) {
+	    return SWIG_IOError;
+	} catch (const Xapian::InternalError &) {
+	    return SWIG_RuntimeError;
+	} catch (const Xapian::RuntimeError &) {
+	    return SWIG_RuntimeError;
+	} catch (...) {
+	    return SWIG_UnknownError;
+	}
+%}
+#endif
+%{
+    } catch (const char * str) {
+	/* QueryParser failed to parse the query. */
+	msg = "QueryParserError: ";
+	msg += str;
+	return SWIG_RuntimeError;
+    } catch (...) {
+	msg = "unknown error in Xapian";
+    }
+    return SWIG_UnknownError;
+}
+%}
+
+%exception {
+    try {
+	$function
+    } catch (...) {
+	string msg;
+	int code = XapianExceptionHandler(msg);
+#if defined SWIGPHP
+%#if PHP_MAJOR_VERSION-0 < 5
+	if (code == SWIG_RuntimeError) {
+	    zend_error(E_WARNING, const_cast<char *>(msg.c_str()));
+	    /* FIXME: destructors don't have return_value to set. */
+	    // ZVAL_NULL(return_value);
+	    return;
+	}
+%#endif
+#endif
+	XapianException(code, msg);
+    }
+}
+#endif
 
 // In C#, we wrap ++ and -- as ++ and --.
 #ifdef SWIGCSHARP
@@ -148,6 +276,8 @@ int xapian_major_version();
 int xapian_minor_version();
 int xapian_revision();
 
+class ExpandDecider;
+class MatchDecider;
 class Weight;
 class Stopper;
 
@@ -431,11 +561,9 @@ class RSet {
     string get_description() const;
 };
 
-/* MatchDecider and ExpandDecider are abstract classes, each only
- * useful if it can be subclassed, which requires that directors be
- * supported.  So we only wrap them for languages which support
- * directors. */
-
+/* MatchDecider is an abstract class, only useful if it can be subclassed,
+ * which requires that directors be supported.  So we only wrap it for
+ * languages which support directors. */
 #ifdef XAPIAN_SWIG_DIRECTORS
 #pragma SWIG nowarn=515 /* Suppress warning that const is discarded by operator() */
 %feature("director") MatchDecider;
@@ -444,16 +572,10 @@ public:
     virtual int operator() (const Xapian::Document &doc) const = 0;
     virtual ~MatchDecider() { }
 };
-
-%feature("director") ExpandDecider;
-class ExpandDecider {
-public:
-    virtual int operator() (const string &term) const = 0;
-    virtual ~ExpandDecider() { }
-};
-
 #pragma SWIG nowarn=
 #endif
+
+// FIXME: wrap class ExpandDecider;
 
 class Database;
 class Query;
@@ -491,7 +613,6 @@ class Enquire {
 
     void set_bias(weight bias_weight, time_t bias_halflife);
 
-#ifdef XAPIAN_SWIG_DIRECTORS
     MSet get_mset(doccount first,
 	    doccount maxitems,
 	    doccount checkatleast = 0,
@@ -507,29 +628,13 @@ class Enquire {
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0,
 	    const ExpandDecider *edecider = 0) const;
-#else
-    MSet get_mset(doccount first,
-	    doccount maxitems,
-	    doccount checkatleast = 0,
-	    const RSet *omrset = 0) const;
-    MSet get_mset(doccount first,
-	    doccount maxitems,
-	    const RSet *omrset) const;
-
-    // FIXME wrap form without flags and k?
-    ESet get_eset(termcount maxitems,
-	    const RSet &omrset,
-	    int flags = 0, double k = 1.0) const;
-#endif
 
     TermIterator get_matching_terms_begin(docid did) const;
     TermIterator get_matching_terms_end(docid did) const;
     TermIterator get_matching_terms_begin(const MSetIterator& i) const;
     TermIterator get_matching_terms_end(const MSetIterator& i) const;
 
-#ifdef XAPIAN_SWIG_DIRECTORS
     void register_match_decider(const std::string& name, const MatchDecider* mdecider=NULL);
-#endif
 
 #ifdef XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
     /* We've not written the required custom typemap for all languages yet. */
@@ -698,15 +803,15 @@ class WritableDatabase : public Database {
 	string get_description() const;
 };
 
-%constant int DB_CREATE_OR_OPEN = Xapian::DB_CREATE_OR_OPEN;
-%constant int DB_CREATE = Xapian::DB_CREATE;
-%constant int DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
-%constant int DB_OPEN = Xapian::DB_OPEN;
+%constant int DB_CREATE_OR_OPEN = 1;
+%constant int DB_CREATE = 2;
+%constant int DB_CREATE_OR_OVERWRITE = 3;
+%constant int DB_OPEN = 4;
 #ifdef SWIGPHP4
-%constant int Xapian_DB_CREATE_OR_OPEN = Xapian::DB_CREATE_OR_OPEN;
-%constant int Xapian_DB_CREATE = Xapian::DB_CREATE;
-%constant int Xapian_DB_CREATE_OR_OVERWRITE = Xapian::DB_CREATE_OR_OVERWRITE;
-%constant int Xapian_DB_OPEN = Xapian::DB_OPEN;
+%constant int Xapian_DB_CREATE_OR_OPEN = 1;
+%constant int Xapian_DB_CREATE = 2;
+%constant int Xapian_DB_CREATE_OR_OVERWRITE = 3;
+%constant int Xapian_DB_OPEN = 4;
 #endif
 
 // Database factory functions:
@@ -754,6 +859,28 @@ namespace Flint {
 namespace InMemory {
     %rename(inmemory_open) open;
     WritableDatabase open();
+}
+
+namespace Muscat36 {
+#ifdef SWIGGUILE
+    Database open_da(const std::string &R, const std::string &T);
+    %rename(open_da_values) open_da;
+    Database open_da(const std::string &R, const std::string &T, const std::string &values);
+    Database open_db(const std::string &DB);
+    %rename(open_db_values) open_db;
+    Database open_db(const std::string &DB, const std::string &values);
+#else
+#ifdef SWIGPHP
+    /* PHP4 lacks namespaces so fake them rather than having a function just
+     * called "open".  Also rename open_stub, open_da, etc for consistency. */
+    %rename(muscat36_open_da) open_da;
+    %rename(muscat36_open_db) open_db;
+#endif
+    Database open_da(const std::string &R, const std::string &T, bool heavy_duty = true);
+    Database open_da(const std::string &R, const std::string &T, const std::string &values, bool heavy_duty = true);
+    Database open_db(const std::string &DB, size_t cache_size = 30);
+    Database open_db(const std::string &DB, const std::string &values, size_t cache_size = 30);
+#endif
 }
 
 namespace Remote {
@@ -815,6 +942,21 @@ class InMemory {
   public:
     static
     WritableDatabase open();
+};
+
+class Muscat36 {
+  private:
+    Muscat36();
+    ~Muscat36();
+  public:
+    static
+    Database open_da(const std::string &R, const std::string &T, bool heavy_duty = true);
+    static
+    Database open_da(const std::string &R, const std::string &T, const std::string &values, bool heavy_duty = true);
+    static
+    Database open_db(const std::string &DB, size_t cache_size = 30);
+    static
+    Database open_db(const std::string &DB, const std::string &values, size_t cache_size = 30);
 };
 
 class Remote {
@@ -915,7 +1057,7 @@ class SimpleStopper : public Stopper {
   public:
     SimpleStopper() { }
 
-    void add(const std::string & word) { stop_words.insert(word); }
+    void add(const std::string word) { stop_words.insert(word); }
 
     virtual bool operator()(const std::string & term) const {
 	return stop_words.find(term) != stop_words.end();
@@ -932,9 +1074,7 @@ public:
 	FLAG_PHRASE = 2,
 	FLAG_LOVEHATE = 4,
 	FLAG_BOOLEAN_ANY_CASE = 8,
-	FLAG_WILDCARD = 16,
-	FLAG_PURE_NOT = 32,
-	FLAG_PARTIAL = 64
+	FLAG_WILDCARD = 16
     } feature_flag;
 
     typedef enum {
@@ -966,21 +1106,22 @@ public:
     std::string get_description() const;
 };
 
-}
+// xapian/stem.h
+class Stem {
+public:
+    explicit Stem(const string &language);
+    ~Stem();
 
-#define XAPIAN_DEPRECATED(X) X
-%ignore Xapian::Stem::internal;
-%ignore Xapian::Stem::operator=;
-%ignore Xapian::Stem::Stem();
-%ignore Xapian::Stem::Stem(const Stem &);
-%include <xapian/stem.h>
+    string operator()(const string &word) const;
+    string stem_word(const string &word); // DEPRECATED
 
-namespace Xapian {
+    string get_description() const;
+
+    static string get_available_languages();
+};
 
 #if defined SWIGPYTHON && !defined PYTHON_OLDE
 %include extra.i
 #endif
 
 }
-
-/* vim:set syntax=cpp:set noexpandtab: */

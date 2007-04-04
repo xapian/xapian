@@ -1,3 +1,9 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Xapian: Overview</TITLE>
+</HEAD>
+<BODY BGCOLOR="white" TEXT="black">
 
 <H1>Overview</H1>
 
@@ -73,7 +79,7 @@ through them, and distributed enquiry systems.
 <P>
 Errors in Xapian are all reported by means of exceptions.  All exceptions
 thrown by Xapian will be subclasses of
-<A HREF="apidoc/html/classXapian_1_1Error.html"><CODE>Xapian::Error</CODE></A>.  Note that
+<A HREF="apidoc/html/class_Xapian::Error.html"><CODE>Xapian::Error</CODE></A>.  Note that
 <CODE>Xapian::Error</CODE> is an abstract class; thus you must catch exceptions
 by reference rather than by value.
 </P>
@@ -81,12 +87,12 @@ by reference rather than by value.
 <P>
 There are two flavours of error, derived from <CODE>Xapian::Error</CODE>:
 <UL><LI>
-<A HREF="apidoc/html/classXapian_1_1LogicError.html"><CODE>Xapian::LogicError</CODE></A>
+<A HREF="apidoc/html/class_Xapian::LogicError.html"><CODE>Xapian::LogicError</CODE></A>
 - for error conditions due to programming errors, such as a misuse of the
 API.  A finished application should not receive these errors (though it
 would still be sensible to catch them).
 </LI><LI>
-<A HREF="apidoc/html/classXapian_1_1RuntimeError.html"><CODE>Xapian::RuntimeError</CODE></A>
+<A HREF="apidoc/html/class_Xapian::RuntimeError.html"><CODE>Xapian::RuntimeError</CODE></A>
 - for error conditions due to run time problems, such as failure to open
 a database.  You must always be ready to cope with such errors.
 </LI></UL>
@@ -97,7 +103,7 @@ Each of these flavours is further subdivided, such that any particular
 error condition can be trapped by catching the appropriate exception.
 If desired, a human readable explanation of the error can be retrieved
 by calling
-<A HREF="apidoc/html/classXapian_1_1Error.html"><CODE>Xapian::Error::get_msg()</CODE></A>.
+<A HREF="apidoc/html/class_Xapian::Error.html"><CODE>Xapian::Error::get_msg()</CODE></A>.
 </P>
 
 <P>
@@ -189,7 +195,7 @@ database.  Xapian looks at the path and autodetects the database type.
 </P>
 <P>
 In some cases (with the Remote backend, or if you want more control) you
-need to use a factory function such as <CODE>Xapian::Flint::open()</CODE>
+need to use a factory function such as <CODE>Xapian::Quartz::open()</CODE>
 - each backend type has one or more.  The parameters the function
 takes depend on the backend type, and whether we are creating a read-only
 or a writable database.
@@ -204,24 +210,30 @@ The stub database format specifies one database per line.  For example:
 
 <BLOCKQUOTE><CODE>
 remote localhost:23876<br>
-flint /var/spool/xapian/webindex<br>
+quartz /var/spool/xapian/webindex<br>
 </CODE></BLOCKQUOTE>
 
 <A NAME="database_types"><H3>Database types</H3></A>
 The current types understood by Xapian are:
 </P>
 <TABLE>
+<TR><TD VALIGN="top"><B>quartz</B></TD><TD>
+<P>
+This is the main database type, which should be used in almost all cases.
+The format allows progressive modifications, single-writer multiple-reader
+access to the database, and highly efficient and scalable access to data.
+</P>
+<P>
+You access a Quartz database using Xapian::Database and Xapian::WritableDatabase objects
+constructed by the factory function <A
+HREF="apidoc/html/database_8h.html"><CODE>Xapian::Quartz::open()</CODE></A>.
+<!-- FIXME: hard to link direct to functions, as the name ids may change... -->
+</P>
+</TD></TR>
 <TR><TD VALIGN="top"><B>flint</B></TD><TD>
 <P>
-Flint is a default backend as of Xapian 1.0. It supports incremental
-modifications, concurrent single-writer and multiple-reader access to
-a database.  It's very efficient and highly scalable.  Flint takes lessons
-learned from studying Quartz in action, and is appreciably faster
-(both when indexing and searching), more compact, and features an
-improved locking mechanism which automatically releases the lock
-if a writing process dies.
+Flint is a "next generation" database backend for Xapian. It takes lessons learned from studying Quartz in action, and should be substantially faster (both when indexing and searching), more compact, and better in other ways too (better locking, and better statistics from the matcher for example).
 </P>
-<!--
 <P>
 Flint is very much a work in progress. The aim is to have it stable and working at any given point (and Xapian's extensive test suite should help give us some reassurance of this), but the database format will change frequently and there'll be no migration path during development (except for rebuilding your index from the source data, or alternatively using copydatabase to copy the old-flint database to a quartz database, upgrading, then using copydatabase to copy the quartz database to a new-flint one).
 </P>
@@ -229,22 +241,70 @@ Flint is very much a work in progress. The aim is to have it stable and working 
 That said flint already outperforms quartz, and Gmane, tweakers.net and
 srpko.com are all running production systems using the flint backend.
 </P>
--->
 <P>
 For more information, see the <a href="http://wiki.xapian.org/FlintBackend">Xapian Wiki</a>.
 </P>
 </TD></TR>
-<TR><TD VALIGN="top"><B>quartz</B></TD><TD>
+<TR><TD VALIGN="top"><B>da_flimsy</B></TD><TD>
 <P>
-Quartz was the default backend prior to Xapian 1.0.  New installations should
-use Flint, and existing installations should consider migrating to Flint.
-Support for Quartz will be dropped at some point in the future.
+This is a proprietary, legacy format, holding a database in a
+non-updateable form (ie, the database can't be altered, it is built
+from an existing database).  We support read-only access to this,
+and it is only likely to be useful to those with a legacy Muscat 3.6
+based system.
+</P><P>
+This takes one, two or three parameters.  If one parameter is supplied,
+it represents the path to a directory containing the Record file in a file
+called &quot;R&quot;, the Term file in a file called &quot;T&quot;, and
+optionally the fast access key file in a file called &quot;keyfile&quot;
+</P><P>
+If two parameters are supplied, they represent the full paths to the
+Record and Term file, respectively.  In this case, there is assumed to be
+no keyfile.
+</P><P>
+If three parameters are supplied, the first two are the full paths to the
+Record and Term files, respectively, and the third is the full path to
+the keyfile.
 </P>
+</TD></TR>
+<TR><TD VALIGN="top"><B>da_heavy</B></TD><TD>
+This is a variant of da_flimsy, allowing access to the &quot;heavy duty&quot;
+variant for larger documents.  This is the format produced by the
+&quot;makeda&quot; utility, and was useful in early Xapian development before
+we had designed our own disk based backend.
+<BR>
+It takes the same parameters as da_flimsy.
+</TD></TR>
+<TR><TD VALIGN="top"><B>db_flimsy</B></TD><TD>
+<P>
+This is another proprietary, legacy format supported by Muscat 3.6.  The
+Muscat 3.6 DB format support a database in a dynamically
+updateable form (ie, the database can be altered while queries are being
+performed on it.)  Xapian only supports read-only access to this format.
+</P><P>
+This takes one or two parameters.  The first parameter is the full path to
+the DB file.
+</P><P>
+If a second parameter is supplied, it represents the full path to the fast
+access keyfile.  If a second parameter is not supplied, the keyfile will
+be searched for at &lt;first_parameter&gt;_keyfile; if this doesn't exist,
+no keyfile will be used.
+</P><P>
+It takes one parameter, which is the full path to the DB file.
+</P>
+</TD></TR>
+<TR><TD VALIGN="top"><B>db_heavy</B></TD><TD>
+This is a variant of db_flimsy, allowing access to the &quot;heavy duty&quot;
+variant for larger documents.
+<BR>
+It takes the same parameters as db_flimsy.
 </TD></TR>
 <TR><TD VALIGN="top"><B>inmemory</B></TD><TD>
 This type is a database held entirely in memory.
 It was originally written for testing purposes only, but may
 prove useful for building up temporary small databases.
+<BR>
+It takes no parameters at all.
 </TD></TR>
 </TABLE>
 

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,13 +34,11 @@
 
 #include <stdio.h>
 
-#include <sys/types.h>
-#include "safesysstat.h"
+#include <sys/stat.h>
 
 #ifdef HAVE_FORK
 # include <signal.h>
 # include <sys/types.h>
-# include <sys/socket.h>
 # include <sys/wait.h>
 # include <unistd.h>
 // Some older systems had SIGCLD rather than SIGCHLD.
@@ -49,45 +47,21 @@
 # endif
 #endif
 
-#ifdef __WIN32__
-# include "safefcntl.h"
-#endif
-
 #include <xapian.h>
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "omdebug.h"
-#include "unixcmds.h"
 #include "utils.h"
-
-// We've had problems on some hosts which run tinderbox tests with "localhost"
-// not being set in /etc/hosts - using the IP address equivalent seems more
-// reliable.
-#define LOCALHOST "127.0.0.1"
-
-// Other ports may be tried (UNIX version tries higher ports until one works;
-// Windows version cycles through 10 ports starting at DEFAULT_PORT.
-#define DEFAULT_PORT 1239
 
 using namespace std;
 
-void
-BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
-					const vector<string> & dbnames)
+static void
+index_files_to_database(Xapian::WritableDatabase & database,
+                        const vector<string> & paths)
 {
     vector<string>::const_iterator p;
-    for (p = dbnames.begin(); p != dbnames.end(); ++p) {
-	if (p->empty()) continue;
-	string filename;
-	if (datadir.empty()) {
-	    filename = *p;
-	} else {
-	    filename = datadir;
-	    filename += '/';
-	    filename += *p;
-	    filename += ".txt";
-	}
-
+    for (p = paths.begin(); p != paths.end(); ++p) {
+	const string & filename = *p;
 	ifstream from(filename.c_str());
 	if (!from)
 	    throw Xapian::DatabaseOpeningError("Cannot open file " + filename +
@@ -95,17 +69,78 @@ BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
 
 	while (from) {
 	    Xapian::Document doc(document_from_stream(from));
-	    if (doc.termlist_count() == 0)
-		break;
+	    if (doc.termlist_count() == 0) break;
 	    database.add_document(doc);
 	}
     }
 }
 
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
+static void
+index_files_to_m36(const string &prog, const string &dbdir,
+		   const vector<string> & paths)
+{
+    string dump = dbdir + "/DATA";
+    ofstream out(dump.c_str());
+    string valuefile = dbdir + "/keyfile";
+    ofstream values(valuefile.c_str());
+    values << "omrocks!"; // magic word
+    vector<string>::const_iterator p;
+    for (p = paths.begin(); p != paths.end(); ++p) {
+	const string & filename = *p;
+	ifstream from(filename.c_str());
+	if (!from)
+	    throw Xapian::DatabaseOpeningError("Cannot open file " + filename +
+		    " for indexing");
+
+	while (from) {
+	    Xapian::Document doc = document_from_stream(from);
+	    out << "#RSTART#\n" << doc.get_data() << "\n#REND#\n#TSTART#\n";
+	    {
+		Xapian::TermIterator i = doc.termlist_begin();
+		Xapian::TermIterator i_end = doc.termlist_end();
+		for ( ; i != i_end; ++i) {
+		    out << *i << endl;
+		}
+	    }
+	    out << "#TEND#\n";
+	    Xapian::ValueIterator value_i = doc.values_begin();
+	    string value = string("\0\0\0\0\0\0\0", 8);
+	    if (value_i != doc.values_end()) value = (*value_i) + value;
+	    value = value.substr(0, 8);
+	    values << value;
+	}
+    }
+    out.close();
+    string cmd = "../../makeda/" + prog + " -source " + dump +
+	" -da " + dbdir + "/ -work " + dbdir + "/tmp- > /dev/null";
+    system(cmd);
+    unlink(dump);
+}
+#endif
+
+#if defined HAVE_FORK && defined HAVE_WAITPID
+extern "C" void
+on_SIGCHLD(int /*sig*/)
+{
+    int status;
+    while (waitpid(-1, &status, WNOHANG) > 0);
+}
+#endif
+
 BackendManager::BackendManager() :
     do_getdb(&BackendManager::getdb_void),
     do_getwritedb(&BackendManager::getwritedb_void)
 {
+#ifdef HAVE_FORK
+    // Clean up child processes forked to close the pipes we open to run
+    // xapian-tcpsrv.
+#ifdef HAVE_WAITPID
+    signal(SIGCHLD, on_SIGCHLD);
+#else
+    signal(SIGCHLD, SIG_IGN);
+#endif
+#endif
 }
 
 void
@@ -143,7 +178,7 @@ BackendManager::set_dbtype(const string &type)
 #ifdef XAPIAN_HAS_FLINT_BACKEND
 	do_getdb = &BackendManager::getdb_flint;
 	do_getwritedb = &BackendManager::getwritedb_flint;
-	rm_rf(".flint");
+	rmdir(".flint");
 #else
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
@@ -152,7 +187,7 @@ BackendManager::set_dbtype(const string &type)
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
 	do_getdb = &BackendManager::getdb_quartz;
 	do_getwritedb = &BackendManager::getwritedb_quartz;
-	rm_rf(".quartz");
+	rmdir(".quartz");
 #else
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
@@ -173,14 +208,50 @@ BackendManager::set_dbtype(const string &type)
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
 #endif
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
+    } else if (type == "da") {
+	do_getdb = &BackendManager::getdb_da;
+	do_getwritedb = &BackendManager::getwritedb_da;
+	rmdir(".da");
+    } else if (type == "db") {
+	do_getdb = &BackendManager::getdb_db;
+	do_getwritedb = &BackendManager::getwritedb_db;
+	rmdir(".db");
+    } else if (type == "daflimsy") {
+	do_getdb = &BackendManager::getdb_daflimsy;
+	do_getwritedb = &BackendManager::getwritedb_daflimsy;
+	rmdir(".daflimsy");
+    } else if (type == "dbflimsy") {
+	do_getdb = &BackendManager::getdb_dbflimsy;
+	do_getwritedb = &BackendManager::getwritedb_dbflimsy;
+	rmdir(".dbflimsy");
+#else
+    } else if (type == "da" || type == "db" || type == "daflimsy" ||
+	       type == "dbflimsy") {
+	do_getdb = &BackendManager::getdb_void;
+	do_getwritedb = &BackendManager::getwritedb_void;
+#endif
     } else if (type == "void") {
 	do_getdb = &BackendManager::getdb_void;
 	do_getwritedb = &BackendManager::getwritedb_void;
     } else {
 	throw Xapian::InvalidArgumentError(
-	    "Expected inmemory, flint, quartz, remote, remotetcp, or void");
+		"Expected inmemory, flint, quartz, remote, remotetcp, da, db, "
+		"daflimsy, dbflimsy, or void");
     }
     current_type = type;
+}
+
+void
+BackendManager::set_datadir(const string &datadir_)
+{
+    datadir = datadir_;
+}
+
+string
+BackendManager::get_datadir()
+{
+    return datadir;
 }
 
 Xapian::Database
@@ -195,6 +266,23 @@ BackendManager::getwritedb_void(const vector<string> &)
     throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
 }
 
+vector<string>
+BackendManager::change_names_to_paths(const vector<string> &dbnames)
+{
+    vector<string> paths;
+    vector<string>::const_iterator i;
+    for (i = dbnames.begin(); i != dbnames.end(); ++i) {
+	if (!i->empty()) {
+	    if (datadir.empty()) {
+		paths.push_back(*i);
+	    } else {
+		paths.push_back(datadir + "/" + *i + ".txt");
+	    }
+	}
+    }
+    return paths;
+}
+
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 Xapian::Database
 BackendManager::getdb_inmemory(const vector<string> &dbnames)
@@ -206,7 +294,7 @@ Xapian::WritableDatabase
 BackendManager::getwritedb_inmemory(const vector<string> &dbnames)
 {
     Xapian::WritableDatabase db(Xapian::InMemory::open());
-    index_files_to_database(db, dbnames);
+    index_files_to_database(db, change_names_to_paths(dbnames));
     return db;
 }
 
@@ -222,7 +310,7 @@ BackendManager::getwritedb_inmemoryerr(const vector<string> &dbnames)
 {
     // FIXME: params.set("inmemory_errornext", 1);
     Xapian::WritableDatabase db(Xapian::InMemory::open());
-    index_files_to_database(db, dbnames);
+    index_files_to_database(db, change_names_to_paths(dbnames));
 
     return db;
 }
@@ -238,7 +326,7 @@ BackendManager::getwritedb_inmemoryerr2(const vector<string> &dbnames)
 {
     // FIXME: params.set("inmemory_abortnext", 1);
     Xapian::WritableDatabase db(Xapian::InMemory::open());
-    index_files_to_database(db, dbnames);
+    index_files_to_database(db, change_names_to_paths(dbnames));
 
     return db;
 }
@@ -254,7 +342,7 @@ BackendManager::getwritedb_inmemoryerr3(const vector<string> &dbnames)
 {
     // params.set("inmemory_abortnext", 2);
     Xapian::WritableDatabase db(Xapian::InMemory::open());
-    index_files_to_database(db, dbnames);
+    index_files_to_database(db, change_names_to_paths(dbnames));
 
     return db;
 }
@@ -273,7 +361,7 @@ bool create_dir_if_needed(const string &dirname)
     if (result < 0) {
 	if (errno != ENOENT)
 	    throw Xapian::DatabaseOpeningError("Can't stat directory");
-	if (mkdir(dirname, 0700) < 0)
+        if (mkdir(dirname, 0700) < 0)
 	    throw Xapian::DatabaseOpeningError("Can't create directory");
 	return true; // Successfully created a directory.
     }
@@ -292,14 +380,13 @@ BackendManager::createdb_flint(const vector<string> &dbnames)
     string dbdir = parent_dir + "/db";
     for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end(); i++) {
-	dbdir += '=';
-	dbdir += *i;
+	dbdir += "=" + *i;
     }
     // If the database is readonly, we can reuse it if it exists.
     if (create_dir_if_needed(dbdir)) {
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
-	index_files_to_database(db, dbnames);
+	index_files_to_database(db, change_names_to_paths(dbnames));
     }
     return dbdir;
 }
@@ -320,12 +407,12 @@ BackendManager::getwritedb_flint(const vector<string> &dbnames)
     // use) from readonly ones (which can be reused).
     string dbdir = parent_dir + "/dbw";
     // For a writable database we need to start afresh each time.
-    rm_rf(dbdir);
+    rmdir(dbdir);
     (void)create_dir_if_needed(dbdir);
     touch(dbdir + "/log");
     // directory was created, so do the indexing.
     Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
-    index_files_to_database(db, dbnames);
+    index_files_to_database(db, change_names_to_paths(dbnames));
     return db;
 }
 #endif
@@ -340,14 +427,13 @@ BackendManager::createdb_quartz(const vector<string> &dbnames)
     string dbdir = parent_dir + "/db";
     for (vector<string>::const_iterator i = dbnames.begin();
 	 i != dbnames.end(); i++) {
-	dbdir += '=';
-	dbdir += *i;
+	dbdir += "=" + *i;
     }
     // If the database is readonly, we can reuse it if it exists.
     if (create_dir_if_needed(dbdir)) {
 	// Directory was created, so do the indexing.
 	Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
-	index_files_to_database(db, dbnames);
+	index_files_to_database(db, change_names_to_paths(dbnames));
     }
     return dbdir;
 }
@@ -368,12 +454,12 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
     // use) from readonly ones (which can be reused).
     string dbdir = parent_dir + "/dbw";
     // For a writable database we need to start afresh each time.
-    rm_rf(dbdir);
+    rmdir(dbdir);
     (void)create_dir_if_needed(dbdir);
     touch(dbdir + "/log");
     // directory was created, so do the indexing.
     Xapian::WritableDatabase db(Xapian::Quartz::open(dbdir, Xapian::DB_CREATE, 2048));
-    index_files_to_database(db, dbnames);
+    index_files_to_database(db, change_names_to_paths(dbnames));
     return db;
 }
 #endif
@@ -407,8 +493,7 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 #endif
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	args.insert(0, "../bin/xapian-progsrv ");
-	return Xapian::Remote::open("./runtest", args);
+        return Xapian::Remote::open("./runtest ../bin/xapian-progsrv", args);
     }
 #endif
     return Xapian::Remote::open("../bin/xapian-progsrv", args);
@@ -432,85 +517,33 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
 #endif
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	args.insert(0, "../bin/xapian-progsrv ");
-	return Xapian::Remote::open_writable("./runtest", args);
+        return Xapian::Remote::open_writable("./runtest ../bin/xapian-progsrv", args);
     }
 #endif
     return Xapian::Remote::open_writable("../bin/xapian-progsrv", args);
 }
 
 #ifdef HAVE_FORK
-
-extern "C" void
-on_SIGCHLD(int /*sig*/)
-{
-    int status;
-    while (waitpid(-1, &status, WNOHANG) > 0);
-}
-
 static int
 launch_xapian_tcpsrv(const string & args)
 {
-    int port = DEFAULT_PORT;
-
-    // We want to be able to get the exit status of the child process we fork
-    // in xapian-tcpsrv doesn't start listening successfully.
-    signal(SIGCHLD, SIG_DFL);
+    int port = 1239;
 try_next_port:
-    string cmd = "../bin/xapian-tcpsrv --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args;
+    string cmd = "../bin/xapian-tcpsrv --one-shot --port " + om_tostring(port) + " " + args + " 2>/dev/null";
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
 #endif
-    int fds[2];
-    if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
-	string msg("Couldn't create socketpair: ");
-	msg += strerror(errno);
-	throw msg;
-    }
-
-    pid_t child = fork();
-    if (child == 0) {
-	// Child process.
-	close(fds[0]);
-	// Connect stdout and stderr to the socket.
-	dup2(fds[1], 1);
-	dup2(fds[1], 2);
-	execl("/bin/sh", "/bin/sh", "-c", cmd.c_str(), (void*)NULL);
-	_exit(-1);
-    }
-
-    close(fds[1]);
-    if (child == -1) {
-	// Couldn't fork.
-	int fork_errno = errno;
-	close(fds[0]);
-	string msg("Couldn't fork: ");
-	msg += strerror(fork_errno);
-	throw msg;
-    }
-   
-    // Parent process.
-
-    // Wrap the file descriptor in a FILE * so we can read lines using fgets().
-    FILE * fh = fdopen(fds[0], "r");
+    FILE * fh = popen(cmd.c_str(), "r");
     if (fh == NULL) {
 	string msg("Failed to run command '");
 	msg += cmd;
-	msg += "': ";
-	msg += strerror(errno);
+	msg += "'";
 	throw msg;
     }
-    string output;
     while (true) {
 	char buf[256];
 	if (fgets(buf, sizeof(buf), fh) == NULL) {
-	    fclose(fh);
-	    int status;
-	    if (waitpid(child, &status, 0) == -1) {
-		string msg("waitpid failed: ");
-		msg += strerror(errno);
-		throw msg;
-	    }
+	    int status = pclose(fh);
 	    if (++port < 65536 && status != 0) {
 		if (WIFEXITED(status) && WEXITSTATUS(status) == 69) {  
 		    // 69 is EX_UNAVAILABLE which xapian-tcpsrv exits
@@ -521,135 +554,32 @@ try_next_port:
 	    }
 	    string msg("Failed to get 'Listening...' from command '");
 	    msg += cmd;
-	    msg += "' (output: ";
-	    msg += output;
-	    msg += ")";
+	    msg += "'";
 	    throw msg;
 	}
 	if (strcmp(buf, "Listening...\n") == 0) break;
-	output += buf;
     }
-
-    // Set a signal handler to clean up the xapian-tcpsrv child process when it
-    // finally exits.
-    signal(SIGCHLD, on_SIGCHLD);
-
-    return port;
-}
-
-#elif defined __WIN32__
-
-// Path to xapian-tcpsrv (with \ path separator since we pass this to system).
-#ifdef _MSC_VER
-# ifdef DEBUG
-#  define XAPIAN_TCPSRV "..\\win32\\Debug\\xapian-tcpsrv"
-# else
-#  define XAPIAN_TCPSRV "..\\win32\\Release\\xapian-tcpsrv"
-# endif
-#else
-#  define XAPIAN_TCPSRV "..\\bin\\xapian-tcpsrv" // mingw
-#endif
-
-// This implementation uses the WIN32 API to start xapian-tcpsrv as a child
-// process and read its output using a pipe.
-static int
-launch_xapian_tcpsrv(const string & args)
-{
-    int port = DEFAULT_PORT;
-
-try_next_port:
-    string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args;
-
-    // Create a pipe so we can read stdout/stderr from the child process.
-    HANDLE hRead, hWrite;
-    if (!CreatePipe(&hRead, &hWrite, 0, 0)) {
-	string msg("Couldn't create pipe");
-	char * error = 0;
-	DWORD len;
-	len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
-			    0, GetLastError(), 0, (CHAR*)&error, 0, 0);
-	if (len && error) {
-	    msg += ": ";
-	    msg.append(error, len);
-	    LocalFree(error);
-	}
+    pid_t child = fork();
+    if (child == 0) {
+	// Child process.
+	pclose(fh);
+	_exit(0);
+    }
+    if (child == -1) {
+	string msg("fork() failed: ");
+	msg += strerror(errno);
 	throw msg;
     }
-
-    // Set the write handle to be inherited by the child process.
-    SetHandleInformation(hWrite, HANDLE_FLAG_INHERIT, 1);
- 
-    // Create the child process.
-    PROCESS_INFORMATION procinfo; 
-    memset(&procinfo, 0, sizeof(PROCESS_INFORMATION));
-
-    STARTUPINFO startupinfo;
-    memset(&startupinfo, 0, sizeof(STARTUPINFO));
-    startupinfo.cb = sizeof(STARTUPINFO); 
-    startupinfo.hStdError = hWrite;
-    startupinfo.hStdOutput = hWrite;
-    startupinfo.hStdInput = INVALID_HANDLE_VALUE;
-    startupinfo.dwFlags |= STARTF_USESTDHANDLES;
- 
-    // For some reason Windows wants a modifiable copy!
-    BOOL ok;
-    char * cmdline = strdup(cmd.c_str());
-    ok = CreateProcess(0, cmdline, 0, 0, TRUE, 0, 0, 0, &startupinfo, &procinfo);
-    free(cmdline);
-    if (!ok) {
-	TCHAR buf[256];
-	string msg("Couldn't create child process");
-	if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), 0, buf, sizeof(buf), 0)) {
-	    msg += ": ";
-	    msg += buf;
-	}
-	throw msg;
-    }
-
-    CloseHandle(hWrite);
-    CloseHandle(procinfo.hThread);
-
-    string output;
-    FILE *fh = fdopen(_open_osfhandle((intptr_t)hRead, O_RDONLY), "r");
-    while (true) {
-	char buf[256];
-	if (fgets(buf, sizeof(buf), fh) == NULL) {
-	    fclose(fh);
-	    DWORD rc;
-	    // This doesn't seem to be necessary on the machine I tested on,
-	    // but I guess it could be on a slow machine...
-	    while (GetExitCodeProcess(procinfo.hProcess, &rc) && rc == STILL_ACTIVE) {
-		Sleep(100);
-	    }
-	    CloseHandle(procinfo.hProcess);
-	    if (++port < 65536 && rc == 69) {
-		// 69 is EX_UNAVAILABLE which xapian-tcpsrv exits
-		// with if (and only if) the port specified was
-		// in use.
-		goto try_next_port;
-	    }
-	    string msg("Failed to get 'Listening...' from command '");
-	    msg += cmd;
-	    msg += "' (output: ";
-	    msg += output;
-	    msg += ")";
-	    throw msg;
-	}
-	if (strcmp(buf, "Listening...\r\n") == 0) break;
-	output += buf;
-    }
-    fclose(fh);
-
     return port;
 }
-
-#else
-# error Neither HAVE_FORK nor __WIN32__ is defined
 #endif
 
 Xapian::Database
 BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 {
+#ifndef HAVE_FORK
+    throw string("Can't run remotetcp tests without fork()");
+#else
     // Uses xapian-tcpsrv as the server.
 
     vector<string> paths;
@@ -675,12 +605,16 @@ BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 #endif
 
     int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open(LOCALHOST, port);
+    return Xapian::Remote::open("127.0.0.1", port);
+#endif
 }
 
 Xapian::WritableDatabase
 BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
 {
+#ifndef HAVE_FORK
+    throw string("Can't run remotetcp tests without fork()");
+#else
     // Uses xapian-tcpsrv as the server.
 
     // Default to a long (5 minute) timeout so that tests won't fail just
@@ -696,7 +630,117 @@ BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
 #endif
 
     int port = launch_xapian_tcpsrv(args);
-    return Xapian::Remote::open_writable(LOCALHOST, port);
+    return Xapian::Remote::open_writable("127.0.0.1", port);
+#endif
+}
+#endif
+
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
+Xapian::Database
+BackendManager::getdb_da(const vector<string> &dbnames)
+{
+    string parent_dir = ".da";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end();
+	 i++) {
+	dbdir += "=" + *i;
+    }
+    if (create_dir_if_needed(dbdir)) {
+	// directory was created, so do the indexing.
+	// need to build temporary file and run it through makeda (yum)
+	index_files_to_m36("makeDA", dbdir, change_names_to_paths(dbnames));
+    }
+    return Xapian::Muscat36::open_da(dbdir + "/R", dbdir + "/T",
+				     dbdir + "/keyfile");
+}
+
+Xapian::Database
+BackendManager::getdb_daflimsy(const vector<string> &dbnames)
+{
+    string parent_dir = ".daflimsy";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end();
+	 i++) {
+	dbdir += "=" + *i;
+    }
+    if (create_dir_if_needed(dbdir)) {
+	// directory was created, so do the indexing.
+	// need to build temporary file and run it through makeda (yum)
+	index_files_to_m36("makeDAflimsy", dbdir, change_names_to_paths(dbnames));
+    }
+    return Xapian::Muscat36::open_da(dbdir + "/R", dbdir + "/T",
+				     dbdir + "/keyfile", false);
+}
+
+Xapian::WritableDatabase
+BackendManager::getwritedb_da(const vector<string> &/*dbnames*/)
+{
+    throw Xapian::InvalidArgumentError("Attempted to open writable da database");
+}
+
+Xapian::WritableDatabase
+BackendManager::getwritedb_daflimsy(const vector<string> &/*dbnames*/)
+{
+    throw Xapian::InvalidArgumentError("Attempted to open writable daflimsy database");
+}
+
+Xapian::Database
+BackendManager::getdb_db(const vector<string> &dbnames)
+{
+    string parent_dir = ".db";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end();
+	 i++) {
+	dbdir += "=" + *i;
+    }
+    if (create_dir_if_needed(dbdir)) {
+	// directory was created, so do the indexing.
+	// need to build temporary file and run it through makedb (yum)
+	index_files_to_m36("makeDB", dbdir, change_names_to_paths(dbnames));
+    }
+    return Xapian::Muscat36::open_db(dbdir + "/DB", dbdir + "/keyfile");
+}
+
+Xapian::Database
+BackendManager::getdb_dbflimsy(const vector<string> &dbnames)
+{
+    string parent_dir = ".dbflimsy";
+    create_dir_if_needed(parent_dir);
+
+    string dbdir = parent_dir + "/db";
+    for (vector<string>::const_iterator i = dbnames.begin();
+	 i != dbnames.end();
+	 i++) {
+	dbdir += "=" + *i;
+    }
+    // should autodetect flimsy - don't specify to test this
+    if (create_dir_if_needed(dbdir)) {
+	// directory was created, so do the indexing.
+	// need to build temporary file and run it through makedb (yum)
+	index_files_to_m36("makeDBflimsy", dbdir, change_names_to_paths(dbnames));
+    }
+    return Xapian::Muscat36::open_db(dbdir + "/DB", dbdir + "/keyfile");
+}
+
+Xapian::WritableDatabase
+BackendManager::getwritedb_db(const vector<string> &/*dbnames*/)
+{
+    throw Xapian::InvalidArgumentError("Attempted to open writable db database");
+}
+
+Xapian::WritableDatabase
+BackendManager::getwritedb_dbflimsy(const vector<string> &/*dbnames*/)
+{
+    throw Xapian::InvalidArgumentError("Attempted to open writable dbflimsy database");
 }
 #endif
 

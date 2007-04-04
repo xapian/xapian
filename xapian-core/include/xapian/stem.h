@@ -1,7 +1,7 @@
 /** \file  stem.h
  *  \brief stemming algorithms
  */
-/* Copyright (C) 2005,2007 Olly Betts
+/* Copyright (C) 2005 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,7 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA
  */
 
 #ifndef XAPIAN_INCLUDED_STEM_H
@@ -30,7 +31,7 @@ namespace Xapian {
 /// Class representing a stemming algorithm.
 class Stem {
   public:
-    /// @internal Class representing the stemmer internals.
+    /// Class representing the stemmer internals.
     class Internal;
     /// @internal Reference counted internals.
     Xapian::Internal::RefCntPtr<Internal> internal;
@@ -87,12 +88,10 @@ class Stem {
      */
     std::string operator()(const std::string &word) const;
 
-    /** For compatibility with Xapian 0.8.5 and earlier.
-     *
-     *  @deprecated This method is now deprecated, use
-     *  operator() instead.
-    */
-    XAPIAN_DEPRECATED(std::string stem_word(const std::string &word) const);
+    /** For compatibility with Xapian 0.8.5 and earlier. */
+    std::string stem_word(const std::string &word) const {
+	return operator()(word);
+    }
 
     /// Return a string describing this object.
     std::string get_description() const;

@@ -3,8 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,7 +33,6 @@
 #include <xapian/valueiterator.h>
 
 #include "quartz_postlist.h"
-#include "quartz_alldocspostlist.h"
 #include "quartz_termlist.h"
 #include "quartz_positionlist.h"
 #include "quartz_utils.h"
@@ -44,8 +42,7 @@
 #include "quartz_alltermslist.h"
 
 #include <sys/types.h>
-#include "safesysstat.h"
-#include "safefcntl.h"
+#include <sys/stat.h>
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
@@ -602,15 +599,10 @@ LeafPostList *
 QuartzDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::do_open_post_list", tname);
+    Assert(!tname.empty());
+
     Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
-
-    if (tname.empty()) {
-	RETURN(new QuartzAllDocsPostList(ptrtothis,
-					 &termlist_table,
-					 get_doccount()));
-    }
-
-    RETURN(new QuartzPostList(ptrtothis,
+    return(new QuartzPostList(ptrtothis,
 			      &postlist_table,
 			      &positionlist_table,
 			      tname));
@@ -1119,13 +1111,7 @@ LeafPostList *
 QuartzWritableDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "QuartzWritableDatabase::do_open_post_list", tname);
-    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
-
-    if (tname.empty()) {
-	RETURN(new QuartzAllDocsPostList(ptrtothis,
-					 &database_ro.termlist_table,
-					 get_doccount()));
-    }
+    Assert(!tname.empty());
 
     // Need to flush iff we've got buffered changes to this term's postlist.
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
@@ -1136,7 +1122,8 @@ QuartzWritableDatabase::do_open_post_list(const string& tname) const
 	do_flush_const();
     }
 
-    RETURN(new QuartzPostList(ptrtothis,
+    Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
+    return(new QuartzPostList(ptrtothis,
 			      &database_ro.postlist_table,
 			      &database_ro.positionlist_table,
 			      tname));

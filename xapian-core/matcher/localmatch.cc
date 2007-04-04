@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,13 +31,11 @@
 #include "andnotpostlist.h"
 #include "andmaybepostlist.h"
 #include "filterpostlist.h"
-#include "exactphrasepostlist.h"
 #include "phrasepostlist.h"
 #include "emptypostlist.h"
 #include "leafpostlist.h"
 #include "mergepostlist.h"
 #include "extraweightpostlist.h"
-#include "valuerangepostlist.h"
 
 #include "omqueryinternal.h"
 
@@ -317,9 +315,6 @@ LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
 	    std::vector<PostList *> postlists_orig = postlists;
 	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
-	    if (query->parameter == postlists_orig.size()) {
-		RETURN(new ExactPhrasePostList(res, postlists_orig));
-	    }
 	    RETURN(new PhrasePostList(res, query->parameter, postlists_orig));
 	}
 
@@ -473,9 +468,6 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 					postlist_from_query(query->subqs[1], matcher, is_bool),
 					matcher,
 					db->get_doccount());
-	case Xapian::Query::OP_VALUE_RANGE:
-	    RETURN(new ValueRangePostList(db, Xapian::valueno(query->parameter),
-					  query->tname, query->str_parameter));
     }
     Assert(false);
     RETURN(NULL);

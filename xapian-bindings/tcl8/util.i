@@ -1,3 +1,4 @@
+%{
 /* tcl8/util.i: custom tcl8 typemaps for xapian-bindings
  *
  * Copyright (c) 2006 Olly Betts
@@ -18,7 +19,6 @@
  * USA
  */
 
-%{
 namespace Xapian {
     Query *get_tcl8_query(Tcl_Interp *interp, Tcl_Obj *obj) {
 	Query * retval = 0;
@@ -71,4 +71,40 @@ namespace Xapian {
     }
 
     Tcl_SetObjResult(interp, list);
+}
+
+%{
+    static int XapianTclHandleError(Tcl_Interp * interp, const Xapian::Error &e) {
+	Tcl_ResetResult(interp);
+	Tcl_SetErrorCode(interp, "XAPIAN", e.get_type().c_str(), NULL);
+	Tcl_AppendResult(interp, e.get_msg().c_str(), NULL);
+	return TCL_ERROR;
+    }
+
+    static int XapianTclHandleError(Tcl_Interp * interp, const char *e) {
+	Tcl_ResetResult(interp);
+	Tcl_SetErrorCode(interp, "XAPIAN", "QueryParserError", NULL);
+	Tcl_AppendResult(interp, e, NULL);
+	return TCL_ERROR;
+    }
+
+    static int XapianTclHandleError(Tcl_Interp * interp) {
+	Tcl_ResetResult(interp);
+	Tcl_SetErrorCode(interp, "XAPIAN ?", NULL);
+	Tcl_AppendResult(interp, "Unknown Error", NULL);
+	return TCL_ERROR;
+    }
+%}
+
+#define XAPIAN_EXCEPTION_HANDLER
+%exception {
+    try {
+	$function
+    } catch (const Xapian::Error &e) {
+	return XapianTclHandleError(interp, e);
+    } catch (const char * str) {
+	return XapianTclHandleError(interp, str);
+    } catch (...) {
+	return XapianTclHandleError(interp);
+    }
 }

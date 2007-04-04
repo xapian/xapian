@@ -1,7 +1,8 @@
 /* apitest.h: tests the Xapian API
  *
+ * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004,2007 Olly Betts
+ * Copyright 2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,16 +16,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
+ * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_APITEST_H
 #define OM_HGUARD_APITEST_H
 
 #include <xapian.h>
-
-const std::string & get_dbtype();
 
 Xapian::Database get_database(const std::string &dbname);
 Xapian::Database get_database(const std::string &dbname,

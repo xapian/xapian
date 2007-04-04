@@ -1,7 +1,7 @@
 /** @file remoteserver.cc
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006 Olly Betts
  * Copyright (C) 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or modify
@@ -66,18 +66,15 @@ RemoteServer::RemoteServer(Xapian::WritableDatabase * wdb_,
 void
 RemoteServer::initialise()
 {
-#ifndef __WIN32__
     // It's simplest to just ignore SIGPIPE.  We'll still know if the
     // connection dies because we'll get EPIPE back from write().
     if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
 	throw Xapian::NetworkError("Couldn't set SIGPIPE to SIG_IGN", errno);
-#endif
 
     // Send greeting message.
     string message;
     message += char(XAPIAN_REMOTE_PROTOCOL_VERSION);
     message += encode_length(db->get_doccount());
-    message += encode_length(db->get_lastdocid());
     message += (db->has_positions() ? '1' : '0');
     message += serialise_double(db->get_avlength());
     send_message(REPLY_GREETING, message);
@@ -247,7 +244,6 @@ RemoteServer::msg_update(const string &)
     db->reopen();
 
     string message = encode_length(db->get_doccount());
-    message += encode_length(db->get_lastdocid());
     message += (db->has_positions() ? '1' : '0');
     message += serialise_double(db->get_avlength());
     send_message(REPLY_UPDATE, message);

@@ -2,8 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,11 +28,8 @@
 #include <vector>
 
 #include <xapian.h>
-
-#include "backendmanager.h"
 #include "testsuite.h"
 #include "testutils.h"
-#include "unixcmds.h"
 #include "utils.h"
 
 #include "apitest.h"
@@ -46,7 +42,7 @@ using namespace std;
 static Xapian::Query
 query(const string &t)
 {
-    return Xapian::Query(Xapian::Stem("english")(t));
+    return Xapian::Query(Xapian::Stem("english").stem_word(t));
 }
 
 // #######################################################################
@@ -71,9 +67,6 @@ static bool test_termstats()
 // check that stubdbs work
 static bool test_stubdb1()
 {
-#ifdef __WIN32__
-    SKIP_TEST("prog variant of remote backend not currently supported under Windows");
-#endif
     ofstream out("stubdb1");
     TEST(out.is_open());
     // FIXME: not very reliable...
@@ -747,7 +740,7 @@ static bool test_specialterms1()
     Xapian::MSetIterator m;
     Xapian::Stem stemmer("english");
 
-    enquire.set_query(stemmer("new\nline"));
+    enquire.set_query(stemmer.stem_word("new\nline"));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
@@ -766,7 +759,7 @@ static bool test_specialterms1()
 	}
     }
 
-    enquire.set_query(stemmer(string("big\0zero", 8)));
+    enquire.set_query(stemmer.stem_word(string("big\0zero", 8)));
     mymset = enquire.get_mset(0, 10);
     TEST_MSET_SIZE(mymset, 1);
     count = 0;
@@ -898,6 +891,8 @@ static bool test_multiexpand1()
 static bool test_postlist1()
 {
     Xapian::Database db(get_database("apitest_simpledata"));
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.postlist_begin(""));
 
     TEST_EQUAL(db.postlist_begin("rosebud"), db.postlist_end("rosebud"));
 
@@ -1275,74 +1270,6 @@ static bool test_sortrel1()
     return true;
 }
 
-// Test network stats and local stats give the same results.
-static bool test_netstats1()
-{
-    BackendManager local_manager;
-#if defined XAPIAN_HAS_FLINT_BACKEND
-    local_manager.set_dbtype("flint");
-#elif defined XAPIAN_HAS_QUARTZ_BACKEND
-    local_manager.set_dbtype("quartz");
-#else
-    SKIP_TEST("No suitable local database backend enabled");
-#endif
-    local_manager.set_datadir(test_driver::get_srcdir() + "/testdata/");
-
-    const char * words[] = { "paragraph", "word" };
-    Xapian::Query query(Xapian::Query::OP_OR, words, words + 2);
-    const size_t MSET_SIZE = 10;
-
-    Xapian::RSet rset;
-    rset.add_document(4);
-    rset.add_document(9);
-
-    Xapian::MSet mset_alllocal;
-    {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	mset_alllocal = enq.get_mset(0, MSET_SIZE, &rset);
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(local_manager.get_database("apitest_simpledata"));
-	db.add_database(get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(get_database("apitest_simpledata"));
-	db.add_database(local_manager.get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
-    }
-
-    {
-	Xapian::Database db;
-	db.add_database(get_database("apitest_simpledata"));
-	db.add_database(get_database("apitest_simpledata2"));
-
-	Xapian::Enquire enq(db);
-	enq.set_query(query);
-	Xapian::MSet mset = enq.get_mset(0, MSET_SIZE, &rset);
-	TEST_EQUAL(mset, mset_alllocal);
-    }
-
-    return true;
-}
-
 // Coordinate matching - scores 1 for each matching term
 class MyWeight : public Xapian::Weight {
     public:
@@ -1468,7 +1395,6 @@ test_desc remotedb_tests[] = {
     {"termstats",	   test_termstats},
     {"sortvalue1",	   test_sortvalue1},
     {"sortrel1",	   test_sortrel1},
-    {"netstats1",	   test_netstats1},
     {0, 0}
 };
 

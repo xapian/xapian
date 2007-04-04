@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
-exampledatadir = $(docdir)/csharp/examples
+exampledatadir = $(datadir)/doc/$(PACKAGE)/csharp/examples
 dist_exampledata_DATA = examples/SimpleSearch.cs examples/SimpleIndex.cs
 
-docdatadir = $(docdir)/csharp
+docdatadir = $(datadir)/doc/$(PACKAGE)/csharp
 dist_docdata_DATA = bindings.html

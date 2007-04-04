@@ -1,7 +1,5 @@
 ## Process this file with automake to produce Makefile.in
 
-AUTOMAKE_OPTIONS = 1.5 subdir-objects
-
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
  -I$(top_builddir)/include -I$(srcdir)/harness
 
@@ -9,10 +7,16 @@ TESTS_ENVIRONMENT = ./runtest
 
 .PHONY: check-remote check-flint check-quartz
 
+SUBDIRS = harness
+
 if BUILD_BACKEND_REMOTE
-check-remote: apitest$(EXEEXT)
+check-remote: remotetest$(EXEEXT) apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./remotetest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remote
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+
+remote_check_programs = remotetest
+remote_tests = remotetest$(EXEEXT)
 endif
 
 if BUILD_BACKEND_FLINT
@@ -28,20 +32,15 @@ check-quartz: btreetest$(EXEEXT) quartztest$(EXEEXT) apitest$(EXEEXT)
 
 quartz_check_programs = btreetest quartztest
 quartz_tests= btreetest$(EXEEXT) quartztest$(EXEEXT)
-
-# Only quartztest and btreetest need this, but if we put it in INCLUDES
-# then we can use the same objects for the testsuite harness for all
-# test programs.
-INCLUDES += -I$(top_srcdir)/backends/quartz
 endif
 
 ## Test programs to be run
-TESTS = $(quartz_tests) \
+TESTS = $(quartz_tests) $(remote_tests) \
  apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
  queryparsertest$(EXEEXT)
 
 ## Programs to build
-check_PROGRAMS = $(quartz_check_programs) \
+check_PROGRAMS = $(quartz_check_programs) $(remote_check_programs) \
  apitest internaltest stemtest queryparsertest
 
 # Make sure runtest is up to date before running tests
@@ -53,29 +52,36 @@ noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h api_wrdb.h \
  api_anydb.h api_transdb.h
 
 apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc api_wrdb.cc \
- api_anydb.cc api_transdb.cc $(testharness_sources)
+ api_anydb.cc api_transdb.cc
 apitest_LDFLAGS = @ldflags@
-apitest_LDADD = ../libgetopt.la ../libxapian.la
+apitest_LDADD = harness/libharness.la ../libxapian.la
 
-stemtest_SOURCES = stemtest.cc $(testharness_sources)
+stemtest_SOURCES = stemtest.cc
 stemtest_LDFLAGS = @ldflags@
-stemtest_LDADD = ../libgetopt.la ../libxapian.la
+stemtest_LDADD = harness/libharness.la ../libxapian.la
 
-internaltest_SOURCES = internaltest.cc $(testharness_sources)
+internaltest_SOURCES = internaltest.cc
 internaltest_LDFLAGS = @ldflags@
-internaltest_LDADD = ../libgetopt.la ../libxapian.la
+internaltest_LDADD = harness/libharness.la ../libxapian.la
 
-btreetest_SOURCES = btreetest.cc $(testharness_sources)
+btreetest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
+btreetest_SOURCES = btreetest.cc
 btreetest_LDFLAGS = @ldflags@
-btreetest_LDADD = ../libgetopt.la ../libquartzcheck.la ../libxapian.la
+btreetest_LDADD = harness/libharness.la \
+	../backends/quartz/libbtreecheck.la ../libxapian.la
 
-quartztest_SOURCES = quartztest.cc $(testharness_sources)
+quartztest_CXXFLAGS = -I$(top_srcdir)/backends/quartz
+quartztest_SOURCES = quartztest.cc
 quartztest_LDFLAGS = @ldflags@
-quartztest_LDADD = ../libgetopt.la ../libxapian.la
+quartztest_LDADD = harness/libharness.la ../libxapian.la
 
-queryparsertest_SOURCES = queryparsertest.cc $(testharness_sources)
+remotetest_SOURCES = remotetest.cc
+remotetest_LDFLAGS = @ldflags@
+remotetest_LDADD = harness/libharness.la ../libxapian.la
+
+queryparsertest_SOURCES = queryparsertest.cc
 queryparsertest_LDFLAGS = @ldflags@
-queryparsertest_LDADD = ../libgetopt.la ../libxapian.la
+queryparsertest_LDADD = harness/libharness.la ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST = runtest.in \
@@ -100,6 +106,4 @@ EXTRA_DIST = runtest.in \
 	     testdata/btreetest_ordnum-
 
 clean-local:
-	rm -rf .flint .quartz .quartztmp .btreetmp
-
-include harness/Makefile.mk
+	rm -rf .da .daflimsy .db .dbflimsy .flint .quartz .quartztmp .btreetmp

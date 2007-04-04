@@ -1,0 +1,149 @@
+README for Xapian/Visual C++ Tools
+==================================
+2007-02-28
+
+Make files, some extra headers and associated tools for compiling Xapian on Win32 using
+the Microsoft Visual C++ compilers. This is particularly useful if you're using the 
+Python for Windows binary distribution as this is also compiled with Visual C++; otherwise 
+the only way to make the Python bindings work is to recompile Python with Cygwin (Xapian 
+compiles happily with Cygwin as standard).
+
+The project was started by Ulrik Petersen (<ulrikp(write.the.sign.here)users.sourceforge|do-t|org>) 
+and continued by Charlie Hull of Lemur Consulting who is intending to maintain it. 
+
+If you have any feedback, bug reports or comments about these files,
+please DO NOT contact Ulrik, but please contact us at Lemur Consulting 
+www.lemurconsulting.com
+
+What works?
+===========
+
+- The following backends:
+  - quartz
+  - flint
+  - inmemory
+  - multi
+
+- The Python bindings
+- The quartz binaries quartzcheck, quartzcompact, quartzdump
+- The xapian-compact binary
+- The Xapian example binaries
+- The libtest.lib and libbtreecheck libraries
+- The various tests that use the above, which are run as part of the makefile in tests/
+- Omega, Omindex and Scriptindex
+
+What doesn't work?
+==================
+
+- The following backends
+   - remote
+(libnet.lib can't be compiled under Microsoft's compiler, simply because there
+is way too much Unix in there for it to be ported easily to Win32. 
+Hence, the remote backend can't be compiled.)
+
+- Any other bindings
+
+- Warning: unlike Unix, windows does not usually allow open files to be
+  deleted.  This caused a serious problem with releases of Xapian on
+  Windows before version 0.9.10, potentially leading to database
+  corruption.  This is believed to be fixed in version 0.9.10, but there
+  remains a restriction that you must close databases before deleting the
+  folder (and the files in the folder) containing the database.  We do not
+  expect this restriction to be lifted in future releases - equally, we do
+  not expect it to cause serious problems.
+
+TODOS
+=====
+
+Other bindings
+Rewrite the libnet stuff and thus the remote backend
+
+How do I install the sources?
+=============================
+
+1. Download and install Xapian, the Xapian bindings and Omega to the same folder. You should have a structure like this (the top level
+folder doesn't have to be called 'xapian').
+
+xapian\
+xapian\xapian-core-0.x.y
+xapian\xapian-bindings-0.x.y
+xapian\omega-0.x.y
+
+where x and y are revision numbers. If you are building from SVN-HEAD, you will have a slightly different structure:
+
+xapian\xapian-core
+xapian\xapian-bindings
+xapian\xapian-applications
+
+
+2. Download win32.zip for the appropriate Xapian release from Lemur Consulting and place in xapian\xapian-core-0.x.y . 
+3. Install your favourite unZIP tool (e.g. from http://www.7-zip.org/). 
+4. Extract the files to the win32/ folder (usually, right click on the ZIP file and select Extract Here). 
+5. IMPORTANT - Edit config.mak to make sure the various individual mak files end up in the right folders, and add the correct paths for any other binding languages. You will also need to edit the  win32_applications_omega.mak and win32_bindings_python.mak files, and the .mak files for any other bindings. Note that all the .mak files in the win32/ folder are automatically copied to the correct places at the beginning of the build process
+
+
+What do I need to compile it?
+=============================
+
+You will need:
+
+- Windows 2000 or later (NT-based; 95/98/ME won't work)
+
+- Visual C++ 7.0 (.Net 2003/2005). In particular:
+  - cl.exe
+  - link.exe
+  - lib.exe
+  - nmake.exe
+
+  OR...
+  
+- You can also compile with 
+Visual C++ Express Edition available free from:
+http://msdn.microsoft.com/vstudio/express/visualc/default.aspx 
+
+In this case you'll also need the Platforms SDK:
+http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
+which contains headers, libs and NMAKE. Make sure once you have installed this that you create LIB and INCLUDE environment variables to point to the appropriate Platform SDK folders, and that the path to the SDK's BIN folder is in your PATH.
+
+- SWIG can be useful for recompiling the bindings, but this is done by the Xapian
+core maintainers, so you shouldn't need to do this.
+
+- To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak.
+
+
+How do I compile it?
+====================
+
+1a) Run vcvars32.bat or equivalent for the C compiler. This may be listed as 'Command Prompt' in the Programs menu entry.
+This will set up the appropriate paths. 
+
+--OR--
+
+1b) Make sure you have the appropriate paths set up for your Visual C++ compiler. 
+
+2) cd to xapian-core-0.x.y\win32 or the appropriate path on your system.
+3) edit config.mak to suit your environment
+4) nmake /f win32.mak CLEAN
+5) nmake /f win32.mak
+
+6) cd to ..\..\xapian-bindings-0.x.y\python 
+7) edit win32.mak to suit your environment (XAPIAN_DIR) if necessary
+8) nmake /f win32.mak 
+
+8) cd to ..\..\omega-0.x.y
+9) edit win32.mak to suit your environment (XAPIAN_DIR) if necessary
+10) nmake /f win32.mak
+
+The binaries end up in xapian-core-0.x.y\win32\Release or \Debug, depending on a setting in config.mak
+
+Debug builds
+===========
+
+To compile Debug builds, you will need to swap some lines in config.mak - these is provided.
+It is also possible to create a project in the Visual C++ Express Edition IDE.
+
+
+Please send any bugfixes to Charlie Hull at Lemur Consulting:
+www.lemurconsulting.com
+
+

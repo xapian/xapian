@@ -1,14 +1,17 @@
 ## Process this file with automake to produce Makefile.in
 
-include ../generic/generic.mk
-
 TESTS_ENVIRONMENT = \
  srcdir="$(srcdir)" LIBTOOL="$(LIBTOOL)" TCLSH="$(TCLSH)" $(srcdir)/run-tcl-test
 
 ## Test programs to be run
 TESTS = smoketest.tcl
 
-EXTRA_DIST = except.i util.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl
+if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
+# This requires GNU make, but apparently that's the default on OS X.
+export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
+endif
+
+EXTRA_DIST = util.i $(TESTS) $(BUILT_SOURCES) run-tcl-test runtest.tcl
 SUBDIRS = docs
 
 tcllibdir = @TCL_LIB@/../xapian@VERSION@
@@ -34,10 +37,8 @@ pkgIndex.tcl: Makefile.am
 	echo 'package ifneeded xapian @VERSION_NO_SNAPSHOT@ [list load [file join $$dir xapian[info sharedlibextension]]]' > pkgIndex.tcl
 
 if MAINTAINER_MODE
-xapian_wrap.cc: $(SWIG_sources) except.i util.i
-	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
-	    -tcl8 -namespace -pkgversion @VERSION_NO_SNAPSHOT@ \
-	    -o xapian_wrap.cc $(SWIG_mainsource)
+xapian_wrap.cc: ../xapian.i util.i
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -tcl8 -namespace -pkgversion @VERSION_NO_SNAPSHOT@ -o $@ $(srcdir)/../xapian.i
 
 CLEANFILES = $(BUILT_SOURCES) pkgIndex.tcl
 else

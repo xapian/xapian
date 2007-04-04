@@ -49,8 +49,6 @@ static void show_usage() {
 "Options:\n"
 "  -d, --db=DIRECTORY  database to search (multiple databases may be specified)\n"
 "  -m, --msize=MSIZE   maximum number of matches to return\n"
-"  -s, --stemmer=LANG  set the stemming language, the default is 'english'\n"
-"                      (pass 'none' to disable stemming)\n"
 "  -h, --help          display this help and exit\n"
 "  -v, --version       output version information and exit\n";
 }
@@ -61,14 +59,12 @@ main(int argc, char **argv)
     static const struct option long_opts[] = {
 	{ "db",		required_argument, 0, 'd' },
 	{ "msize",	required_argument, 0, 'm' },
-	{ "stemmer",	required_argument, 0, 's' },
 	{ "help",	no_argument, 0, 'h' },
 	{ "version",	no_argument, 0, 'v' },
 	{ NULL,		0, 0, 0}
     };
 
     Xapian::SimpleStopper mystopper(sw, sw + sizeof(sw) / sizeof(sw[0]));
-    Xapian::Stem stemmer("english");
     int msize = 10;
 
     bool have_database = false;
@@ -77,7 +73,7 @@ main(int argc, char **argv)
 	Xapian::Database db;
 
 	int c;
-	while ((c = gnu_getopt_long(argc, argv, "hvm:d:s:", long_opts, 0)) != EOF)
+	while ((c = gnu_getopt_long(argc, argv, "hvm:d:", long_opts, 0)) != EOF)
 	{
 	    switch (c) {
 		case 'm':
@@ -86,16 +82,6 @@ main(int argc, char **argv)
 		case 'd':
 		    db.add_database(Xapian::Database(optarg));
 		    have_database = true;
-		    break;
-		case 's':
-		    try {
-			stemmer = Xapian::Stem(optarg);
-		    } catch (const Xapian::Error &) {
-			cerr << "Unknown stemming language '" << optarg << "'.\n";
-			cerr << "Available language names are: "
-			    << Xapian::Stem::get_available_languages() << endl;
-			exit(1);
-		    }
 		    break;
 		case 'v':
 		    cout << PROG_NAME" - "PACKAGE_STRING << endl;
@@ -122,7 +108,7 @@ main(int argc, char **argv)
 	    Xapian::QueryParser parser;
 	    parser.set_database(db);
 	    parser.set_default_op(Xapian::Query::OP_OR);
-	    parser.set_stemmer(stemmer);
+	    parser.set_stemmer(Xapian::Stem("english"));
 	    parser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
 	    parser.set_stopper(&mystopper);
 	    enquire.set_query(parser.parse_query(argv[optind]));

@@ -3,8 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -35,7 +34,6 @@
 
 #include "flint_modifiedpostlist.h"
 #include "flint_postlist.h"
-#include "flint_alldocspostlist.h"
 #include "flint_termlist.h"
 #include "flint_positionlist.h"
 #include "flint_utils.h"
@@ -46,7 +44,7 @@
 #include "flint_lock.h"
 
 #include <sys/types.h>
-#include "safesysstat.h"
+#include <sys/stat.h>
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
@@ -79,7 +77,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	  termlist_table(db_dir, readonly),
 	  value_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
-	  lock(db_dir + "/flintlock")
+	  lock(db_dir + "/flicklock") // FIXME: typo - should be flintlock!
 {
     DEBUGCALL(DB, void, "FlintDatabase", flint_dir << ", " << action <<
 	      ", " << block_size);
@@ -458,15 +456,10 @@ LeafPostList *
 FlintDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "FlintDatabase::do_open_post_list", tname);
+    Assert(!tname.empty());
+
     Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
-
-    if (tname.empty()) {
-	RETURN(new FlintAllDocsPostList(ptrtothis,
-					&termlist_table,
-					get_doccount()));
-    }
-
-    RETURN(new FlintPostList(ptrtothis,
+    return(new FlintPostList(ptrtothis,
 			      &postlist_table,
 			      &positionlist_table,
 			      tname));
@@ -974,13 +967,9 @@ LeafPostList *
 FlintWritableDatabase::do_open_post_list(const string& tname) const
 {
     DEBUGCALL(DB, LeafPostList *, "FlintWritableDatabase::do_open_post_list", tname);
-    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
+    Assert(!tname.empty());
 
-    if (tname.empty()) {
-	RETURN(new FlintAllDocsPostList(ptrtothis,
-					&database_ro.termlist_table,
-					get_doccount()));
-    }
+    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
 
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
     j = mod_plists.find(tname);

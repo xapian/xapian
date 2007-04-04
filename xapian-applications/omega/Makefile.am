@@ -53,11 +53,12 @@ pkglibbin_PROGRAMS = omega
 bin_PROGRAMS = omindex scriptindex
 dist_bin_SCRIPTS = dbi2omega htdig2omega mbox2omega
 
-check_PROGRAMS = htmlparsetest md5test utf8test
-TESTS = htmlparsetest$(EXEEXT) md5test$(EXEEXT) utf8test$(EXEEXT)
+check_PROGRAMS = htmlparsetest
+TESTS = htmlparsetest$(EXEEXT)
 
 # Install documentation.
-dist_doc_DATA = \
+docdatadir   = $(datadir)/doc/omega
+dist_docdata_DATA = \
 	docs/cgiparams.txt \
 	docs/omegascript.txt \
 	docs/overview.txt \
@@ -70,40 +71,25 @@ dist_omegadata_DATA = htdig2omega.script mbox2omega.script
 
 dist_sysconf_DATA = omega.conf
 
-noinst_HEADERS = omega.h query.h cgiparam.h\
+noinst_HEADERS = omega.h query.h cgiparam.h symboltab.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
  gnu_getopt.h commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
- md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
- namedentities.h utf8itor.h tclUniData.h datematchdecider.h sample.h\
- utf8truncate.h
-
-AM_LDFLAGS = $(ICONV_LDFLAGS)
+ md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
- cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc indextext.cc\
- utf8convert.cc utf8itor.cc datematchdecider.cc
+ cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc
 omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
  getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc md5wrap.cc\
- xmlparse.cc metaxmlparse.cc utf8convert.cc utf8itor.cc tclUniData.cc\
- sample.cc
-if NEED_MKDTEMP
-omindex_SOURCES += portability/mkdtemp.cc
-endif
+ xmlparse.cc metaxmlparse.cc
 omindex_LDADD = $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
- getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc utf8convert.cc\
- utf8itor.cc utf8truncate.cc
+ getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
-htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
- utf8convert.cc utf8itor.cc 
-
-md5test_SOURCES = md5test.cc md5wrap.cc md5.cc
-
-utf8test_SOURCES = utf8test.cc utf8itor.cc
+htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc
 
 dist_man_MANS = omindex.1 scriptindex.1
 

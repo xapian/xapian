@@ -83,6 +83,60 @@ WritableDatabase open();
 }
 #endif
 
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
+namespace Muscat36 {
+
+/** Construct a Database object for read-only access to a Muscat36 DA database.
+ *
+ * @param R		pathname for the Record file.
+ * @param T		pathname for the Term file.
+ * @param heavy_duty	true if this DA database is "heavy-duty" (3 byte
+ *			lengths); false if it's "flimsy" (2 byte lengths).
+ */
+Database open_da(const std::string &R, const std::string &T, bool heavy_duty = true);
+
+/** Construct a Database object for read-only access to a Muscat36 DA database.
+ *
+ * This variants allows you to open a DA database with a values file.  Muscat36
+ * didn't support values - support for them was added to Xapian for mostly to
+ * allow testing during early development work.
+ *
+ * @param R		pathname for the Record file.
+ * @param T		pathname for the Term file.
+ * @param values	pathname for the Values file.
+ * @param heavy_duty	true if this DA database is "heavy-duty" (3 byte
+ *			lengths); false if it's "flimsy" (2 byte lengths).
+ */
+Database open_da(const std::string &R, const std::string &T, const std::string &values, bool heavy_duty = true);
+
+/** Construct a Database object for read-only access to a Muscat36 DB database.
+ *
+ * It's easy to tell if a DB database is heavy-duty or flimsy (unlike with a
+ * DA database), so this is automatically detected.
+ *
+ * @param DB		pathname for the DB file.
+ * @param cache_size	size of the Btree block cache.
+ */
+Database open_db(const std::string &DB, size_t cache_size = 30);
+
+/** Construct a Database object for read-only access to a Muscat36 DB database.
+ *
+ * This variants allows you to open a DB database with a values file.  Muscat36
+ * didn't support values - support for them was added to Xapian for mostly to
+ * allow testing during early development work.
+ *
+ * It's easy to tell if a DB database is heavy-duty or flimsy (unlike with a
+ * DA database), so this is automatically detected.
+ *
+ * @param DB		pathname for the DB file.
+ * @param values	pathname for the Values file.
+ * @param cache_size	size of the Btree block cache.
+ */
+Database open_db(const std::string &DB, const std::string &values, size_t cache_size = 30);
+
+}
+#endif
+
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
 namespace Quartz {
 

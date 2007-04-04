@@ -2,8 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Lemur Consulting Ltd
+ * Copyright 2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -44,7 +43,9 @@ Query::add_subquery(const Query & subq)
 {
     DEBUGAPICALL(void, "Xapian::Query::add_subquery", subq);
     Assert(internal.get());
-    internal->add_subquery(subq.internal.get());
+    if (!subq.internal.get())
+	throw InvalidArgumentError("Can't compose a query from undefined queries");
+    internal->add_subquery(*(subq.internal));
 }
 
 /// Add a subquery by pointer
@@ -56,7 +57,9 @@ Query::add_subquery(const Query * subq)
 	throw InvalidArgumentError("Pointer to subquery may not be null");
     }
     Assert(internal.get());
-    internal->add_subquery(subq->internal.get());
+    if (!subq->internal.get())
+	throw InvalidArgumentError("Can't compose a query from undefined queries");
+    internal->add_subquery(*(subq->internal));
 }
 
 /// Add a subquery which is a single term
@@ -65,8 +68,7 @@ Query::add_subquery(const string & tname)
 {
     DEBUGAPICALL(void, "Xapian::Query::add_subquery", tname);
     Assert(internal.get());
-    Query::Internal subqint(tname);
-    internal->add_subquery(&subqint);
+    internal->add_subquery(tname);
 }
 
 /// Setup the internals for the query, with the appropriate operator.
@@ -128,14 +130,6 @@ Query::Query(Query::op op_, Query q) : internal(0)
 	abort_construction();
 	throw;
     }
-}
-
-Query::Query(Query::op op_, Xapian::valueno valno,
-	     const string &begin, const string &end)
-    : internal(new Query::Internal(op_, valno, begin, end))
-{
-    DEBUGAPICALL(void, "Xapian::Query::Query",
-		 op_ << ", " << valno << ", " << begin << ", " << end);
 }
 
 // Copy constructor
@@ -215,9 +209,5 @@ Query::Query(Query::op op_, const std::string & left, const std::string & right)
 	throw;
     }
 }
-
-/* Define static members. */
-Xapian::Query Xapian::Query::MatchAll = Xapian::Query("");
-Xapian::Query Xapian::Query::MatchNothing = Xapian::Query();
 
 }

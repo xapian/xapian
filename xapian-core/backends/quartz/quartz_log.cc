@@ -23,7 +23,6 @@
 #include <config.h>
 
 #include "safeerrno.h"
-#include "safefcntl.h"
 
 #include "quartz_log.h"
 #include "omdebug.h"

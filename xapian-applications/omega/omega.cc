@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 James Aylett
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -45,7 +45,7 @@
 
 using namespace std;
 
-static const char DEFAULT_STEM_LANGUAGE[] = "english";
+static const char * DEFAULT_STEM_LANGUAGE = "english";
 
 Xapian::Enquire * enquire;
 Xapian::Database db;
@@ -74,9 +74,6 @@ int threshold = 0;
 bool sort_numeric = false;
 Xapian::valueno sort_key = Xapian::valueno(-1);
 bool sort_ascending = true;
-bool sort_after = false;
-Xapian::Enquire::docid_order docid_order = Xapian::Enquire::ASCENDING;
-
 Xapian::valueno collapse_key = 0;
 bool collapse = false;
 
@@ -269,10 +266,24 @@ try {
 
     // date range filters
     val = cgi_params.find("START");
+    // DATE1 is the deprecated name - check for backward compatibility
+    if (val == cgi_params.end()) val = cgi_params.find("DATE1");
     if (val != cgi_params.end()) date_start = val->second;
     val = cgi_params.find("END");
+    // DATE2 is the deprecated name - check for backward compatibility
+    if (val == cgi_params.end()) val = cgi_params.find("DATE2");
     if (val != cgi_params.end()) date_end = val->second;
     val = cgi_params.find("SPAN");
+    // DAYSMINUS is the deprecated name - check for backward compatibility
+    if (val == cgi_params.end()) {
+	val = cgi_params.find("DAYSMINUS");
+	if (val != cgi_params.end()) {
+	    // Range used to be DAYSMINUS days before DATE1
+	    // Now it's SPAN days after START or before END
+	    date_end = date_start;
+	    date_start = "";
+	}
+    }
     if (val != cgi_params.end()) date_span = val->second;
 
     filters += date_start + filter_sep + date_end + filter_sep + date_span
@@ -293,24 +304,7 @@ try {
 	if (!v.empty()) {
 	    collapse_key = atoi(v.c_str());
 	    collapse = true;
-	    filters += filter_sep + int_to_string(collapse_key);
-	}
-    }
-
-    // docid order
-    val = cgi_params.find("DOCIDORDER");
-    if (val != cgi_params.end()) {
-	const string & v = val->second;
-	if (!v.empty()) {
-	    char ch = v[0];
-	    if (ch == 'D') {
-		docid_order = Xapian::Enquire::DESCENDING;
-		filters += 'D';
-	    } else if (ch != 'A') {
-		docid_order = Xapian::Enquire::DONT_CARE;
-	    } else {
-		filters += 'X';
-	    }
+	    filters += filter_sep + v;
 	}
     }
 
@@ -329,28 +323,16 @@ try {
 	if (val != cgi_params.end()) {
 	    sort_ascending = (atoi(val->second.c_str()) == 0);
 	}
-	val = cgi_params.find("SORTAFTER");
-	if (val != cgi_params.end()) {
-	    sort_after = (atoi(val->second.c_str()) != 0);
-	}
-	// Add the sorting related options to filters too.
-	filters += int_to_string(sort_key);
-	if (sort_after) {
-	    if (sort_ascending) {
-		filters += 'F';
-	    } else {
-		filters += 'R';
-	    }
-	} else {
-	    if (!sort_ascending) {
-		filters += 'r';
-	    }
-	}
+	// FIXME: add SORT and SORTREVERSE to filters too!  But in a compatible
+	// way ideally...
     }
 
     // min_hits (fill mset past topdoc+(hits_per_page+1) to
     // topdoc+max(hits_per_page+1,min_hits)
     val = cgi_params.find("MINHITS");
+    // In Omega <= 0.6.3, MINHITS was MIN_HITS - renamed to be consistent
+    // with the naming of other CGI parameters.
+    if (val == cgi_params.end()) val = cgi_params.find("MIN_HITS");
     if (val != cgi_params.end()) {
 	min_hits = atol(val->second.c_str());
     }

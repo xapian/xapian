@@ -580,7 +580,7 @@ class RSet {
 	bool contains(Xapian::docid did) const;
 
 	/// Test if a given document in the relevance set.
-	bool contains(const Xapian::MSetIterator & i) const { return contains(*i); }
+	bool contains(const Xapian::MSetIterator & i) { return contains(*i); }
 
 	/** Introspection method.
 	 *
@@ -598,7 +598,7 @@ class MatchDecider {
 	virtual int operator()(const Xapian::Document &doc) const = 0;
 
 	/// Destructor.
-	virtual ~MatchDecider();
+	virtual ~MatchDecider() {}
 };
 
 /** Base class for expand decision functor.
@@ -610,7 +610,7 @@ class ExpandDecider {
 	virtual int operator()(const std::string & tname) const = 0;
 
 	/// Destructor.
-	virtual ~ExpandDecider();
+	virtual ~ExpandDecider() {}
 };
 
 /** This class provides an interface to the information retrieval
@@ -651,7 +651,7 @@ class Enquire {
 	 *	   is deleted.  To use no error handler, this parameter
 	 *	   should be 0.
 	 */
-	explicit Enquire(const Database &database, ErrorHandler * errorhandler_ = 0);
+	Enquire(const Database &databases, ErrorHandler * errorhandler_ = 0);
 
 	/** Close the Xapian::Enquire object.
 	 */
@@ -671,7 +671,7 @@ class Enquire {
 	 *  @exception Xapian::InvalidArgumentError will be thrown if query has
 	 *	       not yet been set.
 	 */
-	const Xapian::Query & get_query() const;
+	const Xapian::Query & get_query();
 
 	/** Set the weighting scheme to use for queries.
 	 *
@@ -705,7 +705,7 @@ class Enquire {
 	 *	you can offer a link to a non-collapsed search restricted to
 	 *	that thread using a boolean filter.
 	 *
-	 *	(default is Xapian::BAD_VALUENO which means no collapsing).
+	 *	(default is Xapian::valueno(-1) which means no collapsing).
 	 */
 	void set_collapse_key(Xapian::valueno collapse_key);
 
@@ -782,7 +782,7 @@ class Enquire {
 	 *
 	 *  set_sorting(ANYTHING, 0) -> set_sort_by_relevance()
 	 *
-	 *  set_sorting(Xapian::BAD_VALUENO, ANYTHING) -> set_sort_by_relevance()
+	 *  set_sorting(Xapian::valueno(-1), ANYTHING) -> set_sort_by_relevance()
 	 */
 	XAPIAN_DEPRECATED(void set_sorting(Xapian::valueno sort_key, int sort_bands,
 			  bool sort_by_relevance = false));
@@ -1050,7 +1050,7 @@ class Weight {
 
     public:
 	Weight() { }
-	virtual ~Weight();
+	virtual ~Weight() { }
 
 	/** Create a new weight object of the same type as this and initialise
 	 *  it with the specified statistics.
@@ -1065,7 +1065,14 @@ class Weight {
 	 *  @param tname_     Term which this object is associated with.
 	 */
 	Weight * create(const Internal * internal_, Xapian::doclength querysize_,
-			Xapian::termcount wqf_, const std::string & tname_) const;
+			  Xapian::termcount wqf_, std::string tname_) const {
+	    Weight * wt = clone();
+	    wt->internal = internal_;
+	    wt->querysize = querysize_;
+	    wt->wqf = wqf_;
+	    wt->tname = tname_;
+	    return wt;
+	}
 
 	/** Name of the weighting scheme.
 	 *
@@ -1112,25 +1119,29 @@ class Weight {
 	virtual Xapian::weight get_maxextra() const = 0;
 
 	/// return false if the weight object doesn't need doclength
-	virtual bool get_sumpart_needs_doclength() const; /* { return true; } */
+	virtual bool get_sumpart_needs_doclength() const { return true; }
 };
 
 /// Boolean weighting scheme (everything gets 0)
 class BoolWeight : public Weight {
     public:
-	BoolWeight * clone() const;
+	BoolWeight * clone() const {
+	    return new BoolWeight;
+	}
 	BoolWeight() { }
-	~BoolWeight();
-	std::string name() const;
-	std::string serialise() const;
-	BoolWeight * unserialise(const std::string & s) const;
-	Xapian::weight get_sumpart(Xapian::termcount wdf, Xapian::doclength len) const;
-	Xapian::weight get_maxpart() const;
+	~BoolWeight() { }
+	std::string name() const { return "Bool"; }
+	std::string serialise() const { return ""; }
+	BoolWeight * unserialise(const std::string & /*s*/) const {
+	    return new BoolWeight;
+	}
+	Xapian::weight get_sumpart(Xapian::termcount /*wdf*/, Xapian::doclength /*len*/) const { return 0; }
+	Xapian::weight get_maxpart() const { return 0; }
 
-	Xapian::weight get_sumextra(Xapian::doclength len) const;
-	Xapian::weight get_maxextra() const;
+	Xapian::weight get_sumextra(Xapian::doclength /*len*/) const { return 0; }
+	Xapian::weight get_maxextra() const { return 0; }
 
-	bool get_sumpart_needs_doclength() const;
+	bool get_sumpart_needs_doclength() const { return false; }
 };
 
 /** BM25 weighting scheme

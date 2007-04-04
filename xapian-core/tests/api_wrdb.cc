@@ -3,8 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Hein Ragas
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Richard Boulton
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -939,106 +938,6 @@ static bool test_uniqueterm1()
     return true;
 }
 
-// tests all document postlists
-static bool test_allpostlist2()
-{
-    Xapian::WritableDatabase db(get_writable_database("apitest_manydocs"));
-    Xapian::PostingIterator i;
-    try {
-	i = db.postlist_begin("");
-    } catch (const Xapian::UnimplementedError & e) {
-	SKIP_TEST("WritableDatabase::replace_document(TERM) not implemented");
-    }
-    unsigned int j = 1;
-    while (i != db.postlist_end("")) {
-	TEST_EQUAL(*i, j);
-	i++;
-	j++;
-    }
-    TEST_EQUAL(j, 513);
-
-    db.delete_document(1);
-    db.delete_document(50);
-    db.delete_document(512);
-
-    i = db.postlist_begin("");
-    j = 2;
-    while (i != db.postlist_end("")) {
-	TEST_EQUAL(*i, j);
-	i++;
-	j++;
-	if (j == 50) j++;
-    }
-    TEST_EQUAL(j, 512);
-
-    i = db.postlist_begin("");
-    j = 2;
-    while (i != db.postlist_end("")) {
-	TEST_EQUAL(*i, j);
-	i++;
-	j++;
-	if (j == 40) {
-	    j += 10;
-	    i.skip_to(j);
-	    j++;
-	}
-    }
-    TEST_EQUAL(j, 512);
-
-    return true;
-}
-
-static void test_emptyterm2_helper(Xapian::WritableDatabase & db)
-{
-    // Don't bother with postlist_begin() because allpostlist tests cover that.
-    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.positionlist_begin(1, ""));
-    TEST_EQUAL(db.get_doccount(), db.get_termfreq(""));
-    TEST_EQUAL(db.get_doccount() != 0, db.term_exists(""));
-    TEST_EQUAL(db.get_doccount(), db.get_collection_freq(""));
-}
-
-// tests results of passing an empty term to various methods
-// equivalent of emptyterm1 for a writable database
-static bool test_emptyterm2()
-{
-    {
-	Xapian::WritableDatabase db(get_writable_database("apitest_manydocs"));
-	try {
-	    (void)db.postlist_begin("");
-	} catch (const Xapian::UnimplementedError & e) {
-	    SKIP_TEST("Database::postlist_begin not implemented");
-	}
-	TEST_EQUAL(db.get_doccount(), 512);
-	test_emptyterm2_helper(db);
-	db.delete_document(1);
-	TEST_EQUAL(db.get_doccount(), 511);
-	test_emptyterm2_helper(db);
-	db.delete_document(50);
-	TEST_EQUAL(db.get_doccount(), 510);
-	test_emptyterm2_helper(db);
-	db.delete_document(512);
-	TEST_EQUAL(db.get_doccount(), 509);
-	test_emptyterm2_helper(db);
-    }
-
-    {
-	Xapian::WritableDatabase db(get_writable_database("apitest_onedoc"));
-	TEST_EQUAL(db.get_doccount(), 1);
-	test_emptyterm2_helper(db);
-	db.delete_document(1);
-	TEST_EQUAL(db.get_doccount(), 0);
-	test_emptyterm2_helper(db);
-    }
-
-    {
-	Xapian::WritableDatabase db(get_writable_database(""));
-	TEST_EQUAL(db.get_doccount(), 0);
-	test_emptyterm2_helper(db);
-    }
-
-    return true;
-}
-
 // Check that PHRASE/NEAR becomes AND if there's no positional info in the
 // database.
 static bool test_phraseorneartoand1()
@@ -1199,70 +1098,6 @@ bool test_consistency2()
     return true;
 }
 
-static bool test_crashrecovery1()
-{
-    const string & dbtype = get_dbtype();
-    string path, base_ext;
-    if (dbtype == "flint") {
-	path = ".flint/dbw";
-	base_ext = ".baseB";
-    } else if (dbtype == "quartz") {
-	path = ".quartz/dbw";
-	base_ext = "_baseB";
-    } else {
-	SKIP_TEST("Test only supported for flint and quartz backends");
-    }
-
-    Xapian::Document doc;
-    {
-	Xapian::WritableDatabase db = get_writable_database("");
-	Xapian::Database dbr(path);
-	TEST_EQUAL(dbr.get_doccount(), 0);
-
-	// Xapian::Database has full set of baseA, no baseB
-
-	db.add_document(doc);
-	db.flush();
-	dbr.reopen();
-	TEST_EQUAL(dbr.get_doccount(), 1);
-
-	// Xapian::Database has full set of baseB, old baseA
-
-	db.add_document(doc);
-	db.flush();
-	dbr.reopen();
-	TEST_EQUAL(dbr.get_doccount(), 2);
-
-	// Xapian::Database has full set of baseA, old baseB
-
-	// Simulate a transaction starting, some of the baseB getting removed,
-	// but then the transaction fails.
-	unlink(path + "/record" + base_ext);
-	unlink(path + "/termlist" + base_ext);
-
-	dbr.reopen();
-	TEST_EQUAL(dbr.get_doccount(), 2);
-    }
-
-    Xapian::WritableDatabase db(path, Xapian::DB_OPEN);
-    // Xapian::Database has full set of baseA, some old baseB
-    Xapian::Database dbr = Xapian::Database(path);
-
-    db.add_document(doc);
-    db.flush();
-    dbr.reopen();
-    TEST_EQUAL(dbr.get_doccount(), 3);
-
-    // Xapian::Database has full set of baseB, old baseA
-
-    db.add_document(doc);
-    db.flush();
-    dbr.reopen();
-    TEST_EQUAL(dbr.get_doccount(), 4);
-
-    return true;
-}
-
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1284,11 +1119,8 @@ test_desc writabledb_tests[] = {
     {"replacedoc4",	   test_replacedoc4},
     {"replacedoc5",	   test_replacedoc5},
     {"uniqueterm1",	   test_uniqueterm1},
-    {"emptyterm2",	   test_emptyterm2},
     {"phraseorneartoand1", test_phraseorneartoand1},
     {"longpositionlist1",  test_longpositionlist1},
-    {"allpostlist2",	   test_allpostlist2},
     {"consistency2",	   test_consistency2},
-    {"crashrecovery1",	   test_crashrecovery1},
     {0, 0}
 };

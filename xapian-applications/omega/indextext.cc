@@ -1,8 +1,8 @@
-/* indextext.cc: tokenise text to produce terms
+/* indextext.cc: split text into terms
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,12 +23,18 @@
 #include <config.h>
 
 #include "indextext.h"
-#include "tclUniData.h"
-#include "utf8itor.h"
+
+#include "symboltab.h"
 
 #include <ctype.h>
 
 using namespace std;
+
+inline static bool
+p_plusminus(unsigned int c)
+{
+    return c == '+' || c == '-';
+}
 
 Xapian::termpos
 index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
@@ -43,64 +49,66 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 	rprefix += ':';
     rprefix += 'R';
 
-    char buf[4];
-
-    Utf8Iterator j(s);
-    const Utf8Iterator s_end;
+    AccentNormalisingItor j(s.begin());
+    const AccentNormalisingItor s_end(s.end());
     while (true) {
-	Utf8Iterator first = j;
-	while (first != s_end && !is_wordchar(*first)) ++first;
+	AccentNormalisingItor first = j;
+	while (first != s_end && !isalnum(static_cast<unsigned char>(*first)))
+	    ++first;
 	if (first == s_end) break;
-	Utf8Iterator last;
+	AccentNormalisingItor last;
 	string term;
-	if (*first < 128 && isupper(*first)) {
+	if (isupper(static_cast<unsigned char>(*first))) {
 	    j = first;
-	    term.append(buf, to_utf8(*j, buf));
-	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && isupper(*j)) {
-		term.append(buf, to_utf8(*j, buf));
-	    }
-	    if (term.length() < 2 || (j != s_end && is_wordchar(*j))) {
+	    term = *j;
+	    while (++j != s_end && *j == '.' && ++j != s_end &&
+		   isupper(static_cast<unsigned char>(*j))) {
+		term += *j;
+	    } 
+	    if (term.length() < 2 ||
+		(j != s_end && isalnum(static_cast<unsigned char>(*j)))) {
 		term = "";
 	    }
 	    last = j;
 	}
 	if (term.empty()) {
 	    j = first;
-	    while (is_wordchar(*j)) {
-		term.append(buf, to_utf8(*j, buf));
+	    while (isalnum(static_cast<unsigned char>(*j))) {
+		term += *j;
 		++j;
 		if (j == s_end) break;
-		if (*j == '&' || *j == '\'') {
-		    Utf8Iterator next = j;
+		if (*j == '&') {
+		    AccentNormalisingItor next = j;
 		    ++next;
-		    if (next == s_end || !is_wordchar(*next)) break;
-		    term += *j;
+		    if (next == s_end ||
+			!isalnum(static_cast<unsigned char>(*next)))
+			break;
+		    term += '&';
 		    j = next;
 		}
 	    }
 	    last = j;
-	    if (j != s_end && (*j == '+' || *j == '-' || *j == '#')) {
+	    if (j != s_end && (*j == '#' || p_plusminus(*j))) {
 		string::size_type len = term.length();
 		if (*j == '#') {
 		    term += '#';
 		    do { ++j; } while (j != s_end && *j == '#');
 		} else {
-		    while (j != s_end && (*j == '+' || *j == '-')) {
-			term.append(buf, to_utf8(*j, buf));
+		    while (j != s_end && p_plusminus(*j)) {
+			term += *j;
 			++j;
 		    }
 		}
-		if (term.size() - len > 3 || (j != s_end && is_wordchar(*j))) {
+		if (term.size() - len > 3 ||
+		    (j != s_end && isalnum(static_cast<unsigned char>(*j)))) {
 		    term.resize(len);
 		} else {
 		    last = j;
 		}
 	    }
 	}
-	j = last;
-
 	if (term.length() <= MAX_PROB_TERM_LENGTH) {
-	    term = U_downcase_term(term);
+	    lowercase_term(term);
 	    if (isupper(static_cast<unsigned char>(*first))) {
 		if (pos != static_cast<Xapian::termpos>(-1)
 			// Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()
@@ -111,7 +119,7 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 		}
 	    }
 
-	    term = stemmer(term);
+	    term = stemmer.stem_word(term);
 	    if (pos != static_cast<Xapian::termpos>(-1)
 		    // Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()
 	       ) {

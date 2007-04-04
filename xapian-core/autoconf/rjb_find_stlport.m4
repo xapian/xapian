@@ -15,7 +15,7 @@ AC_MSG_CHECKING([whether to use STLport])
 AC_ARG_WITH(stlport-compiler,
 [  --with-stlport-compiler=name  Set name of compiler to use with STLport],
 [case "${withval}" in
-  yes) AC_MSG_ERROR([Can't set STLport compiler to yes]) ;;
+  no)  AC_MSG_ERROR([Can't set STLport compiler to yes]) ;;
   no)  AC_MSG_ERROR([Can't set STLport compiler to no]) ;;
   *)   use_stlport=yes ;
        STLPORT_COMPILER="${withval}" ;;

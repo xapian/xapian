@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2006,2007 Olly Betts
+ * Copyright 2002,2003,2006 Olly Betts
  * Copyright 2006 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -31,15 +31,12 @@
 using namespace std;
 
 #include <xapian.h>
-
-#include "autoptr.h"
 #include "testsuite.h"
 #include "omstringstream.h"
 
 #include "serialise.h"
 #include "serialise-double.h"
 #include "omqueryinternal.h"
-#include "utils.h"
 
 static bool test_except1()
 {
@@ -143,44 +140,6 @@ static bool test_refcnt2()
     return true;
 }
 
-// Class for testing AutoPtr<>.
-class test_autoptr {
-    bool &deleted;
-  public:
-    test_autoptr(bool &deleted_) : deleted(deleted_) {
-	tout << "test_autoptr constructor\n";
-    }
-    ~test_autoptr() {
-	deleted = true;
-	tout << "test_autoptr destructor\n";
-    }
-};
-
-// Test autoptr self-assignment.
-static bool test_autoptr1()
-{
-    bool deleted = false;
-
-    test_autoptr * raw_ptr = new test_autoptr(deleted);
-    {
-	AutoPtr<test_autoptr> ptr(raw_ptr);
-
-	TEST_EQUAL(ptr.get(), raw_ptr);
-
-	TEST(!deleted);
-
-	ptr = ptr;
-
-	TEST_EQUAL(ptr.get(), raw_ptr);
-
-	TEST(!deleted);
-    }
-
-    TEST(deleted);
-    
-    return true;
-}
-
 // test string comparisions
 static bool test_stringcomp1()
 {
@@ -227,32 +186,6 @@ static bool test_omstringstream1()
     om_ostringstream oss;
     oss << "foo" << 4 << "bar";
     TEST_EQUAL(oss.str(), "foo4bar");
-
-    return true;
-}
-
-static bool test_tostring1()
-{
-    TEST_EQUAL(om_tostring(0), "0");
-    TEST_EQUAL(om_tostring(10), "10");
-    TEST_EQUAL(om_tostring(10u), "10");
-    TEST_EQUAL(om_tostring(-10), "-10");
-    TEST_EQUAL(om_tostring(0xffffffff), "4294967295");
-    TEST_EQUAL(om_tostring(0x7fffffff), "2147483647");
-    TEST_EQUAL(om_tostring(0x7fffffffu), "2147483647");
-    TEST_EQUAL(om_tostring(-0x7fffffff), "-2147483647");
-
-#ifdef __WIN32__
-    /* Test the 64 bit integer conversion to string.
-     * (Currently only exists for windows.)
-     */
-    TEST_EQUAL(om_tostring(10ll), "10");
-    TEST_EQUAL(om_tostring(-10ll), "-10");
-    TEST_EQUAL(om_tostring(0x200000000ll), "8589934592");
-// We don't currently have an "unsigned long long" version since it's not required
-// anywhere in the library.
-//    TEST_EQUAL(om_tostring(0x200000000ull), "8589934592");
-#endif
 
     return true;
 }
@@ -350,17 +283,15 @@ static bool test_serialisedoc1()
 
     return true;
 }
+#endif
 
 // Check serialisation of queries.
 static bool test_serialisequery1()
 {
     string s;
     list<Xapian::Query> queries;
-
+    
     queries.push_back(Xapian::Query("foo"));
-
-    // Regression test for bug in 0.9.10 and earlier.
-    queries.push_back(Xapian::Query("foo", 1, 1));
 
     queries.push_back(Xapian::Query(Xapian::Query::OP_OR,
                                     Xapian::Query("foo", 1, 1),
@@ -370,11 +301,20 @@ static bool test_serialisequery1()
     queries.push_back(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
 
     list<Xapian::Query>::const_iterator query;
-    for (query = queries.begin(); query != queries.end(); query++) {
+    for(query = queries.begin(); query != queries.end(); query++) {
         Xapian::Query::Internal * qint;
 
-	s = query->internal->serialise();
-	qint = Xapian::Query::Internal::unserialise(s);
+        try {
+            s = query->internal->serialise();
+        } catch (const Xapian::InternalError & e) {
+            SKIP_TEST("query serialisation not compiled in");
+        }
+
+        try {
+            qint = Xapian::Query::Internal::unserialise(s);
+        } catch (const Xapian::InternalError & e) {
+            SKIP_TEST("query unserialisation not compiled in");
+        }
 
         TEST(qint->serialise() == s);
         delete qint;
@@ -382,7 +322,6 @@ static bool test_serialisequery1()
 
     return true;
 }
-#endif
 
 // By default Sun's C++ compiler doesn't call the destructor on a
 // temporary object until the end of the block (contrary to what
@@ -418,17 +357,15 @@ test_desc tests[] = {
     {"exception1",              test_exception1},
     {"refcnt1",			test_refcnt1},
     {"refcnt2",			test_refcnt2},
-    {"autoptr1",		test_autoptr1},
     {"stringcomp1",		test_stringcomp1},
     {"temporarydtor1",		test_temporarydtor1},
     {"omstringstream1",		test_omstringstream1},
-    {"tostring1",		test_tostring1},
     {"serialisedouble1",	test_serialisedouble1},
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     {"serialiselength1",	test_serialiselength1},
     {"serialisedoc1",		test_serialisedoc1},
-    {"serialisequery1",		test_serialisequery1},
 #endif
+    {"serialisequery1",		test_serialisequery1},
     {0, 0}
 };
 

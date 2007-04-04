@@ -1,7 +1,7 @@
 /** @file remoteprotocol.h
  *  @brief Remote protocol version and message numbers
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,9 +24,7 @@
 // Versions:
 // 21: Overhauled remote backend supporting WritableDatabase
 // 22: Lossless double serialisation
-// 23: Support get_lastdocid() on remote databases
-// 24: Support for OP_VALUE_RANGE in query serialisation
-#define XAPIAN_REMOTE_PROTOCOL_VERSION 24
+#define XAPIAN_REMOTE_PROTOCOL_VERSION 22
 
 /// Message types (client -> server).
 enum message_type {

@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,8 +43,8 @@ static bool test_near1()
     // make a query
     vector<Xapian::Query> subqs;
     Xapian::Query q;
-    subqs.push_back(Xapian::Query(stemmer("phrase")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -53,8 +53,8 @@ static bool test_near1()
     mset_expect_order(mymset);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("phrase")));
-    subqs.push_back(Xapian::Query(stemmer("near")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -63,8 +63,8 @@ static bool test_near1()
     mset_expect_order(mymset, 3);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("phrase")));
-    subqs.push_back(Xapian::Query(stemmer("near")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 3);
     enquire.set_query(q);
 
@@ -73,8 +73,8 @@ static bool test_near1()
     mset_expect_order(mymset, 1, 3);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("phrase")));
-    subqs.push_back(Xapian::Query(stemmer("near")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 5);
     enquire.set_query(q);
 
@@ -83,8 +83,8 @@ static bool test_near1()
     mset_expect_order(mymset, 1, 3);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("phrase")));
-    subqs.push_back(Xapian::Query(stemmer("near")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 6);
     enquire.set_query(q);
 
@@ -93,9 +93,9 @@ static bool test_near1()
     mset_expect_order(mymset, 1, 2, 3);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 3);
     enquire.set_query(q);
 
@@ -104,9 +104,9 @@ static bool test_near1()
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 4);
     enquire.set_query(q);
 
@@ -115,9 +115,9 @@ static bool test_near1()
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 5);
     enquire.set_query(q);
 
@@ -126,9 +126,9 @@ static bool test_near1()
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 6);
     enquire.set_query(q);
 
@@ -137,9 +137,9 @@ static bool test_near1()
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 7);
     enquire.set_query(q);
 
@@ -148,9 +148,9 @@ static bool test_near1()
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 8);
     enquire.set_query(q);
 
@@ -159,9 +159,9 @@ static bool test_near1()
     mset_expect_order(mymset, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     // test really large window size
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 999999999);
     enquire.set_query(q);
@@ -185,9 +185,9 @@ static bool test_near2()
     vector<Xapian::Query> subqs;
     Xapian::Query q;
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
-    subqs.push_back(Xapian::Query(stemmer("and")));
+			    Xapian::Query(stemmer.stem_word("phrase")),
+			    Xapian::Query(stemmer.stem_word("near"))));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("and")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -197,9 +197,9 @@ static bool test_near2()
 
     subqs.clear();
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
-    subqs.push_back(Xapian::Query(stemmer("operator")));
+			    Xapian::Query(stemmer.stem_word("phrase")),
+			    Xapian::Query(stemmer.stem_word("near"))));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("operator")));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -208,10 +208,10 @@ static bool test_near2()
     mset_expect_order(mymset, 2);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("operator")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("operator")));
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
+			    Xapian::Query(stemmer.stem_word("phrase")),
+			    Xapian::Query(stemmer.stem_word("near"))));
     q = Xapian::Query(Xapian::Query::OP_NEAR, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -233,8 +233,8 @@ static bool test_phrase1()
     // make a query
     vector<Xapian::Query> subqs;
     Xapian::Query q;
-    subqs.push_back(Xapian::Query(stemmer("phrase")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -243,8 +243,8 @@ static bool test_phrase1()
     mset_expect_order(mymset);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("phrase")));
-    subqs.push_back(Xapian::Query(stemmer("near")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -253,8 +253,8 @@ static bool test_phrase1()
     mset_expect_order(mymset);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("phrase")));
-    subqs.push_back(Xapian::Query(stemmer("near")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 3);
     enquire.set_query(q);
 
@@ -263,8 +263,8 @@ static bool test_phrase1()
     mset_expect_order(mymset, 1);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("phrase")));
-    subqs.push_back(Xapian::Query(stemmer("near")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 5);
     enquire.set_query(q);
 
@@ -273,8 +273,8 @@ static bool test_phrase1()
     mset_expect_order(mymset, 1);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("phrase")));
-    subqs.push_back(Xapian::Query(stemmer("near")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("phrase")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("near")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 6);
     enquire.set_query(q);
 
@@ -283,9 +283,9 @@ static bool test_phrase1()
     mset_expect_order(mymset, 1, 2);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 3);
     enquire.set_query(q);
 
@@ -294,9 +294,9 @@ static bool test_phrase1()
     mset_expect_order(mymset, 4);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 4);
     enquire.set_query(q);
 
@@ -305,9 +305,9 @@ static bool test_phrase1()
     mset_expect_order(mymset, 4);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 5);
     enquire.set_query(q);
 
@@ -316,9 +316,9 @@ static bool test_phrase1()
     mset_expect_order(mymset, 4);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 6);
     enquire.set_query(q);
 
@@ -327,9 +327,9 @@ static bool test_phrase1()
     mset_expect_order(mymset, 4);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 7);
     enquire.set_query(q);
 
@@ -338,9 +338,9 @@ static bool test_phrase1()
     mset_expect_order(mymset, 4);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 8);
     enquire.set_query(q);
 
@@ -350,9 +350,9 @@ static bool test_phrase1()
 
     // test really large window size
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("leave")));
-    subqs.push_back(Xapian::Query(stemmer("fridge")));
-    subqs.push_back(Xapian::Query(stemmer("on")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("leave")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("fridge")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("on")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 999999999);
     enquire.set_query(q);
 
@@ -362,9 +362,9 @@ static bool test_phrase1()
 
     // regression test (was matching doc 15, should fail)
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("first")));
-    subqs.push_back(Xapian::Query(stemmer("second")));
-    subqs.push_back(Xapian::Query(stemmer("third")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("first")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("second")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("third")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 9);
     enquire.set_query(q);
 
@@ -374,9 +374,9 @@ static bool test_phrase1()
 
     // regression test (should match doc 15, make sure still does with fix)
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("first")));
-    subqs.push_back(Xapian::Query(stemmer("second")));
-    subqs.push_back(Xapian::Query(stemmer("third")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("first")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("second")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("third")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 10);
     enquire.set_query(q);
 
@@ -387,8 +387,8 @@ static bool test_phrase1()
     // regression test (phrase matching was getting order wrong when
     // build_and_tree reordered vector of PostLists)
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("milk")));
-    subqs.push_back(Xapian::Query(stemmer("rare")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("milk")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("rare")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -399,8 +399,8 @@ static bool test_phrase1()
     // regression test (phrase matching was getting order wrong when
     // build_and_tree reordered vector of PostLists)
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("rare")));
-    subqs.push_back(Xapian::Query(stemmer("milk")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("rare")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("milk")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -423,9 +423,9 @@ static bool test_phrase2()
     vector<Xapian::Query> subqs;
     Xapian::Query q;
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
-    subqs.push_back(Xapian::Query(stemmer("and")));
+			    Xapian::Query(stemmer.stem_word("phrase")),
+			    Xapian::Query(stemmer.stem_word("near"))));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("and")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -435,9 +435,9 @@ static bool test_phrase2()
 
     subqs.clear();
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
-    subqs.push_back(Xapian::Query(stemmer("operator")));
+			    Xapian::Query(stemmer.stem_word("phrase")),
+			    Xapian::Query(stemmer.stem_word("near"))));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("operator")));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -446,10 +446,10 @@ static bool test_phrase2()
     mset_expect_order(mymset, 2);
 
     subqs.clear();
-    subqs.push_back(Xapian::Query(stemmer("operator")));
+    subqs.push_back(Xapian::Query(stemmer.stem_word("operator")));
     subqs.push_back(Xapian::Query(Xapian::Query::OP_AND,
-			    Xapian::Query(stemmer("phrase")),
-			    Xapian::Query(stemmer("near"))));
+			    Xapian::Query(stemmer.stem_word("phrase")),
+			    Xapian::Query(stemmer.stem_word("near"))));
     q = Xapian::Query(Xapian::Query::OP_PHRASE, subqs.begin(), subqs.end(), 2);
     enquire.set_query(q);
 
@@ -466,8 +466,8 @@ static bool test_poslist1()
     Xapian::Database mydb(get_database("apitest_poslist"));
 
     Xapian::Stem stemmer("english");
-    string term = stemmer("sponge");
-
+    string term = stemmer.stem_word("sponge");
+    
     Xapian::PositionIterator pli = mydb.positionlist_begin(2, term);
 
     TEST(pli != mydb.positionlist_end(2, term));

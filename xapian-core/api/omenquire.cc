@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -47,11 +47,7 @@
 using namespace std;
 
 namespace Xapian {
-
-MatchDecider::~MatchDecider() { }
-
-ExpandDecider::~ExpandDecider() { }
-
+   
 ExpandDeciderFilterTerms::ExpandDeciderFilterTerms(TermIterator terms,
 						   TermIterator termsend)
     : tset(terms, termsend)
@@ -641,9 +637,9 @@ MSetIterator::get_description() const
 // Methods for Xapian::Enquire::Internal
 
 Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
-  : db(db_), query(), collapse_key(Xapian::BAD_VALUENO),
+  : db(db_), query(), collapse_key(Xapian::valueno(-1)),
     order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
-    sort_key(Xapian::BAD_VALUENO), sort_by(REL), sort_value_forward(true),
+    sort_key(Xapian::valueno(-1)), sort_by(REL), sort_value_forward(true),
     bias_halflife(0), bias_weight(0), errorhandler(errorhandler_), weight(0)
 {
 }
@@ -895,7 +891,7 @@ Enquire::set_query(const Query & query, termcount len)
 }
 
 const Query &
-Enquire::get_query() const
+Enquire::get_query()
 {
     DEBUGAPICALL(const Xapian::Query &, "Xapian::Enquire::get_query", "");
     try {
@@ -978,7 +974,7 @@ Enquire::set_sorting(Xapian::valueno sort_key, int sort_bands,
     if (sort_bands > 1) {
 	throw Xapian::UnimplementedError("sort bands are no longer supported");
     }
-    if (sort_bands == 0 || sort_key == Xapian::BAD_VALUENO) {
+    if (sort_bands == 0 || sort_key == Xapian::valueno(-1)) {
 	Enquire::set_sort_by_relevance();
     } else if (!sort_by_relevance) {
 	Enquire::set_sort_by_value(sort_key);

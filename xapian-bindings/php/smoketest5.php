@@ -1,7 +1,7 @@
 <?php
 /* PHP5 specific tests.
  *
- * Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,7 +36,7 @@ try {
     exit(1);
 } catch (Exception $e) {
     if ($e->getMessage() !== "DocNotFoundError: Docid 2 not found") {
-	print "DocNotFoundError Exception string not as expected, got: '$e->getMessage()'\n";
+	print "Exception string not as expected, got: '$e->getMessage()'\n";
 	exit(1);
     }
 }
@@ -49,7 +49,7 @@ try {
     exit(1);
 } catch (Exception $e) {
     if ($e->getMessage() !== "QueryParserError: Syntax: <expression> AND <expression>") {
-	print "QueryParserError Exception string not as expected, got: '$e->getMessage()'\n";
+	print "Exception string not as expected, got: '$e->getMessage()'\n";
 	exit(1);
     }
 }

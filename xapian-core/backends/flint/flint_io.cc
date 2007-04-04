@@ -1,7 +1,7 @@
 /** @file flint_io.cc
  * @brief Wrappers for low-level POSIX I/O routines.
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,11 +21,19 @@
 #include <config.h>
 
 #include "safeerrno.h"
-#include "safeunistd.h"
 
 #include <xapian/error.h>
 
 #include "flint_io.h"
+
+#include <unistd.h>
+
+#ifdef __WIN32__
+# ifdef _MSC_VER
+// MSVC needs this to get SSIZE_T defined.
+#  include "safewindows.h"
+# endif
+#endif
 
 size_t flint_io_read(int fd, char * p, size_t n, size_t min)
 {

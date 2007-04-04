@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
  *
@@ -61,16 +61,9 @@
 
 using namespace std;
 
-const Xapian::Enquire::Internal::sort_setting REL =
-	Xapian::Enquire::Internal::REL;
-const Xapian::Enquire::Internal::sort_setting REL_VAL =
-	Xapian::Enquire::Internal::REL_VAL;
-const Xapian::Enquire::Internal::sort_setting VAL =
-	Xapian::Enquire::Internal::VAL;
-#if 0 // VAL_REL isn't currently used which causes a warning with SGI CC.
-const Xapian::Enquire::Internal::sort_setting VAL_REL =
-	Xapian::Enquire::Internal::VAL_REL;
-#endif
+#define REL	Xapian::Enquire::Internal::REL
+#define REL_VAL	Xapian::Enquire::Internal::REL_VAL
+#define VAL	Xapian::Enquire::Internal::VAL
 
 ////////////////////////////////////
 // Initialisation and cleaning up //
@@ -96,8 +89,7 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  sort_key(sort_key_), sort_by(sort_by_),
 	  sort_value_forward(sort_value_forward_),
 	  bias_halflife(bias_halflife_), bias_weight(bias_weight_),
-	  errorhandler(errorhandler_), weight(weight_),
-	  is_remote(db.internal.size())
+	  errorhandler(errorhandler_), weight(weight_)
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
 	      qlen << ", " <<
@@ -132,9 +124,12 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	}
     }
 
-    Assert(subrsets.size() == db.internal.size());
-    for (size_t i = 0; i != db.internal.size(); ++i) {
-	Xapian::Database::Internal *subdb = db.internal[i].get();
+    vector<Xapian::RSet>::const_iterator subrset = subrsets.begin();
+
+    vector<Xapian::Internal::RefCntPtr<Xapian::Database::Internal> >::const_iterator i;
+    for (i = db.internal.begin(); i != db.internal.end(); ++i) {
+	Assert(subrset != subrsets.end());
+	Xapian::Database::Internal *subdb = (*i).get();
 	Assert(subdb);
 	Xapian::Internal::RefCntPtr<SubMatch> smatch;
 	try {
@@ -142,20 +137,17 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
 	    if (rem_db) {
-		is_remote[i] = true;
 		if (bias_halflife) {
 		    throw Xapian::UnimplementedError("bias_halflife and bias_weight not supported with remote backend");
 		}
 		rem_db->set_query(query, qlen, collapse_key, order, sort_key,
 				  sort_by, sort_value_forward, percent_cutoff,
-				  weight_cutoff, weight, subrsets[i]);
-		bool decreasing_relevance =
-		    (sort_by == REL || sort_by == REL_VAL);
+				  weight_cutoff, weight, *subrset);
 		smatch = new RemoteSubMatch(rem_db, gatherer.get(),
-					    decreasing_relevance);
+					    sort_by != REL && sort_by != REL_VAL);
 	    } else {
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
-		smatch = new LocalSubMatch(subdb, query, qlen, subrsets[i], gatherer.get(), weight);
+		smatch = new LocalSubMatch(subdb, query, qlen, *subrset, gatherer.get(), weight);
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	    }
 #endif /* XAPIAN_HAS_REMOTE_BACKEND */
@@ -167,7 +159,9 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	    smatch = new EmptySubMatch;
 	}
 	leaves.push_back(smatch);
+	++subrset;
     }
+    Assert(subrset == subrsets.end());
 
     gatherer->set_global_stats(omrset.size());
 
@@ -345,7 +339,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // Lower bound must be set to 0 as the match decider could discard
 	    // all hits.
 	    matches_lower_bound = 0;
-	} else if (collapse_key != Xapian::BAD_VALUENO) {
+	} else if (collapse_key != Xapian::valueno(-1)) {
 	    // Lower bound must be set to no more than 1, since it's possible
 	    // that all hits will be collapsed to a single hit.
 	    if (matches_lower_bound > 1) matches_lower_bound = 1;
@@ -444,22 +438,19 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
 
 	// Use the decision functor if any.
+	// FIXME: if results are from MSetPostList then we can omit this step
 	if (mdecider != NULL) {
-	    const unsigned int multiplier = db.internal.size();
-	    Assert(multiplier != 0);
-	    Xapian::doccount n = (did - 1) % multiplier; // which actual database
-	    // If the results are from a remote database, then the functor will
-	    // already have been applied there so we can skip this step.
-	    if (!is_remote[n]) {
-		if (doc.get() == 0) {
-		    Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
+	    if (doc.get() == 0) {
+		const unsigned int multiplier = db.internal.size();
+		Assert(multiplier != 0);
+		Xapian::doccount n = (did - 1) % multiplier; // which actual database
+		Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-		    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
-		    doc = temp;
-		}
-		Xapian::Document mydoc(doc.get());
-		if (!mdecider->operator()(mydoc)) continue;
+		Xapian::Internal::RefCntPtr<Xapian::Document::Internal> temp(db.internal[n]->open_document(m, true));
+		doc = temp;
 	    }
+	    Xapian::Document mydoc(doc.get());
+	    if (!mdecider->operator()(mydoc)) continue;
 	}
 
 	if (min_item.wt <= 0.0) {
@@ -472,7 +463,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	documents_considered++;
 
 	// Perform collapsing on key if requested.
-	if (collapse_key != Xapian::BAD_VALUENO) {
+	if (collapse_key != Xapian::valueno(-1)) {
 	    new_item.collapse_key = get_collapse_key(pl, did, collapse_key,
 						     doc);
 
@@ -489,7 +480,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		} else {
 		    ++duplicates_found;
 		    Xapian::Internal::MSetItem &old_item = oldkey->second.first;
-		    // FIXME: what about the (sort_by != REL) case here?
+		    // FIXME: what about the (sort_by != REL) case
+		    // here?
 		    if (mcmp(old_item, new_item)) {
 			DEBUGLINE(MATCH, "collapsem: better exists: " <<
 				  new_item.collapse_key);
@@ -706,7 +698,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Assert(matches_estimated >= matches_lower_bound);
 	Assert(matches_estimated <= matches_upper_bound);
 
-	if (collapse_key != Xapian::BAD_VALUENO) {
+	if (collapse_key != Xapian::valueno(-1)) {
 	    // Lower bound must be set to no more than the number of collapse
 	    // values we've got, since it's possible that all further hits
 	    // will be collapsed to a single value.
@@ -789,7 +781,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // of an item that has already been pushed-back as we don't know where it is
     // any more.  If we keep or find references we won't need to mess with
     // is_heap so much maybe?
-    if (collapse_key != Xapian::BAD_VALUENO && /*percent_cutoff &&*/ !items.empty() &&
+    if (collapse_key != Xapian::valueno(-1) && /*percent_cutoff &&*/ !items.empty() &&
 	!collapse_tab.empty()) {
 	// Nicked this formula from above, but for some reason percent_scale
 	// has since been multiplied by 100 so we take that into account

@@ -1,11 +1,14 @@
 ## Process this file with automake to produce Makefile.in
 
-include ../generic/generic.mk
-
 TESTS_ENVIRONMENT = $(RUN_CSHARP)
 
 ## Test programs to be run
 TESTS = SmokeTest.exe
+
+if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
+# This requires GNU make, but apparently that's the default on OS X.
+export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
+endif
 
 SUBDIRS = docs
 
@@ -20,11 +23,11 @@ XAPIAN_SWIG_CS_SRCS=\
 	ESet.cs \
 	ESetIterator.cs \
 	Enquire.cs \
-	ExpandDecider.cs \
 	InMemory.cs \
 	MatchDecider.cs \
 	MSet.cs \
 	MSetIterator.cs \
+	Muscat36.cs \
 	PositionIterator.cs \
 	PostingIterator.cs \
 	Quartz.cs \
@@ -32,6 +35,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	QueryParser.cs \
 	Remote.cs \
 	RSet.cs \
+	SWIGTYPE_p_Xapian__ExpandDecider.cs \
 	SWIGTYPE_p_std__vectorTstd__string_t.cs \
 	SWIGTYPE_p_std__vectorTXapian__Query_t.cs \
 	SWIGTYPE_p_time_t.cs \
@@ -80,13 +84,11 @@ all-am: $(ASSEMBLY).dll
 CLEANFILES = XapianSharp.snk AssemblyInfo.cs $(ASSEMBLY).dll SmokeTest.exe
 
 if MAINTAINER_MODE
-xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS): $(SWIG_sources) util.i
+xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS): ../xapian.i util.i
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_CS_SRCS)
-	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
-	    -csharp -namespace Xapian -module Xapian -dllimport XapianSharp \
-	    -o xapian_wrap.cc $(SWIG_mainsource)
+	$(SWIG) -I$(srcdir) @SWIG_FLAGS@ -c++ -csharp -namespace Xapian -module Xapian -dllimport XapianSharp -o xapian_wrap.cc $(srcdir)/../xapian.i
 
 CLEANFILES += $(BUILT_SOURCES)
 else

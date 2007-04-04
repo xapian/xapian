@@ -3,7 +3,6 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006 Olly Betts
- * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -102,6 +101,8 @@ PostingIterator
 Database::postlist_begin(const string &tname) const
 {
     DEBUGAPICALL(PostingIterator, "Database::postlist_begin", tname);
+    if (tname.empty())
+	throw InvalidArgumentError("Zero length terms are invalid");
 
     // Don't bother checking that the term exists first.  If it does, we
     // just end up doing more work, and if it doesn't, we save very little
@@ -247,9 +248,8 @@ Xapian::doccount
 Database::get_termfreq(const string & tname) const
 {
     DEBUGAPICALL(Xapian::doccount, "Database::get_termfreq", tname);
-    if (tname.empty()) {
-	return get_doccount();
-    }
+    if (tname.empty())
+	throw InvalidArgumentError("Zero length terms are invalid");
     Xapian::doccount tf = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
@@ -262,9 +262,8 @@ Xapian::termcount
 Database::get_collection_freq(const string & tname) const
 {
     DEBUGAPICALL(Xapian::termcount, "Database::get_collection_freq", tname);
-    if (tname.empty()) {
-	return get_doccount();
-    }
+    if (tname.empty())
+	throw InvalidArgumentError("Zero length terms are invalid");
 
     Xapian::termcount cf = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
@@ -304,9 +303,8 @@ Database::get_document(Xapian::docid did) const
 bool
 Database::term_exists(const string & tname) const
 {
-    if (tname.empty()) {
-	return get_doccount() != 0;
-    }
+    if (tname.empty())
+	throw InvalidArgumentError("Zero length terms are invalid");
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
 	if ((*i)->term_exists(tname)) return true;

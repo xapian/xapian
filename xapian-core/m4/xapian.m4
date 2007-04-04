@@ -5,10 +5,10 @@
 # -----------------------------------------------------------
 # If this macro is not defined by Autoconf, define it here.
 m4_ifdef([AC_PROVIDE_IFELSE],
-	 [],
-	 [m4_define([AC_PROVIDE_IFELSE],
-		 [m4_ifdef([AC_PROVIDE_$1],
-			   [$2], [$3])])])
+         [],
+         [m4_define([AC_PROVIDE_IFELSE],
+	         [m4_ifdef([AC_PROVIDE_$1],
+		           [$2], [$3])])])
 
 # XO_LIB_XAPIAN([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 # --------------------------------------------------------
@@ -25,24 +25,8 @@ AC_DEFUN([XO_LIB_XAPIAN],
   AC_PATH_PROG(XAPIAN_CONFIG, xapian-config, [])
   if test -z "$XAPIAN_CONFIG"; then
     ifelse([$2], ,
-      [ifelse([$1], , [
-	dnl Simple check to see if the problem is likely to
-	dnl be that we're using a "packaged" xapian-core but
-	dnl only have the runtime package installed.
-	for sfx in '' 32 64 ; do
-	  set /usr/lib$sfx/libxapian.so.*
-	  if test "/usr/lib$sfx/libxapian.so.*" != "$1" ; then
-	    if test -r /etc/debian_version ; then
-	      pkg="libxapian-dev"
-	    else
-	      pkg="xapian-core-devel"
-	    fi
-	    AC_MSG_ERROR([Can't find xapian-config, although the xapian-core runtime library seems to be installed.  If you've installed xapian-core from a package, you probably need to install an extra package called something like $pkg in order to be able to build code using the Xapian library.])
-	  fi
-	done
-	AC_MSG_ERROR([Can't find Xapian library])],
-	:)],
-      [$2])
+	   ifelse([$1], , AC_MSG_ERROR([Can't find Xapian library]), :),
+	   [$2])
   else
     AC_MSG_CHECKING([$XAPIAN_CONFIG works])
     dnl check for --ltlibs but not --libs as "xapian-config --libs" will

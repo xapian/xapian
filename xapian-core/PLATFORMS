@@ -106,8 +106,6 @@ x86   | Cygwin 1.5.10 GCC 3.3.3 XP sp2 |~0.8.4 |Passed| from Mike Boone [4]
 x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
 x86   | MinGW 3.1.0                    |~0.8.4 |Passed| from Michael Sisolak
 x86   | WindowsXP sp2 MSVC Toolkit 2003| 0.9.6 |Passed| from Charlie Hull [12]
-x86   | WindowsXP sp2 MSVC .Net 2003   | 0.9.10|Passed| from Charlie Hull [12]
-x86   | WindowsXP sp2 MSVC 2005 Express| 0.9.10|Passed| from Charlie Hull [12] 
 x86_64| Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.8.3~|Passed| from gmane.org
 x86_64|:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
 x86_64|#Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed|
@@ -286,7 +284,7 @@ allows the build to complete and pass the testsuite.
 
 [12] Requires the MSVC specific makefiles written by Ulrik Petersen and
 Charlie Hull available from:
-http://www.lemurconsulting.com/Products/Xapian/Overview.shtml
+http://www.lemurconsulting.com/Products/Xapian/096/
 Currently the remote backend isn't supported, and only the bindings for
 Python have so far been built.
 

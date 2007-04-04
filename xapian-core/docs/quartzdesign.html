@@ -13,8 +13,9 @@ What is this thing called Quartz?  How does it fit in with the Xapian
 library?</em>
 <p>
 Xapian can access information stored in various different formats.
-As well as Quartz, there's the newer Flint disk-based format,
-and the InMemory format which is held in memory.
+For example, there are the legacy formats which can be read by Xapian but not
+written to (at present, the Muscat 3.6 formats &quot;DA&quot; and
+&quot;DB&quot;), and the InMemory format which is held in memory.
 
 <p>
 Each of these formats is comprised by a set of classes providing an interface
@@ -22,9 +23,9 @@ to a Database object and several other related objects (PostList, TermList,
 etc...).
 
 <p>
-Quartz is simply the name of Xapian's first high-performance backend.
-The design of Quartz draws on all our past experience to satisfy the following
-criteria:
+Quartz is simply the name of only currently supported disk-based backend
+which allows databases to be dynamically updated.  The design of Quartz
+draws on all our past experience to satisfy the following criteria:
 <ul>
 <li>
   Fast and scalable searches.
@@ -241,23 +242,6 @@ and also to jump to the chunk containing a particular document ID.
 <p>
 It is quite possible that the termlists and
 position lists would benefit from being split into chunks in this way.
-
-<h2>All document lists</h2>
-
-It is possible to use the Xapian API to obtain a list of all documents in the
-database.  This is done by creating a special postinglist.  This functionality
-was added after the file structure in use by Quartz was frozen, and it is
-unfortunately impossible to implement efficiently for Quartz.
-
-The problem is that it is not possible to read the list of documents in sorted
-order direct from disk - instead, the list is read into memory to be sorted.
-For databases which do not have sparse document IDs, this should not use much
-memory since the list is kept in memory in a range-compressed form (but does
-require an iteration over the entirety of one of the tables of the Quartz
-database - no skipping can be done in this case.)  This is unlikely to be
-fixed, since we don't believe it can be without changing Quartz's structure.
-In any case, it is not a priority since Quartz is no longer the default
-backend.
 
 <h2>Btree implementation</h2>
 

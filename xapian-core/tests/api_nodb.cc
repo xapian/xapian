@@ -2,8 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Lemur Consulting Ltd
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,9 +59,9 @@ static bool test_getqterms1()
 
     list<string> list1;
     {
-	Xapian::TermIterator t;
-	for (t = myquery.get_terms_begin(); t != myquery.get_terms_end(); ++t)
-	    list1.push_back(*t);
+        Xapian::TermIterator t;
+        for (t = myquery.get_terms_begin(); t != myquery.get_terms_end(); ++t) 
+            list1.push_back(*t);
     }
     TEST(list1 == answers_list);
     list<string> list2(myquery.get_terms_begin(), myquery.get_terms_end());
@@ -89,6 +88,7 @@ static bool test_emptyquery1()
     vector<Xapian::Query> v;
     TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).empty());
     TEST(Xapian::Query(Xapian::Query::OP_OR, v.begin(), v.end()).get_length() == 0);
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Query("").empty());
     return true;
 }
 
@@ -215,10 +215,9 @@ static bool test_emptyquerypart1()
 {
     vector<string> emptyterms;
     Xapian::Query query(Xapian::Query::OP_OR, emptyterms.begin(), emptyterms.end());
-    TEST(Xapian::Query(Xapian::Query::OP_AND, query, Xapian::Query("x")).empty());
-    TEST(Xapian::Query(Xapian::Query::OP_AND, query, Xapian::Query("x")).get_length() == 0);
-    TEST(!Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("x")).empty());
-    TEST(Xapian::Query(Xapian::Query::OP_OR, query, Xapian::Query("x")).get_length() == 1);
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   Xapian::Query bad_query(Xapian::Query::OP_AND,
+					   query, Xapian::Query("x")));
     return true;
 }
 
@@ -234,30 +233,33 @@ static bool test_singlesubq1()
 
 static bool test_stemlangs1()
 {
-    unsigned lang_count = 0;
+    vector<string> langv;
     string langs = Xapian::Stem::get_available_languages();
-    TEST(!langs.empty());
 
-    string::size_type i = 0;
-    while (true) {
-	string::size_type spc = langs.find(' ', i);
-	// The only spaces in langs should be a single one between each pair
-	// of language names.
-	TEST_NOT_EQUAL(i, spc);
+    string::size_type next = langs.find_first_of(" ");
 
-	++lang_count;
-
-	// Try making a stemmer for this language.  We should be able to create
-	// it without an exception being thrown.
-	string language = langs.substr(i, spc - i);
-	Xapian::Stem stemmer(language);
-
-	if (spc == string::npos) break;
-	i = spc + 1;
+    while (langs.length() > 0) {
+	langv.push_back(langs.substr(0, next));
+    	if (next == langs.npos) {
+	    langs = "";
+	} else {
+	    langs = langs.substr(next);
+	}
+	if (langs.length() > 0) {
+	    // skip leading space too
+	    langs = langs.substr(1);
+	}
+	next = langs.find_first_of(" ");
     }
 
-    // Check that we actually had some languages to test.
-    TEST(lang_count > 0);
+    TEST(langv.size() != 0);
+
+    vector<string>::const_iterator i;
+    for (i = langv.begin(); i != langv.end(); i++) {
+	// try making a stemmer with the given language -
+	// it should successfully create, and not throw an exception.
+	Xapian::Stem stemmer(*i);
+    }
 
     // Check that we get an exception for a bogus language name.
     TEST_EXCEPTION(Xapian::InvalidArgumentError, Xapian::Stem stemmer("bogus"));
@@ -283,7 +285,7 @@ static bool test_weight1()
     wt = Xapian::TradWeight().unserialise(tradweight.serialise());
     TEST_EQUAL(tradweight.serialise(), wt->serialise());
     delete wt;
-
+    
     Xapian::TradWeight tradweight2(2.0);
     TEST_NOT_EQUAL(tradweight.serialise(), tradweight2.serialise());
 
@@ -294,7 +296,7 @@ static bool test_weight1()
     wt = Xapian::BM25Weight().unserialise(bm25weight.serialise());
     TEST_EQUAL(bm25weight.serialise(), wt->serialise());
     delete wt;
-
+    
     Xapian::BM25Weight bm25weight2(1, 0.5, 1, 0.5, 0.5);
     TEST_NOT_EQUAL(bm25weight.serialise(), bm25weight2.serialise());
 
@@ -325,7 +327,7 @@ static bool test_addvalue1()
 // # End of test cases: now we list the tests to run.
 
 test_desc nodb_tests[] = {
-    {"trivial1",	   test_trivial1},
+    {"trivial1",           test_trivial1},
     {"getqterms1",	   test_getqterms1},
     {"getqterms2",	   test_getqterms2},
     {"emptyquery1",	   test_emptyquery1},

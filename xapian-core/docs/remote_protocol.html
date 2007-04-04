@@ -7,7 +7,7 @@
 <h1>Remote Backend Protocol</h1>
 
 <p>
-This document describes <em>version 24</em> of the protocol used by Xapian's
+This document describes <em>version 22</em> of the protocol used by Xapian's
 remote backend.  The protocol assumes a reliable two-way connection across which
 arbitrary data can be sent - this could be provided by a TCP socket for example
 (as it is with xapian-tcpsrv), but any such connection could be used.  For
@@ -58,7 +58,7 @@ value for <code>0</code> or <code>1</code>.  This is indicated by
 <h2>Server greeting and statistics</h2>
 
 <ul>
-<li> <code>REPLY_GREETING &lt;protocol version&gt; I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt;</code>
+<li> <code>REPLY_GREETING &lt;protocol version&gt; I&lt;db doc count&gt; B&lt;has positions?&gt; F&lt;db average length&gt;</code>
 </ul>
 
 <p>
@@ -183,7 +183,7 @@ No reply is sent - this message signals that the client has ended the session.
 
 <ul>
 <li> <code>MSG_UPDATE</code>
-<li> <code>REPLY_UPDATE I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt;</code>
+<li> <code>REPLY_UPDATE I&lt;db doc count&gt; B&lt;has positions?&gt; F&lt;db average length&gt;</code>
 </ul>
 
 <p>

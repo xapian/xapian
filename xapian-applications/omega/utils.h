@@ -1,11 +1,12 @@
-/* utils.h: string conversion utility functions for omega
+/* utils.h: string utils for omega
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright 1999,2000,2001 BrightStation PLC
+ * Copyright 2003,2004,2006 Olly Betts
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -14,27 +15,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * USA
  */
-
-#ifndef OMEGA_INCLUDED_UTILS_H
-#define OMEGA_INCLUDED_UTILS_H
 
 #include <string>
 
-/** Converts year, month, day into an 8 character string like: "20061031". */
-std::string date_to_string(int year, int month, int day);
+using std::string;
 
-/** Converts a double to a string. */
-std::string double_to_string(double value);
-
-/** Converts an int to a string. */
-std::string int_to_string(int value);
-
-/** Converts a long to a string. */
-std::string long_to_string(long value);
-
-/** Converts a string to an int. */
-int string_to_int(const std::string & s);
-
-#endif
+int string_to_int(const string &s);
+string int_to_string(int i);
+string long_to_string(long val);
+string date_to_string(int y, int m, int d);

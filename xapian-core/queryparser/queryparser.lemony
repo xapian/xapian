@@ -1,7 +1,7 @@
 %include {
 /* queryparser.lemony: build a Xapian::Query object from a user query string.
  *
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,8 +21,8 @@
 
 #include <config.h>
 
+#include "accentnormalisingitor.h"
 #include "queryparser_internal.h"
-#include "utf8itor.h"
 #include "utils.h"
 
 // Include the list of token values lemon generates.
@@ -36,105 +36,8 @@ using namespace std;
 
 using namespace Xapian;
 
-inline bool
-U_isupper(unsigned ch) {
-    return (ch < 128 && C_isupper((unsigned char)ch));
-}
-
-inline bool
-U_isdigit(unsigned ch) {
-    return (ch < 128 && C_isdigit((unsigned char)ch));
-}
-
-inline bool
-U_isalpha(unsigned ch) {
-    return (ch < 128 && C_isalpha((unsigned char)ch));
-}
-
-inline bool
-U_isspace(unsigned ch) {
-    return (ch < 128 && C_isspace((unsigned char)ch));
-}
-
-inline bool
-U_isnotspace(unsigned ch) {
-    return !U_isspace(ch);
-}
-
-inline bool
-U_issign(unsigned ch) {
-    return (ch < 128 && C_issign((unsigned char)ch));
-}
-
-inline bool
-is_not_wordchar(unsigned ch) {
-    return !is_wordchar(ch);
-}
-
 // Disable debug code lemon adds.
 #define NDEBUG
-
-/// Wrapper around a query, allowing us to distinguish between a query
-/// representing an empty list of queries, and a "MatchNothing" query.
-/* FIXME: can we replace this by using Query * and NULL vs MatchNothing?
- * We pass round Query * generally, so that should dovetail quite nicely!
- */
-class QpQuery {
-    /// The underlying query object.
-    Query q;
-
-    /// Flag, true iff this represents a "MatchNothing" query.
-    bool match_nothing_;
-
-  public:
-    QpQuery(const QpQuery & tocopy)
-	: q(tocopy.q), match_nothing_(tocopy.match_nothing_)
-    {}
-
-    QpQuery & operator=(const QpQuery & tocopy)
-    {
-	q = tocopy.q;
-	match_nothing_ = tocopy.match_nothing_;
-	return *this;
-    }
-
-    /** A query consisting of a single term. */
-    QpQuery(const std::string & tname, Xapian::termcount wqf,
-	    Xapian::termpos pos)
-	: q(tname, wqf, pos), match_nothing_(false)
-    {}
-
-    /** A query consisting of two subqueries, opp-ed together. */
-    QpQuery(Query::op op, const QpQuery & left, const QpQuery & right)
-	: q(op, left.get(), right.get()), match_nothing_(false)
-    {}
-
-    QpQuery(Query::op op_, Xapian::valueno valno,
-	  const std::string &begin, const std::string &end)
-	: q(op_, valno, begin, end), match_nothing_(false)
-    {}
-
-    QpQuery(const Query & q_) : q(q_), match_nothing_(false) {}
-    QpQuery() : q(), match_nothing_(false) {}
-    QpQuery(bool m) : q(), match_nothing_(m) {}
-    Query & get() { return q; }
-    const Query & get() const { return q; }
-
-    /// True iff the query is not empty, and doesn't explicitly match nothing.
-    bool can_match() { return (!q.empty() && !match_nothing_); }
-
-    /// True iff the query is defined, but empty.
-    bool empty() { return !match_nothing_ && q.empty(); }
-
-    /// Get a description of the query
-    std::string get_description() {
-	if (match_nothing_) {
-	    return "[MATCH_NOTHING]";
-	} else {
-	    return q.get_description();
-	}
-    }
-};
 
 /// Class used to pass information about a term from lexer to parser.
 class Term {
@@ -149,11 +52,11 @@ class Term {
 
     termpos get_termpos() const { return pos; }
 
-    QpQuery * as_query() const { return new QpQuery(name, 1, pos); }
+    Query * as_query() const { return new Query(name, 1, pos); }
 
-    QpQuery * as_wildcarded_query(State * state) const;
+    Query * as_wildcarded_query(State * state) const;
 
-    QpQuery as_query_object() const { return QpQuery(name, 1, pos); }
+    Query as_query_object() const { return Query(name, 1, pos); }
 };
 
 /// Parser State shared between the lexer and the parser.
@@ -162,39 +65,13 @@ class State {
     QueryParser::Internal * qpi;
 
   public:
-    QpQuery query;
+    Query query;
     const char * error;
-    unsigned flags;
 
-    State(QueryParser::Internal * qpi_, unsigned flags_)
-	: qpi(qpi_), error(NULL), flags(flags_) { }
+    State(QueryParser::Internal * qpi_) : qpi(qpi_), error(NULL) { }
 
     void add_to_stoplist(const Term * term) {
 	qpi->stoplist.push_back(term->name);
-    }
-
-    QpQuery * value_range(Term *a, Term *b) {
-	string start = a->name;
-	string end = b->name;
-	delete a;
-	delete b;
-	Xapian::valueno valno = Xapian::BAD_VALUENO;
-	list<ValueRangeProcessor *>::const_iterator i;
-	for (i = qpi->valrangeprocs.begin(); i != qpi->valrangeprocs.end(); ++i) {
-	    valno = (**i)(start, end);
-	    if (valno != Xapian::BAD_VALUENO) break;
-	}
-	if (valno == Xapian::BAD_VALUENO) {
-	    // FIXME: Do we want to report an error for this?  If not we need
-	    // to perform the above check in the tokeniser and if none of the
-	    // ValueRangeProcessor classes like the range, we rollback to
-	    // parsing the query without treating this as a range.  Needs
-	    // more thought and probably a look at queries users actually
-	    // enter.
-	    error = "Unknown range operation";
-	    return NULL;
-	}
-	return new QpQuery(Query::OP_VALUE_RANGE, valno, start, end);
     }
 
     Query::op default_op() const { return qpi->default_op; }
@@ -209,61 +86,65 @@ class State {
 };
 
 static void
-add_to_query(QpQuery & q, Query::op op, const QpQuery &term)
+add_to_query(Query & q, Query::op op, const Query &term)
 {
     if (q.empty()) {
 	q = term;
     } else {
-	q = QpQuery(op, q, term);
+	q = Query(op, q, term);
     }
 }
 
-QpQuery *
+Query *
 Term::as_wildcarded_query(State * state) const
 {
     Database db = state->get_database();
     TermIterator t = db.allterms_begin();
     t.skip_to(name);
-    QpQuery q;
+    Query q;
     while (t != db.allterms_end() && (*t).substr(0, name.size()) == name) {
-	add_to_query(q, Query::OP_OR, QpQuery(*t, 1, pos));
+	add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
 	++t;
     }
-    if (q.get().empty()) {
-	return new QpQuery(true);
-    } else {
-	return new QpQuery(q);
-    }
+    return new Query(q);
 }
 
-inline bool
-is_phrase_generator(unsigned ch)
+static inline string
+downcase_term(const string &term)
+{
+    string t;
+    t.reserve(term.size());
+    AccentNormalisingItor i(term.begin());
+    const AccentNormalisingItor end(term.end());
+    while (i != end) t += C_tolower(*i++);
+    return t;
+}
+
+static inline bool
+is_phrase_generator(unsigned char ch)
 {
     // These characters generate a phrase search.
     // Ordered mostly by frequency of calls to this function done when
     // running queryparsertest.
-    return (ch && ch < 128 && strchr(".-/:\\_@", ch) != NULL);
+    return (ch && strchr(".-/':\\_@", ch) != NULL);
 }
 
-inline bool
-prefix_needs_colon(const string & prefix, unsigned ch)
+static inline bool
+prefix_needs_colon(const string & prefix, unsigned char ch)
 {
-    if (!U_isupper(ch)) return false;
+    if (!C_isupper(ch)) return false;
     string::size_type len = prefix.length();
     return (len > 1 && prefix[len - 1] != ':');
 }
 
-struct yyParser;
-
 // Prototype the functions lemon generates.
-static yyParser *ParseAlloc();
-static void ParseFree(yyParser *);
-static void Parse(yyParser *, int, Term *, State *);
+static void *ParseAlloc();
+static void ParseFree(void *);
+static void Parse(void *, int, Term *, State *);
 
 Query
-QueryParser::Internal::parse_query(const string &qs, unsigned flags, const string &default_prefix)
+QueryParser::Internal::parse_query(const string &qs, unsigned flags)
 {
-    char ubuf[6];
 #ifndef NDEBUG
     // Set the prefix added to Lemon's debug output, if it's enabled.
     // FIXME: arrange to send this to the Xapian debug log, and turn
@@ -271,80 +152,39 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
     ParseTrace(stdout, "LEMON: ");
 #endif
 
-    yyParser * pParser = ParseAlloc();
-
-    // Set value_ranges if we may have to handle value ranges in the query.
-    bool value_ranges;
-    value_ranges = !valrangeprocs.empty() && (qs.find("..") != string::npos);
+    void * pParser = ParseAlloc();
 
     termpos term_pos = 1;
-    Utf8Iterator it(qs), end;
+    AccentNormalisingItor it(qs.begin()), end(qs.end());
 
-    State state(this, flags);
+    State state(this);
 
     list<string> prefix_stack;
-    // We always have the current prefix on the top of the stack.
-    prefix_stack.push_back(default_prefix);
+    // Simplify reading the current prefix by pushing an empty string.
+    prefix_stack.push_back("");
 
     enum {
 	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM
     } mode = DEFAULT;
 
-    unsigned newprev = ' ';
-main_lex_loop:
+    unsigned char newprev = ' ';
     while (it != end) {
 	if (mode == IN_PHRASED_TERM) mode = DEFAULT;
-	if (U_isspace(*it)) {
+	if (C_isspace(*it)) {
 	    newprev = ' ';
 	    ++it;
-	    it = find_if(it, end, U_isnotspace);
+	    it = find_if(it, end, C_isnotspace);
 	    if (it == end) break;
 	}
 
-	if (mode == DEFAULT && value_ranges) {
-	    // Scan forward to see if this could be the "start of range"
-	    // token.  Sadly this has O(n^2) tendencies, though at least
-	    // "n" is the number of words in a query which is likely to
-	    // remain fairly small.  FIXME: can we tokenise more elegantly?
-	    Utf8Iterator p = it;
-	    unsigned ch = 0;
-	    while (p != end) {
-		if (ch == '.' && *p == '.') {
-		    ++p;
-		    if (p == end || *p <= ' ' || *p == ')') break;
-
-		    string r;
-		    do {
-			r.append(ubuf, to_utf8(*it++, ubuf));
-		    } while (it != p);
-		    // Trim off the trailing "..".
-		    r.resize(r.size() - 2);
-		    Parse(pParser, RANGE_START, new Term(r, 0), &state);
-		    r.resize(0);
-		    // Allow any character except whitespace and ')' in a
-		    // RANGE_END.  Or should we be consistent with RANGE_START?
-		    do {
-			r.append(ubuf, to_utf8(*p++, ubuf));
-		    } while (p != end && *p > ' ' && *p != ')');
-		    Parse(pParser, RANGE_END, new Term(r, 0), &state);
-		    it = p;
-		    goto main_lex_loop;
-		}
-		ch = *p;
-		if (!(is_wordchar(ch) || is_currency(ch) ||
-		      (ch < 128 && strchr("%,-./:@_", ch)))) break;
-		++p;
-	    }
-	}
-
-	if (!is_wordchar(*it)) {
-	    unsigned prev = newprev;
-	    unsigned ch = *it++;
+	if (!C_isalnum(*it)) {
+	    unsigned char prev = newprev;
+	    unsigned char ch = *it++;
 	    if (it != end) newprev = *it;
 	    switch (ch) {
 	      case '"':
 		// Skip whitespace.
-		it = find_if(it, end, U_isnotspace);
+		it = find_if(it, end, C_isnotspace);
 		if (mode == DEFAULT) {
 		    if (it == end) {
 			// Ignore an unmatched " at the end of the query to
@@ -357,10 +197,10 @@ main_lex_loop:
 			// IN_QUOTES as we don't merge two adjacent quoted
 			// phrases!)
 			newprev = *it++;
-			break;
+			continue;
 		    }
 		}
-		if (flags & QueryParser::FLAG_PHRASE) {
+		if (flags & FLAG_PHRASE) {
 		    Parse(pParser, QUOTE, NULL, &state);
 		    if (mode == DEFAULT) {
 			mode = IN_QUOTES;
@@ -371,50 +211,50 @@ main_lex_loop:
 			mode = DEFAULT;
 		    }
 		}
-		break;
+		continue;
 
 	      case '+': case '-':
 		// Ignore + or - at end of query.
 		if (it == end) goto done;
 		if (prev > ' ' && prev != '(') {
 		    // Or if not after whitespace or an open bracket.
-		    break;
+		    continue;
 		}
-		if (U_isspace(*it) || *it == '+' || *it == '-') {
+		if (C_isspace(*it) || *it == '+' || *it == '-') {
 		    // Ignore + or - followed by a space, or further + or -.
 		    // Postfix + (such as in C++ and H+) is handled as part of
 		    // the term lexing code below.
 		    newprev = *it++;
-		    break;
+		    continue;
 		}
 		if (mode == DEFAULT && (flags & FLAG_LOVEHATE))
 		    Parse(pParser, (ch == '+' ? LOVE : HATE), NULL, &state);
-		break;
+		continue;
 
 	      case '(':
 		// Skip whitespace.
-		it = find_if(it, end, U_isnotspace);
+		it = find_if(it, end, C_isnotspace);
 		// Ignore ( at end of query.
 		if (it == end) goto done;
 		if (prev > ' ' && prev != '(' && prev != ')') {
 		    // Or if not after whitespace or a bracket.
-		    break;
+		    continue;
 		}
 		if (*it == ')') {
 		    // Ignore empty ().
 		    newprev = *it++;
-		    break;
+		    continue;
 		}
 		if (mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
 		    prefix_stack.push_back(prefix_stack.back());
 		    Parse(pParser, BRA, NULL, &state);
 		}
-		break;
+		continue;
 
 	      case ')':
 		if (term_pos == 1) {
 		    // Ignore ) at start of query.
-		    break;
+		    continue;
 		}
 		if (mode == DEFAULT && (flags & FLAG_BOOLEAN)) {
 		    // Remove the prefix we pushed for the corresponding BRA.
@@ -423,7 +263,7 @@ main_lex_loop:
 		    if (prefix_stack.size() > 1) prefix_stack.pop_back();
 		    Parse(pParser, KET, NULL, &state);
 		}
-		break;
+		continue;
 	    }
 	    // Skip any other characters.
 	    continue;
@@ -435,23 +275,22 @@ main_lex_loop:
 	string prefix;
 	if (mode == DEFAULT && !prefixes.empty()) {
 	    // Check for fieldname prefixes (e.g. title:historical).
-	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
+	    AccentNormalisingItor p = find_if(it, end, C_isnotalnum);
 	    if (p != end && *p == ':' && ++p != end && *p > ' ' && *p != ')') {
 		string field;
 		p = it;
-		while (*p != ':')
-		    field.append(ubuf, to_utf8(*p++, ubuf));
+		while (*p != ':') field += *p++;
 		map<string, BoolAndString>::const_iterator f;
 		f = prefixes.find(field);
 		if (f != prefixes.end()) {
-		    unsigned ch = *++p;
+		    unsigned char ch = *++p;
 		    bool boolean_filter = f->second.flag;
-		    if (boolean_filter || is_wordchar(ch) ||
+		    if (boolean_filter || C_isalnum(ch) ||
 			((flags & FLAG_PHRASE) && ch == '"') ||
 			((flags & FLAG_BOOLEAN) && ch == '(')) {
 			it = p;
 			// Can't boolean prefix a subexpression or phrase.
-			if (!boolean_filter && !is_wordchar(ch)) {
+			if (!boolean_filter && !C_isalnum(ch)) {
 			    newprev = ch;
 			    ++it;
 			    prefix_stack.push_back(f->second.str);
@@ -471,11 +310,9 @@ main_lex_loop:
 				prefix += ':';
 			    string term;
 			    while (it != end && *it > ' ' && *it != ')')
-				term.append(ubuf, to_utf8(*it++, ubuf));
+				term += *it++;
 			    prefix += term;
-			    field += ':';
-			    field += term;
-			    unstem.insert(make_pair(prefix, field));
+			    unstem.insert(make_pair(prefix, field + ":" + term));
 			    Parse(pParser, BOOLEAN_FILTER,
 				  new Term(prefix, 0), &state);
 			    continue;
@@ -487,21 +324,21 @@ main_lex_loop:
 
 phrased_term:
 	string term;
+	size_t transliterations = it.transliterations();
 	// Look for initials separated by '.' (e.g. P.T.O., U.N.C.L.E).
 	// Don't worry if there's a trailing '.' or not.
-	if (U_isupper(*it)) {
+	if (C_isupper(*it)) {
 	    string t;
-	    Utf8Iterator p = it;
+	    AccentNormalisingItor p = it;
 	    do {
-		t.append(ubuf, to_utf8(*p++, ubuf));
-	    } while (p != end && *p == '.' && ++p != end && U_isupper(*p));
+		t += *p++;
+	    } while (p != end && *p == '.' && ++p != end && C_isupper(*p));
 	    // One letter does not make an acronym!  If we handled a single
 	    // uppercase letter here, we wouldn't catch M&S below.
 	    if (t.length() > 1) {
 		// Check there's not a (lower case) letter or digit
 		// immediately after it.
-		// FIXME: should I.B.M..P.T.O be a range search?
-		if (p == end || !is_wordchar(*p)) {
+		if (p == end || !C_isalnum(*p)) {
 		    it = p;
 		    swap(term, t);
 		}
@@ -511,21 +348,19 @@ phrased_term:
 
 	if (term.empty()) {
 	    while (it != end) {
-		unsigned ch = *it;
-		if (!is_wordchar(ch)) {
-		    // Treat a single embedded '&' or "'" as a word character
-		    // (e.g. AT&T, Fred's).
-		    if (ch != '&' && ch != '\'') break;
-		    Utf8Iterator p = it;
+		if (!C_isalnum(*it)) {
+		    // Treat a single embedded '&' as a word character
+		    // (e.g. AT&T).
+		    if (*it != '&') break;
+		    AccentNormalisingItor p = it;
 		    ++p;
-		    if (p == end || !is_wordchar(*p)) break;
+		    if (p == end || !C_isalnum(*p)) break;
 		}
-		term.append(ubuf, to_utf8(ch, ubuf));
-		++it;
+		term += *it++;
 	    }
-	    if (it != end && (*it == '#' || U_issign(*it))) {
+	    if (it != end && (*it == '#' || C_issign(*it))) {
 		string suff_term = term;
-		Utf8Iterator p = it;
+		AccentNormalisingItor p = it;
 		if (*p == '#') {
 		    // Keep trailing # (e.g. C#).
 		    suff_term += '#';
@@ -539,20 +374,20 @@ phrased_term:
 		    // much sense - we should probably be more conservative as
 		    // to what combinations are allowed.
 		    do {
-			suff_term.append(ubuf, to_utf8(*p++, ubuf));
-		    } while (p != end && U_issign(*p));
+			suff_term += *p++;
+		    } while (p != end && C_issign(*p));
 		}
-		if (p == end || !is_wordchar(*p)) {
+		if (p == end || !C_isalnum(*p)) {
 		    // If the suffixed term doesn't exist, check that the
 		    // non-suffixed term does.  This also takes care of
 		    // the case when QueryParser::set_database() hasn't
 		    // been called.
 		    bool use_suff_term = false;
-		    string lc = U_downcase_term(suff_term);
+		    string lc = downcase_term(suff_term);
 		    if (db.term_exists(lc)) {
 			use_suff_term = true;
 		    } else {
-			lc = U_downcase_term(term);
+			lc = downcase_term(term);
 			if (!db.term_exists(lc)) use_suff_term = true;
 		    }
 		    if (use_suff_term) {
@@ -565,10 +400,10 @@ phrased_term:
 
 	// Boolean operators.
 	if (mode == DEFAULT && (flags & FLAG_BOOLEAN) &&
-	    // Don't want to interpret A.N.D. as an AND operator.
-	    !was_acronym &&
+	    // Don't want to interpret A.N.D. or ÁND as an AND operator.
+	    !was_acronym && transliterations == it.transliterations() &&
 	    prefix.empty() &&
-	    term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
+	    term.size() >= 2 && term.size() <= 4 && C_isalpha(term[0])) {
 
 	    string op = term;
 	    if (flags & FLAG_BOOLEAN_ANY_CASE) {
@@ -589,11 +424,11 @@ phrased_term:
 		} else if (op == "ADJ") {
 		    if (it != end && *it == '/') {
 			size_t width = 0;
-			Utf8Iterator p = it;
-			while (++p != end && U_isdigit(*p)) {
+			AccentNormalisingItor p = it;
+			while (++p != end && C_isdigit(*p)) {
 			    width = (width * 10) + (*p - '0');
 			}
-			if (width && (p == end || U_isspace(*p))) {
+			if (width && (p == end || C_isspace(*p))) {
 			    it = p;
 			    Parse(pParser, ADJ, new Term("", width), &state);
 			    continue;
@@ -612,11 +447,11 @@ phrased_term:
 		if (op == "NEAR") {
 		    if (it != end && *it == '/') {
 			size_t width = 0;
-			Utf8Iterator p = it;
-			while (++p != end && U_isdigit(*p)) {
+			AccentNormalisingItor p = it;
+			while (++p != end && C_isdigit(*p)) {
 			    width = (width * 10) + (*p - '0');
 			}
-			if (width && (p == end || U_isspace(*p))) {
+			if (width && (p == end || C_isspace(*p))) {
 			    it = p;
 			    Parse(pParser, NEAR, new Term("", width), &state);
 			    continue;
@@ -632,20 +467,19 @@ phrased_term:
 	bool need_to_stem = (stem_action != STEM_NONE);
 	string unstemmed_term;
 	if (stem_action == STEM_SOME && it != end && *it == '.') {
-	    // Might be a trailing "." meaning "already stemmed".
-	    Utf8Iterator p = it;
+	    AccentNormalisingItor p = it;
 	    ++p;
-	    if (stem_action == STEM_SOME && (p == end || U_isspace(*p))) {
-		// TopTerms won't generate an embedded '.', and we want to
-		// stem terms in a phrased term with '.' phrase generators -
-		// e.g. "example.com" should give a phrase search for "exampl"
-		// and "com", not "example" and "com".
+	    // TopTerms won't generate an embedded '.', and we want to
+	    // stem terms in a phrased term with '.' phrase generators -
+	    // e.g. "example.com" should give a phrase search for "exampl"
+	    // and "com", not "example" and "com".
+	    if (p == end || C_isspace(*p)) {
 		it = p;
 		// If topterms added a term with a trailing '.', it will be
 		// lower case.  So if it has an initial capital it must be an
 		// initial in someone's name, a full stop in pasted text or
 		// something like that.
-		if (!U_isupper(term[0])) {
+		if (!C_isupper(term[0])) {
 		    unstemmed_term = term + '.';
 		    need_to_stem = false;
 		}
@@ -653,12 +487,12 @@ phrased_term:
 	}
 
 	if (unstemmed_term.empty()) unstemmed_term = term;
-	term = U_downcase_term(term);
+	term = downcase_term(term);
 	if (need_to_stem) {
-	    if (stem_action == STEM_SOME && U_isupper(unstemmed_term[0]))
+	    if (stem_action == STEM_SOME && C_isupper(unstemmed_term[0]))
 		term = 'R' + term;
 	    else
-		term = stemmer(term);
+		term = stemmer.stem_word(term);
 	}
 
 	if (prefix.empty()) prefix = prefix_stack.back();
@@ -675,22 +509,13 @@ phrased_term:
 	    if (flags & FLAG_WILDCARD) {
 		if (mode == DEFAULT && it != end && *it == '*') {
 		    ++it;
-		    if (it == end || !is_wordchar(*it)) {
-			// Wildcard at end of term (also known as
+		    if (it == end || !C_isalnum(*it)) {
+			// Wildcard at end of term (also know as
 			// "right truncation").
 			Parse(pParser, WILD_TERM, new Term(term, term_pos++),
 			      &state);
 			continue;
 		    }
-		}
-	    }
-	    if (flags & FLAG_PARTIAL) {
-		if (mode == DEFAULT && it == end) {
-		    // Final term of a partial match query, with no following
-		    // characters - treat as a wildcard.
-		    Parse(pParser, WILD_TERM, new Term(term, term_pos++),
-			  &state);
-		    continue;
 		}
 	    }
 
@@ -705,7 +530,7 @@ phrased_term:
 	    } while (it != end && is_phrase_generator(*it));
 	    // Don't generate a phrase unless the phrase generators are
 	    // immediately followed by another term.
-	    if (it != end && is_wordchar(*it)) {
+	    if (it != end && C_isalnum(*it)) {
 		mode = IN_PHRASED_TERM;
 		goto phrased_term;
 	    }
@@ -719,14 +544,14 @@ done:
     ParseFree(pParser);
 
     errmsg = state.error;
-    return state.query.get();
+    return state.query;
 }
 
 struct ProbQuery {
-    QpQuery query;
-    QpQuery love;
-    QpQuery hate;
-    QpQuery filter;
+    Query query;
+    Query love;
+    Query hate;
+    Query filter;
 };
 
 class TermList {
@@ -738,7 +563,7 @@ class TermList {
 
     /// Add a Term object to this TermList object.
     void add_term(Term * term) {
-	terms.push_back(term->as_query_object().get());
+	terms.push_back(term->as_query_object());
 	delete term;
     }
 
@@ -747,38 +572,38 @@ class TermList {
     }
 
     /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
-    QpQuery * as_phrase_query() const {
-	QpQuery * term;
-	term = new QpQuery(Query(Query::OP_PHRASE, terms.begin(), terms.end(),
-				 terms.size()));
+    Query * as_phrase_query() const {
+	Query * term;
+	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end(),
+			 terms.size());
 	delete this;
 	return term;
     }
 
     /// Convert to a Xapian::Query * using OP_NEAR.
-    QpQuery * as_near_query() const {
-	QpQuery * term;
+    Query * as_near_query() const {
+	Query * term;
 	// The common meaning of 'a NEAR b' is "a within 10 terms of b", which
 	// means a window size of 11.  For more than 2 terms, we just add one
 	// to the window size for each extra term.
 	size_t w = window;
 	if (w == 0) w = 10;
-	term = new QpQuery(Query(Query::OP_NEAR, terms.begin(), terms.end(),
-				 terms.size() + w - 1));
+	term = new Query(Query::OP_NEAR, terms.begin(), terms.end(),
+			 terms.size() + w - 1);
 	delete this;
 	return term;
     }
 
     /// Convert to a Xapian::Query * using OP_PHRASE to implement ADJ.
-    QpQuery * as_adj_query() const {
-	QpQuery * term;
+    Query * as_adj_query() const {
+	Query * term;
 	// The common meaning of 'a ADJ b' is "a at most 10 terms before b",
 	// which means a window size of 11.  For more than 2 terms, we just add
 	// one to the window size for each extra term.
 	size_t w = window;
 	if (w == 0) w = 10;
-	term = new QpQuery(Query(Query::OP_PHRASE, terms.begin(), terms.end(),
-				 terms.size() + w - 1));
+	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end(),
+			 terms.size() + w - 1);
 	delete this;
 	return term;
     }
@@ -796,14 +621,14 @@ class TermList {
 };
 
 // Helper macro for converting a boolean operation into a Xapian::Query.
-#define BOOL_OP_TO_QPQUERY(E, A, OP, B, OP_TXT) \
+#define BOOL_OP_TO_QUERY(E, A, OP, B, OP_TXT) \
     do {\
 	if (!A || !B) {\
 	    state->error = "Syntax: <expression> "OP_TXT" <expression>";\
 	    yy_parse_failed(yypParser);\
 	    return;\
 	}\
-	E = new QpQuery(OP, *A, *B);\
+	E = new Query(OP, *A, *B);\
 	delete A;\
 	delete B;\
     } while (0)
@@ -862,40 +687,35 @@ query ::= expr(E). {
 
 query ::= . {
     // Handle a query string with no terms in.
-    state->query = QpQuery();
+    state->query = Query();
 }
 
 // expr - A query expression.
 
-%type expr {QpQuery *}
+%type expr {Query *}
 %destructor expr {delete $$;}
 
 expr(E) ::= prob_expr(P).
 	{ E = P; }
 
 expr(E) ::= bool_arg(A) AND bool_arg(B).
-	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_AND, B, "AND"); }
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND, B, "AND"); }
 
-expr(E) ::= bool_arg(A) NOT bool_arg(B). {
-    // 'NOT foo' -> '<alldocuments> NOT foo'
-    if (!A && (state->flags & QueryParser::FLAG_PURE_NOT)) {
-	A = new QpQuery("", 1, 0);
-    }
-    BOOL_OP_TO_QPQUERY(E, A, Query::OP_AND_NOT, B, "NOT");
-}
+expr(E) ::= bool_arg(A) NOT bool_arg(B).
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "NOT"); }
 
 expr(E) ::= bool_arg(A) AND NOT bool_arg(B). [NOT]
-	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
 
 expr(E) ::= bool_arg(A) OR bool_arg(B).
-	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_OR, B, "OR"); }
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_OR, B, "OR"); }
 
 expr(E) ::= bool_arg(A) XOR bool_arg(B).
-	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_XOR, B, "XOR"); }
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_XOR, B, "XOR"); }
 
 // bool_arg - an argument to a boolean operator such as AND or OR.
 
-%type bool_arg {QpQuery *}
+%type bool_arg {Query *}
 %destructor bool_arg {delete $$;}
 
 bool_arg(A) ::= expr(E). { A = E; }
@@ -909,28 +729,28 @@ bool_arg(A) ::= . [ERROR] {
 
 // prob_expr - a single compound term, or a prob.
 
-%type prob_expr {QpQuery *}
+%type prob_expr {Query *}
 %destructor prob_expr {delete $$;}
 
 prob_expr(E) ::= prob(P). {
-    E = new QpQuery(P->query);
+    E = new Query(P->query);
     // Handle any "+ terms".
     if (!P->love.empty()) {
 	if (E->empty()) {
 	    *E = P->love;
 	} else {
-	    *E = QpQuery(Query::OP_AND_MAYBE, P->love, *E);
+	    *E = Query(Query::OP_AND_MAYBE, P->love, *E);
 	}
     }
     // Handle any "- terms".
-    if (P->hate.can_match()) {
+    if (!P->hate.empty()) {
 	if (E->empty()) {
 	    delete E;
 	    // Can't just hate!
 	    yy_parse_failed(yypParser);
 	    return;
 	}
-	*E = QpQuery(Query::OP_AND_NOT, *E, P->hate);
+	*E = Query(Query::OP_AND_NOT, *E, P->hate);
     }
     // Handle any boolean filters.
     if (!P->filter.empty()) {
@@ -938,7 +758,7 @@ prob_expr(E) ::= prob(P). {
 	    *E = P->filter;
 	    // FIXME and make the query boolean somehow...
 	} else {
-	    *E = QpQuery(Query::OP_FILTER, *E, P->filter);
+	    *E = Query(Query::OP_FILTER, *E, P->filter);
 	}
     }
     // FIXME what if E->empty() (all terms are stopwords)?
@@ -950,28 +770,12 @@ prob_expr(E) ::= term(T). {
 }
 
 // prob - a probabilistic sub-expression consisting of stop_terms, "+" terms,
-// "-" terms, boolean filters, and/or value ranges.
+// and/or "-" terms.
 //
 // Note: stop_term can also be several other things other than a simple term!
 
 %type prob {ProbQuery *}
 %destructor prob {delete $$;}
-
-prob(P) ::= RANGE_START(A) RANGE_END(B). {
-    QpQuery * range = state->value_range(A, B);
-    if (range == NULL) yy_parse_failed(yypParser);
-    P = new ProbQuery;
-    P->filter = *range;
-    delete range;
-}
-
-prob(P) ::= stop_prob(Q) RANGE_START(A) RANGE_END(B). {
-    QpQuery * range = state->value_range(A, B);
-    if (range == NULL) yy_parse_failed(yypParser);
-    P = Q;
-    add_to_query(P->filter, Query::OP_AND, *range);
-    delete range;
-}
 
 prob(P) ::= stop_term(T) stop_term(U). {
     P = new ProbQuery;
@@ -1085,12 +889,12 @@ stop_prob(P) ::= stop_term(T). {
 // If a term is loved, hated, or in a phrase, we don't want to consult the
 // stopword list, so stop_term isn't used there (instead term is).
 
-%type stop_term {QpQuery *}
+%type stop_term {Query *}
 %destructor stop_term {delete $$;}
 
 stop_term(T) ::= TERM(U). {
     if (state->is_stopword(U)) {
-	T = new QpQuery;
+	T = new Query;
 	state->add_to_stoplist(U);
     } else {
 	T = U->as_query();
@@ -1104,7 +908,7 @@ stop_term(T) ::= compound_term(U). {
 
 // term - A term or a compound_term.
 
-%type term {QpQuery *}
+%type term {Query *}
 %destructor term {delete $$;}
 
 term(T) ::= TERM(U). {
@@ -1119,7 +923,7 @@ term(T) ::= compound_term(U). {
 // compound_term - A quoted phrase (with or without prefix), a phrased_term,
 // near_expr, adj_expr, or a bracketed subexpression (with or without prefix).
 
-%type compound_term {QpQuery *}
+%type compound_term {Query *}
 %destructor compound_term {delete $$;}
 
 compound_term(T) ::= WILD_TERM(U). {
@@ -1226,5 +1030,5 @@ adj_expr(P) ::= adj_expr(Q) ADJ(N) TERM(T). {
     }
 }
 
-// Select yacc syntax highlighting in vim editor: vim: syntax=yacc
-// (lemon syntax colouring isn't supplied by default; yacc does an OK job).
+// Select appropriate syntax highlighting in vim editor: vim: syntax=lemon
+// (lemon syntax colouring isn't supplied by default though).

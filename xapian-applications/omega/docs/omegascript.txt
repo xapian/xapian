@@ -113,8 +113,7 @@ $field{NAME}
 	  $map{$field{keywords},<b>$html{$_}</b><br>}
 
 $filesize{SIZE}
-	pretty printed filesize (e.g. 1 byte, 100 bytes, 2.1K, 4.0M, 1.3G).
-	If SIZE is negative, expands to nothing.
+	pretty printed filesize (e.g. 100 bytes, 2K, 4M, 1G)
 
 $filters
 	serialised version of filtery type settings (B, DATE1, DATE2,
@@ -411,11 +410,6 @@ $substr{STRING,START[,LENGTH]}
 	If START is negative, it counts back from the end of STRING (so
 	"$substr{hello,-1}" is "o").
 
-	If LENGTH is negative, it instead specifies the number of characters
-	to omit from the end of STRING (so "$substr{example,2,-2}" is "amp").
-	Note that this means that "$substr{STRING,0,N}$substr{STRING,N}" is
-	"STRING" whether N is positive, negative or zero.
-
 $terms
 	list of matching terms for current hit.
 
@@ -459,10 +453,6 @@ $value{VALUENO[,DOCID]}
 
 $version
 	omega version string - e.g. "Xapian - omega 0.9.2"
-
-$weight
-	raw document weight of the current hit, as a floating point value
-	(mostly useful for debugging purposes).
 
 Numeric Operators:
 ==================

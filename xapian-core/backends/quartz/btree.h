@@ -553,12 +553,10 @@ class Btree {
     protected:
 
 	/** Perform the opening operation to read.
-	 *
-	 *  Return true iff the open succeeded.
 	 */
 	bool do_open_to_read(bool revision_supplied, quartz_revision_number_t revision_);
 
-	/** Perform the opening operation to write.
+	/** Perform the opening operation to read.
 	 *
 	 *  Return true iff the open succeeded.
 	 */

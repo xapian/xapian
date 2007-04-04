@@ -4,7 +4,7 @@ dnl Need autoconf 2.50 or later for many features
 dnl automake 1.6.3 requires autoconf 2.54
 dnl autoconf 2.59 is what xapian-core requires, so be consistent
 AC_PREREQ(2.59)
-AC_INIT(xapian-omega, 0.9.10)dnl FIXME: bugreport addr as third argument
+AC_INIT(omega, 0.9.10)dnl FIXME: bugreport addr as third argument
 # Need 1.5 for AM_CXXFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
 # 1.8.5 contains a lot of fixes over 1.6.3
 AM_INIT_AUTOMAKE([1.8.5])
@@ -13,30 +13,15 @@ AC_CONFIG_SRCDIR(omega.cc)
 
 AC_CONFIG_HEADERS(config.h)
 
-dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
-dnl makes configure take longer to run.  We force it not to using the method
-dnl suggested here (which also reduces configure size):
-dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/8172
-m4_defun([_LT_AC_LANG_F77_CONFIG], [:])
-dnl Eliminating the unused code for gcj and rc probes further reduces the size
-dnl of the generated configure script (by 29% in total):
-m4_defun([_LT_AC_LANG_GCJ_CONFIG], [:])
-m4_defun([_LT_AC_LANG_RC_CONFIG], [:])
-
 dnl Check for libxapian
 AC_PROG_LIBTOOL
-XO_LIB_XAPIAN
+XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests
 CXXFLAGS="$CXXFLAGS $XAPIAN_CXXFLAGS"
 
 dnl disable "maintainer only" rules by default
 AM_MAINTAINER_MODE
 
-dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
-dnl code can be removed once we move to requiring autoconf 2.60 or newer.
-test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
-AC_SUBST(docdir)
- 
 dnl Checks for programs.
 AC_PROG_CXX
 
@@ -68,27 +53,7 @@ fi
 dnl Check for lstat (not available under mingw for example).
 AC_CHECK_FUNCS(lstat)
 
-dnl Add in portable replacement for mkdtemp on platforms which lack it.
-AC_CHECK_FUNCS(mkdtemp)
-AM_CONDITIONAL(NEED_MKDTEMP, [test yes != "$ac_cv_func_mkdtemp"])
-
-dnl Need a full link check for posix_fadvise.
-AC_LINK_IFELSE([
-  AC_LANG_PROGRAM(
-    [[
-#ifdef __linux__
-# define _POSIX_C_SOURCE 200112L /* for posix_fadvise from fcntl.h */
-#endif
-#include <fcntl.h>
-    ]], [[
-      posix_fadvise(1, 0, 0, POSIX_FADV_NOREUSE);
-      posix_fadvise(1, 0, 0, POSIX_FADV_SEQUENTIAL);
-      posix_fadvise(1, 0, 0, POSIX_FADV_DONTNEED);
-    ]])],
-  [AC_DEFINE(HAVE_POSIX_FADVISE, 1, [Define to 1 if you have the 'posix_fadvise' function])]
-)
-
-AC_CHECK_FUNCS(mmap)
+AC_CHECK_FUNCS(posix_fadvise mmap)
 
 dnl Check that snprintf actually works as it's meant to.
 dnl
@@ -157,80 +122,6 @@ case $ac_cv_func_snprintf in
        [Define to the name of a function implementing snprintf but not caring about ISO C90 return value semantics (if one exists)])
     ;;
 esac
-
-AC_ARG_WITH(iconv,
-  AC_HELP_STRING([--with-iconv], [force use of iconv (error if not found)])
-  AC_HELP_STRING([--without-iconv], [don't use iconv]),
-  [with_iconv=$withval], [with_iconv=auto])
-
-if test no != "$with_iconv" ; then
-  ICONV_LDFLAGS=
-  AC_SEARCH_LIBS(iconv, iconv, [], [
-    dnl For fink on OS X.
-    if test -f "/sw/etc/fink.conf" ; then
-      AC_CANONICAL_HOST
-      case $host_os in
-      darwin*)
-	ICONV_LDFLAGS=-L/sw/lib
-	SAVE_LDFLAGS=$LDFLAGS
-	LDFLAGS="$LDFLAGS $ICONV_LDFLAGS"
-	AC_CHECK_LIB(iconv, iconv, [], [
-	  if test yes = "$with_iconv" ; then
-	    AC_MSG_ERROR([iconv not found, but --with-iconv specified])
-	  fi
-	  ICONV_LDFLAGS=
-	  with_iconv=no
-	])
-	LDFLAGS=$SAVE_LDFLAGS
-      esac
-    fi
-  ])
-  AC_SUBST(ICONV_LDFLAGS)
-fi
-
-if test no != "$with_iconv" ; then
-  dnl Check if iconv take "char**" or "const char**" as its input.
-  dnl Solaris 2.9 has "const char **"; GNU iconv has "char **".
-  AC_MSG_CHECKING([for type of input pointer for iconv])
-  AC_CACHE_VAL([xo_cv_iconv_input],
-    [
-      xo_cv_iconv_input=
-      for t in 'char*' 'const char *' ; do
-	dnl Use a link check as just compiling was falsely detecting a
-	dnl working iconv installation on some platforms.
-	AC_LINK_IFELSE(
-	  [AC_LANG_PROGRAM(
-	    [#include <iconv.h>],
-	    [[
-	      char buf[20];
-	      $t in = "hello";
-	      size_t in_len = 5;
-	      char * out = buf;
-	      size_t out_len = 20;
-	      iconv((iconv_t)-1, &in, &in_len, &out, &out_len);
-	    ]])],
-	  [
-	  xo_cv_iconv_input=$t
-	  break
-	])
-      done
-      if test -z "$xo_cv_iconv_input"; then
-	if test yes = "$with_iconv" ; then
-	  AC_MSG_RESULT([not found])
-	  AC_MSG_ERROR([Failed to work out how to call iconv but --with-iconv specified])
-	fi
-	AC_MSG_RESULT([not found - not using iconv])
-	with_iconv=no
-      fi
-    ])
-  AC_MSG_RESULT([$xo_cv_iconv_input])
-  AC_DEFINE_UNQUOTED(ICONV_INPUT_TYPE, [$xo_cv_iconv_input],
-		     [type of input pointer for iconv])
-fi
-
-if test no != "$with_iconv" ; then
-  AC_DEFINE(USE_ICONV, 1, [Define if iconv() should be used for converting character sets.])
-fi
 
 dnl Check processor endianness.
 AC_C_BIGENDIAN
@@ -343,6 +234,14 @@ if test yes = "$GXX"; then
 	esac
       fi
     ])
+else
+  dnl With SGI's C++ compiler, we have to specify "-ptused" or we get strange
+  dnl template linking errors.
+  AC_TRY_COMPILE([],
+    [#ifndef _SGI_COMPILER_VERSION
+  choke me
+#endif],
+    [AM_CXXFLAGS="$AM_CXXFLAGS -O2 -ptused"])
 fi
 
 AC_SUBST(AM_CXXFLAGS)

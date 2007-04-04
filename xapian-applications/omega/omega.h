@@ -59,9 +59,6 @@ extern int threshold;
 extern bool sort_numeric;
 extern Xapian::valueno sort_key;
 extern bool sort_ascending;
-extern bool sort_after;
-extern Xapian::Enquire::docid_order docid_order;
-
 extern Xapian::valueno collapse_key;
 extern bool collapse;
 

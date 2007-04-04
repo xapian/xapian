@@ -1,6 +1,6 @@
 /* queryparsertest.cc: Tests of Xapian::QueryParser
  *
- * Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -62,7 +62,7 @@ static test test_or_queries[] = {
     { "\"1.4\"", "(1:(pos=1) PHRASE 2 4:(pos=2))" },
     { "\"1.\"", "1:(pos=1)" },
     { "\"A#.B.\"", "(Ra#:(pos=1) PHRASE 2 Rb:(pos=2))" },
-    { "h\xc3\xb6hle", "h\xc3\xb6hle:(pos=1)" },
+    { "h\xf6hle", "hoehl:(pos=1)" },
     { "one +two three", "(two:(pos=2) AND_MAYBE (one:(pos=1) OR three:(pos=3)))" },
     { "subject:test other", "(XTtest:(pos=1) OR other:(pos=2))" },
     { "subject:\"space flight\"", "(XTspace:(pos=1) PHRASE 2 XTflight:(pos=2))" },
@@ -74,7 +74,7 @@ static test test_or_queries[] = {
     { "beer AND NOT lager", "(beer:(pos=1) AND_NOT lager:(pos=2))" },
     { "one AND two", "(one:(pos=1) AND two:(pos=2))" },
     { "one A.N.D. two", "(one:(pos=1) OR Rand:(pos=2) OR two:(pos=3))" },
-    { "one \xc3\x81ND two", "(one:(pos=1) OR \xc3\xa1nd:(pos=2) OR two:(pos=3))" },
+    { "one \xc1ND. two", "(one:(pos=1) OR Rand:(pos=2) OR two:(pos=3))" },
     { "one author:AND two", "(one:(pos=1) OR ARand:(pos=2) OR two:(pos=3))" },
     { "author:hyphen-ated", "(Ahyphen:(pos=1) PHRASE 2 Aate:(pos=2))" },
     { "cvs site:xapian.org", "(cvs:(pos=1) FILTER Hxapian.org)" },
@@ -85,7 +85,6 @@ static test test_or_queries[] = {
     { "mug +site:xapian.org -site:cvs.xapian.org", "((mug:(pos=1) AND_NOT Hcvs.xapian.org) FILTER Hxapian.org)" },
     { "mug -site:cvs.xapian.org +site:xapian.org", "((mug:(pos=1) AND_NOT Hcvs.xapian.org) FILTER Hxapian.org)" },
     { "NOT windows", "Syntax: <expression> NOT <expression>" },
-    { "a AND (NOT b)", "Syntax: <expression> NOT <expression>" },
     { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
     { "gordian NOT", "Syntax: <expression> NOT <expression>" },
     { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
@@ -102,16 +101,11 @@ static test test_or_queries[] = {
     { "\"missing quote", "(miss:(pos=1) PHRASE 2 quot:(pos=2))" },
     { "DVD+RW", "(Rdvd:(pos=1) OR Rrw:(pos=2))" }, // Would a phrase be better?
     { "+\"must have\" optional", "((must:(pos=1) PHRASE 2 have:(pos=2)) AND_MAYBE option:(pos=3))" },
-    { "one NEAR two NEAR three", "(one:(pos=1) NEAR 12 two:(pos=2) NEAR 12 three:(pos=3))" },
     { "something NEAR/3 else", "(someth:(pos=1) NEAR 4 els:(pos=2))" },
     { "a NEAR/6 b NEAR c", "(a:(pos=1) NEAR 8 b:(pos=2) NEAR 8 c:(pos=3))" },
     { "something ADJ else", "(someth:(pos=1) PHRASE 11 els:(pos=2))" },
     { "something ADJ/3 else", "(someth:(pos=1) PHRASE 4 els:(pos=2))" },
     { "a ADJ/6 b ADJ c", "(a:(pos=1) PHRASE 8 b:(pos=2) PHRASE 8 c:(pos=3))" },
-    // Regression test - Unicode character values were truncated to 8 bits
-    // before testing C_isdigit(), so this rather artificial example parsed
-    // to: (a:(pos=1) NEAR 262 b:(pos=2))
-    { "a NEAR/\xc4\xb5 b", "((a:(pos=1) NEAR 11 \xc4\xb5:(pos=2)) OR b:(pos=3))" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(Rcall:(pos=1) OR to:(pos=2) OR undefin:(pos=3) OR function:(pos=4) OR imagecr:(pos=5))" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "((mysql:(pos=1) PHRASE 3 fetch:(pos=2) PHRASE 3 row:(pos=3)) OR suppli:(pos=4) OR argument:(pos=5) OR is:(pos=6) OR not:(pos=7) OR a:(pos=8) OR valid:(pos=9) OR Rmysql:(pos=10) OR result:(pos=11) OR resourc:(pos=12))" },
@@ -125,14 +119,14 @@ static test test_or_queries[] = {
     { "\"e-cube\" barebone", "((e:(pos=1) PHRASE 2 cube:(pos=2)) OR barebon:(pos=3))" },
     { "\"./httpd: symbol not found: dlopen\"", "(httpd:(pos=1) PHRASE 5 symbol:(pos=2) PHRASE 5 not:(pos=3) PHRASE 5 found:(pos=4) PHRASE 5 dlopen:(pos=5))" },
     { "ERROR 2003: Can't connect to MySQL server on 'localhost' (10061)",
-      "(Rerror:(pos=1) OR 2003:(pos=2) OR Rcan't:(pos=3) OR connect:(pos=4) OR to:(pos=5) OR Rmysql:(pos=6) OR server:(pos=7) OR on:(pos=8) OR localhost:(pos=9) OR 10061:(pos=10))" },
+      "(Rerror:(pos=1) OR 2003:(pos=2) OR (Rcan:(pos=3) PHRASE 2 t:(pos=4)) OR connect:(pos=5) OR to:(pos=6) OR Rmysql:(pos=7) OR server:(pos=8) OR on:(pos=9) OR localhost:(pos=10) OR 10061:(pos=11))" },
     { "location.href = \"\"", "(locat:(pos=1) PHRASE 2 href:(pos=2))" },
     { "method=\"post\" action=\"\">", "(method:(pos=1) OR post:(pos=2) OR action:(pos=3))" },
     { "behuizing 19\" inch", "(behuiz:(pos=1) OR 19:(pos=2) OR inch:(pos=3))" },
     { "19\" rack", "(19:(pos=1) OR rack:(pos=2))" },
     { "3,5\" mainboard", "(3:(pos=1) OR 5:(pos=2) OR mainboard:(pos=3))" },
     { "553 sorry, that domain isn't in my list of allowed rcpthosts (#5.7.1)",
-      "(553:(pos=1) OR sorri:(pos=2) OR that:(pos=3) OR domain:(pos=4) OR isn't:(pos=5) OR in:(pos=6) OR my:(pos=7) OR list:(pos=8) OR of:(pos=9) OR allow:(pos=10) OR rcpthost:(pos=11) OR (5:(pos=12) PHRASE 3 7:(pos=13) PHRASE 3 1:(pos=14)))" },
+      "(553:(pos=1) OR sorri:(pos=2) OR that:(pos=3) OR domain:(pos=4) OR (isn:(pos=5) PHRASE 2 t:(pos=6)) OR in:(pos=7) OR my:(pos=8) OR list:(pos=9) OR of:(pos=10) OR allow:(pos=11) OR rcpthost:(pos=12) OR (5:(pos=13) PHRASE 3 7:(pos=14) PHRASE 3 1:(pos=15)))" },
     { "data error (clic redundancy check)", "(data:(pos=1) OR error:(pos=2) OR clic:(pos=3) OR redund:(pos=4) OR check:(pos=5))" },
     { "? mediaplayer 9\"", "(mediaplay:(pos=1) OR 9:(pos=2))" },
     { "date(\"w\")", "(date:(pos=1) OR w:(pos=2))" },
@@ -252,7 +246,7 @@ static test test_or_queries[] = {
     { "VXD NAVEX()@)", "(Rvxd:(pos=1) OR Rnavex:(pos=2))" },
     { "\"Iiyama AS4314UT 17\" \"", "(Riiyama:(pos=1) PHRASE 3 Ras4314ut:(pos=2) PHRASE 3 17:(pos=3))" },
     { "include (\"$id.html\");", "(includ:(pos=1) OR (id:(pos=2) PHRASE 2 html:(pos=3)))" },
-    { "include id.Today's date is: <? print (date (\"M d, Y\")); ?>hp", "(includ:(pos=1) OR (id:(pos=2) PHRASE 2 Rtoday's:(pos=3)) OR date:(pos=4) OR is:(pos=5) OR print:(pos=6) OR date:(pos=7) OR (Rm:(pos=8) PHRASE 3 d:(pos=9) PHRASE 3 Ry:(pos=10)) OR hp:(pos=11))" },
+    { "include id.Today's date is: <? print (date (\"M d, Y\")); ?>hp", "(includ:(pos=1) OR (id:(pos=2) PHRASE 3 Rtoday:(pos=3) PHRASE 3 s:(pos=4)) OR date:(pos=5) OR is:(pos=6) OR print:(pos=7) OR date:(pos=8) OR (Rm:(pos=9) PHRASE 3 d:(pos=10) PHRASE 3 Ry:(pos=11)) OR hp:(pos=12))" },
     { "(program files\\common) opstarten", "(program:(pos=1) OR (file:(pos=2) PHRASE 2 common:(pos=3)) OR opstarten:(pos=4))" },
     { "java \" string", "(java:(pos=1) OR string:(pos=2))" },
     { "+=", "" },
@@ -321,7 +315,7 @@ static test test_or_queries[] = {
     { "AMD Athlon XP 2500+ (1,83GHz, 512KB)", "(Ramd:(pos=1) OR Rathlon:(pos=2) OR Rxp:(pos=3) OR 2500+:(pos=4) OR 1:(pos=5) OR 83ghz:(pos=6) OR 512kb:(pos=7))" },
     { "'q ben\"", "(q:(pos=1) OR ben:(pos=2))" },
     { "getsmbfilepwent: malformed password entry (uid not number)", "(getsmbfilepw:(pos=1) OR malform:(pos=2) OR password:(pos=3) OR entri:(pos=4) OR uid:(pos=5) OR not:(pos=6) OR number:(pos=7))" },
-    { "\xc3\xb6ude onderdelen\"", "(\xc3\xb6ude:(pos=1) OR onderdelen:(pos=2))" },
+    { "\xf6ude onderdelen\"", "(oeud:(pos=1) OR onderdelen:(pos=2))" },
     { "Heeft iemand enig idee waarom de pioneer (zelf met originele firmware van pioneer) bij mij niet wil flashen ?" "?", "(Rheeft:(pos=1) OR iemand:(pos=2) OR enig:(pos=3) OR ide:(pos=4) OR waarom:(pos=5) OR de:(pos=6) OR pioneer:(pos=7) OR zelf:(pos=8) OR met:(pos=9) OR originel:(pos=10) OR firmwar:(pos=11) OR van:(pos=12) OR pioneer:(pos=13) OR bij:(pos=14) OR mij:(pos=15) OR niet:(pos=16) OR wil:(pos=17) OR flashen:(pos=18))" }, // Split ? and ? to avoid trigram problems
     { "asus a7v266 bios nieuw -(a7v266-e)", "((asus:(pos=1) OR a7v266:(pos=2) OR bio:(pos=3) OR nieuw:(pos=4)) AND_NOT (a7v266:(pos=5) PHRASE 2 e:(pos=6)))" },
     { "cybercom \"dvd+r\"", "(cybercom:(pos=1) OR (dvd:(pos=2) PHRASE 2 r:(pos=3)))" },
@@ -374,7 +368,7 @@ static test test_or_queries[] = {
     { "apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)", "(apm:(pos=1) OR Rbios:(pos=2) OR version:(pos=3) OR (1:(pos=4) PHRASE 2 2:(pos=5)) OR Rflags:(pos=6) OR 0x03:(pos=7) OR Rdriver:(pos=8) OR version:(pos=9) OR (1:(pos=10) PHRASE 2 16:(pos=11)))" },
     { "GA-8IHXP(3.0)", "((Rga:(pos=1) PHRASE 2 8ihxp:(pos=2)) OR (3:(pos=3) PHRASE 2 0:(pos=4)))" },
     { "8IHXP(3.0)", "(8ihxp:(pos=1) OR (3:(pos=2) PHRASE 2 0:(pos=3)))" },
-    { "na\xc2\xb7si (de ~ (m.))", "(na:(pos=1) OR si:(pos=2) OR de:(pos=3) OR m:(pos=4))" },
+    { "na\xb7si (de ~ (m.))", "(na:(pos=1) OR si:(pos=2) OR de:(pos=3) OR m:(pos=4))" },
     { "header(\"Content-Disposition: attachment;", "(header:(pos=1) OR (Rcontent:(pos=2) PHRASE 3 Rdisposition:(pos=3) PHRASE 3 attach:(pos=4)))" },
     { "\"header(\"Content-Disposition: attachment;\"", "(header:(pos=1) OR (Rcontent:(pos=2) PHRASE 2 Rdisposition:(pos=3)) OR attach:(pos=4))" },
     { "\"Beep -f\"", "(Rbeep:(pos=1) PHRASE 2 f:(pos=2))" },
@@ -407,7 +401,7 @@ static test test_or_queries[] = {
     { "php ;)  in een array zetten", "(php:(pos=1) OR in:(pos=2) OR een:(pos=3) OR array:(pos=4) OR zetten:(pos=5))" },
     { "De inhoud van uw advertentie is niet geschikt voor plaatsing op marktplaats! (001", "(Rde:(pos=1) OR inhoud:(pos=2) OR van:(pos=3) OR uw:(pos=4) OR advertenti:(pos=5) OR is:(pos=6) OR niet:(pos=7) OR geschikt:(pos=8) OR voor:(pos=9) OR plaats:(pos=10) OR op:(pos=11) OR marktplaat:(pos=12) OR 001:(pos=13))" },
     { "creative (soundblaster OR sb) 128", "(creativ:(pos=1) OR soundblast:(pos=2) OR sb:(pos=3) OR 128:(pos=4))" },
-    { "Can't open file: (errno: 145)", "(Rcan't:(pos=1) OR open:(pos=2) OR file:(pos=3) OR errno:(pos=4) OR 145:(pos=5))" },
+    { "Can't open file: (errno: 145)", "((Rcan:(pos=1) PHRASE 2 t:(pos=2)) OR open:(pos=3) OR file:(pos=4) OR errno:(pos=5) OR 145:(pos=6))" },
     { "Formateren lukt niet(98,XP)", "(Rformateren:(pos=1) OR lukt:(pos=2) OR niet:(pos=3) OR 98:(pos=4) OR Rxp:(pos=5))" },
     { "access denied (java.io.", "(access:(pos=1) OR deni:(pos=2) OR (java:(pos=3) PHRASE 2 io:(pos=4)))" },
     { "(access denied (java.io.)", "(access:(pos=1) OR deni:(pos=2) OR (java:(pos=3) PHRASE 2 io:(pos=4)))" },
@@ -422,7 +416,7 @@ static test test_or_queries[] = {
     { "PPP Closed : LCP Time-out (VPN-0)", "(Rppp:(pos=1) OR Rclosed:(pos=2) OR Rlcp:(pos=3) OR (Rtime:(pos=4) PHRASE 2 out:(pos=5)) OR (Rvpn:(pos=6) PHRASE 2 0:(pos=7)))" },
     { "COM+-gebeurtenissysteem", "(Rcom:(pos=1) OR gebeurtenissysteem:(pos=2))" },
     { "rcpthosts (#5.7.1)", "(rcpthost:(pos=1) OR (5:(pos=2) PHRASE 3 7:(pos=3) PHRASE 3 1:(pos=4)))" },
-    { "Dit apparaat werkt niet goed omdat Windows de voor dit apparaat vereiste stuurprogramma's niet kan laden.  (Code 31)", "(Rdit:(pos=1) OR apparaat:(pos=2) OR werkt:(pos=3) OR niet:(pos=4) OR go:(pos=5) OR omdat:(pos=6) OR Rwindows:(pos=7) OR de:(pos=8) OR voor:(pos=9) OR dit:(pos=10) OR apparaat:(pos=11) OR vereist:(pos=12) OR stuurprogramma:(pos=13) OR niet:(pos=14) OR kan:(pos=15) OR laden:(pos=16) OR Rcode:(pos=17) OR 31:(pos=18))" },
+    { "Dit apparaat werkt niet goed omdat Windows de voor dit apparaat vereiste stuurprogramma's niet kan laden.  (Code 31)", "(Rdit:(pos=1) OR apparaat:(pos=2) OR werkt:(pos=3) OR niet:(pos=4) OR go:(pos=5) OR omdat:(pos=6) OR Rwindows:(pos=7) OR de:(pos=8) OR voor:(pos=9) OR dit:(pos=10) OR apparaat:(pos=11) OR vereist:(pos=12) OR (stuurprogramma:(pos=13) PHRASE 2 s:(pos=14)) OR niet:(pos=15) OR kan:(pos=16) OR laden:(pos=17) OR Rcode:(pos=18) OR 31:(pos=19))" },
     { "window.open( scrollbar", "((window:(pos=1) PHRASE 2 open:(pos=2)) OR scrollbar:(pos=3))" },
     { "T68i truc ->", "(Rt68i:(pos=1) OR truc:(pos=2))" },
     { "T68i ->", "Rt68i:(pos=1)" },
@@ -443,7 +437,7 @@ static test test_or_queries[] = {
     { "PowerDVD does not support the current display mode. (DDraw Overlay mode is recommended)", "(Rpowerdvd:(pos=1) OR doe:(pos=2) OR not:(pos=3) OR support:(pos=4) OR the:(pos=5) OR current:(pos=6) OR display:(pos=7) OR mode:(pos=8) OR Rddraw:(pos=9) OR Roverlay:(pos=10) OR mode:(pos=11) OR is:(pos=12) OR recommend:(pos=13))" },
     { "Warning:  Unexpected character in input:  '' (ASCII=92) state=1  highlight", "(Rwarning:(pos=1) OR Runexpected:(pos=2) OR charact:(pos=3) OR in:(pos=4) OR input:(pos=5) OR Rascii:(pos=6) OR 92:(pos=7) OR state:(pos=8) OR 1:(pos=9) OR highlight:(pos=10))" },
     { "error: Qt-1.4 (headers and libraries) not found. Please check your installation!", "(error:(pos=1) OR (Rqt:(pos=2) PHRASE 3 1:(pos=3) PHRASE 3 4:(pos=4)) OR header:(pos=5) OR and:(pos=6) OR librari:(pos=7) OR not:(pos=8) OR found:(pos=9) OR Rplease:(pos=10) OR check:(pos=11) OR your:(pos=12) OR instal:(pos=13))" },
-    { "Error while initializing the sound driver: device /dev/dsp can't be opened (No such device) The sound server will continue, using the null output device.", "(Rerror:(pos=1) OR while:(pos=2) OR initi:(pos=3) OR the:(pos=4) OR sound:(pos=5) OR driver:(pos=6) OR devic:(pos=7) OR (dev:(pos=8) PHRASE 2 dsp:(pos=9)) OR can't:(pos=10) OR be:(pos=11) OR open:(pos=12) OR Rno:(pos=13) OR such:(pos=14) OR devic:(pos=15) OR Rthe:(pos=16) OR sound:(pos=17) OR server:(pos=18) OR will:(pos=19) OR continu:(pos=20) OR use:(pos=21) OR the:(pos=22) OR null:(pos=23) OR output:(pos=24) OR device:(pos=25))" },
+    { "Error while initializing the sound driver: device /dev/dsp can't be opened (No such device) The sound server will continue, using the null output device.", "(Rerror:(pos=1) OR while:(pos=2) OR initi:(pos=3) OR the:(pos=4) OR sound:(pos=5) OR driver:(pos=6) OR devic:(pos=7) OR (dev:(pos=8) PHRASE 2 dsp:(pos=9)) OR (can:(pos=10) PHRASE 2 t:(pos=11)) OR be:(pos=12) OR open:(pos=13) OR Rno:(pos=14) OR such:(pos=15) OR devic:(pos=16) OR Rthe:(pos=17) OR sound:(pos=18) OR server:(pos=19) OR will:(pos=20) OR continu:(pos=21) OR use:(pos=22) OR the:(pos=23) OR null:(pos=24) OR output:(pos=25) OR device:(pos=26))" },
     { "mag mijn waarschuwing nu weg ? ;)", "(mag:(pos=1) OR mijn:(pos=2) OR waarschuw:(pos=3) OR nu:(pos=4) OR weg:(pos=5))" },
     { "Abit NF7-S (nForce 2 Chipset) Rev 2.0", "(Rabit:(pos=1) OR (Rnf7:(pos=2) PHRASE 2 Rs:(pos=3)) OR nforc:(pos=4) OR 2:(pos=5) OR Rchipset:(pos=6) OR Rrev:(pos=7) OR (2:(pos=8) PHRASE 2 0:(pos=9)))" },
     { "Setup Could Not Verify the Integrity of the File\" Error Message Occurs When You Try to Install Windows XP Service Pack 1", "(Rsetup:(pos=1) OR Rcould:(pos=2) OR Rnot:(pos=3) OR Rverify:(pos=4) OR the:(pos=5) OR Rintegrity:(pos=6) OR of:(pos=7) OR the:(pos=8) OR Rfile:(pos=9) OR (Rerror:(pos=10) PHRASE 13 Rmessage:(pos=11) PHRASE 13 Roccurs:(pos=12) PHRASE 13 Rwhen:(pos=13) PHRASE 13 Ryou:(pos=14) PHRASE 13 Rtry:(pos=15) PHRASE 13 to:(pos=16) PHRASE 13 Rinstall:(pos=17) PHRASE 13 Rwindows:(pos=18) PHRASE 13 Rxp:(pos=19) PHRASE 13 Rservice:(pos=20) PHRASE 13 Rpack:(pos=21) PHRASE 13 1:(pos=22)))" },
@@ -466,7 +460,7 @@ static test test_or_queries[] = {
     { "php getenv(\"HTTP_REFERER\")", "(php:(pos=1) OR getenv:(pos=2) OR (Rhttp:(pos=3) PHRASE 2 Rreferer:(pos=4)))" },
     { "nec+-1300", "(nec:(pos=1) OR 1300:(pos=2))" },
     { "smbpasswd script \"-s\"", "(smbpasswd:(pos=1) OR script:(pos=2) OR s:(pos=3))" },
-    { "leestekens \" \xc3\xb6 \xc3\xab", "(leesteken:(pos=1) OR (\xc3\xb6:(pos=2) PHRASE 2 \xc3\xab:(pos=3)))" },
+    { "leestekens \" \xd6 \xeb", "(leesteken:(pos=1) OR (Roe:(pos=2) PHRASE 2 e:(pos=3)))" },
     { "freesco and (all seeing eye)", "(freesco:(pos=1) OR and:(pos=2) OR all:(pos=3) OR see:(pos=4) OR eye:(pos=5))" },
     { "('all seeing eye') and freesco", "(all:(pos=1) OR see:(pos=2) OR eye:(pos=3) OR and:(pos=4) OR freesco:(pos=5))" },
     { "\"[......\"", "" },
@@ -527,7 +521,7 @@ static test test_or_queries[] = {
     { "NEAR 207 46 249 27", "(Rnear:(pos=1) OR 207:(pos=2) OR 46:(pos=3) OR 249:(pos=4) OR 27:(pos=5))" },
     { "- NEAR 12V voeding", "(Rnear:(pos=1) OR 12v:(pos=2) OR voed:(pos=3))" },
     { "waarom \"~\" in directorynaam", "(waarom:(pos=1) OR in:(pos=2) OR directorynaam:(pos=3))" },
-    { "cd'r NEAR toebehoren", "(cd'r:(pos=1) NEAR 11 toebehoren:(pos=2))" },
+    { "cd'r NEAR toebehoren", "((cd:(pos=1) PHRASE 2 r:(pos=2)) OR Rnear:(pos=3) OR toebehoren:(pos=4))" }, // FIXME: Not ideal - should NEAR work on phrases?
     { NULL, NULL }
 };
 
@@ -554,15 +548,6 @@ static test test_stop_queries[] = {
     { NULL, NULL }
 };
 
-static test test_pure_not_queries[] = {
-    { "NOT windows", "(<alldocuments> AND_NOT window:(pos=1))" },
-    { "a AND (NOT b)", "(a:(pos=1) AND (<alldocuments> AND_NOT b:(pos=2)))" },
-    { "AND NOT windows", "Syntax: <expression> AND NOT <expression>" },
-    { "gordian NOT", "Syntax: <expression> NOT <expression>" },
-    { "gordian AND NOT", "Syntax: <expression> AND NOT <expression>" },
-    { NULL, NULL }
-};
-
 static bool test_queryparser1()
 {
     Xapian::QueryParser queryparser;
@@ -584,6 +569,8 @@ static bool test_queryparser1()
 	    expect = string("Xapian::Query(") + expect + ')';
 	} catch (const Xapian::Error &e) {
 	    parsed = e.get_msg();
+	} catch (const char *s) {
+	    parsed = s;
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
@@ -616,30 +603,14 @@ static bool test_qp_default_op1()
 	    expect = string("Xapian::Query(") + expect + ')';
 	} catch (const Xapian::Error &e) {
 	    parsed = e.get_msg();
+	} catch (const char *s) {
+	    parsed = s;
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
 	tout << "Query: " << p->query << '\n';
 	TEST_EQUAL(parsed, expect);
     }
-    return true;
-}
-
-// Feature test for specify the default prefix (new in Xapian 1.0).
-static bool test_qp_default_prefix1()
-{
-    Xapian::QueryParser queryparser;
-    queryparser.set_stemmer(Xapian::Stem("english"));
-    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
-    queryparser.add_prefix("title", "XT");
-
-    Xapian::Query qobj;
-    qobj = queryparser.parse_query("hello world", 0, "A");
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((Ahello:(pos=1) OR Aworld:(pos=2)))");
-    qobj = queryparser.parse_query("me title:stuff", 0, "A");
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((Ame:(pos=1) OR XTstuff:(pos=2)))");
-    qobj = queryparser.parse_query("title:(stuff) me", Xapian::QueryParser::FLAG_BOOLEAN, "A");
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((XTstuff:(pos=1) OR Ame:(pos=2)))");
     return true;
 }
 
@@ -683,110 +654,6 @@ static bool test_qp_flag_wildcard1()
     // were in the database or not):
     qobj = queryparser.parse_query("mUTTON++");
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
-    // Regression test: check that wildcards work with +terms.
-    unsigned flags = Xapian::QueryParser::FLAG_WILDCARD |
-		     Xapian::QueryParser::FLAG_LOVEHATE;
-    qobj = queryparser.parse_query("+mai* main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_MAYBE main:(pos=2)))");
-    // Regression test (if we had a +term which was a wildcard and wasn't
-    // present, the query could still match documents).
-    qobj = queryparser.parse_query("foo* main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
-    qobj = queryparser.parse_query("+foo* main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
-    qobj = queryparser.parse_query("foo* +main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
-    qobj = queryparser.parse_query("+foo* +main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
-    qobj = queryparser.parse_query("foo* mai", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=2))");
-    qobj = queryparser.parse_query("+foo* mai", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
-    qobj = queryparser.parse_query("foo* +mai", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=2))");
-    qobj = queryparser.parse_query("+foo* +mai", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
-    qobj = queryparser.parse_query("-foo* main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
-    qobj = queryparser.parse_query("main -foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
-    qobj = queryparser.parse_query("main -foo* -bar", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_NOT bar:(pos=3)))");
-    qobj = queryparser.parse_query("main -bar -foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_NOT bar:(pos=2)))");
-    return true;
-}
-
-// Test partial queries.
-static bool test_qp_flag_partial()
-{
-    Xapian::WritableDatabase db(Xapian::InMemory::open());
-    Xapian::Document doc;
-    Xapian::Stem stemmer("english");
-    doc.add_term("abc");
-    doc.add_term("main");
-    doc.add_term("muscat");
-    doc.add_term("muscle");
-    doc.add_term("musclebound");
-    doc.add_term("muscular");
-    doc.add_term("mutton");
-    doc.add_term(stemmer("outside"));
-    doc.add_term(stemmer("out"));
-    doc.add_term("Routside");
-    db.add_document(doc);
-    Xapian::QueryParser queryparser;
-    queryparser.set_database(db);
-    queryparser.set_stemmer(stemmer);
-    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
-
-    // Check behaviour with unstemmed terms
-    Xapian::Query qobj = queryparser.parse_query("a", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(abc:(pos=1))");
-    qobj = queryparser.parse_query("ab", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(abc:(pos=1))");
-    qobj = queryparser.parse_query("muscle", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) OR musclebound:(pos=1)))");
-    qobj = queryparser.parse_query("meat", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
-    qobj = queryparser.parse_query("musc", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1)))");
-    qobj = queryparser.parse_query("mutt", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
-    qobj = queryparser.parse_query("abc musc", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR muscat:(pos=2) OR muscle:(pos=2) OR musclebound:(pos=2) OR muscular:(pos=2)))");
-    qobj = queryparser.parse_query("a* mutt", Xapian::QueryParser::FLAG_PARTIAL | Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR mutton:(pos=2)))");
-
-    // Check behaviour with stemmed terms, and stem strategy STEM_SOME.
-    qobj = queryparser.parse_query("o", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outsid:(pos=1)))");
-    qobj = queryparser.parse_query("ou", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outsid:(pos=1)))");
-    qobj = queryparser.parse_query("out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outsid:(pos=1)))");
-    qobj = queryparser.parse_query("outs", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outsid:(pos=1)))");
-    qobj = queryparser.parse_query("outsi", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(outsid:(pos=1))");
-    qobj = queryparser.parse_query("outsid", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(outsid:(pos=1))");
-    qobj = queryparser.parse_query("outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(outsid:(pos=1))");
-
-    // Check behaviour with capitalised terms, and stem strategy STEM_SOME.
-    qobj = queryparser.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(Routside:(pos=1))");
-    qobj = queryparser.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(Routside:(pos=1))");
-
-    // If stemming strategy is STEM_ALL, we don't get rawterms from capitalised
-    // queries (because we assume everything has been stemmed).
-    queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
-    qobj = queryparser.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outsid:(pos=1)))");
-    qobj = queryparser.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(outsid:(pos=1))");
-
     return true;
 }
 
@@ -826,6 +693,8 @@ static bool test_qp_stopper1()
 	    expect = string("Xapian::Query(") + expect + ')';
 	} catch (const Xapian::Error &e) {
 	    parsed = e.get_msg();
+	} catch (const char *s) {
+	    parsed = s;
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
@@ -835,38 +704,7 @@ static bool test_qp_stopper1()
     return true;
 }
 
-static bool test_qp_flag_pure_not1()
-{
-    using Xapian::QueryParser;
-    Xapian::QueryParser qp;
-    qp.set_stemmer(Xapian::Stem("english"));
-    qp.set_stemming_strategy(QueryParser::STEM_SOME);
-    for (test *p = test_pure_not_queries; p->query; ++p) {
-	string expect, parsed;
-	if (p->expect)
-	    expect = p->expect;
-	else
-	    expect = "parse error";
-	try {
-	    Xapian::Query qobj = qp.parse_query(p->query,
-						QueryParser::FLAG_BOOLEAN |
-						QueryParser::FLAG_PURE_NOT);
-	    parsed = qobj.get_description();
-	    expect = string("Xapian::Query(") + expect + ')';
-	} catch (const Xapian::Error &e) {
-	    parsed = e.get_msg();
-	} catch (...) {
-	    parsed = "Unknown exception!";
-	}
-	tout << "Query: " << p->query << '\n';
-	TEST_EQUAL(parsed, expect);
-    }
-    return true;
-}
-
-// Debatable if this is a regression test or a feature test, as it's not
-// obvious is this was a bug fix or a new feature.  Either way, it first
-// appeared in Xapian 1.0.
+// Regression test - prior to 0.9.10 you couldn't unstem a boolean prefix.
 static bool test_qp_unstem_boolean_prefix()
 {
     Xapian::QueryParser qp;
@@ -881,154 +719,15 @@ static bool test_qp_unstem_boolean_prefix()
     return true;
 }
 
-static test test_value_range1_queries[] = {
-    { "a..b", "VALUE_RANGE 1 a b" },
-    { "$50..100", "VALUE_RANGE 1 $50 100" },
-    { "$50..$100", "VALUE_RANGE 1 $50 $100" },
-    { "02/03/1979..10/12/1980", "VALUE_RANGE 1 02/03/1979 10/12/1980" },
-    { "a..b hello", "(hello:(pos=1) FILTER VALUE_RANGE 1 a b)" },
-    { "hello a..b", "(hello:(pos=1) FILTER VALUE_RANGE 1 a b)" },
-    { "hello a..b world", "((hello:(pos=1) OR world:(pos=2)) FILTER VALUE_RANGE 1 a b)" },
-    { "hello a..b test:foo", "(hello:(pos=1) FILTER (VALUE_RANGE 1 a b AND XTESTfoo))" },
-    { "-5..7", "VALUE_RANGE 1 -5 7" },
-    { "hello -5..7", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
-    { "-5..7 hello", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
-    { "\"time flies\" 09:00..12:30", "((time:(pos=1) PHRASE 2 flies:(pos=2)) FILTER VALUE_RANGE 1 09:00 12:30)" },
-    { NULL, NULL }
-};
-
-// Simple test of ValueRangeProcessor class.
-static bool test_qp_value_range1()
-{
-    Xapian::QueryParser qp;
-    qp.add_boolean_prefix("test", "XTEST");
-    Xapian::StringValueRangeProcessor vrp(1);
-    qp.add_valuerangeprocessor(&vrp);
-    for (test *p = test_value_range1_queries; p->query; ++p) {
-	string expect, parsed;
-	if (p->expect)
-	    expect = p->expect;
-	else
-	    expect = "parse error";
-	try {
-	    Xapian::Query qobj = qp.parse_query(p->query);
-	    parsed = qobj.get_description();
-	    expect = string("Xapian::Query(") + expect + ')';
-	} catch (const Xapian::Error &e) {
-	    parsed = e.get_msg();
-	} catch (...) {
-	    parsed = "Unknown exception!";
-	}
-	tout << "Query: " << p->query << '\n';
-	TEST_EQUAL(parsed, expect);
-    }
-    return true;
-}
-
-static test test_value_range2_queries[] = {
-    { "a..b", "VALUE_RANGE 3 a b" },
-    { "1..12", "VALUE_RANGE 2 1 12" },
-    { "20070201..20070228", "VALUE_RANGE 1 20070201 20070228" },
-    { "$10..20", "VALUE_RANGE 4 10 20" },
-    { "$10..$20", "VALUE_RANGE 4 10 20" },
-    { "12..42kg", "VALUE_RANGE 5 12 42" },
-    { "12kg..42kg", "VALUE_RANGE 5 12 42" },
-    { "12kg..42", "VALUE_RANGE 3 12kg 42" },
-    { "10..$20", "VALUE_RANGE 3 10 $20" },
-    { "1999-03-12..2020-12-30", "VALUE_RANGE 1 19990312 20201230" },
-    { "1999/03/12..2020/12/30", "VALUE_RANGE 1 19990312 20201230" },
-    { "1999.03.12..2020.12.30", "VALUE_RANGE 1 19990312 20201230" },
-    { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
-    { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
-    { "(test:a..test:b hello)", "(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)" },
-    { NULL, NULL }
-};
-
-// Test chaining of ValueRangeProcessor classes.
-static bool test_qp_value_range2()
-{
-    Xapian::QueryParser qp;
-    qp.add_boolean_prefix("test", "XTEST");
-    Xapian::DateValueRangeProcessor vrp_date(1);
-    Xapian::NumberValueRangeProcessor vrp_num(2);
-    Xapian::StringValueRangeProcessor vrp_str(3);
-    Xapian::NumberValueRangeProcessor vrp_cash(4, "$");
-    Xapian::NumberValueRangeProcessor vrp_weight(5, "kg", false);
-    qp.add_valuerangeprocessor(&vrp_date);
-    qp.add_valuerangeprocessor(&vrp_num);
-    qp.add_valuerangeprocessor(&vrp_cash);
-    qp.add_valuerangeprocessor(&vrp_weight);
-    qp.add_valuerangeprocessor(&vrp_str);
-    for (test *p = test_value_range2_queries; p->query; ++p) {
-	string expect, parsed;
-	if (p->expect)
-	    expect = p->expect;
-	else
-	    expect = "parse error";
-	try {
-	    Xapian::Query qobj = qp.parse_query(p->query);
-	    parsed = qobj.get_description();
-	    expect = string("Xapian::Query(") + expect + ')';
-	} catch (const Xapian::Error &e) {
-	    parsed = e.get_msg();
-	} catch (...) {
-	    parsed = "Unknown exception!";
-	}
-	tout << "Query: " << p->query << '\n';
-	TEST_EQUAL(parsed, expect);
-    }
-    return true;
-}
-
-static test test_value_daterange1_queries[] = {
-    { "12/03/99..12/04/01", "VALUE_RANGE 1 19991203 20011204" },
-    { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
-    { "01/30/60..02/02/59", "VALUE_RANGE 1 19600130 20590202" },
-    { NULL, NULL }
-};
-
-// Test DateValueRangeProcessor
-static bool test_qp_value_daterange1()
-{
-    Xapian::QueryParser qp;
-    Xapian::DateValueRangeProcessor vrp_date(1, true, 1960);
-    qp.add_valuerangeprocessor(&vrp_date);
-    for (test *p = test_value_daterange1_queries; p->query; ++p) {
-	string expect, parsed;
-	if (p->expect)
-	    expect = p->expect;
-	else
-	    expect = "parse error";
-	try {
-	    Xapian::Query qobj = qp.parse_query(p->query);
-	    parsed = qobj.get_description();
-	    expect = string("Xapian::Query(") + expect + ')';
-	} catch (const Xapian::Error &e) {
-	    parsed = e.get_msg();
-	} catch (...) {
-	    parsed = "Unknown exception!";
-	}
-	tout << "Query: " << p->query << '\n';
-	TEST_EQUAL(parsed, expect);
-    }
-    return true;
-}
-
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
     TESTCASE(qp_default_op1),
     TESTCASE(qp_odd_chars1),
     TESTCASE(qp_flag_wildcard1),
-    TESTCASE(qp_flag_partial),
     TESTCASE(qp_flag_bool_any_case1),
     TESTCASE(qp_stopper1),
-    TESTCASE(qp_flag_pure_not1),
     TESTCASE(qp_unstem_boolean_prefix),
-    TESTCASE(qp_default_prefix1),
-    TESTCASE(qp_value_range1),
-    TESTCASE(qp_value_range2),
-    TESTCASE(qp_value_daterange1),
     END_OF_TESTCASES
 };
 

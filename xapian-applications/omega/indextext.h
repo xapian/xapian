@@ -22,13 +22,89 @@
 
 #include <xapian.h>
 
-#include <string>
+#include <limits.h>
+#include <ctype.h>
 
-#include "utf8itor.h"
+#include "symboltab.h"
+
+using std::string;
 
 // Put a limit on the size of terms to help prevent the index being bloated
 // by useless junk terms
 static const unsigned int MAX_PROB_TERM_LENGTH = 64;
+
+static inline void
+lowercase_term(string &term)
+{
+    for (string::iterator i = term.begin(); i != term.end(); ++i) {
+	*i = tolower(static_cast<unsigned char>(*i));
+    }
+}
+
+class AccentNormalisingItor {
+  private:
+    string::const_iterator itor;
+    char queued;
+
+  public:
+    AccentNormalisingItor()
+	: itor(), queued(0) {}
+    AccentNormalisingItor(string::const_iterator itor_)
+	: itor(itor_), queued(0) {}
+    void operator=(string::const_iterator itor_)
+    {
+	itor = itor_;
+	queued = 0;
+    }
+    bool operator==(const AccentNormalisingItor &o) const {
+	return queued == o.queued && itor == o.itor;
+    }
+    bool operator!=(const AccentNormalisingItor &o) const {
+	return !(*this == o);
+    }
+    char operator*() const {
+	if (queued) return queued;
+	unsigned char ch = (unsigned char)*itor;
+	if (ch >= 160
+#if CHAR_BIT > 8
+		      && ch < 256
+#endif
+				 ) return TRANSLIT1[ch - 160];
+	return (char)ch;
+    }
+    AccentNormalisingItor & operator++() {
+	this->operator++(0);
+	return *this;
+    }
+    void operator++(int) {
+	if (queued) {
+	    queued = 0;
+	} else {
+	    unsigned char ch = (unsigned char)*itor;
+	    if (ch >= 160
+#if CHAR_BIT > 8
+			  && ch < 256
+#endif
+				     ) {
+		ch = TRANSLIT2[(unsigned char)ch - 160];
+		if (ch != ' ') {
+		    queued = ch;
+		    return;
+		}
+	    }
+	}
+	++itor;
+    }
+    string::const_iterator raw() const { return itor; }
+    /// Allow use as an STL iterator
+    //@{
+    typedef std::input_iterator_tag iterator_category;
+    typedef char value_type;
+    typedef string::size_type difference_type;
+    typedef const char * pointer;
+    typedef const char & reference;
+    //@}
+};
 
 Xapian::termpos
 index_text(const std::string &s, Xapian::Document &doc, Xapian::Stem &stemmer,

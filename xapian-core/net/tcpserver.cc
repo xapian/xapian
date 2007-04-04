@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,25 +25,24 @@
 #include "safeerrno.h"
 #include "safefcntl.h"
 
-#include "remoteserver.h"
 #include "tcpserver.h"
 #include "stats.h"
 
+#include <netinet/in_systm.h>
+#include <netinet/in.h>
+#include <netinet/ip.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
 #ifdef __WIN32__
-# include <process.h>    /* _beginthread, _endthread */
+# include <winsock2.h>
 #else
 # include <sys/socket.h>
-# include <netinet/in_systm.h>
-# include <netinet/in.h>
-# include <netinet/ip.h>
-# include <netinet/tcp.h>
-# include <arpa/inet.h>
-# include <netdb.h>
-# include <signal.h>
-# include <sys/wait.h>
 #endif
-
 #include <sys/types.h>
+#include <netdb.h>
+#include <signal.h>
+#include <sys/wait.h>
+
 #include <iostream>
 
 using namespace std;
@@ -54,11 +53,11 @@ using namespace std;
 #endif
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(Xapian::Database db_, const std::string & host, int port,
+TcpServer::TcpServer(Xapian::Database db_, int port_,
 		     int msecs_active_timeout_,
 		     int msecs_idle_timeout_,
 		     bool verbose_)
-	: writable(false), db(db_), listen_socket(get_listening_socket(host, port)),
+	: port(port_), writable(false), db(db_), listen_socket(get_listening_socket(port_)),
 	  msecs_active_timeout(msecs_active_timeout_),
 	  msecs_idle_timeout(msecs_idle_timeout_),
 	  verbose(verbose_)
@@ -66,11 +65,11 @@ TcpServer::TcpServer(Xapian::Database db_, const std::string & host, int port,
 
 }
 
-TcpServer::TcpServer(Xapian::WritableDatabase wdb_, const std::string & host, int port,
+TcpServer::TcpServer(Xapian::WritableDatabase wdb_, int port_,
 		     int msecs_active_timeout_,
 		     int msecs_idle_timeout_,
 		     bool verbose_)
-	: writable(true), wdb(wdb_), listen_socket(get_listening_socket(host, port)),
+	: port(port_), writable(true), wdb(wdb_), listen_socket(get_listening_socket(port_)),
 	  msecs_active_timeout(msecs_active_timeout_),
 	  msecs_idle_timeout(msecs_idle_timeout_),
 	  verbose(verbose_)
@@ -79,52 +78,33 @@ TcpServer::TcpServer(Xapian::WritableDatabase wdb_, const std::string & host, in
 }
 
 int
-TcpServer::get_listening_socket(const std::string & host, int port)
+TcpServer::get_listening_socket(int port)
 {
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
-	throw Xapian::NetworkError("socket", socket_errno());
+	throw Xapian::NetworkError("socket", errno);
     }
 
     int retval;
 
     {
 	int optval = 1;
-	// 4th argument might need to be void* or char* - cast it to char*
-	// since C++ allows implicit conversion to void* but not from void*.
-	retval = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
-			    reinterpret_cast<char *>(&optval),
+	retval = setsockopt(socketfd,
+			    SOL_SOCKET,
+			    SO_REUSEADDR,
+			    reinterpret_cast<void *>(&optval),
 			    sizeof(optval));
 
-#if !defined __CYGWIN__ && !defined __WIN32__
-	// Windows has screwy semantics for SO_REUSEADDR - it allows the user
-	// to bind to a port which is already bound and listening!  That's
-	// just not suitable as we don't want multiple xapian-tcpsrv processes
-	// listening on the same port!
 	if (retval >= 0) {
-	    retval = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR,
-				reinterpret_cast<char *>(&optval),
+	    retval = setsockopt(socketfd, IPPROTO_TCP, TCP_NODELAY,
+				reinterpret_cast<void *>(&optval),
 				sizeof(optval));
 	}
-#elif defined SO_EXCLUSIVEADDRUSE
-	// NT4 sp4 and later offer SO_EXCLUSIVEADDRUSE which nullifies the
-	// security issues from SO_REUSEADDR (which affect *any* listening
-	// process, even if doesn't use SO_REUSEADDR itself).  There's still no
-	// way of addressing the issue of not being able to listen on a port
-	// which has closed connections in TIME_WAIT state though.
-	//
-	// Note: SO_EXCLUSIVEADDRUSE requires admin privileges prior to XP SP2.
-	// Because of this and the lack support on older versions, we don't
-	// currently check the return value.
-	(void)setsockopt(socketfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-			 reinterpret_cast<char *>(&optval),
-			 sizeof(optval));
-#endif
     }
 
     if (retval < 0) {
-	int saved_errno = socket_errno(); // note down in case close hits an error
+	int saved_errno = errno; // note down in case close hits an error
 	close(socketfd);
 	throw Xapian::NetworkError("setsockopt failed", saved_errno);
     }
@@ -132,35 +112,14 @@ TcpServer::get_listening_socket(const std::string & host, int port)
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
-    if (host.empty()) {
-	addr.sin_addr.s_addr = INADDR_ANY;
-    } else {
-	// FIXME: timeout on gethostbyname() ?
-	struct hostent *hostent = gethostbyname(host.c_str());
-
-	if (hostent == 0) {
-	    throw Xapian::NetworkError(string("Couldn't resolve host ") + host,
-		""
-#ifdef __WIN32__
-		// "socket_errno()" is just errno on UNIX which is
-		// inappropriate here - if gethostbyname() returns NULL an
-		// error code is available in h_errno (with values
-		// incompatible with errno).  FIXME: it would be good to see
-		// the h_errno error code though...
-		, socket_errno()
-#endif
-		);
-	}
-
-	memcpy(&addr.sin_addr, hostent->h_addr, sizeof(addr.sin_addr));
-    }
+    addr.sin_addr.s_addr = INADDR_ANY;
 
     retval = bind(socketfd,
-		  reinterpret_cast<sockaddr *>(&addr),
-		  sizeof(addr));
+		      reinterpret_cast<sockaddr *>(&addr),
+		      sizeof(addr));
 
     if (retval < 0) {
-	int saved_errno = socket_errno(); // note down in case close hits an error
+	int saved_errno = errno; // note down in case close hits an error
 	close(socketfd);
 	throw Xapian::NetworkError("bind failed", saved_errno);
     }
@@ -168,7 +127,7 @@ TcpServer::get_listening_socket(const std::string & host, int port)
     retval = listen(socketfd, 5);
 
     if (retval < 0) {
-	int saved_errno = socket_errno(); // note down in case close hits an error
+	int saved_errno = errno; // note down in case close hits an error
 	close(socketfd);
 	throw Xapian::NetworkError("listen failed", saved_errno);
     }
@@ -176,7 +135,7 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 }
 
 int
-TcpServer::accept_connection()
+TcpServer::get_connected_socket()
 {
     struct sockaddr_in remote_address;
     SOCKLEN_T remote_address_size = sizeof(remote_address);
@@ -186,12 +145,7 @@ TcpServer::accept_connection()
 			    &remote_address_size);
 
     if (con_socket < 0) {
-#ifdef __WIN32__
-	if (WSAGetLastError() == WSAEINTR)
-	    // Our CtrlHandler function closed the socket.
-	    return -1;
-#endif
-	throw Xapian::NetworkError("accept failed", socket_errno());
+	throw Xapian::NetworkError("accept failed", errno);
     }
 
     if (remote_address_size != sizeof(remote_address)) {
@@ -211,12 +165,10 @@ TcpServer::~TcpServer()
     close(listen_socket);
 }
 
-#ifdef HAVE_FORK
-// A fork() based implementation
 void
 TcpServer::run_once()
 {
-    int connected_socket = accept_connection();
+    int connected_socket = get_connected_socket();
     int pid = fork();
     if (pid == 0) {
 	// child code
@@ -248,7 +200,7 @@ TcpServer::run_once()
 	close(connected_socket);
     } else {
 	// fork() failed
-	int saved_errno = socket_errno(); // note down in case close hits an error
+	int saved_errno = errno; // note down in case close hits an error
 	close(connected_socket);
 	throw Xapian::NetworkError("fork failed", saved_errno);
     }
@@ -302,165 +254,3 @@ TcpServer::run()
 	}
     }
 }
-
-#elif defined __WIN32__
-
-// A threaded, Windows specific, implementation
-
-/** The socket which will be closed by CtrlHandler.
- *
- *  FIXME - is there any way to avoid using a global variable here?
- */
-static const int *pShutdownSocket = NULL;
-
-/// Console interrupt handler.
-BOOL
-CtrlHandler(DWORD fdwCtrlType)
-{
-    bool shutdown = true;
-    BOOL rc = TRUE;
-    switch (fdwCtrlType) {
-	case CTRL_C_EVENT:
-	case CTRL_CLOSE_EVENT:
-	    //  Console is about to die.
-	    // CTRL_CLOSE_EVENT gives us 5 seconds before displaying a
-	    // confirmation dialog asking if we really are sure.
-	case CTRL_LOGOFF_EVENT:
-	case CTRL_SHUTDOWN_EVENT:
-	    // These 2 will probably need to change when we get service
-	    // support - the service will prevent these being seen, so only
-	    // apply interactively.
-	    cout << "Shutting down..." << endl;
-	    break; // default behaviour
-	case CTRL_BREAK_EVENT:
-	    // This (probably) means the developer is struggling to get
-	    // things to behave, and really wants to shutdown.
-	    shutdown = false;
-	    rc = FALSE;
-	    cout << "Ctrl+Break: aborting process" << endl;
-	    break;
-	default:
-	    shutdown = false;
-	    rc = FALSE;
-	    cerr << "unexpected CtrlHandler: " << fdwCtrlType << endl;
-	    break;
-    }
-    if (shutdown) {
-	// We must have a valid pointer!
-	Assert(pShutdownSocket);
-	// Note: close() does not cause a blocking accept() call to terminate.
-	// However, it appears closesocket() does.  This is much easier
-	// than trying to setup a non-blocking accept().
-	closesocket(*pShutdownSocket);
-    }
-    return rc;
-}
-
-/** A Win32 thread based implementation of run_once.
- * 
- *  This method contains the actual implementation, and is called by the "C"
- *  thread entry-point function "run_thread".
- */
-void
-TcpServer::handle_one_request(int connected_socket)
-{
-    try {
-	if (writable) {
-	    RemoteServer sserv(&wdb, connected_socket, connected_socket,
-			       msecs_active_timeout,
-			       msecs_idle_timeout);
-	    sserv.run();
-	} else {
-	    RemoteServer sserv(&db, connected_socket, connected_socket,
-			       msecs_active_timeout,
-			       msecs_idle_timeout);
-	    sserv.run();
-	}
-    } catch (const Xapian::Error &err) {
-	cerr << "Got exception " << err.get_type()
-	     << ": " << err.get_msg() << endl;
-    } catch (...) {
-	// ignore other exceptions
-    }
-    close(connected_socket);
-}
-
-/// Structure which is used to pass parameters to the new threads.
-struct thread_param
-{
-    thread_param(TcpServer *s, int c) : server(s), connected_socket(c) {}
-    TcpServer *server;
-    int connected_socket;
-};
-
-/// The thread entry-point.
-static unsigned __stdcall
-run_thread(void * param_)
-{
-    thread_param * param(reinterpret_cast<thread_param *>(param_));
-    param->server->handle_one_request(param->connected_socket);
-    delete param;
-    _endthreadex(0);
-    return 0;
-}
-
-void
-TcpServer::run()
-{
-    // Handle requests until shutdown.
-
-    // Set up the shutdown handler - this is a bit hacky, and sadly involves
-    // a global variable.
-    pShutdownSocket = &listen_socket;
-    if (!::SetConsoleCtrlHandler((PHANDLER_ROUTINE) CtrlHandler, TRUE))
-	throw Xapian::NetworkError("Failed to install shutdown handler");
-
-    while (true) {
-	try {
-	    int connected_socket = accept_connection();
-	    if (connected_socket == -1) // Shutdown has happened
-		break;
-	    // Spawn a new thread to handle the connection.
-	    // (This seems like lots of hoops just to end up calling
-	    // this->handle_one_request() on a new thread. There might be a
-	    // better way...)
-	    thread_param *param = new thread_param(this, connected_socket);
-	    HANDLE hthread = (HANDLE)_beginthreadex(NULL, 0, ::run_thread, param, 0, NULL);
-	    if (hthread == 0) {
-		// errno holds the error here (it's not a socket error!)
-		int saved_errno = errno; // note down in case close hits an error
-		close(connected_socket);
-		throw Xapian::NetworkError("_beginthreadex failed", saved_errno);
-	    }
-
-	    // FIXME: keep track of open thread handles so we can gracefully
-	    // close each thread down.  OTOH, when we want to kill them all its
-	    // likely to mean the process is on its way down, so it doesn't
-	    // really matter...
-	    CloseHandle(hthread);
-	
-	} catch (const Xapian::DatabaseModifiedError &) {
-	    cerr << "Database modified - calling db.reopen()" << endl;
-	    db.reopen();
-	} catch (const Xapian::Error &err) {
-	    // FIXME: better error handling.
-	    cerr << "Caught " << err.get_type()
-		 << ": " << err.get_msg() << endl;
-	} catch (...) {
-	    // FIXME: better error handling.
-	    cerr << "Caught exception." << endl;
-	}
-    }
-}
-
-void
-TcpServer::run_once()
-{
-    // Runs a single request on the current thread.
-    int connected_socket = accept_connection();
-    handle_one_request(connected_socket);
-}
-
-#else
-# error Neither HAVE_FORK nor __WIN32__ are defined.
-#endif

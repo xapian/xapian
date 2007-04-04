@@ -1,6 +1,6 @@
 /* errorhandler.cc - Decide if a Xapian::Error exception should be ignored.
  *
- * Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,8 +20,6 @@
 #include <config.h>
 
 #include <xapian/errorhandler.h>
-
-Xapian::ErrorHandler::~ErrorHandler() { }
 
 void
 Xapian::ErrorHandler::operator()(Xapian::Error & error)

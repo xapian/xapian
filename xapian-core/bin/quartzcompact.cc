@@ -3,7 +3,7 @@
  * with revision 1, which makes it especially fast to search.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,8 +31,7 @@
 
 #include <stdio.h> // for rename()
 #include <string.h>
-#include <sys/types.h>
-#include "safesysstat.h"
+#include <sys/stat.h>
 
 #include "btree.h"
 #include "bcursor.h"

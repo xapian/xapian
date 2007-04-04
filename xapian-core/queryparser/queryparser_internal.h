@@ -1,7 +1,7 @@
 /* queryparser_internal.h: The non-lemon-generated parts of the QueryParser
  * class.
  *
- * Copyright (C) 2005,2006,2007 Olly Betts
+ * Copyright (C) 2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -56,11 +56,8 @@ class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
     // "foobar" -> "XFOO"
     // bool is true if this is a boolean filter.
     map<string, BoolAndString> prefixes;
-
-    list<Xapian::ValueRangeProcessor *> valrangeprocs;
-
   public:
     Internal() : stem_action(STEM_NONE), stopper(NULL),
 	default_op(Xapian::Query::OP_OR), errmsg(NULL) { }
-    Xapian::Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
+    Xapian::Query parse_query(const string & query_string, unsigned int flags);
 };

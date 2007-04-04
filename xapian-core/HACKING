@@ -15,16 +15,13 @@ You will probably want to use some of these if you're going to be developing
 Xapian.
 
 --enable-debug
-	This enables compiling of assertion code which will throw
-	Xapian::AssertionError if the code detects violating of
-	preconditions, postconditions, or fails other consistency checks.
+	This enables compiling of assertion code, to produce warnings if
+	the code gets into an unexpected state, and also compiling into
+	the system of debugging symbols.
 
 --enable-debug=partial
-	This option enables some assertions enabled by "--enable-debug",
-	but not the most expensive.  The intention is that it should be
-	suitable for use in a real-world system for tracking down problems
-	without imposing too much of an overhead (but note that we haven't yet
-	performed timings to measure the overhead...)
+	This option enables debugging symbols, and some assertions.  It does
+	not enable verbose debugging messages or very expensive assertions.
 
 --enable-debug-verbose
 	This enables compiling into the system of code to generate verbose
@@ -43,10 +40,9 @@ Xapian.
 	probably need to use a better make program (GNU make is recommended).
 
 If --enable-maintainer-mode is specified, a non-cross-compiling C compiler
-is needed to compile the Lemon parser generator and the Snowball stemming
-algorithm compiler.  The configure script will attempt to locate one, but you
-can override the autodetection by passing CC_FOR_BUILD on the command line like
-so:
+is needed to compile the Lemon parser generator.  The configure script will
+attempt to locate one, but you can override the autodetection by passing
+CC_FOR_BUILD on the command line like so:
 
 ./configure CC_FOR_BUILD=/opt/bin/gcc
 
@@ -64,13 +60,9 @@ message you're interested by setting environment variables.  You can:
    output to be stored in (to override the default of stderr).  The first
    occurrence of %% in the name will be replaced with the process-id.
 
- * set XAPIAN_DEBUG_FLAGS to the decimal value of a bitmap indicating the types
-   of debugging message you would like to display (the default value is 0,
-   which displays no debug messages).  To turn on message type N, bitwise OR
-   XAPIAN_DEBUG_FLAGS with (1<<N) - e.g. for message type 3, OR with 8.  To
-   turn on all types, set XAPIAN_DEBUG_FLAGS to -1 (which is all bits set in
-   two's complement binary representation).  Each message gives its numerical
-   type in the debug log output.
+ * set XAPIAN_DEBUG_FLAGS to a bitmap to select the types of debugging message
+   you would like to display (the default value is 0, which displays no debug
+   messages).  To turn on all types, set it to -1.
 
 These environment only have any effect if you run configure with the
 --enable-debug-verbose option.
@@ -250,17 +242,21 @@ writing, we require the following versions:
 
 		automake 1.7 works too.
 
-		automake 1.8 works too (we required 1.8.5 for ages).
+		automake 1.8 doesn't appear to add anything vital to us, but
+		there were a lot of fixes between 1.6.3 (the previous version
+		we required) and 1.8.5, so currently we're requiring 1.8.5.
 
-		automake 1.9's NEWS file suggests it will benefit us with
-		smaller Makefile.ins amongst other things.  Currently snapshots
-		and release tarballs are generated with automake 1.9.6, but
-		this isn't a hard requirement - automake 1.9.5 is sufficient
-		for bootstrapping sources from SVN (this is the version which
-		debian sarge had, so this shouldn't be an onerous requirement).
+		automake 1.9 was very new when we moved to requiring 1.8.5.
+		It's much more mature now, and its NEWS file suggests it
+		will benefit us with smaller Makefile.ins amongst other
+		things.  Currently snapshots and release tarballs are generated
+		with automake 1.9.6, but this isn't a hard requirement -
+		automake 1.8.5 is sufficient for bootstrapping sources from
+		SVN.
 
-		automake 1.10 is now out.  It requires autoconf 2.60.  I've not
-		yet tested it with Xapian, but I don't expect any problems.
+		automake 1.10 is now out, but still quite new.  It requires
+		autoconf 2.60.  I've not yet tested it with Xapian, but I
+		don't expect any problems.
 
 	GNU libtool 1.5.22 + patches
 		libtool 1.5 was the first version to properly support linking
@@ -312,13 +308,6 @@ ACLOCAL_FLAGS=-I/extra/macro/directory ./bootstrap
 There is a good GNU autotools tutorial at
 <http://www-src.lip6.fr/homepages/Alexandre.Duret-Lutz/autotools.html>.
 
-If you are tracking development in SVN, there will sometimes be changes to the
-build system sources which require regeneration of the generated makefiles and
-associated machinery.  We aim to make the build system automatically regenerate
-the necessary files, but in the event that a build fails after an update, it
-may be worth re-running the bootstrap script to regenerate the build system
-from scratch, before looking for the cause of the error elsewhere.
-
 If you want to be able to build distribution tarballs (with "make dist") then
 you'll also need some further tools.  The build system is designed to fail with
 a suitable message if you lack any of the required tools (the alternative is to
@@ -333,14 +322,6 @@ perl 5
 pdflatex (on Debian, tetex-extra is also required for fancyhdr.sty)
 makeindex (usually packaged with TeX)
 help2man
-rst2html (on Debian/Ubuntu, this is provided by the python-docutils package)
-
-Building from SVN on Windows with MSVC:
----------------------------------------
-
-The windows build process is maintained in the xapian-maintainer-tools
-directory in the subversion repository.  See the win32msvc/README file in that
-directory for details of how to build from subversion.
 
 Use of C++ Features:
 ====================
@@ -415,18 +396,6 @@ more egregious namespace pollution.
 
 Don't directly '#include <errno.h>' - instead '#include "safeerrno.h"' which
 works around a problem with Compaq's C++ compiler.
-
-<sys/stat.h>:
--------------
-
-Don't directly '#include <sys/stat.h>' - instead '#include "safesysstat.h"'
-which enables stat to work on files > 2GB under MSVC.
-
-<unistd.h>:
--------------
-
-Don't directly '#include <unistd.h>' - instead '#include "safeunistd.h"'
-- MSVC doesn't even HAVE unistd.h!
 
 Warning Free Compilation:
 -------------------------
@@ -602,29 +571,8 @@ SVN checkout just use "svn diff" to generate the diff.  If you're working
 from a tarball, compare against the original versions of files using
 "diff -puN" (-p reports the function name for each chunk).
 
-Please set the width of a tab character in your editor to 8 spaces, and use
-Unix line endings (i.e. LF, not CR+LF).  Failing to do so will make it much
-harder for us to merge in your changes.
-
-We don't currently have a formal coding standards document, but please try
-to follow the style of the existing code.  In particular:
-
-* indent C++ code by 4 spaces for a new indentation level, and set your editor
-  to tab-fill indentation.
-
-* Put a space before the "(" after control flow constructs like "for", "if",
-  "while", etc.  Don't put a space before the "(" in function calls.  So
-  write "if (strlen(p) > 10)" not "if(strlen (p) > 10)".
-
-* If incrementing an iterator, prefer "++i" to "i++" unless you're actually
-  making use of the returned value ("++i" may be more efficient for some
-  iterators with some compilers).
-
-* Prefer "container.empty()" to "container.size() == 0" (and
-  "!container.empty()" to "container.size() != 0" or "container.size() > 0").
-  Finding the size of a container may not be a constant time operation for
-  all containers (e.g. std::list may not be); also the "empty()" form makes
-  the intent of the test more explicit.
+Please set the width of a tab character in your editor to 8 spaces.  Failing to
+do so will make it much harder for us to merge in your changes.
 
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name
@@ -683,9 +631,7 @@ introduction to the Xapian test system in docs/tests.html .
 --------------------------------------
 
  * Add an entry to the ChangeLog file at the top of the module.  The
-   text of this can be identical to the SVN commit message.  The datestamps in
-   our ChangeLog entries are as produced by the Unix date utility when invoked
-   as `date "+%a %b %d %T %Z %Y"'.
+   text of this can be identical to the SVN commit message.
  * Commit to the repository.
 
 Then you can update any patch, bug or feature request items in Bugzilla
@@ -743,24 +689,6 @@ of the prefix form as described by Joe Buck on the gcc mailing list
 Xapian's PostingIterator, TermIterator, and PositionIterator all have only one
 data member which fits in a register.
 
-Handy tips for aiding development
-=================================
-
-If you are find you are repeatedly changing the API headers (in include/)
-during development, then you may become annoyed that the docs/ subdirectory
-will rebuild the doxygen documentation every time you run "make" since this
-takes a while.  You can disable this temporarily (if you're using GNU make),
-by creating a file "docs/GNUmakefile" containing these two lines:
-
-%:
-	@echo "Skipping 'make $@' in docs"
-
-Note that the whitespace at the start of the second line needs to be a
-single "tab" character!
-
-Don't forget to remove (or rename) this and check the documentation builds
-before committing or generating a patch though!
-
 How to make a release
 =====================
 
@@ -779,6 +707,9 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Update the version in configure.ac for each module (xapian-core, omega, and
   xapian-bindings), and the library version info in xapian-core's configure.ac
 
+* Add the new version to the list of versions in Bugzilla:
+  http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=add
+
 * Move any bugs fixed by this release from "RESOLVED FIXED" -> "CLOSED"
   http://www.xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED
   Make sure the submitters are mentioned in the "thanks" list in AUTHORS.
@@ -791,18 +722,11 @@ This is a (hopefully complete) list of the jobs which need doing:
   This script also generates tarballs for the new release and copies them
   across to the website.
 
-* Add the new version to the list of versions in Bugzilla:
-  http://www.xapian.org/cgi-bin/bugzilla/editversions.cgi?product=Xapian&action=add
-
-* Update the website: version.php in the CVS module www.xapian.org contains the
-  latest version and the date it was released.
+* Update the website - version.php and the version near the top of the website
+  building script .scripts/update_website.sh.  Both of these are in CVS module
+  www.xapian.org
 
 * Run /u1/olly/xapian-website-update/update_website.sh
-
-* Update the wiki: http://wiki.xapian.org/ReleaseNotes needs copying to 
-  http://wiki.xapian.org/ReleaseNotes/0.9.9 (or whatever) and replacing
-  with a new template ReleaseNotes page.  Then add a link from
-  http://wiki.xapian.org/ReleaseNotes/old to the newly archived page.
 
 * Update the freshmeat entry at:
   http://freshmeat.net/add-release/40427/43070/

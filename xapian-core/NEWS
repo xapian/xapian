@@ -1,37 +1,56 @@
-up to:
-Sun Nov 12 19:32:01 GMT 2006  Olly Betts <olly@survex.com>
-
-Xapian-core 0.9.? (2006-??-??):
+Xapian-core 0.9.10 (2007-03-04):
 
 API:
 
 * Fix WritableDatabase::replace_document() not to lose positional information
   for a document if it is replaced with itself with unmodified postings.
 
+* QueryParser: Add entries to the "unstem" map for prefixed boolean filters
+  (e.g. type:html).
+
+* Fix inconsistent ordering of documents between pages with
+  Enquire::set_sort_by_value_then_relevance (fixes bug#110).
+
 testsuite:
 
+* Workaround apparent bug in MSVC's ifstream class.
 
-flint backend:
+flint and quartz backends:
 
+* Fix possible double-free after a transaction fails.
 
-quartz backend:
+* Fix code for recovering from failing to open a table for reading
+  mid-modification.  If modifications are so frequent that opening for reading
+  fails 100 times in a row, throw DatabaseModifiedError not
+  DatabaseOpeningError.
 
+* Don't call std::string::append(ptr, 0) when ptr may be uninitialised
+  or NULL (rather suspect, and reported to cause SEGV-like behaviour with
+  MSVC).
+
+* Ensure both_bases is set to false if we don't have both bases when
+  opening a table using an existing object.
+
+* Use MS Windows API calls to delete files and open files we might want to
+  delete while they are still open (i.e. the flint and quartz btree base
+  files).  This fixes a problem when a writer can't discard an old revision at
+  the exact moment a reader is opening it (bug #108).
 
 remote backend:
 
 * Fix WritableDatabase::has_positions() to refetch the cached value if it
   might be out of date.
 
+* Fix incorrect serialisation of a query with non-default termpositions.
+
 inmemory backend:
 
-
-muscat36 backend:
-
-
-build system:
-
+* If replace_document is used to set the docid of a newly added document which
+  has previously existed, ensure we mark that document as valid.
 
 documentation:
+
+* Assorted improvements to API documentation.
 
 * docs/Makefile.am: The larger pool_size we set in 0.9.9 for building
   sourcedoc.pdf was a bit marginal, so increase it further.
@@ -41,19 +60,14 @@ documentation:
 
 * HACKING: Update the release checklist.
 
-examples:
-
-
 portability:
 
+* Fix flint and quartz to allow 2GB+ B-tree tables when compiling with MSVC.
 
 packaging:
 
 * RPMs: Remove "." from end of "Summary:".  Package the new man page for
   xapian-progsrv.
-
-debug code:
-
 
 Xapian-core 0.9.9 (2006-11-09):
 

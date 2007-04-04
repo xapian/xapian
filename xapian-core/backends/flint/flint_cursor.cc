@@ -112,6 +112,7 @@ FlintCursor::prev()
 	}
     }
     get_key(&current_key);
+    // FIXME: check for errors
     have_read_tag = false;
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
@@ -143,6 +144,7 @@ FlintCursor::next()
     }
 
     get_key(&current_key);
+    // FIXME: check for errors
     have_read_tag = false;
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
@@ -159,14 +161,15 @@ FlintCursor::find_entry(const string &key)
 
     bool found;
 
-    is_positioned = true;
     if (key.size() > FLINT_BTREE_MAX_KEY_LEN) {
+	is_positioned = true;
 	// Can't find key - too long to possibly be present, so find the
 	// truncated form but ignore "found".
 	B->form_key(key.substr(0, FLINT_BTREE_MAX_KEY_LEN));
 	(void)(B->find(C));
 	found = false;
     } else {
+	is_positioned = true;
 	B->form_key(key);
 	found = B->find(C);
     }
@@ -185,21 +188,24 @@ FlintCursor::find_entry(const string &key)
     }
 done:
 
-    if (!is_positioned) throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
-    get_key(&current_key);
+    bool err = get_key(&current_key);
+    (void)err; // FIXME: check for errors
     have_read_tag = false;
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");
+
     RETURN(found);
 }
 
-void
+bool
 FlintCursor::get_key(string * key) const
 {
     Assert(B->level <= level);
-    Assert(is_positioned);
+
+    if (!is_positioned) return false;
 
     (void)Item_(C[0].p, C[0].c).key().read(key);
+    return true;
 }
 
 void

@@ -44,16 +44,6 @@ if test -n "$OVERRIDE_MACOSX_DEPLOYMENT_TARGET" ; then
 fi
 AM_CONDITIONAL(NEED_JNILIB_EXT, test yes = "$NEED_JNILIB_EXT")
 
-dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
-dnl makes configure take longer to run.  We force it not to using the method
-dnl suggested here (which also reduces configure size):
-dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/8172
-m4_defun([_LT_AC_LANG_F77_CONFIG], [:])
-dnl Eliminating the unused code for gcj and rc probes further reduces the size
-dnl of the generated configure script (by 29% in total):
-m4_defun([_LT_AC_LANG_GCJ_CONFIG], [:])
-m4_defun([_LT_AC_LANG_RC_CONFIG], [:])
-
 dnl Use libtool to manage our libraries, but don't build static libraries as
 dnl the bindings only have a use for dynamic ones.
 AC_DISABLE_STATIC
@@ -76,26 +66,24 @@ dnl Run tests using the C++ compiler.
 AC_LANG_CPLUSPLUS
 
 dnl Check for libxapian
-XO_LIB_XAPIAN
+XO_LIB_XAPIAN(, AC_MSG_ERROR([Can't find Xapian library]))
 
 dnl We want XAPIAN_CXXFLAGS to be used for configure tests, so set AM_CXXFLAGS
 dnl here and unset them later.
 AM_CXXFLAGS=$XAPIAN_CXXFLAGS
 
-dnl COMPAT_VERSION is the version of xapian-core that "matches" our version.
-dnl We allow for bindings being version 0.8.5.1 while xapian-core is 0.8.5.
-dnl COMPAT_VERSION also ignores any _svn6789 suffix which snapshots will have.
+dnl Allow for bindings being version 0.8.5.1 which xapian-core is 0.8.5.
+dnl Also ignore any _svn6789 suffix which snapshots will have.
 COMPAT_VERSION=[`echo "$PACKAGE_VERSION"|sed 's/^\([0-9]*\.[0-9]*\.[0-9]*\).*/\1/'`]
+if test "$COMPAT_VERSION" != "$XAPIAN_VERSION" ; then
+  dnl 0.8.2 was the first version which set XAPIAN_VERSION
+  AC_MSG_ERROR([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION])
+fi
 AC_SUBST(COMPAT_VERSION)
 
 dnl VERSION_NO_SNAPSHOT simply has any _svn6789 suffix removed.
 VERSION_NO_SNAPSHOT=[`echo "$PACKAGE_VERSION"|sed 's/_svn[0-9]*$//'`]
 AC_SUBST(VERSION_NO_SNAPSHOT)
-
-dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
-dnl code can be removed once we move to requiring autoconf 2.60 or newer.
-test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
-AC_SUBST(docdir)
 
 dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
@@ -126,7 +114,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl 1.3.30 produces class wrappers for PHP5
   dnl You can see the latest SWIG changes here:
   dnl http://cvs.sourceforge.net/viewcvs.py/*checkout*/swig/SWIG/CHANGES
-  dnl 1.3.32 fixes PHP5 wrappers for overloaded forms with default arguments
+  dnl 1.3.32 fixes PHP5 wrappers for overloaded forms with default arguments.
   dnl and some problems with ZTS-enabled PHP builds (noted on
   dnl Windows; Linux builds of PHP generally don't enable ZTS).
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
@@ -137,50 +125,53 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
-  AC_PATH_PROGS(PERL, [$PERL perl], [])
-  dnl Need perl in maintainer mode to generate the except.i file for python.
-  test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
+
+AC_ARG_WITH(swig,
+  AC_HELP_STRING([--with-swig],
+		 [enable all bindings which depend on SWIG (currently: CSharp PHP Python Ruby Tcl)]),#Guile currently disabled
+  [],
+  [with_swig=])
 
 AC_ARG_WITH(python,
   AC_HELP_STRING([--with-python], [enable Python bindings]),
   [],
-  [with_python=])
+  [with_python=$with_swig])
 
 AC_ARG_WITH(php,
   AC_HELP_STRING([--with-php], [enable PHP bindings]),
   [],
-  [with_php=])
+  [with_php=$with_swig])
 
 AC_ARG_WITH(ruby,
   AC_HELP_STRING([--with-ruby], [enable Ruby bindings]),
   [],
-  [with_ruby=])
+  [with_ruby=$with_swig])
 
 AC_ARG_WITH(tcl,
   AC_HELP_STRING([--with-tcl], [enable Tcl bindings]),
   [],
-  [with_tcl=])
+  [with_tcl=$with_swig])
 
 dnl Guile support doesn't currently work, so avoid user disappointment by
 dnl not advertising it in "./configure --help"
 dnl AC_ARG_WITH(guile,
 dnl   AC_HELP_STRING([--with-guile], [enable Guile bindings]),
 dnl   [],
-dnl   [with_guile=])
+dnl   [with_guile=$with_swig])
 with_guile=no
 
 AC_ARG_WITH(csharp,
   AC_HELP_STRING([--with-csharp], [enable CSharp bindings]),
   [],
-  [with_csharp=])
+  [with_csharp=$with_swig])
 
 AC_ARG_WITH(java,
   AC_HELP_STRING([--with-java], [enable Java bindings]),
   [],
   [with_java=])
 
-case $with_python$with_php$with_ruby$with_tcl$with_guile$with_csharp$with_java in
+case $with_swig$with_python$with_php$with_ruby$with_tcl$with_guile$with_csharp$with_java in
 *yes*)
   dnl Default unspecified values to no.
   test -z "$with_python" && with_python=no
@@ -755,8 +746,6 @@ AC_CONFIG_FILES([Makefile
  ruby/Makefile ruby/docs/Makefile
  xapian-bindings.spec])
 dnl guile/Makefile
-AC_CONFIG_FILES([python/generate-python-exceptions],
-		[chmod +x python/generate-python-exceptions])
 AC_OUTPUT
 
 echo ""
@@ -768,7 +757,3 @@ else
   echo "*** Building bindings for languages:" $BINDINGS
 fi
 echo ""
-if test "$COMPAT_VERSION" != "$XAPIAN_VERSION" ; then
-  dnl 0.8.2 was the first version which set XAPIAN_VERSION
-  AC_MSG_WARN([Xapian library is version ${XAPIAN_VERSION-<0.8.2} but the bindings are version $PACKAGE_VERSION - we strongly recommend using matching versions.])
-fi

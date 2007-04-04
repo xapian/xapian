@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Sam Liddicott
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -42,7 +42,6 @@
 #include "indextext.h"
 #include "loadfile.h"
 #include "myhtmlparse.h"
-#include "utf8truncate.h"
 #include "utils.h"
 
 #include "gnu_getopt.h"
@@ -235,6 +234,16 @@ parse_index_script(const string &filename)
 			    code = Action::TRUNCATE;
 			    arg = YES;
 			    takes_integer_argument = true;
+			    if (!actions.empty() &&
+				actions.back().get_action() == Action::LOAD) {
+				/* Turn "load truncate=n" into "load" with
+				 * num_arg n, so that we don't needlessly
+				 * allocate memory and read data we're just
+				 * going to ignore.
+				 */
+				actions.pop_back();
+				code = Action::TRUNCATE;
+			    }
 			}
 			break;
 		    case 'u':
@@ -317,19 +326,6 @@ parse_index_script(const string &filename)
 						  useless_weight_pos, action);
 			}
 			useless_weight_pos = j - s.begin();
-			break;
-		    case Action::TRUNCATE:
-			if (!actions.empty() &&
-			    actions.back().get_action() == Action::LOAD) {
-			    /* Turn "load truncate=n" into "load" with
-			     * num_arg n, so that we don't needlessly
-			     * allocate memory and read data we're just
-			     * going to ignore.
-			     */
-			    actions.pop_back();
-			    code = Action::LOAD;
-			}
-			actions.push_back(Action(code, val));
 			break;
 		    case Action::UNIQUE:
 			if (boolmap.find(val) == boolmap.end())
@@ -504,7 +500,7 @@ index_file(const char *fname, istream &stream,
 			break;
 		    }
 		    case Action::LOWER:
-			value = U_downcase_term(value);
+			lowercase_term(value);
 			break;
 		    case Action::LOAD: {
 			bool truncated = false;
@@ -517,9 +513,20 @@ index_file(const char *fname, istream &stream,
 			if (!truncated) break;
 			/* FALLTHRU (conditionally) */
 		    }
-		    case Action::TRUNCATE:
-			utf8_truncate(value, i->get_num_arg());
+		    case Action::TRUNCATE: {
+			string::size_type l = i->get_num_arg();
+			if (l < value.size()) {
+			    // Trim back to (and including) previous whitespace.
+			    while (l > 0 && !isspace(static_cast<unsigned char>(value[l - 1]))) --l;
+			    while (l > 0 && isspace(static_cast<unsigned char>(value[l - 1]))) --l;
+
+			    // If the first word is too long, just truncate it.
+			    if (l == 0) l = i->get_num_arg();
+
+			    value = value.substr(0, l);
+			}
 			break;
+		    }
 		    case Action::UNHTML: {
 			MyHtmlParser p;
 			try {
@@ -679,7 +686,7 @@ main(int argc, char **argv)
 
     bool more = true, show_help = false;
     while (more) {
-	switch (gnu_getopt_long(argc, argv, "vs:hVuq", longopts, NULL)) {
+	switch (gnu_getopt_long(argc, argv, "uqv", longopts, NULL)) {
 	    case EOF:
 		more = false;
 		break;

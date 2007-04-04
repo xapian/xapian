@@ -1,15 +1,18 @@
 ## Process this file with automake to produce Makefile.in
 
-include ../generic/generic.mk
-
 TESTS_ENVIRONMENT = PYTHONPATH=".libs$(PYTHON_PATHSEP)." $(PYTHON)
 
 ## Test programs to be run
 TESTS = smoketest.py
 
+if OVERRIDE_MACOSX_DEPLOYMENT_TARGET
+# This requires GNU make, but apparently that's the default on OS X.
+export MACOSX_DEPLOYMENT_TARGET=@OVERRIDE_MACOSX_DEPLOYMENT_TARGET@
+endif
+
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
-EXTRA_DIST = util.i extra.i except.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = util.i extra.i $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
@@ -53,17 +56,10 @@ if MAINTAINER_MODE
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-BUILT_SOURCES += except.i
-except.i: generate-python-exceptions ../../xapian-core/exception_data.pm
-	./generate-python-exceptions
-
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: $(SWIG_sources) util.i except.i extra.i
+modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i extra.i
 	test -d modern || mkdir modern
-	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
-	    -python -shadow -modern -O -outdir modern \
-	    -o modern/xapian_wrap.cc $(SWIG_mainsource)
-	perl -pe 's/class Error:/class Error(Exception):/' modern/xapian.py > modern/xapian_py.tmp
-	mv modern/xapian_py.tmp modern/xapian.py
+	$(SWIG) -I$(srcdir) $(SWIG_FLAGS) -c++ -python -shadow -modern -O \
+	    -outdir modern -o modern/xapian_wrap.cc $(srcdir)/../xapian.i
 
 CLEANFILES += $(BUILT_SOURCES)
 else

@@ -1,3 +1,28 @@
+Omega 0.9.10 (2007-03-04):
+
+documentation:
+
+* docs/omegascript.txt: Rewrite introductory paragraph.  Note that
+  whitespace is significant, and add explicit warning to $setmap.
+
+* docs/termprefixes.txt: Expand section on boolean prefixes, showing
+  how to generate them using scriptindex, and how to allow them to be
+  selected in an HTML form.
+
+indexers:
+
+* omindex: Generate correct MD5 checksums on big-endian platforms.
+
+omega:
+
+* Fix $substr{} with negative start to actually work.
+
+* Fix $substr{} to never cause a C++ exception.
+
+packaging:
+
+* omega.spec.in: Remove "." from the end of the Summary.
+
 Omega 0.9.9 (2006-11-09):
 
 documentation:
@@ -578,6 +603,3 @@ Omega 0.8.0 (2004-04-19):
   boolean term.
 
 * docs/cgiparams.txt: Note that START and END should be in the format YYYYMMDD.
-
-For NEWS entries for Omega versions prior to 0.8.0, see the xapian-core NEWS
-file.

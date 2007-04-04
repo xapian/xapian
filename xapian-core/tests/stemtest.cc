@@ -1,8 +1,9 @@
 /* stemtest.cc
  *
+ * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2007 Olly Betts
+ * Copyright 2002,2003,2004 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,8 +17,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA
+ * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -35,7 +37,7 @@ static const int JUNKSIZE = 2 * 1048576;
 
 static string language;
 
-static Xapian::Stem stemmer;
+static Xapian::Stem stemmer("english"); // no default ctor
 
 static string srcdir;
 
@@ -62,10 +64,10 @@ test_stemrandom()
 	    word += ch;
 	    continue;
 	}
-	stemmed_size += stemmer(word).length();
+	stemmed_size += stemmer.stem_word(word).length();
 	word = "";
     }
-    stemmed_size += stemmer(word).length();
+    stemmed_size += stemmer.stem_word(word).length();
     tout << "Input size " << JUNKSIZE << ", stemmed size " << stemmed_size
 	 << endl;
 
@@ -79,7 +81,7 @@ test_stemrandom()
     }
     return true;
 }
-
+	
 // run stemmers on random junk
 static bool
 test_stemjunk()
@@ -98,10 +100,10 @@ test_stemjunk()
 	    word += ch;
 	    continue;
 	}
-	stemmed_size += stemmer(word).length();
+	stemmed_size += stemmer.stem_word(word).length();
 	word = "";
     }
-    stemmed_size += stemmer(word).length();
+    stemmed_size += stemmer.stem_word(word).length();
     tout << "Input size " << JUNKSIZE << ", stemmed size " << stemmed_size
 	 << endl;
 
@@ -131,7 +133,7 @@ test_stemdict()
 	txt.close();
 	SKIP_TEST(language + ".st not found");
     }
-
+ 
     int wordcount = 0;
 
     tout << "Testing " << language << " with fixed dictionary..." << endl;
@@ -141,7 +143,7 @@ test_stemdict()
 	getline(txt, word);
 	getline(st, expect);
 
-	stem = stemmer(word);
+	stem = stemmer.stem_word(word);
 
 	TEST_EQUAL(stem, expect);
 	++wordcount;

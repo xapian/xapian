@@ -1,7 +1,7 @@
 /** @file msetpostlist.h
  *  @brief PostList returning entries from an MSet
  */
-/* Copyright (C) 2006,2007 Olly Betts
+/* Copyright (C) 2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,16 +45,12 @@ class MSetPostList : public PostList {
     /// The MSet::Internal object which we're returning entries from.
     Xapian::Internal::RefCntPtr<Xapian::MSet::Internal> mset_internal;
 
-    /** Is the sort order such the relevance decreases down the MSet?
-     *
-     *  This is true for sort_by_relevance and sort_by_relevance_then_value.
-     */
-    bool decreasing_relevance;
+    /// Is the MSet sorted on a value?
+    bool sorted;
 
   public:
-    MSetPostList(const Xapian::MSet mset, bool decreasing_relevance_)
-	: cursor(-1), mset_internal(mset.internal),
-	  decreasing_relevance(decreasing_relevance_) { }
+    MSetPostList(const Xapian::MSet mset, bool sorted_)
+	: cursor(-1), mset_internal(mset.internal), sorted(sorted_) { }
 
     Xapian::doccount get_termfreq_min() const;
 

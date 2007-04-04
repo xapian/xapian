@@ -1,4 +1,4 @@
-/* utils.cc: string conversion utility functions for omega
+/* utils.cc: string utils for omega
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2003,2004,2006 Olly Betts
@@ -21,11 +21,8 @@
 
 #include <config.h>
 
-#include "utils.h"
-
-#include <stdio.h> // for sprintf/snprintf
-
 #include <string>
+#include <stdio.h>
 
 using namespace std;
 
@@ -63,12 +60,6 @@ string
 long_to_string(long val)
 {
     CONVERT_TO_STRING("%ld")
-}
-
-string
-double_to_string(double val)
-{
-    CONVERT_TO_STRING("%f")
 }
 
 string

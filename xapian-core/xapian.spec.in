@@ -64,7 +64,7 @@ mv %{buildroot}%{_datadir}/doc/%{name} %{buildroot}%{_datadir}/doc/%{name}-devel
 cp HACKING %{buildroot}%{_datadir}/doc/%{name}-devel-%{version}
 # Copy the rest while we are in this directory
 mkdir -p %{buildroot}%{_datadir}/doc/%{name}-%{version}
-cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroot}%{_datadir}/doc/%{name}-%{version}
+cp AUTHORS ChangeLog COPYING NEWS PLATFORMS README %{buildroot}%{_datadir}/doc/%{name}-%{version}
 
 %post libs -p /sbin/ldconfig
 

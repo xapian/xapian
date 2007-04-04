@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2006,2007 Olly Betts
+ * Copyright 2003,2004,2006 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -43,11 +43,6 @@ using namespace std;
 #include "api_transdb.h"
 
 static BackendManager backendmanager;
-
-const std::string & get_dbtype()
-{
-    return backendmanager.get_dbtype();
-}
 
 Xapian::Database
 get_database(const string &dbname)
@@ -146,9 +141,6 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-#ifndef __WIN32__
-    // Currently under Windows we support the TCP remote backend but not the
-    // prog remote backend.
     RUNTESTS("remote", anydb);
     RUNTESTS("remote", specchar);
     RUNTESTS("remote", writabledb);
@@ -157,7 +149,6 @@ int main(int argc, char **argv)
     RUNTESTS("remote", doclendb);
     RUNTESTS("remote", multivalue);
     RUNTESTS("remote", transactiondb);
-#endif
 
     RUNTESTS("remotetcp", anydb);
     RUNTESTS("remotetcp", specchar);
@@ -167,6 +158,32 @@ int main(int argc, char **argv)
     RUNTESTS("remotetcp", doclendb);
     RUNTESTS("remotetcp", multivalue);
     RUNTESTS("remotetcp", transactiondb);
+#endif
+
+#ifdef XAPIAN_HAS_MUSCAT36_BACKEND
+    // need makeDA, etc tools to build da and db databases
+    if (file_exists("../../makeda/makeDA")) {
+	RUNTESTS("da", anydb);
+	RUNTESTS("da", localdb);
+	RUNTESTS("da", allterms);
+	RUNTESTS("da", mus36);
+    }
+    if (file_exists("../../makeda/makeDAflimsy")) {
+	RUNTESTS("daflimsy", anydb);
+	RUNTESTS("daflimsy", localdb);
+	RUNTESTS("daflimsy", allterms);
+	RUNTESTS("daflimsy", mus36);
+    }
+    if (file_exists("../../makeda/makeDB")) {
+	RUNTESTS("db", anydb);
+	RUNTESTS("db", localdb);
+	RUNTESTS("db", mus36);
+    }
+    if (file_exists("../../makeda/makeDBflimsy")) {
+	RUNTESTS("dbflimsy", anydb);
+	RUNTESTS("dbflimsy", localdb);
+	RUNTESTS("dbflimsy", mus36);
+    }
 #endif
 
     return result;

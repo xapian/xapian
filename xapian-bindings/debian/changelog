@@ -1,29 +1,3 @@
-xapian-bindings (0.9.9-2) unstable; urgency=low
-
-  * ACK NMU - thanks Christian!
-  * debian/rules: Fix how we determine the phpapi version to depend on.
-    The previous way was technically wrong, but got the right answer
-    for Debian unstable, and for Ubuntu dapper and edgy (Debian sarge was
-    wrong though).
-  * debian/po/nb.po: New debconf translation from Hans Fredrik Nordhaug
-    (Closes: #414461).
-  * debian/rules: Ubuntu feisty has dropped php4 support.
-
- -- Olly Betts <olly@survex.com>  Wed, 28 Mar 2007 03:02:50 +0000
-
-xapian-bindings (0.9.9-1.1) unstable; urgency=low
-
-  * Non-maintainer upload on maintainer's request to fix remaining l10n issues.
-  * Debconf translations:
-    - German. Closes: #412250
-    - Russian. Closes: #412274
-    - Galician. Closes: #412338
-    - Basque. Closes: #412420
-    - Catalan. Closes: #412579
-    - Romanian. Closes: #412933
-
- -- Christian Perrier <bubulle@debian.org>  Sat, 10 Mar 2007 07:41:40 +0100
-
 xapian-bindings (0.9.9-1) unstable; urgency=low
 
   * New upstream release.

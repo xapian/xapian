@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-exampledatadir = $(docdir)/php/examples
+exampledatadir = $(datadir)/doc/$(PACKAGE)/php/examples
 dist_exampledata_DATA =\
 	examples/simplesearch.php4\
        	examples/simpleindex.php4\
@@ -9,5 +9,5 @@ dist_exampledata_DATA =\
        	examples/simpleindex.php5\
        	examples/simpleexpand.php5
 
-docdatadir = $(docdir)/php
+docdatadir = $(datadir)/doc/$(PACKAGE)/php
 dist_docdata_DATA = bindings.html

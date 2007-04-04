@@ -34,12 +34,11 @@ class MyHtmlParser : public HtmlParser {
 	bool in_script_tag;
 	bool in_style_tag;
 	bool pending_space;
-	string title, sample, keywords, dump;
+    	string title, sample, keywords, dump;
 	bool indexing_allowed;
 	void process_text(const string &text);
 	void opening_tag(const string &tag, const map<string,string> &p);
 	void closing_tag(const string &tag);
-	void parse_html(const string &text);
 	MyHtmlParser() :
 		in_script_tag(false),
 		in_style_tag(false),

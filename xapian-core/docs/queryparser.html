@@ -23,7 +23,6 @@ by either of the subexpressions.
 <H3>NOT</H3>
 <P><i>expression</i> NOT <i>expression</i> matches documents which are matched
 by only the first subexpression.
-<P>NOT <i>expression</i> matches documents which don't match the subexpression.
 <H3>XOR</H3>
 <P><i>expression</i> XOR <i>expression</i> matches documents which are matched
 by one or other of the subexpressions, but not both.  XOR is probably a bit
@@ -72,42 +71,6 @@ number of trailing characters, so <code>wildc*</code> would match wildcard,
 wildcarded, wildcards, wildcat, wildcats, etc.  This feature is disabled
 by default - pass <code>Xapian::QueryParser::FLAG_WILDCARD</code> in the flags
 argument of
-<code>Xapian::QueryParser::parse_query(<i>query_string</i>, <i>flags</i>)</code>
-to enable it, and tell the QueryParser which database to expand wildcards from
-using the <code>QueryParser::set_database(<i>database</i>)</code> method.
-
-<H3>Partially entered query matching</H3>
-
-<P>
-The QueryParser also supports performing a search with a query which has only
-been partially entered.  This is intended for use with "incremental search"
-systems, which don't wait for the user to finish typing their search before
-displaying an initial set of results.  For example, in such a system a user
-would enter a search, and the system would display a new set of results after
-each letter, or whenever the user pauses for a short period of time (or some
-other similar strategy).
-
-<P>
-The problem with this kind of search is that the last word in a partially
-entered query often has no semantic relation to the completed word.  For
-example, a search for "dynamic cat" would return a quite different set of
-results to a search for "dynamic categorisation".  This results in the set of
-results displayed flicking rapidly as each new character is entered.  A much
-smoother result can be obtained if the final word is treated as having an
-implicit terminating wildcard, so that it matches all words starting with the
-entered characters - thus, as each letter is entered, the set of results
-displayed narrows down to the desired subject.
-
-<P>
-A similar effect could be obtained simply by enabling the wildcard matching
-option, and appending a "*" character to each query string.  However, this
-would be confused by searches which ended with punctuation or other
-characters.
-
-<P>
-This feature is disabled by default - pass 
-<code>Xapian::QueryParser::FLAG_PARTIAL</code>
-flag in the flags argument of
 <code>Xapian::QueryParser::parse_query(<i>query_string</i>, <i>flags</i>)</code>
 to enable it, and tell the QueryParser which database to expand wildcards from
 using the <code>QueryParser::set_database(<i>database</i>)</code> method.

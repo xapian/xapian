@@ -58,7 +58,7 @@ install -D -m644 omega.conf %{buildroot}/etc/omega.conf
 # Move the scripts to the right place
 mv %{buildroot}/usr/share/omega %{buildroot}%{_datadir}/%{name}
 # Move the docs to the right place
-mv %{buildroot}/usr/share/doc/xapian-omega %{buildroot}/usr/share/doc/%{name}-%{version}
+mv %{buildroot}/usr/share/doc/omega %{buildroot}/usr/share/doc/%{name}-%{version}
 cp AUTHORS ChangeLog COPYING NEWS README TODO %{buildroot}/usr/share/doc/%{name}-%{version}
 
 %clean

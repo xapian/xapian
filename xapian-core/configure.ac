@@ -62,7 +62,6 @@ dnl 13:0:0 0.9.7 Rewritten Xapian::Error class
 dnl 13:0:0 0.9.8 No API changes (failed to bump revision)
 dnl 13:1:0 0.9.9 No API changes
 dnl 13:2:0 0.9.10 No API changes
-dnl 14:0:0       QueryParser::parse_query() now takes optional default prefix
 LIBRARY_VERSION_INFO=13:2:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
@@ -105,24 +104,17 @@ elif test -n "$CCC" ; then
   original_CXX="CCC=$CCC"
 fi
 
+dnl We don't use Fortran, but libtool 1.5 insists on probing for it, so skip
+dnl detection and run all the fortran tests on ":" to speed up configure.
+F77=:
+
 dnl Need 1.5 for AM_CXXFLAGS, etc; also so generated files in EXTRA_DIST work
 dnl Need 1.6.3 for tests/internaltest to build with Solaris make
 dnl 1.8.5 contains a lot of fixes over 1.6.3
-dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
-AM_INIT_AUTOMAKE([1.9.5 -Wportability])
+AM_INIT_AUTOMAKE([1.8.5 -Wportability])
 AC_CONFIG_SRCDIR(matcher/andpostlist.cc)
 
 AC_CONFIG_HEADERS(config.h)
-
-dnl We don't use Fortran, but libtool 1.5 insists on probing for f77 which just
-dnl makes configure take longer to run.  We force it not to using the method
-dnl suggested here (which also reduces configure size by 12%):
-dnl http://article.gmane.org/gmane.comp.gnu.libtool.general/8172
-m4_defun([_LT_AC_LANG_F77_CONFIG], [:])
-dnl Eliminating the unused code for gcj and rc probes reduces the size of the
-dnl generated configure script by a further 15%!
-m4_defun([_LT_AC_LANG_GCJ_CONFIG], [:])
-m4_defun([_LT_AC_LANG_RC_CONFIG], [:])
 
 dnl Use libtool to manage our libraries
 AC_PROG_LIBTOOL
@@ -243,7 +235,7 @@ dnl Only works for ldflags which can be specified anywhere on the link line.
 AC_SUBST(ldflags)
 
 WARNING_CXXFLAGS=
-AC_MSG_CHECKING([for $CXX options to enable ANSI C++ mode])
+AC_MSG_CHECKING([for $CXX option to enable ANSI C++ mode])
 if test yes = "$GXX"; then
   AC_MSG_RESULT([none required])
 else
@@ -267,24 +259,9 @@ else
       dnl but otherwise is needed to allow "cout << (long long)42;".
       ANSI_CXXFLAGS="-AA"
       dnl +w turns on more warnings.
-      dnl +wlint turns on "lint-like" warnings.
       dnl +W<n1>,<n2>,... suppresses warnings n1, n2, ...
-      dnl 2340 (remark) "value copied to temporary, reference to temporary
-      dnl	use", in: throw Xapian::UnimplementedError("...");
-      dnl 2401 "destructor for base class ... is non-virtual" (we don't need a
-      dnl	virtual destructor for RefCntBase, since we never delete its
-      dnl	subclasses by a RefCntBase *).
-      dnl 3348 "declaration hides constant ..." which seems to misfire!
-      dnl 4255 (remark) "padding size of struct "..." with ... bytes to
-      dnl	alignment boundary".
-      dnl 4273 "floating-point equality and inequality comparisons may be
-      dnl	inappropriate due to roundoff common in floating-point computation"
-      dnl	No obvious workaround for when you really do want == or !=.
-      dnl 4285 "operator= does not have a check for the sourc and destination
-      dnl	addresses being non-identical" - fires for AutoPtr which
-      dnl	includes such a check indirectly (internaltest's autoptr1 check this).
-      dnl 20201 "Memory leak is detected" which triggers for "return new Foo;"!
-      WARNING_CXXFLAGS="+w +wlint +W2340,2401,3348,4255,4273,4285,20201" ;;
+      dnl 336 is "Entire translation unit was empty" (which dummy.cc is).
+      WARNING_CXXFLAGS="+w +W336" ;;
     cxx|*/cxx)
       dnl Select ANSI mode ('-std strict_ansi' is needed for ANSI iostream
       dnl as '-std ansi' gives a pre-standard AT&T-compatible version).
@@ -295,6 +272,8 @@ else
       AC_TRY_COMPILE([], [], , ANSI_CXXFLAGS=) ;;
     CC|*/CC)
       dnl Could be Sun's, SGI's, or something else entirely.
+      dnl FIXME Don't know how to detect SGI's CC so just try the SGI flags if
+      dnl it's not Sun's CC.
       case `$CXX -V 2>&1` in
       *Sun\ C++*)
 	dnl Select ANSI conforming STL - for more information see:
@@ -305,14 +284,11 @@ else
 	dnl it unconditionally)
 	ANSI_CXXFLAGS="-library=stlport4 -features=tmplife" ;;
       *)
-        case `$CXX -v 2>&1` in
-	MIPSpro*)
-	  dnl On stderr: MIPSpro Compilers: Version 7.4.2m
-	  dnl Select ANSI mode for SGI's CC with "-LANG:std".  Also, we have to
-	  dnl specify "-ptused" or we get strange template linking errors.
-	  ANSI_CXXFLAGS="-LANG:std -ptused" ;;
-	esac
-	;;
+	dnl Select ANSI mode for SGI's CC
+	ANSI_CXXFLAGS="-LANG:std"
+	dnl Check that the compiler recognises these flags to avoid problems
+	dnl with other compilers named CC.
+	AC_TRY_COMPILE([], [], , ANSI_CXXFLAGS=) ;;
       esac
       ;;
   esac
@@ -385,11 +361,6 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
 
-dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
-dnl code can be removed once we move to requiring autoconf 2.60 or newer.
-test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
-AC_SUBST(docdir)
-
 dnl Make DATADIR available to the library
 dnl This isn't currently used.  If we reenable it, it needs to be renamed
 dnl to avoid a clash with a mingw header.
@@ -424,12 +395,6 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required in maintainer mode])
 fi
 
-dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
-AC_PATH_PROG(RST2HTML, rst2html, [])
-if test x$USE_MAINTAINER_MODE = xyes; then
-  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required in maintainer mode])
-fi
-
 dnl Check whether we need -ldl for dlsym() etc.
 dnl No longer used...
 dnl AC_TRY_LINK_FUNC(dlsym, ,
@@ -452,48 +417,38 @@ if test -n "${VALGRIND-unset}" ; then
     dnl Check that the valgrind version installed supports the most recently
     dnl added client request which we use - VALGRIND_DO_LEAK_CHECK is ages old,
     dnl VALGRIND_COUNT_ERRORS was added at the same time as VALGRIND_COUNT_LEAKS
-    AC_MSG_CHECKING([for VALGRIND_COUNT_LEAKS])
     AC_EGREP_CPP(yes,
       [#include <valgrind/memcheck.h>
        #ifdef VALGRIND_COUNT_LEAKS
        yes
        #endif
-      ], AC_MSG_RESULT(found),
-      AC_MSG_RESULT(not supported)
+      ], [],
       [VALGRIND=])
-  fi
 
-  if test -n "$VALGRIND" ; then
     dnl Check that the installed valgrind version works, and see if it needs
     dnl --tool=memcheck to work (older and newer versions don't, but some in
     dnl between do).  Valgrind 2.1.2 and later have a --log-file option but
     dnl 2.1.1 and older had --logfile instead, so we need to check this too.
-    AC_MSG_CHECKING([for valgrind options to use])
-    if $VALGRIND --log-file=config.valgrind.tmp -q true 2> /dev/null ; then
+    if $VALGRIND --log-file=/dev/null -q true 2> /dev/null ; then
       dnl Test the case which matches a modern valgrind first so we handle
       dnl the common case quickly with a single test.
-      AC_MSG_RESULT([--log-file])
+      :
     else
       dnl Now we have to test individual options.
       if $VALGRIND --tool=memcheck -q true 2> /dev/null ; then
 	dnl This valgrind version requires --tool=memcheck
 	VALGRIND="$VALGRIND --tool=memcheck"
-	AC_MSG_RESULT([--tool=memcheck])
-	AC_MSG_CHECKING([for valgrind options to use])
       fi
-      if $VALGRIND --log-file=config.valgrind.tmp -q true 2>/dev/null ; then
-	AC_MSG_RESULT([--log-file])
-      elif $VALGRIND --logfile=config.valgrind.tmp -q true 2>/dev/null ; then
+      if $VALGRIND --log-file=/dev/null -q true 2>/dev/null ; then
+        :
+      elif $VALGRIND --logfile=/dev/null -q true 2>/dev/null ; then
 	VALGRIND_LOG_FILE_OPT=--logfile
-	AC_MSG_RESULT([--logfile])
       else
 	dnl The valgrind detected doesn't seem to work!  Perhaps this is an
 	dnl x86_64 box with a 32 bit valgrind.
-	AC_MSG_RESULT([$VALGRIND doesn't work])
 	VALGRIND=
       fi
     fi
-    rm -f config.valgrind.tmp*
   fi
 fi
 AC_SUBST(VALGRIND_LOG_FILE_OPT)
@@ -579,74 +534,101 @@ dnl ***************************
 dnl * Select modules to build *
 dnl ***************************
 
-dnl Check which database backends should be built.
+dnl Find out what we've been asked to build
 
-AC_DEFUN([XAPIAN_BACKEND_ENABLE],
-  [AC_ARG_ENABLE(backend_$1,
-    [AS_HELP_STRING([--enable-backend-$1], [build the $1 database backend [default=yes]])],
-    [case $enableval in
-      yes|no) ;;
-      *) AC_MSG_ERROR([Invalid option: '--enable-backend-$1=$enableval']) ;;
-    esac], [enable_backend_$1=yes])
-  ])
+dnl muscat36 defaults to off
+AC_ARG_ENABLE(backend_muscat36,
+[  --enable-backend-muscat36 Enable (old) Muscat 3.6 databases (default=no)],
+[case ${enableval} in
+  yes) build_muscat36=true ;;
+  no)  build_muscat36=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-muscat36) ;;
+esac],[build_muscat36=false])
 
-XAPIAN_BACKEND_ENABLE(quartz)
-XAPIAN_BACKEND_ENABLE(flint)
-XAPIAN_BACKEND_ENABLE(inmemory)
-XAPIAN_BACKEND_ENABLE(remote)
+AC_ARG_ENABLE(backend_quartz,
+[  --enable-backend-quartz Enable the quartz database backend (default=yes)],
+[case ${enableval} in
+  yes) build_quartz=true ;;
+  no)  build_quartz=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-quartz) ;;
+esac],[build_quartz=true])
 
-if test yes = "$enable_backend_flint" ; then
-  dnl We would need to implement a flint locking strategy for MSDOS before we
-  dnl could build flint there.
+AC_ARG_ENABLE(backend_flint,
+[  --enable-backend-flint Enable the flint database backend (default=yes)],
+[case ${enableval} in
+  yes) build_flint=true ;;
+  no)  build_flint=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-flint) ;;
+esac],[
+  dnl We'd need to implement a flint locking strategy for MSDOS before we can
+  dnl build flint there.
   case $host_os in
-    *djgpp* | *msdos* ) enable_backend_flint=no ;;
+    *djgpp* | *msdos* ) build_flint=false ;;
+    *) build_flint=true ;;
   esac
-fi
+])
 
-REMOTE_LDFLAGS=
-if test "$enable_backend_remote" = yes ; then
-  dnl On Unix, we need fork and socketpair for the remotebackend.
-  case $host_os in
-    *djgpp* | *msdos* )
-      dnl DJGPP has a dummy implementation of fork which always fails.
-      enable_backend_remote=no ;;
-    *mingw* )
-      dnl For mingw and msvc we have an alternative implementation which
-      dnl doesn't need fork().  Also the "prog" variant isn't built
-      dnl currently so socketpair() isn't required either.
-      dnl
-      dnl We need -lws2_32 for gethostbyname(), etc.  Hardcode that knowledge
-      dnl here because AC_SEARCH_LIBS fails to link the test program (I think
-      dnl because its prototype has the wrong calling convention).
-      REMOTE_LDFLAGS=-lws2_32
-      ;;
-    *)
-      AC_CHECK_FUNCS(fork)
-      SAVE_LIBS=$LIBS
+AC_ARG_ENABLE(backend_inmemory,
+[  --enable-backend-inmemory Enable the inmemory database backend (default=yes)],
+[case ${enableval} in
+  yes) build_inmemory=true ;;
+  no)  build_inmemory=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-inmemory) ;;
+esac],[build_inmemory=true])
+
+AC_ARG_ENABLE(backend_remote,
+[  --enable-backend-remote Enable the remote database backend (default=yes)],
+[case ${enableval} in
+  yes) build_remote=true ;;
+  no)  build_remote=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-backend-remote) ;;
+esac],[build_remote=true])
+
+dnl check for fork - if we don't have it, the remote backend won't build
+dnl DJGPP has a dummy implementation of fork which always fails.
+case $host_os in
+  *djgpp* | *msdos* ) ac_cv_func_fork=no ;;
+  *)
+    AC_CHECK_FUNCS(fork)
+    ;;
+esac
+if test "$ac_cv_func_fork" = no ; then
+  build_remote=false
+else
+  REMOTE_LDFLAGS=
+  dnl Add -lsocket to $LDFLAGS if needed (eg Solaris)
+  SAVE_LIBS="$LIBS"
+  LIBS=
+  AC_SEARCH_LIBS(socketpair, socket, [REMOTE_LDFLAGS="$LIBS"])
+  LIBS="$SAVE_LIBS"
+  if test "$ac_cv_func_socketpair" = no ; then
+    build_remote=false
+  else
+    dnl Add -lnsl to LDFLAGS if needed (eg Solaris)
+    SAVE_LIBS="$LIBS"
+    LIBS=
+    AC_SEARCH_LIBS(gethostbyname, nsl,
+	    [REMOTE_LDFLAGS="$LIBS $REMOTE_LDFLAGS"],
+	    build_remote=false)
+    LIBS="$SAVE_LIBS"
+    if test false != "$build_remote" ; then
+      SAVE_LIBS="$LIBS"
       LIBS=
-      if test "$ac_cv_func_fork" = no ; then
-	enable_backend_remote=no
-      else
-	dnl Check if -lsocket is required for socketpair (Solaris needs it).
-	AC_SEARCH_LIBS(socketpair, socket, [], [enable_backend_remote=no])
-	if test "$enable_backend_remote" = yes ; then
-	  dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
-	  AC_SEARCH_LIBS(gethostbyname, nsl, [], [enable_backend_remote=no])
-	  if test "$enable_backend_remote" = yes ; then
-	    dnl Check if -lnsl is required for gethostbyname (Solaris needs it).
-	    AC_SEARCH_LIBS(gethostbyaddr, nsl, [], [enable_backend_remote=no])
-	    if test "$enable_backend_remote" = yes ; then
-	      REMOTE_LDFLAGS=$LIBS
-	    fi
-	  fi
-	fi
-      fi
+      AC_SEARCH_LIBS(gethostbyaddr, nsl,
+	      [
+	      case " $REMOTE_LDFLAGS " in
+	      "* -lnsl *") ;;
+	      *) REMOTE_LDFLAGS="$LIBS $REMOTE_LDFLAGS" ;;
+	      esac
+	      ],
+	      build_remote=false)
       LIBS="$SAVE_LIBS"
-      ;;
-  esac
 
-  if test "$enable_backend_remote" = yes ; then
-    TYPE_SOCKLEN_T
+      dnl check for socklen_t
+      TYPE_SOCKLEN_T
+    fi
+  fi
+  if test false != "$build_remote" ; then
     XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $REMOTE_LDFLAGS"
   fi
 fi
@@ -664,20 +646,15 @@ if test true = "$use_quiet"; then
   LIBTOOL="$LIBTOOL --quiet"
 fi
 
-vpath_build=no
-if test "`pwd`" != "`cd $srcdir;pwd`" ; then
-  vpath_build=yes
-fi
-AM_CONDITIONAL(VPATH_BUILD, test yes = "$vpath_build")
-
 dnl Turn off compilation of anything that we don't have the requirements for
 
 dnl Set conditionals to specify what we compile
 
-AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test yes = "$enable_backend_quartz")
-AM_CONDITIONAL(BUILD_BACKEND_FLINT, test yes = "$enable_backend_flint")
-AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test yes = "$enable_backend_inmemory")
-AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test yes = "$enable_backend_remote")
+AM_CONDITIONAL(BUILD_BACKEND_MUSCAT36, test true = "$build_muscat36")
+AM_CONDITIONAL(BUILD_BACKEND_QUARTZ, test true = "$build_quartz")
+AM_CONDITIONAL(BUILD_BACKEND_FLINT, test true = "$build_flint")
+AM_CONDITIONAL(BUILD_BACKEND_INMEMORY, test true = "$build_inmemory")
+AM_CONDITIONAL(BUILD_BACKEND_REMOTE, test true = "$build_remote")
 dnl Set a flag for AM when shared libraries are enabled.
 dnl AM_CONDITIONAL(ENABLE_SHARED, test yes = "$enable_shared")
 
@@ -894,18 +871,6 @@ AH_BOTTOM(
 [/* Disable stupid MSVC "performance" warning for converting int to bool. */
 #ifdef _MSC_VER
 # pragma warning(disable:4800)
-#endif
-
-/* _FORTIFY_SOURCE is only supported by GCC >= 4.1 and glibc >= 2.3.4, but it
- * shouldn't cause a problem to define it where it's not supported and some
- * distros may have backported support, so hardcoding version checks is
- * counter-productive.
- *
- * Check if _FORTIFY_SOURCE is already defined to allow the user to override
- * our choice with "./configure CPPFLAGS=-D_FORTIFY_SOURCE=0" or "...=1".
- */
-#if defined __GNUC__ && !defined _FORTIFY_SOURCE                                                                             
-# define _FORTIFY_SOURCE 2
 #endif])
 
 dnl modify flags for building with stlport
@@ -928,51 +893,48 @@ AC_SYS_LARGEFILE
 dnl Libtool sets this (to yes|no|unknown) and we use it in xapian-config.
 AC_SUBST(link_all_deplibs_CXX)
 
-MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
-[MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
-[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
-
-dnl AC_SUBST these for msvc/version.h
-AC_SUBST(MAJOR_VERSION)
-AC_SUBST(MINOR_VERSION)
-AC_SUBST(REVISION)
-
 dnl **************************
 dnl * Build the output files *
 dnl **************************
 
 AC_CONFIG_FILES([
  Makefile
+ include/Makefile
+ common/Makefile
+ backends/Makefile
+ backends/muscat36/Makefile
+ backends/quartz/Makefile
+ backends/flint/Makefile
+ backends/multi/Makefile
+ backends/inmemory/Makefile
+ backends/remote/Makefile
+ languages/Makefile
+ matcher/Makefile
+ api/Makefile
  tests/Makefile
+ tests/harness/Makefile
  docs/Makefile
+ net/Makefile
+ bin/Makefile
+ examples/Makefile
+ getopt/Makefile
+ queryparser/Makefile
  docs/doxygen_api_conf
  docs/doxygen_full_conf
  xapian.spec
- msvc/version.h
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([xapian-config], [chmod +x xapian-config])
-AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
-AC_CONFIG_FILES([docs/gen_codestructure_doc], [chmod +x docs/gen_codestructure_doc])
-AC_CONFIG_FILES([generate-exceptions], [chmod +x generate-exceptions])
-AC_CONFIG_FILES([languages/generate-allsnowballheaders], [chmod +x languages/generate-allsnowballheaders])
 AC_OUTPUT
 
-dnl There are no files generated by AC_OUTPUT in the following directories
-dnl and we need to ensure they exist so that the rest of configure or make
-dnl won't fail because they don't exist when srcdir != builddir.
-if test yes = "$vpath_build" ; then
-  for dir in include include/xapian languages queryparser ; do
-    test -d "$dir" || mkdir "$dir"
-  done
-fi
-
-dnl Generate include/xapian/version.h:
-
+MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
+[MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
+[REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
+test -d include/xapian || mkdir include/xapian
 dnl MAIN_VERSION is VERSION without any _svn6789 suffix.
 MAIN_VERSION="$MAJOR_VERSION.$MINOR_VERSION.$REVISION"
 cxxcpp_flags=-I.
-for backend in QUARTZ FLINT INMEMORY REMOTE ; do
+for backend in MUSCAT36 QUARTZ FLINT INMEMORY REMOTE ; do
   val=`eval echo "\\\$BUILD_BACKEND_${backend}_TRUE"`
   if test -z "$val" ; then
     cxxcpp_flags="$cxxcpp_flags -DXAPIAN_HAS_${backend}_BACKEND"
