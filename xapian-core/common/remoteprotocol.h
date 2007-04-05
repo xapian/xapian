@@ -27,7 +27,7 @@
 // 23: Support get_lastdocid() on remote databases
 // 24: Support for OP_VALUE_RANGE in query serialisation
 // 25: Support for delete_document and replace_document with unique term
-// 26: Tweak delete_document with unique term
+// 26: Tweak delete_document with unique term; delta encode rset and termpos
 #define XAPIAN_REMOTE_PROTOCOL_VERSION 26
 
 /// Message types (client -> server).

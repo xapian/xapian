@@ -1,3 +1,7 @@
+Thu Apr 05 18:20:12 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/remoteprotocol.h: Note other changes in protocol version 26.
+
 Thu Apr 05 17:34:10 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/runtest.in: Pass "--leak-resolution=high" to valgrind to
