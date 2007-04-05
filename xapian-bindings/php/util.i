@@ -175,7 +175,10 @@
 	 * Passing 1 as the last parameter of add_next_index_stringl() tells
 	 * PHP to copy the string pointed to by p, so it won't be modified.
 	 */
-	char * p = const_cast<char *>((*i).data());
-	add_next_index_stringl($result, p, (*i).length(), 1);
+        string term = *i;
+        char *p = const_cast<char*>(term.data());
+	add_next_index_stringl($result, p, term.length(), 1);
     }
 }
+
+/* vim:set syntax=cpp:set noexpandtab: */
