@@ -96,6 +96,6 @@ export GLIBCXX_FORCE_NEW
 XAPIAN_TESTSUITE_VALGRIND=1
 export XAPIAN_TESTSUITE_VALGRIND
 
-vg_opts=@VALGRIND_LOG_FILE_OPT@=.valgrind.log
+vg_opts='@VALGRIND_LOG_FILE_OPT@=.valgrind.log --leak-resolution=high'
 echo "Running test '$@' under valgrind"
 exec $LIBTOOL --mode=execute $VALGRIND $vg_opts "$@"
