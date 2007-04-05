@@ -481,6 +481,16 @@ RemoteDatabase::delete_document(Xapian::docid did)
 }
 
 void
+RemoteDatabase::delete_document(const std::string & unique_term)
+{
+    cached_stats_valid = false;
+
+    string message = encode_length(unique_term.size()) + unique_term;
+
+    send_message(MSG_DELETEDOCUMENTTERM, message);
+}
+
+void
 RemoteDatabase::replace_document(Xapian::docid did,
 				 const Xapian::Document & doc)
 {
@@ -490,4 +500,22 @@ RemoteDatabase::replace_document(Xapian::docid did,
     message += serialise_document(doc);
 
     send_message(MSG_REPLACEDOCUMENT, message);
+}
+
+Xapian::docid
+RemoteDatabase::replace_document(const std::string & unique_term,
+				 const Xapian::Document & doc)
+{
+    cached_stats_valid = false;
+
+    string message = encode_length(unique_term.size()) + unique_term;
+    message += serialise_document(doc);
+
+    send_message(MSG_REPLACEDOCUMENTTERM, message);
+
+    get_message(message, REPLY_ADDDOCUMENT);
+
+    const char * p = message.data();
+    const char * p_end = p + message.size();
+    return decode_length(&p, p_end);
 }

@@ -155,8 +155,10 @@ RemoteServer::run()
 		&RemoteServer::msg_adddocument,
 		&RemoteServer::msg_cancel,
 		&RemoteServer::msg_deletedocument,
+		&RemoteServer::msg_deletedocumentterm,
 		&RemoteServer::msg_flush,
-		&RemoteServer::msg_replacedocument
+		&RemoteServer::msg_replacedocument,
+		&RemoteServer::msg_replacedocumentterm
 	    };
 
 	    string message;
@@ -446,6 +448,20 @@ RemoteServer::msg_deletedocument(const string & message)
 }
 
 void
+RemoteServer::msg_deletedocumentterm(const string & message)
+{
+    if (!wdb)
+	throw Xapian::NetworkError("Server is read-only");
+
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    size_t len = decode_length(&p, p_end);
+    string unique_term(p, len);
+
+    wdb->delete_document(unique_term);
+}
+
+void
 RemoteServer::msg_replacedocument(const string & message)
 {
     if (!wdb)
@@ -456,4 +472,21 @@ RemoteServer::msg_replacedocument(const string & message)
     Xapian::docid did = decode_length(&p, p_end);
 
     wdb->replace_document(did, unserialise_document(string(p, p_end)));
+}
+
+void
+RemoteServer::msg_replacedocumentterm(const string & message)
+{
+    if (!wdb)
+	throw Xapian::NetworkError("Server is read-only");
+
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    size_t len = decode_length(&p, p_end);
+    string unique_term(p, len);
+    p += len;
+
+    Xapian::docid did = wdb->replace_document(unique_term, unserialise_document(string(p, p_end)));
+
+    send_message(REPLY_ADDDOCUMENT, encode_length(did));
 }

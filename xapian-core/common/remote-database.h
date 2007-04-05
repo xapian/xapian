@@ -193,8 +193,11 @@ class RemoteDatabase : public Xapian::Database::Internal {
     Xapian::docid add_document(const Xapian::Document & doc);
 
     void delete_document(Xapian::docid did);
+    void delete_document(const std::string & unique_term);
 
     void replace_document(Xapian::docid did, const Xapian::Document & doc);
+    Xapian::docid replace_document(const std::string & unique_term,
+				   const Xapian::Document & document);
 };
 
 #endif // XAPIAN_INCLUDED_REMOTE_DATABASE_H

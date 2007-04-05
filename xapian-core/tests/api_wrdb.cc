@@ -947,7 +947,7 @@ static bool test_allpostlist2()
     try {
 	i = db.postlist_begin("");
     } catch (const Xapian::UnimplementedError & e) {
-	SKIP_TEST("WritableDatabase::replace_document(TERM) not implemented");
+	SKIP_TEST("WritableDatabase::postlist_begin("") not implemented");
     }
     unsigned int j = 1;
     while (i != db.postlist_end("")) {

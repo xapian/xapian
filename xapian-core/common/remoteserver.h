@@ -124,8 +124,14 @@ class RemoteServer : private RemoteConnection {
     // delete document
     void msg_deletedocument(const std::string & message);
 
+    // delete document with unique term
+    void msg_deletedocumentterm(const std::string & message);
+
     // replace document
     void msg_replacedocument(const std::string & message);
+
+    // replace document with unique term
+    void msg_replacedocumentterm(const std::string & message);
 
   public:
     /** Construct a read-only RemoteServer.
