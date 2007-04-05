@@ -187,10 +187,12 @@ RemoteDatabase::open_position_list(Xapian::docid did, const string &term) const
 
     string message;
     char type;
+    Xapian::termpos lastpos = static_cast<Xapian::termpos>(-1);
     while ((type = get_message(message)) == REPLY_POSITIONLIST) {
 	const char * p = message.data();
 	const char * p_end = p + message.size();
-	positions.push_back(decode_length(&p, p_end));
+	lastpos += decode_length(&p, p_end) + 1;
+	positions.push_back(lastpos);
     }
     if (type != REPLY_DONE) {
 	throw Xapian::NetworkError("Bad message received", context);
@@ -485,9 +487,7 @@ RemoteDatabase::delete_document(const std::string & unique_term)
 {
     cached_stats_valid = false;
 
-    string message = encode_length(unique_term.size()) + unique_term;
-
-    send_message(MSG_DELETEDOCUMENTTERM, message);
+    send_message(MSG_DELETEDOCUMENTTERM, unique_term);
 }
 
 void
@@ -508,7 +508,8 @@ RemoteDatabase::replace_document(const std::string & unique_term,
 {
     cached_stats_valid = false;
 
-    string message = encode_length(unique_term.size()) + unique_term;
+    string message = encode_length(unique_term.size());
+    message += unique_term;
     message += serialise_document(doc);
 
     send_message(MSG_REPLACEDOCUMENTTERM, message);

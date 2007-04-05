@@ -7,7 +7,7 @@
 <h1>Remote Backend Protocol</h1>
 
 <p>
-This document describes <em>version 24</em> of the protocol used by Xapian's
+This document describes <em>version 26</em> of the protocol used by Xapian's
 remote backend.  The protocol assumes a reliable two-way connection across which
 arbitrary data can be sent - this could be provided by a TCP socket for example
 (as it is with xapian-tcpsrv), but any such connection could be used.  For
@@ -117,7 +117,7 @@ abort any current sequence of messages.
 
 <ul>
 <li> <code>MSG_DOCUMENT I&lt;document id&gt;</code>
-<li> <code>REPLY_DOCUMENT L&lt;document data&gt;</code>
+<li> <code>REPLY_DOCDATA L&lt;document data&gt;</code>
 <li> <code>REPLY_VALUE I&lt;value no&gt; &lt;value&gt;</code>
 <li> <code>...</code>
 <li> <code>REPLY_DONE</code>
@@ -149,7 +149,7 @@ abort any current sequence of messages.
 <li> <code>MSG_QUERY L&lt;serialised Xapian::Query object&gt;
 I&lt;query length&gt; I&lt;collapse key number&gt; &lt;docid order&gt;
 I&lt;sort key number&gt; &lt;sort by&gt; B&lt;sort value forward&gt;
-&lt;percent cutoff&gt; F&lt;weight cutoff&gt;</code>
+&lt;percent cutoff&gt; F&lt;weight cutoff&gt; &lt;serialised Xapian::Weight object&gt; &lt;serialised Xapian::RSet object&gt;</code>
 <li> <code>REPLY_STATS &lt;serialised Stats object&gt;</code>
 <li> <code>MSG_GETMSET I&lt;first&gt; I&lt;max items&gt;
 &lt;serialised global Stats object&gt;</code>
@@ -168,6 +168,22 @@ I&lt;sort key number&gt; &lt;sort by&gt; B&lt;sort value forward&gt;
 <li> <code>...</code>
 <li> <code>REPLY_DONE</code>
 </ul>
+
+<h2>Positionlist</h2>
+
+<ul>
+<li> <code>MSG_POSITIONLIST I&lt;document id&gt; &lt;term name&gt;</code>
+<li> <code>REPLY_POSITIONLIST I&lt;termpos delta - 1&gt;</code>
+<li> <code>...</code>
+<li> <code>REPLY_DONE</code>
+</ul>
+
+<p>
+Since positions must be strictly monotonically increasing, we encode
+<tt>(pos&nbsp;-&nbsp;lastpos&nbsp;-&nbsp;1)</tt> so that small differences
+between large position values can still be encoded compactly.  The first
+position is encoded as its true value.
+</p>
 
 <h2>Shut Down</h2>
 
@@ -205,10 +221,22 @@ and they don't change if the database can't change).
 <li> <code>MSG_DELETEDOCUMENT I&lt;document id&gt;</code>
 </ul>
 
+<h2>Delete document by term</h2>
+
+<ul>
+<li> <code>MSG_DELETEDOCUMENTTERM &lt;term name&gt;</code>
+</ul>
+
 <h2>Replace document</h2>
 
 <ul>
 <li> <code>MSG_REPLACEDOCUMENT I&lt;document id&gt; &lt;serialised Xapian::Document object&gt;</code>
+</ul>
+
+<h2>Replace document by term</h2>
+
+<ul>
+<li> <code>MSG_REPLACEDOCUMENTTERM L&lt;term name&gt; &lt;serialised Xapian::Document object&gt;</code>
 </ul>
 
 <h2>Cancel</h2>
@@ -220,7 +248,7 @@ and they don't change if the database can't change).
 <h2>Flush</h2>
 
 <ul>
-<li> <code>MSG_CANCEL</code>
+<li> <code>MSG_FLUSH</code>
 <li> <code>REPLY_DONE</code>
 </ul>
 

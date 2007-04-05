@@ -224,10 +224,13 @@ RemoteServer::msg_positionlist(const string &message)
     string term(p, p_end - p);
 
     int N = 0;
+    Xapian::termpos lastpos = static_cast<Xapian::termpos>(-1);
     const Xapian::PositionIterator end = db->positionlist_end(did, term);
     for (Xapian::PositionIterator i = db->positionlist_begin(did, term);
 	 i != end; ++i) {
-	send_message(REPLY_POSITIONLIST, encode_length(*i));
+	Xapian::termpos pos = *i;
+	send_message(REPLY_POSITIONLIST, encode_length(pos - lastpos - 1));
+	lastpos = pos;
 	++N;
     }
 
@@ -453,12 +456,7 @@ RemoteServer::msg_deletedocumentterm(const string & message)
     if (!wdb)
 	throw Xapian::NetworkError("Server is read-only");
 
-    const char *p = message.data();
-    const char *p_end = p + message.size();
-    size_t len = decode_length(&p, p_end);
-    string unique_term(p, len);
-
-    wdb->delete_document(unique_term);
+    wdb->delete_document(message);
 }
 
 void

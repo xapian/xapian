@@ -266,8 +266,11 @@ serialise_rset(const Xapian::RSet &rset)
     const set<Xapian::docid> & items = rset.internal->get_items();
     string result;
     set<Xapian::docid>::const_iterator i;
+    Xapian::docid lastdid = 0;
     for (i = items.begin(); i != items.end(); ++i) {
-	result += encode_length(*i);
+	Xapian::docid did = *i;
+	result += encode_length(did - lastdid - 1);
+	lastdid = did;
     }
     return result;
 }
@@ -280,8 +283,10 @@ unserialise_rset(const string &s)
     const char * p = s.data();
     const char * p_end = p + s.size();
 
+    Xapian::docid did = 0;
     while (p != p_end) {
-	rset.add_document(decode_length(&p, p_end));
+	did += decode_length(&p, p_end) + 1;
+	rset.add_document(did);
     }
 
     return rset;

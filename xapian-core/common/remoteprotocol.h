@@ -26,8 +26,9 @@
 // 22: Lossless double serialisation
 // 23: Support get_lastdocid() on remote databases
 // 24: Support for OP_VALUE_RANGE in query serialisation
-// 25: Support for delete and replace document with unique term
-#define XAPIAN_REMOTE_PROTOCOL_VERSION 25
+// 25: Support for delete_document and replace_document with unique term
+// 26: Tweak delete_document with unique term
+#define XAPIAN_REMOTE_PROTOCOL_VERSION 26
 
 /// Message types (client -> server).
 enum message_type {
@@ -46,10 +47,10 @@ enum message_type {
     MSG_ADDDOCUMENT,		// Add Document
     MSG_CANCEL,			// Cancel
     MSG_DELETEDOCUMENT,		// Delete Document
-    MSG_DELETEDOCUMENTTERM,	// Delete Document with unique term
+    MSG_DELETEDOCUMENTTERM,	// Delete Document by term
     MSG_FLUSH,			// Flush
     MSG_REPLACEDOCUMENT,	// Replace Document
-    MSG_REPLACEDOCUMENTTERM,	// Replace Document with unique term
+    MSG_REPLACEDOCUMENTTERM,	// Replace Document by term
     MSG_GETMSET,		// Get MSet
     MSG_SHUTDOWN,		// Shutdown
     MSG_MAX
