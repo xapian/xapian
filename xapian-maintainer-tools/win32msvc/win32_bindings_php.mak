@@ -9,12 +9,6 @@
 # Change this to match your environment
 XAPIAN_CORE_REL_PHP=..\..\xapian-core
 
-!IF "$(OS)" == "Windows_NT"
-NULL=
-!ELSE 
-NULL=nul
-!ENDIF 
-
 OUTLIBDIR=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 !INCLUDE $(XAPIAN_CORE_REL_PHP)\win32\config.mak
@@ -33,6 +27,8 @@ XAPIAN_DEPENDENCIES = \
  "$(OUTLIBDIR)\liblanguages.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib" \
+ "$(OUTLIBDIR)\libremote.lib" \
+ "$(OUTLIBDIR)\libnet.lib" \
  $(PHP_LIB)
 
 LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" 
@@ -46,7 +42,7 @@ INTDIR=.\
 
 	
 ALL : "$(OUTDIR)\php_xapian.dll" "$(OUTDIR)\xapian.php" \
-	"$(OUTROOT)\smoketest.php" "$(OUTDIR)\smoketest$(PHP_MAJOR_VERSION).php" $(DOMANIFEST)
+	"$(OUTROOT)\smoketest.php" "$(OUTDIR)\smoketest$(PHP_MAJOR_VERSION).php" 
 
 CLEAN :
 	-@erase "$(OUTDIR)\php_xapian.dll"
@@ -57,6 +53,7 @@ CLEAN :
 	-@erase "$(OUTDIR)\smoketest4.php"
 	-@erase "$(OUTDIR)\smoketest5.php"
 	-@erase "$(OUTROOT)\smoketest.php"
+
 	
 CLEANSWIG :	
 	-@erase /Q /s php4
@@ -68,6 +65,7 @@ DOTEST :
 	cd "$(OUTROOT)"
 	$(PHP_EXE) -q -n -d safe_mode=off -d enable_dl=on -d extension_dir="php$(PHP_MAJOR_VERSION)" -d include_path="php$(PHP_MAJOR_VERSION)" smoketest.php
 
+CHECK: ALL DOTEST
 	
 "$(OUTROOT)" :	
     if not exist "$(OUTROOT)/$(NULL)" mkdir "$(OUTROOT)"
@@ -82,14 +80,6 @@ CPP_OBJS=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
 
 
-LIB32=link.exe 
-LIB32_FLAGS=/nologo  $(LIBFLAGS) \
- kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
- advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
- wsock32.lib odbccp32.lib /subsystem:console \
- $(XAPIAN_DEPENDENCIES)
-
-
 php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: ../xapian.i util.i
 	-erase /Q /s php4
 	-md php4
@@ -102,11 +92,13 @@ php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: ../xapian.i util.i
 	$(SWIG) -I"$(XAPIAN_CORE_REL_PHP)\include" $(SWIG_FLAGS) -c++ -php5 -prefix Xapian \
 	    -outdir php5 -o php5/xapian_wrap.cc $(srcdir)/../xapian.i
 
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_DEPENDENCIES) 
+
 
 "$(OUTDIR)\php_xapian.dll" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS) \
                             $(XAPIAN_DEPENDENCIES)
-    $(LIB32) @<<
-  $(LIB32_FLAGS) /DLL /out:"$(OUTDIR)\php_xapian.dll" $(DEF_FLAGS) $(LIB_XAPIAN_OBJS)
+    $(LINK32) @<<
+  $(ALL_LINK32_FLAGS) /DLL /out:"$(OUTDIR)\php_xapian.dll" $(DEF_FLAGS) $(LIB_XAPIAN_OBJS)
 <<
 
 "$(OUTDIR)\xapian.php" : php$(PHP_MAJOR_VERSION)\xapian.php

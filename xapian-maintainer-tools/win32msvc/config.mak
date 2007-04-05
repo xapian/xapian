@@ -4,6 +4,11 @@
 # www.lemurconsulting.com
 #
 # Modify this file to set any extra Xapian build flags
+#
+# HINT: Instead of modifying this file, consider passing new values
+# on the command-line.  For example:
+#  % nmake  PERL_DIR=c:\perl\bin SWIG=c:\something\swig.exe
+# would override the variables without requiring you change anything...
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
@@ -43,48 +48,39 @@ PYTHON_INCLUDE=$(PYTHON_DIR)\include
 #A 'PC' directory is also included for people building from a source tree.
 PYTHON_INCLUDE_2=$(PYTHON_DIR)\PC
 
- # PYTHON_LIB : Set this to the python library including path for linking with
-# Currently, a DEBUG xapian implies a DEBUG Python - in the future, it
-# might be desirable to mix-and-match, but for now, we stay consistent.
-!if "$(DEBUG)"=="1"
-PYTHON_LIB=$(PYTHON_DIR)\PCBuild\python25_d.lib
-!else
-PYTHON_LIB=$(PYTHON_DIR)\PCBuild\python25.lib
-!endif
+# PYTHON_LIB_DIR : Set this to the directory containing python*.lib
+# It should only be necessary to change this for source builds of Python,
+# where the files are in 'PCBuild' rather than 'libs' (this magically works
+# as Python uses a #pragma to reference the library base name - which
+# includes any version numbers and debug suffixes ('_d'))
+PYTHON_LIB_DIR=$(PYTHON_DIR)\libs
 # -------------end Python settings-------------
 
 
 # -------------PHP settings-------------
-
 # PHP source folder
 PHP_SRC_DIR=\work\php-5.2.1
-# PHP executable folder
-PHP_EXE_DIR=\work\php-5.2.1\Release_TS
-# for debug, set the above to:
-#PHP_EXE_DIR=\work\php-5.2.1\Debug_TS
 
 PHP_INCLUDE_CPPFLAGS= \
 /I "$(PHP_SRC_DIR)" /I "$(PHP_SRC_DIR)\tsrm" /I "$(PHP_SRC_DIR)\Zend" /I "$(PHP_SRC_DIR)\main" /I "$(PHP_SRC_DIR)\regex"  \
-/D ZTS=1 /D ZEND_WIN32=1 /D PHP_WIN32=1 /D ZEND_WIN32_FORCE_INLINE \
-
-# add these flags for php 4
-# /D"HAVE_WIN32STD=1"
+/D ZTS=1 /D ZEND_WIN32=1 /D PHP_WIN32=1 /D ZEND_WIN32_FORCE_INLINE /D HAVE_WIN32STD=1 \
 
 # version 4 or 5: Define exactly the one you want and leave the other one 
-# commented out
+# commented out. Note you will have to modify the paths below as well.
 #PHP_MAJOR_VERSION = 4
 PHP_MAJOR_VERSION = 5
 
-#Release build
-#     PHP_LIB : Set this to the PHP library including path for linking with
-PHP_LIB=$(PHP_EXE_DIR)\php5ts.lib
-# for debug, set the above to:
-#PHP_LIB=$(PHP_EXE_DIR)\php5ts_debug.lib
-
-#    PHP flag for compiling debug/release versions
+# PHP_EXE_DIR: Set this to the folder where the PHP executable is
+# PHP_LIB : Set this to the path to the PHP library 
+!if "$(DEBUG)"=="1"
+PHP_EXE_DIR=\work\php-5.2.1\Debug_TS
+PHP_LIB=$(PHP_EXE_DIR)\php5ts_debug.lib
+PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=1"
+!else
+PHP_EXE_DIR=\work\php-5.2.1-win32
+PHP_LIB=$(PHP_EXE_DIR)\dev\php5ts.lib
 PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=0"
-# for debug, set the above to:
-#PHP_DEBUG_OR_RELEASE= /D "ZEND_DEBUG=1"
+!endif
 
 #    PHP executable
 PHP_EXE=$(PHP_EXE_DIR)\PHP.exe 

@@ -23,4 +23,6 @@ Xapian-core 0.9.6 (2006-05-15)
  * Moved a lot of general settings into config.mak for consistency
  * win32.mak now has COPYMAKFILES and TESTFORTOOLS targets
  * PHP bindings can now be compiled 
- * Remote backend now works.
+ * Remote backend now works
+ * renamed *win32.mak to Makefile to simplify building
+ * added CHECK target for all top-level makefiles

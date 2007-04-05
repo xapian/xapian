@@ -1,0 +1,132 @@
+# Xapian makefile for win32 directory
+
+# Makefile for Microsoft Visual C++ 7.0 (or compatible)
+# Originally by Ulrik Petersen
+# Modified by Charlie Hull, Lemur Consulting Ltd.
+# www.lemurconsulting.com
+
+!MESSAGE Building Xapian on Win32
+!MESSAGE
+
+!INCLUDE .\config.mak
+
+ALL: TESTFORTOOLS MAKEHEADERS COPYMAKFILES MAKEALL
+
+CHECK: ALL DOTEST
+
+MAKEALL:
+   cd ..\getopt
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\common
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\api
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\backends
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\matcher
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\languages\compiler
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\queryparser
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\net
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\tests\harness
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\..\bin
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\examples
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\tests
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+
+DOTEST:
+   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)" DOTEST
+   cd ..\win32
+
+CLEAN: COPYMAKFILES
+   cd ..\net
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\getopt
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\common
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\api
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\backends
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\matcher
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\languages\compiler
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\queryparser
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\tests\harness
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\..\bin
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\examples
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\tests
+   nmake DEBUG="$(DEBUG)" CLEAN
+   cd ..\win32
+   -@erase ..\config.h 
+   -@erase ..\include\xapian\version.h
+   -@erase ..\generate-exceptions
+   -@erase ..\include\xapian\error.h
+   -@erase ..\include\xapian\errordispatch.h
+   -@erase $(XAPIAN_DEBUG_OR_RELEASE)\*.idb
+   rmdir $(XAPIAN_DEBUG_OR_RELEASE)\ /s /q
+   echo All Win32 parts have been cleaned!
+
+DISTCLEAN: CLEAN
+
+# Copy mak files to the right folders
+COPYMAKFILES: 
+   copy config.h.win32 ..\config.h
+   copy version.h.win32 ..\include\xapian\version.h
+   copy  win32_api.mak ..\api\Makefile
+   copy  win32_backends.mak ..\backends\Makefile
+   copy  win32_backends_flint.mak ..\backends\flint\Makefile
+   copy  win32_backends_inmemory.mak ..\backends\inmemory\Makefile
+   copy  win32_backends_multi.mak ..\backends\multi\Makefile
+   copy  win32_backends_remote.mak ..\backends\remote\Makefile
+   copy  win32_backends_quartz.mak ..\backends\quartz\Makefile
+   copy  win32_bin.mak ..\bin\Makefile
+   copy  win32_common.mak ..\common\Makefile
+   copy  win32_examples.mak ..\examples\Makefile
+   copy  win32_getopt.mak ..\getopt\Makefile
+   copy  win32_languages_compiler.mak ..\languages\compiler\Makefile
+   copy  win32_languages.mak ..\languages\Makefile
+   copy  win32_matcher.mak ..\matcher\Makefile
+   copy  win32_net.mak ..\net\Makefile
+   copy  win32_queryparser.mak ..\queryparser\Makefile
+   copy  win32_tests.mak ..\tests\Makefile
+   copy  win32_testsuite.mak ..\tests\harness\Makefile
+   if exist $(XAPIAN_BINDINGS) copy $(XAPIAN_BINDINGS)\xapian-version.h.in $(XAPIAN_BINDINGS)\xapian-version.h
+   if exist $(XAPIAN_BINDINGS) copy win32_bindings_python.mak $(XAPIAN_BINDINGS)\python\Makefile
+   if exist $(XAPIAN_BINDINGS) copy win32_bindings_php.mak $(XAPIAN_BINDINGS)\php\Makefile
+   if exist $(XAPIAN_APPLICATIONS) copy win32_applications_omega.mak $(XAPIAN_APPLICATIONS)\omega\Makefile
+   if exist $(XAPIAN_APPLICATIONS) copy config.mak $(XAPIAN_APPLICATIONS)\omega
+   if exist $(XAPIAN_APPLICATIONS) copy config.h.omega.win32 $(XAPIAN_APPLICATIONS)\omega\config.h
+
+# Test for tools that we MUST have   
+TESTFORTOOLS:
+# Perl is needed for header generation
+   if not exist $(PERL_EXE) exit(1) 
+   
+# Header files generated automatically from various .in files
+MAKEHEADERS: ..\include\xapian\error.h 
+
+..\generate-exceptions: ..\generate-exceptions.in
+    $(PERL_EXE) -pe 's,$(PERL_DIR),$(PERL_EXE),' ..\generate-exceptions.in > ..\generate-exceptions
+
+..\include\xapian\error.h: ..\generate-exceptions
+    cd..
+    $(PERL_EXE) generate-exceptions
+    cd win32
+       

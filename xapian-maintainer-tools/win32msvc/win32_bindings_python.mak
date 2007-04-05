@@ -29,8 +29,7 @@ XAPIAN_DEPENDENCIES = \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib" \
  "$(OUTLIBDIR)\libremote.lib" \
- "$(OUTLIBDIR)\libnet.lib" \
- "$(PYTHON_LIB)"
+ "$(OUTLIBDIR)\libnet.lib" 
 
 LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" 
 
@@ -60,6 +59,8 @@ CLEANSWIG :
 DOTEST :
 	cd "$(OUTDIR)"
 	"$(PYTHON_EXE)" smoketest.py
+	
+CHECK: ALL DOTEST	
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -71,7 +72,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
 CPP_OBJS=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
 
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_DEPENDENCIES)
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_DEPENDENCIES) "/LIBPATH:$(PYTHON_LIB_DIR)"
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i extra.i except.i 
 	-erase /Q modern

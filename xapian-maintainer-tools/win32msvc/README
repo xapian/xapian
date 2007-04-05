@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2007-04-02
+2007-04-05
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -99,7 +99,7 @@ xapian\xapian-maintainer-tools
 
 After checking out the sources, copy the contents of the
 "xapian\xapian-maintainer-tools\win32msvc" directory to a new directory named
-"xapian\xapian-core\win32".
+"xapian\xapian-core\win32". Run the build from this latter directory.
 
 You will then need to edit "xapian\xapian-core\win32\config.mak" as
 described in step 4 in the previous section ("How do I get the released
@@ -129,35 +129,15 @@ http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
 which contains headers, libs and NMAKE. Make sure once you have installed this that you create LIB and INCLUDE environment variables to point to the appropriate Platform SDK folders, and that the path to the SDK's BIN folder is in your PATH.
 
 - SWIG can be useful for recompiling the bindings, but this is done by the Xapian
-core maintainers, so you shouldn't need to do this.
+core maintainers, so you shouldn't need to do this unless you are building from the development sources, in which 
+case use the latest development version of SWIG (the latest Windows binary, 1.3.31, is not suitable).
 
 - To compile the Python bindings you need Python from www.python.org. Make sure the paths to this are set correctly in config.mak.
 
-- To compile the PHP 4 bindings you need:
+- To compile the PHP bindings you need:
 
-  a. the PHP sources from www.php.net (we have used PHP 4.4.6). 
+  a. the PHP sources from www.php.net (we have used PHP 4.4.6 & 5.2.1). 
   b. the built sources from a Windows binary distribution
-  c. to edit config.mak to use the correct paths to PHP and to select the right version of PHP to build.
-
-- To compile the PHP 5 bindings you need:
-	
-  a. the PHP sources from www.php.net (we have used PHP 5.2.1). Make sure the paths to this are set correctly in config.mak. 
-
-  b. to rebuild a patched version of PHP 5.2.1: we have noticed that PHP 5 may crash on exit when Xapian is compiled as an extension; we believe this is due to a fault in PHP 5.2.1 concerning unloading resources at shutdown. 
-  
-  http://elizabethmariesmith.com/2006/11/15/how-to-compile-php52-and-php-gtk2-on-windows-using-visual-c-express/2/ has a good guide for how to do this. Further references on getting/building PHP using Visual C++ can be found at:
-  http://uk2.php.net/manual/en/install.windows.building.php
-  http://kromann.info/article.php?Id=11062862408280000
-
-  Patch php_config.h as follows:
-    line 603: #define HAVE_ASSERT_H 1
-    line 693: #define HAVE_STRING_H
-    line 2842: remove any #undef ZEND_DEBUG lines
-  Patch php_cli.c as follows by commenting out line 1283:
-	#ifdef ZTS
-	/*    tsrm_shutdown(); */
-	#endif
-	
   c. to edit config.mak to use the correct paths to PHP and to select the right version of PHP to build.
 
 How do I compile it?
@@ -170,26 +150,53 @@ This will set up the appropriate paths.
 
 1b) Make sure you have the appropriate paths set up for your Visual C++ compiler. 
 
+To build the Xapian core:
+
 2) cd to xapian-core-0.x.y\win32 or the appropriate path on your system.
 3) edit config.mak to suit your environment
-4) nmake /f win32.mak CLEAN
-5) nmake /f win32.mak
+4) nmake CLEAN
+either:
+5a) nmake CHECK 
+   - to build and run the test suite
+5b) nmake 
+   - to just build.
 
-6) cd to ..\..\xapian-bindings-0.x.y\python or ..\..\xapian-bindings-0.x.y\php
-7) edit win32.mak to suit your environment (XAPIAN_CORE_REL_PYTHON) if necessary
-8) nmake /f win32.mak 
+To build the bindings (do steps 1-5 above first to make sure you have Xapian built):
+   
+6) cd to xapian-core-0.x.y\win32 or the appropriate path on your system.
+7) edit win32_bindings_python.mak or win32_bindings_php.mak to suit your environment (XAPIAN_CORE_REL_PYTHON or similar)
+8) nmake COPYMAKFILES 
+   - to make sure this change is copied to the build folder
+9) cd to ..\..\xapian-bindings-0.x.y\python or ..\..\xapian-bindings-0.x.y\php
+10) nmake CLEAN
+11a) nmake CHECK 
+   - to build and run the test suite
+11b) nmake 
+   - to just build.
 
-8) cd to ..\..\omega-0.x.y
-9) edit win32.mak to suit your environment (XAPIAN_CORE_REL_PYTHON) if necessary
-10) nmake /f win32.mak
+To build Omega (do steps 1-5 above first to make sure you have Xapian built):
 
-The binaries end up in xapian-core-0.x.y\win32\Release or \Debug, depending on a setting in config.mak
+12) edit win32_applications_omega.mak to suit your environment (XAPIAN_CORE_REL_OMEGA)
+13) nmake COPYMAKFILES 
+   - to make sure this change is copied to the build folder
+14) cd to ..\..\omega-0.x.y
+15) nmake 
+   - to build.
+
+The binaries end up in xapian-core-0.x.y\win32\Release or \Debug if you are building a Debug build (see below)
 
 Debug builds
 ===========
 
-To compile Debug builds, you will need to swap some lines in config.mak - these are provided but commented out.
-It is also possible to create a project in the Visual C++ Express Edition IDE.
+To compile Debug builds, run the build process with the following switch:
+
+nmake DEBUG=1
+
+This affects some lines in config.mak.
+
+It is also possible to manually create a project in the Visual C++ Express Edition IDE.
+
+
 
 
 Please send any bugfixes to Charlie Hull at Lemur Consulting:
