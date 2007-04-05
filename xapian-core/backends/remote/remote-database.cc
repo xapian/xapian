@@ -79,8 +79,8 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
     }
     ++p;
 
-    doccount = decode_length(&p, p_end);
-    lastdocid = decode_length(&p, p_end);
+    doccount = decode_length(&p, p_end, false);
+    lastdocid = decode_length(&p, p_end, false);
     if (p == p_end) {
 	throw Xapian::NetworkError("Bad greeting message received (bool)", context);
     }
@@ -128,8 +128,8 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 	NetworkTermListItem item;
 	const char * p = message.data();
 	const char * p_end = p + message.size();
-	item.wdf = decode_length(&p, p_end);
-	item.termfreq = decode_length(&p, p_end);
+	item.wdf = decode_length(&p, p_end, false);
+	item.termfreq = decode_length(&p, p_end, false);
 	item.tname.assign(p, p_end);
 	items.push_back(item);
     }
@@ -160,7 +160,7 @@ RemoteDatabase::open_allterms() const {
 	NetworkTermListItem item;
 	const char * p = message.data();
 	const char * p_end = p + message.size();
-	item.termfreq = decode_length(&p, p_end);
+	item.termfreq = decode_length(&p, p_end, false);
 	item.tname.assign(p, p_end);
 	items.push_back(item);
     }
@@ -191,7 +191,7 @@ RemoteDatabase::open_position_list(Xapian::docid did, const string &term) const
     while ((type = get_message(message)) == REPLY_POSITIONLIST) {
 	const char * p = message.data();
 	const char * p_end = p + message.size();
-	lastpos += decode_length(&p, p_end) + 1;
+	lastpos += decode_length(&p, p_end, false) + 1;
 	positions.push_back(lastpos);
     }
     if (type != REPLY_DONE) {
@@ -235,7 +235,7 @@ RemoteDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
     while ((type = get_message(message)) == REPLY_VALUE) {
 	const char * p = message.data();
 	const char * p_end = p + message.size();
-	Xapian::valueno valueno = decode_length(&p, p_end);
+	Xapian::valueno valueno = decode_length(&p, p_end, false);
 	values.insert(make_pair(valueno, string(p, p_end)));
     }
     if (type != REPLY_DONE) {
@@ -253,8 +253,8 @@ RemoteDatabase::update_stats(message_type msg_code) const
     get_message(message, REPLY_UPDATE);
     const char * p = message.c_str();
     const char * p_end = p + message.size();
-    doccount = decode_length(&p, p_end);
-    lastdocid = decode_length(&p, p_end);
+    doccount = decode_length(&p, p_end, false);
+    lastdocid = decode_length(&p, p_end, false);
     if (p == p_end) {
 	throw Xapian::NetworkError("Bad message received", context);
     }
@@ -309,7 +309,7 @@ RemoteDatabase::get_termfreq(const string & tname) const
     get_message(message, REPLY_TERMFREQ);
     const char * p = message.data();
     const char * p_end = p + message.size();
-    return decode_length(&p, p_end);
+    return decode_length(&p, p_end, false);
 }
 
 Xapian::termcount
@@ -321,7 +321,7 @@ RemoteDatabase::get_collection_freq(const string & tname) const
     get_message(message, REPLY_COLLFREQ);
     const char * p = message.data();
     const char * p_end = p + message.size();
-    return decode_length(&p, p_end);
+    return decode_length(&p, p_end, false);
 }
 
 Xapian::doclength
@@ -471,7 +471,7 @@ RemoteDatabase::add_document(const Xapian::Document & doc)
 
     const char * p = message.data();
     const char * p_end = p + message.size();
-    return decode_length(&p, p_end);
+    return decode_length(&p, p_end, false);
 }
 
 void
@@ -518,5 +518,5 @@ RemoteDatabase::replace_document(const std::string & unique_term,
 
     const char * p = message.data();
     const char * p_end = p + message.size();
-    return decode_length(&p, p_end);
+    return decode_length(&p, p_end, false);
 }

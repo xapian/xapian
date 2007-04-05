@@ -346,7 +346,7 @@ QUnserial::readquery() {
 	throw Xapian::InvalidArgumentError("Bad serialised query");
     switch (*p++) {
 	case '[': {
-	    size_t length = decode_length(&p, end);
+	    size_t length = decode_length(&p, end, true);
 	    string tname(p, length);
 	    p += length;
 	    Xapian::termpos term_pos = curpos;
@@ -437,10 +437,10 @@ QUnserial::readcompound() {
 					    elite_set_size);
 		}
 		case ']': {
-		    size_t len = decode_length(&p, end);
+		    size_t len = decode_length(&p, end, true);
 		    string start(p, len);
 		    p += len;
-		    len = decode_length(&p, end);
+		    len = decode_length(&p, end, true);
 		    string stop(p, len);
 		    p += len;
 		    char *tmp; // avoid compiler warning

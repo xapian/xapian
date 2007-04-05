@@ -59,25 +59,30 @@ encode_length(size_t len)
 }
 
 size_t
-decode_length(const char ** p, const char *end)
+decode_length(const char ** p, const char *end, bool check_remaining)
 {
     if (*p == end) {
 	throw Xapian::NetworkError("Bad encoded length: no data");
     }
 
     size_t len = static_cast<unsigned char>(*(*p)++);
-    if (len != 0xff) return len;
-    len = 0;
-    unsigned char ch;
-    int shift = 0;
-    do {
-	if (*p == end || shift > 28)
-	    throw Xapian::NetworkError("Bad encoded length: insufficient data");
-	ch = *(*p)++;
-	len |= size_t(ch & 0x7f) << shift;
-	shift += 7;
-    } while ((ch & 0x80) == 0);
-    return len + 255;
+    if (len == 0xff) {
+	len = 0;
+	unsigned char ch;
+	int shift = 0;
+	do {
+	    if (*p == end || shift > 28)
+		throw Xapian::NetworkError("Bad encoded length: insufficient data");
+	    ch = *(*p)++;
+	    len |= size_t(ch & 0x7f) << shift;
+	    shift += 7;
+	} while ((ch & 0x80) == 0);
+	len += 255;
+    }
+    if (check_remaining && len > size_t(end - *p)) {
+	throw Xapian::NetworkError("Bad encoded length: length greater than data");
+    }
+    return len;
 }
 
 string
@@ -100,14 +105,14 @@ unserialise_error(const string &error_string, const string &prefix,
     const char * p = error_string.data();
     const char * end = p + error_string.size();
     size_t len;
-    len = decode_length(&p, end);
+    len = decode_length(&p, end, true);
     if (len == 7 && memcmp(p, "UNKNOWN", 7) == 0) {
 	throw Xapian::InternalError("UNKNOWN");
     }
     string type(p, len);
     p += len;
 
-    len = decode_length(&p, end);
+    len = decode_length(&p, end, true);
     string context(p, len);
     p += len;
 
@@ -160,23 +165,23 @@ unserialise_stats(const string &s)
 
     Stats stat;
 
-    stat.collection_size = decode_length(&p, p_end);
-    stat.rset_size = decode_length(&p, p_end);
+    stat.collection_size = decode_length(&p, p_end, false);
+    stat.rset_size = decode_length(&p, p_end, false);
     stat.average_length = unserialise_double(&p, p_end);
 
-    size_t n = decode_length(&p, p_end);
+    size_t n = decode_length(&p, p_end, false);
     while (n--) {
-	size_t len = decode_length(&p, p_end);
+	size_t len = decode_length(&p, p_end, true);
 	string term(p, len);
 	p += len;
-	stat.termfreq.insert(make_pair(term, decode_length(&p, p_end)));
+	stat.termfreq.insert(make_pair(term, decode_length(&p, p_end, false)));
     }
 
     while (p != p_end) {
-	size_t len = decode_length(&p, p_end);
+	size_t len = decode_length(&p, p_end, true);
 	string term(p, len);
 	p += len;
-	stat.reltermfreq.insert(make_pair(term, decode_length(&p, p_end)));
+	stat.reltermfreq.insert(make_pair(term, decode_length(&p, p_end, false)));
     }
 
     return stat;
@@ -222,31 +227,31 @@ unserialise_mset(const string &s)
     const char * p = s.data();
     const char * p_end = p + s.size();
 
-    Xapian::doccount firstitem = decode_length(&p, p_end);
-    Xapian::doccount matches_lower_bound = decode_length(&p, p_end);
-    Xapian::doccount matches_estimated = decode_length(&p, p_end);
-    Xapian::doccount matches_upper_bound = decode_length(&p, p_end);
+    Xapian::doccount firstitem = decode_length(&p, p_end, false);
+    Xapian::doccount matches_lower_bound = decode_length(&p, p_end, false);
+    Xapian::doccount matches_estimated = decode_length(&p, p_end, false);
+    Xapian::doccount matches_upper_bound = decode_length(&p, p_end, false);
     Xapian::weight max_possible = unserialise_double(&p, p_end);
     Xapian::weight max_attained = unserialise_double(&p, p_end);
     vector<Xapian::Internal::MSetItem> items;
-    size_t msize = decode_length(&p, p_end);
+    size_t msize = decode_length(&p, p_end, false);
     while (msize-- > 0) {
 	Xapian::weight wt = unserialise_double(&p, p_end);
-	Xapian::docid did = decode_length(&p, p_end);
-	size_t len = decode_length(&p, p_end);
+	Xapian::docid did = decode_length(&p, p_end, false);
+	size_t len = decode_length(&p, p_end, true);
 	string key(p, len);
 	p += len;
 	items.push_back(Xapian::Internal::MSetItem(wt, did, key,
-						   decode_length(&p, p_end)));
+						   decode_length(&p, p_end, false)));
     }
 
     map<string, Xapian::MSet::Internal::TermFreqAndWeight> terminfo;
     while (p != p_end) {
 	Xapian::MSet::Internal::TermFreqAndWeight tfaw;
-	size_t len = decode_length(&p, p_end);
+	size_t len = decode_length(&p, p_end, true);
 	string term(p, len);
 	p += len;
-	tfaw.termfreq = decode_length(&p, p_end);
+	tfaw.termfreq = decode_length(&p, p_end, false);
 	tfaw.termweight = unserialise_double(&p, p_end);
 	terminfo.insert(make_pair(term, tfaw));
     }
@@ -285,7 +290,7 @@ unserialise_rset(const string &s)
 
     Xapian::docid did = 0;
     while (p != p_end) {
-	did += decode_length(&p, p_end) + 1;
+	did += decode_length(&p, p_end, false) + 1;
 	rset.add_document(did);
     }
 
@@ -343,28 +348,28 @@ unserialise_document(const string &s)
     const char * p = s.data();
     const char * p_end = p + s.size();
 
-    size_t n_values = decode_length(&p, p_end);
+    size_t n_values = decode_length(&p, p_end, false);
     while (n_values--) {
-	Xapian::valueno valno = decode_length(&p, p_end);
-	size_t len = decode_length(&p, p_end);
+	Xapian::valueno valno = decode_length(&p, p_end, false);
+	size_t len = decode_length(&p, p_end, true);
 	doc.add_value(valno, string(p, len));
 	p += len;
     }
 
-    size_t n_terms = decode_length(&p, p_end);
+    size_t n_terms = decode_length(&p, p_end, false);
     while (n_terms--) {
-	size_t len = decode_length(&p, p_end);
+	size_t len = decode_length(&p, p_end, true);
 	string term(p, len);
 	p += len;
 
 	// Set all the wdf using add_term, then pass wdf_inc 0 to add_posting.
-	Xapian::termcount wdf = decode_length(&p, p_end);
+	Xapian::termcount wdf = decode_length(&p, p_end, false);
 	doc.add_term(term, wdf);
 
-	size_t n_pos = decode_length(&p, p_end);
+	size_t n_pos = decode_length(&p, p_end, false);
 	Xapian::termpos pos = 0;
 	while (n_pos--) {
-	    pos += decode_length(&p, p_end);
+	    pos += decode_length(&p, p_end, false);
 	    doc.add_posting(term, pos, 0);
 	}
     }

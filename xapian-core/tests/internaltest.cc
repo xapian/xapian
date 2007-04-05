@@ -34,6 +34,7 @@ using namespace std;
 
 #include "autoptr.h"
 #include "testsuite.h"
+#include "testutils.h"
 #include "omstringstream.h"
 
 #include "serialise.h"
@@ -266,7 +267,7 @@ static bool test_serialiselength1()
 	string s = encode_length(n);
 	const char *p = s.data();
 	const char *p_end = p + s.size();
-	size_t decoded_n = decode_length(&p, p_end);
+	size_t decoded_n = decode_length(&p, p_end, false);
 	if (n != decoded_n || p != p_end) tout << "[" << s << "]" << endl;
 	TEST_EQUAL(n, decoded_n);
 	TEST_EQUAL(p_end - p, 0);
@@ -274,6 +275,42 @@ static bool test_serialiselength1()
 	    ++n;
 	} else {
 	    n += 53643;
+	}
+    }
+
+    return true;
+}
+
+// Regression test: vetting the remaining buffer length
+static bool test_serialiselength2()
+{
+    // Nothing magic here, just test a range of odd and even values.
+    for (size_t n = 0; n < 1000; n = (n + 1) * 2 + (n >> 1)) {
+	string s = encode_length(n);
+	TEST_EXCEPTION(Xapian::NetworkError,
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    (void)decode_length(&p, p_end, true);
+	);
+	s.append('x', n - 1);
+	TEST_EXCEPTION(Xapian::NetworkError,
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    (void)decode_length(&p, p_end, true);
+	);
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    (void)decode_length(&p, p_end, true);
+	    TEST(p == p_end);
+	}
+	s += 'x';
+	{
+	    const char *p = s.data();
+	    const char *p_end = p + s.size();
+	    (void)decode_length(&p, p_end, true);
+	    TEST_EQUAL(p_end - p, 1);
 	}
     }
 
@@ -426,6 +463,7 @@ test_desc tests[] = {
     {"serialisedouble1",	test_serialisedouble1},
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
     {"serialiselength1",	test_serialiselength1},
+    {"serialiselength2",	test_serialiselength2},
     {"serialisedoc1",		test_serialisedoc1},
     {"serialisequery1",		test_serialisequery1},
 #endif

@@ -1,7 +1,7 @@
 /* @file serialise.h
  * @brief functions to convert classes to strings and back
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,10 +49,12 @@ std::string encode_length(size_t len);
  *  @param p	Pointer to a pointer to the string, which will be advanced past
  *		the encoded length.
  *  @param end	Pointer to the end of the string.
+ *  @param check_remaining	Check the result against the amount of data
+ *				remaining after the length has been decoded.
  *
  *  @return	The decoded length.
  */
-size_t decode_length(const char ** p, const char *end);
+size_t decode_length(const char ** p, const char *end, bool check_remaining);
 
 /** Serialise a Xapian::Error object to a string.
  *

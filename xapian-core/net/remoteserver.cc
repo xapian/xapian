@@ -202,7 +202,7 @@ RemoteServer::msg_termlist(const string &message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end);
+    Xapian::docid did = decode_length(&p, p_end, false);
 
     const Xapian::TermIterator end = db->termlist_end(did);
     for (Xapian::TermIterator t = db->termlist_begin(did); t != end; ++t) {
@@ -220,7 +220,7 @@ RemoteServer::msg_positionlist(const string &message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end);
+    Xapian::docid did = decode_length(&p, p_end, false);
     string term(p, p_end - p);
 
     int N = 0;
@@ -266,14 +266,14 @@ RemoteServer::msg_query(const string &message_in)
     size_t len;
 
     // Unserialise the Query.
-    len = decode_length(&p, p_end);
+    len = decode_length(&p, p_end, true);
     AutoPtr<Xapian::Query::Internal> query(Xapian::Query::Internal::unserialise(string(p, len)));
     p += len;
 
     // Unserialise assorted Enquire settings.
-    Xapian::termcount qlen = decode_length(&p, p_end);
+    Xapian::termcount qlen = decode_length(&p, p_end, false);
 
-    Xapian::valueno collapse_key = decode_length(&p, p_end);
+    Xapian::valueno collapse_key = decode_length(&p, p_end, false);
 
     if (p_end - p < 4 || *p < '0' || *p > '2') {
 	throw Xapian::NetworkError("bad message (docid_order)");
@@ -281,7 +281,7 @@ RemoteServer::msg_query(const string &message_in)
     Xapian::Enquire::docid_order order;
     order = static_cast<Xapian::Enquire::docid_order>(*p++ - '0');
 
-    Xapian::valueno sort_key = decode_length(&p, p_end);
+    Xapian::valueno sort_key = decode_length(&p, p_end, false);
 
     if (*p < '0' || *p > '3') {
 	throw Xapian::NetworkError("bad message (sort_by)");
@@ -305,7 +305,7 @@ RemoteServer::msg_query(const string &message_in)
     }
 
     // Unserialise the Weight object.
-    len = decode_length(&p, p_end);
+    len = decode_length(&p, p_end, true);
     map<string, Xapian::Weight *>::const_iterator i;
     i = wtschemes.find(string(p, len));
     if (i == wtschemes.end()) {
@@ -313,7 +313,7 @@ RemoteServer::msg_query(const string &message_in)
     }
     p += len;
 
-    len = decode_length(&p, p_end);
+    len = decode_length(&p, p_end, true);
     AutoPtr<Xapian::Weight> wt(i->second->unserialise(string(p, len)));
     p += len;
 
@@ -334,8 +334,8 @@ RemoteServer::msg_query(const string &message_in)
     p = message.c_str();
     p_end = p + message.size();
 
-    Xapian::termcount first = decode_length(&p, p_end);
-    Xapian::termcount maxitems = decode_length(&p, p_end);
+    Xapian::termcount first = decode_length(&p, p_end, false);
+    Xapian::termcount maxitems = decode_length(&p, p_end, false);
 
     message.erase(0, message.size() - (p_end - p));
     global_stats = unserialise_stats(message);
@@ -351,7 +351,7 @@ RemoteServer::msg_document(const string &message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end);
+    Xapian::docid did = decode_length(&p, p_end, false);
 
     Xapian::Document doc = db->get_document(did);
 
@@ -397,7 +397,7 @@ RemoteServer::msg_doclength(const string &message)
 {
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end);
+    Xapian::docid did = decode_length(&p, p_end, false);
     // FIXME: get_doclength should always return an integer, but
     // Xapian::doclength is a double...
     send_message(REPLY_DOCLENGTH, serialise_double(db->get_doclength(did)));
@@ -445,7 +445,7 @@ RemoteServer::msg_deletedocument(const string & message)
 
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end);
+    Xapian::docid did = decode_length(&p, p_end, false);
 
     wdb->delete_document(did);
 }
@@ -467,7 +467,7 @@ RemoteServer::msg_replacedocument(const string & message)
 
     const char *p = message.data();
     const char *p_end = p + message.size();
-    Xapian::docid did = decode_length(&p, p_end);
+    Xapian::docid did = decode_length(&p, p_end, false);
 
     wdb->replace_document(did, unserialise_document(string(p, p_end)));
 }
@@ -480,7 +480,7 @@ RemoteServer::msg_replacedocumentterm(const string & message)
 
     const char *p = message.data();
     const char *p_end = p + message.size();
-    size_t len = decode_length(&p, p_end);
+    size_t len = decode_length(&p, p_end, true);
     string unique_term(p, len);
     p += len;
 

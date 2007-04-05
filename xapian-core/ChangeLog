@@ -1,3 +1,12 @@
+Thu Apr 05 14:26:30 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,backends/remote/remote-database.cc,
+	  common/serialise.h,net/remoteserver.cc,net/serialise.cc,
+	  tests/internaltest.cc: Add a flag parameter to decode_length()
+	  to indicate if the decoded value indicates the length of a
+	  string in the protocol stream, and if it does, check it against
+	  p_end - p after the length has been decoded (fixes bug#38).
+
 Thu Apr 05 14:08:02 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: In test uniqueterm1, check the document length
