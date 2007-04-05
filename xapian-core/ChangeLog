@@ -1,3 +1,11 @@
+Thu Apr 05 01:04:19 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc,backends/database.cc,common/database.h: Move
+	  implementation of delete_document and replace_document with a
+	  unique_term from WritableDatabase to Xapian::Database::Internal.
+	  This will allow it to be overridden for databases which need a
+	  special implementation (such as the remote database).
+
 Tue Apr 03 14:30:45 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/remote-database.h: Remove unused and undefined method

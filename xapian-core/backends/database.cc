@@ -322,10 +322,39 @@ Database::Internal::delete_document(Xapian::docid)
 }
 
 void
+Database::Internal::delete_document(const std::string & unique_term)
+{
+    // Default implementation - overridden for remote databases
+    Xapian::PostingIterator p(open_post_list(unique_term));
+    Xapian::PostingIterator end(NULL);
+    for ( ; p != end; ++p) {
+	delete_document(*p);
+    }
+}
+
+void
 Database::Internal::replace_document(Xapian::docid, const Xapian::Document &)
 {
     // Writable databases should override this method.
     Assert(false);
+}
+
+Xapian::docid
+Database::Internal::replace_document(const std::string & unique_term,
+				     const Xapian::Document & document)
+{
+    // Default implementation - overridden for remote databases
+    Xapian::PostingIterator p(open_post_list(unique_term));
+    Xapian::PostingIterator end(NULL);
+    if (p == end) {
+	return add_document(document);
+    }
+    Xapian::docid did = *p;
+    replace_document(did, document);
+    while (++p != end) {
+	delete_document(*p);
+    }
+    return did;
 }
 
 }

@@ -304,11 +304,25 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual void delete_document(Xapian::docid did);
 
+	/** Delete any documents indexed by a term from the database.
+	 *
+	 *  See WritableDatabase::delete_document() for more information.
+	 */
+	virtual void delete_document(const std::string & unique_term);
+
 	/** Replace a given document in the database.
 	 *
 	 *  See WritableDatabase::replace_document() for more information.
 	 */
-	virtual void replace_document(Xapian::docid did, const Xapian::Document & document);
+	virtual void replace_document(Xapian::docid did,
+				      const Xapian::Document & document);
+
+	/** Replace any documents matching a term.
+	 *
+	 *  See WritableDatabase::replace_document() for more information.
+	 */
+	virtual Xapian::docid replace_document(const std::string & unique_term,
+					       const Xapian::Document & document);
 
 	/** Request and later collect a document from the database.
 	 *  Multiple documents can be requested with request_document(),
