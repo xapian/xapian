@@ -1,3 +1,13 @@
+Thu Apr 05 11:56:57 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/database.cc: Database::Internal can't call the
+	  PostingIterator(PostingIterator::Internal*) ctor (at least under
+	  g++ 3.3.5) because it isn't a friend (only class Database is).
+	  Can't seem to forward define Database::Internal to make
+	  Database::Internal a friend so just use LeafPostList directly
+	  as that seems less bad than pulling in the whole of database.h
+	  or making PostingIterator::internal public.
+
 Thu Apr 05 08:27:26 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Need to run svn-tag-release on ixion.

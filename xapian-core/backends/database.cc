@@ -325,10 +325,9 @@ void
 Database::Internal::delete_document(const std::string & unique_term)
 {
     // Default implementation - overridden for remote databases
-    Xapian::PostingIterator p(open_post_list(unique_term));
-    Xapian::PostingIterator end(NULL);
-    for ( ; p != end; ++p) {
-	delete_document(*p);
+    LeafPostList * pl = open_post_list(unique_term);
+    while (pl->next(), !pl->at_end()) {
+	delete_document(pl->get_docid());
     }
 }
 
@@ -344,15 +343,15 @@ Database::Internal::replace_document(const std::string & unique_term,
 				     const Xapian::Document & document)
 {
     // Default implementation - overridden for remote databases
-    Xapian::PostingIterator p(open_post_list(unique_term));
-    Xapian::PostingIterator end(NULL);
-    if (p == end) {
+    LeafPostList * pl = open_post_list(unique_term);
+    pl->next();
+    if (pl->at_end()) {
 	return add_document(document);
     }
-    Xapian::docid did = *p;
+    Xapian::docid did = pl->get_docid();
     replace_document(did, document);
-    while (++p != end) {
-	delete_document(*p);
+    while (pl->next(), !pl->at_end()) {
+	delete_document(pl->get_docid());
     }
     return did;
 }
