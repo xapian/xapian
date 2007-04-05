@@ -1,3 +1,7 @@
+Thu Apr 05 17:26:39 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Remove stray line left over from debugging.
+
 Thu Apr 05 16:47:36 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/internaltest.cc: Fix test_serialiselength2: implementation

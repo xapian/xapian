@@ -926,7 +926,6 @@ static bool test_uniqueterm1()
 	    } catch (const Xapian::UnimplementedError & e) {
 		SKIP_TEST("WritableDatabase::replace_document(TERM) not implemented");
 	    }
-	    tout << db.get_doccount() << endl;
 	}
 	TEST_EQUAL(db.get_doccount(), sizes[n - 1]);
     }
