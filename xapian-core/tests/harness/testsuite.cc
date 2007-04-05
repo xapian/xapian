@@ -75,8 +75,8 @@ om_ostringstream tout;
 
 int test_driver::runs = 0;
 test_driver::result test_driver::total = {0, 0, 0};
-string test_driver::argv0 = "";
-string test_driver::opt_help = "";
+string test_driver::argv0;
+string test_driver::opt_help;
 map<int, string *> test_driver::short_opts;
 vector<string> test_driver::test_names;
 bool test_driver::abort_on_error = false;

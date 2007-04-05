@@ -1,3 +1,9 @@
+Thu Apr 05 18:20:53 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.cc: No need to explicitly initialise
+	  std::string to ""; not doing so results in a smaller object
+	  file.
+
 Thu Apr 05 18:20:12 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/remoteprotocol.h: Note other changes in protocol version 26.
