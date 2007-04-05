@@ -1,3 +1,8 @@
+Thu Apr 05 14:08:02 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: In test uniqueterm1, check the document length
+	  after every delete or replace for better coverage.
+
 Thu Apr 05 12:41:04 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/serialise.cc: Encode deltas between docids (rather than the

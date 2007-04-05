@@ -903,6 +903,13 @@ static bool test_uniqueterm1()
 
     TEST_EQUAL(db.get_doccount(), 20);
 
+    static const Xapian::doccount sizes[20] = {
+	19, 17, 16, 15,
+	15, 15, 15, 15,
+	15, 15, 15, 15,
+	15, 15, 15, 15,
+	15, 15, 15, 15
+    };
     for (int n = 1; n <= 20; ++n) {
 	string uterm = "U" + om_tostring(n % 16);
 	if (uterm == "U2") {
@@ -919,10 +926,10 @@ static bool test_uniqueterm1()
 	    } catch (const Xapian::UnimplementedError & e) {
 		SKIP_TEST("WritableDatabase::replace_document(TERM) not implemented");
 	    }
+	    tout << db.get_doccount() << endl;
 	}
+	TEST_EQUAL(db.get_doccount(), sizes[n - 1]);
     }
-
-    TEST_EQUAL(db.get_doccount(), 15);
 
     string uterm = "U571";
     Xapian::Document doc;
