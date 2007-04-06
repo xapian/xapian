@@ -223,7 +223,6 @@ RemoteServer::msg_positionlist(const string &message)
     Xapian::docid did = decode_length(&p, p_end, false);
     string term(p, p_end - p);
 
-    int N = 0;
     Xapian::termpos lastpos = static_cast<Xapian::termpos>(-1);
     const Xapian::PositionIterator end = db->positionlist_end(did, term);
     for (Xapian::PositionIterator i = db->positionlist_begin(did, term);
@@ -231,7 +230,6 @@ RemoteServer::msg_positionlist(const string &message)
 	Xapian::termpos pos = *i;
 	send_message(REPLY_POSITIONLIST, encode_length(pos - lastpos - 1));
 	lastpos = pos;
-	++N;
     }
 
     send_message(REPLY_DONE, "");
