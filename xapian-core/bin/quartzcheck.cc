@@ -2,7 +2,7 @@
  * or btree.  Also check the structures inside the tables.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -97,12 +97,12 @@ main(int argc, char **argv)
     try {
 	size_t errors = 0;
 	struct stat sb;
-	string record_DB(argv[1]);
-	record_DB += "/record_DB";
-	if (stat(record_DB.c_str(), &sb) == 0) {
+	string meta_file(argv[1]);
+	meta_file += "/meta";
+	if (stat(meta_file.c_str(), &sb) == 0) {
 	    // Check a whole quartz database directory.
 	    try {
-		Xapian::Database db(argv[1]);
+		Xapian::Database db = Xapian::Quartz::open(argv[1]);
 		doclens.reserve(db.get_lastdocid());
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
