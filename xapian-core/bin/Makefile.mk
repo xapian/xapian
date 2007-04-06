@@ -12,9 +12,11 @@ endif
 
 if BUILD_BACKEND_FLINT
 bin_PROGRAMS +=\
+	bin/xapian-check\
 	bin/xapian-compact
 
 dist_man_MANS +=\
+	bin/xapian-check.1\
 	bin/xapian-compact.1
 endif
 
@@ -32,6 +34,7 @@ EXTRA_PROGRAMS +=\
 	bin/quartzcheck\
 	bin/quartzcompact\
 	bin/quartzdump\
+	bin/xapian-check\
 	bin/xapian-compact\
 	bin/xapian-progsrv\
 	bin/xapian-tcpsrv
@@ -47,6 +50,16 @@ bin_quartzcompact_LDADD = $(ldflags) libgetopt.la libxapian.la
 bin_quartzdump_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 bin_quartzdump_SOURCES = bin/quartzdump.cc
 bin_quartzdump_LDADD = $(ldflags) libgetopt.la libxapian.la
+
+bin_xapian_check_CXXFLAGS = -I$(top_srcdir)/backends/flint
+bin_xapian_check_SOURCES = bin/xapian-check.cc
+bin_xapian_check_LDADD = $(ldflags)
+if BUILD_BACKEND_QUARTZ
+# xapian-check currently uses libquartzcheck
+bin_xapian_check_CXXFLAGS += -I$(top_srcdir)/backends/quartz
+bin_xapian_check_LDADD += libquartzcheck.la
+endif
+bin_xapian_check_LDADD += libxapian.la
 
 bin_xapian_compact_CXXFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_compact_SOURCES = bin/xapian-compact.cc
@@ -68,12 +81,15 @@ bin/quartzcompact.1: bin/quartzcompact$(EXEEXT) makemanpage
 bin/quartzdump.1: bin/quartzdump$(EXEEXT) makemanpage
 	./makemanpage bin/quartzdump $(srcdir)/bin/quartzdump.cc bin/quartzdump.1
 
+bin/xapian-check.1: bin/xapian-check$(EXEEXT) makemanpage
+	./makemanpage bin/xapian-check $(srcdir)/bin/xapian-check.cc bin/xapian-check.1
+
+bin/xapian-compact.1: bin/xapian-compact$(EXEEXT) makemanpage
+	./makemanpage bin/xapian-compact $(srcdir)/bin/xapian-compact.cc bin/xapian-compact.1
+
 bin/xapian-progsrv.1: bin/xapian-progsrv$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-progsrv $(srcdir)/bin/xapian-progsrv.cc bin/xapian-progsrv.1
 
 bin/xapian-tcpsrv.1: bin/xapian-tcpsrv$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-tcpsrv $(srcdir)/bin/xapian-tcpsrv.cc bin/xapian-tcpsrv.1
-
-bin/xapian-compact.1: bin/xapian-compact$(EXEEXT) makemanpage
-	./makemanpage bin/xapian-compact $(srcdir)/bin/xapian-compact.cc bin/xapian-compact.1
 endif
