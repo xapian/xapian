@@ -60,13 +60,13 @@ split_words(const string &text, vector<string> &words, char ws = ' ')
     }
 }
 
-ProgClient::ProgClient(const string &progname, const string &args, int msecs_timeout_)
+ProgClient::ProgClient(const string &progname, const string &args, int msecs_timeout)
 	: RemoteDatabase(get_spawned_socket(progname, args),
-			 msecs_timeout_,
+			 msecs_timeout,
 			 get_progcontext(progname, args))
 {
     DEBUGCALL(DB, void, "ProgClient::ProgClient", progname << ", " << args <<
-	      ", " << msecs_timeout_);
+	      ", " << msecs_timeout);
 }
 
 string

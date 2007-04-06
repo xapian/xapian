@@ -1,3 +1,7 @@
+Fri Apr 06 18:59:24 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/progclient.cc: msecs_timeout_ -> msecs_timeout.
+
 Fri Apr 06 18:12:36 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Fix comment grammar.
