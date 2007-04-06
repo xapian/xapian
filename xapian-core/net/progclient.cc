@@ -117,7 +117,7 @@ ProgClient::get_spawned_socket(const string &progname, const string &args)
 
     // close unnecessary file descriptors
     // FIXME: Probably a bit excessive...
-    for (int fd = 3; fd < 256; ++fd) {
+    for (int fd = 2; fd < 256; ++fd) {
 	close(fd);
     }
 
