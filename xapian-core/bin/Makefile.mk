@@ -53,13 +53,7 @@ bin_quartzdump_LDADD = $(ldflags) libgetopt.la libxapian.la
 
 bin_xapian_check_CXXFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_check_SOURCES = bin/xapian-check.cc
-bin_xapian_check_LDADD = $(ldflags)
-if BUILD_BACKEND_QUARTZ
-# xapian-check currently uses libquartzcheck
-bin_xapian_check_CXXFLAGS += -I$(top_srcdir)/backends/quartz
-bin_xapian_check_LDADD += libquartzcheck.la
-endif
-bin_xapian_check_LDADD += libxapian.la
+bin_xapian_check_LDADD = $(ldflags) libflintcheck.la libxapian.la
 
 bin_xapian_compact_CXXFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_compact_SOURCES = bin/xapian-compact.cc

@@ -24,7 +24,7 @@
 #include <iostream>
 
 #include "autoptr.h"
-#include "btreecheck.h" // FIXME
+#include "flint_check.h"
 #include "flint_cursor.h"
 #include "flint_table.h"
 #include "flint_types.h"
@@ -42,7 +42,7 @@ using namespace std;
 // "only" requires (4 * last_docid()) bytes.
 
 static void show_usage() {
-    cout << "Usage: "PROG_NAME" <path to btree and prefix>|<flint directory> [[t][f][b][v][+]]\n\n"
+    cout << "Usage: "PROG_NAME" <flint directory>|<path to btree and prefix> [[t][f][b][v][+]]\n\n"
 "The btree(s) is/are always checked - control the output verbosity with:\n"
 " t = short tree printing\n"
 " f = full tree printing\n"
@@ -255,7 +255,7 @@ check_table(string filename, int opts)
     // Check the btree structure.
     BtreeCheck::check(filename, opts);
 
-    // Now check the quartz structures inside the btree.
+    // Now check the flint structures inside the btree.
     FlintTable table(filename, true);
     table.open();
     AutoPtr<FlintCursor> cursor(table.cursor_get());
@@ -281,7 +281,7 @@ check_table(string filename, int opts)
 	    cursor->read_tag();
 	    // Check format of the METAINFO key.
 	    Xapian::docid did;
-	    quartz_totlen_t totlen;
+	    flint_totlen_t totlen;
 	    const char * data = cursor->current_tag.data();
 	    const char * end = data + cursor->current_tag.size();
 	    if (!unpack_uint(&data, end, &did)) {

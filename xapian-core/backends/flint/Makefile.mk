@@ -41,4 +41,9 @@ libxapian_la_SOURCES +=\
 	backends/flint/flint_termlist.cc\
 	backends/flint/flint_values.cc\
 	backends/flint/flint_version.cc
+
+noinst_LTLIBRARIES += libflintcheck.la
+
+libflintcheck_la_SOURCES =\
+	backends/flint/flint_check.cc
 endif
