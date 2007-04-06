@@ -92,7 +92,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 		throw Xapian::NetworkError("read failed", context, errcode);
 	}
 	if (received > 0) {
-	    buffer.append(buf, buf + received);
+	    buffer.append(buf, received);
 	    if (buffer.length() >= min_len) break;
 	    continue;
 	}
@@ -111,7 +111,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	ssize_t received = read(fdin, buf, sizeof(buf));
 
 	if (received > 0) {
-	    buffer.append(buf, buf + received);
+	    buffer.append(buf, received);
 	    if (buffer.length() >= min_len) return;
 	    continue;
 	}
