@@ -419,9 +419,9 @@ static bool test_deldoc2()
     TEST_EQUAL(db.get_termfreq("two"), 0);
     TEST_EQUAL(db.get_termfreq("three"), 0);
 
-    TEST_EQUAL(db.term_exists("one"), false);
-    TEST_EQUAL(db.term_exists("two"), false);
-    TEST_EQUAL(db.term_exists("three"), false);
+    TEST(!db.term_exists("one"));
+    TEST(!db.term_exists("two"));
+    TEST(!db.term_exists("three"));
 
     TEST_EQUAL(db.get_collection_freq("one"), 0);
     TEST_EQUAL(db.get_collection_freq("two"), 0);
@@ -474,7 +474,7 @@ static bool test_deldoc3()
     TEST_EQUAL(db.get_avlength(), 0);
     TEST_EQUAL(db.get_termfreq("one"), 0);
 
-    TEST_EQUAL(db.term_exists("one"), false);
+    TEST(!db.term_exists("one"));
 
     TEST_EQUAL(db.get_collection_freq("one"), 0);
 
@@ -562,9 +562,9 @@ static bool test_deldoc4()
     TEST_EQUAL(db.get_termfreq("two"), 0);
     TEST_EQUAL(db.get_termfreq("three"), 0);
 
-    TEST_EQUAL(db.term_exists("one"), false);
-    TEST_EQUAL(db.term_exists("two"), false);
-    TEST_EQUAL(db.term_exists("three"), false);
+    TEST(!db.term_exists("one"));
+    TEST(!db.term_exists("two"));
+    TEST(!db.term_exists("three"));
 
     TEST_EQUAL(db.get_collection_freq("one"), 0);
     TEST_EQUAL(db.get_collection_freq("two"), 0);
