@@ -25,6 +25,8 @@
 
 #include <xapian/error.h>
 
+#include "autoptr.h"
+#include "emptypostlist.h"
 #include "inmemory_positionlist.h"
 #include "net_termlist.h"
 #include "net_document.h"
@@ -173,9 +175,11 @@ RemoteDatabase::open_allterms() const {
 }
 
 LeafPostList *
-RemoteDatabase::do_open_post_list(const string &) const
+RemoteDatabase::open_post_list(const string &term) const
 {
-    throw Xapian::UnimplementedError("RemoteDatabase::do_open_post_list not implemented");
+    // Well, we can handle one case easily...
+    if (!term.empty() && !term_exists(term)) return new EmptyPostList;
+    throw Xapian::UnimplementedError("RemoteDatabase::open_post_list not implemented");
 }
 
 PositionList *

@@ -22,6 +22,8 @@
  */
 
 #include <config.h>
+
+#include "autoptr.h"
 #include "omdebug.h"
 #include "omqueryinternal.h"
 #include "utils.h"

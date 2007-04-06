@@ -455,9 +455,9 @@ FlintDatabase::has_positions() const
 
 
 LeafPostList *
-FlintDatabase::do_open_post_list(const string& tname) const
+FlintDatabase::open_post_list(const string& tname) const
 {
-    DEBUGCALL(DB, LeafPostList *, "FlintDatabase::do_open_post_list", tname);
+    DEBUGCALL(DB, LeafPostList *, "FlintDatabase::open_post_list", tname);
     Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
 
     if (tname.empty()) {
@@ -467,9 +467,9 @@ FlintDatabase::do_open_post_list(const string& tname) const
     }
 
     RETURN(new FlintPostList(ptrtothis,
-			      &postlist_table,
-			      &positionlist_table,
-			      tname));
+			     &postlist_table,
+			     &positionlist_table,
+			     tname));
 }
 
 LeafTermList *
@@ -971,9 +971,9 @@ FlintWritableDatabase::has_positions() const
 
 
 LeafPostList *
-FlintWritableDatabase::do_open_post_list(const string& tname) const
+FlintWritableDatabase::open_post_list(const string& tname) const
 {
-    DEBUGCALL(DB, LeafPostList *, "FlintWritableDatabase::do_open_post_list", tname);
+    DEBUGCALL(DB, LeafPostList *, "FlintWritableDatabase::open_post_list", tname);
     Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
 
     if (tname.empty()) {

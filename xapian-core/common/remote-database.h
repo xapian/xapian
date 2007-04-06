@@ -159,7 +159,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     void reopen();
 
-    LeafPostList * do_open_post_list(const string & tname) const;
+    LeafPostList * open_post_list(const string & tname) const;
 
     PositionList * open_position_list(Xapian::docid did,
 				      const string & tname) const;

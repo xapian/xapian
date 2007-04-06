@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -290,7 +290,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	bool term_exists(const string & tname) const;
 	bool has_positions() const;
 
-	LeafPostList * do_open_post_list(const string & tname) const;
+	LeafPostList * open_post_list(const string & tname) const;
 	LeafTermList * open_term_list(Xapian::docid did) const;
 	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
 	PositionList * open_position_list(Xapian::docid did,

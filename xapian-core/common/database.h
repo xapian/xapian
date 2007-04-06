@@ -33,7 +33,6 @@
 #include <xapian/positioniterator.h>
 #include <xapian/termiterator.h>
 #include "omdebug.h"
-#include "emptypostlist.h"
 
 using namespace std;
 
@@ -82,18 +81,6 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  so this method will catch and discard any exceptions.
 	 */
 	void dtor_called();
-
-	/** Method definied by subclass to actually open a posting list.
-	 *
-	 *  This is a list of all the documents which contain a given term.
-	 *
-	 *  @param tname  The term whose posting list is being requested.
-	 *
-	 *  @return       A pointer to the newly created posting list.
-	 *                This object must be deleted by the caller after
-	 *                use.
-	 */
-	virtual LeafPostList * do_open_post_list(const string & tname) const = 0;
 
     public:
 	/** Destroy the database.
@@ -180,24 +167,20 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 
 	/** Open a posting list.
 	 *
+	 *  Method defined by subclass to open a posting list.
 	 *  This is a list of all the documents which contain a given term.
 	 *
 	 *  @param tname  The term whose posting list is being requested.
 	 *
 	 *  @return       A pointer to the newly created posting list.
+	 *		  If the term doesn't exist, a new EmptyPostList
+	 *		  object (or an object which behaves the same way) is
+	 *		  returned instead, which makes it easier
+	 *		  to implement a search over multiple databases.
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	LeafPostList * open_post_list(const string & tname) const {
-	    if (!tname.empty() && !term_exists(tname)) {
-		DEBUGLINE(MATCH, tname + " is not in database.");
-		// Term doesn't exist in this database.  However, we create
-		// a (empty) postlist for it to help make distributed searching
-		// cleaner (term might exist in other databases).
-		return new EmptyPostList();
-	    }
-	    return do_open_post_list(tname);
-	}
+	virtual LeafPostList * open_post_list(const string & tname) const = 0;
 
 	/** Open a term list.
 	 *

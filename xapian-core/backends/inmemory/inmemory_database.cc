@@ -26,6 +26,7 @@
 
 #include "omdebug.h"
 
+#include "emptypostlist.h"
 #include "inmemory_database.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
@@ -361,7 +362,7 @@ InMemoryDatabase::~InMemoryDatabase()
 }
 
 LeafPostList *
-InMemoryDatabase::do_open_post_list(const string & tname) const
+InMemoryDatabase::open_post_list(const string & tname) const
 {
     if (tname.empty()) {
 	if (termlists.empty())

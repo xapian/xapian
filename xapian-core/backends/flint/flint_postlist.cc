@@ -1,8 +1,7 @@
 /* flint_postlist.cc: Postlists in a flint database
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -933,25 +931,23 @@ FlintPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
     have_started = true;
 
     // Don't skip back, and don't need to do anything if already there.
-    if (desired_did <= did) RETURN(NULL);
+    if (is_at_end || desired_did <= did) RETURN(NULL);
 
     // Move to correct chunk
     if (!current_chunk_contains(desired_did)) {
 	move_to_chunk_containing(desired_did);
-	// Might be at_end now - this is why we need the test before moving
+	// Might be at_end now, so we need to check before trying to move
 	// forward in chunk.
+	if (is_at_end) RETURN(NULL);
     }
 
     // Move to correct position in chunk
-    if (!is_at_end) {
+    bool have_document = move_forward_in_chunk_to_at_least(desired_did);
 #ifdef XAPIAN_DEBUG
-	bool have_document =
+    Assert(have_document);
 #else
-		(void)
+    (void)have_document;
 #endif
-		move_forward_in_chunk_to_at_least(desired_did);
-	Assert(have_document);
-    }
 
     DEBUGLINE(DB, string("Skipped to ") <<
 	      (is_at_end ? string("end.") : string("docid, wdf, doclength = ") +

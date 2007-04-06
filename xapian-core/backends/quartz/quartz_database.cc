@@ -599,9 +599,9 @@ QuartzDatabase::has_positions() const
 
 
 LeafPostList *
-QuartzDatabase::do_open_post_list(const string& tname) const
+QuartzDatabase::open_post_list(const string& tname) const
 {
-    DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::do_open_post_list", tname);
+    DEBUGCALL(DB, LeafPostList *, "QuartzDatabase::open_post_list", tname);
     Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
 
     if (tname.empty()) {
@@ -1116,9 +1116,9 @@ QuartzWritableDatabase::has_positions() const
 
 
 LeafPostList *
-QuartzWritableDatabase::do_open_post_list(const string& tname) const
+QuartzWritableDatabase::open_post_list(const string& tname) const
 {
-    DEBUGCALL(DB, LeafPostList *, "QuartzWritableDatabase::do_open_post_list", tname);
+    DEBUGCALL(DB, LeafPostList *, "QuartzWritableDatabase::open_post_list", tname);
     Xapian::Internal::RefCntPtr<const QuartzWritableDatabase> ptrtothis(this);
 
     if (tname.empty()) {
