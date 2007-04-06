@@ -349,7 +349,7 @@ RemoteConnection::calc_read_wait_msecs(const OmTime & end_time)
     // msecs is unsigned, so we mustn't try and return a negative value
     if (now > end_time) {
 	// This is possible if we are reading chunks - but if we are
-	// debugging, its far more likely that we are just a little slow
+	// debugging, it's far more likely that we are just a little slow
 	// stepping through the code...
 #ifdef DEBUG
 	msecs = 10000;
