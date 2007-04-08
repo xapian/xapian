@@ -2,6 +2,7 @@
  *  @brief Xapian remote backend server base class
  */
 /* Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,6 +103,9 @@ class RemoteServer : private RemoteConnection {
 
     // get termlist
     void msg_termlist(const std::string & message);
+
+    // get postlist
+    void msg_postlist(const std::string & message);
 
     // get positionlist
     void msg_positionlist(const std::string &message);

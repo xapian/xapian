@@ -2,6 +2,7 @@
  *  @brief Remote protocol version and message numbers
  */
 /* Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +29,8 @@
 // 24: Support for OP_VALUE_RANGE in query serialisation
 // 25: Support for delete_document and replace_document with unique term
 // 26: Tweak delete_document with unique term; delta encode rset and termpos
-#define XAPIAN_REMOTE_PROTOCOL_VERSION 26
+// 27: Support for postlists (always passes the whole list across)
+#define XAPIAN_REMOTE_PROTOCOL_VERSION 27
 
 /// Message types (client -> server).
 enum message_type {
@@ -42,6 +44,7 @@ enum message_type {
     MSG_QUERY,			// Run Query
     MSG_TERMLIST,		// Get TermList
     MSG_POSITIONLIST,		// Get PositionList
+    MSG_POSTLIST,		// Get PostList
     MSG_REOPEN,			// Reopen
     MSG_UPDATE,			// Get Updated DocCount and AvLength
     MSG_ADDDOCUMENT,		// Add Document
@@ -72,6 +75,8 @@ enum reply_type {
     REPLY_STATS,		// Stats
     REPLY_TERMLIST,		// Get Termlist
     REPLY_POSITIONLIST,		// Get PositionList
+    REPLY_POSTLISTSTART,	// Start of a postlist
+    REPLY_POSTLISTITEM,		// Item in body of a postlist
     REPLY_UPDATE,		// Get Updated DocCount and AvLength
     REPLY_VALUE,		// Document Value
     REPLY_ADDDOCUMENT,		// Add Document

@@ -2,7 +2,7 @@
  *  @brief Xapian remote backend server base class
  */
 /* Copyright (C) 2006,2007 Olly Betts
- * Copyright (C) 2006 Richard Boulton
+ * Copyright (C) 2006,2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -139,6 +139,11 @@ RemoteServer::run()
 {
     while (true) {
 	try {
+	    /* This list needs to be kept in the same order as the list of
+	     * message types in "remoteprotocol.h". Note that messages at the
+	     * end of the list in "remoteprotocol.h" can be omitted if they
+	     * don't correspond to dispatch actions.
+	     */
 	    static const dispatch_func dispatch[] = {
 		&RemoteServer::msg_allterms,
 		&RemoteServer::msg_collfreq,
@@ -150,6 +155,7 @@ RemoteServer::run()
 		&RemoteServer::msg_query,
 		&RemoteServer::msg_termlist,
 		&RemoteServer::msg_positionlist,
+		&RemoteServer::msg_postlist,
 		&RemoteServer::msg_reopen,
 		&RemoteServer::msg_update,
 		&RemoteServer::msg_adddocument,
@@ -230,6 +236,41 @@ RemoteServer::msg_positionlist(const string &message)
 	Xapian::termpos pos = *i;
 	send_message(REPLY_POSITIONLIST, encode_length(pos - lastpos - 1));
 	lastpos = pos;
+    }
+
+    send_message(REPLY_DONE, "");
+}
+
+void
+RemoteServer::msg_postlist(const string &message)
+{
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    string term(p, p_end - p);
+
+    Xapian::doccount termfreq = db->get_termfreq(term);
+    Xapian::termcount collfreq = db->get_collection_freq(term);
+    send_message(REPLY_POSTLISTSTART, encode_length(termfreq) + encode_length(collfreq));
+
+    Xapian::docid lastdocid = 0;
+    const Xapian::PostingIterator end = db->postlist_end(term);
+    for (Xapian::PostingIterator i = db->postlist_begin(term);
+	 i != end; ++i) {
+
+	Xapian::docid newdocid = *i;
+	string reply = encode_length(newdocid - lastdocid - 1);
+	reply += encode_length(i.get_wdf());
+	// FIXME: get_doclength should always return an integer value, but
+	// Xapian::doclength is a double.  We could improve the compression
+	// here by casting to an int and serialising that instead, but it's
+	// probably not worth doing since the plan is to stop storing the
+	// document length in the posting lists anyway, at which point the
+	// remote protocol should stop passing it since it will be more
+	// expensive to do so.
+	reply += serialise_double(i.get_doclength());
+
+	send_message(REPLY_POSTLISTITEM, reply);
+	lastdocid = newdocid;
     }
 
     send_message(REPLY_DONE, "");

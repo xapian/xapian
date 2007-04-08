@@ -2,6 +2,7 @@
  *  @brief Remote backend database class
  */
 /* Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +29,7 @@
 #include "autoptr.h"
 #include "emptypostlist.h"
 #include "inmemory_positionlist.h"
+#include "net_postlist.h"
 #include "net_termlist.h"
 #include "net_document.h"
 #include "omassert.h"
@@ -177,9 +179,31 @@ RemoteDatabase::open_allterms() const {
 LeafPostList *
 RemoteDatabase::open_post_list(const string &term) const
 {
-    // Well, we can handle one case easily...
-    if (!term.empty() && !term_exists(term)) return new EmptyPostList;
-    throw Xapian::UnimplementedError("RemoteDatabase::open_post_list not implemented");
+    return new NetworkPostList(Xapian::Internal::RefCntPtr<const RemoteDatabase>(this), term);
+}
+
+void
+RemoteDatabase::read_post_list(const string &term, NetworkPostList & pl) const
+{
+    send_message(MSG_POSTLIST, term);
+
+    string message;
+    char type;
+    get_message(message, REPLY_POSTLISTSTART);
+
+    const char * p = message.data();
+    const char * p_end = p + message.size();
+    Xapian::doccount termfreq = decode_length(&p, p_end, false);
+    Xapian::termcount collfreq = decode_length(&p, p_end, false);
+
+    pl.initialise(termfreq, collfreq);
+
+    while ((type = get_message(message)) == REPLY_POSTLISTITEM) {
+	pl.append_posting(message);
+    }
+    if (type != REPLY_DONE) {
+	throw Xapian::NetworkError("Bad message received", context);
+    }
 }
 
 PositionList *

@@ -2,6 +2,7 @@
  *  @brief RemoteDatabase is the baseclass for remote database implementations.
  */
 /* Copyright (C) 2006,2007 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -33,6 +34,7 @@ namespace Xapian {
 }
 
 class Stats;
+class NetworkPostList;
 
 /** RemoteDatabase is the baseclass for remote database implementations.
  *
@@ -160,6 +162,8 @@ class RemoteDatabase : public Xapian::Database::Internal {
     void reopen();
 
     LeafPostList * open_post_list(const string & tname) const;
+
+    void read_post_list(const string &term, NetworkPostList & pl) const;
 
     PositionList * open_position_list(Xapian::docid did,
 				      const string & tname) const;
