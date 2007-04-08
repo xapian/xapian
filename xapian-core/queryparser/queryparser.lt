@@ -159,33 +159,7 @@ typedef struct yyParser yyParser;
 static void yy_parse_failed(yyParser *);
 
 #ifndef NDEBUG
-#include <stdio.h>
-static FILE *yyTraceFILE = 0;
-static char *yyTracePrompt = 0;
-
-/* 
-** Turn parser tracing on by giving a stream to which to write the trace
-** and a prompt to preface each trace message.  Tracing is turned off
-** by making either argument NULL 
-**
-** Inputs:
-** <ul>
-** <li> A FILE* to which trace output should be written.
-**      If NULL, then tracing is turned off.
-** <li> A prefix string written at the beginning of every
-**      line of trace output.  If NULL, then tracing is
-**      turned off.
-** </ul>
-**
-** Outputs:
-** None.
-*/
-void ParseTrace(FILE *TraceFILE, char *zTracePrompt){
-  yyTraceFILE = TraceFILE;
-  yyTracePrompt = zTracePrompt;
-  if( yyTraceFILE==0 ) yyTracePrompt = 0;
-  else if( yyTracePrompt==0 ) yyTraceFILE = 0;
-}
+#include "omdebug.h"
 
 /* For tracing shifts, the names of all terminals and nonterminals
 ** are required.  The following table supplies these names */
@@ -267,13 +241,7 @@ static int yy_pop_parser_stack(yyParser *pParser){
   yyStackEntry *yytos = &pParser->yystack[pParser->yyidx];
 
   if( pParser->yyidx<0 ) return 0;
-#ifndef NDEBUG
-  if( yyTraceFILE && pParser->yyidx>=0 ){
-    fprintf(yyTraceFILE,"%sPopping %s\n",
-      yyTracePrompt,
-      yyTokenName[yytos->major]);
-  }
-#endif
+  DEBUGLINE(QUERYPARSER, "Popping " << yyTokenName[yytos->major]);
   yymajor = (YYCODETYPE)yytos->major;
   yy_destructor( yymajor, &yytos->minor);
   pParser->yyidx--;
@@ -325,12 +293,9 @@ static int yy_find_shift_action(
     int iFallback;            /* Fallback token */
     if( iLookAhead<sizeof(yyFallback)/sizeof(yyFallback[0])
            && (iFallback = yyFallback[iLookAhead])!=0 ){
-#ifndef NDEBUG
-      if( yyTraceFILE ){
-        fprintf(yyTraceFILE, "%sFALLBACK %s => %s\n",
-           yyTracePrompt, yyTokenName[iLookAhead], yyTokenName[iFallback]);
-      }
-#endif
+      DEBUGLINE(QUERYPARSER,
+		"FALLBACK " << yyTokenName[iLookAhead] << " => " <<
+		yyTokenName[iFallback]);
       return yy_find_shift_action(pParser, iFallback);
     }
 #endif
@@ -384,11 +349,7 @@ static void yy_shift(
   if( yypParser->yyidx>=YYSTACKDEPTH ){
      ParseARG_FETCH;
      yypParser->yyidx--;
-#ifndef NDEBUG
-     if( yyTraceFILE ){
-       fprintf(yyTraceFILE,"%sStack Overflow!\n",yyTracePrompt);
-     }
-#endif
+     DEBUGLINE(QUERYPARSER, "Stack Overflow!");
      while( yypParser->yyidx>=0 ) yy_pop_parser_stack(yypParser);
      /* Here code is inserted which will execute if the parser
      ** stack every overflows */
@@ -400,14 +361,16 @@ static void yy_shift(
   yytos->stateno = yyNewState;
   yytos->major = yyMajor;
   yytos->minor = *yypMinor;
-#ifndef NDEBUG
-  if( yyTraceFILE && yypParser->yyidx>0 ){
+#ifdef XAPIAN_DEBUG_VERBOSE
+  if(yypParser->yyidx>0 ){
     int i;
-    fprintf(yyTraceFILE,"%sShift %d\n",yyTracePrompt,yyNewState);
-    fprintf(yyTraceFILE,"%sStack:",yyTracePrompt);
-    for(i=1; i<=yypParser->yyidx; i++)
-      fprintf(yyTraceFILE," %s",yyTokenName[yypParser->yystack[i].major]);
-    fprintf(yyTraceFILE,"\n");
+    DEBUGLINE(QUERYPARSER, "Shift " << yyNewState);
+    string stack("Stack:");
+    for(i=1; i<=yypParser->yyidx; i++) {
+      stack += ' ';
+      stack += yyTokenName[yypParser->yystack[i].major];
+    }
+    DEBUGLINE(QUERYPARSER, stack);
   }
 #endif
 }
@@ -439,13 +402,9 @@ static void yy_reduce(
   int yysize;                     /* Amount to pop the stack */
   ParseARG_FETCH;
   yymsp = &yypParser->yystack[yypParser->yyidx];
-#ifndef NDEBUG
-  if( yyTraceFILE && yyruleno>=0 
-        && yyruleno<sizeof(yyRuleName)/sizeof(yyRuleName[0]) ){
-    fprintf(yyTraceFILE, "%sReduce [%s].\n", yyTracePrompt,
-      yyRuleName[yyruleno]);
+  if( yyruleno>=0 && yyruleno<sizeof(yyRuleName)/sizeof(yyRuleName[0]) ){
+    DEBUGLINE(QUERYPARSER, "Reduce [" << yyRuleName[yyruleno] << "].");
   }
-#endif /* NDEBUG */
 
   switch( yyruleno ){
   /* Beginning here are the reduction cases.  A typical example
@@ -476,11 +435,7 @@ static void yy_parse_failed(
   yyParser *yypParser           /* The parser */
 ){
   ParseARG_FETCH;
-#ifndef NDEBUG
-  if( yyTraceFILE ){
-    fprintf(yyTraceFILE,"%sFail!\n",yyTracePrompt);
-  }
-#endif
+  DEBUGLINE(QUERYPARSER, "Fail!");
   while( yypParser->yyidx>=0 ) yy_pop_parser_stack(yypParser);
   /* Here code is inserted which will be executed whenever the
   ** parser fails */
@@ -511,11 +466,7 @@ static void yy_accept(
   yyParser *yypParser           /* The parser */
 ){
   ParseARG_FETCH;
-#ifndef NDEBUG
-  if( yyTraceFILE ){
-    fprintf(yyTraceFILE,"%sAccept!\n",yyTracePrompt);
-  }
-#endif
+  DEBUGLINE(QUERYPARSER, "Accept!");
   while( yypParser->yyidx>=0 ) yy_pop_parser_stack(yypParser);
   /* Here code is inserted which will be executed whenever the
   ** parser accepts */
@@ -565,11 +516,7 @@ static void Parse(
   yyendofinput = (yymajor==0);
   ParseARG_STORE;
 
-#ifndef NDEBUG
-  if( yyTraceFILE ){
-    fprintf(yyTraceFILE,"%sInput %s\n",yyTracePrompt,yyTokenName[yymajor]);
-  }
-#endif
+  DEBUGLINE(QUERYPARSER, "Input " << yyTokenName[yymajor]);
 
   do{
     yyact = yy_find_shift_action(yypParser,yymajor);
@@ -585,11 +532,7 @@ static void Parse(
       yy_reduce(yypParser,yyact-YYNSTATE);
     }else if( yyact == YY_ERROR_ACTION ){
       int yymx;
-#ifndef NDEBUG
-      if( yyTraceFILE ){
-        fprintf(yyTraceFILE,"%sSyntax Error!\n",yyTracePrompt);
-      }
-#endif
+      DEBUGLINE(QUERYPARSER, "Syntax Error!");
 #ifdef YYERRORSYMBOL
       /* A syntax error has occurred.
       ** The response to an error depends upon whether or not the
@@ -615,12 +558,7 @@ static void Parse(
       }
       yymx = yypParser->yystack[yypParser->yyidx].major;
       if( yymx==YYERRORSYMBOL || yyerrorhit ){
-#ifndef NDEBUG
-        if( yyTraceFILE ){
-          fprintf(yyTraceFILE,"%sDiscard input token %s\n",
-             yyTracePrompt,yyTokenName[yymajor]);
-        }
-#endif
+	DEBUGLINE(QUERYPARSER, "Discard input token " << yyTokenName[yymajor]);
         yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
         yymajor = YYNOCODE;
       }else{
@@ -670,3 +608,5 @@ static void Parse(
   }while( yymajor!=YYNOCODE && yypParser->yyidx>=0 );
   return;
 }
+
+// Select C++ syntax highlighting in vim editor: vim: syntax=cpp

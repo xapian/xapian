@@ -264,12 +264,6 @@ Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags, const string &default_prefix)
 {
     char ubuf[6];
-#ifndef NDEBUG
-    // Set the prefix added to Lemon's debug output, if it's enabled.
-    // FIXME: arrange to send this to the Xapian debug log, and turn
-    // on Lemon's debugging when --enable-debug is on.
-    ParseTrace(stdout, "LEMON: ");
-#endif
 
     yyParser * pParser = ParseAlloc();
 

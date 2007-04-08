@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -98,6 +98,9 @@ enum om_debug_types {
 
     /** Type for messages to do with the remote backend. */
     OM_DEBUG_REMOTE,
+
+    /** Type for messages from the lemon generated QueryParser code. */
+    OM_DEBUG_QUERYPARSER,
 
     /** A value equal to the number of known types.
      */
