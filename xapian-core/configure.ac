@@ -775,53 +775,68 @@ dnl *************************
 dnl * Set debugging options *
 dnl *************************
 
-dnl Work out what debugging we want
+dnl Which assertion types to enable in the code.
 
-use_debug=no
-use_debug_paranoid=no
-use_debug_verbose=no
-use_debug_profile=no
+AC_ARG_ENABLE(assertions,
+  [AS_HELP_STRING([--enable-assertions], [Enable debug assertions (no|partial|yes) [default=no]])],
+  [case $enableval in
+    yes|partial|no) ;;
+    *)
+      AC_MSG_ERROR([Invalid option: '--enable-assertions=$enableval']) ;;
+  esac])
+
+AC_ARG_ENABLE(log,
+  [AS_HELP_STRING([--enable-log], [generate a log of methods called, etc [default=no]])],
+  [case $enableval in
+    yes|profiling|no) ;;
+    *)
+      AC_MSG_ERROR([Invalid option: '--enable-log=$enableval']) ;;
+  esac])
+
+dnl Provide errors for old options which direct the user to the new ones.
 
 AC_ARG_ENABLE(debug,
-[  --enable-debug          Turn on debugging (no|partial|yes|full|profile)(default=no)],
-[case ${enableval} in
-  full) use_debug_paranoid=yes ; use_debug=yes ; use_debug_verbose=yes ;;
-  yes) use_debug_paranoid=yes ; use_debug=yes ;;
-  partial) use_debug=yes ;;
-  profile) use_debug_profile=yes ;;
-  no) use_debug=no ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
-esac])
+  [AS_HELP_STRING([--enable-debug], [Deprecated (use --enable-assertions and/or --enable-log instead)])],
+  [case $enableval in
+    full)
+      AC_MSG_ERROR(['--enable-debug=full' is no longer supported, use '--enable-debug --enable-log' instead.]) ;;
+    profile)
+      AC_MSG_ERROR(['--enable-debug=profile' is no longer supported, use '--enable-log=profile' instead.]) ;;
+    yes)
+      AC_MSG_ERROR(['--enable-debug' is no longer supported, use '--enable-assertions' instead.]) ;;
+    partial)
+      AC_MSG_ERROR(['--enable-debug=partial' is no longer supported, use '--enable-assertions=partial' instead.]) ;;
+    no)
+      AC_MSG_ERROR(['--disable-debug' is no longer supported, use '--disable-assertions' instead.]) ;;
+    *)
+      AC_MSG_ERROR([Invalid option: '--enable-debug=$enableval']) ;;
+  esac])
 
 AC_ARG_ENABLE(debug-verbose,
-[  --enable-debug-verbose  Turn on debugging messages (no|yes)(default=no)],
-[case ${enableval} in
-  yes) use_debug_verbose=yes ;;
-  no)  use_debug_verbose=no ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug-verbose) ;;
-esac])
+  [AS_HELP_STRING([--enable-debug-verbose], [Deprecated (use --enable-log instead)])],
+  [AC_MSG_ERROR(['--enable-debug-verbose' is no longer supported, use '--enable-log' instead.])])
 
-dnl Now set appropriate defines
+dnl Set defines according to the --enable-assertions and --enable-log options
+dnl given.
 
-if test yes = "$use_debug"; then
-AC_DEFINE(XAPIAN_DEBUG,,
-  [Define if you want debugging to be enabled (will cause some slow down)])
+if test no != "$enable_debug"; then
+  AC_DEFINE(XAPIAN_DEBUG,,
+    [Define if you want assertions (causes some slow-down)])
 fi
 
-if test yes = "$use_debug_paranoid"; then
-AC_DEFINE(XAPIAN_DEBUG_PARANOID,,
-  [Define if you want paranoid debugging to be enabled (will cause
-  significant slow-down)])
+if test yes = "$enable_debug"; then
+  AC_DEFINE(XAPIAN_DEBUG_PARANOID,,
+    [Define if you want paranoid assertions (causes significant slow-down)])
 fi
 
-if test yes = "$use_debug_verbose"; then
-AC_DEFINE(XAPIAN_DEBUG_VERBOSE,,
-  [Define if you want lots of debugging messages])
+if test yes = "$enable_log"; then
+  AC_DEFINE(XAPIAN_DEBUG_VERBOSE,,
+    [Define if you want a log of methods called and other debug messages])
 fi
 
-if test yes = "$use_debug_profile"; then
-AC_DEFINE(XAPIAN_DEBUG_PROFILE,,
-  [Define if you want code profiling messages])
+if test profile = "$enable_log"; then
+  AC_DEFINE(XAPIAN_DEBUG_PROFILE,,
+    [Define if you want code profiling via the logging infrastructure])
 fi
 
 dnl ******************************

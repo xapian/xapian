@@ -1,3 +1,14 @@
+Sun Apr 08 12:33:02 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING,INSTALL,configure.ac: Rename --enable-debug* - conflating the
+	  options to "turn on assertions" and "turn on logging" still confuses
+	  me to the extent I need to read the documentation every time I use
+	  them.  `--enable-debug[=partial]' become `--enable-assertions';
+	  `--enable-debug-verbose' becomes `--enable-log' and
+	  `--enable-debug=full' becomes `--enable-assertions --enable-log'.
+	  For now the old options give an error telling you the new
+	  equivalent.
+
 Sun Apr 08 10:45:40 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Eliminate use_quiet - just use enable_quiet instead.

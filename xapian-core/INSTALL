@@ -48,7 +48,7 @@ the source directory) from the build directory, like so:
 Options to give to configure:
 =============================
 
---enable-debug
+--enable-assertions
 	You should use this to build a version of Xapian with debugging
 	symbols and assertions to help with debugging.  Recommended for
 	initial development with Xapian - this helps to ensure that you

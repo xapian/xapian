@@ -14,24 +14,21 @@ Note: Non-developer configure options are described in INSTALL
 You will probably want to use some of these if you're going to be developing
 Xapian.
 
---enable-debug
+--enable-assertions
 	This enables compiling of assertion code which will throw
 	Xapian::AssertionError if the code detects violating of
 	preconditions, postconditions, or fails other consistency checks.
 
---enable-debug=partial
-	This option enables some assertions enabled by "--enable-debug",
-	but not the most expensive.  The intention is that it should be
-	suitable for use in a real-world system for tracking down problems
-	without imposing too much of an overhead (but note that we haven't yet
-	performed timings to measure the overhead...)
+--enable-assertions=partial
+	This option enables a subset of the assertions enabled by
+	"--enable-assertions", but not the most expensive.  The intention is
+	that it should be suitable for use in a real-world system for tracking
+	down problems without imposing too much of an overhead (but note that
+	we haven't yet performed timings to measure the overhead...)
 
---enable-debug-verbose
+--enable-log
 	This enables compiling into the system of code to generate verbose
 	debugging messages.  See "Debugging Messages", below.
-
---enable-debug=full
-	This is the same as --enable-debug --enable-debug-verbose
 
 --enable-maintainer-mode
 	This tells configure to enable make dependencies for regenerating build
@@ -53,10 +50,10 @@ so:
 Debugging Messages
 ==================
 
-If you configure with --enable-debug-verbose, lots of places in the code
-generate debugging messages to tell us what they're up to, and this information
-can be very useful for debugging both the Xapian library and code which uses
-it.  But the quantity of information generated is potentially vast so there's a
+If you configure with --enable-log, lots of places in the code generate
+debugging messages to tell us what they're up to - this information can be
+very useful for debugging both the Xapian library and code which uses it.  But
+the quantity of information generated is potentially vast so there's a
 mechanism to allow you to select where to store the log and which types of
 message you're interested by setting environment variables.  You can:
 
@@ -66,14 +63,14 @@ message you're interested by setting environment variables.  You can:
 
  * set XAPIAN_DEBUG_FLAGS to the decimal value of a bitmap indicating the types
    of debugging message you would like to display (the default value is 0,
-   which displays no debug messages).  To turn on message type N, bitwise OR
+   which disables all debug messages).  To turn on message type N, bitwise OR
    XAPIAN_DEBUG_FLAGS with (1<<N) - e.g. for message type 3, OR with 8.  To
    turn on all types, set XAPIAN_DEBUG_FLAGS to -1 (which is all bits set in
    two's complement binary representation).  Each message gives its numerical
    type in the debug log output.
 
-These environment only have any effect if you run configure with the
---enable-debug-verbose option.
+These environment variables only have any effect if you ran configure with the
+--enable-log option.
 
 Debugging memory allocations
 ============================
@@ -560,8 +557,8 @@ AssertEqDouble(a,b) -- asserts a and b differ by less than DBL_EPSILON
 
 AssertParanoid(P) -- a particularly expensive assertion.  If you want a build
 	with Asserts enabled, but without a great performance overhead, then
-	passing --enable-debug=partial to configure and AssertParanoids won't
-	be checked, but Asserts will.
+	passing --enable-assertions=partial to configure and AssertParanoids
+	won't be checked, but Asserts will.
 
 Configure Options
 =================
