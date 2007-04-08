@@ -7,7 +7,7 @@
 <h1>Remote Backend Protocol</h1>
 
 <p>
-This document describes <em>version 26</em> of the protocol used by Xapian's
+This document describes <em>version 27</em> of the protocol used by Xapian's
 remote backend.  The protocol assumes a reliable two-way connection across which
 arbitrary data can be sent - this could be provided by a TCP socket for example
 (as it is with xapian-tcpsrv), but any such connection could be used.  For
@@ -29,7 +29,7 @@ by the contents themselves.
 </p>
 
 <p>
-Inside the contents, strings are general passed as an encoded
+Inside the contents, strings are generally passed as an encoded
 length followed by the string data (this is indicated below by
 <code>L&lt;...&gt;</code>) except when the string is the last or only
 thing in the contents in which case we know the length because
@@ -183,6 +183,23 @@ Since positions must be strictly monotonically increasing, we encode
 <tt>(pos&nbsp;-&nbsp;lastpos&nbsp;-&nbsp;1)</tt> so that small differences
 between large position values can still be encoded compactly.  The first
 position is encoded as its true value.
+</p>
+
+<h2>Postlist</h2>
+
+<ul>
+<li> <code>MSG_POSTLIST &lt;term name&gt;</code>
+<li> <code>REPLY_POSTLISTSTART I&lt;termfreq&gt; I&lt;collfreq&gt;</code>
+<li> <code>REPLY_POSTLISTITEM I&lt;docid delta - 1&gt; I&lt;wdf&gt; F&lt;document length&gt;</code>
+<li> <code>...</code>
+<li> <code>REPLY_DONE</code>
+</ul>
+
+<p>
+Since document IDs in postlists must be strictly monotonically increasing, we
+encode <tt>(docid&nbsp;-&nbsp;lastdocid&nbsp;-&nbsp;1)</tt> so that small
+differences between large document IDs can still be encoded compactly.  The
+first document ID is encoded as its true value - 1 (since document IDs are always &gt; 0).
 </p>
 
 <h2>Shut Down</h2>
