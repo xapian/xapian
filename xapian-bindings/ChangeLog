@@ -1,3 +1,8 @@
+Sun Apr 08 19:11:05 BST 2007  Olly Betts <olly@survex.com>
+
+	* python/docs/bindings.html: Python 2.2 is the minimum required
+	  version so remove "Provided you're using Python 2.2 or newer".
+
 Thu Apr 05 10:38:37 BST 2007  Olly Betts <olly@survex.com>
 
 	* php/util.i: Avoid undefined behaviour in get_matching_terms().
