@@ -95,7 +95,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	    continue;
 	}
 	if (received == 0)
-	    throw Xapian::NetworkError("Received EOF", context, 0);
+	    throw Xapian::NetworkError("Received EOF", context);
     }
 #else
     // If there's no end_time, just use blocking I/O.
@@ -115,7 +115,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	}
 
 	if (received == 0)
-	    throw Xapian::NetworkError("Received EOF", context, 0);
+	    throw Xapian::NetworkError("Received EOF", context);
 
 	DEBUGLINE(REMOTE, "read gave errno = " << strerror(errno));
 	if (errno == EINTR) continue;
