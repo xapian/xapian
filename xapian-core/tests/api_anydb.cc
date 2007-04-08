@@ -1629,12 +1629,7 @@ static bool test_checkatleast1()
 static bool test_allpostlist1()
 {
     Xapian::Database db(get_database("apitest_manydocs"));
-    Xapian::PostingIterator i;
-    try {
-	i = db.postlist_begin("");
-    } catch (const Xapian::UnimplementedError & e) {
-	SKIP_TEST("WritableDatabase::replace_document(TERM) not implemented");
-    }
+    Xapian::PostingIterator i = db.postlist_begin("");
     unsigned int j = 1;
     while (i != db.postlist_end("")) {
 	TEST_EQUAL(*i, j);
@@ -1672,11 +1667,6 @@ static void test_emptyterm1_helper(Xapian::Database & db)
 static bool test_emptyterm1()
 {
     Xapian::Database db(get_database("apitest_manydocs"));
-    try {
-	(void)db.postlist_begin("");
-    } catch (const Xapian::UnimplementedError & e) {
-	SKIP_TEST("Database::postlist_begin not implemented");
-    }
     TEST_EQUAL(db.get_doccount(), 512);
     test_emptyterm1_helper(db);
 

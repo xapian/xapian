@@ -609,12 +609,7 @@ static bool test_deldoc5()
     TEST_EQUAL(db.get_termfreq("aardvark"), 2);
     TEST_EQUAL(db.get_termfreq("hello"), 1);
 
-    Xapian::PostingIterator p;
-    try {
-	p = db.postlist_begin("foo");
-    } catch (const Xapian::UnimplementedError & e) {
-	SKIP_TEST("Database::postlist_begin not implemented");
-    }
+    Xapian::PostingIterator p = db.postlist_begin("foo");
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 1);
     ++p;
@@ -763,12 +758,7 @@ static bool test_replacedoc3()
     TEST_EQUAL(db.get_termfreq("hello"), 1);
     TEST_EQUAL(db.get_termfreq("world"), 2);
 
-    Xapian::PostingIterator p;
-    try {
-	p = db.postlist_begin("foo");
-    } catch (const Xapian::UnimplementedError & e) {
-	SKIP_TEST("Database::postlist_begin not implemented");
-    }
+    Xapian::PostingIterator p = db.postlist_begin("foo");
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 1);
     ++p;
@@ -829,12 +819,7 @@ static bool test_replacedoc4()
     TEST_EQUAL(db.get_termfreq("hello"), 1);
     TEST_EQUAL(db.get_termfreq("world"), 2);
 
-    Xapian::PostingIterator p;
-    try {
-	p = db.postlist_begin("foo");
-    } catch (const Xapian::UnimplementedError & e) {
-	SKIP_TEST("Database::postlist_begin not implemented");
-    }
+    Xapian::PostingIterator p = db.postlist_begin("foo");
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 1);
     ++p;
@@ -921,11 +906,7 @@ static bool test_uniqueterm1()
 	    doc.add_term(om_tostring(n ^ 9));
 	    doc.add_term("all");
 	    doc.set_data("pass2");
-	    try {
-		db.replace_document(uterm, doc);
-	    } catch (const Xapian::UnimplementedError & e) {
-		SKIP_TEST("WritableDatabase::replace_document(TERM) not implemented");
-	    }
+	    db.replace_document(uterm, doc);
 	}
 	TEST_EQUAL(db.get_doccount(), sizes[n - 1]);
     }
@@ -949,12 +930,7 @@ static bool test_uniqueterm1()
 static bool test_allpostlist2()
 {
     Xapian::WritableDatabase db(get_writable_database("apitest_manydocs"));
-    Xapian::PostingIterator i;
-    try {
-	i = db.postlist_begin("");
-    } catch (const Xapian::UnimplementedError & e) {
-	SKIP_TEST("WritableDatabase::postlist_begin("") not implemented");
-    }
+    Xapian::PostingIterator i = db.postlist_begin("");
     unsigned int j = 1;
     while (i != db.postlist_end("")) {
 	TEST_EQUAL(*i, j);
@@ -1009,11 +985,6 @@ static bool test_emptyterm2()
 {
     {
 	Xapian::WritableDatabase db(get_writable_database("apitest_manydocs"));
-	try {
-	    (void)db.postlist_begin("");
-	} catch (const Xapian::UnimplementedError & e) {
-	    SKIP_TEST("Database::postlist_begin not implemented");
-	}
 	TEST_EQUAL(db.get_doccount(), 512);
 	test_emptyterm2_helper(db);
 	db.delete_document(1);

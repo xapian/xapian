@@ -1,3 +1,9 @@
+Sun Apr 08 15:48:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc,tests/api_wrdb.cc: Remove hacks to automatically
+	  SKIP tests which failed because of lack of support for some features
+	  by the remote backend.
+
 Sun Apr 08 15:14:11 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,queryparser/queryparser.lt: More
