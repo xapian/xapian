@@ -1,3 +1,8 @@
+Sun Apr 08 22:06:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix typos: `AC_CHECK_SSIZE_T' -> `AC_T'YPE_SSIZE_T';
+	  `AC_CHECK_PID_T' -> `AC_T'YPE_PID_T'.
+
 Sun Apr 08 22:04:54 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Snapshots and releases are now generated with autoconf 2.61.

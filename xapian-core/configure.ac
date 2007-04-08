@@ -371,9 +371,9 @@ AC_CHECK_HEADERS(sys/utsname.h, [], [], [ ])
 AC_CHECK_FUNCS(gethostname)
 
 dnl mingw (for instance) lacks ssize_t
-AC_CHECK_SSIZE_T
+AC_TYPE_SSIZE_T
 
-AC_CHECK_PID_T
+AC_TYPE_PID_T
 
 dnl Check for a stringstream implementation.  (If not present, we roll
 dnl one ourselves).
