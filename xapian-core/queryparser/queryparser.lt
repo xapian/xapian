@@ -178,8 +178,19 @@ static const char *const yyRuleName[] = {
 ** value.
 */
 static const char *ParseTokenName(int tokenType){
-  if( tokenType>0 && tokenType<(sizeof(yyTokenName)/sizeof(yyTokenName[0])) ){
+  if( tokenType>0 && size_t(tokenType)<(sizeof(yyTokenName)/sizeof(yyTokenName[0])) ){
     return yyTokenName[tokenType];
+  }
+  return "Unknown";
+}
+
+/*
+** This function returns the symbolic name associated with a rule
+** value.
+*/
+static const char *ParseRuleName(int ruleNum){
+  if( ruleNum>0 && size_t(ruleNum)<(sizeof(yyRuleName)/sizeof(yyRuleName[0])) ){
+    return yyRuleName[ruleNum];
   }
   return "Unknown";
 }
@@ -239,7 +250,7 @@ static int yy_pop_parser_stack(yyParser *pParser){
   yyStackEntry *yytos = &pParser->yystack[pParser->yyidx];
 
   if( pParser->yyidx<0 ) return 0;
-  DEBUGLINE(QUERYPARSER, "Popping " << yyTokenName[yytos->major]);
+  DEBUGLINE(QUERYPARSER, "Popping " << ParseTokenName(yytos->major));
   yymajor = (YYCODETYPE)yytos->major;
   yy_destructor( yymajor, &yytos->minor);
   pParser->yyidx--;
@@ -292,8 +303,8 @@ static int yy_find_shift_action(
     if( iLookAhead<sizeof(yyFallback)/sizeof(yyFallback[0])
            && (iFallback = yyFallback[iLookAhead])!=0 ){
       DEBUGLINE(QUERYPARSER,
-		"FALLBACK " << yyTokenName[iLookAhead] << " => " <<
-		yyTokenName[iFallback]);
+		"FALLBACK " << ParseTokenName(iLookAhead) << " => " <<
+		ParseTokenName(iFallback));
       return yy_find_shift_action(pParser, iFallback);
     }
 #endif
@@ -366,7 +377,7 @@ static void yy_shift(
     string stack("Stack:");
     for(i=1; i<=yypParser->yyidx; i++) {
       stack += ' ';
-      stack += yyTokenName[yypParser->yystack[i].major];
+      stack += ParseTokenName(yypParser->yystack[i].major);
     }
     DEBUGLINE(QUERYPARSER, stack);
   }
@@ -401,9 +412,7 @@ static void yy_reduce(
   ParseARG_FETCH;
   yymsp = &yypParser->yystack[yypParser->yyidx];
 #ifdef XAPIAN_DEBUG_VERBOSE
-  if( yyruleno>=0 && yyruleno<sizeof(yyRuleName)/sizeof(yyRuleName[0]) ){
-    DEBUGLINE(QUERYPARSER, "Reduce [" << yyRuleName[yyruleno] << "].");
-  }
+  DEBUGLINE(QUERYPARSER, "Reduce [" << ParseRuleName(yyruleno) << "].");
 #endif
 
   switch( yyruleno ){
@@ -516,7 +525,7 @@ static void Parse(
   yyendofinput = (yymajor==0);
   ParseARG_STORE;
 
-  DEBUGLINE(QUERYPARSER, "Input " << yyTokenName[yymajor]);
+  DEBUGLINE(QUERYPARSER, "Input " << ParseTokenName(yymajor));
 
   do{
     yyact = yy_find_shift_action(yypParser,yymajor);
@@ -558,7 +567,7 @@ static void Parse(
       }
       yymx = yypParser->yystack[yypParser->yyidx].major;
       if( yymx==YYERRORSYMBOL || yyerrorhit ){
-	DEBUGLINE(QUERYPARSER, "Discard input token " << yyTokenName[yymajor]);
+	DEBUGLINE(QUERYPARSER, "Discard input token " << ParseTokenName(yymajor));
         yy_destructor((YYCODETYPE)yymajor,&yyminorunion);
         yymajor = YYNOCODE;
       }else{
