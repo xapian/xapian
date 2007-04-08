@@ -819,12 +819,12 @@ AC_ARG_ENABLE(debug-verbose,
 dnl Set defines according to the --enable-assertions and --enable-log options
 dnl given.
 
-if test no != "$enable_debug"; then
+if test yes = "$enable_assertions" || test partial = "$enable_assertions" ; then
   AC_DEFINE(XAPIAN_DEBUG,,
     [Define if you want assertions (causes some slow-down)])
 fi
 
-if test yes = "$enable_debug"; then
+if test yes = "$enable_assertions"; then
   AC_DEFINE(XAPIAN_DEBUG_PARANOID,,
     [Define if you want paranoid assertions (causes significant slow-down)])
 fi

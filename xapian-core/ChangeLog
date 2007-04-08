@@ -1,3 +1,7 @@
+Sun Apr 08 15:55:42 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Fix lingering references to enable_debug.
+
 Sun Apr 08 15:48:13 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc,tests/api_wrdb.cc: Remove hacks to automatically
