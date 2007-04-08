@@ -231,7 +231,7 @@ writing, we require the following versions:
 		required by automake 1.6.3; autoconf 2.50 is needed for many
 		reasons anyway.  automake 1.8.5 needs at least 2.58, and 2.59
 		was released the same day as 2.58 to fix a problem.  Currently
-		snapshots and release tarballs are generated with autoconf 2.60
+		snapshots and release tarballs are generated with autoconf 2.61
 		but this isn't yet a hard requirement.
 
 	automake (GNU automake) 1.8.5
