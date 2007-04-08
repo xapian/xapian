@@ -158,15 +158,12 @@ typedef struct yyParser yyParser;
 /* Prototype this here so we can call it from a rule action (ick). */
 static void yy_parse_failed(yyParser *);
 
-/* Include omdebug.h even in non-debug builds, because it declares stub macros
- * in this situation to ignore DEBUG calls. */
 #include "omdebug.h"
 
-#ifndef NDEBUG
-
+#ifdef XAPIAN_DEBUG_VERBOSE
 /* For tracing shifts, the names of all terminals and nonterminals
 ** are required.  The following table supplies these names */
-static const char *const yyTokenName[] = { 
+static const char *const yyTokenName[] = {
 %%
 };
 
@@ -183,12 +180,10 @@ static const char *const yyRuleName[] = {
 static const char *ParseTokenName(int tokenType){
   if( tokenType>0 && tokenType<(sizeof(yyTokenName)/sizeof(yyTokenName[0])) ){
     return yyTokenName[tokenType];
-  }else{
-    return "Unknown";
   }
-  return "";
+  return "Unknown";
 }
-#endif /* NDEBUG */
+#endif /* XAPIAN_DEBUG_VERBOSE */
 
 /* 
 ** This function allocates a new parser.

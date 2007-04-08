@@ -71,9 +71,6 @@ is_not_wordchar(unsigned ch) {
     return !is_wordchar(ch);
 }
 
-// Disable debug code lemon adds.
-#define NDEBUG
-
 /// Wrapper around a query, allowing us to distinguish between a query
 /// representing an empty list of queries, and a "MatchNothing" query.
 /* FIXME: can we replace this by using Query * and NULL vs MatchNothing?
