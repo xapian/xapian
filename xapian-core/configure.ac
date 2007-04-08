@@ -660,10 +660,15 @@ AC_ARG_ENABLE(quiet,
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-quiet) ;;
 esac], [enable_quiet=no])
 
-dnl Shut things up if we want to be quiet
+dnl Pass `--quiet' to libtool if quiet building is requested.  Using an
+dnl AC_SUBST-ed value like this allows the choice to be easily overridden
+dnl if you want to see exactly what make and libtool are up to - just run
+dnl make like this: `make QUIET='
+QUIET=
 if test yes = "$enable_quiet"; then
-  LIBTOOL="$LIBTOOL --quiet"
+  QUIET=--quiet
 fi
+AC_SUBST(QUIET)
 
 vpath_build=no
 if test "`pwd`" != "`cd $srcdir;pwd`" ; then

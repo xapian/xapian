@@ -1,3 +1,10 @@
+Sun Apr 08 23:24:20 BST 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac: `./configure --enable-quiet' allows you to
+	  specify at configure time to pass `--quiet' to libtool.  Now you can
+	  override this at make-time by using `make QUIET=' (to turn off
+	  `--quiet') or `make QUIET=y' (to turn on `--quiet').
+
 Sun Apr 08 23:23:50 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Mention AssertEqParanoid and AssertNeParanoid.

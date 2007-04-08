@@ -2,6 +2,10 @@
 
 AUTOMAKE_OPTIONS = 1.5 subdir-objects
 
+# `make QUIET=' overrides `./configure --enable-quiet'.
+# `make QUIET=y' overrides `./configure' without `--enable-quiet'.
+LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
+
 INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include
 if VPATH_BUILD
 # Needed for the generated files include/xapian/version.h
