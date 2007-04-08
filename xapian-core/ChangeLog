@@ -1,3 +1,7 @@
+Sun Apr 08 23:23:50 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Mention AssertEqParanoid and AssertNeParanoid.
+
 Sun Apr 08 22:45:45 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/omassert.h: Add AssertEqParanoid and AssertNeParanoid macros.

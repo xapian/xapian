@@ -558,7 +558,8 @@ AssertEqDouble(a,b) -- asserts a and b differ by less than DBL_EPSILON
 AssertParanoid(P) -- a particularly expensive assertion.  If you want a build
 	with Asserts enabled, but without a great performance overhead, then
 	passing --enable-assertions=partial to configure and AssertParanoids
-	won't be checked, but Asserts will.
+	won't be checked, but Asserts will.  You can also use AssertEqParanoid
+	and AssertNeParanoid.
 
 Configure Options
 =================
