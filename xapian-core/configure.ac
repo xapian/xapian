@@ -654,13 +654,12 @@ fi
 AC_ARG_ENABLE(quiet,
 [  --enable-quiet          Enable quiet building (default=no)],
 [case ${enableval} in
-  yes) use_quiet=true ;;
-  no)  use_quiet=false ;;
+  yes|no) ;;
   *) AC_MSG_ERROR(bad value ${enableval} for --enable-quiet) ;;
-esac], [use_quiet=false])
+esac], [enable_quiet=no])
 
 dnl Shut things up if we want to be quiet
-if test true = "$use_quiet"; then
+if test yes = "$enable_quiet"; then
   LIBTOOL="$LIBTOOL --quiet"
 fi
 
