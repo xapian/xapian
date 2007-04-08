@@ -1,3 +1,11 @@
+Sun Apr 08 21:42:03 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Use AC_CHECK_SSIZE_T instead of our own test.  Add
+	  AC_CHECK_PID_T for any platforms which don't have `pid_t'.
+	* net/tcpserver.cc: Use `pid_t' instead of `int'.
+	* common/progclient.h,net/progclient.cc: Cleaner rewritten version of
+	  progclient.h.
+
 Sun Apr 08 19:59:43 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_lock.cc: If kill() fails, don't bother calling

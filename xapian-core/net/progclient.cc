@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004,2005,2006 Olly Betts
+ * Copyright 2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -61,7 +61,7 @@ split_words(const string &text, vector<string> &words, char ws = ' ')
 }
 
 ProgClient::ProgClient(const string &progname, const string &args, int msecs_timeout)
-	: RemoteDatabase(get_spawned_socket(progname, args),
+	: RemoteDatabase(run_program(progname, args, pid),
 			 msecs_timeout,
 			 get_progcontext(progname, args))
 {
@@ -78,10 +78,10 @@ ProgClient::get_progcontext(const string &progname, const string &args)
 }
 
 int
-ProgClient::get_spawned_socket(const string &progname, const string &args)
+ProgClient::run_program(const string &progname, const string &args, pid_t &pid)
 {
-    DEBUGCALL(DB, int, "ProgClient::get_spawned_socket", progname << ", " <<
-	      args);
+    DEBUGCALL_STATIC(DB, int, "ProgClient::run_program", progname << ", " <<
+		     args << ", [&pid]");
     /* socketpair() returns two sockets.  We keep sv[0] and give
      * sv[1] to the child process.
      */

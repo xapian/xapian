@@ -1,7 +1,7 @@
-/* progclient.h: implementation of RemoteDatabase which spawns a program.
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2006 Olly Betts
+/** @file progclient.h
+ *  @brief Implementation of RemoteDatabase using a spawned server.
+ */
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,59 +15,74 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_PROGCLIENT_H
-#define OM_HGUARD_PROGCLIENT_H
+#ifndef XAPIAN_INCLUDED_PROGCLIENT_H
+#define XAPIAN_INCLUDED_PROGCLIENT_H
+
+#include <sys/types.h>
 
 #include "remote-database.h"
 
-/** An implementation of the RemoteDatabase interface using a program.
+/** Implementation of RemoteDatabase using a spawned server.
  *
- *  ProgClient gets a socket by spawning a separate program connected
- *  via a pipe.
+ *  ProgClient spawns a child process to connect to the server - for example,
+ *  an ssh command to run the server on a remote host.  Communication with the
+ *  child process is via a pipe.
  */
 class ProgClient : public RemoteDatabase {
-    private:
-	// disallow copies
-	ProgClient(const ProgClient &);
-	void operator=(const ProgClient &);
+    /// Don't allow assignment.
+    void operator=(const ProgClient &);
 
-	/// The socket descriptor
-	int socketfd;
+    /// Don't allow copying.
+    ProgClient(const ProgClient &);
 
-	/// The process id of the child process.
-	int pid;
+    /// Process id of the child process.
+    pid_t pid;
 
-	/** Get the context to return with any error messages.
-	 *  Note: this must not be made into a virtual method of the base
-	 *  class, since then it wouldn't work in constructors.
-	 */
-	static std::string get_progcontext(const std::string &progname,
-					   const std::string &args);
+    /** Start the child process.
+     *
+     *  @param progname	The program used to create the connection.
+     *  @param args	Any arguments to the program.
+     *  @param pid	Reference to store the pid of the child process in.
+     *
+     *  @return	filedescriptor for reading from/writing to the child process.
+     *
+     *  Note: this method is called early on during class construction before
+     *  any member variables or even the base class have been initialised.
+     *  To help avoid accidentally trying to use member variables, this method
+     *  has been deliberately made "static".
+     */
+    static int run_program(const std::string &progname,
+			   const std::string &args,
+			   pid_t &pid);
 
-	/** Spawn a program and return a filedescriptor of
-	 *  the local end of a socket to it.
-	 */
-	int get_spawned_socket(const std::string &progname, const std::string &args);
+    /** Generate context string for Xapian::Error exception objects.
+     *
+     *  @param progname	The program used to create the connection.
+     *  @param args	Any arguments to the program.
+     *
+     *  Note: this method is used from constructors so has been made static to
+     *  avoid problems with trying to use uninitialised member variables.  In
+     *  particular, it can't be made a virtual method of the base class.
+     */
+    static std::string get_progcontext(const std::string &progname,
+				       const std::string &args);
 
-    public:
-	/** Constructor.
-	 *
-	 *  @param progname The name of the program to run.
-	 *  @param arg	    The arguments to the program to be run.
-	 *  @param msecs_timeout_ The timeout value used before throwing
-	 *                        an exception if the remote end is not
-	 *                        responding.
-	 */
-	ProgClient(const std::string &progname,
-		   const std::string &arg,
-		   int msecs_timeout_);
+  public:
+    /** Constructor.
+     *
+     *  @param progname		The program used to create the connection.
+     *  @param args		Any arguments to the program.
+     *  @param msecs_timeout	Timeout for communication (in milliseconds).
+     */
+    ProgClient(const std::string &progname,
+	       const std::string &arg,
+	       int msecs_timeout);
 
-	/** Destructor. */
-	~ProgClient();
+    /** Destructor. */
+    ~ProgClient();
 };
 
-#endif  /* OM_HGUARD_PROGCLIENT_H */
+#endif // XAPIAN_INCLUDED_PROGCLIENT_H

@@ -217,7 +217,7 @@ void
 TcpServer::run_once()
 {
     int connected_socket = accept_connection();
-    int pid = fork();
+    pid_t pid = fork();
     if (pid == 0) {
 	// child code
 	close(listen_socket);
