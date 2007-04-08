@@ -1,8 +1,7 @@
 /* multi_postlist.cc: interface to multiple database access
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
@@ -117,8 +115,10 @@ Xapian::doclength
 MultiPostList::get_doclength() const
 {
     DEBUGCALL(DB, Xapian::doclength, "MultiPostList::get_doclength", "");
+    Assert(!at_end());
+    Assert(currdoc != 0);
     Xapian::doclength result = postlists[(currdoc - 1) % multiplier]->get_doclength();
-    AssertParanoid(result == this_db.get_doclength(get_docid()));
+    AssertEqParanoid(result, this_db.get_doclength(get_docid()));
     RETURN(result);
 }
 

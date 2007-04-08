@@ -650,7 +650,7 @@ InMemoryDatabase::make_doc(const string & docdata)
     doclengths.push_back(0);
     doclists.push_back(docdata);
 
-    AssertParanoid(termlists.size() == doclengths.size());
+    AssertEqParanoid(termlists.size(), doclengths.size());
 
     return termlists.size();
 }

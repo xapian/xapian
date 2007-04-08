@@ -304,7 +304,7 @@ FlintTable::write_block(uint4 n, const byte * p) const
     AssertParanoid(base.block_free_at_start(n));
 
     /* write revision is okay */
-    AssertParanoid(REVISION(p) == latest_revision_number + 1);
+    AssertEqParanoid(REVISION(p), latest_revision_number + 1);
 
     if (both_bases) {
 	// Delete the old base before modifying the database.
