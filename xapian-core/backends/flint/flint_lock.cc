@@ -137,10 +137,15 @@ FlintLock::release() {
     if (fd < 0) return;
     close(fd);
     fd = -1;
-    int status;
-    kill(pid, SIGHUP);
-    while (waitpid(pid, &status, 0) < 0) {
-	if (errno != EINTR) break;
+    // The only likely error from kill is ESRCH.  The other possibilities
+    // (according to the Linux man page) are EINVAL (invalid signal) and EPERM
+    // (don't have permission to SIGHUP the process) but in none of the cases
+    // does calling waitpid do us any good!
+    if (kill(pid, SIGHUP) == 0) {
+	int status;
+	while (waitpid(pid, &status, 0) < 0) {
+	    if (errno != EINTR) break;
+	}
     }
 #endif
 }

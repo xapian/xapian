@@ -1,3 +1,8 @@
+Sun Apr 08 19:59:43 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_lock.cc: If kill() fails, don't bother calling
+	  waitpid().
+
 Sun Apr 08 19:41:11 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Don't explicitly pass "0" for errno.
