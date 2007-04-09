@@ -3,7 +3,7 @@ manpage for example.)
 
 We should also produce a libxapian-dbg package, containing a debug build of
 the library.  Not entirely clear which debugging options we should use:
-perhaps --enable-debug=full
+perhaps --enable-assertions --enable-log
 
 xapian-doc: in index.html, there is one broken link (which occurs in two
 places, pointing to the "internal classes" documentation, since we don't
