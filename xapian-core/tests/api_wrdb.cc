@@ -758,21 +758,29 @@ static bool test_replacedoc3()
     TEST_EQUAL(db.get_termfreq("hello"), 1);
     TEST_EQUAL(db.get_termfreq("world"), 2);
 
+    TEST_EQUAL(db.get_doclength(1), 3);
+    TEST_EQUAL(db.get_doclength(2), 1);
+    TEST_EQUAL(db.get_doclength(3), 4);
+
     Xapian::PostingIterator p = db.postlist_begin("foo");
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 1);
+    TEST_EQUAL(p.get_doclength(), 3);
     ++p;
     TEST_NOT_EQUAL(p, db.postlist_end("foo"));
     TEST_EQUAL(*p, 3);
+    TEST_EQUAL(p.get_doclength(), 4);
     ++p;
     TEST_EQUAL(p, db.postlist_end("foo"));
 
     p = db.postlist_begin("world");
     TEST_NOT_EQUAL(p, db.postlist_end("world"));
     TEST_EQUAL(*p, 2);
+    TEST_EQUAL(p.get_doclength(), 1);
     ++p;
     TEST_NOT_EQUAL(p, db.postlist_end("world"));
     TEST_EQUAL(*p, 3);
+    TEST_EQUAL(p.get_doclength(), 4);
     ++p;
     TEST_EQUAL(p, db.postlist_end("world"));
 

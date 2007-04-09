@@ -1,3 +1,11 @@
+Mon Apr 09 01:40:34 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.cc: Add asserts to check that the value of
+	  get_doclength() on the database and on the posting list are
+	  correct.  Currently fails with the value from the posting list
+	  for the document which has been replaced (or sooner if assertions
+	  are turned on).
+
 Sun Apr 08 23:24:20 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: `./configure --enable-quiet' allows you to
