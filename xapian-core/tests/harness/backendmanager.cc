@@ -408,7 +408,7 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
 	args.insert(0, "../bin/xapian-progsrv ");
-	return Xapian::Remote::open("./runtest", args);
+	return Xapian::Remote::open("./runsrv", args);
     }
 #endif
     return Xapian::Remote::open("../bin/xapian-progsrv", args);
@@ -433,7 +433,7 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
 	args.insert(0, "../bin/xapian-progsrv ");
-	return Xapian::Remote::open_writable("./runtest", args);
+	return Xapian::Remote::open_writable("./runsrv", args);
     }
 #endif
     return Xapian::Remote::open_writable("../bin/xapian-progsrv", args);
@@ -459,7 +459,7 @@ launch_xapian_tcpsrv(const string & args)
 try_next_port:
     string cmd = "../bin/xapian-tcpsrv --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args;
 #ifdef HAVE_VALGRIND
-    if (RUNNING_ON_VALGRIND) cmd = "./runtest " + cmd;
+    if (RUNNING_ON_VALGRIND) cmd = "./runsrv " + cmd;
 #endif
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
@@ -578,19 +578,19 @@ try_next_port:
 
     // Set the write handle to be inherited by the child process.
     SetHandleInformation(hWrite, HANDLE_FLAG_INHERIT, 1);
- 
+
     // Create the child process.
-    PROCESS_INFORMATION procinfo; 
+    PROCESS_INFORMATION procinfo;
     memset(&procinfo, 0, sizeof(PROCESS_INFORMATION));
 
     STARTUPINFO startupinfo;
     memset(&startupinfo, 0, sizeof(STARTUPINFO));
-    startupinfo.cb = sizeof(STARTUPINFO); 
+    startupinfo.cb = sizeof(STARTUPINFO);
     startupinfo.hStdError = hWrite;
     startupinfo.hStdOutput = hWrite;
     startupinfo.hStdInput = INVALID_HANDLE_VALUE;
     startupinfo.dwFlags |= STARTF_USESTDHANDLES;
- 
+
     // For some reason Windows wants a modifiable copy!
     BOOL ok;
     char * cmdline = strdup(cmd.c_str());

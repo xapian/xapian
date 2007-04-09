@@ -1,3 +1,14 @@
+Mon Apr 09 20:56:23 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac,tests/harness/backendmanager.cc,tests/runsrv.in,
+	  tests/runtest.in: Run the remote backend server using new "runsrv"
+	  script instead of "runtest".  This doesn't echo anything to stdout,
+	  and if valgrind is in use, runs the remote server under
+	  "--tool=none" which is much quicker than using valgrind's default
+	  memcheck tool (we need to run the remote server under valgrind
+	  because valgrind's emulation of excess FP precision isn't exact and
+	  otherwise we get tests failing because of these differences).
+
 Mon Apr 09 20:24:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc,tests/api_nodb.cc: Move test poscollapse2 to the

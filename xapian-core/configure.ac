@@ -972,6 +972,7 @@ AC_CONFIG_FILES([
  msvc/version.h
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
+AC_CONFIG_FILES([tests/runsrv], [chmod +x tests/runsrv])
 AC_CONFIG_FILES([xapian-config], [chmod +x xapian-config])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_CONFIG_FILES([docs/gen_codestructure_doc], [chmod +x docs/gen_codestructure_doc])
