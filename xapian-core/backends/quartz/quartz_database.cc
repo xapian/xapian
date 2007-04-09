@@ -792,7 +792,8 @@ QuartzWritableDatabase::add_document_(Xapian::docid did,
 		new_doclen, false);
 
 	// Set the new document length
-	doclens.insert(make_pair(did, new_doclen));
+	Assert(doclens.find(did) == doclens.end());
+	doclens[did] = new_doclen;
 	total_length += new_doclen;
     } catch (...) {
 	// If an error occurs while adding a document, or doing any other
@@ -877,6 +878,9 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
 
 	// Remove the termlist.
 	database_ro.termlist_table.delete_termlist(did);
+
+	// Remove the new doclength.
+	doclens.erase(did);
     } catch (...) {
 	// If an error occurs while deleting a document, or doing any other
 	// transaction, the modifications so far must be cleared before
@@ -1027,7 +1031,6 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 
 	// Set the new document length
 	doclens[did] = new_doclen;
-
 	total_length += new_doclen;
     } catch (const Xapian::DocNotFoundError &) {
 	(void)add_document_(did, document);

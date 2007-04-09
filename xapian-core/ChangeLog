@@ -1,3 +1,12 @@
+Mon Apr 09 14:50:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc: Delete the corresponding entry
+	  (if any) from doclens in delete_document().  Add assertion to
+	  add_document_() that the corresponding entry in doclens isn't
+	  already set, but in a non-debug build overwrite any existing
+	  entry as that's more likely to be correct.
+	* backends/quartz/quartz_database.cc: Ditto.
+
 Mon Apr 09 14:08:55 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/quartz/quartz_database.cc: Just assign to doclens[did].
