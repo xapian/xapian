@@ -1026,14 +1026,8 @@ QuartzWritableDatabase::replace_document(Xapian::docid did,
 		new_doclen, false);
 
 	// Set the new document length
-	{
-	    map<Xapian::docid, Xapian::termcount>::iterator k = doclens.find(did);
-	    if (k == doclens.end()) {
-		doclens.insert(make_pair(did, new_doclen));
-	    } else {
-		k->second = new_doclen;
-	    }
-	}
+	doclens[did] = new_doclen;
+
 	total_length += new_doclen;
     } catch (const Xapian::DocNotFoundError &) {
 	(void)add_document_(did, document);
