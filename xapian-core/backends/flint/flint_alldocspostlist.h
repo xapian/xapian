@@ -97,8 +97,9 @@ class FlintAllDocsPostList : public LeafPostList {
 
 	/// Returns the length of current document.
 	Xapian::doclength get_doclength() const {
+	    DEBUGCALL(DB, Xapian::doclength, "FlintAllDocsPostList::get_doclength", "");
 	    Assert(did != 0);
-	    return this_db->get_doclength(did);
+	    RETURN(this_db->get_doclength(did));
 	}
 
 	/** Returns the Within Document Frequency of the term in the current

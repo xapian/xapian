@@ -589,6 +589,8 @@ Xapian::docid
 FlintWritableDatabase::add_document_(Xapian::docid did,
 				     const Xapian::Document & document)
 {
+    DEBUGCALL(DB, Xapian::docid,
+	      "FlintWritableDatabase::add_document_", did << ", " << document);
     Assert(did != 0);
     try {
 	// Add the record using that document ID.
@@ -640,6 +642,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 		}
 	    }
 	}
+	DEBUGLINE(DB, "Calculated doclen for new document " << did << " as " << new_doclen);
 
 	// Set the termlist
 	database_ro.termlist_table.set_entries(did,
@@ -671,7 +674,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
     if (++changes_made >= flush_threshold && !transaction_active())
 	do_flush_const();
 
-    return did;
+    RETURN(did);
 }
 
 void
@@ -874,6 +877,7 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		}
 	    }
 	}
+	DEBUGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
 
 	// Set the termlist
 	database_ro.termlist_table.set_entries(did,

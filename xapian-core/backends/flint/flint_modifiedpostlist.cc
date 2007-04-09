@@ -64,9 +64,10 @@ FlintModifiedPostList::get_docid() const
 Xapian::doclength
 FlintModifiedPostList::get_doclength() const
 {
+    DEBUGCALL(DB, Xapian::doclength, "FlintModifiedPostList::get_doclength", "");
     if (it != mods.end() && (FlintPostList::at_end() || it->first <= FlintPostList::get_docid()))
-	return this_db->get_doclength(it->first);
-    return FlintPostList::get_doclength();
+	RETURN(this_db->get_doclength(it->first));
+    RETURN(FlintPostList::get_doclength());
 }
 
 Xapian::termcount

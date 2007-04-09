@@ -314,7 +314,8 @@ class PostlistChunkReader {
 	    return wdf;
 	}
 	flint_doclen_t get_doclength() const {
-	    return doclength;
+	    DEBUGCALL(DB, flint_doclen_t, "PostlistChunkReader::get_doclength", "");
+	    RETURN(doclength);
 	}
 
 	bool is_at_end() const {
