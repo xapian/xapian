@@ -859,14 +859,6 @@ static bool test_poscollapse1()
     return true;
 }
 
-// tests that the collapsing on termpos optimisation gives correct query length
-static bool test_poscollapse2()
-{
-    Xapian::Query q(Xapian::Query::OP_OR, Xapian::Query("this", 1, 1), Xapian::Query("this", 1, 1));
-    TEST_EQUAL(q.get_length(), 2);
-    return true;
-}
-
 // test that running a query twice returns the same results
 static bool test_repeatquery1()
 {
@@ -1747,7 +1739,6 @@ test_desc anydb_tests[] = {
     {"getmterms1",	   test_getmterms1},
     {"getmterms2",	   test_getmterms2},
     {"poscollapse1",	   test_poscollapse1},
-    {"poscollapse2",	   test_poscollapse2},
     {"repeatquery1",	   test_repeatquery1},
     {"fetchdocs1",	   test_fetchdocs1},
     {"absentterm1",	   test_absentterm1},

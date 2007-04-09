@@ -321,6 +321,14 @@ static bool test_addvalue1()
     return true;
 }
 
+// tests that the collapsing on termpos optimisation gives correct query length
+static bool test_poscollapse2()
+{
+    Xapian::Query q(Xapian::Query::OP_OR, Xapian::Query("this", 1, 1), Xapian::Query("this", 1, 1));
+    TEST_EQUAL(q.get_length(), 2);
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -339,5 +347,6 @@ test_desc nodb_tests[] = {
     {"weight1",		   test_weight1},
     {"nosuchdb1",	   test_nosuchdb1},
     {"addvalue1",	   test_addvalue1},
+    {"poscollapse2",	   test_poscollapse2},
     {0, 0}
 };
