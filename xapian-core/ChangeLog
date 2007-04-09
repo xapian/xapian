@@ -1,3 +1,2205 @@
+Mon Apr 09 15:00:30 BST 2007  Olly Betts <olly@survex.com>
+
+	* :
+
+
+
+Property changes on: queryparser/queryparser.lt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: queryparser/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: queryparser/queryparser.lemony
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: queryparser/queryparser_internal.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: queryparser/queryparser.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: queryparser/utf8itor.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: queryparser/utf8itor.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: queryparser/lemon.c
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: queryparser/tclUniData.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: queryparser/tclUniData.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: debian/control.in
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/extraweightpostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/branchpostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/tradweight.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/ortermlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/andpostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/multimatch.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/localmatch.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/localmatch.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/msetcmp.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/msetpostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/xorpostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/bm25weight.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/selectpostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/biaspostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/remotesubmatch.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/selectpostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/branchtermlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/andmaybepostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/orpostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/phrasepostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/emptysubmatch.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/andnotpostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/weight.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/emptysubmatch.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/andnotpostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/valuerangepostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/valuerangepostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/stats.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/mergepostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/mergepostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/andpostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/ortermlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/msetcmp.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/exactphrasepostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/xorpostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/msetpostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/exactphrasepostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/rset.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/expand.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/orpostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/andmaybepostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/remotesubmatch.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/phrasepostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/filterpostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/expandweight.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: matcher/filterpostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: xapian-config.in
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/remote_protocol.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/matcherdesign.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/doxygen_api_conf.in
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/quickstartexpand.cc.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/quartzdesign.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/queryparser.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/stemming.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/intro_ir.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/quickstart.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/remote.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/scalability.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/tests.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/quickstartsearch.cc.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/bm25.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/overview.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/install.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/doxygen_full_conf.in
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/index.html
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: docs/gen_codestructure_doc.in
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_posdb.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/btreetest.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_posdb.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/stemtest.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/apitest.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_nodb.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/apitest.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/internaltest.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_nodb.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_db.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/harness/testsuite.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/harness/unixcmds.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/harness/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/harness/testutils.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/harness/testutils.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/harness/backendmanager.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/harness/backendmanager.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/harness/index_utils.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/harness/testsuite.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/harness/index_utils.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/harness/unixcmds.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_db.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/queryparsertest.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_rset.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_manydocs.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_phrase.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_simpledata.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_allterms.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_sortrel.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_space.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_poslist.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/etext.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_termorder.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_simpledata2.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_punc.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_allterms2.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_onedoc.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/testdata/apitest_allterms4.txt
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/runtest.in
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_anydb.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/quartztest.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_transdb.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_wrdb.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_anydb.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_transdb.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: tests/api_wrdb.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: msvc/version.h.in
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: bin/xapian-check.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: bin/quartzdump.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: bin/quartzcompact.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: bin/xapian-tcpsrv.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: bin/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: bin/xapian-progsrv.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: bin/quartzcheck.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: bin/xapian-compact.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/version_h.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/postingiterator.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/expanddecider.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/deprecated.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/types.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/database.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/query.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/stem.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/enquire.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/base.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/dbfactory.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/document.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/positioniterator.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/termiterator.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/queryparser.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/valueiterator.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian/errorhandler.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: include/xapian.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: net/remoteconnection.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: net/tcpserver.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: net/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: net/serialise.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: net/remoteserver.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: net/tcpclient.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: net/progclient.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/safewindows.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/multialltermslist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/msvc_posix_wrapper.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/remote-database.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/omqueryinternal.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/stats.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/utils.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/output.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/omenquireinternal.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/submatch.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/multimatch.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/networkstats.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/leafpostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/remoteconnection.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/tcpserver.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/remoteprotocol.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/omstringstream.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/inmemory_positionlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/postlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/omdebug.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/remoteserver.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/safeerrno.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/serialise-double.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/msvc_posix_wrapper.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/omtime.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/omassert.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/autoptr.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/utils.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/safewinsock2.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/emptypostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/positionlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/termlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/database.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/safefcntl.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/safeunistd.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/progclient.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/documentterm.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/safesysstat.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/gnu_getopt.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/omstringstream.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/rset.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/safesysselect.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/document.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/alltermslist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/expand.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/omdebug.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/serialise.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/tcpclient.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/serialise-double.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/vectortermlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: common/expandweight.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: getopt/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: getopt/getopt.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/portuguese.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/romanian.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/spanish.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/french.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/danish.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/swedish.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/dutch.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/german.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/lovins.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/steminternal.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/porter.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/hungarian.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/steminternal.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/stem.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/italian.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/russian.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/generate-allsnowballheaders.in
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/english.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/norwegian.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/turkish.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/german2.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/compiler/analyser.c
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/compiler/syswords.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/compiler/tokeniser.c
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/compiler/syswords2.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/compiler/generator.c
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/compiler/driver.c
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/compiler/space.c
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/compiler/header.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/kraaij_pohlmann.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: languages/finnish.sbl
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/omqueryinternal.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/omdatabase.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/omquery.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/maptermlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/omenquire.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/ompositionlistiterator.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/omtermlistiterator.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/omdocument.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/valuerangeproc.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/omvalueiterator.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/version.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/errorhandler.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: api/ompostlistiterator.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/inmemory/inmemory_document.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/inmemory/inmemory_alltermslist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/inmemory/inmemory_document.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/inmemory/inmemory_positionlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/inmemory/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/inmemory/inmemory_alltermslist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/inmemory/inmemory_database.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/inmemory/inmemory_database.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_alldocspostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_metafile.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/btree.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/btree.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_positionlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_termlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_termlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_database.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/bcursor.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/bcursor.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_alltermslist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_record.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_document.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_log.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_alltermslist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_log.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/btree_base.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/btree_base.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_metafile.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/btreecheck.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/btree_util.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/btreecheck.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_values.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_positionlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_values.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_utils.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_database.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_types.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_record.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_document.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_postlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_postlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/quartz/quartz_alldocspostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/database.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/multi/multi_postlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/multi/multi_postlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/multi/multi_termlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/multi/multi_termlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/multi/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/multi/multi_alltermslist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/remote/net_termlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/remote/remote-database.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/remote/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/remote/net_document.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/remote/net_document.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/remote/net_postlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/remote/net_termlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/remote/net_postlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_positionlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_termlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_termlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_database.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_cursor.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_check.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_alltermslist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_cursor.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_check.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_record.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_document.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_alltermslist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_modifiedpostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_version.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_table.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_version.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_lock.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_table.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_btreebase.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_values.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_positionlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_values.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_btreeutil.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_utils.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_database.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_types.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_io.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_io.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_document.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_record.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_postlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_postlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_alldocspostlist.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_modifiedpostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_alldocspostlist.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_lock.h
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/flint/flint_btreebase.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: backends/dbfactory_remote.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: makemanpage.in
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: examples/copydatabase.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: examples/delve.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: examples/simplesearch.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: examples/Makefile.mk
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: examples/quest.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: examples/simpleindex.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: examples/simpleexpand.cc
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: xapian.spec.in
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
+Property changes on: generate-exceptions.in
+___________________________________________________________________
+Name: svn:eolstyle
+   + native
+
+
 Mon Apr 09 14:50:40 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc: Delete the corresponding entry
