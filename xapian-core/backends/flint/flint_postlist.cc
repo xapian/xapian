@@ -1052,6 +1052,7 @@ FlintPostListTable::merge_changes(
     const map<Xapian::docid, Xapian::termcount> & doclens,
     const map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> > & freq_deltas)
 {
+    DEBUGCALL(DB, void, "FlintPostListTable::merge_changes", "mod_plists, doclens, freq_deltas");
     map<string, map<Xapian::docid, pair<char, Xapian::termcount> > >::const_iterator i;
     for (i = mod_plists.begin(); i != mod_plists.end(); ++i) {
 	if (i->second.empty()) continue;
@@ -1130,6 +1131,7 @@ FlintPostListTable::merge_changes(
 	    Xapian::docid did = j->first;
 
 next_chunk:
+	    DEBUGLINE(DB, "Updating tname=" << tname << ", did=" << did);
 	    if (from) while (!from->is_at_end()) {
 		Xapian::docid copy_did = from->get_docid();
 		if (copy_did >= did) {

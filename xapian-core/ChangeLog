@@ -1,3 +1,12 @@
+Mon Apr 09 11:24:31 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_database.cc: Fix bug with document lengths
+	  in replace document.  Was using doclens.insert() to set the new
+	  document length, but this has no effect if the entry already
+	  exists.  This fixes replacedoc3 for flint (and thus for remote
+	  databases), but the same change is needed for quartz.
+	* backends/flint/flint_postlist.cc: Add some debugging lines.
+
 Mon Apr 09 01:43:02 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/: Add some more debugging messages to help track
