@@ -438,7 +438,7 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
     // Uses xapian-progsrv as the server.
 
     // Default to a long (5 minute) timeout so that tests won't fail just
-    // because the host if slow or busy.
+    // because the host is slow or busy.
     string args = "-t300000 --writable ";
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
@@ -669,7 +669,7 @@ BackendManager::getdb_remotetcp(const vector<string> &dbnames)
 	paths.assign(dbnames.begin() + 2, dbnames.end());
     } else {
 	// Default to a long (5 minute) timeout so that tests won't fail just
-	// because the host if slow or busy.
+	// because the host is slow or busy.
 	args += "300000";
 	paths = dbnames;
     }
@@ -691,7 +691,7 @@ BackendManager::getwritedb_remotetcp(const vector<string> &dbnames)
     // Uses xapian-tcpsrv as the server.
 
     // Default to a long (5 minute) timeout so that tests won't fail just
-    // because the host if slow or busy.
+    // because the host is slow or busy.
     string args = "-t300000 --writable ";
 
 #ifdef XAPIAN_HAS_FLINT_BACKEND
