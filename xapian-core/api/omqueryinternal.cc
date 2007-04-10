@@ -753,7 +753,7 @@ Xapian::Query::Internal::collapse_subqs()
     while (sq != subqs.end()) {
 	Assert(*sq != 0);
 	if (is_leaf((*sq)->op)) {
-	    Assert((*sq)->subqs.size() == 0);
+	    Assert((*sq)->subqs.empty());
 	    subqtable::iterator s = sqtab.find(*sq);
 	    if (sqtab.find(*sq) == sqtab.end()) {
 		sqtab.insert(*sq);

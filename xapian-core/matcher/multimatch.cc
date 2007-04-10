@@ -301,10 +301,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    postlists.push_back(pl);
 	}
     }
+    Assert(!postlists.empty());
 
     // Get a single combined postlist
     PostList *pl;
-    Assert(postlists.size() != 0);
     if (postlists.size() == 1) {
 	pl = postlists.front();
     } else {

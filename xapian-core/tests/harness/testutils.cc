@@ -120,7 +120,7 @@ bool operator==(const Xapian::MSet &first, const Xapian::MSet &second)
 	(first.size() != second.size())) {
 	return false;
     }
-    if (first.size() == 0) return true;
+    if (first.empty()) return true;
     return mset_range_is_same(first, 0, second, 0, first.size());
 }
 

@@ -118,7 +118,7 @@ void
 QuartzDocIdList::addDocId(Xapian::docid did) {
     DEBUGCALL(DB, void, "QuartzDocIdList::addDocId", did);
 
-    if (ranges.size() == 0) {
+    if (ranges.empty()) {
         ranges.insert(pair<Xapian::docid, Xapian::docid>(did, did));
         return;
     }

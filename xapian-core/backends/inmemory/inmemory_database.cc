@@ -695,7 +695,7 @@ void InMemoryDatabase::make_posting(InMemoryDoc * doc,
 bool
 InMemoryDatabase::term_exists(const string & tname) const
 {
-    Assert(tname.size() != 0);
+    Assert(!tname.empty());
     map<string, InMemoryTerm>::const_iterator i = postlists.find(tname);
     if (i == postlists.end()) return false;
     return (i->second.term_freq != 0);

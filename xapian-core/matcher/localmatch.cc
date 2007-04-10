@@ -387,7 +387,7 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
     switch (op) {
 	case Xapian::Query::Internal::OP_LEAF: {
 	    // Make a postlist for a single term
-	    Assert(query->subqs.size() == 0);
+	    Assert(query->subqs.empty());
 
 	    // FIXME: pass the weight type and the info needed to create it to
 	    // the postlist instead (why?)

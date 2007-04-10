@@ -1,3 +1,10 @@
+Tue Apr 10 12:23:46 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,backends/inmemory/inmemory_database.cc,
+	  backends/quartz/quartz_alldocspostlist.cc,matcher/localmatch.cc,
+	  matcher/multimatch.cc,tests/harness/testutils.cc: Prefer
+	  `CONTAINER.empty()' to `CONTAINER.size() == 0'.
+
 Tue Apr 10 12:09:45 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Tighten up an assertion.
