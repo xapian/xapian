@@ -21,7 +21,7 @@ INTDIR=.\
 ALL : "$(OUTDIR)\libnet.lib" 
 
 LIBNET_OBJS= \
-#             $(INTDIR)\progclient.obj \
+             $(INTDIR)\progclient.obj \
              $(INTDIR)\remoteconnection.obj  \
              $(INTDIR)\remoteserver.obj  \
              $(INTDIR)\serialise.obj  \

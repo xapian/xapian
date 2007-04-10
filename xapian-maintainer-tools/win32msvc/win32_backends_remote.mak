@@ -17,6 +17,7 @@ LIBREMOTE_OBJS= \
                  $(INTDIR)\remote-database.obj \
                  $(INTDIR)\net_document.obj \
                  $(INTDIR)\net_termlist.obj \
+                 $(INTDIR)\net_postlist.obj \
 
 CLEAN :
 	-@erase "$(OUTDIR)\libremote.lib"
@@ -58,6 +59,10 @@ CPP_SBRS=.
    $(CPP_PROJ) $**
 <<
 
+"$(INTDIR)\net_postlist.obj" : "net_postlist.cc"
+       $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
 
 
 
