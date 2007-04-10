@@ -1,3 +1,7 @@
+Tue Apr 10 15:35:50 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Define HAVE_SOCKETPAIR if we have socketpair().
+
 Tue Apr 10 15:29:49 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/progclient.cc: Fix #endif placement so it compiles on UNIX.
