@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2007-04-05
+2007-04-10
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -31,8 +31,6 @@ What works?
 
 What doesn't work?
 ==================
-
-- The "prog" variant of the remote backend
 
 - Any other bindings
 
