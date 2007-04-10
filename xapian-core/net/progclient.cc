@@ -224,6 +224,7 @@ ProgClient::run_program(const string &progname, const string &args
     CloseHandle(hClient);
     CloseHandle(procinfo.hThread);
     return _open_osfhandle((intptr_t)hPipe, O_RDWR|O_BINARY);
+#endif
 }
 
 ProgClient::~ProgClient()
@@ -234,5 +235,3 @@ ProgClient::~ProgClient()
     waitpid(pid, 0, 0);
 #endif
 }
-
-#endif
