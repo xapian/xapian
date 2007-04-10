@@ -51,9 +51,12 @@
 
 #ifdef __WIN32__
 # include "safefcntl.h"
+#endif
 
-// Path to xapian-tcpsrv and xapian-progsrv, with \ path separators since we
-// pass this to system().
+// Paths to xapian-tcpsrv and xapian-progsrv.
+#ifdef __WIN32__
+// Under __WIN32__ we want \ path separators since we pass this path to
+// CreateProcess().
 # ifdef _MSC_VER
 #  ifdef DEBUG
 #   define XAPIAN_BIN_PATH "..\\win32\\Debug\\"
@@ -63,9 +66,11 @@
 # else
 #  define XAPIAN_BIN_PATH "..\\bin\\" // mingw
 # endif
-# define XAPIAN_TCPSRV XAPIAN_BIN_PATH"xapian-tcpsrv"
-# define XAPIAN_PROGSRV XAPIAN_BIN_PATH"xapian-progsrv"
+#else
+# define XAPIAN_BIN_PATH "../bin/"
 #endif
+#define XAPIAN_TCPSRV XAPIAN_BIN_PATH"xapian-tcpsrv"
+#define XAPIAN_PROGSRV XAPIAN_BIN_PATH"xapian-progsrv"
 
 #include <xapian.h>
 #include "index_utils.h"
@@ -470,7 +475,7 @@ launch_xapian_tcpsrv(const string & args)
     // in xapian-tcpsrv doesn't start listening successfully.
     signal(SIGCHLD, SIG_DFL);
 try_next_port:
-    string cmd = "../bin/xapian-tcpsrv --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args;
+    string cmd = XAPIAN_TCPSRV" --one-shot --interface "LOCALHOST" --port " + om_tostring(port) + " " + args;
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) cmd = "./runsrv " + cmd;
 #endif

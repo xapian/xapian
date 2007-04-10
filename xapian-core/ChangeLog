@@ -1,3 +1,8 @@
+Tue Apr 10 16:46:09 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc: Define XAPIAN_TCPSRV and
+	  XAPIAN_PROGSRV under UNIX too, and use them everywhere.
+
 Tue Apr 10 16:33:48 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.h: Remove "BackendManager::" from
