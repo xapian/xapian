@@ -51,6 +51,20 @@
 
 #ifdef __WIN32__
 # include "safefcntl.h"
+
+// Path to xapian-tcpsrv and xapian-progsrv, with \ path separators since we
+// pass this to system().
+# ifdef _MSC_VER
+#  ifdef DEBUG
+#   define XAPIAN_BIN_PATH "..\\win32\\Debug\\"
+#  else
+#   define XAPIAN_BIN_PATH "..\\win32\\Release\\"
+#  endif
+# else
+#  define XAPIAN_BIN_PATH "..\\bin\\" // mingw
+# endif
+# define XAPIAN_TCPSRV XAPIAN_BIN_PATH"xapian-tcpsrv"
+# define XAPIAN_PROGSRV XAPIAN_BIN_PATH"xapian-progsrv"
 #endif
 
 #include <xapian.h>
@@ -65,8 +79,7 @@
 // reliable.
 #define LOCALHOST "127.0.0.1"
 
-// Other ports may be tried (UNIX version tries higher ports until one works;
-// Windows version cycles through 10 ports starting at DEFAULT_PORT.
+// Start at DEFAULT port and try higher ports until one isn't already in use.
 #define DEFAULT_PORT 1239
 
 using namespace std;
@@ -407,11 +420,11 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 #endif
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	args.insert(0, "../bin/xapian-progsrv ");
+	args.insert(0, XAPIAN_PROGSRV" ");
 	return Xapian::Remote::open("./runsrv", args);
     }
 #endif
-    return Xapian::Remote::open("../bin/xapian-progsrv", args);
+    return Xapian::Remote::open(XAPIAN_PROGSRV, args);
 }
 
 Xapian::WritableDatabase
@@ -432,11 +445,11 @@ BackendManager::getwritedb_remote(const vector<string> &dbnames)
 #endif
 #ifdef HAVE_VALGRIND
     if (RUNNING_ON_VALGRIND) {
-	args.insert(0, "../bin/xapian-progsrv ");
+	args.insert(0, XAPIAN_PROGSRV" ");
 	return Xapian::Remote::open_writable("./runsrv", args);
     }
 #endif
-    return Xapian::Remote::open_writable("../bin/xapian-progsrv", args);
+    return Xapian::Remote::open_writable(XAPIAN_PROGSRV, args);
 }
 
 #ifdef HAVE_FORK
@@ -538,17 +551,6 @@ try_next_port:
 }
 
 #elif defined __WIN32__
-
-// Path to xapian-tcpsrv (with \ path separator since we pass this to system).
-#ifdef _MSC_VER
-# ifdef DEBUG
-#  define XAPIAN_TCPSRV "..\\win32\\Debug\\xapian-tcpsrv"
-# else
-#  define XAPIAN_TCPSRV "..\\win32\\Release\\xapian-tcpsrv"
-# endif
-#else
-#  define XAPIAN_TCPSRV "..\\bin\\xapian-tcpsrv" // mingw
-#endif
 
 // This implementation uses the WIN32 API to start xapian-tcpsrv as a child
 // process and read its output using a pipe.
@@ -720,4 +722,15 @@ BackendManager::get_writable_database(const string &dbname)
     vector<string> dbnames;
     dbnames.push_back(dbname);
     return (this->*do_getwritedb)(dbnames);
+}
+
+const char *
+BackendManager::get_xapian_progsrv_command()
+{
+#ifdef HAVE_VALGRIND
+    if (RUNNING_ON_VALGRIND) {
+	return "./runsrv "XAPIAN_PROGSRV;
+    }
+#endif
+    return XAPIAN_PROGSRV;
 }

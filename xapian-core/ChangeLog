@@ -1,3 +1,11 @@
+Tue Apr 10 12:57:51 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory_remote.cc,common/progclient.h,net/progclient.cc,
+	  net/remoteconnection.cc,tests/api_db.cc,tests/apitest.cc,
+	  tests/harness/backendmanager.cc,tests/harness/backendmanager.h:
+	  Add support for the "prog" variant of the remote backend (patch
+	  started by me, finished by Mark Hammond).
+
 Tue Apr 10 12:23:46 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc,backends/inmemory/inmemory_database.cc,

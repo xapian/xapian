@@ -38,8 +38,10 @@ class ProgClient : public RemoteDatabase {
     /// Don't allow copying.
     ProgClient(const ProgClient &);
 
+#ifndef __WIN32__
     /// Process id of the child process.
     pid_t pid;
+#endif
 
     /** Start the child process.
      *
@@ -55,8 +57,11 @@ class ProgClient : public RemoteDatabase {
      *  has been deliberately made "static".
      */
     static int run_program(const std::string &progname,
-			   const std::string &args,
-			   pid_t &pid);
+			   const std::string &args
+#ifndef __WIN32__
+			   , int &pid
+#endif
+			   );
 
     /** Generate context string for Xapian::Error exception objects.
      *

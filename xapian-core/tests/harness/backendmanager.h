@@ -154,6 +154,9 @@ class BackendManager {
 
 	/// Get a writable database instance.
 	Xapian::WritableDatabase get_writable_database(const std::string & dbname);
+
+	/// Get the command line required to run xapian-progsrv.
+	static const char * BackendManager::get_xapian_progsrv_command();
 };
 
 #endif /* OM_HGUARD_BACKENDMANAGER_H */

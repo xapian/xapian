@@ -22,9 +22,6 @@
 
 #include <config.h>
 
-// Not ported to Windows yet.
-#ifndef __WIN32__
-
 #include "safeerrno.h"
 #include "safefcntl.h"
 
@@ -43,6 +40,7 @@
 
 using namespace std;
 
+#ifndef __WIN32__
 /** Split a string into a vector of strings, using a given separator
  *  character (default space)
  */
@@ -59,9 +57,14 @@ split_words(const string &text, vector<string> &words, char ws = ' ')
 	i = text.find_first_not_of(ws, j);
     }
 }
+#endif
 
 ProgClient::ProgClient(const string &progname, const string &args, int msecs_timeout)
-	: RemoteDatabase(run_program(progname, args, pid),
+	: RemoteDatabase(run_program(progname, args
+#ifndef __WIN32__
+                                                    , pid
+#endif
+        ),
 			 msecs_timeout,
 			 get_progcontext(progname, args))
 {
@@ -78,8 +81,13 @@ ProgClient::get_progcontext(const string &progname, const string &args)
 }
 
 int
-ProgClient::run_program(const string &progname, const string &args, pid_t &pid)
+ProgClient::run_program(const string &progname, const string &args
+#ifndef __WIN32__
+			, int &pid
+#endif
+			)
 {
+#if defined HAVE_SOCKETPAIR && defined HAVE_FORK
     DEBUGCALL_STATIC(DB, int, "ProgClient::run_program", progname << ", " <<
 		     args << ", [&pid]");
     /* socketpair() returns two sockets.  We keep sv[0] and give
@@ -88,13 +96,13 @@ ProgClient::run_program(const string &progname, const string &args, pid_t &pid)
     int sv[2];
 
     if (socketpair(PF_UNIX, SOCK_STREAM, 0, sv) < 0) {
-	throw Xapian::NetworkError(string("socketpair:") + strerror(errno), get_progcontext(progname, args));
+	throw Xapian::NetworkError(string("socketpair failed"), get_progcontext(progname, args), errno);
     }
 
     pid = fork();
 
     if (pid < 0) {
-	throw Xapian::NetworkError(string("fork:") + strerror(errno), get_progcontext(progname, args));
+	throw Xapian::NetworkError(string("fork failed"), get_progcontext(progname, args), errno);
     }
 
     if (pid != 0) {
@@ -143,13 +151,88 @@ ProgClient::run_program(const string &progname, const string &args, pid_t &pid)
     // Avoid "missing return statement" warning.
     return 0;
 #endif
+#elif defined __WIN32__
+    DEBUGCALL(DB, void, "ProgClient::get_spawned_socket", progname << ", " <<
+	      args);
+
+    static unsigned int pipecount = 0;
+    char pipename[256];
+    sprintf(pipename, "\\\\.\\pipe\\xapian-remote-%lx-%lx-%x",
+	    (unsigned long)GetCurrentProcessId(),
+	    (unsigned long)GetCurrentThreadId(), pipecount++);
+    // Create a pipe so we can read stdout from the child process.
+    HANDLE hPipe = CreateNamedPipe(pipename,
+				   PIPE_ACCESS_DUPLEX/*|FILE_FLAG_OVERLAPPED*/,
+				   PIPE_TYPE_MESSAGE|PIPE_READMODE_MESSAGE/*|PIPE_REJECT_REMOTE_CLIENTS*/,
+				   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
+				   NULL);
+
+    if (hPipe == INVALID_HANDLE_VALUE) {
+	throw Xapian::NetworkError("CreateNamedPipe failed",
+				   get_progcontext(progname, args),
+				   GetLastError());
+    }
+
+    HANDLE hClient = CreateFile(pipename,
+				GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+
+    if (hClient == INVALID_HANDLE_VALUE) {
+	throw Xapian::NetworkError("CreateFile failed",
+				   get_progcontext(progname, args),
+				   GetLastError());
+    }
+
+    DWORD dwMode = PIPE_READMODE_MESSAGE;
+    if (!SetNamedPipeHandleState(hClient, &dwMode, NULL, NULL)) {
+	throw Xapian::NetworkError("SetNamedPipeHandleState failed",
+				   get_progcontext(progname, args),
+				   GetLastError());
+    }
+
+    if (!ConnectNamedPipe(hPipe, NULL) && GetLastError() != ERROR_PIPE_CONNECTED) {
+	throw Xapian::NetworkError("ConnectNamedPipe failed",
+				   get_progcontext(progname, args),
+				   GetLastError());
+    }
+
+    // Set the appropriate handles to be inherited by the child process.
+    SetHandleInformation(hClient, HANDLE_FLAG_INHERIT, 1);
+
+    // Create the child process.
+    PROCESS_INFORMATION procinfo;
+    memset(&procinfo, 0, sizeof(PROCESS_INFORMATION));
+
+    STARTUPINFO startupinfo;
+    memset(&startupinfo, 0, sizeof(STARTUPINFO));
+    startupinfo.cb = sizeof(STARTUPINFO);
+    startupinfo.hStdError = hClient;
+    startupinfo.hStdOutput = hClient;
+    startupinfo.hStdInput = hClient;
+    startupinfo.dwFlags |= STARTF_USESTDHANDLES;
+
+    // For some reason Windows wants a modifiable copy!
+    BOOL ok;
+    char * cmdline = strdup((progname + ' ' + args).c_str());
+    ok = CreateProcess(0, cmdline, 0, 0, TRUE, 0, 0, 0, &startupinfo, &procinfo);
+    free(cmdline);
+    if (!ok) {
+	throw Xapian::NetworkError("CreateProcess failed",
+				   get_progcontext(progname, args),
+				   GetLastError());
+    }
+
+    CloseHandle(hClient);
+    CloseHandle(procinfo.hThread);
+    return _open_osfhandle((intptr_t)hPipe, O_RDWR|O_BINARY);
 }
 
 ProgClient::~ProgClient()
 {
     // Close the socket and reap the child.
     do_close();
+#ifndef __WIN32__
     waitpid(pid, 0, 0);
+#endif
 }
 
 #endif

@@ -146,9 +146,6 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-#ifndef __WIN32__
-    // Currently under Windows we support the TCP remote backend but not the
-    // prog remote backend.
     RUNTESTS("remote", anydb);
     RUNTESTS("remote", specchar);
     RUNTESTS("remote", writabledb);
@@ -157,7 +154,6 @@ int main(int argc, char **argv)
     RUNTESTS("remote", doclendb);
     RUNTESTS("remote", multivalue);
     RUNTESTS("remote", transactiondb);
-#endif
 
     RUNTESTS("remotetcp", anydb);
     RUNTESTS("remotetcp", specchar);
