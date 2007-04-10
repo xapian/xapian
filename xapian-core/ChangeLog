@@ -1,3 +1,7 @@
+Tue Apr 10 19:07:24 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: --enable-quiet now uses AS_HELP_STRING.
+
 Tue Apr 10 18:53:32 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/index_utils.cc: Return the empty document we already

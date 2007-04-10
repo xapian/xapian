@@ -656,11 +656,11 @@ if test "$enable_backend_remote" = yes ; then
 fi
 
 AC_ARG_ENABLE(quiet,
-[  --enable-quiet          Enable quiet building (default=no)],
-[case ${enableval} in
-  yes|no) ;;
-  *) AC_MSG_ERROR(bad value ${enableval} for --enable-quiet) ;;
-esac], [enable_quiet=no])
+  [AS_HELP_STRING([--enable-quiet], [Enable quiet building [default=no]])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR(bad value ${enableval} for --enable-quiet) ;;
+  esac])
 
 dnl Pass `--quiet' to libtool if quiet building is requested.  Using an
 dnl AC_SUBST-ed value like this allows the choice to be easily overridden
