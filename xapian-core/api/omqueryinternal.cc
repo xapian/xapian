@@ -697,7 +697,7 @@ Xapian::Query::Internal::simplify_query()
 		    parameter = 10;
 		} else {
 		    parameter = Xapian::termcount(ceil(sqrt(double(subqs.size()))));
-		    Assert(parameter >= 10);
+		    Assert(parameter > 10);
 		}
 	    }
 	    break;
