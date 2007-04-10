@@ -367,18 +367,10 @@ RemoteConnection::calc_read_wait_msecs(const OmTime & end_time)
 
     // msecs is unsigned, so we mustn't try and return a negative value
     if (now > end_time) {
-	// This is possible if we are reading chunks - but if we are
-	// debugging, it's far more likely that we are just a little slow
-	// stepping through the code...
-#ifdef DEBUG
-	msecs = 10000;
-#else
 	throw Xapian::NetworkTimeoutError("Timeout expired before starting read", context);
-#endif
-    } else {
-	OmTime time_diff = end_time - now;
-	msecs = time_diff.sec * 1000 + time_diff.usec / 1000;
     }
+    OmTime time_diff = end_time - now;
+    msecs = time_diff.sec * 1000 + time_diff.usec / 1000;
     return msecs;
 }
 #endif
