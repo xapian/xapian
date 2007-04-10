@@ -195,7 +195,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 #ifdef __WIN32__
     HANDLE hout = (HANDLE)_get_osfhandle(fdout);
     if (hout == INVALID_HANDLE_VALUE)
-	hout = (HANDLE)fdout; // its a socket - which already is a handle!
+	hout = (HANDLE)fdout; // It's a socket - which already is a handle!
     const string * str = &header;
 
     size_t count = 0;
