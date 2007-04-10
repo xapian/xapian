@@ -78,131 +78,128 @@ try:
     subqs = ["a", "b"]
     checkquery(xapian.Query(xapian.Query.OP_OR, subqs), "Xapian::Query((a OR b))")
 
-    # Python's iterators were added in 2.2.
-    vinfo = sys.version_info
-    if vinfo[0] > 2 or (vinfo[0] == 2 and vinfo[1] >= 2):
-        # Feature test for Query.__iter__
-        term_count = 0
-        for term in query2:
-            term_count += 1
-        if term_count != 4:
-            print >> sys.stderr, "Unexpected number of terms in query2 (%d)" % term_count
+    # Feature test for Query.__iter__
+    term_count = 0
+    for term in query2:
+        term_count += 1
+    if term_count != 4:
+        print >> sys.stderr, "Unexpected number of terms in query2 (%d)" % term_count
+        sys.exit(1)
+
+    enq = xapian.Enquire(db)
+    enq.set_query(xapian.Query(xapian.Query.OP_OR, "there", "is"))
+    mset = enq.get_mset(0, 10)
+    if mset.size() != 1:
+        print >> sys.stderr, "Unexpected mset.size()"
+        sys.exit(1)
+
+    # Feature test for Enquire.matching_terms(docid)
+    term_count = 0
+    for term in enq.matching_terms(mset.get_hit(0)):
+        term_count += 1
+    if term_count != 2:
+        print >> sys.stderr, "Unexpected number of matching terms"
+        sys.exit(1)
+
+    # Feature test for MSet.__iter__
+    msize = 0
+    for match in mset:
+        msize += 1
+    if msize != mset.size():
+        print >> sys.stderr, "Unexpected number of entries in mset (%d != %d)" % (msize, mset.size())
+        sys.exit(1)
+
+    terms = " ".join(enq.get_matching_terms(mset.get_hit(0)))
+    if terms != "is there":
+        print >> sys.stderr, "Unexpected terms"
+        sys.exit(1)
+
+    # Feature test for ESet.__iter__
+    rset = xapian.RSet()
+    rset.add_document(1)
+    eset = enq.get_eset(10, rset)
+    term_count = 0
+    for term in eset:
+        term_count += 1
+    if term_count != 3:
+        print >> sys.stderr, "Unexpected number of expand terms"
+        sys.exit(1)
+
+    # Feature test for Database.__iter__
+    term_count = 0
+    for term in db:
+        term_count += 1
+    if term_count != 5:
+        print >> sys.stderr, "Unexpected number of terms in db (%d)" % term_count
+        sys.exit(1)
+
+    # Feature test for Database.allterms
+    term_count = 0
+    for term in db.allterms():
+        term_count += 1
+    if term_count != 5:
+        print >> sys.stderr, "Unexpected number of terms in db.allterms (%d)" % term_count
+        sys.exit(1)
+
+    # Feature test for Database.postlist
+    count = 0
+    for posting in db.postlist("there"):
+        count += 1
+    if count != 1:
+        print >> sys.stderr, "Unexpected number of entries in db.postlist (%d)" % count
+        sys.exit(1)
+
+    # Feature test for Database.postlist with empty term (alldocspostlist)
+    count = 0
+    for posting in db.postlist(""):
+        count += 1
+    if count != 1:
+        print >> sys.stderr, "Unexpected number of entries in db.postlist('') (%d)" % count
+        sys.exit(1)
+
+    # Feature test for Database.termlist
+    count = 0
+    for term in db.termlist(1):
+        count += 1
+    if count != 5:
+        print >> sys.stderr, "Unexpected number of entries in db.termlist (%d)" % count
+        sys.exit(1)
+
+    # Feature test for Database.positionlist
+    count = 0
+    for term in db.positionlist(1, "there"):
+        count += 1
+    if count != 2:
+        print >> sys.stderr, "Unexpected number of entries in db.positionlist (%d)" % count
+        sys.exit(1)
+
+    # Feature test for Document.termlist
+    count = 0
+    for term in doc.termlist():
+        count += 1
+    if count != 5:
+        print >> sys.stderr, "Unexpected number of entries in doc.termlist (%d)" % count
+        sys.exit(1)
+
+    # Feature test for TermIter.skip_to
+    term = doc.termlist()
+    term.skip_to('n')
+    while True:
+        try:
+            x = term.next()
+        except StopIteration:
+            break
+        if x[0] < 'n':
+            print >> sys.stderr, "TermIter.skip_to didn't skip term '%s'" % x[0]
             sys.exit(1)
 
-        enq = xapian.Enquire(db)
-        enq.set_query(xapian.Query(xapian.Query.OP_OR, "there", "is"))
-        mset = enq.get_mset(0, 10)
-        if mset.size() != 1:
-            print >> sys.stderr, "Unexpected mset.size()"
-            sys.exit(1)
-
-        # Feature test for Enquire.matching_terms(docid)
-        term_count = 0
-        for term in enq.matching_terms(mset.get_hit(0)):
-            term_count += 1
-        if term_count != 2:
-            print >> sys.stderr, "Unexpected number of matching terms"
-            sys.exit(1)
-
-        # Feature test for MSet.__iter__
-        msize = 0
-        for match in mset:
-            msize += 1
-        if msize != mset.size():
-            print >> sys.stderr, "Unexpected number of entries in mset (%d != %d)" % (msize, mset.size())
-            sys.exit(1)
-
-        terms = " ".join(enq.get_matching_terms(mset.get_hit(0)))
-        if terms != "is there":
-            print >> sys.stderr, "Unexpected terms"
-            sys.exit(1)
-
-        # Feature test for ESet.__iter__
-        rset = xapian.RSet()
-        rset.add_document(1)
-        eset = enq.get_eset(10, rset)
-        term_count = 0
-        for term in eset:
-            term_count += 1
-        if term_count != 3:
-            print >> sys.stderr, "Unexpected number of expand terms"
-            sys.exit(1)
-
-        # Feature test for Database.__iter__
-        term_count = 0
-        for term in db:
-            term_count += 1
-        if term_count != 5:
-            print >> sys.stderr, "Unexpected number of terms in db (%d)" % term_count
-            sys.exit(1)
-
-        # Feature test for Database.allterms
-        term_count = 0
-        for term in db.allterms():
-            term_count += 1
-        if term_count != 5:
-            print >> sys.stderr, "Unexpected number of terms in db.allterms (%d)" % term_count
-            sys.exit(1)
-
-        # Feature test for Database.postlist
-        count = 0
-        for posting in db.postlist("there"):
-            count += 1
-        if count != 1:
-            print >> sys.stderr, "Unexpected number of entries in db.postlist (%d)" % count
-            sys.exit(1)
-
-        # Feature test for Database.postlist with empty term (alldocspostlist)
-        count = 0
-        for posting in db.postlist(""):
-            count += 1
-        if count != 1:
-            print >> sys.stderr, "Unexpected number of entries in db.postlist('') (%d)" % count
-            sys.exit(1)
-
-        # Feature test for Database.termlist
-        count = 0
-        for term in db.termlist(1):
-            count += 1
-        if count != 5:
-            print >> sys.stderr, "Unexpected number of entries in db.termlist (%d)" % count
-            sys.exit(1)
-
-        # Feature test for Database.positionlist
-        count = 0
-        for term in db.positionlist(1, "there"):
-            count += 1
-        if count != 2:
-            print >> sys.stderr, "Unexpected number of entries in db.positionlist (%d)" % count
-            sys.exit(1)
-
-        # Feature test for Document.termlist
-        count = 0
-        for term in doc.termlist():
-            count += 1
-        if count != 5:
-            print >> sys.stderr, "Unexpected number of entries in doc.termlist (%d)" % count
-            sys.exit(1)
-
-        # Feature test for TermIter.skip_to
-        term = doc.termlist()
-        term.skip_to('n')
-        while True:
-            try:
-                x = term.next()
-            except StopIteration:
-                break
-            if x[0] < 'n':
-                print >> sys.stderr, "TermIter.skip_to didn't skip term '%s'" % x[0]
-                sys.exit(1)
-
-        # Feature test for Document.values
-        count = 0
-        for term in doc.values():
-            count += 1
-        if count != 0:
-            print >> sys.stderr, "Unexpected number of entries in doc.values (%d)" % count
-            sys.exit(1)
+    # Feature test for Document.values
+    count = 0
+    for term in doc.values():
+        count += 1
+    if count != 0:
+        print >> sys.stderr, "Unexpected number of entries in doc.values (%d)" % count
+        sys.exit(1)
 
     # Check exception handling for Xapian::DocNotFoundError
     try:
