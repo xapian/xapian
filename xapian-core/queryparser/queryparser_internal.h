@@ -58,7 +58,6 @@ class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
 
     // Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
     // "foobar" -> "XFOO"
-    // bool is true if this is a boolean filter.
     map<string, PrefixInfo> prefixes;
 
     list<Xapian::ValueRangeProcessor *> valrangeprocs;

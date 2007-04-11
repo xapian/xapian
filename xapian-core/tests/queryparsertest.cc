@@ -59,6 +59,10 @@ static test test_or_queries[] = {
     { "author:\"milne a.a.\"", "(Amiln:(pos=1) PHRASE 3 Aa:(pos=2) PHRASE 3 Aa:(pos=3))" },
     // Regression test for bug reported in 0.9.7.
     { "site:/path/name", "H/path/name" },
+    // Regression test for bug introduced into (and fixed in) SVN prior to 1.0.
+    { "author:/path/name", "(author:(pos=1) PHRASE 3 path:(pos=2) PHRASE 3 name:(pos=3))" },
+    // Regression test for bug introduced into (and fixed in) SVN prior to 1.0.
+    { "author:(title::case)", "(Atitl:(pos=1) PHRASE 2 Acase:(pos=2))" },
     { "\"1.4\"", "(1:(pos=1) PHRASE 2 4:(pos=2))" },
     { "\"1.\"", "1:(pos=1)" },
     { "\"A#.B.\"", "(Ra#:(pos=1) PHRASE 2 Rb:(pos=2))" },

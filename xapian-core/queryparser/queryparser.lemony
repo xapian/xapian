@@ -21,6 +21,7 @@
 
 #include <config.h>
 
+#include "omassert.h"
 #include "queryparser_internal.h"
 #include "utf8itor.h"
 #include "utils.h"
@@ -311,7 +312,7 @@ main_lex_loop:
 		    // Trim off the trailing "..".
 		    r.resize(r.size() - 2);
 		    Parse(pParser, RANGE_START, new Term(r, 0), &state);
-		    r.resize(0);
+		    r.clear();
 		    // Allow any character except whitespace and ')' in a
 		    // RANGE_END.  Or should we be consistent with RANGE_START?
 		    do {
@@ -441,50 +442,56 @@ main_lex_loop:
 		    PrefixInfo::prefix_type type = f->second.type;
 		    prefix = f->second.str;
 
-		    // Can't boolean prefix a subexpression or phrase;
-		    // just use anything following the boolean prefix
-		    // until the next space or ')' as part of the boolean
-		    // term.
-		    switch (type) {
-		      case PrefixInfo::BOOL_FILTER:
-			{
-			    it = p;
-			    if (prefix_needs_colon(prefix, *it))
-				prefix += ':';
-			    string term;
-			    while (it != end && *it > ' ' && *it != ')')
-				term.append(ubuf, to_utf8(*it++, ubuf));
-			    prefix += term;
-			    field += ':';
-			    field += term;
-			    unstem.insert(make_pair(prefix, field));
-			    Parse(pParser, BOOLEAN_FILTER,
-				  new Term(prefix, 0), &state);
-			    continue;
-			}
-		      case PrefixInfo::FREE_TEXT:
-			{
-			    if (is_wordchar(ch)) {
-				it = p;
-			    }
+		    if (type == PrefixInfo::BOOL_FILTER) {
+			// Can't boolean prefix a subexpression or phrase;
+			// just use anything following the boolean prefix
+			// until the next space or ')' as part of the boolean
+			// term.
+			it = p;
+			if (prefix_needs_colon(prefix, *it))
+			    prefix += ':';
+			string term;
+			while (it != end && *it > ' ' && *it != ')')
+			    term.append(ubuf, to_utf8(*it++, ubuf));
+			prefix += term;
+			field += ':';
+			field += term;
+			unstem.insert(make_pair(prefix, field));
+			Parse(pParser, BOOLEAN_FILTER,
+			      new Term(prefix, 0), &state);
+			continue;
+		    }
 
-			    if (((flags & FLAG_PHRASE) && ch == '"') ||
-				((flags & FLAG_BOOLEAN) && ch == '(')) {
-				it = p;
-				newprev = ch;
-				++it;
-				prefix_stack.push_back(f->second.str);
-				if (ch == '(') {
-				    // Prefixed sub-expr: title:(fast NEAR food)
-				    Parse(pParser, BRA, NULL, &state);
-				    continue;
-				}
-				// Prefixed phrase: subject:"space flight"
-				Parse(pParser, QUOTE, NULL, &state);
-				mode = IN_PREFIXED_QUOTES;
-				continue;
-			    }
-			}
+		    Assert(type == PrefixInfo::FREE_TEXT);
+
+		    if (ch == '"' && (flags & FLAG_PHRASE)) {
+			// Prefixed phrase, e.g.: subject:"space flight"
+			mode = IN_PREFIXED_QUOTES;
+			Parse(pParser, QUOTE, NULL, &state);
+			it = p;
+			newprev = ch;
+			++it;
+			prefix_stack.push_back(prefix);
+			continue;
+		    }
+
+		    if (ch == '(' && (flags & FLAG_BOOLEAN)) {
+			// Prefixed subexpression, e.g.: title:(fast NEAR food)
+			Parse(pParser, BRA, NULL, &state);
+			it = p;
+			newprev = ch;
+			++it;
+			prefix_stack.push_back(prefix);
+			continue;
+		    }
+
+		    if (is_wordchar(ch)) {
+			// Prefixed term.
+			it = p;
+		    } else {
+			// It looks like a prefix but isn't, so parse it as
+			// text instead.
+			prefix.clear();
 		    }
 		}
 	    }
