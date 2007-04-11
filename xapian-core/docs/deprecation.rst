@@ -45,14 +45,6 @@ new code, and should migrate your code to use a replacement when possible.  The
 code comments for the function, or the list of deprecated functions at the end
 of this file, will describe possible alternatives to the deprecated function.
 
-Note that, if it is necessary to compile without deprecation warnings being
-emitted, the deprecation warnings can be turned off by adding:
-::
-
-  #define XAPIAN_DEPRECATED(D) D
-
-before the first inclusion of a Xapian header.
-
 API and ABI compatibility
 -------------------------
 
@@ -67,12 +59,13 @@ onwards, where `c` is not zero.  The API and ABI will not be changed by this
 deprecation, since the function will still be available in the API (though the
 change may cause the compiler to emit new warnings at compile time).
 
-In general if a function is first marked as deprecated in Xapian version
-`X.Y.c`, the function will remain present but marked as deprecated throughout
-Xapian versions `X+1.Y.d`, and will be removed from the API at Xapian version
-`X+2.Y.0`.  In other words, functions marked as deprecated will not be removed
-until the end of the release series following that in which the deprecation
-happened.
+In general, a function will be supported after being deprecated for an entire
+series of releases with a given major and minor number.  For example, if a
+function is deprecated in release `1.2.0`, it will be supported for the entire
+`1.2.x` release series, and removed in release `1.3.0`.  If a function is
+deprecated in release `1.2.5`, it will be supported for all remaining releases
+in the `1.2.x` series, and also for all releases in the `1.3.x` series, and
+will be removed in release `1.4.0`.
 
 However, this rule may not be followed in all cases.  In particular, if a
 function was marked as "temporary" in the documentation, it may be removed
