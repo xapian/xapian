@@ -27,10 +27,25 @@ def checkeq(l, r):
     if l != r:
         raise TestFail("Expected equality: got %r and %r" % (l, r))
 
+def checkge(l, r):
+    if l < r:
+        raise TestFail("Expected left >= right: got %r and %r" % (l, r))
+
 def checkquery(query, expected):
     desc = query.get_description()
     if desc != expected:
         raise TestFail("Unexpected query.get_description(): got %r, expected %r" % (desc, expected))
+
+def checkexcept(expectedclass, expectedmsg, callable, *args):
+    try:
+        callable(*args)
+        raise TestFail("Expected %s(%r) exception" % (str(expectedclass), expectedmsg))
+    except expectedclass, e:
+        if str(e) != expectedmsg:
+            raise TestFail("Exception string not as expected: got '%s', expected '%s'" % (str(e), expectedmsg))
+        if e.__class__ != expectedclass:
+            raise TestFail("Didn't get right exception class: got '%s', expected subclass '%s'" % (str(e.__class__), str(expectedclass)))
+
 
 try:
     # Test the version number reporting functions give plausible results.
@@ -38,23 +53,14 @@ try:
                       xapian.minor_version(),
                       xapian.revision())
     v2 = xapian.version_string()
-    if v != v2:
-        print >> sys.stderr, "Unexpected version output (%s != %s)" % (v, v2)
-        sys.exit(1)
+    checkeq(v, v2)
 
     stem = xapian.Stem("english")
-    if stem.get_description() != "Xapian::Stem(english)":
-        print >> sys.stderr, "Unexpected stem.get_description()"
-        sys.exit(1)
+    checkeq(stem.get_description(), "Xapian::Stem(english)")
 
     doc = xapian.Document()
     doc.set_data("a\0b")
-    if doc.get_data() == "a":
-        print >> std.err, "get_data+set_data truncates at a zero byte"
-        sys.exit(1)
-    if doc.get_data() != "a\0b":
-        print >> std.err, "get_data+set_data doesn't transparently handle a zero byte"
-        sys.exit(1)
+    checkeq(doc.get_data(), "a\0b")
     doc.set_data("is there anybody out there?")
     doc.add_term("XYzzy")
     doc.add_posting(stem.stem_word("is"), 1)
@@ -65,9 +71,14 @@ try:
 
     db = xapian.inmemory_open()
     db.add_document(doc)
-    if db.get_doccount() != 1:
-        print >> sys.stderr, "Unexpected db.get_doccount()"
-        sys.exit(1)
+    checkeq(db.get_doccount(), 1)
+    doc2 = xapian.Document()
+    doc2.set_data("is it cold?")
+    doc2.add_term("is")
+    doc2.add_posting(stem.stem_word("it"), 1)
+    doc2.add_posting(stem.stem_word("cold"), 2)
+    db.add_document(doc2)
+    checkeq(db.get_doccount(), 2)
     terms = ["smoke", "test", "terms"]
     checkquery(xapian.Query(xapian.Query.OP_OR, terms),
                "Xapian::Query((smoke OR test OR terms))")
@@ -82,37 +93,27 @@ try:
     term_count = 0
     for term in query2:
         term_count += 1
-    if term_count != 4:
-        print >> sys.stderr, "Unexpected number of terms in query2 (%d)" % term_count
-        sys.exit(1)
+    checkeq(term_count, 4)
 
     enq = xapian.Enquire(db)
     enq.set_query(xapian.Query(xapian.Query.OP_OR, "there", "is"))
     mset = enq.get_mset(0, 10)
-    if mset.size() != 1:
-        print >> sys.stderr, "Unexpected mset.size()"
-        sys.exit(1)
+    checkeq(mset.size(), 2)
 
     # Feature test for Enquire.matching_terms(docid)
     term_count = 0
     for term in enq.matching_terms(mset.get_hit(0)):
         term_count += 1
-    if term_count != 2:
-        print >> sys.stderr, "Unexpected number of matching terms"
-        sys.exit(1)
+    checkeq(term_count, 2)
 
     # Feature test for MSet.__iter__
     msize = 0
     for match in mset:
         msize += 1
-    if msize != mset.size():
-        print >> sys.stderr, "Unexpected number of entries in mset (%d != %d)" % (msize, mset.size())
-        sys.exit(1)
+    checkeq(msize, mset.size())
 
     terms = " ".join(enq.get_matching_terms(mset.get_hit(0)))
-    if terms != "is there":
-        print >> sys.stderr, "Unexpected terms"
-        sys.exit(1)
+    checkeq(terms, "is there")
 
     # Feature test for ESet.__iter__
     rset = xapian.RSet()
@@ -121,65 +122,49 @@ try:
     term_count = 0
     for term in eset:
         term_count += 1
-    if term_count != 3:
-        print >> sys.stderr, "Unexpected number of expand terms"
-        sys.exit(1)
+    checkeq(term_count, 3)
 
     # Feature test for Database.__iter__
     term_count = 0
     for term in db:
         term_count += 1
-    if term_count != 5:
-        print >> sys.stderr, "Unexpected number of terms in db (%d)" % term_count
-        sys.exit(1)
+    checkeq(term_count, 7)
 
     # Feature test for Database.allterms
     term_count = 0
     for term in db.allterms():
         term_count += 1
-    if term_count != 5:
-        print >> sys.stderr, "Unexpected number of terms in db.allterms (%d)" % term_count
-        sys.exit(1)
+    checkeq(term_count, 7)
 
     # Feature test for Database.postlist
     count = 0
     for posting in db.postlist("there"):
         count += 1
-    if count != 1:
-        print >> sys.stderr, "Unexpected number of entries in db.postlist (%d)" % count
-        sys.exit(1)
+    checkeq(count, 1)
 
     # Feature test for Database.postlist with empty term (alldocspostlist)
     count = 0
     for posting in db.postlist(""):
         count += 1
-    if count != 1:
-        print >> sys.stderr, "Unexpected number of entries in db.postlist('') (%d)" % count
-        sys.exit(1)
+    checkeq(count, 2)
 
     # Feature test for Database.termlist
     count = 0
     for term in db.termlist(1):
         count += 1
-    if count != 5:
-        print >> sys.stderr, "Unexpected number of entries in db.termlist (%d)" % count
-        sys.exit(1)
+    checkeq(count, 5)
 
     # Feature test for Database.positionlist
     count = 0
     for term in db.positionlist(1, "there"):
         count += 1
-    if count != 2:
-        print >> sys.stderr, "Unexpected number of entries in db.positionlist (%d)" % count
-        sys.exit(1)
+    checkeq(count, 2)
 
     # Feature test for Document.termlist
     count = 0
     for term in doc.termlist():
         count += 1
-    if count != 5:
-        print >> sys.stderr, "Unexpected number of entries in doc.termlist (%d)" % count
-        sys.exit(1)
+    checkeq(count, 5)
 
     # Feature test for TermIter.skip_to
     term = doc.termlist()
@@ -189,31 +174,18 @@ try:
             x = term.next()
         except StopIteration:
             break
-        if x[0] < 'n':
-            print >> sys.stderr, "TermIter.skip_to didn't skip term '%s'" % x[0]
-            sys.exit(1)
+        checkge(x[0], 'n')
 
     # Feature test for Document.values
     count = 0
     for term in doc.values():
         count += 1
-    if count != 0:
-        print >> sys.stderr, "Unexpected number of entries in doc.values (%d)" % count
-        sys.exit(1)
+    checkeq(count, 0)
 
     # Check exception handling for Xapian::DocNotFoundError
-    try:
-        doc2 = db.get_document(2)
-        print >> sys.stderr, "Retrieved non-existent document"
-        sys.exit(1)
-    except xapian.DocNotFoundError, e:
-        if str(e) != "Docid 2 not found":
-            print "Exception string not as expected, got: '%s'\n" % str(e)
-            sys.exit(1)
+    checkexcept(xapian.DocNotFoundError, "Docid 3 not found", db.get_document, 3)
 
-    if xapian.Query.OP_ELITE_SET != 10:
-        print >> sys.stderr, "OP_ELITE_SET is %d not 10" % xapian.Query.OP_ELITE_SET
-        sys.exit(1)
+    checkeq(xapian.Query.OP_ELITE_SET, 10)
 
     # Feature test for MatchDecider
     doc = xapian.Document()
@@ -232,12 +204,8 @@ try:
     enquire = xapian.Enquire(db)
     enquire.set_query(query)
     mset = enquire.get_mset(0, 10, None, testmatchdecider())
-    if mset.size() != 1:
-        print >> sys.stderr, "MatchDecider found %d documents, expected 1" % mset.size()
-        sys.exit(1)
-    if mset.get_docid(0) != 2:
-        print >> sys.stderr, "MatchDecider mset has wrong docid in"
-        sys.exit(1)
+    checkeq(mset.size(), 1)
+    checkeq(mset.get_docid(0), 3)
 
     # Feature test for ExpandDecider
     class testexpanddecider(xapian.ExpandDecider):
@@ -256,14 +224,7 @@ try:
 
     # Check QueryParser parsing error.
     qp = xapian.QueryParser()
-    try:
-        qp.parse_query("test AND")
-        print >> sys.stderr, "QueryParser doesn't report errors"
-        sys.exit(1)
-    except xapian.QueryParserError, e:
-        if str(e) != "Syntax: <expression> AND <expression>":
-            print "Exception string not as expected, got: '%s'\n" % str(e)
-            sys.exit(1)
+    checkexcept(xapian.QueryParserError, "Syntax: <expression> AND <expression>", qp.parse_query, "test AND")
 
     # Check QueryParser pure NOT option
     qp = xapian.QueryParser()
@@ -338,12 +299,10 @@ try:
 except xapian.Error, e:
     print >> sys.stderr, "Xapian Error: %s" % str(e)
     raise
-    sys.exit(1)
 
 except Exception, e:
     print >> sys.stderr, "Exception: %s" % str(e)
     raise
-    sys.exit(1)
 
 except:
     print >> sys.stderr, "Unexpected exception"
