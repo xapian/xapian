@@ -1,3 +1,12 @@
+Thu Apr 12 00:44:18 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/,backends/inmemory/inmemory_positionlist.cc,common/,matcher/, 
+	  net/remoteconnection.cc,net/serialise.cc: omdebug.h only includes
+	  omassert.h for the trivial "STRINGIZE" macro, so just duplicate
+	  that rather than pulling in an extra header everywhere.  Then fix
+	  up the two dozen files which were relying on this implicit
+	  inclusion!
+
 Thu Apr 12 00:10:48 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.cc: Tweak #ifdef XAPIAN_DEBUG_VERBOSE to

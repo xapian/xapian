@@ -26,6 +26,7 @@
 
 #include <xapian/enquire.h>
 
+#include "omassert.h"
 #include "omdebug.h"
 #include "serialise-double.h"
 #include "stats.h"

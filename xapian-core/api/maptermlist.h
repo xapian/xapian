@@ -27,6 +27,8 @@
 #include "inmemory_positionlist.h"
 #include "document.h"
 
+#include "omassert.h"
+
 using namespace std;
 
 class MapTermList : public TermList {

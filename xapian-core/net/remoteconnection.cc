@@ -25,6 +25,7 @@
 
 #include <string>
 
+#include "omassert.h"
 #include "omdebug.h"
 #include "omtime.h"
 #include "remoteconnection.h"

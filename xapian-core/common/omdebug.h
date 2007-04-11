@@ -27,8 +27,6 @@
 #ifndef OM_HGUARD_OMDEBUG_H
 #define OM_HGUARD_OMDEBUG_H
 
-#include "omassert.h"
-
 #ifdef XAPIAN_DEBUG_VERBOSE
 
 #include "omstringstream.h"
@@ -192,6 +190,14 @@ class OmDebugCall {
             DEBUGLINE2(type, methodname << "() returning " << returnval);
         }
 };
+
+// 2nd level of stringize definition not needed for the use we put this
+// to in this file (since we always use it within a macro here) but
+// is required in general  (#N doesn't work outside a macro definition)
+#ifndef STRINGIZE
+# define STRINGIZE(N) _STRINGIZE(N)
+# define _STRINGIZE(N) #N
+#endif
 
 /** Display a message indicating that a method has been called, and another
  *  message when the method ends.

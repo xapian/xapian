@@ -23,6 +23,7 @@
 #include <config.h>
 
 #include "stats.h"
+#include "omassert.h"
 #include "omdebug.h"
 
 #include <xapian/version.h> // For XAPIAN_HAS_REMOTE_BACKEND

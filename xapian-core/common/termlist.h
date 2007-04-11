@@ -28,6 +28,8 @@
 #include <xapian/error.h>
 #include "expandweight.h"
 
+#include "omassert.h"
+
 using namespace std;
 
 namespace Xapian {

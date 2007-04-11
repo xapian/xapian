@@ -21,12 +21,15 @@
  */
 
 #include <config.h>
+
 #include <xapian/document.h>
 #include <xapian/types.h>
 #include "document.h"
 #include "maptermlist.h"
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
+#include "utils.h"
+
 #include <algorithm>
 #include <string>
 

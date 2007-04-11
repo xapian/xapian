@@ -26,6 +26,7 @@
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
 
+#include "omassert.h"
 #include "omenquireinternal.h"
 #include "serialise.h"
 #include "serialise-double.h"

@@ -24,6 +24,7 @@
 
 #include <set>
 #include <map>
+#include "omassert.h"
 #include "omdebug.h"
 #include <xapian/enquire.h>
 #include "omenquireinternal.h"

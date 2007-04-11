@@ -36,8 +36,10 @@
 // 2nd level of stringize definition not needed for the use we put this
 // to in this file (since we always use it within a macro here) but
 // is required in general  (#N doesn't work outside a macro definition)
-#define STRINGIZE(N) _STRINGIZE(N)
-#define _STRINGIZE(N) #N
+#ifndef STRINGIZE
+# define STRINGIZE(N) _STRINGIZE(N)
+# define _STRINGIZE(N) #N
+#endif
 
 // pull this out to improve readability and so we can change it for
 // all cases easily

@@ -21,6 +21,7 @@
 #include <config.h>
 
 #include "msetpostlist.h"
+#include "omassert.h"
 #include "omdebug.h"
 
 Xapian::doccount

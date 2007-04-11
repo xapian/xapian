@@ -1,6 +1,5 @@
 /* stats.h: Handling of statistics needed for the search.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2005 Olly Betts
  *
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_STATS_H
@@ -27,6 +25,7 @@
 #include <string>
 
 #include <xapian/enquire.h> // for Xapian::Weight
+#include "omassert.h"
 #include "omdebug.h"
 #include <map>
 #include <set>
