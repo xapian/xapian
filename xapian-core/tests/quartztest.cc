@@ -52,32 +52,6 @@ static void makedir(const string &filename)
     }
 }
 
-static void removedir(const string &filename)
-{
-    rm_rf(filename);
-    struct stat buf;
-    if (stat(filename, &buf) == 0 || errno != ENOENT) {
-	FAIL_TEST("Failed to remove directory `" << filename << "' (" <<
-		  strerror(errno) << ")");
-    }
-}
-
-/// Test opening of a quartz database
-static bool test_open1()
-{
-    const string dbdir = tmpdir + "testdb_open1";
-    removedir(dbdir);
-
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_0 = new QuartzDatabase(dbdir));
-
-    Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_w =
-	    new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
-    Xapian::Internal::RefCntPtr<Xapian::Database::Internal> database_r = new QuartzDatabase(dbdir);
-
-    return true;
-}
-
 /// Test creating and opening of quartz databases
 static bool test_create1()
 {
@@ -85,40 +59,7 @@ static bool test_create1()
     removedir(dbdir);
 
     Xapian::Internal::RefCntPtr<Xapian::Database::Internal> db;
-
-    // (1) db doesn't exist (no create)
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   db = new QuartzDatabase(dbdir));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   db = new QuartzWritableDatabase(dbdir, Xapian::DB_OPEN, 2048));
-
-    // (2) db doesn't exist, basedir doesn't exist (create)
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   db = new QuartzDatabase(dbdir));
     db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
-    db = 0; // Close the database - Cygwin can't delete a locked file...
-    removedir(dbdir);
-
-    // (3) db doesn't exist, basedir exists (no create)
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   db = new QuartzDatabase(dbdir));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   db = new QuartzWritableDatabase(dbdir, Xapian::DB_OPEN, 2048));
-
-    // (4) db doesn't exist, basedir exists (create)
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   db = new QuartzDatabase(dbdir));
-    db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048);
-    db = new QuartzDatabase(dbdir);
-
-    // (5) db exists (create, no overwrite)
-    db = new QuartzDatabase(dbdir);
-    TEST_EXCEPTION(Xapian::DatabaseCreateError,
-		   db = new QuartzWritableDatabase(dbdir, Xapian::DB_CREATE, 2048));
-    db = new QuartzDatabase(dbdir);
-
-    // (6) db exists (no create)
-    db = new QuartzWritableDatabase(dbdir, Xapian::DB_OPEN, 2048);
 
     // (7) db exists (create, overwrite)
     db = new QuartzDatabase(dbdir);
@@ -380,7 +321,7 @@ static bool test_adddoc3()
 /// Test packing integers into strings
 static bool test_packint1()
 {
-    TEST_EQUAL(pack_uint(0u), string("\000", 1));
+    TEST_EQUAL(pack_uint(0u), string("\0", 1));
     TEST_EQUAL(pack_uint(1u), string("\001", 1));
     TEST_EQUAL(pack_uint(127u), string("\177", 1));
     TEST_EQUAL(pack_uint(128u), string("\200\001", 2));
@@ -831,7 +772,6 @@ static bool test_packstring1()
 
 /// The lists of tests to perform
 test_desc tests[] = {
-    {"open1",		test_open1},
     {"create1",		test_create1},
     {"adddoc1",		test_adddoc1},
     {"adddoc2",		test_adddoc2},

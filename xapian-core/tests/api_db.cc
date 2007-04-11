@@ -22,6 +22,7 @@
  */
 
 #include <config.h>
+
 #include <algorithm>
 #include <fstream>
 #include <map>
@@ -1118,28 +1119,180 @@ static bool test_consistency1()
 // tests that specifying a nonexistent input file throws an exception.
 static bool test_quartzdatabaseopeningerror1()
 {
+    mkdir(".quartz", 0755);
+
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Quartz::open(".quartz/nosuchdirectory"));
-    mkdir(".quartz/emptydirectory", 0755);
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Quartz::open(".quartz/nosuchdirectory", Xapian::DB_OPEN));
+
+    mkdir(".quartz/emptydirectory", 0700);
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Quartz::open(".quartz/emptydirectory"));
+
     touch(".quartz/somefile");
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
-		   Xapian::Quartz::open(".quartz/somefile"));
+	Xapian::Quartz::open(".quartz/somefile"));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_OPEN));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE_OR_OPEN));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
+
+    return true;
+}
+
+/// Test opening of a quartz database
+static bool test_quartzdatabaseopen1()
+{
+    const char * dbdir = ".quartz/test_quartzdatabaseopen1";
+    mkdir(".quartz", 0755);
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	rm_rf(dbdir);
+	mkdir(dbdir, 0700);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN));
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE));
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	Xapian::Quartz::open(dbdir);
+    }
+
+    {
+	Xapian::WritableDatabase wdb =
+	    Xapian::Quartz::open(dbdir, Xapian::DB_OPEN);
+	Xapian::Quartz::open(dbdir);
+    }
+
     return true;
 }
 
 // tests that specifying a nonexistent input file throws an exception.
 static bool test_flintdatabaseopeningerror1()
 {
+    mkdir(".flint", 0755);
+
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Flint::open(".flint/nosuchdirectory"));
-    mkdir(".flint/emptydirectory", 0755);
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Flint::open(".flint/nosuchdirectory", Xapian::DB_OPEN));
+
+    mkdir(".flint/emptydirectory", 0700);
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Flint::open(".flint/emptydirectory"));
+
     touch(".flint/somefile");
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Flint::open(".flint/somefile"));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Flint::open(".flint/somefile", Xapian::DB_OPEN));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Flint::open(".flint/somefile", Xapian::DB_CREATE));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Flint::open(".flint/somefile", Xapian::DB_CREATE_OR_OPEN));
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Flint::open(".flint/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
+
+    return true;
+}
+
+/// Test opening of a flint database
+static bool test_flintdatabaseopen1()
+{
+    const string dbdir = ".flint/test_flintdatabaseopen1";
+    mkdir(".flint", 0755);
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Flint::open(dbdir, Xapian::DB_OPEN));
+	Xapian::Flint::open(dbdir);
+    }
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE));
+	Xapian::Flint::open(dbdir);
+    }
+
+    {
+	rm_rf(dbdir);
+	Xapian::WritableDatabase wdb =
+	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	TEST_EXCEPTION(Xapian::DatabaseLockError,
+	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OPEN));
+	Xapian::Flint::open(dbdir);
+    }
+
+    {
+	TEST_EXCEPTION(Xapian::DatabaseCreateError,
+	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE));
+	Xapian::WritableDatabase wdb =
+	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+	Xapian::Flint::open(dbdir);
+    }
+
+    {
+	Xapian::WritableDatabase wdb =
+	    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OPEN);
+	Xapian::Flint::open(dbdir);
+    }
+
+    {
+	Xapian::WritableDatabase wdb =
+	    Xapian::Flint::open(dbdir, Xapian::DB_OPEN);
+	Xapian::Flint::open(dbdir);
+    }
+
     return true;
 }
 
@@ -1472,12 +1625,14 @@ test_desc remotedb_tests[] = {
 
 test_desc flint_tests[] = {
     {"flintdatabaseopeningerror1",	test_flintdatabaseopeningerror1},
+    {"flintdatabaseopen1",		test_flintdatabaseopen1},
     {"sortrel1",	   test_sortrel1},
     {0, 0}
 };
 
 test_desc quartz_tests[] = {
     {"quartzdatabaseopeningerror1",	test_quartzdatabaseopeningerror1},
+    {"quartzdatabaseopen1",		test_quartzdatabaseopen1},
     {"sortrel1",	   test_sortrel1},
     {0, 0}
 };
