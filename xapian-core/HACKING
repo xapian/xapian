@@ -769,6 +769,8 @@ This is a (hopefully complete) list of the jobs which need doing:
 * Make sure that any new/changed/removed API methods in xapian-core have been
   wrapped/updated/removed in xapian-bindings.
 
+* Update the lists of deprecated/removed API methods in docs/deprecation.rst
+
 * Update the NEWS files using information from the ChangeLog files
 
 * Update the PLATFORMS file.  Don't forget to use reports from the tinderbox:

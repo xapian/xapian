@@ -15,8 +15,8 @@ HTMLDOCS = index.html install.html intro_ir.html overview.html \
  bm25.html code_structure.html queryparser.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
-RSTDOCS = admin_notes.rst
-RSTHTML = admin_notes.html
+RSTDOCS = admin_notes.rst deprecation.rst
+RSTHTML = admin_notes.html deprecation.html
 
 # Files which should be put in the distribution by automake
 EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
