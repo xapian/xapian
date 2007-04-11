@@ -23,13 +23,9 @@ import xapian
 
 class TestFail(Exception): pass
 
-def checkeq(l, r):
+def expect(l, r, message="Expected equality"):
     if l != r:
-        raise TestFail("Expected equality: got %r and %r" % (l, r))
-
-def checkge(l, r):
-    if l < r:
-        raise TestFail("Expected left >= right: got %r and %r" % (l, r))
+        raise TestFail("%s: got %r, expected %r" % (message, l, r))
 
 def checkquery(query, expected):
     desc = query.get_description()
@@ -53,14 +49,16 @@ try:
                       xapian.minor_version(),
                       xapian.revision())
     v2 = xapian.version_string()
-    checkeq(v, v2)
+    expect(v2, v, "Unexpected version output")
 
     stem = xapian.Stem("english")
-    checkeq(stem.get_description(), "Xapian::Stem(english)")
+    expect(stem.get_description(), "Xapian::Stem(english)", "Unexpected stem.get_description()")
 
     doc = xapian.Document()
     doc.set_data("a\0b")
-    checkeq(doc.get_data(), "a\0b")
+    if doc.get_data() == "a":
+        raise TestFail("get_data+set_data truncates at a zero byte")
+    expect(doc.get_data(), "a\0b", "get_data+set_data doesn't transparently handle a zero byte")
     doc.set_data("is there anybody out there?")
     doc.add_term("XYzzy")
     doc.add_posting(stem.stem_word("is"), 1)
@@ -71,14 +69,7 @@ try:
 
     db = xapian.inmemory_open()
     db.add_document(doc)
-    checkeq(db.get_doccount(), 1)
-    doc2 = xapian.Document()
-    doc2.set_data("is it cold?")
-    doc2.add_term("is")
-    doc2.add_posting(stem.stem_word("it"), 1)
-    doc2.add_posting(stem.stem_word("cold"), 2)
-    db.add_document(doc2)
-    checkeq(db.get_doccount(), 2)
+    expect(db.get_doccount(), 1, "Unexpected db.get_doccount()")
     terms = ["smoke", "test", "terms"]
     checkquery(xapian.Query(xapian.Query.OP_OR, terms),
                "Xapian::Query((smoke OR test OR terms))")
@@ -93,27 +84,27 @@ try:
     term_count = 0
     for term in query2:
         term_count += 1
-    checkeq(term_count, 4)
+    expect(term_count, 4, "Unexpected number of terms in query2")
 
     enq = xapian.Enquire(db)
     enq.set_query(xapian.Query(xapian.Query.OP_OR, "there", "is"))
     mset = enq.get_mset(0, 10)
-    checkeq(mset.size(), 2)
+    expect(mset.size(), 1, "Unexpected mset.size()")
 
     # Feature test for Enquire.matching_terms(docid)
     term_count = 0
     for term in enq.matching_terms(mset.get_hit(0)):
         term_count += 1
-    checkeq(term_count, 2)
+    expect(term_count, 2, "Unexpected number of matching terms")
 
     # Feature test for MSet.__iter__
     msize = 0
     for match in mset:
         msize += 1
-    checkeq(msize, mset.size())
+    expect(msize, mset.size(), "Unexpected number of entries in mset")
 
     terms = " ".join(enq.get_matching_terms(mset.get_hit(0)))
-    checkeq(terms, "is there")
+    expect(terms, "is there", "Unexpected terms")
 
     # Feature test for ESet.__iter__
     rset = xapian.RSet()
@@ -122,49 +113,49 @@ try:
     term_count = 0
     for term in eset:
         term_count += 1
-    checkeq(term_count, 3)
+    expect(term_count, 3, "Unexpected number of expand terms")
 
     # Feature test for Database.__iter__
     term_count = 0
     for term in db:
         term_count += 1
-    checkeq(term_count, 7)
+    expect(term_count, 5, "Unexpected number of terms in db")
 
     # Feature test for Database.allterms
     term_count = 0
     for term in db.allterms():
         term_count += 1
-    checkeq(term_count, 7)
+    expect(term_count, 5, "Unexpected number of terms in db.allterms")
 
     # Feature test for Database.postlist
     count = 0
     for posting in db.postlist("there"):
         count += 1
-    checkeq(count, 1)
+    expect(count, 1, "Unexpected number of entries in db.postlist('there')")
 
     # Feature test for Database.postlist with empty term (alldocspostlist)
     count = 0
     for posting in db.postlist(""):
         count += 1
-    checkeq(count, 2)
+    expect(count, 1, "Unexpected number of entries in db.postlist('')")
 
     # Feature test for Database.termlist
     count = 0
     for term in db.termlist(1):
         count += 1
-    checkeq(count, 5)
+    expect(count, 5, "Unexpected number of entries in db.termlist(1)")
 
     # Feature test for Database.positionlist
     count = 0
     for term in db.positionlist(1, "there"):
         count += 1
-    checkeq(count, 2)
+    expect(count, 2, "Unexpected number of entries in db.positionlist(1, 'there')")
 
     # Feature test for Document.termlist
     count = 0
     for term in doc.termlist():
         count += 1
-    checkeq(count, 5)
+    expect(count, 5, "Unexpected number of entries in doc.termlist()")
 
     # Feature test for TermIter.skip_to
     term = doc.termlist()
@@ -174,18 +165,19 @@ try:
             x = term.next()
         except StopIteration:
             break
-        checkge(x[0], 'n')
+        if x[0] < 'n':
+            raise TestFail("TermIter.skip_to didn't skip term '%s'" % x[0])
 
     # Feature test for Document.values
     count = 0
     for term in doc.values():
         count += 1
-    checkeq(count, 0)
+    expect(count, 0, "Unexpected number of entries in doc.values")
 
     # Check exception handling for Xapian::DocNotFoundError
     checkexcept(xapian.DocNotFoundError, "Docid 3 not found", db.get_document, 3)
 
-    checkeq(xapian.Query.OP_ELITE_SET, 10)
+    expect(xapian.Query.OP_ELITE_SET, 10, "Unexpected value for OP_ELITE_SET")
 
     # Feature test for MatchDecider
     doc = xapian.Document()
@@ -204,8 +196,8 @@ try:
     enquire = xapian.Enquire(db)
     enquire.set_query(query)
     mset = enquire.get_mset(0, 10, None, testmatchdecider())
-    checkeq(mset.size(), 1)
-    checkeq(mset.get_docid(0), 3)
+    expect(mset.size(), 1, "Unexpected number of documents returned by match decider")
+    expect(mset.get_docid(0), 2, "MatchDecider mset has wrong docid in")
 
     # Feature test for ExpandDecider
     class testexpanddecider(xapian.ExpandDecider):
@@ -217,10 +209,9 @@ try:
     rset.add_document(1)
     eset = enquire.get_eset(10, rset, 0, 1.0, testexpanddecider())
     eset_terms = [term[xapian.ESET_TNAME] for term in eset.items]
-    if len(eset_terms) != eset.size():
-        print >> sys.stderr, "ESet.size() mismatched number of terms in eset.items"
+    expect(len(eset_terms), eset.size(), "Unexpected number of terms returned by expand")
     if filter(lambda t: t.startswith('a'), eset_terms):
-        print >> sys.stderr, "ExpandDecider was not used"
+        raise TestFail("ExpandDecider was not used")
 
     # Check QueryParser parsing error.
     qp = xapian.QueryParser()
@@ -259,19 +250,19 @@ try:
     doc = xapian.Document()
     doc.set_data(u"Unicode with an acc\xe9nt")
     doc.add_posting(stem.stem_word(u"out\xe9r"), 1)
-    checkeq(doc.get_data(), u"Unicode with an acc\xe9nt".encode('utf-8'))
+    expect(doc.get_data(), u"Unicode with an acc\xe9nt".encode('utf-8'))
     term = doc.termlist().next()[0]
-    checkeq(term, u"out\xe9r".encode('utf-8'))
+    expect(term, u"out\xe9r".encode('utf-8'))
 
     # Check simple stopper
     stop = xapian.SimpleStopper()
     qp.set_stopper(stop)
-    checkeq(stop('a'), False)
+    expect(stop('a'), False)
     checkquery(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
                "Xapian::Query((foo:(pos=1) AND bar:(pos=2) AND a:(pos=3)))")
 
     stop.add('a')
-    checkeq(stop('a'), True)
+    expect(stop('a'), True)
     checkquery(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
                "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
 
@@ -284,17 +275,46 @@ try:
             return u"my_b_stopper"
 
     stop = my_b_stopper()
-    checkeq(stop.get_description(), u"my_b_stopper")
+    expect(stop.get_description(), u"my_b_stopper")
     qp.set_stopper(stop)
-    checkeq(stop('a'), False)
+    expect(stop('a'), False)
     checkquery(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
                "Xapian::Query((foo:(pos=1) AND bar:(pos=2) AND a:(pos=3)))")
 
-    checkeq(stop('b'), True)
+    expect(stop('b'), True)
     checkquery(qp.parse_query(u"foo bar b", qp.FLAG_BOOLEAN),
                "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
 
 
+
+except TestFail, e:
+    # Display the failure, with some useful context.
+    import traceback, os.path
+    report = []
+    tb = traceback.extract_tb(sys.exc_info()[2])
+    while tb[-1][2].startswith('expect'):
+        tb = tb[:-1]
+    filename, linenum, functionname, text = tb[-1]
+    report.append("TEST FAILURE in %s: %s" % (os.path.basename(filename), str(e)))
+    report.append("At line %d:" % linenum)
+    startline = max(linenum - 5, 0)
+    endline = startline + 7
+    lines = open(filename).readlines()
+    lines = [(linenum + 1, lines[linenum].rstrip()) for linenum in xrange(startline, endline)]
+    lines = ["%4d: %s" % (linenum, line) for linenum, line in lines]
+    report.extend(lines)
+    report.append("Xapian version: %s" % xapian.version_string())
+    try:
+        import platform
+        platform.system()
+        platdesc = "%s %s (%s)" % platform.system_alias(platform.system(), platform.release(), platform.version())
+        report.append("Platform: %s" % platdesc)
+    except: pass
+
+    report = '\n'.join(report)
+    print >> sys.stderr, '\n' + report + '\n'
+    print >> sys.stderr, 'If reporting this problem, please quote all the preceding lines from\n"TEST FAILURE" onwards.\n'
+    sys.exit(1)
 
 except xapian.Error, e:
     print >> sys.stderr, "Xapian Error: %s" % str(e)
