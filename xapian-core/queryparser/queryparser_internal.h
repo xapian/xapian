@@ -34,10 +34,14 @@ using namespace std;
 
 class State;
 
-struct BoolAndString {
-    bool flag;
+struct PrefixInfo {
+    typedef enum {
+	FREE_TEXT,
+	BOOL_FILTER
+    } prefix_type;
+    PrefixInfo::prefix_type type;
     string str;
-    BoolAndString(bool f, const string &s) : flag(f), str(s) { }
+    PrefixInfo(PrefixInfo::prefix_type t, const string &s) : type(t), str(s) { }
 };
 
 class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
@@ -55,7 +59,7 @@ class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
     // Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
     // "foobar" -> "XFOO"
     // bool is true if this is a boolean filter.
-    map<string, BoolAndString> prefixes;
+    map<string, PrefixInfo> prefixes;
 
     list<Xapian::ValueRangeProcessor *> valrangeprocs;
 

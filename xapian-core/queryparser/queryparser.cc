@@ -125,14 +125,16 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 void
 QueryParser::add_prefix(const std::string &field, const std::string &prefix)
 {
-    internal->prefixes.insert(make_pair(field, BoolAndString(false, prefix)));
+    internal->prefixes.insert(
+	make_pair(field, PrefixInfo(PrefixInfo::FREE_TEXT, prefix)));
 }
 
 void
 QueryParser::add_boolean_prefix(const std::string &field,
 				const std::string &prefix)
 {
-    internal->prefixes.insert(make_pair(field, BoolAndString(true, prefix)));
+    internal->prefixes.insert(
+	make_pair(field, PrefixInfo(PrefixInfo::BOOL_FILTER, prefix)));
 }
 
 TermIterator

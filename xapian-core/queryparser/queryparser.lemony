@@ -432,32 +432,23 @@ main_lex_loop:
 		p = it;
 		while (*p != ':')
 		    field.append(ubuf, to_utf8(*p++, ubuf));
-		map<string, BoolAndString>::const_iterator f;
+		map<string, PrefixInfo>::const_iterator f;
 		f = prefixes.find(field);
 		if (f != prefixes.end()) {
+		    // Special handling for prefixed fields, depending on the
+		    // type of the prefix.
 		    unsigned ch = *++p;
-		    bool boolean_filter = f->second.flag;
-		    if (boolean_filter || is_wordchar(ch) ||
-			((flags & FLAG_PHRASE) && ch == '"') ||
-			((flags & FLAG_BOOLEAN) && ch == '(')) {
-			it = p;
-			// Can't boolean prefix a subexpression or phrase.
-			if (!boolean_filter && !is_wordchar(ch)) {
-			    newprev = ch;
-			    ++it;
-			    prefix_stack.push_back(f->second.str);
-			    if (ch == '(') {
-				// Prefixed sub-expr: title:(fast NEAR food)
-				Parse(pParser, BRA, NULL, &state);
-				continue;
-			    }
-			    // Prefixed phrase: subject:"space flight"
-			    Parse(pParser, QUOTE, NULL, &state);
-			    mode = IN_PREFIXED_QUOTES;
-			    continue;
-			}
-			prefix = f->second.str;
-			if (boolean_filter) {
+		    PrefixInfo::prefix_type type = f->second.type;
+		    prefix = f->second.str;
+
+		    // Can't boolean prefix a subexpression or phrase;
+		    // just use anything following the boolean prefix
+		    // until the next space or ')' as part of the boolean
+		    // term.
+		    switch (type) {
+		      case PrefixInfo::BOOL_FILTER:
+			{
+			    it = p;
 			    if (prefix_needs_colon(prefix, *it))
 				prefix += ':';
 			    string term;
@@ -470,6 +461,29 @@ main_lex_loop:
 			    Parse(pParser, BOOLEAN_FILTER,
 				  new Term(prefix, 0), &state);
 			    continue;
+			}
+		      case PrefixInfo::FREE_TEXT:
+			{
+			    if (is_wordchar(ch)) {
+				it = p;
+			    }
+
+			    if (((flags & FLAG_PHRASE) && ch == '"') ||
+				((flags & FLAG_BOOLEAN) && ch == '(')) {
+				it = p;
+				newprev = ch;
+				++it;
+				prefix_stack.push_back(f->second.str);
+				if (ch == '(') {
+				    // Prefixed sub-expr: title:(fast NEAR food)
+				    Parse(pParser, BRA, NULL, &state);
+				    continue;
+				}
+				// Prefixed phrase: subject:"space flight"
+				Parse(pParser, QUOTE, NULL, &state);
+				mode = IN_PREFIXED_QUOTES;
+				continue;
+			    }
 			}
 		    }
 		}
