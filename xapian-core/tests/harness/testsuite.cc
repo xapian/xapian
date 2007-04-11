@@ -624,11 +624,11 @@ test_driver::parse_command_line(int argc, char **argv)
     }
 #endif
 
+#ifdef XAPIAN_DEBUG_VERBOSE
     // We need to display something before we start, or the allocation
     // made when the first debug message is displayed is (wrongly) picked
     // up on as a memory leak.
     DEBUGLINE(UNKNOWN, "Starting testsuite run.");
-#ifdef XAPIAN_DEBUG_VERBOSE
     om_debug.initialise();
 #endif /* XAPIAN_DEBUG_VERBOSE */
 }
