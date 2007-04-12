@@ -97,6 +97,10 @@ using namespace std;
 %include typemaps.i
 %include exception.i
 
+// Parse the visibility support header file, so we don't get errors when we
+// %include other xapian headers.
+%include <xapian/visibility.h>
+
 // This includes a language specific util.i, thanks to judicious setting of
 // the include path.
 %include "util.i"
