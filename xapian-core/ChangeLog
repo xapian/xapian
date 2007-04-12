@@ -1,3 +1,8 @@
+Thu Apr 12 21:37:04 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Add support for QUIET= and QUIET=y arguments to
+	  "make".
+
 Thu Apr 12 21:35:50 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Use a substitution for RSTHTML (like we do for the
