@@ -185,7 +185,6 @@ CPP_SBRS=.
     copy languages\allsnowballheaders.h
     del languages\allsnowballheaders.h
     rmdir languages
-    $(PERL_EXE) -pe '' allsnowballheaders.h
  
 ".\generate-allsnowballheaders": ".\generate-allsnowballheaders.in" Makefile
     $(PERL_EXE) -pe 'BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl,' "$(PERL_EXE)" generate-allsnowballheaders.in > generate-allsnowballheaders
