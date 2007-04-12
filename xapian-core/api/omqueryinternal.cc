@@ -566,16 +566,16 @@ Xapian::Query::Internal *
 Xapian::Query::Internal::end_construction()
 {
     DEBUGCALL(API, void, "Xapian::Query::Internal::end_construction", "");
-    prevalidate_query();
+    validate_query();
     Xapian::Query::Internal * qint = simplify_query();
     if (qint) qint->validate_query();
     return qint;
 }
 
 void
-Xapian::Query::Internal::prevalidate_query() const
+Xapian::Query::Internal::validate_query() const
 {
-    DEBUGCALL(API, void, "Xapian::Query::Internal::prevalidate_query", "");
+    DEBUGCALL(API, void, "Xapian::Query::Internal::validate_query", "");
 
     // Check that the number of subqueries is in acceptable limits for this op
     if (subqs.size() < get_min_subqs(op) ||
@@ -590,19 +590,6 @@ Xapian::Query::Internal::prevalidate_query() const
     // Check that the termname is null in a branch query, unless the op
     // is OP_VALUE_RANGE.
     Assert(is_leaf(op) || op == OP_VALUE_RANGE || tname.empty());
-}
-
-void
-Xapian::Query::Internal::validate_query() const
-{
-    DEBUGCALL(API, void, "Xapian::Query::Internal::validate_query", "");
-    prevalidate_query();
-
-    // Check that all subqueries are valid.
-    subquery_list::const_iterator i;
-    for (i = subqs.begin(); i != subqs.end(); ++i) {
-	(**i).validate_query();
-    }
 }
 
 bool

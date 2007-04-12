@@ -293,16 +293,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 */
 	Internal * simplify_query();
 
-	/** Preliminary checks that query is valid. (eg, has correct number of
-	 *  sub queries.) Throw an exception if not.  This is initially called
-	 *  on the query before any simplifications have been made.
-	 */
-	void prevalidate_query() const;
-
-	/** Check query is well formed.
-	 *  Throw an exception if not.
-	 *  This performs all checks in prevalidate_query(), and some others
-	 *  as well.
+	/** Perform checks that query is valid. (eg, has correct number of
+	 *  sub queries.)  Throw an exception if not.  This is initially called
+	 *  on the query before any simplifications have been made, and after
+	 *  simplications.
 	 */
 	void validate_query() const;
 

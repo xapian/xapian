@@ -1,3 +1,9 @@
+Thu Apr 12 20:00:14 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc,include/xapian/query.h: Only validate a
+	  Query object when it's either constructed or changed to avoid O(n^2)
+	  behaviour in some cases.
+
 Thu Apr 12 19:59:13 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/lemon.c: Fix nasty function casting for argument to
