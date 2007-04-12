@@ -19,6 +19,7 @@
  * USA
  */
 
+#include <config.h>
 #include "net_postlist.h"
 
 using namespace std;

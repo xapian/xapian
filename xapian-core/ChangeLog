@@ -1,3 +1,7 @@
+Thu Apr 12 12:00:34 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/remote/net_postlist.cc: Include config.h
+
 Thu Apr 12 11:54:50 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/multi/multi_termlist.cc: Include config.h to get system
