@@ -123,7 +123,7 @@ TESTFORTOOLS:
 MAKEHEADERS: ..\include\xapian\error.h 
 
 ..\generate-exceptions: ..\generate-exceptions.in Makefile
-    $(PERL_EXE) -pe 'BEGIN{$$perl=shift @ARGV} s,@PERL@,\Q$$perl\E,' "$(PERL)" ..\generate-exceptions.in > ..\generate-exceptions
+    $(PERL_EXE) -pe 'BEGIN{$$perl=shift @ARGV} s,@PERL@,\Q$$perl\E,' "$(PERL_EXE)" ..\generate-exceptions.in > ..\generate-exceptions
 
 ..\include\xapian\error.h: ..\generate-exceptions
     cd..
