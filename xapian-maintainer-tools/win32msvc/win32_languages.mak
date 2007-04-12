@@ -1,8 +1,8 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 # Originally by Ulrik Petersen
-# Modified by Charlie Hull, Lemur Consulting Ltd.
-# www.lemurconsulting.com
+# Modified by Charlie Hull, Lemur Consulting Ltd. www.lemurconsulting.com
 # 17th March 2006
+# Copyright (C) 2007, Olly Betts
 
 # Will build a Win32 static library (non-debug) liblanguages.lib
 
@@ -185,6 +185,6 @@ CPP_SBRS=.
     copy languages\allsnowballheaders.h
     del languages\allsnowballheaders.h
     rmdir languages
-    
+ 
 ".\generate-allsnowballheaders": ".\generate-allsnowballheaders.in"
-    $(PERL_EXE) -pe 's,@PERL@,$(PERL_EXE),' generate-allsnowballheaders.in > generate-allsnowballheaders
+    $(PERL_EXE) -pe 'BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl,' "$(PERL_EXE)" ..\generate-allsnowballheaders.in > generate-allsnowballheaders

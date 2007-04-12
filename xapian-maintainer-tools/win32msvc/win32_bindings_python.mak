@@ -1,8 +1,8 @@
 # Makefile for Microsoft Visual C++ 7.0 (or compatible)
 # Originally by Ulrik Petersen
-# Modified by Charlie Hull, Lemur Consulting Ltd.
-# www.lemurconsulting.com
+# Modified by Charlie Hull, Lemur Consulting Ltd. www.lemurconsulting.com
 # 17th March 2006
+# Copyright (C) 2007, Olly Betts
 
 # Will build the Python bindings 
 
@@ -95,7 +95,7 @@ except.i: generate-python-exceptions
 	$(PERL_EXE) generate-python-exceptions exception_data.pm 
 		
 generate-python-exceptions: generate-python-exceptions.in
-	$(PERL_EXE) -pe 's,@PERL@,$(PERL_EXE),' generate-python-exceptions.in > generate-python-exceptions
+	$(PERL_EXE) -pe 'BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl,' "$(PERL_EXE)" generate-python-exceptions.in > generate-python-exceptions
 
 "$(OUTDIR)\xapian.py" : "modern\xapian.py"
 	-copy $** "$(OUTDIR)\xapian.py"
