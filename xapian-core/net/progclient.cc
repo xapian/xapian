@@ -36,6 +36,8 @@
 #ifndef __WIN32__
 # include <sys/socket.h>
 # include <sys/wait.h>
+#else
+# include <io.h>
 #endif
 
 using namespace std;
