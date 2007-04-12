@@ -529,6 +529,7 @@ Xapian::Query::Internal::Internal(const string & tname_, Xapian::termcount wqf_,
 	  term_pos(term_pos_),
 	  wqf(wqf_)
 {
+    validate_query();
 }
 
 Xapian::Query::Internal::Internal(op_t op_, Xapian::termcount parameter_)
@@ -552,6 +553,7 @@ Xapian::Query::Internal::Internal(op_t op_, Xapian::valueno valno,
 {
     if (op != OP_VALUE_RANGE)
 	throw Xapian::InvalidArgumentError("This constructor is only meaningful for OP_VALUE_RANGE");
+    validate_query();
 }
 
 Xapian::Query::Internal::~Internal()

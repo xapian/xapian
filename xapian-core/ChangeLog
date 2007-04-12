@@ -1,3 +1,8 @@
+Thu Apr 12 20:41:18 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Add validate_query() calls to the "term" and
+	  "value range" constructors.
+
 Thu Apr 12 20:00:14 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc,include/xapian/query.h: Only validate a
