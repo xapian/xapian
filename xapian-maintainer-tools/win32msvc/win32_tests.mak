@@ -34,7 +34,7 @@ QUERYPARSERTEST : $(PROGRAM_QUERYPARSERTEST)
 
 DOTEST :
 	set srcdir=.
-	apitest
+	apitest -v
 	btreetest
 	internaltest
 	quartztest
