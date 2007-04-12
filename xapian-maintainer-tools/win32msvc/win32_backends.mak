@@ -27,15 +27,15 @@ CLEAN :
 	-@erase $(LIBBACKEND_OBJS)
 	-@erase $(CLEANFILES)
 	cd quartz
-	nmake CLEAN DEBUG=$(DEBUG) 
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..\flint
-	nmake CLEAN DEBUG=$(DEBUG) 
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..\inmemory
-	nmake CLEAN DEBUG=$(DEBUG) 
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..\multi
-	nmake CLEAN DEBUG=$(DEBUG) 
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..\remote
-	nmake CLEAN DEBUG=$(DEBUG) 
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..
 
 
@@ -79,25 +79,25 @@ LIBBACKEND_OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj
 
 "$(OUTDIR)\libquartz.lib":
        cd quartz
-       nmake $(MAKEMACRO) /$(NMAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+       nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
 "$(OUTDIR)\libflint.lib":
        cd flint
-       nmake $(MAKEMACRO) /$(NMAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+       nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
 "$(OUTDIR)\libinmemory.lib":
        cd inmemory
-       nmake $(MAKEMACRO) /$(NMAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+       nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
 "$(OUTDIR)\libmulti.lib":
        cd multi
-       nmake $(MAKEMACRO) /$(NMAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+       nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
 "$(OUTDIR)\libremote.lib":
        cd remote
-       nmake $(MAKEMACRO) /$(NMAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+       nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..

@@ -102,7 +102,7 @@ LIB32_FLAGS=/nologo
 LINK32=link.exe
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
- wsock32.lib Ws2_32.lib  odbccp32.lib /subsystem:console /debug
+ wsock32.lib Ws2_32.lib  odbccp32.lib /subsystem:console /debug /nologo
 CPP=cl.exe
 RSC=rc.exe
 MANIFEST=mt.exe /manifest
@@ -121,7 +121,7 @@ MANIFEST=mt.exe /manifest
 # stackframe information, meaning basic debugging on release builds
 # is still possible (so long as the .pdb files are in place - it is
 # assumed these files will *not* ship with a default binary build)
-CPPFLAGS_COMMON=/c /Zi /I.. /I..\include /I..\common /W3 /EHsc \
+CPPFLAGS_COMMON=/nologo /c /Zi /I.. /I..\include /I..\common /W3 /EHsc \
 /D "WIN32" /D "__WIN32__" /D "_WINDOWS" \
 /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /D "_USE_32BIT_TIME_T" \
 /D_CRT_SECURE_NO_DEPRECATE

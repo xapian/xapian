@@ -18,61 +18,61 @@ MAKEALL:
    cd ..\getopt
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\common
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\api
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\backends
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\matcher
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\languages\compiler
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\queryparser
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\net
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\tests\harness
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\..\bin
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\examples
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\tests
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
 
 DOTEST:
-   nmake $(MAKEMACRO) CFG="$(CFG)" DEBUG="$(DEBUG)" DOTEST
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)" DOTEST
    cd ..\win32
 
 CLEAN: COPYMAKFILES
    cd ..\net
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\getopt
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\common
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\api
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\backends
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\matcher
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\languages\compiler
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\queryparser
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\tests\harness
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\..\bin
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\examples
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\tests
-   nmake DEBUG="$(DEBUG)" CLEAN
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\win32
    -@erase ..\config.h 
    -@erase ..\include\xapian\version.h
