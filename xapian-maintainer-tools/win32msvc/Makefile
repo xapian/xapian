@@ -122,7 +122,7 @@ TESTFORTOOLS:
 # Header files generated automatically from various .in files
 MAKEHEADERS: ..\include\xapian\error.h 
 
-..\generate-exceptions: ..\generate-exceptions.in
+..\generate-exceptions: ..\generate-exceptions.in Makefile
     $(PERL_EXE) -pe 'BEGIN{$$perl=shift @ARGV} s,@PERL@,\Q$$perl\E,' "$(PERL)" ..\generate-exceptions.in > ..\generate-exceptions
 
 ..\include\xapian\error.h: ..\generate-exceptions
