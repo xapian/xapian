@@ -884,9 +884,9 @@ if test yes = "$GXX"; then
 
       dnl GCC2 reports e.g. "2.7.2.3" or "2.95.4".  3.0 reports e.g. "3.0.4"
       dnl but somewhere in the 3.X series the output became more verbose
-      dnl (3.2 has the new style output - not sure about 3.1).  So we test
-      dnl for older version numbers where possible.
-      gxx_version=`$CXX --version 2>&1`
+      dnl (3.2 has the new style output - not sure about 3.1).  So we need to
+      dnl run the output through head and sed to extract the version number.
+      gxx_version=`$CXX --version 2>&1|head -1|${SED-sed} 's/^[[^ ]]* (GCC) //;s/ .*//'`
 
       case $gxx_version in
       2.96) dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
