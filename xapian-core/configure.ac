@@ -375,6 +375,8 @@ AC_TYPE_SSIZE_T
 
 AC_TYPE_PID_T
 
+AC_TYPE_MODE_T
+
 dnl Check for a stringstream implementation.  (If not present, we roll
 dnl one ourselves).
 AC_CHECK_HEADERS(sstream, [], [], [ ])
