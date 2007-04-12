@@ -52,6 +52,16 @@ static void makedir(const string &filename)
     }
 }
 
+static void removedir(const string &filename)
+{
+    rm_rf(filename);
+    struct stat buf;
+    if (stat(filename, &buf) == 0 || errno != ENOENT) {
+	FAIL_TEST("Failed to remove directory `" << filename << "' (" <<
+		  strerror(errno) << ")");
+    }
+}
+
 /// Test creating and opening of quartz databases
 static bool test_create1()
 {
