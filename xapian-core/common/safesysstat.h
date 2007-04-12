@@ -59,6 +59,11 @@
 // number of conditionalised #include statements we need in the sources.
 #include <direct.h>
 
+// Add overloaded version of mkdir which takes an (ignored) mode argument
+// to allow source code to just specify a mode argument unconditionally.
+inline int (mkdir)(const char *pathname, int /*mode*/) {
+    return _mkdir(pathname);
+}
 #endif
 
 #endif /* XAPIAN_INCLUDED_SAFESYSSTAT_H */

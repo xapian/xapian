@@ -1,3 +1,12 @@
+Thu Apr 12 01:02:53 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/safesysstat.h: Under __WIN32__, provide a POSIX-like mkdir()
+	  wrapper which takes 2 arguments, but ignores the file mode, so we
+	  can just call mkdir with a mode argument everywhere.
+	* common/utils.h: Remove special case handling of mkdir.
+	* bin/xapian-compact.cc: Replace uses of om_tostring() with a call
+	  to sprintf.  No longer need to `#include "utils.h"'.
+
 Thu Apr 12 00:44:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/,backends/inmemory/inmemory_positionlist.cc,common/,matcher/, 

@@ -81,15 +81,9 @@ inline int link(const string &o, const string &n) {
 #endif
 
 /// Allow mkdir to work directly on C++ strings.
-#ifdef __WIN32__
-inline int mkdir(const string &filename, int /*mode*/) {
-    return _mkdir(filename.c_str());
-}
-#else
 inline int mkdir(const string &filename, mode_t mode) {
     return mkdir(filename.c_str(), mode);
 }
-#endif
 
 /// Allow stat to work directly on C++ strings.
 inline int stat(const string &filename, struct stat *buf) {

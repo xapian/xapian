@@ -34,7 +34,6 @@
 #include "flint_table.h"
 #include "flint_cursor.h"
 #include "flint_utils.h"
-#include "utils.h" // for mkdir for MSVC
 
 #include <xapian.h>
 
@@ -415,11 +414,9 @@ main(int argc, char **argv)
 			if (j == tmp.size() - 1) ++j;
 
 			string dest = destdir;
-			dest += "/tmp";
-			dest += om_tostring(c);
-			dest += '_';
-			dest += om_tostring(i / 2);
-			dest += '.';
+			char buf[64];
+			sprintf(buf, "/tmp%u_%u.", c, i / 2);
+			dest += buf;
 
 			FlintTable tmptab(dest, false);
 			tmptab.create(block_size);
