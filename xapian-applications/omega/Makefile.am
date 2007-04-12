@@ -81,7 +81,7 @@ AM_LDFLAGS = $(ICONV_LDFLAGS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc indextext.cc\
- utf8convert.cc utf8itor.cc datematchdecider.cc
+ tclUniData.cc utf8convert.cc utf8itor.cc datematchdecider.cc
 omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
@@ -94,8 +94,8 @@ endif
 omindex_LDADD = $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
- getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc utf8convert.cc\
- utf8itor.cc utf8truncate.cc
+ getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc tclUniData.cc\
+ utf8convert.cc utf8itor.cc utf8truncate.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
