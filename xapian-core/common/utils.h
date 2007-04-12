@@ -23,6 +23,8 @@
 #ifndef OM_HGUARD_UTILS_H
 #define OM_HGUARD_UTILS_H
 
+#include <xapian/visibility.h>
+
 #include <string>
 using std::string;
 
@@ -35,15 +37,19 @@ using std::string;
 inline string om_tostring(const string &s) { return s; }
 
 /// Convert an integer to a string
+XAPIAN_VISIBILITY_DEFAULT
 string om_tostring(int a);
 
 /// Convert an unsigned integer to a string
+XAPIAN_VISIBILITY_DEFAULT
 string om_tostring(unsigned int a);
 
 /// Convert a long integer to a string
+XAPIAN_VISIBILITY_DEFAULT
 string om_tostring(long int a);
 
 /// Convert an unsigned long integer to a string
+XAPIAN_VISIBILITY_DEFAULT
 string om_tostring(unsigned long int a);
 
 #ifdef __WIN32__
@@ -52,16 +58,20 @@ string om_tostring(__int64 a);
 #endif
 
 /// Convert a double to a string
+XAPIAN_VISIBILITY_DEFAULT
 string om_tostring(double a);
 
 /// Convert a bool to a string
+XAPIAN_VISIBILITY_DEFAULT
 string om_tostring(bool a);
 
 /// Convert a pointer to a string
+XAPIAN_VISIBILITY_DEFAULT
 string om_tostring(const void * a);
 
 /** Return true if the file fname exists.
  */
+XAPIAN_VISIBILITY_DEFAULT
 bool file_exists(const string &fname);
 
 /// Allow atoi to work directly on C++ strings.
@@ -112,8 +122,11 @@ namespace Xapian {
 	const unsigned char IS_HEX   = 0x08;
 	const unsigned char IS_SIGN  = 0x10;
 	const unsigned char IS_SPACE = 0x20;
+	XAPIAN_VISIBILITY_DEFAULT
 	extern const unsigned char is_tab[];
+	XAPIAN_VISIBILITY_DEFAULT
 	extern const unsigned char lo_tab[];
+	XAPIAN_VISIBILITY_DEFAULT
 	extern const unsigned char up_tab[];
     }
 }

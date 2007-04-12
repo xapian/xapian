@@ -28,13 +28,14 @@
 #include <set>
 
 #include <xapian/enquire.h>
+#include <xapian/visibility.h>
 
 namespace Xapian {
 
 /** One useful expand decision functor, which provides a way of
  *  filtering out a fixed list of terms from the expand set.
  */
-class ExpandDeciderFilterTerms : public ExpandDecider {
+class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider {
     public:
         /** Constructor, which takes a list of terms which
 	 *  will be filtered out.
@@ -50,7 +51,7 @@ class ExpandDeciderFilterTerms : public ExpandDecider {
 /** An expand decision functor which can be used to join two
  *  functors with an AND operation.
  */
-class ExpandDeciderAnd : public ExpandDecider {
+class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderAnd : public ExpandDecider {
     public:
     	/** Constructor, which takes as arguments the two
 	 *  decision functors to AND together.

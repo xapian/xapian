@@ -305,7 +305,7 @@ else
 	dnl it unconditionally)
 	ANSI_CXXFLAGS="-library=stlport4 -features=tmplife" ;;
       *)
-        case `$CXX -v 2>&1` in
+	case `$CXX -v 2>&1` in
 	MIPSpro*)
 	  dnl On stderr: MIPSpro Compilers: Version 7.4.2m
 	  dnl Select ANSI mode for SGI's CC with "-LANG:std".  Also, we have to
@@ -350,7 +350,7 @@ AC_TRY_LINK([#include <math.h>
 	[AC_MSG_ERROR([Failed to link a C++ program using log()])
     ])
 ])
-    
+
 dnl Check for time functions.
 AC_CHECK_FUNCS(gettimeofday ftime)
 
@@ -891,13 +891,16 @@ if test yes = "$GXX"; then
       case $gxx_version in
       2.96) dnl Oddly Redhat's "2.96" doesn't support -Wundef, though real
 	    dnl GCC versions before and after it do!
-        ;;
+	;;
       [[12]].*) dnl GCC < 3
-        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
       3.0*) dnl -Wshadow spews false positives with GCC 3.0.4
-        AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
-      *)
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef" ;;
+      3.*)
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
+      *)
+	dnl Turn on visibility support for GCC >= 4.0.
+	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow -fvisibility=hidden" ;;
       esac
 
       dnl Automatically add -Werror if maintainer mode is enabled and we're
@@ -929,7 +932,7 @@ AH_BOTTOM(
  * Check if _FORTIFY_SOURCE is already defined to allow the user to override
  * our choice with "./configure CPPFLAGS=-D_FORTIFY_SOURCE=0" or "...=1".
  */
-#if defined __GNUC__ && !defined _FORTIFY_SOURCE                                                                             
+#if defined __GNUC__ && !defined _FORTIFY_SOURCE
 # define _FORTIFY_SOURCE 2
 #endif])
 

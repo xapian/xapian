@@ -21,6 +21,8 @@
 #ifndef XAPIAN_INCLUDED_SERIALISE_DOUBLE_H
 #define XAPIAN_INCLUDED_SERIALISE_DOUBLE_H
 
+#include <xapian/visibility.h>
+
 #include <string>
 
 /** Serialise a double to a string.
@@ -29,6 +31,7 @@
  *
  *  @return	Serialisation of @a v.
  */
+XAPIAN_VISIBILITY_DEFAULT
 std::string serialise_double(double v);
 
 /** Unserialise a double serialised by serialise_double.
@@ -39,6 +42,7 @@ std::string serialise_double(double v);
  *
  *  @return	The unserialised double.
  */
+XAPIAN_VISIBILITY_DEFAULT
 double unserialise_double(const char ** p, const char *end);
 
 #endif

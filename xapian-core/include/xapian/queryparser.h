@@ -26,6 +26,7 @@
 #include <xapian/query.h>
 #include <xapian/stem.h>
 #include <xapian/termiterator.h>
+#include <xapian/visibility.h>
 
 #include <set>
 #include <string>
@@ -33,7 +34,7 @@
 namespace Xapian {
 
 /// Base class for stop-word decision functor.
-class Stopper {
+class XAPIAN_VISIBILITY_DEFAULT Stopper {
   public:
     /// Is term a stop-word?
     virtual bool operator()(const std::string & term) const = 0;
@@ -46,7 +47,7 @@ class Stopper {
 };
 
 /// Simple implementation of Stopper class - this will suit most users.
-class SimpleStopper : public Stopper {
+class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
   private:
     std::set<std::string> stop_words;
 
@@ -81,12 +82,12 @@ class SimpleStopper : public Stopper {
     virtual std::string get_description() const;
 };
 
-struct ValueRangeProcessor {
+struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
     virtual ~ValueRangeProcessor();
     virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
 };
 
-class StringValueRangeProcessor : public ValueRangeProcessor {
+class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno valno;
 
   public:
@@ -98,7 +99,7 @@ class StringValueRangeProcessor : public ValueRangeProcessor {
     }
 };
 
-class DateValueRangeProcessor : public ValueRangeProcessor {
+class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno valno;
     bool prefer_mdy;
     int epoch_year;
@@ -111,7 +112,7 @@ class DateValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno operator()(std::string &begin, std::string &end);
 };
 
-class NumberValueRangeProcessor : public ValueRangeProcessor {
+class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno valno;
     bool prefix;
     std::string str;
@@ -128,7 +129,7 @@ class NumberValueRangeProcessor : public ValueRangeProcessor {
 };
 
 /// Build a Xapian::Query object from a user query string.
-class QueryParser {
+class XAPIAN_VISIBILITY_DEFAULT QueryParser {
   public:
     /// Class representing the queryparser internals.
     class Internal;

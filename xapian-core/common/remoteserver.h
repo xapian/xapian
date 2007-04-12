@@ -23,6 +23,7 @@
 #define XAPIAN_INCLUDED_REMOTESERVER_H
 
 #include <xapian/database.h>
+#include <xapian/visibility.h>
 
 #include "omassert.h"
 #include "remoteconnection.h"
@@ -31,7 +32,7 @@
 class NetworkStatsGatherer;
 
 /** Remote backend server base class. */
-class RemoteServer : private RemoteConnection {
+class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     /// Don't allow assignment.
     void operator=(const RemoteServer &);
 

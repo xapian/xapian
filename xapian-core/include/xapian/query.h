@@ -31,6 +31,7 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
+#include <xapian/visibility.h>
 
 // FIXME: sort this out so we avoid exposing Xapian::Query::Internal
 // - we need to at present so that the Xapian::Query's template ctors
@@ -42,10 +43,10 @@ struct SortPosName;
 namespace Xapian {
 
 /** Class representing a query.
- * 
+ *
  *  Queries are represented as a tree of objects.
  */
-class Query {
+class XAPIAN_VISIBILITY_DEFAULT Query {
     public:
 	/// Class holding details of the query
 	class Internal;
@@ -226,7 +227,7 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
 }
 
 /// Internal class, implementing most of Xapian::Query
-class Query::Internal : public Xapian::Internal::RefCntBase {
+class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCntBase {
     friend class ::MultiMatch;
     friend class ::LocalSubMatch;
     friend struct ::SortPosName;

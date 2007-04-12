@@ -22,6 +22,8 @@
 #ifndef OM_HGUARD_FLINT_CURSOR_H
 #define OM_HGUARD_FLINT_CURSOR_H
 
+#include <xapian/visibility.h>
+
 #include "flint_types.h"
 
 #include <string>
@@ -62,7 +64,7 @@ class FlintTable;
 /** A cursor pointing to a position in a Btree table, for reading several
  *  entries in order, or finding approximate matches.
  */
-class FlintCursor {
+class XAPIAN_VISIBILITY_DEFAULT FlintCursor {
     private:
 	/// Copying not allowed
         FlintCursor(const FlintCursor &);

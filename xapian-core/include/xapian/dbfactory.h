@@ -27,6 +27,7 @@
 #include <xapian/types.h>
 #include <xapian/database.h>
 #include <xapian/version.h>
+#include <xapian/visibility.h>
 
 namespace Xapian {
 
@@ -39,6 +40,7 @@ namespace Auto {
  *
  * @param file  pathname of the stub database file.
  */
+XAPIAN_VISIBILITY_DEFAULT
 Database open_stub(const std::string &file);
 
 /** Construct a Database object for read-only access to a database.
@@ -50,6 +52,7 @@ Database open_stub(const std::string &file);
  *
  * @param path  pathname of the file or directory containing the database.
  */
+XAPIAN_VISIBILITY_DEFAULT
 XAPIAN_DEPRECATED(Database open(const std::string &path));
 inline Database open(const std::string &path) {
     return Database(path);
@@ -64,6 +67,7 @@ inline Database open(const std::string &path) {
  *
  * @param path  pathname of the file or directory containing the database.
  */
+XAPIAN_VISIBILITY_DEFAULT
 XAPIAN_DEPRECATED(WritableDatabase open(const std::string &path, int action));
 inline WritableDatabase open(const std::string &path, int action) {
     return WritableDatabase(path, action);
@@ -78,6 +82,7 @@ namespace InMemory {
  *
  * A new, empty database is created for each call.
  */
+XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open();
 
 }
@@ -90,6 +95,7 @@ namespace Quartz {
  *
  * @param dir  pathname of the directory containing the database.
  */
+XAPIAN_VISIBILITY_DEFAULT
 Database open(const std::string &dir);
 
 /** Construct a Database object for update access to a Quartz database.
@@ -110,6 +116,7 @@ Database open(const std::string &dir);
  *			8192 bytes.  This parameter is ignored when opening an
  *			existing database.
  */
+XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase
 open(const std::string &dir, int action, int block_size = 8192);
 
@@ -123,6 +130,7 @@ namespace Flint {
  *
  * @param dir  pathname of the directory containing the database.
  */
+XAPIAN_VISIBILITY_DEFAULT
 Database open(const std::string &dir);
 
 /** Construct a Database object for update access to a Flint database.
@@ -143,6 +151,7 @@ Database open(const std::string &dir);
  *			8192 bytes.  This parameter is ignored when opening an
  *			existing database.
  */
+XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase
 open(const std::string &dir, int action, int block_size = 8192);
 
@@ -170,12 +179,16 @@ namespace Remote {
  *				Xapian::NetworkTimeoutError is throw.  (Default
  *				is to be the same as timeout).
  */
+XAPIAN_VISIBILITY_DEFAULT
 Database open(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
+XAPIAN_VISIBILITY_DEFAULT
 Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
 //@}
 
 //@{
+XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
+XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
 //@}
 
@@ -192,6 +205,7 @@ WritableDatabase open_writable(const std::string &host, unsigned int port, Xapia
  *			then Xapian::NetworkTimeoutError is thrown (default is
  *			10000ms, which is 10 seconds).
  */
+XAPIAN_VISIBILITY_DEFAULT
 Database open(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
@@ -207,6 +221,7 @@ Database open(const std::string &program, const std::string &args, Xapian::timeo
  *			then Xapian::NetworkTimeoutError is thrown (default is
  *			10000ms, which is 10 seconds).
  */
+XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
 
 }

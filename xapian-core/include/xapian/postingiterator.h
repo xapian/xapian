@@ -30,6 +30,7 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
+#include <xapian/visibility.h>
 
 namespace Xapian {
 
@@ -48,7 +49,7 @@ class DocIDWrapper {
 
 /** An iterator pointing to items in a list of postings.
  */
-class PostingIterator {
+class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     public:
 	class Internal;
 	/// @internal Reference counted internals.

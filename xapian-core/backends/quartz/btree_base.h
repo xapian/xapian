@@ -24,10 +24,12 @@
 #ifndef OM_HGUARD_BTREE_BASE_H
 #define OM_HGUARD_BTREE_BASE_H
 
+#include <xapian/visibility.h>
+
 #include "quartz_types.h"
 #include "btree_util.h"
 
-class Btree_base {
+class XAPIAN_VISIBILITY_DEFAULT Btree_base {
     public:
 	/** Initialise a Btree_Base object with all zero fields.
 	 */

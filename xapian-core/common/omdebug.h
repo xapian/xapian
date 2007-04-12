@@ -29,6 +29,8 @@
 
 #ifdef XAPIAN_DEBUG_VERBOSE
 
+#include <xapian/visibility.h>
+
 #include "omstringstream.h"
 
 #include <vector>
@@ -107,7 +109,7 @@ enum om_debug_types {
 
 /** Class to manage verbose debugging output
  */
-class OmDebug {
+class XAPIAN_VISIBILITY_DEFAULT OmDebug {
     private:
 	/// Copying not allowed
 	OmDebug(OmDebug &);
@@ -145,6 +147,7 @@ class OmDebug {
 	~OmDebug();
 };
 
+XAPIAN_VISIBILITY_DEFAULT
 extern OmDebug om_debug;
 
 /** Display a debugging message, if it is of a desired type. */

@@ -22,13 +22,14 @@
 #define XAPIAN_INCLUDED_STEM_H
 
 #include <xapian/base.h>
+#include <xapian/visibility.h>
 
 #include <string>
 
 namespace Xapian {
 
 /// Class representing a stemming algorithm.
-class Stem {
+class XAPIAN_VISIBILITY_DEFAULT Stem {
   public:
     /// @internal Class representing the stemmer internals.
     class Internal;

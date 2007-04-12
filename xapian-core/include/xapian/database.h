@@ -33,6 +33,7 @@
 #include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
+#include <xapian/visibility.h>
 
 /// The Xapian library lives in the Xapian namespace.
 namespace Xapian {
@@ -49,7 +50,7 @@ class Document;
  *  @exception DatabaseOpeningError may be thrown if the database cannot
  *  be opened (for example, a required file cannot be found).
  */
-class Database {
+class XAPIAN_VISIBILITY_DEFAULT Database {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
@@ -215,7 +216,7 @@ class Database {
 
 /** This class provides read/write access to a database.
  */
-class WritableDatabase : public Database {
+class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
     public:
 	/** Destroy this handle on the database.
 	 *

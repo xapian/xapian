@@ -22,6 +22,7 @@
 #define XAPIAN_INCLUDED_TCPSERVER_H
 
 #include <xapian/database.h>
+#include <xapian/visibility.h>
 
 #ifdef __WIN32__
 # include "remoteconnection.h"
@@ -34,7 +35,7 @@
  *
  *  This class implements the server used by xapian-tcpsrv.
  */
-class TcpServer SOCKET_INITIALIZER_MIXIN {
+class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
     /// Don't allow assignment.
     void operator=(const TcpServer &);
 

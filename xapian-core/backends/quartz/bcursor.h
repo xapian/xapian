@@ -22,6 +22,8 @@
 #ifndef OM_HGUARD_BCURSOR_H
 #define OM_HGUARD_BCURSOR_H
 
+#include <xapian/visibility.h>
+
 #include "quartz_types.h"
 
 #include <string>
@@ -62,7 +64,7 @@ class Btree;
 /** A cursor pointing to a position in a Btree table, for reading several
  *  entries in order, or finding approximate matches.
  */
-class Bcursor {
+class XAPIAN_VISIBILITY_DEFAULT Bcursor {
     private:
 	/// Copying not allowed
         Bcursor(const Bcursor &);

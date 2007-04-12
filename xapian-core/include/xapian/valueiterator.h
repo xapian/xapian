@@ -30,12 +30,13 @@
 #include <string>
 #include <xapian/types.h>
 #include <xapian/document.h>
+#include <xapian/visibility.h>
 
 namespace Xapian {
 
 /** An iterator pointing to values associated with a document.
  */
-class ValueIterator {
+class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
     private:
 	friend class Document;
         friend bool operator==(const ValueIterator &a, const ValueIterator &b);

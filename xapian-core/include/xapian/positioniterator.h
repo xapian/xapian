@@ -29,6 +29,7 @@
 
 #include <xapian/base.h>
 #include <xapian/types.h>
+#include <xapian/visibility.h>
 
 namespace Xapian {
 
@@ -49,7 +50,7 @@ class TermPosWrapper {
 
 /** An iterator pointing to items in a list of positions.
  */
-class PositionIterator {
+class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
     private:
 	// friend classes which need to be able to construct us
 	friend class PostingIterator;

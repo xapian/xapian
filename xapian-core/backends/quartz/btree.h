@@ -22,6 +22,8 @@
 #ifndef OM_HGUARD_BTREE_H
 #define OM_HGUARD_BTREE_H
 
+#include <xapian/visibility.h>
+
 #include <algorithm>
 #include <string>
 using std::string;
@@ -150,7 +152,7 @@ const string::size_type BTREE_MAX_KEY_LEN = 252;
    components_of(p, c) returns the number marked 'C' above,
 */
 
-class Key {
+class XAPIAN_VISIBILITY_DEFAULT Key {
     const byte *p;
 public:
     explicit Key(const byte * p_) : p(p_) { }
@@ -305,7 +307,7 @@ public:
  *  Tags which are null strings _are_ valid, and are different from a
  *  tag simply not being in the table.
  */
-class Btree {
+class XAPIAN_VISIBILITY_DEFAULT Btree {
     friend class Bcursor; /* Should probably fix this. */
     private:
 	/// Copying not allowed

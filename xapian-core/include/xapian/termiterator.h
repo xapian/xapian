@@ -30,6 +30,7 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/positioniterator.h>
+#include <xapian/visibility.h>
 
 namespace Xapian {
 
@@ -48,7 +49,7 @@ class TermNameWrapper {
 
 /** An iterator pointing to items in a list of terms.
  */
-class TermIterator {
+class XAPIAN_VISIBILITY_DEFAULT TermIterator {
     public:
 	class Internal;
 	/// @internal Reference counted internals.

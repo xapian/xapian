@@ -19,7 +19,8 @@ xapianinclude_HEADERS =\
 	include/xapian/stem.h\
 	include/xapian/termiterator.h\
 	include/xapian/types.h\
-	include/xapian/valueiterator.h
+	include/xapian/valueiterator.h\
+	include/xapian/visibility.h
 
 nodist_xapianinclude_HEADERS =\
 	include/xapian/version.h

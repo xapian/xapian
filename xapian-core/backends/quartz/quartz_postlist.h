@@ -30,6 +30,7 @@
 
 #include "leafpostlist.h"
 #include <xapian/database.h>
+#include <xapian/visibility.h>
 #include "omassert.h"
 #include "quartz_types.h"
 #include "quartz_positionlist.h"
@@ -74,7 +75,7 @@ class QuartzPostListTable : public Btree {
 
 /** A postlist in a quartz database.
  */
-class QuartzPostList : public LeafPostList {
+class XAPIAN_VISIBILITY_DEFAULT QuartzPostList : public LeafPostList {
     private:
 	/** The database we are searching.  This pointer is held so that the
 	 *  database doesn't get deleted before us.

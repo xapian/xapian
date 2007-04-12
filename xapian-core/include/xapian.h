@@ -51,6 +51,7 @@
 // Methods returning library version.
 
 #include <xapian/deprecated.h>
+#include <xapian/visibility.h>
 
 namespace Xapian {
 /** Report the version string of the library which the program is linked with.
@@ -58,6 +59,7 @@ namespace Xapian {
  * This may be different to the version compiled against (given by
  * XAPIAN_VERSION) if shared libraries are being used.
  */
+XAPIAN_VISIBILITY_DEFAULT
 const char * version_string();
 
 /** For compatibility with Xapian 0.9.5 and earlier.
@@ -65,12 +67,14 @@ const char * version_string();
  * @deprecated This function is now deprecated, use Xapian::version_string()
  * instead.
  */
+XAPIAN_VISIBILITY_DEFAULT
 XAPIAN_DEPRECATED(const char * xapian_version_string());
 
 /** Report the major version of the library which the program is linked to.
  * This may be different to the version compiled against (given by
  * XAPIAN_MAJOR_VERSION) if shared libraries are being used.
  */
+XAPIAN_VISIBILITY_DEFAULT
 int major_version();
 
 /** For compatibility with Xapian 0.9.5 and earlier.
@@ -78,12 +82,14 @@ int major_version();
  * @deprecated This function is now deprecated, use Xapian::major_version()
  * instead.
  */
+XAPIAN_VISIBILITY_DEFAULT
 XAPIAN_DEPRECATED(int xapian_major_version());
 
 /** Report the minor version of the library which the program is linked to.
  * This may be different to the version compiled against (given by
  * XAPIAN_MINOR_VERSION) if shared libraries are being used.
  */
+XAPIAN_VISIBILITY_DEFAULT
 int minor_version();
 
 /** For compatibility with Xapian 0.9.5 and earlier.
@@ -91,12 +97,14 @@ int minor_version();
  * @deprecated This function is now deprecated, use Xapian::minor_version()
  * instead.
  */
+XAPIAN_VISIBILITY_DEFAULT
 XAPIAN_DEPRECATED(int xapian_minor_version());
 
 /** Report the revision of the library which the program is linked to.
  * This may be different to the version compiled against (given by
  * XAPIAN_REVISION) if shared libraries are being used.
  */
+XAPIAN_VISIBILITY_DEFAULT
 int revision();
 
 /** For compatibility with Xapian 0.9.5 and earlier.
@@ -104,6 +112,7 @@ int revision();
  * @deprecated This function is now deprecated, use Xapian::revision()
  * instead.
  */
+XAPIAN_VISIBILITY_DEFAULT
 XAPIAN_DEPRECATED(int xapian_revision());
 }
 

@@ -23,6 +23,8 @@
 #ifndef OM_HGUARD_QUARTZ_DATABASE_H
 #define OM_HGUARD_QUARTZ_DATABASE_H
 
+#include <xapian/visibility.h>
+
 #include "database.h"
 #include "quartz_log.h"
 #include "quartz_metafile.h"
@@ -43,7 +45,7 @@ const int OM_DB_READONLY = 0;
 /** A backend designed for efficient indexing and retrieval, using
  *  compressed posting lists and a btree storage scheme.
  */
-class QuartzDatabase : public Xapian::Database::Internal {
+class XAPIAN_VISIBILITY_DEFAULT QuartzDatabase : public Xapian::Database::Internal {
     friend class QuartzWritableDatabase;
     friend class QuartzTermList;
     private:
@@ -219,7 +221,7 @@ class QuartzDatabase : public Xapian::Database::Internal {
 
 /** A writable quartz database.
  */
-class QuartzWritableDatabase : public Xapian::Database::Internal {
+class XAPIAN_VISIBILITY_DEFAULT QuartzWritableDatabase : public Xapian::Database::Internal {
     private:
 	/** Unflushed changes to term frequencies and collection frequencies. */
 	mutable map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> >

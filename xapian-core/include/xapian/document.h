@@ -29,13 +29,14 @@
 #include <xapian/base.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
+#include <xapian/visibility.h>
 
 namespace Xapian {
 
 class ValueIterator;
 
 /// A document in the database - holds data, values, terms, and postings
-class Document {
+class XAPIAN_VISIBILITY_DEFAULT Document {
     public:
 	class Internal;
 	/// @internal Reference counted internals.

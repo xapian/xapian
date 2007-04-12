@@ -22,6 +22,8 @@
 #ifndef OM_HGUARD_FLINT_TABLE_H
 #define OM_HGUARD_FLINT_TABLE_H
 
+#include <xapian/visibility.h>
+
 #include <algorithm>
 #include <string>
 using std::string;
@@ -81,7 +83,7 @@ const string::size_type FLINT_BTREE_MAX_KEY_LEN = 252;
    components_of(p, c) returns the number marked 'C' above,
 */
 
-class Key_ {
+class XAPIAN_VISIBILITY_DEFAULT Key_ {
     const byte *p;
 public:
     explicit Key_(const byte * p_) : p(p_) { }
@@ -236,7 +238,7 @@ public:
  *  Tags which are null strings _are_ valid, and are different from a
  *  tag simply not being in the table.
  */
-class FlintTable {
+class XAPIAN_VISIBILITY_DEFAULT FlintTable {
     friend class FlintCursor; /* Should probably fix this. */
     private:
 	/// Copying not allowed

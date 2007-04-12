@@ -45,27 +45,18 @@ print HDR <<'EOF';
 #define XAPIAN_INCLUDED_ERROR_H
 
 #include <string>
+#include <xapian/visibility.h>
 
 namespace Xapian {
 
 class ErrorHandler;
-
-/* This hook is needed to allow SWIG generated-bindings to use GCC's
- * visibility support.  This can go away once we add GCC visibility support
- * to the main library.
- */
-#if defined(SWIGEXPORT) && defined(__GNUC__) && (__GNUC__ >= 4)
-# define XAPIAN_EXCEPTION_EXPORT SWIGEXPORT
-#else
-# define XAPIAN_EXCEPTION_EXPORT
-#endif
 
 /** All exceptions thrown by Xapian are subclasses of Xapian::Error.
  *
  *  This class can not be instantiated directly - instead a subclass should
  *  be used.
  */
-class XAPIAN_EXCEPTION_EXPORT Error {
+class XAPIAN_VISIBILITY_DEFAULT Error {
     // ErrorHandler needs to be able to access Error::already_handled.
     friend class ErrorHandler;
 
@@ -144,10 +135,12 @@ print DISPATCH <<'EOF';
 EOF
 
 for (@baseclasses) {
+    chomp;
     my ($class, $parent, $comment) = split /\t/, $_, 3;
     print HDR <<EOF;
 
-${comment}class XAPIAN_EXCEPTION_EXPORT $class : public $parent {
+$comment
+class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
   protected:
     /** \@Internal Constructor for use by constructors of derived classes. */
     $class(const std::string \&msg_, const std::string \&context_, const char * type_, int errno_)
@@ -157,13 +150,15 @@ EOF
 }
 
 for (@classes) {
+    chomp;
     my ($class, $parent, $comment) = split /\t/, $_, 3;
 
     print DISPATCH "if (type == \"$class\") throw Xapian::$class(msg, context);\n";
 
     print HDR <<EOF;
 
-${comment}class XAPIAN_EXCEPTION_EXPORT $class : public $parent {
+$comment
+class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
   public:
     /** General purpose constructor. */
     explicit $class(const std::string \&msg_, const std::string \&context_ = "", int errno_ = 0)

@@ -24,10 +24,12 @@
 #ifndef OM_HGUARD_FLINT_BTREEBASE_H
 #define OM_HGUARD_FLINT_BTREEBASE_H
 
+#include <xapian/visibility.h>
+
 #include "flint_types.h"
 #include "flint_btreeutil.h"
 
-class FlintTable_base {
+class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
     public:
 	/** Initialise a Btree_Base object with all zero fields.
 	 */

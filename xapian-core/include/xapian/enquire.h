@@ -31,6 +31,7 @@
 #include <xapian/error.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
+#include <xapian/visibility.h>
 
 namespace Xapian {
 
@@ -44,7 +45,7 @@ class Weight;
 /** A match set (MSet).
  *  This class represents (a portion of) the results of a query.
  */
-class MSet {
+class XAPIAN_VISIBILITY_DEFAULT MSet {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
@@ -237,7 +238,7 @@ class MSet {
 /** An iterator pointing to items in an MSet.
  *  This is used for access to individual results of a match.
  */
-class MSetIterator {
+class XAPIAN_VISIBILITY_DEFAULT MSetIterator {
     private:
 	friend class MSet;
 	friend bool operator==(const MSetIterator &a, const MSetIterator &b);
@@ -389,7 +390,7 @@ class ESetIterator;
  *  This set represents the results of an expand operation, which is
  *  performed by Xapian::Enquire::get_eset().
  */
-class ESet {
+class XAPIAN_VISIBILITY_DEFAULT ESet {
     public:
 	class Internal;
 	/// @internal Reference counted internals.
@@ -445,7 +446,7 @@ class ESet {
 };
 
 /** Iterate through terms in the ESet */
-class ESetIterator {
+class XAPIAN_VISIBILITY_DEFAULT ESetIterator {
     private:
 	friend class ESet;
 	friend bool operator==(const ESetIterator &a, const ESetIterator &b);
@@ -538,7 +539,7 @@ inline bool operator!=(const ESetIterator &a, const ESetIterator &b)
  *  This is the set of documents which are marked as relevant, for use
  *  in modifying the term weights, and in performing query expansion.
  */
-class RSet {
+class XAPIAN_VISIBILITY_DEFAULT RSet {
     public:
 	/// Class holding details of RSet
 	class Internal;
@@ -591,7 +592,7 @@ class RSet {
 
 /** Base class for matcher decision functor.
  */
-class MatchDecider {
+class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
     public:
 	/** Decide whether we want this document to be in the mset.
 	 */
@@ -603,7 +604,7 @@ class MatchDecider {
 
 /** Base class for expand decision functor.
  */
-class ExpandDecider {
+class XAPIAN_VISIBILITY_DEFAULT ExpandDecider {
     public:
 	/** Decide whether we want this term to be in the expand set.
 	 */
@@ -623,7 +624,7 @@ class ExpandDecider {
  *  @exception Xapian::InvalidArgumentError will be thrown if an invalid
  *  argument is supplied, for example, an unknown database type.
  */
-class Enquire {
+class XAPIAN_VISIBILITY_DEFAULT Enquire {
     private:
 	/// Copies are not allowed.
 	Enquire(const Enquire &);
@@ -1021,7 +1022,7 @@ class RemoteServer;
 namespace Xapian {
 
 /// Abstract base class for weighting schemes
-class Weight {
+class XAPIAN_VISIBILITY_DEFAULT Weight {
     friend class Enquire; // So Enquire can clone us
     friend class ::RemoteServer; // So RemoteServer can clone us - FIXME
     public:
@@ -1116,7 +1117,7 @@ class Weight {
 };
 
 /// Boolean weighting scheme (everything gets 0)
-class BoolWeight : public Weight {
+class XAPIAN_VISIBILITY_DEFAULT BoolWeight : public Weight {
     public:
 	BoolWeight * clone() const;
 	BoolWeight() { }
@@ -1145,7 +1146,7 @@ class BoolWeight : public Weight {
  *   - \f$n_{q}\f$ is the size of the query
  *   - \f$k_{1}\f$, \f$k_{2}\f$, \f$k_{3}\f$ and \f$b\f$ are user specified parameters
  */
-class BM25Weight : public Weight {
+class XAPIAN_VISIBILITY_DEFAULT BM25Weight : public Weight {
     private:
 	mutable Xapian::weight termweight;
 	mutable Xapian::doclength lenpart;
@@ -1220,7 +1221,7 @@ class BM25Weight : public Weight {
  * TradWeight(k) is equivalent to BM25Weight(k, 0, 0, 1, 0), except that
  * the latter returns weights (k+1) times larger.
  */
-class TradWeight : public Weight {
+class XAPIAN_VISIBILITY_DEFAULT TradWeight : public Weight {
     private:
 	mutable Xapian::weight termweight;
 	mutable Xapian::doclength lenpart;

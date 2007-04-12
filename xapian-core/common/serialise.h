@@ -21,6 +21,8 @@
 #ifndef XAPIAN_INCLUDED_SERIALISE_H
 #define XAPIAN_INCLUDED_SERIALISE_H
 
+#include <xapian/visibility.h>
+
 #include <string>
 
 // Forward class declarations:
@@ -42,6 +44,7 @@ namespace Xapian {
  *
  *  @return	The encoded length.
  */
+XAPIAN_VISIBILITY_DEFAULT
 std::string encode_length(size_t len);
 
 /** Decode a length encoded by encode_length.
@@ -54,6 +57,7 @@ std::string encode_length(size_t len);
  *
  *  @return	The decoded length.
  */
+XAPIAN_VISIBILITY_DEFAULT
 size_t decode_length(const char ** p, const char *end, bool check_remaining);
 
 /** Serialise a Xapian::Error object to a string.
@@ -62,6 +66,7 @@ size_t decode_length(const char ** p, const char *end, bool check_remaining);
  *
  *  @return	Serialisation of @a e.
  */
+XAPIAN_VISIBILITY_DEFAULT
 std::string serialise_error(const Xapian::Error &e);
 
 /** Unserialise a Xapian::Error object and throw it.
@@ -134,6 +139,7 @@ Xapian::RSet unserialise_rset(const std::string &s);
  *
  *  @return		The serialisation of the Xapian::Document object.
  */
+XAPIAN_VISIBILITY_DEFAULT
 std::string serialise_document(const Xapian::Document &doc);
 
 /** Unserialise a serialised Xapian::Document object.
@@ -142,6 +148,7 @@ std::string serialise_document(const Xapian::Document &doc);
  *
  *  @return		The unserialised Xapian::Document object.
  */
+XAPIAN_VISIBILITY_DEFAULT
 Xapian::Document unserialise_document(const std::string &s);
 
 #endif
