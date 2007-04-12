@@ -250,6 +250,7 @@ static bool test_stemlangs1()
 	// Try making a stemmer for this language.  We should be able to create
 	// it without an exception being thrown.
 	string language = langs.substr(i, spc - i);
+	tout << "checking language code '" << language << "' works" << endl;
 	Xapian::Stem stemmer(language);
 
 	if (spc == string::npos) break;
