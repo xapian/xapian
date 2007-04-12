@@ -1,3 +1,10 @@
+Thu Apr 12 11:54:50 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/multi/multi_termlist.cc: Include config.h to get system
+	  specific defines.
+	* common/safesysstat.h: Change signature of mkdir to take mode_t
+	  instead of int, to match unixy definition.
+
 Thu Apr 12 10:19:49 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Probe for mode_t.

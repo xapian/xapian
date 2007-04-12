@@ -61,7 +61,7 @@
 
 // Add overloaded version of mkdir which takes an (ignored) mode argument
 // to allow source code to just specify a mode argument unconditionally.
-inline int (mkdir)(const char *pathname, int /*mode*/) {
+inline int (mkdir)(const char *pathname, mode_t /*mode*/) {
     return _mkdir(pathname);
 }
 #endif

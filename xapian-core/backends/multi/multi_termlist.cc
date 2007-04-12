@@ -19,6 +19,7 @@
  * USA
  */
 
+#include <config.h>
 #include "omdebug.h"
 #include "multi_termlist.h"
 #include "database.h"
