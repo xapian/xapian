@@ -1,3 +1,10 @@
+Thu Apr 12 01:10:18 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_positionlist.cc: Move BitReader class inside
+	  Xapian namespace to avoid namespace pollution.
+	* bin/xapian-check.cc: Include BitReader::decode_interpolative()
+	  - previously we were relying on using the copy from the library.
+
 Thu Apr 12 01:02:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/safesysstat.h: Under __WIN32__, provide a POSIX-like mkdir()

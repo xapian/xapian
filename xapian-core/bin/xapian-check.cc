@@ -147,6 +147,21 @@ class BitReader {
 	void decode_interpolative(vector<Xapian::termpos> & pos, int j, int k);
 };
 
+void
+BitReader::decode_interpolative(vector<Xapian::termpos> & pos, int j, int k)
+{
+    while (j + 1 < k) {
+	const size_t mid = (j + k) / 2;
+	// Decode one out of (pos[k] - pos[j] + 1) values
+	// (less some at either end because we must be able to fit
+	// all the intervening pos in)
+	const size_t outof = pos[k] - pos[j] + j - k + 1;
+	pos[mid] = decode(outof) + (pos[j] + mid - j);
+	decode_interpolative(pos, j, mid);
+	j = mid;
+    }
+}
+
 int
 main(int argc, char **argv)
 {

@@ -138,6 +138,8 @@ encode_interpolative(BitWriter & wr, const vector<Xapian::termpos> &pos, int j, 
     }
 }
 
+namespace Xapian {
+
 class BitReader {
     private:
 	string buf;
@@ -208,6 +210,10 @@ BitReader::decode_interpolative(vector<Xapian::termpos> & pos, int j, int k)
 	j = mid;
     }
 }
+
+}
+
+using Xapian::BitReader;
 
 void
 FlintPositionListTable::set_positionlist(Xapian::docid did,
