@@ -187,4 +187,4 @@ CPP_SBRS=.
     rmdir languages
     
 ".\generate-allsnowballheaders": ".\generate-allsnowballheaders.in"
-    $(PERL_EXE) -pe 's,$(PERL_DIR),$(PERL_EXE),' generate-allsnowballheaders.in > generate-allsnowballheaders
+    $(PERL_EXE) -pe 's,@PERL@,$(PERL_EXE),' generate-allsnowballheaders.in > generate-allsnowballheaders

@@ -95,7 +95,7 @@ except.i: generate-python-exceptions
 	$(PERL_EXE) generate-python-exceptions exception_data.pm 
 		
 generate-python-exceptions: generate-python-exceptions.in
-	$(PERL_EXE) -pe 's,$(PERL_DIR),$(PERL_EXE),' generate-python-exceptions.in > generate-python-exceptions
+	$(PERL_EXE) -pe 's,@PERL@,$(PERL_EXE),' generate-python-exceptions.in > generate-python-exceptions
 
 "$(OUTDIR)\xapian.py" : "modern\xapian.py"
 	-copy $** "$(OUTDIR)\xapian.py"

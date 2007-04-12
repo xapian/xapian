@@ -123,7 +123,7 @@ TESTFORTOOLS:
 MAKEHEADERS: ..\include\xapian\error.h 
 
 ..\generate-exceptions: ..\generate-exceptions.in
-    $(PERL_EXE) -pe 's,$(PERL_DIR),$(PERL_EXE),' ..\generate-exceptions.in > ..\generate-exceptions
+    $(PERL_EXE) -pe 's,@PERL@,$(PERL_EXE),' ..\generate-exceptions.in > ..\generate-exceptions
 
 ..\include\xapian\error.h: ..\generate-exceptions
     cd..
