@@ -1,3 +1,8 @@
+Thu Apr 12 19:59:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/lemon.c: Fix nasty function casting for argument to
+	  qsort - it's (at least technically) not portable.
+
 Thu Apr 12 17:47:47 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix GCC version test to only turn on

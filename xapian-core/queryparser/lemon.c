@@ -306,7 +306,7 @@ char *Strsafe_find(/* char * */);
 /* Routines for handling symbols of the grammar */
 
 struct symbol *Symbol_new();
-int Symbolcmpp(/* struct symbol **, struct symbol ** */);
+int Symbolcmpp(const void *void_a, const void *void_b);
 void Symbol_init(/* void */);
 int Symbol_insert(/* struct symbol *, char * */);
 struct symbol *Symbol_find(/* char * */);
@@ -1448,7 +1448,7 @@ char **argv;
   lem.symbols = Symbol_arrayof();
   for(i=0; i<=lem.nsymbol; i++) lem.symbols[i]->index = i;
   qsort(lem.symbols,lem.nsymbol+1,sizeof(struct symbol*),
-        (int(*)())Symbolcmpp);
+        Symbolcmpp);
   for(i=0; i<=lem.nsymbol; i++) lem.symbols[i]->index = i;
   for(i=1; isupper(lem.symbols[i]->name[0]); i++);
   lem.nterminal = i;
@@ -4169,9 +4169,11 @@ char *x;
 ** order (the order they appeared in the grammar file) gives the
 ** smallest parser tables in SQLite.
 */
-int Symbolcmpp(struct symbol **a, struct symbol **b){
-  int i1 = (**a).index + 10000000*((**a).name[0]>'Z');
-  int i2 = (**b).index + 10000000*((**b).name[0]>'Z');
+int Symbolcmpp(const void *void_a, const void *void_b){
+  struct symbol *a = *(struct symbol **)void_a;
+  struct symbol *b = *(struct symbol **)void_b;
+  int i1 = a->index + 10000000*(a->name[0]>'Z');
+  int i2 = b->index + 10000000*(b->name[0]>'Z');
   return i1-i2;
 }
 
