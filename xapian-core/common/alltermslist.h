@@ -1,12 +1,11 @@
-/* alltermslist.h
+/* alltermslist.h: Base class for iterating all terms in a database.
  *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2005,2006 Olly Betts
+ * Copyright (C) 2007 Olly Betts
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,86 +14,80 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_ALLTERMSLIST_H
-#define OM_HGUARD_ALLTERMSLIST_H
+#ifndef XAPIAN_INCLUDED_ALLTERMSLIST_H
+#define XAPIAN_INCLUDED_ALLTERMSLIST_H
 
-#include <string>
-
-#include <xapian/types.h>
-#include <xapian/error.h>
 #include "termlist.h"
 
-using namespace std;
+/// Base class for iterating all terms in a database.
+class AllTermsList : public TermList {
+    /// Don't allow assignment.
+    void operator=(const AllTermsList &);
 
-// Abstract base class for alltermslists.
-class AllTermsList : public TermList
-{
-    private:
-	/// Copying is not allowed.
-	AllTermsList(const AllTermsList &);
+    /// Don't allow copying.
+    AllTermsList(const AllTermsList &);
 
-	/// Assignment is not allowed.
-	void operator=(const AllTermsList &);
-    public:
-	/// Standard constructor for base class.
-	AllTermsList() { }
+  protected:
+    /// Only constructable as a base class for derived classes.
+    AllTermsList() { }
 
-	/// Standard destructor for base class.
-	virtual ~AllTermsList() { }
+  public:
+    /** We have virtual methods and want to be able to delete derived classes
+     *  using a pointer to the base class, so we need a virtual destructor.
+     */
+    virtual ~AllTermsList();
 
-        // Gets size of termlist
-	virtual Xapian::termcount get_approx_size() const = 0;
-	
-        // Gets weighting info for current term
-	virtual OmExpandBits get_weighting() const {
-	    Assert(false); // should never get called
-	    abort();
-#if defined __SUNPRO_CC || defined __sgi
-	    // For compilers which worry abort() might return...
-	    return OmExpandBits(0, 0, 0);
-#endif
-	}
+    /// Return approximate size of this termlist.
+    virtual Xapian::termcount get_approx_size() const = 0;
 
-	// Gets current termname
-	virtual string get_termname() const = 0;
+    /// Return weighting infomation for the current term.
+    virtual OmExpandBits get_weighting() const;
 
-	// Get wdf of current term
-	virtual Xapian::termcount get_wdf() const {
-	    Assert(false);
-	    return 0;
-	}
+    /// Return the current termname.
+    virtual std::string get_termname() const = 0;
 
-	// Get num of docs indexed by term
-	virtual Xapian::doccount get_termfreq() const = 0;
+    /** Return the wdf of the current term.
+     *
+     *  This isn't meaningful for an AllTermsList, and will throw
+     *  Xapian::InvalidOperationError if called.
+     */
+    virtual Xapian::termcount get_wdf() const;
 
-	// Get num of docs indexed by term
-	virtual Xapian::termcount get_collection_freq() const = 0;
+    /// Return the term frequency of the current term.
+    virtual Xapian::doccount get_termfreq() const = 0;
 
-	/** next() causes the AllTermsList to move to the next term in the
-	 *  list.
-	 */
-	virtual TermList *next() = 0;
+    /// Return the collection frequency of the current term.
+    virtual Xapian::termcount get_collection_freq() const = 0;
 
-	/** Skip to the given term.  If the term wasn't
-	 *  found it will be positioned on the term just
-	 *  after tname in the database.  This could be after the end!
-	 */
-	virtual TermList *skip_to(const string &tname) = 0;
+    /// Advanced to the next term in the list.
+    virtual TermList *next() = 0;
 
-	// True if we're off the end of the list
-	virtual bool at_end() const = 0;
+    /** Skip foward to the specified term.
+     *
+     *  If the specified term isn't in the list, position ourselves on the
+     *  first term after tname (or at_end() if no terms after tname exist).
+     */
+    virtual TermList *skip_to(const std::string &tname) = 0;
 
-	virtual Xapian::termcount positionlist_count() const {
-	    throw Xapian::InvalidOperationError("AllTermsList::positionlist_count() isn't meaningful");
-	}
+    /// Returns true if we've advanced past the end of the list.
+    virtual bool at_end() const = 0;
 
-	virtual Xapian::PositionIterator positionlist_begin() const {
-	    throw Xapian::InvalidOperationError("AllTermsList::positionlist_begin() isn't meaningful");
-	}
+    /** Return length of position list for the current term.
+     *
+     *  This isn't meaningful for an AllTermsList, and will throw
+     *  Xapian::InvalidOperationError if called.
+     */
+    virtual Xapian::termcount positionlist_count() const;
+
+    /** Return PositionIterator for the current term.
+     *
+     *  This isn't meaningful for an AllTermsList, and will throw
+     *  Xapian::InvalidOperationError if called.
+     */
+    virtual Xapian::PositionIterator positionlist_begin() const;
 };
 
-#endif /* OM_HGUARD_ALLTERMSLIST_H */
+#endif // XAPIAN_INCLUDED_ALLTERMSLIST_H

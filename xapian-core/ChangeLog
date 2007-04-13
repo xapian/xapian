@@ -1,3 +1,11 @@
+Fri Apr 13 11:38:39 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/Makefile.mk,backends/alltermslist.cc,common/alltermslist.h:
+	  Split AllTermsList into header and code.  AllTermsList::get_wdf()
+	  now throws InvalidOperationError() rather than asserting in a
+	  debug build and returning 0 in a non-debug build.
+	* backends/Makefile.mk: Correct list for "how to add a new backend".
+	  
 Fri Apr 13 10:17:46 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/version.cc: Simpler and cleaner fix - the prototypes for the
