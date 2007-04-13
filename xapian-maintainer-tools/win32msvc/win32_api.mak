@@ -17,6 +17,7 @@ INTDIR=.\
 ALL : "$(OUTDIR)\libapi.lib" 
 
 LIBAPI_OBJS= \
+             $(INTDIR)\error.obj \
              $(INTDIR)\errorhandler.obj \
              $(INTDIR)\omenquire.obj  \
              $(INTDIR)\omquery.obj  \
@@ -49,6 +50,11 @@ CPP_SBRS=.
 "$(OUTDIR)\LIBAPI.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBAPI_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libapi.lib" $(DEF_FLAGS) $(LIBAPI_OBJS)
+<<
+
+"$(INTDIR)\error.obj" : ".\error.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
 <<
 
 "$(INTDIR)\errorhandler.obj" : ".\errorhandler.cc"
