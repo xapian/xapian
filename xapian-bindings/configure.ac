@@ -767,6 +767,8 @@ AC_CONFIG_FILES([Makefile
 dnl guile/Makefile
 AC_CONFIG_FILES([python/generate-python-exceptions],
 		[chmod +x python/generate-python-exceptions])
+AC_CONFIG_FILES([python/doxy2swig.py],
+		[chmod +x python/doxy2swig.py])
 AC_OUTPUT
 
 echo ""
