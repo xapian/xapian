@@ -1,3 +1,9 @@
+Fri Apr 13 01:17:08 BST 2007  Olly Betts <olly@survex.com>
+
+	* languages/generate-allsnowballheaders.in: win32 makefiles don't keep
+	  the snowball header list in sorted order like we do, so fix that
+	  here.  Also allow for '\' as path separator.
+
 Fri Apr 13 00:58:09 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_nodb.cc: Add "tout" debug output to stemlangs1.

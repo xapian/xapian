@@ -36,8 +36,8 @@ print HDR $copyright;
 print HDR "\n";
 
 my @langs = ();
-foreach (@ARGV) {
-    next unless m!([^/]+)\.h$!;
+foreach (sort @ARGV) {
+    next unless m!([^/\\]+)\.h$!;
     push @langs, $1;
     print HDR "#include \"$_\"\n";
 }
