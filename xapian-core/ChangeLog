@@ -1,3 +1,9 @@
+Fri Apr 13 01:39:57 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/remoteconnection.h,net/progclient.cc,net/remoteconnection.cc:
+	  GetLastError() has an unsigned return type, so need to cast to int
+	  before negating.
+
 Fri Apr 13 01:39:20 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Add xapian_version_string() and friends.

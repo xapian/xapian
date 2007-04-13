@@ -69,7 +69,7 @@ struct WinsockInitializer {
  *  the return value will be the value of errno.
  */
 inline int socket_errno() {
-    return -WSAGetLastError();
+    return -(int)WSAGetLastError();
 }
 #else
 // Use a macro so we don't need to pull safeerrno.h in here.

@@ -172,7 +172,7 @@ ProgClient::run_program(const string &progname, const string &args
     if (hPipe == INVALID_HANDLE_VALUE) {
 	throw Xapian::NetworkError("CreateNamedPipe failed",
 				   get_progcontext(progname, args),
-				   -GetLastError());
+				   -(int)GetLastError());
     }
 
     HANDLE hClient = CreateFile(pipename,
@@ -181,20 +181,20 @@ ProgClient::run_program(const string &progname, const string &args
     if (hClient == INVALID_HANDLE_VALUE) {
 	throw Xapian::NetworkError("CreateFile failed",
 				   get_progcontext(progname, args),
-				   -GetLastError());
+				   -(int)GetLastError());
     }
 
     DWORD dwMode = PIPE_READMODE_MESSAGE;
     if (!SetNamedPipeHandleState(hClient, &dwMode, NULL, NULL)) {
 	throw Xapian::NetworkError("SetNamedPipeHandleState failed",
 				   get_progcontext(progname, args),
-				   -GetLastError());
+				   -(int)GetLastError());
     }
 
     if (!ConnectNamedPipe(hPipe, NULL) && GetLastError() != ERROR_PIPE_CONNECTED) {
 	throw Xapian::NetworkError("ConnectNamedPipe failed",
 				   get_progcontext(progname, args),
-				   -GetLastError());
+				   -(int)GetLastError());
     }
 
     // Set the appropriate handles to be inherited by the child process.
@@ -220,7 +220,7 @@ ProgClient::run_program(const string &progname, const string &args
     if (!ok) {
 	throw Xapian::NetworkError("CreateProcess failed",
 				   get_progcontext(progname, args),
-				   -GetLastError());
+				   -(int)GetLastError());
     }
 
     CloseHandle(hClient);
