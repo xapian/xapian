@@ -79,6 +79,12 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *
      *  If no value is associated, this member variable will be 0.
      *
+     *  On UNIX, if this value is < 0, it's a negated h_errno value (giving
+     *  an error from gethostbyname() or similar).
+     *
+     *  On Windows, if this value is < 0, it's a negated Windows error code
+     *  (as given by GetLastError() or WSAGetLastError()).
+     *
      *  NB We don't just call this member "errno" to avoid problems on
      *  platforms where errno is a preprocessor macro.
      */
@@ -114,6 +120,8 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  a plain-text string, and so also fit for human consumption.
      */
     const std::string & get_context() const { return context; }
+
+    std::string get_error_string() const;
 
     /** Optional value of 'errno' associated with this error.
      *

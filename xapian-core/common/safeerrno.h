@@ -25,11 +25,6 @@
 # error You must #include <config.h> before #include "safeerrno.h"
 #endif
 
-// WSAGetLastError() is defined in winsock2.h, according to MSDN
-#ifdef __WIN32__
-# include "safewinsock2.h"
-#endif
-
 // Compaq's C++ compiler requires sys/errno.h to be included, followed by
 // errno.h, otherwise you don't get EINTR or most of the other EXXX codes
 // defined.
@@ -37,21 +32,5 @@
 # include <sys/errno.h>
 #endif
 #include <errno.h>
-
-/** Get the errno value of the last error to occur due to a socket operation.
- *
- *  This is specific to the calling thread.
- *
- *  This is needed because some platforms (Windows) separate errors due to
- *  socket operations from other errors.  On platforms which don't do this,
- *  the return value will be the value of errno.
- */
-inline int socket_errno() {
-#ifdef __WIN32__
-    return WSAGetLastError();
-#else
-    return errno;
-#endif
-}
 
 #endif // XAPIAN_INCLUDED_SAFEERRNO_H

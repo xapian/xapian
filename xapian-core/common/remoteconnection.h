@@ -1,7 +1,7 @@
 /** @file  remoteconnection.h
  *  @brief RemoteConnection class used by the remote backend.
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 #include "remoteprotocol.h"
 
 #ifdef __WIN32__
-# include "safewinsock2.h" // Required for WSAOVERLAPPED and DWORD.
+# include "safewinsock2.h"
 
 # include <xapian/error.h>
 
@@ -59,6 +59,21 @@ struct WinsockInitializer {
 	WSACleanup();
     }
 };
+
+/** Get the errno value of the last error to occur due to a socket operation.
+ *
+ *  This is specific to the calling thread.
+ *
+ *  This is needed because some platforms (Windows) separate errors due to
+ *  socket operations from other errors.  On platforms which don't do this,
+ *  the return value will be the value of errno.
+ */
+inline int socket_errno() {
+    return -WSAGetLastError();
+}
+#else
+// Use a macro so we don't need to pull safeerrno.h in here.
+# define socket_errno() errno
 #endif
 
 class OmTime;

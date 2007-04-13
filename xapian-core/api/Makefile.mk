@@ -6,6 +6,7 @@ EXTRA_DIST +=\
 	api/Makefile
 
 libxapian_la_SOURCES +=\
+	api/error.cc\
 	api/errorhandler.cc\
 	api/omdatabase.cc\
 	api/omdocument.cc\

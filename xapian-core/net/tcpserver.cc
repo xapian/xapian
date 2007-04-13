@@ -140,14 +140,16 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 
 	if (hostent == 0) {
 	    throw Xapian::NetworkError(string("Couldn't resolve host ") + host,
-		""
+		"",
 #ifdef __WIN32__
+		socket_errno()
+#else
 		// "socket_errno()" is just errno on UNIX which is
 		// inappropriate here - if gethostbyname() returns NULL an
 		// error code is available in h_errno (with values
-		// incompatible with errno).  FIXME: it would be good to see
-		// the h_errno error code though...
-		, socket_errno()
+		// incompatible with errno).  On Linux at least, if h_errno
+		// is < 0, then the error code *IS* in errno!
+		(h_errno < 0 ? errno : -h_errno)
 #endif
 		);
 	}
