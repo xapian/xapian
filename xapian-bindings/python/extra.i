@@ -2,7 +2,7 @@
 /* python/extra.i: Xapian scripting python interface additional code.
  *
  * Copyright (C) 2003,2004,2005 James Aylett
- * Copyright (C) 2005,2006 Olly Betts
+ * Copyright (C) 2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -60,6 +60,7 @@ class TermIter:
     HAS_NOTHING = 0
     HAS_TERMFREQS = 1
     HAS_POSITIONS = 2
+    HAS_WDF = 4
 
     def __init__(self, start, end, has = HAS_NOTHING):
         self.iter = start
@@ -80,7 +81,11 @@ class TermIter:
                 positer = PositionIter(self.iter.positionlist_begin(), self.iter.positionlist_end())
             else:
                 positer = PositionIter()
-            r = [self.iter.get_term(), self.iter.get_wdf(), termfreq, positer]
+            if self.has & TermIter.HAS_WDF:
+                wdf = self.iter.get_wdf()
+            else:
+                wdf = 0
+            r = [self.iter.get_term(), wdf, termfreq, positer]
             self.iter.next()
             return r
 
@@ -154,11 +159,15 @@ def eset_gen_iter(self):
 ESet.__iter__ = eset_gen_iter
 
 def enquire_gen_iter(self, which):
+    # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
+    # suggesting we make it throw Xapian::InvalidOperationError instead.
     return TermIter(self.get_matching_terms_begin(which), self.get_matching_terms_end(which))
 
 Enquire.matching_terms = enquire_gen_iter
 
 def query_gen_iter(self):
+    # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
+    # suggesting we make it throw Xapian::InvalidOperationError instead.
     return TermIter(self.get_terms_begin(), self.get_terms_end())
 
 Query.__iter__ = query_gen_iter
@@ -174,7 +183,7 @@ def database_gen_postlist_iter(self, tname):
     else:
         return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
 def database_gen_termlist_iter(self, docid):
-    return TermIter(self.termlist_begin(docid), self.termlist_end(docid), TermIter.HAS_TERMFREQS|TermIter.HAS_POSITIONS)
+    return TermIter(self.termlist_begin(docid), self.termlist_end(docid), TermIter.HAS_TERMFREQS|TermIter.HAS_POSITIONS|TermIter.HAS_WDF)
 def database_gen_positionlist_iter(self, docid, tname):
     return PositionIter(self.positionlist_begin(docid, tname), self.positionlist_end(docid, tname))
 
@@ -184,7 +193,7 @@ Database.termlist = database_gen_termlist_iter
 Database.positionlist = database_gen_positionlist_iter
 
 def document_gen_termlist_iter(self):
-    return TermIter(self.termlist_begin(), self.termlist_end(), TermIter.HAS_POSITIONS)
+    return TermIter(self.termlist_begin(), self.termlist_end(), TermIter.HAS_POSITIONS|TermIter.HAS_WDF)
 def document_gen_values_iter(self):
     return ValueIter(self.values_begin(), self.values_end())
 
@@ -193,8 +202,12 @@ Document.termlist = document_gen_termlist_iter
 Document.values = document_gen_values_iter
 
 def queryparser_gen_stoplist_iter(self):
+    # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
+    # suggesting we make it throw Xapian::InvalidOperationError instead.
     return TermIter(self.stoplist_begin(), self.stoplist_end())
 def queryparser_gen_unstemlist_iter(self, tname):
+    # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
+    # suggesting we make it throw Xapian::InvalidOperationError instead.
     return TermIter(self.unstem_begin(tname), self.unstem_end(tname))
 
 QueryParser.stoplist = queryparser_gen_stoplist_iter
