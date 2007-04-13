@@ -131,6 +131,10 @@ Native C++ API
 =========== ========== ============================= =======================================
 Deprecation Removal    Function name                 Upgrade suggestion
 =========== ========== ============================= =======================================
+0.9.6       ?          xapian_version_string()       Use version_string() instead.
+0.9.6       ?          xapian_major_version()        Use major_version() instead.
+0.9.6       ?          xapian_minor_version()        Use minor_version() instead.
+0.9.6       ?          xapian_revision()             Use revision() instead.
 0.9.0       1.0.0      Enquire::set_sort_forward()   Use Enquire::set_docid_order() instead.
 0.9.0       1.0.0      Enquire::set_sorting()        Use Enquire::set_sort_by_*() instead.
 0.9.0       1.0.0      Stem::stem_word(word)         Use Stem::operator()(word) instead.
