@@ -236,6 +236,7 @@ static bool test_stemlangs1()
 {
     unsigned lang_count = 0;
     string langs = Xapian::Stem::get_available_languages();
+    tout << "available languages '" << langs << "'" << endl;
     TEST(!langs.empty());
 
     string::size_type i = 0;
