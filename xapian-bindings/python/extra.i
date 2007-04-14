@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2003,2004,2005 James Aylett
  * Copyright (C) 2005,2006,2007 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -24,7 +25,7 @@
 %pythoncode %{
 
 # Python-style iterators to mirror the C++ ones
-class MSetIter:
+class MSetIter(object):
     def __init__(self, start, end):
         self.iter = start
         self.end = end
@@ -40,7 +41,7 @@ class MSetIter:
             self.iter.next()
             return r
 
-class ESetIter:
+class ESetIter(object):
     def __init__(self, start, end):
         self.iter = start
         self.end = end
@@ -56,7 +57,7 @@ class ESetIter:
             self.iter.next()
             return r
 
-class TermIter:
+class TermIter(object):
     HAS_NOTHING = 0
     HAS_TERMFREQS = 1
     HAS_POSITIONS = 2
@@ -92,7 +93,7 @@ class TermIter:
     def skip_to(self, term):
         self.iter.skip_to(term)
 
-class PostingIter:
+class PostingIter(object):
     HAS_NOTHING = 0
     HAS_POSITIONS = 1
 
@@ -115,7 +116,7 @@ class PostingIter:
             self.iter.next()
             return r
 
-class PositionIter:
+class PositionIter(object):
     def __init__(self, start = 0, end = 0):
         self.iter = start
         self.end = end
@@ -131,7 +132,7 @@ class PositionIter:
             self.iter.next()
             return r
 
-class ValueIter:
+class ValueIter(object):
     def __init__(self, start, end):
         self.iter = start
         self.end = end
