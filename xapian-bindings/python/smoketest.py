@@ -21,29 +21,9 @@
 import sys
 import xapian
 
-class TestFail(Exception): pass
+from testsuite import *
 
-def expect(l, r, message="Expected equality"):
-    if l != r:
-        raise TestFail("%s: got %r, expected %r" % (message, l, r))
-
-def checkquery(query, expected):
-    desc = query.get_description()
-    if desc != expected:
-        raise TestFail("Unexpected query.get_description(): got %r, expected %r" % (desc, expected))
-
-def checkexcept(expectedclass, expectedmsg, callable, *args):
-    try:
-        callable(*args)
-        raise TestFail("Expected %s(%r) exception" % (str(expectedclass), expectedmsg))
-    except expectedclass, e:
-        if str(e) != expectedmsg:
-            raise TestFail("Exception string not as expected: got '%s', expected '%s'" % (str(e), expectedmsg))
-        if e.__class__ != expectedclass:
-            raise TestFail("Didn't get right exception class: got '%s', expected subclass '%s'" % (str(e.__class__), str(expectedclass)))
-
-
-try:
+def test_all():
     # Test the version number reporting functions give plausible results.
     v = "%d.%d.%d" % (xapian.major_version(),
                       xapian.minor_version(),
@@ -71,14 +51,14 @@ try:
     db.add_document(doc)
     expect(db.get_doccount(), 1, "Unexpected db.get_doccount()")
     terms = ["smoke", "test", "terms"]
-    checkquery(xapian.Query(xapian.Query.OP_OR, terms),
-               "Xapian::Query((smoke OR test OR terms))")
+    expect_query(xapian.Query(xapian.Query.OP_OR, terms),
+                 "Xapian::Query((smoke OR test OR terms))")
     query1 = xapian.Query(xapian.Query.OP_PHRASE, ("smoke", "test", "tuple"))
     query2 = xapian.Query(xapian.Query.OP_XOR, (xapian.Query("smoke"), query1, "string"))
-    checkquery(query1, "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))")
-    checkquery(query2, "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))")
+    expect_query(query1, "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))")
+    expect_query(query2, "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))")
     subqs = ["a", "b"]
-    checkquery(xapian.Query(xapian.Query.OP_OR, subqs), "Xapian::Query((a OR b))")
+    expect_query(xapian.Query(xapian.Query.OP_OR, subqs), "Xapian::Query((a OR b))")
 
     # Feature test for Query.__iter__
     term_count = 0
@@ -175,7 +155,7 @@ try:
     expect(count, 0, "Unexpected number of entries in doc.values")
 
     # Check exception handling for Xapian::DocNotFoundError
-    checkexcept(xapian.DocNotFoundError, "Docid 3 not found", db.get_document, 3)
+    expect_exception(xapian.DocNotFoundError, "Docid 3 not found", db.get_document, 3)
 
     expect(xapian.Query.OP_ELITE_SET, 10, "Unexpected value for OP_ELITE_SET")
 
@@ -215,12 +195,12 @@ try:
 
     # Check QueryParser parsing error.
     qp = xapian.QueryParser()
-    checkexcept(xapian.QueryParserError, "Syntax: <expression> AND <expression>", qp.parse_query, "test AND")
+    expect_exception(xapian.QueryParserError, "Syntax: <expression> AND <expression>", qp.parse_query, "test AND")
 
     # Check QueryParser pure NOT option
     qp = xapian.QueryParser()
-    checkquery(qp.parse_query("NOT test", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-               "Xapian::Query((<alldocuments> AND_NOT test:(pos=1)))")
+    expect_query(qp.parse_query("NOT test", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
+                 "Xapian::Query((<alldocuments> AND_NOT test:(pos=1)))")
 
     # Check QueryParser partial option
     qp = xapian.QueryParser()
@@ -228,24 +208,24 @@ try:
     qp.set_default_op(xapian.Query.OP_AND)
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem('en'))
-    checkquery(qp.parse_query("foo o", qp.FLAG_PARTIAL),
-               "Xapian::Query((foo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2))))")
+    expect_query(qp.parse_query("foo o", qp.FLAG_PARTIAL),
+                 "Xapian::Query((foo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2))))")
 
-    checkquery(qp.parse_query("foo outside", qp.FLAG_PARTIAL),
-               "Xapian::Query((foo:(pos=1) AND outsid:(pos=2)))")
+    expect_query(qp.parse_query("foo outside", qp.FLAG_PARTIAL),
+                 "Xapian::Query((foo:(pos=1) AND outsid:(pos=2)))")
 
     # Test supplying unicode strings
-    checkquery(xapian.Query(xapian.Query.OP_OR, (u'foo', u'bar')),
-               'Xapian::Query((foo OR bar))')
-    checkquery(xapian.Query(xapian.Query.OP_OR, ('foo', u'bar\xa3')),
-               'Xapian::Query((foo OR bar\xc2\xa3))')
-    checkquery(xapian.Query(xapian.Query.OP_OR, ('foo', 'bar\xc2\xa3')),
-               'Xapian::Query((foo OR bar\xc2\xa3))')
-    checkquery(xapian.Query(xapian.Query.OP_OR, u'foo', u'bar'),
-               'Xapian::Query((foo OR bar))')
+    expect_query(xapian.Query(xapian.Query.OP_OR, (u'foo', u'bar')),
+                 'Xapian::Query((foo OR bar))')
+    expect_query(xapian.Query(xapian.Query.OP_OR, ('foo', u'bar\xa3')),
+                 'Xapian::Query((foo OR bar\xc2\xa3))')
+    expect_query(xapian.Query(xapian.Query.OP_OR, ('foo', 'bar\xc2\xa3')),
+                 'Xapian::Query((foo OR bar\xc2\xa3))')
+    expect_query(xapian.Query(xapian.Query.OP_OR, u'foo', u'bar'),
+                 'Xapian::Query((foo OR bar))')
 
-    checkquery(qp.parse_query(u"NOT t\xe9st", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-               "Xapian::Query((<alldocuments> AND_NOT t\xc3\xa9st:(pos=1)))")
+    expect_query(qp.parse_query(u"NOT t\xe9st", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
+                 "Xapian::Query((<alldocuments> AND_NOT t\xc3\xa9st:(pos=1)))")
 
     doc = xapian.Document()
     doc.set_data(u"Unicode with an acc\xe9nt")
@@ -258,13 +238,13 @@ try:
     stop = xapian.SimpleStopper()
     qp.set_stopper(stop)
     expect(stop('a'), False)
-    checkquery(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
-               "Xapian::Query((foo:(pos=1) AND bar:(pos=2) AND a:(pos=3)))")
+    expect_query(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
+                 "Xapian::Query((foo:(pos=1) AND bar:(pos=2) AND a:(pos=3)))")
 
     stop.add('a')
     expect(stop('a'), True)
-    checkquery(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
-               "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
+    expect_query(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
+                 "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
 
     # Feature test for custom Stopper
     class my_b_stopper(xapian.Stopper):
@@ -278,54 +258,14 @@ try:
     expect(stop.get_description(), u"my_b_stopper")
     qp.set_stopper(stop)
     expect(stop('a'), False)
-    checkquery(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
-               "Xapian::Query((foo:(pos=1) AND bar:(pos=2) AND a:(pos=3)))")
+    expect_query(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
+                 "Xapian::Query((foo:(pos=1) AND bar:(pos=2) AND a:(pos=3)))")
 
     expect(stop('b'), True)
-    checkquery(qp.parse_query(u"foo bar b", qp.FLAG_BOOLEAN),
-               "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
+    expect_query(qp.parse_query(u"foo bar b", qp.FLAG_BOOLEAN),
+                 "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
 
-
-
-except TestFail, e:
-    # Display the failure, with some useful context.
-    import traceback, os.path
-    report = []
-    tb = traceback.extract_tb(sys.exc_info()[2])
-    while tb[-1][2].startswith('expect'):
-        tb = tb[:-1]
-    filename, linenum, functionname, text = tb[-1]
-    report.append("TEST FAILURE in %s: %s" % (os.path.basename(filename), str(e)))
-    report.append("At line %d:" % linenum)
-    startline = max(linenum - 5, 0)
-    endline = startline + 7
-    lines = open(filename).readlines()
-    lines = [(linenum + 1, lines[linenum].rstrip()) for linenum in xrange(startline, endline)]
-    lines = ["%4d: %s" % (linenum, line) for linenum, line in lines]
-    report.extend(lines)
-    report.append("Xapian version: %s" % xapian.version_string())
-    try:
-        import platform
-        platform.system()
-        platdesc = "%s %s (%s)" % platform.system_alias(platform.system(), platform.release(), platform.version())
-        report.append("Platform: %s" % platdesc)
-    except: pass
-
-    report = '\n'.join(report)
-    print >> sys.stderr, '\n' + report + '\n'
-    print >> sys.stderr, 'If reporting this problem, please quote all the preceding lines from\n"TEST FAILURE" onwards.\n'
-    sys.exit(1)
-
-except xapian.Error, e:
-    print >> sys.stderr, "Xapian Error: %s" % str(e)
-    raise
-
-except Exception, e:
-    print >> sys.stderr, "Exception: %s" % str(e)
-    raise
-
-except:
-    print >> sys.stderr, "Unexpected exception"
+if not runtest(test_all):
     sys.exit(1)
 
 # vim:syntax=python:set expandtab:
