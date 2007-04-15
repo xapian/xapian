@@ -1,3 +1,10 @@
+Sun Apr 15 23:31:41 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/doxy2swig.py.in: For methods, if there is a
+	  briefdescription node, output it first so that the short summary
+	  describes the purpose of the method, rather than being the C++
+	  signature.
+
 Sun Apr 15 18:09:14 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/smoketest.py,python/testsuite.py: Enhance testsuite to

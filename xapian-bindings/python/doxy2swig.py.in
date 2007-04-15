@@ -239,12 +239,17 @@ class Doxy2SWIG:
         cdef_kind = compdef.attributes['kind'].value
         
         if prot == 'public':
-            first = self.get_specific_nodes(node, ('definition', 'name'))
+            first = self.get_specific_nodes(node, ('briefdescription', 'definition', 'name'))
             name = first['name'].firstChild.data
             if name[:8] == 'operator': # Don't handle operators yet.
                 return
 
+            briefdesc = ''
+            if first.has_key('briefdescription'):
+                briefdesc = first['briefdescription']
             defn = first['definition'].firstChild.data
+
+
             self.add_text('\n')
             self.add_text('%feature("docstring") ')
             
@@ -255,14 +260,17 @@ class Doxy2SWIG:
                     ns_node = anc.getElementsByTagName('compoundname')
                 if ns_node:
                     ns = ns_node[0].firstChild.data
-                    self.add_text(' %s::%s "\n%s'%(ns, name, defn))
+                    self.add_text(' %s::%s "\n'%(ns, name))
                 else:
-                    self.add_text(' %s "\n%s'%(name, defn))
+                    self.add_text(' %s "\n'%(name))
             elif cdef_kind in ('class', 'struct'):
                 # Get the full function name.
                 anc_node = anc.getElementsByTagName('compoundname')
                 cname = anc_node[0].firstChild.data
-                self.add_text(' %s::%s "\n%s'%(cname, name, defn))
+                self.add_text(' %s::%s "\n'%(cname, name))
+            if briefdesc is not None:
+                self.parse(briefdesc)
+            self.add_text(defn)
 
             for n in node.childNodes:
                 if n not in first.values():
