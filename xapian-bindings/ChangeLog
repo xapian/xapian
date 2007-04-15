@@ -1,3 +1,12 @@
+Sun Apr 15 18:09:14 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/smoketest.py,python/testsuite.py: Enhance testsuite to
+	  allow multiple test functions, and to format output similarly to
+	  C++ testsuite (including ANSI colour on output devices which
+	  support it).  Colours can be disabled explicitly using
+	  XAPIAN_TESTSUITE_OUTPUT=plain, and verbose output can be turned
+	  on by setting VERBOSE=1.
+
 Sun Apr 15 00:21:30 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i: Change to using new-style classes for pure python

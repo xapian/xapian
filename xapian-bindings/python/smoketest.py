@@ -265,7 +265,8 @@ def test_all():
     expect_query(qp.parse_query(u"foo bar b", qp.FLAG_BOOLEAN),
                  "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
 
-if not runtest(test_all):
+# Run all tests (ie, callables with names starting "test_").
+if not runtests(globals()):
     sys.exit(1)
 
 # vim:syntax=python:set expandtab:
