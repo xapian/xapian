@@ -5,6 +5,7 @@
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
  * Copyright (C) 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,7 +24,12 @@
  */
 %}
 
+/* Include the documentation comments extracted from doxygen output. */
 %include "doccomments.i"
+
+/* Include overrides for the documentation comments. */
+%include "extracomments.i"
+
 
 // Use SWIG directors for Python wrappers.
 #define XAPIAN_SWIG_DIRECTORS

@@ -1,3 +1,13 @@
+Mon Apr 16 00:19:16 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/doxy2swig.py.in: Don't add information about C++ includes
+	  to docstrings - not useful to anyone.
+	* python/extracomments.i: Add a new file to hold docstrings which
+	  override the automatically generated ones, or fill in gaps.  There
+	  are going to be quite a few of these eventually, so best to keep
+	  thee separate from the other code from the start.
+	* python/util.i: Include extracomments.i
+
 Mon Apr 16 00:14:31 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/testsuite.py: Enhance and refactor the testsuite - it now

@@ -206,8 +206,10 @@ class Doxy2SWIG:
                 self.parse(n)
 
     def do_includes(self, node):
-        self.add_text('C++ includes: ')
-        self.generic_parse(node, pad=1)
+        # Don't display C++ includes - Python programmers don't care
+        #self.add_text('C++ includes: ')
+        #self.generic_parse(node, pad=1)
+        pass
 
     def do_parameterlist(self, node):
         self.add_text(['\n', '\n', 'Parameters:', '\n'])
