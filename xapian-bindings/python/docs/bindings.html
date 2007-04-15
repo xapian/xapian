@@ -20,6 +20,17 @@ There's also
 which shows how to define a MatchDecider in Python.
 </p>
 
+<p>
+The Python bindings come with a test suite, consisting of two test files:
+<code>smoketest.py</code> and <code>pythontest.py</code>. These are run by the
+"<code>make check</code>" command, or may be run manually.  By default, they
+will display the names of any tests which failed, and then display a count of
+tests which run and which failed.  The verbosity may be increased by setting
+the "<code>VERBOSE</code>" environment variable: a value of 1 will display
+detailed information about failures, and a value of 2 will display further
+information about the progress of tests.
+</p>
+
 <h2>Exceptions</h2>
 
 <p>
@@ -32,7 +43,7 @@ which shows how to define a MatchDecider in Python.
 <p>
    This means that programs can trap all xapian exceptions using "<code>except
    xapian.Error</code>", and can trap all exceptions which don't indicate that
-   the program should terminate using "<code>except Exception</code>.
+   the program should terminate using "<code>except Exception</code>".
 </p>
 
 <h2>Unicode</h2>
@@ -138,7 +149,7 @@ iterate over terms in the Document):
 </table>
 
 <p>
-The Pythonic iterators will all return lists representing the appropriate item when their <code>next()</code> method is called, except PositionIter which just returns a single value:
+The Pythonic iterators used to return lists representing the appropriate item when their <code>next()</code> method is called, except PositionIter which just returns a single value.  This is being changed to an interface returning Python objects, allowing lazy evaluation of properties where appropriate, and allowing a more pythonic access to attribute values.  The sequence API is being maintained for now, so existing code should continue to work, but we recommend transitioning to the new API.  The sequence API is planned to be removed at release 1.1.0 of Xapian.
 </p>
 
 <table>

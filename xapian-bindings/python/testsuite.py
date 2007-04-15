@@ -26,188 +26,305 @@ import xapian as _xapian
 class TestFail(Exception):
     pass
 
-def expect(got, expected, message="Expected equality"):
-    if got != expected:
-        raise TestFail("%s: got %r, expected %r" % (message, got, expected))
+class TestRunner(object):
+    def __init__(self):
+        """Initialise the TestRunner.
 
-def expect_query(query, expected):
-    desc = query.get_description()
-    if desc != expected:
-        raise TestFail("Unexpected query.get_description(): got %r, expected %r" % (desc, expected))
+        """
 
-def expect_exception(expectedclass, expectedmsg, callable, *args):
-    try:
-        callable(*args)
-        raise TestFail("Expected %s(%r) exception" % (str(expectedclass), expectedmsg))
-    except expectedclass, e:
-        if str(e) != expectedmsg:
-            raise TestFail("Exception string not as expected: got '%s', expected '%s'" % (str(e), expectedmsg))
-        if e.__class__ != expectedclass:
-            raise TestFail("Didn't get right exception class: got '%s', expected subclass '%s'" % (str(e.__class__), str(expectedclass)))
+        self._out = OutProxy(_sys.stdout)
 
-def _allow_control_sequences():
-    "Return True if output device allows control sequences."
-    mode = _os.environ.get("XAPIAN_TESTSUITE_OUTPUT", '').lower()
-    if mode in ('', 'auto'):
-        if _sys.platform == 'win32':
-            return False
-        elif not hasattr(_out, "isatty"):
-            return False
+        # _verbose is an integer, higher meaning more verbose
+        self._verbose = _os.environ.get('VERBOSE', '').lower()
+        if self._verbose in ('', '0', 'no', 'off', 'false'):
+            self._verbose = 0
         else:
-            return _out.isatty()
-    elif mode == 'plain':
-        return False
-    return True
+            try:
+                self._verbose = int(self._verbose)
+            except:
+                self._verbose = 1
 
-def _get_colour_strings():
-    """Return a mapping of colour names to colour output sequences.
+        # context is a description of what the test is currently checking
+        self._context = None
 
-    """
-    colours = {
-        'red': "\x1b[1m\x1b[31m",
-        'green': "\x1b[1m\x1b[32m",
-        'yellow': "\x1b[1m\x1b[33m",
-        'reset': "\x1b[0m",
-    }
-    if (not _allow_control_sequences()):
-        for key in colours:
-            colours[key] = ''
-    return colours
+    def context(self, context):
+        """Set the context.
 
-def _colourise(msg):
-    """Apply colours to a message.
+        This should be a string describing what a test is checking, and will be
+        displayed if the test fails.
 
-    #colourname will change the text colour, #reset will change the colour back.
+        A test may change the context several times - each call will override
+        subsequent calls.
 
-    """
-    msg = msg.replace('#red', _colours['red'])
-    msg = msg.replace('#green', _colours['green'])
-    msg = msg.replace('#yellow', _colours['yellow'])
-    msg = msg.replace('##', _colours['reset'])
-    return msg
+        Set the context to None to remove display of a specific context message.
+        This is performed automatically at the start of each test.
 
-def _report_failure(msg, show_traceback=True):
-    "Report a test failure, with some useful context."
+        """
+        self._context = context
+        if context is not None and self._verbose > 1:
+            self._out.start_line()
+            self._out.write("Context: %s\n" % context)
+            self._out.flush()
 
-    orig_tb = _traceback.extract_tb(_sys.exc_info()[2])
-    tb = orig_tb
+    def expect(self, got, expected, message="Expected equality"):
+        """Function used to check for a particular expected value.
 
-    # Move up the traceback until we get to the line in the test
-    # function which caused the failure.
-    # FIXME - need a better way to do this.
-    while tb[-1][2].startswith('expect') or \
-          _os.path.basename(tb[-1][0]) == 'xapian.py':
-        tb = tb[:-1]
+        """
+        if got != expected:
+            raise TestFail("%s: got %r, expected %r" % (message, got, expected))
 
-    # Display the context in the text function.
-    filepath, linenum, functionname, text = tb[-1]
-    filename = _os.path.basename(filepath)
+    def expect_query(self, query, expected):
+        """Check that the description of a query is as expected.
 
-    if _verbose:
-        _out.write(_colourise(" #redFAILED##\n"))
-        firstline = "Failure in %s" % filename
-        report = []
-        report.append(firstline + ": " + msg)
-        report.append("At line %d:" % linenum)
-        lines = open(filepath).readlines()
-        startline = max(linenum - 3, 0)
-        endline = min(linenum + 2, len(lines))
-        lines = [["  ", num + 1, lines[num].rstrip()]
-                 for num in xrange(startline, endline)]
-        lines[linenum - startline - 1][0] = "->"
-        lines = ["%s%4d %s" % tuple(lineinfo) for lineinfo in lines]
-        report.extend(lines)
+        """
+        desc = query.get_description()
+        if desc != expected:
+            raise TestFail("Unexpected query.get_description(): got %r, expected %r" % (desc, expected))
 
-        # Display the traceback
-        if show_traceback:
-            report.append("\nTraceback (most recent call last):")
-            for line in _traceback.format_list(orig_tb):
-                report.append(line.rstrip())
-            report.append("")
-
-        # Display some information about the xapian version and platform
-        report.append("Xapian version: %s" % _xapian.version_string())
+    def expect_exception(self, expectedclass, expectedmsg, callable, *args):
         try:
-            import platform
-            platdesc = "%s %s (%s)" % platform.system_alias(platform.system(),
-                                                            platform.release(),
-                                                            platform.version())
-            report.append("Platform: %s" % platdesc)
-        except:
-            pass
-        report = '\n' + '\n'.join(report) + '\n\nWhen reporting this problem, please quote all the preceding lines from\n"%s" onwards.\n\n' % firstline
+            callable(*args)
+            raise TestFail("Expected %s(%r) exception" % (str(expectedclass), expectedmsg))
+        except expectedclass, e:
+            if str(e) != expectedmsg:
+                raise TestFail("Exception string not as expected: got '%s', expected '%s'" % (str(e), expectedmsg))
+            if e.__class__ != expectedclass:
+                raise TestFail("Didn't get right exception class: got '%s', expected subclass '%s'" % (str(e.__class__), str(expectedclass)))
 
-    else:
-        report = _colourise(" #redFAILED##: %s (%s, line %d)\n" % (msg, filename, linenum))
+    def report_failure(self, name, msg, show_traceback=True):
+        "Report a test failure, with some useful context."
 
-    _out.write(report)
+        orig_tb = _traceback.extract_tb(_sys.exc_info()[2])
+        tb = orig_tb
 
-def _runtest(name, test_fn):
-    """Run a single test.
-H
+        # Move up the traceback until we get to the line in the test
+        # function which caused the failure.
+        while tb[-1][2] != 'test_' + name:
+            tb = tb[:-1]
 
-    """
-    startline = "Running test: %s..." % name
-    _out.write(startline)
-    _out.flush()
-    try:
-        test_fn()
-        if _verbose:
-            _out.write(_colourise(" #greenok##\n"))
-        else:
-            if (_allow_control_sequences()):
-                _out.write(_colourise("\r" + " " * len(startline) + "\r"))
+        # Display the context in the text function.
+        filepath, linenum, functionname, text = tb[-1]
+        filename = _os.path.basename(filepath)
+
+        self._out.ensure_space()
+        self._out.write_colour("#red#FAILED##\n")
+        if self._verbose > 0:
+            if self._context is None:
+                context = ''
             else:
-                _out.write('\n')
-        return True
-    except TestFail, e:
-        _report_failure(str(e), show_traceback=False)
-    except _xapian.Error, e:
-        _report_failure("%s: %s" % (str(e.__class__), str(e)))
-    except Exception, e:
-        _report_failure("%s: %s" % (str(e.__class__), str(e)))
-    except:
-        _report_failure("Unexpected exception")
-    return False
+                context = ", when %s" % self._context
+            firstline = "Failure in %s, line %d" % (filename, linenum)
+            self._out.write("\n%s%s\n" % (firstline, context))
+            self._out.write("%s\n" % msg)
 
-def runtests(namedict):
-    """Run a set of tests.
+            # Display sourcecode lines
+            lines = open(filepath).readlines()
+            startline = max(linenum - 3, 0)
+            endline = min(linenum + 2, len(lines))
+            for num in xrange(startline, endline):
+                if num + 1 == linenum:
+                    self._out.write('->')
+                else:
+                    self._out.write('  ')
+                self._out.write("%4d %s\n" % (num + 1, lines[num].rstrip()))
+
+            # Display the traceback
+            if show_traceback:
+                self._out.write("Traceback (most recent call last):\n")
+                for line in _traceback.format_list(orig_tb):
+                    self._out.write(line.rstrip() + '\n')
+                self._out.write('\n')
+
+            # Display some information about the xapian version and platform
+            self._out.write("Xapian version: %s\n" % _xapian.version_string())
+            try:
+                import platform
+                platdesc = "%s %s (%s)" % platform.system_alias(platform.system(),
+                                                                platform.release(),
+                                                                platform.version())
+                self._out.write("Platform: %s\n" % platdesc)
+            except:
+                pass
+            self._out.write('\nWhen reporting this problem, please quote all the preceding lines from\n"%s" onwards.\n\n' % firstline)
+
+        self._out.flush()
+
+    def runtest(self, name, test_fn):
+        """Run a single test.
     
-    Takes a dictionary of name-value pairs and runs all the values which are
-    callables, for which the name begins with "test_".
+        """
+        startline = "Running test: %s..." % name
+        self._out.write(startline)
+        self._out.flush()
+        try:
+            test_fn()
+            if self._verbose > 0 or self._out.plain:
+                self._out.ensure_space()
+                self._out.write_colour("#green#ok##\n")
+            else:
+                self._out.clear_line()
+            self._out.flush()
+            return True
+        except TestFail, e:
+            self.report_failure(name, str(e), show_traceback=False)
+        except _xapian.Error, e:
+            self.report_failure(name, "%s: %s" % (str(e.__class__), str(e)))
+        except Exception, e:
+            self.report_failure(name, "%s: %s" % (str(e.__class__), str(e)))
+        except:
+            self.report_failure(name, "Unexpected exception")
+        return False
 
-    Typical usage is to pass "locals()" as the parameter, to run all callables
-    with names starting "test_" in local scope.
+    def runtests(self, namedict):
+        """Run a set of tests.
+    
+        Takes a dictionary of name-value pairs and runs all the values which are
+        callables, for which the name begins with "test_".
+
+        Typical usage is to pass "locals()" as the parameter, to run all callables
+        with names starting "test_" in local scope.
+
+        """
+        tests = []
+        for name in namedict:
+            if name.startswith('test_'):
+                fn = namedict[name]
+                name = name[5:]
+                if callable(fn):
+                    tests.append((name, fn))
+
+        passed, failed = 0, 0
+        for name, fn in tests:
+            self.context(None)
+            if self.runtest(name, fn):
+                passed += 1
+            else:
+                failed += 1
+        if failed:
+            if self._verbose == 0:
+                self._out.write('Re-run with the VERBOSE environment variable set to "1" to see details.\n')
+            self._out.write_colour("#green#%d## tests passed, #red#%d## tests failed\n" % (passed, failed))
+            return False
+        else:
+            self._out.write_colour("#green#%d## tests passed, no failures\n" % passed)
+            return True
+
+class OutProxy(object):
+    """Proxy output class to make formatting easier.
+
+    Allows colourisation, and keeps track of whether we're mid-line or not.
 
     """
-    tests = []
-    for name in namedict:
-        if name.startswith('test_'):
-            fn = namedict[name]
-            name = name[5:]
-            if callable(fn):
-                tests.append((name, fn))
 
-    passed, failed = 0, 0
-    for name, fn in tests:
-        if _runtest(name, fn):
-            passed += 1
-        else:
-            failed += 1
-    if failed:
-        if not _verbose:
-            print 'Re-run with the VERBOSE environment variable set to "1" to see details.'
-        print _colourise("#green%d## tests passed, #red%d## tests failed") % (passed, failed)
-        return False
-    else:
-        print _colourise("#green%d## tests passed, no failures") % passed
+    def __init__(self, out):
+        self._out = out
+        self._line_pos = 0 # Position on current line
+        self._had_space = True # True iff we're preceded by whitespace (including newline)
+        self.plain = not self._allow_control_sequences()
+        self._colours = self.get_colour_strings()
+
+    def _allow_control_sequences(self):
+        "Return True if output device allows control sequences."
+        mode = _os.environ.get("XAPIAN_TESTSUITE_OUTPUT", '').lower()
+        if mode in ('', 'auto'):
+            if _sys.platform == 'win32':
+                return False
+            elif not hasattr(self._out, "isatty"):
+                return False
+            else:
+                return self._out.isatty()
+        elif mode == 'plain':
+            return False
         return True
 
+    def get_colour_strings(self):
+        """Return a mapping of colour names to colour output sequences.
 
-_out = _sys.stdout
-_colours = _get_colour_strings()
-_verbose = _os.environ.get('VERBOSE', '').lower()
-if _verbose in ('', '0', 'no', 'off', 'false'):
-    _verbose = False
-else:
-    _verbose = True
+        """
+        colours = {
+            'red': "\x1b[1m\x1b[31m",
+            'green': "\x1b[1m\x1b[32m",
+            'yellow': "\x1b[1m\x1b[33m",
+            '': "\x1b[0m",
+        }
+        if self.plain:
+            for key in colours:
+                colours[key] = ''
+        return colours
+
+    def _colourise(self, msg):
+        """Apply colours to a message.
+
+        #colourname# will change the text colour, ## will change the colour back.
+
+        """
+        for colour, val in self._colours.iteritems():
+            msg = msg.replace('#%s#' % colour, val)
+        return msg
+
+    def clear_line(self):
+        """Clear the current line of output, if possible.
+
+        Otherwise, just move to the start of the next line.
+
+        """
+        if self._line_pos == 0:
+            return
+        if self.plain:
+            self.write('\n')
+        else:
+            self.write("\r" + " " * self._line_pos + "\r")
+
+    def start_line(self):
+        """Ensure that we're at the start of a line.
+
+        """
+        if self._line_pos != 0:
+            self.write('\n')
+
+    def ensure_space(self):
+        """Ensure that we're preceded by whitespace.
+
+        """
+        if not self._had_space:
+            self.write(' ')
+
+    def write(self, msg):
+        """Write the message to the output stream.
+
+        """
+        if len(msg) == 0:
+            return
+
+        # Adjust the line position counted
+        nlpos = max(msg.rfind('\n'), msg.rfind('\r'))
+        if nlpos >= 0:
+            subline = msg[nlpos + 1:]
+            self._line_pos = len(subline) # Note - doesn't cope with tabs.
+        else:
+            self._line_pos += len(msg) # Note - doesn't cope with tabs.
+
+        # Record whether we ended with whitespace
+        self._had_space = msg[-1].isspace()
+
+        self._out.write(msg)
+
+    def write_colour(self, msg):
+        """Write a message, first substituting markup for colours.
+
+        """
+        self.write(self._colourise(msg))
+
+    def flush(self):
+        self._out.flush()
+
+
+_runner = TestRunner()
+context = _runner.context
+expect = _runner.expect
+expect_query = _runner.expect_query
+expect_exception = _runner.expect_exception
+runtests = _runner.runtests
+
+__all__ = ('context', 'expect', 'expect_query', 'expect_exception', 'runtests')
+
