@@ -24,22 +24,152 @@
 
 %pythoncode %{
 
-# Python-style iterators to mirror the C++ ones
+class _SequenceMixIn(object):
+    """Simple mixin class which provides a sequence API to a class.
+
+    This is used to support the legacy API to iterators used for releases of
+    Xapian earlier than 1.0.  It will be removed once this legacy API is
+    removed in release 1.1.
+
+    """
+
+    __slots__ = ('_sequence_items', )
+    def __init__(self, *args):
+        """Initialise the sequence.
+
+        *args holds the list of property names to be returned, in the order
+        they are returned by the sequence API.
+
+        """
+        self._sequence_items = args
+
+    def __len__(self):
+        """Get the length of the sequence.
+
+        Doesn't evaluate any of the lazily evaluated properties.
+
+        """
+        return len(self._sequence_items)
+
+    def __getitem__(self, key):
+        """Get an item, or a slice of items, from the sequence.
+
+        If any of the items are lazily evaluated properties, they will be
+        evaluated here.
+
+        """
+        if isinstance(key, slice):
+            return [getattr(self, i) for i in self._sequence_items[key]]
+        i = self._sequence_items[key]
+        return getattr(self, i)
+
+    def __iter__(self):
+        """Make an iterator for over the sequence.
+
+        This simply copies the items into a list, and returns an iterator over
+        it.  Any lazily evaluated properties will be evaluated here.
+
+        """
+        return iter(self[:])
+
+
+##################################
+# Support for iteration of MSets #
+##################################
+
+class MSetItem(_SequenceMixIn):
+    """An item returned from iteration of the MSet.
+
+    The item support access to the following attributes and properties:
+    `docid`, `weight`, `rank`, `percent`, `document`, `collapse_count`
+
+    The document property is lazily evaluated when first requested.
+
+    """
+
+    __slots__ = ('_iter', '_mset', '_firstitem', 'docid', 'weight', 'rank',
+                 'percent', 'collapse_count', '_document', )
+
+    def __init__(self, iter, mset):
+        self._iter = iter
+        self._mset = mset
+        self._firstitem = self._mset.get_firstitem()
+        self.docid = iter.get_docid()
+        self.weight = iter.get_weight()
+        self.rank = iter.get_rank()
+        self.percent = iter.get_percent()
+        self.collapse_count = iter.get_collapse_count()
+        self._document = None
+        _SequenceMixIn.__init__(self, 'docid', 'weight', 'rank', 'percent', 'document')
+
+    def _get_document(self):
+        if self._document is None:
+            self._document = self._mset.get_hit(self.rank - self._firstitem).get_document()
+        return self._document
+
+    document = property(_get_document, doc="Get the document ")
+
 class MSetIter(object):
-    def __init__(self, start, end):
-        self.iter = start
-        self.end = end
+    """An iterator over the items in an MSet.
+
+    The items returned are evaluated lazily where appropriate.
+
+    """
+    __slots__ = ('_iter', '_end', '_mset')
+    def __init__(self, mset):
+        self._iter = mset.begin()
+        self._end = mset.end()
+        self._mset = mset
 
     def __iter__(self):
         return self
 
     def next(self):
-        if self.iter==self.end:
+        if self._iter==self._end:
             raise StopIteration
         else:
-            r = [self.iter.get_docid(), self.iter.get_weight(), self.iter.get_rank(), self.iter.get_percent(), self.iter.get_document()]
-            self.iter.next()
+            r = MSetItem(self._iter, self._mset)
+            self._iter.next()
             return r
+
+
+# Modify the MSet to allow access to the python iterators, and have other
+# convenience methods.
+
+def _mset_gen_iter(self):
+    """Return an iterator over the MSet.
+
+    """
+    return MSetIter(self)
+MSet.__iter__ = _mset_gen_iter
+
+MSet.__len__ = MSet.size
+
+def _mset_getitem(self, index):
+    """Get and item from the MSet.
+
+    The supplied index is relative to the start of the MSet, not the absolute
+    rank of the item.
+
+    """
+    return MSetItem(self.get_hit(index), self)
+MSet.__getitem__ = _mset_getitem
+
+def _mset_contains(self, index):
+    """Check if the mset contains an item at the given index
+
+    The supplied index is relative to the start of the MSet, not the absolute
+    rank of the item.
+
+    """
+    return key >= 0 and key < len(self)
+MSet.__contains__ = _mset_contains
+
+
+##################################
+# Support for iteration of ESets #
+##################################
+
 
 class ESetIter(object):
     def __init__(self, start, end):
@@ -149,10 +279,6 @@ class ValueIter(object):
             return r
 
 # Bind the Python iterators into the shadow classes
-def mset_gen_iter(self):
-    return MSetIter(self.begin(), self.end())
-
-MSet.__iter__ = mset_gen_iter
 
 def eset_gen_iter(self):
     return ESetIter(self.begin(), self.end())

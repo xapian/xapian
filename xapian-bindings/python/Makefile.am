@@ -5,11 +5,11 @@ include ../generic/generic.mk
 TESTS_ENVIRONMENT = PYTHONPATH=".libs$(PYTHON_PATHSEP)." $(PYTHON)
 
 ## Test programs to be run
-TESTS = smoketest.py
+TESTS = smoketest.py pythontest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
-EXTRA_DIST = util.i extra.i except.i doccomments.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = util.i extra.i extracomments.i except.i doccomments.i $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
@@ -60,7 +60,7 @@ except.i: generate-python-exceptions ../../xapian-core/exception_data.pm
 doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-core/docs/apidoc/xml/index.xml
 	$(PYTHON) doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml doccomments.i
 
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: $(SWIG_sources) util.i except.i doccomments.i extra.i
+modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: $(SWIG_sources) util.i except.i doccomments.i extra.i extracomments.i
 	test -d modern || mkdir modern
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -python -shadow -modern -O -outdir modern \

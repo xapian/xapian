@@ -1,3 +1,19 @@
+Mon Apr 16 00:23:20 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Rework MSet iterators: they now return an
+	  MSetItem object instead of a sequence. The sequence API is
+	  emulated with a _SequenceMixIn baseclass. The MSetItem object
+	  allows access to all the properties returned in the list
+	  previously returned, and also allows access to the collapse_count
+	  property.  In addition, it evaluates the document property
+	  lazily, so no work is done if we don't actually want to read it.
+	  Also, add support for __getitem__ on MSet items to access items
+	  in the MSet in a more pythonic way, and implement the other
+	  sequence methods "__len__" and "__contains__".
+	* python/: Ignore some generated files.
+	* python/Makefile.am: Add pythontest.py and extracomments.py
+	* python/pythontest.py: New testsuite for Python-specific code.
+
 Mon Apr 16 00:19:16 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/doxy2swig.py.in: Don't add information about C++ includes
