@@ -45,7 +45,7 @@ PY_DEBUG_SUFFIX=
 !endif
 
 
-ALL : "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" "$(OUTDIR)\xapian.py" "$(OUTDIR)\smoketest.py"
+ALL : "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" "$(OUTDIR)\xapian.py" "$(OUTDIR)\smoketest.py" "$(OUTDIR)\pythontest.py" "$(OUTDIR)\testsuite.py"
 
 CLEAN :
 	-@erase "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd"
@@ -67,6 +67,7 @@ CLEANSWIG :
 DOTEST :
 	cd "$(OUTDIR)"
 	"$(PYTHON_EXE)" smoketest.py
+	"$(PYTHON_EXE)" pythontest.py
 	
 CHECK: ALL DOTEST	
 
@@ -82,7 +83,7 @@ CPP_SBRS=.
 
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_DEPENDENCIES) "/LIBPATH:$(PYTHON_LIB_DIR)"
 
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i extra.i except.i 
+modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i except.i doccomments.i extra.i extracomments.i
 	-erase /Q modern
 	-md modern
 	$(SWIG) -I"$(XAPIAN_CORE_REL_PYTHON)" -I"$(XAPIAN_CORE_REL_PYTHON)\include" -Werror -c++ -python -shadow -modern \
@@ -110,8 +111,15 @@ generate-python-exceptions: generate-python-exceptions.in
 	$(MANIFEST) "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd.manifest" -outputresource:"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd;2"
 
 
+
 "$(OUTDIR)\smoketest.py" : ".\smoketest.py"
 	-copy $** "$(OUTDIR)\smoketest.py"
+	
+"$(OUTDIR)\pythontest.py" : ".\pythontest.py"
+	-copy $** "$(OUTDIR)\pythontest.py"
+	
+"$(OUTDIR)\testsuite.py" : ".\testsuite.py"
+	-copy $** "$(OUTDIR)\testsuite.py"
 
 #
 # Rules
