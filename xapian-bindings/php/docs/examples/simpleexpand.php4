@@ -77,7 +77,7 @@ $eset = $enquire->get_eset(10, $rset);
 print $eset->size() . " suggested additional terms\n";
 $e = $eset->begin();
 while (!$e->equals($eset->end())) {
-    print "Term `" . $e->get_termname() . "'\t(weight " . $e->get_weight() . ")\n";
+    print "Term `" . $e->get_term() . "'\t(weight " . $e->get_weight() . ")\n";
     $e->next();
 }
 

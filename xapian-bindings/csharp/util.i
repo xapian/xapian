@@ -32,6 +32,7 @@
 %rename("GetTermFreq") get_termfreq;
 %rename("GetTermWeight") get_termweight;
 %rename("GetTermName") get_termname;
+%rename("GetTerm") get_term;
 %rename("GetDocCount") get_doccount;
 %rename("GetDocId") get_docid;
 %rename("GetDocLength") get_doclength;
