@@ -112,7 +112,7 @@ TcpClient::open_socket(const std::string & hostname, int port,
 
     if (retval < 0) {
 #ifdef __WIN32__
-	if (socket_errno() != WSAEWOULDBLOCK) {
+	if (WSAGetLastError() != WSAEWOULDBLOCK) {
 #else
 	if (socket_errno() != EINPROGRESS) {
 #endif

@@ -1,3 +1,8 @@
+Mon Apr 16 11:36:18 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/tcpclient.cc: Call WSAGetLastError() instead of socket_errno()
+	  when we want to compare the result against WSAEWOULDBLOCK.    
+
 Mon Apr 16 11:19:21 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/remoteconnection.h,common/safewinsock2.h: Need to negate the
