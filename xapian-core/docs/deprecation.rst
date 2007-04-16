@@ -2,8 +2,6 @@
 Deprecation
 ===========
 
-.. warning:: (10 April 2007) This document is a draft written by Richard Boulton, and the policies described in it have not yet been discussed by the Xapian developers.  Do not rely on the information in it until the draft status is removed.
-
 .. contents:: Table of contents
 
 Introduction
@@ -128,32 +126,97 @@ Features currently marked for deprecation
 Native C++ API
 --------------
 
-=========== ========== ============================= =======================================
-Deprecation Removal    Function name                 Upgrade suggestion
-=========== ========== ============================= =======================================
-0.9.6       ?          xapian_version_string()       Use version_string() instead.
-0.9.6       ?          xapian_major_version()        Use major_version() instead.
-0.9.6       ?          xapian_minor_version()        Use minor_version() instead.
-0.9.6       ?          xapian_revision()             Use revision() instead.
-0.9.0       1.0.0      Enquire::set_sort_forward()   Use Enquire::set_docid_order() instead.
-0.9.0       1.0.0      Enquire::set_sorting()        Use Enquire::set_sort_by_*() instead.
-0.9.0       1.0.0      Stem::stem_word(word)         Use Stem::operator()(word) instead.
-0.8.4       1.0.0      Auto::open(path)              Use the Database(path) constructor instead.
-0.8.4       1.0.0      Auto::open(path, action)      Use the WritableDatabase(path, action) constructor instead.
-0.8.2       1.0.0      Query::is_empty()             Use Query::empty() instead.
-0.8.0       1.0.0      Document::add_term_nopos()    Use Document::add_term() instead.
-0.5.0       ?          Enquire::set_bias()           No replacement yet implemented.
-=========== ========== ============================= =======================================
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| **Deprecation** | **Removal**    | **Function name**             | **Upgrade suggestion and comments**                                           |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | ? [#version]_  | xapian_version_string()       | Use version_string() instead.                                                 |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | ? [#version]_  | xapian_major_version()        | Use major_version() instead.                                                  |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | ? [#version]_  | xapian_minor_version()        | Use minor_version() instead.                                                  |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | ? [#version]_  | xapian_revision()             | Use revision() instead.                                                       |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.9.0           | 1.0.0          | Enquire::set_sort_forward()   | Use Enquire::set_docid_order() instead:                                       |
+|                 |                |                               |                                                                               |
+|                 |                |                               |  - set_sort_forward(true) becomes set_docid_order(ASCENDING),                 |
+|                 |                |                               |  - set_sort_forward(false) becomes set_docid_order(DESCENDING).               |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.9.0           | 1.0.0          | Enquire::set_sorting()        | Use Enquire::set_sort_by_relevance(), Enquire::set_sort_by_value(), or        |
+|                 |                |                               | Enquire::set_sort_by_value_then_relevance() instead.                          |
+|                 |                |                               |                                                                               |
+|                 |                |                               |  - set_sorting(KEY, 1) becomes set_sort_by_value(KEY)                         |
+|                 |                |                               |  - set_sorting(KEY, 1, false) becomes set_sort_by_value(KEY)                  |
+|                 |                |                               |  - set_sorting(KEY, 1, true) becomes set_sort_by_value_then_relevance(KEY)    |
+|                 |                |                               |  - set_sorting(ANYTHING, 0) becomes set_sort_by_relevance()                   |
+|                 |                |                               |  - set_sorting(Xapian::BAD_VALUENO, ANYTHING) becomes set_sort_by_relevance() |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.9.0           | 1.0.0          | Stem::stem_word(word)         | Use Stem::operator()(word) instead.                                           |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.8.4           | 1.0.0          | Auto::open(path)              | Use the Database(path) constructor instead.                                   |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.8.4           | 1.0.0          | Auto::open(path, action)      | Use the WritableDatabase(path, action) constructor instead.                   |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.8.2           | 1.0.0          | Query::is_empty()             | Use Query::empty() instead.                                                   |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.8.0           | 1.0.0          | Document::add_term_nopos()    | Use Document::add_term() instead.                                             |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.5.0           | ? [#bias]_     | Enquire::set_bias()           | No replacement yet implemented.                                               |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+
+.. [#version] The version functions will probably be preserved for longer than the usual lifetime of deprecated functions, because it is unhelpful to remove functions which people use to test the version of the library in use.  However, the replacements have been supported for long enough that new applications should use the replacement functions without worrying about old library versions which don't support them.
+
+.. [#bias] The Enquire::set_bias() function has been marked as "temporary" since it was introduced, and will probably be removed with little advance notice once a replacement is implemented.
 
 
 Bindings
 --------
 
-================= ========= =================== =======================================
-Deprecated since  Language  Function name       Upgrade suggestion
-================= ========= =================== =======================================
-================= ========= =================== =======================================
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| **Deprecation** | **Removal** | **Language**   | **Function name**           | **Upgrade suggestions and comments**                                          |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0       | SWIG [#swig]_  | ESet::get_termname()        | Use ESet::get_term() instead.  This change is intended to bring the           |
+|                 |             |                |                             | ESet iterators in line with other term iterators, which all support           |
+|                 |             |                |                             | get_term() instead of get_termname()                                          |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | 1.1.0       | SWIG [#swig2]_ | MSet::get_document_id()     | Use MSet::get_docid() instead.                                                |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.9.0           | 1.1.0       | SWIG [#swig]_  | Stem::stem_word(word)       | Use Stem::operator()(word) instead. [#callable]_                              |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.8.5           | 1.0.0       | SWIG [#swig]_  | Enquire::set_sort_forward() | Use Enquire::set_sort_forward() instead.                                      |
+|                 |             |                |                             |                                                                               |
+|                 |             |                |                             |  - set_sort_forward(true) becomes set_docid_order(ASCENDING),                 |
+|                 |             |                |                             |  - set_sort_forward(false) becomes set_docid_order(DESCENDING).               |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.8.5           | 1.0.0       | SWIG [#swig]_  | Enquire::set_sorting()      | Use Enquire::set_sort_by_relevance(), Enquire::set_sort_by_value(),           |
+|                 |             |                |                             | or Enquire::set_sort_by_value_then_relevance() instead.                       |
+|                 |             |                |                             |                                                                               |
+|                 |             |                |                             |  - set_sorting(KEY, 1) becomes set_sort_by_value(KEY)                         |
+|                 |             |                |                             |  - set_sorting(KEY, 1, false) becomes set_sort_by_value(KEY)                  |
+|                 |             |                |                             |  - set_sorting(KEY, 1, true) becomes set_sort_by_value_then_relevance(KEY)    |
+|                 |             |                |                             |  - set_sorting(ANYTHING, 0) becomes set_sort_by_relevance()                   |
+|                 |             |                |                             |  - set_sorting(Xapian::BAD_VALUENO, ANYTHING) becomes set_sort_by_relevance() |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.8.4           | 1.0.0       | SWIG [#swig]_  | Auto::open(path)            | Use the Database(path) constructor instead.                                   |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.8.4           | 1.0.0       | SWIG [#swig]_  | Auto::open(path, action)    | Use the WritableDatabase(path, action) constructor instead.                   |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.8.2           | 1.0.0       | SWIG [#swig2]_ | MSet::is_empty()            | Use MSet::empty() instead.                                                    |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.8.2           | 1.0.0       | SWIG [#swig2]_ | ESet::is_empty()            | Use ESet::empty() instead.                                                    |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.8.2           | 1.0.0       | SWIG [#swig2]_ | RSet::is_empty()            | Use RSet::empty() instead.                                                    |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.8.2           | 1.0.0       | SWIG [#swig2]_ | Query::is_empty()           | Use Query::empty() instead.                                                   |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.8.0           | 1.0.0       | SWIG [#swig]_  | Document::add_term_nopos()  | Use Document::add_term() instead.                                             |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 
+.. [#swig] This affects all swig generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
+
+.. [#swig2] This affects all swig generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core.
+
+.. [#callable] Not clear if replacement works in all SWIG supported languages, so its removal is deferred to release 1.1.0?  FIXME - check the replacements, and list here: Python is okay.  To be checked: PHP, Ruby, Tcl8, CSharp
 
 Features removed from Xapian
 ============================
@@ -161,20 +224,37 @@ Features removed from Xapian
 Native C++ API
 --------------
 
-================= ==================================== =======================================
-Removed since     Function name                        Upgrade suggestion
-================= ==================================== =======================================
-1.0.0             QueryParser::set_stemming_options()  Use set_stemming_strategy() instead.
-================= ==================================== =======================================
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| **Removal**    | **Function name**                   | **Upgrade suggestion and comments**                                                     |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | QueryParser::set_stemming_options() | Use set_stemming_strategy() instead.                                                    |
+|                |                                     | Use set_stemmer(), set_stemming_strategy() and/or set_stopper() instead.                |
+|                |                                     |                                                                                         |
+|                |                                     | - set_stemming_options("") becomes:                                                     |
+|                |                                     |   set_stemming_strategy(Xapian::QueryParser::STEM_NONE)                                 |
+|                |                                     | - set_stemming_options("none") becomes:                                                 |
+|                |                                     |   set_stemming_strategy(Xapian::QueryParser::STEM_NONE)                                 |
+|                |                                     | - set_stemming_options(LANG) becomes:                                                   |
+|                |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_SOME) |
+|                |                                     |                                                                                         |
+|                |                                     | - set_stemming_options(LANG, false) becomes:                                            |
+|                |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_SOME) |
+|                |                                     |                                                                                         |
+|                |                                     | - set_stemming_options(LANG, true) becomes:                                             |
+|                |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_ALL)  |
+|                |                                     |                                                                                         |
+|                |                                     | If a third parameter is passed, set_stopper(PARAM3) and treat the first two             |
+|                |                                     | parameters as above.                                                                    |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
 
 
 Bindings
 --------
 
-================= ========= =================== =======================================
-Removed since     Language  Function name       Upgrade suggestion
-================= ========= =================== =======================================
-================= ========= =================== =======================================
++-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| **Removal** | **Language**   | **Function name**           | **Upgrade suggestions and comments**                                          |
++-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
++-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 
 
 Author
