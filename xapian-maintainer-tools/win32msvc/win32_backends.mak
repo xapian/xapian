@@ -20,25 +20,6 @@ DEPLIBS = "$(OUTDIR)\libinmemory.lib" \
 
 ALL : $(DEPLIBS) "$(OUTDIR)\libbackend.lib" 
 
-CLEAN :
-	-@erase "$(OUTDIR)\libbackend.lib"
-	-@erase "$(INTDIR)\*.pch"
-	-@erase "$(INTDIR)\*.pdb"
-	-@erase $(LIBBACKEND_OBJS)
-	-@erase $(CLEANFILES)
-	cd quartz
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
-	cd ..\flint
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
-	cd ..\inmemory
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
-	cd ..\multi
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
-	cd ..\remote
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
-	cd ..
-
-
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
@@ -49,7 +30,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-LIBBACKEND_OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj 
+LIBBACKEND_OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)\alltermslist.obj 
 
 "$(OUTDIR)\LIBBACKEND.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBBACKEND_OBJS)
     $(LIB32) @<<
@@ -62,6 +43,11 @@ LIBBACKEND_OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj
 <<
 
 "$(INTDIR)\dbfactory_remote.obj" : ".\dbfactory_remote.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\alltermslist.obj" : ".\alltermslist.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
@@ -101,3 +87,21 @@ LIBBACKEND_OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj
        cd remote
        nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
+
+CLEAN :
+	-@erase "$(OUTDIR)\libbackend.lib"
+	-@erase "$(INTDIR)\*.pch"
+	-@erase "$(INTDIR)\*.pdb"
+	-@erase $(LIBBACKEND_OBJS)
+	cd quartz
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..\flint
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..\inmemory
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..\multi
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..\remote
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..
+
