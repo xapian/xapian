@@ -1,3 +1,10 @@
+Tue Apr 17 00:55:17 BST 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,htmlparse.cc,indextext.cc,indextext.h,query.cc,sample.cc,
+	  scriptindex.cc,tclUniData.cc,tclUniData.h,utf8convert.cc,utf8itor.cc,
+	  utf8itor.h,utf8test.cc: Use the new Unicode API routines in the core
+	  Xapian library instead of local copies.
+
 Thu Apr 12 17:04:07 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am: omega and scriptindex both need tclUniData.cc.

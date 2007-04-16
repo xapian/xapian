@@ -22,6 +22,8 @@
 
 #include <config.h>
 
+#include <xapian.h>
+
 #include <algorithm>
 using std::find;
 using std::find_if;
@@ -31,7 +33,6 @@ using std::find_if;
 
 #include "htmlparse.h"
 #include "utf8convert.h"
-#include "utf8itor.h"
 
 map<string, unsigned int> HtmlParser::named_ents;
 
@@ -129,7 +130,7 @@ HtmlParser::decode_entities(string &s)
 	    } else {
 		// Convert unicode value val to UTF-8.
 		char seq[4];
-		unsigned len = nonascii_to_utf8(val, seq);
+		unsigned len = Xapian::Unicode::Internal::nonascii_to_utf8(val, seq);
 		s.replace(amp_pos, end - amp, seq, len);
 	    }
 	    s_end = s.end();

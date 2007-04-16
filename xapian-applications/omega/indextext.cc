@@ -23,12 +23,15 @@
 #include <config.h>
 
 #include "indextext.h"
-#include "tclUniData.h"
-#include "utf8itor.h"
+
+#include <xapian.h>
 
 #include <ctype.h>
 
 using namespace std;
+
+using Xapian::Utf8Iterator;
+using Xapian::Unicode::is_wordchar;
 
 Xapian::termpos
 index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
@@ -43,8 +46,6 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 	rprefix += ':';
     rprefix += 'R';
 
-    char buf[4];
-
     Utf8Iterator j(s);
     const Utf8Iterator s_end;
     while (true) {
@@ -55,9 +56,9 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 	string term;
 	if (*first < 128 && isupper(*first)) {
 	    j = first;
-	    term.append(buf, to_utf8(*j, buf));
+	    Xapian::Unicode::append_utf8(term, *j);
 	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && isupper(*j)) {
-		term.append(buf, to_utf8(*j, buf));
+		Xapian::Unicode::append_utf8(term, *j);
 	    }
 	    if (term.length() < 2 || (j != s_end && is_wordchar(*j))) {
 		term = "";
@@ -67,7 +68,7 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 	if (term.empty()) {
 	    j = first;
 	    while (is_wordchar(*j)) {
-		term.append(buf, to_utf8(*j, buf));
+		Xapian::Unicode::append_utf8(term, *j);
 		++j;
 		if (j == s_end) break;
 		if (*j == '&' || *j == '\'') {
@@ -86,7 +87,7 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 		    do { ++j; } while (j != s_end && *j == '#');
 		} else {
 		    while (j != s_end && (*j == '+' || *j == '-')) {
-			term.append(buf, to_utf8(*j, buf));
+			Xapian::Unicode::append_utf8(term, *j);
 			++j;
 		    }
 		}
@@ -100,7 +101,7 @@ index_text(const string &s, Xapian::Document &doc, Xapian::Stem &stemmer,
 	j = last;
 
 	if (term.length() <= MAX_PROB_TERM_LENGTH) {
-	    term = U_downcase_term(term);
+	    term = Xapian::Unicode::tolower(term);
 	    if (isupper(static_cast<unsigned char>(*first))) {
 		if (pos != static_cast<Xapian::termpos>(-1)
 			// Not in GCC 2.95.2 numeric_limits<Xapian::termpos>::max()

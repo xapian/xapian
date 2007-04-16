@@ -28,7 +28,7 @@
 #ifdef USE_ICONV
 # include <iconv.h>
 #else
-# include "utf8itor.h"
+# include <xapian.h>
 #endif
 #include <string.h>
 #ifdef HAVE_STRINGS_H
@@ -90,6 +90,7 @@ convert_to_utf8(string & text, const string & charset)
     if (*p == '-' || *p == '_') ++p;
     if (strcmp(p, "1") != 0) return;
 
+    // FIXME: pull this out as a standard "normalise utf-8" function?
     string tmp;
     tmp.reserve(text.size());
 

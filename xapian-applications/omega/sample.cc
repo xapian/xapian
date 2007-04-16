@@ -19,8 +19,9 @@
 
 #include <config.h>
 
+#include <xapian.h>
+
 #include "sample.h"
-#include "utf8itor.h"
 
 #include <string>
 
@@ -29,7 +30,6 @@ using namespace std;
 string
 generate_sample(const string & input, size_t maxlen)
 {
-    char ubuf[4];
     string output;
 
     // Reserve an appropriate amount of space to repeated reallocation as
@@ -44,8 +44,8 @@ generate_sample(const string & input, size_t maxlen)
 
     size_t last_word_end = 0;
     bool in_space = true;
-    Utf8Iterator i(input);
-    for ( ; i != Utf8Iterator(); ++i) {
+    Xapian::Utf8Iterator i(input);
+    for ( ; i != Xapian::Utf8Iterator(); ++i) {
 	if (output.size() >= maxlen) {
 	    // Need to truncate output.
 	    if (last_word_end <= maxlen / 2) {
@@ -69,7 +69,7 @@ generate_sample(const string & input, size_t maxlen)
 	    continue;
 	}
 
-	output.append(ubuf, to_utf8(ch, ubuf));
+	Xapian::Unicode::append_utf8(output, ch);
 	in_space = false;
     }
 

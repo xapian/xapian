@@ -24,8 +24,6 @@
 
 #include <string>
 
-#include "utf8itor.h"
-
 // Put a limit on the size of terms to help prevent the index being bloated
 // by useless junk terms
 static const unsigned int MAX_PROB_TERM_LENGTH = 64;

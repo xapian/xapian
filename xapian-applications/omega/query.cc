@@ -66,16 +66,19 @@
 #include "cgiparam.h"
 #include "indextext.h"
 #include "loadfile.h"
-#include "utf8itor.h"
 #include "values.h"
 
-#include <xapian/queryparser.h>
+#include <xapian.h>
 
 #ifdef _MSC_VER
 # define strcasecmp stricmp
 #endif
 
 using namespace std;
+
+using Xapian::Utf8Iterator;
+
+using Xapian::Unicode::is_wordchar;
 
 #ifndef SNPRINTF
 #include <stdarg.h>
@@ -578,7 +581,6 @@ html_highlight(const string &s, const string &list,
 
     string res;
 
-    char buf[4];
     Utf8Iterator j(s);
     const Utf8Iterator s_end;
     while (true) {
@@ -591,9 +593,9 @@ html_highlight(const string &s, const string &list,
 	const char *l = j.raw();
 	if (*first < 128 && isupper(*first)) {
 	    j = first;
-	    term.append(buf, to_utf8(*j, buf));
+	    Xapian::Unicode::append_utf8(term, *j);
 	    while (++j != s_end && *j == '.' && ++j != s_end && *j < 128 && isupper(*j)) {
-		term.append(buf, to_utf8(*j, buf));
+		Xapian::Unicode::append_utf8(term, *j);
 	    }
 	    if (term.length() < 2 || (j != s_end && is_wordchar(*j))) {
 		term = "";
@@ -603,7 +605,7 @@ html_highlight(const string &s, const string &list,
 	if (term.empty()) {
 	    j = first;
 	    while (is_wordchar(*j)) {
-		term.append(buf, to_utf8(*j, buf));
+		Xapian::Unicode::append_utf8(term, *j);
 		++j;
 		if (j == s_end) break;
 		if (*j == '&' || *j == '\'') {
@@ -622,7 +624,7 @@ html_highlight(const string &s, const string &list,
 		    do { ++j; } while (j != s_end && *j == '#');
 		} else {
 		    while (j != s_end && (*j == '+' || *j == '-')) {
-			term.append(buf, to_utf8(*j, buf));
+			Xapian::Unicode::append_utf8(term, *j);
 			++j;
 		    }
 		}
@@ -635,7 +637,7 @@ html_highlight(const string &s, const string &list,
 	}
 	j = term_end;
 	unsigned char first_char = term[0];
-	term = U_downcase_term(term);
+	term = Xapian::Unicode::tolower(term);
 	int match = -1;
 	if (first_char < 128 && isupper(first_char)) {
 	    match = word_in_list('R' + term, list);

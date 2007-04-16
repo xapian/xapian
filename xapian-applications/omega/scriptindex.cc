@@ -504,7 +504,7 @@ index_file(const char *fname, istream &stream,
 			break;
 		    }
 		    case Action::LOWER:
-			value = U_downcase_term(value);
+			value = Xapian::Unicode::tolower(value);
 			break;
 		    case Action::LOAD: {
 			bool truncated = false;
