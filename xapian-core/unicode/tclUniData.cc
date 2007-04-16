@@ -13,7 +13,9 @@
  */
 
 #include <config.h>
-#include "tclUniData.h"
+
+#include <xapian/unicode.h>
+#include "omassert.h"
 
 /*
  * The pageMap is indexed by page number and returns an alternate page number
@@ -21,6 +23,7 @@
  * to the same alternate page number.
  */
 
+static const
 unsigned char pageMap[] = {
     0, 1, 2, 3, 0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 7, 15, 16, 17, 
     18, 19, 20, 21, 22, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 7, 32, 
@@ -384,6 +387,7 @@ unsigned char pageMap[] = {
  * set of character attributes.
  */
 
+static const
 unsigned char groupMap[] = {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
     1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 3, 3, 4, 3, 3, 3, 5, 6, 3, 7, 3, 8, 
@@ -802,6 +806,21 @@ unsigned char groupMap[] = {
 };
 
 /*
+ * A 16-bit Unicode character is split into two parts in order to index
+ * into the following tables.  The lower OFFSET_BITS comprise an offset
+ * into a page of characters.  The upper bits comprise the page number.
+ */
+
+#define OFFSET_BITS 5
+
+/*
+ * The following constants are used to determine the category of a
+ * Unicode character.
+ */
+
+#define UNICODE_CATEGORY_MASK 0X1F
+
+/*
  * Each group represents a unique set of character attributes.  The attributes
  * are encoded into a 32-bit value as follows:
  *
@@ -820,6 +839,7 @@ unsigned char groupMap[] = {
  *			    highest field so we can easily sign extend.
  */
 
+static const
 int groups[] = {
     0, 15, 12, 25, 27, 21, 22, 26, 20, 9, 134217793, 28, 19, 134217858, 
     29, 2, 23, 11, 1178599554, 24, -507510654, 4194369, 4194434, -834666431, 
@@ -840,3 +860,9 @@ int groups[] = {
     -801111999, -293601215, 67108938, 67109002, 109051997, 109052061, 
     18, 17, 8388673, 12582977, 8388738, 12583042
 };
+
+// Xapian specific function.
+int Xapian::Unicode::Internal::get_character_info(unsigned ch) {
+    Assert(ch < 0x10000);
+    return (groups[groupMap[(pageMap[((int)(ch)) >> OFFSET_BITS] << OFFSET_BITS) | ((ch) & ((1 << OFFSET_BITS)-1))]]);
+}

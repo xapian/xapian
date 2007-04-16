@@ -23,7 +23,7 @@
 
 #include "omassert.h"
 #include "queryparser_internal.h"
-#include "utf8itor.h"
+#include <xapian/unicode.h>
 #include "utils.h"
 
 // Include the list of token values lemon generates.
@@ -67,10 +67,14 @@ U_issign(unsigned ch) {
     return (ch < 128 && C_issign((unsigned char)ch));
 }
 
+using Unicode::is_wordchar;
+
 inline bool
 is_not_wordchar(unsigned ch) {
-    return !is_wordchar(ch);
+    return !Unicode::is_wordchar(ch);
 }
+
+using Unicode::is_currency;
 
 /// Wrapper around a query, allowing us to distinguish between a query
 /// representing an empty list of queries, and a "MatchNothing" query.
@@ -261,8 +265,6 @@ static void Parse(yyParser *, int, Term *, State *);
 Query
 QueryParser::Internal::parse_query(const string &qs, unsigned flags, const string &default_prefix)
 {
-    char ubuf[6];
-
     yyParser * pParser = ParseAlloc();
 
     // Set value_ranges if we may have to handle value ranges in the query.
@@ -307,7 +309,7 @@ main_lex_loop:
 
 		    string r;
 		    do {
-			r.append(ubuf, to_utf8(*it++, ubuf));
+			Unicode::append_utf8(r, *it++);
 		    } while (it != p);
 		    // Trim off the trailing "..".
 		    r.resize(r.size() - 2);
@@ -316,7 +318,7 @@ main_lex_loop:
 		    // Allow any character except whitespace and ')' in a
 		    // RANGE_END.  Or should we be consistent with RANGE_START?
 		    do {
-			r.append(ubuf, to_utf8(*p++, ubuf));
+			Unicode::append_utf8(r, *p++);
 		    } while (p != end && *p > ' ' && *p != ')');
 		    Parse(pParser, RANGE_END, new Term(r, 0), &state);
 		    it = p;
@@ -432,7 +434,7 @@ main_lex_loop:
 		string field;
 		p = it;
 		while (*p != ':')
-		    field.append(ubuf, to_utf8(*p++, ubuf));
+		    Unicode::append_utf8(field, *p++);
 		map<string, PrefixInfo>::const_iterator f;
 		f = prefixes.find(field);
 		if (f != prefixes.end()) {
@@ -452,7 +454,7 @@ main_lex_loop:
 			    prefix += ':';
 			string term;
 			while (it != end && *it > ' ' && *it != ')')
-			    term.append(ubuf, to_utf8(*it++, ubuf));
+			    Unicode::append_utf8(term, *it++);
 			prefix += term;
 			field += ':';
 			field += term;
@@ -505,7 +507,7 @@ phrased_term:
 	    string t;
 	    Utf8Iterator p = it;
 	    do {
-		t.append(ubuf, to_utf8(*p++, ubuf));
+		Unicode::append_utf8(t, *p++);
 	    } while (p != end && *p == '.' && ++p != end && U_isupper(*p));
 	    // One letter does not make an acronym!  If we handled a single
 	    // uppercase letter here, we wouldn't catch M&S below.
@@ -532,7 +534,7 @@ phrased_term:
 		    ++p;
 		    if (p == end || !is_wordchar(*p)) break;
 		}
-		term.append(ubuf, to_utf8(ch, ubuf));
+		Unicode::append_utf8(term, ch);
 		++it;
 	    }
 	    if (it != end && (*it == '#' || U_issign(*it))) {
@@ -551,7 +553,7 @@ phrased_term:
 		    // much sense - we should probably be more conservative as
 		    // to what combinations are allowed.
 		    do {
-			suff_term.append(ubuf, to_utf8(*p++, ubuf));
+			Unicode::append_utf8(suff_term, *p++);
 		    } while (p != end && U_issign(*p));
 		}
 		if (p == end || !is_wordchar(*p)) {
@@ -560,11 +562,11 @@ phrased_term:
 		    // the case when QueryParser::set_database() hasn't
 		    // been called.
 		    bool use_suff_term = false;
-		    string lc = U_downcase_term(suff_term);
+		    string lc = Unicode::tolower(suff_term);
 		    if (db.term_exists(lc)) {
 			use_suff_term = true;
 		    } else {
-			lc = U_downcase_term(term);
+			lc = Unicode::tolower(term);
 			if (!db.term_exists(lc)) use_suff_term = true;
 		    }
 		    if (use_suff_term) {
@@ -665,7 +667,7 @@ phrased_term:
 	}
 
 	if (unstemmed_term.empty()) unstemmed_term = term;
-	term = U_downcase_term(term);
+	term = Unicode::tolower(term);
 	if (need_to_stem) {
 	    if (stem_action == STEM_SOME && U_isupper(unstemmed_term[0]))
 		term = 'R' + term;

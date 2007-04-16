@@ -6,9 +6,7 @@ endif
 
 noinst_HEADERS +=\
 	queryparser/queryparser_internal.h\
-	queryparser/queryparser_token.h\
-	queryparser/tclUniData.h\
-	queryparser/utf8itor.h
+	queryparser/queryparser_token.h
 
 lemon_built_sources =\
 	queryparser/queryparser_internal.cc\
@@ -42,6 +40,4 @@ endif
 
 libxapian_la_SOURCES +=\
 	queryparser/queryparser.cc\
-	queryparser/queryparser_internal.cc\
-	queryparser/tclUniData.cc\
-	queryparser/utf8itor.cc
+	queryparser/queryparser_internal.cc

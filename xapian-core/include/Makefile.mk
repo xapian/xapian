@@ -19,6 +19,7 @@ xapianinclude_HEADERS =\
 	include/xapian/stem.h\
 	include/xapian/termiterator.h\
 	include/xapian/types.h\
+	include/xapian/unicode.h\
 	include/xapian/valueiterator.h\
 	include/xapian/visibility.h
 

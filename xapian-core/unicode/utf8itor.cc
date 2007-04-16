@@ -19,10 +19,16 @@
 
 #include <config.h>
 
-#include "utf8itor.h"
+#include <xapian/unicode.h>
+
+#include <string.h>
+
+inline bool bad_cont(unsigned char ch) { return (ch & 0xc0) != 0x80; }
+
+namespace Xapian {
 
 // buf should be at least 4 bytes.
-unsigned nonascii_to_utf8(unsigned ch, char * buf) {
+unsigned Unicode::Internal::nonascii_to_utf8(unsigned ch, char * buf) {
     if (ch < 0x800) {
 	buf[0] = 0xc0 | (ch >> 6);
 	buf[1] = 0x80 | (ch & 0x3f);
@@ -45,6 +51,11 @@ unsigned nonascii_to_utf8(unsigned ch, char * buf) {
     // Should we be presented with such a numeric character
     // entity or similar, we just replace it with nothing.
     return 0;
+}
+
+Utf8Iterator::Utf8Iterator(const char *p_)
+{
+    assign(p_, strlen(p_));
 }
 
 void Utf8Iterator::calculate_sequence_length() const {
@@ -97,4 +108,6 @@ unsigned Utf8Iterator::operator*() const {
 	return ((ch & 0x0f) << 12) | ((p[1] & 0x3f) << 6) | (p[2] & 0x3f);
     return ((ch & 0x07) << 18) | ((p[1] & 0x3f) << 12) |
 	    ((p[2] & 0x3f) << 6) | (p[3] & 0x3f);
+}
+
 }

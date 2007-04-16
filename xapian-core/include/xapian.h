@@ -48,7 +48,10 @@
 // Stemming
 #include <xapian/stem.h>
 
-// Methods returning library version.
+// Unicode support
+#include <xapian/unicode.h>
+
+// Methods returning library version:
 
 #include <xapian/deprecated.h>
 #include <xapian/visibility.h>
