@@ -81,14 +81,38 @@ class MSetItem(_SequenceMixIn):
     """An item returned from iteration of the MSet.
 
     The item support access to the following attributes and properties:
-    `docid`, `weight`, `rank`, `percent`, `document`, `collapse_count`
 
-    The document property is lazily evaluated when first requested.
+     - `docid`: The Xapian document ID corresponding to this MSet item.
+     - `weight`: The weight corresponding to this MSet item.
+     - `rank`: The rank of this MSet item.  The rank is the position in the
+       total set of matching documents of this item.  The highest document is
+       given a rank of 0.  If the MSet did not start at the highest matching
+       document, because a non-zero `start` parameter was supplied to
+       get_mset(), the first document in the MSet will have a rank greater than
+       0 (in fact, it will be equal to the value of `start` supplied to
+       get_mset()).
+     - `percent`: The percentage score assigned to this MSet item.
+     - `document`: The document for this MSet item.  This can be used to access
+       the document data, or any other information stored in the document (such
+       as term lists).  It is lazily evaluated.
+     - `collapse_key`: The value of the key which was used for collapsing.
+     - `collapse_count`: An estimate of the number of documents that have been collapsed
+       into this one.
+
+    The collapse count estimate will always be less than or equal to the actual
+    number of other documents satisfying the match criteria with the same
+    collapse key as this document.  If may be 0 even though there are other
+    documents with the same collapse key which satisfying the match criteria.
+    However if this method returns non-zero, there definitely are other such
+    documents.  So this method may be used to inform the user that there are
+    "at least N other matches in this group", or to control whether to offer a
+    "show other documents in this group" feature (but note that it may not
+    offer it in every case where it would show other documents).
 
     """
 
     __slots__ = ('_iter', '_mset', '_firstitem', 'docid', 'weight', 'rank',
-                 'percent', 'collapse_count', '_document', )
+                 'percent', 'collapse_key', 'collapse_count', '_document', )
 
     def __init__(self, iter, mset):
         self._iter = iter
@@ -98,6 +122,7 @@ class MSetItem(_SequenceMixIn):
         self.weight = iter.get_weight()
         self.rank = iter.get_rank()
         self.percent = iter.get_percent()
+        self.collapse_key = iter.get_collapse_key()
         self.collapse_count = iter.get_collapse_count()
         self._document = None
         _SequenceMixIn.__init__(self, 'docid', 'weight', 'rank', 'percent', 'document')
@@ -107,7 +132,7 @@ class MSetItem(_SequenceMixIn):
             self._document = self._mset.get_hit(self.rank - self._firstitem).get_document()
         return self._document
 
-    document = property(_get_document, doc="Get the document ")
+    document = property(_get_document, doc="The document object corresponding to this MSet item.")
 
 class MSetIter(object):
     """An iterator over the items in an MSet.

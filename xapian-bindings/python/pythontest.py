@@ -69,6 +69,7 @@ def test_mset_iter():
     expect(items[2].docid, 4)
     expect(items[2].rank, 2)
     expect(items[2].percent, 81)
+    expect(items[2].collapse_key, '')
     expect(items[2].collapse_count, 0)
     expect(items[2].document.get_data(), 'was it warm? three')
 
@@ -86,11 +87,14 @@ def test_mset_iter():
             num = 0
             for item in submset:
                 context("testing hit %d for sub-mset from %d, maxitems %d" % (num, start, maxitems))
+                expect(item.rank, num + start)
+
                 hit = submset.get_hit(num)
                 expect(hit.get_docid(), item.docid)
                 expect(hit.get_rank(), item.rank)
                 expect(hit.get_percent(), item.percent)
                 expect(hit.get_document().get_data(), item.document.get_data())
+                expect(hit.get_collapse_key(), item.collapse_key)
                 expect(hit.get_collapse_count(), item.collapse_count)
 
                 hit = mset.get_hit(num + start)
@@ -98,12 +102,14 @@ def test_mset_iter():
                 expect(hit.get_rank(), item.rank)
                 expect(hit.get_percent(), item.percent)
                 expect(hit.get_document().get_data(), item.document.get_data())
+                expect(hit.get_collapse_key(), item.collapse_key)
                 expect(hit.get_collapse_count(), item.collapse_count)
 
                 expect(submset[num].docid, item.docid)
                 expect(submset[num].rank, item.rank)
                 expect(submset[num].percent, item.percent)
                 expect(submset[num].document.get_data(), item.document.get_data())
+                expect(submset[num].collapse_key, item.collapse_key)
                 expect(submset[num].collapse_count, item.collapse_count)
 
                 num += 1

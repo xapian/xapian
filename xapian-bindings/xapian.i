@@ -365,6 +365,7 @@ class MSetIterator {
     Document get_document() const;
     doccount get_rank() const;
     weight get_weight() const;
+    string get_collapse_key() const;
     doccount get_collapse_count() const;
     percent get_percent() const;
     string get_description() const;
