@@ -87,7 +87,7 @@ modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i 
 	-md modern
 	$(SWIG) -I"$(XAPIAN_CORE_REL_PYTHON)" -I"$(XAPIAN_CORE_REL_PYTHON)\include" -Werror -c++ -python -shadow -modern \
 	    -outdir modern -o modern/xapian_wrap.cc ../xapian.i
-	$(PERL_EXE) -pe 's/class Error:/class Error(Exception):/' modern/xapian.py > modern/xapian_py.tmp
+	$(PERL_EXE) -pe "s/class Error:/class Error(Exception):/" modern/xapian.py > modern/xapian_py.tmp
 	-erase modern/xapian.py
 	-rename modern/xapian_py.tmp modern/xapian.py
 
@@ -103,7 +103,7 @@ except.i: generate-python-exceptions
 	$(PERL_EXE) generate-python-exceptions exception_data.pm 
 		
 generate-python-exceptions: generate-python-exceptions.in
-	$(PERL_EXE) -pe 'BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl,' "$(PERL_EXE)" generate-python-exceptions.in > generate-python-exceptions
+	$(PERL_EXE) -pe "BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl," "$(PERL_EXE)" generate-python-exceptions.in > generate-python-exceptions
 
 "$(OUTDIR)\xapian.py" : "modern\xapian.py"
 	-copy $** "$(OUTDIR)\xapian.py"
