@@ -268,8 +268,10 @@ class Document {
 
     void add_posting(const string & tname, termpos tpos, termcount wdfinc=1);
     void add_term(const string & tname, termcount wdfinc = 1);
-    // For compatibility with older code.
+
+    // This method is deprecated from version 0.8.2 - use add_term() instead.
     void add_term_nopos(const string & tname, termcount wdfinc = 1);
+
     void remove_posting(const string & tname, termpos tpos, termcount wdfdec = 1);
     void remove_term(const string & tname);
     void clear_terms();
@@ -314,7 +316,8 @@ class MSet {
     bool empty() const;
 #ifndef SWIGRUBY
     // We don't wrap methods which were already deprecated when the Ruby
-    // bindings were added.
+    // bindings were added.  This method is deprecated for all other bindings
+    // from version 0.8.2 - use empty() instead.
     %extend {
 	bool is_empty() const { return self->empty(); }
     }
@@ -337,8 +340,8 @@ class MSet {
 	}
 #ifndef SWIGRUBY
 	// We don't wrap methods which were already deprecated when the Ruby
-	// bindings were added.
-	/* For consistency this has been replaced by get_docid(). */
+	// bindings were added.  This method is deprecated for all other bindings
+	// from version 0.9.6 - use get_docid() instead.
 	docid get_document_id(doccount i) const {
 	    return *((*self)[i]);
 	}
@@ -383,7 +386,8 @@ class ESet {
     bool empty() const;
 #ifndef SWIGRUBY
     // We don't wrap methods which were already deprecated when the Ruby
-    // bindings were added.
+    // bindings were added.  This method is deprecated for all other bindings
+    // from version 0.8.2 - use empty() instead.
     %extend {
 	bool is_empty() const { return self->empty(); }
     }
@@ -400,7 +404,12 @@ class ESetIterator {
     ESetIterator(const ESetIterator& other);
     ~ESetIterator();
     %extend {
+	// Get termname is deprecated since version 1.0 - we use "term"
+	// everywhere else to refer to terms.
 	std::string get_termname() const {
+	    return *(*self);
+	}
+	std::string get_term() const {
 	    return *(*self);
 	}
 	NEXT(ESetIterator)
@@ -422,7 +431,8 @@ class RSet {
     bool empty() const;
 #ifndef SWIGRUBY
     // We don't wrap methods which were already deprecated when the Ruby
-    // bindings were added.
+    // bindings were added.  This method is deprecated for all other bindings
+    // from version 0.8.2 - use empty() instead.
     %extend {
 	bool is_empty() const { return self->empty(); }
     }
@@ -481,12 +491,16 @@ class Enquire {
     } docid_order;
 
     void set_docid_order(docid_order order);
-    // For compatibility with 0.8.5 and earlier:
+
+    // This method is deprecated from version 0.8.5 - use set_docid_order() instead.
     void set_sort_forward(bool sort_forward);
+
     void set_cutoff(int percent_cutoff, weight weight_cutoff = 0);
-    // For compatibility with 0.8.5 and earlier:
+
+    // This method is deprecated from version 0.8.5 - use set_sort_by_*() instead.
     void set_sorting(Xapian::valueno sort_key, int sort_bands,
 		     bool sort_by_relevance = false);
+
     void set_sort_by_relevance();
     void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
     void set_sort_by_value_then_relevance(Xapian::valueno sort_key,
@@ -899,8 +913,9 @@ class Query {
 	bool empty() const;
 #ifndef SWIGRUBY
 	// We don't wrap methods which were already deprecated when the Ruby
-	// bindings were added.
-	bool is_empty() const; /* DEPRECATED alias */
+	// bindings were added.  This method is deprecated for all other bindings
+	// from version 0.8.2 - use empty() instead.
+	bool is_empty() const;
 #endif
 
 	string get_description();

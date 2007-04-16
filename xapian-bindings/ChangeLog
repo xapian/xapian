@@ -1,3 +1,10 @@
+Mon Apr 16 18:27:39 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Add ESetIterator::get_term() as alias for now
+	  ESetIterator::get_termname(), and mark the old get_termname as
+	  deprecated.  Tidy up all comments about deprecated functions,
+	  giving the version they were deprecated in.
+
 Mon Apr 16 11:16:48 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i,python/pythontest.py: Add nicer ESet iterators,
