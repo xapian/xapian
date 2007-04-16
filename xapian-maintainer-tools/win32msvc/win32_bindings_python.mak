@@ -37,12 +37,20 @@ LIB_XAPIAN_OBJS= ".\xapian_wrap.obj"
 OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python
 INTDIR=.\
 
-ALL : "$(OUTDIR)\_xapian.pyd" "$(OUTDIR)\xapian.py" "$(OUTDIR)\smoketest.py"
+# Debug builds of Python *insist* on a '_d' suffix for extension modules.
+!if "$(DEBUG)" == "1"
+PY_DEBUG_SUFFIX=_d
+!else
+PY_DEBUG_SUFFIX=
+!endif
+
+
+ALL : "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" "$(OUTDIR)\xapian.py" "$(OUTDIR)\smoketest.py"
 
 CLEAN :
-	-@erase "$(OUTDIR)\_xapian.pyd"
-	-@erase "$(OUTDIR)\_xapian.exp"
-	-@erase "$(OUTDIR)\_xapian.lib"
+	-@erase "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd"
+	-@erase "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).exp"
+	-@erase "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).lib"
 	-@erase $(LIB_XAPIAN_OBJS)
 	-@erase "$(OUTDIR)\xapian.py"
 	-@erase "$(OUTDIR)\xapian.pyc"
@@ -83,10 +91,10 @@ modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i 
 	-erase modern/xapian.py
 	-rename modern/xapian_py.tmp modern/xapian.py
 
-"$(OUTDIR)\_xapian.pyd" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS) \
+"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS) \
                             $(XAPIAN_DEPENDENCIES)
     $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /DLL /out:"$(OUTDIR)\_xapian.pyd" $(DEF_FLAGS) $(LIB_XAPIAN_OBJS)
+  $(ALL_LINK32_FLAGS) /DLL /out:"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" $(DEF_FLAGS) $(LIB_XAPIAN_OBJS)
 <<
 
 
@@ -99,7 +107,7 @@ generate-python-exceptions: generate-python-exceptions.in
 
 "$(OUTDIR)\xapian.py" : "modern\xapian.py"
 	-copy $** "$(OUTDIR)\xapian.py"
-	$(MANIFEST) "$(OUTDIR)\_xapian.pyd.manifest" -outputresource:"$(OUTDIR)\_xapian.pyd;2"
+	$(MANIFEST) "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd.manifest" -outputresource:"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd;2"
 
 
 "$(OUTDIR)\smoketest.py" : ".\smoketest.py"
