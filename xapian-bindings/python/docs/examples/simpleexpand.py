@@ -77,7 +77,7 @@ try:
     print "%i suggested additional terms" % eterms.size()
     k = eterms.begin()
     while k!=eterms.end():
-        print "Term `%s'\t (weight %f)" % (k.get_termname(), k.get_weight())
+        print "Term `%s'\t (weight %f)" % (k.get_term(), k.get_weight())
         k.next()
 
 except Exception, e:

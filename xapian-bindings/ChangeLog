@@ -1,3 +1,9 @@
+Mon Apr 16 18:35:36 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/docs/bindings.html,python/docs/examples/simpleexpand.py:
+	  Document ESetIterator::get_term() instead of
+	  ESetIterator::get_termname()
+
 Mon Apr 16 18:32:37 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* csharp/util.i,php/docs/examples/simpleexpand.php4,
