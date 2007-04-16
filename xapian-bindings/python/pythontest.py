@@ -55,10 +55,12 @@ def setup_database():
     return db
 
 def test_mset_iter():
+    """Test iterators over MSets.
+
+    """
     db = setup_database()
     query = xapian.Query(xapian.Query.OP_OR, "was", "it")
 
-    # Test test for MSet.__iter__
     enquire = xapian.Enquire(db)
     enquire.set_query(query)
     mset = enquire.get_mset(0, 10)
@@ -89,6 +91,7 @@ def test_mset_iter():
                 context("testing hit %d for sub-mset from %d, maxitems %d" % (num, start, maxitems))
                 expect(item.rank, num + start)
 
+                context("comparing iterator item %d for sub-mset from %d, maxitems %d against hit" % (num, start, maxitems))
                 hit = submset.get_hit(num)
                 expect(hit.get_docid(), item.docid)
                 expect(hit.get_rank(), item.rank)
@@ -97,6 +100,7 @@ def test_mset_iter():
                 expect(hit.get_collapse_key(), item.collapse_key)
                 expect(hit.get_collapse_count(), item.collapse_count)
 
+                context("comparing iterator item %d for sub-mset mset from %d, maxitems %d against hit from whole mset" % (num, start, maxitems))
                 hit = mset.get_hit(num + start)
                 expect(hit.get_docid(), item.docid)
                 expect(hit.get_rank(), item.rank)
@@ -105,6 +109,7 @@ def test_mset_iter():
                 expect(hit.get_collapse_key(), item.collapse_key)
                 expect(hit.get_collapse_count(), item.collapse_count)
 
+                context("comparing iterator item %d for sub-mset mset from %d, maxitems %d against direct access with []" % (num, start, maxitems))
                 expect(submset[num].docid, item.docid)
                 expect(submset[num].rank, item.rank)
                 expect(submset[num].percent, item.percent)
@@ -114,6 +119,20 @@ def test_mset_iter():
 
                 num += 1
 
+            # Check that the item contents remain valid when the iterator has
+            # moved on.
+            saved_items = [item for item in submset]
+            for num in xrange(len(saved_items)):
+                item = saved_items[num]
+                context("comparing iterator item %d for sub-mset mset from %d, maxitems %d against saved item" % (num, start, maxitems))
+                expect(submset[num].docid, item.docid)
+                expect(submset[num].rank, item.rank)
+                expect(submset[num].percent, item.percent)
+                expect(submset[num].document.get_data(), item.document.get_data())
+                expect(submset[num].collapse_key, item.collapse_key)
+                expect(submset[num].collapse_count, item.collapse_count)
+
+            # Test deprecated sequence API.
             num = 0
             for item in submset:
                 context("testing hit %d with deprecated sequence API for sub-mset from %d, maxitems %d" % (num, start, maxitems))
@@ -126,10 +145,41 @@ def test_mset_iter():
                 expect(item[4].get_data(), hit.get_document().get_data())
                 num += 1
 
+            # Check that the right number of items exist in the mset.
             context("checking length of sub-mset from %d, maxitems %d" % (start, maxitems))
             items = [item for item in submset]
             expect(len(items), min(maxitems, 5 - start))
             expect(len(submset), min(maxitems, 5 - start))
+
+def test_eset_iter():
+    """Test iterators over ESets.
+
+    """
+    db = setup_database()
+    query = xapian.Query(xapian.Query.OP_OR, "was", "it")
+    rset = xapian.RSet()
+    rset.add_document(3)
+
+    context("getting eset items without a query")
+    enquire = xapian.Enquire(db)
+    eset = enquire.get_eset(10, rset)
+    items = [item for item in eset]
+    expect(len(items), 4)
+
+    context("getting eset items with a query")
+    enquire = xapian.Enquire(db)
+    enquire.set_query(query)
+    eset = enquire.get_eset(10, rset)
+    items2 = [item for item in eset]
+    expect(len(items2), 2)
+
+    context("comparing eset items with a query to those without")
+    expect(items2[0].termname, items[0].termname)
+    expect(items2[1].termname, items[2].termname)
+
+    context("comparing eset weights with a query to those without")
+    expect(items2[0].weight, items[0].weight)
+    expect(items2[1].weight, items[2].weight)
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):

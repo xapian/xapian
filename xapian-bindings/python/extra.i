@@ -80,7 +80,7 @@ class _SequenceMixIn(object):
 class MSetItem(_SequenceMixIn):
     """An item returned from iteration of the MSet.
 
-    The item support access to the following attributes and properties:
+    The item supports access to the following attributes and properties:
 
      - `docid`: The Xapian document ID corresponding to this MSet item.
      - `weight`: The weight corresponding to this MSet item.
@@ -96,8 +96,8 @@ class MSetItem(_SequenceMixIn):
        the document data, or any other information stored in the document (such
        as term lists).  It is lazily evaluated.
      - `collapse_key`: The value of the key which was used for collapsing.
-     - `collapse_count`: An estimate of the number of documents that have been collapsed
-       into this one.
+     - `collapse_count`: An estimate of the number of documents that have been
+       collapsed into this one.
 
     The collapse count estimate will always be less than or equal to the actual
     number of other documents satisfying the match criteria with the same
@@ -150,7 +150,7 @@ class MSetIter(object):
         return self
 
     def next(self):
-        if self._iter==self._end:
+        if self._iter == self._end:
             raise StopIteration
         else:
             r = MSetItem(self._iter, self._mset)
@@ -162,16 +162,14 @@ class MSetIter(object):
 # convenience methods.
 
 def _mset_gen_iter(self):
-    """Return an iterator over the MSet.
-
-    """
+    "Return an iterator over the MSet."
     return MSetIter(self)
 MSet.__iter__ = _mset_gen_iter
 
 MSet.__len__ = MSet.size
 
 def _mset_getitem(self, index):
-    """Get and item from the MSet.
+    """Get an item from the MSet.
 
     The supplied index is relative to the start of the MSet, not the absolute
     rank of the item.
@@ -181,7 +179,7 @@ def _mset_getitem(self, index):
 MSet.__getitem__ = _mset_getitem
 
 def _mset_contains(self, index):
-    """Check if the mset contains an item at the given index
+    """Check if the Mset contains an item at the given index
 
     The supplied index is relative to the start of the MSet, not the absolute
     rank of the item.
@@ -195,22 +193,56 @@ MSet.__contains__ = _mset_contains
 # Support for iteration of ESets #
 ##################################
 
+class ESetItem(_SequenceMixIn):
+    """An item returned from iteration of the ESet.
+
+    The item supports access to the following attributes:
+
+     - `termname`: The termname corresponding to this ESet item.
+     - `weight`: The weight corresponding to this ESet item.
+
+    """
+    __slots__ = ('termname', 'weight')
+
+    def __init__(self, iter):
+        self.termname = iter.get_termname()
+        self.weight = iter.get_weight()
+        _SequenceMixIn.__init__(self, 'termname', 'weight')
 
 class ESetIter(object):
-    def __init__(self, start, end):
-        self.iter = start
-        self.end = end
+    """An iterator over the items in an ESet.
+
+    """
+    __slots__ = ('_iter', '_end')
+    def __init__(self, eset):
+        self._iter = eset.begin()
+        self._end = eset.end()
 
     def __iter__(self):
         return self
 
     def next(self):
-        if self.iter==self.end:
+        if self._iter == self._end:
             raise StopIteration
         else:
-            r = [self.iter.get_termname(), self.iter.get_weight()]
-            self.iter.next()
+            r = ESetItem(self._iter)
+            self._iter.next()
             return r
+
+# Modify the ESet to allow access to the python iterators, and have other
+# convenience methods.
+
+def _eset_gen_iter(self):
+    "Return an iterator over the ESet."
+    return ESetIter(self)
+ESet.__iter__ = _eset_gen_iter
+
+ESet.__len__ = ESet.size
+
+
+#######################################
+# Support for iteration of term lists #
+#######################################
 
 class TermIter(object):
     HAS_NOTHING = 0
@@ -248,6 +280,11 @@ class TermIter(object):
     def skip_to(self, term):
         self.iter.skip_to(term)
 
+
+##########################################
+# Support for iteration of posting lists #
+##########################################
+
 class PostingIter(object):
     HAS_NOTHING = 0
     HAS_POSITIONS = 1
@@ -271,6 +308,11 @@ class PostingIter(object):
             self.iter.next()
             return r
 
+
+###########################################
+# Support for iteration of position lists #
+###########################################
+
 class PositionIter(object):
     def __init__(self, start = 0, end = 0):
         self.iter = start
@@ -286,6 +328,11 @@ class PositionIter(object):
             r = self.iter.get_termpos()
             self.iter.next()
             return r
+
+
+########################################
+# Support for iteration of value lists #
+########################################
 
 class ValueIter(object):
     def __init__(self, start, end):
@@ -304,11 +351,6 @@ class ValueIter(object):
             return r
 
 # Bind the Python iterators into the shadow classes
-
-def eset_gen_iter(self):
-    return ESetIter(self.begin(), self.end())
-
-ESet.__iter__ = eset_gen_iter
 
 def enquire_gen_iter(self, which):
     # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
