@@ -71,6 +71,13 @@ struct WinsockInitializer {
 inline int socket_errno() {
     return -(int)WSAGetLastError();
 }
+
+// Define some of the UNIX socket error constants to be negated versions of the
+// winsock ones.
+# define EADDRINUSE (-(WSAEADDRINUSE))
+# define ETIMEDOUT (-(WSAETIMEDOUT))
+# define EINPROGRESS (-(WSAEINPROGRESS))
+
 #else
 // Use a macro so we don't need to pull safeerrno.h in here.
 # define socket_errno() errno

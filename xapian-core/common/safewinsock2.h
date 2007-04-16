@@ -31,9 +31,4 @@
 
 #include <winsock2.h>
 
-// Define some of the UNIX socket error constants to the winsock ones.
-#define EADDRINUSE WSAEADDRINUSE
-#define ETIMEDOUT WSAETIMEDOUT
-#define EINPROGRESS WSAEINPROGRESS
-
 #endif // XAPIAN_INCLUDED_SAFEWINSOCK2_H

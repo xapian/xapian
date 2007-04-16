@@ -1,3 +1,8 @@
+Mon Apr 16 11:19:21 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/remoteconnection.h,common/safewinsock2.h: Need to negate the
+	  POSIX error codes we define in terms of winsock ones.
+
 Fri Apr 13 16:24:29 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/doxygen_api_conf.in: Turn on XML output, so that we can use
