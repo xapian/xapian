@@ -9,7 +9,8 @@ TESTS = smoketest.py pythontest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
-EXTRA_DIST = util.i extra.i extracomments.i except.i doccomments.i $(TESTS) $(BUILT_SOURCES)
+EXTRA_DIST = util.i extra.i extracomments.i except.i doccomments.i\
+	testsuite.py $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
 
