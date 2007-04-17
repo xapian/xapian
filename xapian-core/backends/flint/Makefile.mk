@@ -8,6 +8,7 @@ noinst_HEADERS +=\
 	backends/flint/flint_alltermslist.h\
 	backends/flint/flint_btreebase.h\
 	backends/flint/flint_btreeutil.h\
+	backends/flint/flint_check.h\
 	backends/flint/flint_cursor.h\
 	backends/flint/flint_database.h\
 	backends/flint/flint_document.h\
