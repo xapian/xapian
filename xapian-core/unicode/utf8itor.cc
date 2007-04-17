@@ -27,8 +27,12 @@ inline bool bad_cont(unsigned char ch) { return (ch & 0xc0) != 0x80; }
 
 namespace Xapian {
 
+namespace Unicode {
+
 // buf should be at least 4 bytes.
-unsigned Unicode::nonascii_to_utf8(unsigned ch, char * buf) {
+unsigned
+nonascii_to_utf8(unsigned ch, char * buf)
+{
     if (ch < 0x800) {
 	buf[0] = 0xc0 | (ch >> 6);
 	buf[1] = 0x80 | (ch & 0x3f);
@@ -53,12 +57,16 @@ unsigned Unicode::nonascii_to_utf8(unsigned ch, char * buf) {
     return 0;
 }
 
+}
+
 Utf8Iterator::Utf8Iterator(const char *p_)
 {
     assign(p_, strlen(p_));
 }
 
-void Utf8Iterator::calculate_sequence_length() const {
+void
+Utf8Iterator::calculate_sequence_length() const
+{
     // Handle invalid UTF-8, overlong sequences, and truncated sequences as
     // if the text was actually in ISO-8859-1 since we need to do something
     // with it, and this seems the most likely reason why we'd have invalid
