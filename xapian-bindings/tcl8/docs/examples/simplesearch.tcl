@@ -38,7 +38,7 @@ if {[catch {
     set terms {}
     foreach term [lrange $argv 1 end] {
 	set terms [linsert $terms end \
-	    [stemmer stem_word [string tolower $term]]]
+	    [stemmer apply [string tolower $term]]]
     }
     xapian::Query query $xapian::Query_OP_OR $terms
  

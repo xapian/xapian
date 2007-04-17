@@ -42,7 +42,7 @@ $enquire = new XapianEnquire($database);
 $stemmer = new XapianStem("english");
 $terms = array();
 foreach (array_slice($_SERVER['argv'], 2) as $term) {
-    array_push($terms, $stemmer->stem_word(strtolower($term)));
+    array_push($terms, $stemmer->apply(strtolower($term)));
 }
 $query = new XapianQuery(XapianQuery::OP_OR, $terms);
 

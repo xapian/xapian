@@ -45,11 +45,11 @@ if ($doc->get_data() !== "a\x00b") {
 }
 $doc->set_data("is there anybody out there?");
 $doc->add_term("XYzzy");
-$doc->add_posting($stem->stem_word("is"), 1);
-$doc->add_posting($stem->stem_word("there"), 2);
-$doc->add_posting($stem->stem_word("anybody"), 3);
-$doc->add_posting($stem->stem_word("out"), 4);
-$doc->add_posting($stem->stem_word("there"), 5);
+$doc->add_posting($stem->apply("is"), 1);
+$doc->add_posting($stem->apply("there"), 2);
+$doc->add_posting($stem->apply("anybody"), 3);
+$doc->add_posting($stem->apply("out"), 4);
+$doc->add_posting($stem->apply("there"), 5);
 
 // Check virtual function dispatch.
 if (substr($db->get_description(), 0, 17) !== "WritableDatabase(") {

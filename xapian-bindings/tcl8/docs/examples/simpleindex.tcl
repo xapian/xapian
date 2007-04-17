@@ -56,7 +56,7 @@ if {[catch {
                     if {($j-$i) <= $MAX_PROB_TERM_LENGTH} {
                         set term [string range $para $i $j]
                         set term [string tolower $term]
-                        set term [stemmer stem_word $term]
+                        set term [stemmer apply $term]
                         doc add_posting $term $pos
                         incr pos
                     }

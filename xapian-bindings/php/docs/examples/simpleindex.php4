@@ -90,7 +90,7 @@ foreach ($lines as $line) {
 		    $j = $k;
 		}
 		if ($j-$i <= MAX_PROB_TERM_LENGTH and $j > $i) {
-		    $term = $stemmer->stem_word(strtolower(substr($para, $i, $j-$i)));
+		    $term = $stemmer->apply(strtolower(substr($para, $i, $j-$i)));
 		    $doc->add_posting($term, $pos);
 		    $pos++;
 		}
