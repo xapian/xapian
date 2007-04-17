@@ -35,13 +35,6 @@ using namespace std;
 
 #include "apitest.h"
 
-#include "api_nodb.h"
-#include "api_posdb.h"
-#include "api_db.h"
-#include "api_wrdb.h"
-#include "api_anydb.h"
-#include "api_transdb.h"
-
 static BackendManager backendmanager;
 
 const std::string & get_dbtype()
@@ -101,6 +94,7 @@ int main(int argc, char **argv)
     backendmanager.set_datadir(srcdir + "/testdata/");
 
     RUNTESTS("void", nodb);
+    RUNTESTS("void", unicode);
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
     RUNTESTS("inmemory", anydb);
@@ -108,7 +102,6 @@ int main(int argc, char **argv)
     RUNTESTS("inmemory", writabledb);
     RUNTESTS("inmemory", localdb);
     RUNTESTS("inmemory", positionaldb);
-    RUNTESTS("inmemory", localpositionaldb);
     RUNTESTS("inmemory", doclendb);
     RUNTESTS("inmemory", collfreq);
     RUNTESTS("inmemory", allterms);
@@ -121,7 +114,6 @@ int main(int argc, char **argv)
     RUNTESTS("flint", writabledb);
     RUNTESTS("flint", localdb);
     RUNTESTS("flint", positionaldb);
-    RUNTESTS("flint", localpositionaldb);
     RUNTESTS("flint", doclendb);
     RUNTESTS("flint", collfreq);
     RUNTESTS("flint", allterms);
@@ -136,7 +128,6 @@ int main(int argc, char **argv)
     RUNTESTS("quartz", writabledb);
     RUNTESTS("quartz", localdb);
     RUNTESTS("quartz", positionaldb);
-    RUNTESTS("quartz", localpositionaldb);
     RUNTESTS("quartz", doclendb);
     RUNTESTS("quartz", collfreq);
     RUNTESTS("quartz", allterms);

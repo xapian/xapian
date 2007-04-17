@@ -38,7 +38,6 @@
 #include "utils.h"
 
 #include "apitest.h"
-#include "api_db.h"
 
 #include <list>
 
@@ -463,33 +462,6 @@ static bool test_collapsekey1()
 	    TEST(values[value] == 0 || value == "");
 	    values[value] = *i;
 	}
-    }
-
-    return true;
-}
-
-// tests the collapse-on-key for DA databases
-static bool test_collapsekey2()
-{
-    Xapian::Enquire enquire(get_database("apitest_simpledata"));
-    enquire.set_query(Xapian::Query("this"));
-
-    Xapian::MSet mymset1 = enquire.get_mset(0, 100);
-    Xapian::doccount mymsize1 = mymset1.size();
-
-    const Xapian::valueno value_no = 0;
-    enquire.set_collapse_key(value_no);
-    Xapian::MSet mymset = enquire.get_mset(0, 100);
-
-    TEST_AND_EXPLAIN(mymsize1 > mymset.size(),
-		     "Had no fewer items when performing collapse: don't know whether it worked.");
-
-    map<string, Xapian::docid> values;
-    Xapian::MSetIterator i = mymset.begin();
-    for ( ; i != mymset.end(); ++i) {
-	string value = i.get_document().get_value(value_no);
-	TEST(values[value] == 0 || value == "");
-	values[value] = *i;
     }
 
     return true;
@@ -1546,13 +1518,9 @@ static bool test_userweight1()
 /// The tests which require a database which supports values > 0 sensibly
 test_desc multivalue_tests[] = {
     {"collapsekey1",	   test_collapsekey1},
+    // There no longer is a collapsekey2 test!
     {"collapsekey3",	   test_collapsekey3},
     {"collapsekey4",	   test_collapsekey4},
-    {0, 0}
-};
-
-test_desc mus36_tests[] = {
-    {"collapsekey2",       test_collapsekey2},
     {0, 0}
 };
 

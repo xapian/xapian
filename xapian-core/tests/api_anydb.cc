@@ -31,7 +31,6 @@
 #include "utils.h"
 
 #include "apitest.h"
-#include "api_wrdb.h"
 
 #include <list>
 

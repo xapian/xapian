@@ -641,14 +641,6 @@ test_desc positionaldb_tests[] = {
     {"near2",		   test_near2},
     {"phrase1",		   test_phrase1},
     {"phrase2",		   test_phrase2},
-    {0, 0}
-};
-
-/** The tests which need a backend which supports positional information
- *  and opening position lists from the database
- *  FIXME: implement for network?
- */
-test_desc localpositionaldb_tests[] = {
     {"poslist1",	   test_poslist1},
     {"poslist2",	   test_poslist2},
     {"poslist3",	   test_poslist3},

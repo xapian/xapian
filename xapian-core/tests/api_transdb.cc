@@ -22,14 +22,10 @@
 
 #include <xapian.h>
 
-#include "api_transdb.h"
 #include "apitest.h"
 #include "testutils.h"
 
 using namespace std;
-
-#define TESTCASE(S) {#S, test_##S}
-#define END_OF_TESTCASES {0, 0}
 
 /// Test incorrect uses of the transaction API lead to errors.
 static bool test_badtransaction1()

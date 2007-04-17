@@ -1,3 +1,17 @@
+Tue Apr 17 01:47:05 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_posdb.cc: The remote backend now supports all database
+	  operations, so merge localpositionaldb_tests into
+	  positionaldb_tests.
+	* tests/: Remove the trivial separate api_XXXdb.h headers, some of
+	  which were out-of-step with their respective .cc sources.  Instead
+	  just keep the array external declarations in apitest.h.
+	* tests/apitest.h,tests/api_transdb.cc: Move TESTCASE and
+	  END_OF_TESTCASES macros into header.
+	* tests/api_db.cc: Remove test collapsekey2 - it's only relevant for
+	  the Muscat 3.6 backend, so it's unused now that has been removed.
+	* tests/: Add unicode tests, adapted from Omega's utftest.
+
 Tue Apr 17 00:14:16 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,include/Makefile.mk,include/xapian.h,
@@ -15,7 +29,7 @@ Mon Apr 16 16:06:22 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 Mon Apr 16 11:36:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/tcpclient.cc: Call WSAGetLastError() instead of socket_errno()
-	  when we want to compare the result against WSAEWOULDBLOCK.    
+	  when we want to compare the result against WSAEWOULDBLOCK.
 
 Mon Apr 16 11:19:21 BST 2007  Olly Betts <olly@survex.com>
 
@@ -34,7 +48,7 @@ Fri Apr 13 11:38:39 BST 2007  Olly Betts <olly@survex.com>
 	  now throws InvalidOperationError() rather than asserting in a
 	  debug build and returning 0 in a non-debug build.
 	* backends/Makefile.mk: Correct list for "how to add a new backend".
-	  
+
 Fri Apr 13 10:17:46 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/version.cc: Simpler and cleaner fix - the prototypes for the
@@ -176,7 +190,7 @@ Thu Apr 12 01:02:53 BST 2007  Olly Betts <olly@survex.com>
 
 Thu Apr 12 00:44:18 BST 2007  Olly Betts <olly@survex.com>
 
-	* api/,backends/inmemory/inmemory_positionlist.cc,common/,matcher/, 
+	* api/,backends/inmemory/inmemory_positionlist.cc,common/,matcher/,
 	  net/remoteconnection.cc,net/serialise.cc: omdebug.h only includes
 	  omassert.h for the trivial "STRINGIZE" macro, so just duplicate
 	  that rather than pulling in an extra header everywhere.  Then fix
@@ -522,7 +536,7 @@ Fri Apr 06 08:17:00 BST 2007  Olly Betts <olly@survex.com>
 Fri Apr 06 07:20:47 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk,bin/xapian-check.cc: Add new "xapian-check" program
-	  which performs consistency checks on a flint database.  
+	  which performs consistency checks on a flint database.
 
 Fri Apr 06 06:25:36 BST 2007  Olly Betts <olly@survex.com>
 
@@ -688,7 +702,7 @@ Mon Apr 02 11:14:10 BST 2007  Olly Betts <olly@survex.com>
 
 Mon Apr 02 10:38:35 BST 2007  Olly Betts <olly@survex.com>
 
-	* tests/api_db.cc,tests/apitest.cc: Under __WIN32__ disable tests 
+	* tests/api_db.cc,tests/apitest.cc: Under __WIN32__ disable tests
 	  which require the prog variant of the remote backend.
 
 Mon Apr 02 09:44:13 BST 2007  Olly Betts <olly@survex.com>
@@ -791,7 +805,7 @@ Sun Apr 01 18:37:15 BST 2007  Olly Betts <olly@survex.com>
 
 Sun Apr 01 17:42:19 BST 2007  Olly Betts <olly@survex.com>
 
-	* tests,examples,bin: Add .exe versions of built executables to 
+	* tests,examples,bin: Add .exe versions of built executables to
 	  svn:ignore.
 
 Sun Apr 01 16:28:26 BST 2007  Olly Betts <olly@survex.com>

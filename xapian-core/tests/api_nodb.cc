@@ -28,6 +28,8 @@
 #include "autoptr.h"
 
 #include <xapian.h>
+
+#include "apitest.h"
 #include "testsuite.h"
 #include "testutils.h"
 

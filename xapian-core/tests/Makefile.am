@@ -53,11 +53,10 @@ check_SCRIPTS = runtest
 
 ## Sources:
 
-noinst_HEADERS = apitest.h api_nodb.h api_posdb.h api_db.h api_wrdb.h \
- api_anydb.h api_transdb.h
+noinst_HEADERS = apitest.h
 
 apitest_SOURCES = apitest.cc api_nodb.cc api_posdb.cc api_db.cc api_wrdb.cc \
- api_anydb.cc api_transdb.cc $(testharness_sources)
+ api_anydb.cc api_transdb.cc api_unicode.cc $(testharness_sources)
 apitest_LDFLAGS = @ldflags@
 apitest_LDADD = ../libgetopt.la ../libxapian.la
 
