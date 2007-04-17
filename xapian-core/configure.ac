@@ -219,23 +219,35 @@ AC_LANG_CPLUSPLUS
 XAPIAN_LDFLAGS=
 AC_SUBST(XAPIAN_LDFLAGS)
 
+AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
+  [
+  AC_MSG_CHECKING([for $CXX -Wl,$1])
+  flag=$1
+  if $CXX -Wl,$1 2>&1 >/dev/null|grep -e $1 >/dev/null 2>&1; then
+    dnl The error message contains the flag name - it must be a
+    dnl complaint that the option is unrecognized (doing it this
+    dnl way allows it to work regardless of the i18n in use):
+    dnl ld: unrecognized option '--enable-runtime-pseudo-reloc'
+    AC_MSG_RESULT([no])
+    $3
+  else
+    AC_MSG_RESULT([yes])
+    $2
+  fi
+  ])
+
 ldflags=
 if test yesyes = "$GXX$enable_shared" ; then
   case $host_os in
     *mingw* | *cygwin*)
-      ldflags="--enable-runtime-pseudo-reloc"
-      if $CXX -Wl,$ldflags 2>&1 >/dev/null|grep -e $ldflags >/dev/null 2>&1; then
-	dnl The error message contains the flag name - it must be a
-	dnl complaint that the option is unrecognized (doing it this
-	dnl way allows it to work regardless of the i18n in use):
-	dnl ld: unrecognized option '--enable-runtime-pseudo-reloc'
-	dnl
+      XAPIAN_TEST_LINKER_FLAG([--enable-runtime-pseudo-reloc],
+	[ldflags="-Wl,$flag"],
+	[
 	dnl Can't use AC_DISABLE_SHARED after AC_PROG_LIBTOOL, but
 	dnl this test needs to be after AC_PROG_LIBTOOL, so we can't
 	dnl just disable the shared build automatically...
 	AC_MSG_ERROR([ld version too old to support a shared build - configure with --disable-shared, or install binutils 2.13.90-20030111-1 or later])
-      fi
-      ldflags="-Wl,$ldflags"
+	])
     ;;
   esac
 fi
@@ -912,6 +924,9 @@ if test yes = "$GXX"; then
 	*) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
 	esac
       fi
+
+      XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions],
+	[XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $flag"])
     ])
 else
   dnl WARNING_CXXFLAGS is set above.
