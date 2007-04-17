@@ -269,9 +269,6 @@ class Document {
     void add_posting(const string & tname, termpos tpos, termcount wdfinc=1);
     void add_term(const string & tname, termcount wdfinc = 1);
 
-    // This method is deprecated from version 0.8.2 - use add_term() instead.
-    void add_term_nopos(const string & tname, termcount wdfinc = 1);
-
     void remove_posting(const string & tname, termpos tpos, termcount wdfdec = 1);
     void remove_term(const string & tname);
     void clear_terms();
@@ -314,16 +311,6 @@ class MSet {
     weight get_max_attained();
     doccount size() const;
     bool empty() const;
-#if !defined(SWIGRUBY) && !defined(SWIGPHP)
-    // We don't wrap methods which were already deprecated when the Ruby
-    // bindings were added.  And for PHP, "empty" is a reserved word (!)
-    // so we use %rename in php/util.i to change "empty" to "is_empty".
-    // This method is deprecated for all other bindings from version 0.8.2 -
-    // use empty() instead.
-    %extend {
-	bool is_empty() const { return self->empty(); }
-    }
-#endif
     MSetIterator begin() const;
     MSetIterator end() const;
     MSetIterator back() const;
@@ -386,16 +373,6 @@ class ESet {
     termcount get_ebound() const;
     termcount size() const;
     bool empty() const;
-#if !defined(SWIGRUBY) && !defined(SWIGPHP)
-    // We don't wrap methods which were already deprecated when the Ruby
-    // bindings were added.  And for PHP, "empty" is a reserved word (!)
-    // so we use %rename in php/util.i to change "empty" to "is_empty".
-    // This method is deprecated for all other bindings from version 0.8.2 -
-    // use empty() instead.
-    %extend {
-	bool is_empty() const { return self->empty(); }
-    }
-#endif
     ESetIterator begin() const;
     ESetIterator end() const;
     ESetIterator back() const;
@@ -433,16 +410,6 @@ class RSet {
     ~RSet();
     doccount size() const;
     bool empty() const;
-#if !defined(SWIGRUBY) && !defined(SWIGPHP)
-    // We don't wrap methods which were already deprecated when the Ruby
-    // bindings were added.  And for PHP, "empty" is a reserved word (!)
-    // so we use %rename in php/util.i to change "empty" to "is_empty".
-    // This method is deprecated for all other bindings from version 0.8.2 -
-    // use empty() instead.
-    %extend {
-	bool is_empty() const { return self->empty(); }
-    }
-#endif
     void add_document(docid did);
     void add_document(MSetIterator& i);
     void remove_document(docid did);
@@ -498,14 +465,7 @@ class Enquire {
 
     void set_docid_order(docid_order order);
 
-    // This method is deprecated from version 0.8.5 - use set_docid_order() instead.
-    void set_sort_forward(bool sort_forward);
-
     void set_cutoff(int percent_cutoff, weight weight_cutoff = 0);
-
-    // This method is deprecated from version 0.8.5 - use set_sort_by_*() instead.
-    void set_sorting(Xapian::valueno sort_key, int sort_bands,
-		     bool sort_by_relevance = false);
 
     void set_sort_by_relevance();
     void set_sort_by_value(Xapian::valueno sort_key, bool ascending = true);
@@ -739,17 +699,8 @@ class WritableDatabase : public Database {
 #ifndef SWIGCSHARP
 namespace Auto {
 #ifdef SWIGPHP
-    /* PHP4 lacks namespaces so fake them rather than having a function just
-     * called "open".  Also rename open_stub, open_da, etc for consistency. */
-    %rename(auto_open) open;
+    /* PHP4 lacks namespaces so fake them. */
     %rename(auto_open_stub) open_stub;
-#endif
-    Database open(const string & path);
-/* SWIG Tcl wrappers don't call destructors for classes returned by factory
- * functions, so don't wrap them so users are forced to use the
- * WritableDatabase ctor instead (that's the preferred method anyway). */
-#ifndef SWIGTCL
-    WritableDatabase open(const string & path, int action);
 #endif
     Database open_stub(const string & file);
 }
@@ -803,10 +754,6 @@ class Auto {
     Auto();
     ~Auto();
   public:
-    static
-    Database open(const string & path);
-    static
-    WritableDatabase open(const string & path, int action);
     static
     Database open_stub(const string & file);
 };
@@ -917,14 +864,6 @@ class Query {
 	TermIterator get_terms_begin() const;
 	TermIterator get_terms_end() const;
 	bool empty() const;
-#if !defined(SWIGRUBY) && !defined(SWIGPHP)
-	// We don't wrap methods which were already deprecated when the Ruby
-	// bindings were added.  And for PHP, "empty" is a reserved word (!)
-	// so we use %rename in php/util.i to change "empty" to "is_empty".
-	// This method is deprecated for all other bindings from version 0.8.2 -
-	// use empty() instead.
-	bool is_empty() const;
-#endif
 
 	string get_description();
 };

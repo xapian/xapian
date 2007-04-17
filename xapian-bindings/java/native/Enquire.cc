@@ -155,7 +155,7 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1collapse_1key (JN
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1sort_1forward (JNIEnv *env, jclass clazz, jlong eid, jboolean forward) {
     TRY
         Enquire *e = _enquire->get(eid);
-        e->set_sort_forward(forward);
+        e->set_docid_order(forward ? Xapian::Enquire::ASCENDING : Xapian::Enquire::DESCENDING);
     CATCH(;)
 }
 
@@ -169,7 +169,11 @@ JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1cutoff (JNIEnv *e
 JNIEXPORT void JNICALL Java_org_xapian_XapianJNI_enquire_1set_1sorting (JNIEnv *env, jclass clazz, jlong eid, jlong sortkey, jint bands) {
     TRY
         Enquire *e = _enquire->get(eid);
-        e->set_sorting(sortkey, bands);
+        if (bands) {
+            e->set_sort_by_value(sortkey);
+        } else {
+            e->set_sort_by_relevance();
+        }
     CATCH(;)
 }
 

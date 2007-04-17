@@ -50,10 +50,10 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_stem_1new__Ljava_lang_String_2
 }
 
 JNIEXPORT jstring JNICALL Java_org_xapian_XapianJNI_stem_1stem_1word (JNIEnv *env, jclass clazz, jlong stemid, jstring term) {
-    TRY    
+    TRY
         Stem *stem = _stem->get(stemid);
         const char *c_term = env->GetStringUTFChars(term, 0);
-        string stemmed = stem->stem_word(c_term);
+        string stemmed = (*stem)(c_term);
         env->ReleaseStringUTFChars(term, c_term);
         return env->NewStringUTF(stemmed.c_str());
     CATCH(NULL)

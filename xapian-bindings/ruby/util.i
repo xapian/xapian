@@ -147,8 +147,6 @@
 %predicate empty;
 
 // Other deprecated methods
-%ignore add_term_nopos;
-%ignore Xapian::Auto::open;
 %ignore Xapian::xapian_version_string();
 %ignore Xapian::xapian_major_version();
 %ignore Xapian::xapian_minor_version();

@@ -1,3 +1,12 @@
+Wed Apr 18 00:29:57 BST 2007  Olly Betts <olly@survex.com>
+
+	* java/native/Enquire.cc,java/native/Stem.cc: Update to use new
+	  C++ replacements for deprecated methods.  The Java wrappers
+	  still provide the old deprecated names for now though.
+	* ruby/smoketest.rb: For now, use @stem.call("foo").
+	* ruby/util.i,xapian.i: Remove wrappers for deprecated methods and
+	  functions.
+
 Wed Apr 18 00:15:40 BST 2007  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Need to distribute testsuite.py.

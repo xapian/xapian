@@ -38,11 +38,11 @@ class XapianSmoketest < Test::Unit::TestCase
 
     @doc = Xapian::Document.new()
     @doc.data = "is there anybody out there?"
-    @doc.add_posting(@stem.stem_word("is"), 1)
-    @doc.add_posting(@stem.stem_word("there"), 2)
-    @doc.add_posting(@stem.stem_word("anybody"), 3)
-    @doc.add_posting(@stem.stem_word("out"), 4)
-    @doc.add_posting(@stem.stem_word("there"), 5)    
+    @doc.add_posting(@stem.call("is"), 1)
+    @doc.add_posting(@stem.call("there"), 2)
+    @doc.add_posting(@stem.call("anybody"), 3)
+    @doc.add_posting(@stem.call("out"), 4)
+    @doc.add_posting(@stem.call("there"), 5)    
     @doc.add_term("XYzzy")
 
     @db = Xapian::inmemory_open()
@@ -54,10 +54,10 @@ class XapianSmoketest < Test::Unit::TestCase
   def test_stem
     assert_equal("Xapian::Stem(english)", @stem.description())    
 
-    assert_equal("is", @stem.stem_word("is"))
-    assert_equal("go", @stem.stem_word("going"))
-    assert_equal("want", @stem.stem_word("wanted"))
-    assert_equal("refer", @stem.stem_word("reference"))
+    assert_equal("is", @stem.call("is"))
+    assert_equal("go", @stem.call("going"))
+    assert_equal("want", @stem.call("wanted"))
+    assert_equal("refer", @stem.call("reference"))
   end # test_stem
 
   # subtests are those on which some test_foo() method depends.
@@ -167,12 +167,12 @@ class XapianSmoketest < Test::Unit::TestCase
   def test_011_matchdecider
     @doc = Xapian::Document.new()
     @doc.data = "Two"
-    @doc.add_posting(@stem.stem_word("out"), 1)
-    @doc.add_posting(@stem.stem_word("source"), 2)
+    @doc.add_posting(@stem.call("out"), 1)
+    @doc.add_posting(@stem.call("source"), 2)
     @doc.add_value(0, "yes")
     @db.add_document(@doc)
 
-    @query = Xapian::Query.new(@stem.stem_word("out"))
+    @query = Xapian::Query.new(@stem.call("out"))
     enquire = Xapian::Enquire.new(@db)
     enquire.query = @query
     mset = enquire.mset(0, 10, nil, TestMatchDecider.new)
