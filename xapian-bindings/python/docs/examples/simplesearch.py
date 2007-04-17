@@ -37,7 +37,7 @@ try:
     stemmer = xapian.Stem("english")
     terms = []
     for term in sys.argv[2:]:
-        terms.append(stemmer.stem_word(term.lower()))
+        terms.append(stemmer(term.lower()))
     query = xapian.Query(xapian.Query.OP_OR, terms)
     print "Performing query `%s'" % query.get_description()
 

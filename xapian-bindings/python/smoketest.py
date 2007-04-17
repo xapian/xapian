@@ -41,11 +41,11 @@ def test_all():
     expect(doc.get_data(), "a\0b", "get_data+set_data doesn't transparently handle a zero byte")
     doc.set_data("is there anybody out there?")
     doc.add_term("XYzzy")
-    doc.add_posting(stem.stem_word("is"), 1)
-    doc.add_posting(stem.stem_word("there"), 2)
-    doc.add_posting(stem.stem_word("anybody"), 3)
-    doc.add_posting(stem.stem_word("out"), 4)
-    doc.add_posting(stem.stem_word("there"), 5)
+    doc.add_posting(stem("is"), 1)
+    doc.add_posting(stem("there"), 2)
+    doc.add_posting(stem("anybody"), 3)
+    doc.add_posting(stem("out"), 4)
+    doc.add_posting(stem("there"), 5)
 
     db = xapian.inmemory_open()
     db.add_document(doc)
@@ -162,9 +162,9 @@ def test_all():
     # Feature test for MatchDecider
     doc = xapian.Document()
     doc.set_data("Two")
-    doc.add_posting(stem.stem_word("out"), 1)
-    doc.add_posting(stem.stem_word("outside"), 1)
-    doc.add_posting(stem.stem_word("source"), 2)
+    doc.add_posting(stem("out"), 1)
+    doc.add_posting(stem("outside"), 1)
+    doc.add_posting(stem("source"), 2)
     doc.add_value(0, "yes")
     db.add_document(doc)
 
@@ -172,7 +172,7 @@ def test_all():
         def __call__(self, doc):
             return doc.get_value(0) == "yes"
 
-    query = xapian.Query(stem.stem_word("out"))
+    query = xapian.Query(stem("out"))
     enquire = xapian.Enquire(db)
     enquire.set_query(query)
     mset = enquire.get_mset(0, 10, None, testmatchdecider())
@@ -229,7 +229,7 @@ def test_all():
 
     doc = xapian.Document()
     doc.set_data(u"Unicode with an acc\xe9nt")
-    doc.add_posting(stem.stem_word(u"out\xe9r"), 1)
+    doc.add_posting(stem(u"out\xe9r"), 1)
     expect(doc.get_data(), u"Unicode with an acc\xe9nt".encode('utf-8'))
     term = doc.termlist().next()[0]
     expect(term, u"out\xe9r".encode('utf-8'))

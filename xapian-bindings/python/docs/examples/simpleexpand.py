@@ -41,7 +41,7 @@ try:
         if term == '--':
             # passed marker, move to relevant docids
             break
-        terms.append(stemmer.stem_word(term.lower()))
+        terms.append(stemmer(term.lower()))
     query = xapian.Query(xapian.Query.OP_OR, terms)
 
     # Prepare relevant document set (RSet)
