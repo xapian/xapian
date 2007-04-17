@@ -99,6 +99,7 @@ scriptindex_LDADD = $(XAPIAN_LIBS)
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\
  utf8convert.cc
+htmlparsetest_LDADD = $(XAPIAN_LIBS)
 
 md5test_SOURCES = md5test.cc md5wrap.cc md5.cc
 
