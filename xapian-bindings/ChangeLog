@@ -1,3 +1,12 @@
+Tue Apr 17 21:02:52 BST 2007  Olly Betts <olly@survex.com>
+
+	* php/util.i,xapian.i: We need to keep is_empty() for PHP as empty()
+	  clashes with a reserved word!  Refactor to use %rename in php/util.i
+	  instead of %ignore on empty() and a special is_empty() wrapper in
+	  xapian.i.
+	* php/docs/bindings.html: Document renaming of empty() to
+	  is_empty() and clone() to clone_object().
+
 Tue Apr 17 19:57:03 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix comment typo.

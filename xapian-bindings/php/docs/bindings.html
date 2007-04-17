@@ -27,6 +27,14 @@ to a floating point number.
 </p>
 
 <p>
+PHP has a lot of reserved words of various sorts, which sadly clash with common
+method names.  Because of this <code>empty()</code> methods of various
+container-like classes are wrapped as <code>is_empty()</code> for PHP
+and the <code>clone()</code> method of the <code>XapianWeight</code>
+class and subclasses is wrapped as <code>clone_object()</code>.
+</p>
+
+<p>
 The <code>examples</code> subdirectory contains examples showing how to use the
 PHP bindings based on the simple examples from <code>xapian-examples</code>:
 

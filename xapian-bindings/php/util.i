@@ -73,11 +73,7 @@
 %rename("xapian_minor_version") Xapian::minor_version;
 %rename("xapian_revision") Xapian::revision;
 #else
-%ignore Xapian::MSet::empty() const;
-%ignore Xapian::ESet::empty() const;
-%ignore Xapian::RSet::empty() const;
-%ignore Xapian::Query::empty() const;
-
+%rename("is_empty") empty() const;
 %rename("clone_object") clone() const;
 #endif
 

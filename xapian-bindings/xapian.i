@@ -314,10 +314,12 @@ class MSet {
     weight get_max_attained();
     doccount size() const;
     bool empty() const;
-#ifndef SWIGRUBY
+#if !defined(SWIGRUBY) && !defined(SWIGPHP)
     // We don't wrap methods which were already deprecated when the Ruby
-    // bindings were added.  This method is deprecated for all other bindings
-    // from version 0.8.2 - use empty() instead.
+    // bindings were added.  And for PHP, "empty" is a reserved word (!)
+    // so we use %rename in php/util.i to change "empty" to "is_empty".
+    // This method is deprecated for all other bindings from version 0.8.2 -
+    // use empty() instead.
     %extend {
 	bool is_empty() const { return self->empty(); }
     }
@@ -384,10 +386,12 @@ class ESet {
     termcount get_ebound() const;
     termcount size() const;
     bool empty() const;
-#ifndef SWIGRUBY
+#if !defined(SWIGRUBY) && !defined(SWIGPHP)
     // We don't wrap methods which were already deprecated when the Ruby
-    // bindings were added.  This method is deprecated for all other bindings
-    // from version 0.8.2 - use empty() instead.
+    // bindings were added.  And for PHP, "empty" is a reserved word (!)
+    // so we use %rename in php/util.i to change "empty" to "is_empty".
+    // This method is deprecated for all other bindings from version 0.8.2 -
+    // use empty() instead.
     %extend {
 	bool is_empty() const { return self->empty(); }
     }
@@ -429,10 +433,12 @@ class RSet {
     ~RSet();
     doccount size() const;
     bool empty() const;
-#ifndef SWIGRUBY
+#if !defined(SWIGRUBY) && !defined(SWIGPHP)
     // We don't wrap methods which were already deprecated when the Ruby
-    // bindings were added.  This method is deprecated for all other bindings
-    // from version 0.8.2 - use empty() instead.
+    // bindings were added.  And for PHP, "empty" is a reserved word (!)
+    // so we use %rename in php/util.i to change "empty" to "is_empty".
+    // This method is deprecated for all other bindings from version 0.8.2 -
+    // use empty() instead.
     %extend {
 	bool is_empty() const { return self->empty(); }
     }
@@ -911,10 +917,12 @@ class Query {
 	TermIterator get_terms_begin() const;
 	TermIterator get_terms_end() const;
 	bool empty() const;
-#ifndef SWIGRUBY
+#if !defined(SWIGRUBY) && !defined(SWIGPHP)
 	// We don't wrap methods which were already deprecated when the Ruby
-	// bindings were added.  This method is deprecated for all other bindings
-	// from version 0.8.2 - use empty() instead.
+	// bindings were added.  And for PHP, "empty" is a reserved word (!)
+	// so we use %rename in php/util.i to change "empty" to "is_empty".
+	// This method is deprecated for all other bindings from version 0.8.2 -
+	// use empty() instead.
 	bool is_empty() const;
 #endif
 
