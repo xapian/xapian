@@ -1,3 +1,8 @@
+Tue Apr 17 22:41:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* python/docs/examples/simpleexpand.py: Replace use of deprecated
+	  RSet::is_empty() with RSet::empty().
+
 Tue Apr 17 21:02:52 BST 2007  Olly Betts <olly@survex.com>
 
 	* php/util.i,xapian.i: We need to keep is_empty() for PHP as empty()

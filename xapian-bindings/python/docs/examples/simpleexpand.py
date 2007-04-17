@@ -64,7 +64,7 @@ try:
             print "ID %i %i%% [%s]" % (match[xapian.MSET_DID], match[xapian.MSET_PERCENT], match[xapian.MSET_DOCUMENT].get_data())
 
     # Put the top 5 (at most) docs into the rset if rset is empty
-    if reldocs.is_empty():
+    if reldocs.empty():
         i = matches.begin()
         for j in xrange(1, 5):
             reldocs.add_document(i.get_docid())
