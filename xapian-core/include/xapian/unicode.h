@@ -141,26 +141,26 @@ namespace Internal {
     XAPIAN_VISIBILITY_DEFAULT
     int get_character_info(unsigned ch);
 
-    // buf must have space for (at least) 4 bytes.
-    XAPIAN_VISIBILITY_DEFAULT
-    unsigned nonascii_to_utf8(unsigned ch, char * buf);
-};
+    /// Extract how to convert the case of a unicode character from its info.
+    inline int get_case_type(int info) { return ((info & 0xe0) >> 5); }
 
-/// Extract how to convert the case of a unicode character from its info.
-inline int get_case_type(int info) { return ((info & 0xe0) >> 5); }
+    /// Extract the category of a unicode character from its info.
+    inline category get_category(int info) { return static_cast<category>(info & 0x1f); }
 
-/// Extract the category of a unicode character from its info.
-inline category get_category(int info) { return static_cast<category>(info & 0x1f); }
-
-/// Extract the delta to use for case conversion of a character from its info.
-inline int get_delta(int info) {
-    /* It's implementation defined if sign extension happens on right shift of
-     * a signed int, hence the conditional (hopefully the compiler will spot
-     * this and optimise it to a sign-extending shift on architectures with
-     * a suitable instruction).
-     */
-    return (info >= 0) ? (info >> 22) : (~(~info >> 22));
+    /// Extract the delta to use for case conversion of a character from its info.
+    inline int get_delta(int info) {
+	/* It's implementation defined if sign extension happens on right shift of
+	 * a signed int, hence the conditional (hopefully the compiler will spot
+	 * this and optimise it to a sign-extending shift on architectures with
+	 * a suitable instruction).
+	 */
+	return (info >= 0) ? (info >> 22) : (~(~info >> 22));
+    }
 }
+
+// buf must have space for (at least) 4 bytes.
+XAPIAN_VISIBILITY_DEFAULT
+unsigned nonascii_to_utf8(unsigned ch, char * buf);
 
 // buf must have space for at least 4 bytes.
 inline unsigned to_utf8(unsigned ch, char *buf) {
@@ -168,7 +168,11 @@ inline unsigned to_utf8(unsigned ch, char *buf) {
 	*buf = static_cast<unsigned char>(ch);
 	return 1;
     }
-    return Xapian::Unicode::Internal::nonascii_to_utf8(ch, buf);
+    return Xapian::Unicode::nonascii_to_utf8(ch, buf);
+}
+
+inline category get_category(unsigned ch) {
+    return Internal::get_category(Internal::get_character_info(ch));
 }
 
 inline bool is_wordchar(unsigned ch) {
@@ -183,22 +187,22 @@ inline bool is_wordchar(unsigned ch) {
 	    (1 << Xapian::Unicode::OTHER_NUMBER);
     // The TCL Unicode routines only support the BMP.  For now, just assume
     // all characters outside the BMP are word characters.
-    return (ch >= 0x10000) || ((WORDCHAR_MASK >> get_category(Xapian::Unicode::Internal::get_character_info(ch))) & 1);
+    return (ch >= 0x10000) || ((WORDCHAR_MASK >> get_category(ch)) & 1);
 }
 
 inline bool is_currency(unsigned ch) {
     // The TCL Unicode routines only support the BMP.  For now, just assume
     // no characters outside the BMP are currency characters.
-    return (ch < 0x10000) && (get_category(Xapian::Unicode::Internal::get_character_info(ch)) == Xapian::Unicode::CURRENCY_SYMBOL);
+    return (ch < 0x10000) && (get_category(ch) == Xapian::Unicode::CURRENCY_SYMBOL);
 }
 
 inline unsigned tolower(unsigned ch) {
     int info;
     // The TCL Unicode routines only support the BMP.  For now, just assume
     // all characters outside the BMP can't have their case converted.
-    if (ch >= 0x10000 || !(get_case_type((info = Xapian::Unicode::Internal::get_character_info(ch))) & 2))
+    if (ch >= 0x10000 || !(Internal::get_case_type((info = Xapian::Unicode::Internal::get_character_info(ch))) & 2))
 	return ch;
-    return ch + get_delta(info);
+    return ch + Internal::get_delta(info);
 }
 
 inline void append_utf8(std::string &s, unsigned ch) {

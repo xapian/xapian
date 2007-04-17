@@ -28,7 +28,7 @@ inline bool bad_cont(unsigned char ch) { return (ch & 0xc0) != 0x80; }
 namespace Xapian {
 
 // buf should be at least 4 bytes.
-unsigned Unicode::Internal::nonascii_to_utf8(unsigned ch, char * buf) {
+unsigned Unicode::nonascii_to_utf8(unsigned ch, char * buf) {
     if (ch < 0x800) {
 	buf[0] = 0xc0 | (ch >> 6);
 	buf[1] = 0x80 | (ch & 0x3f);
