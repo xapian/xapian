@@ -137,30 +137,6 @@ Native C++ API
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 | 0.9.6           | ? [#version]_  | xapian_revision()             | Use revision() instead.                                                       |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.9.0           | 1.0.0          | Enquire::set_sort_forward()   | Use Enquire::set_docid_order() instead:                                       |
-|                 |                |                               |                                                                               |
-|                 |                |                               |  - set_sort_forward(true) becomes set_docid_order(ASCENDING),                 |
-|                 |                |                               |  - set_sort_forward(false) becomes set_docid_order(DESCENDING).               |
-+-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.9.0           | 1.0.0          | Enquire::set_sorting()        | Use Enquire::set_sort_by_relevance(), Enquire::set_sort_by_value(), or        |
-|                 |                |                               | Enquire::set_sort_by_value_then_relevance() instead.                          |
-|                 |                |                               |                                                                               |
-|                 |                |                               |  - set_sorting(KEY, 1) becomes set_sort_by_value(KEY)                         |
-|                 |                |                               |  - set_sorting(KEY, 1, false) becomes set_sort_by_value(KEY)                  |
-|                 |                |                               |  - set_sorting(KEY, 1, true) becomes set_sort_by_value_then_relevance(KEY)    |
-|                 |                |                               |  - set_sorting(ANYTHING, 0) becomes set_sort_by_relevance()                   |
-|                 |                |                               |  - set_sorting(Xapian::BAD_VALUENO, ANYTHING) becomes set_sort_by_relevance() |
-+-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.9.0           | 1.0.0          | Stem::stem_word(word)         | Use Stem::operator()(word) instead.                                           |
-+-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.8.4           | 1.0.0          | Auto::open(path)              | Use the Database(path) constructor instead.                                   |
-+-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.8.4           | 1.0.0          | Auto::open(path, action)      | Use the WritableDatabase(path, action) constructor instead.                   |
-+-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.8.2           | 1.0.0          | Query::is_empty()             | Use Query::empty() instead.                                                   |
-+-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.8.0           | 1.0.0          | Document::add_term_nopos()    | Use Document::add_term() instead.                                             |
-+-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 | 0.5.0           | ? [#bias]_     | Enquire::set_bias()           | No replacement yet implemented.                                               |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 
@@ -247,6 +223,30 @@ Native C++ API
 |                |                                     |                                                                                         |
 |                |                                     | If a third parameter is passed, set_stopper(PARAM3) and treat the first two             |
 |                |                                     | parameters as above.                                                                    |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | Enquire::set_sort_forward()         | Use Enquire::set_docid_order() instead:                                                 |
+|                |                                     |                                                                                         |
+|                |                                     |  - set_sort_forward(true) becomes set_docid_order(ASCENDING),                           |
+|                |                                     |  - set_sort_forward(false) becomes set_docid_order(DESCENDING).                         |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | Enquire::set_sorting()              | Use Enquire::set_sort_by_relevance(), Enquire::set_sort_by_value(), or                  |
+|                |                                     | Enquire::set_sort_by_value_then_relevance() instead.                                    |
+|                |                                     |                                                                                         |
+|                |                                     |  - set_sorting(KEY, 1) becomes set_sort_by_value(KEY)                                   |
+|                |                                     |  - set_sorting(KEY, 1, false) becomes set_sort_by_value(KEY)                            |
+|                |                                     |  - set_sorting(KEY, 1, true) becomes set_sort_by_value_then_relevance(KEY)              |
+|                |                                     |  - set_sorting(ANYTHING, 0) becomes set_sort_by_relevance()                             |
+|                |                                     |  - set_sorting(Xapian::BAD_VALUENO, ANYTHING) becomes set_sort_by_relevance()           |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | Stem::stem_word(word)               | Use Stem::operator()(word) instead.                                                     |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | Auto::open(path)                    | Use the Database(path) constructor instead.                                             |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | Auto::open(path, action)            | Use the WritableDatabase(path, action) constructor instead.                             |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | Query::is_empty()                   | Use Query::empty() instead.                                                             |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | Document::add_term_nopos()          | Use Document::add_term() instead.                                                       |
 +----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
 
 
