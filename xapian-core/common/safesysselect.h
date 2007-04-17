@@ -21,7 +21,7 @@
 #define XAPIAN_INCLUDED_SAFESYSSELECT_H
 
 #ifndef PACKAGE
-# error You must #include <config.h> before #include "safeerrno.h"
+# error You must #include <config.h> before #include "safesysselect.h"
 #endif
 
 #ifdef HAVE_SYS_SELECT_H
