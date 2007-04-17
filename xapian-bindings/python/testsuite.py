@@ -186,12 +186,16 @@ class TestRunner(object):
 
         """
         tests = []
-        for name in namedict:
-            if name.startswith('test_'):
-                fn = namedict[name]
-                name = name[5:]
-                if callable(fn):
-                    tests.append((name, fn))
+        if isinstance(namedict, dict):
+            for name in namedict:
+                if name.startswith('test_'):
+                    fn = namedict[name]
+                    name = name[5:]
+                    if callable(fn):
+                        tests.append((name, fn))
+            tests.sort()
+        else:
+            tests = namedict
 
         passed, failed = 0, 0
         for name, fn in tests:
