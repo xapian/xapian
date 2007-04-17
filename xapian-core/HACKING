@@ -343,10 +343,19 @@ Use of C++ Features:
 ====================
 
 * STL:  We decided early on to embrace the C++ STL.  Some older compilers
-  don't include full support for this.  In some cases, we can work around
-  this (stringstream vs strstream, providing our own auto_ptr implementation).
-  In others, users will either have to upgrade to a more compliant compiler, or
-  use another STL implementation such as STLPort (http://www.stlport.org/).
+  don't include full support for this.  Often we can work around this, for
+  example:
+
+  * Using om_stringstream instead of stringstream or strstream.
+  * Providing our own auto_ptr implementation (AutoPtr).
+  * Using string::resize(0) instead of string::clear() (for GCC 2.95).
+  * Avoiding use of '#include <limits>' (for GCC 2.95; GCC 3.0+ support it).
+
+  There is now plenty of choice of compilers which provide good conformance to
+  ISO C++, so if working around problems for some compiler proves too hard we
+  should just document the issue and users will either have to upgrade to a
+  more compliant compiler, or use another STL implementation such as STLPort
+  (http://www.stlport.org/).
 
 * RTTI (dynamic_cast<>, typeid, etc):  Needing to use RTTI features in the
   library most likely indicates a design flaw, and you should avoid use
@@ -370,13 +379,9 @@ Use of C++ Features:
   use explicit "std::" qualifiers - it's not acceptable to pull anything from
   namespace std into the namespace of an application which uses Xapian.
 
-* Use C++ style casts (static_cast<>, reinterpret_case<>, and const_cast<>)
+* Use C++ style casts (static_cast<>, reinterpret_cast<>, and const_cast<>)
   in preference to C style casts.  The syntax is ugly, but they do make the
   intent much clearer which is definitely a good thing.
-
-* "#include <limits>" isn't supported by GCC 2.95 (GCC 3.0 and later seem to
-  support it, so if we stop supporting GCC 2.95 this restriction can be
-  removed).
 
 Miscellaneous Portability Issues:
 =================================
@@ -390,22 +395,35 @@ http://www.parashift.com/c++-faq-lite/
 The libstdc++-porting-howto discusses various C++ portability issues:
 http://gcc.gnu.org/onlinedocs/libstdc++/17_intro/porting-howto.html
 
-open() and <fcntl.h>:
----------------------
+<fcntl.h>:
+----------
 
 Don't directly '#include <fcntl.h>' - instead '#include "safefcntl.h"'.
 
-The reason for this is that when largefile support is enabled, Solaris' fcntl.h
-will "#define open open64" in certain versions, or with certain compilers.
-This sadly breaks C++ code which has methods called open (as we do).  There's
-a cunning workaround for this problem in common/safefcntl.h.
+The main reason for this is that when using certain compilers on certain
+versions of Solaris, fcntl.h does '#define open open64'.  Sadly this breaks C++
+code which has methods called open (as we do).  There's a cunning workaround
+for this problem in common/safefcntl.h.
+
+Also, safefcntl.h ensures the O_BINARY is defined (to 0 if not required) so
+calls to open() and creat() can specify O_BINARY unconditionally for the
+benefit of platforms which discriminate between text and binary files.
 
 <windows.h>:
 ------------
 
 Don't directly '#include <windows.h>' - instead '#include "safewindows.h"'
 which reduces the bloat of header files included and prevents some of the
-more egregious namespace pollution.
+more egregious namespace pollution.  It also defines any constants we need
+which might be missing in older versions of the mingw headers.
+
+<winsock2.h>:
+-------------
+
+Don't directly '#include <winsock2.h>' - instead '#include "safewinsock2.h"'.
+This ensure that safewindows.h is included before <winsock2.h> to avoid
+winsock2.h including windows.h without our namespace pollution reducing
+workarounds.
 
 <errno.h>:
 ----------
@@ -413,14 +431,25 @@ more egregious namespace pollution.
 Don't directly '#include <errno.h>' - instead '#include "safeerrno.h"' which
 works around a problem with Compaq's C++ compiler.
 
+<sys/select.h>:
+---------------
+
+Don't directly '#include <sys/select.h>' - instead '#include "safesysselect.h"'
+which supports older UNIX platforms which predate POSIX 1003.1-2001 and works
+around a problem on Solaris.
+
 <sys/stat.h>:
 -------------
 
 Don't directly '#include <sys/stat.h>' - instead '#include "safesysstat.h"'
-which enables stat to work on files > 2GB under MSVC.
+which under MSVC enables stat to work on files > 2GB, defines the missing
+POSIX macros S_ISDIR and S_ISREG, pulls in <direct.h> for mkdir() (which is
+provided by sys/stat.h under UNIX) and provides a compatibility wrapper for
+mkdir() which takes 2 arguments (so code using mkdir can always just pass
+two arguments).
 
 <unistd.h>:
--------------
+-----------
 
 Don't directly '#include <unistd.h>' - instead '#include "safeunistd.h"'
 - MSVC doesn't even HAVE unistd.h!

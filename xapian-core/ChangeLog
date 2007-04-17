@@ -1,3 +1,10 @@
+Tue Apr 17 22:17:41 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: GCC 2.95 doesn't support
+	  std::string::clear(), so use resize(0) instead.
+	* HACKING: Document the above issue in a reworked section on C++
+	  STL features.  Update the section on safeXXX.h headers.
+
 Tue Apr 17 22:07:39 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/safesysselect.h: Correct typo in #error message.

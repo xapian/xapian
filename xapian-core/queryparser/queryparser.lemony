@@ -314,7 +314,7 @@ main_lex_loop:
 		    // Trim off the trailing "..".
 		    r.resize(r.size() - 2);
 		    Parse(pParser, RANGE_START, new Term(r, 0), &state);
-		    r.clear();
+		    r.resize(0);
 		    // Allow any character except whitespace and ')' in a
 		    // RANGE_END.  Or should we be consistent with RANGE_START?
 		    do {
@@ -493,7 +493,7 @@ main_lex_loop:
 		    } else {
 			// It looks like a prefix but isn't, so parse it as
 			// text instead.
-			prefix.clear();
+			prefix.resize(0);
 		    }
 		}
 	    }
