@@ -34,7 +34,7 @@ class SimpleIndex {
 
 	    Xapian.Query q = null, term;
 	    for (int i = 1; i < argv.Length; ++i) {
-		term = new Xapian.Query(stemmer.StemWord(argv[i].ToLower()));
+		term = new Xapian.Query(stemmer.Apply(argv[i].ToLower()));
 		if (q == null) {
 		    q = term;
 		} else {

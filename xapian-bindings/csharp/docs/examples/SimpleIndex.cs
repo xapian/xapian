@@ -59,7 +59,7 @@ class SimpleIndex {
 			    Group g = match.Groups[1];
 			    if (g.Length <= MAX_PROB_TERM_LENGTH) {
 				string term = g.Value.ToLower();
-				term = stemmer.StemWord(term);
+				term = stemmer.Apply(term);
 				doc.AddPosting(term, pos);
 				++pos;
 			    }

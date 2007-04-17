@@ -65,11 +65,11 @@ class SmokeTest {
 	    */
 	    doc.SetData("is there anybody out there?");
 	    doc.AddTerm("XYzzy");
-	    doc.AddPosting(stem.StemWord("is"), 1);
-	    doc.AddPosting(stem.StemWord("there"), 2);
-	    doc.AddPosting(stem.StemWord("anybody"), 3);
-	    doc.AddPosting(stem.StemWord("out"), 4);
-	    doc.AddPosting(stem.StemWord("there"), 5);
+	    doc.AddPosting(stem.Apply("is"), 1);
+	    doc.AddPosting(stem.Apply("there"), 2);
+	    doc.AddPosting(stem.Apply("anybody"), 3);
+	    doc.AddPosting(stem.Apply("out"), 4);
+	    doc.AddPosting(stem.Apply("there"), 5);
 
 	    Xapian.WritableDatabase db = Xapian.InMemory.Open();
 	    db.AddDocument(doc);
@@ -130,12 +130,12 @@ class SmokeTest {
 	    // Feature test for MatchDecider.
 	    doc = new Xapian.Document();
 	    doc.SetData("Two");
-	    doc.AddPosting(stem.StemWord("out"), 1);
-	    doc.AddPosting(stem.StemWord("source"), 2);
+	    doc.AddPosting(stem.Apply("out"), 1);
+	    doc.AddPosting(stem.Apply("source"), 2);
 	    doc.AddValue(0, "yes");
 	    db.AddDocument(doc);
 
-	    Xapian.Query query = new Xapian.Query(stem.StemWord("out"));
+	    Xapian.Query query = new Xapian.Query(stem.Apply("out"));
 	    Xapian.Enquire enquire = new Xapian.Enquire(db);
 	    enquire.SetQuery(query);
 	    Xapian.MSet mset = enquire.GetMSet(0, 10, null, new TestMatchDecider());
