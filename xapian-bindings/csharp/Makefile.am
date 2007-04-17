@@ -21,6 +21,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	ESetIterator.cs \
 	Enquire.cs \
 	ExpandDecider.cs \
+	Flint.cs \
 	InMemory.cs \
 	MatchDecider.cs \
 	MSet.cs \
