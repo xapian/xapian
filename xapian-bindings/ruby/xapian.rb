@@ -141,7 +141,7 @@ module Xapian
   class Xapian::Document
     def terms
       Xapian._safelyIterate(self._dangerous_termlist_begin(), self._dangerous_termlist_end()) { |item|
-        Xapian::Term.new(item.term, item.wdf, item.termfreq)
+        Xapian::Term.new(item.term, item.wdf)
       }
     end # terms
 
@@ -228,7 +228,7 @@ module Xapian
     def allterms
       Xapian._safelyIterate(self._dangerous_allterms_begin(), 
                             self._dangerous_allterms_end()) { |item|
-        Xapian::Term.new(item.term, item.wdf, item.termfreq)
+        Xapian::Term.new(item.term, 0, item.termfreq)
       }
     end # allterms
 
