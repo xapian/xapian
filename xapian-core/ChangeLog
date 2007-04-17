@@ -1,3 +1,8 @@
+Tue Apr 17 23:50:06 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/deprecation.rst: Note that is_empty() is not deprecated for
+	  PHP after all!
+
 Tue Apr 17 22:17:41 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: GCC 2.95 doesn't support

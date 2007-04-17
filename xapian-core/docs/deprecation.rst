@@ -201,13 +201,13 @@ Bindings
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 | 0.8.4           | 1.0.0       | SWIG [#swig]_  | Auto::open(path, action)    | Use the WritableDatabase(path, action) constructor instead.                   |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.2           | 1.0.0       | SWIG [#swig2]_ | MSet::is_empty()            | Use MSet::empty() instead.                                                    |
+| 0.8.2           | 1.0.0       | SWIG [#swig3]_ | MSet::is_empty()            | Use MSet::empty() instead.                                                    |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.2           | 1.0.0       | SWIG [#swig2]_ | ESet::is_empty()            | Use ESet::empty() instead.                                                    |
+| 0.8.2           | 1.0.0       | SWIG [#swig3]_ | ESet::is_empty()            | Use ESet::empty() instead.                                                    |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.2           | 1.0.0       | SWIG [#swig2]_ | RSet::is_empty()            | Use RSet::empty() instead.                                                    |
+| 0.8.2           | 1.0.0       | SWIG [#swig3]_ | RSet::is_empty()            | Use RSet::empty() instead.                                                    |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.2           | 1.0.0       | SWIG [#swig2]_ | Query::is_empty()           | Use Query::empty() instead.                                                   |
+| 0.8.2           | 1.0.0       | SWIG [#swig3]_ | Query::is_empty()           | Use Query::empty() instead.                                                   |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 | 0.8.0           | 1.0.0       | SWIG [#swig]_  | Document::add_term_nopos()  | Use Document::add_term() instead.                                             |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
@@ -215,6 +215,8 @@ Bindings
 .. [#swig] This affects all swig generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
 
 .. [#swig2] This affects all swig generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core.
+
+.. [#swig3] This affects all swig generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word.
 
 .. [#callable] Not clear if replacement works in all SWIG supported languages, so its removal is deferred to release 1.1.0?  FIXME - check the replacements, and list here: Python is okay.  To be checked: PHP, Ruby, Tcl8, CSharp
 
