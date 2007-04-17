@@ -1,3 +1,7 @@
+Tue Apr 17 02:22:42 BST 2007  Olly Betts <olly@survex.com>
+
+	* htmlparse.cc: nonascii_to_utf8 is now in the public API.
+
 Tue Apr 17 00:55:17 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,htmlparse.cc,indextext.cc,indextext.h,query.cc,sample.cc,
