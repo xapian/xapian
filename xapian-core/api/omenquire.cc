@@ -927,12 +927,6 @@ Enquire::set_docid_order(Enquire::docid_order order)
 }
 
 void
-Enquire::set_sort_forward(bool sort_forward)
-{
-    Enquire::set_docid_order(sort_forward ? ASCENDING : DESCENDING);
-}
-
-void
 Enquire::set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff)
 {
     internal->percent_cutoff = percent_cutoff;
@@ -969,22 +963,6 @@ Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key,
     internal->sort_key = sort_key;
     internal->sort_by = Internal::REL_VAL;
     internal->sort_value_forward = ascending;
-}
-
-void
-Enquire::set_sorting(Xapian::valueno sort_key, int sort_bands,
-		     bool sort_by_relevance)
-{
-    if (sort_bands > 1) {
-	throw Xapian::UnimplementedError("sort bands are no longer supported");
-    }
-    if (sort_bands == 0 || sort_key == Xapian::BAD_VALUENO) {
-	Enquire::set_sort_by_relevance();
-    } else if (!sort_by_relevance) {
-	Enquire::set_sort_by_value(sort_key);
-    } else {
-	Enquire::set_sort_by_value_then_relevance(sort_key);
-    }
 }
 
 void

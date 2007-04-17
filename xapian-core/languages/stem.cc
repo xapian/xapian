@@ -172,13 +172,6 @@ Stem::operator()(const std::string &word) const
     return internal->operator()(word);
 }
 
-// Deprecated alias.
-string
-Stem::stem_word(const string &word) const
-{
-    return operator()(word);
-}
-
 string
 Stem::get_description() const
 {

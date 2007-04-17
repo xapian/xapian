@@ -198,12 +198,6 @@ Query::empty() const
     return internal.get() == 0;
 }
 
-bool
-Query::is_empty() const
-{
-    return empty();
-}
-
 Query::Query(Query::op op_, const std::string & left, const std::string & right)
     : internal(0)
 {

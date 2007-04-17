@@ -741,14 +741,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 */
 	void set_docid_order(docid_order order);
 
-	/** For compatibility with Xapian 0.8.5 and earlier.
-	 *
-	 *  @deprecated	This method is now deprecated, use set_docid_order()
-	 *  instead - set_sort_forward(true) -> set_docid_order(ASCENDING)
-	 *  and set_sort_forward(false) -> set_docid_order(DESCENDING).
-	 */
-	XAPIAN_DEPRECATED(void set_sort_forward(bool sort_forward));
-
 	/** Set the percentage and/or weight cutoffs.
 	 *
 	 * @param percent_cutoff Minimum percentage score for returned
@@ -768,25 +760,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	(default 0 => no weight cut-off).
 	 */
 	void set_cutoff(Xapian::percent percent_cutoff, Xapian::weight weight_cutoff = 0);
-
-	/** For compatibility with Xapian 0.8.5 and earlier.
-	 *
-	 *  @deprecated This method is now deprecated, use
-	 *  set_sort_by_relevance(), set_sort_by_value(), or
-	 *  set_sort_by_value_then_relevance() instead.
-	 *
-	 *  set_sorting(KEY, 1) -> set_sort_by_value(KEY)
-	 *
-	 *  set_sorting(KEY, 1, false) -> set_sort_by_value(KEY)
-	 *
-	 *  set_sorting(KEY, 1, true) -> set_sort_by_value_then_relevance(KEY)
-	 *
-	 *  set_sorting(ANYTHING, 0) -> set_sort_by_relevance()
-	 *
-	 *  set_sorting(Xapian::BAD_VALUENO, ANYTHING) -> set_sort_by_relevance()
-	 */
-	XAPIAN_DEPRECATED(void set_sorting(Xapian::valueno sort_key, int sort_bands,
-			  bool sort_by_relevance = false));
 
 	/** Set the sorting to be by relevance only.
 	 *

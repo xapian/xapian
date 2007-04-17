@@ -88,13 +88,6 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
      */
     std::string operator()(const std::string &word) const;
 
-    /** For compatibility with Xapian 0.8.5 and earlier.
-     *
-     *  @deprecated This method is now deprecated, use
-     *  operator() instead.
-    */
-    XAPIAN_DEPRECATED(std::string stem_word(const std::string &word) const);
-
     /// Return a string describing this object.
     std::string get_description() const;
 

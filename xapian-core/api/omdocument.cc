@@ -135,12 +135,6 @@ Document::add_term(const string & tname, Xapian::termcount wdfinc)
 }
 
 void
-Document::add_term_nopos(const std::string & term, Xapian::termcount wdfinc)
-{
-    Document::add_term(term, wdfinc);
-}
-
-void
 Document::remove_posting(const string & tname, Xapian::termpos tpos,
 			 Xapian::termcount wdfdec)
 {

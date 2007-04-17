@@ -43,36 +43,6 @@ namespace Auto {
 XAPIAN_VISIBILITY_DEFAULT
 Database open_stub(const std::string &file);
 
-/** Construct a Database object for read-only access to a database.
- *
- * The appropriate database backend is chosen automatically.
- *
- * @deprecated	This function is deprecated - use the Xapian::Database(path)
- *		constructor instead.
- *
- * @param path  pathname of the file or directory containing the database.
- */
-XAPIAN_VISIBILITY_DEFAULT
-XAPIAN_DEPRECATED(Database open(const std::string &path));
-inline Database open(const std::string &path) {
-    return Database(path);
-}
-
-/** Construct a WritableDatabase object for update access to a database.
- *
- * The appropriate database backend is chosen automatically.
- *
- * @deprecated	This function is deprecated - use the
- *		Xapian::WritableDatabase(path, action) constructor instead.
- *
- * @param path  pathname of the file or directory containing the database.
- */
-XAPIAN_VISIBILITY_DEFAULT
-XAPIAN_DEPRECATED(WritableDatabase open(const std::string &path, int action));
-inline WritableDatabase open(const std::string &path, int action) {
-    return WritableDatabase(path, action);
-}
-
 }
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND

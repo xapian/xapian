@@ -189,9 +189,6 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	 */
 	bool empty() const;
 
-	/** @deprecated Deprecated alias for empty() */
-	XAPIAN_DEPRECATED(bool is_empty() const);
-
 	/** Returns a string representing the query.
 	 *  Introspection method.
 	 */
