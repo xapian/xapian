@@ -37,6 +37,32 @@
 %include typemaps.i
 %include stl.i
 
+/* For the 1.0 series, we support get_description() as a deprecated method.
+ * This will be removed in release 1.1.0
+ */
+namespace Xapian {
+    %extend Database { std::string get_description() const { return self->get_description(); } }
+    %extend Document { std::string get_description() const { return self->get_description(); } }
+    %extend ESet { std::string get_description() const { return self->get_description(); } }
+    %extend ESetIterator { std::string get_description() const { return self->get_description(); } }
+    %extend Enquire { std::string get_description() const { return self->get_description(); } }
+    %extend MSet { std::string get_description() const { return self->get_description(); } }
+    %extend MSetIterator { std::string get_description() const { return self->get_description(); } }
+    %extend PositionIterator { std::string get_description() const { return self->get_description(); } }
+    %extend PostingIterator { std::string get_description() const { return self->get_description(); } }
+    %extend Query { std::string get_description() const { return self->get_description(); } }
+    %extend QueryParser { std::string get_description() const { return self->get_description(); } }
+    %extend RSet { std::string get_description() const { return self->get_description(); } }
+    %extend Stem { std::string get_description() const { return self->get_description(); } }
+    %extend Stopper { std::string get_description() const { return self->get_description(); } }
+    %extend TermIterator { std::string get_description() const { return self->get_description(); } }
+    %extend ValueIterator { std::string get_description() const { return self->get_description(); } }
+    %extend WritableDatabase { std::string get_description() const { return self->get_description(); } }
+}
+/* Use get_description() methods for str(). */
+%rename(__str__) get_description;
+
+
 %{
 namespace Xapian {
     class PythonProblem {};

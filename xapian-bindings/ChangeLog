@@ -1,3 +1,9 @@
+Tue Apr 17 23:23:44 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/util.i: add __str__ methods as aliases for the
+	  get_description() methods, and deprecate the get_description()
+	  methods.
+
 Tue Apr 17 22:41:40 BST 2007  Olly Betts <olly@survex.com>
 
 	* python/docs/examples/simpleexpand.py: Replace use of deprecated
