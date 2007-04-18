@@ -1,6 +1,6 @@
 /* utf8convert.cc: convert a string to UTF-8 encoding.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,7 +96,8 @@ convert_to_utf8(string & text, const string & charset)
 
     size_t start = 0;
     for (string::const_iterator i = text.begin(); i != text.end(); ++i) {
-	start += to_utf8(static_cast<unsigned char>(*i), buf + start);
+	unsigned ch = static_cast<unsigned char>(*i);
+	start += Xapian::Unicode::to_utf8(ch, buf + start);
 	if (start >= sizeof(buf) - 4) {
 	    tmp.append(buf, start);
 	    start = 0;
