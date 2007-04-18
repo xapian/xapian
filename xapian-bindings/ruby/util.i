@@ -134,10 +134,7 @@
 %rename("sort_by_relevance_then_value!") set_sort_by_relevance_then_value;
 %rename("sort_by_value_then_relevance!") set_sort_by_value_then_relevance;
 %rename("sort_by_value!") set_sort_by_value;
-%ignore set_sort_forward; // Deprecated method
-%ignore set_sorting; // Deprecated method
 %rename("stemmer=") set_stemmer;
-%ignore set_stemming_options; // Deprecated method
 %rename("stemming_strategy=") set_stemming_strategy;
 %rename("stopper=") set_stopper;
 %rename("weighting_scheme=") set_weighting_scheme;
