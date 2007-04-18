@@ -220,20 +220,13 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 					   context, -(int)GetLastError());
 	}
 
-	if (n >= 0) {
-	    count += n;
-	    if (count == str->size()) {
-		if (str == &message || message.empty()) break;
-		str = &message;
-		count = 0;
-	    }
-	    continue;
+	count += n;
+	if (count == str->size()) {
+	    if (str == &message || message.empty()) return;
+	    str = &message;
+	    count = 0;
 	}
-
-	if (errno != EINTR)
-	    throw Xapian::NetworkError("write failed", context, errno);
     }
-    return;
 #else
     // If there's no end_time, just use blocking I/O.
     if (fcntl(fdin, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
@@ -253,7 +246,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
 	if (n >= 0) {
 	    count += n;
 	    if (count == str->size()) {
-		if (str == &message || message.empty()) break;
+		if (str == &message || message.empty()) return;
 		str = &message;
 		count = 0;
 	    }

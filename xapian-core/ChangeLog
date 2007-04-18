@@ -1,3 +1,8 @@
+Wed Apr 18 23:22:29 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Remove code which can't actually be
+	  reached, which fixes a warning in the mingw build.
+
 Wed Apr 18 23:07:45 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/multimatch.h,common/omenquireinternal.h,
