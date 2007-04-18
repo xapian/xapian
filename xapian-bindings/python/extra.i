@@ -228,7 +228,7 @@ class ESetItem(_SequenceMixIn):
     def __init__(self, iter):
         self.term = iter.get_term()
         self.weight = iter.get_weight()
-        _SequenceMixIn.__init__(self, 'termname', 'weight')
+        _SequenceMixIn.__init__(self, 'term', 'weight')
 
 class ESetIter(object):
     """An iterator over the items in an ESet.

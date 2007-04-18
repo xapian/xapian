@@ -192,6 +192,14 @@ def test_eset_iter():
     expect(items2[0].weight, items[0].weight)
     expect(items2[1].weight, items[2].weight)
 
+    context("checking legacy sequence API for eset items")
+    expect(items2[0][0], items[0].term)
+    expect(items2[1][0], items[2].term)
+    expect(items2[0][1], items[0].weight)
+    expect(items2[1][1], items[2].weight)
+    expect(items2[0][:], [items[0].term, items[0].weight])
+    expect(items2[1][:], [items[2].term, items[2].weight])
+
 def test_matchingterms_iter():
     """Test Enquire.matching_terms iterator.
 
