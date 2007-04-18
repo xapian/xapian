@@ -1,3 +1,8 @@
+Thu Apr 19 00:41:25 BST 2007  Olly Betts <olly@survex.com>
+
+	* ruby/docs/bindings.html: Note that C++ operator() becomes
+	  call in Ruby.
+
 Wed Apr 18 23:35:52 BST 2007  Olly Betts <olly@survex.com>
 
 	* ruby/util.i: Remove '%ignore' for deprecated methods we've now
