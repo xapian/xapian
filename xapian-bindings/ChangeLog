@@ -1,3 +1,7 @@
+Wed Apr 18 16:41:37 BST 2007  Olly Betts <olly@survex.com>
+
+	* python/: svn:ignore doccomments.i.
+
 Wed Apr 18 16:18:45 BST 2007  Olly Betts <olly@survex.com>
 
 	* csharp/util.i,generic/except.i: Move C# specific exception stuff
