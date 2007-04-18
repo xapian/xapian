@@ -1,6 +1,8 @@
 Instructions for hacking on Xapian
 ==================================
 
+.. contents:: Table of contents
+
 This file is aimed to help developers get started with working on
 Xapian.  The documentation contains a section covering various internal
 aspects of the library - this can also be found on the Xapian website
@@ -499,12 +501,15 @@ Here's an incomplete list of things to avoid:
 * Don't use "$<" except in implicit rules.  This is an annoying restriction,
   as using "$<" makes it much easier to make VPATH builds work.  But it's only
   portable in implicit rules.  Tips for rewriting - if it's a source file,
-  write it as:
+  write it as::
+
     $(srcdir)/foo.ext
+
   If it's a generated object file or similar, just write the name as is.  The
   tricky case is a generated file which isn't in SVN but is shipped in the
   distribution tarball, as such a file could be in either the source or build
-  tree.  Use this trick to make sure it's found whichever directory it's in:
+  tree.  Use this trick to make sure it's found whichever directory it's in::
+
     `test -f foo.ext || echo '$(srcdir)/'`foo.ext
 
 * Don't use "exit 0" to make a rule fail.  Use "false" instead.  BSD make
@@ -515,12 +520,15 @@ Here's an incomplete list of things to avoid:
   manual for details, and a few caveats.
 
 * The list of portable utilities is:
+
     cat cmp cp diff echo egrep expr false grep install-info
     ln ls mkdir mv pwd rm rmdir sed sleep sort tar test touch true
+
   Note that versions of these (GNU versions in particular) support switches
   which aren't portable - notably, "test -r" isn't portable; neither is
   "cp -a".  And note that "mkdir -p" isn't portable - the semantics vary.
   See the "Goat Book" for more details and other useful tips:
+
     http://sources.redhat.com/autobook/
 
 * Don't use "include" - it's not present in BSD make (at least some versions
@@ -578,17 +586,17 @@ a corrupted database or a malformed input file in a non-debug build too.
 
 There are several variants of Assert:
 
-Assert(P) -- asserts that expression P is true
-AssertEq(a,b) -- asserts that expressions a and b are equal [message reports
-	values of a and b, so is more informative than Assert((a)==(b))]
-AssertNe(a,b) -- asserts a and b are not equal
-AssertEqDouble(a,b) -- asserts a and b differ by less than DBL_EPSILON
+- Assert(P) -- asserts that expression P is true
+- AssertEq(a,b) -- asserts that expressions a and b are equal [message reports
+  values of a and b, so is more informative than Assert((a)==(b))]
+- AssertNe(a,b) -- asserts a and b are not equal
+- AssertEqDouble(a,b) -- asserts a and b differ by less than DBL_EPSILON
 
-AssertParanoid(P) -- a particularly expensive assertion.  If you want a build
-	with Asserts enabled, but without a great performance overhead, then
-	passing --enable-assertions=partial to configure and AssertParanoids
-	won't be checked, but Asserts will.  You can also use AssertEqParanoid
-	and AssertNeParanoid.
+- AssertParanoid(P) -- a particularly expensive assertion.  If you want a build
+  with Asserts enabled, but without a great performance overhead, then
+  passing --enable-assertions=partial to configure and AssertParanoids
+  won't be checked, but Asserts will.  You can also use AssertEqParanoid
+  and AssertNeParanoid.
 
 Configure Options
 =================
@@ -670,7 +678,7 @@ for those developers.
 ----------------------------------------------
 
  * API classes, methods, functions, and types must be documented by
-   documentation comments alongside the declaration in include/xapian/*.h.
+   documentation comments alongside the declaration in ``include/xapian/*.h``.
    These are collated by doxygen - see doxygen's documentation for details
    of the supported syntax.
 
@@ -712,7 +720,10 @@ introduction to the Xapian test system in docs/tests.html .
  * Add an entry to the ChangeLog file at the top of the module.  The
    text of this can be identical to the SVN commit message.  The datestamps in
    our ChangeLog entries are as produced by the Unix date utility when invoked
-   as `date "+%a %b %d %T %Z %Y"'.
+   as::
+
+     date "+%a %b %d %T %Z %Y"
+
  * Commit to the repository.
 
 Then you can update any patch, bug or feature request items in Bugzilla
@@ -741,7 +752,7 @@ cases of iterator use.
 
 The postfix operator++ for iterators should be implemented inline in terms
 of the prefix form as described by Joe Buck on the gcc mailing list
-- excerpt from http://article.gmane.org/gmane.comp.gcc.devel:50201 :
+- excerpt from http://article.gmane.org/gmane.comp.gcc.devel:50201::
 
     class some_iterator {
     public:
