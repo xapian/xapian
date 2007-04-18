@@ -88,18 +88,6 @@ public class Enquire {
         XapianJNI.enquire_set_sorting(id, sort_key, sort_bands);
     }
 
-    //
-    // TODO: Xapian docs say this API call is temporary
-    // find out if this is true
-    // if not, figure out how to handle the 'time_t' type
-    //
-    
-    /**
-     * public void setBias (double bias_weight, time_t bias_halflife) throws XapianError {
-     * XapianJNI.enquire_set_bias (id, bias_weight, bias_halflife);
-     * }
-     */
-
     public MSet getMSet(long first, long maxitems) throws XapianError {
         return getMSet(first, maxitems, null, null);
     }

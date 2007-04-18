@@ -122,7 +122,6 @@
 
 
 // Setters
-%rename("bias!") set_bias;
 %rename("collapse_key=") set_collapse_key;
 %rename("cutoff!") set_cutoff;
 %rename("data=") set_data;

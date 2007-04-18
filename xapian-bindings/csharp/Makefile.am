@@ -35,7 +35,6 @@ XAPIAN_SWIG_CS_SRCS=\
 	RSet.cs \
 	SWIGTYPE_p_std__vectorTstd__string_t.cs \
 	SWIGTYPE_p_std__vectorTXapian__Query_t.cs \
-	SWIGTYPE_p_time_t.cs \
 	SimpleStopper.cs \
 	Stem.cs \
 	Stopper.cs \

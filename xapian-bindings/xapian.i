@@ -474,8 +474,6 @@ class Enquire {
     void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					  bool ascending = true);
 
-    void set_bias(weight bias_weight, time_t bias_halflife);
-
 #ifdef XAPIAN_SWIG_DIRECTORS
     MSet get_mset(doccount first,
 	    doccount maxitems,

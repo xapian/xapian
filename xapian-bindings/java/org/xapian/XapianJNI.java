@@ -361,7 +361,7 @@ public class XapianJNI {
     public static native void enquire_set_cutoff(long eid, int percent_cutoff, double weight_cutoff) throws XapianError;
 
     public static native void enquire_set_sorting(long eid, long sort_key, int sort_bands) throws XapianError;
-//    public static native void enquire_set_bias(long eid, double bias_weight, time_t bias_halflife) throws XapianError;
+
     public static native long enquire_get_mset(long eid, long first, long maxitems, long rsetid, MatchDecider md) throws XapianError;
 
     public static native long enquire_get_eset(long eid, long maxitems, long rsetid, int flags, double k, ExpandDecider ed) throws XapianError;

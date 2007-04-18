@@ -1,3 +1,9 @@
+Wed Apr 18 23:31:39 BST 2007  Olly Betts <olly@survex.com>
+
+	* csharp/Makefile.am,java/org/xapian/Enquire.java,
+	  java/org/xapian/XapianJNI.java,ruby/util.i,xapian.i:
+	  Update for removal of Enquire::set_bias().
+
 Wed Apr 18 17:09:22 BST 2007  Olly Betts <olly@survex.com>
 
 	* guile/util.i,python/extra.i,python/util.i,ruby/util.i,tcl8/except.i,
