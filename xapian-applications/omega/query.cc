@@ -361,19 +361,6 @@ run_query()
 
     enquire->set_cutoff(threshold);
 
-    // Temporary bodge to allow experimentation with Xapian::BiasFunctor
-    MCI i;
-    i = cgi_params.find("bias_weight");
-    if (i != cgi_params.end()) {
-	Xapian::weight bias_weight = atof(i->second.c_str());
-	int half_life = 2 * 24 * 60 * 60; // 2 days
-	i = cgi_params.find("bias_halflife");
-	if (i != cgi_params.end()) {
-	    half_life = atoi(i->second.c_str());
-	}
-	enquire->set_bias(bias_weight, half_life);
-    }
-
     if (sort_key != Xapian::valueno(-1)) {
 	if (sort_after) {
 	    enquire->set_sort_by_relevance_then_value(sort_key, sort_ascending);

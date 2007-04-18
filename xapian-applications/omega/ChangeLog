@@ -1,3 +1,9 @@
+Wed Apr 18 23:15:26 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.txt,query.cc: Remove "bias_weight" and
+	  "bias_halflife" CGI parameters since they rely on
+	  Enquire::set_bias() which has been removed.
+
 Tue Apr 17 21:45:40 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* Makefile.am: Link htmlparsetest with Xapian library to get access
