@@ -5,8 +5,8 @@ dnl 2.54 needed for automake 1.6
 dnl 2.57 fixes the annoying warnings from configure on FreeBSD
 dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
-dnl 2.59c is needed for AC_TYPE_SSIZE_T
-AC_PREREQ(2.59c)
+dnl 2.60 is needed for AC_TYPE_SSIZE_T and docdir support
+AC_PREREQ(2.60)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
 AC_INIT(xapian-core, 0.9.10)dnl FIXME: bugreport addr as third argument
@@ -401,11 +401,6 @@ AC_PATH_PROG(PERL, perl, [])
 if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
-
-dnl We only need to set docdir for compatibility with autoconf < 2.60 - this
-dnl code can be removed once we move to requiring autoconf 2.60 or newer.
-test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
-AC_SUBST(docdir)
 
 dnl Make DATADIR available to the library
 dnl This isn't currently used.  If we reenable it, it needs to be renamed

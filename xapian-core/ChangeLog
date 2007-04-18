@@ -1,3 +1,10 @@
+Wed Apr 18 18:51:42 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Require autoconf 2.60 or newer.  Drop docdir
+	  compatibility hack which is no longer required.
+	* HACKING: Document requirement.  Fix typo (or out-of-date info) for
+	  automake requirement (we require 1.9.5 not 1.8.5).
+
 Wed Apr 18 18:27:35 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/deprecation.rst: Note the deprecation of get_description()
