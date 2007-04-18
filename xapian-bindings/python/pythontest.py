@@ -54,6 +54,15 @@ def setup_database():
     expect(db.get_doccount(), 5)
     return db
 
+def test_exception_base():
+    """Check that xapian exceptions have Exception as a base class.
+
+    """
+    try:
+        raise xapian.InvalidOperationError("Test exception")
+    except Exception, e:
+        pass
+
 def test_mset_iter():
     """Test iterators over MSets.
 
@@ -165,6 +174,7 @@ def test_eset_iter():
     eset = enquire.get_eset(10, rset)
     items = [item for item in eset]
     expect(len(items), 4)
+    expect(len(items), len(eset))
 
     context("getting eset items with a query")
     enquire = xapian.Enquire(db)
@@ -172,14 +182,46 @@ def test_eset_iter():
     eset = enquire.get_eset(10, rset)
     items2 = [item for item in eset]
     expect(len(items2), 2)
+    expect(len(items2), len(eset))
 
     context("comparing eset items with a query to those without")
-    expect(items2[0].termname, items[0].termname)
-    expect(items2[1].termname, items[2].termname)
+    expect(items2[0].term, items[0].term)
+    expect(items2[1].term, items[2].term)
 
     context("comparing eset weights with a query to those without")
     expect(items2[0].weight, items[0].weight)
     expect(items2[1].weight, items[2].weight)
+
+def test_matchingterms_iter():
+    """Test Enquire.matching_terms iterator.
+
+    """
+    db = setup_database()
+    query = xapian.Query(xapian.Query.OP_OR, ("was", "it", "warm", "two"))
+
+    enquire = xapian.Enquire(db)
+    enquire.set_query(query)
+    mset = enquire.get_mset(0, 10)
+    for item in mset:
+
+        # Make a list of the term names
+        mterms = []
+        for termitem in enquire.matching_terms(item.docid):
+            mterms.append(termitem.term)
+            expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
+            expect_exception(xapian.InvalidOperationError, 'Iterator does not support term frequencies', getattr, termitem, 'termfreq')
+            expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
+
+        # Make a list of the match items (so we can test if they're still valid
+        # once the iterator has moved on).
+        termitems = []
+        for termitem in enquire.matching_terms(item.docid):
+            termitems.append(termitem)
+
+        expect(len(termitems), len(mterms))
+        for i in xrange(len(termitems)):
+            expect(termitems[i].term, mterms[i])
+
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):

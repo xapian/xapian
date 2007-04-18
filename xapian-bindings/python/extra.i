@@ -37,8 +37,14 @@ class _SequenceMixIn(object):
     def __init__(self, *args):
         """Initialise the sequence.
 
-        *args holds the list of property names to be returned, in the order
-        they are returned by the sequence API.
+        *args holds the list of properties or property names to be returned, in
+        the order they are returned by the sequence API.
+        
+        If an item in the list is a string, it is considered to be a property
+        name; otherwise, it is considered to be a property value, and is
+        returned without doing an attribute lookup.  (Yes, this is a nasty
+        hack.  No, I don't care, because this is only a temporary piece of
+        internal code.)
 
         """
         self._sequence_items = args
@@ -51,6 +57,16 @@ class _SequenceMixIn(object):
         """
         return len(self._sequence_items)
 
+    def _get_single_item(self, index):
+        """Get a single item.
+
+        Used by __getitem__ to get individual items.
+
+        """
+        if not isinstance(index, basestring):
+             return index
+        return getattr(self, index)
+
     def __getitem__(self, key):
         """Get an item, or a slice of items, from the sequence.
 
@@ -59,9 +75,8 @@ class _SequenceMixIn(object):
 
         """
         if isinstance(key, slice):
-            return [getattr(self, i) for i in self._sequence_items[key]]
-        i = self._sequence_items[key]
-        return getattr(self, i)
+            return [self._get_single_item(i) for i in self._sequence_items[key]]
+        return self._get_single_item(self._sequence_items[key])
 
     def __iter__(self):
         """Make an iterator for over the sequence.
@@ -137,7 +152,8 @@ class MSetItem(_SequenceMixIn):
 class MSetIter(object):
     """An iterator over the items in an MSet.
 
-    The items returned are evaluated lazily where appropriate.
+    The iterator will return MSetItem objects, which will be evaluated lazily
+    where appropriate.
 
     """
     __slots__ = ('_iter', '_end', '_mset')
@@ -162,7 +178,12 @@ class MSetIter(object):
 # convenience methods.
 
 def _mset_gen_iter(self):
-    "Return an iterator over the MSet."
+    """Return an iterator over the MSet.
+
+    The iterator will return MSetItem objects, which will be evaluated lazily
+    where appropriate.
+
+    """
     return MSetIter(self)
 MSet.__iter__ = _mset_gen_iter
 
@@ -198,19 +219,21 @@ class ESetItem(_SequenceMixIn):
 
     The item supports access to the following attributes:
 
-     - `termname`: The termname corresponding to this ESet item.
+     - `term`: The term corresponding to this ESet item.
      - `weight`: The weight corresponding to this ESet item.
 
     """
-    __slots__ = ('termname', 'weight')
+    __slots__ = ('term', 'weight')
 
     def __init__(self, iter):
-        self.termname = iter.get_termname()
+        self.term = iter.get_term()
         self.weight = iter.get_weight()
         _SequenceMixIn.__init__(self, 'termname', 'weight')
 
 class ESetIter(object):
     """An iterator over the items in an ESet.
+
+    The iterator will return ESetItem objects.
 
     """
     __slots__ = ('_iter', '_end')
@@ -233,7 +256,11 @@ class ESetIter(object):
 # convenience methods.
 
 def _eset_gen_iter(self):
-    "Return an iterator over the ESet."
+    """Return an iterator over the ESet.
+    
+    The iterator will return ESetItem objects.
+
+    """
     return ESetIter(self)
 ESet.__iter__ = _eset_gen_iter
 
@@ -244,41 +271,156 @@ ESet.__len__ = ESet.size
 # Support for iteration of term lists #
 #######################################
 
+class TermListItem(_SequenceMixIn):
+    """An item returned from iteration of a term list.
+
+    """
+    __slots__ = ('_iter', 'term', '_wdf', '_termfreq')
+
+    def __init__(self, iter, term):
+        self._iter = iter
+        self.term = term
+        self._wdf = None
+        self._termfreq = None
+
+        # Support for sequence API
+        sequence = ['term', 'wdf', 'termfreq', 'positer']
+        if not (iter._has & TermIter.HAS_WDF):
+            sequence[1] = 0
+        if not (iter._has & TermIter.HAS_TERMFREQS):
+            sequence[2] = 0
+        if not (iter._has & TermIter.HAS_POSITIONS):
+            sequence[3] = PositionIter()
+        _SequenceMixIn.__init__(self, *sequence)
+
+    def _get_wdf(self):
+        """Get the within document frequency.
+
+        """
+        if self._wdf is None:
+            if not (self._iter._has & TermIter.HAS_WDF):
+                raise InvalidOperationError("Iterator does not support wdfs")
+            self._wdf = self._iter._iter.get_wdf()
+        return self._wdf
+    wdf = property(_get_wdf, doc=
+    """The within-document-frequency of the current term (if meaningful).
+
+    This will raise a InvalidOperationError exception if the iterator
+    this item came from doesn't support within-document-frequencies.
+
+    """)
+
+    def _get_termfreq(self):
+        """Get the term frequency.
+
+        """
+        if self._termfreq is None:
+            if not (self._iter._has & TermIter.HAS_TERMFREQS):
+                raise InvalidOperationError("Iterator does not support term frequencies")
+            self._termfreq = self._iter._iter.get_termfreq()
+        return self._termfreq
+    termfreq = property(_get_termfreq, doc=
+    """The term frequency of the current term (if meaningful).
+
+    This will raise a InvalidOperationError exception if the iterator
+    this item came from doesn't support term frequencies.
+
+    """)
+
+    def _get_positer(self):
+        """Get a position list iterator.
+
+        """
+        if not (self._iter._has & TermIter.HAS_POSITIONS):
+            raise InvalidOperationError("Iterator does not support position lists")
+        return PositionIter(self._iter._iter.positionlist_begin(),
+                            self._iter._iter.positionlist_end())
+    positer = property(_get_positer, doc=
+    """A position iterator for the current term (if meaningful).
+
+    This will raise a InvalidOperationError exception if the iterator
+    this item came from doesn't support position lists.
+
+    """)
+
+
 class TermIter(object):
+    """An iterator over a term list.
+
+    The iterator will return TermListItem objects, which will be evaluated
+    lazily where appropriate.
+
+    """
+    __slots__ = ('_iter', '_end', '_has', '_lastterm', '_moved')
+
     HAS_NOTHING = 0
     HAS_TERMFREQS = 1
     HAS_POSITIONS = 2
     HAS_WDF = 4
 
-    def __init__(self, start, end, has = HAS_NOTHING):
-        self.iter = start
-        self.end = end
-        self.has = has
+    def __init__(self, start, end, has=HAS_NOTHING):
+        self._iter = start
+        self._end = end
+        self._has = has
+        self._lastterm = None # Used to test if the iterator has moved
+        self._moved = True # True if we've moved onto the next item.
 
     def __iter__(self):
         return self
 
     def next(self):
-        if self.iter==self.end:
+        """Move the iterator to the next item, and return it.
+
+        Raises StopIteration if there are no more items.
+
+        """
+        if not self._moved:
+            self._iter.next()
+            self._moved = True
+
+        if self._iter == self._end:
             raise StopIteration
         else:
-            termfreq = 0
-            if self.has & TermIter.HAS_TERMFREQS:
-                termfreq = self.iter.get_termfreq()
-            if self.has & TermIter.HAS_POSITIONS:
-                positer = PositionIter(self.iter.positionlist_begin(), self.iter.positionlist_end())
-            else:
-                positer = PositionIter()
-            if self.has & TermIter.HAS_WDF:
-                wdf = self.iter.get_wdf()
-            else:
-                wdf = 0
-            r = [self.iter.get_term(), wdf, termfreq, positer]
-            self.iter.next()
+            newterm = self._iter.get_term()
+            r = TermListItem(self, newterm)
+            self._lastterm = newterm
+            self._moved = False
             return r
 
     def skip_to(self, term):
-        self.iter.skip_to(term)
+        """Skip the iterator forward.
+
+        The iterator is advanced to the first term at or after the current
+        position which is greater than or equal to the supplied term.
+
+        """
+        self._iter.skip_to(term)
+
+        # Update self._lastterm if the iterator has moved.
+        # TermListItems compare a saved value of lastterm with self._lastterm
+        # with the object identity comparator, so it is important to ensure
+        # that it does not get modified if the new term compares equal.
+        newterm = self._iter.get_term()
+        if newterm != self._lastterm:
+            self._lastterm = newterm
+        self._moved = True
+
+# Modify Enquire to add a "matching_terms()" method.
+def _enquire_gen_iter(self, which):
+    """Get an iterator over the terms which match a given match set item.
+
+    The match set item to consider is specified by the `which` parameter, which
+    may be a document ID, or an MSetItem object.
+
+    The iterator will return TermListItem objects, but these will not support
+    access to term frequency, wdf, or position information.
+
+    """
+    if isinstance(which, MSetItem):
+        which = which.docid
+    return TermIter(self.get_matching_terms_begin(which),
+                    self.get_matching_terms_end(which))
+Enquire.matching_terms = _enquire_gen_iter
 
 
 ##########################################
@@ -352,60 +494,53 @@ class ValueIter(object):
 
 # Bind the Python iterators into the shadow classes
 
-def enquire_gen_iter(self, which):
-    # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
-    # suggesting we make it throw Xapian::InvalidOperationError instead.
-    return TermIter(self.get_matching_terms_begin(which), self.get_matching_terms_end(which))
-
-Enquire.matching_terms = enquire_gen_iter
-
-def query_gen_iter(self):
+def _query_gen_iter(self):
     # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
     # suggesting we make it throw Xapian::InvalidOperationError instead.
     return TermIter(self.get_terms_begin(), self.get_terms_end())
+Query.__iter__ = _query_gen_iter
 
-Query.__iter__ = query_gen_iter
+def _database_gen_allterms_iter(self):
+    return TermIter(self.allterms_begin(), self.allterms_end(),
+                    TermIter.HAS_TERMFREQS)
+Database.__iter__ = _database_gen_allterms_iter
+Database.allterms = _database_gen_allterms_iter
 
-def database_gen_allterms_iter(self):
-    return TermIter(self.allterms_begin(), self.allterms_end(), TermIter.HAS_TERMFREQS)
-
-Database.__iter__ = database_gen_allterms_iter
-
-def database_gen_postlist_iter(self, tname):
+def _database_gen_postlist_iter(self, tname):
     if len(tname) != 0:
         return PostingIter(self.postlist_begin(tname), self.postlist_end(tname), PostingIter.HAS_POSITIONS)
     else:
         return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
-def database_gen_termlist_iter(self, docid):
+Database.postlist = _database_gen_postlist_iter
+
+def _database_gen_termlist_iter(self, docid):
     return TermIter(self.termlist_begin(docid), self.termlist_end(docid), TermIter.HAS_TERMFREQS|TermIter.HAS_POSITIONS|TermIter.HAS_WDF)
-def database_gen_positionlist_iter(self, docid, tname):
+Database.termlist = _database_gen_termlist_iter
+
+def _database_gen_positionlist_iter(self, docid, tname):
     return PositionIter(self.positionlist_begin(docid, tname), self.positionlist_end(docid, tname))
+Database.positionlist = _database_gen_positionlist_iter
 
-Database.allterms = database_gen_allterms_iter
-Database.postlist = database_gen_postlist_iter
-Database.termlist = database_gen_termlist_iter
-Database.positionlist = database_gen_positionlist_iter
-
-def document_gen_termlist_iter(self):
+def _document_gen_termlist_iter(self):
     return TermIter(self.termlist_begin(), self.termlist_end(), TermIter.HAS_POSITIONS|TermIter.HAS_WDF)
-def document_gen_values_iter(self):
+Document.__iter__ = _document_gen_termlist_iter
+Document.termlist = _document_gen_termlist_iter
+
+def _document_gen_values_iter(self):
     return ValueIter(self.values_begin(), self.values_end())
+Document.values = _document_gen_values_iter
 
-Document.__iter__ = document_gen_termlist_iter
-Document.termlist = document_gen_termlist_iter
-Document.values = document_gen_values_iter
-
-def queryparser_gen_stoplist_iter(self):
+def _queryparser_gen_stoplist_iter(self):
     # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
     # suggesting we make it throw Xapian::InvalidOperationError instead.
     return TermIter(self.stoplist_begin(), self.stoplist_end())
-def queryparser_gen_unstemlist_iter(self, tname):
+QueryParser.stoplist = _queryparser_gen_stoplist_iter
+
+def _queryparser_gen_unstemlist_iter(self, tname):
     # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
     # suggesting we make it throw Xapian::InvalidOperationError instead.
     return TermIter(self.unstem_begin(tname), self.unstem_end(tname))
-
-QueryParser.stoplist = queryparser_gen_stoplist_iter
-QueryParser.unstemlist = queryparser_gen_unstemlist_iter
+QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
 %}
 /* vim:syntax=python:set expandtab: */
