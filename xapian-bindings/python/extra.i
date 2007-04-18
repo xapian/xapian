@@ -543,4 +543,5 @@ def _queryparser_gen_unstemlist_iter(self, tname):
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
 %}
+
 /* vim:syntax=python:set expandtab: */

@@ -415,4 +415,4 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     if (SWIG_IsNewObj(swig_ores)) %delete(swig_optr);
 }
 
-/* vim:set syntax=cpp: */
+/* vim:set syntax=cpp:set noexpandtab: */

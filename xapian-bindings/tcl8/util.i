@@ -72,3 +72,5 @@ namespace Xapian {
 
     Tcl_SetObjResult(interp, list);
 }
+
+/* vim:set syntax=cpp:set noexpandtab: */

@@ -52,3 +52,5 @@
 	return XapianTclHandleError(interp);
     }
 }
+
+/* vim:set syntax=cpp:set noexpandtab: */

@@ -227,3 +227,5 @@
 
 // For MatchDecider::operator() and ExpandDecider::operator().
 %typemap(directorout) int = bool;
+
+/* vim:set syntax=cpp:set noexpandtab: */

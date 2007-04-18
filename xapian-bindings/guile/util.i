@@ -48,3 +48,5 @@
     char * p = const_cast<char *>($1->data());
     $result = gh_str2scm(p, $1->size());
 }
+
+/* vim:set syntax=cpp:set noexpandtab: */
