@@ -178,6 +178,7 @@ namespace Xapian {
 
 %typedef PyObject *LangSpecificListType;
 
+%inline %{
 #define MSET_DID 0
 #define MSET_WT 1
 #define MSET_RANK 2
@@ -186,17 +187,9 @@ namespace Xapian {
 
 #define ESET_TNAME 0
 #define ESET_WT 1
+%}
 
 %{
-#define MSET_DID 0
-#define MSET_WT 1
-#define MSET_RANK 2
-#define MSET_PERCENT 3
-#define MSET_DOCUMENT 4
-
-#define ESET_TNAME 0
-#define ESET_WT 1
-
 PyObject *Xapian_MSet_items_get(Xapian::MSet *mset)
 {
     PyObject *retval = PyList_New(0);
@@ -422,3 +415,4 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     if (SWIG_IsNewObj(swig_ores)) %delete(swig_optr);
 }
 
+/* vim:set syntax=cpp: */
