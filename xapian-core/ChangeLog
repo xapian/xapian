@@ -1,3 +1,12 @@
+Thu Apr 19 00:07:02 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.h,
+	  backends/inmemory/inmemory_database.h,
+	  backends/quartz/quartz_database.h: Add using declarations to
+	  subclasses of Xapian::Database::Internal which don't override the
+	  term forms of delete_document() and replace_document() to prevent
+	  compiler warnings about these methods being hidden.
+
 Wed Apr 18 23:22:29 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Remove code which can't actually be

@@ -258,6 +258,13 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 
 	virtual Xapian::docid add_document(const Xapian::Document & document);
 	Xapian::docid add_document_(Xapian::docid did, const Xapian::Document & document);
+	// Stop the default implementation of delete_document(term) and
+	// replace_document(term) from being hidden.  This isn't really
+	// a problem as we only try to call them through the base class
+	// (where they aren't hidden) but some compilers generate a warning
+	// about the hiding.
+	using Xapian::Database::Internal::delete_document;
+	using Xapian::Database::Internal::replace_document;
 	virtual void delete_document(Xapian::docid did);
 	virtual void replace_document(Xapian::docid did,
 				      const Xapian::Document & document);
