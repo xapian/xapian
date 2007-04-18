@@ -155,6 +155,9 @@ Bindings
 |                 |             |                |                             | ESet iterators in line with other term iterators, which all support           |
 |                 |             |                |                             | get_term() instead of get_termname()                                          |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0       | Python         | get_description()           | All get_description() methods have been renamed to __str__(), so the normal   |
+|                 |             |                |                             | python str() function can be used.                                            |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 | 0.9.6           | 1.1.0       | SWIG [#swig2]_ | MSet::get_document_id()     | Use MSet::get_docid() instead.                                                |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 | 0.9.0           | 1.1.0       | SWIG [#swig]_  | Stem::stem_word(word)       | Use Stem::operator()(word) instead. [#callable]_                              |
