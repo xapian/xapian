@@ -159,40 +159,10 @@ Bindings
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 | 0.9.0           | 1.1.0       | SWIG [#swig]_  | Stem::stem_word(word)       | Use Stem::operator()(word) instead. [#callable]_                              |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.5           | 1.0.0       | SWIG [#swig]_  | Enquire::set_sort_forward() | Use Enquire::set_sort_forward() instead.                                      |
-|                 |             |                |                             |                                                                               |
-|                 |             |                |                             |  - set_sort_forward(true) becomes set_docid_order(ASCENDING),                 |
-|                 |             |                |                             |  - set_sort_forward(false) becomes set_docid_order(DESCENDING).               |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.5           | 1.0.0       | SWIG [#swig]_  | Enquire::set_sorting()      | Use Enquire::set_sort_by_relevance(), Enquire::set_sort_by_value(),           |
-|                 |             |                |                             | or Enquire::set_sort_by_value_then_relevance() instead.                       |
-|                 |             |                |                             |                                                                               |
-|                 |             |                |                             |  - set_sorting(KEY, 1) becomes set_sort_by_value(KEY)                         |
-|                 |             |                |                             |  - set_sorting(KEY, 1, false) becomes set_sort_by_value(KEY)                  |
-|                 |             |                |                             |  - set_sorting(KEY, 1, true) becomes set_sort_by_value_then_relevance(KEY)    |
-|                 |             |                |                             |  - set_sorting(ANYTHING, 0) becomes set_sort_by_relevance()                   |
-|                 |             |                |                             |  - set_sorting(Xapian::BAD_VALUENO, ANYTHING) becomes set_sort_by_relevance() |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.4           | 1.0.0       | SWIG [#swig]_  | Auto::open(path)            | Use the Database(path) constructor instead.                                   |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.4           | 1.0.0       | SWIG [#swig]_  | Auto::open(path, action)    | Use the WritableDatabase(path, action) constructor instead.                   |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.2           | 1.0.0       | SWIG [#swig3]_ | MSet::is_empty()            | Use MSet::empty() instead.                                                    |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.2           | 1.0.0       | SWIG [#swig3]_ | ESet::is_empty()            | Use ESet::empty() instead.                                                    |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.2           | 1.0.0       | SWIG [#swig3]_ | RSet::is_empty()            | Use RSet::empty() instead.                                                    |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.2           | 1.0.0       | SWIG [#swig3]_ | Query::is_empty()           | Use Query::empty() instead.                                                   |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.8.0           | 1.0.0       | SWIG [#swig]_  | Document::add_term_nopos()  | Use Document::add_term() instead.                                             |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 
 .. [#swig] This affects all swig generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
 
 .. [#swig2] This affects all swig generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core.
-
-.. [#swig3] This affects all swig generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word.
 
 .. [#callable] Not clear if replacement works in all SWIG supported languages, so its removal is deferred to release 1.1.0?  FIXME - check the replacements, and list here: Python is okay.  To be checked: PHP, Ruby, Tcl8, CSharp
 
@@ -256,7 +226,38 @@ Bindings
 +-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 | **Removal** | **Language**   | **Function name**           | **Upgrade suggestions and comments**                                          |
 +-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0       | SWIG [#rswig]_  | Enquire::set_sort_forward() | Use Enquire::set_sort_forward() instead.                                      |
+|             |                |                             |                                                                               |
+|             |                |                             |  - set_sort_forward(true) becomes set_docid_order(ASCENDING),                 |
+|             |                |                             |  - set_sort_forward(false) becomes set_docid_order(DESCENDING).               |
 +-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0       | SWIG [#rswig]_  | Enquire::set_sorting()      | Use Enquire::set_sort_by_relevance(), Enquire::set_sort_by_value(),           |
+|             |                |                             | or Enquire::set_sort_by_value_then_relevance() instead.                       |
+|             |                |                             |                                                                               |
+|             |                |                             |  - set_sorting(KEY, 1) becomes set_sort_by_value(KEY)                         |
+|             |                |                             |  - set_sorting(KEY, 1, false) becomes set_sort_by_value(KEY)                  |
+|             |                |                             |  - set_sorting(KEY, 1, true) becomes set_sort_by_value_then_relevance(KEY)    |
+|             |                |                             |  - set_sorting(ANYTHING, 0) becomes set_sort_by_relevance()                   |
+|             |                |                             |  - set_sorting(Xapian::BAD_VALUENO, ANYTHING) becomes set_sort_by_relevance() |
++-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0       | SWIG [#rswig]_  | Auto::open(path)            | Use the Database(path) constructor instead.                                   |
++-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0       | SWIG [#rswig]_  | Auto::open(path, action)    | Use the WritableDatabase(path, action) constructor instead.                   |
++-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0       | SWIG [#rswig3]_ | MSet::is_empty()            | Use MSet::empty() instead.                                                    |
++-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0       | SWIG [#rswig3]_ | ESet::is_empty()            | Use ESet::empty() instead.                                                    |
++-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0       | SWIG [#rswig3]_ | RSet::is_empty()            | Use RSet::empty() instead.                                                    |
++-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0       | SWIG [#rswig3]_ | Query::is_empty()           | Use Query::empty() instead.                                                   |
++-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0       | SWIG [#rswig]_  | Document::add_term_nopos()  | Use Document::add_term() instead.                                             |
++-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+
+.. [#rswig] This affects all swig generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
+
+.. [#rswig3] This affects all swig generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word (and therefore, the method remains "is_empty").
 
 
 Author
