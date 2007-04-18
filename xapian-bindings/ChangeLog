@@ -1,3 +1,11 @@
+Wed Apr 18 16:18:45 BST 2007  Olly Betts <olly@survex.com>
+
+	* csharp/util.i,generic/except.i: Move C# specific exception stuff
+	  into C# specific file.i.
+	* csharp/util.i: Add vim magic to use C++ highlighting (not perfect as
+	  this file also contains C# code, but better than vim's default for a
+	  .i files).
+
 Wed Apr 18 15:54:29 BST 2007  Olly Betts <olly@survex.com>
 
 	* python/util.i: Use %inline to avoid duplicating MSET_DID, etc.  Set

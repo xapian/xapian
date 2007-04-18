@@ -18,6 +18,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+
+// In C#, we don't get SWIG_exception in the generated C++ wrapper sources.
+#define XapianException(TYPE, MSG) SWIG_CSharpException(TYPE, (MSG).c_str())
 %}
 
 // Use SWIG directors for C# wrappers.
@@ -224,3 +227,5 @@ namespace Xapian {
 %}
 
 }
+
+/* vim:set syntax=cpp:set noexpandtab: */

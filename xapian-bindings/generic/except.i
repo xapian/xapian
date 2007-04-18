@@ -18,21 +18,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-/*
- * This file is included from xapian.i for any languages which don't have
+
+/* This file is included from xapian.i for any languages which don't have
  * language specific handling for exceptions.
  *
  * This file needs to be in a different directory than xapian.i, because swig
  * always tries to include files from the same directory as the source file
  * before looking in alternative include paths.
  */
-
-#if defined SWIGCSHARP
-%{
-// In C#, we don't get SWIG_exception in the generated C++ wrapper sources.
-# define XapianException(TYPE, MSG) SWIG_CSharpException(TYPE, (MSG).c_str())
-%}
-#endif
 
 %{
 #ifndef XapianException
