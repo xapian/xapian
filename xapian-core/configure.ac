@@ -5,7 +5,8 @@ dnl 2.54 needed for automake 1.6
 dnl 2.57 fixes the annoying warnings from configure on FreeBSD
 dnl 2.58 is needed by automake 1.8.5
 dnl 2.59 was released the same day as 2.58 to fix a problem
-AC_PREREQ(2.59)
+dnl 2.59c is needed for AC_TYPE_SSIZE_T
+AC_PREREQ(2.59c)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
 AC_INIT(xapian-core, 0.9.10)dnl FIXME: bugreport addr as third argument
