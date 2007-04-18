@@ -644,7 +644,7 @@ Enquire::Internal::Internal(const Database &db_, ErrorHandler * errorhandler_)
   : db(db_), query(), collapse_key(Xapian::BAD_VALUENO),
     order(Enquire::ASCENDING), percent_cutoff(0), weight_cutoff(0),
     sort_key(Xapian::BAD_VALUENO), sort_by(REL), sort_value_forward(true),
-    bias_halflife(0), bias_weight(0), errorhandler(errorhandler_), weight(0)
+    errorhandler(errorhandler_), weight(0)
 {
 }
 
@@ -685,16 +685,14 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	::MultiMatch match(db, query.internal.get(), qlen, RSet(), collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward,
-		       bias_halflife, bias_weight, errorhandler,
-		       new LocalStatsGatherer(), weight);
+		       errorhandler, new LocalStatsGatherer(), weight);
 	// Run query and put results into supplied Xapian::MSet object.
 	match.get_mset(first, maxitems, check_at_least, retval, mdecider);
     } else {
 	::MultiMatch match(db, query.internal.get(), qlen, *rset, collapse_key,
 		       percent_cutoff, weight_cutoff,
 		       order, sort_key, sort_by, sort_value_forward,
-		       bias_halflife, bias_weight, errorhandler,
-		       new LocalStatsGatherer(), weight);
+		       errorhandler, new LocalStatsGatherer(), weight);
 	// Run query and put results into supplied Xapian::MSet object.
 	match.get_mset(first, maxitems, check_at_least, retval, mdecider);
     }
@@ -963,13 +961,6 @@ Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key,
     internal->sort_key = sort_key;
     internal->sort_by = Internal::REL_VAL;
     internal->sort_value_forward = ascending;
-}
-
-void
-Enquire::set_bias(Xapian::weight bias_weight, time_t bias_halflife)
-{
-    internal->bias_weight = bias_weight;
-    internal->bias_halflife = bias_halflife;
 }
 
 MSet

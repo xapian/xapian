@@ -47,7 +47,7 @@ API and ABI compatibility
 -------------------------
 
 Within a series of releases with a given major and minor number, we try to
-maintatain API and ABI forwards compatibility.   This means that an application
+maintain API and ABI forwards compatibility.   This means that an application
 written and compiled against version `X.Y.a` of Xapian should work, without any
 changes or need to recompile, with a later version `X.Y.b`, for all `a` <= `b`.
 
@@ -137,12 +137,8 @@ Native C++ API
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 | 0.9.6           | ? [#version]_  | xapian_revision()             | Use revision() instead.                                                       |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.5.0           | ? [#bias]_     | Enquire::set_bias()           | No replacement yet implemented.                                               |
-+-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 
 .. [#version] The version functions will probably be preserved for longer than the usual lifetime of deprecated functions, because it is unhelpful to remove functions which people use to test the version of the library in use.  However, the replacements have been supported for long enough that new applications should use the replacement functions without worrying about old library versions which don't support them.
-
-.. [#bias] The Enquire::set_bias() function has been marked as "temporary" since it was introduced, and will probably be removed with little advance notice once a replacement is implemented.
 
 
 Bindings
@@ -220,6 +216,8 @@ Native C++ API
 | 1.0.0          | Query::is_empty()                   | Use Query::empty() instead.                                                             |
 +----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
 | 1.0.0          | Document::add_term_nopos()          | Use Document::add_term() instead.                                                       |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | Enquire::set_bias()                 | No replacement yet implemented.                                                         |
 +----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
 
 

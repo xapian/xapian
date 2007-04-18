@@ -35,7 +35,6 @@
 #include "branchpostlist.h"
 #include "leafpostlist.h"
 #include "mergepostlist.h"
-#include "biaspostlist.h"
 
 #include "document.h"
 #include "omqueryinternal.h"
@@ -85,8 +84,6 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 		       Xapian::valueno sort_key_,
 		       Xapian::Enquire::Internal::sort_setting sort_by_,
 		       bool sort_value_forward_,
-		       time_t bias_halflife_,
-		       Xapian::weight bias_weight_,
 		       Xapian::ErrorHandler * errorhandler_,
 		       StatsGatherer * gatherer_,
 		       const Xapian::Weight * weight_)
@@ -95,18 +92,15 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	  weight_cutoff(weight_cutoff_), order(order_),
 	  sort_key(sort_key_), sort_by(sort_by_),
 	  sort_value_forward(sort_value_forward_),
-	  bias_halflife(bias_halflife_), bias_weight(bias_weight_),
 	  errorhandler(errorhandler_), weight(weight_),
 	  is_remote(db.internal.size())
 {
     DEBUGCALL(MATCH, void, "MultiMatch", db_ << ", " << query_ << ", " <<
-	      qlen << ", " <<
-	      omrset << ", " << collapse_key_ << ", " << percent_cutoff_ <<
-	      ", " << weight_cutoff_ << ", " << int(order_) << ", " <<
-	      sort_key_ << ", " << int(sort_by_) <<
-	      ", " << sort_value_forward_ << ", " << bias_halflife_ << ", " <<
-	      bias_weight_ << ", " << errorhandler_ <<
-	      ", [gatherer_], [weight_]");
+	      qlen << ", " << omrset << ", " << collapse_key_ << ", " <<
+	      percent_cutoff_ << ", " << weight_cutoff_ << ", " <<
+	      int(order_) << ", " << sort_key_ << ", " <<
+	      int(sort_by_) << ", " << sort_value_forward_ << ", " <<
+	      errorhandler_ << ", [gatherer_], [weight_]");
     if (!query) return;
 
     query->validate_query();
@@ -143,9 +137,6 @@ MultiMatch::MultiMatch(const Xapian::Database &db_,
 	    RemoteDatabase *rem_db = subdb->as_remotedatabase();
 	    if (rem_db) {
 		is_remote[i] = true;
-		if (bias_halflife) {
-		    throw Xapian::UnimplementedError("bias_halflife and bias_weight not supported with remote backend");
-		}
 		rem_db->set_query(query, qlen, collapse_key, order, sort_key,
 				  sort_by, sort_value_forward, percent_cutoff,
 				  weight_cutoff, weight, subrsets[i]);
@@ -309,13 +300,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	pl = postlists.front();
     } else {
 	pl = new MergePostList(postlists, this, errorhandler);
-    }
-
-    // FIXME: a temporary bodge to allow this to be used - I'll write
-    // a proper API later, promise - Olly
-    if (bias_halflife) {
-	pl = new BiasPostList(pl, db,
-		new OmBiasFunctor(db, bias_weight, bias_halflife), this);
     }
 
     DEBUGLINE(MATCH, "pl = (" << pl->get_description() << ")");

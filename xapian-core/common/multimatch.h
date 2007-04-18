@@ -58,10 +58,6 @@ class MultiMatch
 
 	bool sort_value_forward;
 
-	time_t bias_halflife;
-
-	Xapian::weight bias_weight;
-
 	/// ErrorHandler
 	Xapian::ErrorHandler * errorhandler;
 
@@ -117,8 +113,6 @@ class MultiMatch
 		   Xapian::valueno sort_key_,
 		   Xapian::Enquire::Internal::sort_setting sort_by_,
 		   bool sort_value_forward_,
-		   time_t bias_halflife_,
-		   Xapian::weight bias_weight_,
 		   Xapian::ErrorHandler * errorhandler,
 		   StatsGatherer * gatherer_,
 		   const Xapian::Weight *wtscheme);

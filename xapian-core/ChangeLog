@@ -1,3 +1,11 @@
+Wed Apr 18 23:07:45 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/multimatch.h,common/omenquireinternal.h,
+	  include/xapian/enquire.h,matcher/Makefile.mk,
+	  matcher/biaspostlist.h,matcher/multimatch.cc,net/remoteserver.cc:
+	  Remove Enquire::set_bias().
+	* docs/deprecation.rst: Update wrt Enquire::set_bias().  Fix typo.
+
 Wed Apr 18 18:51:42 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Require autoconf 2.60 or newer.  Drop docdir

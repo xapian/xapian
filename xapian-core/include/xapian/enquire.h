@@ -25,7 +25,6 @@
 #define XAPIAN_INCLUDED_ENQUIRE_H
 
 #include <string>
-#include <time.h> // for time_t
 
 #include <xapian/base.h>
 #include <xapian/error.h>
@@ -812,19 +811,6 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 */
 	void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					      bool ascending = true);
-
-	/** Set the bias functor parameters.
-	 *
-	 * NB this is a temporary API for this feature.
-	 *
-	 * @param bias_weight Maximum weight bias functor can add (and which is
-	 *	given to document with a time now or in the future).
-	 *
-	 * @param bias_halflife the match bias decays exponentially as you go
-	 *	back in time.  This sets the half-life of this decay in seconds
-	 *	(default 0 => no bias).
-	 */
-	void set_bias(Xapian::weight bias_weight, time_t bias_halflife);
 
 	/** Get (a portion of) the match set for the current query.
 	 *

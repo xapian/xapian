@@ -154,9 +154,6 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	sort_setting sort_by;
 	bool sort_value_forward;
 
-	time_t bias_halflife;
-	Xapian::weight bias_weight;
-
 	/** The error handler, if set.  (0 if not set).
 	 */
 	ErrorHandler * errorhandler;

@@ -2,7 +2,6 @@ noinst_HEADERS +=\
 	matcher/andmaybepostlist.h\
 	matcher/andnotpostlist.h\
 	matcher/andpostlist.h\
-	matcher/biaspostlist.h\
 	matcher/branchpostlist.h\
 	matcher/branchtermlist.h\
 	matcher/emptysubmatch.h\
