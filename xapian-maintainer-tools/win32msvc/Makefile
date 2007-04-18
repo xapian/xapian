@@ -33,6 +33,8 @@ MAKEALL:
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\net
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
+   cd ..\unicode
+   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\tests\harness
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\..\bin
@@ -64,6 +66,8 @@ CLEAN: COPYMAKFILES
    cd ..
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\queryparser
+   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
+   cd ..\unicode
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\tests\harness
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
@@ -104,6 +108,7 @@ COPYMAKFILES:
    copy  win32_languages.mak ..\languages\Makefile
    copy  win32_matcher.mak ..\matcher\Makefile
    copy  win32_net.mak ..\net\Makefile
+   copy  win32_unicode.mak ..\unicode\Makefile
    copy  win32_queryparser.mak ..\queryparser\Makefile
    copy  win32_tests.mak ..\tests\Makefile
    copy  win32_testsuite.mak ..\tests\harness\Makefile

@@ -58,6 +58,7 @@ APITEST_OBJS= \
 	"$(OUTDIR)\api_nodb.obj" \
 	"$(OUTDIR)\api_posdb.obj" \
         "$(OUTDIR)\api_transdb.obj" \
+        "$(OUTDIR)\api_unicode.obj" \
 	"$(OUTDIR)\api_wrdb.obj" 
     
 BTREETEST_OBJS= "$(OUTDIR)\btreetest.obj"
@@ -111,6 +112,7 @@ XAPIAN_LIBS = \
  "$(OUTLIBDIR)\liblanguages.lib"  \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libremote.lib"  \
+ "$(OUTLIBDIR)\libunicode.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib"  
 
 LINK32=link.exe
@@ -200,6 +202,11 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
 <<
 
 "$(INTDIR)\api_transdb.obj" : ".\api_transdb.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\api_unicode.obj" : ".\api_unicode.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<

@@ -16,9 +16,7 @@ ALL :  "$(INTDIR)\lemon.exe" "$(OUTDIR)\libqueryparser.lib"
 
 LIBQUERYPARSER_OBJS= \
                 $(INTDIR)\queryparser.obj \
-                $(INTDIR)\queryparser_internal.obj \
-		$(INTDIR)\utf8itor.obj \
-		$(INTDIR)\tclUniData.obj
+                $(INTDIR)\queryparser_internal.obj
 
 
 CLEAN :
@@ -65,16 +63,6 @@ CPP_SBRS=.
   $(CPP_PROJ) $**
 <<
 
-
-"$(INTDIR)\utf8itor.obj" : ".\utf8itor.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\tclUniData.obj" : ".\tclUniData.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
 
 "$(INTDIR)\queryparser_internal.obj" : ".\queryparser_internal.cc"
     $(CPP) @<<

@@ -28,6 +28,7 @@ XAPIAN_DEPENDENCIES = \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib" \
  "$(OUTLIBDIR)\libremote.lib" \
+ "$(OUTLIBDIR)\libunicode.lib" \
  "$(OUTLIBDIR)\libnet.lib" \
  $(PHP_LIB)
 

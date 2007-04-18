@@ -63,6 +63,7 @@ XAPIAN_LIBS = \
  "$(OUTLIBDIR)\libapi.lib"  \
  "$(OUTLIBDIR)\libnet.lib"  \
  "$(OUTLIBDIR)\libremote.lib"  \
+ "$(OUTLIBDIR)\libunicode.lib"  \
  "$(OUTLIBDIR)\libqueryparser.lib"  
 
 ALL_LINK32_FLAGS = $(LINK32_FLAGS) $(XAPIAN_LIBS)
