@@ -35,6 +35,12 @@ Ruby		Requires Ruby 1.8 or later (brief tests show the bindings
 Tcl		Requires Tcl 8.1 or later (Tcl 8.0 could be made to work
 		without too much work).
 C#		Tested with Mono C# 1.0.8 and 1.1.8 and Portable.NET 0.6.12.
+		Also tested with Mono C# 1.2.3.1 - note that for Mono
+		runtimes from 1.2 onwards, you need to compile with gmcs
+		instead of with mcs.  Configure prefers to use gmcs if it
+		is present, but you can run `./configure CSC=mcs' to prefer
+		mcs?
+
 
 If you're interest in getting other languages supported, see the "Adding
 support for other programming languages" section in the file HACKING.
