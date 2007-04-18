@@ -1,3 +1,8 @@
+Wed Apr 18 02:01:43 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Prefer gmcs to mcs when looking for a C# compiler
+	  since gmcs is the newer compiler targetting the 2.0 runtime.
+
 Wed Apr 18 01:12:39 BST 2007  Olly Betts <olly@survex.com>
 
 	* csharp/util.i: Remove renaming exception for get_term - the

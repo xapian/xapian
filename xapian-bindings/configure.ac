@@ -439,22 +439,7 @@ if test no != "$with_csharp" ; then
     AC_PATH_PROGS(CSC, ["$CSC"], [])
   fi
   if test -z "$CSC" ; then
-    dnl mcs is the Mono CSharp compiler.
-    AC_PATH_PROGS(CSC, [mcs], [])
-    if test -n "$CSC" ; then
-      # There are other tools called mcs (such as /usr/bin/mcs on Tru64),
-      # so we check that the mcs we found understands --version which is
-      # sufficient to distinguish mono's mcs from the Tru64 one.
-      AC_MSG_CHECKING([whether $CSC is from GNU Mono])
-      if (exec >&5 2>&5;$CSC --version </dev/null;exit $?) ; then
-	AC_MSG_RESULT(yes)
-      else
-	AC_MSG_RESULT(no)
-	CSC=
-	csc_note=" (found different mcs program)"
-      fi
-    fi
-    dnl gmcs is another name for the Mono CSharp compiler.
+    dnl gmcs is the newer name for the Mono CSharp compiler.
     dnl cscc is the Portable.NET CSharp compiler.
     AC_PATH_PROGS(CSC, [gmcs cscc], [])
     if test -z "$CSC" ; then
@@ -473,7 +458,25 @@ if test no != "$with_csharp" ; then
 	csc_note="$csc_note (found Chicken csc program)"
       fi
     fi
+    if test -z "$CSC" ; then
+      dnl mcs is the Mono CSharp compiler.
+      AC_PATH_PROGS(CSC, [mcs], [])
+      if test -n "$CSC" ; then
+	# There are other tools called mcs (such as /usr/bin/mcs on Tru64),
+	# so we check that the mcs we found understands --version which is
+	# sufficient to distinguish mono's mcs from the Tru64 one.
+	AC_MSG_CHECKING([whether $CSC is from GNU Mono])
+	if (exec >&5 2>&5;$CSC --version </dev/null;exit $?) ; then
+	  AC_MSG_RESULT(yes)
+	else
+	  AC_MSG_RESULT(no)
+	  CSC=
+	  csc_note="$csc_note (found different mcs program)"
+	fi
+      fi
+    fi
   fi
+
   if test -n "$CSC" ; then
     AC_PATH_PROGS(GACUTIL, ["${GACUTIL-gacutil}"], [])
     if test -z "$GACUTIL" ; then
