@@ -762,6 +762,7 @@ AC_CONFIG_FILES([Makefile
  php/Makefile php/docs/Makefile
  java/Makefile java/native/Makefile java/org/Makefile java/org/xapian/Makefile
  java/org/xapian/errors/Makefile java/org/xapian/examples/Makefile
+ java-swig/Makefile
  tcl8/Makefile tcl8/docs/Makefile
  csharp/Makefile csharp/docs/Makefile
  csharp/AssemblyInfo.cs

@@ -6,4 +6,4 @@ EXTRA_DIST = xapian.i generic/except.i \
 DISTCLEANFILES = xapian-version.h
 
 SUBDIRS = @BINDINGS@
-DIST_SUBDIRS = python php java ruby tcl8 csharp # guile
+DIST_SUBDIRS = python php java-swig java ruby tcl8 csharp # guile

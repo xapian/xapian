@@ -79,7 +79,7 @@ namespace Xapian {
 	static Database open(const string &, const string &, timeout = 0) {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
-	
+
 	static WritableDatabase open_writable(const string &, const string &, timeout = 0) {
 	    throw FeatureUnavailableError("Remote backend not supported");
 	}
@@ -112,11 +112,14 @@ using namespace std;
 
 // In C#, we wrap ++ and -- as ++ and --.
 #ifdef SWIGCSHARP
-#define NEXT(CLASS) CLASS & next() { return ++(*self); }
-#define PREV(CLASS) CLASS & prev() { return --(*self); }
+#define NEXT(RET, CLASS) CLASS & next() { return ++(*self); }
+#define PREV(RET, CLASS) CLASS & prev() { return --(*self); }
+#elif defined SWIGJAVA
+#define NEXT(RET, CLASS) RET next() { return *(++(*self)); }
+#define PREV(RET, CLASS) RET prev() { return *(--(*self)); }
 #else
-#define NEXT(CLASS) void next() { ++(*self); }
-#define PREV(CLASS) void prev() { --(*self); }
+#define NEXT(RET, CLASS) void next() { ++(*self); }
+#define PREV(RET, CLASS) void prev() { --(*self); }
 #endif
 
 #ifndef SWIGPYTHON
@@ -166,7 +169,7 @@ class PositionIterator {
 	Xapian::termpos get_termpos() const {
 	    return *(*self);
 	}
-	NEXT(PositionIterator)
+	NEXT(Xapian::termpos, PositionIterator)
 	bool equals(const PositionIterator &other) const {
 	    return (*self) == other;
 	}
@@ -186,7 +189,7 @@ class PostingIterator {
 	Xapian::docid get_docid() const {
 	    return *(*self);
 	}
-	NEXT(PostingIterator)
+	NEXT(Xapian::docid, PostingIterator)
 	bool equals(const PostingIterator &other) const {
 	    return (*self) == other;
 	}
@@ -210,7 +213,7 @@ class TermIterator {
 	string get_term() const {
 	    return *(*self);
 	}
-	NEXT(TermIterator)
+	NEXT(string, TermIterator)
 	bool equals(const TermIterator& other) const {
 	    return (*self) == other;
 	}
@@ -240,7 +243,7 @@ class ValueIterator {
 	string get_value() const {
 	    return *(*self);
 	}
-	NEXT(ValueIterator)
+	NEXT(string, ValueIterator)
 	bool equals(const ValueIterator &other) const {
 	    return (*self) == other;
 	}
@@ -327,10 +330,16 @@ class MSet {
 	docid get_docid(doccount i) const {
 	    return *((*self)[i]);
 	}
+#ifdef SWIGJAVA
+	// For compatibility with the original JNI wrappers.
+	MSetIterator getElement(doccount i) const {
+	    return ((*self)[i]);
+	}
+#endif
 #ifndef SWIGRUBY
 	// We don't wrap methods which were already deprecated when the Ruby
-	// bindings were added.  This method is deprecated for all other bindings
-	// from version 0.9.6 - use get_docid() instead.
+	// bindings were added.  This method is deprecated for all other
+	// bindings from version 0.9.6 - use get_docid() instead.
 	docid get_document_id(doccount i) const {
 	    return *((*self)[i]);
 	}
@@ -348,8 +357,8 @@ class MSetIterator {
 	docid get_docid() const {
 	    return *(*self);
 	}
-	NEXT(MSetIterator)
-	PREV(MSetIterator)
+	NEXT(docid, MSetIterator)
+	PREV(docid, MSetIterator)
 	bool equals(const MSetIterator &other) const {
 	    return (*self) == other;
 	}
@@ -393,8 +402,8 @@ class ESetIterator {
 	std::string get_term() const {
 	    return *(*self);
 	}
-	NEXT(ESetIterator)
-	PREV(ESetIterator)
+	NEXT(std::string, ESetIterator)
+	PREV(std::string, ESetIterator)
 	bool equals(const ESetIterator &other) const {
 	    return (*self) == other;
 	}
@@ -694,7 +703,7 @@ class WritableDatabase : public Database {
 
 // Database factory functions:
 
-#ifndef SWIGCSHARP
+#if !defined SWIGCSHARP && !defined SWIGJAVA
 namespace Auto {
 #ifdef SWIGPHP
     /* PHP4 lacks namespaces so fake them. */
@@ -746,7 +755,7 @@ namespace Remote {
 }
 #else
 /* Lie to SWIG that Auto, etc are classes with static methods rather than
-   namespaces so it wraps it as we want in C#. */
+   namespaces so it wraps it as we want in C# and Java. */
 class Auto {
   private:
     Auto();

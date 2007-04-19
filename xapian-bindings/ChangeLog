@@ -1,3 +1,11 @@
+Thu Apr 19 14:45:19 BST 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,configure.ac,java-swig/,xapian.i: First cut of Java
+	  bindings built using SWIG.  Numerous things aren't wrapped in
+	  a compatible way (not sure if we can sensibly be 100% compatible
+	  anyway though) and 'make check' fails to run, but this has
+	  reached the stage where version control is needed.
+
 Thu Apr 19 00:41:25 BST 2007  Olly Betts <olly@survex.com>
 
 	* ruby/docs/bindings.html: Note that C++ operator() becomes
