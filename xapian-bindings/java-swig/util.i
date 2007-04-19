@@ -62,6 +62,9 @@
 %rename("getMSet") get_mset;
 %rename("getESet") get_eset;
 
+// toString is more Java-esque and also matches what the old JNI bindings did.
+%rename("toString") get_description() const;
+
 %inline {
 namespace Xapian {
 
