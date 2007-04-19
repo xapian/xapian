@@ -263,8 +263,10 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	// a problem as we only try to call them through the base class
 	// (where they aren't hidden) but some compilers generate a warning
 	// about the hiding.
+#if !defined __GNUC__ || __GNUC__ > 2
 	using Xapian::Database::Internal::delete_document;
 	using Xapian::Database::Internal::replace_document;
+#endif
 	virtual void delete_document(Xapian::docid did);
 	virtual void replace_document(Xapian::docid did,
 				      const Xapian::Document & document);
