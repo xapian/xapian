@@ -1,3 +1,8 @@
+Thu Apr 19 13:27:59 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Fix vim magic comment.  Add space after URL to stop
+	  '::' getting glued to it.
+
 Thu Apr 19 11:36:19 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* HACKING: Turn syntax highlighting off, since it's broken for the
