@@ -59,7 +59,7 @@ class ProgClient : public RemoteDatabase {
     static int run_program(const std::string &progname,
 			   const std::string &args
 #ifndef __WIN32__
-			   , int &pid
+			   , pid_t &pid
 #endif
 			   );
 

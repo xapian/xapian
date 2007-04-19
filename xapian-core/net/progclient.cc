@@ -85,7 +85,7 @@ ProgClient::get_progcontext(const string &progname, const string &args)
 int
 ProgClient::run_program(const string &progname, const string &args
 #ifndef __WIN32__
-			, int &pid
+			, pid_t &pid
 #endif
 			)
 {
