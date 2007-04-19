@@ -156,14 +156,14 @@ Bindings
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 | 0.9.6           | 1.1.0       | SWIG [#swig2]_ | MSet::get_document_id()     | Use MSet::get_docid() instead.                                                |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.9.0           | 1.1.0       | SWIG [#swig]_  | Stem::stem_word(word)       | Use Stem::operator()(word) instead. [#callable]_                              |
+| 0.9.0           | 1.0.0       | SWIG [#swig]_  | Stem::stem_word(word)       | Use Stem::operator()(word) instead. [#callable]_                              |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 
 .. [#swig] This affects all swig generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
 
-.. [#swig2] This affects all swig generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core.
+.. [#swig2] This affects all swig generated bindings except those for Ruby, support for which was added after the function was deprecated in Xapian-core.
 
-.. [#callable] Not clear if replacement works in all SWIG supported languages, so its removal is deferred to release 1.1.0?  FIXME - check the replacements, and list here: Python is okay.  To be checked: PHP, Ruby, Tcl8, CSharp
+.. [#callable] Python handles this like C++.  Ruby renames it to 'call' (idiomatic Ruby).  PHP renames it to 'apply'.  CSharp to 'Apply' (delegates could probably be used to provide C++-like functor syntax, but that's effort and it seems debatable if it would actually be more natural to a C# programmer).  Tcl8 renames it to 'apply' - need to ask a Tcl type if that's the best solution.
 
 Features removed from Xapian
 ============================
