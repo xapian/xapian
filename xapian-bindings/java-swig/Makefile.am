@@ -12,8 +12,7 @@ TESTS = SmokeTest.class
 
 EXTRA_DIST = run-java-test SmokeTest.java
 
-CLEANFILES = SmokeTest.class $(XAPIAN_SWIG_JAVA_CLASS)
-	built/xapian_jni.jar
+CLEANFILES = SmokeTest.class $(XAPIAN_SWIG_JAVA_CLASS) built/xapian_jni.jar
 
 SmokeTest: SmokeTest.class
 
@@ -90,10 +89,10 @@ libxapian_jni_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
 libxapian_jni_la_LIBADD = $(XAPIAN_LIBS)
 libxapian_jni_la_SOURCES = xapian_wrap.cc
 
-BUILT_SOURCES = xapian_wrap.cc $(XAPIAN_SWIG_JAVA_SRCS)
+BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS)
 
 if MAINTAINER_MODE
-xapian_wrap.cc $(XAPIAN_SWIG_JAVA_SRCS): $(SWIG_sources) util.i
+xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): $(SWIG_sources) util.i
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_JAVA_SRCS)
