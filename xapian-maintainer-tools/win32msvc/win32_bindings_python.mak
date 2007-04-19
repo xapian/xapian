@@ -14,26 +14,7 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 !INCLUDE $(XAPIAN_CORE_REL_PYTHON)\win32\config.mak
 
-XAPIAN_DEPENDENCIES = \
- "$(OUTLIBDIR)\libgetopt.lib"  \
- "$(OUTLIBDIR)\libcommon.lib"  \
- "$(OUTLIBDIR)\libbtreecheck.lib"  \
- "$(OUTLIBDIR)\libtest.lib"  \
- "$(OUTLIBDIR)\libbackend.lib"  \
- "$(OUTLIBDIR)\libquartz.lib" \
- "$(OUTLIBDIR)\libflint.lib" \
- "$(OUTLIBDIR)\libinmemory.lib" \
- "$(OUTLIBDIR)\libmulti.lib" \
- "$(OUTLIBDIR)\libmatcher.lib"  \
- "$(OUTLIBDIR)\liblanguages.lib"  \
- "$(OUTLIBDIR)\libapi.lib"  \
- "$(OUTLIBDIR)\libqueryparser.lib" \
- "$(OUTLIBDIR)\libremote.lib" \
- "$(OUTLIBDIR)\libunicode.lib" \
- "$(OUTLIBDIR)\libnet.lib" 
-
 LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" 
-
 
 OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python
 INTDIR=.\
@@ -82,7 +63,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
 CPP_OBJS=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
 
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_DEPENDENCIES) "/LIBPATH:$(PYTHON_LIB_DIR)"
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "/LIBPATH:$(PYTHON_LIB_DIR)"
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i except.i doccomments.i extra.i extracomments.i
 	-erase /Q modern
@@ -93,8 +74,8 @@ modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i 
 	-erase modern\xapian.py
 	-rename modern\xapian_py.tmp xapian.py
 
-"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS) \
-                            $(XAPIAN_DEPENDENCIES)
+"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS) 
+                            
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /DLL /out:"$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" $(DEF_FLAGS) $(LIB_XAPIAN_OBJS)
 <<

@@ -125,25 +125,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-LINK32=link.exe
-LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
- advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
- wsock32.lib odbccp32.lib /subsystem:console \
- "$(OUTLIBDIR)\libgetopt.lib"  \
- "$(OUTLIBDIR)\libcommon.lib"  \
- "$(OUTLIBDIR)\libbtreecheck.lib"  \
- "$(OUTLIBDIR)\libtest.lib"  \
- "$(OUTLIBDIR)\libbackend.lib"  \
- "$(OUTLIBDIR)\libquartz.lib" \
- "$(OUTLIBDIR)\libflint.lib" \
- "$(OUTLIBDIR)\libinmemory.lib" \
- "$(OUTLIBDIR)\libmulti.lib" \
- "$(OUTLIBDIR)\libmatcher.lib"  \
- "$(OUTLIBDIR)\liblanguages.lib"  \
- "$(OUTLIBDIR)\libapi.lib"  \
- "$(OUTLIBDIR)\libqueryparser.lib"  
-
- 
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
 
 PROGRAM_DEPENDENCIES = 
 
@@ -154,37 +136,37 @@ PROGRAM_DEPENDENCIES =
 "$(OUTEXEDIR)\omega.exe" : "$(OUTEXEDIR)" $(DEF_FILE) $(OMEGA_OBJS)
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTEXEDIR)\omega.exe" $(DEF_FLAGS) $(OMEGA_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\omega.exe" $(DEF_FLAGS) $(OMEGA_OBJS)
 <<
 
 "$(OUTEXEDIR)\omindex.exe" : "$(OUTEXEDIR)" $(DEF_FILE) $(OMINDEX_OBJS)
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTEXEDIR)\omindex.exe" $(DEF_FLAGS) $(OMINDEX_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\omindex.exe" $(DEF_FLAGS) $(OMINDEX_OBJS)
 <<
 
 "$(OUTEXEDIR)\scriptindex.exe" : "$(OUTEXEDIR)" $(DEF_FILE) $(SCRIPTINDEX_OBJS)
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTEXEDIR)\scriptindex.exe" $(DEF_FLAGS) $(SCRIPTINDEX_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\scriptindex.exe" $(DEF_FLAGS) $(SCRIPTINDEX_OBJS)
 <<
 
 "$(OUTEXEDIR)\htmlparsetest.exe" : "$(OUTEXEDIR)" $(DEF_FILE) $(HTMLPARSETEST_OBJS)
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTEXEDIR)\htmlparsetest.exe" $(DEF_FLAGS) $(HTMLPARSETEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\htmlparsetest.exe" $(DEF_FLAGS) $(HTMLPARSETEST_OBJS)
 <<
 
 "$(OUTEXEDIR)\md5test.exe" : "$(OUTEXEDIR)" $(DEF_FILE) $(MD5TEST_OBJS)
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTEXEDIR)\md5test.exe" $(DEF_FLAGS) $(MD5TEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\md5test.exe" $(DEF_FLAGS) $(MD5TEST_OBJS)
 <<
 
 "$(OUTEXEDIR)\utf8test.exe" : "$(OUTEXEDIR)" $(DEF_FILE) $(UTF8TEST_OBJS)
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTEXEDIR)\utf8test.exe" $(DEF_FLAGS) $(UTF8TEST_OBJS)
+  $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\utf8test.exe" $(DEF_FLAGS) $(UTF8TEST_OBJS)
 <<
 
 "$(INTDIR)\dirent.obj" : "$(XAPIAN_CORE_REL_OMEGA)\win32\dirent.c"

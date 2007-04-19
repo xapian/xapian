@@ -13,25 +13,6 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 !INCLUDE $(XAPIAN_CORE_REL_PHP)\win32\config.mak
 
-XAPIAN_DEPENDENCIES = \
- "$(OUTLIBDIR)\libgetopt.lib"  \
- "$(OUTLIBDIR)\libcommon.lib"  \
- "$(OUTLIBDIR)\libbtreecheck.lib"  \
- "$(OUTLIBDIR)\libtest.lib"  \
- "$(OUTLIBDIR)\libbackend.lib"  \
- "$(OUTLIBDIR)\libquartz.lib" \
- "$(OUTLIBDIR)\libflint.lib" \
- "$(OUTLIBDIR)\libinmemory.lib" \
- "$(OUTLIBDIR)\libmulti.lib" \
- "$(OUTLIBDIR)\libmatcher.lib"  \
- "$(OUTLIBDIR)\liblanguages.lib"  \
- "$(OUTLIBDIR)\libapi.lib"  \
- "$(OUTLIBDIR)\libqueryparser.lib" \
- "$(OUTLIBDIR)\libremote.lib" \
- "$(OUTLIBDIR)\libunicode.lib" \
- "$(OUTLIBDIR)\libnet.lib" \
- $(PHP_LIB)
-
 LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" 
 
 CPP=cl.exe
@@ -93,11 +74,11 @@ php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: ../xapian.i util.i
 	$(SWIG) -I"$(XAPIAN_CORE_REL_PHP)\include" $(SWIG_FLAGS) -c++ -php5 -prefix Xapian \
 	    -outdir php5 -o php5/xapian_wrap.cc $(srcdir)/../xapian.i
 
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_DEPENDENCIES) 
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
 
 
-"$(OUTDIR)\php_xapian.dll" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS) \
-                            $(XAPIAN_DEPENDENCIES)
+"$(OUTDIR)\php_xapian.dll" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS) 
+                            
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /DLL /out:"$(OUTDIR)\php_xapian.dll" $(DEF_FLAGS) $(LIB_XAPIAN_OBJS)
 <<

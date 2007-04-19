@@ -56,23 +56,6 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  \
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-XAPIAN_LIBS= \
- "$(OUTLIBDIR)\libgetopt.lib"  \
- "$(OUTLIBDIR)\libcommon.lib"  \
- "$(OUTLIBDIR)\libbtreecheck.lib"  \
- "$(OUTLIBDIR)\libtest.lib"  \
- "$(OUTLIBDIR)\libbackend.lib"  \
- "$(OUTLIBDIR)\libquartz.lib" \
- "$(OUTLIBDIR)\libflint.lib" \
- "$(OUTLIBDIR)\libremote.lib" \
- "$(OUTLIBDIR)\libinmemory.lib" \
- "$(OUTLIBDIR)\libmulti.lib" \
- "$(OUTLIBDIR)\libmatcher.lib"  \
- "$(OUTLIBDIR)\liblanguages.lib"  \
- "$(OUTLIBDIR)\libapi.lib"  \
- "$(OUTLIBDIR)\libnet.lib"  \
- "$(OUTLIBDIR)\libqueryparser.lib"  
-
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
  
 PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)

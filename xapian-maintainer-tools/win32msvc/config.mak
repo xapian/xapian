@@ -126,6 +126,24 @@ CPPFLAGS_COMMON=/nologo /c /Zi /I.. /I..\include /I..\common /W3 /EHsc \
 /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /D "_USE_32BIT_TIME_T" \
 /D_CRT_SECURE_NO_DEPRECATE
 
+# The various parts of Xapian
+XAPIAN_LIBS = \
+ "$(OUTLIBDIR)\libgetopt.lib"  \
+ "$(OUTLIBDIR)\libcommon.lib"  \
+ "$(OUTLIBDIR)\libbtreecheck.lib"  \
+ "$(OUTLIBDIR)\libtest.lib"  \
+ "$(OUTLIBDIR)\libbackend.lib"  \
+ "$(OUTLIBDIR)\libquartz.lib" \
+ "$(OUTLIBDIR)\libflint.lib" \
+ "$(OUTLIBDIR)\libinmemory.lib" \
+ "$(OUTLIBDIR)\libmulti.lib" \
+ "$(OUTLIBDIR)\libmatcher.lib"  \
+ "$(OUTLIBDIR)\libnet.lib" \
+ "$(OUTLIBDIR)\liblanguages.lib"  \
+ "$(OUTLIBDIR)\libapi.lib"  \
+ "$(OUTLIBDIR)\libremote.lib"  \
+ "$(OUTLIBDIR)\libunicode.lib"  \
+ "$(OUTLIBDIR)\libqueryparser.lib"  
 
 !IF "$(DEBUG)" == "1"
 # Debug build

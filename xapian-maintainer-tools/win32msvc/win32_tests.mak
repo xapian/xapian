@@ -97,23 +97,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA) \
 CPP_OBJS=..\win32\Tests$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-XAPIAN_LIBS = \
- "$(OUTLIBDIR)\libgetopt.lib"  \
- "$(OUTLIBDIR)\libcommon.lib"  \
- "$(OUTLIBDIR)\libbtreecheck.lib"  \
- "$(OUTLIBDIR)\libtest.lib"  \
- "$(OUTLIBDIR)\libbackend.lib"  \
- "$(OUTLIBDIR)\libquartz.lib" \
- "$(OUTLIBDIR)\libflint.lib" \
- "$(OUTLIBDIR)\libinmemory.lib" \
- "$(OUTLIBDIR)\libmulti.lib" \
- "$(OUTLIBDIR)\libmatcher.lib"  \
- "$(OUTLIBDIR)\libnet.lib" \
- "$(OUTLIBDIR)\liblanguages.lib"  \
- "$(OUTLIBDIR)\libapi.lib"  \
- "$(OUTLIBDIR)\libremote.lib"  \
- "$(OUTLIBDIR)\libunicode.lib"  \
- "$(OUTLIBDIR)\libqueryparser.lib"  
+
 
 LINK32=link.exe
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
