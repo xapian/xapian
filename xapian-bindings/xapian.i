@@ -872,7 +872,7 @@ class Query {
 	TermIterator get_terms_end() const;
 	bool empty() const;
 
-	string get_description();
+	string get_description() const;
 };
 
 // xapian/queryparser.h
