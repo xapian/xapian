@@ -12,7 +12,9 @@ TESTS = SmokeTest.class
 
 EXTRA_DIST = run-java-test SmokeTest.java
 
-CLEANFILES = SmokeTest.class $(XAPIAN_SWIG_JAVA_CLASS) built/xapian_jni.jar
+CLEANFILES = SmokeTest.class built/xapian_jni.jar\
+	$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)\
+	Query*1.class
 
 SmokeTest: SmokeTest.class
 
@@ -63,7 +65,6 @@ XAPIAN_SWIG_JAVA_CLASS = $(XAPIAN_SWIG_JAVA_SRCS:.java=.class)
 # is listed in the dependencies.
 XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
 	Enquire*docid_order.class\
-	Query*1.class\
 	Query*op.class\
 	QueryParser*feature_flag.class\
 	QueryParser*stem_strategy.class
@@ -100,6 +101,8 @@ xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): $(SWIG_sources) util.i
 	    -java -module Xapian \
 	    -o xapian_wrap.cc $(SWIG_mainsource)
 	: # -package org.xapian
+	: # Insert code to automatically load the JNI library.
+	$(PERL) -pi -e 'print "    System.loadLibrary(\"xapian_jni\");\n" if /^\s*swig_module_init/' XapianJNI.java
 	: # Check that all the sources we expected were generated.
 	ls $(XAPIAN_SWIG_JAVA_SRCS) > /dev/null
 

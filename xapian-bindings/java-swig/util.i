@@ -92,18 +92,6 @@ namespace Xapian {
 %ignore revision;
 
 // For compatibility with the original JNI wrappers.
-%typemap(javacode) Query %{
-    public final static op OP_AND = new op("OP_AND");
-    public final static op OP_OR = new op("OP_OR");
-    public final static op OP_AND_NOT = new op("OP_AND_NOT");
-    public final static op OP_XOR = new op("OP_XOR");
-    public final static op OP_AND_MAYBE = new op("OP_AND_MAYBE");
-    public final static op OP_FILTER = new op("OP_FILTER");
-    public final static op OP_NEAR = new op("OP_NEAR");
-    public final static op OP_PHRASE = new op("OP_PHRASE");
-    public final static op OP_ELITE_SET = new op("OP_ELITE_SET");
-%}
-
 // FIXME: These make use of the fact that the default ctor for PostingIterator,
 // TermIterator, and ValueIterator produces an end iterator.
 
@@ -129,11 +117,11 @@ namespace Xapian {
     len = jenv->GetArrayLength($input);
     v.reserve(len);
     for (int i = 0; i < len; ++i) {
-        jstring term = (jstring)jenv->GetObjectArrayElement($input, i);
-        const char *c_term = jenv->GetStringUTFChars(term, 0);
-        v.push_back(c_term);
-        jenv->ReleaseStringUTFChars(term, c_term);
-        jenv->DeleteLocalRef(term);
+	jstring term = (jstring)jenv->GetObjectArrayElement($input, i);
+	const char *c_term = jenv->GetStringUTFChars(term, 0);
+	v.push_back(c_term);
+	jenv->ReleaseStringUTFChars(term, c_term);
+	jenv->DeleteLocalRef(term);
     }
     $1 = &v;
 }
@@ -147,27 +135,54 @@ namespace Xapian {
  * and vice versa. */
 %typemap(javain) const vector<string> & "$javainput"
 
+%typemap(javacode) Xapian::Query %{
+    // For compatibility with the original JNI wrappers.
+    public final static op OP_AND = new op("OP_AND");
+    public final static op OP_OR = new op("OP_OR");
+    public final static op OP_AND_NOT = new op("OP_AND_NOT");
+    public final static op OP_XOR = new op("OP_XOR");
+    public final static op OP_AND_MAYBE = new op("OP_AND_MAYBE");
+    public final static op OP_FILTER = new op("OP_FILTER");
+    public final static op OP_NEAR = new op("OP_NEAR");
+    public final static op OP_PHRASE = new op("OP_PHRASE");
+    public final static op OP_ELITE_SET = new op("OP_ELITE_SET");
+    public final static op OP_VALUE_RANGE = new op("OP_VALUE_RANGE");
+
+    protected static long[] cArrayUnwrap(Query[] arrayWrapper) {
+	long[] cArray = new long[arrayWrapper.length];
+	for (int i=0; i<arrayWrapper.length; i++)
+	    cArray[i] = Query.getCPtr(arrayWrapper[i]);
+	return cArray;
+    }
+%}
+
 /* This tells SWIG to treat vector<Xapian::Query> as a special case when used
  * as a parameter in a function call. */
-%typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v, jsize len) {
+%typemap(in) const vector<Xapian::Query> & (vector<Xapian::Query> v, jlong *jarr, jsize len) {
+    if (!$input)
+	SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null array");
     len = jenv->GetArrayLength($input);
     v.reserve(len);
+    jarr = jenv->GetLongArrayElements($input, NULL);
+    if (!jarr) return $null;
     for (int i = 0; i < len; ++i) {
-        jobject query = jenv->GetObjectArrayElement($input, i);
-        /*FIXME v.push_back(query); */
-        jenv->DeleteLocalRef(query);
+	Xapian::Query * query = *(Xapian::Query **)&jarr[i];
+	v.push_back(*query);
     }
+    /* We don't change the array so use JNI_ABORT to avoid any work
+     * copying back non-existent changes if the JVM gave us a copy
+     * of the array data. */
+    jenv->ReleaseLongArrayElements($input, jarr, JNI_ABORT);
     $1 = &v;
 }
 
 /* These 3 typemaps tell SWIG what JNI and Java types to use. */
-%typemap(jni) const vector<Xapian::Query> & "jobjectArray"
-%typemap(jtype) const vector<Xapian::Query> & "Query[]"
+%typemap(jni) const vector<Xapian::Query> & "jlongArray"
+%typemap(jtype) const vector<Xapian::Query> & "long[]"
 %typemap(jstype) const vector<Xapian::Query> & "Query[]"
 
-/* This typemap handles the conversion of the jtype to jstype typemap type
- * and vice versa. */
-%typemap(javain) const vector<Xapian::Query> & "$javainput"
+/* This typemap handles the conversion of the jstype to the jtype. */
+%typemap(javain) const vector<Xapian::Query> & "Query.cArrayUnwrap($javainput)"
 
 #if 0
 #define XAPIAN_TERMITERATOR_PAIR_OUTPUT_TYPEMAP
@@ -185,8 +200,8 @@ namespace Xapian {
 	 * Passing 1 as the last parameter of add_next_index_stringl() tells
 	 * PHP to copy the string pointed to by p, so it won't be modified.
 	 */
-        string term = *i;
-        char *p = const_cast<char*>(term.data());
+	string term = *i;
+	char *p = const_cast<char*>(term.data());
 	add_next_index_stringl($result, p, term.length(), 1);
     }
 }

@@ -1,3 +1,14 @@
+Fri Apr 20 00:30:16 BST 2007  Olly Betts <olly@survex.com>
+
+	* java-swig/util.i: Sort out typemap for the "Query from operator
+	  and array of Query objects" constructor.
+	* java-swig/Makefile.am: Delete the "extra" .class files upon
+	  "make clean".  Query$1.class seems to be useless, so don't
+	  include it in the .jar.  Use perl to insert a call to load the JNI
+	  library automatically before we try to use it since SWIG doesn't
+	  seem to do this for us.  Now "make check" passes, but with lots
+	  commented out still.
+
 Fri Apr 20 00:16:17 BST 2007  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Don't assume Perl is `perl' - use `$(PERL)'
