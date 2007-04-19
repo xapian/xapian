@@ -888,3 +888,7 @@ updated as follows:
   xapian-maintainer-tools/debian/create-chroot and
   xapian-maintainer-tools/debian/build-packages allow building these in
   a series of chroots on a single machine using pbuilder.
+
+
+
+.. vim: set syntax=
