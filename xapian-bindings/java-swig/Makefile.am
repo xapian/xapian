@@ -20,16 +20,6 @@ SmokeTest: SmokeTest.class
 .java.class:
 	$(JAVAC) -classpath $(srcdir)$(JAVA_PATHSEP). -d . $<
 
-noinst_DATA = built/xapian_jni.jar
-
-built/xapian_jni.jar: $(XAPIAN_SWIG_JAVA_CLASS)
-	-mkdir built
-	$(JAR) -cf built/xapian_jni.jar $(XAPIAN_SWIG_JAVA_CLASS)
-
-jnidir = `pwd`/built
-
-jni_LTLIBRARIES = libxapian_jni.la
-
 XAPIAN_SWIG_JAVA_SRCS=\
 	Auto.java\
 	BoolWeight.java\
@@ -65,14 +55,29 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	XapianConstants.java\
 	XapianJNI.java
 
+XAPIAN_SWIG_JAVA_CLASS = $(XAPIAN_SWIG_JAVA_SRCS:.java=.class)
 
-XAPIAN_SWIG_JAVA_CLASS=\
-	$(XAPIAN_SWIG_JAVA_SRCS:.java=.class)\
+# Java generates nested classes with filenames containing a $ (smart move) so
+# we pick them up with a wildcard and omit them from dependencies to avoid
+# escaping hell.  The lack of a dependency shouldn't really be an issue since
+# these classes are always generated along with the containing class which
+# is listed in the dependencies.
+XAPIAN_SWIG_JAVA_EXTRA_CLASSES=\
 	Enquire*docid_order.class\
 	Query*1.class\
 	Query*op.class\
 	QueryParser*feature_flag.class\
 	QueryParser*stem_strategy.class
+
+noinst_DATA = built/xapian_jni.jar
+
+built/xapian_jni.jar: $(XAPIAN_SWIG_JAVA_CLASS)
+	-mkdir built
+	$(JAR) -cf built/xapian_jni.jar $(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)
+
+jnidir = `pwd`/built
+
+jni_LTLIBRARIES = libxapian_jni.la
 
 # Remove the .la file - libxapian_jni.la is never linked against (it's a
 # module) and JVMs don't use libltdl.  Note that the library gets installed by
