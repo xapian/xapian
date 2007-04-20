@@ -54,7 +54,7 @@ on_error:
             CATCH(;)
         }
 
-    int operator() (const Xapian::Document &doc) const {
+    bool operator() (const Xapian::Document &doc) const {
         TRY
             jmethodID ctorid;
             jobject document;
@@ -100,7 +100,7 @@ on_error:
             CATCH(;)
         }
 
-    int operator() (const std::string &tname) const {
+    bool operator() (const std::string &tname) const {
         TRY
             return env->CallBooleanMethod(_obj, _acceptmethod, env->NewStringUTF(tname.c_str()));
         CATCH(-1)

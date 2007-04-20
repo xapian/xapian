@@ -65,6 +65,11 @@
 // toString is more Java-esque and also matches what the old JNI bindings did.
 %rename("toString") get_description() const;
 
+// The old JNI bindings wrapped operator() as accept() for MatchDecider and
+// ExpandDecider.
+%rename("accept") Xapian::MatchDecider::operator();
+%rename("accept") Xapian::ExpandDecider::operator();
+
 %inline {
 namespace Xapian {
 

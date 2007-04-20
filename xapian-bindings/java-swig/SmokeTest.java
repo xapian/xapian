@@ -20,25 +20,25 @@
 //import org.xapian.*;
 //import org.xapian.errors.*;
 
-/*
-class MyMatchDecider implements MatchDecider {
+// FIXME "implements" not "extends" in JNI Java API
+class MyMatchDecider extends MatchDecider {
     public boolean accept(Document d) {
 	// NB It's not normally appropriate to call getData() in a MatchDecider
 	// but we do it here to make sure we don't get an empty document.
-	try {
+/*	try { */
 	    return d.getData() == "";
+/*
 	} catch (XapianError e) {
 	    return true;
 	}
+*/
     }
 }
-*/
 
-/*
-class MyExpandDecider implements ExpandDecider {
+// FIXME "implements" not "extends" in JNI Java API
+class MyExpandDecider extends ExpandDecider {
     public boolean accept(String s) { return s.substring(0, 1) != "a"; }
 }
-*/
 
 public class SmokeTest {
     public static void main(String[] args) throws Exception {
@@ -123,8 +123,8 @@ public class SmokeTest {
 */
 	    RSet rset = new RSet();
 	    rset.addDocument(1);
-/*
 	    ESet eset = enq.getESet(10, rset, new MyExpandDecider());
+/*
 	    ESetIterator eit = eset.iterator();
 	    int count = 0;
 	    while (eit.hasNext()) {

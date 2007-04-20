@@ -1,3 +1,19 @@
+Fri Apr 20 15:07:03 BST 2007  Olly Betts <olly@survex.com>
+
+	* csharp/SmokeTest.cs,csharp/docs/bindings.html,
+	  java/native/Enquire.cc,xapian.i: Update for change of return type of
+	  MatchDecider::operator() and ExpandDecider::operator().  The only
+	  change visible in a wrapped language is in C# where the return type
+	  also changes from `int' to `bool'.
+	* xapian.i: Where directors are supported, also wrap the alternative
+	  form of Enquire::get_eset() which doesn't take the flags or k
+	  parameters.
+	* java-swig/util.i: Rename MatchDecider::operator() and
+	  ExpandDecider::operator() to `accept' in Java to match the JNI
+	  bindings.
+	* java-swig/SmokeTest.java: Uncomment some more of the code which
+	  now works.
+
 Fri Apr 20 10:48:36 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* csharp/,ruby/: Ignore generated *.stamp files.

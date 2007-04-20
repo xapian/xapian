@@ -172,8 +172,8 @@ useful) would be as follows:
 
 <pre>
 class MyMatchDecider : Xapian.MatchDecider {
-    public override int Apply(Xapian.Document doc) {
-	return 1;
+    public override bool Apply(Xapian.Document doc) {
+	return true;
     }
 }
 </pre>

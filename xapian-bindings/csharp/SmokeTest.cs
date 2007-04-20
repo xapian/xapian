@@ -26,8 +26,8 @@
 using Xapian;
 
 class TestMatchDecider : Xapian.MatchDecider {
-    public override int Apply(Xapian.Document doc) {
-	return (doc.GetValue(0) == "yes") ? 1 : 0;
+    public override bool Apply(Xapian.Document doc) {
+	return (doc.GetValue(0) == "yes");
     }
 }
 

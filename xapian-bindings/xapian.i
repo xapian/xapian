@@ -438,14 +438,14 @@ class RSet {
 %feature("director") MatchDecider;
 class MatchDecider {
 public:
-    virtual int operator() (const Xapian::Document &doc) const = 0;
+    virtual bool operator() (const Xapian::Document &doc) const = 0;
     virtual ~MatchDecider() { }
 };
 
 %feature("director") ExpandDecider;
 class ExpandDecider {
 public:
-    virtual int operator() (const string &term) const = 0;
+    virtual bool operator() (const string &term) const = 0;
     virtual ~ExpandDecider() { }
 };
 
@@ -494,11 +494,11 @@ class Enquire {
 	    const RSet *omrset,
 	    const MatchDecider *mdecider = 0) const;
 
-    // FIXME wrap form without flags and k?
     ESet get_eset(termcount maxitems,
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0,
 	    const ExpandDecider *edecider = 0) const;
+    ESet get_eset(termcount maxitems, const RSet & omrset, const Xapian::ExpandDecider * edecider) const;
 #else
     MSet get_mset(doccount first,
 	    doccount maxitems,
@@ -508,7 +508,6 @@ class Enquire {
 	    doccount maxitems,
 	    const RSet *omrset) const;
 
-    // FIXME wrap form without flags and k?
     ESet get_eset(termcount maxitems,
 	    const RSet &omrset,
 	    int flags = 0, double k = 1.0) const;
