@@ -447,7 +447,7 @@ static bool test_topercent1()
 
 class myExpandFunctor : public Xapian::ExpandDecider {
     public:
-	int operator()(const string & tname) const {
+	bool operator()(const string & tname) const {
 	    unsigned long sum = 0;
 	    for (string::const_iterator i=tname.begin(); i!=tname.end(); ++i) {
 		sum += *i;

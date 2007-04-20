@@ -1,8 +1,7 @@
 /* expand.h: class for finding expand terms
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+ * Copyright 2002,2003,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_EXPAND_H
@@ -34,16 +32,6 @@
 #include "autoptr.h"
 
 class RSetI;
-
-namespace Xapian {
-
-/** Expand decision functor which always decides to use the term. */
-class ExpandDeciderAlways : public ExpandDecider {
-    public:
-	int operator()(const string & /*tname*/) const { return true; }
-};
-
-}
 
 /** Class for performing the expand operation. */
 class OmExpand {

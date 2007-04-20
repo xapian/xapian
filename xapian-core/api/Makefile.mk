@@ -8,6 +8,7 @@ EXTRA_DIST +=\
 libxapian_la_SOURCES +=\
 	api/error.cc\
 	api/errorhandler.cc\
+	api/expanddecider.cc\
 	api/omdatabase.cc\
 	api/omdocument.cc\
 	api/omenquire.cc\

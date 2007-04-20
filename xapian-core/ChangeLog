@@ -1,3 +1,22 @@
+Fri Apr 20 14:28:39 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: MatchDecider::operator() now returns
+	  `bool' not `int'.  Remove declaraction of ExpandDecider.
+	* include/xapian/expanddecider.h: Move declaration of ExpandDecider
+	  to here.  ExpandDecider::operator() now returns `bool' not `int'.
+	  ExpandDeciderAnd now names parameters `first' and `second' and
+	  documents the order in which they are applied (useful if you have
+	  an expensive and a cheap test).  ExpandDeciderAnd can now take
+	  parameters by reference instead of pointer.
+	* api/Makefile.mk,include/xapian/enquire.h,api/omenquire.cc,
+	  api/expanddecider.cc: New home for definitions of virtual methods of
+	  ExpandDecider and subclasses.
+	* api/omenquire.cc,common/expand.h,matcher/expand.cc: Eliminate
+	  internal class ExpandDeciderAlways - just test pointer against NULL
+	  instead.
+	* tests/api_anydb.cc,tests/api_db.cc: Update for change in return
+	  type from MatchDecider::operator() and ExpandDecider::operator().
+
 Fri Apr 20 10:35:09 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* HACKING: Add note on rules with multiple targets.

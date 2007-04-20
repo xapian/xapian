@@ -37,6 +37,7 @@ namespace Xapian {
 class Database;
 class Document;
 class ErrorHandler;
+class ExpandDecider;
 class MSetIterator;
 class Query;
 class Weight;
@@ -595,22 +596,10 @@ class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
     public:
 	/** Decide whether we want this document to be in the mset.
 	 */
-	virtual int operator()(const Xapian::Document &doc) const = 0;
+	virtual bool operator()(const Xapian::Document &doc) const = 0;
 
 	/// Destructor.
 	virtual ~MatchDecider();
-};
-
-/** Base class for expand decision functor.
- */
-class XAPIAN_VISIBILITY_DEFAULT ExpandDecider {
-    public:
-	/** Decide whether we want this term to be in the expand set.
-	 */
-	virtual int operator()(const std::string & tname) const = 0;
-
-	/// Destructor.
-	virtual ~ExpandDecider();
 };
 
 /** This class provides an interface to the information retrieval

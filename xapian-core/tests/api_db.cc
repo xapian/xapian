@@ -241,7 +241,7 @@ static bool test_multierrhandler1()
 
 class myMatchDecider : public Xapian::MatchDecider {
     public:
-	int operator()(const Xapian::Document &doc) const {
+	bool operator()(const Xapian::Document &doc) const {
 	    // Note that this is not recommended usage of get_data()
 	    return doc.get_data().find("This is") != string::npos;
 	}

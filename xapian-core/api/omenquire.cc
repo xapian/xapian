@@ -50,35 +50,6 @@ namespace Xapian {
 
 MatchDecider::~MatchDecider() { }
 
-ExpandDecider::~ExpandDecider() { }
-
-ExpandDeciderFilterTerms::ExpandDeciderFilterTerms(TermIterator terms,
-						   TermIterator termsend)
-    : tset(terms, termsend)
-{
-}
-
-int
-ExpandDeciderFilterTerms::operator()(const string &tname) const
-{
-    /* Solaris CC returns an iterator from tset.find() const, and then
-     * doesn't like comparing it to the const_iterator from end().
-     * Therefore make sure we get a const_iterator to do the comparision.
-     */
-    set<string>::const_iterator i = tset.find(tname);
-    return (i == tset.end());
-}
-
-ExpandDeciderAnd::ExpandDeciderAnd(const ExpandDecider *left_,
-                                   const ExpandDecider *right_)
-        : left(left_), right(right_) { }
-
-int
-ExpandDeciderAnd::operator()(const string &tname) const
-{
-    return ((*left)(tname)) && ((*right)(tname));
-}
-
 // Methods for Xapian::RSet
 
 RSet::RSet() : internal(new RSet::Internal())
@@ -726,7 +697,6 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
      */
     AutoPtr<ExpandDecider> decider_noquery;
     AutoPtr<ExpandDecider> decider_andnoquery;
-    ExpandDeciderAlways decider_always;
 
     if (!query.empty() && !(flags & Enquire::include_query_terms)) {
 	AutoPtr<ExpandDecider> temp1(
@@ -742,8 +712,6 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
 	} else {
 	    edecider = decider_noquery.get();
 	}
-    } else if (edecider == 0) {
-	edecider = &decider_always;
     }
 
     expand.expand(maxitems, retval, &rseti, edecider,

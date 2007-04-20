@@ -1,9 +1,7 @@
-/** \file expanddecider.h
- * \brief Classes for filtering which terms returned by expand
+/** @file expanddecider.h
+ * @brief Allow rejection of terms during ESet generation.
  */
-/* ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,56 +15,74 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA
- * -----END-LICENCE-----
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #ifndef XAPIAN_INCLUDED_EXPANDDECIDER_H
 #define XAPIAN_INCLUDED_EXPANDDECIDER_H
 
 #include <set>
+#include <string>
 
-#include <xapian/enquire.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
 
-/** One useful expand decision functor, which provides a way of
- *  filtering out a fixed list of terms from the expand set.
- */
-class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider {
-    public:
-        /** Constructor, which takes a list of terms which
-	 *  will be filtered out.
-	 */
-        ExpandDeciderFilterTerms(Xapian::TermIterator terms,
-				 Xapian::TermIterator termsend);
+/** Virtual base class for expand decider functor. */
+class XAPIAN_VISIBILITY_DEFAULT ExpandDecider {
+  public:
+    /** Do we want this term in the ESet? */
+    virtual bool operator()(const std::string &term) const = 0;
 
-        virtual int operator()(const std::string &tname) const;
-    private:
-        std::set<std::string> tset;
+    /** Virtual destructor, because we have virtual methods. */
+    virtual ~ExpandDecider();
 };
 
-/** An expand decision functor which can be used to join two
- *  functors with an AND operation.
+/** ExpandDecider subclass which rejects terms using two ExpandDeciders.
+ *
+ *  Terms are only accepted if they are accepted by both of the specified
+ *  ExpandDecider objects.
  */
 class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderAnd : public ExpandDecider {
-    public:
-    	/** Constructor, which takes as arguments the two
-	 *  decision functors to AND together.
-	 *  ExpandDeciderAnd will not delete its sub-functors.
-	 */
-	ExpandDeciderAnd(const ExpandDecider *left_,
-	                 const ExpandDecider *right_);
+    const ExpandDecider &first, &second;
 
-	virtual int operator()(const std::string &tname) const;
+  public:
+    /** Terms will be checked with @a first, and if accepted, then checked
+     *  with @a second.
+     */
+    ExpandDeciderAnd(const ExpandDecider &first_,
+		     const ExpandDecider &second_)
+	: first(first_), second(second_) { }
 
-    private:
-        const ExpandDecider *left;
-	const ExpandDecider *right;
+    /** Compatibility method. */
+    ExpandDeciderAnd(const ExpandDecider *first_,
+		     const ExpandDecider *second_)
+	: first(*first_), second(*second_) { }
+
+    virtual bool operator()(const std::string &term) const;
+};
+
+/** ExpandDecider subclass which rejects terms in a specified list.
+ *
+ *  ExpandDeciderFilterTerms provides an easy way to filter out terms from
+ *  a fixed list when generating an ESet.
+ */
+class XAPIAN_VISIBILITY_DEFAULT ExpandDeciderFilterTerms : public ExpandDecider {
+    std::set<std::string> rejects;
+
+  public:
+    /** The two iterators specify a list of terms to be rejected.
+     *
+     *  @a reject_begin and @a reject_end can be any input_iterator type
+     *  which returns std::string or char * (e.g. TermIterator or char **).
+     */
+    template <class Iterator>
+    ExpandDeciderFilterTerms(Iterator reject_begin, Iterator reject_end)
+	: rejects(reject_begin, reject_end) { }
+
+    virtual bool operator()(const std::string &term) const;
 };
 
 }
 
-#endif /* XAPIAN_INCLUDED_EXPANDDECIDER_H */
+#endif // XAPIAN_INCLUDED_EXPANDDECIDER_H
