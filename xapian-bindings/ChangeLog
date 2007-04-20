@@ -1,3 +1,9 @@
+Fri Apr 20 10:37:11 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/Makefile.am: Add intermediate target when running swig, in
+	  line with comment recently added to xapian-core/HACKING regarding
+	  rules with multiple targets.
+
 Fri Apr 20 00:30:16 BST 2007  Olly Betts <olly@survex.com>
 
 	* java-swig/util.i: Sort out typemap for the "Query from operator

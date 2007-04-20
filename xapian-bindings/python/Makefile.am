@@ -61,13 +61,15 @@ except.i: generate-python-exceptions ../../xapian-core/exception_data.pm
 doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-core/docs/apidoc/xml/index.xml
 	$(PYTHON) doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml doccomments.i
 
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: $(SWIG_sources) util.i except.i doccomments.i extra.i extracomments.i
+modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: xapian_wrap.stamp
+xapian_wrap.stamp: $(SWIG_sources) util.i except.i doccomments.i extra.i extracomments.i
 	test -d modern || mkdir modern
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -python -shadow -modern -O -outdir modern \
 	    -o modern/xapian_wrap.cc $(SWIG_mainsource)
 	$(PERL) -pe 's/class Error:/class Error(Exception):/' modern/xapian.py > modern/xapian_py.tmp
 	mv modern/xapian_py.tmp modern/xapian.py
+	touch $@
 
 CLEANFILES += $(BUILT_SOURCES)
 else
