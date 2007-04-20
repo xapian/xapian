@@ -76,7 +76,7 @@ class ExpandDeciderOmega : public Xapian::ExpandDecider {
 	Xapian::Database db;
     public:
 	ExpandDeciderOmega(const Xapian::Database &db_) : db(db_) { }
-	int operator()(const string & tname) const {
+	bool operator()(const string & tname) const {
 	    // only suggest 4 or more letter words for now to
 	    // avoid italian problems FIXME: fix this at index time
 	    if (tname.length() <= 3) return false;

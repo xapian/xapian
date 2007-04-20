@@ -55,7 +55,7 @@ class DateMatchDecider : public Xapian::MatchDecider {
 		     const std::string & date_end,
 		     const std::string & date_span);
 
-    int operator()(const Xapian::Document &doc) const;
+    bool operator()(const Xapian::Document &doc) const;
 };
 
 #endif

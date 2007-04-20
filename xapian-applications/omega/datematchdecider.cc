@@ -107,7 +107,7 @@ DateMatchDecider::DateMatchDecider(Xapian::valueno val_,
     }
 }
 
-int
+bool
 DateMatchDecider::operator()(const Xapian::Document &doc) const
 {
     string s(doc.get_value(val));
