@@ -544,6 +544,44 @@ Here's an incomplete list of things to avoid:
   the rules which caused problems).  And we recommend those developing Xapian
   use GNU make to avoid problems.
 
+* Rules with multiple targets can cause problems for parallel builds.  These
+  rules are really just a shorthand for multiple rules with the same
+  prerequisites and commands, and it is fine to use them in this way.  However,
+  a common temptation is to use them when a single invocation of a command
+  generates multiple output files, by adding each of the output files as a
+  target.  Eg, if a swig language module generates xapian_wrap.cc and
+  xapian_wrap.h, it is tempting to add a single rule something like::
+
+    xapian_wrap.cc xapian_wrap.h: xapian.i
+            SWIG_commands
+
+  This can result in SWIG_commands being run twice, in parallel.  If
+  SWIG_commands generates any temporary files, the two invocations can
+  interfere causing one of them to fail.
+
+  Instead of this rule, one solution is to pick one of the output files as a
+  primary target, and add a dependency for the second output file on the first
+  output file::
+
+    xapian_wrap.h: xapian_wrap.cc
+    xapian_wrap.cc: xapian.i
+            SWIG_commands
+
+  This ensures that make knows that only one invocation of SWIG_commands is
+  necessary, but could result in problems if the invocation of SWIG_commands
+  failed after creating xapian_wrap.cc, but before creating xapian_wrap.h.
+  Instead, we recommend creating an intermediate target::
+  
+    xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
+    xapian_wrap.stamp: xapian.i
+            SWIG_commands
+            touch $@
+
+  Because the intermediate target is only touched after the commands have
+  executed successfully, subsequent builds will always retry the commands if an
+  error occurs.  Note that the intermediate target cannot be a "phony" target
+  because this would result in the commands being re-run for every build.
+
 * This is actually a robustness point, not portability per se.  Rules which
   generate files should be careful not to leave a partial file in place if
   there's an error as it will have a timestamp which leads make to believe it's
