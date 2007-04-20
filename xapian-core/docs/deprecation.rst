@@ -219,9 +219,9 @@ Native C++ API
 +----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
 | 1.0.0          | Enquire::set_bias()                 | No replacement yet implemented.                                                         |
 +----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | ExpandDecider::operator()           | Return value is now bool not int.                                                       |
+| 1.0.0          | ExpandDecider::operator()           | Return type is now bool not int.                                                        |
 +----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | MatchDecider::operator()            | Return value is now bool not int.                                                       |
+| 1.0.0          | MatchDecider::operator()            | Return type is now bool not int.                                                        |
 +----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
 
 
@@ -259,6 +259,10 @@ Bindings
 +-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
 | 1.0.0       | SWIG [#rswig]_  | Document::add_term_nopos()  | Use Document::add_term() instead.                                             |
 +-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0       | CSharp          | ExpandDecider::Apply()      | Return type is now bool instead of int.                                       |
++-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 1.0.0       | CSharp          | MatchDecider::Apply()       | Return type is now bool instead of int.                                       |
++-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
 
 .. [#rswig] This affects all swig generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
 
@@ -269,4 +273,4 @@ Author
 ======
 
 This document is copyright (C) 2007 Lemur Consulting Ltd, and was written by
-Richard Boulton.
+Richard Boulton.  Portions Copyright (C) 2007 Olly Betts.

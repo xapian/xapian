@@ -1,3 +1,8 @@
+Fri Apr 20 18:12:51 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Document return type of ExpandDecider::Apply()
+	  and MatchDecider::Apply() in C# is now bool instead of int.
+
 Fri Apr 20 18:01:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* xapian.spec.in: Package xapian-check and its man page.
