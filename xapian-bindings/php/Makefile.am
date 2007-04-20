@@ -48,17 +48,21 @@ if MAINTAINER_MODE
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: $(SWIG_sources) except.i util.i
+php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: php4/xapian_wrap.stamp
+php4/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
 	test -d php4 || mkdir php4
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -php4 -outdir php4 \
 	    -o php4/xapian_wrap.cc $(SWIG_mainsource)
+	touch $@
 
-php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: $(SWIG_sources) except.i util.i
+php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
+php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
 	test -d php5 || mkdir php5
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -php5 -prefix Xapian -outdir php5 \
 	    -o php5/xapian_wrap.cc $(SWIG_mainsource)
+	touch $@
 
 CLEANFILES = $(BUILT_SOURCES)
 else

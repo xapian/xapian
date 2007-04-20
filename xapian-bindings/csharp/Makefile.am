@@ -80,13 +80,15 @@ all-am: $(ASSEMBLY).dll
 CLEANFILES = XapianSharp.snk AssemblyInfo.cs $(ASSEMBLY).dll SmokeTest.exe
 
 if MAINTAINER_MODE
-xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS): $(SWIG_sources) util.i
+xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS): xapian_wrap.stamp
+xapian_wrap.stamp: $(SWIG_sources) util.i
 	: # Make sure that we don't package stale generated sources in the
 	: # case where SWIG changes its mind as to which files it generates.
 	-rm -f $(XAPIAN_SWIG_CS_SRCS)
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -csharp -namespace Xapian -module Xapian -dllimport XapianSharp \
 	    -o xapian_wrap.cc $(SWIG_mainsource)
+	touch $@
 
 CLEANFILES += $(BUILT_SOURCES)
 else
