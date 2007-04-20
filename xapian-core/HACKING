@@ -228,14 +228,16 @@ At the time of writing, these programs are autoconf, automake, and libtool.
 Some older versions of these programs may not work correctly at the time of
 writing, we require the following versions:
 
-	autoconf (GNU Autoconf) 2.60
+	autoconf (GNU Autoconf) 2.59
 		2.57 fixes the annoying chmod warning on FreeBSD.  2.54 is
 		required by automake 1.6.3; autoconf 2.50 is needed for many
 		reasons anyway.  automake 1.8.5 needs at least 2.58, and 2.59
-		was released the same day as 2.58 to fix a problem.  2.60
-		provides docdir and AC_TYPE_SSIZE_T.  Currently snapshots and
-		release tarballs are generated with autoconf 2.61 but this
-		isn't yet a hard requirement.
+		was released the same day as 2.58 to fix a problem.  Currently
+		snapshots and release tarballs are generated with autoconf 2.61
+		but this isn't yet a hard requirement (because the spec file
+		for building RPMs currently runs autoreconf to avoid a libtool
+		bug with setting rpath for /usr/lib64, and such platforms may
+		still only have autoconf 2.59).
 
 	automake (GNU automake) 1.9.5
 		automake 1.4 has problems with "make dist" in a VPATH build,

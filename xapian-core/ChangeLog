@@ -1,3 +1,9 @@
+Fri Apr 20 19:20:23 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: Revert to requiring autoconf 2.59 so that the
+	  .spec file for building RPMs can run `autoreconf' to work around a
+	  libtool bug.
+
 Fri Apr 20 18:12:51 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Document return type of ExpandDecider::Apply()
