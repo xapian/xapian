@@ -1,4 +1,4 @@
-/* xmlparse.h: subclass of HtmlParser for parsing XML.
+/* metaxmlparse.h: subclass of HtmlParser for parsing OpenDocument's meta.xml.
  *
  * Copyright (C) 2006 Olly Betts
  *
