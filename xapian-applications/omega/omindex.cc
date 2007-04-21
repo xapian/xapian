@@ -39,6 +39,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <time.h>
 
 #include <xapian.h>
 
