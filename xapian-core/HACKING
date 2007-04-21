@@ -459,6 +459,18 @@ two arguments).
 Don't directly '#include <unistd.h>' - instead '#include "safeunistd.h"'
 - MSVC doesn't even HAVE unistd.h!
 
+The various "safe" headers are maintained in xapian-core/common, but also used
+by Omega.  Omega pulls in a copy using the svn:externals property which is
+set on xapian-applications/omega.  Because of how this feature of SVN works,
+we pull in a read-only copy via HTTP access to the main repository, so you
+have to update it in xapian-core, and if you have ssh write access to the
+repo but no HTTP access, this will fail.
+
+The imported URL has to be absolute, which isn't too branch friendly.  To avoid
+problems from this, we specify a particular revision to import, but this does
+mean we need to monitor changes to xapian-core and decide when to update omega.
+The release checklist includes a reminder to check this.
+
 Warning Free Compilation:
 -------------------------
 
@@ -846,6 +858,10 @@ How to make a release
 This is a (hopefully complete) list of the jobs which need doing:
 
 * Email Fabrice Colin so he can check RPM spec files.
+
+* Check the revision currently specified in the svn:externals property of
+  xapian-applications/omega.  Unless there's a good reason, we should release
+  xapian-core and omega with synchronised versions of the shared files.
 
 * Make sure that any new/changed/removed API methods in xapian-core have been
   wrapped/updated/removed in xapian-bindings.

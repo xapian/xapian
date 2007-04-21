@@ -1,3 +1,7 @@
+Sun Apr 22 00:00:39 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Add notes about the files Omega uses from xapian-core.
+
 Sat Apr 21 23:49:58 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.cc: Clear the stoplist when we parse a new
