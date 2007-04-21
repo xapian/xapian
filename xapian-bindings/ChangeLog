@@ -1,3 +1,21 @@
+Sat Apr 21 11:30:26 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Change term iterators so that they can handle
+	  WDF and term frequency information either lazily or eagerly.
+	  Always handle positionlist information lazily.  Return an error
+	  if the iterator has already moved on when a lazily accessed piece
+	  of information is requested.  Set access to lazy or eager (or no
+	  access) for each item for each type of termlist iterator which
+	  can be returned, and document this in the documentation comments.
+	  This may impact some users of the legacy sequence API, but is
+	  likely to work for typical and reasonable usages of the API.
+	  Still needs to be documented in the python binding documentation
+	  file.
+	* python/pythontest.py: Add tests for term iterators returned by
+	  matching terms, Query objects, alltermlists on databases,
+	  termlists on database, documents returned from databases, and
+	  newly created documents.
+
 Fri Apr 20 15:07:03 BST 2007  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs,csharp/docs/bindings.html,

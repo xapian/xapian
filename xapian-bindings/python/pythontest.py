@@ -220,6 +220,14 @@ def test_matchingterms_iter():
             expect_exception(xapian.InvalidOperationError, 'Iterator does not support term frequencies', getattr, termitem, 'termfreq')
             expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
 
+        mterms2 = []
+        for termitem in enquire.matching_terms(item):
+            mterms2.append(termitem.term)
+            expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
+            expect_exception(xapian.InvalidOperationError, 'Iterator does not support term frequencies', getattr, termitem, 'termfreq')
+            expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
+        expect(mterms, mterms2)
+
         # Make a list of the match items (so we can test if they're still valid
         # once the iterator has moved on).
         termitems = []
@@ -229,6 +237,213 @@ def test_matchingterms_iter():
         expect(len(termitems), len(mterms))
         for i in xrange(len(termitems)):
             expect(termitems[i].term, mterms[i])
+
+def test_queryterms_iter():
+    """Test Query term iterator.
+
+    """
+    db = setup_database()
+    query = xapian.Query(xapian.Query.OP_OR, ("was", "it", "warm", "two"))
+
+    # Make a list of the term names
+    terms = []
+    for termitem in query:
+        terms.append(termitem.term)
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support term frequencies', getattr, termitem, 'termfreq')
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
+
+    # Make a list of the items (so we can test if they're still valid
+    # once the iterator has moved on).
+    termitems = []
+    for termitem in query:
+        termitems.append(termitem)
+
+    expect(len(termitems), len(terms))
+    for i in xrange(len(termitems)):
+        expect(termitems[i].term, terms[i])
+
+def test_allterms_iter():
+    """Test all-terms iterator on Database.
+
+    """
+    db = setup_database()
+
+    # Make a list of the term names
+    terms = []
+    freqs = []
+    for termitem in db:
+        terms.append(termitem.term)
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
+        freqs.append(termitem.termfreq)
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
+
+    # Make a list of the items (so we can test if they're still valid
+    # once the iterator has moved on).
+    termitems = []
+    for termitem in db:
+        termitems.append(termitem)
+
+    expect(len(termitems), len(terms))
+    for i in xrange(len(termitems)):
+        expect(termitems[i].term, terms[i])
+
+    expect(len(termitems), len(freqs))
+    for i in xrange(len(termitems)):
+        expect_exception(xapian.InvalidOperationError, 'Iterator has moved, and does not support random access', getattr, termitem, 'termfreq')
+
+def test_termlist_iter():
+    """Test termlist iterator on Database.
+
+    """
+    db = setup_database()
+
+    # Make lists of the item contents
+    terms = []
+    wdfs = []
+    freqs = []
+    positers = []
+    for termitem in db.termlist(3):
+        terms.append(termitem.term)
+        wdfs.append(termitem.wdf)
+        freqs.append(termitem.termfreq)
+        positers.append([pos for pos in termitem.positer])
+
+    expect(terms, ['it', 'two', 'warm', 'was'])
+    expect(wdfs, [1, 2, 1, 1])
+    expect(freqs, [5, 3, 4, 4])
+    expect(positers, [[2], [], [3], [1]])
+
+    # Make a list of the terms (so we can test if they're still valid
+    # once the iterator has moved on).
+    termitems = []
+    for termitem in db.termlist(3):
+        termitems.append(termitem)
+
+    expect(len(termitems), len(terms))
+    for i in xrange(len(termitems)):
+        expect(termitems[i].term, terms[i])
+
+    expect(len(termitems), len(wdfs))
+    for i in xrange(len(termitems)):
+        expect(termitems[i].wdf, wdfs[i])
+
+    expect(len(termitems), len(freqs))
+    for i in xrange(len(termitems)):
+        expect_exception(xapian.InvalidOperationError,
+                         'Iterator has moved, and does not support random access',
+                         getattr, termitem, 'termfreq')
+
+    expect(len(termitems), len(freqs))
+    for i in xrange(len(termitems)):
+        expect_exception(xapian.InvalidOperationError,
+                         'Iterator has moved, and does not support random access',
+                         getattr, termitem, 'positer')
+
+def test_dbdocument_iter():
+    """Test document terms iterator for document taken from a database.
+
+    """
+    db = setup_database()
+
+    doc = db.get_document(3)
+
+    # Make lists of the item contents
+    terms = []
+    wdfs = []
+    freqs = []
+    positers = []
+    for termitem in doc:
+        terms.append(termitem.term)
+        wdfs.append(termitem.wdf)
+        freqs.append(termitem.termfreq)
+        positers.append([pos for pos in termitem.positer])
+
+    expect(terms, ['it', 'two', 'warm', 'was'])
+    expect(wdfs, [1, 2, 1, 1])
+    expect(freqs, [5, 3, 4, 4])
+    expect(positers, [[2], [], [3], [1]])
+
+    # Make a list of the terms (so we can test if they're still valid
+    # once the iterator has moved on).
+    termitems = []
+    for termitem in doc:
+        termitems.append(termitem)
+
+    expect(len(termitems), len(terms))
+    for i in xrange(len(termitems)):
+        expect(termitems[i].term, terms[i])
+
+    expect(len(termitems), len(wdfs))
+    for i in xrange(len(termitems)):
+        expect(termitems[i].wdf, wdfs[i])
+
+    expect(len(termitems), len(freqs))
+    for i in xrange(len(termitems)):
+        expect_exception(xapian.InvalidOperationError,
+                         'Iterator has moved, and does not support random access',
+                         getattr, termitem, 'termfreq')
+
+    expect(len(termitems), len(freqs))
+    for i in xrange(len(termitems)):
+        expect_exception(xapian.InvalidOperationError,
+                         'Iterator has moved, and does not support random access',
+                         getattr, termitem, 'positer')
+
+def test_newdocument_iter():
+    """Test document terms iterator for newly created document.
+
+    """
+    doc = xapian.Document()
+    doc.set_data("was it warm? two")
+    doc.add_posting("was", 1)
+    doc.add_posting("it", 2)
+    doc.add_posting("warm", 3)
+    doc.add_term("two", 2)
+
+    # Make lists of the item contents
+    terms = []
+    wdfs = []
+    freqs = []
+    positers = []
+    for termitem in doc:
+        terms.append(termitem.term)
+        wdfs.append(termitem.wdf)
+        freqs.append(termitem.termfreq)
+        positers.append([pos for pos in termitem.positer])
+
+    expect(terms, ['it', 'two', 'warm', 'was'])
+    expect(wdfs, [1, 2, 1, 1])
+    expect(freqs, [0, 0, 0, 0])
+    expect(positers, [[2], [], [3], [1]])
+
+    # Make a list of the terms (so we can test if they're still valid
+    # once the iterator has moved on).
+    termitems = []
+    for termitem in doc:
+        termitems.append(termitem)
+
+    expect(len(termitems), len(terms))
+    for i in xrange(len(termitems)):
+        expect(termitems[i].term, terms[i])
+
+    expect(len(termitems), len(wdfs))
+    for i in xrange(len(termitems)):
+        expect(termitems[i].wdf, wdfs[i])
+
+    expect(len(termitems), len(freqs))
+    for i in xrange(len(termitems)):
+        expect_exception(xapian.InvalidOperationError,
+                         'Iterator has moved, and does not support random access',
+                         getattr, termitem, 'termfreq')
+
+    expect(len(termitems), len(freqs))
+    for i in xrange(len(termitems)):
+        expect_exception(xapian.InvalidOperationError,
+                         'Iterator has moved, and does not support random access',
+                         getattr, termitem, 'positer')
+
+
 
 
 # Run all tests (ie, callables with names starting "test_").

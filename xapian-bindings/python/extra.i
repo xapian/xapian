@@ -283,13 +283,18 @@ class TermListItem(_SequenceMixIn):
         self._wdf = None
         self._termfreq = None
 
+        if iter._has_wdf == TermIter.EAGER:
+            self._wdf = iter._iter.get_wdf()
+        if iter._has_termfreq == TermIter.EAGER:
+            self._termfreq = iter._iter.get_termfreq()
+
         # Support for sequence API
         sequence = ['term', 'wdf', 'termfreq', 'positer']
-        if not (iter._has & TermIter.HAS_WDF):
+        if iter._has_wdf == TermIter.INVALID:
             sequence[1] = 0
-        if not (iter._has & TermIter.HAS_TERMFREQS):
+        if iter._has_termfreq == TermIter.INVALID:
             sequence[2] = 0
-        if not (iter._has & TermIter.HAS_POSITIONS):
+        if iter._has_positions == TermIter.INVALID:
             sequence[3] = PositionIter()
         _SequenceMixIn.__init__(self, *sequence)
 
@@ -298,8 +303,10 @@ class TermListItem(_SequenceMixIn):
 
         """
         if self._wdf is None:
-            if not (self._iter._has & TermIter.HAS_WDF):
+            if self._iter._has_wdf == TermIter.INVALID:
                 raise InvalidOperationError("Iterator does not support wdfs")
+            if self.term is not self._iter._lastterm:
+                raise InvalidOperationError("Iterator has moved, and does not support random access")
             self._wdf = self._iter._iter.get_wdf()
         return self._wdf
     wdf = property(_get_wdf, doc=
@@ -315,8 +322,10 @@ class TermListItem(_SequenceMixIn):
 
         """
         if self._termfreq is None:
-            if not (self._iter._has & TermIter.HAS_TERMFREQS):
+            if self._iter._has_termfreq == TermIter.INVALID:
                 raise InvalidOperationError("Iterator does not support term frequencies")
+            if self.term is not self._iter._lastterm:
+                raise InvalidOperationError("Iterator has moved, and does not support random access")
             self._termfreq = self._iter._iter.get_termfreq()
         return self._termfreq
     termfreq = property(_get_termfreq, doc=
@@ -331,8 +340,12 @@ class TermListItem(_SequenceMixIn):
         """Get a position list iterator.
 
         """
-        if not (self._iter._has & TermIter.HAS_POSITIONS):
+        if self._iter._has_positions == TermIter.INVALID:
             raise InvalidOperationError("Iterator does not support position lists")
+        # Access to position lists is always lazy, so we don't need to check
+        # _has_positions.
+        if self.term is not self._iter._lastterm:
+            raise InvalidOperationError("Iterator has moved, and does not support random access")
         return PositionIter(self._iter._iter.positionlist_begin(),
                             self._iter._iter.positionlist_end())
     positer = property(_get_positer, doc=
@@ -351,17 +364,20 @@ class TermIter(object):
     lazily where appropriate.
 
     """
-    __slots__ = ('_iter', '_end', '_has', '_lastterm', '_moved')
+    __slots__ = ('_iter', '_end', '_has_termfreq', '_has_wdf', '_has_positions', '_lastterm', '_moved')
 
-    HAS_NOTHING = 0
-    HAS_TERMFREQS = 1
-    HAS_POSITIONS = 2
-    HAS_WDF = 4
+    INVALID = 0
+    LAZY = 1
+    EAGER = 2
 
-    def __init__(self, start, end, has=HAS_NOTHING):
+    def __init__(self, start, end, has_termfreq=INVALID,
+                 has_wdf=INVALID, has_positions=INVALID):
         self._iter = start
         self._end = end
-        self._has = has
+        self._has_termfreq = has_termfreq
+        self._has_wdf = has_wdf
+        self._has_positions = has_positions
+        assert(has_positions != TermIter.EAGER) # Can't do eager access to position lists
         self._lastterm = None # Used to test if the iterator has moved
         self._moved = True # True if we've moved onto the next item.
 
@@ -379,6 +395,7 @@ class TermIter(object):
             self._moved = True
 
         if self._iter == self._end:
+            self._lastterm = None
             raise StopIteration
         else:
             newterm = self._iter.get_term()
@@ -393,8 +410,14 @@ class TermIter(object):
         The iterator is advanced to the first term at or after the current
         position which is greater than or equal to the supplied term.
 
+        If there are no such items, this will raise StopIteration.
+
         """
         self._iter.skip_to(term)
+
+        if self._iter == self._end:
+            self._lastterm = None
+            raise StopIteration
 
         # Update self._lastterm if the iterator has moved.
         # TermListItems compare a saved value of lastterm with self._lastterm
@@ -421,6 +444,95 @@ def _enquire_gen_iter(self, which):
     return TermIter(self.get_matching_terms_begin(which),
                     self.get_matching_terms_end(which))
 Enquire.matching_terms = _enquire_gen_iter
+
+# Modify Query to add an "__iter__()" method.
+def _query_gen_iter(self):
+    """Get an iterator over the terms in a query.
+
+    The iterator will return TermListItem objects, but these will not support
+    access to term frequency, wdf, or position information.
+
+    """
+    return TermIter(self.get_terms_begin(), self.get_terms_end())
+Query.__iter__ = _query_gen_iter
+
+# Modify Database to add an "__iter__()" method and an "allterms()" method.
+def _database_gen_allterms_iter(self):
+    """Get an iterator over all the terms in the database.
+
+    The iterator will return TermListItem objects, but these will not support
+    access to wdf, or position information.
+
+    Access to term frequency information is only available until the iterator
+    has moved on.
+
+    """
+    return TermIter(self.allterms_begin(), self.allterms_end(),
+                    has_termfreq=TermIter.LAZY)
+Database.__iter__ = _database_gen_allterms_iter
+Database.allterms = _database_gen_allterms_iter
+
+# Modify Database to add a "termlist()" method.
+def _database_gen_termlist_iter(self, docid):
+    """Get an iterator over all the terms which index a given document ID.
+
+    The iterator will return TermListItem objects.
+
+    Access to term frequency and position information is only available until
+    the iterator has moved on.
+
+    """
+    # Note: has_termfreq is set to LAZY because most databases don't store term
+    # frequencies in the termlist, so access to the term frequency requires a
+    # separate lookup.  Flint databases can store the term frequency in the
+    # termlist, but this can't be done efficiently except for statically built
+    # databases, and there doesn't seem to be support for it in xapian-compact,
+    # presently.
+    return TermIter(self.termlist_begin(docid), self.termlist_end(docid),
+                    has_termfreq=TermIter.LAZY,
+                    has_wdf=TermIter.EAGER,
+                    has_positions=TermIter.LAZY)
+Database.termlist = _database_gen_termlist_iter
+
+# Modify Document to add an "__iter__()" method and a "termlist()" method.
+def _document_gen_termlist_iter(self):
+    """Get an iterator over all the terms in a document.
+
+    The iterator will return TermListItem objects.
+
+    Access to term frequency and position information is only available until
+    the iterator has moved on.
+
+    Note that term frequency information is only meaningful for a document
+    retrieved from a database.  If term frequency information is requested for
+    a document which was freshly created, it will always return the value zero.
+
+    """
+    # Note: document termlist iterators may be implemented entirely in-memory
+    # (in which case access to all items could be allowed eagerly), but may
+    # also be implemented by returning a database termlist (for documents which
+    # are stored in a database, rather than freshly created).  We choose the
+    # most conservative settings, to avoid doing eager access when lazy access
+    # would be more appropriate.
+    return TermIter(self.termlist_begin(), self.termlist_end(),
+                    has_termfreq=TermIter.LAZY,
+                    has_wdf=TermIter.EAGER,
+                    has_positions=TermIter.LAZY)
+Document.__iter__ = _document_gen_termlist_iter
+Document.termlist = _document_gen_termlist_iter
+
+# FIXME - test this
+def _queryparser_gen_stoplist_iter(self):
+    # FIXME - document this
+    return TermIter(self.stoplist_begin(), self.stoplist_end())
+QueryParser.stoplist = _queryparser_gen_stoplist_iter
+
+# FIXME - test this
+def _queryparser_gen_unstemlist_iter(self, tname):
+    # FIXME - document this
+    return TermIter(self.unstem_begin(tname), self.unstem_end(tname))
+QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
+
 
 
 ##########################################
@@ -494,18 +606,6 @@ class ValueIter(object):
 
 # Bind the Python iterators into the shadow classes
 
-def _query_gen_iter(self):
-    # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
-    # suggesting we make it throw Xapian::InvalidOperationError instead.
-    return TermIter(self.get_terms_begin(), self.get_terms_end())
-Query.__iter__ = _query_gen_iter
-
-def _database_gen_allterms_iter(self):
-    return TermIter(self.allterms_begin(), self.allterms_end(),
-                    TermIter.HAS_TERMFREQS)
-Database.__iter__ = _database_gen_allterms_iter
-Database.allterms = _database_gen_allterms_iter
-
 def _database_gen_postlist_iter(self, tname):
     if len(tname) != 0:
         return PostingIter(self.postlist_begin(tname), self.postlist_end(tname), PostingIter.HAS_POSITIONS)
@@ -513,34 +613,13 @@ def _database_gen_postlist_iter(self, tname):
         return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
 Database.postlist = _database_gen_postlist_iter
 
-def _database_gen_termlist_iter(self, docid):
-    return TermIter(self.termlist_begin(docid), self.termlist_end(docid), TermIter.HAS_TERMFREQS|TermIter.HAS_POSITIONS|TermIter.HAS_WDF)
-Database.termlist = _database_gen_termlist_iter
-
 def _database_gen_positionlist_iter(self, docid, tname):
     return PositionIter(self.positionlist_begin(docid, tname), self.positionlist_end(docid, tname))
 Database.positionlist = _database_gen_positionlist_iter
 
-def _document_gen_termlist_iter(self):
-    return TermIter(self.termlist_begin(), self.termlist_end(), TermIter.HAS_POSITIONS|TermIter.HAS_WDF)
-Document.__iter__ = _document_gen_termlist_iter
-Document.termlist = _document_gen_termlist_iter
-
 def _document_gen_values_iter(self):
     return ValueIter(self.values_begin(), self.values_end())
 Document.values = _document_gen_values_iter
-
-def _queryparser_gen_stoplist_iter(self):
-    # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
-    # suggesting we make it throw Xapian::InvalidOperationError instead.
-    return TermIter(self.stoplist_begin(), self.stoplist_end())
-QueryParser.stoplist = _queryparser_gen_stoplist_iter
-
-def _queryparser_gen_unstemlist_iter(self, tname):
-    # The C++ VectorTermList always returns 1 for wdf, but there's a FIXME
-    # suggesting we make it throw Xapian::InvalidOperationError instead.
-    return TermIter(self.unstem_begin(tname), self.unstem_end(tname))
-QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
 %}
 
