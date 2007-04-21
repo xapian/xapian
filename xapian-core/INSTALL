@@ -7,7 +7,7 @@ find yourself in familiar territory.  Building and installing involves
 the following 3 simple steps:
 
  1) Run "./configure", possibly with some extra arguments (see below)
- 2) Run "make"
+ 2) Run "make" to build Xapian
  3) Run "make install" to install Xapian
 
 
@@ -27,9 +27,9 @@ but you may experience spurious warning messages.  On some architectures you
 might get Internal Compiler Errors with 2.95 (in particular, GCC 2.95 for arm
 fails to compile Xapian).
 
-The "GCC 2.96" supplied by RedHat is also best avoided.  This isn't based on an
-official GCC release, but rather on a snapshot of GCC somewhere between 2.95
-and 3.0.
+The "GCC 2.96" supplied with older RedHat releases is also best avoided.  This
+isn't based on an official GCC release, but rather on a snapshot of GCC
+somewhere between 2.95 and 3.0.
 
 Even older GCC compilers (including EGCS) are most unlikely to work at all
 due to lack of support for various ISO C++ features which Xapian uses.
@@ -42,7 +42,9 @@ If you wish to perform your build in a separate directory from the source,
 create and change to the build directory, and run the configure script (in
 the source directory) from the build directory, like so:
 
-  mkdir BUILD; cd BUILD; ../configure
+  mkdir BUILD
+  cd BUILD
+  ../configure
 
 
 Options to give to configure:
@@ -55,11 +57,17 @@ Options to give to configure:
 	are using the API correctly.  It also enables many internal
 	consistency checks, so is useful if you suspect a bug in Xapian.
 
---enable-backend-*
-	These options enable the compiling of each of the backends.  (Database
-	access methods.)  Use "./configure --help" to get a full list of
-	the backends.  By default, all backends for which the appropriate
-	libraries and OS support are available will be enabled.
+--enable-backend-flint
+--enable-backend-inmemory
+--enable-backend-quartz
+--enable-backend-remote
+	These options enable (or disable if --disable-backend-XXX is specified)
+	the compiling of each backend (database access methods).  By default,
+	all backends for which the appropriate libraries and OS support are
+	available will be enabled.
+
+_FORTIFY_SOURCE:
+----------------
 
 When compiling with GCC, by default Xapian will be built with _FORTIFY_SOURCE
 set to 2.  This enables some compile time and runtime checking of values passed
@@ -72,6 +80,38 @@ wish to disable this for any reason, you can just configure like so:
 Or you can set the "fortification level" to 1 instead of 2:
 
 ./configure CPPFLAGS=-D_FORTIFY_SOURCE=1
+
+If you're disabling it because it causes problems, please also report this to
+us (via the bug tracker or mailing lists).
+
+-Bsymbolic-functions:
+---------------------
+
+When compiling with GCC and using a sufficiently new version of ld, configure
+we automatically cause -Wl,-Bsymbolic-functions to be used when linking the
+library.  This causes all references from inside the library to symbols inside
+the library to be resolved when the library is created, rather than when the
+shared library is loaded, which decreases the time taken to load the library,
+reduces its size, and is also likely to make the code run a little faster.
+
+Should you wish to disable this for some reason, you can configure like so
+which disables the probe for -Bsymbolic-functions so it won't ever be used:
+
+./configure xo_cv_symbolic_functions=no
+
+If you're disabling it because it causes problems, please also report this to
+us (via the bug tracker or mailing lists).
+
+-fvisibility:
+-------------
+
+When compiling with GCC >= 4.0, we automatically pass -fvisibility=hidden to
+g++ when building the library, and mark classes, methods, and functions which
+need exporting with attributes to make them visible.
+
+Should you wish to disable this for some reason, you can configure like so:
+
+./configure --disable-visibility
 
 If you're disabling it because it causes problems, please also report this to
 us (via the bug tracker or mailing lists).

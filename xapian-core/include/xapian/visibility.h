@@ -19,7 +19,7 @@
 #ifndef XAPIAN_INCLUDED_VISIBILITY_H
 #define XAPIAN_INCLUDED_VISIBILITY_H
 
-#if defined __GNUC__ && (__GNUC__ >= 4)
+#if defined __GNUC__ && (__GNUC__ >= 4) && !defined XAPIAN_DISABLE_VISIBILITY
 // GCC 3.4 has visibility support, but it's a bit buggy so we require 4.0.
 # define XAPIAN_VISIBILITY_DEFAULT __attribute__((visibility("default")))
 #else

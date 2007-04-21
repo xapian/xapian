@@ -127,6 +127,8 @@ m4_defun([_LT_AC_LANG_RC_CONFIG], [:])
 dnl Use libtool to manage our libraries
 AC_PROG_LIBTOOL
 
+AM_CXXFLAGS=
+
 dnl A standard "gotcha" for mingw and cygwin users is to not set up their
 dnl PATH correctly, so that MSDOS FIND.EXE is found before Unix find.  Help
 dnl them out by checking for this condition, rather than letting libtool
@@ -165,17 +167,21 @@ dnl telling the user that it couldn't find a C++ compiler and telling them
 dnl to install one or set CXX if there's one configure failed to find.
 dnl It's probably worthwhile checking that the C++ compiler actually works
 dnl anyway!
-cxx_works=no
 if test -n "$CXX" ; then
   AC_LANG_CPLUSPLUS
-  AC_MSG_CHECKING([whether the C++ compiler works])
-  AC_TRY_RUN([int main() {}],
-	     cxx_works=yes,
-	     cxx_works=no,
-	     AC_TRY_LINK([], [], cxx_works=yes, cxx_works=no))
-  AC_MSG_RESULT($cxx_works)
+  AC_MSG_CHECKING([whether $CXX is a working C++ compiler])
+  AC_CACHE_VAL([xo_cv_cxx_works],
+    [
+    AC_TRY_RUN([int main() {}],
+	       xo_cv_cxx_works=yes,
+	       xo_cv_cxx_works=no,
+	       AC_TRY_LINK([], [], xo_cv_cxx_works=yes, xo_cv_cxx_works=no))
+    ])
+  AC_MSG_RESULT([$xo_cv_cxx_works])
+else
+  xo_cv_cxx_works=no
 fi
-if test no = "$cxx_works" ; then
+if test no = "$xo_cv_cxx_works" ; then
   case $original_CXX in
   CCC=*)
     dnl CCC is handled in a slightly odd way - if its value isn't an
@@ -222,25 +228,29 @@ AC_SUBST(XAPIAN_LDFLAGS)
 AC_DEFUN([XAPIAN_TEST_LINKER_FLAG],
   [
   AC_MSG_CHECKING([for $CXX -Wl,$1])
-  flag=$1
-  if $CXX -Wl,$1 2>&1 >/dev/null|grep -e $1 >/dev/null 2>&1; then
-    dnl The error message contains the flag name - it must be a
-    dnl complaint that the option is unrecognized (doing it this
-    dnl way allows it to work regardless of the i18n in use):
-    dnl ld: unrecognized option '--enable-runtime-pseudo-reloc'
-    AC_MSG_RESULT([no])
-    $3
-  else
-    AC_MSG_RESULT([yes])
-    $2
-  fi
+  AC_CACHE_VAL([xo_cv_$2],
+    [
+    flag=$1
+    if $CXX -Wl,$1 2>&1 >/dev/null|grep -e $1 >/dev/null 2>&1; then
+      dnl The error message contains the flag name - it must be a
+      dnl complaint that the option is unrecognized (doing it this
+      dnl way allows it to work regardless of the i18n in use):
+      dnl ld: unrecognized option '--enable-runtime-pseudo-reloc'
+      xo_cv_$2=no
+      $4
+    else
+      xo_cv_$2=yes
+      $3
+    fi
+    ])
+  AC_MSG_RESULT([$xo_cv_$2])
   ])
 
 ldflags=
 if test yesyes = "$GXX$enable_shared" ; then
   case $host_os in
     *mingw* | *cygwin*)
-      XAPIAN_TEST_LINKER_FLAG([--enable-runtime-pseudo-reloc],
+      XAPIAN_TEST_LINKER_FLAG([--enable-runtime-pseudo-reloc], [enable_runtime_pseudo_reloc],
 	[ldflags="-Wl,$flag"],
 	[
 	dnl Can't use AC_DISABLE_SHARED after AC_PROG_LIBTOOL, but
@@ -606,9 +616,10 @@ AC_DEFUN([XAPIAN_BACKEND_ENABLE],
     esac], [enable_backend_$1=yes])
   ])
 
-XAPIAN_BACKEND_ENABLE(quartz)
+dnl When adding a new backend, update INSTALL too.
 XAPIAN_BACKEND_ENABLE(flint)
 XAPIAN_BACKEND_ENABLE(inmemory)
+XAPIAN_BACKEND_ENABLE(quartz)
 XAPIAN_BACKEND_ENABLE(remote)
 
 if test yes = "$enable_backend_flint" ; then
@@ -674,6 +685,13 @@ AC_ARG_ENABLE(quiet,
   [case ${enableval} in
     yes|no) ;;
     *) AC_MSG_ERROR(bad value ${enableval} for --enable-quiet) ;;
+  esac])
+
+AC_ARG_ENABLE(visibility,
+  [AS_HELP_STRING([--disable-visibility], [Disable use of GCC visibility [default=autodetect]])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR(bad value ${enableval} for --disable-visibility) ;;
   esac])
 
 dnl Pass `--quiet' to libtool if quiet building is requested.  Using an
@@ -911,8 +929,14 @@ if test yes = "$GXX"; then
       3.*)
 	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow" ;;
       *)
-	dnl Turn on visibility support for GCC >= 4.0.
-	AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow -fvisibility=hidden" ;;
+	if test no = "$enable_visibility"; then
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow"
+	  AC_DEFINE(XAPIAN_DISABLE_VISIBILITY, 1, [Define to disable use of visibility attributes])
+	else
+	  dnl Turn on visibility support for GCC >= 4.0.
+	  AM_CXXFLAGS="$AM_CXXFLAGS -Wundef -Wshadow -fvisibility=hidden"
+	fi
+	;;
       esac
 
       dnl Automatically add -Werror if maintainer mode is enabled and we're
@@ -925,7 +949,7 @@ if test yes = "$GXX"; then
 	esac
       fi
 
-      XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions],
+      XAPIAN_TEST_LINKER_FLAG([-Bsymbolic-functions], [symbolic_functions],
 	[XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $flag"])
     ])
 else

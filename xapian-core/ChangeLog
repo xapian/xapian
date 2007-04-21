@@ -1,3 +1,16 @@
+Sat Apr 21 04:13:12 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Explicitly set AM_CXXFLAGS to an empty value to start
+	  with to avoid issues if it's set in the environment.  Cache the
+	  results of the test to see if the C++ compiler actually works, and
+	  in the XAPIAN_TEST_LINKER_FLAG macro.
+	* configure.ac, include/xapian/visibility.h: Add --disable-visibility
+	  option to configure to completely disable use of -fvisibility.
+	* INSTALL: Document all --enable-backend-* options explicitly.
+	  Document how to disable use of -fvisibility and
+	  -Bsymbolic-functions should you want/need to.  Improve wording in
+	  a few places.
+
 Fri Apr 20 19:20:23 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING,configure.ac: Revert to requiring autoconf 2.59 so that the
