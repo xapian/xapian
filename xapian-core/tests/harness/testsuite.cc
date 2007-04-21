@@ -28,6 +28,7 @@
 # include <stdio.h>
 # include <sys/types.h>
 # include "safefcntl.h"
+# include "safeunistd.h"
 #endif
 
 #include <algorithm>

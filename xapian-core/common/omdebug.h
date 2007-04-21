@@ -35,12 +35,7 @@
 
 #include <vector>
 
-#ifdef __WIN32__
-# include "safewindows.h"
-# define getpid() GetCurrentProcessId()
-#else
-# include <unistd.h>
-#endif
+#include "safeunistd.h"
 
 /** The types of debug output.  These are specified within a DEBUGMSG in
  *  the code by the final portion of the name: ie, UNKNOWN, LOCK, etc...

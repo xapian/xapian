@@ -49,9 +49,11 @@
 # define lseek(FD, OFF, WHENCE) _lseeki64(FD, OFF, WHENCE)
 # define off_t __int64
 
-// MSVC needs this to get SSIZE_T defined.
+// MSVC needs safewindows.h to get SSIZE_T defined.  We also need it for
+// GetCurrentProcessId().
 # include "safewindows.h"
 # define ssize_t SSIZE_T
+# define getpid() GetCurrentProcessId()
 
 #endif
 

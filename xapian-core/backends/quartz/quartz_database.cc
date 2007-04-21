@@ -46,6 +46,7 @@
 #include <sys/types.h>
 #include "safesysstat.h"
 #include "safefcntl.h"
+#include "safeunistd.h"
 #ifdef HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
@@ -53,9 +54,6 @@
 #ifdef __CYGWIN__
 # include "safewindows.h"
 # include <sys/cygwin.h>
-#elif defined __WIN32__
-# include "safewindows.h"
-# define getpid() GetCurrentProcessId()
 #endif
 
 #include <list>

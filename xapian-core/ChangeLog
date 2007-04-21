@@ -1,3 +1,11 @@
+Sat Apr 21 21:38:20 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/quartz/quartz_database.cc,
+	  backends/quartz/quartz_log.cc,common/omdebug.h,common/safeunistd.h,
+	  tests/harness/testsuite.cc: safeunistd.h now defines getpid() to
+	  GetCurrentProcessId() for MSVC, and we now include this where we
+	  want to use getpid() rather than conditionally defining getpid().
+
 Sat Apr 21 04:13:12 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Explicitly set AM_CXXFLAGS to an empty value to start

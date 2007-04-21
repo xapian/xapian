@@ -51,14 +51,6 @@
 # include <sys/utsname.h>
 #endif
 
-#ifdef __CYGWIN__
-# include "safewindows.h"
-# include <sys/cygwin.h>
-#elif defined __WIN32__
-# include "safewindows.h"
-# define getpid() GetCurrentProcessId()
-#endif
-
 #include <list>
 #include <string>
 
