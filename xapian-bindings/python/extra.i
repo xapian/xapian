@@ -521,15 +521,36 @@ def _document_gen_termlist_iter(self):
 Document.__iter__ = _document_gen_termlist_iter
 Document.termlist = _document_gen_termlist_iter
 
-# FIXME - test this
+# Modify QueryParser to add a "stoplist()" method.
 def _queryparser_gen_stoplist_iter(self):
-    # FIXME - document this
+    """Get an iterator over all the stopped terms from the previous query.
+    
+    This returns an iterator over all the terms which were omitted from the
+    previously parsed query due to being considered to be stopwords.  Each
+    instance of a word omitted from the query is represented in the returned
+    list, in the order in which the
+
+    The iterator will return TermListItem objects, but these will not support
+    access to term frequency, wdf, or position information.
+
+    """
     return TermIter(self.stoplist_begin(), self.stoplist_end())
 QueryParser.stoplist = _queryparser_gen_stoplist_iter
 
-# FIXME - test this
+# Modify QueryParser to add an "unstemlist()" method.
 def _queryparser_gen_unstemlist_iter(self, tname):
-    # FIXME - document this
+    """Get an iterator over all the unstemmed forms of a stemmed term.
+    
+    This returns an iterator which returns all the unstemmed word which were
+    stemmed to the stemmed form specifed by `tname` when parsing the previous
+    query.  Each instance of a word which stems to `tname` is returned by the
+    iterator in the order in which the words appeared in the query - an
+    individual unstemmed word may thus occur multiple times.
+
+    The iterator will return TermListItem objects, but these will not support
+    access to term frequency, wdf, or position information.
+
+    """
     return TermIter(self.unstem_begin(tname), self.unstem_end(tname))
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 

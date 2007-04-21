@@ -263,6 +263,125 @@ def test_queryterms_iter():
     for i in xrange(len(termitems)):
         expect(termitems[i].term, terms[i])
 
+def test_queryparser_stoplist_iter():
+    """Test QueryParser stoplist iterator.
+
+    """
+    db = setup_database()
+    stemmer = xapian.Stem('en')
+
+    # Check behaviour without having set a stoplist.
+    queryparser = xapian.QueryParser()
+    queryparser.set_stemmer(stemmer)
+    queryparser.set_stemming_strategy(queryparser.STEM_SOME)
+    expect([item.term for item in queryparser.stoplist()], [])
+    query = queryparser.parse_query('to be or not to be is the questions')
+    expect([item.term for item in queryparser.stoplist()], [])
+    expect(str(query),
+           'Xapian::Query((to:(pos=1) OR be:(pos=2) OR or:(pos=3) OR '
+           'not:(pos=4) OR to:(pos=5) OR be:(pos=6) OR is:(pos=7) OR '
+           'the:(pos=8) OR question:(pos=9)))')
+
+    # Check behaviour with a stoplist, but no stemmer
+    queryparser = xapian.QueryParser()
+    stopper = xapian.SimpleStopper()
+    stopper.add('to')
+    stopper.add('not')
+    stopper.add('question')
+    queryparser.set_stopper(stopper)
+    expect([item.term for item in queryparser.stoplist()], [])
+    query = queryparser.parse_query('to be or not to be is the questions')
+
+    expect([item.term for item in queryparser.stoplist()], ['to', 'not', 'to'])
+    expect(str(query),
+           'Xapian::Query((be:(pos=2) OR or:(pos=3) OR '
+           'be:(pos=6) OR is:(pos=7) OR '
+           'the:(pos=8) OR questions:(pos=9)))')
+
+    # Check behaviour with a stoplist and a stemmer
+    queryparser.set_stemmer(stemmer)
+    queryparser.set_stemming_strategy(queryparser.STEM_SOME)
+    expect([item.term for item in queryparser.stoplist()], [])
+    query = queryparser.parse_query('to be or not to be is the questions')
+
+    expect([item.term for item in queryparser.stoplist()], ['to', 'not', 'to', 'question'])
+    expect(str(query),
+           'Xapian::Query((be:(pos=2) OR or:(pos=3) OR '
+           'be:(pos=6) OR is:(pos=7) OR '
+           'the:(pos=8)))')
+
+    # Make a list of the term names
+    terms = []
+    for termitem in queryparser.stoplist():
+        terms.append(termitem.term)
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support term frequencies', getattr, termitem, 'termfreq')
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
+
+    # Make a list of the items (so we can test if they're still valid
+    # once the iterator has moved on).
+    termitems = []
+    for termitem in queryparser.stoplist():
+        termitems.append(termitem)
+
+    expect(len(termitems), len(terms))
+    for i in xrange(len(termitems)):
+        expect(termitems[i].term, terms[i])
+
+def test_queryparser_unstem_iter():
+    """Test QueryParser unstemlist iterator.
+
+    """
+    db = setup_database()
+    stemmer = xapian.Stem('en')
+
+    queryparser = xapian.QueryParser()
+    expect([item.term for item in queryparser.unstemlist('to')], [])
+    expect([item.term for item in queryparser.unstemlist('question')], [])
+    expect([item.term for item in queryparser.unstemlist('questions')], [])
+    query = queryparser.parse_query('to question questions')
+
+    expect([item.term for item in queryparser.unstemlist('to')], ['to'])
+    expect([item.term for item in queryparser.unstemlist('question')], ['question'])
+    expect([item.term for item in queryparser.unstemlist('questions')], ['questions'])
+    expect(str(query),
+           'Xapian::Query((to:(pos=1) OR question:(pos=2) OR questions:(pos=3)))')
+
+
+    queryparser = xapian.QueryParser()
+    queryparser.set_stemmer(stemmer)
+    queryparser.set_stemming_strategy(queryparser.STEM_SOME)
+    expect([item.term for item in queryparser.unstemlist('to')], [])
+    expect([item.term for item in queryparser.unstemlist('question')], [])
+    expect([item.term for item in queryparser.unstemlist('questions')], [])
+    query = queryparser.parse_query('to question questions')
+
+    expect([item.term for item in queryparser.unstemlist('to')], ['to'])
+    expect([item.term for item in queryparser.unstemlist('question')], ['question', 'questions'])
+    expect([item.term for item in queryparser.unstemlist('questions')], [])
+    expect(str(query),
+           'Xapian::Query((to:(pos=1) OR question:(pos=2) OR question:(pos=3)))')
+
+
+    # Make a list of the term names
+    terms = []
+    for termitem in queryparser.unstemlist('question'):
+        terms.append(termitem.term)
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support term frequencies', getattr, termitem, 'termfreq')
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
+    expect(terms, ['question', 'questions'])
+
+    # Make a list of the items (so we can test if they're still valid
+    # once the iterator has moved on).
+    termitems = []
+    for termitem in queryparser.unstemlist('question'):
+        termitems.append(termitem)
+
+    expect(len(termitems), len(terms))
+    for i in xrange(len(termitems)):
+        expect(termitems[i].term, terms[i])
+
 def test_allterms_iter():
     """Test all-terms iterator on Database.
 
