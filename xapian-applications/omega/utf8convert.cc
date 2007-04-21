@@ -24,21 +24,13 @@
 #include <algorithm>
 #include <string>
 
-#include <errno.h>
+#include "safeerrno.h"
 #ifdef USE_ICONV
 # include <iconv.h>
 #else
 # include <xapian.h>
 #endif
-#include <string.h>
-#ifdef HAVE_STRINGS_H
-# include <strings.h> // Needed on Solaris for strcasecmp
-#endif
-
-#ifdef _MSC_VER
-# define strcasecmp stricmp
-# define strncasecmp strnicmp
-#endif
+#include "strcasecmp.h"
 
 using namespace std;
 

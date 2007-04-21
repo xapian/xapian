@@ -1,3 +1,15 @@
+Sat Apr 21 23:31:02 BST 2007  Olly Betts <olly@survex.com>
+
+	* strcasecmp.h: New header containing magic to provide strcasecmp()
+	  and strncasecmp().
+	* query.cc,utf8convert.cc: Use strcasecmp.h.
+	* Makefile.am,cdb_init.cc,cdb_int.h,configfile.cc,getopt.cc,
+	  loadfile.cc,md5wrap.cc,omega.cc,omindex-config.cc,omindex.cc,
+	  query.cc,scriptindex.cc,utf8convert.cc: Add xapian-core's common/
+	  subdirectory as an svn:external so we can (a) share copies of
+	  gnu_getopt.h and getopt.cc and (b) make use of the "safeunistd.h"
+	  and friends.
+
 Sat Apr 21 23:06:49 BST 2007  Olly Betts <olly@survex.com>
 
 	* metaxmlparse.cc,metaxmlparse.h: Fix summary comments at the top of

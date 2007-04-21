@@ -31,12 +31,8 @@
 #include <iostream>
 #include <set>
 
-#include <fcntl.h>
-#ifdef WIN32
-#include <io.h>
-#else
-#include <unistd.h>
-#endif
+#include "safefcntl.h"
+#include "safeunistd.h"
 
 #include "omega.h"
 #include "utils.h"

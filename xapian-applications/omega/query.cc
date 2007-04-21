@@ -32,22 +32,19 @@
 
 #include <assert.h>
 #include <ctype.h>
-#include <errno.h>
+#include "safeerrno.h"
 #include <stdio.h>
 #include <string.h>
-#ifdef HAVE_STRINGS_H
-# include <strings.h> // Needed on Solaris for strcasecmp
-#endif
+#include "strcasecmp.h"
 #include <time.h>
 
-#include <unistd.h>
+#include "safeunistd.h"
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include "safesysstat.h"
+#include "safefcntl.h"
 
 #ifdef HAVE_GETTIMEOFDAY
 #include <sys/time.h>
-#include <unistd.h>
 #elif defined HAVE_FTIME
 #include <sys/timeb.h>
 #endif
@@ -69,10 +66,6 @@
 #include "values.h"
 
 #include <xapian.h>
-
-#ifdef _MSC_VER
-# define strcasecmp stricmp
-#endif
 
 using namespace std;
 

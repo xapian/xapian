@@ -28,9 +28,9 @@
 
 #include <string>
 
-#include <fcntl.h>
-#include <errno.h>
-#include <unistd.h>
+#include "safefcntl.h"
+#include "safeerrno.h"
+#include "safeunistd.h"
 
 #ifndef O_STREAMING
 # ifdef __linux__

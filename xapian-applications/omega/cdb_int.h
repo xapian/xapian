@@ -6,7 +6,7 @@
  */
 
 #include "cdb.h"
-#include <errno.h>
+#include "safeerrno.h"
 #include <string.h>
 
 #ifndef EPROTO

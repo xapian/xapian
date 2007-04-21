@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+INCLUDES = -I$(top_srcdir)/common
+
 EXTRA_DIST = templates/query \
 	templates/opensearch \
 	templates/godmode \
@@ -72,10 +74,20 @@ dist_sysconf_DATA = omega.conf
 
 noinst_HEADERS = omega.h query.h cgiparam.h\
  myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
- gnu_getopt.h commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
+ commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
- namedentities.h datematchdecider.h sample.h\
+ namedentities.h datematchdecider.h sample.h strcasecmp.h\
  utf8truncate.h
+
+# headers maintained in xapian-core
+noinst_HEADERS +=\
+	common/gnu_getopt.h\
+	common/safeerrno.h\
+	common/safefcntl.h\
+	common/safesysselect.h\
+	common/safesysstat.h\
+	common/safeunistd.h\
+	common/safewindows.h
 
 AM_LDFLAGS = $(ICONV_LDFLAGS)
 
@@ -85,7 +97,7 @@ omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
 omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 
 omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
- getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc md5wrap.cc\
+ common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc md5wrap.cc\
  xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
@@ -93,7 +105,7 @@ endif
 omindex_LDADD = $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
- getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
+ common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
  utf8convert.cc utf8truncate.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 

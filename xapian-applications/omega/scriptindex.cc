@@ -33,9 +33,9 @@
 #include <string>
 #include <vector>
 
-#include <errno.h>
+#include "safeerrno.h"
 #include <stdio.h>
-#include <unistd.h>
+#include "safeunistd.h"
 
 #include "commonhelp.h"
 #include "hashterm.h"

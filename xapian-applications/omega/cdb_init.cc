@@ -10,15 +10,14 @@
 #include <sys/types.h>
 #ifdef HAVE_MMAP
 # include <sys/mman.h>
-#elif defined _WIN32
-# define WIN32_LEAN_AND_MEAN
-# include <windows.h>
-# include <io.h>
 #else
+# include "safeunistd.h"
 # include <stdlib.h>
-# include <unistd.h>
 #endif
-#include <sys/stat.h>
+#ifdef __WIN32__
+# include "safewindows.h"
+#endif
+#include "safesysstat.h"
 #include "cdb_int.h"
 
 int

@@ -29,7 +29,7 @@
 #include <list>
 #include <iostream>
 
-#include <unistd.h>
+#include "safeunistd.h"
 #include <parser.h>
 
 using std::string;

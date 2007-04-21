@@ -29,11 +29,11 @@
 #include <algorithm>
 #include <string>
 
-#include <errno.h>
-#include <fcntl.h>
+#include "safeerrno.h"
+#include "safefcntl.h"
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
+#include "safesysstat.h"
+#include "safeunistd.h"
 
 #ifndef O_STREAMING
 # ifdef __linux__
