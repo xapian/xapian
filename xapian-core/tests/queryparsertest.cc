@@ -1018,6 +1018,38 @@ static bool test_qp_value_daterange1()
     return true;
 }
 
+static bool test_qp_stoplist1()
+{
+    Xapian::QueryParser qp;
+    const char * stopwords[] = { "a", "an", "the" };
+    Xapian::SimpleStopper stop(stopwords, stopwords + 3);
+    qp.set_stopper(&stop);
+
+    Xapian::TermIterator i;
+
+    Xapian::Query query1 = qp.parse_query("some mice");
+    i = qp.stoplist_begin();
+    TEST(i == qp.stoplist_end());
+
+    Xapian::Query query2 = qp.parse_query("the cat");
+    i = qp.stoplist_begin();
+    TEST(i != qp.stoplist_end());
+    TEST_EQUAL(*i, "the");
+    ++i;
+    TEST(i == qp.stoplist_end());
+
+    // Regression test - prior to Xapian 1.0 the stoplist wasn't being cleared
+    // when a new query was parsed.
+    Xapian::Query query3 = qp.parse_query("an aardvark");
+    i = qp.stoplist_begin();
+    TEST(i != qp.stoplist_end());
+    TEST_EQUAL(*i, "an");
+    ++i;
+    TEST(i == qp.stoplist_end());
+
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -1033,6 +1065,7 @@ static test_desc tests[] = {
     TESTCASE(qp_value_range1),
     TESTCASE(qp_value_range2),
     TESTCASE(qp_value_daterange1),
+    TESTCASE(qp_stoplist1),
     END_OF_TESTCASES
 };
 
