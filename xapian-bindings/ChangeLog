@@ -1,3 +1,8 @@
+Sat Apr 21 20:30:32 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: We require automake 1.9.5 for xapian-core, so require
+	  it here too for consistency.  Turn on automake -Wportability option.
+
 Sat Apr 21 11:30:26 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i: Change term iterators so that they can handle
