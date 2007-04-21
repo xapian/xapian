@@ -56,3 +56,8 @@ libxapian_la_SOURCES +=\
 	common/omstringstream.cc\
 	common/serialise-double.cc\
 	common/utils.cc
+
+noinst_LTLIBRARIES += libgetopt.la
+
+libgetopt_la_SOURCES =\
+	common/getopt.cc

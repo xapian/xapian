@@ -72,7 +72,6 @@ include bin/Makefile.mk
 include backends/Makefile.mk
 include common/Makefile.mk
 include examples/Makefile.mk
-include getopt/Makefile.mk
 include include/Makefile.mk
 include languages/Makefile.mk
 include matcher/Makefile.mk
