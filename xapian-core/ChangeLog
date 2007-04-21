@@ -1,3 +1,10 @@
+Sun Apr 22 00:02:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Track the minimum weight required to be
+	  considered for the MSet separately from the minimum item which
+	  could be considered.  Trying to combine the two is causing subtle
+	  bugs (fixed bug#86).
+
 Sun Apr 22 00:00:39 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Add notes about the files Omega uses from xapian-core.

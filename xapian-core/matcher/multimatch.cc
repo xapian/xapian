@@ -351,9 +351,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount max_msize = first + check_at_least;
     items.reserve(max_msize + 1);
 
-    // Set the minimum item, used to compare against to see if an item
-    // should be considered for the mset.
-    Xapian::Internal::MSetItem min_item(weight_cutoff, 0);
+    // Tracks the minimum item currently eligible for the MSet - we compare
+    // candidate items against this.
+    Xapian::Internal::MSetItem min_item(0.0, 0);
+
+    // Minimum weight an item must have to be worth considering.
+    Xapian::weight min_weight = weight_cutoff;
 
     Xapian::weight percent_factor = percent_cutoff / 100.0;
 
@@ -381,20 +384,23 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     while (true) {
 	if (recalculate_w_max) {
-	    if (min_item.wt > 0.0 && getorrecalc_maxweight(pl) < min_item.wt) {
+	    if (min_weight > 0.0 && getorrecalc_maxweight(pl) < min_weight) {
 		DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
 		break;
 	    }
 	}
 
-	if (next_handling_prune(pl, min_item.wt, this)) {
+	if (next_handling_prune(pl, min_weight, this)) {
 	    DEBUGLINE(MATCH, "*** REPLACING ROOT");
 
-	    // no need for a full recalc (unless we've got to do one because
-	    // of a prune elsewhere) - we're just switching to a subtree
-	    if (getorrecalc_maxweight(pl) < min_item.wt) {
-		DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
-		break;
+	    if (min_weight > 0.0) {
+		// No need for a full recalc (unless we've got to do one
+		// because of a prune elsewhere) - we're just switching to a
+		// subtree.
+		if (getorrecalc_maxweight(pl) < min_weight) {
+		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
+		    break;
+		}
 	    }
 	}
 
@@ -403,12 +409,18 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    break;
 	}
 
-	Xapian::docid did = pl->get_docid();
+	// Only calculate the weight if we need it for mcmp, or there's a
+	// percentage or weight cutoff in effect.  Otherwise we calculate it
+	// below if we haven't already rejected this candidate.
 	Xapian::weight wt = 0.0;
-	// Only calculate the weight if we need it for mcmp - otherwise
-	// we calculate it below only if we keep the item
-	if (min_item.wt > 0.0) wt = pl->get_weight();
+	bool calculated_weight = false;
+	if (sort_by != VAL || min_weight > 0.0) {
+	    wt = pl->get_weight();
+	    if (wt < min_weight) continue;
+	    calculated_weight = true;
+	}
 
+	Xapian::docid did = pl->get_docid();
 	DEBUGLINE(MATCH, "Candidate document id " << did << " wt " << wt);
 	Xapian::Internal::MSetItem new_item(wt, did);
 	if (sort_by != REL) {
@@ -418,12 +430,13 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    Xapian::docid m = (new_item.did - 1) / multiplier + 1; // real docid in that database
 	    Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc(db.internal[n]->open_document(m, true));
 	    new_item.sort_key = doc->get_value(sort_key);
-	}
 
-	// Test if item has high enough weight (or sort key) to get into
-	// proto-mset.
-	if (sort_by != REL || min_item.wt > 0.0)
+	    // We're sorting by value (in part at least), so compare the item
+	    // against the lowest currently in the proto-mset.  If sort_by is
+	    // VAL, then new_item.wt won't yet be set, but that doesn't
+	    // matter since it's not used by the sort function.
 	    if (!mcmp(new_item, min_item)) continue;
+	}
 
 	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
 
@@ -446,7 +459,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    }
 	}
 
-	if (min_item.wt <= 0.0) {
+	if (!calculated_weight) {
 	    // we didn't calculate the weight above, but now we will need it
 	    wt = pl->get_weight();
 	    new_item.wt = wt;
@@ -489,28 +502,36 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    // replacement item
 		    new_item.collapse_count = old_item.collapse_count + 1;
 
-		    // This is best match with this key so far:
-		    // remove the old one from the MSet
-		    if ((sort_by != VAL && min_item.wt <= 0.0) ||
-			mcmp(old_item, min_item)) {
-			// Old one hasn't fallen out of MSet yet
-			// Scan through (unsorted) MSet looking for entry
+		    // There was a previous item in the collapse tab so
+		    // the MSet can't be empty.
+		    Assert(!items.empty());
+
+		    // This is best potential MSet entry with this key which
+		    // we've seen so far.  Check if the previous best entry
+		    // with this key might still be in the proto-MSet.  If it
+		    // might be, we need to check through for it.
+		    if (old_item.wt >= min_weight && mcmp(old_item, min_item)) {
+			// Scan through (unsorted) MSet looking for entry.
 			// FIXME: more efficient way than just scanning?
 			Xapian::docid olddid = old_item.did;
-			DEBUGLINE(MATCH, "collapsem: removing " << olddid <<
-				  ": " << new_item.collapse_key);
 			vector<Xapian::Internal::MSetItem>::iterator i;
-			for (i = items.begin(); i->did != olddid; ++i) {
-			    Assert(i != items.end());
+			for (i = items.begin(); i != items.end(); ++i) {
+			    if (i->did == olddid) {
+				DEBUGLINE(MATCH, "collapsem: removing " <<
+					  olddid << ": " <<
+					  new_item.collapse_key);
+				// We can replace an arbitrary element in
+				// O(log N) but have to do it by hand (in this
+				// case the new elt is bigger, so we just swap
+				// down the tree).
+				// FIXME: implement this, and clean up is_heap
+				// handling
+				*i = new_item;
+				pushback = false;
+				is_heap = false;
+				break;
+			    }
 			}
-			*i = new_item;
-			pushback = false;
-			// We can replace an arbitrary element in O(log N)
-			// but have to do it by hand (in this case the new
-			// elt is bigger, so we just swap down the tree)
-			// FIXME: implement this, and clean up is_heap
-			// handling
-			is_heap = false;
 		    }
 
 		    // Keep the old weight as it is now second best so far
@@ -536,14 +557,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
 			 MSetCmp>(items.begin(), items.end(), mcmp);
 		items.pop_back();
+
+		min_item = items.front();
 		if (sort_by == REL || sort_by == REL_VAL) {
-		    Xapian::weight tmp = min_item.wt;
-		    min_item = items.front();
-		    min_item.wt = tmp;
-		} else {
-		    min_item = items.front();
+		    if (min_item.wt > min_weight) min_weight = min_item.wt;
 		}
-		if (getorrecalc_maxweight(pl) < min_item.wt) {
+		if (getorrecalc_maxweight(pl) < min_weight) {
 		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
 		    break;
 		}
@@ -563,24 +582,23 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    greatest_wt = wt;
 	    if (percent_cutoff) {
 		Xapian::weight w = wt * percent_factor;
-		if (w > min_item.wt) {
-		    min_item.wt = w;
-		    min_item.did = 0;
+		if (w > min_weight) {
+		    min_weight = w;
 		    if (!is_heap) {
 			is_heap = true;
 			make_heap<vector<Xapian::Internal::MSetItem>::iterator,
 				  MSetCmp>(items.begin(), items.end(), mcmp);
 		    }
-		    while (!items.empty() && items.front().wt < min_item.wt) {
+		    while (!items.empty() && items.front().wt < min_weight) {
 			pop_heap<vector<Xapian::Internal::MSetItem>::iterator,
 				 MSetCmp>(items.begin(), items.end(), mcmp);
-			Assert(items.back().wt < min_item.wt);
+			Assert(items.back().wt < min_weight);
 			items.pop_back();
 		    }
 #ifdef XAPIAN_DEBUG_PARANOID
 		    vector<Xapian::Internal::MSetItem>::const_iterator i;
 		    for (i = items.begin(); i != items.end(); ++i) {
-			Assert(i->wt >= min_item.wt);
+			Assert(i->wt >= min_weight);
 		    }
 #endif
 		}
@@ -665,11 +683,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    = items.size();
     } else {
 	if (percent_cutoff) {
-	    // another approach: Xapian::doccount new_est = items.size() * (1 - percent_factor) / (1 - min_item.wt / greatest_wt);
+	    // another approach: Xapian::doccount new_est = items.size() * (1 - percent_factor) / (1 - min_weight / greatest_wt);
 	    Xapian::doccount new_est;
 	    new_est = Xapian::doccount((1 - percent_factor) * matches_estimated);
 	    matches_estimated = max(size_t(new_est), items.size());
-	    // and another: items.size() + (1 - greatest_wt * percent_factor / min_item.wt) * (matches_estimated - items.size());
+	    // and another: items.size() + (1 - greatest_wt * percent_factor / min_weight) * (matches_estimated - items.size());
 
 	    // Very likely an underestimate, but we can't really do better without
 	    // checking further matches...  Only possibility would be to track how
