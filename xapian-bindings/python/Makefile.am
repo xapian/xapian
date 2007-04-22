@@ -71,7 +71,7 @@ modern/xapian_wrap.stamp: $(SWIG_sources) util.i except.i doccomments.i extra.i 
 	mv modern/xapian_py.tmp modern/xapian.py
 	touch $@
 
-CLEANFILES += $(BUILT_SOURCES)
+CLEANFILES += $(BUILT_SOURCES) modern/xapian_wrap.stamp
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif

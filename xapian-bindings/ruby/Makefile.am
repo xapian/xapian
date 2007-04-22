@@ -39,7 +39,7 @@ xapian_wrap.stamp: $(SWIG_sources) util.i
 	    -o xapian_wrap.cc $(SWIG_mainsource)
 	touch $@
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES) xapian_wrap.stamp
 else
 MAINTAINERCLEANFILES = $(BUILT_SOURCES)
 endif
