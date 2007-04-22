@@ -301,7 +301,7 @@ def test_queryparser_stoplist_iter():
     # Check behaviour with a stoplist and a stemmer
     queryparser.set_stemmer(stemmer)
     queryparser.set_stemming_strategy(queryparser.STEM_SOME)
-    expect([item.term for item in queryparser.stoplist()], [])
+    expect([item.term for item in queryparser.stoplist()], ['to', 'not', 'to']) # Shouldn't have changed since previous query.
     query = queryparser.parse_query('to be or not to be is the questions')
 
     expect([item.term for item in queryparser.stoplist()], ['to', 'not', 'to', 'question'])
