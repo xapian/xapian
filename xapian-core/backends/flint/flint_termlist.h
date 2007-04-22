@@ -44,8 +44,6 @@ class FlintTermListTable : public FlintTable {
 	 *  @param path_          - Path at which the table is stored.
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
-	 *  @param blocksize_     - Size of blocks to use.  This parameter is
-	 *                          only used when creating the table.
 	 */
 	FlintTermListTable(string path_, bool readonly_)
 	    : FlintTable(path_ + "/termlist.", readonly_) { }

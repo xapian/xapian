@@ -1,6 +1,5 @@
 /* flint_postlist.h: Postlists in flint databases
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005 Olly Betts
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_FLINT_POSTLIST_H
@@ -55,8 +53,6 @@ class FlintPostListTable : public FlintTable {
 	 *  @param path_          - Path at which the table is stored.
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
-	 *  @param blocksize_     - Size of blocks to use.  This parameter is
-	 *                          only used when creating the table.
 	 */
 	FlintPostListTable(string path_, bool readonly_)
 	    : FlintTable(path_ + "/postlist.", readonly_) { }
