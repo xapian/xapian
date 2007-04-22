@@ -339,6 +339,9 @@ class TermListItem(_SequenceMixIn):
     def _get_positer(self):
         """Get a position list iterator.
 
+        The iterator will return integers representing the positions that the
+        term occurs at.
+
         """
         if self._iter._has_positions == TermIter.INVALID:
             raise InvalidOperationError("Iterator does not support position lists")
@@ -385,11 +388,6 @@ class TermIter(object):
         return self
 
     def next(self):
-        """Move the iterator to the next item, and return it.
-
-        Raises StopIteration if there are no more items.
-
-        """
         if not self._moved:
             self._iter.next()
             self._moved = True
@@ -541,7 +539,7 @@ QueryParser.stoplist = _queryparser_gen_stoplist_iter
 def _queryparser_gen_unstemlist_iter(self, tname):
     """Get an iterator over all the unstemmed forms of a stemmed term.
     
-    This returns an iterator which returns all the unstemmed word which were
+    This returns an iterator which returns all the unstemmed words which were
     stemmed to the stemmed form specifed by `tname` when parsing the previous
     query.  Each instance of a word which stems to `tname` is returned by the
     iterator in the order in which the words appeared in the query - an
@@ -583,12 +581,24 @@ class PostingIter(object):
             self.iter.next()
             return r
 
+def _database_gen_postlist_iter(self, tname):
+    if len(tname) != 0:
+        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname), PostingIter.HAS_POSITIONS)
+    else:
+        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
+Database.postlist = _database_gen_postlist_iter
+
 
 ###########################################
 # Support for iteration of position lists #
 ###########################################
 
 class PositionIter(object):
+    """An iterator over a position list.
+
+    The iterator will return integers, in ascending order.
+
+    """
     def __init__(self, start = 0, end = 0):
         self.iter = start
         self.end = end
@@ -604,12 +614,43 @@ class PositionIter(object):
             self.iter.next()
             return r
 
+# Modify Database to add a "positionlist()" method.
+def _database_gen_positionlist_iter(self, docid, tname):
+    """Get an iterator over all the positions in a given document of a term.
+    
+    The iterator will return integers, in ascending order.
+
+    """
+    return PositionIter(self.positionlist_begin(docid, tname), self.positionlist_end(docid, tname))
+Database.positionlist = _database_gen_positionlist_iter
 
 ########################################
 # Support for iteration of value lists #
 ########################################
 
+class ValueItem(_SequenceMixIn):
+    """An item returned from iteration of the values in a document.
+
+    The item supports access to the following attributes:
+
+     - `num`: The number of the value.
+     - `value`: The contents of the value.
+
+    """
+
+    __slots__ = ('num', 'value', )
+
+    def __init__(self, num, value):
+        self.num = num
+        self.value = value
+        _SequenceMixIn.__init__(self, 'num', 'value')
+
 class ValueIter(object):
+    """An iterator over all the values stored in a document.
+
+    The iterator will return ValueItem objects, in ascending order of value number.
+
+    """
     def __init__(self, start, end):
         self.iter = start
         self.end = end
@@ -621,24 +662,17 @@ class ValueIter(object):
         if self.iter==self.end:
             raise StopIteration
         else:
-            r = [self.iter.get_valueno(), self.iter.get_value()]
+            r = ValueItem(self.iter.get_valueno(), self.iter.get_value())
             self.iter.next()
             return r
 
-# Bind the Python iterators into the shadow classes
-
-def _database_gen_postlist_iter(self, tname):
-    if len(tname) != 0:
-        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname), PostingIter.HAS_POSITIONS)
-    else:
-        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
-Database.postlist = _database_gen_postlist_iter
-
-def _database_gen_positionlist_iter(self, docid, tname):
-    return PositionIter(self.positionlist_begin(docid, tname), self.positionlist_end(docid, tname))
-Database.positionlist = _database_gen_positionlist_iter
-
+# Modify Document to add a "values()" method.
 def _document_gen_values_iter(self):
+    """Get an iterator over all the values stored in a document.
+
+    The iterator will return ValueItem objects, in ascending order of value number.
+
+    """
     return ValueIter(self.values_begin(), self.values_end())
 Document.values = _document_gen_values_iter
 

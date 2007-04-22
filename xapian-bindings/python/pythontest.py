@@ -47,8 +47,13 @@ def setup_database():
     doc.set_data("was it warm? three")
     doc.add_term("three", 3)
     db.add_document(doc)
-    doc.set_data("was it warm? four")
+    doc.set_data("was it warm? four it")
     doc.add_term("four", 4)
+    doc.add_term("it", 6)
+    doc.add_posting("it", 7)
+    doc.add_value(5, 'five')
+    doc.add_value(9, 'nine')
+    doc.add_value(0, 'zero')
     db.add_document(doc)
 
     expect(db.get_doccount(), 5)
@@ -79,7 +84,7 @@ def test_mset_iter():
     context("testing returned item from mset")
     expect(items[2].docid, 4)
     expect(items[2].rank, 2)
-    expect(items[2].percent, 81)
+    expect(items[2].percent, 86)
     expect(items[2].collapse_key, '')
     expect(items[2].collapse_count, 0)
     expect(items[2].document.get_data(), 'was it warm? three')
@@ -88,7 +93,7 @@ def test_mset_iter():
     expect(len(items[2][:]), 5)
     expect(items[2][0], 4)
     expect(items[2][2], 2)
-    expect(items[2][3], 81)
+    expect(items[2][3], 86)
 
     # Check iterators for sub-msets against the whole mset.
     for start in xrange(0, 6):
@@ -562,7 +567,39 @@ def test_newdocument_iter():
                          'Iterator has moved, and does not support random access',
                          getattr, termitem, 'positer')
 
+def test_position_iter():
+    """Test position iterator for a document in a database.
 
+    """
+    db = setup_database()
+
+    doc = db.get_document(5)
+
+    # Make lists of the item contents
+    positions = []
+    for position in db.positionlist(5, 'it'):
+        positions.append(position)
+
+    expect(positions, [2, 7])
+
+def test_value_iter():
+    """Test iterators over list of values in a document.
+
+    """
+    db = setup_database()
+    doc = db.get_document(5)
+
+    items = [item for item in doc.values()]
+    expect(len(items), 3)
+    expect(items[0].num, 0)
+    expect(items[0].value, 'zero')
+    expect(items[0][:], [0, 'zero'])
+    expect(items[1].num, 5)
+    expect(items[1].value, 'five')
+    expect(items[1][:], [5, 'five'])
+    expect(items[2].num, 9)
+    expect(items[2].value, 'nine')
+    expect(items[2][:], [9, 'nine'])
 
 
 # Run all tests (ie, callables with names starting "test_").

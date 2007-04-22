@@ -1,3 +1,11 @@
+Sun Apr 22 21:14:46 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/extra.i: Add documentation comments for position
+	  iterators and value iterators.  Make value iterators return items
+	  with attributes, rather than arrays (using _SequenceMixIn to
+	  provide legacy interface, as for other iterators).
+	* python/pythontest.py: Add tests for value and position iterators.
+
 Sun Apr 22 19:24:32 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* csharp/Makefile.am,php/Makefile.am,python/Makefile.am,
