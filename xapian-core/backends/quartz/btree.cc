@@ -1269,8 +1269,8 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	basenames.push_back('A');
 	basenames.push_back('B');
 
-	vector<Btree_base> bases(basenames.size());
-	vector<bool> base_ok(basenames.size());
+	Btree_base bases[basenames.size()];
+	bool base_ok[basenames.size()];
 
 	for (size_t i = 0; i < basenames.size(); ++i) {
 	    base_ok[i] = bases[i].read(name, basenames[i], err_msg);

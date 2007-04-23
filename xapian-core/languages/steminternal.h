@@ -24,6 +24,7 @@
 #include <xapian/base.h>
 #include <xapian/stem.h>
 
+#include <stdlib.h>
 #include <string>
 
 // FIXME: we might want to make Stem::Internal a virtual base class and have

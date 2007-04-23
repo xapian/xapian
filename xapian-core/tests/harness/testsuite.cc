@@ -214,7 +214,7 @@ test_driver::runtest(const test_desc *test)
 	    try {
 		expected_exception = NULL;
 #ifdef HAVE_VALGRIND
-		int vg_errs;
+		int vg_errs = 0;
 		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0;
 		if (vg_log_fd != -1) {
 		    VALGRIND_DO_LEAK_CHECK;

@@ -24,6 +24,8 @@
 
 #include <xapian.h>
 
+#include <stdlib.h>
+
 #include <iostream>
 #include <vector>
 
@@ -40,10 +42,10 @@ int main(int argc, char **argv)
 	     <<	endl;
 	exit(1);
     }
-    
+
     // Catch any Error exceptions thrown
     try {
-	// Make the database
+	// Open the database
 	Database db(argv[1]);
 
 	// Start an enquire session
@@ -100,7 +102,7 @@ int main(int argc, char **argv)
 		if (++i == matches.end()) break;
 	    }
 	}
-	
+
 	// Get the suggested expand terms
 	ESet eterms = enquire.get_eset(10, reldocs);
 

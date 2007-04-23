@@ -24,6 +24,8 @@
 
 #include <xapian.h>
 
+#include <stdlib.h>
+
 #include <iostream>
 
 using namespace Xapian;

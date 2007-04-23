@@ -22,6 +22,8 @@
 
 #include <config.h>
 
+#include <limits.h>
+
 #include <iostream>
 
 using namespace std;

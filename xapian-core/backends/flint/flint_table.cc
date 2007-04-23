@@ -1369,8 +1369,8 @@ FlintTable::basic_open(bool revision_supplied, flint_revision_number_t revision_
 	basenames.push_back('A');
 	basenames.push_back('B');
 
-	vector<FlintTable_base> bases(basenames.size());
-	vector<bool> base_ok(basenames.size());
+	FlintTable_base bases[basenames.size()];
+	bool base_ok[basenames.size()];
 
 	{
 	    for (size_t i = 0; i < basenames.size(); ++i) {

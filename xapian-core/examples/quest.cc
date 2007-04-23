@@ -22,6 +22,8 @@
 
 #include <xapian.h>
 
+#include <stdlib.h>
+
 #include <iostream>
 
 #include "gnu_getopt.h"

@@ -23,6 +23,8 @@
 
 #include <xapian.h>
 
+#include <stdlib.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -39,7 +41,7 @@ int main(int argc, char **argv)
 		" <path to database> <search terms>" << endl;
 	exit(1);
     }
-    
+
     // Catch any Error exceptions thrown
     try {
 	// Open the database
@@ -55,7 +57,7 @@ int main(int argc, char **argv)
 	while (*argv) {
 	    stemmed_terms.push_back(stemmer(*argv++));
 	}
-	    
+
 	// Build a query by OR-ing together all the terms
 	Query query(Query::OP_OR, stemmed_terms.begin(), stemmed_terms.end());
 	cout << "Performing query `" << query.get_description() << "'" << endl;

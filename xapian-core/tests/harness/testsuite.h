@@ -213,11 +213,11 @@ class test_driver {
 
 /** Test a condition, and display the test with an extra explanation if
  *  the condition fails.
- *  NB: uses an else clause to avoid dangling else damage
+ *  NB: wrapped in do { ... } while (0) so a trailing ';' works correctly.
  */
-#define TEST_AND_EXPLAIN(a, b) \
-    if (a) { } else \
-	FAIL_TEST(TESTCASE_LOCN(a) << std::endl << b << std::endl)
+#define TEST_AND_EXPLAIN(a, b) do {\
+	if (!(a)) FAIL_TEST(TESTCASE_LOCN(a) << std::endl << b << std::endl);\
+    } while (0)
 
 /// Test a condition, without an additional explanation for failure.
 #define TEST(a) TEST_AND_EXPLAIN(a, "")
