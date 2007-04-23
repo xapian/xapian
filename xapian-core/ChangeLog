@@ -1,3 +1,8 @@
+Mon Apr 23 11:54:14 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/safeunistd.h: Include <process.h> on windows to get
+	  getpid() instead of using a #define.
+
 Mon Apr 23 11:30:56 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/maptermlist.h: Fix typo in error message.
