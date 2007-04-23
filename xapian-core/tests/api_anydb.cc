@@ -649,7 +649,7 @@ static bool test_allowqterms1()
         TEST_NOT_EQUAL(*j, "this");
     }
 
-    Xapian::ESet myeset2 = enquire.get_eset(1000, myrset, Xapian::Enquire::include_query_terms);
+    Xapian::ESet myeset2 = enquire.get_eset(1000, myrset, Xapian::Enquire::INCLUDE_QUERY_TERMS);
     j = myeset2.begin();
     for ( ; j != myeset2.end(); ++j) {
         if (*j == "this") break;

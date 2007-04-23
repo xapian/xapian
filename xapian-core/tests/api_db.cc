@@ -833,7 +833,7 @@ static bool test_multiexpand1()
     Xapian::ESet eset2 = enquire2.get_eset(1000, rset2);
 
     // This is the multi database without approximation
-    Xapian::ESet eset3 = enquire2.get_eset(1000, rset2, Xapian::Enquire::use_exact_termfreq);
+    Xapian::ESet eset3 = enquire2.get_eset(1000, rset2, Xapian::Enquire::USE_EXACT_TERMFREQ);
 
     TEST_EQUAL(eset1.size(), eset2.size());
     TEST_EQUAL(eset1.size(), eset3.size());

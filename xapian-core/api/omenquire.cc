@@ -698,7 +698,7 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     AutoPtr<ExpandDecider> decider_noquery;
     AutoPtr<ExpandDecider> decider_andnoquery;
 
-    if (!query.empty() && !(flags & Enquire::include_query_terms)) {
+    if (!query.empty() && !(flags & Enquire::INCLUDE_QUERY_TERMS)) {
 	AutoPtr<ExpandDecider> temp1(
 	    new ExpandDeciderFilterTerms(query.get_terms_begin(),
 					 query.get_terms_end()));
@@ -715,7 +715,7 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
     }
 
     expand.expand(maxitems, retval, &rseti, edecider,
-		  bool(flags & Enquire::use_exact_termfreq), k);
+		  bool(flags & Enquire::USE_EXACT_TERMFREQ), k);
 
     return retval;
 }

@@ -137,6 +137,10 @@ Native C++ API
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 | 0.9.6           | ? [#version]_  | xapian_revision()             | Use revision() instead.                                                       |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | Enquire::include_query_terms  | Use Enquire::INCLUDE_QUERY_TERMS instead.                                     |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | Enquire::use_exact_termfreq   | Use Enquire::USE_EXACT_TERMFREQ instead.                                      |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 
 .. [#version] The version functions will probably be preserved for longer than the usual lifetime of deprecated functions, because it is unhelpful to remove functions which people use to test the version of the library in use.  However, the replacements have been supported for long enough that new applications should use the replacement functions without worrying about old library versions which don't support them.
 

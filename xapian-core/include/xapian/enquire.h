@@ -27,6 +27,7 @@
 #include <string>
 
 #include <xapian/base.h>
+#include <xapian/deprecated.h>
 #include <xapian/error.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
@@ -836,17 +837,21 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	    return get_mset(first, maxitems, 0, omrset, mdecider);
 	}
 
-	static const int include_query_terms = 1;
-	static const int use_exact_termfreq = 2;
+	static const int INCLUDE_QUERY_TERMS = 1;
+	static const int USE_EXACT_TERMFREQ = 2;
+        // Deprecated in Xapian 1.0.0, use INCLUDE_QUERY_TERMS instead.
+	XAPIAN_DEPRECATED(static const int include_query_terms) = 1;
+        // Deprecated in Xapian 1.0.0, use USE_EXACT_TERMFREQ instead.
+	XAPIAN_DEPRECATED(static const int use_exact_termfreq) = 2;
 	/** Get the expand set for the given rset.
 	 *
 	 *  @param maxitems  the maximum number of items to return.
 	 *  @param omrset    the relevance set to use when performing
 	 *		     the expand operation.
 	 *  @param flags     zero or more of these values |-ed together:
-	 *		      - Xapian::Enquire::include_query_terms query
+	 *		      - Xapian::Enquire::INCLUDE_QUERY_TERMS query
 	 *			terms may be returned from expand
-	 *		      - Xapian::Enquire::use_exact_termfreq for multi
+	 *		      - Xapian::Enquire::USE_EXACT_TERMFREQ for multi
 	 *			dbs, calculate the exact termfreq; otherwise an
 	 *			approximation is used which can greatly improve
 	 *			efficiency, but still returns good results.

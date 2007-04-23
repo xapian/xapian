@@ -1,3 +1,12 @@
+Mon Apr 23 23:00:23 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,docs/deprecation.rst,include/xapian/enquire.h,
+	  tests/api_anydb.cc,tests/api_db.cc: Deprecate
+	  Enquire::include_query_terms and Enquire::use_exact_termfreq in
+	  favour of capitalised versions Enquire::INCLUDE_QUERY_TERMS and
+	  Enquire::USE_EXACT_TERMFREQ (for consistency with our other
+	  manifest constants, and general C/C++ conventions).
+
 Mon Apr 23 18:14:20 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_table.cc,backends/quartz/btree.cc: Support for
