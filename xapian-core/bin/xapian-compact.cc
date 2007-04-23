@@ -374,7 +374,13 @@ main(int argc, char **argv)
 	    dest += *t;
 	    dest += '.';
 
-	    FlintTable out(dest, false);
+	    int compress_strategy = DONT_COMPRESS;
+	    if (strcmp(*t, "record") == 0 ||
+		strcmp(*t, "termlist") == 0) {
+		compress_strategy = Z_DEFAULT_STRATEGY;
+	    }
+
+	    FlintTable out(dest, false, compress_strategy);
 	    out.create(block_size);
 	    out.open();
 	    out.set_full_compaction(compaction != STANDARD);
@@ -418,6 +424,8 @@ main(int argc, char **argv)
 			sprintf(buf, "/tmp%u_%u.", c, i / 2);
 			dest += buf;
 
+			// Don't compress temporary tables, even if the
+			// final table would be.
 			FlintTable tmptab(dest, false);
 			tmptab.create(block_size);
 			tmptab.open();

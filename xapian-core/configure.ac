@@ -630,6 +630,30 @@ if test yes = "$enable_backend_flint" ; then
   esac
 fi
 
+if test yes = "$enable_backend_flint" ; then
+  dnl We use zlib for compressing tags in flint.  We could automatically
+  dnl disable support for flint, but overall that probably does more harm
+  dnl than good - it's most likely that someone just forgot to install the
+  dnl -dev package for zlib and flint is the default backend we want people
+  dnl to use. 
+
+  dnl Check for zlib.h.
+  AC_CHECK_HEADERS(zlib.h, [], [
+    AC_MSG_ERROR([zlib.h not found - required for flint (you may need to install the zlib1g-dev or zlib-devel package])
+    ], [ ])
+
+  dnl Check for zlibVersion in -lz.
+  SAVE_LIBS=$LIBS
+  LIBS=
+  AC_SEARCH_LIBS([zlibVersion], [z], [], [
+    AC_MSG_ERROR([zlibVersion() not found in -lz - required for flint (you may need to install the zlib1g-dev or zlib-devel package])
+    ])
+  if test x != x"$LIBS" ; then
+    XAPIAN_LDFLAGS="$XAPIAN_LDFLAGS $LIBS"
+  fi
+  LIBS=$SAVE_LIBS
+fi
+
 REMOTE_LDFLAGS=
 if test "$enable_backend_remote" = yes ; then
   dnl On Unix, we need fork and socketpair for the remotebackend.

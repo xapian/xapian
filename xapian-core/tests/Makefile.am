@@ -81,26 +81,28 @@ queryparsertest_LDFLAGS = @ldflags@
 queryparsertest_LDADD = ../libgetopt.la ../libxapian.la
 
 ## Distribute test data:
-EXTRA_DIST = runtest.in \
-	     testdata/apitest_onedoc.txt \
-	     testdata/apitest_simpledata.txt \
-	     testdata/apitest_simpledata2.txt \
-	     testdata/apitest_termorder.txt \
-	     testdata/apitest_rset.txt \
-	     testdata/apitest_phrase.txt \
-	     testdata/apitest_punc.txt \
-	     testdata/apitest_space.txt \
-	     testdata/apitest_allterms.txt \
-	     testdata/apitest_allterms2.txt \
-	     testdata/apitest_allterms4.txt \
-	     testdata/apitest_poslist.txt \
-	     testdata/apitest_manydocs.txt \
-	     testdata/apitest_sortrel.txt \
-	     testdata/etext.txt \
-	     testdata/btreetest_ord+ \
-	     testdata/btreetest_ord- \
-	     testdata/btreetest_ordnum+ \
-	     testdata/btreetest_ordnum-
+EXTRA_DIST =\
+	runtest.in \
+	valgrind.supp \
+	testdata/apitest_onedoc.txt \
+	testdata/apitest_simpledata.txt \
+	testdata/apitest_simpledata2.txt \
+	testdata/apitest_termorder.txt \
+	testdata/apitest_rset.txt \
+	testdata/apitest_phrase.txt \
+	testdata/apitest_punc.txt \
+	testdata/apitest_space.txt \
+	testdata/apitest_allterms.txt \
+	testdata/apitest_allterms2.txt \
+	testdata/apitest_allterms4.txt \
+	testdata/apitest_poslist.txt \
+	testdata/apitest_manydocs.txt \
+	testdata/apitest_sortrel.txt \
+	testdata/etext.txt \
+	testdata/btreetest_ord+ \
+	testdata/btreetest_ord- \
+	testdata/btreetest_ordnum+ \
+	testdata/btreetest_ordnum-
 
 clean-local:
 	rm -rf .flint .quartz .quartztmp .btreetmp

@@ -1,7 +1,7 @@
-/* btree.h: Btree implementation
+/* flint_table.h: Btree implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -32,6 +32,10 @@ using std::string;
 #include "flint_btreebase.h"
 #include "flint_btreeutil.h"
 #include "flint_cursor.h"
+
+#include <zlib.h>
+
+#define DONT_COMPRESS -1
 
 /** The largest possible value of a key_len.
  *
@@ -115,7 +119,8 @@ public:
     Item_base_(T p_, int c) : p(p_ + getint2(p_, c)) { }
     Item_base_(T p_) : p(p_) { }
     T get_address() const { return p; }
-    int size() const { return getint2(p, 0); } /* I in diagram above */
+    int size() const { return getint2(p, 0) & 0x7fff; } /* I in diagram above */
+    bool get_compressed() const { return *p & 0x80; }
     int component_of() const {
 	return getint2(p, getK(p, I2) + I2 - C2);
     }
@@ -201,9 +206,10 @@ public:
 	set_component_of(1);
     }
     // FIXME passing cd here is icky
-    void set_tag(int cd, const char *start, int len) {
+    void set_tag(int cd, const char *start, int len, bool compressed) {
 	memmove(p + cd, start, len);
 	set_size(cd + len);
+	if (compressed) *p |= 0x80;
     }
     void fake_root_item() {
 	set_key_len(K1 + C2);   // null key length
@@ -259,8 +265,11 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  @param path_          - Path at which the table is stored.
 	 *  @param readonly_      - whether to open the table for read only
 	 *                          access.
+	 *  @param compress_strategy_	DONT_COMPRESS, Z_DEFAULT_STRATEGY,
+	 *				Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
 	 */
-	FlintTable(string path_, bool readonly_);
+	FlintTable(string path_, bool readonly_,
+		   int compress_strategy_ = DONT_COMPRESS);
 
 	/** Close the Btree.
 	 *
@@ -629,6 +638,9 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  when updating (in FlintTable::add_item().
 	 */
 	byte * split_p;
+
+	/** DONT_COMPRESS or Z_DEFAULT_COMPRESSION, Z_HUFFMAN_ONLY, Z_RLE. */
+	int compress_strategy;
 
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);

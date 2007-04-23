@@ -78,6 +78,9 @@ using std::min;
 using std::string;
 using std::vector;
 
+// Only try to compress tags longer than this many bytes.
+const size_t COMPRESS_MIN = 4;
+
 //#define BTREE_DEBUG_FULL 1
 #undef BTREE_DEBUG_FULL
 
@@ -1054,6 +1057,68 @@ FlintTable::add(const string &key, string tag)
 
     form_key(key);
 
+    bool compressed = false;
+    if (compress_strategy != DONT_COMPRESS && tag.size() > COMPRESS_MIN) {
+	CompileTimeAssert(DONT_COMPRESS != Z_DEFAULT_STRATEGY);
+	CompileTimeAssert(DONT_COMPRESS != Z_FILTERED);
+	CompileTimeAssert(DONT_COMPRESS != Z_HUFFMAN_ONLY);
+	CompileTimeAssert(DONT_COMPRESS != Z_RLE);
+
+	z_stream stream;
+
+	stream.zalloc = reinterpret_cast<alloc_func>(0);
+	stream.zfree = reinterpret_cast<free_func>(0);
+	stream.opaque = (voidpf)0;
+
+	// -15 means raw deflate with 32K LZ77 window (largest)
+	// memLevel 9 is the highest (8 is default)
+	int err;
+	err = deflateInit2(&stream, Z_DEFAULT_COMPRESSION, Z_DEFLATED, -15, 9,
+			   compress_strategy);
+	if (err != Z_OK) {
+	    if (err == Z_MEM_ERROR) throw std::bad_alloc();
+	    string msg = "deflateInit2 failed";
+	    if (stream.msg) {
+		msg += " (";
+		msg += stream.msg;
+		msg += ')';
+	    }
+	    throw Xapian::DatabaseError(msg);
+	}
+
+	stream.next_in = (Bytef *)const_cast<char *>(tag.data());
+	stream.avail_in = (uInt)tag.size();
+
+	// If compressed size is >= tag.size(), we don't want to compress.
+	unsigned long blk_len = tag.size() - 1;
+	unsigned char * blk = new unsigned char[blk_len];
+	stream.next_out = blk;
+	stream.avail_out = (uInt)blk_len;
+
+	err = deflate(&stream, Z_FINISH);
+	if (err == Z_STREAM_END) {
+	    // If deflate succeeded, then the output was at least one byte
+	    // smaller than the input.
+	    tag.assign(reinterpret_cast<const char *>(blk), stream.total_out);
+	    compressed = true;
+	    err = deflateEnd(&stream);
+	    if (err != Z_OK) {
+		string msg = "deflateEnd failed";
+		if (stream.msg) {
+		    msg += " (";
+		    msg += stream.msg;
+		    msg += ')';
+		}
+		throw Xapian::DatabaseError(msg);
+	    }
+	} else {
+	    // Deflate failed - presumably the data wasn't compressible.
+	    (void)deflateEnd(&stream);
+	}
+
+	delete [] blk;
+    }
+
     // sort of matching kt.append_chunk(), but setting the chunk
     const size_t cd = kt.key().length() + K1 + I2 + C2 + C2;  // offset to the tag data
     const size_t L = max_item_size - cd; // largest amount of tag data for any chunk
@@ -1101,9 +1166,9 @@ FlintTable::add(const string &key, string tag)
 	size_t l = (i == m ? residue : (i == 1 ? first_L : L));
 	Assert(cd + l <= block_size);
 	Assert(string::size_type(o + l) <= tag.length());
-	kt.set_tag(cd, tag.data() + o, l);
+	kt.set_tag(cd, tag.data() + o, l, compressed);
 	kt.set_component_of(i);
-	
+
 	o += l;
 	residue -= l;
 
@@ -1189,6 +1254,7 @@ FlintTable::read_tag(Cursor_ * C_, string *tag) const
     if (n > 1) tag->reserve((max_item_size - (1 + K1 + I2 + C2 + C2)) * n);
 
     item.append_chunk(tag);
+    bool compressed = item.get_compressed();
 
     for (int i = 2; i <= n; i++) {
 	next(C_, 0);
@@ -1196,6 +1262,84 @@ FlintTable::read_tag(Cursor_ * C_, string *tag) const
     }
     // At this point the cursor is on the last item - calling next will move
     // it to the next key (FlintCursor::get_tag() relies on this).
+    if (!compressed) return;
+
+    // FIXME: Perhaps we should we decompress each chunk as we read it so we
+    // don't need both the full compressed and uncompressed tags in memory
+    // at once.
+
+    string utag;
+    // May not be enough for a compressed tag, but it's a reasonable guess.
+    utag.reserve(tag->size() + tag->size() / 2);
+
+    Bytef buf[8192];
+
+    z_stream stream;
+    stream.next_out = buf;
+    stream.avail_out = (uInt)sizeof(buf);
+
+    stream.zalloc = reinterpret_cast<alloc_func>(0);
+    stream.zfree = reinterpret_cast<free_func>(0);
+
+    stream.next_in = Z_NULL;
+    stream.avail_in = 0;
+
+    int err = inflateInit2(&stream, -15);
+    if (err != Z_OK) {
+	if (err == Z_MEM_ERROR) throw std::bad_alloc();
+	string msg = "inflateInit2 failed";
+	if (stream.msg) {
+	    msg += " (";
+	    msg += stream.msg;
+	    msg += ')';
+	}
+	throw Xapian::DatabaseError(msg);
+    }
+
+    stream.next_in = (Bytef*)const_cast<char *>(tag->data());
+    stream.avail_in = (uInt)tag->size();
+
+    while (err != Z_STREAM_END) {
+	stream.next_out = buf;
+	stream.avail_out = (uInt)sizeof(buf);
+	err = inflate(&stream, Z_SYNC_FLUSH);
+	if (err == Z_BUF_ERROR && stream.avail_in == 0) {
+	    DEBUGLINE(DB, "Z_BUF_ERROR - faking checksum of " << stream.adler);
+	    Bytef header2[4];
+	    setint4(header2, 0, stream.adler);
+	    stream.next_in = header2;
+	    stream.avail_in = 4;
+	    err = inflate(&stream, Z_SYNC_FLUSH);
+	    if (err == Z_STREAM_END) break;
+	}
+
+	if (err != Z_OK && err != Z_STREAM_END) {
+	    if (err == Z_MEM_ERROR) throw std::bad_alloc();
+	    string msg = "inflate failed";
+	    if (stream.msg) {
+		msg += " (";
+		msg += stream.msg;
+		msg += ')';
+	    }
+	    throw Xapian::DatabaseError(msg);
+	}
+
+	utag.append(reinterpret_cast<const char *>(buf),
+		    stream.next_out - buf);
+    }
+    Assert(utag.size() == stream.total_out);
+    if (utag.size() != stream.total_out) {
+	string msg = "compressed tag didn't expand to the expected size: ";
+        msg += om_tostring(utag.size());
+	msg += " != ";
+	msg += om_tostring(stream.total_out);
+	throw Xapian::DatabaseCorruptError(msg);
+    }
+
+    err = inflateEnd(&stream);
+    if (err != Z_OK) abort();
+
+    swap(*tag, utag);
 }
 
 void
@@ -1420,7 +1564,7 @@ FlintTable::do_open_to_write(bool revision_supplied, flint_revision_number_t rev
     return true;
 }
 
-FlintTable::FlintTable(string path_, bool readonly_)
+FlintTable::FlintTable(string path_, bool readonly_, int compress_strategy_)
 	: revision_number(0),
 	  item_count(0),
 	  block_size(0),
@@ -1445,7 +1589,8 @@ FlintTable::FlintTable(string path_, bool readonly_)
 	  full_compaction(false),
 	  writable(!readonly_),
 	  dont_close_handle(false),
-	  split_p(0)
+	  split_p(0),
+	  compress_strategy(compress_strategy_)
 {
     DEBUGCALL(DB, void, "FlintTable::Btree", path_ << ", " << readonly_);
 }
