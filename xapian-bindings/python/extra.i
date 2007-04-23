@@ -24,6 +24,10 @@
 
 %pythoncode %{
 
+# Set the documentation format - this is used by tools like "epydoc" to decide
+# how to format the documentation strings.
+__docformat__ = "restructuredtext en"
+
 class _SequenceMixIn(object):
     """Simple mixin class which provides a sequence API to a class.
 
@@ -811,6 +815,13 @@ def _document_gen_values_iter(self):
     """
     return ValueIter(self.values_begin(), self.values_end())
 Document.values = _document_gen_values_iter
+
+# Set the list of names which should be public.
+# Note that this needs to happen at the end of xapian.py.
+__all__ = tuple((item for item in dir()
+                 if item[0] != '_' and
+                    not item.endswith('_swigregister') and
+                    not item.endswith('Iterator')))
 
 %}
 
