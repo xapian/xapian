@@ -48,6 +48,7 @@ CLEANSWIG :
 		
 DOTEST :
 	cd "$(OUTDIR)"
+	copy "$(ZLIB_DIR)\bin\*.dll"
 	"$(PYTHON_EXE)" smoketest.py
 	"$(PYTHON_EXE)" pythontest.py
 	
@@ -63,7 +64,7 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
 CPP_OBJS=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
 
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "/LIBPATH:$(PYTHON_LIB_DIR)"
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "/LIBPATH:$(PYTHON_LIB_DIR)" 
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i except.i doccomments.i extra.i extracomments.i
 	-erase /Q modern
