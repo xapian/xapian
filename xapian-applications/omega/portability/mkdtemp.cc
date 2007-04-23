@@ -31,10 +31,19 @@
  */
 
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
+
+#include "config.h"
+#include "safesysstat.h"
+#include "safeunistd.h"
 
 #include <errno.h>
+
+#ifdef __CYGWIN__
+# include "safewindows.h"
+# include <sys/cygwin.h>
+#elif defined __WIN32__
+# include "safewindows.h"
+#endif
 
 static int
 do_mkdtemp(char *path)

@@ -35,6 +35,7 @@
 
 #include "safeerrno.h"
 #include <stdio.h>
+#include <time.h>
 #include "safeunistd.h"
 
 #include "commonhelp.h"
