@@ -458,6 +458,45 @@ def test_termlist_iter():
         expect([pos for pos in termitem[3]], positers[i])
         i += 1
 
+    # Test skip_to().
+    tliter = db.termlist(3)
+
+    # skip to an item before the first item.
+    termitem = tliter.skip_to('a')
+    expect((termitem.term, termitem.wdf, termitem.termfreq,
+            [pos for pos in termitem.positer]), ('it', 1, 5, [2]))
+
+    # skip forwards to an item.
+    termitem = tliter.skip_to('two')
+    expect((termitem.term, termitem.wdf, termitem.termfreq,
+            [pos for pos in termitem.positer]), ('two', 2, 3, []))
+
+    # skip to same place (should return same item)
+    termitem = tliter.skip_to('two')
+    expect((termitem.term, termitem.wdf, termitem.termfreq,
+            [pos for pos in termitem.positer]), ('two', 2, 3, []))
+
+    # next() after a skip_to(), should return next item.
+    termitem = tliter.next()
+    expect((termitem.term, termitem.wdf, termitem.termfreq,
+            [pos for pos in termitem.positer]), ('warm', 1, 4, [3]))
+
+    # skip to same place (should return same item)
+    termitem = tliter.skip_to('warm')
+    expect((termitem.term, termitem.wdf, termitem.termfreq,
+            [pos for pos in termitem.positer]), ('warm', 1, 4, [3]))
+
+    # skip backwards (should return same item)
+    termitem = tliter.skip_to('a')
+
+    # skip to after end.
+    expect_exception(StopIteration, '', tliter.skip_to, 'zoo')
+    # skip backwards (should still return StopIteration).
+    expect_exception(StopIteration, '', tliter.skip_to, 'a')
+    # next should continue to return StopIteration.
+    expect_exception(StopIteration, '', tliter.next)
+
+
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
     termitems = []
@@ -639,8 +678,49 @@ def test_postinglist_iter():
         expect([pos for pos in posting[3]], positers[i])
         i += 1
 
-    # Make a list of the terms (so we can test if they're still valid
-    # once the iterator has moved on).
+    # Test skip_to().
+    pliter = db.postlist('it')
+
+    # skip to an item before the first item.
+    posting = pliter.skip_to(0)
+    expect((posting.docid, posting.doclength, posting.wdf,
+            [pos for pos in posting.positer]), (1, 3, 1, [1]))
+
+    # skip forwards to an item.
+    posting = pliter.skip_to(3)
+    expect((posting.docid, posting.doclength, posting.wdf,
+            [pos for pos in posting.positer]), (3, 5, 1, [2]))
+
+    # skip to same place (should return same item)
+    posting = pliter.skip_to(3)
+    expect((posting.docid, posting.doclength, posting.wdf,
+            [pos for pos in posting.positer]), (3, 5, 1, [2]))
+
+    # next() after a skip_to(), should return next item.
+    posting = pliter.next()
+    expect((posting.docid, posting.doclength, posting.wdf,
+            [pos for pos in posting.positer]), (4, 8, 1, [2]))
+
+    # skip to same place (should return same item)
+    posting = pliter.skip_to(4)
+    expect((posting.docid, posting.doclength, posting.wdf,
+            [pos for pos in posting.positer]), (4, 8, 1, [2]))
+
+    # skip backwards (should return same item)
+    posting = pliter.skip_to(2)
+    expect((posting.docid, posting.doclength, posting.wdf,
+            [pos for pos in posting.positer]), (4, 8, 1, [2]))
+
+    # skip to after end.
+    expect_exception(StopIteration, '', pliter.skip_to, 6)
+    # skip backwards (should still return StopIteration).
+    expect_exception(StopIteration, '', pliter.skip_to, 6)
+    # next should continue to return StopIteration.
+    expect_exception(StopIteration, '', pliter.next)
+
+
+    # Make a list of the postings (so we can test if they're still valid once
+    # the iterator has moved on).
     postings = []
     for posting in db.postlist('it'):
         postings.append(posting)

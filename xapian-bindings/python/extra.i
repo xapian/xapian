@@ -404,7 +404,6 @@ class TermIter(object):
         assert(has_positions != TermIter.EAGER) # Can't do eager access to position lists
         self._lastterm = None # Used to test if the iterator has moved
 
-
         # _moved is True if we've moved onto the next item.  This is needed so
         # that the iterator doesn't have to move on until just before next() is
         # called: since the iterator starts by pointing at a valid item, we
@@ -436,12 +435,17 @@ class TermIter(object):
 
         If there are no such items, this will raise StopIteration.
 
+        This returns the item which the iterator is moved to.  The subsequent
+        item will be returned the next time that next() is called (unless
+        skip_to() is called again first).
+
         """
-        self._iter.skip_to(term)
-        self._moved = True
+        if self._iter != self._end:
+            self._iter.skip_to(term)
 
         if self._iter == self._end:
             self._lastterm = None
+            self._moved = True
             raise StopIteration
 
         # Update self._lastterm if the iterator has moved.
@@ -451,6 +455,9 @@ class TermIter(object):
         newterm = self._iter.get_term()
         if newterm != self._lastterm:
             self._lastterm = newterm
+
+        self._moved = False
+        return TermListItem(self, self._lastterm)
 
 # Modify Enquire to add a "matching_terms()" method.
 def _enquire_gen_iter(self, which):
@@ -688,11 +695,18 @@ class PostingIter(object):
 
         If there are no such items, this will raise StopIteration.
 
+        This returns the item which the iterator is moved to.  The subsequent
+        item will be returned the next time that next() is called (unless
+        skip_to() is called again first).
+
         """
-        self._iter.skip_to(docid)
-        self._moved = True
+        if self._iter != self._end:
+            self._iter.skip_to(docid)
         if self._iter == self._end:
+            self._moved = True
             raise StopIteration
+        self._moved = False
+        return PostingItem(self)
 
 def _database_gen_postlist_iter(self, tname):
     """Get an iterator over the postings which are indexed by a given term.
