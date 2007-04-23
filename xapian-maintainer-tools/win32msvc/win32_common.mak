@@ -16,6 +16,7 @@ ALL : "$(OUTDIR)\libcommon.lib"
 
 LIBCOMMON_OBJS= \
 	$(INTDIR)\utils.obj \
+	$(INTDIR)\getopt.obj \
 	$(INTDIR)\omdebug.obj \
 	$(INTDIR)\omstringstream.obj \
 	$(INTDIR)\serialise-double.obj \
@@ -46,6 +47,11 @@ CPP_SBRS=.
 <<
 
 "$(INTDIR)\utils.obj" : ".\utils.cc"
+	$(CPP) @<< 
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\getopt.obj" : ".\getopt.cc"
 	$(CPP) @<< 
    $(CPP_PROJ) $**
 <<

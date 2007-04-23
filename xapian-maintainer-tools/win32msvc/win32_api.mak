@@ -19,6 +19,7 @@ ALL : "$(OUTDIR)\libapi.lib"
 LIBAPI_OBJS= \
              $(INTDIR)\error.obj \
              $(INTDIR)\errorhandler.obj \
+             $(INTDIR)\expanddecider.obj \
              $(INTDIR)\omenquire.obj  \
              $(INTDIR)\omquery.obj  \
              $(INTDIR)\omqueryinternal.obj  \
@@ -58,6 +59,11 @@ CPP_SBRS=.
 <<
 
 "$(INTDIR)\errorhandler.obj" : ".\errorhandler.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\expanddecider.obj" : ".\expanddecider.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<

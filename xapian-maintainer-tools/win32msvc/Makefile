@@ -15,8 +15,6 @@ ALL: TESTFORTOOLS MAKEHEADERS COPYMAKFILES MAKEALL
 CHECK: ALL DOTEST
 
 MAKEALL:
-   cd ..\getopt
-   nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\common
    nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
    cd ..\api
