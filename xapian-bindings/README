@@ -11,8 +11,9 @@ stories for at least MacOS X and OpenBSD, and the tinderbox builds pass "make
 check" on FreeBSD and NetBSD).
 
 The Python bindings have been successfully built on Microsoft Windows using
-mingw and MSVC.  The other bindings may need a few build tweaks to work -
-contact us via the mailing lists if you want to get them working.
+mingw and MSVC: the PHP bindings have been successfully build on Microsoft
+Windows using MSVC.  The other bindings may need a few build tweaks to work
+- contact us via the mailing lists if you want to get them working.
 
 Supported Languages
 -------------------
@@ -25,9 +26,7 @@ Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
 Perl		Perl XS bindings contributed by Alex Bowley are available
 		from CPAN (module Search::Xapian).
 PHP		Requires PHP 4 or 5.
-Python		Requires Python 2.2 or later (Python 2.0 or 2.1 could be made
-		to work with somewhat reduced functionality, but are no longer
-		in common use).
+Python		Requires Python 2.2 or later.
 Ruby		Requires Ruby 1.8 or later (brief tests show the bindings
 		probably work with at least Ruby 1.6.8 too, but smoketest.rb
 		doesn't because the test/unit module isn't available and
