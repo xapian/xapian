@@ -1,3 +1,9 @@
+Mon Apr 23 03:22:54 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_lock.cc,
+	  backends/flint/flint_lock.h: Report why we failed to get a write
+	  lock on a flint database.
+
 Mon Apr 23 01:44:13 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_version.cc: Update the flint format version

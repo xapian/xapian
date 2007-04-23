@@ -49,6 +49,12 @@ class FlintLock {
 #endif
 
   public:
+    typedef enum {
+	SUCCESS, // We got the lock!
+	INUSE, // Already locked by someone else.
+	UNSUPPORTED, // Locking probably not supported (e.g. NFS without lockd).
+	UNKNOWN // The attempt failed for some unspecified reason.
+    } reason;
 #if defined __CYGWIN__ || defined __WIN32__
     FlintLock(const std::string &filename_)
 	: filename(filename_), hFile(INVALID_HANDLE_VALUE) { }
@@ -58,7 +64,7 @@ class FlintLock {
     operator bool() { return fd != -1; }
 #endif
 
-    bool lock(bool exclusive);
+    reason lock(bool exclusive);
     void release();
 };
 

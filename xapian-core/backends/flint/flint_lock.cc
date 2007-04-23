@@ -34,59 +34,83 @@
 
 #include "flint_lock.h"
 
+#include "omassert.h"
+
 #ifdef __CYGWIN__
 #include <sys/cygwin.h>
 #endif
 
-bool
+FlintLock::reason
 FlintLock::lock(bool exclusive) {
-    (void)exclusive; // Ignore for now.
+    // Currently we only support exclusive locks.
+    (void)exclusive;
+    Assert(exclusive);
+#if defined __CYGWIN__ || defined __WIN32__
+    Assert(hFile == INVALID_HANDLE_VALUE);
 #ifdef __CYGWIN__
-    if (hFile != INVALID_HANDLE_VALUE) return false; // Already locked!?
     char fnm[MAX_PATH];
     cygwin_conv_to_win32_path(filename.c_str(), fnm);
+#else
+    const char *fnm = filename.c_str();
+#endif
     hFile = CreateFile(fnm, GENERIC_WRITE, FILE_SHARE_READ,
 		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    return (hFile != INVALID_HANDLE_VALUE);
-#elif defined __WIN32__
-    if (hFile != INVALID_HANDLE_VALUE) return false; // Already locked!?
-    hFile = CreateFile(filename.c_str(), GENERIC_WRITE, FILE_SHARE_READ,
-		       NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    return (hFile != INVALID_HANDLE_VALUE);
+    if (hFile != INVALID_HANDLE_VALUE) return SUCCESS;
+    if (GetLastError() == ERROR_ALREADY_EXISTS) return INUSE;
+    return UNKNOWN;
 #else
-    if (fd >= 0) return false; // Already locked!?
+    Assert(fd == -1);
     int lockfd = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
-    if (lockfd < 0) return false; // Couldn't open lockfile.
+    if (lockfd < 0) return UNKNOWN; // Couldn't open lockfile.
 
     int fds[2];
     if (socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, fds) < 0) {
 	// Couldn't create socketpair.
 	close(lockfd);
-	return false;
+	return UNKNOWN;
     }
 
     pid_t child = fork();
     if (child == 0) {
 	// Child process.
 	close(fds[0]);
-	struct flock fl;
-	fl.l_type = F_WRLCK;
-	fl.l_whence = SEEK_SET;
-	fl.l_start = 0;
-	fl.l_len = 1;
-	while (fcntl(lockfd, F_SETLK, &fl) == -1) {
-	    if (errno == EINTR) continue; /* Interrupted by a signal. */
-	    // Lock failed.
-	    // Just exit and the parent will realise.
-	    exit(0);
+
+	reason why = SUCCESS;
+	{
+	    struct flock fl;
+	    fl.l_type = F_WRLCK;
+	    fl.l_whence = SEEK_SET;
+	    fl.l_start = 0;
+	    fl.l_len = 1;
+	    while (fcntl(lockfd, F_SETLK, &fl) == -1) {
+		if (errno != EINTR) {
+		    // Lock failed - translate known errno values into a reason
+		    // code.
+		    if (errno == EACCES || errno == EAGAIN) {
+			why = INUSE;
+		    } else if (errno == ENOLCK) {
+			why = UNSUPPORTED;
+		    } else {
+			_exit(0);
+		    }
+		    break;
+		}
+	    }
 	}
-	// Signal OK to parent.
-	while (write(fds[1], "", 1) < 0) {
-	    // EINTR means a signal interrupted us, so retry.
-	    // Otherwise we're DOOMED!  The best we can do is just exit and
-	    // the parent process should get EOF and know the lock failed.
-	    if (errno != EINTR) exit(1);
+
+	{
+	    // Tell the parent if we got the lock, and if not, why not.
+	    char ch = static_cast<char>(why);
+	    while (write(fds[1], &ch, 1) < 0) {
+		// EINTR means a signal interrupted us, so retry.
+		// Otherwise we're DOOMED!  The best we can do is just exit
+		// and the parent process should get EOF and know the lock
+		// failed.
+		if (errno != EINTR) _exit(1);
+	    }
+	    if (why != SUCCESS) _exit(0);
 	}
+
 	//shutdown(fds[1], 1); // Disable further sends.
 	// Connect pipe to stdin.
 	dup2(fds[1], 0);
@@ -95,7 +119,7 @@ FlintLock::lock(bool exclusive) {
 	// Emulate cat ourselves (we try to avoid this to reduce VM overhead).
 	char ch;
 	while (read(0, &ch, 1) != 0) { /* Do nothing */ }
-	exit(0);
+	_exit(0);
     }
 
     close(lockfd);
@@ -104,7 +128,7 @@ FlintLock::lock(bool exclusive) {
 	// Couldn't fork.
 	close(fds[0]);
 	close(fds[1]);
-	return false;
+	return UNKNOWN;
     }
 
     // Parent process.
@@ -112,18 +136,23 @@ FlintLock::lock(bool exclusive) {
     while (true) {
 	char ch;
 	int n = read(fds[0], &ch, 1);
-	if (n == 1) break; // Got the lock.
+	if (n == 1) {
+	    reason why = static_cast<reason>(ch);
+	    if (why == SUCCESS) break; // Got the lock.
+	    close(fds[0]);
+	    return why;
+	}
 	if (n == 0 || errno != EINTR) {
 	    // EOF means the lock failed; we also treat unexpected errors from
 	    // read() the same way.
 	    close(fds[0]);
-	    return false;
+	    return UNKNOWN;
 	}
     }
     //shutdown(fds[0], 0); // Disable further receives.
     fd = fds[0];
     pid = child;
-    return true;
+    return SUCCESS;
 #endif
 }
 

@@ -313,8 +313,16 @@ void
 FlintDatabase::get_database_write_lock()
 {
     DEBUGCALL(DB, void, "FlintDatabase::get_database_write_lock", "");
-    if (!lock.lock(true)) {
-	throw Xapian::DatabaseLockError("Unable to acquire database write lock on " + db_dir);
+    FlintLock::reason why = lock.lock(true);
+    if (why != FlintLock::SUCCESS) {
+	string msg("Unable to acquire database write lock on ");
+	msg += db_dir;
+	if (why == FlintLock::INUSE) {
+	    msg += ": already locked";
+	} else if (why == FlintLock::UNSUPPORTED) {
+	    msg += ": locking probably not supported by this FS";
+	}
+	throw Xapian::DatabaseLockError(msg);
     }
 }
 
