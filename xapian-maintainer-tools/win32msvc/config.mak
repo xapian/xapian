@@ -94,7 +94,7 @@ SWIG_FLAGS= -Werror -noproxy
 # ------------end SWIG settings-------------
 
 # ------------ Misc external libraries we depend on -------------
-ZLIB_DIR=c:\src\zlib-1.2.3
+ZLIB_DIR=C:\Program Files\GnuWin32
 
 #--------------------------------------
 # Visual C++ Compiler and linker programs, and flags for these
@@ -105,7 +105,7 @@ LINK32=link.exe
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
  wsock32.lib Ws2_32.lib  odbccp32.lib /subsystem:console /debug /nologo \
- $(ZLIB_DIR)\zlib.lib
+ "$(ZLIB_DIR)\lib\zlib.lib"
  
 CPP=cl.exe
 RSC=rc.exe
@@ -129,7 +129,7 @@ CPPFLAGS_COMMON=/nologo /c /Zi /I.. /I..\include /I..\common /W3 /EHsc \
 /D "WIN32" /D "__WIN32__" /D "_WINDOWS" \
 /D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /D "_USE_32BIT_TIME_T" \
 /D_CRT_SECURE_NO_DEPRECATE \
-/I $(ZLIB_DIR)
+/I "$(ZLIB_DIR)\include"
 
 # The various parts of Xapian
 XAPIAN_LIBS = \

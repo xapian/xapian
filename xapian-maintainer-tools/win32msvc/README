@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2007-04-10
+2007-04-23
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -125,6 +125,11 @@ http://msdn.microsoft.com/vstudio/express/visualc/default.aspx
 In this case you'll also need the Platforms SDK:
 http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
 which contains headers, libs and NMAKE. Make sure once you have installed this that you create LIB and INCLUDE environment variables to point to the appropriate Platform SDK folders, and that the path to the SDK's BIN folder is in your PATH.
+
+- You will also need the ZLIB library. If you download and run the binary Windows installer from:
+http://sourceforge.net/project/showfiles.php?group_id=23617&package_id=16861
+(it will be called zlib-X.Y.Z.exe, we have successfully used zlib-1.2.3.exe), and use the default settings, the path
+to ZLIB will be the same as the default in config.mak (ZLIB_DIR).
 
 - SWIG can be useful for recompiling the bindings, but this is done by the Xapian
 core maintainers, so you shouldn't need to do this unless you are building from the development sources, in which 
