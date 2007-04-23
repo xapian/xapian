@@ -70,26 +70,66 @@ class TestRunner(object):
         """Function used to check for a particular expected value.
 
         """
+        if self._verbose > 2:
+            self._out.start_line()
+            self._out.write("Checking for %r: expecting %r ... " % (message, expected))
+            self._out.flush()
         if got != expected:
+            if self._verbose > 2:
+                self._out.write_colour(" #red#failed##")
+                self._out.write(": got %r\n" % got)
+                self._out.flush()
             raise TestFail("%s: got %r, expected %r" % (message, got, expected))
+        if self._verbose > 2:
+            self._out.write_colour(" #green#ok##\n")
+            self._out.flush()
 
     def expect_query(self, query, expected):
         """Check that the description of a query is as expected.
 
         """
         desc = query.get_description()
+        if self._verbose > 2:
+            self._out.start_line()
+            self._out.write("Checking query.get_description(): expecting %r ... " % expected)
+            self._out.flush()
         if desc != expected:
+            if self._verbose > 2:
+                self._out.write_colour(" #red#failed##")
+                self._out.write(": got %r\n" % desc)
+                self._out.flush()
             raise TestFail("Unexpected query.get_description(): got %r, expected %r" % (desc, expected))
+        if self._verbose > 2:
+            self._out.write_colour(" #green#ok##\n")
+            self._out.flush()
 
     def expect_exception(self, expectedclass, expectedmsg, callable, *args):
+        if self._verbose > 2:
+            self._out.start_line()
+            self._out.write("Checking for exception: %s(%r) ... " % (str(expectedclass), expectedmsg))
+            self._out.flush()
         try:
             callable(*args)
+            if self._verbose > 2:
+                self._out.write_colour(" #red#failed##: no exception occurred\n")
+                self._out.flush()
             raise TestFail("Expected %s(%r) exception" % (str(expectedclass), expectedmsg))
         except expectedclass, e:
             if str(e) != expectedmsg:
+                if self._verbose > 2:
+                    self._out.write_colour(" #red#failed##")
+                    self._out.write(": exception string not as expected: got '%s'\n" % str(e))
+                    self._out.flush()
                 raise TestFail("Exception string not as expected: got '%s', expected '%s'" % (str(e), expectedmsg))
             if e.__class__ != expectedclass:
-                raise TestFail("Didn't get right exception class: got '%s', expected subclass '%s'" % (str(e.__class__), str(expectedclass)))
+                if self._verbose > 2:
+                    self._out.write_colour(" #red#failed##")
+                    self._out.write(": didn't get right exception class: got '%s'\n" % str(e.__class__))
+                    self._out.flush()
+                raise TestFail("Didn't get right exception class: got '%s', expected '%s'" % (str(e.__class__), str(expectedclass)))
+        if self._verbose > 2:
+            self._out.write_colour(" #green#ok##\n")
+            self._out.flush()
 
     def report_failure(self, name, msg, show_traceback=True):
         "Report a test failure, with some useful context."
