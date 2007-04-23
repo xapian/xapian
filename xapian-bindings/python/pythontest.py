@@ -402,6 +402,16 @@ def test_allterms_iter():
         freqs.append(termitem.termfreq)
         expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
 
+    # Test legacy sequence API.
+    i = 0
+    for termitem in db:
+        termitem = termitem[:]
+        expect(termitem[0], terms[i])
+        expect(termitem[1], 0)
+        expect(termitem[2], freqs[i])
+        expect([pos for pos in termitem[3]], [])
+        i += 1
+
     # Make a list of the items (so we can test if they're still valid
     # once the iterator has moved on).
     termitems = []
@@ -437,6 +447,16 @@ def test_termlist_iter():
     expect(wdfs, [1, 2, 1, 1])
     expect(freqs, [5, 3, 4, 4])
     expect(positers, [[2], [], [3], [1]])
+
+    # Test legacy sequence API.
+    i = 0
+    for termitem in db.termlist(3):
+        termitem = termitem[:]
+        expect(termitem[0], terms[i])
+        expect(termitem[1], wdfs[i])
+        expect(termitem[2], freqs[i])
+        expect([pos for pos in termitem[3]], positers[i])
+        i += 1
 
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
@@ -487,6 +507,16 @@ def test_dbdocument_iter():
     expect(wdfs, [1, 2, 1, 1])
     expect(freqs, [5, 3, 4, 4])
     expect(positers, [[2], [], [3], [1]])
+
+    # Test legacy sequence API.
+    i = 0
+    for termitem in doc:
+        termitem = termitem[:]
+        expect(termitem[0], terms[i])
+        expect(termitem[1], wdfs[i])
+        expect(termitem[2], freqs[i])
+        expect([pos for pos in termitem[3]], positers[i])
+        i += 1
 
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
@@ -541,6 +571,16 @@ def test_newdocument_iter():
     expect(freqs, [0, 0, 0, 0])
     expect(positers, [[2], [], [3], [1]])
 
+    # Test legacy sequence API.
+    i = 0
+    for termitem in doc:
+        termitem = termitem[:]
+        expect(termitem[0], terms[i])
+        expect(termitem[1], wdfs[i])
+        expect(termitem[2], freqs[i])
+        expect([pos for pos in termitem[3]], positers[i])
+        i += 1
+
     # Make a list of the terms (so we can test if they're still valid
     # once the iterator has moved on).
     termitems = []
@@ -559,13 +599,69 @@ def test_newdocument_iter():
     for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
-                         getattr, termitem, 'termfreq')
+                         getattr, termitems[i], 'termfreq')
 
-    expect(len(termitems), len(freqs))
+    expect(len(termitems), len(positers))
     for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',
-                         getattr, termitem, 'positer')
+                         getattr, termitems[i], 'positer')
+
+def test_postinglist_iter():
+    """Test postinglist iterator on Database.
+
+    """
+    db = setup_database()
+
+    # Make lists of the item contents
+    docids = []
+    doclengths = []
+    wdfs = []
+    positers = []
+    for posting in db.postlist('it'):
+        docids.append(posting.docid)
+        doclengths.append(posting.doclength)
+        wdfs.append(posting.wdf)
+        positers.append([pos for pos in posting.positer])
+
+    expect(docids, [1, 2, 3, 4, 5])
+    expect(doclengths, [3, 3, 5, 8, 19])
+    expect(wdfs, [1, 1, 1, 1, 8])
+    expect(positers, [[1], [2], [2], [2], [2, 7]])
+
+    # Test legacy sequence API.
+    i = 0
+    for posting in db.postlist('it'):
+        posting = posting[:]
+        expect(posting[0], docids[i])
+        expect(posting[1], doclengths[i])
+        expect(posting[2], wdfs[i])
+        expect([pos for pos in posting[3]], positers[i])
+        i += 1
+
+    # Make a list of the terms (so we can test if they're still valid
+    # once the iterator has moved on).
+    postings = []
+    for posting in db.postlist('it'):
+        postings.append(posting)
+
+    expect(len(postings), len(docids))
+    for i in xrange(len(postings)):
+        expect(postings[i].docid, docids[i])
+
+    expect(len(postings), len(doclengths))
+    for i in xrange(len(postings)):
+        expect(postings[i].doclength, doclengths[i])
+
+    expect(len(postings), len(wdfs))
+    for i in xrange(len(postings)):
+        expect(postings[i].wdf, wdfs[i])
+
+    expect(len(postings), len(positers))
+    for i in xrange(len(postings)):
+        expect_exception(xapian.InvalidOperationError,
+                         'Iterator has moved, and does not support random access',
+                         getattr, postings[i], 'positer')
 
 def test_position_iter():
     """Test position iterator for a document in a database.

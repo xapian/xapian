@@ -274,6 +274,16 @@ ESet.__len__ = ESet.size
 class TermListItem(_SequenceMixIn):
     """An item returned from iteration of a term list.
 
+    The item supports access to the following attributes and properties:
+
+     - `term`: The term corresponding to this TermListItem.
+     - `wdf`: The within document frequency of this term.
+     - `termfreq`: The number of documents in the collection which are indexed
+       by the term
+     - `positer`: An iterator over the positions which the term appears at in
+       the document.  This is only available until the iterator which returned
+       this item next moves.
+
     """
     __slots__ = ('_iter', 'term', '_wdf', '_termfreq')
 
@@ -320,6 +330,9 @@ class TermListItem(_SequenceMixIn):
     def _get_termfreq(self):
         """Get the term frequency.
 
+        This is the number of documents in the collection which are indexed by
+        the term.
+
         """
         if self._termfreq is None:
             if self._iter._has_termfreq == TermIter.INVALID:
@@ -342,6 +355,10 @@ class TermListItem(_SequenceMixIn):
         The iterator will return integers representing the positions that the
         term occurs at.
 
+        This will raise a InvalidOperationError exception if the iterator this
+        item came from doesn't support position lists, or if the iterator has
+        moved on since the item was returned from it.
+
         """
         if self._iter._has_positions == TermIter.INVALID:
             raise InvalidOperationError("Iterator does not support position lists")
@@ -354,8 +371,12 @@ class TermListItem(_SequenceMixIn):
     positer = property(_get_positer, doc=
     """A position iterator for the current term (if meaningful).
 
-    This will raise a InvalidOperationError exception if the iterator
-    this item came from doesn't support position lists.
+    The iterator will return integers representing the positions that the term
+    occurs at.
+
+    This will raise a InvalidOperationError exception if the iterator this item
+    came from doesn't support position lists, or if the iterator has moved on
+    since the item was returned from it.
 
     """)
 
@@ -382,7 +403,14 @@ class TermIter(object):
         self._has_positions = has_positions
         assert(has_positions != TermIter.EAGER) # Can't do eager access to position lists
         self._lastterm = None # Used to test if the iterator has moved
-        self._moved = True # True if we've moved onto the next item.
+
+
+        # _moved is True if we've moved onto the next item.  This is needed so
+        # that the iterator doesn't have to move on until just before next() is
+        # called: since the iterator starts by pointing at a valid item, we
+        # can't just call self._iter.next() unconditionally at the start of our
+        # next() method.
+        self._moved = True
 
     def __iter__(self):
         return self
@@ -396,11 +424,9 @@ class TermIter(object):
             self._lastterm = None
             raise StopIteration
         else:
-            newterm = self._iter.get_term()
-            r = TermListItem(self, newterm)
-            self._lastterm = newterm
+            self._lastterm = self._iter.get_term()
             self._moved = False
-            return r
+            return TermListItem(self, self._lastterm)
 
     def skip_to(self, term):
         """Skip the iterator forward.
@@ -412,6 +438,7 @@ class TermIter(object):
 
         """
         self._iter.skip_to(term)
+        self._moved = True
 
         if self._iter == self._end:
             self._lastterm = None
@@ -424,7 +451,6 @@ class TermIter(object):
         newterm = self._iter.get_term()
         if newterm != self._lastterm:
             self._lastterm = newterm
-        self._moved = True
 
 # Modify Enquire to add a "matching_terms()" method.
 def _enquire_gen_iter(self, which):
@@ -558,32 +584,127 @@ QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 # Support for iteration of posting lists #
 ##########################################
 
-class PostingIter(object):
-    HAS_NOTHING = 0
-    HAS_POSITIONS = 1
+class PostingItem(_SequenceMixIn):
+    """An item returned from iteration of a posting list.
 
-    def __init__(self, start, end, has=HAS_NOTHING):
-        self.iter = start
-        self.end = end
-        self.has = has
+    The item supports access to the following attributes and properties:
+
+     - `docid`: The document ID corresponding to this PostingItem.
+     - `doclength`: The length of the document corresponding to this
+       PostingItem.
+     - `wdf`: The within document frequency of the term which the posting list
+       is for in the document corresponding to this PostingItem.
+     - `positer`: An iterator over the positions which the term corresponing to
+       this posting list occurs at in the document corresponding to this
+       PostingItem.  This is only available until the iterator which returned
+       this item next moves.
+
+    """
+    __slots__ = ('_iter', 'docid', 'doclength', 'wdf',)
+
+    def __init__(self, iter):
+        self._iter = iter
+        self.docid = iter._iter.get_docid()
+        self.doclength = iter._iter.get_doclength()
+        self.wdf = iter._iter.get_wdf()
+
+        # Support for sequence API
+        sequence = ['docid', 'doclength', 'wdf', 'positer']
+        if not iter._has_positions:
+            sequence[3] = PositionIter()
+        _SequenceMixIn.__init__(self, *sequence)
+
+    def _get_positer(self):
+        """Get a position list iterator.
+
+        The iterator will return integers representing the positions that the
+        term occurs at in the document corresponding to this PostingItem.
+
+        This will raise a InvalidOperationError exception if the iterator this
+        item came from doesn't support position lists, or if the iterator has
+        moved on since the item was returned from it.
+
+        """
+        if not self._iter._has_positions:
+            raise InvalidOperationError("Iterator does not support position lists")
+        if self._iter._iter == self._iter._end or \
+           self.docid != self._iter._iter.get_docid():
+            raise InvalidOperationError("Iterator has moved, and does not support random access")
+        return PositionIter(self._iter._iter.positionlist_begin(),
+                            self._iter._iter.positionlist_end())
+    positer = property(_get_positer, doc=
+    """A position iterator for the current posting (if meaningful).
+
+    The iterator will return integers representing the positions that the term
+    occurs at.
+
+    This will raise a InvalidOperationError exception if the iterator this item
+    came from doesn't support position lists, or if the iterator has moved on
+    since the item was returned from it.
+
+    """)
+
+
+class PostingIter(object):
+    """An iterator over a posting list.
+
+    The iterator will return PostingItem objects, which will be evaluated
+    lazily where appropriate.
+
+    """
+    __slots__ = ('_iter', '_end', '_has_positions', '_moved')
+
+    def __init__(self, start, end, has_positions=False):
+        self._iter = start
+        self._end = end
+        self._has_positions = has_positions
+
+        # _moved is True if we've moved onto the next item.  This is needed so
+        # that the iterator doesn't have to move on until just before next() is
+        # called: since the iterator starts by pointing at a valid item, we
+        # can't just call self._iter.next() unconditionally at the start of our
+        # next() method.
+        self._moved = True
 
     def __iter__(self):
         return self
 
     def next(self):
-        if self.iter==self.end:
+        if not self._moved:
+            self._iter.next()
+            self._moved = True
+
+        if self._iter == self._end:
             raise StopIteration
         else:
-            if self.has & PostingIter.HAS_POSITIONS:
-                r = [self.iter.get_docid(), self.iter.get_doclength(), self.iter.get_wdf(), PositionIter(self.iter.positionlist_begin(), self.iter.positionlist_end())]
-            else:
-                r = [self.iter.get_docid(), self.iter.get_doclength(), self.iter.get_wdf(), PositionIter()]
-            self.iter.next()
-            return r
+            self._moved = False
+            return PostingItem(self)
+
+    def skip_to(self, docid):
+        """Skip the iterator forward.
+
+        The iterator is advanced to the first document with a document ID
+        which is greater than or equal to the supplied document ID.
+
+        If there are no such items, this will raise StopIteration.
+
+        """
+        self._iter.skip_to(docid)
+        self._moved = True
+        if self._iter == self._end:
+            raise StopIteration
 
 def _database_gen_postlist_iter(self, tname):
+    """Get an iterator over the postings which are indexed by a given term.
+
+    If `tname` is empty, an iterator over all the documents will be returned
+    (this will contain one entry for each document, will always return a wdf of
+    1, and will not allow access to a position iterator).
+
+    """
     if len(tname) != 0:
-        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname), PostingIter.HAS_POSITIONS)
+        return PostingIter(self.postlist_begin(tname), self.postlist_end(tname),
+                           has_positions=True)
     else:
         return PostingIter(self.postlist_begin(tname), self.postlist_end(tname))
 Database.postlist = _database_gen_postlist_iter
