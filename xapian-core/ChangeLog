@@ -1,3 +1,7 @@
+Mon Apr 23 16:08:53 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/quartztest.cc: Resolve FIXME about MapTermList.
+
 Mon Apr 23 16:06:38 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/valuerangeproc.cc,backends/flint/flint_check.cc,

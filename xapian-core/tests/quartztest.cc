@@ -256,9 +256,8 @@ static bool test_adddoc2()
 		TEST_NOT_EQUAL(j, document_out.termlist_end());
 		TEST_EQUAL(*i, *j);
 		TEST_EQUAL(i.get_wdf(), j.get_wdf());
-		// FIXME: MapTermList::get_termfreq asserts in a debug build
-		//TEST_NOT_EQUAL(i.get_termfreq(), j.get_termfreq());
-		//TEST_EQUAL(0, i.get_termfreq());
+		TEST_EXCEPTION(Xapian::InvalidOperationError,
+			       (void)i.get_termfreq());
 		TEST_NOT_EQUAL(0, j.get_termfreq());
 		if (*i == "foobar") {
 		    // termfreq of foobar is 2
