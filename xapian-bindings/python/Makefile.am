@@ -65,7 +65,7 @@ modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: modern/xapian_wrap.
 modern/xapian_wrap.stamp: $(SWIG_sources) util.i except.i doccomments.i extra.i extracomments.i
 	test -d modern || mkdir modern
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
-	    -python -shadow -modern -O -outdir modern \
+	    -python -threads -shadow -modern -O -outdir modern \
 	    -o modern/xapian_wrap.cc $(SWIG_mainsource)
 	$(PERL) -pe 's/class Error:/class Error(Exception):/' modern/xapian.py > modern/xapian_py.tmp
 	mv modern/xapian_py.tmp modern/xapian.py
