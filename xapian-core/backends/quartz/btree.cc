@@ -1264,31 +1264,38 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
     int ch = 'X'; /* will be 'A' or 'B' */
 
     {
+	const size_t BTREE_BASES = 2;
 	string err_msg;
-	vector<char> basenames;
-	basenames.push_back('A');
-	basenames.push_back('B');
+	static const char basenames[BTREE_BASES] = { 'A', 'B' };
 
-	Btree_base bases[basenames.size()];
-	bool base_ok[basenames.size()];
+	Btree_base bases[BTREE_BASES];
+	bool base_ok[BTREE_BASES];
 
-	for (size_t i = 0; i < basenames.size(); ++i) {
-	    base_ok[i] = bases[i].read(name, basenames[i], err_msg);
+	both_bases = true;
+	bool valid_base = false;
+	{
+	    for (size_t i = 0; i < BTREE_BASES; ++i) {
+		bool ok = bases[i].read(name, basenames[i], err_msg);
+		base_ok[i] = ok;
+		if (ok) {
+		    valid_base = true;
+		} else {
+		    both_bases = false;
+		}
+	    }
 	}
 
-	// FIXME: assumption that there are only two bases
-	if (!base_ok[0] && !base_ok[1]) {
+	if (!valid_base) {
 	    string message = "Error opening table `";
 	    message += name;
 	    message += "':\n";
 	    message += err_msg;
 	    throw Xapian::DatabaseOpeningError(message);
 	}
-	both_bases = (base_ok[0] && base_ok[1]);
 
 	if (revision_supplied) {
 	    bool found_revision = false;
-	    for (size_t i = 0; i < basenames.size(); ++i) {
+	    for (size_t i = 0; i < BTREE_BASES; ++i) {
 		if (base_ok[i] && bases[i].get_revision() == revision_) {
 		    ch = basenames[i];
 		    found_revision = true;
@@ -1304,7 +1311,7 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	    }
 	} else {
 	    quartz_revision_number_t highest_revision = 0;
-	    for (size_t i = 0; i < basenames.size(); ++i) {
+	    for (size_t i = 0; i < BTREE_BASES; ++i) {
 		if (base_ok[i] && bases[i].get_revision() >= highest_revision) {
 		    ch = basenames[i];
 		    highest_revision = bases[i].get_revision();
@@ -1315,7 +1322,7 @@ Btree::basic_open(bool revision_supplied, quartz_revision_number_t revision_)
 	Btree_base *basep = 0;
 	Btree_base *other_base = 0;
 
-	for (size_t i = 0; i < basenames.size(); ++i) {
+	for (size_t i = 0; i < BTREE_BASES; ++i) {
 	    DEBUGLINE(UNKNOWN, "Checking (ch == " << ch << ") against "
 		      "basenames[" << i << "] == " << basenames[i]);
 	    DEBUGLINE(UNKNOWN, "bases[" << i << "].get_revision() == " <<
