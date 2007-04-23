@@ -76,7 +76,7 @@ class MapTermList : public TermList {
 
 	// Get num of docs indexed by term
 	Xapian::doccount get_termfreq() const {
-	    throw Xapian::InvalidOperationError("Can't get term frequency list from a document termlist which is not associated with a database.");
+	    throw Xapian::InvalidOperationError("Can't get term frequency from a document termlist which is not associated with a database.");
 	}
 
 	Xapian::PositionIterator positionlist_begin() const {
