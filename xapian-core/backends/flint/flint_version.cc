@@ -1,7 +1,7 @@
 /** @file flint_version.cc
  * @brief FlintVersion class
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,8 @@
 using std::string;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
-#define FLINT_VERSION 200611200u
+#define FLINT_VERSION 200704230u
+// 200704230 Use zlib compression of tags for record and termlist tables
 // 200611200 Fixed occasional, architecture-dependent surplus bits in
 //	     interpolative coding; "flicklock" -> "flintlock".
 // 200506110 Fixed interpolative coding to work(!)

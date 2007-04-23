@@ -1,3 +1,8 @@
+Mon Apr 23 01:44:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_version.cc: Update the flint format version
+	  since older flint versions can't read compressed tags.
+
 Mon Apr 23 01:25:25 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Probe for zlib.h and -lz.
