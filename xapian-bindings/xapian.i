@@ -32,9 +32,8 @@
 
 using namespace std;
 
-// If xapian-bindings configure detects that a backend was disabled (manually
-// or automatically) we include a stub definition here so the bindings can
-// still be built.
+// If a backend has been disabled in xapian-core (manually or automatically) we
+// include a stub definition here so the bindings can still be built.
 namespace Xapian {
 #ifndef XAPIAN_HAS_QUARTZ_BACKEND
     namespace Quartz {

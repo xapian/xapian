@@ -1,3 +1,7 @@
+Mon Apr 23 20:48:43 BST 2007  Olly Betts <olly@survex.com>
+
+	* xapian.i: Correct out-of-date comment.
+
 Mon Apr 23 17:20:09 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/extra.i: Change code which sets __all__ to non-functional
@@ -154,7 +158,7 @@ Fri Apr 20 00:16:17 BST 2007  Olly Betts <olly@survex.com>
 Thu Apr 19 22:37:05 BST 2007  Olly Betts <olly@survex.com>
 
 	* java-swig/util.i: Rename get_description() methods to toString()
-	  in Java.      
+	  in Java.
 
 Thu Apr 19 22:34:59 BST 2007  Olly Betts <olly@survex.com>
 
