@@ -1,4 +1,4 @@
-/* safeunistd.h: #include <unistd.h>, but enabling large file support.
+/* safeunistd.h: <unistd.h>, but with compat. and large file support for MSVC.
  *
  * Copyright (C) 2007 Olly Betts
  *
@@ -49,11 +49,12 @@
 # define lseek(FD, OFF, WHENCE) _lseeki64(FD, OFF, WHENCE)
 # define off_t __int64
 
-// MSVC needs safewindows.h to get SSIZE_T defined.  process.h is needed for 
-// getpid()
+// MSVC needs safewindows.h to get SSIZE_T defined.
 # include "safewindows.h"
 # define ssize_t SSIZE_T
-#include <process.h>
+
+// process.h is needed for getpid().
+# include <process.h>
 
 #endif
 
