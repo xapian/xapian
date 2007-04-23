@@ -818,10 +818,12 @@ Document.values = _document_gen_values_iter
 
 # Set the list of names which should be public.
 # Note that this needs to happen at the end of xapian.py.
-__all__ = tuple((item for item in dir()
-                 if item[0] != '_' and
-                    not item.endswith('_swigregister') and
-                    not item.endswith('Iterator')))
+__all__ = []
+for item in dir():
+    if item.startswith('_') or item.endswith('_swigregister') or item.endswith('Iterator'):
+        continue
+    __all__.append(item)
+__all__ = tuple(__all__)
 
 %}
 
