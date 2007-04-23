@@ -1,3 +1,11 @@
+Mon Apr 23 15:38:00 BST 2007  Olly Betts <olly@survex.com>
+
+	* portability/mkdtemp.cc: config.h should always be included first and
+	  with angle brackets.  Use safeerrno.h not errno.h.  No special
+	  headers are required here for __CYGWIN__, and safesysstat.h provides
+	  a two argument wrapper for mkdir, so we don't need any
+	  __WIN32__-specific magic either.
+
 Mon Apr 23 12:14:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* portability/mkdtemp.cc: Patch from Charlie Hull to fix windows

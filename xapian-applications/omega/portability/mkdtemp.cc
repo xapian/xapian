@@ -30,20 +30,14 @@
  * SUCH DAMAGE.
  */
 
+#include <config.h>
+
 #include <sys/types.h>
 
-#include "config.h"
 #include "safesysstat.h"
 #include "safeunistd.h"
 
-#include <errno.h>
-
-#ifdef __CYGWIN__
-# include "safewindows.h"
-# include <sys/cygwin.h>
-#elif defined __WIN32__
-# include "safewindows.h"
-#endif
+#include "safeerrno.h"
 
 static int
 do_mkdtemp(char *path)
@@ -111,13 +105,8 @@ do_mkdtemp(char *path)
 	}
 
 	for (;;) {
-#ifdef __WIN32__
-		if (mkdir(path) >= 0)
-			return (1);
-#else
 		if (mkdir(path, 0700) >= 0)
 			return (1);
-#endif
 		if (errno != EEXIST)
 			return (0);
 
