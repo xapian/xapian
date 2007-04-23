@@ -24,6 +24,7 @@
 #include "utils.h"
 
 #include <stdio.h> // for sprintf/snprintf
+#include <stdlib.h>
 
 #include <string>
 
