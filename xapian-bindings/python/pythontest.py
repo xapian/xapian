@@ -597,26 +597,25 @@ def test_newdocument_iter():
     # Make lists of the item contents
     terms = []
     wdfs = []
-    freqs = []
     positers = []
     for termitem in doc:
         terms.append(termitem.term)
         wdfs.append(termitem.wdf)
-        freqs.append(termitem.termfreq)
+        expect_exception(xapian.InvalidOperationError,
+                         "Can't get term frequency from a document termlist "
+                         "which is not associated with a database.",
+                         getattr, termitem, 'termfreq')
         positers.append([pos for pos in termitem.positer])
 
     expect(terms, ['it', 'two', 'warm', 'was'])
     expect(wdfs, [1, 2, 1, 1])
-    expect(freqs, [0, 0, 0, 0])
     expect(positers, [[2], [], [3], [1]])
 
     # Test legacy sequence API.
     i = 0
     for termitem in doc:
-        termitem = termitem[:]
         expect(termitem[0], terms[i])
         expect(termitem[1], wdfs[i])
-        expect(termitem[2], freqs[i])
         expect([pos for pos in termitem[3]], positers[i])
         i += 1
 
@@ -634,7 +633,6 @@ def test_newdocument_iter():
     for i in xrange(len(termitems)):
         expect(termitems[i].wdf, wdfs[i])
 
-    expect(len(termitems), len(freqs))
     for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
                          'Iterator has moved, and does not support random access',

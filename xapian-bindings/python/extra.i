@@ -536,7 +536,8 @@ def _document_gen_termlist_iter(self):
 
     Note that term frequency information is only meaningful for a document
     retrieved from a database.  If term frequency information is requested for
-    a document which was freshly created, it will always return the value zero.
+    a document which was freshly created, an InvalidOperationError will be
+    raised.
 
     """
     # Note: document termlist iterators may be implemented entirely in-memory
