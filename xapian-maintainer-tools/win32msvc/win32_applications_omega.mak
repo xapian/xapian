@@ -31,11 +31,9 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 OUTEXEDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 
 PROGRAMS =   "$(OUTEXEDIR)\scriptindex.exe" "$(OUTEXEDIR)\omindex.exe" "$(OUTEXEDIR)\omega.exe" \
-"$(OUTEXEDIR)\md5test.exe" "$(OUTEXEDIR)\htmlparsetest.exe" "$(OUTEXEDIR)\utf8test.exe" 
+"$(OUTEXEDIR)\md5test.exe" "$(OUTEXEDIR)\htmlparsetest.exe"
 
 ALL : $(PROGRAMS) 
-	
-
 
 OMEGA_OBJS= \
 	"$(OUTDIR)\omega.obj" \
@@ -51,7 +49,6 @@ OMEGA_OBJS= \
  	"$(OUTDIR)\indextext.obj" \
  	"$(OUTDIR)\loadfile.obj" \
  	"$(OUTDIR)\utf8convert.obj" \
- 	"$(OUTDIR)\utf8itor.obj" \
  	"$(OUTDIR)\datematchdecider.obj" 
   
 
@@ -60,7 +57,6 @@ OMINDEX_OBJS= \
 	"$(OUTDIR)\myhtmlparse.obj" \
 	"$(OUTDIR)\htmlparse.obj" \
 	"$(OUTDIR)\indextext.obj" \
-	"$(OUTDIR)\getopt.obj" \
 	"$(OUTDIR)\commonhelp.obj" \
 	"$(OUTDIR)\utils.obj" \
 	"$(OUTDIR)\hashterm.obj" \
@@ -71,8 +67,9 @@ OMINDEX_OBJS= \
  	"$(OUTDIR)\xmlparse.obj" \
  	"$(OUTDIR)\metaxmlparse.obj" \
  	"$(OUTDIR)\utf8convert.obj" \
- 	"$(OUTDIR)\utf8itor.obj" \
- 	"$(OUTDIR)\tclUniData.obj" 
+	"$(OUTDIR)\mkdtemp.obj" \
+	"$(OUTDIR)\sample.obj"
+
   
 
 SCRIPTINDEX_OBJS= \
@@ -80,29 +77,23 @@ SCRIPTINDEX_OBJS= \
 	"$(OUTDIR)\myhtmlparse.obj" \
 	"$(OUTDIR)\htmlparse.obj" \
 	"$(OUTDIR)\indextext.obj" \
-	"$(OUTDIR)\getopt.obj" \
 	"$(OUTDIR)\commonhelp.obj" \
 	"$(OUTDIR)\utils.obj" \
 	"$(OUTDIR)\hashterm.obj" \
 	"$(OUTDIR)\loadfile.obj" \
 	"$(OUTDIR)\utf8convert.obj" \
- 	"$(OUTDIR)\utf8itor.obj" 
+	"$(OUTDIR)\utf8truncate.obj" 
 	
 HTMLPARSETEST_OBJS= \
  	"$(OUTDIR)\htmlparsetest.obj" \
 	"$(OUTDIR)\myhtmlparse.obj" \
  	"$(OUTDIR)\htmlparse.obj" \
-	"$(OUTDIR)\utf8convert.obj" \
- 	"$(OUTDIR)\utf8itor.obj" 
+	"$(OUTDIR)\utf8convert.obj" 
 
 MD5TEST_OBJS= \
  	"$(OUTDIR)\md5.obj" \
  	"$(OUTDIR)\md5wrap.obj" \
  	"$(OUTDIR)\md5test.obj" 
-	
-UTF8TEST_OBJS= \
- 	"$(OUTDIR)\utf8test.obj" \
- 	"$(OUTDIR)\utf8itor.obj"
 	
 
 CLEAN :
@@ -112,14 +103,12 @@ CLEAN :
 	-@erase $(SCRIPTINDEX_OBJS)
 	-@erase $(HTMLPARSETEST_OBJS)
 	-@erase $(MD5TEST_OBJS)
-	-@erase $(UTF8TEST_OBJS)
 
 #"$(OUTDIR)" :
 #    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /I "." /I "$(XAPIAN_CORE_REL_OMEGA)" /I "$(XAPIAN_CORE_REL_OMEGA)\common" /I "$(XAPIAN_CORE_REL_OMEGA)\include" /I "$(XAPIAN_CORE_REL_OMEGA)\win32" \
- /DCONFIGFILE_SYSTEM=NULL \
+ /I "." /I "common" /I "$(XAPIAN_CORE_REL_OMEGA)\include" /I "$(XAPIAN_CORE_REL_OMEGA)\win32" \
  /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME) 
 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
@@ -161,12 +150,6 @@ PROGRAM_DEPENDENCIES =
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\md5test.exe" $(DEF_FLAGS) $(MD5TEST_OBJS)
-<<
-
-"$(OUTEXEDIR)\utf8test.exe" : "$(OUTEXEDIR)" $(DEF_FILE) $(UTF8TEST_OBJS)
-                      $(PROGRAM_DEPENDENCIES)
-    $(LINK32) @<<
-  $(ALL_LINK32_FLAGS) /out:"$(OUTEXEDIR)\utf8test.exe" $(DEF_FLAGS) $(UTF8TEST_OBJS)
 <<
 
 "$(INTDIR)\dirent.obj" : "$(XAPIAN_CORE_REL_OMEGA)\win32\dirent.c"
@@ -285,17 +268,12 @@ PROGRAM_DEPENDENCIES =
    $(CPP_PROJ) $**
 <<
 
-"$(INTDIR)\utf8itor.obj" : ".\utf8itor.cc"
+"$(INTDIR)\utf8truncate.obj" : ".\utf8truncate.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
 "$(INTDIR)\utf8convert.obj" : ".\utf8convert.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\tclUniData.obj" : ".\tclUniData.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
@@ -322,6 +300,16 @@ PROGRAM_DEPENDENCIES =
 
 
 "$(INTDIR)\utf8test.obj" : ".\utf8test.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\mkdtemp.obj" : ".\portability\mkdtemp.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\sample.obj" : ".\sample.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<

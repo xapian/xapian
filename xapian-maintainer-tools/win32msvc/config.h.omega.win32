@@ -80,6 +80,14 @@
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
+/* Define to `int' if <sys/types.h> does not define. */
+#define pid_t DWORD
+
+/* Define to `int' if <sys/types.h> does not define. */
+#define mode_t int
+
+/* Must define this here, we can't do it as a build parameter as quotes are stripped */
+#define CONFIGFILE_SYSTEM "omega.conf"
 
 /* Disable stupid MSVC "performance" warning for converting int to bool. */
 #ifdef _MSC_VER
