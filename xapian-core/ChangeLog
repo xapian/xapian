@@ -1,3 +1,8 @@
+Mon Apr 23 16:32:07 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/: svn:ignore deprecation.html. svn:ignore apidoc.pdf and
+	  sourcedoc.pdf rather than *.pdf.
+
 Mon Apr 23 16:08:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/quartztest.cc: Resolve FIXME about MapTermList.
