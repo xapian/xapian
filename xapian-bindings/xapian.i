@@ -482,6 +482,9 @@ class Enquire {
     void set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 					  bool ascending = true);
 
+    static const int INCLUDE_QUERY_TERMS = 1;
+    static const int USE_EXACT_TERMFREQ = 2;
+
 #ifdef XAPIAN_SWIG_DIRECTORS
     MSet get_mset(doccount first,
 	    doccount maxitems,

@@ -1,3 +1,8 @@
+Mon Apr 23 23:10:41 BST 2007  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py,xapian.i: Wrap Enquire::INCLUDE_QUERY_TERMS
+	  and Enquire::USE_EXACT_TERMFREQ.
+
 Mon Apr 23 20:48:43 BST 2007  Olly Betts <olly@survex.com>
 
 	* xapian.i: Correct out-of-date comment.

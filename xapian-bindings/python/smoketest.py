@@ -1,7 +1,7 @@
 # Simple test to ensure that we can load the xapian module and exercise basic
 # functionality successfully.
 #
-# Copyright (C) 2004,2005,2006 Olly Betts
+# Copyright (C) 2004,2005,2006,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -187,7 +187,7 @@ def test_all():
     enquire = xapian.Enquire(db)
     rset = xapian.RSet()
     rset.add_document(1)
-    eset = enquire.get_eset(10, rset, 0, 1.0, testexpanddecider())
+    eset = enquire.get_eset(10, rset, xapian.Enquire.USE_EXACT_TERMFREQ, 1.0, testexpanddecider())
     eset_terms = [term[xapian.ESET_TNAME] for term in eset.items]
     expect(len(eset_terms), eset.size(), "Unexpected number of terms returned by expand")
     if filter(lambda t: t.startswith('a'), eset_terms):
