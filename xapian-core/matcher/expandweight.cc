@@ -111,7 +111,7 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
 	    // termfreq must be at least rtermfreq since there are at least
 	    // rtermfreq documents indexed by this term.  And it can't be
 	    // more than (dbsize - rsize + rtermfreq) since the number
-	    // of releveant documents not indexed by this term can't be
+	    // of relevant documents not indexed by this term can't be
 	    // more than the number of documents not indexed by this term.
 	    if (termfreq < rtermfreq) {
 		termfreq = rtermfreq;
