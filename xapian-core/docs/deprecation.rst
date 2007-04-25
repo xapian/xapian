@@ -21,9 +21,9 @@ we use to deprecate old pieces of the API, lists parts of the API which are
 currently marked as deprecated, and also describes parts of the API which have
 been deprecated for some time, and are now removed from the Xapian library.
 
-It is possible for functions, methods, constants or even whole classes to be
-deprecated, but to save words this document will often use the word "function"
-to refer to any of these types of interface items.
+It is possible for functions, methods, constants, types or even whole classes
+to be deprecated, but to save words this document will often use the term
+"features" to refer collectively to any of these types of interface items.
 
 
 Deprecation Procedure
@@ -36,12 +36,12 @@ At any particular point, some parts of the C++ API will be marked as
 "deprecated".  This is indicated with the ``XAPIAN_DEPRECATED`` macro, which
 will cause compilers with appropriate support (such as GCC 3.1 or later, and
 MSVC 7.0 or later) to emit warning messages about the use of deprecated
-functions at compile time.
+features at compile time.
 
-If a function is marked with one of these markers, you should avoid using it in
+If a feature is marked with one of these markers, you should avoid using it in
 new code, and should migrate your code to use a replacement when possible.  The
-code comments for the function, or the list of deprecated functions at the end
-of this file, will describe possible alternatives to the deprecated function.
+documentation comments for the feature, or the list at the end
+of this file, will describe possible alternatives to the deprecated feature.
 
 API and ABI compatibility
 -------------------------
@@ -51,22 +51,22 @@ maintain API and ABI forwards compatibility.   This means that an application
 written and compiled against version `X.Y.a` of Xapian should work, without any
 changes or need to recompile, with a later version `X.Y.b`, for all `a` <= `b`.
 
-It is possible that a function may be marked as deprecated within a minor
-release series - that is a function may be deprecated from version `X.Y.c`
+It is possible that a feature may be marked as deprecated within a minor
+release series - that is from version `X.Y.c`
 onwards, where `c` is not zero.  The API and ABI will not be changed by this
-deprecation, since the function will still be available in the API (though the
+deprecation, since the feature will still be available in the API (though the
 change may cause the compiler to emit new warnings at compile time).
 
-In general, a function will be supported after being deprecated for an entire
+In general, a feature will be supported after being deprecated for an entire
 series of releases with a given major and minor number.  For example, if a
-function is deprecated in release `1.2.0`, it will be supported for the entire
-`1.2.x` release series, and removed in release `1.3.0`.  If a function is
+feature is deprecated in release `1.2.0`, it will be supported for the entire
+`1.2.x` release series, and removed in release `1.3.0`.  If a feature is
 deprecated in release `1.2.5`, it will be supported for all remaining releases
 in the `1.2.x` series, and also for all releases in the `1.3.x` series, and
 will be removed in release `1.4.0`.
 
 However, this rule may not be followed in all cases.  In particular, if a
-function was marked as "temporary" in the documentation, it may be removed
+feature was marked as "temporary" in the documentation, it may be removed
 faster (and possibly, without even passing through a stage of being
 deprecated).
 
@@ -82,42 +82,42 @@ language) for version `X.Y.a` of Xapian should work without any changes or need
 to recompile, with a later version `X.Y.b`, for all `a` <= `b`.
 
 However, the bindings are a little less mature than the core C++ API, so we
-don't intend to give the same guarantee that a function present and not
+don't intend to give the same guarantee that a feature present and not
 deprecated in version `X.Y.a` will work in all versions `X+1.Y.b`.  In other
-words, we may remove functions which have been deprecated without waiting for
+words, we may remove features which have been deprecated without waiting for
 an entire release series to pass.
 
 Any planned deprecations will be documented in the list of deprecations and
 removed features at the end of this file.
 
 
-How to avoid using deprecated functions
-=======================================
+How to avoid using deprecated features
+======================================
 
 We recommend taking the following steps to avoid depending on deprecated
-functions when writing your applications:
+features when writing your applications:
 
  - If at all possible, test compile your project using a compiler which
-   supports warnings about deprecated functions (such as GCC 3.1 or later), and
+   supports warnings about deprecated features (such as GCC 3.1 or later), and
    check for such warnings.  Use the -Werror flag to GCC to ensure that you
    don't miss any of them.
 
- - Check the NEWS file for each new release for details of any new functions
+ - Check the NEWS file for each new release for details of any new features
    which are deprecated in the release.
 
  - Check the documentation comments, or the automatically extracted API
-   documentation, for each function you use in your application.  This
-   documentation will indicate functions which are deprecated, or planned for
+   documentation, for each feature you use in your application.  This
+   documentation will indicate features which are deprecated, or planned for
    deprecation.
 
  - For applications which are not written in C++, there is currently no
    equivalent of the ``XAPIAN_DEPRECATED`` macro for the bindings, and thus
-   there is no way for the bindings to give a warning if a deprecated function
+   there is no way for the bindings to give a warning if a deprecated feature
    is used.  This would be a nice addition for those languages in which there
    is a reasonable way to give such warnings.  Until such a feature is
    implemented, all application writers using the bindings can do is to check
-   the list of deprecated functions in each new release, or lookup the features
-   you are using in the list at the end of this file.
+   the list of deprecated features in each new release, or lookup the features
+   they are using in the list at the end of this file.
 
 
 Features currently marked for deprecation
@@ -127,7 +127,7 @@ Native C++ API
 --------------
 
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| **Deprecation** | **Removal**    | **Function name**             | **Upgrade suggestion and comments**                                           |
+| **Deprecation** | **Removal**    | **Feature name**              | **Upgrade suggestion and comments**                                           |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 | 0.9.6           | ? [#version]_  | xapian_version_string()       | Use version_string() instead.                                                 |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
@@ -142,14 +142,14 @@ Native C++ API
 | 1.0.0           | 1.1.0          | Enquire::use_exact_termfreq   | Use Enquire::USE_EXACT_TERMFREQ instead.                                      |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 
-.. [#version] The version functions will probably be preserved for longer than the usual lifetime of deprecated functions, because it is unhelpful to remove functions which people use to test the version of the library in use.  However, the replacements have been supported for long enough that new applications should use the replacement functions without worrying about old library versions which don't support them.
+.. [#version] The version functions will probably be preserved for longer than the usual lifetime of deprecated features, because it is unhelpful to remove functions which people use to test the version of the library in use.  However, the replacements have been supported for long enough that new applications should use the replacement functions without worrying about old library versions which don't support them.
 
 
 Bindings
 --------
 
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| **Deprecation** | **Removal** | **Language**   | **Function name**           | **Upgrade suggestions and comments**                                          |
+| **Deprecation** | **Removal** | **Language**   | **Feature name**            | **Upgrade suggestions and comments**                                          |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 | 1.0.0           | 1.1.0       | SWIG [#swig]_  | ESet::get_termname()        | Use ESet::get_term() instead.  This change is intended to bring the           |
 |                 |             |                |                             | ESet iterators in line with other term iterators, which all support           |
@@ -176,7 +176,7 @@ Native C++ API
 --------------
 
 +----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| **Removal**    | **Function name**                   | **Upgrade suggestion and comments**                                                     |
+| **Removal**    | **Feature name**                    | **Upgrade suggestion and comments**                                                     |
 +----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
 | 1.0.0          | QueryParser::set_stemming_options() | Use set_stemming_strategy() instead.                                                    |
 |                |                                     | Use set_stemmer(), set_stemming_strategy() and/or set_stopper() instead.                |
@@ -233,7 +233,7 @@ Bindings
 --------
 
 +-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| **Removal** | **Language**    | **Function name**           | **Upgrade suggestions and comments**                                          |
+| **Removal** | **Language**    | **Feature name**            | **Upgrade suggestions and comments**                                          |
 +-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
 | 1.0.0       | SWIG [#rswig]_  | Enquire::set_sort_forward() | Use Enquire::set_sort_forward() instead.                                      |
 |             |                 |                             |                                                                               |

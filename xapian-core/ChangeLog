@@ -1,3 +1,11 @@
+Wed Apr 25 17:41:58 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Use the collective term "features" rather than
+	  overloading the term "functions".  Casual readers may miss the
+	  definition altogether, and even dedicated readers will probably
+	  already have a strong mental image of what a "function" is in the
+	  context of an API.
+
 Wed Apr 25 14:52:11 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/intro_ir.html: Improve the look of the formulae.
