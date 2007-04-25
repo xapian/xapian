@@ -686,7 +686,6 @@ Enquire::Internal::get_eset(Xapian::termcount maxitems,
 {
     ESet retval;
 
-    // FIXME: make expand and rseti take a refcntptr
     OmExpand expand(db);
     RSetI rseti(db, rset);
 

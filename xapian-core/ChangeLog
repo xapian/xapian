@@ -1,3 +1,7 @@
+Wed Apr 25 18:35:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc: Delete nonsensical comment.
+
 Wed Apr 25 17:41:58 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Use the collective term "features" rather than
