@@ -61,7 +61,6 @@
 #include "omega.h"
 #include "query.h"
 #include "cgiparam.h"
-#include "indextext.h"
 #include "loadfile.h"
 #include "values.h"
 
