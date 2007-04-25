@@ -19,8 +19,6 @@
  * USA
  */
 
-#include <config.h>
-
 #include <xapian/base.h>
 #include <xapian/database.h>
 #include <xapian/query.h>

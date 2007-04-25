@@ -1,3 +1,8 @@
+Wed Apr 25 03:12:50 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser_internal.h: Don't include <config.h> in
+	  a header file.
+
 Wed Apr 25 03:05:09 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.cc: Initialise `internal' member inline
