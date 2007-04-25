@@ -1,6 +1,6 @@
 /* msetcmp.h - MSetItem comparison functions and functors.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,6 +17,10 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+
+
+#ifndef XAPIAN_INCLUDED_MSETCMP_H
+#define XAPIAN_INCLUDED_MSETCMP_H
 
 #include "omenquireinternal.h"
 
@@ -38,3 +42,5 @@ class MSetCmp {
 	return fn(a, b);
     }
 };
+
+#endif // XAPIAN_INCLUDED_MSETCMP_H

@@ -1,6 +1,6 @@
 /* omqueryinternal.h
  *
- * Copyright 2005 Olly Betts
+ * Copyright (C) 2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,10 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
+#ifndef XAPIAN_INCLUDED_OMQUERYINTERNAL_H
+#define XAPIAN_INCLUDED_OMQUERYINTERNAL_H
 
 // Sadly we seem to need to have Xapian::Query::Internal in the external header
 // because of the templated members of Xapian::Query.
 #include <xapian/query.h>
+
+#endif // XAPIAN_INCLUDED_OMQUERYINTERNAL_H

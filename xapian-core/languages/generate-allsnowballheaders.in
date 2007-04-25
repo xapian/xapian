@@ -33,7 +33,12 @@ EOF
 print HDR $generated_warning;
 print HDR $copyright;
 
-print HDR "\n";
+print HDR <<'EOF';
+
+#ifndef XAPIAN_INCLUDED_ALLSNOWBALLHEADERS_H
+#define XAPIAN_INCLUDED_ALLSNOWBALLHEADERS_H
+
+EOF
 
 my @langs = ();
 foreach (sort @ARGV) {
@@ -43,5 +48,10 @@ foreach (sort @ARGV) {
 }
 
 print HDR "\n#define LANGSTRING \"", join(" ", @langs), "\"\n";
+
+print HDR <<'EOF';
+
+#endif // XAPIAN_INCLUDED_ALLSNOWBALLHEADERS_H
+EOF
 
 close HDR or die $!;

@@ -19,6 +19,9 @@
  * USA
  */
 
+#ifndef XAPIAN_INCLUDED_QUERYPARSER_INTERNAL_H
+#define XAPIAN_INCLUDED_QUERYPARSER_INTERNAL_H
+
 #include <xapian/base.h>
 #include <xapian/database.h>
 #include <xapian/query.h>
@@ -65,3 +68,5 @@ class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
 	default_op(Xapian::Query::OP_OR), errmsg(NULL) { }
     Xapian::Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
 };
+
+#endif // XAPIAN_INCLUDED_QUERYPARSER_INTERNAL_H
