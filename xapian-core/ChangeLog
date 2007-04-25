@@ -1,3 +1,7 @@
+Wed Apr 25 14:52:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/intro_ir.html: Improve the look of the formulae.
+
 Wed Apr 25 03:56:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/omqueryinternal.h,languages/generate-allsnowballheaders.in,
