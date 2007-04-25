@@ -62,10 +62,7 @@ QueryParser::operator=(const QueryParser & o)
     return *this;
 }
 
-QueryParser::QueryParser()
-{
-    internal = new QueryParser::Internal();
-}
+QueryParser::QueryParser() : internal(new QueryParser::Internal) { }
 
 QueryParser::~QueryParser() { }
 

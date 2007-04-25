@@ -1,3 +1,8 @@
+Wed Apr 25 03:05:09 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.cc: Initialise `internal' member inline
+	  for consistency with other classes.
+
 Tue Apr 24 04:55:45 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Add missing ')' to the error messages when zlib stuff
