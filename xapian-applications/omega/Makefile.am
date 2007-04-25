@@ -96,7 +96,7 @@ noinst_HEADERS +=\
 AM_LDFLAGS = $(ICONV_LDFLAGS)
 
 omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
- cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc indextext.cc\
+ cdb_init.cc cdb_find.cc cdb_hash.cc cdb_unpack.cc loadfile.cc\
  utf8convert.cc datematchdecider.cc
 omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 
