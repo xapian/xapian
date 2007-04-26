@@ -34,6 +34,7 @@ QUERYPARSERTEST : $(PROGRAM_QUERYPARSERTEST)
 
 DOTEST :
 	set srcdir=.
+	copy "$(ZLIB_DIR)\bin\*.dll"
 	apitest -v
 	btreetest
 	internaltest
