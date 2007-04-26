@@ -106,9 +106,9 @@ class MSetItem(_SequenceMixIn):
      - `rank`: The rank of this MSet item.  The rank is the position in the
        total set of matching documents of this item.  The highest document is
        given a rank of 0.  If the MSet did not start at the highest matching
-       document, because a non-zero `start` parameter was supplied to
+       document, because a non-zero 'start' parameter was supplied to
        get_mset(), the first document in the MSet will have a rank greater than
-       0 (in fact, it will be equal to the value of `start` supplied to
+       0 (in fact, it will be equal to the value of 'start' supplied to
        get_mset()).
      - `percent`: The percentage score assigned to this MSet item.
      - `document`: The document for this MSet item.  This can be used to access
