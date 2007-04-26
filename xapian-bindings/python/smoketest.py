@@ -83,7 +83,7 @@ def test_all():
         msize += 1
     expect(msize, mset.size(), "Unexpected number of entries in mset")
 
-    terms = " ".join(enq.get_matching_terms(mset.get_hit(0)))
+    terms = " ".join(enq.matching_terms(mset.get_hit(0)))
     expect(terms, "is there", "Unexpected terms")
 
     # Feature test for ESet.__iter__

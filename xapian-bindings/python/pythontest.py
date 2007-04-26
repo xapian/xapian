@@ -80,6 +80,7 @@ def test_mset_iter():
     mset = enquire.get_mset(0, 10)
     items = [item for item in mset]
     expect(len(items), 5)
+    expect(len(mset), len(items), "Expected number of items to be length of mset")
 
     context("testing returned item from mset")
     expect(items[2].docid, 4)
@@ -107,23 +108,23 @@ def test_mset_iter():
 
                 context("comparing iterator item %d for sub-mset from %d, maxitems %d against hit" % (num, start, maxitems))
                 hit = submset.get_hit(num)
-                expect(hit.get_docid(), item.docid)
-                expect(hit.get_rank(), item.rank)
-                expect(hit.get_percent(), item.percent)
-                expect(hit.get_document().get_data(), item.document.get_data())
-                expect(hit.get_collapse_key(), item.collapse_key)
-                expect(hit.get_collapse_count(), item.collapse_count)
+                expect(hit.docid, item.docid)
+                expect(hit.rank, item.rank)
+                expect(hit.percent, item.percent)
+                expect(hit.document.get_data(), item.document.get_data())
+                expect(hit.collapse_key, item.collapse_key)
+                expect(hit.collapse_count, item.collapse_count)
 
-                context("comparing iterator item %d for sub-mset mset from %d, maxitems %d against hit from whole mset" % (num, start, maxitems))
+                context("comparing iterator item %d for sub-mset from %d, maxitems %d against hit from whole mset" % (num, start, maxitems))
                 hit = mset.get_hit(num + start)
-                expect(hit.get_docid(), item.docid)
-                expect(hit.get_rank(), item.rank)
-                expect(hit.get_percent(), item.percent)
-                expect(hit.get_document().get_data(), item.document.get_data())
-                expect(hit.get_collapse_key(), item.collapse_key)
-                expect(hit.get_collapse_count(), item.collapse_count)
+                expect(hit.docid, item.docid)
+                expect(hit.rank, item.rank)
+                expect(hit.percent, item.percent)
+                expect(hit.document.get_data(), item.document.get_data())
+                expect(hit.collapse_key, item.collapse_key)
+                expect(hit.collapse_count, item.collapse_count)
 
-                context("comparing iterator item %d for sub-mset mset from %d, maxitems %d against direct access with []" % (num, start, maxitems))
+                context("comparing iterator item %d for sub-mset from %d, maxitems %d against direct access with []" % (num, start, maxitems))
                 expect(submset[num].docid, item.docid)
                 expect(submset[num].rank, item.rank)
                 expect(submset[num].percent, item.percent)
@@ -132,6 +133,17 @@ def test_mset_iter():
                 expect(submset[num].collapse_count, item.collapse_count)
 
                 num += 1
+
+            context("Checking out of range access to mset, for sub-mset from %d, maxitems %d" % (start, maxitems))
+            # Test out-of-range access to mset:
+            expect_exception(IndexError, 'Mset index out of range',
+                             submset.__getitem__, -10)
+            expect_exception(IndexError, 'Mset index out of range',
+                             submset.__getitem__, 10)
+            expect_exception(IndexError, 'Mset index out of range',
+                             submset.__getitem__, -1-len(submset))
+            expect_exception(IndexError, 'Mset index out of range',
+                             submset.__getitem__, len(submset))
 
             # Check that the item contents remain valid when the iterator has
             # moved on.
@@ -149,7 +161,7 @@ def test_mset_iter():
             # Test deprecated sequence API.
             num = 0
             for item in submset:
-                context("testing hit %d with deprecated sequence API for sub-mset from %d, maxitems %d" % (num, start, maxitems))
+                context("testing hit %d with deprecated APIs for sub-mset from %d, maxitems %d" % (num, start, maxitems))
                 hit = submset.get_hit(num)
                 expect(len(item[:]), 5)
                 expect(item[0], hit.get_docid())
@@ -219,29 +231,18 @@ def test_matchingterms_iter():
 
         # Make a list of the term names
         mterms = []
-        for termitem in enquire.matching_terms(item.docid):
-            mterms.append(termitem.term)
-            expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
-            expect_exception(xapian.InvalidOperationError, 'Iterator does not support term frequencies', getattr, termitem, 'termfreq')
-            expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
+        for term in enquire.matching_terms(item.docid):
+            mterms.append(term)
 
         mterms2 = []
-        for termitem in enquire.matching_terms(item):
-            mterms2.append(termitem.term)
-            expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
-            expect_exception(xapian.InvalidOperationError, 'Iterator does not support term frequencies', getattr, termitem, 'termfreq')
-            expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
+        for term in enquire.matching_terms(item):
+            mterms2.append(term)
         expect(mterms, mterms2)
 
-        # Make a list of the match items (so we can test if they're still valid
-        # once the iterator has moved on).
-        termitems = []
-        for termitem in enquire.matching_terms(item.docid):
-            termitems.append(termitem)
-
-        expect(len(termitems), len(mterms))
-        for i in xrange(len(termitems)):
-            expect(termitems[i].term, mterms[i])
+    mterms = []
+    for term in enquire.matching_terms(mset.get_hit(0)):
+        mterms.append(term)
+    expect(mterms, ['it', 'two', 'warm', 'was'])
 
 def test_queryterms_iter():
     """Test Query term iterator.
@@ -252,21 +253,9 @@ def test_queryterms_iter():
 
     # Make a list of the term names
     terms = []
-    for termitem in query:
-        terms.append(termitem.term)
-        expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
-        expect_exception(xapian.InvalidOperationError, 'Iterator does not support term frequencies', getattr, termitem, 'termfreq')
-        expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
-
-    # Make a list of the items (so we can test if they're still valid
-    # once the iterator has moved on).
-    termitems = []
-    for termitem in query:
-        termitems.append(termitem)
-
-    expect(len(termitems), len(terms))
-    for i in xrange(len(termitems)):
-        expect(termitems[i].term, terms[i])
+    for term in query:
+        terms.append(term)
+    expect(terms, ['it', 'two', 'warm', 'was'])
 
 def test_queryparser_stoplist_iter():
     """Test QueryParser stoplist iterator.
@@ -279,9 +268,9 @@ def test_queryparser_stoplist_iter():
     queryparser = xapian.QueryParser()
     queryparser.set_stemmer(stemmer)
     queryparser.set_stemming_strategy(queryparser.STEM_SOME)
-    expect([item.term for item in queryparser.stoplist()], [])
+    expect([term for term in queryparser.stoplist()], [])
     query = queryparser.parse_query('to be or not to be is the questions')
-    expect([item.term for item in queryparser.stoplist()], [])
+    expect([term for term in queryparser.stoplist()], [])
     expect(str(query),
            'Xapian::Query((to:(pos=1) OR be:(pos=2) OR or:(pos=3) OR '
            'not:(pos=4) OR to:(pos=5) OR be:(pos=6) OR is:(pos=7) OR '
@@ -294,10 +283,10 @@ def test_queryparser_stoplist_iter():
     stopper.add('not')
     stopper.add('question')
     queryparser.set_stopper(stopper)
-    expect([item.term for item in queryparser.stoplist()], [])
+    expect([term for term in queryparser.stoplist()], [])
     query = queryparser.parse_query('to be or not to be is the questions')
 
-    expect([item.term for item in queryparser.stoplist()], ['to', 'not', 'to'])
+    expect([term for term in queryparser.stoplist()], ['to', 'not', 'to'])
     expect(str(query),
            'Xapian::Query((be:(pos=2) OR or:(pos=3) OR '
            'be:(pos=6) OR is:(pos=7) OR '
@@ -306,32 +295,14 @@ def test_queryparser_stoplist_iter():
     # Check behaviour with a stoplist and a stemmer
     queryparser.set_stemmer(stemmer)
     queryparser.set_stemming_strategy(queryparser.STEM_SOME)
-    expect([item.term for item in queryparser.stoplist()], ['to', 'not', 'to']) # Shouldn't have changed since previous query.
+    expect([term for term in queryparser.stoplist()], ['to', 'not', 'to']) # Shouldn't have changed since previous query.
     query = queryparser.parse_query('to be or not to be is the questions')
 
-    expect([item.term for item in queryparser.stoplist()], ['to', 'not', 'to', 'question'])
+    expect([term for term in queryparser.stoplist()], ['to', 'not', 'to', 'question'])
     expect(str(query),
            'Xapian::Query((be:(pos=2) OR or:(pos=3) OR '
            'be:(pos=6) OR is:(pos=7) OR '
            'the:(pos=8)))')
-
-    # Make a list of the term names
-    terms = []
-    for termitem in queryparser.stoplist():
-        terms.append(termitem.term)
-        expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
-        expect_exception(xapian.InvalidOperationError, 'Iterator does not support term frequencies', getattr, termitem, 'termfreq')
-        expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
-
-    # Make a list of the items (so we can test if they're still valid
-    # once the iterator has moved on).
-    termitems = []
-    for termitem in queryparser.stoplist():
-        termitems.append(termitem)
-
-    expect(len(termitems), len(terms))
-    for i in xrange(len(termitems)):
-        expect(termitems[i].term, terms[i])
 
 def test_queryparser_unstem_iter():
     """Test QueryParser unstemlist iterator.
@@ -341,14 +312,14 @@ def test_queryparser_unstem_iter():
     stemmer = xapian.Stem('en')
 
     queryparser = xapian.QueryParser()
-    expect([item.term for item in queryparser.unstemlist('to')], [])
-    expect([item.term for item in queryparser.unstemlist('question')], [])
-    expect([item.term for item in queryparser.unstemlist('questions')], [])
+    expect([term for term in queryparser.unstemlist('to')], [])
+    expect([term for term in queryparser.unstemlist('question')], [])
+    expect([term for term in queryparser.unstemlist('questions')], [])
     query = queryparser.parse_query('to question questions')
 
-    expect([item.term for item in queryparser.unstemlist('to')], ['to'])
-    expect([item.term for item in queryparser.unstemlist('question')], ['question'])
-    expect([item.term for item in queryparser.unstemlist('questions')], ['questions'])
+    expect([term for term in queryparser.unstemlist('to')], ['to'])
+    expect([term for term in queryparser.unstemlist('question')], ['question'])
+    expect([term for term in queryparser.unstemlist('questions')], ['questions'])
     expect(str(query),
            'Xapian::Query((to:(pos=1) OR question:(pos=2) OR questions:(pos=3)))')
 
@@ -356,36 +327,16 @@ def test_queryparser_unstem_iter():
     queryparser = xapian.QueryParser()
     queryparser.set_stemmer(stemmer)
     queryparser.set_stemming_strategy(queryparser.STEM_SOME)
-    expect([item.term for item in queryparser.unstemlist('to')], [])
-    expect([item.term for item in queryparser.unstemlist('question')], [])
-    expect([item.term for item in queryparser.unstemlist('questions')], [])
+    expect([term for term in queryparser.unstemlist('to')], [])
+    expect([term for term in queryparser.unstemlist('question')], [])
+    expect([term for term in queryparser.unstemlist('questions')], [])
     query = queryparser.parse_query('to question questions')
 
-    expect([item.term for item in queryparser.unstemlist('to')], ['to'])
-    expect([item.term for item in queryparser.unstemlist('question')], ['question', 'questions'])
-    expect([item.term for item in queryparser.unstemlist('questions')], [])
+    expect([term for term in queryparser.unstemlist('to')], ['to'])
+    expect([term for term in queryparser.unstemlist('question')], ['question', 'questions'])
+    expect([term for term in queryparser.unstemlist('questions')], [])
     expect(str(query),
            'Xapian::Query((to:(pos=1) OR question:(pos=2) OR question:(pos=3)))')
-
-
-    # Make a list of the term names
-    terms = []
-    for termitem in queryparser.unstemlist('question'):
-        terms.append(termitem.term)
-        expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
-        expect_exception(xapian.InvalidOperationError, 'Iterator does not support term frequencies', getattr, termitem, 'termfreq')
-        expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
-    expect(terms, ['question', 'questions'])
-
-    # Make a list of the items (so we can test if they're still valid
-    # once the iterator has moved on).
-    termitems = []
-    for termitem in queryparser.unstemlist('question'):
-        termitems.append(termitem)
-
-    expect(len(termitems), len(terms))
-    for i in xrange(len(termitems)):
-        expect(termitems[i].term, terms[i])
 
 def test_allterms_iter():
     """Test all-terms iterator on Database.

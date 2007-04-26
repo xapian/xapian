@@ -130,11 +130,10 @@ class MSetItem(_SequenceMixIn):
 
     """
 
-    __slots__ = ('_iter', '_mset', '_firstitem', 'docid', 'weight', 'rank',
+    __slots__ = ('_mset', '_firstitem', 'docid', 'weight', 'rank',
                  'percent', 'collapse_key', 'collapse_count', '_document', )
 
     def __init__(self, iter, mset):
-        self._iter = iter
         self._mset = mset
         self._firstitem = self._mset.get_firstitem()
         self.docid = iter.get_docid()
@@ -148,8 +147,31 @@ class MSetItem(_SequenceMixIn):
 
     def _get_document(self):
         if self._document is None:
-            self._document = self._mset.get_hit(self.rank - self._firstitem).get_document()
+            self._document = self._mset._get_hit_internal(self.rank - self._firstitem).get_document()
         return self._document
+
+    # Deprecated methods: to be removed in 1.1.0
+    def get_docid(self):
+        "Deprecated method: use the `docid` property instead."
+        return self.docid
+    def get_weight(self):
+        "Deprecated method: use the `weight` property instead."
+        return self.weight
+    def get_rank(self):
+        "Deprecated method: use the `rank` property instead."
+        return self.rank
+    def get_percent(self):
+        "Deprecated method: use the `percent` property instead."
+        return self.percent
+    def get_collapse_key(self):
+        "Deprecated method: use the `collapse_key` property instead."
+        return self.collapse_key
+    def get_collapse_count(self):
+        "Deprecated method: use the `collapse_count` property instead."
+        return self.collapse_count
+    def get_document(self):
+        "Deprecated method: use the `document` property instead."
+        return self.document
 
     document = property(_get_document, doc="The document object corresponding to this MSet item.")
 
@@ -193,15 +215,25 @@ MSet.__iter__ = _mset_gen_iter
 
 MSet.__len__ = MSet.size
 
+# We replace the get_hit() method with one which returns an MSetItem.  We first
+# have to copy the internal method, so that we can call it.
+MSet._get_hit_internal = MSet.get_hit
 def _mset_getitem(self, index):
     """Get an item from the MSet.
 
     The supplied index is relative to the start of the MSet, not the absolute
     rank of the item.
 
+    Returns an MSetItem.
+
     """
-    return MSetItem(self.get_hit(index), self)
+    if index < 0:
+        index += len(self)
+    if index < 0 or index >= len(self):
+        raise IndexError("Mset index out of range")
+    return MSetItem(self._get_hit_internal(index), self)
 MSet.__getitem__ = _mset_getitem
+MSet.get_hit = _mset_getitem
 
 def _mset_contains(self, index):
     """Check if the Mset contains an item at the given index
@@ -392,20 +424,23 @@ class TermIter(object):
     lazily where appropriate.
 
     """
-    __slots__ = ('_iter', '_end', '_has_termfreq', '_has_wdf', '_has_positions', '_lastterm', '_moved')
+    __slots__ = ('_iter', '_end', '_has_termfreq', '_has_wdf',
+                 '_has_positions', '_return_strings', '_lastterm', '_moved')
 
     INVALID = 0
     LAZY = 1
     EAGER = 2
 
     def __init__(self, start, end, has_termfreq=INVALID,
-                 has_wdf=INVALID, has_positions=INVALID):
+                 has_wdf=INVALID, has_positions=INVALID,
+                 return_strings=False):
         self._iter = start
         self._end = end
         self._has_termfreq = has_termfreq
         self._has_wdf = has_wdf
         self._has_positions = has_positions
         assert(has_positions != TermIter.EAGER) # Can't do eager access to position lists
+        self._return_strings = return_strings
         self._lastterm = None # Used to test if the iterator has moved
 
         # _moved is True if we've moved onto the next item.  This is needed so
@@ -429,6 +464,8 @@ class TermIter(object):
         else:
             self._lastterm = self._iter.get_term()
             self._moved = False
+            if self._return_strings:
+                return self._lastterm
             return TermListItem(self, self._lastterm)
 
     def skip_to(self, term):
@@ -461,6 +498,8 @@ class TermIter(object):
             self._lastterm = newterm
 
         self._moved = False
+        if self._return_strings:
+            return self._lastterm
         return TermListItem(self, self._lastterm)
 
 # Modify Enquire to add a "matching_terms()" method.
@@ -470,25 +509,30 @@ def _enquire_gen_iter(self, which):
     The match set item to consider is specified by the `which` parameter, which
     may be a document ID, or an MSetItem object.
 
-    The iterator will return TermListItem objects, but these will not support
-    access to term frequency, wdf, or position information.
+    The iterator will return string objects.
 
     """
     if isinstance(which, MSetItem):
         which = which.docid
     return TermIter(self.get_matching_terms_begin(which),
-                    self.get_matching_terms_end(which))
+                    self.get_matching_terms_end(which),
+                    return_strings=True)
 Enquire.matching_terms = _enquire_gen_iter
+
+# get_matching_terms() is deprecated, but does just the same as
+# matching_terms()
+Enquire.get_matching_terms = _enquire_gen_iter
 
 # Modify Query to add an "__iter__()" method.
 def _query_gen_iter(self):
     """Get an iterator over the terms in a query.
 
-    The iterator will return TermListItem objects, but these will not support
-    access to term frequency, wdf, or position information.
+    The iterator will return string objects.
 
     """
-    return TermIter(self.get_terms_begin(), self.get_terms_end())
+    return TermIter(self.get_terms_begin(),
+                    self.get_terms_end(),
+                    return_strings=True)
 Query.__iter__ = _query_gen_iter
 
 # Modify Database to add an "__iter__()" method and an "allterms()" method.
@@ -566,11 +610,11 @@ def _queryparser_gen_stoplist_iter(self):
     instance of a word omitted from the query is represented in the returned
     list, in the order in which the
 
-    The iterator will return TermListItem objects, but these will not support
-    access to term frequency, wdf, or position information.
+    The iterator will return string objects.
 
     """
-    return TermIter(self.stoplist_begin(), self.stoplist_end())
+    return TermIter(self.stoplist_begin(), self.stoplist_end(),
+                    return_strings=True)
 QueryParser.stoplist = _queryparser_gen_stoplist_iter
 
 # Modify QueryParser to add an "unstemlist()" method.
@@ -583,11 +627,11 @@ def _queryparser_gen_unstemlist_iter(self, tname):
     iterator in the order in which the words appeared in the query - an
     individual unstemmed word may thus occur multiple times.
 
-    The iterator will return TermListItem objects, but these will not support
-    access to term frequency, wdf, or position information.
+    The iterator will return string objects.
 
     """
-    return TermIter(self.unstem_begin(tname), self.unstem_end(tname))
+    return TermIter(self.unstem_begin(tname), self.unstem_end(tname),
+                    return_strings=True)
 QueryParser.unstemlist = _queryparser_gen_unstemlist_iter
 
 
