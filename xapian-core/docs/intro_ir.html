@@ -1,22 +1,23 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML>
 <HEAD>
-<TITLE>Xapian: Introduction to information retrieval</TITLE>
+<TITLE>Xapian: Theoretical Background</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
+<H1>Theoretical Background</H1>
 
-<H1>An introduction to information retrieval</H1>
+<p>This document aims to provide some theoretical background to Xapian.</p>
 
 <H2>Documents and terms</H2>
 
-In IR (Information Retrieval), the items we are trying to retrieve are called
-<EM>documents</EM>, and the documents are described by collections of <EM>terms</EM>. These
+In Information Retrieval (IR), the items we are trying to retrieve are called
+<EM>documents</EM>, and each document is described by a collection of <EM>terms</EM>. These
 two words, `document' and `term', are now traditional in the vocabulary of IR,
 and reflect its Library Science origins. Usually a document is thought
 of as a piece of text, most likely in a machine readable form, and a term as
 a word or phrase which helps to describe the document, and which may indeed
-occur in the document, once or several times. So a document might be about
-dental care, and could be described by corresponding terms `tooth', `teeth'
+occur one or more times in the document. So a document might be about
+dental care, and could be described by corresponding terms `tooth', `teeth',
 `toothbrush', `decay', `cavity', `plaque', `diet' and so on.
 <P>
 More generally a document can be anything we want to retrieve, and a term any
@@ -47,18 +48,11 @@ the <EM>posting list</EM> of t. (`Document list' would be more consistent, but s
 a little too vague for this very important concept.)
 <P>
 
-At a simple level a computerised IR system puts the terms in a direct access,
-or <EM>index</EM> file. A term can be looked up and its posting list found. But as
-we will see later, a term in Xapian can be constructed from other terms, and
-we should distinguish between an <EM>index entry</EM>, which is a term actually held
-in an index, and a <EM>term</EM>, which may be composed of index entries. A two word
-term, `dental hygiene' for example, might be an index entry, or it might be
-constructed out of the two index entries `dental' and `hygiene'. In Xapian
-you can do it either way.
-<P>
-
-In an index a document, D, is of course a short identifier for a document, not
-the document itself. To keep things simple, a posting list can be thought
+At a simple level a computerised IR system puts the terms in an
+<EM>index</EM> file. A term can be efficiently looked up and its posting list
+found.
+In the posting list, each document is represented by a short identifier.  To
+over-simplify a little, a posting list can be thought
 of as a list of numbers (document ids), and term list as a list of strings
 (the terms).  Some systems represent each term by a number internally, so the
 term list is then also a list of numbers.  Xapian doesn't - it uses the terms
@@ -112,50 +106,51 @@ if:
 </PRE>
 then
 <PRE>
-     t<sub>1</sub> and t<sub>2</sub>   retrieves   2 3
-     t<sub>1</sub> or t<sub>2</sub>    retrieves   1 2 3 5 6 8
-     t<sub>1</sub> - t<sub>2</sub>     retrieves   1 5 8
-     t<sub>2</sub> - t<sub>1</sub>     retrieves   6
+     t<sub>1</sub> AND t<sub>2</sub>      retrieves  2 3
+     t<sub>1</sub> OR t<sub>2</sub>       retrieves  1 2 3 5 6 8
+     t<sub>1</sub> AND_NOT t<sub>2</sub>  retrieves  1 5 8
+     t<sub>2</sub> AND_NOT t<sub>1</sub>  retrieves  6
 </PRE>
 
-This should be familiar. The posting list of a term is a set of documents. IR
+The posting list of a term is a set of documents. IR
 becomes a matter of constructing other sets by doing unions, intersections
 and differences on posting lists.
 <P>
 For example, in an IR system of works of literature, a Boolean query
 <PRE>
-    ('English' or 'French' or 'German') and ('novel' or 'play') and 'C19'
+    (lang:en OR lang:fr OR lang:de) AND (type:novel OR type:play) AND century:19
 </PRE>
-might be used to restrict the probabilistic retrieval to all English, French
+might be used to retrieve all English, French
 or German novels or plays of the 19th century.
 
 <P>
-Boolean retrieval is often useful, but is quite inadequate as a general IR
-tool, and when so used gives very bad retrieval. (One can say this with
-confidence, despite the continued survival of so many purely Boolean IR
-systems.)
+Boolean retrieval is often useful, but is rather inadequate on its
+own as a general IR tool.  Results aren't ordered by any measure of how
+"good" they might be, and users require training to make effective use
+of such a system.  Despite this, purely boolean IR systems continue to
+survive.
 
 <P>
-Xapian provides Boolean retrieval, with expressions of arbitrary complexity,
-and they can either be used by themselves, or, more usefully, to create a
-subset of the whole document collection within which the probabilistic query,
-described below, operates. In this style the Boolean query defines a window
-onto the document collection, and the probabilistic query restricts what the
-user sees to documents inside that window.
+By default, Xapian uses probabilistic ranking to order retrieved documents
+while allowing Boolean expressions of arbitrary complexity to limit those
+documents retrieved, which provides the benefits of both approaches.
+Pure Boolean retrieval is also supported.
 
 <H2>Relevance and the idea of a query</H2>
 
-Boolean IR is so simple that it is almost possible to dispense with the notion
-of <EM>relevance</EM> altogether. In the probabilistic model it is a central concept.
-We won't attempt a definition - indeed, perhaps it is undefinable. Essentially
-a document is relevant if it was what the user really wanted. Relevance is
-a separate business from what gets retrieved. Among documents retrieved there
-will be non-relevant ones; among those not retrieved, relevant ones. There
-are no degrees of relevance: at least not in theory. A document either is, or
+<EM>relevance</EM> is a central concept to the probabilistic model.
+Whole academic papers have been devoted to discussing the nature of relevance
+but essentially a document is relevant if it was what the user really wanted!
+Retrieval is rarely perfect, so among documents retrieved there
+will be non-relevant ones; among those not retrieved, relevant ones.
+
+<p>Relevance is modelled as a black or white attribute.  There are no degrees
+of relevance, a document either is, or
 is not, relevant. In the probabilistic model there is however a probability
-of relevance, and it turns out that documents of low probability of relevance
-in theory will correspond to documents that, in practice, one would describe
+of relevance, and documents of low probability of relevance
+in the model generally correspond to documents that, in practice, one would describe
 as having low relevance.
+
 <P>
 What the user actually wants has to be expressed in some form, and the
 expression of the user's need is the query. In the probabilistic model the
@@ -170,7 +165,8 @@ terms, ought to mean.
 <P>
 Below, a query is taken to be just a set of terms, but it is important to
 realise that this is a simplification. Each link in the chain that takes us
-from the information need to the abstraction in <I>Q</I> is liable to error, and
+from the <em>information need</em> ("what the user is looking for")
+to the abstraction in <I>Q</I> is liable to error, and
 these errors compound to affect IR performance. In fact the performance of IR
 systems as a whole is much worse than most people generally imagine.
 
@@ -202,13 +198,19 @@ Precision is the density of relevant documents among those retrieved. Recall
 is the proportion of relevant documents retrieved. In most IR systems K is a
 parameter that can be varied, and what you find is that when K is low you get
 high precision at the expense of low recall, and when K is high you get high
-recall at the expense of low precision. Retrieval effectiveness is often shown
-as a graph of precision against recall, plotted for different values of K.
-<P>
-Of course basing a test on just one query would be rather unfair. What happens
-in practice is that you have a collection of queries, <I>Q</I><sub>1</sub>, <I>Q</I><sub>2</sub>, <I>Q</I><sub>3</sub> ...,
-and associated relevance sets, <I>R</I><sub>1</sub>, <I>R</I><sub>2</sub>, <I>R</I><sub>3</sub> ..., and the precision/recall
-measures are got by an averaging process over all the queries.
+recall at the expense of low precision.
+<p>
+The ideal value of K will depend on the use of the system.  For example, if a
+user wants the answer to a simple question and the system contains many
+documents which would answer it, a low value of K will be best to give a
+small number of relevant results.  But in a system indexing legal cases,
+users will often wish to make sure no potentially relevant case is missed
+even if that requires they check more non-relevant cases, so a high value of
+K will be best.
+<p>
+Retrieval effectiveness is often shown as a graph of precision against recall
+average over a number of queries, and plotted for different values of K.
+Such curves typically have a shape similar to a hyperbola (y=1/x).
 <P>
 A collection like this, consisting of a set of documents, a set of queries,
 and for each query, a complete set of relevance assessments, is called a
@@ -222,16 +224,14 @@ errors that may occasionally arise through faulty relevance judgements, and
 averaging important tests across a number of test collections reduces the
 effects caused by accidental features of individual collections, and the
 results obtained by these tests in modern research are generally accepted as
-trustworthy.
-<P>
-Nowadays research with test collections is organised from
-<A HREF="http://trec.nist.gov/">http://trec.nist.gov/</A>
+trustworthy.  Nowadays such research with test collections is organised from
+<A HREF="http://trec.nist.gov/">TREC</A>.
 
 <H2>Probabilistic term weights</H2>
 
 In this section we will try to present some of the thinking behind the
 formulae. This is really to give a feel for where the probabilistic model
-comes from. But feel free to skim through if you're not too interested.
+comes from. You may want to skim through this section if you're not too interested.
 <P>
 Suppose we have an IR system with a total of N documents. And suppose <I>Q</I> is a
 query in this IR system, made up of terms t<sub>1</sub>, t<sub>2</sub> ... t<sub>Q</sub>. There is a set,
@@ -271,7 +271,7 @@ q = P(t -&gt; D | D not in <I>R</I>)
 1 - q = P(t not -&gt; D | D not in <I>R</I>)
 </PRE></blockquote>
 
-Suppose that t indexes n of the N documents in the IR system. Suppose also
+Suppose that t indexes n of the N documents in the IR system. As before, we suppose also
 that there are R documents in <I>R</I>, and that there are r documents in <I>R</I> which
 are indexed by t.
 <P>
@@ -399,7 +399,7 @@ We prefer
 the phrase <EM>term frequency</EM>, to better distinguish it from wdf and wqf
 introduced below.
 <P>
-In extreme cases w(t) can be negative. In Xapian negative values are
+In extreme cases w(t) can be negative. In Xapian, negative values are
 disallowed, and simply replaced by a small positive value.
 
 
@@ -407,19 +407,24 @@ disallowed, and simply replaced by a small positive value.
 
 Before we see how the weights are used there are a few more ideas to introduce.
 <P>
-A term t is said to index a document D, or t -&gt; D. We have emphasised that D
+As mentioned before, a term t is said to index a document D, or t -&gt; D. We have emphasised that D
 may not be a piece of text in machine readable form, and that, even when it
 is, t may not actually occur in the text of D. Nevertheless, it will often be
 the case that D is made up of a list of words,
 <PRE>
-        D = w<sub>1</sub>, w<sub>2</sub>, w<sub>3</sub> ... w<sub>k</sub>
+        D = w<sub>1</sub>, w<sub>2</sub>, w<sub>3</sub> ... w<sub>m</sub>
 </PRE>
 
 and that many, if not all, of the terms which index D derive from these words.
 The relation between words and terms need not be a simple one. A single term
 `connect' might derive from a a number of words, `connect', `connects',
-`connection', `connected' and so on. A single word might give rise to more
-than one term. Nevertheless, if a term derives from words w<sub>9</sub>, w<sub>38</sub>, w<sub>97</sub> and
+`connection', `connected' and so on. A single word might also give rise to more
+than one term, though this isn't the case for any of the stemming algorithms
+Xapian currently supports (but for example, the
+<a href="http://en.wikipedia.org/wiki/Double_Metaphone">Double Metaphone</a>
+phonetic algorithm can produce two codes from a single input).
+<P>
+Nevertheless, if a term derives from words w<sub>9</sub>, w<sub>38</sub>, w<sub>97</sub> and
 w<sub>221</sub> in the indexing process, we can say that the term `occurs' in D at
 positions 9, 38, 97 and 221, and so for each term a document may have a
 vector of positional information. These are the <EM>within-document positions</EM> of
@@ -427,16 +432,17 @@ t, or the <EM>wdp</EM> information of t.
 <P>
 The <EM>within-document frequency</EM>, or <EM>wdf</EM>, of a term t in D is the number of
 times it is pulled out of D in the indexing process. Usually this is the size
-of the wdp vector, but in Xapian it can exceed it, since we can take the
-liberty of passing over the same portion of text more than once and so,
-either deliberately or inadvertently, pulling out the same index term several
-times.
+of the wdp vector, but in Xapian it can exceed it, since we can
+apply extra wdf to some parts of the document text.  For example,
+often this is down for the document title and abstract to
+attach extra importance to their contents compared to the
+rest of the document text.
 <P>
 There are various ways in which we might measure the length of a document, but
-the easiest is to suppose it is made up of k words, w<sub>1</sub> to w<sub>k</sub>, and to define
-its length as k.
+the easiest is to suppose it is made up of m words, w<sub>1</sub> to w<sub>m</sub>, and to define
+its length as m.
 <P>
-The <EM>normalised document length</EM>, or <EM>ndl</EM>, is then k divided by the average
+The <EM>normalised document length</EM>, or <EM>ndl</EM>, is then m divided by the average
 length of the documents in the IR system. So the average length document has
 ndl equal to 1, short documents are less than 1, long documents greater than
 1. We have found that very small ndl values create problems, so Xapian
@@ -449,51 +455,58 @@ already in the IR system, or by an indexing process very similar to the one
 used to add documents into the whole IR system. This corresponds to a user
 saying "give me other documents like this one". One can therefore attach a
 similar meaning to within-query position information, within-query frequency,
-and normalised query length, or wqp, wqf and nql. Xapian does not however
-currently use the concept of wqp.
+and normalised query length, or wqp, wqf and nql. Xapian does not currently
+use the concept of wqp.
 
 
-<H2>Using the weights. The <I>M</I> set</H2>
+<H2>Using the weights. The <I>MSet</I></H2>
 
 Now to pull everything together. From the probabilistic term weights we can
-assign a weight to any document, D, as follows,
+assign a weight to any document, d, as follows,
 
 <blockquote>
 <table border=0><tr valign=center>
-<td><tt>W(D) =&nbsp;</tt></td>
+<td><tt>W(d) =&nbsp;</tt></td>
 <td>
 <tt><center>
-<u>&nbsp;&nbsp;&nbsp;</u><br>\&nbsp;&nbsp;<br><u>/&nbsp;&nbsp;</u><br><small>t -&gt; D, t in <i>Q</i></small></tt>
+<font size="+4">&Sigma;</font><br><small>t -&gt; d, t in <i>Q</i></small></tt>
 </td>
 <td><tt><center>
-<u>(K + 1) f</u><sub>t</sub><br>KL + f<sub>t</sub>
+<u>(k + 1) f</u><sub>t</sub><br>k.L<sub>d</sub> + f<sub>t</sub>
 </center></tt></td>
 <td><tt>&nbsp;w(t)</tt></td>
 </tr></table>
 </blockquote>
 
-The sum extends over the terms of <I>Q</I> which index D. f<sub>t</sub> is the wdf of t in D,
-L is the ndl of D, and K is some suitably chosen constant.
+The sum extends over the terms of <I>Q</I> which index d. f<sub>t</sub> is the wdf of t in d,
+L<sub>d</sub> is the ndl of d, and k is some suitably chosen constant.
 <P>
-The factor K+1 is actually redundant, but helps with the interpretation of
-the equation. If K is set to zero the factor before w(t) is 1, and the wdfs
-are ignored. As K tends to infinity, the factor becomes f<sub>t</sub>/L, and the wdfs
+The factor k+1 is actually redundant, but helps with the interpretation of
+the equation.  In Xapian, this weighting scheme is implemented by the
+<a href="apidoc/html/classXapian_1_1TradWeight.html">Xapian::TradWeight class</a>
+and the factor (k+1) is ignored.
+
+<P>
+If k is set to zero the factor before w(t) is 1, and the wdfs
+are ignored. As k tends to infinity, the factor becomes f<sub>t</sub>/L<sub>d</sub>, and the wdfs
 take on their greatest importance. Intermediate values scale the wdf
 contribution between these extremes.
-<P>
-The best K actually depends on the characteristics of the IR system as a
-whole, and unfortunately no rule can be given for choosing it. A low value of
-K may be recommended for `safe' use. Then W(D) is merely tweaked a bit by the
+The best k actually depends on the characteristics of the IR system as a
+whole, and unfortunately no rule can be given for choosing it.
+By default, Xapian sets k to 1 which should give reasonable results
+for most systems.  W(d) is merely tweaked a bit by the
 wdf values, and users observe a simple pattern of retrieval.
+It is possible to tune k to provide optimal results for a
+specific system.
 <P>
-Any D in the IR system has a value W(D), but, if no term of the query indexes
-D, W(D) will be zero. In practice only Ds for which W(D) &gt; 0 will be of
+Any d in the IR system has a value W(d), but, if no term of the query indexes
+d, W(d) will be zero. In practice only documents for which W(d) &gt; 0 will be of
 interest, and these are the documents indexed by at least one term of <I>Q</I>. If
-we now take these documents and arrange them by decreasing W(D) value, we get
-a ranked list called the <EM>match set</EM>, or <EM><I>M</I> set</EM>, of document and weight
+we now take these documents and arrange them by decreasing W(d) value, we get
+a ranked list called the <EM>match set</EM>, or <EM>MSet</EM>, of document and weight
 pairs:
 <PRE>
-     <I>M</I> set:       item 0:   D<sub>0</sub>  W(D<sub>0</sub>)
+     MSet:        item 0:   D<sub>0</sub>  W(D<sub>0</sub>)
                   item 1:   D<sub>1</sub>  W(D<sub>1</sub>)
                   item 2:   D<sub>2</sub>  W(D<sub>2</sub>)
                         ....
@@ -506,60 +519,63 @@ And according to the probabilistic model, the documents D<sub>0</sub>, D<sub>1</
 ranked by decreasing order of probability of relevance. So D<sub>0</sub> has highest
 probability of being relevant, then D<sub>1</sub> and so on.
 <P>
-Xapian creates the <I>M</I> set from the posting lists of the terms
+Xapian creates the MSet from the posting lists of the terms
 of the query. This is the central operation of any IR system, and will be
 familiar to anyone who has used one of the Internet's major search engines,
 where the query is what you type in the query box, and the resulting hit list
-corresponds to the top few items of the <I>M</I> set.
+corresponds to the top few items of the MSet.
 <P>
 
-The cutoff point, K, is chosen when the <I>M</I> set is created. The candidates for
-inclusion in the <I>M</I> set are all documents indexed by at least one term of <I>Q</I>,
-and their number will usually exceed the choice for K. (K is typically set to
-be 1000 or less.) The <I>M</I> set is actually the best K documents found in the
+The cutoff point, K, is chosen when the MSet is created. The candidates for
+inclusion in the MSet are all documents indexed by at least one term of <I>Q</I>,
+and their number will usually exceed the choice of K (K is typically set to
+be 1000 or less). So the MSet is actually the best K documents found in the
 match process.
 <P>
 
-A modification of the weighting scheme can be employed that takes into
-account the query itself. This would be
+A modification of this weighting scheme can be employed that takes into
+account the query itself:
 
 <blockquote>
 <table border=0><tr valign=center>
-<td><tt>W(D) =&nbsp;</tt></td>
+<td><tt>W(d) =&nbsp;</tt></td>
 <td>
 <tt><center>
-<u>&nbsp;&nbsp;&nbsp;</u><br>\&nbsp;&nbsp;<br><u>/&nbsp;&nbsp;</u><br><small>t -&gt; D, t in <i>Q</i></small></center></tt>
+<font size="+4">&Sigma;</font><br><small>t -&gt; d, t in <i>Q</i></small></center></tt>
 </td>
 <td><tt><center>
-<u>(K' + 1) f'</u><sub>t</sub><br>K'L' + f'<sub>t</sub>
+<u>(k<sub>3</sub> + 1) q</u><sub>t</sub><br>k<sub>3</sub>L' + q<sub>t</sub>
 </center></tt></td>
 <td><tt>&nbsp;</tt></td>
 <td><tt><center>
-<u>(K + 1) f</u><sub>t</sub><br>KL + f<sub>t</sub>
+<u>(k + 1) f</u><sub>t</sub><br>kL<sub>d</sub> + f<sub>t</sub>
 </center></tt></td>
 <td><tt>&nbsp;w(t)</tt></td>
 </tr></table>
 </blockquote>
 
-where f'<sub>t</sub> is the wqf of t in <I>Q</I>, L' is the nql, or normalised query length,
-and K' is a further constant. In computing W(D) across the document space,
+where q<sub>t</sub> is the wqf of t in <I>Q</I>, L' is the nql, or normalised query length,
+and k<sub>3</sub> is a further constant. In computing W(d) across the document space,
 this extra factor may be viewed as just a modification to the basic term
-weights, w(t). Like K and K', we will need to make an inspired guess for L'.
-In fact the choices for K' and L' will depend on the broader context of the
-use of this formula, and more advice will be given as occasion arises. There
-is in any case no provision for this broader weighting in our initial open
-source release.
+weights, w(t). Like k and k<sub>3</sub>, we will need to make an inspired guess for L'.
+In fact the choices for k<sub>3</sub> and L' will depend on the broader context of the
+use of this formula, and more advice will be given as occasion arises.
 
+<p>
+Xapian's default weighting scheme is a generalised form of this weighting
+scheme modification, known as <a href="bm25.html">BM25</a>.  In BM25, L' is
+always set to 1.
 
-<H2>Using the weights: the <I>E</I> set</H2>
+<H2>Using the weights: the <I>ESet</I></H2>
 
 But as well as ranking documents, Xapian can rank terms, and this is most
-important. The higher up the ranking the term is, the more likely it is
+important.
+The higher up the ranking the term is, the more likely it is
 to act as a good differentiator between relevant and non-relevant documents.
 It is therefore a candidate for adding back into the query. Terms from this
 list can therefore be used to expand the size of the query, after which the
-query can be re-run to get a better <I>M</I> set. Because this list of terms is
-mainly used for query expansion, it is called the <EM>expand set</EM> or <EM><I>E</I> set</EM>.
+query can be re-run to get a better MSet. Because this list of terms is
+mainly used for query expansion, it is called the <EM>expand set</EM> or <EM>ESet</EM>.
 
 <P>
 The term expansion weighting formula is as follows,
@@ -570,12 +586,13 @@ W(t) = r w(t)
 </PRE>
 </blockquote>
 
-in other words we multiply the term weight by r.
+in other words we multiply the term weight by the number of
+relevant documents that have been indexed by the term.
 <P>
-The <I>E</I> set then has this form,
+The ESet then has this form,
 
 <PRE>
-     <I>E</I> set:       item 0:   t<sub>0</sub>  W(t<sub>0</sub>)
+     ESet:        item 0:   t<sub>0</sub>  W(t<sub>0</sub>)
                   item 1:   t<sub>1</sub>  W(t<sub>1</sub>)
                   item 2:   t<sub>2</sub>  W(t<sub>2</sub>)
                         ....
@@ -584,11 +601,11 @@ The <I>E</I> set then has this form,
 
 where W(t<sub>j</sub>) &gt;= W(t<sub>i</sub>) if j &gt; i.
 <P>
-Since the main function of the <I>E</I> set is to find new terms to be added to <I>Q</I>,
+Since the main function of the ESet is to find new terms to be added to <I>Q</I>,
 we usually omit from it terms already in <I>Q</I>.
 <P>
 The W(t) weight is applicable to any term in the IR system, but has a value
-zero when t does not index a relevant document. The <I>E</I> set is therefore
+zero when t does not index a relevant document. The ESet is therefore
 confined to be a ranking of the best K terms which index relevant documents.
 <P>
 This simple form of W(t) is traditional in the probabilistic model, but
@@ -600,22 +617,24 @@ One can if fact try to generalise it to
 <td><tt>W(t) =&nbsp;</tt></td>
 <td>
 <tt><center>
-<u>&nbsp;&nbsp;&nbsp;</u><br>\&nbsp;&nbsp;<br><u>/&nbsp;&nbsp;</u><br><small>t -&gt; D, D in <i>R</i></small></tt>
+<font size="+4">&Sigma;</font><br><small>t -&gt; d, d in <i>R</i></small></tt>
 </td>
 <td><tt><center>
-<u>(K + 1) f</u><sub>t</sub><br>KL + f<sub>t</sub>
+<u>(k + 1) f</u><sub>t</sub><br>kL + f<sub>t</sub>
 </center></tt></td>
 <td><tt>&nbsp;w(t)</tt></td>
 </tr></table>
 </blockquote>
 
-The K here being not necessarily the same as the one used in forming the <I>M</I> set.
+k is again a constant, but it does not need to have the same
+value as the k used in the probabilistic term weights above.
+<!-- FIXME: Might it have the same value?  If not, better to rename it? 
+Is it be sensible to set it the same as the other k if you change that? -->
+In Xapian, k defaults to 1.0 for ESet generation.
 <P>
-This reduces to W(t) = r w(t) when K = 0. Certainly this form can be
+This reduces to W(t) = r w(t) when k = 0. Certainly this form can be
 recommended in the very common case where r = 1, that is, we have a single
 document marked relevant.
-
-
 
 <H2>The progress of a query</H2>
 
@@ -626,18 +645,18 @@ to get benefit from it. But in the general case, the IR model it supports is
 as follows:
 <P>
 You enter a query. This is run by the IR system, which returns two lists, a
-list of captions, derived from the <I>M</I> set, and a list of terms, from the <I>E</I>
-set. If the <I>R</I> set is empty, the first few documents of the <I>M</I> set can be
+list of captions, derived from the MSet, and a list of terms, from the ESet.
+If the RSet is empty, the first few documents of the MSet can be
 used as a stand-in. After all, they have a good chance of being relevant! You
 can read a document by clicking on the caption. (We assume the usual
 screen/mouse environment.) But you can also mark a document as relevant
-(change <I>R</I>) or cause a term to be added from the <I>E</I> set to the query (change
+(change <I>R</I>) or cause a term to be added from the ESet to the query (change
 <I>Q</I>). As soon as any change is made to the query environment the query can be
 rerun, although you might have a front-end where nothing happens until you
 click on some "Run Query" button.
 <P>
 
-In any case rerunning the query leads to a new <I>M</I> set and <I>E</I> set, and so to a
+In any case rerunning the query leads to a new MSet and ESet, and so to a
 new display. The IR process is then an iterative one. You can delete terms
 from the query or add them in; mark or unmark documents as being relevant.
 Eventually you converge on the answer to the query, or at least, the best
@@ -668,6 +687,11 @@ collection of published papers covering many aspects of the subject.
 <LI> &quot;<em>Managing Gigabytes</em>&quot; (also published by
 Morgan Kaufmann, written by Ian H. Witten, Alistair Moffat and
 Timothy C. Bell) describes information retrieval and compression techniques.
+
+<LI> &quot;<em>Modern Information Retrieval</em>&quot; (published by
+Addison Wesley, written by Ricardo Baeza-Yates and Berthier Ribeiro-Neto)
+gives a good overview of the field.  It was published more recently than
+the books above, and so covers some more recent developments.
 </UL>
 
 <!-- FOOTER $Author$ $Date$ $Id$ -->
