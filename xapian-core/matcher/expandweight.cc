@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,19 +34,9 @@ operator+(const OmExpandBits &bits1, const OmExpandBits &bits2)
     OmExpandBits sum(bits1);
     sum.multiplier += bits2.multiplier;
     sum.rtermfreq += bits2.rtermfreq;
-
-    // FIXME - try to share this information rather than pick half of it
-    if (bits2.dbsize > sum.dbsize) {
-	DEBUGLINE(WTCALC, "OmExpandBits::operator+ using second operand: " <<
-		  bits2.termfreq << "/" << bits2.dbsize << " instead of " <<
-		  bits1.termfreq << "/" << bits1.dbsize);
-	sum.termfreq = bits2.termfreq;
-	sum.dbsize = bits2.dbsize;
-    } else {
-	DEBUGLINE(WTCALC, "OmExpandBits::operator+ using first operand: " <<
-		  bits1.termfreq << "/" << bits1.dbsize << " instead of " <<
-		  bits2.termfreq << "/" << bits2.dbsize);
-	// sum already contains the parts of the first operand
+    if (bits2.dbsize) {
+	sum.termfreq += bits2.termfreq;
+	sum.dbsize += bits2.dbsize;
     }
     return sum;
 }
@@ -90,6 +80,9 @@ OmExpandWeight::get_bits(Xapian::termcount wdf,
     } else {
 	DEBUGLINE(WTCALC, "No wdf information => multiplier = " << multiplier);
     }
+
+    // Only one database involved (or only one with anything in it at least!)
+    if (dbsize == dbsize_) dbsize_ = 0;
     return OmExpandBits(multiplier, termfreq, dbsize_);
 }
 
@@ -101,8 +94,8 @@ OmExpandWeight::get_weight(const OmExpandBits &bits,
     double termfreq = double(bits.termfreq);
     const double rtermfreq = bits.rtermfreq;
 
-    if (bits.dbsize != dbsize) {
-	if (bits.dbsize > 0 && !use_exact_termfreq) {
+    if (bits.dbsize && bits.dbsize != dbsize) {
+	if (!use_exact_termfreq) {
 	    termfreq *= double(dbsize) / bits.dbsize;
 	    DEBUGLINE(WTCALC, "Approximating termfreq of `" << tname << "': " <<
 		      bits.termfreq << " * " << dbsize << " / " <<

@@ -1,3 +1,8 @@
+Thu Apr 26 06:01:45 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/expandweight.h,matcher/expandweight.cc: Better handling of
+	  expand with multiple databases.
+
 Wed Apr 25 18:35:13 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc: Delete nonsensical comment.
