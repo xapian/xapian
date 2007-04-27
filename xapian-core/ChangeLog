@@ -1,3 +1,11 @@
+Fri Apr 27 12:56:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/Makefile.am: Pass '-no-install' when linking test programs,
+	  since we don't ever install them.  This means libtool doesn't need
+	  to generate shell script wrappers on most platforms.  Also prefer
+	  '$(ldflags)' to '@ldflags' as the former allows the user to override
+	  when they run 'make' which is sometimes useful.
+
 Fri Apr 27 03:44:15 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/intro_ir.html: Add links for the various researchers mentioned
