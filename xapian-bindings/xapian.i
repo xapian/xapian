@@ -928,6 +928,7 @@ public:
     void set_database(const Database &db_);
     Query parse_query(const string &q);
     Query parse_query(const string &q, unsigned flags);
+    Query parse_query(const string &q, unsigned flags, const string &default_prefix);
 
     void add_prefix(const std::string &field, const std::string &prefix);
     void add_boolean_prefix(const std::string & field, const std::string &prefix);
