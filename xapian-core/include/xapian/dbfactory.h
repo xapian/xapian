@@ -26,6 +26,7 @@
 
 #include <xapian/types.h>
 #include <xapian/database.h>
+#include <xapian/deprecated.h>
 #include <xapian/version.h>
 #include <xapian/visibility.h>
 
@@ -63,12 +64,16 @@ namespace Quartz {
 
 /** Construct a Database object for read-only access to a Quartz database.
  *
+ * The Quartz backend is deprecated - use the Flint backend instead.
+ *
  * @param dir  pathname of the directory containing the database.
  */
 XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &dir);
+XAPIAN_DEPRECATED(Database open(const std::string &dir));
 
 /** Construct a Database object for update access to a Quartz database.
+ *
+ * The Quartz backend is deprecated - use the Flint backend instead.
  *
  * @param dir		pathname of the directory containing the database.
  * @param action	determines handling of existing/non-existing database:
@@ -87,8 +92,8 @@ Database open(const std::string &dir);
  *			existing database.
  */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase
-open(const std::string &dir, int action, int block_size = 8192);
+XAPIAN_DEPRECATED(WritableDatabase
+open(const std::string &dir, int action, int block_size = 8192));
 
 }
 #endif

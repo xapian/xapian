@@ -21,6 +21,10 @@
  */
 
 #include <config.h>
+
+// We have to use the deprecated Quartz::open() method.
+#define XAPIAN_DEPRECATED(D) D
+
 #include "database.h"
 #include "utils.h" // for om_tostring
 #include <xapian/dbfactory.h>

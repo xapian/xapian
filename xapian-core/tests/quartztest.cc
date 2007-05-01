@@ -22,6 +22,9 @@
 
 #include <config.h>
 
+// We have to use the deprecated Quartz::open() method.
+#define XAPIAN_DEPRECATED(D) D
+
 #include "safeerrno.h"
 
 #include "unixcmds.h"

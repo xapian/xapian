@@ -29,6 +29,8 @@
 #include <string>
 #include <vector>
 
+// We have to use the deprecated Quartz::open() method.
+#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include "backendmanager.h"

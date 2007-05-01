@@ -72,7 +72,10 @@
 #define XAPIAN_TCPSRV XAPIAN_BIN_PATH"xapian-tcpsrv"
 #define XAPIAN_PROGSRV XAPIAN_BIN_PATH"xapian-progsrv"
 
+// We have to use the deprecated Quartz::open() method.
+#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
+
 #include "index_utils.h"
 #include "backendmanager.h"
 #include "omdebug.h"

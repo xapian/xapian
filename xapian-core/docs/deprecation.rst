@@ -141,6 +141,14 @@ Native C++ API
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 | 1.0.0           | 1.1.0          | Enquire::use_exact_termfreq   | Use Enquire::USE_EXACT_TERMFREQ instead.                                      |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | The Quartz backend            | Use the Flint backend instead.                                                |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | Quartz::open()                | Use Flint::open() instead.                                                    |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | quartzcheck                   | Use xapian-check instead.                                                     |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | quartzcompact                 | Use xapian-compact instead.                                                   |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 
 .. [#version] The version functions will probably be preserved for longer than the usual lifetime of deprecated features, because it is unhelpful to remove functions which people use to test the version of the library in use.  However, the replacements have been supported for long enough that new applications should use the replacement functions without worrying about old library versions which don't support them.
 
