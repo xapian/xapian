@@ -1,3 +1,11 @@
+Tue May 01 21:00:26 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omtermlistiterator.cc,api/omvalueiterator.cc,
+	  backends/multi/multi_alltermslist.cc: Add explicit
+	  `#include "omassert.h"'.
+	* backends/multi/multi_alltermslist.cc: Remove all explicit
+	  std:: qualifiers and add `using namespace std;'.
+
 Tue May 01 20:56:10 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/multialltermslist.h: Add explicit std:: qualifiers for

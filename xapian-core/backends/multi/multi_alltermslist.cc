@@ -1,8 +1,7 @@
-/* multialltermslist.cc
+/* multi_alltermslist.cc
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003 Olly Betts
+ * Copyright 2003,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,22 +15,26 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
+
 #include "multialltermslist.h"
 
-MultiAllTermsList::MultiAllTermsList(const std::vector<TermList *> &lists_)
+#include "omassert.h"
+
+using namespace std;
+
+MultiAllTermsList::MultiAllTermsList(const vector<TermList *> &lists_)
 	: lists(lists_), is_at_end(false), started(false)
 {
 }
 
 MultiAllTermsList::~MultiAllTermsList()
 {
-    std::vector<TermList *>::const_iterator i;
+    vector<TermList *>::const_iterator i;
     for (i = lists.begin(); i != lists.end(); ++i) {
 	delete *i;
     }
@@ -43,7 +46,7 @@ MultiAllTermsList::update_current()
 {
     bool found_term = false;
 
-    std::vector<TermList *>::const_iterator i;
+    vector<TermList *>::const_iterator i;
     for (i = lists.begin(); i != lists.end(); ++i) {
 	if ((*i)->at_end()) {
 	    continue;
@@ -51,7 +54,7 @@ MultiAllTermsList::update_current()
 	    current = (*i)->get_termname();
 	    found_term = true;
 	} else {
-	    std::string newterm = (*i)->get_termname();
+	    string newterm = (*i)->get_termname();
 	    if (newterm < current) {
 		current = newterm;
 	    }
@@ -67,8 +70,8 @@ MultiAllTermsList::get_approx_size() const
 {
     Xapian::termcount size = 0;
 
-    std::vector<TermList *>::const_iterator i;
-    for (i = lists.begin(); i!=lists.end(); ++i) {
+    vector<TermList *>::const_iterator i;
+    for (i = lists.begin(); i != lists.end(); ++i) {
 	size += (*i)->get_approx_size();
     }
     return size;
@@ -87,8 +90,8 @@ MultiAllTermsList::get_termfreq() const
     Assert(started);
     Xapian::doccount termfreq = 0;
 
-    std::vector<TermList *>::const_iterator i;
-    for (i = lists.begin(); i!=lists.end(); ++i) {
+    vector<TermList *>::const_iterator i;
+    for (i = lists.begin(); i != lists.end(); ++i) {
 	if (!(*i)->at_end() &&
 	    (*i)->get_termname() == current) {
 	    termfreq += (*i)->get_termfreq();
@@ -102,8 +105,8 @@ MultiAllTermsList::get_collection_freq() const
 {
     Xapian::termcount collection_freq = 0;
 
-    std::vector<TermList *>::const_iterator i;
-    for (i = lists.begin(); i!=lists.end(); ++i) {
+    vector<TermList *>::const_iterator i;
+    for (i = lists.begin(); i != lists.end(); ++i) {
 	if (!(*i)->at_end() &&
 	    (*i)->get_termname() == current) {
 	    collection_freq += (*i)->get_collection_freq();
@@ -117,7 +120,7 @@ MultiAllTermsList::skip_to(const string &tname)
 {
     started = true;
 
-    std::vector<TermList *>::const_iterator i;
+    vector<TermList *>::const_iterator i;
     for (i = lists.begin(); i != lists.end(); ++i) {
 	(*i)->skip_to(tname);
     }
@@ -131,14 +134,13 @@ MultiAllTermsList::next()
 {
     if (!started) {
 	started = true;
-	
-	std::vector<TermList *>::const_iterator i;
+
+	vector<TermList *>::const_iterator i;
 	for (i = lists.begin(); i != lists.end(); ++i) {
 	    (*i)->next();
 	}
     } else {
-
-	std::vector<TermList *>::const_iterator i;
+	vector<TermList *>::const_iterator i;
 	for (i = lists.begin(); i != lists.end(); ++i) {
 	    if (!(*i)->at_end() && (*i)->get_termname() == current) {
 		(*i)->next();
