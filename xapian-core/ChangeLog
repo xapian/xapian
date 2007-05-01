@@ -1,3 +1,10 @@
+Tue May 01 23:17:28 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Several tests were marked as "local db only" for
+	  historical reasons.  Enable them for remote backends too.
+	* backends/remote/net_postlist.cc,tests/api_db.cc: Fix a bug in
+	  NetworkPostList::skip_to() which apitest's postlist4 reveals.
+
 Tue May 01 21:00:26 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omtermlistiterator.cc,api/omvalueiterator.cc,

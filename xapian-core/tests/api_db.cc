@@ -1576,6 +1576,18 @@ test_desc localdb_tests[] = {
 
 test_desc remotedb_tests[] = {
 // FIXME:    {"multierrhandler1",   test_multierrhandler1},
+    {"msetiterator1",	   test_msetiterator1},
+    {"msetiterator2",	   test_msetiterator2},
+    {"msetiterator3",	   test_msetiterator3},
+    {"esetiterator1",	   test_esetiterator1},
+    {"esetiterator2",	   test_esetiterator2},
+    {"multiexpand1",       test_multiexpand1},
+    {"postlist1",	   test_postlist1},
+    {"postlist2",	   test_postlist2},
+    {"postlist3",	   test_postlist3},
+    {"postlist4",	   test_postlist4},
+    {"postlist5",	   test_postlist5},
+    {"postlist6",	   test_postlist6},
     {"stubdb1",		   test_stubdb1},
     {"keepalive1",	   test_keepalive1},
     {"termstats",	   test_termstats},

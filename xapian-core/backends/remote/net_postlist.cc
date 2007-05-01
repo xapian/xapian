@@ -2,6 +2,7 @@
  *  @brief Postlists for remote databases
  */
 /* Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -78,9 +79,9 @@ NetworkPostList::next(Xapian::weight)
 PostList *
 NetworkPostList::skip_to(Xapian::docid did, Xapian::weight weight)
 {
-    if (pos == NULL)
+    if (!started)
 	next(weight);
-    while (pos != pos_end && lastdocid < did)
+    while (pos && lastdocid < did)
 	next(weight);
     return NULL;
 }
