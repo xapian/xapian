@@ -39,7 +39,7 @@ class MultiAllTermsList : public AllTermsList
 	std::vector<TermList *> lists;
 
 	/// The current term being pointed at.
-	string current;
+	std::string current;
 
 	/// Flag indicating the end of the lists
 	bool is_at_end;
@@ -59,7 +59,7 @@ class MultiAllTermsList : public AllTermsList
 	Xapian::termcount get_approx_size() const;
 
 	// Gets current termname
-	string get_termname() const;
+	std::string get_termname() const;
 
 	// Get num of docs indexed by term
 	Xapian::doccount get_termfreq() const;
@@ -67,7 +67,7 @@ class MultiAllTermsList : public AllTermsList
 	// Get num of docs indexed by term
 	Xapian::termcount get_collection_freq() const;
 
-	TermList *skip_to(const string &tname);
+	TermList *skip_to(const std::string &tname);
 
 	/** next() causes the AllTermsList to move to the next term in the list.
 	 */
