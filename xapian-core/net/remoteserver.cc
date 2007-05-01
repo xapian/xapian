@@ -210,6 +210,7 @@ RemoteServer::msg_termlist(const string &message)
     const char *p_end = p + message.size();
     Xapian::docid did = decode_length(&p, p_end, false);
 
+    send_message(REPLY_DOCLENGTH, serialise_double(db->get_doclength(did)));
     const Xapian::TermIterator end = db->termlist_end(did);
     for (Xapian::TermIterator t = db->termlist_begin(did); t != end; ++t) {
 	string item = encode_length(t.get_wdf());

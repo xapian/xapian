@@ -119,19 +119,26 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 
     send_message(MSG_TERMLIST, encode_length(did));
 
+    string message;
+    get_message(message, REPLY_DOCLENGTH);
+    const char * p = message.c_str();
+    const char * p_end = p + message.size();
+    Xapian::doclength doclen = unserialise_double(&p, p_end);
+    if (p != p_end || doclen < 0) {
+	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH message received", context);
+    }
+
     AutoPtr<NetworkTermList> tlist;
-    tlist = new NetworkTermList(avlength, doccount,
+    tlist = new NetworkTermList(doclen, doccount,
 				Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
 				did);
     vector<NetworkTermListItem> & items = tlist->items;
 
-    //TimerSentry timersentry(this);
-    string message;
     char type;
     while ((type = get_message(message)) == REPLY_TERMLIST) {
 	NetworkTermListItem item;
-	const char * p = message.data();
-	const char * p_end = p + message.size();
+	p = message.data();
+	p_end = p + message.size();
 	item.wdf = decode_length(&p, p_end, false);
 	item.termfreq = decode_length(&p, p_end, false);
 	item.tname.assign(p, p_end);
@@ -153,7 +160,7 @@ RemoteDatabase::open_allterms() const {
     send_message(MSG_ALLTERMS, "");
 
     AutoPtr<NetworkTermList> tlist;
-    tlist = new NetworkTermList(avlength, doccount,
+    tlist = new NetworkTermList(0.0, doccount,
 				Xapian::Internal::RefCntPtr<const RemoteDatabase>(this),
 				0);
     vector<NetworkTermListItem> & items = tlist->items;
@@ -284,12 +291,12 @@ RemoteDatabase::update_stats(message_type msg_code) const
     doccount = decode_length(&p, p_end, false);
     lastdocid = decode_length(&p, p_end, false);
     if (p == p_end) {
-	throw Xapian::NetworkError("Bad message received", context);
+	throw Xapian::NetworkError("Bad REPLY_UPDATE message received", context);
     }
     has_positional_info = (*p++ == '1');
     avlength = unserialise_double(&p, p_end);
     if (p != p_end || avlength < 0) {
-	throw Xapian::NetworkError("Bad message received", context);
+	throw Xapian::NetworkError("Bad REPLY_UPDATE message received", context);
     }
     cached_stats_valid = true;
 }
@@ -363,7 +370,7 @@ RemoteDatabase::get_doclength(Xapian::docid did) const
     const char * p_end = p + message.size();
     Xapian::doclength doclen = unserialise_double(&p, p_end);
     if (p != p_end || doclen < 0) {
-	throw Xapian::NetworkError("Bad message received", context);
+	throw Xapian::NetworkError("Bad REPLY_DOCLENGTH message received", context);
     }
     return doclen;
 }

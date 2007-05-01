@@ -1,7 +1,7 @@
 /* net_termlist.cc
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2006 Olly Betts
+ * Copyright 2002,2003,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 #include <config.h>
 #include <stdio.h>
 
+#include "omassert.h"
 #include "omdebug.h"
 #include "net_termlist.h"
 
@@ -29,19 +30,18 @@
 
 #include <xapian/error.h>
 
-NetworkTermList::NetworkTermList(Xapian::doclength /*average_length*/,
+NetworkTermList::NetworkTermList(Xapian::doclength document_length_,
 				 Xapian::doccount database_size_,
 				 Xapian::Internal::RefCntPtr<const RemoteDatabase> this_db_,
 				 Xapian::docid did_)
 	: items(),
 	  current_position(items.begin()),
 	  started(false),
+	  document_length(document_length_),
 	  database_size(database_size_),
 	  this_db(this_db_),
 	  did(did_)
 {
-    // FIXME: set length
-    document_length = 1;
 }
 
 Xapian::termcount

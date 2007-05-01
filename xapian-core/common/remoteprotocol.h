@@ -30,7 +30,8 @@
 // 25: Support for delete_document and replace_document with unique term
 // 26: Tweak delete_document with unique term; delta encode rset and termpos
 // 27: Support for postlists (always passes the whole list across)
-#define XAPIAN_REMOTE_PROTOCOL_VERSION 27
+// 28: Pass document length in reply to MSG_TERMLIST
+#define XAPIAN_REMOTE_PROTOCOL_VERSION 28
 
 /// Message types (client -> server).
 enum message_type {

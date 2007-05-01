@@ -7,7 +7,7 @@
 <h1>Remote Backend Protocol</h1>
 
 <p>
-This document describes <em>version 27</em> of the protocol used by Xapian's
+This document describes <em>version 28</em> of the protocol used by Xapian's
 remote backend.  The protocol assumes a reliable two-way connection across which
 arbitrary data can be sent - this could be provided by a TCP socket for example
 (as it is with xapian-tcpsrv), but any such connection could be used.  For
@@ -167,6 +167,7 @@ I&lt;sort key number&gt; &lt;sort by&gt; B&lt;sort value forward&gt;
 
 <ul>
 <li> <code>MSG_TERMLIST I&lt;document id&gt;</code>
+<li> <code>REPLY_DOCLENGTH F&lt;document length&gt;</code>
 <li> <code>REPLY_TERMLIST I&lt;wdf&gt; I&lt;term freq&gt; L&lt;term name&gt;</code>
 <li> <code>...</code>
 <li> <code>REPLY_DONE</code>
