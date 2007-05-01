@@ -1,3 +1,11 @@
+Wed May 02 00:24:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc: Add test expandweights1 as a regression test for
+	  the previous commit.
+	* tests/harness/testsuite.h: Set the precision for TEST_EQUAL_DOUBLE
+	  so we don't claim two numbers to be different yet display them the
+	  same!
+
 Tue May 01 23:27:10 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/remote/net_termlist.cc,backends/remote/remote-database.cc,

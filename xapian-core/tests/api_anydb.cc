@@ -362,6 +362,30 @@ static bool test_msetmaxitems1()
     return true;
 }
 
+// tests the returned weights are as expected (regression test for remote
+// backend which was using the average weight rather than the actual document
+// weight for computing weights - fixed in 1.0.0).
+static bool test_expandweights1()
+{
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("this"));
+
+    Xapian::MSet mymset = enquire.get_mset(0, 10);
+
+    Xapian::RSet myrset;
+    Xapian::MSetIterator i = mymset.begin();
+    myrset.add_document(*i);
+    myrset.add_document(*(++i));
+
+    Xapian::ESet myeset = enquire.get_eset(3, myrset);
+    TEST_EQUAL(myeset.size(), 3);
+    TEST_EQUAL_DOUBLE(myeset[0].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(myeset[1].get_weight(), 6.08904001099445);
+    TEST_EQUAL_DOUBLE(myeset[2].get_weight(), 4.73383620844021);
+
+    return true;
+}
+
 // tests that when specifying maxitems to get_eset, no more than
 // that are returned.
 static bool test_expandmaxitems1()
@@ -1724,6 +1748,7 @@ test_desc anydb_tests[] = {
     {"multidb4",           test_multidb4},
     {"multidb5",           test_multidb5},
     {"msetmaxitems1",      test_msetmaxitems1},
+    {"expandweights1",	   test_expandweights1},
     {"expandmaxitems1",    test_expandmaxitems1},
     {"boolquery1",         test_boolquery1},
     {"msetfirst1",         test_msetfirst1},
