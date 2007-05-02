@@ -94,6 +94,14 @@ class FlintDatabase : public Xapian::Database::Internal {
 	/// Lock object.
 	FlintLock lock;
 
+	/** Total length of all documents including unflushed modifications.
+	 */
+	flint_totlen_t total_length;
+
+	/** Highest document ID ever allocated by this database.
+	 */
+	Xapian::docid lastdocid;
+
 	/** Return true if a database exists at the path specified for this
 	 *  database.
 	 */
@@ -301,9 +309,6 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
 	TermList * open_allterms() const;
-	void begin_transaction_();
-	void commit_transaction_();
-	void cancel_transaction_();
 	//@}
 };
 

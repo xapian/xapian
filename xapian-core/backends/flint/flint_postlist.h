@@ -67,18 +67,15 @@ class FlintPostListTable : public FlintTable {
 		Xapian::docid did, bool adding,
 		PostlistChunkReader ** from, PostlistChunkWriter **to);
 
-	/** Return the total length of all the records in the table.
+	/** Get the total length, last document ID used, and metadata.
 	 */
-	flint_totlen_t get_total_length() const;
+	void get_metainfo_entry(flint_totlen_t & totlen,
+				Xapian::docid & lastdocid) const;
 
-	/** Get the last document id used.
+	/** Set the total length, last document ID used, and metadata.
 	 */
-	Xapian::docid get_lastdocid() const;
-
-	/** Set the total length and last document ID used.
-	 */
-	void set_total_length_and_lastdocid(flint_totlen_t totlen,
-					    Xapian::docid did);
+	void set_metainfo_entry(flint_totlen_t totlen,
+				Xapian::docid lastdocid);
 };
 
 /** A postlist in a flint database.

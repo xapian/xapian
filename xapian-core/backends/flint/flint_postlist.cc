@@ -30,44 +30,19 @@
 // next free docid and total length of all documents
 static const string METAINFO_KEY("", 1);
 
-Xapian::docid
-FlintPostListTable::get_lastdocid() const
-{
-    DEBUGCALL(DB, Xapian::docid, "FlintPostListTable::get_lastdocid", "");
-
-    string tag;
-    if (!get_exact_entry(METAINFO_KEY, tag)) RETURN(0u);
-
-    Xapian::docid did;
-    const char * data = tag.data();
-    const char * end = data + tag.size();
-    if (!unpack_uint(&data, end, &did)) {
-	throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
-    }
-    RETURN(did);
-}
-
 void
-FlintPostListTable::set_total_length_and_lastdocid(flint_totlen_t totlen,
-						  Xapian::docid did)
+FlintPostListTable::get_metainfo_entry(flint_totlen_t & totlen,
+				       Xapian::docid & did) const
 {
-    DEBUGCALL(DB, void, "FlintPostListTable::set_total_length_and_lastdocid",
-			totlen << ", " << did);
-    string tag = pack_uint(did);
-    tag += pack_uint_last(totlen);
-    add(METAINFO_KEY, tag);
-}
-
-flint_totlen_t
-FlintPostListTable::get_total_length() const
-{
-    DEBUGCALL(DB, flint_totlen_t, "FlintPostListTable::get_total_length", "");
+    DEBUGCALL(DB, void, "FlintPostListTable::get_metainfo_entry", "");
 
     string tag;
-    if (!get_exact_entry(METAINFO_KEY, tag)) RETURN(0);
+    if (!get_exact_entry(METAINFO_KEY, tag)) {
+	totlen = 0;
+	did = 0;
+	return;
+    }
 
-    Xapian::docid did;
-    flint_totlen_t totlen;
     const char * data = tag.data();
     const char * end = data + tag.size();
     if (!unpack_uint(&data, end, &did)) {
@@ -76,7 +51,17 @@ FlintPostListTable::get_total_length() const
     if (!unpack_uint_last(&data, end, &totlen)) {
 	throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
     }
-    RETURN(totlen);
+}
+
+void
+FlintPostListTable::set_metainfo_entry(flint_totlen_t totlen,
+				       Xapian::docid did)
+{
+    DEBUGCALL(DB, void, "FlintPostListTable::set_metainfo_entry",
+			totlen << ", " << did);
+    string tag = pack_uint(did);
+    tag += pack_uint_last(totlen);
+    add(METAINFO_KEY, tag);
 }
 
 /// Make a key for accessing the postlist.
