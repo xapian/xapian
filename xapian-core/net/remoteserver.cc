@@ -105,7 +105,10 @@ RemoteServer::get_message(Xapian::timeout timeout, string & result,
 			  message_type required_type)
 {
     unsigned int type;
-    type = RemoteConnection::get_message(result, OmTime::now() + timeout);
+    OmTime end_time;
+    if (timeout)
+	end_time = OmTime::now() + timeout;
+    type = RemoteConnection::get_message(result, end_time);
 
     // Handle "shutdown connection" message here.
     if (type == MSG_SHUTDOWN) throw ConnectionClosed();
@@ -127,7 +130,9 @@ RemoteServer::get_message(Xapian::timeout timeout, string & result,
 void
 RemoteServer::send_message(reply_type type, const string &message)
 {
-    OmTime end_time = OmTime::now() + active_timeout;
+    OmTime end_time;
+    if (active_timeout)
+	end_time = OmTime::now() + active_timeout;
     unsigned char type_as_char = static_cast<unsigned char>(type);
     RemoteConnection::send_message(type_as_char, message, end_time);
 }

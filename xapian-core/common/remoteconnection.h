@@ -153,13 +153,23 @@ class RemoteConnection {
      *
      *  @param[out] result	Message data.
      *  @param end_time		If this time is reached, then a timeout
-     *				exception will be thrown.
+     *				exception will be thrown.  If
+     *				!end_time.is_set() then the operation will
+     *				never timeout.
      *
      *  @return			Message type code.
      */
     char get_message(std::string &result, const OmTime & end_time);
 
-    /// Send a message.
+    /** Send a message.
+     *
+     *  @param type		Message type code.
+     *  @param s		Message data.
+     *  @param end_time		If this time is reached, then a timeout
+     *				exception will be thrown.  If
+     *				!end_time.is_set() then the operation will
+     *				never timeout.
+     */
     void send_message(char type, const std::string & s, const OmTime & end_time);
 
     /// Shutdown the connection.

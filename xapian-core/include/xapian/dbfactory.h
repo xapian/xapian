@@ -147,12 +147,14 @@ namespace Remote {
  * @param port		port number to connect to.
  * @param timeout	timeout in milliseconds.  If this timeout is exceeded
  *			for any individual operation on the remote database
- *			then Xapian::NetworkTimeoutError is thrown.  (Default
- *			is 10000ms, which is 10 seconds).
+ *			then Xapian::NetworkTimeoutError is thrown.  A timeout
+ *			of 0 means don't timeout.  (Default is 10000ms, which
+ *			is 10 seconds).
  * @param connect_timeout	timeout to use when connecting to the server.
  *				If this timeout is exceeded then
- *				Xapian::NetworkTimeoutError is throw.  (Default
- *				is to be the same as timeout).
+ *				Xapian::NetworkTimeoutError is thrown.  A
+ *				timeout of 0 means don't timeout.  (Default is
+ *				to be the same as timeout).
  */
 XAPIAN_VISIBILITY_DEFAULT
 Database open(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
@@ -177,8 +179,9 @@ WritableDatabase open_writable(const std::string &host, unsigned int port, Xapia
  * @param args		space-separated list of arguments to pass to program.
  * @param timeout	timeout in milliseconds.  If this timeout is exceeded
  *			for any individual operation on the remote database
- *			then Xapian::NetworkTimeoutError is thrown (default is
- *			10000ms, which is 10 seconds).
+ *			then Xapian::NetworkTimeoutError is thrown.  A timeout
+ *			of 0 means don't timeout.  (Default is 10000ms, which
+ *			is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
 Database open(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
@@ -193,8 +196,9 @@ Database open(const std::string &program, const std::string &args, Xapian::timeo
  * @param args		space-separated list of arguments to pass to program.
  * @param timeout	timeout in milliseconds.  If this timeout is exceeded
  *			for any individual operation on the remote database
- *			then Xapian::NetworkTimeoutError is thrown (default is
- *			10000ms, which is 10 seconds).
+ *			then Xapian::NetworkTimeoutError is thrown.  A timeout
+ *			of 0 means don't timeout.  (Default is 10000ms, which
+ *			is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
 WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
