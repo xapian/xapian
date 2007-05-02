@@ -29,7 +29,7 @@
 namespace Xapian {
     class PositionIterator;
     namespace Internal {
-	struct ExpandStats;
+	class ExpandStats;
 	class ExpandWeight;
     }
 }
