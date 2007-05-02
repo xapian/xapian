@@ -1,6 +1,6 @@
 /* safewindows.h: #include <windows.h> without all the bloat and damage.
  *
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -34,6 +34,7 @@
 // which we don't care about and will just slow down compilation and
 // increase the risk of symbol collisions.
 #define WIN32_LEAN_AND_MEAN
+#define NOGDI
 #include <windows.h>
 
 // FOF_NOERRORUI isn't defined by older versions of the mingw headers.
