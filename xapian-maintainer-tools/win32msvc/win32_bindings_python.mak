@@ -48,7 +48,7 @@ CLEANSWIG :
 		
 DOTEST :
 	cd "$(OUTDIR)"
-	copy "$(ZLIB_DIR)\bin\*.dll"
+	copy "$(ZLIB_BIN_DIR)\zlib1.dll"
 	"$(PYTHON_EXE)" smoketest.py
 	"$(PYTHON_EXE)" pythontest.py
 	

@@ -23,14 +23,11 @@ LIBMATCHER_OBJS= \
                  $(INTDIR)\phrasepostlist.obj \
                  $(INTDIR)\selectpostlist.obj \
                  $(INTDIR)\filterpostlist.obj \
-                 $(INTDIR)\ortermlist.obj \
-                 $(INTDIR)\expandweight.obj \
                  $(INTDIR)\rset.obj \
                  $(INTDIR)\bm25weight.obj \
                  $(INTDIR)\tradweight.obj \
                  $(INTDIR)\localmatch.obj \
                  $(INTDIR)\multimatch.obj \
-                 $(INTDIR)\expand.obj \
                  $(INTDIR)\stats.obj \
                  $(INTDIR)\mergepostlist.obj \
                  $(INTDIR)\msetpostlist.obj \
@@ -113,18 +110,6 @@ CPP_SBRS=.
 <<
 
 
-"$(INTDIR)\ortermlist.obj" : ".\ortermlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\expandweight.obj" : ".\expandweight.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
 "$(INTDIR)\rset.obj" : ".\rset.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
@@ -155,17 +140,10 @@ CPP_SBRS=.
 <<
 
 
-"$(INTDIR)\expand.obj" : ".\expand.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
 "$(INTDIR)\stats.obj" : ".\stats.cc"
        $(CPP) @<<
    $(CPP_PROJ) $**
 <<
-
 
 "$(INTDIR)\mergepostlist.obj" : ".\mergepostlist.cc"
        $(CPP) @<<

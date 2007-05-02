@@ -34,7 +34,7 @@ QUERYPARSERTEST : $(PROGRAM_QUERYPARSERTEST)
 
 DOTEST :
 	set srcdir=.
-	copy "$(ZLIB_DIR)\bin\*.dll"
+	copy "$(ZLIB_BIN_DIR)\zlib1.dll"
 	apitest -v
 	btreetest
 	internaltest
@@ -101,9 +101,9 @@ CPP_SBRS=.
 
 
 LINK32=link.exe
-ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS)
+ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
 
-PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
+PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
 
 # executables
 "$(OUTDIR)\stemtest.exe" : "$(OUTDIR)" $(DEF_FILE) $(STEMTEST_OBJS) \

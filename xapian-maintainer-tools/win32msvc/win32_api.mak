@@ -29,6 +29,7 @@ LIBAPI_OBJS= \
              $(INTDIR)\ompositionlistiterator.obj  \
              $(INTDIR)\omtermlistiterator.obj  \
              $(INTDIR)\omvalueiterator.obj \
+             $(INTDIR)\termlist.obj \
              $(INTDIR)\valuerangeproc.obj \
 	     $(INTDIR)\version.obj
 
@@ -117,6 +118,11 @@ CPP_SBRS=.
 
 
 "$(INTDIR)\omvalueiterator.obj" : ".\omvalueiterator.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\termlist.obj" : ".\termlist.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
