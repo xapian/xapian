@@ -42,10 +42,6 @@
 #  undef off_t
 # endif
 
-# ifdef ssize_t
-#  undef ssize_t
-# endif
-
 # define lseek(FD, OFF, WHENCE) _lseeki64(FD, OFF, WHENCE)
 # define off_t __int64
 

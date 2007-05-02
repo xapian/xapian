@@ -51,6 +51,7 @@
 
 #ifdef __WIN32__
 # include "safefcntl.h"
+# include "safewindows.h"
 #endif
 
 // Paths to xapian-tcpsrv and xapian-progsrv.
