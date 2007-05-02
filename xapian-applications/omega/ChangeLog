@@ -1,3 +1,8 @@
+Wed May 02 03:26:38 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/omegascript.txt,query.cc: Removed $freqs as it has been
+	  deprecated for ages.
+
 Wed May 02 03:19:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/scriptindex.txt: Explicitly note that index=nopos is deprecated

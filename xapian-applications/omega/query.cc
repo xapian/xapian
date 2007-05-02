@@ -712,7 +712,6 @@ CMD_filterterms,
 CMD_find,
 CMD_fmt,
 CMD_freq,
-CMD_freqs,
 CMD_ge,
 CMD_gt,
 CMD_highlight,
@@ -830,8 +829,6 @@ T(filterterms,	   1, 1, N, 0), // list of terms with a given prefix
 T(find,		   2, 2, N, 0), // find entry in list
 T(fmt,		   0, 0, N, 0), // name of current format
 T(freq,		   1, 1, N, 0), // frequency of a term
-T(freqs,	   0, 0, N, M), // return HTML string listing query terms and
-				// frequencies
 T(ge,		   2, 2, N, 0), // test >=
 T(gt,		   2, 2, N, 0), // test >
 T(highlight,	   2, 4, N, 0), // html escape and highlight words from list
@@ -1228,11 +1225,6 @@ eval(const string &fmt, const vector<string> &param)
 		} catch (...) {
 		    value = int_to_string(db.get_termfreq(args[0]));
 		}
-		break;
-	    case CMD_freqs:
-		// for backward compatibility
-		value = eval("$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}}",
-			     param);
 		break;
             case CMD_ge:
 		if (string_to_int(args[0]) >= string_to_int(args[1]))

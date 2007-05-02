@@ -147,16 +147,6 @@ $fmt
 $freq{term}
 	frequency of a term
 
-$freqs
-	returns an HTML string listing query terms and frequencies.
-
-	Deprecated and likely to be removed, as it hardcodes HTML layout into
-	the omega binary.  Exactly equivalent to:
-
-	$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}}
-
-	Use this (or some variation of it) in preference.
-
 $highlight{TEXT,LIST,[OPEN,[CLOSE]]}
 	html escape string (<>&, etc) and highlight any terms from LIST
 	that appear in TEXT by enclosing them in OPEN and CLOSE.  If
