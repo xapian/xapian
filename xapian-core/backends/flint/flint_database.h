@@ -204,7 +204,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	bool has_positions() const;
 
 	LeafPostList * open_post_list(const string & tname) const;
-	LeafTermList * open_term_list(Xapian::docid did) const;
+	TermList * open_term_list(Xapian::docid did) const;
 	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
 	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
@@ -296,7 +296,7 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	bool has_positions() const;
 
 	LeafPostList * open_post_list(const string & tname) const;
-	LeafTermList * open_term_list(Xapian::docid did) const;
+	TermList * open_term_list(Xapian::docid did) const;
 	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
 	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;

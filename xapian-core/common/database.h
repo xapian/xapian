@@ -37,7 +37,6 @@
 using namespace std;
 
 class LeafPostList;
-class LeafTermList;
 class RemoteDatabase;
 
 typedef Xapian::TermIterator::Internal TermList;
@@ -192,7 +191,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual LeafTermList * open_term_list(Xapian::docid did) const = 0;
+	virtual TermList * open_term_list(Xapian::docid did) const = 0;
 
 	/** Open an allterms list.
 	 *

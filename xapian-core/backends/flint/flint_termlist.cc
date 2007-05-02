@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,6 +22,7 @@
 
 #include <config.h>
 #include <xapian/error.h>
+#include "expandweight.h"
 #include "flint_termlist.h"
 #include "flint_utils.h"
 #include "utils.h"
@@ -226,14 +227,12 @@ FlintTermList::get_termfreq() const
     RETURN(current_termfreq);
 }
 
-OmExpandBits
-FlintTermList::get_weighting() const
+void
+FlintTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
-    DEBUGCALL(DB, OmExpandBits, "FlintTermList::get_weighting", "");
+    DEBUGCALL(DB, void, "FlintTermList::accumulate_stats", "[stats&]");
     Assert(!have_finished);
-    Assert(wt != NULL);
-
-    return wt->get_bits(current_wdf, doclen, get_termfreq(), doccount);
+    stats.accumulate(current_wdf, doclen, get_termfreq(), doccount);
 }
 
 Xapian::termcount

@@ -1,6 +1,7 @@
-/* alltermslist.h: Base class for iterating all terms in a database.
- *
- * Copyright (C) 2007 Olly Betts
+/** @file alltermslist.h
+ * @brief Abstract base class for iterating all terms in a database.
+ */
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +23,7 @@
 
 #include "termlist.h"
 
-/// Base class for iterating all terms in a database.
+/// Abstract base class for iterating all terms in a database.
 class AllTermsList : public TermList {
     /// Don't allow assignment.
     void operator=(const AllTermsList &);
@@ -43,46 +44,46 @@ class AllTermsList : public TermList {
     /// Return approximate size of this termlist.
     virtual Xapian::termcount get_approx_size() const = 0;
 
-    /// Return weighting infomation for the current term.
-    virtual OmExpandBits get_weighting() const;
+    // Collate weighting information for the current term.
+    virtual void accumulate_stats(Xapian::Internal::ExpandStats &) const;
 
-    /// Return the current termname.
+    /// Return the termname at the current position.
     virtual std::string get_termname() const = 0;
 
-    /** Return the wdf of the current term.
+    /** Return the wdf for the term at the current position.
      *
      *  This isn't meaningful for an AllTermsList, and will throw
      *  Xapian::InvalidOperationError if called.
      */
     virtual Xapian::termcount get_wdf() const;
 
-    /// Return the term frequency of the current term.
+    /// Return the term frequency for the term at the current position.
     virtual Xapian::doccount get_termfreq() const = 0;
 
-    /// Return the collection frequency of the current term.
+    /// Return the collection frequency for the term at the current position.
     virtual Xapian::termcount get_collection_freq() const = 0;
 
-    /// Advanced to the next term in the list.
+    /// Advance the current position to the next term in the termlist.
     virtual TermList *next() = 0;
 
-    /** Skip foward to the specified term.
+    /** Skip forward to the specified term.
      *
      *  If the specified term isn't in the list, position ourselves on the
      *  first term after tname (or at_end() if no terms after tname exist).
      */
-    virtual TermList *skip_to(const std::string &tname) = 0;
+    virtual TermList *skip_to(const std::string &term) = 0;
 
-    /// Returns true if we've advanced past the end of the list.
+    /// Return true if the current position is past the last term in this list.
     virtual bool at_end() const = 0;
 
-    /** Return length of position list for the current term.
+    /** Return true if the current position is past the last term in this list.
      *
      *  This isn't meaningful for an AllTermsList, and will throw
      *  Xapian::InvalidOperationError if called.
      */
     virtual Xapian::termcount positionlist_count() const;
 
-    /** Return PositionIterator for the current term.
+    /** Return a PositionIterator for the current position.
      *
      *  This isn't meaningful for an AllTermsList, and will throw
      *  Xapian::InvalidOperationError if called.

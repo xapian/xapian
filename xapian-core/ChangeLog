@@ -1,3 +1,25 @@
+Wed May 02 04:17:28 BST 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,api/,backends/alltermslist.cc,backends/flint/,
+	  backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_termlist.cc,backends/multi/multi_termlist.h,
+	  backends/quartz/,backends/remote/net_termlist.cc,
+	  backends/remote/net_termlist.h,backends/remote/remote-database.cc,
+	  common/,expand/,matcher/: Split expand functionality out of
+	  "matcher" subdirectory into new "expand" subdirectory since it's
+	  not really connected to query matching and the matcher subdirectory
+	  is one of the largest.  Rewrite OrTermList, eliminating
+	  BranchTermList entirely.  Alter expand to pass in an object (of
+	  class Xapian::Internal::ExpandWeight) which accumulates statistics
+	  instead of returning OmExpandBits objects which we then have to
+	  merge (and eliminating the need for LeafTermList entirely).  Query
+	  expansion for multiple databases should now give results more like
+	  that for a single database with the same documents (if
+	  USE_EXACT_TERMFREQ is used, the results should be the same).  Debug
+	  logging from expand is now all of type EXPAND (some was of types
+	  MATCHER and WTCALC before).
+
 Wed May 02 03:35:17 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Add deprecation info for Omega too.

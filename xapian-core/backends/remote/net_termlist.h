@@ -1,7 +1,7 @@
 /* net_termlist.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2006 Olly Betts
+ * Copyright 2003,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,7 +58,7 @@ class NetworkTermListItem {
  *  The termlist is serialised across the network, and rebuilt into this
  *  object on the client side.
  */
-class NetworkTermList : public LeafTermList {
+class NetworkTermList : public TermList {
     friend class RemoteDatabase;
     private:
 	/** The list of items comprising the termlist.
@@ -96,11 +96,13 @@ class NetworkTermList : public LeafTermList {
 	/** Standard constructor is private: NetworkTermLists are created
 	 *  by RemoteDatabase object only, which is a friend.
 	 *
-	 *  @param average_length_  The average length of a document
-	 *  @param database_size_
+	 *  @param average_length_  The (non-normalised) length of the document
+	 *  @param database_size_   The number of documents in the database
+	 *  @param this_db_	    The database
+	 *  @param did_		    The document id
 	 */
-	NetworkTermList(Xapian::doclength average_length_,
-			Xapian::doccount  database_size_,
+	NetworkTermList(Xapian::doclength document_length_,
+			Xapian::doccount database_size_,
 			Xapian::Internal::RefCntPtr<const RemoteDatabase> this_db_,
 			Xapian::docid did_);
     public:
@@ -109,7 +111,8 @@ class NetworkTermList : public LeafTermList {
 	 */
 	Xapian::termcount get_approx_size() const;
 
-	OmExpandBits get_weighting() const;
+	// Collate weighting information for the current term.
+	void accumulate_stats(Xapian::Internal::ExpandStats &stats) const;
 	string get_termname() const;
 	Xapian::termcount get_wdf() const;
 	Xapian::doccount get_termfreq() const;

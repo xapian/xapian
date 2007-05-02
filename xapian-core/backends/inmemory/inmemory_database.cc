@@ -27,6 +27,7 @@
 #include "omdebug.h"
 
 #include "emptypostlist.h"
+#include "expandweight.h"
 #include "inmemory_database.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
@@ -211,16 +212,14 @@ InMemoryTermList::get_approx_size() const
     return terms;
 }
 
-OmExpandBits
-InMemoryTermList::get_weighting() const
+void
+InMemoryTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
     Assert(started);
     Assert(!at_end());
-    Assert(wt != NULL);
-
-    return wt->get_bits(InMemoryTermList::get_wdf(), document_length,
-			InMemoryTermList::get_termfreq(),
-			db->get_doccount());
+    stats.accumulate(InMemoryTermList::get_wdf(), document_length,
+		     InMemoryTermList::get_termfreq(),
+		     db->get_doccount());
 }
 
 string
@@ -431,7 +430,7 @@ InMemoryDatabase::get_doclength(Xapian::docid did) const
     return doclengths[did - 1];
 }
 
-LeafTermList *
+TermList *
 InMemoryDatabase::open_term_list(Xapian::docid did) const
 {
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");

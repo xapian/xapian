@@ -1,7 +1,7 @@
 /* multi_termlist.cc: C++ class definition for multiple database access
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,16 +20,19 @@
  */
 
 #include <config.h>
+
+#include "expandweight.h"
 #include "omdebug.h"
 #include "multi_termlist.h"
 #include "database.h"
 
-MultiTermList::MultiTermList(LeafTermList * tl_,
-			     const Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> & termdb_,
-			     const Xapian::Database &rootdb_)
-	: tl(tl_), termdb(termdb_), rootdb(rootdb_)
+MultiTermList::MultiTermList(TermList * tl_,
+			     const Xapian::Database &db_,
+			     size_t db_index_)
+	: tl(tl_), db(db_), db_index(db_index_)
 {
-    termfreq_factor = double(rootdb.get_doccount()) / termdb->get_doccount();
+    termfreq_factor = double(db.get_doccount());
+    termfreq_factor /= db.internal[db_index]->get_doccount();
     DEBUGLINE(DB, "Approximation factor for termfreq: " << termfreq_factor);
 }
 
@@ -45,15 +48,12 @@ MultiTermList::get_approx_size() const
 }
 
 void
-MultiTermList::set_weighting(const OmExpandWeight * wt_new)
+MultiTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
-    // Note: wt in the MultiTermList base class isn't ever set or used
-    tl->set_weighting(wt_new);
-}
-
-OmExpandBits
-MultiTermList::get_weighting() const {
-    return tl->get_weighting();
+    // For a multidb, every termlist access during expand will be through
+    // a MultiTermList, so it's safe to just set db_index like this.
+    stats.db_index = db_index;
+    tl->accumulate_stats(stats);
 }
 
 string

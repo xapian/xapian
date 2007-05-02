@@ -472,10 +472,10 @@ FlintDatabase::open_post_list(const string& tname) const
 			     tname));
 }
 
-LeafTermList *
+TermList *
 FlintDatabase::open_term_list(Xapian::docid did) const
 {
-    DEBUGCALL(DB, LeafTermList *, "FlintDatabase::open_term_list", did);
+    DEBUGCALL(DB, TermList *, "FlintDatabase::open_term_list", did);
     Assert(did != 0);
 
     Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
@@ -507,9 +507,9 @@ FlintDatabase::open_position_list(Xapian::docid did,
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
 	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
-	AutoPtr<LeafTermList> ltl(open_term_list(did));
-	ltl->skip_to(tname);
-	if (ltl->at_end() || ltl->get_termname() != tname)
+	AutoPtr<TermList> tl(open_term_list(did));
+	tl->skip_to(tname);
+	if (tl->at_end() || tl->get_termname() != tname)
 	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
     }
 
@@ -1008,10 +1008,10 @@ FlintWritableDatabase::open_post_list(const string& tname) const
 			     tname));
 }
 
-LeafTermList *
+TermList *
 FlintWritableDatabase::open_term_list(Xapian::docid did) const
 {
-    DEBUGCALL(DB, LeafTermList *, "FlintWritableDatabase::open_term_list", did);
+    DEBUGCALL(DB, TermList *, "FlintWritableDatabase::open_term_list", did);
     Assert(did != 0);
 
     Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
@@ -1044,9 +1044,9 @@ FlintWritableDatabase::open_position_list(Xapian::docid did,
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
 	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
-	AutoPtr<LeafTermList> ltl(open_term_list(did));
-	ltl->skip_to(tname);
-	if (ltl->at_end() || ltl->get_termname() != tname)
+	AutoPtr<TermList> tl(open_term_list(did));
+	tl->skip_to(tname);
+	if (tl->at_end() || tl->get_termname() != tname)
 	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
     }
 

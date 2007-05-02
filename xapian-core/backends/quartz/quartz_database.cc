@@ -614,10 +614,10 @@ QuartzDatabase::open_post_list(const string& tname) const
 			      tname));
 }
 
-LeafTermList *
+TermList *
 QuartzDatabase::open_term_list(Xapian::docid did) const
 {
-    DEBUGCALL(DB, LeafTermList *, "QuartzDatabase::open_term_list", did);
+    DEBUGCALL(DB, TermList *, "QuartzDatabase::open_term_list", did);
     Assert(did != 0);
 
     Xapian::Internal::RefCntPtr<const QuartzDatabase> ptrtothis(this);
@@ -649,9 +649,9 @@ QuartzDatabase::open_position_list(Xapian::docid did,
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
 	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
-	AutoPtr<LeafTermList> ltl(open_term_list(did));
-	ltl->skip_to(tname);
-	if (ltl->at_end() || ltl->get_termname() != tname)
+	AutoPtr<TermList> tl(open_term_list(did));
+	tl->skip_to(tname);
+	if (tl->at_end() || tl->get_termname() != tname)
 	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
     }
 
@@ -1144,10 +1144,10 @@ QuartzWritableDatabase::open_post_list(const string& tname) const
 			      tname));
 }
 
-LeafTermList *
+TermList *
 QuartzWritableDatabase::open_term_list(Xapian::docid did) const
 {
-    DEBUGCALL(DB, LeafTermList *, "QuartzWritableDatabase::open_term_list",
+    DEBUGCALL(DB, TermList *, "QuartzWritableDatabase::open_term_list",
 	      did);
     Assert(did != 0);
 
@@ -1181,9 +1181,9 @@ QuartzWritableDatabase::open_position_list(Xapian::docid did,
     if (poslist->get_size() == 0) {
 	// Check that term / document combination exists.
 	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
-	AutoPtr<LeafTermList> ltl(open_term_list(did));
-	ltl->skip_to(tname);
-	if (ltl->at_end() || ltl->get_termname() != tname)
+	AutoPtr<TermList> tl(open_term_list(did));
+	tl->skip_to(tname);
+	if (tl->at_end() || tl->get_termname() != tname)
 	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
     }
 

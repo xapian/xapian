@@ -190,7 +190,7 @@ class InMemoryAllDocsPostList : public LeafPostList {
 };
 
 // Term List
-class InMemoryTermList : public LeafTermList {
+class InMemoryTermList : public TermList {
     friend class InMemoryDatabase;
     private:
 	vector<InMemoryTermEntry>::const_iterator pos;
@@ -208,7 +208,9 @@ class InMemoryTermList : public LeafTermList {
     public:
 	Xapian::termcount get_approx_size() const;
 
-	OmExpandBits get_weighting() const;
+	/// Collate weighting information for the current term.
+	void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
+
 	string get_termname() const;
 	Xapian::termcount get_wdf() const; // Number of occurrences of term in current doc
 	Xapian::doccount get_termfreq() const;  // Number of docs indexed by term
@@ -300,7 +302,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	bool has_positions() const;
 
 	LeafPostList * open_post_list(const string & tname) const;
-	LeafTermList * open_term_list(Xapian::docid did) const;
+	TermList * open_term_list(Xapian::docid did) const;
 	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
 	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;

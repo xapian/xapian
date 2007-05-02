@@ -1,7 +1,7 @@
 /* maptermlist.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -50,14 +50,10 @@ class MapTermList : public TermList {
 	    return size;
 	}
 
-	// Gets weighting info for current term
-	OmExpandBits get_weighting() const {
+	// Collate weighting information for the current term.
+	void accumulate_stats(Xapian::Internal::ExpandStats &) const {
 	    Assert(false); // should never get called
 	    abort();
-#if defined __SUNPRO_CC || defined __sgi
-	    // For compilers which worry abort() might return...
-	    return OmExpandBits(0, 0, 0);
-#endif
 	}
 
 	// Gets current termname

@@ -25,6 +25,7 @@
 #include <xapian/expanddecider.h>
 
 #include "expand.h"
+#include "expandweight.h"
 #include "rset.h"
 #include "ortermlist.h"
 #include "omdebug.h"
@@ -38,6 +39,7 @@ using std::nth_element;
 using std::priority_queue;
 using std::sort;
 using std::vector;
+using namespace Xapian::Internal;
 
 class OmESetCmp {
     public:
@@ -56,7 +58,7 @@ class TLPCmpGt {
 };
 
 AutoPtr<TermList>
-OmExpand::build_tree(const RSetI *rset, const OmExpandWeight *ewt)
+OmExpand::build_tree(const RSetI *rset)
 {
     // Put items in priority queue, such that items with greatest size
     // are returned first.
@@ -72,8 +74,7 @@ OmExpand::build_tree(const RSetI *rset, const OmExpandWeight *ewt)
 	    Xapian::docid realdid = (*i - 1) / multiplier + 1;
 	    Xapian::doccount dbnumber = (*i - 1) % multiplier;
 
-	    AutoPtr<LeafTermList> tl(db.internal[dbnumber]->open_term_list(realdid));
-	    tl->set_weighting(ewt);
+	    AutoPtr<TermList> tl(db.internal[dbnumber]->open_term_list(realdid));
 	    pq.push(tl.get());
 	    tl.release();
 	}
@@ -120,9 +121,9 @@ OmExpand::expand(Xapian::termcount max_esize,
 		 const RSetI * rset,
 		 const Xapian::ExpandDecider * decider,
 		 bool use_exact_termfreq,
-		 double expand_k )
+		 double expand_k)
 {
-    DEBUGCALL(MATCH, void, "OmExpand::expand", max_esize << ", " << eset << ", " << rset << ", " << decider << ", " << use_exact_termfreq << ", " << expand_k);
+    DEBUGCALL(EXPAND, void, "OmExpand::expand", max_esize << ", " << eset << ", " << rset << ", " << decider << ", " << use_exact_termfreq << ", " << expand_k);
     eset.internal->items.clear();
     eset.internal->ebound = 0;
 
@@ -133,13 +134,11 @@ OmExpand::expand(Xapian::termcount max_esize,
 
     Xapian::weight w_min = 0;
 
-    // Start weighting scheme
-    OmExpandWeight ewt(db, rset->get_rsize(), 
-		       use_exact_termfreq,
-		       expand_k );
-
-    AutoPtr<TermList> merger(build_tree(rset, &ewt));
+    AutoPtr<TermList> merger(build_tree(rset));
     if (merger.get() == 0) return;
+
+    // Start weighting scheme
+    Xapian::Internal::ExpandWeight ewt(db, rset->get_rsize(), use_exact_termfreq, expand_k);
 
     DEBUGLINE(EXPAND, "ewt.get_maxweight() = " << ewt.get_maxweight());
     while (1) {
@@ -147,8 +146,7 @@ OmExpand::expand(Xapian::termcount max_esize,
 	    TermList *ret = merger->next();
 	    if (ret) {
 		DEBUGLINE(EXPAND, "*** REPLACING ROOT");
-		AutoPtr<TermList> newmerger(ret);
-		merger = newmerger;
+		merger = ret;
 	    }
 	}
 
@@ -158,8 +156,7 @@ OmExpand::expand(Xapian::termcount max_esize,
 	if (!decider || (*decider)(tname)) {
 	    eset.internal->ebound++;
 
-	    OmExpandBits ebits = merger->get_weighting();
-	    Xapian::weight wt = ewt.get_weight(ebits, tname);
+	    Xapian::weight wt = ewt.get_weight(merger.get(), tname);
 
 	    if (wt > w_min) {
 		eset.internal->items.push_back(Xapian::Internal::ESetItem(wt, tname));

@@ -1,7 +1,7 @@
 /* multi_termlist.h: C++ class declaration for multiple database access
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -25,23 +25,23 @@
 #include "termlist.h"
 #include "database.h"
 
-class MultiTermList : public LeafTermList {
+class MultiTermList : public TermList {
     friend class Xapian::Database;
     private:
-	LeafTermList *tl;
-	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> termdb;
-	const Xapian::Database &rootdb;
+	TermList *tl;
+	const Xapian::Database & db;
+	size_t db_index;
 	double termfreq_factor;
 
-	MultiTermList(LeafTermList * tl_,
-		      const Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> & termdb_,
-		      const Xapian::Database &rootdb_);
+	MultiTermList(TermList * tl_,
+		      const Xapian::Database &db_,
+		      size_t db_index_);
     public:
-	void set_weighting(const OmExpandWeight *wt_new);
-
 	Xapian::termcount get_approx_size() const;
 
-	OmExpandBits get_weighting() const; // Gets weight info of current term
+	/// Collate weighting information for the current term.
+	void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
+
 	string get_termname() const;
 	Xapian::termcount get_wdf() const; // Number of occurrences of term in current doc
 	Xapian::doccount get_termfreq() const;  // Number of docs indexed by term

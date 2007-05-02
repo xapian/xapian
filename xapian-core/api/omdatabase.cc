@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Richard Boulton
  *
  * This program is free software; you can redistribute it and/or
@@ -133,7 +133,7 @@ Database::termlist_begin(Xapian::docid did) const
     if (did == 0) throw InvalidArgumentError("Document ID 0 is invalid");
 
     unsigned int multiplier = internal.size();
-    LeafTermList *tl;
+    TermList *tl;
     if (multiplier == 1) {
 	// There's no need for the MultiTermList wrapper in the common case
 	// where we're only dealing with a single database.
@@ -143,7 +143,7 @@ Database::termlist_begin(Xapian::docid did) const
 	Xapian::doccount n = (did - 1) % multiplier; // which actual database
 	Xapian::docid m = (did - 1) / multiplier + 1; // real docid in that database
 
-	tl = new MultiTermList(internal[n]->open_term_list(m), internal[n], *this);
+	tl = new MultiTermList(internal[n]->open_term_list(m), *this, n);
     }
     RETURN(TermIterator(tl));
 }

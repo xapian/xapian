@@ -109,7 +109,7 @@ RemoteDatabase::keep_alive()
     get_message(message, REPLY_DONE);
 }
 
-LeafTermList *
+TermList *
 RemoteDatabase::open_term_list(Xapian::docid did) const
 {
     if (did == 0) throw Xapian::InvalidArgumentError("Docid 0 invalid");

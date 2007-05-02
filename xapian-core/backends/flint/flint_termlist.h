@@ -26,6 +26,7 @@
 #include <string>
 
 #include <xapian/types.h>
+#include "database.h"
 #include "termlist.h"
 #include "flint_table.h"
 
@@ -70,7 +71,7 @@ class FlintTermListTable : public FlintTable {
 
 /** A termlist in a flint database.
  */
-class FlintTermList : public LeafTermList {
+class FlintTermList : public TermList {
     private:
         // Prevent copying
         FlintTermList(const FlintTermList &);
@@ -190,9 +191,8 @@ class FlintTermList : public LeafTermList {
 	 */
 	Xapian::doccount get_termfreq() const;
 
-	/** Get weighting information for the current term in termlist.
-	 */
-	OmExpandBits get_weighting() const;
+	/// Collate weighting information for the current term.
+	void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
 
 	Xapian::termcount positionlist_count() const;
 	Xapian::PositionIterator positionlist_begin() const;

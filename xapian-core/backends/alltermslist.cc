@@ -22,6 +22,7 @@
 #include <xapian/error.h>
 
 #include "alltermslist.h"
+#include "omassert.h"
 
 #include <string>
 
@@ -29,15 +30,11 @@ using namespace std;
 
 AllTermsList::~AllTermsList() { }
 
-OmExpandBits
-AllTermsList::get_weighting() const
+void
+AllTermsList::accumulate_stats(Xapian::Internal::ExpandStats &) const
 {
     Assert(false); // should never get called
     abort();
-#if defined __SUNPRO_CC || defined __sgi
-    // For compilers which worry abort() might return...
-    return OmExpandBits(0, 0, 0);
-#endif
 }
 
 Xapian::termcount

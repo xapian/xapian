@@ -50,19 +50,16 @@ NetworkTermList::get_approx_size() const
     return items.size();
 }
 
-OmExpandBits
-NetworkTermList::get_weighting() const
-// FIXME: change this to get_weighting_info, which returns the info needed
-// to call get_bits.
+void
+NetworkTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
     Assert(started);
     Assert(!at_end());
-    Assert(wt != NULL);
 
-    return wt->get_bits(NetworkTermList::get_wdf(),
-			document_length,
-			NetworkTermList::get_termfreq(),
-			database_size);
+    stats.accumulate(current_position->wdf,
+		     document_length,
+		     current_position->termfreq,
+		     database_size);
 }
 
 string

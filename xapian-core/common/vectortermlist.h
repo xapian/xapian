@@ -1,7 +1,7 @@
 /* vectortermlist.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2005,2006 Olly Betts
+ * Copyright 2002,2003,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,10 +55,10 @@ class VectorTermList : public TermList {
 	    return terms.size();
 	}
 
-	// Gets weighting info for current term
-	OmExpandBits get_weighting() const {
+	// Collate weighting information for the current term.
+	void accumulate_stats(Xapian::Internal::ExpandStats &) const {
 	    Assert(false); // should never get called
-            throw Xapian::InvalidOperationError("VectorTermList::get_weighting() not supported");
+	    abort();
 	}
 
 	// Gets current termname
@@ -83,7 +83,7 @@ class VectorTermList : public TermList {
 	 *  If next() returns a non-zero pointer P, then the original
 	 *  termlist should be deleted, and the original pointer replaced
 	 *  with P.
-	 *  In LeafTermList, next() will always return 0.
+	 *  In a leaf TermList, next() will always return 0.
 	 */
 	TermList * next() {
 	    Assert(!at_end());

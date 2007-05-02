@@ -43,8 +43,8 @@ class OmExpand {
 	const Xapian::Database &db;
 
         bool recalculate_maxweight;
-	AutoPtr<TermList> build_tree(const RSetI *rset,
-				     const OmExpandWeight *ewt);
+	AutoPtr<TermList> build_tree(const RSetI *rset);
+
     public:
         OmExpand(const Xapian::Database &db_);
 

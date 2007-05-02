@@ -1,7 +1,7 @@
-/* expandweight.h
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2007 Olly Betts
+/** @file expandweight.h
+ * @brief Collate statistics and calculate the term weights for the ESet.
+ */
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,92 +15,109 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_EXPANDWEIGHT_H
-#define OM_HGUARD_EXPANDWEIGHT_H
-
-#include <string>
+#ifndef XAPIAN_INCLUDED_EXPANDWEIGHT_H
+#define XAPIAN_INCLUDED_EXPANDWEIGHT_H
 
 #include <xapian/database.h>
-#include "database.h"
 
-using namespace std;
+#include "termlist.h"
 
-/** Information which is passed up through tree of termlists to calculate
- *  term weightings.
- */
-class OmExpandBits {
-    friend class OmExpandWeight;
-    private:
-	/// Multiplier to apply to get expand weight.
-	Xapian::weight multiplier;
+#include <string>
+#include <vector>
 
-	/// Number of relevant docs indexed by term.
-	Xapian::doccount rtermfreq;
+namespace Xapian {
+namespace Internal {
 
-	/// Term frequency (may be within a subset of whole database).
-	Xapian::doccount termfreq;
+/// Collates statistics while calculating term weight in an ESet.
+class ExpandStats {
+    // Which databases in a multidb are included in termfreq.
+    std::vector<bool> dbs_seen;
 
-	/// Size of db subset to which termfreq applies (0 if not multidb).
-	Xapian::doccount dbsize;
-    public:
-	OmExpandBits(Xapian::weight multiplier_new,
-		   Xapian::termcount termfreq_new,
-		   Xapian::doccount dbsize_new)
-		: multiplier(multiplier_new),
-		  rtermfreq(1),
-		  termfreq(termfreq_new),
-		  dbsize(dbsize_new)
-		  { }
+    // Average document length in the whole database.
+    Xapian::doclength avlen;
 
-	friend OmExpandBits operator+(const OmExpandBits &, const OmExpandBits &);
+    /// Parameter 'k' in the probabilistic expand weighting formula.
+    double expand_k;
+
+  public:
+    /// Size of the subset of a multidb to which the value in termfreq applies.
+    Xapian::doccount dbsize;
+
+    /// Term frequency (for a multidb, may be for a subset of the databases).
+    Xapian::doccount termfreq;
+
+    /// Factor to multiply w(t) by.
+    Xapian::weight multiplier;
+
+    /// The number of documents from the RSet indexed by the current term (r).
+    Xapian::doccount rtermfreq;
+
+    /// Keeps track of the index of the sub-database we're accumulating for.
+    size_t db_index;
+
+    ExpandStats(Xapian::doclength avlen_, double expand_k_)
+	: avlen(avlen_), expand_k(expand_k_),
+          dbsize(0), termfreq(0), multiplier(0), rtermfreq(0), db_index(0) {
+    }
+
+    void accumulate(Xapian::termcount wdf, Xapian::doclength doclen, Xapian::doccount subtf, Xapian::doccount subdbsize) {
+	// Boolean terms may have wdf == 0, but treat that as 1 so such terms
+	// get a non-zero weight.
+	if (wdf == 0) wdf = 1;
+
+	multiplier += (expand_k + 1) * wdf / (expand_k * doclen / avlen + wdf);
+	++rtermfreq;
+
+	// If we've not seen this sub-database before, then update dbsize and
+	// termfreq and note that we have seen it.
+	if (db_index >= dbs_seen.size() || !dbs_seen[db_index]) {
+	    dbsize += subdbsize;
+	    termfreq += subtf;
+	    if (db_index >= dbs_seen.size()) dbs_seen.resize(db_index + 1);
+	    dbs_seen[db_index] = true;
+	}
+    }
 };
 
-/** Abstract base class for expand weighting schemes
- */
-class OmExpandWeight {
-    protected:
-	const Xapian::Database root; // Root database
-	Xapian::doccount dbsize;        // Size of whole collection
-	Xapian::doccount rsize;         // Size of RSet
+/// Class for calculating probabilistic ESet term weights.
+class ExpandWeight {
+    /// The combined database.
+    const Xapian::Database db;
 
-	/** Average length of a document in whole collection.
-	 */
-	Xapian::doclength average_length;
+    /// The number of documents in the RSet.
+    Xapian::doccount rsize;
 
-	/** If true, the exact term frequency will be requested from the
-	 *  root database, rather than an approximation made, when expand
-	 *  across a multi-database is being performed.
-	 *
-	 *  The approximation is to guess the term frequency based on the
-	 *  term frequency in the current database (as returned by the
-	 *  termlist), and the proportion of the documents in the total
-	 *  collection which that sub-database represents.
-	 */
-	bool use_exact_termfreq;
+    /** Should we calculate the exact term frequency when generating an ESet?
+     *
+     *  This only has any effect if we're using a combined database.
+     *
+     *  If this member is true, the exact term frequency will be obtained from
+     *  the Database object.  If this member is false, then an approximation is
+     *  used to estimate the term frequency based on the term frequencies in
+     *  the sub-databases which we see while collating term statistics, and the
+     *  relative sizes of the sub-databases.
+     */
+    bool use_exact_termfreq;
 
-	/// Parameter used by expand weighting formula
-	double expand_k;
+    /// Parameter k in the probabilistic expand weighting formula.
+    double expand_k;
 
-    public:
+public:
+    ExpandWeight(const Xapian::Database &db_,
+		 Xapian::doccount rsize_,
+		 bool use_exact_termfreq_,
+		 double expand_k_);
 
-	OmExpandWeight(const Xapian::Database &root_,
-		       Xapian::doccount rsetsize_,
-		       bool use_exact_termfreq_,
-		       double expand_k_ );
+    Xapian::weight get_weight(TermList * merger,
+			      const std::string & tname) const;
 
-	OmExpandBits get_bits(Xapian::termcount wdf,
-			      Xapian::doclength len,
-			      Xapian::doccount termfreq,
-			      Xapian::doccount dbsize_) const;
-
-	Xapian::weight get_weight(const OmExpandBits & bits,
-			     const string & tname) const;
-
-	Xapian::weight get_maxweight() const;
+    Xapian::weight get_maxweight() const;
 };
 
-#endif /* OM_HGUARD_EXPANDWEIGHT_H */
+}
+}
+
+#endif // XAPIAN_INCLUDED_EXPANDWEIGHT_H

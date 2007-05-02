@@ -3,7 +3,6 @@ noinst_HEADERS +=\
 	matcher/andnotpostlist.h\
 	matcher/andpostlist.h\
 	matcher/branchpostlist.h\
-	matcher/branchtermlist.h\
 	matcher/emptysubmatch.h\
 	matcher/exactphrasepostlist.h\
 	matcher/extraweightpostlist.h\
@@ -13,7 +12,6 @@ noinst_HEADERS +=\
 	matcher/msetcmp.h\
 	matcher/msetpostlist.h\
 	matcher/orpostlist.h\
-	matcher/ortermlist.h\
 	matcher/phrasepostlist.h\
 	matcher/remotesubmatch.h\
 	matcher/selectpostlist.h\
@@ -39,8 +37,6 @@ libxapian_la_SOURCES +=\
 	matcher/bm25weight.cc\
 	matcher/emptysubmatch.cc\
 	matcher/exactphrasepostlist.cc\
-	matcher/expand.cc\
-	matcher/expandweight.cc\
 	matcher/filterpostlist.cc\
 	matcher/localmatch.cc\
 	matcher/mergepostlist.cc\
@@ -48,7 +44,6 @@ libxapian_la_SOURCES +=\
 	matcher/msetpostlist.cc\
 	matcher/multimatch.cc\
 	matcher/orpostlist.cc\
-	matcher/ortermlist.cc\
 	matcher/phrasepostlist.cc\
 	matcher/rset.cc\
 	matcher/selectpostlist.cc\
