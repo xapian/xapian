@@ -673,14 +673,13 @@ main(int argc, char **argv)
 	{ "version",	no_argument,	NULL, 'V' },
 	{ "stemmer",	required_argument,	NULL, 's' },
 	{ "overwrite",	no_argument,	NULL, 'o' },
-	{ "quiet",	no_argument,	NULL, 'q' },
 	{ "verbose",	no_argument,	NULL, 'v' },
 	{ 0, 0, NULL, 0 }
     };
 
     bool more = true, show_help = false;
     while (more) {
-	switch (gnu_getopt_long(argc, argv, "vs:hVuq", longopts, NULL)) {
+	switch (gnu_getopt_long(argc, argv, "vs:hV", longopts, NULL)) {
 	    case EOF:
 		more = false;
 		break;
@@ -694,12 +693,6 @@ main(int argc, char **argv)
 		return 0;
 	    case 'o': // --overwrite
 		database_mode = Xapian::DB_CREATE_OR_OVERWRITE;
-		break;
-	    case 'u':
-		// Update is now the default, so ignore -u for compatibility.
-		break;
-	    case 'q':
-		// --quiet no longer does anything; ignore for compatibility.
 		break;
 	    case 'v':
 		verbose = true;
