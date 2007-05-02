@@ -1,3 +1,11 @@
+Wed May 02 17:56:39 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory_remote.cc,include/xapian/dbfactory.h:
+	  Remote::open_writable() now defaults to no (active) timeout.  The
+	  connection timeouts for Remote::open() and Remote::open_writable()
+	  now default to 10 seconds rather than defaulting to the same as
+	  the active timeout (which defaults to 10 seconds).
+
 Wed May 02 16:00:22 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/safeunistd.h,tests/harness/backendmanager.cc: Fix

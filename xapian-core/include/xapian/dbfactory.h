@@ -136,7 +136,6 @@ open(const std::string &dir, int action, int block_size = 8192);
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 namespace Remote {
 
-//@{
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a TCP connection.
  *
@@ -154,20 +153,31 @@ namespace Remote {
  *				If this timeout is exceeded then
  *				Xapian::NetworkTimeoutError is thrown.  A
  *				timeout of 0 means don't timeout.  (Default is
- *				to be the same as timeout).
+ *				10000ms, which is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
-XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
-//@}
+Database open(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000, Xapian::timeout connect_timeout = 10000);
 
-//@{
+/** Construct a WritableDatabase object for update access to a remote database
+ *  accessed via a TCP connection.
+ *
+ * Access to the remote database is via a TCP connection to the specified
+ * host and port.
+ *
+ * @param host		hostname to connect to.
+ * @param port		port number to connect to.
+ * @param timeout	timeout in milliseconds.  If this timeout is exceeded
+ *			for any individual operation on the remote database
+ *			then Xapian::NetworkTimeoutError is thrown.  (Default
+ *			is 0, which means don't timeout).
+ * @param connect_timeout	timeout to use when connecting to the server.
+ *				If this timeout is exceeded then
+ *				Xapian::NetworkTimeoutError is thrown.  A
+ *				timeout of 0 means don't timeout.  (Default is
+ *				10000ms, which is 10 seconds).
+ */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout, Xapian::timeout connect_timeout);
-XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout = 10000);
-//@}
+WritableDatabase open_writable(const std::string &host, unsigned int port, Xapian::timeout timeout = 0, Xapian::timeout connect_timeout = 10000);
 
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a program.
@@ -196,12 +206,11 @@ Database open(const std::string &program, const std::string &args, Xapian::timeo
  * @param args		space-separated list of arguments to pass to program.
  * @param timeout	timeout in milliseconds.  If this timeout is exceeded
  *			for any individual operation on the remote database
- *			then Xapian::NetworkTimeoutError is thrown.  A timeout
- *			of 0 means don't timeout.  (Default is 10000ms, which
- *			is 10 seconds).
+ *			then Xapian::NetworkTimeoutError is thrown.  (Default
+ *			is 0, which means don't timeout).
  */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 10000);
+WritableDatabase open_writable(const std::string &program, const std::string &args, Xapian::timeout timeout = 0);
 
 }
 #endif
