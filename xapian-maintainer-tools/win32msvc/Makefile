@@ -49,8 +49,6 @@ DOTEST:
 CLEAN: COPYMAKFILES
    cd ..\net
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
-   cd ..\getopt
-   nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\common
    nmake /$(MAKEFLAGS) DEBUG="$(DEBUG)" CLEAN
    cd ..\api
@@ -101,7 +99,6 @@ COPYMAKFILES:
    copy  win32_bin.mak ..\bin\Makefile
    copy  win32_common.mak ..\common\Makefile
    copy  win32_examples.mak ..\examples\Makefile
-   copy  win32_getopt.mak ..\getopt\Makefile
    copy  win32_languages_compiler.mak ..\languages\compiler\Makefile
    copy  win32_languages.mak ..\languages\Makefile
    copy  win32_matcher.mak ..\matcher\Makefile
