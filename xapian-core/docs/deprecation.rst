@@ -182,6 +182,15 @@ Bindings
 
 .. [#callable] Python handles this like C++.  Ruby renames it to 'call' (idiomatic Ruby).  PHP renames it to 'apply'.  CSharp to 'Apply' (delegates could probably be used to provide C++-like functor syntax, but that's effort and it seems debatable if it would actually be more natural to a C# programmer).  Tcl8 renames it to 'apply' - need to ask a Tcl type if that's the best solution.
 
+Omega
+-----
+
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| **Deprecation** | **Removal**    | **Feature name**              | **Upgrade suggestion and comments**                                           |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+| 0.9.5           | 1.1.0          | scriptindex index=nopos       | Use indexnopos instead.                                                       |
++-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+
 Features removed from Xapian
 ============================
 
@@ -285,6 +294,18 @@ Bindings
 
 .. [#rswig3] This affects all swig generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word (and therefore, the method remains "is_empty").
 
+Omega
+-----
+
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| **Removal**    | **Feature name**                    | **Upgrade suggestion and comments**                                                     |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | $freqs                              | $map{$queryterms,$_:&nbsp;$nice{$freq{$_}}}                                             |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | scriptindex -u                      | -u was ignored for compatibility with 0.7.5 and earlier.                                |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0          | scriptindex -q                      | -q was ignored for compatibility with 0.6.1 and earlier.                                |
++----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
 
 Author
 ======
