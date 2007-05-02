@@ -144,7 +144,7 @@ Display parameters and navigation
 ---------------------------------
 
 FMT
-	name of page format to use (a-z only).
+	name of page format to use (may not contain `..').
 
 HITSPERPAGE
 	hits per page (integer) - clipped to range 10-1000.

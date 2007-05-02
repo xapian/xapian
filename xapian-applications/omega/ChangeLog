@@ -1,3 +1,8 @@
+Wed May 02 03:17:03 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/cgiparams.txt: FMT isn't limited to just `a-z' - the
+	  actual restriction is that it may not contain `..'.
+
 Wed May 02 03:02:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* scriptindex.cc: Remove -q and -u options - they no longer do
