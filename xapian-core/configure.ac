@@ -645,7 +645,8 @@ if test yes = "$enable_backend_flint" ; then
   dnl Check for zlibVersion in -lz.
   SAVE_LIBS=$LIBS
   LIBS=
-  AC_SEARCH_LIBS([zlibVersion], [z], [], [
+  dnl mingw build needs -lzlib.
+  AC_SEARCH_LIBS([zlibVersion], [z zlib], [], [
     AC_MSG_ERROR([zlibVersion() not found in -lz - required for flint (you may need to install the zlib1g-dev or zlib-devel package)])
     ])
   if test x != x"$LIBS" ; then
