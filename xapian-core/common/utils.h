@@ -100,13 +100,6 @@ inline int stat(const string &filename, struct stat *buf) {
     return stat(filename.c_str(), buf);
 }
 
-#ifdef __WIN32__
-inline unsigned int sleep(unsigned int secs) {
-    _sleep(secs * 1000);
-    return 0;
-}
-#endif
-
 // Like C's isXXXXX() but:
 //  (a) always work in the C locale
 //  (b) handle signed char as well as unsigned char
