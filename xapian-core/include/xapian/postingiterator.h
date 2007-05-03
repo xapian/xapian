@@ -36,8 +36,8 @@ namespace Xapian {
 
 class Database;
 
-/** A wrapper class for a docid which returns the docid if dereferenced 
- *  with *.  We need this to implement input_iterator semantics.
+/** @internal A wrapper class for a docid which returns the docid if
+ *  dereferenced with *.  We need this to implement input_iterator semantics.
  */
 class DocIDWrapper {
     private:

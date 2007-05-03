@@ -24,6 +24,8 @@
 #include <xapian/error.h>
 #include <xapian/visibility.h>
 
+namespace Xapian {
+
 /** Decide if a Xapian::Error exception should be ignored.
  *
  *  You can create your own subclass of this class and pass in an instance
@@ -37,7 +39,7 @@
  *  also so that such errors can be logged and dead servers temporarily removed
  *  from use).
  */
-class XAPIAN_VISIBILITY_DEFAULT Xapian::ErrorHandler {
+class XAPIAN_VISIBILITY_DEFAULT ErrorHandler {
     /// Don't allow assignment.
     void operator=(const ErrorHandler &);
 
@@ -84,5 +86,7 @@ class XAPIAN_VISIBILITY_DEFAULT Xapian::ErrorHandler {
      */
     void operator()(Xapian::Error &error);
 };
+
+}
 
 #endif /* XAPIAN_INCLUDED_ERRORHANDLER_H */

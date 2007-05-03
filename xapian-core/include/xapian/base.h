@@ -28,7 +28,7 @@
 namespace Xapian {
 namespace Internal {
 
-/** Reference counted internal classes should inherit from RefCntBase.
+/** @internal Reference counted internal classes should inherit from RefCntBase.
  *
  * This gives the object a reference count used by RefCntPtr.
  */
@@ -58,7 +58,7 @@ class RefCntBase {
 	mutable ref_count_t ref_count;
 };
 
-/** A reference-counted pointer.  Can be used with any
+/** @internal A reference-counted pointer.  Can be used with any
  *  class derived from RefCntBase, as long as it is allocated
  *  on the heap by new (not new[]!).
  */

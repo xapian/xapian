@@ -37,8 +37,8 @@ class Database;
 class PostingIterator;
 class TermIterator;
 
-/** A wrapper class for a termpos which returns the termpos if dereferenced 
- *  with *.  We need this to implement input_iterator semantics.
+/** @internal A wrapper class for a termpos which returns the termpos if
+ *  dereferenced with *.  We need this to implement input_iterator semantics.
  */
 class TermPosWrapper {
     private:

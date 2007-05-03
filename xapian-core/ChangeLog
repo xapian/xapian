@@ -1,3 +1,13 @@
+Thu May 03 02:33:09 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/: Mark DocIDWrapper, RefCntBase, RefCntPtr,
+	  TermNameWrapper, and TermPosWrapper as "@internal" so that they don't
+	  show up in the doxygen-generated API documentation.  In particular,
+	  this makes the class collaboration diagrams much more useful.
+	* include/xapian/errorhandler.h: Declare the class in namespace Xapian
+	  rather than with namespace Xapian:: since the latter seems to
+	  confuse doxygen.
+
 Thu May 03 02:31:33 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/unicode.h: Fix wrapping of comment.
