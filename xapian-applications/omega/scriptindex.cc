@@ -53,13 +53,6 @@ using namespace std;
 #define PROG_NAME "scriptindex"
 #define PROG_DESC "index arbitrary data as described by an index script"
 
-#ifdef __WIN32__
-inline unsigned int sleep(unsigned int secs) {
-    _sleep(secs * 1000);
-    return 0;
-}
-#endif
-
 static bool verbose;
 static int addcount;
 static int repcount;

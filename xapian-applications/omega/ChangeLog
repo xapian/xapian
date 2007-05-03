@@ -1,3 +1,9 @@
+Thu May 03 04:03:35 BST 2007  Olly Betts <olly@survex.com>
+
+	* ./: Update svn:externals to pull rev8430 of xapian-core's common
+	  subdirectory.
+	* scriptindex.cc: Remove sleep() wrapper.
+
 Wed May 02 03:26:38 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt,query.cc: Removed $freqs as it has been
