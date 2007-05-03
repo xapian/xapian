@@ -150,7 +150,9 @@ for (@baseclasses) {
 $comment
 class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
   protected:
-    /** \@Internal Constructor for use by constructors of derived classes. */
+    /** \@private \@internal
+     *  \@brief Constructor for use by constructors of derived classes.
+     */
     $class(const std::string \&msg_, const std::string \&context_, const char * type_, int errno_)
 	: $parent(msg_, context_, type_, errno_) {}
 };
@@ -175,7 +177,9 @@ class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
     $class(const std::string \&msg_, int errno_)
 	: $parent(msg_, "", "$class", errno_) {}
   protected:
-    /** \@Internal Constructor for use by constructors of derived classes. */
+    /** \@private \@internal
+     *  \@brief Constructor for use by constructors of derived classes.
+     */
     $class(const std::string \&msg_, const std::string \&context_, const char * type_, int errno_)
 	: $parent(msg_, context_, type_, errno_) {}
 };
