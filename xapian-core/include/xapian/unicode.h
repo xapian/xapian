@@ -149,10 +149,10 @@ namespace Internal {
 
     /// Extract the delta to use for case conversion of a character from its info.
     inline int get_delta(int info) {
-	/* It's implementation defined if sign extension happens on right shift of
-	 * a signed int, hence the conditional (hopefully the compiler will spot
-	 * this and optimise it to a sign-extending shift on architectures with
-	 * a suitable instruction).
+	/* It's implementation defined if sign extension happens on right shift
+	 * of a signed int, hence the conditional (hopefully the compiler will
+	 * spot this and optimise it to a sign-extending shift on architectures
+	 * with a suitable instruction).
 	 */
 	return (info >= 0) ? (info >> 22) : (~(~info >> 22));
     }
