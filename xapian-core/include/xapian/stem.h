@@ -31,9 +31,9 @@ namespace Xapian {
 /// Class representing a stemming algorithm.
 class XAPIAN_VISIBILITY_DEFAULT Stem {
   public:
-    /// @internal Class representing the stemmer internals.
+    /// @private @internal Class representing the stemmer internals.
     class Internal;
-    /// @internal Reference counted internals.
+    /// @private @internal Reference counted internals.
     Xapian::Internal::RefCntPtr<Internal> internal;
 
     /// Copy constructor.

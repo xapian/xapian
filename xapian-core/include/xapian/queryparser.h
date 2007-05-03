@@ -133,7 +133,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
   public:
     /// Class representing the queryparser internals.
     class Internal;
-    /// @internal Reference counted internals.
+    /// @private @internal Reference counted internals.
     Xapian::Internal::RefCntPtr<Internal> internal;
 
     /// Enum of feature flags.

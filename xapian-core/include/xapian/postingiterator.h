@@ -52,7 +52,7 @@ class DocIDWrapper {
 class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
     public:
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
     private:

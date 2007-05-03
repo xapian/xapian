@@ -3,7 +3,7 @@
  */
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,10 +39,10 @@ class ValueIterator;
 class XAPIAN_VISIBILITY_DEFAULT Document {
     public:
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
-	/** @internal Constructor is only used by internal classes.
+	/** @private @internal Constructor is only used by internal classes.
 	 *
 	 *  @param internal_ pointer to internal opaque class
 	 */

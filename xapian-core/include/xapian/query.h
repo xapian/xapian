@@ -50,7 +50,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
     public:
 	/// Class holding details of the query
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
 	/// Enum of possible query operations
@@ -223,7 +223,7 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
     }
 }
 
-/// Internal class, implementing most of Xapian::Query
+/// @internal Internal class, implementing most of Xapian::Query.
 class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCntBase {
     friend class ::MultiMatch;
     friend class ::LocalSubMatch;

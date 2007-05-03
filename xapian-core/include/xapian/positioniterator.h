@@ -59,7 +59,7 @@ class XAPIAN_VISIBILITY_DEFAULT PositionIterator {
 
     public:
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	Xapian::Internal::RefCntPtr<Internal> internal;
 
         friend bool operator==(const PositionIterator &a, const PositionIterator &b);

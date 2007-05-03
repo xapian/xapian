@@ -53,7 +53,7 @@ class Document;
 class XAPIAN_VISIBILITY_DEFAULT Database {
     public:
 	class Internal;
-	/// @internal Reference counted internals.
+	/// @private @internal Reference counted internals.
 	std::vector<Xapian::Internal::RefCntPtr<Internal> > internal;
 
 	/** Add an existing database (or group of databases) to those
@@ -74,7 +74,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	explicit Database(const std::string &path);
 
-	/** @internal Create a Database from its internals.
+	/** @private @internal Create a Database from its internals.
 	 */
 	explicit Database(Internal *internal);
 
@@ -248,7 +248,7 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 */
 	WritableDatabase(const std::string &path, int action);
 
-	/** @internal Create an WritableDatabase given its internals.
+	/** @private @internal Create an WritableDatabase given its internals.
 	 */
 	explicit WritableDatabase(Database::Internal *internal);
 
