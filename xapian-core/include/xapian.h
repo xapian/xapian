@@ -1,6 +1,6 @@
 // xapian.h: Public interfaces for core Xapian library
 //
-// Copyright (C) 2003,2004,2005 Olly Betts
+// Copyright (C) 2003,2004,2005,2007 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -38,6 +38,9 @@
 #include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
 #include <xapian/valueiterator.h>
+
+// Indexing
+#include <xapian/termgenerator.h>
 
 // Searching
 #include <xapian/enquire.h>
