@@ -1,7 +1,7 @@
 /** @file remoteserver.h
  *  @brief Xapian remote backend server base class
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
@@ -146,13 +146,13 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      *  @param fdout	The file descriptor to write to (fdin and fdout may be
      *			the same).
      *  @param active_timeout_	Timeout for actions during a conversation
-     *			(specified in millisrconds).
+     *			(specified in milliseconds).
      *  @param idle_timeout_	Timeout while waiting for a new action from
-     *			the client (specified in millisrconds).
+     *			the client (specified in milliseconds).
      */
     RemoteServer(Xapian::Database * db, int fdin, int fdout,
-		 Xapian::timeout active_timeout_ = 10000,
-		 Xapian::timeout idle_timeout_ = 60000);
+		 Xapian::timeout active_timeout_,
+		 Xapian::timeout idle_timeout_);
 
     /** Construct a writable RemoteServer.
      *
@@ -161,13 +161,13 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      *  @param fdout	The file descriptor to write to (fdin and fdout may be
      *			the same).
      *  @param active_timeout_	Timeout for actions during a conversation
-     *			(specified in millisrconds).
+     *			(specified in milliseconds).
      *  @param idle_timeout_	Timeout while waiting for a new action from
-     *			the client (specified in millisrconds).
+     *			the client (specified in milliseconds).
      */
     RemoteServer(Xapian::WritableDatabase * wdb, int fdin, int fdout,
-		 Xapian::timeout active_timeout_ = 10000,
-		 Xapian::timeout idle_timeout_ = 60000);
+		 Xapian::timeout active_timeout_,
+		 Xapian::timeout idle_timeout_);
 
     /// Destructor.
     ~RemoteServer();
