@@ -37,6 +37,9 @@ class OrTermList : public TermList {
      */
     std::string left_current, right_current;
 
+    /// Check that next() has already been called.
+    void check_started() const;
+
   public:
     OrTermList(TermList * left_, TermList * right_)
 	: left(left_), right(right_) { }

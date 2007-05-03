@@ -27,8 +27,8 @@
 
 #include <xapian/positioniterator.h>
 
-/// Check that next() has already been called.
-inline void check_started()
+void
+OrTermList::check_started() const
 {
     Assert(!left_current.empty());
     Assert(!right_current.empty());
