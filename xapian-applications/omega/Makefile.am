@@ -77,7 +77,7 @@ dist_omegadata_DATA = htdig2omega.script mbox2omega.script
 dist_sysconf_DATA = omega.conf
 
 noinst_HEADERS = omega.h query.h cgiparam.h\
- myhtmlparse.h htmlparse.h utils.h configfile.h date.h indextext.h\
+ myhtmlparse.h htmlparse.h utils.h configfile.h date.h\
  commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
  md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
  namedentities.h datematchdecider.h sample.h strcasecmp.h\
@@ -100,15 +100,15 @@ omega_SOURCES = omega.cc query.cc cgiparam.cc utils.cc configfile.cc date.cc\
  utf8convert.cc datematchdecider.cc
 omega_LDADD = $(XAPIAN_LIBS) # -lpcre
 
-omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
- common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc md5wrap.cc\
- xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc
+omindex_SOURCES = omindex.cc myhtmlparse.cc htmlparse.cc\
+ common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc md5.cc\
+ md5wrap.cc xmlparse.cc metaxmlparse.cc utf8convert.cc sample.cc
 if NEED_MKDTEMP
 omindex_SOURCES += portability/mkdtemp.cc
 endif
 omindex_LDADD = $(XAPIAN_LIBS)
 
-scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc indextext.cc\
+scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
  utf8convert.cc utf8truncate.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)

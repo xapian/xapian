@@ -45,7 +45,6 @@
 
 #include "commonhelp.h"
 #include "hashterm.h"
-#include "indextext.h"
 #include "loadfile.h"
 #include "md5wrap.h"
 #include "metaxmlparse.h"
@@ -96,6 +95,7 @@ static string indexroot;
 static string baseurl;
 static Xapian::WritableDatabase db;
 static Xapian::Stem stemmer("english");
+static Xapian::TermGenerator indexer;
 static vector<bool> updated;
 static string tmpdir;
 
@@ -459,11 +459,19 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	record += "\nsize=" + long_to_string(size);
     newdocument.set_data(record);
 
-    // Add postings for terms to the document
-    Xapian::termpos pos = 1;
-    pos = index_text(title, newdocument, stemmer, pos);
-    pos = index_text(dump, newdocument, stemmer, pos + 100);
-    pos = index_text(keywords, newdocument, stemmer, pos + 100);
+    // Index the title, document text, and keywords.
+    indexer.set_document(newdocument);
+    if (!title.empty()) {
+	indexer.index_text(Xapian::Utf8Iterator(title), 2);
+	indexer.increase_termpos(100);
+    }
+    if (!dump.empty()) {
+	indexer.index_text(Xapian::Utf8Iterator(dump));
+    }
+    if (!keywords.empty()) {
+	indexer.increase_termpos(100);
+	indexer.index_text(Xapian::Utf8Iterator(keywords));
+    }
 
     newdocument.add_term("T" + mimetype); // mimeType
     string::size_type j;
@@ -841,6 +849,9 @@ main(int argc, char **argv)
 	} else {
 	    db = Xapian::WritableDatabase(dbpath, Xapian::DB_CREATE_OR_OVERWRITE);
 	}
+
+	indexer.set_stemmer(stemmer);
+
 	index_directory(depth_limit, "/", mime_map);
 	if (!skip_duplicates && !preserve_unupdated) {
 	    for (Xapian::docid did = 1; did < updated.size(); ++did) {

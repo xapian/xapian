@@ -40,7 +40,6 @@
 
 #include "commonhelp.h"
 #include "hashterm.h"
-#include "indextext.h"
 #include "loadfile.h"
 #include "myhtmlparse.h"
 #include "utf8truncate.h"
@@ -409,15 +408,15 @@ parse_index_script(const string &filename)
 
 static bool
 index_file(const char *fname, istream &stream,
-	   Xapian::WritableDatabase &database, Xapian::Stem &stemmer)
+	   Xapian::WritableDatabase &database, Xapian::TermGenerator &indexer)
 {
     string line;
     size_t line_no = 0;
     while (!stream.eof() && getline(stream, line)) {
 	++line_no;
 	Xapian::Document doc;
+	indexer.set_document(doc);
 	Xapian::docid docid = 0;
-	Xapian::termpos wordcount = 0;
 	map<string, list<string> > fields;
 	bool seen_content = false;
 	while (!line.empty()) {
@@ -475,16 +474,17 @@ index_file(const char *fname, istream &stream,
 			}
 			break;
 		    case Action::INDEX:
-			wordcount = index_text(value, doc, stemmer,
-					       i->get_num_arg(),
-					       i->get_string_arg(), wordcount);
+			indexer.index_text(Xapian::Utf8Iterator(value),
+					   i->get_num_arg(),
+					   i->get_string_arg());
 			break;
 		    case Action::INDEXNOPOS:
 			// No positional information so phrase searching
 			// won't work.  However, the database will use much
 			// less diskspace.
-			index_text(value, doc, stemmer, i->get_num_arg(),
-				   i->get_string_arg());
+			indexer.index_text_without_positions(Xapian::Utf8Iterator(value),
+							     i->get_num_arg(),
+							     i->get_string_arg());
 			break;
 		    case Action::BOOLEAN:
 			doc.add_term(i->get_string_arg() + value);
@@ -738,19 +738,22 @@ main(int argc, char **argv)
 	    }
 	}
 
+	Xapian::TermGenerator indexer;
+	indexer.set_stemmer(stemmer);
+
 	addcount = 0;
 	repcount = 0;
 	delcount = 0;
 
 	if (argc == 2) {
 	    // Read from stdin.
-	    index_file("<stdin>", cin, database, stemmer);
+	    index_file("<stdin>", cin, database, indexer);
 	} else {
 	    // Read file(s) listed on the command line.
 	    for (int i = 2; i < argc; ++i) {
 		ifstream stream(argv[i]);
 		if (stream) {
-		    index_file(argv[i], stream, database, stemmer);
+		    index_file(argv[i], stream, database, indexer);
 		} else {
 		    cout << "Can't open file " << argv[i] << endl;
 		}
