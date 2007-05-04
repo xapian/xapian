@@ -219,8 +219,11 @@ main(int argc, char **argv)
 	    try {
 		db.add_database(Database(*i));
 	    } catch (const Error &e) {
-		cout << "Error opening database `" << *i << "': " << e.get_msg()
-		     << endl;
+		cout << "Error opening database `" << *i << "': ";
+		cout << e.get_msg();
+		if (!e.get_error_string().empty())
+		    cout << " (" << e.get_error_string() << ')';
+		cout << endl;
 		return 1;
 	    }
 	}
