@@ -1,3 +1,8 @@
+Fri May 04 13:04:52 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/Makefile.mk: Add termgenerator.h to distribution
+	  tarballs.
+
 Fri May 04 03:41:56 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.h: Test against pow(10, -DBL_DIG) rather

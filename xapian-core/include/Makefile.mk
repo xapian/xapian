@@ -17,6 +17,7 @@ xapianinclude_HEADERS =\
 	include/xapian/query.h\
 	include/xapian/queryparser.h\
 	include/xapian/stem.h\
+	include/xapian/termgenerator.h\
 	include/xapian/termiterator.h\
 	include/xapian/types.h\
 	include/xapian/unicode.h\
