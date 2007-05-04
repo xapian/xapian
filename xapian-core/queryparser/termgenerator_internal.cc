@@ -119,7 +119,7 @@ endofterm:
 	    (!stopper || !(*stopper)(term))) {
 	    term = stemmer(term);
 	    if (with_positions) {
-		doc.add_posting(term, weight, ++termpos);
+		doc.add_posting(term, ++termpos, weight);
 	    } else {
 		doc.add_term(term, weight);
 	    }
