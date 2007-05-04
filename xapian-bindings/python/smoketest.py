@@ -265,6 +265,13 @@ def test_all():
     expect_query(qp.parse_query(u"foo bar b", qp.FLAG_BOOLEAN),
                  "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
 
+    # Test TermGenerator
+    termgen = xapian.TermGenerator()
+    doc = xapian.Document()
+    termgen.set_document(doc)
+    termgen.index_text('foo bar baz foo')
+    expect([(item.term, item.wdf, [pos for pos in item.positer]) for item in doc.termlist()], [('bar', 1, [2]), ('baz', 1, [3]), ('foo', 2, [1, 4])])
+
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):
     sys.exit(1)

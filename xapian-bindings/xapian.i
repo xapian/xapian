@@ -951,6 +951,17 @@ public:
 %ignore Xapian::Stem::Stem(const Stem &);
 %include <xapian/stem.h>
 
+%ignore Xapian::TermGenerator::internal;
+%ignore Xapian::TermGenerator::operator=;
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &);
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &, Xapian::termcount);
+%ignore Xapian::TermGenerator::index_text(const Xapian::Utf8Iterator &, Xapian::termcount, const std::string &);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &, Xapian::termcount);
+%ignore Xapian::TermGenerator::index_text_without_positions(const Xapian::Utf8Iterator &, Xapian::termcount, const std::string &);
+%ignore Xapian::TermGenerator::TermGenerator(const TermGenerator &);
+%include <xapian/termgenerator.h>
+
 namespace Xapian {
 
 #if defined SWIGPYTHON && !defined PYTHON_OLDE
