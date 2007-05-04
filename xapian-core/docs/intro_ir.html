@@ -138,7 +138,8 @@ survive.
 
 <P>
 By default, Xapian uses probabilistic ranking to order retrieved documents
-while allowing Boolean expressions of arbitrary complexity to limit those
+while allowing Boolean expressions of arbitrary complexity (some boolean IR
+systems are restricted to queries in normal form) to limit those
 documents retrieved, which provides the benefits of both approaches.
 Pure Boolean retrieval is also supported.
 
@@ -414,7 +415,7 @@ disallowed, and simply replaced by a small positive value.
 Before we see how the weights are used there are a few more ideas to introduce.
 <P>
 As mentioned before, a term t is said to index a document D, or t -&gt; D. We have emphasised that D
-may not be a piece of text in machine readable form, and that, even when it
+may not be a piece of text in machine-readable form, and that, even when it
 is, t may not actually occur in the text of D. Nevertheless, it will often be
 the case that D is made up of a list of words,
 <PRE>
@@ -423,12 +424,14 @@ the case that D is made up of a list of words,
 
 and that many, if not all, of the terms which index D derive from these words.
 The relation between words and terms need not be a simple one. A single term
-`connect' might derive from a a number of words, `connect', `connects',
+`connect' might derive from a number of words, `connect', `connects',
 `connection', `connected' and so on. A single word might also give rise to more
-than one term, though this isn't the case for any of the stemming algorithms
-Xapian currently supports (but for example, the
+than one term, for example you might index both stemmed and unstemmed forms
+of some or all terms.  Or a stemming algorithm could conceivably produce
+more than one stem in some cases (this isn't the case for any of the stemming
+algorithms Xapian currently supports, but consider the
 <a href="http://en.wikipedia.org/wiki/Double_Metaphone">Double Metaphone</a>
-phonetic algorithm can produce two codes from a single input).
+phonetic algorithm which can produce two codes from a single input).
 <P>
 Nevertheless, if a term derives from words w<sub>9</sub>, w<sub>38</sub>, w<sub>97</sub> and
 w<sub>221</sub> in the indexing process, we can say that the term `occurs' in D at
@@ -440,7 +443,7 @@ The <EM>within-document frequency</EM>, or <EM>wdf</EM>, of a term t in D is the
 times it is pulled out of D in the indexing process. Usually this is the size
 of the wdp vector, but in Xapian it can exceed it, since we can
 apply extra wdf to some parts of the document text.  For example,
-often this is down for the document title and abstract to
+often this is done for the document title and abstract to
 attach extra importance to their contents compared to the
 rest of the document text.
 <P>
