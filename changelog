@@ -1,5 +1,6 @@
   * debian/rules: Generate control from control.in robustly - don't risk
     leaving a partially generated destination file.
+  * Now builds with GCC 4.3 snapshot.  Closes: #417778
 
 xapian-core (0.9.9-1) unstable; urgency=low
 
