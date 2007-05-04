@@ -214,8 +214,10 @@ If you're building code from SVN, you'll want to configure with:
 
 This will be done for you if you use the top-level bootstrap script and then
 run the top-level configure this produces (see below for more information about
-this).  If you don't enable maintainer mode, then rules to build the
-documentation are disabled.
+this).  If you don't enable maintainer mode, then rules to rebuild generated
+sources are disabled (and similarly for rules to build documentation are only
+enabled by --enable-documentation, or --enable-maintainer-mode without
+--disable-documentation).
 
 The SVN repository does not contain any automatically generated files
 (such as configure, Makefile.in, Lemon generated sources, etc) because
