@@ -23,6 +23,7 @@
 
 #include <xapian/base.h>
 #include <xapian/types.h>
+#include <xapian/unicode.h>
 #include <xapian/visibility.h>
 
 #include <string>
@@ -32,7 +33,6 @@ namespace Xapian {
 class Document;
 class Stem;
 class Stopper;
-class Utf8Iterator;
 
 /// Parse free text and generate terms.
 class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
@@ -68,10 +68,24 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 		    Xapian::termcount weight = 1,
 		    const std::string & prefix = "");
 
+    /// Index some text in a std::string.
+    void index_text(const std::string & text,
+		    Xapian::termcount weight = 1,
+		    const std::string & prefix = "") {
+	return index_text(Utf8Iterator(text), weight, prefix);
+    }
+
     /// Index some text without positional information.
     void index_text_without_positions(const Xapian::Utf8Iterator & itor,
 				      Xapian::termcount weight = 1,
 				      const std::string & prefix = "");
+
+    /// Index some text in a std::string without positional information.
+    void index_text_without_positions(const std::string & text,
+				      Xapian::termcount weight = 1,
+				      const std::string & prefix = "") {
+	return index_text_without_positions(Utf8Iterator(text), weight, prefix);
+    }
 
     /** Increase the termpos used by index_text by @a delta.
      *
