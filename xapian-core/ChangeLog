@@ -1,3 +1,7 @@
+Fri May 04 01:49:05 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Document --enable-documentation.
+
 Fri May 04 01:38:44 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,bin/Makefile.mk,configure.ac,docs/Makefile.am,

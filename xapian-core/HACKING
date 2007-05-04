@@ -35,19 +35,22 @@ Xapian.
 --enable-maintainer-mode
 	This tells configure to enable make dependencies for regenerating build
 	system files (such as configure, Makefile.in, and Makefile) and other
-	generated files (some of the documentation and the query parser) when
-	required.  This is disabled by default as some make programs try to
-	rebuild them when it's not appropriate (e.g. BSD make doesn't handle
-	VPATH except for implicit rules).  If you enable maintainer mode you
-	probably need to use a better make program (GNU make is recommended).
+	generated files (such as the stemmers and query parser) when required.
+	These are disabled by default as some make programs try to rebuild them
+	when it's not appropriate (e.g. BSD make doesn't handle VPATH except
+	for implicit rules).  If you enable maintainer mode you probably need
+	to use a better make program (GNU make is recommended).  You'll also
+	need a non-cross-compiling C compiler for compiling the Lemon parser
+	generator and the Snowball stemming algorithm compiler.  The configure
+	script will attempt to locate one, but you can override the
+	autodetection by passing CC_FOR_BUILD on the command line like so:
 
-If --enable-maintainer-mode is specified, a non-cross-compiling C compiler
-is needed to compile the Lemon parser generator and the Snowball stemming
-algorithm compiler.  The configure script will attempt to locate one, but you
-can override the autodetection by passing CC_FOR_BUILD on the command line like
-so:
+	./configure CC_FOR_BUILD=/opt/bin/gcc
 
-./configure CC_FOR_BUILD=/opt/bin/gcc
+--enable-documentation
+	This tells configure to enable make dependencies for regenerating
+	documentation files.  By default it uses the same setting as
+	--enable-maintainer-mode.
 
 Debugging Messages
 ==================
