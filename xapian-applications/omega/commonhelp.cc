@@ -32,7 +32,7 @@ void print_package_info(const char *name) {
 }
 
 void print_stemmer_help(const char * spaces) {
-    cout << "  -s, --stemmer=LANG  " << spaces << "set the stemming language, the default is 'english'\n";
+    cout << "  -s, --stemmer=LANG  " << spaces << "set the stemming language, the default is 'english'.\n";
     string wrap = "Possible values: " + Xapian::Stem::get_available_languages();
     wrap += " (pass 'none' to disable stemming)";
     const size_t WRAP_AT = 79 - 22 - strlen(spaces);
