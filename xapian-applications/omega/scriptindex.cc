@@ -474,7 +474,7 @@ index_file(const char *fname, istream &stream,
 			}
 			break;
 		    case Action::INDEX:
-			indexer.index_text(Xapian::Utf8Iterator(value),
+			indexer.index_text(value,
 					   i->get_num_arg(),
 					   i->get_string_arg());
 			break;
@@ -482,7 +482,7 @@ index_file(const char *fname, istream &stream,
 			// No positional information so phrase searching
 			// won't work.  However, the database will use much
 			// less diskspace.
-			indexer.index_text_without_positions(Xapian::Utf8Iterator(value),
+			indexer.index_text_without_positions(value,
 							     i->get_num_arg(),
 							     i->get_string_arg());
 			break;

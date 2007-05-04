@@ -462,15 +462,15 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
     // Index the title, document text, and keywords.
     indexer.set_document(newdocument);
     if (!title.empty()) {
-	indexer.index_text(Xapian::Utf8Iterator(title), 2);
+	indexer.index_text(title, 2);
 	indexer.increase_termpos(100);
     }
     if (!dump.empty()) {
-	indexer.index_text(Xapian::Utf8Iterator(dump));
+	indexer.index_text(dump);
     }
     if (!keywords.empty()) {
 	indexer.increase_termpos(100);
-	indexer.index_text(Xapian::Utf8Iterator(keywords));
+	indexer.index_text(keywords);
     }
 
     newdocument.add_term("T" + mimetype); // mimeType
