@@ -1,3 +1,9 @@
+Fri May 04 20:00:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/termgenerator_internal.cc: Limit term length, handle
+	  infix and suffix characters, and convert apostrophes to ASCII
+	  representation.
+
 Fri May 04 19:47:43 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/unicode.h: Fill in remaining missing documentation
