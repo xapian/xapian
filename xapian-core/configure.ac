@@ -433,7 +433,7 @@ dnl AC_DEFINE_DIR(DATADIR, datadir, [Location of platform independent support fi
 if test x"$enable_documentation" = xyes ; then
   dnl Checks for dot.  (Diagrams in the documentation)
   AC_PATH_PROG(DOT, dot)
-  test -z "$DOT" && AC_MSG_ERROR([dot (part of the graphviz package) is required in maintainer mode])
+  test -z "$DOT" && AC_MSG_ERROR([dot (part of the graphviz package) is required to build documentation])
   DOXYGEN_DOT_PATH=`echo "$DOT" | sed 's!/dot$!!'`
   AC_SUBST(DOXYGEN_DOT_PATH)
 
@@ -442,19 +442,19 @@ if test x"$enable_documentation" = xyes ; then
 
   dnl Check for makeindex. (Needed to make some more of the documentation)
   AC_PATH_PROG(MAKEINDEX, makeindex, [])
-  test -z "$MAKEINDEX" && AC_MSG_ERROR([makeindex is required in maintainer mode])
+  test -z "$MAKEINDEX" && AC_MSG_ERROR([makeindex is required to build documentation])
 
   dnl Check for doxygen. (Needed to make some more of the documentation)
   AC_PATH_PROG(DOXYGEN, doxygen, [])
-  test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required in maintainer mode])
+  test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required to build documentation])
 
   dnl Check for help2man. (Needed to make man pages from "--help" output).
   AC_PATH_PROG(HELP2MAN, help2man, [])
-  test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required in maintainer mode])
+  test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required to build documentation])
 
   dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
   AC_PATH_PROG(RST2HTML, rst2html, [])
-  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required in maintainer mode])
+  test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required to build documentation])
 fi
 
 dnl Check whether we need -ldl for dlsym() etc.
