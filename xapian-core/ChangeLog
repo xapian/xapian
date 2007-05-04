@@ -1,3 +1,8 @@
+Fri May 04 19:47:43 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h: Fill in remaining missing documentation
+	  comments.
+
 Fri May 04 19:30:56 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/termgenerator.h: Add convenience version of

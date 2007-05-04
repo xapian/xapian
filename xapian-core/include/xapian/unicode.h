@@ -19,7 +19,6 @@
  */
 
 // FIXME: Nail down API details (what to expose; what names to use).
-// FIXME: Add missing documentation comments.
 
 #ifndef XAPIAN_INCLUDED_UNICODE_H
 #define XAPIAN_INCLUDED_UNICODE_H
@@ -46,10 +45,12 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 	: p(p_), end(end_), seqlen(seqlen_) { }
 
   public:
-    const char * raw() const { return reinterpret_cast<const char *>(p ? p : end); }
+    /** Return the raw const char * pointer for the current position. */
+    const char * raw() const {
+	return reinterpret_cast<const char *>(p ? p : end);
+    }
 
-    /** Return the number of bytes left in the iteator's buffer
-     */
+    /** Return the number of bytes left in the iterator's buffer. */
     size_t left() const { return p ? end - p : 0; }
 
     /** Assign a new string to the iterator.
@@ -148,20 +149,20 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
     /** Move forward to the next unicode character.
      *
-     *  @return An iterator pointing to the position after the move.
+     *  @return A reference to this object.
      */
     Utf8Iterator & operator++() {
 	this->operator++(0);
 	return *this;
     }
 
-    /** Test two iterators for equality.
+    /** Test two Utf8Iterators for equality.
      *
      *  @return true iff the iterators point to the same position.
      */
     bool operator==(const Utf8Iterator &other) const { return p == other.p; }
 
-    /** Test two iterators for inequality.
+    /** Test two Utf8Iterators for inequality.
      *
      *  @return true iff the iterators do not point to the same position.
      */
@@ -239,11 +240,25 @@ namespace Internal {
     }
 }
 
-// buf must have space for (at least) 4 bytes.
+/** Convert a single non-ASCII unicode character to UTF-8.
+ *
+ *  This is intended mainly as a helper method for to_utf8().
+ *
+ *  The character @a ch (which must be > 128) is written to the buffer @a buf
+ *  and the length of the resultant UTF-8 character is returned.
+ *
+ *  NB buf must have space for (at least) 4 bytes.
+ */
 XAPIAN_VISIBILITY_DEFAULT
 unsigned nonascii_to_utf8(unsigned ch, char * buf);
 
-// buf must have space for at least 4 bytes.
+/** Convert a single unicode character to UTF-8.
+ *
+ *  The character @a ch is written to the buffer @a buf and the length of the
+ *  resultant UTF-8 character is returned.
+ *
+ *  NB buf must have space for (at least) 4 bytes.
+ */
 inline unsigned to_utf8(unsigned ch, char *buf) {
     if (ch < 128) {
 	*buf = static_cast<unsigned char>(ch);
@@ -252,10 +267,20 @@ inline unsigned to_utf8(unsigned ch, char *buf) {
     return Xapian::Unicode::nonascii_to_utf8(ch, buf);
 }
 
+/** Append the UTF-8 representation of a single unicode character to a
+ *  std::string.
+ */
+inline void append_utf8(std::string &s, unsigned ch) {
+    char buf[4];
+    s.append(buf, to_utf8(ch, buf));
+}
+
+/// Return the category which a given unicode character falls into.
 inline category get_category(unsigned ch) {
     return Internal::get_category(Internal::get_character_info(ch));
 }
 
+/// Test is a given unicode character is a letter or number.
 inline bool is_wordchar(unsigned ch) {
     const unsigned int WORDCHAR_MASK =
 	    (1 << Xapian::Unicode::UPPERCASE_LETTER) |
@@ -271,12 +296,14 @@ inline bool is_wordchar(unsigned ch) {
     return (ch >= 0x10000) || ((WORDCHAR_MASK >> get_category(ch)) & 1);
 }
 
+/// Test is a given unicode character is a currency symbol.
 inline bool is_currency(unsigned ch) {
     // The TCL Unicode routines only support the BMP.  For now, just assume
     // no characters outside the BMP are currency characters.
     return (ch < 0x10000) && (get_category(ch) == Xapian::Unicode::CURRENCY_SYMBOL);
 }
 
+/// Convert a unicode character to lowercase.
 inline unsigned tolower(unsigned ch) {
     int info;
     // The TCL Unicode routines only support the BMP.  For now, just assume
@@ -286,11 +313,7 @@ inline unsigned tolower(unsigned ch) {
     return ch + Internal::get_delta(info);
 }
 
-inline void append_utf8(std::string &s, unsigned ch) {
-    char buf[4];
-    s.append(buf, to_utf8(ch, buf));
-}
-
+/// Convert a UTF-8 std::string to lowercase.
 inline std::string
 tolower(const std::string &term)
 {
