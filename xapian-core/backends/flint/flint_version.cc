@@ -36,7 +36,7 @@
 using std::string;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
-#define FLINT_VERSION 200704230u
+#define FLINT_VERSION 200704230
 // 200704230 Use zlib compression of tags for record and termlist tables
 // 200611200 Fixed occasional, architecture-dependent surplus bits in
 //	     interpolative coding; "flicklock" -> "flintlock".
