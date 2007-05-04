@@ -240,9 +240,13 @@ fi
 dnl Check processor endianness.
 AC_C_BIGENDIAN
 
-dnl Check for help2man. (Needed to make man pages from "--help" output).
-AC_PATH_PROG(HELP2MAN, help2man, [])
 if test x$USE_MAINTAINER_MODE = xyes; then
+  dnl Check for perl. (Needed to make man pages from "--help" output).
+  AC_PATH_PROG(PERL, perl, [])
+  test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
+
+  dnl Check for help2man. (Needed to make man pages from "--help" output).
+  AC_PATH_PROG(HELP2MAN, help2man, [])
   test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required in maintainer mode])
 fi
 
@@ -380,4 +384,5 @@ dnl * Build the output files *
 dnl **************************
 
 AC_CONFIG_FILES([Makefile omega.spec])
+AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_OUTPUT

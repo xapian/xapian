@@ -126,9 +126,9 @@ MAINTAINERCLEANFILES = $(dist_man_MANS)
 if MAINTAINER_MODE
 CLEANFILES = $(dist_man_MANS)
 
-omindex.1: omindex
-	$(HELP2MAN) -o omindex.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/omindex.cc`" ./omindex
+omindex.1: omindex$(EXEEXT) makemanpage
+	./makemanpage ./omindex $(srcdir)/omindex.cc omindex.1
 
-scriptindex.1: scriptindex
-	$(HELP2MAN) -o scriptindex.1 --no-info -S "$(PACKAGE_STRING)" -n "`sed 's/^#define *PROG_DESC *\"\(.*\)\".*/\1/p;d' $(srcdir)/scriptindex.cc`" ./scriptindex
+scriptindex.1: scriptindex$(EXEEXT) makemanpage
+	./makemanpage ./scriptindex $(srcdir)/scriptindex.cc scriptindex.1
 endif
