@@ -87,7 +87,6 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	}
 	// Can still allow searches even if recovery is needed
 	open_tables_consistent();
-	postlist_table.get_metainfo_entry(total_length, lastdocid);
     } else {
 	if (!dbexists) {
 	    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
@@ -144,7 +143,9 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	    value_table.commit(new_revision);
 	    record_table.commit(new_revision);
 	}
-	postlist_table.get_metainfo_entry(total_length, lastdocid);
+	if (record_table.get_doccount() == 0) {
+	    postlist_table.set_total_length_and_lastdocid(0, postlist_table.get_lastdocid());
+	}
     }
 }
 
@@ -195,11 +196,7 @@ FlintDatabase::create_and_open_tables(unsigned int block_size)
 	revision != postlist_table.get_open_revision_number()) {
 	throw Xapian::DatabaseCreateError("Newly created tables are not in consistent state");
     }
-
-    // Set metainfo
-    total_length = 0;
-    lastdocid = 0;
-    postlist_table.set_metainfo_entry(total_length, lastdocid);
+    postlist_table.set_total_length_and_lastdocid(0, 0);
 }
 
 void
@@ -309,7 +306,6 @@ FlintDatabase::reopen()
     DEBUGCALL(DB, void, "FlintDatabase::reopen", "");
     if (readonly) {
 	open_tables_consistent();
-	postlist_table.get_metainfo_entry(total_length, lastdocid);
     }
 }
 
@@ -396,7 +392,7 @@ Xapian::docid
 FlintDatabase::get_lastdocid() const
 {
     DEBUGCALL(DB, Xapian::docid, "FlintDatabase::get_lastdocid", "");
-    RETURN(lastdocid);
+    RETURN(postlist_table.get_lastdocid());
 }
 
 Xapian::doclength
@@ -405,7 +401,7 @@ FlintDatabase::get_avlength() const
     DEBUGCALL(DB, Xapian::doclength, "FlintDatabase::get_avlength", "");
     Xapian::doccount docs = record_table.get_doccount();
     if (docs == 0) RETURN(0);
-    RETURN(double(total_length) / docs);
+    RETURN(double(postlist_table.get_total_length()) / docs);
 }
 
 Xapian::doclength
@@ -536,11 +532,12 @@ FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 	  doclens(),
 	  mod_plists(),
 	  database_ro(dir, action, block_size),
+	  total_length(database_ro.postlist_table.get_total_length()),
+	  lastdocid(database_ro.get_lastdocid()),
 	  changes_made(0)
 {
     DEBUGCALL(DB, void, "FlintWritableDatabase", dir << ", " << action << ", "
 	      << block_size);
-    database_ro.postlist_table.get_metainfo_entry(total_length, lastdocid);
     if (flush_threshold == 0) {
 	const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
 	if (p) flush_threshold = atoi(p);
@@ -570,7 +567,8 @@ FlintWritableDatabase::do_flush_const() const
     database_ro.postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
 
     // Update the total document length and last used docid.
-    database_ro.postlist_table.set_metainfo_entry(total_length, lastdocid);
+    database_ro.postlist_table.set_total_length_and_lastdocid(total_length,
+							      lastdocid);
     database_ro.apply();
     freq_deltas.clear();
     doclens.clear();
@@ -1072,7 +1070,8 @@ void
 FlintWritableDatabase::cancel()
 {
     database_ro.cancel();
-    database_ro.postlist_table.get_metainfo_entry(total_length, lastdocid);
+    total_length = database_ro.postlist_table.get_total_length();
+    lastdocid = database_ro.get_lastdocid();
     freq_deltas.clear();
     doclens.clear();
     mod_plists.clear();
