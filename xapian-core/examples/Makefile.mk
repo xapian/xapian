@@ -29,7 +29,7 @@ dist_man_MANS +=\
 	examples/delve.1\
 	examples/quest.1
 
-if MAINTAINER_MODE
+if DOCUMENTATION_RULES
 examples/copydatabase.1: examples/copydatabase$(EXEEXT) makemanpage
 	./makemanpage examples/copydatabase $(srcdir)/examples/copydatabase.cc examples/copydatabase.1
 

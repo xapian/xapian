@@ -65,7 +65,7 @@ bin_xapian_progsrv_LDADD = $(ldflags) libgetopt.la libxapian.la
 bin_xapian_tcpsrv_SOURCES = bin/xapian-tcpsrv.cc
 bin_xapian_tcpsrv_LDADD = $(ldflags) libgetopt.la libxapian.la
 
-if MAINTAINER_MODE
+if DOCUMENTATION_RULES
 bin/quartzcheck.1: bin/quartzcheck$(EXEEXT) makemanpage
 	./makemanpage bin/quartzcheck $(srcdir)/bin/quartzcheck.cc bin/quartzcheck.1
 

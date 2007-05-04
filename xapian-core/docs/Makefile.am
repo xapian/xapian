@@ -56,7 +56,7 @@ doxygen_source_docs: sourcedoc/html/index.html
 doxygen_api_docs: apidoc/html/index.html
 doxygen_docs: doxygen_source_docs doxygen_api_docs
 
-if MAINTAINER_MODE
+if DOCUMENTATION_RULES
 # We use $T instead of $(top_srcdir) in APIDOC_SRC, SOURCEDOC_SRC, and
 # DIR_CONTENTS_FILES to keep their sizes down.
 T=$(top_srcdir)

@@ -84,7 +84,7 @@ xapianinclude_HEADERS += include/xapian/error.h
 
 MAINTAINERCLEANFILES += $(dist_man_MANS)
 
-if MAINTAINER_MODE
+if DOCUMENTATION_RULES
 CLEANFILES += $(dist_man_MANS)
 
 xapian-config.1: xapian-config makemanpage

@@ -405,7 +405,7 @@ AC_CHECK_HEADERS(sstream, [], [], [ ])
 dnl Check for a new streams implementation.
 AC_CHECK_HEADERS(streambuf, [], [], [ ])
 
-dnl Checks for perl (needed to regenerate some of the documentation)
+dnl Check for perl (needed to generate some sources and documentation).
 AC_PATH_PROG(PERL, perl, [])
 if test x$USE_MAINTAINER_MODE = xyes; then
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
@@ -416,43 +416,44 @@ dnl code can be removed once we move to requiring autoconf 2.60 or newer.
 test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
 AC_SUBST(docdir)
 
+AC_ARG_ENABLE(documentation,
+  [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-documentation]) ;;
+  esac])
+test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
+AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
+
 dnl Make DATADIR available to the library
 dnl This isn't currently used.  If we reenable it, it needs to be renamed
 dnl to avoid a clash with a mingw header.
 dnl AC_DEFINE_DIR(DATADIR, datadir, [Location of platform independent support files])
 
-dnl Checks for dot.  (Diagrams in the documentation)
-AC_PATH_PROG(DOT, dot)
-if test x$USE_MAINTAINER_MODE = xyes; then
+if test x"$enable_documentation" = xyes ; then
+  dnl Checks for dot.  (Diagrams in the documentation)
+  AC_PATH_PROG(DOT, dot)
   test -z "$DOT" && AC_MSG_ERROR([dot (part of the graphviz package) is required in maintainer mode])
-fi
-DOXYGEN_DOT_PATH=`echo "$DOT" | sed 's!/dot$!!'`
-AC_SUBST(DOXYGEN_DOT_PATH)
+  DOXYGEN_DOT_PATH=`echo "$DOT" | sed 's!/dot$!!'`
+  AC_SUBST(DOXYGEN_DOT_PATH)
 
-dnl FIXME: pdflatex is needed to make some more of the documentation but
-dnl doxygen expects it to be on PATH.
+  dnl FIXME: pdflatex is needed to make some more of the documentation but
+  dnl doxygen expects it to be on PATH.
 
-dnl Check for makeindex. (Needed to make some more of the documentation)
-AC_PATH_PROG(MAKEINDEX, makeindex, [])
-if test x$USE_MAINTAINER_MODE = xyes; then
+  dnl Check for makeindex. (Needed to make some more of the documentation)
+  AC_PATH_PROG(MAKEINDEX, makeindex, [])
   test -z "$MAKEINDEX" && AC_MSG_ERROR([makeindex is required in maintainer mode])
-fi
 
-dnl Check for doxygen. (Needed to make some more of the documentation)
-AC_PATH_PROG(DOXYGEN, doxygen, [])
-if test x$USE_MAINTAINER_MODE = xyes; then
+  dnl Check for doxygen. (Needed to make some more of the documentation)
+  AC_PATH_PROG(DOXYGEN, doxygen, [])
   test -z "$DOXYGEN" && AC_MSG_ERROR([doxygen is required in maintainer mode])
-fi
 
-dnl Check for help2man. (Needed to make man pages from "--help" output).
-AC_PATH_PROG(HELP2MAN, help2man, [])
-if test x$USE_MAINTAINER_MODE = xyes; then
+  dnl Check for help2man. (Needed to make man pages from "--help" output).
+  AC_PATH_PROG(HELP2MAN, help2man, [])
   test -z "$HELP2MAN" && AC_MSG_ERROR([help2man is required in maintainer mode])
-fi
 
-dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
-AC_PATH_PROG(RST2HTML, rst2html, [])
-if test x$USE_MAINTAINER_MODE = xyes; then
+  dnl Check for rst2html. (Needed to make HTML from reStructuredText format)
+  AC_PATH_PROG(RST2HTML, rst2html, [])
   test -z "$RST2HTML" && AC_MSG_ERROR([rst2html is required in maintainer mode])
 fi
 
@@ -706,17 +707,17 @@ if test "$enable_backend_remote" = yes ; then
 fi
 
 AC_ARG_ENABLE(quiet,
-  [AS_HELP_STRING([--enable-quiet], [Enable quiet building [default=no]])],
+  [AS_HELP_STRING([--enable-quiet], [enable quiet building [default=no]])],
   [case ${enableval} in
     yes|no) ;;
-    *) AC_MSG_ERROR(bad value ${enableval} for --enable-quiet) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-quiet]) ;;
   esac])
 
 AC_ARG_ENABLE(visibility,
   [AS_HELP_STRING([--disable-visibility], [Disable use of GCC visibility [default=autodetect]])],
   [case ${enableval} in
     yes|no) ;;
-    *) AC_MSG_ERROR(bad value ${enableval} for --disable-visibility) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --disable-visibility]) ;;
   esac])
 
 dnl Pass `--quiet' to libtool if quiet building is requested.  Using an
@@ -844,7 +845,7 @@ dnl *************************
 dnl Which assertion types to enable in the code.
 
 AC_ARG_ENABLE(assertions,
-  [AS_HELP_STRING([--enable-assertions], [Enable debug assertions (no|partial|yes) [default=no]])],
+  [AS_HELP_STRING([--enable-assertions], [enable debug assertions (no|partial|yes) [default=no]])],
   [case $enableval in
     yes|partial|no) ;;
     *)

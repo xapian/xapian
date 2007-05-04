@@ -1,3 +1,16 @@
+Fri May 04 01:38:44 BST 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,bin/Makefile.mk,configure.ac,docs/Makefile.am,
+	  examples/Makefile.mk: Add new configure option
+	  "--enable-documentation" which enables the make rules to rebuild the
+	  documentation.  By default this follows the setting of
+	  "--enable-maintainer-mode" (so giving much the same behaviour as
+	  currently), but the documentation rules can now be controlled
+	  independently.  Also, if documentation isn't being built, the
+	  configure probes for tools required to rebuild it are no longer run
+	  which should shorten configure time a bit for end-users building
+	  releases.
+
 Thu May 03 22:07:39 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/remoteserver.h: Remove unused default values for
