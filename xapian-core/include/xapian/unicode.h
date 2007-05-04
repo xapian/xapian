@@ -56,6 +56,8 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 	}
     }
 
+    void assign(const std::string &s) { assign(s.data(), s.size()); }
+
     Utf8Iterator(const char *p_);
 
     Utf8Iterator(const char *p_, size_t len) { assign(p_, len); }
