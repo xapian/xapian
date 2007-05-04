@@ -34,6 +34,7 @@
 #include <ctype.h>
 #include "safeerrno.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "strcasecmp.h"
 #include <time.h>
