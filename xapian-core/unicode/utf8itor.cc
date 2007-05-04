@@ -107,7 +107,7 @@ Utf8Iterator::calculate_sequence_length() const
 }
 
 unsigned Utf8Iterator::operator*() const {
-    if (p == end) return unsigned(-1);
+    if (p == NULL) return unsigned(-1);
     if (seqlen == 0) calculate_sequence_length();
     unsigned char ch = *p;
     if (seqlen == 1) return ch;
