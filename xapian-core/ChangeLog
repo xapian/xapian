@@ -1,3 +1,8 @@
+Fri May 04 16:29:51 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/unicode.h: Add documentation comments to
+	  Utf8Iterator, so I don't have to work out how it works again.
+
 Fri May 04 14:55:32 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/unicode.h: Add assign() function which takes a

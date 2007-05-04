@@ -30,6 +30,9 @@
 
 namespace Xapian {
 
+/** An iterator which returns unicode character values from a UTF-8 encoded
+ *  string.
+ */
 class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
     const unsigned char *p;
     const unsigned char *end;
@@ -44,8 +47,22 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 
   public:
     const char * raw() const { return reinterpret_cast<const char *>(p ? p : end); }
+
+    /** Return the number of bytes left in the iteator's buffer
+     */
     size_t left() const { return p ? end - p : 0; }
 
+    /** Assign a new string to the iterator.
+     *
+     *  The iterator will forget the string it was iterating through, and
+     *  return characters from the start of the new string when next called.
+     *  The string is not copied into the iterator, so it must remain valid
+     *  while the iteration is in progress.
+     *
+     *  @param p A pointer to the start of the string to read.
+     *
+     *  @param len The length of the string to read.
+     */
     void assign(const char *p_, size_t len) {
 	if (len) {
 	    p = reinterpret_cast<const unsigned char*>(p_);
@@ -56,18 +73,68 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 	}
     }
 
+    /** Assign a new string to the iterator.
+     *
+     *  The iterator will forget the string it was iterating through, and
+     *  return characters from the start of the new string when next called.
+     *  The string is not copied into the iterator, so it must remain valid
+     *  while the iteration is in progress.
+     *
+     *  @param s The string to read.  Must not be modified while the iteration
+     *           is in progress.
+     */
     void assign(const std::string &s) { assign(s.data(), s.size()); }
 
+    /** Create an iterator given a pointer to a null terminated string.
+     *
+     *  The iterator will return characters from the start of the string when
+     *  next called.  The string is not copied into the iterator, so it must
+     *  remain valid while the iteration is in progress.
+     *
+     *  @param p A pointer to the start of the null terminated string to read.
+     */
     Utf8Iterator(const char *p_);
 
+    /** Create an iterator given a pointer and a length.
+     *
+     *  The iterator will return characters from the start of the string when
+     *  next called.  The string is not copied into the iterator, so it must
+     *  remain valid while the iteration is in progress.
+     *
+     *  @param p A pointer to the start of the string to read.
+     *
+     *  @param len The length of the string to read.
+     */
     Utf8Iterator(const char *p_, size_t len) { assign(p_, len); }
 
+    /** Create an iterator given a string.
+     *
+     *  The iterator will return characters from the start of the string when
+     *  next called.  The string is not copied into the iterator, so it must
+     *  remain valid while the iteration is in progress.
+     *
+     *  @param s The string to read.  Must not be modified while the iteration
+     *           is in progress.
+     */
     Utf8Iterator(const std::string &s) { assign(s.data(), s.size()); }
 
+    /** Create an iterator which is at the end of its iteration.
+     *
+     *  This can be compared to another iterator to check if the other iterator
+     *  has reached its end.
+     */
     Utf8Iterator() : p(NULL), end(0), seqlen(0) { }
 
+    /** Get the current unicode character value pointed to by the iterator.
+     *
+     *  Returns unsigned(-1) if the iterator has reached the end of its buffer.
+     */
     unsigned operator*() const;
 
+    /** Move forward to the next unicode character.
+     *
+     *  @return An iterator pointing to the position before the move.
+     */
     Utf8Iterator operator++(int) {
 	// If we've not calculated seqlen yet, do so.
 	if (seqlen == 0) calculate_sequence_length();
@@ -79,13 +146,25 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 	return Utf8Iterator(old_p, end, old_seqlen);
     }
 
+    /** Move forward to the next unicode character.
+     *
+     *  @return An iterator pointing to the position after the move.
+     */
     Utf8Iterator & operator++() {
 	this->operator++(0);
 	return *this;
     }
 
+    /** Test two iterators for equality.
+     *
+     *  @return true iff the iterators point to the same position.
+     */
     bool operator==(const Utf8Iterator &other) const { return p == other.p; }
 
+    /** Test two iterators for inequality.
+     *
+     *  @return true iff the iterators do not point to the same position.
+     */
     bool operator!=(const Utf8Iterator &other) const { return p != other.p; }
 
     /// We implement the semantics of an STL input_iterator.
