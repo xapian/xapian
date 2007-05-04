@@ -228,17 +228,14 @@ class test_driver {
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be equal:" \
 	" were " << (a) << " and " << (b))
 
-#include <float.h> // for DBL_EPSILON
-#include <math.h> // for fabs
+#include <float.h> // for DBL_DIG
+#include <math.h> // for fabs, log10
 inline bool
 TEST_EQUAL_DOUBLE_helper(double a, double b)
 {
-    double abs_diff = fabs(a - b);
-    double abs_a = fabs(a);
-    double abs_b = fabs(b);
-    return (abs_diff / (abs_a < abs_b ? abs_a : abs_b)) < DBL_EPSILON;
+    return (log10(fabs(a - b)) < -DBL_DIG);
 }
- 
+
 #define TEST_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(TEST_EQUAL_DOUBLE_helper((a), (b)), \
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be (nearly) equal:" \
 	" were " << setprecision(DBL_DIG) << (a) << " and " << (b) << setprecision(6))

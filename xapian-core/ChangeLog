@@ -1,3 +1,10 @@
+Fri May 04 03:41:56 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.h: Test against pow(10, -DBL_DIG) rather
+	  than DBL_EPSILON.  DBL_EPSILON is a little bit smaller, but we use
+	  DBL_DIG for displaying the numbers and it looks stupid to say two
+	  numbers which are displayed identically should be nearly the same!
+
 Fri May 04 03:33:51 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Fix reference to --enable-maitainer-mode and documentation
