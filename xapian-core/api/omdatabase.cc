@@ -247,9 +247,8 @@ Xapian::doccount
 Database::get_termfreq(const string & tname) const
 {
     DEBUGAPICALL(Xapian::doccount, "Database::get_termfreq", tname);
-    if (tname.empty()) {
-	return get_doccount();
-    }
+    if (tname.empty()) RETURN(get_doccount());
+
     Xapian::doccount tf = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); i++) {
@@ -262,9 +261,7 @@ Xapian::termcount
 Database::get_collection_freq(const string & tname) const
 {
     DEBUGAPICALL(Xapian::termcount, "Database::get_collection_freq", tname);
-    if (tname.empty()) {
-	return get_doccount();
-    }
+    if (tname.empty()) RETURN(get_doccount());
 
     Xapian::termcount cf = 0;
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
@@ -431,7 +428,7 @@ WritableDatabase::replace_document(const std::string & unique_term,
 		 unique_term << ", " << document);
     if (unique_term.empty())
 	throw InvalidArgumentError("Empty termnames are invalid");
-    return internal[0]->replace_document(unique_term, document);
+    RETURN(internal[0]->replace_document(unique_term, document));
 }
 
 string

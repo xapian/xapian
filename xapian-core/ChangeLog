@@ -1,3 +1,8 @@
+Sat May 05 02:19:39 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Use RETURN() not return in methods with debug
+	  logging.
+
 Sat May 05 02:19:11 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Fix typo in comment.
