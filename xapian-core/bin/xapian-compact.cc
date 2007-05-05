@@ -363,10 +363,10 @@ main(int argc, char **argv)
 	};
 
 	for (const char **t = tables; *t; ++t) {
-	    // The postlist requires an N-way merge, adjusting the headers
-	    // of various blocks.  The other tables have keys sorted in
-	    // docid order, so we can merge them by simply copy all the keys
-	    // from each source table in turn.
+	    // The postlist requires an N-way merge, adjusting the headers of
+	    // various blocks.  The other tables have keys sorted in docid
+	    // order, so we can merge them by simply copying all the keys from
+	    // each source table in turn.
 	    cout << *t << " ..." << flush;
 
 	    string dest = destdir;
