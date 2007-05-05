@@ -150,57 +150,41 @@ int main(int argc, char **argv) {
     }
 
     try {
+	vector<string> dbnames;
+	// Try to open the database(s) so we report problems now instead of
+	// waiting for the first connection.
 	if (writable) {
 	    Xapian::WritableDatabase db(argv[optind], Xapian::DB_CREATE_OR_OPEN);
-
-	    if (verbose) {
-		if (host.empty())
-		    cout << "Starting writable server on port ";
-		else
-		    cout << "Starting writable server on host " << host << ", port ";
-		cout << port << endl;
-	    }
-
-	    TcpServer server(db, host, port, msecs_active_timeout,
-			     msecs_idle_timeout, verbose);
-
-	    if (verbose)
-		cout << "Listening..." << endl;
-
-	    register_user_weighting_schemes(server);
-
-	    if (one_shot) {
-		server.run_once();
-	    } else {
-		server.run();
-	    }
+	    dbnames.push_back(argv[optind]);
 	} else {
-	    Xapian::Database db;
 	    while (argv[optind]) {
-		db.add_database(Xapian::Database(argv[optind++]));
+		dbnames.push_back(argv[optind]);
+		Xapian::Database db(argv[optind++]);
 	    }
+	}
 
-	    if (verbose) {
-		if (host.empty())
-		    cout << "Starting server on port ";
-		else
-		    cout << "Starting server on host " << host << ", port ";
-		cout << port << endl;
-	    }
+	if (verbose) {
+	    cout << "Starting";
+	    if (writable)
+		cout << " writable";
+	    cout << " server on";
+	    if (!host.empty())
+		cout << " host " << host << ",";
+	    cout << " port " << port << endl;
+	}
 
-	    TcpServer server(db, host, port, msecs_active_timeout,
-			     msecs_idle_timeout, verbose);
+	TcpServer server(dbnames, host, port, msecs_active_timeout,
+			 msecs_idle_timeout, writable, verbose);
 
-	    if (verbose)
-		cout << "Listening..." << endl;
+	if (verbose)
+	    cout << "Listening..." << endl;
 
-	    register_user_weighting_schemes(server);
+	register_user_weighting_schemes(server);
 
-	    if (one_shot) {
-		server.run_once();
-	    } else {
-		server.run();
-	    }
+	if (one_shot) {
+	    server.run_once();
+	} else {
+	    server.run();
 	}
     } catch (const Xapian::Error &e) {
 	cerr << e.get_type() << ": " << e.get_msg();

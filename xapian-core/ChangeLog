@@ -1,3 +1,13 @@
+Sat May 05 20:43:29 BST 2007  Olly Betts <olly@survex.com>
+
+	* bin/xapian-progsrv.cc,bin/xapian-tcpsrv.cc,common/remoteconnection.h,
+	  common/remoteserver.h,common/tcpserver.h,net/remoteserver.cc,
+	  net/tcpserver.cc: Open a fresh copy of the database(s) on each
+	  connection to a xapian-tcpsrv rather than relying on being able to
+	  share a database across fork() or between threads (which we don't
+	  promise will work).  Largely based on patch from Mark Hammond.
+	  Fixes some of bug#141 and all of bug#142.
+
 Sat May 05 02:19:39 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc: Use RETURN() not return in methods with debug

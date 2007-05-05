@@ -41,31 +41,44 @@
 /// Class to throw when we receive the connection closing message.
 struct ConnectionClosed { };
 
-RemoteServer::RemoteServer(Xapian::Database * db_,
+RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 			   int fdin_, int fdout_,
 			   Xapian::timeout active_timeout_,
-			   Xapian::timeout idle_timeout_)
-    : RemoteConnection(fdin_, fdout_, db_->get_description()),
-      db(db_), wdb(NULL),
+			   Xapian::timeout idle_timeout_,
+			   bool writable)
+    : RemoteConnection(fdin_, fdout_, ""),
+      db(NULL), wdb(NULL),
       active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {
-    initialise();
-}
+    // Catch errors opening the database and serialize back to other end.
+    try {
+	if (writable) {
+	    Assert(dbpaths.size() == 1); // Expecting exactly one database.
+	    wdb = new Xapian::WritableDatabase(dbpaths[0], Xapian::DB_CREATE_OR_OPEN);
+	    db = wdb;
+	} else {
+	    db = new Xapian::Database;
+	    vector<std::string>::const_iterator i;
+	    for (i = dbpaths.begin(); i != dbpaths.end(); ++i)
+		db->add_database(Xapian::Database(*i));
+	}
 
-RemoteServer::RemoteServer(Xapian::WritableDatabase * wdb_,
-			   int fdin_, int fdout_,
-			   Xapian::timeout active_timeout_,
-			   Xapian::timeout idle_timeout_)
-    : RemoteConnection(fdin_, fdout_, wdb_->get_description()),
-      db(wdb_), wdb(wdb_),
-      active_timeout(active_timeout_), idle_timeout(idle_timeout_)
-{
-    initialise();
-}
+	// Build a better description than Database::get_description() gives.
+	// FIXME: improve Database::get_description() and then just use that
+	// instead.
+	context = dbpaths[0];
+	vector<std::string>::const_iterator i(dbpaths.begin());
+	for (++i; i != dbpaths.end(); ++i) {
+	    context += ' ';
+	    context += *i;
+	}
 
-void
-RemoteServer::initialise()
-{
+    } catch (const Xapian::Error &err) {
+	// Propagate the exception across the connection and get out-of-here!
+	send_message(REPLY_EXCEPTION, serialise_error(err));
+	throw;
+    }
+
 #ifndef __WIN32__
     // It's simplest to just ignore SIGPIPE.  We'll still know if the
     // connection dies because we'll get EPIPE back from write().
@@ -94,6 +107,13 @@ RemoteServer::initialise()
 
 RemoteServer::~RemoteServer()
 {
+    // wdb is either NULL or equal to db, so we shouldn't delete it.
+    if (wdb) {
+	delete wdb;
+    } else {
+	delete db;
+    }
+
     map<string, Xapian::Weight*>::const_iterator i;
     for (i = wtschemes.begin(); i != wtschemes.end(); ++i) {
 	delete i->second;

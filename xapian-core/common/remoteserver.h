@@ -68,9 +68,6 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     /// Registered weighting schemes.
     map<string, Xapian::Weight *> wtschemes;
 
-    /// Initialisation code needed by both ctors.
-    void initialise();
-
     /// Accept a message from the client.
     message_type get_message(Xapian::timeout timeout, string & result,
 			     message_type required_type = MSG_MAX);
@@ -139,9 +136,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     void msg_replacedocumentterm(const std::string & message);
 
   public:
-    /** Construct a read-only RemoteServer.
+    /** Construct a RemoteServer.
      *
-     *  @param db	The Xapian::Database to use.
+     *  @param dbpaths	The paths to the Xapian databases to use.
      *  @param fdin	The file descriptor to read from.
      *  @param fdout	The file descriptor to write to (fdin and fdout may be
      *			the same).
@@ -149,25 +146,13 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
      *			(specified in milliseconds).
      *  @param idle_timeout_	Timeout while waiting for a new action from
      *			the client (specified in milliseconds).
+     *  @param writable Should the database be opened for writing?
      */
-    RemoteServer(Xapian::Database * db, int fdin, int fdout,
+    RemoteServer(const std::vector<std::string> &dbpaths,
+		 int fdin, int fdout,
 		 Xapian::timeout active_timeout_,
-		 Xapian::timeout idle_timeout_);
-
-    /** Construct a writable RemoteServer.
-     *
-     *  @param wdb	The Xapian::WritableDatabase to use.
-     *  @param fdin	The file descriptor to read from.
-     *  @param fdout	The file descriptor to write to (fdin and fdout may be
-     *			the same).
-     *  @param active_timeout_	Timeout for actions during a conversation
-     *			(specified in milliseconds).
-     *  @param idle_timeout_	Timeout while waiting for a new action from
-     *			the client (specified in milliseconds).
-     */
-    RemoteServer(Xapian::WritableDatabase * wdb, int fdin, int fdout,
-		 Xapian::timeout active_timeout_,
-		 Xapian::timeout idle_timeout_);
+		 Xapian::timeout idle_timeout_,
+		 bool writable = false);
 
     /// Destructor.
     ~RemoteServer();

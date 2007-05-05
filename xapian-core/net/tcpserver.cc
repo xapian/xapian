@@ -54,28 +54,17 @@ using namespace std;
 #endif
 
 /// The TcpServer constructor, taking a database and a listening port.
-TcpServer::TcpServer(Xapian::Database db_, const std::string & host, int port,
+TcpServer::TcpServer(const vector<std::string> &dbpaths_, const std::string & host, int port,
 		     int msecs_active_timeout_,
 		     int msecs_idle_timeout_,
+		     bool writable_,
 		     bool verbose_)
-	: writable(false), db(db_), listen_socket(get_listening_socket(host, port)),
+	: dbpaths(dbpaths_), writable(writable_),
+	  listen_socket(get_listening_socket(host, port)),
 	  msecs_active_timeout(msecs_active_timeout_),
 	  msecs_idle_timeout(msecs_idle_timeout_),
 	  verbose(verbose_)
 {
-
-}
-
-TcpServer::TcpServer(Xapian::WritableDatabase wdb_, const std::string & host, int port,
-		     int msecs_active_timeout_,
-		     int msecs_idle_timeout_,
-		     bool verbose_)
-	: writable(true), wdb(wdb_), listen_socket(get_listening_socket(host, port)),
-	  msecs_active_timeout(msecs_active_timeout_),
-	  msecs_idle_timeout(msecs_idle_timeout_),
-	  verbose(verbose_)
-{
-
 }
 
 int
@@ -224,17 +213,11 @@ TcpServer::run_once()
 	// child code
 	close(listen_socket);
 	try {
-	    if (writable) {
-		RemoteServer sserv(&wdb, connected_socket, connected_socket,
-				   msecs_active_timeout,
-				   msecs_idle_timeout);
-		sserv.run();
-	    } else {
-		RemoteServer sserv(&db, connected_socket, connected_socket,
-				   msecs_active_timeout,
-				   msecs_idle_timeout);
-		sserv.run();
-	    }
+	    RemoteServer sserv(dbpaths, connected_socket, connected_socket,
+			       msecs_active_timeout,
+			       msecs_idle_timeout,
+			       writable);
+	    sserv.run();
 	} catch (const Xapian::Error &err) {
 	    cerr << "Got exception " << err.get_type()
 		 << ": " << err.get_msg() << endl;
@@ -291,9 +274,6 @@ TcpServer::run()
     while (true) {
 	try {
 	    run_once();
-	} catch (const Xapian::DatabaseModifiedError &) {
-	    cerr << "Database modified - calling db.reopen()" << endl;
-	    db.reopen();
 	} catch (const Xapian::Error &err) {
 	    // FIXME: better error handling.
 	    cerr << "Caught " << err.get_type()
@@ -367,17 +347,11 @@ void
 TcpServer::handle_one_request(int connected_socket)
 {
     try {
-	if (writable) {
-	    RemoteServer sserv(&wdb, connected_socket, connected_socket,
-			       msecs_active_timeout,
-			       msecs_idle_timeout);
-	    sserv.run();
-	} else {
-	    RemoteServer sserv(&db, connected_socket, connected_socket,
-			       msecs_active_timeout,
-			       msecs_idle_timeout);
-	    sserv.run();
-	}
+	RemoteServer sserv(dbpaths, connected_socket, connected_socket,
+			   msecs_active_timeout,
+			   msecs_idle_timeout,
+			   writable);
+	sserv.run();
     } catch (const Xapian::Error &err) {
 	cerr << "Got exception " << err.get_type()
 	     << ": " << err.get_msg() << endl;
@@ -441,9 +415,6 @@ TcpServer::run()
 	    // really matter...
 	    CloseHandle(hthread);
 	
-	} catch (const Xapian::DatabaseModifiedError &) {
-	    cerr << "Database modified - calling db.reopen()" << endl;
-	    db.reopen();
 	} catch (const Xapian::Error &err) {
 	    // FIXME: better error handling.
 	    cerr << "Caught " << err.get_type()

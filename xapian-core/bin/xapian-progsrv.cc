@@ -1,13 +1,12 @@
-/* xapian-progsrv.cc: Remote server to be used with ProgClient
+/** @file xapian-progsrv.cc
+ * @brief Remote server for use with ProgClient.
+ */
+/* Copyright (C) 2002,2003,2006 Olly Betts
  *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2006 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,19 +15,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include <config.h>
-#include <iostream>
-#include <iomanip>
-#include <string>
-#include <algorithm>
-#include <xapian/error.h>
-#include "gnu_getopt.h"
+
 #include "remoteserver.h"
-#include "serialise.h"
+
+#include "gnu_getopt.h"
+
+#include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -55,10 +52,8 @@ static void show_usage() {
 "  --version               output version information and exit" << endl;
 }
 
-int main(int argc, char **argv) {
-    /* variables needed in both try/catch blocks */
-    Xapian::WritableDatabase wdb;
-    Xapian::Database dbs;
+int main(int argc, char **argv)
+{
     unsigned int timeout = 60000;
     bool writable = false;
     bool syntax_error = false;
@@ -84,53 +79,41 @@ int main(int argc, char **argv) {
 	}
     }
 
-    if (syntax_error || argv[optind] == NULL) {
+    if (syntax_error || optind == argc) {
 	show_usage();
 	exit(1);
     }
 
     if (writable && (argc - optind) != 1) {
-	cerr << "Error: only one database directory allowed with '--writable'." << endl;
+	cerr << "Error: only one database directory allowed with '--writable'."
+	     << endl;
 	exit(1);
     }
 
-    /* Trap exceptions related to setting up the database */
-    try {
-	if (writable) {
-	    wdb = Xapian::WritableDatabase(argv[optind], Xapian::DB_CREATE_OR_OPEN);
-	} else {
-	    while (argv[optind]) {
-		dbs.add_database(Xapian::Database(argv[optind++]));
-	    }
-	}
-    } catch (const Xapian::Error &e) {
-	// FIXME: we shouldn't build messages by hand here.
-	string msg = serialise_error(e);
-	cout << char(REPLY_EXCEPTION) << encode_length(msg.size()) << msg << flush;
-    } catch (...) {
-	// FIXME: we shouldn't build messages by hand here.
-	cout << char(REPLY_EXCEPTION) << encode_length(0) << flush;
-    }
-
-    /* Catch exceptions from running the server, but don't pass them
-     * on to the remote end, as the RemoteServer will do that itself.
+    /* Unlike xapian-tcpsrv, xapian-progsrv only has a single 'connection'
+     * which is established immediately.  So, there is no point in attempting
+     * to open the database(s) to check they work - if they can't be opened the
+     * client get an exception right away anyway.
      */
+    vector<string> dbnames(argv + optind, argv + argc);
+
     try {
-	if (writable) {
-	    RemoteServer server(&wdb, 0, 1, timeout, timeout);
-	    // If you have defined your own weighting scheme, register it here
-	    // like so:
-	    // server.register_weighting_scheme(FooWeight());
+	// We communicate with the client via stdin (fd 0) and stdout (fd 1).
+	RemoteServer server(dbnames, 0, 1, timeout, timeout, writable);
 
-	    server.run();
-	} else {
-	    RemoteServer server(&dbs, 0, 1, timeout, timeout);
-	    // If you have defined your own weighting scheme, register it here
-	    // like so:
-	    // server.register_weighting_scheme(FooWeight());
+	// If you have defined your own weighting scheme, register it here
+	// like so:
+	// server.register_weighting_scheme(FooWeight());
 
-	    server.run();
-	}
+	server.run();
     } catch (...) {
+	/* Catch and ignore any exceptions thrown by RemoteServer, since the
+	 * RemoteServer will have passed the error to the client to be rethrown
+	 * there.
+	 *
+	 * Our stdout is the communication channel to the client, and out
+	 * stderr is probably a closed fd so we don't have anywhere to send
+	 * error messages to anyway!
+	 */
     }
 }

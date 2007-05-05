@@ -42,17 +42,14 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
     /// Don't allow copying.
     TcpServer(const TcpServer &);
 
-    /** Is this a WritableDatabase?
+    /** Paths to the databases we will open.
      *
-     *  If true, the wdb member is used.  If false, the db member is.
+     *  Contains exactly one entry if writable, and at least one if not.
      */
-    bool writable;
+    const std::vector<std::string> dbpaths;
 
-    /** If writable is false, this is the database we're using. */
-    Xapian::Database db;
-    
-    /** If writable is true, this is the database we're using. */
-    Xapian::WritableDatabase wdb;
+    /** Is this a WritableDatabase? */
+    bool writable;
 
     /** The socket we're listening on. */
     int listen_socket;
@@ -81,7 +78,7 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
     /** Construct a TcpServer for a Database and start listening for
      *  connections.
      *
-     *  @param db_	The Database to provide remote access to.
+     *  @param dbpaths_	The path(s) to the database(s) we should open.
      *  @param host	The hostname or address for the interface to listen on
      *			(or "" to listen on all interfaces).
      *  @port		The TCP port number to listen on.
@@ -90,32 +87,16 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
      *					(default 10000).
      *  @param msecs_idle_timeout	Timeout between operations (in
      *					milliseconds) (default 60000).
+     *	@param writable_	Should we open the DB for writing? (default
+     *				false).
      *	@param verbose_		Should we produce output when connections are
      *				made or lost? (default true).
      */
-    TcpServer(Xapian::Database db_, const std::string &host, int port,
+    TcpServer(const std::vector<std::string> &dbpaths_,
+	      const std::string &host, int port,
 	      int msecs_normal_timeout_ = 10000,
 	      int msecs_idle_timeout_ = 60000,
-	      bool verbose_ = true);
-
-    /** Construct a TcpServer for a WritableDatabase and start listening for
-     *  connections.
-     *
-     *  @param db_	The WritableDatabase to provide remote access to.
-     *  @param host	The hostname or address for the interface to listen on
-     *			(or "" to listen on all interfaces).
-     *  @port		The TCP port number to listen on.
-     *  @param msecs_active_timeout	Timeout between messages during a
-     *					single operation (in milliseconds)
-     *					(default 10000).
-     *  @param msecs_idle_timeout	Timeout between operations (in
-     *					milliseconds) (default 60000).
-     *	@param verbose_		Should we produce output when connections are
-     *				made or lost? (default true).
-     */
-    TcpServer(Xapian::WritableDatabase db_, const std::string &host, int port,
-	      int msecs_normal_timeout_ = 10000,
-	      int msecs_idle_timeout_ = 60000,
+	      bool writable_ = false,
 	      bool verbose_ = true);
 
     /** Destructor. */

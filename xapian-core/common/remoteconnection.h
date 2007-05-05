@@ -105,9 +105,6 @@ class RemoteConnection {
     /// The file descriptor used for writing.
     int fdout;
 
-    /// The context to report with errors
-    std::string context;
-
     /// Buffer to hold unprocessed input.
     std::string buffer;
 
@@ -136,6 +133,13 @@ class RemoteConnection {
      */
     DWORD calc_read_wait_msecs(const OmTime & end_time);
 #endif
+
+  protected:
+    /** The context to report with errors.
+     *
+     *  Subclasses are allowed to manage this.
+     */
+    std::string context;
 
   public:
     /// Constructor.
