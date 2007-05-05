@@ -33,6 +33,7 @@
 
 #ifndef __WIN32__
 # include "safesysselect.h"
+# include <stdlib.h>
 #endif
 
 RemoteConnection::RemoteConnection(int fdin_, int fdout_,
@@ -57,6 +58,17 @@ RemoteConnection::~RemoteConnection()
 #endif
 }
 
+#ifdef __WIN32__
+/* An invalid parameter handler which ignores the error. */
+void nullInvalidParameterHandler(const wchar_t*,
+				 const wchar_t*, 
+				 const wchar_t*, 
+				 unsigned int, 
+				 uintptr_t)
+{
+}
+#endif
+
 void
 RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 {
@@ -66,7 +78,9 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
     if (buffer.length() >= min_len) return;
 
 #ifdef __WIN32__
+    _invalid_parameter_handler oldHandler = _set_invalid_parameter_handler(nullInvalidParameterHandler);
     HANDLE hin = (HANDLE)_get_osfhandle(fdin);
+    _set_invalid_parameter_handler(oldHandler);
     if (hin == INVALID_HANDLE_VALUE)
 	hin = (HANDLE)fdin;
     while (true) {
@@ -194,7 +208,9 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
     header += encode_length(message.size());
 
 #ifdef __WIN32__
+    _invalid_parameter_handler oldHandler = _set_invalid_parameter_handler(nullInvalidParameterHandler);
     HANDLE hout = (HANDLE)_get_osfhandle(fdout);
+    _set_invalid_parameter_handler(oldHandler);
     if (hout == INVALID_HANDLE_VALUE)
 	hout = (HANDLE)fdout; // It's a socket - which already is a handle!
     const string * str = &header;
