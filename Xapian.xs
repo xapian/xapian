@@ -71,7 +71,7 @@ class perlMatchDecider : public Xapian::MatchDecider {
 	    SvREFCNT_dec(callback);
 	}
 
-	int operator()(const Xapian::Document &doc) const {
+	bool operator()(const Xapian::Document &doc) const {
 	    dSP;
 	    Document *pdoc;
 
