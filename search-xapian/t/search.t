@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 80 };
+BEGIN { plan tests => 84 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -69,12 +69,19 @@ ok( $match++, "match set iterator can increment" );
 isnt( $match, $matches->begin(), "match set iterator increments correctly" );
 ok( $match->get_docid(), "document id returned ok" );
 ok( $match->get_percent(), "percent relevance returned ok" );
+is( $match->get_percent(), $matches->convert_to_percent($match->get_weight()),
+	"converting a weight to a percentage works" );
+is( $match->get_percent(), $matches->convert_to_percent($match),
+	"converting an MSetIterator to a percentage works" );
 
 my $doc;
 ok( $doc = $match->get_document(), "documents retrievable" );
 ok( $doc->get_data(), "data retrievable" );
 
-for (2 .. $matches->size()) { $match++; }
+ok( $match--, "match set iterator can decrement" );
+is( $match, $matches->begin(), "match set iterator decrements correctly" );
+
+for (1 .. $matches->size()) { $match++; }
 is( $match, $matches->end(), "match set returns correct endpoint");
 
 my $rset;
