@@ -118,9 +118,6 @@ Query::get_terms_end()
 bool
 Query::empty()
 
-bool
-Query::is_empty()
-
 string
 Query::get_description()
 

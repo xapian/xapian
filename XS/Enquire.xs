@@ -44,12 +44,6 @@ Enquire::set_docid_order(order)
         THIS->set_docid_order(static_cast<Enquire::docid_order>(order));
 
 void
-Enquire::set_sort_forward(sort_forward)
-    bool        sort_forward
-    CODE:
-        THIS->set_sort_forward(sort_forward);
-
-void
 Enquire::set_cutoff(percent_cutoff, weight_cutoff = NO_INIT)
     percent     percent_cutoff
     weight      weight_cutoff
@@ -58,18 +52,6 @@ Enquire::set_cutoff(percent_cutoff, weight_cutoff = NO_INIT)
             THIS->set_cutoff(percent_cutoff, weight_cutoff);
         } else {
             THIS->set_cutoff(percent_cutoff);
-        }
-
-void
-Enquire::set_sorting(sort_key, sort_bands, sort_by_relevance = NO_INIT)
-    valueno     sort_key
-    int         sort_bands
-    bool	sort_by_relevance
-    CODE:
-        if (items == 4) { /* items includes the hidden this pointer */
-	    THIS->set_sorting(sort_key, sort_bands, sort_by_relevance);
-        } else {
-	    THIS->set_sorting(sort_key, sort_bands);
         }
 
 void
@@ -107,13 +89,6 @@ Enquire::set_sort_by_relevance_then_value(sort_key, ascending = NO_INIT)
 	} else {
 	    THIS->set_sort_by_relevance_then_value(sort_key);
 	}
-
-void
-Enquire::set_bias(bias_weight, bias_halflife)
-    weight      bias_weight
-    time_t      bias_halflife
-    CODE:
-        THIS->set_bias(bias_weight, bias_halflife);
 
 MSet *
 Enquire::get_mset1(first, maxitems, checkatleast = NO_INIT, rset = NO_INIT, func = NO_INIT)
