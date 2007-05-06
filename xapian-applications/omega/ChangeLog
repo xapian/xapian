@@ -1,3 +1,10 @@
+Sun May 06 21:41:21 BST 2007  Olly Betts <olly@survex.com>
+
+	* omindex.cc,scriptindex.cc: Removed commented out code for generating
+	  "W" prefix terms for date searching.  We've never made use of them
+	  in Omega, and we'll be moving to using DateMatchDecider by default
+	  eventually anyway.
+
 Sun May 06 16:00:47 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Set version to mythical 0.9.99.

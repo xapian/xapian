@@ -577,12 +577,6 @@ again:
 			if (yyyymmdd.empty()) break;
 			// Date (YYYYMMDD)
 			doc.add_term("D" + yyyymmdd);
-#if 0 // "Weak" terms aren't currently used by omega
-			yyyymmdd.resize(7);
-			if (yyyymmdd[6] == '3') yyyymmdd[6] = '2';
-			// "Weak" - 10ish day interval
-			newdocument.add_term("W" + yyyymmdd);
-#endif
 			yyyymmdd.resize(6);
 			// Month (YYYYMM)
 			doc.add_term("M" + yyyymmdd);
