@@ -72,7 +72,8 @@ while (<F>) {
 }
 close F;
 
-if ($VERSION !~ /^\Q$xver\E(?:\..*)?$/) {
+my ($BASEVERSION) = $VERSION =~ /^([0-9]+\.[0-9]+\.[0-9]+)/;
+if ($xver !~ /^\Q$BASEVERSION\E(?:_svn[0-9]+)?$/) {
     warn "Warning: Xapian version $xver may be incompatible with Search::Xapian $VERSION\n";
 }
 
