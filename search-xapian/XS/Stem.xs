@@ -12,6 +12,10 @@ Stem::new(language)
 
 string
 Stem::stem_word(string word)
+    CODE:
+        RETVAL = (*THIS)(word);
+    OUTPUT:
+        RETVAL
 
 string
 Stem::get_description()
