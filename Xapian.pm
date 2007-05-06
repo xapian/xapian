@@ -90,7 +90,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '0.9.10.0';
+our $VERSION = '0.9.99.0';
 
 bootstrap Search::Xapian $VERSION;
 
