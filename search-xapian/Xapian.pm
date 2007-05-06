@@ -352,10 +352,9 @@ Query ctor optional "parameter" parameter,
 Remote::open(...),
 static Stem::get_available_languages().
 
-We wrap ESet::back(), MSet::swap() and MSet::operator[](), but not
-MSet::back(), ESet::swap(), ESet::operator[]().
-
-Tie MSet and ESet to allow them to just be used as lists?
+We wrap MSet::swap() and MSet::operator[](), but not ESet::swap(),
+ESet::operator[]().  Is swap actually useful?  Should we instead tie MSet
+and ESet to allow them to just be used as lists?
 
 =back
 
