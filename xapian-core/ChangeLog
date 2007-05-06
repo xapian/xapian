@@ -1,3 +1,8 @@
+Sun May 06 01:42:06 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Rework use of _invalid_parameter_handler to
+	  only apply when _MSC_VER is defined, to fix the mingw build.
+
 Sat May 05 22:30:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* net/remoteconnection.cc: Under __WIN32__, add an invalid

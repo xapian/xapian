@@ -33,7 +33,42 @@
 
 #ifndef __WIN32__
 # include "safesysselect.h"
-# include <stdlib.h>
+# ifdef _MSC_VER
+#  include <stdlib.h> // For _set_invalid_parameter_handler().
+# endif
+#endif
+
+#ifdef __WIN32__
+#ifdef _MSC_VER
+/** A dummy invalid parameter handler which ignores the error. */
+static void dummy_handler(const wchar_t*,
+			  const wchar_t*,
+			  const wchar_t*,
+			  unsigned int,
+			  uintptr_t)
+{
+}
+#endif
+
+/// Convert an fd (which might be a socket) to a WIN32 HANDLE.
+static HANDLE fd_to_handle(int fd) {
+#ifdef _MSC_VER
+    // Recent versions of MSVC call an "_invalid_parameter_handler" if
+    // _get_osfhandle() is about to return INVALID_HANDLE_VALUE.  This is a
+    // case we expect and handle, so we have to install a dummy handler to
+    // avoid the program dying.  Mingw seems to be free of this insanity (and
+    // even if it gets sucked in by the runtime DLL, it currently doesn't have
+    // the header support to compile this code).
+    _invalid_parameter_handler old_handler = _set_invalid_parameter_handler(dummy_handler);
+#endif
+    HANDLE handle = (HANDLE)_get_osfhandle(fd);
+#ifdef _MSC_VER
+    _set_invalid_parameter_handler(old_handler);
+#endif
+    // On WIN32, a socket fd isn't the same as a non-socket fd - in fact
+    // it's already a HANDLE!
+    return (handle != INVALID_HANDLE_VALUE ? handle : (HANDLE)fd);
+}
 #endif
 
 RemoteConnection::RemoteConnection(int fdin_, int fdout_,
@@ -58,17 +93,6 @@ RemoteConnection::~RemoteConnection()
 #endif
 }
 
-#ifdef __WIN32__
-/* An invalid parameter handler which ignores the error. */
-void nullInvalidParameterHandler(const wchar_t*,
-				 const wchar_t*, 
-				 const wchar_t*, 
-				 unsigned int, 
-				 uintptr_t)
-{
-}
-#endif
-
 void
 RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 {
@@ -78,11 +102,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
     if (buffer.length() >= min_len) return;
 
 #ifdef __WIN32__
-    _invalid_parameter_handler oldHandler = _set_invalid_parameter_handler(nullInvalidParameterHandler);
-    HANDLE hin = (HANDLE)_get_osfhandle(fdin);
-    _set_invalid_parameter_handler(oldHandler);
-    if (hin == INVALID_HANDLE_VALUE)
-	hin = (HANDLE)fdin;
+    HANDLE hin = fd_to_handle(fdin);
     while (true) {
 	char buf[4096];
 	DWORD received;
@@ -208,11 +228,7 @@ RemoteConnection::send_message(char type, const string &message, const OmTime & 
     header += encode_length(message.size());
 
 #ifdef __WIN32__
-    _invalid_parameter_handler oldHandler = _set_invalid_parameter_handler(nullInvalidParameterHandler);
-    HANDLE hout = (HANDLE)_get_osfhandle(fdout);
-    _set_invalid_parameter_handler(oldHandler);
-    if (hout == INVALID_HANDLE_VALUE)
-	hout = (HANDLE)fdout; // It's a socket - which already is a handle!
+    HANDLE hout = fd_to_handle(fdout);
     const string * str = &header;
 
     size_t count = 0;
