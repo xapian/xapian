@@ -1,3 +1,5 @@
+  * Now builds with GCC 4.3 snapshot.  Closes: #417767
+  
 xapian-omega (0.9.9-1) unstable; urgency=low
 
   * New upstream release.
@@ -124,7 +126,6 @@ xapian-omega (0.9.4-1) unstable; urgency=low
   * templates: opensearch - add missing escaping.
   * templates: godmode - cope with non-existent docids better.
   * omega: portability fixes.
-
 
  -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:33:36 +0000
 
