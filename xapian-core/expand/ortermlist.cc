@@ -118,8 +118,9 @@ TermList *
 OrTermList::next()
 {
     DEBUGCALL(EXPAND, TermList *, "OrTermList::next", "");
-    check_started();
-
+    // If we've not started yet, both left_current and right_current will be
+    // empty, so we'll take the third case below which is what we want to do to
+    // get started.
     if (left_current < right_current) {
 	handle_prune(left, left->next());
 	if (left->at_end()) {

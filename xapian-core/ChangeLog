@@ -1,3 +1,8 @@
+Sun May 06 04:00:39 BST 2007  Olly Betts <olly@survex.com>
+
+	* expand/ortermlist.cc: Remove incorrect assertion check in
+	  OrTermList::next(), replacing it with anexplanatory comment.
+
 Sun May 06 02:42:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Fix typo.
