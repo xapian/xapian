@@ -1,5 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
+0.9.99.0
 	[Changes contributed by Olly Betts]
 	- Removed wrappers for deprecated features which have now been removed
 	  from the C++ API.
