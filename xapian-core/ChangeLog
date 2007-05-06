@@ -1,3 +1,8 @@
+Sun May 06 02:39:23 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Aha!  Richard's patch failed to compile
+	  because stdlib.h was in "#ifndef __WIN32__" not "#ifdef __WIN32__".
+
 Sun May 06 02:27:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Protect _set_invalid_parameter_handler, etc
