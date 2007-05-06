@@ -36,7 +36,7 @@
 #endif
 
 #ifdef __WIN32__
-# ifdef _MSC_VER && _MSC_VER >= 1400 && defined __STDC_SECURE_LIB__
+# if defined _MSC_VER && _MSC_VER >= 1400 && defined __STDC_SECURE_LIB__
 #  define XAPIAN_MSVC_INVALID_PARAMETER_HANDLER
 #  include <stdlib.h> // For _set_invalid_parameter_handler(), etc.
 #  include <crtdbg.h> // For _CrtSetReportMode, etc.
