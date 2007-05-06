@@ -75,7 +75,7 @@ sub convert_to_percent() {
   my $invalid_args;
   if( scalar(@_) == 1 ) {
     my $arg = shift;
-    my $arg_class = shift;
+    my $arg_class = ref $arg;
     if( !$arg_class ) {
       return $self->convert_to_percent1($arg);
     } elsif( $arg_class eq 'Search::Xapian::MSetIterator' ) {

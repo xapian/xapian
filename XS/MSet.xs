@@ -39,13 +39,17 @@ percent
 MSet::convert_to_percent1(wt)
     weight	wt
     CODE:
-        THIS->convert_to_percent(wt);
+        RETVAL = THIS->convert_to_percent(wt);
+    OUTPUT:
+	RETVAL
 
 percent
 MSet::convert_to_percent2(it)
     MSetIterator *	it
     CODE:
-        THIS->convert_to_percent(*it);
+        RETVAL = THIS->convert_to_percent(*it);
+    OUTPUT:
+	RETVAL
 
 doccount
 MSet::get_termfreq(tname)

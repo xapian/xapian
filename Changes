@@ -12,6 +12,8 @@ Revision history for Perl extension Search::Xapian.
 	- Wrap ValueRangeProcessor and subclasses, and
 	  QueryParser::add_valuerangeprocessor().
 	- Test ValueRangeProcessor and subclasses in t/parser.t.
+	- MSet::convert_to_percentage() now actually works (and added feature
+	  tests to search.t to make sure it keeps working).
 
 0.9.10.0  Tue Mar 06 02:27:02 2007
 	[Changes contributed by Rusty Conover]
