@@ -31,12 +31,7 @@ For instructions on obtaining and installing Xapian, read the
 <P>
 You will also need a reasonably recent C++ compiler.  You'll need one
 which supports most of the ISO C++ standard.  If using GCC, 2.95 is the
-very minimum requirement - 3.0 or later is better.
-</P>
-<P>
-In addition, to run the examples, you will need a version of Xapian compiled
-with support for the "quartz" database access method (which is enabled
-by default).
+very minimum requirement - 3.3 or later is recommended.
 </P>
 
 <HR>
@@ -93,43 +88,10 @@ What can be accessed fast, what can't.
 How each piece of data might be stored.
 </P>
 
-<H3><A NAME="quartz_databases">Quartz databases</A></H3>
+<H3><A NAME="flint_databases">Flint databases</A></H3>
 
 <P>
 FIXME: to be written.
-</P>
--->
-
-<!-- FIXME: doesn't belong in the quickstart section at all!
-<H3><A NAME="da_databases">DA databases</A></H3>
-
-<P>
-The DA database format is one of the formats which our original software
-uses to store data.  It is a non-modifiable format; all the data must be
-known at the time at which it is created.  As a result, it is a fairly
-efficient database format for searching.
-</P>
-<P>
-On the other hand, it does lack a couple of features available in the
-quartz database format, one of which is that is does not store positional
-information in the posting lists.  Because of this, some operations
-(such as phrase searching) will never be possible with this database format.
-</P>
-<P>
-Another disadvantage is that document length information is not stored in
-this database, so the full benefit of some weighting formulae will not be
-realised.  Despite this, pretty good results can be obtained with DA
-databases.
-</P>
-<P>
-Because the DA format is an old format, we do not provide software to
-create DA files directly.  However, you may use the makeDA utility to
-create these files, either from text data which you have hand prepared,
-or from data unloaded from a quartz (or other format) database.
-</P>
-<P>
-You can search a DA database in exactly the same way as you would search a
-quartz database (see the <A HREF="#searcher">example searcher</A>).
 </P>
 -->
 
@@ -138,7 +100,7 @@ quartz database (see the <A HREF="#searcher">example searcher</A>).
 
 <P>
 We now present sample code for an indexer. This is deliberately
-simplified to make it easy to follow. You can also read it in <A
+simplified to make it easier to follow. You can also read it in <A
 HREF="quickstartindex.cc.html">an HTML formatted version</A>.
 </P>
 <P>
@@ -404,7 +366,7 @@ Again, this is performed just as it was for the simple indexer.
 Xapian has the ability to search over many databases simultaneously,
 possibly even with the databases distributed across a network of machines.
 Each database can be in its own format, so, for example, we might have a
-system searching across two DA databases and a quartz database.
+system searching across two remote databases and a flint database.
 </P>
 <P>
 To open a single database, we create a Xapian::Database object, passing

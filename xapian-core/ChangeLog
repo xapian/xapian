@@ -1,3 +1,10 @@
+Sun May 06 22:30:26 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/quickstart.html: Remove reference to DA databases since the
+	  muscat36 backend has been removed.  Update to recommend GCC 3.3
+	  or later, as we do elsewhere.  Change references to "quartz" to
+	  say "flint", or remove them.
+
 Sun May 06 16:02:28 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Set version to mythical 0.9.99.
