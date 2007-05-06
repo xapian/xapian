@@ -41,6 +41,10 @@
 
 #include "apitest.h"
 
+#include "safefcntl.h"
+#include "safeunistd.h"
+#include "safeerrno.h"
+
 #include <list>
 
 using namespace std;
@@ -1206,6 +1210,78 @@ static bool test_flintdatabaseopeningerror1()
     return true;
 }
 
+// Helper function to make a flint version file with the given version number.
+static void write_version_file(std::string filename, unsigned long version)
+{
+#define MAGIC_STRING "IAmFlint"
+#define CONST_STRLEN(S) (sizeof(S"")-1)
+#define MAGIC_LEN CONST_STRLEN(MAGIC_STRING)
+#define VERSIONFILE_SIZE (MAGIC_LEN + 4)
+
+    char buf[VERSIONFILE_SIZE] = MAGIC_STRING;
+
+    unsigned char *v = reinterpret_cast<unsigned char *>(buf) + MAGIC_LEN;
+    v[0] = static_cast<unsigned char>(version & 0xff);
+    v[1] = static_cast<unsigned char>((version >> 8) & 0xff);
+    v[2] = static_cast<unsigned char>((version >> 16) & 0xff);
+    v[3] = static_cast<unsigned char>((version >> 24) & 0xff);
+
+    int fd = ::open(filename.c_str(), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+
+    if (fd < 0) {
+	string msg("Failed to create fake flint version file: ");
+	msg += filename;
+	throw Xapian::DatabaseOpeningError(msg, errno);
+    }
+
+    try {
+	size_t n = VERSIONFILE_SIZE;
+	const char * p = buf;
+
+	while (n) {
+	    int c = write(fd, p, n);
+	    if (c < 0) {
+		if (errno == EINTR) continue;
+		throw Xapian::DatabaseError("Error writing to fake flint version file", errno);
+	    }
+	    p += c;
+	    n -= c;
+	}
+    } catch (...) {
+	(void)close(fd);
+	throw;
+    }
+
+    if (close(fd) != 0) {
+	string msg("Failed to create fake flint version file: ");
+	msg += filename;
+	throw Xapian::DatabaseOpeningError(msg, errno);
+    }
+}
+
+// tests that appropriate error is thrown for database format change
+static bool test_flintdatabaseformaterror1()
+{
+    mkdir(".flint", 0755);
+    std::string dbdir = ".flint/formatdb";
+    std::string flintfilename = dbdir + "/iamflint";
+
+    rm_rf(dbdir);
+    // Create a database
+    {
+	Xapian::Flint::open(dbdir, Xapian::DB_CREATE);
+    }
+
+    // Fiddle with the version file, so that xapian thinks it's an old format database.
+    write_version_file(flintfilename, 200611200);
+
+    // We should get an opening error when we try and open the database for reading now.
+    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+		   Xapian::Flint::open(dbdir));
+
+    return true;
+}
+
 /// Test opening of a flint database
 static bool test_flintdatabaseopen1()
 {
@@ -1599,6 +1675,7 @@ test_desc remotedb_tests[] = {
 
 test_desc flint_tests[] = {
     {"flintdatabaseopeningerror1",	test_flintdatabaseopeningerror1},
+    {"flintdatabaseformaterror1",	test_flintdatabaseformaterror1},
     {"flintdatabaseopen1",		test_flintdatabaseopen1},
     {"sortrel1",	   test_sortrel1},
     {0, 0}

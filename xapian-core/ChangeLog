@@ -1,3 +1,10 @@
+Sun May 06 15:06:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_db.cc: Add test_flintdatabaseformaterror1() which
+	  checks what happens when an old-format flint database is opened.
+	  It generates the old-format database by making a fake "iamflint"
+	  file containing an old version number.
+
 Sun May 06 04:00:39 BST 2007  Olly Betts <olly@survex.com>
 
 	* expand/ortermlist.cc: Remove incorrect assertion check in
