@@ -4,7 +4,7 @@ dnl Need autoconf 2.50 or later for many features
 dnl automake 1.6.3 requires autoconf 2.54
 dnl autoconf 2.59 is what xapian-core requires, so be consistent
 AC_PREREQ(2.59)
-AC_INIT(xapian-omega, 0.9.10)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-omega, 0.9.99)dnl FIXME: bugreport addr as third argument
 dnl Need 1.5 for AM_CXXFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
 dnl 1.8.5 contains a lot of fixes over 1.6.3
 dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge

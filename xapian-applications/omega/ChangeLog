@@ -1,3 +1,7 @@
+Sun May 06 16:00:47 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Set version to mythical 0.9.99.
+
 Sun May 06 15:52:08 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac,omega.spec.in,xapian-omega.spec.in:
