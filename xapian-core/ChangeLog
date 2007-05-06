@@ -1,3 +1,11 @@
+Sun May 06 02:27:18 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/remoteconnection.cc: Protect _set_invalid_parameter_handler, etc
+	  by _MSC_VER >= 1400 (MSVC 2005) and __STDC_SECURE_LIB__ (undocumented
+	  but cribbed from the Python sources).  Refactor into a handy class
+	  (MSVCIgnoreInvalidParameter) which just needs to be instantiated in
+	  the scope where you want to allow invalid parameters to be passed.
+
 Sun May 06 01:42:06 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: Rework use of _invalid_parameter_handler to
