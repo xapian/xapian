@@ -229,11 +229,11 @@ class test_driver {
 	" were " << (a) << " and " << (b))
 
 #include <float.h> // for DBL_DIG
-#include <math.h> // for fabs, log10
+#include <math.h> // for ceil, fabs, log10
 inline bool
 TEST_EQUAL_DOUBLE_helper(double a, double b)
 {
-    return (log10(fabs(a - b)) < -DBL_DIG);
+    return (ceil(log10(max(fabs(a), fabs(b)))) - log10(fabs(a - b)) > DBL_DIG);
 }
 
 #define TEST_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(TEST_EQUAL_DOUBLE_helper((a), (b)), \
