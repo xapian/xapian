@@ -16,13 +16,14 @@ ALL :  "$(INTDIR)\lemon.exe" "$(OUTDIR)\libqueryparser.lib"
 
 LIBQUERYPARSER_OBJS= \
                 $(INTDIR)\queryparser.obj \
-                $(INTDIR)\queryparser_internal.obj
+                $(INTDIR)\queryparser_internal.obj \
+                $(INTDIR)\termgenerator.obj \
+                $(INTDIR)\termgenerator_internal.obj
 
 
 CLEAN :
 	-@erase "$(OUTDIR)\libqueryparser.lib"
 	-@erase "*.pch"
-        -@erase $(LIBQUERYPARSER_OBJS)
 	-@erase $(LIBQUERYPARSER_OBJS)
 	-@erase queryparser_internal.cc
 	-@erase lemon.exe
@@ -63,8 +64,17 @@ CPP_SBRS=.
   $(CPP_PROJ) $**
 <<
 
-
 "$(INTDIR)\queryparser_internal.obj" : ".\queryparser_internal.cc"
+    $(CPP) @<<
+  $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\termgenerator.obj" : ".\termgenerator.cc"
+    $(CPP) @<<
+  $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\termgenerator_internal.obj" : ".\termgenerator_internal.cc"
     $(CPP) @<<
   $(CPP_PROJ) $**
 <<
