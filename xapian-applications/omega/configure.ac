@@ -383,6 +383,6 @@ dnl **************************
 dnl * Build the output files *
 dnl **************************
 
-AC_CONFIG_FILES([Makefile omega.spec])
+AC_CONFIG_FILES([Makefile xapian-omega.spec])
 AC_CONFIG_FILES([makemanpage], [chmod +x makemanpage])
 AC_OUTPUT

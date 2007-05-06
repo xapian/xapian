@@ -50,7 +50,7 @@ EXTRA_DIST = templates/query \
 	images/score-7.png \
 	images/score-8.png \
 	images/score-9.png \
-	omega.spec
+	xapian-omega.spec
 
 AM_CPPFLAGS = -DCONFIGFILE_SYSTEM=\"$(sysconfdir)/omega.conf\"
 
