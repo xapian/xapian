@@ -99,6 +99,6 @@ void rm_rf(const string &filename) {
 
 /// Touch a file, just like the Unix "touch" command.
 void touch(const string &filename) {
-   int fd = open(filename.c_str(), O_CREAT|O_WRONLY, 0644);
+   int fd = open(filename.c_str(), O_CREAT|O_WRONLY|O_BINARY, 0644);
    if (fd >= 0) close(fd);
 }
