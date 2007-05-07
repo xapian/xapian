@@ -45,8 +45,8 @@ class QuartzMetaFile {
 	/** Open the meta-file.
 	 *
 	 *  @except	Xapian::DatabaseOpeningError if the meta-file was not
-	 *		opened successfully or is compatible with this version
-	 *  		of the library.
+	 *		opened successfully or is not compatible with this
+	 *		version of the library.
 	 */
 	void open();
 

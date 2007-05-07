@@ -1272,11 +1272,13 @@ static bool test_flintdatabaseformaterror1()
 	Xapian::Flint::open(dbdir, Xapian::DB_CREATE);
     }
 
-    // Fiddle with the version file, so that xapian thinks it's an old format database.
+    // Fiddle with the version file, so that xapian thinks it's an old format
+    // database.
     write_version_file(flintfilename, 200611200);
 
-    // We should get an opening error when we try and open the database for reading now.
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    // We should get a version error when we try and open the database for
+    // reading now.
+    TEST_EXCEPTION(Xapian::DatabaseVersionError,
 		   Xapian::Flint::open(dbdir));
 
     return true;

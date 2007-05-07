@@ -176,7 +176,12 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
 	 *             consistent revision available.
 	 *
-	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
+	 *  @exception Xapian::DatabaseOpeningError thrown if database can't
+	 *             be opened.
+	 *
+	 *  @exception Xapian::DatabaseVersionError thrown if database is in an
+	 *             unsupported format.  This implies that the database was
+	 *             created by an older or newer version of Xapian.
 	 *
 	 *  @param dbdir directory holding flint tables
 	 *
@@ -275,7 +280,12 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
     public:
 	/** Create and open a writable flint database.
 	 *
-	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
+	 *  @exception Xapian::DatabaseOpeningError thrown if database can't
+	 *             be opened.
+	 *
+	 *  @exception Xapian::DatabaseVersionError thrown if database is in an
+	 *             unsupported format.  This implies that the database was
+	 *             created by an older or newer version of Xapian.
 	 *
 	 *  @param dir directory holding flint tables
 	 */

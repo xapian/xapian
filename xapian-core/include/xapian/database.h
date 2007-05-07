@@ -49,6 +49,10 @@ class Document;
  *
  *  @exception DatabaseOpeningError may be thrown if the database cannot
  *  be opened (for example, a required file cannot be found).
+ *
+ *  @exception DatabaseVersionError may be thrown if the database is in an
+ *  unsupported format (for example, created by a newer version of Xapian
+ *  which uses an incompatible format).
  */
 class XAPIAN_VISIBILITY_DEFAULT Database {
     public:

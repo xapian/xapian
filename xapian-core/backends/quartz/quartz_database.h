@@ -183,7 +183,12 @@ class XAPIAN_VISIBILITY_DEFAULT QuartzDatabase : public Xapian::Database::Intern
 	 *  @exception Xapian::DatabaseCorruptError is thrown if there is no
 	 *             consistent revision available.
 	 *
-	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
+	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be
+	 *             opened.
+	 *
+	 *  @exception Xapian::DatabaseVersionError thrown if database is in an
+	 *             unsupported format.  This implies that the database was
+	 *             created by an older or newer version of Xapian.
 	 *
 	 *  @param dbdir directory holding quartz tables
 	 *
@@ -282,7 +287,12 @@ class XAPIAN_VISIBILITY_DEFAULT QuartzWritableDatabase : public Xapian::Database
     public:
 	/** Create and open a writable quartz database.
 	 *
-	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
+	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be
+	 *             opened.
+	 *
+	 *  @exception Xapian::DatabaseVersionError thrown if database is in an
+	 *             unsupported format.  This implies that the database was
+	 *             created by an older or newer version of Xapian.
 	 *
 	 *  @param dir directory holding quartz tables
 	 */

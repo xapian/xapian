@@ -96,7 +96,7 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
 	if (!dbexists) {
 	    // Catch pre-0.6 Xapian databases and give a better error
 	    if (file_exists(db_dir + "/attribute_DB"))
-		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
+		throw Xapian::DatabaseVersionError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
 	    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	}
 	// Can still allow searches even if recovery is needed
@@ -107,7 +107,7 @@ QuartzDatabase::QuartzDatabase(const string &quartz_dir, int action,
 	    if (action == Xapian::DB_OPEN) {
 		// Catch pre-0.6 Xapian databases and give a better error
 		if (file_exists(db_dir + "/attribute_DB"))
-		    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
+		    throw Xapian::DatabaseVersionError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
 		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	    }
 

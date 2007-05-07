@@ -80,7 +80,7 @@ void QuartzMetaFile::open()
     unsigned int version;
     version = decode_version(data.substr(metafile_magic.length(), 4));
     if (version != metafile_version) {
-	throw Xapian::DatabaseOpeningError("Unknown Quartz metafile version " +
+	throw Xapian::DatabaseVersionError("Unknown Quartz metafile version " +
 			     om_tostring(version) + " in " +
 			     filename);
     }

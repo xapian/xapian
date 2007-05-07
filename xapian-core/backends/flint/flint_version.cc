@@ -126,6 +126,6 @@ void FlintVersion::read_and_check()
 	msg += " is version ";
 	msg += om_tostring(version);
 	msg += " but I only understand "STRINGIZE(FLINT_VERSION);
-	throw Xapian::DatabaseOpeningError(msg);
+	throw Xapian::DatabaseVersionError(msg);
     }
 }

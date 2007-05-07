@@ -1,3 +1,15 @@
+Mon May 07 10:03:50 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_database.h,
+	  backends/flint/flint_version.cc,backends/quartz/,exception_data.pm,
+	  include/xapian/database.h,tests/api_db.cc: Throw
+	  DatabaseVersionError instead of DatabaseOpeningError when database
+	  version is unsupported.  This is a new error class, which is a
+	  subclass of DatabaseOpeningError, so most existing scripts
+	  shouldn't need changing, but makes it easy for application
+	  writers to determine whether a database needs upgrading or
+	  whether the problem is something else.  Should fix #144.
+
 Mon May 07 09:22:01 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/progclient.cc: Under __WIN32__, use byte mode on pipes because
