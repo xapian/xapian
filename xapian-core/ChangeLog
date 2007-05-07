@@ -1,3 +1,8 @@
+Mon May 07 01:13:29 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/testsuite.h: Report extra info to try to work out why
+	  MSVC build is failing expandweights1.
+
 Mon May 07 00:26:59 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.h: Another tweak to TEST_EQUAL_DOUBLE().
