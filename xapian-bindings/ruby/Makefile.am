@@ -33,6 +33,19 @@ _xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 if MAINTAINER_MODE
 xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
+## Recover from the removal of $@.  A full explanation of these rules is in the
+## automake manual under the heading "Multiple Outputs".
+	@if test -f $@; then :; else \
+	  trap 'rm -rf xapian_wrap.lock xapian_wrap.stamp' 1 2 13 15; \
+	  if mkdir xapian_wrap.lock 2>/dev/null; then \
+	    rm -f xapian_wrap.stamp; \
+	    $(MAKE) $(AM_MAKEFLAGS) xapian_wrap.stamp; \
+	    rmdir xapian_wrap.lock; \
+	  else \
+	    while test -d xapian_wrap.lock; do sleep 1; done; \
+	    test -f xapian_wrap.stamp; exit $$?; \
+	  fi; \
+	fi
 xapian_wrap.stamp: $(SWIG_sources) util.i
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
 	    -feature _xapian -ruby \

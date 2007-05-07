@@ -62,6 +62,19 @@ doccomments.i: doxy2swig.py ../../xapian-core/exception_data.pm ../../xapian-cor
 	$(PYTHON) doxy2swig.py ../../xapian-core/docs/apidoc/xml/index.xml doccomments.i
 
 modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: modern/xapian_wrap.stamp
+## Recover from the removal of $@.  A full explanation of these rules is in the
+## automake manual under the heading "Multiple Outputs".
+	@if test -f $@; then :; else \
+	  trap 'rm -rf modern/xapian_wrap.lock modern/xapian_wrap.stamp' 1 2 13 15; \
+	  if mkdir modern/xapian_wrap.lock 2>/dev/null; then \
+	    rm -f modern/xapian_wrap.stamp; \
+	    $(MAKE) $(AM_MAKEFLAGS) modern/xapian_wrap.stamp; \
+	    rmdir modern/xapian_wrap.lock; \
+	  else \
+	    while test -d modern/xapian_wrap.lock; do sleep 1; done; \
+	    test -f modern/xapian_wrap.stamp; exit $$?; \
+	  fi; \
+	fi
 modern/xapian_wrap.stamp: $(SWIG_sources) util.i except.i doccomments.i extra.i extracomments.i
 	test -d modern || mkdir modern
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \

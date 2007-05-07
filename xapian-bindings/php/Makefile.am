@@ -49,6 +49,19 @@ if MAINTAINER_MODE
 # option.
 
 php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: php4/xapian_wrap.stamp
+## Recover from the removal of $@.  A full explanation of these rules is in the
+## automake manual under the heading "Multiple Outputs".
+	@if test -f $@; then :; else \
+	  trap 'rm -rf php4/xapian_wrap.lock php4/xapian_wrap.stamp' 1 2 13 15; \
+	  if mkdir php4/xapian_wrap.lock 2>/dev/null; then \
+	    rm -f php4/xapian_wrap.stamp; \
+	    $(MAKE) $(AM_MAKEFLAGS) php4/xapian_wrap.stamp; \
+	    rmdir php4/xapian_wrap.lock; \
+	  else \
+	    while test -d php4/xapian_wrap.lock; do sleep 1; done; \
+	    test -f php4/xapian_wrap.stamp; exit $$?; \
+	  fi; \
+	fi
 php4/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
 	test -d php4 || mkdir php4
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
@@ -57,6 +70,19 @@ php4/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
 	touch $@
 
 php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: php5/xapian_wrap.stamp
+## Recover from the removal of $@.  A full explanation of these rules is in the
+## automake manual under the heading "Multiple Outputs".
+	@if test -f $@; then :; else \
+	  trap 'rm -rf php5/xapian_wrap.lock php5/xapian_wrap.stamp' 1 2 13 15; \
+	  if mkdir php5/xapian_wrap.lock 2>/dev/null; then \
+	    rm -f php5/xapian_wrap.stamp; \
+	    $(MAKE) $(AM_MAKEFLAGS) php5/xapian_wrap.stamp; \
+	    rmdir php5/xapian_wrap.lock; \
+	  else \
+	    while test -d php5/xapian_wrap.lock; do sleep 1; done; \
+	    test -f php5/xapian_wrap.stamp; exit $$?; \
+	  fi; \
+	fi
 php5/xapian_wrap.stamp: $(SWIG_sources) except.i util.i
 	test -d php5 || mkdir php5
 	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
