@@ -1280,9 +1280,38 @@ static bool test_flintdatabaseformaterror1()
     // reading now.
     TEST_EXCEPTION(Xapian::DatabaseVersionError,
 		   Xapian::Flint::open(dbdir));
+    Xapian::Flint::open(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
     return true;
 }
+
+// regression test for not releasing lock on error.
+static bool test_flintdatabaseformaterror2()
+{
+    mkdir(".flint", 0755);
+    std::string dbdir = ".flint/formatdb";
+    std::string flintfilename = dbdir + "/iamflint";
+
+    rm_rf(dbdir);
+    // Create a database
+    {
+	Xapian::Flint::open(dbdir, Xapian::DB_CREATE);
+    }
+
+    // Fiddle with the version file, so that xapian thinks it's an old format
+    // database.
+    write_version_file(flintfilename, 200611200);
+
+    TEST_EXCEPTION(Xapian::DatabaseVersionError,
+		   Xapian::WritableDatabase(dbdir, Xapian::DB_CREATE_OR_OPEN));
+
+    // This used to throw a DatabaseLockError: "Unable to acquire database
+    // write lock on .flint/formatdb: already locked"
+    Xapian::WritableDatabase(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    return true;
+}
+
 
 /// Test opening of a flint database
 static bool test_flintdatabaseopen1()
@@ -1678,6 +1707,7 @@ test_desc remotedb_tests[] = {
 test_desc flint_tests[] = {
     {"flintdatabaseopeningerror1",	test_flintdatabaseopeningerror1},
     {"flintdatabaseformaterror1",	test_flintdatabaseformaterror1},
+    {"flintdatabaseformaterror2",	test_flintdatabaseformaterror2},
     {"flintdatabaseopen1",		test_flintdatabaseopen1},
     {"sortrel1",	   test_sortrel1},
     {0, 0}

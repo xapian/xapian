@@ -76,76 +76,81 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
     DEBUGCALL(DB, void, "FlintDatabase", flint_dir << ", " << action <<
 	      ", " << block_size);
 
-    bool dbexists = database_exists();
-    // open tables
-    if (action == XAPIAN_DB_READONLY) {
-	if (!dbexists) {
-	    // Catch pre-0.6 Xapian databases and give a better error
-	    if (file_exists(db_dir + "/attribute_DB"))
-		throw Xapian::DatabaseVersionError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
-	    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
-	}
-	// Can still allow searches even if recovery is needed
-	open_tables_consistent();
-    } else {
-	if (!dbexists) {
-	    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
-	    if (action == Xapian::DB_OPEN) {
+    try {
+	bool dbexists = database_exists();
+	// open tables
+	if (action == XAPIAN_DB_READONLY) {
+	    if (!dbexists) {
+		// Catch pre-0.6 Xapian databases and give a better error
+		if (file_exists(db_dir + "/attribute_DB"))
+		    throw Xapian::DatabaseVersionError("Cannot open database at `" + db_dir + "' - it was created by a pre-0.6 version of Xapian");
 		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
 	    }
+	    // Can still allow searches even if recovery is needed
+	    open_tables_consistent();
+	} else {
+	    if (!dbexists) {
+		// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
+		if (action == Xapian::DB_OPEN) {
+		    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
+		}
 
-	    // Create the directory for the database, if it doesn't exist
-	    // already.
-	    bool fail = false;
-	    struct stat statbuf;
-	    if (stat(db_dir, &statbuf) == 0) {
-		if (!S_ISDIR(statbuf.st_mode)) fail = true;
-	    } else if (errno != ENOENT || mkdir(db_dir, 0755) == -1) {
-		fail = true;
+		// Create the directory for the database, if it doesn't exist
+		// already.
+		bool fail = false;
+		struct stat statbuf;
+		if (stat(db_dir, &statbuf) == 0) {
+		    if (!S_ISDIR(statbuf.st_mode)) fail = true;
+		} else if (errno != ENOENT || mkdir(db_dir, 0755) == -1) {
+		    fail = true;
+		}
+		if (fail) {
+		    throw Xapian::DatabaseOpeningError("Cannot create directory `"
+						       + db_dir + "'", errno);
+		}
+		get_database_write_lock();
+
+		create_and_open_tables(block_size);
+		return;
 	    }
-	    if (fail) {
-		throw Xapian::DatabaseOpeningError("Cannot create directory `"
-						   + db_dir + "'", errno);
+
+	    if (action == Xapian::DB_CREATE) {
+		throw Xapian::DatabaseCreateError("Can't create new database at `" +
+						  db_dir + "': a database already exists and I was told "
+						  "not to overwrite it");
 	    }
+
 	    get_database_write_lock();
+	    // if we're overwriting, pretend the db doesn't exist
+	    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
+	    if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
+		create_and_open_tables(block_size);
+		return;
+	    }
 
-	    create_and_open_tables(block_size);
-	    return;
+	    // Get latest consistent version
+	    open_tables_consistent();
+
+	    // Check that there are no more recent versions of tables.  If there
+	    // are, perform recovery by writing a new revision number to all
+	    // tables.
+	    if (record_table.get_open_revision_number() !=
+		postlist_table.get_latest_revision_number()) {
+		flint_revision_number_t new_revision = get_next_revision_number();
+
+		postlist_table.commit(new_revision);
+		positionlist_table.commit(new_revision);
+		termlist_table.commit(new_revision);
+		value_table.commit(new_revision);
+		record_table.commit(new_revision);
+	    }
+	    if (record_table.get_doccount() == 0) {
+		postlist_table.set_total_length_and_lastdocid(0, postlist_table.get_lastdocid());
+	    }
 	}
-
-	if (action == Xapian::DB_CREATE) {
-	    throw Xapian::DatabaseCreateError("Can't create new database at `" +
-		    db_dir + "': a database already exists and I was told "
-		    "not to overwrite it");
-	}
-
-	get_database_write_lock();
-	// if we're overwriting, pretend the db doesn't exists
-	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
-	if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
-	    create_and_open_tables(block_size);
-	    return;
-	}
-
-	// Get latest consistent version
-	open_tables_consistent();
-
-	// Check that there are no more recent versions of tables.  If there
-	// are, perform recovery by writing a new revision number to all
-	// tables.
-	if (record_table.get_open_revision_number() !=
-	    postlist_table.get_latest_revision_number()) {
-	    flint_revision_number_t new_revision = get_next_revision_number();
-
-	    postlist_table.commit(new_revision);
-	    positionlist_table.commit(new_revision);
-	    termlist_table.commit(new_revision);
-	    value_table.commit(new_revision);
-	    record_table.commit(new_revision);
-	}
-	if (record_table.get_doccount() == 0) {
-	    postlist_table.set_total_length_and_lastdocid(0, postlist_table.get_lastdocid());
-	}
+    } catch(...) {
+	if (lock) lock.release();
+	throw;
     }
 }
 
