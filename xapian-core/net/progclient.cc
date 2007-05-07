@@ -164,8 +164,8 @@ ProgClient::run_program(const string &progname, const string &args
 	    (unsigned long)GetCurrentThreadId(), pipecount++);
     // Create a pipe so we can read stdout from the child process.
     HANDLE hPipe = CreateNamedPipe(pipename,
-				   PIPE_ACCESS_DUPLEX/*|FILE_FLAG_OVERLAPPED*/,
-				   PIPE_TYPE_MESSAGE|PIPE_READMODE_MESSAGE/*|PIPE_REJECT_REMOTE_CLIENTS*/,
+				   PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,
+				   0,
 				   1, 4096, 4096, NMPWAIT_USE_DEFAULT_WAIT,
 				   NULL);
 
@@ -176,17 +176,11 @@ ProgClient::run_program(const string &progname, const string &args
     }
 
     HANDLE hClient = CreateFile(pipename,
-				GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+				GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+				FILE_FLAG_OVERLAPPED, NULL);
 
     if (hClient == INVALID_HANDLE_VALUE) {
 	throw Xapian::NetworkError("CreateFile failed",
-				   get_progcontext(progname, args),
-				   -(int)GetLastError());
-    }
-
-    DWORD dwMode = PIPE_READMODE_MESSAGE;
-    if (!SetNamedPipeHandleState(hClient, &dwMode, NULL, NULL)) {
-	throw Xapian::NetworkError("SetNamedPipeHandleState failed",
 				   get_progcontext(progname, args),
 				   -(int)GetLastError());
     }
