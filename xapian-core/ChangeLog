@@ -1,3 +1,11 @@
+Mon May 07 03:03:10 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_anydb.cc,tests/apitest.cc,tests/harness/: Now
+	  TEST_EQUAL_DOUBLE() should work everywhere.  Move the helper
+	  function out of the header.  Use TEST_EQUAL_DOUBLE() instead
+	  of doubles_are_equal_enough() and weights_are_equal_enough()
+	  which do much the same job.
+
 Mon May 07 01:13:29 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/testsuite.h: Report extra info to try to work out why

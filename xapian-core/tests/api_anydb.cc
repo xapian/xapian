@@ -184,9 +184,9 @@ static bool test_simplequery2()
     // Check the weights
     Xapian::MSetIterator i = mymset.begin();
     // These weights are for BM25Weight(1,0,1,0.5,0.5)
-    weights_are_equal_enough(i.get_weight(), 1.046482);
+    TEST_EQUAL_DOUBLE(i.get_weight(), 1.04648168717725);
     i++;
-    weights_are_equal_enough(i.get_weight(), 0.640988);
+    TEST_EQUAL_DOUBLE(i.get_weight(), 0.640987686595914);
 
     return true;
 }

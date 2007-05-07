@@ -24,15 +24,11 @@
 
 #include "omstringstream.h"
 
-#include <algorithm>
-#include <iomanip>
-#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
 
-#include <float.h> // for DBL_DIG
-#include <math.h> // for ceil, fabs, log10
+#include <float.h> // For DBL_DIG.
 
 /** Class which is thrown when a test case fails.
  */
@@ -208,8 +204,7 @@ class test_driver {
 };
 
 #ifndef STRINGIZE
-/** STRINGIZE converts a piece of code to a string, so it can be displayed.
- */
+/// STRINGIZE converts a piece of code to a string, so it can be displayed.
 #define STRINGIZE(N) _STRINGIZE(N)
 #define _STRINGIZE(N) #N
 #endif
@@ -233,15 +228,13 @@ class test_driver {
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be equal:" \
 	" were " << (a) << " and " << (b))
 
-inline bool
-TEST_EQUAL_DOUBLE_helper(double a, double b)
-{
-    return (ceil(log10(std::max(fabs(a), fabs(b)))) - log10(fabs(a - b)) > DBL_DIG);
-}
+/// Helper function for TEST_EQUAL_DOUBLE macro.
+extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 
-#define TEST_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(TEST_EQUAL_DOUBLE_helper((a), (b)), \
+/// Test two doubles for near equality.
+#define TEST_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(TEST_EQUAL_DOUBLE_((a), (b)), \
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be (nearly) equal:" \
-	" were " << setprecision(DBL_DIG) << (a) << " and " << (b) << " (diff " << fabs((a) - (b)) << ", DBL_DIG = " << DBL_DIG << ")" << setprecision(6))
+	" were " << setprecision(DBL_DIG) << (a) << " and " << (b) << ")" << setprecision(6))
 
 /// Test for non-equality of two things.
 #define TEST_NOT_EQUAL(a, b) TEST_AND_EXPLAIN(((a) != (b)), \

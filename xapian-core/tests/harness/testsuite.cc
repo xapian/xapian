@@ -32,6 +32,7 @@
 #endif
 
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 
 #ifdef HAVE_STREAMBUF
@@ -42,6 +43,8 @@
 
 #include <set>
 
+#include <float.h> // For DBL_DIG.
+#include <math.h> // For ceil, fabs, log10.
 #include <stdlib.h>
 
 #include "gnu_getopt.h"
@@ -654,4 +657,10 @@ test_driver::run(const test_desc *tests)
     total.skipped += myresult.skipped;
 
     return bool(myresult.failed); // if 0, then everything passed
+}
+
+bool
+TEST_EQUAL_DOUBLE_(double a, double b)
+{
+    return (ceil(log10(max(fabs(a), fabs(b)))) - log10(fabs(a - b)) > DBL_DIG);
 }

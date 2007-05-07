@@ -1,8 +1,7 @@
-/* testutils.cc: utilities used when writing test suites for om.
+/* testutils.cc: Xapian-specific test helper functions.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,37 +15,36 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
+
 #include "testutils.h"
 
+#include <iostream>
 #include <vector>
-#include <cmath>
 
-using std::cout;
-using std::endl;
+using namespace std;
 
-std::ostream &
-operator<<(std::ostream &os, const std::vector<unsigned int> &ints)
+ostream &
+operator<<(ostream &os, const vector<unsigned int> &ints)
 {
     copy(ints.begin(), ints.end(),
-	 std::ostream_iterator<unsigned int>(os, ", "));
+	 ostream_iterator<unsigned int>(os, ", "));
     return os;
 }
 
 #ifndef HAVE_SSTREAM
 om_ostringstream &
-operator<<(om_ostringstream &os, const std::vector<unsigned int> &ints)
+operator<<(om_ostringstream &os, const vector<unsigned int> &ints)
 {
 // FIXME don't have output_iterator for our own stringstream
 //    copy(ints.begin(), ints.end(),
-//	 std::ostream_iterator<unsigned int>(os, ", "));
+//	 ostream_iterator<unsigned int>(os, ", "));
 //    return os;
-    std::vector<unsigned int>::const_iterator i = ints.begin();
+    vector<unsigned int>::const_iterator i = ints.begin();
     while (true) {
 	os << *i;
 	if (i == ints.end()) return os;
@@ -130,7 +128,7 @@ mset_expect_order_(const Xapian::MSet &A, bool beginning,
 		   Xapian::docid d5, Xapian::docid d6, Xapian::docid d7, Xapian::docid d8,
 		   Xapian::docid d9, Xapian::docid d10, Xapian::docid d11, Xapian::docid d12)
 {
-    std::vector<Xapian::docid> expect;
+    vector<Xapian::docid> expect;
     if (d1) {
 	expect.push_back(d1);
 	if (d2) {
@@ -210,21 +208,6 @@ mset_expect_order(const Xapian::MSet &A,
 		  Xapian::docid d9, Xapian::docid d10, Xapian::docid d11, Xapian::docid d12)
 {
     mset_expect_order_(A, false, d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12);
-}
-
-bool
-doubles_are_equal_enough(double a, double b)
-{
-    if (fabs(a - b) > 1E-5) return false;
-    return true;
-}
-
-void
-weights_are_equal_enough(double a, double b)
-{
-    TEST_AND_EXPLAIN(doubles_are_equal_enough(a, b),
-		     "Got weight of " << a
-		     << ", expected weight of " << b << endl);
 }
 
 void
