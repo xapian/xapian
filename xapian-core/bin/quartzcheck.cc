@@ -21,6 +21,11 @@
  */
 
 #include <config.h>
+
+// We have to use the deprecated Quartz::open() method.
+#define XAPIAN_DEPRECATED(D) D
+#include <xapian.h>
+
 #include <iostream>
 
 #include "autoptr.h"
@@ -28,10 +33,6 @@
 #include "bcursor.h"
 #include "quartz_types.h"
 #include "quartz_utils.h"
-
-// We have to use the deprecated Quartz::open() method.
-#define XAPIAN_DEPRECATED(D) D
-#include <xapian.h>
 
 using namespace std;
 

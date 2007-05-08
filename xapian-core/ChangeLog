@@ -1,3 +1,11 @@
+Tue May 08 16:15:30 BST 2007  Olly Betts <olly@survex.com>
+
+	* bin/quartzcheck.cc,tests/harness/backendmanager.cc: In these files
+	  we have to disable XAPIAN_DEPRECATED() since we need to be able to
+	  use Quartz::open() - move this to the start of the #include block
+	  to avoid problems with any intermediate header implicitly including
+	  <xapian.h>.
+
 Tue May 08 14:51:37 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Move section on "Configure Options" to a more logical spot
