@@ -134,12 +134,13 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   case $v in
    [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
    *)
-     AC_MSG_ERROR([SWIG >= 1.3.32 (SVN rev 9651 or later) required (you have $v)]) ;;
+     AC_MSG_ERROR([SWIG >= 1.3.32 (SVN rev 9670 or later) required (you have $v)]) ;;
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
-  AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
+
   dnl Need perl in maintainer mode to generate the except.i file for python.
+  AC_PATH_PROGS(PERL, ["${PERL-perl}"], [])
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
 fi
 
