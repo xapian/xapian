@@ -1,3 +1,12 @@
+Tue May 08 14:51:37 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Move section on "Configure Options" to a more logical spot
+	  just before "Makefile Portability".  Add section on how to use
+	  XAPIAN_DEPRECATED() noting the issue with GCC 3.3.5 not allowing
+	  it to be used on an inline method definition.
+	* include/xapian/deprecated.h: Add pointers to HACKING and
+	  docs/deprecated.rst.
+
 Tue May 08 13:57:17 BST 2007  Olly Betts <olly@survex.com>
 
 	* generate-exceptions.in: We can't use XAPIAN_DEPRECATED() on

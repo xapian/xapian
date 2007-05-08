@@ -499,6 +499,32 @@ its dependencies.
 If you know the equivalent of -Werror for other compilers, please add a note
 here, or tell us so that we can add a note.
 
+Configure Options
+=================
+
+Especially for a library, compile-time options aren't a good solution for
+how to integrate a new feature.  An increasingly large number of users install
+pre-built binary packages rather than building from source, and unless the
+package is capable of being split into modules, the packager has to choose a
+set of compile-time options to use.  And they'll tend to choose either the
+standard ones, or perhaps a broader set to try to keep everyone happy.  For a
+library, similar issues occur when installing from source as well - the
+sysadmin must choose the options which will keep all users happy.
+
+Another problem with compile-time options is that it's hard to ensure that
+a change doesn't break compilation under some combination of options without
+actually building and running the test-suite on all combinations.  The fewer
+compile-time options, the more likely the code will compile with every
+combination of them.
+
+So please think carefully before adding more compile-time options.  They're
+probably OK for experimental features (but should go away once a feature is no
+longer experimental).  Options to instrument a build for special purposes
+(debug, profiling, etc) are also acceptable.  Disabling whole features probably
+isn't (e.g. the --disable-backend-XXX options we already have are dubious,
+though being able to disable the remote backend can be useful when trying to
+get Xapian going on a platform).
+
 Makefile Portability:
 =====================
 
@@ -613,8 +639,8 @@ Here's an incomplete list of things to avoid:
 
     # This rule works even if some of the output files were removed
     xapian_wrap.cc xapian_wrap.h: xapian_wrap.stamp
-    ## Recover from the removal of $@.  A full explanation of these rules is in the
-    ## automake manual under the heading "Multiple Outputs".
+    ## Recover from the removal of $@.  A full explanation of these rules is in
+    ## the automake manual under the heading "Multiple Outputs".
             @if test -f $@; then :; else \
               trap 'rm -rf xapian_wrap.lock xapian_wrap.stamp' 1 2 13 15; \
               if mkdir xapian_wrap.lock 2>/dev/null; then \
@@ -629,7 +655,6 @@ Here's an incomplete list of things to avoid:
     xapian_wrap.stamp: xapian.i
             SWIG_commands
             touch $@
-
 
 * This is actually a robustness point, not portability per se.  Rules which
   generate files should be careful not to leave a partial file in place if
@@ -649,7 +674,7 @@ Here's an incomplete list of things to avoid:
   delete the output on error or a signal (although this approach can leave
   a partial file in place if the power fails).  All used Makefile.am-s and
   scripts have been checked (and fixed if required) as of 2003-07-10 (didn't
-  check xapian-bindings, xapian-examples, or xapian-core/indexer).
+  check xapian-bindings).
 
 And lastly a style point - using "@" to suppress echoing of commands being
 executed removes choice from the user - they may want to see what commands
@@ -686,31 +711,61 @@ There are several variants of Assert:
   won't be checked, but Asserts will.  You can also use AssertEqParanoid
   and AssertNeParanoid.
 
-Configure Options
-=================
+Marking Features as Deprecated
+==============================
 
-Especially for a library, compile-time options aren't a good solution for
-how to integrate a new feature.  Increasingly few people compile from source
-these days - rather they install from packages.  Unless the package is capable
-of being split into modules, the packager can really only choose what compile
-time options to use.  And they'll tend to choose either the standard ones, or
-perhaps a broader set to try to keep everyone happy.  For a library, similar
-issues occur when installing from source as well - the sysadmin must choose the
-options which will keep all users happy.
+In the API headers, a feature (a class, method, function, enum, typedef, etc)
+can be marked as deprecated by using the XAPIAN_DEPRECATED() macro.  Note that
+you can't deprecate a preprocessor macro.
 
-Another problem with compile-time options is that it's hard to ensure that
-a change doesn't break compilation under some combination of options without
-actually building and running the test-suite on all combinations.  The fewer
-compile-time options, the more likely the code will compile with every
-combination of them.
+For compilers with a suitable mechanism (currently GCC 3.1 or later, and
+MSVC 7.0 or later) this causes compile-time warning messages to be emitted for
+any use of the deprecated feature.  For compilers without support, the macro
+just expands to its argument.
 
-So please think carefully before adding more compile-time options.  They're
-probably OK for experimental features (but should go away once a feature is no
-longer experimental).  Options to instrument a build for special purposes
-(debug, profiling, etc) are also acceptable.  Disabling whole features probably
-isn't (e.g. the --disable-backend-XXX options we already have are dubious,
-though being able to disable the remote backend can be useful when trying to
-get Xapian going on a platform).
+You must add this line to any API header which uses XAPIAN_DEPRECATED():
+
+    #include <xapian/deprecated.h>
+
+When marking a feature as deprecated, document the deprecation in
+docs/deprecation.rst.  When actually removing deprecated features, please tidy
+up by removing the inclusion of <xapian/deprecated.h> from any file which no
+longer marks any features as deprecated.
+
+The XAPIAN_DEPRECATED() macro should wrap the whole declaration except for the
+semicolon and any "definition" part, for example:
+
+    XAPIAN_DEPRECATED(int old_function(double arg));
+
+    class Foo {
+      public:
+        XAPIAN_DEPRECATED(int old_method());
+
+        XAPIAN_DEPRECATED(int old_const_method() const);
+
+        XAPIAN_DEPRECATED(static int old_static_method());
+
+        XAPIAN_DEPRECATED(static const int OLD_CONSTANT) = 42;
+    };
+
+To avoid compilation errors with older GCC versions (noted with GCC 3.3.5),
+you can't mark a method which is defined inline in a class with
+XAPIAN_DEPRECATED (this works with recent GCC versions though):
+    
+    class Foo {
+      public:
+        // This fails to compile with GCC 3.3.5, so don't do this!
+        XAPIAN_DEPRECATED(int old_inline_method()) { return 42; }
+    };
+    
+Instead rewrite like so:
+
+    class Foo {
+      public:
+        XAPIAN_DEPRECATED(int old_inline_method());
+    };
+
+    inline int Foo::old_inline_method() { return 42; }
 
 Submitting Patches:
 ===================
