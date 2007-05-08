@@ -149,8 +149,10 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  exceptions from the a remote server to the client.  Use
      *  the get_error_string() method instead.
      */
-    XAPIAN_DEPRECATED(int get_errno() const) { return my_errno; }
+    XAPIAN_DEPRECATED(int get_errno() const);
 };
+
+inline int Xapian::Error::get_errno() const { return my_errno; }
 EOF
 
 print DISPATCH <<'EOF';

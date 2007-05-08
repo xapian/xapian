@@ -1,3 +1,9 @@
+Tue May 08 13:57:17 BST 2007  Olly Betts <olly@survex.com>
+
+	* generate-exceptions.in: We can't use XAPIAN_DEPRECATED() on
+	  a function definition with GCC 3.3.5, so use it on a declaration
+	  and then define inline but out of the class.
+
 Tue May 08 13:45:48 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: We must call closesocket() (instead of just
