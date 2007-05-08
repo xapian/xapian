@@ -364,7 +364,9 @@ TcpServer::handle_one_request(int connected_socket)
     } catch (...) {
 	// ignore other exceptions
     }
-    close(connected_socket);
+    // We must call closesocket() (instead of just close()) under __WIN32__ or
+    // else the socket remains in the CLOSE_WAIT state.
+    closesocket(connected_socket);
 }
 
 /// Structure which is used to pass parameters to the new threads.
