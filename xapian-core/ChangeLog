@@ -1,3 +1,7 @@
+Tue May 08 18:10:12 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/error.cc: Really fix it...
+
 Tue May 08 17:38:04 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/error.cc: Fix another paste-o!
