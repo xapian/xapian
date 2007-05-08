@@ -964,7 +964,7 @@ public:
 
 namespace Xapian {
 
-#if defined SWIGPYTHON && !defined PYTHON_OLDE
+#if defined SWIGPYTHON
 %include extra.i
 #endif
 
