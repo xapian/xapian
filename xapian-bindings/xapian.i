@@ -99,6 +99,7 @@ using namespace std;
 // Parse the visibility support header file, so we don't get errors when we
 // %include other xapian headers.
 %include <xapian/visibility.h>
+#define XAPIAN_DEPRECATED(D) D
 
 // This includes a language specific util.i, thanks to judicious setting of
 // the include path.
@@ -944,7 +945,6 @@ public:
 
 }
 
-#define XAPIAN_DEPRECATED(X) X
 %ignore Xapian::Stem::internal;
 %ignore Xapian::Stem::operator=;
 %ignore Xapian::Stem::Stem();
