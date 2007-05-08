@@ -1,3 +1,11 @@
+Tue May 08 02:35:04 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/error.cc,bin/xapian-tcpsrv.cc,examples/delve.cc,
+	  generate-exceptions.in,tests/harness/testsuite.cc: Error subclasses
+	  now store the error_string in the class, converting it from the
+	  error code in my_errno lazily.  Also, get_error_string() now returns
+	  const char *.
+
 Tue May 08 01:34:56 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Build rules for running generate-exceptions should be

@@ -221,7 +221,7 @@ main(int argc, char **argv)
 	    } catch (const Error &e) {
 		cout << "Error opening database `" << *i << "': ";
 		cout << e.get_msg();
-		if (!e.get_error_string().empty())
+		if (e.get_error_string())
 		    cout << " (" << e.get_error_string() << ')';
 		cout << endl;
 		return 1;

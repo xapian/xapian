@@ -188,8 +188,7 @@ int main(int argc, char **argv) {
 	}
     } catch (const Xapian::Error &e) {
 	cerr << e.get_type() << ": " << e.get_msg();
-	string errstr = e.get_error_string();
-	if (!errstr.empty()) cerr << " (" << errstr << ")";
+	if (e.get_error_string()) cerr << " (" << e.get_error_string() << ')';
 	cerr << endl;
 	exit(1);
     } catch (const exception &e) {

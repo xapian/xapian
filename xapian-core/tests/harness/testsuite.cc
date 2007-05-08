@@ -367,7 +367,7 @@ test_driver::runtest(const test_desc *test)
 		    out << err.get_type() << " exception: " << err.get_msg();
 		    if (!err.get_context().empty())
 			out << " (context:" << err.get_context() << ")";
-		    if (!err.get_error_string().empty())
+		    if (err.get_error_string())
 			out << " (" << err.get_error_string() << ")";
 		    out << endl;
 		}
