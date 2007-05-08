@@ -429,7 +429,7 @@ TcpServer::run_once()
 {
     // Runs a single request on the current thread.
     int connected_socket = accept_connection();
-    handle_one_request(connected_socket);
+    handle_one_connection(connected_socket);
 }
 
 #else

@@ -1,3 +1,8 @@
+Tue May 08 18:22:30 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Fix remaining use of handle_one_request in
+	  __WIN32__-specific code.
+
 Tue May 08 18:10:12 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/error.cc: Really fix it...
