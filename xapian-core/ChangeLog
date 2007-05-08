@@ -1,3 +1,9 @@
+Tue May 08 01:20:43 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_lock.h: Make
+	  FlintLock's dtor release the lock (if held) which avoids the need
+	  for any special handling in FlintDatabase.
+
 Mon May 07 21:15:33 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/unixcmds.cc: Use O_BINARY when opening a file to

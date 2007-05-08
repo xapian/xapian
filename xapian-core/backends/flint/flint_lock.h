@@ -63,6 +63,8 @@ class FlintLock {
     FlintLock(const std::string &filename_) : filename(filename_), fd(-1) { }
     operator bool() { return fd != -1; }
 #endif
+    // Release any lock held when we're destroyed.
+    ~FlintLock() { release(); }
 
     reason lock(bool exclusive);
     void release();
