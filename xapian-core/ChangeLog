@@ -1,3 +1,15 @@
+Tue May 08 23:50:33 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/termgenerator_internal.cc: Treat '_' as a word character
+	  which seems to be the correct thing to do in general.  Generate
+	  unstemmed terms with positional information for all words without a
+	  prefix, and stemmed terms without positional information for
+	  non-stopwords with a 'Z' prefix.  This means we can implement exact
+	  phrase search, and prefixing stemmed forms (rather than unstemmed
+	  as Omega < 1.0 does) means fewer terms with the prefix.  Only
+	  stemming non-stopwords cuts a significant amount of the database
+	  size in my tests.
+
 Tue May 08 18:22:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Fix remaining use of handle_one_request in

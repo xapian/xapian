@@ -33,9 +33,6 @@ using namespace std;
 
 namespace Xapian {
 
-// FIXME: handling for unstemmed terms?  R-prefixes for uppercase first
-// character, or something more sophisticated (e.g. stemmed terms without
-// positional information, unstemmed terms with).
 // FIXME: handling for '.' in "I.B.M." - should generate term "IBM".
 
 // Put a limit on the size of terms to help prevent the index being bloated
@@ -44,7 +41,10 @@ static const unsigned int MAX_PROB_TERM_LENGTH = 64;
 // FIXME: threshold is currently in bytes of UTF-8 representation, not unicode
 // characters - what actually makes most sense here?
 
+// FIXME: Add API to allow control of how stemming is used?
+
 inline unsigned check_wordchar(unsigned ch) {
+    if (ch == '_') return ch;
     if (Unicode::is_wordchar(ch)) return Unicode::tolower(ch);
     return 0;
 }
@@ -63,10 +63,19 @@ inline unsigned check_suffix(unsigned ch) {
     return 0;
 }
 
+// FIXME: add API for this:
+#define STOPWORDS_NONE 0
+#define STOPWORDS_IGNORE 1
+#define STOPWORDS_INDEX_UNSTEMMED_ONLY 2
+
 void
 TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 				    const string & prefix, bool with_positions)
 {
+    int stop_mode = STOPWORDS_INDEX_UNSTEMMED_ONLY;
+
+    if (!stopper) stop_mode = STOPWORDS_NONE;
+
     while (true) {
 	// Advance to the start of the next term.
 	unsigned ch;
@@ -115,15 +124,25 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 	}
 
 endofterm:
-	if (term.size() <= MAX_PROB_TERM_LENGTH &&
-	    (!stopper || !(*stopper)(term))) {
-	    term = stemmer(term);
-	    if (with_positions) {
-		doc.add_posting(term, ++termpos, weight);
-	    } else {
-		doc.add_term(term, weight);
-	    }
+	if (term.size() > MAX_PROB_TERM_LENGTH) continue;
+
+	if (stop_mode == STOPWORDS_IGNORE && (*stopper)(term)) continue;
+
+	if (with_positions) {
+	    doc.add_posting(term, ++termpos, weight);
+	} else {
+	    doc.add_term(term, weight);
 	}
+
+	if (!stemmer.internal.get()) continue;
+
+	if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY && (*stopper)(term))
+	    continue;
+
+	// Add stemmed form without positional information.
+	string stem("Z");
+	stem += stemmer(term);
+	doc.add_term(stem, weight);
     }
 }
 
