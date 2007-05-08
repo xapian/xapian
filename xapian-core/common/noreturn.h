@@ -33,5 +33,6 @@
 # else
 #  define XAPIAN_NORETURN(D) D
 # endif
+#endif
 
 #endif // XAPIAN_INCLUDED_NORETURN_H

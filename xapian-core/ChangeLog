@@ -1,3 +1,7 @@
+Tue May 08 16:52:50 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/noreturn.h: Add missing '#endif'.
+
 Tue May 08 16:19:05 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/noreturn.h: New header which defines
