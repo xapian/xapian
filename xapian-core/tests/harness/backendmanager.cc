@@ -83,6 +83,8 @@
 #include "unixcmds.h"
 #include "utils.h"
 
+#include "noreturn.h"
+
 // We've had problems on some hosts which run tinderbox tests with "localhost"
 // not being set in /etc/hosts - using the IP address equivalent seems more
 // reliable.
@@ -561,6 +563,26 @@ try_next_port:
 
 #elif defined __WIN32__
 
+XAPIAN_NORETURN(static void win32_throw_error_string(const char * str))
+{
+    string msg(str);
+    char * error = 0;
+    DWORD len;
+    len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
+			0, GetLastError(), 0, (CHAR*)&error, 0, 0);
+    if (error) {
+	// Remove any trailing \r\n from output of FormatMessage.
+	if (len >= 2 && error[len - 2] == '\r' && error[len - 1] == '\n')
+	    len -= 2;
+	if (len) {
+	    msg += ": ";
+	    msg.append(error, len);
+	}
+	LocalFree(error);
+    }
+    throw msg;
+}
+
 // This implementation uses the WIN32 API to start xapian-tcpsrv as a child
 // process and read its output using a pipe.
 static int
@@ -573,19 +595,8 @@ try_next_port:
 
     // Create a pipe so we can read stdout/stderr from the child process.
     HANDLE hRead, hWrite;
-    if (!CreatePipe(&hRead, &hWrite, 0, 0)) {
-	string msg("Couldn't create pipe");
-	char * error = 0;
-	DWORD len;
-	len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
-			    0, GetLastError(), 0, (CHAR*)&error, 0, 0);
-	if (len && error) {
-	    msg += ": ";
-	    msg.append(error, len);
-	    LocalFree(error);
-	}
-	throw msg;
-    }
+    if (!CreatePipe(&hRead, &hWrite, 0, 0))
+	win32_throw_error_string("Couldn't create pipe");
 
     // Set the write handle to be inherited by the child process.
     SetHandleInformation(hWrite, HANDLE_FLAG_INHERIT, 1);
@@ -607,15 +618,8 @@ try_next_port:
     char * cmdline = strdup(cmd.c_str());
     ok = CreateProcess(0, cmdline, 0, 0, TRUE, 0, 0, 0, &startupinfo, &procinfo);
     free(cmdline);
-    if (!ok) {
-	TCHAR buf[256];
-	string msg("Couldn't create child process");
-	if (FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, GetLastError(), 0, buf, sizeof(buf), 0)) {
-	    msg += ": ";
-	    msg += buf;
-	}
-	throw msg;
-    }
+    if (!ok)
+	win32_throw_error_string("Couldn't create child process");
 
     CloseHandle(hWrite);
     CloseHandle(procinfo.hThread);

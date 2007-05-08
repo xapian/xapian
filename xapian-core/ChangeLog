@@ -1,3 +1,12 @@
+Tue May 08 16:19:05 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk,common/noreturn.h: New header which defines
+	  XAPIAN_NORETURN() to allow functions which don't return to be
+	  marked as such so the compiler can take this into account when
+	  generating code.
+	* api/error.cc,tests/harness/backendmanager.cc: Remove any trailing
+	  "\r\n" from the output of FormatMessage().
+
 Tue May 08 16:16:55 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/deprecated.h: Use `__attribute__((__deprecated__))'

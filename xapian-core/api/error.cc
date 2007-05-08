@@ -61,7 +61,16 @@ Xapian::Error::get_error_string() const
     DWORD len;
     len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
 			0, -my_errno, 0, (CHAR*)&error_string, 0, 0);
-    if (error_string) return error_string;
+    if (error) {
+	LocalFree(error);
+    }
+    if (error_string) {
+	// Remove any trailing \r\n from output of FormatMessage.
+	if (len >= 2 && error[len - 2] == '\r' && error[len - 1] == '\n')
+	    len -= 2;
+	error_string[len] = '\0';
+	return error_string;
+    }
 #else
 # ifdef HAVE_HSTRERROR
     error_string = strdup(hstrerror(-my_errno));

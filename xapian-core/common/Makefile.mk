@@ -13,6 +13,7 @@ noinst_HEADERS +=\
 	common/multialltermslist.h\
 	common/multimatch.h\
 	common/networkstats.h\
+	common/noreturn.h\
 	common/omassert.h\
 	common/omdebug.h\
 	common/omenquireinternal.h\
