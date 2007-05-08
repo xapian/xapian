@@ -4,8 +4,8 @@
  * Original version by Paul Legato (plegato@nks.net), 4/17/06.
  * Based on the php4 and python util.i files.
  *
- * Copyright (C) 2006 Networked Knowledge Systems, Inc. 
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006 Networked Knowledge Systems, Inc.
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,10 @@
 
 // Use SWIG directors for Ruby wrappers.
 #define XAPIAN_SWIG_DIRECTORS
+
+// We don't use the Iterator and ConstIterator wrappers which SWIG now offers,
+// so disable them to reduce the generated C++ wrapper code.
+#define SWIG_NO_EXPORT_ITERATOR_METHODS
 
 /////////////////////////////////////
 // Rename function and method names to match Ruby conventions

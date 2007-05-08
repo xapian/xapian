@@ -1,3 +1,8 @@
+Tue May 08 19:37:53 BST 2007  Olly Betts <olly@survex.com>
+
+	* ruby/util.i: Deine SWIG_NO_EXPORT_ITERATOR_METHODS to suppress
+	  SWIG's new iterator support for Ruby which we don't use.
+
 Tue May 08 15:59:02 BST 2007  Olly Betts <olly@survex.com>
 
 	* xapian.i: Tell SWIG about XAPIAN_DEPRECATED() earlier so that it
