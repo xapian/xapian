@@ -1,3 +1,8 @@
+Tue May 08 17:28:29 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/error.cc: Remove bogus statement in __WIN32__ case left over
+	  from cut-and-paste.
+
 Tue May 08 17:10:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/tcpserver.h,net/tcpserver.cc: Rename
@@ -5,8 +10,8 @@ Tue May 08 17:10:53 BST 2007  Olly Betts <olly@survex.com>
 	  TcpServer::handle_one_connection() (to make it clearer that it
 	  handles a connection rather than a single MSG/REPLY exchange), and
 	  use it in UNIX builds too to avoid duplicating its code.  Catch
-	  NetworkTimeoutError here and report it if we're in verbose mode.  
-        * net/remoteserver.cc: If we catch NetworkTimeoutError then try to
+	  NetworkTimeoutError here and report it if we're in verbose mode.
+	* net/remoteserver.cc: If we catch NetworkTimeoutError then try to
 	  propagate it only if we can send it right away, then rethrow it
 	  to close the connection and let the caller log it.  If we catch
 	  any other NetworkError then just rethrow it.
