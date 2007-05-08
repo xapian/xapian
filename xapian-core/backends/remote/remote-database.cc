@@ -48,8 +48,7 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
 	: link(fd, fd, context_),
 	  context(context_),
 	  cached_stats_valid(),
-	  timeout(timeout_),
-	  end_time()
+	  timeout(timeout_)
 {
 #ifndef __WIN32__
     // It's simplest to just ignore SIGPIPE.  We'll still know if the
@@ -378,6 +377,9 @@ RemoteDatabase::get_doclength(Xapian::docid did) const
 reply_type
 RemoteDatabase::get_message(string &result, reply_type required_type) const
 {
+    OmTime end_time;
+    if (timeout) end_time = OmTime::now() + timeout;
+
     reply_type type = static_cast<reply_type>(link.get_message(result, end_time));
     if (type == REPLY_EXCEPTION) {
 	unserialise_error(result, "REMOTE:", context);
@@ -396,6 +398,9 @@ RemoteDatabase::get_message(string &result, reply_type required_type) const
 void
 RemoteDatabase::send_message(message_type type, const string &message) const
 {
+    OmTime end_time;
+    if (timeout) end_time = OmTime::now() + timeout;
+
     link.send_message(static_cast<unsigned char>(type), message, end_time);
 }
 

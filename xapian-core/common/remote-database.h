@@ -78,10 +78,11 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *
      *  @param fd	The file descriptor for the connection to the server.
      *  @param timeout_ The timeout used with the network operations.
-     *                       Generally a Xapian::NetworkTimeout exception will
-     *                       be thrown if the remote end doesn't respond
-     *                       for this length of time (in milliseconds).
-     *  @param context_     The context to return with any error messages.
+     *			Generally a Xapian::NetworkTimeout exception will be
+     *			thrown if the remote end doesn't respond for this
+     *			length of time (in milliseconds).  A timeout of 0
+     *			means that operations will never timeout.
+     *  @param context_ The context to return with any error messages.
      */
     RemoteDatabase(int fd, Xapian::timeout timeout_, const string & context_);
 
@@ -98,12 +99,6 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     /// The timeout value used in network communications, in milliseconds
     Xapian::timeout timeout;
-
-    /** The time at which the current operation will time out.
-     *
-     *  If !end_time.is_set(), then no timeout is currently set.
-     */
-    mutable OmTime end_time;
 
   public:
     /// Return this pointer as a RemoteDatabase*.
