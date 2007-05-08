@@ -188,10 +188,9 @@ int main(int argc, char **argv) {
 	}
     } catch (const Xapian::Error &e) {
 	cerr << e.get_type() << ": " << e.get_msg();
-	int my_errno = e.get_errno();
-	if (my_errno) cerr << " (" << e.get_error_string() << ")";
+	string errstr = e.get_error_string();
+	if (!errstr.empty()) cerr << " (" << errstr << ")";
 	cerr << endl;
-	if (my_errno == EADDRINUSE) exit(69); // EX_UNAVAILABLE
 	exit(1);
     } catch (const exception &e) {
 	cerr << "Caught standard exception: " << e.what() << endl;

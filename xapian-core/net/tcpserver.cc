@@ -152,6 +152,12 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 
     if (retval < 0) {
 	int saved_errno = socket_errno(); // note down in case close hits an error
+	if (saved_errno == EADDRINUSE) {
+	    cerr << host << ':' << port << " already in use" << endl;
+	    // 69 is EX_UNAVAILABLE.  Scripts can use this to detect if
+	    // xapian-tcpsrv failed to bind to the requested port.
+	    exit(69); // FIXME: calling exit() here isn't ideal...
+	}
 	close(socketfd);
 	throw Xapian::NetworkError("bind failed", saved_errno);
     }

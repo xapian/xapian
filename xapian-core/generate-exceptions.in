@@ -1,8 +1,7 @@
 #!@PERL@ -w -I @srcdir@
-# generate-exceptions: details of the exception heirarchy used by Xapian.
+# @configure_input@
 #
-# Warning - generate-exceptions is generated from generate-exceptions.in:
-# don't edit generate-exceptions directly.
+# generate-exceptions.in: details of the exception heirarchy used by Xapian.
 #
 # Copyright (C) 2003,2004,2006,2007 Olly Betts
 # Copyright (C) 2007 Richard Boulton
@@ -45,6 +44,7 @@ print HDR <<'EOF';
 #define XAPIAN_INCLUDED_ERROR_H
 
 #include <string>
+#include <xapian/deprecated.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
@@ -125,9 +125,16 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
 
     /** Optional value of 'errno' associated with this error.
      *
-     *  If no 'errno' value is associated, returns 0.
+     *  If no 'errno' value is associated, returns 0.  If the returned value
+     *  is negative, it's a platform-specific error code (on UNIX, -h_errno;
+     *  on MS Windows, -GetLastError()).
+     *
+     *  @deprecated This method is deprecated, because the values aren't
+     *  portable between platforms, so we can't serialise it when passing
+     *  exceptions from the a remote server to the client.  Use
+     *  the get_error_string() method instead.
      */
-    int get_errno() const { return my_errno; }
+    XAPIAN_DEPRECATED(int get_errno() const) { return my_errno; }
 };
 EOF
 

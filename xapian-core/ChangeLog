@@ -1,3 +1,13 @@
+Tue May 08 01:23:22 BST 2007  Olly Betts <olly@survex.com>
+
+	* bin/xapian-tcpsrv.cc,docs/deprecation.rst,generate-exceptions.in,
+	  net/tcpserver.cc,tests/harness/testsuite.cc: Deprecate
+	  Error::get_errno() in favour of Error::get_error_string().  We can't
+	  pass errno values from remote server to client as they aren't
+	  portable and the server and client may be running on entirely
+	  different platforms!
+	* generate-exceptions.in: Mark as generated with @configure_input@.
+
 Tue May 08 01:20:43 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc,backends/flint/flint_lock.h: Make
