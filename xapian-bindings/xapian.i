@@ -96,10 +96,10 @@ using namespace std;
 %include typemaps.i
 %include exception.i
 
-// Parse the visibility support header file, so we don't get errors when we
-// %include other xapian headers.
+// Parse the visibility and deprecation support header files, so we don't get
+// errors when we %include other Xapian headers.
 %include <xapian/visibility.h>
-#define XAPIAN_DEPRECATED(D) D
+%include <xapian/deprecated.h>
 
 // This includes a language specific util.i, thanks to judicious setting of
 // the include path.
