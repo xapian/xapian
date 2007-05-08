@@ -1,3 +1,9 @@
+Tue May 08 10:09:27 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/deprecation.rst: Change the xapian_version functions to be
+	  marked for removal in 1.1.0, and also note them in the bindings
+	  section.
+
 Tue May 08 04:27:37 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/remote/remote-database.cc,common/remote-database.h: The

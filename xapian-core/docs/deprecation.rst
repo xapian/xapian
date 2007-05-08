@@ -129,13 +129,13 @@ Native C++ API
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 | **Deprecation** | **Removal**    | **Feature name**              | **Upgrade suggestion and comments**                                           |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | ? [#version]_  | xapian_version_string()       | Use version_string() instead.                                                 |
+| 0.9.6           | 1.1.0          | xapian_version_string()       | Use version_string() instead.                                                 |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | ? [#version]_  | xapian_major_version()        | Use major_version() instead.                                                  |
+| 0.9.6           | 1.1.0          | xapian_major_version()        | Use major_version() instead.                                                  |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | ? [#version]_  | xapian_minor_version()        | Use minor_version() instead.                                                  |
+| 0.9.6           | 1.1.0          | xapian_minor_version()        | Use minor_version() instead.                                                  |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | ? [#version]_  | xapian_revision()             | Use revision() instead.                                                       |
+| 0.9.6           | 1.1.0          | xapian_revision()             | Use revision() instead.                                                       |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 | 1.0.0           | 1.1.0          | Enquire::include_query_terms  | Use Enquire::INCLUDE_QUERY_TERMS instead.                                     |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
@@ -152,14 +152,20 @@ Native C++ API
 | 1.0.0           | 1.1.0          | quartzcompact                 | Use xapian-compact instead.                                                   |
 +-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
 
-.. [#version] The version functions will probably be preserved for longer than the usual lifetime of deprecated features, because it is unhelpful to remove functions which people use to test the version of the library in use.  However, the replacements have been supported for long enough that new applications should use the replacement functions without worrying about old library versions which don't support them.
-
 
 Bindings
 --------
 
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 | **Deprecation** | **Removal** | **Language**   | **Feature name**            | **Upgrade suggestions and comments**                                          |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | 1.1.0       | SWIG [#swig]_  | xapian_version_string()     | Use version_string() instead.                                                 |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | 1.1.0       | SWIG [#swig]_  | xapian_major_version()      | Use major_version() instead.                                                  |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | 1.1.0       | SWIG [#swig]_  | xapian_minor_version()      | Use minor_version() instead.                                                  |
++-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | 1.1.0       | SWIG [#swig]_  | xapian_revision()           | Use revision() instead.                                                       |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 | 1.0.0           | 1.1.0       | SWIG [#swig]_  | ESet::get_termname()        | Use ESet::get_term() instead.  This change is intended to bring the           |
 |                 |             |                |                             | ESet iterators in line with other term iterators, which all support           |
