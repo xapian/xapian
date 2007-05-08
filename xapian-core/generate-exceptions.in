@@ -109,7 +109,7 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
     Error(const std::string &msg_, const std::string &context_,
 	  const char * type_, int errno_)
 	: msg(msg_), context(context_), type(type_), my_errno(errno_),
-	  already_handled(false) { }
+	  errno_string(0), already_handled(false) { }
 
   public:
     /// Destructor.
