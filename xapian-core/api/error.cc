@@ -63,7 +63,8 @@ Xapian::Error::get_error_string() const
 			0, -my_errno, 0, (CHAR*)&error_string, 0, 0);
     if (error_string) {
 	// Remove any trailing \r\n from output of FormatMessage.
-	if (len >= 2 && error[len - 2] == '\r' && error[len - 1] == '\n')
+	if (len >= 2 &&
+	    error[len - 2] == '\r' && error[len - 1] == '\n')
 	    len -= 2;
 	error_string[len] = '\0';
 	return error_string;
