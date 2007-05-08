@@ -1,3 +1,16 @@
+Tue May 08 17:10:53 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/tcpserver.h,net/tcpserver.cc: Rename
+	  TcpServer::handle_one_request() to
+	  TcpServer::handle_one_connection() (to make it clearer that it
+	  handles a connection rather than a single MSG/REPLY exchange), and
+	  use it in UNIX builds too to avoid duplicating its code.  Catch
+	  NetworkTimeoutError here and report it if we're in verbose mode.  
+        * net/remoteserver.cc: If we catch NetworkTimeoutError then try to
+	  propagate it only if we can send it right away, then rethrow it
+	  to close the connection and let the caller log it.  If we catch
+	  any other NetworkError then just rethrow it.
+
 Tue May 08 16:52:50 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/noreturn.h: Add missing '#endif'.

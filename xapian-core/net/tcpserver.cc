@@ -208,6 +208,24 @@ TcpServer::~TcpServer()
     close(listen_socket);
 }
 
+void
+TcpServer::handle_one_connection(int socket)
+{
+    try {
+	RemoteServer sserv(dbpaths, socket, socket,
+			   msecs_active_timeout, msecs_idle_timeout,
+			   writable);
+	sserv.run();
+    } catch (const Xapian::NetworkTimeoutError &e) {
+	if (verbose)
+	    cerr << "Connection timed out: " << e.get_msg() << endl;
+    } catch (const Xapian::Error &e) {
+	cerr << "Got exception " << e.get_type() << ": " << e.get_msg() << endl;
+    } catch (...) {
+	// ignore other exceptions
+    }
+}
+
 #ifdef HAVE_FORK
 // A fork() based implementation
 void
@@ -218,18 +236,8 @@ TcpServer::run_once()
     if (pid == 0) {
 	// child code
 	close(listen_socket);
-	try {
-	    RemoteServer sserv(dbpaths, connected_socket, connected_socket,
-			       msecs_active_timeout,
-			       msecs_idle_timeout,
-			       writable);
-	    sserv.run();
-	} catch (const Xapian::Error &err) {
-	    cerr << "Got exception " << err.get_type()
-		 << ": " << err.get_msg() << endl;
-	} catch (...) {
-	    // ignore other exceptions
-	}
+
+	handle_one_connection(connected_socket);
 	close(connected_socket);
 
 	if (verbose) cout << "Closing connection.\n";
@@ -344,31 +352,6 @@ CtrlHandler(DWORD fdwCtrlType)
     return rc;
 }
 
-/** A Win32 thread based implementation of run_once.
- * 
- *  This method contains the actual implementation, and is called by the "C"
- *  thread entry-point function "run_thread".
- */
-void
-TcpServer::handle_one_request(int connected_socket)
-{
-    try {
-	RemoteServer sserv(dbpaths, connected_socket, connected_socket,
-			   msecs_active_timeout,
-			   msecs_idle_timeout,
-			   writable);
-	sserv.run();
-    } catch (const Xapian::Error &err) {
-	cerr << "Got exception " << err.get_type()
-	     << ": " << err.get_msg() << endl;
-    } catch (...) {
-	// ignore other exceptions
-    }
-    // We must call closesocket() (instead of just close()) under __WIN32__ or
-    // else the socket remains in the CLOSE_WAIT state.
-    closesocket(connected_socket);
-}
-
 /// Structure which is used to pass parameters to the new threads.
 struct thread_param
 {
@@ -382,8 +365,15 @@ static unsigned __stdcall
 run_thread(void * param_)
 {
     thread_param * param(reinterpret_cast<thread_param *>(param_));
-    param->server->handle_one_request(param->connected_socket);
+    int socket = param->connected_socket;
+
+    param->server->handle_one_connection(socket);
+    // We must call closesocket() (instead of just close()) under __WIN32__ or
+    // else the socket remains in the CLOSE_WAIT state.
+    closesocket(socket);
+
     delete param;
+
     _endthreadex(0);
     return 0;
 }
@@ -406,7 +396,7 @@ TcpServer::run()
 		break;
 	    // Spawn a new thread to handle the connection.
 	    // (This seems like lots of hoops just to end up calling
-	    // this->handle_one_request() on a new thread. There might be a
+	    // this->handle_one_connection() on a new thread. There might be a
 	    // better way...)
 	    thread_param *param = new thread_param(this, connected_socket);
 	    HANDLE hthread = (HANDLE)_beginthreadex(NULL, 0, ::run_thread, param, 0, NULL);
@@ -422,7 +412,6 @@ TcpServer::run()
 	    // likely to mean the process is on its way down, so it doesn't
 	    // really matter...
 	    CloseHandle(hthread);
-	
 	} catch (const Xapian::Error &err) {
 	    // FIXME: better error handling.
 	    cerr << "Caught " << err.get_type()
@@ -434,6 +423,7 @@ TcpServer::run()
     }
 }
 
+/// A Win32 thread based implementation of run_once.
 void
 TcpServer::run_once()
 {

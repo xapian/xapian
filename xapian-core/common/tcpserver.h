@@ -110,16 +110,14 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
      */
     void run();
 
-    /** Handle a single connection, service the request, then stop. */
+    /** Handle a single connection, service requests on it, then stop. */
     void run_once();
 
-#ifdef __WIN32__
-    /** Handle a single request on an already connected socket.
+    /** Handle a single connection on an already connected socket.
      *
      *  May be called by multiple threads.
      */
-    void handle_one_request(int socket);
-#endif
+    void handle_one_connection(int socket);
 };
 
 #endif  // XAPIAN_INCLUDED_TCPSERVER_H

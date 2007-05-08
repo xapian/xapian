@@ -50,7 +50,7 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
       db(NULL), wdb(NULL),
       active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {
-    // Catch errors opening the database and serialize back to other end.
+    // Catch errors opening the database and propagate them to the client.
     try {
 	if (writable) {
 	    Assert(dbpaths.size() == 1); // Expecting exactly one database.
@@ -74,8 +74,10 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 	}
 
     } catch (const Xapian::Error &err) {
-	// Propagate the exception across the connection and get out-of-here!
+	// Propagate the exception to the client.
 	send_message(REPLY_EXCEPTION, serialise_error(err));
+	// And rethrow it so our caller can log it and close the
+	// connection.
 	throw;
     }
 
@@ -200,16 +202,35 @@ RemoteServer::run()
 		throw Xapian::InvalidArgumentError(errmsg);
 	    }
 	    (this->*(dispatch[type]))(message);
+	} catch (const Xapian::NetworkTimeoutError & e) {
+	    try {
+		// We've had a timeout, so the client may not be listening, so
+		// if we can't send the message right away, just exit and the
+		// client will cope.
+		RemoteConnection::send_message(REPLY_EXCEPTION, serialise_error(e), OmTime::now());
+	    } catch (...) {
+	    }
+	    // And rethrow it so our caller can log it and close the
+	    // connection.
+	    throw;
+	} catch (const Xapian::NetworkError) {
+	    // All other network errors mean we are fatally confused and are
+	    // unlikely to be able to communicate further across this
+	    // connection.  So we don't try to propagate the error to the
+	    // client, but instead just rethrow the exception so our caller can
+	    // log it and close the connection.
+	    throw;
 	} catch (const Xapian::Error &e) {
-	    // Propagate the exception across the connection, then return to
-	    // the main message handling loop.
+	    // Propagate the exception to the client, then return to the main
+	    // message handling loop.
 	    send_message(REPLY_EXCEPTION, serialise_error(e));
 	} catch (ConnectionClosed &) {
 	    return;
 	} catch (...) {
-	    // Propagate an unknown exception across the connection.
+	    // Propagate an unknown exception to the client.
 	    send_message(REPLY_EXCEPTION, "");
-	    // And then rethrow it here.
+	    // And rethrow it so our caller can log it and close the
+	    // connection.
 	    throw;
 	}
     }
