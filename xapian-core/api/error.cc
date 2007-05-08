@@ -95,7 +95,7 @@ Xapian::Error::get_error_string() const
 #endif
 
 #ifndef HAVE_HSTRERROR
-    error_string = malloc(32);
+    error_string = (char *)malloc(32);
     if (!error_string) throw bad_alloc();
     sprintf(error_string, "Unknown Error %d", -my_errno);
     return error_string;

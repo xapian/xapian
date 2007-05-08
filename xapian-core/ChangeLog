@@ -1,3 +1,7 @@
+Tue May 08 03:48:47 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/error.cc: Fix compilation when HAVE_HSTRERROR isn't defined.
+
 Tue May 08 02:35:04 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/error.cc,bin/xapian-tcpsrv.cc,examples/delve.cc,
