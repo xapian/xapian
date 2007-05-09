@@ -46,6 +46,7 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	SimpleStopper.java\
 	Stem.java\
 	Stopper.java\
+	TermGenerator.java\
 	TermIterator.java\
 	TradWeight.java\
 	ValueIterator.java\

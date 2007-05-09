@@ -1,3 +1,8 @@
+Wed May 09 16:44:50 BST 2007  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am: Update for TermGenerator class.
+	* ./: Update svn:ignore for TermGenerator class and xapian_wrap.stamp.
+
 Tue May 08 19:58:04 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix incorrect second reference to SWIG SVN revision number
