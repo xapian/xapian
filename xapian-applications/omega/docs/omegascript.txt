@@ -278,7 +278,7 @@ $percentage
 
 $prettyterm{TERM}
 	convert a term to "user form", as it might be entered in a query
-	(currently "Rbeckham" -> "Beckham"; "footbal" -> "footbal.").
+	(currently `Rbeckham' -> `Beckham'; `footbal' -> `"footbal"').
 	Also looks at unstemmed forms entered in the query.
 
 $query

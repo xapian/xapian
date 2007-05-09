@@ -1955,7 +1955,7 @@ pretty_term(const string & term)
     // e.g. "litr" - the stem of "litre"
     // FIXME: perhaps ought to check termfreq > some threshold
     if (!db.term_exists('R' + term))
-	return term + '.';
+	return '"' + term + '"';
 
     if (!stemmer) {
 	stemmer = new Xapian::Stem(option["stemmer"]);
@@ -1964,7 +1964,7 @@ pretty_term(const string & term)
     // The term is present unstemmed, but if it would stem further it still
     // needs protecting.
     if ((*stemmer)(term) != term)
-	return term + '.';
+	return '"' + term + '"';
 
     return term;
 }
