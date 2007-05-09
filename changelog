@@ -1,3 +1,7 @@
+  * Debconf translations:
+    - Malayalam. Closes: #418032
+    - Dutch. Closes: #423066
+
 xapian-bindings (0.9.9-2) unstable; urgency=low
 
   * ACK NMU - thanks Christian!
