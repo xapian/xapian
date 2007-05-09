@@ -110,8 +110,11 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
      */
     void run();
 
-    /** Handle a single connection, service requests on it, then stop. */
-    void run_once();
+    /** Accept a single connection, service requests on it, then stop.
+     *
+     * @return	false is we've been told to shutdown (only under __WIN32__).
+     */
+    bool run_once();
 
     /** Handle a single connection on an already connected socket.
      *

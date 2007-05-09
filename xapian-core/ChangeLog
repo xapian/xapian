@@ -1,3 +1,13 @@
+Wed May 09 01:53:43 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/tcpserver.h,net/tcpserver.cc: Make UNIX signal handling
+	  functions and WIN32 CrtlHandler static.  TcpServer::run() is now
+	  generic, calling an OS-specific TcpServer::run_once().  Now we
+	  always run the server in a new thread in "one-shot" mode, which
+	  gives better code coverage in apitest as it runs more like a normal
+	  xapian-tcpsrv would.  CtrlHandler now lets the OS handle the event
+	  if it doesn't have a socket to close, or if closesocket() fails.
+
 Wed May 09 01:42:33 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: DWORD is unsigned, so received can't be
