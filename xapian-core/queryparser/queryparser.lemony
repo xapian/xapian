@@ -91,56 +91,66 @@ class QpQuery {
     Query q;
 
     /// Flag, true iff this represents a "MatchNothing" query.
-    bool match_nothing_;
+    bool match_nothing;
 
   public:
     QpQuery(const QpQuery & tocopy)
-	: q(tocopy.q), match_nothing_(tocopy.match_nothing_)
+	: q(tocopy.q), match_nothing(tocopy.match_nothing)
     {}
 
     QpQuery & operator=(const QpQuery & tocopy)
     {
 	q = tocopy.q;
-	match_nothing_ = tocopy.match_nothing_;
+	match_nothing = tocopy.match_nothing;
 	return *this;
     }
 
     /** A query consisting of a single term. */
     QpQuery(const std::string & tname, Xapian::termcount wqf,
 	    Xapian::termpos pos)
-	: q(tname, wqf, pos), match_nothing_(false)
+	: q(tname, wqf, pos), match_nothing(false)
     {}
 
     /** A query consisting of two subqueries, opp-ed together. */
     QpQuery(Query::op op, const QpQuery & left, const QpQuery & right)
-	: q(op, left.get(), right.get()), match_nothing_(false)
+	: q(op, left.get(), right.get()), match_nothing(false)
     {}
 
     QpQuery(Query::op op_, Xapian::valueno valno,
 	  const std::string &begin, const std::string &end)
-	: q(op_, valno, begin, end), match_nothing_(false)
+	: q(op_, valno, begin, end), match_nothing(false)
     {}
 
-    QpQuery(const Query & q_) : q(q_), match_nothing_(false) {}
-    QpQuery() : q(), match_nothing_(false) {}
-    QpQuery(bool m) : q(), match_nothing_(m) {}
+    QpQuery(const Query & q_) : q(q_), match_nothing(false) {}
+    QpQuery() : q(), match_nothing(false) {}
+    QpQuery(bool m) : q(), match_nothing(m) {}
     Query & get() { return q; }
     const Query & get() const { return q; }
 
     /// True iff the query is not empty, and doesn't explicitly match nothing.
-    bool can_match() { return (!q.empty() && !match_nothing_); }
+    bool can_match() { return (!q.empty() && !match_nothing); }
+    // FIXME:
+    // If matching nothing is true, q.empty() must be true too
+    // (from looking at the constructors).
+    // The can_match() condition above is:
+    //	    (!q.empty() && !match_nothing)
+    // <=>  !(q.empty() || match_nothing)
+    // <=>  !(q.empty() || match_nothing)
+    // <=>  !(q.empty()
 
     /// True iff the query is defined, but empty.
-    bool empty() { return !match_nothing_ && q.empty(); }
+    bool empty() { return !match_nothing && q.empty(); }
 
+#if 0
     /// Get a description of the query
     std::string get_description() {
-	if (match_nothing_) {
+	if (match_nothing) {
 	    return "[MATCH_NOTHING]";
 	} else {
 	    return q.get_description();
 	}
     }
+#endif
 };
 
 /// Class used to pass information about a term from lexer to parser.
