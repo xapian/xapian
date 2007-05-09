@@ -53,6 +53,14 @@ using namespace std;
 # define SIGCHLD SIGCLD
 #endif
 
+#ifdef __WIN32__
+// We must call closesocket() (instead of just close()) under __WIN32__ or
+// else the socket remains in the CLOSE_WAIT state.
+# define CLOSESOCKET(S) closesocket(S)
+#else
+# define CLOSESOCKET(S) close(S)
+#endif
+
 /// The TcpServer constructor, taking a database and a listening port.
 TcpServer::TcpServer(const vector<std::string> &dbpaths_, const std::string & host, int port,
 		     int msecs_active_timeout_,
@@ -216,35 +224,39 @@ TcpServer::handle_one_connection(int socket)
 			   msecs_active_timeout, msecs_idle_timeout,
 			   writable);
 	sserv.run();
+	CLOSESOCKET(socket);
     } catch (const Xapian::NetworkTimeoutError &e) {
+	CLOSESOCKET(socket);
 	if (verbose)
 	    cerr << "Connection timed out: " << e.get_msg() << endl;
     } catch (const Xapian::Error &e) {
+	CLOSESOCKET(socket);
 	cerr << "Got exception " << e.get_type() << ": " << e.get_msg() << endl;
     } catch (...) {
+	CLOSESOCKET(socket);
 	// ignore other exceptions
     }
 }
 
 #ifdef HAVE_FORK
 // A fork() based implementation.
-bool
+void
 TcpServer::run_once()
 {
     int connected_socket = accept_connection();
     pid_t pid = fork();
     if (pid == 0) {
-       // Child process.
+	// Child process.
 	close(listen_socket);
 
 	handle_one_connection(connected_socket);
-	close(connected_socket);
 
-	if (verbose) cout << "Closing connection.\n";
+	if (verbose) cout << "Closing connection." << endl;
 	exit(0);
     }
 
     // Parent process.
+
     if (pid < 0) {
 	// fork() failed
 	int saved_errno = socket_errno(); // note down in case close hits an error
@@ -253,7 +265,6 @@ TcpServer::run_once()
     }
 
     close(connected_socket);
-    return true;
 }
 
 extern "C" {
@@ -280,6 +291,32 @@ on_SIGCHLD(int /*sig*/)
 }
 #endif
 
+}
+
+void
+TcpServer::run()
+{
+    // Handle connections until shutdown.
+
+    // Set up signal handlers.
+#ifdef HAVE_WAITPID
+    signal(SIGCHLD, on_SIGCHLD);
+#else
+    signal(SIGCHLD, SIG_IGN);
+#endif
+    signal(SIGTERM, on_SIGTERM);
+
+    while (true) {
+	try {
+	    run_once();
+	} catch (const Xapian::Error &e) {
+	    // FIXME: better error handling.
+	    cerr << "Caught " << e.get_type() << ": " << e.get_msg() << endl;
+	} catch (...) {
+	    // FIXME: better error handling.
+	    cerr << "Caught exception." << endl;
+	}
+    }
 }
 
 #elif defined __WIN32__
@@ -311,13 +348,13 @@ CtrlHandler(DWORD fdwCtrlType)
 	    break; // default behaviour
 	case CTRL_BREAK_EVENT:
 	    // This (probably) means the developer is struggling to get
-           // things to behave, and really wants to shutdown so let the OS
-           // handle Ctrl+Break in the default way.
+	    // things to behave, and really wants to shutdown so let the OS
+	    // handle Ctrl+Break in the default way.
 	    cout << "Ctrl+Break: aborting process" << endl;
-           return FALSE;
+	    return FALSE;
 	default:
 	    cerr << "unexpected CtrlHandler: " << fdwCtrlType << endl;
-           return FALSE;
+	    return FALSE;
     }
 
     // Note: close() does not cause a blocking accept() call to terminate.
@@ -349,9 +386,6 @@ run_thread(void * param_)
     int socket = param->connected_socket;
 
     param->server->handle_one_connection(socket);
-    // We must call closesocket() (instead of just close()) under __WIN32__ or
-    // else the socket remains in the CLOSE_WAIT state.
-    closesocket(socket);
 
     delete param;
 
@@ -359,70 +393,58 @@ run_thread(void * param_)
     return 0;
 }
 
-/// A Win32 thread based implementation of run_once.
-bool
-TcpServer::run_once()
-{
-    int connected_socket = accept_connection();
-    if (connected_socket == -1) // Shutdown has happened
-       return false;
-
-    // Spawn a new thread to handle the connection.
-    // (This seems like lots of hoops just to end up calling
-    // this->handle_one_connection() on a new thread. There might be a
-    // better way...)
-    thread_param *param = new thread_param(this, connected_socket);
-    HANDLE hthread = (HANDLE)_beginthreadex(NULL, 0, ::run_thread, param, 0, NULL);
-    if (hthread == 0) {
-       // errno holds the error here (it's not a socket error!)
-       int saved_errno = errno; // note down in case close hits an error
-       close(connected_socket);
-       throw Xapian::NetworkError("_beginthreadex failed", saved_errno);
-    }
-
-    // FIXME: keep track of open thread handles so we can gracefully
-    // close each thread down.  OTOH, when we want to kill them all its
-    // likely to mean the process is on its way down, so it doesn't
-    // really matter...
-    CloseHandle(hthread);
-
-    return true;
-}
-
-#else
-# error Neither HAVE_FORK nor __WIN32__ are defined.
-#endif
-
 void
 TcpServer::run()
 {
     // Handle connections until shutdown.
 
-#ifndef __WIN32__
-    // Set up signal handlers.
-# ifdef HAVE_WAITPID
-    signal(SIGCHLD, on_SIGCHLD);
-# else
-    signal(SIGCHLD, SIG_IGN);
-# endif
-    signal(SIGTERM, on_SIGTERM);
-#else
     // Set up the shutdown handler - this is a bit hacky, and sadly involves
     // a global variable.
     pShutdownSocket = &listen_socket;
     if (!::SetConsoleCtrlHandler((PHANDLER_ROUTINE) CtrlHandler, TRUE))
 	throw Xapian::NetworkError("Failed to install shutdown handler");
-#endif
 
     while (true) {
 	try {
-           if (!run_once()) return;
-       } catch (const Xapian::Error &e) {
+	    int connected_socket = accept_connection();
+	    if (connected_socket == -1)
+	       return; // Shutdown has happened
+
+	    // Spawn a new thread to handle the connection.
+	    // (This seems like lots of hoops just to end up calling
+	    // this->handle_one_connection() on a new thread. There might be a
+	    // better way...)
+	    thread_param *param = new thread_param(this, connected_socket);
+	    HANDLE hthread = (HANDLE)_beginthreadex(NULL, 0, ::run_thread, param, 0, NULL);
+	    if (hthread == 0) {
+	       // errno holds the error code from _beginthreadex, and closesocket()
+	       // doesn't set errno.
+	       closesocket(connected_socket);
+	       throw Xapian::NetworkError("_beginthreadex failed", errno);
+	    }
+
+	    // FIXME: keep track of open thread handles so we can gracefully
+	    // close each thread down.  OTOH, when we want to kill them all its
+	    // likely to mean the process is on its way down, so it doesn't
+	    // really matter...
+	    CloseHandle(hthread);
+	} catch (const Xapian::Error &e) {
 	    // FIXME: better error handling.
-           cerr << "Caught " << e.get_type() << ": " << e.get_msg() << endl;
+	    cerr << "Caught " << e.get_type() << ": " << e.get_msg() << endl;
 	} catch (...) {
 	    // FIXME: better error handling.
 	    cerr << "Caught exception." << endl;
 	}
     }
 }
+
+void
+TcpServer::run_once()
+{
+    // Runs a single request on the current thread.
+    handle_one_connection(accept_connection());
+}
+
+#else
+# error Neither HAVE_FORK nor __WIN32__ are defined.
+#endif

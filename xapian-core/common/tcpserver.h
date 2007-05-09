@@ -83,21 +83,19 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
      *			(or "" to listen on all interfaces).
      *  @port		The TCP port number to listen on.
      *  @param msecs_active_timeout	Timeout between messages during a
-     *					single operation (in milliseconds)
-     *					(default 10000).
+     *					single operation (in milliseconds).
      *  @param msecs_idle_timeout	Timeout between operations (in
-     *					milliseconds) (default 60000).
-     *	@param writable_	Should we open the DB for writing? (default
-     *				false).
-     *	@param verbose_		Should we produce output when connections are
-     *				made or lost? (default true).
+     *					milliseconds).
+     *	@param writable		Should we open the DB for writing?
+     *	@param verbose		Should we produce output when connections are
+     *				made or lost?
      */
     TcpServer(const std::vector<std::string> &dbpaths_,
 	      const std::string &host, int port,
-	      int msecs_normal_timeout_ = 10000,
-	      int msecs_idle_timeout_ = 60000,
-	      bool writable_ = false,
-	      bool verbose_ = true);
+	      int msecs_active_timeout,
+	      int msecs_idle_timeout,
+	      bool writable,
+	      bool verbose);
 
     /** Destructor. */
     ~TcpServer();
@@ -105,20 +103,18 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
     /** Accept connections and service requests indefinitely.
      *
      *  This method runs the TcpServer as a daemon which accepts a connection
-     *  and forks itself to server the request while continuing to listen for
-     *  more connections.
+     *  and forks itself (or creates a new thread under Windows) to serve the
+     *  request while continuing to listen for more connections.
      */
     void run();
 
-    /** Accept a single connection, service requests on it, then stop.
-     *
-     * @return	false is we've been told to shutdown (only under __WIN32__).
-     */
-    bool run_once();
+    /** Accept a single connection, service requests on it, then stop.  */
+    void run_once();
 
     /** Handle a single connection on an already connected socket.
      *
-     *  May be called by multiple threads.
+     *  @a socket will be closed before returning.  This method may be called
+     *  by multiple threads.
      */
     void handle_one_connection(int socket);
 };
