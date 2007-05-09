@@ -112,7 +112,13 @@ extern char * b_to_s(symbol * p) {
     char * s = (char *)malloc(n + 1);
     {
         int i;
-        for (i = 0; i < n; i++) s[i] = p[i];
+        for (i = 0; i < n; i++) {
+	    if (p[i] > 255) {
+		printf("In b_to_s, can't convert p[%d] to char because it's 0x%02x\n", i, (int)p[i]);
+		exit(1);
+	    }
+	    s[i] = (char)p[i];
+	}
     }
     s[n] = 0;
     return s;
