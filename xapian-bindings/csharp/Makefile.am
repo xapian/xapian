@@ -38,6 +38,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	SimpleStopper.cs \
 	Stem.cs \
 	Stopper.cs \
+	TermGenerator.cs \
 	TermIterator.cs \
 	TradWeight.cs \
 	ValueIterator.cs \
