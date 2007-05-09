@@ -151,9 +151,6 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 
 	if (received == 0)
 	    throw Xapian::NetworkError("Received EOF", context);
-
-	if (errno != EINTR)
-	    throw Xapian::NetworkError("read failed", context, errno);
     }
     return;
 #else
