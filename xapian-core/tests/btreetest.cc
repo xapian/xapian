@@ -60,7 +60,7 @@ static void make_dir(const string & filename)
 }
 
 /// Get the size of the given file in bytes.
-static int get_filesize(const string &filename)
+static off_t get_filesize(const string &filename)
 {
     struct stat buf;
     int result = stat(filename, &buf);

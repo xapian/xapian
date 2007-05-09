@@ -1,3 +1,9 @@
+Wed May 09 14:06:24 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/btreetest.cc: Return filesize as off_t to avoid MSVC warning
+	  about truncating from 64 to 32 bits (the filesize will never be
+	  more than a few K here, so this is essentially a cosmetic issue).
+
 Wed May 09 04:04:03 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/tcpserver.h,net/tcpserver.cc: Always starting the server in a
