@@ -122,7 +122,7 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 
 #ifdef __WIN32__
     HANDLE hin = fd_to_handle(fdin);
-    while (true) {
+    do {
 	char buf[4096];
 	DWORD received;
 	BOOL ok = ReadFile(hin, buf, sizeof(buf), &received, &overlapped);
@@ -143,16 +143,11 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 					   context, -(int)GetLastError());
 	}
 
-	if (received > 0) {
-	    buffer.append(buf, received);
-	    if (buffer.length() >= min_len) break;
-	    continue;
-	}
-
 	if (received == 0)
 	    throw Xapian::NetworkError("Received EOF", context);
-    }
-    return;
+
+	buffer.append(buf, received);
+    } while (buffer.length() < min_len);
 #else
     // If there's no end_time, just use blocking I/O.
     if (fcntl(fdin, F_SETFL, end_time.is_set() ? O_NONBLOCK : 0) < 0) {
