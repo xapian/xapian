@@ -63,15 +63,20 @@ U_isnotspace(unsigned ch) {
 }
 
 inline bool
-U_issign(unsigned ch) {
-    return (ch < 128 && C_issign((unsigned char)ch));
+is_termchar(unsigned ch) {
+    return Unicode::is_wordchar(ch) || ch == '_';
 }
 
-using Unicode::is_wordchar;
-
 inline bool
-is_not_wordchar(unsigned ch) {
-    return !Unicode::is_wordchar(ch);
+is_not_termchar(unsigned ch) {
+    return !is_termchar(ch);
+}
+
+// FIXME: we used to keep trailing "-" (e.g. Cl-) but it's of dubious utility
+// and there's the risk of hyphens getting stuck onto the end of terms...
+inline bool
+is_suffix(unsigned ch) {
+    return ch == '+' || ch == '#';
 }
 
 using Unicode::is_currency;
@@ -244,7 +249,7 @@ is_phrase_generator(unsigned ch)
     // These characters generate a phrase search.
     // Ordered mostly by frequency of calls to this function done when
     // running queryparsertest.
-    return (ch && ch < 128 && strchr(".-/:\\_@", ch) != NULL);
+    return (ch && ch < 128 && strchr(".-/:\\@", ch) != NULL);
 }
 
 inline bool
@@ -325,13 +330,13 @@ main_lex_loop:
 		    goto main_lex_loop;
 		}
 		ch = *p;
-		if (!(is_wordchar(ch) || is_currency(ch) ||
-		      (ch < 128 && strchr("%,-./:@_", ch)))) break;
+		if (!(is_termchar(ch) || is_currency(ch) ||
+		      (ch < 128 && strchr("%,-./:@", ch)))) break;
 		++p;
 	    }
 	}
 
-	if (!is_wordchar(*it)) {
+	if (!is_termchar(*it)) {
 	    unsigned prev = newprev;
 	    unsigned ch = *it++;
 	    if (it != end) newprev = *it;
@@ -429,7 +434,7 @@ main_lex_loop:
 	string prefix;
 	if (mode == DEFAULT && !prefixes.empty()) {
 	    // Check for fieldname prefixes (e.g. title:historical).
-	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
+	    Utf8Iterator p = find_if(it, end, is_not_termchar);
 	    if (p != end && *p == ':' && ++p != end && *p > ' ' && *p != ')') {
 		string field;
 		p = it;
@@ -487,7 +492,7 @@ main_lex_loop:
 			continue;
 		    }
 
-		    if (is_wordchar(ch)) {
+		    if (is_termchar(ch)) {
 			// Prefixed term.
 			it = p;
 		    } else {
@@ -515,7 +520,7 @@ phrased_term:
 		// Check there's not a (lower case) letter or digit
 		// immediately after it.
 		// FIXME: should I.B.M..P.T.O be a range search?
-		if (p == end || !is_wordchar(*p)) {
+		if (p == end || !is_termchar(*p)) {
 		    it = p;
 		    swap(term, t);
 		}
@@ -526,37 +531,29 @@ phrased_term:
 	if (term.empty()) {
 	    while (it != end) {
 		unsigned ch = *it;
-		if (!is_wordchar(ch)) {
+		if (!is_termchar(ch)) {
 		    // Treat a single embedded '&' or "'" as a word character
 		    // (e.g. AT&T, Fred's).
 		    if (ch != '&' && ch != '\'') break;
 		    Utf8Iterator p = it;
 		    ++p;
-		    if (p == end || !is_wordchar(*p)) break;
+		    if (p == end || !is_termchar(*p)) break;
 		}
 		Unicode::append_utf8(term, ch);
 		++it;
 	    }
-	    if (it != end && (*it == '#' || U_issign(*it))) {
+	    if (it != end && is_suffix(*it)) {
 		string suff_term = term;
 		Utf8Iterator p = it;
-		if (*p == '#') {
-		    // Keep trailing # (e.g. C#).
-		    suff_term += '#';
-		    while (++p != end && *p == '#') { }
-		} else {
-		    // Keep trailing +, and - (e.g. C++, Na+, Cl-).
-		    // FIXME: keeping trailing "-" is of dubious utility and
-		    // there's the risk of hyphens getting stuck onto the end of
-		    // terms...
-		    // FIXME: generating a term like foo+---+++ doesn't make
-		    // much sense - we should probably be more conservative as
-		    // to what combinations are allowed.
-		    do {
-			Unicode::append_utf8(suff_term, *p++);
-		    } while (p != end && U_issign(*p));
-		}
-		if (p == end || !is_wordchar(*p)) {
+		// Keep trailing + (e.g. C++, Na+) or # (e.g. C#).
+		do {
+		    if (suff_term.size() - term.size() == 3) {
+			suff_term.resize(0);
+			break;
+		    }
+		    suff_term += *p;
+		} while (is_suffix(*++p));
+		if (!suff_term.empty() && (p == end || !is_termchar(*p))) {
 		    // If the suffixed term doesn't exist, check that the
 		    // non-suffixed term does.  This also takes care of
 		    // the case when QueryParser::set_database() hasn't
@@ -689,7 +686,7 @@ phrased_term:
 	    if (flags & FLAG_WILDCARD) {
 		if (mode == DEFAULT && it != end && *it == '*') {
 		    ++it;
-		    if (it == end || !is_wordchar(*it)) {
+		    if (it == end || !is_termchar(*it)) {
 			// Wildcard at end of term (also known as
 			// "right truncation").
 			Parse(pParser, WILD_TERM, new Term(term, term_pos++),
@@ -719,7 +716,7 @@ phrased_term:
 	    } while (it != end && is_phrase_generator(*it));
 	    // Don't generate a phrase unless the phrase generators are
 	    // immediately followed by another term.
-	    if (it != end && is_wordchar(*it)) {
+	    if (it != end && is_termchar(*it)) {
 		mode = IN_PHRASED_TERM;
 		goto phrased_term;
 	    }

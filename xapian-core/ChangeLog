@@ -1,3 +1,12 @@
+Wed May 09 14:27:02 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Update to match new TermGenerator
+	  class.  '_' is now a term character, not a phrase generator.  We
+	  only keep a suffix which has 3 or fewer characters, and we no longer
+	  count '-' as a suffix character.
+	* tests/queryparsertest.cc: Update test cases to match new behaviour.
+	  In almost every case the new rules give a better result.
+
 Wed May 09 14:15:38 BST 2007  Olly Betts <olly@survex.com>
 
 	* languages/compiler/space.c: Add sanity check to b_to_s(),
