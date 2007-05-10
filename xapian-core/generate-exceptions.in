@@ -107,6 +107,12 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  @brief Constructor for use by constructors of derived classes.
      */
     Error(const std::string &msg_, const std::string &context_,
+	  const char * type_, const char * error_string_);
+
+    /** @private @internal
+     *  @brief Constructor for use by constructors of derived classes.
+     */
+    Error(const std::string &msg_, const std::string &context_,
 	  const char * type_, int errno_)
 	: msg(msg_), context(context_), type(type_), my_errno(errno_),
 	  error_string(0), already_handled(false) { }
@@ -116,7 +122,7 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
     ~Error();
 
     /// The type of this error (e.g. "DocNotFoundError".)
-    std::string get_type() const { return std::string(type); }
+    const char * get_type() const { return type; }
 
     /// Message giving details of the error, intended for human consumption.
     const std::string & get_msg() const { return msg; }
@@ -177,6 +183,12 @@ class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
     /** \@private \@internal
      *  \@brief Constructor for use by constructors of derived classes.
      */
+    $class(const std::string \&msg_, const std::string \&context_, const char * type_, const char * error_string_)
+	: $parent(msg_, context_, type_, error_string_) {}
+
+    /** \@private \@internal
+     *  \@brief Constructor for use by constructors of derived classes.
+     */
     $class(const std::string \&msg_, const std::string \&context_, const char * type_, int errno_)
 	: $parent(msg_, context_, type_, errno_) {}
 };
@@ -187,20 +199,33 @@ for (@classes) {
     chomp;
     my ($class, $parent, $comment) = split /\t/, $_, 3;
 
-    print DISPATCH "if (type == \"$class\") throw Xapian::$class(msg, context);\n";
+    print DISPATCH "if (type == \"$class\") throw Xapian::$class(msg, context, error_string);\n";
 
     print HDR <<EOF;
 
 $comment
 class XAPIAN_VISIBILITY_DEFAULT $class : public $parent {
   public:
-    /** General purpose constructor. */
+    /** \@private \@internal
+     *  \@brief Private constructor for use by remote backend.
+     *
+     *  \@param error_string_	Optional string describing error.  May be NULL.
+     */
+    $class(const std::string \&msg_, const std::string \&context_, const char * error_string_)
+	: $parent(msg_, context_, "$class", error_string_) {}
+    /** General purpose constructor which allows setting errno. */
     explicit $class(const std::string \&msg_, const std::string \&context_ = "", int errno_ = 0)
 	: $parent(msg_, context_, "$class", errno_) {}
     /** Construct from message and errno value. */
     $class(const std::string \&msg_, int errno_)
 	: $parent(msg_, "", "$class", errno_) {}
   protected:
+    /** \@private \@internal
+     *  \@brief Constructor for use by constructors of derived classes.
+     */
+    $class(const std::string \&msg_, const std::string \&context_, const char * type_, const char * error_string_)
+	: $parent(msg_, context_, type_, error_string_) {}
+
     /** \@private \@internal
      *  \@brief Constructor for use by constructors of derived classes.
      */

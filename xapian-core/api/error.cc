@@ -36,6 +36,17 @@
 
 using namespace std;
 
+Xapian::Error::Error(const std::string &msg_, const std::string &context_,
+		     const char * type_, const char * error_string_)
+    : msg(msg_), context(context_), type(type_), my_errno(0),
+      error_string(NULL), already_handled(false)
+{
+    if (error_string_) {
+	error_string = strdup(error_string_);
+	if (!error_string) throw bad_alloc();
+    }
+}
+
 Xapian::Error::~Error()
 {
 #ifdef __WIN32__

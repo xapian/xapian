@@ -1,3 +1,16 @@
+Thu May 10 01:25:37 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/error.cc,generate-exceptions.in: Add new constructors which
+	  allow error_string to be set directly, for use by the Xapian::Error
+	  unserialising code.
+	* generate-exceptions.in: Xapian::Error::get_type() now returns
+	  const char * not std::string.
+	* backends/quartz/quartz_database.cc: Fix code to handle changed
+	  return type of Xapian::Error::get_type().
+	* net/serialise.cc: Include error_string in the serialisation.
+	* common/remoteprotocol.h,docs/remote_protocol.html: Bump protocol
+	  version to 29 because of change in Xapian::Error serialisation.
+
 Wed May 09 14:42:33 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Renaming match_nothing_

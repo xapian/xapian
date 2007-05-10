@@ -90,21 +90,25 @@ string
 serialise_error(const Xapian::Error &e)
 {
     string result;
-    result += encode_length(e.get_type().length());
+    result += encode_length(strlen(e.get_type()));
     result += e.get_type();
     result += encode_length(e.get_context().length());
     result += e.get_context();
-    // The "message" goes last so we don't need to store its length.
+    result += encode_length(e.get_msg().length());
     result += e.get_msg();
+    // The "error string" goes last so we don't need to store its length.
+    const char * err = e.get_error_string();
+    if (err) result += err;
     return result;
 }
 
 void
-unserialise_error(const string &error_string, const string &prefix,
+unserialise_error(const string &serialised_error, const string &prefix,
 		  const string &new_context)
 {
-    const char * p = error_string.data();
-    const char * end = p + error_string.size();
+    // Use c_str() so last string is nul-terminated.
+    const char * p = serialised_error.c_str();
+    const char * end = p + serialised_error.size();
     size_t len;
     len = decode_length(&p, end, true);
     if (len == 7 && memcmp(p, "UNKNOWN", 7) == 0) {
@@ -117,8 +121,12 @@ unserialise_error(const string &error_string, const string &prefix,
     string context(p, len);
     p += len;
 
+    len = decode_length(&p, end, true);
     string msg(prefix);
-    msg.append(p, error_string.data() + error_string.size() - p);
+    msg.append(p, len);
+    p += len;
+
+    const char * error_string = (p == end) ? NULL : p;
 
     if (!context.empty() && !new_context.empty()) {
 	msg += "; context was: ";

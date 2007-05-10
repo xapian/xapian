@@ -31,7 +31,8 @@
 // 26: Tweak delete_document with unique term; delta encode rset and termpos
 // 27: Support for postlists (always passes the whole list across)
 // 28: Pass document length in reply to MSG_TERMLIST
-#define XAPIAN_REMOTE_PROTOCOL_VERSION 28
+// 29: Serialisation of Xapian::Error includes error_string.
+#define XAPIAN_REMOTE_PROTOCOL_VERSION 29
 
 /// Message types (client -> server).
 enum message_type {
