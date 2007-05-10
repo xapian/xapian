@@ -4,12 +4,10 @@
 
 /* Disable some pointless warnings */
 #ifdef _MSC_VER
-#pragma warning(disable:4800)
+/* Disable stupid MSVC "performance" warning for converting int to bool. */
+# pragma warning(disable:4800)
 /* in VC Express edition Dec06 this is upgraded to an error */
-#pragma warning(disable:4716)
-/* in VC Express edition Dec06 this shows lots of deprecation messages */
-//#pragma warning(disable:4996)
- 
+// #pragma warning(disable:4716)
 #endif
 
 /* Define if ftime returns void */
