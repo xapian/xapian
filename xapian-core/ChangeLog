@@ -1,3 +1,12 @@
+Thu May 10 02:15:20 BST 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,bin/Makefile.mk,configure.ac,docs/Makefile.am,
+	  examples/Makefile.mk: Add new Automake conditional
+	  "MAINTAINER_NO_DOCS" to allow use to disable references to built
+	  documentation in maintainer builds if --disable-documentation is
+	  specified.  This allows Mark's buildbot to work without installing
+	  so many tools, some of which aren't packaged for Cygwin.
+
 Thu May 10 02:03:44 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am: Build rules for running generate-exceptions should be

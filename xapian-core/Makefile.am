@@ -65,7 +65,9 @@ libxapian_la_SOURCES =
 
 libxapian_la_LDFLAGS = $(XAPIAN_LDFLAGS) -no-undefined -version-info $(LIBRARY_VERSION_INFO)
 
+if !MAINTAINER_NO_DOCS
 dist_man_MANS = xapian-config.1
+endif
 
 include api/Makefile.mk
 include bin/Makefile.mk
@@ -82,18 +84,20 @@ include unicode/Makefile.mk
 
 xapianinclude_HEADERS += include/xapian/error.h
 
+if MAINTAINER_MODE
+BUILT_SOURCES += include/xapian/error.h include/xapian/errordispatch.h
+
+include/xapian/error.h include/xapian/errordispatch.h: generate-exceptions exception_data.pm
+	./generate-exceptions
+endif
+
+if !MAINTAINER_NO_DOCS
 MAINTAINERCLEANFILES += $(dist_man_MANS)
+endif
 
 if DOCUMENTATION_RULES
 CLEANFILES += $(dist_man_MANS)
 
 xapian-config.1: xapian-config makemanpage
 	./makemanpage ./xapian-config xapian-config xapian-config.1
-endif
-
-if MAINTAINER_MODE
-BUILT_SOURCES += include/xapian/error.h include/xapian/errordispatch.h
-
-include/xapian/error.h include/xapian/errordispatch.h: generate-exceptions exception_data.pm
-	./generate-exceptions
 endif

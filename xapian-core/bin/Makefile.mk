@@ -4,10 +4,12 @@ bin_PROGRAMS +=\
 	bin/quartzcompact\
 	bin/quartzdump
 
+if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/quartzcheck.1\
 	bin/quartzcompact.1\
 	bin/quartzdump.1
+endif
 endif
 
 if BUILD_BACKEND_FLINT
@@ -15,9 +17,11 @@ bin_PROGRAMS +=\
 	bin/xapian-check\
 	bin/xapian-compact
 
+if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-check.1\
 	bin/xapian-compact.1
+endif
 endif
 
 if BUILD_BACKEND_REMOTE
@@ -25,9 +29,11 @@ bin_PROGRAMS +=\
 	bin/xapian-progsrv\
 	bin/xapian-tcpsrv
 
+if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-progsrv.1\
 	bin/xapian-tcpsrv.1
+endif
 endif
 
 EXTRA_PROGRAMS +=\

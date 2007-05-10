@@ -24,10 +24,12 @@ examples_simpleindex_LDADD = $(ldflags) libxapian.la
 examples_simplesearch_SOURCES = examples/simplesearch.cc
 examples_simplesearch_LDADD = $(ldflags) libxapian.la
 
+if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	examples/copydatabase.1\
 	examples/delve.1\
 	examples/quest.1
+endif
 
 if DOCUMENTATION_RULES
 examples/copydatabase.1: examples/copydatabase$(EXEEXT) makemanpage

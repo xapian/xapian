@@ -27,7 +27,9 @@ EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
 # Build API docs with doxygen
 all-local: doxygen_api_docs $(RSTHTML)
 
+if !MAINTAINER_NO_DOCS
 dist_doc_DATA = $(HTMLDOCS) apidoc.pdf
+endif
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
