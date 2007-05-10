@@ -1,3 +1,8 @@
+Thu May 10 04:52:21 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Exit with EX_UNAVAILABLE if the mutex tells us
+	  xapian-tcpsrv is already running on this port.
+
 Thu May 10 04:44:10 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/Makefile.mk,common/safe.cc,common/safeunistd.h: Pulling

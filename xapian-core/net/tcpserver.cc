@@ -126,9 +126,10 @@ TcpServer::get_listening_socket(const std::string & host, int port
 	    mutex = NULL;
 	}
 	if (mutex == NULL) {
-	    string msg("xapian-tcpsrv is already running on port ");
-	    msg += om_tostring(port);
-	    throw Xapian::NetworkError(msg);
+	    cerr << "xapian-tcpsrv is already running on port " << port << endl;
+	    // 69 is EX_UNAVAILABLE.  Scripts can use this to detect if
+	    // xapian-tcpsrv failed to bind to the requested port.
+	    exit(69); // FIXME: calling exit() here isn't ideal...
 	}
 #endif
 	if (retval >= 0) {
