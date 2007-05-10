@@ -973,11 +973,11 @@ if test yes = "$GXX"; then
       esac
 
       dnl Automatically add -Werror if maintainer mode is enabled and we're
-      dnl using GCC3 or newer.  We don't do this for older GCCs as GCC 2.95
-      dnl issues spurious warnings.
+      dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
+      dnl and some GCC 3.x compilers issue spurious warnings.
       if test x$USE_MAINTAINER_MODE = xyes; then
 	case $gxx_version in
-	[[12]].*) ;; dnl GCC < 3
+	[[123]].*) ;; dnl GCC < 4
 	*) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
 	esac
       fi

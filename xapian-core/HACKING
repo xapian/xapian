@@ -481,7 +481,10 @@ Warning Free Compilation:
 
 Compiling without warnings on every platform is our goal, though it's not
 always possible to achieve.  For example, GCC 2.95 produces a few bogus
-warnings (e.g. about not returning a value from a non-void function).
+warnings (e.g. about not returning a value from a non-void function),
+and some GCC 3.x compilers produce the occasional bogus warning (e.g.
+warning that a variable may be used uninitialised, despite it being initialised
+at the point of declaration!)
 
 If using GCC 3.0 or newer, you should consider configure-ing with:
 
@@ -490,12 +493,13 @@ If using GCC 3.0 or newer, you should consider configure-ing with:
 when doing development work on Xapian.  This promotes warnings to errors,
 and should ensure you don't introduce warnings.
 
-If you configure with --enable-maintainer-mode, and are using GCC 3.0 or newer,
+If you configure with --enable-maintainer-mode, and are using GCC 4.0 or newer,
 this is done for you automatically.  This is intended to be an aid rather than
 a form of automated punishment - it's all too easy to miss a new warning as
 once a file is compiled, you don't see it unless you modify that file or one of
 its dependencies.
 
+With Intel's C++ compiler, --enable-maintainer-mode also enables -Werror.
 If you know the equivalent of -Werror for other compilers, please add a note
 here, or tell us so that we can add a note.
 

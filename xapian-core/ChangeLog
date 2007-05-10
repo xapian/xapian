@@ -1,3 +1,12 @@
+Thu May 10 13:42:49 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Some GCC 3.x versions produce bogus warnings, so only
+	  automatically enable -Werror on --enable-maintainer-mode under GCC
+	  if we're using GCC >= 4.0.  Most developers will be using GCC 4.x
+	  soon if they aren't already anyway.
+	* HACKING: Update documentation in line with the above.  Mention that
+	  we also enable -Werror for Intel's C++ compiler.
+
 Thu May 10 05:06:22 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Detect __WIN32__ by running the preprocessor so we
