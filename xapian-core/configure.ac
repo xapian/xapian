@@ -659,12 +659,14 @@ fi
 
 REMOTE_LDFLAGS=
 if test "$enable_backend_remote" = yes ; then
-  dnl On Unix, we need fork and socketpair for the remotebackend.
-  case $host_os in
-    *djgpp* | *msdos* )
-      dnl DJGPP has a dummy implementation of fork which always fails.
-      enable_backend_remote=no ;;
-    *mingw* )
+  AC_PREPROC_IFELSE([
+#ifdef __WIN32__
+#error WIN32
+#endif
+  ], [win32=no], [win32=yes])
+
+  case $host_os-$win32 in
+    *-yes )
       dnl For mingw and msvc we have an alternative implementation which
       dnl doesn't need fork().  Also the "prog" variant isn't built
       dnl currently so socketpair() isn't required either.
@@ -674,7 +676,11 @@ if test "$enable_backend_remote" = yes ; then
       dnl because its prototype has the wrong calling convention).
       REMOTE_LDFLAGS=-lws2_32
       ;;
+    *djgpp* | *msdos* )
+      dnl DJGPP has a dummy implementation of fork which always fails.
+      enable_backend_remote=no ;;
     *)
+      dnl On Unix, we need fork and socketpair for the remotebackend.
       AC_CHECK_FUNCS(fork)
       SAVE_LIBS=$LIBS
       LIBS=

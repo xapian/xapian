@@ -1,3 +1,8 @@
+Thu May 10 05:06:22 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Detect __WIN32__ by running the preprocessor so we
+	  don't get confused by building mingw in a cygwin environment.
+
 Thu May 10 04:52:21 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Exit with EX_UNAVAILABLE if the mutex tells us
