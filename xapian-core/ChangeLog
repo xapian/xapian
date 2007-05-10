@@ -1,3 +1,7 @@
+Thu May 10 04:36:19 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Fix compilation error.
+
 Thu May 10 04:26:31 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/tcpserver.h,net/tcpserver.cc: Just pass the mutex to

@@ -72,7 +72,11 @@ TcpServer::TcpServer(const vector<std::string> &dbpaths_, const std::string & ho
 #if defined __CYGWIN__ || defined __WIN32__
 	  mutex(NULL),
 #endif
-	  listen_socket(get_listening_socket(this, host, port)),
+	  listen_socket(get_listening_socket(host, port
+#if defined __CYGWIN__ || defined __WIN32__
+					     , mutex
+#endif
+					    )),
 	  msecs_active_timeout(msecs_active_timeout_),
 	  msecs_idle_timeout(msecs_idle_timeout_),
 	  verbose(verbose_)
