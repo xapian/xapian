@@ -849,7 +849,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	// declaration).
 	static const int include_query_terms = 1;
 	static const int use_exact_termfreq = 2;
-#pragma deprecated(include_query_terms, use_exact_termfreq)
+#pragma deprecated(Xapian::Enquire::include_query_terms, Xapian::Enquire::use_exact_termfreq)
 #endif
 
 	/** Get the expand set for the given rset.
