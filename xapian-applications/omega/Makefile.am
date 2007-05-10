@@ -112,7 +112,7 @@ omindex_LDADD = $(XAPIAN_LIBS)
 
 scriptindex_SOURCES = scriptindex.cc myhtmlparse.cc htmlparse.cc\
  common/getopt.cc commonhelp.cc utils.cc hashterm.cc loadfile.cc\
- utf8convert.cc utf8truncate.cc
+ common/safe.cc utf8convert.cc utf8truncate.cc
 scriptindex_LDADD = $(XAPIAN_LIBS)
 
 htmlparsetest_SOURCES = htmlparsetest.cc myhtmlparse.cc htmlparse.cc\

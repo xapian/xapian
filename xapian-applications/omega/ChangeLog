@@ -1,3 +1,9 @@
+Thu May 10 04:48:43 BST 2007  Olly Betts <olly@survex.com>
+
+	* ./: Update svn:externals to pull in r8538 of xapian-core's common
+	  subdirectory.
+	* Makefile.am: Add common/safe.cc to scriptindex_SOURCES.
+
 Thu May 10 01:09:14 BST 2007  Olly Betts <olly@survex.com>
 
 	* templates/,Makefile.am: The 'query' template no longer uses
