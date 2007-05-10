@@ -1,3 +1,9 @@
+Thu May 10 04:19:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/safeunistd.h: Use Sleep() instead of _sleep() as the latter
+	  gives deprecation warnings.  Sadly that means that safeunistd.h
+	  now has to pull in safewindows.h.
+
 Thu May 10 04:07:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/tcpserver.h,net/tcpserver.cc: Keep track of the mutex so
