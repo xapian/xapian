@@ -20,12 +20,13 @@ LIBCOMMON_OBJS= \
 	$(INTDIR)\omdebug.obj \
 	$(INTDIR)\omstringstream.obj \
 	$(INTDIR)\serialise-double.obj \
-	$(INTDIR)\msvc_posix_wrapper.obj
+	$(INTDIR)\msvc_posix_wrapper.obj \
+	$(INTDIR)\safe.obj
 	
 CLEAN :
 	-@erase "$(OUTDIR)\libcommon.lib"
 	-@erase "*.pch"
-        -@erase "$(INTDIR)\getopt.obj"
+	-@erase "$(INTDIR)\getopt.obj"
 	-@erase $(LIBCOMMON_OBJS)
 
 
@@ -39,8 +40,6 @@ CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
   
-# Only build netutils if doing QUARTZ backend.
-
 "$(OUTDIR)\LIBCOMMON.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBCOMMON_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libcommon.lib" $(DEF_FLAGS) $(LIBCOMMON_OBJS)
@@ -72,6 +71,11 @@ CPP_SBRS=.
 <<
 
 "$(INTDIR)\msvc_posix_wrapper.obj" : ".\msvc_posix_wrapper.cc"
+	$(CPP) @<< 
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\safe.obj" : ".\safe.cc"
 	$(CPP) @<< 
    $(CPP_PROJ) $**
 <<
