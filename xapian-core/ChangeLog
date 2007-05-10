@@ -1,3 +1,7 @@
+Thu May 10 01:49:42 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Add Error::get_type().
+
 Thu May 10 01:25:37 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/error.cc,generate-exceptions.in: Add new constructors which
