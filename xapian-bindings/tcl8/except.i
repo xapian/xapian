@@ -21,7 +21,7 @@
 
     static int XapianTclHandleError(Tcl_Interp * interp, const Xapian::Error &e) {
 	Tcl_ResetResult(interp);
-	Tcl_SetErrorCode(interp, "XAPIAN", e.get_type().c_str(), NULL);
+	Tcl_SetErrorCode(interp, "XAPIAN", e.get_type(), NULL);
 	Tcl_AppendResult(interp, e.get_msg().c_str(), NULL);
 	return TCL_ERROR;
     }
