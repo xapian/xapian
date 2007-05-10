@@ -55,6 +55,7 @@ EXTRA_DIST +=\
 libxapian_la_SOURCES +=\
 	common/omdebug.cc\
 	common/omstringstream.cc\
+	common/safe.cc\
 	common/serialise-double.cc\
 	common/utils.cc
 

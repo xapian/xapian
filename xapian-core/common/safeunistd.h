@@ -52,25 +52,24 @@
 
 #ifdef __WIN32__
 
-// Sadly, windows.h is needed to get Sleep().  We used to use _sleep() from
-// stdlib.h but _sleep() is deprecated and gives a deprecation warning.
-# include "safewindows.h"
-
 inline unsigned int
 sleep(unsigned int seconds)
 {
+    // Use our own little helper function to avoid pulling in <windows.h>.
+    extern void xapian_sleep_milliseconds(unsigned int millisecs);
+
     // Sleep takes a time interval in milliseconds, whereas POSIX sleep takes
     // a time interval in seconds, so we need to multiply 'seconds' by 1000.
     //
     // But make sure the multiplication won't overflow!  4294967 seconds is
     // nearly 50 days, so just sleep for that long and return the number of
     // seconds left to sleep for.  The common case of sleep(CONSTANT) should
-    // optimise to just Sleep(CONSTANT).
+    // optimise to just xapian_sleep_milliseconds(CONSTANT).
     if (seconds > 4294967u) {
-	Sleep(4294967000u);
+	xapian_sleep_milliseconds(4294967000u);
 	return seconds - 4294967u;
     }
-    Sleep(seconds * 1000u);
+    xapian_sleep_milliseconds(seconds * 1000u);
     return 0;
 }
 
