@@ -1,3 +1,8 @@
+Thu May 10 02:03:44 BST 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am: Build rules for running generate-exceptions should be
+	  controlled by MAINTAINER_MODE not DOCUMENTATION_RULES, part II.
+
 Thu May 10 01:49:42 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Add Error::get_type().
