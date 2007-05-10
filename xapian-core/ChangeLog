@@ -1,3 +1,8 @@
+Thu May 10 14:53:08 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Use '#pragma deprecated' to work around
+	  MSVC stupidity (you get a warning for deprecating a declaration).
+
 Thu May 10 13:42:49 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Some GCC 3.x versions produce bogus warnings, so only

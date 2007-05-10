@@ -839,10 +839,19 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	static const int INCLUDE_QUERY_TERMS = 1;
 	static const int USE_EXACT_TERMFREQ = 2;
-        // Deprecated in Xapian 1.0.0, use INCLUDE_QUERY_TERMS instead.
+#ifndef _MSC_VER
+	/// Deprecated in Xapian 1.0.0, use INCLUDE_QUERY_TERMS instead.
 	XAPIAN_DEPRECATED(static const int include_query_terms) = 1;
-        // Deprecated in Xapian 1.0.0, use USE_EXACT_TERMFREQ instead.
+	/// Deprecated in Xapian 1.0.0, use USE_EXACT_TERMFREQ instead.
 	XAPIAN_DEPRECATED(static const int use_exact_termfreq) = 2;
+#else
+	// Work around MSVC stupidity (you get a warning for deprecating a
+	// declaration).
+	static const int include_query_terms = 1;
+	static const int use_exact_termfreq = 2;
+#pragma deprecated(include_query_terms, use_exact_termfreq)
+#endif
+
 	/** Get the expand set for the given rset.
 	 *
 	 *  @param maxitems  the maximum number of items to return.
