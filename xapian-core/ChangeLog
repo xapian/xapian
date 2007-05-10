@@ -1,3 +1,12 @@
+Thu May 10 04:07:53 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/tcpserver.h,net/tcpserver.cc: Keep track of the mutex so
+	  we can release it right after we close the listening socket.
+	  Throw an error if we fail to get the mutex to avoid a possible
+	  race condition (we might end up with the socket listening but
+	  without the mutex locked).  Always call closesocket() on the
+	  listening socket under __WIN32__ to ensure resources are released.
+
 Thu May 10 02:48:31 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/tcpserver.cc: Use a mutex under Cygwin and WIN32 to allow use to

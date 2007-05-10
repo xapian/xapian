@@ -28,6 +28,7 @@
 #include "remoteserver.h"
 #include "tcpserver.h"
 #include "stats.h"
+#include "utils.h"
 
 #ifdef __WIN32__
 # include <process.h>    /* _beginthread, _endthread */
@@ -68,7 +69,10 @@ TcpServer::TcpServer(const vector<std::string> &dbpaths_, const std::string & ho
 		     bool writable_,
 		     bool verbose_)
 	: dbpaths(dbpaths_), writable(writable_),
-	  listen_socket(get_listening_socket(host, port)),
+#if defined __CYGWIN__ || defined __WIN32__
+	  mutex(NULL),
+#endif
+	  listen_socket(get_listening_socket(this, host, port)),
 	  msecs_active_timeout(msecs_active_timeout_),
 	  msecs_idle_timeout(msecs_idle_timeout_),
 	  verbose(verbose_)
@@ -76,8 +80,11 @@ TcpServer::TcpServer(const vector<std::string> &dbpaths_, const std::string & ho
 }
 
 int
-TcpServer::get_listening_socket(const std::string & host, int port)
+TcpServer::get_listening_socket(TcpServer * self,
+				const std::string & host, int port)
 {
+    self = self; // Avoid warning on !(__CYGWIN__ || __WIN32__)
+
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
@@ -100,33 +107,26 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 	// just not suitable as we don't want multiple xapian-tcpsrv processes
 	// listening on the same port, so we guard against that by using a named
 	// win32 mutex object (and we create it in the 'Global namespace' so
-	// that it still works in a Terminal Services environment).
-	bool can_reuse_addr = false;
+	// that this still works in a Terminal Services environment).
 	char name[64];
 	sprintf(name, "Global\\xapian-tcpserver-listening-%d", port);
-	HANDLE hmutex = CreateMutex(NULL, TRUE, name);
-	if (hmutex == NULL) {
-	    // We expect ERROR_ACCESS_DENIED - that simply means this process
-	    // is already running, but as a different user - the mutex does
-	    // exist.  However, for our needs, we treat all errors the same -
-	    // no attempt to reuse.
-	} else {
-	    // We opened the mutex - but it may have already existed.  See
-	    // if we actually created it or not.
-	    if (GetLastError() == ERROR_ALREADY_EXISTS)
-		// already existed - close this handle, but can't reuse
-		CloseHandle(hmutex);
-	    else
-		can_reuse_addr = true;
-		// hmutex remains alive - Windows closes it on the way out!
-		// todo: arrange for the handle to be closed as we close the
-		// socket - that way we are safe even if we hang on the way
-		// out.
+	if ((mutex = CreateMutex(NULL, TRUE, name)) == NULL) {
+	    // We failed to create the mutex, probably the error is
+	    // ERROR_ACCESS_DENIED, which simply means that TcpServer is
+	    // already running on this port but as a different user.
+	} else if (GetLastError() == ERROR_ALREADY_EXISTS) {
+	    // The mutex already existed, so TcpServer is already running
+	    // on this port.
+	    CloseHandle(mutex);
+	    mutex = NULL;
 	}
-#else
-	const bool can_reuse_addr = true;
+	if (mutex == NULL) {
+	    string msg("xapian-tcpsrv is already running on port ");
+	    msg += om_tostring(port);
+	    throw Xapian::NetworkError(msg);
+	}
 #endif
-	if (retval >= 0 && can_reuse_addr) {
+	if (retval >= 0) {
 	    retval = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR,
 				reinterpret_cast<char *>(&optval),
 				sizeof(optval));
@@ -152,7 +152,7 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 
     if (retval < 0) {
 	int saved_errno = socket_errno(); // note down in case close hits an error
-	close(socketfd);
+	CLOSESOCKET(socketfd);
 	throw Xapian::NetworkError("setsockopt failed", saved_errno);
     }
 
@@ -196,7 +196,7 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 	    // xapian-tcpsrv failed to bind to the requested port.
 	    exit(69); // FIXME: calling exit() here isn't ideal...
 	}
-	close(socketfd);
+	CLOSESOCKET(socketfd);
 	throw Xapian::NetworkError("bind failed", saved_errno);
     }
 
@@ -204,7 +204,7 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 
     if (retval < 0) {
 	int saved_errno = socket_errno(); // note down in case close hits an error
-	close(socketfd);
+	CLOSESOCKET(socketfd);
 	throw Xapian::NetworkError("listen failed", saved_errno);
     }
     return socketfd;
@@ -222,9 +222,12 @@ TcpServer::accept_connection()
 
     if (con_socket < 0) {
 #ifdef __WIN32__
-	if (WSAGetLastError() == WSAEINTR)
+	if (WSAGetLastError() == WSAEINTR) {
 	    // Our CtrlHandler function closed the socket.
+	    if (mutex) CloseHandle(mutex);
+	    mutex = NULL;
 	    return -1;
+	}
 #endif
 	throw Xapian::NetworkError("accept failed", socket_errno());
     }
@@ -243,7 +246,10 @@ TcpServer::accept_connection()
 
 TcpServer::~TcpServer()
 {
-    close(listen_socket);
+    CLOSESOCKET(listen_socket);
+#if defined __CYGWIN__ || defined __WIN32__
+    if (mutex) CloseHandle(mutex);
+#endif
 }
 
 void

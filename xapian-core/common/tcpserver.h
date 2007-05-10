@@ -31,6 +31,10 @@
 # define SOCKET_INITIALIZER_MIXIN
 #endif
 
+#if defined __CYGWIN__ || defined __WIN32__
+# include "safewindows.h" // Only for HANDLE!
+#endif
+
 /** TCP/IP socket based server for RemoteDatabase.
  *
  *  This class implements the server used by xapian-tcpsrv.
@@ -51,6 +55,11 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
     /** Is this a WritableDatabase? */
     bool writable;
 
+#if defined __CYGWIN__ || defined __WIN32__
+    /// Mutex to stop two TcpServers running on the same port.
+    HANDLE mutex;
+#endif
+
     /** The socket we're listening on. */
     int listen_socket;
 
@@ -65,11 +74,17 @@ class XAPIAN_VISIBILITY_DEFAULT TcpServer SOCKET_INITIALIZER_MIXIN {
 
     /** Create a listening socket ready to accept connections.
      *
+     *  @param self	'this' pointer for the TcpServer class (we use this
+     *			odd pattern of a static method with 'this' as a
+     *			parameter because this method is called from the
+     *			ctor's initialiser list and we want to avoid
+     *			accidentally trying to use unconstructed parts of
+     *			the class!)
      *  @param host	hostname or address to listen on or an empty string to
      *			accept connections on any interface.
      *  @param port	TCP port to listen on.
      */
-    static int get_listening_socket(const std::string & host, int port);
+    static int get_listening_socket(TcpServer * self, const std::string & host, int port);
 
     /** Accept a connection and return the filedescriptor for it. */
     int accept_connection();
