@@ -1,3 +1,8 @@
+Thu May 10 04:26:31 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/tcpserver.h,net/tcpserver.cc: Just pass the mutex to
+	  get_listening_socket() by reference to avoid MSVC warnings.
+
 Thu May 10 04:19:13 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/safeunistd.h: Use Sleep() instead of _sleep() as the latter

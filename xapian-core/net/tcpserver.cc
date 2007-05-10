@@ -80,11 +80,12 @@ TcpServer::TcpServer(const vector<std::string> &dbpaths_, const std::string & ho
 }
 
 int
-TcpServer::get_listening_socket(TcpServer * self,
-				const std::string & host, int port)
+TcpServer::get_listening_socket(const std::string & host, int port
+#if defined __CYGWIN__ || defined __WIN32__
+				, HANDLE &mutex
+#endif
+				)
 {
-    self = self; // Avoid warning on !(__CYGWIN__ || __WIN32__)
-
     int socketfd = socket(PF_INET, SOCK_STREAM, 0);
 
     if (socketfd < 0) {
