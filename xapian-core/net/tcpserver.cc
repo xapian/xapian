@@ -94,17 +94,45 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 			    reinterpret_cast<char *>(&optval),
 			    sizeof(optval));
 
-#if !defined __CYGWIN__ && !defined __WIN32__
+#if defined __CYGWIN__ || defined __WIN32__
 	// Windows has screwy semantics for SO_REUSEADDR - it allows the user
 	// to bind to a port which is already bound and listening!  That's
 	// just not suitable as we don't want multiple xapian-tcpsrv processes
-	// listening on the same port!
-	if (retval >= 0) {
+	// listening on the same port, so we guard against that by using a named
+	// win32 mutex object (and we create it in the 'Global namespace' so
+	// that it still works in a Terminal Services environment).
+	bool can_reuse_addr = false;
+	char name[64];
+	sprintf(name, "Global\\xapian-tcpserver-listening-%d", port);
+	HANDLE hmutex = CreateMutex(NULL, TRUE, name);
+	if (hmutex == NULL) {
+	    // We expect ERROR_ACCESS_DENIED - that simply means this process
+	    // is already running, but as a different user - the mutex does
+	    // exist.  However, for our needs, we treat all errors the same -
+	    // no attempt to reuse.
+	} else {
+	    // We opened the mutex - but it may have already existed.  See
+	    // if we actually created it or not.
+	    if (GetLastError() == ERROR_ALREADY_EXISTS)
+		// already existed - close this handle, but can't reuse
+		CloseHandle(hmutex);
+	    else
+		can_reuse_addr = true;
+		// hmutex remains alive - Windows closes it on the way out!
+		// todo: arrange for the handle to be closed as we close the
+		// socket - that way we are safe even if we hang on the way
+		// out.
+	}
+#else
+	const bool can_reuse_addr = true;
+#endif
+	if (retval >= 0 && can_reuse_addr) {
 	    retval = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR,
 				reinterpret_cast<char *>(&optval),
 				sizeof(optval));
 	}
-#elif defined SO_EXCLUSIVEADDRUSE
+
+#if defined SO_EXCLUSIVEADDRUSE
 	// NT4 sp4 and later offer SO_EXCLUSIVEADDRUSE which nullifies the
 	// security issues from SO_REUSEADDR (which affect *any* listening
 	// process, even if doesn't use SO_REUSEADDR itself).  There's still no
@@ -114,9 +142,11 @@ TcpServer::get_listening_socket(const std::string & host, int port)
 	// Note: SO_EXCLUSIVEADDRUSE requires admin privileges prior to XP SP2.
 	// Because of this and the lack support on older versions, we don't
 	// currently check the return value.
-	(void)setsockopt(socketfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
-			 reinterpret_cast<char *>(&optval),
-			 sizeof(optval));
+	if (retval >= 0) {
+	    (void)setsockopt(socketfd, SOL_SOCKET, SO_EXCLUSIVEADDRUSE,
+			     reinterpret_cast<char *>(&optval),
+			     sizeof(optval));
+	}
 #endif
     }
 

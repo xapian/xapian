@@ -1,3 +1,12 @@
+Thu May 10 02:48:31 BST 2007  Olly Betts <olly@survex.com>
+
+	* net/tcpserver.cc: Use a mutex under Cygwin and WIN32 to allow use to
+	  use Microsoft's broken SO_REUSEADDR on our listening socket, but
+	  avoid being able to run two copies of xapian-tcpsrv on the same port
+	  at once (tweaked patch from MarkH).
+	* net/tcpserver.cc: Don't try to set SO_EXCLUSIVEADDRUSE if a previous
+	  setsockopt() call failed as we might stomp on the error code.
+
 Thu May 10 02:15:20 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,bin/Makefile.mk,configure.ac,docs/Makefile.am,
