@@ -8,7 +8,7 @@
 /* in VC Express edition Dec06 this is upgraded to an error */
 #pragma warning(disable:4716)
 /* in VC Express edition Dec06 this shows lots of deprecation messages */
-#pragma warning(disable:4996)
+//#pragma warning(disable:4996)
  
 #endif
 
