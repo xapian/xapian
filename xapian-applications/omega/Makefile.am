@@ -6,13 +6,15 @@ LIBTOOL = @LIBTOOL@ $(QUIET:y=--quiet)
 
 INCLUDES = -I$(top_srcdir)/common
 
-EXTRA_DIST = templates/query \
+EXTRA_DIST =\
+	templates/query \
+	templates/topterms \
 	templates/opensearch \
 	templates/godmode \
 	templates/xml \
-	templates/anyalldropbox \
-	templates/anyallradio \
-	templates/toptermsjs \
+	templates/inc/anyalldropbox \
+	templates/inc/anyallradio \
+	templates/inc/toptermsjs \
 	images/nextoff.png \
 	images/next.png \
 	images/page-10.png \

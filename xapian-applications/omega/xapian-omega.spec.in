@@ -48,7 +48,7 @@ mkdir -p %{buildroot}%{contentdir}/omega/cdb
 mkdir -p %{buildroot}%{logdir}/omega
 # Default templates
 mkdir -p %{buildroot}%{contentdir}/omega/templates
-cp templates/* %{buildroot}%{contentdir}/omega/templates/
+cp -r templates/* %{buildroot}%{contentdir}/omega/templates/
 # Images
 mkdir -p %{buildroot}/var/www/icons/omega
 cp -r images/* %{buildroot}/var/www/icons/omega/

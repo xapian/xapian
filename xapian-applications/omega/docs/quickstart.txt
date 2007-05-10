@@ -17,14 +17,16 @@ can be changed once you've got things going.
 
 This contains 3 settings, written one per line as "<SETTING> <VALUE>":
 
-* database_dir - this should point to the directory containing your database,
-  such as /var/lib/omega/data (it should contain the 'default' directory
-  that is the actual database you indexed to above).
+* database_dir - this should point to the directory containing your
+  database(s), for example /var/lib/omega/data (this should contain a
+  database called 'default' which is the database you indexed to above).
 
-* template_dir - where the templates are - e.g. /var/lib/omega/templates
+* template_dir - the directory where the OmegaScript templates are, for
+  example /var/lib/omega/templates (this should contain an OmegaScript
+  template called 'query' which is used by default).
 
 * log_dir - the directory which the omegascript $log command writes log files
-  to - e.g. /var/log/omega
+  to, for example /var/log/omega .
 
 3.      Test omega from the command line:
 

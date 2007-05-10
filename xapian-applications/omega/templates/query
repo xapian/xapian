@@ -28,10 +28,9 @@ $def{SPAGE,<INPUT TYPE=submit NAME="[" VALUE="$1" DISABLED=disabled>}
 
 $def{NEXT,$if{$ne{$last,$msize},<INPUT TYPE=submit NAME="&gt;" VALUE="Next">}}
 
-$set{topterms,$or{$ne{$msize,0},$query}}
 <head>
 <title>$if{$query,Omega Search: $html{$query},Omega Search}</title>
-$if{$opt{topterms},$include{toptermsjs}}
+$if{$opt{topterms},$include{inc/toptermsjs}}
 </head>
 <body bgcolor="#ffffff">
 <FORM NAME=P METHOD=GET 
@@ -40,7 +39,7 @@ ACTION="$html{$or{$env{SCRIPT_NAME},omega}}" TARGET="_top">
 <INPUT NAME=P VALUE="$html{$query}" SIZE=65>
 <INPUT TYPE=SUBMIT VALUE="Search" BORDER=0>
 <hr>
-$if{,$include{anyalldropbox},$include{anyallradio}}
+$if{,$include{inc/anyalldropbox},$include{inc/anyallradio}}
 $if{$opt{topterms},
  <hr>
  <table><tr><td bgcolor="#ccffcc">

@@ -9,9 +9,14 @@ more than one database at once.
 
 The CGI program's parameters are documented in cgiparams.txt, and OmegaScript,
 the language used to define its web interface, is documented in
-omegascript.txt.  Omega parses queries using the Xapian::QueryParser class -
-for the supported syntax, see queryparser.html in the xapian-core documentation
+omegascript.txt.  Omega ships with several OmegaScript templates and you can
+use these, modify them, or just write your own.  See the "Supplied Templates"
+section below for details of the supplied templates.
+
+Omega parses queries using the Xapian::QueryParser class - for the supported
+syntax, see queryparser.html in the xapian-core documentation
 - available online at: http://www.xapian.org/docs/queryparser.html
+
 
 Term construction
 =================
@@ -332,7 +337,7 @@ lines are ignored.  If the first non-whitespace character on a line
 is a '#', omega treats the line as a comment and ignores it.
 
 The current options are 'database_dir' (the directory containing all the
-Omega databases), 'template_dir' (the directory containing the Omega
+Omega databases), 'template_dir' (the directory containing the OmegaScript
 templates), and 'log_dir' (the directory which the omegascript $log command
 writes log files to).
 
@@ -347,6 +352,32 @@ Note that, with apache, environment variables may be set using mod_env, and
 with apache 1.3.7 or later this may be used inside a .htaccess file.  This
 makes it reasonably easy to share a single system installed copy of Omega
 between multiple users.
+
+
+Supplied Templates
+==================
+
+
+The OmegaScript templates supplied with Omega are:
+
+ * query - This is the default template, providing a typical Web search
+   interface.
+ * topterms - This is just like query, but provides a "top terms" feature
+   which suggests terms the user might want to add to their query to
+   obtain better results.
+ * godmode - Allows you to inspect a database showing which terms index
+   each document, and which documents are indexed by each term.
+ * opensearch - Provides results in OpenSearch format (for more details
+   see http://www.opensearch.org/).
+ * xml - Provides results in a custom XML format.
+
+There are also "helper fragments" used by the templates above:
+
+ * inc/anyalldropbox - Provides a choice of matching "any" or "all" terms
+   by default as a drop down box.
+ * inc/anyallradio - Provides a choice of matching "any" or "all" terms
+   by default as radio buttons.
+ * toptermsjs - Provides some Javascript used by the topterms template.
 
 
 Document data construction
