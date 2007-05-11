@@ -24,16 +24,16 @@ EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
 	doxygen_full_header.html_tmpl doxygen_full_footer.html_tmpl \
 	$(RSTDOCS) $(RSTHTML) apidoc/html
 
+if !MAINTAINER_NO_DOCS
 # Build API docs with doxygen
 all-local: doxygen_api_docs $(RSTHTML)
 
-if !MAINTAINER_NO_DOCS
 dist_doc_DATA = $(HTMLDOCS) apidoc.pdf
-endif
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
 	$(INSTALL_DATA) `test -f apidoc/html/index.html || echo $(srcdir)/`apidoc/html/* $(DESTDIR)$(docdir)/apidoc/html
+endif
 
 ###############################
 # How to clean up local files #

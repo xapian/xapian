@@ -1,3 +1,8 @@
+Fri May 11 01:35:31 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: Disable more documentation rules if
+	  MAINTAINER_NO_DOCS is true.
+
 Thu May 10 23:01:13 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* net/remoteconnection.cc: Remove definition of unused macro
