@@ -493,7 +493,7 @@ void
 RemoteServer::msg_flush(const string &)
 {
     if (!wdb)
-	throw Xapian::NetworkError("Server is read-only");
+	throw Xapian::InvalidOperationError("Server is read-only");
 
     wdb->flush();
 
@@ -504,7 +504,7 @@ void
 RemoteServer::msg_cancel(const string &)
 {
     if (!wdb)
-	throw Xapian::NetworkError("Server is read-only");
+	throw Xapian::InvalidOperationError("Server is read-only");
 
     // We can't call cancel since that's an internal method, but this
     // has the same effect with minimal additional overhead.
@@ -516,7 +516,7 @@ void
 RemoteServer::msg_adddocument(const string & message)
 {
     if (!wdb)
-	throw Xapian::NetworkError("Server is read-only");
+	throw Xapian::InvalidOperationError("Server is read-only");
 
     Xapian::docid did = wdb->add_document(unserialise_document(message));
 
@@ -527,7 +527,7 @@ void
 RemoteServer::msg_deletedocument(const string & message)
 {
     if (!wdb)
-	throw Xapian::NetworkError("Server is read-only");
+	throw Xapian::InvalidOperationError("Server is read-only");
 
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -540,7 +540,7 @@ void
 RemoteServer::msg_deletedocumentterm(const string & message)
 {
     if (!wdb)
-	throw Xapian::NetworkError("Server is read-only");
+	throw Xapian::InvalidOperationError("Server is read-only");
 
     wdb->delete_document(message);
 }
@@ -549,7 +549,7 @@ void
 RemoteServer::msg_replacedocument(const string & message)
 {
     if (!wdb)
-	throw Xapian::NetworkError("Server is read-only");
+	throw Xapian::InvalidOperationError("Server is read-only");
 
     const char *p = message.data();
     const char *p_end = p + message.size();
@@ -562,7 +562,7 @@ void
 RemoteServer::msg_replacedocumentterm(const string & message)
 {
     if (!wdb)
-	throw Xapian::NetworkError("Server is read-only");
+	throw Xapian::InvalidOperationError("Server is read-only");
 
     const char *p = message.data();
     const char *p_end = p + message.size();
