@@ -277,6 +277,9 @@ inline void append_utf8(std::string &s, unsigned ch) {
 
 /// Return the category which a given unicode character falls into.
 inline category get_category(unsigned ch) {
+    // The TCL Unicode routines only support the BMP.  For now, just assume
+    // all characters outside the BMP are OTHER_LETTER.
+    if (ch >= 0x10000) return Xapian::Unicode::OTHER_LETTER;
     return Internal::get_category(Internal::get_character_info(ch));
 }
 
@@ -291,16 +294,21 @@ inline bool is_wordchar(unsigned ch) {
 	    (1 << Xapian::Unicode::DECIMAL_DIGIT_NUMBER) |
 	    (1 << Xapian::Unicode::LETTER_NUMBER) |
 	    (1 << Xapian::Unicode::OTHER_NUMBER);
-    // The TCL Unicode routines only support the BMP.  For now, just assume
-    // all characters outside the BMP are word characters.
-    return (ch >= 0x10000) || ((WORDCHAR_MASK >> get_category(ch)) & 1);
+    return ((WORDCHAR_MASK >> get_category(ch)) & 1);
+}
+
+/// Test is a given unicode character is a whitespace character.
+inline bool is_whitespace(unsigned ch) {
+    const unsigned int WHITESPACE_MASK =
+	    (1 << Xapian::Unicode::SPACE_SEPARATOR) |
+	    (1 << Xapian::Unicode::LINE_SEPARATOR) |
+	    (1 << Xapian::Unicode::PARAGRAPH_SEPARATOR);
+    return ((WHITESPACE_MASK >> get_category(ch)) & 1);
 }
 
 /// Test is a given unicode character is a currency symbol.
 inline bool is_currency(unsigned ch) {
-    // The TCL Unicode routines only support the BMP.  For now, just assume
-    // no characters outside the BMP are currency characters.
-    return (ch < 0x10000) && (get_category(ch) == Xapian::Unicode::CURRENCY_SYMBOL);
+    return (get_category(ch) == Xapian::Unicode::CURRENCY_SYMBOL);
 }
 
 /// Convert a unicode character to lowercase.
