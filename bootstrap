@@ -62,7 +62,7 @@ for module in xapian-core xapian-applications/omega xapian-bindings ; do
     fi
     autoreconf_rc=
     ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
-    if test -f INSTALL.preserved-by-bootstrap ; then
+    if test -f "$d/INSTALL.preserved-by-bootstrap" ; then
       mv -f "$d/INSTALL.preserved-by-bootstrap" "$d/INSTALL"
     fi
     if test -n "$autoreconf_rc" ; then
