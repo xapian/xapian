@@ -161,7 +161,12 @@ class QpQuery {
 #endif
 };
 
-/// Class used to pass information about a term from lexer to parser.
+/** Class used to pass information about a token from lexer to parser.
+ *
+ *  Generally a this class carries term information, but it can be used for the
+ *  start or end of a value range, with some operators (e.g. the distance
+ *  in NEAR/3 or ADJ/3, etc).
+ */
 class Term {
     // So State can read our name.
     friend class ::State;
