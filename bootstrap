@@ -2,7 +2,7 @@
 # bootstrap a xapian source tree obtained from CVS to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
-# Copyright (C) 2002,2003,2004,2005,2006 Olly Betts
+# Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -53,17 +53,17 @@ for module in xapian-core xapian-applications/omega xapian-bindings ; do
     # If we have a custom INSTALL file, preserve it since autoreconf insists on
     # replacing INSTALL with "generic installation instructions" when --force
     # is used.  Be careful to replace it if autoreconf fails.
-    if test -f INSTALL ; then
-      if grep 'generic installation instructions' INSTALL ; then
+    if test -f "$d/INSTALL" ; then
+      if grep 'generic installation instructions' "$d/INSTALL" ; then
 	:
       else
-	mv INSTALL INSTALL.preserved-by-bootstrap
+	mv -f "$d/INSTALL" "$d/INSTALL.preserved-by-bootstrap"
       fi
     fi
     autoreconf_rc=
     ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
     if test -f INSTALL.preserved-by-bootstrap ; then
-      mv -f INSTALL.preserved-by-bootstrap INSTALL
+      mv -f "$d/INSTALL.preserved-by-bootstrap" "$d/INSTALL"
     fi
     if test -n "$autoreconf_rc" ; then
       exit $autoreconf_rc
