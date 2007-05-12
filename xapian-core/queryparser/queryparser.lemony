@@ -1185,8 +1185,9 @@ term(T) ::= compound_term(U). {
     T = U;
 }
 
-// compound_term - A quoted phrase (with or without prefix), a phrased_term,
-// near_expr, adj_expr, or a bracketed subexpression (with or without prefix).
+// compound_term - A WILD_TERM, a quoted phrase (with or without prefix), a
+// phrased_term, near_expr, adj_expr, or a bracketed subexpression (with or
+// without prefix).
 
 %type compound_term {QpQuery *}
 %destructor compound_term {delete $$;}
