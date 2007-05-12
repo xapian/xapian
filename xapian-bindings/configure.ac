@@ -107,6 +107,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl AC_PATH_PROGS only honours an already set SWIG is it's a full
   dnl path.  Listing it in the "to be searched" list like this allows
   dnl ./configure SWIG=myswig to work.
+  swigoverridden=${SWIG+yes}
   AC_PATH_PROGS(SWIG, ["${SWIG-swig}"], [])
   AC_ARG_VAR(SWIG, [SWIG interface generator (only needed by Xapian developers)])
   if test -z "$SWIG" ; then
@@ -132,9 +133,15 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   dnl Windows; Linux builds of PHP generally don't enable ZTS).
   v=`$SWIG -version 2>&1|sed 's/^SWIG Version \([[0-9\.]]*\).*/\1/p;d'`
   case $v in
-   [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
-   *)
-     AC_MSG_ERROR([SWIG >= 1.3.32 (SVN rev 9670 or later) required (you have $v)]) ;;
+    [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
+    *)
+      msg="SWIG >= 1.3.32 (SVN rev 9670 or later) required (you have ${v:-an unknown version})"
+      if test -n "$swigoverridden" ; then
+	dnl If SWIG was explicitly set, make this a warning only.
+	AC_MSG_WARN([$msg])
+      else
+	AC_MSG_ERROR([$msg])
+      fi ;;
   esac
   SWIG_FLAGS="`$XAPIAN_CONFIG --swigflags` -Werror"
   AC_SUBST(SWIG_FLAGS)
