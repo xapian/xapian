@@ -1,3 +1,7 @@
+Sat May 12 04:02:52 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Fix typo in comment.
+
 Fri May 11 05:45:38 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/remoteserver.cc: Make "Server is read-only" be of type

@@ -138,7 +138,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /// Enum of feature flags.
     typedef enum {
-	/// Support AND, OR, etc and bracketted subexpressions.
+	/// Support AND, OR, etc and bracketed subexpressions.
 	FLAG_BOOLEAN = 1,
 	/// Support quoted phrases.
 	FLAG_PHRASE = 2,
