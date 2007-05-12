@@ -1,3 +1,10 @@
+Sat May 12 04:16:47 BST 2007  Olly Betts <olly@survex.com> 
+
+	* queryparser/queryparser.lemony: Update to implement the new stemming
+	  scheme.
+	* tests/queryparsertest.cc: Update testcases, and check that the new
+	  parses are all reasonable.
+
 Sat May 12 04:03:55 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/unicode.h: Xapian::Unicode::get_category() now checks

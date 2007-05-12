@@ -79,6 +79,14 @@ is_suffix(unsigned ch) {
     return ch == '+' || ch == '#';
 }
 
+inline bool
+prefix_needs_colon(const string & prefix, unsigned ch)
+{
+    if (!U_isupper(ch)) return false;
+    string::size_type len = prefix.length();
+    return (len > 1 && prefix[len - 1] != ':');
+}
+
 using Unicode::is_currency;
 
 /// Wrapper around a query, allowing us to distinguish between a query
@@ -111,7 +119,7 @@ class QpQuery {
 	: q(tname, wqf, pos), match_nothing(false)
     {}
 
-    /** A query consisting of two subqueries, opp-ed together. */
+    /** A query consisting of two subqueries, combined with operator op. */
     QpQuery(Query::op op, const QpQuery & left, const QpQuery & right)
 	: q(op, left.get(), right.get()), match_nothing(false)
     {}
@@ -157,20 +165,34 @@ class QpQuery {
 class Term {
     // So State can read our name.
     friend class ::State;
+    State * state;
 
     string name;
+    string prefix;
+    string unstemmed;
+    bool stem;
     termpos pos;
 
+    std::string make_term() const;
+
   public:
-    Term(const string &name_, termpos pos_) : name(name_), pos(pos_) { }
+    Term(const string &name_, termpos pos_) : name(name_), stem(false), pos(pos_) { }
+    Term(const string &name_) : name(name_), stem(false), pos(0) { }
+    Term(termpos pos_) : stem(false), pos(pos_) { }
+    Term(State * state_, const string &name_, const string &prefix_,
+	 const string &unstemmed_, bool stem_, termpos pos_)
+	: state(state_), name(name_), prefix(prefix_), unstemmed(unstemmed_),
+	  stem(stem_), pos(pos_) { }
+
+    void dont_stem() { stem = false; }
 
     termpos get_termpos() const { return pos; }
 
-    QpQuery * as_query() const { return new QpQuery(name, 1, pos); }
+    QpQuery * as_query() const { return new QpQuery(make_term(), 1, pos); }
 
     QpQuery * as_wildcarded_query(State * state) const;
 
-    QpQuery as_query_object() const { return QpQuery(name, 1, pos); }
+    QpQuery as_query_object() const { return QpQuery(make_term(), 1, pos); }
 };
 
 /// Parser State shared between the lexer and the parser.
@@ -186,8 +208,16 @@ class State {
     State(QueryParser::Internal * qpi_, unsigned flags_)
 	: qpi(qpi_), error(NULL), flags(flags_) { }
 
+    string stem_term(const string &term) {
+	return qpi->stemmer(term);
+    }
+
     void add_to_stoplist(const Term * term) {
 	qpi->stoplist.push_back(term->name);
+    }
+
+    void add_to_unstem(const string & term, const string & unstemmed) {
+	qpi->unstem.insert(make_pair(term, unstemmed));
     }
 
     QpQuery * value_range(Term *a, Term *b) {
@@ -225,6 +255,26 @@ class State {
     }
 };
 
+string
+Term::make_term() const
+{
+    string term;
+    if (stem) term += 'Z';
+    if (!prefix.empty()) {
+	term += prefix;
+	if (prefix_needs_colon(prefix, name[0])) term += ':';
+    }
+    if (stem) {
+	term += state->stem_term(name);
+    } else {
+	term += name;
+    }
+
+    if (!unstemmed.empty())
+	state->add_to_unstem(term, unstemmed);
+    return term;
+}
+
 static void
 add_to_query(QpQuery & q, Query::op op, const QpQuery &term)
 {
@@ -236,9 +286,9 @@ add_to_query(QpQuery & q, Query::op op, const QpQuery &term)
 }
 
 QpQuery *
-Term::as_wildcarded_query(State * state) const
+Term::as_wildcarded_query(State * state_) const
 {
-    Database db = state->get_database();
+    Database db = state_->get_database();
     TermIterator t = db.allterms_begin();
     t.skip_to(name);
     QpQuery q;
@@ -263,11 +313,21 @@ is_phrase_generator(unsigned ch)
 }
 
 inline bool
-prefix_needs_colon(const string & prefix, unsigned ch)
+is_stem_preventer(unsigned ch)
 {
-    if (!U_isupper(ch)) return false;
-    string::size_type len = prefix.length();
-    return (len > 1 && prefix[len - 1] != ':');
+    return (ch && ch < 128 && strchr("(/\\@<>=*[{\"", ch) != NULL);
+}
+
+inline bool
+should_stem(const std::string & term)
+{
+    const unsigned int SHOULD_STEM_MASK =
+	(1 << Unicode::LOWERCASE_LETTER) |
+	(1 << Unicode::TITLECASE_LETTER) |
+	(1 << Unicode::MODIFIER_LETTER) |
+	(1 << Unicode::OTHER_LETTER);
+    Utf8Iterator u(term);
+    return ((SHOULD_STEM_MASK >> Unicode::get_category(*u)) & 1);
 }
 
 struct yyParser;
@@ -328,14 +388,14 @@ main_lex_loop:
 		    } while (it != p);
 		    // Trim off the trailing "..".
 		    r.resize(r.size() - 2);
-		    Parse(pParser, RANGE_START, new Term(r, 0), &state);
+		    Parse(pParser, RANGE_START, new Term(r), &state);
 		    r.resize(0);
 		    // Allow any character except whitespace and ')' in a
 		    // RANGE_END.  Or should we be consistent with RANGE_START?
 		    do {
 			Unicode::append_utf8(r, *p++);
 		    } while (p != end && *p > ' ' && *p != ')');
-		    Parse(pParser, RANGE_END, new Term(r, 0), &state);
+		    Parse(pParser, RANGE_END, new Term(r), &state);
 		    it = p;
 		    goto main_lex_loop;
 		}
@@ -474,8 +534,8 @@ main_lex_loop:
 			field += ':';
 			field += term;
 			unstem.insert(make_pair(prefix, field));
-			Parse(pParser, BOOLEAN_FILTER,
-			      new Term(prefix, 0), &state);
+			Parse(pParser, BOOLEAN_FILTER, new Term(prefix),
+			      &state);
 			continue;
 		    }
 
@@ -616,7 +676,7 @@ phrased_term:
 			}
 			if (width && (p == end || U_isspace(*p))) {
 			    it = p;
-			    Parse(pParser, ADJ, new Term("", width), &state);
+			    Parse(pParser, ADJ, new Term(width), &state);
 			    continue;
 			}
 		    }
@@ -639,7 +699,7 @@ phrased_term:
 			}
 			if (width && (p == end || U_isspace(*p))) {
 			    it = p;
-			    Parse(pParser, NEAR, new Term("", width), &state);
+			    Parse(pParser, NEAR, new Term(width), &state);
 			    continue;
 			}
 		    }
@@ -650,77 +710,54 @@ phrased_term:
 	    }
 	}
 
-	bool need_to_stem = (stem_action != STEM_NONE);
-	string unstemmed_term;
-	if (stem_action == STEM_SOME && it != end && *it == '.') {
-	    // Might be a trailing "." meaning "already stemmed".
-	    Utf8Iterator p = it;
-	    ++p;
-	    if (stem_action == STEM_SOME && (p == end || U_isspace(*p))) {
-		// TopTerms won't generate an embedded '.', and we want to
-		// stem terms in a phrased term with '.' phrase generators -
-		// e.g. "example.com" should give a phrase search for "exampl"
-		// and "com", not "example" and "com".
-		it = p;
-		// If topterms added a term with a trailing '.', it will be
-		// lower case.  So if it has an initial capital it must be an
-		// initial in someone's name, a full stop in pasted text or
-		// something like that.
-		if (!U_isupper(term[0])) {
-		    unstemmed_term = term + '.';
-		    need_to_stem = false;
-		}
-	    }
-	}
-
-	if (unstemmed_term.empty()) unstemmed_term = term;
-	term = Unicode::tolower(term);
-	if (need_to_stem) {
-	    if (stem_action == STEM_SOME && U_isupper(unstemmed_term[0]))
-		term = 'R' + term;
-	    else
-		term = stemmer(term);
-	}
-
 	if (prefix.empty()) prefix = prefix_stack.back();
-	if (!prefix.empty()) {
-	    if (prefix_needs_colon(prefix, term[0])) prefix += ':';
-	    term = prefix + term;
-	}
 
-	unstem.insert(make_pair(term, unstemmed_term));
+	{
+	    string unstemmed_term(term);
+	    term = Unicode::tolower(term);
+	    // Don't stem if:
+	    // * We're not stemming terms at all!
+	    // * We're not stemming all terms and "should_stem()" returns false.
+	    // * If the term is followed by a stem preventer character.
+	    bool dont_stem =
+		stem_action == STEM_NONE ||
+		(stem_action == STEM_SOME && !should_stem(unstemmed_term)) ||
+		(it != end && is_stem_preventer(*it));
 
-	if (mode == IN_PHRASED_TERM) {
-	    Parse(pParser, PHR_TERM, new Term(term, term_pos++), &state);
-	} else {
-	    if (flags & FLAG_WILDCARD) {
-		if (mode == DEFAULT && it != end && *it == '*') {
-		    ++it;
-		    if (it == end || !is_termchar(*it)) {
-			// Wildcard at end of term (also known as
-			// "right truncation").
-			Parse(pParser, WILD_TERM, new Term(term, term_pos++),
-			      &state);
-			continue;
+	    Term * term_obj = new Term(&state, term, prefix, unstemmed_term, !dont_stem, term_pos++);
+	    if (mode == IN_PHRASED_TERM) {
+		Parse(pParser, PHR_TERM, term_obj, &state);
+	    } else {
+		if (mode == DEFAULT) {
+		    if (it != end) {
+			if (flags & FLAG_WILDCARD && *it == '*') {
+			    Utf8Iterator p(it);
+			    ++p;
+			    if (p == end || !is_termchar(*p)) {
+				it = p;
+				// Wildcard at end of term (also known as
+				// "right truncation").
+				Parse(pParser, WILD_TERM, term_obj, &state);
+				continue;
+			    }
+			}
+		    } else {
+			if (flags & FLAG_PARTIAL) {
+			    // Final term of a partial match query, with no
+			    // following characters - treat as a wildcard.
+			    Parse(pParser, WILD_TERM, term_obj, &state);
+			    continue;
+			}
 		    }
 		}
-	    }
-	    if (flags & FLAG_PARTIAL) {
-		if (mode == DEFAULT && it == end) {
-		    // Final term of a partial match query, with no following
-		    // characters - treat as a wildcard.
-		    Parse(pParser, WILD_TERM, new Term(term, term_pos++),
-			  &state);
-		    continue;
-		}
-	    }
 
-	    Parse(pParser, TERM, new Term(term, term_pos++), &state);
-	    if (mode != DEFAULT) continue;
+		Parse(pParser, TERM, term_obj, &state);
+		if (mode != DEFAULT) continue;
+	    }
 	}
 
 	if (it != end && is_phrase_generator(*it)) {
-	    // Skip multiple phrase generaters.
+	    // Skip multiple phrase generators.
 	    do {
 		++it;
 	    } while (it != end && is_phrase_generator(*it));
@@ -761,6 +798,12 @@ class TermList {
     void add_term(Term * term) {
 	terms.push_back(term->as_query_object().get());
 	delete term;
+    }
+
+    /// Add an unstemmed Term object to this TermList object.
+    void add_unstemmed_term(Term * term) {
+	term->dont_stem();
+	add_term(term);
     }
 
     void adjust_window(size_t alternative_window) {
@@ -1171,12 +1214,12 @@ compound_term(T) ::= BRA expr(E) KET.
 
 phrase(P) ::= TERM(T). {
     P = new TermList;
-    P->add_term(T);
+    P->add_unstemmed_term(T);
 }
 
 phrase(P) ::= phrase(Q) TERM(T). {
     P = Q;
-    P->add_term(T);
+    P->add_unstemmed_term(T);
 }
 
 // phrased_term - A phrased term works like a single term, but is actually
@@ -1188,13 +1231,13 @@ phrase(P) ::= phrase(Q) TERM(T). {
 
 phrased_term(P) ::= TERM(T) PHR_TERM(U). {
     P = new TermList;
-    P->add_term(T);
-    P->add_term(U);
+    P->add_unstemmed_term(T);
+    P->add_unstemmed_term(U);
 }
 
 phrased_term(P) ::= phrased_term(Q) PHR_TERM(T). {
     P = Q;
-    P->add_term(T);
+    P->add_unstemmed_term(T);
 }
 
 // near_expr - 2 or more terms with NEAR in between.  There must be at least 2
@@ -1205,8 +1248,8 @@ phrased_term(P) ::= phrased_term(Q) PHR_TERM(T). {
 
 near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
     P = new TermList;
-    P->add_term(T);
-    P->add_term(U);
+    P->add_unstemmed_term(T);
+    P->add_unstemmed_term(U);
     if (N) {
 	P->adjust_window(N->get_termpos());
 	delete N;
@@ -1215,7 +1258,7 @@ near_expr(P) ::= TERM(T) NEAR(N) TERM(U). {
 
 near_expr(P) ::= near_expr(Q) NEAR(N) TERM(T). {
     P = Q;
-    P->add_term(T);
+    P->add_unstemmed_term(T);
     if (N) {
 	P->adjust_window(N->get_termpos());
 	delete N;
@@ -1230,8 +1273,8 @@ near_expr(P) ::= near_expr(Q) NEAR(N) TERM(T). {
 
 adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
     P = new TermList;
-    P->add_term(T);
-    P->add_term(U);
+    P->add_unstemmed_term(T);
+    P->add_unstemmed_term(U);
     if (N) {
 	P->adjust_window(N->get_termpos());
 	delete N;
@@ -1240,7 +1283,7 @@ adj_expr(P) ::= TERM(T) ADJ(N) TERM(U). {
 
 adj_expr(P) ::= adj_expr(Q) ADJ(N) TERM(T). {
     P = Q;
-    P->add_term(T);
+    P->add_unstemmed_term(T);
     if (N) {
 	P->adjust_window(N->get_termpos());
 	delete N;
