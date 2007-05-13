@@ -335,6 +335,14 @@ should_stem(const std::string & term)
     return ((SHOULD_STEM_MASK >> Unicode::get_category(*u)) & 1);
 }
 
+inline unsigned check_infix(unsigned ch) {
+    if (ch == '\'' || ch == '&') return ch;
+    // 0x2019 is Unicode apostrophe and single closing quote.
+    // 0x201b is Unicode single opening quote with the tail rising.
+    if (ch == 0x2019 || ch == 0x201b) return '\'';
+    return 0;
+}
+
 struct yyParser;
 
 // Prototype the functions lemon generates.
@@ -608,8 +616,10 @@ phrased_term:
 		unsigned ch = *it;
 		if (!is_termchar(ch)) {
 		    // Treat a single embedded '&' or "'" as a word character
-		    // (e.g. AT&T, Fred's).
-		    if (ch != '&' && ch != '\'') break;
+		    // (e.g. AT&T, Fred's).  Also, normalise apostrophes
+		    // to ASCII apostrophe.
+		    ch = check_infix(ch);
+		    if (!ch) break;
 		    Utf8Iterator p = it;
 		    ++p;
 		    if (p == end || !is_termchar(*p)) break;
