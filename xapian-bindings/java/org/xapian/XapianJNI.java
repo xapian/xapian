@@ -163,7 +163,7 @@ public class XapianJNI {
 
     public static native void database_finalize(long dbid);
 
-    // writeable-database functions
+    // writable-database functions
     public static native long writabledatabase_new() throws XapianError;
 
     public static native long writabledatabase_new(String path, int mode) throws XapianError;

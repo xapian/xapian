@@ -27,12 +27,12 @@ Tcl8 bindings based on the simple examples from <code>xapian-examples</code>:
 
 <p>
    SWIG's Tcl wrapping doesn't handle an object returned by a factory function
-   correctly.  This only matters for the Xapian::WriteableDatabase class, and we
+   correctly.  This only matters for the Xapian::WritableDatabase class, and we
    avoid wrapping the two problematic factory functions to avoid setting a
-   trap for the unwary - these are the WriteableDatabase version of
-   <code>Xapian::Quartz::open</code> and the WriteableDatabase version of
+   trap for the unwary - these are the WritableDatabase version of
+   <code>Xapian::Quartz::open</code> and the WritableDatabase version of
    <code>Xapian::Auto::open</code>.  The latter is deprecated anyway, and
-   you can just use a Xapian::WriteableDatabase constructor instead.  There's
+   you can just use a Xapian::WritableDatabase constructor instead.  There's
    no direct replacement for the former, although at present it's actually
    exactly the same as the latter (since Quartz is the only disk based
    backend which supports writing).
@@ -128,7 +128,7 @@ if [catch {
 
 <ul>
 <li> <code>Xapian::Auto::open_stub()</code> is wrapped as <code>xapian::open_stub</code>
-<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian::quartz_open</code> (but note that the WriteableDatabase version isn't wrapped - see
+<li> <code>Xapian::Quartz::open()</code> is wrapped as <code>xapian::quartz_open</code> (but note that the WritableDatabase version isn't wrapped - see
 the 'Destructors' section above for an explanation).
 <li> <code>Xapian::InMemory::open()</code> is wrapped as <code>xapian::inmemory_open</code>
 <li> <code>Xapian::Remote::open()</code> is wrapped as <code>xapian::remote_open</code> (only

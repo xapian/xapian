@@ -1,3 +1,8 @@
+Sun May 13 04:55:30 BST 2007  Olly Betts <olly@survex.com>
+
+	* java/org/xapian/XapianJNI.java,tcl8/docs/bindings.html: "writeable"
+	  -> "writable".
+
 Sun May 13 04:50:13 BST 2007  Olly Betts <olly@survex.com>
 
 	* python/docs/bindings.html: "agnositc" -> "agnostic", and capitalise
