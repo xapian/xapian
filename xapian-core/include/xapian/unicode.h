@@ -82,7 +82,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  while the iteration is in progress.
      *
      *  @param s The string to read.  Must not be modified while the iteration
-     *           is in progress.
+     *		 is in progress.
      */
     void assign(const std::string &s) { assign(s.data(), s.size()); }
 
@@ -115,7 +115,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  remain valid while the iteration is in progress.
      *
      *  @param s The string to read.  Must not be modified while the iteration
-     *           is in progress.
+     *		 is in progress.
      */
     Utf8Iterator(const std::string &s) { assign(s.data(), s.size()); }
 
@@ -300,6 +300,7 @@ inline bool is_wordchar(unsigned ch) {
 /// Test is a given unicode character is a whitespace character.
 inline bool is_whitespace(unsigned ch) {
     const unsigned int WHITESPACE_MASK =
+	    (1 << Xapian::Unicode::CONTROL) | // For TAB, CR, LF, FF.
 	    (1 << Xapian::Unicode::SPACE_SEPARATOR) |
 	    (1 << Xapian::Unicode::LINE_SEPARATOR) |
 	    (1 << Xapian::Unicode::PARAGRAPH_SEPARATOR);
