@@ -1,3 +1,13 @@
+Sun May 13 03:56:17 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h,unicode/tclUniData.cc: Update Unicode
+	  routines to use Unicode 5.0.0 and support characters outside the BMP
+	  (so we now support all Unicode characters in the latest version of
+	  the standard).
+	* tests/api_unicode.cc: Add test unicode1 which performs some simple
+	  tests of the categorisation function, include one which tests for a
+	  character added in Unicode 5.0.0.
+
 Sat May 12 06:01:50 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Update comment.

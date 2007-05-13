@@ -92,9 +92,31 @@ bool test_utf8iterator2()
     return true;
 }
 
+// Test Unicode categorisation.
+bool test_unicode1()
+{
+    using namespace Xapian;
+    TEST_EQUAL(Unicode::get_category('a'), Unicode::LOWERCASE_LETTER);
+    TEST_EQUAL(Unicode::get_category('0'), Unicode::DECIMAL_DIGIT_NUMBER);
+    TEST_EQUAL(Unicode::get_category('$'), Unicode::CURRENCY_SYMBOL);
+    TEST_EQUAL(Unicode::get_category(0xa3), Unicode::CURRENCY_SYMBOL);
+    // 0x242 was added in Unicode 5.0.0.
+    TEST_EQUAL(Unicode::get_category(0x242), Unicode::LOWERCASE_LETTER);
+    TEST_EQUAL(Unicode::get_category(0xFFFF), Unicode::UNASSIGNED);
+    // Test characters outside BMP.
+    TEST_EQUAL(Unicode::get_category(0x10345), Unicode::OTHER_LETTER);
+    TEST_EQUAL(Unicode::get_category(0x10FFFD), Unicode::PRIVATE_USE);
+    TEST_EQUAL(Unicode::get_category(0x10FFFF), Unicode::UNASSIGNED);
+    // Test some invalid Unicode values.
+    TEST_EQUAL(Unicode::get_category(0x11000), Unicode::UNASSIGNED);
+    TEST_EQUAL(Unicode::get_category(0xFFFFFFFF), Unicode::UNASSIGNED);
+    return true;
+}
+
 /** Test cases for the Unicode and Utf8 classes and functions. */
 test_desc unicode_tests[] = {
     TESTCASE(utf8iterator1),
     TESTCASE(utf8iterator2),
+    TESTCASE(unicode1),
     END_OF_TESTCASES
 };

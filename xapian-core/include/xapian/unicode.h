@@ -218,7 +218,7 @@ namespace Internal {
     /* Extract the information about a character from the Unicode character
      * tables.
      *
-     * ch must be < 0x10000
+     * ch must be a valid Unicode character value (i.e. < 0x110000)
      */
     XAPIAN_VISIBILITY_DEFAULT
     int get_character_info(unsigned ch);
@@ -236,7 +236,7 @@ namespace Internal {
 	 * spot this and optimise it to a sign-extending shift on architectures
 	 * with a suitable instruction).
 	 */
-	return (info >= 0) ? (info >> 22) : (~(~info >> 22));
+	return (info >= 0) ? (info >> 15) : (~(~info >> 15));
     }
 }
 
@@ -277,9 +277,8 @@ inline void append_utf8(std::string &s, unsigned ch) {
 
 /// Return the category which a given unicode character falls into.
 inline category get_category(unsigned ch) {
-    // The TCL Unicode routines only support the BMP.  For now, just assume
-    // all characters outside the BMP are OTHER_LETTER.
-    if (ch >= 0x10000) return Xapian::Unicode::OTHER_LETTER;
+    // Categorise non-Unicode values as UNASSIGNED.
+    if (ch >= 0x110000) return Xapian::Unicode::UNASSIGNED;
     return Internal::get_category(Internal::get_character_info(ch));
 }
 
@@ -314,9 +313,8 @@ inline bool is_currency(unsigned ch) {
 /// Convert a unicode character to lowercase.
 inline unsigned tolower(unsigned ch) {
     int info;
-    // The TCL Unicode routines only support the BMP.  For now, just assume
-    // all characters outside the BMP can't have their case converted.
-    if (ch >= 0x10000 || !(Internal::get_case_type((info = Xapian::Unicode::Internal::get_character_info(ch))) & 2))
+    // Leave non-Unicode values unchanged.
+    if (ch >= 0x110000 || !(Internal::get_case_type((info = Xapian::Unicode::Internal::get_character_info(ch))) & 2))
 	return ch;
     return ch + Internal::get_delta(info);
 }
