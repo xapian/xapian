@@ -52,24 +52,18 @@ U_isalpha(unsigned ch) {
     return (ch < 128 && C_isalpha((unsigned char)ch));
 }
 
-inline bool
-U_isspace(unsigned ch) {
-    return (ch < 128 && C_isspace((unsigned char)ch));
-}
+using Xapian::Unicode::is_whitespace;
 
 inline bool
-U_isnotspace(unsigned ch) {
-    return !U_isspace(ch);
+is_not_whitespace(unsigned ch) {
+    return !is_whitespace(ch);
 }
 
-inline bool
-is_termchar(unsigned ch) {
-    return Unicode::is_wordchar(ch) || ch == '_';
-}
+using Xapian::Unicode::is_wordchar;
 
 inline bool
-is_not_termchar(unsigned ch) {
-    return !is_termchar(ch);
+is_not_wordchar(unsigned ch) {
+    return !is_wordchar(ch);
 }
 
 // FIXME: we used to keep trailing "-" (e.g. Cl-) but it's of dubious utility
@@ -376,10 +370,10 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags, const strin
 main_lex_loop:
     while (it != end) {
 	if (mode == IN_PHRASED_TERM) mode = DEFAULT;
-	if (U_isspace(*it)) {
+	if (is_whitespace(*it)) {
 	    newprev = ' ';
 	    ++it;
-	    it = find_if(it, end, U_isnotspace);
+	    it = find_if(it, end, is_not_whitespace);
 	    if (it == end) break;
 	}
 
@@ -413,20 +407,20 @@ main_lex_loop:
 		    goto main_lex_loop;
 		}
 		ch = *p;
-		if (!(is_termchar(ch) || is_currency(ch) ||
+		if (!(is_wordchar(ch) || is_currency(ch) ||
 		      (ch < 128 && strchr("%,-./:@", ch)))) break;
 		++p;
 	    }
 	}
 
-	if (!is_termchar(*it)) {
+	if (!is_wordchar(*it)) {
 	    unsigned prev = newprev;
 	    unsigned ch = *it++;
 	    if (it != end) newprev = *it;
 	    switch (ch) {
 	      case '"':
 		// Skip whitespace.
-		it = find_if(it, end, U_isnotspace);
+		it = find_if(it, end, is_not_whitespace);
 		if (mode == DEFAULT) {
 		    if (it == end) {
 			// Ignore an unmatched " at the end of the query to
@@ -462,7 +456,7 @@ main_lex_loop:
 		    // Or if not after whitespace or an open bracket.
 		    break;
 		}
-		if (U_isspace(*it) || *it == '+' || *it == '-') {
+		if (is_whitespace(*it) || *it == '+' || *it == '-') {
 		    // Ignore + or - followed by a space, or further + or -.
 		    // Postfix + (such as in C++ and H+) is handled as part of
 		    // the term lexing code below.
@@ -475,7 +469,7 @@ main_lex_loop:
 
 	      case '(':
 		// Skip whitespace.
-		it = find_if(it, end, U_isnotspace);
+		it = find_if(it, end, is_not_whitespace);
 		// Ignore ( at end of query.
 		if (it == end) goto done;
 		if (prev > ' ' && prev != '(' && prev != ')') {
@@ -517,7 +511,7 @@ main_lex_loop:
 	string prefix;
 	if (mode == DEFAULT && !prefixes.empty()) {
 	    // Check for fieldname prefixes (e.g. title:historical).
-	    Utf8Iterator p = find_if(it, end, is_not_termchar);
+	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
 	    if (p != end && *p == ':' && ++p != end && *p > ' ' && *p != ')') {
 		string field;
 		p = it;
@@ -575,7 +569,7 @@ main_lex_loop:
 			continue;
 		    }
 
-		    if (is_termchar(ch)) {
+		    if (is_wordchar(ch)) {
 			// Prefixed term.
 			it = p;
 		    } else {
@@ -603,7 +597,7 @@ phrased_term:
 		// Check there's not a (lower case) letter or digit
 		// immediately after it.
 		// FIXME: should I.B.M..P.T.O be a range search?
-		if (p == end || !is_termchar(*p)) {
+		if (p == end || !is_wordchar(*p)) {
 		    it = p;
 		    swap(term, t);
 		}
@@ -614,7 +608,7 @@ phrased_term:
 	if (term.empty()) {
 	    while (it != end) {
 		unsigned ch = *it;
-		if (!is_termchar(ch)) {
+		if (!is_wordchar(ch)) {
 		    // Treat a single embedded '&' or "'" as a word character
 		    // (e.g. AT&T, Fred's).  Also, normalise apostrophes
 		    // to ASCII apostrophe.
@@ -622,7 +616,7 @@ phrased_term:
 		    if (!ch) break;
 		    Utf8Iterator p = it;
 		    ++p;
-		    if (p == end || !is_termchar(*p)) break;
+		    if (p == end || !is_wordchar(*p)) break;
 		}
 		Unicode::append_utf8(term, ch);
 		++it;
@@ -638,7 +632,7 @@ phrased_term:
 		    }
 		    suff_term += *p;
 		} while (is_suffix(*++p));
-		if (!suff_term.empty() && (p == end || !is_termchar(*p))) {
+		if (!suff_term.empty() && (p == end || !is_wordchar(*p))) {
 		    // If the suffixed term doesn't exist, check that the
 		    // non-suffixed term does.  This also takes care of
 		    // the case when QueryParser::set_database() hasn't
@@ -689,7 +683,7 @@ phrased_term:
 			while (++p != end && U_isdigit(*p)) {
 			    width = (width * 10) + (*p - '0');
 			}
-			if (width && (p == end || U_isspace(*p))) {
+			if (width && (p == end || is_whitespace(*p))) {
 			    it = p;
 			    Parse(pParser, ADJ, new Term(width), &state);
 			    continue;
@@ -712,7 +706,7 @@ phrased_term:
 			while (++p != end && U_isdigit(*p)) {
 			    width = (width * 10) + (*p - '0');
 			}
-			if (width && (p == end || U_isspace(*p))) {
+			if (width && (p == end || is_whitespace(*p))) {
 			    it = p;
 			    Parse(pParser, NEAR, new Term(width), &state);
 			    continue;
@@ -748,7 +742,7 @@ phrased_term:
 			if (flags & FLAG_WILDCARD && *it == '*') {
 			    Utf8Iterator p(it);
 			    ++p;
-			    if (p == end || !is_termchar(*p)) {
+			    if (p == end || !is_wordchar(*p)) {
 				it = p;
 				// Wildcard at end of term (also known as
 				// "right truncation").
@@ -778,7 +772,7 @@ phrased_term:
 	    } while (it != end && is_phrase_generator(*it));
 	    // Don't generate a phrase unless the phrase generators are
 	    // immediately followed by another term.
-	    if (it != end && is_termchar(*it)) {
+	    if (it != end && is_wordchar(*it)) {
 		mode = IN_PHRASED_TERM;
 		goto phrased_term;
 	    }

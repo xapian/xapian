@@ -292,7 +292,8 @@ inline bool is_wordchar(unsigned ch) {
 	    (1 << Xapian::Unicode::OTHER_LETTER) |
 	    (1 << Xapian::Unicode::DECIMAL_DIGIT_NUMBER) |
 	    (1 << Xapian::Unicode::LETTER_NUMBER) |
-	    (1 << Xapian::Unicode::OTHER_NUMBER);
+	    (1 << Xapian::Unicode::OTHER_NUMBER) |
+	    (1 << Xapian::Unicode::CONNECTOR_PUNCTUATION);
     return ((WORDCHAR_MASK >> get_category(ch)) & 1);
 }
 

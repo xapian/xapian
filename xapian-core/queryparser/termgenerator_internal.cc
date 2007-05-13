@@ -44,7 +44,6 @@ static const unsigned int MAX_PROB_TERM_LENGTH = 64;
 // FIXME: Add API to allow control of how stemming is used?
 
 inline unsigned check_wordchar(unsigned ch) {
-    if (ch == '_') return ch;
     if (Unicode::is_wordchar(ch)) return Unicode::tolower(ch);
     return 0;
 }

@@ -1,3 +1,13 @@
+Sun May 13 17:50:19 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h: Add CONNECTOR_PUNCTUATION to is_wordchar()
+	  - this category includes '_' and characters which fulfil similar
+	  roles.
+	* queryparser/queryparser.lemony,queryparser/termgenerator_internal.cc:
+	  No longer need to special case '_'.
+	* queryparser/queryparser.lemony: Test for Unicode "whitespace" rather
+	  than just ASCII.
+
 Sun May 13 04:43:37 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Normalise Unicode characters used
