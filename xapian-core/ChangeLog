@@ -1,3 +1,9 @@
+Mon May 14 19:12:12 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix handling of WILDCARD_TERM and
+	  PARTIAL_TERM for prefixed terms.
+	* tests/queryparsertest.cc: Add test coverage for this.
+
 Mon May 14 18:02:22 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add more testcases for wildcarded queries.

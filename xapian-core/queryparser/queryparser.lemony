@@ -291,7 +291,8 @@ Term::as_wildcarded_query(State * state_) const
 {
     Database db = state_->get_database();
     TermIterator t = db.allterms_begin();
-    string root = Xapian::Unicode::tolower(unstemmed);
+    string root = prefix;
+    root += name;
     t.skip_to(root);
     QpQuery q;
     while (t != db.allterms_end() && (*t).substr(0, root.size()) == root) {
@@ -311,15 +312,16 @@ Term::as_partial_query(State * state_) const
 {
     Database db = state_->get_database();
     TermIterator t = db.allterms_begin();
-    string root = Xapian::Unicode::tolower(unstemmed);
+    string root = prefix;
+    root += name;
     t.skip_to(root);
     QpQuery q;
     while (t != db.allterms_end() && (*t).substr(0, root.size()) == root) {
 	add_to_query(q, Query::OP_OR, QpQuery(*t, 1, pos));
 	++t;
     }
-    // Add the term as it would normally be handled as an alternative.
-    add_to_query(q, Query::OP_OR, as_query());
+    // Add the term, as it would normally be handled, as an alternative.
+    add_to_query(q, Query::OP_OR, as_query_object());
     Assert(!q.get().empty());
     delete this;
     return new QpQuery(q);
