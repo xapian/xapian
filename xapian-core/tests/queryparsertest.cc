@@ -376,7 +376,7 @@ static test test_or_queries[] = {
     { "apm: BIOS version 1.2 Flags 0x03 (Driver version 1.16)", "(Zapm:(pos=1) OR bios:(pos=2) OR Zversion:(pos=3) OR (1:(pos=4) PHRASE 2 2:(pos=5)) OR flags:(pos=6) OR 0x03:(pos=7) OR driver:(pos=8) OR Zversion:(pos=9) OR (1:(pos=10) PHRASE 2 16:(pos=11)))" },
     { "GA-8IHXP(3.0)", "((ga:(pos=1) PHRASE 2 8ihxp:(pos=2)) OR (3:(pos=3) PHRASE 2 0:(pos=4)))" },
     { "8IHXP(3.0)", "(8ihxp:(pos=1) OR (3:(pos=2) PHRASE 2 0:(pos=3)))" },
-    { "na\xc2\xb7si (de ~ (m.))", "(Zna:(pos=1) OR Zsi:(pos=2) OR Zde:(pos=3) OR Zm:(pos=4))" },
+    { "na\xc2\xb7si (de ~ (m.))", "(Zna\xc2\xb7si:(pos=1) OR Zde:(pos=2) OR Zm:(pos=3))" },
     { "header(\"Content-Disposition: attachment;", "(header:(pos=1) OR (content:(pos=2) PHRASE 3 disposition:(pos=3) PHRASE 3 attachment:(pos=4)))" },
     { "\"header(\"Content-Disposition: attachment;\"", "(header:(pos=1) OR (content:(pos=2) PHRASE 2 disposition:(pos=3)) OR Zattach:(pos=4))" },
     { "\"Beep -f\"", "(beep:(pos=1) PHRASE 2 f:(pos=2))" },

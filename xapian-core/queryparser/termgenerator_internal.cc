@@ -49,7 +49,13 @@ inline unsigned check_wordchar(unsigned ch) {
 }
 
 inline unsigned check_infix(unsigned ch) {
-    if (ch == '\'' || ch == '&') return ch;
+    if (ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {
+	// Unicode includes all these except '&' in it's word boundary rules,
+	// as well as 0x2019 (which we handle below) and ':' (for Swedish
+	// apparently, but we ignore this for now as it's problematic in
+	// real world cases).
+	return ch;
+    }
     // 0x2019 is Unicode apostrophe and single closing quote.
     // 0x201b is Unicode single opening quote with the tail rising.
     if (ch == 0x2019 || ch == 0x201b) return '\'';
