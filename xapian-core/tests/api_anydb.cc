@@ -217,18 +217,21 @@ static bool test_wildquery1()
     Xapian::Enquire enquire(db);
 
     Xapian::Query qobj = queryparser.parse_query("th*", flags);
+    tout << qobj.get_description() << endl;
     enquire.set_query(qobj);
     Xapian::MSet mymset = enquire.get_mset(0, 10);
     // Check that 6 documents were returned.
     TEST_MSET_SIZE(mymset, 6);
 
-    qobj = queryparser.parse_query("notindb* this", flags);
+    qobj = queryparser.parse_query("notindb* \"this\"", flags);
+    tout << qobj.get_description() << endl;
     enquire.set_query(qobj);
     mymset = enquire.get_mset(0, 10);
     // Check that 6 documents were returned.
     TEST_MSET_SIZE(mymset, 6);
 
-    qobj = queryparser.parse_query("+notindb* this", flags);
+    qobj = queryparser.parse_query("+notindb* \"this\"", flags);
+    tout << qobj.get_description() << endl;
     enquire.set_query(qobj);
     mymset = enquire.get_mset(0, 10);
     // Check that 0 documents were returned.
@@ -347,7 +350,7 @@ static bool test_multidb5()
     return true;
 }
 
-// tests that when specifiying maxitems to get_mset, no more than
+// tests that when specifying maxitems to get_mset, no more than
 // that are returned.
 static bool test_msetmaxitems1()
 {
@@ -1302,7 +1305,7 @@ static bool test_qterminfo2()
     return true;
 }
 
-// tests that when specifiying that no items are to be returned, those
+// tests that when specifying that no items are to be returned, those
 // statistics which should be the same are.
 static bool test_msetzeroitems1()
 {
