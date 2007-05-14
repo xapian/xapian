@@ -114,6 +114,9 @@ static string eval_file(const string &fmtfile);
 
 static set<string> termset;
 
+// Holds mapping from term prefix to user prefix (e.g. 'S' -> 'subject:').
+static map<string, string> termprefix_to_userprefix;
+
 static string queryterms;
 
 static string error_msg;
@@ -155,11 +158,33 @@ class MyStopper : public Xapian::Stopper {
 		return (t == "was" || t == "what" || t == "when" ||
 			t == "where" || t == "which" || t == "who" ||
 			t == "why" || t == "will" || t == "with");
+	    case 'y':
+		return (t == "you" || t == "your");
 	    default:
 		return false;
 	}
     }
 };
+
+static size_t
+prefix_from_term(string &prefix, const string &term)
+{
+    if (term.empty()) {
+	prefix.resize(0);
+	return 0;
+    }
+    if (term[0] == 'X') {
+	const string::const_iterator begin = term.begin();
+	string::const_iterator i = begin + 1;
+	while (i != term.end() && isupper(static_cast<unsigned char>(*i))) ++i;
+	prefix.assign(begin, i);
+	if (i != term.end() && *i == ':') ++i;
+	return i - begin;
+    }
+
+    prefix = term[0];
+    return 1;
+}
 
 // Don't allow ".." in format names, log file names, etc as this would allow
 // people to open a format "../../etc/passwd" or similar.
@@ -193,13 +218,21 @@ set_probabilistic(const string &oldp)
     qp.set_stopper(new MyStopper());
     qp.set_default_op(default_op);
     qp.set_database(db);
+    // std::map::insert() won't overwrite an existing entry, so we'll prefer
+    // probabilistic prefixes to boolean ones in the unlikely event that both
+    // exist for the same term prefix.  We'll also prefer the first specified
+    // prefix.
     map<string, string>::const_iterator pfx = option.lower_bound("prefix,");
     for (; pfx != option.end() && pfx->first.substr(0, 7) == "prefix,"; ++pfx) {
+	string user_prefix = pfx->first.substr(7);
 	qp.add_prefix(pfx->first.substr(7), pfx->second);
+	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
     }
     pfx = option.lower_bound("boolprefix,");
     for (; pfx != option.end() && pfx->first.substr(0, 11) == "boolprefix,"; ++pfx) {
-	qp.add_boolean_prefix(pfx->first.substr(11), pfx->second);
+	string user_prefix = pfx->first.substr(11);
+	qp.add_boolean_prefix(user_prefix, pfx->second);
+	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
     }
 
     try {
@@ -272,16 +305,8 @@ typedef multimap<string, string>::const_iterator FMCI;
 
 void add_bterm(const string &term) {
     string prefix;
-    if (term[0] == 'X') {
-	string::const_iterator i = term.begin() + 1;
-	while (i != term.end() && isupper(static_cast<unsigned char>(*i))) ++i;
-	if (i != term.end() && *i == ':') ++i;
-	prefix = string(term.begin(), i);
-    } else {
-	prefix = term[0];
-    }
-
-    filter_map.insert(multimap<string, string>::value_type(prefix, term));
+    if (prefix_from_term(prefix, term) > 0)
+	filter_map.insert(multimap<string, string>::value_type(prefix, term));
 }
 
 static void
@@ -616,14 +641,13 @@ html_highlight(const string &s, const string &list,
 	    }
 	}
 	j = term_end;
-	unsigned char first_char = term[0];
 	term = Xapian::Unicode::tolower(term);
-	int match = -1;
-	if (first_char < 128 && isupper(first_char)) {
-	    match = word_in_list('R' + term, list);
+	int match = word_in_list(term, list);
+	if (match == -1) {
+	    string stem = "Z";
+	    stem += (*stemmer)(term);
+	    match = word_in_list(stem, list);
 	}
-	if (match == -1)
-	    match = word_in_list((*stemmer)(term), list);
 	if (match >= 0) {
 	    res += html_escape(string(l, first.raw() - l));
 	    if (!bra.empty()) {
@@ -1752,7 +1776,7 @@ eval(const string &fmt, const vector<string> &param)
 
 		    // List of expand terms
 		    Xapian::ESet eset;
-		    ExpandDeciderOmega decider(db);
+		    OmegaExpandDecider decider(db, &termset);
 
 		    if (!rset.empty()) {
 			eset = enquire->get_eset(howmany * 2, rset, &decider);
@@ -1771,35 +1795,15 @@ eval(const string &fmt, const vector<string> &param)
 			eset = enquire->get_eset(howmany * 2, tmp, &decider);
 		    }
 
+		    // Don't show more than one word with the same stem.
+		    set<string> stems;
 		    Xapian::ESetIterator i;
-		    set<string> seen;
-		    {
-			if (!stemmer) {
-			    stemmer = new Xapian::Stem(option["stemmer"]);
-			}
-			// Exclude terms "similar" to those already in
-			// the query
-			set<string>::const_iterator t;
-			for (t = termset.begin(); t != termset.end(); ++t) {
-			    string term = *t;
-			    if (term[0] == 'R') {
-				term.erase(0, 1);
-				term = (*stemmer)(term);
-			    }
-			    seen.insert(term);
-			}
-		    }
-		    MyStopper stopper;
 		    for (i = eset.begin(); i != eset.end(); ++i) {
-			string term = *i;
-			if (term[0] == 'R') {
-			    term.erase(0, 1);
-			    if (stopper(term)) continue;
-			    term = (*stemmer)(term);
-			}
-			if (seen.find(term) != seen.end()) continue;
-			seen.insert(term);
-			value += *i;
+			string term(*i);
+			string stem = (*stemmer)(term);
+			if (stems.find(stem) != stems.end()) continue;
+			stems.insert(stem);
+			value += term;
 			value += '\t';
 			if (--howmany == 0) break;
 		    }
@@ -1935,36 +1939,63 @@ eval_file(const string &fmtfile)
 }
 
 extern string
-pretty_term(const string & term)
+pretty_term(string term)
 {
-    if (term.empty()) return term;
+    // Just leave empty strings and single characters alone.
+    if (term.length() <= 1) return term;
 
-    if (term.length() >= 2 && term[0] == 'R') {
-	string result = term.substr(1);
-	result[0] = toupper(static_cast<unsigned char>(result[0]));
-	return result;
+    // Assume unprefixed terms are unstemmed.
+    if (!isupper(term[0])) return term;
+
+    // FIXME: keep this for now in case people are still generating 'R' terms?
+    // But if we assumed unprefixed terms are unstemmed, what use is this?
+    if (term[0] == 'R') {
+	term.erase(0, 1);
+	term[0] = toupper(static_cast<unsigned char>(term[0]));
+	return term;
     }
 
-    // If there's an unstemmed version in the query, use that.
-    // If the multiple forms with the same stem appear, we arbitrarily pick
-    // the first.
-    Xapian::TermIterator i = qp.unstem_begin(term);
-    if (i != qp.unstem_end(term)) return *i;
+    // Handle stemmed terms.
+    bool stemmed = (term[0] == 'Z');
+    if (stemmed) {
+	// First of all, check if a term in the query stemmed to this one.
+	Xapian::TermIterator u = qp.unstem_begin(term);
+	// There might be multiple words with the same stem, but we only want
+	// one so just take the first.
+	if (u != qp.unstem_end(term)) return *u;
 
-    // If the term wasn't indexed unstemmed, it's probably a non-term
-    // e.g. "litr" - the stem of "litre"
-    // FIXME: perhaps ought to check termfreq > some threshold
-    if (!db.term_exists('R' + term))
-	return '"' + term + '"';
-
-    if (!stemmer) {
-	stemmer = new Xapian::Stem(option["stemmer"]);
+	// Remove the 'Z'.
+	term.erase(0, 1);
     }
 
-    // The term is present unstemmed, but if it would stem further it still
-    // needs protecting.
-    if ((*stemmer)(term) != term)
-	return '"' + term + '"';
+    bool add_quotes = false;
+
+    // Check if the term has a prefix.
+    if (isupper(term[0])) {
+	// See if we have this prefix in the termprefix_to_userprefix map.  If
+	// so, just reverse the mapping (e.g. turn 'Sfish' into 'subject:fish').
+	string prefix;
+	size_t prefix_len = prefix_from_term(prefix, term);
+
+	map<string, string>::const_iterator i;
+	i = termprefix_to_userprefix.find(prefix);
+	if (i != termprefix_to_userprefix.end()) {
+	    string user_prefix = i->second;
+	    user_prefix += ':';
+	    term.replace(0, prefix_len, user_prefix);
+	} else {
+	    // We don't have a prefix mapping for this, so just set a flag to
+	    // add quotes around the term.
+	    add_quotes = true;
+	}
+    }
+
+    if (stemmed) term += '.';
+
+    if (add_quotes) {
+	term.insert(0, "\"");
+	term.append("\"");
+    }
 
     return term;
 }
@@ -2168,4 +2199,76 @@ ensure_match()
 	if (topdoc + hits_per_page < last)
 	    last = topdoc + hits_per_page;
     }
+}
+
+// OmegaExpandDecider methods.
+
+OmegaExpandDecider::OmegaExpandDecider(const Xapian::Database & db_,
+				       set<string> * querytermset)
+    : db(db_)
+{
+    // We'll want the stemmer for testing matches anyway.
+    if (!stemmer)
+	stemmer = new Xapian::Stem(option["stemmer"]);
+    if (querytermset) {
+	set<string>::const_iterator i;
+	for (i = querytermset->begin(); i != querytermset->end(); ++i) {
+	    string term(*i);
+	    if (term.empty()) continue;
+
+	    unsigned char ch = term[0];
+	    bool stemmed = (ch == 'Z');
+	    if (stemmed) {
+	       term.erase(0, 1);
+	       if (term.empty()) continue;
+	       ch = term[0];
+	    }
+
+	    if (isupper(ch)) {
+		string prefix;
+		size_t prefix_len = prefix_from_term(prefix, term);
+		term.erase(0, prefix_len);
+	    }
+
+	    if (!stemmed) term = (*stemmer)(term);
+
+	    exclude_stems.insert(term);
+	}
+    }
+}
+
+bool
+OmegaExpandDecider::operator()(const string & term) const
+{
+    unsigned char ch = term[0];
+
+    // Reject terms with a prefix.
+    if (isupper(ch)) return false;
+
+    {
+	MyStopper stopper;
+	// Don't suggest stopwords.
+	if (stopper(term)) return false;
+    }
+
+    // Reject small numbers.
+    if (term.size() < 4 && isdigit(ch)) return false;
+
+    // Reject terms containing a space.
+    if (term.find(' ') != string::npos) return false;
+
+    // Skip terms with stems in the exclude_stems set, to avoid suggesting
+    // terms which are already in the query in some form.
+    string stem = (*stemmer)(term);
+    if (exclude_stems.find(stem) != exclude_stems.end())
+	return false;
+
+    // Ignore terms that only occurs once (hapaxes) since they aren't
+    // useful for finding related documents - they only occurs in a
+    // document that's already been marked as relevant.
+    // FIXME: add an expand option to ignore terms where
+    // termfreq == rtermfreq.
+    if (db.get_termfreq(term) <= 1) return false;
+
+    return true;
 }

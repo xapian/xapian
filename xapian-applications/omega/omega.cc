@@ -190,12 +190,12 @@ try {
 	    Xapian::PostingIterator p = db.postlist_begin(v);
 	    if (p != db.postlist_end(v)) docid = *p;
 	}
-	
+
 	if (docid != 0) {
 	    Xapian::RSet tmprset;
 	    tmprset.add_document(docid);
 
-	    ExpandDeciderOmega decider(db);
+	    OmegaExpandDecider decider(db);
 	    Xapian::ESet eset(enquire->get_eset(40, tmprset, &decider));
 	    for (Xapian::ESetIterator i = eset.begin(); i != eset.end(); i++) {
 		if ((*i).empty()) continue;

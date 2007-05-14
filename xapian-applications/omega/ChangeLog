@@ -1,3 +1,9 @@
+Mon May 14 04:31:01 BST 2007  Olly Betts <olly@survex.com>
+
+	* omega.cc,omega.h,query.cc,query.h: Rejig how $topterms and other
+	  cases handle terms to fit with the new term generation scheme.
+	  Add 'you' and 'your' as stopwords.
+
 Thu May 10 04:48:43 BST 2007  Olly Betts <olly@survex.com>
 
 	* ./: Update svn:externals to pull in r8538 of xapian-core's common

@@ -30,7 +30,6 @@
 #include "configfile.h"
 
 #include <map>
-#include <vector>
 
 using namespace std;
 
@@ -70,30 +69,3 @@ extern map<string, string> option;
 extern string date_start, date_end, date_span;
 
 extern const string default_dbname;
-
-class ExpandDeciderOmega : public Xapian::ExpandDecider {
-    private:
-	Xapian::Database db;
-    public:
-	ExpandDeciderOmega(const Xapian::Database &db_) : db(db_) { }
-	bool operator()(const string & tname) const {
-	    // only suggest 4 or more letter words for now to
-	    // avoid italian problems FIXME: fix this at index time
-	    if (tname.length() <= 3) return false;
-
-	    // Ignore a term that only occurs once (a hapax) since it's not
-	    // useful for finding related documents - it only occurs in a
-	    // document that's already been marked as relevant
-	    if (db.get_termfreq(tname) <= 1) return false;
-
-	    // Raw terms are OK, otherwise avoid terms with a prefix or with a
-	    // space in
-	    if (tname[0] == 'R') return true;
-	    if (isupper(static_cast<unsigned char>(tname[0])) ||
-		tname.find(' ') != string::npos) {
-		return false;
-	    }
-
-	    return true;
-	}
-};
