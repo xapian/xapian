@@ -33,7 +33,7 @@ case `${LIBTOOLIZE-libtoolize} --version` in
 esac
 
 srcdir=`echo "$0"|sed 's![^/]*$!!'`
-SWIG="\$SWIG"
+SWIG=""
 # Don't try to build xapian-applications/dbtools or xapview - they need work.
 # As does cvssearch.
 # We no longer snapshot xapian-applications/queryserver - we're overfilling the
@@ -141,7 +141,7 @@ srcdir_abs=`cd "${srcdir-.}"&&pwd`
 cat <<MIDDLE_OF_CONFIGURE >> configure.tmp
 srcdir="$srcdir_abs"
 modules="$modules"
-SWIG="$SWIG"
+test -z "$SWIG" || : \${SWIG="$SWIG"}
 export SWIG
 MIDDLE_OF_CONFIGURE
 
