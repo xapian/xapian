@@ -272,9 +272,9 @@ def test_queryparser_stoplist_iter():
     query = queryparser.parse_query('to be or not to be is the questions')
     expect([term for term in queryparser.stoplist()], [])
     expect(str(query),
-           'Xapian::Query((to:(pos=1) OR be:(pos=2) OR or:(pos=3) OR '
-           'not:(pos=4) OR to:(pos=5) OR be:(pos=6) OR is:(pos=7) OR '
-           'the:(pos=8) OR question:(pos=9)))')
+           'Xapian::Query((Zto:(pos=1) OR Zbe:(pos=2) OR Zor:(pos=3) OR '
+           'Znot:(pos=4) OR Zto:(pos=5) OR Zbe:(pos=6) OR Zis:(pos=7) OR '
+           'Zthe:(pos=8) OR Zquestion:(pos=9)))')
 
     # Check behaviour with a stoplist, but no stemmer
     queryparser = xapian.QueryParser()
@@ -298,11 +298,11 @@ def test_queryparser_stoplist_iter():
     expect([term for term in queryparser.stoplist()], ['to', 'not', 'to']) # Shouldn't have changed since previous query.
     query = queryparser.parse_query('to be or not to be is the questions')
 
-    expect([term for term in queryparser.stoplist()], ['to', 'not', 'to', 'question'])
+    expect([term for term in queryparser.stoplist()], ['to', 'not', 'to'])
     expect(str(query),
-           'Xapian::Query((be:(pos=2) OR or:(pos=3) OR '
-           'be:(pos=6) OR is:(pos=7) OR '
-           'the:(pos=8)))')
+           'Xapian::Query((Zbe:(pos=2) OR Zor:(pos=3) OR '
+           'Zbe:(pos=6) OR Zis:(pos=7) OR '
+           'Zthe:(pos=8) OR Zquestion:(pos=9)))')
 
 def test_queryparser_unstem_iter():
     """Test QueryParser unstemlist iterator.
@@ -327,16 +327,16 @@ def test_queryparser_unstem_iter():
     queryparser = xapian.QueryParser()
     queryparser.set_stemmer(stemmer)
     queryparser.set_stemming_strategy(queryparser.STEM_SOME)
-    expect([term for term in queryparser.unstemlist('to')], [])
-    expect([term for term in queryparser.unstemlist('question')], [])
-    expect([term for term in queryparser.unstemlist('questions')], [])
+    expect([term for term in queryparser.unstemlist('Zto')], [])
+    expect([term for term in queryparser.unstemlist('Zquestion')], [])
+    expect([term for term in queryparser.unstemlist('Zquestions')], [])
     query = queryparser.parse_query('to question questions')
 
-    expect([term for term in queryparser.unstemlist('to')], ['to'])
-    expect([term for term in queryparser.unstemlist('question')], ['question', 'questions'])
-    expect([term for term in queryparser.unstemlist('questions')], [])
+    expect([term for term in queryparser.unstemlist('Zto')], ['to'])
+    expect([term for term in queryparser.unstemlist('Zquestion')], ['question', 'questions'])
+    expect([term for term in queryparser.unstemlist('Zquestions')], [])
     expect(str(query),
-           'Xapian::Query((to:(pos=1) OR question:(pos=2) OR question:(pos=3)))')
+           'Xapian::Query((Zto:(pos=1) OR Zquestion:(pos=2) OR Zquestion:(pos=3)))')
 
 def test_allterms_iter():
     """Test all-terms iterator on Database.

@@ -209,10 +209,10 @@ def test_all():
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem('en'))
     expect_query(qp.parse_query("foo o", qp.FLAG_PARTIAL),
-                 "Xapian::Query((foo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2))))")
+                 "Xapian::Query((Zfoo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2) OR Zoutsid:(pos=2))))")
 
     expect_query(qp.parse_query("foo outside", qp.FLAG_PARTIAL),
-                 "Xapian::Query((foo:(pos=1) AND outsid:(pos=2)))")
+                 "Xapian::Query((Zfoo:(pos=1) AND Zoutsid:(pos=2)))")
 
     # Test supplying unicode strings
     expect_query(xapian.Query(xapian.Query.OP_OR, (u'foo', u'bar')),
