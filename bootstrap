@@ -1,5 +1,5 @@
 #!/bin/sh
-# bootstrap a xapian source tree obtained from CVS to produce a tree like
+# bootstrap a xapian source tree obtained from SVN to produce a tree like
 # you'd get from unpacking the results of "make dist"
 #
 # Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
@@ -33,6 +33,7 @@ case `${LIBTOOLIZE-libtoolize} --version` in
 esac
 
 srcdir=`echo "$0"|sed 's![^/]*$!!'`
+SWIG="\$SWIG"
 # Don't try to build xapian-applications/dbtools or xapview - they need work.
 # As does cvssearch.
 # We no longer snapshot xapian-applications/queryserver - we're overfilling the
@@ -68,7 +69,7 @@ for module in swig xapian-core xapian-applications/omega xapian-bindings ; do
       ./autogen.sh || autoreconf_rc=$?
       cd "$curdir"
       # Use the uninstalled wrapper for the in-tree copy of SWIG.
-      SWIG=$curdir/$module/preinst-swig
+      SWIG="\$here/swig/preinst-swig"
     else
       ${AUTORECONF-autoreconf} --install --force "$d" || autoreconf_rc=$?
     fi
@@ -131,6 +132,7 @@ for a ; do
  esac
 done
 
+here=`pwd`
 TOP_OF_CONFIGURE
 
 # Produce an absolute version of srcdir.
@@ -145,7 +147,6 @@ MIDDLE_OF_CONFIGURE
 
 cat <<'END_OF_CONFIGURE' >> configure.tmp
 dirs=
-here=`pwd`
 XAPIAN_CONFIG=$here/xapian-core/xapian-config
 ACLOCAL="${ACLOCAL-aclocal} -I $srcdir/xapian-core/m4"
 for d in $modules ; do
