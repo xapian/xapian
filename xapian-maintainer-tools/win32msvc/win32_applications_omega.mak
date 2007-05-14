@@ -46,43 +46,42 @@ OMEGA_OBJS= \
 	"$(OUTDIR)\cdb_find.obj" \
 	"$(OUTDIR)\cdb_hash.obj" \
 	"$(OUTDIR)\cdb_unpack.obj" \
- 	"$(OUTDIR)\indextext.obj" \
  	"$(OUTDIR)\loadfile.obj" \
  	"$(OUTDIR)\utf8convert.obj" \
  	"$(OUTDIR)\datematchdecider.obj" 
-  
-
+	
 OMINDEX_OBJS= \
 	"$(OUTDIR)\omindex.obj" \
 	"$(OUTDIR)\myhtmlparse.obj" \
 	"$(OUTDIR)\htmlparse.obj" \
-	"$(OUTDIR)\indextext.obj" \
+	"$(OUTDIR)\getopt.obj" \
 	"$(OUTDIR)\commonhelp.obj" \
 	"$(OUTDIR)\utils.obj" \
 	"$(OUTDIR)\hashterm.obj" \
-	"$(OUTDIR)\dirent.obj" \
  	"$(OUTDIR)\loadfile.obj" \
  	"$(OUTDIR)\md5.obj" \
  	"$(OUTDIR)\md5wrap.obj" \
  	"$(OUTDIR)\xmlparse.obj" \
  	"$(OUTDIR)\metaxmlparse.obj" \
  	"$(OUTDIR)\utf8convert.obj" \
+	"$(OUTDIR)\sample.obj" \
 	"$(OUTDIR)\mkdtemp.obj" \
-	"$(OUTDIR)\sample.obj"
-
-  
-
+	"$(OUTDIR)\dirent.obj" 
+	
+	
 SCRIPTINDEX_OBJS= \
 	"$(OUTDIR)\scriptindex.obj" \
 	"$(OUTDIR)\myhtmlparse.obj" \
 	"$(OUTDIR)\htmlparse.obj" \
-	"$(OUTDIR)\indextext.obj" \
+	"$(OUTDIR)\getopt.obj" \
 	"$(OUTDIR)\commonhelp.obj" \
 	"$(OUTDIR)\utils.obj" \
 	"$(OUTDIR)\hashterm.obj" \
 	"$(OUTDIR)\loadfile.obj" \
+	"$(OUTDIR)\safe.obj" \
 	"$(OUTDIR)\utf8convert.obj" \
 	"$(OUTDIR)\utf8truncate.obj" 
+	
 	
 HTMLPARSETEST_OBJS= \
  	"$(OUTDIR)\htmlparsetest.obj" \
@@ -223,7 +222,7 @@ PROGRAM_DEPENDENCIES =
    $(CPP_PROJ) $**
 <<
 
-"$(INTDIR)\getopt.obj" : ".\getopt.cc"
+"$(INTDIR)\getopt.obj" : ".\common\getopt.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
@@ -310,6 +309,11 @@ PROGRAM_DEPENDENCIES =
 <<
 
 "$(INTDIR)\sample.obj" : ".\sample.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
+"$(INTDIR)\safe.obj" : ".\common\safe.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
