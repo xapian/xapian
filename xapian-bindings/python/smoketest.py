@@ -209,7 +209,7 @@ def test_all():
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem('en'))
     expect_query(qp.parse_query("foo o", qp.FLAG_PARTIAL),
-                 "Xapian::Query((Zfoo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2) OR Zoutsid:(pos=2))))")
+                 "Xapian::Query((Zfoo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2) OR Zo:(pos=2))))")
 
     expect_query(qp.parse_query("foo outside", qp.FLAG_PARTIAL),
                  "Xapian::Query((Zfoo:(pos=1) AND Zoutsid:(pos=2)))")
@@ -225,7 +225,7 @@ def test_all():
                  'Xapian::Query((foo OR bar))')
 
     expect_query(qp.parse_query(u"NOT t\xe9st", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-                 "Xapian::Query((<alldocuments> AND_NOT t\xc3\xa9st:(pos=1)))")
+                 "Xapian::Query((<alldocuments> AND_NOT Zt\xc3\xa9st:(pos=1)))")
 
     doc = xapian.Document()
     doc.set_data(u"Unicode with an acc\xe9nt")
@@ -239,12 +239,12 @@ def test_all():
     qp.set_stopper(stop)
     expect(stop('a'), False)
     expect_query(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
-                 "Xapian::Query((foo:(pos=1) AND bar:(pos=2) AND a:(pos=3)))")
+                 "Xapian::Query((Zfoo:(pos=1) AND Zbar:(pos=2) AND Za:(pos=3)))")
 
     stop.add('a')
     expect(stop('a'), True)
     expect_query(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
-                 "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
+                 "Xapian::Query((Zfoo:(pos=1) AND Zbar:(pos=2)))")
 
     # Feature test for custom Stopper
     class my_b_stopper(xapian.Stopper):
@@ -259,11 +259,11 @@ def test_all():
     qp.set_stopper(stop)
     expect(stop('a'), False)
     expect_query(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
-                 "Xapian::Query((foo:(pos=1) AND bar:(pos=2) AND a:(pos=3)))")
+                 "Xapian::Query((Zfoo:(pos=1) AND Zbar:(pos=2) AND Za:(pos=3)))")
 
     expect(stop('b'), True)
     expect_query(qp.parse_query(u"foo bar b", qp.FLAG_BOOLEAN),
-                 "Xapian::Query((foo:(pos=1) AND bar:(pos=2)))")
+                 "Xapian::Query((Zfoo:(pos=1) AND Zbar:(pos=2)))")
 
     # Test TermGenerator
     termgen = xapian.TermGenerator()
