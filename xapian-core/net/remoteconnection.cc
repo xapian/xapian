@@ -87,6 +87,21 @@ static HANDLE fd_to_handle(int fd) {
     // it's already a HANDLE!
     return (handle != INVALID_HANDLE_VALUE ? handle : (HANDLE)fd);
 }
+
+/// Close an fd, which might be a HANDLE.
+static void close_fd_or_handle(int fd) {
+    MSVCIgnoreInvalidParameter invalid_handle_value_is_ok;
+    if (close(fd) == -1) {
+	if (errno == EBADF) {
+	    // Bad file descriptor - probably because the fd is actually
+	    // a HANDLE.
+	    HANDLE handle = (HANDLE)fd;
+	    CloseHandle(handle);
+	}
+    }
+}
+#else
+static void close_fd_or_handle(int fd) { close(fd); }
 #endif
 
 RemoteConnection::RemoteConnection(int fdin_, int fdout_,
@@ -384,8 +399,8 @@ RemoteConnection::do_close()
 	send_message(MSG_SHUTDOWN, "", OmTime::now());
     } catch (...) {
     }
-    close(fdin);
-    if (fdin != fdout) close(fdout);
+    close_fd_or_handle(fdin);
+    if (fdin != fdout) close_fd_or_handle(fdout);
     fdout = -1;
 }
 
