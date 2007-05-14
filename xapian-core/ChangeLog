@@ -1,3 +1,9 @@
+Mon May 14 20:14:17 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/enquire.h: Make the "uses string sort" warning in
+	  the documentation for the methods which enable sorting by value
+	  more prominent, and fix several miscellaneous typos.
+
 Mon May 14 19:28:21 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/dir_contents: Update to mention TermGenerator.

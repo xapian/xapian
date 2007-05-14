@@ -67,7 +67,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	/// Assignment is allowed (and is cheap).
 	void operator=(const MSet &other);
 
-	/** Fetch the the document info for a set of items in the MSet.
+	/** Fetch the document info for a set of items in the MSet.
 	 *
 	 *  This method causes the documents in the range specified by the
 	 *  iterators to be fetched from the database, and cached in the
@@ -76,7 +76,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *  subsequent access to the document contents when the documents are
 	 *  stored in a remote database.
 	 *
-	 *  The iterators must be over this Xapian::MSet: undefined behaviour
+	 *  The iterators must be over this Xapian::MSet - undefined behaviour
 	 *  will result otherwise.
 	 *
 	 *  @param begin   MSetIterator for first item to fetch.
@@ -124,7 +124,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 *
 	 *  This corresponds to the parameter "first" specified in
 	 *  Xapian::Enquire::get_mset().  A value of 0 corresponds to the
-	 *  highest result being the first item in the mset.
+	 *  highest result being the first item in the MSet.
 	 */
 	Xapian::doccount get_firstitem() const;
 
@@ -164,7 +164,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	 */
 	Xapian::doccount get_matches_upper_bound() const;
 
-	/** The maximum possible weight in the mset.
+	/** The maximum possible weight in the MSet.
 	 *  This weight is likely not to be attained in the set of results,
 	 *  but represents an upper bound on the weight which a document
 	 *  could attain for the given query.
@@ -230,7 +230,7 @@ class XAPIAN_VISIBILITY_DEFAULT MSet {
 	typedef Xapian::doccount size_type;
 	//@}
 
-	/** Returns a string representing the mset.
+	/** Returns a string representing the MSet.
 	 *  Introspection method.
 	 */
 	std::string get_description() const;
@@ -595,7 +595,7 @@ class XAPIAN_VISIBILITY_DEFAULT RSet {
  */
 class XAPIAN_VISIBILITY_DEFAULT MatchDecider {
     public:
-	/** Decide whether we want this document to be in the mset.
+	/** Decide whether we want this document to be in the MSet.
 	 */
 	virtual bool operator()(const Xapian::Document &doc) const = 0;
 
@@ -673,7 +673,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** Set the collapse key to use for queries.
 	 *
-	 *  @param collapse_key  value number to collapse on - at most one mset
+	 *  @param collapse_key  value number to collapse on - at most one MSet
 	 *	entry with each particular value will be returned.
 	 *
 	 *	The entry returned will be the best entry with that particular
@@ -734,14 +734,14 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *
 	 * @param percent_cutoff Minimum percentage score for returned
 	 *	documents. If a document has a lower percentage score than this,
-	 *	it will not appear in the mset.  If your intention is to return
+	 *	it will not appear in the MSet.  If your intention is to return
 	 *	only matches which contain all the terms in the query, then
 	 *	it's more efficient to use Xapian::Query::OP_AND instead of
 	 *	Xapian::Query::OP_OR in the query than to use set_cutoff(100).
 	 *	(default 0 => no percentage cut-off).
 	 * @param weight_cutoff Minimum weight for a document to be returned.
 	 *	If a document has a lower score that this, it will not appear
-	 *	in the mset.  It is usually only possible to choose an
+	 *	in the MSet.  It is usually only possible to choose an
 	 *	appropriate weight for cutoff based on the results of a
 	 *	previous run of the same query; this is thus mainly useful for
 	 *	alerting operations.  The other potential use is with a user
@@ -758,9 +758,11 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** Set the sorting to be by value only.
 	 *
-	 * @param sort_key value number to reorder on.  Sorting is with a
-	 *	string compare.  If ascending is true (the default) higher
-	 *	is better; if ascending is false, lower is better.
+	 *  NB sorting of values uses a string comparison, so you'll need to
+	 *  store numbers padded with leading zeros or spaces, or with the
+	 *  number of digits prepended.
+	 *
+	 * @param sort_key  value number to sort on.
 	 *
 	 * @param ascending  If true, documents values which sort higher by
 	 *		 string compare are better.  If false, the sort order
@@ -771,9 +773,11 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	/** Set the sorting to be by value, then by relevance for documents
 	 *  with the same value.
 	 *
-	 * @param sort_key value number to reorder on.  Sorting is with a
-	 *	string compare.  If ascending is true (the default) higher
-	 *	is better; if ascending is false, lower is better.
+	 *  NB sorting of values uses a string comparison, so you'll need to
+	 *  store numbers padded with leading zeros or spaces, or with the
+	 *  number of digits prepended.
+	 *
+	 * @param sort_key  value number to sort on.
 	 *
 	 * @param ascending  If true, documents values which sort higher by
 	 *		 string compare are better.  If false, the sort order
@@ -784,6 +788,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** Set the sorting to be by relevance then value.
 	 *
+	 *  NB sorting of values uses a string comparison, so you'll need to
+	 *  store numbers padded with leading zeros or spaces, or with the
+	 *  number of digits prepended.
+	 *
 	 *  Note that with the default BM25 weighting scheme parameters,
 	 *  non-identical documents will rarely have the same weight, so
 	 *  this setting will give very similar results to
@@ -791,9 +799,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  BM25 parameter settings (e.g. BM25Weight(1,0,1,0,0)) or custom
 	 *  weighting schemes.
 	 *
-	 * @param sort_key value number to reorder on.  Sorting is with a
-	 *	string compare.  If ascending is true (the default) higher
-	 *	is better; if ascending is false, lower is better.
+	 * @param sort_key  value number to sort on.
 	 *
 	 * @param ascending  If true, documents values which sort higher by
 	 *		 string compare are better.  If false, the sort order
@@ -904,7 +910,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  the given document.
 	 *
 	 *  It is possible for the document to have been removed from the
-	 *  database between the time it is returned in an mset, and the
+	 *  database between the time it is returned in an MSet, and the
 	 *  time that this call is made.  If possible, you should specify
 	 *  an MSetIterator instead of a Xapian::docid, since this will enable
 	 *  database backends with suitable support to prevent this
