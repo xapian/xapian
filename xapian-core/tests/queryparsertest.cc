@@ -590,7 +590,7 @@ static bool test_queryparser1()
 	    parsed = "Unknown exception!";
 	}
 	tout << "Query: " << p->query << '\n';
-	TEST_EQUAL(parsed, expect);
+	TEST_STRINGS_EQUAL(parsed, expect);
     }
     return true;
 }

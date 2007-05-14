@@ -228,6 +228,15 @@ class test_driver {
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be equal:" \
 	" were " << (a) << " and " << (b))
 
+/** Test for equality of two strings.
+ *
+ *  If they aren't equal, show each on a separate line so the difference can
+ *  be seen clearly.
+ */
+#define TEST_STRINGS_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
+	"Expected "STRINGIZE(a)" and "STRINGIZE(b)" to be equal, were:\n" \
+	<< (a) << '\n' << (b))
+
 /// Helper function for TEST_EQUAL_DOUBLE macro.
 extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 
