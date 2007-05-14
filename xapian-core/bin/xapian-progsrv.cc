@@ -1,7 +1,7 @@
 /** @file xapian-progsrv.cc
  * @brief Remote server for use with ProgClient.
  */
-/* Copyright (C) 2002,2003,2006 Olly Betts
+/* Copyright (C) 2002,2003,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,6 +99,7 @@ int main(int argc, char **argv)
 
     try {
 	// We communicate with the client via stdin (fd 0) and stdout (fd 1).
+	// Note that RemoteServer closes these fds.
 	RemoteServer server(dbnames, 0, 1, timeout, timeout, writable);
 
 	// If you have defined your own weighting scheme, register it here
@@ -111,9 +112,9 @@ int main(int argc, char **argv)
 	 * RemoteServer will have passed the error to the client to be rethrown
 	 * there.
 	 *
-	 * Our stdout is the communication channel to the client, and out
-	 * stderr is probably a closed fd so we don't have anywhere to send
-	 * error messages to anyway!
+	 * Our stdout is the (now closed) communication channel to the client,
+	 * and our stderr is probably a closed fd so we don't have anywhere to
+	 * send error messages to anyway!
 	 */
     }
 }
