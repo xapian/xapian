@@ -1,5 +1,5 @@
 <Directory>queryparser</Directory>
 
 <Description>
-Implementation of the Xapian::QueryParser class.
+Implementations of the Xapian::QueryParser and Xapian::TermGenerator classes.
 </Description>
