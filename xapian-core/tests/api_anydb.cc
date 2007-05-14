@@ -205,6 +205,7 @@ static bool test_simplequery3()
 }
 
 // tests for the right document count for a wildcard query
+// FIXME: move this to querytest (and just use an InMemory DB).
 static bool test_wildquery1()
 {
     Xapian::QueryParser queryparser;
