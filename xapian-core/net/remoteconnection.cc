@@ -88,20 +88,18 @@ static HANDLE fd_to_handle(int fd) {
     return (handle != INVALID_HANDLE_VALUE ? handle : (HANDLE)fd);
 }
 
-/// Close an fd, which might be a HANDLE.
-static void close_fd_or_handle(int fd) {
-    MSVCIgnoreInvalidParameter invalid_handle_value_is_ok;
-    if (close(fd) == -1) {
-	if (errno == EBADF) {
-	    // Bad file descriptor - probably because the fd is actually
-	    // a HANDLE.
-	    HANDLE handle = (HANDLE)fd;
-	    CloseHandle(handle);
-	}
+/// Close an fd, which might be a socket.
+static void close_fd_or_socket(int fd) {
+    MSVCIgnoreInvalidParameter invalid_fd_value_is_ok;
+    if (close(fd) == -1 && errno == EBADF) {
+	// Bad file descriptor - probably because the fd is actually
+	// a socket.
+	closesocket(fd);
     }
 }
 #else
-static void close_fd_or_handle(int fd) { close(fd); }
+// There's no distinction between sockets and other fds on UNIX.
+inline void close_fd_or_socket(int fd) { close(fd); }
 #endif
 
 RemoteConnection::RemoteConnection(int fdin_, int fdout_,
@@ -399,8 +397,8 @@ RemoteConnection::do_close()
 	send_message(MSG_SHUTDOWN, "", OmTime::now());
     } catch (...) {
     }
-    close_fd_or_handle(fdin);
-    if (fdin != fdout) close_fd_or_handle(fdout);
+    close_fd_or_socket(fdin);
+    if (fdin != fdout) close_fd_or_socket(fdout);
     fdout = -1;
 }
 
