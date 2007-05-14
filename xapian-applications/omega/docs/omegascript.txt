@@ -277,9 +277,11 @@ $percentage
 	percentage score of current hit (in range 1-100).
 
 $prettyterm{TERM}
-	convert a term to "user form", as it might be entered in a query
-	(currently `Rbeckham' -> `Beckham'; `footbal' -> `"footbal"').
-	Also looks at unstemmed forms entered in the query.
+	convert a term to "user form", as it might be entered in a query.  If
+	a matching term was entered in the query, just use that (the first
+	occurrence if a term was generated multiple times from a query).
+	Otherwise term prefixes are converted back to user forms as specified
+	by $setmap{prefix,...} and $setmap{boolprefix,...}.
 
 $query
 	query string (built from cgi P variable(s) plus possible added
