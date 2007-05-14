@@ -694,19 +694,35 @@ static bool test_qp_flag_wildcard1()
     // present, the query could still match documents).
     qobj = queryparser.parse_query("foo* main", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
+    qobj = queryparser.parse_query("main foo*", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
     qobj = queryparser.parse_query("+foo* main", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("main +foo*", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = queryparser.parse_query("foo* +main", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
+    qobj = queryparser.parse_query("+main foo*", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
     qobj = queryparser.parse_query("+foo* +main", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("+main +foo*", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = queryparser.parse_query("foo* mai", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=2))");
+    qobj = queryparser.parse_query("mai foo*", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=1))");
     qobj = queryparser.parse_query("+foo* mai", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("mai +foo*", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = queryparser.parse_query("foo* +mai", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=2))");
+    qobj = queryparser.parse_query("+mai foo*", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=1))");
     qobj = queryparser.parse_query("+foo* +mai", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("+mai +foo*", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = queryparser.parse_query("-foo* main", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
@@ -716,6 +732,21 @@ static bool test_qp_flag_wildcard1()
     TEST_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_NOT bar:(pos=3)))");
     qobj = queryparser.parse_query("main -bar -foo*", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_NOT bar:(pos=2)))");
+    // Check with OP_AND too.
+    queryparser.set_default_op(Xapian::Query::OP_AND);
+    qobj = queryparser.parse_query("foo* main", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("main foo*", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    queryparser.set_default_op(Xapian::Query::OP_AND);
+    qobj = queryparser.parse_query("+foo* main", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("main +foo*", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    qobj = queryparser.parse_query("-foo* main", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
+    qobj = queryparser.parse_query("main -foo*", flags);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
     return true;
 }
 

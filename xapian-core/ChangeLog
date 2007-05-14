@@ -1,3 +1,7 @@
+Mon May 14 18:02:22 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add more testcases for wildcarded queries.
+
 Mon May 14 17:39:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix handling of partial queries.
