@@ -191,6 +191,8 @@ class Term {
 
     QpQuery * as_wildcarded_query(State * state) const;
 
+    QpQuery * as_partial_query(State * state_) const;
+
     QpQuery as_query_object() const { return QpQuery(make_term(), 1, pos); }
 };
 
@@ -289,17 +291,38 @@ Term::as_wildcarded_query(State * state_) const
 {
     Database db = state_->get_database();
     TermIterator t = db.allterms_begin();
-    t.skip_to(name);
+    string root = Xapian::Unicode::tolower(unstemmed);
+    t.skip_to(root);
     QpQuery q;
-    while (t != db.allterms_end() && (*t).substr(0, name.size()) == name) {
+    while (t != db.allterms_end() && (*t).substr(0, root.size()) == root) {
 	add_to_query(q, Query::OP_OR, QpQuery(*t, 1, pos));
 	++t;
     }
+    delete this;
     if (q.get().empty()) {
 	return new QpQuery(true);
     } else {
 	return new QpQuery(q);
     }
+}
+
+QpQuery *
+Term::as_partial_query(State * state_) const
+{
+    Database db = state_->get_database();
+    TermIterator t = db.allterms_begin();
+    string root = Xapian::Unicode::tolower(unstemmed);
+    t.skip_to(root);
+    QpQuery q;
+    while (t != db.allterms_end() && (*t).substr(0, root.size()) == root) {
+	add_to_query(q, Query::OP_OR, QpQuery(*t, 1, pos));
+	++t;
+    }
+    // Add the term as it would normally be handled as an alternative.
+    add_to_query(q, Query::OP_OR, as_query());
+    Assert(!q.get().empty());
+    delete this;
+    return new QpQuery(q);
 }
 
 inline bool
@@ -754,7 +777,7 @@ phrased_term:
 			if (flags & FLAG_PARTIAL) {
 			    // Final term of a partial match query, with no
 			    // following characters - treat as a wildcard.
-			    Parse(pParser, WILD_TERM, term_obj, &state);
+			    Parse(pParser, PARTIAL_TERM, term_obj, &state);
 			    continue;
 			}
 		    }
@@ -911,9 +934,14 @@ class TermList {
 // of all punctuation which does this).
 %destructor PHR_TERM {delete $$;}
 
-// WILD_TERM is like a TERM, but has a trailing wildcard which need to be
+// WILD_TERM is like a TERM, but has a trailing wildcard which needs to be
 // expanded.
 %destructor WILD_TERM {delete $$;}
+
+// PARTIAL_TERM is like a TERM, but it's at the end of the query string and
+// we're doing "search as you type".  It expands to something like WILD_TERM
+// OR stemmed_form.
+%destructor PARTIAL_TERM {delete $$;}
 
 // BOOLEAN_FILTER is a query term with a prefix registered using
 // add_bool_prefix().  It's added to the query using a FILTER operator,
@@ -1196,10 +1224,11 @@ term(T) ::= compound_term(U). {
 %type compound_term {QpQuery *}
 %destructor compound_term {delete $$;}
 
-compound_term(T) ::= WILD_TERM(U). {
-    T = U->as_wildcarded_query(state);
-    delete U;
-}
+compound_term(T) ::= WILD_TERM(U).
+	{ T = U->as_wildcarded_query(state); }
+
+compound_term(T) ::= PARTIAL_TERM(U).
+	{ T = U->as_partial_query(state); }
 
 compound_term(T) ::= QUOTE phrase(P) QUOTE.
 	{ T = P->as_phrase_query(); }

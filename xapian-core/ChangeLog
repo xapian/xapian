@@ -1,3 +1,7 @@
+Mon May 14 17:39:30 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix handling of partial queries.
+
 Mon May 14 16:49:46 BST 2007  Olly Betts <olly@survex.com>
 
 	* net/remoteconnection.cc: closesocket() seems to work equally as
