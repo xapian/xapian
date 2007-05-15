@@ -81,7 +81,7 @@ Debugging memory allocations
 ============================
 
 The testsuite can make use of valgrind to check for memory leaks and reads
-from uninitialised memory durings tests.  This restricts the platforms which
+from uninitialised memory during tests.  This restricts the platforms which
 we can catch leaks on (valgrind currently supports x86, x86_64, and powerpc
 Linux reliably, with other ports being investigated).  However Xapian contains
 very little platform specific code (and most of what there is is Windows
@@ -215,7 +215,7 @@ If you're building code from SVN, you'll want to configure with:
 This will be done for you if you use the top-level bootstrap script and then
 run the top-level configure this produces (see below for more information about
 this).  If you don't enable maintainer mode, then rules to rebuild generated
-sources are disabled (and similarly for rules to build documentation are only
+sources are disabled (and similarly rules to build documentation are only
 enabled by --enable-documentation, or --enable-maintainer-mode without
 --disable-documentation).
 
@@ -320,7 +320,7 @@ the top level source directory)::
   ./bootstrap
   mkdir build
   cd build
-  ../bootstrap
+  ../configure
 
 When running bootstrap, you may need to add extra macro directories to the path
 searched by aclocal (which is part of automake) - you can do this by specifying
@@ -1046,7 +1046,7 @@ updated as follows:
   so that upgrading between distributions works).  The corresponding dapper
   version would be 0.9.6-1.99dapper (and similarly for edgy).
 
-* Build debs for stable, unstable, dapper, and edgy.  The scripts
+* Build debs for stable, unstable, dapper, edgy, and feisty.  The scripts
   xapian-maintainer-tools/debian/create-chroot and
   xapian-maintainer-tools/debian/build-packages allow building these in
   a series of chroots on a single machine using pbuilder.

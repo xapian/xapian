@@ -1,3 +1,8 @@
+Tue May 15 01:24:08 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Fix a few typos.  Add "feisty" to the list of debs to
+	  build.
+
 Tue May 15 00:51:35 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* HACKING: Document that the bootstrap script should be run from
