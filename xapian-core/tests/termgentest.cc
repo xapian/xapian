@@ -57,36 +57,55 @@ struct test {
 };
 
 static test test_simple[] = {
-    // A very basic test
-    { "", "simple-example", "example:[2] simple:[1]" },
+    // A basic test with a hyphen
+    { "", "simple-example", "example[2] simple[1]" },
     { "cont,weight=2",
 	  "simple-example", "example:3[2,104] simple:3[1,103]" },
 
     // Test parsing of initials
-    { "", "I.B.M.", "ibm:[1]" },
-    { "", "I.B.M", "ibm:[1]" },
-    { "", "I.B.", "ib:[1]" },
-    { "", "I.B", "ib:[1]" },
-    { "", "I.", "i:[1]" },
+    { "", "I.B.M.", "ibm[1]" },
+    { "", "I.B.M", "ibm[1]" },
+    { "", "I.B.", "ib[1]" },
+    { "", "I.B", "ib[1]" },
+    { "", "I.", "i[1]" },
 
     // Test parsing initials with a stemmer.
     { "stem=en",
-	  "I.B.M.", "ibm:[1]" },
-    { "", "I.B.M", "ibm:[1]" },
-    { "", "I.B.", "ib:[1]" },
-    { "", "I.B", "ib:[1]" },
-    { "", "I.", "i:[1]" },
+	  "I.B.M.", "Zibm:1 ibm[1]" },
+    { "", "I.B.M", "Zibm:1 ibm[1]" },
+    { "", "I.B.", "Zib:1 ib[1]" },
+    { "", "I.B", "Zib:1 ib[1]" },
+    { "", "I.", "Zi:1 i[1]" },
+    { "", "I.B.M. P.C.", "Zibm:1 Zpc:1 ibm[1] pc[2]" },
+    { "", "I.B.M P.C.", "Zibm:1 Zpc:1 ibm[1] pc[2]" },
+
+    // Test parsing numbers
+    { "", "1.0 1000,000.99 0.9.9,", "0.9.9[3] 1.0[1] 1000,000.99[2]" },
+    { "", "Pi is 3.1415926536 approximately", "3.1415926536[3] Zapproxim:1 Zis:1 Zpi:1 approximately[4] is[2] pi[1]"},
+
+    // Assorted tests, corresponding to tests in queryparsertest.
+    { "", "time_t", "Ztime_t:1 time_t[1]" },
+    { "", "stock -cooking", "Zcook:1 Zstock:1 cooking[2] stock[1]" },
+    { "", "d- school report", "Zd:1 Zreport:1 Zschool:1 d[1] report[3] school[2]" },
+    { "", "gtk+ -gnome", "Zgnome:1 Zgtk+:1 gnome[2] gtk+[1]" },
+    { "", "c++ -d--", "Zc++:1 Zd:1 c++[1] d[2]" },
+    { "", "cd'r toebehoren", "Zcd'r:1 Ztoebehoren:1 cd'r[1] toebehoren[2]" },
+
+
+
+    // All following tests are for things which we probably don't really want to
+    // behave as they currently do, but we haven't found a sufficiently general
+    // way to implement them yet.
+
+    // Test number like things
+    { "", "11:59", "11[1] 59[2]" },
+    { "", "11:59am", "11[1] 59am[2]" },
 
     { NULL, NULL, NULL }
 };
 
 #if 0
 // These are the queries from the main query parser test.  We'll gradually convert them into termgenerator test cases.
-    { "time_t", "Ztime_t:(pos=1)" },
-    { "stock -cooking", "(Zstock:(pos=1) AND_NOT Zcook:(pos=2))" },
-    { "d- school report", "(Zd:(pos=1) OR Zschool:(pos=2) OR Zreport:(pos=3))" },
-    { "gtk+ -gnome", "(Zgtk+:(pos=1) AND_NOT Zgnome:(pos=2))" },
-    { "c++ -d--", "(Zc++:(pos=1) AND_NOT Zd:(pos=2))" },
     { "Mg2+ Cl-", "(mg2+:(pos=1) OR cl:(pos=2))" },
     { "\"c++ library\"", "(c++:(pos=1) PHRASE 2 library:(pos=2))" },
     { "A&L A&RMCO AD&D", "(a&l:(pos=1) OR a&rmco:(pos=2) OR ad&d:(pos=3))" },
@@ -574,7 +593,6 @@ static test test_simple[] = {
     { "NEAR 207 46 249 27", "(near:(pos=1) OR 207:(pos=2) OR 46:(pos=3) OR 249:(pos=4) OR 27:(pos=5))" },
     { "- NEAR 12V voeding", "(near:(pos=1) OR 12v:(pos=2) OR Zvoed:(pos=3))" },
     { "waarom \"~\" in directorynaam", "(Zwaarom:(pos=1) OR Zin:(pos=2) OR Zdirectorynaam:(pos=3))" },
-    { "cd'r NEAR toebehoren", "(cd'r:(pos=1) NEAR 11 toebehoren:(pos=2))" },
 #endif
 
 static string format_doc_termlist(const Xapian::Document doc)
@@ -587,8 +605,8 @@ static string format_doc_termlist(const Xapian::Document doc)
 	output += *it;
 	if (it.positionlist_count() != 0) {
 	    // If we've got a position list, only display the wdf if it's not the length of the positionlist.
-	    output += ":";
 	    if (it.get_wdf() != it.positionlist_count()) {
+	        output += ":";
 		output += om_tostring(it.get_wdf());
 	    }
 	    char ch = '[';
