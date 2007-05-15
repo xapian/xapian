@@ -662,7 +662,7 @@ static bool test_termgen1()
 		termgen.set_stemmer(Xapian::Stem(stemmer));
 	    } else if (strncmp(o, "prefix=", 7) == 0) {
 		o += 7;
-		prefix.clear();
+		prefix.resize(0);
 		while (*o != '\0' && *o != ',') {
 		    prefix += *o;
 		    ++o;

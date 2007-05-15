@@ -1,3 +1,7 @@
+Tue May 15 22:46:39 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/termgentest.cc: Use resize(0) instead of clear(), for g++2.95
+
 Tue May 15 20:25:07 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* net/remoteconnection.cc: Add a comment noting why we test
