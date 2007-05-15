@@ -1,3 +1,9 @@
+Tue May 15 18:04:17 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/termgentest.cc: Add some more tests, and rework the array
+	  of tests so that there's just a single string holding any options
+	  we want to set for the following tests.
+
 Tue May 15 16:49:17 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/Makefile.am,tests/termgentest.cc: Add new test file, for

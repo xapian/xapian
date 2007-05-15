@@ -33,18 +33,51 @@ using namespace std;
 #include "testsuite.h"
 
 struct test {
-    const char *stemmer;
-    int new_doc;
-    int weight;
+    // A string of options, separated by commas.
+    // Valid options are:
+    //  - cont: don't clear the document, so add to the previous output
+    //  - nopos: Don't store positions.
+    //  - weight=N: where N is a number - set the weight to N.
+    //  - stem=FOO: Change stemming algorithm to foo ("none" to turn off).
+    //    (this persists for subsequent tests until it's turned off).
+    //  - prefix=FOO: Use the specified prefix.
+    //    (this persists for subsequent tests until it's turned off).
+    const char *options;
+
+    // The text to be processed.
     const char *text;
-    const char *prefix;
+
+    // The expected output.
+    //
+    // This is the list of terms in the resulting document, in sorted order,
+    // followed by ":WDF" if the wdf is not equal to the length of the position
+    // list, followed by "[POSITIONS]" if positional information is stored,
+    // where POSITIONS is a comma separated list of numbers.
     const char *expect;
 };
 
 static test test_simple[] = {
-    { "none", 0, 1, "simple-example", "", "example:[2] simple:[1]" },
-    { "none", 0, 2, "simple-example", "", "example:3[2,4] simple:3[1,3]" },
-    { NULL, 0, 0, NULL, NULL, NULL }
+    // A very basic test
+    { "", "simple-example", "example:[2] simple:[1]" },
+    { "cont,weight=2",
+	  "simple-example", "example:3[2,104] simple:3[1,103]" },
+
+    // Test parsing of initials
+    { "", "I.B.M.", "ibm:[1]" },
+    { "", "I.B.M", "ibm:[1]" },
+    { "", "I.B.", "ib:[1]" },
+    { "", "I.B", "ib:[1]" },
+    { "", "I.", "i:[1]" },
+
+    // Test parsing initials with a stemmer.
+    { "stem=en",
+	  "I.B.M.", "ibm:[1]" },
+    { "", "I.B.M", "ibm:[1]" },
+    { "", "I.B.", "ib:[1]" },
+    { "", "I.B", "ib:[1]" },
+    { "", "I.", "i:[1]" },
+
+    { NULL, NULL, NULL }
 };
 
 #if 0
@@ -580,17 +613,62 @@ static bool test_termgen1()
     Xapian::TermGenerator termgen;
     Xapian::Document doc;
     termgen.set_document(doc);
+    string prefix;
 
     for (test *p = test_simple; p->text; ++p) {
-	termgen.set_stemmer(Xapian::Stem(p->stemmer));
-	if (p->new_doc) {
+	int weight = 1;
+	bool new_doc = true;
+	bool nopos = false;
+
+	const char * o = p->options;
+	while (*o != '\0') {
+	    if (*o == ',') ++o;
+	    if (strncmp(o, "cont", 4) == 0) {
+		o += 4;
+		new_doc = false;
+	    } else if (strncmp(o, "nopos", 5) == 0) {
+		o += 5;
+		nopos = true;
+	    } else if (strncmp(o, "weight=", 7) == 0) {
+		o += 7;
+		weight = atoi(o);
+		while (*o >= '0' && *o <= '9')
+		    ++o;
+	    } else if (strncmp(o, "stem=", 5) == 0) {
+		o += 5;
+		string stemmer;
+		while (*o != '\0' && *o != ',') {
+		    stemmer += *o;
+		    ++o;
+		}
+		termgen.set_stemmer(Xapian::Stem(stemmer));
+	    } else if (strncmp(o, "prefix=", 7) == 0) {
+		o += 7;
+		prefix.clear();
+		while (*o != '\0' && *o != ',') {
+		    prefix += *o;
+		    ++o;
+		}
+	    } else {
+		FAIL_TEST("Invalid options string: " << p->options);
+	    }
+	}
+
+	if (new_doc) {
 	    doc = Xapian::Document();
 	    termgen.set_document(doc);
+	} else {
+	    termgen.increase_termpos();
 	}
+
 	string expect, output;
 	expect = p->expect;
 	try {
-	    termgen.index_text(p->text, p->weight, p->prefix);
+	    if (nopos) {
+		termgen.index_text_without_positions(p->text, weight, prefix);
+	    } else {
+		termgen.index_text(p->text, weight, prefix);
+	    }
 	    output = format_doc_termlist(doc);
 	} catch (const Xapian::Error &e) {
 	    output = e.get_msg();
