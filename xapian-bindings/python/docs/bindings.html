@@ -149,7 +149,7 @@ iterate over terms in the Document):
 </table>
 
 <p>
-The Pythonic iterators used to return lists representing the appropriate item when their <code>next()</code> method is called, except PositionIter which just returns a single value.  This is being changed to an interface returning Python objects, allowing lazy evaluation of properties where appropriate, and allowing a more pythonic access to attribute values.  The sequence API is being maintained for now, so existing code should continue to work, but we recommend transitioning to the new API.  The sequence API is planned to be removed at release 1.1.0 of Xapian.
+The Pythonic iterators used to return lists representing the appropriate item when their <code>next()</code> method is called, except PositionIter which just returns a single value.  They now return Python objects, allowing lazy evaluation of properties where appropriate, and allowing a more pythonic access to attribute values.  The sequence API is being maintained for now, so existing code should continue to work, but we recommend transitioning to the new API.  The sequence API is planned to be removed at release 1.1.0 of Xapian.
 </p>
 
 <table>
