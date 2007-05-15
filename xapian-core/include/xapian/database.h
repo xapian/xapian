@@ -474,6 +474,14 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  If document ID @a did isn't currently used, the document will be
 	 *  added with document ID @a did.
 	 *
+	 *  The monotonic counter used for automatically allocating document
+	 *  IDs is increased so that the next automatically allocated document
+	 *  ID will be did + 1.  Be aware that if you use this method to
+	 *  specify a high document ID for a new document, and also use
+	 *  WritableDatabase::add_document(), Xapian may get to a state where
+	 *  this counter wraps around and will be unable to automatically
+	 *  allocate document IDs!
+	 *
 	 *  Note that changes to the database won't be immediately committed to
 	 *  disk; see flush() for more details.
 	 *
