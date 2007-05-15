@@ -23,15 +23,20 @@ Adding support for other programming languages
 
 Many languages can be done using SWIG, and it's probably easier to do so
 even though some languages may have better tools available just because it's
-less overall work.
+less overall work.  SWIG makes it particularly easy to wrap a new method for
+all the supported languages at once, often by just copying the new method
+prototype into xapian.i (and for some headers we parse the Xapian header
+directly so no work is needed!)
 
-XS bindings for Perl have been contributed for Perl, so we may as well keep
-using those, at least while they're largely supported for us.
+XS bindings for Perl have been contributed for Perl.  SWIG's Perl backend
+doesn't support directors, so we'd lose the ability to support callbacks
+(e.g. for Xapian::MatchDecider) if we switched these to use SWIG.
 
 We also currently have hand written JNI bindings for Java.  The plan is to
 move these over to using SWIG to reduce the maintenance cost (the SWIG
 generated bindings are also somewhat smaller, and allow us to support
-GCJ's CNI alternative to JNI).
+GCJ's CNI alternative to JNI).  Some work has been done and can be found
+in the java-swig subdirectory.
 
 What's really needed is someone interested in bindings for a particular
 language who knows that language well and will be using them actively.
@@ -53,9 +58,15 @@ language, how well you know it, and how well SWIG supports it.
 These are languages which SWIG supports and which people have done some work
 on producing Xapian bindings for:
 
-Guile		rm@fabula.de has done some work on getting Guile bindings
-   		working, but sadly most of this was lost when his laptop's
-		hard disk died.
+Pike		Bill Welliver has written some Pike bindings for Xapian
+		covering some of the API, which are available from here:
+		http://modules.gotpike.org/module_info.html?module_id=42
+		These bindings appear to be hand-coded rather than generated
+		using SWIG.
+
+Guile		rm@fabula.de did some work on getting Guile bindings working,
+		but sadly most of this was lost when his laptop's hard disk
+		died.
 
 These are the other languages which SWIG supports, but which nobody has yet
 (to our knowledge!) worked on producing Xapian bindings for (from

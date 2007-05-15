@@ -23,22 +23,28 @@ for real world use:
 
 Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
 		See java/README for Java binding specific information.
-Perl		Perl XS bindings contributed by Alex Bowley are available
-		from CPAN (module Search::Xapian).
+
+Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
+	        by Olly Betts are available from CPAN (module Search::Xapian).
+
 PHP		Requires PHP 4 or 5.
+
 Python		Requires Python 2.2 or later.
+
 Ruby		Requires Ruby 1.8 or later (brief tests show the bindings
 		probably work with at least Ruby 1.6.8 too, but smoketest.rb
 		doesn't because the test/unit module isn't available and
 		apparently Ruby versions < 1.8 are no longer in common use).
+
 Tcl		Requires Tcl 8.1 or later (Tcl 8.0 could be made to work
 		without too much work).
+
 C#		Tested with Mono C# 1.0.8 and 1.1.8 and Portable.NET 0.6.12.
 		Also tested with Mono C# 1.2.3.1 - note that for Mono
 		runtimes from 1.2 onwards, you need to compile with gmcs
-		instead of with mcs.  Configure prefers to use gmcs if it
-		is present, but you can run `./configure CSC=mcs' to prefer
-		mcs?
+		instead of with mcs or you'll get segmentation faults at
+		runtime.  Configure prefers to use gmcs if it is present, but
+		you can run `./configure CSC=mcs' to prefer mcs.
 
 
 If you're interest in getting other languages supported, see the "Adding
