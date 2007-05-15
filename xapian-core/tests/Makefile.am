@@ -42,11 +42,12 @@ endif
 ## Test programs to be run
 TESTS = $(quartz_tests) \
  apitest$(EXEEXT) internaltest$(EXEEXT) stemtest$(EXEEXT) \
- queryparsertest$(EXEEXT)
+ queryparsertest$(EXEEXT) \
+ termgentest$(EXEEXT)
 
 ## Programs to build
 check_PROGRAMS = $(quartz_check_programs) \
- apitest internaltest stemtest queryparsertest
+ apitest internaltest stemtest queryparsertest termgentest
 
 # Make sure runtest is up to date before running tests
 check_SCRIPTS = runtest
@@ -79,6 +80,10 @@ quartztest_LDADD = ../libgetopt.la ../libxapian.la
 queryparsertest_SOURCES = queryparsertest.cc $(testharness_sources)
 queryparsertest_LDFLAGS = -no-install $(ldflags)
 queryparsertest_LDADD = ../libgetopt.la ../libxapian.la
+
+termgentest_SOURCES = termgentest.cc $(testharness_sources)
+termgentest_LDFLAGS = -no-install $(ldflags)
+termgentest_LDADD = ../libgetopt.la ../libxapian.la
 
 ## Distribute test data:
 EXTRA_DIST =\
