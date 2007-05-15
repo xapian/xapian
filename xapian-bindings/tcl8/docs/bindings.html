@@ -17,6 +17,18 @@ Tcl8 bindings based on the simple examples from <code>xapian-examples</code>:
 <!-- <a href="examples/simpleexpand.py">simpleexpand.py</a>. -->
 </p>
 
+<h2>Unicode Support</h2>
+
+<p>
+In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
+Xapian::TermGenerator classes all assume text is in UTF-8.  Tcl8 uses
+UTF-8 as its internal representation, except that ASCII nul (character value
+0) is represented as the overlong (and thus invalid) UTF-8 sequence
+<code>\xc0\x80</code>.  We don't current convert this to/from
+<code>\x00</code> so you should avoid passing strings containing ASCII nul
+to/from Xapian from Tcl8.
+</p>
+
 <h2>Destructors</h2>
 
 <p>
