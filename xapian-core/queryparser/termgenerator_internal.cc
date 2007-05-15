@@ -48,11 +48,6 @@ U_isupper(unsigned ch) {
     return (ch < 128 && C_isupper((unsigned char)ch));
 }
 
-inline unsigned check_wordchar(unsigned ch) {
-    if (Unicode::is_wordchar(ch)) return Unicode::tolower(ch);
-    return 0;
-}
-
 inline bool
 should_stem(const std::string & term)
 {
@@ -109,6 +104,8 @@ inline unsigned check_suffix(unsigned ch) {
     return 0;
 }
 
+using Unicode::is_wordchar;
+
 // FIXME: add API for this:
 #define STOPWORDS_NONE 0
 #define STOPWORDS_IGNORE 1
@@ -124,22 +121,21 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 
     while (true) {
 	// Advance to the start of the next term.
-	unsigned ch;
 	while (true) {
 	    if (itor == Utf8Iterator()) return;
-	    ch = check_wordchar(*itor);
-	    if (ch) break;
+	    if (is_wordchar(*itor)) break;
 	    ++itor;
 	}
 
 	string term = prefix;
 	// Look for initials separated by '.' (e.g. P.T.O., U.N.C.L.E).
 	// Don't worry if there's a trailing '.' or not.
-	if (U_isupper(*itor)) {
+	unsigned ch = *itor;
+	if (U_isupper(ch)) {
 	    const Utf8Iterator end;
 	    Utf8Iterator p = itor;
 	    do {
-		Unicode::append_utf8(term, Unicode::tolower(*p++));
+		Unicode::append_utf8(term, *p++);
 	    } while (p != end && *p == '.' && ++p != end && U_isupper(*p));
 	    // One letter does not make an acronym!  If we handled a single
 	    // uppercase letter here, we wouldn't catch M&S below.
@@ -160,16 +156,16 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 		Unicode::append_utf8(term, ch);
 		prevch = ch;
 		if (++itor == Utf8Iterator()) goto endofterm;
-		ch = check_wordchar(*itor);
-	    } while (ch);
+		ch = *itor;
+	    } while (is_wordchar(ch));
 
 	    Utf8Iterator next(itor);
 	    ++next;
 	    if (next == Utf8Iterator()) break;
-	    unsigned nextch = check_wordchar(*next);
-	    if (!nextch) break;
+	    unsigned nextch = *next;
+	    if (!is_wordchar(nextch)) break;
 	    unsigned infix_ch = *itor;
-	    if (is_digit(prevch) && is_digit(*next)) {
+	    if (is_digit(prevch) && is_digit(nextch)) {
 		infix_ch = check_infix_digit(infix_ch);
 	    } else {
 		// Handle things like '&' in AT&T, apostrophes, etc.
@@ -197,24 +193,25 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 endofterm:
 	if (term.size() > MAX_PROB_TERM_LENGTH) continue;
 
+	string lc_term = Unicode::tolower(term);
 	if (stop_mode == STOPWORDS_IGNORE && (*stopper)(term)) continue;
 
 	if (with_positions) {
-	    doc.add_posting(term, ++termpos, weight);
+	    doc.add_posting(lc_term, ++termpos, weight);
 	} else {
-	    doc.add_term(term, weight);
+	    doc.add_term(lc_term, weight);
 	}
 
 	if (!stemmer.internal.get()) continue;
 
-	if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY && (*stopper)(term))
+	if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY && (*stopper)(lc_term))
 	    continue;
 
 	if (!should_stem(term)) continue;
 
 	// Add stemmed form without positional information.
 	string stem("Z");
-	stem += stemmer(term);
+	stem += stemmer(lc_term);
 	doc.add_term(stem, weight);
     }
 }
