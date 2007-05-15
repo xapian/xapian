@@ -1,3 +1,7 @@
+Tue May 15 16:20:20 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/unicode.h: Make single parameter ctor explicit.
+
 Tue May 15 16:00:24 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/termgenerator_internal.cc: Add special handling for

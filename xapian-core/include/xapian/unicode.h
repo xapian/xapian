@@ -94,7 +94,7 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *
      *  @param p A pointer to the start of the null terminated string to read.
      */
-    Utf8Iterator(const char *p_);
+    explicit Utf8Iterator(const char *p_);
 
     /** Create an iterator given a pointer and a length.
      *
