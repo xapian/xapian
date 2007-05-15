@@ -1,3 +1,9 @@
+Tue May 15 18:31:21 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/termgenerator_internal.cc: Revert previous change - we
+	  need to generate Zibm and Zpc from text `I.B.M. P.C.' or else a
+	  search for `ibm pc' won't match.
+
 Tue May 15 18:22:44 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/termgenerator_internal.cc: Sort out stemming of
