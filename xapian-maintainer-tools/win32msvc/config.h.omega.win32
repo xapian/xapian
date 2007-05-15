@@ -1,7 +1,7 @@
 /* Hand written and maintained config.h for MSVC nmake file build. */
 
 /* Define if ftime returns void */
-/* #undef FTIME_RETURNS_VOID */
+#define FTIME_RETURNS_VOID 1
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 /* #undef HAVE_ARPA_INET_H */
@@ -10,7 +10,7 @@
 /* #undef HAVE_DLFCN_H */
 
 /* Define to 1 if you have the `ftime' function. */
-/* #undef HAVE_FTIME */
+#define HAVE_FTIME 1
 
 /* Define to 1 if you have the `gettimeofday' function. */
 /* #undef HAVE_GETTIMEOFDAY */
@@ -25,7 +25,7 @@
 /* #undef HAVE_LSTAT */
 
 /* Define to 1 if you have the <memory.h> header file. */
-/* #undef HAVE_MEMORY_H */
+#define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the `mkdtemp' function. */
 /* #undef HAVE_MKDTEMP */
@@ -55,10 +55,10 @@
 #define HAVE_STRING_H 1
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-/* #undef HAVE_SYS_STAT_H */
+#define HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-/* #undef HAVE_SYS_TYPES_H */
+#define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <sys/wait.h> header file. */
 /* #undef HAVE_SYS_WAIT_H */
@@ -100,7 +100,7 @@
 /* #undef SNPRINTF_ISO */
 
 /* Define to 1 if you have the ANSI C header files. */
-/* #undef STDC_HEADERS */
+#define STDC_HEADERS 1
 
 /* Define if iconv() should be used for converting character sets. */
 /* USE_ICONV */
