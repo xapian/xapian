@@ -48,6 +48,18 @@ inline unsigned check_wordchar(unsigned ch) {
     return 0;
 }
 
+inline bool
+should_stem(const std::string & term)
+{
+    const unsigned int SHOULD_STEM_MASK =
+	(1 << Unicode::LOWERCASE_LETTER) |
+	(1 << Unicode::TITLECASE_LETTER) |
+	(1 << Unicode::MODIFIER_LETTER) |
+	(1 << Unicode::OTHER_LETTER);
+    Utf8Iterator u(term);
+    return ((SHOULD_STEM_MASK >> Unicode::get_category(*u)) & 1);
+}
+
 inline unsigned check_infix(unsigned ch) {
     if (ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {
 	// Unicode includes all these except '&' in it's word boundary rules,
@@ -60,6 +72,30 @@ inline unsigned check_infix(unsigned ch) {
     // 0x201b is Unicode single opening quote with the tail rising.
     if (ch == 0x2019 || ch == 0x201b) return '\'';
     return 0;
+}
+
+inline unsigned check_infix_digit(unsigned ch) {
+    // This list of characters comes from Unicode's word identifying algorithm.
+    switch (ch) {
+	case ',':
+	case '.':
+	case ';':
+	case 0x037e: // GREEK QUESTION MARK
+	case 0x0589: // ARMENIAN FULL STOP
+	case 0x060D: // ARABIC DATE SEPARATOR
+	case 0x07F8: // NKO COMMA
+	case 0x2044: // FRACTION SLASH
+	case 0xFE10: // PRESENTATION FORM FOR VERTICAL COMMA
+	case 0xFE13: // PRESENTATION FORM FOR VERTICAL COLON
+	case 0xFE14: // PRESENTATION FORM FOR VERTICAL SEMICOLON
+	    return ch;
+    }
+    return 0;
+}
+
+inline bool
+is_digit(unsigned ch) {
+    return (Unicode::get_category(ch) == Unicode::DECIMAL_DIGIT_NUMBER);
 }
 
 inline unsigned check_suffix(unsigned ch) {
@@ -93,26 +129,30 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 
 	string term = prefix;
 	while (true) {
+	    unsigned prevch;
 	    do {
 		Unicode::append_utf8(term, ch);
+		prevch = ch;
 		if (++itor == Utf8Iterator()) goto endofterm;
 		ch = check_wordchar(*itor);
 	    } while (ch);
 
-	    // Handle things like '&' in AT&T, apostrophes, etc.
-	    unsigned infix_ch = check_infix(*itor);
-	    if (!infix_ch) break;
 	    Utf8Iterator next(itor);
 	    ++next;
-
-	    // Need to handle the possibility that a character is both infix
-	    // and suffix.
 	    if (next == Utf8Iterator()) break;
-	    itor = next;
-	    ch = check_wordchar(*itor);
-	    if (!ch) break;
-
+	    unsigned nextch = check_wordchar(*next);
+	    if (!nextch) break;
+	    unsigned infix_ch = *itor;
+	    if (is_digit(prevch) && is_digit(*next)) {
+		infix_ch = check_infix_digit(infix_ch);
+	    } else {
+		// Handle things like '&' in AT&T, apostrophes, etc.
+		infix_ch = check_infix(infix_ch);
+	    }
+	    if (!infix_ch) break;
 	    Unicode::append_utf8(term, infix_ch);
+	    ch = nextch;
+	    itor = next;
 	}
 
 	{
@@ -143,6 +183,8 @@ endofterm:
 
 	if (stop_mode == STOPWORDS_INDEX_UNSTEMMED_ONLY && (*stopper)(term))
 	    continue;
+
+	if (!should_stem(term)) continue;
 
 	// Add stemmed form without positional information.
 	string stem("Z");

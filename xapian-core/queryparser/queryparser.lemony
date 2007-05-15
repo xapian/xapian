@@ -66,6 +66,11 @@ is_not_wordchar(unsigned ch) {
     return !is_wordchar(ch);
 }
 
+inline bool
+is_digit(unsigned ch) {
+    return (Unicode::get_category(ch) == Unicode::DECIMAL_DIGIT_NUMBER);
+}
+
 // FIXME: we used to keep trailing "-" (e.g. Cl-) but it's of dubious utility
 // and there's the risk of hyphens getting stuck onto the end of terms...
 inline bool
@@ -368,6 +373,25 @@ inline unsigned check_infix(unsigned ch) {
     return 0;
 }
 
+inline unsigned check_infix_digit(unsigned ch) {
+    // This list of characters comes from Unicode's word identifying algorithm.
+    switch (ch) {
+	case ',':
+	case '.':
+	case ';':
+	case 0x037e: // GREEK QUESTION MARK
+	case 0x0589: // ARMENIAN FULL STOP
+	case 0x060D: // ARABIC DATE SEPARATOR
+	case 0x07F8: // NKO COMMA
+	case 0x2044: // FRACTION SLASH
+	case 0xFE10: // PRESENTATION FORM FOR VERTICAL COMMA
+	case 0xFE13: // PRESENTATION FORM FOR VERTICAL COLON
+	case 0xFE14: // PRESENTATION FORM FOR VERTICAL SEMICOLON
+	    return ch;
+    }
+    return 0;
+}
+
 struct yyParser;
 
 // Prototype the functions lemon generates.
@@ -536,6 +560,8 @@ main_lex_loop:
 	    continue;
 	}
 
+	Assert(is_wordchar(*it));
+
 	newprev = 'A'; // Any letter will do...
 
 	// A term, a prefix, or a boolean operator.
@@ -637,20 +663,28 @@ phrased_term:
 	bool was_acronym = !term.empty();
 
 	if (term.empty()) {
-	    while (it != end) {
+	    unsigned prevch = *it;
+	    Unicode::append_utf8(term, prevch);
+	    while (++it != end) {
 		unsigned ch = *it;
 		if (!is_wordchar(ch)) {
 		    // Treat a single embedded '&' or "'" or similar as a word
 		    // character (e.g. AT&T, Fred's).  Also, normalise
 		    // apostrophes to ASCII apostrophe.
-		    ch = check_infix(ch);
-		    if (!ch) break;
 		    Utf8Iterator p = it;
 		    ++p;
 		    if (p == end || !is_wordchar(*p)) break;
+		    unsigned nextch = *p;
+		    if (is_digit(prevch) &&
+			is_digit(nextch)) {
+			ch = check_infix_digit(ch);
+		    } else {
+			ch = check_infix(ch);
+		    }
+		    if (!ch) break;
 		}
 		Unicode::append_utf8(term, ch);
-		++it;
+		prevch = ch;
 	    }
 	    if (it != end && is_suffix(*it)) {
 		string suff_term = term;
