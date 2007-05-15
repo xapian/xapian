@@ -90,6 +90,12 @@ TermGenerator::get_termpos() const
     return internal->termpos;
 }
 
+void
+TermGenerator::set_termpos(Xapian::termcount termpos)
+{
+    internal->termpos = termpos;
+}
+
 string
 TermGenerator::get_description() const
 {
