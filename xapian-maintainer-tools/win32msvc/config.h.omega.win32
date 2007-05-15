@@ -81,7 +81,7 @@
 #undef STDC_HEADERS
 
 /* Define to `int' if <sys/types.h> does not define. */
-#define pid_t DWORD
+/* #undef pid_t */
 
 /* Define to `int' if <sys/types.h> does not define. */
 #define mode_t int
