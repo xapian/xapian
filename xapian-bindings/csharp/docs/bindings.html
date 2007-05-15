@@ -22,6 +22,24 @@ zero byte safe.  If you try to handle string containing zero bytes, you'll
 find they get truncated at the zero byte.
 </p>
 
+<h2>Unicode Support</h2>
+
+<p>
+In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
+Xapian::TermGenerator classes all assume text is in UTF-8.  If you're
+using Mono on UNIX with a UTF-8 locale (which is the default on most
+modern Linux distributions), then Xapian appears to get passed Unicode
+strings as UTF-8, so it should just work.  We tested with Mono 1.2.3.1
+using the Mono C# 2.0 compiler (gmcs).
+</p>
+
+<p>
+However, Microsoft and Mono's C# implementations apparently take
+rather different approaches to Unicode, and we've not tested with
+Microsoft's implementation.  If you try it, please report how well
+it works (or how badly it fails...)
+</p>
+
 <h2>Method Naming Conventions</h2>
 
 <p>

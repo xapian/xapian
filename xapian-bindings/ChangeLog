@@ -1,3 +1,8 @@
+Tue May 15 17:47:30 BST 2007  Olly Betts <olly@survex.com>
+
+	* README: Tweak wording.
+	* csharp/docs/bindings.html: Document Unicode support.
+
 Tue May 15 16:42:32 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING,README: Various updates.
