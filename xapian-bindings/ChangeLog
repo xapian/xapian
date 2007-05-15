@@ -1,3 +1,7 @@
+Tue May 15 04:35:10 BST 2007  Olly Betts <olly@survex.com>
+
+	* php/docs/bindings.html: Add note about Unicode support.
+
 Mon May 14 19:42:06 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/smoketest.py: Fix query tests to match the output of the

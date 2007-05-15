@@ -20,7 +20,8 @@ corresponding C++ types in the bindings, so generally you can pass arguments as
 you would expect.  One thing to be aware of though is that SWIG implements
 dispatch functions for overloaded methods based on the types of the parameters,
  so you can't always pass in a string containing a number (e.g.
-"42") where a number is expected as you usually can in PHP.  You need to
+<code>"42"</code>) where a number is expected as you usually can in PHP.
+You need to
 explicitly convert to the type required - e.g. use <code>(int)</code> to
 convert to an integer, <code>(string)</code> to string, <code>(double)</code>
 to a floating point number.
@@ -154,6 +155,17 @@ when they go out of scope - to explicitly destroy an object you can use
 
 <p>
 You invoke a method on an object using <code>$object-&gt;method_name()</code>.
+</p>
+
+<h2>Unicode Support</h2>
+
+<p>
+In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
+Xapian::TermGenerator classes all assume text is in UTF-8.  If you want
+to index strings in a different encoding, use the PHP
+<code><a href="http://php.net/iconv">iconv</a></code>
+function to convert them to UTF-8 before passing them to Xapian, and
+when reading values back from Xapian.
 </p>
 
 <h2>Iterators</h2>
