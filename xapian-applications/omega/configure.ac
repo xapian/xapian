@@ -57,6 +57,7 @@ AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h strings.h],
 dnl mingw (for instance) lacks ssize_t
 AC_CHECK_TYPE(ssize_t, int)
 AC_TYPE_MODE_T
+AC_TYPE_PID_T
 
 dnl Check for time functions.
 AC_FUNC_STRFTIME
