@@ -94,6 +94,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
      */
     void increase_termpos(Xapian::termcount delta = 100);
 
+    /// Get the current term position.
+    Xapian::termcount get_termpos() const;
+
     /// Return a string describing this object.
     std::string get_description() const;
 };

@@ -84,6 +84,12 @@ TermGenerator::increase_termpos(Xapian::termcount delta)
     internal->termpos += delta;
 }
 
+Xapian::termcount
+TermGenerator::get_termpos() const
+{
+    return internal->termpos;
+}
+
 string
 TermGenerator::get_description() const
 {
