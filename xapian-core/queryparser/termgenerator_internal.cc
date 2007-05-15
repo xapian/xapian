@@ -26,14 +26,14 @@
 #include <xapian/queryparser.h>
 #include <xapian/unicode.h>
 
+#include "utils.h"
+
 #include <algorithm>
 #include <string>
 
 using namespace std;
 
 namespace Xapian {
-
-// FIXME: handling for '.' in "I.B.M." - should generate term "IBM".
 
 // Put a limit on the size of terms to help prevent the index being bloated
 // by useless junk terms.
@@ -42,6 +42,11 @@ static const unsigned int MAX_PROB_TERM_LENGTH = 64;
 // characters - what actually makes most sense here?
 
 // FIXME: Add API to allow control of how stemming is used?
+
+inline bool
+U_isupper(unsigned ch) {
+    return (ch < 128 && C_isupper((unsigned char)ch));
+}
 
 inline unsigned check_wordchar(unsigned ch) {
     if (Unicode::is_wordchar(ch)) return Unicode::tolower(ch);
@@ -128,6 +133,27 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 	}
 
 	string term = prefix;
+	// Look for initials separated by '.' (e.g. P.T.O., U.N.C.L.E).
+	// Don't worry if there's a trailing '.' or not.
+	if (U_isupper(*itor)) {
+	    const Utf8Iterator end;
+	    Utf8Iterator p = itor;
+	    do {
+		Unicode::append_utf8(term, Unicode::tolower(*p++));
+	    } while (p != end && *p == '.' && ++p != end && U_isupper(*p));
+	    // One letter does not make an acronym!  If we handled a single
+	    // uppercase letter here, we wouldn't catch M&S below.
+	    if (term.size() > prefix.size() + 1) {
+		// Check there's not a (lower case) letter or digit
+		// immediately after it.
+		if (p == end || !Unicode::is_wordchar(*p)) {
+		    itor = p;
+		    goto endofterm;
+		}
+	    }
+	    term.resize(prefix.size());
+	}
+
 	while (true) {
 	    unsigned prevch;
 	    do {
