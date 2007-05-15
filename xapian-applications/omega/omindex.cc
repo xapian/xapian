@@ -136,8 +136,6 @@ static bool ensure_tmpdir() {
     char * dir_template = new char[strlen(p) + 15 + 1];
     strcpy(dir_template, p);
     strcat(dir_template, "/omindex-XXXXXX");
-    // FIXME: find PD or BSD or MIT/X mkdtemp implementation for platforms
-    // which lack it.
     p = mkdtemp(dir_template);
     if (p) {
 	tmpdir.assign(dir_template);

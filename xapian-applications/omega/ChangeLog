@@ -1,3 +1,7 @@
+Tue May 15 04:22:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* omindex.cc: Remove FIXME comment which has already been addressed.
+
 Mon May 14 04:38:49 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt: Update docs for $prettyterm{TERM}.
