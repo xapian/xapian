@@ -83,6 +83,11 @@ static test test_simple[] = {
     { "", "1.0 1000,000.99 0.9.9,", "0.9.9[3] 1.0[1] 1000,000.99[2]" },
     { "", "Pi is 3.1415926536 approximately", "3.1415926536[3] Zapproxim:1 Zis:1 Zpi:1 approximately[4] is[2] pi[1]"},
 
+    // Test parsing some capitalised words
+    { "", "hello World Test", "Zhello:1 Ztest:1 Zworld:1 hello[1] test[3] world[2]" },
+    { "prefix=XA", "hello", "ZXAhello:1 XAhello[1]" },
+    { "prefix=XA", "hello World Test", "ZXAhello:1 ZXAtest:1 ZXAworld:1 XAhello[1] XAtest[3] XAworld[2]" },
+
     // Assorted tests, corresponding to tests in queryparsertest.
     { "", "time_t", "Ztime_t:1 time_t[1]" },
     { "", "stock -cooking", "Zcook:1 Zstock:1 cooking[2] stock[1]" },
@@ -660,6 +665,7 @@ static bool test_termgen1()
 		    ++o;
 		}
 		termgen.set_stemmer(Xapian::Stem(stemmer));
+		tout << "Setting stemmer to: " << stemmer << '\n';
 	    } else if (strncmp(o, "prefix=", 7) == 0) {
 		o += 7;
 		prefix.resize(0);
@@ -693,7 +699,10 @@ static bool test_termgen1()
 	} catch (...) {
 	    output = "Unknown exception!";
 	}
-	tout << "Text: " << p->text << '\n';
+	if (prefix.empty())
+	    tout << "Text: " << p->text << '\n';
+	else
+	    tout << "Prefix: " << prefix << " Text: " << p->text << '\n';
 	TEST_STRINGS_EQUAL(output, expect);
     }
     return true;
