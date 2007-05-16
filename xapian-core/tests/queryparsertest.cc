@@ -86,6 +86,7 @@ static test test_or_queries[] = {
     { "cvs -site:xapian.org", "(Zcvs:(pos=1) AND_NOT Hxapian.org)" },
     { "site:xapian.org mail", "(Zmail:(pos=1) FILTER Hxapian.org)" },
     { "-site:xapian.org mail", "(Zmail:(pos=1) AND_NOT Hxapian.org)" },
+    { "-Wredundant-decls", "(wredundant:(pos=1) PHRASE 2 decls:(pos=2))" },
     { "site:xapian.org", "Hxapian.org" },
     { "mug +site:xapian.org -site:cvs.xapian.org", "((Zmug:(pos=1) AND_NOT Hcvs.xapian.org) FILTER Hxapian.org)" },
     { "mug -site:cvs.xapian.org +site:xapian.org", "((Zmug:(pos=1) AND_NOT Hcvs.xapian.org) FILTER Hxapian.org)" },
@@ -747,6 +748,9 @@ static bool test_qp_flag_wildcard1()
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
     qobj = qp.parse_query("main -foo*", flags);
     TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
+    // Check empty wildcard followed by negation.
+    qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_WILDCARD);
+    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
     return true;
 }
 
