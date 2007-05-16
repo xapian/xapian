@@ -63,6 +63,9 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Set the current document.
     void set_document(const Xapian::Document & doc);
 
+    /// Get the current document.
+    const Xapian::Document & get_document() const;
+
     /// Index some text.
     void index_text(const Xapian::Utf8Iterator & itor,
 		    Xapian::termcount weight = 1,

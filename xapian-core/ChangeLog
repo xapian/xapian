@@ -1,3 +1,10 @@
+Wed May 16 01:09:39 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/termgenerator.h,queryparser/termgenerator.cc: Add
+	  a method to get the current document from the term generator.
+	  Helps avoid users having to pass around a structure encapsulating
+	  the generator and the document assigned to it.
+
 Wed May 16 00:50:07 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Add <xapian/output.h>.

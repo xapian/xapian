@@ -62,6 +62,12 @@ TermGenerator::set_document(const Xapian::Document & doc)
     internal->termpos = 0;
 }
 
+const Xapian::Document &
+TermGenerator::get_document() const
+{
+    return internal->doc;
+}
+
 void
 TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
 			  Xapian::termcount weight,
