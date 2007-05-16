@@ -1,3 +1,7 @@
+Wed May 16 15:11:00 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Need to try -zdll for mingw as well.
+
 Wed May 16 14:45:23 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add two more testcases.
