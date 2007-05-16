@@ -1102,7 +1102,12 @@ prob_expr(E) ::= term(T). {
 
 prob(P) ::= RANGE_START(A) RANGE_END(B). {
     QpQuery * range = state->value_range(A, B);
-    if (range == NULL) yy_parse_failed(yypParser);
+    if (range == NULL) {
+	// Already deleted, so stop yy_parse_failed deleting them again.
+	A = B = NULL;
+	yy_parse_failed(yypParser);
+	return;
+    }
     P = new ProbQuery;
     P->filter = *range;
     delete range;
@@ -1110,7 +1115,12 @@ prob(P) ::= RANGE_START(A) RANGE_END(B). {
 
 prob(P) ::= stop_prob(Q) RANGE_START(A) RANGE_END(B). {
     QpQuery * range = state->value_range(A, B);
-    if (range == NULL) yy_parse_failed(yypParser);
+    if (range == NULL) {
+	// Already deleted, so stop yy_parse_failed deleting them again.
+	A = B = NULL;
+	yy_parse_failed(yypParser);
+	return;
+    }
     P = Q;
     add_to_query(P->filter, Query::OP_AND, *range);
     delete range;
