@@ -145,6 +145,8 @@ int main(int argc, char **argv)
     RUNTESTS("remote", remotedb);
     RUNTESTS("remote", positionaldb);
     RUNTESTS("remote", doclendb);
+    RUNTESTS("remote", collfreq);
+    RUNTESTS("remote", allterms);
     RUNTESTS("remote", multivalue);
     RUNTESTS("remote", transactiondb);
 
@@ -154,6 +156,8 @@ int main(int argc, char **argv)
     RUNTESTS("remotetcp", remotedb);
     RUNTESTS("remotetcp", positionaldb);
     RUNTESTS("remotetcp", doclendb);
+    RUNTESTS("remotetcp", collfreq);
+    RUNTESTS("remotetcp", allterms);
     RUNTESTS("remotetcp", multivalue);
     RUNTESTS("remotetcp", transactiondb);
 #endif
