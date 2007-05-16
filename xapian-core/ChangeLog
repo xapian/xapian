@@ -1,3 +1,11 @@
+Thu May 17 00:49:03 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_btreebase.cc,backends/flint/flint_table.cc,
+	  backends/quartz/btree.cc,common/Makefile.mk,
+	  common/msvc_posix_wrapper.cc,common/msvc_posix_wrapper.h: Use
+	  msvc_posix_wrapper.h functions for all __WIN32__ builds, not just
+	  for MSVC.
+
 Wed May 16 23:55:46 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omdatabase.cc: Fix return type in debug macro in

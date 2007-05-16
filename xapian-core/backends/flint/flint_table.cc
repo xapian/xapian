@@ -23,7 +23,7 @@
 #include <config.h>
 
 #include "safeerrno.h"
-#ifdef _MSC_VER
+#ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
 
@@ -136,7 +136,7 @@ static int sys_open_for_readwrite(const string & name)
 
 static void sys_unlink(const string &filename)
 {
-#ifdef _MSC_VER
+#ifdef __WIN32__
     if (msvc_posix_unlink(filename.c_str()) == -1) {
 #else
     if (unlink(filename) == -1) {

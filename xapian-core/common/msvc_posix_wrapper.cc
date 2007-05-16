@@ -1,5 +1,7 @@
 /* msvc_posix_wrapper.cc: Provides wrappers with POSIX semantics under MSVC.
  *
+ * (misnamed, this isn't MSVC specific, but __WIN32__-specific)
+ *
  * Copyright (C) 2007 Lemur Consulting Ltd
  * Copyright (C) 2007 Olly Betts
  *
@@ -19,6 +21,8 @@
  */
 
 #include <config.h>
+
+#ifdef __WIN32__ /* Ignore the whole file except for __WIN32__ */
 
 #include <io.h>
 
@@ -204,3 +208,5 @@ msvc_posix_open(const char *filename, int flags)
     /* Return a standard file descriptor. */
     return _open_osfhandle((intptr_t)handleWin, flags);
 }
+
+#endif // __WIN32__

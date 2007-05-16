@@ -22,7 +22,7 @@
 #include <config.h>
 
 #include "safeerrno.h"
-#ifdef _MSC_VER
+#ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
 
@@ -204,7 +204,7 @@ bool
 FlintTable_base::read(const string & name, char ch, string &err_msg)
 {
     string basename = name + "base" + ch;
-#ifdef _MSC_VER
+#ifdef __WIN32__
     int h = msvc_posix_open(basename.c_str(), O_RDONLY | O_BINARY);
 #else
     int h = open(basename.c_str(), O_RDONLY | O_BINARY);
@@ -333,7 +333,7 @@ FlintTable_base::write_to_file(const string &filename)
     }
     buf += pack_uint(revision);  // REVISION2
 
-#ifdef _MSC_VER
+#ifdef __WIN32__
     int h = msvc_posix_open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
 #else
     int h = open(filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);

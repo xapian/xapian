@@ -1,5 +1,7 @@
 /* msvc_posix_wrapper.h: Provides wrappers with POSIX semantics under MSVC.
  *
+ * (misnamed, this isn't MSVC specific, but __WIN32__-specific)
+ *
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or

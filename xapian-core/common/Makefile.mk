@@ -10,6 +10,7 @@ noinst_HEADERS +=\
 	common/gnu_getopt.h\
 	common/inmemory_positionlist.h\
 	common/leafpostlist.h\
+	common/msvc_posix_wrapper.h\
 	common/multialltermslist.h\
 	common/multimatch.h\
 	common/networkstats.h\
@@ -47,12 +48,11 @@ noinst_HEADERS +=\
 	common/vectortermlist.h
 
 EXTRA_DIST +=\
-	common/msvc_posix_wrapper.h\
-	common/msvc_posix_wrapper.cc\
 	common/dir_contents\
 	common/Makefile
 
 libxapian_la_SOURCES +=\
+	common/msvc_posix_wrapper.cc\
 	common/omdebug.cc\
 	common/omstringstream.cc\
 	common/safe.cc\

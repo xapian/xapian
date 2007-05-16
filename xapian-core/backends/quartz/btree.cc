@@ -24,7 +24,7 @@
 
 #include "safeerrno.h"
 #include "safefcntl.h"
-#ifdef _MSC_VER
+#ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
 
@@ -107,7 +107,7 @@ static void report_cursor(int N, Btree * B, Cursor * C)
 
 int sys_open_to_read_no_except(const string & name)
 {
-#ifdef _MSC_VER
+#ifdef __WIN32__
     int fd = msvc_posix_open(name.c_str(), O_RDONLY | O_BINARY);
 #else
     int fd = open(name.c_str(), O_RDONLY | O_BINARY);
@@ -128,7 +128,7 @@ int sys_open_to_read(const string & name)
 
 static int sys_open_to_write_no_except(const string & name)
 {
-#ifdef _MSC_VER
+#ifdef __WIN32__
     int fd = msvc_posix_open(name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY);
 #else
     int fd = open(name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
@@ -230,7 +230,7 @@ int sys_flush(int h) {
 
 static void sys_unlink(const string &filename)
 {
-#ifdef _MSC_VER
+#ifdef __WIN32__
     if (msvc_posix_unlink(filename.c_str()) == -1) {
 #else
     if (unlink(filename) == -1) {
