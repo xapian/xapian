@@ -1,3 +1,9 @@
+Wed May 16 02:22:17 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/termgenerator_internal.cc: Fix handling of stemming of
+	  prefixed terms.
+	* tests/termgentest.cc: Fix testcases.
+
 Wed May 16 01:54:25 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/termgentest.cc: Add a test for parsing of capitalised words
@@ -200,7 +206,7 @@ Sat May 12 04:23:01 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Improve description of Term class.
 
-Sat May 12 04:16:47 BST 2007  Olly Betts <olly@survex.com> 
+Sat May 12 04:16:47 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Update to implement the new stemming
 	  scheme.

@@ -132,7 +132,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 	    ++itor;
 	}
 
-	string term = prefix;
+	string term;
 	// Look for initials separated by '.' (e.g. P.T.O., U.N.C.L.E).
 	// Don't worry if there's a trailing '.' or not.
 	if (U_isupper(*itor)) {
@@ -143,7 +143,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 	    } while (p != end && *p == '.' && ++p != end && U_isupper(*p));
 	    // One letter does not make an acronym!  If we handled a single
 	    // uppercase letter here, we wouldn't catch M&S below.
-	    if (term.size() > prefix.size() + 1) {
+	    if (term.size() > 1) {
 		// Check there's not a (lower case) letter or digit
 		// immediately after it.
 		if (p == end || !Unicode::is_wordchar(*p)) {
@@ -151,7 +151,7 @@ TermGenerator::Internal::index_text(Utf8Iterator itor, termcount weight,
 		    goto endofterm;
 		}
 	    }
-	    term.resize(prefix.size());
+	    term.resize(0);
 	}
 
 	while (true) {
@@ -200,9 +200,9 @@ endofterm:
 	if (stop_mode == STOPWORDS_IGNORE && (*stopper)(term)) continue;
 
 	if (with_positions) {
-	    doc.add_posting(term, ++termpos, weight);
+	    doc.add_posting(prefix + term, ++termpos, weight);
 	} else {
-	    doc.add_term(term, weight);
+	    doc.add_term(prefix + term, weight);
 	}
 
 	if (!stemmer.internal.get()) continue;
@@ -216,6 +216,7 @@ endofterm:
 
 	// Add stemmed form without positional information.
 	string stem("Z");
+	stem += prefix;
 	stem += stemmer(term);
 	doc.add_term(stem, weight);
     }
