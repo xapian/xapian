@@ -7,6 +7,4 @@ Clean up omegascript a little.
 
 Sort out some images...
 
-Query parser and indexer parser should share code somehow.
-
 Split long HTML docs at some <A NAME=...> tags.
