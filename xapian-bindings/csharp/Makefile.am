@@ -16,6 +16,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	BM25Weight.cs \
 	BoolWeight.cs \
 	Database.cs \
+	DateValueRangeProcessor.cs \
 	Document.cs \
 	ESet.cs \
 	ESetIterator.cs \
@@ -26,6 +27,7 @@ XAPIAN_SWIG_CS_SRCS=\
 	MatchDecider.cs \
 	MSet.cs \
 	MSetIterator.cs \
+	NumberValueRangeProcessor.cs \
 	PositionIterator.cs \
 	PostingIterator.cs \
 	Quartz.cs \
@@ -33,15 +35,18 @@ XAPIAN_SWIG_CS_SRCS=\
 	QueryParser.cs \
 	Remote.cs \
 	RSet.cs \
+	SWIGTYPE_p_std__string.cs \
 	SWIGTYPE_p_std__vectorTstd__string_t.cs \
 	SWIGTYPE_p_std__vectorTXapian__Query_t.cs \
 	SimpleStopper.cs \
 	Stem.cs \
 	Stopper.cs \
+	StringValueRangeProcessor.cs \
 	TermGenerator.cs \
 	TermIterator.cs \
 	TradWeight.cs \
 	ValueIterator.cs \
+	ValueRangeProcessor.cs \
 	Version.cs \
 	Weight.cs \
 	WritableDatabase.cs \

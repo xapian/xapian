@@ -1,3 +1,8 @@
+Wed May 16 09:21:15 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am,xapian.i: Add ValueRangeProcessors to the
+	  bindings, and add the OP_VALUE_RANGE query operator.
+
 Tue May 15 17:47:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* README: Tweak wording.

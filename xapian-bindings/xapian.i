@@ -834,6 +834,7 @@ class Query {
 	    OP_FILTER,
 	    OP_NEAR,
 	    OP_PHRASE,
+	    OP_VALUE_RANGE,
 	    OP_ELITE_SET = 10
 	};
 	// FIXME wrap optional arguments in PHP?
@@ -901,6 +902,52 @@ class SimpleStopper : public Stopper {
     virtual std::string get_description() const;
 };
 
+struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
+    virtual ~ValueRangeProcessor();
+    virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
+};
+
+class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangeProcessor { 
+    Xapian::valueno valno;
+
+  public:
+    StringValueRangeProcessor(Xapian::valueno valno_)
+        : valno(valno_) { }
+
+    Xapian::valueno operator()(std::string &, std::string &) {
+        return valno;
+    }
+};
+
+class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProcessor {
+    Xapian::valueno valno;
+    bool prefer_mdy;
+    int epoch_year;
+
+  public:
+    DateValueRangeProcessor(Xapian::valueno valno_, bool prefer_mdy_ = false,
+                            int epoch_year_ = 1970)
+        : valno(valno_), prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
+
+    Xapian::valueno operator()(std::string &begin, std::string &end);
+};
+
+class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangeProcessor {
+    Xapian::valueno valno;
+    bool prefix;
+    std::string str;
+
+  public:
+    NumberValueRangeProcessor(Xapian::valueno valno_)
+        : valno(valno_), prefix(false) { }
+
+    NumberValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
+                              bool prefix_ = true)
+        : valno(valno_), prefix(prefix_), str(str_) { }
+
+    Xapian::valueno operator()(std::string &begin, std::string &end);
+};
+
 class QueryParser {
 public:
     typedef enum {
@@ -939,6 +986,8 @@ public:
 
     TermIterator unstem_begin(const std::string &term) const;
     TermIterator unstem_end(const std::string &term) const;
+
+    void add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc);
 
     std::string get_description() const;
 };
