@@ -424,7 +424,7 @@ Xapian::docid
 WritableDatabase::replace_document(const std::string & unique_term,
 				   const Document & document)
 {
-    DEBUGAPICALL(void, "WritableDatabase::replace_document",
+    DEBUGAPICALL(Xapian::docid, "WritableDatabase::replace_document",
 		 unique_term << ", " << document);
     if (unique_term.empty())
 	throw InvalidArgumentError("Empty termnames are invalid");
