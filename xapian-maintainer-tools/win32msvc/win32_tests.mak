@@ -19,9 +19,10 @@ PROGRAM_INTERNALTEST= "$(OUTDIR)\internaltest.exe"
 PROGRAM_QUARTZTEST= "$(OUTDIR)\quartztest.exe" 
 PROGRAM_QUERYPARSERTEST= "$(OUTDIR)\queryparsertest.exe"
 PROGRAM_STEMTEST= "$(OUTDIR)\stemtest.exe"
+PROGRAM_TERMGENTEST= "$(OUTDIR)\termgentest.exe"
 
 ALL : $(PROGRAM_APITEST) $(PROGRAM_BTREETEST) $(PROGRAM_INTERNALTEST) \
- $(PROGRAM_QUARTZTEST) $(PROGRAM_QUERYPARSERTEST) $(PROGRAM_STEMTEST)
+ $(PROGRAM_QUARTZTEST) $(PROGRAM_QUERYPARSERTEST) $(PROGRAM_STEMTEST) $(PROGRAM_TERMGENTEST)
  
  
 APITEST : $(PROGRAM_APITEST) 
@@ -30,6 +31,7 @@ BTREETEST : $(PROGRAM_BTREETEST)
 INTERNALTEST : $(PROGRAM_INTERNALTEST)  
 QUARTZTEST : $(PROGRAM_QUARTZTEST)  
 QUERYPARSERTEST : $(PROGRAM_QUERYPARSERTEST)  
+TERMGENTEST : $(PROGRAM_TERMGENTEST)  
 
 
 DOTEST :
@@ -41,6 +43,7 @@ DOTEST :
 	quartztest
 	queryparsertest
 	stemtest
+	termgentest
 
 	
 #	remotetest
@@ -72,6 +75,8 @@ QUERYPARSERTEST_OBJS= "$(OUTDIR)\queryparsertest.obj"
 	
 REMOTETEST_OBJS= "$(OUTDIR)\remotetest.obj"	
 
+TERMGENTEST_OBJS= "$(OUTDIR)\termgentest.obj"	
+
 CLEAN :
 	-@erase $(PROGRAM_APITEST) 
 	-@erase $(PROGRAM_BTREETEST)
@@ -80,12 +85,14 @@ CLEAN :
 	-@erase $(PROGRAM_QUERYPARSERTEST) 
 	-@erase $(PROGRAM_REMOTETEST)
 	-@erase $(PROGRAM_STEMTEST)
+	-@erase $(PROGRAM_TERMGENTEST)
 	-@erase $(APITEST_OBJS)
 	-@erase $(BTREETEST_OBJS)
 	-@erase $(INTERNALTEST_OBJS)
 	-@erase $(QUARTZTEST_OBJS)
 	-@erase $(QUERYPARSERTEST_OBJS)
 	-@erase $(STEMTEST_OBJS)
+	-@erase $(TERMGENTEST_OBJS)
 	if exist ".btreetmp" rmdir ".btreetmp" /s /q
 	if exist ".flint" rmdir ".flint" /s /q
 	if exist ".quartz" rmdir ".quartz" /s /q
@@ -106,6 +113,12 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
 PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
 
 # executables
+"$(OUTDIR)\termgentest.exe" : "$(OUTDIR)" $(DEF_FILE) $(TERMGENTEST_OBJS) \
+                      $(PROGRAM_DEPENDENCIES)
+    $(LINK32) @<<
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\termgentest.exe" $(DEF_FLAGS) $(TERMGENTEST_OBJS)
+<<
+
 "$(OUTDIR)\stemtest.exe" : "$(OUTDIR)" $(DEF_FILE) $(STEMTEST_OBJS) \
                       $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
@@ -151,6 +164,11 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
 
 # cc files
   
+"$(INTDIR)\termgentest.obj" : ".\termgentest.cc"
+        $(CPP) @<<
+   $(CPP_PROJ) $**
+<<
+
 "$(INTDIR)\stemtest.obj" : ".\stemtest.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
