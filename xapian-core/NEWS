@@ -1,5 +1,5 @@
 up to:
-Thu May 17 18:27:53 BST 2007  Olly Betts <olly@survex.com>
+Thu May 17 19:06:34 BST 2007  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.0 (2007-05-17):
 
@@ -90,7 +90,7 @@ API:
     instead of `db'.
  
   + Enquire::get_eset() now produces better results when used with multiple
-    databases - without USE_EXACT_TERMFREQ they should be very similar to
+    databases - without USE_EXACT_TERMFREQ they should be much more similar to
     results from an equivalent single database; with USE_EXACT_TERMFREQ they
     should be identical.
 
