@@ -1,3 +1,7 @@
+Thu May 17 19:11:04 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Bump version to 1.0.0.
+
 Thu May 17 18:11:19 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/: Update to latest xapian-core revision to pull in 2 argument
