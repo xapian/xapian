@@ -1,3 +1,8 @@
+.. This document was originally written by Richard Boulton.
+
+.. Copyright (C) 2007 Lemur Consulting Ltd
+.. Copyright (C) 2007 Olly Betts
+
 ===========
 Deprecation
 ===========
@@ -320,9 +325,3 @@ Omega
 +----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
 | 1.0.0          | scriptindex -q                      | -q was ignored for compatibility with 0.6.1 and earlier.                                |
 +----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-
-Author
-======
-
-This document is copyright (C) 2007 Lemur Consulting Ltd, and was written by
-Richard Boulton.  Portions Copyright (C) 2007 Olly Betts.

@@ -12,9 +12,9 @@ well" - a previous version of the software powered BrightStation's Webtop
 search engine, which offered a search over around 500 million web pages (around
 1.5 terabytes of database files).  Searches took less than a second.</P>
 
-<P>The largest recent installation is probably <A
+<P>The largest recent installation we're aware of is probably <A
 HREF="http://search.gmane.org/">gmane</A>, which currently indexes
-just under 34 million mail messages.</P>
+over 45 million mail messages.</P>
 
 <H2>Benchmarking</H2>
 
@@ -41,9 +41,8 @@ work well given the nature of the data but aren't too expensive to unpack (e.g.
 lists of sorted docids are stored as differences with smaller values encoded in
 fewer bytes).  There is further potential for improving the encodings used.</P>
 
-<P>Another way to reduce disk I/O is to run databases through xapian-compact
-(or quartzcompact for quartz databases).
-The Btree managers usually leave some spare space in each block so that updates
+<P>Another way to reduce disk I/O is to run databases through xapian-compact.
+The Btree manager usually leaves some spare space in each block so that updates
 are more efficient (though there are heuristics which will fill blocks fuller
 if they detect a long sequence of sequential insertions so adding documents
 to the end of an empty database will produce fairly compact tables, apart from
@@ -64,20 +63,18 @@ It's also good for a news-type application where older documents should expire
 from the index.</P>
 
 <P>You could take this idea further by implementing an ultra-compact read-only
-backend which would take a flint/quartz b-tree and convert it to something like
+backend which would take a flint Btree and convert it to something like
 a cdb hashed file.  The same information would be stored, but with less
-overhead than the flint or quartz b-trees (which need to allow for update).  If
+overhead than the flint Btrees (which need to allow for update).  If
 you need serious performance, implementing such a backend is worth
 considering.</P>
 
 <H2>Size Limits in Xapian</H2>
 
-<P>The flint and quartz database backends (which are the backends you'd usually
-use) store
-the indexes in several files containing B-tree tables.  If you're indexing with
+<P>The flint backend (which is now the recommended backend) stores
+the indexes in several files containing Btree tables.  If you're indexing with
 positional information (for phrase searching) the term positions table is
-usually the largest (though it's significantly more compact in flint than
-in quartz.)</P>
+usually the largest.</P>
 
 <P>
 The current limits are:
@@ -94,8 +91,7 @@ The current limits are:
 
 <li>
   If you search many databases concurrently, you may hit the per-process
-  file-descriptor limit - each flint or quartz database uses 5 fds.  Some
-  Unix-like OSes
+  file-descriptor limit - each flint database uses 5 fds.  Some Unix-like OSes
   allow this limit to be raised.  Another way to avoid it (and to spread the
   search load) is to use the remote backend to search databases on a cluster of
   machines.  Flint could be made to not open fds for tables which aren't being
@@ -105,10 +101,12 @@ The current limits are:
 
 <li>
   If the OS has a filesize limit, that obviously applies to Xapian (a 2GB limit
-  is common for older operating systems).  The old Muscat36 system supported
-  splitting the B-tree over multiple 1GB files, but native support for larger
-  files is available in any serious modern OS so we don't support this in
-  the modern backends as it no longer seems necessary.
+  is common for older operating systems).  The xapian-core configure script
+  will attempt to detect and automatically enable support for "LARGE FILES"
+  where possible.  The old Muscat36 system (Xapian's proprietary precursor)
+  supported splitting the Btree over multiple 1GB files, but native support for
+  larger files is available in any serious modern OS so we don't support this
+  in the modern backends as it no longer seems necessary.
   <P>
   So what is the limit for a modern OS?  Taking Linux 2.4 with the ext2
   filing system as an example, quoting from
@@ -130,14 +128,13 @@ The current limits are:
   The B-trees use a 32-bit unsigned block count.  The default blocksize is 8K
   which limits you to 32TB tables.  You can increase the blocksize if this
   is a problem, but it's best to do it before you create the database as
-  otherwise you need to use xapian-compact or quartzcompact to rebuild the
+  otherwise you need to use xapian-compact to rebuild the
   database with the new blocksize, and that will take a while for such a large
   database.  The maximum blocksize allowed is 64K, which limits you to
   256TB tables.
 
 <li>
-  Flint and quartz store the total length (i.e. number of terms) of all the
-  documents in
+  Flint stores the total length (i.e. number of terms) of all the documents in
   a database so it can calculate the average document length.  This is
   currently stored as an unsigned 64-bit quantity so it's not likely to be a
   limit you'll hit.  It's listed for completeness.

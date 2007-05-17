@@ -1,3 +1,9 @@
+Thu May 17 17:41:15 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/: Update documentation for 1.0.0; add new document describing
+	  new term generation strategy as implemented by TermGenerator class;
+	  link in "lost" documents to the index page.
+
 Thu May 17 03:54:36 BST 2007  Olly Betts <olly@survex.com>
 
 	* exception_data.pm: Fix to work with Perl 5.6.

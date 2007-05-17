@@ -1,3 +1,9 @@
+.. This document was originally written by Richard Boulton, with funding
+.. provided by Enfold Systems.
+
+.. Copyright (C) 2006 Lemur Consulting Ltd
+.. Copyright (C) 2007 Olly Betts
+
 ============================
 Xapian Administrator's Guide
 ============================
@@ -17,7 +23,7 @@ general management of a Xapian database, including tasks such as taking
 backups and optimising performance.  It may also be useful introductory
 reading for Xapian application developers.
 
-The document is targetted at Xapian version 0.9.9.
+The document is targetted at Xapian version 1.0.0.
 
 Databases
 =========
@@ -45,22 +51,21 @@ to store any positionlist information.  However, the tables must be present,
 even if they contain no information.
 
 If you look at a Xapian database, you will see that each of these tables
-actually uses 2 or 3 files.  For example, for a "quartz" format database the
-position list table is stored in the files "position_baseA", "position_baseB"
-and "position_DB".  (For a flint database, the filenames are similar, but use
-a "." instead of an "_".)
+actually uses 2 or 3 files.  For example, for a "flint" format database the
+position list table is stored in the files "position.baseA", "position.baseB"
+and "position.DB".
 
-Of these files, only the "_DB" file actually stores the data.  The "_baseA"
-and "_baseB" files are used to keep track of where to start looking for that
-data in the "_DB" file.  Often, only one of the "_baseA" and "_baseB" files
+Of these files, only the ".DB" file actually stores the data.  The ".baseA"
+and ".baseB" files are used to keep track of where to start looking for that
+data in the ".DB" file.  Often, only one of the ".baseA" and ".baseB" files
 will be present; each of these files refers to a revision of the database, and
-there may be more than one valid revision of the database stored in the "_DB"
+there may be more than one valid revision of the database stored in the ".DB"
 file at once.
 
-The "_DB" file is structured as a set of blocks, which have a default size of
+The ".DB" file is structured as a set of blocks, which have a default size of
 8Kb (though this can be set, either through the Xapian API, or with some of
 the tools detailed later in this document).  The first block is used for
-header information, so a "_DB" file with only a single entry will be 16Kb in
+header information, so a ".DB" file with only a single entry will be 16Kb in
 size.
 
 Changing the blocksize may have performance implications, but it is hard to
@@ -113,21 +118,14 @@ at any given instant, there is only permitted to be a single object modifying
 a database, but there may (simultaneously) be many objects reading the
 database at once.
 
-Xapian attempts to enfore this restriction using lock-files.  With the quartz
-database, these lock-files are kept in the Xapian database directory and named
-"db_lock": existence of the lock-file implies that there is also a writer in
-existence.  If the writer is destroyed without being given a chance to clean
-itself up (for example, if the application holding the writer is killed), the
-lock-file will remain, and future attempts to open a writer will fail,
-reporting a "DatabaseLockError".  The database then requires manual
-intervention to remove the "db_lock" file, before further updates will be
-possible.  If you need to perform such a removal, make absolutely sure that
-the old writer is no longer present; having two writers open at once is very
-likely to result in irretrievable corruption of the database.
-
-Flint uses a more advanced locking technique, such that locks will
-automatically be released even if the application holding the writer is
-killed, so a manual removal of lock files should never be necessary.
+Xapian enforces this restriction using lock-files.  For a flint
+database, each Xapian database directory contains a lock file named
+"flintlock".  The lock-file will always exist, but will be locked using fcntl()
+when the database is open for writing.  If a writer exits without being given a
+chance to clean up (for example, if the application holding the writer
+is killed), the fcntl() lock will be automatically released by the operating
+system.  Under Microsoft Windows, we use a different locking technique, but
+with the same features.
 
 Revision numbers
 ----------------
@@ -142,13 +140,12 @@ database errors.
 This isn't likely to be a practical problem, since it would take nearly a year
 for a database to reach this limit if 100 modifications were committed every
 second, and no normal Xapian system will commit more than once every few
-seconds.  However, if you are concerned, you can use the "quartzcompact" or
-"xapian-compact" tools to make a fresh copy of the database with the revision
+seconds.  However, if you are concerned, you can use the
+"xapian-compact" tool to make a fresh copy of the database with the revision
 number set to 1.
 
-For a "quartz" database, the revision number of each table is displayed by the
-"quartzcheck" tool.  There is currently no tool to display the revision number
-of a "flint" database.
+For a "flint" database, the revision number of each table can be displayed by the
+"xapian-check" tool.
 
 Network file systems
 --------------------
@@ -168,20 +165,9 @@ this requires a lock daemon to be running.
 Which database format to use?
 -----------------------------
 
-As of release 0.9.7, the Xapian development team have not yet formally
-finalised the "flint" format, so we recommend use of the "quartz" format.
-This is currently the default format.
-
-However, when Xapian version 1.0 is released, the "flint" format will become
-the default format, and we hope that it will not require any on-disk format
-changes before this point.  The "flint" format is considerably improved over
-"quartz", and appears to be at least as robust, so if you are willing to risk
-a small chance of needing to rebuild your databases due to format changes, you
-could try out "flint".
-
-Xapian can be told to use "flint" as the default database format by setting
-the "XAPIAN_PREFER_FLINT" environment variable to a non-empty value when
-creating databases.
+As of release 1.0.0, you should use the flint format (which is now the
+default).  The quartz format is now deprecated and support is scheduled
+for removal in 1.1.0.
 
 Can I put other files in the database directory?
 ------------------------------------------------
@@ -191,7 +177,7 @@ database, it is reasonable to wish to put this in files inside the Xapian
 database directory, for neatness.  For example, you might wish to store a list
 of the prefixes you've applied to terms for specific fields in the database.
 
-Xapian (with the "quartz" and "flint" backends) doesn't perform any operations
+Xapian's "flint" backend doesn't perform any operations
 which will break this technique, so as long as you don't choose a filename
 that Xapian uses itself, there should be no problems.  However, be aware that
 new versions of Xapian may use new files in the database directory, and it is
@@ -261,7 +247,7 @@ database file.  Therefore, a progressive backup tool will not be able to take
 a backup by storing only the new parts of the database.  Modifications will
 normally be so extensive that most parts of the database have been modified,
 however, if only a small number of modifications have been made, a binary diff
-algorithm might make a useable progressive backup tool.
+algorithm might make a usable progressive backup tool.
 
 
 Inspecting a database
@@ -300,15 +286,15 @@ Database maintainance
 Compacting a database
 ---------------------
 
-Xapian databases are normally kept in a relatively uncompact form, to allow
+Xapian databases normally have some spare space in each block to allow
 new information to be efficiently slotted into the database.  However, the
 smaller a database is, the faster it can be searched, so if there aren't
 expected to be many further modifications, it can be desirable to compact the
 database.
 
-Xapian includes a tool, "quartzcompact" for compacting "quartz" format
-databases (and an equivalent tool, "xapian-compact", for "flint" databases).
-These tools take a copy of a database, and take advantage of the sorted nature
+Xapian includes a tool, "xapian-compact" for compacting "flint" format
+databases.
+This tool makes a copy of a database, and takes advantage of the sorted nature
 of the source Xapian database to write the database out without leaving so
 much space for future modifications.  This can result in a large space saving.
 
@@ -317,9 +303,12 @@ longer, due to needing to reorganise the database to make space for them.
 However, modifications are still possible, and if many modifications are made,
 the database will eventually adjust itself.
 
-The tools have an option ("-F") to perform a "full" compaction.  This option
-compacts the database as much as possible, but is not recommended if further
-modifications are at all likely in future.
+The tools have an option ("-F") to perform a "fuller" compaction.  This option
+compacts the database as much as possible, but it violates the design of the
+Btree format slightly to achieve this, so it is not recommended if further
+modifications are at all likely in future.  If you do need to modify a "fuller"
+compacted database, we recommend you run xapian-compact on it without "-F"
+first.
 
 While taking a copy of the database, it is also possible to change the
 blocksize.  If you wish to profile search speed with different blocksizes,
@@ -333,7 +322,7 @@ Merging databases
 When building an index for a very large amount of data, it can be desirable to
 index the data in smaller chunks (perhaps on separate machines), and then
 merge the chunks together into a single database.  This can also be performed
-using the "quartzcompact" and "xapian-compact" tools, simply by supplying a
+using the "xapian-compact" tool, simply by supplying
 several source database paths.
 
 Normally, merging works by reading the source databases in parallel, and
@@ -351,19 +340,17 @@ but requires more disk space for the temporary files.
 Checking database integrity
 ---------------------------
 
-Xapian includes a command-line tool to check that a quartz database is
-self-consistent.  This tool, "quartzcheck", runs through the entire database,
+Xapian includes a command-line tool to check that a flint database is
+self-consistent.  This tool, "flint-check", runs through the entire database,
 checking that all the internal nodes are correctly connected.  It can also be
-used on a single table in a quartz database, by specifying the prefix of the
+used on a single table in a flint database, by specifying the prefix of the
 table: for example, for a database "foo", the command:
 
 ::
 
-  quartzcheck foo/position_
+  xapian-check foo/position.
 
 will check the position list table.
-
-There is currently no equivalent tool for flint databases.
 
 
 Converting a quartz database to a flint database
@@ -372,7 +359,7 @@ Converting a quartz database to a flint database
 It is possible to convert a quartz database to a flint database using the
 "copydatabase" example program included with Xapian.  This is a lot slower to
 run than "quartzcompact" or "xapian-compact", since it has to perform the
-sorting of the term occurence data from scratch, but should be faster than a
+sorting of the term occurrence data from scratch, but should be faster than a
 reindex from source data since it doesn't need to perform the tokenisation
 step.  It is also useful if you no longer have the source data available.
 
@@ -381,13 +368,29 @@ creating the new database at "DESTINATION" as a flint database.
 
 ::
 
-  XAPIAN_PREFER_FLINT=1 copydatabase SOURCE DESTINATION
+  copydatabase SOURCE DESTINATION
 
 
-Credits
-=======
+Converting a 0.9.x flint database to work with 1.0.0
+----------------------------------------------------
 
-This document is copyright 2006 Lemur Consulting Ltd, and was written by
-Richard Boulton, with funding provided by Enfold Systems.
+Due to a bug in the flint position list encoding in 0.9.x which made flint
+databases non-portable between platforms, we had to make an incompatible
+change in the flint format.  It's not easy to write an upgrader, but you
+can convert a database using the following procedure (although it might
+be better to rebuild from scratch if you want to use the new UTF-8 support
+in Xapian::QueryParser, Xapian::Stem, and Xapian::TermGenerator).
 
-Several helpful comments and amendments were made by Olly Betts.
+Run the following command in your Xapian 0.9.x installation to copy your
+0.9.x flint database "SOURCE" to a new quartz database "INTERMEDIATE"
+
+::
+
+  copydatabase SOURCE INTERMEDIATE
+
+Then run the following command in your Xapian 1.0.0 installation to copy
+your quartz database to a 1.0.0 flint database "DESTINATION":
+
+::
+
+  copydatabase INTERMEDIATE DESTINATION

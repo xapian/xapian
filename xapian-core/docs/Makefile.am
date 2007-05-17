@@ -15,7 +15,7 @@ HTMLDOCS = index.html install.html intro_ir.html overview.html \
  bm25.html code_structure.html queryparser.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
-RSTDOCS = admin_notes.rst deprecation.rst
+RSTDOCS = admin_notes.rst deprecation.rst termgenerator.rst
 RSTHTML = $(RSTDOCS:.rst=.html)
 
 # Files which should be put in the distribution by automake
