@@ -341,7 +341,7 @@ Checking database integrity
 ---------------------------
 
 Xapian includes a command-line tool to check that a flint database is
-self-consistent.  This tool, "flint-check", runs through the entire database,
+self-consistent.  This tool, "xapian-check", runs through the entire database,
 checking that all the internal nodes are correctly connected.  It can also be
 used on a single table in a flint database, by specifying the prefix of the
 table: for example, for a database "foo", the command:
