@@ -163,8 +163,9 @@ You invoke a method on an object using <code>$object-&gt;method_name()</code>.
 In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
 Xapian::TermGenerator classes all assume text is in UTF-8.  If you want
 to index strings in a different encoding, use the PHP
-<code><a href="http://php.net/iconv">iconv</a></code>
-function to convert them to UTF-8 before passing them to Xapian, and
+<a href="http://php.net/iconv"><code>iconv
+function</code></a>
+to convert them to UTF-8 before passing them to Xapian, and
 when reading values back from Xapian.
 </p>
 
