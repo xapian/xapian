@@ -1,3 +1,8 @@
+Thu May 17 19:52:05 BST 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Sort out the easier Python entries, since Richard seems to
+	  have fallen off the net.
+
 Thu May 17 19:11:38 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Bump version to 1.0.0.

@@ -89,197 +89,43 @@ PHP:
 
 Python:
 
-	* python/extra.i: Fix PostingIter for all-document iterators - was
-	  broken because positionlist_begin() throws an exception for
-	  all-document iterators.  Fixed by keeping track of this and
-	  returning an empty list for positionlits iterators, in the same
-	  way as TermIter does.
+* The Python bindings should now be usable from threaded Python applications
+  since we now use SWIG's -threads option when generating them (bug#137).
 
-	* python/generate-python-exceptions.in: New file - generates a
-	  python/except.i file from the exception_data.pm file in
-	  xapian-core.  Only use in maintainer mode - requires the
-	  xapian-core module to exist in the same directory as the
-	  xapian-bindings module (eg, as would happen in a SVN checkout).
-	  This file changes the handling of xapian exceptions in the Python
-	  bindings - they are now translated into Python exception classes
-	  in a hierarchy matching that of the C++ exception hierarchy.
-	* configure.ac: Require perl in maintainer mode, and add rules to
-	  generate python/generate-python-exceptions
-	* python/Makefile.am: Add except.i to distribution, and add rules
-	  to generate and use it in maintainer mode.
-	* python/smoketest.py: Change tests to expect xapian.Error
-	  subclasses.
+* The Python bindings now throw exceptions as classes with a hierarchy which
+  mirrors that of the C++ Xapian::Error and its subclasses.  The xapian.Error
+  base class inherits from the standard Python Exception class.
 
-	* python/util.i: Add typemap to allow strings to be returned by
-	  implementations of director methods which expect strings:
-	  currently this is only the get_description() method of a Stopper
-	  subclass, which is never actually called by C++, but this might
-	  be more generally useful in future, and covers the last point
-	  where Python strings can get passed to C++.
-	* python/smoketest.py: Add some tests that the stoppers work as
-	  expected.
+* All Python wrappers which accepts strings can now be passed either a Unicode
+  or simple string.  Strings are returned as simple strings containing UTF-8
+  data.  The documentation now contains a "Unicode" section.
 
-	* python/util.i: Add typemap for checking string type in overloaded
-	  functions, allowing unicode strings to be passed to binary Query
-	  constructor.  Also add "freearg" typemap corresponding to the
-	  "in" typemap for string references, which doesn't change the
-	  output code but might make us more robust against future changes
-	  in the SWIG library.
-	* python/smoketest.py: Test binary Query constructor with unicode
-	  strings.
+* All classes, methods, functions, constants, etc should now have docstrings
+  which are either automatically extracted from the C++ documentation comments,
+  or overridden by more appropriate versions.
 
-	* python/util.i:  Add some (fairly nasty) typedefs which handle
-	  almost all cases where a string object is supplied to an API
-	  function, and make them convert unicode strings to UTF-8 encoded
-	  simple strings automatically.  There are three places left in the
-	  API which aren't covered by these typedefs, and will require
-	  individual handling.  The typedefs are largely the same as the
-	  built-in typedefs for string handling, but point to a different
-	  wrapper function which performs the unicode conversion before
-	  calling the normal string-to-ptr conversion.  Sadly, I can't see
-	  any way to modify the built-in typedefs for string handling
-	  without reproducing them as I have here, but if it is possible to
-	  just cause them to point at a different string-to-ptr routine,
-	  that would be desirable.
-	* python/smoketest.py: Add tests for some of the functions which
-	  should accept unicode strings.
-	* python/docs/bindings.html: Document how unicode handling is
-	  intended to work.  Also document how to normalise unicode strings
-	  with the unicodedata module to make them ready to pass to Xapian.
+* Most of the Pythonic iterators now return an object instead of a sequence,
+  which means they now lazily fetch the information which previously had to
+  be fetched to put it in the sequence.  The old sequence API is supported
+  for compatibility, but will probably be removed in Xapian 1.1.0.
 
-	* python/util.i: Convert unicode strings to
-	  UTF-8 strings in handler for strings in the sequence supplied to
-	  a Query constructor.
-	* python/smoketest.py: Refactor repeated code which checks that a
-	  query description is as expected into a function, and add some
-	  checks of query constructors using unicode strings.
-	* python/generate-python-exceptions.in: Add a catch clause for
-	  exceptions raised by the standard library.
+* MSetIter now provides access to the collapse_key and collapse_count.
 
-	* python/docs/bindings.html: Update documentation on exception
-	  handling.
+* The MSet can now be used like a Python sequence.
 
-	* python/Makefile.am: Postprocess the generated python file
-	  "modern/xapian.py" to make the Error class inherit from the
-	  standard Exception class, so that scripts can catch all
-	  exceptions which are sensible to catch using the standard idioms.
-	  Use perl rather than sed for this processing so that we can use
-	  exactly the same rule in the windows build system.
+* The Python testsuite is now much more extensive, and supports colour output
+  and verbosity levels, much like the C++ testsuite.
 
-	* python/extra.i,python/pythontest.py: Add nicer ESet iterators,
-	  and tests for them.
+* The pure Python code in the bindings now uses new-style classes, since we
+  are now requiring Python >= 2.2.
 
-	* python/extra.i,python/pythontest.py,xapian.i: Add access to the
-	  collapse_key() method of mset iterators.  Add it to the new-style
-	  python MSet iterator, and test it.  Add documentation strings for
-	  describing the python MSetItem properties and attributes.
+* The get_description() method which many classes support has been deprecated
+  in favour of new more pythonic __str__ methods.  For now, get_description()
+  is still supported.
 
-	* python/extra.i: Rework MSet iterators: they now return an
-	  MSetItem object instead of a sequence. The sequence API is
-	  emulated with a _SequenceMixIn baseclass. The MSetItem object
-	  allows access to all the properties returned in the list
-	  previously returned, and also allows access to the collapse_count
-	  property.  In addition, it evaluates the document property
-	  lazily, so no work is done if we don't actually want to read it.
-	  Also, add support for __getitem__ on MSet items to access items
-	  in the MSet in a more pythonic way, and implement the other
-	  sequence methods "__len__" and "__contains__".
-	* python/: Ignore some generated files.
-	* python/Makefile.am: Add pythontest.py and extracomments.py
-	* python/pythontest.py: New testsuite for Python-specific code.
-
-	* python/doxy2swig.py.in: Don't add information about C++ includes
-	  to docstrings - not useful to anyone.
-	* python/extracomments.i: Add a new file to hold docstrings which
-	  override the automatically generated ones, or fill in gaps.  There
-	  are going to be quite a few of these eventually, so best to keep
-	  thee separate from the other code from the start.
-	* python/util.i: Include extracomments.i
-
-	* python/testsuite.py: Enhance and refactor the testsuite - it now
-	  supports the same environment variables that the C++ testsuite
-	  does, uses a little colour to highlight successes and failures,
-	  and has different levels of verbosity.  In line with the C++
-	  testsuite, it is not verbose by default, but it does display a
-	  message describing how to turn the verbosity up.
-	* python/docs/bindings.html: Document the test suite a little, fix
-	  a typo, and mention the work in progress on the iterators.  (Will
-	  need more detailed revision once the work is completed.)
-
-	* python/doxy2swig.py.in: For methods, if there is a
-	  briefdescription node, output it first so that the short summary
-	  describes the purpose of the method, rather than being the C++
-	  signature.
-
-	* python/smoketest.py,python/testsuite.py: Enhance testsuite to
-	  allow multiple test functions, and to format output similarly to
-	  C++ testsuite (including ANSI colour on output devices which
-	  support it).  Colours can be disabled explicitly using
-	  XAPIAN_TESTSUITE_OUTPUT=plain, and verbose output can be turned
-	  on by setting VERBOSE=1.
-
-	* python/extra.i: Change to using new-style classes for pure python
-	  code, since we're depending on python >= 2.2 now.
-
-	* python/smoketest.py,python/testsuite.py: Refactor code for
-	  running the python tests into a separate file, so it can be used
-	  for a separate set of python-specific tests.
-
-	* python/doxy2swig.py.in: Add script to generate doccomments.i file
-	  from XML output of doxygen.  Adds much useful documentation to
-	  the python bindings (it's still quite messy, but much better than
-	  nothing).  Unfortunately, a bug in SWIG means that not all the
-	  documentation is visible - I've put a patch at
-	  http://sf.net/tracker/index.php?func=detail&aid=1700146&group_id=1645&atid=301645
-	* python/util.i: Include generated doccomments.i file.
-	* configure.ac: Add rules to generate python/doxy2swig.
-	* python/Makefile.am: Rules to generate and depend on doccomments.i
-
-	* python/extra.i: Only read wdf for termlists which actually support
-	  it.  This was failing for alltermslist in a debug build, and now
-	  fails with InvalidOperationError in all builds.
-
-	* python/smoketest.py: Add the custom test failure messages back,
-	  and revert changes to tests which I made (which will be going
-	  into a custom python-specific test file in time).  When a test
-	  fails, display context of the test failure together with the
-	  Xapian version and platform information.
-
-	* python/smoketest.py: Replace cut-and-pasted test checking code
-	  with functions, to simplify tests.
-
-	* python/testsuite.py: Run tests in predicatable order, by sorting
-	  the list of tests if it's supplied as a dictionary.
-
-	* python/docs/bindings.html,python/docs/examples/simpleexpand.py:
+    * python/docs/bindings.html,python/docs/examples/simpleexpand.py:
 	  Document ESetIterator::get_term() instead of
 	  ESetIterator::get_termname()
-
-	* python/util.i: add __str__ methods as aliases for the
-	  get_description() methods, and deprecate the get_description()
-	  methods.
-
-	* python/docs/examples/,python/smoketest.py: Change references to
-	  stem.stem_word() to stem()
-
-	* python/docs/examples/simpleexpand.py: Replace use of deprecated
-	  RSet::is_empty() with RSet::empty().
-
-	* python/extra.i,python/pythontest.py: Fix legacy sequence API for
-	  eset items.
-
-	* python/doxy2swig.py.in: Fix issue with output from newer version
-	  of Doxygen which puts <ref/> nodes inside <parametername/> nodes.
-
-	* python/extra.i: Improve various documentation comments.  Allow
-	  _SequenceMixIn to have default values for some parameters,
-	  instead of doing a lookup, to allow termlists and posting lists
-	  to return the fake values returned by the old sequence API.  Add
-	  termlist iterators, and link them into the Enquire.matching_terms
-	  method.
-	* python/pythontest.py: Add a check that xapian exceptions have
-	  Exception as a base class.  Also, add a test of the new
-	  Enquire.matching_terms term iterators.
 
 	* python/extra.i: Change termlist iterators which returned items in
 	  which only the term could be accessed to return the term directly.
@@ -288,10 +134,12 @@ Python:
 	  behaviour anyway, and ignoring the sequence API method.  Now is
 	  the only time this can be cleaned up, really.  Allows idioms like
 	  ','.join(enq.matching_terms) to work.
+
 	  Also, change MSet.get_hit() to return an MSetItem instead of an
 	  MSetIterator: allows all our work on lazy access to be used.  Add
 	  deprecated methods to MSetItem to allow code which was expecting
 	  an MSetIterator to work (for now).
+
 	* python/pythontest.py: Change tests not to use deprecated
 	  features, except in marked sections designed for that purpose.
 	  Test out-of-range access to MSets (used to cause a crash).
@@ -299,55 +147,10 @@ Python:
 	* python/smoketest.py: Change reference to deprecated
 	  Enquire.get_matching_terms() to Enquire.matching_terms()
 
-	* python/smoketest.py,xapian.i: Wrap Enquire::INCLUDE_QUERY_TERMS
-	  and Enquire::USE_EXACT_TERMFREQ.
-
-	* python/extra.i: Set __docformat__ and __all__ to make output from
-	  "help" and tools like epydoc nicer.  __all__ is set by filtering
-	  the symbols returned by dir(), so the value it's set to shouldn't
-	  need much maintainance.  Setting __all__ also makes it more
-	  reasonable to do "from xapian import *", but that's probably not
-	  really a good idea in anything but the simplest script.
-
-	* python/Makefile.am: Add -threads flag to SWIG command when
-	  generating python bindings: threads are used in so many python
-	  applications these days that we really need to support them.
-	  Hopefully fixes bugs #137.
-
-	* python/testsuite.py: Add extra VERBOSE=3 level, which displays
-	  the checks which were performed, even if they passed.  Very
-	  useful for debugging code which unexpectedly segfaults.
-
-	* python/pythontest.py: Test exception which is thrown by a
-	  termlist from a freshly created document if the term frequency
-	  information is requested.
-
 	* python/extra.i: Change skip_to() methods to return item skipped
 	  to, and fix several bugs in them.
 	* python/pythontest.py: Test skip_to() for termlists and posting
 	  lists.
-
-	* python/extra.i: Fix documentation comments for TermListItem and
-	  improve code documentation.  Implement support for lazy
-	  evaluation with posting lists.
-	* python/pythontest.py: Test legacy sequence API for termlists, and
-	  fix small bug in test for document termlists (was passing, but
-	  not testing what it was meant to).  Add new test for posting
-	  lists.
-
-	* python/extra.i: Add documentation comments for position
-	  iterators and value iterators.  Make value iterators return items
-	  with attributes, rather than arrays (using _SequenceMixIn to
-	  provide legacy interface, as for other iterators).
-	* python/pythontest.py: Add tests for value and position iterators.
-
-	* python/pythontest.py: Correct stoplist test to expect correct
-	  value.
-
-	* python/extra.i: Add documentation comments for queryparser
-	  stoplist and unstemlist.
-	* python/pythontest.py: Add tests of stoplist and unstemlist
-	  iterators.
 
 	* python/extra.i: Change term iterators so that they can handle
 	  WDF and term frequency information either lazily or eagerly.
@@ -360,10 +163,6 @@ Python:
 	  likely to work for typical and reasonable usages of the API.
 	  Still needs to be documented in the python binding documentation
 	  file.
-	* python/pythontest.py: Add tests for term iterators returned by
-	  matching terms, Query objects, alltermlists on databases,
-	  termlists on database, documents returned from databases, and
-	  newly created documents.
 
 Ruby:
 
