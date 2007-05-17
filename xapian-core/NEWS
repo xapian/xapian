@@ -68,10 +68,10 @@ API:
   + Now assumes input text is encoded as UTF-8.
 
   + We've updated to the latest version of the Snowball stemmers.  This means
-    that a small number of words produce different (and generally better) stems
-    and that some new stemmers are supported: german2 (like german but normalises
-    umlauts), hungarian, kraaij_pohlmann (a different Dutch stemmer), romanian,
-    and turkish.
+    that a small number of words produce different (and generally better)
+    stems and that some new stemmers are supported: german2 (like german but
+    normalises umlauts), hungarian, kraaij_pohlmann (a different Dutch
+    stemmer), romanian, and turkish.
 
 * Xapian::TermGenerator:
 
