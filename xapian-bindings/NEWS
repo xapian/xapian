@@ -89,80 +89,79 @@ PHP:
 
 Python:
 
-* The Python bindings should now be usable from threaded Python applications
-  since we now use SWIG's -threads option when generating them (bug#137).
-
 * The Python bindings now throw exceptions as classes with a hierarchy which
   mirrors that of the C++ Xapian::Error and its subclasses.  The xapian.Error
   base class inherits from the standard Python Exception class.
 
-* All Python wrappers which accepts strings can now be passed either a Unicode
-  or simple string.  Strings are returned as simple strings containing UTF-8
-  data.  The documentation now contains a "Unicode" section.
+* All Python methods which accept strings can now be passed either a unicode
+  object or a simple string.  Strings are returned as simple strings: unicode
+  input will be returned as utf-8 encoded output.  The documentation now
+  contains a "Unicode" section.
 
-* All classes, methods, functions, constants, etc should now have docstrings
-  which are either automatically extracted from the C++ documentation comments,
-  or overridden by more appropriate versions.
+* The Python bindings should now be usable more efficiently from threaded
+  Python applications since we now use SWIG's -threads option when generating
+  them (bug#137), so that the GIL is dropped during long-running Xapian
+  operations.
+
+* Most classes, methods, functions, etc now have docstrings which are either
+  automatically extracted from the C++ documentation comments, or overridden by
+  more appropriate versions.
 
 * Most of the Pythonic iterators now return an object instead of a sequence,
-  which means they now lazily fetch the information which previously had to
-  be fetched to put it in the sequence.  The old sequence API is supported
-  for compatibility, but will probably be removed in Xapian 1.1.0.
+  which means they now lazily fetch the information which previously had to be
+  fetched to put it in the sequence.  The old sequence API is supported for
+  compatibility, but is scheduled for removal in Xapian 1.1.0.
 
-* MSetIter now provides access to the collapse_key and collapse_count.
+* Those Python iterators which have skip_to() methods now return the item
+  skipped to, and next() will return the following item.  Previously, they
+  returned None, and next() returned the item skipped to.  Several bugs in the
+  skip_to() wrappers were fixed.
 
-* The MSet can now be used like a Python sequence.
+* Becaues of the lazy access, some objects returned by iterators will raise
+  an error if the lazy evaluation happens after the iterator has moved on
+  (since the underlying Xapian API doesn't allow efficient access to the
+  information in this situation).  The exact semantics are defined in the
+  docstrings for each iterator.
+
+* Those Pythonic iterators which return only a list of terms now return
+  simple strings, instead of a sequence or an object containing the term.  This
+  is an incompatible change with earlier releases.  The affected iterators are
+  Enquire.matching_terms, Query.__iter__, QueryParser.stoplist and
+  QueryParser.unstemlist.
+
+* The contents of an MSet can now be iterated in the standard Python way.
+  The iteration will return MSetItem objects.  The __contains__ and __getitem__
+  methods are also implemented, allowing the "in" and [] operators to work.
+  MSet.__getitem__ is a synonym for MSet.get_hit.
+
+* MSet.get_hit() now returns an MSetItem object instead of an MSetIterator,
+  so that lazy access to its attributes is supported.  MSetItem has some
+  deprecated methods which mimic the MSetIterator interface to allow old code
+  to work without modification until release 1.1.0.
+
+* MSetItem provides access to the collapse_key and collapse_count, which
+  weren't accessible from the sequence returned by the iterators before this
+  release.
+
+* Out-of-range access to MSets will now raise an IndexError - it used to
+  cause undefined behaviour (usually a crash).
 
 * The Python testsuite is now much more extensive, and supports colour output
-  and verbosity levels, much like the C++ testsuite.
+  and verbosity levels, much like the C++ testsuite.  Tests of deprecated
+  features are separated out, so that they can easily be removed when the
+  features are removed.  The Python tests currently focus mainly on Python
+  specific iterators and related functionality - general Xapian behaviour is
+  tested by the C++ testsuite.
 
 * The pure Python code in the bindings now uses new-style classes, since we
-  are now requiring Python >= 2.2.
+  have required Python >= 2.2 since Xapian release 0.9.9.
+
+* Enquire.get_matching_terms is now deprecated - use Enquire.matching_terms
+  instead.
 
 * The get_description() method which many classes support has been deprecated
-  in favour of new more pythonic __str__ methods.  For now, get_description()
-  is still supported.
-
-    * python/docs/bindings.html,python/docs/examples/simpleexpand.py:
-	  Document ESetIterator::get_term() instead of
-	  ESetIterator::get_termname()
-
-	* python/extra.i: Change termlist iterators which returned items in
-	  which only the term could be accessed to return the term directly.
-	  May break some old applications, but all the applications I've
-	  seen were just calling the internal iterator to get this
-	  behaviour anyway, and ignoring the sequence API method.  Now is
-	  the only time this can be cleaned up, really.  Allows idioms like
-	  ','.join(enq.matching_terms) to work.
-
-	  Also, change MSet.get_hit() to return an MSetItem instead of an
-	  MSetIterator: allows all our work on lazy access to be used.  Add
-	  deprecated methods to MSetItem to allow code which was expecting
-	  an MSetIterator to work (for now).
-
-	* python/pythontest.py: Change tests not to use deprecated
-	  features, except in marked sections designed for that purpose.
-	  Test out-of-range access to MSets (used to cause a crash).
-	  Adjust tests for termlists which return strings.
-	* python/smoketest.py: Change reference to deprecated
-	  Enquire.get_matching_terms() to Enquire.matching_terms()
-
-	* python/extra.i: Change skip_to() methods to return item skipped
-	  to, and fix several bugs in them.
-	* python/pythontest.py: Test skip_to() for termlists and posting
-	  lists.
-
-	* python/extra.i: Change term iterators so that they can handle
-	  WDF and term frequency information either lazily or eagerly.
-	  Always handle positionlist information lazily.  Return an error
-	  if the iterator has already moved on when a lazily accessed piece
-	  of information is requested.  Set access to lazy or eager (or no
-	  access) for each item for each type of termlist iterator which
-	  can be returned, and document this in the documentation comments.
-	  This may impact some users of the legacy sequence API, but is
-	  likely to work for typical and reasonable usages of the API.
-	  Still needs to be documented in the python binding documentation
-	  file.
+  in favour of new more pythonic __str__ methods, so that the str() builtin can
+  be used.  get_description() is deprecated and scheduled for removal in 1.1.0.
 
 Ruby:
 
