@@ -30,6 +30,7 @@
 #endif
 
 #include <stdio.h> // For sprintf().
+#include <stdlib.h> // For free().
 #include <string.h> // For strdup().
 
 #include <xapian/error.h>
