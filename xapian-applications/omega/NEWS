@@ -1,3 +1,185 @@
+upto:
+Wed May 16 03:09:44 BST 2007  Olly Betts <olly@survex.com>
+
+Omega 1.0.0 (2007-05-17):
+
+general:
+
+* Omega and the indexers now work in UTF-8.  If iconv() is available, omindex
+  will use it to convert documents from other formats, otherwise it has
+  built-in support for UTF-8 and ISO-8859-1; omindex knows how to run the
+  various external filter programs to generate UTF-8 output; scriptindex
+  assumes input is already in UTF-8.
+
+* Change the project name (used to name tarballs, and default installation
+  paths) to "xapian-omega" since that's what the RPMs and Debian packages
+  already use (there's a Rogue-like game called Omega).
+
+documentation:
+
+* docs/overview.txt: Document what each of the OmegaScript templates does.
+
+* docs/quickstart.txt: Assorted minor improvements.
+
+* docs/cgiparams.txt: FMT isn't limited to just `a-z' - the actual restriction
+  is that it may not contain `..'.
+
+* docs/scriptindex.txt: Explicitly note that index=nopos is deprecated
+  (scriptindex already emits a warning).
+
+* NEWS: Add note that Omega < 0.8.0 NEWS entries are in the xapian-core NEWS
+  file.
+
+* TODO: Updated.
+
+indexers:
+
+* Updated to use the new Xapian::TermGenerator class.  This means that the
+  indexing strategy has changed.
+
+* "--help" now reports the default stemming language (i.e. "english").
+
+* Implement new sample generating function which normalises all runs of
+  whitespace to a single space, and fixes invalid UTF-8 in the sample.
+
+* omindex:
+
+  + We now index PostScript by converting to PDF with ps2pdf and then indexing
+    that.  This allows us to index PostScript files containing Unicode
+    characters outside of ISO-8859-1, and also means we now get metadata from
+    PostScript files.  The downside is it is quite a bit slower.
+
+  + Add support for indexing MS Works documents using wps2text (part of
+    libwps).
+
+  + Don't index empty files.
+
+* scriptindex:
+
+  + Fix optimisation of "load truncate=N" to actually work!
+
+  + The "truncate" action knows not to chop off a multibyte UTF-8 character.
+
+  + Update short option list for scriptindex to match documented usage (-h, -V
+    and -s were not working).
+
+  + Remove -q and -u options - they no longer do anything and are only accepted
+    for compatibility with really old versions (0.6.1 and earlier for -q; 0.7.5
+    and earlier for -u).
+
+omega:
+
+* Add an alternative implementation of date range filtering which uses a
+  MatchDecider.  This allows everything that the existing implementation does,
+  plus you can support sorting on a choice of dates (e.g. first published or
+  last updated), and filtering works to a resolution of a minute rather than a
+  day.  Set CGI parameter DATEVALUE to enable this, and to specify the value to
+  use.  Since omindex now adds the last modified date as value 0, this will
+  work with omindex.
+
+* Enhance $substr{} to accept a negative length (meaning to count back from the
+  end of the string).
+
+* New CGI parameters to allow finer control of sorting and ranking - SORTAFTER
+  and DOCIDORDER.
+
+* The sorting options are now encoded in $filters so Omega can automatically
+  reset to page 1 if they are changed.
+
+* Add new OmegaScript $weight command which returns the raw document weight -
+  mostly useful for debugging purposes.
+
+* $topterms{} now generates unstemmed terms.
+
+* $prettyterm{TERM} has been updated to fit with changes to the term generation
+  strategy.
+
+* Add 'you' and 'your' as stopwords.
+
+* $filesize{SIZE} enhanced to return a decimal point for K, M, and G (e.g.
+  "2.1K" and "4.0M" rather than "2K" and "4M"); $filesize{0} is now "0 bytes";
+  $filesize{1} is now "1 byte"; $filesize{SIZE} where SIZE is negative is now
+  "".
+
+* Remove $freqs as it has been deprecated for ages.
+
+* Remove support for xB, xDATE1, xDATE2, xDAYSMINUS, and xDEFAULTOP which were
+  deprecated in favour of xFILTER in 0.7.5 (over 3 years ago).
+
+* Remove deprecated aliases for CGI parameters (deprecated in 0.6.3 or 0.6.5,
+  more than 3.5 years ago): RAW_SEARCH (now RAWSEARCH), DATE1 (now START),
+  DATE2 (now END), DAYSMINUS (now SPAN but with slightly different semantics),
+  and MIN_HITS (now MINHITS).
+
+* Remove "bias_weight" and "bias_halflife" CGI parameters since they rely on
+  Enquire::set_bias() which has been removed.
+
+templates:
+
+* The 'query' template no longer uses $topterms by default.
+
+* New 'topterms' template provides a query template with $topterms support.
+
+* Template fragments which aren't intended for direct use have been moved to
+  an "inc" subdirectory.
+
+testsuite:
+
+* md5test: Add tests for MD5 code.
+
+build system:
+
+* `./configure --enable-quiet' already allows you to specify at configure time
+  to pass `--quiet' to libtool.  Now you can override this at make-time by
+  using `make QUIET=' (to turn off `--quiet') or `make QUIET=y' (to turn on
+  `--quiet').
+
+* configure: Disable probes for f77, gcj, and rc completely by preventing
+  the probe code from even appearing in configure - this reduces the size of
+  configure by 29% and should speed it up significantly.
+
+portability:
+
+* Fixed to build with GCC 4.3 snapshot.
+
+* We now make use of the safe*.h portability headers from xapian-core.
+
+* Ensure that the result of snprintf is zero terminated since MSVC's snprintf
+  is broken (by design it seems).
+
+* configure: xapian-config --cxxflags now includes -ptused for SGI's C++
+  compiler, so we don't need to probe for it here.
+
+* configure: Perform a link test for posix_fadvise to fix misdetection on
+  HP-UX.
+
+packaging:
+
+Omega 0.9.10 (2007-03-04):
+
+documentation:
+
+* docs/omegascript.txt: Rewrite introductory paragraph.  Note that
+  whitespace is significant, and add explicit warning to $setmap.
+
+* docs/termprefixes.txt: Expand section on boolean prefixes, showing
+  how to generate them using scriptindex, and how to allow them to be
+  selected in an HTML form.
+
+indexers:
+
+* omindex: Generate correct MD5 checksums on big-endian platforms.
+
+omega:
+
+* Fix $substr{} with negative start to actually work.
+
+* Fix $substr{} to never cause a C++ exception.
+
+packaging:
+
+* omega.spec.in: Remove "." from the end of the Summary.
+
 Omega 0.9.9 (2006-11-09):
 
 documentation:
