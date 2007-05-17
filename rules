@@ -25,10 +25,10 @@ COMPONENT ?= $(shell cat debian/component 2>/dev/null||echo unstable)
 # Version without the "-N" suffix.
 XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
 
-# Debian "unstable" (and "etch" onwards) and Ubuntu "edgy" (and later) have
-# pyversions.
+# Debian "stable" ("etch" onwards), "unstable", and Ubuntu "edgy" (and later)
+# have pyversions.
 USE_PYVERSIONS := no
-ifeq ($(findstring .$(COMPONENT)., .stable.dapper.breezy.), )
+ifeq ($(findstring .$(COMPONENT)., .oldstable.breezy.dapper.), )
 USE_PYVERSIONS := yes
 endif
 
@@ -47,8 +47,8 @@ else
 # When we finally drop support for all of sarge, breezy, and dapper, we
 # can remove this branch of the code.
 
-# The python versions to build for (Debian stable also has Python 2.1, but
-# xapian-bindings no longer supports it):
+# The python versions to build for (Debian sarge also has Python 2.1, but
+# xapian-bindings now requires at least Python 2.2):
 PYTHON_VERSIONS := python2.2 python2.3 python2.4
 
 # We need python itself for dh_python to work.
@@ -57,15 +57,15 @@ BUILD_DEPS := debhelper (>= 4.1.67), python, $(PYTHON_VERSIONS:%=%-dev,)
 endif
 
 # The PHP versions to build for:
-ifeq ($(COMPONENT), stable)
-# Debian stable doesn't have PHP5.
+ifeq ($(COMPONENT), oldstable)
+# Debian oldstable doesn't have PHP5.
 PHP_VERSIONS := 4
 else
-ifeq ($(COMPONENT), feisty)
-# Ubuntu feisty doesn't have PHP4.
-PHP_VERSIONS := 5
-else
+ifneq ($(findstring .$(COMPONENT)., .stable.breezy.dapper.edgy.), )
 PHP_VERSIONS := 4 5
+else
+# Newer releases (currently Debian unstable and Ubuntu feisty) don't have PHP4.
+PHP_VERSIONS := 5
 endif
 endif
 
