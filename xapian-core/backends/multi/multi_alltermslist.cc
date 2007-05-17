@@ -122,7 +122,8 @@ MultiAllTermsList::skip_to(const string &tname)
 
     vector<TermList *>::const_iterator i;
     for (i = lists.begin(); i != lists.end(); ++i) {
-	(*i)->skip_to(tname);
+	if (!(*i)->at_end())
+	    (*i)->skip_to(tname);
     }
     update_current();
 
