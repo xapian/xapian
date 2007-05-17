@@ -1,6 +1,10 @@
   * Debconf translations:
     - Malayalam. Closes: #418032
     - Dutch. Closes: #423066
+  * debian/rules: Debian unstable has dropped php4 support, so don't build
+    php4-xapian for it.  Closes: #424809
+  * debian/rules: Update now there's a new stable release.  Keep support for
+    oldstable for the time being, in case someone wants to backport.
 
 xapian-bindings (0.9.9-2) unstable; urgency=low
 
