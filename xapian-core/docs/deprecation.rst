@@ -212,62 +212,71 @@ Features removed from Xapian
 Native C++ API
 --------------
 
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| **Removal**    | **Feature name**                    | **Upgrade suggestion and comments**                                                     |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | QueryParser::set_stemming_options() | Use set_stemming_strategy() instead.                                                    |
-|                |                                     | Use set_stemmer(), set_stemming_strategy() and/or set_stopper() instead.                |
-|                |                                     |                                                                                         |
-|                |                                     | - set_stemming_options("") becomes:                                                     |
-|                |                                     |   set_stemming_strategy(Xapian::QueryParser::STEM_NONE)                                 |
-|                |                                     | - set_stemming_options("none") becomes:                                                 |
-|                |                                     |   set_stemming_strategy(Xapian::QueryParser::STEM_NONE)                                 |
-|                |                                     | - set_stemming_options(LANG) becomes:                                                   |
-|                |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_SOME) |
-|                |                                     |                                                                                         |
-|                |                                     | - set_stemming_options(LANG, false) becomes:                                            |
-|                |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_SOME) |
-|                |                                     |                                                                                         |
-|                |                                     | - set_stemming_options(LANG, true) becomes:                                             |
-|                |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_ALL)  |
-|                |                                     |                                                                                         |
-|                |                                     | If a third parameter is passed, set_stopper(PARAM3) and treat the first two             |
-|                |                                     | parameters as above.                                                                    |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | Enquire::set_sort_forward()         | Use Enquire::set_docid_order() instead:                                                 |
-|                |                                     |                                                                                         |
-|                |                                     |  - set_sort_forward(true) becomes set_docid_order(ASCENDING),                           |
-|                |                                     |  - set_sort_forward(false) becomes set_docid_order(DESCENDING).                         |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | Enquire::set_sorting()              | Use Enquire::set_sort_by_relevance(), Enquire::set_sort_by_value(), or                  |
-|                |                                     | Enquire::set_sort_by_value_then_relevance() instead.                                    |
-|                |                                     |                                                                                         |
-|                |                                     |  - set_sorting(KEY, 1) becomes set_sort_by_value(KEY)                                   |
-|                |                                     |  - set_sorting(KEY, 1, false) becomes set_sort_by_value(KEY)                            |
-|                |                                     |  - set_sorting(KEY, 1, true) becomes set_sort_by_value_then_relevance(KEY)              |
-|                |                                     |  - set_sorting(ANYTHING, 0) becomes set_sort_by_relevance()                             |
-|                |                                     |  - set_sorting(Xapian::BAD_VALUENO, ANYTHING) becomes set_sort_by_relevance()           |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | Stem::stem_word(word)               | Use Stem::operator()(word) instead.                                                     |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | Auto::open(path)                    | Use the Database(path) constructor instead.                                             |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | Auto::open(path, action)            | Use the WritableDatabase(path, action) constructor instead.                             |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | Query::is_empty()                   | Use Query::empty() instead.                                                             |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | Document::add_term_nopos()          | Use Document::add_term() instead.                                                       |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | Enquire::set_bias()                 | No replacement yet implemented.                                                         |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | ExpandDecider::operator()           | Return type is now ``bool`` not ``int``.                                                |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | MatchDecider::operator()            | Return type is now ``bool`` not ``int``.                                                |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | Error::get_type()                   | Return type is now ``const char *`` not ``std::string``.                                |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | <xapian/output.h>                   | Use ``cout << obj.get_description();`` instead of ``cout << obj;``                      |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| **Removal** | **Feature name**                    | **Upgrade suggestion and comments**                                                     |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | QueryParser::set_stemming_options() | Use set_stemming_strategy() instead.                                                    |
+|             |                                     | Use set_stemmer(), set_stemming_strategy() and/or set_stopper() instead.                |
+|             |                                     |                                                                                         |
+|             |                                     | - set_stemming_options("") becomes:                                                     |
+|             |                                     |   set_stemming_strategy(Xapian::QueryParser::STEM_NONE)                                 |
+|             |                                     | - set_stemming_options("none") becomes:                                                 |
+|             |                                     |   set_stemming_strategy(Xapian::QueryParser::STEM_NONE)                                 |
+|             |                                     | - set_stemming_options(LANG) becomes:                                                   |
+|             |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_SOME) |
+|             |                                     |                                                                                         |
+|             |                                     | - set_stemming_options(LANG, false) becomes:                                            |
+|             |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_SOME) |
+|             |                                     |                                                                                         |
+|             |                                     | - set_stemming_options(LANG, true) becomes:                                             |
+|             |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_ALL)  |
+|             |                                     |                                                                                         |
+|             |                                     | If a third parameter is passed, set_stopper(PARAM3) and treat the first two             |
+|             |                                     | parameters as above.                                                                    |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | Enquire::set_sort_forward()         | Use Enquire::set_docid_order() instead:                                                 |
+|             |                                     |                                                                                         |
+|             |                                     |  - set_sort_forward(true) becomes set_docid_order(ASCENDING),                           |
+|             |                                     |  - set_sort_forward(false) becomes set_docid_order(DESCENDING).                         |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | Enquire::set_sorting()              | Use Enquire::set_sort_by_relevance(), Enquire::set_sort_by_value(), or                  |
+|             |                                     | Enquire::set_sort_by_value_then_relevance() instead.                                    |
+|             |                                     |                                                                                         |
+|             |                                     |  - set_sorting(KEY, 1) becomes set_sort_by_value(KEY)                                   |
+|             |                                     |  - set_sorting(KEY, 1, false) becomes set_sort_by_value(KEY)                            |
+|             |                                     |  - set_sorting(KEY, 1, true) becomes set_sort_by_value_then_relevance(KEY)              |
+|             |                                     |  - set_sorting(ANYTHING, 0) becomes set_sort_by_relevance()                             |
+|             |                                     |  - set_sorting(Xapian::BAD_VALUENO, ANYTHING) becomes set_sort_by_relevance()           |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | Stem::stem_word(word)               | Use Stem::operator()(word) instead.                                                     |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | Auto::open(path)                    | Use the Database(path) constructor instead.                                             |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | Auto::open(path, action)            | Use the WritableDatabase(path, action) constructor instead.                             |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | Query::is_empty()                   | Use Query::empty() instead.                                                             |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | Document::add_term_nopos()          | Use Document::add_term() instead.                                                       |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | Enquire::set_bias()                 | No replacement yet implemented.                                                         |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | ExpandDecider::operator()           | Return type is now ``bool`` not ``int``.                                                |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | MatchDecider::operator()            | Return type is now ``bool`` not ``int``.                                                |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | Error::get_type()                   | Return type is now ``const char *`` not ``std::string``.  Most existing code won't need |
+|             |                                     | changes, but if it does the simplest fix is to write ``std::string(e.get_type())``      |
+|             |                                     | instead of ``e.get_type()``.                                                            |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | <xapian/output.h>                   | Use ``cout << obj.get_description();`` instead of ``cout << obj;``                      |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | Several constructors marked explicit| Explicitly create the object type required, for example use                             |
+|             |                                     | ``Xapian::Enquire enq(Xapian::Database(path));`` instead of                             |
+|             |                                     | ``Xapian::Enquire enq(path);``                                                          |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+| 1.0.0       | QueryParser::parse_query() throwing | Catch ``Xapian::QueryParserError`` instead of ``const char *``.                         |
+|             | ``const char *`` exception.         |                                                                                         |
++-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
 
 
 Bindings

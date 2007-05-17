@@ -102,5 +102,5 @@ sourcedoc.pdf sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 sourcedoc/html/index.html: sourcedoc.pdf
 
 .rst.html:
-	$(RST2HTML) $< $@
+	$(RST2HTML) --verbose --strict $< $@
 endif
