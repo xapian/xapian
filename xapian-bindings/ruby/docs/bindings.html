@@ -2,11 +2,6 @@
 <body>
 <h1>Ruby bindings for Xapian</h1>
 
-<p><i>These bindings are still beta quality. They may contain unknown
-bugs. Use them at your own risk!</i>
-Feedback, comments, suggestions, and (especially) code patches are
-welcome!</p>
-
 <p>
 The Ruby bindings for Xapian are packaged in the <code>xapian</code> module.
 Ruby strings and arrays are converted automatically in the bindings, so
@@ -53,6 +48,18 @@ use in xapian.rb. It is strongly recommended that you do not call any
 method that starts with _ directly in your code, but instead use the
 wrappers defined in xapian.rb. Improper use of an _ method can cause
 the Ruby process to segfault.
+</p>
+
+<h2>Unicode Support</h2>
+
+<p>
+In Xapian 1.0.0 and later, the Xapian::Stem, Xapian::QueryParser, and
+Xapian::TermGenerator classes all assume text is in UTF-8.  If you want
+to index strings in a different encoding, use the Ruby
+<a href="http://www.ruby-doc.org/stdlib/libdoc/iconv/rdoc/index.html"
+><code>Iconv</code> class</a>
+to convert them to UTF-8 before passing them to Xapian, and
+when reading values back from Xapian.
 </p>
 
 <!--

@@ -1,3 +1,10 @@
+Thu May 17 17:25:39 BST 2007  Olly Betts <olly@survex.com>
+
+	* ruby/docs/bindings.html: Remove "beta quality" warning - the Ruby
+	  bindings seem as solid as the others and no problems have been
+	  reported.
+	* ruby/docs/bindings.html: Add section on Unicode support.
+
 Thu May 17 17:25:06 BST 2007  Olly Betts <olly@survex.com>
 
 	* php/docs/bindings.html: Tweak the linked text.
