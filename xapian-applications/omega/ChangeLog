@@ -1,3 +1,8 @@
+Thu May 17 18:11:19 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/: Update to latest xapian-core revision to pull in 2 argument
+	  mkdir() wrapper for Mingw.
+
 Thu May 17 03:29:44 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,configure.ac: Add support for --disable-documentation
