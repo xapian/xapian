@@ -18,7 +18,8 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 package exception_data;
-use Exporter 'import';
+use Exporter;
+@ISA = qw(Exporter);
 @EXPORT = qw($copyright $generated_warning @baseclasses @classes);
 
 $copyright = <<'EOF';
