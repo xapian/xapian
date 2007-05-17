@@ -1,5 +1,5 @@
 up to:
-Thu May 17 15:48:16 BST 2007  Olly Betts <olly@survex.com>
+Thu May 17 17:25:39 BST 2007  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.0 (2007-05-17):
 
@@ -366,6 +366,9 @@ Python:
 	  newly created documents.
 
 Ruby:
+
+* We no longer regard the Ruby bindings as "beta quality", so remove the
+  warning from their documentation.
 
 * Document that that C++ operator() becomes the method "call" in Ruby.
 

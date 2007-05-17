@@ -1,3 +1,7 @@
+Thu May 17 17:28:35 BST 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Thu May 17 17:25:39 BST 2007  Olly Betts <olly@survex.com>
 
 	* ruby/docs/bindings.html: Remove "beta quality" warning - the Ruby
