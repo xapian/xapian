@@ -48,11 +48,17 @@
 // NB: _stati64 not _stat64 (the latter just returns a 64 bit timestamp).
 #define stat _stati64
 #define fstat(FD, BUF) _fstati64(FD,BUF)
+#endif
 
-// MSVC lacks these POSIX macros:
-#define S_ISDIR(m) (((m) & _S_IFMT) == _S_IFDIR)
-#define S_ISREG(m) (((m) & _S_IFMT) == _S_IFREG)
+// MSVC lacks these POSIX macros, and other platforms may too:
+#ifndef S_ISDIR
+# define S_ISDIR(m) (((m) & _S_IFMT) == _S_IFDIR)
+#endif
+#ifndef S_ISREG
+# define S_ISREG(m) (((m) & _S_IFMT) == _S_IFREG)
+#endif
 
+#ifdef __WIN32__
 // On UNIX, mkdir() is prototyped in <sys/stat.h> but in Windows it's in
 // <direct.h>, so just include that from here to avoid build failures on
 // MSVC just because of some new use of mkdir().  This also reduces the

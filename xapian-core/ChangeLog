@@ -1,3 +1,9 @@
+Thu May 17 18:08:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/safesysstat.h: Need the 2 argument mkdir() wrapper for Mingw
+	  too.  Define S_ISDIR() and S_ISREG() if they aren't already defined
+	  rather than conditional on _MSC_VER.
+
 Thu May 17 17:58:43 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/admin_notes.rst: "flint-check" -> "xapian-check".
