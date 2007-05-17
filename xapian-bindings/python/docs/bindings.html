@@ -152,7 +152,7 @@ iterate over terms in the Document):
 The Pythonic iterators used to return lists representing the appropriate item when their <code>next()</code> method is called, except PositionIter which just returns a single value.  They now return Python objects, allowing lazy evaluation of properties where appropriate, and allowing a more pythonic access to attribute values.  The sequence API is being maintained for now, so existing code should continue to work, but we recommend transitioning to the new API.  The sequence API is planned to be removed at release 1.1.0 of Xapian.
 </p>
 
-<table>
+<table title="Sequence API equivalents">
 <thead><td>Class</td><td>Returns</td></thead>
 <tr><td><code>MSetIter</code></td><td>[docid, weight, rank, percentage, document]</td></tr>
 <tr><td><code>ESetIter</code></td><td>[term, weight]</td></tr>
@@ -162,6 +162,22 @@ The Pythonic iterators used to return lists representing the appropriate item wh
 <tr><td><code>ValueIter</code></td><td>[valueno, value]</td></tr>
 </table>
    
+<p>
+The lazy evaluation is mainly transparent, but does become visible in one situation: if you keep an object returned by an iterator, without evaluating its properties to force the lazy evaluation to happen, and then move the iterator forward, the object may no longer be able to efficiently perform the lazy evaluation.  In this situation, an exception will be raised indicating that the information requested wasn't available.  This will only happen for a few of the properties - most are either not evaluated lazily (because the underlying Xapian implementation doesn't evaluated them lazily, so there's no advantage in lazy evaluation), or can be accessed even after the iterator has moved.  The simplest work around is simply to evaluate any properties you wish to use which are affected by this before moving the iterator.  The complete set of iterator properties affected by this is:
+</p>
+
+<ul>
+<li>
+Database.allterms (also accessible as Database.__iter__): <b>termfreq</b>
+</li><li>
+Database.termlist: <b>termfreq</b> and <b>positer</b>
+</li><li>
+Document.termlist (also accessible as Document.__iter__): <b>termfreq</b> and <b>positer</b>
+</li><li>
+Database.postlist: <b>positer</b>
+</li>
+</ul>
+
 <h2>MSet</h2>
 
 <p>
