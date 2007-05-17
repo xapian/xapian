@@ -38,6 +38,16 @@ dnl code can be removed once we move to requiring autoconf 2.60 or newer.
 test -n "$docdir" || docdir='${datadir}/doc/${PACKAGE_TARNAME}'
 AC_SUBST(docdir)
  
+AC_ARG_ENABLE(documentation,
+  [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-documentation]) ;;
+  esac])
+test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
+AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
+AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
+
 dnl Checks for programs.
 AC_PROG_CXX
 
@@ -241,7 +251,7 @@ fi
 dnl Check processor endianness.
 AC_C_BIGENDIAN
 
-if test x$USE_MAINTAINER_MODE = xyes; then
+if test x"$enable_documentation" = xyes; then
   dnl Check for perl. (Needed to make man pages from "--help" output).
   AC_PATH_PROG(PERL, perl, [])
   test -z "$PERL" && AC_MSG_ERROR([perl is required in maintainer mode])
@@ -344,11 +354,11 @@ if test yes = "$GXX"; then
       esac
 
       dnl Automatically add -Werror if maintainer mode is enabled and we're
-      dnl using GCC3 or newer.  We don't do this for older GCCs as GCC 2.95
-      dnl issues spurious warnings.
+      dnl using GCC4 or newer.  We don't do this for older GCCs as GCC 2.95
+      dnl and some GCC 3.x compilers issue spurious warnings.
       if test x$USE_MAINTAINER_MODE = xyes; then
 	case $gxx_version in
-	[[12]].*) ;; dnl GCC < 3
+	[[123]].*) ;; dnl GCC < 4
 	*) AM_CXXFLAGS="$AM_CXXFLAGS -Werror" ;;
 	esac
       fi
