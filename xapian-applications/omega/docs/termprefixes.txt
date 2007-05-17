@@ -36,7 +36,7 @@ M	Month (numeric format: YYYYMM)
 N	ISO couNtry code (or domaiN name)
 P	Pathname
 Q	uniQue id
-R	Raw (i.e. unstemmed) term
+R	Raw (i.e. unstemmed) term (unused by Xapian as of version 1.0.0)
 S	Subject (or title)
 T	mimeType
 U	full URL of indexed document - if the resulting term would be > 240
@@ -44,10 +44,12 @@ U	full URL of indexed document - if the resulting term would be > 240
 	the Xapian term length limit (see omindex for how to do this).
 W	"weak" (approximately 10 day intervals, taken as YYYYMMD from
 	the D term, and changing the last digit to a '2' if it's a '3')
+	(unused by Xapian at present)
 X	longer prefix for user-defined use
 Y	year (four digits)
+Z	stemmed term
 
-Reserved but currently unallocated: BCEFIJOVZ
+Reserved but currently unallocated: BCEFIJOV
 
 There are two main uses for prefixes - boolean filters and probabilistic
 (i.e. free text) fields.
