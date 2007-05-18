@@ -42,6 +42,10 @@ static const testcase tests[] = {
     { "hello<!-- bl>ah --> world", "hello world", "", "", "" },
     { "hello<!-- blah > world", "hello world", "", "", "" },
     { "<script>\nif (a<b) a = b;</script>test", "test", "", "", "" },
+    // Regression test for bug first noticed in 1.0.0 (but present earlier).
+    { "<b>not</b>\n<b>able</b>", "not able", "", "", "" },
+    // Check that whitespace is handled as intended.
+    { " <b>not </b>\n<b>\table\t</b>\r\n", "not able", "", "", "" },
     { 0, 0, 0, 0, 0 }
 };
 

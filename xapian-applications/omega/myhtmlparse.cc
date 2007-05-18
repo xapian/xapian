@@ -44,20 +44,19 @@ MyHtmlParser::parse_html(const string &text)
 void
 MyHtmlParser::process_text(const string &text)
 {
-    if (!in_script_tag && !in_style_tag) {
-	string::size_type b = 0;
-	while ((b = text.find_first_not_of(WHITESPACE, b)) != string::npos) {
-	    if (pending_space || b != 0)
-		if (!dump.empty()) dump += ' ';
-	    pending_space = true;
+    if (!text.empty() && !in_script_tag && !in_style_tag) {
+	string::size_type b = text.find_first_not_of(WHITESPACE);
+	if (b) pending_space = true;
+	while (b != string::npos) {
+	    if (pending_space && !dump.empty()) dump += ' ';
 	    string::size_type e = text.find_first_of(WHITESPACE, b);
-	    if (e == string::npos) {
-		dump += text.substr(b);
-		pending_space = false;
-		break;
+	    pending_space = (e != string::npos);
+	    if (!pending_space) {
+		dump.append(text.data() + b, text.size() - b);
+		return;
 	    }
-	    dump += text.substr(b, e - b);
-	    b = e + 1;
+	    dump.append(text.data() + b, e - b);
+	    b = text.find_first_not_of(WHITESPACE, e + 1);
 	}
     }
 }
