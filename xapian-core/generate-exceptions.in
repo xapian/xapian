@@ -150,10 +150,10 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  is negative, it's a platform-specific error code (on UNIX, -h_errno;
      *  on MS Windows, -GetLastError()).
      *
-     *  @deprecated This method is deprecated, because the values aren't
-     *  portable between platforms, so we can't serialise it when passing
-     *  exceptions from the a remote server to the client.  Use
-     *  the get_error_string() method instead.
+     *  @deprecated This method is deprecated, because errno values aren't
+     *  portable between platforms, so we can't serialise them when passing
+     *  exceptions from a remote server to a client.  Use the
+     *  get_error_string() method instead.
      */
     XAPIAN_DEPRECATED(int get_errno() const);
 };
