@@ -19,7 +19,7 @@
 
 # We need at least Tcl version 8
 package require Tcl 8
-package require xapian 0.9.6
+package require xapian 1.0.0
 
 # Test the version number reporting functions give plausible results.
 set v [format {%d.%d.%d} [xapian::major_version] \

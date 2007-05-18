@@ -30,7 +30,7 @@ xapian_la_LIBADD = $(XAPIAN_LIBS)
 
 BUILT_SOURCES = xapian_wrap.cc
 
-pkgIndex.tcl: Makefile.am
+pkgIndex.tcl: Makefile.am ../config.status
 	echo 'package ifneeded xapian @VERSION_NO_SNAPSHOT@ [list load [file join $$dir xapian[info sharedlibextension]]]' > pkgIndex.tcl
 
 if MAINTAINER_MODE
