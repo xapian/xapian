@@ -1,3 +1,10 @@
+Fri May 18 12:59:55 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac,tcl8/Makefile.am,tcl8/pkgIndex.tcl.in: Generate
+	  tcl8/pkgIndex.tcl from a .in file, instead of using a special
+	  rule in tcl8/Makefile.am.  Should make the dependencies more
+	  robust, and is generally cleaner.
+
 Fri May 18 09:16:14 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tcl8/smoketest.tcl: Update tcl smoketest.tcl to require version
