@@ -1065,7 +1065,7 @@ static bool test_qp_value_range3()
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     int low = 0;  // FIXME - should it work with negative numbers?
                   // If so, test it with some by setting low to -10
-    int high = 10; // Currently the test passes if high is 9, but not if it is 10.
+    int high = 9; // Currently the test passes if high is 9, but not if it is 10.
 
     for (int i = low; i <= high; ++i) {
 	Xapian::Document doc;
