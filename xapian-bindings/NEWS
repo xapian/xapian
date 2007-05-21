@@ -1,3 +1,18 @@
+Xapian-core 1.0.1 (2007-05-?):
+ - Up to Mon May 21 01:51:24 BST 2007
+
+General:
+
+* Add wrapper of Query constructor for creating ValueRange queries.
+
+Tcl:
+
+* Update smoketest and examples to require version 1.0.0 - previously this
+  required 0.9.6, which failed since TCL doesn't accept differing major
+  version numbers.
+
+* Fix build system dependencies for generating pkgIndex.tcl
+
 Xapian-core 1.0.0 (2007-05-17):
 
 Documentation:
