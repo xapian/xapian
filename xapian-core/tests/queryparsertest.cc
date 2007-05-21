@@ -22,6 +22,7 @@
 #include <xapian.h>
 #include <iostream>
 #include <string>
+#include "utils.h"
 
 using namespace std;
 
@@ -777,7 +778,6 @@ static bool test_qp_flag_wildcard2()
 // Test partial queries.
 static bool test_qp_flag_partial1()
 {
-    // FIXME: check what the results should actually be now...
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     Xapian::Document doc;
     Xapian::Stem stemmer("english");
@@ -1059,6 +1059,46 @@ static bool test_qp_value_range2()
     return true;
 }
 
+// Test NumberValueRangeProcessors with actual data..
+static bool test_qp_value_range3()
+{
+    Xapian::WritableDatabase db(Xapian::InMemory::open());
+    int low = 0;  // FIXME - should it work with negative numbers?
+                  // If so, test it with some by setting low to -10
+    int high = 10; // Currently the test passes if high is 9, but not if it is 10.
+
+    for (int i = low; i <= high; ++i) {
+	Xapian::Document doc;
+	doc.add_value(1, om_tostring(i));
+	db.add_document(doc);
+    }
+
+    Xapian::NumberValueRangeProcessor vrp_num(1);
+    Xapian::QueryParser qp;
+    qp.add_valuerangeprocessor(&vrp_num);
+
+    for (int start = low; start <= high; ++start) {
+	for (int end = low; end <= high; ++end) {
+	    string query = om_tostring(start) + ".." + om_tostring(end);
+	    tout << "Query: " << query << '\n';
+	    Xapian::Query qobj = qp.parse_query(query);
+	    Xapian::Enquire enq(db);
+	    enq.set_query(qobj);
+	    Xapian::MSet mset = enq.get_mset(0, 1 + high - low);
+	    if (end < start) {
+		TEST_EQUAL(mset.size(), 0);
+	    } else {
+		//TEST_EQUAL(mset.size(), 1u + end - start);
+		for (unsigned int j = 0; j != mset.size(); j++) {
+		    TEST_EQUAL(mset[j].get_document().get_value(1),
+			       om_tostring(static_cast<int>(j) + start));
+		}
+	    }
+	}
+    }
+    return true;
+}
+
 static test test_value_daterange1_queries[] = {
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19991203 20011204" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
@@ -1143,6 +1183,7 @@ static test_desc tests[] = {
     TESTCASE(qp_default_prefix1),
     TESTCASE(qp_value_range1),
     TESTCASE(qp_value_range2),
+    TESTCASE(qp_value_range3),
     TESTCASE(qp_value_daterange1),
     TESTCASE(qp_stoplist1),
     END_OF_TESTCASES

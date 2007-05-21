@@ -255,8 +255,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 
 	/** Term that this node represents, or start of a range query.
 	 *
-	 *  For a leaf node, this hold the term name.  For an OP_VALUE_RANGE query
-	 *  this holds the start of the range.
+	 *  For a leaf node, this holds the term name.  For an OP_VALUE_RANGE
+	 *  query this holds the start of the range.
 	 */
 	std::string tname;
 
