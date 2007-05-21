@@ -23,14 +23,17 @@
 
 #include <config.h>
 
+// Need to call Error::get_errno() for testing.
+#define XAPIAN_DEPRECATED(D) D
+#include <xapian.h>
+
 #include <float.h>
+#include "safeerrno.h"
 
 #include <string>
 #include <list>
 
 using namespace std;
-
-#include <xapian.h>
 
 #include "autoptr.h"
 #include "testsuite.h"
@@ -459,6 +462,33 @@ static bool test_serialisequery1()
 
     return true;
 }
+
+// Check serialisation of Xapian::Error.
+static bool test_serialiseerror1()
+{
+    string enoent_msg(strerror(ENOENT));
+    Xapian::DatabaseOpeningError e("Failed to open database", ENOENT);
+    TEST_EQUAL(e.get_errno(), ENOENT);
+    TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
+
+    string serialisation = serialise_error(e);
+
+    // Test if unserialise_error() throws with a flag to avoid the possibility
+    // of an "unreachable code" warning when we get around to marking
+    // unserialise_error() as "noreturn".
+    bool threw = false;
+    try {
+	// unserialise_error throws an exception.
+	unserialise_error(serialisation, "", "");
+    } catch (Xapian::Error & ecaught) {
+	TEST_EQUAL(ecaught.get_errno(), 0); // errno values aren't portable.
+	TEST_STRINGS_EQUAL(ecaught.get_error_string(), enoent_msg);
+	threw = true;
+    }
+    TEST(threw);
+
+    return true;
+}
 #endif
 
 // By default Sun's C++ compiler doesn't call the destructor on a
@@ -506,6 +536,7 @@ test_desc tests[] = {
     {"serialiselength2",	test_serialiselength2},
     {"serialisedoc1",		test_serialisedoc1},
     {"serialisequery1",		test_serialisequery1},
+    {"serialiseerror1",		test_serialiseerror1},
 #endif
     {0, 0}
 };

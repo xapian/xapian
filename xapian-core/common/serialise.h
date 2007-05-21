@@ -81,6 +81,7 @@ std::string serialise_error(const Xapian::Error &e);
  *				context will be noted in the Error's @a msg
  *				field.
  */
+XAPIAN_VISIBILITY_DEFAULT
 void unserialise_error(const std::string &error_string,
 		       const std::string &prefix,
 		       const std::string &new_context);
