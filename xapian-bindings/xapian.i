@@ -842,6 +842,7 @@ class Query {
 	Query(Query::op op_, const Query & left, const Query & right);
 	Query(Query::op op_, const string & left, const string & right);
 	Query(const Query& copyme);
+	Query(Query::op op_, Xapian::valueno valno, const std::string &begin, const std::string &end);
 	%extend {
 #ifndef XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 	    /* For some languages we handle strings in the vector<Query>
