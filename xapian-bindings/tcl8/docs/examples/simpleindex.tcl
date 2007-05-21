@@ -23,7 +23,7 @@
 # (8.3 is needed for regexp -start which this example uses; the Xapian bindings
 # themselves only require Tcl 8.1)
 package require Tcl 8.3
-package require xapian 0.8.4
+package require xapian 1.0.0
 
 set MAX_PROB_TERM_LENGTH 64
 

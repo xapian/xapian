@@ -22,7 +22,7 @@
 # We need at least Tcl version 8.1
 package require Tcl 8.1
 # We need xapian 0.9.3 for the query from list ctor wrapper
-package require xapian 0.9.3
+package require xapian 1.0.0
 
 if {[llength $argv] < 2} {
     puts "usage: $argv0 <path to database> <search terms>"
