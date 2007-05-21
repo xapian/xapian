@@ -234,8 +234,8 @@ class test_driver {
  *  be seen clearly.
  */
 #define TEST_STRINGS_EQUAL(a, b) TEST_AND_EXPLAIN(((a) == (b)), \
-	"Expected "STRINGIZE(a)" and "STRINGIZE(b)" to be equal, were:\n" \
-	<< (a) << '\n' << (b))
+	"Expected "STRINGIZE(a)" and "STRINGIZE(b)" to be equal, were:\n\"" \
+	<< (a) << "\"\n\"" << (b) << '"')
 
 /// Helper function for TEST_EQUAL_DOUBLE macro.
 extern bool TEST_EQUAL_DOUBLE_(double a, double b);
