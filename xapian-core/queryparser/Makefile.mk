@@ -3,10 +3,12 @@ if VPATH_BUILD
 # VPATH build from SVN.
 INCLUDES += -I$(top_srcdir)/queryparser
 
+if MAINTAINER_MODE
 # We need this because otherwise, if depcomp is being used (as it will be for a
 # build with gcc-2.95), depcomp will be unable to find queryparser_token.h.
 # This may be a bug in depcomp, but it certainly happens with automake-1.10.
 INCLUDES += -I$(top_builddir)/queryparser
+endif
 endif
 
 noinst_HEADERS +=\

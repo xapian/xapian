@@ -1,3 +1,9 @@
+Thu May 24 17:28:20 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/Makefile.mk: $(top_builddir)/queryparser is only
+	  required in include path for maintainer mode, so make it so for
+	  neatness.
+
 Tue May 22 11:04:04 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/Makefile.mk: Add $(top_builddir)/queryparser to include
