@@ -27,6 +27,7 @@ Xapian/RSet.pm
 Xapian/Stem.pod
 Xapian/SimpleStopper.pm
 Xapian/Stopper.pm
+Xapian/TermGenerator.pm
 Xapian/TermIterator.pm
 Xapian/TradWeight.pm
 Xapian/ValueIterator.pm
@@ -51,6 +52,7 @@ XS/RSet.xs
 XS/SimpleStopper.xs
 XS/Stem.xs
 XS/Stopper.xs
+XS/TermGenerator.xs
 XS/TermIterator.xs
 XS/TradWeight.xs
 XS/ValueIterator.xs
