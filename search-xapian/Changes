@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.0.0.0  Sat May 26 00:00:19 BST 2007
+1.0.0.0  Sat May 26 00:41:07 BST 2007
 	[Changes contributed by Olly Betts]
 	- Wrap new TermGenerator class.
 	- Wrap new QueryParser flags FLAG_PURE_NOT and FLAG_PARTIAL.
@@ -13,11 +13,12 @@ Revision history for Perl extension Search::Xapian.
 	  an exception.
 	- MSet::convert_to_percentage() now actually works (and added feature
 	  tests to search.t to make sure it keeps working).
-	- Add "make check" as an alias for "make test".
 	- Test WritableDatabase::add_value() in t/index.t.
 	- Test OP_VALUE_RANGE in new t/valuerange.t.
 	- Test ValueRangeProcessor and subclasses in t/parser.t.
 	- More tests for ESetIterator.
+	- Feature tests for new TermGenerator class.
+	- Add "make check" as an alias for "make test".
 
 0.9.10.0  Tue Mar 06 02:27:02 2007
 	[Changes contributed by Rusty Conover]
