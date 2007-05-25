@@ -16,6 +16,7 @@ use Search::Xapian::PostingIterator;
 use Search::Xapian::Query;
 use Search::Xapian::QueryParser;
 use Search::Xapian::RSet;
+use Search::Xapian::TermGenerator;
 use Search::Xapian::TermIterator;
 use Search::Xapian::ValueIterator;
 use Search::Xapian::WritableDatabase;
