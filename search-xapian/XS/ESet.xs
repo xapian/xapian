@@ -16,7 +16,7 @@ new2(other);
         RETVAL = new ESet(*other);
     OUTPUT:
         RETVAL
- 
+
 
 termcount
 ESet::get_ebound()
@@ -30,24 +30,21 @@ ESet::empty()
 ESetIterator *
 ESet::begin()
     CODE:
-        RETVAL = new ESetIterator();
-        *RETVAL = THIS->begin();
+        RETVAL = new ESetIterator(THIS->begin());
     OUTPUT:
         RETVAL
 
 ESetIterator *
 ESet::end()
     CODE:
-        RETVAL = new ESetIterator();
-        *RETVAL = THIS->end();
+        RETVAL = new ESetIterator(THIS->end());
     OUTPUT:
         RETVAL
 
 ESetIterator *
 ESet::back()
     CODE:
-        RETVAL = new ESetIterator();
-        *RETVAL = THIS->back();
+        RETVAL = new ESetIterator(THIS->back());
     OUTPUT:
         RETVAL
 

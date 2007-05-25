@@ -1,4 +1,4 @@
-MODULE = Search::Xapian 		PACKAGE = Search::Xapian::Document		
+MODULE = Search::Xapian 		PACKAGE = Search::Xapian::Document
 
 PROTOTYPES: ENABLE
 
@@ -16,7 +16,7 @@ new2(other);
         RETVAL = new Document(*other);
     OUTPUT:
         RETVAL
- 
+
 string
 Document::get_value(valueno valno)
 
@@ -103,16 +103,14 @@ Document::termlist_count()
 TermIterator *
 Document::termlist_begin()
     CODE:
-        RETVAL = new TermIterator();
-        *RETVAL = THIS->termlist_begin();
+        RETVAL = new TermIterator(THIS->termlist_begin());
     OUTPUT:
         RETVAL
 
 TermIterator *
 Document::termlist_end()
     CODE:
-        RETVAL = new TermIterator();
-        *RETVAL = THIS->termlist_end();
+        RETVAL = new TermIterator(THIS->termlist_end());
     OUTPUT:
         RETVAL
 
@@ -122,16 +120,14 @@ Document::values_count()
 ValueIterator *
 Document::values_begin()
     CODE:
-        RETVAL = new ValueIterator();
-        *RETVAL = THIS->values_begin();
+        RETVAL = new ValueIterator(THIS->values_begin());
     OUTPUT:
         RETVAL
 
 ValueIterator *
 Document::values_end()
     CODE:
-        RETVAL = new ValueIterator();
-        *RETVAL = THIS->values_end();
+        RETVAL = new ValueIterator(THIS->values_end());
     OUTPUT:
         RETVAL
 

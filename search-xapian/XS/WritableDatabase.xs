@@ -27,9 +27,8 @@ new2(database)
 WritableDatabase *
 new3()
     CODE:
-        RETVAL = new WritableDatabase();
         try {
-            *RETVAL = InMemory::open();
+	    RETVAL = new WritableDatabase(InMemory::open());
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -167,9 +166,8 @@ TermIterator *
 WritableDatabase::termlist_begin(did)
     docid	did
     CODE:
-        RETVAL = new TermIterator();
 	try {
-	    *RETVAL = THIS->termlist_begin(did);
+	    RETVAL = new TermIterator(THIS->termlist_begin(did));
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -181,9 +179,8 @@ TermIterator *
 WritableDatabase::termlist_end(did)
     docid	did
     CODE:
-        RETVAL = new TermIterator();
 	try {
-	    *RETVAL = THIS->termlist_end(did);
+	    RETVAL = new TermIterator(THIS->termlist_end(did));
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -196,9 +193,8 @@ WritableDatabase::positionlist_begin(did, term)
     docid	did
     string	term
     CODE:
-        RETVAL = new PositionIterator();
 	try {
-	    *RETVAL = THIS->positionlist_begin(did, term);
+	    RETVAL = new PositionIterator(THIS->positionlist_begin(did, term));
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -211,9 +207,8 @@ WritableDatabase::positionlist_end(did, term)
     docid	did
     string	term
     CODE:
-        RETVAL = new PositionIterator();
 	try {
-	    *RETVAL = THIS->positionlist_end(did, term);
+	    RETVAL = new PositionIterator(THIS->positionlist_end(did, term));
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -224,9 +219,8 @@ WritableDatabase::positionlist_end(did, term)
 TermIterator *
 WritableDatabase::allterms_begin()
     CODE:
-        RETVAL = new TermIterator();
 	try {
-	    *RETVAL = THIS->allterms_begin();
+	    RETVAL = new TermIterator(THIS->allterms_begin());
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -237,9 +231,8 @@ WritableDatabase::allterms_begin()
 TermIterator *
 WritableDatabase::allterms_end()
     CODE:
-        RETVAL = new TermIterator();
 	try {
-	    *RETVAL = THIS->allterms_end();
+	    RETVAL = new TermIterator(THIS->allterms_end());
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -251,9 +244,8 @@ PostingIterator *
 WritableDatabase::postlist_begin(term)
     string	term
     CODE:
-        RETVAL = new PostingIterator();
 	try {
-	    *RETVAL = THIS->postlist_begin(term);
+	    RETVAL = new PostingIterator(THIS->postlist_begin(term));
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -265,9 +257,8 @@ PostingIterator *
 WritableDatabase::postlist_end(term)
     string	term
     CODE:
-        RETVAL = new PostingIterator();
 	try {
-	    *RETVAL = THIS->postlist_end(term);
+	    RETVAL = new PostingIterator(THIS->postlist_end(term));
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );
@@ -377,9 +368,8 @@ WritableDatabase::keep_alive()
 Document *
 WritableDatabase::get_document(docid did)
     CODE:
-        RETVAL = new Document();
 	try {
-	    *RETVAL = THIS->get_document(did);
+	    RETVAL = new Document(THIS->get_document(did));
         }
         catch (const Error &error) {
             croak( "Exception: %s", error.get_msg().c_str() );

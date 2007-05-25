@@ -16,7 +16,7 @@ new2(other);
         RETVAL = new MSet(*other);
     OUTPUT:
         RETVAL
- 
+
 void
 MSet::fetch1(begin, end)
     MSetIterator *	begin
@@ -100,32 +100,28 @@ MSet::swap(other)
 MSetIterator *
 MSet::begin()
     CODE:
-        RETVAL = new MSetIterator();
-        *RETVAL = THIS->begin();
+        RETVAL = new MSetIterator(THIS->begin());
     OUTPUT:
         RETVAL
 
 MSetIterator *
 MSet::end()
     CODE:
-        RETVAL = new MSetIterator();
-        *RETVAL = THIS->end();
+        RETVAL = new MSetIterator(THIS->end());
     OUTPUT:
         RETVAL
 
 MSetIterator *
 MSet::back()
     CODE:
-        RETVAL = new MSetIterator();
-        *RETVAL = THIS->back();
+        RETVAL = new MSetIterator(THIS->back());
     OUTPUT:
         RETVAL
 
 MSetIterator *
 MSet::get_msetiterator(doccount i)
     CODE:
-        RETVAL = new MSetIterator();
-        *RETVAL = (*THIS)[i];
+        RETVAL = new MSetIterator((*THIS)[i]);
     OUTPUT:
         RETVAL
 

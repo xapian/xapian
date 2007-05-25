@@ -14,6 +14,8 @@ Revision history for Perl extension Search::Xapian.
 	- Test ValueRangeProcessor and subclasses in t/parser.t.
 	- MSet::convert_to_percentage() now actually works (and added feature
 	  tests to search.t to make sure it keeps working).
+	- Fix small memory leaks in various methods when the C++ method throws
+	  an exception.
 
 0.9.10.0  Tue Mar 06 02:27:02 2007
 	[Changes contributed by Rusty Conover]
