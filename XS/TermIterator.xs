@@ -16,15 +16,14 @@ new2(other);
         RETVAL = new TermIterator(*other);
     OUTPUT:
         RETVAL
-  
+
 void
 TermIterator::DESTROY()
 
 TermIterator *
 TermIterator::inc()
     CODE:
-        RETVAL = new TermIterator();
-        *RETVAL = ++(*THIS);
+        RETVAL = new TermIterator(++(*THIS));
     OUTPUT:
         RETVAL
 
@@ -63,16 +62,14 @@ TermIterator::get_termfreq()
 PositionIterator *
 TermIterator::positionlist_begin()
     CODE:
-        RETVAL = new PositionIterator;
-        *RETVAL = THIS->positionlist_begin();
+        RETVAL = new PositionIterator(THIS->positionlist_begin());
     OUTPUT:
         RETVAL
 
 PositionIterator *
 TermIterator::positionlist_end()
     CODE:
-        RETVAL = new PositionIterator;
-        *RETVAL = THIS->positionlist_end();
+        RETVAL = new PositionIterator(THIS->positionlist_end());
     OUTPUT:
         RETVAL
 

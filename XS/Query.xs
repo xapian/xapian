@@ -102,16 +102,14 @@ Query::get_length()
 TermIterator *
 Query::get_terms_begin()
     CODE:
-        RETVAL = new TermIterator();
-        *RETVAL = THIS->get_terms_begin();
+        RETVAL = new TermIterator(THIS->get_terms_begin());
     OUTPUT:
         RETVAL
 
 TermIterator *
 Query::get_terms_end()
     CODE:
-        RETVAL = new TermIterator();
-        *RETVAL = THIS->get_terms_end();
+        RETVAL = new TermIterator(THIS->get_terms_end());
     OUTPUT:
         RETVAL
 

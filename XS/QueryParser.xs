@@ -68,16 +68,14 @@ QueryParser::add_boolean_prefix(string field, string prefix)
 TermIterator *
 QueryParser::stoplist_begin()
     CODE:
-	RETVAL = new TermIterator();
-	*RETVAL = THIS->stoplist_begin();
+	RETVAL = new TermIterator(THIS->stoplist_begin());
     OUTPUT:
 	RETVAL
 
 TermIterator *
 QueryParser::stoplist_end()
     CODE:
-	RETVAL = new TermIterator();
-	*RETVAL = THIS->stoplist_end();
+	RETVAL = new TermIterator(THIS->stoplist_end());
     OUTPUT:
 	RETVAL
 
@@ -85,8 +83,7 @@ TermIterator *
 QueryParser::unstem_begin(term)
     string term
     CODE:
-	RETVAL = new TermIterator();
-	*RETVAL = THIS->unstem_begin(term);
+	RETVAL = new TermIterator(THIS->unstem_begin(term));
     OUTPUT:
 	RETVAL
 
@@ -94,8 +91,7 @@ TermIterator *
 QueryParser::unstem_end(term)
     string term
     CODE:
-	RETVAL = new TermIterator();
-	*RETVAL = THIS->unstem_end(term);
+	RETVAL = new TermIterator(THIS->unstem_end(term));
     OUTPUT:
 	RETVAL
 

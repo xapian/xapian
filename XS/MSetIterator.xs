@@ -53,8 +53,7 @@ MSetIterator::get_docid()
 Document *
 MSetIterator::get_document()
     CODE:
-        RETVAL = new Document();
-        *RETVAL = THIS->get_document();
+        RETVAL = new Document(THIS->get_document());
     OUTPUT:
         RETVAL
 

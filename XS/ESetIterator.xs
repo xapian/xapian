@@ -17,21 +17,15 @@ new2(other);
     OUTPUT:
         RETVAL
 
-ESetIterator *
+void
 ESetIterator::inc()
     CODE:
-        RETVAL = new ESetIterator();
-        *RETVAL = ++(*THIS);
-    OUTPUT:
-        RETVAL
+        ++(*THIS);
 
-ESetIterator *
+void
 ESetIterator::dec()
     CODE:
-        RETVAL = new ESetIterator();
-        *RETVAL = --(*THIS);
-    OUTPUT:
-        THIS
+        --(*THIS);
 
 bool
 ESetIterator::equal(ESetIterator * that)

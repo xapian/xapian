@@ -19,7 +19,7 @@ new2(other);
 
 void
 PostingIterator::DESTROY()
-  
+
 void
 PostingIterator::inc()
     CODE:
@@ -68,16 +68,14 @@ PostingIterator::get_description()
 PositionIterator *
 PostingIterator::positionlist_begin()
     CODE:
-        RETVAL = new PositionIterator;
-        *RETVAL = THIS->positionlist_begin();
+        RETVAL = new PositionIterator(THIS->positionlist_begin());
     OUTPUT:
         RETVAL
 
 PositionIterator *
 PostingIterator::positionlist_end()
     CODE:
-        RETVAL = new PositionIterator;
-        *RETVAL = THIS->positionlist_end();
+        RETVAL = new PositionIterator(THIS->positionlist_end());
     OUTPUT:
         RETVAL
 
