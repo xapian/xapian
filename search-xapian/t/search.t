@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 84 };
+BEGIN { plan tests => 86 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -108,6 +108,9 @@ is( $eset->size(), 1, "expanded terms set of correct size" );
 my $eit;
 ok( $eit = $eset->begin(), "expanded terms set iterator retuns ok" );
 is( $eit->get_termname(), 'one', "expanded terms set contains correct terms");
+is( ++$eit, $eset->end(), "eset iterator reaches ESet::end() ok" );
+--$eit;
+is( $eit->get_termname(), 'one', "eset iterator decrement works ok" );
 
 # try an empty mset - this was giving begin != end
 my ($noquery, $nomatches);
