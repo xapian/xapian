@@ -8,6 +8,8 @@ Query			O_QUERY
 Query *			O_QUERY
 QueryParser		O_QUERYPARSER
 QueryParser *		O_QUERYPARSER
+TermGenerator		O_TERMGENERATOR
+TermGenerator *		O_TERMGENERATOR
 Stopper			O_STOPPER
 Stopper *		O_STOPPER
 SimpleStopper		O_SIMPLESTOPPER
@@ -143,6 +145,14 @@ O_QUERYPARSER
 		XSRETURN_UNDEF;
 	}
 
+O_TERMGENERATOR
+	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::TermGenerator\") )
+		$var = ($type)SvIV((SV*)SvRV( $arg ));
+	else{
+		warn( \"${Package}::$func_name() -- $var is not a \\\"Search::Xapian::TermGenerator\\\" object\" );
+		XSRETURN_UNDEF;
+	}
+
 O_STOPPER
 	if( sv_isobject($arg) && sv_derived_from($arg, \"Search::Xapian::Stopper\") )
 		$var = ($type)SvIV((SV*)SvRV( $arg ));
@@ -237,6 +247,8 @@ O_QUERY
 	sv_setref_pv( $arg, "Search::Xapian::Query", (void*)$var );
 O_QUERYPARSER
 	sv_setref_pv( $arg, "Search::Xapian::QueryParser", (void*)$var );
+O_TERMGENERATOR
+	sv_setref_pv( $arg, "Search::Xapian::TermGenerator", (void*)$var );
 O_STOPPER
 	sv_setref_pv( $arg, "Search::Xapian::Stopper", (void*)$var );
 O_SIMPLESTOPPER
