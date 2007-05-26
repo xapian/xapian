@@ -1,3 +1,8 @@
+Sat May 26 22:49:20 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/deprecation.rst: Fix typo in deprecation list for the
+	  bindings pointed out by Thomas Waldmann.
+
 Sat May 26 09:39:36 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Add note about reasons for avoiding std::pair<> with an STL

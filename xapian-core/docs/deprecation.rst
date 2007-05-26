@@ -285,7 +285,7 @@ Bindings
 +-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
 | **Removal** | **Language**    | **Feature name**            | **Upgrade suggestions and comments**                                          |
 +-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | SWIG [#rswig]_  | Enquire::set_sort_forward() | Use Enquire::set_sort_forward() instead.                                      |
+| 1.0.0       | SWIG [#rswig]_  | Enquire::set_sort_forward() | Use Enquire::set_docid_order() instead.                                       |
 |             |                 |                             |                                                                               |
 |             |                 |                             |  - set_sort_forward(true) becomes set_docid_order(ASCENDING),                 |
 |             |                 |                             |  - set_sort_forward(false) becomes set_docid_order(DESCENDING).               |
