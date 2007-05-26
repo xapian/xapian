@@ -1,3 +1,8 @@
+Sat May 26 09:39:36 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Add note about reasons for avoiding std::pair<> with an STL
+	  class as one or both members.
+
 Thu May 24 17:28:20 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/Makefile.mk: $(top_builddir)/queryparser is only

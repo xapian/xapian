@@ -405,6 +405,14 @@ Use of C++ Features:
   in preference to C style casts.  The syntax is ugly, but they do make the
   intent much clearer which is definitely a good thing.
 
+* std::pair<> with an STL class as one (or both) of the members can produce
+  very long symbols (over 4KB!) after name mangling - long enough to overflow
+  the size limits of some vendor compilers or toolchains (so this can affect
+  GCC if it is using the system ld or as).  Even where the compiler works, the
+  symbol bloat in an unstripped build is probably best avoided, so it's
+  preferable to use a simple two member struct instead.  The code is probably
+  more readable anyway, and easier to extend if more members are needed later.
+
 Miscellaneous Portability Issues:
 =================================
 
