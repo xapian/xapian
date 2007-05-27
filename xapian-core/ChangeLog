@@ -1,3 +1,8 @@
+Sun May 27 09:56:21 BST 2007  Olly Betts <olly@survex.com>
+
+	* generate-exceptions.in: Add vim modeline to force perl syntax
+	  highlighting.
+
 Sat May 26 22:53:52 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* NEWS: Bring up-to-date.

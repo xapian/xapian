@@ -248,3 +248,5 @@ EOF
 
 close HDR or die $!;
 close DISPATCH or die $!;
+
+# vim: set syntax=perl:
