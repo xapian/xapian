@@ -220,10 +220,7 @@ main(int argc, char **argv)
 		db.add_database(Database(*i));
 	    } catch (const Error &e) {
 		cout << "Error opening database `" << *i << "': ";
-		cout << e.get_msg();
-		if (e.get_error_string())
-		    cout << " (" << e.get_error_string() << ')';
-		cout << endl;
+		cout << e.get_description() << endl;
 		return 1;
 	    }
 	}
@@ -311,14 +308,14 @@ main(int argc, char **argv)
 			    }
 			    cout << endl;
 			} catch (const Error &e) {
-			    cout << "Error: " << e.get_msg() << endl;
+			    cout << "Error: " << e.get_description() << endl;
 			}
 		    }
 		}
 	    }
 	}
     } catch (const Error &e) {
-	cout << "\nError: " << e.get_msg() << endl;
+	cout << "\nError: " << e.get_description() << endl;
 	return 1;
     }
 }

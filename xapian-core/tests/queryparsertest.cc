@@ -586,8 +586,10 @@ static bool test_queryparser1()
 	    Xapian::Query qobj = queryparser.parse_query(p->query);
 	    parsed = qobj.get_description();
 	    expect = string("Xapian::Query(") + expect + ')';
-	} catch (const Xapian::Error &e) {
+	} catch (const Xapian::QueryParserError &e) {
 	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
@@ -618,8 +620,10 @@ static bool test_qp_default_op1()
 	    Xapian::Query qobj = queryparser.parse_query(p->query);
 	    parsed = qobj.get_description();
 	    expect = string("Xapian::Query(") + expect + ')';
-	} catch (const Xapian::Error &e) {
+	} catch (const Xapian::QueryParserError &e) {
 	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
@@ -903,8 +907,10 @@ static bool test_qp_stopper1()
 	    Xapian::Query qobj = qp.parse_query(p->query);
 	    parsed = qobj.get_description();
 	    expect = string("Xapian::Query(") + expect + ')';
-	} catch (const Xapian::Error &e) {
+	} catch (const Xapian::QueryParserError &e) {
 	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
@@ -932,8 +938,10 @@ static bool test_qp_flag_pure_not1()
 						QueryParser::FLAG_PURE_NOT);
 	    parsed = qobj.get_description();
 	    expect = string("Xapian::Query(") + expect + ')';
-	} catch (const Xapian::Error &e) {
+	} catch (const Xapian::QueryParserError &e) {
 	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
@@ -993,8 +1001,10 @@ static bool test_qp_value_range1()
 	    Xapian::Query qobj = qp.parse_query(p->query);
 	    parsed = qobj.get_description();
 	    expect = string("Xapian::Query(") + expect + ')';
-	} catch (const Xapian::Error &e) {
+	} catch (const Xapian::QueryParserError &e) {
 	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
@@ -1048,8 +1058,10 @@ static bool test_qp_value_range2()
 	    Xapian::Query qobj = qp.parse_query(p->query);
 	    parsed = qobj.get_description();
 	    expect = string("Xapian::Query(") + expect + ')';
-	} catch (const Xapian::Error &e) {
+	} catch (const Xapian::QueryParserError &e) {
 	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}
@@ -1125,8 +1137,10 @@ static bool test_qp_value_daterange1()
 	    Xapian::Query qobj = qp.parse_query(p->query);
 	    parsed = qobj.get_description();
 	    expect = string("Xapian::Query(") + expect + ')';
-	} catch (const Xapian::Error &e) {
+	} catch (const Xapian::QueryParserError &e) {
 	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
 	} catch (...) {
 	    parsed = "Unknown exception!";
 	}

@@ -363,14 +363,7 @@ test_driver::runtest(const test_desc *test)
 		    tout.str("");
 		}
 		out << " " << col_red << errclass << col_reset;
-		if (verbose) {
-		    out << err.get_type() << " exception: " << err.get_msg();
-		    if (!err.get_context().empty())
-			out << " (context:" << err.get_context() << ")";
-		    if (err.get_error_string())
-			out << " (" << err.get_error_string() << ")";
-		    out << endl;
-		}
+		if (verbose) out << err.get_description() << endl;
 		return FAIL;
 	    } catch (const string & msg) {
 		string s = tout.str();
@@ -382,11 +375,11 @@ test_driver::runtest(const test_desc *test)
 		out << " " << col_red << "EXCEPTION: ";
 		size_t cutoff = min(size_t(40), msg.size());
 		cutoff = find(msg.begin(), msg.begin() + cutoff, '\n') - msg.begin();
-		if (cutoff == msg.size()) out << msg; else out << msg.substr(0, cutoff) << "...";
+		if (verbose || cutoff == msg.size())
+		    out << msg;
+		else
+		    out << msg.substr(0, cutoff) << "...";
 		out << col_reset;
-		if (verbose && cutoff != msg.size()) {
-		    out << msg << endl;
-		}
 		return FAIL;
 	    } catch (...) {
 		string s = tout.str();

@@ -504,11 +504,7 @@ QuartzDatabase::apply()
 	    cancel();
 	} catch (const Xapian::Error & e) {
 	    string msg("Setting revision number failed: ");
-	    msg += e.get_type();
-	    msg += ": ";
-	    msg += e.get_msg();
-	    msg += ' ';
-	    msg += e.get_context();
+	    msg += e.get_description();
 	    log.make_entry(msg);
 	    throw Xapian::DatabaseError("Modifications failed, and cannot set revision numbers in database to a consistent state");
 	}

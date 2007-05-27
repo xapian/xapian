@@ -187,9 +187,7 @@ int main(int argc, char **argv) {
 	    server.run();
 	}
     } catch (const Xapian::Error &e) {
-	cerr << e.get_type() << ": " << e.get_msg();
-	if (e.get_error_string()) cerr << " (" << e.get_error_string() << ')';
-	cerr << endl;
+	cerr << e.get_description() << endl;
 	exit(1);
     } catch (const exception &e) {
 	cerr << "Caught standard exception: " << e.what() << endl;

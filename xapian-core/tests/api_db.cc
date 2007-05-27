@@ -109,9 +109,8 @@ class MyErrorHandler : public Xapian::ErrorHandler {
 
 	bool handle_error(Xapian::Error & error) {
 	    ++count;
-	    tout << "Error handling caught: " << error.get_type() << ": " <<
-		    error.get_msg() << ", with context `" <<
-		    error.get_context() << "': count is now " << count << "\n";
+	    tout << "Error handling caught: " << error.get_description()
+		 << ", count is now " << count << "\n";
 	    return true;
 	}
 

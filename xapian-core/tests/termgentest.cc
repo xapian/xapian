@@ -695,7 +695,7 @@ static bool test_termgen1()
 	    }
 	    output = format_doc_termlist(doc);
 	} catch (const Xapian::Error &e) {
-	    output = e.get_msg();
+	    output = e.get_description();
 	} catch (...) {
 	    output = "Unknown exception!";
 	}

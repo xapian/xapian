@@ -213,7 +213,8 @@ main(int argc, char **argv)
 	    } catch (const Xapian::Error & e) {
 		// Ignore so we can check a database too broken to open.
 		cout << "Database couldn't be opened for reading: "
-		     << e.get_msg() << "\nContinuing check anyway" << endl;
+		     << e.get_description()
+		     << "\nContinuing check anyway" << endl;
 		++errors;
 	    }
 	    // Assume it's a flint directory and try to check all the btrees
@@ -243,7 +244,7 @@ main(int argc, char **argv)
 	cerr << argv[0] << ": " << error << endl;
 	exit(1);
     } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_msg() << endl;
+	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);
     } catch (...) {
 	cerr << argv[0] << ": Unknown exception" << endl;

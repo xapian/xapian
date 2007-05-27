@@ -76,7 +76,7 @@ int main(int argc, char **argv)
 		 << i.get_document().get_data() << "]" << endl;
 	}
     } catch (const Error &error) {
-	cout << "Exception: "  << error.get_msg() << endl;
+	cout << "Exception: "  << error.get_description() << endl;
 	exit(1);
     }
 }

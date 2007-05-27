@@ -1,3 +1,18 @@
+Sun May 27 12:15:02 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/quartz/quartz_database.cc,bin/,examples/,net/tcpserver.cc,
+	  tests/api_db.cc,tests/harness/testsuite.cc,tests/harness/testutils.h,
+	  tests/queryparsertest.cc,tests/termgentest.cc: Make use of
+	  Xapian::Error::get_description(), which improves error reporting
+	  in a number of places.
+	* tests/harness/testsuite.cc: If we get an exception with a long
+	  message in verbose mode, just report the whole message rather than
+	  reporting the truncated message followed by the whole message.
+	* tests/queryparsertest.cc: Handle Xapian::QueryParserError specially
+	  (as we previously handled all Xapian::Error exceptions).  Other
+	  Xapian::Error exceptions now report the description not just the
+	  message.
+
 Sun May 27 11:33:11 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/error.cc,generate-exceptions.in: Add new API method

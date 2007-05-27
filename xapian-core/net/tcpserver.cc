@@ -270,10 +270,10 @@ TcpServer::handle_one_connection(int socket)
     } catch (const Xapian::NetworkTimeoutError &e) {
 	CLOSESOCKET(socket);
 	if (verbose)
-	    cerr << "Connection timed out: " << e.get_msg() << endl;
+	    cerr << "Connection timed out: " << e.get_description() << endl;
     } catch (const Xapian::Error &e) {
 	CLOSESOCKET(socket);
-	cerr << "Got exception " << e.get_type() << ": " << e.get_msg() << endl;
+	cerr << "Got exception " << e.get_description() << endl;
     } catch (...) {
 	CLOSESOCKET(socket);
 	// ignore other exceptions
@@ -353,7 +353,7 @@ TcpServer::run()
 	    run_once();
 	} catch (const Xapian::Error &e) {
 	    // FIXME: better error handling.
-	    cerr << "Caught " << e.get_type() << ": " << e.get_msg() << endl;
+	    cerr << "Caught " << e.get_description() << endl;
 	} catch (...) {
 	    // FIXME: better error handling.
 	    cerr << "Caught exception." << endl;
@@ -459,8 +459,8 @@ TcpServer::run()
 	    thread_param *param = new thread_param(this, connected_socket);
 	    HANDLE hthread = (HANDLE)_beginthreadex(NULL, 0, ::run_thread, param, 0, NULL);
 	    if (hthread == 0) {
-	       // errno holds the error code from _beginthreadex, and closesocket()
-	       // doesn't set errno.
+	       // errno holds the error code from _beginthreadex, and
+	       // closesocket() doesn't set errno.
 	       closesocket(connected_socket);
 	       throw Xapian::NetworkError("_beginthreadex failed", errno);
 	    }
@@ -472,7 +472,7 @@ TcpServer::run()
 	    CloseHandle(hthread);
 	} catch (const Xapian::Error &e) {
 	    // FIXME: better error handling.
-	    cerr << "Caught " << e.get_type() << ": " << e.get_msg() << endl;
+	    cerr << "Caught " << e.get_description() << endl;
 	} catch (...) {
 	    // FIXME: better error handling.
 	    cerr << "Caught exception." << endl;
@@ -483,7 +483,7 @@ TcpServer::run()
 void
 TcpServer::run_once()
 {
-    // Runs a single request on the current thread.
+    // Run a single request on the current thread.
     handle_one_connection(accept_connection());
 }
 

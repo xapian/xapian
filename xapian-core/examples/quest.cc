@@ -1,6 +1,6 @@
 /* quest.cc - Command line search tool using Xapian::QueryParser.
  *
- * Copyright (C) 2004,2005,2006 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -141,7 +141,7 @@ main(int argc, char **argv)
 	}
 	cout << flush;
     } catch (const Xapian::Error & err) {
-	cout << err.get_msg() << endl;
+	cout << err.get_description() << endl;
 	exit(1);
     }
 }

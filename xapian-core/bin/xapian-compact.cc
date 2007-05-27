@@ -575,7 +575,7 @@ main(int argc, char **argv)
 	    exit(1);
 	}
     } catch (const Xapian::Error &error) {
-	cerr << argv[0] << ": " << error.get_msg() << endl;
+	cerr << argv[0] << ": " << error.get_description() << endl;
 	exit(1);
     }
 }
