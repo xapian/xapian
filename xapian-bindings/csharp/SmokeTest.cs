@@ -1,6 +1,6 @@
 // Simple test that we can load the xapian module and run a simple test
 //
-// Copyright (C) 2004,2005,2006 Olly Betts
+// Copyright (C) 2004,2005,2006,2007 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,7 +22,10 @@
 //
 // http://savannah.gnu.org/bugs/?func=detailitem&item_id=12231
 //
-// The workaround is to add an explicit "using Xapian;" here:
+// The bug is fixed in Portable.NET CVS HEAD - the fix should make it
+// into Portable.NET 0.8.2.
+//
+// The workaround for now is to add an explicit "using Xapian;" here:
 using Xapian;
 
 class TestMatchDecider : Xapian.MatchDecider {
