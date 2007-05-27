@@ -1,3 +1,15 @@
+Sun May 27 16:11:42 BST 2007  Olly Betts <olly@survex.com>
+
+	* python/generate-python-exceptions.in: Remove __str__ method from
+	  %extend of Error class, since C++ now provides an
+	  Error::get_description() method which is automatically renamed to
+	  __str__.
+	* python/pythontest.py,python/smoketest.py: New C++
+	  Error::get_description() method gives different output to the old
+	  Python-specific __str__, so update testcases to match.
+	* python/generate-python-exceptions.in: Mark generated file using
+	  `@configure_input@'.
+
 Sun May 27 15:31:06 BST 2007  Olly Betts <olly@survex.com>
 
 	* csharp/SmokeTest.cs: Update comment about Portable.NET bug - the bug

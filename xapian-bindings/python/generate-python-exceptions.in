@@ -1,9 +1,8 @@
 #!@PERL@ -w -I @srcdir@/../../xapian-core/
-# generate-python-exceptions: generate error handling code for python bindings
+# @configure_input@
 #
-# Warning - generate-python-exceptions is generated from
-# generate-python-exceptions.in: don't edit generate-python-exceptions
-# directly.
+# generate-python-exceptions.in: generate error handling code for python
+# bindings
 #
 # Copyright (C) 2003,2004,2006,2007 Olly Betts
 # Copyright (C) 2007 Richard Boulton
@@ -25,9 +24,7 @@
 use strict;
 use exception_data;
 
-my @allclasses = ();
-push @allclasses, @baseclasses;
-push @allclasses, @classes;
+my @allclasses = (@baseclasses, @classes);
 
 open FD, ">except.i" or die $!;
 
@@ -58,22 +55,11 @@ print FD <<'EOF';
 namespace Xapian {
 
 %exceptionclass Error;
-%extend Error {
-    std::string __str__() const {
-	std::string msg = $self->get_msg();
-	if (!$self->get_context().empty()) {
-	    msg += " (" + $self->get_context() + ")";
-	}
-	return msg;
-    }
-}
 EOF
 
 for (@allclasses) {
     my ($class, $parent, $comment) = split /\t/, $_, 3;
-    print FD <<"EOF";
-%exceptionclass $class;
-EOF
+    print FD "%exceptionclass $class;\n";
 }
 
 print FD <<'EOF';
