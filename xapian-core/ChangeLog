@@ -1,3 +1,10 @@
+Sun May 27 11:33:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/error.cc,generate-exceptions.in: Add new API method
+	  Xapian::Error::get_description() to allow removal of
+	  essentially duplicated code in many places.  Also useful for
+	  users for the same reason.
+
 Sun May 27 09:56:21 BST 2007  Olly Betts <olly@survex.com>
 
 	* generate-exceptions.in: Add vim modeline to force perl syntax

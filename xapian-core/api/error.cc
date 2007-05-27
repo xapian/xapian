@@ -120,3 +120,22 @@ Xapian::Error::get_error_string() const
     return error_string;
 #endif
 }
+
+string
+Xapian::Error::get_description() const
+{
+    string desc(type);
+    desc += ": ";
+    desc += msg;
+    if (!context.empty()) {
+	desc += " (context: ";
+	desc += context;
+	desc += ')';
+    }
+    if (error_string) {
+	desc += " (";
+	desc += error_string;
+	desc += ')';
+    }
+    return desc;
+}

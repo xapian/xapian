@@ -156,6 +156,9 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *  get_error_string() method instead.
      */
     XAPIAN_DEPRECATED(int get_errno() const);
+
+    /// Return a string describing this object.
+    std::string get_description() const;
 };
 
 inline int Xapian::Error::get_errno() const { return my_errno; }
