@@ -34,7 +34,12 @@ class Document;
 class Stem;
 class Stopper;
 
-/// Parse free text and generate terms.
+/** Parses a piece of text and generate terms.
+ *
+ * This module takes a piece of text and parses it to produce words which are
+ * then used to generate suitable terms for indexing.  The terms generated are
+ * suitable for use with Query objects produced by the QueryParser class.
+ */
 class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
   public:
     /// @private @internal Class representing the TermGenerator internals.
@@ -54,10 +59,10 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Destructor.
     ~TermGenerator();
 
-    /// Set the stemmer.
+    /// Set the Xapian::Stem object to be used for generating stemmed terms.
     void set_stemmer(const Xapian::Stem & stemmer);
 
-    /// Set the stopper.
+    /// Set the Xapian::Stopper object to be used for identifying stopwords.
     void set_stopper(const Xapian::Stopper *stop = NULL);
 
     /// Set the current document.
@@ -66,24 +71,42 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
     /// Get the current document.
     const Xapian::Document & get_document() const;
 
-    /// Index some text.
+    /** Index some text.
+     *
+     * @param weight	The wdf increment (default 1).
+     * @param prefix	The term prefix to use (default is no prefix).
+     */
     void index_text(const Xapian::Utf8Iterator & itor,
 		    Xapian::termcount weight = 1,
 		    const std::string & prefix = "");
 
-    /// Index some text in a std::string.
+    /** Index some text in a std::string.
+     *
+     * @param weight	The wdf increment (default 1).
+     * @param prefix	The term prefix to use (default is no prefix).
+     */
     void index_text(const std::string & text,
 		    Xapian::termcount weight = 1,
 		    const std::string & prefix = "") {
 	return index_text(Utf8Iterator(text), weight, prefix);
     }
 
-    /// Index some text without positional information.
+    /** Index some text without positional information.
+     *
+     * Just like index_text, but no positional information is generated.  This
+     * means that the database will be significantly smaller, but that phrase
+     * searching and NEAR won't be supported.
+     */
     void index_text_without_positions(const Xapian::Utf8Iterator & itor,
 				      Xapian::termcount weight = 1,
 				      const std::string & prefix = "");
 
-    /// Index some text in a std::string without positional information.
+    /** Index some text in a std::string without positional information.
+     *
+     * Just like index_text, but no positional information is generated.  This
+     * means that the database will be significantly smaller, but that phrase
+     * searching and NEAR won't be supported.
+     */
     void index_text_without_positions(const std::string & text,
 				      Xapian::termcount weight = 1,
 				      const std::string & prefix = "") {
