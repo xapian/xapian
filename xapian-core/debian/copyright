@@ -17,16 +17,18 @@ Upstream Authors:
 	Free Software Foundation, Inc.
 	Silicon Graphics Computer Systems, Inc.
 	Richard Boulton
+	Lemur Consulting Ltd
 
 Copyright:
 
-  Copyright (C) 2002,2003,2004,2005,2006 Olly Betts
+  Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
   Copyright (C) 2003 Sam Liddicott
   Copyright (C) 2001,2002 Ananova Ltd
   Copyright (C) 2003 Orange PCS Ltd
   Copyright (C) 1999,2000,2001 BrightStation PLC
   Copyright (C) 2001 Hein Ragas
-  Copyright (C) 2006 Richard Boulton
+  Copyright (C) 2006,2007 Richard Boulton
+  Copyright (C) 2007 Lemur Consulting Ltd
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -125,4 +127,4 @@ The Debian packaging is also licensed under the GPL v2 or later (see above)
 and the copyright details are:
 
   Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-  Copyright (C) 2006 Olly Betts
+  Copyright (C) 2006,2007 Olly Betts

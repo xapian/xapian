@@ -51,8 +51,6 @@ endif
 commonconfflags := \
 	$(confflags) \
 	--prefix=/usr \
-	--mandir=\$${prefix}/share/man \
-	--infodir=\$${prefix}/share/info \
 	--sysconfdir=/etc
 
 # With GCC3 and later this won't make a huge difference, but it'll save
