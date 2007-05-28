@@ -1,5 +1,15 @@
+xapian-omega (1.0.0-1) unstable; urgency=low
+
   * Now builds with GCC 4.3 snapshot.  Closes: #417767
-  
+  * debian/control.in: Add libwps-tools to "Suggests:" since omindex now uses
+    it if available.
+  * debian/copyright: Update.
+  * debian/rules: We don't need to pass --mandir or --infodir to configure
+    as the values we explicitly set are the defaults anyway (and we don't
+    have any documentation in "info" format).
+
+ -- Olly Betts <olly@survex.com>  Mon, 28 May 2007 12:14:31 +0100
+
 xapian-omega (0.9.9-1) unstable; urgency=low
 
   * New upstream release.
