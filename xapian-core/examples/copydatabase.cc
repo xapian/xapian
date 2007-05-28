@@ -87,7 +87,7 @@ try {
 	}
 
 	// Calculate how many decimal digits there are in dbsize.
-	int width = static_cast<int>(log10(dbsize)) + 1;
+	int width = static_cast<int>(log10(double(dbsize))) + 1;
 
 	Xapian::doccount c = 0;
 	Xapian::PostingIterator it = db_in.postlist_begin("");
