@@ -1,8 +1,8 @@
 #!/bin/sh
-# Make Debian source packages from a xapian source tree.
+# Make Debian source packages from a Xapian source tree.
 #
 # Copyright (C) 2004 Richard Boulton
-# Copyright (C) 2006 Olly Betts
+# Copyright (C) 2006,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@
 
 set -e
 
-VALID_COMPONENTS='unstable stable edgy dapper'
+VALID_COMPONENTS='unstable stable feisty edgy dapper'
 
 if [ x"$1" = x--help ] ; then
   echo "Usage: $0 [COMPONENT...]"
@@ -40,9 +40,8 @@ fi
 SNAPSHOT=
 #SNAPSHOT=trunk
 
-# Debian component to build for (libc version and the GCC C++ ABI are typically
-# important factors).
-# This will be overridden by $1, if set.
+# Debian/Ubuntu component or components to build for.
+# This will be overridden by the command line arguments, if any were passed.
 COMPONENTS=$VALID_COMPONENTS
 
 # Options to pass to dpkg-buildpackage when building source packages
@@ -51,19 +50,21 @@ BUILDPACKAGE_SRC_OPTS="-us -uc -d -S"
 BUILDPACKAGE_BIN_OPTS="-us -uc -d -b"
 
 # Location to place the generated apt repository
-PUBDIR="/usr/data/www/xapian.org/debian"
+PUBDIR="/usr/data/www/xapian.org/debian-tmp"
 
 
 ## Items after this point should not normally need to be modified
 
 # Location to checkout source from.
+# (URL is for Richard's setup, for Olly's drop "xapian-svn@").
 SVNROOT="svn+ssh+userv://xapian-svn@svn.xapian.org/xapian/"
 # Detect if we're on the machine that Xapian SVN is held on, and don't use
 # network to check out sources if so.
-if [ "x`hostname`" = "xixion" ] ; then
-  if [ -r '/home/xapian-svn' ] ; then
-    SVNROOT="svn+xapian:///xapian/"
-  fi
+if [ "x`hostname`" = "xixion" ] && [ -r '/home/xapian-svn' ] ; then
+  SVNROOT="svn+xapian:///xapian/"
+else
+  echo "This script must be run on ixion currently."
+  exit 1
 fi
 
 # Location to download tarballs from
@@ -92,7 +93,7 @@ if [ -n "$*" ] ; then
 fi
 
 for COMPONENT in $COMPONENTS ; do
-# Check that the component is sane.
+# Check that the component is known.
 if expr "$COMPONENT" : '\('"`echo \"$VALID_COMPONENTS\"|sed 's/ /\\\\|/g'`"'\)$' >/dev/null
 then
   echo "Making source packages for $COMPONENT"
@@ -217,7 +218,7 @@ then
 else
   URL_CORE="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-core-${SNAP_VERSION}.tar.gz"
   URL_BINDINGS="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-bindings-${SNAP_VERSION}.tar.gz"
-  URL_OMEGA="${DOWNLOAD_BASE}/${SNAP_VERSION}/omega-${SNAP_VERSION}.tar.gz"
+  URL_OMEGA="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-omega-${SNAP_VERSION}.tar.gz"
 
   # Make download directory
   rm -rf downloads
@@ -226,12 +227,6 @@ else
     wget -q ${URL_CORE}
     wget -q ${URL_BINDINGS}
     wget -q ${URL_OMEGA}
-
-    # Omega package isn't named with a xapian- prefix, so unpack it, rename it,
-    # and repack it with the prefix.
-    tar zxf "omega-${SNAP_VERSION}.tar.gz"
-    mv "omega-${SNAP_VERSION}" "xapian-omega-${SNAP_VERSION}"
-    tar zcf "xapian-omega-${SNAP_VERSION}.tar.gz" "xapian-omega-${SNAP_VERSION}"
 
     # If we've got all the packages, move them into place.
     if [ -e "xapian-core-${SNAP_VERSION}.tar.gz" -a \
