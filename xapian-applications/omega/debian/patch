@@ -1,5 +1,5 @@
---- trunk/xapian-applications/omega/myhtmlparse.cc	2007/03/01 18:03:11	7820
-+++ trunk/xapian-applications/omega/myhtmlparse.cc	2007/05/18 02:37:41	8665
+--- myhtmlparse.cc	2007/03/01 18:03:11	7820
++++ myhtmlparse.cc	2007/05/18 02:37:41	8665
 @@ -44,20 +44,19 @@
  void
  MyHtmlParser::process_text(const string &text)
