@@ -15,7 +15,7 @@ xapian-bindings (1.0.0-1) unstable; urgency=low
     as the values we explicitly set are the defaults anyway (and we don't
     have any documentation in "info" format).
 
- -- Olly Betts <olly@survex.com>  Mon, 28 May 2007 12:54:31 +0100
+ -- Olly Betts <olly@survex.com>  Mon, 28 May 2007 23:18:31 +0100
 
 xapian-bindings (0.9.9-2) unstable; urgency=low
 
