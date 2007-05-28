@@ -1,10 +1,21 @@
-  * Debconf translations:
-    - Malayalam. Closes: #418032
-    - Dutch. Closes: #423066
+xapian-bindings (1.0.0-1) unstable; urgency=low
+
+  * New debconf translations:
+    - Malayalam.  Closes: #418032
+    - Dutch.  Closes: #423066
   * debian/rules: Debian unstable has dropped php4 support, so don't build
     php4-xapian for it.  Closes: #424809
   * debian/rules: Update now there's a new stable release.  Keep support for
     oldstable for the time being, in case someone wants to backport.
+  * debian/patch: Changes included upstream so remove.
+  * debian/patch: Add new patches to fix "package require xapian" issues for
+    Tcl example scripts.
+  * debian/copyright: Update.
+  * debian/rules: We don't need to pass --mandir or --infodir to configure
+    as the values we explicitly set are the defaults anyway (and we don't
+    have any documentation in "info" format).
+
+ -- Olly Betts <olly@survex.com>  Mon, 28 May 2007 12:54:31 +0100
 
 xapian-bindings (0.9.9-2) unstable; urgency=low
 

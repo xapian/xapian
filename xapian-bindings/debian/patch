@@ -1,20 +1,33 @@
---- python/modern/xapian_wrap.cc.orig	2006-11-09 00:51:17.000000000 +0000
-+++ python/modern/xapian_wrap.cc	2006-11-10 03:56:40.000000000 +0000
-@@ -20028,7 +20028,7 @@
-       PyObject *obj = PySequence_GetItem(swig_obj[1], i);
-       if (PyString_Check(obj)) {
-         char * p;
--        int len;
-+        Py_ssize_t len;
-         /* We know this must be a string, so this call can't fail. */
-         (void)PyString_AsStringAndSize(obj, &p, &len);
-         v2.push_back(Xapian::Query(string(p, len)));
-@@ -20101,7 +20101,7 @@
-       PyObject *obj = PySequence_GetItem(swig_obj[1], i);
-       if (PyString_Check(obj)) {
-         char * p;
--        int len;
-+        Py_ssize_t len;
-         /* We know this must be a string, so this call can't fail. */
-         (void)PyString_AsStringAndSize(obj, &p, &len);
-         v2.push_back(Xapian::Query(string(p, len)));
+--- trunk/xapian-bindings/tcl8/smoketest.tcl	2007/04/17 13:30:39	8263
++++ trunk/xapian-bindings/tcl8/smoketest.tcl	2007/05/18 08:19:50	8666
+@@ -19,7 +19,7 @@
+ 
+ # We need at least Tcl version 8
+ package require Tcl 8
+-package require xapian 0.9.6
++package require xapian 1.0.0
+ 
+ # Test the version number reporting functions give plausible results.
+ set v [format {%d.%d.%d} [xapian::major_version] \
+--- trunk/xapian-bindings/tcl8/docs/examples/simpleindex.tcl	2007/04/17 13:30:39	8263
++++ trunk/xapian-bindings/tcl8/docs/examples/simpleindex.tcl	2007/05/21 06:12:10	8669
+@@ -23,7 +23,7 @@
+ # (8.3 is needed for regexp -start which this example uses; the Xapian bindings
+ # themselves only require Tcl 8.1)
+ package require Tcl 8.3
+-package require xapian 0.8.4
++package require xapian 1.0.0
+ 
+ set MAX_PROB_TERM_LENGTH 64
+ 
+--- trunk/xapian-bindings/tcl8/docs/examples/simplesearch.tcl	2007/04/17 13:30:39	8263
++++ trunk/xapian-bindings/tcl8/docs/examples/simplesearch.tcl	2007/05/21 06:12:10	8669
+@@ -22,7 +22,7 @@
+ # We need at least Tcl version 8.1
+ package require Tcl 8.1
+ # We need xapian 0.9.3 for the query from list ctor wrapper
+-package require xapian 0.9.3
++package require xapian 1.0.0
+ 
+ if {[llength $argv] < 2} {
+     puts "usage: $argv0 <path to database> <search terms>"
