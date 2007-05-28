@@ -25,6 +25,9 @@ COMPONENT ?= $(shell cat debian/component 2>/dev/null||echo unstable)
 # Version without the "-N" suffix.
 XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
 
+# `--exclude=.EXT' arguments to pass dh_install
+DH_INSTALL_EXCLUDE := --exclude=.pyc
+
 # Debian "stable" ("etch" onwards), "unstable", and Ubuntu "edgy" (and later)
 # have pyversions.
 USE_PYVERSIONS := no
@@ -60,12 +63,14 @@ endif
 ifeq ($(COMPONENT), oldstable)
 # Debian oldstable doesn't have PHP5.
 PHP_VERSIONS := 4
+DH_INSTALL_EXCLUDE += --exclude=.php5
 else
 ifneq ($(findstring .$(COMPONENT)., .stable.breezy.dapper.edgy.), )
 PHP_VERSIONS := 4 5
 else
 # Newer releases (currently Debian unstable and Ubuntu feisty) don't have PHP4.
 PHP_VERSIONS := 5
+DH_INSTALL_EXCLUDE += --exclude=.php4
 endif
 endif
 
@@ -227,7 +232,7 @@ install: build
 	$(MAKE) -C build-tcl-and-ruby DESTDIR=$(CURDIR)/debian/tmp install
 
 	# Reads the '*.install' files to decide where to install everything.
-	dh_install --sourcedir=debian/tmp --fail-missing --exclude=.pyc
+	dh_install --sourcedir=debian/tmp --fail-missing $(DH_INSTALL_EXCLUDE)
 
 binary: binary-arch
 binary-arch: DH_OPTIONS=-a
