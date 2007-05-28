@@ -1,6 +1,7 @@
 xapian-omega (1.0.0-1) unstable; urgency=low
 
-  * Now builds with GCC 4.3 snapshot.  Closes: #417767
+  * New upstream release.
+    + Now builds with GCC 4.3 snapshot.  Closes: #417767
   * debian/control.in: Add libwps-tools to "Suggests:" since omindex now uses
     it if available.
   * debian/copyright: Update.
@@ -10,10 +11,10 @@ xapian-omega (1.0.0-1) unstable; urgency=low
   * debian/patch: Include patch from Xapian SVN to fix a small (and
     long-standing - this dates back to at least Omega 0.8.2) issue in the HTML
     parser to do with handling tags with only whitespace between them.
-  * debian/xapian-omega.install: Install the new "templates/inc" subdirectory
-    and its contents.
+  * debian/rules: Install the new "templates/inc" subdirectory and its
+    contents.
 
- -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 00:06:53 +0100
+ -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 00:55:53 +0100
 
 xapian-omega (0.9.9-1) unstable; urgency=low
 
