@@ -51,13 +51,14 @@ Description: Basic tools for Xapian search engine library
  This package contains several tools related to Xapian.
   - copydatabase: Copy one or more Xapian databases.
   - delve: Inspect the contents of a Xapian database.
-  - quartzcheck: Check the validity of a Xapian database.
+  - quartzcheck: Check the validity of a quartz-format Xapian database.
   - quartzcompact: Compact a quartz database, or merge and compact several.
-  - quartzdump: Dump (part of) a Xapian database.
+  - quartzdump: Dump (part of) a quartz-format Xapian database.
   - quest: Command line search of a Xapian database.
+  - xapian-check: Check the validity of a Xapian database.
   - xapian-compact: Compact a quartz database, or merge and compact several.
-  - xapian-tcpsrv: A simple TCP based server, used for searching across remote
-    databases.
+  - xapian-progsrv: stdin/stdout based server, for searching databases remotely.
+  - xapian-tcpsrv: TCP based server, used for searching databases remotely.
  .
  The Xapian search engine library is a highly adaptable toolkit to allow
  developers to easily add advanced indexing and search facilities to their own

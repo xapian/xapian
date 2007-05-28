@@ -1,6 +1,19 @@
+xapian-core (1.0.0-1) unstable; urgency=low
+
   * debian/rules: Generate control from control.in robustly - don't risk
     leaving a partially generated destination file.
   * Now builds with GCC 4.3 snapshot.  Closes: #417778
+  * debian/patch: Changes included upstream so remove.
+  * debian/xapian-tools.install: Package new xapian-check tool and its manpage.
+  * debian/control.in: Mention new xapian-check and previously overlooked
+    xapian-progsrv.  Make it clear that quartzXXX is for quartz-format
+    databases.
+  * debian/copyright: Update.
+  * debian/rules: We don't need to pass --mandir or --infodir to configure
+    as the values we explicitly set are the defaults anyway (and we don't
+    have any documentation in "info" format).
+
+ -- Olly Betts <olly@survex.com>  Mon, 28 May 2007 12:14:31 +0100
 
 xapian-core (0.9.9-1) unstable; urgency=low
 
