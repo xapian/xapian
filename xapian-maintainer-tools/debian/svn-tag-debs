@@ -42,7 +42,7 @@ if [ x"$1" = x--force ] ; then
 fi
 
 # Tag the release in SVN.
-for module in ${*-xapian-core xapian-bindings xapian-omega}
+for module in ${*:-xapian-core xapian-bindings xapian-omega}
 do
   MODULE_NAME=$module
   if [ xapian-omega = "$module" ]
