@@ -7,8 +7,11 @@ xapian-omega (1.0.0-1) unstable; urgency=low
   * debian/rules: We don't need to pass --mandir or --infodir to configure
     as the values we explicitly set are the defaults anyway (and we don't
     have any documentation in "info" format).
+  * debian/patch: Include patch from Xapian SVN to fix a small (and
+    long-standing - this dates back to at least Omega 0.8.2) issue in the HTML
+    parser to do with handling tags with only whitespace between them.
 
- -- Olly Betts <olly@survex.com>  Mon, 28 May 2007 12:14:31 +0100
+ -- Olly Betts <olly@survex.com>  Mon, 28 May 2007 12:35:31 +0100
 
 xapian-omega (0.9.9-1) unstable; urgency=low
 
