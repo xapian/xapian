@@ -9,7 +9,7 @@ Package: xapian-omega
 Section: web
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Suggests: unzip, antiword, libwpd-tools, unrtf, xpdf-utils, pstotext, perl, catdoc
+Suggests: unzip, antiword, libwpd-tools, unrtf, xpdf-utils, pstotext, perl, catdoc, libwps-tools
 Recommends: apache2|httpd-cgi
 Description: CGI search interface and indexers using Xapian
  This package contains the "omega" CGI application which provides a

@@ -17,7 +17,7 @@ Upstream Authors:
 
 Copyright:
 
-  Copyright (C) 2002,2003,2004,2005,2006 Olly Betts
+  Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
   Copyright (C) 2001,2005 James Aylett
   Copyright (C) 2001 Sam Liddicott
   Copyright (C) 2001,2002 Ananova Ltd
@@ -58,4 +58,4 @@ The Debian packaging is also licensed under the GPL v2 or later (see above)
 and the copyright details are:
 
   Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
-  Copyright (C) 2006 Olly Betts
+  Copyright (C) 2006,2007 Olly Betts
