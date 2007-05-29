@@ -628,7 +628,7 @@ static bool test_qp_default_op1()
 	    parsed = "Unknown exception!";
 	}
 	tout << "Query: " << p->query << '\n';
-	TEST_EQUAL(parsed, expect);
+	TEST_STRINGS_EQUAL(parsed, expect);
     }
     return true;
 }
@@ -643,11 +643,11 @@ static bool test_qp_default_prefix1()
 
     Xapian::Query qobj;
     qobj = qp.parse_query("hello world", 0, "A");
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((ZAhello:(pos=1) OR ZAworld:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZAhello:(pos=1) OR ZAworld:(pos=2)))");
     qobj = qp.parse_query("me title:stuff", 0, "A");
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((ZAme:(pos=1) OR ZXTstuff:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZAme:(pos=1) OR ZXTstuff:(pos=2)))");
     qobj = qp.parse_query("title:(stuff) me", Xapian::QueryParser::FLAG_BOOLEAN, "A");
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((ZXTstuff:(pos=1) OR ZAme:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXTstuff:(pos=1) OR ZAme:(pos=2)))");
     return true;
 }
 
@@ -658,7 +658,7 @@ static bool test_qp_odd_chars1()
     string query("\x01weird\x00stuff\x7f", 13);
     Xapian::Query qobj = qp.parse_query(query);
     tout << "Query:  " << query << '\n';
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((weird:(pos=1) OR stuff:(pos=2)))"); // FIXME: should these be stemmed?
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((weird:(pos=1) OR stuff:(pos=2)))"); // FIXME: should these be stemmed?
     return true;
 }
 
@@ -678,84 +678,84 @@ static bool test_qp_flag_wildcard1()
     Xapian::QueryParser qp;
     qp.set_database(db);
     Xapian::Query qobj = qp.parse_query("ab*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(abc:(pos=1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(abc:(pos=1))");
     qobj = qp.parse_query("muscle*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) OR musclebound:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) OR musclebound:(pos=1)))");
     qobj = qp.parse_query("meat*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("musc*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1)))");
     qobj = qp.parse_query("mutt*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
     // Regression test (we weren't lowercasing terms before checking if they
     // were in the database or not):
     qobj = qp.parse_query("mUTTON++");
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(mutton:(pos=1))");
     // Regression test: check that wildcards work with +terms.
     unsigned flags = Xapian::QueryParser::FLAG_WILDCARD |
 		     Xapian::QueryParser::FLAG_LOVEHATE;
     qobj = qp.parse_query("+mai* main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_MAYBE main:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_MAYBE main:(pos=2)))");
     // Regression test (if we had a +term which was a wildcard and wasn't
     // present, the query could still match documents).
     qobj = qp.parse_query("foo* main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
     qobj = qp.parse_query("main foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
     qobj = qp.parse_query("+foo* main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("main +foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("foo* +main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
     qobj = qp.parse_query("+main foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
     qobj = qp.parse_query("+foo* +main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("+main +foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("foo* mai", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=2))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=2))");
     qobj = qp.parse_query("mai foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=1))");
     qobj = qp.parse_query("+foo* mai", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("mai +foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("foo* +mai", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=2))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=2))");
     qobj = qp.parse_query("+mai foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(mai:(pos=1))");
     qobj = qp.parse_query("+foo* +mai", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("+mai +foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("-foo* main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
     qobj = qp.parse_query("main -foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
     qobj = qp.parse_query("main -foo* -bar", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_NOT bar:(pos=3)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_NOT bar:(pos=3)))");
     qobj = qp.parse_query("main -bar -foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_NOT bar:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((main:(pos=1) AND_NOT bar:(pos=2)))");
     // Check with OP_AND too.
     qp.set_default_op(Xapian::Query::OP_AND);
     qobj = qp.parse_query("foo* main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("main foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qp.set_default_op(Xapian::Query::OP_AND);
     qobj = qp.parse_query("+foo* main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("main +foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     qobj = qp.parse_query("-foo* main", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=2))");
     qobj = qp.parse_query("main -foo*", flags);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(main:(pos=1))");
     // Check empty wildcard followed by negation.
     qobj = qp.parse_query("foo* -main", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query()");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query()");
     return true;
 }
 
@@ -773,9 +773,9 @@ static bool test_qp_flag_wildcard2()
     qp.add_prefix("author", "A");
     Xapian::Query qobj;
     qobj = qp.parse_query("author:h*", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) OR Ahuxley:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) OR Ahuxley:(pos=1)))");
     qobj = qp.parse_query("author:h* test", Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) OR Ahuxley:(pos=1) OR test:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Aheinlein:(pos=1) OR Ahuxley:(pos=1) OR test:(pos=2)))");
     return true;
 }
 
@@ -810,65 +810,65 @@ static bool test_qp_flag_partial1()
 
     // Check behaviour with unstemmed terms
     Xapian::Query qobj = qp.parse_query("a", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR Za:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR Za:(pos=1)))");
     qobj = qp.parse_query("ab", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR Zab:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR Zab:(pos=1)))");
     qobj = qp.parse_query("muscle", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) OR musclebound:(pos=1) OR Zmuscl:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscle:(pos=1) OR musclebound:(pos=1) OR Zmuscl:(pos=1)))");
     qobj = qp.parse_query("meat", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(Zmeat:(pos=1))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(Zmeat:(pos=1))");
     qobj = qp.parse_query("musc", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1) OR Zmusc:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((muscat:(pos=1) OR muscle:(pos=1) OR musclebound:(pos=1) OR muscular:(pos=1) OR Zmusc:(pos=1)))");
     qobj = qp.parse_query("mutt", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((mutton:(pos=1) OR Zmutt:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((mutton:(pos=1) OR Zmutt:(pos=1)))");
     qobj = qp.parse_query("abc musc", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((Zabc:(pos=1) OR muscat:(pos=2) OR muscle:(pos=2) OR musclebound:(pos=2) OR muscular:(pos=2) OR Zmusc:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((Zabc:(pos=1) OR muscat:(pos=2) OR muscle:(pos=2) OR musclebound:(pos=2) OR muscular:(pos=2) OR Zmusc:(pos=2)))");
     qobj = qp.parse_query("a* mutt", Xapian::QueryParser::FLAG_PARTIAL | Xapian::QueryParser::FLAG_WILDCARD);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR mutton:(pos=2) OR Zmutt:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((abc:(pos=1) OR mutton:(pos=2) OR Zmutt:(pos=2)))");
 
     // Check behaviour with stemmed terms, and stem strategy STEM_SOME.
     qobj = qp.parse_query("o", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zo:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zo:(pos=1)))");
     qobj = qp.parse_query("ou", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zou:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zou:(pos=1)))");
     qobj = qp.parse_query("out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zout:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zout:(pos=1)))");
     qobj = qp.parse_query("outs", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zout:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zout:(pos=1)))");
     qobj = qp.parse_query("outsi", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zoutsi:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zoutsi:(pos=1)))");
     qobj = qp.parse_query("outsid", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zoutsid:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zoutsid:(pos=1)))");
     qobj = qp.parse_query("outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zoutsid:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zoutsid:(pos=1)))");
 
     // Check behaviour with capitalised terms, and stem strategy STEM_SOME.
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1,wqf=2) OR outside:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1,wqf=2) OR outside:(pos=1)))");
     qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR outs:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR outs:(pos=1)))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(outside:(pos=1,wqf=2))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(outside:(pos=1,wqf=2))");
 
     // And now with stemming strategy STEM_ALL.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_ALL);
     qobj = qp.parse_query("Out", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zout:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((out:(pos=1) OR outside:(pos=1) OR Zout:(pos=1)))");
     qobj = qp.parse_query("Outs", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zout:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zout:(pos=1)))");
     qobj = qp.parse_query("Outside", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zoutsid:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((outside:(pos=1) OR Zoutsid:(pos=1)))");
 
     // Check handling of a case with a prefix.
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qobj = qp.parse_query("title:cow", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((XTcowl:(pos=1) OR XTcows:(pos=1) OR ZXTcow:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((XTcowl:(pos=1) OR XTcows:(pos=1) OR ZXTcow:(pos=1)))");
     qobj = qp.parse_query("title:cows", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((XTcows:(pos=1) OR ZXTcow:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((XTcows:(pos=1) OR ZXTcow:(pos=1)))");
     qobj = qp.parse_query("title:Cow", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((XTcowl:(pos=1) OR XTcows:(pos=1) OR XTcow:(pos=1)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((XTcowl:(pos=1) OR XTcows:(pos=1) OR XTcow:(pos=1)))");
     qobj = qp.parse_query("title:Cows", Xapian::QueryParser::FLAG_PARTIAL);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query(XTcows:(pos=1,wqf=2))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(XTcows:(pos=1,wqf=2))");
 
     return true;
 }
@@ -879,14 +879,14 @@ static bool test_qp_flag_bool_any_case1()
     Xapian::QueryParser qp;
     Xapian::Query qobj;
     qobj = qp.parse_query("to and fro", QueryParser::FLAG_BOOLEAN | QueryParser::FLAG_BOOLEAN_ANY_CASE);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) AND fro:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) AND fro:(pos=2)))");
     qobj = qp.parse_query("to and fro", QueryParser::FLAG_BOOLEAN);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) OR and:(pos=2) OR fro:(pos=3)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) OR and:(pos=2) OR fro:(pos=3)))");
     // Regression test for bug in 0.9.4 and earlier.
     qobj = qp.parse_query("to And fro", QueryParser::FLAG_BOOLEAN | QueryParser::FLAG_BOOLEAN_ANY_CASE);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) AND fro:(pos=2)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) AND fro:(pos=2)))");
     qobj = qp.parse_query("to And fro", QueryParser::FLAG_BOOLEAN);
-    TEST_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) OR and:(pos=2) OR fro:(pos=3)))");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((to:(pos=1) OR and:(pos=2) OR fro:(pos=3)))");
     return true;
 }
 
@@ -915,7 +915,7 @@ static bool test_qp_stopper1()
 	    parsed = "Unknown exception!";
 	}
 	tout << "Query: " << p->query << '\n';
-	TEST_EQUAL(parsed, expect);
+	TEST_STRINGS_EQUAL(parsed, expect);
     }
     return true;
 }
@@ -946,7 +946,7 @@ static bool test_qp_flag_pure_not1()
 	    parsed = "Unknown exception!";
 	}
 	tout << "Query: " << p->query << '\n';
-	TEST_EQUAL(parsed, expect);
+	TEST_STRINGS_EQUAL(parsed, expect);
     }
     return true;
 }
@@ -959,7 +959,7 @@ static bool test_qp_unstem_boolean_prefix()
     Xapian::QueryParser qp;
     qp.add_boolean_prefix("test", "XTEST");
     Xapian::Query q = qp.parse_query("hello test:foo");
-    TEST_EQUAL(q.get_description(), "Xapian::Query((hello:(pos=1) FILTER XTESTfoo))");
+    TEST_STRINGS_EQUAL(q.get_description(), "Xapian::Query((hello:(pos=1) FILTER XTESTfoo))");
     Xapian::TermIterator u = qp.unstem_begin("XTESTfoo");
     TEST(u != qp.unstem_end("XTESTfoo"));
     TEST_EQUAL(*u, "test:foo");
@@ -1009,7 +1009,7 @@ static bool test_qp_value_range1()
 	    parsed = "Unknown exception!";
 	}
 	tout << "Query: " << p->query << '\n';
-	TEST_EQUAL(parsed, expect);
+	TEST_STRINGS_EQUAL(parsed, expect);
     }
     return true;
 }
@@ -1066,7 +1066,7 @@ static bool test_qp_value_range2()
 	    parsed = "Unknown exception!";
 	}
 	tout << "Query: " << p->query << '\n';
-	TEST_EQUAL(parsed, expect);
+	TEST_STRINGS_EQUAL(parsed, expect);
     }
     return true;
 }
@@ -1145,7 +1145,7 @@ static bool test_qp_value_daterange1()
 	    parsed = "Unknown exception!";
 	}
 	tout << "Query: " << p->query << '\n';
-	TEST_EQUAL(parsed, expect);
+	TEST_STRINGS_EQUAL(parsed, expect);
     }
     return true;
 }

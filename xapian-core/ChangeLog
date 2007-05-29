@@ -1,3 +1,9 @@
+Tue May 29 18:30:25 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/queryparsertest.cc: Use TEST_STRINGS_EQUAL when comparing
+	  queries against their expected output, since this makes it much
+	  easier to see the differences.
+
 Tue May 29 18:13:26 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* NEWS: Bring up-to-date.
