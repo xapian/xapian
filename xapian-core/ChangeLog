@@ -1,3 +1,11 @@
+Tue May 29 20:58:13 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/Makefile.mk: Fix multiple target rule for generating
+	  the queryparser source files in parallel builds, as described in
+	  HACKING, and as done for the SWIG rules in xapian-bindings.
+	* queryparser/: Add queryparser_internal.lock and
+	  queryparser_internal.stamp to SVN ignores.
+
 Tue May 29 18:30:25 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/queryparsertest.cc: Use TEST_STRINGS_EQUAL when comparing
