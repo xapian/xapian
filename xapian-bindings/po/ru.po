@@ -1,0 +1,49 @@
+# translation of xapian-bindings_0.9.9-1_debconf_ru.po to Russian
+# Copyright (C) 2007 Yuri Kozlov
+# This file is distributed under the same license as the xapian-bindings package.
+#
+# Yuri Kozlov <kozlov.y@gmail.com>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.9.9-1\n"
+"Report-Msgid-Bugs-To: olly@survex.com\n"
+"POT-Creation-Date: 2006-11-22 23:36+0000\n"
+"PO-Revision-Date: 2007-02-25 08:58+0300\n"
+"Last-Translator: Yuri Kozlov <kozlov.y@gmail.com>\n"
+"Language-Team: Russian <debian-l10n-russian@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms:  nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
+"10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#. Type: boolean
+#. Description
+#: ../php4-xapian.templates:1001 ../php5-xapian.templates:1001
+msgid "Do you want php.ini to be configured to load Xapian?"
+msgstr "Включить в php.ini загрузку Xapian?"
+
+#. Type: boolean
+#. Description
+#: ../php4-xapian.templates:1001
+msgid ""
+"This package can automatically modify the PHP4 ini file to add the necessary "
+"entry to always load Xapian into PHP.  Alternatively any PHP script which "
+"uses Xapian can load it explicitly with 'dl(\"xapian.so\");'."
+msgstr ""
+"Данный пакет может автоматически изменить ini-файл PHP4, чтобы всегда "
+"загружать Xapian в PHP. Или же любой сценарий PHP, использующий Xapian, "
+"может выполнить загрузку самостоятельно с помощью 'dl(\"xapian.so\");'."
+
+#. Type: boolean
+#. Description
+#: ../php5-xapian.templates:1001
+msgid ""
+"This package can automatically modify the PHP5 ini file to add the necessary "
+"entry to always load Xapian into PHP.  Alternatively any PHP script which "
+"uses Xapian can load it explicitly with 'dl(\"xapian.so\");'."
+msgstr ""
+"Данный пакет может автоматически изменить ini-файл PHP5, чтобы всегда "
+"загружать Xapian в PHP. Или же любой сценарий PHP, использующий Xapian, "
+"может выполнить загрузку самостоятельно с помощью 'dl(\"xapian.so\");'."

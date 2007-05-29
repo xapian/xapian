@@ -1,0 +1,54 @@
+# translation of ro.po to Romanian
+# Romanian translations for xapian-bindings package
+# Traducerea în limba română pentru pachet xapian-bindings.
+# Copyright (C) 2007 Olly Betts
+# This file is distributed under the same license as the xapian-bindings package.
+#
+# Eddy Petrisor <eddy.petrisor@gmail.com>, 2007.
+# Eddy Petrișor <eddy.petrisor@gmail.com>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: ro\n"
+"Report-Msgid-Bugs-To: olly@survex.com\n"
+"POT-Creation-Date: 2006-11-22 23:36+0000\n"
+"PO-Revision-Date: 2007-03-01 02:51+0200\n"
+"Last-Translator: Eddy Petrișor <eddy.petrisor@gmail.com>\n"
+"Language-Team: Romanian <debian-l10n-romanian@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms:  nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
+"X-Generator: KBabel 1.11.4\n"
+
+#. Type: boolean
+#. Description
+#: ../php4-xapian.templates:1001 ../php5-xapian.templates:1001
+msgid "Do you want php.ini to be configured to load Xapian?"
+msgstr "Doriţi ca php.ini să fie configurat să încarce Xapian?"
+
+#. Type: boolean
+#. Description
+#: ../php4-xapian.templates:1001
+msgid ""
+"This package can automatically modify the PHP4 ini file to add the necessary "
+"entry to always load Xapian into PHP.  Alternatively any PHP script which "
+"uses Xapian can load it explicitly with 'dl(\"xapian.so\");'."
+msgstr ""
+"Acest pachet poate modifica automat fişierul ini al lui PHP4 astfel încât să "
+"adauge intrările necesare pentru ca Xapian să fie mereu încărcat în PHP. "
+"Există şi posibilitatea ca orice script PHP care foloseşte Xapian să-l poată "
+"încărca explicit cu 'dl(\"xapian.so\");'."
+
+#. Type: boolean
+#. Description
+#: ../php5-xapian.templates:1001
+msgid ""
+"This package can automatically modify the PHP5 ini file to add the necessary "
+"entry to always load Xapian into PHP.  Alternatively any PHP script which "
+"uses Xapian can load it explicitly with 'dl(\"xapian.so\");'."
+msgstr ""
+"Acest pachet poate modifica automat fişierul ini al lui PHP5 astfel încât să "
+"adauge intrările necesare pentru ca Xapian să fie mereu încărcat în PHP. "
+"Există şi posibilitatea ca orice script PHP care foloseşte Xapian să-l poată "
+"încărca explicit cu 'dl(\"xapian.so\");'."
