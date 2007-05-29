@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Olly Betts <olly@survex.com>
 Standards-Version: 3.7.2
-Build-Depends: debhelper (>= 4.1.22), autotools-dev
+Build-Depends: debhelper (>= 4.1.22), autotools-dev, zlib1g-dev
 
 Package: libxapian@LIBXAPIAN_SOVERSION@
 Architecture: any
