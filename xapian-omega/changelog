@@ -1,0 +1,277 @@
+xapian-omega (1.0.0-1) unstable; urgency=low
+
+  * New upstream release.
+    + Now builds with GCC 4.3 snapshot.  Closes: #417767
+  * debian/control.in: Update "Suggests:" for changes in omindex: change
+    pstotext to gs-common since omindex now indexes PostScript by converting
+    it to PDF first since that appears to be the only way to handle PostScript
+    containing non-latin1 characters; add libwps-tools for MS Works documents.
+  * debian/copyright: Update.
+  * debian/rules: We don't need to pass --mandir or --infodir to configure
+    as the values we explicitly set are the defaults anyway (and we don't
+    have any documentation in "info" format).
+  * debian/patch: Include patch from Xapian SVN to fix a small (and
+    long-standing - this dates back to at least Omega 0.8.2) issue in the HTML
+    parser to do with handling tags with only whitespace between them.
+  * debian/rules: Install the new "templates/inc" subdirectory and its
+    contents.
+  * debian/xapian-omega.install: The documentation is now installed in the
+    directory we want it in by default - we no longer need to move it.  Also
+    the path where the omega CGI binary is installed by default has changed.
+
+ -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 01:45:53 +0100
+
+xapian-omega (0.9.9-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Thu,  9 Nov 2006 01:15:39 +0000
+
+xapian-omega (0.9.8-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Olly Betts <olly@survex.com>  Fri,  3 Nov 2006 01:51:06 +0000
+
+xapian-omega (0.9.7-2) unstable; urgency=low
+
+  * debian/control,debian/control.in,debian/rules: Build dependency on
+    libxapian-dev should be versioned.
+
+ -- Olly Betts <olly@survex.com>  Thu, 12 Oct 2006 14:09:54 +0100
+
+xapian-omega (0.9.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Fix the missing "/" after "/images/xapian-omega" so that
+    images load correctly in the default search template (bug reported by Jeff
+    Breidenbach by email).
+  * debian/control: add catdoc to "Suggests:" for csv2xls and catppt.
+  * debian/copyright: Add copyright details for new md5 code.
+  * debian/omega.conf.debian: Config file reading code now understands
+    comments so change comments to take advantage of this.
+
+ -- Olly Betts <olly@survex.com>  Wed, 11 Oct 2006 02:08:20 +0100
+
+xapian-omega (0.9.6-5) unstable; urgency=low
+
+  * debian/control: Add extra space before "Homepage:" as is recommended
+    by the Debian Developer's Reference.
+  * debian/omega.conf.debian: Add comments as well as is currently possible.
+
+ -- Olly Betts <olly@survex.com>  Sun,  9 Jul 2006 01:48:54 +0100
+
+xapian-omega (0.9.6-4) unstable; urgency=low
+
+  * Install images so they appear in /images/xapian-omega on the webserver.
+    Adjust the URLs for images in the query template to match this.
+  * Install the templates such that searching works out of the box.
+  * debian/copyright: Update with a thorough list of copyrights and licences.
+
+ -- Olly Betts <olly@survex.com>  Mon, 26 Jun 2006 13:26:04 +0100
+
+xapian-omega (0.9.6-3) unstable; urgency=low
+
+  * debian/control: Add homepage to description.
+  * debian/rules: Only add --disable-dependency-tracking to the flags passed
+    to configure once!
+
+ -- Olly Betts <olly@survex.com>  Thu, 15 Jun 2006 04:11:07 +0100
+
+xapian-omega (0.9.6-2) unstable; urgency=low
+
+  * dh_strip handles nostrip in DEB_BUILD_OPTIONS for us, so there's no
+    need to check by hand.
+  * configure with --disable-dependency-tracking which will save us some
+    diskspace and a little time during the build.
+  * We don't have maint or maint-clean targets, so remove them from .PHONY.
+
+ -- Olly Betts <olly@survex.com>  Fri,  9 Jun 2006 02:32:07 +0100
+
+xapian-omega (0.9.6-1) unstable; urgency=low
+
+  * New upstream release.
+  * "Standards-Version: 3.7.2" - no changes required.
+  * Recommends: httpd-cgi rather than httpd.
+
+ -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 21:20:53 +0100
+
+xapian-omega (0.9.5-2) unstable; urgency=low
+
+  * Really package the man pages.
+  * debian/control: Need to list the non-virtual alternative first.
+  * Use debian/compat instead of setting DH_COMPAT.
+  * dh_install with --fail-missing intead of just --list-missing.
+  * Include mbox2omega and mbox2omega.script in the examples directory.
+
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 23:59:58 +0100
+
+xapian-omega (0.9.5-1) unstable; urgency=low
+
+  * New upstream release.
+    + All installed binaries now have man pages.
+  * "Standards-Version: 3.6.2" - no changes required.
+  * debian/copyright: Update FSF address and give download URL for releases
+    instead of obsolete CVS location.
+  * debian/control: Provide non-virtual alternative to httpd in "Recommends:"
+    which fixes a Lintian warning.
+  * debian/TODO: Updated.
+  * New maintainer.
+
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 00:42:22 +0100
+
+xapian-omega (0.9.4-2) unstable; urgency=low
+
+  * Fix invalid date line in previous entry.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:33:36 +0000
+
+xapian-omega (0.9.4-1) unstable; urgency=low
+
+  * New upstream release (no package was made for 0.9.3)
+  * Documentation improvements. 
+  * omindex: new option --preserve-nonduplicates
+  * omindex,scriptindex: new option --stemmer to choose stemmer.
+  * omindex: Add support for OpenDocument formats.
+  * scriptindex: -q no longer does anything.
+  * omega: Nicer error reports.
+  * omega: Add reverse sorting on values.
+  * omega: new command $find{}
+  * omega: new command $lookup{}
+  * omega: new function to avoid storing fieldnames in every document.
+  * omega: new command $split{}
+  * omega: fixes to $url{}
+  * omega: speed up $highlight{}
+  * omega: reduce memory usage with lots of relevant documents.
+  * templates: query - make page title shorter.
+  * templates: opensearch - add missing escaping.
+  * templates: godmode - cope with non-existent docids better.
+  * omega: portability fixes.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:33:36 +0000
+
+xapian-omega (0.9.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Changed $highlight to default to colouring each word differently.
+  * Add ability to set boolean prefixes for query parser from OmegaScript.
+  * Added $length{} and $stoplist{} commands to OmegaScript.
+  * scriptindex: Fix infinite loop if there's no newline at the end of a
+    dumpfile.
+  * documentation updates.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri, 15 Jul 2005 13:12:52 +0100
+
+xapian-omega (0.9.1-2) unstable; urgency=low
+
+  * Add termprefixes.txt to package.
+  * Install /etc/omega.conf.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Jun 2005 12:36:51 +0100
+
+xapian-omega (0.9.1-1) unstable; urgency=low
+
+  * New upstream releases (no package was generated for release 0.9.0)
+  * omega: Configuration file is searched for differently - no searches
+    location specified by an environment variable, then in working
+    directory, then in default system location. See overview.txt
+    for details.
+  * Changes to indexing methods - recommend rebuild of databases.
+    See NEWS for details.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Jun 2005 09:14:41 +0100
+
+xapian-omega (0.8.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * omega: Avoid causing "500 Internal Server Error" when exceptions are
+    thrown.
+  * scriptindex: Fix when calling "unhtml" on text containing "</body>"
+  * omindex/scriptindex: Fix indexing of <h1> - <h6> to leave a space in the
+    dumped HTML.
+  * omindex: Only delete removed documents in "replace duplicates" mode.
+  * omindex: Change crawler so that it doesn't follow symbolic links, unless
+    "--follow" is specified.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed,  5 Jan 2005 11:55:46 +0000
+
+xapian-omega (0.8.4-3) unstable; urgency=low
+
+  * Move dbi2omega to /usr/share/doc/xapian-omega/examples/, and remove
+    "Suggests: libdbi-perl" from xapian-omega package.  Rationale: dbi2omega
+    isn't very useful out of the box - it usually needs to be customised
+    for a particular database.
+  * Add htdig2omega and htdig2omega.script to
+    /usr/share/doc/xapian-omega/examples/
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Dec 2004 15:45:56 +0000
+
+xapian-omega (0.8.4-2) unstable; urgency=low
+
+  * Suggest libwpd7, which is actually present in testing and unstable,
+    rather than libwpd, which isn't.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri, 10 Dec 2004 17:48:58 +0000
+
+xapian-omega (0.8.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * Improved indexing of HTML, add support for OpenOffice, MS Word,
+    Wordperfect, and RTF. (If appropriate helper packages are installed.)
+  * Add helper packages (unzip, antiword, libwpd, unrtf) to Suggests field.
+  * Safer passing of filenames to helper packages.
+  * Tweaks for boolean only queries.
+  * Update for changed Xapian API.
+
+ -- Richard Boulton <richard@tartarus.org>  Thu,  9 Dec 2004 17:44:00 +0000
+
+xapian-omega (0.8.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * scriptindex: --version now actually reports the version.  --help now
+    exits with status 0 rather than status 1.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 21 Sep 2004 13:33:53 +0100
+
+xapian-omega (0.8.2-2) unstable; urgency=low
+
+  * Build against libxapian3. (See changelog for libxapian for explanation)
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 17:04:26 +0100
+
+xapian-omega (0.8.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Fixes for accented characters, uses new API features in libxapian4.
+  * omindex can detect documents removed since the last indexing run and
+    delete them from the database.
+  * Now links with libxapian4.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 13:28:03 +0100
+
+xapian-omega (0.8.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 20:25:13 +0100
+
+xapian-omega (0.8.0-3) unstable; urgency=low
+
+  * Merge xapian-omega and xapian-scriptindex packages, to reduce complexity
+    of maintainance, and also because there is a slight possibility of them
+    being merged in future.  (It is tidier not to have to merge packages
+    after we've officially released them).
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 29 Jun 2004 16:38:07 +0100
+
+xapian-omega (0.8.0-2) unstable; urgency=low
+
+  * Make xapian-omega package recommend httpd.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 29 Jun 2004 14:42:55 +0100
+
+xapian-omega (0.8.0-1) unstable; urgency=low
+
+  * Initial packaging.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 19 May 2004 14:02:04 +0100
