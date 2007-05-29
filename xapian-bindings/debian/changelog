@@ -4,8 +4,10 @@ xapian-bindings (1.0.0-1) unstable; urgency=low
   * New debconf translations:
     - Malayalam.  Closes: #418032
     - Dutch.  Closes: #423066
-  * debian/rules: Debian unstable has dropped php4 support, so don't build
+  * debian/rules: Debian unstable has dropped PHP4 support, so don't build
     php4-xapian for it.  Closes: #424809
+  * debian/rules: Install xapian.php which is handy for PHP4 and vital for
+    PHP5.
   * debian/rules: Update now there's a new stable release.  Keep support for
     oldstable for the time being, in case someone wants to backport.
   * debian/patch: Changes included upstream so remove.
@@ -15,8 +17,10 @@ xapian-bindings (1.0.0-1) unstable; urgency=low
   * debian/rules: We don't need to pass --mandir or --infodir to configure
     as the values we explicitly set are the defaults anyway (and we don't
     have any documentation in "info" format).
+  * debian/rules: Avoid Lintian's uses-dh-python-with-no-pycompat warning -
+    for now we want to keep the call to dh_python for backports.
 
- -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 00:58:39 +0100
+ -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 11:46:14 +0100
 
 xapian-bindings (0.9.9-2) unstable; urgency=low
 

@@ -226,6 +226,7 @@ install: build
 	    if test -x $$c ; then \
 		set -e; \
 		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp install; \
+		install -m 644 php/php$$v/xapian.php debian/tmp/usr/share/php$$v; \
 	    fi \
 	done
 
@@ -249,11 +250,18 @@ binary-arch: build install
 	dh_compress
 	dh_fixperms
 	dh_makeshlibs
-	# The -x test allows the same rules file to be used for backports.
-	# Once python-central is in all the debian and ubuntu versions we
-	# want to build packages for, this can go.
-	[ ! -x /usr/bin/dh_pycentral ] || dh_pycentral
-	dh_python
+	# This allows the rules file to be used for backports to components
+	# which predate python-central.  Once python-central is in all the
+	# Debian and Ubuntu versions we want to build packages for, this can
+	# be replaced by just "dh_pycentral".
+ifeq ($(USE_PYVERSIONS), yes)
+	dh_pycentral
+else
+	# Recent Lintian versions warn if this file matches: /^\s+dh_python\s/
+	# But we need to call dh_python for backports, so to avoid the warning
+	# we insert `$(strip )' which expands to nothing.
+	dh_$(strip )python
+endif
 	dh_installdeb
 	dh_shlibdeps
 
