@@ -15,8 +15,11 @@ xapian-omega (1.0.0-1) unstable; urgency=low
     parser to do with handling tags with only whitespace between them.
   * debian/rules: Install the new "templates/inc" subdirectory and its
     contents.
+  * debian/xapian-omega.install: The documentation is now installed in the
+    directory we want it in by default - we no longer need to move it.  Also
+    the path where the omega CGI binary is installed by default has changed.
 
- -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 01:16:53 +0100
+ -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 01:45:53 +0100
 
 xapian-omega (0.9.9-1) unstable; urgency=low
 
