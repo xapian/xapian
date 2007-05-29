@@ -1,0 +1,51 @@
+# French translation of xapian-bindings's debconf messages.
+# Copyright (C) 2006 Olly Betts
+# This file is distributed under the same license as the xapian-bindings
+# package.
+#
+# Florentin Duneau <f.baced@wanadoo.fr>, 2006.
+msgid ""
+msgstr ""
+"Project-Id-Version: xapian-bindings 0.9.6-5\n"
+"Report-Msgid-Bugs-To: olly@survex.com\n"
+"POT-Creation-Date: 2006-11-22 23:36+0000\n"
+"PO-Revision-Date: 2006-07-26 21:51+0200\n"
+"Last-Translator: Florentin Duneau <f.baced@wanadoo.fr>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.2\n"
+"Plural-Forms:  nplurals=2; plural=(n > 1);\n"
+
+#. Type: boolean
+#. Description
+#: ../php4-xapian.templates:1001 ../php5-xapian.templates:1001
+msgid "Do you want php.ini to be configured to load Xapian?"
+msgstr "Faut-il configurer php.ini afin de toujours charger Xapian ?"
+
+#. Type: boolean
+#. Description
+#: ../php4-xapian.templates:1001
+msgid ""
+"This package can automatically modify the PHP4 ini file to add the necessary "
+"entry to always load Xapian into PHP.  Alternatively any PHP script which "
+"uses Xapian can load it explicitly with 'dl(\"xapian.so\");'."
+msgstr ""
+"Ce paquet peut automatiquement modifier le fichier de configuration de PHP4 "
+"afin d'ajouter les entrées nécessaires pour toujours charger Xapian avec "
+"PHP. Même si vous ne choisissez pas cette option, tout script PHP pourra "
+"utiliser Xapian avec « dl(\"xapian.so\"); »."
+
+#. Type: boolean
+#. Description
+#: ../php5-xapian.templates:1001
+msgid ""
+"This package can automatically modify the PHP5 ini file to add the necessary "
+"entry to always load Xapian into PHP.  Alternatively any PHP script which "
+"uses Xapian can load it explicitly with 'dl(\"xapian.so\");'."
+msgstr ""
+"Il est possible de modifier le fichier de configuration de PHP5 afin "
+"d'ajouter les entrées nécessaires pour toujours charger Xapian avec PHP. "
+"Même si vous ne choisissez pas cette option, tout script PHP pourra utiliser "
+"Xapian avec « dl(\"xapian.so\"); »."

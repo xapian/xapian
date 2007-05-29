@@ -1,0 +1,49 @@
+# Swedish translation of xapian-bindings's debconf messages.
+# Copyright (C) 2006 Olly Betts
+# This file is distributed under the same license as the xapian-bindings
+# package.
+# Daniel Nylander <po@danielnylander.se>, 2006.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: xapian-bindings 0.9.6-5\n"
+"Report-Msgid-Bugs-To: olly@survex.com\n"
+"POT-Creation-Date: 2006-11-22 23:36+0000\n"
+"PO-Revision-Date: 2006-09-14 21:46+0100\n"
+"Last-Translator: Daniel Nylander <po@danielnylander.se>\n"
+"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=iso-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../php4-xapian.templates:1001 ../php5-xapian.templates:1001
+msgid "Do you want php.ini to be configured to load Xapian?"
+msgstr "Vill du att php.ini ska konfigureras att läsa in Xapian?"
+
+#. Type: boolean
+#. Description
+#: ../php4-xapian.templates:1001
+msgid ""
+"This package can automatically modify the PHP4 ini file to add the necessary "
+"entry to always load Xapian into PHP.  Alternatively any PHP script which "
+"uses Xapian can load it explicitly with 'dl(\"xapian.so\");'."
+msgstr ""
+"Det här paketet kan automatiskt ändra ini-filen för PHP4 till att lägga till "
+"den nödvändiga posten för att alltid läsa in Xapian i PHP.  Alternativt kan "
+"alla PHP-skript som använder Xapian läsa in den uttryckligen med \"dl"
+"(\"xapian.so\");\"."
+
+#. Type: boolean
+#. Description
+#: ../php5-xapian.templates:1001
+msgid ""
+"This package can automatically modify the PHP5 ini file to add the necessary "
+"entry to always load Xapian into PHP.  Alternatively any PHP script which "
+"uses Xapian can load it explicitly with 'dl(\"xapian.so\");'."
+msgstr ""
+"Det här paketet kan automatiskt ändra ini-filen för PHP5 till att lägga till "
+"den nödvändiga posten för att alltid läsa in Xapian i PHP.  Alternativt kan "
+"alla PHP-skript som använder Xapian läsa in den uttryckligen med \"dl"
+"(\"xapian.so\");\"."
