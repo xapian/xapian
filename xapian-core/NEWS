@@ -1,11 +1,18 @@
 Xapian-core 1.0.0 (2007-05-?):
- - up to Sat May 26 22:49:20 BST 2007
+ - up to Mon May 28 09:27:43 BST 2007
+
+API:
+
+* Xapian::Error: add new method "get_description()" to get a string
+  describing the error object.  This is used in various examples and
+  scripts, improving their error reporting.
 
 documentation:
 
 * typo in query.h corrected.
 * copy and paste error in deprecation.rst; set_sort_forward() should be
   changed to set_docid_order().
+* improved documentation comments for TermGenerator class.
 
 build system:
 
@@ -15,9 +22,27 @@ testsuite:
 
 * Add test for serialisation of error strings.
 
-* Improve output for test failures in TEST_STRINGS_EQUAL().
+* Improved output in various situations:
+
+  + Quote strings in TEST_STRINGS_EQUAL().
+
+  + In queryparsertest, display error descriptions, not just messages.
+
+  + Report whole message for exceptions, rather than a truncated version, in
+    verbose mode.
+
+  + Make use of Xapian::Error::get_description(), giving better error
+    reports.
 
 * New test for NumberValueRangeProcessor, which illustrates a problem.
+
+examples:
+
+* copydatabase:
+
+  + Rewritten to use the ability to iterate over all the documents in a
+    database.  Should be much more efficient for databases with sparsely
+    distributed document IDs.
 
 Xapian-core 1.0.0 (2007-05-17):
 
