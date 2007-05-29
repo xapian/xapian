@@ -187,7 +187,7 @@ Database.postlist: <b>positer</b>
 
 <table title="MSet additional methods">
 <thead><td>Method name</td><td>Explanation</td></thead>
-<tr><td><code>get_hit(index)</code></td><td>returns MSetIterator at index</td></tr>
+<tr><td><code>get_hit(index)</code></td><td>returns MSetItem at index</td></tr>
 <tr><td><code>get_document_percentage(index)</code></td><td><code>convert_to_percent(get_hit(index))</code></td></tr>
 <tr><td><code>get_document(index)</code></td><td><code>get_hit(index).get_document()</code></td></tr>
 <tr><td><code>get_docid(index)</code></td><td><code>get_hit(index).get_docid()</code></td></tr>
@@ -196,7 +196,7 @@ Database.postlist: <b>positer</b>
 <p>
 Additionally, the MSet has a property, <code>mset.items</code>, which returns a
 list of tuples representing the MSet; this may be more convenient than using
-the MSetIterator. The members of the tuple are as follows.
+an MSetIter. The members of the tuple are as follows.
 </p>
 
 <table title="MSet.items member members">

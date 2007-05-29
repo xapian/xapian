@@ -1,3 +1,8 @@
+Tue May 29 09:50:17 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/docs/bindings.html: Update documentation in a couple of
+	  places to refer to updated replacements for MSetIterator.
+
 Tue May 29 09:49:41 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/testsuite.py: Change testsuite output to be more
