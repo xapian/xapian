@@ -20,7 +20,7 @@ xapian-bindings (1.0.0-1) unstable; urgency=low
   * debian/rules: Avoid Lintian's uses-dh-python-with-no-pycompat warning -
     for now we want to keep the call to dh_python for backports.
 
- -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 12:46:14 +0100
+ -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 13:37:14 +0100
 
 xapian-bindings (0.9.9-2) unstable; urgency=low
 
