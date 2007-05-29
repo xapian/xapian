@@ -153,9 +153,8 @@ class TestRunner(object):
                 context = ''
             else:
                 context = ", when %s" % self._context
-            firstline = "Failure in %s, line %d" % (filename, linenum)
-            self._out.write("\n%s%s\n" % (firstline, context))
-            self._out.write("%s\n" % msg)
+            firstline = "%s:%d" % (filename, linenum)
+            self._out.write("\n%s:%s%s\n" % (firstline, msg, context))
 
             # Display sourcecode lines
             lines = open(filepath).readlines()
