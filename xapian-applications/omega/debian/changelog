@@ -2,8 +2,10 @@ xapian-omega (1.0.0-1) unstable; urgency=low
 
   * New upstream release.
     + Now builds with GCC 4.3 snapshot.  Closes: #417767
-  * debian/control.in: Add libwps-tools to "Suggests:" since omindex now uses
-    it if available.
+  * debian/control.in: Update "Suggests:" for changes in omindex: change
+    pstotext to gs-common since omindex now indexes PostScript by converting
+    it to PDF first since that appears to be the only way to handle PostScript
+    containing non-latin1 characters; add libwps-tools for MS Works documents.
   * debian/copyright: Update.
   * debian/rules: We don't need to pass --mandir or --infodir to configure
     as the values we explicitly set are the defaults anyway (and we don't
@@ -14,7 +16,7 @@ xapian-omega (1.0.0-1) unstable; urgency=low
   * debian/rules: Install the new "templates/inc" subdirectory and its
     contents.
 
- -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 00:55:53 +0100
+ -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 01:16:53 +0100
 
 xapian-omega (0.9.9-1) unstable; urgency=low
 
