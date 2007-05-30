@@ -33,8 +33,9 @@
 // 28: Pass document length in reply to MSG_TERMLIST
 // 29: Serialisation of Xapian::Error includes error_string
 // 30: Add minor protocol version numbers, to reduce need for client upgrades
+// 30.1: Pass the prefix parameter for MSG_ALLTERMS, and use it.
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 30
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 0
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 1
 
 /// Message types (client -> server).
 enum message_type {

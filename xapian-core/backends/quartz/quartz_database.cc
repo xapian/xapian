@@ -659,12 +659,12 @@ QuartzDatabase::open_position_list(Xapian::docid did,
 }
 
 TermList *
-QuartzDatabase::open_allterms() const
+QuartzDatabase::open_allterms(const string & prefix) const
 {
     DEBUGCALL(DB, TermList *, "QuartzDatabase::open_allterms", "");
     AutoPtr<Bcursor> pl_cursor(postlist_table.cursor_get());
     RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzDatabase>(this),
-				  pl_cursor, postlist_table.get_entry_count()));
+				  pl_cursor, postlist_table.get_entry_count(), prefix));
 }
 
 size_t QuartzWritableDatabase::flush_threshold = 0;
@@ -1191,7 +1191,7 @@ QuartzWritableDatabase::open_position_list(Xapian::docid did,
 }
 
 TermList *
-QuartzWritableDatabase::open_allterms() const
+QuartzWritableDatabase::open_allterms(const string & prefix) const
 {
     DEBUGCALL(DB, TermList *, "QuartzWritableDatabase::open_allterms", "");
     if (transaction_active())
@@ -1201,7 +1201,7 @@ QuartzWritableDatabase::open_allterms() const
     QuartzPostListTable *t = &database_ro.postlist_table;
     AutoPtr<Bcursor> pl_cursor(t->cursor_get());
     RETURN(new QuartzAllTermsList(Xapian::Internal::RefCntPtr<const QuartzWritableDatabase>(this),
-				  pl_cursor, t->get_entry_count()));
+				  pl_cursor, t->get_entry_count(), prefix));
 }
 
 void

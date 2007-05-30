@@ -516,11 +516,11 @@ FlintDatabase::open_position_list(Xapian::docid did,
 }
 
 TermList *
-FlintDatabase::open_allterms() const
+FlintDatabase::open_allterms(const string & prefix) const
 {
     DEBUGCALL(DB, TermList *, "FlintDatabase::open_allterms", "");
     RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
-				 &postlist_table));
+				 &postlist_table, prefix));
 }
 
 size_t FlintWritableDatabase::flush_threshold = 0;
@@ -1053,7 +1053,7 @@ FlintWritableDatabase::open_position_list(Xapian::docid did,
 }
 
 TermList *
-FlintWritableDatabase::open_allterms() const
+FlintWritableDatabase::open_allterms(const string & prefix) const
 {
     DEBUGCALL(DB, TermList *, "FlintWritableDatabase::open_allterms", "");
     if (transaction_active())
@@ -1062,7 +1062,7 @@ FlintWritableDatabase::open_allterms() const
     // need to flush.
     if (changes_made) do_flush_const();
     RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),
-				 &database_ro.postlist_table));
+				 &database_ro.postlist_table, prefix));
 }
 
 void

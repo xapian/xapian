@@ -205,6 +205,10 @@ class XAPIAN_VISIBILITY_DEFAULT FlintCursor {
 	 */
 	bool find_entry(const string &key);
 
+	/** Set the cursor to be off the end of the table.
+	 */
+	void to_end() { is_after_end = true; }
+
 	/** Determine whether cursor is off the end of table.
 	 *
 	 *  @return true if the cursor has been moved off the end of the

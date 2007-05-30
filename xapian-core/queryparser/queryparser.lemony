@@ -295,12 +295,11 @@ QpQuery *
 Term::as_wildcarded_query(State * state_) const
 {
     Database db = state_->get_database();
-    TermIterator t = db.allterms_begin();
     string root = prefix;
     root += name;
-    t.skip_to(root);
+    TermIterator t = db.allterms_begin(root);
     QpQuery q;
-    while (t != db.allterms_end() && (*t).substr(0, root.size()) == root) {
+    while (t != db.allterms_end(root)) {
 	add_to_query(q, Query::OP_OR, QpQuery(*t, 1, pos));
 	++t;
     }
@@ -316,12 +315,11 @@ QpQuery *
 Term::as_partial_query(State * state_) const
 {
     Database db = state_->get_database();
-    TermIterator t = db.allterms_begin();
     string root = prefix;
     root += name;
-    t.skip_to(root);
+    TermIterator t = db.allterms_begin(root);
     QpQuery q;
-    while (t != db.allterms_end() && (*t).substr(0, root.size()) == root) {
+    while (t != db.allterms_end(root)) {
 	add_to_query(q, Query::OP_OR, QpQuery(*t, 1, pos));
 	++t;
     }

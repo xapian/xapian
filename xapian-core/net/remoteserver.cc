@@ -238,10 +238,14 @@ RemoteServer::run()
 }
 
 void
-RemoteServer::msg_allterms(const string &)
+RemoteServer::msg_allterms(const string &message)
 {
-    const Xapian::TermIterator end = db->allterms_end();
-    for (Xapian::TermIterator t = db->allterms_begin(); t != end; ++t) {
+    const char *p = message.data();
+    const char *p_end = p + message.size();
+    string prefix(p, p_end - p);
+
+    const Xapian::TermIterator end = db->allterms_end(prefix);
+    for (Xapian::TermIterator t = db->allterms_begin(prefix); t != end; ++t) {
 	string item = encode_length(t.get_termfreq());
 	item += *t;
 	send_message(REPLY_ALLTERMS, item);

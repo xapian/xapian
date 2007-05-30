@@ -197,11 +197,12 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  This is a list of all the terms in the database
 	 *
+	 *  @param prefix The prefix to restrict the terms to.
 	 *  @return       A pointer to the newly created allterms list.
 	 *                This object must be deleted by the caller after
 	 *                use.
 	 */
-	virtual TermList * open_allterms() const = 0;
+	virtual TermList * open_allterms(const string & prefix) const = 0;
 
 	/** Open a position list for the given term in the given document.
 	 *

@@ -55,6 +55,9 @@ class QuartzAllTermsList : public AllTermsList
 	/// Cached termname
 	string current_term;
 
+	/// The prefix to restrict the terms to.
+	string prefix;
+
 	/// Cached statistics
 	mutable bool have_stats;
 	mutable Xapian::termcount termfreq;
@@ -65,7 +68,8 @@ class QuartzAllTermsList : public AllTermsList
 	/// Standard constructor for base class.
 	QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
 			   AutoPtr<Bcursor> pl_cursor_,
-		       	   quartz_tablesize_t size_);
+		       	   quartz_tablesize_t size_,
+			   const string & prefix_);
 
 	/// Standard destructor for base class.
 	~QuartzAllTermsList();

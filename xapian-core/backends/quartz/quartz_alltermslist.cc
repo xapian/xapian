@@ -29,16 +29,26 @@
 
 QuartzAllTermsList::QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
 				       AutoPtr<Bcursor> pl_cursor_,
-				       quartz_tablesize_t size_)
+				       quartz_tablesize_t size_,
+				       const string & prefix_)
 	: database(database_), pl_cursor(pl_cursor_), size(size_), 
-	  started(false)
+	  started(false), prefix(prefix_)
 {
     DEBUGCALL(DB, void, "QuartzAllTermsList", "[database_], [pl_cursor_]");
-    /* Seek to the first term */
-    pl_cursor->find_entry(string());
+    if (prefix.empty()) {
+	/* Seek to the first term */
+	pl_cursor->find_entry(string());
 
-    if (pl_cursor->current_key.empty()) {
-	pl_cursor->next();
+	if (pl_cursor->current_key.empty()) {
+	    pl_cursor->next();
+	}
+    } else {
+	// Seek to the first key which is at or after the desired prefix.
+	if (!pl_cursor->find_entry(pack_string_preserving_sort(prefix))) {
+	    // Found the last key which is before the prefix - advance to the
+	    // first one following the prefix.
+	    pl_cursor->next();
+	}
     }
 
     is_at_end = pl_cursor->after_end();
@@ -49,6 +59,9 @@ QuartzAllTermsList::QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian:
 	    throw Xapian::DatabaseCorruptError("Failed to read the key field from a Bcursor's key");
 	}
     }
+
+    if (current_term.substr(0, prefix.size()) != prefix)
+	is_at_end = true;
 
     have_stats = false;
 }
@@ -128,11 +141,16 @@ QuartzAllTermsList::skip_to(const string &tname)
 	    is_at_end = true;
 	} else {
 	    next();
+	    // next() checks the prefix, so we don't need to do that here.
 	}
     } else {
 	// This assertion isn't true if key contains zero bytes.
 	// Assert(key == pl_cursor->current_key);
 	current_term = tname;
+
+	// Check that we haven't gone past the prefix.
+	if (current_term.substr(0, prefix.size()) != prefix)
+	    is_at_end = true;
     }
     RETURN(NULL);
 }
@@ -155,6 +173,10 @@ QuartzAllTermsList::next()
 	    const char *end = start + pl_cursor->current_key.length();
 	    if (!unpack_string_preserving_sort(&start, end, current_term)) {
 		throw Xapian::DatabaseCorruptError("Failed to read the key field from a Bcursor's key");
+	    }
+	    if (current_term.substr(0, prefix.size()) != prefix) {
+		is_at_end = true;
+		break;
 	    }
 	    // Check if this is the first chunk of a postlist, skip otherwise
 	    if (start == end) break;

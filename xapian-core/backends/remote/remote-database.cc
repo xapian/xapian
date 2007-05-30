@@ -158,11 +158,11 @@ RemoteDatabase::open_term_list(Xapian::docid did) const
 }
 
 TermList *
-RemoteDatabase::open_allterms() const {
+RemoteDatabase::open_allterms(const string & prefix) const {
     // Ensure that avlength and doccount are up-to-date.
     if (!cached_stats_valid) update_stats();
 
-    send_message(MSG_ALLTERMS, "");
+    send_message(MSG_ALLTERMS, prefix);
 
     AutoPtr<NetworkTermList> tlist;
     tlist = new NetworkTermList(0.0, doccount,

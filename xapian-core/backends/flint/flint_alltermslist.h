@@ -48,6 +48,9 @@ class FlintAllTermsList : public AllTermsList {
     /// The termname at the current position.
     string current_term;
 
+    /// The prefix to restrict the terms to.
+    string prefix;
+
     /** The term frequency of the term at the current position.
      *
      *  If this value is zero, then we haven't read the term frequency or
@@ -64,7 +67,9 @@ class FlintAllTermsList : public AllTermsList {
 
   public:
     FlintAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-		      const FlintPostListTable * pltab) : database(database_), termfreq(0) {
+		      const FlintPostListTable * pltab,
+		      const string & prefix_)
+	    : database(database_), prefix(prefix_), termfreq(0) {
 	// The number of entries in the postlist table will be the number of
 	// terms, probably plus some extra entries for chunked posting lists,
 	// plus 1 for the metainfo key (unless the table is completely empty).
@@ -77,10 +82,19 @@ class FlintAllTermsList : public AllTermsList {
 	approx_size = pltab->get_entry_count();
 	if (approx_size) --approx_size;
 
-	// Seek to the metainfo key, so the first next will advance us to the
-	// first real key.
 	cursor = pltab->cursor_get();
-	cursor->find_entry(string("", 1));
+	if (prefix.empty()) {
+	    // Seek to the metainfo key, so the first next() will advance us to the
+	    // first real key.
+	    cursor->find_entry(string("", 1));
+	} else {
+	    // Seek to the first key before one with the desired prefix.
+	    if (cursor->find_entry(pack_string_preserving_sort(prefix))) {
+		// Found a key which is exactly the prefix - move back, so that
+		// next() moves to it.
+		cursor->prev();
+	    }
+	}
     }
 
     /// Destructor.

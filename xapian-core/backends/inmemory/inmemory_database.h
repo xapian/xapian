@@ -306,7 +306,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
 	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
-	TermList * open_allterms() const;
+	TermList * open_allterms(const string & prefix) const;
 };
 
 #endif /* OM_HGUARD_INMEMORY_DATABASE_H */

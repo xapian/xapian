@@ -707,8 +707,9 @@ InMemoryDatabase::has_positions() const
 }
 
 TermList *
-InMemoryDatabase::open_allterms() const
+InMemoryDatabase::open_allterms(const string & prefix) const
 {
     return new InMemoryAllTermsList(&postlists,
-				    Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this));
+				    Xapian::Internal::RefCntPtr<const InMemoryDatabase>(this),
+				    prefix);
 }

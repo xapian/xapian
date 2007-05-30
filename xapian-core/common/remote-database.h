@@ -150,7 +150,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     TermList * open_term_list(Xapian::docid did) const;
 
     /// Iterate all terms.
-    TermList * open_allterms() const;
+    TermList * open_allterms(const string & prefix) const;
 
     bool has_positions() const;
 

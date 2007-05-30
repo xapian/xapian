@@ -163,6 +163,25 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	    return TermIterator(NULL);
 	}
 
+	/** An iterator which runs across all terms with a given prefix.
+	 *
+	 *  This is functionally similar to getting an iterator with
+	 *  allterms_begin() and then calling skip_to(prefix) on that iterator
+	 *  to move to the start of the prefix, but is more convenient (because
+	 *  it detects the end of the prefixed terms), and may be more
+	 *  efficient than simply calling skip_to() after opening the iterator,
+	 *  particularly for network databases.
+	 *
+	 *  @param prefix The prefix to restrict the returned terms to.
+	 */
+	TermIterator allterms_begin(const std::string & prefix) const;
+
+	/** Corresponding end iterator to allterms_begin(prefix).
+	 */
+	TermIterator allterms_end(const std::string &) const {
+	    return TermIterator(NULL);
+	}
+
 	/// Get the number of documents in the database.
 	Xapian::doccount get_doccount() const;
 

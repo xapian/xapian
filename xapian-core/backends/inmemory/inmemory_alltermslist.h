@@ -44,10 +44,13 @@ class InMemoryAllTermsList : public AllTermsList
 	Xapian::Internal::RefCntPtr<const InMemoryDatabase> database;
 
 	bool started;
+
+	string prefix;
     public:
 	/// Standard constructor for base class.
 	InMemoryAllTermsList(const std::map<string, InMemoryTerm> *tmap_,
-			     Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_);
+			     Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_,
+			     const string & prefix);
 
 	/// Standard destructor for base class.
 	~InMemoryAllTermsList();

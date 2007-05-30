@@ -706,6 +706,50 @@ static bool test_allterms5()
     return true;
 }
 
+// test allterms iterators with prefixes
+static bool test_allterms6()
+{
+    Xapian::Database db;
+    db.add_database(get_database("apitest_allterms"));
+    db.add_database(get_database("apitest_allterms2"));
+
+    Xapian::TermIterator ati = db.allterms_begin("three");
+    TEST(ati != db.allterms_end("three"));
+    TEST_EQUAL(*ati, "three");
+    ati.skip_to("three");
+    TEST(ati != db.allterms_end("three"));
+    TEST_EQUAL(*ati, "three");
+    ati++;
+    TEST(ati == db.allterms_end("three"));
+
+    ati = db.allterms_begin("thre");
+    TEST(ati != db.allterms_end("thre"));
+    TEST_EQUAL(*ati, "three");
+    ati.skip_to("three");
+    TEST(ati != db.allterms_end("thre"));
+    TEST_EQUAL(*ati, "three");
+    ati++;
+    TEST(ati == db.allterms_end("thre"));
+
+    ati = db.allterms_begin("f");
+    TEST(ati != db.allterms_end("f"));
+    TEST_EQUAL(*ati, "five");
+    TEST(ati != db.allterms_end("f"));
+    ati.skip_to("three");
+    TEST(ati == db.allterms_end("f"));
+
+    ati = db.allterms_begin("f");
+    TEST(ati != db.allterms_end("f"));
+    TEST_EQUAL(*ati, "five");
+    ati++;
+    TEST(ati != db.allterms_end("f"));
+    TEST_EQUAL(*ati, "four");
+    ati++;
+    TEST(ati == db.allterms_end("f"));
+
+    return true;
+}
+
 // test that searching for a term with a special characters in it works
 static bool test_specialterms1()
 {
@@ -1631,6 +1675,7 @@ test_desc allterms_tests[] = {
     {"allterms3",	   test_allterms3},
     {"allterms4",	   test_allterms4},
     {"allterms5",	   test_allterms5},
+    {"allterms6",	   test_allterms6},
     {"specialterms2",	   test_specialterms2},
     {0, 0}
 };

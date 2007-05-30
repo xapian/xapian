@@ -151,17 +151,23 @@ Database::termlist_begin(Xapian::docid did) const
 TermIterator
 Database::allterms_begin() const
 {
+    return allterms_begin("");
+}
+
+TermIterator
+Database::allterms_begin(const std::string & prefix) const
+{
     DEBUGAPICALL(TermIterator, "Database::allterms_begin", "");
     if (internal.empty()) RETURN(TermIterator(NULL));
 
     if (internal.size() == 1)
-	RETURN(TermIterator(internal[0]->open_allterms()));
+	RETURN(TermIterator(internal[0]->open_allterms(prefix)));
  
     vector<TermList *> lists;
 
     vector<Xapian::Internal::RefCntPtr<Database::Internal> >::const_iterator i;
     for (i = internal.begin(); i != internal.end(); ++i) {
-	lists.push_back((*i)->open_allterms());
+	lists.push_back((*i)->open_allterms(prefix));
     }
 
     RETURN(TermIterator(new MultiAllTermsList(lists)));

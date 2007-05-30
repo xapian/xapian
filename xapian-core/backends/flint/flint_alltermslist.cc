@@ -103,6 +103,13 @@ FlintAllTermsList::next()
 	    throw Xapian::DatabaseCorruptError("PostList table key has unexpected format");
 	}
 
+	if (current_term.substr(0, prefix.size()) != prefix) {
+	    // We've reached the end of the end of the prefixed terms.
+	    cursor->to_end();
+	    current_term = "";
+	    break;
+	}
+
 	// If this key is for the first chunk of a postlist, we're done.  Otherwise we need
 	// to skip past continuation chunks until we find the first chunk of the next postlist.
 	if (p == pend) break;
@@ -114,6 +121,7 @@ TermList *
 FlintAllTermsList::skip_to(const string &tname)
 {
     DEBUGCALL(DB, TermList *, "FlintAllTermsList::skip_to", tname);
+    if (at_end()) abort();
     Assert(!at_end());
     // Set termfreq to 0 to indicate no value has been read for the current term.
     termfreq = 0;

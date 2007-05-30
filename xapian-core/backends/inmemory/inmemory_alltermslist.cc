@@ -25,10 +25,14 @@
 #include "inmemory_alltermslist.h"
 
 InMemoryAllTermsList::InMemoryAllTermsList(const std::map<string, InMemoryTerm> *tmap_,
-					   Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_)
-	: tmap(tmap_), it(tmap->begin()), database(database_), started(false)
+					   Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_,
+					   const string & prefix_)
+	: tmap(tmap_), it(tmap->begin()), database(database_), started(false), prefix(prefix_)
 {
-    while (it != tmap->end() && it->second.term_freq == 0) ++it;
+    while (it != tmap->end() &&
+	   (it->second.term_freq == 0 ||
+	    it->first.substr(0, prefix.size()) != prefix))
+	++it;
 }
 
 InMemoryAllTermsList::~InMemoryAllTermsList()
@@ -73,6 +77,8 @@ InMemoryAllTermsList::skip_to(const string &tname)
     // FIXME: might skip backwards - is this a problem?
     it = tmap->lower_bound(tname);
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
+    if (it != tmap->end() && it->first.substr(0, prefix.size()) != prefix)
+	it = tmap->end();
     return NULL;
 }
 
@@ -86,6 +92,8 @@ InMemoryAllTermsList::next()
 	++it;
 	while (it != tmap->end() && it->second.term_freq == 0) ++it;
     }
+    if (it != tmap->end() && it->first.substr(0, prefix.size()) != prefix)
+	it = tmap->end();
     return NULL;
 }
 

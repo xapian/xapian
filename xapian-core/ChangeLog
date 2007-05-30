@@ -1,3 +1,20 @@
+Wed May 30 12:58:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h,api/omdatabase.cc,backends/flint/,
+	  backends/inmemory/,backends/quartz/,
+	  backends/remote/remote-database.cc,
+	  common/database.h,common/remote-database.h,common/remoteprotocol.h,
+	  net/remoteserver.cc: Add a prefixed form of allterms_begin() and
+	  allterms_end(), which allows efficient iteration over only those
+	  terms which begin with the given prefix.  Requires bumping the
+	  remote protocol minor version number, but doesn't change any
+	  database formats.
+	* queryparser/queryparser.lemony: Update the wildcard and partial
+	  query routines to use the prefixed form of allterms_begin().
+	  This fixes the performance problems noted in bug #153.
+	* tests/api_db.cc: Add test_allterms6() to test the prefixed form
+	  of allterms iterators.
+
 Wed May 30 12:23:25 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/remote/remote-database.cc,common/remoteprotocol.h,
