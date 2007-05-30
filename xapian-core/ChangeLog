@@ -1,3 +1,8 @@
+Wed May 30 14:33:29 BST 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.  Put all the subheadings in the standard order used
+	  for previous releases.
+
 Wed May 30 12:58:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/database.h,api/omdatabase.cc,backends/flint/,
