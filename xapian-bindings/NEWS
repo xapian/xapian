@@ -1,9 +1,50 @@
-Xapian-core 1.0.1 (2007-05-?):
- - Up to Mon May 21 01:51:24 BST 2007
+up to:
+Wed May 30 14:52:04 BST 2007  Olly Betts <olly@survex.com>
+
+Xapian-bindings 1.0.1 (2007-0?-??):
+
+Documentation:
+
+* NEWS: Fix the recent headings which said "Xapian-core" to say
+  "Xapian-bindings".
 
 General:
 
-* Add wrapper of Query constructor for creating ValueRange queries.
+* Wrap Xapian::Query constructor for creating ValueRange queries.
+
+* Wrap new forms of Xapian::Database::allterms_begin() and allterms_end()
+  which take a prefix.
+
+Packaging:
+
+Portability:
+
+CSharp:
+
+* SmokeTest.cs: Update comment about Portable.NET bug - the bug is fixed in
+  their CVS repo, and the fix should be in their 0.8.2 release.
+
+Guile:
+
+Java:
+
+PHP:
+
+Python:
+
+* Add support for prefix-restricted pythonic allterms iterators.
+
+* Update documentation in a couple of places to refer to updated replacements
+  for MSetIterator.
+
+* Change testsuite output to be more vim-friendly (vim should be able to jump
+  to the right lines now).
+
+* __str__ on Xapian::Error now produces different output, since it now wraps
+  the new Xapian::Error::get_description() rather than being a custom method
+  added in the python bindings.
+
+Ruby:
 
 Tcl:
 
@@ -13,7 +54,7 @@ Tcl:
 
 * Fix build system dependencies for generating pkgIndex.tcl
 
-Xapian-core 1.0.0 (2007-05-17):
+Xapian-bindings 1.0.0 (2007-05-17):
 
 Documentation:
 
@@ -189,7 +230,7 @@ Tcl:
 
 * Deprecated Xapian::Stem's stem_word() method in favour of apply().
 
-Xapian-core 0.9.10.1 (2007-04-04):
+Xapian-bindings 0.9.10.1 (2007-04-04):
 
 PHP:
 
@@ -219,7 +260,7 @@ Ruby:
 * INSTALL: document how to install Xapian's Ruby bindings in your home
   directory.
 
-Xapian-core 0.9.10 (2007-03-04):
+Xapian-bindings 0.9.10 (2007-03-04):
 
 Java:
 
@@ -286,7 +327,7 @@ Packaging:
 
 * RPMs: Remove "." from the end of the Summary.
 
-Xapian-core 0.9.9 (2006-11-09):
+Xapian-bindings 0.9.9 (2006-11-09):
 
 Documentation:
 
@@ -315,7 +356,7 @@ Portability:
 
 * configure: Remove unnecessary backticks from tclsh version test.
 
-Xapian-core 0.9.8 (2006-11-02):
+Xapian-bindings 0.9.8 (2006-11-02):
 
 General:
 
