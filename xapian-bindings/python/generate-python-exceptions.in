@@ -55,6 +55,23 @@ print FD <<'EOF';
 namespace Xapian {
 
 %exceptionclass Error;
+%ignore Error::get_description;
+%extend Error {
+    std::string __str__() const {
+	std::string desc($self->get_msg());
+	if (!$self->get_context().empty()) {
+	    desc += " (context: ";
+	    desc += $self->get_context();
+	    desc += ')';
+	}
+	if ($self->get_error_string()) {
+	    desc += " (";
+	    desc += $self->get_error_string();
+	    desc += ')';
+	}
+	return desc;
+    }
+}
 EOF
 
 for (@allclasses) {

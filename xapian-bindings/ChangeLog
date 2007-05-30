@@ -1,3 +1,13 @@
+Wed May 30 22:21:32 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/generate-python-exceptions.in: Override the new default
+	  get_description() method in the Python bindings (which is renamed
+	  to __str__) with a similar method which doesn't include the type
+	  of the error message at the start of the error string.  Python
+	  errors are almost always displayed preceded by the type of the
+	  error class, so this was causing the type of the error to be
+	  repeated in tracebacks and similar reports.
+
 Wed May 30 17:57:34 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: `configure --help' documented that environmental

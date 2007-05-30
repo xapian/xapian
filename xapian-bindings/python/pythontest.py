@@ -1,7 +1,6 @@
 # Tests of Python-specific parts of the xapian bindings.
 #
 # Copyright (C) 2007 Lemur Consulting Ltd
-# Copyright (C) 2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -350,9 +349,9 @@ def test_allterms_iter():
     freqs = []
     for termitem in db:
         terms.append(termitem.term)
-        expect_exception(xapian.InvalidOperationError, 'InvalidOperationError: Iterator does not support wdfs', getattr, termitem, 'wdf')
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support wdfs', getattr, termitem, 'wdf')
         freqs.append(termitem.termfreq)
-        expect_exception(xapian.InvalidOperationError, 'InvalidOperationError: Iterator does not support position lists', getattr, termitem, 'positer')
+        expect_exception(xapian.InvalidOperationError, 'Iterator does not support position lists', getattr, termitem, 'positer')
 
     context("checking legacy sequence API for all terms iterator items")
     i = 0
@@ -375,7 +374,7 @@ def test_allterms_iter():
 
     expect(len(termitems), len(freqs))
     for i in xrange(len(termitems)):
-        expect_exception(xapian.InvalidOperationError, 'InvalidOperationError: Iterator has moved, and does not support random access', getattr, termitem, 'termfreq')
+        expect_exception(xapian.InvalidOperationError, 'Iterator has moved, and does not support random access', getattr, termitem, 'termfreq')
 
     context("checking that restricting the terms iterated with a prefix works")
     prefix_terms = []
@@ -479,13 +478,13 @@ def test_termlist_iter():
     expect(len(termitems), len(freqs))
     for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
-                         'InvalidOperationError: Iterator has moved, and does not support random access',
+                         'Iterator has moved, and does not support random access',
                          getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(freqs))
     for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
-                         'InvalidOperationError: Iterator has moved, and does not support random access',
+                         'Iterator has moved, and does not support random access',
                          getattr, termitem, 'positer')
 
 def test_dbdocument_iter():
@@ -539,13 +538,13 @@ def test_dbdocument_iter():
     expect(len(termitems), len(freqs))
     for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
-                         'InvalidOperationError: Iterator has moved, and does not support random access',
+                         'Iterator has moved, and does not support random access',
                          getattr, termitem, 'termfreq')
 
     expect(len(termitems), len(freqs))
     for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
-                         'InvalidOperationError: Iterator has moved, and does not support random access',
+                         'Iterator has moved, and does not support random access',
                          getattr, termitem, 'positer')
 
 def test_newdocument_iter():
@@ -567,7 +566,7 @@ def test_newdocument_iter():
         terms.append(termitem.term)
         wdfs.append(termitem.wdf)
         expect_exception(xapian.InvalidOperationError,
-                         "InvalidOperationError: Can't get term frequency from a document termlist "
+                         "Can't get term frequency from a document termlist "
                          "which is not associated with a database.",
                          getattr, termitem, 'termfreq')
         positers.append([pos for pos in termitem.positer])
@@ -600,13 +599,13 @@ def test_newdocument_iter():
 
     for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
-                         'InvalidOperationError: Iterator has moved, and does not support random access',
+                         'Iterator has moved, and does not support random access',
                          getattr, termitems[i], 'termfreq')
 
     expect(len(termitems), len(positers))
     for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError,
-                         'InvalidOperationError: Iterator has moved, and does not support random access',
+                         'Iterator has moved, and does not support random access',
                          getattr, termitems[i], 'positer')
 
 def test_postinglist_iter():
@@ -703,7 +702,7 @@ def test_postinglist_iter():
     expect(len(postings), len(positers))
     for i in xrange(len(postings)):
         expect_exception(xapian.InvalidOperationError,
-                         'InvalidOperationError: Iterator has moved, and does not support random access',
+                         'Iterator has moved, and does not support random access',
                          getattr, postings[i], 'positer')
 
 def test_position_iter():

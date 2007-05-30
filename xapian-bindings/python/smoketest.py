@@ -2,6 +2,7 @@
 # functionality successfully.
 #
 # Copyright (C) 2004,2005,2006,2007 Olly Betts
+# Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -155,7 +156,7 @@ def test_all():
     expect(count, 0, "Unexpected number of entries in doc.values")
 
     # Check exception handling for Xapian::DocNotFoundError
-    expect_exception(xapian.DocNotFoundError, "DocNotFoundError: Docid 3 not found", db.get_document, 3)
+    expect_exception(xapian.DocNotFoundError, "Docid 3 not found", db.get_document, 3)
 
     expect(xapian.Query.OP_ELITE_SET, 10, "Unexpected value for OP_ELITE_SET")
 
@@ -195,7 +196,7 @@ def test_all():
 
     # Check QueryParser parsing error.
     qp = xapian.QueryParser()
-    expect_exception(xapian.QueryParserError, "QueryParserError: Syntax: <expression> AND <expression>", qp.parse_query, "test AND")
+    expect_exception(xapian.QueryParserError, "Syntax: <expression> AND <expression>", qp.parse_query, "test AND")
 
     # Check QueryParser pure NOT option
     qp = xapian.QueryParser()
