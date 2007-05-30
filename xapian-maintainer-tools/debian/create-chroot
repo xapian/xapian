@@ -25,6 +25,8 @@
 
 CHROOT_BASE_PATH=/chroot
 
+DCHROOT_CONF=/etc/dchroot.conf
+
 set -e
 if [ 1 != $# -a 2 != $# ] ; then
   echo "Usage: $0 DISTRO [arch]"
@@ -52,7 +54,10 @@ eval "`dpkg-architecture|grep ^DEBIAN_BUILD_ARCH=`"
 distro_arch=$DISTRO-$DEBIAN_BUILD_ARCH
 chroot_path=$CHROOT_BASE_PATH/$distro_arch
 
-perl -ni -e 'print unless /^\Q'"$distro_arch"'\E\b/' /etc/dchroot.conf
+if test -f "$DCHROOT_CONF" ; then
+  # If DCHROOT_CONF exists then remove any existing entry for this chroot.
+  perl -ni -e 'print unless /^\Q'"$distro_arch"'\E\b/' "$DCHROOT_CONF"
+fi
 
 mkdir "$chroot_path"
 case $DISTRO in
@@ -89,7 +94,7 @@ END
     exit 1
 esac
 
-echo "$distro_arch $chroot_path" >> /etc/dchroot.conf
+echo "$distro_arch $chroot_path" >> "$DCHROOT_CONF"
 
 dchroot -c "$distro_arch" -- $_C 'apt-get --force-yes update'
 # gnupg is needed for signed packages in newer distros.
