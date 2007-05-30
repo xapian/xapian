@@ -1,7 +1,7 @@
 #!/bin/bash
 # Build packages in a chroot.
 #
-# Copyright (C) 2006 Olly Betts
+# Copyright (C) 2006,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -21,14 +21,14 @@
 
 set -e
 
-REPO_URL=http://www.xapian.org/debian
+REPO_URL=http://www.xapian.org/debian-tmp
 
 LINTIAN_FLAGS="-l0 -I"
 LINDA_FLAGS="-t E,W,X,I"
 
 if [ x"$1" = x--help -o "$#" -lt 2 ] ; then
-  echo "Usage: $0 DISTROARCH VERSION [PACKAGES...]"
-  echo "e.g. $0 sarge-i386 0.9.5"
+  echo "Usage: $0 DISTRO-ARCH VERSION [PACKAGES...]"
+  echo "e.g. $0 etch-i386 1.0.0"
   exit 1
 fi
 
@@ -46,7 +46,8 @@ shift
 PACKAGES=${*-"core bindings omega"}
 
 case $DISTRO_ARCH in
-  sarge*) DIR=stable ;;
+  sarge*) DIR=oldstable ;;
+  etch*) DIR=stable ;;
   sid*) DIR=unstable ;;
   *) DIR=`echo "$DISTRO_ARCH"|sed 's/-.*//'` ;;
 esac
@@ -86,7 +87,7 @@ done
 rm -rf "$CHROOT"/tmp/*
 
 dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get update'
-dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get -y dist-upgrade'
+dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get --force-yes -y dist-upgrade'
 
 if expr "$PACKAGES" : '.*core' ; then
   build_package xapian-core_*.dsc
@@ -129,7 +130,7 @@ else
 fi
 
 # Don't remove these so we can support building just a changed omega package...
-# dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get -y remove libxapian.\*'
+# dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get --force-yes -y remove libxapian.\*'
 
 lintian $LINTIAN_FLAGS *.dsc pool/$VERSION/binary/*.deb
 #linda $LINDA_FLAGS *.dsc pool/$VERSION/binary/*.deb
@@ -141,3 +142,6 @@ Origin: Xapian
 Label: Xapian
 Architecture: $ARCH
 END
+
+su olly -c "rsync -v -a pool/. ixion.tartarus.org:/usr/data/www/xapian.org/debian-tmp/pool/$ARCH/"
+su olly -c 'rsync -v -a dists/. ixion.tartarus.org:/usr/data/www/xapian.org/debian-tmp/dists/'
