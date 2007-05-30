@@ -1,3 +1,8 @@
+Wed May 30 14:42:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Update for changes since 1.0.0.  Removed unused subheading
+	  in 1.0.0 changes.
+
 Wed May 30 10:24:57 BST 2007  Olly Betts <olly@survex.com>
 
 	* query.cc: Fix handling of query parsing errors (broken by changes in
