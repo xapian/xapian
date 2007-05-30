@@ -154,7 +154,19 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/** Apply the specified operator to a single Xapian::Query object. */
 	Query(Query::op op_, Xapian::Query q);
 
-	/** Construct a range query on a document value. */
+	/** Construct a value range query on a document value.
+	 *
+	 *  A value range query matches those documents which have a value
+	 *  stored in the slot given by \a valno which is in the range
+	 *  specified by \a begin and \a end (in lexicographical
+	 *  order), including the endpoints.
+	 *
+	 *  @param op_   The operator to use for the query.  Currently, must
+	 *               be OP_VALUE_RANGE.
+	 *  @param valno The slot number to get the value from.
+	 *  @param begin The start of the range.
+	 *  @param end   The end of the range.
+	 */
 	Query(Query::op op_, Xapian::valueno valno,
 	      const std::string &begin, const std::string &end);
 
