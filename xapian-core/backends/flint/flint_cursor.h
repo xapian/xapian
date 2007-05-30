@@ -1,7 +1,7 @@
 /* bcursor.h: Interface to Btree cursors
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2006 Olly Betts
+ * Copyright 2002,2003,2004,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -83,9 +83,8 @@ class XAPIAN_VISIBILITY_DEFAULT FlintCursor {
 	 */
 	bool is_after_end;
 
-	/** Have we read the tag for the current key?
-	 */
-	bool have_read_tag;
+	/** Status of the current_tag member. */
+	enum { UNREAD, UNCOMPRESSED, COMPRESSED } tag_status;
 
 	/// The Btree table
 	FlintTable * B;
@@ -147,13 +146,20 @@ class XAPIAN_VISIBILITY_DEFAULT FlintCursor {
 	 *
 	 *  Some cursor users don't need the tag, so for efficiency we
 	 *  only read it when asked to.
+	 *
+	 *  @param keep_compressed  Don't uncompress the tag - e.g. useful
+	 *			    if it's just being opaquely copied
+	 *			    (default: false).
+	 *
+	 *  @return	true if current_tag holds compressed data (always
+	 *		false if keep_compressed was false).
 	 */
-	void read_tag();
+	bool read_tag(bool keep_compressed = false);
 
 	/** Advance to the next key.
 	 *
 	 *  If cursor is unpositioned, the result is simply false.
-	 *  
+	 *
 	 *  If cursor  is positioned, and points to the very last item in the
 	 *  Btree the cursor is made unpositioned, and the result is false.
 	 *  Otherwise the cursor is moved to the next item in the B-tree,

@@ -1,3 +1,9 @@
+Wed May 30 01:30:35 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/,bin/xapian-compact.cc: Don't uncompress and
+	  recompress tags when compacting a database.  This speeds up
+	  xapian-compact rather a lot (by more than 50% in my quick test).
+
 Tue May 29 20:58:13 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/Makefile.mk: Fix multiple target rule for generating

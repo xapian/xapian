@@ -1042,7 +1042,7 @@ void FlintTable::form_key(const string & key) const
 */
 
 bool
-FlintTable::add(const string &key, string tag)
+FlintTable::add(const string &key, string tag, bool already_compressed)
 {
     DEBUGCALL(DB, bool, "FlintTable::add", key << ", " << tag);
     Assert(writable);
@@ -1058,7 +1058,9 @@ FlintTable::add(const string &key, string tag)
     form_key(key);
 
     bool compressed = false;
-    if (compress_strategy != DONT_COMPRESS && tag.size() > COMPRESS_MIN) {
+    if (already_compressed) {
+	compressed = true;
+    } else if (compress_strategy != DONT_COMPRESS && tag.size() > COMPRESS_MIN) {
 	CompileTimeAssert(DONT_COMPRESS != Z_DEFAULT_STRATEGY);
 	CompileTimeAssert(DONT_COMPRESS != Z_FILTERED);
 	CompileTimeAssert(DONT_COMPRESS != Z_HUFFMAN_ONLY);
@@ -1236,12 +1238,12 @@ FlintTable::find_tag(const string &key, string * tag) const
     form_key(key);
     if (!find(C)) RETURN(false);
 
-    read_tag(C, tag);
+    (void)read_tag(C, tag, false);
     RETURN(true);
 }
 
-void
-FlintTable::read_tag(Cursor_ * C_, string *tag) const
+bool
+FlintTable::read_tag(Cursor_ * C_, string *tag, bool keep_compressed) const
 {
     Item_ item(C_[0].p, C_[0].c);
 
@@ -1262,7 +1264,7 @@ FlintTable::read_tag(Cursor_ * C_, string *tag) const
     }
     // At this point the cursor is on the last item - calling next will move
     // it to the next key (FlintCursor::get_tag() relies on this).
-    if (!compressed) return;
+    if (!compressed || keep_compressed) return compressed;
 
     // FIXME: Perhaps we should we decompress each chunk as we read it so we
     // don't need both the full compressed and uncompressed tags in memory
@@ -1340,6 +1342,8 @@ FlintTable::read_tag(Cursor_ * C_, string *tag) const
     if (err != Z_OK) abort();
 
     swap(*tag, utag);
+
+    return false;
 }
 
 void

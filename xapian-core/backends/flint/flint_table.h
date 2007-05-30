@@ -368,8 +368,14 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	bool find_tag(const string &key, string * tag) const;
 
 	/** Read the tag value for the key pointed to by cursor C_.
+	 *
+	 *  @param keep_compressed  Don't uncompress the tag - e.g. useful
+	 *			    if it's just being opaquely copied.
+	 *
+	 *  @return	true if current_tag holds compressed data (always
+	 *		false if keep_compressed was false).
 	 */
-	void read_tag(Cursor_ * C_, string *tag) const;
+	bool read_tag(Cursor_ * C_, string *tag, bool keep_compressed) const;
 
 	/** Add a key/tag pair to the table, replacing any existing pair with
 	 *  the same key.
@@ -379,17 +385,20 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  previous commit() will be lost.
 	 *
 	 *  If key is empty, then the null item is replaced.  If key.length()
-	 *  exceeds the the limit on key size, false is returned.
+	 *  exceeds the limit on key size, false is returned.
 	 *
 	 *  e.g.    ok = btree.add("TODAY", "Mon 9 Oct 2000");
 	 *
 	 *  @param key   The key to store in the table.
 	 *  @param tag   The tag to store in the table.
+	 *  @param already_compressed	true if tag is already compressed,
+	 *		for example because it is being opaquely copied
+	 *		(default: false).
 	 *
 	 *  @return true if the operation completed successfully, false
 	 *          otherwise.
 	 */
-	bool add(const string &key, string tag);
+	bool add(const string &key, string tag, bool already_compressed = false);
 
 	/** Delete an entry from the table.
 	 *

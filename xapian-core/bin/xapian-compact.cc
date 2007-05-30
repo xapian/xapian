@@ -505,8 +505,8 @@ main(int argc, char **argv)
 			} else {
 			    key = cur.current_key;
 			}
-			cur.read_tag();
-			out.add(key, cur.current_tag);
+			bool compressed = cur.read_tag(true);
+			out.add(key, cur.current_tag, compressed);
 		    }
 		}
 	    }

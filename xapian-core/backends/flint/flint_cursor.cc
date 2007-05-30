@@ -1,7 +1,7 @@
 /* flint_cursor.cc: Btree cursor implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -51,7 +51,7 @@ hex_encode(const string & input)
 FlintCursor::FlintCursor(FlintTable *B_)
 	: is_positioned(false),
 	  is_after_end(false),
-	  have_read_tag(false),
+	  tag_status(UNREAD),
 	  B(B_),
 	  level(B_->level)
 {
@@ -87,10 +87,10 @@ FlintCursor::prev()
 	// Simple fix - seek to the current key, and then it's as if we
 	// read the key but not the tag.
 	(void)find_entry(current_key);
-	have_read_tag = false;
+	tag_status = UNREAD;
     }
 
-    if (have_read_tag) {
+    if (tag_status != UNREAD) {
 	while (true) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
@@ -112,7 +112,7 @@ FlintCursor::prev()
 	}
     }
     get_key(&current_key);
-    have_read_tag = false;
+    tag_status = UNREAD;
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
     return true;
@@ -124,7 +124,7 @@ FlintCursor::next()
     DEBUGCALL(DB, bool, "FlintCursor::next", "");
     Assert(B->level <= level);
     Assert(!is_after_end);
-    if (!have_read_tag) {
+    if (tag_status == UNREAD) {
 	while (true) {
 	    if (! B->next(C, 0)) {
 		is_positioned = false;
@@ -143,7 +143,7 @@ FlintCursor::next()
     }
 
     get_key(&current_key);
-    have_read_tag = false;
+    tag_status = UNREAD;
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
     return true;
@@ -187,7 +187,7 @@ done:
 
     if (!is_positioned) throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
     get_key(&current_key);
-    have_read_tag = false;
+    tag_status = UNREAD;
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");
     RETURN(found);
@@ -202,24 +202,27 @@ FlintCursor::get_key(string * key) const
     (void)Item_(C[0].p, C[0].c).key().read(key);
 }
 
-void
-FlintCursor::read_tag()
+bool
+FlintCursor::read_tag(bool keep_compressed)
 {
-    DEBUGCALL(DB, void, "FlintCursor::read_tag", "");
-    if (have_read_tag) return;
+    DEBUGCALL(DB, bool, "FlintCursor::read_tag", keep_compressed);
+    if (tag_status == UNREAD) {
+	Assert(B->level <= level);
+	Assert(is_positioned);
 
-    Assert(B->level <= level);
-    Assert(is_positioned);
+	if (B->read_tag(C, &current_tag, keep_compressed)) {
+	    tag_status = COMPRESSED;
+	} else {
+	    tag_status = UNCOMPRESSED;
+	}
 
-    B->read_tag(C, &current_tag);
+	// We need to call B->next(...) after B->read_tag(...) so that the
+	// cursor ends up on the next key.
+	is_positioned = B->next(C, 0);
 
-    // We need to call B->next(...) after B->read_tag(...) so that the
-    // cursor ends up on the next key.
-    is_positioned = B->next(C, 0);
-
-    have_read_tag = true;
-
-    DEBUGLINE(DB, "tag=`" << hex_encode(current_tag) << "'");
+	DEBUGLINE(DB, "tag=`" << hex_encode(current_tag) << "'");
+    }
+    return (tag_status == COMPRESSED);
 }
 
 void
