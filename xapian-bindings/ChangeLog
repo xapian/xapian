@@ -1,3 +1,10 @@
+Wed May 30 23:54:23 BST 2007  Olly Betts <olly@survex.com>
+
+	* python/smoketest.py: Update uses of the legacy sequence API.
+	* python/pythontest.py: The legacy sequence API is only supported for
+	  Python 2.3 and later, so don't run tests for it when running under
+	  Python 2.2.
+
 Wed May 30 22:38:08 BST 2007  Olly Betts <olly@survex.com>
 
 	* java-swig/Makefile.am: Distribute the generated .java sources.

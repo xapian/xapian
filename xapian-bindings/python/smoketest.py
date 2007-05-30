@@ -146,8 +146,8 @@ def test_all():
             x = term.next()
         except StopIteration:
             break
-        if x[0] < 'n':
-            raise TestFail("TermIter.skip_to didn't skip term '%s'" % x[0])
+        if x.term < 'n':
+            raise TestFail("TermIter.skip_to didn't skip term '%s'" % x.term)
 
     # Feature test for Document.values
     count = 0
@@ -232,7 +232,7 @@ def test_all():
     doc.set_data(u"Unicode with an acc\xe9nt")
     doc.add_posting(stem(u"out\xe9r"), 1)
     expect(doc.get_data(), u"Unicode with an acc\xe9nt".encode('utf-8'))
-    term = doc.termlist().next()[0]
+    term = doc.termlist().next().term
     expect(term, u"out\xe9r".encode('utf-8'))
 
     # Check simple stopper
