@@ -532,6 +532,25 @@ static test test_or_queries[] = {
     { "- NEAR 12V voeding", "(near:(pos=1) OR 12v:(pos=2) OR Zvoed:(pos=3))" },
     { "waarom \"~\" in directorynaam", "(Zwaarom:(pos=1) OR Zin:(pos=2) OR Zdirectorynaam:(pos=3))" },
     { "cd'r NEAR toebehoren", "(cd'r:(pos=1) NEAR 11 toebehoren:(pos=2))" },
+    { "site:1 site:2", "(H1 OR H2)" },
+    { "site:1 site2:2", "(H1 AND J2)" },
+    { "site:1 site:2 site2:2", "((H1 OR H2) AND J2)" },
+    { "site:1 OR site:2", "(H1 OR H2)" },
+    { "site:1 AND site:2", "(H1 AND H2)" },
+#if 0
+    { "A site:1 site:2", "(a FILTER (H1 OR H2))" },
+    { "A (site:1 OR site:2)", "(a FILTER (H1 OR H2))" },
+    { "A (site:1 OR site:2)", "(a FILTER (H1 OR H2))" },
+    { "A site:1 site2:2", "(a FILTER (H1 AND J2))" },
+    { "A site:1 site:2 site2:2", "(a FILTER ((H1 OR H2) AND J2))" },
+    { "A site:1 OR site:2", "(a FILTER (H1 OR H2))" },
+    { "A site:1 AND site:2", "(a FILTER (H1 AND H2))" },
+#endif
+    { "site:xapian.org OR site:www.xapian.org", "(Hxapian.org OR Hwww.xapian.org)" },
+    { "site:xapian.org site:www.xapian.org", "(Hxapian.org OR Hwww.xapian.org)" },
+    { "site:xapian.org AND site:www.xapian.org", "(Hxapian.org AND Hwww.xapian.org)" },
+    { "Xapian site:xapian.org site:www.xapian.org", "(xapian:(pos=1) FILTER (Hxapian.org OR Hwww.xapian.org))" },
+    { "author:richard author:olly writer:charlie", "(ZArichard:(pos=1) OR ZAolli:(pos=2) OR ZAcharli:(pos=3))"},
     { NULL, NULL }
 };
 
@@ -573,9 +592,11 @@ static bool test_queryparser1()
     queryparser.set_stemmer(Xapian::Stem("english"));
     queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     queryparser.add_prefix("author", "A");
+    queryparser.add_prefix("writer", "A");
     queryparser.add_prefix("title", "XT");
     queryparser.add_prefix("subject", "XT");
     queryparser.add_boolean_prefix("site", "H");
+    queryparser.add_boolean_prefix("site2", "J");
     for (test *p = test_or_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
@@ -977,6 +998,9 @@ static test test_value_range1_queries[] = {
     { "hello a..b", "(hello:(pos=1) FILTER VALUE_RANGE 1 a b)" },
     { "hello a..b world", "((hello:(pos=1) OR world:(pos=2)) FILTER VALUE_RANGE 1 a b)" },
     { "hello a..b test:foo", "(hello:(pos=1) FILTER (VALUE_RANGE 1 a b AND XTESTfoo))" },
+    { "hello a..b test:foo test:bar", "(hello:(pos=1) FILTER (VALUE_RANGE 1 a b AND (XTESTfoo OR XTESTbar)))" },
+    { "hello a..b c..d test:foo", "(hello:(pos=1) FILTER ((VALUE_RANGE 1 a b OR VALUE_RANGE 1 c d) AND XTESTfoo))" },
+    { "hello a..b c..d test:foo test:bar", "(hello:(pos=1) FILTER ((VALUE_RANGE 1 a b OR VALUE_RANGE 1 c d) AND (XTESTfoo OR XTESTbar)))" },
     { "-5..7", "VALUE_RANGE 1 -5 7" },
     { "hello -5..7", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
     { "-5..7 hello", "(hello:(pos=1) FILTER VALUE_RANGE 1 -5 7)" },
@@ -1030,6 +1054,7 @@ static test test_value_range2_queries[] = {
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "(test:a..test:b hello)", "(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)" },
+    { "12..42kg 5..6kg 1..12", "(VALUE_RANGE 2 1 12 AND (VALUE_RANGE 5 12 42 OR VALUE_RANGE 5 5 6))" },
     { NULL, NULL }
 };
 

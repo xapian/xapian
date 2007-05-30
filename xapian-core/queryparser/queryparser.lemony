@@ -25,6 +25,7 @@
 #include "queryparser_internal.h"
 #include <xapian/unicode.h>
 #include "utils.h"
+#include "autoptr.h"
 
 // Include the list of token values lemon generates.
 #include "queryparser_token.h"
@@ -133,6 +134,7 @@ class QpQuery {
     QpQuery(bool m) : q(), match_nothing(m) {}
     Query & get() { return q; }
     const Query & get() const { return q; }
+    Xapian::valueno get_valno() const { return q.internal->get_parameter(); }
 
     /// True iff the query is not empty, and doesn't explicitly match nothing.
     bool can_match() { return (!q.empty() && !match_nothing); }
@@ -160,6 +162,33 @@ class QpQuery {
 #endif
 };
 
+/// A structure identifying a group of filter terms
+struct filter_group_id {
+    /** The prefix of the filter terms.
+     *  This is used for boolean filter terms.
+     */
+    string prefix;
+
+    /** The value number of the filter terms.
+     *  This is used for value range terms.
+     */
+    Xapian::valueno valno;
+
+    /// Make a new filter_group_id for boolean filter terms.
+    explicit filter_group_id(const string & prefix_) : prefix(prefix_), valno(Xapian::BAD_VALUENO) {}
+
+    /// Make a new filter_group_id for value range terms.
+    explicit filter_group_id(Xapian::valueno valno_) : prefix(), valno(valno_) {}
+
+    /// Compare to another filter_group_id.
+    bool operator<(const filter_group_id & other) const {
+	if (prefix != other.prefix) {
+	    return prefix < other.prefix;
+	}
+	return valno < other.valno;
+    }
+};
+
 /** Class used to pass information about a token from lexer to parser.
  *
  *  Generally a this class carries term information, but it can be used for the
@@ -177,20 +206,24 @@ class Term {
     bool stem;
     termpos pos;
 
-    std::string make_term() const;
-
   public:
     Term(const string &name_, termpos pos_) : name(name_), stem(false), pos(pos_) { }
     Term(const string &name_) : name(name_), stem(false), pos(0) { }
+    Term(const string &name_, const string &prefix_)
+	: name(name_), prefix(prefix_), stem(false), pos(0) { }
     Term(termpos pos_) : stem(false), pos(pos_) { }
     Term(State * state_, const string &name_, const string &prefix_,
 	 const string &unstemmed_, bool stem_, termpos pos_)
 	: state(state_), name(name_), prefix(prefix_), unstemmed(unstemmed_),
 	  stem(stem_), pos(pos_) { }
 
+    std::string make_term() const;
+
     void dont_stem() { stem = false; }
 
     termpos get_termpos() const { return pos; }
+
+    filter_group_id get_filter_group_id() const { return filter_group_id(prefix); }
 
     QpQuery * as_query() const { return new QpQuery(make_term(), 1, pos); }
 
@@ -587,17 +620,14 @@ main_lex_loop:
 			// until the next space or ')' as part of the boolean
 			// term.
 			it = p;
-			if (prefix_needs_colon(prefix, *it))
-			    prefix += ':';
-			string term;
+			string name;
 			while (it != end && *it > ' ' && *it != ')')
-			    Unicode::append_utf8(term, *it++);
-			prefix += term;
+			    Unicode::append_utf8(name, *it++);
+			AutoPtr<Term> term(new Term(name, prefix));
 			field += ':';
-			field += term;
-			unstem.insert(make_pair(prefix, field));
-			Parse(pParser, BOOLEAN_FILTER, new Term(prefix),
-			      &state);
+			field += name;
+			unstem.insert(make_pair(term->make_term(), field));
+			Parse(pParser, BOOLEAN_FILTER, term.release(), &state);
 			continue;
 		    }
 
@@ -856,7 +886,20 @@ struct ProbQuery {
     QpQuery query;
     QpQuery love;
     QpQuery hate;
-    QpQuery filter;
+
+    // filter is a map from prefix to a query for that prefix.  Queries with
+    // the same prefix are combined with OR, and the results of this are
+    // combined with AND to get the full filter.
+    map<filter_group_id, QpQuery> filter;
+
+    QpQuery merge_filters() const {
+	QpQuery q;
+	map<filter_group_id, QpQuery>::const_iterator i;
+	for (i = filter.begin(); i != filter.end(); ++i) {
+	    add_to_query(q, Query::OP_AND, i->second.get());
+	}
+	return q;
+    }
 };
 
 class TermList {
@@ -1076,10 +1119,10 @@ prob_expr(E) ::= prob(P). {
     // Handle any boolean filters.
     if (!P->filter.empty()) {
 	if (E->empty()) {
-	    *E = P->filter;
+	    *E = P->merge_filters();
 	    // FIXME and make the query boolean somehow...
 	} else {
-	    *E = QpQuery(Query::OP_FILTER, *E, P->filter);
+	    *E = QpQuery(Query::OP_FILTER, *E, P->merge_filters());
 	}
     }
     // FIXME what if E->empty() (all terms are stopwords)?
@@ -1106,8 +1149,9 @@ prob(P) ::= RANGE_START(A) RANGE_END(B). {
 	yy_parse_failed(yypParser);
 	return;
     }
+    Xapian::valueno valno = range->get_valno();
     P = new ProbQuery;
-    P->filter = *range;
+    P->filter[filter_group_id(valno)] = *range;
     delete range;
 }
 
@@ -1119,8 +1163,9 @@ prob(P) ::= stop_prob(Q) RANGE_START(A) RANGE_END(B). {
 	yy_parse_failed(yypParser);
 	return;
     }
+    Xapian::valueno valno = range->get_valno();
     P = Q;
-    add_to_query(P->filter, Query::OP_AND, *range);
+    add_to_query(P->filter[filter_group_id(valno)], Query::OP_OR, *range);
     delete range;
 }
 
@@ -1190,29 +1235,29 @@ prob(P) ::= stop_prob(Q) HATE BOOLEAN_FILTER(T). {
 
 prob(P) ::= BOOLEAN_FILTER(T). {
     P = new ProbQuery;
-    P->filter = T->as_query_object();
+    P->filter[T->get_filter_group_id()] = T->as_query_object();
     delete T;
 }
 
 prob(P) ::= stop_prob(Q) BOOLEAN_FILTER(T). {
     P = Q;
-    // FIXME we should OR filters with the same prefix...
-    add_to_query(P->filter, Query::OP_AND, T->as_query_object());
+    // We OR filters with the same prefix...
+    add_to_query(P->filter[T->get_filter_group_id()], Query::OP_OR, T->as_query_object());
     delete T;
 }
 
 prob(P) ::= LOVE BOOLEAN_FILTER(T). {
     // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
     P = new ProbQuery;
-    P->filter = T->as_query_object();
+    P->filter[T->get_filter_group_id()] = T->as_query_object();
     delete T;
 }
 
 prob(P) ::= stop_prob(Q) LOVE BOOLEAN_FILTER(T). {
     // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
     P = Q;
-    // FIXME we should OR filters with the same prefix...
-    add_to_query(P->filter, Query::OP_AND, T->as_query_object());
+    // We OR filters with the same prefix...
+    add_to_query(P->filter[T->get_filter_group_id()], Query::OP_OR, T->as_query_object());
     delete T;
 }
 

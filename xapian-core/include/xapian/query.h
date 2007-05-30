@@ -377,6 +377,15 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	 */
 	std::string get_description() const;
 
+	/** Get the numeric parameter used in this query.
+	 *
+	 *  This is used by the QueryParser to get the value number for
+	 *  VALUE_RANGE queries.  It should be replaced by a public method on
+	 *  the Query class at some point, but the API which should be used for
+	 *  that is unclear, so this is a temporary workaround.
+	 */
+	Xapian::termcount get_parameter() const { return parameter; }
+
 	/** Get the length of the query, used by some ranking formulae.
 	 *  This value is calculated automatically - if you want to override
 	 *  it you can pass a different value to Enquire::set_query().

@@ -1,3 +1,16 @@
+Wed May 30 19:47:43 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/query.h: New accessor method
+	  Xapian::Query::Internal::get_parameter().
+	* queryparser/queryparser.lemony: Multiple boolean prefixed terms
+	  with the same term prefix are now combined with OR before such
+	  groups are combined with AND.  Similarly for multiple value ranges
+	  on the same value (fixes bug#157).
+	* include/xapian/queryparser.h: Document new handling of multiple
+	  boolean prefixed terms.
+	* tests/queryparsertest.cc: Testcases for new handling of multiple
+	  boolean prefixed terms and value ranges.
+
 Wed May 30 14:45:19 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/deprecation.rst: Update comment about QueryParserError to

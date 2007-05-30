@@ -238,8 +238,19 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  will be converted to Hxapian.org combined with any probabilistic
      *  query with OP_FILTER.
      *
-     *  Multiple fields can be mapped to the same prefix (so you can
-     *  e.g. make site: and domain: aliases for each other).
+     *  If multiple boolean filters are specified in a query for the same
+     *  prefix, they will be combined with the OR operator.  Then, if there are
+     *  boolean filters for different prefixes, they will be combined with the
+     *  AND operator.
+     *
+     *  Multiple fields can be mapped to the same prefix (so you can e.g. make
+     *  site: and domain: aliases for each other).  Instances of fields with
+     *  different aliases but the same prefix will still be combined with the
+     *  OR operator.
+     *
+     *  For example, if "site" and "domain" map to "H", but author maps to "A",
+     *  a search for "site:Foo domain:Bar author:Fred" will map to
+     *  "(Hfoo OR Hbar) AND Afred".
      *
      *  @param field   The user visible field name
      *  @param prefix  The term prefix to map this to
