@@ -23,7 +23,7 @@ CHROOT_BASE_PATH=/chroot
 set -e
 if [ 1 != $# -a 2 != $# ] ; then
   echo "Usage: $0 DISTRO [arch]"
-  echo "e.g. $0 sarge i386"
+  echo "e.g. $0 etch i386"
   exit 1
 fi
 
@@ -51,7 +51,7 @@ perl -ni -e 'print unless /^\Q'"$distro_arch"'\E\b/' /etc/dchroot.conf
 
 mkdir "$chroot_path"
 case $DISTRO in
-  sid|woody|sarge|etch)
+  sid|woody|sarge|etch|lenny)
     if [ sarge-amd64 = "$distro_arch" ] ; then
       mirror=http://ftp.de.debian.org/debian-amd64/debian
     else
@@ -60,7 +60,7 @@ case $DISTRO in
     # Need to specify --mirror to allow running on Ubuntu.
     debootstrap --variant=buildd --arch $DEBIAN_BUILD_ARCH "$DISTRO" "$chroot_path" "$mirror"
     ;;
-  warty|hoary|breezy|dapper|edgy)
+  warty|hoary|breezy|dapper|edgy|feisty|gutsy)
     if [ ! -f /usr/lib/debootstrap/scripts/$DISTRO ] ; then
       cat <<END
 Your debootstrap installation doesn't know how to bootstrap a $DISTRO chroot.
