@@ -1,3 +1,9 @@
+Wed May 30 22:27:33 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/pythontest.py,python/smoketest.py: Revert the earlier
+	  change to the expected output from testcases which expect
+	  exceptions, in line with the new Error.__str__() method.
+
 Wed May 30 22:21:32 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/generate-python-exceptions.in: Override the new default
