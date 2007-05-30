@@ -237,8 +237,8 @@ set_probabilistic(const string &oldp)
 
     try {
 	query = qp.parse_query(query_string);
-    } catch (const char *s) {
-	error_msg = s;
+    } catch (Xapian::QueryParserError &e) {
+	error_msg = e.get_msg();
 	return BAD_QUERY;
     }
 
