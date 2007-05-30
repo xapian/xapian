@@ -657,6 +657,8 @@ class Database {
 	PositionIterator positionlist_end(docid did, const std::string& tname) const;
 	TermIterator allterms_begin() const;
 	TermIterator allterms_end() const;
+	TermIterator allterms_begin(const std::string &prefix) const;
+	TermIterator allterms_end(const std::string &prefix) const;
 
 	doccount get_doccount() const;
 	docid get_lastdocid() const;

@@ -345,7 +345,7 @@ def test_allterms_iter():
     """
     db = setup_database()
 
-    # Make a list of the term names
+    context("making a list of the term names and frequencies")
     terms = []
     freqs = []
     for termitem in db:
@@ -354,7 +354,7 @@ def test_allterms_iter():
         freqs.append(termitem.termfreq)
         expect_exception(xapian.InvalidOperationError, 'InvalidOperationError: Iterator does not support position lists', getattr, termitem, 'positer')
 
-    # Test legacy sequence API.
+    context("checking legacy sequence API for all terms iterator items")
     i = 0
     for termitem in db:
         termitem = termitem[:]
@@ -364,8 +364,7 @@ def test_allterms_iter():
         expect([pos for pos in termitem[3]], [])
         i += 1
 
-    # Make a list of the items (so we can test if they're still valid
-    # once the iterator has moved on).
+    context("checking that items are no longer valid once the iterator has moved on");
     termitems = []
     for termitem in db:
         termitems.append(termitem)
@@ -377,6 +376,20 @@ def test_allterms_iter():
     expect(len(termitems), len(freqs))
     for i in xrange(len(termitems)):
         expect_exception(xapian.InvalidOperationError, 'InvalidOperationError: Iterator has moved, and does not support random access', getattr, termitem, 'termfreq')
+
+    context("checking that restricting the terms iterated with a prefix works")
+    prefix_terms = []
+    prefix_freqs = []
+    for i in xrange(len(terms)):
+        if terms[i][0] == 't':
+            prefix_terms.append(terms[i])
+            prefix_freqs.append(freqs[i])
+    i = 0
+    for termitem in db.allterms('t'):
+        expect(termitem.term, prefix_terms[i])
+        expect(termitem.termfreq, prefix_freqs[i])
+        i += 1
+    expect(len(prefix_terms), i)
 
 def test_termlist_iter():
     """Test termlist iterator on Database.

@@ -536,7 +536,7 @@ def _query_gen_iter(self):
 Query.__iter__ = _query_gen_iter
 
 # Modify Database to add an "__iter__()" method and an "allterms()" method.
-def _database_gen_allterms_iter(self):
+def _database_gen_allterms_iter(self, prefix=None):
     """Get an iterator over all the terms in the database.
 
     The iterator will return TermListItem objects, but these will not support
@@ -545,9 +545,16 @@ def _database_gen_allterms_iter(self):
     Access to term frequency information is only available until the iterator
     has moved on.
 
+    If prefix is supplied, only terms which start with that prefix will be
+    returned.
+
     """
-    return TermIter(self.allterms_begin(), self.allterms_end(),
-                    has_termfreq=TermIter.LAZY)
+    if prefix is None:
+        return TermIter(self.allterms_begin(), self.allterms_end(),
+                        has_termfreq=TermIter.LAZY)
+    else:
+        return TermIter(self.allterms_begin(prefix), self.allterms_end(prefix),
+                        has_termfreq=TermIter.LAZY)
 Database.__iter__ = _database_gen_allterms_iter
 Database.allterms = _database_gen_allterms_iter
 
