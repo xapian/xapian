@@ -2,7 +2,7 @@
 # Create a chroot for a specified Debian or Ubuntu distribution
 # suitable for package building.
 #
-# Copyright (C) 2006 Olly Betts
+# Copyright (C) 2006,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -17,6 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+# Requires these packages installed: dchroot debootstrap dpkg-dev perl
+
+# You can use the new chroot interactively like so:
+# sudo dchroot -c etch-i386
 
 CHROOT_BASE_PATH=/chroot
 
