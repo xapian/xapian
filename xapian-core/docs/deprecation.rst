@@ -274,8 +274,8 @@ Native C++ API
 |             |                                     | ``Xapian::Enquire enq(Xapian::Database(path));`` instead of                             |
 |             |                                     | ``Xapian::Enquire enq(path);``                                                          |
 +-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | QueryParser::parse_query() throwing | Catch ``Xapian::QueryParserError`` instead of ``const char *``.                         |
-|             | ``const char *`` exception.         |                                                                                         |
+| 1.0.0       | QueryParser::parse_query() throwing | Catch ``Xapian::QueryParserError`` instead of ``const char *``, and call get_msg() on   |
+|             | ``const char *`` exception.         | the caught object.  If you need to build with either version, catch both.               |
 +-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
 
 
