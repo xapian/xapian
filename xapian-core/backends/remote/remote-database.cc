@@ -74,13 +74,19 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
     const char *p = message.c_str();
     const char *p_end = p + message.size();
 
-    if (*p != XAPIAN_REMOTE_PROTOCOL_VERSION) {
+    // The protocol major versions must match.  The protocol minor version of
+    // the server must be >= that of the client.
+    int protocol_major = static_cast<unsigned char>(*p++);
+    int protocol_minor = static_cast<unsigned char>(*p++);
+    if (protocol_major != XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION ||
+	protocol_minor < XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION) {
 	string errmsg("Unknown protocol version ");
+	errmsg += om_tostring(protocol_major);
+	errmsg += '.';
 	errmsg += om_tostring(int(*p));
-	errmsg += " ("STRINGIZE(XAPIAN_REMOTE_PROTOCOL_VERSION)" supported)";
+	errmsg += " ("STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION)"."STRINGIZE(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION)" supported)";
 	throw Xapian::NetworkError(errmsg, context);
     }
-    ++p;
 
     doccount = decode_length(&p, p_end, false);
     lastdocid = decode_length(&p, p_end, false);

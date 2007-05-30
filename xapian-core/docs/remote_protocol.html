@@ -7,7 +7,7 @@
 <h1>Remote Backend Protocol</h1>
 
 <p>
-This document describes <em>version 29</em> of the protocol used by Xapian's
+This document describes <em>version 30</em> of the protocol used by Xapian's
 remote backend.  The protocol assumes a reliable two-way connection across which
 arbitrary data can be sent - this could be provided by a TCP socket for example
 (as it is with xapian-tcpsrv), but any such connection could be used.  For
@@ -58,12 +58,16 @@ value for <code>0</code> or <code>1</code>.  This is indicated by
 <h2>Server greeting and statistics</h2>
 
 <ul>
-<li> <code>REPLY_GREETING &lt;protocol version&gt; I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt;</code>
+<li> <code>REPLY_GREETING &lt;protocol major version&gt; &lt;protocol minor version&gt; I&lt;db doc count&gt; I&lt;last docid&gt; B&lt;has positions?&gt; F&lt;db average length&gt;</code>
 </ul>
 
 <p>
-The protocol version is simply passed as a single byte (<code>'\x09'</code>
-for version 9).
+The protocol major and minor versions are passed as a single byte each (e.g.
+<code>'\x1e\x01'</code> for version 30.1).  The server and client must
+understand the same protocol major version, and the server protocol minor
+version must be greater than or equal to that of the client (this means that
+the server understands newer MSG_<i>XXX</i>, but will only send newer
+REPLY_<i>YYY</i> in response to an appropriate client message.
 </p>
 
 <h2>Exception</h2>

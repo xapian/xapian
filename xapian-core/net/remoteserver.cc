@@ -90,7 +90,8 @@ RemoteServer::RemoteServer(const std::vector<std::string> &dbpaths,
 
     // Send greeting message.
     string message;
-    message += char(XAPIAN_REMOTE_PROTOCOL_VERSION);
+    message += char(XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION);
+    message += char(XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION);
     message += encode_length(db->get_doccount());
     message += encode_length(db->get_lastdocid());
     message += (db->has_positions() ? '1' : '0');
