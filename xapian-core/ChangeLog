@@ -1,3 +1,9 @@
+Thu May 31 23:01:47 BST 2007  Olly Betts <olly@survex.com>
+
+	* examples/simplesearch.cc: Replacement "simplesearch" example which
+	  uses the QueryParser.  That makes for a simpler example, and it's
+	  much more typical of what most users will want to do.
+
 Thu May 31 19:31:40 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
