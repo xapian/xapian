@@ -555,6 +555,7 @@ if test no != "$with_csharp" ; then
   fi
 fi
 
+JAVA_CPPFLAGS=
 if test no != "$with_java" ; then
   AC_PATH_PROGS(JAVA, ["${JAVA-java}"], [],
 	[${JAVA_HOME+$JAVA_HOME/bin:}${JDK_HOME+$JDK_HOME/bin:}$PATH])
@@ -571,14 +572,13 @@ if test no != "$with_java" ; then
   if test -n "$JAVA" -a -n "$JAVAC" -a -n "$JAR" ; then
     dnl Eric says:
     dnl  The JNI library *requires* "Java 2", which is 1.2 or better.
-    dnl  I've only tested with JDK 1.3 and 1.4 from Sun.
     dnl
-    dnl So checking for jni.h presumably checks we have "Java 2"?!
+    dnl So checking for jni.h presumably implicitly checks we have "Java 2".
     dnl Note: jni.h #defines JNI_VERSION_1_[124] (but not 3 it seems).
     dnl So we could check for that if we want to check for a particular
     dnl JDK version...
     java_ok=no
-    AC_CHECK_HEADER(jni.h, [java_ok=yes], [
+    AC_CHECK_HEADER([jni.h], [java_ok=yes], [
       dnl We need to look for jni.h in /usr/lib/jvm/java-gcj/include on some
       dnl Debian and Ubuntu boxes at least.  And on MacOS X, we jni.h lives
       dnl in /System/Library/Frameworks/JavaVM.framework/Headers.
@@ -586,11 +586,40 @@ if test no != "$with_java" ; then
       for jnidir in $JNI_INCLUDE_DIR ${JAVA_HOME+"$JAVA_HOME/include"} ${JDK_HOME+"$JDK_HOME/include"} /usr/lib/jvm/java-gcj/include /System/Library/Frameworks/JavaVM.framework/Headers ; do
 	CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
 	AC_MSG_CHECKING([for jni.h in $jnidir])
-	AC_COMPILE_IFELSE([#include <jni.h>], [java_ok=yes])
-	AC_MSG_RESULT([$java_ok])
-	if test yes = $java_ok ; then
-	  JAVA_CPPFLAGS=-I$jnidir
-	  break
+	if test -f "$jnidir/jni.h" ; then
+	  AC_COMPILE_IFELSE([#include <jni.h>], [java_ok=yes])
+	  if test yes = $java_ok ; then
+	    AC_MSG_RESULT([yes])
+	    JAVA_CPPFLAGS=-I$jnidir
+	    break
+	  fi
+
+	  dnl Sun's JDK requires the user to pass an extra -I for a
+	  dnl subdirectory named after the host_os.  Sadly we seem to
+	  dnl need to hardcode a list of the platform names.
+	  jni_host_os=
+	  case $host_os in
+	    linux*)
+	      jni_host_os=linux ;;
+	    solaris*)
+	      jni_host_os=solaris ;;
+	    mingw* | pw32*)
+	      jni_host_os=win32 ;;
+	  esac
+	  if test -n "$jni_host_os" ; then
+	    CPPFLAGS="$CPPFLAGS -I$jnidir/$jni_host_os"
+	    AC_COMPILE_IFELSE([#include <jni.h>], [java_ok=yes])
+	    if test yes = $java_ok ; then
+	      AC_MSG_RESULT([yes, requires additional -I$jnidir/$jni_host_os])
+	      JAVA_CPPFLAGS="-I$jnidir -I$jnidir/$jni_host_os"
+	      break
+	    fi
+	  fi
+	  AC_MSG_RESULT([found, but not usable])
+
+	  CPPFLAGS="$SAVE_CPPFLAGS -I$jnidir"
+	else
+	  AC_MSG_RESULT([no])
 	fi
       done
       CPPFLAGS=$SAVE_CPPFLAGS

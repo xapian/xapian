@@ -8,14 +8,6 @@ into the "built" subdirectory too.
 You can copy these two files into your java installation, or just use them
 in-place.
 
-JDK specific issues:
-====================
-
-Sun JDK 1.5 on Linux reportedly need a -I for the linux subdirectory of the
-JDK includes.  So you might need to configure with something like:
-
-./configure CPPFLAGS="-I/path/to/jdk/include -I/path/to/jdk/include/linux"
-
 How to compile the examples:
 ============================
 
