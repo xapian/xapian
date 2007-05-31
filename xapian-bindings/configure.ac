@@ -565,7 +565,9 @@ if test no != "$with_java" ; then
   AC_ARG_VAR(JAVA, [Java interpreter command])
   AC_ARG_VAR(JAVAC, [Java compiler command])
   AC_ARG_VAR(JAR, [java jar utility])
-  AC_ARG_VAR(JNI_INCLUDE_DIR, [Pathname of the directory where jni.h is])
+  AC_ARG_VAR(JAVA_HOME, [Pathname of the directory where the JDK is installed])
+  AC_ARG_VAR(JDK_HOME, [Pathname of the directory where the JDK is installed])
+  AC_ARG_VAR(JNI_INCLUDE_DIR, [Pathname of the directory where jni.h is installed])
   if test -n "$JAVA" -a -n "$JAVAC" -a -n "$JAR" ; then
     dnl Eric says:
     dnl  The JNI library *requires* "Java 2", which is 1.2 or better.
