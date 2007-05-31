@@ -44,7 +44,7 @@
 using namespace std;
 
 RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
-			       const string & context_)
+			       const string & context_, bool writable)
 	: link(fd, fd, context_),
 	  context(context_),
 	  cached_stats_valid(),
@@ -57,6 +57,15 @@ RemoteDatabase::RemoteDatabase(int fd, Xapian::timeout timeout_,
 	throw Xapian::NetworkError("Couldn't set SIGPIPE to SIG_IGN", errno);
     }
 #endif
+
+    if (!writable) {
+	// Transactions only make sense when writing, so flag them as
+	// "unimplemented" so that our destructor doesn't call dtor_called()
+	// since that might try to call flush() which will cause a message to
+	// be sent to the remote server and probably an InvalidOperationError
+	// exception message to be returned.
+	transaction_state = TRANSACTION_UNIMPLEMENTED;
+    }
 
     string message;
     char type = get_message(message);
@@ -413,7 +422,10 @@ RemoteDatabase::send_message(message_type type, const string &message) const
 void
 RemoteDatabase::do_close()
 {
-    dtor_called(); // FIXME: we should only call this if we're writable...
+    // We should only really call dtor_called() if we're writable.  In the
+    // constructor, we set transaction_state to TRANSACTION_UNIMPLEMENTED
+    // if we aren't writable, so test that here.
+    if (transaction_state != TRANSACTION_UNIMPLEMENTED) dtor_called();
     link.do_close();
 }
 

@@ -61,17 +61,19 @@ split_words(const string &text, vector<string> &words, char ws = ' ')
 }
 #endif
 
-ProgClient::ProgClient(const string &progname, const string &args, int msecs_timeout)
+ProgClient::ProgClient(const string &progname, const string &args,
+		       int msecs_timeout, bool writable)
 	: RemoteDatabase(run_program(progname, args
 #ifndef __WIN32__
-                                                    , pid
+						   , pid
 #endif
         ),
 			 msecs_timeout,
-			 get_progcontext(progname, args))
+			 get_progcontext(progname, args),
+			 writable)
 {
     DEBUGCALL(DB, void, "ProgClient::ProgClient", progname << ", " << args <<
-	      ", " << msecs_timeout);
+	      ", " << msecs_timeout << ", " << writable);
 }
 
 string

@@ -38,7 +38,7 @@ class NetworkPostList;
 
 /** RemoteDatabase is the baseclass for remote database implementations.
  *
- *  A subclass of this class is required which opens a tcp connection or
+ *  A subclass of this class is required which opens a TCP connection or
  *  pipe to the remote database server.  This subclass works in combination
  *  with the RemoteSubMatch class during the match process.
  */
@@ -78,13 +78,15 @@ class RemoteDatabase : public Xapian::Database::Internal {
      *
      *  @param fd	The file descriptor for the connection to the server.
      *  @param timeout_ The timeout used with the network operations.
-     *			Generally a Xapian::NetworkTimeout exception will be
-     *			thrown if the remote end doesn't respond for this
+     *			Generally a Xapian::NetworkTimeoutError exception will
+     *			be thrown if the remote end doesn't respond for this
      *			length of time (in milliseconds).  A timeout of 0
      *			means that operations will never timeout.
      *  @param context_ The context to return with any error messages.
+     *	@param writable	Is this a WritableDatabase?
      */
-    RemoteDatabase(int fd, Xapian::timeout timeout_, const string & context_);
+    RemoteDatabase(int fd, Xapian::timeout timeout_, const string & context_,
+		   bool writable);
 
     /// Receive a message from the server.
     reply_type get_message(string & message, reply_type required_type = REPLY_MAX) const;

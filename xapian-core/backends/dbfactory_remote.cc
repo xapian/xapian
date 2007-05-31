@@ -36,7 +36,7 @@ Remote::open(const string &host, unsigned int port, Xapian::timeout timeout,
 {
     DEBUGAPICALL_STATIC(Database, "Remote::open",
 	host << ", " << port << ", " << timeout << ", " << connect_timeout);
-    return Database(new TcpClient(host, port, timeout, connect_timeout));
+    return Database(new TcpClient(host, port, timeout, connect_timeout, false));
 }
 
 WritableDatabase
@@ -45,7 +45,7 @@ Remote::open_writable(const string &host, unsigned int port,
 {
     DEBUGAPICALL_STATIC(WritableDatabase, "Remote::open_writable",
 	host << ", " << port << ", " << timeout << ", " << connect_timeout);
-    return WritableDatabase(new TcpClient(host, port, timeout, connect_timeout));
+    return WritableDatabase(new TcpClient(host, port, timeout, connect_timeout, true));
 }
 
 Database
@@ -53,7 +53,7 @@ Remote::open(const string &program, const string &args, Xapian::timeout timeout)
 {
     DEBUGAPICALL_STATIC(Database, "Remote::open",
 	program << ", " << args << ", " << timeout);
-    return Database(new ProgClient(program, args, timeout));
+    return Database(new ProgClient(program, args, timeout, false));
 }
 
 WritableDatabase
@@ -62,7 +62,7 @@ Remote::open_writable(const string &program, const string &args,
 {
     DEBUGAPICALL_STATIC(WritableDatabase, "Remote::open_writable",
 	program << ", " << args << ", " << timeout);
-    return WritableDatabase(new ProgClient(program, args, timeout));
+    return WritableDatabase(new ProgClient(program, args, timeout, true));
 }
 
 }

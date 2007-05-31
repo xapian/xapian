@@ -1,3 +1,11 @@
+Thu May 31 02:01:31 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/dbfactory_remote.cc,backends/remote/remote-database.cc,
+	  common/progclient.h,common/remote-database.h,common/tcpclient.h,
+	  net/progclient.cc: Stop a non-writable remote database from calling
+	  dtor_called() when it is destroyed, since that causes MSG_FLUSH to
+	  be sent to the server (fixes bug#149).
+
 Wed May 30 19:47:43 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/query.h: New accessor method

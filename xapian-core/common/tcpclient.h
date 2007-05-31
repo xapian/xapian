@@ -42,7 +42,7 @@ class TcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
 
     /** Attempt to open a TCP/IP socket connection to xapian-tcpsrv.
      *
-     *  Connect to xapian-tcpsrv running on port @port of host @hostname.
+     *  Connect to xapian-tcpsrv running on port @a port of host @a hostname.
      *  Give up trying to connect after @msecs_timeout_connect milliseconds.
      *
      *  Note: this method is called early on during class construction before
@@ -65,17 +65,19 @@ class TcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
     /** Constructor.
      *
      *  Attempts to open a TCP/IP connection to xapian-tcpsrv running on port
-     *  @port of host @hostname.
+     *  @a port of host @a hostname.
      *
      *  @param msecs_timeout_connect	 Timeout for trying to connect (in
      *					 milliseconds).
      *  @param msecs_timeout	Timeout during communication after successfully
      *				connecting (in milliseconds).
+     *	@param writable		Is this a WritableDatabase?
      */
     TcpClient(const std::string & hostname, int port,
-	      int msecs_timeout, int msecs_timeout_connect)
+	      int msecs_timeout, int msecs_timeout_connect, bool writable)
 	: RemoteDatabase(open_socket(hostname, port, msecs_timeout_connect),
-			 msecs_timeout, get_tcpcontext(hostname, port)) { }
+			 msecs_timeout, get_tcpcontext(hostname, port),
+			 writable) { }
 
     /** Destructor. */
     ~TcpClient();

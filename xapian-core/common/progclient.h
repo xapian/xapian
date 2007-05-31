@@ -81,10 +81,12 @@ class ProgClient : public RemoteDatabase {
      *  @param progname		The program used to create the connection.
      *  @param args		Any arguments to the program.
      *  @param msecs_timeout	Timeout for communication (in milliseconds).
+     *  @param writable		Is this a WritableDatabase?
      */
     ProgClient(const std::string &progname,
 	       const std::string &arg,
-	       int msecs_timeout);
+	       int msecs_timeout,
+	       bool writable);
 
     /** Destructor. */
     ~ProgClient();
