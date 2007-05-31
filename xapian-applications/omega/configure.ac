@@ -8,7 +8,8 @@ AC_INIT(xapian-omega, 1.0.0)dnl FIXME: bugreport addr as third argument
 dnl Need 1.5 for AM_CXXFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
 dnl 1.8.5 contains a lot of fixes over 1.6.3
 dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
-AM_INIT_AUTOMAKE([1.9.5 -Wportability])
+dnl But the RPM spec file runs autoreconf, and RHEL 4 has 1.9.2.
+AM_INIT_AUTOMAKE([1.9.2 -Wportability])
 
 AC_CONFIG_SRCDIR(omega.cc)
 
