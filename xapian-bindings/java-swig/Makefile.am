@@ -10,8 +10,6 @@ TESTS_ENVIRONMENT = \
 ## Test programs to be run
 TESTS = SmokeTest.class
 
-EXTRA_DIST = run-java-test SmokeTest.java
-
 CLEANFILES = SmokeTest.class built/xapian_jni.jar\
 	$(XAPIAN_SWIG_JAVA_CLASS) $(XAPIAN_SWIG_JAVA_EXTRA_CLASSES)\
 	Query*1.class
@@ -92,6 +90,8 @@ libxapian_jni_la_LIBADD = $(XAPIAN_LIBS)
 libxapian_jni_la_SOURCES = xapian_wrap.cc
 
 BUILT_SOURCES = xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS)
+
+EXTRA_DIST = run-java-test SmokeTest.java $(BUILT_SOURCES)
 
 if MAINTAINER_MODE
 xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_JAVA_SRCS): xapian_wrap.stamp
