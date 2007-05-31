@@ -1,13 +1,12 @@
-/* simpleindex.cc: Index each paragraph in a textfile as a document.
+/** @file simpleindex.cc
+ * @brief Index each paragraph of a text file as a Xapian document.
+ */
+/* Copyright (C) 2007 Olly Betts
  *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2007 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,103 +15,60 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include <xapian.h>
 
-#include <algorithm>
 #include <iostream>
 #include <string>
 
-using namespace Xapian;
+#include <stdlib.h> // For exit().
+
 using namespace std;
 
-#include <ctype.h>
-
-// Put a limit on the size of terms to help prevent the index being bloated
-// by useless junk terms
-static const unsigned int MAX_PROB_TERM_LENGTH = 64;
-
-inline static bool
-p_alnum(unsigned int c)
-{
-    return isalnum(c);
-}
-
-inline static bool
-p_notalnum(unsigned int c)
-{
-    return !isalnum(c);
-}
-
-inline static bool
-p_notplusminus(unsigned int c)
-{
-    return c != '+' && c != '-';
-}
-
-static void
-lowercase_term(string &term)
-{
-    string::iterator i = term.begin();
-    while (i != term.end()) {
-	*i = tolower(*i);
-	i++;
-    }
-}
-
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 try {
     if (argc != 2) {
-	cout << "usage: " << argv[0] << " <path to database>" << endl;
+	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE" << endl;
 	exit(1);
     }
 
-    // Open the database
-    WritableDatabase database(argv[1], DB_CREATE_OR_OPEN);
-    
-    Stem stemmer("english");
+    // Open the database for update, creating a new database if necessary.
+    Xapian::WritableDatabase db(argv[1], Xapian::DB_CREATE_OR_OPEN);
+
+    Xapian::TermGenerator indexer;
+    Xapian::Stem stemmer("english");
+    indexer.set_stemmer(stemmer);
+
     string para;
     while (true) {
 	string line;
 	if (cin.eof()) {
 	    if (para.empty()) break;
 	} else {
-	    getline(cin, line); 
+	    getline(cin, line);
 	}
-	if (line.empty()) {
-	    if (!para.empty()) {
-		Document doc;
-		doc.set_data(para);
 
-		termcount pos = 0;
-		string::iterator i = para.begin();
-		while ((i = find_if(i, para.end(), p_alnum)) != para.end()) {
-		    string::iterator j = find_if(i, para.end(), p_notalnum);
-		    string::iterator k = find_if(j, para.end(), p_notplusminus);
-		    if (k == para.end() || !isalnum(*k)) j = k;
-		    string::size_type len = j - i;
-		    if (len <= MAX_PROB_TERM_LENGTH) {
-			string term = para.substr(i - para.begin(), len);
-			lowercase_term(term);
-			term = stemmer(term);
-			doc.add_posting(term, pos++);
-		    }
-		    i = j;
-		}
+	if (line.empty() && !para.empty()) {
+	    // We've reached the end of a paragraph, so index it.
+	    Xapian::Document doc;
+	    doc.set_data(para);
 
-		// Add the document to the database
-		database.add_document(doc);
+	    indexer.set_document(doc);
+	    indexer.index_text(para);
 
-		para = "";
-	    }
+	    // Add the document to the database
+	    db.add_document(doc);
+
+	    para = "";
 	}
+
 	if (!para.empty()) para += ' ';
 	para += line;
     }
-} catch (const Error &error) {
-    cerr << "Exception: "  << error.get_msg() << endl;
+} catch (const Xapian::Error &e) {
+    cout << e.get_description() << endl;
     exit(1);
 }
