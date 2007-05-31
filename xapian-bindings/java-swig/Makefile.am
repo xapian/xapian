@@ -85,6 +85,7 @@ install-data-hook:
 	rm -f $(DESTDIR)$(jnidir)/xapian.la
 
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
+AM_CPPFLAGS = $(JAVA_CPPFLAGS)
 libxapian_jni_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)
 libxapian_jni_la_LIBADD = $(XAPIAN_LIBS)
 libxapian_jni_la_SOURCES = xapian_wrap.cc
