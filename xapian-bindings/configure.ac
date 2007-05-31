@@ -14,11 +14,11 @@ AC_CONFIG_SRCDIR(xapian.i)
 
 AM_CONFIG_HEADER(config.h)
 
-dnl MacOS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
+dnl Mac OS X needs MACOSX_DEPLOYMENT_TARGET set to 10.3 (or higher) to
 dnl successfully link the SWIG generated modules.  The link always fails
-dnl on earlier versions of MacOS X (10.1.4 and 10.2.8 tested), so always
+dnl on earlier versions of Mac OS X (10.1.4 and 10.2.8 tested), so always
 dnl setting MACOSX_DEPLOYMENT_TARGET to at least 10.3 seems to be the
-dnl appropriate thing to do.  Most MacOS X developers will have upgraded
+dnl appropriate thing to do.  Most Mac OS X developers will have upgraded
 dnl from 10.1 and 10.2 by now anyhow.
 dnl
 dnl NB we must do this *BEFORE* AC_PROG_LIBTOOL since that is what checks
@@ -60,7 +60,7 @@ dnl the bindings only have a use for dynamic ones.
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
-dnl -no-undefined causes problems on MacOS X with at least some
+dnl -no-undefined causes problems on Mac OS X with at least some
 dnl MACOSX_DEPLOYMENT_TARGET settings, so only pass -no-undefined on
 dnl platforms where it is required in order to link a shared library at
 dnl all (Windows is the main one).
@@ -580,7 +580,7 @@ if test no != "$with_java" ; then
     java_ok=no
     AC_CHECK_HEADER([jni.h], [java_ok=yes], [
       dnl We need to look for jni.h in /usr/lib/jvm/java-gcj/include on some
-      dnl Debian and Ubuntu boxes at least.  And on MacOS X, we jni.h lives
+      dnl Debian and Ubuntu boxes at least.  And on Mac OS X, we jni.h lives
       dnl in /System/Library/Frameworks/JavaVM.framework/Headers.
       SAVE_CPPFLAGS=$CPPFLAGS
       for jnidir in $JNI_INCLUDE_DIR ${JAVA_HOME+"$JAVA_HOME/include"} ${JDK_HOME+"$JDK_HOME/include"} /usr/lib/jvm/java-gcj/include /System/Library/Frameworks/JavaVM.framework/Headers ; do

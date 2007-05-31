@@ -7,11 +7,11 @@ Supported Platforms
 
 Most development work has been done on Linux with GCC, but the bindings should
 work on other Unix-like platforms and with other compilers (we've heard success
-stories for at least MacOS X and OpenBSD, and the tinderbox builds pass "make
+stories for at least Mac OS X and OpenBSD, and the tinderbox builds pass "make
 check" on FreeBSD and NetBSD).
 
 The Python bindings have been successfully built on Microsoft Windows using
-mingw and MSVC: the PHP bindings have been successfully build on Microsoft
+Mingw and MSVC: the PHP bindings have been successfully build on Microsoft
 Windows using MSVC.  The other bindings may need a few build tweaks to work
 - contact us via the mailing lists if you want to get them working.
 

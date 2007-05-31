@@ -877,7 +877,7 @@ Packaging:
 
 Portability:
 
-* configure: On MacOS X, ensure MACOSX_DEPLOYMENT_TARGET is set to at least
+* configure: On Mac OS X, ensure MACOSX_DEPLOYMENT_TARGET is set to at least
   10.3.  This is required to link the bindings, and it doesn't seem to be
   possible to link them on 10.1 or 10.2 anyway.
 
@@ -890,7 +890,7 @@ Portability:
 * configure: Add missing ";;" on the last alternative in some case statements.
 
 * Only pass -no-undefined on platforms where it is required in order to link a
-  shared library at all (it causes problems on MacOS X in some cases).
+  shared library at all (it causes problems on Mac OS X in some cases).
 
 CSharp:
 

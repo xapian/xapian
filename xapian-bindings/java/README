@@ -32,7 +32,7 @@ JNI library is located.
 Alternatively, you can avoid needing the -Djava.library.path setting by
 setting the LD_LIBRARY_PATH environment variable, or by installing the JNI
 library in the appropriate directory so your JVM finds it automatically
-(for example, on MacOS X you can copy it into /Library/Java/Extensions/).
+(for example, on Mac OS X you can copy it into /Library/Java/Extensions/).
 
 The java bindings have been tested with Debian packages of GCJ 3.4 and GIJ 3.4,
 with Sun java versions 1.4.1_01a and 1.5.0_06-b05, and with Eclipse Java
