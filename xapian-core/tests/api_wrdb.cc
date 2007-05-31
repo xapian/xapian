@@ -1247,6 +1247,29 @@ static bool test_crashrecovery1()
     return true;
 }
 
+// Check that DatabaseError is thrown if the docid counter would wrap.
+// Regression test for bug#152.
+static bool test_nomoredocids1()
+{
+    if (get_dbtype() == "inmemory") {
+	// The InMemory backend uses a vector for the documents, so trying
+	// to add document "-1" will fail because we can't allocate enough
+	// memory!
+	SKIP_TEST("Test not supported on inmemory backend");
+    }
+
+    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::Document doc;
+    doc.set_data("prose");
+    doc.add_term("word");
+
+    db.replace_document(Xapian::docid(-1), doc);
+
+    TEST_EXCEPTION(Xapian::DatabaseError, db.add_document(doc));
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1274,5 +1297,6 @@ test_desc writabledb_tests[] = {
     {"allpostlist2",	   test_allpostlist2},
     {"consistency2",	   test_consistency2},
     {"crashrecovery1",	   test_crashrecovery1},
+    {"nomoredocids1",	   test_nomoredocids1},
     {0, 0}
 };

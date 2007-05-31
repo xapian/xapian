@@ -724,6 +724,9 @@ QuartzWritableDatabase::add_document(const Xapian::Document & document)
 {
     DEBUGCALL(DB, Xapian::docid,
 	      "QuartzWritableDatabase::add_document", document);
+    // Make sure the docid counter doesn't overflow.
+    if (lastdocid == Xapian::docid(-1))
+	throw Xapian::DatabaseError("Run out of docids - you'll have to use copydatabase to eliminate any gaps before you can add more documents");
     // Use the next unused document ID.
     RETURN(add_document_(++lastdocid, document));
 }
