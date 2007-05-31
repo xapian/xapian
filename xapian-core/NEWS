@@ -1,5 +1,5 @@
 up to:
-Wed May 30 12:58:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+Thu May 31 19:18:41 BST 2007  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.1 (2007-06-0?):
 
@@ -13,6 +13,10 @@ API:
   which allow iterating of all terms with a particular prefix.  This
   is easier to use than checking the end condition yourself, and is
   more efficiently implemented for the remote backend (fixes bug#153).
+
+* Xapian::QueryParser: Multiple boolean prefixed terms with the same term
+  prefix are now combined with OR before such groups are combined with AND
+  (bug#157).  Multiple value ranges on the same value are handled similarly.
 
 testsuite:
 
@@ -41,8 +45,11 @@ flint backend:
   database.  This speeds up xapian-compact rather a lot (by more than 50% in a
   quick test).
 
+* If the docid counter wraps, Flint now throws DatabaseError (fixes bug#152).
+
 quartz backend:
 
+* If the docid counter wraps, Quartz now throws DatabaseError (fixes bug#152).
 
 remote backend:
 
@@ -51,6 +58,11 @@ remote backend:
   the same or higher minor version number, which makes upgrading live
   systems easier for most remote protocol changes - just upgrade the servers
   first.
+
+* When a read-only remote database is closed, the client no longer sends a
+  (totally bogus) MSG_FLUSH to the server, and the reply is also eliminated.
+  This reduces the time taken to close a remote database a little (fixes
+  bug#149).
 
 inmemory backend:
 
@@ -65,10 +77,14 @@ build system:
 documentation:
 
 * typo in query.h corrected.
+
 * copy and paste error in deprecation.rst; set_sort_forward() should be
   changed to set_docid_order().
+
 * improved documentation comments for TermGenerator class.
-* Expand documentation of value range query constructor.
+
+* Expand documentation of value range Query constructor.
+
 * docs/deprecation.rst: Improve entry for QueryParserError.
 
 examples:
@@ -84,6 +100,8 @@ portability:
 
 packaging:
 
+* The required automake version has been lowered to 1.9.2, so RPMs can now be
+  built on RHEL 4.
 
 debug code:
 
