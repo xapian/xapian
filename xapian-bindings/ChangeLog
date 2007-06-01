@@ -1,3 +1,8 @@
+Fri Jun 01 12:53:36 BST 2007  Olly Betts <olly@survex.com>
+
+	* guile/Makefile.am: Fix out-of-date "include".  Use $(SWIG_CXXFLAGS)
+	  not @SWIG_CXXFLAGS@.
+
 Fri Jun 01 10:32:40 BST 2007  Olly Betts <olly@survex.com>
 
 	* python/Makefile.am: Generate and install xapian.pyo.
