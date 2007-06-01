@@ -1,13 +1,12 @@
-/* simpleexpand.cc: Simple example of use of query expansion.
+/** @file simpleexpand.cc
+ * @brief Simple example program demonstrating query expansion.
+ */
+/* Copyright (C) 2007 Olly Betts
  *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2003,2007 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,103 +15,93 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include <xapian.h>
 
-#include <stdlib.h>
-
 #include <iostream>
-#include <vector>
+#include <string>
 
-using namespace Xapian;
+#include <stdlib.h> // For exit().
+
 using namespace std;
 
-int main(int argc, char **argv)
-{
-    // Simplest possible options parsing: we just require two or more
-    // parameters.
+int
+main(int argc, char **argv)
+try {
+    // We require at least two command line arguments.
     if (argc < 3) {
-	cout << "usage: " << argv[0]
-	     << " <path to database> [<search terms>] [-- <relevant docids>]"
-	     <<	endl;
+	cout << "Usage: " << argv[0] << " PATH_TO_DATABASE QUERY [-- [DOCID...]]" << endl;
 	exit(1);
     }
 
-    // Catch any Error exceptions thrown
-    try {
-	// Open the database
-	Database db(argv[1]);
+    // Open the database for searching.
+    Xapian::Database db(argv[1]);
 
-	// Start an enquire session
-	Enquire enquire(db);
+    // Start an enquire session.
+    Xapian::Enquire enquire(db);
 
-	// Prepare the query terms
-	vector<string> queryterms;
-	int optpos;
-	for (optpos = 2; optpos < argc; ++optpos) {
-	    if (string(argv[optpos]) == "--") {
-		++optpos;
-		break;
-	    }
-	    queryterms.push_back(argv[optpos]);
-	}
-
-	// Prepare the relevant document set
-	RSet reldocs;
-	for (; optpos < argc; ++optpos) {
-	    docid rdid = atoi(argv[optpos]);
-	    if (rdid != 0) {
-		reldocs.add_document(rdid);
-	    }
-	}
-
-	MSet matches;
-	if (!queryterms.empty()) {
-	    // Build the query object
-	    Query query(Query::OP_OR, queryterms.begin(), queryterms.end());
-
-	    cout << "Performing query `" << query.get_description() << "'"
-		 << endl;
-
-	    // Give the query object to the enquire session
-	    enquire.set_query(query);
-
-	    // Get the top 10 results of the query
-	    matches = enquire.get_mset(0, 10, &reldocs);
-
-	    // Display the results
-	    cout << matches.get_matches_estimated() << " results found" << endl;
-
-	    for (MSetIterator i = matches.begin(); i != matches.end(); ++i) {
-		cout << "ID " << *i << " " << i.get_percent() << "% ["
-		     << i.get_document().get_data() << "]" << endl;
-	    }
-	}
-
-	// Put the top 5 (at most) docs into the rset if rset is empty
-	if (reldocs.empty()) {
-	    MSetIterator i = matches.begin();
-	    for (int j = 1; j < 5; ++j) {
-		reldocs.add_document(*i);
-		if (++i == matches.end()) break;
-	    }
-	}
-
-	// Get the suggested expand terms
-	ESet eterms = enquire.get_eset(10, reldocs);
-
-	// Display the expand terms
-	cout << eterms.size() << " suggested additional terms" << endl;
-
-	for (ESetIterator k = eterms.begin(); k != eterms.end(); ++k) {
-	    cout << "Term `" << *k << "'\t "
-		 << "(weight " << k.get_weight() << ")" << endl;
-	}
-    } catch (const Error &error) {
-	cout << "Exception: "  << error.get_description() << endl;
-	exit(1);
+    // Combine command line arguments up to "--" with spaces between
+    // them, so that simple queries don't have to be quoted at the shell
+    // level.
+    string query_string(argv[2]);
+    argv += 3;
+    while (*argv && strcmp(*argv, "--") != 0) {
+	query_string += ' ';
+	query_string += *argv++;
     }
+
+    // Create an RSet with the listed docids in.
+    Xapian::RSet rset;
+    if (*argv) {
+	while (*++argv) {
+	    rset.add_document(atoi(*argv));
+	}
+    }
+
+    // Parse the query string to produce a Xapian::Query object.
+    Xapian::QueryParser qp;
+    Xapian::Stem stemmer("english");
+    qp.set_stemmer(stemmer);
+    qp.set_database(db);
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    Xapian::Query query = qp.parse_query(query_string);
+    cout << "Parsed query is: " << query.get_description() << endl;
+
+    // Find the top 10 results for the query.
+    enquire.set_query(query);
+    Xapian::MSet matches = enquire.get_mset(0, 10, &rset);
+
+    // Display the results.
+    cout << matches.get_matches_estimated() << " results found:" << endl;
+
+    for (Xapian::MSetIterator i = matches.begin(); i != matches.end(); ++i) {
+	cout << i.get_rank() + 1 << ": " << i.get_percent() << "% docid=" << *i
+	     << " [" << i.get_document().get_data() << "]\n\n";
+    }
+
+    // If no relevant docids were given, invent an RSet containing the top 5
+    // matches (or all the matches if there are less than 5).
+    if (rset.empty()) {
+	int c = 5;
+	Xapian::MSetIterator i = matches.begin();
+	while (--c && i != matches.end()) {
+	    rset.add_document(*i);
+	    ++i;
+	}
+    }
+
+    // Generate an ESet containing terms that the user might want to add to
+    // the query.
+    Xapian::ESet eset = enquire.get_eset(10, rset);
+
+    // List the terms.
+    Xapian::ESetIterator t;
+    for (t = eset.begin(); t != eset.end(); ++t) {
+	cout << *t << ": weight = " << t.get_weight() << endl;
+    }
+} catch (const Xapian::Error &e) {
+    cout << e.get_description() << endl;
+    exit(1);
 }
