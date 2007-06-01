@@ -863,10 +863,8 @@ class Query {
 		return new Xapian::Query(op, subqs.begin(), subqs.end(), param);
 	    }
 	}
-#ifndef SWIGGUILE
 	/** Apply the specified operator to a single Xapian::Query object. */
 	Query(Query::op op_, Xapian::Query q);
-#endif
 
 	/** Constructs a new empty query object */
 	Query();

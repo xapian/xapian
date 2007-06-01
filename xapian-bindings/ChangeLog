@@ -1,3 +1,9 @@
+Fri Jun 01 12:54:28 BST 2007  Olly Betts <olly@survex.com>
+
+	* xapian.i: Remove "#ifndef SWIGGUILE" around a Query constructor -
+	  if anyone revives the guile bindings, they'll probably need to
+	  sort this out, but this "fix" certainly isn't correct.
+
 Fri Jun 01 12:53:36 BST 2007  Olly Betts <olly@survex.com>
 
 	* guile/Makefile.am: Fix out-of-date "include".  Use $(SWIG_CXXFLAGS)
