@@ -18,7 +18,7 @@ pylibdir = @PYTHON_LIB@
 
 # Install as _DATA rather than _SCRIPTS because we don't want to make these
 # executable (they don't have a #! line).
-pylib_DATA = xapian.py xapian.pyc
+pylib_DATA = xapian.py xapian.pyc xapian.pyo
 
 pylib_LTLIBRARIES = _xapian.la
 
@@ -35,19 +35,23 @@ _xapian_la_SOURCES = modern/xapian_wrap.cc
 _xapian_la_LIBADD = $(XAPIAN_LIBS) $(PYTHON_LIBS)
 
 # In a distribution, xapian.py is in $(srcdir)/modern, and python will always
-# generate the .pyc file in the same directory as the .py file.  However,
-# $(srcdir) might be shared between builds for different python versions
-# so we can't let the .pyc file get written there.  Hence we copy the .py
-# file to the build directory from wherever it actually is and use the copy.
+# generate the .pyc and .pyo files in the same directory as the .py file.
+# However, $(srcdir) might be shared between builds for different python
+# versions so we can't let the .pyc and .pyo files get written there.  Hence we
+# copy the .py file to the build directory from wherever it actually is and use
+# the copy.
 xapian.py: modern/xapian.py
 	cp `test -f modern/xapian.py || echo '$(srcdir)/'`modern/xapian.py .
 
 # We "import _xapian" first so that if we fail to import the glue library
-# we don't generate a broken xapian.pyc.
+# we don't generate a broken xapian.pyc or xapian.pyo.
 xapian.pyc: xapian.py _xapian.la
 	PYTHONPATH=".$(PYTHON_PATHSEP).libs" $(PYTHON) -c "import _xapian;import xapian"
 
-CLEANFILES = xapian.py xapian.pyc
+xapian.pyo: xapian.py _xapian.la
+	PYTHONPATH=".$(PYTHON_PATHSEP).libs" $(PYTHON) -O -c "import _xapian;import xapian"
+
+CLEANFILES = xapian.py xapian.pyc xapian.pyo
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at

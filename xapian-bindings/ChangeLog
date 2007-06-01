@@ -1,3 +1,7 @@
+Fri Jun 01 10:32:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* python/Makefile.am: Generate and install xapian.pyo.
+
 Thu May 31 19:15:58 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Relax automake requirement to 1.9.2 to allow RPM
