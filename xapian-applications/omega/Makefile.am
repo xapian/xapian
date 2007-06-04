@@ -121,9 +121,8 @@ htmlparsetest_LDADD = $(XAPIAN_LIBS)
 
 md5test_SOURCES = md5test.cc md5wrap.cc md5.cc
 
-dist_man_MANS = omindex.1 scriptindex.1
-
 if !MAINTAINER_NO_DOCS
+dist_man_MANS = omindex.1 scriptindex.1
 MAINTAINERCLEANFILES = $(dist_man_MANS)
 endif
 
