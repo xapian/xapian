@@ -9,7 +9,12 @@ TESTS = smoketest.py pythontest.py
 
 BUILT_SOURCES = modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py
 
-EXTRA_DIST = util.i extra.i extracomments.i except.i doccomments.i\
+if !MAINTAINER_NO_DOCS
+DOCCOMMENTS_I = doccomments.i
+DOCCOMMENTS_I_FLAGS=-DDOCCOMMENTS_I_SOURCES
+endif
+
+EXTRA_DIST = util.i extra.i extracomments.i except.i $(DOCCOMMENTS_I) \
 	testsuite.py $(TESTS) $(BUILT_SOURCES)
 
 SUBDIRS = docs
@@ -58,7 +63,7 @@ if MAINTAINER_MODE
 # "\" when extracting the output directory from the value passed to the -o
 # option.
 
-BUILT_SOURCES += except.i doccomments.i
+BUILT_SOURCES += except.i $(DOCCOMMENTS_I)
 except.i: generate-python-exceptions ../../xapian-core/exception_data.pm
 	./generate-python-exceptions
 
@@ -79,9 +84,9 @@ modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: modern/xapian_wrap.
 	    test -f modern/xapian_wrap.stamp; exit $$?; \
 	  fi; \
 	fi
-modern/xapian_wrap.stamp: $(SWIG_sources) util.i except.i doccomments.i extra.i extracomments.i
+modern/xapian_wrap.stamp: $(SWIG_sources) util.i except.i $(DOCCOMMENTS_I) extra.i extracomments.i
 	test -d modern || mkdir modern
-	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) -c++ \
+	$(SWIG) $(SWIG_includes) $(SWIG_FLAGS) $(DOCCOMMENTS_I_FLAGS) -c++ \
 	    -python -threads -shadow -modern -O -outdir modern \
 	    -o modern/xapian_wrap.cc $(SWIG_mainsource)
 	$(PERL) -pe 's/class Error:/class Error(Exception):/' modern/xapian.py > modern/xapian_py.tmp

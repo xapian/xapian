@@ -1,3 +1,12 @@
+Mon Jun 04 17:48:53 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac,python/Makefile.am,python/util.i: Patch from James
+	  Aylett (slightly adapted) to avoid building doccoments.i in
+	  maintainer builds with --disable-documentation specified.  In
+	  this situation, the generated python bindings won't have the
+	  doccomments extracted by doxygen from the xapian headers, but
+	  they will compile and work.
+
 Fri Jun 01 12:54:28 BST 2007  Olly Betts <olly@survex.com>
 
 	* xapian.i: Remove "#ifndef SWIGGUILE" around a Query constructor -

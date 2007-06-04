@@ -103,6 +103,16 @@ dnl Only probe for SWIG and enable SWIG rules in makefiles if
 dnl configure --enable-maintainer-mode is used.
 AM_MAINTAINER_MODE
 
+AC_ARG_ENABLE(documentation,
+  [AS_HELP_STRING([--enable-documentation], [enable make rules to rebuild documentation [default=maintainer-mode]])],
+  [case ${enableval} in
+    yes|no) ;;
+    *) AC_MSG_ERROR([bad value ${enableval} for --enable-documentation]) ;;
+  esac])
+test -z "$enable_documentation" && enable_documentation=$USE_MAINTAINER_MODE
+AM_CONDITIONAL(DOCUMENTATION_RULES, test x"$enable_documentation" = xyes)
+AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentation" = xyesno)
+
 if test x$USE_MAINTAINER_MODE = xyes; then
   dnl Check for swig - this does most of the work for the bindings.
   dnl AC_PATH_PROGS only honours an already set SWIG is it's a full
