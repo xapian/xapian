@@ -1103,6 +1103,7 @@ static bool test_consistency1()
     enquire.set_query(Xapian::Query(Xapian::Query::OP_OR, Xapian::Query("the"), Xapian::Query("sky")));
     Xapian::doccount lots = 214;
     Xapian::MSet bigmset = enquire.get_mset(0, lots);
+    TEST_EQUAL(bigmset.size(), lots);
     try {
 	for (Xapian::doccount start = 0; start < lots; ++start) {
 	    for (Xapian::doccount size = 0; size < lots - start; ++size) {
