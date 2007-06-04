@@ -1,3 +1,12 @@
+Mon Jun 04 08:59:22 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/backendmanager.cc,tests/harness/index_utils.cc:
+	  Fix the indexing of the testdata, so that the "etext" example is
+	  properly indexed (previously, only the first line was being
+	  indexed, due to faulty end-of-file handling).  This only affects
+	  the "consistency1" test, which now runs a lot slower (but still
+	  passes, fortunately).
+
 Fri Jun 01 23:47:42 BST 2007  Olly Betts <olly@survex.com>
 
 	* examples/simpleexpand.cc: Rewrite based on new simplesearch.cc.

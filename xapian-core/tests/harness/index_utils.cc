@@ -47,8 +47,13 @@ document_from_stream(istream &from)
     Xapian::Stem stemmer("english");
 
     Xapian::Document doc;
-    string para = get_paragraph(from);
-    if (para.empty()) return doc;
+    string para;
+    do {
+	if (from.eof()) {
+	    return doc;
+	}
+	para = get_paragraph(from);
+    } while (para.empty());
     doc.set_data(para);
 
     // Value 0 contains all possible character values so we can check that
