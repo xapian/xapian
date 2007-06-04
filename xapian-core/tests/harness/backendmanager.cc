@@ -117,11 +117,8 @@ BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
 	    throw Xapian::DatabaseOpeningError("Cannot open file " + filename +
 		    " for indexing");
 
-	while (from) {
-	    Xapian::Document doc(document_from_stream(from));
-	    if (doc.termlist_count() == 0)
-		break;
-	    database.add_document(doc);
+	while (!from.eof()) {
+	    database.add_document(document_from_stream(from));
 	}
     }
 }

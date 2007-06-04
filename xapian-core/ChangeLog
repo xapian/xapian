@@ -1,3 +1,13 @@
+Mon Jun 04 15:31:08 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/backendmanager.cc,tests/harness/index_utils.cc:
+	  Revert the recent changes to the indexing code, and also the
+	  change from revision r7758 which was intended to fix a problem
+	  with eof handling on windows (which is what broke the indexing of
+	  etext.txt).  Then, change backendmanager.cc to test "!from.eof()"
+	  instead of "from" to check for eof - hopefully this will work on
+	  windows - if not, we can investigate further.
+
 Mon Jun 04 13:13:29 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/harness/backendmanager.cc: Undo previous patch - only the
