@@ -115,7 +115,7 @@ AM_CONDITIONAL(MAINTAINER_NO_DOCS, test x"$USE_MAINTAINER_MODE$enable_documentat
 
 if test x$USE_MAINTAINER_MODE = xyes; then
   dnl Check for swig - this does most of the work for the bindings.
-  dnl AC_PATH_PROGS only honours an already set SWIG is it's a full
+  dnl AC_PATH_PROGS only honours an already set SWIG if it's a full
   dnl path.  Listing it in the "to be searched" list like this allows
   dnl ./configure SWIG=myswig to work.
   swigoverridden=${SWIG+yes}
