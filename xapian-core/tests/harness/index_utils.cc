@@ -48,7 +48,6 @@ document_from_stream(istream &from)
 
     Xapian::Document doc;
     string para = get_paragraph(from);
-    if(para.size() == 0) return doc;
     doc.set_data(para);
 
     // Value 0 contains all possible character values so we can check that
@@ -71,7 +70,7 @@ document_from_stream(istream &from)
 	"\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef"
 	"\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff",
 	7 + 256);
-    value0[0] = para[2];
+    if (para.size() > 2) value0[0] = para[2];
     value0 += para;
     doc.add_value(0, value0);
 
