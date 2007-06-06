@@ -1,5 +1,5 @@
 #!/usr/bin/env tclsh
-# Simple command-line search Tcl script.
+# Simple example Tcl script demonstrating query expansion.
 #
 # Copyright (C) 2004,2006,2007 Olly Betts
 # Copyright (C) 2004 Michael Schlenker
@@ -25,7 +25,7 @@ package require Tcl 8.1
 package require xapian 1.0.0
 
 if {[llength $argv] < 2} {
-    puts "Usage: $argv0 PATH_TO_DATABASE QUERY"
+    puts "Usage: $argv0 PATH_TO_DATABASE QUERY [-- [DOCID...]]"
     exit 1
 }
 
@@ -35,10 +35,27 @@ if {[catch {
     # Start an enquire session.
     xapian::Enquire enquire database
 
-    # Combine the rest of the command line arguments with spaces between
+    # Combine command line arguments up to "--" with spaces between
     # them, so that simple queries don't have to be quoted at the shell
     # level.
-    set query_string [join [lrange $argv 1 end]]
+    set args [lrange $argv 1 end]
+    set sep [lsearch -exact $args "--"]
+
+    if {$sep == -1} {
+	set sep [llength $args]
+    } else {
+	incr sep -1
+    }
+
+    set query_string [join [lrange $args 0 $sep]]
+
+    xapian::RSet rset
+    incr sep 2
+    foreach docid [lrange $args $sep end] {
+	puts "$sep $docid"
+	rset add_document $docid
+    }
+
     xapian::QueryParser qp
     xapian::Stem stemmer "english"
     qp set_stemmer stemmer
@@ -49,7 +66,7 @@ if {[catch {
 
     # Find the top 10 results for the query.
     enquire set_query $query
-    set matches [enquire get_mset 0 10]
+    set matches [enquire get_mset 0 10 rset]
 
     # Display the results.
     puts "[$matches get_matches_estimated] results found:"
@@ -59,6 +76,27 @@ if {[catch {
 	set rank [expr [$i get_rank] + 1]
 	puts [format {%s: %s%% docid=%s [%s]} \
 	    $rank [$i get_percent] [$i get_docid] [document get_data]]
+    }
+
+    # If no relevant docids were given, invent an RSet containing the top 5
+    # matches (or all the matches if there are less than 5).
+    if {[rset empty]} {
+	set c 5
+	set i [$matches begin]
+	while {$c > 0 && ![$i equals [$matches end]]} {
+	    rset add_document [$i get_docid]
+	    $i next
+	    incr c -1
+	}
+    }
+
+    # Generate an ESet containing terms that the user might want to add to
+    # the query.
+    xapian::ESet eset [enquire get_eset 10 rset]
+
+    # List the terms.
+    for {set t [eset begin]} {![$t equals [eset end]]} {$t next} {
+	puts [format {%s: weight = %f} [$t get_term] [$t get_weight]]
     }
 } exception]} {
     puts stderr "Exception: $errorCode $exception"

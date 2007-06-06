@@ -1,3 +1,12 @@
+Thu Jun 07 00:49:23 BST 2007  Olly Betts <olly@survex.com>
+
+	* tcl8/docs/examples/simpleindex.tcl,
+	  tcl8/docs/examples/simplesearch.tcl: Update to use TermGenerator
+	  and QueryParser, and to more closely match the new C++ versions.
+	* tcl8/docs/examples/simpleexpand.tcl: New example to demonstrate
+	  relevance feedback, based on C++ simpleexpand.cc.
+	* tcl8/docs/bindings.html: Add link to new simpleexpand.tcl example.
+
 Thu Jun 07 00:05:25 BST 2007  Olly Betts <olly@survex.com>
 
 	* php/docs/examples/: Fix missing "\n" in error message when we're run
