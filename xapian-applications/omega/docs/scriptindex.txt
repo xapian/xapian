@@ -78,10 +78,10 @@ unique[=PREFIX]
 	use the value in this field for a unique ID.  Only one record with
 	each value of the ID may be present in the index: adding a new record
 	with an ID which is already present will cause the old record to be
-	replaced.  The field should also be indexed as a boolean field using
-	the same prefix: a boolean lookup is performed to detect old
-	documents.  In Omega, Q is reserved for use as the prefix of a unique
-	term.
+	replaced (or deleted if the new record is otherwise empty).  The field
+	should also be indexed as a boolean field using the same prefix so that
+	the old record can be found.  In Omega, Q is reserved for use as the
+	prefix of a unique term.
 
 value=VALUENUMBER
 	add as a Xapian document value in slot VALUENUMBER.  Values can be used
