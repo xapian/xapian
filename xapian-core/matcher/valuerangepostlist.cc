@@ -100,7 +100,8 @@ PostList *
 ValueRangePostList::next(Xapian::weight)
 {
     Assert(db);
-    while (current < db->get_lastdocid()) {
+    Xapian::docid lastdocid = db->get_lastdocid();
+    while (current < lastdocid) {
 	try {
 	    if (++current == 0) break;
 	    AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));

@@ -1,3 +1,9 @@
+Wed Jun 06 12:35:16 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/valuerangepostlist.cc: Avoid calling db->get_lastdocid()
+	  repeatedly in ValueRangePostList::next() - was taking 25% of the
+	  time for a particular test case.
+
 Wed Jun 06 12:17:51 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/unixcmds.cc,tests/harness/unixcmds.h: Add "cp_R()"
