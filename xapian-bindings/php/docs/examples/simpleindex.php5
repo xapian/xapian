@@ -1,13 +1,12 @@
 <?php
-/* Index each paragraph in a textfile as a document
+/* PHP5 script to index each paragraph of a text file as a Xapian document.
  *
- * Copyright (C) 2004 James Aylett
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2007 Olly Betts
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,95 +15,59 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 if (php_sapi_name() != "cli") {
-    print "This example script is written to run under the command line ('cli') version of\nthe PHP interpreter, but you're using the '".php_sapi_name()."' version\n";
-    exit;
+    print "This example script is written to run under the command line ('cli') version of";
+    print "the PHP interpreter, but you're using the '".php_sapi_name()."' version\n";
+    exit(1);
 }
 
 include "php5/xapian.php";
 
-define('MAX_PROB_TERM_LENGTH', 64);
-
-function p_alnum($c)
-{
-    return ctype_alnum($c);
+if ($argc != 2) {
+    print "Usage: {$argv[0]} PATH_TO_DATABASE\n";
+    exit(1);
 }
 
-function p_notalnum($c)
-{
-    return !ctype_alnum($c);
-}
+try {
+    // Open the database for update, creating a new database if necessary.
+    $database = new XapianWritableDatabase($argv[1], Xapian::DB_CREATE_OR_OPEN);
 
-function p_notplusminus($c)
-{
-    return $c != '+' and $c != '-';
-}
+    $indexer = new XapianTermGenerator();
+    $stemmer = new XapianStem("english");
+    $indexer->set_stemmer($stemmer);
 
-function find_p($string, $start, $predicate)
-{
-    while ($start < strlen($string) and
-	   !$predicate(substr($string, $start, 1))) {
-	$start++;
-    }
-    return $start;
-}
-
-if (!isset($_SERVER['argv']) or count($_SERVER['argv']) != 2) {
-    print "usage: {$_SERVER['argv'][0]} <path to database>\n";
-    exit;
-}
-
-$database = new XapianWritableDatabase($_SERVER['argv'][1], Xapian::DB_CREATE_OR_OPEN);
-if (!$database) {
-    print "Couldn't create database '{$_SERVER['argv'][1]}'\n";
-    exit;
-}
-$stemmer = new XapianStem("english");
-$para = '';
-$lines = file("php://stdin");
-foreach ($lines as $line) {
-    $line = rtrim($line);
-    if ($line == "") {
-	if ($para != "") {
+    $para = '';
+    $lines = file("php://stdin");
+    foreach ($lines as $line) {
+	$line = rtrim($line);
+	if ($line == "" && $para != "") {
+	    // We've reached the end of a paragraph, so index it.
 	    $doc = new XapianDocument();
 	    $doc->set_data($para);
-	    $pos = 0;
-	    /*
-	     * At each point, find the next alnum character (i), then
-	     * find the first non-alnum character after that (j). Find
-	     * the first non-plusminus character after that (k), and if
-	     * k is non-alnum (or is off the end of the para), set j=k.
-	     * The term generation string is [i,j), so len = j-i
-	     */
-	    $i = 0;
-	    $j = 0;
-	    while ($i < strlen($para)) {
-		$i = find_p($para, $j, 'p_alnum');
-		$j = find_p($para, $i, 'p_notalnum');
-		$k = find_p($para, $j, 'p_notplusminus');
-		if ($k == strlen($para) or !p_alnum(substr($para, $k, 1))) {
-		    $j = $k;
-		}
-		if ($j-$i <= MAX_PROB_TERM_LENGTH and $j > $i) {
-		    $term = $stemmer->apply(strtolower(substr($para, $i, $j-$i)));
-		    $doc->add_posting($term, $pos);
-		    $pos++;
-		}
-		$i = $j;
-	    }
+
+	    $indexer->set_document($doc);
+	    $indexer->index_text($para);
+
+	    // Add the document to the database.
 	    $database->add_document($doc);
+
 	    $para = "";
+	} else {
+	    if ($para != "") {
+		$para .= " ";
+	    }
+	    $para .= $line;
 	}
-    } else {
-	if ($para != "") {
-	    $para .= " ";
-	}
-	$para .= $line;
     }
+
+    // Set the database handle to Null to ensure that it gets closed
+    // down cleanly or unflushed changes may be lost.
+    $database = Null;
+} catch (Exception $e) {
+    print $e->getDescription() . "\n";
+    exit(1);
 }
-$database = Null;
 ?>

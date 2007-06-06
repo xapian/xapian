@@ -1,13 +1,12 @@
 <?php
-/* Simple command-line search program
+/* Simple example PHP4 script demonstrating query expansion.
  *
- * Copyright (C) 2004 James Aylett
- * Copyright (C) 2004,2005,2006,2007 Olly Betts
+ * Copyright (C) 2007 Olly Betts
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,78 +15,94 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 if (php_sapi_name() != "cli") {
-    print "This example script is written to run under the command line ('cli') version of\nthe PHP interpreter, but you're using the '".php_sapi_name()."' version\n";
-    exit;
+    print "This example script is written to run under the command line ('cli') version of\n";
+    print "the PHP interpreter, but you're using the '".php_sapi_name()."' version\n";
+    exit(1);
 }
 
 include "php4/xapian.php";
 
-if (!isset($_SERVER['argv']) or count($_SERVER['argv']) < 3) {
-    print "usage: {$_SERVER['argv'][0]} <path to database> <search terms> [-- <relevant docids>]\n";
-    exit;
+// PHP < 4.3.0 only sets $argc and $argv if 'register_globals' is on.
+if (!isset($argc)) $argc = $_SERVER['argc'];
+if (!isset($argv)) $argv = $_SERVER['argv'];
+
+if ($argc < 3) {
+    print "Usage: {$argv[0]} PATH_TO_DATABASE QUERY [-- [DOCID...]]\n";
+    exit(1);
 }
 
-$database = new XapianDatabase($_SERVER['argv'][1]);
+// Open the database for searching.
+$database = new XapianDatabase($argv[1]);
 if (!$database) {
-    print "Couldn't open database '{$_SERVER['argv'][1]}'\n";
-    exit;
+    print "Couldn't open database '{$argv[1]}'\n";
+    exit(1);
 }
 
+// Start an enquire session.
 $enquire = new XapianEnquire($database);
-$stemmer = new XapianStem("english");
-$terms = array();
+
+// Combine command line arguments up to "--" with spaces between
+// them, so that simple queries don't have to be quoted at the shell
+// level.
+$args = array_slice($argv, 2);
+$separator = array_search("--", $args);
+
+// In PHP < 4.2.0, array_search returns Null on failure.
+if ($separator === Null || $separator === FALSE) {
+    $separator = count($args);
+}
+
+$query_string = join(" ", array_slice($args, 0, $separator);
+
 $rset = new XapianRSet();
-$rels = false;
-foreach (array_slice($_SERVER['argv'], 2) as $term) {
-    if ($term === "--") {
-	$rels = true;
-	continue;
-    }
-    if ($rels) {
-	$rset->add_document(intval($term));
-    } else {
-	array_push($terms, $stemmer->apply(strtolower($term)));
-    }
+foreach (array_slice($args, $separator + 1) as $docid) {
+    $rset->add_document(intval($docid));
 }
-$query = new XapianQuery(XapianQuery_OP_OR, $terms);
 
-print "Performing query `" . $query->get_description() . "'\n";
+$qp = new XapianQueryParser();
+$stemmer = new XapianStem("english");
+$qp->set_stemmer($stemmer);
+$qp->set_database($database);
+$qp->set_stemming_strategy(XapianQueryParser_STEM_SOME);
+$query = $qp->parse_query($query_string);
+print "Parsed query is: {$query->get_description()}\n";
 
+// Find the top 10 results for the query.
 $enquire->set_query($query);
-$matches = $enquire->get_mset(0, 10);
+$matches = $enquire->get_mset(0, 10, $rset);
 
-# Put the top 5 (at most) docs into the rset if rset is empty.
+// Display the results.
+print "{$matches->get_matches_estimated()} results found:\n";
+
+$i = $matches->begin();
+while (!$i->equals($matches->end())) {
+    $n = $i->get_rank() + 1;
+    $data = $i->get_document()->get_data();
+    print "$n: {$i->get_percent()}% docid={$i->get_docid()} [$data]\n\n";
+    $i->next();
+}
+
+// If no relevant docids were given, invent an RSet containing the top 5
+// matches (or all the matches if there are less than 5).
 if ($rset->is_empty()) {
-    $count = 5;
-    $m = $matches->begin();
-    while (!$m->equals($matches->end())) {
-	$rset->add_document($m->get_docid());
-	if (--$count == 0) break;
-	$m->next();
+    $c = 5;
+    $i = $matches->begin();
+    while (--$c && !$i->equals($matches->end())) {
+	$rset->add_document($i->get_docid());
+	$i->next();
     }
 }
 
-# Get the suggested expand terms.
+// Generate an ESet containing terms that the user might want to add to
+// the query.
 $eset = $enquire->get_eset(10, $rset);
-print $eset->size() . " suggested additional terms\n";
-$e = $eset->begin();
-while (!$e->equals($eset->end())) {
-    print "Term `" . $e->get_term() . "'\t(weight " . $e->get_weight() . ")\n";
-    $e->next();
-}
 
-print $matches->get_matches_estimated() . " results found\n";
-$mseti = $matches->begin();
-while (!$mseti->equals($matches->end())) {
-    $doc = $mseti->get_document();
-    print "ID " . $mseti->get_docid() . " " .
-	$mseti->get_percent() . "% [" .
-	$doc->get_data() . "]\n";
-    $mseti->next();
+// List the terms.
+for ($t = $eset->begin(); !$t->equals($eset->end()); $t->next()) {
+    print "{$t->get_term()}: weight = {$t->get_weight()}\n";
 }
 ?>

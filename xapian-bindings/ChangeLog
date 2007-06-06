@@ -1,3 +1,8 @@
+Wed Jun 06 12:34:18 BST 2007  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/: Rewrite examples to closely model the new C++
+	  simple examples.
+
 Tue Jun 05 17:23:17 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Fix comment typo.
