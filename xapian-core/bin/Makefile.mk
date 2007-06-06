@@ -1,3 +1,7 @@
+EXTRA_DIST +=\
+	bin/dir_contents\
+	bin/Makefile
+
 if BUILD_BACKEND_QUARTZ
 bin_PROGRAMS +=\
 	bin/quartzcheck\

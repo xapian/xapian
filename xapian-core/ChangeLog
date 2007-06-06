@@ -1,3 +1,9 @@
+Wed Jun 06 12:12:50 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/Makefile: New stub makefile for include/xapian.
+	* bin/Makefile.mk,examples/Makefile.mk,include/Makefile.mk: Distribute
+	  missing stub Makefile and dir_contents files.
+
 Tue Jun 05 16:44:51 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/index_utils.cc: Back out linger line from r7758.
