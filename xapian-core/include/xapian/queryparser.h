@@ -82,36 +82,81 @@ class XAPIAN_VISIBILITY_DEFAULT SimpleStopper : public Stopper {
     virtual std::string get_description() const;
 };
 
+/// Base class for value range processors.
 struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
+    /// Destructor.
     virtual ~ValueRangeProcessor();
+
+    /** See if <begin>..<end> is a valid value range.
+     *
+     *  If this ValueRangeProcessor recognises <begin>..<end> it returns the
+     *  value number of range filter on.  Otherwise it returns
+     *  Xapian::BAD_VALUENO.
+     */
     virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
 };
 
+/** Handle a string range.
+ *
+ *  The end points can be any strings.
+ */
 class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno valno;
 
   public:
+    /** Constructor.
+     *
+     *  @param valno_	The value number to return from operator().
+     */
     StringValueRangeProcessor(Xapian::valueno valno_)
 	: valno(valno_) { }
 
+    /// Any strings are valid as begin and end.
     Xapian::valueno operator()(std::string &, std::string &) {
 	return valno;
     }
 };
 
+/** Handle a date range.
+ *
+ *  Begin and end must be dates in a recognised format.
+ */
 class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno valno;
     bool prefer_mdy;
     int epoch_year;
 
   public:
+    /** Constructor.
+     *
+     *  @param valno_	    The value number to return from operator().
+     *  @param prefer_mdy_  Should ambiguous dates be interpreted as
+     *			    month/day/year rather than day/month/year?
+     *			    (default: false)
+     *  @param epoch_year_  Year to use as the epoch for dates with 2 digit
+     *			    years (default: 1970, so 1/1/69 is 2069 while
+     *			    1/1/70 is 1970).
+     */
     DateValueRangeProcessor(Xapian::valueno valno_, bool prefer_mdy_ = false,
 			    int epoch_year_ = 1970)
 	: valno(valno_), prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
 
+    /** See if <begin>..<end> is a valid date value range.
+     *
+     *  If <begin>..<end> is a sensible date range, this method returns the
+     *  value number of range filter on.  Otherwise it returns
+     *  Xapian::BAD_VALUENO.
+     */
     Xapian::valueno operator()(std::string &begin, std::string &end);
 };
 
+/** Handle a number range.
+ *
+ *  This class currently has a design bug - a string comparison is used so the
+ *  numbers must be the same length for it to work, but you can't just zero
+ *  pad the values in the database because those from the query aren't.  We
+ *  therefore recommend that you avoid using this class at present.
+ */
 class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno valno;
     bool prefix;

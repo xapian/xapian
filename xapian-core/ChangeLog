@@ -1,3 +1,9 @@
+Wed Jun 06 17:17:05 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Add documentation comments for
+	  ValueRangeProcessor and subclasses (mostly fixes bug#155, but
+	  I'd like to add an overview document too).
+
 Wed Jun 06 16:04:08 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/testdata/flint-0.9.9/: Minimal example of a Flint database
