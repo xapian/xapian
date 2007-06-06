@@ -1,3 +1,8 @@
+Thu Jun 07 00:02:33 BST 2007  Olly Betts <olly@survex.com>
+
+	* tcl8/runtest.tcl: Fix exit handling to work if the called script
+	  exits implicitly.
+
 Thu Jun 07 00:00:17 BST 2007  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/bindings.html: Document how constants are wrapped.

@@ -26,4 +26,4 @@ lappend auto_path "."
 
 set argv0 [lindex $argv 0]
 set argv [lrange $argv 1 end]
-exit [source $argv0]
+exit [expr [source $argv0] +0]
