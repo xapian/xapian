@@ -1,3 +1,10 @@
+Thu Jun 07 00:58:08 BST 2007  Olly Betts <olly@survex.com>
+
+	* php/docs/examples/: Fix simpleexpand examples to put up to 5
+	  documents in the fake RSet as the comments say, not 4 as the
+	  code incorrectly did!
+	* php/docs/examples/: Fix exception reporting in PHP5 examples.
+
 Thu Jun 07 00:49:23 BST 2007  Olly Betts <olly@survex.com>
 
 	* tcl8/docs/examples/simpleindex.tcl,

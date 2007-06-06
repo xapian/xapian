@@ -67,7 +67,7 @@ try {
     // down cleanly or unflushed changes may be lost.
     $database = Null;
 } catch (Exception $e) {
-    print $e->getDescription() . "\n";
+    print $e->getMessage() . "\n";
     exit(1);
 }
 ?>

@@ -91,7 +91,7 @@ while (!$i->equals($matches->end())) {
 if ($rset->is_empty()) {
     $c = 5;
     $i = $matches->begin();
-    while (--$c && !$i->equals($matches->end())) {
+    while ($c-- && !$i->equals($matches->end())) {
 	$rset->add_document($i->get_docid());
 	$i->next();
     }

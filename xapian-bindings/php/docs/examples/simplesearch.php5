@@ -66,7 +66,7 @@ try {
 	$i->next();
     }
 } catch (Exception $e) {
-    print $e->getDescription() . "\n";
+    print $e->getMessage() . "\n";
     exit(1);
 }
 ?>
