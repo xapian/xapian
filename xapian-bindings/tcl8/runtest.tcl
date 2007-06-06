@@ -1,6 +1,6 @@
 # Allow a tcl script to be run against an uninstalled libtool-built tcl module
 #
-# Copyright (C) 2006 Olly Betts
+# Copyright (C) 2006,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -17,11 +17,13 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
 # USA
 
-# Syntax: runtest.tcl SCRIPT.TCL
+# Syntax: runtest.tcl SCRIPT.TCL [ARGS]
 
 # We need at least Tcl version 8
 package require Tcl 8
 
 lappend auto_path "."
 
-exit [source [lindex $argv 0]]
+set argv0 [lindex $argv 0]
+set argv [lrange $argv 1 end]
+exit [source $argv0]

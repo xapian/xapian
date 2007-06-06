@@ -1,3 +1,8 @@
+Wed Jun 06 23:47:03 BST 2007  Olly Betts <olly@survex.com>
+
+	* tcl8/runtest.tcl: Enhance to allow calling a script with command
+	  line arguments (useful for testing the examples).
+
 Wed Jun 06 22:39:01 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Note the SWIG SVN revision currently recommended.
