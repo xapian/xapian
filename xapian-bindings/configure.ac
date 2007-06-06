@@ -126,7 +126,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   fi
   dnl Check for swig >= 1.3.32
   dnl (1.3.32 isn't released at the time of writing, but SWIG SVN trunk
-  dnl rev 9670 or later is required, and this identifies itself as 1.3.32).
+  dnl rev 9852 or later is required, and this identifies itself as 1.3.32).
   dnl
   dnl 1.3.23 adds support for optional arguments in CSharp.
   dnl 1.3.24 tweaks CSharp enums
@@ -146,7 +146,7 @@ if test x$USE_MAINTAINER_MODE = xyes; then
   case $v in
     [1.3.[3-9][0-9]|1.3.[1-9][0-9][0-9][0-9]*|1.[4-9].*|2.*]) ;;
     *)
-      msg="SWIG >= 1.3.32 (SVN rev 9670 or later) required (you have ${v:-an unknown version})"
+      msg="SWIG >= 1.3.32 (SVN rev 9852 or later) required (you have ${v:-an unknown version})"
       if test -n "$swigoverridden" ; then
 	dnl If SWIG was explicitly set, make this a warning only.
 	AC_MSG_WARN([$msg])

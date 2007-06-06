@@ -1,3 +1,7 @@
+Wed Jun 06 22:39:01 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Note the SWIG SVN revision currently recommended.
+
 Wed Jun 06 12:34:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* php/docs/examples/: Rewrite examples to closely model the new C++
