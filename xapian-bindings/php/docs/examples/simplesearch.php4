@@ -19,7 +19,7 @@
  */
 
 if (php_sapi_name() != "cli") {
-    print "This example script is written to run under the command line ('cli') version of";
+    print "This example script is written to run under the command line ('cli') version of\n";
     print "the PHP interpreter, but you're using the '".php_sapi_name()."' version\n";
     exit(1);
 }
