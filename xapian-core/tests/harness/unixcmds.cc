@@ -37,6 +37,76 @@
 
 using namespace std;
 
+/// Append filename argument arg to command cmd with suitable escaping.
+static bool
+append_filename_argument(string & cmd, const string & arg) {
+#ifdef __WIN32__
+    cmd.reserve(cmd.size() + arg.size() + 3);
+    cmd += " \"";
+    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
+	if (*i == '/') {
+	    // Convert Unix path separators to backslashes.  C library
+	    // functions understand "/" in paths, but we are going to
+	    // call commands like "deltree" or "rd" which don't.
+	    cmd += '\\';
+	} else if (*i < 32 || strchr("<>\"|*?", *i)) {
+	    // Check for illegal characters in filename.
+	    return false;
+	} else {
+	    cmd += *i;
+	}
+    }
+    cmd += '"';
+#else
+    // Allow for escaping a few characters.
+    cmd.reserve(cmd.size() + arg.size() + 10);
+
+    // Prevent a leading "-" on the filename being interpreted as a command
+    // line option.
+    if (arg[0] == '-')
+	cmd += " ./";
+    else
+	cmd += ' ';
+
+    for (string::const_iterator i = arg.begin(); i != arg.end(); ++i) {
+	// Don't escape a few safe characters which are common in filenames.
+	if (!C_isalnum(*i) && strchr("/._-", *i) == NULL) {
+	    cmd += '\\';
+	}
+	cmd += *i;
+    }
+#endif
+    return true;
+}
+
+/// Recursively copy a directory.
+void cp_R(const std::string &src, const std::string &dest) {
+#ifdef __WIN32__
+    // Untested, but should work on NT and 95.
+    string cmd("xcopy /E /Y");
+#else
+    string cmd("cp -R");
+#endif
+    if (!append_filename_argument(cmd, src)) return;
+    if (!append_filename_argument(cmd, dest)) return;
+    system(cmd);
+}
+
+#ifdef __WIN32__
+static bool running_on_win9x() {
+    static int win9x = -1;
+    if (win9x == -1) {
+	OSVERSIONINFO info;
+	memset(&info, 0, sizeof(OSVERSIONINFO));
+	info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	if (GetVersionEx(&info)) {
+	    win9x = (info.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
+	}
+    }
+    return win9x;
+}
+#endif
+
 /// Remove a directory and contents, just like the Unix "rm -rf" command.
 void rm_rf(const string &filename) {
     // Check filename exists and is actually a directory
@@ -45,60 +115,23 @@ void rm_rf(const string &filename) {
 	return;
 
 #ifdef __WIN32__
-    string safefile = filename;
-    string::iterator i;
-    for (i = safefile.begin(); i != safefile.end(); ++i) {
-	if (*i == '/') {
-	    // Convert Unix path separators to backslashes.  C library
-	    // functions understand "/" in paths, but we are going to
-	    // call "deltree" or "rd" which don't.
-	    *i = '\\';
-	} else if (*i < 32 || strchr("<>\"|*?", *i)) {
-	    // Check for illegal characters in filename.
-	    return;
-	}
-    }
-
-    static int win95 = -1;
-    if (win95 == -1) {
-	OSVERSIONINFO info;
-	memset(&info, 0, sizeof(OSVERSIONINFO));
-	info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	if (GetVersionEx(&info)) {
-	    win95 = (info.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS);
-	}
-    }
-
-    if (win95) {
-	// for 95 like systems:
-	system("deltree /y \"" + safefile + "\"");
+    string cmd;
+    if (running_on_win9x) {
+	// For 95-like systems:
+	cmd = "deltree /y";
     } else {
-	// for NT like systems:
-	system("rd /s /q \"" + safefile + "\"");
+	// For NT-like systems:
+	cmd = "rd /s /q";
     }
 #else
-    string cmd("rm -rf ");
-    cmd.reserve(filename.size() + 16);
-
-    // Prevent a leading "-" on the filename being interpreted as a command line
-    // option.
-    if (filename[0] == '-') cmd += "./";
-
-    string::const_iterator i;
-    for (i = filename.begin(); i != filename.end(); ++i) {
-	// Don't escape a few safe characters which are common in filenames
-	if (!C_isalnum(*i) && strchr("/._-", *i) == NULL) {
-	    cmd += '\\';
-	}
-	cmd += *i;
-    }
-
-    system(cmd);
+    string cmd("rm -rf");
 #endif
+    if (!append_filename_argument(cmd, filename)) return;
+    system(cmd);
 }
 
 /// Touch a file, just like the Unix "touch" command.
 void touch(const string &filename) {
-   int fd = open(filename.c_str(), O_CREAT|O_WRONLY|O_BINARY, 0644);
-   if (fd >= 0) close(fd);
+    int fd = open(filename.c_str(), O_CREAT|O_WRONLY|O_BINARY, 0644);
+    if (fd >= 0) close(fd);
 }

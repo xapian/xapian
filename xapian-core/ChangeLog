@@ -1,3 +1,8 @@
+Wed Jun 06 12:17:51 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/unixcmds.cc,tests/harness/unixcmds.h: Add "cp_R()"
+	  which does much the same as "cp -R" on Unix.
+
 Wed Jun 06 12:12:50 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/Makefile: New stub makefile for include/xapian.

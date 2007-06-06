@@ -23,10 +23,13 @@
 
 #include <string>
 
-/// Remove a directory and contents.
+/// Recursively copy a directory, just like the Unix "cp -R" command.
+void cp_R(const std::string &src, const std::string &dest);
+
+/// Remove a directory and contents, just like the Unix "rm -rf" command.
 void rm_rf(const std::string &filename);
 
-/// Touch a file.
+/// Touch a file, just like the Unix "touch" command.
 void touch(const std::string &filename);
 
 #endif // XAPIAN_INCLUDED_UNIXCMDS_H
