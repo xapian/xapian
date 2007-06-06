@@ -1,3 +1,16 @@
+Wed Jun 06 16:04:08 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/testdata/flint-0.9.9/: Minimal example of a Flint database
+	  from Xapian 0.9.9.
+	* tests/api_db.cc: Use a real 0.9.9 flint database instead of faking
+	  it by fudging with the "iamflint" file in a current one.
+	  flintdatabaseformaterror1 now also checks for opening with the
+	  Database ctor as well as with Flint::open().  The writing test from
+	  flintdatabaseformaterror1 is now flintdatabaseformaterror2 which
+	  additionally tests opening with the WritableDatabase ctor as well as
+	  with Flint::open().  The old flintdatabaseformaterror2 is now
+	  flintdatabaseformaterror3.
+
 Wed Jun 06 15:44:08 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc: Don't check for pre-0.6 databases
