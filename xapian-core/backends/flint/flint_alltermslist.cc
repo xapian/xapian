@@ -1,6 +1,6 @@
 /* flint_alltermslist.cc: A termlist containing all terms in a flint database.
  *
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
 
@@ -23,6 +23,8 @@
 #include "flint_alltermslist.h"
 #include "flint_postlist.h"
 #include "flint_utils.h"
+
+#include "stringutils.h"
 
 void
 FlintAllTermsList::read_termfreq_and_collfreq() const
@@ -103,15 +105,16 @@ FlintAllTermsList::next()
 	    throw Xapian::DatabaseCorruptError("PostList table key has unexpected format");
 	}
 
-	if (current_term.substr(0, prefix.size()) != prefix) {
+	if (!begins_with(current_term, prefix)) {
 	    // We've reached the end of the end of the prefixed terms.
 	    cursor->to_end();
 	    current_term = "";
 	    break;
 	}
 
-	// If this key is for the first chunk of a postlist, we're done.  Otherwise we need
-	// to skip past continuation chunks until we find the first chunk of the next postlist.
+	// If this key is for the first chunk of a postlist, we're done.
+	// Otherwise we need to skip past continuation chunks until we find the
+	// first chunk of the next postlist.
 	if (p == pend) break;
     }
     RETURN(NULL);
@@ -123,7 +126,8 @@ FlintAllTermsList::skip_to(const string &tname)
     DEBUGCALL(DB, TermList *, "FlintAllTermsList::skip_to", tname);
     if (at_end()) abort();
     Assert(!at_end());
-    // Set termfreq to 0 to indicate no value has been read for the current term.
+    // Set termfreq to 0 to indicate no value has been read for the current
+    // term.
     termfreq = 0;
 
     if (cursor->find_entry(pack_string_preserving_sort(tname))) {
@@ -136,8 +140,8 @@ FlintAllTermsList::skip_to(const string &tname)
 	current_term = "";
 	RETURN(NULL);
     }
-    // If there wasn't an exact match, the cursor is left on the last key *BEFORE*
-    // the one we asked for.
+    // If there wasn't an exact match, the cursor is left on the last key
+    // *BEFORE* the one we asked for.
     RETURN(next());
 }
 

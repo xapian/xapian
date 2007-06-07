@@ -1,3 +1,25 @@
+Thu Jun 07 18:36:49 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/stringutils.h: New header, providing inline functions
+	  begins_with() and ends_with() to check if a std::string has
+	  a given prefix or suffix.
+	* api/valuerangeproc.cc,backends/flint/flint_alltermslist.cc,
+	  backends/inmemory/inmemory_alltermslist.cc,
+	  backends/quartz/quartz_alltermslist.cc,
+	  backends/quartz/quartz_metafile.cc,tests/harness/testsuite.cc:
+	  Make use of begins_with() and ends_with().
+	* tests/harness/testsuite.cc: Tidy up guessing of srcdir.  In
+	  particular, fix comments to reflect that libtool won't create a
+	  wrapper script for the test programs on most platforms (because
+	  we now use --no-install when linking).
+	* backends/inmemory/inmemory_alltermslist.cc: In the ctor, use
+	  std::map::lower_bound() to find the first term matching the
+	  given prefix, rather than iterating through from the start of
+	  the map.  Also, don't skip deleted terms here, but instead do
+	  that in next() - this avoids duplicating code, and the first
+	  operation might be skip_to() in which case we can avoid wasting
+	  effort.
+
 Thu Jun 07 17:16:12 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Eliminate the QpQuery class and

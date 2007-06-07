@@ -26,6 +26,7 @@
 #include <stdlib.h>
 
 #include <string>
+#include "stringutils.h"
 
 using namespace std;
 
@@ -38,7 +39,7 @@ decode_xxy(const string & s, int & x1, int &x2, int &y)
 	return false;
     size_t j = s.find_first_not_of("0123456789", i + 1);
     if (j - (i + 1) < 1 || j - (i + 1) > 2 ||
-        !(s[j] == '/' || s[j] == '-' || s[j] == '.'))
+	!(s[j] == '/' || s[j] == '-' || s[j] == '.'))
 	return false;
     if (s.size() - j > 4 + 1) return false;
     if (s.find_first_not_of("0123456789", j + 1) != string::npos)
@@ -53,7 +54,7 @@ decode_xxy(const string & s, int & x1, int &x2, int &y)
 
 // We just use this to decide if an ambiguous aa/bb/cc date could be a
 // particular format, so there's no need to be anal about the exact number of
-// days in february.  The most useful check is that the month field is <= 12
+// days in February.  The most useful check is that the month field is <= 12
 // so we could just check the day is <= 31 really.
 static const char max_month_length[12] = {
     31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
@@ -151,28 +152,24 @@ Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
     if (str.size()) {
 	if (prefix) {
 	    // If there's a prefix, require it on the start.
-	    if (begin.size() <= str.size() ||
-		begin.substr(0, str.size()) != str) {
+	    if (!begins_with(begin, str)) {
 		// Prefix not given.
 		return Xapian::BAD_VALUENO;
 	    }
 	    b_b = str.size();
 	    // But it's optional on the end, e.g. $10..50
-	    if (end.size() > str.size() &&
-		    end.substr(0, str.size()) == str) {
+	    if (begins_with(end, str)) {
 		e_b = str.size();
 	    }
 	} else {
 	    // If there's a suffix, require it on the end.
-	    if (end.size() <= str.size() ||
-		end.substr(end.size() - str.size()) != str) {
+	    if (!ends_with(end, str)) {
 		// Prefix not given.
 		return Xapian::BAD_VALUENO;
 	    }
 	    e_e = end.size() - str.size();
 	    // But it's optional on the start, e.g. 10..50kg
-	    if (begin.size() > str.size() &&
-		begin.substr(begin.size() - str.size()) == str) {
+	    if (ends_with(begin, str)) {
 		b_e = begin.size() - str.size();
 	    }
 	}

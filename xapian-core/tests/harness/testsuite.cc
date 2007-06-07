@@ -57,6 +57,7 @@
 #include <xapian/error.h>
 #include "testsuite.h"
 #include "omdebug.h"
+#include "stringutils.h"
 #include "utils.h"
 
 using namespace std;
@@ -94,39 +95,41 @@ test_driver::get_srcdir()
     char *p = getenv("srcdir");
     if (p != NULL) return string(p);
 
-    string srcdir = argv0;
-    // default srcdir to everything leading up to the last "/" on argv0
 #ifdef __WIN32__
-	const char sep = '\\';
+    // The path on argv[0] will always use \ for the directory separator.
+    const char ARGV0_SEP = '\\';
 #else
-	const char sep = '/';
+    const char ARGV0_SEP = '/';
 #endif
-    string::size_type i = srcdir.find_last_of(sep);
+    // Default srcdir to the pathname of argv[0].
+    string srcdir(argv0);
+    string::size_type i = srcdir.find_last_of(ARGV0_SEP);
     string srcfile;
     if (i != string::npos) {
 	srcfile = srcdir.substr(i + 1);
 	srcdir.erase(i);
-	// libtool puts the real executable in .libs...
-	i = srcdir.find_last_of(sep);
+	// libtool may put the real executable in .libs.
+	i = srcdir.find_last_of(ARGV0_SEP);
 	if (srcdir.substr(i + 1) == ".libs") {
 	    srcdir.erase(i);
-	    if (srcfile.substr(0, 3) == "lt-") srcfile.erase(0, 3);
+	    // And it may have an "lt-" prefix.
+	    if (begins_with(srcfile, "lt-")) srcfile.erase(0, 3);
 	}
     } else {
-	// default to current directory - probably won't work if libtool
-	// is involved as the true executable is usually in .libs
+	// No path of argv[0], so default srcdir to the current directory.
+	// This may not work if libtool is involved as the true executable is
+	// sometimes in ".libs".
 	srcfile = srcdir;
 	srcdir = ".";
     }
+
     // Remove any trailing ".exe" suffix, since some platforms add this.
-    if (srcfile.length() > 4 &&
-	srcfile.substr(srcfile.length() - 4) == ".exe") {
-	srcfile = srcfile.substr(0, srcfile.length() - 4);
-    }
-    // sanity check
-    if (!file_exists(srcdir + sep + srcfile + ".cc")) {
+    if (ends_with(srcfile, ".exe")) srcfile.resize(srcfile.size() - 4);
+
+    // Sanity check.
+    if (!file_exists(srcdir + '/' + srcfile + ".cc")) {
 	cout << argv0
-	     << ": srcdir not in the environment and I can't guess it!\n"
+	     << ": srcdir is not in the environment and I can't guess it!\n"
 		"Run test programs using the runtest script - see HACKING for details"
 	     << endl;
 	exit(1);

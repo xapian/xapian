@@ -1,8 +1,7 @@
 /* inmemoryalltermslist.cc
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,23 +15,21 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #include <config.h>
 #include "inmemory_alltermslist.h"
 
+#include "stringutils.h"
+
 InMemoryAllTermsList::InMemoryAllTermsList(const std::map<string, InMemoryTerm> *tmap_,
 					   Xapian::Internal::RefCntPtr<const InMemoryDatabase> database_,
 					   const string & prefix_)
-	: tmap(tmap_), it(tmap->begin()), database(database_), started(false), prefix(prefix_)
+	: tmap(tmap_), database(database_), started(false), prefix(prefix_)
 {
-    while (it != tmap->end() &&
-	   (it->second.term_freq == 0 ||
-	    it->first.substr(0, prefix.size()) != prefix))
-	++it;
+    it = tmap->lower_bound(prefix);
 }
 
 InMemoryAllTermsList::~InMemoryAllTermsList()
@@ -77,7 +74,7 @@ InMemoryAllTermsList::skip_to(const string &tname)
     // FIXME: might skip backwards - is this a problem?
     it = tmap->lower_bound(tname);
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
-    if (it != tmap->end() && it->first.substr(0, prefix.size()) != prefix)
+    if (it != tmap->end() && !begins_with(it->first, prefix))
 	it = tmap->end();
     return NULL;
 }
@@ -90,9 +87,9 @@ InMemoryAllTermsList::next()
     } else {
 	Assert(!at_end());
 	++it;
-	while (it != tmap->end() && it->second.term_freq == 0) ++it;
     }
-    if (it != tmap->end() && it->first.substr(0, prefix.size()) != prefix)
+    while (it != tmap->end() && it->second.term_freq == 0) ++it;
+    if (it != tmap->end() && !begins_with(it->first, prefix))
 	it = tmap->end();
     return NULL;
 }
