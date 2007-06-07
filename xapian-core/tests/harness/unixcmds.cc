@@ -116,7 +116,7 @@ void rm_rf(const string &filename) {
 
 #ifdef __WIN32__
     string cmd;
-    if (running_on_win9x) {
+    if (running_on_win9x()) {
 	// For 95-like systems:
 	cmd = "deltree /y";
     } else {
