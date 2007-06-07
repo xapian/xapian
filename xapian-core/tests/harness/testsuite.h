@@ -22,6 +22,7 @@
 #ifndef OM_HGUARD_TESTSUITE_H
 #define OM_HGUARD_TESTSUITE_H
 
+#include "noreturn.h"
 #include "omstringstream.h"
 
 #include <map>
@@ -119,7 +120,7 @@ class test_driver {
 	 */
 	static void parse_command_line(int argc, char **argv);
 
-	static void usage();
+	XAPIAN_NORETURN(static void usage());
 
 	static int run(const test_desc *tests);
 

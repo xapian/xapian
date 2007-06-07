@@ -25,6 +25,8 @@
 
 #include <string>
 
+#include "noreturn.h"
+
 // Forward class declarations:
 
 class Stats;
@@ -82,9 +84,10 @@ std::string serialise_error(const Xapian::Error &e);
  *				field.
  */
 XAPIAN_VISIBILITY_DEFAULT
+XAPIAN_NORETURN(
 void unserialise_error(const std::string &error_string,
 		       const std::string &prefix,
-		       const std::string &new_context);
+		       const std::string &new_context));
 
 /** Serialise a Stats object.
  *
