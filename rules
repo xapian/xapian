@@ -221,6 +221,9 @@ install: build
 	    $(MAKE) -C build-$$python DESTDIR=$(CURDIR)/debian/tmp install; \
 	done
 
+	# Always install /etc/xapian/phpN/conf.d/xapian, even for backports to
+	# suites where PHP doesn't support it - the extra file is harmless, and
+	# it means we'll work nicely with backported PHP packages too.
 	for v in $(PHP_VERSIONS); do \
 	    c=/usr/bin/php-config$$v; \
 	    if test -x $$c ; then \
@@ -228,8 +231,25 @@ install: build
 		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp install; \
 		install -d -m 755 debian/tmp/usr/share/php$$v; \
 		install -m 644 php/php$$v/xapian.php debian/tmp/usr/share/php$$v; \
+		install -d -m 755 debian/tmp/etc/php$$v/conf.d \
+		install -m 644 debian/etc-php-conf.d-xapian debian/tmp/etc/php$$v/conf.d/xapian \
 	    fi \
 	done
+
+ifneq ($(findstring .$(COMPONENT)., .oldstable.breezy.dapper.edgy.), )
+	# If PHP doesn't support /etc/phpN/conf.d then add README.Debian with
+	# a note explaining that user needs to modify php.ini themselves.  This
+	# affects Debian oldstable (sarge) (and earlier), and Ubuntu edgy and
+	# earlier.
+	for v in $(PHP_VERSIONS); do \
+	    c=/usr/bin/php-config$$v; \
+	    if test -x $$c ; then \
+		set -e; \
+		install -d -m 755 debian/php$$v-xapian/usr/share/doc/php$$v-xapian; \
+		install -m 644 debian/php$$v-README.Debian debian/php$$v-xapian/usr/share/doc/php$$v-xapian/README.Debian; \
+	    fi \
+	done
+endif
 
 	$(MAKE) -C build-tcl-and-ruby DESTDIR=$(CURDIR)/debian/tmp install
 
