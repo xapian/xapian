@@ -1,4 +1,4 @@
-xapian-bindings (1.0.0-2) unstable; urgency=low
+xapian-bindings (1.0.0-1) unstable; urgency=low
 
   * php4-xapian and php5-xapian now make use of the (relatively) new
     /etc/phpN/conf.d mechanism to enable the xapian extension automatically,
