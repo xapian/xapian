@@ -1,3 +1,8 @@
+Thu Jun 07 14:16:01 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Add test of custom ValueRangeProcessor
+	  subclass (qp_value_customrange1).
+
 Thu Jun 07 10:01:46 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/serialise.h,tests/harness/testsuite.h: Use XAPIAN_NORETURN()

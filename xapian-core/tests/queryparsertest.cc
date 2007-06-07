@@ -1175,6 +1175,51 @@ static bool test_qp_value_daterange1()
     return true;
 }
 
+struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
+    AuthorValueRangeProcessor() {}
+    ~AuthorValueRangeProcessor() {}
+
+    Xapian::valueno operator()(std::string &begin, std::string &end) {
+	begin = Xapian::Unicode::tolower(begin);
+	end = Xapian::Unicode::tolower(end);
+	return 4;
+    }
+};
+
+static test test_value_customrange1_queries[] = {
+    { "mars Asimov..Bradbury", "(mars:(pos=1) FILTER VALUE_RANGE 4 asimov bradbury)" },
+    { NULL, NULL }
+};
+
+// Test custom ValueRangeProcessor subclass.
+static bool test_qp_value_customrange1()
+{
+    Xapian::QueryParser qp;
+    AuthorValueRangeProcessor vrp_author;
+    qp.add_valuerangeprocessor(&vrp_author);
+    for (test *p = test_value_customrange1_queries; p->query; ++p) {
+	string expect, parsed;
+	if (p->expect)
+	    expect = p->expect;
+	else
+	    expect = "parse error";
+	try {
+	    Xapian::Query qobj = qp.parse_query(p->query);
+	    parsed = qobj.get_description();
+	    expect = string("Xapian::Query(") + expect + ')';
+	} catch (const Xapian::QueryParserError &e) {
+	    parsed = e.get_msg();
+	} catch (const Xapian::Error &e) {
+	    parsed = e.get_description();
+	} catch (...) {
+	    parsed = "Unknown exception!";
+	}
+	tout << "Query: " << p->query << '\n';
+	TEST_STRINGS_EQUAL(parsed, expect);
+    }
+    return true;
+}
+
 static bool test_qp_stoplist1()
 {
     Xapian::QueryParser qp;
@@ -1224,6 +1269,7 @@ static test_desc tests[] = {
     TESTCASE(qp_value_range2),
     TESTCASE(qp_value_range3),
     TESTCASE(qp_value_daterange1),
+    TESTCASE(qp_value_customrange1),
     TESTCASE(qp_stoplist1),
     END_OF_TESTCASES
 };
