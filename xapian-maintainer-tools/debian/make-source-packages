@@ -21,7 +21,7 @@
 
 set -e
 
-VALID_COMPONENTS='unstable stable feisty edgy dapper'
+VALID_COMPONENTS='unstable stable oldstable gutsy feisty edgy dapper'
 
 if [ x"$1" = x--help ] ; then
   echo "Usage: $0 [COMPONENT...]"
@@ -216,9 +216,9 @@ then
   # Distribution tarballs all exist
   :
 else
-  URL_CORE="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-core-${SNAP_VERSION}.tar.gz"
-  URL_BINDINGS="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-bindings-${SNAP_VERSION}.tar.gz"
-  URL_OMEGA="${DOWNLOAD_BASE}/${SNAP_VERSION}/xapian-omega-${SNAP_VERSION}.tar.gz"
+  URL_CORE="${DOWNLOAD_BASE}${SNAP_VERSION}/xapian-core-${SNAP_VERSION}.tar.gz"
+  URL_BINDINGS="${DOWNLOAD_BASE}${SNAP_VERSION}/xapian-bindings-${SNAP_VERSION}.tar.gz"
+  URL_OMEGA="${DOWNLOAD_BASE}${SNAP_VERSION}/xapian-omega-${SNAP_VERSION}.tar.gz"
 
   # Make download directory
   rm -rf downloads
