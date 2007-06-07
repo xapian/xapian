@@ -1,5 +1,5 @@
 up to:
-Thu May 31 19:18:41 BST 2007  Olly Betts <olly@survex.com>
+Thu Jun 07 01:02:22 BST 2007  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.1 (2007-06-0?):
 
@@ -17,6 +17,10 @@ API:
 * Xapian::QueryParser: Multiple boolean prefixed terms with the same term
   prefix are now combined with OR before such groups are combined with AND
   (bug#157).  Multiple value ranges on the same value are handled similarly.
+
+* Xapian::Query OP_VALUE_RANGE: Avoid calling db->get_lastdocid() repeatedly
+  as we know the answer won't change - this reduces the run time of a
+  particular test case by 25%.
 
 testsuite:
 
@@ -39,6 +43,18 @@ testsuite:
 * queryparsertest: Use TEST_STRINGS_EQUAL when comparing queries against their
   expected output, since this makes it much easier to see the differences.
 
+* apitest: flintdatabaseformaterror1 and flintdatabaseformaterror2 now use a
+  genuine Xapian 0.9.9 flint database for their tests, and more cases are
+  tested.  The two tests have also been split into 3 now.
+
+* Fix test harness not to invoke undefined behaviour in cases where a paragraph
+  of test data contains two or fewer characters.
+
+* Implement a better fix for the MSVC ifstream issue which was fixed in 1.0.0.
+  This fixes an unintentional side-effect of the previous fix which meant that
+  apitest's consistency1 wasn't working as intended (it now has a regression
+  test to make sure it is testing what we intend).
+
 flint backend:
 
 * xapian-compact: Don't uncompress and recompress tags when compacting a
@@ -46,6 +62,10 @@ flint backend:
   quick test).
 
 * If the docid counter wraps, Flint now throws DatabaseError (fixes bug#152).
+
+* Remove the special case error message for pre-0.6 databases since they'll
+  be quartz format (the check is only in flint because this code was taken from
+  quartz).
 
 quartz backend:
 
@@ -74,26 +94,36 @@ build system:
 * Fix multiple target rule for generating the queryparser source files in
   parallel builds.
 
+* Distribute missing stub Makefiles for "bin", "examples", and
+  "include/xapian".
+
 documentation:
 
-* typo in query.h corrected.
+* ValueRangeProcessor and subclasses now have API documentation.
 
-* copy and paste error in deprecation.rst; set_sort_forward() should be
-  changed to set_docid_order().
+* docs/deprecation.rst:
 
-* improved documentation comments for TermGenerator class.
+  + Fix copy and paste error - set_sort_forward() should be changed to
+    set_docid_order().
+
+  + Improve entry for QueryParserError.
+
+* Improved API documentation for the TermGenerator class.
 
 * Expand documentation of value range Query constructor.
 
-* docs/deprecation.rst: Improve entry for QueryParserError.
-
 examples:
 
-* copydatabase:
+* copydatabase: Rewritten to use the ability to iterate over all the documents
+  in a database.  Should be much more efficient for databases with sparsely
+  distributed document IDs.
 
-  + Rewritten to use the ability to iterate over all the documents in a
-    database.  Should be much more efficient for databases with sparsely
-    distributed document IDs.
+* simpleindex: Rewritten to use the TermGenerator class, which eliminates a
+  lot of non-Xapian related code and is more typical of what a user is likely
+  to want to do.
+
+* simplesearch,simpleexpand: Rewritten to use the QueryParser class, which
+  is more typical of what a user is likely to want to do.
 
 portability:
 
