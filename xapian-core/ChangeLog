@@ -1,3 +1,8 @@
+Thu Jun 07 17:16:12 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Eliminate the QpQuery class and
+	  simplify various bits of the code.
+
 Thu Jun 07 14:32:22 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Enhance qp_value_customrange1.

@@ -89,79 +89,6 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 
 using Unicode::is_currency;
 
-/// Wrapper around a query, allowing us to distinguish between a query
-/// representing an empty list of queries, and a "MatchNothing" query.
-/* FIXME: can we replace this by using Query * and NULL vs MatchNothing?
- * We pass round Query * generally, so that should dovetail quite nicely!
- */
-class QpQuery {
-    /// The underlying query object.
-    Query q;
-
-    /// Flag, true iff this represents a "MatchNothing" query.
-    bool match_nothing;
-
-  public:
-    QpQuery(const QpQuery & tocopy)
-	: q(tocopy.q), match_nothing(tocopy.match_nothing)
-    {}
-
-    QpQuery & operator=(const QpQuery & tocopy)
-    {
-	q = tocopy.q;
-	match_nothing = tocopy.match_nothing;
-	return *this;
-    }
-
-    /** A query consisting of a single term. */
-    QpQuery(const std::string & tname, Xapian::termcount wqf,
-	    Xapian::termpos pos)
-	: q(tname, wqf, pos), match_nothing(false)
-    {}
-
-    /** A query consisting of two subqueries, combined with operator op. */
-    QpQuery(Query::op op, const QpQuery & left, const QpQuery & right)
-	: q(op, left.get(), right.get()), match_nothing(false)
-    {}
-
-    QpQuery(Query::op op_, Xapian::valueno valno,
-	  const std::string &begin, const std::string &end)
-	: q(op_, valno, begin, end), match_nothing(false)
-    {}
-
-    QpQuery(const Query & q_) : q(q_), match_nothing(false) {}
-    QpQuery() : q(), match_nothing(false) {}
-    QpQuery(bool m) : q(), match_nothing(m) {}
-    Query & get() { return q; }
-    const Query & get() const { return q; }
-    Xapian::valueno get_valno() const { return q.internal->get_parameter(); }
-
-    /// True iff the query is not empty, and doesn't explicitly match nothing.
-    bool can_match() { return (!q.empty() && !match_nothing); }
-    // FIXME:
-    // If matching nothing is true, q.empty() must be true too
-    // (from looking at the constructors).
-    // The can_match() condition above is:
-    //	    (!q.empty() && !match_nothing)
-    // <=>  !(q.empty() || match_nothing)
-    // <=>  !(q.empty() || match_nothing)
-    // <=>  !(q.empty()
-
-    /// True iff the query is defined, but empty.
-    bool empty() { return !match_nothing && q.empty(); }
-
-#if 0
-    /// Get a description of the query
-    std::string get_description() {
-	if (match_nothing) {
-	    return "[MATCH_NOTHING]";
-	} else {
-	    return q.get_description();
-	}
-    }
-#endif
-};
-
 /// A structure identifying a group of filter terms
 struct filter_group_id {
     /** The prefix of the filter terms.
@@ -175,10 +102,12 @@ struct filter_group_id {
     Xapian::valueno valno;
 
     /// Make a new filter_group_id for boolean filter terms.
-    explicit filter_group_id(const string & prefix_) : prefix(prefix_), valno(Xapian::BAD_VALUENO) {}
+    explicit filter_group_id(const string & prefix_)
+	: prefix(prefix_), valno(Xapian::BAD_VALUENO) {}
 
     /// Make a new filter_group_id for value range terms.
-    explicit filter_group_id(Xapian::valueno valno_) : prefix(), valno(valno_) {}
+    explicit filter_group_id(Xapian::valueno valno_)
+	: prefix(), valno(valno_) {}
 
     /// Compare to another filter_group_id.
     bool operator<(const filter_group_id & other) const {
@@ -225,13 +154,13 @@ class Term {
 
     filter_group_id get_filter_group_id() const { return filter_group_id(prefix); }
 
-    QpQuery * as_query() const { return new QpQuery(make_term(), 1, pos); }
+    Query * as_query() const { return new Query(make_term(), 1, pos); }
 
-    QpQuery * as_wildcarded_query(State * state) const;
+    Query * as_wildcarded_query(State * state) const;
 
-    QpQuery * as_partial_query(State * state_) const;
+    Query * as_partial_query(State * state_) const;
 
-    QpQuery as_query_object() const { return QpQuery(make_term(), 1, pos); }
+    Query as_query_object() const { return Query(make_term(), 1, pos); }
 };
 
 /// Parser State shared between the lexer and the parser.
@@ -240,7 +169,7 @@ class State {
     QueryParser::Internal * qpi;
 
   public:
-    QpQuery query;
+    Query query;
     const char * error;
     unsigned flags;
 
@@ -259,28 +188,28 @@ class State {
 	qpi->unstem.insert(make_pair(term, unstemmed));
     }
 
-    QpQuery * value_range(Term *a, Term *b) {
+    valueno value_range(Query & q, Term *a, Term *b) {
 	string start = a->name;
 	string end = b->name;
-	delete a;
-	delete b;
 	Xapian::valueno valno = Xapian::BAD_VALUENO;
 	list<ValueRangeProcessor *>::const_iterator i;
 	for (i = qpi->valrangeprocs.begin(); i != qpi->valrangeprocs.end(); ++i) {
 	    valno = (**i)(start, end);
-	    if (valno != Xapian::BAD_VALUENO) break;
+	    if (valno != Xapian::BAD_VALUENO) {
+		delete a;
+		delete b;
+		q = Query(Query::OP_VALUE_RANGE, valno, start, end);
+		return valno;
+	    }
 	}
-	if (valno == Xapian::BAD_VALUENO) {
-	    // FIXME: Do we want to report an error for this?  If not we need
-	    // to perform the above check in the tokeniser and if none of the
-	    // ValueRangeProcessor classes like the range, we rollback to
-	    // parsing the query without treating this as a range.  Needs
-	    // more thought and probably a look at queries users actually
-	    // enter.
-	    error = "Unknown range operation";
-	    return NULL;
-	}
-	return new QpQuery(Query::OP_VALUE_RANGE, valno, start, end);
+	// FIXME: Do we want to report an error for this?  If not we need
+	// to perform the above check in the tokeniser and if none of the
+	// ValueRangeProcessor classes like the range, we rollback to
+	// parsing the query without treating this as a range.  Needs
+	// more thought and probably a look at queries users actually
+	// enter.
+	error = "Unknown range operation";
+	return valno;
     }
 
     Query::op default_op() const { return qpi->default_op; }
@@ -315,52 +244,59 @@ Term::make_term() const
 }
 
 static void
-add_to_query(QpQuery & q, Query::op op, const QpQuery &term)
+add_to_query(Query *& q, Query::op op, Query * term)
 {
-    if (q.empty()) {
-	q = term;
+    Assert(term);
+    if (q) {
+	*q = Query(op, *q, *term);
+	delete term;
     } else {
-	q = QpQuery(op, q, term);
+	q = term;
     }
 }
 
-QpQuery *
+static void
+add_to_query(Query *& q, Query::op op, const Query & term)
+{
+    if (q) {
+	*q = Query(op, *q, term);
+    } else {
+	q = new Query(term);
+    }
+}
+
+Query *
 Term::as_wildcarded_query(State * state_) const
 {
     Database db = state_->get_database();
     string root = prefix;
     root += name;
+    Query * q = new Query;
     TermIterator t = db.allterms_begin(root);
-    QpQuery q;
     while (t != db.allterms_end(root)) {
-	add_to_query(q, Query::OP_OR, QpQuery(*t, 1, pos));
+	add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
 	++t;
     }
     delete this;
-    if (q.get().empty()) {
-	return new QpQuery(true);
-    } else {
-	return new QpQuery(q);
-    }
+    return q;
 }
 
-QpQuery *
+Query *
 Term::as_partial_query(State * state_) const
 {
     Database db = state_->get_database();
     string root = prefix;
     root += name;
+    Query * q = new Query;
     TermIterator t = db.allterms_begin(root);
-    QpQuery q;
     while (t != db.allterms_end(root)) {
-	add_to_query(q, Query::OP_OR, QpQuery(*t, 1, pos));
+	add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
 	++t;
     }
     // Add the term, as it would normally be handled, as an alternative.
-    add_to_query(q, Query::OP_OR, as_query_object());
-    Assert(!q.get().empty());
+    add_to_query(q, Query::OP_OR, as_query());
     delete this;
-    return new QpQuery(q);
+    return q;
 }
 
 inline bool
@@ -879,24 +815,31 @@ done:
     ParseFree(pParser);
 
     errmsg = state.error;
-    return state.query.get();
+    return state.query;
 }
 
 struct ProbQuery {
-    QpQuery query;
-    QpQuery love;
-    QpQuery hate;
-
+    Query * query;
+    Query * love;
+    Query * hate;
     // filter is a map from prefix to a query for that prefix.  Queries with
     // the same prefix are combined with OR, and the results of this are
     // combined with AND to get the full filter.
-    map<filter_group_id, QpQuery> filter;
+    map<filter_group_id, Query> filter;
 
-    QpQuery merge_filters() const {
-	QpQuery q;
-	map<filter_group_id, QpQuery>::const_iterator i;
-	for (i = filter.begin(); i != filter.end(); ++i) {
-	    add_to_query(q, Query::OP_AND, i->second.get());
+    ProbQuery() : query(0), love(0), hate(0) { }
+    ~ProbQuery() {
+	delete query;
+	delete love;
+	delete hate;
+    }
+
+    Query merge_filters() const {
+	map<filter_group_id, Query>::const_iterator i = filter.begin();
+	Assert(i != filter.end());
+	Query q = i->second;
+	while (++i != filter.end()) {
+	    q = Query(Query::OP_AND, q, i->second);
 	}
 	return q;
     }
@@ -911,7 +854,7 @@ class TermList {
 
     /// Add a Term object to this TermList object.
     void add_term(Term * term) {
-	terms.push_back(term->as_query_object().get());
+	terms.push_back(term->as_query_object());
 	delete term;
     }
 
@@ -926,38 +869,38 @@ class TermList {
     }
 
     /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
-    QpQuery * as_phrase_query() const {
-	QpQuery * term;
-	term = new QpQuery(Query(Query::OP_PHRASE, terms.begin(), terms.end(),
-				 terms.size()));
+    Query * as_phrase_query() const {
+	Query * term;
+	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end(),
+			 terms.size());
 	delete this;
 	return term;
     }
 
     /// Convert to a Xapian::Query * using OP_NEAR.
-    QpQuery * as_near_query() const {
-	QpQuery * term;
+    Query * as_near_query() const {
+	Query * term;
 	// The common meaning of 'a NEAR b' is "a within 10 terms of b", which
 	// means a window size of 11.  For more than 2 terms, we just add one
 	// to the window size for each extra term.
 	size_t w = window;
 	if (w == 0) w = 10;
-	term = new QpQuery(Query(Query::OP_NEAR, terms.begin(), terms.end(),
-				 terms.size() + w - 1));
+	term = new Query(Query::OP_NEAR, terms.begin(), terms.end(),
+			 terms.size() + w - 1);
 	delete this;
 	return term;
     }
 
     /// Convert to a Xapian::Query * using OP_PHRASE to implement ADJ.
-    QpQuery * as_adj_query() const {
-	QpQuery * term;
+    Query * as_adj_query() const {
+	Query * term;
 	// The common meaning of 'a ADJ b' is "a at most 10 terms before b",
 	// which means a window size of 11.  For more than 2 terms, we just add
 	// one to the window size for each extra term.
 	size_t w = window;
 	if (w == 0) w = 10;
-	term = new QpQuery(Query(Query::OP_PHRASE, terms.begin(), terms.end(),
-				 terms.size() + w - 1));
+	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end(),
+			 terms.size() + w - 1);
 	delete this;
 	return term;
     }
@@ -975,14 +918,14 @@ class TermList {
 };
 
 // Helper macro for converting a boolean operation into a Xapian::Query.
-#define BOOL_OP_TO_QPQUERY(E, A, OP, B, OP_TXT) \
+#define BOOL_OP_TO_QUERY(E, A, OP, B, OP_TXT) \
     do {\
 	if (!A || !B) {\
 	    state->error = "Syntax: <expression> "OP_TXT" <expression>";\
 	    yy_parse_failed(yypParser);\
 	    return;\
 	}\
-	E = new QpQuery(OP, *A, *B);\
+	E = new Query(OP, *A, *B);\
 	delete A;\
 	delete B;\
     } while (0)
@@ -1040,46 +983,50 @@ class TermList {
 
 query ::= expr(E). {
     // Save the parsed query in the State structure so we can return it.
-    state->query = *E;
-    delete E;
+    if (E) {
+	state->query = *E;
+	delete E;
+    } else {
+	state->query = Query();
+    }
 }
 
 query ::= . {
     // Handle a query string with no terms in.
-    state->query = QpQuery();
+    state->query = Query();
 }
 
 // expr - A query expression.
 
-%type expr {QpQuery *}
+%type expr {Query *}
 %destructor expr {delete $$;}
 
 expr(E) ::= prob_expr(P).
 	{ E = P; }
 
 expr(E) ::= bool_arg(A) AND bool_arg(B).
-	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_AND, B, "AND"); }
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND, B, "AND"); }
 
 expr(E) ::= bool_arg(A) NOT bool_arg(B). {
     // 'NOT foo' -> '<alldocuments> NOT foo'
     if (!A && (state->flags & QueryParser::FLAG_PURE_NOT)) {
-	A = new QpQuery("", 1, 0);
+	A = new Query("", 1, 0);
     }
-    BOOL_OP_TO_QPQUERY(E, A, Query::OP_AND_NOT, B, "NOT");
+    BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "NOT");
 }
 
 expr(E) ::= bool_arg(A) AND NOT bool_arg(B). [NOT]
-	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_AND_NOT, B, "AND NOT"); }
 
 expr(E) ::= bool_arg(A) OR bool_arg(B).
-	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_OR, B, "OR"); }
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_OR, B, "OR"); }
 
 expr(E) ::= bool_arg(A) XOR bool_arg(B).
-	{ BOOL_OP_TO_QPQUERY(E, A, Query::OP_XOR, B, "XOR"); }
+	{ BOOL_OP_TO_QUERY(E, A, Query::OP_XOR, B, "XOR"); }
 
 // bool_arg - an argument to a boolean operator such as AND or OR.
 
-%type bool_arg {QpQuery *}
+%type bool_arg {Query *}
 %destructor bool_arg {delete $$;}
 
 bool_arg(A) ::= expr(E). { A = E; }
@@ -1093,39 +1040,41 @@ bool_arg(A) ::= . [ERROR] {
 
 // prob_expr - a single compound term, or a prob.
 
-%type prob_expr {QpQuery *}
+%type prob_expr {Query *}
 %destructor prob_expr {delete $$;}
 
 prob_expr(E) ::= prob(P). {
-    E = new QpQuery(P->query);
+    E = P->query;
+    P->query = NULL;
     // Handle any "+ terms".
-    if (!P->love.empty()) {
-	if (E->empty()) {
-	    *E = P->love;
+    if (P->love) {
+	if (P->love->empty()) {
+	    // +<nothing>.
+	    delete E;
+	    E = P->love;
+	} else if (E) {
+	    swap(E, P->love);
+	    add_to_query(E, Query::OP_AND_MAYBE, P->love);
 	} else {
-	    *E = QpQuery(Query::OP_AND_MAYBE, P->love, *E);
+	    E = P->love;
 	}
+	P->love = NULL;
     }
     // Handle any "- terms".
-    if (P->hate.can_match()) {
-	if (E->empty()) {
-	    delete E;
+    if (P->hate && !P->hate->empty()) {
+	if (!E) {
 	    // Can't just hate!
 	    yy_parse_failed(yypParser);
 	    return;
 	}
-	*E = QpQuery(Query::OP_AND_NOT, *E, P->hate);
+	*E = Query(Query::OP_AND_NOT, *E, *P->hate);
     }
     // Handle any boolean filters.
     if (!P->filter.empty()) {
-	if (E->empty()) {
-	    *E = P->merge_filters();
-	    // FIXME and make the query boolean somehow...
-	} else {
-	    *E = QpQuery(Query::OP_FILTER, *E, P->merge_filters());
-	}
+	// FIXME: if (!E) make_the_query_boolean_somehow();
+	add_to_query(E, Query::OP_FILTER, P->merge_filters());
     }
-    // FIXME what if E->empty() (all terms are stopwords)?
+    // FIXME what if E && E->empty() (all terms are stopwords)?
     delete P;
 }
 
@@ -1142,58 +1091,47 @@ prob_expr(E) ::= term(T). {
 %destructor prob {delete $$;}
 
 prob(P) ::= RANGE_START(A) RANGE_END(B). {
-    QpQuery * range = state->value_range(A, B);
-    if (range == NULL) {
-	// Already deleted, so stop yy_parse_failed deleting them again.
-	A = B = NULL;
+    Query range;
+    Xapian::valueno valno = state->value_range(range, A, B);
+    if (valno == BAD_VALUENO) {
 	yy_parse_failed(yypParser);
 	return;
     }
-    Xapian::valueno valno = range->get_valno();
     P = new ProbQuery;
-    P->filter[filter_group_id(valno)] = *range;
-    delete range;
+    P->filter[filter_group_id(valno)] = range;
 }
 
 prob(P) ::= stop_prob(Q) RANGE_START(A) RANGE_END(B). {
-    QpQuery * range = state->value_range(A, B);
-    if (range == NULL) {
-	// Already deleted, so stop yy_parse_failed deleting them again.
-	A = B = NULL;
+    Query range;
+    Xapian::valueno valno = state->value_range(range, A, B);
+    if (valno == BAD_VALUENO) {
 	yy_parse_failed(yypParser);
 	return;
     }
-    Xapian::valueno valno = range->get_valno();
     P = Q;
-    add_to_query(P->filter[filter_group_id(valno)], Query::OP_OR, *range);
-    delete range;
+    Query & q = P->filter[filter_group_id(valno)];
+    q = Query(Query::OP_OR, q, range);
 }
 
 prob(P) ::= stop_term(T) stop_term(U). {
     P = new ProbQuery;
-    P->query = *T;
-    delete T;
-    if (!U->empty())
-	add_to_query(P->query, state->default_op(), *U);
-    delete U;
+    P->query = T;
+    if (U) add_to_query(P->query, state->default_op(), U);
 }
 
 prob(P) ::= prob(Q) stop_term(T). {
     P = Q;
     // If T is a stopword, there's nothing to do here.
-    if (!T->empty())
-	add_to_query(P->query, state->default_op(), *T);
-    delete T;
+    if (T) add_to_query(P->query, state->default_op(), T);
 }
 
 prob(P) ::= LOVE term(T). {
     P = new ProbQuery;
     if (state->default_op() == Query::OP_AND) {
-	P->query = *T;
+	P->query = T;
     } else {
-	P->love = *T;
+	P->love = T;
     }
-    delete T;
 }
 
 prob(P) ::= stop_prob(Q) LOVE term(T). {
@@ -1202,28 +1140,25 @@ prob(P) ::= stop_prob(Q) LOVE term(T). {
 	/* The default op is AND, so we just put loved terms into the query
 	 * (in this case the only effect of love is to ignore the stopword
 	 * list). */
-	add_to_query(P->query, Query::OP_AND, *T);
+	add_to_query(P->query, Query::OP_AND, T);
     } else {
-	add_to_query(P->love, Query::OP_AND, *T);
+	add_to_query(P->love, Query::OP_AND, T);
     }
-    delete T;
 }
 
 prob(P) ::= HATE term(T). {
     P = new ProbQuery;
-    P->hate = *T;
-    delete T;
+    P->hate = T;
 }
 
 prob(P) ::= stop_prob(Q) HATE term(T). {
     P = Q;
-    add_to_query(P->hate, Query::OP_OR, *T);
-    delete T;
+    add_to_query(P->hate, Query::OP_OR, T);
 }
 
 prob(P) ::= HATE BOOLEAN_FILTER(T). {
     P = new ProbQuery;
-    P->hate = T->as_query_object();
+    P->hate = T->as_query();
     delete T;
 }
 
@@ -1242,7 +1177,8 @@ prob(P) ::= BOOLEAN_FILTER(T). {
 prob(P) ::= stop_prob(Q) BOOLEAN_FILTER(T). {
     P = Q;
     // We OR filters with the same prefix...
-    add_to_query(P->filter[T->get_filter_group_id()], Query::OP_OR, T->as_query_object());
+    Query & q = P->filter[T->get_filter_group_id()];
+    q = Query(Query::OP_OR, q, T->as_query_object());
     delete T;
 }
 
@@ -1257,7 +1193,8 @@ prob(P) ::= stop_prob(Q) LOVE BOOLEAN_FILTER(T). {
     // LOVE BOOLEAN_FILTER(T) is just the same as BOOLEAN_FILTER
     P = Q;
     // We OR filters with the same prefix...
-    add_to_query(P->filter[T->get_filter_group_id()], Query::OP_OR, T->as_query_object());
+    Query & q = P->filter[T->get_filter_group_id()];
+    q = Query(Query::OP_OR, q, T->as_query_object());
     delete T;
 }
 
@@ -1271,8 +1208,7 @@ stop_prob(P) ::= prob(Q).
 
 stop_prob(P) ::= stop_term(T). {
     P = new ProbQuery;
-    P->query = *T;
-    delete T;
+    P->query = T;
 }
 
 // stop_term - A term which should be checked against the stopword list,
@@ -1281,12 +1217,12 @@ stop_prob(P) ::= stop_term(T). {
 // If a term is loved, hated, or in a phrase, we don't want to consult the
 // stopword list, so stop_term isn't used there (instead term is).
 
-%type stop_term {QpQuery *}
+%type stop_term {Query *}
 %destructor stop_term {delete $$;}
 
 stop_term(T) ::= TERM(U). {
     if (state->is_stopword(U)) {
-	T = new QpQuery;
+	T = NULL;
 	state->add_to_stoplist(U);
     } else {
 	T = U->as_query();
@@ -1300,7 +1236,7 @@ stop_term(T) ::= compound_term(U). {
 
 // term - A term or a compound_term.
 
-%type term {QpQuery *}
+%type term {Query *}
 %destructor term {delete $$;}
 
 term(T) ::= TERM(U). {
@@ -1316,7 +1252,7 @@ term(T) ::= compound_term(U). {
 // phrased_term, near_expr, adj_expr, or a bracketed subexpression (with or
 // without prefix).
 
-%type compound_term {QpQuery *}
+%type compound_term {Query *}
 %destructor compound_term {delete $$;}
 
 compound_term(T) ::= WILD_TERM(U).
