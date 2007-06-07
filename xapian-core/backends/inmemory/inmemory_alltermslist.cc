@@ -29,7 +29,6 @@ InMemoryAllTermsList::InMemoryAllTermsList(const std::map<string, InMemoryTerm> 
 					   const string & prefix_)
 	: tmap(tmap_), database(database_), started(false), prefix(prefix_)
 {
-    it = tmap->lower_bound(prefix);
 }
 
 InMemoryAllTermsList::~InMemoryAllTermsList()
@@ -68,10 +67,18 @@ InMemoryAllTermsList::get_collection_freq() const
 }
 
 TermList *
-InMemoryAllTermsList::skip_to(const string &tname)
+InMemoryAllTermsList::skip_to(const string &tname_)
 {
-    started = true;
-    // FIXME: might skip backwards - is this a problem?
+    string tname(tname_);
+    if (started) {
+	Assert(!at_end());
+	// Don't skip backwards.
+	if (tname <= get_termname()) return NULL;
+    } else {
+	started = true;
+	// Don't skip to before where we're supposed to start.
+	if (tname < prefix) tname = prefix;
+    }
     it = tmap->lower_bound(tname);
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
     if (it != tmap->end() && !begins_with(it->first, prefix))
@@ -84,6 +91,7 @@ InMemoryAllTermsList::next()
 {
     if (!started) {
 	started = true;
+	it = tmap->lower_bound(prefix);
     } else {
 	Assert(!at_end());
 	++it;
