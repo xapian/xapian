@@ -1180,6 +1180,9 @@ struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
     ~AuthorValueRangeProcessor() {}
 
     Xapian::valueno operator()(std::string &begin, std::string &end) {
+	if (begin.substr(0, 7) != "author:")
+	    return Xapian::BAD_VALUENO;
+	begin.erase(0, 7);
 	begin = Xapian::Unicode::tolower(begin);
 	end = Xapian::Unicode::tolower(end);
 	return 4;
@@ -1187,7 +1190,7 @@ struct AuthorValueRangeProcessor : public Xapian::ValueRangeProcessor {
 };
 
 static test test_value_customrange1_queries[] = {
-    { "mars Asimov..Bradbury", "(mars:(pos=1) FILTER VALUE_RANGE 4 asimov bradbury)" },
+    { "mars author:Asimov..Bradbury", "(mars:(pos=1) FILTER VALUE_RANGE 4 asimov bradbury)" },
     { NULL, NULL }
 };
 
