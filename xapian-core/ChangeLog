@@ -1,3 +1,8 @@
+Thu Jun 07 20:44:36 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/unixcmds.cc: It appears we need to create the target
+	  directory for xcopy to behave as we want.
+
 Thu Jun 07 19:34:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/unixcmds.cc: Fix typo to unbreak testsuite on Windows

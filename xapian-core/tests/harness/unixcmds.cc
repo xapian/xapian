@@ -82,7 +82,11 @@ append_filename_argument(string & cmd, const string & arg) {
 /// Recursively copy a directory.
 void cp_R(const std::string &src, const std::string &dest) {
 #ifdef __WIN32__
-    // Untested, but should work on NT and 95.
+    // xcopy should be available on both NT and 95 derivatives.  We create
+    // the target directory first to avoid being prompted as to whether we
+    // want to create a directory or a file (which makes no sense when
+    // copying a directory, but that's how xcopy seems to work!)
+    mkdir(dest.c_str());
     string cmd("xcopy /E /Y");
 #else
     string cmd("cp -R");
