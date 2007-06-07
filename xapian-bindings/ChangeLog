@@ -1,3 +1,7 @@
+Thu Jun 07 01:06:17 BST 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Updated.
+
 Thu Jun 07 01:01:05 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Note new required SWIG SVN rev.
