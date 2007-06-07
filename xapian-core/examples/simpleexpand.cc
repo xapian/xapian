@@ -86,7 +86,7 @@ try {
     if (rset.empty()) {
 	int c = 5;
 	Xapian::MSetIterator i = matches.begin();
-	while (--c && i != matches.end()) {
+	while (c-- && i != matches.end()) {
 	    rset.add_document(*i);
 	    ++i;
 	}

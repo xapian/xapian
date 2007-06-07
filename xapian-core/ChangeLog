@@ -1,3 +1,8 @@
+Thu Jun 07 01:02:22 BST 2007  Olly Betts <olly@survex.com>
+
+	* examples/simpleexpand.cc: Fix off-by-one error when creating the
+	  fake RSet (picked up to 4 documents, not up to 5).
+
 Wed Jun 06 17:17:05 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Add documentation comments for
