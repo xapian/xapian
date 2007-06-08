@@ -46,8 +46,6 @@ COMPONENTS=$VALID_COMPONENTS
 
 # Options to pass to dpkg-buildpackage when building source packages
 BUILDPACKAGE_SRC_OPTS="-us -uc -d -S"
-# Options to pass to dpkg-buildpackage when building binary packages
-BUILDPACKAGE_BIN_OPTS="-us -uc -d -b"
 
 # Location to place the generated apt repository
 PUBDIR="/usr/data/www/xapian.org/debian-tmp"
@@ -74,7 +72,7 @@ DOWNLOAD_BASE="http://www.oligarchy.co.uk/xapian/"
 adjust_changelog() {
   if [ -n "$CHANGE_MSG" ] ; then
     package_ver=`head -n 1 debian/changelog | sed "s/^.*([^-]*-\(.*\)).*$/\1/"`	
-    if [ stable = "$COMPONENT" ] ; then
+    if [ stable = "$COMPONENT" -o oldstable = "$COMPONENT" ] ; then
       package_ver=`expr $package_ver - 1||true`
     fi
     head -n 1 debian/changelog | sed "s/(\([^-]*\)-.*).*$/(\1$EXTRA_VERSION_UPSTREAM-$package_ver$EXTRA_VERSION_DEBIAN) $COMPONENT; urgency=low/" > debian/changelog.new
@@ -103,9 +101,6 @@ else
   exit 1
 fi
 
-# Determine the architecture we're running on.
-DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
-
 # Calculate the version which we're building.
 
 # $VERSION holds the version number as defined in configure.in.
@@ -113,7 +108,7 @@ DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH`
 # version number (empty when building a release).
 # $EXTRA_VERSION_DEBIAN holds a suffix to be added to the debian
 # version number (empty when building for unstable).
-# $SVNTAG hold the SVN tag to use to check out Xapian sources
+# $SVNTAG holds the SVN tag to use to check out Xapian sources
 
 # If we are building a version other than that specified in the
 # debian control file, we need to make an entry in the debian changelog
@@ -186,15 +181,6 @@ $CHANGE_MSG
 "
 fi
 
-# Checkout debian control files from SVN
-rm -rf control
-mkdir -p control
-cd control
-  svn export -q ${SVNROOT}/tags/${DEBTAG_CORE}/xapian-core xapian-core
-  svn export -q ${SVNROOT}/tags/${DEBTAG_BINDINGS}/xapian-bindings xapian-bindings
-  svn export -q ${SVNROOT}/tags/${DEBTAG_OMEGA}/xapian-omega xapian-omega
-cd ..
-
 # TARGETDIR is the location that all generated files will be stored in.
 if [ -z "$EXTRA_VERSION_UPSTREAM" ] ; then
   TARGETDIR="dists/$COMPONENT/main"
@@ -263,9 +249,12 @@ cd build
   cp -a ${TARBALL_CORE} .
   tar zxf ${TARBALL_CORE}
   cd xapian-core-${SNAP_VERSION}
-    mkdir -p debian
-    cp -af ../../control/xapian-core/* debian/
+    # Checkout debian control files from SVN.
+    svn export -q ${SVNROOT}/tags/${DEBTAG_CORE}/xapian-core debian
     adjust_changelog
+    if [ -r debian/patch ]; then
+      patch -p0 <debian/patch
+    fi
     # Generates control from control.in
     debian/rules COMPONENT=$COMPONENT 
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
@@ -275,8 +264,8 @@ cd build
   cp -a ${TARBALL_BINDINGS} .
   tar zxf ${TARBALL_BINDINGS}
   cd xapian-bindings-${SNAP_VERSION}
-    mkdir -p debian
-    cp -af ../../control/xapian-bindings/* debian/
+    # Checkout debian control files from SVN.
+    svn export -q ${SVNROOT}/tags/${DEBTAG_BINDINGS}/xapian-bindings debian
     adjust_changelog
     if [ -r debian/patch ]; then
       patch -p0 <debian/patch
@@ -291,9 +280,12 @@ cd build
   cp -a ${TARBALL_OMEGA} .
   tar zxf ${TARBALL_OMEGA}
   cd xapian-omega-${SNAP_VERSION}
-    mkdir -p debian
-    cp -af ../../control/xapian-omega/* debian/
+    # Checkout debian control files from SVN.
+    svn export -q ${SVNROOT}/tags/${DEBTAG_OMEGA}/xapian-omega debian
     adjust_changelog
+    if [ -r debian/patch ]; then
+      patch -p0 <debian/patch
+    fi
     # Generates control from control.in
     debian/rules COMPONENT=$COMPONENT 
     fakeroot dpkg-buildpackage ${BUILDPACKAGE_SRC_OPTS}
