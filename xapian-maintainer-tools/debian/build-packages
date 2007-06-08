@@ -45,15 +45,16 @@ shift
 shift
 PACKAGES=${*-"core bindings omega"}
 
-case $DISTRO_ARCH in
-  sarge*) DIR=oldstable ;;
-  etch*) DIR=stable ;;
-  sid*) DIR=unstable ;;
-  *) DIR=`echo "$DISTRO_ARCH"|sed 's/-.*//'` ;;
+DISTRO=`echo "$DISTRO_ARCH"|sed 's/-.*//'` ;;
+case $DISTRO in
+  sarge) DIR=oldstable ;;
+  etch) DIR=stable ;;
+  sid) DIR=unstable ;;
+  *) DIR=$DISTRO ;;
 esac
 
-POOL="pool/$VERSION/binary"
-CHROOT="/chroot/$DISTRO_ARCH"
+POOL=pool/$VERSION/$DISTRO/binary
+CHROOT=/chroot/$DISTRO_ARCH
 
 _C=
 #if [ sid = "$1" ] ; then
@@ -116,14 +117,14 @@ if expr "$PACKAGES" : '.*omega' ; then
 fi
 
 # Detect arch.
-ARCH=`echo pool/"$VERSION"/binary/xapian-core*.changes|sed 's/.*_//;s/\.changes$//'`
+ARCH=`echo "$POOL"/xapian-core*.changes|sed 's/.*_//;s/\.changes$//'`
 ARCHDIR=dists/$DIR/main/binary-$ARCH
 mkdir -p "$ARCHDIR"
 
 find pool -not -name '*.deb' -type f -print|perl -ne 'chomp;unlink'
 
 if [ "core bindings omega" = "$PACKAGES" ] ; then
-  dpkg-scanpackages "pool/$VERSION/binary" /dev/null \
+  dpkg-scanpackages "$POOL" /dev/null \
       | gzip -9 > "$ARCHDIR/Packages.gz"
 else
   echo "*** WARNING : Can't generate new Packages.gz for partial build - FIXME"
@@ -132,8 +133,8 @@ fi
 # Don't remove these so we can support building just a changed omega package...
 # dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get --force-yes -y remove libxapian.\*'
 
-lintian $LINTIAN_FLAGS *.dsc pool/$VERSION/binary/*.deb
-#linda $LINDA_FLAGS *.dsc pool/$VERSION/binary/*.deb
+lintian $LINTIAN_FLAGS *.dsc "$POOL"/*.deb
+#linda $LINDA_FLAGS *.dsc "$POOL"/*.deb
 
 cat <<END > "$ARCHDIR/Release"
 Archive: $DIR
@@ -143,5 +144,5 @@ Label: Xapian
 Architecture: $ARCH
 END
 
-su olly -c "rsync -v -a pool/. ixion.tartarus.org:/usr/data/www/xapian.org/debian-tmp/pool/$ARCH/"
+su olly -c 'rsync -v -a pool/. ixion.tartarus.org:/usr/data/www/xapian.org/debian-tmp/pool/'
 su olly -c 'rsync -v -a dists/. ixion.tartarus.org:/usr/data/www/xapian.org/debian-tmp/dists/'
