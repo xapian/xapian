@@ -68,7 +68,8 @@ try {
     Xapian::MSet matches = enquire.get_mset(0, 10);
 
     // Display the results.
-    cout << matches.get_matches_estimated() << " results found:" << endl;
+    cout << matches.get_matches_estimated() << " results found.\n";
+    cout << "Matches 1-" << matches.size() << ":\n" << endl;
 
     for (Xapian::MSetIterator i = matches.begin(); i != matches.end(); ++i) {
 	cout << i.get_rank() + 1 << ": " << i.get_percent() << "% docid=" << *i
