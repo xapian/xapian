@@ -322,7 +322,6 @@ clean:
 	    rm -rf build-php$$v; \
 	done
 	rm -rf build-tcl-and-ruby
-	debconf-updatepo
 	rm -f config.sub config.guess
 	dh_clean
 	rm -f debian/build-stamp debian/configure-stamp
