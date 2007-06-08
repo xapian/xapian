@@ -333,6 +333,16 @@ static bool test_poscollapse2()
     return true;
 }
 
+// regression test of querying an uninitialised database: should report an
+// error; used to segfault with 1.0.0.
+static bool test_uninitdb1()
+{
+    Xapian::Database db;
+    TEST_EXCEPTION(Xapian::InvalidArgumentError,
+		   Xapian::Enquire enq(db));
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -352,5 +362,6 @@ test_desc nodb_tests[] = {
     {"nosuchdb1",	   test_nosuchdb1},
     {"addvalue1",	   test_addvalue1},
     {"poscollapse2",	   test_poscollapse2},
+    {"uninitdb1",	   test_uninitdb1},
     {0, 0}
 };

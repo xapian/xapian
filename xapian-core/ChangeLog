@@ -1,3 +1,19 @@
+Fri Jun 08 18:46:02 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omenquire.cc: Fix issue brought to my attention by Enrico
+	  Zini: if an uninitialised database is supplied to Enquire,
+	  performing a search will cause a segfualt.  It isn't completely
+	  clear whether using an uninitialised database should cause an 
+	  error, or whether the search should return an empty result list,
+	  but for ease of implementation, and to avoid application errors
+	  going unnoticed, I've made Enquire's constructor report an
+	  InvalidArgumentError if the supplied database is uninitialised.
+	* include/xapian/enquire.h: Document new exception case, and
+	  workaround if you want a search in this situation to return an
+	  empty result set, instead of getting an error.
+	* tests/api_nodb.cc: Regression test for this fix.
+	* AUTHORS: Mention Enrico Zini.
+
 Fri Jun 08 18:33:19 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated.

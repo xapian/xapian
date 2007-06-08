@@ -632,6 +632,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *  opened: you must create a new Xapian::Enquire object to access a
 	 *  different database, or set of databases.
 	 *
+	 *  The database supplied must have been initialised (ie, must not be
+	 *  the result of calling the Database::Database() constructor).  If
+	 *  you need to handle a situation where you have no index gracefully,
+	 *  a database created with InMemory::open() can be passed here,
+	 *  which represents a completely empty database.
+	 *
 	 *  @param database Specification of the database or databases to
 	 *	   use.
 	 *  @param errorhandler_  A pointer to the error handler to use.
@@ -640,6 +646,9 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *	   Xapian::ErrorHandler object after the Xapian::Enquire object
 	 *	   is deleted.  To use no error handler, this parameter
 	 *	   should be 0.
+	 *
+	 *  @exception Xapian::InvalidArgumentError will be thrown if an
+	 *  initialised Database object is supplied.
 	 */
 	explicit Enquire(const Database &database, ErrorHandler * errorhandler_ = 0);
 
