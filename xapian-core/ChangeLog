@@ -1,3 +1,7 @@
+Fri Jun 08 17:09:22 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/Makefile.mk: Distribute common/stringutils.h.
+
 Thu Jun 07 20:44:36 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/unixcmds.cc: It appears we need to create the target

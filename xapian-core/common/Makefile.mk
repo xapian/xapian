@@ -40,6 +40,7 @@ noinst_HEADERS +=\
 	common/serialise-double.h\
 	common/serialise.h\
 	common/stats.h\
+	common/stringutils.h\
 	common/submatch.h\
 	common/tcpclient.h\
 	common/tcpserver.h\
