@@ -1,5 +1,5 @@
 up to:
-Thu Jun 07 20:44:36 BST 2007  Olly Betts <olly@survex.com>
+Fri Jun 08 19:20:36 BST 2007  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.1 (2007-06-0?):
 
@@ -13,6 +13,11 @@ API:
   which allow iterating of all terms with a particular prefix.  This
   is easier to use than checking the end condition yourself, and is
   more efficiently implemented for the remote backend (fixes bug#153).
+
+* Xapian::Enquire: Passing an uninitialised Database object to Enquire will
+  now cause InvalidArgumentError to be thrown, rather than causing a segfault
+  when you call Enquire::get_mset().  If you really want an empty database,
+  you can use Xapian::InMemory::open() to create one.
 
 * Xapian::QueryParser: Multiple boolean prefixed terms with the same term
   prefix are now combined with OR before such groups are combined with AND
