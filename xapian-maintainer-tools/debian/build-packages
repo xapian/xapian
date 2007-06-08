@@ -45,7 +45,7 @@ shift
 shift
 PACKAGES=${*-"core bindings omega"}
 
-DISTRO=`echo "$DISTRO_ARCH"|sed 's/-.*//'` ;;
+DISTRO=`echo "$DISTRO_ARCH"|sed 's/-.*//'`
 case $DISTRO in
   sarge) DIR=oldstable ;;
   etch) DIR=stable ;;
