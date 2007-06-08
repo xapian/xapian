@@ -132,6 +132,7 @@
 %rename("database=") set_database;
 %rename("default_op=") set_default_op;
 %rename("docid_order=") set_docid_order;
+%rename("document=") set_document;
 %rename("query=") set_query(const Query &);
 %rename("query!") set_query(const Query &, termcount qlen);
 %rename("sort_by_relevance!") set_sort_by_relevance;
