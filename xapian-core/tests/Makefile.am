@@ -107,7 +107,19 @@ EXTRA_DIST =\
 	testdata/btreetest_ord+ \
 	testdata/btreetest_ord- \
 	testdata/btreetest_ordnum+ \
-	testdata/btreetest_ordnum-
+	testdata/btreetest_ordnum- \
+	testdata/flint-0.9.9/value.DB \
+	testdata/flint-0.9.9/position.baseA \
+	testdata/flint-0.9.9/flicklock \
+	testdata/flint-0.9.9/value.baseA \
+	testdata/flint-0.9.9/record.baseA \
+	testdata/flint-0.9.9/termlist.DB \
+	testdata/flint-0.9.9/termlist.baseA \
+	testdata/flint-0.9.9/record.DB \
+	testdata/flint-0.9.9/iamflint \
+	testdata/flint-0.9.9/postlist.DB \
+	testdata/flint-0.9.9/position.DB \
+	testdata/flint-0.9.9/postlist.baseA
 
 clean-local:
 	rm -rf .flint .quartz .quartztmp .btreetmp
