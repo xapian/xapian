@@ -1,3 +1,8 @@
+Fri Jun 08 20:40:00 BST 2007  Olly Betts <olly@survex.com>
+
+	* ruby/docs/examples/: Update to use TermGenerator and QueryParser
+	  classes.
+
 Fri Jun 08 20:10:42 BST 2007  Olly Betts <olly@survex.com>
 
 	* ruby/util.i: Add missing rename for TermGenerator::set_document()

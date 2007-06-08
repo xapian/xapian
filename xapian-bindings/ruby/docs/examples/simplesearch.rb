@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 #
-# Simple command-line search program.
+# Simple command-line search script.
 #
-# Originally by Paul Legato (plegato@nks.net), 4/22/06
-# Based on Python's simplesearch.py
+# Originally by Paul Legato (plegato@nks.net), 4/22/06.
+#
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2006 Olly Betts
+# Copyright (C) 2006,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -25,28 +25,39 @@
 require 'xapian'
 
 if ARGV.size < 2
-  $stderr.puts "Usage: #{$0} <path to database> <search terms>"
+  $stderr.puts "Usage: #{$0} PATH_TO_DATABASE QUERY"
   exit 99
 end
 
+# Open the database for searching.
 database = Xapian::Database.new(ARGV[0])
+
+# Start an enquire session.
 enquire = Xapian::Enquire.new(database)
+
+# Combine the rest of the command line arguments with spaces between
+# them, so that simple queries don't have to be quoted at the shell
+# level.
+queryString = ARGV[1..-1].join(' ')
+
+# Parse the query string to produce a Xapian::Query object.
+qp = Xapian::QueryParser.new()
 stemmer = Xapian::Stem.new("english")
-terms = []
-ARGV[1..-1].each {|term|
-  terms.push(stemmer.stem_word(term.downcase))
-}
+qp.stemmer = stemmer
+qp.database = database
+qp.stemming_strategy = Xapian::QueryParser::STEM_SOME
+query = qp.parse_query(queryString)
 
-query = Xapian::Query.new(Xapian::Query::OP_OR, terms)
+puts "Parsed query is: #{query.description()}"
 
-puts "Performing query '#{query.description()}'..."
-
+# Find the top 10 results for the query.
 enquire.query = query
 matchset = enquire.mset(0, 10)
 
-puts "#{matchset.matches_estimated()} results found.\nMatches 1-#{matchset.size}:\n"
+# Display the results.
+puts "#{matchset.matches_estimated()} results found."
+puts "Matches 1-#{matchset.size}:\n"
 
-matchset.matches.each {|match|
-  puts "docid #{match.docid}, weight #{match.weight} (#{match.percent}%), rank #{match.rank}, collapse count #{match.collapse_count}"
-  puts "  Document contents: \n#{match.document.data}\n"
+matchset.matches.each {|m|
+  puts "#{m.rank + 1}: #{m.percent}% docid=#{m.docid} [#{m.document.data}]\n"
 }

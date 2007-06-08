@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 #
-# Simple command-line query expand program
+# Simple example script demonstrating query expansion.
 #
 # Originally by Paul Legato (plegato@nks.net), 4/22/06.
-# Based on simpleexpand.py.
+#
 # Copyright (C) 2006 Networked Knowledge Systems, Inc.
-# Copyright (C) 2006 Olly Betts
+# Copyright (C) 2006,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -25,58 +25,74 @@
 require 'xapian'
 
 if ARGV.size < 2
-  $stderr.puts "Usage: #{$0} <path to database> <search terms> [-- <relevant docids>]"
+  $stderr.puts "Usage: #{$0} PATH_TO_DATABASE QUERY [-- [DOCID...]]"
   exit 99
 end
 
+# Open the database for searching.
 database = Xapian::Database.new(ARGV[0])
-enquire = Xapian::Enquire.new(database)
-stemmer = Xapian::Stem.new("english")
 
-terms = []
+# Start an enquire session.
+enquire = Xapian::Enquire.new(database)
+
+queryString = ''
 relevantDocs = Xapian::RSet.new()
 onDocIdsYet = false
 
-ARGV.each_with_index { |term,index|
+# Combine the rest of the command line arguments with spaces between
+# them, so that simple queries don't have to be quoted at the shell
+# level.
+ARGV.each_with_index { |arg,index|
   next if index == 0 # skip path to db
 
-  if term == '--'
+  if arg == '--'
     onDocIdsYet = true
     next
   end
 
-  onDocIdsYet ?  relevantDocs.add_document(term.to_i) : terms.push(term)
+  if onDocIdsYet
+    relevantDocs.add_document(arg.to_i)
+  else
+    queryString += ' ' unless queryString.empty?
+    queryString += arg
+  end
 }
 
-query = Xapian::Query.new(Xapian::Query::OP_OR, terms)
+
+# Parse the query string to produce a Xapian::Query object.
+qp = Xapian::QueryParser.new()
+stemmer = Xapian::Stem.new("english")
+qp.stemmer = stemmer
+qp.database = database
+qp.stemming_strategy = Xapian::QueryParser::STEM_SOME
+query = qp.parse_query(queryString)
 
 unless query.empty?
-  puts "Performing query #{query.description()} against rset #{relevantDocs.description}..."
+  puts "Parsed query is: #{query.description()}"
 
+  # Find the top 10 results for the query.
   enquire.query = query
   matchset = enquire.mset(0, 10, relevantDocs)
 
+  # Display the results.
   puts "#{matchset.matches_estimated()} results found."
-  matchset.matches.each {|match|
-    puts "\n - #{match.to_s}: weight #{match.weight} (#{match.percent}%), rank #{match.rank}, collapse count #{match.collapse_count}, docid #{match.docid}"
-    puts "  Document contents: \n#{match.document.data}\n"
+  puts "Matches 1-#{matchset.size}:\n"
+
+  matchset.matches.each {|m|
+    puts "#{m.rank + 1}: #{m.percent}% docid=#{m.docid} [#{m.document.data}]\n"
   }
+end
   
-  # Put the top 5 (at most) docs into the rset if rset is empty
-  if relevantDocs.empty?
-    matchset.matches[0..4].each {|match|
-      relevantDocs.add_document(match.docid())
-    }
-  end
-
-  # Get the suggested expand terms
-  expandTerms = enquire.eset(10, relevantDocs)
-  puts "#{expandTerms.size()} suggested additional terms:"
-  expandTerms.terms.each {|term|
-    puts "  * Term \"#{term.name}\", weight #{term.weight}"
+# Put the top 5 (at most) docs into the rset if rset is empty
+if relevantDocs.empty?
+  matchset.matches[0..4].each {|match|
+    relevantDocs.add_document(match.docid())
   }
+end
 
-end # unless query.empty?
-
-puts "\n * All done.\n"
-
+# Get the suggested expand terms
+expandTerms = enquire.eset(10, relevantDocs)
+puts "#{expandTerms.size()} suggested additional terms:"
+expandTerms.terms.each {|term|
+  puts "  * Term \"#{term.name}\", weight #{term.weight}"
+}
