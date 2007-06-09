@@ -25,7 +25,6 @@
 #include "queryparser_internal.h"
 #include <xapian/unicode.h>
 #include "utils.h"
-#include "autoptr.h"
 
 // Include the list of token values lemon generates.
 #include "queryparser_token.h"
@@ -142,7 +141,7 @@ class Term {
 	: name(name_), prefix(prefix_), stem(false), pos(0) { }
     Term(termpos pos_) : stem(false), pos(pos_) { }
     Term(State * state_, const string &name_, const string &prefix_,
-	 const string &unstemmed_, bool stem_, termpos pos_)
+	 const string &unstemmed_, bool stem_ = false, termpos pos_ = 0)
 	: state(state_), name(name_), prefix(prefix_), unstemmed(unstemmed_),
 	  stem(stem_), pos(pos_) { }
 
@@ -645,11 +644,11 @@ main_lex_loop:
 			string name;
 			while (it != end && *it > ' ' && *it != ')')
 			    Unicode::append_utf8(name, *it++);
-			AutoPtr<Term> term(new Term(name, prefix));
+			// Build the unstemmed form in field.
 			field += ':';
 			field += name;
-			unstem.insert(make_pair(term->make_term(), field));
-			Parse(pParser, BOOLEAN_FILTER, term.release(), &state);
+			Parse(pParser, BOOLEAN_FILTER,
+			      new Term(&state, name, prefix, field), &state);
 			continue;
 		    }
 
