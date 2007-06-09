@@ -50,7 +50,6 @@ BUILDPACKAGE_SRC_OPTS="-us -uc -d -S"
 # Location to place the generated apt repository
 PUBDIR="/usr/data/www/xapian.org/debian-tmp"
 
-
 ## Items after this point should not normally need to be modified
 
 # Location to checkout source from.
@@ -183,12 +182,12 @@ fi
 
 # TARGETDIR is the location that all generated files will be stored in.
 if [ -z "$EXTRA_VERSION_UPSTREAM" ] ; then
-  TARGETDIR="dists/$COMPONENT/main"
+  TARGETDIR=dists/${COMPONENT}/main
 else
-  TARGETDIR="dists/$COMPONENT/snapshot"
+  TARGETDIR=dists/${COMPONENT}/snapshot
 fi
-SRCDIR="$TARGETDIR/source"
-POOLDIR="pool/$VERSION"
+SRCDIR=${TARGETDIR}/source
+POOLDIR=pool/${VERSION}/${COMPONENT}
 mkdir -p "$PUBDIR/$SRCDIR"
 
 # Calculate location that tarballs should be found at
