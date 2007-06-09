@@ -31,8 +31,6 @@
 #include <vector>
 
 #include <sys/types.h>
-#include <dirent.h>
-#include "safesysstat.h"
 #include "safeunistd.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,6 +42,7 @@
 #include <xapian.h>
 
 #include "commonhelp.h"
+#include "diritor.h"
 #include "hashterm.h"
 #include "loadfile.h"
 #include "md5wrap.h"
@@ -536,78 +535,70 @@ static void
 index_directory(size_t depth_limit, const string &dir,
 		map<string, string>& mime_map)
 {
-    struct dirent *ent;
     string path = root + indexroot + dir;
 
     cout << "[Entering directory " << dir << "]" << endl;
 
-    DIR *d = opendir(path.c_str());
-    if (d == NULL) {
-	cout << "Can't open directory \"" << path << "\" - skipping\n";
+    DirectoryIterator d(follow_symlinks);
+    try {
+	d.start(path);
+    } catch (const std::string & error) {
+	cout << error << " - skipping" << endl;
 	return;
     }
-    while ((ent = readdir(d)) != NULL) {
-	struct stat statbuf;
-	// ".", "..", and other hidden files
-	if (ent->d_name[0] == '.') continue;
+    while (d.next()) try {
 	string url = dir;
 	if (!url.empty() && url[url.size() - 1] != '/') url += '/';
-	url += ent->d_name;
+	url += d.leafname();
 	string file = root + indexroot + url;
-#ifdef HAVE_LSTAT
-	if (follow_symlinks) {
-#endif
-	    if (stat(file.c_str(), &statbuf) == -1) {
-		cout << "Can't stat \"" << file << "\" - skipping\n";
-		continue;
-	    }
-#ifdef HAVE_LSTAT
-	} else {
-	    if (lstat(file.c_str(), &statbuf) == -1) {
-		cout << "Can't stat \"" << file << "\" - skipping\n";
-		continue;
-	    }
-	}
-#endif
-	if (S_ISDIR(statbuf.st_mode)) {
-	    if (depth_limit == 1) continue;
-	    try {
-		size_t new_limit = depth_limit;
-		if (new_limit) --new_limit;
-		index_directory(new_limit, url, mime_map);
-	    } catch (...) {
-		cout << "Caught unknown exception in index_directory, rethrowing" << endl;
-		throw;
-	    }
-	    continue;
-	}
-	if (S_ISREG(statbuf.st_mode)) {
-	    if (statbuf.st_size == 0) {
-		cout << "Skipping empty file: \"" << file << "\"" << endl;
-		continue;
-	    }
-	    string ext;
-	    string::size_type dot = url.find_last_of('.');
-	    if (dot != string::npos) ext = url.substr(dot + 1);
-
-	    map<string,string>::iterator mt = mime_map.find(ext);
-	    if (mt != mime_map.end()) {
-		// It's in our MIME map so we know how to index it.
-		const string & mimetype = mt->second;
+	switch (d.get_type()) {
+	    case DirectoryIterator::DIRECTORY:
+		if (depth_limit == 1) continue;
 		try {
-		    index_file(indexroot + url, mimetype, statbuf.st_mtime,
-			       statbuf.st_size);
-		} catch (NoSuchFilter) {
-		    // FIXME: we ought to ignore by mime-type not extension.
-		    cout << "Filter for \"" << mimetype << "\" not installed - ignoring extension \"" << ext << "\"" << endl;
-		    mime_map.erase(mt);
+		    size_t new_limit = depth_limit;
+		    if (new_limit) --new_limit;
+		    index_directory(new_limit, url, mime_map);
+		} catch (...) {
+		    cout << "Caught unknown exception in index_directory, rethrowing" << endl;
+		    throw;
 		}
+		continue;
+	    case DirectoryIterator::REGULAR_FILE: {
+		string ext;
+		string::size_type dot = url.find_last_of('.');
+		if (dot != string::npos) ext = url.substr(dot + 1);
+
+		map<string,string>::iterator mt = mime_map.find(ext);
+		if (mt != mime_map.end()) {
+		    // Only check the file size if we recognise the extension
+		    // to avoid a call to stat()/lstat() for files we can't
+		    // handle when readdir() tells us the file type.
+		    off_t size = d.get_size();
+		    if (size == 0) {
+			cout << "Skipping empty file: \"" << file << "\"" << endl;
+			continue;
+		    }
+
+		    // It's in our MIME map so we know how to index it.
+		    const string & mimetype = mt->second;
+		    try {
+			time_t mtime = d.get_mtime();
+			index_file(indexroot + url, mimetype, mtime, size);
+		    } catch (NoSuchFilter) {
+			// FIXME: we ought to ignore by mime-type not extension.
+			cout << "Filter for \"" << mimetype << "\" not installed - ignoring extension \"" << ext << "\"" << endl;
+			mime_map.erase(mt);
+		    }
+		}
+		continue;
 	    }
-	    continue;
+	    default:
+		cout << "Not a regular file \"" << file << "\" - skipping\n";
 	}
-	cout << "Not a regular file \"" << file << "\" - skipping\n";
+    } catch (const std::string & error) {
+	cout << error << " - skipping" << endl;
+	continue;
     }
-    closedir(d);
 }
 
 int
