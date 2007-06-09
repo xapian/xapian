@@ -187,8 +187,15 @@ else
   TARGETDIR=dists/${COMPONENT}/snapshot
 fi
 SRCDIR=${TARGETDIR}/source
-POOLDIR=pool/${VERSION}/${COMPONENT}
 mkdir -p "$PUBDIR/$SRCDIR"
+
+case $COMPONENT in
+  sarge) DIR=oldstable ;;
+  etch) DIR=stable ;;
+  sid) DIR=unstable ;;
+  *) DIR=$COMPONENT ;;
+esac
+POOLDIR=pool/${VERSION}/${DIR}
 
 # Calculate location that tarballs should be found at
 TARBALL_CORE="${PUBDIR}/${POOLDIR}/source/xapian-core_${SNAP_VERSION}.orig.tar.gz"
