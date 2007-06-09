@@ -366,8 +366,94 @@ static yyParser *ParseAlloc();
 static void ParseFree(yyParser *);
 static void Parse(yyParser *, int, Term *, State *);
 
+string
+QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
+				  bool &was_acronym)
+{
+    string term;
+    // Look for initials separated by '.' (e.g. P.T.O., U.N.C.L.E).
+    // Don't worry if there's a trailing '.' or not.
+    if (U_isupper(*it)) {
+	string t;
+	Utf8Iterator p = it;
+	do {
+	    Unicode::append_utf8(t, *p++);
+	} while (p != end && *p == '.' && ++p != end && U_isupper(*p));
+	// One letter does not make an acronym!  If we handled a single
+	// uppercase letter here, we wouldn't catch M&S below.
+	if (t.length() > 1) {
+	    // Check there's not a (lower case) letter or digit
+	    // immediately after it.
+	    // FIXME: should I.B.M..P.T.O be a range search?
+	    if (p == end || !is_wordchar(*p)) {
+		it = p;
+		swap(term, t);
+	    }
+	}
+    }
+    was_acronym = !term.empty();
+
+    if (term.empty()) {
+	unsigned prevch = *it;
+	Unicode::append_utf8(term, prevch);
+	while (++it != end) {
+	    unsigned ch = *it;
+	    if (!is_wordchar(ch)) {
+		// Treat a single embedded '&' or "'" or similar as a word
+		// character (e.g. AT&T, Fred's).  Also, normalise
+		// apostrophes to ASCII apostrophe.
+		Utf8Iterator p = it;
+		++p;
+		if (p == end || !is_wordchar(*p)) break;
+		unsigned nextch = *p;
+		if (is_digit(prevch) &&
+		    is_digit(nextch)) {
+		    ch = check_infix_digit(ch);
+		} else {
+		    ch = check_infix(ch);
+		}
+		if (!ch) break;
+	    }
+	    Unicode::append_utf8(term, ch);
+	    prevch = ch;
+	}
+	if (it != end && is_suffix(*it)) {
+	    string suff_term = term;
+	    Utf8Iterator p = it;
+	    // Keep trailing + (e.g. C++, Na+) or # (e.g. C#).
+	    do {
+		if (suff_term.size() - term.size() == 3) {
+		    suff_term.resize(0);
+		    break;
+		}
+		suff_term += *p;
+	    } while (is_suffix(*++p));
+	    if (!suff_term.empty() && (p == end || !is_wordchar(*p))) {
+		// If the suffixed term doesn't exist, check that the
+		// non-suffixed term does.  This also takes care of
+		// the case when QueryParser::set_database() hasn't
+		// been called.
+		bool use_suff_term = false;
+		string lc = Unicode::tolower(suff_term);
+		if (db.term_exists(lc)) {
+		    use_suff_term = true;
+		} else {
+		    lc = Unicode::tolower(term);
+		    if (!db.term_exists(lc)) use_suff_term = true;
+		}
+		if (use_suff_term) {
+		    term = suff_term;
+		    it = p;
+		}
+	    }
+	}
+    }
+    return term;
+}
+
 Query
-QueryParser::Internal::parse_query(const string &qs, unsigned flags, const string &default_prefix)
+QueryParser::Internal::parse_query(const string &qs, unsigned flags,
+				   const string &default_prefix)
 {
     yyParser * pParser = ParseAlloc();
 
@@ -603,84 +689,8 @@ main_lex_loop:
 	}
 
 phrased_term:
-	string term;
-	// Look for initials separated by '.' (e.g. P.T.O., U.N.C.L.E).
-	// Don't worry if there's a trailing '.' or not.
-	if (U_isupper(*it)) {
-	    string t;
-	    Utf8Iterator p = it;
-	    do {
-		Unicode::append_utf8(t, *p++);
-	    } while (p != end && *p == '.' && ++p != end && U_isupper(*p));
-	    // One letter does not make an acronym!  If we handled a single
-	    // uppercase letter here, we wouldn't catch M&S below.
-	    if (t.length() > 1) {
-		// Check there's not a (lower case) letter or digit
-		// immediately after it.
-		// FIXME: should I.B.M..P.T.O be a range search?
-		if (p == end || !is_wordchar(*p)) {
-		    it = p;
-		    swap(term, t);
-		}
-	    }
-	}
-	bool was_acronym = !term.empty();
-
-	if (term.empty()) {
-	    unsigned prevch = *it;
-	    Unicode::append_utf8(term, prevch);
-	    while (++it != end) {
-		unsigned ch = *it;
-		if (!is_wordchar(ch)) {
-		    // Treat a single embedded '&' or "'" or similar as a word
-		    // character (e.g. AT&T, Fred's).  Also, normalise
-		    // apostrophes to ASCII apostrophe.
-		    Utf8Iterator p = it;
-		    ++p;
-		    if (p == end || !is_wordchar(*p)) break;
-		    unsigned nextch = *p;
-		    if (is_digit(prevch) &&
-			is_digit(nextch)) {
-			ch = check_infix_digit(ch);
-		    } else {
-			ch = check_infix(ch);
-		    }
-		    if (!ch) break;
-		}
-		Unicode::append_utf8(term, ch);
-		prevch = ch;
-	    }
-	    if (it != end && is_suffix(*it)) {
-		string suff_term = term;
-		Utf8Iterator p = it;
-		// Keep trailing + (e.g. C++, Na+) or # (e.g. C#).
-		do {
-		    if (suff_term.size() - term.size() == 3) {
-			suff_term.resize(0);
-			break;
-		    }
-		    suff_term += *p;
-		} while (is_suffix(*++p));
-		if (!suff_term.empty() && (p == end || !is_wordchar(*p))) {
-		    // If the suffixed term doesn't exist, check that the
-		    // non-suffixed term does.  This also takes care of
-		    // the case when QueryParser::set_database() hasn't
-		    // been called.
-		    bool use_suff_term = false;
-		    string lc = Unicode::tolower(suff_term);
-		    if (db.term_exists(lc)) {
-			use_suff_term = true;
-		    } else {
-			lc = Unicode::tolower(term);
-			if (!db.term_exists(lc)) use_suff_term = true;
-		    }
-		    if (use_suff_term) {
-			term = suff_term;
-			it = p;
-		    }
-		}
-	    }
-	}
+	bool was_acronym;
+	string term = parse_term(it, end, was_acronym);
 
 	// Boolean operators.
 	if (mode == DEFAULT && (flags & FLAG_BOOLEAN) &&
@@ -762,7 +772,8 @@ phrased_term:
 		(stem_action == STEM_SOME && !should_stem(unstemmed_term)) ||
 		(it != end && is_stem_preventer(*it));
 
-	    Term * term_obj = new Term(&state, term, prefix, unstemmed_term, !dont_stem, term_pos++);
+	    Term * term_obj = new Term(&state, term, prefix, unstemmed_term,
+				       !dont_stem, term_pos++);
 	    if (mode == IN_PHRASED_TERM) {
 		Parse(pParser, PHR_TERM, term_obj, &state);
 	    } else {

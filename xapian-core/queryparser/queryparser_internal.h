@@ -45,15 +45,19 @@ struct PrefixInfo {
     PrefixInfo(PrefixInfo::prefix_type t, const string &s) : type(t), str(s) { }
 };
 
-class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
-    friend class Xapian::QueryParser;
+namespace Xapian {
+
+class Utf8Iterator;
+
+class QueryParser::Internal : public Xapian::Internal::RefCntBase {
+    friend class QueryParser;
     friend class ::State;
-    Xapian::Stem stemmer;
+    Stem stemmer;
     stem_strategy stem_action;
-    const Xapian::Stopper * stopper;
-    Xapian::Query::op default_op;
+    const Stopper * stopper;
+    Query::op default_op;
     const char * errmsg;
-    Xapian::Database db;
+    Database db;
     list<string> stoplist;
     multimap<string, string> unstem;
 
@@ -61,12 +65,17 @@ class Xapian::QueryParser::Internal : public Xapian::Internal::RefCntBase {
     // "foobar" -> "XFOO"
     map<string, PrefixInfo> prefixes;
 
-    list<Xapian::ValueRangeProcessor *> valrangeprocs;
+    list<ValueRangeProcessor *> valrangeprocs;
+
+    std::string parse_term(Utf8Iterator &it, const Utf8Iterator &end,
+			   bool &was_acronym);
 
   public:
     Internal() : stem_action(STEM_NONE), stopper(NULL),
-	default_op(Xapian::Query::OP_OR), errmsg(NULL) { }
-    Xapian::Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
+	default_op(Query::OP_OR), errmsg(NULL) { }
+    Query parse_query(const string & query_string, unsigned int flags, const string & default_prefix);
 };
+
+}
 
 #endif // XAPIAN_INCLUDED_QUERYPARSER_INTERNAL_H
