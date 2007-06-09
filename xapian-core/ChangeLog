@@ -1,3 +1,8 @@
+Sat Jun 09 17:27:55 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Replace reference to Xapian "1.0" with
+	  "1.0.0".
+
 Sat Jun 09 17:12:44 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony,queryparser/queryparser_internal.h:
