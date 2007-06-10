@@ -22,6 +22,11 @@ indexers:
 
 * omindex:
 
+  + Under Linux (at least) struct dirent can tell us the type of a directory
+    entry for some filing systems, so make use of this to avoid calling stat()
+    (or lstat()) unnecessarily - when indexing /usr/share/doc on my Linux
+    box, this saves about 14000 explicit calls to stat (leaving about 7000).
+
 * scriptindex:
 
 omega:
