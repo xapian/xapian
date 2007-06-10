@@ -1,3 +1,8 @@
+Sun Jun 10 21:59:21 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING,configure.ac: Drop automake requirement to 1.8.3 to allow
+	  RPM spec file to work on SLES 9.
+
 Sun Jun 10 21:48:51 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Bump version to 1.0.1 and LIBRARY_VERSION_INFO to
