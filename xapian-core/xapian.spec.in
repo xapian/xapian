@@ -1,6 +1,9 @@
 # RedHat-style .spec file for Xapian
 # @configure_input@
 
+# Tell SuSE's build scripts not to build as root:
+# norootforbuild
+
 Summary: The Xapian Probabilistic Information Retrieval Library
 Name: @PACKAGE@
 Version: @VERSION@
@@ -10,8 +13,8 @@ Vendor: www.xapian.org
 Group: Applications/Databases
 URL: http://www.xapian.org/
 Requires: %{name}-libs = %{version}
-Source0: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
-BuildRequires: autoconf automake libtool
+Source: http://www.oligarchy.co.uk/xapian/%{version}/%{name}-%{version}.tar.gz
+BuildRequires: autoconf automake libtool gcc-c++ zlib-devel
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
