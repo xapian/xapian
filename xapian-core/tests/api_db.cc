@@ -743,6 +743,9 @@ static bool test_allterms6()
     ati++;
     TEST(ati == db.allterms_end("f"));
 
+    ati = db.allterms_begin("absent");
+    TEST(ati == db.allterms_end("absent"));
+
     return true;
 }
 

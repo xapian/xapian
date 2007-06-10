@@ -1,3 +1,7 @@
+Sun Jun 10 13:33:21 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: New testcase in allterms6.
+
 Sun Jun 10 13:20:37 BST 2007  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: Add special case check for host_os matching linux*
