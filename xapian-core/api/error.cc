@@ -35,57 +35,44 @@
 
 #include <xapian/error.h>
 
+#include "utils.h" // For om_tostring().
+
 using namespace std;
 
 Xapian::Error::Error(const std::string &msg_, const std::string &context_,
 		     const char * type_, const char * error_string_)
     : msg(msg_), context(context_), type(type_), my_errno(0),
-      error_string(NULL), already_handled(false)
+      error_string(), already_handled(false)
 {
-    if (error_string_) {
-	error_string = strdup(error_string_);
-	if (!error_string) throw bad_alloc();
-    }
-}
-
-Xapian::Error::~Error()
-{
-#ifdef __WIN32__
-    if (my_errno < 0) {
-	LocalFree(error_string);
-	return;
-    }
-#endif
-    free(error_string);
+    if (error_string_) error_string.assign(error_string_);
 }
 
 const char *
 Xapian::Error::get_error_string() const
 {
-    if (error_string) return error_string;
+    if (!error_string.empty()) return error_string.c_str();
     if (my_errno == 0) return NULL;
     if (my_errno > 0) {
-	error_string = strdup(strerror(my_errno));
-	if (!error_string) throw bad_alloc();
-	return error_string;
+	error_string.assign(strerror(my_errno));
+	return error_string.c_str();
     }
 #ifdef __WIN32__
     DWORD len;
+    char * error;
     len = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
-			0, -my_errno, 0, (CHAR*)&error_string, 0, 0);
-    if (error_string) {
+			0, -my_errno, 0, (CHAR*)&error, 0, 0);
+    if (error) {
 	// Remove any trailing \r\n from output of FormatMessage.
-	if (len >= 2 &&
-	    error_string[len - 2] == '\r' && error_string[len - 1] == '\n')
+	if (len >= 2 && error[len - 2] == '\r' && error[len - 1] == '\n')
 	    len -= 2;
-	error_string[len] = '\0';
-	return error_string;
+	error_string.assign(error, len);
+	LocalFree(error);
+	return error_string.c_str();
     }
 #else
 # ifdef HAVE_HSTRERROR
-    error_string = strdup(hstrerror(-my_errno));
-    if (!error_string) throw bad_alloc();
-    return error_string;
+    error_string.assign(hstrerror(-my_errno));
+    return error_string.c_str();
 # else
     const char * s = NULL;
     switch (-my_errno) {
@@ -106,18 +93,16 @@ Xapian::Error::get_error_string() const
 	    break;
     }
     if (s) {
-	error_string = strdup(s);
-	if (!error_string) throw bad_alloc();
-	return error_string;
+	error_string.assign(s);
+	return error_string.c_str();
     }
 # endif
 #endif
 
 #ifndef HAVE_HSTRERROR
-    error_string = (char *)malloc(32);
-    if (!error_string) throw bad_alloc();
-    sprintf(error_string, "Unknown Error %d", -my_errno);
-    return error_string;
+    error_string = "Unknown Error ";
+    error_string += om_tostring(-my_errno);
+    return error_string.c_str();
 #endif
 }
 
@@ -132,9 +117,10 @@ Xapian::Error::get_description() const
 	desc += context;
 	desc += ')';
     }
-    if (error_string) {
+    const char *e = get_error_string();
+    if (e) {
 	desc += " (";
-	desc += error_string;
+	desc += e;
 	desc += ')';
     }
     return desc;

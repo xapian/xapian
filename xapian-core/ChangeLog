@@ -1,3 +1,11 @@
+Sun Jun 10 18:01:19 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/error.cc,generate-exceptions.in: Make Error::error_string member
+	  std::string rather than char * to avoid problems with double free()
+	  with copied Error objects.  Also, Error::get_description() now
+	  converts my_errno to error_string if it hasn't been already.
+	* tests/internaltest.cc: Add regression tests for both bugs.
+
 Sun Jun 10 13:33:21 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: New testcase in allterms6.

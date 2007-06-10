@@ -94,7 +94,7 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
      *
      *  This string is generated from my_errno lazily.
      */
-    mutable char * error_string;
+    mutable std::string error_string;
 
     /// True if this error has already been passed to an ErrorHandler.
     bool already_handled;
@@ -115,12 +115,9 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
     Error(const std::string &msg_, const std::string &context_,
 	  const char * type_, int errno_)
 	: msg(msg_), context(context_), type(type_), my_errno(errno_),
-	  error_string(0), already_handled(false) { }
+	  error_string(), already_handled(false) { }
 
   public:
-    /// Destructor.
-    ~Error();
-
     /// The type of this error (e.g. "DocNotFoundError".)
     const char * get_type() const { return type; }
 

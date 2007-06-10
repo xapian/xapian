@@ -468,6 +468,10 @@ static bool test_serialiseerror1()
 {
     string enoent_msg(strerror(ENOENT));
     Xapian::DatabaseOpeningError e("Failed to open database", ENOENT);
+    // Regression test for bug in 1.0.0 - it didn't convert errno values for
+    // get_description() if they hadn't already been converted.
+    TEST_STRINGS_EQUAL(e.get_description(), "DatabaseOpeningError: Failed to open database (" + enoent_msg + ")");
+
     TEST_EQUAL(e.get_errno(), ENOENT);
     TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
 
@@ -486,6 +490,17 @@ static bool test_serialiseerror1()
 	threw = true;
     }
     TEST(threw);
+
+    // Check that the original is still OK.
+    TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
+
+    // Check that the original is still OK.
+    TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
+
+    // Regression test - in 1.0.0, copying used to duplicate the error_string
+    // pointer, resulting in double calls to free().
+    Xapian::DatabaseOpeningError ecopy(e);
+    TEST_STRINGS_EQUAL(ecopy.get_error_string(), enoent_msg);
 
     return true;
 }
