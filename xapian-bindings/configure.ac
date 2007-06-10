@@ -8,8 +8,8 @@ dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
 AC_INIT(xapian-bindings, 1.0.1)dnl FIXME: bugreport addr as third argument
 dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
-dnl But the RPM spec file runs autoreconf, and RHEL 4 has 1.9.2.
-AM_INIT_AUTOMAKE([1.9.2 -Wportability])
+dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
+AM_INIT_AUTOMAKE([1.8.3 -Wportability])
 
 AC_CONFIG_SRCDIR(xapian.i)
 
