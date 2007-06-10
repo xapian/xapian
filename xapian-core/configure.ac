@@ -8,7 +8,7 @@ dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT(xapian-core, 1.0.0)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-core, 1.0.1)dnl FIXME: bugreport addr as third argument
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -63,7 +63,8 @@ dnl 13:0:0 0.9.8 No API changes (failed to bump revision)
 dnl 13:1:0 0.9.9 No API changes
 dnl 13:2:0 0.9.10 No API changes
 dnl 14:0:0 1.0.0 Numerous API changes
-LIBRARY_VERSION_INFO=14:0:0
+dnl 15:0:0 1.0.1 Error::error_string changed type
+LIBRARY_VERSION_INFO=15:0:0
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Check the build directory doesn't contain a space, so we die early with
@@ -165,7 +166,7 @@ AC_PROG_CXX
 dnl For reasons which are beyond me, if autoconf can't find a C++ compiler
 dnl it will set CXX to g++ (which obviously won't work) rather than actually
 dnl telling the user that it couldn't find a C++ compiler and telling them
-dnl to install one or set CXX if there's one configure failed to find.
+dnl to either install one or set CXX if there's one configure failed to find.
 dnl It's probably worthwhile checking that the C++ compiler actually works
 dnl anyway!
 if test -n "$CXX" ; then
