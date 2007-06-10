@@ -198,11 +198,19 @@ while [ 0 != "$#" ] ; do
 	set_F_to_extra_ldflags
 	set_L_to_library_path
 	D=
-	# Only pull in dependency_libs if libtool would.
-	if [ no != "@link_all_deplibs_CXX@" ]; then
-	    extract_dependency_libs "@libdir@/libxapian.la"
-	    [ -n "$dependency_libs" ] && D=" $dependency_libs"
-	fi
+	case "@host_os@" in
+	linux* | k*bsd*-gnu)
+	    # We don't need dependency_libs, but upstream libtool doesn't know this
+	    # yet.
+	    ;;
+	*)
+	    # Only pull in dependency_libs if libtool would.
+	    if [ no != "@link_all_deplibs_CXX@" ]; then
+		extract_dependency_libs "@libdir@/libxapian.la"
+		[ -n "$dependency_libs" ] && D=" $dependency_libs"
+	    fi
+	    ;;
+	esac
 	echo "$F$L-lxapian$D"
 	;;
 
@@ -221,14 +229,23 @@ while [ 0 != "$#" ] ; do
 	    continue
 	fi
 
-	# If libtool wouldn't pull in dependency_libs, we can cope with letting
-	# libtool link without the .la file (some Linux distros have an
-	# unhelpful policy of not packaging .la files, and on Linux
-	# link_all_deplibs_CXX=no).
-	if [ no != "@link_all_deplibs_CXX@" ]; then
-	    echo "$0: Can't find libxapian.la to link against." 1>&2
-	    exit 1
-	fi
+	# If we need to pull in dependency_libs, we need libxapian.la.  Otherwise
+	# we can cope with out it, which is useful as some Linux distros have an
+	# unhelpful policy of not packaging .la files.
+	case "@host_os@" in
+	linux* | k*bsd*-gnu)
+	    # We don't need dependency_libs, but upstream libtool doesn't know this
+	    # yet.
+	    ;;
+	*)
+	    # If libtool wouldn't pull in dependency_libs, we can cope with letting
+	    # libtool link without the .la file.
+	    if [ no != "@link_all_deplibs_CXX@" ]; then
+		echo "$0: Can't find libxapian.la to link against." 1>&2
+		exit 1
+	    fi
+	    ;;
+	esac
 	set_L_to_library_path
 	echo "$F$L-lxapian"
 	;;
