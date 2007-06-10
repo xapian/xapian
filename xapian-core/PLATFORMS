@@ -14,7 +14,7 @@ below for more information).
 Linux), as are both big and little endian platforms.  Any sane Linux
 distribution should work, and we regularly test build on several.
 
-Additionally, Xapian can be built on Microsoft Windows using Cygwin or mingw
+Additionally, Xapian can be built on Microsoft Windows using Cygwin or Mingw
 GCC, or with MSVC.
 
 We have automated builds on all the platforms we can get access to, and users
@@ -42,12 +42,12 @@ Two notes about GCC 2.95:
 
 Arch  | Platform                       |Version|Status| Notes / requirements
 ------+--------------------------------+-------+------+------------------------
-x86   |&Linux 2.2 Debian 3.1 GCC 2.95.4| 1.0.0 |Passed|
+x86   |&Linux 2.2 Debian 3.1 GCC 2.95.4| 1.0.1 |Passed|
 x86   |#Linux 2.2 Debian 3.1 GCC 3.0.4 | 0.9.9 |Passed|
-x86   |&Linux 2.2 Debian 3.1 GCC 3.3.5 | 1.0.0 |Passed|
+x86   |&Linux 2.2 Debian 3.1 GCC 3.3.5 | 1.0.1 |Passed|
 x86   |=Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.9.9 |Passed| (td140)
 x86   |*Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.9.9 |Passed| (was x86-linux1)
-x86   |&Linux 2.2 Debian 3.1 GCC 3.4.4 | 1.0.0 |Passed|
+x86   |&Linux 2.2 Debian 3.1 GCC 3.4.4 | 1.0.1 |Passed|
 x86   |$Linux 2.6 Debian sid GCC 3.3.6 | 0.9.6 |Passed|
 x86   |$Linux 2.6 Debian sid GCC 3.4.6 | 0.9.6 |Passed|
 x86   |$Linux 2.6 Debian sid GCC 4.0.4 | 0.9.6 |Passed|
@@ -60,7 +60,7 @@ x86   |#Linux 2.4 RHEL ES3 IntelC++ 8.1| 0.9.2 |Passed| (was td141)
 x86   |#Linux 2.6 RHEL AS4 GCC 3.2.3   | 0.9.9 |Passed| (was td163,185)
 x86   |#Linux 2.6 RHEL AS4 GCC 3.4.6   | 0.9.9 |Passed| (was td163,185)
 x86   |#Linux 2.6 RHEL AS4 GCC 4.0.2   | 0.9.6 |Passed| (was td163,185)
-x86   |=Linux 2.6 RHELServer5 GCC 4.1.1|~1.0.1 |Passed| (td185)
+x86   |=Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.1 |Passed| (td185)
 x86   |#Linux 2.6 RHEL AS4 IntelC++ 8.1| 0.9.7 |Passed| (was td163,185)
 x86   |#Linux 2.6 RHEL AS4 IntelC++ 9.0| 0.9.7 |Passed| (was td163,185)
 x86   |#Linux 2.6 RHEL AS4 IntelC++ 9.1| 0.9.9 |Passed| (was td163,185)
@@ -78,13 +78,13 @@ x86   |#Linux 2.6 SuSE 9 GCC 3.3.3     | 0.9.6 |Passed| (was td162)
 x86   |#Linux 2.6 SuSE 9 GCC 3.4.1     |~0.9.0 |Passed| (was td186)
 x86   |#Linux 2.6 SuSE 9 IntelC++ 8.1  | 0.9.3 |Passed| (was td162)
 x86   |#Linux 2.6 SuSE 9 IntelC++ 9.0  | 0.9.3 |Passed| (was td162)
-x86   |=Linux 2.6 SuSE 10 GCC 4.1.0    |~1.0.1 |Passed| (td186)
-x86   |=Linux 2.6 SuSE 10 IntelC++ 9.1 |~1.0.1 |Passed| (td186)
+x86   |=Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.1 |Passed| (td186)
+x86   |=Linux 2.6 SuSE 10 IntelC++ 9.1 | 1.0.1 |Passed| (td186)
 x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.9.2 |Passed|
 x86   |!FreeBSD 4.8 GCC 3.2.3          | 0.9.2 |Passed|
 x86   |*FreeBSD 4.10 GCC 2.95.4        | 0.9.2 |Passed| (was x86-freebsd1)
 x86   |*FreeBSD 5.4 GCC 3.4.2          | 0.9.8 |Passed| (was x86-freebsd1)
-x86   |=FreeBSD 6.2 GCC 3.4.6          |~1.0.1 |Passed| (td152)
+x86   |=FreeBSD 6.2 GCC 3.4.6          | 1.0.1 |Passed| (td152)
 x86   |:kFreeBSD 6.1 Debian GCC 4.1.2  | 0.9.9 |Passed| core testsuite not run
 x86   |*NetBSD 1.6.1 GCC 2.95.3        | 0.9.0 |Passed| (was x86-netbsd1)
 x86   |*NetBSD 2.0.2 GCC 3.3.3         |~0.9.7 |Passed| (was x86-netbsd1)
@@ -98,20 +98,20 @@ x86   | OpenSol. 11 Nexenta GCC 4.0.3  | 0.9.6 |Passed| from Fabrice Colin
 x86   | WindowsXP sp2 MSVC Toolkit 2003| 0.9.6 |Passed| from Charlie Hull [12]
 x86   | WindowsXP sp2 MSVC .Net 2003   | 0.9.10|Passed| from Charlie Hull [12]
 x86   | WindowsXP sp2 MSVC 2005 Express| 0.9.10|Passed| from Charlie Hull [12] 
-x86_64|&Linux 2.6 Debian 4.0 GCC 4.1.2 |~1.0.1 |Passed| (atreus)
+x86_64|&Linux 2.6 Debian 4.0 GCC 4.1.2 | 1.0.1 |Passed| (atreus)
 x86_64|#Linux 2.6 RHEL AS4 GCC 3.2.3   | 1.0.0 |Passed| (was td189)
-x86_64|=Linux 2.6 RHEL AS4 GCC 3.4.6   |~1.0.1 |Passed| (td189)
+x86_64|=Linux 2.6 RHEL AS4 GCC 3.4.6   | 1.0.1 |Passed| (td189)
 x86_64|#Linux 2.6 RHEL AS4 GCC 4.0.2   | 0.9.6 |Passed| (was td189)
-x86_64|=Linux 2.6 RHEL AS4 GCC 4.1.0   |~1.0.1 |Passed| (td189)
-x86_64|=Linux 2.6 RHELServer5 GCC 4.1.1|~1.0.1 |Passed| (td159,163,165)
+x86_64|=Linux 2.6 RHEL AS4 GCC 4.1.0   | 1.0.1 |Passed| (td189)
+x86_64|=Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.1 |Passed| (td159,163,165)
 x86_64|*Linux 2.6 RedHat FC3 GCC 3.3.4 | 0.9.9 |Passed| (was amd64-linux2) [14]
 x86_64|*Linux 2.6 RedHat FC3 GCC 3.4.2 | 0.9.9 |Passed| (was amd64-linux2) [14]
 x86_64|*Linux 2.6 RedHat FC3 GCC 4.0.0 | 0.9.9 |Passed| (was amd64-linux2)
 x86_64|#Linux 2.6 SuSE 9 GCC 3.3.3     | 0.9.6 |Passed| (was td179,190)
 x86_64|#Linux 2.6 SuSE 9 IntelC++ 8.1  | 0.9.3 |Passed| (was td179)
-x86_64|=Linux 2.6 SuSE 10 GCC 4.1.0    |~1.0.1 |Passed| (td162,166,190)
-x86_64|%Linux 2.6 SuSE 10 GCC 4.1.0    |~1.0.1 |Passed| (iceland.sgi.com)
-x86_64|=Linux 2.6 SuSE 10 IntelC++ 9.1 |~1.0.1 |Passed| (td162)
+x86_64|=Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.1 |Passed| (td162,166,190)
+x86_64|%Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.1 |Passed| (iceland.sgi.com)
+x86_64|=Linux 2.6 SuSE 10 IntelC++ 9.1 | 1.0.1 |Passed| (td162)
 x86_64| Linux 2.6 Ubuntu 5.04 GCC 3.3.5| 0.9.0 |Passed| from Olly Betts
 alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4| 0.9.3 |Passed| (was alpha-linux1)
 alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.9.9 |Passed| (was alpha-linux1) [6]
@@ -151,17 +151,17 @@ ia64  |=Linux 2.6 RHEL AS4 GCC 3.2.3   | 0.9.9 |Passed| (td177)
 ia64  |=Linux 2.6 RHEL AS4 GCC 3.4.6   | 0.9.9 |Passed| (td177)
 ia64  |#Linux 2.6 RHEL AS4 GCC 4.0.2   | 0.9.6 |Passed| (was td177)
 ia64  |=Linux 2.6 RHEL AS4 GCC 4.1.0   | 0.9.9 |Passed| (td177)
-ia64  |=Linux 2.6 RHELServer5 GCC 4.1.1|~1.0.1 |Passed| (td178,188)
+ia64  |=Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.1 |Passed| (td178,188)
 ia64  |#Linux 2.6 RHEL AS4 IntelC++ 8.1| 0.9.3 |Passed| (was td177)
 ia64  |=Linux 2.6 RHEL AS4 IntelC++ 9.0| 0.9.7 |Passed| (td177)
 ia64  |=Linux 2.6 RHEL AS4 IntelC++ 9.1| 0.9.7 |Passed| (td177)
 ia64  |#Linux 2.6 SuSE 9 GCC 3.3.3     | 0.9.9 |Passed| (was penguin.sgi.com)
 ia64  |#Linux 2.6 SuSE 9 IntelC++ 8.1  | 0.9.1 |Passed| (was td187)
 ia64  |#Linux 2.6 SuSE 9 IntelC++ 9.0  | 0.9.6 |Passed| (was td187)
-ia64  |%Linux 2.6 SuSE 10 GCC 3.3.3    |~1.0.1 |Passed| (polly.sgi.com)
-ia64  |=Linux 2.6 SuSE 10 GCC 4.1.0    |~1.0.1 |Passed| (td187)
-ia64  |%Linux 2.6 SuSE 10 GCC 4.1.0    |~1.0.1 |Passed| (penguin.sgi.com)
-ia64  |=FreeBSD 6.2 GCC 3.4.6          |~1.0.1 |Passed| (td150)
+ia64  |%Linux 2.6 SuSE 10 GCC 3.3.3    | 1.0.1 |Passed| (polly.sgi.com)
+ia64  |=Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.1 |Passed| (td187)
+ia64  |%Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.1 |Passed| (penguin.sgi.com)
+ia64  |=FreeBSD 6.2 GCC 3.4.6          | 1.0.1 |Passed| (td150)
 ia64  |=HP-UX 11.23 GCC 3.4.3          | 0.9.9 |Passed| (td164,176)
 ia64  |#HP-UX 11.23 GCC 4.0.2          | 0.9.6 |Passed| (was td196)
 ia64  |=HP-UX 11.23 GCC 4.1.0          | 0.9.6 |Passed| (td176)
@@ -169,7 +169,7 @@ ia64  |=HP-UX 11.23 aCC B3910B A.06.12 | 0.9.9 |Passed| (td164,176)
 m68k  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
 s390  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
 ------+--------------------------------+-------+------+------------------------
-arm   |&Linux cross to arm   GCC 2.95.2| 1.0.0 |Built | [1]
+arm   |&Linux cross to arm   GCC 2.95.2| 1.0.1 |Built | [1]
 x86   |#Linux cross to mingw GCC 2.95.3| 0.9.5 |Built | [1] Using MSVCRT.DLL
 x86   |&Linux cross to mingw GCC 3.4.2 | 0.9.9 |Built | [1] Using MSVCRT.DLL
 x86   |*Linux cross to mingw GCC 3.4.4 | 0.9.9 |Built | [1] Using CRTDLL.DLL
@@ -199,7 +199,7 @@ now fails to link a binary.  Further investigation is required.
 
 These are older reports lacking an update for a more recent Xapian version
 (typically because the machine in question was upgraded, or we no longer have
- access to it, or the report was from a third party).  We've removed reports
+access to it, or the report was from a third party).  We've removed reports
 prior to 0.8.0 since so much has changed since then that they're of
 questionable value.
 
