@@ -1,7 +1,7 @@
-// Simple command-line search program
+// Simple command-line search utility.
 //
 // Copyright (c) 2003 James Aylett
-// Copyright (c) 2004,2006 Olly Betts
+// Copyright (c) 2004,2006,2007 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -22,36 +22,52 @@ using System;
 
 class SimpleIndex {
     public static void Main(string[] argv) {
+	// We require at least two command line arguments.
 	if (argv.Length < 2) {
-	    Console.Error.WriteLine("Usage: SimpleSearch <path to database> <search terms>");
+	    Console.Error.WriteLine("Usage: SimpleSearch PATH_TO_DATABASE QUERY");
 	    Environment.Exit(1);
 	}
 
 	try {
+	    // Open the database for searching.
 	    Xapian.Database database = new Xapian.Database(argv[0]);
+
+	    // Start an enquire session.
 	    Xapian.Enquire enquire = new Xapian.Enquire(database);
-	    Xapian.Stem stemmer = new Xapian.Stem("english");
 
-	    Xapian.Query q = null, term;
-	    for (int i = 1; i < argv.Length; ++i) {
-		term = new Xapian.Query(stemmer.Apply(argv[i].ToLower()));
-		if (q == null) {
-		    q = term;
-		} else {
-		    q = new Xapian.Query(Xapian.Query.op.OP_OR, q, term);
-		}
+	    // Combine the rest of the command line arguments with spaces
+	    // between them, so that simple queries don't have to be quoted at
+	    // the shell level.
+	    string query_string = argv[1];
+	    for (int i = 2; i < argv.Length; ++i) {
+		query_string += ' ';
+		query_string += argv[i];
 	    }
-		
-	    Console.WriteLine("Performing query `" + q.GetDescription()+ "'");
 
-	    enquire.SetQuery(q);
+	    // Parse the query string to produce a Xapian::Query object.
+	    Xapian.QueryParser qp = new Xapian.QueryParser();
+	    Xapian.Stem stemmer = new Xapian.Stem("english");
+	    qp.SetStemmer(stemmer);
+	    qp.SetDatabase(database);
+	    qp.SetStemmingStrategy(Xapian.QueryParser.stem_strategy.STEM_SOME);
+	    Xapian.Query query = qp.ParseQuery(query_string);
+	    Console.WriteLine("Parsed query is: " + query.GetDescription());
+
+	    // Find the top 10 results for the query.
+	    enquire.SetQuery(query);
 	    Xapian.MSet matches = enquire.GetMSet(0, 10);
 
-	    Console.WriteLine("{0} results found", matches.GetMatchesEstimated());
+	    // Display the results.
+	    Console.WriteLine("{0} results found.", matches.GetMatchesEstimated());
+	    Console.WriteLine("Matches 1-{0}:", matches.Size());
 
-	    Xapian.MSetIterator m = matches.begin();
-	    while (m != matches.end()) {
-		Console.WriteLine("ID {0} {1}% [{2}]", m.GetDocId(), m.GetPercent(), m.GetDocument().GetData());
+	    Xapian.MSetIterator m = matches.Begin();
+	    while (m != matches.End()) {
+		Console.WriteLine("{0}: {1}% docid={2} [{3}]\n",
+				  m.GetRank() + 1,
+				  m.GetPercent(),
+				  m.GetDocId(),
+				  m.GetDocument().GetData());
 		++m;
 	    }
 	} catch (Exception e) {

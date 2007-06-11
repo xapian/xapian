@@ -88,7 +88,7 @@ it works (or how badly it fails...)
 <tr><td>TermIterator</td>	<td><code>GetTerm()</code></td></tr>
 <tr><td>ValueIterator</td>	<td><code>GetValue()</code></td></tr>
 <tr><td>MSetIterator</td>	<td><code>GetDocId()</code></td></tr>
-<tr><td>ESetIterator</td>	<td><code>GetTermName()</code></td></tr>
+<tr><td>ESetIterator</td>	<td><code>GetTerm()</code></td></tr>
 </table>
 
 <p>
@@ -142,6 +142,8 @@ the TCP version is currently wrapped, the "program" version isn't).
    <code>Xapian.Xapian.DB_CREATE_OR_OPEN</code>.
    The <code>Query::OP_*</code> constants are wrapped a little oddly too:
    <code>Query::OP_OR</code> is wrapped as <code>Xapian.Query.op.OP_OR</code>.
+   Similarly, <code>QueryParser::STEM_SOME</code> as
+   <code>Xapian.QueryParser.stem_strategy.STEM_SOME</code>.
    The naming here needs sorting out...
 </p>
 

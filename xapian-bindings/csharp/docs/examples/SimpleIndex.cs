@@ -1,7 +1,7 @@
-// Index each paragraph of a textfile as a document
+// Index each paragraph of a text file as a Xapian document.
 //
 // Copyright (c) 2003 James Aylett
-// Copyright (c) 2004,2006 Olly Betts
+// Copyright (c) 2004,2006,2007 Olly Betts
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License as
@@ -19,25 +19,23 @@
 // USA
 
 using System;
-using System.Text.RegularExpressions;
 
 class SimpleIndex {
-    const int MAX_PROB_TERM_LENGTH = 64;
-
     public static void Main(string[] argv) {
 	if (argv.Length != 1) {
-	    Console.Error.WriteLine("Usage: SimpleIndex <path to database>");
+	    Console.Error.WriteLine("Usage: SimpleIndex PATH_TO_DATABASE");
 	    Environment.Exit(1);
 	}
 
 	try {
+	    // Open the database for update, creating a new database if
+	    // necessary.
 	    Xapian.WritableDatabase database;
 	    database = new Xapian.WritableDatabase(argv[0], Xapian.Xapian.DB_CREATE_OR_OPEN);
 
-	    // Use a regex to tokenise words.
-	    Regex word = new Regex("([A-Za-z0-9]+(?:[-+]+(?![-+A-Za-z0-9]))?)");
-
+	    Xapian.TermGenerator indexer = new Xapian.TermGenerator();
 	    Xapian.Stem stemmer = new Xapian.Stem("english");
+	    indexer.SetStemmer(stemmer);
 
 	    string para = "";
 	    while (true) {
@@ -49,22 +47,14 @@ class SimpleIndex {
 		line = line.Trim();
 		if (line == "") {
 		    if (para != "") {
+			// We've reached the end of a paragraph, so index it.
 			Xapian.Document doc = new Xapian.Document();
 			doc.SetData(para);
-			uint pos = 0;
-			int i = 0;
-			while (true) {
-			    Match match = word.Match(para, i);
-			    if (!match.Success) break;
-			    Group g = match.Groups[1];
-			    if (g.Length <= MAX_PROB_TERM_LENGTH) {
-				string term = g.Value.ToLower();
-				term = stemmer.Apply(term);
-				doc.AddPosting(term, pos);
-				++pos;
-			    }
-			    i = match.Index + match.Length;
-			}
+
+			indexer.SetDocument(doc);
+			indexer.IndexText(para);
+
+			// Add the document to the database.
 			database.AddDocument(doc);
 			para = "";
 		    }
