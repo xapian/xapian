@@ -7,8 +7,6 @@ SUFFIXES = .rst
 # being run.  For "make all", "make check", etc we carefully skip any docs
 # which we don't have the tools to generate.
 
-# FIXME: add "xapian hacker docs" option to build sourcedoc.pdf and HTML
-
 HTMLDOCS = index.html install.html intro_ir.html overview.html \
  stemming.html quickstart.html remote.html remote_protocol.html \
  quartzdesign.html matcherdesign.html tests.html scalability.html \
@@ -85,21 +83,11 @@ apidoc.pdf apidoc/html/index.html: $(APIDOC_SRC) doxygen_api_conf \
 # of index.html on apidoc.pdf
 apidoc/html/index.html: apidoc.pdf
 
-sourcedoc.pdf sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
+sourcedoc/html/index.html: $(SOURCEDOC_SRC) $(APIDOC_SRC) \
 		doxygen_full_conf \
 		$(srcdir)/doxygen_full_header.html_tmpl \
 		$(srcdir)/doxygen_full_footer.html_tmpl
-	rm -rf sourcedoc
 	top_srcdir=$(top_srcdir) top_builddir=$(top_builddir) $(DOXYGEN) doxygen_full_conf
-	cd sourcedoc/latex && (pool_size=2000000 $(MAKE) refman.pdf||(cat refman.log;exit 1))
-	mv sourcedoc/latex/refman.pdf sourcedoc.pdf
-	touch sourcedoc/html/index.html
-
-# This dependency is required so that parallel make doesn't try to run latex
-# twice simultaneously.  We touch sourcedoc/html/index.html after sourcedoc.pdf
-# is created so that make doesn't attempt to regenerate it due to the
-# dependency of index.html on sourcedoc.pdf
-sourcedoc/html/index.html: sourcedoc.pdf
 
 .rst.html:
 	$(RST2HTML) --verbose --strict $< $@
