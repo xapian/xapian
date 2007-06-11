@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 #
-# $Id$
-# Index each paragraph of a textfile as a document
+# Index each paragraph of a text file as a Xapian document.
 #
-# ----START-LICENCE----
-# Copyright 2003 James Aylett
-# Copyright 2004 Olly Betts
+# Copyright (C) 2003 James Aylett
+# Copyright (C) 2004,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -19,64 +17,40 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
 # USA
-# -----END-LICENCE-----
 
 import sys
 import xapian
 import string
 
-MAX_PROB_TERM_LENGTH = 64
-
-def p_alnum(c):
-    return (c in string.ascii_letters or c in string.digits)
-
-def p_notalnum(c):
-    return not p_alnum(c)
-
-def p_notplusminus(c):
-    return c != '+' and c != '-'
-
-def find_p(string, start, predicate):
-    while start<len(string) and not predicate(string[start]):
-        start += 1
-    return start
 
 if len(sys.argv) != 2:
-    print >> sys.stderr, "usage: %s <path to database>" % sys.argv[0]
+    print >> sys.stderr, "Usage: %s PATH_TO_DATABASE" % sys.argv[0]
     sys.exit(1)
 
 try:
+    # Open the database for update, creating a new database if necessary.
     database = xapian.WritableDatabase(sys.argv[1], xapian.DB_CREATE_OR_OPEN)
 
+    indexer = xapian.TermGenerator()
     stemmer = xapian.Stem("english")
+    indexer.set_stemmer(stemmer)
+
     para = ''
     try:
         for line in sys.stdin:
             line = string.strip(line)
             if line == '':
                 if para != '':
+                    # We've reached the end of a paragraph, so index it.
                     doc = xapian.Document()
                     doc.set_data(para)
-                    pos = 0
-                    # At each point, find the next alnum character (i), then
-                    # find the first non-alnum character after that (j). Find
-                    # the first non-plusminus character after that (k), and if
-                    # k is non-alnum (or is off the end of the para), set j=k.
-                    # The term generation string is [i,j), so len = j-i
-                    i = 0
-                    while i < len(para):
-                        i = find_p(para, i, p_alnum)
-                        j = find_p(para, i, p_notalnum)
-                        k = find_p(para, j, p_notplusminus)
-                        if k == len(para) or not p_alnum(para[k]):
-                            j = k
-                        if (j - i) <= MAX_PROB_TERM_LENGTH and j > i:
-                            term = stemmer(string.lower(para[i:j]))
-                            doc.add_posting(term, pos)
-                            pos += 1
-                        i = j
+
+                    indexer.set_document(doc)
+                    indexer.index_text(para)
+
+                    # Add the document to the database.
                     database.add_document(doc)
                     para = ''
             else:

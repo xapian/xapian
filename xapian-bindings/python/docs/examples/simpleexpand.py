@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 #
-# $Id$
-# Simple command-line query expand program
+# Simple example script demonstrating query expansion.
 #
-# Copyright 2003 James Aylett
-# Copyright 2004,2006,2007 Olly Betts
+# Copyright (C) 2003 James Aylett
+# Copyright (C) 2004,2006,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -24,44 +23,58 @@
 import sys
 import xapian
 
+# We require at least two command line arguments.
 if len(sys.argv) < 3:
-    print >> sys.stderr, "usage: %s <path to database> [<search terms>] [-- <relevant docids>]" % sys.argv[0]
+    print >> sys.stderr, "Usage: %s PATH_TO_DATABASE QUERY [-- [DOCID...]]" % sys.argv[0]
     sys.exit(1)
 
 try:
+    # Open the database for searching.
     database = xapian.Database(sys.argv[1])
 
+    # Start an enquire session.
     enquire = xapian.Enquire(database)
-    stemmer = xapian.Stem("english")
-    terms = []
-    index = 2
+
+    # Combine command line arguments up to "--" with spaces between
+    # them, so that simple queries don't have to be quoted at the shell
+    # level.
+    query_string = sys.argv[2]
+    index = 3
     while index < len(sys.argv):
-        term = sys.argv[index]
+        arg = sys.argv[index]
         index += 1
-        if term == '--':
-            # passed marker, move to relevant docids
+        if arg == '--':
+            # Passed marker, move to parsing relevant docids.
             break
-        terms.append(stemmer(term.lower()))
-    query = xapian.Query(xapian.Query.OP_OR, terms)
+        query_string += ' '
+        query_string += arg
 
-    # Prepare relevant document set (RSet)
+    # Create an RSet with the listed docids in.
     reldocs = xapian.RSet()
-    if index < len(sys.argv):
-        for index in xrange(index,len(sys.argv)):
-            rdid = int(sys.argv[index])
-            if rdid!=0:
-                reldocs.add_document(rdid)
+    for index in xrange(index, len(sys.argv)):
+        reldocs.add_document(int(sys.argv[index]))
 
-    matches = xapian.MSet()
+    # Parse the query string to produce a Xapian::Query object.
+    qp = xapian.QueryParser()
+    stemmer = xapian.Stem("english")
+    qp.set_stemmer(stemmer)
+    qp.set_database(database)
+    qp.set_stemming_strategy(xapian.QueryParser.STEM_SOME)
+    query = qp.parse_query(query_string)
+
     if not query.empty():
-        print "Performing query `%s' against rset `%s'" % (query.get_description(),reldocs.get_description())
+        print "Parsed query is: %s" % query.get_description()
 
+        # Find the top 10 results for the query.
         enquire.set_query(query)
         matches = enquire.get_mset(0, 10, reldocs)
 
-        print "%i results found" % matches.get_matches_estimated()
-        for match in matches:
-            print "ID %i %i%% [%s]" % (match[xapian.MSET_DID], match[xapian.MSET_PERCENT], match[xapian.MSET_DOCUMENT].get_data())
+        # Display the results.
+        print "%i results found." % matches.get_matches_estimated()
+        print "Results 1-%i:" % matches.size()
+
+        for m in matches:
+            print "%i: %i%% docid=%i [%s]" % (m[xapian.MSET_RANK] + 1, m[xapian.MSET_PERCENT], m[xapian.MSET_DID], m[xapian.MSET_DOCUMENT].get_data())
 
     # Put the top 5 (at most) docs into the rset if rset is empty
     if reldocs.empty():
@@ -76,8 +89,8 @@ try:
     eterms = enquire.get_eset(10, reldocs)
     print "%i suggested additional terms" % eterms.size()
     k = eterms.begin()
-    while k!=eterms.end():
-        print "Term `%s'\t (weight %f)" % (k.get_term(), k.get_weight())
+    while k != eterms.end():
+        print "%s: %f" % (k.get_term(), k.get_weight())
         k.next()
 
 except Exception, e:
