@@ -7,7 +7,7 @@ SUFFIXES = .rst
 # being run.  For "make all", "make check", etc we carefully skip any docs
 # which we don't have the tools to generate.
 
-HTMLDOCS = index.html install.html intro_ir.html overview.html \
+HTMLDOCS = index.html internals.html install.html intro_ir.html overview.html \
  stemming.html quickstart.html remote.html remote_protocol.html \
  quartzdesign.html matcherdesign.html tests.html scalability.html \
  bm25.html code_structure.html queryparser.html \
