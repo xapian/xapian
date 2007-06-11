@@ -494,9 +494,6 @@ static bool test_serialiseerror1()
     // Check that the original is still OK.
     TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
 
-    // Check that the original is still OK.
-    TEST_STRINGS_EQUAL(e.get_error_string(), enoent_msg);
-
     // Regression test - in 1.0.0, copying used to duplicate the error_string
     // pointer, resulting in double calls to free().
     Xapian::DatabaseOpeningError ecopy(e);

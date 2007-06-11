@@ -1,3 +1,7 @@
+Mon Jun 11 17:45:12 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/internaltest.cc: Remove duplicated code.
+
 Mon Jun 11 03:55:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Probably the final update for 1.0.1.
