@@ -5,7 +5,7 @@ documentation:
 * overview.txt: As of 1.0.0, we no longer use pstotext for PostScript, but
   instead use ps2pdf followed by pdftotext (since this works for Unicode).
 
-* scriptindex.txt: Document that you can delete a document by giving a new
+* scriptindex.txt: Document that you can delete a document by supplying a new
   document which only contains the unique term.
 
 indexers:
