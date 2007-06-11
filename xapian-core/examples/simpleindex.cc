@@ -51,22 +51,24 @@ try {
 	    getline(cin, line);
 	}
 
-	if (line.empty() && !para.empty()) {
-	    // We've reached the end of a paragraph, so index it.
-	    Xapian::Document doc;
-	    doc.set_data(para);
+	if (line.empty()) {
+	    if (!para.empty()) {
+		// We've reached the end of a paragraph, so index it.
+		Xapian::Document doc;
+		doc.set_data(para);
 
-	    indexer.set_document(doc);
-	    indexer.index_text(para);
+		indexer.set_document(doc);
+		indexer.index_text(para);
 
-	    // Add the document to the database
-	    db.add_document(doc);
+		// Add the document to the database.
+		db.add_document(doc);
 
-	    para = "";
+		para = "";
+	    }
+	} else {
+	    if (!para.empty()) para += ' ';
+	    para += line;
 	}
-
-	if (!para.empty()) para += ' ';
-	para += line;
     }
 } catch (const Xapian::Error &e) {
     cout << e.get_description() << endl;
