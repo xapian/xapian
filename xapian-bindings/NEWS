@@ -1,7 +1,4 @@
-up to:
-Thu Jun 07 01:01:05 BST 2007  Olly Betts <olly@survex.com>
-
-Xapian-bindings 1.0.1 (2007-0?-??):
+Xapian-bindings 1.0.1 (2007-06-11):
 
 Documentation:
 
@@ -10,8 +7,8 @@ Documentation:
 
 General:
 
-* configure.ac: Relax automake requirement to 1.9.2 to allow RPM building on
-  RHEL 4.
+* configure.ac: Relax automake requirement to 1.8.3 to allow RPM building on
+  RHEL 4 and SLES 9.
 
 * Wrap Xapian::Query constructor for creating ValueRange queries.
 
@@ -20,14 +17,23 @@ General:
 
 Packaging:
 
-Portability:
+* RPMs: Use "make install" instead of %makeinstall to avoid doubled
+  %{buildroot} prefix on most files which we then have to work around.
 
 CSharp:
 
+* SimpleIndex now uses Xapian.TermGenerator.
+
+* SimpleSearch now uses Xapian.QueryParser.
+
+* New SimpleExpand example.
+
+* Document explicitly how STEM_SOME constants are currently wrapped.
+
+* Update GetTermName() reference in documentation to GetTerm().
+
 * SmokeTest.cs: Update comment about Portable.NET bug - the bug is fixed in
   their CVS repo, and the fix should be in their 0.8.2 release.
-
-Guile:
 
 Java:
 
@@ -51,6 +57,8 @@ PHP:
 
 Python:
 
+* Python examples now use xapian.QueryParser and xapian.TermGenerator.
+
 * Add support for prefix-restricted pythonic allterms iterators.
 
 * Update documentation in a couple of places to refer to updated replacements
@@ -70,6 +78,12 @@ Python:
 * We now generate and install xapian.pyo as well as xapian.pyc.
 
 Ruby:
+
+* The Ruby examples now use the Xapian::QueryParser and Xapian::TermGenerator
+  classes.
+
+* Add missing rename for the C++ TermGenerator::set_document() method so it can
+  be used as "tg.document = doc" in Ruby.
 
 * Fixed compilation on Mac OS X and warning from GCC on 32-bit Linux platforms.
 
