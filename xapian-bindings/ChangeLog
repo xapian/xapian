@@ -1,3 +1,9 @@
+Mon Jun 11 01:23:52 BST 2007  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Use "make install" instead of %makeinstall
+	  to avoid doubled %{buildroot} prefix on most files which we then
+	  have to work around.
+
 Mon Jun 11 01:11:31 BST 2007  Olly Betts <olly@survex.com>
 
 	* csharp/docs/examples/SimpleIndex.cs,
