@@ -63,7 +63,7 @@ _C=
 
 mkdir -p "$POOL"
 
-DSC_PATH="$REPO_URL/pool/$VERSION/source/"
+DSC_PATH="$REPO_URL/pool/$VERSION/$DIR/source/"
 
 wget "$REPO_URL/dists/$DIR/main/source/Sources.gz"
 
@@ -75,7 +75,7 @@ gzip -dc Sources.gz | while read line ; do
     esac
   elif test -n "$line" ; then
     FILE=`echo \"$line\"|sed 's/.* //'`
-    if expr "$FILE" : ".*_${VERSION}[.-]" ; then
+    if expr "$FILE" : ".*_${VERSION}[-.]" ; then
       wget "$DSC_PATH`echo \"$line\"|sed 's/.* //'`"
     else
       echo "*** Not version $VERSION, ignoring: '$FILE'"
