@@ -1,13 +1,21 @@
-up to:
-Sat Jun 09 17:28:32 BST 2007  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.1 (2007-06-0?):
+Xapian-core 1.0.1 (2007-06-11):
 
 API:
 
-* Xapian::Error: Add new method "get_description()" to get a string
-  describing the error object.  This is used in various examples and
-  scripts, improving their error reporting.
+* Xapian::Error:
+
+  + Make Error::error_string member std::string rather than char * to avoid
+    problems with double free() with copied Error objects.  Unfortunately
+    this mean an incompatible ABI change which we had hoped to avoid until
+    1.1.0, but in this case there didn't seem to be a sane way to fix the
+    problem without an ABI change.
+    
+  + Error::get_description() now converts my_errno to error_string if it hasn't
+    been already rather than not including any error description in this case.
+
+  + Add new method "get_description()" to get a string describing the error
+    object.  This is used in various examples and scripts, improving their
+    error reporting.
 
 * Xapian::Database: Add new form of allterms_begin() and allterms_end()
   which allow iterating of all terms with a particular prefix.  This
@@ -35,7 +43,9 @@ testsuite:
 
   + Quote strings in TEST_STRINGS_EQUAL().
 
-  + In queryparsertest, display error descriptions, not just messages.
+  + queryparsertest: Use TEST_STRINGS_EQUAL when comparing query descriptions
+    against their expected output, since this makes it much easier to see the
+    differences.
 
   + Report whole message for exceptions, rather than a truncated version, in
     verbose mode.
@@ -45,11 +55,6 @@ testsuite:
 
 * queryparsertest: New test of custom ValueRangeProcessor subclass
   (qp_value_customrange1).
-
-* New test for NumberValueRangeProcessor, which illustrates a problem.
-
-* queryparsertest: Use TEST_STRINGS_EQUAL when comparing queries against their
-  expected output, since this makes it much easier to see the differences.
 
 * apitest: flintdatabaseformaterror1 and flintdatabaseformaterror2 now use a
   genuine Xapian 0.9.9 flint database for their tests, and more cases are
@@ -112,12 +117,15 @@ build system:
 
 documentation:
 
-* Improved API documentation for the TermGenerator class.
-
-* Expand documentation of value range Query constructor.
+* Document the design flaw with NumberValueRangeProcessor and why it shouldn't
+  be used.
 
 * ValueRangeProcessor and subclasses now have API documentation and an overview
   document.
+
+* Expand documentation of value range Query constructor.
+
+* Improved API documentation for the TermGenerator class.
 
 * docs/deprecation.rst:
 
@@ -125,6 +133,8 @@ documentation:
     set_docid_order().
 
   + Improve entry for QueryParserError.
+
+* PLATFORMS: Updated from tinderbox.
 
 examples:
 
@@ -141,14 +151,18 @@ examples:
 
 portability:
 
+* xapian-config: Add special case check for host_os matching linux* or
+  k*bsd-gnu since vanilla libtool doesn't correctly probe link_all_deplibs=no
+  for them.
 
 packaging:
 
-* The required automake version has been lowered to 1.9.2, so RPMs can now be
-  built on RHEL 4.
+* RPMs: Add "# norootforbuild" comment which SuSE's build scripts look for.
+  Rename "Source0:" to "Source:" as there's only one tarball now.  Add gcc-c++
+  and zlib-devel to "Build-Requires:".
 
-debug code:
-
+* The required automake version has been lowered to 1.8.3, so RPMs can now be
+  built on RHEL 4 and SLES 9.
 
 Xapian-core 1.0.0 (2007-05-17):
 
