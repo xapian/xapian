@@ -1,9 +1,10 @@
-xapian-bindings (1.0.0-1) unstable; urgency=low
+xapian-bindings (1.0.1-1) unstable; urgency=low
 
+  * New upstream release.
   * php4-xapian and php5-xapian now make use of the (relatively) new
     /etc/phpN/conf.d mechanism to enable the xapian extension automatically,
     instead of modifying php.ini directly (after checking that's OK using
-    debconf).  Backport to Debian oldstable, and to Ubuntu etch and earlier
+    debconf).  Backports to Debian oldstable, and to Ubuntu etch and earlier,
     now require the user to add "extension=xapian.so" to php.ini by hand,
     so backports where this is required now include a README.Debian which
     explains this.
