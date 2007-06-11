@@ -506,7 +506,7 @@ left branch. For example, again summing the scores,
    scores  3.1 3.2  3.1  3.8 ...    4.2 4.1 4.5  4.7 ...
 </PRE>
 
-A Xapian::Query::OP_MAYBE node transmits the documents up the tree from the
+A Xapian::Query::OP_AND_MAYBE node transmits the documents up the tree from the
 left branch only, but adds in the score from the right branch for documents
 which occur on both branches.  For example,
 

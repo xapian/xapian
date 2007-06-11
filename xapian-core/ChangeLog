@@ -1,3 +1,7 @@
+Mon Jun 11 20:10:26 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/overview.html: Fix typo.
+
 Mon Jun 11 20:08:42 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: Ship and install internals.html.
