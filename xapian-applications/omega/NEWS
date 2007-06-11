@@ -1,9 +1,4 @@
-up to:
-Wed Jun 06 15:45:33 BST 2007  Olly Betts <olly@survex.com>
-
-Omega 1.0.1 (2007-06-0?):
-
-general:
+Omega 1.0.1 (2007-06-11):
 
 documentation:
 
@@ -20,31 +15,20 @@ indexers:
   the tags didn't produce implicit whitespace.  This bug dates back to at least
   Omega 0.8.2.
 
-* omindex:
-
-  + Under Linux (at least) struct dirent can tell us the type of a directory
-    entry for some filing systems, so make use of this to avoid calling stat()
-    (or lstat()) unnecessarily - when indexing /usr/share/doc on my Linux
-    box, this saves about 14000 explicit calls to stat (leaving about 7000).
-
-* scriptindex:
+* omindex: Under Linux (and probably some other platforms) struct dirent can
+  tell us the type of a directory entry for some filing systems, so make use of
+  this to avoid calling stat() (or lstat()) unnecessarily - when indexing
+  /usr/share/doc on my Linux box, this saves about 14000 explicit calls to
+  stat() (leaving about 7000).
 
 omega:
 
 * Fix handling of query parsing errors (broken by changes in 1.0.0).
 
-templates:
-
-testsuite:
-
-build system:
-
-portability:
-
 packaging:
 
-* The required automake version has been lowered to 1.9.2, so RPMs can now be
-  built on RHEL 4.
+* The required automake version has been lowered to 1.8.3, so RPMs can now be
+  built on RHEL 4 and SLES 9.
 
 Omega 1.0.0 (2007-05-17):
 
