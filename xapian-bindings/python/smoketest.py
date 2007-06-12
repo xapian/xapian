@@ -53,13 +53,15 @@ def test_all():
     expect(db.get_doccount(), 1, "Unexpected db.get_doccount()")
     terms = ["smoke", "test", "terms"]
     expect_query(xapian.Query(xapian.Query.OP_OR, terms),
-                 "Xapian::Query((smoke OR test OR terms))")
+                 "(smoke OR test OR terms)")
     query1 = xapian.Query(xapian.Query.OP_PHRASE, ("smoke", "test", "tuple"))
     query2 = xapian.Query(xapian.Query.OP_XOR, (xapian.Query("smoke"), query1, "string"))
-    expect_query(query1, "Xapian::Query((smoke PHRASE 3 test PHRASE 3 tuple))")
-    expect_query(query2, "Xapian::Query((smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string))")
+    expect_query(query1, "(smoke PHRASE 3 test PHRASE 3 tuple)")
+    expect_query(query2, "(smoke XOR (smoke PHRASE 3 test PHRASE 3 tuple) XOR string)")
     subqs = ["a", "b"]
-    expect_query(xapian.Query(xapian.Query.OP_OR, subqs), "Xapian::Query((a OR b))")
+    expect_query(xapian.Query(xapian.Query.OP_OR, subqs), "(a OR b)")
+    expect_query(xapian.Query(xapian.Query.OP_VALUE_RANGE, 0, '1', '4'),
+                 "VALUE_RANGE 0 1 4")
 
     # Feature test for Query.__iter__
     term_count = 0
@@ -201,7 +203,7 @@ def test_all():
     # Check QueryParser pure NOT option
     qp = xapian.QueryParser()
     expect_query(qp.parse_query("NOT test", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-                 "Xapian::Query((<alldocuments> AND_NOT test:(pos=1)))")
+                 "(<alldocuments> AND_NOT test:(pos=1))")
 
     # Check QueryParser partial option
     qp = xapian.QueryParser()
@@ -210,23 +212,23 @@ def test_all():
     qp.set_stemming_strategy(qp.STEM_SOME)
     qp.set_stemmer(xapian.Stem('en'))
     expect_query(qp.parse_query("foo o", qp.FLAG_PARTIAL),
-                 "Xapian::Query((Zfoo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2) OR Zo:(pos=2))))")
+                 "(Zfoo:(pos=1) AND (out:(pos=2) OR outsid:(pos=2) OR Zo:(pos=2)))")
 
     expect_query(qp.parse_query("foo outside", qp.FLAG_PARTIAL),
-                 "Xapian::Query((Zfoo:(pos=1) AND Zoutsid:(pos=2)))")
+                 "(Zfoo:(pos=1) AND Zoutsid:(pos=2))")
 
     # Test supplying unicode strings
     expect_query(xapian.Query(xapian.Query.OP_OR, (u'foo', u'bar')),
-                 'Xapian::Query((foo OR bar))')
+                 '(foo OR bar)')
     expect_query(xapian.Query(xapian.Query.OP_OR, ('foo', u'bar\xa3')),
-                 'Xapian::Query((foo OR bar\xc2\xa3))')
+                 '(foo OR bar\xc2\xa3)')
     expect_query(xapian.Query(xapian.Query.OP_OR, ('foo', 'bar\xc2\xa3')),
-                 'Xapian::Query((foo OR bar\xc2\xa3))')
+                 '(foo OR bar\xc2\xa3)')
     expect_query(xapian.Query(xapian.Query.OP_OR, u'foo', u'bar'),
-                 'Xapian::Query((foo OR bar))')
+                 '(foo OR bar)')
 
     expect_query(qp.parse_query(u"NOT t\xe9st", qp.FLAG_BOOLEAN + qp.FLAG_PURE_NOT),
-                 "Xapian::Query((<alldocuments> AND_NOT Zt\xc3\xa9st:(pos=1)))")
+                 "(<alldocuments> AND_NOT Zt\xc3\xa9st:(pos=1))")
 
     doc = xapian.Document()
     doc.set_data(u"Unicode with an acc\xe9nt")
@@ -240,12 +242,12 @@ def test_all():
     qp.set_stopper(stop)
     expect(stop('a'), False)
     expect_query(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
-                 "Xapian::Query((Zfoo:(pos=1) AND Zbar:(pos=2) AND Za:(pos=3)))")
+                 "(Zfoo:(pos=1) AND Zbar:(pos=2) AND Za:(pos=3))")
 
     stop.add('a')
     expect(stop('a'), True)
     expect_query(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
-                 "Xapian::Query((Zfoo:(pos=1) AND Zbar:(pos=2)))")
+                 "(Zfoo:(pos=1) AND Zbar:(pos=2))")
 
     # Feature test for custom Stopper
     class my_b_stopper(xapian.Stopper):
@@ -260,11 +262,11 @@ def test_all():
     qp.set_stopper(stop)
     expect(stop('a'), False)
     expect_query(qp.parse_query(u"foo bar a", qp.FLAG_BOOLEAN),
-                 "Xapian::Query((Zfoo:(pos=1) AND Zbar:(pos=2) AND Za:(pos=3)))")
+                 "(Zfoo:(pos=1) AND Zbar:(pos=2) AND Za:(pos=3))")
 
     expect(stop('b'), True)
     expect_query(qp.parse_query(u"foo bar b", qp.FLAG_BOOLEAN),
-                 "Xapian::Query((Zfoo:(pos=1) AND Zbar:(pos=2)))")
+                 "(Zfoo:(pos=1) AND Zbar:(pos=2))")
 
     # Test TermGenerator
     termgen = xapian.TermGenerator()

@@ -88,6 +88,7 @@ class TestRunner(object):
         """Check that the description of a query is as expected.
 
         """
+	expected = 'Xapian::Query(' + expected + ')'
         desc = query.get_description()
         if self._verbose > 2:
             self._out.start_line()
