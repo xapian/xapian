@@ -8,8 +8,10 @@ xapian-bindings (1.0.1-1) unstable; urgency=low
     now require the user to add "extension=xapian.so" to php.ini by hand,
     so backports where this is required now include a README.Debian which
     explains this.
+  * debian/rules: Upstream build now generates .pyo so we need to tell
+    dh_install that we don't want to package it.
 
- -- Olly Betts <olly@survex.com>  Tue, 12 Jun 2007 01:49:51 +0100
+ -- Olly Betts <olly@survex.com>  Tue, 12 Jun 2007 02:21:14 +0100
 
 xapian-bindings (1.0.0-1) unstable; urgency=low
 
