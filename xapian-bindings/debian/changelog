@@ -9,7 +9,7 @@ xapian-bindings (1.0.1-1) unstable; urgency=low
     so backports where this is required now include a README.Debian which
     explains this.
 
- -- Olly Betts <olly@survex.com>  Thu, 07 Jun 2007 23:46:02 +0100
+ -- Olly Betts <olly@survex.com>  Tue, 12 Jun 2007 01:49:51 +0100
 
 xapian-bindings (1.0.0-1) unstable; urgency=low
 
