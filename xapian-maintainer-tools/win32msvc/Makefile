@@ -92,7 +92,7 @@ DISTCLEAN: CLEAN
 # Copy mak files to the right folders
 COPYMAKFILES: 
    copy config.h.win32 ..\config.h
-   copy version.h.win32 ..\include\xapian\version.h
+   copy ..\msvc\version.h ..\include\xapian\version.h
    copy  win32_api.mak ..\api\Makefile
    copy  win32_backends.mak ..\backends\Makefile
    copy  win32_backends_flint.mak ..\backends\flint\Makefile
