@@ -94,6 +94,13 @@ void cp_R(const std::string &src, const std::string &dest) {
     if (!append_filename_argument(cmd, src)) return;
     if (!append_filename_argument(cmd, dest)) return;
     system(cmd);
+#ifndef __WIN32__
+    // Allow write access to the copy (to deal with builds where srcdir is
+    // readonly).
+    cmd = "chmod -R +w";
+    if (!append_filename_argument(cmd, dest)) return;
+    system(cmd);
+#endif
 }
 
 #ifdef __WIN32__
