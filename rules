@@ -26,7 +26,7 @@ COMPONENT ?= $(shell cat debian/component 2>/dev/null||echo unstable)
 XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
 
 # `--exclude=.EXT' arguments to pass dh_install
-DH_INSTALL_EXCLUDE := --exclude=.pyc
+DH_INSTALL_EXCLUDE := --exclude=.pyc --exclude=.pyo
 
 # Debian "stable" ("etch" onwards), "unstable", and Ubuntu "edgy" (and later)
 # have pyversions.
