@@ -1,3 +1,11 @@
+Tue Jun 12 18:27:54 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc: Add fix to allow compilation on
+	  OpenBSD, which uses off_t instead of uLong for total_out in
+	  zlib.h.  Remove Assert() which is followed by a better check of
+	  the same condition.
+	* AUTHORS: Add Julien Touche for help with this fix.
+
 Tue Jun 12 13:34:59 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/harness/unixcmds.cc: On unix builds, set access permissions
@@ -112,7 +120,7 @@ Fri Jun 08 18:46:02 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 	* api/omenquire.cc: Fix issue brought to my attention by Enrico
 	  Zini: if an uninitialised database is supplied to Enquire,
 	  performing a search will cause a segfualt.  It isn't completely
-	  clear whether using an uninitialised database should cause an 
+	  clear whether using an uninitialised database should cause an
 	  error, or whether the search should return an empty result list,
 	  but for ease of implementation, and to avoid application errors
 	  going unnoticed, I've made Enquire's constructor report an

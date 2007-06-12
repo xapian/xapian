@@ -1329,12 +1329,12 @@ FlintTable::read_tag(Cursor_ * C_, string *tag, bool keep_compressed) const
 	utag.append(reinterpret_cast<const char *>(buf),
 		    stream.next_out - buf);
     }
-    Assert(utag.size() == stream.total_out);
     if (utag.size() != stream.total_out) {
 	string msg = "compressed tag didn't expand to the expected size: ";
-        msg += om_tostring(utag.size());
+	msg += om_tostring(utag.size());
 	msg += " != ";
-	msg += om_tostring(stream.total_out);
+	// OpenBSD's zlib.h uses off_t instead of uLong for total_out.
+	msg += om_tostring((size_t)stream.total_out);
 	throw Xapian::DatabaseCorruptError(msg);
     }
 
