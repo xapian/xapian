@@ -994,8 +994,8 @@ This is a (hopefully complete) list of the jobs which need doing:
   http://www.xapian.org/cgi-bin/bugzilla/buglist.cgi?bug_status=RESOLVED&resolution=FIXED
   Make sure the submitters are mentioned in the "thanks" list in AUTHORS.
 
-* On ixion, svn tag the source trees for the new revision - use the svn-tag-release
-  script, running it with the new version number, for example:
+* On ixion, svn tag the source trees for the new revision - use the
+  svn-tag-release script, running it with the new version number, for example:
 
   xapian-maintainer-tools/svn-tag-release 0.9.0
 
