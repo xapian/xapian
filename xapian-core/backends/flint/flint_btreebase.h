@@ -1,6 +1,5 @@
 /* btree_base.h: Btree base file implementation
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2004 Olly Betts
  *
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_FLINT_BTREEBASE_H
@@ -34,13 +32,6 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	/** Initialise a Btree_Base object with all zero fields.
 	 */
 	FlintTable_base();
-
-	/** Read a base file from disk into a structure in memory.
-	 *
-	 *  @param name			The base filename name
-	 *  @param ch			The suffix
-	 */
-	FlintTable_base(const string &name_, char ch);
 
 	/** Copy constructor */
 	FlintTable_base(const FlintTable_base &other);

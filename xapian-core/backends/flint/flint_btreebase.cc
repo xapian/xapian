@@ -100,26 +100,6 @@ FlintTable_base::FlintTable_base()
 {
 }
 
-FlintTable_base::FlintTable_base(const string &name_, char ch)
-	: revision(0),
-	  block_size(0),
-	  root(0),
-	  level(0),
-	  bit_map_size(0),
-	  item_count(0),
-	  last_block(0),
-	  have_fakeroot(false),
-	  sequential(false),
-	  bit_map_low(0),
-	  bit_map0(0),
-	  bit_map(0)
-{
-    string err_msg;
-    if (!read(name_, ch, err_msg)) {
-	throw Xapian::DatabaseOpeningError(err_msg);
-    }
-}
-
 FlintTable_base::FlintTable_base(const FlintTable_base &other)
 	: revision(other.revision),
 	  block_size(other.block_size),
