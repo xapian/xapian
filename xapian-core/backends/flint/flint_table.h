@@ -616,9 +616,6 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	/// Set to true when the database is opened to write.
 	bool writable;
 
-	/// Set to true if we shouldn't close handle ourselves.
-	bool dont_close_handle;
-
 	/* B-tree navigation functions */
 	bool prev(Cursor_ *C_, int j) const { return (this->*prev_ptr)(C_, j); }
 	bool next(Cursor_ *C_, int j) const { return (this->*next_ptr)(C_, j); }

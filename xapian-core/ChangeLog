@@ -1,3 +1,8 @@
+Wed Jun 13 04:18:51 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_table.cc,backends/flint/flint_table.h:
+	  Eliminate dont_close_handle as it's always false.
+
 Wed Jun 13 02:53:28 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_btreebase.cc,backends/flint/flint_btreebase.h:

@@ -1597,7 +1597,6 @@ FlintTable::FlintTable(string path_, bool readonly_, int compress_strategy_)
 	  Btree_modified(false),
 	  full_compaction(false),
 	  writable(!readonly_),
-	  dont_close_handle(false),
 	  split_p(0),
 	  compress_strategy(compress_strategy_)
 {
@@ -1671,7 +1670,7 @@ void FlintTable::close() {
     if (handle != -1) {
 	// If an error occurs here, we just ignore it, since we're just
 	// trying to free everything.
-	if (!dont_close_handle) (void)::close(handle);
+	(void)::close(handle);
 	handle = -1;
     }
 
@@ -1711,7 +1710,7 @@ FlintTable::commit(flint_revision_number_t revision)
     }
 
     if (!flint_io_sync(handle)) {
-	if (!dont_close_handle) (void)::close(handle);
+	(void)::close(handle);
 	handle = -1;
 	throw Xapian::DatabaseError("Can't commit new revision - failed to flush DB to disk");
     }
