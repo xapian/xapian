@@ -297,7 +297,18 @@ foreach my $tag (@ARGV) {
 	}
 	$log = undef;
 
-	chdir "../..";
+	chdir "..";
+
+	$log = `(cd ../xapian-maintainer-tools/ && tar zcvf ../build/win32msvc.tar.gz win32msvc --exclude .svn) 2>&1`;
+	print LOG $log;
+	if ($?) {
+	    print "*** tar win32msvc failed for '$tag':"
+	    print $log;
+	    $status = 1;
+	    next;
+	}
+
+	chdir "..";
     }
 
     my $d = "/usr/data/www/oligarchy.co.uk/xapian/$tag";
