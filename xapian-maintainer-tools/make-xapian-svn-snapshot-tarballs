@@ -176,7 +176,7 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
-    $log = `./configure --enable-maintainer-mode 2>&1`;
+    $log = `./configure CXXFLAGS=-O0 --enable-quiet --enable-maintainer-mode 2>&1`;
     print LOG $log;
     if ($?) {
 	print "*** configure failed for '$tag':";
@@ -186,7 +186,7 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
-    $log = `make 2>&1`;
+    $log = `make -s 2>&1`;
     print LOG $log;
     if ($?) {
 	print "*** make failed for '$tag':";
@@ -196,7 +196,7 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
-    $log = `make dist 2>&1`;
+    $log = `make -s dist 2>&1`;
     print LOG $log;
     if ($?) {
 	print "*** make dist failed for '$tag':";
@@ -304,7 +304,7 @@ foreach my $tag (@ARGV) {
 #	}
 #	$log = undef;
 
-	$log = `make dist 2>&1`;
+	$log = `make -s dist 2>&1`;
 	print LOG2 $log;
 	if ($?) {
 	    print "*** make dist failed for '$tag':";
