@@ -210,7 +210,7 @@ foreach my $tag (@ARGV) {
     my $win32dir = "win32msvc_svn$revision";
     unlink $win32dir;
     symlink "../xapian/xapian-maintainer-tools/win32msvc_svn", $win32dir;
-    $log = `tar --exclude .svn -zcvf \Q$win32dir\E.tar.gz \Q$win32dir\E 2>&1`;
+    $log = `tar --dereference --exclude .svn -zcvf \Q$win32dir\E.tar.gz \Q$win32dir\E 2>&1`;
     unlink $win32dir;
     print LOG $log;
     if ($?) {
