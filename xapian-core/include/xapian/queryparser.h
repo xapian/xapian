@@ -229,10 +229,30 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /// Destructor.
     ~QueryParser();
 
-    /// Set the stemmer.
+    /** Set the stemmer.
+     *
+     *  This sets the stemming algorithm which will be used by the query
+     *  parser.  Note that the stemming algorithm will only be used according
+     *  to the stemming strategy set by set_stemming_strategy(), which defaults
+     *  to STEM_NONE.  Therefore, to use a stemming algorithm, you will also
+     *  need to call set_stemming_strategy() with a value other than STEM_NONE.
+     */
     void set_stemmer(const Xapian::Stem & stemmer);
 
-    /// Set the stemming strategy.
+    /** Set the stemming strategy.
+     *
+     *  This controls how the query parser will apply the stemming algorithm.
+     *  The default value is STEM_NONE.  The possible values are:
+     *
+     *   - STEM_NONE: performs no stemming.
+     *   - STEM_SOME: Search for stemmed forms of words which do not begin
+     *                with a capital letter, and search for unstemmed forms
+     *                of words which do begin with a capital letter.
+     *   - STEM_ALL:  Search for stemmed forms of all words.
+     *
+     *  Note that the stemming algorithm is only applied to words in
+     *  probabilistic fields - boolean filter terms are never stemmed.
+     */
     void set_stemming_strategy(stem_strategy strategy);
 
     /// Set the stopper.
