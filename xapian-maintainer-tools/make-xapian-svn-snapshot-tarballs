@@ -38,7 +38,8 @@ mkpath($work, 0, 0755);
 chdir $work or die $!;
 
 # Prevent multiple instances of this script from running at once.
-open LOCK, ">flockme" or die "Couldn't open 'flockme' for writing: $!\n";
+# Use the same lockfile that fetch does.
+open LOCK, ">$ENV{HOME}/tinderbox/flockme" or die "Couldn't open 'flockme' for writing: $!\n";
 unless (flock LOCK, LOCK_EX|LOCK_NB) {
     # Work directory already in use.  Don't print anything or the cron job will
     # send it as mail, which we don't really want.
@@ -50,7 +51,7 @@ unless (flock LOCK, LOCK_EX|LOCK_NB) {
 # running.
 my $HOSTNAME = Sys::Hostname::hostname();
 # Check the load average isn't too high.
-if ((run_command("uptime 2>/dev/null"))[0] =~ /.*: (\d+(?:\.\d+)?),/) {
+if (!$force && (run_command("uptime 2>/dev/null"))[0] =~ /.*: (\d+(?:\.\d+)?),/) {
     if ($1 > $MAXLOADPERCPU) {
 	my $loadavg = $1;
 	# `getconf _NPROCESSORS_ONLN` on linux gives e.g. 2
@@ -205,7 +206,23 @@ foreach my $tag (@ARGV) {
     }
     $log = undef;
 
-    # snapshots of Search::Xapian
+    # Snapshots of MSVC build files.
+    my $win32dir = "win32msvc_svn$revision";
+    unlink $win32dir;
+    symlink "../xapian/xapian-maintainer-tools/win32msvc_svn", $win32dir;
+    $log = `tar --exclude .svn -zcvf \Q$win32dir\E.tar.gz \Q$win32dir\E 2>&1`;
+    unlink $win32dir;
+    print LOG $log;
+    if ($?) {
+	print "*** tar win32msvc failed for '$tag':";
+	print $log;
+	$status = 1;
+	next;
+    }
+
+    chdir "..";
+
+    # Snapshots of Search::Xapian.
     if ($tag eq 'trunk') {
 	# We're in $tag/build and Search::Xapian must be bootstrapped in-tree.
 	my $co_dir = "search-xapian";
@@ -297,18 +314,7 @@ foreach my $tag (@ARGV) {
 	}
 	$log = undef;
 
-	chdir "..";
-
-	$log = `(cd ../xapian-maintainer-tools/ && tar zcvf ../build/win32msvc.tar.gz win32msvc --exclude .svn) 2>&1`;
-	print LOG $log;
-	if ($?) {
-	    print "*** tar win32msvc failed for '$tag':"
-	    print $log;
-	    $status = 1;
-	    next;
-	}
-
-	chdir "..";
+	chdir "../..";
     }
 
     my $d = "/usr/data/www/oligarchy.co.uk/xapian/$tag";
@@ -340,7 +346,7 @@ foreach my $tag (@ARGV) {
 	}
     }
     chdir("build");
-    for (glob("*/*.tar.gz"), glob("xapian-applications/*/*.tar.gz")) {
+    for (glob("*/*.tar.gz"), glob("xapian-applications/*/*.tar.gz"), glob("*.tar.gz")) {
 	print LOG "Moving '$_' to '$d'\n";
 	system("mv", $_, $d);
 	if ($?) {
