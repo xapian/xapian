@@ -220,8 +220,6 @@ foreach my $tag (@ARGV) {
 	next;
     }
 
-    chdir "..";
-
     # Snapshots of Search::Xapian.
     if ($tag eq 'trunk') {
 	# We're in $tag/build and Search::Xapian must be bootstrapped in-tree.
