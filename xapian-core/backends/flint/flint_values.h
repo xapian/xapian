@@ -59,7 +59,7 @@ class FlintValueTable : public FlintTable {
 	 *                          access.
 	 */
 	FlintValueTable(string path_, bool readonly_)
-	    : FlintTable(path_ + "/value.", readonly_) { }
+	    : FlintTable(path_ + "/value.", readonly_, DONT_COMPRESS, true) { }
 
 	/** Store a value.  If a value of the same document ID and
 	 *  value number already exists, it is overwritten by this.

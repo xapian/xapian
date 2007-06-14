@@ -256,20 +256,21 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
     public:
 	/** Create a new Btree object.
 	 *
-	 *  This does not create the table on disk - the create() method must
-	 *  be called to create the table on disk.
+	 *  This does not create the table on disk - the create_and_open()
+	 *  method must be called to create the table on disk.
 	 *
-	 *  This also does not open the table - the open() method must be
-	 *  called before use is made of the table.
+	 *  This also does not open the table - either the create_and_open()
+	 *  or open() methods must be called before use is made of the table.
 	 *
-	 *  @param path_          - Path at which the table is stored.
-	 *  @param readonly_      - whether to open the table for read only
-	 *                          access.
+	 *  @param path_	Path at which the table is stored.
+	 *  @param readonly_	whether to open the table for read only access.
 	 *  @param compress_strategy_	DONT_COMPRESS, Z_DEFAULT_STRATEGY,
 	 *				Z_FILTERED, Z_HUFFMAN_ONLY, or Z_RLE.
+	 *  @param lazy		If true, don't create the table until it's
+	 *			needed.
 	 */
 	FlintTable(string path_, bool readonly_,
-		   int compress_strategy_ = DONT_COMPRESS);
+		   int compress_strategy_ = DONT_COMPRESS, bool lazy = false);
 
 	/** Close the Btree.
 	 *
@@ -419,7 +420,24 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 */
 	bool del(const string &key);
 
-	/** Create a new empty btree structure on disk.
+	/// Erase this table from disk.
+	void erase();
+
+	/** Set the block size.
+	 *
+	 *  It's only safe to do this before the table is created.
+	 */
+	void set_block_size(unsigned int block_size_);
+
+	/** Get the block size.
+	 */
+	unsigned int get_block_size() const { return block_size; }
+
+	/** Create a new empty btree structure on disk and open it at the
+	 *  initial revision.
+	 *
+	 *  The table must be writable - it doesn't make sense to create
+	 *  a table that is read-only!
 	 *
 	 *  The block size must be less than 64K, where K = 1024. It is unwise
 	 *  to use a small block size (less than 1024 perhaps), so we enforce a
@@ -428,15 +446,17 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *  Example:
 	 *
 	 *    Btree btree("X-");
-	 *    btree.create(8192);  // files will be X-DB, X-baseA (and X-baseB)
+	 *    btree.create_and_open(8192);
+	 *    // Files will be X-DB, X-baseA (and X-baseB).
 	 *
 	 *  @param blocksize     - Size of blocks to use.
 	 *
-	 *  @exception Xapian::DatabaseCreateError if the table can't be created.
+	 *  @exception Xapian::DatabaseCreateError if the table can't be
+	 *	created.
 	 *  @exception Xapian::InvalidArgumentError if the requested blocksize
-	 *  is unsuitable.
+	 *	is unsuitable.
 	 */
-	void create(unsigned int blocksize);
+	void create_and_open(unsigned int blocksize);
 
 	void set_full_compaction(bool parity);
 
@@ -513,7 +533,9 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 *
 	 *  Return true iff the open succeeded.
 	 */
-	bool do_open_to_write(bool revision_supplied, flint_revision_number_t revision_);
+	bool do_open_to_write(bool revision_supplied,
+			      flint_revision_number_t revision_,
+			      bool create_db = false);
 	bool basic_open(bool revision_supplied, flint_revision_number_t revision);
 
 	bool find(Cursor_ *) const;
@@ -647,6 +669,9 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 
 	/** DONT_COMPRESS or Z_DEFAULT_COMPRESSION, Z_HUFFMAN_ONLY, Z_RLE. */
 	int compress_strategy;
+
+	/// If true, don't create the table until it's needed.
+	bool lazy;
 
 	/* Debugging methods */
 //	void report_block_full(int m, int n, const byte * p);

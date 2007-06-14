@@ -325,9 +325,11 @@ main(int argc, char **argv)
 		Xapian::docid last = db.get_lastdocid();
 		// FIXME: prune unused docids off the end of each source db...
 
-		// Prune any unused docids off the start of this source database.
+		// Prune any unused docids off the start of this source
+		// database.
 		Xapian::PostingIterator it = db.postlist_begin("");
-		// This test should never fail, since db.get_doccount() is non-zero!
+		// This test should never fail, since db.get_doccount() is
+		// non-zero!
 		if (it != db.postlist_end("")) {
 		    // tot_off could wrap here, but it's unsigned, so that's OK.
 		    tot_off -= (*it - 1);
@@ -380,9 +382,21 @@ main(int argc, char **argv)
 		compress_strategy = Z_DEFAULT_STRATEGY;
 	    }
 
-	    FlintTable out(dest, false, compress_strategy);
-	    out.create(block_size);
-	    out.open();
+	    bool lazy = false;
+	    // Create tables after position lazily.
+	    if (strcmp(*t, "position") == 0 ||
+		strcmp(*t, "value") == 0) {
+		lazy = true;
+	    }
+
+	    FlintTable out(dest, false, compress_strategy, lazy);
+	    if (!lazy) {
+		out.create_and_open(block_size);
+	    } else {
+		out.erase();
+		out.set_block_size(block_size);
+	    }
+
 	    out.set_full_compaction(compaction != STANDARD);
 	    if (compaction == FULLER) out.set_max_item_size(1);
 
@@ -403,10 +417,11 @@ main(int argc, char **argv)
 		    tmp.push_back(s);
 
 		    struct stat sb;
-		    if (stat(s + "DB", &sb) == 0)
+		    if (stat(s + "DB", &sb) == 0) {
 			in_size += sb.st_size / 1024;
-		    else
-			bad_stat = true;
+		    } else {
+			bad_stat = (errno != ENOENT);
+		    }
 		}
 		vector<Xapian::docid> off(offset);
 		unsigned int c = 0;
@@ -427,8 +442,7 @@ main(int argc, char **argv)
 			// Don't compress temporary tables, even if the
 			// final table would be.
 			FlintTable tmptab(dest, false);
-			tmptab.create(block_size);
-			tmptab.open();
+			tmptab.create_and_open(block_size);
 
 			merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
 			if (c > 0) {
@@ -467,10 +481,10 @@ main(int argc, char **argv)
 			if (sb.st_size == 0) continue;
 			in_size += sb.st_size / 1024;
 		    } else {
-			bad_stat = true;
+			bad_stat = (errno != ENOENT);
 		    }
 
-		    FlintTable in(src, true);
+		    FlintTable in(src, true, compress_strategy, lazy);
 		    in.open();
 		    if (in.get_entry_count() == 0) continue;
 
@@ -515,9 +529,18 @@ main(int argc, char **argv)
 	    out.commit(1);
 
 	    cout << '\r' << *t << ": ";
-	    struct stat sb;
-	    if (!bad_stat && stat(dest + "DB", &sb) == 0) {
-		off_t out_size = sb.st_size / 1024;
+	    off_t out_size = 0;
+	    if (!bad_stat) {
+		struct stat sb;
+		if (stat(dest + "DB", &sb) == 0) {
+		    out_size = sb.st_size / 1024;
+		} else {
+		    bad_stat = (errno != ENOENT);
+		}
+	    }
+	    if (bad_stat) {
+		cout << "Done (couldn't stat all the DB files)";
+	    } else {
 		if (out_size == in_size) {
 		    cout << "Size unchanged (";
 		} else if (out_size < in_size) {
@@ -530,8 +553,6 @@ main(int argc, char **argv)
 			 << out_size - in_size << "K (" << in_size << "K -> ";
 		}
 		cout << out_size << "K)";
-	    } else {
-		cout << "Done (couldn't stat all the DB files)";
 	    }
 	    cout << endl;
 	}

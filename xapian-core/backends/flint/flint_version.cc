@@ -36,14 +36,15 @@
 using std::string;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
-#define FLINT_VERSION 200704230
-// 200704230 Use zlib compression of tags for record and termlist tables
+#define FLINT_VERSION 200706140
+// 200706140 Optional value and position tables.
+// 200704230 Use zlib compression of tags for record and termlist tables.
 // 200611200 Fixed occasional, architecture-dependent surplus bits in
 //	     interpolative coding; "flicklock" -> "flintlock".
 // 200506110 Fixed interpolative coding to work(!)
-// 200505310 Interpolative coding for position lists
-// 200505280 Total doclen and last docid entry moved to postlist table
-// 200505270 First dated version
+// 200505310 Interpolative coding for position lists.
+// 200505280 Total doclen and last docid entry moved to postlist table.
+// 200505270 First dated version.
 
 #define MAGIC_STRING "IAmFlint"
 
@@ -120,6 +121,12 @@ void FlintVersion::read_and_check()
     const unsigned char *v;
     v = reinterpret_cast<const unsigned char *>(buf) + MAGIC_LEN;
     unsigned int version = v[0] | (v[1] << 8) | (v[2] << 16) | (v[3] << 24);
+    if (version == 200704230) {
+	// 200704230 is just like 200706140 except that the value and position
+	// tables must exist.  So just open the database - any updates will
+	// leave it as a valid 200704230 format database.
+	return;
+    }
     if (version != FLINT_VERSION) {
 	string msg("Flint version file ");
 	msg += filename;

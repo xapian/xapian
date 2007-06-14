@@ -29,6 +29,7 @@
 #include "flint_table.h"
 #include "flint_types.h"
 #include "flint_utils.h"
+#include "utils.h"
 
 #include <xapian.h>
 
@@ -229,6 +230,14 @@ main(int argc, char **argv)
 		table += '/';
 		table += *t;
 		cout << *t << ":\n";
+		if (strcmp(*t, "position") == 0 ||
+		    strcmp(*t, "value") == 0) {
+		    // These are created lazily, so may not exist.
+		    if (!file_exists(table + ".DB")) {
+			cout << "Lazily created, and not yet used.\n" << endl;
+			continue;
+		    }
+		}
 		errors += check_table(table, opts);
 	    }
 	} else {

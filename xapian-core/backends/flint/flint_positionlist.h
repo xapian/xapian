@@ -47,7 +47,7 @@ class FlintPositionListTable : public FlintTable {
      *  @param readonly		true if we're opening read-only, else false.
      */
     FlintPositionListTable(string dbdir, bool readonly)
-	: FlintTable(dbdir + "/position.", readonly) { }
+	: FlintTable(dbdir + "/position.", readonly, DONT_COMPRESS, true) { }
 
     /// Set the position list for term tname in document did.
     void set_positionlist(Xapian::docid did, const string & tname,

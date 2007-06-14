@@ -106,34 +106,6 @@ static void report_cursor(int N, Btree * B, Cursor_ * C)
 
 /* Input/output is defined with calls to the basic Unix system interface: */
 
-static int sys_open_to_write_no_except(const string & name)
-{
-    int fd = open(name.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0666);
-    return fd;
-}
-
-static int sys_open_to_write(const string & name)
-{
-    int fd = sys_open_to_write_no_except(name);
-    if (fd < 0) {
-	string message = string("Couldn't open ")
-		+ name + " to write: " + strerror(errno);
-	throw Xapian::DatabaseOpeningError(message);
-    }
-    return fd;
-}
-
-static int sys_open_for_readwrite(const string & name)
-{
-    int fd = open(name.c_str(), O_RDWR | O_BINARY);
-    if (fd < 0) {
-	string message = string("Couldn't open ")
-		+ name + " read/write: " + strerror(errno);
-	throw Xapian::DatabaseOpeningError(message);
-    }
-    return fd;
-}
-
 static void sys_unlink(const string &filename)
 {
 #ifdef __WIN32__
@@ -1047,6 +1019,8 @@ FlintTable::add(const string &key, string tag, bool already_compressed)
     DEBUGCALL(DB, bool, "FlintTable::add", key << ", " << tag);
     Assert(writable);
 
+    if (handle == -1) create_and_open(block_size);
+
     if (key.size() > FLINT_BTREE_MAX_KEY_LEN) {
 	throw Xapian::InvalidArgumentError(
 		"Key_ too long: length was " +
@@ -1200,6 +1174,8 @@ FlintTable::del(const string &key)
     DEBUGCALL(DB, bool, "FlintTable::del", key);
     Assert(writable);
 
+    if (handle == -1) RETURN(false);
+
     // We can't delete a key which we is too long for us to store.
     if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
 
@@ -1235,6 +1211,8 @@ bool
 FlintTable::find_tag(const string &key, string * tag) const
 {
     DEBUGCALL(DB, bool, "FlintTable::find_tag", key << ", &tag");
+    if (handle == -1) RETURN(false);
+
     form_key(key);
     if (!find(C)) RETURN(false);
 
@@ -1390,6 +1368,10 @@ FlintTable::basic_open(bool revision_supplied, flint_revision_number_t revision_
 	}
 
 	if (!valid_base) {
+	    if (handle != -1) {
+		::close(handle);
+		handle = -1;
+	    }
 	    string message = "Error opening table `";
 	    message += name;
 	    message += "':\n";
@@ -1526,12 +1508,30 @@ FlintTable::read_root()
 }
 
 bool
-FlintTable::do_open_to_write(bool revision_supplied, flint_revision_number_t revision_)
+FlintTable::do_open_to_write(bool revision_supplied,
+			     flint_revision_number_t revision_,
+			     bool create_db)
 {
-    /* FIXME: do the exception safety the right way, by making all the
-     * parts into sensible objects.
-     */
+    int flags = O_RDWR | O_BINARY;
+    if (create_db) flags |= O_CREAT | O_TRUNC;
+    handle = ::open((name + "DB").c_str(), flags, 0666);
+    if (handle < 0) {
+	// lazy doesn't make a lot of sense with create_db anyway, but ENOENT
+	// with O_CREAT means a parent directory doesn't exist.
+	if (lazy && !create_db && errno == ENOENT) {
+	    revision_number = revision_;
+	    return true;
+	}
+	string message(create_db ? "Couldn't create " : "Couldn't open ");
+	message += name;
+	message += "DB read/write: ";
+	message += strerror(errno);
+	throw Xapian::DatabaseOpeningError(message);
+    }
+
     if (!basic_open(revision_supplied, revision_)) {
+	::close(handle);
+	handle = -1;
 	if (!revision_supplied) {
 	    throw Xapian::DatabaseOpeningError("Failed to open for writing");
 	}
@@ -1542,8 +1542,6 @@ FlintTable::do_open_to_write(bool revision_supplied, flint_revision_number_t rev
     }
 
     writable = true;
-
-    handle = sys_open_for_readwrite(name + "DB");
 
     prev_ptr = &FlintTable::prev_default;
     next_ptr = &FlintTable::next_default;
@@ -1573,7 +1571,8 @@ FlintTable::do_open_to_write(bool revision_supplied, flint_revision_number_t rev
     return true;
 }
 
-FlintTable::FlintTable(string path_, bool readonly_, int compress_strategy_)
+FlintTable::FlintTable(string path_, bool readonly_,
+		       int compress_strategy_, bool lazy_)
 	: revision_number(0),
 	  item_count(0),
 	  block_size(0),
@@ -1598,7 +1597,8 @@ FlintTable::FlintTable(string path_, bool readonly_, int compress_strategy_)
 	  full_compaction(false),
 	  writable(!readonly_),
 	  split_p(0),
-	  compress_strategy(compress_strategy_)
+	  compress_strategy(compress_strategy_),
+	  lazy(lazy_)
 {
     DEBUGCALL(DB, void, "FlintTable::Btree", path_ << ", " << readonly_);
 }
@@ -1610,8 +1610,8 @@ FlintTable::exists() const {
 	    (file_exists(name + "baseA") || file_exists(name + "baseB")));
 }
 
-/** Delete file, throwing an error if can't delete it (but not if it
- *  doesn't exist)
+/** Delete file, throwing an error if we can't delete it (but not if it
+ *  doesn't exist).
  */
 static void
 sys_unlink_if_exists(const string & filename)
@@ -1624,19 +1624,41 @@ sys_unlink_if_exists(const string & filename)
 }
 
 void
-FlintTable::create(unsigned int block_size_)
+FlintTable::erase()
 {
-    DEBUGCALL(DB, void, "FlintTable::create", block_size_);
+    DEBUGCALL(DB, void, "FlintTable::erase", "");
     close();
 
+    sys_unlink_if_exists(name + "baseA");
+    sys_unlink_if_exists(name + "baseB");
+    sys_unlink_if_exists(name + "DB");
+}
+
+void
+FlintTable::set_block_size(unsigned int block_size_)
+{
+    DEBUGCALL(DB, void, "FlintTable::set_block_size", block_size_);
     // Block size must in the range 2048..BYTE_PAIR_RANGE, and a power of two.
     if (block_size_ < 2048 || block_size_ > BYTE_PAIR_RANGE ||
 	(block_size_ & (block_size_ - 1)) != 0) {
 	block_size_ = FLINT_DEFAULT_BLOCK_SIZE;
     }
+    block_size = block_size_;
+}
+
+void
+FlintTable::create_and_open(unsigned int block_size_)
+{
+    DEBUGCALL(DB, void, "FlintTable::create", block_size_);
+    Assert(writable);
+    close();
+
+    if (block_size_ == 0) abort();
+    set_block_size(block_size_);
 
     // FIXME: it would be good to arrange that this works such that there's
-    // always a valid table in place...
+    // always a valid table in place if you run create_and_open() on an
+    // existing table.
 
     /* write initial values to files */
 
@@ -1650,13 +1672,8 @@ FlintTable::create(unsigned int block_size_)
     /* remove the alternative base file, if any */
     sys_unlink_if_exists(name + "baseB");
 
-    /* create the main file */
-    int h = sys_open_to_write(name + "DB");
-    if (h == -1 || ::close(h) != 0) {
-	string message = "Error creating DB file: ";
-	message += strerror(errno);
-	throw Xapian::DatabaseOpeningError(message);
-    }
+    // Any errors are thrown if revision_supplied is false.
+    (void)do_open_to_write(false, 0, true);
 }
 
 FlintTable::~FlintTable() {
@@ -1696,6 +1713,8 @@ FlintTable::commit(flint_revision_number_t revision)
     if (revision <= revision_number) {
 	throw Xapian::DatabaseError("New revision too low");
     }
+
+    if (handle == -1) return;
 
     // FIXME: this doesn't work (probably because the table revisions get
     // out of step) but it's wasteful to keep applying changes to value
@@ -1764,6 +1783,8 @@ FlintTable::cancel()
     DEBUGCALL(DB, void, "FlintTable::cancel", "");
     Assert(writable);
 
+    if (handle == -1) return;
+
     // This causes problems: if (!Btree_modified) return;
 
     string err_msg;
@@ -1801,7 +1822,23 @@ FlintTable::cancel()
 bool
 FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revision_)
 {
+    handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
+    if (handle < 0) {
+	if (lazy) {
+	    // This table is optional when reading!
+	    revision_number = revision_;
+	    return true;
+	}
+	string message("Couldn't open ");
+	message += name;
+	message += "DB to read: ";
+	message += strerror(errno);
+	throw Xapian::DatabaseOpeningError(message);
+    }
+
     if (!basic_open(revision_supplied, revision_)) {
+	::close(handle);
+	handle = -1;
 	if (revision_supplied) {
 	    // The requested revision was not available.
 	    // This could be because the database was modified underneath us, or
@@ -1810,13 +1847,6 @@ FlintTable::do_open_to_read(bool revision_supplied, flint_revision_number_t revi
 	    return false;
 	}
 	throw Xapian::DatabaseOpeningError("Failed to open table for reading");
-    }
-
-    handle = ::open((name + "DB").c_str(), O_RDONLY | O_BINARY);
-    if (handle < 0) {
-	string message = string("Couldn't open ")
-		+ name + " to read: " + strerror(errno);
-	throw Xapian::DatabaseOpeningError(message);
     }
 
     if (sequential) {
@@ -1852,7 +1882,7 @@ FlintTable::open()
 	return;
     }
 
-    // Any errors are thrown if revision_supplied is false
+    // Any errors are thrown if revision_supplied is false.
     (void)do_open_to_write(false, 0);
 }
 

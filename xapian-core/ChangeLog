@@ -1,3 +1,20 @@
+Thu Jun 14 16:25:55 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/: The value and position tables are now only created
+	  if there is anything to add to them.  So if you never use document
+	  values, there's no value_DB, value.baseA, or value.baseB.  This
+	  means the table doesn't need to be opened for searching (saving a
+	  file handle) and when flushing changes, we don't need to update
+	  baseA/baseB just to keep the revisions in step.  The flint database
+	  version has been increased, but the new code will happily open and
+	  read/update flint databases from Xapian 1.0.0 and 1.0.1.
+	* bin/xapian-check.cc,bin/xapian-compact.cc: Update to handle
+	  databases without value and/or position tables.
+	* tests/testdata/flint-1.0.1/: Empty example of a flint 1.0.1 format
+	  database.
+	* tests/Makefile.am,tests/api_db.cc: Add check that a flint 1.0.1
+	  format database can be opened.
+
 Wed Jun 13 22:40:15 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* include/xapian/queryparser.h: Document set_stemmer() and

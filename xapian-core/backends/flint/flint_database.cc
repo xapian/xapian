@@ -156,9 +156,7 @@ FlintDatabase::database_exists() {
     DEBUGCALL(DB, bool, "FlintDatabase::database_exists", "");
     return record_table.exists() &&
 	   postlist_table.exists() &&
-	   positionlist_table.exists() &&
-	   termlist_table.exists() &&
-	   value_table.exists();
+	   termlist_table.exists();
 }
 
 void
@@ -170,25 +168,25 @@ FlintDatabase::create_and_open_tables(unsigned int block_size)
     // Create postlist_table first, and record_table last.  Existence of
     // record_table is considered to imply existence of the database.
     version_file.create();
-    postlist_table.create(block_size);
-    positionlist_table.create(block_size);
-    termlist_table.create(block_size);
-    value_table.create(block_size);
-    record_table.create(block_size);
+    postlist_table.create_and_open(block_size);
+    // The positionlist table is created lazily, but erase it in case we're
+    // overwriting an existing database and it already exists.
+    positionlist_table.erase();
+    positionlist_table.set_block_size(block_size);
+
+    termlist_table.create_and_open(block_size);
+    // The value table is created lazily, but erase it in case we're
+    // overwriting an existing database and it already exists.
+    value_table.erase();
+    value_table.set_block_size(block_size);
+
+    record_table.create_and_open(block_size);
 
     Assert(database_exists());
 
-    record_table.open();
-    value_table.open();
-    termlist_table.open();
-    positionlist_table.open();
-    postlist_table.open();
-
     // Check consistency
     flint_revision_number_t revision = record_table.get_open_revision_number();
-    if (revision != value_table.get_open_revision_number() ||
-	revision != termlist_table.get_open_revision_number() ||
-	revision != positionlist_table.get_open_revision_number() ||
+    if (revision != termlist_table.get_open_revision_number() ||
 	revision != postlist_table.get_open_revision_number()) {
 	throw Xapian::DatabaseCreateError("Newly created tables are not in consistent state");
     }
@@ -210,6 +208,11 @@ FlintDatabase::open_tables_consistent()
     version_file.read_and_check();
     record_table.open();
     flint_revision_number_t revision = record_table.get_open_revision_number();
+
+    // In case the positionlist and/or value tables don't exist yet.
+    unsigned int block_size = record_table.get_block_size();
+    positionlist_table.set_block_size(block_size);
+    value_table.set_block_size(block_size);
 
     bool fully_opened = false;
     int tries = 100;
@@ -257,6 +260,12 @@ FlintDatabase::open_tables(flint_revision_number_t revision)
     DEBUGCALL(DB, void, "FlintDatabase::open_tables", revision);
     version_file.read_and_check();
     record_table.open(revision);
+
+    // In case the positionlist and/or value tables don't exist yet.
+    unsigned int block_size = record_table.get_block_size();
+    positionlist_table.set_block_size(block_size);
+    value_table.set_block_size(block_size);
+
     value_table.open(revision);
     termlist_table.open(revision);
     positionlist_table.open(revision);
