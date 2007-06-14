@@ -119,7 +119,45 @@ print FD <<'EOF';
 }
 %}
 
+/* Note that we have to re-acquire the GIL in the catch() here, because
+ * XapianSetPythonException accesses Python datastructures.  */
 %exception {
+    try {
+	$action
+    } catch (...) {
+	SWIG_PYTHON_THREAD_END_ALLOW;
+	XapianSetPythonException();
+	SWIG_fail;
+    }
+}
+
+/* The following exception directives are for the methods defined by
+ * director classes, which don't drop the GIL in the first place. */
+%exception Xapian::MatchDecider::operator() {
+    try {
+	$action
+    } catch (...) {
+	XapianSetPythonException();
+	SWIG_fail;
+    }
+}
+%exception Xapian::ExpandDecider::operator() {
+    try {
+	$action
+    } catch (...) {
+	XapianSetPythonException();
+	SWIG_fail;
+    }
+}
+%exception Xapian::Stopper::operator() {
+    try {
+	$action
+    } catch (...) {
+	XapianSetPythonException();
+	SWIG_fail;
+    }
+}
+%exception Xapian::Stopper::get_description {
     try {
 	$action
     } catch (...) {
