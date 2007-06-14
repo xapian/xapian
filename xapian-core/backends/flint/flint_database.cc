@@ -131,11 +131,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	    postlist_table.get_latest_revision_number()) {
 	    flint_revision_number_t new_revision = get_next_revision_number();
 
-	    postlist_table.commit(new_revision);
-	    positionlist_table.commit(new_revision);
-	    termlist_table.commit(new_revision);
-	    value_table.commit(new_revision);
-	    record_table.commit(new_revision);
+	    set_revision_number(new_revision);
 	}
 	if (record_table.get_doccount() == 0) {
 	    postlist_table.set_total_length_and_lastdocid(0, postlist_table.get_lastdocid());
@@ -344,11 +340,7 @@ FlintDatabase::apply()
     flint_revision_number_t new_revision = get_next_revision_number();
 
     try {
-	postlist_table.commit(new_revision);
-	positionlist_table.commit(new_revision);
-	termlist_table.commit(new_revision);
-	value_table.commit(new_revision);
-	record_table.commit(new_revision);
+	set_revision_number(new_revision);
     } catch (...) {
 	// Modifications failed.  Wipe all the modifications from memory.
 
