@@ -23,7 +23,7 @@ general management of a Xapian database, including tasks such as taking
 backups and optimising performance.  It may also be useful introductory
 reading for Xapian application developers.
 
-The document is targetted at Xapian version 1.0.0.
+The document is up-to-date for Xapian version 1.0.2.
 
 Databases
 =========
@@ -47,13 +47,15 @@ Each of these tables is held in a separate file, allowing an administrator to
 see how much data is being used for each of the above purposes.  It is not
 always necessary to fully populate these tables: for example, if phrase
 searches are never going to be performed on the database, it is not necessary
-to store any positionlist information.  However, the tables must be present,
-even if they contain no information.
+to store any positionlist information.  As of Xapian 1.0.2, the value and
+position tables are created in a lazy fashion, so they'll only be created when
+there is data to be put in them.  The other tables must be present (since
+they'll always contain something in useful database).
 
 If you look at a Xapian database, you will see that each of these tables
 actually uses 2 or 3 files.  For example, for a "flint" format database the
-position list table is stored in the files "position.baseA", "position.baseB"
-and "position.DB".
+termlist table is stored in the files "termlist.baseA", "termlist.baseB"
+and "termlist.DB".
 
 Of these files, only the ".DB" file actually stores the data.  The ".baseA"
 and ".baseB" files are used to keep track of where to start looking for that
@@ -332,9 +334,10 @@ several disks, it may be worth placing the source databases and the
 destination database on separate disks to obtain maximum speed.
 
 The "xapian-compact" tool supports an additional option, "--multipass", which
-is useful when merging more than 3 databases.  This will cause the databases
-to be grouped and merged into temporary databases, which is usually faster,
-but requires more disk space for the temporary files.
+is useful when merging more than 3 databases.  This will cause the postlist
+tables to be grouped and merged into temporary tables, which are then grouped
+and merged, and so on until a single postlist table is created, which is
+usually faster, but requires more disk space for the temporary files.
 
 
 Checking database integrity
@@ -348,9 +351,9 @@ table: for example, for a database "foo", the command:
 
 ::
 
-  xapian-check foo/position.
+  xapian-check foo/termlist
 
-will check the position list table.
+will check the termlist table.
 
 
 Converting a quartz database to a flint database
@@ -360,7 +363,7 @@ It is possible to convert a quartz database to a flint database using the
 "copydatabase" example program included with Xapian.  This is a lot slower to
 run than "quartzcompact" or "xapian-compact", since it has to perform the
 sorting of the term occurrence data from scratch, but should be faster than a
-reindex from source data since it doesn't need to perform the tokenisation
+re-index from source data since it doesn't need to perform the tokenisation
 step.  It is also useful if you no longer have the source data available.
 
 The following command will copy a database from "SOURCE" to "DESTINATION",
@@ -371,7 +374,7 @@ creating the new database at "DESTINATION" as a flint database.
   copydatabase SOURCE DESTINATION
 
 
-Converting a 0.9.x flint database to work with 1.0.0
+Converting a 0.9.x flint database to work with 1.0.y
 ----------------------------------------------------
 
 Due to a bug in the flint position list encoding in 0.9.x which made flint
@@ -388,8 +391,8 @@ Run the following command in your Xapian 0.9.x installation to copy your
 
   copydatabase SOURCE INTERMEDIATE
 
-Then run the following command in your Xapian 1.0.0 installation to copy
-your quartz database to a 1.0.0 flint database "DESTINATION":
+Then run the following command in your Xapian 1.0.y installation to copy
+your quartz database to a 1.0.y flint database "DESTINATION":
 
 ::
 
