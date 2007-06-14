@@ -122,7 +122,7 @@ EXTRA_DIST =\
 	testdata/flint-0.9.9/postlist.baseA\
 	testdata/flint-1.0.1/value.DB \
 	testdata/flint-1.0.1/position.baseA \
-	testdata/flint-1.0.1/flicklock \
+	testdata/flint-1.0.1/flintlock \
 	testdata/flint-1.0.1/value.baseA \
 	testdata/flint-1.0.1/record.baseA \
 	testdata/flint-1.0.1/termlist.DB \
