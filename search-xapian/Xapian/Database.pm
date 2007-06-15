@@ -94,15 +94,16 @@ returns true if this term exists in the database, or false otherwise.
 
 return a description of this object (for introspection)
 
-=item allterms_begin 
+=item allterms_begin [<prefix>]
 
-Returns a L<Search::Xapian::TermIterator> pointing to the start of the 
-termlist for the entire database.
+Returns a L<Search::Xapian::TermIterator> iterating over the termlist for the
+the entire database.  If the optional prefix argument is non-empty, only
+terms starting with that string are returned.
 
-=item allterms_end 
+=item allterms_end [<prefix>]
 
 Returns a L<Search::Xapian::TermIterator> pointing to the end of the 
-termlist for the entire database.
+termlist corresponding to allterms_begin.
 
 =item termlist_begin <docid>
 
