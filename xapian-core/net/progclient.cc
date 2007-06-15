@@ -129,9 +129,19 @@ ProgClient::run_program(const string &progname, const string &args
 
     // close unnecessary file descriptors
     // FIXME: Probably a bit excessive...
-    // (Note, we used to close fd 2 here as well, but that makes valgrind unhappy.
-    for (int fd = 3; fd < 256; ++fd) {
+    for (int fd = 2; fd < 256; ++fd) {
 	close(fd);
+    }
+
+    // Redirect stderr to /dev/null
+    int stderrfd = open("/dev/null", O_RDONLY);
+    if (stderrfd == -1) {
+	throw Xapian::NetworkError(string("Redirecting stderr to /dev/null failed"), get_progcontext(progname, args), errno);
+    }
+    if (stderrfd != 2) {
+	// Not sure why it wouldn't be 2, but handle the situation anyway.
+	dup2(stderrfd, 2);
+	close(stderrfd);
     }
 
     vector<string> argvec;
