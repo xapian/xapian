@@ -27,6 +27,8 @@ EXAMPLE_OBJS =  $(INTDIR)\delve.obj \
 		$(INTDIR)\simpleindex.obj \
 		$(INTDIR)\simplesearch.obj \
 		$(INTDIR)\copydatabase.obj
+		
+LOCAL_HEADERS =
 
 PROGRAMS = "$(OUTDIR)\delve.exe" "$(OUTDIR)\quest.exe" \
 "$(OUTDIR)\simpleexpand.exe" "$(OUTDIR)\simpleindex.exe" "$(OUTDIR)\simplesearch.exe" "$(OUTDIR)\copydatabase.exe" 
@@ -95,65 +97,16 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\simplesearch.exe" $(DEF_FLAGS) "$(INTDIR)\simplesearch.obj"
 <<
 
-    
-"$(INTDIR)\copydatabase.obj" : ".\copydatabase.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
+# if any headers change, rebuild all .objs
+$(EXAMPLE_OBJS): $(LOCAL_HEADERS)
+
+# inference rules, showing how to create one type of file from another with the same root name	
+{.}.cc{$(INTDIR)}.obj:
+	$(CPP) @<<
+	$(CPP_PROJ) $< 
 <<
 
-"$(INTDIR)\delve.obj" : ".\delve.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\quest.obj" : ".\quest.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\simpleexpand.obj" : ".\simpleexpand.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\simpleindex.obj" : ".\simpleindex.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\simplesearch.obj" : ".\simplesearch.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-
-.c{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
-<<
-
-.cpp{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.c{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_SBRS)}.sbr::
+{.}.cc{$(CPP_SBRS)}.sbr:
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<

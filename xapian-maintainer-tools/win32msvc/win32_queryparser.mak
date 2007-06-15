@@ -20,6 +20,10 @@ LIBQUERYPARSER_OBJS= \
                 $(INTDIR)\termgenerator.obj \
                 $(INTDIR)\termgenerator_internal.obj
 
+LOCAL_HEADERS =\
+	$(INTDIR)\queryparser_internal.h\
+	$(INTDIR)\queryparser_token.h\
+	$(INTDIR)\termgenerator_internal.h		
 
 CLEAN :
 	-@erase "$(OUTDIR)\libqueryparser.lib"
@@ -59,29 +63,13 @@ CPP_SBRS=.
   $(CPP_PROJ_LEMON) $**
 <<
 
-"$(INTDIR)\queryparser.obj" : ".\queryparser.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\queryparser_internal.obj" : ".\queryparser_internal.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\termgenerator.obj" : ".\termgenerator.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\termgenerator_internal.obj" : ".\termgenerator_internal.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
-
 "$(INTDIR)\queryparser_internal.cc" : ".\queryparser.lemony" 
 	$(INTDIR)\lemon.exe -q -oqueryparser_internal.cc -hqueryparser_token.h queryparser.lemony 
-	
+
+# if any headers change, rebuild all .objs
+$(LIBQUERYPARSER_OBJS): $(LOCAL_HEADERS)
+
+# inference rules, showing how to create one type of file from another with the same root name	
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
 	$(CPP_PROJ) $< 

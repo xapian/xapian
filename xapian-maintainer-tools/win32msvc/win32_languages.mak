@@ -174,7 +174,7 @@ CPP_SBRS=.
 <<
 
 
-"$(INTDIR)\steminternal.obj" : ".\steminternal.cc" $(LIBLANGUAGES_SOURCES)
+"$(INTDIR)\steminternal.obj" : ".\steminternal.cc" $(LIBLANGUAGES_SOURCES) 
     $(CPP) @<<
   $(CPP_PROJ) $**
 <<

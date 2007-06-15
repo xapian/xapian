@@ -94,6 +94,21 @@ MD5TEST_OBJS= \
  	"$(OUTDIR)\md5wrap.obj" \
  	"$(OUTDIR)\md5test.obj" 
 	
+LOCAL_HEADERS= omega.h query.h cgiparam.h\
+ myhtmlparse.h htmlparse.h utils.h configfile.h date.h\
+ commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
+ md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
+ namedentities.h datematchdecider.h sample.h strcasecmp.h\
+ utf8truncate.h diritor.h \
+# headers maintained in xapian-core
+	common/gnu_getopt.h\
+	common/safeerrno.h\
+	common/safefcntl.h\
+	common/safesysselect.h\
+	common/safesysstat.h\
+	common/safeunistd.h\
+	common/safewindows.h
+	
 
 CLEAN :
 	-@erase $(PROGRAMS)
@@ -155,150 +170,15 @@ PROGRAM_DEPENDENCIES =
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
+
+# if any headers change, rebuild all .objs
+$(OMEGA_OBJS): $(LOCAL_HEADERS)
+$(OMINDEX_OBJS): $(LOCAL_HEADERS)
+$(SCRIPTINDEX_OBJS): $(LOCAL_HEADERS)
+$(HTMLPARSETEST_OBJS): $(LOCAL_HEADERS)
+$(MD5TEST_OBJS): $(LOCAL_HEADERS) 
  
- 
-"$(INTDIR)\omega.obj" : ".\omega.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\query.obj" : ".\query.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\cgiparam.obj" : ".\cgiparam.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\utils.obj" : ".\utils.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\configfile.obj" : ".\configfile.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\date.obj" : ".\date.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\cdb_init.obj" : ".\cdb_init.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\cdb_find.obj" : ".\cdb_find.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\cdb_hash.obj" : ".\cdb_hash.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\cdb_unpack.obj" : ".\cdb_unpack.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\omindex.obj" : ".\omindex.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\scriptindex.obj" : ".\scriptindex.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\indextext.obj" : ".\indextext.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
 "$(INTDIR)\getopt.obj" : ".\common\getopt.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\commonhelp.obj" : ".\commonhelp.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\hashterm.obj" : ".\hashterm.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\loadfile.obj" : ".\loadfile.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\md5.obj" : ".\md5.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\md5wrap.obj" : ".\md5wrap.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\xmlparse.obj" : ".\xmlparse.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\metaxmlparse.obj" : ".\metaxmlparse.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\datematchdecider.obj" : ".\datematchdecider.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\utf8truncate.obj" : ".\utf8truncate.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\utf8convert.obj" : ".\utf8convert.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\md5test.obj" : ".\md5test.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\htmlparsetest.obj" : ".\htmlparsetest.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\htmlparse.obj" : ".\htmlparse.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\myhtmlparse.obj" : ".\myhtmlparse.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\utf8test.obj" : ".\utf8test.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
@@ -308,16 +188,12 @@ PROGRAM_DEPENDENCIES =
    $(CPP_PROJ) $**
 <<
 
-"$(INTDIR)\sample.obj" : ".\sample.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
 "$(INTDIR)\safe.obj" : ".\common\safe.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
 <<
 
+# inference rules, showing how to create one type of file from another with the same root name
 .c{$(CPP_OBJS)}.obj::
    $(CPP) @<<
    $(CPP_PROJ) $<

@@ -18,7 +18,12 @@ LIBREMOTE_OBJS= \
                  $(INTDIR)\net_document.obj \
                  $(INTDIR)\net_termlist.obj \
                  $(INTDIR)\net_postlist.obj \
-
+				 
+LOCAL_HEADERS =\
+	$(INTDIR)\net_document.h\
+	$(INTDIR)\net_postlist.h\
+	$(INTDIR)\net_termlist.h
+	
 CLEAN :
 	-@erase "$(OUTDIR)\libremote.lib"
 	-@erase "*.pch"
@@ -42,30 +47,10 @@ CPP_SBRS=.
 <<
 
 
+# if any headers change, rebuild all .objs
+$(LIBREMOTE_OBJS): $(LOCAL_HEADERS)
 
-"$(INTDIR)\remote-database.obj" : "remote-database.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-   
-"$(INTDIR)\net_document.obj" : "net_document.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\net_termlist.obj" : "net_termlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\net_postlist.obj" : "net_postlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-
+# inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
 	$(CPP_PROJ) $< 

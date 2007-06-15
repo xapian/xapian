@@ -39,6 +39,26 @@ LIBMATCHER_OBJS= \
                  $(INTDIR)\remotesubmatch.obj \
                  $(NULL)
 
+LOCAL_HEADERS =\
+	$(INTDIR)\andmaybepostlist.h\
+	$(INTDIR)\andnotpostlist.h\
+	$(INTDIR)\andpostlist.h\
+	$(INTDIR)\branchpostlist.h\
+	$(INTDIR)\emptysubmatch.h\
+	$(INTDIR)\exactphrasepostlist.h\
+	$(INTDIR)\extraweightpostlist.h\
+	$(INTDIR)\filterpostlist.h\
+	$(INTDIR)\localmatch.h\
+	$(INTDIR)\mergepostlist.h\
+	$(INTDIR)\msetcmp.h\
+	$(INTDIR)\msetpostlist.h\
+	$(INTDIR)\orpostlist.h\
+	$(INTDIR)\phrasepostlist.h\
+	$(INTDIR)\remotesubmatch.h\
+	$(INTDIR)\selectpostlist.h\
+	$(INTDIR)\valuerangepostlist.h\
+	$(INTDIR)\xorpostlist.h
+
 CLEAN :
 	-@erase "$(OUTDIR)\libmatcher.lib"
 	-@erase "*.pch"
@@ -62,136 +82,10 @@ CPP_SBRS=.
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libmatcher.lib" $(DEF_FLAGS) $(LIBMATCHER_OBJS)
 <<
 
-"$(INTDIR)\orpostlist.obj" : ".\orpostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
+# if any headers change, rebuild all .objs
+$(LIBMATCHER_OBJS): $(LOCAL_HEADERS)
 
-
-"$(INTDIR)\andpostlist.obj" : ".\andpostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\andnotpostlist.obj" : ".\andnotpostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\andmaybepostlist.obj" : ".\andmaybepostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\xorpostlist.obj" : ".\xorpostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\phrasepostlist.obj" : ".\phrasepostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\selectpostlist.obj" : ".\selectpostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\filterpostlist.obj" : ".\filterpostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\rset.obj" : ".\rset.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\bm25weight.obj" : ".\bm25weight.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\tradweight.obj" : ".\tradweight.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\localmatch.obj" : ".\localmatch.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\multimatch.obj" : ".\multimatch.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\stats.obj" : ".\stats.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\mergepostlist.obj" : ".\mergepostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\msetpostlist.obj" : ".\msetpostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\networkmatch.obj" : ".\networkmatch.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\msetcmp.obj" : ".\msetcmp.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\emptysubmatch.obj" : ".\emptysubmatch.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\exactphrasepostlist.obj" : ".\exactphrasepostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\valuerangepostlist.obj" : ".\valuerangepostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\weight.obj" : ".\weight.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\remotesubmatch.obj" : ".\remotesubmatch.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
+# inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
 	$(CPP_PROJ) $< 

@@ -30,11 +30,9 @@ QUARTZDUMP_OBJS= "$(INTDIR)\quartzdump.obj"
 
 XAPIAN_COMPACT_OBJS= "$(INTDIR)\xapian-compact.obj" 
 
-XAPIAN_PROGSRV_OBJS= \
-	"$(INTDIR)\xapian-progsrv.obj" 
+XAPIAN_PROGSRV_OBJS= "$(INTDIR)\xapian-progsrv.obj" 
 
-XAPIAN_TCPSRV_OBJS= \
-	"$(INTDIR)\xapian-tcpsrv.obj" 
+XAPIAN_TCPSRV_OBJS= "$(INTDIR)\xapian-tcpsrv.obj" 
 
 	
 CLEAN :
@@ -67,7 +65,6 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\quartzcheck.exe" $(DEF_FLAGS) $(QUARTZCHECK_OBJS)
 <<
 
-
 "$(OUTDIR)\quartzcompact.exe" : "$(OUTDIR)" $(DEF_FILE) $(QUARTZCOMPACT_OBJS) \
                                  $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
@@ -86,39 +83,10 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-compact.exe" $(DEF_FLAGS) $(XAPIAN_COMPACT_OBJS)
 <<
 
-    
-"$(INTDIR)\quartzcompact.obj" : ".\quartzcompact.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartzdump.obj" : ".\quartzdump.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartzcheck.obj" : ".\quartzcheck.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\xapian-compact.obj" : ".\xapian-compact.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
 "$(OUTDIR)\xapian-progsrv.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_PROGSRV_OBJS) \
                              $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-progsrv.exe" $(DEF_FLAGS) $(XAPIAN_PROGSRV_OBJS)
-<<
-
-"$(INTDIR)\xapian-progsrv.obj" : ".\xapian-progsrv.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
 <<
 
 "$(OUTDIR)\xapian-tcpsrv.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_TCPSRV_OBJS) \
@@ -127,38 +95,14 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-tcpsrv.exe" $(DEF_FLAGS) $(XAPIAN_TCPSRV_OBJS)
 <<
 
-"$(INTDIR)\xapian-tcpsrv.obj" : ".\xapian-tcpsrv.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
+
+# inference rules, showing how to create one type of file from another with the same root name	
+{.}.cc{$(INTDIR)}.obj:
+	$(CPP) @<<
+	$(CPP_PROJ) $< 
 <<
 
-
-.c{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
-<<
-
-.cpp{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.c{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_SBRS)}.sbr::
+{.}.cc{$(CPP_SBRS)}.sbr:
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<

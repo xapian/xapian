@@ -20,6 +20,24 @@ DEPLIBS = "$(OUTDIR)\libinmemory.lib" \
 
 ALL : $(DEPLIBS) "$(OUTDIR)\libbackend.lib" 
 
+CLEAN :
+	-@erase "$(OUTDIR)\libbackend.lib"
+	-@erase "$(INTDIR)\*.pch"
+	-@erase "$(INTDIR)\*.pdb"
+	-@erase $(LIBBACKEND_OBJS)
+	cd quartz
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..\flint
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..\inmemory
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..\multi
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..\remote
+	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
+	cd ..
+
+
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
@@ -35,32 +53,6 @@ LIBBACKEND_OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)
 "$(OUTDIR)\LIBBACKEND.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBBACKEND_OBJS)
     $(LIB32) @<<
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libbackend.lib" $(DEF_FLAGS) $(LIBBACKEND_OBJS)
-<<
-
-"$(INTDIR)\database.obj" : ".\database.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\dbfactory_remote.obj" : ".\dbfactory_remote.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\alltermslist.obj" : ".\alltermslist.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-{.}.cc{$(INTDIR)}.obj:
-	$(CPP) @<<
-	$(CPP_PROJ) $< 
-<<
-
-{.}.cc{$(CPP_SBRS)}.sbr:
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
 <<
 
 "$(OUTDIR)\libquartz.lib":
@@ -88,20 +80,14 @@ LIBBACKEND_OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)
        nmake $(MAKEMACRO) /$(MAKEFLAGS) CFG="$(CFG)" DEBUG="$(DEBUG)"
        cd ..
 
-CLEAN :
-	-@erase "$(OUTDIR)\libbackend.lib"
-	-@erase "$(INTDIR)\*.pch"
-	-@erase "$(INTDIR)\*.pdb"
-	-@erase $(LIBBACKEND_OBJS)
-	cd quartz
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
-	cd ..\flint
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
-	cd ..\inmemory
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
-	cd ..\multi
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
-	cd ..\remote
-	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
-	cd ..
+# inference rules, showing how to create one type of file from another with the same root name
+{.}.cc{$(INTDIR)}.obj:
+	$(CPP) @<<
+	$(CPP_PROJ) $< 
+<<
+
+{.}.cc{$(CPP_SBRS)}.sbr:
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
 

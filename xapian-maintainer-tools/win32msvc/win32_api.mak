@@ -54,90 +54,10 @@ CPP_SBRS=.
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libapi.lib" $(DEF_FLAGS) $(LIBAPI_OBJS)
 <<
 
-"$(INTDIR)\error.obj" : ".\error.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
+# if any headers change, rebuild all .objs
+$(LIBAPI_OBJS): $(LOCAL_HEADERS)
 
-"$(INTDIR)\errorhandler.obj" : ".\errorhandler.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\expanddecider.obj" : ".\expanddecider.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\omenquire.obj" : ".\omenquire.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\omquery.obj" : ".\omquery.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\omqueryinternal.obj" : ".\omqueryinternal.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\omdatabase.obj" : ".\omdatabase.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\omdocument.obj" : ".\omdocument.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-
-"$(INTDIR)\ompostlistiterator.obj" : ".\ompostlistiterator.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\ompositionlistiterator.obj" : ".\ompositionlistiterator.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\omtermlistiterator.obj" : ".\omtermlistiterator.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\omvalueiterator.obj" : ".\omvalueiterator.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\termlist.obj" : ".\termlist.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\valuerangeproc.obj" : ".\valuerangeproc.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\version.obj" : ".\version.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
+# inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
 	$(CPP_PROJ) $< 

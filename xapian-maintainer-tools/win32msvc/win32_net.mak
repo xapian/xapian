@@ -28,6 +28,8 @@ LIBNET_OBJS= \
              $(INTDIR)\tcpclient.obj  \
              $(INTDIR)\tcpserver.obj  \
              $(NULL)
+	     
+LOCAL_HEADERS= 
 
 
 CLEAN :
@@ -52,35 +54,10 @@ LIB32_FLAGS=/nologo  $(LIBFLAGS)
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libnet.lib" $(DEF_FLAGS) $(LIBNET_OBJS)
 <<
 
-"$(INTDIR)\progclient.obj" : ".\progclient.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
+# if any headers change, rebuild all .objs
+$(LIBNET_OBJS): $(LOCAL_HEADERS)
 
-"$(INTDIR)\remoteconnection.obj" : ".\remoteconnection.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\remoteserver.obj" : ".\remoteserver.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\serialise.obj" : ".\serialise.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\tcpclient.obj" : ".\tcpclient.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\tcpserver.obj" : ".\tcpserver.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
+# inference rules, showing how to create one type of file from another with the same root name
 
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<

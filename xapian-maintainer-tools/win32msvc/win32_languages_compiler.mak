@@ -18,6 +18,10 @@ SNOWBALL_OBJS= "$(INTDIR)\analyser.obj" \
                "$(INTDIR)\space.obj" \
                "$(INTDIR)\tokeniser.obj" 
 
+SNOWBALL_HEADERS =\
+	"$(INTDIR)\header.h" \
+	"$(INTDIR)\syswords.h" \
+	"$(INTDIR)\syswords2.h"
 
 CLEAN :
 	-@erase "$(INTDIR)\*.pch"
@@ -38,31 +42,36 @@ CPP_SBRS=.
   $(LINK32_FLAGS) /out:"$(OUTDIR)\snowball.exe" $(DEF_FLAGS) $(SNOWBALL_OBJS)
 <<
 
-# Snowball compiler sources
+# if any headers change, rebuild all .objs
+$(SNOWBALL_OBJS): $(SNOWBALL_HEADERS)
 
-
-"$(INTDIR)\driver.obj" : "driver.c"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
+# inference rules, showing how to create one type of file from another with the same root name
+.c{$(CPP_OBJS)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $<
 <<
 
-"$(INTDIR)\tokeniser.obj" : "tokeniser.c"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
+.cpp{$(CPP_OBJS)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
 <<
 
-"$(INTDIR)\space.obj" : "space.c"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
+.cxx{$(CPP_OBJS)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
 <<
 
-"$(INTDIR)\analyser.obj" : "analyser.c"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
+.c{$(CPP_SBRS)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
 <<
 
-"$(INTDIR)\generator.obj" : "generator.c"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
+.cpp{$(CPP_SBRS)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
 <<
 
+.cxx{$(CPP_SBRS)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<

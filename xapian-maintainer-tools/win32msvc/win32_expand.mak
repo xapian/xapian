@@ -18,6 +18,8 @@ LIBEXPAND_OBJS= \
                  $(INTDIR)\expandweight.obj \
                  $(INTDIR)\expand.obj \
                  $(NULL)
+		 
+LOCAL_HEADERS = $(INTDIR)\ortermlist.h
 
 CLEAN :
 	-@erase "$(OUTDIR)\libexpand.lib"
@@ -41,24 +43,11 @@ CPP_SBRS=.
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libexpand.lib" $(DEF_FLAGS) $(LIBEXPAND_OBJS)
 <<
 
-"$(INTDIR)\ortermlist.obj" : ".\ortermlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
 
+# if any headers change, rebuild all .objs
+$(LIBEXPAND_OBJS): $(LOCAL_HEADERS)
 
-"$(INTDIR)\expandweight.obj" : ".\expandweight.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\expand.obj" : ".\expand.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
+# inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
 	$(CPP_PROJ) $< 

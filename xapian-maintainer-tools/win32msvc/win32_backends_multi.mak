@@ -17,6 +17,10 @@ LIBMULTI_OBJS= \
                 $(INTDIR)\multi_postlist.obj \
                 $(INTDIR)\multi_termlist.obj \
                 $(INTDIR)\multi_alltermslist.obj
+		
+LOCAL_HEADERS =\
+	$(INTDIR)\multi_postlist.h\
+	$(INTDIR)\multi_termlist.h		
 
 CLEAN :
 	-@erase "$(OUTDIR)\libmulti.lib"
@@ -40,26 +44,10 @@ CPP_SBRS=.
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libmulti.lib" $(DEF_FLAGS) $(LIBMULTI_OBJS)
 <<
 
+# if any headers change, rebuild all .objs
+$(LIBMULTI_OBJS): $(LOCAL_HEADERS)
 
-"$(INTDIR)\multi_postlist.obj" : "multi_postlist.cc"
-    $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\multi_termlist.obj" : "multi_termlist.cc"
-    $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\multi_alltermslist.obj" : "multi_alltermslist.cc"
-    $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-
+# inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
 	$(CPP_PROJ) $< 

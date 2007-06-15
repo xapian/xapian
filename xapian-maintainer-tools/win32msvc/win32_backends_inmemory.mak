@@ -20,6 +20,11 @@ LIBINMEMORY_OBJS= \
                  $(INTDIR)\inmemory_document.obj \
                  $(INTDIR)\inmemory_positionlist.obj \
                  $(INTDIR)\inmemory_alltermslist.obj \
+		 
+LOCAL_HEADERS =\
+	$(INTDIR)\inmemory_alltermslist.h\
+	$(INTDIR)\inmemory_database.h\
+	$(INTDIR)\inmemory_document.h		 
 
 CLEAN :
 	-@erase "$(OUTDIR)\libinmemory.lib"
@@ -43,31 +48,10 @@ CPP_SBRS=.
 <<
 
 
+# if any headers change, rebuild all .objs
+$(LIBINMEMORY_OBJS): $(LOCAL_HEADERS)
 
-"$(INTDIR)\inmemory_database.obj" : "inmemory_database.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-   
-"$(INTDIR)\inmemory_document.obj" : "inmemory_document.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\inmemory_positionlist.obj" : "inmemory_positionlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\inmemory_alltermslist.obj" : "inmemory_alltermslist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-
+# inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
 	$(CPP_PROJ) $< 

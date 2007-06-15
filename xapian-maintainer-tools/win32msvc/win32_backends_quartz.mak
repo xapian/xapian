@@ -33,6 +33,26 @@ LIBQUARTZ_OBJS= \
                 $(INTDIR)\btree.obj \
                 $(INTDIR)\bcursor.obj \
                 $(INTDIR)\btree_base.obj
+		
+LOCAL_HEADERS =\
+	$(INTDIR)\bcursor.h\
+	$(INTDIR)\btree_base.h\
+	$(INTDIR)\btreecheck.h\
+	$(INTDIR)\btree.h\
+	$(INTDIR)\btree_util.h\
+	$(INTDIR)\quartz_alldocspostlist.h\
+	$(INTDIR)\quartz_alltermslist.h\
+	$(INTDIR)\quartz_database.h\
+	$(INTDIR)\quartz_document.h\
+	$(INTDIR)\quartz_log.h\
+	$(INTDIR)\quartz_metafile.h\
+	$(INTDIR)\quartz_positionlist.h\
+	$(INTDIR)\quartz_postlist.h\
+	$(INTDIR)\quartz_record.h\
+	$(INTDIR)\quartz_termlist.h\
+	$(INTDIR)\quartz_types.h\
+	$(INTDIR)\quartz_utils.h\
+	$(INTDIR)\quartz_values.h		
 
 
 CLEAN :
@@ -65,96 +85,10 @@ CPP_SBRS=.
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libbtreecheck.lib" $(DEF_FLAGS) $(LIBBTREECHECK_OBJS)
 <<
 
+# if any headers change, rebuild all .objs
+$(LIBQUARTZ_OBJS): $(LOCAL_HEADERS)
 
-"$(INTDIR)\btreecheck.obj" : ".\btreecheck.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartz_database.obj" : "quartz_database.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartz_termlist.obj" : "quartz_termlist.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\quartz_postlist.obj" : "quartz_postlist.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\quartz_alldocspostlist.obj" : "quartz_alldocspostlist.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartz_positionlist.obj" : "quartz_positionlist.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartz_record.obj" : "quartz_record.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartz_values.obj" : "quartz_values.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartz_log.obj" : "quartz_log.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartz_document.obj" : "quartz_document.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartz_alltermslist.obj" : "quartz_alltermslist.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\quartz_metafile.obj" : "quartz_metafile.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\btree.obj" : "btree.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\bcursor.obj" : "bcursor.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\btree_base.obj" : "btree_base.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-
+# inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
 	$(CPP_PROJ) $< 

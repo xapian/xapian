@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2007-06-04 
+2007-06-15 
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -31,12 +31,6 @@ What works?
 
 What doesn't work?
 ==================
-
-- These makefiles unfortunately lack header dependencies, so if you edit a
-  header, the files which make use of it won't automatically get rebuilt just
-  by running "nmake".  There may also be other missing dependencies too.  A
-  crude workaround is run "nmake clean" followed by "nmake", which should
-  force a full rebuild.
 
 - Any other bindings.
 

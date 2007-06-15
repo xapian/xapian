@@ -16,6 +16,8 @@ ALL : "$(OUTDIR)\libunicode.lib"
 LIBUNICODE_OBJS= \
             $(INTDIR)\utf8itor.obj \
             $(INTDIR)\tclUniData.obj
+	    
+LOCAL_HEADERS= 	    
 
 CLEAN :
 	-@erase "$(OUTDIR)\libunicode.lib"
@@ -38,17 +40,11 @@ CPP_SBRS=.
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libunicode.lib" $(DEF_FLAGS) $(LIBUNICODE_OBJS)
 <<
 
-"$(INTDIR)\utf8itor.obj" : ".\utf8itor.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
 
-"$(INTDIR)\tclUniData.obj" : ".\tclUniData.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
+# if any headers change, rebuild all .objs
+$(LIBUNICODE_OBJS): $(LOCAL_HEADERS)
 
-
+# inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
 	$(CPP_PROJ) $< 

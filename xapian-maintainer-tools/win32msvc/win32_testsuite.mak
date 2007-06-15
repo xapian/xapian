@@ -22,6 +22,12 @@ LIBTEST_OBJS= \
                 $(INTDIR)\index_utils.obj \
 		$(INTDIR)\unixcmds.obj
 
+LOCAL_HEADERS= \
+                $(INTDIR)\testsuite.h \
+                $(INTDIR)\testutils.h \
+                $(INTDIR)\backendmanager.h \
+                $(INTDIR)\index_utils.h \
+		$(INTDIR)\unixcmds.h
 CLEAN :
 	-@erase $(BUILD_LIBRARIES)
 	-@erase "*.pch"
@@ -42,38 +48,11 @@ CPP_SBRS=.
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libtest.lib" $(DEF_FLAGS) $(LIBTEST_OBJS)
 <<
 
-"$(INTDIR)\testsuite.obj" : ".\testsuite.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
 
+# if any headers change, rebuild all .objs
+$(LIBTEST_OBJS): $(LOCAL_HEADERS)
 
-"$(INTDIR)\testutils.obj" : ".\testutils.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\backendmanager.obj" : ".\backendmanager.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\index_utils.obj" : ".\index_utils.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\unixcmds.obj" : ".\unixcmds.cc"
-    $(CPP) @<<
-  $(CPP_PROJ) $**
-<<
-
-
-
-
+# inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
 	$(CPP_PROJ) $< 

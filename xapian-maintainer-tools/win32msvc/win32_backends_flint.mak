@@ -31,7 +31,28 @@ LIBFLINT_OBJS= \
                $(INTDIR)\flint_modifiedpostlist.obj \
                $(INTDIR)\flint_lock.obj
               
-         
+              
+LOCAL_HEADERS =\
+	$(INTDIR)\flint_alldocspostlist.h\
+	$(INTDIR)\flint_alltermslist.h\
+	$(INTDIR)\flint_btreebase.h\
+	$(INTDIR)\flint_btreeutil.h\
+	$(INTDIR)\flint_check.h\
+	$(INTDIR)\flint_cursor.h\
+	$(INTDIR)\flint_database.h\
+	$(INTDIR)\flint_document.h\
+	$(INTDIR)\flint_io.h\
+	$(INTDIR)\flint_lock.h\
+	$(INTDIR)\flint_modifiedpostlist.h\
+	$(INTDIR)\flint_positionlist.h\
+	$(INTDIR)\flint_postlist.h\
+	$(INTDIR)\flint_record.h\
+	$(INTDIR)\flint_table.h\
+	$(INTDIR)\flint_termlist.h\
+	$(INTDIR)\flint_types.h\
+	$(INTDIR)\flint_utils.h\
+	$(INTDIR)\flint_values.h\
+	$(INTDIR)\flint_version.h         
 
 CLEAN :
 	-@erase "$(OUTDIR)\libflint.lib"
@@ -54,105 +75,10 @@ CPP_SBRS=.
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libflint.lib" $(DEF_FLAGS) $(LIBFLINT_OBJS)
 <<
 
+# if any headers change, rebuild all .objs
+$(LIBFLINT_OBJS): $(LOCAL_HEADERS)
 
-"$(INTDIR)\flint_database.obj" : "flint_database.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_termlist.obj" : "flint_termlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_alldocspostlist.obj" : "flint_alldocspostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\flint_postlist.obj" : "flint_postlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_positionlist.obj" : "flint_positionlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_record.obj" : "flint_record.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_values.obj" : "flint_values.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_document.obj" : "flint_document.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_alltermslist.obj" : "flint_alltermslist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_metafile.obj" : "flint_metafile.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_table.obj" : "flint_table.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_cursor.obj" : "flint_cursor.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_btreebase.obj" : "flint_btreebase.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
-"$(INTDIR)\flint_lock.obj" : "flint_lock.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\flint_version.obj" : "flint_version.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\flint_io.obj" : "flint_io.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\flint_modifiedpostlist.obj" : "flint_modifiedpostlist.cc"
-       $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-
+# inference rules, showing how to create one type of file from another with the same root name
 {.}.cc{$(INTDIR)}.obj:
 	$(CPP) @<<
 	$(CPP_PROJ) $< 

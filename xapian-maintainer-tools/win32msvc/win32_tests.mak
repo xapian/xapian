@@ -77,6 +77,8 @@ REMOTETEST_OBJS= "$(OUTDIR)\remotetest.obj"
 
 TERMGENTEST_OBJS= "$(OUTDIR)\termgentest.obj"	
 
+LOCAL_HEADERS = "$(INTDIR)\apitest.h"
+
 CLEAN :
 	-@erase $(PROGRAM_APITEST) 
 	-@erase $(PROGRAM_BTREETEST)
@@ -161,115 +163,23 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\remotetest.exe" $(DEF_FLAGS) $(REMOTETEST_OBJS)
 <<
 
+# if any headers change, rebuild all .objs
+$(APITEST_OBJS): $(LOCAL_HEADERS)
+$(BTREETEST_OBJS): $(LOCAL_HEADERS)
+$(INTERNALTEST_OBJS): $(LOCAL_HEADERS)
+$(QUARTZTEST_OBJS): $(LOCAL_HEADERS)
+$(QUERYPARSERTEST_OBJS): $(LOCAL_HEADERS)
+$(REMOTETEST_OBJS): $(LOCAL_HEADERS)
+$(TERMGENTEST_OBJS): $(LOCAL_HEADERS)
 
-# cc files
-  
-"$(INTDIR)\termgentest.obj" : ".\termgentest.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
+
+# inference rules, showing how to create one type of file from another with the same root name	
+{.}.cc{$(INTDIR)}.obj:
+	$(CPP) @<<
+	$(CPP_PROJ) $< 
 <<
 
-"$(INTDIR)\stemtest.obj" : ".\stemtest.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\apitest.obj" : ".\apitest.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\api_anydb.obj" : ".\api_anydb.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\api_db.obj" : ".\api_db.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\api_nodb.obj" : ".\api_nodb.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\api_posdb.obj" : ".\api_posdb.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\api_wrdb.obj" : ".\api_wrdb.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\api_transdb.obj" : ".\api_transdb.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\api_unicode.obj" : ".\api_unicode.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\btreetest.obj" : ".\btreetest.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\internaltest.obj" : ".\internaltest.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\quartztest.obj" : ".\quartztest.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\queryparsertest.obj" : ".\queryparsertest.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\remotetest.obj" : ".\remotetest.cc"
-        $(CPP) @<<
-   $(CPP_PROJ) $**
-<<
-
-"$(INTDIR)\stemtest.obj" : ".\stemtest.cc"
-
-
-# others
-
-.c{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
-<<
-
-.cpp{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.c{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_SBRS)}.sbr::
+{.}.cc{$(CPP_SBRS)}.sbr:
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
