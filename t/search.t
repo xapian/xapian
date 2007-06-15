@@ -6,7 +6,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 use Test::More;
-BEGIN { plan tests => 86 };
+BEGIN { plan tests => 98 };
 use Search::Xapian qw(:ops);
 
 #########################
@@ -138,5 +138,21 @@ ok( $boolweight = Search::Xapian::BoolWeight->new() );
 
 my $tradweight;
 ok( $tradweight = Search::Xapian::TradWeight->new() );
+
+my $alltermit = $db->allterms_begin();
+ok( $alltermit != $db->allterms_end() );
+ok( "$alltermit" eq 'one' );
+ok( ++$alltermit != $db->allterms_end() );
+ok( "$alltermit" eq 'test' );
+ok( ++$alltermit != $db->allterms_end() );
+ok( "$alltermit" eq 'two' );
+ok( ++$alltermit == $db->allterms_end() );
+
+$alltermit = $db->allterms_begin('t');
+ok( $alltermit != $db->allterms_end('t') );
+ok( "$alltermit" eq 'test' );
+ok( ++$alltermit != $db->allterms_end('t') );
+ok( "$alltermit" eq 'two' );
+ok( ++$alltermit == $db->allterms_end('t') );
 
 1;

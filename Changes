@@ -1,5 +1,11 @@
 Revision history for Perl extension Search::Xapian.
 
+1.0.1.0  
+	[Changes contributed by Olly Betts]
+	- Wrap new optional prefix argument to Database::allterms_begin() and
+	  Database::allterms_end().
+	- Test Database::allterms_begin() in t/search.t.
+
 1.0.0.0  Sat May 26 00:41:07 BST 2007
 	[Changes contributed by Olly Betts]
 	- Wrap new TermGenerator class.
@@ -49,7 +55,7 @@ Revision history for Perl extension Search::Xapian.
 
 0.9.6.0  Sun Jun 04 01:14:00 2006
 	[Changes contributed by Olly Betts]
-	- Alex's CPAN email address bounces, so change occurences of it
+	- Alex's CPAN email address bounces, so change occurrences of it
 	  to direct users to the xapian-discuss mailing list for now.
 	- Correct several occurrences of "Xapian::Search::" to
 	  "Search::Xapian::".
