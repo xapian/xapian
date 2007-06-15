@@ -129,7 +129,8 @@ ProgClient::run_program(const string &progname, const string &args
 
     // close unnecessary file descriptors
     // FIXME: Probably a bit excessive...
-    for (int fd = 2; fd < 256; ++fd) {
+    // (Note, we used to close fd 2 here as well, but that makes valgrind unhappy.
+    for (int fd = 3; fd < 256; ++fd) {
 	close(fd);
     }
 
