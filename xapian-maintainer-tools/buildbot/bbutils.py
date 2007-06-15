@@ -1,0 +1,167 @@
+# -*- python -*-
+# ex: set syntax=python:
+
+# Utility functions to help setting up the buildbot
+
+class ConfigError(RuntimeError):
+    def __init__(self, msg):
+        RuntimeError.__init__(self, msg)
+
+class BuildBotConfig(object):
+    def __init__(self, projectName, projectURL):
+        """Initialise the configuration.
+
+        The 'projectName' string will be used to describe the project that this
+        buildbot is working on. For example, it is used as the title of the
+        waterfall HTML page. The 'projectURL' string will be used to provide a
+        link from buildbot HTML pages to your project's home page.
+
+        """
+        self.c = {}
+        self.c['projectName'] = projectName
+        self.c['projectURL'] = projectURL
+        self.c['bots'] = []
+        self.c['sources'] = []
+        self.c['builders'] = []
+        self.c['schedulers'] = []
+        self.c['status'] = []
+
+        self.scheduler_builders = {}
+
+    def __getitem__(self, key):
+        return self.c[key]
+
+    def __setitem__(self, key, value):
+        self.c[key] = value
+
+    def finalise(self):
+        """Finalise the configuration.
+
+        This must be called to make the configuration ready-to-use.
+
+        """
+        self._create_schedulers()
+
+    def add_bot(self, botname, password=None):
+        """Add a bot to the configuration.
+
+        If password is not supplied, the password will be looked for in a
+        module called "private_passwords", in a dictionary called "passwords".
+
+        """
+        if password is None:
+            try:
+                import private_passwords
+                password = private_passwords.passwords[botname]
+            except ImportError:
+                raise ConfigError("Missing password file: can't get password for bot %r" % botname)
+            except KeyError:
+                raise ConfigError("Missing password for bot %r" % botname)
+        self.c['bots'].append((botname, password))
+
+    def set_slave_portnum(self, portnum):
+        """Set the TCP port to listen for slaves on.
+
+        This must match the value configured into the buildslaves (with their
+        --master option)
+
+        """
+        self.c['slavePortnum'] = 9989
+
+    def add_source(self, source):
+        """Add a change source.
+
+        """
+        self.c['sources'].append(source)
+
+    def addScheduler(self, name, **kwargs):
+        """Add a scheduler.
+
+        `name` is the name of the scheduler, used in status displays.
+
+        """
+        if name in self.scheduler_builders:
+            raise ConfigError("Duplicate scheduler name: %r" % name)
+        self.scheduler_builders[name] = [kwargs]
+
+    def _create_schedulers(self):
+        """Create all the schedulers, and add them to the config.
+
+        """
+        from buildbot.scheduler import Scheduler
+        for name, item in self.scheduler_builders.iteritems():
+            kwargs = item[0]
+            builders = item[1:]
+            sched = Scheduler(name=name,
+                              builderNames=builders,
+                              **kwargs)
+            self.c['schedulers'].append(sched)
+
+    def addBuilder(self, name, factory, slavenames, scheduler):
+        """Add a builder.
+
+        `scheduler` is the name of the scheduler to listen to.  The scheduler
+        specified must have previously been added to the list of schedulers
+        with addScheduler().
+
+        """
+        if isinstance(slavenames, basestring):
+            slavenames = [slavenames, ]
+        self.c['builders'].append({
+            'name': name,
+            'builddir': name,
+            'factory': factory,
+            'slavenames': slavenames
+        })
+        if scheduler not in self.scheduler_builders:
+            raise ConfigError("Unknown scheduler name: %r" % name)
+        self.scheduler_builders[scheduler].append(name)
+
+    def add_status(self, status):
+        """Add a status target.
+
+        """
+        self.c['status'].append(status)
+
+    def add_status_html_waterfall(self,
+                                  hostname=None,
+                                  http_port=8010,
+                                  public_port=None,
+                                  **kwargs):
+        """Add an HTML Waterfall status target.
+
+        The 'hostname' string should be the host on which the internal web
+        server is publically visible.
+
+        'public_port' should be the port number on which the internal web
+        server is publically visible (this may differ from http_port if there
+        is some proxying in the middle).  If None, http_port will be used.
+
+        """
+        if public_port is None:
+            public_port = http_port
+        kwargs['http_port'] = http_port
+        import html
+        self.add_status(html.Waterfall(**kwargs))
+        self.c['buildbotURL'] = "http://%s:%d/" % (hostname, public_port)
+
+    def add_status_mail(self, fromaddr=None, extraRecipients=None,
+                        sendToInterestedUsers=False, **kwargs):
+        """Add an email status target.
+
+        """
+        kwargs['fromaddr'] = fromaddr
+        kwargs['extraRecipients'] = extraRecipients
+        kwargs['sendToInterestedUsers'] = sendToInterestedUsers
+        from buildbot.status import mail
+        self.c['status'].append(mail.MailNotifier(**kwargs))
+
+    def add_status_irc(self, host=None, nick=None, channels=None, **kwargs):
+        """Add an IRC status target.
+
+        """
+        kwargs['host'] = host
+        kwargs['nick'] = nick
+        kwargs['channels'] = channels
+        from buildbot.status import words
+        self.c['status'].append(words.IRC(**kwargs))
