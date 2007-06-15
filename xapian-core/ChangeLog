@@ -1,3 +1,10 @@
+Fri Jun 15 14:51:13 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* net/progclient.cc: Open the file handle pointing to /dev/null as
+	  O_WRONLY instead of O_RDONLY: doesn't affect whether the test
+	  passes (since nothing gets written to stderr in theory anyway),
+	  but makes more sense.
+
 Fri Jun 15 13:21:56 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* net/progclient.cc: Better fix - rather than leaving stderr open,
