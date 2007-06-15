@@ -1,11 +1,12 @@
 # Before `make install' is performed this script should be runnable with
+# 	- Wrap new Query op OP_VALUE_RANGE and associated constructor.
 # `make test'. After `make install' it should work as `perl test.pl'
 
 #########################
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 47 };
+BEGIN { plan tests => 48 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -32,16 +33,19 @@ ok( $query = $qp->parse_query( 'one OR (two AND three)' ) );
 
 ok( my $enq = $database->enquire( $query ) );
 
-my @stopwords = qw(a the in on and);
-my $stopper;
-ok( $stopper = new Search::Xapian::SimpleStopper(@stopwords) );
-foreach (@stopwords) {
+{
+  my @stopwords = qw(a the in on and);
+  my $stopper;
+  ok( $stopper = new Search::Xapian::SimpleStopper(@stopwords) );
+  foreach (@stopwords) {
     ok( $stopper->stop_word($_) );
-}
-foreach (qw(one two three four five)) {
+  }
+  foreach (qw(one two three four five)) {
     ok( !$stopper->stop_word($_) );
+  }
+  ok( $qp->set_stopper($stopper), undef );
 }
-ok( $qp->set_stopper($stopper), undef );
+ok( $qp->parse_query("one two many") );
 
 $qp = new Search::Xapian::QueryParser();
 my $vrp;
@@ -107,8 +111,10 @@ foreach $pair (
 
 $qp = new Search::Xapian::QueryParser();
 
-my $vrpdate = new Search::Xapian::DateValueRangeProcessor(1, 1, 1960);
-$qp->add_valuerangeprocessor( $vrpdate );
+{
+  my $vrpdate = new Search::Xapian::DateValueRangeProcessor(1, 1, 1960);
+  $qp->add_valuerangeprocessor( $vrpdate );
+}
 
 foreach $pair (
     [ '12/03/99..12/04/01', 'VALUE_RANGE 1 19991203 20011204' ],

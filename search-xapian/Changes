@@ -1,10 +1,15 @@
 Revision history for Perl extension Search::Xapian.
 
-1.0.1.0  
+1.0.1.0  Sat Jun 16 00:49:33 BST 2007
 	[Changes contributed by Olly Betts]
 	- Wrap new optional prefix argument to Database::allterms_begin() and
 	  Database::allterms_end().
 	- Test Database::allterms_begin() in t/search.t.
+	- Increment the reference counts of Stopper and ValueRangeProcessor
+	  objects passed to methods of QueryParser and TermGenerator.  This
+	  means we'll leak them, but that's better than having them garbage
+	  collected while the C++ code is still using them.  This will be
+	  fixed properly in a future release.
 
 1.0.0.0  Sat May 26 00:41:07 BST 2007
 	[Changes contributed by Olly Betts]
