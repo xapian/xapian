@@ -1049,7 +1049,7 @@ AC_CONFIG_FILES([
  docs/Makefile
  docs/doxygen_api_conf
  docs/doxygen_full_conf
- xapian.spec
+ xapian-core.spec
  msvc/version.h
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
