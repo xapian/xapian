@@ -344,6 +344,9 @@ The following Xapian classes are not yet wrapped:
 Error (and subclasses), ErrorHandler, ExpandDecider (and subclasses),
 user-defined weight classes.
 
+We don't yet wrap Xapian::Query::MatchAll, Xapian::Query::MatchNothing,
+or Xapian::BAD_VALUENO.
+
 =item Unwrapped methods
 
 The following methods are not yet wrapped:
