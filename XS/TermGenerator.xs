@@ -19,6 +19,9 @@ void
 TermGenerator::set_stopper(stopper)
     Stopper * stopper
     CODE:
+	// FIXME: no corresponding SvREFCNT_dec(), but a leak seems better than
+	// a SEGV!
+	SvREFCNT_inc(ST(1));
 	THIS->set_stopper(stopper);
 
 void

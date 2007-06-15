@@ -25,6 +25,9 @@ void
 QueryParser::set_stopper(stopper)
     Stopper * stopper
     CODE:
+	// FIXME: no corresponding SvREFCNT_dec(), but a leak seems better than
+	// a SEGV!
+	SvREFCNT_inc(ST(1));
 	THIS->set_stopper(stopper);
 
 void
@@ -100,6 +103,11 @@ QueryParser::get_description()
 
 void
 QueryParser::add_valuerangeprocessor(ValueRangeProcessor * vrproc)
+    CODE:
+	// FIXME: no corresponding SvREFCNT_dec(), but a leak seems better than
+	// a SEGV!
+	SvREFCNT_inc(ST(1));
+	THIS->add_valuerangeprocessor(vrproc);
 
 void
 QueryParser::DESTROY()
