@@ -11,11 +11,23 @@ INCLUDES = -I$(top_srcdir)/common -I$(top_srcdir)/include \
 
 TESTS_ENVIRONMENT = ./runtest
 
-.PHONY: check-remote check-flint check-quartz
+.PHONY: check-void check-inmemory \
+        check-remote check-remoteprog check-remotetcp \
+        check-flint check-quartz
+
+check-void: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b void
+
+check-inmemory: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b inmemory
 
 if BUILD_BACKEND_REMOTE
 check-remote: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remote
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
+check-remoteprog: apitest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remote
+check-remotetcp: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b remotetcp
 endif
 

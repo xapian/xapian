@@ -25,11 +25,23 @@ MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
 
-.PHONY: check-remote check-flint check-quartz
+.PHONY: check-void check-inmemory \
+        check-remote check-remoteprog check-remotetcp \
+        check-flint check-quartz
+
+check-void:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-void
+
+check-inmemory:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-inmemory
 
 if BUILD_BACKEND_REMOTE
 check-remote:
 	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remote
+check-remoteprog:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remoteprog
+check-remotetcp:
+	cd tests && $(MAKE) $(AM_MAKEFLAGS) check-remotetcp
 endif
 
 if BUILD_BACKEND_FLINT
