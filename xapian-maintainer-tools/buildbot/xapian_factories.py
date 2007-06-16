@@ -10,6 +10,20 @@ class Bootstrap(step.ShellCommand):
     descriptionDone = ["bootstrap"]
     command = ["./bootstrap"]
 
+class CleanInstall(step.ShellCommand):
+    name = "cleaninstall"
+    haltOnFailure = 1
+    description = ["cleaninstall"]
+    descriptionDone = ["cleaninstall"]
+    command = ['rm', '-rf', 'install']
+
+class Install(step.ShellCommand):
+    name = "install"
+    haltOnFailure = 1
+    description = ["install"]
+    descriptionDone = ["install"]
+    command = ['make', 'install']
+
 class MakeWritable(step.ShellCommand):
     """Step which cleans all subdirectories, ensuring that the permissions are
     suitable first.
@@ -49,13 +63,13 @@ def gen_svn_updated_valgrind_factory(baseURL):
     f.addStep(step.Configure)
     f.addStep(step.Compile)
 
-    for target in ("check-none", "check-inmemory", "check-remote",
-                   "check-remoteprog", "check-flint", "check-quartz"):
+    for target in ("check-none", "check-inmemory", "check-remoteprog",
+                   "check-flint", "check-quartz"):
         f.addStep(step.Test, name=target, command=("make", target, "XAPIAN_TESTSUITE_OUTPUT=plain"), workdir='build/xapian-core')
 
     # Currently, valgrind incorrectly reports leaked memory for the remotetcp
     # backend, so check that one without using valgrind.
-    f.addStep(step.Test, name="check-remotetcp", command=("make", "check-remotetcp", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
+    f.addStep(step.Test, name="check-remotetcp", command=("make", "check-remotetcp", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="), workdir='build/xapian-core')
 
     return f
 
@@ -72,7 +86,6 @@ def gen_svn_clean_factory(baseURL):
     f.addStep(Bootstrap)
     f.addStep(step.Configure)
     f.addStep(step.Compile)
-    f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
     f.addStep(step.Test, name="distcheck", command=("make", "distcheck", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
     return f
 
