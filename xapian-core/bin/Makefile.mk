@@ -19,12 +19,14 @@ endif
 if BUILD_BACKEND_FLINT
 bin_PROGRAMS +=\
 	bin/xapian-check\
-	bin/xapian-compact
+	bin/xapian-compact\
+	bin/xapian-inspect
 
 if !MAINTAINER_NO_DOCS
 dist_man_MANS +=\
 	bin/xapian-check.1\
-	bin/xapian-compact.1
+	bin/xapian-compact.1\
+	bin/xapian-inspect.1
 endif
 endif
 
@@ -46,6 +48,7 @@ EXTRA_PROGRAMS +=\
 	bin/quartzdump\
 	bin/xapian-check\
 	bin/xapian-compact\
+	bin/xapian-inspect\
 	bin/xapian-progsrv\
 	bin/xapian-tcpsrv
 
@@ -74,6 +77,10 @@ bin_xapian_compact_CXXFLAGS = -I$(top_srcdir)/backends/flint
 bin_xapian_compact_SOURCES = bin/xapian-compact.cc
 bin_xapian_compact_LDADD = $(ldflags) libgetopt.la libxapian.la
 
+bin_xapian_inspect_CXXFLAGS = -I$(top_srcdir)/backends/flint
+bin_xapian_inspect_SOURCES = bin/xapian-inspect.cc
+bin_xapian_inspect_LDADD = $(ldflags) libgetopt.la libxapian.la
+
 bin_xapian_progsrv_SOURCES = bin/xapian-progsrv.cc
 bin_xapian_progsrv_LDADD = $(ldflags) libgetopt.la libxapian.la
 
@@ -95,6 +102,9 @@ bin/xapian-check.1: bin/xapian-check$(EXEEXT) makemanpage
 
 bin/xapian-compact.1: bin/xapian-compact$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-compact $(srcdir)/bin/xapian-compact.cc bin/xapian-compact.1
+
+bin/xapian-inspect.1: bin/xapian-inspect$(EXEEXT) makemanpage
+	./makemanpage bin/xapian-inspect $(srcdir)/bin/xapian-inspect.cc bin/xapian-inspect.1
 
 bin/xapian-progsrv.1: bin/xapian-progsrv$(EXEEXT) makemanpage
 	./makemanpage bin/xapian-progsrv $(srcdir)/bin/xapian-progsrv.cc bin/xapian-progsrv.1

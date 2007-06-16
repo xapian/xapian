@@ -89,8 +89,9 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_bindir}/simpleindex
 %{_bindir}/simplesearch
 %{_bindir}/simpleexpand
-%{_bindir}/xapian-compact
 %{_bindir}/xapian-check
+%{_bindir}/xapian-compact
+%{_bindir}/xapian-inspect
 %doc %{_datadir}/doc/%{name}-%{version}
 # man pages may be gzipped, hence the trailing wildcard.
 %{_mandir}/man1/xapian-tcpsrv.1*
@@ -101,8 +102,9 @@ cp AUTHORS ChangeLog ChangeLog.examples COPYING NEWS PLATFORMS README %{buildroo
 %{_mandir}/man1/quest.1*
 %{_mandir}/man1/delve.1*
 %{_mandir}/man1/copydatabase.1*
-%{_mandir}/man1/xapian-compact.1*
 %{_mandir}/man1/xapian-check.1*
+%{_mandir}/man1/xapian-compact.1*
+%{_mandir}/man1/xapian-inspect.1*
 
 %files libs
 %defattr(-, root, root)
