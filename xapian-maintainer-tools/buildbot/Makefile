@@ -6,7 +6,7 @@
 
 # The 'reconfig' target will tell a buildmaster to reload its config file.
 
-all: reconfig log
+all: stop start
 
 start: stop
 	cd /home/xapian-buildbot/master && \
