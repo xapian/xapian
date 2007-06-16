@@ -56,10 +56,10 @@ class BackendManager {
 	std::string current_type;
 
 	/// Throw an exception.
-	Xapian::Database getdb_void(const std::vector<std::string> &dbnames);
+	Xapian::Database getdb_none(const std::vector<std::string> &dbnames);
 
 	/// Throw an exception.
-	Xapian::WritableDatabase getwritedb_void(const std::vector<std::string> &dbnames);
+	Xapian::WritableDatabase getwritedb_none(const std::vector<std::string> &dbnames);
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
 	/// Get an inmemory database instance.
@@ -86,16 +86,16 @@ class BackendManager {
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	/// Get a remote database instance
-	Xapian::Database getdb_remote(const std::vector<std::string> &dbnames);
+	/// Get a remote database instance using xapian-progsrv.
+	Xapian::Database getdb_remoteprog(const std::vector<std::string> &dbnames);
 
-	/// Get a writable remote database instance
-	Xapian::WritableDatabase getwritedb_remote(const std::vector<std::string> &dbnames);
+	/// Get a writable remote database instance using xapian-progsrv.
+	Xapian::WritableDatabase getwritedb_remoteprog(const std::vector<std::string> &dbnames);
 
-	/// Get a remote database instance using xapian-tcpsrv
+	/// Get a remote database instance using xapian-tcpsrv.
 	Xapian::Database getdb_remotetcp(const std::vector<std::string> &dbnames);
 
-	/// Get a writable remote database instance using xapian-tcpsrv
+	/// Get a writable remote database instance using xapian-tcpsrv.
 	Xapian::WritableDatabase getwritedb_remotetcp(const std::vector<std::string> &dbnames);
 #endif
 
@@ -130,7 +130,7 @@ class BackendManager {
 	/** Set the database type to use.
 	 *
 	 *  Valid values for dbtype are "inmemory", "flint", "quartz",
-	 *  "void", "da", "daflimsy", "db", "dbflimsy", "remote", and
+	 *  "none", "da", "daflimsy", "db", "dbflimsy", "remoteprog", and
 	 *  "remotetcp".
 	 */
 	void set_dbtype(const std::string &type);

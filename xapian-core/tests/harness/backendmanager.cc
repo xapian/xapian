@@ -124,8 +124,8 @@ BackendManager::index_files_to_database(Xapian::WritableDatabase & database,
 }
 
 BackendManager::BackendManager() :
-    do_getdb(&BackendManager::getdb_void),
-    do_getwritedb(&BackendManager::getwritedb_void)
+    do_getdb(&BackendManager::getdb_none),
+    do_getwritedb(&BackendManager::getwritedb_none)
 {
 }
 
@@ -139,8 +139,8 @@ BackendManager::set_dbtype(const string &type)
 	do_getdb = &BackendManager::getdb_inmemory;
 	do_getwritedb = &BackendManager::getwritedb_inmemory;
 #else
-	do_getdb = &BackendManager::getdb_void;
-	do_getwritedb = &BackendManager::getwritedb_void;
+	do_getdb = &BackendManager::getdb_none;
+	do_getwritedb = &BackendManager::getwritedb_none;
 #endif
 #if 0
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
@@ -156,8 +156,8 @@ BackendManager::set_dbtype(const string &type)
 #else
     } else if (type == "inmemoryerr" || type == "inmemoryerr2" ||
 	       type == "inmemoryerr3") {
-	do_getdb = &BackendManager::getdb_void;
-	do_getwritedb = &BackendManager::getwritedb_void;
+	do_getdb = &BackendManager::getdb_none;
+	do_getwritedb = &BackendManager::getwritedb_none;
 #endif
 #endif
     } else if (type == "flint") {
@@ -166,8 +166,8 @@ BackendManager::set_dbtype(const string &type)
 	do_getwritedb = &BackendManager::getwritedb_flint;
 	rm_rf(".flint");
 #else
-	do_getdb = &BackendManager::getdb_void;
-	do_getwritedb = &BackendManager::getwritedb_void;
+	do_getdb = &BackendManager::getdb_none;
+	do_getwritedb = &BackendManager::getwritedb_none;
 #endif
     } else if (type == "quartz") {
 #ifdef XAPIAN_HAS_QUARTZ_BACKEND
@@ -175,43 +175,43 @@ BackendManager::set_dbtype(const string &type)
 	do_getwritedb = &BackendManager::getwritedb_quartz;
 	rm_rf(".quartz");
 #else
-	do_getdb = &BackendManager::getdb_void;
-	do_getwritedb = &BackendManager::getwritedb_void;
+	do_getdb = &BackendManager::getdb_none;
+	do_getwritedb = &BackendManager::getwritedb_none;
 #endif
-    } else if (type == "remote") {
+    } else if (type == "remoteprog") {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-	do_getdb = &BackendManager::getdb_remote;
-	do_getwritedb = &BackendManager::getwritedb_remote;
+	do_getdb = &BackendManager::getdb_remoteprog;
+	do_getwritedb = &BackendManager::getwritedb_remoteprog;
 #else
-	do_getdb = &BackendManager::getdb_void;
-	do_getwritedb = &BackendManager::getwritedb_void;
+	do_getdb = &BackendManager::getdb_none;
+	do_getwritedb = &BackendManager::getwritedb_none;
 #endif
     } else if (type == "remotetcp") {
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	do_getdb = &BackendManager::getdb_remotetcp;
 	do_getwritedb = &BackendManager::getwritedb_remotetcp;
 #else
-	do_getdb = &BackendManager::getdb_void;
-	do_getwritedb = &BackendManager::getwritedb_void;
+	do_getdb = &BackendManager::getdb_none;
+	do_getwritedb = &BackendManager::getwritedb_none;
 #endif
-    } else if (type == "void") {
-	do_getdb = &BackendManager::getdb_void;
-	do_getwritedb = &BackendManager::getwritedb_void;
+    } else if (type == "none") {
+	do_getdb = &BackendManager::getdb_none;
+	do_getwritedb = &BackendManager::getwritedb_none;
     } else {
 	throw Xapian::InvalidArgumentError(
-	    "Expected inmemory, flint, quartz, remote, remotetcp, or void");
+	    "Expected inmemory, flint, quartz, remoteprog, remotetcp, or none");
     }
     current_type = type;
 }
 
 Xapian::Database
-BackendManager::getdb_void(const vector<string> &)
+BackendManager::getdb_none(const vector<string> &)
 {
     throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
 }
 
 Xapian::WritableDatabase
-BackendManager::getwritedb_void(const vector<string> &)
+BackendManager::getwritedb_none(const vector<string> &)
 {
     throw Xapian::InvalidArgumentError("Attempted to open a disabled database");
 }
@@ -401,7 +401,7 @@ BackendManager::getwritedb_quartz(const vector<string> &dbnames)
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 Xapian::Database
-BackendManager::getdb_remote(const vector<string> &dbnames)
+BackendManager::getdb_remoteprog(const vector<string> &dbnames)
 {
     // Uses xapian-progsrv as the server.
 
@@ -436,7 +436,7 @@ BackendManager::getdb_remote(const vector<string> &dbnames)
 }
 
 Xapian::WritableDatabase
-BackendManager::getwritedb_remote(const vector<string> &dbnames)
+BackendManager::getwritedb_remoteprog(const vector<string> &dbnames)
 {
     // Uses xapian-progsrv as the server.
 

@@ -95,8 +95,8 @@ int main(int argc, char **argv)
 
     backendmanager.set_datadir(srcdir + "/testdata/");
 
-    RUNTESTS("void", nodb);
-    RUNTESTS("void", unicode);
+    RUNTESTS("none", nodb);
+    RUNTESTS("none", unicode);
 
 #ifdef XAPIAN_HAS_INMEMORY_BACKEND
     RUNTESTS("inmemory", anydb);
@@ -139,16 +139,16 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-    RUNTESTS("remote", anydb);
-    RUNTESTS("remote", specchar);
-    RUNTESTS("remote", writabledb);
-    RUNTESTS("remote", remotedb);
-    RUNTESTS("remote", positionaldb);
-    RUNTESTS("remote", doclendb);
-    RUNTESTS("remote", collfreq);
-    RUNTESTS("remote", allterms);
-    RUNTESTS("remote", multivalue);
-    RUNTESTS("remote", transactiondb);
+    RUNTESTS("remoteprog", anydb);
+    RUNTESTS("remoteprog", specchar);
+    RUNTESTS("remoteprog", writabledb);
+    RUNTESTS("remoteprog", remotedb);
+    RUNTESTS("remoteprog", positionaldb);
+    RUNTESTS("remoteprog", doclendb);
+    RUNTESTS("remoteprog", collfreq);
+    RUNTESTS("remoteprog", allterms);
+    RUNTESTS("remoteprog", multivalue);
+    RUNTESTS("remoteprog", transactiondb);
 
     RUNTESTS("remotetcp", anydb);
     RUNTESTS("remotetcp", specchar);
