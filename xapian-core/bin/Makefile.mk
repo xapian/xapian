@@ -49,6 +49,11 @@ EXTRA_PROGRAMS +=\
 	bin/xapian-progsrv\
 	bin/xapian-tcpsrv
 
+# Automake (up to version 1.10, at least) has a bug causing it to miss the
+# generated files in .libs/ due to bin_PROGRAMS from the clean target.
+# We work around this with a clean-local: rule, in the top level Makefile.am
+extra_cleandirs += bin/.libs bin/_libs
+
 bin_quartzcheck_CXXFLAGS = -I$(top_srcdir)/backends/quartz
 bin_quartzcheck_SOURCES = bin/quartzcheck.cc
 bin_quartzcheck_LDADD = $(ldflags) libquartzcheck.la libxapian.la

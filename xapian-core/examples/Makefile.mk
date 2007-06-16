@@ -10,6 +10,11 @@ bin_PROGRAMS +=\
 	examples/simpleindex\
 	examples/simplesearch
 
+# Automake (up to version 1.10, at least) has a bug causing it to miss the
+# generated files in .libs/ due to bin_PROGRAMS from the clean target.
+# We work around this with a clean-local: rule, in the top level Makefile.am
+extra_cleandirs += examples/.libs examples/_libs
+
 examples_copydatabase_SOURCES = examples/copydatabase.cc
 examples_copydatabase_LDADD = $(ldflags) libxapian.la
 

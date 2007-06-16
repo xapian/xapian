@@ -1,3 +1,11 @@
+Sat Jun 16 09:36:10 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am,bin/Makefile.mk,examples/Makefile.mk: Work around an
+	  apparent bug in automake which causes the entries in .libs
+	  subdirectories generated for targets of bin_PROGRAMS not to be
+	  removed on make clean.  (This was causing make distcheck to
+	  fail.)
+
 Sat Jun 16 04:42:16 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING,Makefile.am,tests/Makefile.am,tests/apitest.cc,

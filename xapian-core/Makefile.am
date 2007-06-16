@@ -24,6 +24,7 @@ DISTCLEANFILES =
 MAINTAINERCLEANFILES =
 bin_PROGRAMS =
 EXTRA_PROGRAMS =
+extra_cleandirs =
 
 .PHONY: check-none check-inmemory \
         check-remote check-remoteprog check-remotetcp \
@@ -113,3 +114,8 @@ CLEANFILES += $(dist_man_MANS)
 xapian-config.1: xapian-config makemanpage
 	./makemanpage ./xapian-config xapian-config xapian-config.1
 endif
+
+# Work around for files which Automake misses its clean target.
+clean-local:
+	-rm -rf $(extra_cleandirs)
+
