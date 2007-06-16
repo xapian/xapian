@@ -1,3 +1,7 @@
+Sat Jun 16 04:40:28 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Now using doxygen 1.5.2.
+
 Sat Jun 16 02:08:20 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_table.cc: Fix to build with older zlib.  Not

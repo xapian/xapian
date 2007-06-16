@@ -349,7 +349,8 @@ told to install pdflatex than to upload a tarball with no PDF manual).
 
 These tools are:
 
-doxygen (v1.4.6 is used for snapshots, releases, and the source documentation)
+doxygen (v1.5.2 is used for snapshots and releases; 1.4.6 produced incomplete
+	 documentation for Xapian::Query).
 dot (part of the graphviz package)
 perl 5
 pdflatex (on Debian, tetex-extra is also required for fancyhdr.sty)
