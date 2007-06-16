@@ -15,8 +15,16 @@ TESTS_ENVIRONMENT = ./runtest
         check-remote check-remoteprog check-remotetcp \
         check-flint check-quartz
 
-check-none: apitest$(EXEEXT)
+check-none: apitest$(EXEEXT) \
+            internaltest$(EXEEXT) \
+	    stemtest$(EXEEXT) \
+	    queryparsertest$(EXEEXT) \
+	    termgentest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b none
+	$(TESTS_ENVIRONMENT) ./internaltest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./stemtest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./queryparsertest$(EXEEXT)
+	$(TESTS_ENVIRONMENT) ./termgentest$(EXEEXT)
 
 check-inmemory: apitest$(EXEEXT)
 	$(TESTS_ENVIRONMENT) ./apitest$(EXEEXT) -b inmemory
