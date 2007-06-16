@@ -1038,7 +1038,9 @@ FlintTable::add(const string &key, string tag, bool already_compressed)
 	CompileTimeAssert(DONT_COMPRESS != Z_DEFAULT_STRATEGY);
 	CompileTimeAssert(DONT_COMPRESS != Z_FILTERED);
 	CompileTimeAssert(DONT_COMPRESS != Z_HUFFMAN_ONLY);
+#ifdef Z_RLE
 	CompileTimeAssert(DONT_COMPRESS != Z_RLE);
+#endif
 
 	z_stream stream;
 
