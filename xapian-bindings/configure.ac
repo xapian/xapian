@@ -256,7 +256,11 @@ if test no != "$with_python" ; then
       AC_MSG_CHECKING([for $PYTHON_INC/Python.h])
       if test -f "$PYTHON_INC/Python.h" ; then
 	AC_MSG_RESULT(yes)
-	PYTHON_LIB=`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_lib(1).replace(os.sep,"/")'`
+	AC_MSG_CHECKING([for directory to install python bindings in])
+	if test -z "$PYTHON_LIB" ; then
+	  PYTHON_LIB=`$PYTHON -c 'import os,distutils.sysconfig;print distutils.sysconfig.get_python_lib(1).replace(os.sep,"/")'`
+	fi
+	AC_MSG_RESULT([$PYTHON_LIB])
 	AC_ARG_VAR(PYTHON_LIB, [Directory to install python bindings in])
 	AC_MSG_CHECKING([for Python path separator])
 	PYTHON_PATHSEP=`$PYTHON -c 'import os;print os.pathsep'`

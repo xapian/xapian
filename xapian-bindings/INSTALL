@@ -111,6 +111,12 @@ Installing without root access
      make pylibdir=$HOME/my_python_modules
      make install pylibdir=$HOME/my_python_modules
 
+     Or
+
+     ./configure --with-python --prefix=$HOME/install PYTHON_LIB=$HOME/my_python_modules
+     make
+     make install
+
      And then you'll need to tell Python to look for modules in this directory.
      Here are two possible ways to do that.
 
