@@ -84,9 +84,18 @@ def gen_svn_clean_factory(baseURL):
     f.addStep(MakeWritable, workdir='.')
     f.addStep(step.SVN, baseURL=baseURL, mode="clobber")
     f.addStep(Bootstrap)
-    f.addStep(step.Configure)
-    f.addStep(step.Compile)
-    f.addStep(step.Test, name="distcheck", command=("make", "distcheck", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
+    f.addStep(step.Configure, command = ["./configure", "PYTHON_LIB=`pwd`/tmp_pylib", "PHP_EXTENSION_DIR=`pwd`/tmp_phplib"])
+    extraargs = (
+        "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=",
+        "rubylibdir=`pwd`/tmp_rubylib",
+        "rubylibarchdir=`pwd`/tmp_rubylibarch",
+        "tcllibdir=`pwd`/tmp_tcllib"
+    )
+    f.addStep(step.Compile, command=("make",) + extraargs)
+    f.addStep(step.Test, name="check", command=("make", "check") + extraargs)
+    f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-core')
+    f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-applications/omega')
+    f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-bindings')
     return f
 
 def gen_svn_updated_win_factory(baseURL):
@@ -95,6 +104,17 @@ def gen_svn_updated_win_factory(baseURL):
     """
     f = factory.BuildFactory()
     f.addStep(step.SVN, baseURL=baseURL, mode="update")
+    f.addStep(step.ShellCommand, command="xapian-maintainer-tools\\buildbot\\scripts\\prepare_build.bat")
+
+    f.addStep(step.Compile, workdir="build/xapian-core/win32",
+              command=["nmake", "-E", "-K", "-L"],
+              env=env)
+    # Compile core: we use a .bat file to get vsvars32.bat to run before the
+    # command.
+    #f.addStep(step.Compile, workdir="build/xapian-core/win32",
+    #          command=["..\\..\\xapian-maintainer-tools\\buildbot\\scripts\\run_with_vc7.bat", "nmake", "-E", "-K", "-L"],
+    #          env=env)
+
     return f
 
 def gen_tarball_factory(tarball_root):
