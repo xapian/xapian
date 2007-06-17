@@ -152,7 +152,10 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
      *  @return A reference to this object.
      */
     Utf8Iterator & operator++() {
-	this->operator++(0);
+	if (seqlen == 0) calculate_sequence_length();
+	p += seqlen;
+	if (p == end) p = NULL;
+	seqlen = 0;
 	return *this;
     }
 
