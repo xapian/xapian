@@ -313,9 +313,11 @@ if test no != "$with_php" ; then
 
     if test no != "$with_php" ; then
       AC_MSG_CHECKING([for PHP extension directory])
-      PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
-      AC_SUBST(PHP_EXTENSION_DIR)
+      if test -z "$PHP_EXTENSION_DIR" ; then
+	PHP_EXTENSION_DIR=`$PHP_CONFIG --extension-dir`
+      fi
       AC_MSG_RESULT([$PHP_EXTENSION_DIR])
+      AC_ARG_VAR(PHP_EXTENSION_DIR, [Directory to install PHP extensions in])
     fi
 
     if test no != "$with_php" ; then

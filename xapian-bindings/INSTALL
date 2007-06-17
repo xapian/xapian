@@ -97,6 +97,13 @@ Installing without root access
      make phpextdir=$HOME/my_php_extensions
      make install phpextdir=$HOME/my_php_extensions
 
+     Or (if you always want to install in the same place, and want to avoid
+     specifying it each time you run make)
+
+     ./configure --with-php --prefix=$HOME/install PHP_EXTENSION_DIR=$HOME/my_php_extensions
+     make
+     make install
+
      And you'll need to load the Xapian module in your PHP code using something
      like:
 
@@ -111,7 +118,8 @@ Installing without root access
      make pylibdir=$HOME/my_python_modules
      make install pylibdir=$HOME/my_python_modules
 
-     Or
+     Or (if you always want to install in the same place, and want to avoid
+     specifying it each time you run make)
 
      ./configure --with-python --prefix=$HOME/install PYTHON_LIB=$HOME/my_python_modules
      make
