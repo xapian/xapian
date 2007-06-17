@@ -1,3 +1,8 @@
+Sun Jun 17 14:14:16 BST 2007  Olly Betts <olly@survex.com>
+
+	* bin/xapian-inspect.cc: Fix so that Ctrl+D doesn't cause an infinite
+	  loop!
+
 Sat Jun 16 22:19:11 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/Makefile.mk,bin/xapian-inspect.cc,xapian-core.spec.in:

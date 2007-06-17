@@ -132,6 +132,8 @@ wait_for_input:
 
 	    string input;
 	    getline(cin, input);
+	    if (cin.eof()) break;
+
 	    if (input[input.size() - 1] == '\r')
 		input.resize(input.size() - 1);
 
