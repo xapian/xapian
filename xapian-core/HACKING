@@ -418,6 +418,15 @@ Use of C++ Features:
   preferable to use a simple two member struct instead.  The code is probably
   more readable anyway, and easier to extend if more members are needed later.
 
+* We try to avoid putting the full definition of virtual methods in header
+  files.  This is because current compilers can't (as far as we know) inline
+  virtual methods, so putting the definition in the header file simply slows
+  down compilation (and, because method definitions often require further
+  header files to be included, this can result in many more files needing
+  recompilation after a change to a header file than is really necessary).
+  Just put the declaration in the header file, and put the definition in a .cc
+  file of the same name.
+
 Miscellaneous Portability Issues:
 =================================
 
