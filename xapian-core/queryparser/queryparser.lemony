@@ -954,8 +954,9 @@ class TermList {
 
 // Operators, grouped in order of increasing precedence:
 %nonassoc ERROR.
-%left NOT OR XOR.
-%left AND.
+%left OR.
+%left XOR.
+%left AND NOT.
 %left NEAR ADJ.
 %left LOVE HATE.
 
