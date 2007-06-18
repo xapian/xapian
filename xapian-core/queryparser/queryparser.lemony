@@ -88,7 +88,7 @@ prefix_needs_colon(const string & prefix, unsigned ch)
 
 using Unicode::is_currency;
 
-/// A structure identifying a group of filter terms
+/// A structure identifying a group of filter terms.
 struct filter_group_id {
     /** The prefix of the filter terms.
      *  This is used for boolean filter terms.
@@ -119,9 +119,9 @@ struct filter_group_id {
 
 /** Class used to pass information about a token from lexer to parser.
  *
- *  Generally a this class carries term information, but it can be used for the
- *  start or end of a value range, with some operators (e.g. the distance
- *  in NEAR/3 or ADJ/3, etc).
+ *  Generally an instance of this class carries term information, but it can be
+ *  used for the start or end of a value range, with some operators (e.g. the
+ *  distance in NEAR/3 or ADJ/3, etc).
  */
 class Term {
     // So State can read our name.
@@ -778,7 +778,7 @@ phrased_term:
 	    } else {
 		if (mode == DEFAULT) {
 		    if (it != end) {
-			if (flags & FLAG_WILDCARD && *it == '*') {
+			if ((flags & FLAG_WILDCARD) && *it == '*') {
 			    Utf8Iterator p(it);
 			    ++p;
 			    if (p == end || !is_wordchar(*p)) {

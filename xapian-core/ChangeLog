@@ -1,3 +1,8 @@
+Mon Jun 18 03:36:38 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix comment typo, and add brackets
+	  to make intended precedence clearer.
+
 Mon Jun 18 03:36:04 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Tweak wording of a couple of
