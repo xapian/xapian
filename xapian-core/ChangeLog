@@ -1,3 +1,19 @@
+Mon Jun 18 11:33:49 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/valuerangeproc.cc: Add static methods to
+	  NumberValueRangeProcessor to serialise and unserialise doubles.
+	  Change the code which tests a term for being a number to use
+	  strtod, and accept any string which strtod thinks is a number.
+	  If NumberValueRangeProcessor accepts a range, it now converts the
+	  begin and end values to strings using the serialise method.
+	  Also, expand some of the code comments.
+	* include/xapian/queryparser.h: Add documentation comments to
+	  NumberValueRangeProcessor.
+	* tests/queryparsertest.cc: Update value_range2_queries to expect
+	  new serialised forms in its output.  Update test_qp_value_range3
+	  to test a wider range of values (including negative, fractional,
+	  and more-than-single-digit).
+
 Mon Jun 18 03:36:38 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Fix comment typo, and add brackets

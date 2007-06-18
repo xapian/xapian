@@ -152,10 +152,11 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProce
 
 /** Handle a number range.
  *
- *  This class currently has a design bug - a string comparison is used so the
- *  numbers must be the same length for it to work, but you can't just zero
- *  pad the values in the database because those from the query aren't.  We
- *  therefore recommend that you avoid using this class at present.
+ *  This class requires that the values stored which the range is being applied
+ *  to are numbers which have been converted to strings using its \a
+ *  float_to_string() method.  This method produces strings which will sort in
+ *  numeric order, so you can use it if you want to be able to sort based on
+ *  the value in numeric order, too.
  */
 class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno valno;
@@ -163,14 +164,94 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangePro
     std::string str;
 
   public:
+    /** Constructor.
+     *
+     *  @param valno_   The value number to return from operator().
+     */
     NumberValueRangeProcessor(Xapian::valueno valno_)
 	: valno(valno_), prefix(false) { }
 
+    /** Constructor.
+     *
+     *  @param valno_   The value number to return from operator().
+     *
+     *  @param str_     A string to look for to recognise values as belonging
+     *                  to this numeric range.
+     *
+     *  @param prefix_  Whether to look for the string at the start or end of
+     *                  the values.  If true, the string is a prefix; if
+     *                  false, the string is a suffix.
+     *
+     *  The string supplied in str_ is used by \a operator() to decide whether
+     *  the pair of strings supplied to it constitute a valid range.  If
+     *  prefix_ is true, the first value in a range must begin with str_ (and
+     *  the second value may also begin with str_, but this is not compulsory);
+     *  if prefix_ is false, the second value in a range must end with str_
+     *  (and the first value may also end with str_, but this is not
+     *  compulsory).
+     *
+     *  If str_ is empty, the setting of prefix_ is irrelevant, and no special
+     *  strings are required at the start or end of the strings defining the
+     *  range.
+     *
+     *  The remainder of both strings defining the endpoints must be valid
+     *  floating point numbers, as defined by the ANSI C standard library
+     *  function `strtod()`.
+     *
+     *  For example, if str_ is "$" and prefix_ is true, and the range
+     *  processor has been added to the queryparser, the queryparser will
+     *  accept "$10..50" or "$10..50", but not "10..50" or "10..$50" as valid
+     *  ranges.  If str_ is "kg" and prefix_ is false, the queryparser will
+     *  accept "10..50kg" or "10kg..50kg", but not "10..50" or "10kg..50" as
+     *  valid ranges.
+     */
     NumberValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
 			      bool prefix_ = true)
 	: valno(valno_), prefix(prefix_), str(str_) { }
 
+    /** See if <begin>..<end> is a valid numeric value range.
+     *
+     *  If <begin>..<end> is a valid numeric value range, and has the
+     *  appropriate prefix or suffix (if specified) required for this
+     *  NumberValueRangeProcessor, this method returns the value number of
+     *  range filter on, and sets begin and end to the appropriate serialised
+     *  values needed to delimit the range.  Otherwise it returns
+     *  Xapian::BAD_VALUENO.
+     */
     Xapian::valueno operator()(std::string &begin, std::string &end);
+
+    /** Convert a floating point number to a string, preserving sort order.
+     *
+     *  This method converts a floating point number to a string, suitable for
+     *  using as a value for numeric range restriction, or for use as a sort
+     *  key.
+     *
+     *  The conversion attempts to ensure that, for any pair of values supplied
+     *  to the conversion algorithm, the result of comparing the original
+     *  values (with a numeric comparison operator) will be the same as the
+     *  result of comparing the resulting values (with a string comparison
+     *  operator).  On platforms which represent doubles with the precisions
+     *  specified by IEEE_754, this will be the case: if the representation of
+     *  doubles is more precise, it is possible that two very close doubles
+     *  will be mapped to the same string, so will compare equal.
+     *
+     *  The conversion is platform independent.
+     */
+    static std::string float_to_string(double value); 
+
+    /** Convert a string to a floating point number.
+     *
+     *  This expects the input to be a string produced by \a float_to_string().
+     *  If the input is not such a string, the value returned is undefined (but
+     *  no error will be thrown).
+     *
+     *  The result of the conversion will be exactly the value which was
+     *  supplied to \a string_to_float() when making the string on platforms
+     *  which represent doubles with the precisions specified by IEEE_754, but
+     *  may be a different (nearby) value on other platforms.
+     */
+    static double string_to_float(const std::string & value);
+
 };
 
 /// Build a Xapian::Query object from a user query string.

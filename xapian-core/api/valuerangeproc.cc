@@ -22,11 +22,14 @@
 
 #include <xapian/queryparser.h>
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <string>
 #include "stringutils.h"
+#include "safeerrno.h"
+#include "omassert.h"
 
 using namespace std;
 
@@ -151,37 +154,29 @@ Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
 
     if (str.size()) {
 	if (prefix) {
-	    // If there's a prefix, require it on the start.
+	    // If there's a prefix, require it on the start of the range.
 	    if (!begins_with(begin, str)) {
 		// Prefix not given.
 		return Xapian::BAD_VALUENO;
 	    }
 	    b_b = str.size();
-	    // But it's optional on the end, e.g. $10..50
+	    // But it's optional on the end of the range, e.g. $10..50
 	    if (begins_with(end, str)) {
 		e_b = str.size();
 	    }
 	} else {
-	    // If there's a suffix, require it on the end.
+	    // If there's a suffix, require it on the end of the range.
 	    if (!ends_with(end, str)) {
-		// Prefix not given.
+		// Suffix not given.
 		return Xapian::BAD_VALUENO;
 	    }
 	    e_e = end.size() - str.size();
-	    // But it's optional on the start, e.g. 10..50kg
+	    // But it's optional on the start of the range, e.g. 10..50kg
 	    if (ends_with(begin, str)) {
 		b_e = begin.size() - str.size();
 	    }
 	}
     }
-
-    if (begin.find_first_not_of("0123456789", b_b) != b_e)
-	// Not a number.
-	return Xapian::BAD_VALUENO;
-
-    if (end.find_first_not_of("0123456789", e_b) != e_e)
-	// Not a number.
-	return Xapian::BAD_VALUENO;
 
     // Adjust begin string if necessary.
     if (b_b)
@@ -195,5 +190,146 @@ Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
     else if (e_e != string::npos)
 	end.resize(e_e);
 
+
+    // Parse the numbers to floating point.
+    double beginnum, endnum;
+    const char * startptr;
+    char * endptr;
+
+    errno = 0;
+    startptr = begin.c_str();
+    beginnum = strtod(startptr, &endptr);
+    if (endptr != startptr + begin.size())
+	// Invalid characters in string
+	return Xapian::BAD_VALUENO;
+    if (errno)
+	// Overflow or underflow
+	return Xapian::BAD_VALUENO;
+
+    errno = 0;
+    startptr = end.c_str();
+    endnum = strtod(startptr, &endptr);
+    if (endptr != startptr + end.size())
+	// Invalid characters in string
+	return Xapian::BAD_VALUENO;
+    if (errno)
+	// Overflow or underflow
+	return Xapian::BAD_VALUENO;
+
+    begin.assign(float_to_string(beginnum));
+    end.assign(float_to_string(endnum));
+
     return valno;
+}
+
+string
+Xapian::NumberValueRangeProcessor::float_to_string(double value)
+{
+    double mantissa;
+    int exponent;
+
+    mantissa = frexp(value, &exponent);
+
+    bool negative = false;
+    if (mantissa < 0) {
+	negative = true;
+	mantissa = -mantissa;
+    }
+
+    /* IEEE representation of doubles uses 11 bits for the exponent, with a
+     * bias of 1023.  There's then another 52 bits in the mantissa, so we need
+     * to add 1075 to be sure that the exponent won't be negative.  Even then,
+     * we check that the exponent isn't negative, and consider the value to be
+     * equal to zero if it is, to be safe on architectures which use a
+     * different representation.
+     */
+    exponent += 1075;
+    if (exponent < 0) {
+	/* Note - this can't happen on most architectures. */
+	exponent = 0;
+	mantissa = 0;
+	negative = false;
+    } else if (mantissa == 0) {
+	exponent = 0;
+    }
+
+    // First, store the exponent, as two bytes
+    // Top bit of first byte is a sign bit.
+    // If the sign bit is set, number is positive.
+    // If the sign bit is unset, number is negative.
+    // For negative numbers, we invert the bytes, so that the sort order
+    // is reversed (so that larger negative numbers come first).
+    int n = (exponent & 0x7f00) >> 8;
+    Assert(exponent >= 0);
+    Assert(exponent < 128);
+    string digits;
+    digits.push_back(negative ? 127 - n : 128 + n);
+
+    n = exponent & 0xff;
+    digits.push_back(negative ? 255 - n: n);
+
+    // Now, store the mantissa, in 7 bytes.
+    // For negative numbers, we invert the bytes, as for the exponent.
+    // Mantissa is in range .5 <= m < 1.
+    //
+    // Therefore, we first multiply by 512 and subtract 256, to get the first
+    // byte.  For subsequent bytes, we multiply by 256.
+    mantissa = mantissa * 512 - 256;
+    Assert(mantissa >= 0);
+    Assert(mantissa < 256);
+    int i;
+    for (i = 0; i != 7; ++i) {
+	n = static_cast<int>(floor(mantissa));
+	digits.push_back(negative ? 255 - n : n);
+	mantissa -= n;
+	Assert(mantissa >= 0);
+	Assert(mantissa < 1.0);
+	mantissa *= 256;
+    }
+
+    // Finally, we can chop off any trailing zeros.
+    i = digits.size();
+    while (i > 0 && digits[i - 1] == '\0') {
+	i--;
+    }
+    digits.resize(i);
+
+    return digits;
+}
+
+/// Get a number from the character at a given position in a string, returning
+/// 0 if the string isn't long enough.
+static inline unsigned int
+numfromstr(const std::string & str, std::string::size_type pos)
+{
+    return (str.size() > pos) ? static_cast<unsigned char>(str[pos]) : 0;
+}
+
+double
+Xapian::NumberValueRangeProcessor::string_to_float(const std::string & value)
+{
+    // Read the exponent
+    unsigned int n = numfromstr(value, 0);
+    bool negative = (n < 128);
+    int exponent = (negative ? 127 - n : n - 128) << 8;
+    n = numfromstr(value, 1);
+    exponent += negative ? 255 - n : n;
+    exponent -= 1075;
+
+    // Read the mantissa
+    double mantissa = 0;
+
+    for (int i = 8; i != 2; --i)
+    {
+	n = numfromstr(value, i);
+	double byteval(negative ? 255 - n : n);
+	mantissa += ldexp(byteval, 8 * (1 - i) - 1);
+    }
+
+    n = numfromstr(value, 2);
+    if (negative) n = 255 - n;
+    n += 256;
+    mantissa += ldexp(n, -9);
+
+    return (negative ? -1 : 1) * ldexp(mantissa, exponent);
 }

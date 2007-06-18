@@ -22,6 +22,7 @@
 #include <xapian.h>
 #include <iostream>
 #include <string>
+#include <math.h>
 #include "utils.h"
 
 using namespace std;
@@ -1048,12 +1049,12 @@ static bool test_qp_value_range1()
 
 static test test_value_range2_queries[] = {
     { "a..b", "VALUE_RANGE 3 a b" },
-    { "1..12", "VALUE_RANGE 2 1 12" },
+    { "1..12", "VALUE_RANGE 2 \2044 \2047\200" },
     { "20070201..20070228", "VALUE_RANGE 1 20070201 20070228" },
-    { "$10..20", "VALUE_RANGE 4 10 20" },
-    { "$10..$20", "VALUE_RANGE 4 10 20" },
-    { "12..42kg", "VALUE_RANGE 5 12 42" },
-    { "12kg..42kg", "VALUE_RANGE 5 12 42" },
+    { "$10..20", "VALUE_RANGE 4 \2047@ \2048@" },
+    { "$10..$20", "VALUE_RANGE 4 \2047@ \2048@" },
+    { "12..42kg", "VALUE_RANGE 5 \2047\200 \2049P" },
+    { "12kg..42kg", "VALUE_RANGE 5 \2047\200 \2049P" },
     { "12kg..42", "VALUE_RANGE 3 12kg 42" },
     { "10..$20", "VALUE_RANGE 3 10 $20" },
     { "1999-03-12..2020-12-30", "VALUE_RANGE 1 19990312 20201230" },
@@ -1062,7 +1063,7 @@ static test test_value_range2_queries[] = {
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "(test:a..test:b hello)", "(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)" },
-    { "12..42kg 5..6kg 1..12", "(VALUE_RANGE 2 1 12 AND (VALUE_RANGE 5 12 42 OR VALUE_RANGE 5 5 6))" },
+    { "12..42kg 5..6kg 1..12", "(VALUE_RANGE 2 \2044 \2047\200 AND (VALUE_RANGE 5 \2047\200 \2049P OR VALUE_RANGE 5 \2046@ \2046\200))" },
     { NULL, NULL }
 };
 
@@ -1104,17 +1105,17 @@ static bool test_qp_value_range2()
     return true;
 }
 
-// Test NumberValueRangeProcessors with actual data..
+// Test NumberValueRangeProcessors with actual data.
 static bool test_qp_value_range3()
 {
     Xapian::WritableDatabase db(Xapian::InMemory::open());
-    int low = 0;  // FIXME - should it work with negative numbers?
-                  // If so, test it with some by setting low to -10
-    int high = 9; // Currently the test passes if high is 9, but not if it is 10.
+    double low = -10;
+    double high = 20;
+    double step = 0.5;
 
-    for (int i = low; i <= high; ++i) {
+    for (double i = low; i <= high; i += step) {
 	Xapian::Document doc;
-	doc.add_value(1, om_tostring(i));
+	doc.add_value(1, Xapian::NumberValueRangeProcessor::float_to_string(i));
 	db.add_document(doc);
     }
 
@@ -1122,24 +1123,91 @@ static bool test_qp_value_range3()
     Xapian::QueryParser qp;
     qp.add_valuerangeprocessor(&vrp_num);
 
-    for (int start = low; start <= high; ++start) {
-	for (int end = low; end <= high; ++end) {
+    for (double start = low; start <= high; start += step) {
+	for (double end = low; end <= high; end += step) {
 	    string query = om_tostring(start) + ".." + om_tostring(end);
 	    tout << "Query: " << query << '\n';
 	    Xapian::Query qobj = qp.parse_query(query);
 	    Xapian::Enquire enq(db);
 	    enq.set_query(qobj);
-	    Xapian::MSet mset = enq.get_mset(0, 1 + high - low);
+	    Xapian::MSet mset = enq.get_mset(0, 1 + static_cast<int>(floor((high - low) / step)));
 	    if (end < start) {
 		TEST_EQUAL(mset.size(), 0);
 	    } else {
-		//TEST_EQUAL(mset.size(), 1u + end - start);
+		TEST_EQUAL(mset.size(), 1u + (end - start) / step);
 		for (unsigned int j = 0; j != mset.size(); j++) {
 		    TEST_EQUAL(mset[j].get_document().get_value(1),
-			       om_tostring(static_cast<int>(j) + start));
+			       Xapian::NumberValueRangeProcessor::float_to_string(j * step + start));
 		}
 	    }
 	}
+    }
+    return true;
+}
+
+static double test_value_range_numbers[] = {
+    -pow(2, 1022),
+    -1024.5,
+    -3.14159265358979323846,
+    -2,
+    -1.8,
+    -1.1,
+    -1,
+    -0.5,
+    -0.2,
+    -0.1,
+    -0.000005,
+    -0.000002,
+    -0.000001,
+    -pow(2, -1023),
+    -pow(2, -1024),
+    -pow(2, -1074),
+    0,
+    pow(2, -1074),
+    pow(2, -1024),
+    pow(2, -1023),
+    0.000001,
+    0.000002,
+    0.000005,
+    0.1,
+    0.2,
+    0.5,
+    1,
+    1.1,
+    1.8,
+    2,
+    3.14159265358979323846,
+    1024.5,
+    pow(2, 1022),
+
+    64 // Magic number which we stop at.
+};
+
+// Test serialisation and unserialisation of various numbers.
+static bool test_value_range_serialise1()
+{
+    double prevnum = 0;
+    string prevstr = "";
+    bool started = false;
+    for (double *p = test_value_range_numbers; *p != 64; ++p) {
+	double num = *p;
+	tout << "Number: " << num << '\n';
+	string str = Xapian::NumberValueRangeProcessor::float_to_string(num);
+	tout << "String: " << str << '\n';
+	TEST_EQUAL(Xapian::NumberValueRangeProcessor::string_to_float(str), num);
+
+	if (started) {
+	    TEST_AND_EXPLAIN(prevnum < num, "Expected previous number (" <<
+			     prevnum << ") to be less than current number (" <<
+			     num << ")");
+	    TEST_AND_EXPLAIN(prevstr < str, "Expected previous string (" <<
+			     prevstr << ") to be less than current string (" <<
+			     str << ")");
+	}
+
+	prevnum = num;
+	prevstr = str;
+	started = true;
     }
     return true;
 }
@@ -1280,6 +1348,7 @@ static test_desc tests[] = {
     TESTCASE(qp_value_range2),
     TESTCASE(qp_value_range3),
     TESTCASE(qp_value_daterange1),
+    TESTCASE(value_range_serialise1),
     TESTCASE(qp_value_customrange1),
     TESTCASE(qp_stoplist1),
     END_OF_TESTCASES
