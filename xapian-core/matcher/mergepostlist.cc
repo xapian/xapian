@@ -89,6 +89,13 @@ MergePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     throw Xapian::InvalidOperationError("MergePostList doesn't support skip_to");
 }
 
+Xapian::termcount
+MergePostList::get_wdf() const
+{
+    DEBUGCALL(MATCH, Xapian::termcount, "MergePostList::get_wdf", "");
+    RETURN(plists[current]->get_wdf());
+}
+
 Xapian::doccount
 MergePostList::get_termfreq_max() const
 {

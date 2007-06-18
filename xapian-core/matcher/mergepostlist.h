@@ -27,7 +27,7 @@
 
 #include "postlist.h"
 
-/** A postlist comprising postlists from different databases mergeed together.
+/** A postlist comprising postlists from different databases merged together.
  */
 class MergePostList : public PostList {
     private:
@@ -50,6 +50,7 @@ class MergePostList : public PostList {
 
 	Xapian::ErrorHandler * errorhandler;
     public:
+	Xapian::termcount get_wdf() const;
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::doccount get_termfreq_min() const;
 	Xapian::doccount get_termfreq_est() const;

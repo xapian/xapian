@@ -1,3 +1,12 @@
+Mon Jun 18 18:24:43 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/mergepostlist.cc,matcher/mergepostlist.h: Add get_wdf()
+	  method to MergePostList (just passes through the value from the
+	  current postlist).  Not currently needed, but the expected
+	  behaviour is obvious, and this will be needed if there's a
+	  synonym postlist higher in the query tree (when synonym postlists
+	  are implemented).  Also, correct a documentation comment typo.
+
 Mon Jun 18 13:09:36 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/valuerangeproc.cc: Cast the first parameter to ldexp() to
