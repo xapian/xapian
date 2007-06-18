@@ -319,6 +319,10 @@ Xapian::NumberValueRangeProcessor::string_to_float(const std::string & value)
     // Read the mantissa
     double mantissa = 0;
 
+    // We read the mantissa starting with the least significant byte, to avoid
+    // precision errors creeping in.  The mantissa is held in positions 2 to 8
+    // of the string, with each subsequent byte being 1/256th as significant as
+    // the previous.
     for (int i = 8; i != 2; --i)
     {
 	n = numfromstr(value, i);
@@ -326,10 +330,14 @@ Xapian::NumberValueRangeProcessor::string_to_float(const std::string & value)
 	mantissa += ldexp(byteval, 8 * (1 - i) - 1);
     }
 
+    // The mantissa is in the range 0.5 << mantissa < 1, so we deal with the
+    // top value specially, by storing "(value * 512 - 256)" rather than store
+    // a value in the range 128..255, so we have to handle the top value
+    // specially here to correspond to this.
     n = numfromstr(value, 2);
     if (negative) n = 255 - n;
     n += 256;
-    mantissa += ldexp(n, -9);
+    mantissa += ldexp(static_cast<double>(n), -9);
 
     return (negative ? -1 : 1) * ldexp(mantissa, exponent);
 }
