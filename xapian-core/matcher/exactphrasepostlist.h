@@ -54,6 +54,8 @@ class ExactPhrasePostList : public SelectPostList {
 
     ~ExactPhrasePostList();
 
+    Xapian::termcount get_wdf() const;
+
     Xapian::doccount get_termfreq_est() const;
 
     std::string get_description() const;

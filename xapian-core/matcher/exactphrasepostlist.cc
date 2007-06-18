@@ -119,6 +119,27 @@ ExactPhrasePostList::test_doc()
     RETURN(false);
 }
 
+Xapian::termcount
+ExactPhrasePostList::get_wdf() const
+{
+    // Calculate the an estimate for the wdf of an exact phrase postlist.
+    //
+    // We use the minimum wdf of a sub-postlist as our estimate.  See the
+    // comment in NearPostList::get_wdf for justification of this estimate.
+    //
+    // We divide the value calculated for a NearPostList by 3, as a very rough
+    // heuristic to represent the fact that the words must occur exactly in
+    // order, and phrases are therefore rarer than near matches and (non-exact)
+    // phrase matches.
+
+    std::vector<PostList *>::const_iterator i = terms.begin();
+    Xapian::termcount wdf = (*i)->get_wdf();
+    for (; i != terms.end(); i++) {
+	wdf = std::min(wdf, (*i)->get_wdf());
+    }
+    return wdf;
+}
+
 Xapian::doccount
 ExactPhrasePostList::get_termfreq_est() const
 {

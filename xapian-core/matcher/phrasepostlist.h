@@ -46,6 +46,7 @@ class NearPostList : public SelectPostList {
 		     Xapian::termcount min, Xapian::termcount max);
     public:
 	std::string get_description() const;
+	Xapian::termcount get_wdf() const;
 
 	Xapian::doccount get_termfreq_est() const
 	{
@@ -79,6 +80,7 @@ class PhrasePostList : public SelectPostList {
 		     Xapian::termcount min, Xapian::termcount max);
     public:
 	std::string get_description() const;
+	Xapian::termcount get_wdf() const;
 
 	Xapian::doccount get_termfreq_est() const
 	{
