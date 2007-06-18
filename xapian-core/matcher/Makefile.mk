@@ -35,6 +35,7 @@ libxapian_la_SOURCES +=\
 	matcher/andnotpostlist.cc\
 	matcher/andpostlist.cc\
 	matcher/bm25weight.cc\
+	matcher/branchpostlist.cc\
 	matcher/emptysubmatch.cc\
 	matcher/exactphrasepostlist.cc\
 	matcher/filterpostlist.cc\
