@@ -194,7 +194,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	/** Support right truncation (e.g. Xap*).
 	 *
 	 *  NB: You need to tell the QueryParser object which database to
-	 *  expand wildcards from using set_database.
+	 *  expand wildcards from by calling set_database.
 	 */
 	FLAG_WILDCARD = 16,
 	/** Allow queries such as 'NOT apples'.
@@ -211,6 +211,9 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  final word as a wildcarded match, unless it is followed by
 	 *  whitespace, to produce more stable results from interactive
 	 *  searches.
+	 *
+	 *  NB: You need to tell the QueryParser object which database to
+	 *  expand wildcards from by calling set_database.
 	 */
 	FLAG_PARTIAL = 64
     } feature_flag;

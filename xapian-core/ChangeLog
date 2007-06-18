@@ -1,3 +1,8 @@
+Mon Jun 18 03:36:04 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Tweak wording of a couple of
+	  documentation comments.
+
 Mon Jun 18 02:00:31 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/queryparser.html: Mention "AND NOT" as an alternative way to
