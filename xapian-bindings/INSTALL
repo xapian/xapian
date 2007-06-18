@@ -42,8 +42,6 @@ The simplest way to compile this package is:
      exactly which bindings you want to build by passing one or more of the
      following options to configure:
 
-       --with-swig	    enable all bindings which depend on SWIG
-			    (currently: CSharp PHP Python Ruby Tcl)
        --with-python	    enable Python bindings
        --with-php	    enable PHP bindings
        --with-ruby	    enable Ruby bindings
