@@ -1,3 +1,8 @@
+Mon Jun 18 13:54:19 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Add the new static methods in NumberValueRangeProcessor
+	  for serialising and unserialising doubles to the bindings.
+
 Mon Jun 18 03:27:58 BST 2007  Olly Betts <olly@survex.com>
 
 	* INSTALL: "--with-swig" has been removed, so don't mention it.

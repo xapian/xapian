@@ -947,6 +947,8 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangePro
         : valno(valno_), prefix(prefix_), str(str_) { }
 
     Xapian::valueno operator()(std::string &begin, std::string &end);
+    static std::string float_to_string(double value);
+    static double string_to_float(const std::string & value);
 };
 
 class QueryParser {
