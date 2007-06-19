@@ -12,7 +12,7 @@
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-LIBCOMMON_OBJS= \
+OBJS= \
 	$(INTDIR)\utils.obj \
 	$(INTDIR)\getopt.obj \
 	$(INTDIR)\omdebug.obj \
@@ -21,56 +21,16 @@ LIBCOMMON_OBJS= \
 	$(INTDIR)\msvc_posix_wrapper.obj \
 	$(INTDIR)\safe.obj
 	
-LOCAL_HEADERS =\
-	$(INTDIR)\alltermslist.h\
-	$(INTDIR)\autoptr.h\
-	$(INTDIR)\database.h\
-	$(INTDIR)\document.h\
-	$(INTDIR)\documentterm.h\
-	$(INTDIR)\emptypostlist.h\
-	$(INTDIR)\expand.h\
-	$(INTDIR)\expandweight.h\
-	$(INTDIR)\gnu_getopt.h\
-	$(INTDIR)\inmemory_positionlist.h\
-	$(INTDIR)\leafpostlist.h\
-	$(INTDIR)\msvc_posix_wrapper.h\
-	$(INTDIR)\multialltermslist.h\
-	$(INTDIR)\multimatch.h\
-	$(INTDIR)\networkstats.h\
-	$(INTDIR)\noreturn.h\
-	$(INTDIR)\omassert.h\
-	$(INTDIR)\omdebug.h\
-	$(INTDIR)\omenquireinternal.h\
-	$(INTDIR)\omqueryinternal.h\
-	$(INTDIR)\omstringstream.h\
-	$(INTDIR)\omtime.h\
-	$(INTDIR)\output.h\
-	$(INTDIR)\positionlist.h\
-	$(INTDIR)\postlist.h\
-	$(INTDIR)\progclient.h\
-	$(INTDIR)\remoteconnection.h\
-	$(INTDIR)\remote-database.h\
-	$(INTDIR)\remoteprotocol.h\
-	$(INTDIR)\remoteserver.h\
-	$(INTDIR)\rset.h\
-	$(INTDIR)\safeerrno.h\
-	$(INTDIR)\safefcntl.h\
-	$(INTDIR)\safesysselect.h\
-	$(INTDIR)\safesysstat.h\
-	$(INTDIR)\safeunistd.h\
-	$(INTDIR)\safewindows.h\
-	$(INTDIR)\safewinsock2.h\
-	$(INTDIR)\serialise-double.h\
-	$(INTDIR)\serialise.h\
-	$(INTDIR)\stats.h\
-	$(INTDIR)\submatch.h\
-	$(INTDIR)\tcpclient.h\
-	$(INTDIR)\tcpserver.h\
-	$(INTDIR)\termlist.h\
-	$(INTDIR)\utils.h\
-	$(INTDIR)\vectortermlist.h
+SRCS= \
+	$(INTDIR)\utils.cc \
+	$(INTDIR)\getopt.cc \
+	$(INTDIR)\omdebug.cc \
+	$(INTDIR)\omstringstream.cc \
+	$(INTDIR)\serialise-double.cc \
+	$(INTDIR)\msvc_posix_wrapper.cc \
+	$(INTDIR)\safe.cc
 
-CPP_PROJ=$(CPPFLAGS_EXTRA) /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+CPP_PROJ=$(CPPFLAGS_EXTRA) -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
@@ -79,27 +39,30 @@ ALL : "$(OUTDIR)\libcommon.lib"
 CLEAN :
 	-@erase "$(OUTDIR)\libcommon.lib"
 	-@erase "*.pch"
+	-@erase "$(INTDIR)\*.pdb"
 	-@erase "$(INTDIR)\getopt.obj"
-	-@erase $(LIBCOMMON_OBJS)
+	-@erase $(OBJS)
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-"$(OUTDIR)\LIBCOMMON.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBCOMMON_OBJS) 
+"$(OUTDIR)\LIBCOMMON.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
     $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libcommon.lib" $(DEF_FLAGS) $(LIBCOMMON_OBJS)
+  $(LIB32_FLAGS) /out:"$(OUTDIR)\libcommon.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
-# if any headers change, rebuild all .objs
-$(LIBCOMMON_OBJS): $(LOCAL_HEADERS)
-
 # inference rules, showing how to create one type of file from another with the same root name
-{.}.cc{$(INTDIR)}.obj: 
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
+
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.

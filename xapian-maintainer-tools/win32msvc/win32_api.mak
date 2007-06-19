@@ -2,7 +2,6 @@
 # Originally by Ulrik Petersen
 # Modified by Charlie Hull, Lemur Consulting Ltd.
 # www.lemurconsulting.com
-# 17th March 2006
 
 # Will build a Win32 static library (non-debug) libapi.lib
 
@@ -16,7 +15,7 @@ INTDIR=.\
 
 ALL : "$(OUTDIR)\libapi.lib" 
 
-LIBAPI_OBJS= \
+OBJS= \
              $(INTDIR)\error.obj \
              $(INTDIR)\errorhandler.obj \
              $(INTDIR)\expanddecider.obj \
@@ -32,39 +31,55 @@ LIBAPI_OBJS= \
              $(INTDIR)\termlist.obj \
              $(INTDIR)\valuerangeproc.obj \
 	     $(INTDIR)\version.obj
-
+SRCS= \
+             $(INTDIR)\error.cc \
+             $(INTDIR)\errorhandler.cc \
+             $(INTDIR)\expanddecider.cc \
+             $(INTDIR)\omenquire.cc  \
+             $(INTDIR)\omquery.cc  \
+             $(INTDIR)\omqueryinternal.cc  \
+             $(INTDIR)\omdatabase.cc  \
+             $(INTDIR)\omdocument.cc  \
+             $(INTDIR)\ompostlistiterator.cc  \
+             $(INTDIR)\ompositionlistiterator.cc  \
+             $(INTDIR)\omtermlistiterator.cc  \
+             $(INTDIR)\omvalueiterator.cc \
+             $(INTDIR)\termlist.cc \
+             $(INTDIR)\valuerangeproc.cc \
+	     $(INTDIR)\version.cc
 
 CLEAN :
 	-@erase "$(OUTDIR)\libapi.lib"
 	-@erase "*.pch"
-        -@erase $(LIBAPI_OBJS)
-
+	-@erase "$(INTDIR)\*.pdb"
+        -@erase $(OBJS)
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /I"..\languages" \
- /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ -I"..\languages" \
+ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-"$(OUTDIR)\LIBAPI.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBAPI_OBJS)
+"$(OUTDIR)\LIBAPI.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libapi.lib" $(DEF_FLAGS) $(LIBAPI_OBJS)
+  $(LIB32_FLAGS) /out:"$(OUTDIR)\libapi.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
-# if any headers change, rebuild all .objs
-$(LIBAPI_OBJS): $(LOCAL_HEADERS)
-
 # inference rules, showing how to create one type of file from another with the same root name
-{.}.cc{$(INTDIR)}.obj:
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
 
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.

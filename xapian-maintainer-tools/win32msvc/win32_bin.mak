@@ -18,8 +18,17 @@ PROGRAMS = "$(OUTDIR)\quartzcheck.exe" \
            "$(OUTDIR)\quartzdump.exe" \
            "$(OUTDIR)\xapian-compact.exe" \
            "$(OUTDIR)\xapian-progsrv.exe" \
-           "$(OUTDIR)\xapian-tcpsrv.exe"
-
+           "$(OUTDIR)\xapian-tcpsrv.exe" \
+	   "$(OUTDIR)\xapian-inspect.exe"
+SRCS = \
+	"$(INTDIR)\quartzcheck.cc" \
+	"$(INTDIR)\quartzcompact.cc" \
+	"$(INTDIR)\quartzdump.cc" \
+	"$(INTDIR)\xapian-compact.cc" \
+	"$(INTDIR)\xapian-progsrv.cc" \
+	"$(INTDIR)\xapian-tcpsrv.cc" \
+	"$(INTDIR)\xapian-inspect.cc" 
+	   
 ALL : $(PROGRAMS)
 
 QUARTZCHECK_OBJS= "$(INTDIR)\quartzcheck.obj" 
@@ -34,6 +43,8 @@ XAPIAN_PROGSRV_OBJS= "$(INTDIR)\xapian-progsrv.obj"
 
 XAPIAN_TCPSRV_OBJS= "$(INTDIR)\xapian-tcpsrv.obj" 
 
+XAPIAN_INSPECT_OBJS= "$(INTDIR)\xapian-inspect.obj" 
+
 	
 CLEAN :
 	-@erase $(PROGRAMS)
@@ -43,6 +54,9 @@ CLEAN :
 	-@erase $(XAPIAN_COMPACT_OBJS)
 	-@erase $(XAPIAN_PROGSRV_OBJS)
 	-@erase $(XAPIAN_TCPSRV_OBJS)
+	-@erase $(XAPIAN_INSPECT_OBJS)
+	-@erase "$(INTDIR)\*.pdb"
+
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -95,14 +109,25 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-tcpsrv.exe" $(DEF_FLAGS) $(XAPIAN_TCPSRV_OBJS)
 <<
 
+"$(OUTDIR)\xapian-inspect.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_INSPECT_OBJS) \
+                             $(PROGRAM_DEPENDENCIES)
+    $(LINK32) @<<
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-inspect.exe" $(DEF_FLAGS) $(XAPIAN_INSPECT_OBJS)
+<<
 
-# inference rules, showing how to create one type of file from another with the same root name	
-{.}.cc{$(INTDIR)}.obj:
+# inference rules, showing how to create one type of file from another with the same root name
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
+
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+

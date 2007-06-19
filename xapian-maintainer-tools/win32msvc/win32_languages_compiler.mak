@@ -12,38 +12,37 @@ INTDIR=..\compiler
 
 ALL : "$(OUTDIR)\snowball.exe"
 
-SNOWBALL_OBJS= "$(INTDIR)\analyser.obj" \
+OBJS= 	       "$(INTDIR)\analyser.obj" \
                "$(INTDIR)\generator.obj" \
                "$(INTDIR)\driver.obj" \
                "$(INTDIR)\space.obj" \
                "$(INTDIR)\tokeniser.obj" 
 
-SNOWBALL_HEADERS =\
-	"$(INTDIR)\header.h" \
-	"$(INTDIR)\syswords.h" \
-	"$(INTDIR)\syswords2.h"
+SRCS= 	       "$(INTDIR)\analyser.cc" \
+               "$(INTDIR)\generator.cc" \
+               "$(INTDIR)\driver.cc" \
+               "$(INTDIR)\space.cc" \
+               "$(INTDIR)\tokeniser.cc" 
 
 CLEAN :
 	-@erase "$(INTDIR)\*.pch"
-        -@erase $(SNOWBALL_OBJS)
+        -@erase $(OBJS)
+	-@erase "$(INTDIR)\*.pdb"
 	-@erase "$(OUTDIR)\*.exe"
 
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /D "DISABLE_JAVA" \
- /I ".." /I "..\compiler" \
- /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tc"$(INPUTNAME)" 
+ -D "DISABLE_JAVA" \
+ -I ".." -I "..\compiler" \
+ -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tc"$(INPUTNAME)" 
 CPP_OBJS=..\compiler
 CPP_SBRS=.
 
 
-"$(OUTDIR)\snowball.exe" : "$(OUTDIR)" $(DEF_FILE) $(SNOWBALL_OBJS) 
+"$(OUTDIR)\snowball.exe" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS) 
     $(LINK32) @<<
-  $(LINK32_FLAGS) /out:"$(OUTDIR)\snowball.exe" $(DEF_FLAGS) $(SNOWBALL_OBJS)
+  $(LINK32_FLAGS) /out:"$(OUTDIR)\snowball.exe" $(DEF_FLAGS) $(OBJS)
 <<
-
-# if any headers change, rebuild all .objs
-$(SNOWBALL_OBJS): $(SNOWBALL_HEADERS)
 
 # inference rules, showing how to create one type of file from another with the same root name
 .c{$(CPP_OBJS)}.obj::
@@ -75,3 +74,8 @@ $(SNOWBALL_OBJS): $(SNOWBALL_HEADERS)
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
+
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.

@@ -21,7 +21,7 @@ PROGRAM_QUERYPARSERTEST= "$(OUTDIR)\queryparsertest.exe"
 PROGRAM_STEMTEST= "$(OUTDIR)\stemtest.exe"
 PROGRAM_TERMGENTEST= "$(OUTDIR)\termgentest.exe"
 
-ALL : $(PROGRAM_APITEST) $(PROGRAM_BTREETEST) $(PROGRAM_INTERNALTEST) \
+ALL : HEADERS $(PROGRAM_APITEST) $(PROGRAM_BTREETEST) $(PROGRAM_INTERNALTEST) \
  $(PROGRAM_QUARTZTEST) $(PROGRAM_QUERYPARSERTEST) $(PROGRAM_STEMTEST) $(PROGRAM_TERMGENTEST)
  
  
@@ -77,7 +77,20 @@ REMOTETEST_OBJS= "$(OUTDIR)\remotetest.obj"
 
 TERMGENTEST_OBJS= "$(OUTDIR)\termgentest.obj"	
 
-LOCAL_HEADERS = "$(INTDIR)\apitest.h"
+SRC = 	"$(INTDIR)\apitest.cc" \
+	"$(INTDIR)\api_anydb.cc" \
+	"$(INTDIR)\api_db.cc" \
+	"$(INTDIR)\api_nodb.cc" \
+	"$(INTDIR)\api_posdb.cc" \
+        "$(INTDIR)\api_transdb.cc" \
+        "$(INTDIR)\api_unicode.cc" \
+	"$(INTDIR)\api_wrdb.cc" \
+	"$(INTDIR)\btreetest.cc" \
+	"$(INTDIR)\internaltest.cc" \
+	"$(INTDIR)\quartztest.cc" \
+	"$(INTDIR)\queryparsertest.cc" \
+	"$(INTDIR)\remotetest.cc" \
+	"$(INTDIR)\termgentest.cc" 
 
 CLEAN :
 	-@erase $(PROGRAM_APITEST) 
@@ -95,14 +108,19 @@ CLEAN :
 	-@erase $(QUERYPARSERTEST_OBJS)
 	-@erase $(STEMTEST_OBJS)
 	-@erase $(TERMGENTEST_OBJS)
+	-@erase "$(INTDIR)\*.pdb"
+	-@erase "$(INTDIR)\*.ilk"
+	-@erase "$(INTDIR)\*.exp"
+	-@erase "$(INTDIR)\*.lib"
+	-@erase "$(INTDIR)\*.manifest"
 	if exist ".btreetmp" rmdir ".btreetmp" /s /q
 	if exist ".flint" rmdir ".flint" /s /q
 	if exist ".quartz" rmdir ".quartz" /s /q
 	if exist ".quartztmp" rmdir ".quartztmp" /s /q
 	
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /I ".." /I "..\tests" /I "harness" /I"..\backends\quartz" \
- /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME) 
+ -I ".." -I "..\tests" -I "harness" -I"..\backends\quartz" \
+ -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tp$(INPUTNAME) 
 
 CPP_OBJS=..\win32\Tests$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
@@ -163,23 +181,18 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS) "$(OUTLIBDIR)\libtest.lib"
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\remotetest.exe" $(DEF_FLAGS) $(REMOTETEST_OBJS)
 <<
 
-# if any headers change, rebuild all .objs
-$(APITEST_OBJS): $(LOCAL_HEADERS)
-$(BTREETEST_OBJS): $(LOCAL_HEADERS)
-$(INTERNALTEST_OBJS): $(LOCAL_HEADERS)
-$(QUARTZTEST_OBJS): $(LOCAL_HEADERS)
-$(QUERYPARSERTEST_OBJS): $(LOCAL_HEADERS)
-$(REMOTETEST_OBJS): $(LOCAL_HEADERS)
-$(TERMGENTEST_OBJS): $(LOCAL_HEADERS)
-
-
-# inference rules, showing how to create one type of file from another with the same root name	
-{.}.cc{$(INTDIR)}.obj:
+# inference rules, showing how to create one type of file from another with the same root name
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
+
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.

@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2007-06-15 
+2007-06-19 
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -102,6 +102,14 @@ After checking out the sources, copy the contents of the
 You will then need to edit "xapian\xapian-core\win32\config.mak" as
 described in step 4 in the previous section ("How do I get the released
 sources?").
+
+You will also need to build the makedepend.exe program as this is only included as a
+binary with the released sources. To do this, install the tools below and do the following
+(assuming the directory structure above):
+
+cd \xapian\xapian-maintainer-tools\win32msvc\makedepend
+nmake -f makedepend.mak
+copy makedepend.exe \xapian\xapian-core\win32
 
 What do I need to compile it?
 =============================

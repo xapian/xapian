@@ -21,30 +21,35 @@ OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 
 INTDIR=.\
 
-EXAMPLE_OBJS =  $(INTDIR)\delve.obj \
+OBJS =  	$(INTDIR)\delve.obj \
 		$(INTDIR)\quest.obj \
 		$(INTDIR)\simpleexpand.obj \
 		$(INTDIR)\simpleindex.obj \
 		$(INTDIR)\simplesearch.obj \
 		$(INTDIR)\copydatabase.obj
 		
-LOCAL_HEADERS =
+SRCS =  	$(INTDIR)\delve.cc \
+		$(INTDIR)\quest.cc \
+		$(INTDIR)\simpleexpand.cc \
+		$(INTDIR)\simpleindex.cc \
+		$(INTDIR)\simplesearch.cc \
+		$(INTDIR)\copydatabase.cc
 
 PROGRAMS = "$(OUTDIR)\delve.exe" "$(OUTDIR)\quest.exe" \
 "$(OUTDIR)\simpleexpand.exe" "$(OUTDIR)\simpleindex.exe" "$(OUTDIR)\simplesearch.exe" "$(OUTDIR)\copydatabase.exe" 
 
-ALL : $(PROGRAMS)
+ALL : HEADERS $(PROGRAMS)
 
 CLEAN :
 	-@erase $(PROGRAMS)
-	-@erase $(EXAMPLE_OBJS)
-
+	-@erase $(OBJS)
+	-@erase "$(INTDIR)\*.pdb"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME)
+ -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tp$(INPUTNAME)
 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
@@ -97,16 +102,19 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\simplesearch.exe" $(DEF_FLAGS) "$(INTDIR)\simplesearch.obj"
 <<
 
-# if any headers change, rebuild all .objs
-$(EXAMPLE_OBJS): $(LOCAL_HEADERS)
 
-# inference rules, showing how to create one type of file from another with the same root name	
-{.}.cc{$(INTDIR)}.obj:
+# inference rules, showing how to create one type of file from another with the same root name
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
+
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.

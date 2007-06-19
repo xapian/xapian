@@ -62,8 +62,8 @@ PYTHON_LIB_DIR=$(PYTHON_DIR)\libs
 PHP_SRC_DIR=\work\php-5.2.1
 
 PHP_INCLUDE_CPPFLAGS= \
-/I "$(PHP_SRC_DIR)" /I "$(PHP_SRC_DIR)\tsrm" /I "$(PHP_SRC_DIR)\Zend" /I "$(PHP_SRC_DIR)\main" /I "$(PHP_SRC_DIR)\regex"  \
-/D ZTS=1 /D ZEND_WIN32=1 /D PHP_WIN32=1 /D ZEND_WIN32_FORCE_INLINE /D HAVE_WIN32STD=1 \
+-I "$(PHP_SRC_DIR)" -I "$(PHP_SRC_DIR)\tsrm" -I "$(PHP_SRC_DIR)\Zend" -I "$(PHP_SRC_DIR)\main" -I "$(PHP_SRC_DIR)\regex"  \
+-D ZTS=1 -D ZEND_WIN32=1 -D PHP_WIN32=1 -D ZEND_WIN32_FORCE_INLINE -D HAVE_WIN32STD=1 \
 
 # version 4 or 5: Define exactly the one you want and leave the other one 
 # commented out. Note you will have to modify the paths below as well.
@@ -105,16 +105,22 @@ ZLIB_BIN_DIR=$(ZLIB_DIR)\bin
 # Visual C++ Compiler and linker programs, and flags for these
 #--------------------------------------
 LIB32=link.exe -lib
-LIB32_FLAGS=/nologo  
+LIB32_FLAGS=-nologo  
 LINK32=link.exe
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
- wsock32.lib Ws2_32.lib  odbccp32.lib /subsystem:console /debug /nologo \
+ wsock32.lib Ws2_32.lib  odbccp32.lib -subsystem:console -debug -nologo \
  "$(ZLIB_LIB_DIR)\zlib.lib"
  
 CPP=cl.exe
 RSC=rc.exe
 MANIFEST=mt.exe /manifest
+
+# make sure inference rules work with all source files
+.SUFFIXES : .cc 
+
+# makedepend is a tool used to calculate header dependencies, we supply our own version
+DEPEND=makedepend.exe
 
 # We build with the following compiler options:
 # /W3 Set warning level to 3
@@ -130,11 +136,11 @@ MANIFEST=mt.exe /manifest
 # stackframe information, meaning basic debugging on release builds
 # is still possible (so long as the .pdb files are in place - it is
 # assumed these files will *not* ship with a default binary build)
-CPPFLAGS_COMMON=/nologo /c /Zi /I.. /I..\include /I..\common /W3 /EHsc \
-/D "WIN32" /D "__WIN32__" /D "_WINDOWS" \
-/D "HAVE_VSNPRINTF" /D "HAVE_STRDUP" /D "_USE_32BIT_TIME_T" \
-/D_CRT_SECURE_NO_DEPRECATE \
-/I "$(ZLIB_INCLUDE_DIR)"
+CPPFLAGS_COMMON=-nologo -c -Zi -I.. -I..\include -I..\common -W3 -EHsc \
+-D "WIN32" -D "__WIN32__" -D "_WIN32" -D "_WINDOWS" \
+-D "HAVE_VSNPRINTF" -D "HAVE_STRDUP" -D "_USE_32BIT_TIME_T" \
+-D_CRT_SECURE_NO_DEPRECATE \
+-I "$(ZLIB_INCLUDE_DIR)"
 
 # The various parts of Xapian (but *not* the test suite!)
 XAPIAN_LIBS = \
@@ -156,11 +162,11 @@ XAPIAN_LIBS = \
 
 !IF "$(DEBUG)" == "1"
 # Debug build
-CPPFLAGS_EXTRA=$(CPPFLAGS_COMMON) /Od /MDd /D DEBUG /D _DEBUG /D XAPIAN_DEBUG
+CPPFLAGS_EXTRA=$(CPPFLAGS_COMMON) -Od -MDd -D DEBUG -D _DEBUG -D XAPIAN_DEBUG
 XAPIAN_DEBUG_OR_RELEASE=Debug
 !ELSE
 # Release build
-CPPFLAGS_EXTRA=$(CPPFLAGS_COMMON) /O2 /MD /D NDEBUG
+CPPFLAGS_EXTRA=$(CPPFLAGS_COMMON) -O2 -MD -D NDEBUG
 XAPIAN_DEBUG_OR_RELEASE=Release
 !ENDIF
 

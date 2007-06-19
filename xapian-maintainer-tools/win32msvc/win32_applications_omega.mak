@@ -33,7 +33,7 @@ OUTEXEDIR=$(XAPIAN_CORE_REL_OMEGA)\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 PROGRAMS =   "$(OUTEXEDIR)\scriptindex.exe" "$(OUTEXEDIR)\omindex.exe" "$(OUTEXEDIR)\omega.exe" \
 "$(OUTEXEDIR)\md5test.exe" "$(OUTEXEDIR)\htmlparsetest.exe"
 
-ALL : $(PROGRAMS) 
+ALL : HEADERS $(PROGRAMS) 
 
 OMEGA_OBJS= \
 	"$(OUTDIR)\omega.obj" \
@@ -93,23 +93,57 @@ MD5TEST_OBJS= \
  	"$(OUTDIR)\md5.obj" \
  	"$(OUTDIR)\md5wrap.obj" \
  	"$(OUTDIR)\md5test.obj" 
-	
-LOCAL_HEADERS= omega.h query.h cgiparam.h\
- myhtmlparse.h htmlparse.h utils.h configfile.h date.h\
- commonhelp.h cdb.h cdb_int.h hashterm.h loadfile.h\
- md5.h md5wrap.h xmlparse.h metaxmlparse.h values.h utf8convert.h\
- namedentities.h datematchdecider.h sample.h strcasecmp.h\
- utf8truncate.h diritor.h \
-# headers maintained in xapian-core
-	common/gnu_getopt.h\
-	common/safeerrno.h\
-	common/safefcntl.h\
-	common/safesysselect.h\
-	common/safesysstat.h\
-	common/safeunistd.h\
-	common/safewindows.h
-	
 
+
+SRCS= \
+	"$(OUTDIR)\omega.cc" \
+	"$(OUTDIR)\query.cc" \
+	"$(OUTDIR)\cgiparam.cc" \
+	"$(OUTDIR)\utils.cc" \
+	"$(OUTDIR)\configfile.cc" \
+	"$(OUTDIR)\date.cc" \
+	"$(OUTDIR)\cdb_init.cc" \
+	"$(OUTDIR)\cdb_find.cc" \
+	"$(OUTDIR)\cdb_hash.cc" \
+	"$(OUTDIR)\cdb_unpack.cc" \
+ 	"$(OUTDIR)\loadfile.cc" \
+ 	"$(OUTDIR)\utf8convert.cc" \
+ 	"$(OUTDIR)\datematchdecider.cc" 
+	"$(OUTDIR)\omindex.cc" \
+	"$(OUTDIR)\myhtmlparse.cc" \
+	"$(OUTDIR)\htmlparse.cc" \
+	"$(OUTDIR)\getopt.cc" \
+	"$(OUTDIR)\commonhelp.cc" \
+	"$(OUTDIR)\utils.cc" \
+	"$(OUTDIR)\hashterm.cc" \
+ 	"$(OUTDIR)\loadfile.cc" \
+ 	"$(OUTDIR)\md5.cc" \
+ 	"$(OUTDIR)\md5wrap.cc" \
+ 	"$(OUTDIR)\xmlparse.cc" \
+ 	"$(OUTDIR)\metaxmlparse.cc" \
+ 	"$(OUTDIR)\utf8convert.cc" \
+	"$(OUTDIR)\sample.cc" \
+	"$(OUTDIR)\mkdtemp.cc" \
+	"$(OUTDIR)\dirent.cc" 
+	"$(OUTDIR)\scriptindex.cc" \
+	"$(OUTDIR)\myhtmlparse.cc" \
+	"$(OUTDIR)\htmlparse.cc" \
+	"$(OUTDIR)\getopt.cc" \
+	"$(OUTDIR)\commonhelp.cc" \
+	"$(OUTDIR)\utils.cc" \
+	"$(OUTDIR)\hashterm.cc" \
+	"$(OUTDIR)\loadfile.cc" \
+	"$(OUTDIR)\safe.cc" \
+	"$(OUTDIR)\utf8convert.cc" \
+	"$(OUTDIR)\utf8truncate.cc" 
+ 	"$(OUTDIR)\htmlparsetest.cc" \
+	"$(OUTDIR)\myhtmlparse.cc" \
+ 	"$(OUTDIR)\htmlparse.cc" \
+	"$(OUTDIR)\utf8convert.cc" 
+ 	"$(OUTDIR)\md5.cc" \
+ 	"$(OUTDIR)\md5wrap.cc" \
+ 	"$(OUTDIR)\md5test.cc" 
+	
 CLEAN :
 	-@erase $(PROGRAMS)
 	-@erase $(OMEGA_OBJS)
@@ -117,13 +151,14 @@ CLEAN :
 	-@erase $(SCRIPTINDEX_OBJS)
 	-@erase $(HTMLPARSETEST_OBJS)
 	-@erase $(MD5TEST_OBJS)
+	-@erase "$(INTDIR)\*.pdb"
 
 #"$(OUTDIR)" :
 #    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /I "." /I "common" /I "$(XAPIAN_CORE_REL_OMEGA)\include" /I "$(XAPIAN_CORE_REL_OMEGA)\win32" \
- /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /Tp$(INPUTNAME) 
+ -I "." -I "common" -I "$(XAPIAN_CORE_REL_OMEGA)\include" -I "$(XAPIAN_CORE_REL_OMEGA)\win32" \
+ -Fo"$(INTDIR)\\" -Fd"$(INTDIR)\\" -Tp$(INPUTNAME) 
 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
@@ -171,13 +206,7 @@ PROGRAM_DEPENDENCIES =
    $(CPP_PROJ) $**
 <<
 
-# if any headers change, rebuild all .objs
-$(OMEGA_OBJS): $(LOCAL_HEADERS)
-$(OMINDEX_OBJS): $(LOCAL_HEADERS)
-$(SCRIPTINDEX_OBJS): $(LOCAL_HEADERS)
-$(HTMLPARSETEST_OBJS): $(LOCAL_HEADERS)
-$(MD5TEST_OBJS): $(LOCAL_HEADERS) 
- 
+
 "$(INTDIR)\getopt.obj" : ".\common\getopt.cc"
         $(CPP) @<<
    $(CPP_PROJ) $**
@@ -223,3 +252,9 @@ $(MD5TEST_OBJS): $(LOCAL_HEADERS)
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
+
+
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            $(XAPIAN_CORE_REL_OMEGA)\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.

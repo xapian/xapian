@@ -13,51 +13,54 @@ INTDIR=.\
 
 ALL : "$(OUTDIR)\libremote.lib" 
 
-LIBREMOTE_OBJS= \
+OBJS= \
                  $(INTDIR)\remote-database.obj \
                  $(INTDIR)\net_document.obj \
                  $(INTDIR)\net_termlist.obj \
                  $(INTDIR)\net_postlist.obj \
 				 
-LOCAL_HEADERS =\
-	$(INTDIR)\net_document.h\
-	$(INTDIR)\net_postlist.h\
-	$(INTDIR)\net_termlist.h
+SRCS= \
+                 $(INTDIR)\remote-database.cc \
+                 $(INTDIR)\net_document.cc \
+                 $(INTDIR)\net_termlist.cc \
+                 $(INTDIR)\net_postlist.cc \
+
 	
 CLEAN :
 	-@erase "$(OUTDIR)\libremote.lib"
 	-@erase "*.pch"
-    -@erase "$(INTDIR)\getopt.obj"
-	-@erase $(LIBREMOTE_OBJS)
+	-@erase "$(INTDIR)\getopt.obj"
+	-@erase "$(INTDIR)\*.pdb"
+	-@erase $(OBJS)
 
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA)  \
- /I "..\.." /I "..\..\include" /I"..\..\common" /I"..\..\languages" \
- /Fo"$(INTDIR)\\" /Tp$(INPUTNAME) 
+ -I "..\.." -I "..\..\include" -I"..\..\common" -I"..\..\languages" \
+ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME) 
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 
-"$(OUTDIR)\LIBREMOTE.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBREMOTE_OBJS)
+"$(OUTDIR)\LIBREMOTE.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libremote.lib" $(DEF_FLAGS) $(LIBREMOTE_OBJS)
+  $(LIB32_FLAGS) /out:"$(OUTDIR)\libremote.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
-
-# if any headers change, rebuild all .objs
-$(LIBREMOTE_OBJS): $(LOCAL_HEADERS)
-
 # inference rules, showing how to create one type of file from another with the same root name
-{.}.cc{$(INTDIR)}.obj:
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
 
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.

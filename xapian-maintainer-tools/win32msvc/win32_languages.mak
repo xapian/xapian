@@ -87,6 +87,7 @@ MAKEFROMSBL: $(LIBLANGUAGES_SOURCES) ".\allsnowballheaders.h"
 CLEAN :
 	-@erase "$(OUTDIR)\liblanguages.lib"
 	-@erase "*.pch"
+	-@erase "$(INTDIR)\*.pdb"
         -@erase $(LIBLANGUAGES_OBJS)
 	-@erase $(LIBLANGUAGES_SOURCES)
 	-@erase $(LIBLANGUAGES_HEADERS)

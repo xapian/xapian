@@ -13,7 +13,7 @@ INTDIR=.\
 
 ALL : "$(OUTDIR)\libflint.lib" 
 
-LIBFLINT_OBJS= \
+OBJS= \
                $(INTDIR)\flint_database.obj \
                $(INTDIR)\flint_termlist.obj \
                $(INTDIR)\flint_postlist.obj \
@@ -30,62 +30,58 @@ LIBFLINT_OBJS= \
 	       $(INTDIR)\flint_io.obj \
                $(INTDIR)\flint_modifiedpostlist.obj \
                $(INTDIR)\flint_lock.obj
-              
-              
-LOCAL_HEADERS =\
-	$(INTDIR)\flint_alldocspostlist.h\
-	$(INTDIR)\flint_alltermslist.h\
-	$(INTDIR)\flint_btreebase.h\
-	$(INTDIR)\flint_btreeutil.h\
-	$(INTDIR)\flint_check.h\
-	$(INTDIR)\flint_cursor.h\
-	$(INTDIR)\flint_database.h\
-	$(INTDIR)\flint_document.h\
-	$(INTDIR)\flint_io.h\
-	$(INTDIR)\flint_lock.h\
-	$(INTDIR)\flint_modifiedpostlist.h\
-	$(INTDIR)\flint_positionlist.h\
-	$(INTDIR)\flint_postlist.h\
-	$(INTDIR)\flint_record.h\
-	$(INTDIR)\flint_table.h\
-	$(INTDIR)\flint_termlist.h\
-	$(INTDIR)\flint_types.h\
-	$(INTDIR)\flint_utils.h\
-	$(INTDIR)\flint_values.h\
-	$(INTDIR)\flint_version.h         
+SRCS= \
+               $(INTDIR)\flint_database.cc \
+               $(INTDIR)\flint_termlist.cc \
+               $(INTDIR)\flint_postlist.cc \
+               $(INTDIR)\flint_positionlist.cc \
+               $(INTDIR)\flint_record.cc \
+               $(INTDIR)\flint_values.cc \
+               $(INTDIR)\flint_document.cc \
+               $(INTDIR)\flint_alltermslist.cc \
+	       $(INTDIR)\flint_alldocspostlist.cc \
+               $(INTDIR)\flint_table.cc \
+               $(INTDIR)\flint_cursor.cc \
+               $(INTDIR)\flint_btreebase.cc \
+               $(INTDIR)\flint_version.cc \
+	       $(INTDIR)\flint_io.cc \
+               $(INTDIR)\flint_modifiedpostlist.cc \
+               $(INTDIR)\flint_lock.cc
 
 CLEAN :
 	-@erase "$(OUTDIR)\libflint.lib"
 	-@erase "*.pch"
+	-@erase "$(INTDIR)\*.pdb"
         -@erase "$(INTDIR)\getopt.obj"
-	-@erase $(LIBFLINT_OBJS)
+	-@erase $(OBJS)
 
 
 "$(OUTDIR)" :
-    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+    if not exist "$(OUTDIR)-$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /I "..\.." /I "..\..\include" /I"..\..\common" /I"..\..\languages" \
- /Fo"$(INTDIR)\\" 
+ -I "..\.." -I "..\..\include" -I"..\..\common" -I"..\..\languages" \
+ -Fo"$(INTDIR)\\" 
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-"$(OUTDIR)\LIBFLINT.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBFLINT_OBJS)
+"$(OUTDIR)\LIBFLINT.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libflint.lib" $(DEF_FLAGS) $(LIBFLINT_OBJS)
+  $(LIB32_FLAGS) -out:"$(OUTDIR)\libflint.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
-# if any headers change, rebuild all .objs
-$(LIBFLINT_OBJS): $(LOCAL_HEADERS)
-
 # inference rules, showing how to create one type of file from another with the same root name
-{.}.cc{$(INTDIR)}.obj:
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
 
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.

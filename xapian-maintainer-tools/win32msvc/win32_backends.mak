@@ -11,20 +11,23 @@
 OUTDIR=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-DEPLIBS = "$(OUTDIR)\libinmemory.lib" \
-          "$(OUTDIR)\libmulti.lib"  \
+DEPLIBS = "$(OUTDIR)\libmulti.lib"  \
+	  "$(OUTDIR)\libinmemory.lib" \
           "$(OUTDIR)\libquartz.lib" \
           "$(OUTDIR)\libremote.lib" \
           "$(OUTDIR)\libflint.lib" \
           $(NULL)
 
+OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)\alltermslist.obj 
+SRCS= $(INTDIR)\database.cc $(INTDIR)\dbfactory_remote.cc $(INTDIR)\alltermslist.cc 
+	  
 ALL : $(DEPLIBS) "$(OUTDIR)\libbackend.lib" 
 
 CLEAN :
 	-@erase "$(OUTDIR)\libbackend.lib"
 	-@erase "$(INTDIR)\*.pch"
 	-@erase "$(INTDIR)\*.pdb"
-	-@erase $(LIBBACKEND_OBJS)
+	-@erase $(OBJS)
 	cd quartz
 	nmake /$(MAKEFLAGS) CLEAN DEBUG=$(DEBUG) 
 	cd ..\flint
@@ -42,17 +45,15 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /I"..\languages" \
- /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ -I"..\languages" \
+ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
  
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-LIBBACKEND_OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)\alltermslist.obj 
-
-"$(OUTDIR)\LIBBACKEND.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBBACKEND_OBJS)
+"$(OUTDIR)\LIBBACKEND.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libbackend.lib" $(DEF_FLAGS) $(LIBBACKEND_OBJS)
+  $(LIB32_FLAGS) /out:"$(OUTDIR)\libbackend.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
 "$(OUTDIR)\libquartz.lib":
@@ -81,13 +82,17 @@ LIBBACKEND_OBJS= $(INTDIR)\database.obj $(INTDIR)\dbfactory_remote.obj $(INTDIR)
        cd ..
 
 # inference rules, showing how to create one type of file from another with the same root name
-{.}.cc{$(INTDIR)}.obj:
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
 
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.

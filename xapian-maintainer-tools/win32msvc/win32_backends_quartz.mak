@@ -12,7 +12,7 @@
 OUTDIR=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 INTDIR=.\
 
-ALL : "$(OUTDIR)\libquartz.lib" "$(OUTDIR)\libbtreecheck.lib" 
+ALL : HEADERS "$(OUTDIR)\libquartz.lib" "$(OUTDIR)\libbtreecheck.lib" 
 
 
 LIBBTREECHECK_OBJS= \
@@ -28,38 +28,35 @@ LIBQUARTZ_OBJS= \
                 $(INTDIR)\quartz_log.obj \
                 $(INTDIR)\quartz_document.obj \
                 $(INTDIR)\quartz_alltermslist.obj \
-				$(INTDIR)\quartz_alldocspostlist.obj \
+		$(INTDIR)\quartz_alldocspostlist.obj \
                 $(INTDIR)\quartz_metafile.obj \
                 $(INTDIR)\btree.obj \
                 $(INTDIR)\bcursor.obj \
                 $(INTDIR)\btree_base.obj
+
+SRCS= \
+                $(INTDIR)\quartz_database.cc \
+                $(INTDIR)\quartz_termlist.cc \
+                $(INTDIR)\quartz_postlist.cc \
+                $(INTDIR)\quartz_positionlist.cc \
+                $(INTDIR)\quartz_record.cc \
+                $(INTDIR)\quartz_values.cc \
+                $(INTDIR)\quartz_log.cc \
+                $(INTDIR)\quartz_document.cc \
+                $(INTDIR)\quartz_alltermslist.cc \
+		$(INTDIR)\quartz_alldocspostlist.cc \
+                $(INTDIR)\quartz_metafile.cc \
+                $(INTDIR)\btree.cc \
+                $(INTDIR)\bcursor.cc \
+                $(INTDIR)\btree_base.cc \
+		$(INTDIR)\btreecheck.cc \
 		
-LOCAL_HEADERS =\
-	$(INTDIR)\bcursor.h\
-	$(INTDIR)\btree_base.h\
-	$(INTDIR)\btreecheck.h\
-	$(INTDIR)\btree.h\
-	$(INTDIR)\btree_util.h\
-	$(INTDIR)\quartz_alldocspostlist.h\
-	$(INTDIR)\quartz_alltermslist.h\
-	$(INTDIR)\quartz_database.h\
-	$(INTDIR)\quartz_document.h\
-	$(INTDIR)\quartz_log.h\
-	$(INTDIR)\quartz_metafile.h\
-	$(INTDIR)\quartz_positionlist.h\
-	$(INTDIR)\quartz_postlist.h\
-	$(INTDIR)\quartz_record.h\
-	$(INTDIR)\quartz_termlist.h\
-	$(INTDIR)\quartz_types.h\
-	$(INTDIR)\quartz_utils.h\
-	$(INTDIR)\quartz_values.h		
-
-
 CLEAN :
 	-@erase "$(OUTDIR)\libquartz.lib"
 	-@erase "$(OUTDIR)\libbtreecheck.lib"
 	-@erase "*.pch"
         -@erase "$(INTDIR)\getopt.obj"
+	-@erase "$(INTDIR)\*.pdb"
         -@erase $(LIBBTREECHECK_OBJS)
 	-@erase $(LIBQUARTZ_OBJS)
 
@@ -68,8 +65,8 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /I "..\.." /I "..\..\include" /I"..\..\common" /I"..\..\languages" \
- /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ -I "..\.." -I "..\..\include" -I"..\..\common" -I"..\..\languages" \
+ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
  
 CPP_OBJS=..\..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
@@ -85,17 +82,18 @@ CPP_SBRS=.
   $(LIB32_FLAGS) /out:"$(OUTDIR)\libbtreecheck.lib" $(DEF_FLAGS) $(LIBBTREECHECK_OBJS)
 <<
 
-# if any headers change, rebuild all .objs
-$(LIBQUARTZ_OBJS): $(LOCAL_HEADERS)
-
 # inference rules, showing how to create one type of file from another with the same root name
-{.}.cc{$(INTDIR)}.obj:
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
 
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.

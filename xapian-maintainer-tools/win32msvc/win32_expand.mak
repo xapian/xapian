@@ -13,48 +13,52 @@ INTDIR=.\
 
 ALL : "$(OUTDIR)\libexpand.lib" 
 
-LIBEXPAND_OBJS= \
+OBJS= \
                  $(INTDIR)\ortermlist.obj \
                  $(INTDIR)\expandweight.obj \
                  $(INTDIR)\expand.obj \
                  $(NULL)
+SRCS= \
+                 $(INTDIR)\ortermlist.cc \
+                 $(INTDIR)\expandweight.cc \
+                 $(INTDIR)\expand.cc
 		 
-LOCAL_HEADERS = $(INTDIR)\ortermlist.h
-
 CLEAN :
 	-@erase "$(OUTDIR)\libexpand.lib"
+	-@erase "$(INTDIR)\*.pdb"
 	-@erase "*.pch"
-	-@erase $(LIBEXPAND_OBJS)
+	-@erase $(OBJS)
 
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /I"..\languages" \
- /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ -I"..\languages" \
+ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
  
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 
-"$(OUTDIR)\LIBEXPAND.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBEXPAND_OBJS)
+"$(OUTDIR)\LIBEXPAND.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libexpand.lib" $(DEF_FLAGS) $(LIBEXPAND_OBJS)
+  $(LIB32_FLAGS) /out:"$(OUTDIR)\libexpand.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
-
-# if any headers change, rebuild all .objs
-$(LIBEXPAND_OBJS): $(LOCAL_HEADERS)
-
 # inference rules, showing how to create one type of file from another with the same root name
-{.}.cc{$(INTDIR)}.obj:
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
+
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.
 

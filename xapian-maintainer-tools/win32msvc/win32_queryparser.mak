@@ -14,21 +14,23 @@ INTDIR=.\
 
 ALL :  "$(INTDIR)\lemon.exe" "$(OUTDIR)\libqueryparser.lib"
 
-LIBQUERYPARSER_OBJS= \
+OBJS= \
                 $(INTDIR)\queryparser.obj \
                 $(INTDIR)\queryparser_internal.obj \
                 $(INTDIR)\termgenerator.obj \
                 $(INTDIR)\termgenerator_internal.obj
 
-LOCAL_HEADERS =\
-	$(INTDIR)\queryparser_internal.h\
-	$(INTDIR)\queryparser_token.h\
-	$(INTDIR)\termgenerator_internal.h		
+SRCS= \
+                $(INTDIR)\queryparser.cc \
+                $(INTDIR)\queryparser_internal.cc \
+                $(INTDIR)\termgenerator.cc \
+                $(INTDIR)\termgenerator_internal.cc
 
 CLEAN :
 	-@erase "$(OUTDIR)\libqueryparser.lib"
 	-@erase "*.pch"
-	-@erase $(LIBQUERYPARSER_OBJS)
+	-@erase $(OBJS)
+	-@erase "$(INTDIR)\*.pdb"
 	-@erase queryparser_internal.cc
 	-@erase lemon.exe
 	-@erase lemon.obj
@@ -38,18 +40,18 @@ CLEAN :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /I"..\api" /I"..\languages" \
- /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ -I"..\api" -I"..\languages" \
+ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
  
 CPP_PROJ_LEMON=$(CPPFLAGS_EXTRA) \
- /Fo"$(INTDIR)\\" /Tc$(INPUTNAME)
+ -Fo"$(INTDIR)\\" -Tc$(INPUTNAME)
 
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
-"$(OUTDIR)\LIBQUERYPARSER.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBQUERYPARSER_OBJS)
+"$(OUTDIR)\LIBQUERYPARSER.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libqueryparser.lib" $(DEF_FLAGS) $(LIBQUERYPARSER_OBJS)
+  $(LIB32_FLAGS) /out:"$(OUTDIR)\libqueryparser.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
 "$(INTDIR)\lemon.exe" : "$(OUTDIR)" $(DEF_FILE) "$(INTDIR)\lemon.obj" \
@@ -66,17 +68,18 @@ CPP_SBRS=.
 "$(INTDIR)\queryparser_internal.cc" : ".\queryparser.lemony" 
 	$(INTDIR)\lemon.exe -q -oqueryparser_internal.cc -hqueryparser_token.h queryparser.lemony 
 
-# if any headers change, rebuild all .objs
-$(LIBQUERYPARSER_OBJS): $(LOCAL_HEADERS)
-
-# inference rules, showing how to create one type of file from another with the same root name	
-{.}.cc{$(INTDIR)}.obj:
+# inference rules, showing how to create one type of file from another with the same root name
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
 
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.

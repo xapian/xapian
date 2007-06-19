@@ -14,7 +14,7 @@ INTDIR=.\
 
 ALL : "$(OUTDIR)\libmatcher.lib" 
 
-LIBMATCHER_OBJS= \
+OBJS= \
                  $(INTDIR)\orpostlist.obj \
                  $(INTDIR)\andpostlist.obj \
                  $(INTDIR)\andnotpostlist.obj \
@@ -37,62 +37,70 @@ LIBMATCHER_OBJS= \
                  $(INTDIR)\valuerangepostlist.obj \
                  $(INTDIR)\weight.obj \
                  $(INTDIR)\remotesubmatch.obj \
-                 $(NULL)
+		 $(INTDIR)\branchpostlist.obj 
 
-LOCAL_HEADERS =\
-	$(INTDIR)\andmaybepostlist.h\
-	$(INTDIR)\andnotpostlist.h\
-	$(INTDIR)\andpostlist.h\
-	$(INTDIR)\branchpostlist.h\
-	$(INTDIR)\emptysubmatch.h\
-	$(INTDIR)\exactphrasepostlist.h\
-	$(INTDIR)\extraweightpostlist.h\
-	$(INTDIR)\filterpostlist.h\
-	$(INTDIR)\localmatch.h\
-	$(INTDIR)\mergepostlist.h\
-	$(INTDIR)\msetcmp.h\
-	$(INTDIR)\msetpostlist.h\
-	$(INTDIR)\orpostlist.h\
-	$(INTDIR)\phrasepostlist.h\
-	$(INTDIR)\remotesubmatch.h\
-	$(INTDIR)\selectpostlist.h\
-	$(INTDIR)\valuerangepostlist.h\
-	$(INTDIR)\xorpostlist.h
+SRCS= \
+                 $(INTDIR)\orpostlist.cc \
+                 $(INTDIR)\andpostlist.cc \
+                 $(INTDIR)\andnotpostlist.cc \
+                 $(INTDIR)\andmaybepostlist.cc \
+                 $(INTDIR)\xorpostlist.cc \
+                 $(INTDIR)\phrasepostlist.cc \
+                 $(INTDIR)\selectpostlist.cc \
+                 $(INTDIR)\filterpostlist.cc \
+                 $(INTDIR)\rset.cc \
+                 $(INTDIR)\bm25weight.cc \
+                 $(INTDIR)\tradweight.cc \
+                 $(INTDIR)\localmatch.cc \
+                 $(INTDIR)\multimatch.cc \
+                 $(INTDIR)\stats.cc \
+                 $(INTDIR)\mergepostlist.cc \
+                 $(INTDIR)\msetpostlist.cc \
+		 $(INTDIR)\msetcmp.cc \
+                 $(INTDIR)\emptysubmatch.cc \
+                 $(INTDIR)\exactphrasepostlist.cc \
+                 $(INTDIR)\valuerangepostlist.cc \
+                 $(INTDIR)\weight.cc \
+                 $(INTDIR)\remotesubmatch.cc \
+		 $(INTDIR)\branchpostlist.cc 
 
 CLEAN :
 	-@erase "$(OUTDIR)\libmatcher.lib"
 	-@erase "*.pch"
         -@erase "$(INTDIR)\getopt.obj"
-	-@erase $(LIBMATCHER_OBJS)
+	-@erase "$(INTDIR)\*.pdb"
+	-@erase $(OBJS)
 
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
 CPP_PROJ=$(CPPFLAGS_EXTRA) \
- /I"..\languages" \
- /Fo"$(INTDIR)\\" /Tp$(INPUTNAME)
+ -I"..\languages" \
+ -Fo"$(INTDIR)\\" -Tp$(INPUTNAME)
  
 CPP_OBJS=..\win32\$(XAPIAN_DEBUG_OR_RELEASE)
 CPP_SBRS=.
 
 
-"$(OUTDIR)\LIBMATCHER.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIBMATCHER_OBJS)
+"$(OUTDIR)\LIBMATCHER.lib" : HEADERS "$(OUTDIR)" $(DEF_FILE) $(OBJS)
     $(LIB32) @<<
-  $(LIB32_FLAGS) /out:"$(OUTDIR)\libmatcher.lib" $(DEF_FLAGS) $(LIBMATCHER_OBJS)
+  $(LIB32_FLAGS) /out:"$(OUTDIR)\libmatcher.lib" $(DEF_FLAGS) $(OBJS)
 <<
 
-# if any headers change, rebuild all .objs
-$(LIBMATCHER_OBJS): $(LOCAL_HEADERS)
 
 # inference rules, showing how to create one type of file from another with the same root name
-{.}.cc{$(INTDIR)}.obj:
+{.}.cc{$(INTDIR)}.obj::
 	$(CPP) @<<
 	$(CPP_PROJ) $< 
 <<
 
-{.}.cc{$(CPP_SBRS)}.sbr:
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
 
+# Calculate any header dependencies and automatically insert them into this file
+HEADERS :
+            ..\win32\$(DEPEND) -- $(CPP_PROJ) -- $(SRCS) -I"$(INCLUDE)"
+# DO NOT DELETE THIS LINE -- make depend depends on it.
