@@ -1146,7 +1146,7 @@ static bool test_qp_value_range3()
 }
 
 static double test_value_range_numbers[] = {
-    -pow(2, 1022),
+    -pow((double)2, 1022),
     -1024.5,
     -3.14159265358979323846,
     -2,
@@ -1159,13 +1159,13 @@ static double test_value_range_numbers[] = {
     -0.000005,
     -0.000002,
     -0.000001,
-    -pow(2, -1023),
-    -pow(2, -1024),
-    -pow(2, -1074),
+    -pow((double)2, -1023),
+    -pow((double)2, -1024),
+    -pow((double)2, -1074),
     0,
-    pow(2, -1074),
-    pow(2, -1024),
-    pow(2, -1023),
+    pow((double)2, -1074),
+    pow((double)2, -1024),
+    pow((double)2, -1023),
     0.000001,
     0.000002,
     0.000005,
@@ -1178,7 +1178,7 @@ static double test_value_range_numbers[] = {
     2,
     3.14159265358979323846,
     1024.5,
-    pow(2, 1022),
+    pow((double)2, 1022),
 
     64 // Magic number which we stop at.
 };
