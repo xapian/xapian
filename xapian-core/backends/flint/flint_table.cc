@@ -1210,6 +1210,19 @@ FlintTable::get_exact_entry(const string &key, string & tag) const
 }
 
 bool
+FlintTable::key_exists(const string &key) const
+{
+    DEBUGCALL(DB, bool, "FlintTable::key_exists", key);
+    Assert(!key.empty());
+
+    // An oversized key can't exist, so attempting to search for it should fail.
+    if (key.size() > FLINT_BTREE_MAX_KEY_LEN) RETURN(false);
+
+    form_key(key);
+    RETURN(find(C));
+}
+
+bool
 FlintTable::find_tag(const string &key, string * tag) const
 {
     DEBUGCALL(DB, bool, "FlintTable::find_tag", key << ", &tag");

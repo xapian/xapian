@@ -1,3 +1,13 @@
+Tue Jun 19 19:18:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_table.cc,
+	  backends/flint/flint_table.h: Add new method
+	  FlintTable::key_exists() so we don't need to create a cursor to
+	  check if a key exists in FlintDatabase::term_exists() (the other
+	  alternative previously was to read the key and tag and ignore the
+	  tag, but that could involve reading more blocks if the tag is
+	  long, and it could involve uncompressing the tag too).
+
 Tue Jun 19 17:49:09 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/queryparsertest.cc: Cast the input to pow() to a double, to

@@ -435,10 +435,9 @@ FlintDatabase::term_exists(const string & tname) const
 {
     DEBUGCALL(DB, bool, "FlintDatabase::term_exists", tname);
     Assert(!tname.empty());
-    AutoPtr<FlintCursor> cursor(postlist_table.cursor_get());
     // FIXME: nasty C&P from backends/flint/flint_postlist.cc
     string key = pack_string_preserving_sort(tname);
-    return cursor->find_entry(key);
+    return postlist_table.key_exists(key);
 }
 
 bool

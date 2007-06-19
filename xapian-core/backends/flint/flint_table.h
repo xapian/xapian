@@ -354,6 +354,19 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 */
 	bool get_exact_entry(const string & key, string & tag) const;
 
+	/** Check if a key exists in the Btree.
+	 *
+	 *  This is just like get_exact_entry() except it doesn't read the tag
+	 *  value so is more efficient if you only want to check that the key
+	 *  exists.
+	 *
+	 *  @param key  The key to look for in the table.
+	 *
+	 *  @return true if key is found in table,
+	 *          false if key is not found in table.
+	 */
+	bool key_exists(const string &key) const;
+
 	/** Find a key in the Btree and read its tag.
 	 *
 	 *  If the key is found the tag is copied to tag.  If the key is not
