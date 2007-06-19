@@ -262,16 +262,15 @@ writing, we require the following versions:
 		automake 1.7 and 1.8 work too (we required 1.8.5 for ages).
 
 		automake 1.9's NEWS file suggests it will benefit us with
-		smaller Makefile.ins amongst other things.  Currently snapshots
-		and release tarballs are generated with automake 1.9.6, but
-		this isn't a hard requirement - configure.ac requires at least
-		1.8.3, but only because this is the version which SLES 9 had and
-		the RPM spec file runs autoreconf (RHEL 4 had 1.9.2; Debian
-		sarge had 1.9.5).  Please use a newer version for development
-		if at all possible.
+		smaller Makefile.ins amongst other things.
 
-		automake 1.10 is now out, and seems to work fine with Xapian.
-		It requires autoconf 2.60.
+		automake 1.10 requires autoconf 2.60.  Currently snapshots and
+                release tarballs are generated with automake 1.10, but this
+                isn't a hard requirement - configure.ac requires at least
+                1.8.3, but only because this is the version which SLES 9 had
+                and the RPM spec file runs autoreconf (RHEL 4 had 1.9.2; Debian
+                sarge had 1.9.5).  Please use a newer version (1.9.x or 1.10)
+                for development if at all possible.
 
 	GNU libtool 1.5.22 + patches
 		libtool 1.5 was the first version to properly support linking
