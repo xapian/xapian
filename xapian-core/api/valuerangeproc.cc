@@ -260,8 +260,8 @@ Xapian::NumberValueRangeProcessor::float_to_string(double value)
     // For negative numbers, we invert the bytes, so that the sort order
     // is reversed (so that larger negative numbers come first).
     int n = (exponent & 0x7f00) >> 8;
-    Assert(exponent >= 0);
-    Assert(exponent < 128);
+    Assert(n >= 0);
+    Assert(n < 128);
     string digits;
     digits.push_back(negative ? 127 - n : 128 + n);
 
@@ -270,12 +270,13 @@ Xapian::NumberValueRangeProcessor::float_to_string(double value)
 
     // Now, store the mantissa, in 7 bytes.
     // For negative numbers, we invert the bytes, as for the exponent.
-    // Mantissa is in range .5 <= m < 1.
+    // Mantissa is in range .5 <= m < 1, unless the number is 0, in which case it is equal to 0.
     //
     // Therefore, we first multiply by 512 and subtract 256, to get the first
     // byte.  For subsequent bytes, we multiply by 256.
     mantissa = mantissa * 512 - 256;
-    Assert(mantissa >= 0);
+    // Special handling for a mantissa of 0.
+    if (mantissa < 0) mantissa = 0;
     Assert(mantissa < 256);
     int i;
     for (i = 0; i != 7; ++i) {
