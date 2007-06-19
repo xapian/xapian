@@ -56,10 +56,10 @@ class FlintSpellingTable : public FlintTable {
     void add_fragment(fragment frag, const string & word);
     void remove_fragment(fragment frag, const string & word);
 
-  public:
     std::map<std::string, Xapian::termcount> wordfreq_changes;
     std::map<fragment, std::set<std::string> > termlist_deltas;
 
+  public:
     /** Create a new FlintSpellingTable object.
      *
      *  This method does not create or open the table on disk - you
