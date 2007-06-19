@@ -1,6 +1,8 @@
-/* branchpostlist.cc: virtual base class for branched types of postlist
- *
- * Copyright 2007 Lemur Consulting Ltd
+/** @file branchpostlist.cc
+ * @brief Virtual base class for branched types of postlist.
+ */
+/* Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,7 +20,15 @@
  * USA
  */
 
+#include <config.h>
+
 #include "branchpostlist.h"
+
+BranchPostList::~BranchPostList()
+{
+    delete l;
+    delete r;
+}
 
 Xapian::termcount
 BranchPostList::get_wdf() const
@@ -26,3 +36,14 @@ BranchPostList::get_wdf() const
     return l->get_wdf() + r->get_wdf();
 }
 
+PositionList *
+BranchPostList::read_position_list()
+{
+    throw Xapian::UnimplementedError("BranchPostList::read_position_list() not implemented");
+}
+
+PositionList *
+BranchPostList::open_position_list() const
+{
+    throw Xapian::UnimplementedError("BranchPostList::open_position_list() not implemented");
+}

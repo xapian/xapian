@@ -71,10 +71,7 @@ class BranchPostList : public PostList {
 	BranchPostList(PostList *l_, PostList *r_, MultiMatch *matcher_)
 		: l(l_), r(r_), matcher(matcher_) {}
 
-	virtual ~BranchPostList() {
-	    delete l;
-	    delete r;
-	}
+	virtual ~BranchPostList();
 
 	/** get_wdf() for branch postlists returns the sub of the wdfs of the
 	 *  sub postlists.  The wdf isn't really meaningful in many situations,
@@ -87,17 +84,13 @@ class BranchPostList : public PostList {
 	 *  If read_position_list() is called on such a branch postlist,
 	 *  a Xapian::UnimplementedError exception will be thrown.
 	 */
-	virtual PositionList * read_position_list() {
-	    throw Xapian::UnimplementedError("BranchPostList::read_position_list() unimplemented");
-	}
+	virtual PositionList * read_position_list();
 
 	/** Most branch postlists won't be able to supply position lists.
 	 *  If open_position_list() is called on such a branch postlist,
 	 *  a Xapian::UnimplementedError exception will be thrown.
 	 */
-	virtual PositionList * open_position_list() const {
-	    throw Xapian::UnimplementedError("BranchPostList::open_position_list() unimplemented");
-	}
+	virtual PositionList * open_position_list() const;
 };
 
 // Helper functions - call next/skip_to on a postlist and handle any
