@@ -27,6 +27,7 @@
 #include "flint_positionlist.h"
 #include "flint_postlist.h"
 #include "flint_record.h"
+#include "flint_spelling.h"
 #include "flint_termlist.h"
 #include "flint_values.h"
 #include "flint_version.h"
@@ -80,6 +81,10 @@ class FlintDatabase : public Xapian::Database::Internal {
 	/** Table storing values.
 	 */
 	FlintValueTable value_table;
+
+	/** Table storing spelling correction data.
+	 */
+	mutable FlintSpellingTable spelling_table;
 
 	/** Table storing records.
 	 *
@@ -148,7 +153,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 *          result.
 	 */
 	void set_revision_number(flint_revision_number_t new_revision);
-	
+
 	/** Re-open tables to recover from an overwritten condition,
 	 *  or just get most up-to-date version.
 	 */
@@ -214,6 +219,8 @@ class FlintDatabase : public Xapian::Database::Internal {
 	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
 	TermList * open_allterms(const string & prefix) const;
+	TermList * open_spelling_termlist(const string & word) const;
+	Xapian::doccount get_spelling_frequency(const string & word) const;
 	//@}
 };
 
@@ -311,6 +318,10 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
 	TermList * open_allterms(const string & prefix) const;
+	void add_spelling(const string & word, Xapian::termcount freqinc) const;
+	void remove_spelling(const string & word, Xapian::termcount freqdec) const;
+	TermList * open_spelling_termlist(const string & word) const;
+	Xapian::doccount get_spelling_frequency(const string & word) const;
 	//@}
 };
 

@@ -67,6 +67,8 @@ class QueryParser::Internal : public Xapian::Internal::RefCntBase {
 
     list<ValueRangeProcessor *> valrangeprocs;
 
+    string corrected_query;
+
     std::string parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 			   bool &was_acronym);
 

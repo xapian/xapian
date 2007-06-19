@@ -360,4 +360,34 @@ Database::Internal::replace_document(const std::string & unique_term,
     return did;
 }
 
+TermList *
+Database::Internal::open_spelling_termlist(const string &) const
+{
+    // Only implemented for some database backends - others will just not
+    // suggest spelling corrections (or not contribute to them in a multiple
+    // database situation).
+    return NULL;
+}
+
+Xapian::doccount
+Database::Internal::get_spelling_frequency(const string &) const
+{
+    // Only implemented for some database backends - others will just not
+    // suggest spelling corrections (or not contribute to them in a multiple
+    // database situation).
+    return 0;
+}
+
+void
+Database::Internal::add_spelling(const string &, Xapian::termcount) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't implement spelling correction");
+}
+
+void
+Database::Internal::remove_spelling(const string &, Xapian::termcount) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't implement spelling correction");
+}
+
 }

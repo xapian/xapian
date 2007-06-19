@@ -237,6 +237,36 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	virtual Xapian::Document::Internal *
 	open_document(Xapian::docid did, bool lazy = false) const = 0;
 
+	/** Create a termlist tree from trigrams of @a word.
+	 *
+	 *  If there are no trigrams, returns NULL.
+	 */
+	virtual TermList * open_spelling_termlist(const string & word) const;
+
+	/** Return the number of times @a word was added as a spelling. */
+	virtual Xapian::doccount get_spelling_frequency(const string & word) const;
+
+	/** Add a word to the spelling dictionary.
+	 *
+	 *  If the word is already present, its frequency is increased.
+	 *
+	 *  @param word	    The word to add.
+	 *  @param freqinc  How much to increase its frequency by.
+	 */
+	virtual void add_spelling(const string & word,
+				  Xapian::termcount freqinc) const;
+
+	/** Remove a word from the spelling dictionary.
+	 *
+	 *  The word's frequency is decreased, and if would become zero or less
+	 *  then the word is removed completely.
+	 *
+	 *  @param word	    The word to remove.
+	 *  @param freqdec  How much to decrease its frequency by.
+	 */
+	virtual void remove_spelling(const string & word,
+				     Xapian::termcount freqdec) const;
+
 	/** Reopen the database to the latest available revision.
 	 *
 	 *  Database backends which don't support simultaneous update and

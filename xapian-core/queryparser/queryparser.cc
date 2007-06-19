@@ -166,6 +166,12 @@ QueryParser::add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc)
 }
 
 std::string
+QueryParser::get_corrected_query_string() const
+{
+    return internal->corrected_query;
+}
+
+std::string
 QueryParser::get_description() const
 {
     DEBUGCALL(INTRO, std::string, "Xapian::QueryParser::get_description", "");

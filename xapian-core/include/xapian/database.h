@@ -235,6 +235,17 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *		could not be found in the database.
 	 */
 	Xapian::Document get_document(Xapian::docid did) const;
+
+	/** Suggest a spelling correction.
+	 *
+	 *  @param word			The potentially misspelled word.
+	 *  @param max_edit_distance	Only consider words which are at most
+	 *	@a max_edit_distance edits from @a word.  An edit is a
+	 *	character insertion, deletion, or the transposition of two
+	 *	adjacent characters (default is 2).
+	 */
+	std::string get_spelling_suggestion(const std::string &word,
+					    unsigned max_edit_distance = 2) const;
 };
 
 /** This class provides read/write access to a database.
@@ -554,6 +565,27 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 */
 	Xapian::docid replace_document(const std::string & unique_term,
 				       const Xapian::Document & document);
+
+	/** Add a word to the spelling dictionary.
+	 *
+	 *  If the word is already present, its frequency is increased.
+	 *
+	 *  @param word	    The word to add.
+	 *  @param freqinc  How much to increase its frequency by (default 1).
+	 */
+	void add_spelling(const std::string & word,
+			  Xapian::termcount freqinc = 1) const;
+
+	/** Remove a word from the spelling dictionary.
+	 *
+	 *  The word's frequency is decreased, and if would become zero or less
+	 *  then the word is removed completely.
+	 *
+	 *  @param word	    The word to remove.
+	 *  @param freqdec  How much to decrease its frequency by (default 1).
+	 */
+	void remove_spelling(const std::string & word,
+			     Xapian::termcount freqdec = 1) const;
 
 	/** Introspection method.
 	 *

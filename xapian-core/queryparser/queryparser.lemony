@@ -465,6 +465,11 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
 
     State state(this, flags);
 
+    // To successfully apply more than one spelling correction to a query
+    // string, we must keep track of the offset due to previous corrections.
+    int correction_offset = 0;
+    corrected_query.resize(0);
+
     list<string> prefix_stack;
     // We always have the current prefix on the top of the stack.
     prefix_stack.push_back(default_prefix);
@@ -613,6 +618,8 @@ main_lex_loop:
 	}
 
 	Assert(is_wordchar(*it));
+
+	size_t term_start_index = it.raw() - qs.data();
 
 	newprev = 'A'; // Any letter will do...
 
@@ -773,6 +780,22 @@ phrased_term:
 
 	    Term * term_obj = new Term(&state, term, prefix, unstemmed_term,
 				       !dont_stem, term_pos++);
+	    if (flags & FLAG_SPELLING_CORRECTION) {
+		if (!was_acronym && prefix.empty()) {
+		    if (!db.term_exists(term)) {
+			string suggestion = db.get_spelling_suggestion(term);
+			if (!suggestion.empty()) {
+			    if (corrected_query.empty()) corrected_query = qs;
+			    size_t term_end_index = it.raw() - qs.data();
+			    size_t n = term_end_index - term_start_index;
+			    size_t pos = term_start_index + correction_offset;
+			    corrected_query.replace(pos, n, suggestion);
+			    correction_offset += suggestion.size();
+			    correction_offset -= n;
+			}
+		    }
+		}
+	    }
 	    if (mode == IN_PHRASED_TERM) {
 		Parse(pParser, PHR_TERM, term_obj, &state);
 	    } else {

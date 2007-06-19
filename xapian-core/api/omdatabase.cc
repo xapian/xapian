@@ -32,6 +32,9 @@
 #include "alltermslist.h"
 #include "multialltermslist.h"
 #include "database.h"
+#include "editdistance.h"
+
+#include <stdlib.h> // For abs().
 
 #include <vector>
 
@@ -332,6 +335,60 @@ Database::get_description() const
     DEBUGCALL(INTRO, string, "Database::get_description", "");
     /// \todo display contents of the database
     RETURN("Database()");
+}
+
+// Word must have a trigram score at least this close to the best score seen
+// so far.
+#define TRIGRAM_SCORE_THRESHOLD 2
+
+string
+Database::get_spelling_suggestion(const string &word,
+				  unsigned max_edit_distance) const
+{
+    AutoPtr<TermList> merger(internal[0]->open_spelling_termlist(word));
+    if (!merger.get()) return string();
+
+    Xapian::termcount best = 1;
+    string result;
+    int edist_best = max_edit_distance;
+    Xapian::doccount freq_best = 0;
+    while (true) {
+	TermList *ret = merger->next();
+	if (ret) merger = ret;
+
+	if (merger->at_end()) break;
+
+	string tname = merger->get_termname();
+	Xapian::termcount score = merger->get_wdf();
+
+	if (score + TRIGRAM_SCORE_THRESHOLD >= best) {
+	    if (score > best) best = score;
+
+	    // There's no point considering a word where the difference
+	    // in length is greater than the smallest number of edits we've
+	    // found so far.
+	    if (abs((long)tname.size() - (long)word.size()) > edist_best) {
+		continue;
+	    }
+
+	    int edist = edit_distance_char(tname.data(), tname.size(),
+					   word.data(), word.size());
+	    // If we have an exact match, return an empty string since there's
+	    // no correction required.
+	    if (edist == 0) return string();
+
+	    if (edist <= edist_best) {
+		Xapian::doccount freq;
+		freq = internal[0]->get_spelling_frequency(tname);
+		if (edist < edist_best || freq > freq_best) {
+		    result = tname;
+		    edist_best = edist;
+		    freq_best = freq;
+		}
+	    }
+	}
+    }
+    return result;
 }
 
 WritableDatabase::WritableDatabase() : Database()

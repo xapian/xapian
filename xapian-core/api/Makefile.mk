@@ -1,11 +1,13 @@
 noinst_HEADERS +=\
-	api/maptermlist.h
+	api/maptermlist.h\
+	api/editdistance.h
 
 EXTRA_DIST +=\
 	api/dir_contents\
 	api/Makefile
 
 libxapian_la_SOURCES +=\
+	api/editdistance.cc\
 	api/error.cc\
 	api/errorhandler.cc\
 	api/expanddecider.cc\

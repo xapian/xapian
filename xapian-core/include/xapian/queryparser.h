@@ -296,7 +296,22 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 *  NB: You need to tell the QueryParser object which database to
 	 *  expand wildcards from by calling set_database.
 	 */
-	FLAG_PARTIAL = 64
+	FLAG_PARTIAL = 64,
+
+	/** Enable spelling correction.
+	 *
+	 *  For each word in the query which doesn't exist as a term in the
+	 *  database, Database::get_spelling_suggestion() will be called and if
+	 *  a suggestion is returned, a corrected version of the query string
+	 *  will be built up which can be read using
+	 *  QueryParser::get_corrected_query_string().  The query returned is
+	 *  based on the uncorrected query string however - if you want a
+	 *  parsed query based on the corrected query string, you must call
+	 *  QueryParser::parse_query() again.
+	 *
+	 *  NB: You must also call set_database() for this to work.
+	 */
+	FLAG_SPELLING_CORRECTION = 128
     } feature_flag;
 
     typedef enum { STEM_NONE, STEM_SOME, STEM_ALL } stem_strategy;
@@ -420,6 +435,15 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 
     /// Register a ValueRangeProcessor.
     void add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc);
+
+    /** Get the spelling-corrected query string.
+     *
+     *  This will only be set if FLAG_SPELLING_CORRECTION is specified when
+     *  QueryParser::parse_query() was last called.
+     *
+     *  If there were no corrections, an empty string is returned.
+     */
+    std::string get_corrected_query_string() const;
 
     /// Return a string describing this object.
     std::string get_description() const;
