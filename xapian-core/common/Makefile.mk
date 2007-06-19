@@ -21,6 +21,7 @@ noinst_HEADERS +=\
 	common/omqueryinternal.h\
 	common/omstringstream.h\
 	common/omtime.h\
+	common/ortermlist.h\
 	common/output.h\
 	common/positionlist.h\
 	common/postlist.h\

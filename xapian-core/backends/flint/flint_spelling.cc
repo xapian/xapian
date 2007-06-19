@@ -26,7 +26,7 @@
 #include "flint_spelling.h"
 #include "flint_utils.h"
 #include "omassert.h"
-#include "../../expand/ortermlist.h" // FIXME
+#include "ortermlist.h"
 
 #include <algorithm>
 #include <map>

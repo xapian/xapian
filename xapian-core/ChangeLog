@@ -1,3 +1,10 @@
+Wed Jun 20 00:03:42 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_spelling.cc,common/Makefile.mk,
+	  expand/Makefile.mk,expand/ortermlist.h: Move ortermlist.h from
+	  "expand/" to "common/" so we can included it from flint_spelling.cc
+	  without a relative path.
+
 Tue Jun 19 22:41:08 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/,backends/database.cc,backends/flint/,common/database.h,
