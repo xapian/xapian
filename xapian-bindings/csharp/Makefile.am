@@ -86,7 +86,7 @@ all-am: $(ASSEMBLY).dll
 CLEANFILES = XapianSharp.snk AssemblyInfo.cs $(ASSEMBLY).dll SmokeTest.exe
 
 if MAINTAINER_MODE
-xapian_wrap.cc $(XAPIAN_SWIG_CS_SRCS): xapian_wrap.stamp
+xapian_wrap.cc xapian_wrap.h $(XAPIAN_SWIG_CS_SRCS): xapian_wrap.stamp
 ## Recover from the removal of $@.  A full explanation of these rules is in the
 ## automake manual under the heading "Multiple Outputs".
 	@if test -f $@; then :; else \
