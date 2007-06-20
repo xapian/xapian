@@ -669,6 +669,8 @@ class Database {
 	doclength get_doclength(docid docid) const;
 	void keep_alive();
 	Document get_document(docid did);
+	std::string get_spelling_suggestion(const std::string &word,
+					    unsigned max_edit_distance = 2) const;
 };
 
 class WritableDatabase : public Database {
@@ -690,6 +692,11 @@ class WritableDatabase : public Database {
 	void delete_document(const std::string & unique_term);
 	Xapian::docid replace_document(const std::string & unique_term,
 				       const Xapian::Document & document);
+
+	void add_spelling(const std::string & word,
+			  Xapian::termcount freqinc = 1) const;
+	void remove_spelling(const std::string & word,
+			     Xapian::termcount freqdec = 1) const;
 
 	string get_description() const;
 };
@@ -960,7 +967,8 @@ public:
 	FLAG_BOOLEAN_ANY_CASE = 8,
 	FLAG_WILDCARD = 16,
 	FLAG_PURE_NOT = 32,
-	FLAG_PARTIAL = 64
+	FLAG_PARTIAL = 64,
+	FLAG_SPELLING_CORRECTION = 128
     } feature_flag;
 
     typedef enum {
@@ -991,6 +999,8 @@ public:
     TermIterator unstem_end(const std::string &term) const;
 
     void add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc);
+
+    std::string get_corrected_query_string() const;
 
     std::string get_description() const;
 };
