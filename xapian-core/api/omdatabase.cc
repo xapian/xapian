@@ -498,7 +498,7 @@ void
 WritableDatabase::add_spelling(const std::string & word,
 			       Xapian::termcount freqinc) const
 {
-    DEBUGAPICALL(Xapian::docid, "WritableDatabase::add_spelling",
+    DEBUGAPICALL(void, "WritableDatabase::add_spelling",
 		 word << ", " << freqinc);
     RETURN(internal[0]->add_spelling(word, freqinc));
 }
@@ -507,7 +507,7 @@ void
 WritableDatabase::remove_spelling(const std::string & word,
 			          Xapian::termcount freqdec) const
 {
-    DEBUGAPICALL(Xapian::docid, "WritableDatabase::remove_spelling",
+    DEBUGAPICALL(void, "WritableDatabase::remove_spelling",
 		 word << ", " << freqdec);
     RETURN(internal[0]->remove_spelling(word, freqdec));
 }
