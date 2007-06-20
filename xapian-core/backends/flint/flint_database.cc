@@ -569,7 +569,8 @@ FlintWritableDatabase::flush()
 {
     if (transaction_active())
 	throw Xapian::InvalidOperationError("Can't flush during a transaction");
-    if (changes_made) do_flush_const();
+    if (changes_made || database_ro.spelling_table.is_modified())
+	do_flush_const();
 }
 
 void
@@ -577,11 +578,14 @@ FlintWritableDatabase::do_flush_const() const
 {
     DEBUGCALL(DB, void, "FlintWritableDatabase::do_flush_const", "");
 
-    database_ro.postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
+    if (changes_made) {
+	database_ro.postlist_table.merge_changes(mod_plists, doclens,
+						 freq_deltas);
 
-    // Update the total document length and last used docid.
-    database_ro.postlist_table.set_total_length_and_lastdocid(total_length,
-							      lastdocid);
+	// Update the total document length and last used docid.
+	database_ro.postlist_table.set_total_length_and_lastdocid(total_length,
+								  lastdocid);
+    }
     database_ro.apply();
     freq_deltas.clear();
     doclens.clear();

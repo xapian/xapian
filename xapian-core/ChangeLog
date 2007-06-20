@@ -1,3 +1,9 @@
+Wed Jun 20 20:53:52 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc: We may now need to flush even if
+	  there have been no documents added/replaced/deleted, as there may be
+	  changes to the spelling table.
+
 Wed Jun 20 20:46:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_table.cc: Fix a function name in the debug
