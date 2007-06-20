@@ -1664,7 +1664,7 @@ FlintTable::set_block_size(unsigned int block_size_)
 void
 FlintTable::create_and_open(unsigned int block_size_)
 {
-    DEBUGCALL(DB, void, "FlintTable::create", block_size_);
+    DEBUGCALL(DB, void, "FlintTable::create_and_open", block_size_);
     Assert(writable);
     close();
 
