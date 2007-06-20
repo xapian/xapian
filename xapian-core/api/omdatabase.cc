@@ -494,6 +494,24 @@ WritableDatabase::replace_document(const std::string & unique_term,
     RETURN(internal[0]->replace_document(unique_term, document));
 }
 
+void
+WritableDatabase::add_spelling(const std::string & word,
+			       Xapian::termcount freqinc) const
+{
+    DEBUGAPICALL(Xapian::docid, "WritableDatabase::add_spelling",
+		 word << ", " << freqinc);
+    RETURN(internal[0]->add_spelling(word, freqinc));
+}
+
+void
+WritableDatabase::remove_spelling(const std::string & word,
+			          Xapian::termcount freqdec) const
+{
+    DEBUGAPICALL(Xapian::docid, "WritableDatabase::remove_spelling",
+		 word << ", " << freqdec);
+    RETURN(internal[0]->remove_spelling(word, freqdec));
+}
+
 string
 WritableDatabase::get_description() const
 {
