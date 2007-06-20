@@ -748,6 +748,21 @@ def test_value_iter():
         expect(items[2].value, 'nine')
         expect(items[2][:], [9, 'nine'])
 
+def test_spell():
+    """Test basic spelling correction features.
+
+    """
+    return # This test currently fails.
+    dbpath = 'flinttest_1'
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+
+    db.add_spelling('hello')
+    db.add_spelling('mell', 2)
+    db.flush()
+    dbr=xapian.Database(dbpath)
+    expect(db.get_spelling_suggestion('hell'), 'mell')
+    expect(dbr.get_spelling_suggestion('hell'), 'mell')
+
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
 # testing it for Python 2.2.
 vinfo = sys.version_info    
