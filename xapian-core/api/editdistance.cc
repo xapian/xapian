@@ -81,8 +81,7 @@ class edist_state {
     }
 
     bool is_transposed(int pos1, int pos2) {
-	Assert(pos2 > 0);
-	if (pos1 <= 0 || pos1 >= seq1.len || pos2 >= seq2.len) return false;
+	if (pos1 <= 0 || pos2 <= 0 || pos1 >= seq1.len || pos2 >= seq2.len) return false;
 	return (seq1.ptr[pos1 - 1] == seq2.ptr[pos2] &&
 		seq1.ptr[pos1] == seq2.ptr[pos2 - 1]);
     }
