@@ -343,7 +343,6 @@ BackendManager::getwritedb_flint(const vector<string> &dbnames)
     // For a writable database we need to start afresh each time.
     rm_rf(dbdir);
     (void)create_dir_if_needed(dbdir);
-    touch(dbdir + "/log");
     // directory was created, so do the indexing.
     Xapian::WritableDatabase db(Xapian::Flint::open(dbdir, Xapian::DB_CREATE, 2048));
     index_files_to_database(db, dbnames);
