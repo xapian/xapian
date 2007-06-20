@@ -29,7 +29,8 @@ OBJS= \
                $(INTDIR)\flint_version.obj \
 	       $(INTDIR)\flint_io.obj \
                $(INTDIR)\flint_modifiedpostlist.obj \
-               $(INTDIR)\flint_lock.obj
+               $(INTDIR)\flint_lock.obj \
+	       $(INTDIR)\flint_spelling.obj
 SRCS= \
                $(INTDIR)\flint_database.cc \
                $(INTDIR)\flint_termlist.cc \
@@ -46,7 +47,8 @@ SRCS= \
                $(INTDIR)\flint_version.cc \
 	       $(INTDIR)\flint_io.cc \
                $(INTDIR)\flint_modifiedpostlist.cc \
-               $(INTDIR)\flint_lock.cc
+               $(INTDIR)\flint_lock.cc \
+	       $(INTDIR)\flint_spelling.cc
 
 CLEAN :
 	-@erase "$(OUTDIR)\libflint.lib"

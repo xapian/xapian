@@ -30,7 +30,8 @@ OBJS= \
              $(INTDIR)\omvalueiterator.obj \
              $(INTDIR)\termlist.obj \
              $(INTDIR)\valuerangeproc.obj \
-	     $(INTDIR)\version.obj
+	     $(INTDIR)\version.obj \
+	     $(INTDIR)\editdistance.obj
 SRCS= \
              $(INTDIR)\error.cc \
              $(INTDIR)\errorhandler.cc \
@@ -46,8 +47,10 @@ SRCS= \
              $(INTDIR)\omvalueiterator.cc \
              $(INTDIR)\termlist.cc \
              $(INTDIR)\valuerangeproc.cc \
-	     $(INTDIR)\version.cc
+	     $(INTDIR)\version.cc \
+	     $(INTDIR)\editdistance.cc
 
+	     
 CLEAN :
 	-@erase "$(OUTDIR)\libapi.lib"
 	-@erase "*.pch"
