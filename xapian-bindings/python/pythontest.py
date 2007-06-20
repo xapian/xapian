@@ -752,12 +752,12 @@ def test_spell():
     """Test basic spelling correction features.
 
     """
-    return # This test currently fails.
     dbpath = 'flinttest_1'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
 
     db.add_spelling('hello')
     db.add_spelling('mell', 2)
+    expect(db.get_spelling_suggestion('hell'), 'mell')
     db.flush()
     dbr=xapian.Database(dbpath)
     expect(db.get_spelling_suggestion('hell'), 'mell')
