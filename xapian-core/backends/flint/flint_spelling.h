@@ -86,6 +86,29 @@ class FlintSpellingTable : public FlintTable {
     TermList * open_termlist(const std::string & word);
 
     Xapian::doccount get_word_frequency(const string & word) const;
+
+    // Override methods of FlintTable (NB: these aren't virtual, but we always
+    // call them on the subclass in cases where it matters).
+    bool is_modified() const {
+	return !wordfreq_changes.empty() || FlintTable::is_modified();
+    }
+
+    void create_and_open(unsigned int blocksize) {
+	// The spelling table is created lazily, but erase it in case we're
+	// overwriting an existing database and it already exists.
+	FlintTable::erase();
+	FlintTable::set_block_size(blocksize);
+    }
+
+    void commit(flint_revision_number_t revision) {
+	merge_changes();
+	FlintTable::commit(revision);
+    }
+
+    void cancel() {
+	discard_changes();
+	FlintTable::cancel();
+    }
 };
 
 /** The list of words containing a particular trigram. */

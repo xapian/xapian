@@ -174,11 +174,7 @@ FlintDatabase::create_and_open_tables(unsigned int block_size)
     value_table.erase();
     value_table.set_block_size(block_size);
 
-    // The spelling table is created lazily, but erase it in case we're
-    // overwriting an existing database and it already exists.
-    spelling_table.erase();
-    spelling_table.set_block_size(block_size);
-
+    spelling_table.create_and_open(block_size);
     record_table.create_and_open(block_size);
 
     Assert(database_exists());
@@ -304,7 +300,6 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
     positionlist_table.commit(new_revision);
     termlist_table.commit(new_revision);
     value_table.commit(new_revision);
-    spelling_table.merge_changes();
     spelling_table.commit(new_revision);
     record_table.commit(new_revision);
 }
@@ -384,7 +379,6 @@ FlintDatabase::cancel()
     positionlist_table.cancel();
     termlist_table.cancel();
     value_table.cancel();
-    spelling_table.discard_changes();
     spelling_table.cancel();
     record_table.cancel();
 }
