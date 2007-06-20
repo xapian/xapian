@@ -1,3 +1,7 @@
+Wed Jun 20 13:59:01 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc: Don't use RETURN() in methods which return void.
+
 Wed Jun 20 11:56:30 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/editdistance.cc: Change an Assert in is_transposed() (which

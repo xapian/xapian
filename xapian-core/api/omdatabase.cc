@@ -500,7 +500,7 @@ WritableDatabase::add_spelling(const std::string & word,
 {
     DEBUGAPICALL(void, "WritableDatabase::add_spelling",
 		 word << ", " << freqinc);
-    RETURN(internal[0]->add_spelling(word, freqinc));
+    internal[0]->add_spelling(word, freqinc);
 }
 
 void
@@ -509,7 +509,7 @@ WritableDatabase::remove_spelling(const std::string & word,
 {
     DEBUGAPICALL(void, "WritableDatabase::remove_spelling",
 		 word << ", " << freqdec);
-    RETURN(internal[0]->remove_spelling(word, freqdec));
+    internal[0]->remove_spelling(word, freqdec);
 }
 
 string
