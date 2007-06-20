@@ -1,3 +1,8 @@
+Wed Jun 20 20:39:43 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_spelling.cc: Fix FlintSpellingTermList not to
+	  report at_end() one entry too early.
+
 Wed Jun 20 19:21:45 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc: Don't touch <dbdir>/log for flint

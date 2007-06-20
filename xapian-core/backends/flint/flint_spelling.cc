@@ -500,6 +500,11 @@ FlintSpellingTermList::get_collection_freq() const
 TermList *
 FlintSpellingTermList::next()
 {
+    if (p == data.size()) {
+	p = 0;
+	data.resize(0);
+	return NULL;
+    }
     if (!current_term.empty()) {
 	if (p == data.size())
 	    throw Xapian::DatabaseCorruptError("Bad spelling termlist");
@@ -517,7 +522,7 @@ FlintSpellingTermList::next()
 bool
 FlintSpellingTermList::at_end() const
 {
-    return p == data.size();
+    return data.empty();
 }
 
 Xapian::termcount
