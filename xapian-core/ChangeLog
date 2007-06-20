@@ -1,3 +1,9 @@
+Wed Jun 20 21:57:01 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc: WritableDatabase::delete_document()
+	  no longer cancels pending changes if the document doesn't exist.
+	* backends/quartz/quartz_database.cc: Same fix.
+
 Wed Jun 20 20:53:52 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc: We may now need to flush even if

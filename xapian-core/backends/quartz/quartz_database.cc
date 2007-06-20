@@ -827,10 +827,12 @@ QuartzWritableDatabase::delete_document(Xapian::docid did)
     DEBUGCALL(DB, void, "QuartzWritableDatabase::delete_document", did);
     Assert(did != 0);
 
-    try {
-	// Remove the record.
-	database_ro.record_table.delete_record(did);
+    // Remove the record.  If this fails, just propagate the exception since
+    // the state should still be consistent (most likely it's
+    // DocNotFoundError).
+    database_ro.record_table.delete_record(did);
 
+    try {
 	// Remove the values
 	database_ro.value_table.delete_all_values(did);
 
