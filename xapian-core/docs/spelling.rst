@@ -42,7 +42,10 @@ allows us to handle substitution or deletion of the middle character of a three
 letter word, or insertion in the middle of a two letter word.
 
 Note that we don't attempt to suggest corrections for single character words
-at all, since the suggestions are unlikely to be of good quality.
+at all, since the suggestions are unlikely to be of good quality (we'd always
+suggest the same correction for a given database, probably "a" for English).
+We also don't currently attempt to suggest substitution corrections for two
+character words, though this would perhaps be useful in some cases.
 
 Those candidates with the better trigram matches are compared to the misspelled
 word by calculating the "edit distance" - that's the smallest number of
@@ -63,8 +66,9 @@ QueryParser Integration
 
 If FLAG_SPELLING_CORRECTION is passed to QueryParser::parse_query() and
 QueryParser::set_database() has been called, the QueryParser will look for
-corrections for words in the query which aren't found in the database.  If
-a correction is found, then a modified version of the query string will be
+corrections for words in the query which aren't found in the database.
+
+If a correction is found, then a modified version of the query string will be
 generated which can be obtained by calling
 QueryParser::get_corrected_query_string().  However, the original query string
 will still be parsed, since you'll often want to ask the user "Did you mean:
@@ -78,10 +82,10 @@ Exactness
 ---------
 
 Because Xapian only tests the edit difference for terms which match
-well on trigrams, it may not always suggest the best answer than would be
-found if all possible words were checked using the edit distance algorithm.
-However, the best answer will usually be found, and an exhaustive search
-would be prohibitively expensive for many uses.
+well (or at all!) on trigrams, it may not always suggest the same answer that
+would be found if all possible words were checked using the edit distance
+algorithm.  However, the best answer will usually be found, and an exhaustive
+search would be prohibitively expensive for many uses.
 
 Backend Support
 ---------------
