@@ -1282,6 +1282,7 @@ static bool test_spell1()
 
     Xapian::WritableDatabase db = get_writable_database("");
 
+    // Check that the more frequent term is chosen.
     db.add_spelling("hello");
     db.add_spelling("cell", 2);
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
@@ -1324,6 +1325,23 @@ static bool test_spell1()
     TEST_EQUAL(db.get_spelling_suggestion("cqh"), "ch");
     TEST_EQUAL(db.get_spelling_suggestion("chq"), "ch");
 
+    // Check assorted cases:
+    TEST_EQUAL(db.get_spelling_suggestion("shello"), "hello");
+    TEST_EQUAL(db.get_spelling_suggestion("hellot"), "hello");
+    TEST_EQUAL(db.get_spelling_suggestion("acell"), "cell");
+    TEST_EQUAL(db.get_spelling_suggestion("cella"), "cell");
+    TEST_EQUAL(db.get_spelling_suggestion("acella"), "cell");
+    TEST_EQUAL(db.get_spelling_suggestion("helo"), "hello");
+    TEST_EQUAL(db.get_spelling_suggestion("cll"), "cell");
+    TEST_EQUAL(db.get_spelling_suggestion("helol"), "hello");
+    TEST_EQUAL(db.get_spelling_suggestion("clel"), "cell");
+    TEST_EQUAL(db.get_spelling_suggestion("ecll"), "cell");
+    TEST_EQUAL(db.get_spelling_suggestion("cll"), "cell");
+
+    // Check that edit distance 3 isn't found by default:
+    TEST_EQUAL(db.get_spelling_suggestion("shelolx"), "");
+    TEST_EQUAL(db.get_spelling_suggestion("celling"), "");
+    TEST_EQUAL(db.get_spelling_suggestion("dellin"), "");
     return true;
 }
 

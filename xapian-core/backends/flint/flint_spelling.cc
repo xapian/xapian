@@ -239,11 +239,12 @@ FlintSpellingTable::add_word(const string & word, Xapian::termcount freqinc)
     buf[3] = '\0';
     add_fragment(buf, word);
 
-    if (word.size() <= 3) {
-	// We also generate 'bookends' for two and three letter terms
-	// so we can handle substitution or deletion of the middle
-	// character of a three letter word, or insertion in the
-	// middle of a two letter word.
+    if (word.size() <= 4) {
+	// We also generate 'bookends' for two, three, and four character
+	// terms so we can handle transposition of the middle two characters
+	// of a four character word, substitution or deletion of the middle
+	// character of a three character word, or insertion in the middle of a
+	// two character word.
 	// 'Bookends':
 	buf[0] = 'B';
 	buf[1] = word[0];
@@ -322,7 +323,7 @@ FlintSpellingTable::remove_word(const string & word, Xapian::termcount freqdec)
     buf[3] = '\0';
     remove_fragment(buf, word);
 
-    if (word.size() <= 3) {
+    if (word.size() <= 4) {
 	// 'Bookends':
 	buf[0] = 'B';
 	buf[1] = word[0];
@@ -375,6 +376,18 @@ FlintSpellingTable::open_termlist(const string & word)
 	if (get_exact_entry(string(buf), data))
 	    pq.push(new FlintSpellingTermList(data));
 
+	if (word.size() <= 4) {
+	    // We also generate 'bookends' for two, three, and four character
+	    // terms so we can handle transposition of the middle two
+	    // characters of a four character word, substitution or deletion of
+	    // the middle character of a three character word, or insertion in
+	    // the middle of a two character word.
+	    buf[0] = 'B';
+	    buf[1] = word[0];
+	    buf[3] = '\0';
+	    if (get_exact_entry(string(buf), data))
+		pq.push(new FlintSpellingTermList(data));
+	}
 	if (word.size() > 2) {
 	    // Middles:
 	    buf[0] = 'M';
@@ -399,15 +412,6 @@ FlintSpellingTable::open_termlist(const string & word)
 		buf[3] = word[1];
 		if (get_exact_entry(string(buf), data))
 		    pq.push(new FlintSpellingTermList(data));
-		// We also generate 'bookends' for two and three letter terms
-		// so we can handle substitution or deletion of the middle
-		// character of a three letter word, or insertion in the
-		// middle of a two letter word.
-		// 'Bookends':
-		buf[0] = 'B';
-		buf[3] = '\0';
-		if (get_exact_entry(string(buf), data))
-		    pq.push(new FlintSpellingTermList(data));
 	    }
 	} else {
 	    Assert(word.size() == 2);
@@ -421,16 +425,6 @@ FlintSpellingTable::open_termlist(const string & word)
 	    if (get_exact_entry(string(buf), data))
 		pq.push(new FlintSpellingTermList(data));
 	    buf[0] = 'T';
-	    if (get_exact_entry(string(buf), data))
-		pq.push(new FlintSpellingTermList(data));
-	    // We also generate 'bookends' for two and three letter terms
-	    // so we can handle substitution or deletion of the middle
-	    // character of a three letter word, or insertion in the
-	    // middle of a two letter word.
-	    // 'Bookends':
-	    buf[0] = 'B';
-	    buf[1] = word[0];
-	    buf[2] = word[1];
 	    if (get_exact_entry(string(buf), data))
 		pq.push(new FlintSpellingTermList(data));
 	}

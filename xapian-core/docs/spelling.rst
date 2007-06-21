@@ -36,9 +36,10 @@ For a two character word (e.g. "AB"), we generate the special start and end
 trigrams for the reversed form (i.e. "BA"), so the trigrams are "<start>AB",
 "AB<end>", "<start>BA", and "BA<end>".
 
-And for both two and three character words, we generate "bookend" bigrams
+And for two, three, and four character words, we generate "bookend" bigrams
 consisting of the prefix 'B' followed by the first and last letters.  This
-allows us to handle substitution or deletion of the middle character of a three
+allows us to handle transposition of the middle two characters of a four
+letter word, substitution or deletion of the middle character of a three
 letter word, or insertion in the middle of a two letter word.
 
 Note that we don't attempt to suggest corrections for single character words
