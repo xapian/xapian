@@ -1342,6 +1342,11 @@ static bool test_spell1()
     TEST_EQUAL(db.get_spelling_suggestion("shelolx"), "");
     TEST_EQUAL(db.get_spelling_suggestion("celling"), "");
     TEST_EQUAL(db.get_spelling_suggestion("dellin"), "");
+
+    // Check that edit distance 3 is found if specified:
+    TEST_EQUAL(db.get_spelling_suggestion("shelolx", 3), "hello");
+    TEST_EQUAL(db.get_spelling_suggestion("celling", 3), "cell");
+    TEST_EQUAL(db.get_spelling_suggestion("dellin", 3), "cell");
     return true;
 }
 
