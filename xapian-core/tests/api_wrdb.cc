@@ -1270,33 +1270,56 @@ static bool test_nomoredocids1()
     return true;
 }
 
+// Test basic spelling correction features.
+static bool test_spell1()
+{
+    string dbpath;
+    if (get_dbtype() == "flint") {
+	dbpath = ".flint/dbw";
+    } else {
+	SKIP_TEST("Test only supported for flint backend");
+    }
+
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    db.add_spelling("hello");
+    db.add_spelling("cell", 2);
+    TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
+    db.flush();
+    Xapian::Database dbr(dbpath);
+    TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
+    TEST_EQUAL(dbr.get_spelling_suggestion("hell"), "cell");
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
 /// The tests which use a writable backend
 test_desc writabledb_tests[] = {
-    {"adddoc1",		   test_adddoc1},
-    {"adddoc2",		   test_adddoc2},
-    {"adddoc3",		   test_adddoc3},
-    {"implicitendsession1",test_implicitendsession1},
-    {"databaseassign1",	   test_databaseassign1},
-    {"deldoc1",		   test_deldoc1},
-    {"deldoc2",		   test_deldoc2},
-    {"deldoc3",		   test_deldoc3},
-    {"deldoc4",		   test_deldoc4},
-    {"deldoc5",		   test_deldoc5},
-    {"replacedoc1",	   test_replacedoc1},
-    {"replacedoc2",	   test_replacedoc2},
-    {"replacedoc3",	   test_replacedoc3},
-    {"replacedoc4",	   test_replacedoc4},
-    {"replacedoc5",	   test_replacedoc5},
-    {"uniqueterm1",	   test_uniqueterm1},
-    {"emptyterm2",	   test_emptyterm2},
-    {"phraseorneartoand1", test_phraseorneartoand1},
-    {"longpositionlist1",  test_longpositionlist1},
-    {"allpostlist2",	   test_allpostlist2},
-    {"consistency2",	   test_consistency2},
-    {"crashrecovery1",	   test_crashrecovery1},
-    {"nomoredocids1",	   test_nomoredocids1},
-    {0, 0}
+    TESTCASE(adddoc1),
+    TESTCASE(adddoc2),
+    TESTCASE(adddoc3),
+    TESTCASE(implicitendsession1),
+    TESTCASE(databaseassign1),
+    TESTCASE(deldoc1),
+    TESTCASE(deldoc2),
+    TESTCASE(deldoc3),
+    TESTCASE(deldoc4),
+    TESTCASE(deldoc5),
+    TESTCASE(replacedoc1),
+    TESTCASE(replacedoc2),
+    TESTCASE(replacedoc3),
+    TESTCASE(replacedoc4),
+    TESTCASE(replacedoc5),
+    TESTCASE(uniqueterm1),
+    TESTCASE(emptyterm2),
+    TESTCASE(phraseorneartoand1),
+    TESTCASE(longpositionlist1),
+    TESTCASE(allpostlist2),
+    TESTCASE(consistency2),
+    TESTCASE(crashrecovery1),
+    TESTCASE(nomoredocids1),
+    TESTCASE(spell1),
+    END_OF_TESTCASES
 };
