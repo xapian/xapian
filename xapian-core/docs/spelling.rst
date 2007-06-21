@@ -25,16 +25,24 @@ word.  As well as groups of adjacent characters, "starts" and "ends"
 are generated with the first two and last two characters respectively
 (e.g. "FISH" generates: "<start>FI", "FIS", "ISH", and "SH<end>").
 
+This technique alone would missing many single-edit errors in two and three
+character words, so we handle these specially as follows:
+
 For a three character word (e.g. "ABC"), we generate trigrams for the two
 transposed forms too ("BAC" and "ACB"), in addition to "<start>AB", "ABC",
-and "BC<end>".  This helps us to produce a better list of candidates.
+and "BC<end>".
 
 For a two character word (e.g. "AB"), we generate the special start and end
 trigrams for the reversed form (i.e. "BA"), so the trigrams are "<start>AB",
 "AB<end>", "<start>BA", and "BA<end>".
 
-(Note that we don't attempt to suggest corrections for single character words
-at all, since the suggestions are unlikely to be of good quality).
+And for both two and three character words, we generate "bookend" bigrams
+consisting of the prefix 'B' followed by the first and last letters.  This
+allows us to handle substitution or deletion of the middle character of a three
+letter word, or insertion in the middle of a two letter word.
+
+Note that we don't attempt to suggest corrections for single character words
+at all, since the suggestions are unlikely to be of good quality.
 
 Those candidates with the better trigram matches are compared to the misspelled
 word by calculating the "edit distance" - that's the smallest number of
