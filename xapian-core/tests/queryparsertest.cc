@@ -1197,12 +1197,23 @@ static bool test_value_range_serialise1()
 	TEST_EQUAL(Xapian::NumberValueRangeProcessor::string_to_float(str), num);
 
 	if (started) {
-	    TEST_AND_EXPLAIN(prevnum < num, "Expected previous number (" <<
-			     prevnum << ") to be less than current number (" <<
-			     num << ")");
-	    TEST_AND_EXPLAIN(prevstr < str, "Expected previous string (" <<
-			     prevstr << ") to be less than current string (" <<
-			     str << ")");
+	    int num_cmp = 0;
+	    if (prevnum < num) {
+		num_cmp = -1;
+	    } else if (prevnum > num) {
+		num_cmp = 1;
+	    }
+	    int str_cmp = 0;
+	    if (prevstr < str) {
+		str_cmp = -1;
+	    } else if (prevstr > str) {
+		str_cmp = 1;
+	    }
+	    
+	    TEST_AND_EXPLAIN(num_cmp == str_cmp, "Numbers " << prevnum <<
+						 " and " << num <<
+						 " don't sort the same way as"
+						 " their string counterparts");
 	}
 
 	prevnum = num;
