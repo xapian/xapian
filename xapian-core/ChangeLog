@@ -1,3 +1,8 @@
+Thu Jun 21 17:22:53 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,tests/queryparsertest.cc,docs/spelling.rst: Add
+	  support for spelling correction when using multiple databases.
+
 Thu Jun 21 16:15:22 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Add feature tests for correcting spelling

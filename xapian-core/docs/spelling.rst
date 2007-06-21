@@ -91,10 +91,11 @@ search would be prohibitively expensive for many uses.
 Backend Support
 ---------------
 
-Currently spelling correction is only supported for a single flint database.
-We've no plans to support it for the deprecated Quartz backend, nor for
-InMemory, but we do intend to support it for the remote backend and when
-searching multiple databases.
+Currently spelling correction is only supported for flint databases.  It
+works with a single database or multiple databases (use
+Database::add_database() as usual).  We've no plans to support it for the
+deprecated Quartz backend, nor for InMemory, but we do intend to support it for
+the remote backend in the future.
 
 Unicode Support
 ---------------

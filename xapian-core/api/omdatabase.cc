@@ -33,6 +33,7 @@
 #include "multialltermslist.h"
 #include "database.h"
 #include "editdistance.h"
+#include "ortermlist.h"
 
 #include <stdlib.h> // For abs().
 
@@ -345,7 +346,20 @@ string
 Database::get_spelling_suggestion(const string &word,
 				  unsigned max_edit_distance) const
 {
-    AutoPtr<TermList> merger(internal[0]->open_spelling_termlist(word));
+    DEBUGLINE(SPELLING, "Database::get_spelling_suggestion(" << word << ", " <<
+			max_edit_distance << ")");
+    AutoPtr<TermList> merger;
+    for (size_t i = 0; i < internal.size(); ++i) {
+	TermList * tl = internal[i]->open_spelling_termlist(word);
+	DEBUGLINE(SPELLING, "Sub db " << i << " tl = " << (void*)tl);
+	if (tl) {
+	    if (merger.get()) {
+		merger = new OrTermList(merger.release(), tl);
+	    } else {
+		merger = tl;
+	    }
+	}
+    }
     if (!merger.get()) return string();
 
     Xapian::termcount best = 1;
@@ -381,8 +395,11 @@ Database::get_spelling_suggestion(const string &word,
 	    if (edist == 0) return string();
 
 	    if (edist <= edist_best) {
-		Xapian::doccount freq;
-		freq = internal[0]->get_spelling_frequency(tname);
+		Xapian::doccount freq = 0;
+		for (size_t j = 0; j < internal.size(); ++j)
+		    freq += internal[j]->get_spelling_frequency(tname);
+
+		DEBUGLINE(SPELLING, "Freq " << freq << " best " << freq_best);
 		if (edist < edist_best || freq > freq_best) {
 		    DEBUGLINE(SPELLING, "Best so far: \"" << tname <<
 					"\" edist " << edist << " freq " <<
@@ -394,6 +411,7 @@ Database::get_spelling_suggestion(const string &word,
 	    }
 	}
     }
+    DEBUGLINE(SPELLING, "Suggesting \"" << result << "\"");
     return result;
 }
 

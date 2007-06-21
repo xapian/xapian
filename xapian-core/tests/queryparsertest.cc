@@ -1384,6 +1384,43 @@ static bool test_qp_spell1()
     return true;
 }
 
+// Test spelling correction in the QueryParser with multiple databases.
+static bool test_qp_spell2()
+{
+    string dbdir = ".flint/qp_spell2";
+    Xapian::WritableDatabase db1(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db1.add_spelling("document");
+    db1.add_spelling("search");
+    db1.flush();
+
+    dbdir = ".flint/qp_spell2b";
+    Xapian::WritableDatabase db2(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db2.add_spelling("document");
+    db2.add_spelling("paragraph");
+    db2.add_spelling("band");
+
+    Xapian::Database db;
+    db.add_database(db1);
+    db.add_database(db2);
+
+    Xapian::QueryParser qp;
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    qp.set_database(db);
+
+    for (test *p = test_mispelled_queries; p->query; ++p) {
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
+			   Xapian::QueryParser::FLAG_BOOLEAN );
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
+    }
+
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -1405,6 +1442,7 @@ static test_desc tests[] = {
     TESTCASE(qp_value_customrange1),
     TESTCASE(qp_stoplist1),
     TESTCASE(qp_spell1),
+    TESTCASE(qp_spell2),
     END_OF_TESTCASES
 };
 
