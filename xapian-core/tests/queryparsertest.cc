@@ -19,10 +19,14 @@
  */
 
 #include <config.h>
+
 #include <xapian.h>
+
 #include <iostream>
 #include <string>
 #include <math.h>
+
+#include "unixcmds.h"
 #include "utils.h"
 
 using namespace std;
@@ -1342,6 +1346,44 @@ static bool test_qp_stoplist1()
     return true;
 }
 
+static test test_mispelled_queries[] = {
+    { "doucment search", "document search" },
+    { "doucment seeacrh", "document search" },
+    { "docment seeacrh test", "document search test" },
+    { "\"paragahp pineapple\"", "\"paragraph pineapple\"" },
+    { "\"paragahp pineapple\"", "\"paragraph pineapple\"" },
+    { "test S.E.A.R.C.", "" },
+    { "this AND that", "" },
+    { NULL, NULL }
+};
+
+// Test spelling correction in the QueryParser.
+static bool test_qp_spell1()
+{
+    string dbdir = ".flint/qp_spell1";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db.add_spelling("document");
+    db.add_spelling("search");
+    db.add_spelling("paragraph");
+    db.add_spelling("band");
+
+    Xapian::QueryParser qp;
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    qp.set_database(db);
+
+    for (test *p = test_mispelled_queries; p->query; ++p) {
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SPELLING_CORRECTION |
+			   Xapian::QueryParser::FLAG_BOOLEAN );
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(qp.get_corrected_query_string(), p->expect);
+    }
+
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -1362,6 +1404,7 @@ static test_desc tests[] = {
     TESTCASE(value_range_serialise1),
     TESTCASE(qp_value_customrange1),
     TESTCASE(qp_stoplist1),
+    TESTCASE(qp_spell1),
     END_OF_TESTCASES
 };
 
