@@ -1289,6 +1289,26 @@ static bool test_spell1()
     Xapian::Database dbr(dbpath);
     TEST_EQUAL(db.get_spelling_suggestion("hell"), "cell");
     TEST_EQUAL(dbr.get_spelling_suggestion("hell"), "cell");
+
+    // Check suggestions for single edit errors to "zig".
+    db.add_spelling("zig");
+    // Transpositions:
+    TEST_EQUAL(db.get_spelling_suggestion("izg"), "zig");
+    TEST_EQUAL(db.get_spelling_suggestion("zgi"), "zig");
+    // Substitutions:
+    TEST_EQUAL(db.get_spelling_suggestion("sig"), "zig");
+    TEST_EQUAL(db.get_spelling_suggestion("zog"), "zig");
+    TEST_EQUAL(db.get_spelling_suggestion("zif"), "zig");
+    // Deletions:
+    TEST_EQUAL(db.get_spelling_suggestion("ig"), "zig");
+    TEST_EQUAL(db.get_spelling_suggestion("zg"), "zig");
+    TEST_EQUAL(db.get_spelling_suggestion("zi"), "zig");
+    // Insertions:
+    TEST_EQUAL(db.get_spelling_suggestion("azig"), "zig");
+    TEST_EQUAL(db.get_spelling_suggestion("zaig"), "zig");
+    TEST_EQUAL(db.get_spelling_suggestion("ziag"), "zig");
+    TEST_EQUAL(db.get_spelling_suggestion("ziga"), "zig");
+
     return true;
 }
 

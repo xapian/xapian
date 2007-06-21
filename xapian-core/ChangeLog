@@ -1,3 +1,8 @@
+Thu Jun 21 04:13:46 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_wrdb.cc: Add test cases to check we find all single edit
+	  errors for a three letter word.
+
 Thu Jun 21 04:08:11 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_spelling.h: Now that
