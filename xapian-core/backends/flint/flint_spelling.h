@@ -59,6 +59,9 @@ class FlintSpellingTable : public FlintTable {
     std::map<std::string, Xapian::termcount> wordfreq_changes;
     std::map<fragment, std::set<std::string> > termlist_deltas;
 
+    // Merge in batched-up changes.
+    void merge_changes();
+
   public:
     /** Create a new FlintSpellingTable object.
      *
@@ -71,15 +74,6 @@ class FlintSpellingTable : public FlintTable {
     FlintSpellingTable(std::string dbdir, bool readonly)
 	: FlintTable(dbdir + "/spelling.", readonly, Z_DEFAULT_COMPRESSION, true) { }
 
-    // Merge in batched-up changes.
-    void merge_changes();
-
-    // Discard batched-up changes.
-    void discard_changes() {
-	wordfreq_changes.clear();
-	termlist_deltas.clear();
-    }
-
     void add_word(const std::string & word, Xapian::termcount freqinc);
     void remove_word(const std::string & word, Xapian::termcount freqdec);
 
@@ -87,8 +81,13 @@ class FlintSpellingTable : public FlintTable {
 
     Xapian::doccount get_word_frequency(const string & word) const;
 
-    // Override methods of FlintTable (NB: these aren't virtual, but we always
-    // call them on the subclass in cases where it matters).
+    /** Override methods of FlintTable.
+     *
+     *  NB: these aren't virtual, but we always call them on the subclass in
+     *  cases where it matters).
+     *  @{
+     */
+
     bool is_modified() const {
 	return !wordfreq_changes.empty() || FlintTable::is_modified();
     }
@@ -106,9 +105,14 @@ class FlintSpellingTable : public FlintTable {
     }
 
     void cancel() {
-	discard_changes();
+	// Discard batched-up changes.
+	wordfreq_changes.clear();
+	termlist_deltas.clear();
+
 	FlintTable::cancel();
     }
+
+    // @}
 };
 
 /** The list of words containing a particular trigram. */
