@@ -97,6 +97,9 @@ enum om_debug_types {
     /** Type for messages from the lemon generated QueryParser code. */
     OM_DEBUG_QUERYPARSER,
 
+    /** Type for messages to do with spelling correction. */
+    OM_DEBUG_SPELLING,
+
     /** A value equal to the number of known types.
      */
     OM_DEBUG_NUMTYPES

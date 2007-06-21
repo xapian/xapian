@@ -1,3 +1,8 @@
+Thu Jun 21 14:59:15 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,common/omdebug.h: Add some debug tracing for the
+	  spelling correction.
+
 Thu Jun 21 13:45:12 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_spelling.cc,docs/spelling.rst: Generate

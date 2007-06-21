@@ -361,6 +361,7 @@ Database::get_spelling_suggestion(const string &word,
 	string tname = merger->get_termname();
 	Xapian::termcount score = merger->get_wdf();
 
+	DEBUGLINE(SPELLING, "Term \"" << tname << "\" ngram score " << score);
 	if (score + TRIGRAM_SCORE_THRESHOLD >= best) {
 	    if (score > best) best = score;
 
@@ -368,11 +369,13 @@ Database::get_spelling_suggestion(const string &word,
 	    // in length is greater than the smallest number of edits we've
 	    // found so far.
 	    if (abs((long)tname.size() - (long)word.size()) > edist_best) {
+		DEBUGLINE(SPELLING, "Lengths too different");
 		continue;
 	    }
 
 	    int edist = edit_distance_char(tname.data(), tname.size(),
 					   word.data(), word.size());
+	    DEBUGLINE(SPELLING, "Edit distance " << edist);
 	    // If we have an exact match, return an empty string since there's
 	    // no correction required.
 	    if (edist == 0) return string();
@@ -381,6 +384,9 @@ Database::get_spelling_suggestion(const string &word,
 		Xapian::doccount freq;
 		freq = internal[0]->get_spelling_frequency(tname);
 		if (edist < edist_best || freq > freq_best) {
+		    DEBUGLINE(SPELLING, "Best so far: \"" << tname <<
+					"\" edist " << edist << " freq " <<
+					freq);
 		    result = tname;
 		    edist_best = edist;
 		    freq_best = freq;
@@ -505,7 +511,7 @@ WritableDatabase::add_spelling(const std::string & word,
 
 void
 WritableDatabase::remove_spelling(const std::string & word,
-			          Xapian::termcount freqdec) const
+				  Xapian::termcount freqdec) const
 {
     DEBUGAPICALL(void, "WritableDatabase::remove_spelling",
 		 word << ", " << freqdec);
