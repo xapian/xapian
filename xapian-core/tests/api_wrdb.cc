@@ -1309,6 +1309,21 @@ static bool test_spell1()
     TEST_EQUAL(db.get_spelling_suggestion("ziag"), "zig");
     TEST_EQUAL(db.get_spelling_suggestion("ziga"), "zig");
 
+    // Check suggestions for single edit errors to "ch".
+    db.add_spelling("ch");
+    // Transpositions:
+    TEST_EQUAL(db.get_spelling_suggestion("hc"), "ch");
+    // Substitutions - we don't handle these for two character words:
+    TEST_EQUAL(db.get_spelling_suggestion("qh"), "");
+    TEST_EQUAL(db.get_spelling_suggestion("cq"), "");
+    // Deletions would leave a single character, and we don't handle those.
+    TEST_EQUAL(db.get_spelling_suggestion("c"), "");
+    TEST_EQUAL(db.get_spelling_suggestion("h"), "");
+    // Insertions:
+    TEST_EQUAL(db.get_spelling_suggestion("qch"), "ch");
+    TEST_EQUAL(db.get_spelling_suggestion("cqh"), "ch");
+    TEST_EQUAL(db.get_spelling_suggestion("chq"), "ch");
+
     return true;
 }
 
