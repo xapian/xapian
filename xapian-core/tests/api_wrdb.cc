@@ -620,6 +620,38 @@ static bool test_deldoc5()
     return true;
 }
 
+// Regression test for bug in quartz and flint, fixed in 1.0.2.
+static bool test_deldoc6()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    Xapian::Document doc1;
+
+    doc1.add_posting("foo", 1);
+    doc1.add_posting("bar", 2);
+    doc1.add_posting("aardvark", 3);
+
+    Xapian::docid did = db.add_document(doc1);
+    TEST_EQUAL(did, 1);
+
+    doc1.remove_term("bar");
+    doc1.add_term("hello");
+
+    did = db.add_document(doc1);
+    TEST_EQUAL(did, 2);
+
+    db.flush();
+
+    db.delete_document(2);
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.delete_document(3));
+
+    db.flush();
+
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(2));
+
+    return true;
+}
+
 static bool test_replacedoc1()
 {
     Xapian::WritableDatabase db = get_writable_database("");
@@ -1365,6 +1397,7 @@ test_desc writabledb_tests[] = {
     TESTCASE(deldoc3),
     TESTCASE(deldoc4),
     TESTCASE(deldoc5),
+    TESTCASE(deldoc6),
     TESTCASE(replacedoc1),
     TESTCASE(replacedoc2),
     TESTCASE(replacedoc3),

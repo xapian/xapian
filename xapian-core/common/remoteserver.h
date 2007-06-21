@@ -123,6 +123,9 @@ class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
     // add document
     void msg_adddocument(const std::string & message);
 
+    // delete document for compatiblity with protocol < 30.2
+    void msg_deletedocument_pre_30_2(const std::string & message);
+
     // delete document
     void msg_deletedocument(const std::string & message);
 

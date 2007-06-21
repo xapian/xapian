@@ -188,16 +188,20 @@ RemoteServer::run()
 		&RemoteServer::msg_update,
 		&RemoteServer::msg_adddocument,
 		&RemoteServer::msg_cancel,
-		&RemoteServer::msg_deletedocument,
+		&RemoteServer::msg_deletedocument_pre_30_2,
 		&RemoteServer::msg_deletedocumentterm,
 		&RemoteServer::msg_flush,
 		&RemoteServer::msg_replacedocument,
-		&RemoteServer::msg_replacedocumentterm
+		&RemoteServer::msg_replacedocumentterm,
+		NULL, // MSG_GETMSET - used during a conversation.
+		NULL, // MSG_SHUTDOWN - handled by get_message().
+		&RemoteServer::msg_deletedocument
 	    };
 
 	    string message;
 	    size_t type = get_message(idle_timeout, message);
-	    if (type >= sizeof(dispatch)/sizeof(dispatch[0])) {
+	    if (type >= sizeof(dispatch)/sizeof(dispatch[0]) ||
+		dispatch[type] == NULL) {
 		string errmsg("Unexpected message type ");
 		errmsg += om_tostring(type);
 		throw Xapian::InvalidArgumentError(errmsg);
@@ -528,8 +532,9 @@ RemoteServer::msg_adddocument(const string & message)
     send_message(REPLY_ADDDOCUMENT, encode_length(did));
 }
 
+// FIXME: eliminate this method when we move to remote major 31.
 void
-RemoteServer::msg_deletedocument(const string & message)
+RemoteServer::msg_deletedocument_pre_30_2(const string & message)
 {
     if (!wdb)
 	throw Xapian::InvalidOperationError("Server is read-only");
@@ -539,6 +544,14 @@ RemoteServer::msg_deletedocument(const string & message)
     Xapian::docid did = decode_length(&p, p_end, false);
 
     wdb->delete_document(did);
+}
+
+void
+RemoteServer::msg_deletedocument(const string & message)
+{
+    msg_deletedocument_pre_30_2(message);
+
+    send_message(REPLY_DONE, "");
 }
 
 void

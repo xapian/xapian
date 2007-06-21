@@ -34,8 +34,13 @@
 // 29: Serialisation of Xapian::Error includes error_string
 // 30: Add minor protocol version numbers, to reduce need for client upgrades
 // 30.1: Pass the prefix parameter for MSG_ALLTERMS, and use it.
+// 30.2: New REPLY_DELETEDOCUMENT returns MSG_DONE to allow exceptions.
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 30
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 1
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 2
+
+/* When we move to version 31:
+ * + Remove MSG_DELETEDOCUMENT_PRE_30_2
+ */
 
 /// Message types (client -> server).
 enum message_type {
@@ -54,13 +59,14 @@ enum message_type {
     MSG_UPDATE,			// Get Updated DocCount and AvLength
     MSG_ADDDOCUMENT,		// Add Document
     MSG_CANCEL,			// Cancel
-    MSG_DELETEDOCUMENT,		// Delete Document
+    MSG_DELETEDOCUMENT_PRE_30_2,// Delete Document for < 30.2.
     MSG_DELETEDOCUMENTTERM,	// Delete Document by term
     MSG_FLUSH,			// Flush
     MSG_REPLACEDOCUMENT,	// Replace Document
     MSG_REPLACEDOCUMENTTERM,	// Replace Document by term
     MSG_GETMSET,		// Get MSet
     MSG_SHUTDOWN,		// Shutdown
+    MSG_DELETEDOCUMENT,		// Delete Document
     MSG_MAX
 };
 

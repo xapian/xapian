@@ -537,7 +537,10 @@ RemoteDatabase::delete_document(Xapian::docid did)
 {
     cached_stats_valid = false;
 
+//    send_message(MSG_DELETEDOCUMENT_PRE_30_2, encode_length(did));
     send_message(MSG_DELETEDOCUMENT, encode_length(did));
+    string dummy;
+    get_message(dummy, REPLY_DONE);
 }
 
 void

@@ -1,3 +1,16 @@
+Thu Jun 21 21:12:49 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remoteprotocol.h,
+	  common/remoteserver.h,net/remoteserver.cc: Protocol version
+	  increased to 30.2.  This difference from 30.1 is that
+	  MSG_DELETEDOCUMENT now send REPLY_DONE to allow DocNotFoundError
+	  to be propagated.  MSG_DELETEDOCUMENT now has a new number and
+	  the old number for MSG_DELETEDOCUMENT is now
+	  MSG_DELETEDOCUMENT_PRE_30_2 which is handled by the server so
+	  that older clients will continue to work.
+	* docs/remote_protocol.html: Update.
+	* tests/api_wrdb.cc: Add regression test for DocNotFoundError bug.
+
 Thu Jun 21 17:22:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,tests/queryparsertest.cc,docs/spelling.rst: Add

@@ -7,8 +7,15 @@
 <h1>Remote Backend Protocol</h1>
 
 <p>
-This document describes <em>version 30</em> of the protocol used by Xapian's
-remote backend.  The protocol assumes a reliable two-way connection across which
+This document describes <em>version 30.2</em> of the protocol used by Xapian's
+remote backend.  Clients and servers must support matching major protocol versions
+and the client's minor protocol version must be the same or lower.  This means that
+for a minor protocol version change, you can upgrade first servers and then
+clients and everything should work during the upgrades.
+</p>
+
+<p>
+The protocol assumes a reliable two-way connection across which
 arbitrary data can be sent - this could be provided by a TCP socket for example
 (as it is with xapian-tcpsrv), but any such connection could be used.  For
 example, you could used xapian-progsrv across an ssh connection, or even
@@ -244,6 +251,13 @@ and they don't change if the database can't change).
 
 <ul>
 <li> <code>MSG_DELETEDOCUMENT I&lt;document id&gt;</code>
+<li> <code>REPLY_DONE</code>
+</ul>
+
+<h2>Delete document (for compatibility with clients using protocols &lt; 30.2)</h2>
+
+<ul>
+<li> <code>MSG_DELETEDOCUMENT_PRE_30_2 I&lt;document id&gt;</code>
 </ul>
 
 <h2>Delete document by term</h2>
