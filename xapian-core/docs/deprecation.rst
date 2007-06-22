@@ -179,7 +179,7 @@ Bindings
 | 1.0.0           | 1.1.0       | Python         | get_description()           | All get_description() methods have been renamed to __str__(), so the normal   |
 |                 |             |                |                             | python str() function can be used.                                            |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0       | Python         | MSetItem.get_*()            | All these methods are deprecated, in faviour of properties.  To convert,      |
+| 1.0.0           | 1.1.0       | Python         | MSetItem.get_*()            | All these methods are deprecated, in favour of properties.  To convert,       |
 |                 |             |                |                             | just change msetitem.get_FOO() to msetitem.FOO                                |
 +-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
 | 1.0.0           | 1.1.0       | Python         | Enquire.get_matching_terms  | Replaced by Enquire.matching_terms, for consistency with rest of Python API.  |

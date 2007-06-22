@@ -1,3 +1,7 @@
+Fri Jun 22 18:21:39 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/deprecation.rst: Fix typo.
+
 Fri Jun 22 18:02:21 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/database.cc,backends/flint/,
