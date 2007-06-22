@@ -1,3 +1,8 @@
+Fri Jun 22 17:58:37 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Removed superfluous "private:" in
+	  class State.  Make State::get_database() const.
+
 Fri Jun 22 17:58:15 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/queryparsertest.cc: Make sure .flint subdirectory exists.

@@ -164,7 +164,6 @@ class Term {
 
 /// Parser State shared between the lexer and the parser.
 class State {
-  private:
     QueryParser::Internal * qpi;
 
   public:
@@ -217,7 +216,7 @@ class State {
 	return qpi->stopper && (*qpi->stopper)(term->name);
     }
 
-    Database get_database() {
+    Database get_database() const {
 	return qpi->db;
     }
 };
