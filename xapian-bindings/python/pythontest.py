@@ -19,6 +19,7 @@
 
 import sys
 import xapian
+import shutil
 
 from testsuite import *
 
@@ -748,11 +749,47 @@ def test_value_iter():
         expect(items[2].value, 'nine')
         expect(items[2][:], [9, 'nine'])
 
+def test_synonyms_iter():
+    """Test iterators over list of synonyms in a database.
+
+    """
+    dbpath = 'flinttest_synonyms_iter'
+    db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
+
+    db.add_synonym('hello', 'hi')
+    db.add_synonym('hello', 'howdy')
+
+    items = [item for item in db.synonyms('foo')]
+    expect(items, [])
+    items = [item for item in db.synonyms('hello')]
+    expect(items, ['hi', 'howdy'])
+
+    dbr=xapian.Database(dbpath)
+    items = [item for item in dbr.synonyms('foo')]
+    expect(items, [])
+    items = [item for item in dbr.synonyms('hello')]
+    expect(items, [])
+
+    db.flush()
+
+    items = [item for item in db.synonyms('foo')]
+    expect(items, [])
+    items = [item for item in db.synonyms('hello')]
+    expect(items, ['hi', 'howdy'])
+
+    dbr=xapian.Database(dbpath)
+    items = [item for item in dbr.synonyms('foo')]
+    expect(items, [])
+    items = [item for item in dbr.synonyms('hello')]
+    expect(items, ['hi', 'howdy'])
+
+    #shutil.rmtree(dbpath)
+
 def test_spell():
     """Test basic spelling correction features.
 
     """
-    dbpath = 'flinttest_1'
+    dbpath = 'flinttest_spell'
     db = xapian.WritableDatabase(dbpath, xapian.DB_CREATE_OR_OVERWRITE)
 
     db.add_spelling('hello')
@@ -762,6 +799,8 @@ def test_spell():
     dbr=xapian.Database(dbpath)
     expect(db.get_spelling_suggestion('hell'), 'mell')
     expect(dbr.get_spelling_suggestion('hell'), 'mell')
+
+    shutil.rmtree(dbpath)
 
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
 # testing it for Python 2.2.

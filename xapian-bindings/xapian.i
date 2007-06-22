@@ -671,6 +671,8 @@ class Database {
 	Document get_document(docid did);
 	std::string get_spelling_suggestion(const std::string &word,
 					    unsigned max_edit_distance = 2) const;
+	TermIterator synonyms_begin(const std::string &term) const;
+	TermIterator synonyms_end(const std::string &) const;
 };
 
 class WritableDatabase : public Database {
@@ -697,6 +699,12 @@ class WritableDatabase : public Database {
 			  Xapian::termcount freqinc = 1) const;
 	void remove_spelling(const std::string & word,
 			     Xapian::termcount freqdec = 1) const;
+
+	void add_synonym(const std::string & term,
+			 const std::string & synonym) const;
+	void remove_synonym(const std::string & term,
+			    const std::string & synonym) const;
+	void clear_synonyms(const std::string & term) const;
 
 	string get_description() const;
 };
@@ -968,7 +976,9 @@ public:
 	FLAG_WILDCARD = 16,
 	FLAG_PURE_NOT = 32,
 	FLAG_PARTIAL = 64,
-	FLAG_SPELLING_CORRECTION = 128
+	FLAG_SPELLING_CORRECTION = 128,
+	FLAG_AUTO_SYNONYMS = 512,
+	FLAG_AUTO_MULTIWORD_SYNONYMS = 1024
     } feature_flag;
 
     typedef enum {

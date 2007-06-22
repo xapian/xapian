@@ -580,6 +580,20 @@ def _database_gen_termlist_iter(self, docid):
                     has_positions=TermIter.LAZY)
 Database.termlist = _database_gen_termlist_iter
 
+# Modify Database to add a "synonyms()" method.
+def _database_gen_synonyms_iter(self, term):
+    """Get an iterator which returns all the synonyms for a given term.
+
+    The term to return synonyms for is specified by the `term` parameter.
+
+    The iterator will return string objects.
+
+    """
+    return TermIter(self.synonyms_begin(term),
+                    self.synonyms_end(term),
+                    return_strings=True)
+Database.synonyms = _database_gen_synonyms_iter
+
 # Modify Document to add an "__iter__()" method and a "termlist()" method.
 def _document_gen_termlist_iter(self):
     """Get an iterator over all the terms in a document.
