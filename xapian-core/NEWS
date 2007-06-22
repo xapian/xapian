@@ -1,3 +1,140 @@
+up to:
+Thu Jun 21 21:12:49 BST 2007  Olly Betts <olly@survex.com>
+
+Xapian-core 1.0.2 (2007-0?-??):
+
+API:
+
+* Xapian now offers spelling correction.
+
+* QueryParser: The precedence of the boolean operators has been adjusted
+  to match their usual precedence in mathematics and programming languages.
+  "NOT" now binds as tightly as "AND" (previously "AND NOT" would bind like
+  "AND", but just "NOT" would bind like "OR"!)  Also "XOR" now binds more
+  tightly than "OR", but less tightly than "AND" (previously it bound just like
+  "OR").
+
+* NumberValueRangeProcessor has been changed to work usefully.  Previously
+  the numbers had to be the same length; now numbers are serialised to
+  strings such that a string sort on the string orders the numbers correctly.
+  Negative and floating point numbers are also supported now.
+
+testsuite:
+
+* Feature tests added for all new features.
+
+* Improved test coverage in queryparsertest.
+
+* The test harness no longer creates <dbdir>/log for flint (flint doesn't
+  create a log like quartz does).
+
+* apitest: "-bremote" must now be "-bremoteprog" (to better match
+  "-bremotetcp"); "-bvoid" must now be "-bnone" (to better describe not
+  using a database backend)..
+
+* To complement "make check-flint", "make check-quartz", and "make
+  check-remote", you can now run tests for the remotetcp backend with
+  "make check-remotetcp", for the remoteprog backend with "make
+  check-remoteprog", for the inmemory backend with "make check-inmemory", and
+  tests not requiring a backend with "make check-none".
+
+flint backend:
+
+* The value and position tables are now only created if there is anything to
+  add to them.  So if you never use document values, there's no value.DB,
+  value.baseA, or value.baseB.  This means the table doesn't need to be opened
+  for searching (saving a file handle and a number of syscalls) and when
+  flushing changes, we don't need to update baseA/baseB just to keep the
+  revisions in step.  The flint database version has been increased, but the
+  new code will happily open and read/update flint databases from Xapian 1.0.0
+  and 1.0.1.  Xapian 1.0.2 flint databases can't be read by Xapian 1.0.1 or
+  earlier though.
+
+* Database::term_exists() is now slightly more efficient for flint databases.
+
+* New utility 'xapian-inspect' which allowing interactive inspection of key/tag
+  pairs in a flint Btree.  Useful for development and debugging, and an
+  approximate equivalent to quartzdump.
+
+* WritableDatabase::delete_document() no longer cancels pending changes if the
+  document doesn't exist.
+
+quartz backend:
+
+* WritableDatabase::delete_document() no longer cancels pending changes if the
+  document doesn't exist.
+
+remote backend:
+
+* Calling WritableDatabase::delete_document() on a non-existent document now
+  correctly propagates DocNotFoundError.
+
+* The minor remote protocol version has increased (to fix the previous issue).
+  You should be able to cleanly upgrade a live system by upgrading servers
+  first and then clients.
+
+* progclient: Reopen stderr on the child process to /dev/null rather than
+  closing it.  This fixes apitest with the remoteprog backend to pass when run
+  under valgrind (it failed in this case in 1.0.0 and 1.0.1).
+
+inmemory backend:
+
+
+build system:
+
+* Work around an apparent bug in automake which causes the entries in .libs
+  subdirectories generated for targets of bin_PROGRAMS not to be removed on
+  make clean.  This was causing make distcheck to fail.
+
+* Snapshots and releases are now bootstrapped with automake 1.10.
+
+documentation:
+
+* The API documentation is now generated with Doxygen 1.5.2, which fixes the
+  missing docs for Xapian::Query.
+
+* Ship and install internals.html.
+
+* Generating the doxygen-collated documentation of the library internals (with
+  "make doxygen_source_docs") now only tries to generate an HTML version.  The
+  PDF version kept exceeding TeX limits, and HTML is a more useful format for
+  this anyway.
+
+* API docs for Xapian::QueryParser now make it clear that the default value for
+  the stemming strategy is STEM_NONE.
+
+* Several typo fixes and assorted wording improvements.
+
+* queryparser.html: Mention "AND NOT" as an alternative way to write "NOT".
+
+* admin_notes.html: Updated for changes in this release, and corrected a
+  few minor errors.
+
+examples:
+
+
+portability:
+
+* Fix to build on with OpenBSD's zlib (xapian-core 1.0.0 and 1.0.1 didn't).
+
+* Fixed to build with older zlib such as zlib 1.1.5 (xapian-core 1.0.0 and
+  1.0.1 didn't).  Not hugely important as zlib security fixes mean any well
+  maintained box will be running a recent zlib, but the fix is trivial.
+
+* msvc/version.h.in: Generated version.h for MSVC build no longer has the
+  remote backend marked as disabled.
+
+packaging:
+
+* RPMs:
+
+  + Rename xapian.spec to xapian-core.spec to match tarball name.
+
+  + Append the user name to BuildRoot.
+
+debug code:
+
+
 Xapian-core 1.0.1 (2007-06-11):
 
 API:
