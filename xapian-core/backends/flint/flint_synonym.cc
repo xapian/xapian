@@ -134,7 +134,7 @@ FlintSynonymTable::open_termlist(const string & term)
     vector<string> synonyms;
 
     if (last_term == term) {
-	if (synonyms.empty()) return NULL;
+	if (last_synonyms.empty()) return NULL;
 
 	synonyms.reserve(last_synonyms.size());
 	set<string>::const_iterator i;
