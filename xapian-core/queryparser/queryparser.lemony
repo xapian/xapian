@@ -124,17 +124,15 @@ struct filter_group_id {
  *  distance in NEAR/3 or ADJ/3, etc).
  */
 class Term {
-    // So State can read our name.
-    friend class ::State;
     State * state;
 
+  public:
     string name;
     string prefix;
     string unstemmed;
     bool stem;
     termpos pos;
 
-  public:
     Term(const string &name_, termpos pos_) : name(name_), stem(false), pos(pos_) { }
     Term(const string &name_) : name(name_), stem(false), pos(0) { }
     Term(const string &name_, const string &prefix_)
@@ -160,6 +158,8 @@ class Term {
     Query * as_partial_query(State * state_) const;
 
     Query as_query_object() const { return Query(make_term(), 1, pos); }
+
+    Query * as_query_with_synonyms() const;
 };
 
 /// Parser State shared between the lexer and the parser.
@@ -239,6 +239,44 @@ Term::make_term() const
     if (!unstemmed.empty())
 	state->add_to_unstem(term, unstemmed);
     return term;
+}
+
+Query *
+Term::as_query_with_synonyms() const
+{
+    if ((state->flags & QueryParser::FLAG_AUTO_SYNONYMS) == 0)
+	return as_query();
+
+    Query q(make_term(), 1, pos);
+
+    // Handle single-word synonyms.  First try the unstemmed term:
+    string term;
+    if (!prefix.empty()) {
+	term += prefix;
+	if (prefix_needs_colon(prefix, name[0])) term += ':';
+    }
+    term += name;
+
+    Xapian::Database db = state->get_database();
+    Xapian::TermIterator syn = db.synonyms_begin(term);
+    Xapian::TermIterator end = db.synonyms_end(term);
+    if (syn == end && stem) {
+	// If that has no synonyms, try the stemmed form:
+	term.resize(0);
+	term += 'Z';
+	if (!prefix.empty()) {
+	    term += prefix;
+	    if (prefix_needs_colon(prefix, name[0])) term += ':';
+	}
+	term += state->stem_term(name);
+	syn = db.synonyms_begin(term);
+	end = db.synonyms_end(term);
+    }
+    while (syn != end) {
+	q = Query(Query::OP_OR, q, Query(*syn, 1, pos));
+	++syn;
+    }
+    return new Query(q);
 }
 
 static void
@@ -473,13 +511,21 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
     // We always have the current prefix on the top of the stack.
     prefix_stack.push_back(default_prefix);
 
-    enum {
-	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM
-    } mode = DEFAULT;
+    vector<string> term_group;
 
     unsigned newprev = ' ';
 main_lex_loop:
+    enum {
+	DEFAULT, IN_QUOTES, IN_PREFIXED_QUOTES, IN_PHRASED_TERM, IN_GROUP
+    } mode = DEFAULT;
     while (it != end) {
+	bool last_was_operator = false;
+	if (false) {
+just_had_operator:
+	    if (it == end) break;
+	    last_was_operator = true;
+	    mode = DEFAULT;
+	}
 	if (mode == IN_PHRASED_TERM) mode = DEFAULT;
 	if (is_whitespace(*it)) {
 	    newprev = ' ';
@@ -488,7 +534,7 @@ main_lex_loop:
 	    if (it == end) break;
 	}
 
-	if (mode == DEFAULT && value_ranges) {
+	if ((mode == DEFAULT || mode == IN_GROUP) && value_ranges) {
 	    // Scan forward to see if this could be the "start of range"
 	    // token.  Sadly this has O(n^2) tendencies, though at least
 	    // "n" is the number of words in a query which is likely to
@@ -528,6 +574,8 @@ main_lex_loop:
 	    unsigned prev = newprev;
 	    unsigned ch = *it++;
 	    if (it != end) newprev = *it;
+	    // Drop out of IN_GROUP mode.
+	    if (mode == IN_GROUP) mode = DEFAULT;
 	    switch (ch) {
 	      case '"':
 		// Skip whitespace.
@@ -570,12 +618,16 @@ main_lex_loop:
 		if (is_whitespace(*it) || *it == '+' || *it == '-') {
 		    // Ignore + or - followed by a space, or further + or -.
 		    // Postfix + (such as in C++ and H+) is handled as part of
-		    // the term lexing code below.
+		    // the term lexing code in parse_term().
 		    newprev = *it++;
 		    break;
 		}
-		if (mode == DEFAULT && (flags & FLAG_LOVEHATE))
+		if (mode == DEFAULT && (flags & FLAG_LOVEHATE)) {
 		    Parse(pParser, (ch == '+' ? LOVE : HATE), NULL, &state);
+		    goto just_had_operator;
+		}
+		// Need to prevent the term after a LOVE or HATE starting a
+		// term group...
 		break;
 
 	      case '(':
@@ -624,7 +676,7 @@ main_lex_loop:
 
 	// A term, a prefix, or a boolean operator.
 	string prefix;
-	if (mode == DEFAULT && !prefixes.empty()) {
+	if ((mode == DEFAULT || mode == IN_GROUP) && !prefixes.empty()) {
 	    // Check for fieldname prefixes (e.g. title:historical).
 	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
 	    if (p != end && *p == ':' && ++p != end && *p > ' ' && *p != ')') {
@@ -673,6 +725,7 @@ main_lex_loop:
 
 		    if (ch == '(' && (flags & FLAG_BOOLEAN)) {
 			// Prefixed subexpression, e.g.: title:(fast NEAR food)
+			mode = DEFAULT;
 			Parse(pParser, BRA, NULL, &state);
 			it = p;
 			newprev = ch;
@@ -698,7 +751,8 @@ phrased_term:
 	string term = parse_term(it, end, was_acronym);
 
 	// Boolean operators.
-	if (mode == DEFAULT && (flags & FLAG_BOOLEAN) &&
+	if ((mode == DEFAULT || mode == IN_GROUP) &&
+	    (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
 	    !was_acronym &&
 	    prefix.empty() &&
@@ -713,14 +767,17 @@ phrased_term:
 	    if (op.size() == 3) {
 		if (op == "AND") {
 		    Parse(pParser, AND, NULL, &state);
-		    continue;
-		} else if (op == "NOT") {
+		    goto just_had_operator;
+		}
+		if (op == "NOT") {
 		    Parse(pParser, NOT, NULL, &state);
-		    continue;
-		} else if (op == "XOR") {
+		    goto just_had_operator;
+		}
+		if (op == "XOR") {
 		    Parse(pParser, XOR, NULL, &state);
-		    continue;
-		} else if (op == "ADJ") {
+		    goto just_had_operator;
+		}
+		if (op == "ADJ") {
 		    if (it != end && *it == '/') {
 			size_t width = 0;
 			Utf8Iterator p = it;
@@ -730,17 +787,17 @@ phrased_term:
 			if (width && (p == end || is_whitespace(*p))) {
 			    it = p;
 			    Parse(pParser, ADJ, new Term(width), &state);
-			    continue;
+			    goto just_had_operator;
 			}
 		    }
 
 		    Parse(pParser, ADJ, NULL, &state);
-		    continue;
+		    goto just_had_operator;
 		}
 	    } else if (op.size() == 2) {
 		if (op == "OR") {
 		    Parse(pParser, OR, NULL, &state);
-		    continue;
+		    goto just_had_operator;
 		}
 	    } else if (op.size() == 4) {
 		if (op == "NEAR") {
@@ -753,12 +810,12 @@ phrased_term:
 			if (width && (p == end || is_whitespace(*p))) {
 			    it = p;
 			    Parse(pParser, NEAR, new Term(width), &state);
-			    continue;
+			    goto just_had_operator;
 			}
 		    }
 
 		    Parse(pParser, NEAR, NULL, &state);
-		    continue;
+		    goto just_had_operator;
 		}
 	    }
 	}
@@ -798,7 +855,7 @@ phrased_term:
 	    if (mode == IN_PHRASED_TERM) {
 		Parse(pParser, PHR_TERM, term_obj, &state);
 	    } else {
-		if (mode == DEFAULT) {
+		if (mode == DEFAULT || mode == IN_GROUP) {
 		    if (it != end) {
 			if ((flags & FLAG_WILDCARD) && *it == '*') {
 			    Utf8Iterator p(it);
@@ -821,12 +878,30 @@ phrased_term:
 		    }
 		}
 
-		Parse(pParser, TERM, term_obj, &state);
-		if (mode != DEFAULT) continue;
+		// See if the next token will be PHR_TERM - if so, this one
+		// needs to be TERM not GROUP_TERM.
+		if (mode == IN_GROUP && is_phrase_generator(*it)) {
+		    // FIXME: can we clean this up?
+		    Utf8Iterator p = it;
+		    do {
+			++p;
+		    } while (p != end && is_phrase_generator(*p));
+		    // Don't generate a phrase unless the phrase generators are
+		    // immediately followed by another term.
+		    if (p != end && is_wordchar(*p)) {
+			mode = DEFAULT;
+		    }
+		}
+
+		Parse(pParser, (mode == IN_GROUP ? GROUP_TERM : TERM),
+		      term_obj, &state);
+		if (mode != DEFAULT && mode != IN_GROUP) continue;
 	    }
 	}
 
-	if (it != end && is_phrase_generator(*it)) {
+	if (it == end) break;
+
+	if (is_phrase_generator(*it)) {
 	    // Skip multiple phrase generators.
 	    do {
 		++it;
@@ -836,6 +911,20 @@ phrased_term:
 	    if (it != end && is_wordchar(*it)) {
 		mode = IN_PHRASED_TERM;
 		goto phrased_term;
+	    }
+	} else if (mode == DEFAULT || mode == IN_GROUP) {
+	    mode = DEFAULT;
+	    if (!last_was_operator && is_whitespace(*it)) {
+		newprev = ' ';
+		// Skip multiple whitespace.
+		do {
+		    ++it;
+		} while (it != end && is_whitespace(*it));
+		// Don't generate a group unless the terms are only separated
+		// by whitespace.
+		if (it != end && is_wordchar(*it)) {
+		    mode = IN_GROUP;
+		}
 	    }
 	}
     }
@@ -876,6 +965,110 @@ struct ProbQuery {
 	return q;
     }
 };
+
+class TermGroup {
+    list<Term *> terms;
+
+  public:
+    TermGroup() { }
+
+    /// Add a Term object to this TermGroup object.
+    void add_term(Term * term) {
+	terms.push_back(term);
+    }
+
+    /// Convert to a Xapian::Query * using default_op.
+    Query * as_group(State *state) const;
+
+    /** Provide a way to explicitly delete an object of this class.  The
+     *  destructor is protected to prevent auto-variables of this type.
+     */
+    void destroy() { delete this; }
+
+  protected:
+    /** Protected destructor, so an auto-variable of this type is a
+     *  compile-time error - you must allocate this object with new.
+     */
+    ~TermGroup() {
+	list<Term*>::const_iterator i;
+	for (i = terms.begin(); i != terms.end(); ++i) {
+	    delete *i;
+	}
+    }
+};
+
+Query *
+TermGroup::as_group(State *state) const
+{
+    Query * query = NULL;
+    Query::op default_op = state->default_op();
+    if (state->flags & QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS) {
+	// Check for multi-word synonyms.
+	Database db = state->get_database();
+
+	string key;
+	list<Term*>::const_iterator begin = terms.begin();
+	list<Term*>::const_iterator i = begin;
+	while (i != terms.end()) {
+	    key.resize(0);
+	    while (i != terms.end()) {
+		if (!key.empty()) key += ' ';
+		key += (*i)->name;
+		++i;
+	    }
+	    // Greedily try to match as many consecutive words as possible.
+	    TermIterator syn, end;
+	    while (true) {
+		syn = db.synonyms_begin(key);
+		end = db.synonyms_end(key);
+		if (syn != end) break;
+		if (--i == begin) break;
+		key.resize(key.size() - (*i)->name.size() - 1);
+	    }
+	    if (i == begin) {
+		// No multi-synonym matches.
+		if (state->is_stopword(*i)) {
+		    state->add_to_stoplist(*i);
+		} else {
+		    add_to_query(query, default_op,
+				 (*i)->as_query_with_synonyms());
+		}
+		begin = ++i;
+		continue;
+	    }
+
+	    Query * q = NULL;
+	    list<Term*>::const_iterator j;
+	    for (j = begin; j != i; ++j) {
+		if (state->is_stopword(*j)) {
+		    state->add_to_stoplist(*j);
+		} else {
+		    add_to_query(q, default_op, (*j)->as_query());
+		}
+	    }
+
+	    // Use the position of the first term for the synonyms.
+	    Xapian::termpos pos = (*begin)->pos;
+	    begin = i;
+	    while (syn != end) {
+		add_to_query(q, Query::OP_OR, Query(*syn, 1, pos));
+		++syn;
+	    }
+	    add_to_query(query, default_op, q);
+	}
+    } else {
+	list<Term*>::const_iterator i;
+	for (i = terms.begin(); i != terms.end(); ++i) {
+	    if (state->is_stopword(*i)) {
+		state->add_to_stoplist(*i);
+	    } else {
+		add_to_query(query, default_op, (*i)->as_query_with_synonyms());
+	    }
+	}
+    }
+    delete this;
+    return query;
+}
 
 class TermList {
     list<Query> terms;
@@ -986,6 +1179,10 @@ class TermList {
 
 // TERM is a query term, including prefix (if any).
 %destructor TERM {delete $$;}
+
+// GROUP_TERM is a query term which follows a TERM or another GROUP_TERM and
+// is only separated by whitespace characters.
+%destructor GROUP_TERM {delete $$;}
 
 // PHR_TERM is a query term which follows a TERM or another PHR_TERM and is
 // separated only by one or more phrase generator characters (hyphen and
@@ -1258,7 +1455,7 @@ stop_term(T) ::= TERM(U). {
 	T = NULL;
 	state->add_to_stoplist(U);
     } else {
-	T = U->as_query();
+	T = U->as_query_with_synonyms();
     }
     delete U;
 }
@@ -1273,7 +1470,7 @@ stop_term(T) ::= compound_term(U). {
 %destructor term {delete $$;}
 
 term(T) ::= TERM(U). {
-    T = U->as_query();
+    T = U->as_query_with_synonyms();
     delete U;
 }
 
@@ -1282,8 +1479,8 @@ term(T) ::= compound_term(U). {
 }
 
 // compound_term - A WILD_TERM, a quoted phrase (with or without prefix), a
-// phrased_term, near_expr, adj_expr, or a bracketed subexpression (with or
-// without prefix).
+// phrased_term, group, near_expr, adj_expr, or a bracketed subexpression (with
+// or without prefix).
 
 %type compound_term {Query *}
 %destructor compound_term {delete $$;}
@@ -1299,6 +1496,10 @@ compound_term(T) ::= QUOTE phrase(P) QUOTE.
 
 compound_term(T) ::= phrased_term(P).
 	{ T = P->as_phrase_query(); }
+
+compound_term(T) ::= group(P).  {
+    T = P->as_group(state);
+}
 
 compound_term(T) ::= near_expr(P).
 	{ T = P->as_near_query(); }
@@ -1341,6 +1542,23 @@ phrased_term(P) ::= TERM(T) PHR_TERM(U). {
 phrased_term(P) ::= phrased_term(Q) PHR_TERM(T). {
     P = Q;
     P->add_unstemmed_term(T);
+}
+
+// group - A group of terms separated only by whitespace - candidates for
+// multi-term synonyms.
+
+%type group {TermGroup *}
+%destructor group {$$->destroy();}
+
+group(P) ::= TERM(T) GROUP_TERM(U). {
+    P = new TermGroup;
+    P->add_term(T);
+    P->add_term(U);
+}
+
+group(P) ::= group(Q) GROUP_TERM(T). {
+    P = Q;
+    P->add_term(T);
 }
 
 // near_expr - 2 or more terms with NEAR in between.  There must be at least 2

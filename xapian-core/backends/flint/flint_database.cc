@@ -67,6 +67,7 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	  positionlist_table(db_dir, readonly),
 	  termlist_table(db_dir, readonly),
 	  value_table(db_dir, readonly),
+	  synonym_table(db_dir, readonly),
 	  spelling_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
 	  lock(db_dir + "/flintlock")
@@ -174,6 +175,7 @@ FlintDatabase::create_and_open_tables(unsigned int block_size)
     value_table.erase();
     value_table.set_block_size(block_size);
 
+    synonym_table.create_and_open(block_size);
     spelling_table.create_and_open(block_size);
     record_table.create_and_open(block_size);
 
@@ -204,10 +206,12 @@ FlintDatabase::open_tables_consistent()
     record_table.open();
     flint_revision_number_t revision = record_table.get_open_revision_number();
 
-    // In case the positionlist, value, and/or spelling tables don't exist yet.
+    // In case the positionlist, value, synonym, and/or spelling tables don't
+    // exist yet.
     unsigned int block_size = record_table.get_block_size();
     positionlist_table.set_block_size(block_size);
     value_table.set_block_size(block_size);
+    synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
 
     bool fully_opened = false;
@@ -215,6 +219,7 @@ FlintDatabase::open_tables_consistent()
     int tries_left = tries;
     while (!fully_opened && (tries_left--) > 0) {
 	if (spelling_table.open(revision) &&
+	    synonym_table.open(revision) &&
 	    value_table.open(revision) &&
 	    termlist_table.open(revision) &&
 	    positionlist_table.open(revision) &&
@@ -257,13 +262,16 @@ FlintDatabase::open_tables(flint_revision_number_t revision)
     version_file.read_and_check();
     record_table.open(revision);
 
-    // In case the positionlist, value, and/or spelling tables don't exist yet.
+    // In case the positionlist, value, synonym, and/or spelling tables don't
+    // exist yet.
     unsigned int block_size = record_table.get_block_size();
     positionlist_table.set_block_size(block_size);
     value_table.set_block_size(block_size);
+    synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
 
     spelling_table.open(revision);
+    synonym_table.open(revision);
     value_table.open(revision);
     termlist_table.open(revision);
     positionlist_table.open(revision);
@@ -300,6 +308,7 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
     positionlist_table.commit(new_revision);
     termlist_table.commit(new_revision);
     value_table.commit(new_revision);
+    synonym_table.commit(new_revision);
     spelling_table.commit(new_revision);
     record_table.commit(new_revision);
 }
@@ -338,6 +347,7 @@ FlintDatabase::apply()
 	!positionlist_table.is_modified() &&
 	!termlist_table.is_modified() &&
 	!value_table.is_modified() &&
+	!synonym_table.is_modified() &&
 	!spelling_table.is_modified() &&
 	!record_table.is_modified()) {
 	return;
@@ -379,6 +389,7 @@ FlintDatabase::cancel()
     positionlist_table.cancel();
     termlist_table.cancel();
     value_table.cancel();
+    synonym_table.cancel();
     spelling_table.cancel();
     record_table.cancel();
 }
@@ -537,6 +548,14 @@ FlintDatabase::get_spelling_frequency(const string & word) const
     return spelling_table.get_word_frequency(word);
 }
 
+TermList *
+FlintDatabase::open_synonym_termlist(const string & term) const
+{
+    return synonym_table.open_termlist(term);
+}
+
+///////////////////////////////////////////////////////////////////////////
+
 size_t FlintWritableDatabase::flush_threshold = 0;
 
 FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
@@ -569,8 +588,11 @@ FlintWritableDatabase::flush()
 {
     if (transaction_active())
 	throw Xapian::InvalidOperationError("Can't flush during a transaction");
-    if (changes_made || database_ro.spelling_table.is_modified())
+    if (changes_made ||
+	database_ro.spelling_table.is_modified() ||
+	database_ro.synonym_table.is_modified()) {
 	do_flush_const();
+    }
 }
 
 void
@@ -1124,4 +1146,30 @@ Xapian::doccount
 FlintWritableDatabase::get_spelling_frequency(const string & word) const
 {
     return database_ro.spelling_table.get_word_frequency(word);
+}
+
+TermList *
+FlintWritableDatabase::open_synonym_termlist(const string & term) const
+{
+    return database_ro.synonym_table.open_termlist(term);
+}
+
+void
+FlintWritableDatabase::add_synonym(const string & term,
+				   const string & synonym) const
+{
+    database_ro.synonym_table.add_synonym(term, synonym);
+}
+
+void
+FlintWritableDatabase::remove_synonym(const string & term,
+				      const string & synonym) const
+{
+    database_ro.synonym_table.remove_synonym(term, synonym);
+}
+
+void
+FlintWritableDatabase::clear_synonyms(const string & term) const
+{
+    database_ro.synonym_table.clear_synonyms(term);
 }

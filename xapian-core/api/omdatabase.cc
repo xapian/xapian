@@ -415,6 +415,15 @@ Database::get_spelling_suggestion(const string &word,
     return result;
 }
 
+TermIterator
+Database::synonyms_begin(const std::string &term) const
+{
+    DEBUGAPICALL(TermIterator, "Database::synonyms_begin", term);
+    RETURN(TermIterator(internal[0]->open_synonym_termlist(term)));
+}
+
+///////////////////////////////////////////////////////////////////////////
+
 WritableDatabase::WritableDatabase() : Database()
 {
     DEBUGAPICALL(void, "WritableDatabase::WritableDatabase", "");
@@ -534,6 +543,31 @@ WritableDatabase::remove_spelling(const std::string & word,
     DEBUGAPICALL(void, "WritableDatabase::remove_spelling",
 		 word << ", " << freqdec);
     internal[0]->remove_spelling(word, freqdec);
+}
+
+void
+WritableDatabase::add_synonym(const std::string & term,
+			      const std::string & synonym) const
+{
+    DEBUGAPICALL(void, "WritableDatabase::add_synonym",
+		 term << ", " << synonym);
+    internal[0]->add_synonym(term, synonym);
+}
+
+void
+WritableDatabase::remove_synonym(const std::string & term,
+				 const std::string & synonym) const
+{
+    DEBUGAPICALL(void, "WritableDatabase::remove_synonym",
+		 term << ", " << synonym);
+    internal[0]->remove_synonym(term, synonym);
+}
+
+void
+WritableDatabase::clear_synonyms(const std::string & term) const
+{
+    DEBUGAPICALL(void, "WritableDatabase::clear_synonyms", term);
+    internal[0]->clear_synonyms(term);
 }
 
 string

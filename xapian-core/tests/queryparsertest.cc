@@ -131,7 +131,7 @@ static test test_or_queries[] = {
     // Regression test - Unicode character values were truncated to 8 bits
     // before testing C_isdigit(), so this rather artificial example parsed
     // to: (a:(pos=1) NEAR 262 b:(pos=2))
-    { "a NEAR/\xc4\xb5 b", "((a:(pos=1) NEAR 11 \xc4\xb5:(pos=2)) OR Zb:(pos=3))" },
+    { "a NEAR/\xc4\xb5 b", "(Za:(pos=1) OR (near:(pos=2) PHRASE 2 \xc4\xb5:(pos=3)) OR Zb:(pos=4))" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(call:(pos=1) OR Zto:(pos=2) OR Zundefin:(pos=3) OR Zfunction:(pos=4) OR imagecreate:(pos=5))" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "(mysql_fetch_row:(pos=1) OR Zsuppli:(pos=2) OR Zargument:(pos=3) OR Zis:(pos=4) OR Znot:(pos=5) OR Za:(pos=6) OR Zvalid:(pos=7) OR mysql:(pos=8) OR Zresult:(pos=9) OR Zresourc:(pos=10))" },
@@ -1423,6 +1423,102 @@ static bool test_qp_spell2()
     return true;
 }
 
+static test test_synonym_queries[] = {
+    { "searching", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1))" },
+    { "search", "(Zsearch:(pos=1) OR find:(pos=1))" },
+    { "Search", "(search:(pos=1) OR find:(pos=1))" },
+    { "Searching", "searching:(pos=1)" },
+    { "searching OR terms", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1) OR Zterm:(pos=2))" },
+    { "search OR terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
+    { "search +terms", "(Zterm:(pos=2) AND_MAYBE (Zsearch:(pos=1) OR find:(pos=1)))" },
+    { "search -terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_NOT Zterm:(pos=2))" },
+    { "+search terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_MAYBE Zterm:(pos=2))" },
+    { "-search terms", "(Zterm:(pos=2) AND_NOT (Zsearch:(pos=1) OR find:(pos=1)))" },
+    { "search terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
+    // Shouldn't trigger synonyms:
+    { "\"search terms\"", "(search:(pos=1) PHRASE 2 terms:(pos=2))" },
+    { NULL, NULL }
+};
+
+// Test single term synonyms in the QueryParser.
+static bool test_qp_synonym1()
+{
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/qp_synonym1";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db.add_synonym("Zsearch", "Zfind");
+    db.add_synonym("Zsearch", "Zlocate");
+    db.add_synonym("search", "find");
+    db.add_synonym("Zseek", "Zsearch");
+
+    db.flush();
+
+    Xapian::QueryParser qp;
+    qp.set_stemmer(Xapian::Stem("english"));
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    qp.set_database(db);
+
+    for (test *p = test_synonym_queries; p->query; ++p) {
+	string expect = "Xapian::Query(";
+	expect += p->expect;
+	expect += ')';
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_AUTO_SYNONYMS |
+			   Xapian::QueryParser::FLAG_BOOLEAN |
+			   Xapian::QueryParser::FLAG_LOVEHATE |
+			   Xapian::QueryParser::FLAG_PHRASE );
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(q.get_description(), expect);
+    }
+
+    return true;
+}
+
+static test test_multi_synonym_queries[] = {
+    { "sun OR tan OR cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR Zcream:(pos=3))" },
+    { "sun tan", "(Zsun:(pos=1) OR Ztan:(pos=2) OR bathe:(pos=1))" },
+    { "sun tan cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR Zcream:(pos=3) OR lotion:(pos=1))" },
+    { "beach sun tan holiday", "(Zbeach:(pos=1) OR Zsun:(pos=2) OR Ztan:(pos=3) OR bathe:(pos=2) OR Zholiday:(pos=4))" },
+    { "sun tan sun tan cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR bathe:(pos=1) OR Zsun:(pos=3) OR Ztan:(pos=4) OR Zcream:(pos=5) OR lotion:(pos=3))" },
+    { NULL, NULL }
+};
+
+// Test multi term synonyms in the QueryParser.
+static bool test_qp_synonym2()
+{
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/qp_synonym2";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db.add_synonym("sun tan cream", "lotion");
+    db.add_synonym("sun tan", "bathe");
+
+    db.flush();
+
+    Xapian::QueryParser qp;
+    qp.set_stemmer(Xapian::Stem("english"));
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    qp.set_database(db);
+
+    for (test *p = test_multi_synonym_queries; p->query; ++p) {
+	string expect = "Xapian::Query(";
+	expect += p->expect;
+	expect += ')';
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS |
+			   Xapian::QueryParser::FLAG_BOOLEAN |
+			   Xapian::QueryParser::FLAG_LOVEHATE |
+			   Xapian::QueryParser::FLAG_PHRASE );
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(q.get_description(), expect);
+    }
+
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -1445,6 +1541,8 @@ static test_desc tests[] = {
     TESTCASE(qp_stoplist1),
     TESTCASE(qp_spell1),
     TESTCASE(qp_spell2),
+    TESTCASE(qp_synonym1),
+    TESTCASE(qp_synonym2),
     END_OF_TESTCASES
 };
 

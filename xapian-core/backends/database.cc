@@ -390,4 +390,28 @@ Database::Internal::remove_spelling(const string &, Xapian::termcount) const
     throw Xapian::UnimplementedError("This backend doesn't implement spelling correction");
 }
 
+TermList *
+Database::Internal::open_synonym_termlist(const string &) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't implement synonyms");
+}
+
+void
+Database::Internal::add_synonym(const string &, const string &) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't implement synonyms");
+}
+
+void
+Database::Internal::remove_synonym(const string &, const string &) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't implement synonyms");
+}
+
+void
+Database::Internal::clear_synonyms(const string &) const
+{
+    throw Xapian::UnimplementedError("This backend doesn't implement synonyms");
+}
+
 }

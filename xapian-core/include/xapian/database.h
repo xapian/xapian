@@ -246,6 +246,17 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	std::string get_spelling_suggestion(const std::string &word,
 					    unsigned max_edit_distance = 2) const;
+
+	/** An iterator which returns all the synonyms for a given term.
+	 *
+	 *  @param term	    The term to return synonyms for.
+	 */
+	Xapian::TermIterator synonyms_begin(const std::string &term) const;
+
+	/// Corresponding end iterator to synonyms_begin(term).
+	Xapian::TermIterator synonyms_end(const std::string &) const {
+	    return Xapian::TermIterator(NULL);
+	}
 };
 
 /** This class provides read/write access to a database.
@@ -586,6 +597,27 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 */
 	void remove_spelling(const std::string & word,
 			     Xapian::termcount freqdec = 1) const;
+
+	/** Add a synonym for a term.
+	 *
+	 *  If @a synonym is already a synonym for @a term, then no action is
+	 *  taken.
+	 */
+	void add_synonym(const std::string & term,
+			 const std::string & synonym) const;
+
+	/** Remove a synonym for a term.
+	 *
+	 *  If @a synonym isn't a synonym for @a term, then no action is taken.
+	 */
+	void remove_synonym(const std::string & term,
+			    const std::string & synonym) const;
+
+	/** Remove all synonyms for a term.
+	 *
+	 *  If @a term has no synonyms, no action is taken.
+	 */
+	void clear_synonyms(const std::string & term) const;
 
 	/** Introspection method.
 	 *

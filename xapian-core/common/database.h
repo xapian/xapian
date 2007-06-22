@@ -267,6 +267,31 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	virtual void remove_spelling(const string & word,
 				     Xapian::termcount freqdec) const;
 
+	/** Open a termlist returning synonyms for a term.
+	 *
+	 *  If @a term has no synonyms, returns NULL.
+	 */
+	virtual TermList * open_synonym_termlist(const string & term) const;
+
+	/** Add a synonym for a term.
+	 *
+	 *  If @synonym is already a synonym for @a term, then no action is
+	 *  taken.
+	 */
+	virtual void add_synonym(const string & term, const string & synonym) const;
+
+	/** Remove a synonym for a term.
+	 *
+	 *  If @a synonym isn't a synonym for @a term, then no action is taken.
+	 */
+	virtual void remove_synonym(const string & term, const string & synonym) const;
+
+	/** Clear all synonyms for a term.
+	 *
+	 *  If @a term has no synonyms, no action is taken.
+	 */
+	virtual void clear_synonyms(const string & term) const;
+
 	/** Reopen the database to the latest available revision.
 	 *
 	 *  Database backends which don't support simultaneous update and

@@ -1,3 +1,12 @@
+Fri Jun 22 18:02:21 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/database.cc,backends/flint/,
+	  common/database.h,include/xapian/database.h,
+	  include/xapian/queryparser.h,queryparser/queryparser.lemony:
+	  Add support for storing synonyms for terms in a new optional Btree
+	  table in flint databases, and using them in the QueryParser.
+	* tests/queryparsertest.cc: Feature tests for synonyms.
+
 Fri Jun 22 17:58:37 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Removed superfluous "private:" in

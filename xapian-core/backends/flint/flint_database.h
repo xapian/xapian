@@ -28,6 +28,7 @@
 #include "flint_postlist.h"
 #include "flint_record.h"
 #include "flint_spelling.h"
+#include "flint_synonym.h"
 #include "flint_termlist.h"
 #include "flint_values.h"
 #include "flint_version.h"
@@ -81,6 +82,10 @@ class FlintDatabase : public Xapian::Database::Internal {
 	/** Table storing values.
 	 */
 	FlintValueTable value_table;
+
+	/** Table storing synonym data.
+	 */
+	mutable FlintSynonymTable synonym_table;
 
 	/** Table storing spelling correction data.
 	 */
@@ -219,8 +224,11 @@ class FlintDatabase : public Xapian::Database::Internal {
 	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
 	TermList * open_allterms(const string & prefix) const;
+
 	TermList * open_spelling_termlist(const string & word) const;
 	Xapian::doccount get_spelling_frequency(const string & word) const;
+
+	TermList * open_synonym_termlist(const string & word) const;
 	//@}
 };
 
@@ -318,10 +326,16 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	PositionList * open_position_list(Xapian::docid did,
 					  const string & tname) const;
 	TermList * open_allterms(const string & prefix) const;
+
 	void add_spelling(const string & word, Xapian::termcount freqinc) const;
 	void remove_spelling(const string & word, Xapian::termcount freqdec) const;
 	TermList * open_spelling_termlist(const string & word) const;
 	Xapian::doccount get_spelling_frequency(const string & word) const;
+
+	TermList * open_synonym_termlist(const string & word) const;
+	void add_synonym(const string & word, const string & synonym) const;
+	void remove_synonym(const string & word, const string & synonym) const;
+	void clear_synonyms(const string & word) const;
 	//@}
 };
 
