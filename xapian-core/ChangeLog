@@ -1,3 +1,7 @@
+Fri Jun 22 17:58:15 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Make sure .flint subdirectory exists.
+
 Fri Jun 22 17:52:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/xapian-inspect.cc: Don't die with an error if the user tries to

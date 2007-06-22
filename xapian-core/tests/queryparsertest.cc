@@ -1360,6 +1360,7 @@ static test test_mispelled_queries[] = {
 // Test spelling correction in the QueryParser.
 static bool test_qp_spell1()
 {
+    mkdir(".flint", 0755);
     string dbdir = ".flint/qp_spell1";
     Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
@@ -1387,6 +1388,7 @@ static bool test_qp_spell1()
 // Test spelling correction in the QueryParser with multiple databases.
 static bool test_qp_spell2()
 {
+    mkdir(".flint", 0755);
     string dbdir = ".flint/qp_spell2";
     Xapian::WritableDatabase db1(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
 
