@@ -1,3 +1,8 @@
+Fri Jun 22 17:47:36 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lt: If an input token has a yyminor, report
+	  its name in the debug output.
+
 Fri Jun 22 14:47:17 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Updated with changes since 1.0.1.

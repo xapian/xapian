@@ -525,7 +525,8 @@ static void Parse(
   yyendofinput = (yymajor==0);
   ParseARG_STORE;
 
-  DEBUGLINE(QUERYPARSER, "Input " << ParseTokenName(yymajor));
+  DEBUGLINE(QUERYPARSER, "Input " << ParseTokenName(yymajor) << " " <<
+	    (yyminor ? yyminor->name : "<<null>>"));
 
   do{
     yyact = yy_find_shift_action(yypParser,yymajor);
