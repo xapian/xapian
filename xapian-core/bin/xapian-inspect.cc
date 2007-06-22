@@ -138,12 +138,15 @@ wait_for_input:
 		input.resize(input.size() - 1);
 
 	    if (input == "" || input == "n" || input == "next") {
-		if (!cursor.next()) {
+		if (cursor.after_end() || !cursor.next()) {
 		    cout << "At end already." << endl;
 		    goto wait_for_input;
 		}
 		continue;
 	    } else if (input == "p" || input == "prev") {
+		// If the cursor has fallen off the end, point it back at
+		// the last entry.
+		if (cursor.after_end()) cursor.find_entry(cursor.current_key);
 		if (!cursor.prev()) {
 		    cout << "At start already." << endl;
 		    goto wait_for_input;
