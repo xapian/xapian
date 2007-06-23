@@ -1,3 +1,7 @@
+Sat Jun 23 03:00:45 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/queryparser.html: Document synonyms.
+
 Sat Jun 23 02:50:55 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Unapply commented out fragments
