@@ -678,9 +678,8 @@ just_had_operator:
 		    // Or if not after whitespace, +, -, or an open bracket.
 		    break;
 		}
-		if (!is_wordchar(*it) /*&& *it != '"'*/) {
+		if (!is_wordchar(*it)) {
 		    // Ignore if not followed by a word character.
-		    // FIXME: (or a quote).
 		    break;
 		}
 		if (mode == DEFAULT && (flags & FLAG_SYNONYM)) {
@@ -1540,14 +1539,6 @@ compound_term(T) ::= SYNONYM TERM(U). {
     T = U->as_query_with_synonyms();
     delete U;
 }
-
-/*
-compound_term(T) ::= SYNONYM QUOTE phrase(P) QUOTE. {
-}
-
-compound_term(T) ::= SYNONYM phrased_term(P). {
-}
-*/
 
 // phrase - The "inside the quotes" part of a double-quoted phrase.
 
