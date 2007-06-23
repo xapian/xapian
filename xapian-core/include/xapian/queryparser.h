@@ -313,8 +313,11 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 */
 	FLAG_SPELLING_CORRECTION = 128,
 
-	/* placeholder so documentation order is more natural...
-	FLAG_SYNONYM = 256, */
+	/** Enable synonym operator '~'.
+	 *
+	 *  NB: You must also call set_database() for this to work.
+	 */
+	FLAG_SYNONYM = 256,
 
 	/** Enable automatic use of synonyms for single terms.
 	 *

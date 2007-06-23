@@ -1523,6 +1523,60 @@ static bool test_qp_synonym2()
     return true;
 }
 
+static test test_synonym_op_queries[] = {
+    { "searching", "Zsearch:(pos=1)" },
+    { "~searching", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1))" },
+    { "~search", "(Zsearch:(pos=1) OR find:(pos=1))" },
+    { "~Search", "(search:(pos=1) OR find:(pos=1))" },
+    { "~Searching", "searching:(pos=1)" },
+    { "~searching OR terms", "(Zsearch:(pos=1) OR Zfind:(pos=1) OR Zlocate:(pos=1) OR Zterm:(pos=2))" },
+    { "~search OR terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
+    { "~search +terms", "(Zterm:(pos=2) AND_MAYBE (Zsearch:(pos=1) OR find:(pos=1)))" },
+    { "~search -terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_NOT Zterm:(pos=2))" },
+    { "+~search terms", "((Zsearch:(pos=1) OR find:(pos=1)) AND_MAYBE Zterm:(pos=2))" },
+    { "-~search terms", "(Zterm:(pos=2) AND_NOT (Zsearch:(pos=1) OR find:(pos=1)))" },
+    { "~search terms", "(Zsearch:(pos=1) OR find:(pos=1) OR Zterm:(pos=2))" },
+    // FIXME: should look for multi-term synonym...
+    { "~\"search terms\"", "(search:(pos=1) PHRASE 2 terms:(pos=2))" },
+    { NULL, NULL }
+};
+
+// Test the synonym operator in the QueryParser.
+static bool test_qp_synonym3()
+{
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/qp_synonym3";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    db.add_synonym("Zsearch", "Zfind");
+    db.add_synonym("Zsearch", "Zlocate");
+    db.add_synonym("search", "find");
+    db.add_synonym("Zseek", "Zsearch");
+
+    db.flush();
+
+    Xapian::QueryParser qp;
+    qp.set_stemmer(Xapian::Stem("english"));
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+    qp.set_database(db);
+
+    for (test *p = test_synonym_op_queries; p->query; ++p) {
+	string expect = "Xapian::Query(";
+	expect += p->expect;
+	expect += ')';
+	Xapian::Query q;
+	q = qp.parse_query(p->query,
+			   Xapian::QueryParser::FLAG_SYNONYM |
+			   Xapian::QueryParser::FLAG_BOOLEAN |
+			   Xapian::QueryParser::FLAG_LOVEHATE |
+			   Xapian::QueryParser::FLAG_PHRASE );
+	tout << "Query: " << p->query << endl;
+	TEST_STRINGS_EQUAL(q.get_description(), expect);
+    }
+
+    return true;
+}
+
 /// Test cases for the QueryParser.
 static test_desc tests[] = {
     TESTCASE(queryparser1),
@@ -1547,6 +1601,7 @@ static test_desc tests[] = {
     TESTCASE(qp_spell2),
     TESTCASE(qp_synonym1),
     TESTCASE(qp_synonym2),
+    TESTCASE(qp_synonym3),
     END_OF_TESTCASES
 };
 

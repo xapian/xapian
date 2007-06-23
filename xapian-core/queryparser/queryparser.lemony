@@ -160,6 +160,8 @@ class Term {
     Query as_query_object() const { return Query(make_term(), 1, pos); }
 
     Query * as_query_with_synonyms() const;
+
+    Query * as_query_with_auto_synonyms() const;
 };
 
 /// Parser State shared between the lexer and the parser.
@@ -244,10 +246,7 @@ Term::make_term() const
 Query *
 Term::as_query_with_synonyms() const
 {
-    if ((state->flags & QueryParser::FLAG_AUTO_SYNONYMS) == 0)
-	return as_query();
-
-    Query q(make_term(), 1, pos);
+    Query q = as_query_object();
 
     // Handle single-word synonyms.  First try the unstemmed term:
     string term;
@@ -277,6 +276,14 @@ Term::as_query_with_synonyms() const
 	++syn;
     }
     return new Query(q);
+}
+
+Query *
+Term::as_query_with_auto_synonyms() const
+{
+    if ((state->flags & QueryParser::FLAG_AUTO_SYNONYMS) == 0)
+	return as_query();
+    return as_query_with_synonyms();
 }
 
 static void
@@ -663,6 +670,24 @@ just_had_operator:
 		    Parse(pParser, KET, NULL, &state);
 		}
 		break;
+
+	      case '~': // Synonym expansion.
+		// Ignore at the end of the query string.
+		if (it == end) goto done;
+		if (prev > ' ' && prev != '+' && prev != '-' && prev != '(') {
+		    // Or if not after whitespace, +, -, or an open bracket.
+		    break;
+		}
+		if (!is_wordchar(*it) /*&& *it != '"'*/) {
+		    // Ignore if not followed by a word character.
+		    // FIXME: (or a quote).
+		    break;
+		}
+		if (mode == DEFAULT && (flags & FLAG_SYNONYM)) {
+		    Parse(pParser, SYNONYM, NULL, &state);
+		    goto just_had_operator;
+		}
+		break;
 	    }
 	    // Skip any other characters.
 	    continue;
@@ -1031,7 +1056,7 @@ TermGroup::as_group(State *state) const
 		    state->add_to_stoplist(*i);
 		} else {
 		    add_to_query(query, default_op,
-				 (*i)->as_query_with_synonyms());
+				 (*i)->as_query_with_auto_synonyms());
 		}
 		begin = ++i;
 		continue;
@@ -1062,7 +1087,8 @@ TermGroup::as_group(State *state) const
 	    if (state->is_stopword(*i)) {
 		state->add_to_stoplist(*i);
 	    } else {
-		add_to_query(query, default_op, (*i)->as_query_with_synonyms());
+		add_to_query(query, default_op,
+			     (*i)->as_query_with_auto_synonyms());
 	    }
 	}
     }
@@ -1173,7 +1199,7 @@ class TermList {
 %left XOR.
 %left AND NOT.
 %left NEAR ADJ.
-%left LOVE HATE.
+%left LOVE HATE SYNONYM.
 
 // Destructors for terminal symbols:
 
@@ -1455,7 +1481,7 @@ stop_term(T) ::= TERM(U). {
 	T = NULL;
 	state->add_to_stoplist(U);
     } else {
-	T = U->as_query_with_synonyms();
+	T = U->as_query_with_auto_synonyms();
     }
     delete U;
 }
@@ -1470,7 +1496,7 @@ stop_term(T) ::= compound_term(U). {
 %destructor term {delete $$;}
 
 term(T) ::= TERM(U). {
-    T = U->as_query_with_synonyms();
+    T = U->as_query_with_auto_synonyms();
     delete U;
 }
 
@@ -1509,6 +1535,19 @@ compound_term(T) ::= adj_expr(P).
 
 compound_term(T) ::= BRA expr(E) KET.
 	{ T = E; }
+
+compound_term(T) ::= SYNONYM TERM(U). {
+    T = U->as_query_with_synonyms();
+    delete U;
+}
+
+/*
+compound_term(T) ::= SYNONYM QUOTE phrase(P) QUOTE. {
+}
+
+compound_term(T) ::= SYNONYM phrased_term(P). {
+}
+*/
 
 // phrase - The "inside the quotes" part of a double-quoted phrase.
 
