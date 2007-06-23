@@ -1,3 +1,7 @@
+Sat Jun 23 01:47:30 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.cc: Use "using namespace std;".
+
 Fri Jun 22 18:48:21 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_synonym.cc: Fix iteration of unflushed

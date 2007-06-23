@@ -30,20 +30,22 @@
 
 using namespace Xapian;
 
+using namespace std;
+
 // Default implementation in case the user hasn't implemented it.
-std::string
+string
 Stopper::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "Xapian::Stopper::get_description", "");
+    DEBUGCALL(INTRO, string, "Xapian::Stopper::get_description", "");
     return "Xapian::Stopper subclass";
 }
 
-std::string
+string
 SimpleStopper::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "Xapian::SimpleStopper::get_description", "");
-    std::string desc("Xapian::SimpleStopper(");
-    std::set<string>::const_iterator i;
+    DEBUGCALL(INTRO, string, "Xapian::SimpleStopper::get_description", "");
+    string desc("Xapian::SimpleStopper(");
+    set<string>::const_iterator i;
     for (i = stop_words.begin(); i != stop_words.end(); ++i) {
 	if (i != stop_words.begin()) desc += ' ';
 	desc += *i;
@@ -122,15 +124,14 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 }
 
 void
-QueryParser::add_prefix(const std::string &field, const std::string &prefix)
+QueryParser::add_prefix(const string &field, const string &prefix)
 {
     internal->prefixes.insert(
 	make_pair(field, PrefixInfo(PrefixInfo::FREE_TEXT, prefix)));
 }
 
 void
-QueryParser::add_boolean_prefix(const std::string &field,
-				const std::string &prefix)
+QueryParser::add_boolean_prefix(const string &field, const string &prefix)
 {
     internal->prefixes.insert(
 	make_pair(field, PrefixInfo(PrefixInfo::BOOL_FILTER, prefix)));
@@ -139,18 +140,18 @@ QueryParser::add_boolean_prefix(const std::string &field,
 TermIterator
 QueryParser::stoplist_begin() const
 {
-    list<std::string> & sl = internal->stoplist;
+    list<string> & sl = internal->stoplist;
     return TermIterator(new VectorTermList(sl.begin(), sl.end()));
 }
 
 TermIterator
-QueryParser::unstem_begin(const std::string &term) const
+QueryParser::unstem_begin(const string &term) const
 {
-    pair<multimap<std::string, std::string>::iterator,
-	 multimap<std::string, std::string>::iterator> range;
+    pair<multimap<string, string>::iterator,
+	 multimap<string, string>::iterator> range;
     range = internal->unstem.equal_range(term);
-    list<std::string> l;
-    multimap<std::string, std::string>::iterator & i = range.first;
+    list<string> l;
+    multimap<string, string>::iterator & i = range.first;
     while (i != range.second) {
 	l.push_back(i->second);
 	++i;
@@ -165,16 +166,16 @@ QueryParser::add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc)
     internal->valrangeprocs.push_back(vrproc);
 }
 
-std::string
+string
 QueryParser::get_corrected_query_string() const
 {
     return internal->corrected_query;
 }
 
-std::string
+string
 QueryParser::get_description() const
 {
-    DEBUGCALL(INTRO, std::string, "Xapian::QueryParser::get_description", "");
+    DEBUGCALL(INTRO, string, "Xapian::QueryParser::get_description", "");
     // FIXME : describe better!
     RETURN("Xapian::QueryParser()");
 }
