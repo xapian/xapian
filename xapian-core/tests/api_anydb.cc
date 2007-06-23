@@ -1644,6 +1644,18 @@ static bool test_checkatleast1()
     return true;
 }
 
+// Regression test - if check_at_least was set we returned check_at_least - 1
+// results, rather than the requested msize.  Fixed in 1.0.2.
+static bool test_checkatleast2()
+{
+    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    enquire.set_query(Xapian::Query("paragraph"));
+    Xapian::MSet mymset = enquire.get_mset(0, 3, 10);
+    TEST_MSET_SIZE(mymset, 3);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 5);
+    return true;
+}
+
 // tests all document postlists
 static bool test_allpostlist1()
 {
@@ -1796,6 +1808,7 @@ test_desc anydb_tests[] = {
     {"getdoc1",		   test_getdoc1},
     {"emptyop1",	   test_emptyop1},
     {"checkatleast1",	   test_checkatleast1},
+    {"checkatleast2",	   test_checkatleast2},
     {"allpostlist1",	   test_allpostlist1},
     {"emptyterm1",	   test_emptyterm1},
     {"valuerange1",	   test_valuerange1},

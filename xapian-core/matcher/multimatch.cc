@@ -752,7 +752,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			items.end(),
 			mcmp);
 	    // Erase the unwanted trailing items.
-	    items.erase(items.begin() + first + maxitems);
+	    items.erase(items.begin() + first + maxitems, items.end());
 	}
     }
     if (first > 0) {

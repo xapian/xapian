@@ -1,3 +1,10 @@
+Sat Jun 23 04:19:54 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Fix handling of check_at_least parameter -
+	  we weren't discarding matches above the requested MSet size
+	  correctly.
+	* tests/api_anydb.cc: Add regression test checkatleast2.
+
 Sat Jun 23 03:00:45 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/queryparser.html: Document synonyms.
