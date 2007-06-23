@@ -1644,7 +1644,7 @@ static bool test_checkatleast1()
     return true;
 }
 
-// Regression test - if check_at_least was set we returned check_at_least - 1
+// Regression test - if check_at_least was set we returned (check_at_least - 1)
 // results, rather than the requested msize.  Fixed in 1.0.2.
 static bool test_checkatleast2()
 {
@@ -1652,7 +1652,63 @@ static bool test_checkatleast2()
     enquire.set_query(Xapian::Query("paragraph"));
     Xapian::MSet mymset = enquire.get_mset(0, 3, 10);
     TEST_MSET_SIZE(mymset, 3);
-    TEST_EQUAL(mymset.get_matches_lower_bound(), 5);
+    TEST(mymset.get_matches_lower_bound() >= 5);
+    
+    mymset = enquire.get_mset(0, 2, 4);
+    TEST_MSET_SIZE(mymset, 2);
+    TEST(mymset.get_matches_lower_bound() >= 4);
+    return true;
+}
+
+// Feature tests - check_at_least with various sorting options.
+static bool test_checkatleast3()
+{
+    Xapian::Enquire enquire(get_database("etext"));
+    enquire.set_query(Xapian::Query("prussian")); // 60 matches.
+
+    for (int order = 0; order < 3; ++order) {
+	switch (order) {
+	    case 0:
+		enquire.set_docid_order(Xapian::Enquire::ASCENDING);
+		break;
+	    case 1:
+		enquire.set_docid_order(Xapian::Enquire::DESCENDING);
+		break;
+	    case 2:
+		enquire.set_docid_order(Xapian::Enquire::DONT_CARE);
+		break;
+	}
+
+	for (int sort = 0; sort < 4; ++sort) {
+	    switch (sort) {
+		case 0:
+		    enquire.set_sort_by_relevance();
+		    break;
+		case 1:
+		    enquire.set_sort_by_value(0);
+		    break;
+		case 2:
+		    enquire.set_sort_by_value_then_relevance(0);
+		    break;
+		case 3:
+		    enquire.set_sort_by_relevance_then_value(0);
+		    break;
+	    }
+
+	    Xapian::MSet mset = enquire.get_mset(0, 100, 500);
+	    TEST_MSET_SIZE(mset, 60);
+	    TEST(mset.get_matches_lower_bound() >= 60);
+
+	    mset = enquire.get_mset(0, 50, 100);
+	    TEST_MSET_SIZE(mset, 50);
+	    TEST(mset.get_matches_lower_bound() >= 60);
+
+	    mset = enquire.get_mset(0, 10, 50);
+	    TEST_MSET_SIZE(mset, 10);
+	    TEST(mset.get_matches_lower_bound() >= 50);
+	}
+    }
+
     return true;
 }
 
@@ -1809,6 +1865,7 @@ test_desc anydb_tests[] = {
     {"emptyop1",	   test_emptyop1},
     {"checkatleast1",	   test_checkatleast1},
     {"checkatleast2",	   test_checkatleast2},
+    {"checkatleast3",	   test_checkatleast3},
     {"allpostlist1",	   test_allpostlist1},
     {"emptyterm1",	   test_emptyterm1},
     {"valuerange1",	   test_valuerange1},
