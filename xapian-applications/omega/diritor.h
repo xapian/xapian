@@ -107,5 +107,4 @@ class DirectoryIterator {
     }
 };
 
-
 #endif // OMEGA_INCLUDED_DIRITOR_H
