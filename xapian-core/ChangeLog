@@ -1,3 +1,9 @@
+Sat Jun 23 01:52:51 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix two bugs in the query parser -
+	  now '+' and '-' work on bracketed subexpressions as documented.
+	* tests/queryparsertest.cc: Add regression tests.
+
 Sat Jun 23 01:47:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.cc: Use "using namespace std;".

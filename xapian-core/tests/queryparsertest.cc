@@ -132,6 +132,10 @@ static test test_or_queries[] = {
     // before testing C_isdigit(), so this rather artificial example parsed
     // to: (a:(pos=1) NEAR 262 b:(pos=2))
     { "a NEAR/\xc4\xb5 b", "(Za:(pos=1) OR (near:(pos=2) PHRASE 2 \xc4\xb5:(pos=3)) OR Zb:(pos=4))" },
+    // Regression tests - + and - didn't work on bracketed subexpressions prior
+    // to 1.0.2.
+    { "+(one two) three", "((Zone:(pos=1) OR Ztwo:(pos=2)) AND_MAYBE Zthree:(pos=3))" },
+    { "zero -(one two)", "(Zzero:(pos=1) AND_NOT (Zone:(pos=2) OR Ztwo:(pos=3)))" },
     // Real world examples from tweakers.net:
     { "Call to undefined function: imagecreate()", "(call:(pos=1) OR Zto:(pos=2) OR Zundefin:(pos=3) OR Zfunction:(pos=4) OR imagecreate:(pos=5))" },
     { "mysql_fetch_row(): supplied argument is not a valid MySQL result resource", "(mysql_fetch_row:(pos=1) OR Zsuppli:(pos=2) OR Zargument:(pos=3) OR Zis:(pos=4) OR Znot:(pos=5) OR Za:(pos=6) OR Zvalid:(pos=7) OR mysql:(pos=8) OR Zresult:(pos=9) OR Zresourc:(pos=10))" },

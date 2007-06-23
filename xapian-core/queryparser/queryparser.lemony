@@ -573,11 +573,11 @@ just_had_operator:
 	if (!is_wordchar(*it)) {
 	    unsigned prev = newprev;
 	    unsigned ch = *it++;
-	    if (it != end) newprev = *it;
+	    newprev = ch;
 	    // Drop out of IN_GROUP mode.
 	    if (mode == IN_GROUP) mode = DEFAULT;
 	    switch (ch) {
-	      case '"':
+	      case '"': // Quoted phrase.
 		// Skip whitespace.
 		it = find_if(it, end, is_not_whitespace);
 		if (mode == DEFAULT) {
@@ -608,8 +608,8 @@ just_had_operator:
 		}
 		break;
 
-	      case '+': case '-':
-		// Ignore + or - at end of query.
+	      case '+': case '-': // Loved or hated term/phrase/subexpression.
+		// Ignore + or - at the end of the query string.
 		if (it == end) goto done;
 		if (prev > ' ' && prev != '(') {
 		    // Or if not after whitespace or an open bracket.
@@ -630,13 +630,13 @@ just_had_operator:
 		// term group...
 		break;
 
-	      case '(':
+	      case '(': // Bracketed subexpression.
 		// Skip whitespace.
 		it = find_if(it, end, is_not_whitespace);
-		// Ignore ( at end of query.
+		// Ignore ( at the end of the query string.
 		if (it == end) goto done;
-		if (prev > ' ' && prev != '(' && prev != ')') {
-		    // Or if not after whitespace or a bracket.
+		if (prev > ' ' && strchr("()+-", prev) == NULL) {
+		    // Or if not after whitespace or a bracket or '+' or '-'.
 		    break;
 		}
 		if (*it == ')') {
@@ -650,7 +650,7 @@ just_had_operator:
 		}
 		break;
 
-	      case ')':
+	      case ')': // End of bracketed subexpression.
 		if (term_pos == 1) {
 		    // Ignore ) at start of query.
 		    break;
