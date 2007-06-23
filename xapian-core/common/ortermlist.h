@@ -56,7 +56,9 @@ class OrTermList : public TermList {
 
     Xapian::doccount get_termfreq() const;
 
+#if 0 // This method isn't actually used anywhere currently.
     Xapian::termcount get_collection_freq() const;
+#endif
 
     TermList *next();
 

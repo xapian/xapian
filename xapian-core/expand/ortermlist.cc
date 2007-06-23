@@ -88,21 +88,17 @@ OrTermList::get_termfreq() const
     RETURN(right->get_termfreq());
 }
 
+#if 0 // This method isn't actually used anywhere currently.
 Xapian::termcount
 OrTermList::get_collection_freq() const
 {
     DEBUGCALL(EXPAND, Xapian::termcount, "OrTermList::get_collection_freq", "");
-    // This method isn't actually used anywhere currently.
-#if 0
     check_started();
     if (left_current < right_current) RETURN(left->get_collection_freq());
     Assert(left_current > right_current || left->get_collection_freq() == right->get_collection_freq());
     RETURN(right->get_collection_freq());
-#else
-    Assert(false);
-    RETURN(0);
-#endif
 }
+#endif
 
 // Helper function.
 inline void

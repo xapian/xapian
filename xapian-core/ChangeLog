@@ -1,3 +1,9 @@
+Sat Jun 23 17:35:37 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/ortermlist.h,expand/ortermlist.cc: Comment out unused method
+	  OrTermList::get_collection_freq().  The same dummy implementation
+	  is provided by the parent class (TermList).
+
 Sat Jun 23 17:07:40 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/database.cc,backends/flint/,
