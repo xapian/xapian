@@ -759,31 +759,39 @@ def test_synonyms_iter():
     db.add_synonym('hello', 'hi')
     db.add_synonym('hello', 'howdy')
 
-    items = [item for item in db.synonyms('foo')]
-    expect(items, [])
-    items = [item for item in db.synonyms('hello')]
-    expect(items, ['hi', 'howdy'])
+    expect([item for item in db.synonyms('foo')], [])
+    expect([item for item in db.synonyms('hello')], ['hi', 'howdy'])
+    expect([item for item in db.synonym_keys()], ['hello'])
+    expect([item for item in db.synonym_keys('foo')], [])
+    expect([item for item in db.synonym_keys('he')], ['hello'])
+    expect([item for item in db.synonym_keys('hello')], ['hello'])
 
     dbr=xapian.Database(dbpath)
-    items = [item for item in dbr.synonyms('foo')]
-    expect(items, [])
-    items = [item for item in dbr.synonyms('hello')]
-    expect(items, [])
+    expect([item for item in dbr.synonyms('foo')], [])
+    expect([item for item in dbr.synonyms('hello')], [])
+    expect([item for item in dbr.synonym_keys()], [])
+    expect([item for item in dbr.synonym_keys('foo')], [])
+    expect([item for item in dbr.synonym_keys('he')], [])
+    expect([item for item in dbr.synonym_keys('hello')], [])
 
     db.flush()
 
-    items = [item for item in db.synonyms('foo')]
-    expect(items, [])
-    items = [item for item in db.synonyms('hello')]
-    expect(items, ['hi', 'howdy'])
+    expect([item for item in db.synonyms('foo')], [])
+    expect([item for item in db.synonyms('hello')], ['hi', 'howdy'])
+    expect([item for item in db.synonym_keys()], ['hello'])
+    expect([item for item in db.synonym_keys('foo')], [])
+    expect([item for item in db.synonym_keys('he')], ['hello'])
+    expect([item for item in db.synonym_keys('hello')], ['hello'])
 
     dbr=xapian.Database(dbpath)
-    items = [item for item in dbr.synonyms('foo')]
-    expect(items, [])
-    items = [item for item in dbr.synonyms('hello')]
-    expect(items, ['hi', 'howdy'])
+    expect([item for item in dbr.synonyms('foo')] , [])
+    expect([item for item in dbr.synonyms('hello')], ['hi', 'howdy'])
+    expect([item for item in dbr.synonym_keys()], ['hello'])
+    expect([item for item in dbr.synonym_keys('foo')], [])
+    expect([item for item in dbr.synonym_keys('he')], ['hello'])
+    expect([item for item in dbr.synonym_keys('hello')], ['hello'])
 
-    #shutil.rmtree(dbpath)
+    shutil.rmtree(dbpath)
 
 def test_spell():
     """Test basic spelling correction features.

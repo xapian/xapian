@@ -594,6 +594,20 @@ def _database_gen_synonyms_iter(self, term):
                     return_strings=True)
 Database.synonyms = _database_gen_synonyms_iter
 
+# Modify Database to add a "synonym_keys()" method.
+def _database_gen_synonym_keys_iter(self, prefix=""):
+    """Get an iterator which returns all the terms which have synonyms.
+
+    The iterator will return string objects.
+
+    If `prefix` is non-empty, only terms with this prefix are returned.
+
+    """
+    return TermIter(self.synonym_keys_begin(prefix),
+                    self.synonym_keys_end(prefix),
+                    return_strings=True)
+Database.synonym_keys = _database_gen_synonym_keys_iter
+
 # Modify Document to add an "__iter__()" method and a "termlist()" method.
 def _document_gen_termlist_iter(self):
     """Get an iterator over all the terms in a document.

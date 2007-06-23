@@ -673,6 +673,8 @@ class Database {
 					    unsigned max_edit_distance = 2) const;
 	TermIterator synonyms_begin(const std::string &term) const;
 	TermIterator synonyms_end(const std::string &) const;
+        TermIterator synonym_keys_begin(const std::string &prefix = "") const;
+        TermIterator synonym_keys_end(const std::string &prefix = "") const;
 };
 
 class WritableDatabase : public Database {
