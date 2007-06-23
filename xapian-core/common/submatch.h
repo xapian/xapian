@@ -1,7 +1,7 @@
 /** @file submatch.h
  *  @brief base class for sub-matchers
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,8 @@ class SubMatch : public Xapian::Internal::RefCntBase {
     virtual bool prepare_match(bool nowait) = 0;
 
     /// Start the match.
-    virtual void start_match(Xapian::doccount maxitems) = 0;
+    virtual void start_match(Xapian::doccount maxitems,
+			     Xapian::doccount check_at_least) = 0;
 
     /// Get PostList and term info.
     virtual PostList * get_postlist_and_term_info(MultiMatch *matcher,

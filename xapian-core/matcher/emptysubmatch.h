@@ -1,7 +1,7 @@
 /** @file emptysubmatch.h
  *  @brief SubMatch class for a dead remote database.
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,8 @@ class EmptySubMatch : public SubMatch {
     bool prepare_match(bool nowait);
 
     /// Start the match.
-    void start_match(Xapian::doccount maxitems);
+    void start_match(Xapian::doccount maxitems,
+		     Xapian::doccount check_at_least);
 
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,

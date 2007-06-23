@@ -143,6 +143,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
     /// Send the global Stats to the remote server.
     void send_global_stats(Xapian::doccount first,
 			   Xapian::doccount maxitems,
+			   Xapian::doccount check_at_least,
 			   const Stats &stats);
 
     /// Get the MSet from the remote server.

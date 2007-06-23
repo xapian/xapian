@@ -1,3 +1,12 @@
+Sun Jun 24 00:45:46 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/remote/remote-database.cc,common/remote-database.h,
+	  common/remoteprotocol.h,common/submatch.h,docs/remote_protocol.html,
+	  matcher/,net/remoteserver.cc: Pass check_at_least to the remote
+	  server to reduce the amount of work required to produce the match
+	  on the remote server, and also reduce the serialised size of the
+	  returned MSet.
+
 Sun Jun 24 00:17:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: More check_at_least tests.

@@ -35,11 +35,13 @@
 // 30: Add minor protocol version numbers, to reduce need for client upgrades
 // 30.1: Pass the prefix parameter for MSG_ALLTERMS, and use it.
 // 30.2: New REPLY_DELETEDOCUMENT returns MSG_DONE to allow exceptions.
+// 30.3: New MSG_GETMSET which passes check_at_least parameter.
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 30
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 2
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 3
 
 /* When we move to version 31:
  * + Remove MSG_DELETEDOCUMENT_PRE_30_2
+ * + Remove MSG_GETMSET_PRE_30_3
  */
 
 /// Message types (client -> server).
@@ -64,9 +66,10 @@ enum message_type {
     MSG_FLUSH,			// Flush
     MSG_REPLACEDOCUMENT,	// Replace Document
     MSG_REPLACEDOCUMENTTERM,	// Replace Document by term
-    MSG_GETMSET,		// Get MSet
+    MSG_GETMSET_PRE_30_3,	// Get MSet
     MSG_SHUTDOWN,		// Shutdown
     MSG_DELETEDOCUMENT,		// Delete Document
+    MSG_GETMSET,		// Get MSet
     MSG_MAX
 };
 

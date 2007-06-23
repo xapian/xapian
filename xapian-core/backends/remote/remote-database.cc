@@ -483,10 +483,12 @@ RemoteDatabase::get_remote_stats(bool nowait, Stats &out)
 void
 RemoteDatabase::send_global_stats(Xapian::doccount first,
 				Xapian::doccount maxitems,
+				Xapian::doccount check_at_least,
 				const Stats &stats)
 {
     string message = encode_length(first);
     message += encode_length(maxitems);
+    message += encode_length(check_at_least);
     message += serialise_stats(stats);
     send_message(MSG_GETMSET, message);
 }

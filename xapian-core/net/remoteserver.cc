@@ -425,18 +425,36 @@ RemoteServer::msg_query(const string &message_in)
     send_message(REPLY_STATS, serialise_stats(gatherer->get_local_stats()));
 
     string message;
+#if 0 // Reinstate this when major protocol version increases to 31.
     get_message(active_timeout, message, MSG_GETMSET);
+#else
+    char type = get_message(active_timeout, message);
+    if (type != MSG_GETMSET_PRE_30_3 && type != MSG_GETMSET) {
+	string errmsg("Expecting message type ");
+	errmsg += om_tostring(MSG_GETMSET_PRE_30_3);
+	errmsg += " or ";
+	errmsg += om_tostring(MSG_GETMSET);
+	errmsg += ", got ";
+	errmsg += om_tostring(type);
+	throw Xapian::NetworkError(errmsg);
+    }
+#endif
     p = message.c_str();
     p_end = p + message.size();
 
     Xapian::termcount first = decode_length(&p, p_end, false);
     Xapian::termcount maxitems = decode_length(&p, p_end, false);
 
+    Xapian::termcount check_at_least = 0;
+    if (type != MSG_GETMSET_PRE_30_3) {
+	check_at_least = decode_length(&p, p_end, false);
+    }
+
     message.erase(0, message.size() - (p_end - p));
     global_stats = unserialise_stats(message);
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, 0, mset, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, 0);
 
     send_message(REPLY_RESULTS, serialise_mset(mset));
 }

@@ -510,7 +510,7 @@ LocalSubMatch::prepare_match(bool /*nowait*/)
 }
 
 void
-LocalSubMatch::start_match(Xapian::doccount)
+LocalSubMatch::start_match(Xapian::doccount, Xapian::doccount)
 {
     // Nothing to do here for a local match.
 }

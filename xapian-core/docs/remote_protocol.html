@@ -165,10 +165,19 @@ I&lt;query length&gt; I&lt;collapse key number&gt; &lt;docid order&gt;
 I&lt;sort key number&gt; &lt;sort by&gt; B&lt;sort value forward&gt;
 &lt;percent cutoff&gt; F&lt;weight cutoff&gt; &lt;serialised Xapian::Weight object&gt; &lt;serialised Xapian::RSet object&gt;</code>
 <li> <code>REPLY_STATS &lt;serialised Stats object&gt;</code>
-<li> <code>MSG_GETMSET I&lt;first&gt; I&lt;max items&gt;
+<li> <code>MSG_GETMSET I&lt;first&gt; I&lt;max items&gt; I&lt;check at least&gt;
 &lt;serialised global Stats object&gt;</code>
 <li> <code>REPLY_RESULTS &lt;serialised Xapian::MSet object&gt;</code>
 </ul>
+
+(Instead of MSG_GETMSET, clients running protocol 30.2 or earlier send:
+
+<ul>
+<li> <code>MSG_GETMSET_PRE_30_3 I&lt;first&gt; I&lt;max items&gt;
+&lt;serialised global Stats object&gt;</code>
+</li>
+
+<p>).</p>
 
 <p>docid order is <code>'0'</code>, <code>'1'</code> or <code>'2'</code>.</p>
 

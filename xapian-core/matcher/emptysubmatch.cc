@@ -1,7 +1,7 @@
 /** @file emptysubmatch.cc
  *  @brief SubMatch class for a dead remote database.
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@ EmptySubMatch::prepare_match(bool /*nowait*/) {
 }
 
 void
-EmptySubMatch::start_match(Xapian::doccount /*maxitems*/) {
+EmptySubMatch::start_match(Xapian::doccount, Xapian::doccount) {
 }
 
 PostList *
