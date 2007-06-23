@@ -379,7 +379,7 @@ run_query()
 
     enquire->set_cutoff(threshold);
 
-    if (sort_key != Xapian::valueno(-1)) {
+    if (sort_key != Xapian::BAD_VALUENO) {
 	if (sort_after) {
 	    enquire->set_sort_by_relevance_then_value(sort_key, sort_ascending);
 	} else {

@@ -68,7 +68,7 @@ string query_string;
 int threshold = 0;
 
 bool sort_numeric = false;
-Xapian::valueno sort_key = Xapian::valueno(-1);
+Xapian::valueno sort_key = Xapian::BAD_VALUENO; // Don't sort.
 bool sort_ascending = true;
 bool sort_after = false;
 Xapian::Enquire::docid_order docid_order = Xapian::Enquire::ASCENDING;
