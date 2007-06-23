@@ -554,6 +554,16 @@ FlintDatabase::open_synonym_termlist(const string & term) const
     return synonym_table.open_termlist(term);
 }
 
+TermList *
+FlintDatabase::open_synonym_keylist(const string & prefix) const
+{
+    FlintCursor * cursor = synonym_table.cursor_get();
+    if (!cursor) return NULL;
+    return new FlintSynonymTermList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
+				    cursor, synonym_table.get_entry_count(),
+				    prefix);
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 size_t FlintWritableDatabase::flush_threshold = 0;
@@ -1152,6 +1162,18 @@ TermList *
 FlintWritableDatabase::open_synonym_termlist(const string & term) const
 {
     return database_ro.synonym_table.open_termlist(term);
+}
+
+TermList *
+FlintWritableDatabase::open_synonym_keylist(const string & prefix) const
+{
+    database_ro.synonym_table.merge_changes();
+    FlintCursor * cursor = database_ro.synonym_table.cursor_get();
+    if (!cursor) return NULL;
+    return new FlintSynonymTermList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),
+				    cursor,
+				    database_ro.synonym_table.get_entry_count(),
+				    prefix);
 }
 
 void

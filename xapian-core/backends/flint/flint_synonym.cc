@@ -22,8 +22,10 @@
 
 #include <xapian/error.h>
 
+#include "flint_cursor.h"
 #include "flint_synonym.h"
 #include "flint_utils.h"
+#include "stringutils.h"
 #include "vectortermlist.h"
 
 #include <set>
@@ -159,4 +161,82 @@ FlintSynonymTable::open_termlist(const string & term)
     }
 
     return new VectorTermList(synonyms.begin(), synonyms.end());
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+FlintSynonymTermList::~FlintSynonymTermList()
+{
+    DEBUGCALL(DB, void, "~FlintSynonymTermList", "");
+    delete cursor;
+}
+
+Xapian::termcount
+FlintSynonymTermList::get_approx_size() const
+{
+    DEBUGCALL(DB, Xapian::termcount, "FlintSynonymTermList::get_approx_size", "");
+    RETURN(size);
+}
+
+string
+FlintSynonymTermList::get_termname() const
+{
+    DEBUGCALL(DB, string, "FlintSynonymTermList::get_termname", "");
+    Assert(cursor);
+    Assert(!cursor->current_key.empty());
+    Assert(!at_end());
+    RETURN(cursor->current_key);
+}
+
+Xapian::doccount
+FlintSynonymTermList::get_termfreq() const
+{
+    throw Xapian::InvalidOperationError("FlintSynonymTermList::get_termfreq() not meaningful");
+}
+
+Xapian::termcount
+FlintSynonymTermList::get_collection_freq() const
+{
+    throw Xapian::InvalidOperationError("FlintSynonymTermList::get_collection_freq() not meaningful");
+}
+
+TermList *
+FlintSynonymTermList::next()
+{
+    DEBUGCALL(DB, TermList *, "FlintSynonymTermList::next", "");
+    Assert(!at_end());
+
+    cursor->next();
+    if (!cursor->after_end() && !begins_with(cursor->current_key, prefix)) {
+	// We've reached the end of the end of the prefixed terms.
+	cursor->to_end();
+    }
+
+    RETURN(NULL);
+}
+
+TermList *
+FlintSynonymTermList::skip_to(const string &tname)
+{
+    DEBUGCALL(DB, TermList *, "FlintSynonymTermList::skip_to", tname);
+    if (at_end()) abort();
+    Assert(!at_end());
+
+    if (cursor->find_entry(tname)) {
+	// The term we asked for is there.
+	RETURN(NULL);
+    }
+    if (cursor->after_end()) {
+	RETURN(NULL);
+    }
+    // If there wasn't an exact match, the cursor is left on the last key
+    // *BEFORE* the one we asked for.
+    RETURN(next());
+}
+
+bool
+FlintSynonymTermList::at_end() const
+{
+    DEBUGCALL(DB, bool, "FlintSynonymTermList::at_end", "");
+    RETURN(cursor->after_end());
 }

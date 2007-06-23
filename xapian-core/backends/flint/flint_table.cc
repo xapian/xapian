@@ -1349,6 +1349,7 @@ FlintTable::set_full_compaction(bool parity)
 }
 
 FlintCursor * FlintTable::cursor_get() const {
+    if (handle == -1) return NULL;
     // FIXME Ick - casting away const is nasty
     return new FlintCursor(const_cast<FlintTable *>(this));
 }

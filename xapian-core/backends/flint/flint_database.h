@@ -229,6 +229,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	Xapian::doccount get_spelling_frequency(const string & word) const;
 
 	TermList * open_synonym_termlist(const string & word) const;
+	TermList * open_synonym_keylist(const string & prefix) const;
 	//@}
 };
 
@@ -333,6 +334,7 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	Xapian::doccount get_spelling_frequency(const string & word) const;
 
 	TermList * open_synonym_termlist(const string & word) const;
+	TermList * open_synonym_keylist(const string & prefix) const;
 	void add_synonym(const string & word, const string & synonym) const;
 	void remove_synonym(const string & word, const string & synonym) const;
 	void clear_synonyms(const string & word) const;

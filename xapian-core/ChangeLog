@@ -1,3 +1,10 @@
+Sat Jun 23 17:07:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omdatabase.cc,backends/database.cc,backends/flint/,
+	  common/database.h,include/xapian/database.h,tests/api_wrdb.cc:
+	  Implement Database::synonym_keys_begin() to allow iteration over all
+	  the terms for which synonyms have been added.
+
 Sat Jun 23 04:19:54 BST 2007  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Fix handling of check_at_least parameter -

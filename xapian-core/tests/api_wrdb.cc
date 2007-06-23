@@ -1382,6 +1382,101 @@ static bool test_spell1()
     return true;
 }
 
+// Test synonym iterators.
+static bool test_synonymitor1()
+{
+    string dbpath;
+    if (get_dbtype() == "flint") {
+	dbpath = ".flint/dbw";
+    } else {
+	SKIP_TEST("Test only supported for flint backend");
+    }
+
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    // Test iterators for terms which aren't there.
+    TEST(db.synonyms_begin("abc") == db.synonyms_end("abc"));
+
+    // Test iterating the synonym keys when there aren't any.
+    TEST(db.synonym_keys_begin() == db.synonym_keys_end());
+
+    db.add_synonym("hello", "howdy");
+    db.add_synonym("hello", "hi");
+    db.add_synonym("goodbye", "bye");
+    db.add_synonym("goodbye", "farewell");
+
+    Xapian::TermIterator t;
+    string s;
+
+    // Try these tests twice - once before flushing and once after.
+    for (int times = 1; times <= 2; ++times) {
+	// Test iterators for terms which aren't there.
+	TEST(db.synonyms_begin("abc") == db.synonyms_end("abc"));
+	TEST(db.synonyms_begin("ghi") == db.synonyms_end("ghi"));
+	TEST(db.synonyms_begin("zzzzz") == db.synonyms_end("zzzzz"));
+
+	s = "|";
+	t = db.synonyms_begin("hello");
+	while (t != db.synonyms_end("hello")) {
+	    s += *t++;
+	    s += '|';
+	}
+	TEST_STRINGS_EQUAL(s, "|hi|howdy|");
+
+	s = "|";
+	t = db.synonyms_begin("goodbye");
+	while (t != db.synonyms_end("goodbye")) {
+	    s += *t++;
+	    s += '|';
+	}
+	TEST_STRINGS_EQUAL(s, "|bye|farewell|");
+
+	s = "|";
+	t = db.synonym_keys_begin();
+	while (t != db.synonym_keys_end()) {
+	    s += *t++;
+	    s += '|';
+	}
+	TEST_STRINGS_EQUAL(s, "|goodbye|hello|");
+
+	db.flush();
+    }
+
+    // Delete a synonym for "hello" and all synonyms for "goodbye".
+    db.remove_synonym("hello", "hi");
+    db.clear_synonyms("goodbye");
+
+    // Try these tests twice - once before flushing and once after.
+    for (int times = 1; times <= 2; ++times) {
+	// Test iterators for terms which aren't there.
+	TEST(db.synonyms_begin("abc") == db.synonyms_end("abc"));
+	TEST(db.synonyms_begin("ghi") == db.synonyms_end("ghi"));
+	TEST(db.synonyms_begin("zzzzz") == db.synonyms_end("zzzzz"));
+
+	s = "|";
+	t = db.synonyms_begin("hello");
+	while (t != db.synonyms_end("hello")) {
+	    s += *t++;
+	    s += '|';
+	}
+	TEST_STRINGS_EQUAL(s, "|howdy|");
+
+	TEST(db.synonyms_begin("goodbye") == db.synonyms_end("goodbye"));
+
+	s = "|";
+	t = db.synonym_keys_begin();
+	while (t != db.synonym_keys_end()) {
+	    s += *t++;
+	    s += '|';
+	}
+	TEST_STRINGS_EQUAL(s, "|hello|");
+
+	db.flush();
+    }
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1412,5 +1507,6 @@ test_desc writabledb_tests[] = {
     TESTCASE(crashrecovery1),
     TESTCASE(nomoredocids1),
     TESTCASE(spell1),
+    TESTCASE(synonymitor1),
     END_OF_TESTCASES
 };

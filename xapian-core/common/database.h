@@ -273,6 +273,13 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual TermList * open_synonym_termlist(const string & term) const;
 
+	/** Open a termlist returning each term which has synonyms.
+	 *
+	 *  @param prefix   If non-empty, only terms with this prefix are
+	 *		    returned.
+	 */
+	virtual TermList * open_synonym_keylist(const string & prefix) const;
+
 	/** Add a synonym for a term.
 	 *
 	 *  If @synonym is already a synonym for @a term, then no action is

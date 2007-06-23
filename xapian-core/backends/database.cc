@@ -393,7 +393,19 @@ Database::Internal::remove_spelling(const string &, Xapian::termcount) const
 TermList *
 Database::Internal::open_synonym_termlist(const string &) const
 {
-    throw Xapian::UnimplementedError("This backend doesn't implement synonyms");
+    // Only implemented for some database backends - others will just not
+    // expand synonyms (or not contribute to them in a multiple database
+    // situation).
+    return NULL;
+}
+
+TermList *
+Database::Internal::open_synonym_keylist(const string &) const
+{
+    // Only implemented for some database backends - others will just not
+    // expand synonyms (or not contribute to them in a multiple database
+    // situation).
+    return NULL;
 }
 
 void

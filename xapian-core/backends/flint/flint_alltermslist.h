@@ -83,6 +83,7 @@ class FlintAllTermsList : public AllTermsList {
 	if (approx_size) --approx_size;
 
 	cursor = pltab->cursor_get();
+	Assert(cursor); // The postlist table isn't optional.
 	if (prefix.empty()) {
 	    // Seek to the metainfo key, so the first next() will advance us to the
 	    // first real key.

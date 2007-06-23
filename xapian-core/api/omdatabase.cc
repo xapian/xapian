@@ -422,6 +422,13 @@ Database::synonyms_begin(const std::string &term) const
     RETURN(TermIterator(internal[0]->open_synonym_termlist(term)));
 }
 
+TermIterator
+Database::synonym_keys_begin(const std::string &prefix) const
+{
+    DEBUGAPICALL(TermIterator, "Database::synonyms_keys_begin", prefix);
+    RETURN(TermIterator(internal[0]->open_synonym_keylist(prefix)));
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 WritableDatabase::WritableDatabase() : Database()

@@ -1,7 +1,7 @@
 /** @file flint_synonym.h
  * @brief Synonym data for a flint database.
  */
-/* Copyright (C) 2007 Olly Betts
+/* Copyright (C) 2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,10 @@
 
 #include <xapian/types.h>
 
+#include "alltermslist.h"
+#include "database.h"
 #include "flint_table.h"
+#include "omdebug.h"
 #include "termlist.h"
 
 #include <set>
@@ -110,6 +113,80 @@ class FlintSynonymTable : public FlintTable {
     }
 
     // @}
+};
+
+class FlintCursor;
+
+class FlintSynonymTermList : public AllTermsList {
+    /// Copying is not allowed.
+    FlintSynonymTermList(const FlintSynonymTermList &);
+
+    /// Assignment is not allowed.
+    void operator=(const FlintSynonymTermList &);
+
+    /// Keep a reference to our database to stop it being deleted.
+    Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+
+    /** A cursor which runs through the synonym table reading termnames from
+     *  the keys.
+     */
+    FlintCursor * cursor;
+
+    /// The number of terms in this list.
+    Xapian::termcount size;
+
+    /// The prefix to restrict the terms to.
+    string prefix;
+
+  public:
+    FlintSynonymTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
+		      FlintCursor * cursor_,
+		      Xapian::termcount size_,
+		      const string & prefix_)
+	    : database(database_), cursor(cursor_), size(size_), prefix(prefix_)
+    {
+	if (prefix.empty()) {
+	    cursor->find_entry("");
+	} else {
+	    // Seek to the first key before one with the desired prefix.
+	    if (cursor->find_entry(prefix)) {
+		// Found a key which is exactly the prefix - move back, so that
+		// next() moves to it.
+		cursor->prev();
+	    }
+	}
+    }
+
+    /// Destructor.
+    ~FlintSynonymTermList();
+
+    /** Returns the approximate size of the list.
+     *
+     *  This may be unused for this class.
+     */
+    Xapian::termcount get_approx_size() const;
+
+    /** Returns the current termname.
+     *
+     *  Either next() or skip_to() must have been called before this
+     *  method can be called.
+     */
+    string get_termname() const;
+
+    /// Return the term frequency for the term at the current position.
+    Xapian::doccount get_termfreq() const;
+
+    /// Return the collection frequency for the term at the current position.
+    Xapian::termcount get_collection_freq() const;
+
+    /// Advance to the next term in the list.
+    TermList * next();
+
+    /// Advance to the first term which is >= tname.
+    TermList * skip_to(const string &tname);
+
+    /// True if we're off the end of the list
+    bool at_end() const;
 };
 
 #endif // XAPIAN_INCLUDED_FLINT_SYNONYM_H

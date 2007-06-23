@@ -257,6 +257,18 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	Xapian::TermIterator synonyms_end(const std::string &) const {
 	    return Xapian::TermIterator(NULL);
 	}
+
+	/** An iterator which returns all terms which have synonyms.
+	 *
+	 *  @param prefix   If non-empty, only terms with this prefix are
+	 *		    returned.
+	 */
+	Xapian::TermIterator synonym_keys_begin(const std::string &prefix = "") const;
+
+	/// Corresponding end iterator to synonym_keys_begin(term).
+	Xapian::TermIterator synonym_keys_end(const std::string & = "") const {
+	    return Xapian::TermIterator(NULL);
+	}
 };
 
 /** This class provides read/write access to a database.
