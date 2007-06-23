@@ -265,7 +265,7 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 */
 	Xapian::TermIterator synonym_keys_begin(const std::string &prefix = "") const;
 
-	/// Corresponding end iterator to synonym_keys_begin(term).
+	/// Corresponding end iterator to synonym_keys_begin(prefix).
 	Xapian::TermIterator synonym_keys_end(const std::string & = "") const {
 	    return Xapian::TermIterator(NULL);
 	}
