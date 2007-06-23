@@ -1474,6 +1474,33 @@ static bool test_synonymitor1()
 	db.flush();
     }
 
+    Xapian::Database db_multi;
+    db_multi.add_database(db);
+    db_multi.add_database(get_database("apitest_simpledata"));
+
+    // Test iterators for terms which aren't there.
+    TEST(db_multi.synonyms_begin("abc") == db_multi.synonyms_end("abc"));
+    TEST(db_multi.synonyms_begin("ghi") == db_multi.synonyms_end("ghi"));
+    TEST(db_multi.synonyms_begin("zzzzz") == db_multi.synonyms_end("zzzzz"));
+
+    s = "|";
+    t = db_multi.synonyms_begin("hello");
+    while (t != db_multi.synonyms_end("hello")) {
+	s += *t++;
+	s += '|';
+    }
+    TEST_STRINGS_EQUAL(s, "|howdy|");
+
+    TEST(db_multi.synonyms_begin("goodbye") == db_multi.synonyms_end("goodbye"));
+
+    s = "|";
+    t = db_multi.synonym_keys_begin();
+    while (t != db_multi.synonym_keys_end()) {
+	s += *t++;
+	s += '|';
+    }
+    TEST_STRINGS_EQUAL(s, "|hello|");
+
     return true;
 }
 

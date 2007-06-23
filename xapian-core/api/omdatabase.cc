@@ -419,14 +419,36 @@ TermIterator
 Database::synonyms_begin(const std::string &term) const
 {
     DEBUGAPICALL(TermIterator, "Database::synonyms_begin", term);
-    RETURN(TermIterator(internal[0]->open_synonym_termlist(term)));
+    AutoPtr<TermList> merger;
+    for (size_t i = 0; i < internal.size(); ++i) {
+	TermList * tl = internal[i]->open_synonym_termlist(term);
+	if (tl) {
+	    if (merger.get()) {
+		merger = new OrTermList(merger.release(), tl);
+	    } else {
+		merger = tl;
+	    }
+	}
+    }
+    RETURN(TermIterator(merger.release()));
 }
 
 TermIterator
 Database::synonym_keys_begin(const std::string &prefix) const
 {
     DEBUGAPICALL(TermIterator, "Database::synonyms_keys_begin", prefix);
-    RETURN(TermIterator(internal[0]->open_synonym_keylist(prefix)));
+    AutoPtr<TermList> merger;
+    for (size_t i = 0; i < internal.size(); ++i) {
+	TermList * tl = internal[i]->open_synonym_keylist(prefix);
+	if (tl) {
+	    if (merger.get()) {
+		merger = new OrTermList(merger.release(), tl);
+	    } else {
+		merger = tl;
+	    }
+	}
+    }
+    RETURN(TermIterator(merger.release()));
 }
 
 ///////////////////////////////////////////////////////////////////////////
