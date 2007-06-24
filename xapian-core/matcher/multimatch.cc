@@ -348,7 +348,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     // Set max number of results that we want - this is used to decide
     // when to throw away unwanted items.
-    Xapian::doccount max_msize = first + check_at_least;
+    Xapian::doccount max_msize = first + maxitems;
     items.reserve(max_msize + 1);
 
     // Tracks the minimum item currently eligible for the MSet - we compare
@@ -560,7 +560,9 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 		min_item = items.front();
 		if (sort_by == REL || sort_by == REL_VAL) {
-		    if (min_item.wt > min_weight) min_weight = min_item.wt;
+		    if (docs_matched >= check_at_least) {
+			if (min_item.wt > min_weight) min_weight = min_item.wt;
+		    }
 		}
 		if (getorrecalc_maxweight(pl) < min_weight) {
 		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
@@ -742,19 +744,6 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
     DEBUGLINE(MATCH, items.size() << " items in potential mset");
 
-    if (check_at_least > maxitems) {
-	// Remove unwanted trailing entries
-	if (maxitems == 0) {
-	    items.clear();
-	} else if (items.size() > first + maxitems) {
-	    nth_element(items.begin(),
-			items.begin() + first + maxitems,
-			items.end(),
-			mcmp);
-	    // Erase the unwanted trailing items.
-	    items.erase(items.begin() + first + maxitems, items.end());
-	}
-    }
     if (first > 0) {
 	// Remove unwanted leading entries
 	if (items.size() <= first) {
