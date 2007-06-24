@@ -77,10 +77,28 @@ in this format.
 NumberValueRangeProcessor
 =========================
 
-This class has a design flaw in Xapian 1.0.0 - you should avoid using it at
-present.
+.. note: this class had a design flaw in Xapian 1.0.0 and 1.0.1 - you should
+avoid using it with releases of Xapian earlier than 1.0.2.
 
-.. FIXME once NumberValueRangeProcessor is sorted out, document it here.
+This class allows you to implement numeric range searches.  The numbers used
+may be any number which is representable as a double, but requires that the
+stored values which the range is being applied to are numbers which have been
+converted to strings using the ``NumberValueRangeProcessor::float_to_string()``
+method.  This method produces strings which will sort in numeric order, so you
+can use it if you want to be able to sort based on the value in numeric order,
+too.
+
+The class allows a prefix or suffix to be specified which must be present on
+the values, allowing multiple NumberValueRangeProcessors to be active in the
+same queryparser.  For example, this specifies that a prefix of "$" must be
+present on the first value (and may optionally be present on the second
+value)::
+
+    Xapian::QueryParser qp;
+    Xapian::NumberValueRangeProcessor numrange_proc(0, "$", true);
+    qp.add_valuerangeprocessor(&numrange_proc);
+
+
 
 Custom subclasses
 =================
