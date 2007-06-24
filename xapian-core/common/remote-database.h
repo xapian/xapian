@@ -161,7 +161,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 
     LeafPostList * open_post_list(const string & tname) const;
 
-    void read_post_list(const string &term, NetworkPostList & pl) const;
+    Xapian::doccount read_post_list(const string &term, NetworkPostList & pl) const;
 
     PositionList * open_position_list(Xapian::docid did,
 				      const string & tname) const;

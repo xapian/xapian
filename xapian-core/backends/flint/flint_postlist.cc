@@ -30,6 +30,20 @@
 // next free docid and total length of all documents
 static const string METAINFO_KEY("", 1);
 
+/// Make a key for accessing the postlist.
+static void
+make_key(const string & tname, Xapian::docid did, string & key)
+{
+    key = pack_string_preserving_sort(tname);
+    key += pack_uint_preserving_sort(did);
+}
+
+static void
+make_key(const string & tname, string & key)
+{
+    key = pack_string_preserving_sort(tname);
+}
+
 Xapian::docid
 FlintPostListTable::get_lastdocid() const
 {
@@ -45,6 +59,32 @@ FlintPostListTable::get_lastdocid() const
 	throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
     }
     RETURN(did);
+}
+
+Xapian::doccount
+FlintPostListTable::get_termfreq(const string & term) const
+{
+    string key, tag;
+    make_key(term, key);
+    if (!get_exact_entry(key, tag)) return 0;
+
+    Xapian::doccount termfreq;
+    const char * p = tag.data();
+    FlintPostList::read_number_of_entries(&p, p + tag.size(), &termfreq, NULL);
+    return termfreq;
+}
+
+Xapian::termcount
+FlintPostListTable::get_collection_freq(const string & term) const
+{
+    string key, tag;
+    make_key(term, key);
+    if (!get_exact_entry(key, tag)) return 0;
+
+    Xapian::termcount collfreq;
+    const char * p = tag.data();
+    FlintPostList::read_number_of_entries(&p, p + tag.size(), NULL, &collfreq);
+    return collfreq;
 }
 
 void
@@ -77,20 +117,6 @@ FlintPostListTable::get_total_length() const
 	throw Xapian::DatabaseCorruptError("Record containing meta information is corrupt.");
     }
     RETURN(totlen);
-}
-
-/// Make a key for accessing the postlist.
-static void
-make_key(const string & tname, Xapian::docid did, string & key)
-{
-    key = pack_string_preserving_sort(tname);
-    key += pack_uint_preserving_sort(did);
-}
-
-static void
-make_key(const string & tname, string & key)
-{
-    key = pack_string_preserving_sort(tname);
 }
 
 // How big should chunks in the posting list be?  (They
@@ -709,7 +735,6 @@ FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const Xapian::Database:
     int found = cursor->find_entry(key);
     if (!found) {
 	number_of_entries = 0;
-	collection_freq = 0;
 	is_at_end = true;
 	pos = 0;
 	end = 0;
@@ -721,8 +746,7 @@ FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const Xapian::Database:
     pos = cursor->current_tag.data();
     end = pos + cursor->current_tag.size();
 
-    did = read_start_of_first_chunk(&pos, end,
-			      &number_of_entries, &collection_freq);
+    did = read_start_of_first_chunk(&pos, end, &number_of_entries, NULL);
     first_did_in_chunk = did;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
 					    &is_last_chunk);
@@ -878,13 +902,10 @@ FlintPostList::move_to_chunk_containing(Xapian::docid desired_did)
 	// In first chunk
 #ifdef XAPIAN_DEBUG
 	Xapian::doccount old_number_of_entries = number_of_entries;
-	Xapian::termcount old_collection_freq = collection_freq;
-	did = read_start_of_first_chunk(&pos, end, &number_of_entries,
-					&collection_freq);
+	did = read_start_of_first_chunk(&pos, end, &number_of_entries, NULL);
 	Assert(old_number_of_entries == number_of_entries);
-	Assert(old_collection_freq == collection_freq);
 #else
-	did = read_start_of_first_chunk(&pos, end, 0, 0);
+	did = read_start_of_first_chunk(&pos, end, NULL, NULL);
 #endif
     } else {
 	// In normal chunk
@@ -992,7 +1013,7 @@ FlintPostListTable::get_chunk(const string &tname,
 	*to = new PostlistChunkWriter("", true, tname, true);
 	return Xapian::docid(-1);
     }
- 
+
     // See if we're appending - if so we can shortcut by just copying
     // the data part of the chunk wholesale.
     bool is_first_chunk = (keypos == keyend);

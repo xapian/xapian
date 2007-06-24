@@ -433,8 +433,7 @@ FlintDatabase::get_termfreq(const string & tname) const
     DEBUGCALL(DB, Xapian::doccount, "FlintDatabase::get_termfreq", tname);
     Assert(!tname.empty());
 
-    FlintPostList pl(NULL, &postlist_table, NULL, tname);
-    RETURN(pl.get_termfreq());
+    RETURN(postlist_table.get_termfreq(tname));
 }
 
 Xapian::termcount
@@ -443,10 +442,7 @@ FlintDatabase::get_collection_freq(const string & tname) const
     DEBUGCALL(DB, Xapian::termcount, "FlintDatabase::get_collection_freq", tname);
     Assert(!tname.empty());
 
-    Xapian::termcount collfreq = 0; // If not found, this value will be unchanged.
-    FlintPostList pl(NULL, &postlist_table, NULL, tname);
-    collfreq = pl.get_collection_freq();
-    RETURN(collfreq);
+    RETURN(postlist_table.get_collection_freq(tname));
 }
 
 bool

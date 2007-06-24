@@ -85,23 +85,6 @@ MultiPostList::get_termfreq() const
     return termfreq;
 }
 
-Xapian::termcount
-MultiPostList::get_collection_freq() const
-{
-    if(collfreq_initialised) return collfreq;
-    DEBUGLINE(DB, "Calculating multiple term frequencies");
-
-    // Calculate and remember the collfreq
-    collfreq = 0;
-    std::vector<LeafPostList *>::const_iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {
-	collfreq += (*i)->get_collection_freq();
-    }
-
-    collfreq_initialised = true;
-    return collfreq;
-}
-
 Xapian::docid
 MultiPostList::get_docid() const
 {

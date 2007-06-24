@@ -165,6 +165,32 @@ read_start_of_first_chunk(const char ** posptr,
     RETURN(did);
 }
 
+Xapian::doccount
+QuartzPostListTable::get_termfreq(const string & term) const
+{
+    string key, tag;
+    make_key(term, key);
+    if (!get_exact_entry(key, tag)) return 0;
+
+    Xapian::doccount termfreq;
+    const char * p = tag.data();
+    QuartzPostList::read_number_of_entries(&p, p + tag.size(), &termfreq, NULL);
+    return termfreq;
+}
+
+Xapian::termcount
+QuartzPostListTable::get_collection_freq(const string & term) const
+{
+    string key, tag;
+    make_key(term, key);
+    if (!get_exact_entry(key, tag)) return 0;
+
+    Xapian::termcount collfreq;
+    const char * p = tag.data();
+    QuartzPostList::read_number_of_entries(&p, p + tag.size(), NULL, &collfreq);
+    return collfreq;
+}
+
 static inline void read_did_increase(const char ** posptr,
 			      const char * end,
 			      Xapian::docid * did_ptr)
@@ -655,7 +681,6 @@ QuartzPostList::QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Databas
     int found = cursor->find_entry(key);
     if (!found) {
 	number_of_entries = 0;
-	collection_freq = 0;
 	is_at_end = true;
 	pos = 0;
 	end = 0;
@@ -667,8 +692,7 @@ QuartzPostList::QuartzPostList(Xapian::Internal::RefCntPtr<const Xapian::Databas
     pos = cursor->current_tag.data();
     end = pos + cursor->current_tag.size();
 
-    did = read_start_of_first_chunk(&pos, end,
-			      &number_of_entries, &collection_freq);
+    did = read_start_of_first_chunk(&pos, end, &number_of_entries, NULL);
     first_did_in_chunk = did;
     last_did_in_chunk = read_start_of_chunk(&pos, end, first_did_in_chunk,
 	    				    &is_last_chunk);
@@ -824,11 +848,8 @@ QuartzPostList::move_to_chunk_containing(Xapian::docid desired_did)
 	// In first chunk
 #ifdef XAPIAN_DEBUG
 	Xapian::doccount old_number_of_entries = number_of_entries;
-	Xapian::termcount old_collection_freq = collection_freq;
-	did = read_start_of_first_chunk(&pos, end, &number_of_entries,
-					&collection_freq);
+	did = read_start_of_first_chunk(&pos, end, &number_of_entries, NULL);
 	Assert(old_number_of_entries == number_of_entries);
-	Assert(old_collection_freq == collection_freq);
 #else
 	did = read_start_of_first_chunk(&pos, end, 0, 0);
 #endif

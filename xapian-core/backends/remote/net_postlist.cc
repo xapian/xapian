@@ -29,17 +29,10 @@ using namespace std;
  */
 NetworkPostList::NetworkPostList(Xapian::Internal::RefCntPtr<const RemoteDatabase> db_,
 				 const string & term_)
-	: db(db_),
-	term(term_),
-	started(false),
-	pos(NULL),
-	pos_end(NULL),
-	lastdocid(0),
-	lastwdf(0),
-	lastdoclen(0),
-	termfreq(0)
+    : db(db_), term(term_), started(false), pos(NULL), pos_end(NULL),
+      lastdocid(0), lastwdf(0), lastdoclen(0), termfreq(0)
 {
-    db->read_post_list(term, *this);
+    termfreq = db->read_post_list(term, *this);
 }
 
 PositionList *

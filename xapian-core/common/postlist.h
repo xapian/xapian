@@ -1,7 +1,7 @@
 /* postlist.h
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2006 Olly Betts
+ * Copyright 2002,2003,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -71,14 +71,6 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase
 	 *  postlist.  This is used for optimisation purposes, and should
 	 *  be as tight as possible. */
         virtual Xapian::weight get_maxweight() const = 0;
-
-	/** Return the total number of occurrences of the term in the
-	 *  database.  This is equal to the sum of the wdfs of all the
-	 *  items in the postlist.
-	 */
-	virtual Xapian::termcount get_collection_freq() const {
-	    throw Xapian::UnimplementedError("PostList::get_collection_freq() unimplemented");
-	}
 
 	///////////////////////////////////////////////////////////////////
 	// Information about the current item

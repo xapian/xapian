@@ -562,8 +562,8 @@ QuartzDatabase::get_termfreq(const string & tname) const
     DEBUGCALL(DB, Xapian::doccount, "QuartzDatabase::get_termfreq", tname);
     Assert(!tname.empty());
 
-    QuartzPostList pl(NULL, &postlist_table, NULL, tname);
-    RETURN(pl.get_termfreq());
+    RETURN(postlist_table.get_termfreq(tname));
+    RETURN(postlist_table.get_collection_freq(tname));
 }
 
 Xapian::termcount
@@ -572,10 +572,7 @@ QuartzDatabase::get_collection_freq(const string & tname) const
     DEBUGCALL(DB, Xapian::termcount, "QuartzDatabase::get_collection_freq", tname);
     Assert(!tname.empty());
 
-    Xapian::termcount collfreq = 0; // If not found, this value will be unchanged.
-    QuartzPostList pl(NULL, &postlist_table, NULL, tname);
-    collfreq = pl.get_collection_freq();
-    RETURN(collfreq);
+    RETURN(postlist_table.get_collection_freq(tname));
 }
 
 bool

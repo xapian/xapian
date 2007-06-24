@@ -1,9 +1,8 @@
 /* quartz_postlist.h: Postlists in quartz databases
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,9 +16,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_QUARTZ_POSTLIST_H
@@ -71,6 +69,18 @@ class QuartzPostListTable : public Btree {
 	Xapian::docid get_chunk(const string &tname,
 		Xapian::docid did, bool adding,
 		QPostlistChunkReader ** from, QPostlistChunkWriter **to);
+
+	/** Returns number of docs indexed by @a term.
+	 *
+	 *  This is the length of the postlist.
+	 */
+	Xapian::doccount get_termfreq(const std::string & term) const;
+
+	/** Returns the number of occurrences of @a term in the database.
+	 *
+	 *  This is the sum of the wdfs in the postlist.
+	 */
+	Xapian::termcount get_collection_freq(const std::string & term) const;
 };
 
 /** A postlist in a quartz database.
@@ -126,9 +136,6 @@ class XAPIAN_VISIBILITY_DEFAULT QuartzPostList : public LeafPostList {
 
 	/// The number of entries in the posting list.
 	Xapian::doccount number_of_entries;
-
-	/// The number of occurrences of the term in the posting list.
-	Xapian::termcount collection_freq;
 
 	/// The position list object for this posting list.
 	QuartzPositionList positionlist;
@@ -199,12 +206,6 @@ class XAPIAN_VISIBILITY_DEFAULT QuartzPostList : public LeafPostList {
 	 *  This is the length of the postlist.
 	 */
 	Xapian::doccount get_termfreq() const { return number_of_entries; }
-
-	/** Returns the number of occurrences of the term in the database.
-	 *
-	 *  This is the sum of the wdfs in the postlist.
-	 */
-	Xapian::termcount get_collection_freq() const { return collection_freq; }
 
 	/// Returns the current docid.
 	Xapian::docid get_docid() const { Assert(have_started); return did; }

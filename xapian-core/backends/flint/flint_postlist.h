@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005 Olly Betts
+ * Copyright 2002,2003,2004,2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -70,6 +70,18 @@ class FlintPostListTable : public FlintTable {
 	/** Return the total length of all the records in the table.
 	 */
 	flint_totlen_t get_total_length() const;
+
+	/** Returns number of docs indexed by @a term.
+	 *
+	 *  This is the length of the postlist.
+	 */
+	Xapian::doccount get_termfreq(const std::string & term) const;
+
+	/** Returns the number of occurrences of @a term in the database.
+	 *
+	 *  This is the sum of the wdfs in the postlist.
+	 */
+	Xapian::termcount get_collection_freq(const std::string & term) const;
 
 	/** Get the last document id used.
 	 */
@@ -139,10 +151,6 @@ class FlintPostList : public LeafPostList {
 	/// The number of entries in the posting list.
 	Xapian::doccount number_of_entries;
 
-	/// The number of occurrences of the term in the posting list.
-	Xapian::termcount collection_freq;
-
-
 	/// Copying is not allowed.
 	FlintPostList(const FlintPostList &);
 
@@ -209,12 +217,6 @@ class FlintPostList : public LeafPostList {
 	 *  This is the length of the postlist.
 	 */
 	Xapian::doccount get_termfreq() const { return number_of_entries; }
-
-	/** Returns the number of occurrences of the term in the database.
-	 *
-	 *  This is the sum of the wdfs in the postlist.
-	 */
-	Xapian::termcount get_collection_freq() const { return collection_freq; }
 
 	/// Returns the current docid.
 	Xapian::docid get_docid() const { Assert(have_started); return did; }

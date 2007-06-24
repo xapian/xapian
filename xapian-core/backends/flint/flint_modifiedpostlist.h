@@ -1,7 +1,7 @@
 /** @file flint_modifiedpostlist.h
  * @brief A FlintPostList plus pending modifications
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,8 +55,6 @@ class FlintModifiedPostList : public FlintPostList {
     ~FlintModifiedPostList();
 
     Xapian::doccount get_termfreq() const;
-
-    Xapian::termcount get_collection_freq() const;
 
     Xapian::docid get_docid() const;
 

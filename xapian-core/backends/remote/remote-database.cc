@@ -203,7 +203,7 @@ RemoteDatabase::open_post_list(const string &term) const
     return new NetworkPostList(Xapian::Internal::RefCntPtr<const RemoteDatabase>(this), term);
 }
 
-void
+Xapian::doccount
 RemoteDatabase::read_post_list(const string &term, NetworkPostList & pl) const
 {
     send_message(MSG_POSTLIST, term);
@@ -215,9 +215,6 @@ RemoteDatabase::read_post_list(const string &term, NetworkPostList & pl) const
     const char * p = message.data();
     const char * p_end = p + message.size();
     Xapian::doccount termfreq = decode_length(&p, p_end, false);
-    Xapian::termcount collfreq = decode_length(&p, p_end, false);
-
-    pl.initialise(termfreq, collfreq);
 
     while ((type = get_message(message)) == REPLY_POSTLISTITEM) {
 	pl.append_posting(message);
@@ -225,6 +222,8 @@ RemoteDatabase::read_post_list(const string &term, NetworkPostList & pl) const
     if (type != REPLY_DONE) {
 	throw Xapian::NetworkError("Bad message received", context);
     }
+
+    return termfreq;
 }
 
 PositionList *
