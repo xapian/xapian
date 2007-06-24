@@ -1,3 +1,11 @@
+Sun Jun 24 09:40:51 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* msvc/genversion.pl: Add a script to generate the version.h file
+	  for MSVC builds by parsing configure.ac to extract the version
+	  number, and then performing the appropriate substitutions on
+	  msvc/version.h.in.  Shouldn't be used for tarball builds (because
+	  version.h already exists) or for builds which use configure.
+
 Sun Jun 24 02:25:38 BST 2007  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: The check_at_least parameter to
