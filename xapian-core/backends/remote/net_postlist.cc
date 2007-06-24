@@ -21,18 +21,35 @@
  */
 
 #include <config.h>
+
 #include "net_postlist.h"
+#include "serialise.h"
+#include "serialise-double.h"
 
 using namespace std;
 
-/** A postlist in a remote database.
- */
-NetworkPostList::NetworkPostList(Xapian::Internal::RefCntPtr<const RemoteDatabase> db_,
-				 const string & term_)
-    : db(db_), term(term_), started(false), pos(NULL), pos_end(NULL),
-      lastdocid(0), lastwdf(0), lastdoclen(0), termfreq(0)
+Xapian::doccount
+NetworkPostList::get_termfreq() const
 {
-    termfreq = db->read_post_list(term, *this);
+    return termfreq;
+}
+
+Xapian::docid
+NetworkPostList::get_docid() const
+{
+    return lastdocid;
+}
+
+Xapian::doclength
+NetworkPostList::get_doclength() const
+{
+    return lastdoclen;
+}
+
+Xapian::termcount
+NetworkPostList::get_wdf() const
+{
+    return lastwdf;
 }
 
 PositionList *
@@ -77,6 +94,12 @@ NetworkPostList::skip_to(Xapian::docid did, Xapian::weight weight)
     while (pos && lastdocid < did)
 	next(weight);
     return NULL;
+}
+
+bool
+NetworkPostList::at_end() const
+{
+    return (pos == NULL && started);
 }
 
 string

@@ -1,3 +1,9 @@
+Sun Jun 24 14:29:06 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/remote/net_postlist.cc,backends/remote/net_postlist.h:
+	  Move NetworkPostList virtual methods out of the header.  Move the
+	  constructor into the header, since that can be inlined.
+
 Sun Jun 24 14:15:43 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/,backends/multi/multi_postlist.cc,

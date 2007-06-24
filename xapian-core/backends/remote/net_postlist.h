@@ -27,8 +27,6 @@
 
 #include "leafpostlist.h"
 #include "remote-database.h"
-#include "serialise.h"
-#include "serialise-double.h"
 
 using namespace std;
 
@@ -62,30 +60,24 @@ class NetworkPostList : public LeafPostList {
   public:
     /// Default constructor.
     NetworkPostList(Xapian::Internal::RefCntPtr<const RemoteDatabase> db_,
-		    const string & term_);
+		    const string & term_)
+	: db(db_), term(term_), started(false), pos(NULL), pos_end(NULL),
+	  lastdocid(0), lastwdf(0), lastdoclen(0), termfreq(0)
+    {
+	termfreq = db->read_post_list(term, *this);
+    }
 
     /// Get number of documents indexed by this term.
-    Xapian::doccount get_termfreq() const {
-	return termfreq;
-    }
+    Xapian::doccount get_termfreq() const;
 
     /// Get the current document ID.
-    Xapian::docid get_docid() const
-    {
-	return lastdocid;
-    }
+    Xapian::docid get_docid() const;
 
     /// Get the length of the current document.
-    Xapian::doclength get_doclength() const
-    {
-	return lastdoclen;
-    }
+    Xapian::doclength get_doclength() const;
 
     /// Get the Within Document Frequency of the term in the current document.
-    Xapian::termcount get_wdf() const
-    {
-	return lastwdf;
-    }
+    Xapian::termcount get_wdf() const;
 
     /// Read the position list for the term in the current document and
     /// return a pointer to it (owned by the PostList).
@@ -104,10 +96,7 @@ class NetworkPostList : public LeafPostList {
     PostList * skip_to(Xapian::docid did, Xapian::weight weight);
 
     /// Return true if and only if we've moved off the end of the list.
-    bool at_end() const
-    {
-	return (pos == NULL && started);
-    }
+    bool at_end() const;
 
     /// Get a description of the postlist.
     string get_description() const;
