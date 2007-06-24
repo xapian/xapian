@@ -13,21 +13,21 @@ HTMLDOCS = index.html internals.html install.html intro_ir.html overview.html \
  bm25.html code_structure.html queryparser.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
-RSTDOCS = admin_notes.rst deprecation.rst spelling.rst termgenerator.rst \
- valueranges.rst
+RSTDOCS = admin_notes.rst deprecation.rst spelling.rst synonyms.rst \
+ termgenerator.rst valueranges.rst
 RSTHTML = $(RSTDOCS:.rst=.html)
 
 # Files which should be put in the distribution by automake
 EXTRA_DIST = doxygen_api_conf.in doxygen_full_conf.in \
 	doxygen_api_header.html_tmpl doxygen_api_footer.html_tmpl \
 	doxygen_full_header.html_tmpl doxygen_full_footer.html_tmpl \
-	$(RSTDOCS) $(RSTHTML) apidoc/html
+	$(RSTDOCS) apidoc/html
 
 if !MAINTAINER_NO_DOCS
 # Build API docs with doxygen
-all-local: doxygen_api_docs $(RSTHTML)
+all-local: doxygen_api_docs
 
-dist_doc_DATA = $(HTMLDOCS) apidoc.pdf
+dist_doc_DATA = $(HTMLDOCS) $(RSTHTML) apidoc.pdf
 
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(docdir)/apidoc/html
