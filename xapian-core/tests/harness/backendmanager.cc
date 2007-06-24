@@ -512,7 +512,10 @@ try_next_port:
     // Parent process.
 
     // Wrap the file descriptor in a FILE * so we can read lines using fgets().
-    FILE * fh = fdopen(fds[0], "r");
+    // dup() the fd we wrap with fdopen() so we can fclose() it but keep the
+    // fd open.
+    int fd_for_fh = dup(fds[0]);
+    FILE * fh = fdopen(fd_for_fh, "r");
     if (fh == NULL) {
 	string msg("Failed to run command '");
 	msg += cmd;
@@ -549,6 +552,9 @@ try_next_port:
 	if (strcmp(buf, "Listening...\n") == 0) break;
 	output += buf;
     }
+    // Close the FILE * to avoid valgrind detecting memory leaks from its
+    // buffers.
+    fclose(fh);
 
     // Set a signal handler to clean up the xapian-tcpsrv child process when it
     // finally exits.
