@@ -461,11 +461,33 @@ BackendManager::getwritedb_remoteprog(const vector<string> &dbnames)
 
 #ifdef HAVE_FORK
 
+// We can't dynamically allocate memory for this because it confuses the leak
+// detector.  We only have 1-3 child fds open at once anyway, so a fixed size
+// array isn't a problem, and linear scanning isn't a problem.
+struct pid_fd {
+    pid_t pid;
+    int fd;
+};
+
+static pid_fd pid_to_fd[16];
+
 extern "C" void
 on_SIGCHLD(int /*sig*/)
 {
     int status;
-    while (waitpid(-1, &status, WNOHANG) > 0);
+    pid_t child;
+    while ((child = waitpid(-1, &status, WNOHANG)) > 0) {
+	for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
+	    if (pid_to_fd[i].pid == child) {
+		int fd = pid_to_fd[i].fd;
+		pid_to_fd[i].fd = -1;
+		pid_to_fd[i].pid = -1;
+		// NB close() *is* safe to use in a signal handler.
+		close(fd);
+		break;
+	    }
+	}
+    }
 }
 
 static int
@@ -508,14 +530,11 @@ try_next_port:
 	msg += strerror(fork_errno);
 	throw msg;
     }
-   
+
     // Parent process.
 
     // Wrap the file descriptor in a FILE * so we can read lines using fgets().
-    // dup() the fd we wrap with fdopen() so we can fclose() it but keep the
-    // fd open.
-    int fd_for_fh = dup(fds[0]);
-    FILE * fh = fdopen(fd_for_fh, "r");
+    FILE * fh = fdopen(fds[0], "r");
     if (fh == NULL) {
 	string msg("Failed to run command '");
 	msg += cmd;
@@ -552,9 +571,24 @@ try_next_port:
 	if (strcmp(buf, "Listening...\n") == 0) break;
 	output += buf;
     }
-    // Close the FILE * to avoid valgrind detecting memory leaks from its
-    // buffers.
+
+    // dup() the fd we wrapped with fdopen() so we can keep it open so the
+    // xapian-tcpsrv keeps running.
+    int tracked_fd = dup(fds[0]);
+
+    // We must fclose() the FILE* to avoid valgrind detecting memory leaks from
+    // its buffers.
     fclose(fh);
+
+    // Find a slot to track the pid->fd mapping in.  If we can't find a slot
+    // it just means we'll leak the fd, so don't worry about that too much.
+    for (unsigned i = 0; i < sizeof(pid_to_fd) / sizeof(pid_fd); ++i) {
+	if (pid_to_fd[i].pid == -1) {
+	    pid_to_fd[i].fd = tracked_fd;
+	    pid_to_fd[i].pid = child;
+	    break;
+	}
+    }
 
     // Set a signal handler to clean up the xapian-tcpsrv child process when it
     // finally exits.

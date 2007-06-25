@@ -1,3 +1,9 @@
+Mon Jun 25 03:01:20 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/harness/backendmanager.cc: Track the fd used to communicate
+	  with a xapian-tcpsrv child process so we can close it when we reap
+	  the child pid.
+
 Mon Jun 25 02:44:04 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/valueranges.rst: Fix bad RST markup.
