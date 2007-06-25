@@ -62,6 +62,14 @@ to Xapian::Database::get_spelling_suggestion().  If not specified, the default
 is 2, which generally does a good job.  3 is also a reasonable choice in many
 cases.  For most uses, 1 is probably too low, and 4 or more probably too high.
 
+Unicode Support
+---------------
+
+Trigrams are generated at the byte level, but the edit distance calculation
+currently works with Unicode characters, so get_spelling_suggestion() should
+suggest suitable spelling corrections respecting the specified (or default)
+edit distance threshold.
+
 QueryParser Integration
 =======================
 
@@ -96,18 +104,6 @@ works with a single database or multiple databases (use
 Database::add_database() as usual).  We've no plans to support it for the
 deprecated Quartz backend, nor for InMemory, but we do intend to support it for
 the remote backend in the future.
-
-Unicode Support
----------------
-
-The edit distance calculation currently works at the byte level, so the
-multibyte UTF-8 sequences that represent non-ASCII Unicode characters will
-generally produce larger edit distances than if we worked on the Unicode
-characters themselves, and transpositions will be penalised particular.
-
-We intend to add support for calculating correct edit distances for
-Unicode strings.  Meanwhile, if you specify a larger maximum edit distance
-to the current implementation, the results will probably still be useful.
 
 Prefixed Terms
 --------------
