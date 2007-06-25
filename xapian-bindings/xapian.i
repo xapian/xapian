@@ -253,39 +253,14 @@ class ValueIterator {
     std::string get_description() const;
 };
 
-// from xapian/document.h:
+}
 
-class Document {
-  public:
-    Document();
-    Document(const Document& other);
-    ~Document();
+%ignore Xapian::Document::internal;
+%ignore Xapian::Document::Document(Xapian::Document::Internal *);
+%ignore Xapian::Document::operator=;
+%include <xapian/document.h>
 
-    string get_value(valueno valueno) const;
-    void add_value(valueno valueno, const string & value);
-    void remove_value(valueno valueno);
-    void clear_values();
-
-    string get_data() const;
-    void set_data(const string & data);
-
-    void add_posting(const string & tname, termpos tpos, termcount wdfinc=1);
-    void add_term(const string & tname, termcount wdfinc = 1);
-
-    void remove_posting(const string & tname, termpos tpos, termcount wdfdec = 1);
-    void remove_term(const string & tname);
-    void clear_terms();
-
-    Xapian::termcount termlist_count() const;
-    TermIterator termlist_begin() const;
-    TermIterator termlist_end() const;
-
-    Xapian::termcount values_count() const;
-    ValueIterator values_begin() const;
-    ValueIterator values_end() const;
-
-    string get_description() const;
-};
+namespace Xapian {
 
 // from xapian/enquire.h:
 
