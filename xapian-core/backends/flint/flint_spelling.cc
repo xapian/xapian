@@ -73,12 +73,14 @@ class PrefixCompressedStringItor {
 
     PrefixCompressedStringItor & operator++() {
 	if (!current.empty()) {
-	    if (!left) abort();
+	    if (!left)
+		throw Xapian::DatabaseCorruptError("Bad spelling data");
 	    current.resize(*p++ ^ MAGIC_XOR_VALUE);
 	    --left;
 	}
 	size_t add;
-	if (!left || (add = *p ^ MAGIC_XOR_VALUE) >= left) abort();
+	if (!left || (add = *p ^ MAGIC_XOR_VALUE) >= left)
+	    throw Xapian::DatabaseCorruptError("Bad spelling data");
 	current.append(reinterpret_cast<const char *>(p + 1), add);
 	p += add + 1;
 	left -= add + 1;
