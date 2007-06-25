@@ -1,3 +1,9 @@
+Mon Jun 25 18:07:36 BST 2007  Olly Betts <olly@survex.com>
+
+	* xapian.i: Use "%include <xapian/queryparser.h>" to wrap
+	  Xapian::QueryParser, etc.  This adds FLAG_SYNONYM and updates
+	  FLAG_MULTIWORD_SYNONYMS.
+
 Sat Jun 23 19:02:51 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Add new synonym_keys_begin() and synonym_keys_end()

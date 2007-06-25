@@ -896,128 +896,13 @@ class Query {
 	string get_description() const;
 };
 
-// xapian/queryparser.h
-
-%feature("director") Stopper;
-class Stopper {
-public:
-    virtual bool operator()(const std::string & term) const = 0;
-    virtual ~Stopper() { }
-    virtual std::string get_description() const;
-};
-
-class SimpleStopper : public Stopper {
-  public:
-    SimpleStopper() { }
-
-    void add(const std::string & word) { stop_words.insert(word); }
-
-    virtual bool operator()(const std::string & term) const {
-	return stop_words.find(term) != stop_words.end();
-    }
-
-    virtual ~SimpleStopper() { }
-    virtual std::string get_description() const;
-};
-
-struct XAPIAN_VISIBILITY_DEFAULT ValueRangeProcessor {
-    virtual ~ValueRangeProcessor();
-    virtual Xapian::valueno operator()(std::string &begin, std::string &end) = 0;
-};
-
-class XAPIAN_VISIBILITY_DEFAULT StringValueRangeProcessor : public ValueRangeProcessor { 
-    Xapian::valueno valno;
-
-  public:
-    StringValueRangeProcessor(Xapian::valueno valno_)
-        : valno(valno_) { }
-
-    Xapian::valueno operator()(std::string &, std::string &) {
-        return valno;
-    }
-};
-
-class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProcessor {
-    Xapian::valueno valno;
-    bool prefer_mdy;
-    int epoch_year;
-
-  public:
-    DateValueRangeProcessor(Xapian::valueno valno_, bool prefer_mdy_ = false,
-                            int epoch_year_ = 1970)
-        : valno(valno_), prefer_mdy(prefer_mdy_), epoch_year(epoch_year_) { }
-
-    Xapian::valueno operator()(std::string &begin, std::string &end);
-};
-
-class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangeProcessor {
-    Xapian::valueno valno;
-    bool prefix;
-    std::string str;
-
-  public:
-    NumberValueRangeProcessor(Xapian::valueno valno_)
-        : valno(valno_), prefix(false) { }
-
-    NumberValueRangeProcessor(Xapian::valueno valno_, const std::string &str_,
-                              bool prefix_ = true)
-        : valno(valno_), prefix(prefix_), str(str_) { }
-
-    Xapian::valueno operator()(std::string &begin, std::string &end);
-    static std::string float_to_string(double value);
-    static double string_to_float(const std::string & value);
-};
-
-class QueryParser {
-public:
-    typedef enum {
-	FLAG_BOOLEAN = 1,
-	FLAG_PHRASE = 2,
-	FLAG_LOVEHATE = 4,
-	FLAG_BOOLEAN_ANY_CASE = 8,
-	FLAG_WILDCARD = 16,
-	FLAG_PURE_NOT = 32,
-	FLAG_PARTIAL = 64,
-	FLAG_SPELLING_CORRECTION = 128,
-	FLAG_AUTO_SYNONYMS = 512,
-	FLAG_AUTO_MULTIWORD_SYNONYMS = 1024
-    } feature_flag;
-
-    typedef enum {
-	STEM_NONE,
-	STEM_SOME,
-	STEM_ALL
-    } stem_strategy;
-
-    QueryParser();
-    ~QueryParser();
-    void set_stemmer(const Xapian::Stem & stemmer);
-    void set_stemming_strategy(stem_strategy strategy);
-    void set_stopper(Stopper *stop = NULL);
-    void set_default_op(Query::op default_op_);
-    Query::op get_default_op() const;
-    void set_database(const Database &db_);
-    Query parse_query(const string &q);
-    Query parse_query(const string &q, unsigned flags);
-    Query parse_query(const string &q, unsigned flags, const string &default_prefix);
-
-    void add_prefix(const std::string &field, const std::string &prefix);
-    void add_boolean_prefix(const std::string & field, const std::string &prefix);
-
-    TermIterator stoplist_begin() const;
-    TermIterator stoplist_end() const;
-
-    TermIterator unstem_begin(const std::string &term) const;
-    TermIterator unstem_end(const std::string &term) const;
-
-    void add_valuerangeprocessor(Xapian::ValueRangeProcessor * vrproc);
-
-    std::string get_corrected_query_string() const;
-
-    std::string get_description() const;
-};
-
 }
+
+%feature("director") Xapian::Stopper;
+%ignore Xapian::QueryParser::internal;
+%ignore Xapian::QueryParser::operator=;
+%ignore Xapian::QueryParser::QueryParser(const QueryParser &);
+%include <xapian/queryparser.h>
 
 %ignore Xapian::Stem::internal;
 %ignore Xapian::Stem::operator=;
