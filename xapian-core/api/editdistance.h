@@ -40,6 +40,7 @@
  *
  *  @return The edit distance from one item to the other.
  */
-int edit_distance_char(const char* ptr1, int len1, const char* ptr2, int len2);
+int edit_distance_unsigned(const unsigned* ptr1, int len1,
+			   const unsigned* ptr2, int len2);
 
 #endif // XAPIAN_INCLUDED_EDITDISTANCE_H

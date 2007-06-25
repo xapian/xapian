@@ -1,3 +1,10 @@
+Mon Jun 25 15:41:43 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/editdistance.cc,api/editdistance.h,api/omdatabase.cc:
+	  Convert to UTF-32 before calculating edit distances.
+	* tests/api_wrdb.cc: Add test coverage for Unicode spelling
+	  correction.
+
 Mon Jun 25 14:03:34 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/quartztest.cc: Remove tests for removed method

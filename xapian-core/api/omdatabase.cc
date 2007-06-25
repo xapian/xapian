@@ -22,7 +22,9 @@
  */
 
 #include <config.h>
+
 #include <xapian/error.h>
+#include <xapian/unicode.h>
 #include "omdebug.h"
 #include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
@@ -362,6 +364,12 @@ Database::get_spelling_suggestion(const string &word,
     }
     if (!merger.get()) return string();
 
+    // Convert word to UTF-32.
+    vector<unsigned> utf32_word;
+    utf32_word.assign(Utf8Iterator(word), Utf8Iterator());
+
+    vector<unsigned> utf32_term;
+
     Xapian::termcount best = 1;
     string result;
     int edist_best = max_edit_distance;
@@ -372,23 +380,38 @@ Database::get_spelling_suggestion(const string &word,
 
 	if (merger->at_end()) break;
 
-	string tname = merger->get_termname();
+	string term = merger->get_termname();
 	Xapian::termcount score = merger->get_wdf();
 
-	DEBUGLINE(SPELLING, "Term \"" << tname << "\" ngram score " << score);
+	DEBUGLINE(SPELLING, "Term \"" << term << "\" ngram score " << score);
 	if (score + TRIGRAM_SCORE_THRESHOLD >= best) {
 	    if (score > best) best = score;
 
 	    // There's no point considering a word where the difference
 	    // in length is greater than the smallest number of edits we've
 	    // found so far.
-	    if (abs((long)tname.size() - (long)word.size()) > edist_best) {
+
+	    // First check the length of the encoded UTF-8 version of term.
+	    // Each UTF-32 character is 1-4 bytes in UTF-8.
+	    if (abs((long)term.size() - (long)word.size()) > edist_best * 4) {
+		DEBUGLINE(SPELLING, "Lengths much too different");
+		continue;
+	    }
+
+	    // Now convert to UTF-32, and compare the true lengths more
+	    // strictly.
+	    utf32_term.assign(Utf8Iterator(term), Utf8Iterator());
+
+	    if (abs((long)utf32_term.size() - (long)utf32_word.size())
+		    > edist_best) {
 		DEBUGLINE(SPELLING, "Lengths too different");
 		continue;
 	    }
 
-	    int edist = edit_distance_char(tname.data(), tname.size(),
-					   word.data(), word.size());
+	    int edist = edit_distance_unsigned(&utf32_term[0],
+					       utf32_term.size(),
+					       &utf32_word[0],
+					       utf32_word.size());
 	    DEBUGLINE(SPELLING, "Edit distance " << edist);
 	    // If we have an exact match, return an empty string since there's
 	    // no correction required.
@@ -397,14 +420,14 @@ Database::get_spelling_suggestion(const string &word,
 	    if (edist <= edist_best) {
 		Xapian::doccount freq = 0;
 		for (size_t j = 0; j < internal.size(); ++j)
-		    freq += internal[j]->get_spelling_frequency(tname);
+		    freq += internal[j]->get_spelling_frequency(term);
 
 		DEBUGLINE(SPELLING, "Freq " << freq << " best " << freq_best);
 		if (edist < edist_best || freq > freq_best) {
-		    DEBUGLINE(SPELLING, "Best so far: \"" << tname <<
+		    DEBUGLINE(SPELLING, "Best so far: \"" << term <<
 					"\" edist " << edist << " freq " <<
 					freq);
-		    result = tname;
+		    result = term;
 		    edist_best = edist;
 		    freq_best = freq;
 		}

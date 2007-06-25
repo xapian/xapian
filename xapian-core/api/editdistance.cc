@@ -203,7 +203,7 @@ seqcmp_editdist(const CHR * ptr1, int len1, const CHR * ptr2, int len2)
 }
 
 int
-edit_distance_char(const char * ptr1, int len1, const char * ptr2, int len2)
+edit_distance_unsigned(const unsigned * ptr1, int len1, const unsigned * ptr2, int len2)
 {
-    return seqcmp_editdist<char>(ptr1, len1, ptr2, len2);
+    return seqcmp_editdist<unsigned>(ptr1, len1, ptr2, len2);
 }

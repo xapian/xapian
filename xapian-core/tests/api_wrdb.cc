@@ -1382,8 +1382,41 @@ static bool test_spell1()
     return true;
 }
 
+// Test spelling correction for Unicode.
+static bool test_spell2()
+{
+    string dbpath;
+    if (get_dbtype() == "flint") {
+	dbpath = ".flint/dbw";
+    } else {
+	SKIP_TEST("Test only supported for flint backend");
+    }
+
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    // Check that a UTF-8 sequence counts as a single character.
+    db.add_spelling("h\xc3\xb6hle");
+    db.add_spelling("ascii");
+    TEST_EQUAL(db.get_spelling_suggestion("hohle", 1), "h\xc3\xb6hle");
+    TEST_EQUAL(db.get_spelling_suggestion("hhle", 1), "h\xc3\xb6hle");
+    TEST_EQUAL(db.get_spelling_suggestion("\xf0\xa8\xa8\x8f\xc3\xb6le", 2), "h\xc3\xb6hle");
+    TEST_EQUAL(db.get_spelling_suggestion("hh\xc3\xb6l"), "h\xc3\xb6hle");
+    TEST_EQUAL(db.get_spelling_suggestion("as\xc3\xb6\xc3\xb7i"), "ascii");
+    TEST_EQUAL(db.get_spelling_suggestion("asc\xc3\xb6i\xc3\xb7i"), "ascii");
+    db.flush();
+    Xapian::Database dbr(dbpath);
+    TEST_EQUAL(dbr.get_spelling_suggestion("hohle", 1), "h\xc3\xb6hle");
+    TEST_EQUAL(dbr.get_spelling_suggestion("hhle", 1), "h\xc3\xb6hle");
+    TEST_EQUAL(dbr.get_spelling_suggestion("\xf0\xa8\xa8\x8f\xc3\xb6le", 2), "h\xc3\xb6hle");
+    TEST_EQUAL(dbr.get_spelling_suggestion("hh\xc3\xb6l"), "h\xc3\xb6hle");
+    TEST_EQUAL(dbr.get_spelling_suggestion("as\xc3\xb6\xc3\xb7i"), "ascii");
+    TEST_EQUAL(dbr.get_spelling_suggestion("asc\xc3\xb6i\xc3\xb7i"), "ascii");
+
+    return true;
+}
+
 // Test synonym iterators.
-static bool test_synonymitor1()
+    static bool test_synonymitor1()
 {
     string dbpath;
     if (get_dbtype() == "flint") {
@@ -1534,6 +1567,7 @@ test_desc writabledb_tests[] = {
     TESTCASE(crashrecovery1),
     TESTCASE(nomoredocids1),
     TESTCASE(spell1),
+    TESTCASE(spell2),
     TESTCASE(synonymitor1),
     END_OF_TESTCASES
 };
