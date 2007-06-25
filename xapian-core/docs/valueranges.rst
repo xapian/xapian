@@ -78,7 +78,7 @@ NumberValueRangeProcessor
 =========================
 
 .. note: this class had a design flaw in Xapian 1.0.0 and 1.0.1 - you should
-avoid using it with releases of Xapian earlier than 1.0.2.
+   avoid using it with releases of Xapian earlier than 1.0.2.
 
 This class allows you to implement numeric range searches.  The numbers used
 may be any number which is representable as a double, but requires that the

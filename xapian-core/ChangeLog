@@ -1,3 +1,7 @@
+Mon Jun 25 02:44:04 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/valueranges.rst: Fix bad RST markup.
+
 Sun Jun 24 23:24:26 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/harness/backendmanager.cc: Fix memory leak in test harness
