@@ -519,7 +519,6 @@ static bool test_postlist1()
     {
 	QuartzPostList pl2(db_w, &table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 0);
-	TEST_EQUAL(pl2.get_collection_freq(), 0);
 	pl2.next(0);
 	TEST(pl2.at_end());
     }
@@ -529,7 +528,6 @@ static bool test_postlist1()
     {
 	QuartzPostList pl2(db_w, &table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 1);
-	TEST_EQUAL(pl2.get_collection_freq(), 7);
 	pl2.next(0);
 	TEST(!pl2.at_end());
 	TEST_EQUAL(pl2.get_docid(), 5);
@@ -543,7 +541,6 @@ static bool test_postlist1()
     {
 	QuartzPostList pl2(db_w, &table, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 2);
-	TEST_EQUAL(pl2.get_collection_freq(), 8);
 	pl2.next(0);
 	TEST(!pl2.at_end());
 	TEST_EQUAL(pl2.get_docid(), 5);
@@ -578,7 +575,6 @@ static bool test_postlist2()
     {
 	QuartzPostList pl2(db_w, &bufftable, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), 0);
-	TEST_EQUAL(pl2.get_collection_freq(), 0);
 	pl2.next(0);
 	TEST(pl2.at_end());
     }
@@ -604,7 +600,6 @@ static bool test_postlist2()
     {
 	QuartzPostList pl2(db_w, &bufftable, &positiontable, "foo");
 	TEST_EQUAL(pl2.get_termfreq(), testdata.size());
-	TEST_EQUAL(pl2.get_collection_freq(), collfreq);
 	pl2.next(0);
 	vector<unsigned int>::const_iterator i3 = testdata.begin();
 
