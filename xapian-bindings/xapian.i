@@ -178,29 +178,30 @@ class PositionIterator {
     std::string get_description() const;
 };
 
-// from xapian/postingiterator.h
+}
 
-class PostingIterator {
-  public:
-    PostingIterator();
-    PostingIterator(const PostingIterator& other);
-    ~PostingIterator();
-    %extend {
-	Xapian::docid get_docid() const {
-	    return *(*self);
-	}
-	NEXT(Xapian::docid, PostingIterator)
-	bool equals(const PostingIterator &other) const {
-	    return (*self) == other;
-	}
+%ignore Xapian::DocIDWrapper;
+%ignore Xapian::PostingIterator::operator++;
+%ignore Xapian::PostingIterator::operator*;
+%ignore Xapian::PostingIterator::internal;
+%ignore Xapian::PostingIterator::operator=;
+%ignore operator==(const PostingIterator &, const PostingIterator &);
+%ignore operator!=(const PostingIterator &, const PostingIterator &);
+%ignore difference_type;
+%ignore iterator_category;
+%ignore value_type;
+%extend Xapian::PostingIterator {
+    Xapian::docid get_docid() const {
+        return *(*self);
     }
-    void skip_to(docid did);
-    doclength get_doclength() const;
-    termcount get_wdf() const;
-    PositionIterator positionlist_begin();
-    PositionIterator positionlist_end();
-    std::string get_description() const;
-};
+    NEXT(Xapian::docid, PostingIterator)
+    bool equals(const PostingIterator &other) const {
+        return (*self) == other;
+    }
+}
+%include <xapian/postingiterator.h>
+
+namespace Xapian {
 
 // from xapian/termiterator.h
 
