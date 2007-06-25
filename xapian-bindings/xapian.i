@@ -257,7 +257,7 @@ class ValueIterator {
 }
 
 %ignore Xapian::Document::internal;
-%ignore Xapian::Document::Document(Xapian::Document::Internal *);
+%ignore Xapian::Document::Document(Internal *);
 %ignore Xapian::Document::operator=;
 %include <xapian/document.h>
 
