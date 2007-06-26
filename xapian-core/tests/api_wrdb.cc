@@ -1415,6 +1415,69 @@ static bool test_spell2()
     return true;
 }
 
+// Test spelling correction with multi databases
+static bool test_spell3()
+{
+    string dbpath;
+    if (get_dbtype() == "flint") {
+	dbpath = ".flint/dbw";
+    } else {
+	SKIP_TEST("Test only supported for flint backend");
+    }
+
+    Xapian::WritableDatabase db1 = get_writable_database("");
+    Xapian::WritableDatabase db2 = get_writable_database("");
+
+    // Check that a UTF-8 sequence counts as a single character.
+    db1.add_spelling("hello");
+    db1.add_spelling("cell", 2);
+    db2.add_spelling("hello", 2);
+    db2.add_spelling("helo");
+
+    Xapian::Database db;
+    db.add_database(db1);
+    db.add_database(db2);
+
+    TEST_EQUAL(db.get_spelling_suggestion("hello"), "");
+    TEST_EQUAL(db.get_spelling_suggestion("hell"), "hello");
+    TEST_EQUAL(db1.get_spelling_suggestion("hell"), "cell");
+    TEST_EQUAL(db2.get_spelling_suggestion("hell"), "hello");
+
+
+    // Test spelling iterator
+    Xapian::TermIterator i(db1.spellings_begin());
+    TEST_EQUAL(*i, "cell");
+    TEST_EQUAL(i.get_termfreq(), 2);
+    ++i;
+    TEST_EQUAL(*i, "hello");
+    TEST_EQUAL(i.get_termfreq(), 1);
+    ++i;
+    TEST(i == db1.spellings_end());
+
+    i = db2.spellings_begin();
+    TEST_EQUAL(*i, "hello");
+    TEST_EQUAL(i.get_termfreq(), 2);
+    ++i;
+    TEST_EQUAL(*i, "helo");
+    TEST_EQUAL(i.get_termfreq(), 1);
+    ++i;
+    TEST(i == db2.spellings_end());
+
+    i = db.spellings_begin();
+    TEST_EQUAL(*i, "cell");
+    TEST_EQUAL(i.get_termfreq(), 2);
+    ++i;
+    TEST_EQUAL(*i, "hello");
+    TEST_EQUAL(i.get_termfreq(), 3);
+    ++i;
+    TEST_EQUAL(*i, "helo");
+    TEST_EQUAL(i.get_termfreq(), 1);
+    ++i;
+    TEST(i == db.spellings_end());
+
+    return true;
+}
+
 // Test synonym iterators.
 static bool test_synonymitor1()
 {
@@ -1568,6 +1631,7 @@ test_desc writabledb_tests[] = {
     TESTCASE(nomoredocids1),
     TESTCASE(spell1),
     TESTCASE(spell2),
+    TESTCASE(spell3),
     TESTCASE(synonymitor1),
     END_OF_TESTCASES
 };
