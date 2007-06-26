@@ -708,9 +708,37 @@ static bool test_termgen1()
     return true;
 }
 
+/// Test spelling data generation.
+static bool test_tg_spell1()
+{
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/tg_spell1";
+    Xapian::WritableDatabase db(dbdir, Xapian::DB_CREATE_OR_OVERWRITE);
+
+    Xapian::TermGenerator termgen;
+    Xapian::Document doc;
+
+    termgen.set_document(doc);
+    termgen.set_database(db);
+    termgen.set_flags(Xapian::TermGenerator::FLAG_SPELLING);
+
+    termgen.index_text("hello world hullo");
+    termgen.index_text("zebra", 1, "S");
+    termgen.index_text("hello mum hallo");
+
+    TEST_STRINGS_EQUAL(db.get_spelling_suggestion("hillo"), "hello");
+    TEST_STRINGS_EQUAL(db.get_spelling_suggestion("hillo"), "hello");
+    TEST_STRINGS_EQUAL(db.get_spelling_suggestion("hull"), "hullo");
+    TEST_STRINGS_EQUAL(db.get_spelling_suggestion("mamm"), "mum");
+    // Prefixed terms should be ignored for spelling currently.
+    TEST_STRINGS_EQUAL(db.get_spelling_suggestion("zzebra"), "");
+
+    return true;
+}
 /// Test cases for the TermGenerator.
 static test_desc tests[] = {
     TESTCASE(termgen1),
+    TESTCASE(tg_spell1),
     END_OF_TESTCASES
 };
 
