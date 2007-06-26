@@ -1,3 +1,10 @@
+Tue Jun 26 15:22:12 BST 2007  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Don't skip "empty" source databases, as they
+	  may have spelling and/or synonym data.  Warn if more than one source
+	  database has spelling data and ignore all but the first.  Similarly
+	  warn and ignore for synonym data.
+
 Tue Jun 26 13:52:15 BST 2007  Olly Betts <olly@survex.com>
 
 	* examples/copydatabase.cc: Fix code which extracts the leafname to

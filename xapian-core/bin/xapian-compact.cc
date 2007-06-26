@@ -320,7 +320,9 @@ main(int argc, char **argv)
 		exit(1);
 	    }
 	    Xapian::Database db(srcdir);
-	    // No point trying to merge empty databases!
+	    offset.push_back(tot_off);
+	    // "Empty" databases might have spelling or synonym data so can't
+	    // just be ignored.
 	    if (db.get_doccount() != 0) {
 		Xapian::docid last = db.get_lastdocid();
 		// FIXME: prune unused docids off the end of each source db...
@@ -335,10 +337,9 @@ main(int argc, char **argv)
 		    tot_off -= (*it - 1);
 		}
 
-		offset.push_back(tot_off);
 		tot_off += last;
-		sources.push_back(string(srcdir) + '/');
 	    }
+	    sources.push_back(string(srcdir) + '/');
 	}
 
 	// If the destination database directory doesn't exist, create it.
@@ -360,9 +361,14 @@ main(int argc, char **argv)
 	    }
 	}
 
+	enum table_type {
+	    POSTLIST, RECORD, TERMLIST, POSITION, VALUE, SPELLING, SYNONYM
+	};
 	struct table_list {
 	    // The "base name" of the table.
 	    const char * name;
+	    // The type.
+	    table_type type;
 	    // zlib compression strategy to use on tags.
 	    int compress_strategy;
 	    // Create tables after position lazily.
@@ -370,14 +376,14 @@ main(int argc, char **argv)
 	};
 
 	static const table_list tables[] = {
-	    // name		compress_strategy	lazy
-	    { "postlist",	DONT_COMPRESS,		false },
-	    { "record",		Z_DEFAULT_STRATEGY,	false },
-	    { "termlist",	Z_DEFAULT_STRATEGY,	false },
-	    { "position",	DONT_COMPRESS,		true },
-	    { "value",		DONT_COMPRESS,		true },
-	    { "spelling",	Z_DEFAULT_STRATEGY,	true },
-	    { "synonyms",	Z_DEFAULT_STRATEGY,	true }
+	    // name	    type		compress_strategy	lazy
+	    { "postlist",   POSTLIST,	DONT_COMPRESS,		false },
+	    { "record",	    RECORD,	Z_DEFAULT_STRATEGY,	false },
+	    { "termlist",   TERMLIST,	Z_DEFAULT_STRATEGY,	false },
+	    { "position",   POSITION,	DONT_COMPRESS,		true },
+	    { "value",	    VALUE,	DONT_COMPRESS,		true },
+	    { "spelling",   SPELLING,	Z_DEFAULT_STRATEGY,	true },
+	    { "synonym",    SYNONYM,	Z_DEFAULT_STRATEGY,	true }
 	};
 	const table_list * tables_end = tables +
 	    (sizeof(tables) / sizeof(tables[0]));
@@ -411,7 +417,7 @@ main(int argc, char **argv)
 
 	    off_t in_size = 0;
 
-	    if (strcmp(t->name, "postlist") == 0) {
+	    if (t->type == POSTLIST) {
 		vector<string> tmp;
 		tmp.reserve(sources.size());
 		for (vector<string>::const_iterator src = sources.begin();
@@ -474,7 +480,8 @@ main(int argc, char **argv)
 		}
 	    } else {
 		// Position, Record, Termlist, Value
-		bool is_position_table = strcmp(t->name, "position") == 0;
+		bool is_position_table = (t->type == POSITION);
+		size_t tables_merged = 0;
 		for (size_t i = 0; i < sources.size(); ++i) {
 		    Xapian::docid off = offset[i];
 		    string src(sources[i]);
@@ -486,7 +493,15 @@ main(int argc, char **argv)
 			if (sb.st_size == 0) continue;
 			in_size += sb.st_size / 1024;
 		    } else {
-			bad_stat = (errno != ENOENT);
+			if (errno == ENOENT) continue;
+			bad_stat = true;
+		    }
+
+		    ++tables_merged;
+		    if (tables_merged > 1 &&
+			(t->type == SPELLING || t->type == SYNONYM)) {
+			cout << "\n*** Ignoring " << t->name << " data from " << sources[i] << endl;
+			continue;
 		    }
 
 		    FlintTable in(src, true, t->compress_strategy, t->lazy);
