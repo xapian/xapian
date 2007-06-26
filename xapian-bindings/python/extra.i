@@ -580,6 +580,22 @@ def _database_gen_termlist_iter(self, docid):
                     has_positions=TermIter.LAZY)
 Database.termlist = _database_gen_termlist_iter
 
+# Modify Database to add a "spellings()" method.
+def _database_gen_spellings_iter(self):
+    """Get an iterator which returns all the spellings for a given term.
+
+    The term to return spellings for is specified by the `term` parameter.
+
+    The iterator will return TermListItem objects.  Only the term frequency is
+    available; wdf and positions are not meaningful.
+
+    """
+    return TermIter(self.spellings_begin(), self.spellings_end(),
+                    has_termfreq=TermIter.EAGER,
+                    has_wdf=TermIter.INVALID,
+                    has_positions=TermIter.INVALID)
+Database.spellings = _database_gen_spellings_iter
+
 # Modify Database to add a "synonyms()" method.
 def _database_gen_synonyms_iter(self, term):
     """Get an iterator which returns all the synonyms for a given term.

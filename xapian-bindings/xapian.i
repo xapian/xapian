@@ -647,6 +647,8 @@ class Database {
 	Document get_document(docid did);
 	std::string get_spelling_suggestion(const std::string &word,
 					    unsigned max_edit_distance = 2) const;
+	TermIterator spellings_begin() const;
+	TermIterator spellings_end() const;
 	TermIterator synonyms_begin(const std::string &term) const;
 	TermIterator synonyms_end(const std::string &) const;
         TermIterator synonym_keys_begin(const std::string &prefix = "") const;
