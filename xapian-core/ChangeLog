@@ -1,3 +1,11 @@
+Tue Jun 26 20:51:13 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omtermlistiterator.cc: Handle pruning, so that multi-database
+	  spelling word iterators work.  Pruning should arguably always
+	  have been handled, but it's never been possible for the TermList
+	  passed to TermIterator to prune before, so it's not been an
+	  issue.
+
 Tue Jun 26 20:50:06 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/flint_spellingwordslist.h: Don't bother testing

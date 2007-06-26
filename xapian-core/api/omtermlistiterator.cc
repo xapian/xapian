@@ -28,12 +28,21 @@
 
 using namespace std;
 
+// Helper function.
+inline void
+handle_prune(Xapian::Internal::RefCntPtr<TermList>& old, TermList * result)
+{
+    if (result) {
+	old = result;
+    }
+}
+
 Xapian::TermIterator::TermIterator(Internal *internal_)
 	: internal(internal_)
 {
     if (internal.get()) {
 	// A TermList starts before the start, iterators start at the start
-	internal->next();
+	handle_prune(internal, internal->next());
 	if (internal->at_end()) internal = 0;
     }
 }
@@ -93,7 +102,7 @@ Xapian::TermIterator::operator++()
     DEBUGAPICALL(void, "Xapian::TermIterator::operator++", "");
     Assert(internal.get());
     Assert(!internal->at_end());
-    internal->next();
+    handle_prune(internal, internal->next());
     if (internal->at_end()) internal = 0;
     return *this;
 }
@@ -105,7 +114,7 @@ Xapian::TermIterator::skip_to(const string & tname)
     DEBUGAPICALL(void, "Xapian::TermIterator::skip_to", tname);
     if (internal.get()) {
 	Assert(!internal->at_end());
-	internal->skip_to(tname);
+	handle_prune(internal, internal->skip_to(tname));
 	if (internal->at_end()) internal = 0;
     }
 }
