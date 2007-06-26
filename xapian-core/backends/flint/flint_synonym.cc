@@ -219,7 +219,6 @@ TermList *
 FlintSynonymTermList::skip_to(const string &tname)
 {
     DEBUGCALL(DB, TermList *, "FlintSynonymTermList::skip_to", tname);
-    if (at_end()) abort();
     Assert(!at_end());
 
     if (cursor->find_entry(tname)) {

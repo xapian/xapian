@@ -94,7 +94,6 @@ TermList *
 FlintSpellingWordsList::skip_to(const string &tname)
 {
     DEBUGCALL(DB, TermList *, "FlintSpellingWordsList::skip_to", tname);
-    if (at_end()) abort();
     Assert(!at_end());
 
     if (cursor->find_entry("W" + tname)) {

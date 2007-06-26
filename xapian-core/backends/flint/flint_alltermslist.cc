@@ -124,7 +124,6 @@ TermList *
 FlintAllTermsList::skip_to(const string &tname)
 {
     DEBUGCALL(DB, TermList *, "FlintAllTermsList::skip_to", tname);
-    if (at_end()) abort();
     Assert(!at_end());
     // Set termfreq to 0 to indicate no value has been read for the current
     // term.
