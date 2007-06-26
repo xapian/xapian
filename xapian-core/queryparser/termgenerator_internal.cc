@@ -204,6 +204,7 @@ endofterm:
 	} else {
 	    doc.add_term(prefix + term, weight);
 	}
+	if ((flags & FLAG_SPELLING) && prefix.empty()) db.add_spelling(term);
 
 	if (!stemmer.internal.get()) continue;
 

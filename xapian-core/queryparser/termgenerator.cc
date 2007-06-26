@@ -69,6 +69,20 @@ TermGenerator::get_document() const
 }
 
 void
+TermGenerator::set_database(const Xapian::WritableDatabase &db)
+{
+    internal->db = db;
+}
+
+TermGenerator::flags
+TermGenerator::set_flags(flags toggle, flags mask)
+{
+    TermGenerator::flags old_flags = internal->flags;
+    internal->flags = flags((old_flags & mask) ^ toggle);
+    return old_flags;
+}
+
+void
 TermGenerator::index_text(const Xapian::Utf8Iterator & itor,
 			  Xapian::termcount weight,
 			  const std::string & prefix)

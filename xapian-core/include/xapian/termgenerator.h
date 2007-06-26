@@ -33,6 +33,7 @@ namespace Xapian {
 class Document;
 class Stem;
 class Stopper;
+class WritableDatabase;
 
 /** Parses a piece of text and generate terms.
  *
@@ -70,6 +71,29 @@ class XAPIAN_VISIBILITY_DEFAULT TermGenerator {
 
     /// Get the current document.
     const Xapian::Document & get_document() const;
+
+    /// Set the database to index spelling data to.
+    void set_database(const Xapian::WritableDatabase &db);
+
+    /// Flags to OR together and pass to TermGenerator::set_flags().
+    enum flags {
+	/// Index data required for spelling correction.
+	FLAG_SPELLING = 128 // Value matches QueryParser flag.
+    };
+
+    /** Set flags.
+     *
+     *  The new value of flags is: (flags & mask) ^ toggle
+     *
+     *  To just set the flags, pass the new flags in toggle and the
+     *  default value for mask.
+     *
+     *  @param toggle	Flags to XOR.
+     *  @param mask	Flags to AND with first.
+     *
+     *  @return		The old flags setting.
+     */
+    flags set_flags(flags toggle, flags mask = flags(0));
 
     /** Index some text.
      *

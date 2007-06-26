@@ -22,6 +22,7 @@
 #define XAPIAN_INCLUDED_TERMGENERATOR_INTERNAL_H
 
 #include <xapian/base.h>
+#include <xapian/database.h>
 #include <xapian/document.h>
 #include <xapian/termgenerator.h>
 #include <xapian/stem.h>
@@ -36,9 +37,11 @@ class TermGenerator::Internal : public Xapian::Internal::RefCntBase {
     const Stopper * stopper;
     Document doc;
     termcount termpos;
+    TermGenerator::flags flags;
+    WritableDatabase db;
 
   public:
-    Internal() : stopper(NULL), termpos(0) { }
+    Internal() : stopper(NULL), termpos(0), flags() { }
     void index_text(Utf8Iterator itor,
 		    termcount weight,
 		    const std::string & prefix,

@@ -1,3 +1,10 @@
+ue Jun 26 16:11:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/termgenerator.h,queryparser/termgenerator.cc,
+	  queryparser/termgenerator_internal.cc,
+	  queryparser/termgenerator_internal.h: Add support for generating
+	  spelling data to TermGenerator class.
+
 Tue Jun 26 15:22:12 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Don't skip "empty" source databases, as they
