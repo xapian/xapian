@@ -325,11 +325,12 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
 	 */
 	FLAG_AUTO_SYNONYMS = 512,
 
-	/** Enable automatic use of synonyms for groups of terms.
+	/** Enable automatic use of synonyms for single terms and groups of
+	 *  terms.
 	 *
 	 *  NB: You must also call set_database() for this to work.
 	 */
-	FLAG_AUTO_MULTIWORD_SYNONYMS = 1024
+	FLAG_AUTO_MULTIWORD_SYNONYMS = 1024 | FLAG_AUTO_SYNONYMS
     } feature_flag;
 
     typedef enum { STEM_NONE, STEM_SOME, STEM_ALL } stem_strategy;
