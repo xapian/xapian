@@ -1486,6 +1486,7 @@ static test test_multi_synonym_queries[] = {
     { "sun tan cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR Zcream:(pos=3) OR lotion:(pos=1))" },
     { "beach sun tan holiday", "(Zbeach:(pos=1) OR Zsun:(pos=2) OR Ztan:(pos=3) OR bathe:(pos=2) OR Zholiday:(pos=4))" },
     { "sun tan sun tan cream", "(Zsun:(pos=1) OR Ztan:(pos=2) OR bathe:(pos=1) OR Zsun:(pos=3) OR Ztan:(pos=4) OR Zcream:(pos=5) OR lotion:(pos=3))" },
+    { "single", "(Zsingl:(pos=1) OR record:(pos=1))" },
     { NULL, NULL }
 };
 
@@ -1498,6 +1499,7 @@ static bool test_qp_synonym2()
 
     db.add_synonym("sun tan cream", "lotion");
     db.add_synonym("sun tan", "bathe");
+    db.add_synonym("single", "record");
 
     db.flush();
 
