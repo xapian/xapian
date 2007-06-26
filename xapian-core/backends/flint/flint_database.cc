@@ -360,22 +360,20 @@ FlintDatabase::apply()
 	set_revision_number(new_revision);
     } catch (...) {
 	// Modifications failed.  Wipe all the modifications from memory.
-
-	// Reopen tables with old revision number.
-	open_tables(old_revision);
-
-	// Increase revision numbers to new revision number plus one,
-	// writing increased numbers to all tables.
-	new_revision += 1;
-
 	try {
-	    set_revision_number(new_revision);
-
-	    // This cancel() causes any buffered changes to be thrown away,
-	    // and the buffer to be reinitialised with the old entry count.
+	    // Discard any buffered changes and reinitialised cached values
+	    // from the table.
 	    cancel();
-	} catch (const Xapian::Error &) {
-	    throw Xapian::DatabaseError("Modifications failed, and cannot set revision numbers in database to a consistent state");
+
+	    // Reopen tables with old revision number.
+	    open_tables(old_revision);
+
+	    // Increase revision numbers to new revision number plus one,
+	    // writing increased numbers to all tables.
+	    ++new_revision;
+	    set_revision_number(new_revision);
+	} catch (const Xapian::Error &e) {
+	    throw Xapian::DatabaseError("Modifications failed, and cannot set consistent table revision numbers: " + e.get_msg());
 	}
 	throw;
     }

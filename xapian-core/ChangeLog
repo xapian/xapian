@@ -1,3 +1,8 @@
+Tue Jun 26 01:34:07 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc: Fix handling of exceptions during
+	  commit.
+
 Mon Jun 25 17:01:40 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/spelling.rst: Update for Unicode spelling correction.
