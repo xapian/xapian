@@ -74,13 +74,13 @@ class PrefixCompressedStringItor {
     PrefixCompressedStringItor & operator++() {
 	if (!current.empty()) {
 	    if (!left)
-		throw Xapian::DatabaseCorruptError("Bad spelling data");
+		throw Xapian::DatabaseCorruptError("Bad spelling data (none left)");
 	    current.resize(*p++ ^ MAGIC_XOR_VALUE);
 	    --left;
 	}
 	size_t add;
-	if (!left || (add = *p ^ MAGIC_XOR_VALUE) >= left)
-	    throw Xapian::DatabaseCorruptError("Bad spelling data");
+	if (left == 0 || (add = *p ^ MAGIC_XOR_VALUE) >= left)
+	    throw Xapian::DatabaseCorruptError("Bad spelling data (too little left)");
 	current.append(reinterpret_cast<const char *>(p + 1), add);
 	p += add + 1;
 	left -= add + 1;
@@ -155,7 +155,7 @@ FlintSpellingTable::merge_changes()
 	    if (!in.at_end()) {
 		// FIXME : easy to optimise this to a fix-up and substring copy.
 		while (!in.at_end()) {
-		    updated.append(*in++);
+		    out.append(*in++);
 		}
 	    }
 	}
