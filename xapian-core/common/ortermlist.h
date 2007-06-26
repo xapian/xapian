@@ -23,7 +23,11 @@
 
 #include "termlist.h"
 
-class Xapian::Internal::ExpandStats;
+namespace Xapian {
+namespace Internal {
+class ExpandStats;
+}
+}
 
 class OrTermList : public TermList {
     /// The two TermList objects we're merging.

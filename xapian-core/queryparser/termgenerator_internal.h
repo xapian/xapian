@@ -26,21 +26,25 @@
 #include <xapian/termgenerator.h>
 #include <xapian/stem.h>
 
-class Xapian::Stopper;
+namespace Xapian {
 
-class Xapian::TermGenerator::Internal : public Xapian::Internal::RefCntBase {
-    friend class Xapian::TermGenerator;
-    Xapian::Stem stemmer;
-    const Xapian::Stopper * stopper;
-    Xapian::Document doc;
-    Xapian::termcount termpos;
+class Stopper;
+
+class TermGenerator::Internal : public Xapian::Internal::RefCntBase {
+    friend class TermGenerator;
+    Stem stemmer;
+    const Stopper * stopper;
+    Document doc;
+    termcount termpos;
 
   public:
     Internal() : stopper(NULL), termpos(0) { }
-    void index_text(Xapian::Utf8Iterator itor,
-		    Xapian::termcount weight,
+    void index_text(Utf8Iterator itor,
+		    termcount weight,
 		    const std::string & prefix,
 		    bool with_positions);
 };
+
+}
 
 #endif // XAPIAN_INCLUDED_TERMGENERATOR_INTERNAL_H
