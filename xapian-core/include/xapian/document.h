@@ -69,9 +69,9 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	 *  Returns an empty string if no value with the given number is present
 	 *  in the document.
 	 *
-	 *  @param value The number of the value.
+	 *  @param valueno The number of the value.
 	 */
-	std::string get_value(Xapian::valueno value) const;
+	std::string get_value(Xapian::valueno valueno) const;
 
 	/** Add a new value.  It will replace any existing value with the
 	 *  same number.
