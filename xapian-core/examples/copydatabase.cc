@@ -69,7 +69,12 @@ try {
     Xapian::WritableDatabase db_out(dest, Xapian::DB_CREATE);
 
     for (int i = 1; i < argc - 1; ++i) {
-	const char * src = argv[i];
+	char * src = argv[i];
+	if (*src) {
+	    // Remove any trailing directory separator.
+	    char & ch = src[strlen(src) - 1];
+	    if (ch == '/' || ch == '\\') ch = '\0';
+	}
 
 	// Open the source database.
 	Xapian::Database db_in(src);
@@ -83,28 +88,42 @@ try {
 	Xapian::doccount dbsize = db_in.get_doccount();
 	if (dbsize == 0) {
 	    cout << leaf << ": empty!" << endl;
-	    continue;
-	}
+	} else {
+	    // Calculate how many decimal digits there are in dbsize.
+	    int width = static_cast<int>(log10(double(dbsize))) + 1;
 
-	// Calculate how many decimal digits there are in dbsize.
-	int width = static_cast<int>(log10(double(dbsize))) + 1;
+	    Xapian::doccount c = 0;
+	    Xapian::PostingIterator it = db_in.postlist_begin("");
+	    while (it != db_in.postlist_end("")) {
+		db_out.add_document(db_in.get_document(*it));
 
-	Xapian::doccount c = 0;
-	Xapian::PostingIterator it = db_in.postlist_begin("");
-	while (it != db_in.postlist_end("")) {
-	    db_out.add_document(db_in.get_document(*it));
+		++c;
+		// Update for the first 10, and then every 10th document.
+		if (c <= 10 || c % 10 == 0) {
+		    cout << '\r' << leaf << ": ";
+		    cout << setw(width) << c << '/' << dbsize << flush;
+		}
 
-	    ++c;
-	    // Update for the first 10, and then every 10th document.
-	    if (c <= 10 || c % 10 == 0) {
-		cout << '\r' << leaf << ": ";
-		cout << setw(width) << c << '/' << dbsize << flush;
+		++it;
 	    }
 
-	    ++it;
+	    cout << endl;
 	}
 
-	cout << endl;
+	cout << "*** Unable to copy any spelling data currently..." << endl;
+
+	cout << "Copying synonym data..." << flush;
+	Xapian::TermIterator synkey = db_in.synonym_keys_begin();
+	while (synkey != db_in.synonym_keys_end()) {
+	    string key = *synkey;
+	    Xapian::TermIterator syn = db_in.synonyms_begin(key);
+	    while (syn != db_in.synonyms_end(key)) {
+		db_out.add_synonym(key, *syn);
+		++syn;
+	    }
+	    ++synkey;
+	}
+	cout << " Done." << endl;
     }
 
     cout << "Flushing..." << flush;

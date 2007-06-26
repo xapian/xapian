@@ -1,3 +1,11 @@
+Tue Jun 26 13:52:15 BST 2007  Olly Betts <olly@survex.com>
+
+	* examples/copydatabase.cc: Fix code which extracts the leafname to
+	  handle a trailing directory separator.
+	* examples/copydatabase.cc: Copy synonym data across.  Print warning
+	  that spelling data isn't copied (as there's no API to access it
+	  currently).
+
 Tue Jun 26 13:21:13 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Fix to compact spelling and synonym tables.
