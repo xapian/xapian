@@ -1,3 +1,10 @@
+Tue Jun 26 20:26:03 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omdatabase.cc: Remove mistaken skip_to("W") - should be done
+	  by open_spelling_wordlist() rather than here.
+	* backends/flint/flint_spellingwordslist.h: Only call
+	  cursor->prev() if find_entry("W") finds an entry.
+
 Tue Jun 26 17:46:27 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/flint_alltermslist.cc,

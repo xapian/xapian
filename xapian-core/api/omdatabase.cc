@@ -446,7 +446,6 @@ Database::spellings_begin() const
     for (size_t i = 0; i < internal.size(); ++i) {
 	TermList * tl = internal[i]->open_spelling_wordlist();
 	if (tl) {
-	    tl->skip_to("W");
 	    if (merger.get()) {
 		merger = new FreqAdderOrTermList(merger.release(), tl);
 	    } else {

@@ -59,8 +59,9 @@ class FlintSpellingWordsList : public AllTermsList {
 	    : database(database_), cursor(cursor_), termfreq(0) {
 	// Seek to the entry before the first key with a "W" prefix, so the
 	// first next() will advance us to the first such entry.
-	cursor->find_entry(string("W", 1));
-	cursor->prev();
+	if (cursor->find_entry(string("W", 1))) {
+	    cursor->prev();
+	}
     }
 
     /// Destructor.
