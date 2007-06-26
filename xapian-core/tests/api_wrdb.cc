@@ -1416,7 +1416,7 @@ static bool test_spell2()
 }
 
 // Test synonym iterators.
-    static bool test_synonymitor1()
+static bool test_synonymitor1()
 {
     string dbpath;
     if (get_dbtype() == "flint") {
