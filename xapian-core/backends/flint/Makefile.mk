@@ -19,6 +19,7 @@ noinst_HEADERS +=\
 	backends/flint/flint_postlist.h\
 	backends/flint/flint_record.h\
 	backends/flint/flint_spelling.h\
+	backends/flint/flint_spellingwordslist.h\
 	backends/flint/flint_synonym.h\
 	backends/flint/flint_table.h\
 	backends/flint/flint_termlist.h\
@@ -41,6 +42,7 @@ libxapian_la_SOURCES +=\
 	backends/flint/flint_postlist.cc\
 	backends/flint/flint_record.cc\
 	backends/flint/flint_spelling.cc\
+	backends/flint/flint_spellingwordslist.cc\
 	backends/flint/flint_synonym.cc\
 	backends/flint/flint_table.cc\
 	backends/flint/flint_termlist.cc\

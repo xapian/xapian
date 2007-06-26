@@ -243,6 +243,13 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual TermList * open_spelling_termlist(const string & word) const;
 
+	/** Return a termlist which returns the words which are spelling
+	 *  correction targets.
+	 *
+	 *  If there are no spelling correction targets, returns NULL.
+	 */
+	virtual TermList * open_spelling_wordlist() const;
+
 	/** Return the number of times @a word was added as a spelling. */
 	virtual Xapian::doccount get_spelling_frequency(const string & word) const;
 

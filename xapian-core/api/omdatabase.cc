@@ -439,6 +439,25 @@ Database::get_spelling_suggestion(const string &word,
 }
 
 TermIterator
+Database::spellings_begin() const
+{
+    DEBUGAPICALL(TermIterator, "Database::spellings_begin", "");
+    AutoPtr<TermList> merger;
+    for (size_t i = 0; i < internal.size(); ++i) {
+	TermList * tl = internal[i]->open_spelling_wordlist();
+	if (tl) {
+	    tl->skip_to("W");
+	    if (merger.get()) {
+		merger = new FreqAdderOrTermList(merger.release(), tl);
+	    } else {
+		merger = tl;
+	    }
+	}
+    }
+    RETURN(TermIterator(merger.release()));
+}
+
+TermIterator
 Database::synonyms_begin(const std::string &term) const
 {
     DEBUGAPICALL(TermIterator, "Database::synonyms_begin", term);

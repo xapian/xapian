@@ -369,6 +369,15 @@ Database::Internal::open_spelling_termlist(const string &) const
     return NULL;
 }
 
+TermList *
+Database::Internal::open_spelling_wordlist() const
+{
+    // Only implemented for some database backends - others will just not
+    // suggest spelling corrections (or not contribute to them in a multiple
+    // database situation).
+    return NULL;
+}
+
 Xapian::doccount
 Database::Internal::get_spelling_frequency(const string &) const
 {

@@ -226,6 +226,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	TermList * open_allterms(const string & prefix) const;
 
 	TermList * open_spelling_termlist(const string & word) const;
+	TermList * open_spelling_wordlist() const;
 	Xapian::doccount get_spelling_frequency(const string & word) const;
 
 	TermList * open_synonym_termlist(const string & word) const;
@@ -331,6 +332,7 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	void add_spelling(const string & word, Xapian::termcount freqinc) const;
 	void remove_spelling(const string & word, Xapian::termcount freqdec) const;
 	TermList * open_spelling_termlist(const string & word) const;
+	TermList * open_spelling_wordlist() const;
 	Xapian::doccount get_spelling_frequency(const string & word) const;
 
 	TermList * open_synonym_termlist(const string & word) const;

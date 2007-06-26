@@ -59,9 +59,6 @@ class FlintSpellingTable : public FlintTable {
     std::map<std::string, Xapian::termcount> wordfreq_changes;
     std::map<fragment, std::set<std::string> > termlist_deltas;
 
-    // Merge in batched-up changes.
-    void merge_changes();
-
   public:
     /** Create a new FlintSpellingTable object.
      *
@@ -73,6 +70,9 @@ class FlintSpellingTable : public FlintTable {
      */
     FlintSpellingTable(std::string dbdir, bool readonly)
 	: FlintTable(dbdir + "/spelling.", readonly, Z_DEFAULT_COMPRESSION, true) { }
+
+    // Merge in batched-up changes.
+    void merge_changes();
 
     void add_word(const std::string & word, Xapian::termcount freqinc);
     void remove_word(const std::string & word, Xapian::termcount freqdec);

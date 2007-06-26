@@ -1,3 +1,22 @@
+Tue Jun 26 17:26:02 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/database.h: Add spellings_begin() and
+	  spellings_end(), to iterate through the spelling correction
+	  target words.
+	* api/omdatabase.cc: Implement spellings_begin(), using the newly
+	  added FreqAdderOrTermList to join the spellings lists.
+	* common/database.h,backends/database.cc: Add
+	  open_spelling_wordlist() to get iterator of spelling targets, if
+	  any, with default implementation which returns NULL.
+	* backends/flint/flint_database.h,backends/flint/flint_database.cc:
+	  Implement open_spelling_wordlist() for flint.
+	* backends/flint/flint_spelling.h: Make merge_changes() public, so
+	  it can be called when a writable database needs to open a
+	  spelling wordlist.
+	* backends/flint/flint_spellingwordslist.h,
+	  backends/flint/flint_spellingwordslist.cc: New files,
+	  implementing an iterator over the spelling targets.
+
 Tue Jun 26 17:25:09 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* common/ortermlist.h,expand/ortermlist.cc: Add a

@@ -247,6 +247,20 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	std::string get_spelling_suggestion(const std::string &word,
 					    unsigned max_edit_distance = 2) const;
 
+	/** An iterator which returns all the spelling correction targets.
+	 *
+	 *  This returns all the words which are considered as targets for the
+	 *  spelling correction algorithm.  The frequency of each word is
+	 *  available as the term frequency of each entry in the returned
+	 *  iterator.
+	 */
+	Xapian::TermIterator spellings_begin() const;
+
+	/// Corresponding end iterator to spellings_begin().
+	Xapian::TermIterator spellings_end() const {
+	    return Xapian::TermIterator(NULL);
+	}
+
 	/** An iterator which returns all the synonyms for a given term.
 	 *
 	 *  @param term	    The term to return synonyms for.

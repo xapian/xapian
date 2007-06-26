@@ -44,6 +44,7 @@
 #include "flint_document.h"
 #include "flint_alltermslist.h"
 #include "flint_lock.h"
+#include "flint_spellingwordslist.h"
 
 #include <sys/types.h>
 #include "safesysstat.h"
@@ -534,6 +535,15 @@ TermList *
 FlintDatabase::open_spelling_termlist(const string & word) const
 {
     return spelling_table.open_termlist(word);
+}
+
+TermList *
+FlintDatabase::open_spelling_wordlist() const
+{
+    FlintCursor * cursor = spelling_table.cursor_get();
+    if (!cursor) return NULL;
+    return new FlintSpellingWordsList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
+				      cursor);
 }
 
 Xapian::doccount
@@ -1144,6 +1154,16 @@ TermList *
 FlintWritableDatabase::open_spelling_termlist(const string & word) const
 {
     return database_ro.spelling_table.open_termlist(word);
+}
+
+TermList *
+FlintWritableDatabase::open_spelling_wordlist() const
+{
+    database_ro.spelling_table.merge_changes();
+    FlintCursor * cursor = database_ro.spelling_table.cursor_get();
+    if (!cursor) return NULL;
+    return new FlintSpellingWordsList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),
+				      cursor);
 }
 
 Xapian::doccount
