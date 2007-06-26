@@ -29,28 +29,32 @@ Databases
 =========
 
 Xapian databases hold all the information needed to perform searches in a set
-of tables:
+of tables.  The following tables always exist:
 
  - A posting list table, which holds a list of all the documents indexed by
    each term in the database.
- - A position list table, which holds a list of all the word positions in each
-   document which each term occurs at.
  - A record table, which holds the document data associated with each document
    in the database.
  - A termlist table, which holds a list of all the terms which index each
    document.
+
+And the following optional tables exist only when there is data to store in
+them (in 1.0.1 and earlier, the position and value tables were always created
+even if empty; spelling and synonym tables are new in 1.0.2):
+
+ - A position list table, which holds a list of all the word positions in each
+   document which each term occurs at.
  - A value table, which holds the "values" (used for sorting, collapsing, and
    other match-time calculations) associated with each document in the
    database.
+ - A spelling table, which holds data for suggesting spelling corrections.
+ - A synonym table, which holds a synonym dictionary.
 
-Each of these tables is held in a separate file, allowing an administrator to
+Each of the tables is held in a separate file, allowing an administrator to
 see how much data is being used for each of the above purposes.  It is not
 always necessary to fully populate these tables: for example, if phrase
 searches are never going to be performed on the database, it is not necessary
-to store any positionlist information.  As of Xapian 1.0.2, the value and
-position tables are created in a lazy fashion, so they'll only be created when
-there is data to be put in them.  The other tables must be present (since
-they'll always contain something in useful database).
+to store any positionlist information.
 
 If you look at a Xapian database, you will see that each of these tables
 actually uses 2 or 3 files.  For example, for a "flint" format database the

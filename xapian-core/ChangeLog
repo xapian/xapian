@@ -1,3 +1,8 @@
+Tue Jun 26 17:22:03 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/admin_notes.rst: Update to mention spelling and synonym tables,
+	  and to document optional tables more clearly.
+
 Tue Jun 26 16:23:25 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/termgentest.cc: Add feature test for TermGenerator spelling
