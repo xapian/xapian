@@ -179,3 +179,18 @@ OrTermList::positionlist_begin() const
     Assert(false);
     return Xapian::PositionIterator(NULL);
 }
+
+
+FreqAdderOrTermList::~FreqAdderOrTermList()
+{
+}
+
+Xapian::doccount
+FreqAdderOrTermList::get_termfreq() const
+{
+    DEBUGCALL(EXPAND, Xapian::doccount, "FreqAdderOrTermList::get_termfreq", "");
+    check_started();
+    if (left_current < right_current) RETURN(left->get_termfreq());
+    if (left_current > right_current) RETURN(right->get_termfreq());
+    RETURN(left->get_termfreq() + right->get_termfreq());
+}

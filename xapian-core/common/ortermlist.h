@@ -30,6 +30,7 @@ class ExpandStats;
 }
 
 class OrTermList : public TermList {
+  protected:
     /// The two TermList objects we're merging.
     TermList *left, *right;
 
@@ -71,6 +72,23 @@ class OrTermList : public TermList {
     Xapian::termcount positionlist_count() const;
 
     Xapian::PositionIterator positionlist_begin() const;
+};
+
+/** A termlist which ORs two termlists together, adding term frequencies.
+ *
+ *  This termlist is just like OrTermList, but adds the term frequencies of
+ *  terms which appear in both sublists together, rather than asserting that the
+ *  frequencies are equal.  This is appropriate for spelling termlists.
+ */
+class FreqAdderOrTermList : public OrTermList {
+    public:
+	FreqAdderOrTermList(TermList * left_, TermList * right_)
+		: OrTermList(left_, right_)
+	{ }
+
+	~FreqAdderOrTermList();
+
+	Xapian::doccount get_termfreq() const;
 };
 
 #endif // XAPIAN_INCLUDED_ORTERMLIST_H
