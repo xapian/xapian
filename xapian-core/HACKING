@@ -272,36 +272,13 @@ writing, we require the following versions:
                 sarge had 1.9.5).  Please use a newer version (1.9.x or 1.10)
                 for development if at all possible.
 
-	GNU libtool 1.5.22 + patches
+	GNU libtool 1.5.24
 		libtool 1.5 was the first version to properly support linking
-		C++ libraries, and 1.5.22 is largely 1.5 plus bug fixes and
+		C++ libraries, and 1.5.24 is largely 1.5 plus bug fixes and
 		portability enhancements.  (Note: nothing actually enforces
-		the requirement for 1.5.22, but this is the version which
+		the requirement for 1.5.24, but this is the version which
 		snapshots and release tarballs are currently bootstrapped
 		with).
-
-		We currently use a patched build of libtool 1.5.22.  There
-		patches are (append /raw to the gmane URLs to get plaintext
-		versions):
-
-		A fix for libtool bug on HP-UX:
-
-		http://article.gmane.org/gmane.comp.gnu.libtool.general/7083
-
-		A fix for compiling with -library=stlport4 using Sun C++.
-		This thread discusses the patches:
-		
-		http://thread.gmane.org/gmane.comp.gnu.libtool.patches/7041
-
-		The complete patch isn't there in one piece - it was extracted
-		from branch branch-1-5 of libtool's CVS using:
-		
-		cvs diff -r1.314.2.160 -r1.314.2.162 libtool.m4
-
-		And 2 fixes for regressions on BSDs introduced in 1.5.22:
-
-		http://article.gmane.org/gmane.comp.gnu.libtool.patches/6862
-		http://article.gmane.org/gmane.comp.gnu.libtool.patches/6861
 
 Please tell us if you find that older or newer versions of any of these
 tools work or fail to work.
@@ -831,9 +808,13 @@ to follow the style of the existing code.  In particular:
   "while", etc.  Don't put a space before the "(" in function calls.  So
   write "if (strlen(p) > 10)" not "if(strlen (p) > 10)".
 
-* If incrementing an iterator, prefer "++i" to "i++" unless you're actually
-  making use of the returned value ("++i" may be more efficient for some
-  iterators with some compilers).
+* Prefer "++i;" to "i++;", "i += 1;", or "i = i + 1".  For simple integer
+  variables these should generate equivalent (if not identical) code, but if i
+  is an iterator object then the pre-increment form can be more efficient in
+  some cases with some compilers.  It's simpler and more consistent to always
+  use the pre-increment form (unless you make use of the old value which the
+  post-increment form returns).  For the same reasons, prefer "--i;" to "i--;",
+  "i -= 1;", or "i = i - 1;".
 
 * Prefer "container.empty()" to "container.size() == 0" (and
   "!container.empty()" to "container.size() != 0" or "container.size() > 0").

@@ -1,3 +1,12 @@
+Tue Jun 26 01:45:09 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Snapshots and releases are now bootstrapped with libtool
+	  1.5.24, which includes all the patches we were applying on top of
+	  1.5.22.
+	* HACKING: Expand note about preferring pre-increment to
+	  post-increment to mention preferring it to adding one, and to cover
+	  decrementing too.
+
 Tue Jun 26 01:34:41 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_spelling.cc: Fix bug appending spelling data to
