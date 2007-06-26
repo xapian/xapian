@@ -708,7 +708,7 @@ static bool test_termgen1()
     return true;
 }
 
-/// Test cases for the QueryParser.
+/// Test cases for the TermGenerator.
 static test_desc tests[] = {
     TESTCASE(termgen1),
     END_OF_TESTCASES
