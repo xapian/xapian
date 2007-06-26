@@ -1,3 +1,7 @@
+Tue Jun 26 13:21:13 BST 2007  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Fix to compact spelling and synonym tables.
+
 Tue Jun 26 02:20:50 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_wrdb.cc: Fix randomly indented line.

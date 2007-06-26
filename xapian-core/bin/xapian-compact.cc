@@ -360,37 +360,42 @@ main(int argc, char **argv)
 	    }
 	}
 
-	const char * tables[] = {
-	    "postlist", "record", "termlist", "position", "value", NULL
+	struct table_list {
+	    // The "base name" of the table.
+	    const char * name;
+	    // zlib compression strategy to use on tags.
+	    int compress_strategy;
+	    // Create tables after position lazily.
+	    bool lazy;
 	};
 
-	for (const char **t = tables; *t; ++t) {
+	static const table_list tables[] = {
+	    // name		compress_strategy	lazy
+	    { "postlist",	DONT_COMPRESS,		false },
+	    { "record",		Z_DEFAULT_STRATEGY,	false },
+	    { "termlist",	Z_DEFAULT_STRATEGY,	false },
+	    { "position",	DONT_COMPRESS,		true },
+	    { "value",		DONT_COMPRESS,		true },
+	    { "spelling",	Z_DEFAULT_STRATEGY,	true },
+	    { "synonyms",	Z_DEFAULT_STRATEGY,	true }
+	};
+	const table_list * tables_end = tables +
+	    (sizeof(tables) / sizeof(tables[0]));
+
+	for (const table_list * t = tables; t < tables_end; ++t) {
 	    // The postlist requires an N-way merge, adjusting the headers of
 	    // various blocks.  The other tables have keys sorted in docid
 	    // order, so we can merge them by simply copying all the keys from
 	    // each source table in turn.
-	    cout << *t << " ..." << flush;
+	    cout << t->name << " ..." << flush;
 
 	    string dest = destdir;
 	    dest += '/';
-	    dest += *t;
+	    dest += t->name;
 	    dest += '.';
 
-	    int compress_strategy = DONT_COMPRESS;
-	    if (strcmp(*t, "record") == 0 ||
-		strcmp(*t, "termlist") == 0) {
-		compress_strategy = Z_DEFAULT_STRATEGY;
-	    }
-
-	    bool lazy = false;
-	    // Create tables after position lazily.
-	    if (strcmp(*t, "position") == 0 ||
-		strcmp(*t, "value") == 0) {
-		lazy = true;
-	    }
-
-	    FlintTable out(dest, false, compress_strategy, lazy);
-	    if (!lazy) {
+	    FlintTable out(dest, false, t->compress_strategy, t->lazy);
+	    if (!t->lazy) {
 		out.create_and_open(block_size);
 	    } else {
 		out.erase();
@@ -406,13 +411,13 @@ main(int argc, char **argv)
 
 	    off_t in_size = 0;
 
-	    if (*t == "postlist") {
+	    if (strcmp(t->name, "postlist") == 0) {
 		vector<string> tmp;
 		tmp.reserve(sources.size());
 		for (vector<string>::const_iterator src = sources.begin();
 		     src != sources.end(); ++src) {
 		    string s(*src);
-		    s += *t;
+		    s += t->name;
 		    s += '.';
 		    tmp.push_back(s);
 
@@ -469,11 +474,11 @@ main(int argc, char **argv)
 		}
 	    } else {
 		// Position, Record, Termlist, Value
-		bool is_position_table = (*t == "position");
+		bool is_position_table = strcmp(t->name, "position") == 0;
 		for (size_t i = 0; i < sources.size(); ++i) {
 		    Xapian::docid off = offset[i];
 		    string src(sources[i]);
-		    src += *t;
+		    src += t->name;
 		    src += '.';
 
 		    struct stat sb;
@@ -484,7 +489,7 @@ main(int argc, char **argv)
 			bad_stat = (errno != ENOENT);
 		    }
 
-		    FlintTable in(src, true, compress_strategy, lazy);
+		    FlintTable in(src, true, t->compress_strategy, t->lazy);
 		    in.open();
 		    if (in.get_entry_count() == 0) continue;
 
@@ -500,7 +505,7 @@ main(int argc, char **argv)
 			    const char * e = d + cur.current_key.size();
 			    if (!unpack_uint_preserving_sort(&d, e, &did)) {
 				string msg = "Bad ";
-				msg += *t;
+				msg += t->name;
 				msg += " key";
 				throw Xapian::DatabaseCorruptError(msg);
 			    }
@@ -512,7 +517,7 @@ main(int argc, char **argv)
 				key += cur.current_key.substr(tnameidx);
 			    } else if (d != e) {
 				string msg = "Bad ";
-				msg += *t;
+				msg += t->name;
 				msg += " key";
 				throw Xapian::DatabaseCorruptError(msg);
 			    }
@@ -528,7 +533,7 @@ main(int argc, char **argv)
 	    // And commit as revision 1.
 	    out.commit(1);
 
-	    cout << '\r' << *t << ": ";
+	    cout << '\r' << t->name << ": ";
 	    off_t out_size = 0;
 	    if (!bad_stat) {
 		struct stat sb;
