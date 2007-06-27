@@ -1,13 +1,5 @@
 Omega 1.0.2 (2007-07-??):
 
-general:
-
-* Use Xapian::BAD_VALUENO, instead of a magic value of "valueno(-1)".
-
-* Random blank line removed from diritor.h
-
-* Update copies of files from xapian-core/common to use latest versions.
-
 build system:
 
 * Value of XAPIAN_CONFIG supplied to configure is now passed to distcheck,
