@@ -1,3 +1,7 @@
+Wed Jun 27 12:13:50 BST 2007  Olly Betts <olly@survex.com>
+
+	* bin/xapian-check.cc: Check spelling and synonym Btrees.
+
 Wed Jun 27 12:10:47 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Add merging for spelling and synonym tables.

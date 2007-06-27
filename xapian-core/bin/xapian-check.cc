@@ -222,7 +222,8 @@ main(int argc, char **argv)
 	    // Note: it's important to check termlist before postlist so
 	    // that we can cross-check the document lengths.
 	    const char * tables[] = {
-		"record", "termlist", "postlist", "position", "value"
+		"record", "termlist", "postlist", "position", "value",
+		"spelling", "synonym"
 	    };
 	    for (const char **t = tables;
 		 t != tables + sizeof(tables)/sizeof(tables[0]); ++t) {
@@ -231,7 +232,9 @@ main(int argc, char **argv)
 		table += *t;
 		cout << *t << ":\n";
 		if (strcmp(*t, "position") == 0 ||
-		    strcmp(*t, "value") == 0) {
+		    strcmp(*t, "value") == 0 ||
+		    strcmp(*t, "spelling") == 0 ||
+		    strcmp(*t, "synonym") == 0) {
 		    // These are created lazily, so may not exist.
 		    if (!file_exists(table + ".DB")) {
 			cout << "Lazily created, and not yet used.\n" << endl;
