@@ -128,7 +128,7 @@ class PostlistCursor : private FlintCursor {
     }
 };
 
-class CursorGt {
+class PostlistCursorGt {
   public:
     /** Return true if and only if a's key is strictly greater than b's key.
      */
@@ -145,16 +145,16 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
 		Xapian::docid tot_off)
 {
     flint_totlen_t tot_totlen = 0;
-    priority_queue<PostlistCursor *, vector<PostlistCursor *>, CursorGt> pq;
+    priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
     for ( ; b != e; ++b, ++offset) {
 	FlintTable *in = new FlintTable(*b, true);
 	in->open();
 	if (in->get_entry_count()) {
-	    // PostlistCursor takes ownership of FlintTable in and
-	    // is responsible for deleting it.
+	    // PostlistCursor takes ownership of FlintTable in and is
+	    // responsible for deleting it.
 	    PostlistCursor * cur = new PostlistCursor(in, *offset);
 	    // Merge the METAINFO tags from each database into one.
-	    // They have a key with a single zero byte, which will
+	    // They have a key consisting of a single zero byte, which will
 	    // always be the first key.
 	    if (!is_metainfo_key(cur->key)) {
 		throw Xapian::DatabaseCorruptError("No METAINFO item in postlist table.");
@@ -231,6 +231,461 @@ merge_postlists(FlintTable * out, vector<Xapian::docid>::const_iterator offset,
     }
 }
 
+struct MergeCursor : public FlintCursor {
+    MergeCursor(FlintTable *in) : FlintCursor(in) {
+	find_entry("");
+	next();
+    }
+
+    ~MergeCursor() {
+	delete FlintCursor::get_table();
+    }
+};
+
+struct CursorGt {
+    /// Return true if and only if a's key is strictly greater than b's key.
+    bool operator()(const FlintCursor *a, const FlintCursor *b) {
+	if (b->after_end()) return false;
+	if (a->after_end()) return true;
+	return (a->current_key > b->current_key);
+    }
+};
+
+#define MAGIC_XOR_VALUE 96
+
+// FIXME: copied from backends/flint/flint_spelling.cc.
+class PrefixCompressedStringItor {
+    const unsigned char * p;
+    size_t left;
+    string current;
+
+    PrefixCompressedStringItor(const unsigned char * p_, size_t left_,
+			       const string &current_)
+	: p(p_), left(left_), current(current_) { }
+
+  public:
+    PrefixCompressedStringItor(const std::string & s)
+	: p(reinterpret_cast<const unsigned char *>(s.data())),
+	  left(s.size()) {
+	if (left) {
+	    operator++();
+	} else {
+	    p = NULL;
+	}
+    }
+
+    const string & operator*() const {
+	return current;
+    }
+
+    PrefixCompressedStringItor operator++(int) {
+	const unsigned char * old_p = p;
+	size_t old_left = left;
+	string old_current = current;
+	operator++();
+	return PrefixCompressedStringItor(old_p, old_left, old_current);
+    }
+
+    PrefixCompressedStringItor & operator++() {
+	if (left == 0) {
+	    p = NULL;
+	} else {
+	    if (!current.empty()) {
+		current.resize(*p++ ^ MAGIC_XOR_VALUE);
+		--left;
+	    }
+	    size_t add;
+	    if (left == 0 || (add = *p ^ MAGIC_XOR_VALUE) >= left)
+		throw Xapian::DatabaseCorruptError("Bad spelling data (too little left)");
+	    current.append(reinterpret_cast<const char *>(p + 1), add);
+	    p += add + 1;
+	    left -= add + 1;
+	}
+	return *this;
+    }
+
+    bool at_end() const {
+	return p == NULL;
+    }
+};
+
+// FIXME: copied from backends/flint/flint_spelling.cc.
+class PrefixCompressedStringWriter {
+    string current;
+    string & out;
+
+  public:
+    PrefixCompressedStringWriter(string & out_) : out(out_) { }
+
+    void append(const string & word) {
+	// If this isn't the first entry, see how much of the previous one
+	// we can reuse.
+	if (!current.empty()) {
+	    size_t len = min(current.size(), word.size());
+	    size_t i;
+	    for (i = 0; i < len; ++i) {
+		if (current[i] != word[i]) break;
+	    }
+	    out += char(i ^ MAGIC_XOR_VALUE);
+	    out += char((word.size() - i) ^ MAGIC_XOR_VALUE);
+	    out.append(word.data() + i, word.size() - i);
+	} else {
+	    out += char(word.size() ^ MAGIC_XOR_VALUE);
+	    out += word;
+	}
+	current = word;
+    }
+};
+
+struct PrefixCompressedStringItorGt {
+    /// Return true if and only if a's string is strictly greater than b's.
+    bool operator()(const PrefixCompressedStringItor *a,
+		    const PrefixCompressedStringItor *b) {
+	return (**a > **b);
+    }
+};
+
+static void
+merge_spellings(FlintTable * out,
+		vector<string>::const_iterator b,
+		vector<string>::const_iterator e)
+{
+    priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
+    for ( ; b != e; ++b) {
+	FlintTable *in = new FlintTable(*b, true, DONT_COMPRESS, true);
+	in->open();
+	if (in->get_entry_count()) {
+	    // The MergeCursor takes ownership of FlintTable in and is
+	    // responsible for deleting it.
+	    pq.push(new MergeCursor(in));
+	} else {
+	    delete in;
+	}
+    }
+
+    while (!pq.empty()) {
+	MergeCursor * cur = pq.top();
+	pq.pop();
+
+	string key = cur->current_key;
+	if (pq.top()->current_key > key) {
+	    // No need to merge the tags, just copy the (possibly compressed)
+	    // tag value.
+	    bool compressed = cur->read_tag(true);
+	    out->add(key, cur->current_tag, compressed);
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
+	    continue;
+	}
+
+	// Merge tag values with the same key:
+	string tag;
+	if (key[0] != 'W') {
+	    // We just want the union of words, so copy over the first instance
+	    // and skip any identical ones.
+	    priority_queue<PrefixCompressedStringItor *,
+			   vector<PrefixCompressedStringItor *>,
+			   PrefixCompressedStringItorGt> pqtag;
+	    // Stick all the MergeCursor pointers in a vector because their
+	    // current_tag members must remain valid while we're merging their
+	    // tags, but we need to call next() on them all afterwards.
+	    vector<MergeCursor *> vec;
+
+	    while (true) {
+		cur->read_tag();
+		pqtag.push(new PrefixCompressedStringItor(cur->current_tag));
+		vec.push_back(cur);
+		if (pq.empty() || pq.top()->current_key != key) break;
+		cur = pq.top();
+		pq.pop();
+	    }
+
+	    PrefixCompressedStringWriter wr(tag);
+	    string lastword;
+	    while (!pqtag.empty()) {
+		PrefixCompressedStringItor * it = pqtag.top();
+		string word = **it;
+		if (word != lastword) {
+		    lastword = word;
+		    wr.append(lastword);
+		}
+		++*it;
+		pqtag.pop();
+		if (!it->at_end()) {
+		    pqtag.push(it);
+		} else {
+		    delete it;
+		}
+	    }
+
+	    vector<MergeCursor *>::const_iterator i;
+	    for (i = vec.begin(); i != vec.end(); ++i) {
+		cur = *i;
+		if (cur->next()) {
+		    pq.push(cur);
+		} else {
+		    delete cur;
+		}
+	    }
+	} else {
+	    // We want to sum the frequencies from tags for the same key.
+	    Xapian::termcount tot_freq = 0;
+	    while (true) {
+		cur->read_tag();
+		Xapian::termcount freq;
+		const char * p = cur->current_tag.data();
+		const char * end = p + cur->current_tag.size();
+		if (!unpack_uint_last(&p, end, &freq) || freq == 0) {
+		    throw Xapian::DatabaseCorruptError("Bad spelling word freq");
+		}
+		tot_freq += freq;
+		if (cur->next()) {
+		    pq.push(cur);
+		} else {
+		    delete cur;
+		}
+		if (pq.empty() || pq.top()->current_key != key) break;
+		cur = pq.top();
+		pq.pop();
+	    }
+	    tag = pack_uint_last(tot_freq);
+	}
+	out->add(key, tag);
+    }
+}
+
+class ByteLengthPrefixedStringItor {
+    const unsigned char * p;
+    size_t left;
+
+    ByteLengthPrefixedStringItor(const unsigned char * p_, size_t left_)
+	: p(p_), left(left_) { }
+
+  public:
+    ByteLengthPrefixedStringItor(const std::string & s)
+	: p(reinterpret_cast<const unsigned char *>(s.data())),
+	  left(s.size()) { }
+
+    string operator*() const {
+	size_t len = *p ^ MAGIC_XOR_VALUE;
+	return string(reinterpret_cast<const char *>(p + 1), len);
+    }
+
+    ByteLengthPrefixedStringItor operator++(int) {
+	const unsigned char * old_p = p;
+	size_t old_left = left;
+	operator++();
+	return ByteLengthPrefixedStringItor(old_p, old_left);
+    }
+
+    ByteLengthPrefixedStringItor & operator++() {
+	if (!left) {
+	    throw Xapian::DatabaseCorruptError("Bad synonym data (none left)");
+	}
+	size_t add = (*p ^ MAGIC_XOR_VALUE) + 1;
+	if (left < add) {
+	    throw Xapian::DatabaseCorruptError("Bad synonym data (too little left)");
+	}
+	p += add;
+	left -= add;
+	return *this;
+    }
+
+    bool at_end() const {
+	return left == 0;
+    }
+};
+
+struct ByteLengthPrefixedStringItorGt {
+    /// Return true if and only if a's string is strictly greater than b's.
+    bool operator()(const ByteLengthPrefixedStringItor *a,
+		    const ByteLengthPrefixedStringItor *b) {
+	return (**a > **b);
+    }
+};
+
+static void
+merge_synonyms(FlintTable * out,
+	       vector<string>::const_iterator b,
+	       vector<string>::const_iterator e)
+{
+    priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
+    for ( ; b != e; ++b) {
+	FlintTable *in = new FlintTable(*b, true, DONT_COMPRESS, true);
+	in->open();
+	if (in->get_entry_count()) {
+	    // The MergeCursor takes ownership of FlintTable in and is
+	    // responsible for deleting it.
+	    pq.push(new MergeCursor(in));
+	} else {
+	    delete in;
+	}
+    }
+
+    while (!pq.empty()) {
+	MergeCursor * cur = pq.top();
+	pq.pop();
+
+	string key = cur->current_key;
+	if (pq.top()->current_key > key) {
+	    // No need to merge the tags, just copy the (possibly compressed)
+	    // tag value.
+	    bool compressed = cur->read_tag(true);
+	    out->add(key, cur->current_tag, compressed);
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
+	    continue;
+	}
+
+	// Merge tag values with the same key:
+	string tag;
+
+	// We just want the union of words, so copy over the first instance
+	// and skip any identical ones.
+	priority_queue<ByteLengthPrefixedStringItor *,
+		       vector<ByteLengthPrefixedStringItor *>,
+		       ByteLengthPrefixedStringItorGt> pqtag;
+	vector<MergeCursor *> vec;
+
+	while (true) {
+	    cur->read_tag();
+	    pqtag.push(new ByteLengthPrefixedStringItor(cur->current_tag));
+	    vec.push_back(cur);
+	    if (pq.empty() || pq.top()->current_key != key) break;
+	    cur = pq.top();
+	    pq.pop();
+	}
+
+	string lastword;
+	while (!pqtag.empty()) {
+	    ByteLengthPrefixedStringItor * it = pqtag.top();
+	    if (**it != lastword) {
+		lastword = **it;
+		tag += byte(lastword.size() ^ MAGIC_XOR_VALUE);
+		tag += lastword;
+	    }
+	    ++*it;
+	    pqtag.pop();
+	    if (!it->at_end()) {
+		pqtag.push(it);
+	    } else {
+		delete it;
+	    }
+	}
+
+	vector<MergeCursor *>::const_iterator i;
+	for (i = vec.begin(); i != vec.end(); ++i) {
+	    cur = *i;
+	    if (cur->next()) {
+		pq.push(cur);
+	    } else {
+		delete cur;
+	    }
+	}
+
+	out->add(key, tag);
+    }
+}
+
+static void
+multimerge_postlists(FlintTable * out, const char * tmpdir,
+		     Xapian::docid tot_off,
+		     vector<string> tmp, vector<Xapian::docid> off)
+{
+    unsigned int c = 0;
+    while (tmp.size() > 3) {
+	vector<string> tmpout;
+	tmpout.reserve(tmp.size() / 2);
+	vector<Xapian::docid> newoff;
+	newoff.resize(tmp.size() / 2);
+	for (unsigned int i = 0, j; i < tmp.size(); i = j) {
+	    j = i + 2;
+	    if (j == tmp.size() - 1) ++j;
+
+	    string dest = tmpdir;
+	    char buf[64];
+	    sprintf(buf, "/tmp%u_%u.", c, i / 2);
+	    dest += buf;
+
+	    // Don't compress temporary tables, even if the final table would
+	    // be.
+	    FlintTable tmptab(dest, false);
+	    // Use maximum blocksize for temporary tables.
+	    tmptab.create_and_open(65536);
+
+	    merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
+	    if (c > 0) {
+		for (unsigned int k = i; k < j; ++k) {
+		    unlink((tmp[k] + "DB").c_str());
+		    unlink((tmp[k] + "baseA").c_str());
+		    unlink((tmp[k] + "baseB").c_str());
+		}
+	    }
+	    tmpout.push_back(dest);
+	    tmptab.commit(1);
+	}
+	swap(tmp, tmpout);
+	swap(off, newoff);
+	++c;
+    }
+    merge_postlists(out, off.begin(), tmp.begin(), tmp.end(), tot_off);
+    if (c > 0) {
+	for (size_t k = 0; k < tmp.size(); ++k) {
+	    unlink((tmp[k] + "DB").c_str());
+	    unlink((tmp[k] + "baseA").c_str());
+	    unlink((tmp[k] + "baseB").c_str());
+	}
+    }
+}
+
+static void
+merge_docid_keyed(FlintTable *out, const vector<string> & inputs,
+		  const vector<Xapian::docid> & offset, bool lazy)
+{
+    size_t tables_merged = 0;
+    for (size_t i = 0; i < inputs.size(); ++i) {
+	Xapian::docid off = offset[i];
+
+	FlintTable in(inputs[i], true, DONT_COMPRESS, lazy);
+	in.open();
+	if (in.get_entry_count() == 0) continue;
+
+	FlintCursor cur(&in);
+	cur.find_entry("");
+
+	string key;
+	while (cur.next()) {
+	    // Adjust the key if this isn't the first database.
+	    if (off) {
+		Xapian::docid did;
+		const char * d = cur.current_key.data();
+		const char * e = d + cur.current_key.size();
+		if (!unpack_uint_preserving_sort(&d, e, &did)) {
+		    string msg = "Bad key in ";
+		    msg += inputs[i];
+		    throw Xapian::DatabaseCorruptError(msg);
+		}
+		did += off;
+		key = pack_uint_preserving_sort(did);
+		if (d != e) {
+		    // Copy over the termname for the position table.
+		    key.append(d, e - d);
+		}
+	    } else {
+		key = cur.current_key;
+	    }
+	    bool compressed = cur.read_tag(true);
+	    out->add(key, cur.current_tag, compressed);
+	}
+    }
+}
+
 int
 main(int argc, char **argv)
 {
@@ -250,10 +705,10 @@ main(int argc, char **argv)
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, "b:nFm", long_opts, 0)) != EOF) {
-        switch (c) {
-            case 'b': {
+	switch (c) {
+	    case 'b': {
 		char *p;
-		block_size = strtoul(optarg, &p, 10);	
+		block_size = strtoul(optarg, &p, 10);
 		if (block_size <= 64 && (*p == 'K' || *p == 'k')) {
 		    ++p;
 		    block_size *= 1024;
@@ -267,15 +722,15 @@ main(int argc, char **argv)
 		}
 		break;
 	    }
-            case 'n':
+	    case 'n':
 		compaction = STANDARD;
-                break;
+		break;
 	    case 'F':
 		compaction = FULLER;
 		break;
-            case 'm':
+	    case 'm':
 		multipass = true;
-                break;
+		break;
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";
 		show_usage();
@@ -283,10 +738,10 @@ main(int argc, char **argv)
 	    case OPT_VERSION:
 		cout << PROG_NAME" - "PACKAGE_STRING << endl;
 		exit(0);
-            default:
+	    default:
 		show_usage();
 		exit(1);
-        }
+	}
     }
 
     if (argc - optind < 2) {
@@ -417,135 +872,50 @@ main(int argc, char **argv)
 
 	    off_t in_size = 0;
 
-	    if (t->type == POSTLIST) {
-		vector<string> tmp;
-		tmp.reserve(sources.size());
-		for (vector<string>::const_iterator src = sources.begin();
-		     src != sources.end(); ++src) {
-		    string s(*src);
-		    s += t->name;
-		    s += '.';
-		    tmp.push_back(s);
+	    vector<string> inputs;
+	    inputs.reserve(sources.size());
+	    for (vector<string>::const_iterator src = sources.begin();
+		 src != sources.end(); ++src) {
+		string s(*src);
+		s += t->name;
+		s += '.';
 
-		    struct stat sb;
-		    if (stat(s + "DB", &sb) == 0) {
-			in_size += sb.st_size / 1024;
-		    } else {
-			bad_stat = (errno != ENOENT);
-		    }
+		struct stat sb;
+		if (stat(s + "DB", &sb) == 0) {
+		    in_size += sb.st_size / 1024;
+		} else {
+		    // We get ENOENT for an optional table.
+		    bad_stat = (errno != ENOENT);
 		}
-		vector<Xapian::docid> off(offset);
-		unsigned int c = 0;
-		while (multipass && tmp.size() > 3) {
-		    vector<string> tmpout;
-		    tmpout.reserve(tmp.size() / 2);
-		    vector<Xapian::docid> newoff;
-		    newoff.resize(tmp.size() / 2);
-		    for (unsigned int i = 0, j; i < tmp.size(); i = j) {
-			j = i + 2;
-			if (j == tmp.size() - 1) ++j;
-
-			string dest = destdir;
-			char buf[64];
-			sprintf(buf, "/tmp%u_%u.", c, i / 2);
-			dest += buf;
-
-			// Don't compress temporary tables, even if the
-			// final table would be.
-			FlintTable tmptab(dest, false);
-			tmptab.create_and_open(block_size);
-
-			merge_postlists(&tmptab, off.begin() + i, tmp.begin() + i, tmp.begin() + j, 0);
-			if (c > 0) {
-			    for (unsigned int k = i; k < j; ++k) {
-				unlink((tmp[k] + "DB").c_str());
-				unlink((tmp[k] + "baseA").c_str());
-				unlink((tmp[k] + "baseB").c_str());
-			    }
-			}
-			tmpout.push_back(dest);
-			tmptab.commit(1);
-		    }
-		    swap(tmp, tmpout);
-		    swap(off, newoff);
-		    ++c;
-		}
-		merge_postlists(&out, off.begin(), tmp.begin(), tmp.end(), tot_off);
-		if (c > 0) {
-		    for (size_t k = 0; k < tmp.size(); ++k) {
-			unlink((tmp[k] + "DB").c_str());
-			unlink((tmp[k] + "baseA").c_str());
-			unlink((tmp[k] + "baseB").c_str());
-		    }
-		}
-	    } else {
-		// Position, Record, Termlist, Value
-		bool is_position_table = (t->type == POSITION);
-		size_t tables_merged = 0;
-		for (size_t i = 0; i < sources.size(); ++i) {
-		    Xapian::docid off = offset[i];
-		    string src(sources[i]);
-		    src += t->name;
-		    src += '.';
-
-		    struct stat sb;
-		    if (stat(src + "DB", &sb) == 0) {
-			if (sb.st_size == 0) continue;
-			in_size += sb.st_size / 1024;
-		    } else {
-			if (errno == ENOENT) continue;
-			bad_stat = true;
-		    }
-
-		    ++tables_merged;
-		    if (tables_merged > 1 &&
-			(t->type == SPELLING || t->type == SYNONYM)) {
-			cout << "\n*** Ignoring " << t->name << " data from " << sources[i] << endl;
-			continue;
-		    }
-
-		    FlintTable in(src, true, t->compress_strategy, t->lazy);
-		    in.open();
-		    if (in.get_entry_count() == 0) continue;
-
-		    FlintCursor cur(&in);
-		    cur.find_entry("");
-
-		    string key;
-		    while (cur.next()) {
-			// Adjust the key if this isn't the first database.
-			if (off) {
-			    Xapian::docid did;
-			    const char * d = cur.current_key.data();
-			    const char * e = d + cur.current_key.size();
-			    if (!unpack_uint_preserving_sort(&d, e, &did)) {
-				string msg = "Bad ";
-				msg += t->name;
-				msg += " key";
-				throw Xapian::DatabaseCorruptError(msg);
-			    }
-			    did += off;
-			    key = pack_uint_preserving_sort(did);
-			    if (is_position_table) {
-				// Copy over the termname too.
-				size_t tnameidx = d - cur.current_key.data();
-				key += cur.current_key.substr(tnameidx);
-			    } else if (d != e) {
-				string msg = "Bad ";
-				msg += t->name;
-				msg += " key";
-				throw Xapian::DatabaseCorruptError(msg);
-			    }
-			} else {
-			    key = cur.current_key;
-			}
-			bool compressed = cur.read_tag(true);
-			out.add(key, cur.current_tag, compressed);
-		    }
-		}
+		inputs.push_back(s);
 	    }
 
-	    // And commit as revision 1.
+	    if (inputs.empty()) continue;
+
+	    switch (t->type) {
+		case POSTLIST:
+		    if (multipass && inputs.size() > 3) {
+			multimerge_postlists(&out, destdir, tot_off,
+					     inputs, offset);
+		    } else {
+			merge_postlists(&out, offset.begin(),
+					inputs.begin(), inputs.end(),
+					tot_off);
+		    }
+		    break;
+		case SPELLING:
+		    merge_spellings(&out, inputs.begin(), inputs.end());
+		    break;
+		case SYNONYM:
+		    merge_synonyms(&out, inputs.begin(), inputs.end());
+		    break;
+		default:
+		    // Position, Record, Termlist, Value
+		    merge_docid_keyed(&out, inputs, offset, t->lazy);
+		    break;
+	    }
+
+	    // Commit as revision 1.
 	    out.commit(1);
 
 	    cout << '\r' << t->name << ": ";
