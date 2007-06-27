@@ -803,10 +803,15 @@ def test_spell():
     db.add_spelling('hello')
     db.add_spelling('mell', 2)
     expect(db.get_spelling_suggestion('hell'), 'mell')
+    expect([(item.term, item.termfreq) for item in db.spellings()], [('hello', 1), ('mell', 2)])
+    dbr=xapian.Database(dbpath)
+    expect(dbr.get_spelling_suggestion('hell'), '')
+    expect([(item.term, item.termfreq) for item in dbr.spellings()], [])
     db.flush()
     dbr=xapian.Database(dbpath)
     expect(db.get_spelling_suggestion('hell'), 'mell')
     expect(dbr.get_spelling_suggestion('hell'), 'mell')
+    expect([(item.term, item.termfreq) for item in dbr.spellings()], [('hello', 1), ('mell', 2)])
 
     shutil.rmtree(dbpath)
 
