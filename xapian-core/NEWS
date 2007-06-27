@@ -1,11 +1,25 @@
 up to:
-Thu Jun 21 21:12:49 BST 2007  Olly Betts <olly@survex.com>
+Wed Jun 27 12:13:50 BST 2007  Olly Betts <olly@survex.com>
 
 Xapian-core 1.0.2 (2007-0?-??):
 
 API:
 
-* Xapian now offers spelling correction.
+* Xapian now offers spelling correction, based on a table of spelling
+  "target" words.  Supported only by the flint and multi databases.
+
+* Xapian now offers search-time synonym expansion, based on a table of
+  synonyms.  Supported only by the flint and multi databases.
+
+* TermGenerator: now offers support for generating spelling correction
+  data.
+
+* QueryParser: new flags have been added to allow the spelling correction
+  and synonym expansion features to be enabled and controlled.  These allow
+  synonym expansion to be performed automatically, or only when a new "~"
+  operator is explicitly specified in the query.  A new method,
+  "get_corrected_query_string()", is also available to get the result of
+  spelling correction.
 
 * QueryParser: The precedence of the boolean operators has been adjusted
   to match their usual precedence in mathematics and programming languages.
@@ -14,16 +28,23 @@ API:
   tightly than "OR", but less tightly than "AND" (previously it bound just like
   "OR").
 
+* QueryParser: the behaviour of '+' and '-' on bracketed subexpressions was
+  not as documented.  This is now fixed.
+
 * NumberValueRangeProcessor has been changed to work usefully.  Previously
   the numbers had to be the same length; now numbers are serialised to
   strings such that a string sort on the string orders the numbers correctly.
   Negative and floating point numbers are also supported now.
 
+* Parameter name for Document::get_value() has been changed.
+
 testsuite:
 
 * Feature tests added for all new features.
 
-* Improved test coverage in queryparsertest.
+* Improved test coverage in queryparsertest.  Some tests in queryparsertest
+  now use flint databases, so the test now ensures that the .flint
+  subdirectory exists.
 
 * The test harness no longer creates <dbdir>/log for flint (flint doesn't
   create a log like quartz does).
@@ -38,6 +59,29 @@ testsuite:
   check-remoteprog", for the inmemory backend with "make check-inmemory", and
   tests not requiring a backend with "make check-none".
 
+* Several extra tests of the check_at_least parameter supplied to
+  get_mset() were added.
+
+* Fix memory leak and fd leak in remotetcp handling, so apitest now passes
+  under valgrind.
+
+* quartztest: no longer test QuartzPostList::get_collection_freq(), which
+  has been removed.
+
+matcher:
+
+* Fix bug when check_at_least was supplied - the matches after the
+  requested MSet size were being returned to the user.  The parameter is
+  also now handled in a more efficient way - no extra memory is required
+  (previously, extra memory proportional to the value of check_at_least was
+  required).
+
+* Unused method OrTermList::get_collection_freq() was removed.
+
+* TermIterator: now handles the internal iterator pruning; needed when the
+  internal iterator is an OrTermList (which is only the case for spelling
+  word termlists, currently).
+
 flint backend:
 
 * The value and position tables are now only created if there is anything to
@@ -50,6 +94,14 @@ flint backend:
   and 1.0.1.  Xapian 1.0.2 flint databases can't be read by Xapian 1.0.1 or
   earlier though.
 
+* Two new optional tables are now supported: "spelling", which is used to
+  store information for spelling correction, and "synonym", which is used
+  to store synonym information.
+
+* xapian-compact: Now compacts and merges spelling and synonym tables.
+
+* xapian-check: Now checks and merges spelling and synonym tables.
+
 * Database::term_exists() is now slightly more efficient for flint databases.
 
 * New utility 'xapian-inspect' which allowing interactive inspection of key/tag
@@ -59,10 +111,19 @@ flint backend:
 * WritableDatabase::delete_document() no longer cancels pending changes if the
   document doesn't exist.
 
+* No longer create a postlist just to find the termfreq or collection
+  frequency.  Allows PostList::get_collection_freq() to be removed (bug #124)
+
+* Fix handling of exceptions during commit - previously, this could result
+  in tables getting out-of-sync, resulting in a corrupt database.
+
 quartz backend:
 
 * WritableDatabase::delete_document() no longer cancels pending changes if the
   document doesn't exist.
+
+* No longer create a postlist just to find the termfreq or collection
+  frequency.  Allows PostList::get_collection_freq() to be removed (bug #124)
 
 remote backend:
 
@@ -77,6 +138,9 @@ remote backend:
   closing it.  This fixes apitest with the remoteprog backend to pass when run
   under valgrind (it failed in this case in 1.0.0 and 1.0.1).
 
+* check_at_least is now passed to the remote server to reduce the work
+  needed to produce the match, and the serialised size of the MSet.
+
 inmemory backend:
 
 
@@ -86,7 +150,10 @@ build system:
   subdirectories generated for targets of bin_PROGRAMS not to be removed on
   make clean.  This was causing make distcheck to fail.
 
-* Snapshots and releases are now bootstrapped with automake 1.10.
+* Snapshots and releases are now bootstrapped with automake 1.10, and
+  libtool 1.5.24.
+
+* HTML documentation generated from RST files is now installed.
 
 documentation:
 
@@ -105,13 +172,28 @@ documentation:
 
 * Several typo fixes and assorted wording improvements.
 
-* queryparser.html: Mention "AND NOT" as an alternative way to write "NOT".
+* queryparser.html: Mention "AND NOT" as an alternative way to write "NOT",
+  and document synonym expansion.
 
 * admin_notes.html: Updated for changes in this release, and corrected a
   few minor errors.
 
+* spelling.rst: New file, documenting the spelling correction feature.
+
+* synonyms.rst: New file, documenting the synonyms expansion feature.
+
+* valueranges.rst: The NumberValueRangeProcessor is now documented.
+
+* HACKING: Mention new libtool, and more details about preferring
+  pre-increment.
+
 examples:
 
+copydatabase: Copies synonym data.  Also, fix a bug with handling of
+trailing directory separator on specified path.
+
+copydatabase: Warns that spelling data isn't copied, if spelling data is
+present.
 
 portability:
 
@@ -124,6 +206,8 @@ portability:
 * msvc/version.h.in: Generated version.h for MSVC build no longer has the
   remote backend marked as disabled.
 
+* Fix warnings from Intel's C++ compiler.
+
 packaging:
 
 * RPMs:
@@ -134,6 +218,7 @@ packaging:
 
 debug code:
 
+* Better reporting from the queryparser internals.
 
 Xapian-core 1.0.1 (2007-06-11):
 
