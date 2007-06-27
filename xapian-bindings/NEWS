@@ -1,3 +1,60 @@
+Up to:
+Wed Jun 27 14:13:09 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+Xapian-bindings 1.0.2 (2007-0?-??):
+
+Documentation:
+
+* Document use of PYTHON_LIB and PHP_EXTENSION_DIR.
+
+* Remove documentation of removed "--with-swig" configure option.
+
+General:
+
+* Add methods of NumberValueRangeProcessor for serialising and
+  unserialising doubles.
+
+* Add methods and constants supporting spelling correction and synonyms.
+
+* Value of XAPIAN_CONFIG supplied to configure is now passed to distcheck,
+  to ensure that it works with uninstalled copies of Xapian.
+
+* Value of PYTHON_LIB supplied to configure is now respected - previously
+  it was documented, but ignored.
+
+* Add support for supplying PHP_EXTENSION_DIR to configure.
+
+* Change to using "%include", rather than reproducing contents of header
+  files, for "queryparser.h", "document.h" and "postingiterator.h".
+
+Packaging:
+
+CSharp:
+
+* Fix rule handling parallel make to include xapian_wrap.h
+
+Java:
+
+PHP:
+
+Python:
+
+* Fix a threading problem: the GIL was not being acquired in the exception
+  handling code before setting the Python exception state, leading to
+  various memory corruption symptoms in threaded programs.
+
+* Add special iterators to Database for synonyms, synonym_keys and
+  spellings.
+
+* Add test cases for OP_VALUE_RANGE queries, getting spelling corrections,
+  synonym iterators and spelling iterators.
+
+Ruby:
+
+Tcl:
+
+Packaging:
+
 Xapian-bindings 1.0.1 (2007-06-11):
 
 Documentation:
