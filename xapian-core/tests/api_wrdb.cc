@@ -1428,7 +1428,6 @@ static bool test_spell3()
     Xapian::WritableDatabase db1 = get_writable_database("");
     Xapian::WritableDatabase db2 = get_writable_database("");
 
-    // Check that a UTF-8 sequence counts as a single character.
     db1.add_spelling("hello");
     db1.add_spelling("cell", 2);
     db2.add_spelling("hello", 2);
