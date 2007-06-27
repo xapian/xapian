@@ -1,5 +1,5 @@
 up to:
-Wed Jun 27 12:13:50 BST 2007  Olly Betts <olly@survex.com>
+Wed Jun 27 13:05:55 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 Xapian-core 1.0.2 (2007-0?-??):
 
@@ -189,11 +189,8 @@ documentation:
 
 examples:
 
-copydatabase: Copies synonym data.  Also, fix a bug with handling of
-trailing directory separator on specified path.
-
-copydatabase: Warns that spelling data isn't copied, if spelling data is
-present.
+copydatabase: Copies synonym and spelling data.  Also, fix a bug with
+handling of trailing directory separator on specified path.
 
 portability:
 
