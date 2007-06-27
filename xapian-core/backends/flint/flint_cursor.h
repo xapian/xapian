@@ -214,7 +214,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintCursor {
 	 *  @return true if the cursor has been moved off the end of the
 	 *          table, past the last entry in it, and false otherwise.
 	 */
-	bool after_end() { return is_after_end; }
+	bool after_end() const { return is_after_end; }
 
 	/** Delete the current key/tag pair, leaving the cursor on the next
 	 *  entry.
