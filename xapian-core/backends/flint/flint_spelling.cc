@@ -56,7 +56,11 @@ class PrefixCompressedStringItor {
     PrefixCompressedStringItor(const std::string & s)
 	: p(reinterpret_cast<const unsigned char *>(s.data())),
 	  left(s.size()) {
-	if (left) operator++();
+	if (left) {
+	    operator++();
+	} else {
+	    p = NULL;
+	}
     }
 
     const string & operator*() const {
@@ -72,23 +76,25 @@ class PrefixCompressedStringItor {
     }
 
     PrefixCompressedStringItor & operator++() {
-	if (!current.empty()) {
-	    if (!left)
-		throw Xapian::DatabaseCorruptError("Bad spelling data (none left)");
-	    current.resize(*p++ ^ MAGIC_XOR_VALUE);
-	    --left;
+	if (left == 0) {
+	    p = NULL;
+	} else {
+	    if (!current.empty()) {
+		current.resize(*p++ ^ MAGIC_XOR_VALUE);
+		--left;
+	    }
+	    size_t add;
+	    if (left == 0 || (add = *p ^ MAGIC_XOR_VALUE) >= left)
+		throw Xapian::DatabaseCorruptError("Bad spelling data (too little left)");
+	    current.append(reinterpret_cast<const char *>(p + 1), add);
+	    p += add + 1;
+	    left -= add + 1;
 	}
-	size_t add;
-	if (left == 0 || (add = *p ^ MAGIC_XOR_VALUE) >= left)
-	    throw Xapian::DatabaseCorruptError("Bad spelling data (too little left)");
-	current.append(reinterpret_cast<const char *>(p + 1), add);
-	p += add + 1;
-	left -= add + 1;
 	return *this;
     }
 
     bool at_end() const {
-	return left == 0;
+	return p == NULL;
     }
 };
 

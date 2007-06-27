@@ -1418,10 +1418,7 @@ static bool test_spell2()
 // Test spelling correction with multi databases
 static bool test_spell3()
 {
-    string dbpath;
-    if (get_dbtype() == "flint") {
-	dbpath = ".flint/dbw";
-    } else {
+    if (get_dbtype() != "flint") {
 	SKIP_TEST("Test only supported for flint backend");
     }
 
@@ -1477,13 +1474,30 @@ static bool test_spell3()
     return true;
 }
 
+// Regression test - check that appending works correctly.
+static bool test_spell4()
+{
+    if (get_dbtype() != "flint") {
+	SKIP_TEST("Test only supported for flint backend");
+    }
+
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    db.add_spelling("check");
+    db.add_spelling("pecks", 2);
+    db.flush();
+    db.add_spelling("becky");
+    db.flush();
+
+    TEST_EQUAL(db.get_spelling_suggestion("jeck", 2), "pecks");
+
+    return true;
+}
+
 // Test synonym iterators.
 static bool test_synonymitor1()
 {
-    string dbpath;
-    if (get_dbtype() == "flint") {
-	dbpath = ".flint/dbw";
-    } else {
+    if (get_dbtype() != "flint") {
 	SKIP_TEST("Test only supported for flint backend");
     }
 
@@ -1631,6 +1645,7 @@ test_desc writabledb_tests[] = {
     TESTCASE(spell1),
     TESTCASE(spell2),
     TESTCASE(spell3),
+    TESTCASE(spell4),
     TESTCASE(synonymitor1),
     END_OF_TESTCASES
 };
