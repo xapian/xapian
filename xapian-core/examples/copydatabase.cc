@@ -110,7 +110,13 @@ try {
 	    cout << endl;
 	}
 
-	cout << "*** Unable to copy any spelling data currently..." << endl;
+	cout << "Copying spelling data..." << flush;
+	Xapian::TermIterator spellword = db_in.spellings_begin();
+	while (spellword != db_in.spellings_end()) {
+	    db_out.add_spelling(*spellword, spellword.get_termfreq());
+	    ++spellword;
+	}
+	cout << " Done." << endl;
 
 	cout << "Copying synonym data..." << flush;
 	Xapian::TermIterator synkey = db_in.synonym_keys_begin();

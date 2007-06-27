@@ -1,3 +1,8 @@
+Wed Jun 27 13:04:19 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* examples/copydatabase.cc: Add support for copying the spelling
+	  data.
+
 Wed Jun 27 12:46:54 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* NEWS: Updated.
