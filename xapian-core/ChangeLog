@@ -1,3 +1,8 @@
+Thu Jun 28 21:43:49 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_spellingwordslist.cc: Another begins_with()
+	  which I somehow missed.    
+
 Thu Jun 28 19:51:03 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/valuerangeproc.cc,backends/flint/flint_alltermslist.cc,
