@@ -73,7 +73,7 @@ void QuartzMetaFile::open()
 				     " too short; may be truncated.");
     }
 
-    if (!begins_with(data, metafile_magic)) {
+    if (!startswith(data, metafile_magic)) {
 	throw Xapian::DatabaseCorruptError("Quartz metafile " + filename +
 				     " is invalid: magic string not found.");
     }

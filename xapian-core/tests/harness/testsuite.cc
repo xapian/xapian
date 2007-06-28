@@ -113,7 +113,7 @@ test_driver::get_srcdir()
 	if (srcdir.substr(i + 1) == ".libs") {
 	    srcdir.erase(i);
 	    // And it may have an "lt-" prefix.
-	    if (begins_with(srcfile, "lt-")) srcfile.erase(0, 3);
+	    if (startswith(srcfile, "lt-")) srcfile.erase(0, 3);
 	}
     } else {
 	// No path of argv[0], so default srcdir to the current directory.
@@ -124,7 +124,7 @@ test_driver::get_srcdir()
     }
 
     // Remove any trailing ".exe" suffix, since some platforms add this.
-    if (ends_with(srcfile, ".exe")) srcfile.resize(srcfile.size() - 4);
+    if (endswith(srcfile, ".exe")) srcfile.resize(srcfile.size() - 4);
 
     // Sanity check.
     if (!file_exists(srcdir + '/' + srcfile + ".cc")) {

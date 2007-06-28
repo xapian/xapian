@@ -105,7 +105,7 @@ FlintAllTermsList::next()
 	    throw Xapian::DatabaseCorruptError("PostList table key has unexpected format");
 	}
 
-	if (!begins_with(current_term, prefix)) {
+	if (!startswith(current_term, prefix)) {
 	    // We've reached the end of the end of the prefixed terms.
 	    cursor->to_end();
 	    current_term = "";

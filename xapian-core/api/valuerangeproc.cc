@@ -155,24 +155,24 @@ Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
     if (str.size()) {
 	if (prefix) {
 	    // If there's a prefix, require it on the start of the range.
-	    if (!begins_with(begin, str)) {
+	    if (!startswith(begin, str)) {
 		// Prefix not given.
 		return Xapian::BAD_VALUENO;
 	    }
 	    b_b = str.size();
 	    // But it's optional on the end of the range, e.g. $10..50
-	    if (begins_with(end, str)) {
+	    if (startswith(end, str)) {
 		e_b = str.size();
 	    }
 	} else {
 	    // If there's a suffix, require it on the end of the range.
-	    if (!ends_with(end, str)) {
+	    if (!endswith(end, str)) {
 		// Suffix not given.
 		return Xapian::BAD_VALUENO;
 	    }
 	    e_e = end.size() - str.size();
 	    // But it's optional on the start of the range, e.g. 10..50kg
-	    if (ends_with(begin, str)) {
+	    if (endswith(begin, str)) {
 		b_e = begin.size() - str.size();
 	    }
 	}

@@ -25,39 +25,39 @@
 #include <string.h>
 
 inline bool
-begins_with(const std::string & s, const char * pfx, size_t len)
+startswith(const std::string & s, const char * pfx, size_t len)
 {
     return s.size() >= len && (memcmp(s.data(), pfx, len) == 0);
 }
 
 inline bool
-begins_with(const std::string & s, const char * pfx)
+startswith(const std::string & s, const char * pfx)
 {
-    return begins_with(s, pfx, strlen(pfx));
+    return startswith(s, pfx, strlen(pfx));
 }
 
 inline bool
-begins_with(const std::string & s, const std::string & pfx)
+startswith(const std::string & s, const std::string & pfx)
 {
-    return begins_with(s, pfx.data(), pfx.size());
+    return startswith(s, pfx.data(), pfx.size());
 }
 
 inline bool
-ends_with(const std::string & s, const char * sfx, size_t len)
+endswith(const std::string & s, const char * sfx, size_t len)
 {
     return s.size() >= len && (memcmp(s.data() + s.size() - len, sfx, len) == 0);
 }
 
 inline bool
-ends_with(const std::string & s, const char * sfx)
+endswith(const std::string & s, const char * sfx)
 {
-    return ends_with(s, sfx, strlen(sfx));
+    return endswith(s, sfx, strlen(sfx));
 }
 
 inline bool
-ends_with(const std::string & s, const std::string & sfx)
+endswith(const std::string & s, const std::string & sfx)
 {
-    return ends_with(s, sfx.data(), sfx.size());
+    return endswith(s, sfx.data(), sfx.size());
 }
 
 #endif // XAPIAN_INCLUDED_STRINGUTILS_H

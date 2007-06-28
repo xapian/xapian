@@ -103,9 +103,9 @@ main(int argc, char **argv)
 
     // Path to the table to inspect.
     string table_name(argv[optind]);
-    if (ends_with(table_name, ".DB"))
+    if (endswith(table_name, ".DB"))
 	table_name.resize(table_name.size() - 2);
-    if (!ends_with(table_name, "."))
+    if (!endswith(table_name, "."))
 	table_name += '.';
 
     try {
@@ -152,12 +152,12 @@ wait_for_input:
 		    goto wait_for_input;
 		}
 		continue;
-	    } else if (begins_with(input, "g ")) {
+	    } else if (startswith(input, "g ")) {
 		if (!cursor.find_entry(input.substr(2))) {
 		    cout << "No exact match, going to entry before." << endl;
 		}
 		continue;
-	    } else if (begins_with(input, "goto ")) {
+	    } else if (startswith(input, "goto ")) {
 		if (!cursor.find_entry(input.substr(5))) {
 		    cout << "No exact match, going to entry before." << endl;
 		}

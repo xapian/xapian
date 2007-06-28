@@ -81,7 +81,7 @@ InMemoryAllTermsList::skip_to(const string &tname_)
     }
     it = tmap->lower_bound(tname);
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
-    if (it != tmap->end() && !begins_with(it->first, prefix))
+    if (it != tmap->end() && !startswith(it->first, prefix))
 	it = tmap->end();
     return NULL;
 }
@@ -97,7 +97,7 @@ InMemoryAllTermsList::next()
 	++it;
     }
     while (it != tmap->end() && it->second.term_freq == 0) ++it;
-    if (it != tmap->end() && !begins_with(it->first, prefix))
+    if (it != tmap->end() && !startswith(it->first, prefix))
 	it = tmap->end();
     return NULL;
 }

@@ -60,7 +60,7 @@ QuartzAllTermsList::QuartzAllTermsList(Xapian::Internal::RefCntPtr<const Xapian:
 	}
     }
 
-    if (!begins_with(current_term, prefix))
+    if (!startswith(current_term, prefix))
 	is_at_end = true;
 
     have_stats = false;
@@ -149,7 +149,7 @@ QuartzAllTermsList::skip_to(const string &tname)
 	current_term = tname;
 
 	// Check that we haven't gone past the prefix.
-	if (!begins_with(current_term, prefix))
+	if (!startswith(current_term, prefix))
 	    is_at_end = true;
     }
     RETURN(NULL);
@@ -174,7 +174,7 @@ QuartzAllTermsList::next()
 	    if (!unpack_string_preserving_sort(&start, end, current_term)) {
 		throw Xapian::DatabaseCorruptError("Failed to read the key field from a Bcursor's key");
 	    }
-	    if (!begins_with(current_term, prefix)) {
+	    if (!startswith(current_term, prefix)) {
 		is_at_end = true;
 		break;
 	    }
