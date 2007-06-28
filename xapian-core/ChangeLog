@@ -1,3 +1,8 @@
+Thu Jun 28 18:49:50 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Don't put a Z prefix on terms if the
+	  stemmer is "none", which matches what TermGenerator generates.
+
 Thu Jun 28 02:22:04 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: Don't SEGV when Query::MatchNothing is used

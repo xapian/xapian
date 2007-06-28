@@ -854,6 +854,7 @@ phrased_term:
 	    // * We're not stemming all terms and "should_stem()" returns false.
 	    // * If the term is followed by a stem preventer character.
 	    bool dont_stem =
+		!stemmer.internal.get() ||
 		stem_action == STEM_NONE ||
 		(stem_action == STEM_SOME && !should_stem(unstemmed_term)) ||
 		(it != end && is_stem_preventer(*it));
