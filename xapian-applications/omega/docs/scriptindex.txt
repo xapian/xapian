@@ -95,7 +95,7 @@ weight=FACTOR
 Input files:
 ============
 
-The data to be indexed is read in from one or more files.  Each files has
+The data to be indexed is read in from one or more files.  Each file has
 records separated by a blank line.  Each record contains one or more fields of
 the form "name=value".  If value contains newlines, these must be escaped by
 inserting an equals sign ('=') after each newline.  Here's an example record:
