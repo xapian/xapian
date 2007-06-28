@@ -94,6 +94,30 @@ static bool test_emptyquery1()
     return true;
 }
 
+/// Regression test for behaviour for an empty query with AND_NOT.
+static bool test_emptyquery2()
+{
+    static const Xapian::Query::op ops[] = {
+	Xapian::Query::OP_AND,
+	Xapian::Query::OP_OR,
+	Xapian::Query::OP_XOR,
+	Xapian::Query::OP_AND_MAYBE,
+	Xapian::Query::OP_AND_NOT
+    };
+
+    for (size_t i = 0; i < sizeof(ops) / sizeof(ops[0]); ++i) {
+	tout << "Testing op #" << i << endl;
+	Xapian::Query empty;
+	Xapian::Query q("test");
+	Xapian::Query qcombine(ops[i], empty, q);
+	tout << qcombine.get_description() << endl;
+	Xapian::Query qcombine2(ops[i], q, empty);
+	tout << qcombine2.get_description() << endl;
+    }
+
+    return true;
+}
+
 // tests that query lengths are calculated correctly
 static bool test_querylen1()
 {
@@ -351,6 +375,7 @@ test_desc nodb_tests[] = {
     {"getqterms1",	   test_getqterms1},
     {"getqterms2",	   test_getqterms2},
     {"emptyquery1",	   test_emptyquery1},
+    {"emptyquery2",	   test_emptyquery2},
     {"querylen1",	   test_querylen1},
     {"querylen2",	   test_querylen2},
     {"queryvalid1",	   test_queryvalid1},

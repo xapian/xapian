@@ -631,6 +631,7 @@ Xapian::Query::Internal::simplify_matchnothing()
             }
             break;
         case OP_AND_MAYBE:
+	case OP_AND_NOT:
             // If left hand side is MatchNothing, we match nothing.
             // If right hand side is MatchNothing, replace node with LHS.
             // So, if either node is MatchNothing, replace node with LHS.
@@ -644,7 +645,6 @@ Xapian::Query::Internal::simplify_matchnothing()
                 delete *sq;
                 subqs.erase(sq);
             }
-
             break;
         case OP_LEAF:
             // Do nothing.
