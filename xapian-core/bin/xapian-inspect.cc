@@ -105,7 +105,7 @@ main(int argc, char **argv)
     string table_name(argv[optind]);
     if (endswith(table_name, ".DB"))
 	table_name.resize(table_name.size() - 2);
-    if (!endswith(table_name, "."))
+    if (!endswith(table_name, '.'))
 	table_name += '.';
 
     try {

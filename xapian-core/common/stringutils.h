@@ -25,6 +25,12 @@
 #include <string.h>
 
 inline bool
+startswith(const std::string & s, char pfx)
+{
+    return !s.empty() && s[0] == pfx;
+}
+
+inline bool
 startswith(const std::string & s, const char * pfx, size_t len)
 {
     return s.size() >= len && (memcmp(s.data(), pfx, len) == 0);
@@ -40,6 +46,12 @@ inline bool
 startswith(const std::string & s, const std::string & pfx)
 {
     return startswith(s, pfx.data(), pfx.size());
+}
+
+inline bool
+endswith(const std::string & s, char sfx)
+{
+    return !s.empty() && s[s.size() - 1] == sfx;
 }
 
 inline bool

@@ -1,3 +1,11 @@
+Fri Jun 29 00:39:04 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/stringutils.h: Add startswith() and endswith() overloads
+	  which take a single character.
+	* backends/flint/flint_spellingwordslist.cc,bin/xapian-inspect.cc:
+	  Use new forms.
+	* backends/flint/flint_spellingwordslist.cc: Fix comment typo.
+
 Thu Jun 28 21:43:49 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_spellingwordslist.cc: Another begins_with()

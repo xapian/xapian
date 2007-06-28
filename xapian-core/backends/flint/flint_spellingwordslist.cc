@@ -82,8 +82,8 @@ FlintSpellingWordsList::next()
     Assert(!at_end());
 
     cursor->next();
-    if (!cursor->after_end() && !startswith(cursor->current_key, "W")) {
-	// We've reached the end of the end of the prefixed terms.
+    if (!cursor->after_end() && !startswith(cursor->current_key, 'W')) {
+	// We've reached the end of the prefixed terms.
 	cursor->to_end();
     }
 
