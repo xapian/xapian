@@ -696,18 +696,18 @@ main(int argc, char **argv)
 	switch (getopt_ret) {
 	case 'h': {
 	    cout << PROG_NAME" - "PROG_DESC"\n\n"
-"Usage: "PROG_NAME" [OPTIONS] --db DATABASE --url BASEURL [BASEDIR] DIRECTORY\n\n"
+"Usage: "PROG_NAME" [OPTIONS] --db DATABASE [BASEDIR] DIRECTORY\n\n"
 "Options:\n"
 "  -d, --duplicates         set duplicate handling ('ignore' or 'replace')\n"
 "  -p, --preserve-nonduplicates  don't delete unupdated documents in\n"
 "                                duplicate replace mode\n"
 "  -D, --db                 path to database to use\n"
-"  -U, --url                base url DIRECTORY represents\n"
+"  -U, --url                base url DIRECTORY represents (default: /)\n"
 "  -M, --mime-type          additional MIME mapping ext:type\n"
 "  -l, --depth-limit=LIMIT  set recursion limit (0 = unlimited)\n"
 "  -f, --follow             follow symbolic links\n"
 "      --overwrite          create the database anew (the default is to update\n"
-"                           the database already exists)" << endl;
+"                           if the database already exists)" << endl;
 	    print_stemmer_help("     ");
 	    print_help_and_version_help("     ");
 	    return 0;
@@ -792,16 +792,15 @@ main(int argc, char **argv)
 	return 1;
     }
     if (baseurl.empty()) {
-	cerr << PROG_NAME": you must specify a base URL with --url.\n";
-	return 1;
+	cerr << PROG_NAME": --url not specified, assuming `/'.\n";
     }
     // baseurl mustn't end '/' or you end up with the wrong URL
     // (//thing is different to /thing). We could probably make this
     // safe a different way, by ensuring that we don't put a leading '/'
     // on leafnames when scanning a directory, but this will do.
-    if (baseurl[baseurl.length() - 1] == '/') {
+    if (!baseurl.empty() && baseurl[baseurl.length() - 1] == '/') {
 	cout << "baseurl has trailing '/' ... removing ... " << endl;
-	baseurl = baseurl.substr(0, baseurl.length()-1);
+	baseurl.resize(baseurl.size() - 1);
     }
 
     if (optind >= argc || optind + 2 < argc) {

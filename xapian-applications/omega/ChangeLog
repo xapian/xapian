@@ -1,3 +1,8 @@
+Thu Jun 28 18:05:18 BST 2007  Olly Betts <olly@survex.com>
+
+	* omindex.cc: If --url isn't passed, default to "/", but print a
+	  warning noting that this default has been used (at least for now).
+
 Thu Jun 28 18:04:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/scriptindex.txt: Fix typo.
