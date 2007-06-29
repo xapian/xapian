@@ -1,3 +1,8 @@
+Sat Jun 30 00:37:09 BST 2007  Olly Betts <olly@survex.com>
+
+	* INSTALL: Add note that zlib must be installed before you can build
+	  Xapian.
+
 Fri Jun 29 22:40:58 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/: If doccount == lastdocid, all document ids up to
