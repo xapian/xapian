@@ -1,3 +1,10 @@
+Fri Jun 29 22:40:58 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/: If doccount == lastdocid, all document ids up to
+	  lastdocid are used, so we provide a special really efficient version
+	  implementation of iterating all documents for this common case for
+	  flint.
+
 Fri Jun 29 00:39:04 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/stringutils.h: Add startswith() and endswith() overloads

@@ -33,6 +33,7 @@
 #include <xapian/error.h>
 #include <xapian/valueiterator.h>
 
+#include "contiguousalldocspostlist.h"
 #include "flint_modifiedpostlist.h"
 #include "flint_postlist.h"
 #include "flint_alldocspostlist.h"
@@ -468,9 +469,11 @@ FlintDatabase::open_post_list(const string& tname) const
     Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
 
     if (tname.empty()) {
-	RETURN(new FlintAllDocsPostList(ptrtothis,
-					&termlist_table,
-					get_doccount()));
+	Xapian::doccount doccount = get_doccount();
+    	if (postlist_table.get_lastdocid() == doccount) {
+	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
+	}
+	RETURN(new FlintAllDocsPostList(ptrtothis, &termlist_table, doccount));
     }
 
     RETURN(new FlintPostList(ptrtothis,
@@ -1043,9 +1046,13 @@ FlintWritableDatabase::open_post_list(const string& tname) const
     Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
 
     if (tname.empty()) {
+	Xapian::doccount doccount = get_doccount();
+    	if (lastdocid == doccount) {
+	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
+	}
 	RETURN(new FlintAllDocsPostList(ptrtothis,
 					&database_ro.termlist_table,
-					get_doccount()));
+					doccount));
     }
 
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
