@@ -1,3 +1,7 @@
+Sat Jun 30 18:04:06 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/queryparsertest.cc: Write `2.0' rather than `(double)2'.
+
 Sat Jun 30 16:12:49 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/valueranges.rst: Fix typo.  Fix ".. note:" to ".. note::" so

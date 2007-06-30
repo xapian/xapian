@@ -1154,7 +1154,7 @@ static bool test_qp_value_range3()
 }
 
 static double test_value_range_numbers[] = {
-    -pow((double)2, 1022),
+    -pow(2.0, 1022),
     -1024.5,
     -3.14159265358979323846,
     -2,
@@ -1167,13 +1167,13 @@ static double test_value_range_numbers[] = {
     -0.000005,
     -0.000002,
     -0.000001,
-    -pow((double)2, -1023),
-    -pow((double)2, -1024),
-    -pow((double)2, -1074),
+    -pow(2.0, -1023),
+    -pow(2.0, -1024),
+    -pow(2.0, -1074),
     0,
-    pow((double)2, -1074),
-    pow((double)2, -1024),
-    pow((double)2, -1023),
+    pow(2.0, -1074),
+    pow(2.0, -1024),
+    pow(2.0, -1023),
     0.000001,
     0.000002,
     0.000005,
@@ -1186,7 +1186,7 @@ static double test_value_range_numbers[] = {
     2,
     3.14159265358979323846,
     1024.5,
-    pow((double)2, 1022),
+    pow(2.0, 1022),
 
     64 // Magic number which we stop at.
 };
@@ -1217,11 +1217,11 @@ static bool test_value_range_serialise1()
 	    } else if (prevstr > str) {
 		str_cmp = 1;
 	    }
-	    
-	    TEST_AND_EXPLAIN(num_cmp == str_cmp, "Numbers " << prevnum <<
-						 " and " << num <<
-						 " don't sort the same way as"
-						 " their string counterparts");
+
+	    TEST_AND_EXPLAIN(num_cmp == str_cmp,
+			     "Numbers " << prevnum << " and " << num <<
+			     " don't sort the same way as their string "
+			     "counterparts");
 	}
 
 	prevnum = num;
