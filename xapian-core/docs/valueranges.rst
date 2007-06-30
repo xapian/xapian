@@ -77,7 +77,7 @@ in this format.
 NumberValueRangeProcessor
 =========================
 
-.. note: this class had a design flaw in Xapian 1.0.0 and 1.0.1 - you should
+.. note:: This class had a design flaw in Xapian 1.0.0 and 1.0.1 - you should
    avoid using it with releases of Xapian earlier than 1.0.2.
 
 This class allows you to implement numeric range searches.  The numbers used
@@ -128,7 +128,7 @@ Using Several ValueRangeProcessors
 ==================================
 
 If you want to allow the user to specify different types of ranges, you can
-specify multiple ``ValueRangeProcessor`` objects to use.  Just add the in
+specify multiple ``ValueRangeProcessor`` objects to use.  Just add them in
 the order you want them to be checked:
 
     Xapian::QueryParser qp;
