@@ -618,34 +618,40 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	vector<Xapian::Internal::MSetItem>::const_iterator best;
 	best = min_element(items.begin(), items.end(), mcmp);
 
-	Xapian::termcount matching_terms = 0;
-	map<string,
-	    Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
+	if (termfreqandwts.size() > 1) {
+	    Xapian::termcount matching_terms = 0;
+	    map<string,
+		Xapian::MSet::Internal::TermFreqAndWeight>::const_iterator i;
 
-	Xapian::TermIterator docterms = db.termlist_begin(best->did);
-	Xapian::TermIterator docterms_end = db.termlist_end(best->did);
-	while (docterms != docterms_end) {
-	    i = termfreqandwts.find(*docterms);
-	    if (i != termfreqandwts.end()) {
-		percent_scale += i->second.termweight;
-		++matching_terms;
-		if (matching_terms == termfreqandwts.size()) break;
+	    Xapian::TermIterator docterms = db.termlist_begin(best->did);
+	    Xapian::TermIterator docterms_end = db.termlist_end(best->did);
+	    while (docterms != docterms_end) {
+		i = termfreqandwts.find(*docterms);
+		if (i != termfreqandwts.end()) {
+		    percent_scale += i->second.termweight;
+		    ++matching_terms;
+		    if (matching_terms == termfreqandwts.size()) break;
+		}
+		++docterms;
 	    }
-	    ++docterms;
-	}
-	if (matching_terms < termfreqandwts.size()) {
-	    // OK, work out weight corresponding to 100%
-	    double denom = 0;
-	    for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
-		denom += i->second.termweight;
+	    if (matching_terms < termfreqandwts.size()) {
+		// OK, work out weight corresponding to 100%
+		double denom = 0;
+		for (i = termfreqandwts.begin(); i != termfreqandwts.end(); ++i)
+		    denom += i->second.termweight;
 
-	    DEBUGLINE(MATCH, "denom = " << denom << " percent_scale = " << percent_scale);
-	    Assert(percent_scale <= denom);
-	    denom *= greatest_wt;
-	    Assert(denom > 0);
-	    percent_scale /= denom;
+		DEBUGLINE(MATCH, "denom = " << denom << " percent_scale = " << percent_scale);
+		Assert(percent_scale <= denom);
+		denom *= greatest_wt;
+		Assert(denom > 0);
+		percent_scale /= denom;
+	    } else {
+		// If all the terms match, the 2 sums of weights cancel
+		percent_scale = 1.0 / greatest_wt;
+	    }
 	} else {
-	    // If all the terms match, the 2 sums of weights cancel
+	    // If there's only a single term in the query, the top document
+	    // must score 100%.
 	    percent_scale = 1.0 / greatest_wt;
 	}
 	Assert(percent_scale > 0);
