@@ -155,6 +155,17 @@ class Xapian::Document::Internal : public Xapian::Internal::RefCntBase {
 	void need_values() const;
 	void need_terms() const;
 
+	/** Get the docid which is associated with this document (if any).
+	 *
+	 *  NB If multiple databases are being searched together, then this
+	 *  will be the document id in the individual database, not the merged
+	 *  database!
+	 *
+	 *  @return If this document came from a database, return the document
+	 *	    id in that database.  Otherwise, return 0.
+	 */
+	Xapian::docid get_docid() const { return did; }
+
 	/** Returns a string representing the object.
 	 *  Introspection method.
 	 */

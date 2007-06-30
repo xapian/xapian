@@ -193,6 +193,13 @@ Document::values_end() const
     RETURN(ValueIterator(internal->values_count(), *this));
 }
 
+docid
+Document::get_docid() const
+{
+    DEBUGAPICALL(docid, "Document::get_docid", "");
+    RETURN(internal->get_docid());
+}
+
 }
 
 /////////////////////////////////////////////////////////////////////////////

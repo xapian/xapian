@@ -178,6 +178,17 @@ class XAPIAN_VISIBILITY_DEFAULT Document {
 	/// Equivalent end iterator for values_begin().
 	ValueIterator values_end() const;
 
+	/** Get the document id which is associated with this document (if any).
+	 *
+	 *  NB If multiple databases are being searched together, then this
+	 *  will be the document id in the individual database, not the merged
+	 *  database!
+	 *
+	 *  @return If this document came from a database, return the document
+	 *	    id in that database.  Otherwise, return 0.
+	 */
+	docid get_docid() const;
+
 	/** Introspection method.
 	 *
 	 *  @return  A string representing this Document.
