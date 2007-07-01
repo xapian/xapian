@@ -484,7 +484,11 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 void
 LocalSubMatch::register_term(const string &tname)
 {
-    statssource.my_termfreq_is(tname, db->get_termfreq(tname));
+    if (tname.empty()) {
+	statssource.my_termfreq_is(tname, db->get_doccount());
+    } else {
+	statssource.my_termfreq_is(tname, db->get_termfreq(tname));
+    }
 }
 
 ////////////////////////

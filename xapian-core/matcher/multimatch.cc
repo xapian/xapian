@@ -634,6 +634,12 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		}
 		++docterms;
 	    }
+	    // Special case for MatchAll queries
+	    i = termfreqandwts.find("");
+	    if (i != termfreqandwts.end()) {
+		percent_scale += i->second.termweight;
+		++matching_terms;
+	    }
 	    if (matching_terms < termfreqandwts.size()) {
 		// OK, work out weight corresponding to 100%
 		double denom = 0;

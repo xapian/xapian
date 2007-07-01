@@ -82,7 +82,7 @@ static bool test_getqterms2()
 }
 
 // tests that empty queries work correctly
-static bool test_emptyquery1()
+static bool test_emptyquery2()
 {
     // test that Query::empty() is true for an empty query.
     TEST(Xapian::Query().empty());
@@ -95,7 +95,7 @@ static bool test_emptyquery1()
 }
 
 /// Regression test for behaviour for an empty query with AND_NOT.
-static bool test_emptyquery2()
+static bool test_emptyquery3()
 {
     static const Xapian::Query::op ops[] = {
 	Xapian::Query::OP_AND,
@@ -374,8 +374,8 @@ test_desc nodb_tests[] = {
     {"trivial1",	   test_trivial1},
     {"getqterms1",	   test_getqterms1},
     {"getqterms2",	   test_getqterms2},
-    {"emptyquery1",	   test_emptyquery1},
     {"emptyquery2",	   test_emptyquery2},
+    {"emptyquery3",	   test_emptyquery3},
     {"querylen1",	   test_querylen1},
     {"querylen2",	   test_querylen2},
     {"queryvalid1",	   test_queryvalid1},

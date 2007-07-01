@@ -1644,6 +1644,27 @@ static bool test_userweight1()
     return true;
 }
 
+// tests MatchAll queries
+// This is a regression test, which failed with assertion failures in
+// revision 9094.
+static bool test_matchall1()
+{
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query::MatchAll);
+    Xapian::MSet mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.get_matches_lower_bound(), db.get_doccount());
+
+
+    enquire.set_query(Xapian::Query(Xapian::Query::OP_OR,
+				    Xapian::Query("nosuchterm"),
+				    Xapian::Query::MatchAll));
+    mset = enquire.get_mset(0, 10);
+    TEST_EQUAL(mset.get_matches_lower_bound(), db.get_doccount());
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1710,6 +1731,7 @@ test_desc localdb_tests[] = {
     // Would work with remote if we registered the weighting scheme.
     // FIXME: do this so we also test that functionality...
     {"userweight1",	   test_userweight1},
+    {"matchall1",	   test_matchall1},
     {0, 0}
 };
 
@@ -1733,6 +1755,7 @@ test_desc remotedb_tests[] = {
     {"sortvalue1",	   test_sortvalue1},
     {"sortrel1",	   test_sortrel1},
     {"netstats1",	   test_netstats1},
+    {"matchall1",	   test_matchall1},
     {0, 0}
 };
 
