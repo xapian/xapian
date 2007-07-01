@@ -152,11 +152,10 @@ class XAPIAN_VISIBILITY_DEFAULT DateValueRangeProcessor : public ValueRangeProce
 
 /** Handle a number range.
  *
- *  This class requires that the values stored which the range is being applied
- *  to are numbers which have been converted to strings using its \a
- *  float_to_string() method.  This method produces strings which will sort in
- *  numeric order, so you can use it if you want to be able to sort based on
- *  the value in numeric order, too.
+ *  This class must be used on values which have been encoded with its
+ *  @a float_to_string() static method.  This method produces strings which
+ *  will sort in the same order as the encoded numbers, so you can use the
+ *  same value to implement a numeric sort.
  */
 class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno valno;
@@ -180,23 +179,21 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangePro
      *
      *  @param prefix_  Whether to look for the string at the start or end of
      *                  the values.  If true, the string is a prefix; if
-     *                  false, the string is a suffix.
+     *                  false, the string is a suffix (default: true).
      *
-     *  The string supplied in str_ is used by \a operator() to decide whether
+     *  The string supplied in str_ is used by @a operator() to decide whether
      *  the pair of strings supplied to it constitute a valid range.  If
      *  prefix_ is true, the first value in a range must begin with str_ (and
-     *  the second value may also begin with str_, but this is not compulsory);
+     *  the second value may optionally begin with str_);
      *  if prefix_ is false, the second value in a range must end with str_
-     *  (and the first value may also end with str_, but this is not
-     *  compulsory).
+     *  (and the first value may optionally end with str_).
      *
      *  If str_ is empty, the setting of prefix_ is irrelevant, and no special
      *  strings are required at the start or end of the strings defining the
      *  range.
      *
      *  The remainder of both strings defining the endpoints must be valid
-     *  floating point numbers, as defined by the ANSI C standard library
-     *  function `strtod()`.
+     *  floating point numbers. (FIXME: define format recognised).
      *
      *  For example, if str_ is "$" and prefix_ is true, and the range
      *  processor has been added to the queryparser, the queryparser will
@@ -237,16 +234,16 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangePro
      *
      *  The conversion is platform independent.
      */
-    static std::string float_to_string(double value); 
+    static std::string float_to_string(double value);
 
     /** Convert a string to a floating point number.
      *
-     *  This expects the input to be a string produced by \a float_to_string().
+     *  This expects the input to be a string produced by @a float_to_string().
      *  If the input is not such a string, the value returned is undefined (but
      *  no error will be thrown).
      *
      *  The result of the conversion will be exactly the value which was
-     *  supplied to \a string_to_float() when making the string on platforms
+     *  supplied to @a string_to_float() when making the string on platforms
      *  which represent doubles with the precisions specified by IEEE_754, but
      *  may be a different (nearby) value on other platforms.
      */

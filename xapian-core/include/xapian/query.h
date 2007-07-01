@@ -157,8 +157,8 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/** Construct a value range query on a document value.
 	 *
 	 *  A value range query matches those documents which have a value
-	 *  stored in the slot given by \a valno which is in the range
-	 *  specified by \a begin and \a end (in lexicographical
+	 *  stored in the slot given by @a valno which is in the range
+	 *  specified by @a begin and @a end (in lexicographical
 	 *  order), including the endpoints.
 	 *
 	 *  @param op_   The operator to use for the query.  Currently, must
