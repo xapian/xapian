@@ -69,12 +69,12 @@
 #include <float.h> // for DBL_EPSILON for AssertEqDouble
 
 // Assertions to put in debug builds
-// NB use an else clause to avoid dangling else damage
-#define Assert(a) if (a) { } else throw Xapian::AssertionError(ASSERT_LOCN(a))
+// NB put in a do{}while(0) to avoid dangling else damage
+#define Assert(a) do { if (!(a)) throw Xapian::AssertionError(ASSERT_LOCN(a)); } while (0)
 // Keep AssertEqDouble separate so we can use an epsilon test
-#define AssertEqDouble(a,b) if (fabs((a) - (b)) < DBL_EPSILON) { } else throw Xapian::AssertionError(ASSERT_LOCN(a)" - expected equal values: had " + om_tostring(a) + " and " + om_tostring(b))
-#define AssertEq(a,b) if ((a) == (b)) { } else throw Xapian::AssertionError(ASSERT_LOCN(a)" - expected equal values: had " + om_tostring(a) + " and " + om_tostring(b))
-#define AssertNe(a,b) if ((a) != (b)) { } else throw Xapian::AssertionError(ASSERT_LOCN(a)" - expected different values: had " + om_tostring(a))
+#define AssertEqDouble(a,b) do { if (fabs((a) - (b)) >= DBL_EPSILON) throw Xapian::AssertionError(ASSERT_LOCN(a)" - expected equal values: had " + om_tostring(a) + " and " + om_tostring(b)); } while (0)
+#define AssertEq(a,b) do { if ((a) != (b)) throw Xapian::AssertionError(ASSERT_LOCN(a)" - expected equal values: had " + om_tostring(a) + " and " + om_tostring(b)); } while (0)
+#define AssertNe(a,b) do { if ((a) == (b)) throw Xapian::AssertionError(ASSERT_LOCN(a)" - expected different values: had " + om_tostring(a)); } while (0)
 #else
 #define Assert(a) (void)0
 #define AssertEqDouble(a,b) (void)0
