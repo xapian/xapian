@@ -1,3 +1,11 @@
+Mon Jul 02 17:52:10 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/multimatch.h,common/omenquireinternal.h,
+	  include/xapian/enquire.h,matcher/multimatch.cc,net/remoteserver.cc,
+	  tests/api_db.cc: Add support for a "matchspy" - a MatchDecider which
+	  is documented to be tested on ever candidate document.  We plan to
+	  optimise the current matchdecider to be used as little as possible.
+
 Mon Jul 02 17:35:12 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_db.cc: Enhance matchfunctor1 to test that the functor

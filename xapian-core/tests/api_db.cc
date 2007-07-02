@@ -282,6 +282,40 @@ static bool test_matchfunctor1()
     return true;
 }
 
+// Test Xapian::MatchDecider functor used as a match spy.
+static bool test_matchfunctor2()
+{
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("this"));
+
+    myMatchDecider myfunctor;
+
+    Xapian::MSet mymset = enquire.get_mset(0, 100, 0, NULL, &myfunctor);
+
+    vector<bool> docid_checked(db.get_lastdocid());
+
+    // Check that we get the expected number of matches, and that they
+    // satisfy the condition.
+    Xapian::MSetIterator i = mymset.begin();
+    TEST(i != mymset.end());
+    TEST_EQUAL(mymset.size(), 3);
+    for ( ; i != mymset.end(); ++i) {
+	const Xapian::Document doc(i.get_document());
+	TEST(myfunctor(doc));
+	docid_checked[*i] = true;
+    }
+
+    // Check that the other documents don't satisfy the condition.
+    for (Xapian::docid did = 1; did < docid_checked.size(); ++did) {
+	if (!docid_checked[did]) {
+	    TEST(!myfunctor(db.get_document(did)));
+	}
+    }
+
+    return true;
+}
+
 // tests that mset iterators on msets compare correctly.
 static bool test_msetiterator1()
 {
@@ -1722,6 +1756,7 @@ test_desc collfreq_tests[] = {
 
 test_desc localdb_tests[] = {
     {"matchfunctor1",	   test_matchfunctor1},
+    {"matchfunctor2",	   test_matchfunctor2},
     {"msetiterator1",	   test_msetiterator1},
     {"msetiterator2",	   test_msetiterator2},
     {"msetiterator3",	   test_msetiterator3},

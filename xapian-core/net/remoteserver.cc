@@ -454,7 +454,7 @@ RemoteServer::msg_query(const string &message_in)
     global_stats = unserialise_stats(message);
 
     Xapian::MSet mset;
-    match.get_mset(first, maxitems, check_at_least, mset, 0);
+    match.get_mset(first, maxitems, check_at_least, mset, 0, 0);
 
     send_message(REPLY_RESULTS, serialise_mset(mset));
 }

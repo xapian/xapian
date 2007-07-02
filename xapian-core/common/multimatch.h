@@ -121,7 +121,8 @@ class MultiMatch
 		      Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
 		      Xapian::MSet & mset,
-		      const Xapian::MatchDecider * mdecider);
+		      const Xapian::MatchDecider * mdecider,
+		      const Xapian::MatchDecider * matchspy);
 
 	/** Called by postlists to indicate that they've rearranged themselves
 	 *  and the maxweight now possible is smaller.

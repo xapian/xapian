@@ -231,7 +231,8 @@ MultiMatch::getorrecalc_maxweight(PostList *pl)
 void
 MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		     Xapian::doccount check_at_least,
-		     Xapian::MSet & mset, const Xapian::MatchDecider *mdecider)
+		     Xapian::MSet & mset, const Xapian::MatchDecider *mdecider,
+		     const Xapian::MatchDecider *matchspy)
 {
     DEBUGCALL(MATCH, void, "MultiMatch::get_mset", first << ", " << maxitems
 	      << ", " << check_at_least << ", ...");
@@ -325,7 +326,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // maxweight).
     if (check_at_least == 0) {
 	delete pl;
-	if (mdecider != NULL) {
+	if (mdecider != NULL || matchspy != NULL) {
 	    // Lower bound must be set to 0 as the match decider could discard
 	    // all hits.
 	    matches_lower_bound = 0;
@@ -440,8 +441,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
 
-	// Use the decision functor if any.
-	if (mdecider != NULL) {
+	// Use the match spy and/or decision functors (if specified).
+	if (matchspy != NULL || mdecider != NULL) {
 	    const unsigned int multiplier = db.internal.size();
 	    Assert(multiplier != 0);
 	    Xapian::doccount n = (did - 1) % multiplier; // which actual database
@@ -455,7 +456,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		    doc = temp;
 		}
 		Xapian::Document mydoc(doc.get());
-		if (!mdecider->operator()(mydoc)) continue;
+		if (matchspy && !matchspy->operator()(mydoc)) continue;
+		if (mdecider && !mdecider->operator()(mydoc)) continue;
 	    }
 	}
 

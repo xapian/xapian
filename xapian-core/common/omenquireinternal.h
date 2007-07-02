@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -57,7 +57,7 @@ class ESetItem {
 	/// Term suggested.
 	string tname;
 
-	/** Returns a string representing the eset item.
+	/** Returns a string representing the ESet item.
 	 *  Introspection method.
 	 */
 	string get_description() const;
@@ -102,7 +102,7 @@ class MSetItem {
 	/** Count of collapses done on collapse_key so far
 	 *
 	 * This is normally 0, and goes up for each collapse done
-	 * It is not neccessarily an indication of how many collapses
+	 * It is not necessarily an indication of how many collapses
 	 * might be done if an exhaustive match was done
 	 */
 	Xapian::doccount collapse_count;
@@ -111,7 +111,7 @@ class MSetItem {
 	/* FIXME: why not just cache the Xapian::Document here!?! */
 	string sort_key;
 
-	/** Returns a string representing the mset item.
+	/** Returns a string representing the MSet item.
 	 *  Introspection method.
 	 */
 	string get_description() const;
@@ -177,7 +177,8 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	const Query & get_query();
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount check_at_least,
-		      const RSet *omrset, const MatchDecider *mdecider) const;
+		      const RSet *omrset, const MatchDecider *mdecider,
+		      const MatchDecider *matchspy) const;
 	ESet get_eset(Xapian::termcount maxitems, const RSet & omrset, int flags,
 		      double k, const ExpandDecider *edecider) const;
 
@@ -186,7 +187,7 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 
 	void register_match_decider(const string &name,
 				    const MatchDecider *mdecider);
-    
+
 	string get_description() const;
 };
 
@@ -224,16 +225,16 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	};
 
 	/** The term frequencies and weights returned by the match process.
-	 * 
-	 *  This map will contain information for each term which was in
+	 *
+	 *  This map contains information for each term which was in
 	 *  the query.
 	 */
 	map<string, TermFreqAndWeight> termfreqandwts;
 
-	/// A list of items comprising the (selected part of the) mset.
+	/// A list of items comprising the (selected part of the) MSet.
 	vector<Xapian::Internal::MSetItem> items;
 
-	/// Rank of first item in Mset.
+	/// Rank of first item in MSet.
 	Xapian::doccount firstitem;
 
 	Xapian::doccount matches_lower_bound;
@@ -274,13 +275,13 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 		  max_possible(max_possible_),
 		  max_attained(max_attained_) {}
 
-	/// get a document by index in mset, via the cache.
+	/// get a document by index in MSet, via the cache.
 	Xapian::Document get_doc_by_index(Xapian::doccount index) const;
 
 	/// Converts a weight to a percentage weight
 	percent convert_to_percent_internal(Xapian::weight wt) const;
 
-	/** Returns a string representing the mset.
+	/** Returns a string representing the MSet.
 	 *  Introspection method.
 	 */
 	string get_description() const;
@@ -295,7 +296,7 @@ class ESet::Internal : public Xapian::Internal::RefCntBase {
     friend class ESetIterator;
     friend class ::OmExpand;
     private:
-	/// A list of items comprising the (selected part of the) eset.
+	/// A list of items comprising the (selected part of the) ESet.
 	vector<Xapian::Internal::ESetItem> items;
 
 	/** A lower bound on the number of terms which are in the full
@@ -307,7 +308,7 @@ class ESet::Internal : public Xapian::Internal::RefCntBase {
     public:
 	Internal() : ebound(0) {}
 
-	/** Returns a string representing the eset.
+	/** Returns a string representing the ESet.
 	 *  Introspection method.
 	 */
 	string get_description() const;

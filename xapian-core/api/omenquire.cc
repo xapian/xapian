@@ -645,11 +645,12 @@ Enquire::Internal::get_query()
 MSet
 Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			    Xapian::doccount check_at_least, const RSet *rset,
-			    const MatchDecider *mdecider) const
+			    const MatchDecider *mdecider,
+			    const MatchDecider *matchspy) const
 {
-    DEBUGCALL(API, MSet, "Enquire::Internal::get_mset", first << ", "
-	      << maxitems << ", " << check_at_least << ", " << rset << ", "
-	      << mdecider);
+    DEBUGCALL(API, MSet, "Enquire::Internal::get_mset", first << ", " <<
+	      maxitems << ", " << check_at_least << ", " << rset << ", " <<
+	      mdecider << ", " << matchspy);
 
     if (weight == 0) {
 	weight = new BM25Weight;
@@ -658,18 +659,20 @@ Enquire::Internal::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     MSet retval;
     if (rset == 0) {
 	::MultiMatch match(db, query.internal.get(), qlen, RSet(), collapse_key,
-		       percent_cutoff, weight_cutoff,
-		       order, sort_key, sort_by, sort_value_forward,
-		       errorhandler, new LocalStatsGatherer(), weight);
+			   percent_cutoff, weight_cutoff,
+			   order, sort_key, sort_by, sort_value_forward,
+			   errorhandler, new LocalStatsGatherer(), weight);
 	// Run query and put results into supplied Xapian::MSet object.
-	match.get_mset(first, maxitems, check_at_least, retval, mdecider);
+	match.get_mset(first, maxitems, check_at_least, retval, mdecider,
+		       matchspy);
     } else {
 	::MultiMatch match(db, query.internal.get(), qlen, *rset, collapse_key,
-		       percent_cutoff, weight_cutoff,
-		       order, sort_key, sort_by, sort_value_forward,
-		       errorhandler, new LocalStatsGatherer(), weight);
+			   percent_cutoff, weight_cutoff,
+			   order, sort_key, sort_by, sort_value_forward,
+			   errorhandler, new LocalStatsGatherer(), weight);
 	// Run query and put results into supplied Xapian::MSet object.
-	match.get_mset(first, maxitems, check_at_least, retval, mdecider);
+	match.get_mset(first, maxitems, check_at_least, retval, mdecider,
+		       matchspy);
     }
 
     Assert(weight->name() != "bool" || retval.get_max_possible() == 0);
@@ -937,16 +940,17 @@ Enquire::set_sort_by_relevance_then_value(Xapian::valueno sort_key,
 MSet
 Enquire::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		  Xapian::doccount check_at_least, const RSet *rset,
-		  const MatchDecider *mdecider) const
+		  const MatchDecider *mdecider,
+		  const MatchDecider *matchspy) const
 {
     // FIXME: display contents of pointer params, if they're not null.
     DEBUGAPICALL(Xapian::MSet, "Xapian::Enquire::get_mset", first << ", " <<
 		 maxitems << ", " << check_at_least << ", " << rset << ", " <<
-		 mdecider);
+		 mdecider << ", " << matchspy);
 
     try {
 	RETURN(internal->get_mset(first, maxitems, check_at_least, rset,
-				  mdecider));
+				  mdecider, matchspy));
     } catch (Error & e) {
 	if (internal->errorhandler) (*internal->errorhandler)(e);
 	throw;

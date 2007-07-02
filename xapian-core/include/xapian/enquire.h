@@ -830,12 +830,19 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	 *		     the matcher optimises, it won't consider every
 	 *		     document which might match, so the total number
 	 *		     of matches is estimated.  Setting checkatleast
-	 *		     forces it to consider that many matches and so
-	 *		     allows for reliable paging links.
+	 *		     forces it to consider at least this many matches
+	 *		     and so allows for reliable paging links.
 	 *  @param omrset    the relevance set to use when performing the query.
 	 *  @param mdecider  a decision functor to use to decide whether a
-	 *		     given document should be put in the MSet
-	 *
+	 *		     given document should be put in the MSet.
+	 *  @param matchspy  a decision functor to use to decide whether a
+	 *		     given document should be put in the MSet.  The
+	 *		     matchspy is applied to every document which is
+	 *		     a potential candidate for the MSet, so if there are
+	 *		     checkatleast or more such documents, the matchspy
+	 *		     will see at least checkatleast.  The mdecider is
+	 *		     assumed to be a relatively expensive test so may
+	 *		     be applied in a lazier fashion.
 	 *
 	 *  @return	     A Xapian::MSet object containing the results of the
 	 *		     query.
@@ -845,7 +852,8 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount checkatleast = 0,
 		      const RSet * omrset = 0,
-		      const MatchDecider * mdecider = 0) const;
+		      const MatchDecider * mdecider = 0,
+		      const MatchDecider * matchspy = 0) const;
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset,
 		      const MatchDecider * mdecider = 0) const {
