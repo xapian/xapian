@@ -24,6 +24,7 @@
 
 #include <config.h>
 #include <algorithm>
+#include <map>
 #include <string>
 
 #include <xapian.h>
@@ -1613,6 +1614,71 @@ static bool test_synonymitor1()
     return true;
 }
 
+static bool test_matchspy1()
+{
+    if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
+	SKIP_TEST("Test not supported for remote backend");
+    }
+
+    Xapian::WritableDatabase db = get_writable_database("");
+    for (int c = 1; c <= 25; ++c) {
+	Xapian::Document doc;
+	doc.set_data("Document " + om_tostring(c));
+	int factors = 0;
+	for (int factor = 1; factor <= c; ++factor) {
+	    doc.add_term("all");
+	    if (c % factor == 0) {
+		doc.add_term("XFACT" + om_tostring(factor));
+		++factors;
+	    }
+	}
+
+	doc.add_value(0, om_tostring(factors)); // Number of factors.
+	doc.add_value(1, om_tostring(c % 10)); // Units digits.
+	doc.add_value(2, "fish"); // A constant.
+	doc.add_value(3, om_tostring(om_tostring(c).size())); // Number of digits.
+
+	db.add_document(doc);
+    }
+
+    Xapian::MatchSpy spy;
+
+    spy.add_category(0);
+    spy.add_category(1);
+    spy.add_category(3);
+
+    Xapian::Enquire enq(db);
+
+    enq.set_query(Xapian::Query("all"));
+
+    Xapian::MSet mset = enq.get_mset(0, 10, 0, NULL, NULL, &spy);
+
+    TEST_EQUAL(spy.get_total(), 25);
+
+    static const char * results[] = {
+	"|1:1|2:9|3:3|4:7|5:1|6:3|8:1|",
+	"|0:2|1:3|2:3|3:3|4:3|5:3|6:2|7:2|8:2|9:2|",
+	"|",
+	"|1:9|2:16|",
+	"|"
+    };
+    for (Xapian::valueno v = 0; results[v]; ++v) {
+	const map<string, size_t> & cat = spy.get_categories(v);
+	string str("|");
+	map<string, size_t>::const_iterator i;
+	for (i = cat.begin(); i != cat.end(); ++i) {
+	    str += i->first;
+	    str += ':';
+	    str += om_tostring(i->second);
+	    str += '|';
+	}
+	tout << "value " << v << endl;
+	TEST_STRINGS_EQUAL(str, results[v]);
+    }
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1647,5 +1713,6 @@ test_desc writabledb_tests[] = {
     TESTCASE(spell3),
     TESTCASE(spell4),
     TESTCASE(synonymitor1),
+    TESTCASE(matchspy1),
     END_OF_TESTCASES
 };

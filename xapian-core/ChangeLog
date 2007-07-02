@@ -1,3 +1,9 @@
+Mon Jul 02 23:25:55 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/Makefile.mk,include/xapian.h,include/xapian/matchspy.h,
+	  tests/api_wrdb.cc: Implement "MatchSpy" class to tally values
+	  in matching documents.
+
 Mon Jul 02 18:15:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,include/xapian/enquire.h: Fix last chance to
