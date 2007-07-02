@@ -1,3 +1,8 @@
+Mon Jul 02 18:15:18 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,include/xapian/enquire.h: Fix last chance to
+	  preserve ABI compatibility.
+
 Mon Jul 02 17:52:10 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omenquire.cc,common/multimatch.h,common/omenquireinternal.h,

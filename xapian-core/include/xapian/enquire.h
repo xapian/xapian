@@ -852,8 +852,12 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      Xapian::doccount checkatleast = 0,
 		      const RSet * omrset = 0,
-		      const MatchDecider * mdecider = 0,
-		      const MatchDecider * matchspy = 0) const;
+		      const MatchDecider * mdecider = 0) const;
+	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
+		      Xapian::doccount checkatleast,
+		      const RSet * omrset,
+		      const MatchDecider * mdecider,
+		      const MatchDecider * matchspy) const;
 	MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		      const RSet * omrset,
 		      const MatchDecider * mdecider = 0) const {
