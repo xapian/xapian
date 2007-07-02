@@ -23,6 +23,7 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <stdio.h>
 
 #include "flint_table.h"
 #include "flint_cursor.h"

@@ -1,3 +1,8 @@
+Mon Jul 02 14:56:58 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-inspect.cc: Add missing #include of <stdio.h> - fixes
+	  gcc-2.95 compilation.
+
 Mon Jul 02 14:54:50 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/termgenerator_internal.h: Fix for gcc-2.95
