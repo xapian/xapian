@@ -1,3 +1,12 @@
+Mon Jul 02 14:09:22 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk,api/valuerangeproccompat.cc,
+	  include/xapian/queryparser.h: Put the new NumberValueRangeProcessor
+	  in a sub-namespace which we then import it from.  Restore the old
+	  NumberValueRangeProcessor implementation inside the library so that
+	  it is available to code linked against 1.0.0 or 1.0.1 to keep ABI
+	  compatibility.
+
 Sun Jul 01 15:32:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h: Clearer description of

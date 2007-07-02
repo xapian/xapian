@@ -22,4 +22,5 @@ libxapian_la_SOURCES +=\
 	api/omvalueiterator.cc\
 	api/termlist.cc\
 	api/valuerangeproc.cc\
+	api/valuerangeproccompat.cc\
 	api/version.cc
