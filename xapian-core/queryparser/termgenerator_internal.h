@@ -41,7 +41,8 @@ class TermGenerator::Internal : public Xapian::Internal::RefCntBase {
     WritableDatabase db;
 
   public:
-    Internal() : stopper(NULL), termpos(0), flags() { }
+    Internal() : stopper(NULL), termpos(0),
+	flags(TermGenerator::flags(0)) { }
     void index_text(Utf8Iterator itor,
 		    termcount weight,
 		    const std::string & prefix,
