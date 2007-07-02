@@ -1,3 +1,8 @@
+Mon Jul 02 16:42:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* htmlparsetest.cc,md5test.cc: Add #include <stdlib.h>, to get a
+	  defintion for exit().  Fixes compilation with gcc-snapshot.
+
 Thu Jun 28 18:05:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* omindex.cc: If --url isn't passed, default to "/", but print a
