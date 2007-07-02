@@ -248,23 +248,35 @@ class myMatchDecider : public Xapian::MatchDecider {
 	}
 };
 
-// tests the match decision functor
+// Test Xapian::MatchDecider functor.
 static bool test_matchfunctor1()
 {
-    // FIXME: check that the functor works both ways.
-    Xapian::Enquire enquire(get_database("apitest_simpledata"));
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
     enquire.set_query(Xapian::Query("this"));
 
     myMatchDecider myfunctor;
 
     Xapian::MSet mymset = enquire.get_mset(0, 100, 0, &myfunctor);
 
+    vector<bool> docid_checked(db.get_lastdocid());
+
+    // Check that we get the expected number of matches, and that they
+    // satisfy the condition.
     Xapian::MSetIterator i = mymset.begin();
     TEST(i != mymset.end());
     TEST_EQUAL(mymset.size(), 3);
     for ( ; i != mymset.end(); ++i) {
 	const Xapian::Document doc(i.get_document());
 	TEST(myfunctor(doc));
+	docid_checked[*i] = true;
+    }
+
+    // Check that the other documents don't satisfy the condition.
+    for (Xapian::docid did = 1; did < docid_checked.size(); ++did) {
+	if (!docid_checked[did]) {
+	    TEST(!myfunctor(db.get_document(did)));
+	}
     }
 
     return true;
