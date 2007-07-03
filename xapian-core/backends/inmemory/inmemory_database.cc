@@ -546,6 +546,7 @@ InMemoryDatabase::replace_document(Xapian::docid did,
 	totdocs--;
     } else if (did > termlists.size()) {
 	termlists.resize(did);
+	termlists[did - 1].is_valid = true;
 	doclengths.resize(did);
 	doclists.resize(did);
 	valuelists.resize(did);
@@ -604,7 +605,7 @@ InMemoryDatabase::finish_add_doc(Xapian::docid did, const Xapian::Document &docu
 	add_values(did, values);
     }
 
-    InMemoryDoc doc;
+    InMemoryDoc doc(true);
     Xapian::TermIterator i = document.termlist_begin();
     Xapian::TermIterator i_end = document.termlist_end();
     for ( ; i != i_end; ++i) {
@@ -645,7 +646,7 @@ InMemoryDatabase::make_term(const string & tname)
 Xapian::docid
 InMemoryDatabase::make_doc(const string & docdata)
 {
-    termlists.push_back(InMemoryDoc());
+    termlists.push_back(InMemoryDoc(true));
     doclengths.push_back(0);
     doclists.push_back(docdata);
 

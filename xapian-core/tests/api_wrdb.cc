@@ -715,6 +715,12 @@ static bool test_replacedoc2()
 
     db.replace_document(did, doc1);
 
+    // Regression tests for bug in the InMemory backend - fixed in 1.0.2.
+    TEST_EXCEPTION(Xapian::DocNotFoundError, db.get_document(1));
+    Xapian::PostingIterator postit = db.postlist_begin("");
+    TEST(postit != db.postlist_end(""));
+    TEST_EQUAL(*postit, 31770);
+
     Xapian::Document doc2;
 
     doc2.add_posting("foo", 1);

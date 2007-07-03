@@ -114,8 +114,12 @@ class InMemoryDoc {
 	// Sorted list of terms indexing this document.
 	vector<InMemoryTermEntry> terms;
 
-	/* Initialise valid */
-	InMemoryDoc() : is_valid(true) {}
+	/* Initialise invalid by default, so that resizing the termlist array
+	 * doesn't create valid documents. */
+	InMemoryDoc() : is_valid(false) {}
+
+	// Initialise specifying validity.
+	InMemoryDoc(bool is_valid_) : is_valid(is_valid_) {}
 
 	void add_posting(const InMemoryTermEntry & post);
 };
