@@ -25,12 +25,14 @@
 #include <string>
 
 #include <xapian/types.h>
-#include <xapian/database.h>
 #include <xapian/deprecated.h>
 #include <xapian/version.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
+
+class Database;
+class WritableDatabase;
 
 namespace Auto {
 
