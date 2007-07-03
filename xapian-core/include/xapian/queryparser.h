@@ -24,7 +24,6 @@
 
 #include <xapian/base.h>
 #include <xapian/query.h>
-#include <xapian/stem.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
 
@@ -32,6 +31,8 @@
 #include <string>
 
 namespace Xapian {
+
+class Stem;
 
 /// Base class for stop-word decision functor.
 class XAPIAN_VISIBILITY_DEFAULT Stopper {

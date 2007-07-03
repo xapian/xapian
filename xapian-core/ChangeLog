@@ -1,3 +1,8 @@
+Tue Jul 03 01:24:19 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Replace `#include <xapian/stem.h>'
+	  with forward declaration of Stem.
+
 Tue Jul 03 01:14:12 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/errorhandler.h: Replace `#include <xapian/error.h>'
