@@ -59,18 +59,7 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy : public MatchDecider {
      *
      *  This implementation tallies values for a matching document.
      */
-    bool operator()(const Xapian::Document &doc) const {
-	++total;
-	std::map<Xapian::valueno, std::map<std::string, size_t> >::iterator i;
-	for (i = categories.begin(); i != categories.end(); ++i) {
-	    Xapian::valueno valno = i->first;
-	    std::map<std::string, size_t> & tally = i->second;
-
-	    std::string val(doc.get_value(valno));
-	    if (!val.empty()) ++tally[val];
-	}
-	return true;
-    }
+    bool operator()(const Xapian::Document &doc) const;
 
     /** Return the total number of documents tallied. */
     size_t get_total() const {
@@ -82,6 +71,29 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy : public MatchDecider {
 	    get_categories(Xapian::valueno valno) const {
 	return categories[valno];
     }
+
+    /** Return a score reflecting how "good" a categorisation is.
+     *
+     *  If you don't want to show a poor categorisation, or have multiple
+     *  categories and only space in your user interface to show a few, you
+     *  want to be able to decide how "good" a categorisation is.  We define a
+     *  good categorisation as one which offers a fairly even split, and
+     *  (optionally) about a specified number of options.
+     *
+     *  @param valno	Value number to look at the categorisation for.
+     *
+     *  @param desired_no_of_categories	    The desired number of categories -
+     *		this is a floating point value, so you can ask for 5.5 if you'd
+     *		like "about 5 or 6 categories".  The default is to desire the
+     *		number of categories that there actually are, so the score then
+     *		only reflects how even the split is.
+     *
+     *  @return A score for the categorisation for value @a valno - lower is
+     *		better, with a perfectly even split across the right number
+     *		of categories scoring 0.
+     */
+    double score_categorisation(Xapian::valueno valno,
+				double desired_no_of_categories = 0.0);
 };
 
 }

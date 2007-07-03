@@ -1676,6 +1676,34 @@ static bool test_matchspy1()
 	TEST_STRINGS_EQUAL(str, results[v]);
     }
 
+    {
+	// Test scoring evenness returns scores with the natural ordering.
+	double score0 = spy.score_categorisation(0);
+	tout << "score0 = " << score0 << endl;
+	double score1 = spy.score_categorisation(1);
+	tout << "score1 = " << score1 << endl;
+	double score3 = spy.score_categorisation(3);
+	tout << "score3 = " << score3 << endl;
+	// 1 is obviously best, and 0 obviously worst.
+	TEST(score1 < score3);
+	TEST(score3 < score0);
+    }
+
+    {
+	// Test scoring evenness and about 7 categories returns scores with the
+	// natural ordering.
+	double score0 = spy.score_categorisation(0, 7);
+	tout << "score0 = " << score0 << endl;
+	double score1 = spy.score_categorisation(1, 7);
+	tout << "score1 = " << score1 << endl;
+	double score3 = spy.score_categorisation(3, 7);
+	tout << "score3 = " << score3 << endl;
+	// 3 is clearly worst - it's less clear if 0 or 1 is best.  0 has 7
+	// categories, but 1 has a much more even split.
+	TEST(score0 < score3);
+	TEST(score1 < score3);
+    }
+
     return true;
 }
 
