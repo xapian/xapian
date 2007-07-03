@@ -802,7 +802,14 @@ We don't currently have a formal coding standards document, but please try
 to follow the style of the existing code.  In particular:
 
 * indent C++ code by 4 spaces for a new indentation level, and set your editor
-  to tab-fill indentation.
+  to tab-fill indentation.  As an exception, "public", "protected" and
+  "private" declarations in classes and structs should be indented by 2 spaces,
+  and the following code should be indented by 2 more spaces::
+
+    class Foo {
+      public:
+        method();
+    };
 
 * Put a space before the "(" after control flow constructs like "for", "if",
   "while", etc.  Don't put a space before the "(" in function calls.  So
