@@ -46,20 +46,25 @@ using namespace std;
 
 #define OPT_HELP 1
 #define OPT_VERSION 2
+#define OPT_NO_RENUMBER 3
 
 static void show_usage() {
     cout << "Usage: "PROG_NAME" [OPTIONS] SOURCE_DATABASE... DESTINATION_DATABASE\n\n"
 "Options:\n"
-"  -b, --blocksize  Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
-"                   (must be between 2K and 64K and a power of 2, default 8K)\n"
-"  -n, --no-full    Disable full compaction\n"
-"  -F, --fuller     Enable fuller compaction (not recommended if you plan to\n"
-"                   update the compacted database)\n"
-"  -m, --multipass  If merging more than 3 databases, merge the postlists in\n"
-"                   multiple passes (which is generally faster but requires\n"
-"                   more disk space for temporary files)\n"
-"  --help           display this help and exit\n"
-"  --version        output version information and exit" << endl;
+"  -b, --blocksize   Set the blocksize in bytes (e.g. 4096) or K (e.g. 4K)\n"
+"                    (must be between 2K and 64K and a power of 2, default 8K)\n"
+"  -n, --no-full     Disable full compaction\n"
+"  -F, --fuller      Enable fuller compaction (not recommended if you plan to\n"
+"                    update the compacted database)\n"
+"  -m, --multipass   If merging more than 3 databases, merge the postlists in\n"
+"                    multiple passes (which is generally faster but requires\n"
+"                    more disk space for temporary files)\n"
+"      --no-renumber Preserve the numbering of document ids (useful if you\n"
+"                    external references to them, or have set the to match\n"
+"                    unique ids from an external source).  Currently this\n"
+"                    option isn't supported when merging databases.\n"
+"  --help            display this help and exit\n"
+"  --version         output version information and exit" << endl;
 }
 
 static inline bool
@@ -694,6 +699,7 @@ main(int argc, char **argv)
 	{"no-full",	no_argument, 0, 'n'},
 	{"multipass",	no_argument, 0, 'm'},
 	{"blocksize",	required_argument, 0, 'b'},
+	{"no-renumber", no_argument, 0, OPT_NO_RENUMBER},
 	{"help",	no_argument, 0, OPT_HELP},
 	{"version",	no_argument, 0, OPT_VERSION},
 	{NULL,		0, 0, 0}
@@ -702,6 +708,7 @@ main(int argc, char **argv)
     enum { STANDARD, FULL, FULLER } compaction = FULL;
     size_t block_size = 8192;
     bool multipass = false;
+    bool renumber = true;
 
     int c;
     while ((c = gnu_getopt_long(argc, argv, "b:nFm", long_opts, 0)) != EOF) {
@@ -731,6 +738,9 @@ main(int argc, char **argv)
 	    case 'm':
 		multipass = true;
 		break;
+	    case OPT_NO_RENUMBER:
+		renumber = false;
+		break;
 	    case OPT_HELP:
 		cout << PROG_NAME" - "PROG_DESC"\n\n";
 		show_usage();
@@ -749,6 +759,13 @@ main(int argc, char **argv)
 	exit(1);
     }
 
+    if (!renumber && argc - optind > 2) {
+	cout << argv[0]
+	     << ": --no-renumber isn't currently supported when merging databases."
+	     << endl;
+	exit(1);
+    }
+
     // Path to the database to create.
     const char *destdir = argv[argc - 1];
 
@@ -763,7 +780,7 @@ main(int argc, char **argv)
 	    // Check destdir isn't the same as any source directory...
 	    if (strcmp(srcdir, destdir) == 0) {
 		cout << argv[0]
-		     << ": destination may not be the same as any source directory"
+		     << ": destination may not be the same as any source directory."
 		     << endl;
 		exit(1);
 	    }
@@ -774,26 +791,35 @@ main(int argc, char **argv)
 		     << "' is not a flint database directory" << endl;
 		exit(1);
 	    }
+
 	    Xapian::Database db(srcdir);
-	    offset.push_back(tot_off);
+	    Xapian::docid last = 0;
+
 	    // "Empty" databases might have spelling or synonym data so can't
-	    // just be ignored.
+	    // just be completely ignored.
 	    if (db.get_doccount() != 0) {
-		Xapian::docid last = db.get_lastdocid();
-		// FIXME: prune unused docids off the end of each source db...
+		last = db.get_lastdocid();
 
-		// Prune any unused docids off the start of this source
-		// database.
-		Xapian::PostingIterator it = db.postlist_begin("");
-		// This test should never fail, since db.get_doccount() is
-		// non-zero!
-		if (it != db.postlist_end("")) {
-		    // tot_off could wrap here, but it's unsigned, so that's OK.
-		    tot_off -= (*it - 1);
+		if (renumber) {
+		    // Prune any unused docids off the start of this source
+		    // database.
+		    Xapian::PostingIterator it = db.postlist_begin("");
+		    // This test should never fail, since db.get_doccount() is
+		    // non-zero!
+		    if (it != db.postlist_end("")) {
+			// tot_off could wrap here, but it's unsigned, so
+			// that's OK.
+			tot_off -= (*it - 1);
+		    }
+
+		    // FIXME: get_lastdocid() returns a "high water mark" - we
+		    // should prune unused docids off the end of each source
+		    // database as well as off the start.
 		}
-
-		tot_off += last;
 	    }
+	    offset.push_back(tot_off);
+	    tot_off += last;
+
 	    sources.push_back(string(srcdir) + '/');
 	}
 
