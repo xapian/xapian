@@ -21,10 +21,11 @@
 #ifndef XAPIAN_INCLUDED_ERRORHANDLER_H
 #define XAPIAN_INCLUDED_ERRORHANDLER_H
 
-#include <xapian/error.h>
 #include <xapian/visibility.h>
 
 namespace Xapian {
+
+class Error;
 
 /** Decide if a Xapian::Error exception should be ignored.
  *

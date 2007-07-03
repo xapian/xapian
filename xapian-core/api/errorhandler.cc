@@ -19,6 +19,7 @@
 
 #include <config.h>
 
+#include <xapian/error.h>
 #include <xapian/errorhandler.h>
 
 Xapian::ErrorHandler::~ErrorHandler() { }
