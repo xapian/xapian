@@ -28,7 +28,6 @@
 
 #include <xapian/base.h>
 #include <xapian/deprecated.h>
-#include <xapian/error.h>
 #include <xapian/types.h>
 #include <xapian/termiterator.h>
 #include <xapian/visibility.h>
