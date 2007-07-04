@@ -1118,12 +1118,13 @@ static bool test_qp_value_range3()
 {
     Xapian::WritableDatabase db(Xapian::InMemory::open());
     double low = -10;
-    double high = 20;
+    int steps = 60;
     double step = 0.5;
 
-    for (double i = low; i <= high; i += step) {
+    for (int i = 0; i <= steps; ++i) {
+	double v = low + i * step;
 	Xapian::Document doc;
-	doc.add_value(1, Xapian::NumberValueRangeProcessor::float_to_string(i));
+	doc.add_value(1, Xapian::NumberValueRangeProcessor::float_to_string(v));
 	db.add_document(doc);
     }
 
@@ -1131,21 +1132,24 @@ static bool test_qp_value_range3()
     Xapian::QueryParser qp;
     qp.add_valuerangeprocessor(&vrp_num);
 
-    for (double start = low; start <= high; start += step) {
-	for (double end = low; end <= high; end += step) {
+    for (int j = 0; j <= steps; ++j) {
+	double start = low + j * step;
+	for (int k = 0; k <= steps; ++k) {
+	    double end = low + k * step;
 	    string query = om_tostring(start) + ".." + om_tostring(end);
 	    tout << "Query: " << query << '\n';
 	    Xapian::Query qobj = qp.parse_query(query);
 	    Xapian::Enquire enq(db);
 	    enq.set_query(qobj);
-	    Xapian::MSet mset = enq.get_mset(0, 1 + static_cast<int>(floor((high - low) / step)));
+	    Xapian::MSet mset = enq.get_mset(0, steps + 1);
 	    if (end < start) {
 		TEST_EQUAL(mset.size(), 0);
 	    } else {
-		TEST_EQUAL(mset.size(), 1u + (end - start) / step);
-		for (unsigned int j = 0; j != mset.size(); j++) {
-		    TEST_EQUAL(mset[j].get_document().get_value(1),
-			       Xapian::NumberValueRangeProcessor::float_to_string(j * step + start));
+		TEST_EQUAL(mset.size(), 1u + (k - j));
+		for (unsigned int m = 0; m != mset.size(); ++m) {
+		    double v = start + m * step;
+		    TEST_EQUAL(mset[m].get_document().get_value(1),
+			       Xapian::NumberValueRangeProcessor::float_to_string(v));
 		}
 	    }
 	}
