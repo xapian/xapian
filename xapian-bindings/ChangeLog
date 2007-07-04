@@ -1,3 +1,9 @@
+Wed Jul 04 17:39:26 BST 2007  Olly Betts <olly@survex.com>
+
+	* INSTALL: Remove documentation of the "phpextdir" and "pylibdir" ways
+	  of installing a local copy - setting PHP_EXTENSION_DIR or PYTHON_LIB
+	  at configure time is a better solution.
+
 Wed Jun 27 14:16:00 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* NEWS: Updated.
