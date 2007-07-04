@@ -93,7 +93,8 @@ noinst_HEADERS +=\
 	common/safesysselect.h\
 	common/safesysstat.h\
 	common/safeunistd.h\
-	common/safewindows.h
+	common/safewindows.h\
+	common/stringutils.h
 
 AM_LDFLAGS = $(ICONV_LDFLAGS)
 

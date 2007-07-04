@@ -1,3 +1,11 @@
+Wed Jul 04 17:31:38 BST 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex.cc,query.cc: Use stringutils.h from common.
+	* ./: Update common SVN rev in svn:externals to get the latest
+	  stringutils.h.
+	* cgiparam.cc: Use string::resize() rather than assigning from a
+	  substring of the string.
+
 Mon Jul 02 16:42:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* htmlparsetest.cc,md5test.cc: Add #include <stdlib.h>, to get a

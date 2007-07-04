@@ -48,7 +48,7 @@ add_param(string name, string val)
 	// ".x" from the other.
 	if (name[i - 1] == 'y') return;
 	if (name[i - 1] == 'x') {
-	    name = name.substr(0, i - 2);
+	    name.resize(i - 2);
 	    // For an image button, the value of the CGI parameter is the
 	    // coordinate of the click within the image - this is meaningless
 	    // to us, so instead we turn "[ 2 ].x=NNN" into "[ 2 ]=2 ]", then
@@ -76,7 +76,7 @@ add_param(string name, string val)
     // Truncate at first space - convert `[ page two ]=2'
     // into `[=2'
     i = name.find(' ');
-    if (i != string::npos) name = name.substr(0, i);
+    if (i != string::npos) name.resize(i);
     cgi_params.insert(multimap<string, string>::value_type(name, val));
 }
 

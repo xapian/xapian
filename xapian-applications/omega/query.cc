@@ -63,6 +63,7 @@
 #include "query.h"
 #include "cgiparam.h"
 #include "loadfile.h"
+#include "stringutils.h"
 #include "values.h"
 
 #include <xapian.h>
@@ -223,13 +224,13 @@ set_probabilistic(const string &oldp)
     // exist for the same term prefix.  We'll also prefer the first specified
     // prefix.
     map<string, string>::const_iterator pfx = option.lower_bound("prefix,");
-    for (; pfx != option.end() && pfx->first.substr(0, 7) == "prefix,"; ++pfx) {
+    for (; pfx != option.end() && startswith(pfx->first, "prefix,"); ++pfx) {
 	string user_prefix = pfx->first.substr(7);
-	qp.add_prefix(pfx->first.substr(7), pfx->second);
+	qp.add_prefix(user_prefix, pfx->second);
 	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
     }
     pfx = option.lower_bound("boolprefix,");
-    for (; pfx != option.end() && pfx->first.substr(0, 11) == "boolprefix,"; ++pfx) {
+    for (; pfx != option.end() && startswith(pfx->first, "boolprefix,"); ++pfx) {
 	string user_prefix = pfx->first.substr(11);
 	qp.add_boolean_prefix(user_prefix, pfx->second);
 	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
@@ -1215,7 +1216,7 @@ eval(const string &fmt, const vector<string> &param)
 		term.skip_to(args[0]);
 		while (term != db.allterms_end()) {
 		    string t = *term;
-		    if (t.substr(0, args[0].size()) != args[0]) break;
+		    if (!startswith(t, args[0])) break;
 		    value = value + t + '\t';
 		    ++term;
 		}
@@ -1326,10 +1327,10 @@ eval(const string &fmt, const vector<string> &param)
 		value = value.substr(i, value.find('/', i) - i);
 		// remove user@ or user:password@
 		i = value.find('@');
-		if (i != string::npos) value = value.substr(i + 1);
+		if (i != string::npos) value.erase(0, i + 1);
 		// remove :port
 		i = value.find(':');
-		if (i != string::npos) value = value.substr(0, i);
+		if (i != string::npos) value.resize(i);
 		break;
 	    }
 	    case CMD_html:

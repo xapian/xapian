@@ -49,6 +49,7 @@
 #include "metaxmlparse.h"
 #include "myhtmlparse.h"
 #include "sample.h"
+#include "stringutils.h"
 #include "utf8convert.h"
 #include "utils.h"
 #include "values.h"
@@ -322,8 +323,8 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    throw;
 	}
 	unlink(tmpfile.c_str());
-    } else if (mimetype.substr(0, 24) == "application/vnd.sun.xml." ||
-	       mimetype.substr(0, 35) == "application/vnd.oasis.opendocument.")
+    } else if (startswith(mimetype, "application/vnd.sun.xml.") ||
+	       startswith(mimetype, "application/vnd.oasis.opendocument."))
     {
 	// Inspired by http://mjr.towers.org.uk/comp/sxw2text
 	string safefile = shell_protect(file);
