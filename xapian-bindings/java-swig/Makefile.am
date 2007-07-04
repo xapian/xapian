@@ -21,19 +21,21 @@ SmokeTest: SmokeTest.class
 
 XAPIAN_SWIG_JAVA_SRCS=\
 	Auto.java\
-	BoolWeight.java\
 	BM25Weight.java\
+	BoolWeight.java\
 	Database.java\
+	DateValueRangeProcessor.java\
 	Document.java\
 	Enquire.java\
-	ExpandDecider.java\
 	ESet.java\
 	ESetIterator.java\
+	ExpandDecider.java\
 	Flint.java\
 	InMemory.java\
 	MatchDecider.java\
 	MSet.java\
 	MSetIterator.java\
+	NumberValueRangeProcessor.java\
 	PositionIterator.java\
 	PostingIterator.java\
 	Quartz.java\
@@ -44,10 +46,13 @@ XAPIAN_SWIG_JAVA_SRCS=\
 	SimpleStopper.java\
 	Stem.java\
 	Stopper.java\
+	StringValueRangeProcessor.java\
+	SWIGTYPE_p_std__string.java\
 	TermGenerator.java\
 	TermIterator.java\
 	TradWeight.java\
 	ValueIterator.java\
+	ValueRangeProcessor.java\
 	Version.java\
 	Weight.java\
 	WritableDatabase.java\
