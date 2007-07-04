@@ -1,3 +1,7 @@
+Wed Jul 04 17:27:22 BST 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Partly update.
+
 Wed Jul 04 17:19:51 BST 2007  Olly Betts <olly@survex.com>
 
 	* AUTHORS: Add Simon Tatham for spotting the -INFINITY issue, and for

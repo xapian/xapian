@@ -1,5 +1,204 @@
 up to:
-Wed Jun 27 13:05:55 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+Wed Jul 04 17:19:51 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/,include/xapian/queryparser.h,tests/queryparsertest.cc: Rename
+	  Xapian::NumberValueRangeProcessor::float_to_string() to
+	  Xapian::sortable_serialise() and
+	  Xapian::NumberValueRangeProcessor::string_to_float() to
+	  Xapian::sortable_unserialise().
+
+	* api/valuerangeproc.cc: Fix encoding of extremely large, negative,
+	  non-IEEE representation to be -INFINITY, not +INFINITY.  Thanks
+	  to Simon Tatham for pointing this out.
+	* include/xapian/queryparser.h: Add a documentation comment note
+	  that zero and -zero will be transformed to the same value.
+	* api/valuerangeproc.cc: Change encoding used for doubles to a much
+	  more compact scheme, and add support for +-INFINITY.  Also, some
+	  other tweaks to avoid unneccessary computation.
+	* tests/queryparsertest.cc: Update test cases to expect new
+	  encoding of doubles, and add values for INFINITY and DBL_MAX and
+	  some other special numbers to the list of numbers that are
+	  specifically checked.
+
+Wed Jul 04 03:29:10 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_wrdb.cc:
+	  Category score now explicitly weights for having nearer the
+	  requested number of categories.  Category score is now normalised
+	  so values should be roughly comparable between different sized
+	  collections.  Add untested code to build ranges.
+
+Wed Jul 04 00:48:07 BST 2007  Olly Betts <olly@survex.com>
+
+	* bin/xapian-compact.cc: Add new "--no-renumber" option to preserve
+	  document ids from source databases.
+
+Wed Jul 04 00:25:52 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h,tests/api_wrdb.cc: Fix bug in
+	  inmemory backend - using replace_document() to add a document with a
+	  specific document id above the highest currently used would create
+	  empty documents for all document ids in between.
+
+Tue Jul 03 09:27:36 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* HACKING: Add note that protection level declarations in classes
+	  and structs should only be indented by 2 spaces.
+
+Tue Jul 03 03:53:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk,api/matchspy.cc,include/xapian/matchspy.h,
+	  tests/api_wrdb.cc: Add MatchSpy method to score how good a
+	  categorisation is.
+
+Tue Jul 03 01:24:19 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Replace `#include <xapian/stem.h>'
+	  with forward declaration of Stem.
+	* include/xapian/errorhandler.h: Replace `#include <xapian/error.h>'
+	  with forward declaration of Error.
+	* api/errorhandler.cc: Now needs to explicitly `#include
+	  <xapian/error.h>'.
+	* include/xapian/dbfactory.h: Replace `#include <xapian/database.h>'
+	  with forward declarations of Database and WritableDatabase.
+	* include/xapian/enquire.h: Remove `#include <xapian/error.h>'.
+
+Mon Jul 02 23:25:55 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/Makefile.mk,include/xapian.h,include/xapian/matchspy.h,
+	  tests/api_wrdb.cc: Implement "MatchSpy" class to tally values
+	  in matching documents.
+
+Mon Jul 02 18:15:18 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,include/xapian/enquire.h: Fix last change to
+	  preserve ABI compatibility.
+
+Mon Jul 02 17:52:10 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omenquire.cc,common/multimatch.h,common/omenquireinternal.h,
+	  include/xapian/enquire.h,matcher/multimatch.cc,net/remoteserver.cc,
+	  tests/api_db.cc: Add support for a "matchspy" - a MatchDecider which
+	  is documented to be tested on ever candidate document.  We plan to
+	  optimise the current matchdecider to be used as little as possible.
+
+Mon Jul 02 17:35:12 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/api_db.cc: Enhance matchfunctor1 to test that the functor
+	  returns ALL matching documents, not just that all documents returned
+	  match.
+
+Mon Jul 02 16:36:57 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* common/omassert.h: Fix to avoid warning in gcc-snapshot; use
+	  do{}while(0) to protect assertions, and remove the old "if (a) {}
+	  else {fail}" constructions which tried to do the same job.
+
+Mon Jul 02 14:56:58 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* bin/xapian-inspect.cc: Add missing #include of <stdio.h> - fixes
+	  gcc-2.95 compilation.
+
+Mon Jul 02 14:54:50 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* queryparser/termgenerator_internal.h: Fix for gcc-2.95
+	  compilation.
+
+Mon Jul 02 14:09:22 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk,api/valuerangeproccompat.cc,
+	  include/xapian/queryparser.h: Put the new NumberValueRangeProcessor
+	  in a sub-namespace which we then import it from.  Restore the old
+	  NumberValueRangeProcessor implementation inside the library so that
+	  it is available to code linked against 1.0.0 or 1.0.1 to keep ABI
+	  compatibility.
+
+Sun Jul 01 15:32:30 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h: Clearer description of
+	  NumberValueRangeProcessor.  Don't document the number format in
+	  terms of strtod() - that's a bug, not a feature we want to be tied
+	  to.
+	* include/xapian/query.h,include/xapian/queryparser.h: Use "@a" not
+	  "\a" for consistency with existing usage.
+
+Sun Jul 01 10:09:42 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/localmatch.cc: When registering a term, check if it's
+	  empty, and if so use the document count as the term frequency,
+	  rather than calling the database to get the term frequency of an
+	  empty term (most database backends have an assertion that the
+	  term is not empty, and an empty term isn't a valid parameter to
+	  pass to get_termfreq() anyway).
+	* matcher/multimatch.cc: For MatchAll queries, the "" term will not
+	  be found in the termlist of the top document, so check if a ""
+	  term is present in the query, and use it to increase the
+	  percent_scale if so.  This fixes an Assertion which checked that
+	  percent_scale was not 0.
+	* tests/api_db.cc: Add test_matchall1() which tests running a query
+	  with a MatchAll query.
+	* tests/api_nodb.cc: Rename test_emptyquery1 and test_emptyquery2
+	  to test_emptyquery2 and test_emptyquery3, respectively.  There
+	  was already a (different) test_emptyquery1 in api_anydb.cc.
+
+Sat Jun 30 15:14:33 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omdocument.cc,common/document.h,include/xapian/document.h:
+	  Add Xapian::Document::get_docid() method.
+
+Sat Jun 30 04:00:57 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: If there's only one term in the query (a
+	  pretty common case) we don't need to look at the top document's
+	  termlist to determine that it matches all the query terms.
+
+Sat Jun 30 00:37:09 BST 2007  Olly Betts <olly@survex.com>
+
+	* INSTALL: Add note that zlib must be installed before you can build
+	  Xapian.
+
+Fri Jun 29 22:40:58 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/: If doccount == lastdocid, all document ids up to
+	  lastdocid are used, so we provide a special really efficient version
+	  implementation of iterating all documents for this common case for
+	  flint.
+
+Fri Jun 29 00:39:04 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/stringutils.h: Add startswith() and endswith() overloads
+	  which take a single character.
+	* backends/flint/flint_spellingwordslist.cc,bin/xapian-inspect.cc:
+	  Use new forms.
+	* backends/flint/flint_spellingwordslist.cc: Fix comment typo.
+
+Thu Jun 28 21:43:49 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_spellingwordslist.cc: Another begins_with()
+	  which I somehow missed.
+
+Thu Jun 28 19:51:03 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/valuerangeproc.cc,backends/flint/flint_alltermslist.cc,
+	  backends/flint/flint_synonym.cc,
+	  backends/inmemory/inmemory_alltermslist.cc,
+	  backends/quartz/quartz_alltermslist.cc,
+	  backends/quartz/quartz_metafile.cc,bin/xapian-inspect.cc,
+	  common/stringutils.h,tests/harness/testsuite.cc: Rename
+	  begins_with() to startswith() and ends_with() to endswith() for
+	  consistency with Python string operations.
+
+Thu Jun 28 18:49:50 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Don't put a Z prefix on terms if the
+	  stemmer is "none", which matches what TermGenerator generates.
+
+Thu Jun 28 02:22:04 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/omqueryinternal.cc: Don't SEGV when Query::MatchNothing is used
+	  with OP_AND_NOT (fixes bug#176).
+	* tests/api_nodb.cc: Add regression test emptyquery2.
 
 Xapian-core 1.0.2 (2007-0?-??):
 
