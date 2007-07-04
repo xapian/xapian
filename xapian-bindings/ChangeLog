@@ -1,3 +1,7 @@
+Wed Jul 04 20:42:54 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Bump version to 1.0.2.
+
 Wed Jul 04 19:52:50 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* NEWS: Update.
