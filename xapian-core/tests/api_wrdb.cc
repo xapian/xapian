@@ -1429,6 +1429,18 @@ static bool test_spell3()
 	SKIP_TEST("Test only supported for flint backend");
     }
 
+#ifdef __WIN32__
+    SKIP_TEST("Test not supported on windows");
+#endif
+    // FIXME: the following two lines create two writable databases, but at the
+    // same path.  The first database is deleted, but kept open, before the
+    // second is opened.  This isn't really supported behaviour (in Olly's
+    // words: "it'll end in tears if it tries to flush"), and doesn't work on
+    // windows (hence the SKIP_TEST for __WIN32__ above) so we need to fix
+    // this.  This probably involves making the backendmanager support a "name"
+    // parameter for get_writable_database() which specifies the path to create
+    // the database at.  This would also make it easier to get a readonly
+    // handle on a previously created writable database.
     Xapian::WritableDatabase db1 = get_writable_database("");
     Xapian::WritableDatabase db2 = get_writable_database("");
 

@@ -1,3 +1,10 @@
+Wed Jul 04 17:50:19 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/api_wrdb.cc: SKIP_TEST() spell3 on windows - it doesn't
+	  work there due to trying to delete (and then overwrite) an open
+	  database.  We shouldn't be doing this, so add a long FIXME
+	  explaining what we should be doing instead.
+
 Wed Jul 04 17:27:22 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Partly update.
