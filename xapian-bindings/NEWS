@@ -1,8 +1,9 @@
-Xapian-bindings 1.0.2 (2007-07-04):
+Xapian-bindings 1.0.2 (2007-07-05):
 
 Documentation:
 
-* Document use of PYTHON_LIB and PHP_EXTENSION_DIR instead of pylibdir and phpextdir.
+* Document use of PYTHON_LIB and PHP_EXTENSION_DIR instead of pylibdir and
+  phpextdir.
 
 * Remove documentation of removed "--with-swig" configure option.
 
@@ -27,21 +28,13 @@ General:
 * Add new form of get_mset() which allows a matchspy matchdecider to be
   set.
 
-Packaging:
-
 * RPMs: Don't mention %makeinstall in a .spec file comment as that makes RPM
   explode.  Add in a missing "mv" in the command for installing tcl8
   documentation.
 
-Portability:
-
 CSharp:
 
 * Fix rule handling parallel make to include xapian_wrap.h
-
-Guile:
-
-Java:
 
 PHP:
 
@@ -66,12 +59,6 @@ Python:
 
 * In the test suite, expect_query() now adds "Xapian::Query(" and ")" around
   the expected description to make the tests more readable.
-
-Ruby:
-
-Tcl:
-
-Packaging:
 
 Xapian-bindings 1.0.1 (2007-06-11):
 
@@ -208,7 +195,7 @@ General:
   information).
 
 * Deprecate ESetIterator::get_termname() in favour of ESetIterator::get_term().
-  
+
 * QueryParserError is now a real error, so remove special handling for "const
   char *" exceptions.
 
