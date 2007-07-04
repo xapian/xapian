@@ -66,7 +66,8 @@ OMINDEX_OBJS= \
  	"$(OUTDIR)\utf8convert.obj" \
 	"$(OUTDIR)\sample.obj" \
 	"$(OUTDIR)\mkdtemp.obj" \
-	"$(OUTDIR)\dirent.obj" 
+	"$(OUTDIR)\dirent.obj" \
+	"$(OUTDIR)\diritor.obj"
 	
 	
 SCRIPTINDEX_OBJS= \
@@ -96,53 +97,54 @@ MD5TEST_OBJS= \
 
 
 SRCS= \
-	"$(OUTDIR)\omega.cc" \
-	"$(OUTDIR)\query.cc" \
-	"$(OUTDIR)\cgiparam.cc" \
-	"$(OUTDIR)\utils.cc" \
-	"$(OUTDIR)\configfile.cc" \
-	"$(OUTDIR)\date.cc" \
-	"$(OUTDIR)\cdb_init.cc" \
-	"$(OUTDIR)\cdb_find.cc" \
-	"$(OUTDIR)\cdb_hash.cc" \
-	"$(OUTDIR)\cdb_unpack.cc" \
- 	"$(OUTDIR)\loadfile.cc" \
- 	"$(OUTDIR)\utf8convert.cc" \
- 	"$(OUTDIR)\datematchdecider.cc" 
-	"$(OUTDIR)\omindex.cc" \
-	"$(OUTDIR)\myhtmlparse.cc" \
-	"$(OUTDIR)\htmlparse.cc" \
-	"$(OUTDIR)\getopt.cc" \
-	"$(OUTDIR)\commonhelp.cc" \
-	"$(OUTDIR)\utils.cc" \
-	"$(OUTDIR)\hashterm.cc" \
- 	"$(OUTDIR)\loadfile.cc" \
- 	"$(OUTDIR)\md5.cc" \
- 	"$(OUTDIR)\md5wrap.cc" \
- 	"$(OUTDIR)\xmlparse.cc" \
- 	"$(OUTDIR)\metaxmlparse.cc" \
- 	"$(OUTDIR)\utf8convert.cc" \
-	"$(OUTDIR)\sample.cc" \
-	"$(OUTDIR)\mkdtemp.cc" \
-	"$(OUTDIR)\dirent.cc" 
-	"$(OUTDIR)\scriptindex.cc" \
-	"$(OUTDIR)\myhtmlparse.cc" \
-	"$(OUTDIR)\htmlparse.cc" \
-	"$(OUTDIR)\getopt.cc" \
-	"$(OUTDIR)\commonhelp.cc" \
-	"$(OUTDIR)\utils.cc" \
-	"$(OUTDIR)\hashterm.cc" \
-	"$(OUTDIR)\loadfile.cc" \
-	"$(OUTDIR)\safe.cc" \
-	"$(OUTDIR)\utf8convert.cc" \
-	"$(OUTDIR)\utf8truncate.cc" 
- 	"$(OUTDIR)\htmlparsetest.cc" \
-	"$(OUTDIR)\myhtmlparse.cc" \
- 	"$(OUTDIR)\htmlparse.cc" \
-	"$(OUTDIR)\utf8convert.cc" 
- 	"$(OUTDIR)\md5.cc" \
- 	"$(OUTDIR)\md5wrap.cc" \
- 	"$(OUTDIR)\md5test.cc" 
+	"$(INTDIR)\omega.cc" \
+	"$(INTDIR)\query.cc" \
+	"$(INTDIR)\cgiparam.cc" \
+	"$(INTDIR)\utils.cc" \
+	"$(INTDIR)\configfile.cc" \
+	"$(INTDIR)\date.cc" \
+	"$(INTDIR)\cdb_init.cc" \
+	"$(INTDIR)\cdb_find.cc" \
+	"$(INTDIR)\cdb_hash.cc" \
+	"$(INTDIR)\cdb_unpack.cc" \
+ 	"$(INTDIR)\loadfile.cc" \
+ 	"$(INTDIR)\utf8convert.cc" \
+ 	"$(INTDIR)\datematchdecider.cc" \
+	"$(INTDIR)\omindex.cc" \
+	"$(INTDIR)\myhtmlparse.cc" \
+	"$(INTDIR)\htmlparse.cc" \
+	"$(INTDIR)\common\getopt.cc" \
+	"$(INTDIR)\commonhelp.cc" \
+	"$(INTDIR)\utils.cc" \
+	"$(INTDIR)\hashterm.cc" \
+ 	"$(INTDIR)\loadfile.cc" \
+ 	"$(INTDIR)\md5.cc" \
+ 	"$(INTDIR)\md5wrap.cc" \
+ 	"$(INTDIR)\xmlparse.cc" \
+ 	"$(INTDIR)\metaxmlparse.cc" \
+ 	"$(INTDIR)\utf8convert.cc" \
+	"$(INTDIR)\sample.cc" \
+	"$(INTDIR)\portability\mkdtemp.cc" \
+	"$(INTDIR)\dirent.cc" \
+	"$(INTDIR)\scriptindex.cc" \
+	"$(INTDIR)\myhtmlparse.cc" \
+	"$(INTDIR)\htmlparse.cc" \
+	"$(INTDIR)\getopt.cc" \
+	"$(INTDIR)\commonhelp.cc" \
+	"$(INTDIR)\utils.cc" \
+	"$(INTDIR)\hashterm.cc" \
+	"$(INTDIR)\loadfile.cc" \
+	"$(INTDIR)\common\safe.cc" \
+	"$(INTDIR)\utf8convert.cc" \
+	"$(INTDIR)\utf8truncate.cc" \
+ 	"$(INTDIR)\htmlparsetest.cc" \
+	"$(INTDIR)\myhtmlparse.cc" \
+ 	"$(INTDIR)\htmlparse.cc" \
+	"$(INTDIR)\utf8convert.cc" \
+ 	"$(INTDIR)\md5.cc" \
+ 	"$(INTDIR)\md5wrap.cc" \
+ 	"$(INTDIR)\md5test.cc" \
+	"$(INTDIR)\diritor.cc" 
 	
 CLEAN :
 	-@erase $(PROGRAMS)
@@ -223,32 +225,12 @@ PROGRAM_DEPENDENCIES =
 <<
 
 # inference rules, showing how to create one type of file from another with the same root name
-.c{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $<
+{.}.cc{$(INTDIR)}.obj::
+	$(CPP) @<<
+	$(CPP_PROJ) $< 
 <<
 
-.cpp{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_OBJS)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.c{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(CPP_SBRS)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(CPP_SBRS)}.sbr::
+{.}.cc{$(CPP_SBRS)}.sbr::
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<

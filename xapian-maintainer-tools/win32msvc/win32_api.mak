@@ -31,7 +31,9 @@ OBJS= \
              $(INTDIR)\termlist.obj \
              $(INTDIR)\valuerangeproc.obj \
 	     $(INTDIR)\version.obj \
-	     $(INTDIR)\editdistance.obj
+	     $(INTDIR)\editdistance.obj \
+	     $(INTDIR)\valuerangeproccompat.obj \
+	     $(INTDIR)\matchspy.obj 
 SRCS= \
              $(INTDIR)\error.cc \
              $(INTDIR)\errorhandler.cc \
@@ -48,7 +50,9 @@ SRCS= \
              $(INTDIR)\termlist.cc \
              $(INTDIR)\valuerangeproc.cc \
 	     $(INTDIR)\version.cc \
-	     $(INTDIR)\editdistance.cc
+	     $(INTDIR)\editdistance.cc  \
+	     $(INTDIR)\valuerangeproccompat.cc \
+	     $(INTDIR)\matchspy.cc 
 
 	     
 CLEAN :

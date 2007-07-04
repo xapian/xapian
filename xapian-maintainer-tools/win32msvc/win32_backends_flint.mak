@@ -30,7 +30,11 @@ OBJS= \
 	       $(INTDIR)\flint_io.obj \
                $(INTDIR)\flint_modifiedpostlist.obj \
                $(INTDIR)\flint_lock.obj \
-	       $(INTDIR)\flint_spelling.obj
+	       $(INTDIR)\flint_spelling.obj \
+	       $(INTDIR)\flint_synonym.obj \
+	       $(INTDIR)\flint_spellingwordslist.obj \
+       	       $(INTDIR)\contiguousalldocspostlist.obj
+
 SRCS= \
                $(INTDIR)\flint_database.cc \
                $(INTDIR)\flint_termlist.cc \
@@ -48,8 +52,10 @@ SRCS= \
 	       $(INTDIR)\flint_io.cc \
                $(INTDIR)\flint_modifiedpostlist.cc \
                $(INTDIR)\flint_lock.cc \
-	       $(INTDIR)\flint_spelling.cc
-
+	       $(INTDIR)\flint_spelling.cc \
+	       $(INTDIR)\flint_synonym.cc \
+	       $(INTDIR)\flint_spellingwordslist.cc \
+       	       $(INTDIR)\contiguousalldocspostlist.cc
 CLEAN :
 	-@erase "$(OUTDIR)\libflint.lib"
 	-@erase "*.pch"
