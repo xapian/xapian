@@ -8,7 +8,7 @@ dnl 2.59 was released the same day as 2.58 to fix a problem
 AC_PREREQ(2.59)
 dnl NB When updating the version for a release, update LIBRARY_VERSION_INFO
 dnl below too.
-AC_INIT(xapian-core, 1.0.1)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-core, 1.0.2)dnl FIXME: bugreport addr as third argument
 dnl Extract from the libtool info manual:
 dnl
 dnl Here are a set of rules to help you update your library version information:
@@ -64,7 +64,8 @@ dnl 13:1:0 0.9.9 No API changes
 dnl 13:2:0 0.9.10 No API changes
 dnl 14:0:0 1.0.0 Numerous API changes
 dnl 15:0:0 1.0.1 Error::error_string changed type
-LIBRARY_VERSION_INFO=15:0:0
+dnl 16:0:1 1.0.2 New QueryParser flags, etc
+LIBRARY_VERSION_INFO=16:0:1
 AC_SUBST(LIBRARY_VERSION_INFO)
 
 dnl Check the build directory doesn't contain a space, so we die early with
