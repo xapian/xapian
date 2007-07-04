@@ -31,6 +31,12 @@ phpextdir = $(PHP_EXTENSION_DIR)
 
 phpext_LTLIBRARIES = xapian.la
 
+# This location is correct for Debian, but in general there doesn't seem
+# to be a suitable location which is guarenteed to be in the include_path
+# by default.
+phpincdir = $(datarootdir)/php$(PHP_MAJOR_VERSION)
+phpinc_DATA = php$(PHP_MAJOR_VERSION)/xapian.php
+
 # Remove the .la file - xapian.la is never linked against (it's a module)
 # and PHP doesn't use libltdl.  Note that the library gets installed by
 # install-data, so that's where we need to hook.
