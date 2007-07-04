@@ -142,64 +142,6 @@ Sun Jul 01 10:09:42 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 	  to test_emptyquery2 and test_emptyquery3, respectively.  There
 	  was already a (different) test_emptyquery1 in api_anydb.cc.
 
-Sat Jun 30 15:14:33 BST 2007  Olly Betts <olly@survex.com>
-
-	* api/omdocument.cc,common/document.h,include/xapian/document.h:
-	  Add Xapian::Document::get_docid() method.
-
-Sat Jun 30 04:00:57 BST 2007  Olly Betts <olly@survex.com>
-
-	* matcher/multimatch.cc: If there's only one term in the query (a
-	  pretty common case) we don't need to look at the top document's
-	  termlist to determine that it matches all the query terms.
-
-Sat Jun 30 00:37:09 BST 2007  Olly Betts <olly@survex.com>
-
-	* INSTALL: Add note that zlib must be installed before you can build
-	  Xapian.
-
-Fri Jun 29 22:40:58 BST 2007  Olly Betts <olly@survex.com>
-
-	* backends/flint/: If doccount == lastdocid, all document ids up to
-	  lastdocid are used, so we provide a special really efficient version
-	  implementation of iterating all documents for this common case for
-	  flint.
-
-Fri Jun 29 00:39:04 BST 2007  Olly Betts <olly@survex.com>
-
-	* common/stringutils.h: Add startswith() and endswith() overloads
-	  which take a single character.
-	* backends/flint/flint_spellingwordslist.cc,bin/xapian-inspect.cc:
-	  Use new forms.
-	* backends/flint/flint_spellingwordslist.cc: Fix comment typo.
-
-Thu Jun 28 21:43:49 BST 2007  Olly Betts <olly@survex.com>
-
-	* backends/flint/flint_spellingwordslist.cc: Another begins_with()
-	  which I somehow missed.
-
-Thu Jun 28 19:51:03 BST 2007  Olly Betts <olly@survex.com>
-
-	* api/valuerangeproc.cc,backends/flint/flint_alltermslist.cc,
-	  backends/flint/flint_synonym.cc,
-	  backends/inmemory/inmemory_alltermslist.cc,
-	  backends/quartz/quartz_alltermslist.cc,
-	  backends/quartz/quartz_metafile.cc,bin/xapian-inspect.cc,
-	  common/stringutils.h,tests/harness/testsuite.cc: Rename
-	  begins_with() to startswith() and ends_with() to endswith() for
-	  consistency with Python string operations.
-
-Thu Jun 28 18:49:50 BST 2007  Olly Betts <olly@survex.com>
-
-	* queryparser/queryparser.lemony: Don't put a Z prefix on terms if the
-	  stemmer is "none", which matches what TermGenerator generates.
-
-Thu Jun 28 02:22:04 BST 2007  Olly Betts <olly@survex.com>
-
-	* api/omqueryinternal.cc: Don't SEGV when Query::MatchNothing is used
-	  with OP_AND_NOT (fixes bug#176).
-	* tests/api_nodb.cc: Add regression test emptyquery2.
-
 Xapian-core 1.0.2 (2007-0?-??):
 
 API:
@@ -230,12 +172,21 @@ API:
 * QueryParser: the behaviour of '+' and '-' on bracketed subexpressions was
   not as documented.  This is now fixed.
 
+* QueryParser: if the stemmer is "none", no longer put a Z prefix on terms;
+  this now matches the output of TermGenerator.
+
 * NumberValueRangeProcessor has been changed to work usefully.  Previously
   the numbers had to be the same length; now numbers are serialised to
   strings such that a string sort on the string orders the numbers correctly.
   Negative and floating point numbers are also supported now.
 
 * Parameter name for Document::get_value() has been changed.
+
+* Documents now have a get_docid() method, to get the document ID from the
+  database they came from.
+
+* Fixed a segfault when getting a description for a MatchNothing query
+  joined with AND_NOT (bug #176).
 
 testsuite:
 
@@ -267,6 +218,8 @@ testsuite:
 * quartztest: no longer test QuartzPostList::get_collection_freq(), which
   has been removed.
 
+* Add regression test emptyquery2 for bug #176.
+
 matcher:
 
 * Fix bug when check_at_least was supplied - the matches after the
@@ -280,6 +233,9 @@ matcher:
 * TermIterator: now handles the internal iterator pruning; needed when the
   internal iterator is an OrTermList (which is only the case for spelling
   word termlists, currently).
+
+* Optimisation for single term queries: we don't need to look at the top
+  document's termlist to determine that it matches all the query terms.
 
 flint backend:
 
@@ -316,6 +272,10 @@ flint backend:
 * Fix handling of exceptions during commit - previously, this could result
   in tables getting out-of-sync, resulting in a corrupt database.
 
+* Optimise iteration of all documents in the case where all the document
+  IDs up to lastdocid are used; in this case, the allpostlist no longer
+  needs to access disk to get the document IDs.
+
 quartz backend:
 
 * WritableDatabase::delete_document() no longer cancels pending changes if the
@@ -342,6 +302,12 @@ remote backend:
 
 inmemory backend:
 
+utility functions:
+
+* The begins_with() and ends_with() functions in stringutils.h have been
+  renamed to startswith() and endswith() for consistency with Python string
+  operations, and new overloaded forms which take a single character were
+  added.
 
 build system:
 
@@ -385,6 +351,8 @@ documentation:
 
 * HACKING: Mention new libtool, and more details about preferring
   pre-increment.
+
+* INSTALL: note that zlib must be installed before you can build.
 
 examples:
 
