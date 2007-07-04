@@ -48,12 +48,14 @@
 %rename("XapianBM25Weight") Xapian::BM25Weight;
 %rename("XapianBoolWeight") Xapian::BoolWeight;
 %rename("XapianDatabase") Xapian::Database;
+%rename("XapianDateValueRangeProcessor") Xapian::DateValueRangeProcessor;
 %rename("XapianDocument") Xapian::Document;
 %rename("XapianEnquire") Xapian::Enquire;
 %rename("XapianESet") Xapian::ESet;
 %rename("XapianESetIterator") Xapian::ESetIterator;
 %rename("XapianMSet") Xapian::MSet;
 %rename("XapianMSetIterator") Xapian::MSetIterator;
+%rename("XapianNumberValueRangeProcessor") Xapian::NumberValueRangeProcessor;
 %rename("XapianPositionIterator") Xapian::PositionIterator;
 %rename("XapianPostingIterator") Xapian::PostingIterator;
 %rename("XapianQuery") Xapian::Query;
@@ -62,9 +64,12 @@
 %rename("XapianSimpleStopper") Xapian::SimpleStopper;
 %rename("XapianStem") Xapian::Stem;
 %rename("XapianStopper") Xapian::Stopper;
+%rename("XapianStringValueRangeProcessor") Xapian::StringValueRangeProcessor;
+%rename("XapianTermGenerator") Xapian::TermGenerator;
 %rename("XapianTermIterator") Xapian::TermIterator;
 %rename("XapianTradWeight") Xapian::TradWeight;
 %rename("XapianValueIterator") Xapian::ValueIterator;
+%rename("XapianValueRangeProcessor") Xapian::ValueRangeProcessor;
 %rename("XapianWeight") Xapian::Weight;
 %rename("XapianWritableDatabase") Xapian::WritableDatabase;
 

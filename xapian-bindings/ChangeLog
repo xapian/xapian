@@ -1,3 +1,8 @@
+Wed Jul 04 17:42:34 BST 2007  Olly Betts <olly@survex.com>
+
+	* php/util.i: Rename the ValueRangeProcessor subclasses and
+	  TermGenerator to have a Xapian prefix for PHP4.
+
 Wed Jul 04 17:41:36 BST 2007  Olly Betts <olly@survex.com>
 
 	* xapian-bindings.spec.in: Don't mention %makeinstall in a comment as
