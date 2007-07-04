@@ -1,3 +1,9 @@
+Wed Jul 04 17:41:36 BST 2007  Olly Betts <olly@survex.com>
+
+	* xapian-bindings.spec.in: Don't mention %makeinstall in a comment as
+	  that makes RPM explode.  Add in a missing "mv" for installing tcl8
+	  documentation.
+
 Wed Jul 04 17:39:26 BST 2007  Olly Betts <olly@survex.com>
 
 	* INSTALL: Remove documentation of the "phpextdir" and "pylibdir" ways
