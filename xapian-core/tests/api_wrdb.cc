@@ -1632,6 +1632,7 @@ static bool test_synonymitor1()
     return true;
 }
 
+#if 0 // Disable for 1.0.2 release.
 static bool test_matchspy1()
 {
     if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
@@ -1807,6 +1808,7 @@ static bool test_matchspy2()
 
     return true;
 }
+#endif
 
 // #######################################################################
 // # End of test cases: now we list the tests to run.
@@ -1842,7 +1844,9 @@ test_desc writabledb_tests[] = {
     TESTCASE(spell3),
     TESTCASE(spell4),
     TESTCASE(synonymitor1),
+#if 0
     TESTCASE(matchspy1),
     TESTCASE(matchspy2),
+#endif
     END_OF_TESTCASES
 };

@@ -45,7 +45,8 @@
 // Searching
 #include <xapian/enquire.h>
 #include <xapian/expanddecider.h>
-#include <xapian/matchspy.h>
+// Disable for 1.0.2 release.
+//#include <xapian/matchspy.h>
 #include <xapian/query.h>
 #include <xapian/queryparser.h>
 
