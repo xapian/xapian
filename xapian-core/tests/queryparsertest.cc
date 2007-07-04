@@ -1235,8 +1235,7 @@ static bool test_value_range_serialise1()
 	    TEST_AND_EXPLAIN(num_cmp == str_cmp,
 			     "Numbers " << prevnum << " and " << num <<
 			     " don't sort the same way as their string "
-			     "counterparts (" << prevstr << " and " <<
-			     str << ")");
+			     "counterparts");
 	}
 
 	prevnum = num;
