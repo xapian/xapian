@@ -22,13 +22,14 @@
 
 #include <xapian/queryparser.h>
 
+#include <float.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "safeerrno.h"
 
 #include <string>
 #include "stringutils.h"
-#include "safeerrno.h"
 #include "omassert.h"
 
 using namespace std;
@@ -179,17 +180,12 @@ Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
     }
 
     // Adjust begin string if necessary.
-    if (b_b)
-	begin.erase(0, b_b);
-    else if (b_e != string::npos)
+    if (b_e != string::npos)
 	begin.resize(b_e);
 
     // Adjust end string if necessary.
-    if (e_b)
-	end.erase(0, e_b);
-    else if (e_e != string::npos)
+    if (e_e != string::npos)
 	end.resize(e_e);
-
 
     // Parse the numbers to floating point.
     double beginnum, endnum;
@@ -197,9 +193,9 @@ Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
     char * endptr;
 
     errno = 0;
-    startptr = begin.c_str();
+    startptr = begin.c_str() + b_b;
     beginnum = strtod(startptr, &endptr);
-    if (endptr != startptr + begin.size())
+    if (endptr != startptr - b_b + begin.size())
 	// Invalid characters in string
 	return Xapian::BAD_VALUENO;
     if (errno)
@@ -207,9 +203,9 @@ Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
 	return Xapian::BAD_VALUENO;
 
     errno = 0;
-    startptr = end.c_str();
+    startptr = end.c_str() + e_b;
     endnum = strtod(startptr, &endptr);
-    if (endptr != startptr + end.size())
+    if (endptr != startptr - e_b + end.size())
 	// Invalid characters in string
 	return Xapian::BAD_VALUENO;
     if (errno)
@@ -222,123 +218,209 @@ Xapian::NumberValueRangeProcessor::operator()(string &begin, string &end)
     return valno;
 }
 
+#if FLT_RADIX != 2
+# error Code currently assumes FLT_RADIX == 2
+#endif
+
 string
 Xapian::NumberValueRangeProcessor::float_to_string(double value)
 {
     double mantissa;
     int exponent;
 
+    // Negative infinity.
+    if (value < -DBL_MAX) return string();
+
     mantissa = frexp(value, &exponent);
 
-    bool negative = false;
-    if (mantissa < 0) {
-	negative = true;
-	mantissa = -mantissa;
-    }
-
-    /* IEEE representation of doubles uses 11 bits for the exponent, with a
-     * bias of 1023.  There's then another 52 bits in the mantissa, so we need
-     * to add 1075 to be sure that the exponent won't be negative.  Even then,
-     * we check that the exponent isn't negative, and consider the value to be
-     * equal to zero if it is, to be safe on architectures which use a
-     * different representation.
+    /* Deal with zero specially.
+     *
+     * IEEE representation of doubles uses 11 bits for the exponent, with a
+     * bias of 1023.  We bias this by subtracting 8, and non-IEEE
+     * representations may allow higher exponents, so allow exponents down to
+     * -2039 - if smaller exponents are possible anywhere, we underflow such
+     *  numbers to 0.
      */
-    exponent += 1075;
-    if (exponent < 0) {
-	/* Note - this can't happen on most architectures. */
-	exponent = 0;
-	mantissa = 0;
-	negative = false;
-    } else if (mantissa == 0) {
-	exponent = 0;
-    }
+    if (mantissa == 0.0 || exponent < -2039) return "\x80";
 
-    // First, store the exponent, as two bytes
-    // Top bit of first byte is a sign bit.
-    // If the sign bit is set, number is positive.
-    // If the sign bit is unset, number is negative.
-    // For negative numbers, we invert the bytes, so that the sort order
-    // is reversed (so that larger negative numbers come first).
-    int n = (exponent & 0x7f00) >> 8;
-    Assert(n >= 0);
-    Assert(n < 128);
-    string digits;
-    digits.push_back(negative ? 127 - n : 128 + n);
+    // Positive infinity, or extremely large non-IEEE representation.
+    if (value > DBL_MAX || exponent > 2055) return string(9, '\xff');
 
-    n = exponent & 0xff;
-    digits.push_back(negative ? 255 - n: n);
+    bool negative = (mantissa < 0);
+    if (negative) mantissa = -mantissa;
 
-    // Now, store the mantissa, in 7 bytes.
-    // For negative numbers, we invert the bytes, as for the exponent.
-    // Mantissa is in range .5 <= m < 1, unless the number is 0, in which case it is equal to 0.
+    // Encoding:
     //
-    // Therefore, we first multiply by 512 and subtract 256, to get the first
-    // byte.  For subsequent bytes, we multiply by 256.
-    mantissa = mantissa * 512 - 256;
-    // Special handling for a mantissa of 0.
-    if (mantissa < 0) mantissa = 0;
-    Assert(mantissa < 256);
-    int i;
-    for (i = 0; i != 7; ++i) {
-	n = static_cast<int>(floor(mantissa));
-	digits.push_back(negative ? 255 - n : n);
-	mantissa -= n;
-	Assert(mantissa >= 0);
-	Assert(mantissa < 1.0);
-	mantissa *= 256;
+    // [ 7 | 6 | 5 | 4 3 2 1 0]
+    //   Sm  Se  Le
+    //
+    // Sm stores the sign of the mantissa: 1 = positive or zero, 0 = negative.
+    // Se stores the sign of the exponent: Sm for positive/zero, !Sm for neg.
+    // Le stores the length of the exponent: !Se for 3 bits, Se for 11 bits.
+    unsigned char next = (negative ? 0 : 0xe0);
+
+    // Bias the exponent by 8 so that more small integers get short encodings.
+    exponent -= 8;
+    bool exponent_negative = (exponent < 0);
+    if (exponent_negative) {
+	exponent = -exponent;
+	next ^= 0x60;
     }
 
-    // Finally, we can chop off any trailing zeros.
-    i = digits.size();
-    while (i > 0 && digits[i - 1] == '\0') {
-	i--;
-    }
-    digits.resize(i);
+    string result;
 
-    return digits;
+    /* We store the exponent in 3 or 11 bits.  If the number is negative, we
+     * flip all the bits of the exponent, since larger negative numbers should
+     * sort first.
+     *
+     * If the exponent is negative, we flip the bits of the exponent, since
+     * larger negative exponents should sort first (unless the number is
+     * negative, in which case they should sort later).
+     */
+    Assert(exponent >= 0);
+    if (exponent < 8) {
+	next ^= 0x20;
+	next |= (exponent << 2);
+	if (negative ^ exponent_negative) next ^= 0x1c;
+    } else {
+	Assert((exponent >> 11) == 0);
+	// Put the top 5 bits of the exponent into the lower 5 bits of the
+	// first byte:
+	next |= char(exponent >> 6);
+	if (negative ^ exponent_negative) next ^= 0x1f;
+	result += next;
+	// And the lower 6 bits of the exponent go into the upper 6 bits
+	// of the second byte:
+	next = char(exponent) << 2;
+	if (negative ^ exponent_negative) next ^= 0xfc;
+    }
+
+    // Convert the 52 (or 53) bits of the mantissa into two 32-bit words.
+    mantissa *= 1 << (negative ? 26 : 27);
+    unsigned word1 = (unsigned)mantissa;
+    mantissa -= word1;
+    unsigned word2 = (unsigned)(mantissa * 4294967296.0); // 1<<32
+    // If the number is positive, the first bit will always be set because 0.5
+    // <= mantissa < 1, unless mantissa is zero, which we handle specially
+    // above).  If the number is negative, we negate the mantissa instead of
+    // flipping all the bits, so in the case of 0.5, the first bit isn't set
+    // so we need to store it explicitly.  But for the cost of one extra
+    // leading bit, we can save several trailing 0xff bytes in lots of common
+    // cases.
+    Assert(negative || (word1 & (1<<26)));
+    if (negative) {
+	// We negate the mantissa for negative numbers, so that the sort order
+	// is reversed (since larger negative numbers should come first).
+	word1 = -word1;
+	if (word2 != 0) ++word1;
+	word2 = -word2;
+    }
+
+    word1 &= 0x03ffffff;
+    next |= (word1 >> 24);
+    result += next;
+    result.push_back(word1 >> 16);
+    result.push_back(word1 >> 8);
+    result.push_back(word1);
+
+    result.push_back(word2 >> 24);
+    result.push_back(word2 >> 16);
+    result.push_back(word2 >> 8);
+    result.push_back(word2);
+
+    // Finally, we can chop off any trailing zero bytes.
+    size_t len = result.size();
+    while (len > 0 && result[len - 1] == '\0') {
+	--len;
+    }
+    result.resize(len);
+
+    return result;
 }
 
 /// Get a number from the character at a given position in a string, returning
 /// 0 if the string isn't long enough.
-static inline unsigned int
+static inline unsigned char
 numfromstr(const std::string & str, std::string::size_type pos)
 {
-    return (str.size() > pos) ? static_cast<unsigned char>(str[pos]) : 0;
+    return (pos < str.size()) ? static_cast<unsigned char>(str[pos]) : 0;
 }
 
 double
 Xapian::NumberValueRangeProcessor::string_to_float(const std::string & value)
 {
-    // Read the exponent
-    unsigned int n = numfromstr(value, 0);
-    bool negative = (n < 128);
-    int exponent = (negative ? 127 - n : n - 128) << 8;
-    n = numfromstr(value, 1);
-    exponent += negative ? 255 - n : n;
-    exponent -= 1075;
+    // Zero.
+    if (value == "\x80") return 0.0;
 
-    // Read the mantissa
-    double mantissa = 0;
-
-    // We read the mantissa starting with the least significant byte, to avoid
-    // precision errors creeping in.  The mantissa is held in positions 2 to 8
-    // of the string, with each subsequent byte being 1/256th as significant as
-    // the previous.
-    for (int i = 8; i != 2; --i)
-    {
-	n = numfromstr(value, i);
-	double byteval(negative ? 255 - n : n);
-	mantissa += ldexp(byteval, 8 * (1 - i) - 1);
+    // Positive infinity.
+    if (value == string(9, '\xff')) {
+#ifdef INFINITY
+	// INFINITY is C99.  Oddly, it's of type "float" so sanity check in
+	// case it doesn't cast to double as infinity (apparently some
+	// implementations have this problem).
+	if (double(INFINITY) > HUGE_VAL) return INFINITY;
+#endif
+	return HUGE_VAL;
     }
 
-    // The mantissa is in the range 0.5 << mantissa < 1, so we deal with the
-    // top value specially, by storing "(value * 512 - 256)" rather than store
-    // a value in the range 128..255, so we have to handle the top value
-    // specially here to correspond to this.
-    n = numfromstr(value, 2);
-    if (negative) n = 255 - n;
-    n += 256;
-    mantissa += ldexp(static_cast<double>(n), -9);
+    // Negative infinity.
+    if (value.empty()) {
+#ifdef INFINITY
+	if (double(INFINITY) > HUGE_VAL) return -INFINITY;
+#endif
+	return -HUGE_VAL;
+    }
 
-    return (negative ? -1 : 1) * ldexp(mantissa, exponent);
+    unsigned char first = numfromstr(value, 0);
+    size_t i = 0;
+
+    first ^= (first & 0xc0) >> 1;
+    bool negative = !(first & 0x80);
+    bool exponent_negative = (first & 0x40);
+    bool explen = !(first & 0x20);
+    int exponent = first & 0x1f;
+    if (!explen) {
+	exponent >>= 2;
+	if (negative ^ exponent_negative) exponent ^= 0x07;
+    } else {
+	first = numfromstr(value, ++i);
+	exponent <<= 6;
+	exponent |= (first >> 2);
+	if (negative ^ exponent_negative) exponent ^= 0x07ff;
+    }
+
+    unsigned word1;
+    word1 = (unsigned(first & 0x03) << 24);
+    word1 |= numfromstr(value, ++i) << 16;
+    word1 |= numfromstr(value, ++i) << 8;
+    word1 |= numfromstr(value, ++i);
+
+    unsigned word2 = 0;
+    if (i < value.size()) {
+	word2 = numfromstr(value, ++i) << 24;
+	word2 |= numfromstr(value, ++i) << 16;
+	word2 |= numfromstr(value, ++i) << 8;
+	word2 |= numfromstr(value, ++i);
+    }
+
+    if (negative) {
+	word1 = -word1;
+	if (word2 != 0) ++word1;
+	word2 = -word2;
+	Assert((word1 & 0xf0000000) != 0);
+	word1 &= 0x03ffffff;
+    }
+    if (!negative) word1 |= 1<<26;
+
+    double mantissa = 0;
+    if (word2) mantissa = word2 / 4294967296.0; // 1<<32
+    mantissa += word1;
+    mantissa /= 1 << (negative ? 26 : 27);
+
+    if (exponent_negative) exponent = -exponent;
+    exponent += 8;
+
+    if (negative) mantissa = -mantissa;
+
+    return ldexp(mantissa, exponent);
 }

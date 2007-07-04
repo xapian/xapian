@@ -1057,12 +1057,12 @@ static bool test_qp_value_range1()
 
 static test test_value_range2_queries[] = {
     { "a..b", "VALUE_RANGE 3 a b" },
-    { "1..12", "VALUE_RANGE 2 \2044 \2047\200" },
+    { "1..12", "VALUE_RANGE 2 \240 \256" },
     { "20070201..20070228", "VALUE_RANGE 1 20070201 20070228" },
-    { "$10..20", "VALUE_RANGE 4 \2047@ \2048@" },
-    { "$10..$20", "VALUE_RANGE 4 \2047@ \2048@" },
-    { "12..42kg", "VALUE_RANGE 5 \2047\200 \2049P" },
-    { "12kg..42kg", "VALUE_RANGE 5 \2047\200 \2049P" },
+    { "$10..20", "VALUE_RANGE 4 \255 \261" },
+    { "$10..$20", "VALUE_RANGE 4 \255 \261" },
+    { "12..42kg", "VALUE_RANGE 5 \256 \265@" },
+    { "12kg..42kg", "VALUE_RANGE 5 \256 \265@" },
     { "12kg..42", "VALUE_RANGE 3 12kg 42" },
     { "10..$20", "VALUE_RANGE 3 10 $20" },
     { "1999-03-12..2020-12-30", "VALUE_RANGE 1 19990312 20201230" },
@@ -1071,7 +1071,7 @@ static test test_value_range2_queries[] = {
     { "12/03/99..12/04/01", "VALUE_RANGE 1 19990312 20010412" },
     { "03-12-99..04-14-01", "VALUE_RANGE 1 19990312 20010414" },
     { "(test:a..test:b hello)", "(hello:(pos=1) FILTER VALUE_RANGE 3 test:a test:b)" },
-    { "12..42kg 5..6kg 1..12", "(VALUE_RANGE 2 \2044 \2047\200 AND (VALUE_RANGE 5 \2047\200 \2049P OR VALUE_RANGE 5 \2046@ \2046\200))" },
+    { "12..42kg 5..6kg 1..12", "(VALUE_RANGE 2 \240 \256 AND (VALUE_RANGE 5 \256 \265@ OR VALUE_RANGE 5 \251 \252))" },
     { NULL, NULL }
 };
 
@@ -1153,10 +1153,16 @@ static bool test_qp_value_range3()
     return true;
 }
 
-static double test_value_range_numbers[] = {
+static const double test_value_range_numbers[] = {
+#ifdef INFINITY
+    -INFINITY,
+#endif
+    -HUGE_VAL,
+    -DBL_MAX,
     -pow(2.0, 1022),
     -1024.5,
     -3.14159265358979323846,
+    -3,
     -2,
     -1.8,
     -1.1,
@@ -1170,7 +1176,9 @@ static double test_value_range_numbers[] = {
     -pow(2.0, -1023),
     -pow(2.0, -1024),
     -pow(2.0, -1074),
+    -DBL_MIN,
     0,
+    DBL_MIN,
     pow(2.0, -1074),
     pow(2.0, -1024),
     pow(2.0, -1023),
@@ -1184,9 +1192,15 @@ static double test_value_range_numbers[] = {
     1.1,
     1.8,
     2,
+    3,
     3.14159265358979323846,
     1024.5,
     pow(2.0, 1022),
+    DBL_MAX,
+    HUGE_VAL,
+#ifdef INFINITY
+    INFINITY,
+#endif
 
     64 // Magic number which we stop at.
 };
@@ -1197,7 +1211,7 @@ static bool test_value_range_serialise1()
     double prevnum = 0;
     string prevstr = "";
     bool started = false;
-    for (double *p = test_value_range_numbers; *p != 64; ++p) {
+    for (const double *p = test_value_range_numbers; *p != 64; ++p) {
 	double num = *p;
 	tout << "Number: " << num << '\n';
 	string str = Xapian::NumberValueRangeProcessor::float_to_string(num);
@@ -1221,7 +1235,8 @@ static bool test_value_range_serialise1()
 	    TEST_AND_EXPLAIN(num_cmp == str_cmp,
 			     "Numbers " << prevnum << " and " << num <<
 			     " don't sort the same way as their string "
-			     "counterparts");
+			     "counterparts (" << prevstr << " and " <<
+			     str << ")");
 	}
 
 	prevnum = num;
@@ -1592,11 +1607,11 @@ static test_desc tests[] = {
     TESTCASE(qp_flag_pure_not1),
     TESTCASE(qp_unstem_boolean_prefix),
     TESTCASE(qp_default_prefix1),
+    TESTCASE(value_range_serialise1),
     TESTCASE(qp_value_range1),
     TESTCASE(qp_value_range2),
     TESTCASE(qp_value_range3),
     TESTCASE(qp_value_daterange1),
-    TESTCASE(value_range_serialise1),
     TESTCASE(qp_value_customrange1),
     TESTCASE(qp_stoplist1),
     TESTCASE(qp_spell1),

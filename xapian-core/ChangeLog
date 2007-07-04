@@ -1,3 +1,13 @@
+Wed Jul 04 10:09:33 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/valuerangeproc.cc: Change encoding used for doubles to a much
+	  more compact scheme, and add support for +-INFINITY.  Also, some
+	  other tweaks to avoid unneccessary computation.
+	* tests/queryparsertest.cc: Update test cases to expect new
+	  encoding of doubles, and add values for INFINITY and DBL_MAX and
+	  some other special numbers to the list of numbers that are
+	  specifically checked.
+
 Wed Jul 04 03:29:10 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_wrdb.cc:
