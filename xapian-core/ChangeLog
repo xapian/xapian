@@ -1,3 +1,11 @@
+Wed Jul 04 17:16:59 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/,include/xapian/queryparser.h,tests/queryparsertest.cc: Rename
+	  Xapian::NumberValueRangeProcessor::float_to_string() to
+	  Xapian::sortable_serialise() and
+	  Xapian::NumberValueRangeProcessor::string_to_float() to
+	  Xapian::sortable_unserialise().
+
 Wed Jul 04 17:16:16 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Add rationale for 2 space indents for "public", etc.

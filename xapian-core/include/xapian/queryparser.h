@@ -163,10 +163,10 @@ namespace v102 {
 
 /** Handle a number range.
  *
- *  This class must be used on values which have been encoded with its
- *  @a float_to_string() static method.  This method produces strings which
- *  will sort in the same order as the encoded numbers, so you can use the
- *  same value to implement a numeric sort.
+ *  This class must be used on values which have been encoded using
+ *  Xapian::sortable_serialise() which turns numbers into strings which
+ *  will sort in the same order as the numbers (the same values can be
+ *  used to implement a numeric sort).
  */
 class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangeProcessor {
     Xapian::valueno valno;
@@ -227,43 +227,6 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangePro
      *  Xapian::BAD_VALUENO.
      */
     Xapian::valueno operator()(std::string &begin, std::string &end);
-
-    /** Convert a floating point number to a string, preserving sort order.
-     *
-     *  This method converts a floating point number to a string, suitable for
-     *  using as a value for numeric range restriction, or for use as a sort
-     *  key.
-     *
-     *  The conversion attempts to ensure that, for any pair of values supplied
-     *  to the conversion algorithm, the result of comparing the original
-     *  values (with a numeric comparison operator) will be the same as the
-     *  result of comparing the resulting values (with a string comparison
-     *  operator).  On platforms which represent doubles with the precisions
-     *  specified by IEEE_754, this will be the case: if the representation of
-     *  doubles is more precise, it is possible that two very close doubles
-     *  will be mapped to the same string, so will compare equal.
-     *
-     *  Note also that both zero and -zero will be converted to the same
-     *  representation: since these compare equal, this satisfies the
-     *  comparison constraint, but it's worth knowing this if you wish to use
-     *  the encoding in some situation where this distinction matters.
-     *
-     *  The conversion is platform independent.
-     */
-    static std::string float_to_string(double value);
-
-    /** Convert a string to a floating point number.
-     *
-     *  This expects the input to be a string produced by @a float_to_string().
-     *  If the input is not such a string, the value returned is undefined (but
-     *  no error will be thrown).
-     *
-     *  The result of the conversion will be exactly the value which was
-     *  supplied to @a string_to_float() when making the string on platforms
-     *  which represent doubles with the precisions specified by IEEE_754, but
-     *  may be a different (nearby) value on other platforms.
-     */
-    static double string_to_float(const std::string & value);
 };
 
 }
@@ -485,6 +448,48 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
     /// Return a string describing this object.
     std::string get_description() const;
 };
+
+/** Convert a floating point number to a string, preserving sort order.
+ *
+ *  This method converts a floating point number to a string, suitable for
+ *  using as a value for numeric range restriction, or for use as a sort
+ *  key.
+ *
+ *  The conversion is platform independent.
+ *
+ *  The conversion attempts to ensure that, for any pair of values supplied
+ *  to the conversion algorithm, the result of comparing the original
+ *  values (with a numeric comparison operator) will be the same as the
+ *  result of comparing the resulting values (with a string comparison
+ *  operator).  On platforms which represent doubles with the precisions
+ *  specified by IEEE_754, this will be the case: if the representation of
+ *  doubles is more precise, it is possible that two very close doubles
+ *  will be mapped to the same string, so will compare equal.
+ *
+ *  Note also that both zero and -zero will be converted to the same
+ *  representation: since these compare equal, this satisfies the
+ *  comparison constraint, but it's worth knowing this if you wish to use
+ *  the encoding in some situation where this distinction matters.
+ *
+ *  Handling of NaN isn't (currently) guaranteed to be sensible.
+ */
+XAPIAN_VISIBILITY_DEFAULT
+std::string sortable_serialise(double value);
+
+/** Convert a string encoded using @a sortable_serialise back to a floating
+ *  point number.
+ *
+ *  This expects the input to be a string produced by @a sortable_serialise().
+ *  If the input is not such a string, the value returned is undefined (but
+ *  no error will be thrown).
+ *
+ *  The result of the conversion will be exactly the value which was
+ *  supplied to @a sortable_serialise() when making the string on platforms
+ *  which represent doubles with the precisions specified by IEEE_754, but
+ *  may be a different (nearby) value on other platforms.
+ */
+XAPIAN_VISIBILITY_DEFAULT
+double sortable_unserialise(const std::string & value);
 
 }
 

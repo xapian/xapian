@@ -1124,7 +1124,7 @@ static bool test_qp_value_range3()
     for (int i = 0; i <= steps; ++i) {
 	double v = low + i * step;
 	Xapian::Document doc;
-	doc.add_value(1, Xapian::NumberValueRangeProcessor::float_to_string(v));
+	doc.add_value(1, Xapian::sortable_serialise(v));
 	db.add_document(doc);
     }
 
@@ -1149,7 +1149,7 @@ static bool test_qp_value_range3()
 		for (unsigned int m = 0; m != mset.size(); ++m) {
 		    double v = start + m * step;
 		    TEST_EQUAL(mset[m].get_document().get_value(1),
-			       Xapian::NumberValueRangeProcessor::float_to_string(v));
+			       Xapian::sortable_serialise(v));
 		}
 	    }
 	}
@@ -1218,9 +1218,9 @@ static bool test_value_range_serialise1()
     for (const double *p = test_value_range_numbers; *p != 64; ++p) {
 	double num = *p;
 	tout << "Number: " << num << '\n';
-	string str = Xapian::NumberValueRangeProcessor::float_to_string(num);
+	string str = Xapian::sortable_serialise(num);
 	tout << "String: " << str << '\n';
-	TEST_EQUAL(Xapian::NumberValueRangeProcessor::string_to_float(str), num);
+	TEST_EQUAL(Xapian::sortable_unserialise(str), num);
 
 	if (started) {
 	    int num_cmp = 0;

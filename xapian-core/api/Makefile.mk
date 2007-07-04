@@ -21,6 +21,7 @@ libxapian_la_SOURCES +=\
 	api/omqueryinternal.cc\
 	api/omtermlistiterator.cc\
 	api/omvalueiterator.cc\
+	api/sortable-serialise.cc\
 	api/termlist.cc\
 	api/valuerangeproc.cc\
 	api/valuerangeproccompat.cc\

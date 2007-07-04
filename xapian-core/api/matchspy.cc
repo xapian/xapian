@@ -113,7 +113,7 @@ MatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_ranges)
     size_t total_set = 0;
     map<string, size_t>::const_iterator i;
     for (i = cat.begin(); i != cat.end(); ++i) {
-	double v = Xapian::NumberValueRangeProcessor::string_to_float(i->first.c_str());
+	double v = Xapian::sortable_unserialise(i->first.c_str());
 	if (v < lo) lo = v;
 	if (v > hi) hi = v;
 	size_t count = i->second;
