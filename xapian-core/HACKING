@@ -401,7 +401,7 @@ Use of C++ Features:
   header files to be included, this can result in many more files needing
   recompilation after a change to a header file than is really necessary).
   Just put the declaration in the header file, and put the definition in a .cc
-  file of the same name.
+  file with the same basename.
 
 Miscellaneous Portability Issues:
 =================================
@@ -810,6 +810,10 @@ to follow the style of the existing code.  In particular:
       public:
         method();
     };
+
+  The rationale for this exception is that class definitions in header files
+  often have fairly long lines, so losing an indent level to the visibility
+  specifier often makes class definitions less readable.
 
 * Put a space before the "(" after control flow constructs like "for", "if",
   "while", etc.  Don't put a space before the "(" in function calls.  So
