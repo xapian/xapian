@@ -1,3 +1,7 @@
+Wed Jul 04 19:51:51 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Add the new matchspy form of get_mset.
+
 Wed Jul 04 17:58:13 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

@@ -468,6 +468,11 @@ class Enquire {
 	    doccount checkatleast = 0,
 	    const RSet *omrset = 0,
 	    const MatchDecider *mdecider = 0) const;
+    MSet get_mset(Xapian::doccount first, Xapian::doccount maxitems,
+		  Xapian::doccount checkatleast,
+		  const RSet * omrset,
+		  const MatchDecider * mdecider,
+		  const MatchDecider * matchspy) const;
     MSet get_mset(doccount first,
 	    doccount maxitems,
 	    const RSet *omrset,
