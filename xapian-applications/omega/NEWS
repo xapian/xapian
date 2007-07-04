@@ -1,6 +1,4 @@
-Omega 1.0.2 (2007-07-04):
-
-general:
+Omega 1.0.2 (2007-07-05):
 
 documentation:
 
@@ -8,16 +6,13 @@ documentation:
 
 indexers:
 
-* omindex: If --url isn't passed, default to "/", but print a warning noting
-  that this default has been used (at least for now).
+* omindex:
 
-* scriptindex:
+  + If --url isn't passed, default to "/", but print a warning noting that this
+    default has been used (at least for now).
 
-omega:
-
-templates:
-
-testsuite:
+  + Report files that aren't indexed because their extensions aren't
+    recognised.
 
 build system:
 
@@ -27,8 +22,6 @@ build system:
 portability:
 
 * Fix test programs to build with a development snapshot of GCC 4.3.
-
-packaging:
 
 Omega 1.0.1 (2007-06-11):
 
