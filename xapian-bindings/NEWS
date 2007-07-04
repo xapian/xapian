@@ -1,11 +1,11 @@
 Up to:
-Wed Jun 27 14:16:00 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+Wed Jul 04 17:48:38 BST 2007  Olly Betts <olly@survex.com>
 
-Xapian-bindings 1.0.2 (2007-0?-??):
+Xapian-bindings 1.0.2 (2007-07-??):
 
 Documentation:
 
-* Document use of PYTHON_LIB and PHP_EXTENSION_DIR.
+* Document use of PYTHON_LIB and PHP_EXTENSION_DIR instead of pylibdir and phpextdir.
 
 * Remove documentation of removed "--with-swig" configure option.
 
@@ -29,13 +29,28 @@ General:
 
 Packaging:
 
+* RPMs: Don't mention %makeinstall in a .spec file comment as that makes RPM
+  explode.  Add in a missing "mv" in the command for installing tcl8
+  documentation.
+
+Portability:
+
 CSharp:
 
 * Fix rule handling parallel make to include xapian_wrap.h
 
+Guile:
+
 Java:
 
 PHP:
+
+* Install xapian.php as <PREFIX>/share/php<PHPMAJOR>/xapian.php.  There
+  doesn't seem to be a standard location, but this works for Debian at
+  least, and it seems better to at least try to install it.
+
+* Rename ValueRangeProcessor and subclasses and TermGenerator to have a Xapian
+  prefix for PHP4.
 
 Python:
 
@@ -48,6 +63,9 @@ Python:
 
 * Add test cases for OP_VALUE_RANGE queries, getting spelling corrections,
   synonym iterators and spelling iterators.
+
+* In the test suite, expect_query() now adds "Xapian::Query(" and ")" around
+  the expected description to make the tests more readable.
 
 Ruby:
 
