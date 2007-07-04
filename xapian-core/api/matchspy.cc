@@ -85,20 +85,15 @@ MatchSpy::score_categorisation(Xapian::valueno valno,
 }
 
 struct bucketval {
-    bucketval()
-	: count(0), min_orig(), max_orig(),
-	  min_dbl(DBL_MAX), max_dbl(DBL_MIN) { }
     size_t count;
-    string min_orig, max_orig;
-    double min_dbl, max_dbl;
-    void update(size_t n, double dbl) {
+    double min, max;
+
+    bucketval() : count(0), min(DBL_MAX), max(-DBL_MAX) { }
+
+    void update(size_t n, double value) {
 	count += n;
-	if (dbl < min_dbl) {
-	    min_dbl = dbl;
-	}
-	if (dbl > max_dbl) {
-	    max_dbl = dbl;
-	}
+	if (value < min) min = value;
+	if (value > max) max = value;
     }
 };
 
@@ -162,22 +157,23 @@ MatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_ranges)
     map<string, size_t> discrete_categories;
     for (size_t b = 0; b < bucket.size(); ++b) {
 	if (bucket[b].count == 0) continue;
-	string desc;
-	if (bucket[b].min_dbl == bucket[b].max_dbl) {
-	    desc = bucket[b].min_orig;
-	} else {
-	    desc = bucket[b].min_orig + " to " + bucket[b].max_orig;
+	string encoding = Xapian::sortable_serialise(bucket[b].min);
+	if (bucket[b].min != bucket[b].max) {
+	    // Pad the start to 9 bytes with zeros.
+	    encoding.resize(9);
+	    encoding += Xapian::sortable_serialise(bucket[b].max);
 	}
-	discrete_categories[desc] = bucket[b].count;
-	//cout << "  " << desc << ": " << bucket[b].count << endl;
+	discrete_categories[encoding] = bucket[b].count;
     }
 
     size_t total_unset = total - total_set;
     if (total_unset) {
-	//cout << "  Unset " << total_unset << endl;
+	discrete_categories[""] = total_unset;
     }
 
-    return true; //return score_split(discrete_categories, total_unset, total);
+    swap(discrete_categories, categories[valno]);
+
+    return true;
 }
 
 }

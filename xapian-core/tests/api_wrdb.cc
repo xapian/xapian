@@ -1682,7 +1682,8 @@ static bool test_matchspy1()
 	"|0:2|1:3|2:3|3:3|4:3|5:3|6:2|7:2|8:2|9:2|",
 	"|",
 	"|1:9|2:16|",
-	"|"
+	"|",
+	NULL
     };
     for (Xapian::valueno v = 0; results[v]; ++v) {
 	const map<string, size_t> & cat = spy.get_categories(v);
@@ -1729,6 +1730,84 @@ static bool test_matchspy1()
     return true;
 }
 
+static bool test_matchspy2()
+{
+    if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
+	SKIP_TEST("Test not supported for remote backend");
+    }
+
+    Xapian::WritableDatabase db = get_writable_database("");
+    for (int c = 1; c <= 25; ++c) {
+	Xapian::Document doc;
+	doc.set_data("Document " + om_tostring(c));
+	int factors = 0;
+	for (int factor = 1; factor <= c; ++factor) {
+	    doc.add_term("all");
+	    if (c % factor == 0) {
+		doc.add_term("XFACT" + om_tostring(factor));
+		++factors;
+	    }
+	}
+
+	// Number of factors.
+	doc.add_value(0, Xapian::sortable_serialise(factors));
+	// Units digits.
+	doc.add_value(1, Xapian::sortable_serialise(c % 10));
+	// (x + 1/3)*(x + 1/3).
+	doc.add_value(2, Xapian::sortable_serialise((c + 1.0/3.0) * (c + 1.0/3.0)));
+	// Reciprocal.
+	doc.add_value(3, Xapian::sortable_serialise(1.0 / c));
+
+	db.add_document(doc);
+    }
+
+    Xapian::MatchSpy spy;
+
+    spy.add_category(0);
+    spy.add_category(1);
+    spy.add_category(2);
+    spy.add_category(3);
+
+    Xapian::Enquire enq(db);
+
+    enq.set_query(Xapian::Query("all"));
+
+    Xapian::MSet mset = enq.get_mset(0, 10, 0, NULL, NULL, &spy);
+
+    TEST_EQUAL(spy.get_total(), 25);
+
+    static const string results[] = {
+	"|\240:1|\244:9|\246:3|\250:7|\251:1|\252:3|\254:1|",
+	string("|\200\0\0\0\0\0\0\0\0\244:8|\246\0\0\0\0\0\0\0\0\250:6|\251\0\0\0\0\0\0\0\0\253:7|\254\0\0\0\0\0\0\0\0\254\200:4|", 54),
+	string("|\243\34q\307\34q\307\0\0\271q\307\34q\307\34\300:9|\272\254q\307\34q\307@\0\301\2168\343\2168\343\300:4|\302k\2168\343\2169\0\0\304+\34q\307\34q\200:3|\304\261\307\34q\307\34@\0\305\327\34q\307\34q\200:3|\306u\307\34q\307\34@\0\307\313\34q\307\34q\200:3|\310@\343\2168\343\216\0\0\310\2408\343\2168\343\200:2|\311\3\2168\343\2168\300:1|", 132),
+	"|\237\315\36\270Q\353\205\36\300\237\321\321t]\27E\321\200:15|\237\322ffffff\200\237\325UUUUUU@:5|\237\326ffffff\200\237\330:2|\237\331UUUUUU@:1|\237\334:1|\240:1|",
+	"|",
+	""
+    };
+    for (Xapian::valueno v = 0; !results[v].empty(); ++v) {
+	bool result = spy.build_numeric_ranges(v, 7);
+	if (results[v] == "|") {
+	    TEST(!result);
+	    continue;
+	}
+	TEST(result);
+	const map<string, size_t> & cat = spy.get_categories(v);
+	TEST(cat.size() <= 7);
+	string str("|");
+	map<string, size_t>::const_iterator i;
+	for (i = cat.begin(); i != cat.end(); ++i) {
+	    str += i->first;
+	    str += ':';
+	    str += om_tostring(i->second);
+	    str += '|';
+	}
+	tout << "value " << v << endl;
+	TEST_STRINGS_EQUAL(str, results[v]);
+    }
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1764,5 +1843,6 @@ test_desc writabledb_tests[] = {
     TESTCASE(spell4),
     TESTCASE(synonymitor1),
     TESTCASE(matchspy1),
+    TESTCASE(matchspy2),
     END_OF_TESTCASES
 };

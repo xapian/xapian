@@ -95,17 +95,24 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy : public MatchDecider {
     double score_categorisation(Xapian::valueno valno,
 				double desired_no_of_categories = 0.0);
 
-    /** Turn a category containing "continuous" values into a set of ranges.
+    /** Turn a category containing sort-encoded numeric values into a set of
+     *  ranges.
      *
      *  For "continuous" values (such as price, height, weight, etc), there
      *  will usually be too many different values to offer the user, and the
      *  user won't want to restrict to an exact value anyway.
      *
      *  This method produces a set of ranges for a particular value number.
+     *  The ranges replace the category data for value @a valno - the keys
+     *  are either empty (entry for "no value set"), <= 9 bytes long (a
+     *  singleton encoded value), or > 9 bytes long (the first 9 bytes are
+     *  the encoded range start, the rest the encoded range end).
      *
      *  @param valno	Value number to produce ranges for.
-     *
      *  @param max_ranges   Group into at most this many ranges.
+     *
+     *  @return true if ranges could be built; false if not (e.g. all values
+     *		the same, no values set, or other reasons).
      */
     bool build_numeric_ranges(Xapian::valueno valno, size_t max_ranges);
 };
