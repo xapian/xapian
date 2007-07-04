@@ -1639,10 +1639,14 @@ static bool test_matchspy1()
 	    }
 	}
 
-	doc.add_value(0, om_tostring(factors)); // Number of factors.
-	doc.add_value(1, om_tostring(c % 10)); // Units digits.
-	doc.add_value(2, "fish"); // A constant.
-	doc.add_value(3, om_tostring(om_tostring(c).size())); // Number of digits.
+	// Number of factors.
+	doc.add_value(0, om_tostring(factors));
+	// Units digits.
+	doc.add_value(1, om_tostring(c % 10));
+	// Constant.
+	doc.add_value(2, "fish");
+	// Number of digits.
+	doc.add_value(3, om_tostring(om_tostring(c).size()));
 
 	db.add_document(doc);
     }
@@ -1704,9 +1708,9 @@ static bool test_matchspy1()
 	tout << "score1 = " << score1 << endl;
 	double score3 = spy.score_categorisation(3, 7);
 	tout << "score3 = " << score3 << endl;
-	// 3 is clearly worst - it's less clear if 0 or 1 is best.  0 has 7
-	// categories, but 1 has a much more even split.
-	TEST(score0 < score3);
+	// 3 is clearly worst - 0 is arguably a little better than 1 (0 is the
+	// requested size, but 1 has a much more even split).
+	TEST(score0 < score1);
 	TEST(score1 < score3);
     }
 
