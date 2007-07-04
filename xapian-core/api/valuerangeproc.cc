@@ -243,11 +243,19 @@ Xapian::NumberValueRangeProcessor::float_to_string(double value)
      */
     if (mantissa == 0.0 || exponent < -2039) return "\x80";
 
-    // Positive infinity, or extremely large non-IEEE representation.
-    if (value > DBL_MAX || exponent > 2055) return string(9, '\xff');
-
     bool negative = (mantissa < 0);
     if (negative) mantissa = -mantissa;
+
+    // Infinity, or extremely large non-IEEE representation.
+    if (value > DBL_MAX || exponent > 2055) {
+	if (negative) {
+	    // This can only happen with a non-IEEE representation, because
+	    // we've already tested for value < -DBL_MAX
+	    return string();
+	} else {
+	    return string(9, '\xff');
+	}
+    }
 
     // Encoding:
     //

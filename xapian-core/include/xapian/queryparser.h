@@ -243,6 +243,11 @@ class XAPIAN_VISIBILITY_DEFAULT NumberValueRangeProcessor : public ValueRangePro
      *  doubles is more precise, it is possible that two very close doubles
      *  will be mapped to the same string, so will compare equal.
      *
+     *  Note also that both zero and -zero will be converted to the same
+     *  representation: since these compare equal, this satisfies the
+     *  comparison constraint, but it's worth knowing this if you wish to use
+     *  the encoding in some situation where this distinction matters.
+     *
      *  The conversion is platform independent.
      */
     static std::string float_to_string(double value);
