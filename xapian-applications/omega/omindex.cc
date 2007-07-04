@@ -590,6 +590,8 @@ index_directory(size_t depth_limit, const string &dir,
 			cout << "Filter for \"" << mimetype << "\" not installed - ignoring extension \"" << ext << "\"" << endl;
 			mime_map.erase(mt);
 		    }
+		} else {
+		    cout << "Unknown extension: \"" << file << "\" - skipping" << endl;
 		}
 		continue;
 	    }
