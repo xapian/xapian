@@ -1,9 +1,37 @@
+up to:
+Wed Jul 04 17:31:38 BST 2007  Olly Betts <olly@survex.com>
+
 Omega 1.0.2 (2007-07-??):
+
+general:
+
+documentation:
+
+* scriptindex.txt: Fix typo.
+
+indexers:
+
+* omindex: If --url isn't passed, default to "/", but print a warning noting
+  that this default has been used (at least for now).
+
+* scriptindex:
+
+omega:
+
+templates:
+
+testsuite:
 
 build system:
 
 * Value of XAPIAN_CONFIG supplied to configure is now passed to distcheck,
   to ensure that it works with uninstalled copies of Xapian.
+
+portability:
+
+* Fix test programs to build with a development snapshot of GCC 4.3.
+
+packaging:
 
 Omega 1.0.1 (2007-06-11):
 

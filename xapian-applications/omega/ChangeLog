@@ -1,3 +1,7 @@
+Wed Jul 04 17:34:15 BST 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Update.
+
 Wed Jul 04 17:31:38 BST 2007  Olly Betts <olly@survex.com>
 
 	* Makefile.am,omindex.cc,query.cc: Use stringutils.h from common.
