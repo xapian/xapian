@@ -1,147 +1,5 @@
 up to:
-Wed Jul 04 17:19:51 BST 2007  Olly Betts <olly@survex.com>
-
-	* api/,include/xapian/queryparser.h,tests/queryparsertest.cc: Rename
-	  Xapian::NumberValueRangeProcessor::float_to_string() to
-	  Xapian::sortable_serialise() and
-	  Xapian::NumberValueRangeProcessor::string_to_float() to
-	  Xapian::sortable_unserialise().
-
-	* api/valuerangeproc.cc: Fix encoding of extremely large, negative,
-	  non-IEEE representation to be -INFINITY, not +INFINITY.  Thanks
-	  to Simon Tatham for pointing this out.
-	* include/xapian/queryparser.h: Add a documentation comment note
-	  that zero and -zero will be transformed to the same value.
-	* api/valuerangeproc.cc: Change encoding used for doubles to a much
-	  more compact scheme, and add support for +-INFINITY.  Also, some
-	  other tweaks to avoid unneccessary computation.
-	* tests/queryparsertest.cc: Update test cases to expect new
-	  encoding of doubles, and add values for INFINITY and DBL_MAX and
-	  some other special numbers to the list of numbers that are
-	  specifically checked.
-
-Wed Jul 04 03:29:10 BST 2007  Olly Betts <olly@survex.com>
-
-	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_wrdb.cc:
-	  Category score now explicitly weights for having nearer the
-	  requested number of categories.  Category score is now normalised
-	  so values should be roughly comparable between different sized
-	  collections.  Add untested code to build ranges.
-
-Wed Jul 04 00:48:07 BST 2007  Olly Betts <olly@survex.com>
-
-	* bin/xapian-compact.cc: Add new "--no-renumber" option to preserve
-	  document ids from source databases.
-
-Wed Jul 04 00:25:52 BST 2007  Olly Betts <olly@survex.com>
-
-	* backends/inmemory/inmemory_database.cc,
-	  backends/inmemory/inmemory_database.h,tests/api_wrdb.cc: Fix bug in
-	  inmemory backend - using replace_document() to add a document with a
-	  specific document id above the highest currently used would create
-	  empty documents for all document ids in between.
-
-Tue Jul 03 09:27:36 BST 2007  Richard Boulton <richard@lemurconsulting.com>
-
-	* HACKING: Add note that protection level declarations in classes
-	  and structs should only be indented by 2 spaces.
-
-Tue Jul 03 03:53:11 BST 2007  Olly Betts <olly@survex.com>
-
-	* api/Makefile.mk,api/matchspy.cc,include/xapian/matchspy.h,
-	  tests/api_wrdb.cc: Add MatchSpy method to score how good a
-	  categorisation is.
-
-Tue Jul 03 01:24:19 BST 2007  Olly Betts <olly@survex.com>
-
-	* include/xapian/queryparser.h: Replace `#include <xapian/stem.h>'
-	  with forward declaration of Stem.
-	* include/xapian/errorhandler.h: Replace `#include <xapian/error.h>'
-	  with forward declaration of Error.
-	* api/errorhandler.cc: Now needs to explicitly `#include
-	  <xapian/error.h>'.
-	* include/xapian/dbfactory.h: Replace `#include <xapian/database.h>'
-	  with forward declarations of Database and WritableDatabase.
-	* include/xapian/enquire.h: Remove `#include <xapian/error.h>'.
-
-Mon Jul 02 23:25:55 BST 2007  Olly Betts <olly@survex.com>
-
-	* include/Makefile.mk,include/xapian.h,include/xapian/matchspy.h,
-	  tests/api_wrdb.cc: Implement "MatchSpy" class to tally values
-	  in matching documents.
-
-Mon Jul 02 18:15:18 BST 2007  Olly Betts <olly@survex.com>
-
-	* api/omenquire.cc,include/xapian/enquire.h: Fix last change to
-	  preserve ABI compatibility.
-
-Mon Jul 02 17:52:10 BST 2007  Olly Betts <olly@survex.com>
-
-	* api/omenquire.cc,common/multimatch.h,common/omenquireinternal.h,
-	  include/xapian/enquire.h,matcher/multimatch.cc,net/remoteserver.cc,
-	  tests/api_db.cc: Add support for a "matchspy" - a MatchDecider which
-	  is documented to be tested on ever candidate document.  We plan to
-	  optimise the current matchdecider to be used as little as possible.
-
-Mon Jul 02 17:35:12 BST 2007  Olly Betts <olly@survex.com>
-
-	* tests/api_db.cc: Enhance matchfunctor1 to test that the functor
-	  returns ALL matching documents, not just that all documents returned
-	  match.
-
-Mon Jul 02 16:36:57 BST 2007  Richard Boulton <richard@lemurconsulting.com>
-
-	* common/omassert.h: Fix to avoid warning in gcc-snapshot; use
-	  do{}while(0) to protect assertions, and remove the old "if (a) {}
-	  else {fail}" constructions which tried to do the same job.
-
-Mon Jul 02 14:56:58 BST 2007  Richard Boulton <richard@lemurconsulting.com>
-
-	* bin/xapian-inspect.cc: Add missing #include of <stdio.h> - fixes
-	  gcc-2.95 compilation.
-
-Mon Jul 02 14:54:50 BST 2007  Richard Boulton <richard@lemurconsulting.com>
-
-	* queryparser/termgenerator_internal.h: Fix for gcc-2.95
-	  compilation.
-
-Mon Jul 02 14:09:22 BST 2007  Olly Betts <olly@survex.com>
-
-	* api/Makefile.mk,api/valuerangeproccompat.cc,
-	  include/xapian/queryparser.h: Put the new NumberValueRangeProcessor
-	  in a sub-namespace which we then import it from.  Restore the old
-	  NumberValueRangeProcessor implementation inside the library so that
-	  it is available to code linked against 1.0.0 or 1.0.1 to keep ABI
-	  compatibility.
-
-Sun Jul 01 15:32:30 BST 2007  Olly Betts <olly@survex.com>
-
-	* include/xapian/queryparser.h: Clearer description of
-	  NumberValueRangeProcessor.  Don't document the number format in
-	  terms of strtod() - that's a bug, not a feature we want to be tied
-	  to.
-	* include/xapian/query.h,include/xapian/queryparser.h: Use "@a" not
-	  "\a" for consistency with existing usage.
-
-Sun Jul 01 10:09:42 BST 2007  Richard Boulton <richard@lemurconsulting.com>
-
-	* matcher/localmatch.cc: When registering a term, check if it's
-	  empty, and if so use the document count as the term frequency,
-	  rather than calling the database to get the term frequency of an
-	  empty term (most database backends have an assertion that the
-	  term is not empty, and an empty term isn't a valid parameter to
-	  pass to get_termfreq() anyway).
-	* matcher/multimatch.cc: For MatchAll queries, the "" term will not
-	  be found in the termlist of the top document, so check if a ""
-	  term is present in the query, and use it to increase the
-	  percent_scale if so.  This fixes an Assertion which checked that
-	  percent_scale was not 0.
-	* tests/api_db.cc: Add test_matchall1() which tests running a query
-	  with a MatchAll query.
-	* tests/api_nodb.cc: Rename test_emptyquery1 and test_emptyquery2
-	  to test_emptyquery2 and test_emptyquery3, respectively.  There
-	  was already a (different) test_emptyquery1 in api_anydb.cc.
-
+Wed Jul 04 19:40:31 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 Xapian-core 1.0.2 (2007-0?-??):
 
 API:
@@ -175,18 +33,36 @@ API:
 * QueryParser: if the stemmer is "none", no longer put a Z prefix on terms;
   this now matches the output of TermGenerator.
 
+* Add new Xapian::sortable_serialise() and Xapian::sortable_unserialise()
+  functions which serialise and unserialise numbers (currently only
+  doubles) to a string representation which sorts in numeric order, and
+  also has a short representation of small integers.
+
 * NumberValueRangeProcessor has been changed to work usefully.  Previously
   the numbers had to be the same length; now numbers are serialised to
   strings such that a string sort on the string orders the numbers correctly.
-  Negative and floating point numbers are also supported now.
+  Negative and floating point numbers are also supported now.  The old
+  NumberValueRangeProcessor is still available for code linked against
+  1.0.0 or 1.0.1 to use; the new implementation is in a sub-namespace and
+  is imported from that in the header file, so that code compiled against
+  1.0.2 on later will use it.
 
 * Parameter name for Document::get_value() has been changed.
 
 * Documents now have a get_docid() method, to get the document ID from the
   database they came from.
 
+* Add support for a new type of match decider, called a "matchspy".  Unlike
+  the old deciders, this will reliably be tested on every candidate
+  document, so can be used to tally statistics on them.
+
 * Fixed a segfault when getting a description for a MatchNothing query
   joined with AND_NOT (bug #176).
+
+* Header files have been tidied up to remove some unnecessary includes.
+  Applications using "#include <xapian.h>" will not be affected, but those
+  including header files in the xapian directory directly may need to be
+  updated, if they were relying on these indirect inclusions.
 
 testsuite:
 
@@ -220,6 +96,11 @@ testsuite:
 
 * Add regression test emptyquery2 for bug #176.
 
+* Add regression test matchall1 for bug with MatchAll queries.
+
+* Enhanced test coverage of match functor, to check that it returns all
+  matching documents.
+
 matcher:
 
 * Fix bug when check_at_least was supplied - the matches after the
@@ -227,6 +108,9 @@ matcher:
   also now handled in a more efficient way - no extra memory is required
   (previously, extra memory proportional to the value of check_at_least was
   required).
+
+* Fix bug which used incorrect statistics, and caused assertion failures,
+  when performing a search using a MatchAll query.
 
 * Unused method OrTermList::get_collection_freq() was removed.
 
@@ -254,6 +138,8 @@ flint backend:
   to store synonym information.
 
 * xapian-compact: Now compacts and merges spelling and synonym tables.
+  Also has a new option "--no-renumber" to preserve document ids from
+  source databases.
 
 * xapian-check: Now checks and merges spelling and synonym tables.
 
@@ -302,6 +188,10 @@ remote backend:
 
 inmemory backend:
 
+* Bug fix: using replace_document() to add a document with a specific
+  document id above the highest currently used would create empty documents
+  for all document ids in between.
+
 utility functions:
 
 * The begins_with() and ends_with() functions in stringutils.h have been
@@ -335,6 +225,8 @@ documentation:
 * API docs for Xapian::QueryParser now make it clear that the default value for
   the stemming strategy is STEM_NONE.
 
+* API docs now describe the NumberValueRangeProcessor more clearly.
+
 * Several typo fixes and assorted wording improvements.
 
 * queryparser.html: Mention "AND NOT" as an alternative way to write "NOT",
@@ -350,7 +242,8 @@ documentation:
 * valueranges.rst: The NumberValueRangeProcessor is now documented.
 
 * HACKING: Mention new libtool, and more details about preferring
-  pre-increment.
+  pre-increment.  Also add a note about 2 space indentation of protection
+  level declarations in classes.
 
 * INSTALL: note that zlib must be installed before you can build.
 
@@ -371,6 +264,8 @@ portability:
   remote backend marked as disabled.
 
 * Fix warnings from Intel's C++ compiler.
+
+* Fixes for compilation with gcc-2.95 and gcc-snapshot.
 
 packaging:
 
