@@ -1,3 +1,8 @@
+Wed Jul 04 21:09:18 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* AUTHORS: Add Tomek Jackowiak, for reporting bug #166 (missing
+	  Xapian::Query documentation).
+
 Wed Jul 04 20:45:56 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Updated version and library version for 1.0.2.
