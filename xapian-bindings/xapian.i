@@ -404,28 +404,26 @@ class RSet {
     string get_description() const;
 };
 
-/* MatchDecider and ExpandDecider are abstract classes, each only
- * useful if it can be subclassed, which requires that directors be
- * supported.  So we only wrap them for languages which support
- * directors. */
-
-#ifdef XAPIAN_SWIG_DIRECTORS
-#pragma SWIG nowarn=515 /* Suppress warning that const is discarded by operator() */
 %feature("director") MatchDecider;
 class MatchDecider {
-public:
+  public:
     virtual bool operator() (const Xapian::Document &doc) const = 0;
     virtual ~MatchDecider() { }
 };
 
+/* MatchDecider and ExpandDecider are abstract classes, each only useful if it
+ * can be subclassed.  There are some C++ subclasses of MatchDecider in core
+ * xapian, but none for ExpandDecider: therefore ExpandDecider requires that
+ * directors be supported.  So we only wrap ExpandDecider for languages which
+ * support directors. */
+
+#ifdef XAPIAN_SWIG_DIRECTORS
 %feature("director") ExpandDecider;
 class ExpandDecider {
-public:
+  public:
     virtual bool operator() (const string &term) const = 0;
     virtual ~ExpandDecider() { }
 };
-
-#pragma SWIG nowarn=
 #endif
 
 class Database;
