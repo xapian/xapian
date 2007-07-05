@@ -26,7 +26,8 @@ In some applications, you may have many different categories (for example
 colour, price, width, height) but not always want to offer all of them
 for every search.  If all the results are red, and none have width, it's
 not useful to offer to narrow the search by colour or width.  Also, the
-user interface may not have room to include every category, so you 
+user interface may not have room to include every category, so you may
+want to select the "best" few categories to show the user.
 
 How to make use of the categorisation functionality
 ===================================================
