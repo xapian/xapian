@@ -791,6 +791,8 @@ def test_synonyms_iter():
     expect([item for item in dbr.synonym_keys('he')], ['hello'])
     expect([item for item in dbr.synonym_keys('hello')], ['hello'])
 
+    del db
+    del dbr
     shutil.rmtree(dbpath)
 
 def test_spell():
@@ -813,6 +815,8 @@ def test_spell():
     expect(dbr.get_spelling_suggestion('hell'), 'mell')
     expect([(item.term, item.termfreq) for item in dbr.spellings()], [('hello', 1), ('mell', 2)])
 
+    del db
+    del dbr
     shutil.rmtree(dbpath)
 
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
