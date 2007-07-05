@@ -1777,10 +1777,10 @@ static bool test_matchspy2()
     TEST_EQUAL(spy.get_total(), 25);
 
     static const string results[] = {
-	"|\240:1|\244:9|\246:3|\250:7|\251:1|\252:3|\254:1|",
-	string("|\200\0\0\0\0\0\0\0\0\244:8|\246\0\0\0\0\0\0\0\0\250:6|\251\0\0\0\0\0\0\0\0\253:7|\254\0\0\0\0\0\0\0\0\254\200:4|", 54),
-	string("|\243\34q\307\34q\307\0\0\271q\307\34q\307\34\300:9|\272\254q\307\34q\307@\0\301\2168\343\2168\343\300:4|\302k\2168\343\2169\0\0\304+\34q\307\34q\200:3|\304\261\307\34q\307\34@\0\305\327\34q\307\34q\200:3|\306u\307\34q\307\34@\0\307\313\34q\307\34q\200:3|\310@\343\2168\343\216\0\0\310\2408\343\2168\343\200:2|\311\3\2168\343\2168\300:1|", 132),
-	"|\237\315\36\270Q\353\205\36\300\237\321\321t]\27E\321\200:15|\237\322ffffff\200\237\325UUUUUU@:5|\237\326ffffff\200\237\330:2|\237\331UUUUUU@:1|\237\334:1|\240:1|",
+	"|100:1|200:9|300:3|400:7|500:1|600:3|800:1|",
+	"|0..200:8|300..400:6|500..700:7|800..900:4|",
+	"|177..8711:9|10677..17777:4|20544..26677:3|30044..37377:3|41344..49877:3|54444..59211:2|64177:1|",
+	"|4..9:15|10..16:5|20..25:2|33:1|50:1|100:1|",
 	"|",
 	""
     };
@@ -1796,7 +1796,19 @@ static bool test_matchspy2()
 	string str("|");
 	map<string, size_t>::const_iterator i;
 	for (i = cat.begin(); i != cat.end(); ++i) {
-	    str += i->first;
+	    if (i->first.size() > 9) {
+		double start = Xapian::sortable_unserialise((i->first).substr(0, 9));
+		double end = Xapian::sortable_unserialise((i->first).substr(9));
+		start = floor(start * 100);
+		end = floor(end * 100);
+		str += om_tostring(start);
+		str += "..";
+		str += om_tostring(end);
+	    } else {
+		double start = Xapian::sortable_unserialise((i->first).substr(0, 9));
+		start = floor(start * 100);
+		str += om_tostring(start);
+	    }
 	    str += ':';
 	    str += om_tostring(i->second);
 	    str += '|';
