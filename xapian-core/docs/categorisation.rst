@@ -94,7 +94,7 @@ probably be regarded as an implementation detail which could change in the
 future if we find a better algorithm).
 
 You would build ranges from numeric values for value ``cat_no``, asking for at
-more ``num_ranges`` ranges like so::
+most ``num_ranges`` ranges like so::
 
     bool result = spy.build_numeric_ranges(cat_no, num_ranges);
 
