@@ -618,6 +618,12 @@ class TradWeight : public Weight {
 	bool get_sumpart_needs_doclength() const;
 };
 
+}
+
+%include <xapian/matchspy.h>
+
+namespace Xapian {
+
 // xapian/database.h
 
 class Database {
