@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Xapian: Installation</TITLE>
+</HEAD>
+<BODY BGCOLOR="white" TEXT="black">
+
+<H1>Xapian - the open source search engine</H1>
+
+<H2>Introduction</H2>
+
+This document is intended to get you going with Xapian, taking you from the
+point of downloading the code, to getting an example application compiled
+and running.
+<p>
+Xapian can be built on UNIX systems (including MacOS X), and also Microsoft
+Windows systems using GCC with mingw or cygwin.
+
+<H3>Download</H3>
+The first step is to obtain a copy of the software from the
+<a href="http://www.xapian.org/download.php">Xapian website</a>.
+
+<H3>Unpacking</H3>
+Use the usual tools to unpack the archives.  For example, on a Linux system:
+<blockquote> <code>
+tar zxvf xapian-core-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
+<br>
+tar zxvf xapian-omega-&lt;versionnumber&gt;<!-- -&lt;date&gt;-->.tar.gz
+</code> </blockquote>
+These commands should unpack the archives into separate subdirectories
+("xapian-core-N.N.N" and "xapian-omega-N.N.N").
+
+<H3>Configuring and building Xapian</H3>
+Xapian uses the GNU autoconf, automake, and libtool tools.
+If you only wish to build
+releases or <a href="http://www.oligarchy.co.uk/xapian/trunk/">SVN snapshots</a>
+or make minor alterations, this need not concern you greatly.
+<p>
+These tools generate a shell script called "configure" for each of the
+archives, which you should run to set up the code for compilation.
+
+<p>
+A typical build would be done using the commands:
+<pre>
+    cd xapian-core
+    ./configure
+    make
+    make install
+</pre>
+
+Various options may be given to the configure script:
+<code>./configure&nbsp;--help</code> summarises these.
+<!-- see the installation documentation within the archive for more details. -->
+<p>
+By default, Xapian will be installed in directories under
+<CODE>/usr/local</CODE>.  This can be altered using the --prefix option
+to configure (e.g. <code>./configure --prefix=/home/fred/xapian</code> if
+you don't have root access to the system you want to install Xapian on).
+
+<H3>Configuring and building Omega</H3>
+Omega can be built in almost exactly the same way as the core library.
+Simply run:
+<pre>
+    cd xapian-omega
+    ./configure
+    make
+</pre>
+<p>
+<CODE>configure</CODE> should automatically find the installed Xapian
+library: if it doesn't you may need to specify the path to the
+<CODE>xapian-config</CODE> script, by passing a value for
+<CODE>XAPIAN_CONFIG</CODE> to configure, e.g. <CODE>./configure&nbsp;XAPIAN_CONFIG=/home/fred/xapian/bin/xapian-config</CODE>
+<p>
+Note: if you use libtool to link your application, you can link them with an
+uninstalled Xapian library.  If you don't use libtool, you must install
+Xapian.  We recommend using libtool anyway, since it handles setting the
+runtime library search path, so you can link against a shared Xapian library
+installed in a non-standard location, and it will be found without you having
+to mess with LD_LIBRARY_PATH.
+
+<H3>Building from SVN</H3>
+
+If you wish to help develop Xapian, you may wish to
+<A HREF="http://www.xapian.org/bleeding.php">build from the Subversion
+repository</A>.
+
+<!-- FOOTER $Author$ $Date$ $Id$ -->
+</BODY>
+</HTML>

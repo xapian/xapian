@@ -1,0 +1,14 @@
+* browsing CVS space, like browsing usage patterns
+
+* define similarity measure between CVS comments (e.g., like
+  the one defined in CVSSearch I using the line #'s in shared files
+  across two commits)
+
+* now clear what a related CVS comment should be like; may not want
+  one in the same file(s) necessarily
+
+* by browsing CVS space, should get some understanding of domain (i.e., KDE)
+
+--
+
+* allow sorting of commits by date, not just similarity

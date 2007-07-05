@@ -1,0 +1,3922 @@
+Xapian-core 1.0.2 (2007-07-05):
+
+API:
+
+* Xapian now offers spelling correction, based on a dynamically maintained
+  list of spelling "target" words.  This is currently supported by the
+  flint backend, and works when searching multiple databases.
+
+* Xapian now offers search-time synonym expansion, based on an externally
+  provided synonym dictionary.  This is currently supported by the flint
+  backend, and works when searching multiple databases.
+
+* TermGenerator: now offers support for generating spelling correction
+  data.
+
+* QueryParser:
+
+  + New flag FLAG_SPELLING_CORRECTION to enable spelling correction, and a new
+    method, "get_corrected_query_string()" to get the spelling corrected
+    query string.
+
+  + New flags have been added to allow the new synonym expansion feature to be
+    enabled and controlled.  Synonym expansion can either be automatic, or only
+    for terms explicitly indicated in the query string by the new "~" operator.
+
+  + The precedence of the boolean operators has been adjusted to match their
+    usual precedence in mathematics and programming languages.  "NOT" now binds
+    as tightly as "AND" (previously "AND NOT" would bind like "AND", but just
+    "NOT" would bind like "OR"!)  Also "XOR" now binds more tightly than "OR",
+    but less tightly than "AND" (previously it bound just like "OR").
+
+  + '+' and '-' have been fixed to work on bracketed subexpressions as
+
+  + If the stemmer is "none", no longer put a Z prefix on terms; this now
+    matches the output of TermGenerator.
+
+* Add new Xapian::sortable_serialise() and Xapian::sortable_unserialise()
+  functions which serialise and unserialise numbers (currently only
+  doubles) to a string representation which sorts in numeric order.  Small
+  integers have a short representation.
+
+* NumberValueRangeProcessor has been changed to work usefully.  Previously
+  the numbers had to be the same length; now numbers are serialised to
+  strings such that a string sort on the string orders the numbers correctly.
+  Negative and floating point numbers are also supported now.  The old
+  NumberValueRangeProcessor is still present in the library to preserve
+  ABI compatibility, but code linking against 1.0.2 or later will pick
+  up the new implementation, which really lives in a sub-namespace.
+
+* Documents now have a get_docid() method, to get the document ID from the
+  database they came from.
+
+* Add support for a new type of match decider, called a "matchspy".  Unlike
+  the old deciders, this will reliably be tested on every candidate
+  document, so can be used to tally statistics on them.
+
+* Fixed a segfault when getting a description for a MatchNothing query
+  joined with AND_NOT (bug #176).
+
+* Header files have been tidied up to remove some unnecessary includes.
+  Applications using "#include <xapian.h>" will not be affected.  We don't
+  intend to support direct inclusion of individual header files from the xapian
+  directory, but if you do that, you may have to update you code.
+
+testsuite:
+
+* Feature tests added for all new features.
+
+* Improved test coverage in queryparsertest.  Some tests in queryparsertest
+  now use flint databases, so the test now ensures that the .flint
+  subdirectory exists.
+
+* The test harness no longer creates <dbdir>/log for flint (flint doesn't
+  create a log like quartz does).
+
+* apitest: "-bremote" must now be "-bremoteprog" (to better match
+  "-bremotetcp"); "-bvoid" must now be "-bnone" (to better describe not
+  using a database backend).
+
+* To complement "make check-flint", "make check-quartz", and "make
+  check-remote", you can now run tests for the remotetcp backend with
+  "make check-remotetcp", for the remoteprog backend with "make
+  check-remoteprog", for the inmemory backend with "make check-inmemory", and
+  tests not requiring a backend with "make check-none".
+
+* Several extra tests of the check_at_least parameter supplied to
+  get_mset() were added.
+
+* Fix memory leak and fd leak in remotetcp handling, so apitest now passes
+  under valgrind.
+
+* quartztest: no longer test QuartzPostList::get_collection_freq(), which
+  has been removed.
+
+* Add regression test emptyquery2 for bug #176.
+
+* Add regression test matchall1 for bug with MatchAll queries.
+
+* Enhanced test coverage of match functor, to check that it returns all
+  matching documents.
+
+matcher:
+
+* Fix bug when check_at_least was supplied - the matches after the
+  requested MSet size were being returned to the user.  The parameter is
+  also now handled in a more efficient way - no extra memory is required
+  (previously, extra memory proportional to the value of check_at_least was
+  required).
+
+* Fix bug which used incorrect statistics, and caused assertion failures,
+  when performing a search using a MatchAll query.
+
+* Optimisation for single term queries: we don't need to look at the top
+  document's termlist to determine that it matches all the query terms.
+
+flint backend:
+
+* The value and position tables are now only created if there is anything to
+  add to them.  So if you never use document values, there's no value.DB,
+  value.baseA, or value.baseB.  This means the table doesn't need to be opened
+  for searching (saving a file handle and a number of syscalls) and when
+  flushing changes, we don't need to update baseA/baseB just to keep the
+  revisions in step.  The flint database version has been increased, but the
+  new code will happily open and read/update flint databases from Xapian 1.0.0
+  and 1.0.1.  Xapian 1.0.2 flint databases can't be read by Xapian 1.0.1 or
+  earlier though.
+
+* Two new optional tables are now supported: "spelling", which is used to
+  store information for spelling correction, and "synonym", which is used
+  to store synonym information.
+
+* xapian-compact: Now compacts and merges spelling and synonym tables.
+  Also has a new option "--no-renumber" to preserve document ids from
+  source databases.
+
+* xapian-check: Now checks the spelling and synonym tables (only the Btree
+  structure is currently checked, not the information inside).
+
+* Database::term_exists(), Database::get_termfreq(), and
+  Database::get_collection_freq() are now slightly more efficient for flint
+  databases.
+
+* New utility 'xapian-inspect' which allowing interactive inspection of key/tag
+  pairs in a flint Btree.  Useful for development and debugging, and an
+  approximate equivalent to quartzdump.
+
+* WritableDatabase::delete_document() no longer cancels pending changes if the
+  document doesn't exist.
+
+* Fix handling of exceptions during commit - previously, this could result
+  in tables getting out-of-sync, perhaps even resulting in a corrupt database.
+
+* Optimise iteration of all documents in the case where all the document
+  IDs up to lastdocid are used; in this case, we no longer need to access disk
+  to get the document IDs.
+
+quartz backend:
+
+* WritableDatabase::delete_document() no longer cancels pending changes if the
+  document doesn't exist.
+
+* We no longer create a postlist just to find the termfreq or collection
+  frequency.
+
+remote backend:
+
+* Calling WritableDatabase::delete_document() on a non-existent document now
+  correctly propagates DocNotFoundError.
+
+* The minor remote protocol version has increased (to fix the previous issue).
+  You should be able to cleanly upgrade a live system by upgrading servers
+  first and then clients.
+
+* progclient: Reopen stderr on the child process to /dev/null rather than
+  closing it.  This fixes apitest with the remoteprog backend to pass when run
+  under valgrind (it failed in this case in 1.0.0 and 1.0.1).  It probably
+  has no effect otherwise.
+
+* check_at_least is now passed to the remote server to reduce the work
+  needed to produce the match, and the serialised size of the returned MSet.
+
+inmemory backend:
+
+* Bug fix: using replace_document() to add a document with a specific
+  document id above the highest currently used would create empty documents
+  for all document ids in between.
+
+build system:
+
+* Work around an apparent bug in automake which causes the entries in .libs
+  subdirectories generated for targets of bin_PROGRAMS not to be removed on
+  make clean.  This was causing make distcheck to fail.
+
+* Snapshots and releases are now bootstrapped with automake 1.10, and
+  libtool 1.5.24.
+
+* HTML documentation generated from RST files is now installed.
+
+documentation:
+
+* The API documentation is now generated with Doxygen 1.5.2, which fixes the
+  missing docs for Xapian::Query.
+
+* Ship and install internals.html.
+
+* Generating the doxygen-collated documentation of the library internals (with
+  "make doxygen_source_docs") now only tries to generate an HTML version.  The
+  PDF version kept exceeding TeX limits, and HTML is a more useful format for
+  this anyway.
+
+* API docs for Xapian::QueryParser now make it clear that the default value for
+  the stemming strategy is STEM_NONE.
+
+* API docs now describe the NumberValueRangeProcessor more clearly.
+
+* Several typo fixes and assorted wording improvements.
+
+* queryparser.html: Mention "AND NOT" as an alternative way to write "NOT",
+  and document synonym expansion.
+
+* admin_notes.html: Updated for changes in this release, and corrected a
+  few minor errors.
+
+* spelling.rst: New file, documenting the spelling correction feature.
+
+* synonyms.rst: New file, documenting the synonyms expansion feature.
+
+* valueranges.rst: The NumberValueRangeProcessor is now documented.
+
+* HACKING: Mention new libtool, and more details about preferring
+  pre-increment.  Also add a note about 2 space indentation of protection
+  level declarations in classes.
+
+* INSTALL: note that zlib must be installed before you can build.
+
+examples:
+
+* copydatabase: Now copies synonym and spelling data.  Also, fix a cosmetic
+  bug with progress output when a specified database directory has a trailing
+  slash.
+
+portability:
+
+* Fix to build on with OpenBSD's zlib (xapian-core 1.0.0 and 1.0.1 didn't).
+
+* Fixed to build with older zlib such as zlib 1.1.5 which Solaris apparently
+  uses (xapian-core 1.0.0 and 1.0.1 didn't).  However, we recommend using zlib
+  1.2.x as decompressing is apparently about 20% faster.
+
+* msvc/version.h.in: Generated version.h for MSVC build no longer has the
+  remote backend marked as disabled.
+
+* Fix warnings from Intel's C++ compiler.
+
+* Fixes for compilation with gcc-2.95 and GCC 4.3 snapshots.
+
+packaging:
+
+* RPMs:
+
+  + Rename xapian.spec to xapian-core.spec to match tarball name.
+
+  + Append the user name to BuildRoot.
+
+debug code:
+
+* Better debug logging from the queryparser internals.
+
+Xapian-core 1.0.1 (2007-06-11):
+
+API:
+
+* Xapian::Error:
+
+  + Make Error::error_string member std::string rather than char * to avoid
+    problems with double free() with copied Error objects.  Unfortunately
+    this mean an incompatible ABI change which we had hoped to avoid until
+    1.1.0, but in this case there didn't seem to be a sane way to fix the
+    problem without an ABI change.
+    
+  + Error::get_description() now converts my_errno to error_string if it hasn't
+    been already rather than not including any error description in this case.
+
+  + Add new method "get_description()" to get a string describing the error
+    object.  This is used in various examples and scripts, improving their
+    error reporting.
+
+* Xapian::Database: Add new form of allterms_begin() and allterms_end()
+  which allow iterating of all terms with a particular prefix.  This
+  is easier to use than checking the end condition yourself, and is
+  more efficiently implemented for the remote backend (fixes bug#153).
+
+* Xapian::Enquire: Passing an uninitialised Database object to Enquire will
+  now cause InvalidArgumentError to be thrown, rather than causing a segfault
+  when you call Enquire::get_mset().  If you really want an empty database,
+  you can use Xapian::InMemory::open() to create one.
+
+* Xapian::QueryParser: Multiple boolean prefixed terms with the same term
+  prefix are now combined with OR before such groups are combined with AND
+  (bug#157).  Multiple value ranges on the same value are handled similarly.
+
+* Xapian::Query OP_VALUE_RANGE: Avoid calling db->get_lastdocid() repeatedly
+  as we know the answer won't change - this reduces the run time of a
+  particular test case by 25%.
+
+testsuite:
+
+* Add test for serialisation of error strings.
+
+* Improved output in various situations:
+
+  + Quote strings in TEST_STRINGS_EQUAL().
+
+  + queryparsertest: Use TEST_STRINGS_EQUAL when comparing query descriptions
+    against their expected output, since this makes it much easier to see the
+    differences.
+
+  + Report whole message for exceptions, rather than a truncated version, in
+    verbose mode.
+
+  + Make use of Xapian::Error::get_description(), giving better error
+    reports.
+
+* queryparsertest: New test of custom ValueRangeProcessor subclass
+  (qp_value_customrange1).
+
+* apitest: flintdatabaseformaterror1 and flintdatabaseformaterror2 now use a
+  genuine Xapian 0.9.9 flint database for their tests, and more cases are
+  tested.  The two tests have also been split into 3 now.
+
+* Fix test harness not to invoke undefined behaviour in cases where a paragraph
+  of test data contains two or fewer characters.
+
+* Implement a better fix for the MSVC ifstream issue which was fixed in 1.0.0.
+  This fixes an unintentional side-effect of the previous fix which meant that
+  apitest's consistency1 wasn't working as intended (it now has a regression
+  test to make sure it is testing what we intend).
+
+flint backend:
+
+* xapian-compact: Don't uncompress and recompress tags when compacting a
+  database.  This speeds up xapian-compact rather a lot (by more than 50% in a
+  quick test).
+
+* If the docid counter wraps, Flint now throws DatabaseError (fixes bug#152).
+
+* Remove the special case error message for pre-0.6 databases since they'll
+  be quartz format (the check is only in flint because this code was taken from
+  quartz).
+
+quartz backend:
+
+* If the docid counter wraps, Quartz now throws DatabaseError (fixes bug#152).
+
+remote backend:
+
+* The remote protocol now has a minor version number.  If the major
+  version number is the same, a client can work with any server with
+  the same or higher minor version number, which makes upgrading live
+  systems easier for most remote protocol changes - just upgrade the servers
+  first.
+
+* When a read-only remote database is closed, the client no longer sends a
+  (totally bogus) MSG_FLUSH to the server, and the reply is also eliminated.
+  This reduces the time taken to close a remote database a little (fixes
+  bug#149).
+
+inmemory backend:
+
+* skip_to() on an allterms TermIterator from an InMemory Database can no longer
+  move backwards.
+
+* An allterms TermIterator now initialises lazily, which can save some work if
+  the first operation is a skip_to() (as it often will be).
+
+build system:
+
+* Fix VPATH compilation in maintainer mode with gcc-2.95.
+
+* Fix multiple target rule for generating the queryparser source files in
+  parallel builds.
+
+* Distribute missing stub Makefiles for "bin", "examples", and
+  "include/xapian".
+
+documentation:
+
+* Document the design flaw with NumberValueRangeProcessor and why it shouldn't
+  be used.
+
+* ValueRangeProcessor and subclasses now have API documentation and an overview
+  document.
+
+* Expand documentation of value range Query constructor.
+
+* Improved API documentation for the TermGenerator class.
+
+* docs/deprecation.rst:
+
+  + Fix copy and paste error - set_sort_forward() should be changed to
+    set_docid_order().
+
+  + Improve entry for QueryParserError.
+
+* PLATFORMS: Updated from tinderbox.
+
+examples:
+
+* copydatabase: Rewritten to use the ability to iterate over all the documents
+  in a database.  Should be much more efficient for databases with sparsely
+  distributed document IDs.
+
+* simpleindex: Rewritten to use the TermGenerator class, which eliminates a
+  lot of non-Xapian related code and is more typical of what a user is likely
+  to want to do.
+
+* simplesearch,simpleexpand: Rewritten to use the QueryParser class, which
+  is more typical of what a user is likely to want to do.
+
+portability:
+
+* xapian-config: Add special case check for host_os matching linux* or
+  k*bsd-gnu since vanilla libtool doesn't correctly probe link_all_deplibs=no
+  for them.
+
+packaging:
+
+* RPMs: Add "# norootforbuild" comment which SuSE's build scripts look for.
+  Rename "Source0:" to "Source:" as there's only one tarball now.  Add gcc-c++
+  and zlib-devel to "Build-Requires:".
+
+* The required automake version has been lowered to 1.8.3, so RPMs can now be
+  built on RHEL 4 and SLES 9.
+
+Xapian-core 1.0.0 (2007-05-17):
+
+API:
+
+* Xapian::Database:
+
+  + The Database(const std::string &) constructor has been marked as "explicit".
+    Hopefully this won't affect real code, but it's possible.  Instead of
+    passing a std::string where a Xapian::Database is expected, you'll now
+    have to explicitly write `Xapian::Database(path)' instead of `path'.
+ 
+  + Fixed problem when calling skip_to() on an allterms iterator over multiple
+    databases which could cause a debug assertion in debug builds, and possible
+    misbehaviour in normal builds.
+
+* Xapian::Error:
+
+  + The constructors of Error subclasses which take a `const std::string &'
+    parameter are now explicit.  This is very unlikely to affect any real code
+    but if it does, just write `Xapian::Error(msg)' instead of `msg'.
+
+  + Xapian::Error::get_type() now returns const char* rather than std::string.
+    Generally existing code will just work (only one change was required in
+    Xapian itself) - the simplest change is to write `std::string(e.get_type())'
+    instead of `e.get_type()'.
+
+  + Previously, the errno value was lost when an error was propagated from
+    a remote server to the client, because errno values aren't portable
+    between platforms.  To fix this, Error::get_errno() is now deprecated and
+    you should use Error::get_error_string() instead, which returns a string
+    expanded from the errno value (or other system error code).
+
+* Xapian::QueryParser:
+
+  + Now assumes input text is encoded as UTF-8.
+
+  + We've made several changes to term generation strategy.  Most notably:
+    Unicode support has been added; '_' now counts as a word character; numbers
+    and version numbers are now parsed as a single term; single apostrophes are
+    now included in a term; we now store unstemmed forms of all terms; and we
+    no longer try to "normalise" accents.
+
+  + parse_query() now throws the new Xapian::Error subclass QueryParserError
+    instead of throwing const char * (bug#101).
+
+  + Pure NOT queries are now supported (for example, `NOT apples' will match
+    all documents not indexed by the stemmed form of `apples').  You need
+    to enable this feature by passing QueryParser::FLAG_PURE_NOT in flags
+    to QueryParser::parse_query().
+
+  + We now clear the stoplist when we parse a new query.
+
+  + Queries such as `+foo* bar', where no terms in the database match the
+    wildcard `foo*', now match no documents, even if `bar' exists.  Handling
+    of `-foo*' has also been fixed.
+
+  + Now supports wildcarding the last term of a query to provide better support
+    for incremental searching.  Enabled by QueryParser::FLAG_PARTIAL.
+
+  + The default prefix can now be specified to parse_query() to allow parsing
+    of text entry boxes for particular fields.
+
+  + QueryParser::set_stemming_options() has been deprecated since 0.9.0 and
+    has now been removed.
+
+* Xapian::Stem:
+
+  + Now assumes input text is encoded as UTF-8.
+
+  + We've updated to the latest version of the Snowball stemmers.  This means
+    that a small number of words produce different (and generally better)
+    stems and that some new stemmers are supported: german2 (like german but
+    normalises umlauts), hungarian, kraaij_pohlmann (a different Dutch
+    stemmer), romanian, and turkish.
+
+* Xapian::TermGenerator:
+
+  + New class which generates terms from a piece of text.
+
+* Xapian::Enquire:
+
+  + The Enquire(const Database &) constructor has been marked as "explicit".
+    This probably won't affect real code - certainly no Xapian API methods
+    or functions take an Enquire object as a parameter - but calls to user
+    methods or functions taking an Enquire object could be affected.  In
+    such cases, you'll now have to explicitly write `Xapian::Enquire(db)'
+    instead of `db'.
+ 
+  + Enquire::get_eset() now produces better results when used with multiple
+    databases - without USE_EXACT_TERMFREQ they should be much more similar to
+    results from an equivalent single database; with USE_EXACT_TERMFREQ they
+    should be identical.
+
+  + Track the minimum weight required to be considered for the MSet separately
+    from the minimum item which could be considered.  Trying to combine the two
+    caused several subtle bugs (bug#86).
+
+  + Enquire::get_query() is now `const'.  Should have no effect on user code.
+
+  + Enquire::get_mset() now handles the common case of an "exact" phrase search
+    (where the window size is equal to the number of terms) specially.
+
+  + Enquire::include_query_terms and Enquire::use_exact_termfreq are now
+    deprecated in favour of capitalised versions Enquire::INCLUDE_QUERY_TERMS
+    and Enquire::USE_EXACT_TERMFREQ (for consistency with our other manifest
+    constants, and general C/C++ conventions).
+
+* Xapian::RSet:
+
+  + RSet::contains(MSetIterator) is now `const'.  Should have no effect on user
+    code.
+
+* Xapian::SimpleStopper::add() now takes `const std::string &' not `const
+  std::string'.  Should have no effect on user code.
+
+* Xapian::Query:
+
+  + We now only perform internal validation on a Query object when it's either
+    constructed or changed, to avoid O(n^2) behaviour in some cases.
+
+  + Xapian::Query::MatchAll (an alias for Query("")) matches all terms in the
+    document (useful for "pure NOT" queries) and Xapian::Query:MatchNothing
+    is now a more memorable alias for Query().
+
+* Instead of explicitly checking that a term exists before opening its
+  postlist, we now do both in one operation, which is more efficient.
+
+* MatchDecider::operator() now returns `bool' not `int'.
+
+* ExpandDecider::operator() now returns `bool' not `int'.
+
+* Xapian::TermIterator::get_termfreq() now throws InvalidOperationError
+  if called on a TermIterator from a freshly created Document (since
+  there's no meaningful term frequency as there's no Database for
+  context).
+
+* <xapian/output.h> is no longer available as an externally visible header.
+  It's not been included by <xapian.h> since 0.7.0.  Instead of using
+  `cout << obj;' use `cout << obj.get_description();'.
+
+* New constant Xapian::BAD_VALUENO which is -1 cast to Xapian::valueno.
+
+* New Xapian::ValueRangeProcessor hierarchy: DateValueRangeProcessor,
+  NumberValueRangeProcessor, and StringValueRangeProcessor.  In
+  conjunction with the new QueryParser::add_valuerangeprocessor()
+  method and the new Query::OP_VALUE_RANGE op these allow you to
+  implement ranges in the query parser, such as `$50..100',
+  `10..20kg', `01/02/2007..03/04/2007'.
+
+testsuite:
+
+* Many new and improved testcases in various areas.
+
+* If a test throws an unknown exception, say so in the test failure message.
+  If it throws std::string, report the first 40 characters (or first line if
+  less than 40 characters) of the string even in non-verbose mode.
+
+* Use of valgrind improved:
+
+  + The test harness now only hooks into valgrind if environment variable
+    XAPIAN_TESTSUITE_VALGRIND is set, which makes it easy to run test programs
+    under valgrind in the normal way.  The runtest script sets this
+    automatically.
+
+  + runtest now passes "--leak-resolution=high" to valgrind to prevent
+    unrelated leak reports related to STL classes from being combined.
+
+  + configure tests for valgrind improved and streamlined.
+
+  + New runsrv script to run xapian-tcpsrv and xapian-progsrv.  We need to
+    run these under valgrind to avoid issues with excess numerical precision
+    in valgrind's FP handling, but we can use "--tool=none" which is a lot
+    faster than running them under valgrind's default memcheck tool.
+
+* The test harness now starts xapian-tcpsrv in a more reliable way - it will
+  try sequentially higher port numbers, rather than failing because a
+  xapian-tcpsrv (or something else) is already using the default port.
+  It also no longer leaks file descriptors (which was causing later tests
+  to fail on some platforms), and if xapian-tcpsrv fails to start, the error
+  message is now reported.
+
+* remotetest has been removed and its testcases have either been added to
+  apitest or just removed if redundant with tests already in apitest.
+
+* termgentest is a new test program which tests the Xapian::TermGenerator
+  class.
+
+* TEST_EQUAL_DOUBLE() now uses a slightly less stringent threshold -
+  DBL_EPSILON is too strict for calculations which include multiple
+  steps.  Also, we now use it instead of doubles_are_equal_enough() and
+  weights_are_equal_enough() which try to perform the same job.
+
+* New macro TEST_STRINGS_EQUAL() which displays the strings on separate lines
+  so the differences can be clearly seen.
+
+* Test programs are now linked with '-no-install' which means that libtool
+  doesn't need to generate shell script wrappers for them on most platforms.
+
+* runtest: Now turns on MALLOC_CHECK_ and MALLOC_PERTURB_ for glibc if
+  valgrind isn't being used.
+
+* Better support for Microsoft Windows:
+
+  + test_emptyterm2 no longer tries to delete a database from disk while a
+    WritableDatabase object still exists for it, since this isn't supported
+    under Microsoft Windows.
+
+  + Fallback handling when srcdir isn't specified how takes into account .exe
+    extensions and different path separators.
+
+flint backend:
+
+* Flint is now the default backend.
+
+* xapian-check: New program which performs consistency checks on a flint
+  database or table.
+
+* xapian-compact: Now prunes unused docids off the start of each source
+  database's range of docids.
+
+* Positional information is now encoded using a highly optimised fls()
+  implementation, which is much faster than the FP code 0.9.x used.
+  Unfortunately the old encoding could occasionally add extra bits
+  on some architectures, which was harmless except the databases
+  wouldn't be portable.  Because of this, the flint format has had to
+  be changed incompatibly.
+
+* The lock file is now called "flintlock" rather than "flicklock" (which
+  was a typo!)
+
+* Flint now releases its lock correctly if there's an error in
+  WritableDatabase's constructor.  Previously the lock would remain until
+  the process exited.
+
+* Flint now throws new Xapian::Error subclass DatabaseVersionError instead of
+  DatabaseOpeningError when it fails to open a database because it has an
+  unsupported version.  DatabaseVersionError is a subclass of
+  DatabaseOpeningError so existing code should continue to work, but it's
+  now much easier to determine if the problem is that a database needs
+  rebuilding.
+
+* If you try to open a flint database with an older or newer version than
+  flint understands, the exception message now gives the version understood,
+  rather than "I only understand FLINT_VERSION" (literally).
+
+* If we fail to obtain the lock, report why in the exception message.
+
+* Flint now compresses tags in the record and termlist tables using zlib.
+
+* More robust code to handle the flint locking child process, in case of
+  unexpected errors.
+
+* If a document was replaced more than once between flushes, the document
+  length wouldn't be updated after the first change.
+
+quartz backend:
+
+* Quartz is still supported, but use in new projects is deprecated (use Flint
+  instead).  Quartz will be removed eventually.
+
+* quartzcheck: Test if this is a quartz database by looking at "meta" not
+  "record_DB".  If "record_DB" is >= 2GB and we don't have a LFS aware stat
+  function then stat can fail even though the file is there.  Also open the
+  database explicitly as a Quartz database for extra robustness.
+
+* If a document was replaced more than once between flushes, the document
+  length wouldn't be updated after the first change.
+
+remote backend:
+
+* The remote backend is now supported under Microsoft Windows.
+
+* Open a fresh copy of the database(s) on each connection to a xapian-tcpsrv
+  rather than relying on being able to share a database across fork() or
+  between threads (which we don't promise will work).
+
+* xapian-tcpsrv: New "--interface" option allows the hostname or address of the
+  interface to listen on to be specified (the default is the previous behaviour
+  of listening on all interfaces).
+
+* If name lookup fails, report the h_errno code from gethostbyname() rather
+  than whatever value errno happens to currently have!
+
+* Fix bugs in query unserialisation.
+
+* The remote backend now supports all operations (get_lastdocid(), and
+  postlist_begin() have now been implemented).
+
+* Currently a read-only server can be opened as a WritableDatabase (which is
+  a minor bug we plan to fix).  In this case, operations which write will fail
+  and the exception is now InvalidOperationError not NetworkError.
+
+* If a remote server catches NetworkTimeoutError then it will now only
+  propagate it if we can send it right away (since the connection is
+  probably unhappy).  After that (and for any other NetworkError) we now
+  just rethrow it locally to close the connection and let it be logged if
+  required.
+
+* The timeout parameter to RemoteDatabase wasn't being used, instead the
+  client would wait indefinitely for the server to respond.
+
+* A timeout of zero to the remote backend now means "never timeout".  This
+  is now the default idle timeout for WritableDatabase (the connection
+  timeout default is now 10 seconds, rather than defaulting to the idle
+  timeout).
+
+* Fix handling of the document length in remote termlists.
+
+* The remote backend now checks when decoding serialised string that the
+  length isn't more than the amount of data available (bug#117).
+
+* The remote term now handles the unique term variants of delete_document
+  and replace_document on the server side.
+
+* The RSet serialisation now encodes deltas between docids (rather than the
+  docids themselves) which greatly reduces the size of the encoding of a
+  sparse RSet for a large database.
+
+* We now encode deltas between term positions when sending data after calling
+  positionlist_begin() on a remote database.
+
+* When using a MatchDecider with remote database(s), don't rerun the
+  MatchDecider on documents which a remote server has already checked.
+
+* Apply the "decreasing weights with remote database" optimisation which we use
+  in the sort_by_relevance case in the sort_by_relevance_then_value case too.
+
+* We now throw NetworkError rather than InternalError for invalid data received
+  over the remote protocol.
+
+* We now close stderr of the spawned backend program when using the "prog" form
+  of the remote backend.  Previously stderr output would go to the client
+  application's stderr.
+
+muscat36 backend:
+
+* Support for the old Muscat 3.6 backends has been completely removed.  It's
+  still possible to convert Muscat 3.6 databases to Xapian databases by
+  building 0.9.10 and using copydatabase to create a quartz database, which can
+  then be read by 1.0.0 (and converted to a flint database using copydatabase
+  again).
+
+build system:
+
+* We've added GCC visibility annotations to the library, which when using GCC
+  version 4.0 or later reduce the size and load time of the library and
+  increase the runtime speed a little.  Under x86_64, the stripped library is
+  6.4% smaller (1.5% smaller with debug information).
+
+* configure: If using GCC, use -Bsymbolic-functions if it is supported
+  (it requires a very recent version of ld currently).  This option reduces the
+  size and load time of the shared library by resolving references within the
+  library when it's created.
+
+* We automatically define _FORTIFY_SOURCE in config.h if GCC is in use
+  and it's not already set (you can override this as documented in INSTALL).
+  This adds some checking (mostly at compile time) that important return
+  values aren't ignored and that array bounds aren't exceeded.
+
+* `./configure --enable-quiet' already allows you to specify at configure time
+  to pass `--quiet' to libtool.  Now you can override this at make-time by
+  using `make QUIET=' (to turn off `--quiet') or `make QUIET=y' (to turn on
+  `--quiet').
+
+* In non-maintainer mode, we don't need the tools required to rebuild some of
+  the documentation, so speed up configure by not even probing for them in
+  this common case.
+
+* The makefiles now use non-recursive make in all directories except "docs" and
+  "tests".  For users, this means that the build is faster and requires less
+  disk space (bug#97).
+
+* configure: Add proper detection for SGI's C++ (check stderr output of
+  "CC -v") and automatically pass -ptused in CXXFLAGS for xapian-core and any
+  applications using xapian-config --cxxflags since it seems to be required to
+  avoid template linking errors.
+
+* XO_LIB_XAPIAN now checks for the case where XAPIAN_CONFIG wasn't specified
+  and xapian-config wasn't found, but the library appears to be installed -
+  this almost certainly means that the user has installed xapian-core from
+  a package, but hasn't installed the -dev or -devel package, so include
+  that advice in the error message.
+
+* `./configure --with-stlport-compiler' now requires a compiler name as an
+  argument.
+
+* configure: Disable probes for f77, gcj, and rc completely by preventing
+  the probe code from even appearing in configure - this reduces the size of
+  configure by 209KB (~25%) and should speed it up significantly.
+
+* configure: Suppress more unhelpful warnings and "remarks" for HP's aCC, and
+  turn on "+wlint", which seems useful.
+
+* A number of cases of unnecessary header inclusions have been addressed,
+  which should speed up compilation (fewer headers to parse when compiling
+  many source files).  This also reduces dependencies within the source code,
+  and thus the number of files which need to be rebuilt when a header is
+  changed.
+
+* configure: Cache the results of some of our custom tests.
+
+documentation:
+
+* The documentation has all been updated for changes in Xapian 1.0.0.
+
+* Many of the documentation comments in the API headers (which are collated
+  using doxygen to generated the API reference) have been improved, and some
+  missing ones added.  Also, internal classes, members, and methods are now all
+  marked as such so that none should appear in the generated documentation.  In
+  particular, the class inheritance graphs should be a lot clearer.  A few other
+  problems have also been addressed.
+
+* docs/internals.html: New separate index page for the "internal"
+  documentation.
+
+* docs/deprecated.html: New document describing deprecation policy.  This
+  includes lists of features which have been removed, or which are deprecated
+  and scheduled for removal, along with suggested replacements.
+
+* docs/admin_notes.html: New document introducing Xapian for sysadmins.
+
+* docs/termgenerator.html: New document describing the new term generation
+  strategy implemented by the Term::Generator class.
+
+* docs/bm25.html,docs/intro_ir.html: These have been overhauled to make them
+  fit better with the rest of the documentation, and with Xapian itself.
+
+* docs/overview.html: Fixed links to error classes in generated API
+  documentation.
+
+* HACKING,INSTALL: Many updates and improvements.
+
+* xapian-config: Improve --version output so that help2man produces a better
+  man page.
+
+* PLATFORMS: Remove reports for 0.7.* and demote reports for 0.8.* to "older
+  reports" status.  All SF compilefarm machines are now "no longer available",
+  so update the symbols and key to reflect this.  Update with recent success
+  reports from the tinderbox and other sources.
+
+* AUTHORS: Thanks several bug reporters I missed before, as well as recent
+  contributors.
+
+* docs/code_structure.html now looks nicer and includes links to
+  svn.xapian.org.
+
+* docs/remote_protocol.html: Fixed several typos and other errors, and document
+  all the new messages.
+
+* We no longer include docs/apidoc/latex/* in the xapian-core tarballs since
+  it's just useless bloat.
+
+examples:
+
+* delve:
+
+  + Report the exception error string if open a database fails.
+
+  + Rename "-k" to "-V" since "keys" were renamed to "values" long ago.  Keep
+    "-k" as an alias for now, but don't advertise it.  Add handling so "-V3"
+    shows value #3 for every document in the database.
+
+  + No longer stems terms by default.  Add "-s/--stemmer" option to allow a
+    stemmer to be specified.
+
+* quest: Add "--stemmer" option to allow stemming language to be set, or
+  stemming to be disabled.
+
+portability:
+
+* Fix compilation with GCC 4.3 snapshot.
+
+* Always use pid_t not int for holding a process id, and use AC_TYPE_PID_T to
+  `#define pid_t int' if <sys/types.h> doesn't provide pid_t.
+
+* Pass the 4th parameter of setsockopt() as char* which works whether the
+  function actually takes char* or void* (since C++ allows implicit conversion
+  from char* to void*).
+
+* Most warnings in the MSVC build have been fixed.
+
+* Refactored most portability workarounds into safeXXXX.h headers.
+
+* Building for mingw in a cygwin environment should work better now.
+
+packaging:
+
+* RPM spec file:
+
+  + Updated for the changes in this release.
+
+  + ChangeLog.examples is now packaged.
+
+debug code:
+
+* Rename --enable-debug* configure options - conflating the options to "turn on
+  assertions" and "turn on logging" is confusing. `--enable-debug[=partial]'
+  becomes `--enable-assertions'; `--enable-debug-verbose' becomes
+  `--enable-log' and `--enable-debug=full' becomes `--enable-assertions
+  --enable-log'.  For now the old options give an error telling you the new
+  equivalent.
+
+* Debug logging from expand is now all of type EXPAND (some was of types
+  MATCHER and WTCALC before).
+
+* Hook the debug tracing in the lemon generated parser into Xapian's debug
+  logging framework.
+
+* New assertion types: AssertEqParanoid() and AssertNeParanoid().
+
+* Retry write() if it fails when writing a debug log entry to ensure to avoid
+  the risk of a partial write.
+
+Xapian-core 0.9.10 (2007-03-04):
+
+API:
+
+* Fix WritableDatabase::replace_document() not to lose positional information
+  for a document if it is replaced with itself with unmodified postings.
+
+* QueryParser: Add entries to the "unstem" map for prefixed boolean filters
+  (e.g. type:html).
+
+* Fix inconsistent ordering of documents between pages with
+  Enquire::set_sort_by_value_then_relevance (fixes bug#110).
+
+testsuite:
+
+* Workaround apparent bug in MSVC's ifstream class.
+
+flint and quartz backends:
+
+* Fix possible double-free after a transaction fails.
+
+* Fix code for recovering from failing to open a table for reading
+  mid-modification.  If modifications are so frequent that opening for reading
+  fails 100 times in a row, throw DatabaseModifiedError not
+  DatabaseOpeningError.
+
+* Don't call std::string::append(ptr, 0) when ptr may be uninitialised
+  or NULL (rather suspect, and reported to cause SEGV-like behaviour with
+  MSVC).
+
+* Ensure both_bases is set to false if we don't have both bases when
+  opening a table using an existing object.
+
+* Use MS Windows API calls to delete files and open files we might want to
+  delete while they are still open (i.e. the flint and quartz btree base
+  files).  This fixes a problem when a writer can't discard an old revision at
+  the exact moment a reader is opening it (bug #108).
+
+remote backend:
+
+* Fix WritableDatabase::has_positions() to refetch the cached value if it
+  might be out of date.
+
+* Fix incorrect serialisation of a query with non-default termpositions.
+
+inmemory backend:
+
+* If replace_document is used to set the docid of a newly added document which
+  has previously existed, ensure we mark that document as valid.
+
+documentation:
+
+* Assorted improvements to API documentation.
+
+* docs/Makefile.am: The larger pool_size we set in 0.9.9 for building
+  sourcedoc.pdf was a bit marginal, so increase it further.
+
+* docs/stemming.html,docs/install.html: Correct 2 references to "CVS" to say
+  "SVN" instead.
+
+* HACKING: Update the release checklist.
+
+portability:
+
+* Fix flint and quartz to allow 2GB+ B-tree tables when compiling with MSVC.
+
+packaging:
+
+* RPMs: Remove "." from end of "Summary:".  Package the new man page for
+  xapian-progsrv.
+
+Xapian-core 0.9.9 (2006-11-09):
+
+testsuite:
+
+* Use popen() to run xapian-tcpsrv and wait for "Listening..." before returning
+  rather than just sleeping for 1 second and hoping that's enough.
+
+* If we can't start xapian-tcpsrv because the port is in use, try higher
+  numbered ports.
+
+remote backend:
+
+* xapian-tcpsrv: If the port requested is in use, exit with code 69
+  (EX_UNAVAILABLE) which is useful if you're trying to automate launching of
+  xapian-tcpsrv instances.
+
+* xapian-tcpsrv: Output "Listening..." once the socket is open and read for
+  connections (this allows the testsuite to wait until xapian-tcpsrv is ready
+  before connecting to it).
+
+* xapian-progsrv: Now supports --help, --version, and has a man page.  Fixes
+  Bug #98.
+
+* Turn on TCP_NODELAY for the TCP variant of the remote backend which
+  dramatically improves the latency of operations on the database.
+
+build system:
+
+* internaltest: Disable serialiselength1 and serialisedoc1 when the remote
+  backend is disabled to fix build error in this case.
+
+* Move libbtreecheck.la from testsuite/ to backends/quartz/.
+
+* Move the testsuite harness from testsuite/ to tests/harness/.
+
+documentation:
+
+* Ship our custom INSTALL file rather than the generic one from autoconf which
+  we've accidentally been shipping instead since 0.9.5.
+
+* docs/Makefile.am: Building sourcedoc.pdf needs a larger pool_size now we're
+  using pdflatex.
+
+* HACKING: Update debian packaging checklist.
+
+* PLATFORMS: Updated with results from tinderbox.
+
+portability:
+
+* Create "safefcntl.h" as a replacement for <fcntl.h> instead of using
+  "utils.h" for this purpose, since "utils.h" pulls in many other things we
+  often don't need.
+
+packaging:
+
+* RPMs: Prevent binaries getting an rpath for /usr/lib64 on FC6.
+
+Xapian-core 0.9.8 (2006-11-02):
+
+API:
+
+* QueryParser: Don't require a prefixed boolean term to start with an
+  alphanumeric - allow the same set of characters as we do for the second
+  and subsequent characters.
+
+flint backend:
+
+* Only force a flush on WritableDatabase::allterms_begin() if there are
+  actually pending changes.
+
+quartz backend:
+
+* Only force a flush on WritableDatabase::allterms_begin() if there are
+  actually pending changes.
+
+* quartzcheck: Avoid dying because of an unhandled exception if the Btree
+  checking code finds an error in the low-level Btree structure.  Add a
+  catch for any other unknown exceptions.
+
+build system:
+
+* When building with GCC, turn on warning flag -Wshadow even when not in
+  maintainer mode (provided it is supported by the GCC version being used).
+
+* testsuite/backendmanager.cc: Fix compilation when valgrind is detected by
+  configure.
+
+* If generating apidoc.pdf fails, display the logfile pdflatex generates since
+  that is likely to show what failed.
+
+documentation:
+
+* Produce a PDF for apidoc rather than PostScript, since the PDF is smaller,
+  plus at least as easy to print and easier to view for most users.  Use
+  pdflatex to generate the PDF directly rather than going via a DVI file which
+  apparently produces a better result and also avoids problems on some Linux
+  distros where latex is a symlink to pdfelatex (bug#81, bug#95).
+
+* HACKING: Mention automake 1.10 is out but we've not tested it yet.
+
+* HACKING: Add entries to release checklist: make sure new API methods
+  are wrapped by the bindings, and that bug submitters are thanked.
+
+* HACKING: Note that on Debian, tetex-extra is needed for
+  fancyhdr.sty.
+
+* HACKING: Note that dch can be used to update debian/changelog.
+
+* docs/code_structure.html: Document backends/remote.
+
+* PLATFORMS: Update from tinderbox.
+
+portability:
+
+* configure: When checking if we need -lm, don't use a constant argument to
+  log() as the compiler might simply evaluate the whole expression at compile
+  time.
+
+* configure: Redhat's GCC 2.96 doesn't support -Wundef even though real GCC
+  version before and after it do!
+
+* configure: Avoid use of double quotes in double-quoted backticks since
+  it causes problems on some platforms.
+
+* backends/flint/flint_io.cc: Fix compilation on windows (needs to
+  #include "safewindows.h" to get definition of SSIZE_T).
+
+* Fix our implementation of om_ostringstream to compile so that the build
+  works once more on older compilers without <sstream> (regression probably
+  introduced in 0.9.7).
+
+packaging:
+
+* xapian.spec: Package xapian-progsrv.
+
+Xapian-core 0.9.7 (2006-10-10):
+
+API:
+
+* QueryParser:
+
+  + Allow a distance to be optionally specified for NEAR - e.g.
+    "cats NEAR/3 dogs" (bug#92).
+
+  + Implement "ADJ" operator - like "NEAR" except the terms must
+    appear in matching documents in the same order as in the query.
+
+  + Fix bug in how we handle prefixed quoted phrases and prefixed brackets.
+
+  + Fix parsing of loved and hated prefixed phrases and bracketted expressions.
+
+  + Fix handling of stopwords in boolean expressions.
+
+  + Don't ignore a stopword if it's the only query term.
+
+* Document::add_value() failed to replace an existing value with the same
+  number, contrary to what the documentation says (bug #82).
+
+* Enquire::set_sort_by_value(): Don't fetch the document data when fetching
+  the value to sort on.  Simple benchmarking showed this to speed up sort by
+  value by a factor of between 3 and 9!
+
+* Implement transactions for flint and quartz.  Also supported are "unflushed"
+  transactions, which provided an efficient way to atomically group a number
+  of database modifications.
+
+* The Xapian::Error and Xapian::ErrorHandler classes have been reimplemented.
+  The new versions have better, clearer documentation comments and are cleaner
+  internally.
+
+* Change how doubles are serialised by TradWeight, BM25Weight, and in the
+  remote backend protocol.  The new encoding allows us to transfer any double
+  value which can be represented by both machines precisely and compactly.
+
+testsuite:
+
+* Add targets "check-flint", "check-quartz", and "check-remote" in tests and at
+  the top level which run the subset of tests which test the respective backend.
+
+* apitest: Run tests on flint if flint is enabled, rather than if quartz is
+  enabled!
+
+* apitest: Speed up deldoc4 when run in verbose mode - some stringstream
+  implementations are very inefficient when the string grows long.
+
+* Turn on GLIBCXX_FORCE_NEW when running tests under valgrind to stop the GNU
+  C++ STL from using a pooling allocator.  This helps make velgrind's leak
+  tracking more reliable.
+
+* Probe for required valgrind logging options at configure time rather than
+  when running the test program.  This saves about 2 seconds per test program
+  invocation.
+
+* Fix testsuite harness to show valgrind output when a test fails (when running
+  under valgrind in verbose mode).  This had stopped working, probably due to
+  changes in valgrind 3.
+
+* internaltest: Check that the the destructor on a temporary object gets called
+  at the correct time (Sun C++ deliberately gets this wrong by default, and it
+  would be good to catch any other compilers which do the same).
+
+* apitest: When running tests on the remote backend and running under valgrind,
+  run xapian-tcpsrv and xapian-progsrv under valgrind too to avoid issues
+  with the precision of doubles (bug#94).
+
+flint backend:
+
+* Retry on EINTR from fcntl or waitpid when creating or releasing the flint
+  lock file.
+
+* xapian-compact: Add --blocksize option to allow the blocksize to be set
+  (default is 8K as before.)
+
+* WritableDatabase::replace_document(did, doc) was double-incrementing the
+  "changes" counter when document did didn't exist so it would flush twice
+  as often - fixed.
+
+* WritableDatabase::postlist_begin(): Remove forced flush when iterating the
+  posting list of a term which has modified postings pending.
+
+quartz backend:
+
+* quartzcompact: Add --blocksize option to allow the blocksize to be set
+  (default is 8K as before.)
+
+* WritableDatabase::replace_document(did, doc) was double-incrementing the
+  "changes" counter when document did didn't exist so it would flush twice
+  as often - fixed.
+
+remote backend:
+
+* Most of the remote backend has been rewritten.  It now supports most
+  operations which a local database does (including writing!), the protocol
+  used is more compact, and a number of layers of classes have been eliminated
+  and the sequences of method calls simplified, so the code should be easier to
+  understand and maintain despite doing more.  A number of bugs have been fixed
+  in the process.
+
+* xapian-tcpsrv: Report errno if we catch a Xapian::Error which has it set.
+
+* xapian-tcpsrv: Fix memory leak in query unserialisation.
+
+build system:
+
+* Now using autoconf 2.60 for snapshots and releases.  Also now using a
+  libtool patch which improves support for Sun C++'s -library=stlport4 option.
+
+* configure: Fix generation of version.h to work with Solaris sed.
+
+* automake adds suitable rules for rebuilding doxygen_api_conf and
+  doxygen_source_conf, so remove our less accurate versions.  Also fix
+  dependencies for regenerating the doxygen documentation, and make the
+  documentation build work with parallel make.
+
+* Make use of the dist_ prefix to avoid having to list files in EXTRA_DIST as
+  well as in *_DATA and man_MANS.
+
+* Removed a few unused #include-s.
+
+* include/xapian/error.h: Add hook to allow SWIG bindings to be built using
+  GCC's visibility support.
+
+* configure: Turn on automake's -Wportability to help ensure our Makefile.am's
+  are written in a portable way.
+
+* configure: Disable probing and short-cut tests for a FORTRAN compiler.  We
+  don't use one, but current libtool versions always check for it regardless.
+
+* xapian-config: Prune -L/usr/lib from output of `xapian-config --libs'.
+
+documentation:
+
+* docs/scalability.html: quartzcompact and xapian-compact now allow you to set
+  the blocksize, so there's no need to use copydatabase if you want to migrate
+  a database to a larger blocksize.  Mention gmane.  Other minor tweaks.
+
+* Eliminate "XAPIAN_DEPRECATED" from generated documentation.
+
+* PLATFORMS: Added success report for Nexenta (alpha 5), MSVC, and sparc linux.
+  Updated other results from tinderbox.
+
+* Add links to the wiki from README and the documentation index.
+
+* docs/overview.html: Add discussion of uses of terms vs values.
+
+* docs/overview.html: Rewrite the section on Xapian::Document to remove some
+  very out-of-date information and make it clearer.
+
+* include/xapian/database.h: Note that automatically allocated document IDs
+  don't reuse IDs from deleted documents.
+
+* include/xapian/enquire.h: Note that "set_sort_by_relevance" is the default
+  setting.
+
+* docs/queryparser.html,include/xapian/queryparser.h: Add note that
+  FLAG_WILDCARD requires you to call set_database.
+
+* HACKING: Add some advice regarding debugging using -D_GLIBCXX_DEBUG,
+  valgrind, and gdb.
+
+* HACKING: Give URL to Alexandre Duret-Lutz's autotools tutorial, which is much
+  more up-to-date than the "goat book".
+
+* HACKING: Update and expand the information about the debian packaging.
+
+* Add missing dir_contents files.
+
+portability:
+
+* xapian/version.h: Add a check that _GLIBCXX_DEBUG is set compatibly if we're
+  compiling with GNU C++ 3.4 or newer.
+
+* Add configure check to see if "-lm" is needed to get maths functions since
+  newer versions of Sun's C++ compiler seem to require this.
+
+* Automatically put Sun's C++ compiler into "ANSI C++ compliant library" mode
+  (using -library=stlport4).  This allows us to remove most of the special
+  case bits of code we've accumulated for just this compiler, which improves
+  maintainability.
+
+* Sun's C++ compiler implements non-standards-conforming lifetimes for
+  temporary objects by default.  This means database locks don't get released
+  when they should, so we now always pass "-features=tmplife" for Sun C++
+  which selects the behaviour specified by the C++ standard.
+
+Xapian-core 0.9.6 (2006-05-15):
+
+API:
+
+* Rename Xapian::xapian_version_string() and companions to
+  Xapian::version_string(), etc.  Keep the old functions as aliases which are
+  marked as deprecated.
+
+* QueryParser: Add rules to handle a boolean filter with a "+" in front (such
+  as +site:xapian.org).
+
+testsuite:
+
+* queryparsertest: Add another prefix testcase to improve coverage.
+
+build system:
+
+* configure: Simpler check for VALGRIND being set to empty value.
+
+* include/Makefile.am: Add xapian/version.h.timestamp as a dependency on
+  all-local so that xapian/version.h actually gets regenerated when required.
+
+* Eliminate XAPIAN_BUILD_BACKEND_* from config.h and just use
+  XAPIAN_HAS_*_BACKEND from xapian/version.h instead.
+
+documentation:
+
+* remote_protocol.html: Document keep-alive messages.
+
+* xapian/enquire.h: Remove bogus documentation for a parameter which doesn't
+  exist.
+
+* PLATFORMS: Added a summary.  Updated and pruned old entries for which we
+  have a newer close match.
+
+* HACKING: Expand on details of what's required when changing Xapian (discuss
+  documentation requirements, and more on why feature tests are vital).
+
+* HACKING: Update section on building debian packages.
+
+portability:
+
+* The tarball is generated with a patched version of libtool 1.5.22 which
+  fixes libtool bugs on HP-UX and some BSD platforms.
+
+* configure: Fix problems with test for snprintf which affected cygwin, and
+  possibly some other platforms.
+
+* configure: Tweak version.h generation to cope with CXXCPP putting carriage
+  returns into its output as can happen on cygwin.
+
+* Fix renaming of "iamflint.tmp" for MS Windows where you can't rename an open
+  file.
+
+* Fixed MSVC7 warnings.
+
+* Added workaround for newlib header bug.
+
+Xapian-core 0.9.5 (2006-04-08):
+
+API:
+
+* QueryParser:
+
+  + Fix FLAG_BOOLEAN_ANY_CASE to really allow any case combination - previously
+    it only allowed all uppercase or all lowercase.
+
+  + Fix QueryParser's handling of terms with trailing "#", "+", or "-" when
+    set_database has been called and the term doesn't exist in the database
+    with the suffix.
+
+* Add mechanism to allow xapian-bindings to override deprecation warnings so
+  we can continue to wrap deprecated methods without lots of warnings.
+
+* Move Enquire::get_matching_terms_end() and Document::termlist_end() inline in
+  header.
+
+* Database::termlist_begin(): Eliminate the MultiTermList wrapper in the common
+  case where we're only dealing with a single database.
+
+* Fix TermIterator::positionlist_begin() to work on TermIterator from
+  Database::termlist_begin().  Make TermList::positionlist_begin() pure
+  virtual and put dummy implementations in BranchTermList and other
+  subclasses which can't (or don't) implement it.  This makes it hard to
+  accidentally fail to implement it in a backend's TermList subclass.
+
+* TermIterator::positionlist_begin() with the remote backend now throws
+  UnimplementedError instead of InvalidOperationError.
+
+* Implement Enquire::set_sort_by_relevance_then_value().
+
+testsuite:
+
+* Added missing feature test for QueryParser::FLAG_BOOLEAN_ANY_CASE.
+
+* remotetest: Check mset size in tcpmatch1.
+
+flint backend:
+
+* xapian-compact: Fixed segfault from passing an unknown option (e.g.
+  "xapian-compact --foo").
+
+quartz backend:
+
+* quartzdump,quartzcompact: Fixed segfault from passing an unknown option
+  (e.g.  "quartzdump --foo").
+
+remote backend:
+
+* xapian-tcpsrv: Don't perform a name lookup on the IP address which an
+  incoming connection is from as that could easily slow down the search
+  response - instead just print the IP address itself if output is verbose.
+
+* xapian-tcpsrv: Allow up to 5 connections in the listen queue instead of just
+  one.
+
+build system:
+
+* Removed unused code from the matcher and the remote, quartz, and flint
+  backends.
+
+documentation:
+
+* All installed binaries now support --help and --version and have a man page
+  (which is generated using help2man).
+
+* docs/overview.html: Bring up to date.
+
+* docs/remote_protocol.html: Document messages for requesting and sending a
+  termlist and a document.
+
+* PLATFORMS, AUTHORS: Updated.
+
+* INSTALL: Improve wording.
+
+* HACKING: Note that we now use a lightly patched version of libtool 1.5.22.
+
+* HACKING: aclocal is part of automake, not autoconf.
+
+portability:
+
+* Added some tweaks to help support compilation with MSVC.
+
+packaging:
+
+* RPMs: package the new man pages.
+
+debug code:
+
+* Add missing spaces in some debug output.
+
+Xapian-core 0.9.4 (2006-02-21):
+
+API:
+
+* Flag deprecated methods such that the compiler gives a warning, for compilers
+  which support such a feature (most notably GCC >= 3.1).
+
+* Correct typo in name of definition of function xapian_revision().
+
+testsuite:
+
+* Updated uses of deprecated methods in the testsuite.
+
+build system:
+
+* xapian-config: Set exec_prefix and prefix at top of script so that
+  xapian-config works after xapian-core is installed.
+
+documentation:
+
+* Add documentation comment for Enquire::set_sort_by_value_then_relevance().
+
+* README: Add pointer to HACKING.  Change "CVS access" to "SVN access".
+
+* PLATFORMS: Updated from tinderbox.
+
+* COPYING: Update second occurrence of old FSF address.
+
+Xapian-core 0.9.3 (2006-02-16):
+
+API:
+
+* Added 4 functions to report version information for the library version being
+  used (which may not be the same as that compiled against if shared libraries
+  are in use):  xapian_version_string(), xapian_major_version(),
+  xapian_minor_version(), xapian_revision().
+
+* Xapian::QueryParser:
+
+  + Fix handling of "+" terms in a query when the default query operator is
+    AND.  Added regression test for this.
+
+  + Added "AND NOT" as a synonym for "NOT".  Added feature tests for this.
+
+* Fix prototype for ESet::operator[] to take parameter of type termcount
+  instead of doccount (doccount and termcount are both typedefs to the same
+  type so this really just makes the prototype more consistent).
+
+* Xapian::Stem: Check for malloc and calloc failing to allocate memory and
+  throw an exception.  Richard has fixed this upstream in snowball, so this is
+  a temporary fix until we import a new version of snowball.
+
+* Xapian::Database: Trying to open a database for reading which doesn't exist
+  now fails with DatabaseOpeningError instead of FeatureUnavailableError.
+  Added regression test for this.
+
+* Add Stopper::get_description() and SimpleStopper::get_description().
+
+testsuite:
+
+* Fixed testsuite harness to work with valgrind on 64 bit platforms.
+
+* Merged the "running tests" section of docs/tests.html into the similar
+  section in HACKING, and make docs/tests.html refer the reader to HACKING for
+  more information.
+
+* Tidied and enhanced environmental variables which the test suite harness
+  recongnises:
+
+  + OM_TEST_BACKEND: Removed support since the "-b" switch to apitest allows
+    you control which backend is used, making OM_TEST_BACKEND pretty much
+    redundant.
+
+  + XAPIAN_SIG_DFL: Renamed to XAPIAN_TESTSUITE_SIG_DFL.
+
+  + XAPIAN_TESTSUITE_OUTPUT: New environmental variable to control use of
+    ANSI colour escape sequences in test output (set to "plain" to disable
+    them, unset, empty, or "auto" to check if stdout is a tty, or anything
+    else to force colour).
+
+flint backend:
+
+* xapian-compact: Added "--multipass" option to merge postlists in pairs or
+  triples until all are merged.  Generally this is faster than an N-way merge,
+  but it does require more disk space for temporary files so it's not the
+  default.
+
+quartz backend:
+
+* quartzcheck: If the database is too broken to open, emit a warning message
+  and bump the error count.
+
+build system:
+
+* Now generate snapshots and releases with automake 1.9.6 (was 1.9.5) and
+  libtool 1.5.22 (was 1.5.18).
+
+* configure: If not cross-compiling, try to actually run a test program built
+  with the C++ compiler, not just link one.
+
+* configure: Fix to actually skip the check for valgrind if VALGRIND is set to
+  an empty value.
+
+* configure: Add sanity check for MS Windows that "find" is Unix-like find, not
+  MSDOS-like.
+
+* Fix conditional compilation of flint backend - it was being disabled when
+  quartz was, not when flint was supposed to be.
+
+documentation:
+
+* INSTALL,README: Updated.
+
+* Give pointer to replacements for the deprecated Enquire sorting methods
+  in the doxygen collated documentation.
+
+* PLATFORMS: Added success reports for ppc64 linux and Fedora Core 4.  Updated
+  from the tinderbox.
+
+* HACKING: Note platforms valgrind now has solid support for; Improve
+  phrasing in a few places.
+
+* Upgrade to using doxygen 1.4.6 for generating API documentation.
+
+* Change title of the "full source" documentation to "Internal Source
+  Documentation" rather than "Full source documentation" to make it
+  clearer it's only useful if you want to modify Xapian itself.
+
+* Fix documentation comments for the values of QueryParser::feature_flag so
+  doxygen actually pulls out the documentation for them.  Add documentation for
+  the parameters of QueryParser::parse_query().
+
+* queryparser.html: Document wildcards.
+
+portability:
+
+* Fix compilation with GCC 4.0.1 and later (need to forward declare class
+  InMemoryDatabase) (bug #69).
+
+* Fix compilation under cygwin (broken in 0.9.2).
+
+* Don't pass NULL for the second parameter of execl() - the Linux man page
+  says execl takes "one or more pointers to null-terminated strings".  Also
+  cast the NULL to (void*) to avoid "missing sentinel" warning from GCC4.
+
+* Use snprintf instead of sprintf where available (we were attempting to
+  do this in some places before, but the configure test was broken so
+  sprintf was always being used).
+
+* Enable more warnings under aCC and fix minor issues highlighted.  Suppress
+  "Entire translation unit was empty" warning which isn't useful to us.
+
+* Write top-bit set characters in the source using \xXX notation to avoid
+  warnings from Intel's C++ compiler.
+
+* configure: TYPE_SOCKLEN_T fails hard, so only run it if we've successfully
+  run other socket tests.
+
+* queryparser/accentnormalisingitor.h: #include <limits.h> for CHAR_BIT.
+
+* bin/xapian-compact.cc: Fix printf type mismatch on 64 bit platforms.
+
+* Replace pair<bool, string> with a simple class BoolAndString - the pair
+  results in a 4328 byte symbol on HP-UX which gets truncated (to 4000 bytes).
+  Most likely this is harmless, but it causes a warning.
+
+* configure: Disable flint backend by default if building for djgpp or msdos.
+
+* xapian-config: Previously when linking without libtool we've always thrown
+  in dependency_libs, even though only some platforms need it (because it's
+  generally pretty harmless).  However some Linux distros have an unhelpful
+  policy of not packaging .la files, so libxapian.la isn't available to
+  extract dependency_libs from.  Linux is a platform which doesn't require
+  dependency_libs to be explicitly linked, so extend xapian-config to not
+  pull in dependency_libs if libtool's link_all_deplibs_CXX=no.
+
+* xapian-config: If the current platform needs dependency_libs and
+  libxapian.la's dependency_libs contains another .la file, transform it into a
+  pair of -L and -l options, and recursively expand its dependency_libs (if
+  any).
+
+* Don't pass functions with C++ linkage to places wanting pointers to functions
+  with C linkage.  So far this has worked for us, but it causes warnings with
+  some compilers, and may not be portable.
+
+* Compaq C++ 7.1 doesn't suffer from the problem which previously prevented
+  it from building Xapian.  This release includes workarounds for some
+  oddities with errno.h support in this compiler, but currently the build
+  fails when trying to link a binary with the library.
+
+packaging:
+
+* RPM: Invoke %setup correctly in xapian.spec.
+
+debug code:
+
+* Add missing '#include <iostream>' when TIMING_PATCH is defined.
+
+Xapian-core 0.9.2 (2005-07-15):
+
+API:
+
+* QueryParser:
+
+  + Added optional "flags" argument to parse_query method.
+
+  + Add flag FLAG_BOOLEAN_ANY_CASE which tells the QueryParser that boolean
+    operators such as "AND", "OR", and "NEAR" should be recognised even if
+    they aren't fully capitalised (so "and", "And", "aNd", etc will work too).
+
+  + Add flag FLAG_WILDCARD which tells the QueryParser to allow right
+    truncation e.g. "xap*".
+
+  + Fixed to handle "-site:microsoft.com" where site is a boolean prefix.
+    Added testcases for this.
+
+testsuite:
+
+* The test harness was incorrectly creating a quartz database when a flint one
+  was requested, which meant tests weren't being run against flint and so it
+  had bugs rendering it pretty much unusable.
+
+* Added regression test longpositionlist1 (to check encoding/decoding a long
+  position list, which flint had problems with).
+
+flint backend:
+
+* Bumped format version number.
+
+* Added new "xapian-compact" program which can compact and merge flint
+  databases in a similar way to how quartzcompact does for quartz databases.
+
+* Fixed to auto-detect database type when opening an existing Flint database
+  as a WritableDatabase.
+
+* The code to encode the position list size, first entry, and last entry
+  didn't match the code to decode them!  Reworked both to match, using a
+  slightly more compact encoding.
+
+* We were failing to append "DB" to the path when opening a table for reading.
+
+* Rewrite of FlintAllTermsList with several fewer member variables.  The
+  rewrite fixes a bug too - the old version wasn't ignoring the metainfo
+  entry which is now in the postlist table.
+
+* It seems we need to explicitly kill the child process used for locking.
+  Otherwise when we have two databases locked just closing the connection
+  doesn't cause the child to die.  I don't understand why it's needed, but this
+  fix is at least clean.
+
+quartz backend:
+
+* quartzcompact: Fix mis-repacking of keys in positionlist table when merging
+  several databases.
+
+* Disable assertion in allterms iteration which is incorrect in a corner case.
+  This is only a problem if a termname contains zero bytes and you're using a
+  debug build.  Add regression test test_specialterms2.
+
+remote backend:
+
+* Implement sorting on a value with the remote backend.
+
+build system:
+
+* Pass automake options to AM_INIT_AUTOMAKE rather than specifying them in
+  Makefile.am.  This way, the version requirements for autoconf and automake
+  are stated close together.
+
+* configure: -Wshadow causes false positives with GCC 3.0.4, so only enable it
+  for 3.1 and up.
+
+* configure: Eliminate use of "ln -s" when generating include/xapian/version.h
+  since it seems to cause problems on Solaris in some setups and isn't really
+  necessary.
+
+* Add dependency mechanism so version.h gets regenerated when the template is
+  changed.
+
+* configure: Check for spaces in build directory, source directory, or install
+  prefix and die with a helpful message.
+
+* Add dependency to generate queryparser_token.h.
+
+* Eliminated TOP_SRCDIR and TOP_BUILDDIR - it's better to just use top_srcdir
+  and top_builddir directly.
+
+* configure: Generate the list of source files to feed to doxygen by inspecting
+  all the Makefile.am files prior to running autoreconf rather than by using
+  "find" when the user runs ./configure.  This speeds up configure, avoids
+  generating docs for random .cc and .h files which aren't part of xapian-core,
+  and avoids problems with picking up FIND.EXE on MS Windows.
+
+documentation:
+
+* Expanded explanation of the "descending docid with boolean weighting" trick
+  for fast date ordered searching in Enquire::set_docid_order() API docs.
+
+* docs/intro_ir.html: Citeseer has moved, so update link.
+
+* testsuite/testsuite.cc: Update URL for valgrind FAQ in comment.
+
+* COPYING: Update FSF address.
+
+* HACKING: Minor updates to release checklist.
+
+portability:
+
+* Assorted tweaks towards allowing compilation with MSVC.
+
+packaging:
+
+* xapian.spec.in: Package xapian-compact.
+
+Xapian-core 0.9.1 (2005-06-06):
+
+API:
+
+* Fix SEGV on get_terms_begin() on an empty Query object.  This was causing
+  a SEGV in Omega with an empty query.
+
+* Put Query::get_terms_end() inline in header.
+
+flint backend:
+
+* Added the new "flint" backend, which starts out as a copy of the quartz
+  backend plus some modifications and replacements.  When creating a database
+  without a specified backend, quartz is still used unless the environmental
+  variable XAPIAN_PREFER_FLINT is set to a non-empty value.
+
+* apitest now runs tests on flint as well as the other backends.
+
+* Removed undocumented (and hence the little used) quartz "log" feature.
+
+* Implement new fork+fcntl+exec based locking (for Unix) and CreateFile based
+  locking (for Windows - currently untested).
+
+* Move the special key/tag pair holding the total document length and doc id
+  high water mark from the record table to the postlist table.  This means that
+  when appending documents, the insertion point will now always be at the end
+  of the record table which is more efficient.  We need to jump around the
+  postlist table to merge postings in anyway.
+
+* Changed metafile magic to be different from quartz, and make the metafile
+  version a datestamp which we'll change each time the format changes.
+
+* Check the return value of close() when writing the metafile.
+
+* Flint position list table now stores entries using interpolative coding
+  (which is significantly more compact).
+
+quartz backend:
+
+* quartzcheck: Fixed corner case where you couldn't check a single Btree table
+  which was just the DB and baseA/baseB files in a directory (Xapian doesn't
+  produce anything like this, but btreetest does while unit testing the
+  Btree code).
+
+build system:
+
+* Releases are now created using libtool 1.5.18 and automake 1.9.5.
+
+* configure: Pass more -W flags to g++ (including -Wundef which caught the
+  getopt problem fixed in this release).  Fixed new GCC warnings from these new
+  flags.
+
+* Fixed a lingering DOXYGEN_HAVE_DOT reference.
+
+* Fixed accidentally pruned #define which meant that getopt code was being
+  included even on systems which use glibc (on such systems, we should use
+  the glibc copy of the code instead).
+
+* queryparser/queryparser.lemony: Add missing '#include <config.h>'.
+
+documentation:
+
+* Added missing documentation comments for a QueryParser methods added in
+  0.9.0.
+
+* docs/quartzdesign.html: Removed warning that quartz is still in development.
+
+* PLATFORMS: Updated from tinderbox.
+
+* configure: Describe CC_FOR_BUILD in configure --help output.
+
+* HACKING: Updated release instructions to refer to SVN, and note that release
+  tarballs are now built specially rather than being copies of snapshots.
+  Update information about the SVN tag name to use for debian files.
+
+* HACKING: Add "email Fabrice" to the release checklist so that RPM
+  spec files don't lag behind.
+
+* Fixed a few spelling mistakes.
+
+packaging:
+
+* xapian.spec: Remove bogus %setup line left over from when we packaged
+  xapian-core and xapian-examples together from separate tarballs.
+
+debug code:
+
+* api/omqueryinternal.cc: Fixed compilation with --enable-debug.
+
+* common/omdebug.h: Replace C style cast with static_cast<> which reveals that
+  we were discarding const (harmlessly though).
+
+Xapian-core 0.9.0 (2005-05-13):
+
+API:
+
+* Query objects really need to be immutable after construction (otherwise we
+  need a copy-on-write mechanism).  To achieve this the following API changes
+  were required:
+
+  + Remove Query::set_length() in favour of an optional length
+    parameter to Enquire::set_query().
+
+  + Eliminated Query::set_elite_set_size() in favour of optional parameter
+    to constructor.
+
+  + Eliminated Query::set_window() in favour of an optional parameter to the
+    constructor.
+
+* Removed OP_WEIGHT_CUTOFF, since it doesn't actually seem to add useful
+  functionality over using Enquire::set_cutoff().
+
+* MSet::max_size() (which only exists so that MSet is an STL container) now
+  returns MSet::size() and is inlined from the header.
+
+* Added ESet::max_size() (for STL compatibility).
+
+* Fixed Xapian::RSet to have the same "it's a handle" copy semantics as most of
+  the other classes.
+
+* Rewritten QueryParser class:
+
+  + Uses Lemon instead of Bison to generate the parser, which enables us to
+    stop using static data, so this class is at last reentrant.
+
+  + QueryParser now uses a PIMPL style with reference counted internals like
+    most of the other Xapian classes.
+
+  + Direct access to member variables has gone, which unfortunately forces an
+    API change (but this fixes bug #39).  Instead of accessing
+    QueryParser::termlist member variable, iterate over terms using
+    Query::get_terms_begin() and get_terms_end() on the returned Query object.
+    Direct access to stoplist is replaced by QueryParser::get_stoplist_begin()
+    and get_stoplist_end(); and to unstem by get_unstem_begin() and
+    get_unstem_end().
+
+  + The rewrite parses many real world examples better than the old version.
+
+  + Now allow searches for C#, etc.  If a database has been set, for this and +
+    and - suffixes, check if the term actually exists, and if not, ignore the
+    suffix if the unsuffixed term exists.
+
+  + Added QueryParser::get_description() method (not very descriptive yet!)
+
+  + Added backward compatibility wrapper for old version of
+    QueryParser::set_stemming_options().
+
+  + xapian.h now automatically includes xapian/queryparser.h.  Directly
+    including xapian/queryparser.h will continue to work for now, but is
+    deprecated.
+
+  + QueryParser::parse_query() was failing to clear termlist and unstem
+    - the rewrite fixes this.
+
+  + New QueryParser parses "term prefix:(term2 term3)" correctly.
+
+* Added Xapian::SimpleStopper which just stops terms specified by a pair of
+  iterators.  This should be sufficient for the majority of uses.
+
+* Tidied up the Enquire sorting API and added ability to reverse sort on a
+  value.  Removed sort_bands support.
+
+* Enquire::get_description() improved.
+
+* Methods which return an end iterator where the internals are just NULL are
+  now inline in the header for efficiency.  Should we ever need to change an
+  implementation, we can easily move methods back into the library and bump the
+  library version suitably.
+
+* Added Stem::operator() as preferred alternative to Stem::stem_word().
+
+* Simplified Stem internal design by restructuring to eliminate a few internal
+  methods.
+
+* BM25Weight: Avoid fetching document length if we're simply going to multiply
+  it by zero!
+
+testsuite:
+
+* Fixed TEST_EQUAL_DOUBLE to use DBL_EPSILON correctly.
+
+* Rewrite of index_utils test harness code, removing unused and unusual
+  features.  Data files for tests are now easier to write.  These changes
+  also fix the bug that ^x didn't actually decode hex values correctly.
+
+* tests/testdata/etext.txt: Stripped carriage returns.
+
+* apitest: Extended stemlang1 to check that trying to create
+  a stemmer for a non-existent language throws InvalidArgumentError.
+
+* queryparsertest:
+
+  + Moved into tests/ subdirectory.
+
+  + Reworked to use the standard testsuite harness.
+
+  + Added tests for new features in the rewritten QueryParser.
+
+quartz backend:
+
+* quartzcheck: Now checks the structure of all the tables, not
+  just the postlist table, and cross-checks doclen values between
+  termlist and postlist tables.  Recognises "--help" option.  Should
+  now continue after an error (typically it would crash before), and
+  counts the number of errors found.  Now exits with non-zero status
+  if any errors were found.  More readable output.
+
+* quartzcompact: Extended to allow merging several quartz
+  databases to produce a single compact quartz database.  This
+  allows for faster building - simple index in chunks, then merge
+  the chunks.
+
+* quartzcompact: Made full compaction a tiny bit more compact.
+
+* quartzcompact: Added "fuller compaction" mode, which ignores the usual "at
+  least 4 items per block" rule.  This achieves slightly tighter compaction,
+  though it's probably not advisable to use this option if you plan to update
+  the compacted database.
+
+* Improved compaction by a few % in non-full case.  Tighter bound on amount of
+  memory to reserve to read the tag into.
+
+* Fix skip_to on an allterms TermIterator to set the current term when the
+  skip_to-ed term is in the database.  Add regression test for this
+  (allterms5).
+
+* Values are stored in sorted order so we can stop unpacking the list once we
+  get to one after the one we're looking for (in the case where the one we're
+  looking for doesn't exist).
+
+build system:
+
+* configure: Check that the C++ compiler can actually link a program.
+  AC_LANG_CXX doesn't, and if it can't find a C++ compiler it'll just return
+  "g++" which just leads to a later configure test failing in a confusing way.
+
+* configure: corrected configure output of "none known for yes" or "none known
+  for no" to "none known for g++-3.2" or similar.
+
+* include/xapian/version.h: Define XAPIAN_HAS_xxx_BACKEND for each backend
+  which is enabled.  The bindings need this, and user code might find it useful
+  too.
+
+* include/xapian/database.h: Don't declare the backend factory functions if the
+  corresponding backend has been disabled.  This means that trying to use a
+  disabled backend will be caught at compile time rather than link time.
+
+* configure: Enhanced valgrind test to (a) see if --tool=memcheck
+  is needed and (b) see if valgrind actually works (we don't want to
+  try to use an x86 valgrind on an x86_64 box).
+
+* configure: Suppress 2 Intel C++ warnings which we can't easily code around,
+  and enable -Werror automatically with --enable-maintainer-mode.
+
+* Clearer make rules for building Postscript doxygen docs.
+
+* Removed some no longer used code.
+
+* Moved a number of method definitions out of headers because they are virtual,
+  or too large to be sensible candidates for inlining.
+
+* Eliminated the extra library for the queryparser - it's tiny compared to the
+  main library and having it around just complicates things.
+
+* configure: We no longer need Bison, but we do need CC_FOR_BUILD to compile
+  Lemon with.
+
+* Snapshot generator now appends _svn6789 or similar to the version string.
+  Adjusted configure and XO_LIB_XAPIAN macro to take this into account.
+
+* configure: If any tools needed for documentation are missing
+  and we're in maintainer mode, die with a suitable error in
+  configure rather than with strange errors when building the
+  documentation.
+
+* docs/Makefile.am: Explicitly set the pool_size for latex, because we
+  now seem to overflow the default setting on some systems.
+
+* docs/Makefile.am: Use $(MAKE) instead of make.
+
+documentation:
+
+* Numerous improvements to documentation comments.  Added documentation
+  comments for QueryParser class.
+
+* HACKING: Added better description of how reference-counted API
+  classes are structured.
+
+* HACKING: Note that '#include <limits>' isn't supported by GCC 2.95,
+  and other assorted minor tweaks.
+
+* HACKING: Note how to disable use of VALGRIND on the make check
+  command line, or when using runtest directly.
+
+* Updated all documentation mentions of CVS to talk about Subversion
+  instead.
+
+* PLATFORMS: Updated from tinderbox and other sources.
+
+* PLATFORMS: Added minimal testcase which fails to compile with
+  Compaq's C++ compiler (cxx).
+
+* INSTALL,README: Updated.
+
+* docs/queryparser.html: Note that + and - work on phrases and
+  bracketed expressions.
+
+* docs/intro_ir.html: Corrected two errors.
+
+* docs/stemming.html: Stemming appears to be applicable to Japanese
+  so don't say it isn't!
+
+examples:
+
+* Moved xapian-examples module to examples subdirectory of xapian-core.
+
+* quest: Added stopword handling.
+
+portability:
+
+* configure: autoconf identifies Intel's C++ compiler as GCC, so probe for
+  which we actually have.
+
+* Xapian will now compile cleanly with Intel C++ 8.1 on ia64 Linux and
+  on x86 Linux.
+
+* backends/quartz/btree.cc: Fixed GCC compilation warning.
+
+* tests/api_db.cc: Fixed warning from Sun's C++ compiler.
+
+* configure: Automatically enable ANSI C++ mode for SGI's compiler
+  with '-LANG:std'; check that any automatically determined flags
+  for ANSI C++ mode actually allow us to compile a trivial program
+  - if they don't it probably means the compiler isn't the one we
+  were expecting, but one installed with the same name, so we now
+  drop the flags in this case.
+
+* The compile on IRIX with SGI compiler is now warning free, apart from two
+  "unused variable" warnings in Snowball generated code.
+
+* On WIN32, don't define NOMINMAX if it is already defined.
+
+packaging:
+
+* xapian.spec: Don't say "%makeinstall" in a comment since rpm
+  tries to expand it and explodes.
+
+* xapian.spec: '/usr/share' -> '%{_datadir}'.
+
+* xapian.spec: Put the .so in the -devel package (it's only useful
+  for linking to - the .so.* files are all that's needed at runtime).
+
+debug code:
+
+* net/socketserver.cc: Fixed typo in debug code.
+
+Xapian-core 0.8.5 (2004-12-23):
+
+quartz backend:
+
+* quartzcompact: When full_compaction is enabled, don't fill the last few bytes
+  of a block if that would mean we needed an extra item and the overhead for
+  that item would use up more of the next block than we save.  This reduces the
+  table size after full compaction by up to 0.2% in my tests!
+
+* quartzcompact: Tables sizes will always be a whole number of Kbytes, since
+  the blocksize is, so report the size in K.  Also report the change in size as
+  well as the before and after sizes.
+
+* quartzcompact: Added missing '#include <config.h>' so that largefile support
+  is enabled when we call stat() and we report compression statistics for
+  tables > 2G.
+
+* quartzcompact: Added --no-full / -n option to disable full compaction.  This
+  may be useful if you want to update the database after compacting it (need to
+  test to see if this option is actually useful).
+
+* Renamed Btree::compress() to Btree::compact() for consistency with
+  "full_compaction" and "quartzcompact".  Also, "compress" is confusing since
+  we use that term in the zlib patch.
+
+build system:
+
+* xapian-config: Fixed --libs output to not include libxapian.la.
+
+* Added missing '#include <config.h>' to various .cc files (the omissions were
+  probably harmless, but config.h should be included as the first thing any
+  source file does).
+
+documentation:
+
+* Minor updates.
+
+packaging:
+
+* RPM spec file: %makeinstall puts the wrong paths in the .la files so use
+  "make DESTDIR=... install" instead.
+
+debug code:
+
+* Fixed to build with AssertParanoid enabled.
+
+Xapian-core 0.8.4 (2004-12-08):
+
+API:
+
+* Added constructors to Database and WritableDatabase which fulfil the role
+  that the Auto::open() factory functions currently do.  Auto::open() is
+  now deprecated.
+
+* Removed the ability to write a Xapian object to an ostream directly, as
+  it's little used and potentially dangerous ('cout << mset[i];' will
+  compile, but you almost certainly meant 'cout << *mset[i];').  You can
+  get the old effect by writing 'cout << obj->get_description();' instead
+  of 'cout << obj;'.  Note that including xapian.h no longer pulls in
+  fstream, which code may have been implicitly relying on - if this is
+  a problem add '#include <fstream>' after '#include <xapian.h>'.
+
+* QueryParser: Be smarter about when to add a ':' when adding a term prefix.
+
+* BoolWeight::unserialise() now returns BoolWeight*, and similarly for
+  TradWeight and BM25Weight.  BoolWeight::clone() now returns BoolWeight *.
+
+* If a database contains no positional information, change NEAR and PHRASE
+  queries into AND queries (as otherwise they'd return no matches at all)
+  (bug #56).  Added feature test phraseorneartoand1.
+
+* Renamed BM25 parameters to match standard naming in papers and elsewhere
+  (A->k3, B->k1, C->k2, D->b), eliminated the extra factor of 2 which our C
+  had, and reordered the parameters to k1, k2, k3.  This is an incompatible API
+  change for BM25Weight(), so if you are using custom parameters for BM25
+  you'll need to update your code.
+
+* During query expansion, if we estimate the term frequency, ensure it has a
+  sane value (>= r and <= N - R + r) rather than bodging around the problem
+  later on.
+
+* TradWeight, BM25Weight: termfreq is always exact for matching (we only
+  approximate it for query expansion) so replace code to work around bad
+  approximations with Assert() to make sure this never happens.
+
+testsuite:
+
+* runtest: Enhanced to allow it to run test programs under valgrind and other
+  tools (gdb was already supported).
+
+* runtest: now works with valgrind 2.1.2 and later (valgrind's --logfile-fd
+  option was renamed to --log-fd).
+
+* runtest: Allow VALGRIND environmental variable to override the value we got
+  from configure.
+
+* Added a dependency so "make check" regenerates runtest if necessary.
+
+* The test programs now point the user to the runtest script if srcdir can't
+  be guessed.  And they no longer look for the test program in the tests
+  subdirectory of the current directory.
+
+* btreetest: Fixed memory leaks in test_cursor1 (the testcase itself was
+  causing the leak, not the library).
+
+* apitest: Fixed mset_range_is_same() and mset_range_is_same_weights() helper
+  functions which were only comparing the first item in the range.  Thankfully
+  the tests still all pass so this wasn't hiding any bugs.
+
+* apitest: A modified version of changequery1 fails - the bug is obscure and
+  subtle, and the fix is tricky so set the modified test to SKIP for now.
+
+* apitest: Added test_weight1 which tests the built-in Xapian::Weight
+  subclasses and test_userweight1 which tests user defined weighting schemes
+  (bug#8).
+
+* quartztest: Test with DB_CREATE_OR_OPEN in writelock1.
+
+quartz backend:
+
+* An interrupted update could cause any further updates to fail with "New
+  revision too low" because the new revision was being calculated incorrectly -
+  fixed (bug#55).
+
+* Fixed Bcursor::del() which didn't always leave the cursor on the next item
+  like it should.  This may have been causing problems when trying to remove
+  the last references to a particular term.
+
+* Fixed ultra-obscure bug in the code which finds a key suitable to
+  discriminating between two blocks in a B-tree branch (discovered by reading
+  the code).  Comparing the keys didn't consider the length of the second, so
+  it is possible the code would miscompare.  But in reality this is extremely
+  unlikely to happen, and even then would probably just mean that the
+  discriminating key wouldn't be as short as it could be (wasting a few bytes
+  but otherwise harmless).
+
+* If we're removing a posting list entirely, often there will only be one
+  chunk, so avoid creating a Bcursor in this case.
+
+* Simplified Btree::compare_keys() by removing the last case which was dead
+  code as it was covered by an earlier case.
+
+* Check that any user specified block size is a power of 2.  If the block
+  size passed is invalid, use the default of 8192 rather than throwing an
+  exception.
+
+* Started to refactor the Btree manager by introducing Item and Key classes
+  which take care of handling the on-disk format, and eliminated duplicated
+  tag reading code in Btree and Bcursor.  These changes will pave the way for
+  improvements to the on disk format.
+
+* Applied the Quartz "DANGEROUS" patch, but disabled for now.  This way it
+  won't keep being broken by changes to the code.
+
+* quartzcompact: Added --help and --version; Check that the source path and
+  desitination path aren't the same; Report each table name when we start
+  compacting it, and some simple stats on the compaction achieved when we
+  finish.
+
+muscat36 backend:
+
+* Removed a default parameter value from one variant of
+  Xapian::Muscat36::open_db() so that there's only one candidate for
+  open_db(string).
+
+build system:
+
+* xapian-config: If flags are needed to select ANSI mode with the current
+  compiler, then make xapian-config --cxxflags include them so that Xapian
+  users don't have to jump through the same hoops we do.
+
+* xapian-config: Added --swigflags option for use with SWIG.
+
+* XO_LIB_XAPIAN now passes ac_top_srcdir to xapian-config which uses it
+  (if provided) to say "configure.ac" or "configure.in" rather than
+  "configure.in (or configure.ac)" in the "Add AC_PROG_LIBTOOL"
+  error message.
+
+* Cleaned up the build system in a few places.
+
+* Removed a few totally unneeded header includes.
+
+* Moved a number of functions and methods out of headers because they're not
+  good inlining candidates (too big or virtual methods).
+
+* Changed C style casts to C++ style.  The syntax is ugly, but they do make the
+  intent clearer which is a good thing.  Note this as a coding style guideline
+  in HACKING.
+
+* configure.ac: Automatically add -Werror to CFLAGS and CXXFLAGS if
+  maintainer mode is enabled and we're using GCC3 or newer.  Don't do
+  this for older GCCs as GCC 2.95 issues spurious warnings.
+
+* Reworked how include/xapian/version.h is generated so that it works
+  better with compilers other than GCC, and with HP-UX sed.
+
+* XAPIAN_VERSION is now a string (e.g. "0.8.4").
+
+* Added new #define XAPIAN_REVISION (which is 4 for version 0.8.4).
+
+documentation:
+
+* docs/bm25.html,docs/intro_ir.html: Reworked to talk about Xapian
+  rather than Muscat.  Also improved the appearance of the formulae.
+
+* HACKING: Valgrind now supports x86 FreeBSD and PowerPC Linux.
+
+* Documented parameters of Enquire::register_match_decider().
+
+* We now use doxygen 1.3.8 to build documentation for snapshots and releases.
+
+* PLATFORMS: Updated from the tinderbox (which now runs builds on machines
+  available in HP's testdrive scheme) and other assorted reports.
+
+* PLATFORMS: Removed reports from versions prior to 0.7.0.  So much
+  has changed that these are of little value.
+
+* docs/scalability.html: Added note warning about benchmarking from cold.
+
+* Assorted other minor documentation improvements.
+
+portability:
+
+* configure.ac: Improved snprintf configure test to actually
+  check that it works (older implementations may have different
+  semantics for the return value, and at least one ignores the length
+  restriction entirely!)
+
+* Reworked the GNU getopt source we use so that the header is clean and
+  suitable for use from a reasonably ISO-conforming C++ compiler instead of
+  being full of cruft for working around quirky C compilers which C++ compilers
+  tend to stumble over.
+
+* Use SOCKLEN_T for the type we need to pass to various socket calls, since
+  HPUX defines socklen_t yet wants int in those calls.  Reworked the
+  TYPE_SOCKLEN_T test we use.
+
+* On Windows, we want winsock2.h instead of sys/socket.h.  Mingw doesn't seem
+  to even have the latter, so I think previously we've been compiling by
+  picking one up from somewhere random!
+
+* Change the small number of C sources we have to be C++ so we can compile
+  everything with the C++ compiler.  This way we don't need to worry about
+  configure choosing a mismatching pair of compilers, or about whether
+  configure tests with the C compiler don't apply to the C++ compiler, or vice
+  versa.
+
+* Compiles and passes testsuite with HP's aCC (we have to compile in
+  ANSI mode, so we automatically add -AA to CXXFLAGS).
+
+* If the link test detects pread and pwrite are present, get configure to try
+  out prototypes for pread and pwrite.  This is much cleaner than trying to
+  find the right combination of preprocessor defines to get each platform's
+  system headers to provide prototypes.
+
+* configure: Disable probing for pread/pwrite on HP-UX as they're present but
+  don't work when LFS (Large File Support) is enabled, and we definitely want
+  LFS.
+
+* Fixed some warnings from Sun's C++ compiler.
+
+* Provide our own C_isalpha(), etc replacements for isalpha(), etc
+  which always work in the C locale and avoid signed char problems.
+
+* For mingw/cygwin, pass -no-undefined when linking libxapianqueryparser.la
+  so libtool builds a shared library.  Also pass the magic linker flag
+  -Wl,--enable-runtime-pseudo-reloc if configure has determined it is needed.
+
+* For cygwin, use the underlying MoveFile API call for locking, as link()
+  doesn't work on FAT partitions.  And don't rely on HAVE_LINK to control
+  whether we use link() otherwise - if the configure test somehow misfires, a
+  compilation error is better than using rename() on Unix as that would cause a
+  second writer to smash the lock of the first.
+
+* Closer to building with Compaq C++ - add "-std strict_ansi" to CXXFLAGS, and
+  tweaked the code in several places.  It currently dies trying to compile
+  the PIMPL smart pointer template code which looks hard to fix.
+
+debug code:
+
+* HACKING: Document that %% in XAPIAN_DEBUG_LOG is substituted with
+  the process-id, and that setting XAPIAN_DEBUG_FLAGS to -1 enables
+  all debug messages.
+
+* Removed compatibility code for checking environment variables OM_DEBUG_FILE
+  and OM_DEBUG_TYPES.
+
+Xapian-core 0.8.3 (2004-09-20):
+
+API:
+
+* Fixed bug which caused a segmentation fault or odd "Document not found"
+  exceptions when new check_at_least parameter to Enquire::get_mset() was used
+  and there weren't many matches (regression test checkatleast1).
+
+remote backend:
+
+* Renamed omtcpsrv to xapian-tcpsrv and omprogsrv to xapian-progsrv.
+
+packaging:
+
+* RPM packaging now has a separate package for the runtime libraries to
+  allow 32 and 64 bit versions to be installed concurrently.
+
+* RPM for xapian-core now includes binaries from xapian-examples.
+
+debug code:
+
+* Fixed to compile with debug tracing enabled.
+
+Xapian-core 0.8.2 (2004-09-13):
+
+API:
+
+* Removed the compatibility layer which allowed programs written against the
+  pre-0.7.0 API to be compiled.
+
+* Added new ESet methods swap(), back() and operator[].
+
+* Xapian::WritableDatabase::replace_document can now be used
+  to add a document with a specific docid (to allow keeping docids
+  in sync with numeric UIDs from another system).
+
+* Added Xapian::WritableDatabase::replace_document and
+  delete_document variants which take a unique id term name rather
+  than a document id.
+
+* Enquire::get_mset(): If a matchdecider is specified and no matches
+  are requested, the lower bound on the number of matches must be 0
+  (since the matchdecider could reject all the matches).
+
+* Renamed Query::is_empty() to Query::empty() for consistency.  Keep
+  Query::is_empty() for now as a deprecated alias.
+
+* Enquire::set_sorting() now takes an optional third parameter which allows
+  you to specify a sort by value, then relevance, then docid instead of
+  by value then docid.
+
+* Enquire::get_mset() now takes an optional "check_at_least" parameter
+  which allows Omega's MIN_HITS functionality to be implemented in the matcher
+  (where it can be done a bit more efficiently).
+
+testsuite:
+
+* Reworked quartztest's positionlist1 into a generic api test as apitest's
+  poslist3.
+
+* apitest: Reenabled allterms2, but with the iterator copying parts removed -
+  TermIterator is an input_iterator so that part was invalid.
+
+* Overhauled btreetest and quartztest - tests at the Btree level are now all
+  in btreetest.  Those at the QuartzDatabase level are in quartztest.
+
+* Split api_db.cc into 3 files as it has grown rather large.
+
+* tests/runtest: Added support for easily running gdb on a test program,
+  automatically sorting out srcdir and libtool.
+
+quartz backend:
+
+* Refactored the quartz backend code to reduce the number of layered classes
+  and eliminate unnecessary buffering, reducing memory usage so that more
+  posting list changes can be batched together (see next change) and database
+  building can be done several times faster.
+
+* Added tunable flush threshold - set XAPIAN_FLUSH_THRESHOLD=50000 to flush
+  every 50000 documents.  The default is now every 10000 documents (was
+  every 1000 documents previously).  The optimum value will most likely
+  depend on your data and hardware.
+
+* WritableDatabase::get_document() no longer forces pending changes to be
+  flushed.  The document will read things lazily from the database, and that
+  reading may trigger a forced flush).
+
+* WritableDatabase::get_avlength() no longer forces pending changes to be
+  flushed.  This means you can now search a modified WritableDatabase without
+  causing a flush unless the search includes a term whose postlist has pending
+  modifications.
+
+* Reduced quartz postlist chunk threshold from "2048 or a few bytes more" to
+  "2000 or a few bytes more" so that full size chunks won't get split by the
+  Btree.
+
+* Improved the "Db block overwritten" message.  The DatabaseCorruptError
+  version now suggests multiple writers may be the cause, while the
+  DatabaseModifiedError version uses less alarming wording and says to call
+  Database::reopen().
+
+* QuartzWritableDatabase now stores the total document length and the last
+  docid itself rather than tallying added and removed document length and
+  writing the last docid back every time a document is added.  This gives
+  cleaner code and a small performance win.
+
+* Make the first key null for blocks more than 1 away from the leaves.
+  It saves disk space for a tiny CPU and RAM cost so is bound to be
+  a win overall.
+
+* matcher/localmatch.cc: Fixed problems handling termweights in queries with
+  the same term repeated (bug #37) and added regression test (qterminfo2).
+
+* Sped up iteration over all the terms in a database (QuartzCursor now only
+  reads the tag from the Btree if asked to).
+
+* Cancelling an operation is now implemented more efficiently.
+
+inmemory backend:
+
+* Fixed bugs with deleting a document while a PostingIterator over it is
+  active.
+
+muscat36 backend:
+
+* Fixed to compile now that internal_end_session() has gone (broken in 0.8.1).
+
+build system:
+
+* Fixed to compile when configured with --disable-inmemory (bug #33).
+
+* XO_LIB_XAPIAN now AC_SUBSTs XAPIAN_VERSION so your application's build
+  system can easily check for a particular version of Xapian.
+
+* When compiling with GCC, we check that the compiler used to compile the
+  library and the compiler used to compile the application have compatible
+  C++ ABI versions.  Unfortunately GCC 3.1 incorrectly reports the same
+  ABI version as GCC 3.0, so we now special case that test.
+
+* Bumped the versions of the autotools we require for bootstrapping, and
+  updated the documentation of these in the HACKING document.
+
+* Quote macro names to fix warnings from newer aclocal.
+
+documentation:
+
+* Improved API documentation for Xapian::WritableDatabase::replace_document and
+  delete_document.
+
+* Added documentation comments for MSet methods size(), empty(), swap(),
+  begin(), end(), back().
+
+* Removed bogus documentation comments saying that some Enquire methods can
+  throw DatabaseOpeningError.
+
+* Updated quartz design docs to reflect recent changes.  Also pulled
+  out the Btree and Bcursor API docs and slotted them in as doxygen
+  documentation comments - this way they're much more likely to
+  be kept up-to-date.
+
+* Corrected multiple occurrences of "an Xapian::XXX" to "a Xapian::XXX"
+  (presumably these all resulted from replacing "Om" with "Xapian::").
+
+* Various minor updates and improvements.
+
+portability:
+
+* Reworked how we cope with fcntl.h #define-ing open on Solaris.  This change
+  finally allows Sun's C++ compiler to produce a working Xapian build on
+  sparc Solaris!
+
+* configure.ac: Don't define DATADIR - we no longer use it and clashes
+  with more recent mingw headers.
+
+* matcher/andpostlist.cc: Initialise lmax and rmax to 0.  This cures
+  the SIGFPE on apitest's qterminfo2 on alpha linux.
+
+Xapian-core 0.8.1 (2004-06-30):
+
+API:
+
+* New method Xapian::Database::get_lastdocid which returns the highest used
+  document id for a database (useful for re-synchronizing an indexer which
+  was interrupted).  Implemented for quartz and inmemory.
+
+* Xapian::MSet::get_matches_*() methods now take collapsing into account, and
+  the documentation has been clarified to state explicitly that collapsing and
+  cutoffs are taken into account (bug#31).
+
+* Xapian::MSet: Need to adjust index by firstitem when indexing into items
+  (bug#28).
+
+* MSetIterator and ESetIterator are now bidirectional iterators (rather than
+  just input iterators)
+
+* Fixed post-increment forms of PostingIterator, TermIterator,
+  PositionIterator, and ValueIterator so that *i++ works (as it must for them
+  to be true input iterators).
+
+* Xapian::QueryParser: If we fail to parse a query, try stripping out
+  non-alphanumerics (except '.') and reparsing.
+
+* Fixed memory leaked upon Xapian::QueryParser destruction.
+
+* Removed several unused Xapian::Error subclasses (these were used by the
+  indexer framework which we decided was a failed experiment).
+
+testsuite:
+
+* queryparsertest: Pruned near-duplicate queryparsertest testcases.
+
+* queryparsertest: Added test case for `term NOT "a phrase'.
+
+* remotetest: Use 127.0.0.1 instead of localhost so that tcpmatch1 doesn't fail
+  just because the network setup is broken.
+
+* apitest: Make emptyquery1 check that Query("") causes an InvalidArgumentError
+  exception.
+
+quartz backend:
+
+* Fixed bug which meant we sometimes failed to remove a posting when deleting
+  or replacing a document.
+
+* Fixed PostlistChunkReader to take a copy of the postlist data being read to
+  avoid problems with reading data from a string that's been deleted.
+
+* Fixed bug in postlist merging which could occasionally extend a postlist
+  chunk to overlap the docid range of the next chunk.
+
+* Eliminated the split cursor in each Btree object - we only actually need a
+  single block buffer to handle splitting blocks.  This reduces the memory
+  overhead of each Bcursor (and hence each QuartzPostList).
+
+* Changed 2 calls to abort() to throw Xapian::DatabaseCorruptError instead,
+
+* If Btree is writable, throw DatabaseCorruptError if we detect overwritten.
+
+* Check the return value of fdatasync()/fsync()/_commit() and raise an error.
+  If they fail, we really want to know as it could cause data corruption.
+
+* Assorted clean ups, improved comments, debug tracing, assertions.
+
+* When merging in postlist changes, removed an unneeded call to
+  QuartzBufferedTable::get_or_make_tag() in a case when we're using a cursor
+  which has already fetched the tag.
+
+* Added SON_OF_QUARTZ define to disable incompatible changes to database
+  formats by default, and use it to control the docid encoding for keys such
+  that we're always inserting at the end of the table when added new documents.
+
+* Reopening the readonly version of a writable Btree is now more efficient
+  (we used to close and reopen all the files and destroy and recreate a lot
+  of objects and buffers).
+
+* Share file descriptors between the read and write Btree objects so that a
+  quartz WritableDatabase now uses 5 fds rather than 10.
+
+* Added configure test for glibc, because otherwise we need to include a header
+  before we can check for glibc in order to define something we should be
+  defining before we include any headers!  Defining _XOPEN_SOURCE on OpenBSD
+  seems to do the opposite to Linux and *disable* pread and pwrite!
+
+backends:
+
+* Stripped out the session machinery - all that is actually required is to
+  ensure that any unflushed changes are flushed when the destructor runs.
+
+* A few other backend interface cleanups.
+
+build system:
+
+* Unified the shlib version numbers (the small benefit of tracking them
+  individually makes it hard to justify the extra work required, and having one
+  version simplifies debian packaging too).
+
+* configure.in: Fix typo (STLPORT_CXXLAGS -> STLPORT_CXXFLAGS)
+
+* Removed trivial m4/Makefile.am and and autoconf/Makefile.am and do the work
+  from the top level Makefile.am instead.  It's easier to see the structure
+  this way, and it also removes a couple of recursive make invocations which
+  will speed up builds a little.
+
+documentation:
+
+* HACKING: Added a list of subtasks when doing a release.
+  Currently it's always me that does this, but it may not always be
+  and anyhow it'll help me to have a list to run through.
+
+* include/xapian/database.h: Remove references to sessions in doxygen
+  comments.
+
+* docs/quickstart.html: Corrected lingering reference to "om.h" and
+  note that we need <iostream>.
+
+* docs/quickstartindex.cc.html,docs/quickstartexpand.cc.html,
+  docs/quickstartsearch.cc.html: Add <iostream>.
+
+* PLATFORMS,AUTHORS: Updated.
+
+* docs/quartzdesign.html: Corrected various pieces of out of date
+  information, and improved wording in a couple of places.
+
+* docs/scalability.html: Removed the reference to the Quartz update bottleneck
+  "currently being addressed for Xapian 0.8" as it's now been addressed!  Also
+  reworded to remove use of first person (it was originally a message sent to
+  the mailing list).
+
+Xapian-core 0.8.0 (2004-04-19):
+
+* Omega, xapian-examples and xapian-bindings now have their own NEWS files.
+
+API:
+
+* Throw an exception when an empty query is used to build in the binary
+  operator Query constructor (previously this caused a segfault.  Added
+  regression test.
+
+* Made the TradWeight constructor explicit.  This is technically an API change
+  as before you could pass a double where a Xapian::Weight was required - now
+  you must pass Xapian::TradWeight(2.0) instead of 2.0.  That seems desirable,
+  and it's unlikely any existing code will be affected.
+
+* Added "explicit" qualifier to constructors for internal use which take a
+  single parameter.
+
+* Renamed Xapian::Document::add_term_nopos to Xapian::Document::add_term
+  (with forwarding wrapper method for compatibility with existing code).
+
+* The reference counting mechanism used by most API classes now handles
+  creating a new object slightly more efficiently.
+
+* Xapian::QueryParser: Don't use a raw term for a term which starts with a
+  digit.
+
+testsuite:
+
+* apitest, quartztest: Added a couple of tests, and commented out some test
+  lines which fail in debug builds.
+
+* quartztest: cause a test to fail if there's still a directory after a call
+  to rmdir(), or if there isn't a directory after calling mkdir().
+
+* apitest: Check returned docids are the expected values in a couple more
+  cases.  Improved wording of a comment.
+
+quartz backend:
+
+* We now merge a batch of changes into a posting list in a single pass which
+  relieves an update bottleneck in previous versions.
+
+* When storing the termlist, pack the wdf into the same byte as the reuse
+  length when possible - doing so typically makes the termlist 14% smaller!
+  This change is backward compatible (0.7 database will work with 0.8, but
+  databases built or updated with 0.8 won't work with 0.7).
+
+* quartzcheck: Check the structure within the postlist Btree as well as
+  the Btree structures themselves.
+
+* Reduced code duplication in the btree manager and btreechecking code.
+
+* quartzdump: Backslash escape space and backslash in output rather than hex
+  encoding them; renamed start-term and end-term to start-key and end-key;
+  removed rather pointless "Calling next" message; if there's an error, write
+  it to stderr not stdout, and exit with return code 1.
+
+* Corrected a number of comments in the source.
+
+* Removed several needless inclusions of quartz_table_entries.h.
+
+* Removed OLD_TERMLIST_FORMAT code - it has been disabled for since 0.6.0.
+
+* Removed all the quartz lexicon code and docs.  It's been disabled for ages,
+  and we've not missed it.
+
+build system:
+
+* XO_LIB_XAPIAN autoconf macro can now be called without arguments in the
+  common case where you want the test to fail if Xapian isn't found.
+
+* Fixed the configure test for valgrind - it wasn't working correctly when
+  valgrind was installed but was too a version to support VALGRIND_COUNT_ERRORS
+  and VALGRIND_COUNT_LEAKS.
+
+* GCC 2.95 supported -Wno-long-long and is our minimum recommended version, so
+  unconditionally use -Wno-long-long with GCC, and don't test for it on other
+  compilers (the old test incorrectly decided to use it with SGI's compiler
+  resulting in a warning for every file compiled).
+
+documentation:
+
+* Updated the quickstart tutorial and removed the warning that "this
+  document isn't up to date".
+
+* docs/intro_ir.html: Added a link to "Information Retrieval" by Keith van
+  Rijsbergen which can be downloaded from his website!
+
+* docs/quartzdesign.html: Some minor improvements.
+
+* docs/matcherdesign.html: Merged in more details from a message sent to the
+  mailing list.
+
+* docs/queryparser.html: Grammar fixes.
+
+* Doxygen wasn't picking up the documentation for PostingIterator and
+  PositionListIterator - fixed.  Added doxygen comments for Xapian::Stopper
+  and Xapian::QueryParser.
+
+* PLATFORMS: Updated with many results from tinderbox and from users.
+
+* AUTHORS: Updated the list of contributors.
+
+* HACKING: XAPIAN_DEBUG_TYPES should be XAPIAN_DEBUG_FLAGS.
+
+* HACKING: Updated to mention that building from CVS requires
+  `./configure --enable-maintainer-mode' (or use bootstrap).
+
+* HACKING: Added notes about using "using", and pointers to a couple of useful
+  C++ web resources.
+
+portability:
+
+* Solaris: Code tweaks for compiling with Sun's C++ compiler.
+
+* IRIX: Code tweaks for compiling with SGI's C++ compiler.
+
+* NetBSD mkdir() doesn't cope with a trailing / on the path - fixed our code to
+  cope with this.
+
+* mingw/cygwin: Only use O_SYNC (on the debug log) if the headers define it.
+
+* backends/quartz/quartz_table_manager.cc: Fix for building on mingw.
+
+* mingw: Added configure test for link() to avoid infinite loop in our C++
+  wrapper for link.
+
+* mingw and cygwin both need -Wl,--enable-runtime-pseudo-reloc passing when
+  linking.  Arrange for xapian-config to include this, and check that the ld
+  installed is a new enough version (or at least that it was at configure
+  time).  Also pass to programs linked as part of the xapian-core build.
+
+* cygwin: Close a QuartzDatabase or QuartzWritableDatabase before trying to
+  overwrite it - cygwin doesn't allow use to delete open/locked files...
+
+* backends/quartz/quartz_termlist.cc: Use Xapian::doccount instead of
+  unsigned int in set_entries().
+
+* Database::Internal::Internal::keep_alive() should be
+  Database::Internal::keep_alive().
+
+* Make Xapian::Weight::Weight() protected rather than private as we want to be
+  able to call it from derived classes (GCC 3.4 flags this, other compilers
+  seem to miss it).
+
+debug code:
+
+* Open debug log with flag O_WRONLY so that we can actually write to it!
+
+* backends/quartz/quartz_values.cc: Fixed problem with dereferencing
+  a pointer to the end of a string in debug output.
+
+Xapian 0.7.5 (2003-11-26):
+
+API:
+
+* Xapian::QueryParser now supports prefixes on phrases and expressions (e.g.
+  author:(twain OR poe) subject:"space flight").
+
+* Added missing default constructors for TermIterator, PostingIterator, and
+  PositionIterator classes.
+
+* Fixed PositionIterator assignment operator.
+
+testsuite:
+
+* queryparsertest: Added testcase for new phrase and expression prefix support.
+
+* apitest: Added regression tests for API fixes.
+
+backends:
+
+* quartzcompact: Fix the name that the meta file gets copied to (was
+  /path/to/dbdirmeta rather than /path/to/dbdir/meta).
+
+build system:
+
+* Changed to using AM_MAINTAINER_MODE.  If you're doing development work on
+  Xapian itself, you should configure with "--enable-maintainer-mode" and
+  ideally use GNU make.
+
+* Fixed configure test for fdatasync to work (I suspect a change in a recent
+  autoconf broke it as it relied on autoconf internal naming).
+
+* Fully updated to reflect move of libbtreecheck.la from backends/quartz
+  to testsuite.  btreetest and quartzcheck should build correctly now.
+
+documentation:
+
+* Added first cut of documentation for Xapian::QueryParser query syntax.
+
+* Fixed incorrectly formatted doxygen documentation comments which resulted in
+  some missing text in the collated API and internal classes documentation.
+
+* Documented --enable-maintainer-mode and problems with BSD make in HACKING.
+
+* Fixed typo in docs/scalability.html.
+
+* PLATFORMS: Updated from the tinderbox.
+
+omega:
+
+* omega: Parsing of the probabilistic query is now delayed until we need some
+  information from it.  This means that we can now use options set by the
+  omegascript template to control the behaviour of the query parser.
+  $set{stemmer,...} now controls the stemming language (e.g. $set{stemmer,fr})
+  and $setmap{prefix,...} now sets the QueryParser prefix map (e.g.
+  $setmap{prefix,subject,XT,abstract,XA}).
+
+* omega: Fixed $setmap not to add bogus entries.
+
+* docs/omegascript.txt: Expanded documentation of $set and $setmap to list
+  values which Omega itself makes use of.
+
+* omega: Cleaned up the start up code quite a bit.
+
+* omega: Removed the unfinished code for caching omegascript command
+  expansions.  Added code to cache $dbsize.  The only other value correctly
+  marked for caching is already being cached!
+
+Xapian 0.7.4 (2003-10-02):
+
+API:
+
+* Fixed small memory leak if Xapian::Enquire::set_query() is called more than
+  once.
+
+* Xapian::ESet now has reference counted internals (library interface version
+  bumped because of this).
+
+* Removed unused OmDocumentTerm::termfreq member variable.
+
+* OmDocumentTerm ctor now takes wdf, and replaced set_wdf() with inc_wdf() and
+  dec_wdf().
+
+* Removed unused open_document() method from SubMatch and derived classes.
+
+* Calls made by the matcher to Document::Internal::open_document() now use the
+  lazy flag provided for precisely this purpose, but apparently never used -
+  this should give quite a speed boost to any matcher options which use values
+  (e.g. sort, collapse).
+
+testsuite:
+
+* Finished off support for running tests under valgrind to check for memory
+  leaks and access to uninitialised variables.
+
+* apitest: Sped up deldoc4.
+
+* btreetest: Removed superfluous `/'s from constructed paths.
+
+* quartztest: adddoc2 now checks that there weren't any extra values created.
+
+backends:
+
+* quartz: don't start the document's TermIterator from scratch on every
+  iteration in replace_document().  Should be a small performance win.
+
+* quartz: Pass 0 for the lexicon/postlist table when creating a termlist just
+  to find the doc length.
+
+* quartz: quartz_table_entries.cc: Removed rather unnecessary use of
+  const_cast.
+
+* quartz: quartz_table.cc: Removed unused variable.
+
+* quartz: Improved encapsulation of class Btree.
+
+build system:
+
+* libbtreecheck.la now has an explicit dependency on libxapian.la.
+
+* We now set the dependencies for libxapian correctly so that linking
+  applications will pull in other required libraries.
+
+* matcher/Makefile.am: Ship networkmatch.cc even if "make dist" is run from a
+  tree with the remote backend disabled.
+
+* configure.in: Sorted out tests for gethostbyname and gethostbyaddr using
+  standard autoconf macros.
+
+* configure.in: If fork is found, but socketpair isn't, automatically disable
+  the remote backend rather than configure dying with an error.
+
+* autoconf/: Removed various unused autoconf macros.
+
+portability:
+
+* xapian-config.in: Link with libxapianqueryparser before libxapian, since
+  that's the dependency order.
+
+* Removed or replaced uses of <iostream> and <iosfwd> in the library sources
+  - we don't need or want the library to pull in cin and friends.
+
+* extra/queryparser.yy: Fixed to build with Sun's C++ compiler.
+
+* Make the dummy source file C++ rather than C so that automake tells libtool
+  that this is a C++ library - vital for correct linking on some platforms.
+
+* Makefile.am: Pass -no-undefined to libtool so that we can build build a DLL
+  on MS Windows.
+
+* configure.in: Fixed check for socketpair - we were automatically disabling
+  the remote backend on platforms where socketpair is in libsocket
+  (such as Solaris).
+
+* Use O_BINARY for binary I/O if it exists.
+
+* common/utils.h: mkdir() only takes one argument on mingw.
+
+* common/utils.h,testsuite/backendmanager.cc: Touch file using open() rather
+  than system().
+
+* common/utils.cc: Fixed to compile if snprintf isn't available.
+
+documentation:
+
+* docs/scalability.html: Fixed slip (32GB should be 32TB);  Added note about
+  Linux 2.4 and ext2 filesize limits.
+
+* PLATFORMS: Updated.
+
+* NEWS: Fixed a few typos.
+
+bindings:
+
+* xapian.i: using namespace std in SWIG parsed segment to sort out typemaps.
+
+packaging:
+
+* Updated RPM packaging.
+
+omega:
+
+* omega: $topdoc now ensures the match has been run; $date no longer ensures
+  the match has been run.
+
+* omega: Fixed to build with Sun's C++ compiler.
+
+Xapian 0.7.3 (2003-08-08):
+
+API:
+
+* MSetIterator: Fixed MSetIterator::get_document() to work when get_mset() was
+  called with first != 0 (regression test msetiterator3).
+
+testsuite:
+
+* internaltest: Changed test exception1 to actually test something (hopefully
+  what was originally intended!)
+
+* Added long option support to the testsuite programs (and quartzdump).
+
+* Testsuite now builds on platforms for which we use our own stringstream
+  implementation.
+
+* Only use \r in test output if the output is a tty.
+
+* Increased default timeout used by tests running on the remote backend from 10
+  seconds to 5 minutes to avoid tests failing just because the machine running
+  them is slow and/or busy.
+
+* Fixed check for broken exception handling - we were getting "Xapian::"
+  prefixed to one version and not on the other.
+
+* tests/runtest: Set srcdir if it isn't already to make it easy to manually run
+  test programs from a VPATH build.
+
+* apitest: Check termfreq in allterms4.
+
+backends:
+
+* quartz: Fixed allterms TermIterator to not give duplicate terms when a
+  posting list is chunked; added regression test (allterms4).
+
+* quartz: Check for EINTR when reading or writing blocks and retry the
+  operation.  This should mean quartz won't fail falsely if a signal is
+  received (e.g. if alarm() is used).
+
+build system:
+
+* Renamed libomqueryparser to libxapianqueryparser - for backward compatibility
+  we still provide a library with the old name for now.
+
+* xapian.m4: Added XO_LIB_XAPIAN to replace OM_PATH_XAPIAN.  XO_LIB_XAPIAN will
+  automagically enable use of "xapian-config --ltlibs" if A[CM]_PROG_LIBTOOL is
+  used in configure.in.
+
+* xapian-config: Now supports linking with libtool - using libtool means that
+  the run-time library path is set and that you can now link with an
+  uninstalled libxapian.  Also xapian-config will now work once xapian-core's
+  configure has been run, rather than only after "make all".
+
+* xapian-config: Now automatically tries to link libxapianqueryparser too.
+
+* bootstrap: Removed bootstrap scripts in favour of top-level bootstrap which
+  creates a top-level configure you can optionally use to configure all checked
+  out Xapian modules with one command, and which creates a top level Makefile
+  to build all checked out Xapian modules with one command.
+
+* Added versioning information to libxapian and libxapianqueryparser.
+
+* xapian-example/omega: Use libtool and XO_LIB_XAPIAN so we can link with an
+  uninstalled Xapian, and so the run time load path gets built into the
+  binaries (no need to set LD_LIBRARY_PATH just because you install Xapian with
+  a non-standard prefix).
+
+* configure: Stop the API documentation from being regenerated when
+  include/xapian/version.h changes (since it's generated by configure).
+
+* Fixed "make dist" in VPATH builds.
+
+portability:
+
+* common/getopt.h: #include <stdlib.h>, <stdio.h>, and <unistd.h> before
+  defining getopt as a macro - this avoids problems with clobbering prototypes
+  of getopt() in system headers.
+
+* bin/quartzcompact.cc: Need stdio.h for rename().
+
+* languages/Makefile.am: Fixed compilation for compilers other than GCC.
+
+* Moved rset serialisation into a method of RSet::Internal, so
+  omrset_to_string() is now just glue code.  This eliminates the need for it to
+  be a friend of RSet::Internal which Sun's C++ compiler didn't seem to be able
+  to cope with.
+
+documentation:
+
+* Fix incorrect documentation comment for Enquire::set_set_forward().  (Looked
+  like a cut&paste error)
+
+* COPYING: Updated FSF address, and reinstated missing section: "How to Apply
+  These Terms to Your New Programs"
+
+* PLATFORMS: Updated some linux results: RH7.3 on x86, and Debian on alpha and
+  arm; Updated FreeBSD success report; Updated with results from the tinderbox.
+
+* docs/mkdoc.pl: Don't choke on a comment at the end of the DIST_SUBDIRS line
+  in a Makefile.am.
+
+* HACKING: Improved note about why libtool 1.5 is needed.
+
+* HACKING: Added note about additional tools needed for building a
+  distribution.
+
+bindings:
+
+* Fixed VPATH builds.
+
+* python: Fixed to link with libomqueryparser.
+
+* guile,tcl8: Updated typemaps to SWIG 1.3 style.
+
+omega:
+
+* omindex.cc: Added missing `#include <errno.h>'.
+
+* omindex/scriptindex: Fixed signed character issue in accent normalisation.
+
+* omindex: fixed memory and file descriptor leak on indexing a zero-sized file.
+
+* omindex: Fixed sense of test for unreadable files.
+
+* omindex: Improved log messages to distinguish re-indexed/added.
+
+* omindex,omega,scriptindex: Fixed to compile with mingw.
+
+* omindex: Fixed to compile with GNU getopt so we can build on non-glibc
+  platforms.
+
+examples:
+
+* msearch: Quick fix to get mingw building going.
+
+* getopt: Copied over our fixes for better C++ compatibility.
+
+* simplesearch: Stem search terms.
+
+* simpleindex: Fixed not to run words together between lines.
+
+* simpleindex: Create database if it doesn't exist.
+
+Xapian 0.7.2 (2003-07-11):
+
+testsuite:
+
+* Fixed NULL pointer dereference when a test threw an unexpected exception.
+
+backends:
+
+* Quartz: When asked to create a quartz database, try to create the directory
+  if it doesn't already exist.  Then we don't have to do it in every single
+  Xapian program which wants to create a database...
+
+portability:
+
+* common/getopt.h: Fixed to work better with C++ compilers on non-glibc
+  platforms.
+
+* common/utils.h: missing #include <ctype.h>
+
+* Quartz: Defined _XOPEN_SOURCE=500 for GLIBC so we get pread() and pwrite().
+
+* common/utils.h: Improved mingw implementation of rmdir().
+
+documentation:
+
+* PLATFORMS: Added MacOS X 10.2 success report.
+
+* Improvements to doxygen-generated documentation.
+
+bindings:
+
+* Moved to separate xapian-bindings module.
+
+* Added configure check for SWIG version (require at least 1.3.14).
+
+* bindings/swig/xapian.i: Fixed over-enthusiastic automatic conversion of
+  termname to std::string.
+
+* PHP4 bindings much closer to working once again; updated guile and tcl8
+  somewhat.
+
+omega:
+
+* omega: If the same database is listed more than once, only search the first
+  occurrence.
+
+* omega: use snprintf to help guard against buffer overflows.
+
+Xapian 0.7.1 (2003-07-08):
+
+testsuite:
+
+* Fixed testsuite programs to not try to use "rm -rf" under mingw.
+
+backends:
+
+* Quartz: Use pread() and pwrite() on platforms which support them.  Doing so
+  avoids one syscall per block read/write.
+
+* Quartz block count is now unsigned, which should nearly double the size of
+  database for a given block size.  Not tested this yet.
+
+omega:
+
+* omindex: Fixed compilation problem in 0.7.0.
+
+documentation:
+
+* Added new document discussing scalability issues.
+
+* PLATFORMS: Updated.
+
+Xapian 0.7.0 (2003-07-03):
+
+API:
+
+* Moved everything into a Xapian namespace, which the main header now being
+  xapian.h (rather than om/om.h).
+
+* Three classes have been renamed for better naming consistency:
+  OmOpeningError is now Xapian::DatabaseOpeningError, OmPostListIterator is
+  now Xapian::PostingIterator, and OmPositionListIterator is now
+  Xapian::PositionIterator.
+
+* xapian.h includes <iosfwd> rather than <iostream> - if you were relying on
+  the implicit inclusion, you'll need to add an explicit "#include <iostream>".
+
+* Replaced om_termname with explicit use of std::string - om_termname was just
+  a typedef for std::string and the typedef doesn't really buy us anything.
+
+* Older code can be compiled by continuing to use om/om.h which uses #define
+  and other tricks to map the old names onto the new ones.
+
+* Define XAPIAN_VERSION (e.g. 0.7.0), XAPIAN_MAJOR_VERSION (e.g. 0), and
+  XAPIAN_MINOR_VERSION (e.g. 7).
+
+* Updated omega and xapian-examples to use Xapian namespace.
+
+queryparser:
+
+* Xapian::QueryParser: Accent normalisation added; Improved error reporting;
+  Fixed to handle the most common examples found in the wild which used to give
+  "parse error".
+
+bindings:
+
+* Python bindings brought up to date - use ./configure --enable-bindings to
+  build them.  Requires Python >= 2.0 - may require Python >= 2.1.
+
+* Enabled optional building of bindings as part of normal build process.  Old
+  Perl and Java bindings dropped; for Perl, use Search::Xapian from CPAN; Java
+  JNI bindings will be replaced with a SWIG-based implmentation.
+
+internal implementation changes:
+
+* Removed one wrapper layer from the internal implementation of most API
+  classes.
+
+* Xapian::Stem now uses reference counted internals.
+
+* Internally a lot of cases of unnecessary header inclusion have been removed
+  or replaced with forward declarations of classes.  This should speed up
+  compilation and recompilation of the Xapian library.
+
+* Suppress warnings in Snowball generated C code.
+
+* Reworked query serialisation in the remote backend so that the code is now
+  all in one place.  The serialisation is now rather more compact and no longer
+  relies on flex for parsing.
+
+testsuite:
+
+* Moved all the core library tests to tests subdirectory.
+
+* apitest now allows backend to be specified with "-b" rather than having to
+  mess with environmental variables.
+
+* Testsuite programs can now hook into valgrind for leak checking, undefined
+  variable checking, etc.
+
+backends:
+
+* Fixed parsing of port number in remote stub databases.
+
+* Quartz: Improved error message when asked to open a pre-0.6 Quartz database.
+
+* Quartz backend: Workaround for shared_level problem turns out to
+  be arguably the better approach, so made it permanent and tidied up
+  code.
+
+build system:
+
+* Build system fixed to never leave partial files in place of the expected
+  output if a build is interrupted.
+
+* quartzcheck, quartzdump, and quartzcompact are now built by "make" rather
+  than only by "make check".
+
+* xapian-config: Removed --prefix and --exec-prefix - you can't reliably
+  install Xapian with a different prefix to the one it was configured with,
+  yet these options give the impression you can.
+
+miscellaneous:
+
+* Fixed sending debug output to a file with XAPIAN_DEBUG_LOG with a value which
+  didn't contain "%%" (%% expands to the current PID).
+
+* Fixed Xapian::MSetIterator::get_collapse_count() to work as intended.
+
+omega:
+
+* omindex,scriptindex: Normalise accents in probabilistic terms.
+
+* omindex: Read output from pstotext and pdftotext via pipes rather
+  than temporary files to side-step the whole problem of secure temporary file
+  creation; Use pdfinfo to get the title and keywords from when indexing a PDF;
+  Safe filename escaping tweaked to not escape common safe punctuation.
+
+* omindex: Implement an upper limit on the length of URL terms - this is a
+  slightly conservative 240 characters.  If the URL term would be longer than
+  this, its last few bytes are replaced by a hash of the tail of the URL.  This
+  means that (apart from hopefully very rare collisions) urlterms should still
+  be unique ids for documents.  This is forward and backward compatible for
+  URLs less than 240 characters.
+
+* omindex: Clean up processing of HTML documents:
+  - Ignore the contents of <script> and <style> tags in HTML.
+  - Strip initial whitespace in each tag in an HTML document.
+  - Try not to split words in half when truncating title and summary.
+
+* query.cc: Set STEM_LANGUAGE near the start of the file so it's easy
+  for users to change until we get better configurability.
+
+* omega: Replaced half-hearted logging support with flexible OmegaScript-based
+  approach with new $log command.  Also added $now to allow the current
+  date/time to be logged.
+
+* templates/xml: added collapse info to xml template.
+
+documentation:
+
+* Assorted minor documentation improvements.
+
+* PLATFORMS: Updated.
+
+rpms:
+
+* Improved RPM packaging of xapian-core and omega.
+
+Xapian 0.6.5 (2003-04-10):
+
+* OmEnquire: optimised the handling when sort_bands == 1 and fixed incorrect
+  results in this and some other sorting cases; added some sorting testcases.
+
+* OmMSetIterator: added get_collapse_count() which returns a lower bound on
+  the number of items which were removed by collapsing onto the current item.
+
+* OmStem: added default OmStem constructor and "none" language.  Both of these
+  give a stemmer object which leaves terms unchanged which should allow for
+  simpler logic in programs using Xapian.  The default constructor also removes
+  the need to mess with pointers in some cases.
+
+* Automatically disable the remote backend if we don't have fork() since the
+  remote backend requires it in several places.
+
+* Fixed to build with debug enabled.
+
+* testsuite: fixed to still build when some backends are disabled.
+
+* extra/parsequerytest.cc: Fixed to build with GCC 2.95.
+
+* Testsuite: Added regression test for Quartz bug which caused problems with
+  long terms on machines with signed chars.
+
+* testsuite/index_utils.cc: Handling of ^x was just downright wrong due to a
+  typo.
+
+* Improved portability: Fix for 64 bit machines.  Fixed btreetest to build with
+  older compilers lacking <sstream>.  Xapian is now much closer to building
+  with Sun's CFront-based Sun Pro C++ compiler, and with a Linux to mingw
+  cross-compiler.
+
+* PLATFORMS: Updated with the results of many test builds.
+
+* Improved RPM packaging of xapian-core and omega.
+
+* Documentation: Use http://www.doxygen.org/ as URL for doxygen; Fixed bad link
+  to our own website in overview.html; code_structure.html now only includes
+  directories in the build system.
+
+* HACKING: updated.
+
+* Removed bugs/todo.xml, TODO, TODO.release, docs/todo.html, and
+  docs/todo-release.html from the distribution.  Bugs and todo items will be
+  tracked in Bugzilla instead.
+
+* Install docs in /usr/share/doc/xapian-core instead of /usr/share/xapian-core.
+
+* omega: If xP and P are both empty, there may be a boolean query, so don't
+  force first page of hits.
+
+* omega: Fixed off-by-one error in rounding down topdoc - it was possible to
+  get to an empty page of hits if there were exactly a multiple of HITSPERPAGE
+  matches and the matcher over-estimated the number of matches and Omega
+  displayed page links.
+
+* omega: Fixed handling of multiple DB parameters to be as documented.
+
+* omega: Added $collapsed to report get_collapse_count() for the current hit.
+
+* omega: Added $transform{} which does regexp manipulation (currently disabled
+  until configure tests for regexp library are added)
+
+* omega: Added $uniq{} to eliminate duplicates from a sorted list.
+
+* omega: Don't force page 1 for a query with repeated terms!
+
+* omega: removed duplicates from terms listed in term frequencies.
+
+* omega: Added cgi parameter COLLAPSE to collapse on key values
+
+* omega: Added $value{key[,docid]} support to omegascript
+
+* omega: Renamed DATE1, DATE2, and DAYSMINUS to the more meaningful START, END,
+  and SPAN (NB SPAN is days before END, or after START, or before today -
+  whereas SPAN was before *DATE1* or before today).  The old parameters names
+  are supported (with the original semantics) for now.
+
+* omega: Actually install documentation!
+
+* templates/query: propagate B boolean filters
+
+* templates/godmode: removed link to EuroFerret image
+
+* templates/godmode: added value dumping, for values from 0-255
+
+* omindex: Report correct version number (was hard-wired to 1.0!)
+
+* scriptindex: Allow '_' in fieldnames.  Diagnose bad characters in fieldnames
+  better.
+
+* dbi2omega: Added DBUSER and DBPASSWD environmental variable support so that
+  password protected DBs can easily be used
+
+* scriptindex.cc: added missing "#include <stdio.h>" which caused builds
+  to fail for some platforms.
+
+Xapian 0.6.4 (2002-12-24):
+
+* Quartz backend: Fixed double setting of position list when updating a
+  document with term position information (overall result was correct, just
+  inefficient); when deleting a position_list, don't check if it's empty,
+  just ask the layer below to delete it and let it handle the case when
+  there's nothing to delete; Fixed unpacking of termlist on platforms where
+  char is signed.
+
+* OmQueryParser: Added support for searching probabilistic fields (using
+  <field>:<term>); the unstem multimap now includes "." on the end of a
+  term if it was there in the query.
+
+* Don't include "om.h" as a dependency for the api docs since it's generated
+  a configure time and the dependency was forcing users to regenerate the
+  documentation, which requires doxygen to be installed.
+
+* Bindings: Python bindings updated to work with the updated API (still
+  disabled by default).
+
+* Muscat 3.6 backend: Fixed to build with the new database factory functions;
+  fixed compilation warnings; Muscat 3.6 DA and DB databases don't support
+  positional information.  Instead of throwing an exception when we try to
+  access it, return an empty position list (like a quartz database with no
+  position information would).  This allows copydatabase to be used to convert
+  a Muscat 3.6 database to a quartz one.
+
+* Documentation: quartzdesign and todo list updated.
+
+* quartzcheck: default mode changed to "v" rather than "+", since "+" is too
+  verbose for a btree of any size; if you pass a quartz database directory,
+  quartzcheck will now check all the tables which make up a quartz database.
+
+* quartzcompact: new tool which makes a copy of a quartz database with full
+  compaction turned on - this results in a smaller database which is faster
+  to search.  The next update will result in a lot of block splitting though
+  (since all blocks are as full as possible).
+
+* omega: Added $unstem to map a stemmed term to the form(s) used in the query;
+  $queryterms now only includes the first occurrence of each stemmed form;
+  $prettyterm makes use of the unstem map; prefer MINHITS to MIN_HITS and
+  RAWSEARCH to RAW_SEARCH since none of the other CGI parameter names have
+  _ separating words (continue to support old names for now); fixed default
+  template to not generate topterms twice, and fixed topterms to not stick
+  outside the green box; corrected omegascript docs - it's $setrelevant
+  not $set_relevant.
+
+* scriptindex: index=nopos with new indexnopos action; index and indexnopos now
+  take an optional prefix argument; index=nopos is handled specially for
+  backwards compatibility; added new data action to generate terms for date
+  range searching.
+
+Xapian 0.6.3 (2002-12-14):
+
+* Updated PLATFORMS and todo list.  Noted in HACKING that Bison 1.50 seems to
+  work with Xapian.
+
+* OmQueryParser now creates an "unstem" multimap to allow probabilistic
+  query terms to be converted back to the form the user originally typed.
+
+* Updated documentation for remote protocol description and the quickstart
+  tutorial which were both very out of date.
+
+* No longer use OmSettings to pass matcher parameters.  This completes the
+  removal of OmSettings.
+
+* Added workaround for problem with cursors sharing levels in the btree.
+  This should fix sporadic problems with large databases (small databases
+  have fewer btree levels so aren't affected).
+
+* Stub databases now work again, though with a different format.  The new
+  format allows multiple databases to be specified in the stub file.
+
+* OmEnquire::get_eset() now takes a flags argument of bit constants |-ed
+  together instead of 2 bools.
+
+* Applied Martin Porter's better fix for the btree sequential addition bug
+  which Richard fixed a few months ago.  Richard's fix resulted in a correct
+  btree, but didn't always utilise space as efficiently as possible.
+
+* Fixed the remote backend to handle weighting schemes after the OmSettings
+  changes.  You can now even implement your own weighting scheme and use it
+  with the remote backend provided you register it with SocketServer at
+  runtime (this feature has been on the todo list for ages).
+
+Xapian 0.6.2 (2002-12-07):
+
+* Set env var XAPIAN_SIG_DFL to stop the testsuite installing its
+  signal handler (may be useful with some debugging tools).
+
+* backends/quartz/btree.cc: max_item_size wasn't being set due to
+  some over-zealous code pruning.  It was defaulting to 0, and
+  was causing the code to write off the end of allocated memory
+  blocks.
+
+* matcher/localmatch.cc: fixed handling of wtscheme() - we were
+  trying to use it for the extra weights, and then double
+  deleting it!
+
+* common/omdebug.cc,common/omdebug.h: Fixed permissions on newly
+  created log file (was getting 000!); Simplified class internals;
+  Renamed env vars: OM_DEBUG_FILE is now XAPIAN_DEBUG_LOG,
+  OM_DEBUG_TYPES is now XAPIAN_DEBUG_FLAGS (old versions still work
+  for now).
+
+* testsuite/testsuite.cc: Fixed so running "gdb .libs/apitest"
+  finds srcdir (for an in-tree build at least).
+
+* Fixed to compile with --enable-debug=full.
+
+* docs/remote.html: Updated from OmSettings to factory functions.
+
+* PLATFORMS: ixion is actually Linux 2.2.
+
+* OmWritableDatabase now has a default constructor.
+
+* Weighting scheme now specified by passing OmWeight object to OmEnquire.
+  This also allows user weighting schemes (just subclass OmWeight and
+  pass in an instance of this new class).  [This doesn't currently work
+  with the remote backend.]
+
+* No longer use OmSettings to specify parameters for constructing databases.
+  Instead there's a factory function for each database type - temporary naming
+  scheme is OmXxx__open(), mostly because it's easy to grep for later.
+  Instead of create and overwrite flags, we pass in a value - a new possible
+  opening mode is "create or open".  [At present stub databases and the
+  machinery in InMemory to allow the multierrhandler1 test aren't working.
+  Everything else should be.]
+
+* OmEnquire::get_eset() takes parameters instead of an OmSettings object.
+
+* Fixed reversed sense of use_query_terms (and fixed reversed sense test in
+  apitest which meant this wasn't spotted).
+
+* Documentation: Link to annotated class lists in doxygen generated
+  documentation instead of the rather empty index pages; added doxygen
+  markup so that apidoc now documents header files; updated todo list.
+
+* Documentation: intro doc thing was very out of date in places - fixed.
+
+* Omega: index .php files as HTML, with the PHP code stripped out; omindex
+  return non-zero return code if an unexpected exception is caught; fixed
+  HTML parser to not read one character past the end of the document in
+  some cases; updated in line with OmSettings related changes to the API;
+  Fixed $dbname to return "default" for the default database instead of "";
+  templates/query: Removed now unused xDEFAULTOP hidden field, and superfluous
+  "}"; dbi2omega now more efficient and can be restricted to listed fields.
+
+Xapian 0.6.1 (2002-11-28):
+
+* Fixed to compile with GCC 3.0.
+
+* PLATFORMS: Updated.
+
+Xapian 0.6.0 (2002-11-27):
+
+* Quartz database backend: lexicon disabled (./configure CXXFLAGS=-DUSE_LEXICON
+  to reenable it), and encoding schemes simplified and made more compact;
+  extended and added test cases; minimum block size is now 2048 bytes (as
+  documented before, but now we actually enforce this); btree checking code
+  split off and only linked in when required; tidied up btreetest's output.
+
+* Replaced our stemmers with those from Snowball.  These give better results,
+  and are actively maintained by Martin Porter (who wrote the original Xapian
+  stemmers too).  It also means that Xapian now has stemmers for Finnish,
+  and Russian, and an implementation of Lovins' English stemmer.
+
+* Assorted improvements to the documentation, especially the documentation
+  of the internals of the Quartz backend.
+
+* Removed the three uses of RTTI (typeid() and dynamic_cast<>) - one was
+  totally superfluous, and the other two easily avoided.
+
+* Omega and simpleindex example: limit probabilistic term length to 64
+  characters to stop the index filling up with junk terms which nobody will
+  ever search for.
+
+* Omega: Added dbi2omega perl script to dump any database which perl DBI can
+  access into the dump format expected by scriptindex.
+
+Xapian 0.5.5 (2002-12-04):
+
+* Fixed compilation with --enable-debug.
+
+* Minor documentation updates.
+
+* Omega: Fixed paging on default database; removed xDEFAULTOP from the query
+  template as it's no longer used; removed bogus unmatched '}' from query
+  template; added dbi2omega perl script to dump any database which perl DBI
+  can access into the dump format expected by scriptindex; limit length of
+  probabilistic terms generated to 64 characters.
+
+Xapian 0.5.4 (2002-10-16):
+
+* Fixed a compilation error with "make check" when using GCC 3.2.
+
+* PLATFORMS: checked 0.5.3 works on OpenBSD and Solaris 7.
+
+Xapian 0.5.3 (2002-10-12):
+
+Notable changes: Improvements to the test suite, and internal code cleanups:
+
+* Internal code cleanups on Quartz Btree implementation.
+
+* Minor documentation updates (TODO and PLATFORMS updated; Martin Porter's
+  stemming paper removed - see the Snowball site for background stemmer
+  info).
+
+* Implemented QuartzAllTermsList::get_approx_size().
+
+* Removed a couple of occurrences of "using std::XXX;" from externally
+  visible headers.
+
+* With GCC, add warning flags "-Wall -W" rather than "-Wall -Wunused" (-Wall
+  implies -Wunused anyway).  Fixed all the warnings this throws up, except in
+  languages/ (that code is to be replaced with Snowball soon).
+
+* Test suite: Disable colour test output if stdout isn't a terminal and
+  reworked check for broken exception handling as the previous  version never
+  seemed to fire.  Other assorted minor improvements.
+
+* include/om/om.h is now removed on "make distclean" rather than "make clean".
+
+Xapian 0.5.2 (2002-10-06):
+
+Further improvements to documentation and portability:
+
+* docs/: converted all text docs to HTML (except omsettings which will
+  has odd markup (LaTeX?) and will probably soon be obsolete anyway).
+
+* remote backend: Fixed handling of timeouts which are now in the past - fixes
+  test failures with redhat/x86.
+
+* quartz backend: now works on 64 bit platforms.
+
+* test suite: try to spot mishandled exceptions and stop them causing bogus
+  OMEXCEPT failures.
+
+Xapian 0.5.1 (2002-10-02):
+
+This release fixes features improved documentation and some build system
+portability fixes.
+
+* PLATFORMS: updated with more test results.
+
+* docs/: tidied up layout of HTML documentation; converted the notes about
+  BM25 into HTML; updated stemmer docs to reflect intention to use Snowball
+  instead; included HTML versions of quickstart*.cc.
+
+* automake 1.6.3 and autoconf 2.54 are now required for those working
+  from CVS to fix a problem with the generated Makefiles and Solaris
+  make.
+
+* net/Makefile.am: Fixed building of readquery.cc from readquery.ll.
+
+* buildall script is now deprecated - use the new streamlined bootstrap script
+  in preference.
+
+Xapian 0.5.0 (2002-09-20):
+
+The last release of the software that is now known as Xapian was OmSee 0.4.1 on
+November 24th 2000, not far from 2 years ago.
+
+There's been a significant amount of development in this time, so we've
+summarised the most notable changes and improvements:
+
+  * The project is now called "Xapian". We've renamed the modules in the light
+    of this change:
+
+      + "om" is now "xapian-core"
+      + "om-examples" is now "xapian-examples", and now contains small,
+	instructive examples which demonstrate how to use Xapian to implement
+	particularly features.
+      + Added "xapian-applications" which contains larger sample applications
+
+  * Much improved build system - should now build "out of the box" on many Unix
+    platforms. Can now VPATH build with vendor tools on most platforms. Builds
+    as cleanly as we can achieve with GCC 2.95.* (some bogus warnings due to
+    compiler bugs). Should build without warnings on GCC 3.0, 3.1, and 3.2.
+
+  * If using GCC, om/om.h now contains a check that the compiler used to build
+    Xapian and the compiler used to build the application have compatible C++
+    ABIs. So you get a clear error message early from the first attempt to
+    compile a file rather than a confusing error from the linker near the end
+    of the build.
+
+  * RPM packages are now available. We intend to prepare Debian packages in the
+    near future too.
+
+  * xapian-config no longer support "--uninst". It's hard to make this work
+    reliably and portably, and the effort is better expended elsewhere.
+    Configure with a prefix and install to a temporary directory instead.
+
+  * Xapian can now work with files > 2Gb on OSes which support them.
+
+  * Restructured and reworked documentation.
+
+  * Removed thread locks. We intend to be "thread-friendly" so different
+    threads can access different objects without problems. In the rare event
+    that you want to concurrently call methods on the same object from
+    different threads you need to create a mutex and lock it. Thus the thread
+    lock overhead is only incurred when it's necessary.
+
+  * Indexgraph removed from core library. It will reappear as an add-on library
+    at some point.
+
+  * Omega's query parser has now been reworked as a separate library.
+
+  * Terminology change - "keys" are now known as "values" to avoid confusion,
+    since they're not like keys in a relational database. The exception is when
+    a value is used as a key in some operation, e.g. "match_collapse_key".
+
+  * Database backends:
+
+      + Auto backend: can now be used to create a new database.
+      + Auto backend: added support for "stub" databases - a text file
+	specifying the settings for the database to be opened (particularly
+	useful for allowing easy access to specific remote databases).
+      + Quartz backend: many fixes and improvements, and the code has been
+	cleaned up a lot. Implemented deleting of items from postlists.
+      + Remote backend: implemented term_exists() and get_termfreq();
+      + Multi-backend: the document length is now fetched from the sub-postlist
+	rather than the database, which provides a huge speed-up in some cases.
+      + Sleepycat backend: this experimental backend has been removed.
+      + Muscat 3.6 backends: now disabled by default.
+
+  * Tests:
+
+      + Test cases added for most bug fixes and new features.
+      + stemtest: rewritten in C++ rather than part C++, part perl. Now 15%
+	faster.
+      + includetest: removed - it's no longer useful now the code has matured.
+      + Removed problematic leak checking from testsuite. We plan to use
+	valgrind instead soon.
+
+  * Matcher:
+
+      + Fixed several matcher bugs which could cause incorrect results in some
+	situations.
+      + Fix bug in expander due to nth_element being called on the wrong
+	element.
+      + Added sorting within relevance bands to the matcher.
+      + Matcher now calculates percentages differently, such that 100%
+	relevance is actually achievable.
+      + Matcher now uses a min-heap rather than nth-element to maintain the
+	proto-mset. This is cleaner and more efficient.
+      + New operator OP_ELITE_SET replaces match_max_or_terms option.
+      + Implemented multiple XOR queries.
+      + Add a new query operator, OP_WEIGHT_CUTOFF, which returns only those
+	documents from a query which have a weight greater than a specified
+	cutoff value.
+      + Removed OmBatchEnquire from system: it may return at a later date, but
+	for now it is simply out of date and a maintenance liability, and
+	gives no significant advantage.
+      + Added experimental match bias functors.
+
+  * The API has been cleaned up in various places:
+
+      + OmDocumentContents and OmIndexDoc merged to become OmDocument
+      + OmQuery interface cleaned up
+      + OmData and OmKey removed - methods which used them now just pass a
+	string instead
+      + OmESetItem replaced by OmESetIterator; OmMSetItem by OmMSetIterator;
+	om_termname_list by OmTermIterator
+      + OmDocumentTerm and OmDocumentParams removed
+      + OmMSet::mbound replaced by OmMSet::matches_
+	{lower_bound,estimated,upper_bound}, giving more information
+      + Xapian iterators now have default constructors
+      + Most API classes now have reference counted internals, so assignment
+	and copying are cheap
+      + OmStem now has copy constructor and assignment operator
+      + and more...

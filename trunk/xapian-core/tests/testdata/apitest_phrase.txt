@@ -1,0 +1,62 @@
+This is a test document for the PHRASE and NEAR operators.  And what a
+wonderful pair of operators they are.
+
+The PHRASE operator is ordered; the NEAR operator just looks from the
+specified terms in any order.
+
+You can specify a window size.  This allows the operators to be used for
+finding near phrases or a group of words close to each other.
+
+Warning notice:
+Leave fridge on!
+Pad.
+
+Fridge: leave on.
+(Alternative notice)
+Pad.
+
+Instructions:
+Leave on fridge.
+Pad.
+
+White goods on holiday?
+Fridge on leave?!
+Pad.
+
+Compassionate leave when your kitchen appliances are ailing:
+On fridge leave...
+Pad.
+
+A postcard to your cooling hardware:
+On leave, fridge.
+Pad.
+
+Tell the milkman:
+Leave milk on fridge.
+Pad.
+
+Tell him again:
+Leave milk on the fridge.
+Pad.
+
+Encore:
+Leave some milk on the fridge.
+Pad.
+
+Getting longer:
+Leave milk in bottles on the fridge.
+
+Doesn't make much sense, but...
+Leave me alone but not on milk fridge.
+Pad pad.
+
+first second second.
+pad pad pad pad pad pad third third third.
+
+Pad pad pad pad
+Milk rare
+pad pad pad!
+
+Pad pad pad pad
+Rare milk
+pad pad pad!

@@ -1,0 +1,7 @@
+<Directory>common</Directory>
+
+<Description>
+Header files which are used in various places within
+the Xapian library code.  It does not contain header files which are
+externally visible: these are kept in the "include" directory.
+</Description>

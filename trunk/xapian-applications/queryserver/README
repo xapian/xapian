@@ -1,0 +1,2 @@
+This is a simple forking server which listens on a UNIX domain socket for
+queries, executes the queries, and returns the results.

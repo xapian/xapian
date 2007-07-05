@@ -1,0 +1,4 @@
+This test data file will contain the English words for three, one, four, and
+two, although not in that order.  This is used to test that the results of
+OmEnquire::get_matching_terms() are in the right order, ie sorted by query
+position.  Here they are again, in the order two, four, one, and three.

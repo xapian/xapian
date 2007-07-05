@@ -1,0 +1,52 @@
+See INSTALL for instructions on configuring, building, and installing this
+software.  See TODO for the to-do list.  See HACKING for information relevant
+to anyone wanting to do development work on the bindings.
+
+Supported Platforms
+-------------------
+
+Most development work has been done on Linux with GCC, but the bindings should
+work on other Unix-like platforms and with other compilers (we've heard success
+stories for at least Mac OS X and OpenBSD, and the tinderbox builds pass "make
+check" on FreeBSD and NetBSD).
+
+The Python bindings have been successfully built on Microsoft Windows using
+Mingw and MSVC: the PHP bindings have been successfully build on Microsoft
+Windows using MSVC.  The other bindings may need a few build tweaks to work
+- contact us via the mailing lists if you want to get them working.
+
+Supported Languages
+-------------------
+
+Bindings for the following languages should be fully functional and ready
+for real world use:
+
+Java		Java bindings (built using JNI) contributed by Eric B. Ridge.
+		See java/README for Java binding specific information.
+
+Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
+	        by Olly Betts are available from CPAN (module Search::Xapian).
+
+PHP		Requires PHP 4 or 5.
+
+Python		Requires Python 2.2 or later.
+
+Ruby		Requires Ruby 1.8 or later (brief tests show the bindings
+		probably work with at least Ruby 1.6.8 too, but smoketest.rb
+		doesn't because the test/unit module isn't available and
+		apparently Ruby versions < 1.8 are no longer in common use).
+
+Tcl		Requires Tcl 8.1 or later (Tcl 8.0 could be made to work
+		without too much work).
+
+C#		Tested with Mono C# 1.0.8 and 1.1.8 and Portable.NET 0.6.12.
+		Also tested with Mono C# 1.2.3.1 - note that for Mono
+		runtimes from 1.2 onwards, you need to compile with gmcs
+		(instead of mcs) or you'll get segmentation faults at runtime.
+		The configure script prefers to use gmcs if it is present, but
+		you can run `./configure CSC=mcs' to force use of mcs even
+		if gmcs is also installed.
+
+
+If you're interest in getting other languages supported, see the "Adding
+support for other programming languages" section in the file HACKING.

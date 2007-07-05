@@ -1,0 +1,148 @@
+#!/bin/bash
+# Build packages in a chroot.
+#
+# Copyright (C) 2006,2007 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+# FIXME: sort out "-- -c" and SU_NO_SHELL_ARGS, etc.
+
+set -e
+
+REPO_URL=http://www.xapian.org/debian-tmp
+
+LINTIAN_FLAGS="-l0 -I"
+LINDA_FLAGS="-t E,W,X,I"
+
+if [ x"$1" = x--help -o "$#" -lt 2 ] ; then
+  echo "Usage: $0 DISTRO-ARCH VERSION [PACKAGES...]"
+  echo "e.g. $0 etch-i386 1.0.0"
+  exit 1
+fi
+
+# Usage: build_package DSC_FILE
+build_package() {
+  pbuilder build --no-targz --buildplace "$CHROOT" --buildresult "$POOL" "$1"
+}
+
+rm -rf Sources.gz *.dsc *.orig.tar.gz *.diff.gz pool dists
+
+DISTRO_ARCH=$1
+VERSION=$2
+shift
+shift
+PACKAGES=${*-"core bindings omega"}
+
+DISTRO=`echo "$DISTRO_ARCH"|sed 's/-.*//'`
+case $DISTRO in
+  sarge) DIR=oldstable ;;
+  etch) DIR=stable ;;
+  sid) DIR=unstable ;;
+  *) DIR=$DISTRO ;;
+esac
+
+POOL=pool/$VERSION/$DISTRO/binary
+CHROOT=/chroot/$DISTRO_ARCH
+
+_C=
+#if [ sid = "$1" ] ; then
+#  _C=-c
+#fi
+
+mkdir -p "$POOL"
+
+DSC_PATH="$REPO_URL/pool/$VERSION/$DIR/source/"
+
+wget "$REPO_URL/dists/$DIR/main/source/Sources.gz"
+
+skip=yes
+gzip -dc Sources.gz | while read line ; do
+  if test -n "$skip" ; then
+    case $line in
+      Files:*) skip= ;;
+    esac
+  elif test -n "$line" ; then
+    FILE=`echo \"$line\"|sed 's/.* //'`
+    if expr "$FILE" : ".*_${VERSION}[-.]" ; then
+      wget "$DSC_PATH`echo \"$line\"|sed 's/.* //'`"
+    else
+      echo "*** Not version $VERSION, ignoring: '$FILE'"
+    fi
+  else
+    skip=yes
+  fi
+done
+
+rm -rf "$CHROOT"/tmp/*
+
+dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get update'
+dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get --force-yes -y dist-upgrade'
+
+if expr "$PACKAGES" : '.*core' ; then
+  build_package xapian-core_*.dsc
+
+  # Install xapian so we can build the bindings and omega.
+  dchroot -c "$DISTRO_ARCH" -- $_C 'dpkg -i /tmp/buildd/libxapian*.deb'
+
+  rm -rf "$CHROOT"/tmp/*
+else
+  echo "*** WARNING : Assuming the chroot has a suitable libxapian installed from the previous build"
+fi
+
+if expr "$PACKAGES" : '.*bindings' ; then
+  # Need to ensure python is installed in the chroot so that the xapian-bindings
+  # install script can discover the default python version.
+  # FIXME : not sure this is actually required now...
+  dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get install python'
+
+  build_package xapian-bindings_*.dsc
+  rm -rf "$CHROOT"/tmp/*
+fi
+
+if expr "$PACKAGES" : '.*omega' ; then
+  build_package xapian-omega_*.dsc
+  rm -rf "$CHROOT"/tmp/*
+fi
+
+# Detect arch.
+ARCH=`echo "$POOL"/xapian-core*.changes|sed 's/.*_//;s/\.changes$//'`
+ARCHDIR=dists/$DIR/main/binary-$ARCH
+mkdir -p "$ARCHDIR"
+
+find pool -not -name '*.deb' -type f -print|perl -ne 'chomp;unlink'
+
+if [ "core bindings omega" = "$PACKAGES" ] ; then
+  dpkg-scanpackages "$POOL" /dev/null \
+      | gzip -9 > "$ARCHDIR/Packages.gz"
+else
+  echo "*** WARNING : Can't generate new Packages.gz for partial build - FIXME"
+fi
+
+# Don't remove these so we can support building just a changed omega package...
+# dchroot -c "$DISTRO_ARCH" -- $_C 'apt-get --force-yes -y remove libxapian.\*'
+
+lintian $LINTIAN_FLAGS *.dsc "$POOL"/*.deb
+#linda $LINDA_FLAGS *.dsc "$POOL"/*.deb
+
+cat <<END > "$ARCHDIR/Release"
+Archive: $DIR
+Component: main
+Origin: Xapian
+Label: Xapian
+Architecture: $ARCH
+END
+
+su olly -c 'rsync -v -a pool/. ixion.tartarus.org:/usr/data/www/xapian.org/debian-tmp/pool/'
+su olly -c 'rsync -v -a dists/. ixion.tartarus.org:/usr/data/www/xapian.org/debian-tmp/dists/'

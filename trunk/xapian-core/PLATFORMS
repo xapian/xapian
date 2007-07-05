@@ -1,0 +1,304 @@
+This is a list of platforms which Xapian has been reported to have built
+and passed "make check" on.  It will probably work on many more platforms
+- lack of an entry here shouldn't be assumed to mean it won't work, just that
+we've not had any reports.
+
+The list is getting rather long these days, so to summarise, Xapian should
+compile on any fairly modern Unix or Unix-like platform with a compiler
+with decent ISO C++ support, except for AIX.  If you're using GCC, 2.95 is
+probably the minimum required version (or 3.3 if you have an ARM processor).
+The only tested compiler we've failed to build with so far is Compaq C++ (see
+below for more information).
+
+64 bit platforms are well supported (we do a lot of development work on x86-64
+Linux), as are both big and little endian platforms.  Any sane Linux
+distribution should work, and we regularly test build on several.
+
+Additionally, Xapian can be built on Microsoft Windows using Cygwin or Mingw
+GCC, or with MSVC.
+
+We have automated builds on all the platforms we can get access to, and users
+have submitted the results trying to build Xapian on various other platforms.
+The one attempt to build on AIX so far has failed.
+
+If you try a platform not listed here (or try a newer version on a listed
+platform) we'd love to hear - please at least include the OS version (e.g.
+output from "uname -a"), compiler and version (e.g. output from g++ -v), and
+any switches you passed to configure.  Please also run "make check" and
+tell us if any tests fail.
+
+Two notes about GCC 2.95:
+
+* GCC 2.95 reports a lot of warnings about control reaching the end of
+  non-void functions - these are bogus, and can be safely ignored.
+
+* On many platforms, certain tests (deldoc1 notably) used to fail with
+  Xapian::Error exceptions - investigation revealed that the correct exception
+  was being thrown, but was leaking through the catch block somehow.  Adding
+  tracing code often made the test pass!  We believe this is a GCC 2.95 bug -
+  it's never been reported with GCC 3.0 or higher, nor with other compilers.
+  The testsuite framework should now detect such mishandled exceptions, and
+  skip the test in progress with an appropriate message.
+
+Arch  | Platform                       |Version|Status| Notes / requirements
+------+--------------------------------+-------+------+------------------------
+x86   |&Linux 2.2 Debian 3.1 GCC 2.95.4| 1.0.1 |Passed|
+x86   |#Linux 2.2 Debian 3.1 GCC 3.0.4 | 0.9.9 |Passed|
+x86   |&Linux 2.2 Debian 3.1 GCC 3.3.5 | 1.0.1 |Passed|
+x86   |=Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.9.9 |Passed| (td140)
+x86   |*Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.9.9 |Passed| (was x86-linux1)
+x86   |&Linux 2.2 Debian 3.1 GCC 3.4.4 | 1.0.1 |Passed|
+x86   |$Linux 2.6 Debian sid GCC 3.3.6 | 0.9.6 |Passed|
+x86   |$Linux 2.6 Debian sid GCC 3.4.6 | 0.9.6 |Passed|
+x86   |$Linux 2.6 Debian sid GCC 4.0.4 | 0.9.6 |Passed|
+x86   |$Linux 2.6 Debian sid GCC 4.1.1 | 0.9.6 |Passed|
+x86   |*Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.9.2 |Passed| (was cf-shell)
+x86   |*Linux 2.6 CentOS 4.4 GCC 3.4.6 | 0.9.9 |Passed| (was cf-shell)
+x86   |#Linux 2.4 RHEL ES3 GCC 3.4.3   | 0.9.2 |Passed| (was td141)
+x86   |#Linux 2.4 RHEL ES3 GCC pre4.0  | 0.9.2 |Passed| (was td141)
+x86   |#Linux 2.4 RHEL ES3 IntelC++ 8.1| 0.9.2 |Passed| (was td141)
+x86   |#Linux 2.6 RHEL AS4 GCC 3.2.3   | 0.9.9 |Passed| (was td163,185)
+x86   |#Linux 2.6 RHEL AS4 GCC 3.4.6   | 0.9.9 |Passed| (was td163,185)
+x86   |#Linux 2.6 RHEL AS4 GCC 4.0.2   | 0.9.6 |Passed| (was td163,185)
+x86   |=Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.1 |Passed| (td185)
+x86   |#Linux 2.6 RHEL AS4 IntelC++ 8.1| 0.9.7 |Passed| (was td163,185)
+x86   |#Linux 2.6 RHEL AS4 IntelC++ 9.0| 0.9.7 |Passed| (was td163,185)
+x86   |#Linux 2.6 RHEL AS4 IntelC++ 9.1| 0.9.9 |Passed| (was td163,185)
+x86   |=Linux 2.6 RHEL ES4 GCC 3.4.6   | 0.9.9 |Passed| (td141)
+x86   |#Linux 2.6 RHEL ES4 GCC 4.0.2   | 0.9.6 |Passed| (was td141)
+x86   |=Linux 2.6 RHEL ES4 GCC 4.1.0   | 0.9.9 |Passed| (td141)
+x86   |=Linux 2.6 RHEL ES4 IntelC++ 8.1| 0.9.7 |Passed| (td141)
+x86   |=Linux 2.6 RHEL ES4 IntelC++ 9.0| 0.9.7 |Passed| (td141)
+x86   |=Linux 2.6 RHEL ES4 IntelC++ 9.1| 0.9.9 |Passed| (td141)
+x86   |*Linux 2.6 RedHat FC2 GCC 3.3.3 | 0.9.9 |Passed| (was x86-linux2)
+x86   | Linux 2.6 RedHat FC4 GCC 4.0.0 | 0.9.1 |Passed| from Christiano Anderson
+x86   |#Linux 2.6 RH 10.0 GCC 3.4.1    | 0.9.1 |Passed| (was td188)
+x86   |#Linux 2.6 RH 10.0 IntelC++ 8.1 | 0.9.1 |Passed| (was td188)
+x86   |#Linux 2.6 SuSE 9 GCC 3.3.3     | 0.9.6 |Passed| (was td162)
+x86   |#Linux 2.6 SuSE 9 GCC 3.4.1     |~0.9.0 |Passed| (was td186)
+x86   |#Linux 2.6 SuSE 9 IntelC++ 8.1  | 0.9.3 |Passed| (was td162)
+x86   |#Linux 2.6 SuSE 9 IntelC++ 9.0  | 0.9.3 |Passed| (was td162)
+x86   |=Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.1 |Passed| (td186)
+x86   |=Linux 2.6 SuSE 10 IntelC++ 9.1 | 1.0.1 |Passed| (td186)
+x86   |!FreeBSD 4.8 GCC 2.95.4         | 0.9.2 |Passed|
+x86   |!FreeBSD 4.8 GCC 3.2.3          | 0.9.2 |Passed|
+x86   |*FreeBSD 4.10 GCC 2.95.4        | 0.9.2 |Passed| (was x86-freebsd1)
+x86   |*FreeBSD 5.4 GCC 3.4.2          | 0.9.8 |Passed| (was x86-freebsd1)
+x86   |=FreeBSD 6.2 GCC 3.4.6          | 1.0.1 |Passed| (td152)
+x86   |:kFreeBSD 6.1 Debian GCC 4.1.2  | 0.9.9 |Passed| core testsuite not run
+x86   |*NetBSD 1.6.1 GCC 2.95.3        | 0.9.0 |Passed| (was x86-netbsd1)
+x86   |*NetBSD 2.0.2 GCC 3.3.3         |~0.9.7 |Passed| (was x86-netbsd1)
+x86   |=NetBSD 3.0 GCC 3.3.3           | 0.9.6 |Passed| (td143)
+x86   |*OpenBSD 3.4 GCC 2.95.3         | 0.9.0 |Passed| (was x86-openbsd1)
+x86   |*OpenBSD 3.8 GCC 3.3.5          | 0.9.8 |Passed| (was x86-openbsd1)
+x86   |:Hurd 0.3 Debian sid GCC 4.1.2  | 0.9.9 |Passed| core+omega; no tests run
+x86   |*Solaris 9 GCC 3.3.2            |~0.9.7 |Passed| (was x86-solaris1)
+x86   |*Solaris 9 Sun Workshop C++ 5.5 | 0.9.6 |Passed| (was x86-solaris1) [2]
+x86   | OpenSol. 11 Nexenta GCC 4.0.3  | 0.9.6 |Passed| from Fabrice Colin
+x86   | WindowsXP sp2 MSVC Toolkit 2003| 0.9.6 |Passed| from Charlie Hull [12]
+x86   | WindowsXP sp2 MSVC .Net 2003   | 0.9.10|Passed| from Charlie Hull [12]
+x86   | WindowsXP sp2 MSVC 2005 Express| 0.9.10|Passed| from Charlie Hull [12] 
+x86_64|&Linux 2.6 Debian 4.0 GCC 4.1.2 | 1.0.1 |Passed| (atreus)
+x86_64|#Linux 2.6 RHEL AS4 GCC 3.2.3   | 1.0.0 |Passed| (was td189)
+x86_64|=Linux 2.6 RHEL AS4 GCC 3.4.6   | 1.0.1 |Passed| (td189)
+x86_64|#Linux 2.6 RHEL AS4 GCC 4.0.2   | 0.9.6 |Passed| (was td189)
+x86_64|=Linux 2.6 RHEL AS4 GCC 4.1.0   | 1.0.1 |Passed| (td189)
+x86_64|=Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.1 |Passed| (td159,163,165)
+x86_64|*Linux 2.6 RedHat FC3 GCC 3.3.4 | 0.9.9 |Passed| (was amd64-linux2) [14]
+x86_64|*Linux 2.6 RedHat FC3 GCC 3.4.2 | 0.9.9 |Passed| (was amd64-linux2) [14]
+x86_64|*Linux 2.6 RedHat FC3 GCC 4.0.0 | 0.9.9 |Passed| (was amd64-linux2)
+x86_64|#Linux 2.6 SuSE 9 GCC 3.3.3     | 0.9.6 |Passed| (was td179,190)
+x86_64|#Linux 2.6 SuSE 9 IntelC++ 8.1  | 0.9.3 |Passed| (was td179)
+x86_64|=Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.1 |Passed| (td162,166,190)
+x86_64|%Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.1 |Passed| (iceland.sgi.com)
+x86_64|=Linux 2.6 SuSE 10 IntelC++ 9.1 | 1.0.1 |Passed| (td162)
+x86_64| Linux 2.6 Ubuntu 5.04 GCC 3.3.5| 0.9.0 |Passed| from Olly Betts
+alpha |*Linux 2.2 Debian 3.0 GCC 2.95.4| 0.9.3 |Passed| (was alpha-linux1)
+alpha |*Linux 2.2 Debian 3.0 GCC 3.0.4 | 0.9.9 |Passed| (was alpha-linux1) [6]
+alpha |=Linux 2.4 Debian 3.1 GCC 3.3.5 |~0.9.7 |Passed| (td161, was td142)
+alpha |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+alpha |#Linux 2.4 RedHat 7.2 GCC 3.4.1 | 0.9.2 |Passed| (was td144)
+alpha |#FreeBSD 5.3 GCC 3.4.2          | 0.9.0 |Passed| (was td149)
+alpha |#FreeBSD 5.4 GCC 3.4.2          | 0.9.2 |Passed| (was td149)
+alpha |=FreeBSD 6.0 GCC 3.4.4          | 0.9.4 |Passed| (td149)
+alpha |#DEC OSF 5.1 GCC 3.3            | 0.9.6 |Passed| (was td171) [9]
+sparc | Linux 2.6 Debian sid GCC 4.0.4 | 0.9.6 |Passed| from Alex Deucher [11]
+sparc |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+sparc |*Solaris 9 GCC 2.95.3           | 0.9.9 |Passed| (was sparc-solaris1) [2]
+sparc |*Solaris 9 GCC 3.3.2            | 0.9.9 |Passed| (was sparc-solaris1) [2]
+sparc |*Solaris 9 Sun Workshop C++ 5.5 | 0.9.9 |Passed| (was sparc-solaris1) [2]
+ppc   |*MacOS X 10.1.4 GCC 2.95.2      | 0.9.2 |Passed| (was ppc-osx1) [7]
+ppc   |*MacOS X 10.2.8 GCC 2.95.2      | 0.9.1 |Passed| (was ppc-osx2)
+ppc   |*MacOS X 10.2.8 GCC 3.1 20020420| 0.9.8 |Passed| (was ppc-osx3)
+ppc   |*MacOS X 10.2.8 GCC 3.3         | 0.9.2 |Passed| (was ppc-osx2)
+ppc   |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+ppc64 |*Linux 2.6 SuSE 9 GCC 3.3.3     | 0.9.9 |Passed| (was openpower-linux1)
+mips  |%IRIX 6.5.27 MIPSpro 7.4        | 0.9.9 |Passed| (ferrari.sgi.com) [13]
+mips  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+mipsel|:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+arm   |:Linux 2.4 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+hppa  |=HP-UX 11.11 GCC 3.4.2          | 0.9.9 |Passed| (td192)
+hppa  |=HP-UX 11.23 GCC 3.4.3          | 0.9.9 |Passed| (td191)
+hppa  |#HP-UX 11.23 GCC 3.4.3          | 0.9.6 |Passed| (was td191)
+hppa  |=HP-UX 11.11 aCC B3910B A.03.73 | 0.9.9 |Passed| (td192) [8]
+hppa  |=HP-UX 11.23 aCC B3910B A.03.73 | 0.9.9 |Passed| (td191) [8]
+hppa  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+hppa64|#Linux 2.4 Debian 3.0 GCC 3.0.4 | 0.9.0 |Passed| (was td170)
+ia64  |#Linux 2.4 Debian 3.0 GCC 2.96  | 0.9.1 |Passed| (was td156)
+ia64  |=Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.9.9 |Passed| (td156)
+ia64  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+ia64  |=Linux 2.6 RHEL AS4 GCC 3.2.3   | 0.9.9 |Passed| (td177)
+ia64  |=Linux 2.6 RHEL AS4 GCC 3.4.6   | 0.9.9 |Passed| (td177)
+ia64  |#Linux 2.6 RHEL AS4 GCC 4.0.2   | 0.9.6 |Passed| (was td177)
+ia64  |=Linux 2.6 RHEL AS4 GCC 4.1.0   | 0.9.9 |Passed| (td177)
+ia64  |=Linux 2.6 RHELServer5 GCC 4.1.1| 1.0.1 |Passed| (td178,188)
+ia64  |#Linux 2.6 RHEL AS4 IntelC++ 8.1| 0.9.3 |Passed| (was td177)
+ia64  |=Linux 2.6 RHEL AS4 IntelC++ 9.0| 0.9.7 |Passed| (td177)
+ia64  |=Linux 2.6 RHEL AS4 IntelC++ 9.1| 0.9.7 |Passed| (td177)
+ia64  |#Linux 2.6 SuSE 9 GCC 3.3.3     | 0.9.9 |Passed| (was penguin.sgi.com)
+ia64  |#Linux 2.6 SuSE 9 IntelC++ 8.1  | 0.9.1 |Passed| (was td187)
+ia64  |#Linux 2.6 SuSE 9 IntelC++ 9.0  | 0.9.6 |Passed| (was td187)
+ia64  |%Linux 2.6 SuSE 10 GCC 3.3.3    | 1.0.1 |Passed| (polly.sgi.com)
+ia64  |=Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.1 |Passed| (td187)
+ia64  |%Linux 2.6 SuSE 10 GCC 4.1.0    | 1.0.1 |Passed| (penguin.sgi.com)
+ia64  |=FreeBSD 6.2 GCC 3.4.6          | 1.0.1 |Passed| (td150)
+ia64  |=HP-UX 11.23 GCC 3.4.3          | 0.9.9 |Passed| (td164,176)
+ia64  |#HP-UX 11.23 GCC 4.0.2          | 0.9.6 |Passed| (was td196)
+ia64  |=HP-UX 11.23 GCC 4.1.0          | 0.9.6 |Passed| (td176)
+ia64  |=HP-UX 11.23 aCC B3910B A.06.12 | 0.9.9 |Passed| (td164,176)
+m68k  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+s390  |:Linux 2.6 Debian etch GCC 4.1.2| 0.9.9 |Passed| core testsuite not run
+------+--------------------------------+-------+------+------------------------
+arm   |&Linux cross to arm   GCC 2.95.2| 1.0.1 |Built | [1]
+x86   |#Linux cross to mingw GCC 2.95.3| 0.9.5 |Built | [1] Using MSVCRT.DLL
+x86   |&Linux cross to mingw GCC 3.4.2 | 0.9.9 |Built | [1] Using MSVCRT.DLL
+x86   |*Linux cross to mingw GCC 3.4.4 | 0.9.9 |Built | [1] Using CRTDLL.DLL
+x86   |$Linux cross to mingw GCC 3.4.5 | 0.9.6 |Built | [1] Using MSVCRT.DLL
+x86   |*Linux cross to Cygwin GCC 3.4.4| 0.9.9 |Built | [1]
+x86   |*Linux cross to DJGPP GCC 3.4.3 | 0.9.9 |Built | [1] [3]
+x86   |*Linux cross to DJGPP GCC 4.0.1 | 0.9.9 |Built | [1] [3]
+------+--------------------------------+-------+------+------------------------
+ppc   | AIX 5.2 GCC 3.3.2              | 0.9.5 |Failed| from J.F. Dockes [10]
+------+--------------------------------+-------+------+------------------------
+
+Attempts to build Xapian with Compaq's C++ compiler (on Tru64, HPUX, and
+Linux) have so far failed.  Older versions of the compiler simply seem
+to lack sufficient support for C++ templates.  This minimal testcase fails to
+compile:
+
+  #include <xapian/base.h>
+
+  class Query {
+    class Internal;
+    Xapian::Internal::RefCntPtr<Internal> internal;
+    template <class SubQ> Query(SubQ q) : internal(0) { } 
+  };
+
+This problem is fixed in Compaq C++ 7.1 (or perhaps earlier), but the build
+now fails to link a binary.  Further investigation is required.
+
+These are older reports lacking an update for a more recent Xapian version
+(typically because the machine in question was upgraded, or we no longer have
+access to it, or the report was from a third party).  We've removed reports
+prior to 0.8.0 since so much has changed since then that they're of
+questionable value.
+
+Arch  | Platform                       |Version|Status| Notes / requirements
+------+--------------------------------+-------+------+------------------------
+x86   | Linux 2.6 Debian 3.0 GCC 2.95.4| 0.8.2 |Passed| from gmane.org
+x86   | Linux 2.4 RedHat 7.3 GCC 2.96  | 0.8.0 |Passed| from Chris Good
+x86   |#Linux 2.4 RedHat 9.0 GCC 3.2.2 | 0.8.3~|Passed|
+x86   |#Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed| (was td185)
+x86   |#Linux 2.4 RHEL AS3 IntelC++ 8.1| 0.8.5~|Passed| (was td185)
+x86   |#Linux 2.4 RHEL ES3 GCC 2.96    | 0.8.5 |Passed| (was td141)
+x86   | Linux 2.4 Slackw. 9.1 GCC 3.2.3|~0.8.1 |Passed| from tweakers.net
+x86   | Cygwin 1.5.10 GCC 3.3.3 XP sp2 |~0.8.4 |Passed| from Mike Boone [4]
+x86   | MSYS/MingW GCC 3.3.1           |~0.8.0 |Passed| from Hartmut Honisch
+x86   | MinGW 3.1.0                    |~0.8.4 |Passed| from Michael Sisolak
+x86_64| Linux 2.6 Debian 3.1 GCC 3.3.5 | 0.8.3~|Passed| from gmane.org
+x86_64|#Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed|
+x86_64|#Linux 2.4 RHEL AS3 GCC 3.2.3   | 0.8.5 |Passed|
+x86_64|#Linux 2.4 SuSE 8.1 GCC 3.2.2   | 0.8.5 |Passed|
+alpha |#FreeBSD 5.2.1 GCC 3.3.3        | 0.8.5 |Passed| (was td149)
+mips  | IRIX 6.5.22 GCC 3.3            |~0.8.0 |Passed| from Jim Lynch
+arm   |^Linux 2.4 Debian sid GCC 3.3.3 | 0.8.0~|Passed|
+arm   |@Linux 2.4 Debian sid GCC 3.4.0 | 0.8.0~|Passed|
+ia64  |#Linux 2.4 RHEL AS3 GCC 2.96    | 0.8.5 |Passed|
+ia64  |=Linux 2.6 SuSE 9 GCC 3.4.1     | 0.8.5~|Passed|
+------+--------------------------------+-------+------+------------------------
+x86   | Linux cross to DJGPP GCC 2.95.2| 0.8.0 |Built | [1] [3]
+------+--------------------------------+-------+------+------------------------
+arm   |@Linux 2.4 Debian sid GCC 2.95.4| 0.8.0 |Failed| [5]
+------+--------------------------------+-------+------+------------------------
+
+* = SourceForge CompileFarm machine (no longer available)
+= = HP Test Drive machine (http://www.testdrive.hp.com/)
+% = SGI developer machine
+# = HP Test Drive machine which is no longer available
+@ = handhelds.org (telnet/ssh ipaq[1-7].handhelds.org / user guest / no passwd)
+! = thanks to Gavin Kelman for access to these platforms
+& = "ixion" and "atreus" (James Aylett's colo boxes)
+^ = thanks to Wookey for access to this platform
+$ = "roadkill" (Olly's x86 box)
+: = Debian buildd
+
+~ = Tested version from CVS shortly before this release (or after for ~ suffix)
+
+[1] "make check" won't work for a cross-compiled build!
+
+[2] Must be compiled as a static library (./configure --disable-shared).
+
+[3] Perhaps not a terribly useful platform for Xapian, but an additional test
+of portability.  Remote backend is automatically disabled due to lack of
+socketpair, and flint backend is automatically disabled due to lack of a
+locking strategy implementation.  Not tried to actually run the binaries yet...
+
+[4] Fails to build if there are spaces in the full path to the directory.
+
+[5] internaltest fails on exception1 (SEGV) and apitest fails on queryvalid1
+(SEGV).  This appears to be due to buggy handling of nested exceptions on arm
+- you should use GCC 3.3 or newer.
+
+[6] GCC 3.0.4 appears buggy on alpha - you get SEGVs unless you configure with:
+./configure CXXFLAGS=-O0
+
+[7] Lots of harmless link warnings such as:
+/usr/bin/ld: warning unused multiple definitions of symbol _optarg
+"link editor" definition of _optarg in section (__DATA,__common)
+/usr/lib/libSystem.dylib(getopt.o) unused definition of _optarg
+
+[8] Must be compiled with -AA (which configure automatically passes), which
+means your code must also be compiled with -AA.  Compiling with -AP (non
+ANSI mode) would require changes to Xapian, and is only required if you
+need to link to Xapian and another library not available in -AA form.  HP
+recommend ISVs to supply libraries in -AA form, so this isn't a likely
+scenario.  Where required, "xapian-config --cxxflags" will include "-AA".
+
+[9] Generates 18000+ (!) warnings like "ar: Warning: ignoring second
+definition of <mangled C++ symbol name> defined in archive", but passes
+the testsuite.
+
+[10] Large File Support does not work (cstdio does not compile), which appears
+to be a known problem with the GNU STL on AIX, so you have to configure
+xapian-core with --disable-largefile.  Xapian-core builds, but btreetest,
+quartztest, apitest, and queryparsertest all dump core.
+
+[11] Compiling matcher/andmaybepostlist.cc with -O2 causes the compiler to
+die with an "internal compiler error".  Recompiling just this file with -O1
+allows the build to complete and pass the testsuite.
+
+[12] Requires the MSVC specific makefiles written by Ulrik Petersen and
+Charlie Hull available from:
+http://www.lemurconsulting.com/Products/Xapian/Overview.shtml
+Only the bindings for Python and PHP have so far been built.
+
+[13] Omega has to be built with "-ptused" in CXXFLAGS (this is now set
+automatically for Omega).  You may need to do the same when building your
+own applications.  We don't fully understand the issues here yet, but
+perhaps "-ptused" should be automatically set by xapian-config.  Feedback
+from developers on IRIX is invited.  Also, IRIX make doesn't handle VPATH
+builds correctly - either build in the source tree or use "smake -M" (or
+better still, just use GNU make if you have it installed!)
+
+[14] Java bindings built with GCJ 3.3.4 or GCJ 3.4.2 die in SmokeTest.java
+with java.lang.NullPointerException.

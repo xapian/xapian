@@ -1,0 +1,1 @@
+$set{topterms,$or{$query,$ne{$msize,0}}}$include{query}

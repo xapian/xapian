@@ -1,0 +1,109 @@
+/** @file net_postlist.cc
+ *  @brief Postlists for remote databases
+ */
+/* Copyright (C) 2007 Lemur Consulting Ltd
+ * Copyright (C) 2007 Olly Betts
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+ * USA
+ */
+
+#include <config.h>
+
+#include "net_postlist.h"
+#include "serialise.h"
+#include "serialise-double.h"
+
+using namespace std;
+
+Xapian::doccount
+NetworkPostList::get_termfreq() const
+{
+    return termfreq;
+}
+
+Xapian::docid
+NetworkPostList::get_docid() const
+{
+    return lastdocid;
+}
+
+Xapian::doclength
+NetworkPostList::get_doclength() const
+{
+    return lastdoclen;
+}
+
+Xapian::termcount
+NetworkPostList::get_wdf() const
+{
+    return lastwdf;
+}
+
+PositionList *
+NetworkPostList::read_position_list()
+{
+    lastposlist = db->open_position_list(lastdocid, term);
+    return lastposlist.get();
+}
+
+PositionList *
+NetworkPostList::open_position_list() const
+{
+    return db->open_position_list(lastdocid, term);
+}
+
+PostList *
+NetworkPostList::next(Xapian::weight)
+{
+    if (!started) {
+	started = true;
+	pos = postings.data();
+	pos_end = pos + postings.size();
+	lastdocid = 0;
+    }
+
+    if (pos == pos_end) {
+	pos = NULL;
+    } else {
+	lastdocid += decode_length(&pos, pos_end, false) + 1;
+	lastwdf = decode_length(&pos, pos_end, false);
+	lastdoclen = unserialise_double(&pos, pos_end);
+    }
+
+    return NULL;
+}
+
+PostList *
+NetworkPostList::skip_to(Xapian::docid did, Xapian::weight weight)
+{
+    if (!started)
+	next(weight);
+    while (pos && lastdocid < did)
+	next(weight);
+    return NULL;
+}
+
+bool
+NetworkPostList::at_end() const
+{
+    return (pos == NULL && started);
+}
+
+string
+NetworkPostList::get_description() const
+{
+    return "NetworkPostList(" + term + ")";
+}

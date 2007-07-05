@@ -1,0 +1,49 @@
+#!@PERL@ -w
+# makemanpage - generate man page from --help output using help2man
+#
+# Copyright (C) 2007 Olly Betts
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+use strict;
+
+# Parse command line parameters
+if ($#ARGV != 2) {
+  print "usage: makemanpage <binary> <source> <manpage>\n";
+  exit 1;
+}
+
+my ($binary, $src, $manpage) = @ARGV;
+
+my $desc;
+open SRC, "<$src" or die "$src: $!\n";
+while (<SRC>) {
+    if (/^(?:PROG_DESC=|\s*#\s*define\s+PROG_DESC\s+)"(.*?)"/) {
+	$desc = $1;
+	last;
+    }
+}
+close SRC;
+unless (defined $desc) {
+    die "$src: Failed to find PROG_DESC\n";
+}
+
+my $r = system("@HELP2MAN@", "-o", $manpage."T", "--no-info",
+	       "-S", "@PACKAGE_STRING@", "-n", $desc, $binary);
+if ($r) {
+    unlink $manpage."T";
+    die "@HELP2MAN@: $!\n";
+}
+rename $manpage."T", $manpage;

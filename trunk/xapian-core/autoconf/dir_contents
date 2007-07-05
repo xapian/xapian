@@ -1,0 +1,8 @@
+<Directory>autoconf</Directory>
+
+<Description>
+M4 macros needed for building Xapian configuration
+scripts.  These macros are m4_include-d by acinclude.m4 - this
+directory is just a convenient way to keep them in separate files and up
+to date.
+</Description>

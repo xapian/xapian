@@ -1,0 +1,6 @@
+<Directory>include</Directory>
+
+<Description>
+This directory contains the externally visible header files.  Internal header
+files are kept in the "common" directory.
+</Description>
