@@ -60,7 +60,9 @@ At search time, you need to pass a ``Xapian::MatchSpy`` object to
 The ``10000`` in the call to ``get_mset`` tells Xapian to check at least
 10000 documents, so the ``spy`` object will be passed at least 10000 documents
 to tally category information from (unless less than 10000 documents match
-the query, in which case it will see all of them).
+the query, in which case it will see all of them).  Setting this higher will
+make the counts exact, but Xapian will have to do more work for most queries
+so searches will be slower.
 
 The ``spy`` object now contains the category information.  You can find out
 how many documents it looked at by calling ``spy.get_total()``.  You can
@@ -102,6 +104,22 @@ to consist of ranges.  Keys are now built of strings returned by
 ``Xapian::sortable_serialise()`` - either a single string if there is only
 one number in a particular range, or for a range a string padded to 9 bytes
 with zero bytes, with a second string appended.
+
+Restricting by category values
+------------------------------
+
+If you're using the categorisation to offer the user choices for narrowing
+down their search results, you then need to be able to apply a suitable
+filter.
+
+For a range, the best way is to use ``Xapian::Query::OP_VALUE_RANGE`` to
+build a filter query, and then combine this with the user's query using
+``Xapian::Query::OP_FILTER``.
+
+For a single value, you could use ``Xapian::Query::OP_VALUE_RANGE`` with
+the same start and end, or ``Xapian::MatchDecider``, but it's probably
+most efficient to also index the categories as suitably prefixed boolean
+terms and use those for filtering.
 
 Current Limitations
 ===================
