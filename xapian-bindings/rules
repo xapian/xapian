@@ -1,0 +1,327 @@
+#!/usr/bin/make -f
+#
+# Copyright (C) 2004,2005,2006 Lemur Consulting Ltd
+# Copyright (C) 2006,2007 Olly Betts
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
+# USA
+
+# Component we're building packages for.  If not explicitly specified, default
+# to that named in debian/component and if that's not given, use "unstable".
+COMPONENT ?= $(shell cat debian/component 2>/dev/null||echo unstable)
+
+# Version without the "-N" suffix.
+XAPIAN_VERSION = $(shell sed 's/.*(\([^-]*\)\(-.*\)*).*/\1/;q' debian/changelog)
+
+# `--exclude=.EXT' arguments to pass dh_install
+DH_INSTALL_EXCLUDE := --exclude=.pyc --exclude=.pyo
+
+# Debian "stable" ("etch" onwards), "unstable", and Ubuntu "edgy" (and later)
+# have pyversions.
+USE_PYVERSIONS := no
+ifeq ($(findstring .$(COMPONENT)., .oldstable.breezy.dapper.), )
+USE_PYVERSIONS := yes
+endif
+
+ifeq ($(USE_PYVERSIONS), yes)
+
+# The python versions to build for:
+PYTHON_VERSIONS := $(shell pyversions -r debian/control)
+ifeq ($(PYTHON_VERSIONS), )
+PYTHON_VERSIONS := python2.3 python2.4
+endif
+# python >= 2.3.5-7 is required for the pyversions command.
+BUILD_DEPS := debhelper (>= 5.0.37.1), python (>= 2.3.5-7), python-central (>= 0.4.10), python-all-dev,
+
+else
+
+# When we finally drop support for all of sarge, breezy, and dapper, we
+# can remove this branch of the code.
+
+# The python versions to build for (Debian sarge also has Python 2.1, but
+# xapian-bindings now requires at least Python 2.2):
+PYTHON_VERSIONS := python2.2 python2.3 python2.4
+
+# We need python itself for dh_python to work.
+BUILD_DEPS := debhelper (>= 4.1.67), python, $(PYTHON_VERSIONS:%=%-dev,)
+
+endif
+
+# The PHP versions to build for:
+ifeq ($(COMPONENT), oldstable)
+# Debian oldstable doesn't have PHP5.
+PHP_VERSIONS := 4
+DH_INSTALL_EXCLUDE += --exclude=.php5
+else
+ifneq ($(findstring .$(COMPONENT)., .stable.breezy.dapper.edgy.), )
+PHP_VERSIONS := 4 5
+else
+# Newer releases (currently Debian unstable and Ubuntu feisty) don't have PHP4.
+PHP_VERSIONS := 5
+DH_INSTALL_EXCLUDE += --exclude=.php4
+endif
+endif
+
+# We'll need this if we ever generate different .py modules for different
+# supported python versions.
+#export DH_PYCENTRAL=nomove
+
+export DH_OPTIONS
+
+buildtargets := all
+
+export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
+	confflags += --build $(DEB_HOST_GNU_TYPE)
+	buildtargets += check
+else
+	confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+endif
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	confflags += CFLAGS="-O0" CXXFLAGS="-O0"
+else
+	confflags += CFLAGS="-O2" CXXFLAGS="-O2"
+endif
+
+# Python versions which had packages before the Python policy transition.
+PYTHON_OLD_VERSIONS := 2.1 2.2 2.3 2.4
+# For use in Conflicts: and Replaces:
+PYTHON_OLD_PACKAGES := $(shell echo "$(PYTHON_OLD_VERSIONS:%=python%-xapian (<< 0.9.6-3$),)"|sed 's/,$$//')
+
+# Build depends for PHP.  We need phpN-cli so we can run "make check" on
+# the bindings and to get the phpapi version we need to depend on.
+#
+# Currently hurd-i386 doesn't have any PHP packages, but that's no reason to
+# prevent python/tcl/ruby-loving hurd users having packaged xapian bindings.
+# Note that we check for /usr/bin/php-configN before trying to build PHP
+# bindings below.
+#
+# Only the first % in the replacement part is substituted, so we need to do
+# this in two goes.
+BUILD_DEPS += $(PHP_VERSIONS:%=php%-dev [!hurd-i386],)
+BUILD_DEPS += $(PHP_VERSIONS:%=php%-cli [!hurd-i386],)
+
+# Build depends for Tcl.  We use Tcl's stubs mechanism, so the built
+# bindings will work with any Tcl version from 8.0.6 upwards, whichever
+# version they were built against.
+#
+# Currently all the distributions which we want to build packages for have
+# tcl8.4-dev, so just build against that.
+BUILD_DEPS += tcl8.4-dev,# NB Trailing ',' required here!
+TCLSH=/usr/bin/tclsh8.4
+
+# Build depends for Ruby.
+BUILD_DEPS += ruby1.8-dev, ruby1.8,# NB Trailing ',' required here!
+RUBY=/usr/bin/ruby1.8
+
+# We need a versioned build dependency on libxapian-dev.
+BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
+BUILD_DEPS += libxapian-dev (<= $(XAPIAN_VERSION)-9999),# NB Trailing ',' required here!
+
+commonconfflags := \
+	$(confflags) \
+	--prefix=/usr \
+	--sysconfdir=/etc
+
+# With GCC3 and later this won't make a huge difference, but it'll save
+# a bit of time and diskspace while building.
+commonconfflags += --disable-dependency-tracking
+
+maint: debian/control
+
+maintclean: clean
+	rm -f debian/control
+
+debian/control: debian/rules debian/control.in
+	rm -f debian/control.tmp
+	sed -e "s/@BUILD_DEPS@/$(BUILD_DEPS)/g" \
+	    -e "s/@PYTHON_OLD_PACKAGES@/$(PYTHON_OLD_PACKAGES)/g" \
+	    < debian/control.in > debian/control.tmp
+	for v in $(PHP_VERSIONS); do \
+	    sed "s/@PHP_VERSION@/$$v/g" debian/control-php.in ;\
+	done >> debian/control.tmp
+	mv debian/control.tmp debian/control
+
+configure: debian/configure-stamp
+debian/configure-stamp:
+	dh_testdir
+
+	# Use the latest config.sub and config.guess from the autotools-dev
+	# package.
+	rm -f config.sub config.guess
+	ln -s /usr/share/misc/config.sub config.sub
+	ln -s /usr/share/misc/config.guess config.guess
+
+	for python in $(PYTHON_VERSIONS); do \
+	    set -e; \
+	    mkdir -p build-$$python; \
+	    cd build-$$python; \
+	    ../configure $(commonconfflags) --with-python \
+		PYTHON=/usr/bin/$$python; \
+	    cd ..; \
+	done
+
+	for v in $(PHP_VERSIONS); do \
+	    c=/usr/bin/php-config$$v; \
+	    if test -x $$c ; then \
+		set -e; \
+		mkdir -p build-php$$v; \
+		cd build-php$$v; \
+		../configure $(commonconfflags) --with-php PHP_CONFIG=$$c; \
+		cd ..; \
+	    fi \
+	done
+
+	mkdir -p build-tcl-and-ruby
+	cd build-tcl-and-ruby && ../configure $(commonconfflags) --with-tcl TCLSH=$(TCLSH) --with-ruby RUBY=$(RUBY)
+
+	touch $@
+
+build: configure debian/build-stamp
+debian/build-stamp:
+	dh_testdir
+	for python in $(PYTHON_VERSIONS); do \
+	    set -e; \
+	    $(MAKE) -C build-$$python $(buildtargets) ; \
+	done
+	for v in $(PHP_VERSIONS); do \
+	    if test -x /usr/bin/php-config$$v ; then \
+		set -e; \
+		$(MAKE) -C build-php$$v $(buildtargets) ; \
+	    fi \
+	done
+	$(MAKE) -C build-tcl-and-ruby $(buildtargets)
+	touch $@
+
+install: DH_OPTIONS=
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Install the files under 'debian/tmp'.
+	for python in $(PYTHON_VERSIONS); do \
+	    set -e; \
+	    $(MAKE) -C build-$$python DESTDIR=$(CURDIR)/debian/tmp install; \
+	done
+
+	# Always install /etc/xapian/phpN/conf.d/xapian, even for backports to
+	# suites where PHP doesn't support it - the extra file is harmless, and
+	# it means we'll work nicely with backported PHP packages too.
+	for v in $(PHP_VERSIONS); do \
+	    c=/usr/bin/php-config$$v; \
+	    if test -x $$c ; then \
+		set -e; \
+		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp install; \
+		install -d -m 755 debian/tmp/etc/php$$v/conf.d; \
+		install -m 644 debian/etc-php-conf.d-xapian debian/tmp/etc/php$$v/conf.d/xapian; \
+	    fi \
+	done
+
+ifneq ($(findstring .$(COMPONENT)., .oldstable.breezy.dapper.edgy.), )
+	# If PHP doesn't support /etc/phpN/conf.d then add README.Debian with
+	# a note explaining that user needs to modify php.ini themselves.  This
+	# affects Debian oldstable (sarge) (and earlier), and Ubuntu edgy and
+	# earlier.
+	for v in $(PHP_VERSIONS); do \
+	    c=/usr/bin/php-config$$v; \
+	    if test -x $$c ; then \
+		set -e; \
+		install -d -m 755 debian/php$$v-xapian/usr/share/doc/php$$v-xapian; \
+		install -m 644 debian/php$$v-README.Debian debian/php$$v-xapian/usr/share/doc/php$$v-xapian/README.Debian; \
+	    fi \
+	done
+endif
+
+	$(MAKE) -C build-tcl-and-ruby DESTDIR=$(CURDIR)/debian/tmp install
+
+	# Reads the '*.install' files to decide where to install everything.
+	dh_install --sourcedir=debian/tmp --fail-missing $(DH_INSTALL_EXCLUDE)
+
+binary: binary-arch
+binary-arch: DH_OPTIONS=-a
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+	dh_installman
+	dh_installchangelogs ChangeLog
+	dh_strip
+	dh_link
+	dh_compress
+	dh_fixperms
+	dh_makeshlibs
+	# This allows the rules file to be used for backports to components
+	# which predate python-central.  Once python-central is in all the
+	# Debian and Ubuntu versions we want to build packages for, this can
+	# be replaced by just "dh_pycentral".
+ifeq ($(USE_PYVERSIONS), yes)
+	dh_pycentral
+else
+	# Recent Lintian versions warn if this file matches: /^\s+dh_python\s/
+	# But we need to call dh_python for backports, so to avoid the warning
+	# we insert `$(strip )' which expands to nothing.
+	dh_$(strip )python
+endif
+	dh_installdeb
+	dh_shlibdeps
+
+	# php-config4 in sarge doesn't understand --phpapi and we want to
+	# support backporting so get the api version from the phpN-cli
+	# package's "Provides".
+	for v in $(PHP_VERSIONS); do \
+	    c=/usr/bin/php-config$$v; \
+	    if test -x $$c ; then \
+		set -e; \
+		echo "php$$v:Depends=`dpkg -s php$$v-cli|sed 's/^Provides: //p;d'|sed 's/, */\n/g'|grep '^phpapi-'`, php$$v-common" >> debian/php$$v-xapian.substvars; \
+	    fi \
+	done
+
+	# sarge onwards don't have tcl8.2 or earlier, though we would work with
+	# 8.2 and 8.1 if they were packaged.
+	echo "tcl:Depends=tcl8.4|tcl8.3" >> debian/tclxapian.substvars
+
+	echo "ruby:Depends=libruby1.8" >> debian/libxapian-ruby1.8.substvars
+
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-indep:
+	echo "Nothing to do!"
+
+clean:
+	dh_testdir
+	dh_testroot
+	for python in $(PYTHON_VERSIONS); do \
+	    set -e; \
+	    rm -rf build-$$python; \
+	done
+	for v in $(PHP_VERSIONS); do \
+	    set -e; \
+	    rm -rf build-php$$v; \
+	done
+	rm -rf build-tcl-and-ruby
+	rm -f config.sub config.guess
+	dh_clean
+	rm -f debian/build-stamp debian/configure-stamp
+
+.PHONY: maint maintclean configure build install binary binary-arch binary-indep clean
