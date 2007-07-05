@@ -1017,7 +1017,9 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Update the wiki: Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z
   and link it into http://wiki.xapian.org/ReleaseNotes in place of the old
-  current release link, which should be moved to the archived section.
+  current release link, which should be moved to the archived section.  Also
+  update http://wiki.xapian.org/RoadMap to record the date of the release and
+  the estimated date for the next release.
 
 * Update the freshmeat entry at:
   http://freshmeat.net/add-release/40427/43070/
