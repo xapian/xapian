@@ -229,8 +229,6 @@ install: build
 	    if test -x $$c ; then \
 		set -e; \
 		$(MAKE) -C build-php$$v DESTDIR=$(CURDIR)/debian/tmp install; \
-		install -d -m 755 debian/tmp/usr/share/php$$v; \
-		install -m 644 php/php$$v/xapian.php debian/tmp/usr/share/php$$v; \
 		install -d -m 755 debian/tmp/etc/php$$v/conf.d; \
 		install -m 644 debian/etc-php-conf.d-xapian debian/tmp/etc/php$$v/conf.d/xapian; \
 	    fi \
