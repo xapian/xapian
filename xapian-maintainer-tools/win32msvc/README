@@ -1,6 +1,6 @@
 README for Xapian/Visual C++ Tools
 ==================================
-2007-06-19 
+2007-07-05 
 
 Make files, some extra headers and associated tools for compiling Xapian on
 Win32 using the Microsoft Visual C++ compilers. This is particularly useful
@@ -197,6 +197,12 @@ To build Omega (do steps 1-5 above first to make sure you have Xapian built):
    - to build.
 
 The binaries end up in xapian-core-0.x.y\win32\Release or \Debug if you are building a Debug build (see below)
+
+NOTE: currently you will see various warnings of the form:
+
+..\win32\makedepend.exe: warning:  .\error.cc (reading C:/Program Files/Microsoft Visual Studio 8/VC/INCLUDE/sys/stat.h), line 23: #error ERROR: Only Win32 target supported!
+
+These are caused by the Makedepend program and can safely be ignored.
 
 Debug builds
 ===========

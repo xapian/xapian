@@ -14,7 +14,7 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 !INCLUDE $(XAPIAN_CORE_REL_PYTHON)\win32\config.mak
 
-LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" 
+LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" ".\version.res" 
 
 OUTDIR=$(XAPIAN_CORE_REL_PYTHON)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\Python
 INTDIR=.\
@@ -107,6 +107,20 @@ generate-python-exceptions: generate-python-exceptions.in
 #
 # Rules
 #
+
+".\version.res": version.rc
+    "$(PYTHON_EXE)" -c \
+	"import platform; \
+	f=open('pythonversion.h','w'); \
+	f.write('#define PYTHON_VERSION \"'); \
+	f.write(platform.python_version()); \
+	f.write('\"\n'); \
+	f.close();"
+    $(RSC) /v \
+      /fo version.res \
+      /I "$(XAPIAN_CORE_REL_PYTHON)\include" \
+      version.rc 
+
 
 ".\xapian_wrap.obj" : "modern/xapian_wrap.cc"
      $(CPP) @<<

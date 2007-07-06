@@ -13,7 +13,7 @@ OUTLIBDIR=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\libs
 
 !INCLUDE $(XAPIAN_CORE_REL_PHP)\win32\config.mak
 
-LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" 
+LIB_XAPIAN_OBJS= ".\xapian_wrap.obj" ".\version.res" 
 
 CPP=cl.exe
 RSC=rc.exe
@@ -96,6 +96,14 @@ ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
 #
 # Rules
 #
+
+".\version.res": version.rc
+    $(RSC) /v \
+      /fo version.res \
+      /I "$(XAPIAN_CORE_REL_PHP)\include" \
+      /I "$(PHP_SRC_DIR)\main" \
+      /d PHP_MAJOR_VERSION="\"$(PHP_MAJOR_VERSION)\"" \
+      version.rc 
 
 ".\xapian_wrap.obj" : "php$(PHP_MAJOR_VERSION)\xapian_wrap.cc"
      $(CPP) @<<

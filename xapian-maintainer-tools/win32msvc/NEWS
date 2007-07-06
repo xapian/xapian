@@ -30,3 +30,11 @@ Xapian-core 0.9.6 (2006-05-15)
  Xapian-core version 1.0.1 (2007-6-15)
  
  * added header files dependencies and use inference rules where possible
+ 
+ Xapian-core version 1.0.2 (2007-7-05)
+ 
+ * use new Makedepend tool to calculate header dependencies automatically
+ 
+ Xapian-core SVN HEAD:
+ 
+ * add version information to bindings DLLs
