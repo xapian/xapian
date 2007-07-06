@@ -990,6 +990,10 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** Register a MatchDecider.
 	 *
+	 * This is used to associate a name with a matchdecider. Theoretically,
+	 * this can be used to allow a matchdecider to be used in a remote
+	 * match, but currently the values stored aren't actually used.
+	 *
 	 * @param name		The name to register this matchdecider as.
 	 * @param mdecider	The matchdecider.  If omitted, then remove
 	 *			any matchdecider registered with this name.
