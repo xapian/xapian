@@ -121,10 +121,12 @@ mkdir -p %{buildroot}
 # DESTDIR instead of makeinstall.
 make install DESTDIR=%{buildroot}
 # Move the docs to the right places.
-%{?!_without_python: mv %{buildroot}/usr/share/doc/%{name}/python %{buildroot}/usr/share/doc/%{name}-python-%{version}}
-%{?!_without_php: mv %{buildroot}/usr/share/doc/%{name}/php %{buildroot}/usr/share/doc/%{name}-php-%{version}}
-%{?!_without_tcl8: mv %{buildroot}/usr/share/doc/%{name}/tcl8 %{buildroot}/usr/share/doc/%{name}-tcl8-%{version}}
-%{?!_without_csharp: mv %{buildroot}/usr/share/doc/%{name}/csharp %{buildroot}/usr/share/doc/%{name}-csharp-%{version}}
+%{?!_without_python: mv %{buildroot}%{_datadir}/doc/%{name}/python %{buildroot}%{_datadir}/doc/%{name}-python-%{version}}
+%{?!_without_php: mv %{buildroot}%{_datadir}/doc/%{name}/php %{buildroot}%{_datadir}/doc/%{name}-php-%{version}}
+%{?!_without_php: [ -d "%{buildroot}%{_datadir}/php5" ] && mv %{buildroot}%{_datadir}/php5 %{buildroot}%{_datadir}/php}
+%{?!_without_php: [ -d "%{buildroot}%{_datadir}/php4" ] && mv %{buildroot}%{_datadir}/php4 %{buildroot}%{_datadir}/php}
+%{?!_without_tcl8: mv %{buildroot}%{_datadir}/doc/%{name}/tcl8 %{buildroot}%{_datadir}/doc/%{name}-tcl8-%{version}}
+%{?!_without_csharp: mv %{buildroot}%{_datadir}/doc/%{name}/csharp %{buildroot}%{_datadir}/doc/%{name}-csharp-%{version}}
 
 %clean
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
@@ -141,21 +143,22 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/python%{python_ver}/site-packages/xapian.py
 %{_libdir}/python%{python_ver}/site-packages/xapian.pyc
 %ghost %{_libdir}/python%{python_ver}/site-packages/xapian.pyo
-%doc /usr/share/doc/%{name}-python-%{version}
+%doc %{_datadir}/doc/%{name}-python-%{version}
 %endif
 
 %if 0%{?!_without_php:1}
 %files php
 %defattr(-, root, root)
 %{php_extension_dir}/xapian.so
-%doc /usr/share/doc/%{name}-php-%{version}
+%{_datadir}/php/xapian.php
+%doc %{_datadir}/doc/%{name}-php-%{version}
 %endif
 
 %if 0%{?!_without_tcl8:1}
 %files tcl8
 %defattr(-, root, root)
-/usr/share/xapian%{version}
-%doc /usr/share/doc/%{name}-tcl8-%{version}
+%{_datadir}/xapian%{version}
+%doc %{_datadir}/doc/%{name}-tcl8-%{version}
 %endif
 
 %if 0%{?!_without_csharp:1}
@@ -165,5 +168,5 @@ make install DESTDIR=%{buildroot}
 %{_libdir}/XapianSharp.so
 %{_libdir}/mono/XapianSharp
 %{_libdir}/mono/gac/XapianSharp
-%doc /usr/share/doc/%{name}-csharp-%{version}
+%doc %{_datadir}/doc/%{name}-csharp-%{version}
 %endif

@@ -1,3 +1,9 @@
+Sat Jul 07 11:09:25 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian-bindings.spec.in: Update from Fabrice Colin: packages
+	  xapian.php, and replaces references to /usr/share with
+	  %{_datadir}.
+
 Thu Jul 05 21:01:38 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Wrap MatchDecider even for languages which don't
