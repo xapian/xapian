@@ -19,7 +19,8 @@ PROGRAMS = "$(OUTDIR)\quartzcheck.exe" \
            "$(OUTDIR)\xapian-compact.exe" \
            "$(OUTDIR)\xapian-progsrv.exe" \
            "$(OUTDIR)\xapian-tcpsrv.exe" \
-	   "$(OUTDIR)\xapian-inspect.exe"
+	   "$(OUTDIR)\xapian-inspect.exe" \
+	   "$(OUTDIR)\xapian-check.exe"
 SRCS = \
 	"$(INTDIR)\quartzcheck.cc" \
 	"$(INTDIR)\quartzcompact.cc" \
@@ -27,7 +28,8 @@ SRCS = \
 	"$(INTDIR)\xapian-compact.cc" \
 	"$(INTDIR)\xapian-progsrv.cc" \
 	"$(INTDIR)\xapian-tcpsrv.cc" \
-	"$(INTDIR)\xapian-inspect.cc" 
+	"$(INTDIR)\xapian-inspect.cc" \
+	"$(INTDIR)\xapian-check.cc"
 	   
 ALL : $(PROGRAMS)
 
@@ -45,6 +47,8 @@ XAPIAN_TCPSRV_OBJS= "$(INTDIR)\xapian-tcpsrv.obj"
 
 XAPIAN_INSPECT_OBJS= "$(INTDIR)\xapian-inspect.obj" 
 
+XAPIAN_CHECK_OBJS= "$(INTDIR)\xapian-check.obj" 
+
 	
 CLEAN :
 	-@erase $(PROGRAMS)
@@ -55,6 +59,7 @@ CLEAN :
 	-@erase $(XAPIAN_PROGSRV_OBJS)
 	-@erase $(XAPIAN_TCPSRV_OBJS)
 	-@erase $(XAPIAN_INSPECT_OBJS)
+	-@erase $(XAPIAN_CHECK_OBJS)
 	-@erase "$(INTDIR)\*.pdb"
 
 
@@ -113,6 +118,12 @@ PROGRAM_DEPENDENCIES = $(XAPIAN_LIBS)
                              $(PROGRAM_DEPENDENCIES)
     $(LINK32) @<<
   $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-inspect.exe" $(DEF_FLAGS) $(XAPIAN_INSPECT_OBJS)
+<<
+
+"$(OUTDIR)\xapian-check.exe" : "$(OUTDIR)" $(DEF_FILE) $(XAPIAN_CHECK_OBJS) \
+                             $(PROGRAM_DEPENDENCIES)
+    $(LINK32) @<<
+  $(ALL_LINK32_FLAGS) /out:"$(OUTDIR)\xapian-check.exe" $(DEF_FLAGS) $(XAPIAN_CHECK_OBJS)
 <<
 
 # inference rules, showing how to create one type of file from another with the same root name
