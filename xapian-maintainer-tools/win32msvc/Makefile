@@ -92,7 +92,6 @@ DISTCLEAN: CLEAN
 # Copy mak files to the right folders
 COPYMAKFILES: 
    copy config.h.win32 ..\config.h
-   copy ..\msvc\version.h ..\include\xapian\version.h
    copy  win32_api.mak ..\api\Makefile
    copy  win32_backends.mak ..\backends\Makefile
    copy  win32_backends_flint.mak ..\backends\flint\Makefile
@@ -128,7 +127,7 @@ TESTFORTOOLS:
    if not exist $(PERL_EXE) exit(1) 
    
 # Header files generated automatically from various .in files
-MAKEHEADERS: ..\include\xapian\error.h 
+MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h
 
 ..\generate-exceptions: ..\generate-exceptions.in Makefile
     $(PERL_EXE) -pe "BEGIN{$$perl=shift @ARGV} s,\@PERL\@,$$perl," "$(PERL_EXE)" ..\generate-exceptions.in > ..\generate-exceptions
@@ -137,4 +136,7 @@ MAKEHEADERS: ..\include\xapian\error.h
     cd..
     $(PERL_EXE) generate-exceptions
     cd win32
-       
+
+..\include\xapian\version.h: ..\msvc\version.h.in ..\configure.ac
+    $(PERL_EXE) ..\msvc\genversion.pl ..\configure.ac ..\msvc\version.h.in ..\include\xapian\version.h
+
