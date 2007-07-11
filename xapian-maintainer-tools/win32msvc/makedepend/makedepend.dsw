@@ -1,66 +1,17 @@
-Microsoft Developer Studio Workspace File, Format Version 6.00+
-# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!+
-+
-###############################################################################+
-+
-Project: "makedepend"=.\makedepend.dsp - Package Owner=<4>+
-+
-Package=<5>+
-{{{+
-    begin source code control+
-    "$/ALS2/tools/makedepend", XCGAAAAA+
-    .+
-    end source code control+
-}}}+
-+
-Package=<4>+
-{{{+
-}}}+
-+
-###############################################################################+
-+
-Global:+
-+
-Package=<5>+
-{{{+
-}}}+
-+
-Package=<3>+
-{{{+
-}}}+
-+
-###############################################################################+
-+
-Microsoft Developer Studio Workspace File, Format Version 6.00+
-# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!+
-+
-###############################################################################+
-+
-Project: "makedepend"=.\makedepend.dsp - Package Owner=<4>+
-+
-Package=<5>+
-{{{+
-    begin source code control+
-    "$/ALS2/tools/makedepend", XCGAAAAA+
-    .+
-    end source code control+
-}}}+
-+
-Package=<4>+
-{{{+
-}}}+
-+
-###############################################################################+
-+
-Global:+
-+
-Package=<5>+
-{{{+
-}}}+
-+
-Package=<3>+
-{{{+
-}}}+
-+
-###############################################################################+
-+
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
