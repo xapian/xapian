@@ -1,3 +1,16 @@
+Wed Jul 11 18:03:18 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Split MatchSpy into a
+	  base class (ValueCountMatchSpy), which just counts the values in
+	  the documents it sees, and a subclass (CategorySelectMatchSpy)
+	  which does the grouping into categories, and scores the
+	  categories.  Add another subclass (TopValueMatchSpy) which
+	  calculates a sorted vector holding the most frequent values.
+	* tests/api_wrdb.cc: Update matchspy1 and matchspy2 to use
+	  CategorySelectMatchSpy instead of MatchSpy, and corresponding
+	  changes to the methods.  Add matchspy3 to test the
+	  TopValueMatchSpy.
+
 Mon Jul 09 15:40:58 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/termgentest.cc: Fix copyright: everything I've done in 2007

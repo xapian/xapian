@@ -5,6 +5,7 @@
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2006 Richard Boulton
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1663,11 +1664,11 @@ static bool test_matchspy1()
 	db.add_document(doc);
     }
 
-    Xapian::MatchSpy spy;
+    Xapian::CategorySelectMatchSpy spy;
 
-    spy.add_category(0);
-    spy.add_category(1);
-    spy.add_category(3);
+    spy.add_slot(0);
+    spy.add_slot(1);
+    spy.add_slot(3);
 
     Xapian::Enquire enq(db);
 
@@ -1686,7 +1687,7 @@ static bool test_matchspy1()
 	NULL
     };
     for (Xapian::valueno v = 0; results[v]; ++v) {
-	const map<string, size_t> & cat = spy.get_categories(v);
+	const map<string, size_t> & cat = spy.get_values(v);
 	string str("|");
 	map<string, size_t>::const_iterator i;
 	for (i = cat.begin(); i != cat.end(); ++i) {
@@ -1761,12 +1762,12 @@ static bool test_matchspy2()
 	db.add_document(doc);
     }
 
-    Xapian::MatchSpy spy;
+    Xapian::CategorySelectMatchSpy spy;
 
-    spy.add_category(0);
-    spy.add_category(1);
-    spy.add_category(2);
-    spy.add_category(3);
+    spy.add_slot(0);
+    spy.add_slot(1);
+    spy.add_slot(2);
+    spy.add_slot(3);
 
     Xapian::Enquire enq(db);
 
@@ -1791,7 +1792,7 @@ static bool test_matchspy2()
 	    continue;
 	}
 	TEST(result);
-	const map<string, size_t> & cat = spy.get_categories(v);
+	const map<string, size_t> & cat = spy.get_values(v);
 	TEST(cat.size() <= 7);
 	string str("|");
 	map<string, size_t>::const_iterator i;
@@ -1815,6 +1816,89 @@ static bool test_matchspy2()
 	}
 	tout << "value " << v << endl;
 	TEST_STRINGS_EQUAL(str, results[v]);
+    }
+
+    return true;
+}
+
+static bool test_matchspy3()
+{
+    if (get_dbtype() == "remotetcp" || get_dbtype() == "remoteprog") {
+	SKIP_TEST("Test not supported for remote backend");
+    }
+
+    Xapian::WritableDatabase db = get_writable_database("");
+    for (int c = 1; c <= 25; ++c) {
+	Xapian::Document doc;
+	doc.set_data("Document " + om_tostring(c));
+	int factors = 0;
+	for (int factor = 1; factor <= c; ++factor) {
+	    doc.add_term("all");
+	    if (c % factor == 0) {
+		doc.add_term("XFACT" + om_tostring(factor));
+		++factors;
+	    }
+	}
+
+	// Number of factors.
+	doc.add_value(0, om_tostring(factors));
+	// Units digits.
+	doc.add_value(1, om_tostring(c % 10));
+	// Constant.
+	doc.add_value(2, "fish");
+	// Number of digits.
+	doc.add_value(3, om_tostring(om_tostring(c).size()));
+
+	db.add_document(doc);
+    }
+    
+    Xapian::TopValueMatchSpy spy;
+
+    spy.add_slot(0);
+    spy.add_slot(1);
+    spy.add_slot(3);
+
+    Xapian::Enquire enq(db);
+
+    enq.set_query(Xapian::Query("all"));
+
+    Xapian::MSet mset = enq.get_mset(0, 10, 0, NULL, NULL, &spy);
+
+    TEST_EQUAL(spy.get_total(), 25);
+
+    static const char * results[] = {
+	"|2:9|4:7|3:3|6:3|1:1|5:1|8:1|",
+	"|1:3|2:3|3:3|4:3|5:3|0:2|6:2|7:2|8:2|9:2|",
+	"|",
+	"|2:16|1:9|",
+	"|",
+	NULL
+    };
+    for (Xapian::valueno v = 0; results[v]; ++v) {
+	tout << "value " << v << endl;
+	std::vector<Xapian::TopValueMatchSpy::ValueAndFrequency> allvals;
+
+	spy.get_top_values(allvals, v, 100);
+	string allvals_str("|");
+	for (size_t i = 0; i < allvals.size(); i++) {
+	    allvals_str += allvals[i].value;
+	    allvals_str += ':';
+	    allvals_str += om_tostring(allvals[i].frequency);
+	    allvals_str += '|';
+	}
+	tout << allvals_str << endl;
+	TEST_STRINGS_EQUAL(allvals_str, results[v]);
+
+	std::vector<Xapian::TopValueMatchSpy::ValueAndFrequency> vals;
+	for (size_t i = 0; i < allvals.size(); i++) {
+	    tout << "i " << i << endl;
+	    spy.get_top_values(vals, v, i);
+	    for (size_t j = 0; j < vals.size(); j++) {
+		tout << "j " << j << endl;
+		TEST_EQUAL(vals[j].value, allvals[j].value);
+		TEST_EQUAL(vals[j].frequency, allvals[j].frequency);
+	    }
+	}
     }
 
     return true;
@@ -1856,5 +1940,6 @@ test_desc writabledb_tests[] = {
     TESTCASE(synonymitor1),
     TESTCASE(matchspy1),
     TESTCASE(matchspy2),
+    TESTCASE(matchspy3),
     END_OF_TESTCASES
 };

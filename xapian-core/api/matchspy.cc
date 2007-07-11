@@ -2,6 +2,7 @@
  * @brief MatchDecider subclasses for use as "match spies".
  */
 /* Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,20 +28,23 @@
 #include <float.h>
 #include <math.h>
 
+#include <algorithm>
 #include <map>
 #include <vector>
 #include <string>
+
+#include "omassert.h"
 
 using namespace std;
 
 namespace Xapian {
 
 bool
-MatchSpy::operator()(const Document &doc) const
+ValueCountMatchSpy::operator()(const Document &doc) const
 {
     ++total;
     map<Xapian::valueno, map<string, size_t> >::iterator i;
-    for (i = categories.begin(); i != categories.end(); ++i) {
+    for (i = values.begin(); i != values.end(); ++i) {
 	Xapian::valueno valno = i->first;
 	map<string, size_t> & tally = i->second;
 
@@ -53,12 +57,12 @@ MatchSpy::operator()(const Document &doc) const
 inline double sqrd(double x) { return x * x; }
 
 double
-MatchSpy::score_categorisation(Xapian::valueno valno,
-			       double desired_no_of_categories)
+CategorySelectMatchSpy::score_categorisation(Xapian::valueno valno,
+					     double desired_no_of_categories)
 {
     if (total == 0) return 0.0;
 
-    const map<string, size_t> & cat = categories[valno];
+    const map<string, size_t> & cat = values[valno];
     size_t total_unset = total;
     double score = 0.0;
 
@@ -98,9 +102,9 @@ struct bucketval {
 };
 
 bool
-MatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_ranges)
+CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_ranges)
 {
-    const map<string, size_t> & cat = categories[valno];
+    const map<string, size_t> & cat = values[valno];
 
     double lo = DBL_MAX, hi = -DBL_MAX;
 
@@ -171,9 +175,62 @@ MatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_ranges)
 	discrete_categories[""] = total_unset;
     }
 
-    swap(discrete_categories, categories[valno]);
+    swap(discrete_categories, values[valno]);
 
     return true;
+}
+
+class ValueAndFreqCmpByFreq {
+  public:
+    ValueAndFreqCmpByFreq() {}
+
+    // Return true if a has a lower frequency than b.
+    // If equal, compare by the value, to provide a stable sort order.
+    bool operator()(const TopValueMatchSpy::ValueAndFrequency &a,
+		    const TopValueMatchSpy::ValueAndFrequency &b) const {
+	if (a.frequency > b.frequency) return true;
+	if (a.frequency < b.frequency) return false;
+	if (a.value > b.value) return false;
+	return true;
+    }
+};
+
+void
+TopValueMatchSpy::get_top_values(vector<ValueAndFrequency> & result,
+				 valueno valno, size_t maxvalues) const
+
+{
+    const map<string, size_t> & vals = values[valno];
+
+    result.clear();
+    result.reserve(maxvalues);
+    ValueAndFreqCmpByFreq cmpfn;
+    bool is_heap(false);
+
+    for (map<string, size_t>::const_iterator i = vals.begin();
+	 i != vals.end(); i++) {
+	Assert(result.size() <= maxvalues);
+	result.push_back(ValueAndFrequency(i->first, i->second));
+	if (result.size() > maxvalues) {
+	    // Make the list back into a heap.
+	    if (is_heap) {
+		// Only the new element isn't in the right place.
+		push_heap(result.begin(), result.end(), cmpfn);
+	    } else {
+		// Need to build heap from scratch.
+		make_heap(result.begin(), result.end(), cmpfn);
+		is_heap = true;
+	    }
+	    pop_heap(result.begin(), result.end(), cmpfn);
+	    result.pop_back();
+	}
+    }
+
+    if (is_heap) {
+	sort_heap(result.begin(), result.end(), cmpfn);
+    } else {
+	sort(result.begin(), result.end(), cmpfn);
+    }
 }
 
 }

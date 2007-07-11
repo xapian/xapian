@@ -1,7 +1,8 @@
 /** @file matchspy.h
- * @brief MatchDecider subclasses for use as "match spies"
+ *  @brief MatchDecider subclasses for use as "match spies"
  */
 /* Copyright (C) 2007 Olly Betts
+ * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,34 +26,50 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 namespace Xapian {
 
-/// Class for classifying matching documents by their values.
-class XAPIAN_VISIBILITY_DEFAULT MatchSpy : public MatchDecider {
-    mutable size_t total;
+/// Class for counting the frequencies of values in the matching documents.
+class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
+  protected:
+    /** Total number of documents seen by the match spy. */
+    mutable Xapian::doccount total;
 
-    mutable std::map<Xapian::valueno, std::map<std::string, size_t> > categories;
+    /** Set of values seen in each slot so far, together with their frequency.
+     */
+    mutable std::map<Xapian::valueno, std::map<std::string, Xapian::doccount> > values;
 
   public:
     /// Default constructor.
-    MatchSpy() : total(0) { }
+    ValueCountMatchSpy() : total(0) { }
 
-    /** Construct a MatchSpy which classifies documents by a particular value.
+    /** Construct a MatchSpy which counts the values in a particular slot.
      *
-     *  Further values can be added by calling @a add_category().
+     *  Further slots can be added by calling @a add_slot().
      */
-    MatchSpy(Xapian::valueno valno) : total(0) {
-	add_category(valno);
+    ValueCountMatchSpy(Xapian::valueno valno) : total(0) {
+	add_slot(valno);
     }
 
-    /** Add a value number to classify documents by.
+    /** Add a slot number to count values in.
      *
-     *  A MatchSpy can classify by one or more values.
+     *  A ValueCountMatchSpy can count values in one or more slots.
      */
-    void add_category(Xapian::valueno valno) {
-	// Ensure that categories[valno] exists.
-	(void)categories[valno];
+    void add_slot(Xapian::valueno valno) {
+	// Ensure that values[valno] exists.
+	(void)values[valno];
+    }
+
+    /** Return the values seen in slot number @a valno. */
+    const std::map<std::string, size_t> &
+	    get_values(Xapian::valueno valno) const {
+	return values[valno];
+    }
+
+    /** Return the total number of documents tallied. */
+    size_t get_total() const {
+	return total;
     }
 
     /** Implementation of virtual operator().
@@ -60,16 +77,22 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy : public MatchDecider {
      *  This implementation tallies values for a matching document.
      */
     bool operator()(const Xapian::Document &doc) const;
+};
 
-    /** Return the total number of documents tallied. */
-    size_t get_total() const {
-	return total;
-    }
+/** MatchSpy for classifying matching documents by their values.
+ */
+class XAPIAN_VISIBILITY_DEFAULT CategorySelectMatchSpy :
+	public ValueCountMatchSpy {
+  public:
+    /// Default constructor.
+    CategorySelectMatchSpy() : ValueCountMatchSpy() { }
 
-    /** Return the categorisation for value number @a valno. */
-    const std::map<std::string, size_t> &
-	    get_categories(Xapian::valueno valno) const {
-	return categories[valno];
+    /** Construct a MatchSpy which classifies matching documents based on the
+     *  values in a particular slot.
+     *
+     *  Further slots can be added by calling @a add_slot().
+     */
+    CategorySelectMatchSpy(Xapian::valueno valno) : ValueCountMatchSpy(valno) {
     }
 
     /** Return a score reflecting how "good" a categorisation is.
@@ -115,6 +138,43 @@ class XAPIAN_VISIBILITY_DEFAULT MatchSpy : public MatchDecider {
      *		the same, no values set, or other reasons).
      */
     bool build_numeric_ranges(Xapian::valueno valno, size_t max_ranges);
+};
+
+/** MatchSpy for getting the most frequent values in a slot.
+ */
+class XAPIAN_VISIBILITY_DEFAULT TopValueMatchSpy :
+	public ValueCountMatchSpy {
+  public:
+    class ValueAndFrequency {
+      public:
+	std::string value;
+	Xapian::doccount frequency;
+	ValueAndFrequency(std::string value_, Xapian::doccount frequency_)
+	    : value(value_), frequency(frequency_) {}
+    };
+
+    /// Default constructor.
+    TopValueMatchSpy() : ValueCountMatchSpy() { }
+
+    /** Construct a MatchSpy which classifies matching documents based on the
+     *  values in a particular slot.
+     *
+     *  Further slots can be added by calling @a add_slot().
+     */
+    TopValueMatchSpy(Xapian::valueno valno) : ValueCountMatchSpy(valno) { }
+
+    /** Get the most frequent values in a slot.
+     *
+     *  @param valno The slot to examine (must have specified for examination
+     *  before performing the match - either by using the @a add_slot() method,
+     *  or using the constructor which takes a slot number.
+     *
+     *  @param maxvalues The maximum number of values to return.
+     *
+     *  @return A map of the most frequent values in the slot.
+     */
+    void get_top_values(std::vector<ValueAndFrequency> & result,
+			Xapian::valueno valno, size_t maxvalues) const;
 };
 
 }
