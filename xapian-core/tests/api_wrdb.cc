@@ -1876,7 +1876,7 @@ static bool test_matchspy3()
     };
     for (Xapian::valueno v = 0; results[v]; ++v) {
 	tout << "value " << v << endl;
-	std::vector<Xapian::TopValueMatchSpy::ValueAndFrequency> allvals;
+	std::vector<Xapian::ValueAndFrequency> allvals;
 
 	spy.get_top_values(allvals, v, 100);
 	string allvals_str("|");
@@ -1889,7 +1889,7 @@ static bool test_matchspy3()
 	tout << allvals_str << endl;
 	TEST_STRINGS_EQUAL(allvals_str, results[v]);
 
-	std::vector<Xapian::TopValueMatchSpy::ValueAndFrequency> vals;
+	std::vector<Xapian::ValueAndFrequency> vals;
 	for (size_t i = 0; i < allvals.size(); i++) {
 	    tout << "i " << i << endl;
 	    spy.get_top_values(vals, v, i);

@@ -186,8 +186,8 @@ class ValueAndFreqCmpByFreq {
 
     // Return true if a has a lower frequency than b.
     // If equal, compare by the value, to provide a stable sort order.
-    bool operator()(const TopValueMatchSpy::ValueAndFrequency &a,
-		    const TopValueMatchSpy::ValueAndFrequency &b) const {
+    bool operator()(const ValueAndFrequency &a,
+		    const ValueAndFrequency &b) const {
 	if (a.frequency > b.frequency) return true;
 	if (a.frequency < b.frequency) return false;
 	if (a.value > b.value) return false;

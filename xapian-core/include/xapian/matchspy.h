@@ -140,19 +140,20 @@ class XAPIAN_VISIBILITY_DEFAULT CategorySelectMatchSpy :
     bool build_numeric_ranges(Xapian::valueno valno, size_t max_ranges);
 };
 
+/** A value and frequency - used to return values from the TopValueMatchSpy.
+ */
+struct XAPIAN_VISIBILITY_DEFAULT ValueAndFrequency {
+    std::string value;
+    Xapian::doccount frequency;
+    ValueAndFrequency(std::string value_, Xapian::doccount frequency_)
+	    : value(value_), frequency(frequency_) {}
+};
+
 /** MatchSpy for getting the most frequent values in a slot.
  */
 class XAPIAN_VISIBILITY_DEFAULT TopValueMatchSpy :
 	public ValueCountMatchSpy {
   public:
-    class ValueAndFrequency {
-      public:
-	std::string value;
-	Xapian::doccount frequency;
-	ValueAndFrequency(std::string value_, Xapian::doccount frequency_)
-	    : value(value_), frequency(frequency_) {}
-    };
-
     /// Default constructor.
     TopValueMatchSpy() : ValueCountMatchSpy() { }
 
@@ -165,13 +166,17 @@ class XAPIAN_VISIBILITY_DEFAULT TopValueMatchSpy :
 
     /** Get the most frequent values in a slot.
      *
+     *  @param result A vector which will be filled with the most frequent
+     *                values, in descending order of frequency.  Values with
+     *                the same frequency will be sorted in ascending
+     *                alphabetical order.
+     *
      *  @param valno The slot to examine (must have specified for examination
-     *  before performing the match - either by using the @a add_slot() method,
-     *  or using the constructor which takes a slot number.
+     *               before performing the match - either by using the @a
+     *               add_slot() method, or using the constructor which takes a
+     *               slot number.
      *
      *  @param maxvalues The maximum number of values to return.
-     *
-     *  @return A map of the most frequent values in the slot.
      */
     void get_top_values(std::vector<ValueAndFrequency> & result,
 			Xapian::valueno valno, size_t maxvalues) const;
