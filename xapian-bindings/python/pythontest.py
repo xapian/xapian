@@ -819,6 +819,33 @@ def test_spell():
     del dbr
     shutil.rmtree(dbpath)
 
+def test_matchspy():
+    """Test match spy features.
+
+    """
+    context("checking a TopValueMatchSpy, without an actual search")
+    spy = xapian.TopValueMatchSpy()
+    spy.add_slot(1)
+
+    # Show some fake documents to the spy.
+    doc = xapian.Document()
+    doc.add_value(1, 'foo')
+    spy(doc)
+    spy(doc)
+    doc.add_value(1, 'bar')
+    spy(doc)
+    doc.add_value(1, 'foot')
+    spy(doc)
+
+    # Check the results
+    expect(spy.get_values(1), {'foot': 1, 'foo': 2, 'bar': 1})
+
+    expect(spy.get_top_values(1, 10), [('foo', 2), ('bar', 1), ('foot', 1)])
+    expect(spy.get_top_values(1, 2), [('foo', 2), ('bar', 1)])
+    expect(spy.get_top_values(1, 1), [('foo', 2)])
+    expect(spy.get_top_values(1, 0), [])
+
+
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
 # testing it for Python 2.2.
 vinfo = sys.version_info    

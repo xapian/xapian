@@ -156,7 +156,7 @@ namespace Xapian {
 	    Xapian::Query *subqp = Xapian::get_py_query(obj);
 	    if (!subqp) {
 		PyErr_SetString(PyExc_TypeError, "expected string or query");
-		return NULL;
+		SWIG_fail;
 	    }
 	    v.push_back(*subqp);
 	}
@@ -175,6 +175,86 @@ namespace Xapian {
 	PyObject * str = PyString_FromStringAndSize((*i).data(), (*i).size());
 	if (str == 0) return NULL;
 	if (PyList_Append($result, str) == -1) return NULL;
+    }
+}
+
+/* Typemap for returning a map of ints keyed by strings: converts to a dict.
+ * This is used for ValueCountMatchSpy::get_values().
+ */
+%typemap(out) const std::map<std::string, size_t> & {
+    $result = PyDict_New();
+    if ($result == 0) {
+	SWIG_fail;
+    }
+
+    for (std::map<std::string, size_t>::const_iterator i = $1->begin();
+         i != $1->end(); ++i) {
+        PyObject * str = PyString_FromStringAndSize((*i).first.data(),
+                                                    (*i).first.size());
+	if (str == 0) {
+            Py_DECREF($result);
+            $result = NULL;
+            SWIG_fail;
+        }
+
+        PyObject * l = PyInt_FromLong((*i).second);
+	if (l == 0) {
+            Py_DECREF(str);
+            Py_DECREF($result);
+            $result = NULL;
+            SWIG_fail;
+        }
+
+	if (PyDict_SetItem($result, str, l) == -1) {
+            Py_DECREF($result);
+            $result = NULL;
+            SWIG_fail;
+        }
+        Py_DECREF(str);
+        Py_DECREF(l);
+    }
+}
+
+/** Typemap pair for getting the return value from
+ *  TopValueMatchSpy::get_top_values().
+ */
+%typemap(in, numinputs=0) std::vector<Xapian::ValueAndFrequency> & result (std::vector<Xapian::ValueAndFrequency> temp) {
+    $1 = &temp;
+}
+%typemap(argout) std::vector<Xapian::ValueAndFrequency> & result {
+    Py_DECREF($result);
+    $result = PyList_New($1->size());
+    size_t pos = 0;
+    for (std::vector<Xapian::ValueAndFrequency>::const_iterator i = $1->begin();
+         i != $1->end(); ++i) {
+        PyObject * str = PyString_FromStringAndSize((*i).value.data(),
+                                                    (*i).value.size());
+	if (str == 0) {
+            Py_DECREF($result);
+            $result = NULL;
+            SWIG_fail;
+        }
+
+        PyObject * l = PyInt_FromLong((*i).frequency);
+	if (l == 0) {
+            Py_DECREF($result);
+            Py_DECREF(str);
+            $result = NULL;
+            SWIG_fail;
+        }
+
+	PyObject *t = PyTuple_New(2);
+	if (t == 0) {
+            Py_DECREF($result);
+            Py_DECREF(str);
+            Py_DECREF(l);
+            $result = NULL;
+            SWIG_fail;
+        }
+        PyTuple_SetItem(t, 0, str);
+        PyTuple_SetItem(t, 1, l);
+
+        PyList_SetItem($result, pos++, t);
     }
 }
 
