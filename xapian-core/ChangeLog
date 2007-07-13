@@ -1,3 +1,17 @@
+Sat Jul 14 00:17:06 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Get rid of the
+	  TopValueMatchSpy in favour of a new function
+	  "get_most_frequent_items", which processes the output of a
+	  ValueCountMatchSpy.  Add a TermCountMatchSpy which counts the
+	  occurrences of terms with a given prefix, and gives output in
+	  the same form as ValueCountMatchSpy.  Add convenience methods
+	  ValueCountMatchSpy::get_top_values() and
+	  TermCountMatchSpy::get_top_terms() which use this to return the
+	  most frequent items seen by the matchspy.
+	* tests/api_wrdb.cc: Test the ValueCountMatchSpy, and the
+	  get_most_frequent_items() function.
+
 Fri Jul 13 18:57:30 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/andpostlist.cc,tests/api_anydb.cc: Improve the lower

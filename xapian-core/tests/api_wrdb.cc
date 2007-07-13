@@ -1852,7 +1852,7 @@ static bool test_matchspy3()
 	db.add_document(doc);
     }
     
-    Xapian::TopValueMatchSpy spy;
+    Xapian::ValueCountMatchSpy spy;
 
     spy.add_slot(0);
     spy.add_slot(1);
@@ -1876,12 +1876,12 @@ static bool test_matchspy3()
     };
     for (Xapian::valueno v = 0; results[v]; ++v) {
 	tout << "value " << v << endl;
-	std::vector<Xapian::ValueAndFrequency> allvals;
+	std::vector<Xapian::StringAndFrequency> allvals;
 
-	spy.get_top_values(allvals, v, 100);
+	get_most_frequent_items(allvals, spy.get_values(v), 100);
 	string allvals_str("|");
 	for (size_t i = 0; i < allvals.size(); i++) {
-	    allvals_str += allvals[i].value;
+	    allvals_str += allvals[i].str;
 	    allvals_str += ':';
 	    allvals_str += om_tostring(allvals[i].frequency);
 	    allvals_str += '|';
@@ -1889,13 +1889,13 @@ static bool test_matchspy3()
 	tout << allvals_str << endl;
 	TEST_STRINGS_EQUAL(allvals_str, results[v]);
 
-	std::vector<Xapian::ValueAndFrequency> vals;
+	std::vector<Xapian::StringAndFrequency> vals;
 	for (size_t i = 0; i < allvals.size(); i++) {
 	    tout << "i " << i << endl;
-	    spy.get_top_values(vals, v, i);
+	    get_most_frequent_items(vals, spy.get_values(v), i);
 	    for (size_t j = 0; j < vals.size(); j++) {
 		tout << "j " << j << endl;
-		TEST_EQUAL(vals[j].value, allvals[j].value);
+		TEST_EQUAL(vals[j].str, allvals[j].str);
 		TEST_EQUAL(vals[j].frequency, allvals[j].frequency);
 	    }
 	}

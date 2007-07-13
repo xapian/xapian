@@ -34,6 +34,7 @@
 #include <string>
 
 #include "omassert.h"
+#include "stringutils.h"
 
 using namespace std;
 
@@ -50,6 +51,25 @@ ValueCountMatchSpy::operator()(const Document &doc) const
 
 	string val(doc.get_value(valno));
 	if (!val.empty()) ++tally[val];
+    }
+    return true;
+}
+
+bool
+TermCountMatchSpy::operator()(const Document &doc) const
+{
+    ++documents_seen;
+    map<std::string, map<string, size_t> >::iterator i;
+    for (i = terms.begin(); i != terms.end(); ++i) {
+	std::string prefix = i->first;
+	map<string, size_t> & tally = i->second;
+
+	TermIterator j = doc.termlist_begin();
+	j.skip_to(prefix);
+	for (; j != doc.termlist_end() && startswith((*j), prefix); ++j) {
+	    ++tally[(*j).substr(prefix.size())];
+	    ++terms_seen;
+	}
     }
     return true;
 }
@@ -180,38 +200,36 @@ CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_r
     return true;
 }
 
-class ValueAndFreqCmpByFreq {
+class StringAndFreqCmpByFreq {
   public:
-    ValueAndFreqCmpByFreq() {}
+    StringAndFreqCmpByFreq() {}
 
     // Return true if a has a lower frequency than b.
-    // If equal, compare by the value, to provide a stable sort order.
-    bool operator()(const ValueAndFrequency &a,
-		    const ValueAndFrequency &b) const {
+    // If equal, compare by the str, to provide a stable sort order.
+    bool operator()(const StringAndFrequency &a,
+		    const StringAndFrequency &b) const {
 	if (a.frequency > b.frequency) return true;
 	if (a.frequency < b.frequency) return false;
-	if (a.value > b.value) return false;
+	if (a.str > b.str) return false;
 	return true;
     }
 };
 
 void
-TopValueMatchSpy::get_top_values(vector<ValueAndFrequency> & result,
-				 valueno valno, size_t maxvalues) const
-
+get_most_frequent_items(vector<StringAndFrequency> & result,
+			const map<string, size_t> & items,
+			size_t maxitems)
 {
-    const map<string, size_t> & vals = values[valno];
-
     result.clear();
-    result.reserve(maxvalues);
-    ValueAndFreqCmpByFreq cmpfn;
+    result.reserve(maxitems);
+    StringAndFreqCmpByFreq cmpfn;
     bool is_heap(false);
 
-    for (map<string, size_t>::const_iterator i = vals.begin();
-	 i != vals.end(); i++) {
-	Assert(result.size() <= maxvalues);
-	result.push_back(ValueAndFrequency(i->first, i->second));
-	if (result.size() > maxvalues) {
+    for (map<string, size_t>::const_iterator i = items.begin();
+	 i != items.end(); i++) {
+	Assert(result.size() <= maxitems);
+	result.push_back(StringAndFrequency(i->first, i->second));
+	if (result.size() > maxitems) {
 	    // Make the list back into a heap.
 	    if (is_heap) {
 		// Only the new element isn't in the right place.

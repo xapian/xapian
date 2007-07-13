@@ -30,6 +30,36 @@
 
 namespace Xapian {
 
+/** A string with a corresponding frequency.
+ */
+struct XAPIAN_VISIBILITY_DEFAULT StringAndFrequency {
+    std::string str;
+    Xapian::doccount frequency;
+    StringAndFrequency(std::string str_, Xapian::doccount frequency_)
+	    : str(str_), frequency(frequency_) {}
+};
+
+/** Get the most frequent items from a map from string to frequency.
+ *
+ *  This takes input such as that returned by @a
+ *  ValueCountMatchSpy::get_values(), and returns a vector of the most
+ *  frequent items in the input.
+ *
+ *  @param result A vector which will be filled with the most frequent
+ *                items, in descending order of frequency.  Items with
+ *                the same frequency will be sorted in ascending
+ *                alphabetical order.
+ *
+ *  @param items The map from string to frequency, from which the most
+ *               frequent items will be selected.
+ *
+ *  @param maxitems The maximum number of items to return.
+ */
+extern void
+get_most_frequent_items(std::vector<StringAndFrequency> & result,
+			const std::map<std::string, size_t> & items,
+			size_t maxitems);
+
 /// Class for counting the frequencies of values in the matching documents.
 class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
   protected:
@@ -61,7 +91,13 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
 	(void)values[valno];
     }
 
-    /** Return the values seen in slot number @a valno. */
+    /** Return the values seen in slot number @a valno.
+     *
+     *  @param valno The slot to examine (must have specified for examination
+     *               before performing the match - either by using the @a
+     *               add_slot() method, or using the constructor which takes a
+     *               slot number.)
+     */
     const std::map<std::string, size_t> &
 	    get_values(Xapian::valueno valno) const {
 	return values[valno];
@@ -72,12 +108,133 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
 	return total;
     }
 
+    /** Get the most frequent values in a slot.
+     *
+     *  @param result A vector which will be filled with the most frequent
+     *                values, in descending order of frequency.  Values with
+     *                the same frequency will be sorted in ascending
+     *                alphabetical order.
+     *
+     *  @param valno The slot to examine (must have specified for examination
+     *               before performing the match - either by using the @a
+     *               add_slot() method, or using the constructor which takes a
+     *               slot number.)
+     *
+     *  @param maxvalues The maximum number of values to return.
+     */
+    void get_top_values(std::vector<StringAndFrequency> & result,
+			Xapian::valueno valno, size_t maxvalues) const
+    {
+	get_most_frequent_items(result, get_values(valno), maxvalues);
+    }
+
     /** Implementation of virtual operator().
      *
      *  This implementation tallies values for a matching document.
      */
     bool operator()(const Xapian::Document &doc) const;
 };
+
+/** Class for counting the frequencies of terms in the matching documents.
+ *
+ *  Note that accessing the list of terms is generally more expensive than
+ *  accesing a value, so if it is possible to store the information you need
+ *  in a value, you should probably use a ValueCountMatchSpy instead of a
+ *  TermCountMatchSpy.
+ */
+class XAPIAN_VISIBILITY_DEFAULT TermCountMatchSpy : public MatchDecider {
+  protected:
+    /** Total number of documents seen by the match spy. */
+    mutable Xapian::doccount documents_seen;
+
+    /** Total number of term instances seen by the match spy. */
+    mutable Xapian::termcount terms_seen;
+
+    /** Set of term suffixes seen for each prefix so far, together with their
+     *  frequency.
+     *
+     *  Only the suffix (ie, the part of the term after the prefix) is stored,
+     *  to reduce memory usage.
+     */
+    mutable std::map<std::string, std::map<std::string, Xapian::doccount> > terms;
+
+  public:
+    /// Default constructor.
+    TermCountMatchSpy() : documents_seen(0), terms_seen(0) { }
+
+    /** Construct a MatchSpy which counts the terms with a particular prefix.
+     *
+     *  Further prefixes can be added by calling @a add_prefix().
+     */
+    TermCountMatchSpy(std::string prefix) : documents_seen(0), terms_seen(0) {
+	add_prefix(prefix);
+    }
+
+    /** Add a prefix to count terms with.
+     *
+     *  A TermCountMatchSpy can count terms with one or more prefixes.
+     *  If the prefixes overlap (eg, "X" and "XA"), terms with both prefixes
+     *  will be counted for each of those prefixes.
+     */
+    void add_prefix(std::string prefix) {
+	// Ensure that terms[prefix] exists.
+	(void)terms[prefix];
+    }
+
+    /** Return the suffixes of those terms seen with prefix @a prefix.
+     *
+     *  @param prefix The prefix to examine (must have specified for
+     *                examination before performing the match - either by using
+     *                the @a add_prefix() method, or using the constructor
+     *                which takes a prefix.)
+     */
+    const std::map<std::string, size_t> &
+	    get_terms(std::string prefix) const {
+	return terms[prefix];
+    }
+
+    /** Return the number of documents tallied. */
+    size_t get_documents_seen() const {
+	return documents_seen;
+    }
+
+    /** Return the number of term occurrences tallied.
+     *
+     *  If terms occur in more than one of the prefixes specified, they will
+     *  be counted multiple times.
+     */
+    size_t get_terms_seen() const {
+	return terms_seen;
+    }
+
+    /** Get the most frequent terms with a given prefix.
+     *
+     *  @param result A vector which will be filled with the most frequent
+     *                terms, in descending order of frequency.  Terms with
+     *                the same frequency will be sorted in ascending
+     *                alphabetical order.
+     *
+     *  @param prefix The prefix to examine (must have specified for
+     *                examination before performing the match - either by using
+     *                the @a add_prefix() method, or using the constructor
+     *                which takes a prefix.)
+     *
+     *  @param maxterms The maximum number of terms to return.
+     */
+    void get_top_terms(std::vector<StringAndFrequency> & result,
+		       std::string prefix, size_t maxterms) const
+    {
+	get_most_frequent_items(result, get_terms(prefix), maxterms);
+    }
+
+    /** Implementation of virtual operator().
+     *
+     *  This implementation tallies terms for a matching document.
+     */
+    bool operator()(const Xapian::Document &doc) const;
+};
+
+
 
 /** MatchSpy for classifying matching documents by their values.
  */
@@ -138,48 +295,6 @@ class XAPIAN_VISIBILITY_DEFAULT CategorySelectMatchSpy :
      *		the same, no values set, or other reasons).
      */
     bool build_numeric_ranges(Xapian::valueno valno, size_t max_ranges);
-};
-
-/** A value and frequency - used to return values from the TopValueMatchSpy.
- */
-struct XAPIAN_VISIBILITY_DEFAULT ValueAndFrequency {
-    std::string value;
-    Xapian::doccount frequency;
-    ValueAndFrequency(std::string value_, Xapian::doccount frequency_)
-	    : value(value_), frequency(frequency_) {}
-};
-
-/** MatchSpy for getting the most frequent values in a slot.
- */
-class XAPIAN_VISIBILITY_DEFAULT TopValueMatchSpy :
-	public ValueCountMatchSpy {
-  public:
-    /// Default constructor.
-    TopValueMatchSpy() : ValueCountMatchSpy() { }
-
-    /** Construct a MatchSpy which classifies matching documents based on the
-     *  values in a particular slot.
-     *
-     *  Further slots can be added by calling @a add_slot().
-     */
-    TopValueMatchSpy(Xapian::valueno valno) : ValueCountMatchSpy(valno) { }
-
-    /** Get the most frequent values in a slot.
-     *
-     *  @param result A vector which will be filled with the most frequent
-     *                values, in descending order of frequency.  Values with
-     *                the same frequency will be sorted in ascending
-     *                alphabetical order.
-     *
-     *  @param valno The slot to examine (must have specified for examination
-     *               before performing the match - either by using the @a
-     *               add_slot() method, or using the constructor which takes a
-     *               slot number.
-     *
-     *  @param maxvalues The maximum number of values to return.
-     */
-    void get_top_values(std::vector<ValueAndFrequency> & result,
-			Xapian::valueno valno, size_t maxvalues) const;
 };
 
 }
