@@ -83,10 +83,9 @@ NumberValueRangeProcessor
 This class allows you to implement numeric range searches.  The numbers used
 may be any number which is representable as a double, but requires that the
 stored values which the range is being applied to are numbers which have been
-converted to strings using the ``NumberValueRangeProcessor::float_to_string()``
-method.  This method produces strings which will sort in numeric order, so you
-can use it if you want to be able to sort based on the value in numeric order,
-too.
+converted to strings using the ``Xapian::sortable_serialise()`` method.  This
+method produces strings which will sort in numeric order, so you can use it if
+you want to be able to sort based on the value in numeric order, too.
 
 The class allows a prefix or suffix to be specified which must be present on
 the values, allowing multiple NumberValueRangeProcessors to be active in the
