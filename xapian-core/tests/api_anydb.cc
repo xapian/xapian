@@ -1376,7 +1376,7 @@ static bool test_matches1()
     myquery = query(Xapian::Query::OP_AND, "paragraph", "another");
     enquire.set_query(myquery);
     mymset = enquire.get_mset(0, 0);
-    TEST_EQUAL(mymset.get_matches_lower_bound(), 0);
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
     TEST_EQUAL(mymset.get_matches_estimated(), 1);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
 

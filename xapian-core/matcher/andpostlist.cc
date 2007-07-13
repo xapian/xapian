@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -120,7 +121,17 @@ Xapian::doccount
 AndPostList::get_termfreq_min() const
 {
     DEBUGCALL(MATCH, Xapian::doccount, "AndPostList::get_termfreq_min", "");
-    RETURN(0u);
+    // To have minimum matching documents, sets of documents matching both
+    // components of the AND must be minimal in size, and maximally disjoint.
+    //
+    // The overlap is then given by:
+    //  = lower_bound(left) + lower_bound(right) - dbsize
+    Xapian::doccount sum = l->get_termfreq_min() + r->get_termfreq_min();
+    if (sum > dbsize) {
+	RETURN(sum - dbsize);
+    } else {
+	RETURN(0u);
+    }
 }
 
 Xapian::doccount

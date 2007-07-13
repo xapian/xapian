@@ -1,3 +1,14 @@
+Fri Jul 13 18:57:30 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/andpostlist.cc,tests/api_anydb.cc: Improve the lower
+	  bound on the number of matching documents for an AND query - if
+	  the sum of the lower bounds for the two sides is greater than the
+	  number of documents in the database, then some of them must have
+	  both terms.  This greatly improves the lower bound for queries of
+	  the form "<alldocuments> FILTER foo" (since FILTER is a subclass
+	  of AND, and uses the same method), but is probably a useful
+	  improvement elsewhere.
+
 Fri Jul 13 17:53:46 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/valueranges.rst: Correct out-of-date reference to
