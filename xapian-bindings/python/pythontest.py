@@ -823,23 +823,37 @@ def test_matchspy():
     """Test match spy features.
 
     """
-    context("checking a TopValueMatchSpy, without an actual search")
-    spy = xapian.TopValueMatchSpy()
+    context("checking a ValueCountMatchSpy and TermCountMatchSpy, without an actual search")
+    spy = xapian.ValueCountMatchSpy()
     spy.add_slot(1)
+    spy2 = xapian.TermCountMatchSpy()
+    spy2.add_prefix('T')
+    spy2.add_prefix('Tf')
+    spy2.add_prefix('Z')
+    spy2.add_prefix('')
 
     # Show some fake documents to the spy.
     doc = xapian.Document()
     doc.add_value(1, 'foo')
+    doc.add_term('Tfoo')
     spy(doc)
+    spy2(doc)
     spy(doc)
+    spy2(doc)
     doc.add_value(1, 'bar')
+    doc.add_term('Tbar')
     spy(doc)
+    spy2(doc)
     doc.add_value(1, 'foot')
+    doc.add_term('Tfoot')
     spy(doc)
+    spy2(doc)
 
     # Check the results
-    expect(spy.get_values(1), {'foot': 1, 'foo': 2, 'bar': 1})
+    expect(spy.get_values_as_dict(1), {'foot': 1, 'foo': 2, 'bar': 1})
+    expect(spy2.get_terms_as_dict('T'), {'foo': 4, 'foot': 1, 'bar': 2})
 
+    expect(xapian.get_most_frequent_items(spy.get_values(1), 10), [('foo', 2), ('bar', 1), ('foot', 1)])
     expect(spy.get_top_values(1, 10), [('foo', 2), ('bar', 1), ('foot', 1)])
     expect(spy.get_top_values(1, 2), [('foo', 2), ('bar', 1)])
     expect(spy.get_top_values(1, 1), [('foo', 2)])

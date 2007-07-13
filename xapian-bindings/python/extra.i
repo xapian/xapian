@@ -22,6 +22,19 @@
  */
 %}
 
+%extend ValueCountMatchSpy {
+    PyObject * get_values_as_dict(Xapian::valueno valno) {
+        return value_map_to_dict($self->get_values(valno));
+    }
+}
+
+%extend TermCountMatchSpy {
+    PyObject * get_terms_as_dict(std::string prefix) {
+        return value_map_to_dict($self->get_terms(prefix));
+    }
+}
+
+
 %pythoncode %{
 
 # Set the documentation format - this is used by tools like "epydoc" to decide

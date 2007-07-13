@@ -178,57 +178,61 @@ namespace Xapian {
     }
 }
 
+%{
 /* Typemap for returning a map of ints keyed by strings: converts to a dict.
  * This is used for ValueCountMatchSpy::get_values().
  */
-%typemap(out) const std::map<std::string, size_t> & {
-    $result = PyDict_New();
-    if ($result == 0) {
-	SWIG_fail;
+PyObject *
+value_map_to_dict(const std::map<std::string, size_t> & vals)
+{
+    PyObject * result = PyDict_New();
+    if (result == 0) {
+	return NULL;
     }
 
-    for (std::map<std::string, size_t>::const_iterator i = $1->begin();
-         i != $1->end(); ++i) {
+    std::map<std::string, size_t>::const_iterator i;
+    for (i = vals.begin(); i != vals.end(); ++i) {
         PyObject * str = PyString_FromStringAndSize((*i).first.data(),
                                                     (*i).first.size());
 	if (str == 0) {
-            Py_DECREF($result);
-            $result = NULL;
-            SWIG_fail;
+            Py_DECREF(result);
+            result = NULL;
+            return NULL;
         }
 
         PyObject * l = PyInt_FromLong((*i).second);
 	if (l == 0) {
             Py_DECREF(str);
-            Py_DECREF($result);
-            $result = NULL;
-            SWIG_fail;
+            Py_DECREF(result);
+            result = NULL;
+            return NULL;
         }
 
-	if (PyDict_SetItem($result, str, l) == -1) {
-            Py_DECREF($result);
-            $result = NULL;
-            SWIG_fail;
+	if (PyDict_SetItem(result, str, l) == -1) {
+            Py_DECREF(result);
+            result = NULL;
+            return NULL;
         }
         Py_DECREF(str);
         Py_DECREF(l);
     }
+    return result;
 }
+%}
 
-/** Typemap pair for getting the return value from
- *  TopValueMatchSpy::get_top_values().
+/** Typemap pair for getting the return value from @a get_most_frequent_items().
  */
-%typemap(in, numinputs=0) std::vector<Xapian::ValueAndFrequency> & result (std::vector<Xapian::ValueAndFrequency> temp) {
+%typemap(in, numinputs=0) std::vector<Xapian::StringAndFrequency> & result (std::vector<Xapian::StringAndFrequency> temp) {
     $1 = &temp;
 }
-%typemap(argout) std::vector<Xapian::ValueAndFrequency> & result {
+%typemap(argout) std::vector<Xapian::StringAndFrequency> & result {
     Py_DECREF($result);
     $result = PyList_New($1->size());
     size_t pos = 0;
-    for (std::vector<Xapian::ValueAndFrequency>::const_iterator i = $1->begin();
+    for (std::vector<Xapian::StringAndFrequency>::const_iterator i = $1->begin();
          i != $1->end(); ++i) {
-        PyObject * str = PyString_FromStringAndSize((*i).value.data(),
-                                                    (*i).value.size());
+        PyObject * str = PyString_FromStringAndSize((*i).str.data(),
+                                                    (*i).str.size());
 	if (str == 0) {
             Py_DECREF($result);
             $result = NULL;
