@@ -857,6 +857,11 @@ def test_matchspy():
     expect(spy.get_top_values(1, 1), [('foo', 2)])
     expect(spy.get_top_values(1, 0), [])
 
+    expect(spy2.get_top_terms('T', 10), [('foo', 4), ('bar', 2), ('foot', 1)])
+    expect(spy2.get_top_terms('T', 2), [('foo', 4), ('bar', 2)])
+    expect(spy2.get_top_terms('T', 1), [('foo', 4)])
+    expect(spy2.get_top_terms('T', 0), [])
+
 
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
 # testing it for Python 2.2.
