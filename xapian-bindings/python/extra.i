@@ -933,6 +933,20 @@ for item in dir():
     __all__.append(item)
 __all__ = tuple(__all__)
 
+
+# Fix up MultipleMatchDecider so that it keeps a python reference to the
+# deciders supplied to it so that they won't be deleted before the
+# MultipleMatchDecider.  This hack can probably be removed once xapian bug #186
+# is fixed.
+_multiple_match_decider_append_orig = MultipleMatchDecider.append
+def _multiple_match_decider_append(self, decider):
+    if not hasattr(self, '_deciders'):
+        self._deciders = []
+    self._deciders.append(decider)
+    _multiple_match_decider_append_orig(self, decider)
+_multiple_match_decider_append.__doc__ = MultipleMatchDecider.append.__doc__
+MultipleMatchDecider.append = _multiple_match_decider_append
+
 %}
 
 /* vim:syntax=python:set expandtab: */
