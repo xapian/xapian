@@ -853,7 +853,6 @@ def test_matchspy():
     expect(spy.get_values_as_dict(1), {'foot': 1, 'foo': 2, 'bar': 1})
     expect(spy2.get_terms_as_dict('T'), {'foo': 4, 'foot': 1, 'bar': 2})
 
-    expect(xapian.get_most_frequent_items(spy.get_values(1), 10), [('foo', 2), ('bar', 1), ('foot', 1)])
     expect(spy.get_top_values(1, 10), [('foo', 2), ('bar', 1), ('foot', 1)])
     expect(spy.get_top_values(1, 2), [('foo', 2), ('bar', 1)])
     expect(spy.get_top_values(1, 1), [('foo', 2)])

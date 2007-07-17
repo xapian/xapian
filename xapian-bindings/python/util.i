@@ -180,7 +180,7 @@ namespace Xapian {
 
 %{
 /* Typemap for returning a map of ints keyed by strings: converts to a dict.
- * This is used for ValueCountMatchSpy::get_values().
+ * This is used for @a ValueCountMatchSpy::get_values().
  */
 PyObject *
 value_map_to_dict(const std::map<std::string, size_t> & vals)
@@ -220,7 +220,7 @@ value_map_to_dict(const std::map<std::string, size_t> & vals)
 }
 %}
 
-/** Typemap pair for getting the return value from @a get_most_frequent_items().
+/** Typemap pair for getting the return value from @a ValueCountMatchSpy::get_top_values().
  */
 %typemap(in, numinputs=0) std::vector<Xapian::StringAndFrequency> & result (std::vector<Xapian::StringAndFrequency> temp) {
     $1 = &temp;
