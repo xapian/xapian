@@ -316,6 +316,58 @@ static bool test_matchfunctor2()
     return true;
 }
 
+// Test builtin match deciders
+static bool test_matchfunctor3()
+{
+    Xapian::Database db(get_database("apitest_simpledata"));
+    Xapian::Enquire enquire(db);
+    enquire.set_query(Xapian::Query("this"));
+
+    myMatchDecider myfunctor;
+    Xapian::ValueCountMatchSpy myspy1(1);
+    Xapian::ValueCountMatchSpy myspy2(1);
+    Xapian::MultipleMatchDecider multidecider;
+    multidecider.append(&myspy1);
+    multidecider.append(&myfunctor);
+    multidecider.append(&myspy2);
+
+    Xapian::MSet mymset = enquire.get_mset(0, 100, 0, NULL, &multidecider);
+
+    vector<bool> docid_checked(db.get_lastdocid());
+
+    // Check that we get the expected number of matches, and that they
+    // satisfy the condition.
+    Xapian::MSetIterator i = mymset.begin();
+    TEST(i != mymset.end());
+    TEST_EQUAL(mymset.size(), 3);
+    for ( ; i != mymset.end(); ++i) {
+	const Xapian::Document doc(i.get_document());
+	TEST(myfunctor(doc));
+	docid_checked[*i] = true;
+    }
+
+    // Check that the other documents don't satisfy the condition.
+    for (Xapian::docid did = 1; did < docid_checked.size(); ++did) {
+	if (!docid_checked[did]) {
+	    TEST(!myfunctor(db.get_document(did)));
+	}
+    }
+
+    // Check that the second of our spies only saw the documents which were
+    // passed by the functor.
+    const std::map<std::string, size_t> & vals1 = myspy1.get_values(1);
+    const std::map<std::string, size_t> & vals2 = myspy2.get_values(1);
+    TEST(vals1.size() == 2);
+    TEST(vals1.find("h") != vals1.end());
+    TEST(vals1.find("n") != vals1.end());
+    TEST(vals1.find("h")->second == 5);
+    TEST(vals1.find("n")->second == 1);
+    TEST(vals2.size() == 1);
+    TEST(vals2.find("h") != vals2.end());
+    TEST(vals2.find("h")->second == 3);
+    return true;
+}
+
 // tests that mset iterators on msets compare correctly.
 static bool test_msetiterator1()
 {
@@ -1757,6 +1809,7 @@ test_desc collfreq_tests[] = {
 test_desc localdb_tests[] = {
     {"matchfunctor1",	   test_matchfunctor1},
     {"matchfunctor2",	   test_matchfunctor2},
+    {"matchfunctor3",	   test_matchfunctor3},
     {"msetiterator1",	   test_msetiterator1},
     {"msetiterator2",	   test_msetiterator2},
     {"msetiterator3",	   test_msetiterator3},

@@ -30,6 +30,38 @@
 
 namespace Xapian {
 
+
+/// Class which applies several match deciders in turn.
+class XAPIAN_VISIBILITY_DEFAULT MultipleMatchDecider : public MatchDecider {
+  private:
+    /** List of match deciders to call, in order.
+     *
+     *  FIXME: this should be a list of reference count pointers, so the caller
+     *  doesn't have to ensure that they're not deleted before use.  See bug #186
+     *  for details.
+     */
+    std::vector<const MatchDecider *> deciders;
+
+  public:
+    /** Add a match decider to the end of the list to be called.
+     *
+     *  Note that the caller must ensure that the decider is not deleted before
+     *  it is used - the MultipleMatchDecider keeps a pointer to the supplied
+     *  decider.
+     */
+    void append(const MatchDecider * decider) {
+	deciders.push_back(decider);
+    }
+
+    /** Implementation of virtual operator().
+     *
+     *  This implementation calls the deciders in turn, until one of them
+     *  returns false, or all have been called.  It returns true iff all the
+     *  deciders return true.
+     */
+    bool operator()(const Xapian::Document &doc) const;
+};
+
 /** A string with a corresponding frequency.
  */
 struct XAPIAN_VISIBILITY_DEFAULT StringAndFrequency {

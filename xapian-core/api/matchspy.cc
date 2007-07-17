@@ -40,6 +40,16 @@ using namespace std;
 
 namespace Xapian {
 
+bool 
+MultipleMatchDecider::operator()(const Xapian::Document &doc) const
+{
+    std::vector<const MatchDecider *>::const_iterator i;
+    for (i = deciders.begin(); i != deciders.end(); i++) {
+	if (!((**i)(doc))) return false;
+    }
+    return true;
+}
+
 /** Compare two StringAndFrequency objects.
  *
  *  The comparison is firstly by frequency (higher is better), then by string
