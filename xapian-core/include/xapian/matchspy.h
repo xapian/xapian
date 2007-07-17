@@ -39,27 +39,6 @@ struct XAPIAN_VISIBILITY_DEFAULT StringAndFrequency {
 	    : str(str_), frequency(frequency_) {}
 };
 
-/** Get the most frequent items from a map from string to frequency.
- *
- *  This takes input such as that returned by @a
- *  ValueCountMatchSpy::get_values(), and returns a vector of the most
- *  frequent items in the input.
- *
- *  @param result A vector which will be filled with the most frequent
- *                items, in descending order of frequency.  Items with
- *                the same frequency will be sorted in ascending
- *                alphabetical order.
- *
- *  @param items The map from string to frequency, from which the most
- *               frequent items will be selected.
- *
- *  @param maxitems The maximum number of items to return.
- */
-extern void
-get_most_frequent_items(std::vector<StringAndFrequency> & result,
-			const std::map<std::string, size_t> & items,
-			size_t maxitems);
-
 /// Class for counting the frequencies of values in the matching documents.
 class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
   protected:
@@ -123,10 +102,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
      *  @param maxvalues The maximum number of values to return.
      */
     void get_top_values(std::vector<StringAndFrequency> & result,
-			Xapian::valueno valno, size_t maxvalues) const
-    {
-	get_most_frequent_items(result, get_values(valno), maxvalues);
-    }
+			Xapian::valueno valno, size_t maxvalues) const;
 
     /** Implementation of virtual operator().
      *
@@ -222,10 +198,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermCountMatchSpy : public MatchDecider {
      *  @param maxterms The maximum number of terms to return.
      */
     void get_top_terms(std::vector<StringAndFrequency> & result,
-		       std::string prefix, size_t maxterms) const
-    {
-	get_most_frequent_items(result, get_terms(prefix), maxterms);
-    }
+		       std::string prefix, size_t maxterms) const;
 
     /** Implementation of virtual operator().
      *

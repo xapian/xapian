@@ -40,6 +40,79 @@ using namespace std;
 
 namespace Xapian {
 
+/** Compare two StringAndFrequency objects.
+ *
+ *  The comparison is firstly by frequency (higher is better), then by string
+ *  (earlier lexicographic sort is better).
+ */
+class StringAndFreqCmpByFreq {
+  public:
+    /// Default constructor
+    StringAndFreqCmpByFreq() {}
+
+    /// Return true if a has a higher frequency than b.
+    /// If equal, compare by the str, to provide a stable sort order.
+    bool operator()(const StringAndFrequency &a,
+		    const StringAndFrequency &b) const {
+	if (a.frequency > b.frequency) return true;
+	if (a.frequency < b.frequency) return false;
+	if (a.str > b.str) return false;
+	return true;
+    }
+};
+
+/** Get the most frequent items from a map from string to frequency.
+ *
+ *  This takes input such as that returned by @a
+ *  ValueCountMatchSpy::get_values(), and returns a vector of the most
+ *  frequent items in the input.
+ *
+ *  @param result A vector which will be filled with the most frequent
+ *                items, in descending order of frequency.  Items with
+ *                the same frequency will be sorted in ascending
+ *                alphabetical order.
+ *
+ *  @param items The map from string to frequency, from which the most
+ *               frequent items will be selected.
+ *
+ *  @param maxitems The maximum number of items to return.
+ */
+static void
+get_most_frequent_items(vector<StringAndFrequency> & result,
+			const map<string, size_t> & items,
+			size_t maxitems)
+{
+    result.clear();
+    result.reserve(maxitems);
+    StringAndFreqCmpByFreq cmpfn;
+    bool is_heap(false);
+
+    for (map<string, size_t>::const_iterator i = items.begin();
+	 i != items.end(); i++) {
+	Assert(result.size() <= maxitems);
+	result.push_back(StringAndFrequency(i->first, i->second));
+	if (result.size() > maxitems) {
+	    // Make the list back into a heap.
+	    if (is_heap) {
+		// Only the new element isn't in the right place.
+		push_heap(result.begin(), result.end(), cmpfn);
+	    } else {
+		// Need to build heap from scratch.
+		make_heap(result.begin(), result.end(), cmpfn);
+		is_heap = true;
+	    }
+	    pop_heap(result.begin(), result.end(), cmpfn);
+	    result.pop_back();
+	}
+    }
+
+    if (is_heap) {
+	sort_heap(result.begin(), result.end(), cmpfn);
+    } else {
+	sort(result.begin(), result.end(), cmpfn);
+    }
+}
+
 bool
 ValueCountMatchSpy::operator()(const Document &doc) const
 {
@@ -53,6 +126,14 @@ ValueCountMatchSpy::operator()(const Document &doc) const
 	if (!val.empty()) ++tally[val];
     }
     return true;
+}
+
+
+void
+ValueCountMatchSpy::get_top_values(std::vector<StringAndFrequency> & result,
+				   Xapian::valueno valno, size_t maxvalues) const
+{
+    get_most_frequent_items(result, get_values(valno), maxvalues);
 }
 
 bool
@@ -72,6 +153,13 @@ TermCountMatchSpy::operator()(const Document &doc) const
 	}
     }
     return true;
+}
+
+void
+TermCountMatchSpy::get_top_terms(std::vector<StringAndFrequency> & result,
+				 std::string prefix, size_t maxterms) const
+{
+    get_most_frequent_items(result, get_terms(prefix), maxterms);
 }
 
 inline double sqrd(double x) { return x * x; }
@@ -198,57 +286,6 @@ CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_r
     swap(discrete_categories, values[valno]);
 
     return true;
-}
-
-class StringAndFreqCmpByFreq {
-  public:
-    StringAndFreqCmpByFreq() {}
-
-    // Return true if a has a lower frequency than b.
-    // If equal, compare by the str, to provide a stable sort order.
-    bool operator()(const StringAndFrequency &a,
-		    const StringAndFrequency &b) const {
-	if (a.frequency > b.frequency) return true;
-	if (a.frequency < b.frequency) return false;
-	if (a.str > b.str) return false;
-	return true;
-    }
-};
-
-void
-get_most_frequent_items(vector<StringAndFrequency> & result,
-			const map<string, size_t> & items,
-			size_t maxitems)
-{
-    result.clear();
-    result.reserve(maxitems);
-    StringAndFreqCmpByFreq cmpfn;
-    bool is_heap(false);
-
-    for (map<string, size_t>::const_iterator i = items.begin();
-	 i != items.end(); i++) {
-	Assert(result.size() <= maxitems);
-	result.push_back(StringAndFrequency(i->first, i->second));
-	if (result.size() > maxitems) {
-	    // Make the list back into a heap.
-	    if (is_heap) {
-		// Only the new element isn't in the right place.
-		push_heap(result.begin(), result.end(), cmpfn);
-	    } else {
-		// Need to build heap from scratch.
-		make_heap(result.begin(), result.end(), cmpfn);
-		is_heap = true;
-	    }
-	    pop_heap(result.begin(), result.end(), cmpfn);
-	    result.pop_back();
-	}
-    }
-
-    if (is_heap) {
-	sort_heap(result.begin(), result.end(), cmpfn);
-    } else {
-	sort(result.begin(), result.end(), cmpfn);
-    }
 }
 
 }

@@ -1878,7 +1878,7 @@ static bool test_matchspy3()
 	tout << "value " << v << endl;
 	std::vector<Xapian::StringAndFrequency> allvals;
 
-	get_most_frequent_items(allvals, spy.get_values(v), 100);
+	spy.get_top_values(allvals, v, 100);
 	string allvals_str("|");
 	for (size_t i = 0; i < allvals.size(); i++) {
 	    allvals_str += allvals[i].str;
@@ -1892,7 +1892,7 @@ static bool test_matchspy3()
 	std::vector<Xapian::StringAndFrequency> vals;
 	for (size_t i = 0; i < allvals.size(); i++) {
 	    tout << "i " << i << endl;
-	    get_most_frequent_items(vals, spy.get_values(v), i);
+	    spy.get_top_values(vals, v, i);
 	    for (size_t j = 0; j < vals.size(); j++) {
 		tout << "j " << j << endl;
 		TEST_EQUAL(vals[j].str, allvals[j].str);
