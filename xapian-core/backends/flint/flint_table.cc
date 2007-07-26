@@ -1026,7 +1026,7 @@ FlintTable::add(const string &key, string tag, bool already_compressed)
 		"Key_ too long: length was " +
 		om_tostring(key.size()) +
 		" bytes, maximum length of a key is " +
-		STRINGIZE(FLINT_BTREE_MAX_KEY_LEN) + " bytes");
+		om_tostring(FLINT_BTREE_MAX_KEY_LEN) + " bytes");
     }
 
     form_key(key);
