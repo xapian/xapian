@@ -71,6 +71,119 @@ struct XAPIAN_VISIBILITY_DEFAULT StringAndFrequency {
 	    : str(str_), frequency(frequency_) {}
 };
 
+
+/// Class to serialise a list of strings in a form suitable for
+/// ValueCountMatchSpy.
+class XAPIAN_VISIBILITY_DEFAULT StringListSerialiser {
+  private:
+    std::string serialised;
+
+  public:
+    /// Default constructor.
+    StringListSerialiser() { }
+
+    /// Initialise with a string.
+    /// (The string represents a serialised form, rather than a single value to
+    /// be serialised.)
+    StringListSerialiser(const std::string & initial) : serialised(initial) { }
+
+    /// Initialise from a pair of iterators.
+    template <class Iterator>
+    StringListSerialiser(Iterator begin, Iterator end) : serialised() {
+	while (begin != end) append(*begin++);
+    }
+
+    /// Add a string to the end of the list.
+    void append(const std::string & value);
+
+    /// Get the serialised result.
+    const std::string & get() const { return serialised; }
+};
+
+/// Class to unserialise a list of strings serialised by a StringListSerialiser.
+/// The class can be used as an iterator: use the default constructor to get
+/// an end iterator.
+class XAPIAN_VISIBILITY_DEFAULT StringListUnserialiser {
+  private:
+    std::string serialised;
+    std::string curritem;
+    const char * pos;
+
+    /// Read the next item from the serialised form.
+    void read_next();
+
+    /// Compare this iterator with another
+    friend bool operator==(const StringListUnserialiser & a,
+			   const StringListUnserialiser & b);
+    friend bool operator!=(const StringListUnserialiser & a,
+			   const StringListUnserialiser & b);
+
+  public:
+    /// Default constructor - use this to define an end iterator.
+    StringListUnserialiser() : pos(NULL) {}
+
+    /// Constructor which takes a serialised list of strings, and creates an
+    /// iterator pointing to the first of them.
+    StringListUnserialiser(const std::string & in)
+	    : serialised(in),
+	      pos(serialised.data())
+    {
+	read_next();
+    }
+
+    /// Destructor - nothing special to release
+    ~StringListUnserialiser() {}
+
+    /// Copy constructor
+    StringListUnserialiser(const StringListUnserialiser & other)
+	    : serialised(other.serialised),
+	      curritem(other.curritem),
+	      pos((other.pos == NULL) ? NULL : serialised.data() + (other.pos - other.serialised.data()))
+    {}
+
+    /// Assignment operator
+    void operator=(const StringListUnserialiser & other) {
+	serialised = other.serialised;
+	curritem = other.curritem;
+	pos = (other.pos == NULL) ? NULL : serialised.data() + (other.pos - other.serialised.data());
+    }
+
+    /// Get the current item
+    std::string operator *() const {
+	return curritem;
+    }
+
+    /// Move to the next item.
+    StringListUnserialiser & operator++() {
+	read_next();
+	return *this;
+    }
+
+    /// Move to the next item (postfix).
+    StringListUnserialiser operator++(int) {
+	StringListUnserialiser tmp = *this;
+	read_next();
+	return tmp;
+    }
+
+    // Allow use as an STL iterator
+    typedef std::input_iterator_tag iterator_category;
+    typedef std::string value_type;
+    typedef size_t difference_type;
+    typedef std::string * pointer;
+    typedef std::string & reference;
+};
+
+inline bool operator==(const StringListUnserialiser & a,
+		       const StringListUnserialiser & b) {
+    return (a.pos == b.pos);
+}
+
+inline bool operator!=(const StringListUnserialiser & a,
+		       const StringListUnserialiser & b) {
+    return (a.pos != b.pos);
+}
+
 /// Class for counting the frequencies of values in the matching documents.
 class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
   protected:
@@ -81,6 +194,12 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
      */
     mutable std::map<Xapian::valueno, std::map<std::string, Xapian::doccount> > values;
 
+    /** Flag for each value indicating whether the value can have multiple
+     *  values.  If true, the value stored in the field is assumed to have been
+     *  serialised by a StringListSerialiser class.
+     */
+    std::map<Xapian::valueno, bool> multivalues;
+
   public:
     /// Default constructor.
     ValueCountMatchSpy() : total(0) { }
@@ -89,17 +208,18 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
      *
      *  Further slots can be added by calling @a add_slot().
      */
-    ValueCountMatchSpy(Xapian::valueno valno) : total(0) {
-	add_slot(valno);
+    ValueCountMatchSpy(Xapian::valueno valno, bool multivalue=false) : total(0) {
+	add_slot(valno, multivalue);
     }
 
     /** Add a slot number to count values in.
      *
      *  A ValueCountMatchSpy can count values in one or more slots.
      */
-    void add_slot(Xapian::valueno valno) {
+    void add_slot(Xapian::valueno valno, bool multivalue=false) {
 	// Ensure that values[valno] exists.
 	(void)values[valno];
+	multivalues[valno] = multivalue;
     }
 
     /** Return the values seen in slot number @a valno.

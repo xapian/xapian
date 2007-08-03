@@ -35,6 +35,7 @@
 
 #include "omassert.h"
 #include "stringutils.h"
+#include "serialise.h"
 
 using namespace std;
 
@@ -49,6 +50,34 @@ MultipleMatchDecider::operator()(const Xapian::Document &doc) const
     }
     return true;
 }
+
+void
+StringListSerialiser::append(const std::string & value)
+{
+    serialised.append(encode_length(value.size()));
+    serialised.append(value);
+}
+
+void
+StringListUnserialiser::read_next()
+{
+    if (pos == NULL) {
+	return;
+    }
+    if (pos == serialised.data() + serialised.size()) {
+	pos = NULL;
+	curritem.resize(0);
+	return;
+    }
+
+    // FIXME - decode_length will throw a NetworkError if the length is too
+    // long - should be a more appropriate error.
+    size_t currlen = decode_length(&pos, serialised.data() + serialised.size(), true);
+    curritem = std::string(pos, currlen);
+    pos += currlen;
+}
+
+
 
 /** Compare two StringAndFrequency objects.
  *
@@ -128,12 +157,26 @@ ValueCountMatchSpy::operator()(const Document &doc) const
 {
     ++total;
     map<Xapian::valueno, map<string, size_t> >::iterator i;
-    for (i = values.begin(); i != values.end(); ++i) {
+    std::map<Xapian::valueno, bool>::const_iterator j;
+    for (i = values.begin(), j = multivalues.begin();
+	 i != values.end(); ++i, ++j) {
+	AssertEqParanoid(i->first, j->first);
 	Xapian::valueno valno = i->first;
 	map<string, size_t> & tally = i->second;
 
-	string val(doc.get_value(valno));
-	if (!val.empty()) ++tally[val];
+	if (j->second) {
+	    // Multiple values
+	    StringListUnserialiser k(doc.get_value(valno));
+	    StringListUnserialiser end;
+	    for (; k != end; ++k) {
+		string val(*k);
+		if (!val.empty()) ++tally[val];
+	    }
+	} else {
+	    // Single value
+	    string val(doc.get_value(valno));
+	    if (!val.empty()) ++tally[val];
+	}
     }
     return true;
 }
