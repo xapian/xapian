@@ -367,26 +367,51 @@ static bool test_uninitdb1()
     return true;
 }
 
+// tests the string list serialisation classes.
+static bool test_stringlistserialise1()
+{
+    Xapian::StringListSerialiser s1;
+    s1.append("foo");
+    s1.append("");
+    Xapian::StringListSerialiser s2(s1);
+    s2.append("baz");
+    Xapian::StringListUnserialiser p(s2.get());
+    Xapian::StringListUnserialiser end;
+    TEST(p != end);
+    TEST_EQUAL(*p, "foo");
+    ++p;
+    TEST(p != end);
+    TEST_EQUAL(*p, "");
+    p++;
+    TEST(p != end);
+    TEST_EQUAL(*p, "baz");
+    ++p;
+    TEST(p == end);
+    return true;
+}
+
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
 test_desc nodb_tests[] = {
-    {"trivial1",	   test_trivial1},
-    {"getqterms1",	   test_getqterms1},
-    {"getqterms2",	   test_getqterms2},
-    {"emptyquery2",	   test_emptyquery2},
-    {"emptyquery3",	   test_emptyquery3},
-    {"querylen1",	   test_querylen1},
-    {"querylen2",	   test_querylen2},
-    {"queryvalid1",	   test_queryvalid1},
-    {"subqcollapse1",	   test_subqcollapse1},
-    {"emptyquerypart1",    test_emptyquerypart1},
-    {"singlesubq1",	   test_singlesubq1},
-    {"stemlangs1",	   test_stemlangs1},
-    {"weight1",		   test_weight1},
-    {"nosuchdb1",	   test_nosuchdb1},
-    {"addvalue1",	   test_addvalue1},
-    {"poscollapse2",	   test_poscollapse2},
-    {"uninitdb1",	   test_uninitdb1},
-    {0, 0}
+    TESTCASE(trivial1),
+    TESTCASE(getqterms1),
+    TESTCASE(getqterms2),
+    TESTCASE(emptyquery2),
+    TESTCASE(emptyquery3),
+    TESTCASE(querylen1),
+    TESTCASE(querylen2),
+    TESTCASE(queryvalid1),
+    TESTCASE(subqcollapse1),
+    TESTCASE(emptyquerypart1),
+    TESTCASE(singlesubq1),
+    TESTCASE(stemlangs1),
+    TESTCASE(weight1),
+    TESTCASE(nosuchdb1),
+    TESTCASE(addvalue1),
+    TESTCASE(poscollapse2),
+    TESTCASE(uninitdb1),
+    TESTCASE(stringlistserialise1),
+    END_OF_TESTCASES
 };
