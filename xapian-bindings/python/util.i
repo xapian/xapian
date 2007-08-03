@@ -391,6 +391,15 @@ namespace Xapian {
 	}
     }
 
+    %extend StringListUnserialiser {
+	bool __eq__(const StringListUnserialiser &other) {
+	    return (*self)==other;
+	}
+	bool __ne__(const StringListUnserialiser &other) {
+	    return (*self)!=other;
+	}
+    }
+
     %extend MSet {
 	%immutable;
 	// access to the items array
