@@ -106,14 +106,11 @@ def gen_svn_updated_win_factory(baseURL):
     f.addStep(step.SVN, baseURL=baseURL, mode="update")
     f.addStep(step.ShellCommand, command="xapian-maintainer-tools\\buildbot\\scripts\\prepare_build.bat")
 
-    f.addStep(step.Compile, workdir="build/xapian-core/win32",
-              command=["nmake", "-E", "-K", "-L"],
-              env=env)
     # Compile core: we use a .bat file to get vsvars32.bat to run before the
     # command.
-    #f.addStep(step.Compile, workdir="build/xapian-core/win32",
-    #          command=["..\\..\\xapian-maintainer-tools\\buildbot\\scripts\\run_with_vc7.bat", "nmake", "-E", "-K", "-L"],
-    #          env=env)
+    f.addStep(step.Compile, workdir="build/xapian-core/win32",
+              command="..\\..\\xapian-maintainer-tools\\buildbot\\scripts\\compile_with_vc7.bat",
+              env=env)
 
     return f
 
