@@ -94,12 +94,12 @@ SWIG_FLAGS= -Werror -noproxy
 # ------------end SWIG settings-------------
 
 # ------------ Misc external libraries we depend on -------------
-ZLIB_DIR=C:\Program Files\GnuWin32
+ZLIB_DIR=\work\zlib123-dll
 # If you installed a binary version, the following 3 lines are probably
 # correct.  If you build from sources, adjust accordingly.
 ZLIB_INCLUDE_DIR=$(ZLIB_DIR)\include
 ZLIB_LIB_DIR=$(ZLIB_DIR)\lib
-ZLIB_BIN_DIR=$(ZLIB_DIR)\bin
+ZLIB_BIN_DIR=$(ZLIB_DIR)
 
 #--------------------------------------
 # Visual C++ Compiler and linker programs, and flags for these
@@ -110,7 +110,7 @@ LINK32=link.exe
 LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib\
  advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib \
  wsock32.lib Ws2_32.lib  odbccp32.lib -subsystem:console -debug -nologo \
- "$(ZLIB_LIB_DIR)\zlib.lib"
+ "$(ZLIB_LIB_DIR)\zdll.lib"
  
 CPP=cl.exe
 RSC=rc.exe
