@@ -67,7 +67,7 @@ If you're indexing using scriptindex, and have a field in the input file
 which can be "gender=M", etc, then your index script would have a rule
 such as:
 
-    gender : lowercase boolean=XGENDER
+    gender : lower boolean=XGENDER
 
 You can then restrict a search in Omega by passing a B parameter with one
 of these as the value, e.g. B=XGENDERf
