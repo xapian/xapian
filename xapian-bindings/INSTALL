@@ -122,9 +122,8 @@ Installing without root access
 
   Ruby:
 
-     ./configure --with-ruby --prefix=$HOME/install
-     make rubylibdir=$HOME/my_ruby_modules rubylibarchdir=$HOME/my_ruby_modules
-     make install rubylibdir=$HOME/my_ruby_modules rubylibarchdir=$HOME/my_ruby_modules
+     ./configure --with-ruby --prefix=$HOME/install RUBY_LIB=$HOME/my_ruby_modules RUBY_LIB_ARCH=$HOME/my_ruby_modules
+     make install
 
      And then you'll need to tell Ruby to look for modules in this directory:
 
