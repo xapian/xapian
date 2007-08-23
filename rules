@@ -128,6 +128,8 @@ TCLSH=/usr/bin/tclsh8.4
 # Build depends for Ruby.
 BUILD_DEPS += ruby1.8-dev, ruby1.8,# NB Trailing ',' required here!
 RUBY=/usr/bin/ruby1.8
+RUBY_LIB=$(shell $(RUBY) -rrbconfig -e 'puts Config::CONFIG[["rubylibdir"]]')
+RUBY_LIB_ARCH=$(shell $(RUBY) -rrbconfig -e 'puts Config::CONFIG[["archdir"]]')
 
 # We need a versioned build dependency on libxapian-dev.
 BUILD_DEPS += libxapian-dev (>= $(XAPIAN_VERSION)),# NB Trailing ',' required here!
@@ -188,7 +190,7 @@ debian/configure-stamp:
 	done
 
 	mkdir -p build-tcl-and-ruby
-	cd build-tcl-and-ruby && ../configure $(commonconfflags) --with-tcl TCLSH=$(TCLSH) --with-ruby RUBY=$(RUBY)
+	cd build-tcl-and-ruby && ../configure $(commonconfflags) --with-tcl TCLSH=$(TCLSH) --with-ruby RUBY=$(RUBY) RUBY_LIB=$(RUBY_LIB) RUBY_LIB_ARCH=$(RUBY_LIB_ARCH)
 
 	touch $@
 
