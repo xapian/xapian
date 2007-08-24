@@ -279,6 +279,39 @@ class mymatchdecider(xapian.MatchDecider):
     return 1
 </pre>
 
+<h2>Apache and Mod-Python</h2>
+
+<p>
+There is an issue with python's threading support and mod-python, which can
+cause problems when using the Xapian Python bindings from mod-python.  If you
+find that your mod-python application is hanging whenever a Xapian method is
+called, you have probably run into this problem.
+</p>
+
+<p>
+By default, mod-python uses a separate instance of the python interpreter for
+each mod-python application.  However, the Xapian python bindings do not know
+how to get and release control of the thread lock unless they are running in
+the "main" python interpreter; as a result, deadlocks can occur.
+</p>
+
+<p>
+To avoid the problem, you need to set the "PythonInterpreter main_interpreter"
+option in the apache configuration section for all mod_python scripts which use
+xapian: this ensures that the xapian bindings are called from the
+main_interpreter, and can handle the thread locks appropriately.  An example
+configuration file using this option is available <a
+href="http://www.xapian.org/cgi-bin/bugzilla/attachment.cgi?id=121&action=view">here</a>.
+</p>
+
+<p>
+In the longer term, we hope to be able to resolve this problem, so that
+arbitrary python interpreters can be used; but this is quite a tricky problem
+to fix, and is relatively low priority.  More details can be found in Xapian's
+bug tracker, as <a
+href="http://www.xapian.org/cgi-bin/bugzilla/show_bug.cgi?id=185">bug #185</a>.
+</p>
+
 <address>
 Last updated $Date$
 </address>

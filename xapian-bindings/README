@@ -29,7 +29,11 @@ Perl		Perl XS bindings contributed by Alex Bowley and co-maintained
 
 PHP		Requires PHP 4 or 5.
 
-Python		Requires Python 2.2 or later.
+Python		Requires Python 2.2 or later.  Note that there is an issue
+		involving using the xapian bindings with Apache's
+		mod-python: be sure to read the documentation file for the
+		python bindings (section "Apache and Mod-Python") if you're
+		using mod-python.
 
 Ruby		Requires Ruby 1.8 or later (brief tests show the bindings
 		probably work with at least Ruby 1.6.8 too, but smoketest.rb
