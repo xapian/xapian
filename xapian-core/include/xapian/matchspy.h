@@ -229,7 +229,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
      *               add_slot() method, or using the constructor which takes a
      *               slot number.)
      */
-    const std::map<std::string, size_t> &
+    const std::map<std::string, Xapian::doccount> &
 	    get_values(Xapian::valueno valno) const {
 	return values[valno];
     }
@@ -316,7 +316,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermCountMatchSpy : public MatchDecider {
      *                the @a add_prefix() method, or using the constructor
      *                which takes a prefix.)
      */
-    const std::map<std::string, size_t> &
+    const std::map<std::string, Xapian::doccount> &
 	    get_terms(std::string prefix) const {
 	return terms[prefix];
     }

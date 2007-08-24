@@ -1,3 +1,10 @@
+Fri Aug 24 11:56:18 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Fix uses of size_t
+	  which should have been Xapian::doccount.  Was causing compile
+	  errors on platforms where size_t and Xapian::doccount were
+	  different sizes.
+
 Fri Aug 03 20:10:15 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/api_nodb.cc: Add test_stringlistserialise1() to test the

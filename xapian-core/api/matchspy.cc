@@ -118,7 +118,7 @@ class StringAndFreqCmpByFreq {
  */
 static void
 get_most_frequent_items(vector<StringAndFrequency> & result,
-			const map<string, size_t> & items,
+			const map<string, Xapian::doccount> & items,
 			size_t maxitems)
 {
     result.clear();
@@ -126,7 +126,7 @@ get_most_frequent_items(vector<StringAndFrequency> & result,
     StringAndFreqCmpByFreq cmpfn;
     bool is_heap(false);
 
-    for (map<string, size_t>::const_iterator i = items.begin();
+    for (map<string, Xapian::doccount>::const_iterator i = items.begin();
 	 i != items.end(); i++) {
 	Assert(result.size() <= maxitems);
 	result.push_back(StringAndFrequency(i->first, i->second));
@@ -156,13 +156,13 @@ bool
 ValueCountMatchSpy::operator()(const Document &doc) const
 {
     ++total;
-    map<Xapian::valueno, map<string, size_t> >::iterator i;
+    map<Xapian::valueno, map<string, Xapian::doccount> >::iterator i;
     std::map<Xapian::valueno, bool>::const_iterator j;
     for (i = values.begin(), j = multivalues.begin();
 	 i != values.end(); ++i, ++j) {
 	AssertEqParanoid(i->first, j->first);
 	Xapian::valueno valno = i->first;
-	map<string, size_t> & tally = i->second;
+	map<string, Xapian::doccount> & tally = i->second;
 
 	if (j->second) {
 	    // Multiple values
@@ -193,10 +193,10 @@ bool
 TermCountMatchSpy::operator()(const Document &doc) const
 {
     ++documents_seen;
-    map<std::string, map<string, size_t> >::iterator i;
+    map<std::string, map<string, Xapian::doccount> >::iterator i;
     for (i = terms.begin(); i != terms.end(); ++i) {
 	std::string prefix = i->first;
-	map<string, size_t> & tally = i->second;
+	map<string, Xapian::doccount> & tally = i->second;
 
 	TermIterator j = doc.termlist_begin();
 	j.skip_to(prefix);
@@ -223,7 +223,7 @@ CategorySelectMatchSpy::score_categorisation(Xapian::valueno valno,
 {
     if (total == 0) return 0.0;
 
-    const map<string, size_t> & cat = values[valno];
+    const map<string, Xapian::doccount> & cat = values[valno];
     size_t total_unset = total;
     double score = 0.0;
 
@@ -232,7 +232,7 @@ CategorySelectMatchSpy::score_categorisation(Xapian::valueno valno,
 
     double avg = double(total) / desired_no_of_categories;
 
-    map<string, size_t>::const_iterator i;
+    map<string, Xapian::doccount>::const_iterator i;
     for (i = cat.begin(); i != cat.end(); ++i) {
 	size_t count = i->second;
 	total_unset -= count;
@@ -265,18 +265,18 @@ struct bucketval {
 bool
 CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_ranges)
 {
-    const map<string, size_t> & cat = values[valno];
+    const map<string, Xapian::doccount> & cat = values[valno];
 
     double lo = DBL_MAX, hi = -DBL_MAX;
 
-    map<double, size_t> histo;
-    size_t total_set = 0;
-    map<string, size_t>::const_iterator i;
+    map<double, Xapian::doccount> histo;
+    Xapian::doccount total_set = 0;
+    map<string, Xapian::doccount>::const_iterator i;
     for (i = cat.begin(); i != cat.end(); ++i) {
 	double v = Xapian::sortable_unserialise(i->first.c_str());
 	if (v < lo) lo = v;
 	if (v > hi) hi = v;
-	size_t count = i->second;
+	Xapian::doccount count = i->second;
 	histo[v] = count;
 	total_set += count;
     }
@@ -301,7 +301,7 @@ CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_r
     vector<bucketval> bucket(n_buckets + 1);
     while (true) {
 	size_t n_used = 0;
-	map<double, size_t>::const_iterator j;
+	map<double, Xapian::doccount>::const_iterator j;
 	for (j = histo.begin(); j != histo.end(); ++j) {
 	    double v = j->first;
 	    size_t b = size_t(floor((v - start) / unit));
@@ -319,7 +319,7 @@ CategorySelectMatchSpy::build_numeric_ranges(Xapian::valueno valno, size_t max_r
 	bucket.resize(n_buckets + 1);
     }
 
-    map<string, size_t> discrete_categories;
+    map<string, Xapian::doccount> discrete_categories;
     for (size_t b = 0; b < bucket.size(); ++b) {
 	if (bucket[b].count == 0) continue;
 	string encoding = Xapian::sortable_serialise(bucket[b].min);
