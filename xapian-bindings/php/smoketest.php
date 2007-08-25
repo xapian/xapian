@@ -109,4 +109,7 @@ $enq->set_sort_by_value(1, TRUE);
 $oqparser = new XapianQueryParser();
 $oquery = $oqparser->parse_query("I like tea");
 
+# Regression test for bug#192 - fixed in 1.0.3.
+$enq->set_cutoff(100);
+
 ?>
