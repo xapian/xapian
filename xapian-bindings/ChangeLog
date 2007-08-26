@@ -1,3 +1,8 @@
+Sun Aug 26 16:12:49 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/Makefile.am: Fix changed assembly name, to match change in
+	  type of result of MatchSpy::get_values()
+
 Sun Aug 26 16:07:25 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/util.i: Change size_t to Xapian::doccount in
