@@ -183,14 +183,14 @@ namespace Xapian {
  * This is used for @a ValueCountMatchSpy::get_values().
  */
 PyObject *
-value_map_to_dict(const std::map<std::string, size_t> & vals)
+value_map_to_dict(const std::map<std::string, Xapian::doccount> & vals)
 {
     PyObject * result = PyDict_New();
     if (result == 0) {
 	return NULL;
     }
 
-    std::map<std::string, size_t>::const_iterator i;
+    std::map<std::string, Xapian::doccount>::const_iterator i;
     for (i = vals.begin(); i != vals.end(); ++i) {
         PyObject * str = PyString_FromStringAndSize((*i).first.data(),
                                                     (*i).first.size());
