@@ -355,8 +355,8 @@ static bool test_matchfunctor3()
 
     // Check that the second of our spies only saw the documents which were
     // passed by the functor.
-    const std::map<std::string, size_t> & vals1 = myspy1.get_values(1);
-    const std::map<std::string, size_t> & vals2 = myspy2.get_values(1);
+    const std::map<std::string, Xapian::doccount> & vals1 = myspy1.get_values(1);
+    const std::map<std::string, Xapian::doccount> & vals2 = myspy2.get_values(1);
     TEST(vals1.size() == 2);
     TEST(vals1.find("h") != vals1.end());
     TEST(vals1.find("n") != vals1.end());

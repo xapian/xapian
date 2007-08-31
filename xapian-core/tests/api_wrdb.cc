@@ -1687,9 +1687,9 @@ static bool test_matchspy1()
 	NULL
     };
     for (Xapian::valueno v = 0; results[v]; ++v) {
-	const map<string, size_t> & cat = spy.get_values(v);
+	const map<string, Xapian::doccount> & cat = spy.get_values(v);
 	string str("|");
-	map<string, size_t>::const_iterator i;
+	map<string, Xapian::doccount>::const_iterator i;
 	for (i = cat.begin(); i != cat.end(); ++i) {
 	    str += i->first;
 	    str += ':';
@@ -1792,10 +1792,10 @@ static bool test_matchspy2()
 	    continue;
 	}
 	TEST(result);
-	const map<string, size_t> & cat = spy.get_values(v);
+	const map<string, Xapian::doccount> & cat = spy.get_values(v);
 	TEST(cat.size() <= 7);
 	string str("|");
-	map<string, size_t>::const_iterator i;
+	map<string, Xapian::doccount>::const_iterator i;
 	for (i = cat.begin(); i != cat.end(); ++i) {
 	    if (i->first.size() > 9) {
 		double start = Xapian::sortable_unserialise((i->first).substr(0, 9));
