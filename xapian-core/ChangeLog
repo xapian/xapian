@@ -1,3 +1,8 @@
+Tue Sep 04 00:05:47 BST 2007  Olly Betts <olly@survex.com>
+
+	* xapian-config.in: We always need to include dependency_libs in the
+	  output of `xapian-config --libs` if shared libraries are disabled.
+
 Mon Sep 03 16:28:33 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/xapian-check.cc: Allow "xapian-check db/record." and
