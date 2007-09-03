@@ -1,3 +1,8 @@
+Mon Sep 03 19:16:37 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/overview.txt,omindex.cc: Add support for indexing AbiWord
+	  documents.
+
 Thu Jul 05 00:37:35 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Final (?) update for 1.0.2.

@@ -205,6 +205,8 @@ Currently omindex can index:
 * MS Powerpoint documents (.ppt, .pps) if catppt is available (comes with catdoc)
 * Wordperfect documents (.wpd) if wpd2text is available (comes with libwpd)
 * MS Works documents (.wps, .wpt) if wps2text is available (comes with libwps)
+* AbiWord documents (.abw)
+* Compressed AbiWord documents (.zabw) if gzip is available
 * Rich Text Format documents (.rtf) if unrtf is available
 * Perl POD documentation (.pl, .pm, .pod) if pod2text is available
 
@@ -256,6 +258,8 @@ of:
     application/vnd.sun.xml.writer.global
     application/vnd.sun.xml.writer.template
     application/vnd.wordperfect
+    application/x-abiword
+    application/x-abiword-compressed
 
 If you wish to remove a MIME mapping, you can do this by omitting the type -
 for example to not index .doc files, use: --mime-type doc:

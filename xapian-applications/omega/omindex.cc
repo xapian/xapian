@@ -392,6 +392,27 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
+    } else if (mimetype == "application/x-abiword") {
+	// FIXME: Implement support for metadata.
+	try {
+	    XmlParser xmlparser;
+	    xmlparser.parse_html(file_to_string(file));
+	    dump = xmlparser.dump;
+	} catch (ReadError) {
+	    cout << "can't read \"" << file << "\" - skipping\n";
+	    return;
+	}
+    } else if (mimetype == "application/x-abiword-compressed") {
+	// FIXME: Implement support for metadata.
+	string cmd = "gzip -dc " + shell_protect(file);
+	try {
+	    XmlParser xmlparser;
+	    xmlparser.parse_html(stdout_to_string(cmd));
+	    dump = xmlparser.dump;
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    return;
+	}
     } else if (mimetype == "text/rtf") {
 	// The --text option unhelpfully converts all non-ASCII characters to
 	// "?" so we use --html instead, which write HTML entities.
@@ -683,6 +704,8 @@ main(int argc, char **argv)
     mime_map["wpd"] = "application/vnd.wordperfect";
     mime_map["wps"] = "application/vnd.ms-works";
     mime_map["wpt"] = "application/vnd.ms-works"; // Works template
+    mime_map["abw"] = "application/x-abiword"; // AbiWord
+    mime_map["zabw"] = "application/x-abiword-compressed"; // AbiWord compressed
     mime_map["rtf"] = "text/rtf";
     // Other MS formats:
     mime_map["xls"] = "application/vnd.ms-excel";
