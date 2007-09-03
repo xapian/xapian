@@ -29,6 +29,7 @@
 #include "flint_table.h"
 #include "flint_types.h"
 #include "flint_utils.h"
+#include "stringutils.h"
 #include "utils.h"
 
 #include <xapian.h>
@@ -244,8 +245,16 @@ main(int argc, char **argv)
 		errors += check_table(table, opts);
 	    }
 	} else {
-	    // Just check a single Btree.
-	    errors = check_table(argv[1], opts);
+	    // Just check a single Btree.  If it ends with "." or ".DB"
+	    // already, trim that so the user can do xapian-check on
+	    // "foo", "foo.", or "foo.DB".
+	    string table_name = argv[1];
+	    if (endswith(table_name, '.'))
+		table_name.resize(table_name.size() - 1);
+	    else if (endswith(table_name, ".DB"))
+		table_name.resize(table_name.size() - 3);
+
+	    errors = check_table(table_name, opts);
 	}
 	if (errors > 0) {
 	    cout << "Total errors found: " << errors << endl;
