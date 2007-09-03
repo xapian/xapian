@@ -993,16 +993,19 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 
 	/** Register a MatchDecider.
 	 *
-	 * This is used to associate a name with a matchdecider. Theoretically,
-	 * this can be used to allow a matchdecider to be used in a remote
-	 * match, but currently the values stored aren't actually used.
+	 * This is used to associate a name with a matchdecider.
+	 *
+	 * @deprecated This method is deprecated.  It was added long ago with
+	 * the intention that it would allow the remote backend to support
+	 * use of MatchDecider objects, but there's a better approach.
 	 *
 	 * @param name		The name to register this matchdecider as.
 	 * @param mdecider	The matchdecider.  If omitted, then remove
 	 *			any matchdecider registered with this name.
 	 */
+	XAPIAN_DEPRECATED(
 	void register_match_decider(const std::string &name,
-				    const MatchDecider *mdecider = NULL);
+				    const MatchDecider *mdecider = NULL));
 
 	/** Introspection method.
 	 *  @return  A string representing the enquire object.

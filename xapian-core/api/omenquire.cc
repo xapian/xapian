@@ -836,14 +836,9 @@ Enquire::Internal::read_doc(const Xapian::Internal::MSetItem &item) const
 }
 
 void
-Enquire::Internal::register_match_decider(const string &name,
-	const MatchDecider *mdecider)
+Enquire::Internal::register_match_decider(const string &,
+	const MatchDecider *)
 {
-    if (mdecider) {
-	mdecider_map[name] = mdecider;
-    } else {
-	mdecider_map.erase(name);
-    }
 }
 
 // Methods of Xapian::Enquire

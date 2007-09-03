@@ -158,8 +158,6 @@ class Enquire::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	ErrorHandler * errorhandler;
 
-	map<string, const MatchDecider *> mdecider_map;
-
 	mutable Weight * weight; // mutable so get_mset can set default
 
 	Internal(const Xapian::Database &databases, ErrorHandler * errorhandler_);
