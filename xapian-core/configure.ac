@@ -1035,11 +1035,6 @@ MAJOR_VERSION=`echo "$VERSION"|sed 's/\..*//'`
 [MINOR_VERSION=`echo "$VERSION"|sed 's/[^.]*\.//;s/\..*//'`]
 [REVISION=`echo "$VERSION"|sed 's/.*\.//;s/_svn[0-9]*$//'`]
 
-dnl AC_SUBST these for msvc/version.h
-AC_SUBST(MAJOR_VERSION)
-AC_SUBST(MINOR_VERSION)
-AC_SUBST(REVISION)
-
 dnl **************************
 dnl * Build the output files *
 dnl **************************
@@ -1051,7 +1046,6 @@ AC_CONFIG_FILES([
  docs/doxygen_api_conf
  docs/doxygen_full_conf
  xapian-core.spec
- msvc/version.h
  ])
 AC_CONFIG_FILES([tests/runtest], [chmod +x tests/runtest])
 AC_CONFIG_FILES([tests/runsrv], [chmod +x tests/runsrv])
