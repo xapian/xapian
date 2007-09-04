@@ -122,7 +122,7 @@ then check for and handle the exception like so:
 $old_error_reporting = error_reporting
 if ($old_error_reporting &amp; E_WARNING)
     error_reporting($old_error_reporting ^ E_WARNING);
-$doc = Database_get_document($database, $docid);
+$doc = $database-&gt;_get_document($docid);
 if ($doc != null) {
     exit(1);
 }
@@ -211,8 +211,8 @@ when reading values back from Xapian.
 <thead><td>Method name</td><td>Explanation</td></thead>
 <tr><td><code>get_hit(index)</code></td><td>returns MSetIterator at index</td></tr>
 <tr><td><code>get_document_percentage(index)</code></td><td><code>convert_to_percent(get_hit(index))</code></td></tr>
-<tr><td><code>get_document(index)</code></td><td><code>get_hit(index).get_document()</code></td></tr>
-<tr><td><code>get_docid(index)</code></td><td><code>get_hit(index).get_docid()</code></td></tr>
+<tr><td><code>get_document(index)</code></td><td><code>get_hit(index)-&gt;get_document()</code></td></tr>
+<tr><td><code>get_docid(index)</code></td><td><code>get_hit(index)-&gt;get_docid()</code></td></tr>
 </table>
 
 <h2>Database Factory Functions</h2>
@@ -263,8 +263,8 @@ when reading values back from Xapian.
 </p>
 
 <pre>
-   subq = new XapianQuery(XapianQuery_OP_AND, "hello", "world");
-   q = new XapianQuery(XapianQuery_OP_AND, array(subq, "foo", new XapianQuery("bar", 2)));
+   $subq = new XapianQuery(XapianQuery_OP_AND, "hello", "world");
+   $q = new XapianQuery(XapianQuery_OP_AND, array($subq, "foo", new XapianQuery("bar", 2)));
 </pre>
 
 <p>
@@ -272,8 +272,8 @@ when reading values back from Xapian.
 </p>
 
 <pre>
-   subq = new XapianQuery(XapianQuery::OP_AND, "hello", "world");
-   q = new XapianQuery(XapianQuery::OP_AND, array(subq, "foo", new XapianQuery("bar", 2)));
+   $subq = new XapianQuery(XapianQuery::OP_AND, "hello", "world");
+   $q = new XapianQuery(XapianQuery::OP_AND, array($subq, "foo", new XapianQuery("bar", 2)));
 </pre>
 
 <h2>Enquire</h2>
