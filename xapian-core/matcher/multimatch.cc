@@ -273,14 +273,29 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     map<string, Xapian::MSet::Internal::TermFreqAndWeight> termfreqandwts;
     map<string, Xapian::MSet::Internal::TermFreqAndWeight> * termfreqandwts_ptr;
     termfreqandwts_ptr = &termfreqandwts;
+
+    // Keep a count of matches which we know exist, but we won't see.  This
+    // occurs when a submatch is remote, and returns a lower bound on the
+    // number of matching documents which is higher than the number of
+    // documents it returns (because it wasn't asked for more documents).
+    Xapian::doccount definite_matches_not_seen = 0;
     {
-	vector<Xapian::Internal::RefCntPtr<SubMatch> >::iterator leaf;
-	for (leaf = leaves.begin(); leaf != leaves.end(); ++leaf) {
+	for (size_t i = 0; i != leaves.size(); ++i) {
 	    PostList *pl;
 	    try {
-		pl = (*leaf)->get_postlist_and_term_info(this, termfreqandwts_ptr);
+		pl = leaves[i]->get_postlist_and_term_info(this, termfreqandwts_ptr);
 		if (termfreqandwts_ptr && !termfreqandwts.empty())
 		    termfreqandwts_ptr = NULL;
+		if (is_remote[i]) {
+		    if (pl->get_termfreq_min() > first + maxitems) {
+			DEBUGLINE(MATCH, "Found " <<
+				  pl->get_termfreq_min() - (first + maxitems)
+				  << " definite matches in remote "
+				  "submatch which aren't passed to local "
+				  "match");
+			definite_matches_not_seen += pl->get_termfreq_min() - (first + maxitems);
+		    }
+		}
 	    } catch (Xapian::Error & e) {
 		if (!errorhandler) throw;
 		DEBUGLINE(EXCEPTION, "Calling error handler for "
@@ -288,7 +303,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		(*errorhandler)(e);
 		// FIXME: check if *ALL* the remote servers have failed!
 		// Continue match without this sub-match.
-		*leaf = new EmptySubMatch();
+		leaves[i] = new EmptySubMatch();
 		pl = new EmptyPostList;
 	    }
 	    postlists.push_back(pl);
@@ -729,13 +744,19 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	Assert(percent_cutoff || docs_matched == items.size());
 	matches_lower_bound = matches_upper_bound = matches_estimated
 	    = items.size();
-    } else if (docs_matched < check_at_least) {
+    } else if (docs_matched + definite_matches_not_seen < check_at_least) {
 	// We have seen fewer matches than we checked for, so we must have seen
 	// all the matches.
+
+	// If some of the sub-databases were remote, they will have seen all
+	// the matches in their database, but will only have passed max_msize
+	// of them up.  Fortunately, their get_termfreq_est()
+
 	DEBUGLINE(MATCH, "docs_matched = " << docs_matched <<
+		  ", definite_matches_not_seen = " << definite_matches_not_seen <<
 		  ", check_at_least = " << check_at_least << ", setting bounds equal");
 	matches_lower_bound = matches_upper_bound = matches_estimated
-	    = docs_matched;
+	    = docs_matched + definite_matches_not_seen;
     } else {
 	if (percent_cutoff) {
 	    // another approach: Xapian::doccount new_est = items.size() * (1 - percent_factor) / (1 - min_weight / greatest_wt);
@@ -756,6 +777,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 
 	DEBUGLINE(MATCH,
 		"docs_matched = " << docs_matched << ", " <<
+		"definite_matches_not_seen = " << definite_matches_not_seen << ", " <<
 		"matches_lower_bound = " << matches_lower_bound << ", " <<
 		"matches_estimated = " << matches_estimated << ", " <<
 		"matches_upper_bound = " << matches_upper_bound);
@@ -787,11 +809,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    matches_estimated = max(matches_estimated, matches_lower_bound);
 	    matches_estimated = min(matches_estimated, matches_upper_bound);
 	} else if (!percent_cutoff) {
-	    Assert(docs_matched <= matches_upper_bound);
-	    if (docs_matched > matches_lower_bound)
-		matches_lower_bound = docs_matched;
-	    if (docs_matched > matches_estimated)
-		matches_estimated = docs_matched;
+	    Assert(docs_matched + definite_matches_not_seen <= matches_upper_bound);
+	    if (docs_matched + definite_matches_not_seen > matches_lower_bound)
+		matches_lower_bound = docs_matched + definite_matches_not_seen;
+	    if (docs_matched + definite_matches_not_seen > matches_estimated)
+		matches_estimated = docs_matched + definite_matches_not_seen;
 	}
     }
 

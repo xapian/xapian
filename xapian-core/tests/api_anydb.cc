@@ -1652,11 +1652,11 @@ static bool test_checkatleast2()
     enquire.set_query(Xapian::Query("paragraph"));
     Xapian::MSet mymset = enquire.get_mset(0, 3, 10);
     TEST_MSET_SIZE(mymset, 3);
-    TEST(mymset.get_matches_lower_bound() >= 5);
+    TEST_GREATER_OR_EQUAL(mymset.get_matches_lower_bound(), 5);
     
     mymset = enquire.get_mset(0, 2, 4);
     TEST_MSET_SIZE(mymset, 2);
-    TEST(mymset.get_matches_lower_bound() >= 4);
+    TEST_GREATER_OR_EQUAL(mymset.get_matches_lower_bound(), 4);
     return true;
 }
 
@@ -1697,15 +1697,15 @@ static bool test_checkatleast3()
 
 	    Xapian::MSet mset = enquire.get_mset(0, 100, 500);
 	    TEST_MSET_SIZE(mset, 60);
-	    TEST(mset.get_matches_lower_bound() == 60);
-	    TEST(mset.get_matches_estimated() == 60);
-	    TEST(mset.get_matches_upper_bound() == 60);
+	    TEST_EQUAL(mset.get_matches_lower_bound(), 60);
+	    TEST_EQUAL(mset.get_matches_estimated(), 60);
+	    TEST_EQUAL(mset.get_matches_upper_bound(), 60);
 
 	    mset = enquire.get_mset(0, 50, 100);
 	    TEST_MSET_SIZE(mset, 50);
-	    TEST(mset.get_matches_lower_bound() == 60);
-	    TEST(mset.get_matches_estimated() == 60);
-	    TEST(mset.get_matches_upper_bound() == 60);
+	    TEST_EQUAL(mset.get_matches_lower_bound(), 60);
+	    TEST_EQUAL(mset.get_matches_estimated(), 60);
+	    TEST_EQUAL(mset.get_matches_upper_bound(), 60);
 
 	    mset = enquire.get_mset(0, 10, 50);
 	    TEST_MSET_SIZE(mset, 10);

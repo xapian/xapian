@@ -1,3 +1,21 @@
+Tue Sep 04 20:13:29 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: For remote submatches, keep a count of
+	  matches which we know exist, but we don't get passed from the
+	  submatch.  These can be detected by checking for the lowerbound
+	  on the matches in the submatch being greater than the index of
+	  the last item in the returned submset.  When the match is over,
+	  use this count, together with docs_matched, to adjust the lower
+	  bound and estimate (and upper bound, if we've not seen as many
+	  documents as we were asked to check for).  Fixes checkatleast2
+	  and checkatleast3 in the remote database case.
+	* tests/harness/testsuite.h: Add TEST_GREATER_OR_EQUAL,
+	  TEST_GREATER, TEST_LESSER_OR_EQUAL and TEST_LESSER macros, which
+	  display the values of the arguments if they fail.
+	* tests/api_anydb.cc: Use TEST_GREATER_OR_EQUAL and TEST_EQUAL in
+	  checkatleast2 and checkatleast3, to make failures easier to
+	  debug.
+
 Tue Sep 04 18:16:49 BST 2007  Olly Betts <olly@survex.com>
 
 	* matcher/multimatch.cc: Restructure to make the control flow clearer.
