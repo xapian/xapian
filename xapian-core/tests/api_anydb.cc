@@ -1697,11 +1697,15 @@ static bool test_checkatleast3()
 
 	    Xapian::MSet mset = enquire.get_mset(0, 100, 500);
 	    TEST_MSET_SIZE(mset, 60);
-	    TEST(mset.get_matches_lower_bound() >= 60);
+	    TEST(mset.get_matches_lower_bound() == 60);
+	    TEST(mset.get_matches_estimated() == 60);
+	    TEST(mset.get_matches_upper_bound() == 60);
 
 	    mset = enquire.get_mset(0, 50, 100);
 	    TEST_MSET_SIZE(mset, 50);
-	    TEST(mset.get_matches_lower_bound() >= 60);
+	    TEST(mset.get_matches_lower_bound() == 60);
+	    TEST(mset.get_matches_estimated() == 60);
+	    TEST(mset.get_matches_upper_bound() == 60);
 
 	    mset = enquire.get_mset(0, 10, 50);
 	    TEST_MSET_SIZE(mset, 10);
