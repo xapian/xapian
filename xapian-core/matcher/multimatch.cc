@@ -5,6 +5,7 @@
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright 2003 Orange PCS Ltd
  * Copyright 2003 Sam Liddicott
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -319,6 +320,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     Xapian::doccount matches_upper_bound = pl->get_termfreq_max();
     Xapian::doccount matches_lower_bound = pl->get_termfreq_min();
     Xapian::doccount matches_estimated   = pl->get_termfreq_est();
+
+    // duplicates_found and documents_considered are used solely to keep track
+    // of how frequently collapses are occurring, so that the matches_estimated
+    // can be adjusted accordingly.
     Xapian::doccount duplicates_found = 0;
     Xapian::doccount documents_considered = 0;
 
@@ -417,7 +422,10 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	bool calculated_weight = false;
 	if (sort_by != VAL || min_weight > 0.0) {
 	    wt = pl->get_weight();
-	    if (wt < min_weight) continue;
+	    if (wt < min_weight) {
+		DEBUGLINE(MATCH, "Rejecting potential match due to insufficient weight");
+		continue;
+	    }
 	    calculated_weight = true;
 	}
 
@@ -436,7 +444,26 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // against the lowest currently in the proto-mset.  If sort_by is
 	    // VAL, then new_item.wt won't yet be set, but that doesn't
 	    // matter since it's not used by the sort function.
-	    if (!mcmp(new_item, min_item)) continue;
+	    if (!mcmp(new_item, min_item)) {
+		if (matchspy != NULL || mdecider != NULL || collapse_key != Xapian::BAD_VALUENO) {
+		    if (docs_matched >= check_at_least) {
+			// We've seen enough items - we can drop this one.
+			DEBUGLINE(MATCH, "Dropping candidate which sorts lower than min_item");
+			continue;
+		    } else {
+			// We can't drop the item, because we need to show it
+			// to the matchspy, test whether the mdecider would
+			// accept it, and/or test whether it would be collapsed.
+			DEBUGLINE(MATCH, "Keeping candidate which sorts lower than min_item for further investigation");
+		    }
+		} else {
+		    // Document was definitely suitable for mset - no more
+		    // processing needed.
+		    DEBUGLINE(MATCH, "Making note of match item which sorts lower than min_item");
+		    ++docs_matched;
+		    continue;
+		}
+	    }
 	}
 
 	Xapian::Internal::RefCntPtr<Xapian::Document::Internal> doc;
@@ -563,7 +590,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		min_item = items.front();
 		if (sort_by == REL || sort_by == REL_VAL) {
 		    if (docs_matched >= check_at_least) {
-			if (min_item.wt > min_weight) min_weight = min_item.wt;
+			if (min_item.wt > min_weight) {
+			    DEBUGLINE(MATCH, "Setting min_weight to " <<
+				      min_item.wt << " from " << min_weight);
+			    min_weight = min_item.wt;
+			}
 		    }
 		}
 		if (getorrecalc_maxweight(pl) < min_weight) {
@@ -692,11 +723,20 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     }
 
     if (items.size() < max_msize) {
+	// We have fewer items in the mset than we tried to get for it, so we
+	// must have all the matches in it.
 	DEBUGLINE(MATCH, "items.size() = " << items.size() <<
 		  ", max_msize = " << max_msize << ", setting bounds equal");
 	Assert(percent_cutoff || docs_matched == items.size());
 	matches_lower_bound = matches_upper_bound = matches_estimated
 	    = items.size();
+    } else if (docs_matched < check_at_least) {
+	// We have seen fewer matches than we checked for, so we must have seen
+	// all the matches.
+	DEBUGLINE(MATCH, "docs_matched = " << docs_matched <<
+		  ", check_at_least = " << check_at_least << ", setting bounds equal");
+	matches_lower_bound = matches_upper_bound = matches_estimated
+	    = docs_matched;
     } else {
 	if (percent_cutoff) {
 	    // another approach: Xapian::doccount new_est = items.size() * (1 - percent_factor) / (1 - min_weight / greatest_wt);

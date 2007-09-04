@@ -1,3 +1,20 @@
+Tue Sep 04 13:37:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* matcher/multimatch.cc: If check_at_least is greater than
+	  maxitems, but there are fewer results than check_at_least, the
+	  lower and upper bounds reported should be equal (and exact).  Fix
+	  a bug which caused this not to be the case, by checking if
+	  docs_matched < check_at_least, and forcing the bounds (and
+	  estimate) to be docs_matched in this case.
+
+	  Also, fix a bug when sorting by anything other than relevance,
+	  which was causing potential matches which are too low in the
+	  ranking to make the mset not to be added to the count of
+	  docs_matched, even when docs_matched < check_at_least.
+	
+	  Also, add a few extra explanatory comments and debug log messages
+	  in get_mset().
+
 Tue Sep 04 12:43:03 BST 2007  Olly Betts <olly@survex.com>
 
 	* PLATFORMS: Update from debian buildd logs.
