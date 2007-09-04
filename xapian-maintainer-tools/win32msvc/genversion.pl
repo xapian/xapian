@@ -18,16 +18,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-# Simple script to generate version.h from msvc/version.h.in
+# Simple script to generate version.h from msvc\version.h.in
 #
-# This script is intended to be used to allow windows builds using the MSVC
-# make files to be possible from SVN.  For builds from snapshot or release
-# tarballs, an appropriate version.h file should already be included in the
-# tarball.  (For this reason, this script is not added to distribution
-# tarballs.)  For builds from SVN which aren't using the MSVC make files, the
-# configure script will generate version.h
+# version.h must be placed in include\xapian\ before compiling xapian-core.
 #
-# Usage: msvc\genversion.pl configure.ac msvc\version.h.in version.h
+# Usage: genversion.pl configure.ac version.h.in version.h
 
 use strict;
 
