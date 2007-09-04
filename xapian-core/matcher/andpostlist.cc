@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2007 Olly Betts
  * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -126,12 +126,14 @@ AndPostList::get_termfreq_min() const
     //
     // The overlap is then given by:
     //  = lower_bound(left) + lower_bound(right) - dbsize
-    Xapian::doccount sum = l->get_termfreq_min() + r->get_termfreq_min();
-    if (sum > dbsize) {
+    Xapian::doccount lmin = l->get_termfreq_min();
+    Xapian::doccount sum = lmin + r->get_termfreq_min();
+    // If sum < lmin, then the calculation overflowed and the true value of
+    // sum must be > dbsize.
+    if (sum < lmin || sum > dbsize) {
 	RETURN(sum - dbsize);
-    } else {
-	RETURN(0u);
     }
+    RETURN(0u);
 }
 
 Xapian::doccount

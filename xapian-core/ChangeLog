@@ -1,3 +1,8 @@
+Tue Sep 04 02:56:00 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/andpostlist.cc: If the database has > 2G documents then the
+	  sum of termfreq_min can overflow, so handle this case correctly.
+
 Tue Sep 04 00:05:47 BST 2007  Olly Betts <olly@survex.com>
 
 	* xapian-config.in: We always need to include dependency_libs in the
