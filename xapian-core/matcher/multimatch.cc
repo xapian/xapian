@@ -445,24 +445,23 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    // VAL, then new_item.wt won't yet be set, but that doesn't
 	    // matter since it's not used by the sort function.
 	    if (!mcmp(new_item, min_item)) {
-		if (matchspy != NULL || mdecider != NULL || collapse_key != Xapian::BAD_VALUENO) {
-		    if (docs_matched >= check_at_least) {
-			// We've seen enough items - we can drop this one.
-			DEBUGLINE(MATCH, "Dropping candidate which sorts lower than min_item");
-			continue;
-		    } else {
-			// We can't drop the item, because we need to show it
-			// to the matchspy, test whether the mdecider would
-			// accept it, and/or test whether it would be collapsed.
-			DEBUGLINE(MATCH, "Keeping candidate which sorts lower than min_item for further investigation");
-		    }
-		} else {
+		if (matchspy == NULL && mdecider == NULL &&
+		    collapse_key == Xapian::BAD_VALUENO) {
 		    // Document was definitely suitable for mset - no more
 		    // processing needed.
 		    DEBUGLINE(MATCH, "Making note of match item which sorts lower than min_item");
 		    ++docs_matched;
 		    continue;
 		}
+		if (docs_matched >= check_at_least) {
+		    // We've seen enough items - we can drop this one.
+		    DEBUGLINE(MATCH, "Dropping candidate which sorts lower than min_item");
+		    continue;
+		}
+		// We can't drop the item, because we need to show it
+		// to the matchspy, test whether the mdecider would
+		// accept it, and/or test whether it would be collapsed.
+		DEBUGLINE(MATCH, "Keeping candidate which sorts lower than min_item for further investigation");
 	    }
 	}
 
@@ -745,11 +744,11 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 	    matches_estimated = max(size_t(new_est), items.size());
 	    // and another: items.size() + (1 - greatest_wt * percent_factor / min_weight) * (matches_estimated - items.size());
 
-	    // Very likely an underestimate, but we can't really do better without
-	    // checking further matches...  Only possibility would be to track how
-	    // many docs made the min weight test but didn't make the candidate set
-	    // since the last greatest_wt change, which we could use if the top
-	    // documents matched all the prob terms.
+	    // Very likely an underestimate, but we can't really do better
+	    // without checking further matches...  Only possibility would be
+	    // to track how many docs made the min weight test but didn't make
+	    // the candidate set since the last greatest_wt change, which we
+	    // could use if the top documents matched all the prob terms.
 	    matches_lower_bound = items.size();
 	    // matches_upper_bound could be reduced by the number of documents
 	    // which fail the min weight test
@@ -831,8 +830,8 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     // We WILL need to restore collapse_count to the mset by taking from
     // collapse_tab; this is what comes of copying around whole objects
     // instead of taking references, we find it hard to update collapse_count
-    // of an item that has already been pushed-back as we don't know where it is
-    // any more.  If we keep or find references we won't need to mess with
+    // of an item that has already been pushed-back as we don't know where it
+    // is any more.  If we keep or find references we won't need to mess with
     // is_heap so much maybe?
     if (collapse_key != Xapian::BAD_VALUENO && /*percent_cutoff &&*/ !items.empty() &&
 	!collapse_tab.empty()) {
