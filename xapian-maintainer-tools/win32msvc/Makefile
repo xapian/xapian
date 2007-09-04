@@ -138,5 +138,5 @@ MAKEHEADERS: ..\include\xapian\error.h ..\include\xapian\version.h
     cd win32
 
 ..\include\xapian\version.h: ..\msvc\version.h.in ..\configure.ac
-    $(PERL_EXE) ..\msvc\genversion.pl ..\configure.ac ..\msvc\version.h.in ..\include\xapian\version.h
+    $(PERL_EXE) genversion.pl ..\configure.ac version.h.in ..\include\xapian\version.h
 
