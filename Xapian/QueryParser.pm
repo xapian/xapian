@@ -65,7 +65,7 @@ a whole new syntax.
   $qp->set_stemmer(new Search::Xapian::Stem("english"));
   $qp->set_default_op(OP_AND);
 
-  $database->enquire($qp->parse_query('a word OR two NEAR "a phrase" NOT (too difficult) +eh'));
+  $database->enquire($qp->parse_query('a NEAR word OR "a phrase" NOT (too difficult) +eh'));
 
 =head1 METHODS
 
