@@ -17,8 +17,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef INCLUDED_UTF8TRUNCATE_H
-#define INCLUDED_UTF8TRUNCATE_H
+#ifndef OMEGA_INCLUDED_UTF8TRUNCATE_H
+#define OMEGA_INCLUDED_UTF8TRUNCATE_H
 
 #include <string>
 
@@ -29,4 +29,4 @@
  */
 bool utf8_truncate(std::string & value, std::string::size_type maxlen);
 
-#endif
+#endif // OMEGA_INCLUDED_UTF8TRUNCATE_H

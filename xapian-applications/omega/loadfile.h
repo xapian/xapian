@@ -17,6 +17,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
+#ifndef OMEGA_INCLUDED_LOADFILE_H
+#define OMEGA_INCLUDED_LOADFILE_H
+
 #include <string>
 
 extern bool load_file(const std::string &file_name, size_t max_to_read,
@@ -30,3 +33,5 @@ load_file(const std::string &file_name, std::string &output,
     bool dummy;
     return load_file(file_name, 0, try_not_to_cache, output, dummy);
 }
+
+#endif // OMEGA_INCLUDED_LOADFILE_H

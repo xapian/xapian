@@ -17,8 +17,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef INCLUDED_METAXMLPARSE_H
-#define INCLUDED_METAXMLPARSE_H
+#ifndef OMEGA_INCLUDED_METAXMLPARSE_H
+#define OMEGA_INCLUDED_METAXMLPARSE_H
 
 #include "htmlparse.h"
 
@@ -32,4 +32,4 @@ class MetaXmlParser : public HtmlParser {
     string title, keywords, sample;
 };
 
-#endif
+#endif // OMEGA_INCLUDED_METAXMLPARSE_H

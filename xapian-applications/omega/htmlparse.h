@@ -19,8 +19,8 @@
  * USA
  */
 
-#ifndef INCLUDED_HTMLPARSE_H
-#define INCLUDED_HTMLPARSE_H
+#ifndef OMEGA_INCLUDED_HTMLPARSE_H
+#define OMEGA_INCLUDED_HTMLPARSE_H
 
 #include <string>
 #include <map>
@@ -44,4 +44,4 @@ class HtmlParser {
 	virtual ~HtmlParser() { }
 };
 
-#endif
+#endif // OMEGA_INCLUDED_HTMLPARSE_H

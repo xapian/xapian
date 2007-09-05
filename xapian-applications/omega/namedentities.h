@@ -1,6 +1,6 @@
 /* namedentities.h: named HTML entities.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
+
+#ifndef OMEGA_INCLUDED_NAMEDENTITIES_H
+#define OMEGA_INCLUDED_NAMEDENTITIES_H
 
 // Names and values from: "Character entity references in HTML 4"
 // http://www.w3.org/TR/html4/sgml/entities.html
@@ -272,3 +275,5 @@
 { "clubs", 9827 },
 { "hearts", 9829 },
 { "diams", 9830 },
+
+#endif // OMEGA_INCLUDED_NAMEDENTITIES_H

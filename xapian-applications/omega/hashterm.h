@@ -1,6 +1,6 @@
 /* hashterm.h: replace the end of a long term with a hash.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -18,6 +18,9 @@
  * USA
  */
 
+#ifndef OMEGA_INCLUDED_HASHTERM_H
+#define OMEGA_INCLUDED_HASHTERM_H
+
 #include <string>
 
 const unsigned int MAX_SAFE_TERM_LENGTH = 240;
@@ -26,3 +29,5 @@ const unsigned int MAX_SAFE_TERM_LENGTH = 240;
  * so that it's exactly max_length characters long.
  */
 std::string hash_long_term(const std::string &term, unsigned int max_length);
+
+#endif // OMEGA_INCLUDED_HASHTERM_H

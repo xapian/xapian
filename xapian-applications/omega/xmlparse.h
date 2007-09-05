@@ -17,8 +17,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef INCLUDED_XMLPARSE_H
-#define INCLUDED_XMLPARSE_H
+#ifndef OMEGA_INCLUDED_XMLPARSE_H
+#define OMEGA_INCLUDED_XMLPARSE_H
 
 #include "myhtmlparse.h"
 
@@ -29,4 +29,4 @@ class XmlParser : public MyHtmlParser {
     void closing_tag(const string &tag);
 };
 
-#endif
+#endif // OMEGA_INCLUDED_XMLPARSE_H

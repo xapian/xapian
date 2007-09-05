@@ -17,15 +17,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef INCLUDED_SAMPLE_H
-#define INCLUDED_SAMPLE_H
+#ifndef OMEGA_INCLUDED_SAMPLE_H
+#define OMEGA_INCLUDED_SAMPLE_H
 
 #include <string>
 
 /* Take a utf-8 string and clean up whitespace to produce a sample of at most
  * maxlen bytes.  If the input string is too long, we try to avoid truncating
- * midword, and then append " ..." (or "..." if we have to truncate a word).
+ * mid word, and then append " ..." (or "..." if we have to truncate a word).
  */
 std::string generate_sample(const std::string & input, size_t maxlen);
 
-#endif
+#endif // OMEGA_INCLUDED_SAMPLE_H

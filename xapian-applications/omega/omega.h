@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2001 Lemur Consulting Ltd
  * Copyright 2001,2002 Ananova Ltd
- * Copyright 2002,2003,2006 Olly Betts
+ * Copyright 2002,2003,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,9 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+
+#ifndef OMEGA_INCLUDED_OMEGA_H
+#define OMEGA_INCLUDED_OMEGA_H
 
 #include <xapian.h>
 
@@ -67,3 +70,5 @@ extern map<string, string> option;
 extern string date_start, date_end, date_span;
 
 extern const string default_dbname;
+
+#endif // OMEGA_INCLUDED_OMEGA_H

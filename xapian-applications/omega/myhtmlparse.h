@@ -19,8 +19,8 @@
  * USA
  */
 
-#ifndef INCLUDED_MYHTMLPARSE_H
-#define INCLUDED_MYHTMLPARSE_H
+#ifndef OMEGA_INCLUDED_MYHTMLPARSE_H
+#define OMEGA_INCLUDED_MYHTMLPARSE_H
 
 #include "htmlparse.h"
 
@@ -47,4 +47,4 @@ class MyHtmlParser : public HtmlParser {
 		indexing_allowed(true) { }
 };
 
-#endif
+#endif // OMEGA_INCLUDED_MYHTMLPARSE_H

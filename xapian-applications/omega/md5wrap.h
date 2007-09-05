@@ -1,6 +1,6 @@
 /* md5wrap.h: wrapper functions to allow easy use of MD5 from C++.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,12 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
+#ifndef OMEGA_INCLUDED_MD5WRAP_H
+#define OMEGA_INCLUDED_MD5WRAP_H
+
 #include <string>
 
 bool md5_file(const std::string &file_name, std::string &md5);
 void md5_string(const std::string &str, std::string &md5);
+
+#endif // OMEGA_INCLUDED_MD5WRAP_H
