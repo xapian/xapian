@@ -35,7 +35,7 @@ sub clone() {
 sub new() {
   my $class = shift;
   my $qp = new0();
-  
+
   bless $qp, $class;
   $qp->set_database(@_) if scalar(@_) == 1;
 
@@ -66,7 +66,7 @@ a whole new syntax.
   $qp->set_default_op(OP_AND);
 
   $database->enquire($qp->parse_query('a word OR two NEAR "a phrase" NOT (too difficult) +eh'));
- 
+
 =head1 METHODS
 
 =over 4
@@ -108,8 +108,8 @@ Parses the query string according to the rules defined in the query parser
 documentation below. You can specify certain flags to modify the
 searching behaviour:
 
-  C<FLAG_BOOLEAN>, C<FLAG_PHRASE>, C<FLAG_LOVEHATE>, C<FLAG_BOOLEAN>_ANY_CASE,
-  C<FLAG_WILDCARD>, C<FLAG_PURE>_NOT, C<FLAG_PARTIAL>
+  FLAG_BOOLEAN, FLAG_PHRASE, FLAG_LOVEHATE, FLAG_BOOLEAN_ANY_CASE,
+  FLAG_WILDCARD, FLAG_PURE_NOT, FLAG_PARTIAL
 
 To specify multiple flags, "or" them together (with C<|>).  The
 default flags are C<FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE>
@@ -124,24 +124,26 @@ to the same prefix (so you can e.g. make title: and subject: aliases for each
 other).
 
 Parameters:
-field 	The user visible field name
-prefix 	The term prefix to map this to
+field	The user visible field name
+prefix	The term prefix to map this to
 
 =item add_boolean_prefix <field> prefix
 
-Add a boolean term prefix allowing the user to restrict a search with a 
-boolean filter specified in the free text query.  E.g. 
-C<$p->add_boolean_prefix("site", "H");>
+Add a boolean term prefix allowing the user to restrict a search with a
+boolean filter specified in the free text query.  E.g.
 
-Allows the user to restrict a search with site:xapian.org which will be 
-converted to Hxapian.org combined with any probabilistic query with OP_FILTER.
+  $p->add_boolean_prefix("site", "H");
 
-Multiple fields can be mapped to the same prefix (so you can e.g. make site: 
+Allows the user to restrict a search with site:xapian.org which will be
+converted to Hxapian.org combined with any probabilistic query with
+C<OP_FILTER>.
+
+Multiple fields can be mapped to the same prefix (so you can e.g. make site:
 and domain: aliases for each other).
 
 Parameters:
-field 	The user visible field name
-prefix 	The term prefix to map this to
+field	The user visible field name
+prefix	The term prefix to map this to
 
 =item stoplist_begin
 
