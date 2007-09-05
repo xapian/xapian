@@ -1,4 +1,4 @@
-/* myhtmlparse.cc: subclass of HtmlParser for extracting text
+/* myhtmlparse.cc: subclass of HtmlParser for extracting text.
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002,2003,2004,2006,2007 Olly Betts
@@ -18,6 +18,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
+
+#include <config.h>
 
 #include "myhtmlparse.h"
 

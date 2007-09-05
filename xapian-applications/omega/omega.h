@@ -21,8 +21,6 @@
  * USA
  */
 
-#include <config.h>
-
 #include <xapian.h>
 
 #define PROGRAM_NAME "omega"
