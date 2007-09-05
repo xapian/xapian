@@ -81,7 +81,8 @@ Set the Search::Xapian::Stem object to be used for stemming query terms.
 
 =item set_stemming_strategy <strategy>
 
-Set the stemming strategy.  Valid values are STEM_ALL, STEM_SOME, STEM_NONE.
+Set the stemming strategy.  Valid values are C<STEM_ALL>, C<STEM_SOME>,
+C<STEM_NONE>.
 
 =item set_stopper <stopper>
 
@@ -103,14 +104,15 @@ terms exist in some situations.
 
 =item parse_query <query_string> [<flags>]
 
-parses the query string according to the rules defined in the query parser
-documentation below. Allows you to specify certain flags to modify the
+Parses the query string according to the rules defined in the query parser
+documentation below. You can specify certain flags to modify the
 searching behaviour:
 
-  FLAG_BOOLEAN=1, FLAG_PHRASE=2, FLAG_LOVEHATE=4,
-  FLAG_BOOLEAN_ANY_CASE=8, FLAG_WILDCARD = 16
+  C<FLAG_BOOLEAN>, C<FLAG_PHRASE>, C<FLAG_LOVEHATE>, C<FLAG_BOOLEAN>_ANY_CASE,
+  C<FLAG_WILDCARD>, C<FLAG_PURE>_NOT, C<FLAG_PARTIAL>
 
-default flags are FLAG_PHRASE, FLAG_BOOLEAN and FLAG_LOVEHATE
+To specify multiple flags, "or" them together (with C<|>).  The
+default flags are C<FLAG_PHRASE|FLAG_BOOLEAN|FLAG_LOVEHATE>
 
 =item add_prefix <field> <prefix>
 
@@ -129,7 +131,7 @@ prefix 	The term prefix to map this to
 
 Add a boolean term prefix allowing the user to restrict a search with a 
 boolean filter specified in the free text query.  E.g. 
-$p->add_boolean_prefix("site", "H");
+C<$p->add_boolean_prefix("site", "H");>
 
 Allows the user to restrict a search with site:xapian.org which will be 
 converted to Hxapian.org combined with any probabilistic query with OP_FILTER.
@@ -151,7 +153,7 @@ prefix 	The term prefix to map this to
 
 =item get_description
 
-Returns a string describing this object.  (for introspection)
+Returns a string describing this object.
 
 =back
 
