@@ -48,6 +48,7 @@
 #include "md5wrap.h"
 #include "metaxmlparse.h"
 #include "myhtmlparse.h"
+#include "runfilter.h"
 #include "sample.h"
 #include "stringutils.h"
 #include "utf8convert.h"
@@ -56,24 +57,6 @@
 #include "xmlparse.h"
 
 #include "gnu_getopt.h"
-
-#ifdef HAVE_SYS_WAIT_H
-# include <sys/wait.h>
-#endif
-
-#ifdef __WIN32__
-# ifndef WIFEXITED
-#  define WIFEXITED(status) (status != -1)
-# endif
-# ifndef WEXITSTATUS
-#  define WEXITSTATUS(status) (status)
-# endif
-#endif
-
-#ifdef _MSC_VER
-# define popen _popen
-# define pclose _pclose
-#endif
 
 #ifndef HAVE_MKDTEMP
 extern char * mkdtemp(char *);
@@ -145,9 +128,6 @@ static bool ensure_tmpdir() {
     return (p != NULL);
 }
 
-struct ReadError {};
-struct NoSuchFilter {};
-
 static string
 file_to_string(const string &file)
 {
@@ -156,32 +136,9 @@ file_to_string(const string &file)
     return out;
 }
 
-static string
-stdout_to_string(const string &cmd)
+static void
+get_pdf_metainfo(const string & safefile, string &title, string &keywords)
 {
-    string out;
-    FILE * fh = popen(cmd.c_str(), "r");
-    if (fh == NULL) throw ReadError();
-    while (!feof(fh)) {
-	char buf[4096];
-	size_t len = fread(buf, 1, 4096, fh);
-	if (ferror(fh)) {
-	    (void)pclose(fh);
-	    throw ReadError();
-	}
-	out.append(buf, len);
-    }
-    int status = pclose(fh);
-    if (status != 0) {
-	if (WIFEXITED(status) && WEXITSTATUS(status) == 127) {
-	    throw NoSuchFilter();
-	}
-	throw ReadError();
-    }
-    return out;
-}
-
-static void get_pdf_metainfo(const string & safefile, string &title, string &keywords) {
     try {
 	string pdfinfo = stdout_to_string("pdfinfo -enc UTF-8 " + safefile);
 

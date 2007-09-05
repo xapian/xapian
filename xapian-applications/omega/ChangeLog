@@ -1,3 +1,8 @@
+Thu Sep 06 00:54:58 BST 2007  Olly Betts <olly@survex.com>
+
+	* Makefile.am,omindex.cc,runfilter.cc,runfilter.h: Factor out the
+	  stdout_to_string() function into its own source file.
+
 Thu Sep 06 00:45:14 BST 2007  Olly Betts <olly@survex.com>
 
 	* cgiparam.h,commonhelp.h,date.h,hashterm.h,htmlparse.h,loadfile.h,
