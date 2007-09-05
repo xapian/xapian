@@ -6,7 +6,7 @@
 
 use Test;
 use Devel::Peek;
-BEGIN { plan tests => 48 };
+BEGIN { plan tests => 51 };
 use Search::Xapian qw(:standard);
 ok(1); # If we made it this far, we're ok.
 
@@ -29,7 +29,11 @@ $qp->set_stemming_strategy( STEM_ALL );
 $qp->set_default_op( OP_AND );
 
 my $query;
+ok( $query = $qp->parse_query( 'one or two', FLAG_BOOLEAN|FLAG_BOOLEAN_ANY_CASE ) );
+ok( $query->get_description(), "Xapian::Query((Zone:(pos=1) OR Ztwo:(pos=2)))" );
+
 ok( $query = $qp->parse_query( 'one OR (two AND three)' ) );
+ok( $query->get_description(), "Xapian::Query((Zone:(pos=1) OR (Ztwo:(pos=2) AND Zthree:(pos=3))))" );
 
 ok( my $enq = $database->enquire( $query ) );
 
