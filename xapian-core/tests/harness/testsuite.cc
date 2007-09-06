@@ -222,14 +222,13 @@ test_driver::runtest(const test_desc *test)
 #ifdef HAVE_VALGRIND
 		int vg_errs = 0;
 		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0;
-		off_t vg_log_pos = 0;
 		if (vg_log_fd != -1) {
 		    VALGRIND_DO_LEAK_CHECK;
 		    vg_errs = VALGRIND_COUNT_ERRORS;
 		    long dummy;
 		    VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
 		    // Skip past any unread log output.
-		    vg_log_pos = lseek(vg_log_fd, 0, SEEK_END);
+		    lseek(vg_log_fd, 0, SEEK_END);
 		}
 #endif
 		if (!test->run()) {
@@ -251,7 +250,6 @@ test_driver::runtest(const test_desc *test)
 		    tout.str("");
 #define REPORT_FAIL_VG(M) do { \
     if (verbose) { \
-	lseek(vg_log_fd, vg_log_pos, SEEK_SET); \
 	while (true) { \
 	    ssize_t c = read(vg_log_fd, buf, sizeof(buf)); \
 	    if (c == 0 || (c < 0 && errno != EINTR)) break; \
@@ -260,6 +258,9 @@ test_driver::runtest(const test_desc *test)
     } \
     out << " " << col_red << M << col_reset; \
 } while (0)
+		    // Record the current position so we can restore it so
+		    // REPORT_FAIL_VG() gets the whole output.
+		    off_t curpos = lseek(vg_log_fd, 0, SEEK_CUR);
 		    char buf[1024];
 		    while (true) {
 			ssize_t c = read(vg_log_fd, buf, sizeof(buf));
@@ -268,19 +269,31 @@ test_driver::runtest(const test_desc *test)
 			    break;
 			}
 			if (c > 0) {
+			    // Valgrind output has "==<pid>== \n" between
+			    // report "records", so skip to the next occurrence
+			    // of " \n".
 			    ssize_t i = 0;
 			    do {
 				while (i < c && buf[i] != ' ') ++i;
 			    } while (++i < c && buf[i] == '\n');
-			    char *p = reinterpret_cast<char *>(memchr(buf + i, '\n', c - i));
-			    if (p == NULL) p = buf + c;
-			    c = p - buf - i;
-			    if (c > 1024) c = 79;
-			    memmove(buf, buf + i, c);
+
+			    char *start = buf + 1;
+			    c -= i;
+
+			    char *p = start;
+			    p = reinterpret_cast<char *>(memchr(p, '\n', c));
+			    if (p == NULL) p += c;
+
+			    c = p - start;
+			    if (c > 128) c = 128;
+
+			    memmove(buf, start, c);
 			    buf[c] = '\0';
 			    break;
 			}
 		    }
+		    lseek(vg_log_fd, curpos, SEEK_SET);
+
 		    VALGRIND_DO_LEAK_CHECK;
 		    int vg_errs2 = VALGRIND_COUNT_ERRORS;
 		    vg_errs = vg_errs2 - vg_errs;
