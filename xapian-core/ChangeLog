@@ -1,3 +1,11 @@
+Thu Sep 06 14:17:44 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/harness/testsuite.cc: When displaying valgrind output, seek
+	  back to the start of the valgrind output for the current test
+	  before dumping it to stdout: previously, the earlier check for the
+	  valgrind error message to display (when not using -v) caused the
+	  first 1024 bytes of the valgrind output to get dropped.
+
 Tue Sep 04 20:13:29 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* matcher/multimatch.cc: For remote submatches, keep a count of

@@ -222,13 +222,14 @@ test_driver::runtest(const test_desc *test)
 #ifdef HAVE_VALGRIND
 		int vg_errs = 0;
 		long vg_leaks = 0, vg_dubious = 0, vg_reachable = 0;
+		off_t vg_log_pos = 0;
 		if (vg_log_fd != -1) {
 		    VALGRIND_DO_LEAK_CHECK;
 		    vg_errs = VALGRIND_COUNT_ERRORS;
 		    long dummy;
 		    VALGRIND_COUNT_LEAKS(vg_leaks, vg_dubious, vg_reachable, dummy);
 		    // Skip past any unread log output.
-		    lseek(vg_log_fd, 0, SEEK_END);
+		    vg_log_pos = lseek(vg_log_fd, 0, SEEK_END);
 		}
 #endif
 		if (!test->run()) {
@@ -250,6 +251,7 @@ test_driver::runtest(const test_desc *test)
 		    tout.str("");
 #define REPORT_FAIL_VG(M) do { \
     if (verbose) { \
+	lseek(vg_log_fd, vg_log_pos, SEEK_SET); \
 	while (true) { \
 	    ssize_t c = read(vg_log_fd, buf, sizeof(buf)); \
 	    if (c == 0 || (c < 0 && errno != EINTR)) break; \
