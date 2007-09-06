@@ -1514,6 +1514,23 @@ static bool test_spell4()
     return true;
 }
 
+// Regression test - used to segfault with some input values.
+static bool test_spell5()
+{
+    if (get_dbtype() != "flint") {
+	SKIP_TEST("Test only supported for flint backend");
+    }
+
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    db.add_spelling("一些");
+    db.flush();
+
+    TEST_EQUAL(db.get_spelling_suggestion("不", strlen("不")), "一些");
+
+    return true;
+}
+
 // Test synonym iterators.
 static bool test_synonymitor1()
 {
@@ -1937,6 +1954,7 @@ test_desc writabledb_tests[] = {
     TESTCASE(spell2),
     TESTCASE(spell3),
     TESTCASE(spell4),
+    TESTCASE(spell5),
     TESTCASE(synonymitor1),
     TESTCASE(matchspy1),
     TESTCASE(matchspy2),
