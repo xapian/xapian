@@ -1,4 +1,4 @@
-/* runfilter.cc: index static documents into the omega db
+/* runfilter.cc: run an external filter and capture its output in a std::string.
  *
  * Copyright (C) 2003,2006,2007 Olly Betts
  *
