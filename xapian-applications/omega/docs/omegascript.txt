@@ -477,8 +477,11 @@ $min{...}
 $mul{A,B,...}
 	multiply arguments together
 
+$muldiv{A,B,C}
+	returns int((A * B) / C) (or "divide by 0" if C is zero)
+
 $sub{A,B}
-	return (A - B)
+	returns (A - B)
 
 Logical Operators:
 ==================

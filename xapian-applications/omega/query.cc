@@ -766,6 +766,7 @@ CMD_mod,
 CMD_msize,
 CMD_msizeexact,
 CMD_mul,
+CMD_muldiv,
 CMD_ne,
 CMD_nice,
 CMD_not,
@@ -884,6 +885,7 @@ T(mod,		   2, 2, N, 0), // integer modulus
 T(msize,	   0, 0, N, M), // number of matches
 T(msizeexact,	   0, 0, N, M), // is $msize exact?
 T(mul,		   2, N, N, 0), // multiply a list of numbers
+T(muldiv,	   3, 3, N, 0), // calculate A*B/C
 T(ne,		   2, 2, N, 0), // test not equal
 T(nice,		   1, 1, N, 0), // pretty print integer (with thousands sep)
 T(not,		   1, 1, N, 0), // logical not
@@ -1522,6 +1524,16 @@ eval(const string &fmt, const vector<string> &param)
 		while (i != args.end())
 		    total *= string_to_int(*i++);
 		value = int_to_string(total);
+		break;
+	    }
+	    case CMD_muldiv: {
+		int denom = string_to_int(args[2]);
+		if (denom == 0) {
+		    value = "divide by 0";
+		} else {
+		    int num = string_to_int(args[0]) * string_to_int(args[1]);
+		    value = int_to_string(num / denom);
+		}
 		break;
 	    }
             case CMD_ne:
