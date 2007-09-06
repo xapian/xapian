@@ -1,3 +1,7 @@
+Thu Sep 06 18:12:07 BST 2007  Olly Betts <olly@survex.com>
+
+	* scriptindex.cc: Fix line number tracking in dump files.
+
 Thu Sep 06 18:06:28 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/omegascript.txt,query.cc: Add $muldiv{A,B,C} which calculates

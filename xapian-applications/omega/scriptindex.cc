@@ -435,13 +435,15 @@ index_file(const char *fname, istream &stream,
 	    }
 	    string field = line.substr(0, eq);
 	    string value = line.substr(eq + 1);
-	    while (getline(stream, line) && !line.empty() && line[0] == '=') {
+	    while (getline(stream, line)) {
+		++line_no;
+		if (line.empty() || line[0] != '=') break;
 		// Cope with files from MS Windows (\r\n end of lines).
 		// Trim multiple \r characters, since that seems the best way
 		// to handle that case.
 		last = line.find_last_not_of('\r');
-		// Since line[0] == '=', so last != string::npos.
-		// Replace the = with a \n so we don't have to use substr.
+		// line[0] == '=', so last != string::npos.
+		// Replace the '=' with a '\n' so we don't have to use substr.
 		line[0] = '\n';
 		line.resize(last + 1);
 		value += line;
