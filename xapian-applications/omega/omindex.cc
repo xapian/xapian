@@ -246,8 +246,8 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	}
 	get_pdf_metainfo(safefile, title, keywords);
     } else if (mimetype == "application/postscript") {
-	// There simply doesn't seem to be a Unicode capabable PostScript to
-	// text convertor (e.g. pstotext always outputs ISO-8859-1).  The only
+	// There simply doesn't seem to be a Unicode capable PostScript to
+	// text converter (e.g. pstotext always outputs ISO-8859-1).  The only
 	// solution seems to be to convert via PDF using ps2pdf and then
 	// pdftotext.  This gives plausible looking UTF-8 output for some
 	// Chinese PostScript files I found using Google.  It also has the
