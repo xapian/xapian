@@ -1,3 +1,7 @@
+Fri Sep 07 19:31:44 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/spelling.rst: Fix typo.
+
 Thu Sep 06 15:02:43 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/editdistance.cc: Fix off-by-one error in loop bounds when

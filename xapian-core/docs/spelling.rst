@@ -90,7 +90,7 @@ Current Limitations
 Exactness
 ---------
 
-Because Xapian only tests the edit difference for terms which match
+Because Xapian only tests the edit distance for terms which match
 well (or at all!) on trigrams, it may not always suggest the same answer that
 would be found if all possible words were checked using the edit distance
 algorithm.  However, the best answer will usually be found, and an exhaustive
