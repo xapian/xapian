@@ -1,8 +1,11 @@
 xapian-omega (1.0.2-1) unstable; urgency=low
 
   * New upstream release.
+  * debian/control.in: Update "Suggests:" to include gzip (for compressed
+    AbiWord documents) and catdvi (for DVI files) which omindex can now make
+    use of.
 
- -- Olly Betts <olly@survex.com>  Thu,  5 Jul 2007 01:15:39 +0100
+ -- Olly Betts <olly@survex.com>  Fri,  7 Sep 2007 21:23:03 +0100
 
 xapian-omega (1.0.1-1) unstable; urgency=low
 
