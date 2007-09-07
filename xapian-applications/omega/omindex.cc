@@ -403,6 +403,20 @@ index_file(const string &url, const string &mimetype, time_t last_mod, off_t siz
 	    cout << "\"" << cmd << "\" failed - skipping\n";
 	    return;
 	}
+    } else if (mimetype == "application/x-dvi") {
+	// FIXME: -e2 means "UTF-8", but that results in "fi", "ff", "ffi", etc
+	// appearing as single ligatures.  For European languages, it's
+	// actually better to use -e2 (ISO-8859-1) and then convert, so let's
+	// do that for now until we handle Unicode "compatibility
+	// decompositions".
+	string cmd = "catdvi -e2 -s " + shell_protect(file);
+	try {
+	    dump = stdout_to_string(cmd);
+	    convert_to_utf8(dump, "ISO-8859-1");
+	} catch (ReadError) {
+	    cout << "\"" << cmd << "\" failed - skipping\n";
+	    return;
+	}
     } else {
 	// Don't know how to index this type.
 	cout << "unknown MIME type - skipping\n";
@@ -674,6 +688,8 @@ main(int argc, char **argv)
     mime_map["pl"] = "text/x-perl";
     mime_map["pm"] = "text/x-perl";
     mime_map["pod"] = "text/x-perl";
+    // Other formats:
+    mime_map["dvi"] = "application/x-dvi";
 
     while ((getopt_ret = gnu_getopt_long(argc, argv, "hvd:D:U:M:lp", longopts, NULL))!=EOF) {
 	switch (getopt_ret) {
