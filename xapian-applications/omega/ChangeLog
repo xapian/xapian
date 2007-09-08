@@ -1,3 +1,9 @@
+Sat Sep 08 19:24:48 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac,runfilter.cc: Impose a 5 minute CPU time limit on
+	  filter programs to prevent problems if a filter program goes into
+	  an infinite loop on a malformed input.  Partly addresses bug#111.
+
 Fri Sep 07 21:22:43 BST 2007  Olly Betts <olly@survex.com>
 
 	* omindex.cc: Fix comment typos.

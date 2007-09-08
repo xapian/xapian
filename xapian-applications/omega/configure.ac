@@ -62,7 +62,8 @@ AC_TRY_COMPILE([#include <stdint.h>],
   AC_DEFINE(HAVE_WORKING_STDINT_H, 1, [Define to 1 if you have the <stdint.h> header file and it can be used in C++ code.]))
 
 dnl Check for headers.
-AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h strings.h],
+AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h strings.h sys/time.h]dnl
+		 [sys/resource.h sys/socket.h],
 		 [], [], [ ])
 
 dnl mingw (for instance) lacks ssize_t
@@ -74,7 +75,7 @@ dnl Check for time functions.
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS(gettimeofday ftime)
 
-dnl See if ftime returns void (as it does on mingw)
+dnl See if ftime() returns void (as it does on mingw).
 if test $ac_cv_func_ftime = yes ; then
   AC_TRY_COMPILE([#include <sys/timeb.h>],
     [struct timeb tp; int i = ftime(&tp);],
@@ -82,10 +83,10 @@ if test $ac_cv_func_ftime = yes ; then
     AC_DEFINE(FTIME_RETURNS_VOID, 1, [Define if ftime returns void]))
 fi
 
-dnl Check for lstat (not available under mingw for example).
+dnl Check for lstat() (not available under mingw for example).
 AC_CHECK_FUNCS(lstat)
 
-dnl Add in portable replacement for mkdtemp on platforms which lack it.
+dnl Add in portable replacement for mkdtemp() on platforms which lack it.
 AC_CHECK_FUNCS(mkdtemp)
 AM_CONDITIONAL(NEED_MKDTEMP, [test yes != "$ac_cv_func_mkdtemp"])
 
@@ -105,7 +106,9 @@ AC_LINK_IFELSE([
   [AC_DEFINE(HAVE_POSIX_FADVISE, 1, [Define to 1 if you have the 'posix_fadvise' function])]
 )
 
-AC_CHECK_FUNCS(mmap)
+dnl omindex uses fork(), socketpair(), and setrlimit() to impose resource
+dnl limits on filter programs.
+AC_CHECK_FUNCS([mmap fork setrlimit socketpair])
 
 dnl Check that snprintf actually works as it's meant to.
 dnl
