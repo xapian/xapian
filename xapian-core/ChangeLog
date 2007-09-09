@@ -1,3 +1,10 @@
+Sun Sep 09 15:38:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_spelling.h,backends/flint/flint_synonym.h,
+	  backends/flint/flint_table.h: Fix typo (Z_DEFAULT_COMPRESSION
+	  where it should be Z_DEFAULT_STRATEGY) which meant that zlib
+	  compression wasn't enabled for the spelling or synonym tables.
+
 Fri Sep 07 19:31:44 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/spelling.rst: Fix typo.

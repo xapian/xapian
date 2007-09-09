@@ -680,7 +680,8 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable {
 	 */
 	byte * split_p;
 
-	/** DONT_COMPRESS or Z_DEFAULT_COMPRESSION, Z_HUFFMAN_ONLY, Z_RLE. */
+	/** DONT_COMPRESS or Z_DEFAULT_STRATEGY, Z_FILTERED, Z_HUFFMAN_ONLY,
+	 *  Z_RLE. */
 	int compress_strategy;
 
 	/// If true, don't create the table until it's needed.
