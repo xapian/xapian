@@ -67,7 +67,8 @@ OMINDEX_OBJS= \
 	"$(OUTDIR)\sample.obj" \
 	"$(OUTDIR)\mkdtemp.obj" \
 	"$(OUTDIR)\dirent.obj" \
-	"$(OUTDIR)\diritor.obj"
+	"$(OUTDIR)\diritor.obj" \
+	"$(OUTDIR)\runfilter.obj"
 	
 	
 SCRIPTINDEX_OBJS= \
@@ -144,7 +145,8 @@ SRCS= \
  	"$(INTDIR)\md5.cc" \
  	"$(INTDIR)\md5wrap.cc" \
  	"$(INTDIR)\md5test.cc" \
-	"$(INTDIR)\diritor.cc" 
+	"$(INTDIR)\diritor.cc" \
+	"$(INTDIR)\runfilter.cc" 
 	
 CLEAN :
 	-@erase $(PROGRAMS)
