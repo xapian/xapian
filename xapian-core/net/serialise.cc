@@ -34,6 +34,7 @@
 #include "utils.h"
 
 #include <string>
+#include <string.h>
 
 using namespace std;
 
