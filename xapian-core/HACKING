@@ -801,7 +801,7 @@ harder for us to merge in your changes.
 We don't currently have a formal coding standards document, but please try
 to follow the style of the existing code.  In particular:
 
-* indent C++ code by 4 spaces for a new indentation level, and set your editor
+* Indent C++ code by 4 spaces for a new indentation level, and set your editor
   to tab-fill indentation.  As an exception, "public", "protected" and
   "private" declarations in classes and structs should be indented by 2 spaces,
   and the following code should be indented by 2 more spaces::
@@ -813,7 +813,12 @@ to follow the style of the existing code.  In particular:
 
   The rationale for this exception is that class definitions in header files
   often have fairly long lines, so losing an indent level to the visibility
-  specifier often makes class definitions less readable.
+  specifier tends to make class definitions less readable.
+
+  The default visibility for a class is always "private", so there's no need
+  to specify that explicitly.  If a class only contains public methods and
+  data, consider declaring it as a "struct" (the only difference in C++ is
+  that the default visibility for a struct is "public").
 
 * Put a space before the "(" after control flow constructs like "for", "if",
   "while", etc.  Don't put a space before the "(" in function calls.  So
@@ -830,8 +835,43 @@ to follow the style of the existing code.  In particular:
 * Prefer "container.empty()" to "container.size() == 0" (and
   "!container.empty()" to "container.size() != 0" or "container.size() > 0").
   Finding the size of a container may not be a constant time operation for
-  all containers (e.g. std::list may not be); also the "empty()" form makes
+  all containers (e.g. std::list may not be).  And the "empty()" form makes
   the intent of the test more explicit.
+
+* Prefer not to use "else" when the control flow is diverted elsewhere at the
+  end of the "if" block (e.g. by "return", "continue", "break").  This
+  eliminates a level of indentation from the code in the "else" block, and
+  typically makes the control flow logic clearer.  For example::
+
+    if (x == 0) {
+        foo();
+        return;
+    }
+
+    while (x--) {
+        bar();
+    }
+
+  rather than::
+
+    if (x == 0) {
+        foo();
+        return;
+    } else {
+        while (x--) {
+            bar();
+        }
+    }
+
+* For standard ISO C headers, we now prefer "#include <cstdlib>" to
+  "#include <stdlib.h>" for new code (a *lot* of the existing code currently
+  uses the old form, but there are a few semantic differences, so we're holding
+  off on a wholesale conversion until 1.1.0 to avoid potentially disruptive
+  changes with no direct benefit to users).
+
+* For standard ISO C++ headers, *always* use the ISO C++ form '#include <list>'
+  (pre-ISO compilers used '#include <list.h>', but GCC has generated a warning
+  for this form for years).
 
 We will do our best to give credit where credit is due - if we have used
 patches from you, or received helpful reports or advice, we will add your name
@@ -843,8 +883,9 @@ Developers with SVN access:
 ===========================
 
 People who are more seriously involved with the project are likely to
-have write access to the SVN repository. This section gives the conventions
-for those developers.
+have write access to the SVN repository.  This section gives the conventions
+for those developers, but most of these also apply if you're generating a
+patch you'd like us to include.
 
 1) Make sure that the documentation is updated
 ----------------------------------------------
@@ -873,7 +914,7 @@ for those developers.
 
 If you don't know how to write tests using the Xapian test rig, then
 ask.  It's reasonably simple once you've done it once.  There is a brief
-introduction to the Xapian test system in docs/tests.html .
+introduction to the Xapian test system in ``docs/tests.html``.
 
 3) Make sure the attributions are right
 ---------------------------------------
