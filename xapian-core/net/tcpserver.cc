@@ -44,8 +44,10 @@
 # include <sys/wait.h>
 #endif
 
-#include <sys/types.h>
 #include <iostream>
+
+#include <string.h>
+#include <sys/types.h>
 
 using namespace std;
 

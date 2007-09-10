@@ -24,6 +24,7 @@
 #include <string>
 
 #include <stdlib.h> // For exit().
+#include <string.h>
 
 using namespace std;
 

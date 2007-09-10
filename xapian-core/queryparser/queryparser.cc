@@ -28,6 +28,8 @@
 #include "queryparser_internal.h"
 #include "vectortermlist.h"
 
+#include <string.h>
+
 using namespace Xapian;
 
 using namespace std;
