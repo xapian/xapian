@@ -620,15 +620,27 @@ static bool test_poslist3()
     return true;
 }
 
-// Regression test - in 0.9.4 (and many previous versions)
-// you couldn't get a PositionIterator from a TermIterator from
-// Database::term list_begin().
+// Regression test - in 0.9.4 (and many previous versions) you couldn't get a
+// PositionIterator from a TermIterator from Database::termlist_begin().
+//
+// Also test that positionlist_count() is implemented for this case, which it
+// wasn't in 1.0.2 and earlier.
 static bool test_positfromtermit1()
 {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::TermIterator t(db.termlist_begin(7));
+    TEST_NOT_EQUAL(t, db.termlist_end(7));
     Xapian::PositionIterator p = t.positionlist_begin();
     TEST_NOT_EQUAL(p, t.positionlist_end());
+
+    try { 
+	TEST_EQUAL(t.positionlist_count(), 1);
+	t.skip_to("on");
+	TEST_NOT_EQUAL(t, db.termlist_end(7));
+	TEST_EQUAL(t.positionlist_count(), 2);
+    } catch (const Xapian::UnimplementedError &) {
+	SKIP_TEST("TermList::positionlist_count() not yet implemented for this backend");
+    }
 
     return true;
 }

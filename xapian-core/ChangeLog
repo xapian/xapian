@@ -1,3 +1,12 @@
+Tue Sep 11 23:02:56 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/inmemory/inmemory_database.cc,
+	  backends/inmemory/inmemory_database.h: Implement
+	  TermIterator::positionlist_count() for the inmemory backend.
+	* tests/api_posdb.cc: Add feature test for
+	  TermIterator::positionlist_count() (which currently skips for all
+	  backends except inmemory).
+
 Tue Sep 11 03:43:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc: Make sure flush_threshold gets

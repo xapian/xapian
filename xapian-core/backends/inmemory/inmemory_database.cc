@@ -252,7 +252,7 @@ InMemoryTermList::at_end() const
 Xapian::termcount
 InMemoryTermList::positionlist_count() const
 {
-    throw Xapian::UnimplementedError("InMemoryTermList::positionlist_count() not implemented");
+    return db->positionlist_count(did, (*pos).tname);
 }
 
 Xapian::PositionIterator
@@ -455,6 +455,24 @@ InMemoryDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
     }
     return new InMemoryDocument(this, did, doclists[did - 1],
 				valuelists[did - 1]);
+}
+
+Xapian::termcount
+InMemoryDatabase::positionlist_count(Xapian::docid did,
+				     const string & tname) const
+{
+    if (!doc_exists(did)) {
+	return 0;
+    }
+    const InMemoryDoc &doc = termlists[did-1];
+
+    vector<InMemoryTermEntry>::const_iterator i;
+    for (i = doc.terms.begin(); i != doc.terms.end(); ++i) {
+	if (i->tname == tname) {
+	    return i->positions.size();
+	}
+    }
+    return 0;
 }
 
 PositionList * 
