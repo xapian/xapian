@@ -1,3 +1,10 @@
+Tue Sep 11 02:59:45 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: When running rst2html, use "--exit-status=warning"
+	  rather than "--strict".  The former actually gives a non-zero exit
+	  status for a warning or worse, while the former doesn't, but does
+	  include any "info" messages in the output HTML.
+
 Tue Sep 11 02:38:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Add "Database::positionlist_begin() throwing
