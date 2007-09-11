@@ -1,3 +1,8 @@
+Tue Sep 11 02:38:30 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Add "Database::positionlist_begin() throwing
+	  RangeError".
+
 Tue Sep 11 00:52:27 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Document a few more "coding standards".

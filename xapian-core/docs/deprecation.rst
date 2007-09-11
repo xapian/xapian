@@ -156,7 +156,12 @@ Native C++ API
 +-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
 | 1.0.0           | 1.1.0          | quartzcompact                   | Use xapian-compact instead.                                                   |
 +-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 1.0.3           | 1.2.0          |Enquire::register_match_decider()| This method didn't do anything, so just remove calls to it!                   |
+| 1.0.3           | 1.2.0?         |Enquire::register_match_decider()| This method didn't do anything, so just remove calls to it!                   |
++-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
+| 1.0.3           | 1.2.0?         |Database::positionlist_begin()   | This check is quite expensive, and often you don't care.  If you do, it's     |
+|                 |                |throwing RangeError if the term  | easy to check - just open a TermListIterator for the document and use         |
+|                 |                |specified doesn't index the      | skip_to() to check if the term is there.                                      |
+|                 |                |document specified.              |                                                                               |
 +-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
 
 
