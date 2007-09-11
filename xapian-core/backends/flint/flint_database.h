@@ -268,7 +268,7 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 
 	/** The threshold that changes_made reaching will cause a flush.
 	 */
-	size_t flush_threshold;
+	Xapian::doccount flush_threshold;
 
 	//@{
 	/** Implementation of virtual methods: see Database for details.

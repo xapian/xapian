@@ -581,7 +581,8 @@ FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 	  database_ro(dir, action, block_size),
 	  total_length(database_ro.postlist_table.get_total_length()),
 	  lastdocid(database_ro.get_lastdocid()),
-	  changes_made(0)
+	  changes_made(0),
+	  flush_threshold(0)
 {
     DEBUGCALL(DB, void, "FlintWritableDatabase", dir << ", " << action << ", "
 	      << block_size);
