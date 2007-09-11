@@ -573,8 +573,6 @@ FlintDatabase::open_synonym_keylist(const string & prefix) const
 
 ///////////////////////////////////////////////////////////////////////////
 
-size_t FlintWritableDatabase::flush_threshold = 0;
-
 FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 					       int block_size)
 	: freq_deltas(),
@@ -587,11 +585,12 @@ FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 {
     DEBUGCALL(DB, void, "FlintWritableDatabase", dir << ", " << action << ", "
 	      << block_size);
-    if (flush_threshold == 0) {
-	const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
-	if (p) flush_threshold = atoi(p);
-    }
-    if (flush_threshold == 0) flush_threshold = 10000;
+
+    const char *p = getenv("XAPIAN_FLUSH_THRESHOLD");
+    if (p)
+	flush_threshold = atoi(p);
+    if (flush_threshold == 0)
+	flush_threshold = 10000;
 }
 
 FlintWritableDatabase::~FlintWritableDatabase()

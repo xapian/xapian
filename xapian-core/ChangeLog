@@ -1,3 +1,12 @@
+Tue Sep 11 03:19:37 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  Change flush_threshold from static to non-static, and set it for
+	  each FlintWritableDatabase based on the value of the
+	  XAPIAN_FLUSH_THRESHOLD environment variable at the time the
+	  database was opened, instead of caching the value for each future
+	  database which is opened.
+
 Tue Sep 11 02:59:45 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/Makefile.am: When running rst2html, use "--exit-status=warning"
