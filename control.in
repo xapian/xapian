@@ -27,8 +27,8 @@ Description: Search engine library
 Package: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev
 Architecture: any
 Section: libdevel
-Depends: libxapian@LIBXAPIAN_SOVERSION@ (= ${Source-Version}), libc6-dev | libc-dev, ${misc:Depends}
-Recommends: xapian-doc (= ${Source-Version}), xapian-examples (= ${Source-Version})
+Depends: libxapian@LIBXAPIAN_SOVERSION@ (= ${binary:Version}), libc6-dev | libc-dev, ${misc:Depends}
+Recommends: xapian-doc (= ${binary:Version}), xapian-examples (= ${binary:Version})
 Description: Development files for Xapian search engine library
  This package contains development libraries and headers for the core Xapian
  library.
