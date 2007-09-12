@@ -58,6 +58,10 @@ class FlintPositionListTable : public FlintTable {
     void delete_positionlist(Xapian::docid did, const string & tname) {
 	del(make_key(did, tname));
     }
+
+    /// Return the number of entries in specified position list.
+    Xapian::termcount positionlist_count(Xapian::docid did,
+					 const string & term) const;
 };
 
 /** A position list in a flint database. */
@@ -84,11 +88,20 @@ class FlintPositionList : public PositionList {
     /// Default constructor.
     FlintPositionList() : have_started(false) {}
 
+    /// Construct and initialise with data.
+    FlintPositionList(const FlintTable * table, Xapian::docid did,
+		      const string & tname) {
+	(void)read_data(table, did, tname);
+    }
+
     /// Destructor.
     ~FlintPositionList() { }
 
-    /// Fill list with data, and move the position to the start.
-    void read_data(const FlintTable * table, Xapian::docid did,
+    /** Fill list with data, and move the position to the start.
+     *
+     *  @return true if position data was read.
+     */
+    bool read_data(const FlintTable * table, Xapian::docid did,
 		   const string & tname);
 
     /// Returns size of position list.

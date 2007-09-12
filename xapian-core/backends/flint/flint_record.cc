@@ -63,8 +63,7 @@ void
 FlintRecordTable::replace_record(const string & data, Xapian::docid did)
 {
     DEBUGCALL(DB, void, "FlintRecordTable::replace_record", data << ", " << did);
-    string key(flint_docid_to_key(did));
-    add(key, data);
+    add(flint_docid_to_key(did), data);
 }
 
 void

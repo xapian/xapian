@@ -244,9 +244,41 @@ FlintPositionListTable::set_positionlist(Xapian::docid did,
     add(key, wr.freeze());
 }
 
+Xapian::termcount
+FlintPositionListTable::positionlist_count(Xapian::docid did,
+					   const string & term) const
+{
+    DEBUGCALL(DB, void, "FlintPositionListTable::positionlist_count",
+	      did << ", " << term);
+
+    string data;
+    if (!get_exact_entry(pack_uint_preserving_sort(did) + term, data)) {
+	// There's no positional information for this term.
+	return 0;
+    }
+
+    const char * pos = data.data();
+    const char * end = pos + data.size();
+    Xapian::termpos pos_last;
+    if (!unpack_uint(&pos, end, &pos_last)) {
+	throw Xapian::DatabaseCorruptError("Position list data corrupt");
+    }
+    if (pos == end) {
+	// Special case for single entry position list.
+	return 1;
+    }
+
+    BitReader rd(data);
+    // Skip the header we just read.
+    (void)rd.read_bits(8 * (pos - data.data()));
+    Xapian::termpos pos_first = rd.decode(pos_last);
+    Xapian::termpos pos_size = rd.decode(pos_last - pos_first) + 2;
+    return pos_size;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
-void
+bool
 FlintPositionList::read_data(const FlintTable * table, Xapian::docid did,
 			     const string & tname)
 {
@@ -260,7 +292,7 @@ FlintPositionList::read_data(const FlintTable * table, Xapian::docid did,
     if (!table->get_exact_entry(pack_uint_preserving_sort(did) + tname, data)) {
 	// There's no positional information for this term.
 	current_pos = positions.begin();
-	return;
+	return false;
     }
 
     const char * pos = data.data();
@@ -273,7 +305,7 @@ FlintPositionList::read_data(const FlintTable * table, Xapian::docid did,
 	// Special case for single entry position list.
 	positions.push_back(pos_last);
 	current_pos = positions.begin();
-	return;
+	return true;
     }
     BitReader rd(data);
     // Skip the header we just read.
@@ -286,6 +318,7 @@ FlintPositionList::read_data(const FlintTable * table, Xapian::docid did,
     rd.decode_interpolative(positions, 0, pos_size - 1);
 
     current_pos = positions.begin();
+    return true;
 }
 
 Xapian::termcount

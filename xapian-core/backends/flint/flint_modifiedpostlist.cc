@@ -20,7 +20,7 @@
 
 #include <config.h>
 
-#include "database.h"
+#include "flint_database.h"
 #include "flint_modifiedpostlist.h"
 
 FlintModifiedPostList::~FlintModifiedPostList()

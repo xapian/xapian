@@ -71,6 +71,22 @@ class FlintPostListTable : public FlintTable {
 	 */
 	flint_totlen_t get_total_length() const;
 
+	/// Compose a key from a termname and docid.
+	static string make_key(const string & term, Xapian::docid did) {
+	    string key = pack_string_preserving_sort(term);
+	    key += pack_uint_preserving_sort(did);
+	    return key;
+	}
+
+	/// Compose a key from a termname.
+	static string make_key(const string & term) {
+	    return pack_string_preserving_sort(term);
+	}
+
+	bool term_exists(const string & term) const {
+	    return key_exists(make_key(term));
+	}
+
 	/** Returns number of docs indexed by @a term.
 	 *
 	 *  This is the length of the postlist.
@@ -96,11 +112,12 @@ class FlintPostListTable : public FlintTable {
 /** A postlist in a flint database.
  */
 class FlintPostList : public LeafPostList {
-    protected: // FlintModifiedPostList needs to access these.
+   protected: // FlintModifiedPostList needs to access these.
 	/** The database we are searching.  This pointer is held so that the
-	 *  database doesn't get deleted before us.
+	 *  database doesn't get deleted before us, and also to give us access
+	 *  to the position_table.
 	 */
-	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db;
+	Xapian::Internal::RefCntPtr<const FlintDatabase> this_db;
 
 	/// The termname for this postlist.
 	string tname;
@@ -112,12 +129,6 @@ class FlintPostList : public LeafPostList {
 	FlintPositionList positionlist;
 
     private:
-	/// The table containing the postlist.
-	const FlintTable * table;
-
-	/// The table containing positionlists.
-	const FlintTable * positiontable;
-
 	/// Cursor pointing to current chunk of postlist.
 	AutoPtr<FlintCursor> cursor;
 
@@ -204,10 +215,8 @@ class FlintPostList : public LeafPostList {
 
     public:
 	/// Default constructor.
-	FlintPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-		       const FlintTable * table_,
-		       const FlintTable * positiontable_,
-		       const string & tname);
+	FlintPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> this_db_,
+		      const string & tname);
 
 	/// Destructor.
 	~FlintPostList();

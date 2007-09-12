@@ -21,121 +21,61 @@
  */
 
 #include <config.h>
+
 #include <xapian/error.h>
+
 #include "expandweight.h"
+#include "flint_positionlist.h"
 #include "flint_termlist.h"
 #include "flint_utils.h"
-#include "utils.h"
+#include "omassert.h"
 
-#include <algorithm>
 using namespace std;
 
-void
-FlintTermListTable::set_entries(Xapian::docid did,
-			    Xapian::TermIterator t,
-			    const Xapian::TermIterator &t_end,
-			    flint_doclen_t doclen_,
-			    bool store_termfreqs)
+FlintTermList::FlintTermList(Xapian::Internal::RefCntPtr<const FlintDatabase> db_,
+			     Xapian::docid did_)
+	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
-    DEBUGCALL(DB, void, "FlintTermListTable::set_entries", did << ", " << t << ", " << t_end << ", " << doclen_ << ", " << store_termfreqs);
-    string tag = pack_uint(doclen_);
+    DEBUGCALL(DB, void, "FlintTermList",
+	      "[RefCntPtr<const FlintDatabase>], " << did_);
 
-    string v;
-    string prev_term;
-    Xapian::doccount size = 0;
-    for ( ; t != t_end; ++t) {
-	bool stored_wdf = false;
-	// If there was a previous term, work out how much we can reuse.
-	if (!prev_term.empty()) {
-	    string::size_type len = min(prev_term.length(), (*t).length());
-	    string::size_type i;
-	    for (i = 0; i < len; ++i) {
-		if (prev_term[i] != (*t)[i]) break;
-	    }
-	    // See if we can squeeze the wdf into the spare space in a char.
-	    string::size_type x;
-	    x = (t.get_wdf() + 1) * (prev_term.length() + 1) + i;
-	    if (x < 256) {
-		// Cool, we can!
-		v += char(x);
-		stored_wdf = true;
-	    } else {
-		v += char(i);
-	    }
-	    v += char((*t).length() - i);
-	    v += (*t).substr(i);
-	} else {
-	    v += char((*t).length());
-	    v += *t;
-	}
-	prev_term = *t;
+    if (!db->termlist_table.get_exact_entry(flint_docid_to_key(did), data))
+	throw Xapian::DocNotFoundError("No termlist for document " + om_tostring(did));
 
-	if (!stored_wdf) v += pack_uint(t.get_wdf());
-	if (store_termfreqs) v += pack_uint(t.get_termfreq());
-	++size;
+    pos = data.data();
+    end = pos + data.size();
+
+    if (pos == end) {
+	doclen = 0;
+	termlist_size = 0;
+	return;
     }
-    tag += pack_uint(size);
-    tag += pack_bool(store_termfreqs);
-    tag += v;
-    add(flint_docid_to_key(did), tag);
-
-    DEBUGLINE(DB, "FlintTermListTable::set_entries() - new entry is `" + tag + "'");
-}
-
-void
-FlintTermListTable::delete_termlist(Xapian::docid did)
-{
-    DEBUGCALL_STATIC(DB, void, "FlintTermListTable::delete_termlist", did);
-    del(flint_docid_to_key(did));
-}
-
-
-FlintTermList::FlintTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-			       const FlintTable * table_,
-			       Xapian::docid did_,
-			       Xapian::doccount doccount_)
-	: this_db(this_db_), did(did_), table(table_),
-	  have_finished(false), current_wdf(0), has_termfreqs(false),
-	  current_termfreq(0), doccount(doccount_)
-{
-    DEBUGCALL(DB, void, "FlintTermList", "[this_db_], " << table_ << ", "
-	      << did << ", " << doccount_);
-
-    string key(flint_docid_to_key(did));
-
-    if (!table->get_exact_entry(key, termlist_part))
-	throw Xapian::DocNotFoundError("Can't read termlist for document "
-				 + om_tostring(did) + ": Not found");
-
-    DEBUGLINE(DB, "FlintTermList::FlintTermList() - data is `" + termlist_part + "'");
-
-    pos = termlist_part.data();
-    end = pos + termlist_part.size();
 
     // Read doclen
     if (!unpack_uint(&pos, end, &doclen)) {
-	if (pos != 0) throw Xapian::RangeError("doclen out of range.");
-	throw Xapian::DatabaseCorruptError("Unexpected end of data when reading doclen.");
+	const char *msg;
+	if (pos == 0) {
+	    msg = "Too little data for doclen in termlist";
+	} else {
+	    msg = "Overflowed value for doclen in termlist";
+	}
+	throw Xapian::DatabaseCorruptError(msg);
     }
 
     // Read termlist_size
     if (!unpack_uint(&pos, end, &termlist_size)) {
-	if (pos != 0) throw Xapian::RangeError("Size of termlist out of range.");
-	throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
+	const char *msg;
+	if (pos == 0) {
+	    msg = "Too little data for list size in termlist";
+	} else {
+	    msg = "Overflowed value for list size in termlist";
+	}
+	throw Xapian::DatabaseCorruptError(msg);
     }
 
-    // Read has_termfreqs
-    if (!unpack_bool(&pos, end, &has_termfreqs)) {
-	Assert(pos == 0);
-	throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
-    }
-}
-
-Xapian::termcount
-FlintTermList::get_approx_size() const
-{
-    DEBUGCALL(DB, Xapian::termcount, "FlintTermList::get_approx_size", "");
-    RETURN(termlist_size);
+    // See comment in FlintTermListTable::set_termlist() in
+    // flint_termlisttable.cc for an explanation of this!
+    if (pos != end && *pos == '0') ++pos;
 }
 
 flint_doclen_t
@@ -145,70 +85,26 @@ FlintTermList::get_doclength() const
     RETURN(doclen);
 }
 
-
-TermList *
-FlintTermList::next()
+Xapian::termcount
+FlintTermList::get_approx_size() const
 {
-    DEBUGCALL(DB, TermList *, "FlintTermList::next", "");
-    if (pos == end) {
-	have_finished = true;
-	RETURN(0);
-    }
-    bool got_wdf = false;
-    // If there was a previous term, how much to reuse.
-    if (!current_tname.empty()) {
-	string::size_type len = static_cast<unsigned char>(*pos++);
-	if (len > current_tname.length()) {
-	    // The wdf was squeezed into the same byte.
-	    current_wdf = len / (current_tname.length() + 1) - 1;
-	    len %= (current_tname.length() + 1);
-	    got_wdf = true;
-	}
-	current_tname.resize(len);
-    }
-    // What to append (note len must be positive, since just truncating
-    // always takes us backwards in the sort order)
-    string::size_type len = static_cast<unsigned char>(*pos++);
-    current_tname.append(pos, len);
-    pos += len;
-
-    if (!got_wdf) {
-	// Read wdf
-	if (!unpack_uint(&pos, end, &current_wdf)) {
-	    if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
-	    throw Xapian::RangeError("Size of wdf out of range, in termlist.");
-	}
-    }
-
-    // Read termfreq, if stored
-    if (has_termfreqs) {
-	if (!unpack_uint(&pos, end, &current_termfreq)) {
-	    if (pos == 0) throw Xapian::DatabaseCorruptError("Unexpected end of data when reading termlist.");
-	    throw Xapian::RangeError("Size of term frequency out of range, in termlist.");
-	}
-    } else {
-	current_termfreq = 0;
-    }
-
-    DEBUGLINE(DB, "FlintTermList::next() -" <<
-		  " current_tname=" << current_tname <<
-		  " current_wdf=" << current_wdf <<
-		  " current_termfreq=" << current_termfreq);
-    RETURN(0);
+    DEBUGCALL(DB, Xapian::termcount, "FlintTermList::get_approx_size", "");
+    RETURN(termlist_size);
 }
 
-bool
-FlintTermList::at_end() const
+void
+FlintTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
 {
-    DEBUGCALL(DB, bool, "FlintTermList::at_end", "");
-    RETURN(have_finished);
+    DEBUGCALL(DB, void, "FlintTermList::accumulate_stats", "[stats&]");
+    Assert(!at_end());
+    stats.accumulate(current_wdf, doclen, get_termfreq(), db->get_doccount());
 }
 
 string
 FlintTermList::get_termname() const
 {
     DEBUGCALL(DB, string, "FlintTermList::get_termname", "");
-    RETURN(current_tname);
+    RETURN(current_term);
 }
 
 Xapian::termcount
@@ -223,27 +119,74 @@ FlintTermList::get_termfreq() const
 {
     DEBUGCALL(DB, Xapian::doccount, "FlintTermList::get_termfreq", "");
     if (current_termfreq == 0)
-	current_termfreq = this_db->get_termfreq(current_tname);
+	current_termfreq = db->get_termfreq(current_term);
     RETURN(current_termfreq);
 }
 
-void
-FlintTermList::accumulate_stats(Xapian::Internal::ExpandStats & stats) const
+TermList *
+FlintTermList::next()
 {
-    DEBUGCALL(DB, void, "FlintTermList::accumulate_stats", "[stats&]");
-    Assert(!have_finished);
-    stats.accumulate(current_wdf, doclen, get_termfreq(), doccount);
+    DEBUGCALL(DB, TermList *, "FlintTermList::next", "");
+    Assert(!at_end());
+    if (pos == end) {
+	pos = NULL;
+	RETURN(NULL);
+    }
+
+    // Reset to 0 to indicate that the termfreq needs to be read.
+    current_termfreq = 0;
+
+    bool wdf_in_reuse = false;
+    if (!current_term.empty()) {
+	// Find out how much of the previous term to reuse.
+	size_t len = static_cast<unsigned char>(*pos++);
+	if (len > current_term.size()) {
+	    // The wdf is also stored in the "reuse" byte.
+	    wdf_in_reuse = true;
+	    size_t divisor = current_term.size() + 1;
+	    current_wdf = len / divisor - 1;
+	    len %= divisor;
+	}
+	current_term.resize(len);
+    }
+
+    // Append the new tail to form the next term.
+    size_t append_len = static_cast<unsigned char>(*pos++);
+    current_term.append(pos, append_len);
+    pos += append_len;
+
+    // Read the wdf if it wasn't packed into the reuse byte.
+    if (!wdf_in_reuse && !unpack_uint(&pos, end, &current_wdf)) {
+	const char *msg;
+	if (pos == 0) {
+	    msg = "Too little data for wdf in termlist";
+	} else {
+	    msg = "Overflowed value for wdf in termlist";
+	}
+	throw Xapian::DatabaseCorruptError(msg);
+    }
+
+    RETURN(NULL);
+}
+
+bool
+FlintTermList::at_end() const
+{
+    DEBUGCALL(DB, bool, "FlintTermList::at_end", "");
+    RETURN(pos == NULL);
 }
 
 Xapian::termcount
 FlintTermList::positionlist_count() const
 {
-    throw Xapian::UnimplementedError("FlintTermList::positionlist_count() not implemented");
+    DEBUGCALL(DB, Xapian::termcount, "FlintTermList::positionlist_count", "");
+    RETURN(db->position_table.positionlist_count(did, current_term));
 }
 
 Xapian::PositionIterator
 FlintTermList::positionlist_begin() const
 {
     DEBUGCALL(DB, Xapian::PositionIterator, "FlintTermList::positionlist_begin", "");
-    return Xapian::PositionIterator(this_db->open_position_list(did, current_tname));
+    return Xapian::PositionIterator(
+	    new FlintPositionList(&db->position_table, did, current_term));
 }

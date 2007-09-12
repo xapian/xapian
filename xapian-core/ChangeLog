@@ -1,3 +1,27 @@
+Wed Sep 12 14:12:52 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/msvc_posix_wrapper.cc,common/msvc_posix_wrapper.h: Add
+	  msvc_posix_rename() which can rename a file on top of another file.
+	* common/stringutils.h: Add common_prefix_length() function.
+	* backends/flint/: Clean up FlintWritableDatabase - it now just
+	  inherits from FlintDatabase which allows several virtual methods
+	  which just forwarded to FlintDatabase to be dropped.  Also, we
+	  now no longer need to pass FlintTable objects to other classes
+	  - they can just find the tables they want via the database pointer.
+	  The never-used "store_termfreqs" flag has been dropped from the
+	  termlist table entries - existing 1.0.x flint databases will be
+	  automatically upgraded to the new version.  Opening a database
+	  now calls stat() less, so should be slightly more efficient.
+	  And TermIterator::positionlist_count() now works for the flint
+	  backend.
+	* tests/Makefile.am,tests/api_db.cc,tests/testdata/flint-1.0.2/: New
+	  test flintbackwardcompat2 which tests that we can open a flint
+	  database from 1.0.2.
+	* tests/api_wrdb.cc: New test adddoc4 which checks that termlists
+	  handle an initial term of any valid length correctly.
+	* tests/testdata/flint-1.0.1/postlist.DB: Mark as a binary file in
+	  SVN.
+
 Tue Sep 11 23:02:56 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/inmemory/inmemory_database.cc,

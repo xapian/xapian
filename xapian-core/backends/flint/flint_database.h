@@ -29,16 +29,16 @@
 #include "flint_record.h"
 #include "flint_spelling.h"
 #include "flint_synonym.h"
-#include "flint_termlist.h"
+#include "flint_termlisttable.h"
 #include "flint_values.h"
 #include "flint_version.h"
 #include "flint_lock.h"
 
-class FlintTermList;
-
 #include "flint_types.h"
 
 #include <map>
+
+class FlintTermList;
 
 const int XAPIAN_DB_READONLY = 0;
 
@@ -48,6 +48,7 @@ const int XAPIAN_DB_READONLY = 0;
 class FlintDatabase : public Xapian::Database::Internal {
     friend class FlintWritableDatabase;
     friend class FlintTermList;
+    friend class FlintPostList;
     private:
 	/** Directory to store databases in.
 	 */
@@ -69,11 +70,11 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 *  updated: therefore, its most recent revision number is the most
 	 *  recent anywhere in the database.
 	 */
-	FlintPostListTable postlist_table;
+	mutable FlintPostListTable postlist_table;
 
 	/** Table storing position lists.
 	 */
-	FlintPositionListTable positionlist_table;
+	FlintPositionListTable position_table;
 
 	/** Table storing term lists.
 	 */
@@ -219,25 +220,23 @@ class FlintDatabase : public Xapian::Database::Internal {
 	bool has_positions() const;
 
 	LeafPostList * open_post_list(const string & tname) const;
-	TermList * open_term_list(Xapian::docid did) const;
 	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
-	PositionList * open_position_list(Xapian::docid did,
-					  const string & tname) const;
+	PositionList * open_position_list(Xapian::docid did, const string & term) const;
+	TermList * open_term_list(Xapian::docid did) const;
 	TermList * open_allterms(const string & prefix) const;
 
 	TermList * open_spelling_termlist(const string & word) const;
 	TermList * open_spelling_wordlist() const;
 	Xapian::doccount get_spelling_frequency(const string & word) const;
 
-	TermList * open_synonym_termlist(const string & word) const;
+	TermList * open_synonym_termlist(const string & term) const;
 	TermList * open_synonym_keylist(const string & prefix) const;
 	//@}
 };
 
 /** A writable flint database.
  */
-class FlintWritableDatabase : public Xapian::Database::Internal {
-    private:
+class FlintWritableDatabase : public FlintDatabase {
 	/** Unflushed changes to term frequencies and collection frequencies. */
 	mutable map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> >
 		freq_deltas;
@@ -248,10 +247,6 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	/// Modifications to posting lists.
 	mutable map<string, map<Xapian::docid,
 				pair<char, Xapian::termcount> > > mod_plists;
-
-	/** The readonly database encapsulated in the writable database.
-	 */
-	mutable FlintDatabase database_ro;
 
 	/** Total length of all documents including unflushed modifications.
 	 */
@@ -264,18 +259,21 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	/** The number of documents added, deleted, or replaced since the last
 	 *  flush.
 	 */
-	mutable Xapian::doccount changes_made;
+	mutable Xapian::doccount change_count;
 
-	/** The threshold that changes_made reaching will cause a flush.
-	 */
+	/// If change_count reaches this threshold we automatically flush.
 	Xapian::doccount flush_threshold;
+
+	/// If there are uncommitted changes, flush and commit a new revision.
+	void do_flush();
+
+	/// Flush any unflushed postlist changes, but don't commit them.
+	void flush_postlist_changes() const;
 
 	//@{
 	/** Implementation of virtual methods: see Database for details.
 	 */
 	void flush();
-
-	void do_flush_const() const;
 
 	/** Cancel pending modifications to the database. */
 	void cancel();
@@ -296,7 +294,7 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 				      const Xapian::Document & document);
 	//@}
 
-    public:
+      public:
 	/** Create and open a writable flint database.
 	 *
 	 *  @exception Xapian::DatabaseOpeningError thrown if database can't
@@ -315,29 +313,20 @@ class FlintWritableDatabase : public Xapian::Database::Internal {
 	/** Virtual methods of Database.
 	 */
 	//@{
-	Xapian::doccount  get_doccount() const;
 	Xapian::docid get_lastdocid() const;
 	Xapian::doclength get_avlength() const;
 	Xapian::doclength get_doclength(Xapian::docid did) const;
 	Xapian::doccount get_termfreq(const string & tname) const;
 	Xapian::termcount get_collection_freq(const string & tname) const;
 	bool term_exists(const string & tname) const;
-	bool has_positions() const;
 
 	LeafPostList * open_post_list(const string & tname) const;
-	TermList * open_term_list(Xapian::docid did) const;
-	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
-	PositionList * open_position_list(Xapian::docid did,
-					  const string & tname) const;
 	TermList * open_allterms(const string & prefix) const;
 
 	void add_spelling(const string & word, Xapian::termcount freqinc) const;
 	void remove_spelling(const string & word, Xapian::termcount freqdec) const;
-	TermList * open_spelling_termlist(const string & word) const;
 	TermList * open_spelling_wordlist() const;
-	Xapian::doccount get_spelling_frequency(const string & word) const;
 
-	TermList * open_synonym_termlist(const string & word) const;
 	TermList * open_synonym_keylist(const string & prefix) const;
 	void add_synonym(const string & word, const string & synonym) const;
 	void remove_synonym(const string & word, const string & synonym) const;

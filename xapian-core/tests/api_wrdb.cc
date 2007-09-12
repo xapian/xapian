@@ -283,6 +283,38 @@ static bool test_adddoc3()
     return true;
 }
 
+// We want to test that a termlist starting with a 48 character long term works
+// OK since this value currently requires special handling in flint for
+// historical reasons!)  Also test all other term lengths while we're at it.
+static bool test_adddoc4()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    for (Xapian::doccount i = 1; i <= 240; ++i) {
+	Xapian::Document doc;
+	string term(i, 'X');
+	doc.add_term(term);
+	db.add_document(doc);
+    }
+    db.add_document(Xapian::Document());
+    db.flush();
+
+    for (Xapian::doccount i = 1; i <= 240; ++i) {
+	Xapian::Document doc = db.get_document(i);
+	Xapian::TermIterator t = doc.termlist_begin();
+	TEST(t != doc.termlist_end());
+	TEST_EQUAL((*t).size(), i);
+	++t;
+	TEST(t == doc.termlist_end());
+    }
+
+    // And test a document with no terms.
+    Xapian::Document doc = db.get_document(241);
+    TEST(doc.termlist_begin() == doc.termlist_end());
+
+    return true;
+}
+
 // tests that database destructors flush if it isn't done explicitly
 static bool test_implicitendsession1()
 {
@@ -1929,6 +1961,7 @@ test_desc writabledb_tests[] = {
     TESTCASE(adddoc1),
     TESTCASE(adddoc2),
     TESTCASE(adddoc3),
+    TESTCASE(adddoc4),
     TESTCASE(implicitendsession1),
     TESTCASE(databaseassign1),
     TESTCASE(deldoc1),

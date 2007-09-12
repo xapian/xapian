@@ -43,12 +43,10 @@ class FlintModifiedPostList : public FlintPostList {
 
   public:
     /// Constructor.
-    FlintModifiedPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-			  const FlintTable * table_,
-			  const FlintTable * positiontable_,
+    FlintModifiedPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> this_db_,
 			  const string & tname_,
 			  const map<Xapian::docid, pair<char, Xapian::termcount> > & mods_)
-	: FlintPostList(this_db_, table_, positiontable_, tname_),
+	: FlintPostList(this_db_, tname_),
 	  mods(mods_), it(mods.begin()), poslist(0)
     { }
 

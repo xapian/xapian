@@ -61,12 +61,12 @@ using namespace Xapian;
  * to the tables.
  */
 FlintDatabase::FlintDatabase(const string &flint_dir, int action,
-			       unsigned int block_size)
+			     unsigned int block_size)
 	: db_dir(flint_dir),
 	  readonly(action == XAPIAN_DB_READONLY),
 	  version_file(db_dir),
 	  postlist_table(db_dir, readonly),
-	  positionlist_table(db_dir, readonly),
+	  position_table(db_dir, readonly),
 	  termlist_table(db_dir, readonly),
 	  value_table(db_dir, readonly),
 	  synonym_table(db_dir, readonly),
@@ -77,69 +77,61 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
     DEBUGCALL(DB, void, "FlintDatabase", flint_dir << ", " << action <<
 	      ", " << block_size);
 
-    bool dbexists = database_exists();
-    // open tables
     if (action == XAPIAN_DB_READONLY) {
-	if (!dbexists) {
-	    throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
-	}
-	// Can still allow searches even if recovery is needed
 	open_tables_consistent();
-    } else {
-	if (!dbexists) {
-	    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
-	    if (action == Xapian::DB_OPEN) {
-		throw Xapian::DatabaseOpeningError("Cannot open database at `" + db_dir + "' - it does not exist");
-	    }
+	return;
+    }
 
-	    // Create the directory for the database, if it doesn't exist
-	    // already.
-	    bool fail = false;
-	    struct stat statbuf;
-	    if (stat(db_dir, &statbuf) == 0) {
-		if (!S_ISDIR(statbuf.st_mode)) fail = true;
-	    } else if (errno != ENOENT || mkdir(db_dir, 0755) == -1) {
-		fail = true;
-	    }
-	    if (fail) {
-		throw Xapian::DatabaseOpeningError("Cannot create directory `"
-						   + db_dir + "'", errno);
-	    }
-	    get_database_write_lock();
-
-	    create_and_open_tables(block_size);
-	    return;
-	}
-
-	if (action == Xapian::DB_CREATE) {
-	    throw Xapian::DatabaseCreateError("Can't create new database at `" +
-					      db_dir + "': a database already exists and I was told "
-					      "not to overwrite it");
-	}
-
-	get_database_write_lock();
-	// if we're overwriting, pretend the db doesn't exist
+    if (action != Xapian::DB_OPEN && !database_exists()) {
 	// FIXME: if we allow Xapian::DB_OVERWRITE, check it here
-	if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
-	    create_and_open_tables(block_size);
-	    return;
-	}
 
-	// Get latest consistent version
-	open_tables_consistent();
-
-	// Check that there are no more recent versions of tables.  If there
-	// are, perform recovery by writing a new revision number to all
-	// tables.
-	if (record_table.get_open_revision_number() !=
-	    postlist_table.get_latest_revision_number()) {
-	    flint_revision_number_t new_revision = get_next_revision_number();
-
-	    set_revision_number(new_revision);
+	// Create the directory for the database, if it doesn't exist
+	// already.
+	bool fail = false;
+	struct stat statbuf;
+	if (stat(db_dir, &statbuf) == 0) {
+	    if (!S_ISDIR(statbuf.st_mode)) fail = true;
+	} else if (errno != ENOENT || mkdir(db_dir, 0755) == -1) {
+	    fail = true;
 	}
-	if (record_table.get_doccount() == 0) {
-	    postlist_table.set_total_length_and_lastdocid(0, postlist_table.get_lastdocid());
+	if (fail) {
+	    throw Xapian::DatabaseOpeningError("Cannot create directory `"
+					       + db_dir + "'", errno);
 	}
+	get_database_write_lock();
+
+	create_and_open_tables(block_size);
+	return;
+    }
+
+    if (action == Xapian::DB_CREATE) {
+	throw Xapian::DatabaseCreateError("Can't create new database at `" +
+					  db_dir + "': a database already exists and I was told "
+					  "not to overwrite it");
+    }
+
+    get_database_write_lock();
+    // if we're overwriting, pretend the db doesn't exist
+    // FIXME: if we allow Xapian::DB_OVERWRITE, check it here
+    if (action == Xapian::DB_CREATE_OR_OVERWRITE) {
+	create_and_open_tables(block_size);
+	return;
+    }
+
+    // Get latest consistent version
+    open_tables_consistent();
+
+    // Check that there are no more recent versions of tables.  If there
+    // are, perform recovery by writing a new revision number to all
+    // tables.
+    if (record_table.get_open_revision_number() !=
+	postlist_table.get_latest_revision_number()) {
+	flint_revision_number_t new_revision = get_next_revision_number();
+
+	set_revision_number(new_revision);
+    }
+    if (record_table.get_doccount() == 0) {
+	postlist_table.set_total_length_and_lastdocid(0, postlist_table.get_lastdocid());
     }
 }
 
@@ -151,25 +143,26 @@ FlintDatabase::~FlintDatabase()
 bool
 FlintDatabase::database_exists() {
     DEBUGCALL(DB, bool, "FlintDatabase::database_exists", "");
-    return record_table.exists() &&
+    RETURN(record_table.exists() &&
 	   postlist_table.exists() &&
-	   termlist_table.exists();
+	   termlist_table.exists());
 }
 
 void
 FlintDatabase::create_and_open_tables(unsigned int block_size)
 {
     DEBUGCALL(DB, void, "FlintDatabase::create_and_open_tables", "");
-    //FIXME - check that database directory exists.
+    // The caller is expected to create the database directory if it doesn't
+    // already exist.
 
     // Create postlist_table first, and record_table last.  Existence of
     // record_table is considered to imply existence of the database.
     version_file.create();
     postlist_table.create_and_open(block_size);
-    // The positionlist table is created lazily, but erase it in case we're
+    // The position table is created lazily, but erase it in case we're
     // overwriting an existing database and it already exists.
-    positionlist_table.erase();
-    positionlist_table.set_block_size(block_size);
+    position_table.erase();
+    position_table.set_block_size(block_size);
 
     termlist_table.create_and_open(block_size);
     // The value table is created lazily, but erase it in case we're
@@ -208,10 +201,10 @@ FlintDatabase::open_tables_consistent()
     record_table.open();
     flint_revision_number_t revision = record_table.get_open_revision_number();
 
-    // In case the positionlist, value, synonym, and/or spelling tables don't
+    // In case the position, value, synonym, and/or spelling tables don't
     // exist yet.
     unsigned int block_size = record_table.get_block_size();
-    positionlist_table.set_block_size(block_size);
+    position_table.set_block_size(block_size);
     value_table.set_block_size(block_size);
     synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
@@ -224,7 +217,7 @@ FlintDatabase::open_tables_consistent()
 	    synonym_table.open(revision) &&
 	    value_table.open(revision) &&
 	    termlist_table.open(revision) &&
-	    positionlist_table.open(revision) &&
+	    position_table.open(revision) &&
 	    postlist_table.open(revision)) {
 	    // Everything now open at the same revision.
 	    fully_opened = true;
@@ -264,10 +257,10 @@ FlintDatabase::open_tables(flint_revision_number_t revision)
     version_file.read_and_check();
     record_table.open(revision);
 
-    // In case the positionlist, value, synonym, and/or spelling tables don't
+    // In case the position, value, synonym, and/or spelling tables don't
     // exist yet.
     unsigned int block_size = record_table.get_block_size();
-    positionlist_table.set_block_size(block_size);
+    position_table.set_block_size(block_size);
     value_table.set_block_size(block_size);
     synonym_table.set_block_size(block_size);
     spelling_table.set_block_size(block_size);
@@ -276,7 +269,7 @@ FlintDatabase::open_tables(flint_revision_number_t revision)
     synonym_table.open(revision);
     value_table.open(revision);
     termlist_table.open(revision);
-    positionlist_table.open(revision);
+    position_table.open(revision);
     postlist_table.open(revision);
 }
 
@@ -298,7 +291,7 @@ FlintDatabase::get_next_revision_number() const
      */
     flint_revision_number_t new_revision =
 	    postlist_table.get_latest_revision_number();
-    new_revision += 1;
+    ++new_revision;
     RETURN(new_revision);
 }
 
@@ -307,7 +300,7 @@ FlintDatabase::set_revision_number(flint_revision_number_t new_revision)
 {
     DEBUGCALL(DB, void, "FlintDatabase::set_revision_number", new_revision);
     postlist_table.commit(new_revision);
-    positionlist_table.commit(new_revision);
+    position_table.commit(new_revision);
     termlist_table.commit(new_revision);
     value_table.commit(new_revision);
     synonym_table.commit(new_revision);
@@ -330,6 +323,12 @@ FlintDatabase::get_database_write_lock()
     DEBUGCALL(DB, void, "FlintDatabase::get_database_write_lock", "");
     FlintLock::reason why = lock.lock(true);
     if (why != FlintLock::SUCCESS) {
+	if (why == FlintLock::UNKNOWN && !database_exists()) {
+	    string msg("No flint database found at path `");
+	    msg += db_dir;
+	    msg += '\'';
+	    throw Xapian::DatabaseOpeningError(msg);
+	}
 	string msg("Unable to acquire database write lock on ");
 	msg += db_dir;
 	if (why == FlintLock::INUSE) {
@@ -346,7 +345,7 @@ FlintDatabase::apply()
 {
     DEBUGCALL(DB, void, "FlintDatabase::apply", "");
     if (!postlist_table.is_modified() &&
-	!positionlist_table.is_modified() &&
+	!position_table.is_modified() &&
 	!termlist_table.is_modified() &&
 	!value_table.is_modified() &&
 	!synonym_table.is_modified() &&
@@ -386,7 +385,7 @@ FlintDatabase::cancel()
 {
     DEBUGCALL(DB, void, "FlintDatabase::cancel", "");
     postlist_table.cancel();
-    positionlist_table.cancel();
+    position_table.cancel();
     termlist_table.cancel();
     value_table.cancel();
     synonym_table.cancel();
@@ -412,9 +411,12 @@ Xapian::doclength
 FlintDatabase::get_avlength() const
 {
     DEBUGCALL(DB, Xapian::doclength, "FlintDatabase::get_avlength", "");
-    Xapian::doccount docs = record_table.get_doccount();
-    if (docs == 0) RETURN(0);
-    RETURN(double(postlist_table.get_total_length()) / docs);
+    Xapian::doccount doccount = record_table.get_doccount();
+    if (doccount == 0) {
+	// Avoid dividing by zero when there are no documents.
+	RETURN(0);
+    }
+    RETURN(double(postlist_table.get_total_length()) / doccount);
 }
 
 Xapian::doclength
@@ -422,64 +424,54 @@ FlintDatabase::get_doclength(Xapian::docid did) const
 {
     DEBUGCALL(DB, Xapian::doclength, "FlintDatabase::get_doclength", did);
     Assert(did != 0);
-
-    FlintTermList termlist(0, &termlist_table, did, 0);
-    RETURN(termlist.get_doclength());
+    RETURN(termlist_table.get_doclength(did));
 }
 
 Xapian::doccount
-FlintDatabase::get_termfreq(const string & tname) const
+FlintDatabase::get_termfreq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::doccount, "FlintDatabase::get_termfreq", tname);
-    Assert(!tname.empty());
-
-    RETURN(postlist_table.get_termfreq(tname));
+    DEBUGCALL(DB, Xapian::doccount, "FlintDatabase::get_termfreq", term);
+    Assert(!term.empty());
+    RETURN(postlist_table.get_termfreq(term));
 }
 
 Xapian::termcount
-FlintDatabase::get_collection_freq(const string & tname) const
+FlintDatabase::get_collection_freq(const string & term) const
 {
-    DEBUGCALL(DB, Xapian::termcount, "FlintDatabase::get_collection_freq", tname);
-    Assert(!tname.empty());
-
-    RETURN(postlist_table.get_collection_freq(tname));
+    DEBUGCALL(DB, Xapian::termcount, "FlintDatabase::get_collection_freq", term);
+    Assert(!term.empty());
+    RETURN(postlist_table.get_collection_freq(term));
 }
 
 bool
-FlintDatabase::term_exists(const string & tname) const
+FlintDatabase::term_exists(const string & term) const
 {
-    DEBUGCALL(DB, bool, "FlintDatabase::term_exists", tname);
-    Assert(!tname.empty());
-    // FIXME: nasty C&P from backends/flint/flint_postlist.cc
-    string key = pack_string_preserving_sort(tname);
-    return postlist_table.key_exists(key);
+    DEBUGCALL(DB, bool, "FlintDatabase::term_exists", term);
+    Assert(!term.empty());
+    return postlist_table.term_exists(term);
 }
 
 bool
 FlintDatabase::has_positions() const
 {
-    return positionlist_table.get_entry_count() > 0;
+    return position_table.get_entry_count() > 0;
 }
 
-
 LeafPostList *
-FlintDatabase::open_post_list(const string& tname) const
+FlintDatabase::open_post_list(const string& term) const
 {
-    DEBUGCALL(DB, LeafPostList *, "FlintDatabase::open_post_list", tname);
+    DEBUGCALL(DB, LeafPostList *, "FlintDatabase::open_post_list", term);
     Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
 
-    if (tname.empty()) {
+    if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
-    	if (postlist_table.get_lastdocid() == doccount) {
+	if (postlist_table.get_lastdocid() == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
 	RETURN(new FlintAllDocsPostList(ptrtothis, &termlist_table, doccount));
     }
 
-    RETURN(new FlintPostList(ptrtothis,
-			     &postlist_table,
-			     &positionlist_table,
-			     tname));
+    RETURN(new FlintPostList(ptrtothis, term));
 }
 
 TermList *
@@ -489,7 +481,7 @@ FlintDatabase::open_term_list(Xapian::docid did) const
     Assert(did != 0);
 
     Xapian::Internal::RefCntPtr<const FlintDatabase> ptrtothis(this);
-    RETURN(new FlintTermList(ptrtothis, &termlist_table, did, get_doccount()));
+    RETURN(new FlintTermList(ptrtothis, did));
 }
 
 Xapian::Document::Internal *
@@ -507,20 +499,20 @@ FlintDatabase::open_document(Xapian::docid did, bool lazy) const
 }
 
 PositionList *
-FlintDatabase::open_position_list(Xapian::docid did,
-				   const string & tname) const
+FlintDatabase::open_position_list(Xapian::docid did, const string & term) const
 {
     Assert(did != 0);
 
     AutoPtr<FlintPositionList> poslist(new FlintPositionList());
-    poslist->read_data(&positionlist_table, did, tname);
-    if (poslist->get_size() == 0) {
+    if (!poslist->read_data(&position_table, did, term)) {
 	// Check that term / document combination exists.
 	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
 	AutoPtr<TermList> tl(open_term_list(did));
-	tl->skip_to(tname);
-	if (tl->at_end() || tl->get_termname() != tname)
+	tl->skip_to(term);
+	if (tl->at_end() || tl->get_termname() != term)
 	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
+	// FIXME: For 1.2.0, change this to just return an empty termlist.
+	// If the user really needs to know, they can check themselves.
     }
 
     return poslist.release();
@@ -575,13 +567,13 @@ FlintDatabase::open_synonym_keylist(const string & prefix) const
 
 FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 					       int block_size)
-	: freq_deltas(),
+	: FlintDatabase(dir, action, block_size),
+	  freq_deltas(),
 	  doclens(),
 	  mod_plists(),
-	  database_ro(dir, action, block_size),
-	  total_length(database_ro.postlist_table.get_total_length()),
-	  lastdocid(database_ro.get_lastdocid()),
-	  changes_made(0),
+	  total_length(postlist_table.get_total_length()),
+	  lastdocid(FlintDatabase::get_lastdocid()),
+	  change_count(0),
 	  flush_threshold(0)
 {
     DEBUGCALL(DB, void, "FlintWritableDatabase", dir << ", " << action << ", "
@@ -605,31 +597,29 @@ FlintWritableDatabase::flush()
 {
     if (transaction_active())
 	throw Xapian::InvalidOperationError("Can't flush during a transaction");
-    if (changes_made ||
-	database_ro.spelling_table.is_modified() ||
-	database_ro.synonym_table.is_modified()) {
-	do_flush_const();
-    }
+    do_flush();
 }
 
 void
-FlintWritableDatabase::do_flush_const() const
+FlintWritableDatabase::do_flush()
 {
-    DEBUGCALL(DB, void, "FlintWritableDatabase::do_flush_const", "");
+    DEBUGCALL(DB, void, "FlintWritableDatabase::do_flush", "");
 
-    if (changes_made) {
-	database_ro.postlist_table.merge_changes(mod_plists, doclens,
-						 freq_deltas);
+    if (change_count) flush_postlist_changes();
+    apply();
+}
 
-	// Update the total document length and last used docid.
-	database_ro.postlist_table.set_total_length_and_lastdocid(total_length,
-								  lastdocid);
-    }
-    database_ro.apply();
+void
+FlintWritableDatabase::flush_postlist_changes() const
+{
+    postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
+
+    // Update the total document length and last used docid.
+    postlist_table.set_total_length_and_lastdocid(total_length, lastdocid);
     freq_deltas.clear();
     doclens.clear();
     mod_plists.clear();
-    changes_made = 0;
+    change_count = 0;
 }
 
 Xapian::docid
@@ -653,15 +643,14 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
     Assert(did != 0);
     try {
 	// Add the record using that document ID.
-	database_ro.record_table.replace_record(document.get_data(), did);
+	record_table.replace_record(document.get_data(), did);
 
 	// Set the values.
 	{
 	    Xapian::ValueIterator value = document.values_begin();
 	    Xapian::ValueIterator value_end = document.values_end();
 	    for ( ; value != value_end; ++value) {
-		database_ro.value_table.add_value(*value, did,
-						  value.get_valueno());
+		value_table.add_value(*value, did, value.get_valueno());
 	    }
 	}
 
@@ -695,7 +684,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 		j->second.insert(make_pair(did, make_pair('A', wdf)));
 
 		if (term.positionlist_begin() != term.positionlist_end()) {
-		    database_ro.positionlist_table.set_positionlist(
+		    position_table.set_positionlist(
 			did, tname,
 			term.positionlist_begin(), term.positionlist_end());
 		}
@@ -704,9 +693,7 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 	DEBUGLINE(DB, "Calculated doclen for new document " << did << " as " << new_doclen);
 
 	// Set the termlist
-	database_ro.termlist_table.set_entries(did,
-		document.termlist_begin(), document.termlist_end(),
-		new_doclen, false);
+	termlist_table.set_termlist(did, document, new_doclen);
 
 	// Set the new document length
 	Assert(doclens.find(did) == doclens.end());
@@ -731,8 +718,8 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
     // cout << "+++ mod_plists.size() " << mod_plists.size() <<
     //     ", doclens.size() " << doclens.size() <<
     //	   ", freq_deltas.size() " << freq_deltas.size() << endl;
-    if (++changes_made >= flush_threshold && !transaction_active())
-	do_flush_const();
+    if (++change_count >= flush_threshold && !transaction_active())
+	do_flush();
 
     RETURN(did);
 }
@@ -746,24 +733,22 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
     // Remove the record.  If this fails, just propagate the exception since
     // the state should still be consistent (most likely it's
     // DocNotFoundError).
-    database_ro.record_table.delete_record(did);
+    record_table.delete_record(did);
 
     try {
 	// Remove the values
-	database_ro.value_table.delete_all_values(did);
+	value_table.delete_all_values(did);
 
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
-	FlintTermList termlist(ptrtothis,
-				&database_ro.termlist_table,
-				did, get_doccount());
+	FlintTermList termlist(ptrtothis, did);
 
 	total_length -= termlist.get_doclength();
 
 	termlist.next();
 	while (!termlist.at_end()) {
 	    string tname = termlist.get_termname();
-	    database_ro.positionlist_table.delete_positionlist(did, tname);
+	    position_table.delete_positionlist(did, tname);
 	    termcount wdf = termlist.get_wdf();
 
 	    map<string, pair<termcount_diff, termcount_diff> >::iterator i;
@@ -796,7 +781,7 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
 	}
 
 	// Remove the termlist.
-	database_ro.termlist_table.delete_termlist(did);
+	termlist_table.delete_termlist(did);
 
 	// Remove the new doclength.
 	doclens.erase(did);
@@ -809,8 +794,8 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
 	throw;
     }
 
-    if (++changes_made >= flush_threshold && !transaction_active())
-	do_flush_const();
+    if (++change_count >= flush_threshold && !transaction_active())
+	do_flush();
 }
 
 void
@@ -831,9 +816,7 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 
 	// OK, now add entries to remove the postings in the underlying record.
 	Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
-	FlintTermList termlist(ptrtothis,
-				&database_ro.termlist_table,
-				did, get_doccount());
+	FlintTermList termlist(ptrtothis, did);
 
 	termlist.next();
 	while (!termlist.at_end()) {
@@ -872,7 +855,7 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	total_length -= termlist.get_doclength();
 
 	// Replace the record
-	database_ro.record_table.replace_record(document.get_data(), did);
+	record_table.replace_record(document.get_data(), did);
 
 	// FIXME: we read the values delete them and then replace in case
 	// they come from where they're going!  Better to ask Document
@@ -884,15 +867,15 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	    for ( ; value != value_end; ++value) {
 		tmp.push_back(make_pair(*value, value.get_valueno()));
 	    }
-//	    database_ro.value_table.add_value(*value, did, value.get_valueno());
+//	    value_table.add_value(*value, did, value.get_valueno());
 
 	    // Replace the values.
-	    database_ro.value_table.delete_all_values(did);
+	    value_table.delete_all_values(did);
 
 	    // Set the values.
 	    list<pair<string, Xapian::valueno> >::const_iterator i;
 	    for (i = tmp.begin(); i != tmp.end(); ++i) {
-		database_ro.value_table.add_value(i->first, did, i->second);
+		value_table.add_value(i->first, did, i->second);
 	    }
 	}
 
@@ -935,19 +918,17 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		PositionIterator it = term.positionlist_begin();
 		PositionIterator it_end = term.positionlist_end();
 		if (it != it_end) {
-		    database_ro.positionlist_table.set_positionlist(
+		    position_table.set_positionlist(
 			did, tname, it, it_end);
 		} else {
-		    database_ro.positionlist_table.delete_positionlist(did, tname);
+		    position_table.delete_positionlist(did, tname);
 		}
 	    }
 	}
 	DEBUGLINE(DB, "Calculated doclen for replacement document " << did << " as " << new_doclen);
 
 	// Set the termlist
-	database_ro.termlist_table.set_entries(did,
-		document.termlist_begin(), document.termlist_end(),
-		new_doclen, false);
+	termlist_table.set_termlist(did, document, new_doclen);
 
 	// Set the new document length
 	doclens[did] = new_doclen;
@@ -964,15 +945,8 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	throw;
     }
 
-    if (++changes_made >= flush_threshold && !transaction_active())
-	do_flush_const();
-}
-
-Xapian::doccount
-FlintWritableDatabase::get_doccount() const
-{
-    DEBUGCALL(DB, Xapian::doccount, "FlintWritableDatabase::get_doccount", "");
-    RETURN(database_ro.get_doccount());
+    if (++change_count >= flush_threshold && !transaction_active())
+	do_flush();
 }
 
 Xapian::docid
@@ -986,7 +960,7 @@ Xapian::doclength
 FlintWritableDatabase::get_avlength() const
 {
     DEBUGCALL(DB, Xapian::doclength, "FlintWritableDatabase::get_avlength", "");
-    Xapian::doccount docs = database_ro.get_doccount();
+    Xapian::doccount docs = get_doccount();
     if (docs == 0) RETURN(0);
     RETURN(double(total_length) / docs);
 }
@@ -998,14 +972,14 @@ FlintWritableDatabase::get_doclength(Xapian::docid did) const
     map<docid, termcount>::const_iterator i = doclens.find(did);
     if (i != doclens.end()) RETURN(i->second);
 
-    RETURN(database_ro.get_doclength(did));
+    RETURN(FlintDatabase::get_doclength(did));
 }
 
 Xapian::doccount
 FlintWritableDatabase::get_termfreq(const string & tname) const
 {
     DEBUGCALL(DB, Xapian::doccount, "FlintWritableDatabase::get_termfreq", tname);
-    Xapian::doccount termfreq = database_ro.get_termfreq(tname);
+    Xapian::doccount termfreq = FlintDatabase::get_termfreq(tname);
     map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
     i = freq_deltas.find(tname);
     if (i != freq_deltas.end()) termfreq += i->second.first;
@@ -1016,7 +990,7 @@ Xapian::termcount
 FlintWritableDatabase::get_collection_freq(const string & tname) const
 {
     DEBUGCALL(DB, Xapian::termcount, "FlintWritableDatabase::get_collection_freq", tname);
-    Xapian::termcount collfreq = database_ro.get_collection_freq(tname);
+    Xapian::termcount collfreq = FlintDatabase::get_collection_freq(tname);
 
     map<string, pair<termcount_diff, termcount_diff> >::const_iterator i;
     i = freq_deltas.find(tname);
@@ -1032,13 +1006,6 @@ FlintWritableDatabase::term_exists(const string & tname) const
     RETURN(get_termfreq(tname) != 0);
 }
 
-bool
-FlintWritableDatabase::has_positions() const
-{
-    return database_ro.has_positions();
-}
-
-
 LeafPostList *
 FlintWritableDatabase::open_post_list(const string& tname) const
 {
@@ -1047,12 +1014,10 @@ FlintWritableDatabase::open_post_list(const string& tname) const
 
     if (tname.empty()) {
 	Xapian::doccount doccount = get_doccount();
-    	if (lastdocid == doccount) {
+	if (lastdocid == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
-	RETURN(new FlintAllDocsPostList(ptrtothis,
-					&database_ro.termlist_table,
-					doccount));
+	RETURN(new FlintAllDocsPostList(ptrtothis, &termlist_table, doccount));
     }
 
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
@@ -1060,159 +1025,79 @@ FlintWritableDatabase::open_post_list(const string& tname) const
     if (j != mod_plists.end()) {
 	// We've got buffered changes to this term's postlist, so we need to
 	// use a FlintModifiedPostList.
-	RETURN(new FlintModifiedPostList(ptrtothis,
-				 &database_ro.postlist_table,
-				 &database_ro.positionlist_table,
-				 tname,
-				 j->second));
+	RETURN(new FlintModifiedPostList(ptrtothis, tname, j->second));
     }
 
-    RETURN(new FlintPostList(ptrtothis,
-			     &database_ro.postlist_table,
-			     &database_ro.positionlist_table,
-			     tname));
-}
-
-TermList *
-FlintWritableDatabase::open_term_list(Xapian::docid did) const
-{
-    DEBUGCALL(DB, TermList *, "FlintWritableDatabase::open_term_list", did);
-    Assert(did != 0);
-
-    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
-    RETURN(new FlintTermList(ptrtothis, &database_ro.termlist_table, did,
-			     get_doccount()));
-}
-
-Xapian::Document::Internal *
-FlintWritableDatabase::open_document(Xapian::docid did, bool lazy) const
-{
-    DEBUGCALL(DB, Xapian::Document::Internal *, "FlintWritableDatabase::open_document",
-	      did << ", " << lazy);
-    Assert(did != 0);
-
-    Xapian::Internal::RefCntPtr<const FlintWritableDatabase> ptrtothis(this);
-    RETURN(new FlintDocument(ptrtothis,
-			     &database_ro.value_table,
-			     &database_ro.record_table,
-			     did, lazy));
-}
-
-PositionList *
-FlintWritableDatabase::open_position_list(Xapian::docid did,
-				   const string & tname) const
-{
-    Assert(did != 0);
-
-    AutoPtr<FlintPositionList> poslist(new FlintPositionList());
-    poslist->read_data(&database_ro.positionlist_table, did, tname);
-    if (poslist->get_size() == 0) {
-	// Check that term / document combination exists.
-	// If the doc doesn't exist, this will throw Xapian::DocNotFoundError:
-	AutoPtr<TermList> tl(open_term_list(did));
-	tl->skip_to(tname);
-	if (tl->at_end() || tl->get_termname() != tname)
-	    throw Xapian::RangeError("Can't open position list: requested term is not present in document.");
-    }
-
-    return poslist.release();
+    RETURN(new FlintPostList(ptrtothis, tname));
 }
 
 TermList *
 FlintWritableDatabase::open_allterms(const string & prefix) const
 {
     DEBUGCALL(DB, TermList *, "FlintWritableDatabase::open_allterms", "");
-    if (transaction_active())
-	throw Xapian::UnimplementedError("Can't open allterms iterator during a transaction");
     // If there are changes, terms may have been added or removed, and so we
-    // need to flush.
-    if (changes_made) do_flush_const();
+    // need to flush (but don't commit - there may be a transaction in progress.
+    if (change_count) flush_postlist_changes();
     RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),
-				 &database_ro.postlist_table, prefix));
+				 &postlist_table, prefix));
 }
 
 void
 FlintWritableDatabase::cancel()
 {
-    database_ro.cancel();
-    total_length = database_ro.postlist_table.get_total_length();
-    lastdocid = database_ro.get_lastdocid();
+    FlintDatabase::cancel();
+    total_length = postlist_table.get_total_length();
+    lastdocid = FlintDatabase::get_lastdocid();
     freq_deltas.clear();
     doclens.clear();
     mod_plists.clear();
-    changes_made = 0;
+    change_count = 0;
 }
 
 void
 FlintWritableDatabase::add_spelling(const string & word,
 				    Xapian::termcount freqinc) const
 {
-    database_ro.spelling_table.add_word(word, freqinc);
+    spelling_table.add_word(word, freqinc);
 }
 
 void
 FlintWritableDatabase::remove_spelling(const string & word,
 				       Xapian::termcount freqdec) const
 {
-    database_ro.spelling_table.remove_word(word, freqdec);
-}
-
-TermList *
-FlintWritableDatabase::open_spelling_termlist(const string & word) const
-{
-    return database_ro.spelling_table.open_termlist(word);
+    spelling_table.remove_word(word, freqdec);
 }
 
 TermList *
 FlintWritableDatabase::open_spelling_wordlist() const
 {
-    database_ro.spelling_table.merge_changes();
-    FlintCursor * cursor = database_ro.spelling_table.cursor_get();
-    if (!cursor) return NULL;
-    return new FlintSpellingWordsList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),
-				      cursor);
-}
-
-Xapian::doccount
-FlintWritableDatabase::get_spelling_frequency(const string & word) const
-{
-    return database_ro.spelling_table.get_word_frequency(word);
-}
-
-TermList *
-FlintWritableDatabase::open_synonym_termlist(const string & term) const
-{
-    return database_ro.synonym_table.open_termlist(term);
+    spelling_table.merge_changes();
+    return FlintDatabase::open_spelling_wordlist();
 }
 
 TermList *
 FlintWritableDatabase::open_synonym_keylist(const string & prefix) const
 {
-    database_ro.synonym_table.merge_changes();
-    FlintCursor * cursor = database_ro.synonym_table.cursor_get();
-    if (!cursor) return NULL;
-    return new FlintSynonymTermList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),
-				    cursor,
-				    database_ro.synonym_table.get_entry_count(),
-				    prefix);
+    synonym_table.merge_changes();
+    return FlintDatabase::open_synonym_keylist(prefix);
 }
 
 void
 FlintWritableDatabase::add_synonym(const string & term,
 				   const string & synonym) const
 {
-    database_ro.synonym_table.add_synonym(term, synonym);
+    synonym_table.add_synonym(term, synonym);
 }
 
 void
 FlintWritableDatabase::remove_synonym(const string & term,
 				      const string & synonym) const
 {
-    database_ro.synonym_table.remove_synonym(term, synonym);
+    synonym_table.remove_synonym(term, synonym);
 }
 
 void
 FlintWritableDatabase::clear_synonyms(const string & term) const
 {
-    database_ro.synonym_table.clear_synonyms(term);
+    synonym_table.clear_synonyms(term);
 }

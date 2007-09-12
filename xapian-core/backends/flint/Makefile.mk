@@ -24,6 +24,7 @@ noinst_HEADERS +=\
 	backends/flint/flint_synonym.h\
 	backends/flint/flint_table.h\
 	backends/flint/flint_termlist.h\
+	backends/flint/flint_termlisttable.h\
 	backends/flint/flint_types.h\
 	backends/flint/flint_utils.h\
 	backends/flint/flint_values.h\
@@ -48,6 +49,7 @@ libxapian_la_SOURCES +=\
 	backends/flint/flint_synonym.cc\
 	backends/flint/flint_table.cc\
 	backends/flint/flint_termlist.cc\
+	backends/flint/flint_termlisttable.cc\
 	backends/flint/flint_values.cc\
 	backends/flint/flint_version.cc
 

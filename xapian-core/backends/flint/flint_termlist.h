@@ -1,13 +1,12 @@
-/* flint_termlist.h: Termlists in flint databases
+/** @file flint_termlist.h
+ * @brief A TermList in a flint database.
+ */
+/* Copyright (C) 2007 Olly Betts
  *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004,2006,2007 Olly Betts
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,186 +15,126 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_FLINT_TERMLIST_H
-#define OM_HGUARD_FLINT_TERMLIST_H
+#ifndef XAPIAN_INCLUDED_FLINT_TERMLIST_H
+#define XAPIAN_INCLUDED_FLINT_TERMLIST_H
 
 #include <string>
 
+#include <xapian/base.h>
+#include <xapian/positioniterator.h>
 #include <xapian/types.h>
-#include "database.h"
+
+namespace Xapian {
+    namespace Internal {
+	class ExpandStats;
+    }
+}
+
+#include "flint_database.h"
 #include "termlist.h"
 #include "flint_table.h"
 
-using namespace std;
-
-class FlintTermListTable : public FlintTable {
-    public:
-	/** Create a new table object.
-	 *
-	 *  This does not create the table on disk - the create() method must
-	 *  be called before the table is created on disk
-	 *
-	 *  This also does not open the table - the open() method must be
-	 *  called before use is made of the table.
-	 *
-	 *  @param path_          - Path at which the table is stored.
-	 *  @param readonly_      - whether to open the table for read only
-	 *                          access.
-	 */
-	FlintTermListTable(string path_, bool readonly_)
-	    : FlintTable(path_ + "/termlist.", readonly_, Z_DEFAULT_STRATEGY) { }
-
-	/** Set the entries in the termlist.
-	 *
-	 *  If the termlist already exists, its contents are replaced.
-	 *
-	 *  @param store_termfreqs  If true, term frequencies are stored
-	 *         in the termlist.  This should only be done with static
-	 *         databases (which are probably generated from dumps of
-	 *         dynamic databases) - updating cannot be done efficiently
-	 *         while storing term frequencies.
-	 */
-	void set_entries(Xapian::docid did,
-		    Xapian::TermIterator t, const Xapian::TermIterator &t_end,
-		    flint_doclen_t doclen, bool store_termfreqs);
-
-	/** Clear the termlist.  After this call, the termlist for the
-	 *  specified document ID will not exist.
-	 */
-	void delete_termlist(Xapian::docid did);
-};
-
-/** A termlist in a flint database.
- */
+/// A TermList in a flint database.
 class FlintTermList : public TermList {
-    private:
-        // Prevent copying
-        FlintTermList(const FlintTermList &);
-        FlintTermList & operator=(const FlintTermList &);
+    /// Don't allow assignment.
+    void operator=(const FlintTermList &);
 
-	/** The database we are searching.  This pointer is held so that the
-	 *  database doesn't get deleted before us.
-	 */
-	Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db;
+    /// Don't allow copying.
+    FlintTermList(const FlintTermList &);
 
-	Xapian::docid did;
+    /// The database we're reading data from.
+    Xapian::Internal::RefCntPtr<const FlintDatabase> db;
 
-	/** The table holding the termlist.
-	 */
-	const FlintTable * table;
+    /// The document id that this TermList is for.
+    Xapian::docid did;
 
-	/** The data for the (part of the) termlist currently being read.
-	 *
-	 *  FIXME: currently, we read the whole termlist as one chunk.
-	 */
-	string termlist_part;
+    /// The length of document @a did.
+    flint_doclen_t doclen;
 
-	/** Position within tag that we're reading from.
-	 */
-	const char *pos;
+    /// The number of entries in this termlist.
+    Xapian::termcount termlist_size;
 
-	/** End of data within tag.
-	 */
-	const char *end;
+    /// The tag value from the termlist table which holds the encoded termlist.
+    std::string data;
 
-	/** Whether we have moved past the final item yet.
-	 */
-	bool have_finished;
+    /** Current position with the encoded tag value held in @a data.
+     *
+     *  If we've iterated to the end of the list, this gets set to NULL.
+     */
+    const char *pos;
 
+    /// Pointer to the end of the encoded tag value.
+    const char *end;
 
-	/** The length of the document represented by the termlist.
-	 */
-	flint_doclen_t doclen;
+    /// The termname at the current position.
+    std::string current_term;
 
-	/** The size of the termlist.
-	 */
-	Xapian::termcount termlist_size;
+    /// The wdf for the term at the current position.
+    Xapian::termcount current_wdf;
 
-	/** Current termname.
-	 */
-	string current_tname;
+    /** The term frequency for the term at the current position.
+     *
+     *  This will have the value 0 if the term frequency has not yet been
+     *  looked up in the database (so it needs to be mutable).
+     */
+    mutable Xapian::doccount current_termfreq;
 
-	/** Current wdf.
-	 */
-	Xapian::termcount current_wdf;
+  public:
+    /// Create a new FlintTermList object for document @a did_ in DB @a db_
+    FlintTermList(Xapian::Internal::RefCntPtr<const FlintDatabase> db_,
+		  Xapian::docid did_);
 
-	/** Whether the termlist stores term frequencies (this cannot be
-	 *  done in an updatable database, but improves expand efficiency
-	 *  considerably).
-	 */
-	bool has_termfreqs;
+    /** Return the length of this document.
+     *
+     *  This is a non-virtual method, used by FlintDatabase.
+     */
+    flint_doclen_t get_doclength() const;
 
-	/** Current term frequency.
-	 *
-	 *  This will have the value 0 if the term frequency is not
-	 *  available (in which case it will be looked up in the database
-	 *  if requested).
-	 */
-	mutable Xapian::doccount current_termfreq;
+    /** Return approximate size of this termlist.
+     *
+     *  For a FlintTermList, this value will always be exact.
+     */
+    Xapian::termcount get_approx_size() const;
 
-	/** Number of documents in database.
-	 */
-	Xapian::doccount doccount;
+    /// Collate weighting information for the current term.
+    void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
 
-    public:
-	/** Open the termlist for the specified document, for reading.
-	 */
-	FlintTermList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-		       const FlintTable * table_,
-		       Xapian::docid did_,
-		       Xapian::doccount doccount_);
+    /// Return the termname at the current position.
+    std::string get_termname() const;
 
-	/** Get the length of the document represented by the termlist.
-	 *
-	 *  FIXME: having a static version of this available would be nice -
-	 *  database could then avoid having to create a temporary termlist
-	 *  object.
-	 */
-	flint_doclen_t get_doclength() const;
+    /// Return the wdf for the term at the current position.
+    Xapian::termcount get_wdf() const;
 
-	/** Return number of items in termlist.
-	 *  (This is actually exact - it may be approximate for combined
-	 *  termlists.)
-	 */
-	Xapian::termcount get_approx_size() const;
+    /** Return the term frequency for the term at the current position.
+     *
+     *  In order to be able to support updating databases efficiently, we can't
+     *  store this value in the termlist table, so it has to be read from the
+     *  postlist table, which is relatively expensive (compared to reading the
+     *  wdf for example).
+     */
+    Xapian::doccount get_termfreq() const;
 
-	/** Move to next entry.  Must be called before any of the other
-	 *  methods, including at_end(), to move onto the first entry.
-	 *
-	 *  @return This method always returns 0.  Other values would
-	 *          represent a termlist which should be used to replace
-	 *          this termlist - this never happens.
-	 */
-	TermList * next();
+    /** Advance the current position to the next term in the termlist.
+     *
+     *  The list starts before the first term in the list, so next()
+     *  must be called before any methods which need the context of
+     *  the current position.
+     *
+     *  @return Always returns 0 for a FlintTermList.
+     */
+    TermList * next();
 
-	/** Check whether the termlist reader has reached the end.
-	 */
-	bool at_end() const;
+    /// Return true if the current position is past the last term in this list.
+    bool at_end() const;
 
-	/** Get the current term in the termlist.
-	 */
-	string get_termname() const;
+    /// Return the length of the position list for the current position.
+    Xapian::termcount positionlist_count() const;
 
-	/** Get the within document frequency of the current term.
-	 */
-	Xapian::termcount get_wdf() const;
-
-	/** Get the term frequency of the current term - the number of
-	 *  documents containing this term.  For an updateable database, this
-	 *  cannot be stored in the termlist, so involves a relatively expensive
-	 *  lookup in the postlist table.
-	 */
-	Xapian::doccount get_termfreq() const;
-
-	/// Collate weighting information for the current term.
-	void accumulate_stats(Xapian::Internal::ExpandStats & stats) const;
-
-	Xapian::termcount positionlist_count() const;
-	Xapian::PositionIterator positionlist_begin() const;
+    /// Return a PositionIterator for the current position.
+    Xapian::PositionIterator positionlist_begin() const;
 };
 
-#endif /* OM_HGUARD_FLINT_TERMLIST_H */
+#endif // XAPIAN_INCLUDED_FLINT_TERMLIST_H

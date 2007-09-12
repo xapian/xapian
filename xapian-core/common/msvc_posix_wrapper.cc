@@ -209,4 +209,14 @@ msvc_posix_open(const char *filename, int flags)
     return _open_osfhandle((intptr_t)handleWin, flags);
 }
 
+/** Version of rename() which overwrites an existing destination file. */
+int msvc_posix_rename(const char *from, const char *to)
+{
+    if (MoveFileEx(from, to, MOVEFILE_REPLACE_EXISTING) != 0) {
+	return 0;
+    }
+
+    return msvc_set_errno_from_getlasterror();
+}
+
 #endif // __WIN32__

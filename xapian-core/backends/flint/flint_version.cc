@@ -36,15 +36,16 @@
 using std::string;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
-#define FLINT_VERSION 200706140
-// 200706140 Optional value and position tables.
-// 200704230 Use zlib compression of tags for record and termlist tables.
-// 200611200 Fixed occasional, architecture-dependent surplus bits in
-//	     interpolative coding; "flicklock" -> "flintlock".
-// 200506110 Fixed interpolative coding to work(!)
-// 200505310 Interpolative coding for position lists.
-// 200505280 Total doclen and last docid entry moved to postlist table.
-// 200505270 First dated version.
+#define FLINT_VERSION 200709120
+// 200709120 1.0.3 Kill the unused "has_termfreqs" flag in the termlist table.
+// 200706140 1.0.2 Optional value and position tables.
+// 200704230 1.0.0 Use zlib compression of tags for record and termlist tables.
+// 200611200  N/A  Fixed occasional, architecture-dependent surplus bits in
+//		   interpolative coding; "flicklock" -> "flintlock".
+// 200506110 0.9.2 Fixed interpolative coding to work(!)
+// 200505310 0.9.1 Interpolative coding for position lists.
+// 200505280  N/A  Total doclen and last docid entry moved to postlist table.
+// 200505270  N/A  First dated version.
 
 #define MAGIC_STRING "IAmFlint"
 
@@ -121,10 +122,24 @@ void FlintVersion::read_and_check()
     const unsigned char *v;
     v = reinterpret_cast<const unsigned char *>(buf) + MAGIC_LEN;
     unsigned int version = v[0] | (v[1] << 8) | (v[2] << 16) | (v[3] << 24);
-    if (version == 200704230) {
-	// 200704230 is just like 200706140 except that the value and position
-	// tables must exist.  So just open the database - any updates will
-	// leave it as a valid 200704230 format database.
+    if (version == 200704230 || version == 200706140) {
+	// Upgrade the database to the current version since any changes we
+	// make won't be compatible with older versions of Xapian.
+	string filename_save = filename;
+	filename += ".tmp";
+	create();
+	int result;
+#ifdef __WIN32__
+	result = msvc_posix_rename(filename.c_str(), filename_save.c_str());
+#else
+	result = rename(filename.c_str(), filename_save.c_str());
+#endif
+	filename = filename_save;
+	if (result == -1) {
+	    string msg("Failed to update flint version file: ");
+	    msg += filename;
+	    throw Xapian::DatabaseOpeningError(msg);
+	}
 	return;
     }
     if (version != FLINT_VERSION) {

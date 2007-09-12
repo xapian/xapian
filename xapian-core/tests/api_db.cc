@@ -1366,6 +1366,10 @@ static bool test_flintdatabaseformaterror1()
     TEST_EXCEPTION(Xapian::DatabaseVersionError,
 		   (void)Xapian::Flint::open(dbdir));
 
+    // Clean up the "flintlock" file that we will have created while trying
+    // to open the database.
+    unlink((dbdir + "/flintlock").c_str());
+
     return true;
 }
 
@@ -1426,6 +1430,33 @@ static bool test_flintbackwardcompat1()
 
     rm_rf(dbdir);
     cp_R(flint101, dbdir);
+
+    // Check we can open the older format for reading.
+    {
+	Xapian::Database db(dbdir);
+	TEST_EQUAL(db.get_doccount(), 0);
+    }
+
+    // Check we can open the older format for update.
+    {
+	Xapian::WritableDatabase db(dbdir, Xapian::DB_OPEN);
+	TEST_EQUAL(db.get_doccount(), 0);
+    }
+
+    return true;
+}
+
+// Test that 1.0.3 and later can open 1.0.2 databases.
+static bool test_flintbackwardcompat2()
+{
+    string flint102 = test_driver::get_srcdir();
+    flint102 += "/testdata/flint-1.0.2";
+
+    mkdir(".flint", 0755);
+    string dbdir = ".flint/test_flintbackwardcompat2";
+
+    rm_rf(dbdir);
+    cp_R(flint102, dbdir);
 
     // Check we can open the older format for reading.
     {
@@ -1865,6 +1896,7 @@ test_desc flint_tests[] = {
     {"flintdatabaseformaterror2",	test_flintdatabaseformaterror2},
     {"flintdatabaseformaterror3",	test_flintdatabaseformaterror3},
     {"flintbackwardcompat1",		test_flintbackwardcompat1},
+    {"flintbackwardcompat2",		test_flintbackwardcompat2},
     {"flintdatabaseopen1",		test_flintdatabaseopen1},
     {"sortrel1",	   test_sortrel1},
     {0, 0}

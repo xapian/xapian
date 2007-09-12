@@ -3,6 +3,7 @@
  * (misnamed, this isn't MSVC specific, but __WIN32__-specific)
  *
  * Copyright 2007 Lemur Consulting Ltd
+ * Copyright 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,8 +21,8 @@
  * USA
  */
 
-#ifndef OM_HGUARD_MSVC_POSIX_WRAPPER_H
-#define OM_HGUARD_MSVC_POSIX_WRAPPER_H
+#ifndef XAPIAN_INCLUDED_MSVC_POSIX_WRAPPER_H
+#define XAPIAN_INCLUDED_MSVC_POSIX_WRAPPER_H
 
 /** Version of unlink() with POSIX-like semantics (open files can be unlinked).
  *
@@ -32,4 +33,7 @@ int msvc_posix_unlink(const char * filename);
 /** Version of open() which allows the file to be unlinked while open. */
 int msvc_posix_open(const char *filename, int flags);
 
-#endif /* OM_HGUARD_MSVC_POSIX_WRAPPER_H */
+/** Version of rename() which overwrites an existing destination file. */
+int msvc_posix_rename(const char *from, const char *to);
+
+#endif /* XAPIAN_INCLUDED_MSVC_POSIX_WRAPPER_H */

@@ -24,25 +24,11 @@
 #include "flint_postlist.h"
 #include "flint_utils.h"
 #include "flint_cursor.h"
-#include "database.h"
+#include "flint_database.h"
 
 // Magic key (which corresponds to an invalid docid) is used to store the
 // next free docid and total length of all documents
 static const string METAINFO_KEY("", 1);
-
-/// Make a key for accessing the postlist.
-static void
-make_key(const string & tname, Xapian::docid did, string & key)
-{
-    key = pack_string_preserving_sort(tname);
-    key += pack_uint_preserving_sort(did);
-}
-
-static void
-make_key(const string & tname, string & key)
-{
-    key = pack_string_preserving_sort(tname);
-}
 
 Xapian::docid
 FlintPostListTable::get_lastdocid() const
@@ -64,8 +50,8 @@ FlintPostListTable::get_lastdocid() const
 Xapian::doccount
 FlintPostListTable::get_termfreq(const string & term) const
 {
-    string key, tag;
-    make_key(term, key);
+    string key = make_key(term);
+    string tag;
     if (!get_exact_entry(key, tag)) return 0;
 
     Xapian::doccount termfreq;
@@ -77,8 +63,8 @@ FlintPostListTable::get_termfreq(const string & term) const
 Xapian::termcount
 FlintPostListTable::get_collection_freq(const string & term) const
 {
-    string key, tag;
-    make_key(term, key);
+    string key = make_key(term);
+    string tag;
     if (!get_exact_entry(key, tag)) return 0;
 
     Xapian::termcount collfreq;
@@ -408,7 +394,7 @@ PostlistChunkWriter::append(FlintTable * table, Xapian::docid did,
 	    is_first_chunk = false;
 	    first_did = did;
 	    chunk = "";
-	    make_key(tname, first_did, orig_key);
+	    orig_key = FlintPostListTable::make_key(tname, first_did);
 	} else {
 	    chunk.append(pack_uint(did - current_did - 1));
 	}
@@ -618,8 +604,7 @@ PostlistChunkWriter::flush(FlintTable *table)
 	     * and we just have to write this one back to disk.
 	     */
 	    DEBUGLINE(DB, "PostlistChunkWriter::flush(): rewriting the first chunk, which still has items in it");
-	    string key;
-	    make_key(tname, key);
+	    string key = FlintPostListTable::make_key(tname);
 	    bool ok = table->get_exact_entry(key, tag);
 	    (void)ok;
 	    Assert(ok);
@@ -668,7 +653,7 @@ PostlistChunkWriter::flush(FlintTable *table)
 	     * Create a new tag with the correct key, and replace
 	     * the old one.
 	     */
-	    make_key(tname, first_did, new_key);
+	    new_key = FlintPostListTable::make_key(tname, first_did);
 	    table->del(orig_key);
 	} else {
 	    new_key = orig_key;
@@ -715,23 +700,17 @@ void FlintPostList::read_number_of_entries(const char ** posptr,
  *  The first chunk begins with the number of entries, then the docid of the
  *  first document, then has the header of a standard chunk.
  */
-FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-			       const FlintTable * table_,
-			       const FlintTable * positiontable_,
-			       const string & tname_)
+FlintPostList::FlintPostList(Xapian::Internal::RefCntPtr<const FlintDatabase> this_db_,
+			     const string & tname_)
 	: this_db(this_db_),
 	  tname(tname_),
 	  have_started(false),
-	  table(table_),
-	  positiontable(positiontable_),
-	  cursor(table->cursor_get()),
+	  cursor(this_db->postlist_table.cursor_get()),
 	  is_at_end(false)
 {
-    DEBUGCALL(DB, void, "FlintPostList::FlintPostList",
-	      this_db_.get() << ", " << table_ << ", " <<
-	      positiontable_ << ", " << tname_);
-    string key;
-    make_key(tname, key);
+    DEBUGCALL(DB, void, "FlintPostList::ostList",
+	      this_db_.get() << ", " << tname_);
+    string key = FlintPostListTable::make_key(tname);
     int found = cursor->find_entry(key);
     if (!found) {
 	number_of_entries = 0;
@@ -825,9 +804,7 @@ PositionList *
 FlintPostList::read_position_list()
 {
     DEBUGCALL(DB, PositionList *, "FlintPostList::read_position_list", "");
-
-    positionlist.read_data(positiontable, did, tname);
-
+    positionlist.read_data(&this_db->position_table, did, tname);
     RETURN(&positionlist);
 }
 
@@ -835,11 +812,7 @@ PositionList *
 FlintPostList::open_position_list() const
 {
     DEBUGCALL(DB, PositionList *, "FlintPostList::open_position_list", "");
-
-    AutoPtr<FlintPositionList> poslist(new FlintPositionList());
-    poslist->read_data(positiontable, did, tname);
-
-    RETURN(poslist.release());
+    RETURN(new FlintPositionList(&this_db->position_table, did, tname));
 }
 
 PostList *
@@ -878,9 +851,7 @@ FlintPostList::move_to_chunk_containing(Xapian::docid desired_did)
 {
     DEBUGCALL(DB, void,
 	      "FlintPostList::move_to_chunk_containing", desired_did);
-    string key;
-    make_key(tname, desired_did, key);
-    (void) cursor->find_entry(key);
+    (void)cursor->find_entry(FlintPostListTable::make_key(tname, desired_did));
     Assert(!cursor->after_end());
 
     const char * keypos = cursor->current_key.data();
@@ -992,8 +963,7 @@ FlintPostListTable::get_chunk(const string &tname,
 	  PostlistChunkReader ** from, PostlistChunkWriter **to)
 {
     // Get chunk containing entry
-    string key;
-    make_key(tname, did, key);
+    string key = make_key(tname, did);
 
     // Find the right chunk
     AutoPtr<FlintCursor> cursor(cursor_get());
@@ -1084,8 +1054,7 @@ FlintPostListTable::merge_changes(
 	    map<string, pair<Xapian::termcount_diff, Xapian::termcount_diff> >::const_iterator deltas = freq_deltas.find(tname);
 	    Assert(deltas != freq_deltas.end());
 
-	    string current_key;
-	    make_key(tname, current_key);
+	    string current_key = make_key(tname);
 	    string tag;
 	    (void)get_exact_entry(current_key, tag);
 

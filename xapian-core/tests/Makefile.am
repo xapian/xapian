@@ -151,7 +151,19 @@ EXTRA_DIST =\
 	testdata/flint-1.0.1/iamflint \
 	testdata/flint-1.0.1/postlist.DB \
 	testdata/flint-1.0.1/position.DB \
-	testdata/flint-1.0.1/postlist.baseA
+	testdata/flint-1.0.1/postlist.baseA \
+	testdata/flint-1.0.2/value.DB \
+	testdata/flint-1.0.2/position.baseA \
+	testdata/flint-1.0.2/flintlock \
+	testdata/flint-1.0.2/value.baseA \
+	testdata/flint-1.0.2/record.baseA \
+	testdata/flint-1.0.2/termlist.DB \
+	testdata/flint-1.0.2/termlist.baseA \
+	testdata/flint-1.0.2/record.DB \
+	testdata/flint-1.0.2/iamflint \
+	testdata/flint-1.0.2/postlist.DB \
+	testdata/flint-1.0.2/position.DB \
+	testdata/flint-1.0.2/postlist.baseA
 
 clean-local:
 	rm -rf .flint .quartz .quartztmp .btreetmp
