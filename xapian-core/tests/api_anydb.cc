@@ -1650,13 +1650,15 @@ static bool test_checkatleast2()
 {
     Xapian::Enquire enquire(get_database("apitest_simpledata"));
     enquire.set_query(Xapian::Query("paragraph"));
+
     Xapian::MSet mymset = enquire.get_mset(0, 3, 10);
     TEST_MSET_SIZE(mymset, 3);
-    TEST_GREATER_OR_EQUAL(mymset.get_matches_lower_bound(), 5);
-    
+    TEST_EQUAL(mymset.get_matches_lower_bound(), 5);
+
     mymset = enquire.get_mset(0, 2, 4);
     TEST_MSET_SIZE(mymset, 2);
     TEST_GREATER_OR_EQUAL(mymset.get_matches_lower_bound(), 4);
+
     return true;
 }
 
