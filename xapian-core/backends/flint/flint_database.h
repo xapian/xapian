@@ -96,7 +96,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 *
 	 *  Whenever an update is performed, this table is the last to be
 	 *  updated: therefore, its most recent revision number is the most
-	 *  recent consistent revision available.  If this tables most
+	 *  recent consistent revision available.  If this table's most
 	 *  recent revision number is not available for all tables, there
 	 *  is no consistent revision available, and the database is corrupt.
 	 */
@@ -163,17 +163,15 @@ class FlintDatabase : public Xapian::Database::Internal {
 	/** Re-open tables to recover from an overwritten condition,
 	 *  or just get most up-to-date version.
 	 */
-	virtual void reopen();
+	void reopen();
 
 	/** Apply any outstanding changes to the tables.
 	 *
-	 *  If an error occurs during the operation, this will be signalled
-	 *  by a return value of false.  The tables on disk will be left in
-	 *  an unmodified state (though possibly with increased revision
-	 *  numbers), and the changes made will be lost.
-	 *
-	 *  @return true if the operation completed successfully, false
-	 *          otherwise.
+	 *  If an error occurs during this operation, this will be signalled
+	 *  by an exception being thrown.  In this case the contents of the
+	 *  tables on disk will be left in an unmodified state (though possibly
+	 *  with increased revision numbers), and the outstanding changes will
+	 *  be lost.
 	 */
 	void apply();
 
@@ -199,16 +197,14 @@ class FlintDatabase : public Xapian::Database::Internal {
 	 *  @param block_size Block size, in bytes, to use when creating
 	 *                    tables.  This is only important, and has the
 	 *                    correct value, when the database is being
-	 *                    created.  (ie, opened writable for the first
-	 *                    time).
+	 *                    created.
 	 */
 	FlintDatabase(const string &db_dir_, int action = XAPIAN_DB_READONLY,
 		       unsigned int block_size = 0u);
 
 	~FlintDatabase();
 
-	/** Virtual methods of Database.
-	 */
+	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::doccount  get_doccount() const;
 	Xapian::docid get_lastdocid() const;
@@ -268,14 +264,15 @@ class FlintWritableDatabase : public FlintDatabase {
 	void flush_postlist_changes() const;
 
 	//@{
-	/** Implementation of virtual methods: see Database for details.
+	/** Implementation of virtual methods: see Database::Internal for
+	 *  details.
 	 */
 	void flush();
 
 	/** Cancel pending modifications to the database. */
 	void cancel();
 
-	virtual Xapian::docid add_document(const Xapian::Document & document);
+	Xapian::docid add_document(const Xapian::Document & document);
 	Xapian::docid add_document_(Xapian::docid did, const Xapian::Document & document);
 	// Stop the default implementation of delete_document(term) and
 	// replace_document(term) from being hidden.  This isn't really
@@ -286,12 +283,11 @@ class FlintWritableDatabase : public FlintDatabase {
 	using Xapian::Database::Internal::delete_document;
 	using Xapian::Database::Internal::replace_document;
 #endif
-	virtual void delete_document(Xapian::docid did);
-	virtual void replace_document(Xapian::docid did,
-				      const Xapian::Document & document);
+	void delete_document(Xapian::docid did);
+	void replace_document(Xapian::docid did, const Xapian::Document & document);
 	//@}
 
-      public:
+    public:
 	/** Create and open a writable flint database.
 	 *
 	 *  @exception Xapian::DatabaseOpeningError thrown if database can't
@@ -307,8 +303,7 @@ class FlintWritableDatabase : public FlintDatabase {
 
 	~FlintWritableDatabase();
 
-	/** Virtual methods of Database.
-	 */
+	/** Virtual methods of Database::Internal. */
 	//@{
 	Xapian::docid get_lastdocid() const;
 	Xapian::doclength get_avlength() const;
