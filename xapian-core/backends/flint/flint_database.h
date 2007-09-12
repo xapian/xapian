@@ -264,9 +264,6 @@ class FlintWritableDatabase : public FlintDatabase {
 	/// If change_count reaches this threshold we automatically flush.
 	Xapian::doccount flush_threshold;
 
-	/// If there are uncommitted changes, flush and commit a new revision.
-	void do_flush();
-
 	/// Flush any unflushed postlist changes, but don't commit them.
 	void flush_postlist_changes() const;
 

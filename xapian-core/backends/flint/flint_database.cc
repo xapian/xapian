@@ -597,14 +597,6 @@ FlintWritableDatabase::flush()
 {
     if (transaction_active())
 	throw Xapian::InvalidOperationError("Can't flush during a transaction");
-    do_flush();
-}
-
-void
-FlintWritableDatabase::do_flush()
-{
-    DEBUGCALL(DB, void, "FlintWritableDatabase::do_flush", "");
-
     if (change_count) flush_postlist_changes();
     apply();
 }
@@ -718,8 +710,10 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
     // cout << "+++ mod_plists.size() " << mod_plists.size() <<
     //     ", doclens.size() " << doclens.size() <<
     //	   ", freq_deltas.size() " << freq_deltas.size() << endl;
-    if (++change_count >= flush_threshold && !transaction_active())
-	do_flush();
+    if (++change_count >= flush_threshold) {
+	flush_postlist_changes();
+	if (!transaction_active()) apply();
+    }
 
     RETURN(did);
 }
@@ -794,8 +788,10 @@ FlintWritableDatabase::delete_document(Xapian::docid did)
 	throw;
     }
 
-    if (++change_count >= flush_threshold && !transaction_active())
-	do_flush();
+    if (++change_count >= flush_threshold) {
+	flush_postlist_changes();
+	if (!transaction_active()) apply();
+    }
 }
 
 void
@@ -945,8 +941,10 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 	throw;
     }
 
-    if (++change_count >= flush_threshold && !transaction_active())
-	do_flush();
+    if (++change_count >= flush_threshold) {
+	flush_postlist_changes();
+	if (!transaction_active()) apply();
+    }
 }
 
 Xapian::docid

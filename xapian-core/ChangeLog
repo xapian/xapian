@@ -1,3 +1,9 @@
+Wed Sep 12 15:40:16 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/flint/flint_database.h:
+	  If we reach the flush threshold during a transaction, flush the
+	  postlist changes, but don't actually commit them.
+
 Wed Sep 12 14:12:52 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/msvc_posix_wrapper.cc,common/msvc_posix_wrapper.h: Add
