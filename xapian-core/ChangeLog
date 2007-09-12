@@ -1,3 +1,11 @@
+Wed Sep 12 17:15:58 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,backends/quartz/quartz_database.cc:
+	  Failing to create a flint or quartz database because we couldn't
+	  create the directory for it now throws DatabaseCreateError not
+	  DatabaseOpeningError.
+	* tests/api_db.cc: Update test cases.
+
 Wed Sep 12 15:40:16 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc,backends/flint/flint_database.h:

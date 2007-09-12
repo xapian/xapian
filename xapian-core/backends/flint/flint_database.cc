@@ -95,8 +95,8 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	    fail = true;
 	}
 	if (fail) {
-	    throw Xapian::DatabaseOpeningError("Cannot create directory `"
-					       + db_dir + "'", errno);
+	    throw Xapian::DatabaseCreateError("Cannot create directory `" +
+					      db_dir + "'", errno);
 	}
 	get_database_write_lock();
 

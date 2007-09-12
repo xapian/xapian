@@ -1246,11 +1246,11 @@ static bool test_quartzdatabaseopeningerror1()
 	Xapian::Quartz::open(".quartz/somefile"));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_OPEN));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
 	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
 	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE_OR_OPEN));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
 	Xapian::Quartz::open(".quartz/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
 
     return true;
@@ -1341,11 +1341,11 @@ static bool test_flintdatabaseopeningerror1()
 		   Xapian::Flint::open(".flint/somefile"));
     TEST_EXCEPTION(Xapian::DatabaseOpeningError,
 		   Xapian::Flint::open(".flint/somefile", Xapian::DB_OPEN));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
 		   Xapian::Flint::open(".flint/somefile", Xapian::DB_CREATE));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
 		   Xapian::Flint::open(".flint/somefile", Xapian::DB_CREATE_OR_OPEN));
-    TEST_EXCEPTION(Xapian::DatabaseOpeningError,
+    TEST_EXCEPTION(Xapian::DatabaseCreateError,
 		   Xapian::Flint::open(".flint/somefile", Xapian::DB_CREATE_OR_OVERWRITE));
 
     return true;
