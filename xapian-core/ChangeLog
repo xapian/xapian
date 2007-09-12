@@ -1,3 +1,10 @@
+Wed Sep 12 20:27:49 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multimatch.cc: Eliminate a block which used to scope some
+	  variables which have now moved.  Unify debug output from different
+	  cases after the match.  Remove half-finished comment which doesn't
+	  seem to be trying to say anything useful.
+
 Wed Sep 12 20:20:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: In checkatleast2, the total number of matching
