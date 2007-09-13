@@ -1,3 +1,9 @@
+Thu Sep 13 14:52:34 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_alltermslist.cc: FlintCursor::after_end() is
+	  never true after FlintCursor::find_entry() so remove check for this
+	  case!
+
 Thu Sep 13 03:11:19 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_alltermslist.h,backends/flint/flint_database.cc,

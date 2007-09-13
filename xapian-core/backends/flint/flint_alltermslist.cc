@@ -135,10 +135,7 @@ FlintAllTermsList::skip_to(const string &tname)
 	current_term = tname;
 	RETURN(NULL);
     }
-    if (cursor->after_end()) {
-	current_term = "";
-	RETURN(NULL);
-    }
+
     // If there wasn't an exact match, the cursor is left on the last key
     // *BEFORE* the one we asked for.
     RETURN(next());
