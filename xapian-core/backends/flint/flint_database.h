@@ -111,6 +111,9 @@ class FlintDatabase : public Xapian::Database::Internal {
 	/** Highest document ID ever allocated by this database. */
 	mutable Xapian::docid lastdocid;
 
+	/// Read lastdocid and total_length from the postlist table.
+	void read_metainfo();
+
 	/** Return true if a database exists at the path specified for this
 	 *  database.
 	 */

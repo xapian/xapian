@@ -67,10 +67,6 @@ class FlintPostListTable : public FlintTable {
 		Xapian::docid did, bool adding,
 		PostlistChunkReader ** from, PostlistChunkWriter **to);
 
-	/** Return the total length of all the records in the table.
-	 */
-	flint_totlen_t get_total_length() const;
-
 	/// Compose a key from a termname and docid.
 	static string make_key(const string & term, Xapian::docid did) {
 	    string key = pack_string_preserving_sort(term);
@@ -98,15 +94,6 @@ class FlintPostListTable : public FlintTable {
 	 *  This is the sum of the wdfs in the postlist.
 	 */
 	Xapian::termcount get_collection_freq(const std::string & term) const;
-
-	/** Get the last document id used.
-	 */
-	Xapian::docid get_lastdocid() const;
-
-	/** Set the total length and last document ID used.
-	 */
-	void set_total_length_and_lastdocid(flint_totlen_t totlen,
-					    Xapian::docid did);
 };
 
 /** A postlist in a flint database.

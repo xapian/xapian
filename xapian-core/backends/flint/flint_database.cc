@@ -56,6 +56,10 @@
 using namespace std;
 using namespace Xapian;
 
+// Magic key in the postlist table (which corresponds to an invalid docid) is
+// used to store the next free docid and total length of all documents.
+static const string METAINFO_KEY("", 1);
+
 /* This finds the tables, opens them at consistent revisions, manages
  * determining the current and next revision numbers, and stores handles
  * to the tables.
@@ -137,6 +141,26 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 FlintDatabase::~FlintDatabase()
 {
     DEBUGCALL(DB, void, "~FlintDatabase", "");
+}
+
+void
+FlintDatabase::read_metainfo()
+{
+    DEBUGCALL(DB, void, "FlintDatabase::read_metainfo", "");
+
+    string tag;
+    if (!postlist_table.get_exact_entry(METAINFO_KEY, tag)) {
+	lastdocid = 0;
+	total_length = 0;
+	return;
+    }
+
+    const char * data = tag.data();
+    const char * end = data + tag.size();
+    if (!unpack_uint(&data, end, &lastdocid) ||
+	!unpack_uint_last(&data, end, &total_length)) {
+	throw Xapian::DatabaseCorruptError("Meta information is corrupt.");
+    }
 }
 
 bool
@@ -250,8 +274,7 @@ FlintDatabase::open_tables_consistent()
 	throw Xapian::DatabaseModifiedError("Cannot open tables at stable revision - changing too fast");
     }
 
-    total_length = postlist_table.get_total_length();
-    lastdocid = postlist_table.get_lastdocid();
+    read_metainfo();
 }
 
 void
@@ -609,7 +632,10 @@ FlintWritableDatabase::flush_postlist_changes() const
     postlist_table.merge_changes(mod_plists, doclens, freq_deltas);
 
     // Update the total document length and last used docid.
-    postlist_table.set_total_length_and_lastdocid(total_length, lastdocid);
+    string tag = pack_uint(lastdocid);
+    tag += pack_uint_last(total_length);
+    postlist_table.add(METAINFO_KEY, tag);
+
     freq_deltas.clear();
     doclens.clear();
     mod_plists.clear();
@@ -1030,8 +1056,7 @@ void
 FlintWritableDatabase::cancel()
 {
     FlintDatabase::cancel();
-    total_length = postlist_table.get_total_length();
-    lastdocid = postlist_table.get_lastdocid();
+    read_metainfo();
     freq_deltas.clear();
     doclens.clear();
     mod_plists.clear();
