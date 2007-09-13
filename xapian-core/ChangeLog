@@ -1,3 +1,8 @@
+Thu Sep 13 02:03:46 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/database.cc,common/database.h: Move definitions of virtual
+	  methods out of the header file.
+
 Thu Sep 13 01:33:49 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_database.cc,backends/flint/flint_database.h:

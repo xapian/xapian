@@ -435,4 +435,28 @@ Database::Internal::clear_synonyms(const string &) const
     throw Xapian::UnimplementedError("This backend doesn't implement synonyms");
 }
 
+void
+Database::Internal::reopen()
+{
+    // Database backends which don't support simultaneous update and reading
+    // probably don't need to do anything here.
+}
+
+void
+Database::Internal::request_document(Xapian::docid /*did*/) const
+{
+}
+
+Xapian::Document::Internal *
+Database::Internal::collect_document(Xapian::docid did) const
+{
+    return open_document(did);
+}
+
+RemoteDatabase *
+Database::Internal::as_remotedatabase()
+{
+    return NULL;
+}
+
 }

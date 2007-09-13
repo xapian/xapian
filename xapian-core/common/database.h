@@ -311,7 +311,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  Database backends which don't support simultaneous update and
 	 *  reading probably don't need to do anything here.
 	 */
-	virtual void reopen() { }
+	virtual void reopen();
 
 	//////////////////////////////////////////////////////////////////
 	// Modifying the database:
@@ -386,11 +386,9 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  no-op and collect_document() the same as open_document().
 	 */
 	//@{
-	virtual void request_document(Xapian::docid /*did*/) const { }
+	virtual void request_document(Xapian::docid /*did*/) const;
 
-	virtual Xapian::Document::Internal * collect_document(Xapian::docid did) const {
-	    return open_document(did);
-	}
+	virtual Xapian::Document::Internal * collect_document(Xapian::docid did) const;
 	//@}
 
 	//////////////////////////////////////////////////////////////////
@@ -403,9 +401,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *  LocalSubMatch or a RemoteSubMatch to perform a search over the
 	 *  database.
 	 */
-	virtual RemoteDatabase * as_remotedatabase() {
-	    return NULL;
-	}
+	virtual RemoteDatabase * as_remotedatabase();
 };
 
 }
