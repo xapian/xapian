@@ -72,7 +72,9 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 	  synonym_table(db_dir, readonly),
 	  spelling_table(db_dir, readonly),
 	  record_table(db_dir, readonly),
-	  lock(db_dir + "/flintlock")
+	  lock(db_dir + "/flintlock"),
+	  total_length(0),
+	  lastdocid(0)
 {
     DEBUGCALL(DB, void, "FlintDatabase", flint_dir << ", " << action <<
 	      ", " << block_size);
@@ -130,9 +132,6 @@ FlintDatabase::FlintDatabase(const string &flint_dir, int action,
 
 	set_revision_number(new_revision);
     }
-    if (record_table.get_doccount() == 0) {
-	postlist_table.set_total_length_and_lastdocid(0, postlist_table.get_lastdocid());
-    }
 }
 
 FlintDatabase::~FlintDatabase()
@@ -182,7 +181,9 @@ FlintDatabase::create_and_open_tables(unsigned int block_size)
 	revision != postlist_table.get_open_revision_number()) {
 	throw Xapian::DatabaseCreateError("Newly created tables are not in consistent state");
     }
-    postlist_table.set_total_length_and_lastdocid(0, 0);
+
+    total_length = 0;
+    lastdocid = 0;
 }
 
 void
@@ -248,6 +249,9 @@ FlintDatabase::open_tables_consistent()
     if (!fully_opened) {
 	throw Xapian::DatabaseModifiedError("Cannot open tables at stable revision - changing too fast");
     }
+
+    total_length = postlist_table.get_total_length();
+    lastdocid = postlist_table.get_lastdocid();
 }
 
 void
@@ -404,7 +408,7 @@ Xapian::docid
 FlintDatabase::get_lastdocid() const
 {
     DEBUGCALL(DB, Xapian::docid, "FlintDatabase::get_lastdocid", "");
-    RETURN(postlist_table.get_lastdocid());
+    RETURN(lastdocid);
 }
 
 Xapian::doclength
@@ -416,7 +420,7 @@ FlintDatabase::get_avlength() const
 	// Avoid dividing by zero when there are no documents.
 	RETURN(0);
     }
-    RETURN(double(postlist_table.get_total_length()) / doccount);
+    RETURN(double(total_length) / doccount);
 }
 
 Xapian::doclength
@@ -465,7 +469,7 @@ FlintDatabase::open_post_list(const string& term) const
 
     if (term.empty()) {
 	Xapian::doccount doccount = get_doccount();
-	if (postlist_table.get_lastdocid() == doccount) {
+	if (lastdocid == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
 	RETURN(new FlintAllDocsPostList(ptrtothis, &termlist_table, doccount));
@@ -571,8 +575,6 @@ FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
 	  freq_deltas(),
 	  doclens(),
 	  mod_plists(),
-	  total_length(postlist_table.get_total_length()),
-	  lastdocid(FlintDatabase::get_lastdocid()),
 	  change_count(0),
 	  flush_threshold(0)
 {
@@ -947,22 +949,6 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
     }
 }
 
-Xapian::docid
-FlintWritableDatabase::get_lastdocid() const
-{
-    DEBUGCALL(DB, Xapian::docid, "FlintWritableDatabase::get_lastdocid", "");
-    RETURN(lastdocid);
-}
-
-Xapian::doclength
-FlintWritableDatabase::get_avlength() const
-{
-    DEBUGCALL(DB, Xapian::doclength, "FlintWritableDatabase::get_avlength", "");
-    Xapian::doccount docs = get_doccount();
-    if (docs == 0) RETURN(0);
-    RETURN(double(total_length) / docs);
-}
-
 Xapian::doclength
 FlintWritableDatabase::get_doclength(Xapian::docid did) const
 {
@@ -1045,7 +1031,7 @@ FlintWritableDatabase::cancel()
 {
     FlintDatabase::cancel();
     total_length = postlist_table.get_total_length();
-    lastdocid = FlintDatabase::get_lastdocid();
+    lastdocid = postlist_table.get_lastdocid();
     freq_deltas.clear();
     doclens.clear();
     mod_plists.clear();
