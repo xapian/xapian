@@ -1,3 +1,10 @@
+Thu Sep 13 03:11:19 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_alltermslist.h,backends/flint/flint_database.cc,
+	  backends/flint/flint_database.h: Don't pass FlintPostListTable
+	  pointer to FlintAllTermsList - it can find this via the database
+	  if we make it FlintDatabase instead of Database::Internal.
+
 Thu Sep 13 02:07:19 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/: Read/write the metainfo key from FlintDatabase to

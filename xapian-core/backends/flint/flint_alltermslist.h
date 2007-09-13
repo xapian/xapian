@@ -1,6 +1,6 @@
 /* flint_alltermslist.h: A termlist containing all terms in a flint database.
  *
- * Copyright (C) 2005 Olly Betts
+ * Copyright (C) 2005,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,15 +14,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
 
-#ifndef XAPIAN_HGUARD_FLINT_ALLTERMSLIST_H
-#define XAPIAN_HGUARD_FLINT_ALLTERMSLIST_H
+#ifndef XAPIAN_INCLUDED_FLINT_ALLTERMSLIST_H
+#define XAPIAN_INCLUDED_FLINT_ALLTERMSLIST_H
 
 #include "alltermslist.h"
-#include "database.h"
+#include "flint_database.h"
 #include "flint_postlist.h"
 
 class FlintCursor;
@@ -35,7 +35,7 @@ class FlintAllTermsList : public AllTermsList {
     void operator=(const FlintAllTermsList &);
 
     /// Keep a reference to our database to stop it being deleted.
-    Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database;
+    Xapian::Internal::RefCntPtr<const FlintDatabase> database;
 
     /** A cursor which runs through the postlist table reading termnames from
      *  the keys.
@@ -66,8 +66,7 @@ class FlintAllTermsList : public AllTermsList {
     void read_termfreq_and_collfreq() const;
 
   public:
-    FlintAllTermsList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> database_,
-		      const FlintPostListTable * pltab,
+    FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintDatabase> database_,
 		      const string & prefix_)
 	    : database(database_), prefix(prefix_), termfreq(0) {
 	// The number of entries in the postlist table will be the number of
@@ -79,10 +78,10 @@ class FlintAllTermsList : public AllTermsList {
 	// total_doclen?  (Mind you, not sure this value is ever used, but
 	// we should really make the exact number of terms available somewhere
 	// in the API).
-	approx_size = pltab->get_entry_count();
+	approx_size = database->postlist_table.get_entry_count();
 	if (approx_size) --approx_size;
 
-	cursor = pltab->cursor_get();
+	cursor = database->postlist_table.cursor_get();
 	Assert(cursor); // The postlist table isn't optional.
 	if (prefix.empty()) {
 	    // Seek to the metainfo key, so the first next() will advance us to the
@@ -138,4 +137,4 @@ class FlintAllTermsList : public AllTermsList {
     bool at_end() const;
 };
 
-#endif /* XAPIAN_HGUARD_FLINT_ALLTERMSLIST_H */
+#endif /* XAPIAN_INCLUDED_FLINT_ALLTERMSLIST_H */

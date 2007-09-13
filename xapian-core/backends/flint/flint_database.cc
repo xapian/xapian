@@ -550,7 +550,7 @@ FlintDatabase::open_allterms(const string & prefix) const
 {
     DEBUGCALL(DB, TermList *, "FlintDatabase::open_allterms", "");
     RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintDatabase>(this),
-				 &postlist_table, prefix));
+				 prefix));
 }
 
 TermList *
@@ -1048,8 +1048,7 @@ FlintWritableDatabase::open_allterms(const string & prefix) const
     // If there are changes, terms may have been added or removed, and so we
     // need to flush (but don't commit - there may be a transaction in progress.
     if (change_count) flush_postlist_changes();
-    RETURN(new FlintAllTermsList(Xapian::Internal::RefCntPtr<const FlintWritableDatabase>(this),
-				 &postlist_table, prefix));
+    RETURN(FlintDatabase::open_allterms(prefix));
 }
 
 void

@@ -49,6 +49,7 @@ class FlintDatabase : public Xapian::Database::Internal {
     friend class FlintWritableDatabase;
     friend class FlintTermList;
     friend class FlintPostList;
+    friend class FlintAllTermsList;
     private:
 	/** Directory to store databases in.
 	 */
