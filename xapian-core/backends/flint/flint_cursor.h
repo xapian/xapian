@@ -221,6 +221,13 @@ class XAPIAN_VISIBILITY_DEFAULT FlintCursor {
 	    return false;
 	}
 
+	/// Position the cursor on the lowest entry with key > @a key.
+	void find_entry_gt(const string &key) {
+	    find_entry(key);
+	    next();
+	}
+
+
 	/** Set the cursor to be off the end of the table.
 	 */
 	void to_end() { is_after_end = true; }

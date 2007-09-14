@@ -1,3 +1,12 @@
+Fri Sep 14 10:45:35 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* backends/flint/flint_cursor.cc,backends/flint/flint_cursor.h: Add
+	  FlintCursor::find_entry_gt(), and use it instead of
+	  flint_entry_ge() in FlintCuror::del().  This fixes failure of
+	  deldoc4 test.  I'm not sure why find_entry() can return true
+	  immediately after the key it's searching for was deleted with
+	  B->del(), though: that merits further investigation.
+
 Fri Sep 14 04:57:14 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/xapian-inspect.cc: Avoid comparing char with 0 - on platforms

@@ -233,7 +233,7 @@ FlintCursor::del()
     // FIXME: this isn't the most efficient approach, but I struggled to
     // make the obvious approaches work.
     B->del(current_key);
-    find_entry_ge(current_key);
+    find_entry_gt(current_key);
 
     DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
 }
