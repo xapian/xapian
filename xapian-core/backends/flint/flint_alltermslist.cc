@@ -106,7 +106,7 @@ FlintAllTermsList::next()
 	}
 
 	if (!startswith(current_term, prefix)) {
-	    // We've reached the end of the end of the prefixed terms.
+	    // We've reached the end of the prefixed terms.
 	    cursor->to_end();
 	    current_term = "";
 	    break;
