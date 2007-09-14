@@ -1,3 +1,8 @@
+Fri Sep 14 19:20:56 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_alltermslist.cc: Rework
+	  FlintAllTermsList::skip_to() to use FlintCursor::find_entry_ge().
+
 Fri Sep 14 17:45:06 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_cursor.h: Improve documentation comment.
@@ -5,8 +10,8 @@ Fri Sep 14 17:45:06 BST 2007  Olly Betts <olly@survex.com>
 Fri Sep 14 17:28:17 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_spellingwordslist.cc,
-          backends/flint/flint_synonym.cc: Use FlintCursor::find_entry_ge().
-        * backends/flint/flint_synonym.h: Use FlintCursor::find_entry_lt().
+	  backends/flint/flint_synonym.cc: Use FlintCursor::find_entry_ge().
+	* backends/flint/flint_synonym.h: Use FlintCursor::find_entry_lt().
 	* backends/flint/flint_alltermslist.h: Use FlintCursor::find_entry_lt()
 	  and skip any keys before "\x00\xff" to allow for extra metadata
 	  keys.
@@ -293,7 +298,7 @@ Tue Sep 04 13:37:01 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 	  which was causing potential matches which are too low in the
 	  ranking to make the mset not to be added to the count of
 	  docs_matched, even when docs_matched < check_at_least.
-	
+
 	  Also, add a few extra explanatory comments and debug log messages
 	  in get_mset().
 

@@ -121,24 +121,38 @@ FlintAllTermsList::next()
 }
 
 TermList *
-FlintAllTermsList::skip_to(const string &tname)
+FlintAllTermsList::skip_to(const string &term)
 {
-    DEBUGCALL(DB, TermList *, "FlintAllTermsList::skip_to", tname);
+    DEBUGCALL(DB, TermList *, "FlintAllTermsList::skip_to", term);
     Assert(!at_end());
-    // Set termfreq to 0 to indicate no value has been read for the current
-    // term.
+    // Set termfreq to 0 to indicate no termfreq/collfreq have been read for
+    // the current term.
     termfreq = 0;
 
-    if (cursor->find_entry(pack_string_preserving_sort(tname))) {
-	// The term we asked for is there, so just return that rather than
+    if (cursor->find_entry_ge(pack_string_preserving_sort(term))) {
+	// The exact term we asked for is there, so just copy it rather than
 	// wasting effort unpacking it from the key.
-	current_term = tname;
-	RETURN(NULL);
+	current_term = term;
+    } else {
+	if (cursor->after_end()) {
+	    current_term = "";
+	    RETURN(NULL);
+	}
+
+	const char *p = cursor->current_key.data();
+	const char *pend = p + cursor->current_key.size();
+	if (!unpack_string_preserving_sort(&p, pend, current_term)) {
+	    throw Xapian::DatabaseCorruptError("PostList table key has unexpected format");
+	}
     }
 
-    // If there wasn't an exact match, the cursor is left on the last key
-    // *BEFORE* the one we asked for.
-    RETURN(next());
+    if (!startswith(current_term, prefix)) {
+	// We've reached the end of the prefixed terms.
+	cursor->to_end();
+	current_term = "";
+    }
+
+    RETURN(NULL);
 }
 
 bool
