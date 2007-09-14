@@ -179,17 +179,15 @@ class XAPIAN_VISIBILITY_DEFAULT FlintCursor {
 	 */
 	bool prev();
 
-	/** Find an entry, or a near match, in the table.
+	/** Position the cursor on the highest entry with key <= @a key.
 	 *
 	 *  If the exact key is found in the table, the cursor will be
 	 *  set to point to it, and the method will return true.
 	 *
 	 *  If the key is not found, the cursor will be set to point to
 	 *  the key preceding that asked for, and the method will return
-	 *  false.
-	 *
-	 *  If there is no key preceding that asked for, the cursor will
-	 *  point to a null key.
+	 *  false.  If there is no key preceding that asked for, the cursor
+	 *  will point to a null key.
 	 *
 	 *  Note:  Since the B-tree always contains a null key, which precedes
 	 *  everything, a call to FlintCursor::find_entry always results in a
