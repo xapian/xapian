@@ -1028,17 +1028,19 @@ FlintPostListTable::merge_changes(
 	    if (termfreq == 0) {
 		// All postings deleted!  So we can shortcut by zapping the
 		// posting list.
-		del(current_key);
-		if (islast) continue;
+		if (islast) {
+		    // Only one entry for this posting list.
+		    del(current_key);
+		    continue;
+		}
 		AutoPtr<FlintCursor> cursor(cursor_get());
-		(void)cursor->find_entry(current_key);
-		// find_entry() returns the entry <= that asked for.
-		cursor->next();
-		while (!cursor->after_end()) {
+		bool found = cursor->find_entry(current_key);
+		Assert(found);
+		if (!found) continue; // Reduce damage!
+		while (cursor->del()) {
 		    const char *kpos = cursor->current_key.data();
 		    const char *kend = kpos + cursor->current_key.size();
 		    if (!check_tname_in_key_lite(&kpos, kend, tname)) break;
-		    cursor->del();
 		}
 		continue;
 	    }

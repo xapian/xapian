@@ -1,3 +1,14 @@
+Fri Sep 14 15:26:04 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_cursor.cc,backends/flint/flint_cursor.h: The
+	  reason why a deleted key is still visible to the cursor is that it
+	  is running over the previous revision of the tree.  So we don't
+	  need to call find_entry() at all - we can just call next().  Also
+	  extend FlintCursor::del() to return whether the cursor is positioned
+	  (like FlintCursor::next() does).
+	* backends/flint/flint_postlist.cc: Use the return value of
+	  FlintCursor::del().
+
 Fri Sep 14 15:10:39 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/Makefile.am: Reorder the testdata/flint-x.y.z files

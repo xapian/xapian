@@ -225,15 +225,15 @@ FlintCursor::read_tag(bool keep_compressed)
     return (tag_status == COMPRESSED);
 }
 
-void
+bool
 FlintCursor::del()
 {
     Assert(!is_after_end);
 
-    // FIXME: this isn't the most efficient approach, but I struggled to
-    // make the obvious approaches work.
     B->del(current_key);
-    find_entry_gt(current_key);
 
-    DEBUGLINE(DB, "Moved to entry: key=`" << hex_encode(current_key) << "'");
+    // The deletion happens in a new (uncommitted) revision of the tree, but
+    // the cursor is running over the previous revision, so it can still see
+    // the deleted key.
+    return next();
 }
