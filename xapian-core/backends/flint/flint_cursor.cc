@@ -186,7 +186,10 @@ FlintCursor::find_entry(const string &key)
 done:
 
     if (!is_positioned) throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
-    get_key(&current_key);
+    if (found)
+	current_key = key;
+    else
+	get_key(&current_key);
     tag_status = UNREAD;
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");

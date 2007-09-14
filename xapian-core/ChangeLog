@@ -1,3 +1,8 @@
+Sat Sep 15 00:56:54 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_cursor.cc: If we found the exact key, just copy
+	  it to current_key.
+
 Fri Sep 14 21:52:45 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/: Overhaul FlintAllDocsPostList.
