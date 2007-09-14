@@ -1,14 +1,12 @@
-/* flint_alldocspostlist.cc: All-document postlists in flint databases
+/** @file flint_alldocspostlist.cc
+ * @brief A PostList which iterates over all documents in a FlintDatabase.
+ */
+/* Copyright (C) 2006,2007 Olly Betts
  *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2004,2005 Olly Betts
- * Copyright 2006 Richard Boulton
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,107 +15,143 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA
- * -----END-LICENCE-----
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #include <config.h>
-#include "omdebug.h"
+
+#include <string>
+
+#include "flint_database.h"
 #include "flint_alldocspostlist.h"
-#include "flint_utils.h"
-#include "flint_values.h"
-#include "flint_cursor.h"
-#include "database.h"
 
-/** The format of a postlist is:
- */
-FlintAllDocsPostList::FlintAllDocsPostList(Xapian::Internal::RefCntPtr<const Xapian::Database::Internal> this_db_,
-                                           const FlintTable * table_,
-                                           Xapian::doccount doccount_)
-	: this_db(this_db_),
-	  table(table_),
-	  cursor(table->cursor_get()),
-          did(0),
-	  is_at_end(false),
-          doccount(doccount_)
-{
-    DEBUGCALL(DB, void, "FlintAllDocsPostList::FlintAllDocsPostList",
-	      this_db_.get() << ", " << table_ << ", " << doccount_);
-
-    // Move to initial NULL entry.
-    cursor->find_entry("");
-}
+using namespace std;
 
 FlintAllDocsPostList::~FlintAllDocsPostList()
 {
-    DEBUGCALL(DB, void, "FlintAllDocsPostList::~FlintAllDocsPostList", "");
+}
+
+Xapian::doccount
+FlintAllDocsPostList::get_termfreq() const
+{
+    return doccount;
+}
+
+Xapian::docid
+FlintAllDocsPostList::get_docid() const
+{
+    return current_did;
+}
+
+Xapian::doclength
+FlintAllDocsPostList::get_doclength() const
+{
+    DEBUGCALL(DB, Xapian::doclength, "FlintAllDocsPostList::get_doclength", "");
+    Assert(current_did);
+
+    cursor->read_tag();
+
+    if (cursor->current_tag.empty()) RETURN(0);
+
+    const char * pos = cursor->current_tag.data();
+    const char * end = pos + cursor->current_tag.size();
+
+    flint_doclen_t doclen;
+    if (!unpack_uint(&pos, end, &doclen)) {
+	const char *msg;
+	if (pos == 0) {
+	    msg = "Too little data for doclen in termlist";
+	} else {
+	    msg = "Overflowed value for doclen in termlist";
+	}
+	throw Xapian::DatabaseCorruptError(msg);
+    }
+
+    RETURN(doclen);
+}
+
+Xapian::termcount
+FlintAllDocsPostList::get_wdf() const
+{
+    DEBUGCALL(DB, Xapian::termcount, "FlintAllDocsPostList::get_wdf", "");
+    Assert(current_did);
+    RETURN(1);
+}
+
+PositionList *
+FlintAllDocsPostList::read_position_list()
+{
+    throw Xapian::InvalidOperationError("read_position_list() not meaningful for FlintAllDocsPostList");
+}
+
+PositionList *
+FlintAllDocsPostList::open_position_list() const
+{
+    throw Xapian::InvalidOperationError("open_position_list() not meaningful for FlintAllDocsPostList");
 }
 
 PostList *
-FlintAllDocsPostList::next(Xapian::weight w_min)
+FlintAllDocsPostList::read_did_from_current_key()
 {
-    DEBUGCALL(DB, PostList *, "FlintAllDocsPostList::next", w_min);
-    (void)w_min; // no warning
-
-    cursor->next();
-    if (cursor->after_end()) {
-        is_at_end = true;
-    } else {
-        string key = cursor->current_key;
-        const char * keystr = key.c_str();
-        if (!unpack_uint_preserving_sort(&keystr, keystr + key.length(), &did)) {
-            if (*keystr == 0)
-                throw Xapian::DatabaseCorruptError("Unexpected end of data when reading from termlist table");
-            else
-                throw Xapian::RangeError("Document number in value table is too large");
-        }
+    DEBUGCALL(DB, PostList *, "FlintAllDocsPostList::read_did_from_current_key",
+	      "");
+    const string & key = cursor->current_key;
+    const char * pos = key.data();
+    const char * end = pos + key.size();
+    if (!unpack_uint_preserving_sort(&pos, end, &current_did)) {
+	const char *msg;
+	if (pos == 0) {
+	    msg = "Too little data in termlist key";
+	} else {
+	    msg = "Overflowed value in termlist key";
+	}
+	throw Xapian::DatabaseCorruptError(msg);
     }
 
-    DEBUGLINE(DB, string("Moved to ") <<
-              (is_at_end ? string("end.") : string("docid = ") +
-               om_tostring(did)));
-
+    // Return NULL to help the compiler tail-call optimise our callers.
     RETURN(NULL);
 }
 
 PostList *
-FlintAllDocsPostList::skip_to(Xapian::docid desired_did, Xapian::weight w_min)
+FlintAllDocsPostList::next(Xapian::weight /*w_min*/)
 {
-    DEBUGCALL(DB, PostList *,
-	      "FlintAllDocsPostList::skip_to", desired_did << ", " << w_min);
-    (void)w_min; // no warning
+    DEBUGCALL(DB, PostList *, "FlintAllDocsPostList::next", "/*w_min*/");
+    Assert(!at_end());
+    if (!cursor->next()) RETURN(NULL);
+    RETURN(read_did_from_current_key());
+}
 
-    // Don't skip back, and don't need to do anything if already there.
-    if (desired_did <= did) RETURN(NULL);
-    if (is_at_end) RETURN(NULL);
+PostList *
+FlintAllDocsPostList::skip_to(Xapian::docid did, Xapian::weight /*w_min*/)
+{
+    DEBUGCALL(DB, PostList *, "FlintAllDocsPostList::skip_to",
+	      did << ", /*w_min*/");
 
-    string desired_key = pack_uint_preserving_sort(desired_did);
-    bool exact_match = cursor->find_entry(desired_key);
-    if (!exact_match)
-        cursor->next();
-    if (cursor->after_end()) {
-        is_at_end = true;
-    } else {
-        string key = cursor->current_key;
-        const char * keystr = key.c_str();
-        if (!unpack_uint_preserving_sort(&keystr, keystr + key.length(), &did)) {
-            if (*keystr == 0)
-                throw Xapian::DatabaseCorruptError("Unexpected end of data when reading from termlist table");
-            else
-                throw Xapian::RangeError("Document number in value table is too large");
-        }
+    if (did <= current_did || at_end()) RETURN(NULL);
+
+    if (cursor->find_entry_ge(pack_uint_preserving_sort(did))) {
+	// The exact docid that was asked for exists.
+	current_did = did;
+	RETURN(NULL);
     }
+    if (cursor->after_end()) RETURN(NULL);
 
-    DEBUGLINE(DB, string("Skipped to ") <<
-              (is_at_end ? string("end.") : string("docid = ") +
-               om_tostring(did)));
+    RETURN(read_did_from_current_key());
+}
 
-    RETURN(NULL);
+bool
+FlintAllDocsPostList::at_end() const {
+    DEBUGCALL(DB, bool, "FlintAllDocsPostList::at_end", "");
+    RETURN(cursor->after_end());
 }
 
 string
 FlintAllDocsPostList::get_description() const
 {
-    return ":" + om_tostring(doccount);
+    string desc = "FlintAllDocsPostList(did=";
+    desc += om_tostring(current_did);
+    desc += ",doccount=";
+    desc += om_tostring(doccount);
+    desc += ')';
+    return desc;
 }

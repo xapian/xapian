@@ -39,6 +39,7 @@
 #include <map>
 
 class FlintTermList;
+class FlintAllDocsPostList;
 
 const int XAPIAN_DB_READONLY = 0;
 
@@ -50,6 +51,7 @@ class FlintDatabase : public Xapian::Database::Internal {
     friend class FlintTermList;
     friend class FlintPostList;
     friend class FlintAllTermsList;
+    friend class FlintAllDocsPostList;
     private:
 	/** Directory to store databases in.
 	 */

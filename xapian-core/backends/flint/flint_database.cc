@@ -495,7 +495,7 @@ FlintDatabase::open_post_list(const string& term) const
 	if (lastdocid == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
-	RETURN(new FlintAllDocsPostList(ptrtothis, &termlist_table, doccount));
+	RETURN(new FlintAllDocsPostList(ptrtothis, doccount));
     }
 
     RETURN(new FlintPostList(ptrtothis, term));
@@ -1027,7 +1027,7 @@ FlintWritableDatabase::open_post_list(const string& tname) const
 	if (lastdocid == doccount) {
 	    RETURN(new ContiguousAllDocsPostList(ptrtothis, doccount));
 	}
-	RETURN(new FlintAllDocsPostList(ptrtothis, &termlist_table, doccount));
+	RETURN(new FlintAllDocsPostList(ptrtothis, doccount));
     }
 
     map<string, map<docid, pair<char, termcount> > >::const_iterator j;
