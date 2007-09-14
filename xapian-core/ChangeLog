@@ -1,3 +1,8 @@
+Fri Sep 14 04:57:14 BST 2007  Olly Betts <olly@survex.com>
+
+	* bin/xapian-inspect.cc: Avoid comparing char with 0 - on platforms
+	  where char is unsigned by default this can give a compiler warning.
+
 Fri Sep 14 03:40:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* bin/xapian-compact.cc: Removed unused variable.
