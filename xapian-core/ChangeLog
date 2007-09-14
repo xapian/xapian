@@ -1,3 +1,20 @@
+Fri Sep 14 12:48:04 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* configure.ac: Add "tar-ustar" option to AM_INIT_AUTOMAKE.  This
+	  is needed to avoid a failure of make dist due to filepaths of
+	  more than 99 characters (in the generated documentation: the
+	  relevant filepaths are for the NumberValueRangeProcessor class,
+	  and extend to 103 characters).  Automake documentation implies
+	  that tar-v7 is the default format, which doesn't support
+	  filepaths longer than 99 characters portably; ustar allows 256
+	  characters.  The automake documentation says that the ustar
+	  format "is believed to be old enough to be portable"; if we come
+	  across problems due to the format change we could consider
+	  renaming files to reduce the filepath length.
+	* tests/Makefile.am: Remove
+	  testdata/flint-1.0.2/{value,position}.{baseA,DB} from
+	  distribution, since they don't actually exist.  Fixes make dist.
+
 Fri Sep 14 10:45:35 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* backends/flint/flint_cursor.cc,backends/flint/flint_cursor.h: Add
