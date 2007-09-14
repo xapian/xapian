@@ -145,15 +145,13 @@ class FlintSynonymTermList : public AllTermsList {
 		      const string & prefix_)
 	    : database(database_), cursor(cursor_), size(size_), prefix(prefix_)
     {
+	// Position the on the highest key before the first key we want, so
+	// that the first call to next() will put us on the first key we want.
 	if (prefix.empty()) {
-	    cursor->find_entry("");
+	    cursor->find_entry(string());
 	} else {
 	    // Seek to the first key before one with the desired prefix.
-	    if (cursor->find_entry(prefix)) {
-		// Found a key which is exactly the prefix - move back, so that
-		// next() moves to it.
-		cursor->prev();
-	    }
+	    cursor->find_entry_lt(prefix);
 	}
     }
 

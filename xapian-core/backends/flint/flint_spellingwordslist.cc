@@ -96,16 +96,15 @@ FlintSpellingWordsList::skip_to(const string &tname)
     DEBUGCALL(DB, TermList *, "FlintSpellingWordsList::skip_to", tname);
     Assert(!at_end());
 
-    if (cursor->find_entry("W" + tname)) {
-	// The term we asked for is there.
-	RETURN(NULL);
+    if (!cursor->find_entry_ge("W" + tname)) {
+	// The exact term we asked for isn't there, so check if the next
+	// term after it also has a W prefix.
+	if (!cursor->after_end() && !startswith(cursor->current_key, 'W')) {
+	    // We've reached the end of the prefixed terms.
+	    cursor->to_end();
+	}
     }
-    if (cursor->after_end()) {
-	RETURN(NULL);
-    }
-    // If there wasn't an exact match, the cursor is left on the last key
-    // *BEFORE* the one we asked for.
-    RETURN(next());
+    RETURN(NULL);
 }
 
 bool

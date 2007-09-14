@@ -221,16 +221,15 @@ FlintSynonymTermList::skip_to(const string &tname)
     DEBUGCALL(DB, TermList *, "FlintSynonymTermList::skip_to", tname);
     Assert(!at_end());
 
-    if (cursor->find_entry(tname)) {
-	// The term we asked for is there.
-	RETURN(NULL);
+    if (!cursor->find_entry_ge(tname)) {
+	// The exact term we asked for isn't there, so check if the next
+	// term after it also has the right prefix.
+	if (!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
+	    // We've reached the end of the prefixed terms.
+	    cursor->to_end();
+	}
     }
-    if (cursor->after_end()) {
-	RETURN(NULL);
-    }
-    // If there wasn't an exact match, the cursor is left on the last key
-    // *BEFORE* the one we asked for.
-    RETURN(next());
+    RETURN(NULL);
 }
 
 bool

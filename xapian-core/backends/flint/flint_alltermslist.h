@@ -83,17 +83,14 @@ class FlintAllTermsList : public AllTermsList {
 
 	cursor = database->postlist_table.cursor_get();
 	Assert(cursor); // The postlist table isn't optional.
+
+	// Position the cursor on the highest key before the first key we want,
+	// so that the first call to next() will put us on the first key we
+	// want.
 	if (prefix.empty()) {
-	    // Seek to the metainfo key, so the first next() will advance us to the
-	    // first real key.
-	    cursor->find_entry(string("", 1));
+	    cursor->find_entry_lt(string("\x00\xff", 2));
 	} else {
-	    // Seek to the first key before one with the desired prefix.
-	    if (cursor->find_entry(pack_string_preserving_sort(prefix))) {
-		// Found a key which is exactly the prefix - move back, so that
-		// next() moves to it.
-		cursor->prev();
-	    }
+	    cursor->find_entry_lt(pack_string_preserving_sort(prefix));
 	}
     }
 
