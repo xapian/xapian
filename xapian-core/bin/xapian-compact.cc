@@ -653,7 +653,6 @@ static void
 merge_docid_keyed(FlintTable *out, const vector<string> & inputs,
 		  const vector<Xapian::docid> & offset, bool lazy)
 {
-    size_t tables_merged = 0;
     for (size_t i = 0; i < inputs.size(); ++i) {
 	Xapian::docid off = offset[i];
 
