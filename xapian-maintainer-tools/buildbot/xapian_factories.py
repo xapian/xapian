@@ -87,15 +87,19 @@ def gen_svn_clean_factory(baseURL):
     f.addStep(step.Configure, command = ["./configure", "PYTHON_LIB=`pwd`/tmp_pylib", "PHP_EXTENSION_DIR=`pwd`/tmp_phplib"])
     extraargs = (
         "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=",
-        "rubylibdir=`pwd`/tmp_rubylib",
-        "rubylibarchdir=`pwd`/tmp_rubylibarch",
-        "tcllibdir=`pwd`/tmp_tcllib"
+        "rubylibdir=\"`pwd`/tmp_rubylib\"",
+        "rubylibarchdir=\"`pwd`/tmp_rubylibarch\"",
+        "tcllibdir=\"`pwd`/tmp_tcllib\""
+    )
+    extradistargs = (
+        "EXTRADISTCHECK_CONFIGURE_FLAGS=" +
+        "'PYTHON_LIB=\"`pwd`/tmp_pylib\" PHP_EXTENSION_DIR=\"`pwd`/tmp_phplib\"'",
     )
     f.addStep(step.Compile, command=("make",) + extraargs)
     f.addStep(step.Test, name="check", command=("make", "check") + extraargs)
     f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-core')
     f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-applications/omega')
-    f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-bindings')
+    f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs + extradistargs, workdir='build/xapian-bindings')
     return f
 
 def gen_svn_updated_win_factory(baseURL):
