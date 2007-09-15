@@ -93,7 +93,7 @@ def gen_svn_clean_factory(baseURL):
     )
     extradistargs = (
         "EXTRADISTCHECK_CONFIGURE_FLAGS=" +
-        "'PYTHON_LIB=\"`pwd`/tmp_pylib\" PHP_EXTENSION_DIR=\"`pwd`/tmp_phplib\"'",
+        "PYTHON_LIB=\"`pwd`/tmp_pylib\" PHP_EXTENSION_DIR=\"`pwd`/tmp_phplib\"",
     )
     f.addStep(step.Compile, command=("make",) + extraargs)
     f.addStep(step.Test, name="check", command=("make", "check") + extraargs)
@@ -112,6 +112,7 @@ def gen_svn_updated_win_factory(baseURL):
 
     # Compile core: we use a .bat file to get vsvars32.bat to run before the
     # command.
+    env = {}
     f.addStep(step.Compile, workdir="build/xapian-core/win32",
               command="..\\..\\xapian-maintainer-tools\\buildbot\\scripts\\compile_with_vc7.bat",
               env=env)
