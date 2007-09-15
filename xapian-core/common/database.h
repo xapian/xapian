@@ -306,6 +306,18 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 */
 	virtual void clear_synonyms(const string & term) const;
 
+	/** Get the metadata associated with a given key.
+	 *
+	 *  See Database::get_metadata() for more information.
+	 */
+	virtual string get_metadata(const string & key) const;
+
+	/** Set the metadata associated with a given key.
+	 *
+	 *  See WritableDatabase::set_metadata() for more information.
+	 */
+	virtual void set_metadata(const string & key, const string & value);
+
 	/** Reopen the database to the latest available revision.
 	 *
 	 *  Database backends which don't support simultaneous update and
@@ -360,7 +372,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  See WritableDatabase::delete_document() for more information.
 	 */
-	virtual void delete_document(const std::string & unique_term);
+	virtual void delete_document(const string & unique_term);
 
 	/** Replace a given document in the database.
 	 *
@@ -373,7 +385,7 @@ class Database::Internal : public Xapian::Internal::RefCntBase {
 	 *
 	 *  See WritableDatabase::replace_document() for more information.
 	 */
-	virtual Xapian::docid replace_document(const std::string & unique_term,
+	virtual Xapian::docid replace_document(const string & unique_term,
 					       const Xapian::Document & document);
 
 	/** Request and later collect a document from the database.

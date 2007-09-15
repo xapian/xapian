@@ -492,6 +492,13 @@ Database::synonym_keys_begin(const std::string &prefix) const
     RETURN(TermIterator(merger.release()));
 }
 
+string
+Database::get_metadata(const string & key) const
+{
+    DEBUGAPICALL(string, "Database::get_metadata", key);
+    RETURN(internal[0]->get_metadata(key));
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 WritableDatabase::WritableDatabase() : Database()
@@ -638,6 +645,13 @@ WritableDatabase::clear_synonyms(const std::string & term) const
 {
     DEBUGAPICALL(void, "WritableDatabase::clear_synonyms", term);
     internal[0]->clear_synonyms(term);
+}
+
+void
+WritableDatabase::set_metadata(const string & key, const string & value)
+{
+    DEBUGAPICALL(void, "WritableDatabase::set_metadata", key << ", " << value);
+    internal[0]->set_metadata(key, value);
 }
 
 string

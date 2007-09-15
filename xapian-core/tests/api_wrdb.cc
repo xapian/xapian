@@ -1900,7 +1900,7 @@ static bool test_matchspy3()
 
 	db.add_document(doc);
     }
-    
+
     Xapian::ValueCountMatchSpy spy;
 
     spy.add_slot(0);
@@ -1953,6 +1953,77 @@ static bool test_matchspy3()
     return true;
 }
 
+// Test basic metadata access methods.
+static bool test_metadata1()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    TEST_EQUAL(db.get_metadata("foo"), "");
+    try {
+	db.set_metadata("foo", "bar");
+    } catch (Xapian::UnimplementedError &e) {
+	SKIP_TEST("Metadata not supported by this backend");
+    }
+    TEST_EQUAL(db.get_metadata("foo"), "bar");
+    db.set_metadata("foo", "baz");
+    TEST_EQUAL(db.get_doccount(), 0);
+    TEST_EQUAL(db.get_metadata("foo"), "baz");
+    db.set_metadata("foo", "");
+    TEST_EQUAL(db.get_metadata("foo"), "");
+
+    TEST_EQUAL(db.get_doccount(), 0);
+
+    return true;
+}
+
+// Test that metadata gets applied at same time as other changes.
+static bool test_metadata2()
+{
+    string path;
+    const string & dbtype = get_dbtype();
+    if (dbtype == "flint") {
+	path = ".flint/dbw";
+    } else {
+	/* This test only works for backends which we can get a reader for as
+	 * well as a writer. */
+	SKIP_TEST("Test only supported for flint backend");
+    }
+    Xapian::WritableDatabase db = get_writable_database("");
+    Xapian::Database dbr = Xapian::Database(path);
+
+    TEST_EQUAL(db.get_metadata("foo"), "");
+    db.set_metadata("foo", "bar");
+    TEST_EQUAL(db.get_metadata("foo"), "bar");
+    TEST_EQUAL(dbr.get_metadata("foo"), "");
+    db.flush();
+    TEST_EQUAL(dbr.get_metadata("foo"), "");
+    dbr.reopen();
+    TEST_EQUAL(db.get_metadata("foo"), "bar");
+    TEST_EQUAL(dbr.get_metadata("foo"), "bar");
+    TEST_EQUAL(dbr.get_doccount(), 0);
+
+    db.add_document(Xapian::Document());
+    db.set_metadata("foo", "baz");
+    TEST_EQUAL(db.get_doccount(), 1);
+    TEST_EQUAL(db.get_metadata("foo"), "baz");
+    db.flush();
+
+    TEST_EQUAL(dbr.get_metadata("foo"), "bar");
+    dbr.reopen();
+    TEST_EQUAL(dbr.get_metadata("foo"), "baz");
+
+    db.set_metadata("foo", "");
+    TEST_EQUAL(db.get_metadata("foo"), "");
+    db.flush();
+    TEST_EQUAL(dbr.get_metadata("foo"), "baz");
+    dbr.reopen();
+    TEST_EQUAL(dbr.get_metadata("foo"), "");
+
+    TEST_EQUAL(db.get_doccount(), 1);
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1992,5 +2063,7 @@ test_desc writabledb_tests[] = {
     TESTCASE(matchspy1),
     TESTCASE(matchspy2),
     TESTCASE(matchspy3),
+    TESTCASE(metadata1),
+    TESTCASE(metadata2),
     END_OF_TESTCASES
 };

@@ -37,7 +37,8 @@ using std::string;
 
 // YYYYMMDDX where X allows multiple format revisions in a day
 #define FLINT_VERSION 200709120
-// 200709120 1.0.3 Kill the unused "has_termfreqs" flag in the termlist table.
+// 200709150 1.0.3 Database::get_metadata(), WritableDatabase::set_metadata().
+// 200709120  N/A  Kill the unused "has_termfreqs" flag in the termlist table.
 // 200706140 1.0.2 Optional value and position tables.
 // 200704230 1.0.0 Use zlib compression of tags for record and termlist tables.
 // 200611200  N/A  Fixed occasional, architecture-dependent surplus bits in
@@ -122,7 +123,7 @@ void FlintVersion::read_and_check()
     const unsigned char *v;
     v = reinterpret_cast<const unsigned char *>(buf) + MAGIC_LEN;
     unsigned int version = v[0] | (v[1] << 8) | (v[2] << 16) | (v[3] << 24);
-    if (version == 200704230 || version == 200706140) {
+    if (version >= 200704230 && version <= 200709120) {
 	// Upgrade the database to the current version since any changes we
 	// make won't be compatible with older versions of Xapian.
 	string filename_save = filename;

@@ -457,6 +457,26 @@ InMemoryDatabase::open_document(Xapian::docid did, bool /*lazy*/) const
 				valuelists[did - 1]);
 }
 
+std::string
+InMemoryDatabase::get_metadata(const std::string & key) const
+{
+    map<string, string>::const_iterator i = metadata.find(key);
+    if (i == metadata.end())
+	return string();
+    return i->second;
+}
+
+void
+InMemoryDatabase::set_metadata(const std::string & key,
+			       const std::string & value)
+{
+    if (!value.empty()) {
+	metadata[key] = value;
+    } else {
+	metadata.erase(key);
+    }
+}
+
 Xapian::termcount
 InMemoryDatabase::positionlist_count(Xapian::docid did,
 				     const string & tname) const

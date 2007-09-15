@@ -204,9 +204,9 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 
 	/** Return the total number of occurrences of the given term.
 	 *
-	 *  This is the sum of the number of ocurrences of the term in each
-	 *  document it indexes: ie, the sum of the within document frequencies
-	 *  of the term.
+	 *  This is the sum of the number of occurrences of the term in each
+	 *  document it indexes: i.e., the sum of the within document
+	 *  frequencies of the term.
 	 *
 	 *  @param tname  The term whose collection frequency is being
 	 *  requested.
@@ -283,6 +283,21 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	Xapian::TermIterator synonym_keys_end(const std::string & = "") const {
 	    return Xapian::TermIterator(NULL);
 	}
+
+	/** Get the user-specified metadata associated with a given key.
+	 *
+	 *  User-specified metadata allows you to store arbitrary information
+	 *  in the form of (key,tag) pairs.  See @a
+	 *  WritableDatabase::set_metadata() for more information.
+	 *
+	 *  If there is no piece of metadata associated with the specified
+	 *  key, an empty string is returned.
+	 *
+	 *  @param key The key of the metadata item to access.
+	 *
+	 *  @return    The retrieved metadata item's value.
+	 */
+	std::string get_metadata(const std::string & key) const;
 };
 
 /** This class provides read/write access to a database.
@@ -644,6 +659,45 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  If @a term has no synonyms, no action is taken.
 	 */
 	void clear_synonyms(const std::string & term) const;
+
+	/** Set the user-specified metadata associated with a given key.
+	 *
+	 *  This method sets the metadata value associated with a given key.
+	 *  If there is already a metadata value stored in the database with
+	 *  the same key, the old value is replaced.  If you want to delete an
+	 *  existing item of metadata, just set its value to the empty string.
+	 *
+	 *  User-specified metadata allows you to store arbitrary information
+	 *  in the form of (key,tag) pairs.
+	 *
+	 *  There's no hard limit on the number of metadata items, or the size
+	 *  of the metadata values.  Metadata keys have a limited length, which
+	 *  depends on the backend.  We recommend limiting them to 200 bytes.
+	 *  Currently an empty key is valid, though this may change in the
+	 *  future.
+	 *
+	 *  Metadata modifications are committed to disk in the same way as
+	 *  modifications to the documents in the database are: i.e.,
+	 *  modifications are atomic, and won't be committed to disk
+	 *  immediately (see flush() for more details).  This allows metadata
+	 *  to be used to link databases with versioned external resources
+	 *  by storing the appropriate version number in a metadata item.
+	 *
+	 *  You can also use the metadata to store arbitrary extra information
+	 *  associated with terms, documents, or postings by encoding the
+	 *  termname and/or document id into the metadata key.
+	 *
+	 *  @param key   The key of the metadata item to set.
+	 *
+	 *  @param value The value of the metadata item to set.
+	 *
+	 *  @exception Xapian::DatabaseError will be thrown if a problem occurs
+	 *             while writing to the database.
+	 *
+	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
+	 *             database is in a corrupt state.
+	 */
+	void set_metadata(const std::string & key, const std::string & value);
 
 	/** Introspection method.
 	 *

@@ -230,89 +230,95 @@ class InMemoryTermList : public TermList {
  */
 class InMemoryDatabase : public Xapian::Database::Internal {
     friend class InMemoryAllDocsPostList;
-    private:
-	map<string, InMemoryTerm> postlists;
-	vector<InMemoryDoc> termlists;
-	vector<std::string> doclists;
-	vector<std::map<Xapian::valueno, string> > valuelists;
 
-	vector<Xapian::doclength> doclengths;
+    map<string, InMemoryTerm> postlists;
+    vector<InMemoryDoc> termlists;
+    vector<std::string> doclists;
+    vector<std::map<Xapian::valueno, string> > valuelists;
 
-	Xapian::doccount totdocs;
+    vector<Xapian::doclength> doclengths;
 
-	Xapian::doclength totlen;
+    std::map<string, string> metadata;
 
-	bool positions_present;
+    Xapian::doccount totdocs;
 
-	// Stop copy / assignment being allowed
-	InMemoryDatabase& operator=(const InMemoryDatabase &);
-	InMemoryDatabase(const InMemoryDatabase &);
+    Xapian::doclength totlen;
 
-	void make_term(const string & tname);
+    bool positions_present;
 
-	bool doc_exists(Xapian::docid did) const;
-	Xapian::docid make_doc(const string & docdata);
+    // Stop copy / assignment being allowed
+    InMemoryDatabase& operator=(const InMemoryDatabase &);
+    InMemoryDatabase(const InMemoryDatabase &);
 
-	/* The common parts of add_doc and replace_doc */
-	void finish_add_doc(Xapian::docid did, const Xapian::Document &document);
-	void add_values(Xapian::docid did, const map<Xapian::valueno, string> &values_);
+    void make_term(const string & tname);
 
-	void make_posting(InMemoryDoc * doc,
-			  const string & tname,
-			  Xapian::docid did,
-			  Xapian::termpos position,
-			  Xapian::termcount wdf,
-			  bool use_position = true);
+    bool doc_exists(Xapian::docid did) const;
+    Xapian::docid make_doc(const string & docdata);
 
-	//@{
-	/** Implementation of virtual methods: see Database for details.
-	 */
-	void flush();
-	void cancel();
+    /* The common parts of add_doc and replace_doc */
+    void finish_add_doc(Xapian::docid did, const Xapian::Document &document);
+    void add_values(Xapian::docid did, const map<Xapian::valueno, string> &values_);
 
-	Xapian::docid add_document(const Xapian::Document & document);
-	// Stop the default implementation of delete_document(term) and
-	// replace_document(term) from being hidden.  This isn't really
-	// a problem as we only try to call them through the base class
-	// (where they aren't hidden) but some compilers generate a warning
-	// about the hiding.
+    void make_posting(InMemoryDoc * doc,
+		      const string & tname,
+		      Xapian::docid did,
+		      Xapian::termpos position,
+		      Xapian::termcount wdf,
+		      bool use_position = true);
+
+    //@{
+    /** Implementation of virtual methods: see Database for details.
+     */
+    void flush();
+    void cancel();
+
+    Xapian::docid add_document(const Xapian::Document & document);
+    // Stop the default implementation of delete_document(term) and
+    // replace_document(term) from being hidden.  This isn't really
+    // a problem as we only try to call them through the base class
+    // (where they aren't hidden) but some compilers generate a warning
+    // about the hiding.
 #if (!defined __GNUC__ && !defined _MSC_VER) || __GNUC__ > 2
-	using Xapian::Database::Internal::delete_document;
-	using Xapian::Database::Internal::replace_document;
+    using Xapian::Database::Internal::delete_document;
+    using Xapian::Database::Internal::replace_document;
 #endif
-	void delete_document(Xapian::docid did);
-	void replace_document(Xapian::docid did, const Xapian::Document & document);
-	//@}
+    void delete_document(Xapian::docid did);
+    void replace_document(Xapian::docid did, const Xapian::Document & document);
+    //@}
 
-    public:
-	/** Create and open an in-memory database.
-	 *
-	 *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
-	 */
-	InMemoryDatabase();
+  public:
+    /** Create and open an in-memory database.
+     *
+     *  @exception Xapian::DatabaseOpeningError thrown if database can't be opened.
+     */
+    InMemoryDatabase();
 
-	~InMemoryDatabase();
+    ~InMemoryDatabase();
 
-	Xapian::doccount get_doccount() const;
+    Xapian::doccount get_doccount() const;
 
-	Xapian::docid get_lastdocid() const;
+    Xapian::docid get_lastdocid() const;
 
-	Xapian::doclength get_avlength() const;
-	Xapian::doclength get_doclength(Xapian::docid did) const;
+    Xapian::doclength get_avlength() const;
+    Xapian::doclength get_doclength(Xapian::docid did) const;
 
-	Xapian::doccount get_termfreq(const string & tname) const;
-	Xapian::termcount get_collection_freq(const string & tname) const;
-	bool term_exists(const string & tname) const;
-	bool has_positions() const;
+    Xapian::doccount get_termfreq(const string & tname) const;
+    Xapian::termcount get_collection_freq(const string & tname) const;
+    bool term_exists(const string & tname) const;
+    bool has_positions() const;
 
-	LeafPostList * open_post_list(const string & tname) const;
-	TermList * open_term_list(Xapian::docid did) const;
-	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
-	Xapian::termcount positionlist_count(Xapian::docid did,
-					     const string & tname) const;
-	PositionList * open_position_list(Xapian::docid did,
-					  const string & tname) const;
-	TermList * open_allterms(const string & prefix) const;
+    LeafPostList * open_post_list(const string & tname) const;
+    TermList * open_term_list(Xapian::docid did) const;
+    Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
+
+    std::string get_metadata(const std::string & key) const;
+    void set_metadata(const std::string & key, const std::string & value);
+
+    Xapian::termcount positionlist_count(Xapian::docid did,
+					 const string & tname) const;
+    PositionList * open_position_list(Xapian::docid did,
+				      const string & tname) const;
+    TermList * open_allterms(const string & prefix) const;
 };
 
 #endif /* OM_HGUARD_INMEMORY_DATABASE_H */

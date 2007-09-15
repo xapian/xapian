@@ -229,6 +229,7 @@ class FlintDatabase : public Xapian::Database::Internal {
 
 	LeafPostList * open_post_list(const string & tname) const;
 	Xapian::Document::Internal * open_document(Xapian::docid did, bool lazy = false) const;
+
 	PositionList * open_position_list(Xapian::docid did, const string & term) const;
 	TermList * open_term_list(Xapian::docid did) const;
 	TermList * open_allterms(const string & prefix) const;
@@ -239,6 +240,8 @@ class FlintDatabase : public Xapian::Database::Internal {
 
 	TermList * open_synonym_termlist(const string & term) const;
 	TermList * open_synonym_keylist(const string & prefix) const;
+
+	string get_metadata(const string & key) const;
 	//@}
 };
 
@@ -325,6 +328,8 @@ class FlintWritableDatabase : public FlintDatabase {
 	void add_synonym(const string & word, const string & synonym) const;
 	void remove_synonym(const string & word, const string & synonym) const;
 	void clear_synonyms(const string & word) const;
+
+	void set_metadata(const string & key, const string & value);
 	//@}
 };
 

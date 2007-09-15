@@ -435,6 +435,18 @@ Database::Internal::clear_synonyms(const string &) const
     throw Xapian::UnimplementedError("This backend doesn't implement synonyms");
 }
 
+string
+Database::Internal::get_metadata(const string &) const
+{
+    return string();
+}
+
+void
+Database::Internal::set_metadata(const string &, const string &)
+{
+    throw Xapian::UnimplementedError("This backend doesn't implement metadata");
+}
+
 void
 Database::Internal::reopen()
 {

@@ -590,6 +590,17 @@ FlintDatabase::open_synonym_keylist(const string & prefix) const
 				    prefix);
 }
 
+string
+FlintDatabase::get_metadata(const string & key) const
+{
+    DEBUGCALL(DB, string, "FlintDatabase::get_metadata", key);
+    string btree_key("\x00\xc0", 2);
+    btree_key += key;
+    string tag;
+    (void)postlist_table.get_exact_entry(btree_key, tag);
+    RETURN(tag);
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 FlintWritableDatabase::FlintWritableDatabase(const string &dir, int action,
@@ -1108,4 +1119,18 @@ void
 FlintWritableDatabase::clear_synonyms(const string & term) const
 {
     synonym_table.clear_synonyms(term);
+}
+
+void
+FlintWritableDatabase::set_metadata(const string & key, const string & value)
+{
+    DEBUGCALL(DB, string, "FlintWritableDatabase::set_metadata",
+	      key << ", " << value);
+    string btree_key("\x00\xc0", 2);
+    btree_key += key;
+    if (value.empty()) {
+	postlist_table.del(btree_key);
+    } else {
+	postlist_table.add(btree_key, value);
+    }
 }
