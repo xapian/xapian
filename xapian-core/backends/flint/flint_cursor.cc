@@ -179,17 +179,55 @@ FlintCursor::find_entry(const string &key)
 	while (Item_(C[0].p, C[0].c).component_of() != 1) {
 	    if (! B->prev(C, 0)) {
 		is_positioned = false;
-		break;
+		throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
 	    }
 	}
     }
 done:
 
-    if (!is_positioned) throw Xapian::DatabaseCorruptError("find_entry failed to find any entry at all!");
     if (found)
 	current_key = key;
     else
 	get_key(&current_key);
+    tag_status = UNREAD;
+
+    DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");
+    RETURN(found);
+}
+
+bool
+FlintCursor::find_entry_ge(const string &key)
+{
+    DEBUGCALL(DB, bool, "FlintCursor::find_entry_ge", key);
+    Assert(B->level <= level);
+
+    is_after_end = false;
+
+    bool found;
+
+    is_positioned = true;
+    if (key.size() > FLINT_BTREE_MAX_KEY_LEN) {
+	// Can't find key - too long to possibly be present, so find the
+	// truncated form but ignore "found".
+	B->form_key(key.substr(0, FLINT_BTREE_MAX_KEY_LEN));
+	(void)(B->find(C));
+	found = false;
+    } else {
+	B->form_key(key);
+	found = B->find(C);
+    }
+
+    if (found) {
+	current_key = key;
+    } else {
+	if (! B->next(C, 0)) {
+	    is_after_end = true;
+	    is_positioned = false;
+	    RETURN(false);
+	}
+	Assert(Item_(C[0].p, C[0].c).component_of() == 1);
+	get_key(&current_key);
+    }
     tag_status = UNREAD;
 
     DEBUGLINE(DB, "Found entry: key=`" << hex_encode(current_key) << "'");

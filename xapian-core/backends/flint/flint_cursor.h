@@ -213,11 +213,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintCursor {
 	 *  @return true if the exact key was found in the table, false
 	 *          otherwise.
 	 */
-	bool find_entry_ge(const string &key) {
-	    if (find_entry(key)) return true;
-	    next();
-	    return false;
-	}
+	bool find_entry_ge(const string &key);
 
 	/** Set the cursor to be off the end of the table.
 	 */

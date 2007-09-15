@@ -1,3 +1,9 @@
+Sat Sep 15 02:26:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_cursor.cc,backends/flint/flint_cursor.h:
+	  Implement FlintCursor::find_entry_ge() a little more efficiently
+	  (we could do better still by modifying FlintTable too).
+
 Sat Sep 15 00:56:54 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_cursor.cc: If we found the exact key, just copy
