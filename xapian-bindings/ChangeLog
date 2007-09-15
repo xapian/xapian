@@ -1,3 +1,15 @@
+Sat Sep 15 23:13:05 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* Makefile.am: Add support for a user-specified
+	  "EXTRADISTCHECK_CONFIGURE_FLAGS" variable, used to pass extra
+	  DISTCHECK_CONFIGURE_FLAGS to make to be passed to the configure
+	  run in distcheck.  Users can't just set DISTCHECK_CONFIGURE_FLAGS
+	  because this would override the default value (which sets
+	  XAPIAN_CONFIG): unlike the more common options, there doesn't
+	  seem to be an AM_DISTCHECK_CONFIGURE_FLAGS variable for the
+	  internal options.
+	* INSTALL: Document use of EXTRADISTCHECK_CONFIGURE_FLAGS.
+
 Tue Sep 04 02:47:17 BST 2007  Olly Betts <olly@survex.com>
 
 	* php/docs/bindings.html: Fix errors in example code.
