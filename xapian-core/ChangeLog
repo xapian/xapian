@@ -1,3 +1,8 @@
+Sat Sep 15 20:11:36 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_version.cc: Add missing include of
+	  msvc_posix_wrapper.h.
+
 Sat Sep 15 17:58:35 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omdatabase.cc,backends/database.cc,

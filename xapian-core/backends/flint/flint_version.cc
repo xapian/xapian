@@ -29,6 +29,10 @@
 #include "omassert.h" // For STRINGIZE()
 #include "utils.h"
 
+#ifdef __WIN32__
+# include "msvc_posix_wrapper.h"
+#endif
+
 #include <string>
 
 #include <string.h> // for memcmp
