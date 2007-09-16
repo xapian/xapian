@@ -1,3 +1,10 @@
+xapian-bindings (1.0.3-1) unstable; urgency=low
+
+  * New upstream release.
+    + "make clean" now removes python/testsuite.pyc.  Closes: #442766
+
+ -- Olly Betts <olly@survex.com>  Sun, 16 Sep 2007 20:58:57 +0100
+
 xapian-bindings (1.0.2-1) unstable; urgency=low
 
   * New upstream release.
