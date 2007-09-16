@@ -36,7 +36,7 @@
 #endif
 
 #ifdef __WIN32__
-// __STDC_SECURE_LIB__ doesn't appear to be publically documented, but appears
+// __STDC_SECURE_LIB__ doesn't appear to be publicly documented, but appears
 // to be a good idea.  We cribbed this test from the python sources - see, for
 // example, http://svn.python.org/view?rev=47223&view=rev
 # if defined _MSC_VER && _MSC_VER >= 1400 && defined __STDC_SECURE_LIB__
@@ -79,7 +79,12 @@ class MSVCIgnoreInvalidParameter {
 // Mingw seems to be free of this insanity, so for this and older MSVC versions
 // define a dummy class to allow MSVCIgnoreInvalidParameter to be used
 // unconditionally.
-struct MSVCIgnoreInvalidParameter {};
+struct MSVCIgnoreInvalidParameter {
+    // Provide an explicit constructor so this isn't a POD struct - this seems
+    // to prevent GCC warning about an unused variable whenever we instantiate
+    // this class.
+    MSVCIgnoreInvalidParameter() { }
+};
 # endif
 
 /// Convert an fd (which might be a socket) to a WIN32 HANDLE.
