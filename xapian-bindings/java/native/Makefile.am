@@ -25,7 +25,7 @@ if NEED_JNILIB_EXT
 	rm -f $(DESTDIR)$(jnidir)/libxapian_jni.jnilib
 else
 	eval `grep '^dlname=' $(jni_LTLIBRARIES)` ; \
-	  rm -f $(DESTDIR)$(jnilib)/"$$dlname"
+	  rm -f $(DESTDIR)$(jnidir)/"$$dlname"
 endif
 
 libxapian_jni_la_SOURCES = Database.cc Document.cc ESet.cc ESetIterator.cc \

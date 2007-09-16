@@ -1,3 +1,9 @@
+Sun Sep 16 12:17:24 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* java/native/Makefile.am: Change $(jnilib) to $(jnidir) in
+	  uninstall-local rule - there's no such variable as jnilib, so I
+	  think this was a typo.
+
 Sun Sep 16 04:26:02 BST 2007  Olly Betts <olly@survex.com>
 
 	* java/org/xapian/Makefile.am: Rewrite comment I can't parse.  Rename
