@@ -62,7 +62,7 @@ xapian.pyc: xapian.py _xapian.la
 xapian.pyo: xapian.py _xapian.la
 	PYTHONPATH=".$(PYTHON_PATHSEP).libs" $(PYTHON) -O -c "import _xapian;import xapian"
 
-CLEANFILES = xapian.py xapian.pyc xapian.pyo
+CLEANFILES = xapian.py xapian.pyc xapian.pyo testsuite.pyc
 
 if MAINTAINER_MODE
 # We need to explicitly set -outdir because on Windows, SWIG splits paths at
