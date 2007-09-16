@@ -25,8 +25,8 @@ class Install(step.ShellCommand):
     command = ['make', 'install']
 
 class MakeWritable(step.ShellCommand):
-    """Step which cleans all subdirectories, ensuring that the permissions are
-    suitable first.
+    """Step which ensures that the permissions are writable on all
+    subdirectories.
     """
     name = "make writable"
     haltOnFailure = 1
@@ -84,7 +84,7 @@ def gen_svn_clean_factory(baseURL):
     f.addStep(MakeWritable, workdir='.')
     f.addStep(step.SVN, baseURL=baseURL, mode="clobber")
     f.addStep(Bootstrap)
-    f.addStep(step.Configure, command = ["./configure", "PYTHON_LIB=`pwd`/tmp_pylib", "PHP_EXTENSION_DIR=`pwd`/tmp_phplib"])
+    f.addStep(step.Configure, command = ["xapian-maintainer-tools/buildbot/scripts/configure_with_prefix.sh", "PYTHON_LIB=`pwd`/tmp_pylib", "PHP_EXTENSION_DIR=`pwd`/tmp_phplib"])
     extraargs = (
         "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND=",
         "rubylibdir=\"`pwd`/tmp_rubylib\"",
@@ -99,6 +99,9 @@ def gen_svn_clean_factory(baseURL):
     f.addStep(step.Test, name="check", command=("make", "check") + extraargs)
     f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-core')
     f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-applications/omega')
+
+    # Have to install the core for distcheck to pass on the bindings.
+    f.addStep(step.Test, name="install", command=("make", "install") + extraargs, workdir='build/xapian-core')
     f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs + extradistargs, workdir='build/xapian-bindings')
     return f
 
