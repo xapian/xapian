@@ -50,30 +50,6 @@ JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_inmemory_1open
 
 /*
  * Class:     org_xapian_XapianJNI
- * Method:    muscat36_open_da
- * Signature: (Ljava/lang/String;Ljava/lang/String;Z)J
- */
-JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_muscat36_1open_1da__Ljava_lang_String_2Ljava_lang_String_2Z
-  (JNIEnv *, jclass, jstring, jstring, jboolean);
-
-/*
- * Class:     org_xapian_XapianJNI
- * Method:    muscat36_open_da
- * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)J
- */
-JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_muscat36_1open_1da__Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2Z
-  (JNIEnv *, jclass, jstring, jstring, jstring, jboolean);
-
-/*
- * Class:     org_xapian_XapianJNI
- * Method:    muscat36_open_da
- * Signature: (Ljava/lang/String;Ljava/lang/String;J)J
- */
-JNIEXPORT jlong JNICALL Java_org_xapian_XapianJNI_muscat36_1open_1da__Ljava_lang_String_2Ljava_lang_String_2J
-  (JNIEnv *, jclass, jstring, jstring, jlong);
-
-/*
- * Class:     org_xapian_XapianJNI
  * Method:    quartz_open
  * Signature: (Ljava/lang/String;)J
  */

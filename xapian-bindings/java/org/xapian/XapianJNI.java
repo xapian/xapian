@@ -64,27 +64,6 @@ public class XapianJNI {
     /* Returns id of a Xapian::WritableDatabase */
     public static native long inmemory_open() throws XapianError;
 
-    // support for the Xapian::Muscat36 namespace
-    /* Returns id of a Xapian::Database */
-    public static native long muscat36_open_da(String r, String t, boolean heavy_duty) throws XapianError;
-
-    /* Returns id of a Xapian::Database */
-    public static native long muscat36_open_da(String r, String t, String values, boolean heavy_duty) throws XapianError;
-
-    /* Returns id of a Xapian::Database */
-    public static long muscat36_open_da(String db) throws XapianError {
-        return muscat36_open_da(db, 30);
-    }
-
-    /* Returns id of a Xapian::Database */
-    public static long muscat36_open_da(String db, long cache_size) throws XapianError {
-        return muscat36_open_da(db, "", cache_size);
-    }
-
-    /* Returns id of a Xapian::Database */
-    public static native long muscat36_open_da(String db, String values, long cache_size) throws XapianError;
-
-
     // support for the Xapian::Quartz namespace
     /* Returns id of a Xapian::Database */
     public static native long quartz_open(String dir) throws XapianError;

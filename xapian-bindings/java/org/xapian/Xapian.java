@@ -30,7 +30,7 @@ import org.xapian.errors.XapianError;
 /**
  * Main Entry point for creating Xapian databases.  Provides support for the
  * built-in Xapian namespaces of <code>Auto</code>, <code>InMemory</code>,
- * <code>Muscat36</code>, <code>Quartz</code>, and <code>Remote</code>
+ * <code>Quartz</code>, and <code>Remote</code>
  */
 public final class Xapian {
     public static final int DB_CREATE_OR_OPEN = 1;
@@ -61,46 +61,6 @@ public final class Xapian {
     public static final class InMemory {
         public static WritableDatabase open() throws XapianError {
             return new WritableDatabase(XapianJNI.inmemory_open());
-        }
-    }
-
-    public static final class Muscat36 {
-        public static Database open_da(String r, String t, boolean heavy_duty) throws XapianError {
-            if (r == null)
-                throw new IllegalArgumentException("R cannot be null");
-            else if (t == null)
-                throw new IllegalArgumentException("T cannot be null");
-            return new Database(XapianJNI.muscat36_open_da(r, t, heavy_duty));
-        }
-
-        public static Database open_da(String r, String t, String values, boolean heavy_duty) throws XapianError {
-            if (r == null)
-                throw new IllegalArgumentException("R cannot be null");
-            else if (t == null)
-                throw new IllegalArgumentException("T cannot be null");
-            else if (values == null)
-                throw new IllegalArgumentException("values cannot be null");
-            return new Database(XapianJNI.muscat36_open_da(r, t, values, heavy_duty));
-        }
-
-        public static Database open_da(String db) throws XapianError {
-            if (db == null)
-                throw new IllegalArgumentException("db cannot be null");
-            return new Database(XapianJNI.muscat36_open_da(db));
-        }
-
-        public static Database open_da(String db, long cache_size) throws XapianError {
-            if (db == null)
-                throw new IllegalArgumentException("db cannot be null");
-            return new Database(XapianJNI.muscat36_open_da(db, cache_size));
-        }
-
-        public static Database open_da(String db, String values, long cache_size) throws XapianError {
-            if (db == null)
-                throw new IllegalArgumentException("db cannot be null");
-            else if (values == null)
-                throw new IllegalArgumentException("values cannot be null");
-            return new Database(XapianJNI.muscat36_open_da(db, values, cache_size));
         }
     }
 
