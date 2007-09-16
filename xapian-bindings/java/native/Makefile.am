@@ -9,9 +9,23 @@ endif
 jnidir = `pwd`/../built
 jni_LTLIBRARIES = libxapian_jni.la
 
+# Remove the .la file - _xapian.la is never linked against (it's a module)
+# and Java doesn't use libltdl.  Note that the library gets installed by
+# install-data, so that's where we need to hook.
 install-data-hook:
+	rm -f $(DESTDIR)$(jnidir)/libxapian_jni.la
 if NEED_JNILIB_EXT
 	mv $(DESTDIR)$(jnidir)/libxapian_jni.so $(DESTDIR)$(jnidir)/libxapian_jni.jnilib
+endif
+
+# Because we don't install the .la file, "make uninstall" doesn't work and
+# we need to remove the files ourselves.
+uninstall-local:
+if NEED_JNILIB_EXT
+	rm -f $(DESTDIR)$(jnidir)/libxapian_jni.jnilib
+else
+	eval `grep '^dlname=' $(jni_LTLIBRARIES)` ; \
+	  rm -f $(DESTDIR)$(jnilib)/"$$dlname"
 endif
 
 libxapian_jni_la_SOURCES = Database.cc Document.cc ESet.cc ESetIterator.cc \

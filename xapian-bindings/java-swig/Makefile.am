@@ -83,6 +83,18 @@ jnidir = `pwd`/built
 
 jni_LTLIBRARIES = libxapian_jni.la
 
+# Remove the .la file - libxapian_jni.la is never linked against (it's a
+# module) and JVMs don't use libltdl.  Note that the library gets installed by
+# install-data, so that's where we need to hook.
+install-data-hook:
+	rm -f $(DESTDIR)$(jnidir)/xapian.la
+
+# Because we don't install the .la file, "make uninstall" doesn't work and
+# we need to remove the files ourselves.
+uninstall-local:
+	eval `grep '^dlname=' $(jni_LTLIBRARIES)` ; \
+	  rm -f $(DESTDIR)$(jnidir)/"$$dlname"
+
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 AM_CPPFLAGS = $(JAVA_CPPFLAGS)
 libxapian_jni_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)

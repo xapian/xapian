@@ -37,6 +37,18 @@ phpext_LTLIBRARIES = xapian.la
 phpincdir = $(datarootdir)/php$(PHP_MAJOR_VERSION)
 phpinc_DATA = php$(PHP_MAJOR_VERSION)/xapian.php
 
+# Remove the .la file - xapian.la is never linked against (it's a module)
+# and PHP doesn't use libltdl.  Note that the library gets installed by
+# install-data, so that's where we need to hook.
+install-data-hook:
+	rm -f $(DESTDIR)$(phpextdir)/xapian.la
+
+# Because we don't install the .la file, "make uninstall" doesn't work and
+# we need to remove the files ourselves.
+uninstall-local:
+	eval `grep '^dlname=' $(phpext_LTLIBRARIES)` ; \
+	  rm -f $(DESTDIR)$(phpextdir)/"$$dlname"
+
 AM_CPPFLAGS = $(PHP_INC)
 AM_CXXFLAGS = $(SWIG_CXXFLAGS) $(XAPIAN_CXXFLAGS)
 xapian_la_LDFLAGS = -avoid-version -module $(NO_UNDEFINED)

@@ -1,3 +1,11 @@
+Sun Sep 16 04:03:30 BST 2007  Olly Betts <olly@survex.com>
+
+	* java-swig/Makefile.am,java/native/Makefile.am,php/Makefile.am,
+	  python/Makefile.am,ruby/Makefile.am,tcl8/Makefile.am: Restore the
+	  install-data-hook rules, and add uninstall-local rules so that
+	  "make uninstall" works (which also allows it to work for java on
+	  Mac OS X).
+
 Sun Sep 16 00:00:27 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* java/org/xapian/Makefile.am: Add list of files generated from
