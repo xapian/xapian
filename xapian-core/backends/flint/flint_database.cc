@@ -56,6 +56,14 @@
 using namespace std;
 using namespace Xapian;
 
+// The maximum safe term length is determined by the postlist.  There we
+// store the term followed by "\x00\x00" then a length byte, then up to
+// 4 bytes of docid.  The Btree manager's key length limit is 252 bytes
+// so the maximum safe term length is 252 - 2 - 1 - 4 = 245 bytes.  If
+// the term contains zero bytes, the limit is lower (by one for each zero byte
+// in the term).
+#define MAX_SAFE_TERM_LENGTH 245
+
 // Magic key in the postlist table (which corresponds to an invalid docid) is
 // used to store the next free docid and total length of all documents.
 static const string METAINFO_KEY("", 1);
@@ -695,6 +703,8 @@ FlintWritableDatabase::add_document_(Xapian::docid did,
 		new_doclen += wdf;
 
 		string tname = *term;
+		if (tname.size() > MAX_SAFE_TERM_LENGTH)
+		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
 		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
 		i = freq_deltas.find(tname);
 		if (i == freq_deltas.end()) {
@@ -924,6 +934,8 @@ FlintWritableDatabase::replace_document(Xapian::docid did,
 		new_doclen += wdf;
 
 		string tname = *term;
+		if (tname.size() > MAX_SAFE_TERM_LENGTH)
+		    throw Xapian::InvalidArgumentError("Term too long (> "STRINGIZE(MAX_SAFE_TERM_LENGTH)"): " + tname);
 		map<string, pair<termcount_diff, termcount_diff> >::iterator i;
 		i = freq_deltas.find(tname);
 		if (i == freq_deltas.end()) {

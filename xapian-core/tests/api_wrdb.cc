@@ -2024,6 +2024,46 @@ static bool test_metadata2()
     return true;
 }
 
+// Test that adding a document with a really long term gives an error on
+// add_document() rather than on flush().
+static bool test_termtoolong1()
+{
+    const string & dbtype = get_dbtype();
+    if (dbtype == "quartz" || dbtype == "inmemory") {
+	// Quartz doesn't perform this check; inmemory doesn't impose a limit.
+	SKIP_TEST("Test not supported by this backend");
+    }
+#ifndef XAPIAN_HAS_FLINT_BACKEND
+    if (dbtype == "remotetcp" || dbtype == "remoteprog") {
+	// If flint is disabled, remotetcp and remoteprog will use quartz
+	// which doesn't perform this check.
+	SKIP_TEST("Test not supported by this backend");
+    }
+#endif
+
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    for (Xapian::doccount i = 246; i <= 290; ++i) {
+	tout << "Term length " << i << endl;
+	Xapian::Document doc;
+	string term(i, 'X');
+	doc.add_term(term);
+	TEST_EXCEPTION(Xapian::InvalidArgumentError, db.add_document(doc));
+    }
+
+    for (Xapian::doccount j = 240; j <= 245; ++j) {
+	tout << "Term length " << j << endl;
+	Xapian::Document doc;
+	string term(j, 'X');
+	doc.add_term(term);
+	db.add_document(doc);
+    }
+
+    db.flush();
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -2065,5 +2105,6 @@ test_desc writabledb_tests[] = {
     TESTCASE(matchspy3),
     TESTCASE(metadata1),
     TESTCASE(metadata2),
+    TESTCASE(termtoolong1),
     END_OF_TESTCASES
 };

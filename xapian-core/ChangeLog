@@ -1,3 +1,11 @@
+Sun Sep 16 02:59:54 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/flint/flint_database.cc,tests/api_wrdb.cc: Check length of
+	  new terms is at most 245 bytes for flint in add_document() and
+	  replace_document() so that the API user gets an error there rather
+	  than when flush() is called (explicitly or implicitly).  Fixes
+	  bug#44.
+
 Sat Sep 15 20:11:36 BST 2007  Olly Betts <olly@survex.com>
 
 	* backends/flint/flint_version.cc: Add missing include of
