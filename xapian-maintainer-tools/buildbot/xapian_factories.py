@@ -44,7 +44,7 @@ def gen_svn_updated_factory(baseURL):
     first.  This build is intended to catch commonly made mistakes quickly.
     """
     f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, mode="update")
+    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
     f.addStep(Bootstrap)
     f.addStep(step.Configure)
     f.addStep(step.Compile)
@@ -58,7 +58,7 @@ def gen_svn_updated_valgrind_factory(baseURL):
     a higher stable time.
     """
     f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, mode="update")
+    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
     f.addStep(Bootstrap)
     f.addStep(step.Configure)
     f.addStep(step.Compile)
@@ -82,7 +82,7 @@ def gen_svn_clean_factory(baseURL):
     """
     f = factory.BuildFactory()
     f.addStep(MakeWritable, workdir='.')
-    f.addStep(step.SVN, baseURL=baseURL, mode="clobber")
+    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="clobber")
     f.addStep(Bootstrap)
     f.addStep(step.Configure, command = ["xapian-maintainer-tools/buildbot/scripts/configure_with_prefix.sh", "PYTHON_LIB=`pwd`/tmp_pylib", "PHP_EXTENSION_DIR=`pwd`/tmp_phplib"])
     extraargs = (
@@ -96,7 +96,11 @@ def gen_svn_clean_factory(baseURL):
         "PYTHON_LIB=\"`pwd`/tmp_pylib\" PHP_EXTENSION_DIR=\"`pwd`/tmp_phplib\"",
     )
     f.addStep(step.Compile, command=("make",) + extraargs)
-    f.addStep(step.Test, name="check", command=("make", "check") + extraargs)
+    # Don't bother running check as a separate step - all the checks will be
+    # done by distcheck, anyway.  (Running it as a separate step _does_ check
+    # that the tests work in a non-VPATH build, but this is tested by other
+    # factories, anyway.)
+    #f.addStep(step.Test, name="check", command=("make", "check") + extraargs)
     f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-core')
     f.addStep(step.Test, name="distcheck", command=("make", "distcheck") + extraargs, workdir='build/xapian-applications/omega')
 
@@ -110,7 +114,7 @@ def gen_svn_updated_win_factory(baseURL):
     Factory for doing a windows build from an SVN checkout, without cleaning first.
     """
     f = factory.BuildFactory()
-    f.addStep(step.SVN, baseURL=baseURL, mode="update")
+    f.addStep(step.SVN, baseURL=baseURL, defaultBranch='trunk', mode="update")
     f.addStep(step.ShellCommand, command="xapian-maintainer-tools\\buildbot\\scripts\\prepare_build.bat")
 
     # Compile core: we use a .bat file to get vsvars32.bat to run before the

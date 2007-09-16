@@ -3,6 +3,8 @@
 
 # Utility functions to help setting up the buildbot
 
+import os.path
+
 class ConfigError(RuntimeError):
     def __init__(self, msg):
         RuntimeError.__init__(self, msg)
@@ -55,6 +57,8 @@ class BuildBotConfig(object):
                 password = private_passwords.passwords[botname]
             except ImportError:
                 raise ConfigError("Missing password file: can't get password for bot %r" % botname)
+            except AttributeError:
+                raise ConfigError("Missing password dictionary in password file")
             except KeyError:
                 raise ConfigError("Missing password for bot %r" % botname)
         self.c['bots'].append((botname, password))
@@ -141,6 +145,10 @@ class BuildBotConfig(object):
         if public_port is None:
             public_port = http_port
         kwargs['http_port'] = http_port
+        kwargs['favicon'] = \
+            os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                         "buildbot.png"))
+
         import html
         self.add_status(html.Waterfall(**kwargs))
         self.c['buildbotURL'] = "http://%s:%d/" % (hostname, public_port)
@@ -156,12 +164,27 @@ class BuildBotConfig(object):
         from buildbot.status import mail
         self.c['status'].append(mail.MailNotifier(**kwargs))
 
-    def add_status_irc(self, host=None, nick=None, channels=None, **kwargs):
+    def add_status_irc(self, host=None, nick=None, channels=None,
+                       password=None, **kwargs):
         """Add an IRC status target.
 
         """
         kwargs['host'] = host
         kwargs['nick'] = nick
         kwargs['channels'] = channels
+
+        if password is None:
+            try:
+                import private_passwords
+                password = private_passwords.irc_passwords[nick]
+            except ImportError:
+                raise ConfigError("Missing password file: can't get password for IRC bot %r" % nick)
+            except AttributeError:
+                raise ConfigError("Missing irc_password dictionary in password file")
+            except KeyError:
+                raise ConfigError("Missing password for IRC bot %r" % nick)
+        if password is not None:
+            kwargs['password'] = password
+
         from buildbot.status import words
         self.c['status'].append(words.IRC(**kwargs))
