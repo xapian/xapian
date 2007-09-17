@@ -266,7 +266,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
 /** Class for counting the frequencies of terms in the matching documents.
  *
  *  Note that accessing the list of terms is generally more expensive than
- *  accesing a value, so if it is possible to store the information you need
+ *  accessing a value, so if it is possible to store the information you need
  *  in a value, you should probably use a ValueCountMatchSpy instead of a
  *  TermCountMatchSpy.
  */
