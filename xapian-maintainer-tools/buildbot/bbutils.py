@@ -29,6 +29,7 @@ class BuildBotConfig(object):
         self.c['status'] = []
 
         self.scheduler_builders = {}
+        self.sched_order = []
 
     def __getitem__(self, key):
         return self.c[key]
@@ -87,18 +88,29 @@ class BuildBotConfig(object):
         if name in self.scheduler_builders:
             raise ConfigError("Duplicate scheduler name: %r" % name)
         self.scheduler_builders[name] = [kwargs]
+        self.sched_order.append(name)
 
     def _create_schedulers(self):
         """Create all the schedulers, and add them to the config.
 
         """
-        from buildbot.scheduler import Scheduler
-        for name, item in self.scheduler_builders.iteritems():
+        from buildbot.scheduler import Scheduler, Dependent
+        scheds = {}
+        for name in self.sched_order:
+            item = self.scheduler_builders[name]
             kwargs = item[0]
             builders = item[1:]
-            sched = Scheduler(name=name,
-                              builderNames=builders,
-                              **kwargs)
+            if "depends" in kwargs:
+                upstream = kwargs['depends']
+                if upstream not in scheds:
+                    raise ConfigError("Scheduler name %r used in depends before being defined" % name)
+                upstream = scheds[upstream]
+                sched = Dependent(name, upstream, builders)
+            else:
+                sched = Scheduler(name=name,
+                                  builderNames=builders,
+                                  **kwargs)
+            scheds[name] = sched
             self.c['schedulers'].append(sched)
 
     def addBuilder(self, name, factory, slavenames, scheduler):
