@@ -3,6 +3,8 @@
 
 from buildbot.process import step, factory
 
+from tarsource import Tar
+
 class Bootstrap(step.ShellCommand):
     name = "bootstrap"
     haltOnFailure = 1
@@ -34,10 +36,6 @@ class MakeWritable(step.ShellCommand):
     descriptionDone = ["made writable"]
     command = ["chmod", "-R", "+w", "."]
 
-class GetTarball(step.ShellCommand):
-    pass # FIXME - implement this
-
-
 def gen_svn_updated_factory(baseURL):
     """
     Make a factory for doing HEAD build from SVN, but without cleaning
@@ -49,6 +47,25 @@ def gen_svn_updated_factory(baseURL):
     f.addStep(step.Configure)
     f.addStep(step.Compile)
     f.addStep(step.Test, name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
+    return f
+
+def gen_tarball_updated_factory(rooturl):
+    """
+    Make a factory for doing builds from tarballs.
+    """
+    f = factory.BuildFactory()
+    f.addStep(step.ShellCommand, command = ["rm", "-rf", "build"], workdir='.', haltOnFailure=True)
+    f.addStep(step.ShellCommand, command = ["mkdir", "build"], workdir='.', haltOnFailure=True)
+    f.addStep(Tar, rooturl=rooturl, archives=('xapian-core', 'xapian-omega', 'xapian-bindings'), workdir='build', haltOnFailure=True)
+    f.addStep(step.ShellCommand, command = ["curl", '-o', 'unpack_tarballs.py',
+              'http://svn.xapian.org/trunk/xapian-maintainer-tools/buildbot/scripts/unpack_tarballs.py?revision=HEAD'], workdir='build', haltOnFailure=True)
+    f.addStep(step.ShellCommand, command = ["python", 'unpack_tarballs.py'], workdir='build', haltOnFailure=True)
+    f.addStep(step.Compile, workdir='build/xapian-core')
+    f.addStep(step.Test, workdir='build/xapian-core', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
+    f.addStep(step.Compile, workdir='build/xapian-omega')
+    f.addStep(step.Test, workdir='build/xapian-omega', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
+    f.addStep(step.Compile, workdir='build/xapian-bindings')
+    f.addStep(step.Test, workdir='build/xapian-bindings', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
     return f
 
 def gen_svn_updated_valgrind_factory(baseURL):
