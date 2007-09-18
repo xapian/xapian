@@ -160,6 +160,7 @@ def test_all():
     # Check exception handling for Xapian::DocNotFoundError
     expect_exception(xapian.DocNotFoundError, "Docid 3 not found", db.get_document, 3)
 
+    # Check value of OP_ELITE_SET
     expect(xapian.Query.OP_ELITE_SET, 10, "Unexpected value for OP_ELITE_SET")
 
     # Feature test for MatchDecider
@@ -274,6 +275,42 @@ def test_all():
     termgen.set_document(doc)
     termgen.index_text('foo bar baz foo')
     expect([(item.term, item.wdf, [pos for pos in item.positer]) for item in doc.termlist()], [('bar', 1, [2]), ('baz', 1, [3]), ('foo', 2, [1, 4])])
+
+
+    # Check DateValueRangeProcessor works
+    context("checking that DateValueRangeProcessor works")
+    qp = xapian.QueryParser()
+    vrpdate = xapian.DateValueRangeProcessor(1, 1, 1960)
+    qp.add_valuerangeprocessor(vrpdate)
+    query = qp.parse_query('12/03/99..12/04/01')
+    expect(str(query), 'Xapian::Query(VALUE_RANGE 1 19991203 20011204)')
+
+    # Regression test for bug#193, fixed in 1.0.3.
+    context("running regression test for bug#193")
+    vrp = xapian.NumberValueRangeProcessor(0, '$', True)
+    a = '$10'
+    b = '20'
+    slot, a, b = vrp(a, b)
+    expect(slot, 0)
+    expect(xapian.sortable_unserialise(a), 10)
+    expect(xapian.sortable_unserialise(b), 20)
+
+    # Regression tests copied from PHP (probably always worked in python, but
+    # let's check...)
+    context("running regression tests for issues which were found in PHP")
+
+    # PHP overload resolution involving boolean types failed.
+    enq.set_sort_by_value(1, True)
+
+    # Regression test - fixed in 0.9.10.1.
+    oqparser = xapian.QueryParser()
+    oquery = oqparser.parse_query("I like tea")
+
+    # Regression test for bug#192 - fixed in 1.0.3.
+    enq.set_cutoff(100)
+
+
+
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):

@@ -510,4 +510,66 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     if (SWIG_IsNewObj(swig_ores)) %delete(swig_optr);
 }
 
+/* Extend ValueRangeProcessor to have a method with named parameters vrpbegin
+ * and vrpend.  We only have to do this so that we have parameter names which
+ * aren't used anywhere else, so that we can then write specific typemaps for
+ * them.  If SWIG allowed us to apply a typemap only to a specific method, we
+ * wouln't need to do this.*/
+namespace Xapian {
+    %extend ValueRangeProcessor {
+        Xapian::valueno __call(std::string &vrpbegin, std::string &vrpend) {
+            return (*self)(vrpbegin, vrpend);
+        }
+    }
+}
+
+/* These typemaps handle ValueRangeProcessors, which take non-const references
+ * to std::string and modify the strings.  They rely on no other methods
+ * existing which use the parameter names "vrpbegin" and "vrpend". */
+%typemap(in) std::string &vrpbegin (std::string temp),
+             std::string &vrpend (std::string temp) {
+    std::string *ptr = (std::string *)0;
+    int res = SWIG_AsPtr_std_string($input, &ptr);
+    if (!SWIG_IsOK(res) || !ptr) {
+	%argument_fail((ptr ? res : SWIG_TypeError),"$type",$symname, $argnum); 
+    }
+    temp = *ptr;
+    $1 = &temp;
+    if (SWIG_IsNewObj(res)) delete ptr;
+}
+%typemap(argout) std::string &vrpbegin {
+    PyObject * str;
+    PyObject * newresult;
+
+    // Put the existing result into the first item of a new 3-tuple.
+    newresult = PyTuple_New(3);
+    if (newresult == 0) {
+        Py_DECREF($result);
+        $result = NULL;
+        SWIG_fail;
+    }
+    PyTuple_SetItem(newresult, 0, $result);
+    $result = newresult;
+
+    str = PyString_FromStringAndSize($1->data(), $1->size());
+    if (str == 0) {
+        Py_DECREF($result);
+        $result = NULL;
+        SWIG_fail;
+    }
+    PyTuple_SetItem($result, 1, str);
+}
+%typemap(argout) std::string &vrpend {
+    PyObject * str;
+
+    str = PyString_FromStringAndSize($1->data(), $1->size());
+    if (str == 0) {
+        Py_DECREF($result);
+        $result = NULL;
+        SWIG_fail;
+    }
+
+    PyTuple_SetItem($result, 2, str);
+}
+
 /* vim:set syntax=cpp:set noexpandtab: */

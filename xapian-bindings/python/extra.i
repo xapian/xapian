@@ -947,6 +947,11 @@ def _multiple_match_decider_append(self, decider):
 _multiple_match_decider_append.__doc__ = MultipleMatchDecider.append.__doc__
 MultipleMatchDecider.append = _multiple_match_decider_append
 
+
+# Fix up ValueRangeProcessor by replacing its __call__ method (which doesn't
+# work) with its __call() method (which we define with an %extend in utils.i
+ValueRangeProcessor.__call__ = ValueRangeProcessor.__call
+
 %}
 
 /* vim:syntax=python:set expandtab: */
