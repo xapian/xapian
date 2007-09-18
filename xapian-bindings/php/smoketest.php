@@ -123,9 +123,9 @@ if ($query->get_description() !== 'Xapian::Query(VALUE_RANGE 1 19991203 20011204
 }
 
 # Regression test for bug#193, fixed in 1.0.3.
-$vrp = new XapianNumberValueRangeProcessor(0, "\$", true);
-$a = "$10";
-$b = "20";
+$vrp = new XapianNumberValueRangeProcessor(0, '$', true);
+$a = '$10';
+$b = '20';
 $vrp->apply($a, $b);
 if (Xapian::sortable_unserialise($a) != 10) {
     print Xapian::sortable_unserialise($a)." != 10\n";
