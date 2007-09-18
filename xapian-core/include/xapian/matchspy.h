@@ -25,11 +25,11 @@
 #include <xapian/enquire.h>
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
 namespace Xapian {
-
 
 /// Class which applies several match deciders in turn.
 class XAPIAN_VISIBILITY_DEFAULT MultipleMatchDecider : public MatchDecider {
@@ -37,8 +37,8 @@ class XAPIAN_VISIBILITY_DEFAULT MultipleMatchDecider : public MatchDecider {
     /** List of match deciders to call, in order.
      *
      *  FIXME: this should be a list of reference count pointers, so the caller
-     *  doesn't have to ensure that they're not deleted before use.  See bug #186
-     *  for details.
+     *  doesn't have to ensure that they're not deleted before use.  See
+     *  bug#186 for details.
      */
     std::vector<const MatchDecider *> deciders;
 
@@ -194,11 +194,12 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
      */
     mutable std::map<Xapian::valueno, std::map<std::string, Xapian::doccount> > values;
 
-    /** Flag for each value indicating whether the value can have multiple
-     *  values.  If true, the value stored in the field is assumed to have been
+    /** Set tracking which value slots can have multiple values.
+     *
+     *  If a valuno is in this set, its value is assumed to have been
      *  serialised by a StringListSerialiser class.
      */
-    std::map<Xapian::valueno, bool> multivalues;
+    std::set<Xapian::valueno> multivalues;
 
   public:
     /// Default constructor.
@@ -219,7 +220,7 @@ class XAPIAN_VISIBILITY_DEFAULT ValueCountMatchSpy : public MatchDecider {
     void add_slot(Xapian::valueno valno, bool multivalue=false) {
 	// Ensure that values[valno] exists.
 	(void)values[valno];
-	multivalues[valno] = multivalue;
+	if (multivalue) multivalues.insert(valno);
     }
 
     /** Return the values seen in slot number @a valno.

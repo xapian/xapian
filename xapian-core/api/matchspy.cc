@@ -157,19 +157,16 @@ ValueCountMatchSpy::operator()(const Document &doc) const
 {
     ++total;
     map<Xapian::valueno, map<string, Xapian::doccount> >::iterator i;
-    std::map<Xapian::valueno, bool>::const_iterator j;
-    for (i = values.begin(), j = multivalues.begin();
-	 i != values.end(); ++i, ++j) {
-	AssertEqParanoid(i->first, j->first);
+    for (i = values.begin(); i != values.end(); ++i) {
 	Xapian::valueno valno = i->first;
 	map<string, Xapian::doccount> & tally = i->second;
 
-	if (j->second) {
+	if (multivalues.find(valno) != multivalues.end()) {
 	    // Multiple values
-	    StringListUnserialiser k(doc.get_value(valno));
+	    StringListUnserialiser j(doc.get_value(valno));
 	    StringListUnserialiser end;
-	    for (; k != end; ++k) {
-		string val(*k);
+	    for (; j != end; ++j) {
+		string val(*j);
 		if (!val.empty()) ++tally[val];
 	    }
 	} else {
