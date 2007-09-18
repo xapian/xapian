@@ -514,7 +514,7 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
  * and vrpend.  We only have to do this so that we have parameter names which
  * aren't used anywhere else, so that we can then write specific typemaps for
  * them.  If SWIG allowed us to apply a typemap only to a specific method, we
- * wouln't need to do this.*/
+ * wouldn't need to do this. */
 namespace Xapian {
     %extend ValueRangeProcessor {
         Xapian::valueno __call(std::string &vrpbegin, std::string &vrpend) {
