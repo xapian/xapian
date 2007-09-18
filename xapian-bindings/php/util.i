@@ -107,12 +107,6 @@
     $1 = (Z_TYPE_PP($input) == IS_BOOL || Z_TYPE_PP($input) == IS_LONG);
 }
 
-%typemap(in) const std::string & (std::string temp) {
-    convert_to_string_ex($input);
-    temp.assign(Z_STRVAL_PP($input), Z_STRLEN_PP($input));
-    $1 = &temp;
-}
-
 #define XAPIAN_MIXED_VECTOR_QUERY_INPUT_TYPEMAP
 %typemap(typecheck, precedence=500) const vector<Xapian::Query> & {
     $1 = (Z_TYPE_PP($input) == IS_ARRAY);
