@@ -1,3 +1,10 @@
+Tue Sep 18 04:09:55 BST 2007  Olly Betts <olly@survex.com>
+
+	* php/smoketest.php: Add feature test for DateValueRangeProcessor
+	  when used with QueryParser.
+	* php/smoketest.php: Add regression test for bug#193 which is fixed
+	  by SWIG SVN r9941.
+
 Tue Sep 18 04:03:11 BST 2007  Olly Betts <olly@survex.com>
 
 	* php/util.i: Remove typemap for std::string which is no longer needed
