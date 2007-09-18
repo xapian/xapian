@@ -56,7 +56,7 @@ def gen_tarball_updated_factory(rooturl):
     f = factory.BuildFactory()
     f.addStep(step.ShellCommand, command = ["rm", "-rf", "build"], workdir='.', haltOnFailure=True)
     f.addStep(step.ShellCommand, command = ["mkdir", "build"], workdir='.', haltOnFailure=True)
-    f.addStep(Tar, rooturl=rooturl, archives=('xapian-core', 'xapian-omega', 'xapian-bindings'), workdir='build', haltOnFailure=True)
+    f.addStep(Tar, rooturl=rooturl, archives=('xapian-core', 'xapian-omega', 'xapian-bindings'), haltOnFailure=True)
     f.addStep(step.ShellCommand, command = ["curl", '-o', 'unpack_tarballs.py',
               'http://svn.xapian.org/trunk/xapian-maintainer-tools/buildbot/scripts/unpack_tarballs.py?revision=HEAD'], workdir='build', haltOnFailure=True)
     f.addStep(step.ShellCommand, command = ["python", 'unpack_tarballs.py'], workdir='build', haltOnFailure=True)

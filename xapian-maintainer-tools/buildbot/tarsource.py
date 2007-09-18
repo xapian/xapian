@@ -95,6 +95,10 @@ class TarPoller(base.ChangeSource, util.ComparableMixin):
             log.msg('TarPoller: got no consistent revision')
             return None
         (revision, links) = info
+        if self.last_revision is None:
+            log.msg('TarPoller: start revision is %r' % (revision,))
+            self.last_revision = revision
+            return None
         if self.last_revision == revision:
             # No change from last revision
             log.msg('TarPoller: still at previous revision: %r' % (revision,))
@@ -165,6 +169,6 @@ class Tar(Source):
             cmdargs.append('-O')
             cmdargs.append(self.rooturl + link + '.tar.gz')
 
-        cmd = RemoteShellCommand('.', command=(cmdargs), workdir=self.workdir)
+        cmd = RemoteShellCommand('build', command=(cmdargs))
         self.startCommand(cmd)
 
