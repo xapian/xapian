@@ -520,8 +520,6 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
     // We always have the current prefix on the top of the stack.
     prefix_stack.push_back(default_prefix);
 
-    vector<string> term_group;
-
     unsigned newprev = ' ';
 main_lex_loop:
     enum {
