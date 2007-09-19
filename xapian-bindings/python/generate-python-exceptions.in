@@ -165,6 +165,14 @@ print FD <<'EOF';
 	SWIG_fail;
     }
 }
+%exception Xapian::ValueRangeProcessor::operator() {
+    try {
+	$action
+    } catch (...) {
+	XapianSetPythonException();
+	SWIG_fail;
+    }
+}
 
 /* If a Python error is raised by a call to a director function, the following
  * code should cause a C++ exception to be thrown.

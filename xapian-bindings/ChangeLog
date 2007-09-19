@@ -1,3 +1,14 @@
+Wed Sep 19 14:11:22 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* xapian.i: Add director directive for Xapian::ValueRangeProcessor,
+	  to allow implementations in the target language, where directors
+	  are supported.
+	* python/generate-python-exceptions.in: Copy workaround for thread
+	  handling stuff for ValueRangeProcessor::operator().
+	* python/pythontest.py: Add test_queryparser_custom_vrp() for
+	  ValueRangeProcessors implemented in Python, and clean up some of
+	  the other tests slightly.
+
 Wed Sep 19 00:46:31 BST 2007  Olly Betts <olly@survex.com>
 
 	* python/util.i: Fix typo in comment.

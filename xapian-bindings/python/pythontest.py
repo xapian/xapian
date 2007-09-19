@@ -265,7 +265,6 @@ def test_queryparser_stoplist_iter():
     """Test QueryParser stoplist iterator.
 
     """
-    db = setup_database()
     stemmer = xapian.Stem('en')
 
     # Check behaviour without having set a stoplist.
@@ -312,7 +311,6 @@ def test_queryparser_unstem_iter():
     """Test QueryParser unstemlist iterator.
 
     """
-    db = setup_database()
     stemmer = xapian.Stem('en')
 
     queryparser = xapian.QueryParser()
@@ -861,6 +859,26 @@ def test_matchspy():
     expect(spy2.get_top_terms('T', 2), [('foo', 4), ('bar', 2)])
     expect(spy2.get_top_terms('T', 1), [('foo', 4)])
     expect(spy2.get_top_terms('T', 0), [])
+
+def test_queryparser_custom_vrp():
+    """Test QueryParser with a custom (in python) ValueRangeProcessor.
+
+    """
+    class MyVRP(xapian.ValueRangeProcessor):
+        def __init__(self):
+            xapian.ValueRangeProcessor.__init__(self)
+
+        def __call__(self, begin, end):
+            return 7
+
+    queryparser = xapian.QueryParser()
+    myvrp = MyVRP()
+
+    queryparser.add_valuerangeprocessor(myvrp)
+    query = queryparser.parse_query('5..8')
+
+    expect(str(query),
+           'Xapian::Query(VALUE_RANGE 7 5 8)')
 
 
 # The legacy sequence API is only supported for Python >= 2.3 so don't try

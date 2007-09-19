@@ -900,6 +900,7 @@ class Query {
 }
 
 %feature("director") Xapian::Stopper;
+%feature("director") Xapian::ValueRangeProcessor;
 %ignore Xapian::QueryParser::internal;
 %ignore Xapian::QueryParser::operator=;
 %ignore Xapian::QueryParser::QueryParser(const QueryParser &);
