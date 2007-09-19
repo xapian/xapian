@@ -510,6 +510,54 @@ SWIG_anystring_as_ptr(PyObject ** obj, std::string **val)
     if (SWIG_IsNewObj(swig_ores)) %delete(swig_optr);
 }
 
+/** This pair of typemaps implements conversion of the return value of
+ *  ValueRangeProcessor subclasses implemented in Python from a tuple of
+ *  (valueno, begin, end) to a return value of valueno, and assigning the new
+ *  values of begin and end to the parameters.
+ */
+%typemap(directorin,noblock=1) std::string & {
+    $input = SWIG_From_std_string(static_cast< std::string >($1_name));
+}
+%typemap(directorout,noblock=1) Xapian::valueno {
+    if (!PyTuple_Check($input)) {
+        %dirout_fail(SWIG_TypeError, "($type, std::string, std::string)");
+    }
+    if (PyTuple_Size($input) != 3) {
+        %dirout_fail(SWIG_IndexError, "($type, std::string, std::string)");
+    }
+
+    // Set the return value from the first item of the tuple.
+    unsigned int swig_val;
+    int swig_res = SWIG_AsVal_unsigned_SS_int(PyTuple_GET_ITEM((PyObject *)$input, 0), &swig_val);
+    if (!SWIG_IsOK(swig_res)) {
+        %dirout_fail(swig_res, "($type, std::string, std::string)");
+    }
+    c_result = static_cast< Xapian::valueno >(swig_val);
+
+    // Set "begin" from the second item of the tuple.
+    std::string *ptr = (std::string *)0;
+    swig_res = SWIG_AsPtr_std_string(PyTuple_GET_ITEM((PyObject *)$input, 1), &ptr);
+    if (!SWIG_IsOK(swig_res) || !ptr) {
+        delete ptr;
+        ptr = (std::string *)0;
+	%dirout_fail((ptr ? swig_res : SWIG_TypeError),"($type, std::string, std::string)"); 
+    }
+    begin = *ptr;
+    delete ptr;
+    ptr = (std::string *)0;
+
+    // Set "end" from the third item of the tuple.
+    swig_res = SWIG_AsPtr_std_string(PyTuple_GET_ITEM((PyObject *)$input, 2), &ptr);
+    if (!SWIG_IsOK(swig_res) || !ptr) {
+        delete ptr;
+        ptr = (std::string *)0;
+	%dirout_fail((ptr ? swig_res : SWIG_TypeError),"($type, std::string, std::string)"); 
+    }
+    end = *ptr;
+    delete ptr;
+    ptr = (std::string *)0;
+}
+
 /* Extend ValueRangeProcessor to have a method with named parameters vrpbegin
  * and vrpend.  We only have to do this so that we have parameter names which
  * aren't used anywhere else, so that we can then write specific typemaps for

@@ -869,7 +869,7 @@ def test_queryparser_custom_vrp():
             xapian.ValueRangeProcessor.__init__(self)
 
         def __call__(self, begin, end):
-            return 7
+            return (7, "A"+begin, "B"+end)
 
     queryparser = xapian.QueryParser()
     myvrp = MyVRP()
@@ -878,7 +878,7 @@ def test_queryparser_custom_vrp():
     query = queryparser.parse_query('5..8')
 
     expect(str(query),
-           'Xapian::Query(VALUE_RANGE 7 5 8)')
+           'Xapian::Query(VALUE_RANGE 7 A5 B8)')
 
 
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
