@@ -1,3 +1,53 @@
+Up to: Sat Sep 08 19:24:48 BST 2007  Olly Betts <olly@survex.com>
+
+Omega 1.0.3 (2007-09-2?):
+
+general:
+
+documentation:
+
+indexers:
+
+* omindex:
+
+  + Add support for indexing AbiWord documents and TeX DVI files.
+
+  + Impose a 5 minute CPU time limit on filter programs to prevent problems if
+    a filter program goes into an infinite loop on a malformed input.  Partly
+    addresses bug#111.
+
+* scriptindex:
+
+  + Fix line number tracking in dump files.
+
+omega:
+
+* Add $muldiv{A,B,C} which calculates int(A*B/C).
+
+* Fix bug in decimal fraction in $size for files >= 1M in size.
+
+templates:
+
+* query:
+
+  + Set HTML charset to utf-8 since that's what databases now are by default.
+
+  + Restyle to use CSS to draw a "score bar" instead of using images.
+
+  + Rework the layout of each hit.
+
+  + Add popup hints on mouse-over for various items.
+
+  + Tidy up some HTML gremlins.
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.0.2 (2007-07-05):
 
 documentation:
