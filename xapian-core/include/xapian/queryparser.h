@@ -388,6 +388,17 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  Multiple fields can be mapped to the same prefix (so you can
      *  e.g. make title: and subject: aliases for each other).
      *
+     *  Multiple prefixes can also be mapped from a single field (by calling
+     *  add_prefix repeatedly); this will result in multiple terms being
+     *  generated for each field.  These terms will be joined with an OR
+     *  operator.
+     *
+     *  If any prefixes are added to the empty field name (ie, if this is
+     *  called with the first parameter as an empty string), these prefixes
+     *  will be used as the default prefix.  If a default prefix is also
+     *  specified using the "default_prefix" parameter of parse_query(), this
+     *  prefix will be used in addition.
+     *
      *  @param field   The user visible field name
      *  @param prefix  The term prefix to map this to
      */
@@ -415,6 +426,11 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  For example, if "site" and "domain" map to "H", but author maps to "A",
      *  a search for "site:Foo domain:Bar author:Fred" will map to
      *  "(Hfoo OR Hbar) AND Afred".
+     *
+     *  Multiple prefixes can also be mapped from a single field (by calling
+     *  add_boolean repeatedly); this will result in multiple boolean filter
+     *  terms being generated for each field.  These terms will be joined
+     *  together with the usual rules for combining boolean filter terms.
      *
      *  @param field   The user visible field name
      *  @param prefix  The term prefix to map this to

@@ -128,15 +128,25 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 void
 QueryParser::add_prefix(const string &field, const string &prefix)
 {
-    internal->prefixes.insert(
-	make_pair(field, PrefixInfo(PrefixInfo::FREE_TEXT, prefix)));
+    map<string, PrefixInfoList>::iterator p = internal->prefixes.find(field);
+    if (p == internal->prefixes.end()) {
+	internal->prefixes.insert(make_pair(field,
+	    PrefixInfoList(PrefixInfo(PrefixInfo::FREE_TEXT, prefix))));
+    } else {
+	p->second.items.push_back(PrefixInfo(PrefixInfo::FREE_TEXT, prefix));
+    }
 }
 
 void
 QueryParser::add_boolean_prefix(const string &field, const string &prefix)
 {
-    internal->prefixes.insert(
-	make_pair(field, PrefixInfo(PrefixInfo::BOOL_FILTER, prefix)));
+    map<string, PrefixInfoList>::iterator p = internal->prefixes.find(field);
+    if (p == internal->prefixes.end()) {
+	internal->prefixes.insert(make_pair(field,
+	    PrefixInfoList(PrefixInfo(PrefixInfo::BOOL_FILTER, prefix))));
+    } else {
+	p->second.items.push_back(PrefixInfo(PrefixInfo::BOOL_FILTER, prefix));
+    }
 }
 
 TermIterator

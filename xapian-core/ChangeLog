@@ -1,3 +1,24 @@
+Wed Sep 19 17:08:16 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc,
+	  queryparser/queryparser.lemony,queryparser/queryparser_internal.h:
+	  Handle repeated calls to QueryParser::add_boolean_prefix() with
+	  the same field - this will generate multiple terms for each
+	  occurrence of the field in the query.  Involves reorganising the
+	  internal representation of prefixes, to hold a list of PrefixInfo
+	  objects for each field, instead of a single object.  This also
+	  paves the way towards handling for multiple calls to
+	  QueryParser:add_prefix() with the same field, and allowing
+	  add_{boolean_}prefix() with an empty field to set the default
+	  prefix handling, but the behaviour of this are currently
+	  unchanged.  Technically, this could be considered an API change,
+	  but the previous behaviour (of using only the most recent value
+	  set by add_boolean_prefix) was unintentional and undocumented,
+	  and seems unlikely to have been deliberately used.
+	* tests/queryparsertest.cc: Add a very simple test for repeated
+	  boolean_prefix fields; several more are needed.  Also, a
+	  commented out test of repeated non-boolean prefix fields.
+
 Tue Sep 18 23:28:48 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* queryparser/queryparser.lemony: Remove unused variable

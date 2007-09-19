@@ -516,9 +516,16 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
     int correction_offset = 0;
     corrected_query.resize(0);
 
-    list<string> prefix_stack;
+    // The default list of prefixes to apply to terms.
+    // FIXME - should initialise from prefixes.find(""), as well as default_prefix.
+    PrefixInfoList default_prefixlist;
+    default_prefixlist.items.push_back(PrefixInfo(PrefixInfo::FREE_TEXT, default_prefix));
+
+    // Stack of prefixes, used for phrases and subexpressions.
+    list<const PrefixInfoList *> prefix_stack;
+
     // We always have the current prefix on the top of the stack.
-    prefix_stack.push_back(default_prefix);
+    prefix_stack.push_back(&default_prefixlist);
 
     unsigned newprev = ' ';
 main_lex_loop:
@@ -699,7 +706,8 @@ just_had_operator:
 	newprev = 'A'; // Any letter will do...
 
 	// A term, a prefix, or a boolean operator.
-	string prefix;
+	const PrefixInfoList * prefixlist = prefix_stack.back();
+	bool have_prefix = false;
 	if ((mode == DEFAULT || mode == IN_GROUP) && !prefixes.empty()) {
 	    // Check for fieldname prefixes (e.g. title:historical).
 	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
@@ -708,34 +716,46 @@ just_had_operator:
 		p = it;
 		while (*p != ':')
 		    Unicode::append_utf8(field, *p++);
-		map<string, PrefixInfo>::const_iterator f;
+		map<string, PrefixInfoList>::const_iterator f;
 		f = prefixes.find(field);
 		if (f != prefixes.end()) {
+		    have_prefix = true;
+
 		    // Special handling for prefixed fields, depending on the
 		    // type of the prefix.
 		    unsigned ch = *++p;
-		    PrefixInfo::prefix_type type = f->second.type;
-		    prefix = f->second.str;
+		    prefixlist = &(f->second);
 
-		    if (type == PrefixInfo::BOOL_FILTER) {
-			// Can't boolean prefix a subexpression or phrase;
-			// just use anything following the boolean prefix
-			// until the next space or ')' as part of the boolean
-			// term.
-			it = p;
-			string name;
-			while (it != end && *it > ' ' && *it != ')')
-			    Unicode::append_utf8(name, *it++);
-			// Build the unstemmed form in field.
-			field += ':';
-			field += name;
-			Parse(pParser, BOOLEAN_FILTER,
-			      new Term(&state, name, prefix, field), &state);
-			continue;
+		    // Add terms for any BOOLEAN_FILTER prefixes, and check
+		    // whether there are any non-BOOLEAN_FILTER prefixes.
+		    list<PrefixInfo>::const_iterator pinfo;
+		    bool have_non_bool_filter = false;
+		    for (pinfo = prefixlist->items.begin();
+			 pinfo != prefixlist->items.end();
+			 ++pinfo) {
+			if (pinfo->type == PrefixInfo::BOOL_FILTER) {
+			    // Can't boolean prefix a subexpression or phrase;
+			    // just use anything following the boolean prefix
+			    // until the next space or ')' as part of the boolean
+			    // term.
+			    it = p;
+			    string name;
+			    while (it != end && *it > ' ' && *it != ')')
+				Unicode::append_utf8(name, *it++);
+			    // Build the unstemmed form in field.
+			    field += ':';
+			    field += name;
+			    Parse(pParser, BOOLEAN_FILTER,
+				  new Term(&state, name, pinfo->prefix, field), &state);
+			} else {
+			    Assert(pinfo->type == PrefixInfo::FREE_TEXT);
+			    have_non_bool_filter = true;
+			}
 		    }
 
-		    Assert(type == PrefixInfo::FREE_TEXT);
-
+		    if (!have_non_bool_filter) {
+			continue;
+		    }
 		    if (ch == '"' && (flags & FLAG_PHRASE)) {
 			// Prefixed phrase, e.g.: subject:"space flight"
 			mode = IN_PREFIXED_QUOTES;
@@ -743,7 +763,7 @@ just_had_operator:
 			it = p;
 			newprev = ch;
 			++it;
-			prefix_stack.push_back(prefix);
+			prefix_stack.push_back(prefixlist);
 			continue;
 		    }
 
@@ -754,7 +774,7 @@ just_had_operator:
 			it = p;
 			newprev = ch;
 			++it;
-			prefix_stack.push_back(prefix);
+			prefix_stack.push_back(prefixlist);
 			continue;
 		    }
 
@@ -764,7 +784,7 @@ just_had_operator:
 		    } else {
 			// It looks like a prefix but isn't, so parse it as
 			// text instead.
-			prefix.resize(0);
+			have_prefix = false;
 		    }
 		}
 	    }
@@ -779,7 +799,7 @@ phrased_term:
 	    (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
 	    !was_acronym &&
-	    prefix.empty() &&
+	    !have_prefix &&
 	    term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
 
 	    string op = term;
@@ -844,7 +864,11 @@ phrased_term:
 	    }
 	}
 
-	if (prefix.empty()) prefix = prefix_stack.back();
+	if (!have_prefix) {
+	    // Get the default prefix.
+	    prefixlist = prefix_stack.back();
+	}
+	string prefix = prefixlist->items.front().prefix;
 
 	{
 	    string unstemmed_term(term);

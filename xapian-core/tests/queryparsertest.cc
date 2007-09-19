@@ -568,6 +568,10 @@ static test test_or_queries[] = {
     { "site:xapian.org AND site:www.xapian.org", "(Hxapian.org AND Hwww.xapian.org)" },
     { "Xapian site:xapian.org site:www.xapian.org", "(xapian:(pos=1) FILTER (Hxapian.org OR Hwww.xapian.org))" },
     { "author:richard author:olly writer:charlie", "(ZArichard:(pos=1) OR ZAolli:(pos=2) OR ZAcharli:(pos=3))"},
+    { "multisite:xapian.org", "(Hxapian.org AND Jxapian.org)"},
+#if 0
+    { "authortitle:richard", "(ZArichard:(pos=1) OR ZXTrichard:(pos=1))"},
+#endif
     { NULL, NULL }
 };
 
@@ -612,8 +616,12 @@ static bool test_queryparser1()
     queryparser.add_prefix("writer", "A");
     queryparser.add_prefix("title", "XT");
     queryparser.add_prefix("subject", "XT");
+    queryparser.add_prefix("authortitle", "A");
+    queryparser.add_prefix("authortitle", "XT");
     queryparser.add_boolean_prefix("site", "H");
     queryparser.add_boolean_prefix("site2", "J");
+    queryparser.add_boolean_prefix("multisite", "H");
+    queryparser.add_boolean_prefix("multisite", "J");
     for (test *p = test_or_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
