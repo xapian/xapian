@@ -1,3 +1,8 @@
+Wed Sep 19 16:11:58 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* python/docs/bindings.html: Add documentation for python
+	  implementations of ValueRangeProcessors.
+
 Wed Sep 19 16:06:18 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* python/pythontest.py,python/util.i: Implement conversion of the

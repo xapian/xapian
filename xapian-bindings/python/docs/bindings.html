@@ -309,6 +309,21 @@ value, followed by the returned "end" value.  For example:
     slot, a, b = vrp(a, b)
 </pre>
 
+<p>
+Additionally, a ValueRangeProcessor may be implemented in Python.  The Python
+implementation should override the __call__() method with its own
+implementation, and, again, since it cannot return values by reference, it
+should return a tuple of (value number, begin, end).  For example:
+</p>
+
+<pre>
+    class MyVRP(xapian.ValueRangeProcessor):
+        def __init__(self):
+            xapian.ValueRangeProcessor.__init__(self)
+        def __call__(self, begin, end):
+            return (7, "A"+begin, "B"+end)
+</pre>
+
 
 <h2>Apache and Mod-Python</h2>
 
