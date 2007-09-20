@@ -1,3 +1,210 @@
+up to:
+Thu Sep 20 02:13:36 BST 2007  Olly Betts <olly@survex.com>
+
+The details of this are likely to change:
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc,
+	  queryparser/queryparser.lemony,queryparser/queryparser_internal.h:
+	  Handle repeated calls to QueryParser::add_boolean_prefix() with
+	  the same field - this will generate multiple terms for each
+	  occurrence of the field in the query.  Involves reorganising the
+	  internal representation of prefixes, to hold a list of PrefixInfo
+	  objects for each field, instead of a single object.  This also
+	  paves the way towards handling for multiple calls to
+	  QueryParser:add_prefix() with the same field, and allowing
+	  add_{boolean_}prefix() with an empty field to set the default
+	  prefix handling, but the behaviour of this are currently
+	  unchanged.  Technically, this could be considered an API change,
+	  but the previous behaviour (of using only the most recent value
+	  set by add_boolean_prefix) was unintentional and undocumented,
+	  and seems unlikely to have been deliberately used.
+
+MatchSpy related stuff which will probably all change:
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Add StringListSerialiser
+	  and StringListUnserialiser classes which can be used to serialise
+	  a list of strings into a single string.  Add flag to
+	  ValueCountMatchSpy to use this to unserialise the values read
+	  from the database into multiple strings, allowing several values
+	  to be stored for a particular slot in a database: this allows
+	  multiple values of a particular facet to be stored.
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Add a
+	  MultipleMatchDecider, which calls a list of deciders in order,
+	  until one returns false.
+	* include/xapian/enquire.h: Expand comment to say which way round
+	  the return values of the MatchDecider operator are.
+	* tests/api_db.cc: Add test_matchfunctor3() to test the
+	  MultipleMatchDecider - also tests the ValueCountMatchSpy,
+	  incidentally.
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Make
+	  get_most_frequent_items() private, since I'm not convinced it's
+	  useful to make it available externally.  We can always make it
+	  public again if it's useful to do so.
+	* test/api_wrdb.cc: Update tests accordingly.
+
+	* api/matchspy.cc,include/xapian/matchspy.h: Get rid of the
+	  TopValueMatchSpy in favour of a new function
+	  "get_most_frequent_items", which processes the output of a
+	  ValueCountMatchSpy.  Add a TermCountMatchSpy which counts the
+	  occurrences of terms with a given prefix, and gives output in
+	  the same form as ValueCountMatchSpy.  Add convenience methods
+	  ValueCountMatchSpy::get_top_values() and
+	  TermCountMatchSpy::get_top_terms() which use this to return the
+	  most frequent items seen by the matchspy.
+	* tests/api_wrdb.cc: Test the ValueCountMatchSpy, and the
+	  get_most_frequent_items() function.
+
+	* api/matchspy.cc,include/xapian/matchspy.h,tests/api_wrdb.cc:
+	  Move ValueAndFrequency out of the TopValueMatchSpy class - it
+	  doesn't seem to be possible to wrap it with swig without doing
+	  this, and it doesn't seem much less tidy.
+	* api/matchspy.cc,include/xapian/matchspy.h: Split MatchSpy into a
+	  base class (ValueCountMatchSpy), which just counts the values in
+	  the documents it sees, and a subclass (CategorySelectMatchSpy)
+	  which does the grouping into categories, and scores the
+	  categories.  Add another subclass (TopValueMatchSpy) which
+	  calculates a sorted vector holding the most frequent values.
+	* tests/api_wrdb.cc: Update matchspy1 and matchspy2 to use
+	  CategorySelectMatchSpy instead of MatchSpy, and corresponding
+	  changes to the methods.  Add matchspy3 to test the
+	  TopValueMatchSpy.
+
+	* docs/categorisation.rst: Add topic document
+	  discussing use of Xapian::MatchSpy.
+
+Xapian-core 1.0.3 (2007-09-2?):
+
+API:
+
+* Add support for user specified metadata (bug#143).  Currently supported by
+  the flint and inmemory backends.
+
+* Deprecate Enquire::register_match_decider() which has always been a no-op.
+
+* Improve the lower bound on the number of matching documents for an AND query
+  - if the sum of the lower bounds for the two sides is greater than the
+  number of documents in the database, then some of them must have both terms.
+
+* Spelling correction: Fix off-by-one error in loop bounds when initialising
+  (bug#194).
+
+* If the check_at_least parameter to Enquire::get_mset() is used, but there
+  aren't that many results, then MSet::get_matches_lower_bound() and
+  MSet::get_matches_upper_bound() weren't always reported as equal - this
+  bug is now fixed.
+
+* When sorting by value, and using the check_at_least parameter to
+  Enquire::get_mset(), some potential matches weren't being counted.
+
+* Failing to create a flint or quartz database because we couldn't create the
+  directory for it now throws DatabaseCreateError not DatabaseOpeningError.
+
+testsuite:
+
+* Fix display of valgrind output when a test fails because valgrind detected
+  a problem.
+
+flint backend:
+
+* The Flint database format has been extended to support user metadata, and
+  each termlist entry is now a byte shorter (before compression).  As a
+  result, Xapian 1.0.2 and earlier won't be able to read Xapian 1.0.3
+  databases.  However, Xapian 1.0.3 can read older databases.  If you open an
+  older flint database for writing with Xapian 1.0.3, it will be upgraded
+  such that it cannot then be read by Xapian 1.0.2 and earlier.
+
+* Zlib compression wasn't being used for the spelling or synonym tables (due
+  to a typo - Z_DEFAULT_COMPRESSION where it should be Z_DEFAULT_STRATEGY).
+
+* xapian-check: Allow "db/record." and "db/record.DB" as arguments.
+
+* Fix "key too long" exception message by substituting FLINT_BTREE_MAX_KEY_LEN
+  with its numeric value.
+
+* Assorted minor efficiency improvements.
+
+* If we reach the flush threshold during a transaction, we now write out the
+  postlist changes, but don't actually commit them.
+
+* Check length of new terms is at most 245 bytes for flint in add_document()
+  and replace_document() so that the API user gets an error there rather
+  than when flush() is called (explicitly or implicitly).  Fixes bug#44.
+
+* Flint used to read the value of the environmental variable
+  XAPIAN_FLUSH_THRESHOLD when the first WritableDatabase was opened and would
+  then cache this value.  However the program using Xapian may have changed
+  it, so we now reread it each time a WritableDatabase is opened.
+
+* Implement TermIterator::positionlist_count() for the flint backend.
+
+quartz backend:
+
+
+remote backend:
+
+* Fix the result of MSet::get_matches_lower_bound() when using the
+  check_at_least parameter to get_mset().
+
+inmemory backend:
+
+* Implement TermIterator::positionlist_count() for the inmemory backend.
+
+build system:
+
+* xapian-config: We always need to include dependency_libs in the output of
+  `xapian-config --libs` if shared libraries are disabled.
+
+* Distribution tarballs are now in the POSIX "ustar" format.  This supports
+  pathnames longer than 99 characters (which we now have a few instances of
+  in the doxygen generated documentation) and also results in a distribution
+  tarball that is about half the size!  This format should be readable by any
+  tar program in current use - if your tar program doesn't support it, we'd
+  like to know (but note that the GNU tar tarball is smaller than the size
+  reduction in the xapian-core tarball...)
+
+* configure no longer generates msvc/version.h - this is now entirely handled
+  by the MSVC-specific makefiles.
+
+documentation:
+
+* When running rst2html, use "--exit-status=warning"
+  rather than "--strict".  The former actually gives a non-zero exit status for
+  a warning or worse, while the former doesn't, but does include any "info"
+  messages in the output HTML.
+
+* docs/deprecation.rst: Add "Database::positionlist_begin() throwing
+  RangeError".
+
+* valueranges.rst: Correct out-of-date reference to float_to_string.
+
+* HACKING: Document a few more "coding standards".
+
+* PLATFORMS: Updated.
+
+* docs/overview.html: Restore HTML header accidentally deleted in November
+  2006.
+
+* Fix several typos.
+
+examples:
+
+
+portability:
+
+* Add missing instances of "#include <string.h>" to fix compilation with recent
+  GCC 4.3 snapshots.
+
+* Fix some warnings for various compilers and platforms.
+
+packaging:
+
+
+debug code:
+
+
+
 Xapian-core 1.0.2 (2007-07-05):
 
 API:
