@@ -35,6 +35,7 @@ using namespace std;
 #define END_OF_TESTCASES {0, 0}
 
 #include "testsuite.h"
+#include "testutils.h"
 
 struct test {
     const char *query;
@@ -568,10 +569,13 @@ static test test_or_queries[] = {
     { "site:xapian.org AND site:www.xapian.org", "(Hxapian.org AND Hwww.xapian.org)" },
     { "Xapian site:xapian.org site:www.xapian.org", "(xapian:(pos=1) FILTER (Hxapian.org OR Hwww.xapian.org))" },
     { "author:richard author:olly writer:charlie", "(ZArichard:(pos=1) OR ZAolli:(pos=2) OR ZAcharli:(pos=3))"},
-    { "multisite:xapian.org", "(Hxapian.org AND Jxapian.org)"},
-#if 0
+    { "author:richard NEAR title:book", "(Arichard:(pos=1) NEAR 11 XTbook:(pos=2))"},
+    { "authortitle:richard NEAR title:book", "((Arichard:(pos=1) NEAR 11 XTbook:(pos=2)) OR (XTrichard:(pos=1) NEAR 11 XTbook:(pos=2)))"},
+    { "multisite:xapian.org", "(Hxapian.org OR Jxapian.org)"},
     { "authortitle:richard", "(ZArichard:(pos=1) OR ZXTrichard:(pos=1))"},
-#endif
+    { "multisite:xapian.org site:www.xapian.org author:richard authortitle:richard", "((ZArichard:(pos=1) OR ZArichard:(pos=2) OR ZXTrichard:(pos=2)) FILTER (Hwww.xapian.org AND (Hxapian.org OR Jxapian.org)))"},
+    { "authortitle:richard-boulton", "((Arichard:(pos=1) PHRASE 2 Aboulton:(pos=2)) OR (XTrichard:(pos=1) PHRASE 2 XTboulton:(pos=2)))"},
+    { "authortitle:\"richard boulton\"", "((Arichard:(pos=1) PHRASE 2 Aboulton:(pos=2)) OR (XTrichard:(pos=1) PHRASE 2 XTboulton:(pos=2)))"},
     { NULL, NULL }
 };
 
@@ -613,15 +617,26 @@ static bool test_queryparser1()
     queryparser.set_stemmer(Xapian::Stem("english"));
     queryparser.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     queryparser.add_prefix("author", "A");
+    queryparser.add_prefix("author", "N"); // This prefix will be ignored
     queryparser.add_prefix("writer", "A");
     queryparser.add_prefix("title", "XT");
     queryparser.add_prefix("subject", "XT");
-    queryparser.add_prefix("authortitle", "A");
-    queryparser.add_prefix("authortitle", "XT");
+    queryparser.add_prefix("authortitle", "A", queryparser.PREFIX_INLINE);
+    queryparser.add_prefix("authortitle", "XT", queryparser.PREFIX_INLINE);
     queryparser.add_boolean_prefix("site", "H");
+    queryparser.add_boolean_prefix("site", "N"); // This prefix will be ignored
     queryparser.add_boolean_prefix("site2", "J");
-    queryparser.add_boolean_prefix("multisite", "H");
-    queryparser.add_boolean_prefix("multisite", "J");
+    queryparser.add_prefix("multisite", "H", queryparser.PREFIX_FILTER);
+    queryparser.add_prefix("multisite", "J", queryparser.PREFIX_FILTER);
+    TEST_EXCEPTION(Xapian::UnimplementedError, 
+	queryparser.add_prefix("authortitle", "B", queryparser.PREFIX_FILTER)
+    );
+    TEST_EXCEPTION(Xapian::UnimplementedError, 
+	queryparser.add_prefix("multisite", "B", queryparser.PREFIX_INLINE)
+    );
+    TEST_EXCEPTION(Xapian::UnimplementedError, 
+	queryparser.add_prefix("", "B", queryparser.PREFIX_FILTER)
+    );
     for (test *p = test_or_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)

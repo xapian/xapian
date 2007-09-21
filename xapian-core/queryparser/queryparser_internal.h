@@ -38,42 +38,18 @@ class State;
 /** Information about how to handle a prefix in the query string.
  */
 struct PrefixInfo {
-    typedef enum {
-	/** Handle the text following a prefix as free text. */
-	FREE_TEXT,
-
-	/** Handle the text following a prefix as a boolean filter. */
-	BOOL_FILTER
-    } prefix_type;
-
     /** Type of handling for the prefix; free text, or boolean.
      */
-    PrefixInfo::prefix_type type;
+    Xapian::QueryParser::prefix_type type;
 
     /** Prefix string.
      */
-    string prefix;
+    list<string> prefixes;
 
-    PrefixInfo(PrefixInfo::prefix_type t, const string &s)
-	    : type(t), prefix(s)
-    {}
-};
-
-/** A list of ways to handle a given prefix.
- *
- *  We define this as an explicit type, rather than just using list<PrefixInfo>
- *  directly, partly to keep symbol names shorter, and partly to add the
- *  convenience constructor which takes an initial item.
- */
-struct PrefixInfoList {
-    list<PrefixInfo> items;
-
-    /** Construct an empty PrefixInfoList. */
-    PrefixInfoList() : items() {}
-
-    /** Construct a new PrefixInfoList with an initial item. */
-    PrefixInfoList(PrefixInfo item) : items() {
-	items.push_back(item);
+    PrefixInfo(Xapian::QueryParser::prefix_type t, const string &s)
+	    : type(t), prefixes()
+    {
+	prefixes.push_back(s);
     }
 };
 
@@ -95,7 +71,7 @@ class QueryParser::Internal : public Xapian::Internal::RefCntBase {
 
     // Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
     // "foobar" -> "XFOO"
-    map<string, PrefixInfoList> prefixes;
+    map<string, PrefixInfo> prefixes;
 
     list<ValueRangeProcessor *> valrangeprocs;
 

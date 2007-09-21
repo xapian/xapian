@@ -1,3 +1,36 @@
+Fri Sep 21 15:04:02 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc: API
+	  addition: Revert previous change to behaviour of
+	  QueryParser::add_prefix and QueryParser::add_boolean_prefix
+	  methods, to avoid API change within a release series.  Add new
+	  QueryParser::add_prefix() form which takes three parameters; the
+	  third parameter is a value from a new "prefix_type" enum.
+	* queryparser/queryparser.lemony,queryparser/queryparser_internal.h:
+	  Internal changes to allow multiple filters to be set for a single
+	  field:
+	   - Remove the PrefixInfoList object again - instead add a list of
+	     prefixes to PrefixInfo.  We only aim to support one type of
+	     prefix for a given field, so the extra flexibility given by
+	     PrefixInfoList is a districation.
+	   - Change filter_group_id to be based on a list of prefixes,
+	     instead of a single prefix.
+	   - Change Term objects to store a list of prefixes instead of a
+	     single prefix.  make_term() now takes a prefix argument and
+	     makes a single term.  Term::as_... methods iterate through the
+	     prefix list and OR together the resulting terms.
+	   - Change TermList object to store a list of Terms instead of
+	     Queries, and also to keep track of whether the prefix lists
+	     for those Terms are all the same.  When they are the same,
+	     generate separate phrases for each prefix, and OR them
+	     togeher, instead of generating phrases of "OR" groups of
+	     terms.  Remove the unused "TermList::add_term()" method.
+	* tests/queryparsertest.cc: Add simple tests of repeated inline
+	  fields, phrases with multiple prefixed fields, tests of backwards
+	  compatible behaviour of add_prefix(field, prefix), and
+	  add_boolean_prefix(), and of the new add_prefix() form with
+	  incompatible types.
+
 Thu Sep 20 02:13:36 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Update with changes since 1.0.2.
