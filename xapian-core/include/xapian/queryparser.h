@@ -456,7 +456,32 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  can be mapped to the same prefix (so you can e.g. make title: and
      *  subject: aliases for each other).
      *
-     *  Multiple prefixes can also be mapped from a single field (by calling
+     *  If the type specified is PREFIX_INLINE, normal query terms will be
+     *  generated from the prefix.  If the type specified is PREFIX_FILTER,
+     *  filter terms will be generated instead.  Filter terms allow the user to
+     *  restrict a search: for example:
+     *
+     *    qp.add_prefix("site", "H", Query::PREFIX_FILTER);
+     *
+     *  Allows the user to restrict a search with site:xapian.org which will be
+     *  converted to Hxapian.org and combined with any probabilistic query with
+     *  OP_FILTER.
+     *
+     *  If multiple filter terms are specified in a query for the same prefix,
+     *  they will be combined with the OR operator.  Then, if there are filter
+     *  terms for different prefixes, they will be combined with the AND
+     *  operator.
+     *
+     *  Multiple fields can be mapped to the same prefix (so you can e.g. make
+     *  site: and domain: aliases for each other).  Instances of fields with
+     *  different aliases but the same prefix (or prefixes) will still be
+     *  combined with the OR operator.
+     *
+     *  For example, if "site" and "domain" map to "H", but author maps to "A",
+     *  a search for "site:Foo domain:Bar author:Fred" will map to "(Hfoo OR
+     *  Hbar) AND Afred".
+     *
+     *  Multiple prefixes can be mapped from a single field (by calling
      *  add_prefix repeatedly); this will result in multiple terms being
      *  generated for each field.  These terms will be joined with an OR
      *  operator.
@@ -467,42 +492,12 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  specified using the "default_prefix" parameter of parse_query(), this
      *  prefix will be used in addition.
      *
-     *
-     *  If the type specified is PREFIX_INLINE, normal query terms will be
-     *  generated from the prefix.  If the type specified is PREFIX_FILTER,
-     *  filter terms will be generated instead.  Filter terms allow the user to
-     *  restrict a search: for example:
-     *
-     *    qp.add_prefix("site", "H", Query::PREFIX_FILTER);
-     *
-     *  Allows the user to restrict a search with site:xapian.org which
-     *  will be converted to Hxapian.org combined with any probabilistic
-     *  query with OP_FILTER.
-     *
-     *  If multiple boolean filters are specified in a query for the same
-     *  prefix, they will be combined with the OR operator.  Then, if there are
-     *  boolean filters for different prefixes, they will be combined with the
-     *  AND operator.
-     *
-     *  Multiple fields can be mapped to the same prefix (so you can e.g. make
-     *  site: and domain: aliases for each other).  Instances of fields with
-     *  different aliases but the same prefix will still be combined with the
-     *  OR operator.
-     *
-     *  For example, if "site" and "domain" map to "H", but author maps to "A",
-     *  a search for "site:Foo domain:Bar author:Fred" will map to
-     *  "(Hfoo OR Hbar) AND Afred".
-     *
-     *  Multiple prefixes can also be mapped from a single field (by calling
-     *  add_boolean repeatedly); this will result in multiple boolean filter
-     *  terms being generated for each field.  These terms will be joined
-     *  together with the usual rules for combining boolean filter terms.
-     *
      *  Restrictions: the PREFIX_FILTER type cannot be used for the empty field
      *  name - in other words, the default prefix type cannot be filter terms.
-     *  Also, it is not currently possible to specify some prefixes as
-     *  PREFIX_INLINE and some as PREFIX_FILTER for the same field name.  An
-     *  attempt to set these will result in an exception being raised.
+     *  Calling this method with "field" empty and a type of PREFIX_FILTER will
+     *  raise an exception.  Also, it is not currently possible to specify some
+     *  prefixes as PREFIX_INLINE and some as PREFIX_FILTER for the same field
+     *  name.  An attempt to set this will result in an exception being raised.
      *
      *  Note that the old 2-argument form of add_prefix(), and the
      *  add_boolean_prefix() method, should no longer be used in new code.  The
@@ -513,7 +508,7 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *
      *  @param field   The user visible field name
      *  @param prefix  The term prefix to map this to
-     *  @param type    The type of term to generate from this field name
+     *  @param type    The type of term to generate with this prefix
      */
     void add_prefix(const std::string &field,
 		    const std::string &prefix,
