@@ -38,15 +38,22 @@ Deprecation markers
 -------------------
 
 At any particular point, some parts of the C++ API will be marked as
-"deprecated".  This is indicated with the ``XAPIAN_DEPRECATED`` macro, which
-will cause compilers with appropriate support (such as GCC 3.1 or later, and
-MSVC 7.0 or later) to emit warning messages about the use of deprecated
+"deprecated".  This will be indicated by documentation comments in the C++
+header file, and an entry in the list at the end of this file.  In addition,
+deprecated features will often be marked with the ``XAPIAN_DEPRECATED`` macro,
+which will cause compilers with appropriate support (such as GCC 3.1 or later,
+and MSVC 7.0 or later) to emit warning messages about the use of deprecated
 features at compile time.
 
 If a feature is marked with one of these markers, you should avoid using it in
 new code, and should migrate your code to use a replacement when possible.  The
-documentation comments for the feature, or the list at the end
-of this file, will describe possible alternatives to the deprecated feature.
+documentation comments for the feature, or the list at the end of this file,
+will describe possible alternatives to the deprecated feature.
+
+Usually, we won't add ``XAPIAN_DEPRECATED`` to a feature unless or until a
+replacement has been available since the last major or minor release, so that
+it is possible to write code which will compile for all releases of xapian
+within a release series without warnings.
 
 API and ABI compatibility
 -------------------------
@@ -131,38 +138,46 @@ Features currently marked for deprecation
 Native C++ API
 --------------
 
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| **Deprecation** | **Removal**    | **Feature name**                | **Upgrade suggestion and comments**                                           |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0          | xapian_version_string()         | Use version_string() instead.                                                 |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0          | xapian_major_version()          | Use major_version() instead.                                                  |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0          | xapian_minor_version()          | Use minor_version() instead.                                                  |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0          | xapian_revision()               | Use revision() instead.                                                       |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | Enquire::include_query_terms    | Use Enquire::INCLUDE_QUERY_TERMS instead.                                     |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | Enquire::use_exact_termfreq     | Use Enquire::USE_EXACT_TERMFREQ instead.                                      |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | Error::get_errno()              | Use Error::get_error_string() instead.                                        |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | The Quartz backend              | Use the Flint backend instead.                                                |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | Quartz::open()                  | Use Flint::open() instead.                                                    |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | quartzcheck                     | Use xapian-check instead.                                                     |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | quartzcompact                   | Use xapian-compact instead.                                                   |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 1.0.3           | 1.2.0?         |Enquire::register_match_decider()| This method didn't do anything, so just remove calls to it!                   |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
-| 1.0.3           | 1.2.0?         |Database::positionlist_begin()   | This check is quite expensive, and often you don't care.  If you do, it's     |
-|                 |                |throwing RangeError if the term  | easy to check - just open a TermListIterator for the document and use         |
-|                 |                |specified doesn't index the      | skip_to() to check if the term is there.                                      |
-|                 |                |document specified.              |                                                                               |
-+-----------------+----------------+---------------------------------+-------------------------------------------------------------------------------+
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| **Deprecation** | **Removal**    | **Feature name**                        | **Upgrade suggestion and comments**                                           |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | 1.1.0          | xapian_version_string()                 | Use version_string() instead.                                                 |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | 1.1.0          | xapian_major_version()                  | Use major_version() instead.                                                  |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | 1.1.0          | xapian_minor_version()                  | Use minor_version() instead.                                                  |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 0.9.6           | 1.1.0          | xapian_revision()                       | Use revision() instead.                                                       |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | Enquire::include_query_terms            | Use Enquire::INCLUDE_QUERY_TERMS instead.                                     |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | Enquire::use_exact_termfreq             | Use Enquire::USE_EXACT_TERMFREQ instead.                                      |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | Error::get_errno()                      | Use Error::get_error_string() instead.                                        |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | The Quartz backend                      | Use the Flint backend instead.                                                |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | Quartz::open()                          | Use Flint::open() instead.                                                    |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | quartzcheck                             | Use xapian-check instead.                                                     |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.0           | 1.1.0          | quartzcompact                           | Use xapian-compact instead.                                                   |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.3           | 1.2.0?         | Enquire::register_match_decider()       | This method didn't do anything, so just remove calls to it!                   |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.3           | 1.2.0?         | Database::positionlist_begin()          | This check is quite expensive, and often you don't care.  If you do, it's     |
+|                 |                | throwing RangeError if the term         | easy to check - just open a TermListIterator for the document and use         |
+|                 |                | specified doesn't index the             | skip_to() to check if the term is there.                                      |
+|                 |                | document specified.                     |                                                                               |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.3           | 1.2.0?         | Database::positionlist_begin()          | This check is quite expensive, and often you don't care.  If you do, it's     |
+|                 |                | throwing DocNotFoundError if the        | easy to check - just open a Document with the specified document ID.          |
+|                 |                | document specified doesn't exist        |                                                                               |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.3           | 1.2.0          | QueryParser::add_prefix(f, p)           | Use add_prefix(f, p, PREFIX_INLINE) instead.                                  |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+| 1.0.3           | 1.2.0          | QueryParser::add_boolean_prefix(f, p)   | Use add_prefix(f, p, PREFIX_FILTER) instead.                                  |
++-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
 
 
 Bindings

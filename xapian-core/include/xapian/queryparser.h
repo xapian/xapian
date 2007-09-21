@@ -412,6 +412,15 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  Multiple fields can be mapped to the same prefix (so you can
      *  e.g. make title: and subject: aliases for each other).
      *
+     *  If this is called repeatedly with the same field, only the first prefix
+     *  set will be used.  Use add_prefix(field, prefix, PREFIX_INLINE) if you
+     *  want to add multiple prefixes for a single field.
+     *
+     *  @deprecated This method is deprecated.  Convert code to use the three
+     *  argument form of add_prefix() instead (but note that it has different
+     *  semantics if called repeatedly).  It will produce a compiler warning
+     *  from release 1.1.0 onwards, and be removed in release 1.2.0.
+     *
      *  @param field   The user visible field name
      *  @param prefix  The term prefix to map this to
      */
@@ -439,6 +448,15 @@ class XAPIAN_VISIBILITY_DEFAULT QueryParser {
      *  For example, if "site" and "domain" map to "H", but author maps to "A",
      *  a search for "site:Foo domain:Bar author:Fred" will map to
      *  "(Hfoo OR Hbar) AND Afred".
+     *
+     *  If this is called repeatedly with the same field, only the first prefix
+     *  which was set will be used.  Use add_prefix(field, prefix,
+     *  PREFIX_FILTER) if you want to add multiple prefixes for a single field.
+     *
+     *  @deprecated This method is deprecated.  Convert code to use the three
+     *  argument form of add_prefix() instead (but note that it has different
+     *  semantics if called repeatedly).  It will produce a compiler warning
+     *  from release 1.1.0 onwards, and be removed in release 1.2.0.
      *
      *  @param field   The user visible field name
      *  @param prefix  The term prefix to map this to
