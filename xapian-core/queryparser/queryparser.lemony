@@ -547,8 +547,24 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
     corrected_query.resize(0);
 
     // The default list of prefixes to apply to terms.
-    // FIXME - should initialise from prefixes.find(""), as well as default_prefix.
     PrefixInfo default_prefixinfo(QueryParser::PREFIX_INLINE, default_prefix);
+
+    {
+	map<string, PrefixInfo>::const_iterator f;
+	f = prefixes.find("");
+	if (f != prefixes.end()) {
+	    if (default_prefix.empty()) {
+	        default_prefixinfo.prefixes.clear();
+	    }
+	    const PrefixInfo * prefixinfo = &(f->second);
+	    list<string>::const_iterator prefixiter;
+	    for (prefixiter = prefixinfo->prefixes.begin();
+		 prefixiter != prefixinfo->prefixes.end();
+		 ++prefixiter) {
+		default_prefixinfo.prefixes.push_back(*prefixiter);
+	    }
+	}
+    }
 
     // Stack of prefixes, used for phrases and subexpressions.
     list<const PrefixInfo *> prefix_stack;

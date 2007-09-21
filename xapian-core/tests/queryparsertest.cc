@@ -634,9 +634,6 @@ static bool test_queryparser1()
     TEST_EXCEPTION(Xapian::UnimplementedError, 
 	queryparser.add_prefix("multisite", "B", queryparser.PREFIX_INLINE)
     );
-    TEST_EXCEPTION(Xapian::UnimplementedError, 
-	queryparser.add_prefix("", "B", queryparser.PREFIX_FILTER)
-    );
     for (test *p = test_or_queries; p->query; ++p) {
 	string expect, parsed;
 	if (p->expect)
@@ -709,6 +706,46 @@ static bool test_qp_default_prefix1()
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZAme:(pos=1) OR ZXTstuff:(pos=2)))");
     qobj = qp.parse_query("title:(stuff) me", Xapian::QueryParser::FLAG_BOOLEAN, "A");
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXTstuff:(pos=1) OR ZAme:(pos=2)))");
+    return true;
+}
+
+// Feature test for setting the default prefix with add_prefix()
+// (new in Xapian 1.0.3).
+static bool test_qp_default_prefix2()
+{
+    Xapian::QueryParser qp;
+    qp.set_stemmer(Xapian::Stem("english"));
+    qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
+
+    // test that default prefixes can only be set with PREFIX_INLINE
+    TEST_EXCEPTION(Xapian::UnimplementedError, 
+	qp.add_prefix("", "B", qp.PREFIX_FILTER)
+    );
+
+    qp.add_prefix("title", "XT", qp.PREFIX_INLINE);
+    qp.add_prefix("", "A", qp.PREFIX_INLINE);
+
+    Xapian::Query qobj;
+    qobj = qp.parse_query("hello world", 0);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZAhello:(pos=1) OR ZAworld:(pos=2)))");
+    qobj = qp.parse_query("me title:stuff", 0);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZAme:(pos=1) OR ZXTstuff:(pos=2)))");
+    qobj = qp.parse_query("title:(stuff) me", Xapian::QueryParser::FLAG_BOOLEAN);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXTstuff:(pos=1) OR ZAme:(pos=2)))");
+
+    qobj = qp.parse_query("hello world", 0, "B");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZBhello:(pos=1) OR ZAhello:(pos=1) OR ZBworld:(pos=2) OR ZAworld:(pos=2)))");
+    qobj = qp.parse_query("me title:stuff", 0, "B");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZBme:(pos=1) OR ZAme:(pos=1) OR ZXTstuff:(pos=2)))");
+    qobj = qp.parse_query("title:(stuff) me", Xapian::QueryParser::FLAG_BOOLEAN, "B");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXTstuff:(pos=1) OR ZBme:(pos=2) OR ZAme:(pos=2)))");
+
+    qp.add_prefix("", "B", qp.PREFIX_INLINE);
+    qobj = qp.parse_query("me-us title:(stuff) me", Xapian::QueryParser::FLAG_BOOLEAN, "C");
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((Cme:(pos=1) PHRASE 2 Cus:(pos=2)) OR (Ame:(pos=1) PHRASE 2 Aus:(pos=2)) OR (Bme:(pos=1) PHRASE 2 Bus:(pos=2)) OR ZXTstuff:(pos=3) OR ZCme:(pos=4) OR ZAme:(pos=4) OR ZBme:(pos=4)))");
+
+    qobj = qp.parse_query("me-us title:\"not-me\"", Xapian::QueryParser::FLAG_PHRASE);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(((Ame:(pos=1) PHRASE 2 Aus:(pos=2)) OR (Bme:(pos=1) PHRASE 2 Bus:(pos=2)) OR (XTnot:(pos=3) PHRASE 2 XTme:(pos=4))))");
     return true;
 }
 
@@ -1633,6 +1670,7 @@ static test_desc tests[] = {
     TESTCASE(qp_flag_pure_not1),
     TESTCASE(qp_unstem_boolean_prefix),
     TESTCASE(qp_default_prefix1),
+    TESTCASE(qp_default_prefix2),
     TESTCASE(value_range_serialise1),
     TESTCASE(qp_value_range1),
     TESTCASE(qp_value_range2),
