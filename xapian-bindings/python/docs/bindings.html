@@ -342,7 +342,8 @@ the "main" python interpreter; as a result, deadlocks can occur.
 </p>
 
 <p>
-To avoid the problem, you need to set the "PythonInterpreter main_interpreter"
+To avoid the problem, you need to use Python version 2.4 or later, and
+need to set the "PythonInterpreter main_interpreter"
 option in the apache configuration section for all mod_python scripts which use
 xapian: this ensures that the xapian bindings are called from the
 main_interpreter, and can handle the thread locks appropriately.  An example
