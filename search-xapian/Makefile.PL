@@ -3,6 +3,13 @@ use strict;
 
 my $CC = $ENV{"CXX"} || 'g++';
 my $LD = '$(CC)';
+if ($^O eq 'cygwin' and $CC eq 'g++') {
+    # Cygwin packages of Perl < 5.9.5 used "ld2" for $Config{ld} and
+    # $Config{lddlflags} didn't contain -shared so we need to specify
+    # this explicitly.  Perl >= 5.9.5 package do away with "ld2", but
+    # it should be harmless to specify "-shared" there.
+    $LD = 'g++ -shared';
+}
 
 my $xapian_config = $ENV{XAPIAN_CONFIG} || 'xapian-config';
 
