@@ -215,7 +215,7 @@ class TestRunner(object):
             self.report_failure(name, "Unexpected exception")
         return False
 
-    def runtests(self, namedict):
+    def runtests(self, namedict, runonly=None):
         """Run a set of tests.
     
         Takes a dictionary of name-value pairs and runs all the values which are
@@ -223,6 +223,9 @@ class TestRunner(object):
 
         Typical usage is to pass "locals()" as the parameter, to run all callables
         with names starting "test_" in local scope.
+
+        If runonly is supplied, and non-empty, only those tests which appear in
+        runonly will be run.
 
         """
         tests = []
@@ -236,6 +239,13 @@ class TestRunner(object):
             tests.sort()
         else:
             tests = namedict
+
+        if runonly is not None and len(runonly) != 0:
+            oldtests = tests
+            tests = []
+            for name, fn in oldtests:
+                if name in runonly:
+                    tests.append((name, fn))
 
         passed, failed = 0, 0
         for name, fn in tests:

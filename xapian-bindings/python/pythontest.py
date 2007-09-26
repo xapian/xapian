@@ -887,7 +887,7 @@ vinfo = sys.version_info
 test_legacy_sequence_api = vinfo[0] > 2 or (vinfo[0] == 2 and vinfo[1] >= 3)
 
 # Run all tests (ie, callables with names starting "test_").
-if not runtests(globals()):
+if not runtests(globals(), sys.argv[1:]):
     sys.exit(1)
 
 # vim:syntax=python:set expandtab:
