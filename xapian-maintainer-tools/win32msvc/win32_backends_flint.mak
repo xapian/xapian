@@ -16,6 +16,7 @@ ALL : "$(OUTDIR)\libflint.lib"
 OBJS= \
                $(INTDIR)\flint_database.obj \
                $(INTDIR)\flint_termlist.obj \
+               $(INTDIR)\flint_termlisttable.obj \
                $(INTDIR)\flint_postlist.obj \
                $(INTDIR)\flint_positionlist.obj \
                $(INTDIR)\flint_record.obj \
@@ -38,6 +39,7 @@ OBJS= \
 SRCS= \
                $(INTDIR)\flint_database.cc \
                $(INTDIR)\flint_termlist.cc \
+               $(INTDIR)\flint_termlisttable.cc \
                $(INTDIR)\flint_postlist.cc \
                $(INTDIR)\flint_positionlist.cc \
                $(INTDIR)\flint_record.cc \
