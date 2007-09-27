@@ -122,7 +122,7 @@ ValueRangePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     Assert(db);
     if (did <= current) return NULL;
     current = did - 1;
-    return next(w_min);
+    return ValueRangePostList::next(w_min);
 }
 
 bool
