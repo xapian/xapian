@@ -31,7 +31,6 @@ namespace Xapian {
     class PositionIterator;
     namespace Internal {
 	class ExpandStats;
-	class ExpandWeight;
     }
 }
 
