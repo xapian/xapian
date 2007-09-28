@@ -106,3 +106,10 @@ value=This is a multi-line
 =value.  Note how each newline
 =is escaped.
 format=HTML
+
+Example:
+========
+
+See mbox2omega and mbox2omega.script for an example of how you can generate a
+dump file from an external source and write an index script to be used with it.
+Try "mbox2omega --help" for more information.

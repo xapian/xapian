@@ -1,3 +1,9 @@
+Fri Sep 28 15:46:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* mbox2omega: Expand --help output.
+	* docs/scriptindex.txt: Refer to mbox2omega as an example of how to
+	  use scriptindex.
+
 Fri Sep 28 03:18:25 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.

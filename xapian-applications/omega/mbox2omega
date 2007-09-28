@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-# Copyright (C) 2004,2005 Olly Betts
+# Copyright (C) 2004,2005,2007 Olly Betts
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,7 +18,24 @@
 
 use strict;
 
-grep {$_ eq '--help'} @ARGV and die "Syntax: $0 [MBOX...]\n";
+if (grep {$_ eq '--help'} @ARGV) {
+    die <<EOT;
+Syntax: $0 [MBOX...]
+
+Run this script with one or more mailbox filenames on the command line (or
+pipe a mailbox in on stdin).  It produces output suitable for feeding to
+scriptindex using the mbox2omega.script index script.  For example:
+
+  $0 *.mbox | scriptindex /path/to/database mbox2omega.script
+
+The index script tells scriptindex how to process the dump file, so you can
+customise that to change how the indexing is done.
+
+Note that this script is mainly intended as a simple example of how you might
+generate scriptindex dump files from a data source, and its handling of mail
+messages is quite primitive - e.g. it doesn't handle MIME or character sets.
+EOT
+}
 
 my $hdr = 1;
 line: while (<>) {
