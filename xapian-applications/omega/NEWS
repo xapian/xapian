@@ -1,7 +1,4 @@
-Up to:
-Fri Sep 28 03:18:25 BST 2007  Olly Betts <olly@survex.com>
-
-Omega 1.0.3 (2007-09-2?):
+Omega 1.0.3 (2007-09-28):
 
 general:
 
@@ -9,6 +6,9 @@ general:
   a few KB and we need to use it for xapian-core anyway.
 
 documentation:
+
+* Expand the output of 'mbox2omega --help' and refer the reader to it from
+  docs/scriptindex.txt.
 
 indexers:
 
@@ -43,14 +43,6 @@ templates:
   + Add popup hints on mouse-over for various items.
 
   + Tidy up some HTML gremlins.
-
-testsuite:
-
-build system:
-
-portability:
-
-packaging:
 
 Omega 1.0.2 (2007-07-05):
 
