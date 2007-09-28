@@ -1,3 +1,7 @@
+Fri Sep 28 13:22:16 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Clarify support for empty metadata keys.
+
 Fri Sep 28 11:00:08 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/valgrind.supp: Add second version of the zlib end condition

@@ -673,8 +673,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  There's no hard limit on the number of metadata items, or the size
 	 *  of the metadata values.  Metadata keys have a limited length, which
 	 *  depends on the backend.  We recommend limiting them to 200 bytes.
-	 *  Currently an empty key is valid, though this may change in the
-	 *  future.
+	 *  An empty key is valid for the flint and inmemory backends, but may
+	 *  not be supported by future backends.
 	 *
 	 *  Metadata modifications are committed to disk in the same way as
 	 *  modifications to the documents in the database are: i.e.,
