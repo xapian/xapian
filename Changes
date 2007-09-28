@@ -1,8 +1,9 @@
 Revision history for Perl extension Search::Xapian.
 
-1.0.3.0  ??????????????????????? 2007
+1.0.3.0  Fri Sep 28 18:38:42 BST 2007
 	[Changes contributed by Olly Betts]
 	- Improve QueryParser pod documentation.
+	- PerlStopper::operator() now declared const as it should be.
 	[Changes contributed by Reini Urban]
 	- Force LD to be "g++ -shared" for GCC on Cygwin since Perl < 5.9.5
 	  Cygwin packages need it.
