@@ -38,22 +38,15 @@ Deprecation markers
 -------------------
 
 At any particular point, some parts of the C++ API will be marked as
-"deprecated".  This will be indicated by documentation comments in the C++
-header file, and an entry in the list at the end of this file.  In addition,
-deprecated features will often be marked with the ``XAPIAN_DEPRECATED`` macro,
-which will cause compilers with appropriate support (such as GCC 3.1 or later,
-and MSVC 7.0 or later) to emit warning messages about the use of deprecated
+"deprecated".  This is indicated with the ``XAPIAN_DEPRECATED`` macro, which
+will cause compilers with appropriate support (such as GCC 3.1 or later, and
+MSVC 7.0 or later) to emit warning messages about the use of deprecated
 features at compile time.
 
 If a feature is marked with one of these markers, you should avoid using it in
 new code, and should migrate your code to use a replacement when possible.  The
-documentation comments for the feature, or the list at the end of this file,
-will describe possible alternatives to the deprecated feature.
-
-Usually, we won't add ``XAPIAN_DEPRECATED`` to a feature unless or until a
-replacement has been available since the last major or minor release, so that
-it is possible to write code which will compile for all releases of xapian
-within a release series without warnings.
+documentation comments for the feature, or the list at the end
+of this file, will describe possible alternatives to the deprecated feature.
 
 API and ABI compatibility
 -------------------------
