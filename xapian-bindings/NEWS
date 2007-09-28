@@ -1,3 +1,77 @@
+Xapian-bindings 1.0.3 (2007-09-28):
+
+General:
+
+* Wrap new methods Database::get_metadata() and
+  WritableDatabase::set_metadata().
+
+* "make uninstall" now removes the loadable module we install for each of
+  the bindings.
+
+* "make distcheck" now works.
+
+* Distribution tarballs are now in the POSIX "ustar" format since it saves
+  about 40KB and we need to use it for xapian-core anyway.
+
+Packaging:
+
+* RPMs: Package xapian.php.
+
+CSharp:
+
+* Remove wrapper for ValueRangeProcessor::operator(), since it can't be
+  usefully used currently.
+
+Java:
+
+* Remove wrappers for the Muscat36 backend, which has now been dropped from the
+  C++ library.
+
+* "make clean" now removes the class files generated for inner classes.
+
+PHP:
+
+* Add feature test for DateValueRangeProcessor when used with QueryParser.
+
+* ValueRangeProcessor::apply() can now be called from PHP (bug#193).  This
+  isn't actually very useful, since you can't subclass it in PHP currently.
+
+* Fixed wrapping of Enquire::set_cutoff() - previously this would only work
+  if the third parameter was specified and a floating point number (e.g. 0.0).
+
+* php/docs/bindings.html: Fix errors in example code.
+
+Python:
+
+* ValueRangeProcessor::operator() is now wrapped as a __call__ method in
+  Python which takes two strings and returns a 3-tuple (value_number,
+  modified_begin, modified_end).  Previously this always failed with a
+  type error, so this doesn't break existing code.
+
+* python/pythontest.py: Interpret any commandline arguments as a list of
+  tests to be run (the default is to run all tests).
+
+* README,python/docs/bindings.html: Add a note about the problems with
+  mod-python (as described in bug #185).
+
+* python/pythontest.py: Delete the database handles before deleting a database
+  to fix problems running the Python tests on MS Windows (bug#179).
+
+* "make clean" now removes testsuite.pyc.
+
+Ruby:
+
+* Check for RUBY_INC, RUBY_LIB, and RUBY_LIB_ARCH in the environment or on
+  the configure command-line.  The defaults for RUBY_LIB and RUBY_LIB_ARCH are
+  now the site-specific directories, which is more correct when building
+  from source.  Debian packages, etc can override this by setting RUBY_LIB and
+  RUBY_LIB_ARCH.
+
+Tcl:
+
+* Check for TCL_LIB in the environment or on the configure command-line to
+  allow installing without root access more cleanly.
+
 Xapian-bindings 1.0.2 (2007-07-05):
 
 Documentation:
