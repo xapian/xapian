@@ -136,4 +136,15 @@ if (Xapian::sortable_unserialise($b) != 20) {
     exit(1);
 }
 
+# Test setting and getting metadata
+if ($db->get_metadata('Foo') !== '') {
+    print "Unexpected value for metadata associated with 'Foo' (expected ''): '".$db->get_metadata('Foo')."'\n";
+    exit(1);
+}
+$db->set_metadata('Foo', 'Foo');
+if ($db->get_metadata('Foo') !== 'Foo') {
+    print "Unexpected value for metadata associated with 'Foo' (expected 'Foo'): '".$db->get_metadata('Foo')."'\n";
+    exit(1);
+}
+
 ?>

@@ -192,11 +192,11 @@ class PositionIterator {
 %ignore value_type;
 %extend Xapian::PostingIterator {
     Xapian::docid get_docid() const {
-        return *(*self);
+	return *(*self);
     }
     NEXT(Xapian::docid, PostingIterator)
     bool equals(const PostingIterator &other) const {
-        return (*self) == other;
+	return (*self) == other;
     }
 }
 %include <xapian/postingiterator.h>
@@ -658,8 +658,9 @@ class Database {
 	TermIterator spellings_end() const;
 	TermIterator synonyms_begin(const std::string &term) const;
 	TermIterator synonyms_end(const std::string &) const;
-        TermIterator synonym_keys_begin(const std::string &prefix = "") const;
-        TermIterator synonym_keys_end(const std::string &prefix = "") const;
+	TermIterator synonym_keys_begin(const std::string &prefix = "") const;
+	TermIterator synonym_keys_end(const std::string &prefix = "") const;
+	std::string get_metadata(const std::string & key) const;
 };
 
 class WritableDatabase : public Database {
@@ -692,6 +693,7 @@ class WritableDatabase : public Database {
 	void remove_synonym(const std::string & term,
 			    const std::string & synonym) const;
 	void clear_synonyms(const std::string & term) const;
+	void set_metadata(const std::string & key, const std::string & value);
 
 	string get_description() const;
 };

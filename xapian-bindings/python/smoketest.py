@@ -309,7 +309,10 @@ def test_all():
     # Regression test for bug#192 - fixed in 1.0.3.
     enq.set_cutoff(100)
 
-
+    # Test setting and getting metadata
+    expect(db.get_metadata('Foo'), '')
+    db.set_metadata('Foo', 'Foo')
+    expect(db.get_metadata('Foo'), 'Foo')
 
 
 # Run all tests (ie, callables with names starting "test_").
