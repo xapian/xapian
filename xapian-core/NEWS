@@ -1,7 +1,4 @@
-up to:
-Fri Sep 28 01:55:42 BST 2007  Olly Betts <olly@survex.com>
-
-Xapian-core 1.0.3 (2007-09-2?):
+Xapian-core 1.0.3 (2007-09-28):
 
 API:
 
@@ -32,6 +29,9 @@ testsuite:
 
 * Fix display of valgrind output when a test fails because valgrind detected
   a problem.
+
+* Add another version of valgrind suppression for the zlib end condition check
+  as this gives a different backtrace for zlib in Ubuntu gutsy.
 
 flint backend:
 
@@ -65,9 +65,6 @@ flint backend:
   it, so we now reread it each time a WritableDatabase is opened.
 
 * Implement TermIterator::positionlist_count() for the flint backend.
-
-quartz backend:
-
 
 remote backend:
 
@@ -120,22 +117,12 @@ documentation:
 
 * Fix several typos.
 
-examples:
-
-
 portability:
 
 * Add missing instances of "#include <string.h>" to fix compilation with recent
   GCC 4.3 snapshots.
 
 * Fix some warnings for various compilers and platforms.
-
-packaging:
-
-
-debug code:
-
-
 
 Xapian-core 1.0.2 (2007-07-05):
 
@@ -416,7 +403,7 @@ API:
     this mean an incompatible ABI change which we had hoped to avoid until
     1.1.0, but in this case there didn't seem to be a sane way to fix the
     problem without an ABI change.
-    
+
   + Error::get_description() now converts my_errno to error_string if it hasn't
     been already rather than not including any error description in this case.
 
@@ -581,7 +568,7 @@ API:
     Hopefully this won't affect real code, but it's possible.  Instead of
     passing a std::string where a Xapian::Database is expected, you'll now
     have to explicitly write `Xapian::Database(path)' instead of `path'.
- 
+
   + Fixed problem when calling skip_to() on an allterms iterator over multiple
     databases which could cause a debug assertion in debug builds, and possible
     misbehaviour in normal builds.
@@ -658,7 +645,7 @@ API:
     methods or functions taking an Enquire object could be affected.  In
     such cases, you'll now have to explicitly write `Xapian::Enquire(db)'
     instead of `db'.
- 
+
   + Enquire::get_eset() now produces better results when used with multiple
     databases - without USE_EXACT_TERMFREQ they should be much more similar to
     results from an equivalent single database; with USE_EXACT_TERMFREQ they
