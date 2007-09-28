@@ -1,3 +1,7 @@
+Fri Sep 28 13:30:49 BST 2007  Olly Betts <olly@survex.com>
+
+	* PLATFORMS: Updates from tinderbox.
+
 Fri Sep 28 13:22:16 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/database.h: Clarify support for empty metadata keys.
