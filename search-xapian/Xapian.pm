@@ -91,7 +91,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw( );
 
 
-our $VERSION = '1.0.2.0';
+our $VERSION = '1.0.3.0';
 
 bootstrap Search::Xapian $VERSION;
 
@@ -148,18 +148,12 @@ Search::Xapian - Perl XS frontend to the Xapian C++ search library.
 
 This module wraps most methods of most Xapian classes. The missing classes
 and methods should be added in the future. It also provides a simplified,
-more 'perlish' interface - as demonstrated above.
+more 'perlish' interface to some common operations, as demonstrated above.
 
-The Xapian library is evolving very quickly at the time of writing,
-hence any documentation placed here would be likely to become out of
-date quite rapidly, and I do not have the patience to write some which
-could rapidly become redundant.
-
-Apologies to those of you considering using this module. For the time
-being, I would suggest garnering what you can from the tests and
-examples provided, or reading through the Xapian documentation on
-L<http://www.xapian.org/>, notably the API documentation at
-L<http://www.xapian.org/docs/apidoc/html/annotated.html>.
+There are some gaps in the POD documentation for wrapped classes, but you
+can read the Xapian C++ API documentation at
+L<http://www.xapian.org/docs/apidoc/html/annotated.html> for details of
+these.  Alternatively, take a look at the code in the examples and tests.
 
 If you encounter problems, email either me or preferably the
 Xapian-discuss mailing list (which I am on - subscription details can
@@ -351,7 +345,6 @@ or Xapian::BAD_VALUENO.
 
 The following methods are not yet wrapped:
 Enquire::get_eset(...) with more than two arguments,
-Enquire::register_match_decider(...) with one argument,
 Query ctor optional "parameter" parameter,
 Remote::open(...),
 static Stem::get_available_languages().
