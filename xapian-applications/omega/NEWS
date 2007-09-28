@@ -1,8 +1,12 @@
-Up to: Sat Sep 08 19:24:48 BST 2007  Olly Betts <olly@survex.com>
+Up to:
+Fri Sep 28 03:18:25 BST 2007  Olly Betts <olly@survex.com>
 
 Omega 1.0.3 (2007-09-2?):
 
 general:
+
+* Distribution tarballs are now in the POSIX "ustar" format since it saves
+  a few KB and we need to use it for xapian-core anyway.
 
 documentation:
 
