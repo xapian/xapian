@@ -35,22 +35,14 @@ using namespace std;
 
 class State;
 
-/** Information about how to handle a prefix in the query string.
- */
 struct PrefixInfo {
-    /** Type of handling for the prefix; free text, or boolean.
-     */
-    Xapian::QueryParser::prefix_type type;
-
-    /** Prefix string.
-     */
-    list<string> prefixes;
-
-    PrefixInfo(Xapian::QueryParser::prefix_type t, const string &s)
-	    : type(t), prefixes()
-    {
-	prefixes.push_back(s);
-    }
+    typedef enum {
+	FREE_TEXT,
+	BOOL_FILTER
+    } prefix_type;
+    PrefixInfo::prefix_type type;
+    string str;
+    PrefixInfo(PrefixInfo::prefix_type t, const string &s) : type(t), str(s) { }
 };
 
 namespace Xapian {

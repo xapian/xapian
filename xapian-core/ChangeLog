@@ -1,3 +1,12 @@
+Fri Sep 28 03:05:10 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/Makefile.mk,docs/Makefile.am,docs/deprecation.rst,
+	  include/Makefile.mk,include/xapian.h,include/xapian/queryparser.h,
+	  queryparser/queryparser.cc,queryparser/queryparser.lemony,
+	  queryparser/queryparser_internal.h,tests/: Back out changes which
+	  need more thought or more work in the interests of getting 1.0.3
+	  out this month.
+
 Fri Sep 28 03:04:19 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Update with recent changes.

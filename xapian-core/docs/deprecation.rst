@@ -164,12 +164,8 @@ Native C++ API
 |                 |                | document specified.                     |                                                                               |
 +-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
 | 1.0.3           | 1.2.0?         | Database::positionlist_begin()          | This check is quite expensive, and often you don't care.  If you do, it's     |
-|                 |                | throwing DocNotFoundError if the        | easy to check - just open a Document with the specified document ID.          |
-|                 |                | document specified doesn't exist        |                                                                               |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.3           | 1.2.0          | QueryParser::add_prefix(f, p)           | Use add_prefix(f, p, PREFIX_INLINE) instead.                                  |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.3           | 1.2.0          | QueryParser::add_boolean_prefix(f, p)   | Use add_prefix(f, p, PREFIX_FILTER) instead.                                  |
+|                 |                | throwing DocNotFoundError if the        | easy to check - just call Database::get_document() with the specified         |
+|                 |                | document specified doesn't exist.       | document ID.                                                                  |
 +-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
 
 

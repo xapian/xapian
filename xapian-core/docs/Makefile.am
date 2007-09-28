@@ -13,7 +13,7 @@ HTMLDOCS = index.html internals.html install.html intro_ir.html overview.html \
  bm25.html code_structure.html queryparser.html \
  quickstartexpand.cc.html quickstartindex.cc.html quickstartsearch.cc.html
 
-RSTDOCS = admin_notes.rst categorisation.rst deprecation.rst glossary.rst \
+RSTDOCS = admin_notes.rst deprecation.rst glossary.rst \
  spelling.rst synonyms.rst termgenerator.rst valueranges.rst
 RSTHTML = $(RSTDOCS:.rst=.html)
 
