@@ -1,3 +1,8 @@
+Fri Sep 28 03:54:19 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.0.3.  Use ustar format for tarball since
+	  we have to for xapian-core anyway.
+
 Fri Sep 28 03:46:22 BST 2007  Olly Betts <olly@survex.com>
 
 	* csharp/Makefile.am,python/extra.i,python/pythontest.py,python/util.i,
