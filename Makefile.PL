@@ -1,5 +1,6 @@
 use ExtUtils::MakeMaker;
 use strict;
+use Config;
 
 my $CC = $ENV{"CXX"} || 'g++';
 my $LD = '$(CC)';
@@ -20,7 +21,7 @@ if ($xver eq '') {
 chomp($xver);
 $xver =~ s/.*\s//; # "xapian 0.9.3" -> "0.9.3"
 
-my $inc  = `$xapian_config --cxxflags`;
+my $inc = `$xapian_config --cxxflags`;
 chomp($inc);
 
 my $libsvar = 'LIBS';
@@ -45,6 +46,15 @@ if ($? || -f "$xapian_config_dir/Makefile") {
     $CC = "$libtool --mode=compile $CC";
 }
 
+# Filter out some gcc options which g++ doesn't support.
+my $CCFLAGS = $Config{'ccflags'};
+# Perl is built with -Wdeclaration-after-statement on RHEL5 - this isn't
+# meaningful for C++ - it only emits a warning but it's easy to fix.
+$CCFLAGS =~ s/(?:^|\s+)-Wdeclaration-after-statement(?:\s+|$)/ /;
+# The generated code causes "variable may be used uninitialized" warnings
+# if Perl was built with -Wall.
+$CCFLAGS =~ s/(^|\s+)-Wall(\s+|$)/$1-Wall -Wno-uninitialized$2/;
+
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
@@ -58,11 +68,9 @@ WriteMakefile(
     $libsvar		=> $libs, # e.g., '-lm'
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
     'CC'                => $CC,
+    'CCFLAGS'		=> $CCFLAGS,
     'LD'                => $LD,
-	# Insert -I. if you add *.h files later:
     'INC'		=> $inc, # e.g., '-I/usr/include/other'
-	# Un-comment this if you add C files to link with later:
-    # 'OBJECT'		=> '$(O_FILES)', # link all the C files too
     'XSOPT'             => '-C++',
     'TYPEMAPS'          => ['perlobject.map','typemap'],
     # Add "make check" as alias for "make test".
