@@ -1,3 +1,7 @@
+Fri Sep 28 03:04:19 BST 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Update with recent changes.
+
 Fri Sep 28 01:55:42 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Revert to the previous deprecation policy.
