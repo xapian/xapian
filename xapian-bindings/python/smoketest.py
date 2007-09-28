@@ -313,6 +313,9 @@ def test_all():
     expect(db.get_metadata('Foo'), '')
     db.set_metadata('Foo', 'Foo')
     expect(db.get_metadata('Foo'), 'Foo')
+    expect_exception(xapian.InvalidArgumentError, "Empty metadata keys are invalid", db.get_metadata, '')
+    expect_exception(xapian.InvalidArgumentError, "Empty metadata keys are invalid", db.set_metadata, '', 'Foo')
+    expect_exception(xapian.InvalidArgumentError, "Empty metadata keys are invalid", db.get_metadata, '')
 
 
 # Run all tests (ie, callables with names starting "test_").
