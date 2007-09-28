@@ -1753,6 +1753,18 @@ static bool test_metadata2()
     return true;
 }
 
+// Test the empty metadata keys give an error correctly.
+static bool test_metadata3()
+{
+    Xapian::WritableDatabase db = get_writable_database("");
+
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_metadata(""));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.set_metadata("", "foo"));
+    TEST_EXCEPTION(Xapian::InvalidArgumentError, db.get_metadata(""));
+
+    return true;
+}
+
 // Test that adding a document with a really long term gives an error on
 // add_document() rather than on flush().
 static bool test_termtoolong1()
@@ -1831,6 +1843,7 @@ test_desc writabledb_tests[] = {
     TESTCASE(synonymitor1),
     TESTCASE(metadata1),
     TESTCASE(metadata2),
+    TESTCASE(metadata3),
     TESTCASE(termtoolong1),
     END_OF_TESTCASES
 };

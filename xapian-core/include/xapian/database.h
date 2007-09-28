@@ -293,9 +293,15 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  If there is no piece of metadata associated with the specified
 	 *  key, an empty string is returned.
 	 *
+	 *  Empty keys are not valid, and specifying one will cause an
+	 *  exception.
+	 *
 	 *  @param key The key of the metadata item to access.
 	 *
 	 *  @return    The retrieved metadata item's value.
+	 *
+	 *  @exception Xapian::InvalidArgumentError will be thrown if the
+	 *             key supplied is empty.
 	 */
 	std::string get_metadata(const std::string & key) const;
 };
@@ -673,8 +679,8 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *  There's no hard limit on the number of metadata items, or the size
 	 *  of the metadata values.  Metadata keys have a limited length, which
 	 *  depends on the backend.  We recommend limiting them to 200 bytes.
-	 *  An empty key is valid for the flint and inmemory backends, but may
-	 *  not be supported by future backends.
+	 *  Empty keys are not valid, and specifying one will cause an
+	 *  exception.
 	 *
 	 *  Metadata modifications are committed to disk in the same way as
 	 *  modifications to the documents in the database are: i.e.,
@@ -696,6 +702,9 @@ class XAPIAN_VISIBILITY_DEFAULT WritableDatabase : public Database {
 	 *
 	 *  @exception Xapian::DatabaseCorruptError will be thrown if the
 	 *             database is in a corrupt state.
+	 *
+	 *  @exception Xapian::InvalidArgumentError will be thrown if the
+	 *             key supplied is empty.
 	 */
 	void set_metadata(const std::string & key, const std::string & value);
 

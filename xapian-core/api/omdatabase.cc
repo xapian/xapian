@@ -496,6 +496,8 @@ string
 Database::get_metadata(const string & key) const
 {
     DEBUGAPICALL(string, "Database::get_metadata", key);
+    if (key.empty())
+	throw InvalidArgumentError("Empty metadata keys are invalid");
     RETURN(internal[0]->get_metadata(key));
 }
 
@@ -651,6 +653,8 @@ void
 WritableDatabase::set_metadata(const string & key, const string & value)
 {
     DEBUGAPICALL(void, "WritableDatabase::set_metadata", key << ", " << value);
+    if (key.empty())
+	throw InvalidArgumentError("Empty metadata keys are invalid");
     internal[0]->set_metadata(key, value);
 }
 
