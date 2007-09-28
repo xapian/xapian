@@ -1,3 +1,7 @@
+Fri Sep 28 03:11:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.0.3.
+
 Fri Sep 28 03:05:10 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/Makefile.mk,docs/Makefile.am,docs/deprecation.rst,
