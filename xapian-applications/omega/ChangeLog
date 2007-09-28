@@ -1,3 +1,8 @@
+Fri Sep 28 03:15:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Update for 1.0.3.  Use ustar format for tarball since
+	  we have to for xapian-core anyway.
+
 Fri Sep 28 02:42:28 BST 2007  Olly Betts <olly@survex.com>
 
 	* ./: Update common SVN rev in svn:externals so the files are in

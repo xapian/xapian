@@ -4,12 +4,12 @@ dnl Need autoconf 2.50 or later for many features
 dnl automake 1.6.3 requires autoconf 2.54
 dnl autoconf 2.59 is what xapian-core requires, so be consistent
 AC_PREREQ(2.59)
-AC_INIT(xapian-omega, 1.0.2)dnl FIXME: bugreport addr as third argument
+AC_INIT(xapian-omega, 1.0.3)dnl FIXME: bugreport addr as third argument
 dnl Need 1.5 for AM_CXXFLAGS, etc; 1.6.3 for AM_INIT_AUTOMAKE with no args
 dnl 1.8.5 contains a lot of fixes over 1.6.3
 dnl 1.9 reduces Makefile.in size, and 1.9.5 was in Debian sarge
 dnl But the RPM spec file runs autoreconf, and SLES 9 has 1.8.3.
-AM_INIT_AUTOMAKE([1.8.3 -Wportability])
+AM_INIT_AUTOMAKE([1.8.3 -Wportability tar-ustar])
 
 AC_CONFIG_SRCDIR(omega.cc)
 
@@ -63,7 +63,8 @@ AC_TRY_COMPILE([#include <stdint.h>],
 
 dnl Check for headers.
 AC_CHECK_HEADERS([netinet/in.h arpa/inet.h sys/wait.h strings.h sys/time.h]dnl
-		 [sys/resource.h sys/socket.h],
+		 [sys/resource.h sys/socket.h sys/sysctl.h vm/vm_param.h]dnl
+		 [sys/vmmeter.h sys/sysmp.h sys/sysinfo.h sys/pstat.h],
 		 [], [], [ ])
 
 dnl mingw (for instance) lacks ssize_t
@@ -108,7 +109,7 @@ AC_LINK_IFELSE([
 
 dnl omindex uses fork(), socketpair(), and setrlimit() to impose resource
 dnl limits on filter programs.
-AC_CHECK_FUNCS([mmap fork setrlimit socketpair])
+AC_CHECK_FUNCS([mmap fork setrlimit socketpair sysmp pstat_getdynamic])
 
 dnl Check that snprintf actually works as it's meant to.
 dnl
