@@ -709,7 +709,7 @@ if test no != "$with_ruby" ; then
     if test -n "$RUBY" ; then
       AC_MSG_RESULT([$version])
       AC_ARG_VAR(RUBY_INC, [Directory where ruby.h can be found])
-      if test -n "$RUBY_INC" ; then
+      if test -z "$RUBY_INC" ; then
         RUBY_INC=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["archdir"]]'`
       fi
       AC_SUBST(RUBY_INC)
@@ -719,12 +719,12 @@ if test no != "$with_ruby" ; then
       if test -f "$RUBY_INC/ruby.h" ; then
 	AC_MSG_RESULT(yes)
         AC_ARG_VAR(RUBY_LIB, [Directory to install ruby files into])
-	if test -n "$RUBY_LIB" ; then    
+	if test -z "$RUBY_LIB" ; then    
 	  RUBY_LIB=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["sitelibdir"]]'`
 	fi
 	AC_SUBST(RUBY_LIB)
         AC_ARG_VAR(RUBY_LIB_ARCH, [Directory to install ruby binary modules into])
-	if test -n "$RUBY_LIB_ARCH" ; then    
+	if test -z "$RUBY_LIB_ARCH" ; then    
 	  RUBY_LIB_ARCH=`$RUBY -rrbconfig -e 'puts Config::CONFIG[["sitearchdir"]]'`
 	fi
 	AC_SUBST(RUBY_LIB_ARCH)
