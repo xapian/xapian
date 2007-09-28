@@ -26,7 +26,7 @@ class PerlStopper : public Stopper {
     public:
 	PerlStopper(SV * obj) { SV_stopper_ref = newRV_inc(obj); }
 	~PerlStopper() { sv_2mortal(SV_stopper_ref); }
-	bool operator()(const string &term) {
+	bool operator()(const string &term) const {
 	    dSP ;
 
 	    ENTER ;
