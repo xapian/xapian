@@ -401,11 +401,15 @@ if test no != "$with_tcl" ; then
     AC_MSG_CHECKING([$TCLSH version])
     if echo 'if {$tcl_version < 8.1 } { exit 1 }'|$TCLSH 2> /dev/null ; then
       AC_MSG_RESULT([>= 8.1])
-      TCL_LIB=`echo 'puts $tcl_library'|$TCLSH`
+      tcl_lib=`echo 'puts $tcl_library'|$TCLSH`
+      AC_ARG_VAR(TCL_LIB, [Directory to install Tcl files into])
+      if test -z "$TCL_LIB" ; then    
+	TCL_LIB=$tcl_lib
+      fi
       AC_SUBST(TCL_LIB)
       dnl There's no obvious way to get "/usr/include/tcl8.N" directly...
       dnl debian uses /usr/lib/tcl8.4, FC2 uses /usr/share/tcl8.4
-      TCL_INC=`echo "$TCL_LIB"|sed 's!/\(share\|lib\)/!/include/!'`
+      TCL_INC=`echo "$tcl_lib"|sed 's!/\(share\|lib\)/!/include/!'`
       dnl Check that the headers are there (the tcl8.N-dev package
       dnl may not be installed).
       TCL_CPPFLAGS=

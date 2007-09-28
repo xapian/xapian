@@ -89,11 +89,6 @@ Installing without root access
      Note that you also need to pass a "--prefix" option to configure so that
      the documentation and examples can be installed.
 
-     Note also that, if you want to run "make distcheck", you will need to
-     explicitly specify any options that need to be passed through to the
-     configure in the test distribution.  This can be done by passing the
-     options in the EXTRADISTCHECK_CONFIGURE_FLAGS variable when running make.
-
   PHP:
 
      ./configure --with-php --prefix=$HOME/install PHP_EXTENSION_DIR=$HOME/my_php_extensions
@@ -128,6 +123,7 @@ Installing without root access
   Ruby:
 
      ./configure --with-ruby --prefix=$HOME/install RUBY_LIB=$HOME/my_ruby_modules RUBY_LIB_ARCH=$HOME/my_ruby_modules
+     make
      make install
 
      And then you'll need to tell Ruby to look for modules in this directory:
@@ -136,13 +132,13 @@ Installing without root access
 
   Tcl8:
 
-     ./configure --with-tcl --prefix=$HOME/install
-     make tcllibdir=$HOME/my_python_modules
-     make install tcllibdir=$HOME/my_python_modules
+     ./configure --with-tcl --prefix=$HOME/install TCL_LIB=$HOME/my_tcl_modules
+     make
+     make install
 
      And then add the following to the start of your script to load Xapian:
 
-     load [file join "/home/USERNAME/my_python_modules" xapian.so]
+     load [file join "/home/USERNAME/my_tcl_modules" xapian.so]
 
 Compilers and Options
 =====================
