@@ -150,6 +150,18 @@ class SmokeTest {
 		System.Console.WriteLine("MatchDecider mset has wrong docid in");
 		System.Environment.Exit(1);
 	    }
+
+
+            // Test setting and getting metadata
+            if (db.GetMetadata("Foo") !=  "") {
+		System.Console.WriteLine("db.GetMetadata(\"Foo\") returned wrong value \"" + db.GetMetadata("Foo") + "\" - expected \"\"");
+		System.Environment.Exit(1);
+            }
+            db.SetMetadata("Foo", "Foo");
+            if (db.GetMetadata("Foo") !=  "Foo") {
+		System.Console.WriteLine("db.GetMetadata(\"Foo\") returned wrong value \"" + db.GetMetadata("Foo") + "\" - expected \"Foo\"");
+		System.Environment.Exit(1);
+            }
 	} catch (System.Exception e) {
 	    System.Console.WriteLine("Exception: " + e.ToString());
 	    System.Environment.Exit(1);

@@ -180,4 +180,10 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal(mset.docid(0), 2)
   end
 
+  def test_011_matchdecider
+    assert_equal(@db.get_metadata('Foo'), '')
+    @db.set_metadata('Foo', 'Foo')
+    assert_equal(@db.get_metadata('Foo'), 'Foo')
+  end
+
 end # class XapianSmoketest

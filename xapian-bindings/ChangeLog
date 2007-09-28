@@ -1,3 +1,8 @@
+Fri Sep 28 13:18:34 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* csharp/SmokeTest.cs,ruby/smoketest.rb: Add tests for metadata
+	  methods.
+
 Fri Sep 28 13:08:52 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* xapian.i: Add support for get_metadata() and set_metadata() to
