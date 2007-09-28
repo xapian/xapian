@@ -1,3 +1,10 @@
+Fri Sep 28 11:00:08 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* tests/valgrind.supp: Add second version of the zlib end condition
+	  check which works for the version of zlib in Ubuntu gutsy; ie,
+	  version 1.2.3.3, where the error occurs in the function called
+	  directly by deflate, rather than two levels below it.
+
 Fri Sep 28 03:11:11 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: Update for 1.0.3.

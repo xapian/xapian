@@ -8,3 +8,9 @@
     obj:/usr/lib/libz.so.1.2.3
     fun:deflate
 }
+{
+    zlib end condition check
+    Memcheck:Cond
+    obj:/usr/lib/libz.so.1.2.*
+    fun:deflate
+}
