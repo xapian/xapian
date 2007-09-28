@@ -1,3 +1,9 @@
+Fri Sep 28 01:12:47 BST 2007  Olly Betts <olly@survex.com>
+
+	* AUTHORS,docs/Makefile.am,docs/glossary.rst,docs/index.html: Add
+	  glossary put together by Jenny Black, also incorporating entries
+	  from Deron Meranda's glossary on the wiki.
+
 Thu Sep 27 23:06:30 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/stemming.html: Reorder the initial paragraphs so we actually
