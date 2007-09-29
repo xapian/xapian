@@ -1,3 +1,9 @@
+Sat Sep 29 01:29:14 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* ruby/smoketest.rb: Change name of test for metadata to avoid
+	  collision with matchdecider test (and to be correctly
+	  descriptive).
+
 Fri Sep 28 18:33:09 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Update for 1.0.3.
