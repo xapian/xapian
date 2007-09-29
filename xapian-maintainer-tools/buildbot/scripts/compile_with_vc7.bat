@@ -10,17 +10,17 @@ cd ..
 nmake COPYMAKFILES
 
 rem Compile and test each module
-nmake PERL_DIR=C:\Perl\bin
-nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PERL_DIR=C:\Perl\bin
+nmake PERL_DIR=C:\Perl\bin ZLIB_DIR=D:\zlib123-dll
+nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PERL_DIR=C:\Perl\bin ZLIB_DIR=D:\zlib123-dll
 
 cd ....\xapian-bindings\python
-nmake PYTHON_DIR=C:\Python25 PERL_DIR=C:\Perl\bin
-nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PYTHON_DIR=C:\Python25 PERL_DIR=C:\Perl\bin
+nmake PYTHON_DIR=C:\Python25 PERL_DIR=C:\Perl\bin ZLIB_DIR=D:\zlib123-dll
+nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PYTHON_DIR=C:\Python25 PERL_DIR=C:\Perl\bin ZLIB_DIR=D:\zlib123-dll
 
 cd ....\xapian-bindings\perl
-nmake PERL_DIR=C:\Perl\bin PERL_DIR=C:\Perl\bin
-nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PERL_DIR=C:\Perl\bin 
+nmake PERL_DIR=C:\Perl\bin PERL_DIR=C:\Perl\bin ZLIB_DIR=D:\zlib123-dll
+nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PERL_DIR=C:\Perl\bin  ZLIB_DIR=D:\zlib123-dll
 
 cd ..\..\xapian-omega
-nmake PERL_DIR=C:\Perl\bin
-nmake CHECK PERL_DIR=C:\Perl\bin
+nmake PERL_DIR=C:\Perl\bin ZLIB_DIR=D:\zlib123-dll
+nmake CHECK PERL_DIR=C:\Perl\bin ZLIB_DIR=D:\zlib123-dll
