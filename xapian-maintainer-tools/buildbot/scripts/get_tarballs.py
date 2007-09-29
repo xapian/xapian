@@ -97,4 +97,12 @@ for link in links:
     os.rename(archivedir, basename)
 
 os.rename(os.path.join(builddir, 'win32msvc'),
-          os.path.join(builddir, 'xapian-core/win32'))
+          os.path.join(builddir, 'xapian-core', 'win32'))
+
+# Get the scripts for building on our windows server, too:
+fd = urllib2.urlopen('http://svn.xapian.org/trunk/xapian-maintainer-tools/buildbot/scripts/compile_with_vc7.bat?revision=HEAD')
+data = fd.read()
+fd.close()
+fd = open(os.path.join(builddir, 'xapian-core', 'win32', 'compile_with_vc7.bat'), 'wb')
+fd.write(data)
+fd.close()

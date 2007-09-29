@@ -54,7 +54,7 @@ def gen_tarball_updated_factory(rooturl):
     Make a factory for doing builds from tarballs.
     """
     f = factory.BuildFactory()
-    f.addStep(step.ShellCommand, command = ["python", "-c", "import urllib2;open('get_tarballs.py', 'wb').write(urllib2.urlopen('%s').read())",
+    f.addStep(step.ShellCommand, command = ["python", "-c", "import urllib2;open('get_tarballs.py', 'wb').write(urllib2.urlopen('%s').read())" %
               'http://svn.xapian.org/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py?revision=HEAD'], workdir='.', haltOnFailure=True)
     f.addStep(step.ShellCommand, command = ["python", 'get_tarballs.py'], workdir='.', haltOnFailure=True)
     f.addStep(step.Compile, workdir='build/xapian-core')
@@ -138,15 +138,10 @@ def gen_tarball_updated_win_factory(rooturl):
 
     """
     f = factory.BuildFactory()
-    f.addStep(step.ShellCommand, command = ["python", "-c", "import urllib2;open('get_tarballs.py', 'wb').write(urllib2.urlopen('%s').read())",
+    f.addStep(step.ShellCommand, command = ["python", "-c", "import urllib2;open('get_tarballs.py', 'wb').write(urllib2.urlopen('%s').read())" %
               'http://svn.xapian.org/trunk/xapian-maintainer-tools/buildbot/scripts/get_tarballs.py?revision=HEAD'], workdir='.', haltOnFailure=True)
     f.addStep(step.ShellCommand, command = ["python", 'get_tarballs.py'], workdir='.', haltOnFailure=True)
-    f.addStep(step.Compile, workdir='build/xapian-core')
-    f.addStep(step.Test, workdir='build/xapian-core', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    f.addStep(step.Compile, workdir='build/xapian-omega')
-    f.addStep(step.Test, workdir='build/xapian-omega', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
-    f.addStep(step.Compile, workdir='build/xapian-bindings')
-    f.addStep(step.Test, workdir='build/xapian-bindings', name="check", command=("make", "check", "XAPIAN_TESTSUITE_OUTPUT=plain", "VALGRIND="))
+    f.addStep(step.Compile, workdir='build/xapian-core/win32', command=("compile_with_vc7.bat"))
     return f
 
 all = []
