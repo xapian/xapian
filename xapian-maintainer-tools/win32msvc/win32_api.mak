@@ -33,7 +33,6 @@ OBJS= \
 	     $(INTDIR)\version.obj \
 	     $(INTDIR)\editdistance.obj \
 	     $(INTDIR)\valuerangeproccompat.obj \
-	     $(INTDIR)\matchspy.obj \
 	     $(INTDIR)\sortable-serialise.obj 
 SRCS= \
              $(INTDIR)\error.cc \
@@ -53,7 +52,6 @@ SRCS= \
 	     $(INTDIR)\version.cc \
 	     $(INTDIR)\editdistance.cc  \
 	     $(INTDIR)\valuerangeproccompat.cc \
-	     $(INTDIR)\matchspy.cc \
 	     $(INTDIR)\sortable-serialise.cc 
 
 	     
