@@ -7,17 +7,20 @@ nmake -f makedepend.mak
 copy makedepend.exe ..
 cd ..
 
-rem Compile each module
-nmake
-cd ..\xapian-omega
-nmake
-cd ..\xapian-bindings
-nmake XAPIAN_TESTSUITE_OUTPUT=plain PERL_DIR=C:\Perl\bin PYTHON_DIR=C:\Python25
+nmake COPYMAKFILES
 
-rem Run the testsuites
-cd ..\xapian-core
-nmake check
-cd ..\xapian-omega
-nmake check
-cd ..\xapian-bindings
-nmake check
+rem Compile and test each module
+nmake
+nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain
+
+cd ....\xapian-bindings\python
+nmake PYTHON_DIR=C:\Python25
+nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PYTHON_DIR=C:\Python25
+
+cd ....\xapian-bindings\perl
+nmake PERL_DIR=C:\Perl\bin
+nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PERL_DIR=C:\Perl\bin 
+
+cd ..\..\xapian-omega
+nmake
+nmake CHECK
