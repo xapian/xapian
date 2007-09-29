@@ -1,6 +1,6 @@
 Revision history for Perl extension Search::Xapian.
 
-1.0.3.0  Sat Sep 29 13:23:32 BST 2007
+1.0.3.0  Sat Sep 29 13:26:32 BST 2007
 	[Changes contributed by Olly Betts]
 	- Wrap Database::get_metadata() and WritableDatabase::set_metadata().
 	- Improve QueryParser pod documentation.
@@ -8,6 +8,8 @@ Revision history for Perl extension Search::Xapian.
 	- Suppress "deprecated" warnings from Xapian since we need to keep
 	  wrapping deprecated features.
 	- Suppress compilation warnings on some Linux distros.
+	- Add Xapian.lo to MANIFEST.SKIP (it's generated if we're building
+	  against an uninstalled xapian-core tree).
 	[Changes contributed by Reini Urban]
 	- Force LD to be "g++ -shared" for GCC on Cygwin since Perl < 5.9.5
 	  Cygwin packages need it.
