@@ -378,4 +378,13 @@ WritableDatabase::get_document(docid did)
         RETVAL
 
 void
+WritableDatabase::set_metadata(string key, string value)
+    CODE:
+	try {
+	    THIS->set_metadata(key, value);
+	} catch (const Error &error) {
+	    croak( "Exception: %s", error.get_msg().c_str() );
+	}
+
+void
 WritableDatabase::DESTROY()
