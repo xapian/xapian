@@ -10,17 +10,17 @@ cd ..
 nmake COPYMAKFILES
 
 rem Compile and test each module
-nmake
-nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain
+nmake PERL_DIR=C:\Perl\bin
+nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PERL_DIR=C:\Perl\bin
 
 cd ....\xapian-bindings\python
-nmake PYTHON_DIR=C:\Python25
-nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PYTHON_DIR=C:\Python25
+nmake PYTHON_DIR=C:\Python25 PERL_DIR=C:\Perl\bin
+nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PYTHON_DIR=C:\Python25 PERL_DIR=C:\Perl\bin
 
 cd ....\xapian-bindings\perl
-nmake PERL_DIR=C:\Perl\bin
+nmake PERL_DIR=C:\Perl\bin PERL_DIR=C:\Perl\bin
 nmake CHECK XAPIAN_TESTSUITE_OUTPUT=plain PERL_DIR=C:\Perl\bin 
 
 cd ..\..\xapian-omega
-nmake
-nmake CHECK
+nmake PERL_DIR=C:\Perl\bin
+nmake CHECK PERL_DIR=C:\Perl\bin
