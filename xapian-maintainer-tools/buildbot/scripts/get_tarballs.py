@@ -9,12 +9,14 @@ import urllib2
 import tarfile
 
 tarball_root = "http://www.oligarchy.co.uk/xapian/trunk/"
-archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega',)
+archive_names = ('xapian-core', 'xapian-bindings', 'xapian-omega',
+                 'win32msvc',)
 builddir = 'build'
 
 tarlink_re = re.compile('<A HREF="([a-zA-Z0-9_\.-]+).tar.gz">')
 archivedir_re = re.compile('([a-zA-Z0-9_\.-]+)$')
 basename_re = re.compile('([a-zA-Z-]+)-[0-9_\.-]+svn[0-9]+$')
+basename2_re = re.compile('(win32msvc)_svn[0-9]+$')
 
 def fail(msg):
     print msg
@@ -88,6 +90,11 @@ for link in links:
     m = archivedir_re.match(link)
     archivedir = os.path.join(builddir, m.group(1))
     m = basename_re.match(link)
+    if m is None:
+        m = basename2_re.match(link)
     basename = os.path.join(builddir, m.group(1))
     print "Moving contents from %s to %s" % (archivedir, basename)
     os.rename(archivedir, basename)
+
+os.rename(os.path.join(builddir, 'win32msvc'),
+          os.path.join(builddir, 'xapian-core/win32'))
