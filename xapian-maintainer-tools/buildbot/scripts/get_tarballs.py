@@ -110,9 +110,9 @@ fd.close()
 # Add small scripts for running configure for unix build (because we mustn't pass
 # relative paths for XAPIAN_CONFIG to configure, and I can't see any other way
 # to pass it the absolute path).
-fd = open(os.path.join(builddir, 'xapian-bindings', 'runconfigure.py'))
+fd = open(os.path.join(builddir, 'xapian-bindings', 'runconfigure.py'), 'wb')
 fd.write("import os\nos.system('./configure XAPIAN_CONFIG=`pwd`/../xapian-core/xapian-config')")
 fd.close()
-fd = open(os.path.join(builddir, 'xapian-omega', 'runconfigure.py'))
+fd = open(os.path.join(builddir, 'xapian-omega', 'runconfigure.py'), 'wb')
 fd.write("import os\nos.system('./configure XAPIAN_CONFIG=`pwd`/../xapian-core/xapian-config')")
 fd.close()
