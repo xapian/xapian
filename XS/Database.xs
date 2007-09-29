@@ -277,5 +277,8 @@ Database::get_document(docid did)
     OUTPUT:
         RETVAL
 
+string
+Database::get_metadata(string key)
+
 void
 Database::DESTROY()
