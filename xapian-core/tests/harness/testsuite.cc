@@ -673,5 +673,6 @@ test_driver::run(const test_desc *tests)
 bool
 TEST_EQUAL_DOUBLE_(double a, double b)
 {
+    if (a == b) return true;
     return (ceil(log10(max(fabs(a), fabs(b)))) - log10(fabs(a - b)) > DBL_DIG);
 }

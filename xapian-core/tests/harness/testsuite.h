@@ -246,6 +246,11 @@ extern bool TEST_EQUAL_DOUBLE_(double a, double b);
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' to be (nearly) equal:" \
 	" were " << setprecision(DBL_DIG) << (a) << " and " << (b) << ")" << setprecision(6))
 
+/// Test two doubles for non-near-equality.
+#define TEST_NOT_EQUAL_DOUBLE(a, b) TEST_AND_EXPLAIN(!TEST_EQUAL_DOUBLE_((a), (b)), \
+	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' not to be (nearly) equal:" \
+	" were " << setprecision(DBL_DIG) << (a) << " and " << (b) << ")" << setprecision(6))
+
 /// Test for non-equality of two things.
 #define TEST_NOT_EQUAL(a, b) TEST_AND_EXPLAIN(((a) != (b)), \
 	"Expected `"STRINGIZE(a)"' and `"STRINGIZE(b)"' not to be equal:" \
