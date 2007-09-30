@@ -4,7 +4,7 @@
 /* Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Lemur Consulting Ltd
+ * Copyright 2006,2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -99,7 +99,12 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	    /** Select an elite set from the subqueries, and perform
 	     *  a query with these combined as an OR query.
 	     */
-	    OP_ELITE_SET = 10
+	    OP_ELITE_SET = 10,
+
+	    /** Multiply the weight of a subquery by a multiplier.  Only
+	     * positive multiplers are supported - negative multipliers will be
+	     * clipped to 0. */
+	    OP_MULT_WEIGHT
 	} op;
 
 	/** Copy constructor. */
@@ -153,6 +158,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 
 	/** Apply the specified operator to a single Xapian::Query object. */
 	Query(Query::op op_, Xapian::Query q);
+
+	/** Apply the specified operator to a single Xapian::Query object, with a parameter. */
+	Query(Query::op op_, Xapian::Query q, double parameter);
 
 	/** Construct a value range query on a document value.
 	 *
@@ -281,6 +289,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/// Within query frequency of this term - leaf node only
 	Xapian::termcount wqf;
 
+	/// Used to store a multiplier for subquery weights.
+	double dbl_parameter;
+
 	/** swap the contents of this with another Xapian::Query::Internal,
 	 *  in a way which is guaranteed not to throw.  This is
 	 *  used with the assignment operator to make it exception
@@ -359,6 +370,10 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 	/** Add a subquery.
 	 */
 	void add_subquery(const Query::Internal * subq);
+
+	void set_dbl_parameter(double dbl_parameter_) {
+	    dbl_parameter = dbl_parameter_;
+	}
 
 	/** Finish off the construction.
 	 */

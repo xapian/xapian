@@ -1,9 +1,16 @@
 Updated up to:
-Sun Sep 30 21:07:25 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+Sun Sep 30 23:20:34 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
-Xapian-core 1.0.3 (2007-??-??):
+Xapian-core 1.0.4 (2007-??-??):
 
 API:
+
+* Query:
+
+  + Add OP_MULT_WEIGHT operator, and a corresponding constructor (which
+    takes a single subquery and a parameter of type "double").  This
+    multiplies the weights from the subquery by the parameter, allowing
+    adjustment of the importance of parts of the query tree.
 
 * Matchspy:
 
@@ -42,6 +49,12 @@ testsuite:
 
 * Add tests of queryparser with multiple prefixes assigned to a single
   field, and with multiple default prefixes.
+
+* Add test for OP_MULT_WEIGHT operator with various queries and multipliers.
+
+matcher:
+
+* Add MultWeightPostlist, to implement OP_MULT_WEIGHT queries.
 
 flint backend:
 

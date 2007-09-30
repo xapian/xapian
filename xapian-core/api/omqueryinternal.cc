@@ -3,7 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
- * Copyright 2006 Lemur Consulting Ltd
+ * Copyright 2006,2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -28,6 +28,7 @@
 #include "omqueryinternal.h"
 #include "utils.h"
 #include "serialise.h"
+#include "serialise-double.h"
 
 #include <xapian/error.h>
 #include <xapian/enquire.h>
@@ -40,6 +41,7 @@
 #include <algorithm>
 #include <math.h>
 #include <limits.h>
+#include <cfloat>
 
 using namespace std;
 
@@ -58,6 +60,8 @@ get_min_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_ELITE_SET:
 	case Xapian::Query::OP_VALUE_RANGE:
 	    return 0;
+	case Xapian::Query::OP_MULT_WEIGHT:
+	    return 1;
 	case Xapian::Query::OP_FILTER:
 	case Xapian::Query::OP_AND_MAYBE:
 	case Xapian::Query::OP_AND_NOT:
@@ -75,6 +79,8 @@ get_max_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::Internal::OP_LEAF:
 	case Xapian::Query::OP_VALUE_RANGE:
 	    return 0;
+	case Xapian::Query::OP_MULT_WEIGHT:
+	    return 1;
 	case Xapian::Query::OP_FILTER:
 	case Xapian::Query::OP_AND_MAYBE:
 	case Xapian::Query::OP_AND_NOT:
@@ -177,6 +183,10 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		result += str_parameter;
 		result += om_tostring(parameter);
 		break;
+	    case Xapian::Query::OP_MULT_WEIGHT:
+		result += ".";
+		result += serialise_double(dbl_parameter);
+		break;
 	}
     }
     return result;
@@ -202,6 +212,7 @@ Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_PHRASE:          name = "PHRASE"; break;
 	case Xapian::Query::OP_ELITE_SET:       name = "ELITE_SET"; break;
 	case Xapian::Query::OP_VALUE_RANGE:     name = "VALUE_RANGE"; break;
+	case Xapian::Query::OP_MULT_WEIGHT:     name = "MULT_WEIGHT"; break;
     }
     return name;
 }
@@ -248,6 +259,12 @@ Xapian::Query::Internal::get_description() const
 	if (!description.empty()) description += opstr;
 	description += (**i).get_description();
     }
+
+    if (op == Xapian::Query::OP_MULT_WEIGHT) {
+	description += " * ";
+	description += om_tostring(dbl_parameter);
+    }
+
     return "(" + description + ")";
 }
 
@@ -451,6 +468,12 @@ QUnserial::readcompound() {
 		    return new Xapian::Query::Internal(Xapian::Query::OP_VALUE_RANGE, valno,
 						       start, stop);
 	        }
+	        case '.': {
+		    AutoPtr<Xapian::Query::Internal> result(
+			qint_from_vector(Xapian::Query::OP_MULT_WEIGHT, subqs));
+		    result->set_dbl_parameter(unserialise_double(&p, end));
+		    return result.release();
+		}
 	        default:
 		    DEBUGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
 		    throw Xapian::InvalidArgumentError("Invalid query string");
@@ -498,6 +521,7 @@ Xapian::Query::Internal::swap(Xapian::Query::Internal &other)
     std::swap(str_parameter, other.str_parameter);
     std::swap(term_pos, other.term_pos);
     std::swap(wqf, other.wqf);
+    std::swap(dbl_parameter, other.dbl_parameter);
 }
 
 Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
@@ -508,7 +532,8 @@ Xapian::Query::Internal::Internal(const Xapian::Query::Internal &copyme)
 	  tname(copyme.tname),
 	  str_parameter(copyme.str_parameter),
 	  term_pos(copyme.term_pos),
-	  wqf(copyme.wqf)
+	  wqf(copyme.wqf),
+	  dbl_parameter(copyme.dbl_parameter)
 {
     for (subquery_list::const_iterator i = copyme.subqs.begin();
 	 i != copyme.subqs.end();
@@ -672,6 +697,11 @@ Xapian::Query::Internal::simplify_query()
 	    // match anything.
 	    if (tname > str_parameter) return 0;
 	    return this;
+	case OP_MULT_WEIGHT:
+	    if (fabs(dbl_parameter - 1.0) > DBL_EPSILON) return this;
+	    // If the multiplier is 1, this node doesn't actually do anything,
+	    // so we leave it to be removed.
+	    break;
 	case OP_PHRASE: case OP_NEAR:
 	    // Default to the number of subqueries.
 	    if (!parameter) parameter = subqs.size();

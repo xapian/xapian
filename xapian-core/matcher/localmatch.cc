@@ -3,6 +3,7 @@
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,12 +39,14 @@
 #include "mergepostlist.h"
 #include "extraweightpostlist.h"
 #include "valuerangepostlist.h"
+#include "multweightpostlist.h"
 
 #include "omqueryinternal.h"
 
 #include <algorithm>
 #include "autoptr.h"
 #include <queue>
+#include <cfloat>
 
 /////////////////////////////////////////////
 // Comparison operators which we will need //
@@ -476,6 +479,15 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	case Xapian::Query::OP_VALUE_RANGE:
 	    RETURN(new ValueRangePostList(db, Xapian::valueno(query->parameter),
 					  query->tname, query->str_parameter));
+	case Xapian::Query::OP_MULT_WEIGHT:
+	    Assert(query->subqs.size() == 1);
+	    if (is_bool || query->dbl_parameter < DBL_EPSILON) {
+		// Return as a boolean query.
+		RETURN(postlist_from_query(query->subqs[0], matcher, true));
+	    } else {
+		RETURN(new MultWeightPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
+					      query->dbl_parameter, matcher));
+	    }
     }
     Assert(false);
     RETURN(NULL);

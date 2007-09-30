@@ -1809,6 +1809,69 @@ static bool test_valuerange1() {
     return true;
 }
 
+// Feature test for Query::OP_MULT_WEIGHT.
+static bool test_multweight1() {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    Xapian::QueryParser qp;
+
+    static const char * queries[] = {
+	"pad",
+	"milk fridge",
+	"leave milk on fridge",
+	"ordered milk operator",
+	"ordered phrase operator",
+	"leave \"milk on fridge\"",
+	"notpresent",
+	"leave \"milk notpresent\"",
+	NULL
+    };
+    static double multipliers[] = {
+	-1000000, -2.5, -1, -0.5, 0, 0.5, 1, 2.5, 1000000,
+	0, 0
+    };
+
+    for (const char **qstr = queries; *qstr; ++qstr) {
+	Xapian::Query query1 = qp.parse_query(*qstr);
+	tout << "query1: " << query1.get_description() << endl;
+	for (double *multp = multipliers; multp[0] != multp[1]; ++multp) {
+	    double mult = *multp;
+	    Xapian::Query query2(Xapian::Query::OP_MULT_WEIGHT, query1, mult);
+	    tout << "query2: " << query2.get_description() << endl;
+
+	    enq.set_query(query1);
+	    Xapian::MSet mset1 = enq.get_mset(0, 20);
+	    enq.set_query(query2);
+	    Xapian::MSet mset2 = enq.get_mset(0, 20);
+
+	    TEST_EQUAL(mset1.size(), mset2.size());
+
+	    Xapian::MSetIterator i1, i2;
+	    if (mult > 0) {
+		for (i1 = mset1.begin(), i2 = mset2.begin();
+		     i1 != mset1.end() && i2 != mset2.end(); ++i1, ++i2) {
+		    TEST_EQUAL_DOUBLE(i1.get_weight() * mult, i2.get_weight());
+		    TEST_EQUAL(*i1, *i2);
+		}
+	    } else {
+		// Weights in mset2 are 0; so it should be sorted by docid.
+		vector<Xapian::docid> ids1;
+		vector<Xapian::docid> ids2;
+		for (i1 = mset1.begin(), i2 = mset2.begin();
+		     i1 != mset1.end() && i2 != mset2.end(); ++i1, ++i2) {
+		    TEST_NOT_EQUAL_DOUBLE(i1.get_weight(), 0);
+		    TEST_EQUAL_DOUBLE(i2.get_weight(), 0);
+		    ids1.push_back(*i1);
+		    ids2.push_back(*i2);
+		}
+		sort(ids1.begin(), ids1.end());
+		TEST_EQUAL(ids1, ids2);
+	    }
+	}
+    }
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -1875,5 +1938,6 @@ test_desc anydb_tests[] = {
     {"allpostlist1",	   test_allpostlist1},
     {"emptyterm1",	   test_emptyterm1},
     {"valuerange1",	   test_valuerange1},
+    {"multweight1",	   test_multweight1},
     {0, 0}
 };
