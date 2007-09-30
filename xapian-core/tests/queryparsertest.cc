@@ -20,6 +20,9 @@
 
 #include <config.h>
 
+// We have to use the deprecated QueryParser::add_prefix() and
+// QueryParser::add_boolean_prefix() methods.
+#define XAPIAN_DEPRECATED(D) D
 #include <xapian.h>
 
 #include <iostream>
