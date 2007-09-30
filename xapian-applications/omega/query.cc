@@ -226,14 +226,18 @@ set_probabilistic(const string &oldp)
     map<string, string>::const_iterator pfx = option.lower_bound("prefix,");
     for (; pfx != option.end() && startswith(pfx->first, "prefix,"); ++pfx) {
 	string user_prefix = pfx->first.substr(7);
-	qp.add_prefix(user_prefix, pfx->second);
+	qp.add_prefix(user_prefix, pfx->second, qp.PREFIX_INLINE);
 	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
     }
     pfx = option.lower_bound("boolprefix,");
     for (; pfx != option.end() && startswith(pfx->first, "boolprefix,"); ++pfx) {
 	string user_prefix = pfx->first.substr(11);
-	qp.add_boolean_prefix(user_prefix, pfx->second);
-	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
+	// Don't add a prefix which has already been set as a non-boolean
+	// prefix - doing so will cause an exception.
+	if (option.find("prefix," + user_prefix) == option.end()) {
+	    qp.add_prefix(user_prefix, pfx->second, qp.PREFIX_FILTER);
+	    termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
+	}
     }
 
     try {

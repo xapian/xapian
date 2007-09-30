@@ -1,3 +1,30 @@
+Up to:
+Sun Sep 30 22:12:46 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+Omega 1.0.4 (2007-??-??):
+
+general:
+
+documentation:
+
+indexers:
+
+omega:
+
+* Use new forms of add_prefix() internally to avoid deprecation warnings
+  when compiling.  (Requires some extra code to ensure that semantics of
+  adding a prefix in omegascript do not change.)
+
+templates:
+
+testsuite:
+
+build system:
+
+portability:
+
+packaging:
+
 Omega 1.0.3 (2007-09-28):
 
 general:
