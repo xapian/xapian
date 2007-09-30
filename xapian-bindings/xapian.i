@@ -618,6 +618,22 @@ class TradWeight : public Weight {
 
 }
 
+%ignore Xapian::StringListUnserialiser::operator=;
+%ignore Xapian::StringListUnserialiser::operator++;
+%ignore operator==(const StringListUnserialiser &, const StringListUnserialiser &);
+%ignore operator!=(const StringListUnserialiser &, const StringListUnserialiser &);
+%extend Xapian::StringListUnserialiser {
+    std::string get() const {
+        return *(*self);
+    }
+    NEXT(std::string, StringListUnserialiser)
+    bool equals(const StringListUnserialiser &other) const {
+        return (*self) == other;
+    }
+}
+
+%include <xapian/matchspy.h>
+
 namespace Xapian {
 
 // xapian/database.h

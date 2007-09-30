@@ -1,3 +1,47 @@
+Updated up to:
+
+Xapian-bindings 1.0.4 (2007-??-??):
+
+Documentation:
+
+General: Add contents of matchspy.h to bindings.
+
+Packaging:
+
+CSharp:
+
+* Add new generated assemblies
+  SWIGTYPE_p_std__mapTstd__string_unsigned_int_t.cs and
+  SWIGTYPE_p_std__vectorTXapian__StringAndFrequency_t.cs
+
+Java:
+
+PHP:
+
+Python:
+
+* Add workaround for MultipleMatchDecider to ensure that a reference to the
+  Python object corresponding to any match deciders added to the
+  MultipleMatchDecider is kept until the MultipleMatchDecider is destroyed.
+
+* Add extra method "get_values_as_dict()" to ValueCountMatchSpy to allow
+  contents to be retrieved as a Python object.
+
+* Add extra method "get_terms_as_dict()" to TermCountMatchSpy to allow
+  contents to be retrieved as a Python object.
+
+* Add test of a custom ValueRangeProcessor (ie, one written in python).
+
+* Add test of a ValueCountMatchSpy, a TermCountMatchSpy and a
+  MultipleMatchDecider.
+
+Ruby:
+
+* Change name of test of metadata access methods which had been named the
+  same as the matchdecider test due to a copy-and-paste error.
+
+Tcl:
+
 Xapian-bindings 1.0.3 (2007-09-28):
 
 General:

@@ -22,6 +22,19 @@
  */
 %}
 
+%extend ValueCountMatchSpy {
+    PyObject * get_values_as_dict(Xapian::valueno valno) {
+        return value_map_to_dict($self->get_values(valno));
+    }
+}
+
+%extend TermCountMatchSpy {
+    PyObject * get_terms_as_dict(std::string prefix) {
+        return value_map_to_dict($self->get_terms(prefix));
+    }
+}
+
+
 %pythoncode %{
 
 # Set the documentation format - this is used by tools like "epydoc" to decide
@@ -919,6 +932,20 @@ for item in dir():
         continue
     __all__.append(item)
 __all__ = tuple(__all__)
+
+
+# Fix up MultipleMatchDecider so that it keeps a python reference to the
+# deciders supplied to it so that they won't be deleted before the
+# MultipleMatchDecider.  This hack can probably be removed once xapian bug #186
+# is fixed.
+_multiple_match_decider_append_orig = MultipleMatchDecider.append
+def _multiple_match_decider_append(self, decider):
+    if not hasattr(self, '_deciders'):
+        self._deciders = []
+    self._deciders.append(decider)
+    _multiple_match_decider_append_orig(self, decider)
+_multiple_match_decider_append.__doc__ = MultipleMatchDecider.append.__doc__
+MultipleMatchDecider.append = _multiple_match_decider_append
 
 
 # Fix up ValueRangeProcessor by replacing its __call__ method (which doesn't
