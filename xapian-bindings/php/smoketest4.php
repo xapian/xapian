@@ -63,5 +63,6 @@ $op_or = XapianQuery_OP_OR;
 $op_phrase = XapianQuery_OP_PHRASE;
 $op_xor = XapianQuery_OP_XOR;
 $op_elite_set = XapianQuery_OP_ELITE_SET;
+$op_mult_weight = XapianQuery_OP_MULT_WEIGHT;
 
 ?>

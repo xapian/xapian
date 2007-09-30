@@ -162,6 +162,14 @@ class SmokeTest {
 		System.Console.WriteLine("db.GetMetadata(\"Foo\") returned wrong value \"" + db.GetMetadata("Foo") + "\" - expected \"Foo\"");
 		System.Environment.Exit(1);
             }
+
+	    // Test OP_MULT_WEIGHT and corresponding constructor
+	    Xapian.Query query4 = new Xapian.Query(Xapian.Query.op.OP_MULT_WEIGHT, new Xapian.Query("foo"), 5.0);
+	    if (query4.GetDescription() != "Xapian::Query((foo * 5))") {
+		System.Console.WriteLine("Unexpected query4.GetDescription()");
+		System.Environment.Exit(1);
+	    }
+
 	} catch (System.Exception e) {
 	    System.Console.WriteLine("Exception: " + e.ToString());
 	    System.Environment.Exit(1);

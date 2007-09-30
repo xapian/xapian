@@ -317,6 +317,9 @@ def test_all():
     expect_exception(xapian.InvalidArgumentError, "Empty metadata keys are invalid", db.set_metadata, '', 'Foo')
     expect_exception(xapian.InvalidArgumentError, "Empty metadata keys are invalid", db.get_metadata, '')
 
+    # Test OP_MULT_WEIGHT and corresponding constructor
+    expect_query(xapian.Query(xapian.Query.OP_MULT_WEIGHT, xapian.Query('foo'), 5),
+                 "(foo * 5)")
 
 # Run all tests (ie, callables with names starting "test_").
 if not runtests(globals()):
