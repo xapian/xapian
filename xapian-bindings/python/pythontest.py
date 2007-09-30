@@ -881,6 +881,78 @@ def test_queryparser_custom_vrp():
            'Xapian::Query(VALUE_RANGE 7 A5 B8)')
 
 
+def test_mult_weight():
+    """Test query OP_MULT_WEIGHT feature.
+
+    """
+    db = setup_database()
+    for mult in (-2.5, -1, 0, 1, 2.5):
+        context("checking queries with OP_MULT_WEIGHT with a multipler of %r" %
+                mult)
+        query1 = xapian.Query("it")
+        query2 = xapian.Query(xapian.Query.OP_MULT_WEIGHT, query1, mult)
+
+        enquire = xapian.Enquire(db)
+        enquire.set_query(query1)
+        mset1 = enquire.get_mset(0, 10)
+        enquire.set_query(query2)
+        mset2 = enquire.get_mset(0, 10)
+        if mult <= 0:
+            expected = [(0, item.docid) for item in mset1]
+            expected.sort()
+        else:
+            expected = [(item.weight * mult, item.docid) for item in mset1]
+        expect([(item.weight, item.docid) for item in mset2], expected)
+
+
+def test_weight_normalise():
+    """Test normalising of query weights using the OP_MULT_WEIGHT feature.
+
+    This test first runs a search (asking for no results) to get the maximum
+    possible weight for a query, and then checks that the results of
+    MSet.get_max_possible() match this.
+
+    This tests that the get_max_possible() value is correct (though it isn't
+    guaranteed to be at a tight bound), and that the mult-weight query can
+    compensate correctly.
+
+    """
+    db = setup_database()
+    for query in (
+                  "it",
+                  "was",
+                  "it was",
+                  "it was four",
+                  "it was four five",
+                  "\"was it warm\" four notpresent",
+                  "notpresent",
+    ):
+        context("checking query %r using OP_MULT_WEIGHT to normalise the weights" % query)
+        qp = xapian.QueryParser()
+        query1 = qp.parse_query(query)
+        enquire = xapian.Enquire(db)
+        enquire.set_query(query1)
+        mset1 = enquire.get_mset(0, 0)
+
+        # Check the max_attained value is 0 - this gives us some reassurance
+        # that the match didn't actually do the work of calculating any
+        # results.
+        expect(mset1.get_max_attained(), 0)
+
+        max_possible = mset1.get_max_possible()
+        mult = 1.0 / max_possible
+        query2 = xapian.Query(xapian.Query.OP_MULT_WEIGHT, query1, mult)
+
+        enquire = xapian.Enquire(db)
+        enquire.set_query(query2)
+        mset2 = enquire.get_mset(0, 10)
+        # max_possible should be 1 (excluding rounding errors) for mset2
+        expect(int(mset2.get_max_possible() * 1000000.0 + 0.5), 1000000)
+        for item in mset2:
+            expect(item.weight > 0, True)
+            expect(item.weight <= 1, True)
+
+
 # The legacy sequence API is only supported for Python >= 2.3 so don't try
 # testing it for Python 2.2.
 vinfo = sys.version_info    

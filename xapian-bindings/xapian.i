@@ -7,6 +7,7 @@
  * Copyright 2001,2002 Ananova Ltd
  * Copyright 2002,2003,2005 James Aylett
  * Copyright 2002,2003,2004,2005,2006,2007 Olly Betts
+ * Copyright 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -857,7 +858,8 @@ class Query {
 	    OP_NEAR,
 	    OP_PHRASE,
 	    OP_VALUE_RANGE,
-	    OP_ELITE_SET = 10
+	    OP_ELITE_SET = 10,
+	    OP_MULT_WEIGHT
 	};
 	// FIXME wrap optional arguments in PHP?
 	Query(const string &tname, termcount wqf = 1, termpos term_pos = 0);
@@ -885,6 +887,9 @@ class Query {
 	}
 	/** Apply the specified operator to a single Xapian::Query object. */
 	Query(Query::op op_, Xapian::Query q);
+
+	/** Apply the specified operator to a single Xapian::Query object, with a parameter. */
+	Query(Query::op op_, Xapian::Query q, double parameter);
 
 	/** Constructs a new empty query object */
 	Query();
