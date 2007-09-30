@@ -1,3 +1,13 @@
+Sun Sep 30 21:07:25 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/Makefile.mk,docs/Makefile.am,docs/deprecation.rst,
+	  include/Makefile.mk,include/xapian.h,include/xapian/queryparser.h,
+	  queryparser/queryparser.cc,queryparser/queryparser.lemony,
+	  queryparser/queryparser_internal.h,tests/: Re-apply changes which
+	  needed more thought or more work before being included in a
+	  release.
+	* NEWS: Update with current descriptions of these changes.
+
 Sun Sep 30 20:22:25 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* tests/valgrind.supp: Add further suppressions needed for the

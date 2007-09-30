@@ -24,6 +24,7 @@
 #include "omassert.h"
 #include "queryparser_internal.h"
 #include <xapian/unicode.h>
+#include "autoptr.h"
 #include "utils.h"
 
 // Include the list of token values lemon generates.
@@ -95,7 +96,7 @@ struct filter_group_id {
     /** The prefix of the filter terms.
      *  This is used for boolean filter terms.
      */
-    string prefix;
+    list<string> prefixes;
 
     /** The value number of the filter terms.
      *  This is used for value range terms.
@@ -103,17 +104,17 @@ struct filter_group_id {
     Xapian::valueno valno;
 
     /// Make a new filter_group_id for boolean filter terms.
-    explicit filter_group_id(const string & prefix_)
-	: prefix(prefix_), valno(Xapian::BAD_VALUENO) {}
+    explicit filter_group_id(const list<string> & prefixes_)
+	: prefixes(prefixes_), valno(Xapian::BAD_VALUENO) {}
 
     /// Make a new filter_group_id for value range terms.
     explicit filter_group_id(Xapian::valueno valno_)
-	: prefix(), valno(valno_) {}
+	: prefixes(), valno(valno_) {}
 
     /// Compare to another filter_group_id.
     bool operator<(const filter_group_id & other) const {
-	if (prefix != other.prefix) {
-	    return prefix < other.prefix;
+	if (prefixes != other.prefixes) {
+	    return prefixes < other.prefixes;
 	}
 	return valno < other.valno;
     }
@@ -130,36 +131,36 @@ class Term {
 
   public:
     string name;
-    string prefix;
+    list<string> prefixes;
     string unstemmed;
     bool stem;
     termpos pos;
 
     Term(const string &name_, termpos pos_) : name(name_), stem(false), pos(pos_) { }
     Term(const string &name_) : name(name_), stem(false), pos(0) { }
-    Term(const string &name_, const string &prefix_)
-	: name(name_), prefix(prefix_), stem(false), pos(0) { }
+    Term(const string &name_, const list<string> &prefixes_)
+	: name(name_), prefixes(prefixes_), stem(false), pos(0) { }
     Term(termpos pos_) : stem(false), pos(pos_) { }
-    Term(State * state_, const string &name_, const string &prefix_,
+    Term(State * state_, const string &name_, const list<string> &prefixes_,
 	 const string &unstemmed_, bool stem_ = false, termpos pos_ = 0)
-	: state(state_), name(name_), prefix(prefix_), unstemmed(unstemmed_),
+	: state(state_), name(name_), prefixes(prefixes_), unstemmed(unstemmed_),
 	  stem(stem_), pos(pos_) { }
 
-    std::string make_term() const;
+    std::string make_term(const string & prefix) const;
 
     void dont_stem() { stem = false; }
 
     termpos get_termpos() const { return pos; }
 
-    filter_group_id get_filter_group_id() const { return filter_group_id(prefix); }
+    filter_group_id get_filter_group_id() const { return filter_group_id(prefixes); }
 
-    Query * as_query() const { return new Query(make_term(), 1, pos); }
+    Query * as_query() const;
 
     Query * as_wildcarded_query(State * state) const;
 
     Query * as_partial_query(State * state_) const;
 
-    Query as_query_object() const { return Query(make_term(), 1, pos); }
+    Query as_query_object() const;
 
     Query * as_query_with_synonyms() const;
 
@@ -226,7 +227,7 @@ class State {
 };
 
 string
-Term::make_term() const
+Term::make_term(const string & prefix) const
 {
     string term;
     if (stem) term += 'Z';
@@ -250,32 +251,36 @@ Term::as_query_with_synonyms() const
 {
     Query q = as_query_object();
 
-    // Handle single-word synonyms.  First try the unstemmed term:
-    string term;
-    if (!prefix.empty()) {
-	term += prefix;
-	if (prefix_needs_colon(prefix, name[0])) term += ':';
-    }
-    term += name;
-
-    Xapian::Database db = state->get_database();
-    Xapian::TermIterator syn = db.synonyms_begin(term);
-    Xapian::TermIterator end = db.synonyms_end(term);
-    if (syn == end && stem) {
-	// If that has no synonyms, try the stemmed form:
-	term.resize(0);
-	term += 'Z';
-	if (!prefix.empty()) {
-	    term += prefix;
-	    if (prefix_needs_colon(prefix, name[0])) term += ':';
+    // Handle single-word synonyms with each prefix.
+    list<string>::const_iterator piter;
+    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+	// First try the unstemmed term:
+	string term;
+	if (!piter->empty()) {
+	    term += *piter;
+	    if (prefix_needs_colon(*piter, name[0])) term += ':';
 	}
-	term += state->stem_term(name);
-	syn = db.synonyms_begin(term);
-	end = db.synonyms_end(term);
-    }
-    while (syn != end) {
-	q = Query(Query::OP_OR, q, Query(*syn, 1, pos));
-	++syn;
+	term += name;
+
+	Xapian::Database db = state->get_database();
+	Xapian::TermIterator syn = db.synonyms_begin(term);
+	Xapian::TermIterator end = db.synonyms_end(term);
+	if (syn == end && stem) {
+	    // If that has no synonyms, try the stemmed form:
+	    term.resize(0);
+	    term += 'Z';
+	    if (!piter->empty()) {
+		term += *piter;
+		if (prefix_needs_colon(*piter, name[0])) term += ':';
+	    }
+	    term += state->stem_term(name);
+	    syn = db.synonyms_begin(term);
+	    end = db.synonyms_end(term);
+	}
+	while (syn != end) {
+	    q = Query(Query::OP_OR, q, Query(*syn, 1, pos));
+	    ++syn;
+	}
     }
     return new Query(q);
 }
@@ -311,16 +316,31 @@ add_to_query(Query *& q, Query::op op, const Query & term)
 }
 
 Query *
+Term::as_query() const
+{
+    Assert(prefixes.size() >= 1);
+    Query * q = NULL;
+    list<string>::const_iterator piter;
+    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+    	add_to_query(q, Query::OP_OR, Query(make_term(*piter), 1, pos));
+    }
+    return q;
+}
+
+Query *
 Term::as_wildcarded_query(State * state_) const
 {
     Database db = state_->get_database();
-    string root = prefix;
-    root += name;
     Query * q = new Query;
-    TermIterator t = db.allterms_begin(root);
-    while (t != db.allterms_end(root)) {
-	add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
-	++t;
+    list<string>::const_iterator piter;
+    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+	string root = *piter;
+	root += name;
+	TermIterator t = db.allterms_begin(root);
+	while (t != db.allterms_end(root)) {
+	    add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
+	    ++t;
+	}
     }
     delete this;
     return q;
@@ -330,18 +350,28 @@ Query *
 Term::as_partial_query(State * state_) const
 {
     Database db = state_->get_database();
-    string root = prefix;
-    root += name;
     Query * q = new Query;
-    TermIterator t = db.allterms_begin(root);
-    while (t != db.allterms_end(root)) {
-	add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
-	++t;
+    list<string>::const_iterator piter;
+    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+	string root = *piter;
+	root += name;
+	TermIterator t = db.allterms_begin(root);
+	while (t != db.allterms_end(root)) {
+	    add_to_query(q, Query::OP_OR, Query(*t, 1, pos));
+	    ++t;
+	}
+	// Add the term, as it would normally be handled, as an alternative.
+	add_to_query(q, Query::OP_OR, as_query());
     }
-    // Add the term, as it would normally be handled, as an alternative.
-    add_to_query(q, Query::OP_OR, as_query());
     delete this;
     return q;
+}
+
+Query
+Term::as_query_object() const
+{
+    AutoPtr<Query> q(as_query());
+    return Query(*q);
 }
 
 inline bool
@@ -516,9 +546,31 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
     int correction_offset = 0;
     corrected_query.resize(0);
 
-    list<string> prefix_stack;
+    // The default list of prefixes to apply to terms.
+    PrefixInfo default_prefixinfo(QueryParser::PREFIX_INLINE, default_prefix);
+
+    {
+	map<string, PrefixInfo>::const_iterator f;
+	f = prefixes.find("");
+	if (f != prefixes.end()) {
+	    if (default_prefix.empty()) {
+	        default_prefixinfo.prefixes.clear();
+	    }
+	    const PrefixInfo * prefixinfo = &(f->second);
+	    list<string>::const_iterator prefixiter;
+	    for (prefixiter = prefixinfo->prefixes.begin();
+		 prefixiter != prefixinfo->prefixes.end();
+		 ++prefixiter) {
+		default_prefixinfo.prefixes.push_back(*prefixiter);
+	    }
+	}
+    }
+
+    // Stack of prefixes, used for phrases and subexpressions.
+    list<const PrefixInfo *> prefix_stack;
+
     // We always have the current prefix on the top of the stack.
-    prefix_stack.push_back(default_prefix);
+    prefix_stack.push_back(&default_prefixinfo);
 
     unsigned newprev = ' ';
 main_lex_loop:
@@ -699,7 +751,8 @@ just_had_operator:
 	newprev = 'A'; // Any letter will do...
 
 	// A term, a prefix, or a boolean operator.
-	string prefix;
+	const PrefixInfo * prefixinfo = prefix_stack.back();
+	bool have_prefix = false;
 	if ((mode == DEFAULT || mode == IN_GROUP) && !prefixes.empty()) {
 	    // Check for fieldname prefixes (e.g. title:historical).
 	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
@@ -711,16 +764,17 @@ just_had_operator:
 		map<string, PrefixInfo>::const_iterator f;
 		f = prefixes.find(field);
 		if (f != prefixes.end()) {
+		    have_prefix = true;
+
 		    // Special handling for prefixed fields, depending on the
 		    // type of the prefix.
 		    unsigned ch = *++p;
-		    PrefixInfo::prefix_type type = f->second.type;
-		    prefix = f->second.str;
+		    prefixinfo = &(f->second);
 
-		    if (type == PrefixInfo::BOOL_FILTER) {
-			// Can't boolean prefix a subexpression or phrase;
+		    if (prefixinfo->type == QueryParser::PREFIX_FILTER) {
+			// Can't filter prefix a subexpression or phrase;
 			// just use anything following the boolean prefix
-			// until the next space or ')' as part of the boolean
+			// until the next space or ')' as part of the filter
 			// term.
 			it = p;
 			string name;
@@ -730,11 +784,12 @@ just_had_operator:
 			field += ':';
 			field += name;
 			Parse(pParser, BOOLEAN_FILTER,
-			      new Term(&state, name, prefix, field), &state);
+			      new Term(&state, name, prefixinfo->prefixes,
+				       field), &state);
 			continue;
 		    }
 
-		    Assert(type == PrefixInfo::FREE_TEXT);
+		    Assert(prefixinfo->type == QueryParser::PREFIX_INLINE);
 
 		    if (ch == '"' && (flags & FLAG_PHRASE)) {
 			// Prefixed phrase, e.g.: subject:"space flight"
@@ -743,7 +798,7 @@ just_had_operator:
 			it = p;
 			newprev = ch;
 			++it;
-			prefix_stack.push_back(prefix);
+			prefix_stack.push_back(prefixinfo);
 			continue;
 		    }
 
@@ -754,7 +809,7 @@ just_had_operator:
 			it = p;
 			newprev = ch;
 			++it;
-			prefix_stack.push_back(prefix);
+			prefix_stack.push_back(prefixinfo);
 			continue;
 		    }
 
@@ -764,7 +819,7 @@ just_had_operator:
 		    } else {
 			// It looks like a prefix but isn't, so parse it as
 			// text instead.
-			prefix.resize(0);
+			have_prefix = false;
 		    }
 		}
 	    }
@@ -779,7 +834,7 @@ phrased_term:
 	    (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
 	    !was_acronym &&
-	    prefix.empty() &&
+	    !have_prefix &&
 	    term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
 
 	    string op = term;
@@ -844,11 +899,16 @@ phrased_term:
 	    }
 	}
 
-	if (prefix.empty()) prefix = prefix_stack.back();
+	if (!have_prefix) {
+	    // Get the default prefix.
+	    prefixinfo = prefix_stack.back();
+	}
+	Assert(prefixinfo->type == QueryParser::PREFIX_INLINE);
 
 	{
 	    string unstemmed_term(term);
 	    term = Unicode::tolower(term);
+
 	    // Don't stem if:
 	    // * We're not stemming terms at all!
 	    // * We're not stemming all terms and "should_stem()" returns false.
@@ -859,10 +919,18 @@ phrased_term:
 		(stem_action == STEM_SOME && !should_stem(unstemmed_term)) ||
 		(it != end && is_stem_preventer(*it));
 
-	    Term * term_obj = new Term(&state, term, prefix, unstemmed_term,
-				       !dont_stem, term_pos++);
-	    if (flags & FLAG_SPELLING_CORRECTION) {
-		if (!was_acronym && prefix.empty()) {
+	    Term * term_obj = new Term(&state, term, prefixinfo->prefixes,
+				       unstemmed_term, !dont_stem, term_pos++);
+
+	    // Check spelling, if we're a normal term, and any of the prefixes
+	    // are empty.
+	    if ((flags & FLAG_SPELLING_CORRECTION) && !was_acronym) {
+		list<string>::const_iterator prefixiter;
+		for (prefixiter = prefixinfo->prefixes.begin();
+		     prefixiter != prefixinfo->prefixes.end();
+		     ++prefixiter) {
+		    if (!prefixiter->empty())
+			continue;
 		    if (!db.term_exists(term)) {
 			string suggestion = db.get_spelling_suggestion(term);
 			if (!suggestion.empty()) {
@@ -875,8 +943,10 @@ phrased_term:
 			    correction_offset -= n;
 			}
 		    }
+		    break;
 		}
 	    }
+
 	    if (mode == IN_PHRASED_TERM) {
 		Parse(pParser, PHR_TERM, term_obj, &state);
 	    } else {
@@ -1097,63 +1167,92 @@ TermGroup::as_group(State *state) const
 }
 
 class TermList {
-    list<Query> terms;
+    list<Term *> terms;
     size_t window;
 
-  public:
-    TermList() : window(0) { }
+    /** Keep track of whether the terms added all have the same list of
+     *  prefixes.  If so, we'll build a set of phrases, one using each prefix.
+     *  This works around the limitation that a phrase cannot have multiple
+     *  components which are "OR" combinations of terms, but is also probably
+     *  what users expect: ie, if a user specifies a phrase in a field, and that
+     *  field maps to multiple prefixes, the user probably wants a phrase
+     *  returned with all terms having one of those prefixes, rather than a
+     *  phrase comprised of terms with differing prefixes.
+     */
+    bool uniform_prefixes;
 
-    /// Add a Term object to this TermList object.
-    void add_term(Term * term) {
-	terms.push_back(term->as_query_object());
-	delete term;
-    }
+    /// The list of prefixes of the terms added.
+    /// This will be empty if the terms have different prefixes.
+    list<string> prefixes;
+
+  public:
+    TermList() : window(0), uniform_prefixes(true) { }
 
     /// Add an unstemmed Term object to this TermList object.
     void add_unstemmed_term(Term * term) {
+        if (terms.empty()) {
+	    prefixes = term->prefixes;
+	} else if (uniform_prefixes && prefixes != term->prefixes)  {
+	    prefixes.clear();
+	    uniform_prefixes = false;
+	}
 	term->dont_stem();
-	add_term(term);
+	terms.push_back(term);
     }
 
     void adjust_window(size_t alternative_window) {
 	if (alternative_window > window) window = alternative_window;
     }
 
+    /// Convert to a query using the given operator and window size.
+    Query * as_opwindow_query(Query::op op, size_t w) const {
+	Query * q = NULL;
+	if (uniform_prefixes) {
+	    list<string>::const_iterator piter;
+	    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
+		list<Query> subqs;
+		list<Term *>::const_iterator titer;
+		for (titer = terms.begin(); titer != terms.end(); ++titer) {
+		    subqs.push_back(Query((*titer)->make_term(*piter), 1, (*titer)->pos));
+		}
+		add_to_query(q, Query::OP_OR, Query(op, subqs.begin(), subqs.end(), w));
+	    }
+	} else {
+	    list<Query> subqs;
+	    list<Term *>::const_iterator titer;
+	    for (titer = terms.begin(); titer != terms.end(); ++titer) {
+		subqs.push_back((*titer)->as_query_object());
+	    }
+	    q = new Query(op, subqs.begin(), subqs.end(), w);
+	}
+
+	delete this;
+	return q;
+    }
+
     /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
     Query * as_phrase_query() const {
-	Query * term;
-	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end(),
-			 terms.size());
-	delete this;
-	return term;
+    	return as_opwindow_query(Query::OP_PHRASE, terms.size());
     }
 
     /// Convert to a Xapian::Query * using OP_NEAR.
     Query * as_near_query() const {
-	Query * term;
 	// The common meaning of 'a NEAR b' is "a within 10 terms of b", which
 	// means a window size of 11.  For more than 2 terms, we just add one
 	// to the window size for each extra term.
 	size_t w = window;
 	if (w == 0) w = 10;
-	term = new Query(Query::OP_NEAR, terms.begin(), terms.end(),
-			 terms.size() + w - 1);
-	delete this;
-	return term;
+    	return as_opwindow_query(Query::OP_NEAR, terms.size() + w - 1);
     }
 
     /// Convert to a Xapian::Query * using OP_PHRASE to implement ADJ.
     Query * as_adj_query() const {
-	Query * term;
 	// The common meaning of 'a ADJ b' is "a at most 10 terms before b",
 	// which means a window size of 11.  For more than 2 terms, we just add
 	// one to the window size for each extra term.
 	size_t w = window;
 	if (w == 0) w = 10;
-	term = new Query(Query::OP_PHRASE, terms.begin(), terms.end(),
-			 terms.size() + w - 1);
-	delete this;
-	return term;
+	return as_opwindow_query(Query::OP_PHRASE, terms.size() + w - 1);
     }
 
     /** Provide a way to explicitly delete an object of this class.  The
@@ -1165,7 +1264,12 @@ class TermList {
     /** Protected destructor, so an auto-variable of this type is a
      *  compile-time error - you must allocate this object with new.
      */
-    ~TermList() { }
+    ~TermList() {
+	list<Term *>::const_iterator t;
+	for (t = terms.begin(); t != terms.end(); ++t) {
+	    delete *t;
+	}
+    }
 };
 
 // Helper macro for converting a boolean operation into a Xapian::Query.
