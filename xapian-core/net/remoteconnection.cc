@@ -185,15 +185,14 @@ RemoteConnection::read_at_least(size_t min_len, const OmTime & end_time)
 	    continue;
 	}
 
+	if (received == 0)
+	    throw Xapian::NetworkError("Received EOF", context);
+
 	DEBUGLINE(REMOTE, "read gave errno = " << strerror(errno));
 	if (errno == EINTR) continue;
 
 	if (errno != EAGAIN)
 	    throw Xapian::NetworkError("read failed", context, errno);
-
-	if (received == 0) {
-	    throw Xapian::NetworkError("Received EOF", context);
-	}
 
 	Assert(end_time.is_set());
 	while (true) {
