@@ -408,6 +408,23 @@ qint_from_vector(Xapian::Query::op op,
     return qint;
 }
 
+static Xapian::Query::Internal *
+qint_from_vector(Xapian::Query::op op,
+		 const vector<Xapian::Query::Internal *> & vec,
+		 Xapian::termcount parameter,
+		 double dbl_parameter)
+{
+    Xapian::Query::Internal * qint = new Xapian::Query::Internal(op, parameter);
+    qint->set_dbl_parameter(dbl_parameter);
+    vector<Xapian::Query::Internal *>::const_iterator i;
+    for (i = vec.begin(); i != vec.end(); i++) {
+	qint->add_subquery(*i);
+	delete *i;
+    }
+    qint->end_construction();
+    return qint;
+}
+
 Xapian::Query::Internal *
 QUnserial::readcompound() {
     vector<Xapian::Query::Internal *> subqs;
@@ -469,9 +486,9 @@ QUnserial::readcompound() {
 						       start, stop);
 	        }
 	        case '.': {
+		    double param = unserialise_double(&p, end);
 		    AutoPtr<Xapian::Query::Internal> result(
-			qint_from_vector(Xapian::Query::OP_MULT_WEIGHT, subqs));
-		    result->set_dbl_parameter(unserialise_double(&p, end));
+			qint_from_vector(Xapian::Query::OP_MULT_WEIGHT, subqs, 0, param));
 		    return result.release();
 		}
 	        default:

@@ -449,6 +449,15 @@ static bool test_serialisequery1()
     const char * words[] = { "paragraph", "word" };
     queries.push_back(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
 
+    const char * words2[] = { "milk", "on", "fridge" };
+    queries.push_back(Xapian::Query(Xapian::Query::OP_MULT_WEIGHT,
+				    Xapian::Query(Xapian::Query::OP_OR,
+						  Xapian::Query("leave"),
+						  Xapian::Query(Xapian::Query::OP_PHRASE, words2, words2 + 3)
+						 ),
+				    2.5
+				   ));
+
     list<Xapian::Query>::const_iterator query;
     for (query = queries.begin(); query != queries.end(); query++) {
         Xapian::Query::Internal * qint;
