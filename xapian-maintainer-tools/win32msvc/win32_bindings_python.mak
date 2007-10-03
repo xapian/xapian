@@ -66,14 +66,19 @@ CPP_SBRS=.
 
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) "/LIBPATH:$(PYTHON_LIB_DIR)" 
 
-modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i except.i doccomments.i extra.i extracomments.i
-	-erase /Q modern
-	-md modern
-	$(SWIG) -I"$(XAPIAN_CORE_REL_PYTHON)" -I"$(XAPIAN_CORE_REL_PYTHON)\include" -Werror -c++ -python -threads -shadow -modern \
-	    -outdir modern -o modern/xapian_wrap.cc ../xapian.i
-	$(PERL_EXE) -pe "s/class Error:/class Error(Exception):/" modern\xapian.py > modern\xapian_py.tmp
-	-erase modern\xapian.py
-	-rename modern\xapian_py.tmp xapian.py
+# Comment out the SWIG rules because it's hard to get swig to work on
+# windows at all, currently, and therefore we only support snapshot builds on
+# windows, and we don't want the rules firing in that case (which they might
+# to due to clock errors)
+#
+#modern/xapian_wrap.cc modern/xapian_wrap.h modern/xapian.py: ../xapian.i util.i except.i doccomments.i extra.i extracomments.i
+#	-erase /Q modern
+#	-md modern
+#	$(SWIG) -I"$(XAPIAN_CORE_REL_PYTHON)" -I"$(XAPIAN_CORE_REL_PYTHON)\include" -Werror -c++ -python -threads -shadow -modern \
+#	    -outdir modern -o modern/xapian_wrap.cc ../xapian.i
+#	$(PERL_EXE) -pe "s/class Error:/class Error(Exception):/" modern\xapian.py > modern\xapian_py.tmp
+#	-erase modern\xapian.py
+#	-rename modern\xapian_py.tmp xapian.py
 
 "$(OUTDIR)\_xapian$(PY_DEBUG_SUFFIX).pyd" : "$(OUTDIR)" $(DEF_FILE) $(LIB_XAPIAN_OBJS) 
                             

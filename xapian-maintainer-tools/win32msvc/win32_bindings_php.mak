@@ -61,18 +61,22 @@ CPP_PROJ=$(CPPFLAGS_EXTRA)  /GR \
 CPP_OBJS=$(XAPIAN_CORE_REL_PHP)\win32\$(XAPIAN_DEBUG_OR_RELEASE)\
 CPP_SBRS=.
 
-
-php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: ../xapian.i util.i
-	-erase /Q /s php4
-	-md php4
-	$(SWIG) -I"$(XAPIAN_CORE_REL_PHP)\include" $(SWIG_FLAGS) -c++ -php4 \
-	    -outdir php4 -o php4/xapian_wrap.cc $(srcdir)/../xapian.i
-
-php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: ../xapian.i util.i
-	-erase /Q /s php5
-	-md php5
-	$(SWIG) -I"$(XAPIAN_CORE_REL_PHP)\include" $(SWIG_FLAGS) -c++ -php5 -prefix Xapian \
-	    -outdir php5 -o php5/xapian_wrap.cc $(srcdir)/../xapian.i
+# Comment out the SWIG rules because it's hard to get swig to work on
+# windows at all, currently, and therefore we only support snapshot builds on
+# windows, and we don't want the rules firing in that case (which they might
+# to due to clock errors)
+#
+#php4/xapian_wrap.cc php4/php_xapian.h php4/xapian.php: ../xapian.i util.i
+#	-erase /Q /s php4
+#	-md php4
+#	$(SWIG) -I"$(XAPIAN_CORE_REL_PHP)\include" $(SWIG_FLAGS) -c++ -php4 \
+#	    -outdir php4 -o php4/xapian_wrap.cc $(srcdir)/../xapian.i
+#
+#php5/xapian_wrap.cc php5/php_xapian.h php5/xapian.php: ../xapian.i util.i
+#	-erase /Q /s php5
+#	-md php5
+#	$(SWIG) -I"$(XAPIAN_CORE_REL_PHP)\include" $(SWIG_FLAGS) -c++ -php5 -prefix Xapian \
+#	    -outdir php5 -o php5/xapian_wrap.cc $(srcdir)/../xapian.i
 
 ALL_LINK32_FLAGS=$(LINK32_FLAGS) $(XAPIAN_LIBS) $(PHP_LIB)
 
