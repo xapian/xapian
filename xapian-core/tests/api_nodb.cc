@@ -390,6 +390,14 @@ static bool test_stringlistserialise1()
     return true;
 }
 
+// Test a multweight query applied to a match nothing query
+static bool test_multweightmatchnothing1()
+{   
+    Xapian::Query matchnothing(Xapian::Query::MatchNothing);
+    Xapian::Query query(Xapian::Query::OP_MULT_WEIGHT, matchnothing, 3.0);
+    TEST_EQUAL(query.get_description(), "Xapian::Query()");
+    return true;
+}
 
 // #######################################################################
 // # End of test cases: now we list the tests to run.
@@ -413,5 +421,6 @@ test_desc nodb_tests[] = {
     TESTCASE(poscollapse2),
     TESTCASE(uninitdb1),
     TESTCASE(stringlistserialise1),
+    TESTCASE(multweightmatchnothing1),
     END_OF_TESTCASES
 };

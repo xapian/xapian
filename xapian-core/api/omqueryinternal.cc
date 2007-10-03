@@ -688,6 +688,13 @@ Xapian::Query::Internal::simplify_matchnothing()
                 subqs.erase(sq);
             }
             break;
+        case OP_MULT_WEIGHT:
+	    // If subquery is MatchNothing, we match nothing.
+            Assert(subqs.size() == 1);
+            if (subqs[0] == 0) {
+		return true;
+	    }
+	    break;
         case OP_LEAF:
             // Do nothing.
             break;
