@@ -186,9 +186,9 @@ class XapianSmoketest < Test::Unit::TestCase
     assert_equal(@db.get_metadata('Foo'), 'Foo')
   end
 
-  def test_013_multweight
+  def test_013_scaleweight
     query = Xapian::Query.new("foo")
-    query2 = Xapian::Query.new(Xapian::Query::OP_MULT_WEIGHT, query, 5);
+    query2 = Xapian::Query.new(Xapian::Query::OP_SCALE_WEIGHT, query, 5);
     assert_equal(query2.description(), "Xapian::Query((foo * 5))")
   end
 

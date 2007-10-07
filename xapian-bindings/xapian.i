@@ -858,8 +858,8 @@ class Query {
 	    OP_NEAR,
 	    OP_PHRASE,
 	    OP_VALUE_RANGE,
-	    OP_ELITE_SET = 10,
-	    OP_MULT_WEIGHT
+	    OP_SCALE_WEIGHT,
+	    OP_ELITE_SET = 10
 	};
 	// FIXME wrap optional arguments in PHP?
 	Query(const string &tname, termcount wqf = 1, termpos term_pos = 0);

@@ -881,16 +881,16 @@ def test_queryparser_custom_vrp():
            'Xapian::Query(VALUE_RANGE 7 A5 B8)')
 
 
-def test_mult_weight():
-    """Test query OP_MULT_WEIGHT feature.
+def test_scale_weight():
+    """Test query OP_SCALE_WEIGHT feature.
 
     """
     db = setup_database()
-    for mult in (-2.5, -1, 0, 1, 2.5):
-        context("checking queries with OP_MULT_WEIGHT with a multipler of %r" %
+    for mult in (0, 1, 2.5):
+        context("checking queries with OP_SCALE_WEIGHT with a multipler of %r" %
                 mult)
         query1 = xapian.Query("it")
-        query2 = xapian.Query(xapian.Query.OP_MULT_WEIGHT, query1, mult)
+        query2 = xapian.Query(xapian.Query.OP_SCALE_WEIGHT, query1, mult)
 
         enquire = xapian.Enquire(db)
         enquire.set_query(query1)
@@ -904,16 +904,23 @@ def test_mult_weight():
             expected = [(item.weight * mult, item.docid) for item in mset1]
         expect([(item.weight, item.docid) for item in mset2], expected)
 
+    context("checking queries with OP_SCALE_WEIGHT with a multipler of -1")
+    query1 = xapian.Query("it")
+    expect_exception(xapian.InvalidArgumentError,
+                     "Xapian::Query: SCALE_WEIGHT requires a non-negative parameter.",
+                     xapian.Query,
+                     xapian.Query.OP_SCALE_WEIGHT, query1, -1)
+
 
 def test_weight_normalise():
-    """Test normalising of query weights using the OP_MULT_WEIGHT feature.
+    """Test normalising of query weights using the OP_SCALE_WEIGHT feature.
 
     This test first runs a search (asking for no results) to get the maximum
     possible weight for a query, and then checks that the results of
     MSet.get_max_possible() match this.
 
     This tests that the get_max_possible() value is correct (though it isn't
-    guaranteed to be at a tight bound), and that the mult-weight query can
+    guaranteed to be at a tight bound), and that the SCALE_WEIGHT query can
     compensate correctly.
 
     """
@@ -927,7 +934,7 @@ def test_weight_normalise():
                   "\"was it warm\" four notpresent",
                   "notpresent",
     ):
-        context("checking query %r using OP_MULT_WEIGHT to normalise the weights" % query)
+        context("checking query %r using OP_SCALE_WEIGHT to normalise the weights" % query)
         qp = xapian.QueryParser()
         query1 = qp.parse_query(query)
         enquire = xapian.Enquire(db)
@@ -941,7 +948,7 @@ def test_weight_normalise():
 
         max_possible = mset1.get_max_possible()
         mult = 1.0 / max_possible
-        query2 = xapian.Query(xapian.Query.OP_MULT_WEIGHT, query1, mult)
+        query2 = xapian.Query(xapian.Query.OP_SCALE_WEIGHT, query1, mult)
 
         enquire = xapian.Enquire(db)
         enquire.set_query(query2)

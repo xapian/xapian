@@ -146,7 +146,7 @@ if { $xapian::Query_OP_ELITE_SET != 10 } {
     exit 1
 }
 
-xapian::Query query4 $xapian::Query_OP_MULT_WEIGHT smoke 5
+xapian::Query query4 $xapian::Query_OP_SCALE_WEIGHT smoke 5
 if { [query4 get_description] != "Xapian::Query((smoke * 5))" } {
     puts stderr "Unexpected query4.get_description()"
     exit 1

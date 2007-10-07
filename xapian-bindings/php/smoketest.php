@@ -147,8 +147,8 @@ if ($db->get_metadata('Foo') !== 'Foo') {
     exit(1);
 }
 
-# Test OP_MULT_WEIGHT and corresponding constructor
-$query4 = new XapianQuery($op_mult_weight, new XapianQuery('foo'), 5.0);
+# Test OP_SCALE_WEIGHT and corresponding constructor
+$query4 = new XapianQuery($op_scale_weight, new XapianQuery('foo'), 5.0);
 if ($query4->get_description() != "Xapian::Query((foo * 5))") {
     print "Unexpected \$query4->get_description()\n";
     exit(1);
