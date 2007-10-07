@@ -487,9 +487,8 @@ QUnserial::readcompound() {
 	        }
 	        case '.': {
 		    double param = unserialise_double(&p, end);
-		    AutoPtr<Xapian::Query::Internal> result(
-			qint_from_vector(Xapian::Query::OP_SCALE_WEIGHT, subqs, 0, param));
-		    return result.release();
+		    return qint_from_vector(Xapian::Query::OP_SCALE_WEIGHT,
+					    subqs, 0, param);
 		}
 	        default:
 		    DEBUGLINE(UNKNOWN, "Can't parse remainder `" << p - 1 << "'");
