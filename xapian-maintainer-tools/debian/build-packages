@@ -37,7 +37,7 @@ build_package() {
   pbuilder build --no-targz --buildplace "$CHROOT" --buildresult "$POOL" "$1"
 }
 
-rm -rf Sources.gz *.dsc *.orig.tar.gz *.diff.gz pool dists
+rm -rf Sources.gz *.dsc *.orig.tar.gz *.diff.gz
 
 DISTRO_ARCH=$1
 VERSION=$2
@@ -124,7 +124,7 @@ mkdir -p "$ARCHDIR"
 find pool -not -name '*.deb' -type f -print|perl -ne 'chomp;unlink'
 
 if [ "core bindings omega" = "$PACKAGES" ] ; then
-  dpkg-scanpackages "$POOL" /dev/null \
+  dpkg-scanpackages -a "$ARCH" "$POOL" /dev/null \
       | gzip -9 > "$ARCHDIR/Packages.gz"
 else
   echo "*** WARNING : Can't generate new Packages.gz for partial build - FIXME"
@@ -135,14 +135,3 @@ fi
 
 lintian $LINTIAN_FLAGS *.dsc "$POOL"/*.deb
 #linda $LINDA_FLAGS *.dsc "$POOL"/*.deb
-
-cat <<END > "$ARCHDIR/Release"
-Archive: $DIR
-Component: main
-Origin: Xapian
-Label: Xapian
-Architecture: $ARCH
-END
-
-su olly -c 'rsync -v -a pool/. ixion.tartarus.org:/usr/data/www/xapian.org/debian-tmp/pool/'
-su olly -c 'rsync -v -a dists/. ixion.tartarus.org:/usr/data/www/xapian.org/debian-tmp/dists/'
