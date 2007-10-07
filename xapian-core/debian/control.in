@@ -73,7 +73,7 @@ Description: Basic tools for Xapian search engine library
 Package: xapian-doc
 Architecture: all
 Section: doc
-Recommends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${Source-Version})
+Recommends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${binary:Version})
 Description: Core Xapian documentation
  This package contains general documentation about Xapian, and more detailed
  API documentation.
@@ -91,7 +91,7 @@ Description: Core Xapian documentation
 Package: xapian-examples
 Architecture: any
 Section: doc
-Depends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${Source-Version})
+Depends: libxapian@LIBXAPIAN_DEV_SOVERSION@-dev (= ${binary:Version})
 Description: Xapian simple example programs
  This package contains source code for some example programs which use the
  Xapian library.  The three "simple" examples are also included in binary
