@@ -290,8 +290,13 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  in the form of (key,tag) pairs.  See @a
 	 *  WritableDatabase::set_metadata() for more information.
 	 *
+	 *  When invoked on a Xapian::Database object representing multiple
+	 *  databases, currently only the metadata for the first is considered
+	 *  but this behaviour may change in the future.
+	 *
 	 *  If there is no piece of metadata associated with the specified
-	 *  key, an empty string is returned.
+	 *  key, an empty string is returned (this applies even for backends
+	 *  which don't support metadata).
 	 *
 	 *  Empty keys are not valid, and specifying one will cause an
 	 *  exception.
@@ -301,7 +306,11 @@ class XAPIAN_VISIBILITY_DEFAULT Database {
 	 *  @return    The retrieved metadata item's value.
 	 *
 	 *  @exception Xapian::InvalidArgumentError will be thrown if the
-	 *             key supplied is empty.
+	 *	       key supplied is empty.
+	 *
+	 *  @exception Xapian::UnimplementedError will be thrown if the
+	 *	       database backend in use doesn't support user-specified
+	 *	       metadata.
 	 */
 	std::string get_metadata(const std::string & key) const;
 };

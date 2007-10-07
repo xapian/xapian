@@ -1,3 +1,11 @@
+Sun Oct 07 12:20:14 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/database.h: Add explicit note that
+	  Database::get_metadata() returns an empty string when the backend
+	  doesn't support user-specified metadata, and that
+	  WritableDatabase::set_metadata() throws UnimplementedError in this
+	  case.  Add note about current behaviour with multidatabases.
+
 Sun Oct 07 10:58:24 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/omqueryinternal.cc: No need to use AutoPtr<> here now.
