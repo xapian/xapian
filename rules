@@ -23,7 +23,7 @@
 # subtract it from the interface age, to get the oldest interface number
 # supported by the library. This should correspond to the soversion assigned
 # to the library by libtool.  (This isn't documented, and is system dependent,
-# so we need to check it doesn't break with future libtools.)
+# so we need to check it doesn't break with future versions of libtool.)
 libxapian_soversion:=$(shell sed 's/^LIBRARY_VERSION_INFO=\([0-9][0-9]*\):[0-9][0-9]*:\([0-9][0-9]*\).*/\1-\2/p;d' configure.ac)
 libxapian_soversion:=$(shell echo $$(($(libxapian_soversion))))
 
