@@ -1,4 +1,4 @@
-/** @file multweightpostlist.h
+/** @file scaleweightpostlist.h
  * @brief Return documents from a subquery with weights multiplied by a double.
  */
 /* Copyright 2007 Lemur Consulting Ltd
@@ -18,15 +18,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef XAPIAN_INCLUDED_MULTWEIGHTPOSTLIST_H
-#define XAPIAN_INCLUDED_MULTWEIGHTPOSTLIST_H
+#ifndef XAPIAN_INCLUDED_SCALEWEIGHTPOSTLIST_H
+#define XAPIAN_INCLUDED_SCALEWEIGHTPOSTLIST_H
 
 #include "database.h"
 #include "postlist.h"
 
 class MultiMatch;
 
-class MultWeightPostList : public PostList {
+class ScaleWeightPostList : public PostList {
     /** The sub-postlist. */
     PostList *source;
 
@@ -41,16 +41,16 @@ class MultWeightPostList : public PostList {
     MultiMatch *matcher;
 
     /// Disallow copying.
-    MultWeightPostList(const MultWeightPostList &);
+    ScaleWeightPostList(const ScaleWeightPostList &);
 
     /// Disallow assignment.
-    void operator=(const MultWeightPostList &);
+    void operator=(const ScaleWeightPostList &);
 
   public:
-    MultWeightPostList(PostList *source_, double multiplier_,
-		       MultiMatch *matcher_)
+    ScaleWeightPostList(PostList *source_, double multiplier_,
+			MultiMatch *matcher_)
 	: source(source_), multiplier(multiplier_), matcher(matcher_) {}
-    ~MultWeightPostList() { delete source; }
+    ~ScaleWeightPostList() { delete source; }
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;
@@ -68,4 +68,4 @@ class MultWeightPostList : public PostList {
     string get_description() const;
 };
 
-#endif /* XAPIAN_INCLUDED_MULTWEIGHTPOSTLIST_H */
+#endif /* XAPIAN_INCLUDED_SCALEWEIGHTPOSTLIST_H */

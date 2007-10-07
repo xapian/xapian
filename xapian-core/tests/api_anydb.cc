@@ -1809,8 +1809,8 @@ static bool test_valuerange1() {
     return true;
 }
 
-// Feature test for Query::OP_MULT_WEIGHT.
-static bool test_multweight1() {
+// Feature test for Query::OP_SCALE_WEIGHT.
+static bool test_scaleweight1() {
     Xapian::Database db(get_database("apitest_phrase"));
     Xapian::Enquire enq(db);
     Xapian::QueryParser qp;
@@ -1836,7 +1836,15 @@ static bool test_multweight1() {
 	tout << "query1: " << query1.get_description() << endl;
 	for (double *multp = multipliers; multp[0] != multp[1]; ++multp) {
 	    double mult = *multp;
-	    Xapian::Query query2(Xapian::Query::OP_MULT_WEIGHT, query1, mult);
+		Xapian::Query query2;
+	    if (mult < 0) {
+		TEST_EXCEPTION(Xapian::InvalidArgumentError, 
+			       Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
+					     query1, mult));
+		continue;
+	    } else {
+		query2 = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query1, mult);
+	    }
 	    tout << "query2: " << query2.get_description() << endl;
 
 	    enq.set_query(query1);
@@ -1869,6 +1877,59 @@ static bool test_multweight1() {
 	    }
 	}
     }
+    return true;
+}
+
+// Test Query::OP_SCALE_WEIGHT being used to multiply some of the weights of a
+// search by zero.
+static bool test_scaleweight2() {
+    Xapian::Database db(get_database("apitest_phrase"));
+    Xapian::Enquire enq(db);
+    Xapian::MSetIterator i;
+
+    Xapian::Query query1("fridg");
+    Xapian::Query query2(Xapian::Query::OP_SCALE_WEIGHT, query1, 2.5);
+    Xapian::Query query3("milk");
+    Xapian::Query query4(Xapian::Query::OP_SCALE_WEIGHT, query3, 0);
+    Xapian::Query query5(Xapian::Query::OP_OR, query2, query4);
+
+    // query5 should first return the same results as query1, in the same
+    // order, and then return the results of query3 which aren't also results
+    // of query1, in ascending docid order.  We test that this happens.
+
+    // First, build a vector of docids matching the first part of the query,
+    // and append the non-duplicate docids matching the second part of the query.
+    vector<Xapian::docid> ids1;
+    set<Xapian::docid> idsin1;
+    vector<Xapian::docid> ids3;
+
+    enq.set_query(query1);
+    Xapian::MSet mset1 = enq.get_mset(0, 20);
+    enq.set_query(query3);
+    Xapian::MSet mset3 = enq.get_mset(0, 20);
+    TEST_NOT_EQUAL(mset1.size(), 0);
+    for (i = mset1.begin(); i != mset1.end(); ++i) {
+	ids1.push_back(*i);
+	idsin1.insert(*i);
+    }
+    TEST_NOT_EQUAL(mset3.size(), 0);
+    for (i = mset3.begin(); i != mset3.end(); ++i) {
+	if (idsin1.find(*i) != idsin1.end())
+	    continue;
+	ids3.push_back(*i);
+    }
+    sort(ids3.begin(), ids3.end());
+    ids1.insert(ids1.end(), ids3.begin(), ids3.end());
+
+    // Now, run the combined query and build a vector of the matching docids.
+    vector<Xapian::docid> ids5;
+    enq.set_query(query5);
+    Xapian::MSet mset5 = enq.get_mset(0, 20);
+    for (i = mset5.begin(); i != mset5.end(); ++i) {
+	ids5.push_back(*i);
+    }
+
+    TEST_EQUAL(ids1, ids5);
     return true;
 }
 
@@ -1938,6 +1999,7 @@ test_desc anydb_tests[] = {
     {"allpostlist1",	   test_allpostlist1},
     {"emptyterm1",	   test_emptyterm1},
     {"valuerange1",	   test_valuerange1},
-    {"multweight1",	   test_multweight1},
+    {"scaleweight1",	   test_scaleweight1},
+    {"scaleweight2",	   test_scaleweight2},
     {0, 0}
 };

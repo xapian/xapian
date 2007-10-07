@@ -39,7 +39,7 @@
 #include "mergepostlist.h"
 #include "extraweightpostlist.h"
 #include "valuerangepostlist.h"
-#include "multweightpostlist.h"
+#include "scaleweightpostlist.h"
 
 #include "omqueryinternal.h"
 
@@ -479,14 +479,14 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	case Xapian::Query::OP_VALUE_RANGE:
 	    RETURN(new ValueRangePostList(db, Xapian::valueno(query->parameter),
 					  query->tname, query->str_parameter));
-	case Xapian::Query::OP_MULT_WEIGHT:
+	case Xapian::Query::OP_SCALE_WEIGHT:
 	    Assert(query->subqs.size() == 1);
-	    if (is_bool || query->dbl_parameter < DBL_EPSILON) {
+	    if (is_bool || query->dbl_parameter == 0.0) {
 		// Return as a boolean query.
 		RETURN(postlist_from_query(query->subqs[0], matcher, true));
 	    } else {
-		RETURN(new MultWeightPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
-					      query->dbl_parameter, matcher));
+		RETURN(new ScaleWeightPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
+					       query->dbl_parameter, matcher));
 	    }
     }
     Assert(false);

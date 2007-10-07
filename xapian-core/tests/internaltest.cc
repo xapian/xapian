@@ -450,7 +450,7 @@ static bool test_serialisequery1()
     queries.push_back(Xapian::Query(Xapian::Query::OP_OR, words, words + 2));
 
     const char * words2[] = { "milk", "on", "fridge" };
-    queries.push_back(Xapian::Query(Xapian::Query::OP_MULT_WEIGHT,
+    queries.push_back(Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
 				    Xapian::Query(Xapian::Query::OP_OR,
 						  Xapian::Query("leave"),
 						  Xapian::Query(Xapian::Query::OP_PHRASE, words2, words2 + 3)

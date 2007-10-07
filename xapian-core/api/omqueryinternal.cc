@@ -60,7 +60,7 @@ get_min_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_ELITE_SET:
 	case Xapian::Query::OP_VALUE_RANGE:
 	    return 0;
-	case Xapian::Query::OP_MULT_WEIGHT:
+	case Xapian::Query::OP_SCALE_WEIGHT:
 	    return 1;
 	case Xapian::Query::OP_FILTER:
 	case Xapian::Query::OP_AND_MAYBE:
@@ -79,7 +79,7 @@ get_max_subqs(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::Internal::OP_LEAF:
 	case Xapian::Query::OP_VALUE_RANGE:
 	    return 0;
-	case Xapian::Query::OP_MULT_WEIGHT:
+	case Xapian::Query::OP_SCALE_WEIGHT:
 	    return 1;
 	case Xapian::Query::OP_FILTER:
 	case Xapian::Query::OP_AND_MAYBE:
@@ -183,7 +183,7 @@ Xapian::Query::Internal::serialise(Xapian::termpos & curpos) const
 		result += str_parameter;
 		result += om_tostring(parameter);
 		break;
-	    case Xapian::Query::OP_MULT_WEIGHT:
+	    case Xapian::Query::OP_SCALE_WEIGHT:
 		result += ".";
 		result += serialise_double(dbl_parameter);
 		break;
@@ -212,7 +212,7 @@ Xapian::Query::Internal::get_op_name(Xapian::Query::Internal::op_t op)
 	case Xapian::Query::OP_PHRASE:          name = "PHRASE"; break;
 	case Xapian::Query::OP_ELITE_SET:       name = "ELITE_SET"; break;
 	case Xapian::Query::OP_VALUE_RANGE:     name = "VALUE_RANGE"; break;
-	case Xapian::Query::OP_MULT_WEIGHT:     name = "MULT_WEIGHT"; break;
+	case Xapian::Query::OP_SCALE_WEIGHT:    name = "SCALE_WEIGHT"; break;
     }
     return name;
 }
@@ -260,7 +260,7 @@ Xapian::Query::Internal::get_description() const
 	description += (**i).get_description();
     }
 
-    if (op == Xapian::Query::OP_MULT_WEIGHT) {
+    if (op == Xapian::Query::OP_SCALE_WEIGHT) {
 	description += " * ";
 	description += om_tostring(dbl_parameter);
     }
@@ -488,7 +488,7 @@ QUnserial::readcompound() {
 	        case '.': {
 		    double param = unserialise_double(&p, end);
 		    AutoPtr<Xapian::Query::Internal> result(
-			qint_from_vector(Xapian::Query::OP_MULT_WEIGHT, subqs, 0, param));
+			qint_from_vector(Xapian::Query::OP_SCALE_WEIGHT, subqs, 0, param));
 		    return result.release();
 		}
 	        default:
@@ -631,6 +631,10 @@ Xapian::Query::Internal::validate_query() const
 		om_tostring(subqs.size()) + ".");
     }
 
+    if (op == OP_SCALE_WEIGHT && dbl_parameter < 0) {
+	throw Xapian::InvalidArgumentError("Xapian::Query: " + get_op_name(op) + " requires a non-negative parameter.");
+    }
+
     // Check that the termname is null in a branch query, unless the op
     // is OP_VALUE_RANGE.
     Assert(is_leaf(op) || op == OP_VALUE_RANGE || tname.empty());
@@ -688,7 +692,7 @@ Xapian::Query::Internal::simplify_matchnothing()
                 subqs.erase(sq);
             }
             break;
-        case OP_MULT_WEIGHT:
+        case OP_SCALE_WEIGHT:
 	    // If subquery is MatchNothing, we match nothing.
             Assert(subqs.size() == 1);
             if (subqs[0] == 0) {
@@ -721,7 +725,7 @@ Xapian::Query::Internal::simplify_query()
 	    // match anything.
 	    if (tname > str_parameter) return 0;
 	    return this;
-	case OP_MULT_WEIGHT:
+	case OP_SCALE_WEIGHT:
 	    if (fabs(dbl_parameter - 1.0) > DBL_EPSILON) return this;
 	    // If the multiplier is 1, this node doesn't actually do anything,
 	    // so we leave it to be removed.

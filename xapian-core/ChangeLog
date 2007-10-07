@@ -1,3 +1,18 @@
+Sun Oct 07 01:54:43 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* api/omqueryinternal.cc,include/xapian/query.h,matcher/,
+	  tests/api_anydb.cc,tests/api_nodb.cc,tests/internaltest.cc:
+	  Rename OP_MULT_WEIGHT to OP_SCALE_WEIGHT and MultWeight to
+	  ScaleWeight, and move it to before OP_MULT_WEIGHT (to remove the
+	  gap in the enum).
+	  Don't do an epsilon test to compare the weight to zero (when
+	  checking if it's effectively a boolean query) - do an exact
+	  comparison instead.  Raise an exception if the parameter for
+	  OP_SCALE_WEIGHT is < 0 (instead of clipping it to 0).  Adjust
+	  weights accordingly.
+	  Add test_scaleweight2() to test a query with some weights
+	  multiplied by 0, and some by a different factor.
+
 Wed Oct 03 17:23:02 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* api/omqueryinternal.cc,tests/api_nodb.cc: Fix (and test) for a

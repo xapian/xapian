@@ -96,15 +96,15 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	    /** Filter by a range test on a document value. */
 	    OP_VALUE_RANGE,
 
+	    /** Scale the weight of a subquery by applying a multiplier.  Only
+	     * positive multiplers are supported - negative multipliers will be
+	     * clipped to 0. */
+	    OP_SCALE_WEIGHT,
+
 	    /** Select an elite set from the subqueries, and perform
 	     *  a query with these combined as an OR query.
 	     */
-	    OP_ELITE_SET = 10,
-
-	    /** Multiply the weight of a subquery by a multiplier.  Only
-	     * positive multiplers are supported - negative multipliers will be
-	     * clipped to 0. */
-	    OP_MULT_WEIGHT
+	    OP_ELITE_SET = 10
 	} op;
 
 	/** Copy constructor. */
