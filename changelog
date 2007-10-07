@@ -5,7 +5,7 @@ xapian-bindings (1.0.3-1) unstable; urgency=low
   * debian/rules: Override RUBY_LIB and RUBY_LIB_ARCH which now have different
     defaults upstream.
 
- -- Olly Betts <olly@survex.com>  Sun,  7 Oct 2007 10:49:57 +0100
+ -- Olly Betts <olly@survex.com>  Sun,  7 Oct 2007 17:59:45 +0100
 
 xapian-bindings (1.0.2-1) unstable; urgency=low
 
