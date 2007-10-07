@@ -36,8 +36,9 @@
 // 30.1: Pass the prefix parameter for MSG_ALLTERMS, and use it.
 // 30.2: New REPLY_DELETEDOCUMENT returns MSG_DONE to allow exceptions.
 // 30.3: New MSG_GETMSET which passes check_at_least parameter.
+// 30.4: New query operator OP_SCALE_WEIGHT.
 #define XAPIAN_REMOTE_PROTOCOL_MAJOR_VERSION 30
-#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 3
+#define XAPIAN_REMOTE_PROTOCOL_MINOR_VERSION 4
 
 /* When we move to version 31:
  * + Remove MSG_DELETEDOCUMENT_PRE_30_2
