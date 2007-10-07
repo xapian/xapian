@@ -1,0 +1,416 @@
+xapian-bindings (1.0.3-1) unstable; urgency=low
+
+  * New upstream release.
+    + "make clean" now removes python/testsuite.pyc.  Closes: #442766
+  * debian/rules: Override RUBY_LIB and RUBY_LIB_ARCH which now have different
+    defaults upstream.
+
+ -- Olly Betts <olly@survex.com>  Sun,  7 Oct 2007 10:49:57 +0100
+
+xapian-bindings (1.0.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Upstream build now installs xapian.php, so remove code to
+    install it here.
+
+ -- Olly Betts <olly@survex.com>  Thu,  5 Jul 2007 01:17:29 +0100
+
+xapian-bindings (1.0.1-1) unstable; urgency=low
+
+  * New upstream release.
+  * php4-xapian and php5-xapian now make use of the (relatively) new
+    /etc/phpN/conf.d mechanism to enable the xapian extension automatically,
+    instead of modifying php.ini directly (after checking that's OK using
+    debconf).  Backports to Debian oldstable, and to Ubuntu etch and earlier,
+    now require the user to add "extension=xapian.so" to php.ini by hand,
+    so backports where this is required now include a README.Debian which
+    explains this.
+  * debian/rules: Upstream build now generates .pyo so we need to tell
+    dh_install that we don't want to package it.
+
+ -- Olly Betts <olly@survex.com>  Tue, 12 Jun 2007 02:21:14 +0100
+
+xapian-bindings (1.0.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * New debconf translations:
+    - Malayalam.  Closes: #418032
+    - Dutch.  Closes: #423066
+  * debian/rules: Debian unstable has dropped PHP4 support, so don't build
+    php4-xapian for it.  Closes: #424809
+  * debian/rules,debian/php4-xapian.install,debian/php5-install: Install and
+    package xapian.php which is handy for PHP4 and vital for PHP5.
+  * debian/rules: Update now there's a new stable release.  Keep support for
+    oldstable for the time being, in case someone wants to backport.
+  * debian/patch: Changes included upstream so remove.
+  * debian/patch: Add new patches to fix "package require xapian" issues for
+    Tcl example scripts.
+  * debian/copyright: Update.
+  * debian/rules: We don't need to pass --mandir or --infodir to configure
+    as the values we explicitly set are the defaults anyway (and we don't
+    have any documentation in "info" format).
+  * debian/rules: Avoid Lintian's uses-dh-python-with-no-pycompat warning -
+    for now we want to keep the call to dh_python for backports.
+
+ -- Olly Betts <olly@survex.com>  Tue, 29 May 2007 14:13:14 +0100
+
+xapian-bindings (0.9.9-2) unstable; urgency=low
+
+  * ACK NMU - thanks Christian!
+  * debian/rules: Fix how we determine the phpapi version to depend on.
+    The previous way was technically wrong, but got the right answer
+    for Debian unstable, and for Ubuntu dapper and edgy (Debian sarge was
+    wrong though).
+  * debian/po/nb.po: New debconf translation from Hans Fredrik Nordhaug
+    (Closes: #414461).
+  * debian/rules: Ubuntu feisty has dropped php4 support.
+
+ -- Olly Betts <olly@survex.com>  Wed, 28 Mar 2007 03:02:50 +0000
+
+xapian-bindings (0.9.9-1.1) unstable; urgency=low
+
+  * Non-maintainer upload on maintainer's request to fix remaining l10n issues.
+  * Debconf translations:
+    - German. Closes: #412250
+    - Russian. Closes: #412274
+    - Galician. Closes: #412338
+    - Basque. Closes: #412420
+    - Catalan. Closes: #412579
+    - Romanian. Closes: #412933
+
+ -- Christian Perrier <bubulle@debian.org>  Sat, 10 Mar 2007 07:41:40 +0100
+
+xapian-bindings (0.9.9-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Build tcl and ruby bindings in the same build tree to save
+    a bit of diskspace and time during the build.
+  * debian/rules: Fix the incorrect "Conflicts:" and "Replaces:" we generate
+    for the old "per-version" Python packages (broken in 0.9.8-1).
+  * debian/patch: Patch to fix building bindings for Python 2.5 on amd64
+    (needed for the Ubuntu etch and any other Debian derived distros with
+    Python 2.5).
+
+ -- Olly Betts <olly@survex.com>  Fri, 10 Nov 2006 04:03:28 +0000
+
+xapian-bindings (0.9.8-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Add no-op "binary-indep" target (Closes: #395761).
+  * debian/rules: Don't try to build PHP bindings on hurd-i386 (PHP hasn't
+    been ported, but Python, Tcl, and Ruby have).
+  * debian/rules: Upstream no longer support Python 2.1 bindings so update
+    comments regarding the Python versions supported by the sarge backport.
+  * debian/control.in,debian/control-php.in: Add "Suggests: xapian-doc" since
+    the xapian-core documentation is useful reading for people developing
+    using xapian-bindings.
+  * debian/rules: Use python-all-dev where we can.
+
+ -- Olly Betts <olly@survex.com>  Sat,  4 Nov 2006 22:02:05 +0000
+
+xapian-bindings (0.9.7-2) unstable; urgency=low
+
+  * debian/control.in,debian/rules: Build dependency on libxapian-dev
+    should be versioned (Closes: #392537).
+  * debian/rules: Don't include Python 2.1 support in the stable backport
+    since SWIG generates bad code for it at present.
+
+ -- Olly Betts <olly@survex.com>  Thu, 12 Oct 2006 14:36:43 +0100
+
+xapian-bindings (0.9.7-1) unstable; urgency=low
+
+  * New upstream release.
+  * debian/rules: Fix typo in configure invocation for Tcl so that we only
+    build the Tcl bindings in that source tree.
+  * debian/rules: Build-Depends on phpN-cli so that we can run "make check".
+  * debian/po/: Added newly translated debconf messages for fr, cs, pt, sv
+    (Closes: #380341, #382933, #383396, #387533).
+
+ -- Olly Betts <olly@survex.com>  Wed, 11 Oct 2006 19:09:35 +0100
+
+xapian-bindings (0.9.6-5) unstable; urgency=low
+
+  * debian/copyright: Add Java bindings copyrights and licences.
+  * debian/rules: Run "make check" on each of the built bindings.  It's a very
+    lightweight test but will at least ensure that the basics work.  It also
+    serves to check the core library is working - xapian-core's own testsuite
+    is probably too slow to justify devoting autobuilder time to.
+  * debian/control.in,debian/control-php.in: Remove "designed to be" from the
+    package description at Wookey's suggestion.
+
+ -- Olly Betts <olly@survex.com>  Sun, 09 Jul 2006 01:31:02 +0100
+
+xapian-bindings (0.9.6-4) unstable; urgency=low
+
+  * debian/rules: Since the python packaging change we no longer have any
+    "Architecture: all" packages to build so remove the binary-indep target.
+  * Fix prerm file comments which said "postinst".
+  * debian/copyright: Update with a thorough list of copyrights and licences.
+
+ -- Olly Betts <olly@survex.com>  Mon, 26 Jun 2006 16:16:37 +0100
+
+xapian-bindings (0.9.6-3) unstable; urgency=low
+
+  * Tweak description and add "Homepage: http://www.xapian.org/".
+  * tclxapian package wasn't depending on the tcl interpreter due to a typo
+    in debian/rules.
+  * libxapian-ruby1.8 package wasn't depending on the ruby interpreter due to
+    a typo in debian/rules.
+  * Update python packages to follow new python packaging policy.
+
+ -- Olly Betts <olly@survex.com>  Fri, 16 Jun 2006 04:09:49 +0100
+
+xapian-bindings (0.9.6-2) unstable; urgency=low
+
+  * dh_strip checks for nostrip in DEB_BUILD_OPTIONS, so we don't need to.
+  * configure with --disable-depending-tracking to reduce build time and
+    space requirements a little.
+  * Fix debian/control generation not to leave a partial file if interrupted.
+  * Add packages for the Ruby bindings, built for Ruby 1.8.
+
+ -- Olly Betts <olly@survex.com>  Fri,  9 Jun 2006 02:33:10 +0100
+
+xapian-bindings (0.9.6-1) unstable; urgency=low
+
+  * New upstream release.
+  * "Standards-Version: 3.7.2" - no changes required.
+  * Debian unstable no longer includes Python 2.1 or 2.2, so don't package
+    Python bindings for them (backports can easily reenable them.)
+  * Add packages for the TCL bindings (which should work with any Tcl version
+    from 8.1 onwards.)
+  * We no longer need to change the permissions of xapian.py and xapian.pyc
+    as they are now set correctly by the upstream "make install".
+  * Add "python" to "Build-Depends" so that dh_python works and also to
+    workaround a broken configure test for PYTHON_PATHSEP which uses "python"
+    instead of "$PYTHON" so PYTHON_PATHSEP is empty if there's no "python"
+    in the path.
+
+ -- Olly Betts <olly@survex.com>  Mon, 15 May 2006 21:11:41 +0100
+  
+xapian-bindings (0.9.5-3) unstable; urgency=low
+
+  * PHP bindings packages now have the correct "Depends:" and are able to
+    automatically modify php.ini upon installation (using debconf to ask if
+    this should be done) and removal.
+  * dh_python automatically generates the xapian-python->xapian-python2.X
+    dependency for us, so remove the PYTHON_VERSION_MAIN mechanism (which
+    wasn't actually being used anyway!)
+
+ -- Olly Betts <olly@survex.com>  Wed, 12 Apr 2006 19:03:23 +0100
+
+xapian-bindings (0.9.5-2) unstable; urgency=low
+
+  * Added packages for PHP bindings (for both PHP4 and PHP5).
+  * Don't install .py wrapper as executable (fixes Lintian warning).
+  * dh_install with --fail-missing intead of just --list-missing.
+
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 19:54:03 +0100
+
+xapian-bindings (0.9.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * "Standards-Version: 3.6.2" - no changes required.
+  * debian/copyright: Update FSF address and give download URL for releases
+    instead of obsolete CVS location.
+  * debian/rules: When generating debian/control, die if the python package
+    isn't installed (since we require it to discover the default python
+    version).
+  * debian/rules: Simplify configure invocation by taking advantage of the
+    change to handling of --with-XXX options in 0.9.3.
+  * debian/rules: Increase DH_COMPAT from 3 to 4.
+  * debian/TODO: No point planning to package guile right now!
+  * debian/rules: Generate bindings package for Python 2.1.
+  * New maintainer.
+
+ -- Olly Betts <olly@survex.com>  Sun,  9 Apr 2006 00:46:22 +0100
+
+xapian-bindings (0.9.4-2) unstable; urgency=low
+
+  * Fix invalid date line in previous changelog entry.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:32:31 +0000
+
+xapian-bindings (0.9.4-1) unstable; urgency=low
+
+  * New upstream release.  (No package was made of 0.9.3)
+  * Query constructor which takes a list of strings fixed.
+  * Zero byte cleanliness.
+  * Improved tests. 
+  * Other small fixes.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri,  3 Mar 2006 02:32:31 +0000
+
+xapian-bindings (0.9.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Added wrappers for new optional flags argument to
+    QueryParser::parse_query().
+  * Efficiency improvement when converting python list to vector<string>.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri, 15 Jul 2005 13:11:12 +0100
+
+xapian-bindings (0.9.1-3) unstable; urgency=low
+
+  * Correct python2.4-xapian.install to include the 2.4 files, not the 2.3
+    ones.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Jun 2005 12:11:34 +0100
+
+xapian-bindings (0.9.1-2) unstable; urgency=low
+
+  * Temporarily disable python 2.1 packages, since tarball seems to be
+    broken for them.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Jun 2005 11:16:19 +0100
+
+xapian-bindings (0.9.1-1) unstable; urgency=low
+
+  * New upstream releases (No package was generated for release 0.9.0)
+  * Now build for python 2.4.
+  * Update default python version to be compatible with that for new
+    Debain stable version.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 15 Jun 2005 09:12:07 +0100
+
+xapian-bindings (0.8.5-1) unstable; urgency=low
+
+  * New upstream release.
+  * Remove patch - fixed in slightly different manner in release.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed,  5 Jan 2005 11:57:17 +0000
+
+xapian-bindings (0.8.4-4) unstable; urgency=low
+
+  * Fixes to patch.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri, 10 Dec 2004 18:16:38 +0000
+
+xapian-bindings (0.8.4-3) unstable; urgency=low
+
+  * Add patch needed to get python install to work.  This is backported
+    from latest CVS, so will be removed with the next release.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri, 10 Dec 2004 17:24:42 +0000
+
+xapian-bindings (0.8.4-2) unstable; urgency=low
+
+  * Don't configure with csharp support when building the python packages.
+
+ -- Richard Boulton <richard@tartarus.org>  Fri, 10 Dec 2004 10:15:53 +0000
+
+xapian-bindings (0.8.4-1) unstable; urgency=low
+
+  * New upstream release.
+  * Build fixes - in particular, swig is used at package generation time,
+    not build time.
+  * python: wrap MSet::MSet() again, and other fixes.
+
+ -- Richard Boulton <richard@tartarus.org>  Thu,  9 Dec 2004 17:38:29 +0000
+
+xapian-bindings (0.8.3-1) unstable; urgency=low
+
+  * New upstream release.
+  * Use swig's -modern switch for Python 2.2 and up - it gives cleaner, leaner,
+    faster Python wrapper code.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 21 Sep 2004 13:31:14 +0100
+
+xapian-bindings (0.8.2-2) unstable; urgency=low
+
+  * Build against libxapian3. (See changelog for libxapian for explanation)
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 17:03:28 +0100
+
+xapian-bindings (0.8.2-1) unstable; urgency=low
+
+  * New upstream release.
+  * Many changes and additions to methods which are wrapped - applications
+    may need updates.  See NEWS for full details.
+  * Builds against libxapian4.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 14 Sep 2004 13:20:31 +0100
+
+xapian-bindings (0.8.1-2) unstable; urgency=low
+
+  * debian/control.in: Update build dependency on swig to require at
+    least version 1.3.20, since the configure script now requires this.
+
+ -- Richard Boulton <richard@tartarus.org>  Thu,  1 Jul 2004 10:02:35 +0100
+
+xapian-bindings (0.8.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 20:19:11 +0100
+
+xapian-bindings (0.8.0-9) unstable; urgency=low
+
+  * debian/rules: Read value of $COMPONENT from a file, rather than the
+    environment, so that it is the same whenever we re-run.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 14:21:20 +0100
+
+xapian-bindings (0.8.0-8) unstable; urgency=low
+
+  * debian/rules: Build appropriate python versions depending on enviornment
+    variable "$COMPONENT", set in my build script.  Remove dependencies on
+    debian/control, so that it is only generated when explicitly requested
+    by build script.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 13:28:43 +0100
+
+xapian-bindings (0.8.0-7) unstable; urgency=low
+
+  * debian/rules: Change ' to " so that python versions get substituted
+    correctly.
+  * debain/python*-xapian.install: Install documentation files.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 11:39:55 +0100
+
+xapian-bindings (0.8.0-6) unstable; urgency=low
+
+  * debian/rules: Determine primary python version on the system
+    automatically (by invoking /usr/bin/python).
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 30 Jun 2004 00:52:52 +0100
+
+xapian-bindings (0.8.0-5) unstable; urgency=low
+
+  * debian/rules: move stamp files into debian directory, to avoid polluting
+    other builds.
+  * debian/patch: Add patch containing missing documentation files for python
+    bindings (were missing from distribution tarballs in the 0.8.0 release).
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 29 Jun 2004 15:13:50 +0100
+
+xapian-bindings (0.8.0-4) unstable; urgency=low
+
+  * Split debian/control into debian/control.in and debian/control-python.in
+    and add rules to generate debian/control whilst substituting python
+    version numbers.  The python versions supported can now be updated
+    simply by changing variables in debian/rules and rebuilding.
+  * debian/rules: remove --enable-maintainer-mode configure flag.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 19 May 2004 10:55:02 +0100
+
+xapian-bindings (0.8.0-3) unstable; urgency=low
+
+  * Add --list-missing back to dh_install command, since we're already
+    depending on a debhelper version high enough to support that option.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 12:27:27 +0100
+
+xapian-bindings (0.8.0-2) unstable; urgency=low
+
+  * Add rules to make symlinks to config.guess and config.sub, and added
+    Build-Depends on autotools-dev.
+  * Add some more TODO notes.
+
+ -- Richard Boulton <richard@tartarus.org>  Wed, 12 May 2004 10:15:06 +0100
+
+xapian-bindings (0.8.0-1) unstable; urgency=low
+
+  * Initial release - provides packages for only the python bindings, so far.
+
+ -- Richard Boulton <richard@tartarus.org>  Tue, 11 May 2004 15:12:04 +0100
+
