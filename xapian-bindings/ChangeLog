@@ -1,9 +1,10 @@
-Sun Oct 07 19:47:55 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+Tue Oct 09 00:00:53 BST 2007  Olly Betts <olly@survex.com>
 
-	* csharp/SmokeTest.cs,php/smoketest.php,php/smoketest4.php,
-	  php/smoketest5.php,python/pythontest.py,python/smoketest.py,
-	  ruby/smoketest.rb,tcl8/smoketest.tcl,xapian.i: Update for the
-	  change from OP_MULT_WEIGHT to OP_SCALE_WEIGHT.
+	* php/: Fix wrapping of NumberValueRangeProcessor for PHP4 - SWIG
+	  sees the Xapian::v102 namespace, but doesn't understand the
+	  "using" directive.  Also split the regression test for bug#193
+	  into separate versions for PHP4 and PHP5 as the previous version
+	  only worked for PHP5.
 
 Mon Oct 01 00:38:21 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 

@@ -1,7 +1,7 @@
 <?php
 /* PHP4 specific tests.
  *
- * Copyright (C) 2006 Olly Betts
+ * Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -58,6 +58,20 @@ if ($last_exception !== "QueryParserError: Syntax: <expression> AND <expression>
 if ($old_error_reporting & E_WARNING)
     error_reporting($old_error_reporting);
 set_error_handler($old_errhandler);
+
+# Regression test for bug#193, fixed in 1.0.3.
+$vrp = new XapianNumberValueRangeProcessor(0, '$', true);
+$a = '$10';
+$b = '20';
+$vrp->apply($a, $b);
+if (xapian_sortable_unserialise($a) != 10) {
+    print Xapian::sortable_unserialise($a)." != 10\n";
+    exit(1);
+}
+if (xapian_sortable_unserialise($b) != 20) {
+    print Xapian::sortable_unserialise($b)." != 20\n";
+    exit(1);
+}
 
 $op_or = XapianQuery_OP_OR;
 $op_phrase = XapianQuery_OP_PHRASE;

@@ -1,7 +1,7 @@
 %{
 /* php4/util.i: custom PHP typemaps for xapian-bindings
  *
- * Copyright (C) 2004,2005,2006 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -55,6 +55,7 @@
 %rename("XapianESetIterator") Xapian::ESetIterator;
 %rename("XapianMSet") Xapian::MSet;
 %rename("XapianMSetIterator") Xapian::MSetIterator;
+%rename("XapianNumberValueRangeProcessor") Xapian::v102::NumberValueRangeProcessor;
 %rename("XapianNumberValueRangeProcessor") Xapian::NumberValueRangeProcessor;
 %rename("XapianPositionIterator") Xapian::PositionIterator;
 %rename("XapianPostingIterator") Xapian::PostingIterator;
@@ -170,8 +171,8 @@
 	 * Passing 1 as the last parameter of add_next_index_stringl() tells
 	 * PHP to copy the string pointed to by p, so it won't be modified.
 	 */
-        string term = *i;
-        char *p = const_cast<char*>(term.data());
+	string term = *i;
+	char *p = const_cast<char*>(term.data());
 	add_next_index_stringl($result, p, term.length(), 1);
     }
 }

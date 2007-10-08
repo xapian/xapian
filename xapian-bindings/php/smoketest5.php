@@ -54,6 +54,20 @@ try {
     }
 }
 
+# Regression test for bug#193, fixed in 1.0.3.
+$vrp = new XapianNumberValueRangeProcessor(0, '$', true);
+$a = '$10';
+$b = '20';
+$vrp->apply($a, $b);
+if (Xapian::sortable_unserialise($a) != 10) {
+    print Xapian::sortable_unserialise($a)." != 10\n";
+    exit(1);
+}
+if (Xapian::sortable_unserialise($b) != 20) {
+    print Xapian::sortable_unserialise($b)." != 20\n";
+    exit(1);
+}
+
 $op_or = XapianQuery::OP_OR;
 $op_phrase = XapianQuery::OP_PHRASE;
 $op_xor = XapianQuery::OP_XOR;

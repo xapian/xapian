@@ -2,7 +2,7 @@
 /* Simple test to ensure that we can load the xapian module and exercise basic
  * functionality successfully.
  *
- * Copyright (C) 2004,2005,2006 Olly Betts
+ * Copyright (C) 2004,2005,2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -119,20 +119,6 @@ $qp->add_valuerangeprocessor($vrpdate);
 $query = $qp->parse_query('12/03/99..12/04/01');
 if ($query->get_description() !== 'Xapian::Query(VALUE_RANGE 1 19991203 20011204)') {
     print "XapianDateValueRangeProcessor didn't work - result was ".$query->get_description()."\n";
-    exit(1);
-}
-
-# Regression test for bug#193, fixed in 1.0.3.
-$vrp = new XapianNumberValueRangeProcessor(0, '$', true);
-$a = '$10';
-$b = '20';
-$vrp->apply($a, $b);
-if (Xapian::sortable_unserialise($a) != 10) {
-    print Xapian::sortable_unserialise($a)." != 10\n";
-    exit(1);
-}
-if (Xapian::sortable_unserialise($b) != 20) {
-    print Xapian::sortable_unserialise($b)." != 20\n";
     exit(1);
 }
 
