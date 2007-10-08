@@ -1,0 +1,357 @@
+diff -ru php/php4.orig/php_xapian.h php/php4/php_xapian.h
+--- php/php4.orig/php_xapian.h	2007-09-29 01:12:30.000000000 +0100
++++ php/php4/php_xapian.h	2007-10-08 23:12:42.000000000 +0100
+@@ -291,8 +291,8 @@
+ ZEND_NAMED_FUNCTION(_wrap_XapianStringValueRangeProcessor_apply);
+ ZEND_NAMED_FUNCTION(_wrap_new_XapianDateValueRangeProcessor);
+ ZEND_NAMED_FUNCTION(_wrap_XapianDateValueRangeProcessor_apply);
+-ZEND_NAMED_FUNCTION(_wrap_new_NumberValueRangeProcessor);
+-ZEND_NAMED_FUNCTION(_wrap_NumberValueRangeProcessor_apply);
++ZEND_NAMED_FUNCTION(_wrap_new_XapianNumberValueRangeProcessor);
++ZEND_NAMED_FUNCTION(_wrap_XapianNumberValueRangeProcessor_apply);
+ ZEND_NAMED_FUNCTION(_wrap_new_XapianQueryParser);
+ ZEND_NAMED_FUNCTION(_wrap_XapianQueryParser_set_stemmer);
+ ZEND_NAMED_FUNCTION(_wrap_XapianQueryParser_set_stemming_strategy);
+diff -ru php/php4.orig/xapian_wrap.cc php/php4/xapian_wrap.cc
+--- php/php4.orig/xapian_wrap.cc	2007-09-29 01:12:30.000000000 +0100
++++ php/php4/xapian_wrap.cc	2007-10-08 23:12:42.000000000 +0100
+@@ -1370,10 +1370,10 @@
+ static int _propset_XapianDateValueRangeProcessor(zend_property_reference *property_reference, pval *value);
+ static pval _wrap_propget_XapianDateValueRangeProcessor(zend_property_reference *property_reference);
+ static int _propget_XapianDateValueRangeProcessor(zend_property_reference *property_reference, pval *value);
+-static int _wrap_propset_NumberValueRangeProcessor(zend_property_reference *property_reference, pval *value);
+-static int _propset_NumberValueRangeProcessor(zend_property_reference *property_reference, pval *value);
+-static pval _wrap_propget_NumberValueRangeProcessor(zend_property_reference *property_reference);
+-static int _propget_NumberValueRangeProcessor(zend_property_reference *property_reference, pval *value);
++static int _wrap_propset_XapianNumberValueRangeProcessor(zend_property_reference *property_reference, pval *value);
++static int _propset_XapianNumberValueRangeProcessor(zend_property_reference *property_reference, pval *value);
++static pval _wrap_propget_XapianNumberValueRangeProcessor(zend_property_reference *property_reference);
++static int _propget_XapianNumberValueRangeProcessor(zend_property_reference *property_reference, pval *value);
+ static int _wrap_propset_XapianQueryParser(zend_property_reference *property_reference, pval *value);
+ static int _propset_XapianQueryParser(zend_property_reference *property_reference, pval *value);
+ static pval _wrap_propget_XapianQueryParser(zend_property_reference *property_reference);
+@@ -1622,8 +1622,8 @@
+ static zend_class_entry* ptr_ce_swig_XapianStringValueRangeProcessor=NULL;
+ static zend_class_entry ce_swig_XapianDateValueRangeProcessor;
+ static zend_class_entry* ptr_ce_swig_XapianDateValueRangeProcessor=NULL;
+-static zend_class_entry ce_swig_NumberValueRangeProcessor;
+-static zend_class_entry* ptr_ce_swig_NumberValueRangeProcessor=NULL;
++static zend_class_entry ce_swig_XapianNumberValueRangeProcessor;
++static zend_class_entry* ptr_ce_swig_XapianNumberValueRangeProcessor=NULL;
+ static zend_class_entry ce_swig_XapianQueryParser;
+ static zend_class_entry* ptr_ce_swig_XapianQueryParser=NULL;
+ static zend_class_entry ce_swig_XapianStem;
+@@ -1663,7 +1663,7 @@
+ static int le_swig__p_Xapian__ESet=0; /* handle for XapianESet */
+ static int le_swig__p_Xapian__WritableDatabase=0; /* handle for XapianWritableDatabase */
+ static int le_swig__p_Xapian__Database=0; /* handle for XapianDatabase */
+-static int le_swig__p_Xapian__v102__NumberValueRangeProcessor=0; /* handle for NumberValueRangeProcessor */
++static int le_swig__p_Xapian__v102__NumberValueRangeProcessor=0; /* handle for XapianNumberValueRangeProcessor */
+ static int le_swig__p_Xapian__DateValueRangeProcessor=0; /* handle for XapianDateValueRangeProcessor */
+ static int le_swig__p_Xapian__StringValueRangeProcessor=0; /* handle for XapianStringValueRangeProcessor */
+ static int le_swig__p_Xapian__ValueRangeProcessor=0; /* handle for XapianValueRangeProcessor */
+@@ -22669,7 +22669,7 @@
+   return FAILURE;
+ }
+ 
+-ZEND_NAMED_FUNCTION(_wrap_new_NumberValueRangeProcessor__SWIG_0) {
++ZEND_NAMED_FUNCTION(_wrap_new_XapianNumberValueRangeProcessor__SWIG_0) {
+   Xapian::valueno arg1 ;
+   Xapian::v102::NumberValueRangeProcessor *result = 0 ;
+   zval **args[1];
+@@ -22722,7 +22722,7 @@
+     MAKE_STD_ZVAL(_cPtr);
+     *_cPtr = *return_value;
+     INIT_ZVAL(*return_value);
+-    object_init_ex(obj,ptr_ce_swig_NumberValueRangeProcessor);
++    object_init_ex(obj,ptr_ce_swig_XapianNumberValueRangeProcessor);
+     add_property_zval(obj,"_cPtr",_cPtr);
+     *return_value=*obj;
+   }
+@@ -22732,7 +22732,7 @@
+ }
+ 
+ 
+-ZEND_NAMED_FUNCTION(_wrap_new_NumberValueRangeProcessor__SWIG_1) {
++ZEND_NAMED_FUNCTION(_wrap_new_XapianNumberValueRangeProcessor__SWIG_1) {
+   Xapian::valueno arg1 ;
+   std::string *arg2 = 0 ;
+   bool arg3 ;
+@@ -22799,7 +22799,7 @@
+     MAKE_STD_ZVAL(_cPtr);
+     *_cPtr = *return_value;
+     INIT_ZVAL(*return_value);
+-    object_init_ex(obj,ptr_ce_swig_NumberValueRangeProcessor);
++    object_init_ex(obj,ptr_ce_swig_XapianNumberValueRangeProcessor);
+     add_property_zval(obj,"_cPtr",_cPtr);
+     *return_value=*obj;
+   }
+@@ -22812,7 +22812,7 @@
+ }
+ 
+ 
+-ZEND_NAMED_FUNCTION(_wrap_new_NumberValueRangeProcessor__SWIG_2) {
++ZEND_NAMED_FUNCTION(_wrap_new_XapianNumberValueRangeProcessor__SWIG_2) {
+   Xapian::valueno arg1 ;
+   std::string *arg2 = 0 ;
+   Xapian::v102::NumberValueRangeProcessor *result = 0 ;
+@@ -22872,7 +22872,7 @@
+     MAKE_STD_ZVAL(_cPtr);
+     *_cPtr = *return_value;
+     INIT_ZVAL(*return_value);
+-    object_init_ex(obj,ptr_ce_swig_NumberValueRangeProcessor);
++    object_init_ex(obj,ptr_ce_swig_XapianNumberValueRangeProcessor);
+     add_property_zval(obj,"_cPtr",_cPtr);
+     *return_value=*obj;
+   }
+@@ -22885,7 +22885,7 @@
+ }
+ 
+ 
+-ZEND_NAMED_FUNCTION(_wrap_new_NumberValueRangeProcessor) {
++ZEND_NAMED_FUNCTION(_wrap_new_XapianNumberValueRangeProcessor) {
+   int argc;
+   zval **argv[3];
+   
+@@ -22895,7 +22895,7 @@
+     int _v;
+     _v = (Z_TYPE_PP(argv[0]) == IS_LONG); 
+     if (_v) {
+-      return _wrap_new_NumberValueRangeProcessor__SWIG_0(INTERNAL_FUNCTION_PARAM_PASSTHRU);
++      return _wrap_new_XapianNumberValueRangeProcessor__SWIG_0(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+     }
+   }
+   if (argc == 2) {
+@@ -22906,7 +22906,7 @@
+         _v = (Z_TYPE_PP(argv[1]) == IS_STRING);
+       }
+       if (_v) {
+-        return _wrap_new_NumberValueRangeProcessor__SWIG_2(INTERNAL_FUNCTION_PARAM_PASSTHRU);
++        return _wrap_new_XapianNumberValueRangeProcessor__SWIG_2(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+       }
+     }
+   }
+@@ -22922,19 +22922,19 @@
+           _v = (Z_TYPE_PP(argv[2]) == IS_BOOL || Z_TYPE_PP(argv[2]) == IS_LONG);
+         }
+         if (_v) {
+-          return _wrap_new_NumberValueRangeProcessor__SWIG_1(INTERNAL_FUNCTION_PARAM_PASSTHRU);
++          return _wrap_new_XapianNumberValueRangeProcessor__SWIG_1(INTERNAL_FUNCTION_PARAM_PASSTHRU);
+         }
+       }
+     }
+   }
+   
+   SWIG_ErrorCode() = E_ERROR;
+-  SWIG_ErrorMsg() = "No matching function for overloaded 'new_NumberValueRangeProcessor'";
++  SWIG_ErrorMsg() = "No matching function for overloaded 'new_XapianNumberValueRangeProcessor'";
+   zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+ }
+ 
+ 
+-ZEND_NAMED_FUNCTION(_wrap_NumberValueRangeProcessor_apply) {
++ZEND_NAMED_FUNCTION(_wrap_XapianNumberValueRangeProcessor_apply) {
+   Xapian::v102::NumberValueRangeProcessor *arg1 = (Xapian::v102::NumberValueRangeProcessor *) 0 ;
+   std::string *arg2 = 0 ;
+   std::string *arg3 = 0 ;
+@@ -22951,7 +22951,7 @@
+   
+   {
+     if(SWIG_ConvertPtr(*&this_ptr, (void **) &arg1, SWIGTYPE_p_Xapian__v102__NumberValueRangeProcessor, 0) < 0) {
+-      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of NumberValueRangeProcessor_apply. Expected SWIGTYPE_p_Xapian__v102__NumberValueRangeProcessor");
++      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of XapianNumberValueRangeProcessor_apply. Expected SWIGTYPE_p_Xapian__v102__NumberValueRangeProcessor");
+     }
+   }
+   if(!arg1) SWIG_PHP_Error(E_ERROR, "this pointer is NULL");
+@@ -23001,7 +23001,7 @@
+ 
+ /* This function is designed to be called by the zend list destructors */
+ /* to typecast and do the actual destruction */
+-static void __wrap_delete_NumberValueRangeProcessor(zend_rsrc_list_entry *rsrc, const char *type_name TSRMLS_DC) {
++static void __wrap_delete_XapianNumberValueRangeProcessor(zend_rsrc_list_entry *rsrc, const char *type_name TSRMLS_DC) {
+   swig_object_wrapper *value=(swig_object_wrapper *) rsrc->ptr ;
+   void *ptr=value->ptr ;
+   int newobject=value->newobject ;
+@@ -23034,14 +23034,14 @@
+ }
+ 
+ 
+-/* property handler for class NumberValueRangeProcessor */
+-static pval _wrap_propget_NumberValueRangeProcessor(zend_property_reference *property_reference) {
++/* property handler for class XapianNumberValueRangeProcessor */
++static pval _wrap_propget_XapianNumberValueRangeProcessor(zend_property_reference *property_reference) {
+   pval result;
+   pval **_result;
+   zend_llist_element *element = property_reference->elements_list->head;
+   zend_overloaded_element *property=(zend_overloaded_element *)element->data;
+   result.type = IS_NULL;
+-  if (_propget_NumberValueRangeProcessor(property_reference, &result)==SUCCESS) return result;
++  if (_propget_XapianNumberValueRangeProcessor(property_reference, &result)==SUCCESS) return result;
+   /* return it ourselves */
+   if (zend_hash_find(Z_OBJPROP_P(property_reference->object),Z_STRVAL_P(&(property->element)),1+Z_STRLEN_P(&(property->element)),(void**)&_result)==SUCCESS) {
+   zval *_value;
+@@ -23053,27 +23053,27 @@
+   result.type = IS_NULL;
+   return result;
+ }
+-static int _propget_NumberValueRangeProcessor(zend_property_reference *property_reference, pval *value) {
+-  /* No extra properties for subclass NumberValueRangeProcessor */
++static int _propget_XapianNumberValueRangeProcessor(zend_property_reference *property_reference, pval *value) {
++  /* No extra properties for subclass XapianNumberValueRangeProcessor */
+   /* Try base class(es). */
+   if (_propget_XapianValueRangeProcessor(property_reference, value)==SUCCESS) return SUCCESS;
+   return FAILURE;
+ }
+ 
+-static int _wrap_propset_NumberValueRangeProcessor(zend_property_reference *property_reference, pval *value) { 
++static int _wrap_propset_XapianNumberValueRangeProcessor(zend_property_reference *property_reference, pval *value) { 
+   zval * _value;
+   zend_llist_element *element = property_reference->elements_list->head;
+   zend_overloaded_element *property=(zend_overloaded_element *)element->data;
+-  if (_propset_NumberValueRangeProcessor(property_reference, value)==SUCCESS) return SUCCESS;
+-  /* set it ourselves as it is NumberValueRangeProcessor */
++  if (_propset_XapianNumberValueRangeProcessor(property_reference, value)==SUCCESS) return SUCCESS;
++  /* set it ourselves as it is XapianNumberValueRangeProcessor */
+   MAKE_STD_ZVAL(_value);
+   *_value=*value;
+   INIT_PZVAL(_value);
+   zval_copy_ctor(_value);
+   return add_property_zval_ex(property_reference->object,Z_STRVAL_P(&(property->element)),1+Z_STRLEN_P(&(property->element)),_value);
+ }
+-static int _propset_NumberValueRangeProcessor(zend_property_reference *property_reference, pval *value) {
+-  /* No extra properties for subclass NumberValueRangeProcessor */
++static int _propset_XapianNumberValueRangeProcessor(zend_property_reference *property_reference, pval *value) {
++  /* No extra properties for subclass XapianNumberValueRangeProcessor */
+   /* Try base class(es) */
+   if (_propset_XapianValueRangeProcessor(property_reference, value)==SUCCESS) return SUCCESS;
+   return FAILURE;
+@@ -26293,7 +26293,7 @@
+ }
+ /* NEW Destructor style */
+ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_Xapian__v102__NumberValueRangeProcessor) {
+-  __wrap_delete_NumberValueRangeProcessor(rsrc, SWIGTYPE_p_Xapian__v102__NumberValueRangeProcessor->name TSRMLS_CC);
++  __wrap_delete_XapianNumberValueRangeProcessor(rsrc, SWIGTYPE_p_Xapian__v102__NumberValueRangeProcessor->name TSRMLS_CC);
+ }
+ /* NEW Destructor style */
+ static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_Xapian__DateValueRangeProcessor) {
+@@ -26635,10 +26635,10 @@
+  ZEND_NAMED_FE(apply,_wrap_XapianDateValueRangeProcessor_apply,NULL)
+  { NULL, NULL, NULL}
+ };
+-/* Function entries for NumberValueRangeProcessor */
+-static zend_function_entry NumberValueRangeProcessor_functions[] = {
+- ZEND_NAMED_FE(numbervaluerangeprocessor,_wrap_new_NumberValueRangeProcessor,NULL)
+- ZEND_NAMED_FE(apply,_wrap_NumberValueRangeProcessor_apply,NULL)
++/* Function entries for XapianNumberValueRangeProcessor */
++static zend_function_entry XapianNumberValueRangeProcessor_functions[] = {
++ ZEND_NAMED_FE(xapiannumbervaluerangeprocessor,_wrap_new_XapianNumberValueRangeProcessor,NULL)
++ ZEND_NAMED_FE(apply,_wrap_XapianNumberValueRangeProcessor_apply,NULL)
+  { NULL, NULL, NULL}
+ };
+ /* Function entries for XapianQueryParser */
+@@ -27066,9 +27066,9 @@
+ INIT_OVERLOADED_CLASS_ENTRY(ce_swig_XapianDateValueRangeProcessor,"xapiandatevaluerangeprocessor",XapianDateValueRangeProcessor_functions,NULL,_wrap_propget_XapianDateValueRangeProcessor,_wrap_propset_XapianDateValueRangeProcessor);
+ if (! (ptr_ce_swig_XapianDateValueRangeProcessor=zend_register_internal_class_ex(&ce_swig_XapianDateValueRangeProcessor,&ce_swig_XapianValueRangeProcessor,NULL TSRMLS_CC))) zend_error(E_ERROR,"Error registering wrapper for class XapianDateValueRangeProcessor");
+ 
+-/* Define class NumberValueRangeProcessor */
+-INIT_OVERLOADED_CLASS_ENTRY(ce_swig_NumberValueRangeProcessor,"numbervaluerangeprocessor",NumberValueRangeProcessor_functions,NULL,_wrap_propget_NumberValueRangeProcessor,_wrap_propset_NumberValueRangeProcessor);
+-if (! (ptr_ce_swig_NumberValueRangeProcessor=zend_register_internal_class_ex(&ce_swig_NumberValueRangeProcessor,&ce_swig_XapianValueRangeProcessor,NULL TSRMLS_CC))) zend_error(E_ERROR,"Error registering wrapper for class NumberValueRangeProcessor");
++/* Define class XapianNumberValueRangeProcessor */
++INIT_OVERLOADED_CLASS_ENTRY(ce_swig_XapianNumberValueRangeProcessor,"xapiannumbervaluerangeprocessor",XapianNumberValueRangeProcessor_functions,NULL,_wrap_propget_XapianNumberValueRangeProcessor,_wrap_propset_XapianNumberValueRangeProcessor);
++if (! (ptr_ce_swig_XapianNumberValueRangeProcessor=zend_register_internal_class_ex(&ce_swig_XapianNumberValueRangeProcessor,&ce_swig_XapianValueRangeProcessor,NULL TSRMLS_CC))) zend_error(E_ERROR,"Error registering wrapper for class XapianNumberValueRangeProcessor");
+ 
+ /* Define class XapianQueryParser */
+ INIT_OVERLOADED_CLASS_ENTRY(ce_swig_XapianQueryParser,"xapianqueryparser",XapianQueryParser_functions,NULL,_wrap_propget_XapianQueryParser,_wrap_propset_XapianQueryParser);
+Index: php/smoketest.php
+===================================================================
+--- php/smoketest.php	(revision 9421)
++++ php/smoketest.php	(revision 9422)
+@@ -2,7 +2,7 @@
+ /* Simple test to ensure that we can load the xapian module and exercise basic
+  * functionality successfully.
+  *
+- * Copyright (C) 2004,2005,2006 Olly Betts
++ * Copyright (C) 2004,2005,2006,2007 Olly Betts
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License as
+@@ -122,20 +122,6 @@
+     exit(1);
+ }
+ 
+-# Regression test for bug#193, fixed in 1.0.3.
+-$vrp = new XapianNumberValueRangeProcessor(0, '$', true);
+-$a = '$10';
+-$b = '20';
+-$vrp->apply($a, $b);
+-if (Xapian::sortable_unserialise($a) != 10) {
+-    print Xapian::sortable_unserialise($a)." != 10\n";
+-    exit(1);
+-}
+-if (Xapian::sortable_unserialise($b) != 20) {
+-    print Xapian::sortable_unserialise($b)." != 20\n";
+-    exit(1);
+-}
+-
+ # Test setting and getting metadata
+ if ($db->get_metadata('Foo') !== '') {
+     print "Unexpected value for metadata associated with 'Foo' (expected ''): '".$db->get_metadata('Foo')."'\n";
+Index: php/smoketest4.php
+===================================================================
+--- php/smoketest4.php	(revision 9421)
++++ php/smoketest4.php	(revision 9422)
+@@ -1,7 +1,7 @@
+ <?php
+ /* PHP4 specific tests.
+  *
+- * Copyright (C) 2006 Olly Betts
++ * Copyright (C) 2006,2007 Olly Betts
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License as
+@@ -59,6 +59,20 @@
+     error_reporting($old_error_reporting);
+ set_error_handler($old_errhandler);
+ 
++# Regression test for bug#193, fixed in 1.0.3.
++$vrp = new XapianNumberValueRangeProcessor(0, '$', true);
++$a = '$10';
++$b = '20';
++$vrp->apply($a, $b);
++if (xapian_sortable_unserialise($a) != 10) {
++    print Xapian::sortable_unserialise($a)." != 10\n";
++    exit(1);
++}
++if (xapian_sortable_unserialise($b) != 20) {
++    print Xapian::sortable_unserialise($b)." != 20\n";
++    exit(1);
++}
++
+ $op_or = XapianQuery_OP_OR;
+ $op_phrase = XapianQuery_OP_PHRASE;
+ $op_xor = XapianQuery_OP_XOR;
+Index: php/smoketest5.php
+===================================================================
+--- php/smoketest5.php	(revision 9421)
++++ php/smoketest5.php	(revision 9422)
+@@ -54,6 +54,20 @@
+     }
+ }
+ 
++# Regression test for bug#193, fixed in 1.0.3.
++$vrp = new XapianNumberValueRangeProcessor(0, '$', true);
++$a = '$10';
++$b = '20';
++$vrp->apply($a, $b);
++if (Xapian::sortable_unserialise($a) != 10) {
++    print Xapian::sortable_unserialise($a)." != 10\n";
++    exit(1);
++}
++if (Xapian::sortable_unserialise($b) != 20) {
++    print Xapian::sortable_unserialise($b)." != 20\n";
++    exit(1);
++}
++
+ $op_or = XapianQuery::OP_OR;
+ $op_phrase = XapianQuery::OP_PHRASE;
+ $op_xor = XapianQuery::OP_XOR;
