@@ -392,13 +392,30 @@ static bool test_stringlistserialise1()
 }
 
 // Test a scaleweight query applied to a match nothing query
-static bool test_scaleweightmatchnothing1()
+static bool test_scaleweight3()
 {   
     Xapian::Query matchnothing(Xapian::Query::MatchNothing);
     Xapian::Query query(Xapian::Query::OP_SCALE_WEIGHT, matchnothing, 3.0);
     TEST_EQUAL(query.get_description(), "Xapian::Query()");
     return true;
 }
+
+// Test that scaling by a weight close to 1 is optimised away.
+static bool test_scaleweight4()
+{
+    // Factor is a double which, when multiplied by its reciprocal, doesn't
+    // give exactly 1.0
+    double factor = 179.76931348623157e306;
+    double nearly1 = factor * (1.0 / factor);
+
+    TEST_NOT_EQUAL(nearly1, 1.0);
+    Xapian::Query foo("foo");
+    Xapian::Query foo_nearly1(Xapian::Query::OP_SCALE_WEIGHT, foo, nearly1);
+    TEST_EQUAL(foo_nearly1.get_description(), "Xapian::Query(foo)");
+
+    return true;
+}
+
 
 // #######################################################################
 // # End of test cases: now we list the tests to run.
@@ -422,6 +439,7 @@ test_desc nodb_tests[] = {
     TESTCASE(poscollapse2),
     TESTCASE(uninitdb1),
     TESTCASE(stringlistserialise1),
-    TESTCASE(scaleweightmatchnothing1),
+    TESTCASE(scaleweight3),
+    TESTCASE(scaleweight4),
     END_OF_TESTCASES
 };
