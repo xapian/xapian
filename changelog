@@ -4,8 +4,11 @@ xapian-bindings (1.0.3-1) unstable; urgency=low
     + "make clean" now removes python/testsuite.pyc.  Closes: #442766
   * debian/rules: Override RUBY_LIB and RUBY_LIB_ARCH which now have different
     defaults upstream.
+  * debian/patch: Add patch to fix NumberValueRangeProcessor for PHP4, which
+    some of the backports still support.  Add patch to fix regression test for
+    #193 which as shipped fails to work for PHP4.
 
- -- Olly Betts <olly@survex.com>  Sun,  7 Oct 2007 17:59:45 +0100
+ -- Olly Betts <olly@survex.com>  Tue,  9 Oct 2007 00:08:07 +0100
 
 xapian-bindings (1.0.2-1) unstable; urgency=low
 
