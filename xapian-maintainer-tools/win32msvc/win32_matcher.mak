@@ -38,7 +38,7 @@ OBJS= \
                  $(INTDIR)\weight.obj \
                  $(INTDIR)\remotesubmatch.obj \
 		 $(INTDIR)\branchpostlist.obj \
-		 $(INTDIR)\multweightpostlist.obj 
+		 $(INTDIR)\scaleweightpostlist.obj 
 
 SRCS= \
                  $(INTDIR)\orpostlist.cc \
@@ -64,7 +64,7 @@ SRCS= \
                  $(INTDIR)\weight.cc \
                  $(INTDIR)\remotesubmatch.cc \
 		 $(INTDIR)\branchpostlist.cc \
-		 $(INTDIR)\multweightpostlist.cc 
+		 $(INTDIR)\scaleweightpostlist.cc 
 
 CLEAN :
 	-@erase "$(OUTDIR)\libmatcher.lib"
