@@ -140,7 +140,6 @@ OmExpand::expand(Xapian::termcount max_esize,
     // Start weighting scheme
     Xapian::Internal::ExpandWeight ewt(db, rset->get_rsize(), use_exact_termfreq, expand_k);
 
-    DEBUGLINE(EXPAND, "ewt.get_maxweight() = " << ewt.get_maxweight());
     while (1) {
 	{
 	    TermList *ret = merger->next();

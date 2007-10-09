@@ -108,14 +108,5 @@ ExpandWeight::get_weight(TermList * merger, const string &tname) const
     RETURN(stats.multiplier * tw);
 }
 
-// Provide an upper bound on the values which may be returned as weights
-Xapian::weight
-ExpandWeight::get_maxweight() const
-{
-    DEBUGCALL(MATCH, Xapian::weight, "ExpandWeight::get_maxweight", "");
-    // FIXME - check the maths behind this.
-    RETURN(log(4.0 * (rsize + 0.5) * (db.get_doccount() - rsize + 0.5)) * rsize);
-}
-
 }
 }

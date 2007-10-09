@@ -113,8 +113,6 @@ public:
 
     Xapian::weight get_weight(TermList * merger,
 			      const std::string & tname) const;
-
-    Xapian::weight get_maxweight() const;
 };
 
 }
