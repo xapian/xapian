@@ -78,6 +78,8 @@
 %rename("xapian_major_version") Xapian::major_version;
 %rename("xapian_minor_version") Xapian::minor_version;
 %rename("xapian_revision") Xapian::revision;
+%rename("xapian_sortable_serialise") Xapian::sortable_serialise;
+%rename("xapian_sortable_unserialise") Xapian::sortable_unserialise;
 #else
 %rename("is_empty") empty() const;
 %rename("clone_object") clone() const;

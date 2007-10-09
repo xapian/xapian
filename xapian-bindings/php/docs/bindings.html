@@ -252,6 +252,15 @@ when reading values back from Xapian.
    available as <code>XapianQuery::OP_OR</code>, and so on.
 </p>
 
+<h2>Functions</h2>
+
+<p>
+   For PHP5, non-class functions are wrapped in the natural way, so the C++
+   function <code>Xapian::version_string</code> is wrapped under the same
+   name in PHP.  PHP4 doesn't allow this, so we wrap functions with a
+   <code>xapian_</code> prefix, e.g. <code>xapian_version_string</code>.
+</p>
+
 <h2>Query</h2>
 
 <p>
