@@ -1,7 +1,7 @@
 /** @file flint_version.h
  * @brief FlintVersion class
  */
-/* Copyright (C) 2006 Olly Betts
+/* Copyright (C) 2006,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,9 +41,11 @@ class FlintVersion {
 
     /** Read the version file and check it's a version we understand.
      *
+     *  @param readonly    true if the database is being opened readonly.
+     * 
      *  On failure, an exception is thrown.
      */
-    void read_and_check();
+    void read_and_check(bool readonly);
 };
 
 #endif

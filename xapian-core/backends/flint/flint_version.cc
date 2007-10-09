@@ -89,7 +89,7 @@ void FlintVersion::create()
     }
 }
 
-void FlintVersion::read_and_check()
+void FlintVersion::read_and_check(bool readonly)
 {
     int fd = ::open(filename.c_str(), O_RDONLY|O_BINARY);
 
@@ -127,7 +127,8 @@ void FlintVersion::read_and_check()
     const unsigned char *v;
     v = reinterpret_cast<const unsigned char *>(buf) + MAGIC_LEN;
     unsigned int version = v[0] | (v[1] << 8) | (v[2] << 16) | (v[3] << 24);
-    if (version >= 200704230 && version <= 200709120) {
+    if (version >= 200704230 && version < 200709120) {
+	if (readonly) return;
 	// Upgrade the database to the current version since any changes we
 	// make won't be compatible with older versions of Xapian.
 	string filename_save = filename;
