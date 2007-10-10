@@ -23,6 +23,7 @@
 #ifndef OM_HGUARD_FLINT_POSTLIST_H
 #define OM_HGUARD_FLINT_POSTLIST_H
 
+#include "autoptr.h"
 #include <map>
 #include <string>
 

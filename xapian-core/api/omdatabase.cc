@@ -23,6 +23,7 @@
 
 #include <config.h>
 
+#include "autoptr.h"
 #include <xapian/error.h>
 #include <xapian/unicode.h>
 #include "omdebug.h"

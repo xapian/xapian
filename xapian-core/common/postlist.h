@@ -1,7 +1,7 @@
-/* postlist.h
- *
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003,2006,2007 Olly Betts
+/** @file postlist.h
+ * @brief Abstract base class for postlists.
+ */
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -15,177 +15,143 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_POSTLIST_H
-#define OM_HGUARD_POSTLIST_H
+#ifndef XAPIAN_INCLUDED_POSTLIST_H
+#define XAPIAN_INCLUDED_POSTLIST_H
 
 #include <string>
 
 #include <xapian/base.h>
 #include <xapian/types.h>
-#include <xapian/error.h>
 #include <xapian/postingiterator.h>
 
 #include "positionlist.h"
-#include "autoptr.h"
 
-using namespace std;
+/// Abstract base class for postlists.
+class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
+    /// Don't allow assignment.
+    void operator=(const Internal &);
 
-/** Abstract base class for postlists. */
-class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase
-{
-    private:
-	/// disallow copy
-	Internal(const Internal &);
-	/// disallow assignment
-	void operator=(const Internal &);
-    public:
-	Internal() { }
-        virtual ~Internal() { }
+    /// Don't allow copying.
+    Internal(const Internal &);
 
-	///////////////////////////////////////////////////////////////////
-	// Information about the postlist
-	//
-	// These may be called at any point
+  protected:
+    /// Only constructable as a base class for derived classes.
+    Internal() { }
 
-	/** Return a lower bound on the number of documents in this postlist.
-	 *  This should be as tight a bound as possible.
-	 */
-	virtual Xapian::doccount get_termfreq_min() const = 0;
+  public:
+    /** We have virtual methods and want to be able to delete derived classes
+     *  using a pointer to the base class, so we need a virtual destructor.
+     */
+    virtual ~Internal();
 
-	/** Return an estimate of the number of documents in this postlist.
-	 *  This will be within the range specified by the lower and upper
-	 *  bounds.
-	 */
-	virtual Xapian::doccount get_termfreq_est() const = 0;
+    /// Get a lower bound on the number of documents indexed by this term.
+    virtual Xapian::doccount get_termfreq_min() const = 0;
 
-	/** Return an upper bound on the number of documents in this postlist.
-	 *  This should be as tight a bound as possible.
-	 */
-	virtual Xapian::doccount get_termfreq_max() const = 0;
+    /// Get an upper bound on the number of documents indexed by this term.
+    virtual Xapian::doccount get_termfreq_max() const = 0;
 
-	/** Return an upper bound on the value of get_weight() for this
-	 *  postlist.  This is used for optimisation purposes, and should
-	 *  be as tight as possible. */
-        virtual Xapian::weight get_maxweight() const = 0;
+    /** Get an estimate of the number of documents indexed by this term.
+     *
+     *  It should always be true that:
+     *  get_termfreq_min() <= get_termfreq_est() <= get_termfreq_max()
+     */
+    virtual Xapian::doccount get_termfreq_est() const = 0;
 
-	///////////////////////////////////////////////////////////////////
-	// Information about the current item
+    /// Return an upper bound on what get_weight() can return.
+    virtual Xapian::weight get_maxweight() const = 0;
 
-	/** Get the ID of the document at the current position in the postlist.
-	 *
-	 *  This method may only be called while the current position is at a
-	 *  valid item: ie, after at least one next() or skip_to() has been
-	 *  performed, and before at_end() returns true (or would do were it to
-	 *  be called).
-	 */
-	virtual Xapian::docid get_docid() const = 0;
+    /// Return the current docid.
+    virtual Xapian::docid get_docid() const = 0;
 
-	/** Calculate the weight for the item at the current position.
-	 *
-	 *  This method may only be called while the current position is at a
-	 *  valid item: ie, after at least one next() or skip_to() has been
-	 *  performed, and before at_end() returns true (or would do were it to
-	 *  be called).
-	 */
-	virtual Xapian::weight get_weight() const = 0;
+    /// Return the length of current document.
+    virtual Xapian::doclength get_doclength() const = 0;
 
-	virtual const string * get_collapse_key() const { return NULL; }
+    /// Return the wdf for the document at the current position.
+    virtual Xapian::termcount get_wdf() const;
 
-	/** Get the length of the document at the current position in the
-	 *  postlist.
-	 *
-	 *  This information may be stored in the postlist, in which case
-	 *  this lookup should be extremely fast (indeed, not require further
-	 *  disk access).  If the information is not present in the postlist,
-	 *  it will be retrieved from the database, at a greater performance
-	 *  cost.
-	 *
-	 *  This method may only be called while the current position is at a
-	 *  valid item: ie, after at least one next() or skip_to() has been
-	 *  performed, and before at_end() returns true (or would do were it to
-	 *  be called).
-	 */
-	virtual Xapian::doclength get_doclength() const = 0;
+    /// Return the weight contribution for the current position.
+    virtual Xapian::weight get_weight() const = 0;
 
-	/// Recalculate weights (used when tree has been autopruned)
-        virtual Xapian::weight recalc_maxweight() = 0;
+    /** If the collapse key is already known, return it.
+     *
+     *  This is implemented by MSetPostList (and MergePostList).  Other
+     *  subclasses rely on the default implementation which just returns
+     *  NULL.
+     */
+    virtual const std::string * get_collapse_key() const;
 
-	/** Get the within document frequency of the document at the
-	 *  current position in the postlist.
-	 *
-	 *  This is currently only meaningful for a LeafPostList, although
-	 *  in future such things as a "SynonymPostList" may be created and
-	 *  implement this method.  If get_wdf() is called on a postlist
-	 *  which where wdf isn't meaningful then a Xapian::UnimplementedError
-	 *  exception will be thrown.
-	 */
-        virtual Xapian::termcount get_wdf() const {
-	    throw Xapian::UnimplementedError("PostList::get_wdf() unimplemented");
-	}
+    /// Return true if the current position is past the last entry in this list.
+    virtual bool at_end() const = 0;
 
-	/** Get the list of positions at which the current term appears.
-	 *  This method returns a pointer to a PositionList, which is valid
-	 *  until next() or skip_to() is called on this PostList, or until
-	 *  the PostList is destroyed.
-	 */
-	virtual PositionList *read_position_list() = 0;
+    /** Recalculate the upper bound on what get_weight() can return.
+     *
+     *  If the tree has pruned, get_maxweight() may use cached values.  Calling
+     *  this method instead forces a full recalculation.
+     */
+    virtual Xapian::weight recalc_maxweight() = 0;
 
-	/** Get the list of positions at which the current term appears.
-	 *  This method returns a pointer to a PositionList, which is valid
-	 *  indefinitely.
-	 */
-	virtual PositionList * open_position_list() const = 0;
+    /** Read the position list for the term in the current document and
+     *  return a pointer to it (owned by the PostList).
+     */
+    virtual PositionList * read_position_list() = 0;
 
-	///////////////////////////////////////////////////////////////////
-	// Movement around the postlist
+    /** Read the position list for the term in the current document and
+     *  return a pointer to it (not owned by the PostList).
+     */
+    virtual PositionList * open_position_list() const = 0;
 
-	/// Move to the next docid
-	Internal *next() { return next(-9e20); } // FIXME: do this more neatly
+    /** Advance the current position to the next document in the postlist.
+     *
+     *  The list starts before the first entry in the list, so next()
+     *  must be called before any methods which need the context of
+     *  the current position.
+     *
+     *  @param w_min	The minimum weight contribution that is needed (this is
+     *			just a hint which PostList subclasses may ignore).
+     *
+     *  @return	If a non-NULL pointer is returned, then the caller should
+     *		substitute the returned pointer for its pointer to us, and then
+     *		delete us.  This "pruning" can only happen for a non-leaf
+     *		subclass of this class.
+     */
+    virtual Internal *next(Xapian::weight w_min) = 0;
 
-	/** Move to next docid with weight greater than w_min
-	 *
-	 * w_min in next() and skip_to() is simply a hint - documents with
-	 * a weight less than w_min will be ignored by the caller.
-	 * However, it may be best to return them anyway if the weight
-	 * calculation is expensive, since many documents will be thrown
-	 * away anyway without calculating the weight.
-	 *
-	 * In many cases, next() returns a NULL PostList pointer.  A non-NULL
-	 * return is used by BranchPostList to simplify the PostList
-	 * tree.  Sometimes a BranchPostList P will return a pointer to a
-	 * different PostList to replace it.  P's parent will notice, and
-	 * replace its pointer to P with the returned pointer, which can be
-	 * either one of P's children, or another branch.  P will be deleted
-	 * by the parent after it replaces P.
-	 */
-	virtual Internal *next(Xapian::weight w_min) = 0;
+    /** Skip forward to the specified docid.
+     *
+     *  If the specified docid isn't in the list, position ourselves on the
+     *  first term after it (or at_end() if no greater docids are present).
+     *
+     *  @param w_min	The minimum weight contribution that is needed (this is
+     *			just a hint which PostList subclasses may ignore).
+     *
+     *  @return	If a non-NULL pointer is returned, then the caller should
+     *		substitute the returned pointer for its pointer to us, and then
+     *		delete us.  This "pruning" can only happen for a non-leaf
+     *		subclass of this class.
+     */
+    virtual Internal *skip_to(Xapian::docid, Xapian::weight w_min) = 0;
 
-	/// Moves to next docid >= specified docid
-	Internal *skip_to(Xapian::docid did) { return skip_to(did, -9e20); }
+    /** Advance the current position to the next document in the postlist.
+     *
+     *  Any weight contribution is acceptable.
+     */
+    Internal *next() { return next(0.0); }
 
-	/** Moves to next docid >= specified docid, and weight greater than
-	 *  w_min (but see note about w_min under next(Xapian::weight w_min)
-	 */
-	virtual Internal *skip_to(Xapian::docid, Xapian::weight w_min) = 0;
+    /** Skip forward to the specified docid.
+     *
+     *  Any weight contribution is acceptable.
+     */
+    Internal *skip_to(Xapian::docid did) { return skip_to(did, 0.0); }
 
-	/// Returns true if we're off the end of the list
-	virtual bool at_end() const = 0;
-
-	///////////////////////////////////////////////////////////////////
-	// Introspection methods
-	//
-	// These are mainly useful for debugging.
-
-	/** Returns a description of the term or terms from which the postlist
-	 *  derives.
-	 */
-	virtual string get_description() const = 0;
+    /// Return a string description of this object.
+    virtual std::string get_description() const = 0;
 };
 
+// In the external API headers, this class is Xapian::PostingIterator::Internal,
+// but in the library code it's still know as "PostList" in most places.
 typedef Xapian::PostingIterator::Internal PostList;
 
-#endif /* OM_HGUARD_POSTLIST_H */
+#endif // XAPIAN_INCLUDED_POSTLIST_H

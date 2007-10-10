@@ -20,6 +20,7 @@
 
 #include <config.h>
 
+#include "autoptr.h"
 #include "omassert.h"
 #include "document.h"
 #include "utils.h"

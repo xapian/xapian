@@ -26,6 +26,7 @@
 #include <map>
 #include <string>
 
+#include "autoptr.h"
 #include "leafpostlist.h"
 #include <xapian/database.h>
 #include <xapian/visibility.h>
