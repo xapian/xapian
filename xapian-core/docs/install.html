@@ -5,16 +5,46 @@
 </HEAD>
 <BODY BGCOLOR="white" TEXT="black">
 
-<H1>Xapian - the open source search engine</H1>
+<h1>Installing Xapian</h1>
 
-<H2>Introduction</H2>
+<h2>Introduction</h2>
 
-This document is intended to get you going with Xapian, taking you from the
-point of downloading the code, to getting an example application compiled
-and running.
+<p>
+This document is intended to give a quick guide to how to install Xapian.
+You can find more detailed instructions in the <code>INSTALL</code> file
+which is in top level directory of each source tree.
+</p>
+
 <p>
 Xapian can be built on UNIX systems (including MacOS X), and also Microsoft
-Windows systems using GCC with mingw or cygwin.
+Windows systems using GCC with mingw or cygwin, or MSVC.
+</p>
+
+<h2>Packaged binary versions</h2>
+
+<p>
+Pre-built Xapian packages are available for a number of platforms, notably most
+of the popular Linux distributions and BSD variants, and also Cygwin and MSVC.
+If you are using such a platform, you'll probably find it easiest to use
+pre-built packages - it saves having to compile by hand and you'll generally
+get updates automatically.
+</p>
+
+<p>
+There are some links on our
+<a href="http://www.xapian.org/download.php">download page</a> but it's likely
+that Xapian packages are available for platforms we aren't aware of.  Feel
+free to let us know and we'll add a link.
+</p>
+
+<p>
+In some cases, the version packaged may be rather old, in which case you can
+either request the packager to update, or build from source.  If you find we're
+linking to a package which isn't being updated, please let us know so we can
+remove the link.
+</p>
+
+<h2>Installing from Source</h2>
 
 <H3>Download</H3>
 The first step is to obtain a copy of the software from the
@@ -31,6 +61,7 @@ These commands should unpack the archives into separate subdirectories
 ("xapian-core-N.N.N" and "xapian-omega-N.N.N").
 
 <H3>Configuring and building Xapian</H3>
+
 Xapian uses the GNU autoconf, automake, and libtool tools.
 If you only wish to build
 releases or <a href="http://www.oligarchy.co.uk/xapian/trunk/">SVN snapshots</a>
@@ -74,9 +105,9 @@ library: if it doesn't you may need to specify the path to the
 Note: if you use libtool to link your application, you can link them with an
 uninstalled Xapian library.  If you don't use libtool, you must install
 Xapian.  We recommend using libtool anyway, since it handles setting the
-runtime library search path, so you can link against a shared Xapian library
-installed in a non-standard location, and it will be found without you having
-to mess with LD_LIBRARY_PATH.
+runtime library search path when required, so you can link against a shared
+Xapian library installed in a non-standard location, and it will be found
+without you having to mess with LD_LIBRARY_PATH.
 
 <H3>Building from SVN</H3>
 
