@@ -1,3 +1,9 @@
+Wed Oct 10 22:27:44 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/install.html: Improve the remainder.  This documents now just
+	  gives a brief overview of building, suitable for most common cases,
+	  and defers to the INSTALL document in each tarball for more details.
+
 Wed Oct 10 21:51:39 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/leafpostlist.h: Rewrite header.
