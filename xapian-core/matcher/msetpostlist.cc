@@ -95,7 +95,7 @@ Xapian::weight
 MSetPostList::recalc_maxweight()
 {
     DEBUGCALL(MATCH, Xapian::weight, "MSetPostList::recalc_maxweight", "");
-    RETURN(get_maxweight());
+    RETURN(MSetPostList::get_maxweight());
 }
 
 PositionList *
