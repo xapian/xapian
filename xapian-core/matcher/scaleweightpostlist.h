@@ -50,7 +50,7 @@ class ScaleWeightPostList : public PostList {
     ScaleWeightPostList(PostList *source_, double multiplier_,
 			MultiMatch *matcher_)
 	: source(source_), multiplier(multiplier_), matcher(matcher_) {}
-    ~ScaleWeightPostList() { delete source; }
+    ~ScaleWeightPostList();
 
     Xapian::doccount get_termfreq_min() const;
     Xapian::doccount get_termfreq_est() const;

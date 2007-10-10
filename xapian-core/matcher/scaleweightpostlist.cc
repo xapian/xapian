@@ -27,6 +27,11 @@
 // "skip_to_handling_prune"
 #include "branchpostlist.h"
 
+ScaleWeightPostList::~ScaleWeightPostList()
+{
+    delete source;
+}
+
 Xapian::doccount
 ScaleWeightPostList::get_termfreq_min() const
 {
