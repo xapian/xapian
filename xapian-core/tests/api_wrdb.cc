@@ -2076,6 +2076,50 @@ static bool test_termtoolong1()
     return true;
 }
 
+/// Test playing with a postlist
+static bool test_postlist7()
+{
+    Xapian::WritableDatabase db_w = get_writable_database("");
+
+    {
+	Xapian::Document doc;
+	doc.add_term("foo", 3);
+	doc.add_term("zz", 4);
+	db_w.replace_document(5, doc);
+    }
+
+    Xapian::PostingIterator p;
+    p = db_w.postlist_begin("foo");
+    TEST(p != db_w.postlist_end("foo"));
+    TEST_EQUAL(*p, 5);
+    TEST_EQUAL(p.get_wdf(), 3);
+    TEST_EQUAL(p.get_doclength(), 7);
+    ++p;
+    TEST(p == db_w.postlist_end("foo"));
+
+    {
+	Xapian::Document doc;
+	doc.add_term("foo", 1);
+	doc.add_term("zz", 1);
+	db_w.replace_document(6, doc);
+    }
+
+    p = db_w.postlist_begin("foo");
+    TEST(p != db_w.postlist_end("foo"));
+    TEST_EQUAL(*p, 5);
+    TEST_EQUAL(p.get_wdf(), 3);
+    TEST_EQUAL(p.get_doclength(), 7);
+    ++p;
+    TEST(p != db_w.postlist_end("foo"));
+    TEST_EQUAL(*p, 6);
+    TEST_EQUAL(p.get_wdf(), 1);
+    TEST_EQUAL(p.get_doclength(), 2);
+    ++p;
+    TEST(p == db_w.postlist_end("foo"));
+
+    return true;
+}
+
 // #######################################################################
 // # End of test cases: now we list the tests to run.
 
@@ -2119,5 +2163,6 @@ test_desc writabledb_tests[] = {
     TESTCASE(metadata2),
     TESTCASE(metadata3),
     TESTCASE(termtoolong1),
+    TESTCASE(postlist7),
     END_OF_TESTCASES
 };

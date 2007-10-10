@@ -57,14 +57,13 @@ query(const string &t)
 // tests Xapian::Database::get_termfreq() and Xapian::Database::term_exists()
 static bool test_termstats()
 {
-    // open the database (in this case a simple text file
-    // we prepared earlier)
-
     Xapian::Database db(get_database("apitest_simpledata"));
 
     TEST(!db.term_exists("corn"));
-    TEST(db.term_exists("paragraph"));
+    TEST_EQUAL(db.get_termfreq("corn"), 0);
+    TEST(db.term_exists("banana"));
     TEST_EQUAL(db.get_termfreq("banana"), 1);
+    TEST(db.term_exists("paragraph"));
     TEST_EQUAL(db.get_termfreq("paragraph"), 5);
 
     return true;
@@ -1003,7 +1002,7 @@ static bool test_multiexpand1()
     return true;
 }
 
-// tests that opening a non-existent postlist return an empty list
+// tests that opening a non-existent postlist returns an empty list
 static bool test_postlist1()
 {
     Xapian::Database db(get_database("apitest_simpledata"));
@@ -1011,17 +1010,12 @@ static bool test_postlist1()
     TEST_EQUAL(db.postlist_begin("rosebud"), db.postlist_end("rosebud"));
 
     string s = "let_us_see_if_we_can_break_it_with_a_really_really_long_term.";
-    s += s;
-    s += s;
-    s += s;
-    s += s;
-    s += s;
-    s += s;
-    s += s;
-    s += s;
-    TEST_EQUAL(db.postlist_begin(s), db.postlist_end(s));
+    for (int i = 0; i < 8; ++i) {
+	s += s;
+	TEST_EQUAL(db.postlist_begin(s), db.postlist_end(s));
+    }
 
-    // a regression test (no, really)
+    // A regression test (no, really!)
     TEST_NOT_EQUAL(db.postlist_begin("a"), db.postlist_end("a"));
 
     return true;
@@ -1057,17 +1051,15 @@ static bool test_postlist2()
     return true;
 }
 
-static Xapian::PostingIterator
-test_postlist3_helper()
-{
-    Xapian::Database db(get_database("apitest_simpledata"));
-    return db.postlist_begin("this");
-}
-
 // tests that a Xapian::PostingIterator still works when the DB is deleted
 static bool test_postlist3()
 {
-    Xapian::PostingIterator u = test_postlist3_helper();
+    Xapian::PostingIterator u;
+    {
+	Xapian::Database db_temp(get_database("apitest_simpledata"));
+	u = db_temp.postlist_begin("this");
+    }
+
     Xapian::Database db(get_database("apitest_simpledata"));
     Xapian::PostingIterator p = db.postlist_begin("this");
     Xapian::PostingIterator pend = db.postlist_end("this");

@@ -1,3 +1,13 @@
+Wed Oct 10 16:25:08 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/quartztest.cc: Remove quartztest's test_postlist1 and
+	  test_postlist2.
+	* tests/api_db.cc: Enhance test_termstats to cover part of the removed
+	  tests.  Enhance test_postlist1 to check more long terms.  Eliminate
+	  the helper function from test_postlist3.
+	* tests/api_wrdb.cc: Add test_postlist7 to cover the rest of what the
+	  removed tests checked which isn't already checked elsewhere.
+
 Wed Oct 10 02:29:44 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Update the release checklist.
