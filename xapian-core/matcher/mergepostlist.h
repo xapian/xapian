@@ -73,9 +73,6 @@ class MergePostList : public PostList {
 	 */
 	virtual Xapian::doclength get_doclength() const;
 
-	virtual PositionList * read_position_list();
-	virtual PositionList * open_position_list() const;
-
 	MergePostList(vector<PostList *> plists_,
 		      MultiMatch *matcher,
 		      Xapian::ErrorHandler * errorhandler_);

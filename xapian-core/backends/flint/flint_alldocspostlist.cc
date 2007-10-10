@@ -78,18 +78,6 @@ FlintAllDocsPostList::get_wdf() const
     RETURN(1);
 }
 
-PositionList *
-FlintAllDocsPostList::read_position_list()
-{
-    throw Xapian::InvalidOperationError("read_position_list() not meaningful for FlintAllDocsPostList");
-}
-
-PositionList *
-FlintAllDocsPostList::open_position_list() const
-{
-    throw Xapian::InvalidOperationError("open_position_list() not meaningful for FlintAllDocsPostList");
-}
-
 PostList *
 FlintAllDocsPostList::read_did_from_current_key()
 {

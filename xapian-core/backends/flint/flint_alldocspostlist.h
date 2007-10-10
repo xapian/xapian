@@ -66,10 +66,6 @@ class FlintAllDocsPostList : public LeafPostList {
 
     Xapian::termcount get_wdf() const;
 
-    PositionList *read_position_list();
-
-    PositionList *open_position_list() const;
-
     PostList * next(Xapian::weight w_min);
 
     PostList * skip_to(Xapian::docid desired_did, Xapian::weight w_min);

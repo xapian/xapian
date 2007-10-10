@@ -225,16 +225,3 @@ MergePostList::get_doclength() const
     Assert(current != -1);
     return plists[current]->get_doclength();
 }
-
-PositionList *
-MergePostList::read_position_list()
-{
-    DEBUGCALL(MATCH, PositionList *, "MergePostList::read_position_list", "");
-    throw Xapian::UnimplementedError("MergePostList::read_position_list() unimplemented");
-}
-
-PositionList *
-MergePostList::open_position_list() const
-{
-    throw Xapian::UnimplementedError("MergePostList::open_position_list() unimplemented");
-}

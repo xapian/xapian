@@ -1,3 +1,12 @@
+Thu Oct 11 00:28:29 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/postlist.cc,backends/flint/flint_alldocspostlist.cc,
+	  backends/flint/flint_alldocspostlist.h,common/postlist.h,matcher/:
+	  Eliminate several implementations of open_position_list and
+	  read_position_list in favour of default ones in the PostList base
+	  class which throw InvalidOperationError.  Change the default
+	  get_wdf implementation to also throw InvalidOperationError.
+
 Wed Oct 10 22:27:44 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/install.html: Improve the remainder.  This documents now just

@@ -75,12 +75,6 @@ class MSetPostList : public PostList {
 
     Xapian::weight recalc_maxweight();
 
-    /// Not implemented for MSetPostList.
-    PositionList * read_position_list();
-
-    /// Not implemented for MSetPostList.
-    PositionList * open_position_list() const;
-
     PostList *next(Xapian::weight w_min);
 
     /// Not meaningful for MSetPostList.

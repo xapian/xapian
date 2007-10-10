@@ -69,7 +69,10 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
     /// Return the length of current document.
     virtual Xapian::doclength get_doclength() const = 0;
 
-    /// Return the wdf for the document at the current position.
+    /** Return the wdf for the document at the current position.
+     *
+     *  The default implementation throws Xapian::UnimplementedError.
+     */
     virtual Xapian::termcount get_wdf() const;
 
     /// Return the weight contribution for the current position.
@@ -95,13 +98,17 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
 
     /** Read the position list for the term in the current document and
      *  return a pointer to it (owned by the PostList).
+     *
+     *  The default implementation throws Xapian::UnimplementedError.
      */
-    virtual PositionList * read_position_list() = 0;
+    virtual PositionList * read_position_list();
 
     /** Read the position list for the term in the current document and
      *  return a pointer to it (not owned by the PostList).
+     *
+     *  The default implementation throws Xapian::UnimplementedError.
      */
-    virtual PositionList * open_position_list() const = 0;
+    virtual PositionList * open_position_list() const;
 
     /** Advance the current position to the next document in the postlist.
      *

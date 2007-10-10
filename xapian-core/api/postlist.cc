@@ -33,13 +33,25 @@ PostingIterator::Internal::~Internal() { }
 Xapian::termcount
 PostingIterator::Internal::get_wdf() const
 {
-    throw Xapian::UnimplementedError("PostingIterator::Internal::get_wdf() unimplemented");
+    throw Xapian::InvalidOperationError("get_wdf() not meaningful for this PostingIterator");
 }
 
 const string *
 PostingIterator::Internal::get_collapse_key() const
 {
     return NULL;
+}
+
+PositionList *
+PostList::read_position_list()
+{
+    throw Xapian::InvalidOperationError("read_position_list() not meaningful for this PostingIterator");
+}
+
+PositionList *
+PostList::open_position_list() const
+{
+    throw Xapian::InvalidOperationError("open_position_list() not meaningful for this PostingIterator");
 }
 
 }

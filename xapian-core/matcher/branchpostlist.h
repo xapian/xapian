@@ -79,18 +79,6 @@ class BranchPostList : public PostList {
 	 *  the wdfs: so we do that in general.
 	 */
 	virtual Xapian::termcount get_wdf() const;
-
-	/** Most branch postlists won't be able to supply position lists.
-	 *  If read_position_list() is called on such a branch postlist,
-	 *  a Xapian::UnimplementedError exception will be thrown.
-	 */
-	virtual PositionList * read_position_list();
-
-	/** Most branch postlists won't be able to supply position lists.
-	 *  If open_position_list() is called on such a branch postlist,
-	 *  a Xapian::UnimplementedError exception will be thrown.
-	 */
-	virtual PositionList * open_position_list() const;
 };
 
 // Helper functions - call next/skip_to on a postlist and handle any

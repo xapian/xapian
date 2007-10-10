@@ -98,18 +98,6 @@ MSetPostList::recalc_maxweight()
     RETURN(MSetPostList::get_maxweight());
 }
 
-PositionList *
-MSetPostList::read_position_list()
-{
-    throw Xapian::UnimplementedError("MSetPostList::read_position_list() unimplemented");
-}
-
-PositionList *
-MSetPostList::open_position_list() const
-{
-    throw Xapian::UnimplementedError("MSetPostList::open_position_list() unimplemented");
-}
-
 PostList *
 MSetPostList::next(Xapian::weight w_min)
 {

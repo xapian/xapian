@@ -35,15 +35,3 @@ BranchPostList::get_wdf() const
 {
     return l->get_wdf() + r->get_wdf();
 }
-
-PositionList *
-BranchPostList::read_position_list()
-{
-    throw Xapian::UnimplementedError("BranchPostList::read_position_list() not implemented");
-}
-
-PositionList *
-BranchPostList::open_position_list() const
-{
-    throw Xapian::UnimplementedError("BranchPostList::open_position_list() not implemented");
-}
