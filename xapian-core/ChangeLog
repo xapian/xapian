@@ -1,3 +1,7 @@
+Thu Oct 11 00:33:34 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/branchpostlist.h: Fix comment typo.
+
 Thu Oct 11 00:28:29 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/postlist.cc,backends/flint/flint_alldocspostlist.cc,
