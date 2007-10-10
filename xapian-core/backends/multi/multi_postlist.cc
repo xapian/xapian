@@ -22,6 +22,7 @@
 #include <config.h>
 #include <stdio.h>
 
+#include "omassert.h"
 #include "omdebug.h"
 #include "multi_postlist.h"
 
@@ -57,21 +58,10 @@ MultiPostList::~MultiPostList()
     postlists.clear();
 }
 
-void
-MultiPostList::set_termweight(const Xapian::Weight * wt)
-{
-    // Set in base class, so that get_maxweight() works
-    LeafPostList::set_termweight(wt);
-    std::vector<LeafPostList *>::const_iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {
-	(*i)->set_termweight(wt);
-    }
-}
-
 Xapian::doccount
 MultiPostList::get_termfreq() const
 {
-    if(freq_initialised) return termfreq;
+    if (freq_initialised) return termfreq;
     DEBUGLINE(DB, "Calculating multiple term frequencies");
 
     // Calculate and remember the termfreq

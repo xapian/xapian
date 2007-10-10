@@ -27,12 +27,12 @@
 #include "leafpostlist.h"
 #include "termlist.h"
 #include "database.h"
-#include <stdlib.h>
 #include <map>
 #include <vector>
 #include <algorithm>
 #include <xapian/document.h>
 #include "inmemory_positionlist.h"
+#include <omassert.h>
 
 using namespace std;
 

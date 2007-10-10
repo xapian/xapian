@@ -38,7 +38,5 @@ PostList *
 EmptySubMatch::get_postlist_and_term_info(MultiMatch *,
 	map<string, Xapian::MSet::Internal::TermFreqAndWeight> *)
 {
-    LeafPostList * pl = new EmptyPostList;
-    pl->set_termweight(new Xapian::BoolWeight);
-    return pl;
+    return new EmptyPostList;
 }

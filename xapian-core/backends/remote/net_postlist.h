@@ -26,6 +26,7 @@
 #include <string>
 
 #include "leafpostlist.h"
+#include "omassert.h"
 #include "remote-database.h"
 
 using namespace std;

@@ -24,12 +24,15 @@
 #include <config.h>
 
 #include "autoptr.h"
+
 #include <xapian/error.h>
-#include <xapian/unicode.h>
-#include "omdebug.h"
+#include <xapian/positioniterator.h>
 #include <xapian/postingiterator.h>
 #include <xapian/termiterator.h>
-#include <xapian/positioniterator.h>
+#include <xapian/unicode.h>
+
+#include "omassert.h"
+#include "omdebug.h"
 #include "../backends/multi/multi_postlist.h"
 #include "../backends/multi/multi_termlist.h"
 #include "alltermslist.h"

@@ -23,6 +23,7 @@
 #define OM_HGUARD_EMPTYPOSTLIST_H
 
 #include "leafpostlist.h"
+#include "omassert.h"
 
 class EmptyPostList : public LeafPostList {
     public:

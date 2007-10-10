@@ -87,12 +87,12 @@ NetworkPostList::next(Xapian::weight)
 }
 
 PostList *
-NetworkPostList::skip_to(Xapian::docid did, Xapian::weight weight)
+NetworkPostList::skip_to(Xapian::docid did, Xapian::weight min_weight)
 {
     if (!started)
-	next(weight);
+	next(min_weight);
     while (pos && lastdocid < did)
-	next(weight);
+	next(min_weight);
     return NULL;
 }
 

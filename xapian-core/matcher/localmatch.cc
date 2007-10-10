@@ -380,11 +380,7 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 				   MultiMatch *matcher, bool is_bool)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::postlist_from_query", query << ", " << matcher << ", " << is_bool);
-    if (!query) {
-	LeafPostList *pl = new EmptyPostList();
-	pl->set_termweight(new Xapian::BoolWeight());
-	RETURN(pl);
-    }
+    if (!query) RETURN(new EmptyPostList());
 
     int op = query->op;
     switch (op) {
@@ -392,14 +388,10 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	    // Make a postlist for a single term
 	    Assert(query->subqs.empty());
 
-	    // FIXME: pass the weight type and the info needed to create it to
-	    // the postlist instead (why?)
-	    Xapian::Weight * wt;
-	    if (is_bool) {
-		wt = new Xapian::BoolWeight();
-	    } else {
+	    AutoPtr<Xapian::Weight> wt;
+	    if (!is_bool) {
 		wt = wt_factory->create(&statssource, qlen, query->wqf,
-				      query->tname);
+					query->tname);
 #ifdef XAPIAN_DEBUG_PARANOID
 		// Check that max_extra weight is really right
 		AutoPtr<Xapian::Weight> temp_wt(wt_factory->create(&statssource,
@@ -412,9 +404,7 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	    i = term_info.find(query->tname);
 	    if (i == term_info.end()) {
 		Xapian::MSet::Internal::TermFreqAndWeight info;
-		info.termweight = wt->get_maxpart();
-
-		// MULTI - this statssource should be the combined one...
+		info.termweight = is_bool ? 0 : wt->get_maxpart();
 		info.termfreq = statssource.get_total_termfreq(query->tname);
 
 		DEBUGLINE(MATCH, " weight = " << info.termweight <<
@@ -422,12 +412,13 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 
 		term_info.insert(std::make_pair(query->tname, info));
 	    } else {
-		i->second.termweight += wt->get_maxpart();
+		if (!is_bool) i->second.termweight += wt->get_maxpart();
 	    }
 
-	    // MULTI
 	    LeafPostList * pl = db->open_post_list(query->tname);
-	    pl->set_termweight(wt);
+	    // The default for LeafPostList is to return 0 weight and maxweight
+	    // which is the same as boolean weighting.
+	    if (!is_bool) pl->set_termweight(wt.release());
 	    RETURN(pl);
 	}
 	case Xapian::Query::OP_PHRASE:

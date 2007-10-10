@@ -51,8 +51,6 @@ class MultiPostList : public LeafPostList {
     public:
 	~MultiPostList();
 
-	void set_termweight(const Xapian::Weight * wt); // Sets term weight
-
 	Xapian::doccount get_termfreq() const;
 
 	Xapian::docid  get_docid() const;     // Gets current docid

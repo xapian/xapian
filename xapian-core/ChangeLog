@@ -1,3 +1,24 @@
+Wed Oct 10 21:51:39 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/leafpostlist.h: Rewrite header.
+	* api/Makefile.mk,api/leafpostlist.cc: Add new source file for
+	  virtual, and non-trivial, non-virtual, methods of LeafPostList.
+	* api/omdatabase.cc,backends/inmemory/inmemory_database.h,
+	  backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h,
+	  backends/remote/net_postlist.h,common/emptypostlist.h: Add missing
+	  '#include "omassert.h"' which was previously pulled in implicitly
+	  via '#include "leafpostlist.h"'.
+	* backends/inmemory/inmemory_database.h: Remove unused '#include
+	  <stdlib.h>'.
+	* backends/multi/multi_postlist.cc,backends/multi/multi_postlist.h:
+	  MultiPostList::set_termweight() is never used, so eliminate it.
+	* backends/remote/net_postlist.cc: Rename parameter "weight" to
+	  "min_weight" to avoid clash with new member variable of
+	  LeafPostList.
+	* matcher/emptysubmatch.cc,matcher/localmatch.cc: Don't call
+	  LeafPostList::set_termweight() with a BoolWeight object - the
+	  default behaviour is now equivalent.
+
 Wed Oct 10 18:18:09 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/install.html: Improve the first half.

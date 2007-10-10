@@ -1,8 +1,7 @@
-/* leafpostlist.h
- *
- * ----START-LICENCE----
- * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2003 Olly Betts
+/** @file leafpostlist.h
+ * @brief Abstract base class for leaf postlists.
+ */
+/* Copyright (C) 2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,70 +15,65 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA
- * -----END-LICENCE-----
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#ifndef OM_HGUARD_LEAFPOSTLIST_H
-#define OM_HGUARD_LEAFPOSTLIST_H
+#ifndef XAPIAN_INCLUDED_LEAFPOSTLIST_H
+#define XAPIAN_INCLUDED_LEAFPOSTLIST_H
 
-#include <xapian/enquire.h>
-#include "omassert.h"
 #include "postlist.h"
 
-/** A postlist which generates termweights (rather than merely modifying
- *  them and passing them on)
+namespace Xapian {
+    class Weight;
+}
+
+/** Abstract base class for leaf postlists.
+ *
+ *  This class provides the following features in addition to the PostList
+ *  class:
  */
 class LeafPostList : public PostList {
-    protected:
-	const Xapian::Weight * ir_wt;
-	bool want_doclength;
-    public:
-	LeafPostList() : ir_wt(NULL), want_doclength(false) { }
+    /// Don't allow assignment.
+    void operator=(const LeafPostList &);
 
-	~LeafPostList() { delete ir_wt; }
+    /// Don't allow copying.
+    LeafPostList(const LeafPostList &);
 
-	virtual Xapian::doccount get_termfreq() const = 0;
-	Xapian::doccount get_termfreq_max() const { return get_termfreq(); }
-	Xapian::doccount get_termfreq_min() const { return get_termfreq(); }
-	Xapian::doccount get_termfreq_est() const { return get_termfreq(); }
+  protected:
+    const Xapian::Weight * weight;
+    bool need_doclength;
 
-	// Sets term weighting formula, and needed information
-	virtual void set_termweight(const Xapian::Weight * wt);
+    /// Only constructable as a base class for derived classes.
+    LeafPostList() : weight(0), need_doclength(false) { }
 
-	virtual Xapian::weight get_weight() const;
+  public:
+    ~LeafPostList();
 
-	virtual Xapian::weight get_maxweight() const;    // Gets max weight
-        virtual Xapian::weight recalc_maxweight();       // recalculate weights
+    /** Set the weighting scheme to use during matching.
+     *
+     *  If this isn't called, get_weight() and get_maxweight() will both
+     *  return 0.
+     *
+     *  You should not call this more than once on a particular object.
+     *
+     *  @param weight_	The weighting object to use.  Must not be NULL.
+     */
+    void set_termweight(const Xapian::Weight * weight_);
+
+    /** Return the exact term frequency.
+     *
+     *  Leaf postlists have an exact termfreq, which get_termfreq_min(),
+     *  get_termfreq_max(), and get_termfreq_est() all report.
+     */
+    virtual Xapian::doccount get_termfreq() const = 0;
+
+    Xapian::doccount get_termfreq_min() const;
+    Xapian::doccount get_termfreq_max() const;
+    Xapian::doccount get_termfreq_est() const;
+
+    Xapian::weight get_maxweight() const;
+    Xapian::weight get_weight() const;
+    Xapian::weight recalc_maxweight();
 };
 
-inline void
-LeafPostList::set_termweight(const Xapian::Weight * wt)
-{
-    ir_wt = wt;
-    want_doclength = wt->get_sumpart_needs_doclength();
-}
-
-inline Xapian::weight
-LeafPostList::get_weight() const
-{
-    Assert(ir_wt != NULL);
-    return ir_wt->get_sumpart(get_wdf(), want_doclength ? get_doclength() : 0);
-}
-
-// return an upper bound on the termweight
-inline Xapian::weight
-LeafPostList::get_maxweight() const
-{
-    Assert(ir_wt != NULL);
-    return ir_wt->get_maxpart();
-}
-
-inline Xapian::weight
-LeafPostList::recalc_maxweight()
-{
-    return LeafPostList::get_maxweight();
-}
-
-#endif /* OM_HGUARD_LEAFPOSTLIST_H */
+#endif // XAPIAN_INCLUDED_LEAFPOSTLIST_H
