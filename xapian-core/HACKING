@@ -1059,11 +1059,17 @@ This is a (hopefully complete) list of the jobs which need doing:
 
 * Run /u1/olly/xapian-website-update/update_website.sh
 
-* Update the wiki: Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z
-  and link it into http://wiki.xapian.org/ReleaseNotes in place of the old
-  current release link, which should be moved to the archived section.  Also
-  update http://wiki.xapian.org/RoadMap to record the date of the release and
-  the estimated date for the next release.
+* Update the wiki:
+
+  Create a new page http://wiki.xapian.org/ReleaseNotes/X.Y.Z and link it into
+  http://wiki.xapian.org/ReleaseNotes in place of the old current release link,
+  which should be moved to the archived section.  Also update
+  http://wiki.xapian.org/RoadMap to record the date of the release and the
+  estimated date for the next release.
+
+  Also update the roadmap at http://wiki.xapian.org/RoadMap by recording the
+  date of this release and adding an entry for the next release with an
+  estimated release date.
 
 * Update the freshmeat entry at:
   http://freshmeat.net/add-release/40427/43070/
