@@ -26,20 +26,21 @@
 #include "localmatch.h"
 #include "omdebug.h"
 
-#include "andpostlist.h"
-#include "orpostlist.h"
-#include "xorpostlist.h"
-#include "andnotpostlist.h"
 #include "andmaybepostlist.h"
-#include "filterpostlist.h"
-#include "exactphrasepostlist.h"
-#include "phrasepostlist.h"
+#include "andnotpostlist.h"
+#include "andpostlist.h"
 #include "emptypostlist.h"
+#include "exactphrasepostlist.h"
+#include "extraweightpostlist.h"
+#include "filterpostlist.h"
 #include "leafpostlist.h"
 #include "mergepostlist.h"
-#include "extraweightpostlist.h"
-#include "valuerangepostlist.h"
+#include "multiandpostlist.h"
+#include "orpostlist.h"
+#include "phrasepostlist.h"
 #include "scaleweightpostlist.h"
+#include "valuerangepostlist.h"
+#include "xorpostlist.h"
 
 #include "omqueryinternal.h"
 
@@ -62,19 +63,6 @@ class PLPCmpGt {
 	 */
         bool operator()(const PostList *a, const PostList *b) {
             return a->get_termfreq_est() > b->get_termfreq_est();
-        }
-};
-
-/** Class providing an operator which returns true if a has a (strictly)
- *  smaller number of postings than b.
- */
-class PLPCmpLt {
-    public:
-	/** Return true if and only if a has a strictly smaller number of
-	 *  postings than b.
-	 */
-        bool operator()(const PostList *a, const PostList *b) {
-            return a->get_termfreq_est() < b->get_termfreq_est();
         }
 };
 
@@ -125,7 +113,7 @@ LocalSubMatch::LocalSubMatch(const Xapian::Database::Internal *db_,
 }
 
 PostList *
-LocalSubMatch::build_xor_tree(std::vector<PostList *> &postlists,
+LocalSubMatch::build_xor_tree(const std::vector<PostList *> &postlists,
 			      MultiMatch *matcher)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::build_xor_tree", "[postlists], " << matcher);
@@ -142,7 +130,6 @@ LocalSubMatch::build_xor_tree(std::vector<PostList *> &postlists,
     for (i = postlists.begin(); i != postlists.end(); i++) {
 	pq.push(*i);
     }
-    postlists.clear();
 
     // If none of the postlists had any entries, return an EmptyPostList.
     if (pq.empty()) {
@@ -167,56 +154,24 @@ LocalSubMatch::build_xor_tree(std::vector<PostList *> &postlists,
     }
 }
 
-// FIXME: postlists passed by reference and needs to be kept "nice"
-// for NearPostList - so if there's a zero freq term it needs to be
-// empty, else it needs to have all the postlists in (though the order
-// can be different) - this is ultra-icky
 PostList *
-LocalSubMatch::build_and_tree(std::vector<PostList *> &postlists,
+LocalSubMatch::build_and_tree(const std::vector<PostList *> &postlists,
 			      MultiMatch *matcher)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::build_and_tree", "[postlists], " << matcher);
-    // Build nice tree for AND-ed terms
-    // SORT list into ascending freq order
-    // AND last two elements, then AND with each subsequent element
-
-// FIXME: if we throw away zero frequency postlists at this point,
-// max_weight will come out lower...
-#if 0
-    std::vector<PostList *>::const_iterator i;
-    for (i = postlists.begin(); i != postlists.end(); i++) {
-	if ((*i)->get_termfreq_max() == 0) {
-	    // a zero freq term => the AND has zero freq
-	    for (i = postlists.begin(); i != postlists.end(); i++)
-		delete *i;
-	    postlists.clear();
-	    break;
-	}
-    }
-#endif
-
-    if (postlists.empty()) {
-	EmptyPostList *pl = new EmptyPostList();
-	RETURN(pl);
-    }
-
-    std::stable_sort(postlists.begin(), postlists.end(), PLPCmpLt());
-
-    int j = postlists.size() - 1;
-    PostList *pl = postlists[j];
-    while (j > 0) {
-	j--;
-	// NB right is always <= left - we use this to optimise.
-	pl = new AndPostList(postlists[j], pl, matcher, db->get_doccount());
-    }
-    RETURN(pl);
+    // We can't check for a zero frequency postlist here and just return
+    // EmptyPostList() becuase max_weight would come out lower...
+    if (postlists.empty()) RETURN(new EmptyPostList());
+    if (postlists.size() == 1) RETURN(postlists[0]);
+    RETURN(new MultiAndPostList(postlists.begin(), postlists.end(), matcher,
+				db->get_doccount()));
 }
 
 // Build nice tree for OR-ed postlists
 // Want postlists with most entries to be at top of tree, to reduce
 // average number of nodes an entry gets "pulled" through.
 PostList *
-LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
+LocalSubMatch::build_or_tree(const std::vector<PostList *> &postlists,
 			     MultiMatch *matcher)
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::build_or_tree", "[postlists], " << matcher);
@@ -240,7 +195,6 @@ LocalSubMatch::build_or_tree(std::vector<PostList *> &postlists,
 	pq.push(*i);
 #endif
     }
-    postlists.clear();
 
     // If none of the postlists had any entries, return an EmptyPostList.
     if (pq.empty()) {
@@ -314,16 +268,12 @@ LocalSubMatch::postlist_from_queries(Xapian::Query::Internal::op_t op,
 
 	case Xapian::Query::OP_PHRASE:
 	{
-	    // build_and_tree reorders postlists, but the order is
-	    // important for phrase, so we need to keep a copy
-	    // FIXME: there must be a cleaner way for this to work...
-	    std::vector<PostList *> postlists_orig = postlists;
 	    PostList *res = build_and_tree(postlists, matcher);
 	    // FIXME: handle EmptyPostList return specially?
-	    if (query->parameter == postlists_orig.size()) {
-		RETURN(new ExactPhrasePostList(res, postlists_orig));
+	    if (query->parameter == postlists.size()) {
+		RETURN(new ExactPhrasePostList(res, postlists));
 	    }
-	    RETURN(new PhrasePostList(res, query->parameter, postlists_orig));
+	    RETURN(new PhrasePostList(res, query->parameter, postlists));
 	}
 
 	case Xapian::Query::OP_ELITE_SET:

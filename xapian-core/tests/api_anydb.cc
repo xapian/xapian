@@ -1377,12 +1377,12 @@ static bool test_matches1()
     enquire.set_query(myquery);
     mymset = enquire.get_mset(0, 0);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
-    TEST_EQUAL(mymset.get_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
 
     mymset = enquire.get_mset(0, 1);
     TEST_EQUAL(mymset.get_matches_lower_bound(), 1);
-    TEST_EQUAL(mymset.get_matches_estimated(), 1);
+    TEST_EQUAL(mymset.get_matches_estimated(), 2);
     TEST_EQUAL(mymset.get_matches_upper_bound(), 2);
 
     mymset = enquire.get_mset(0, 2);

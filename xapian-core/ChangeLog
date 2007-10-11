@@ -1,3 +1,14 @@
+Thu Oct 11 15:40:48 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/: Add new PostList subclass MultiAndPostList which handles
+	  a multi-way AND operation in a single class.  This allows us to
+	  optimise some cases of 3 or more way AND operations much better
+	  and gives a 16-17% performance improvement in tests using real-world
+	  query logs.
+	* tests/api_anydb.cc: MultiAndPostList rounds get_termfreq_est()
+	  calculations to the nearest integer (rather than always rounding
+	  down) so adjust the expected answers in test_matches.
+
 Thu Oct 11 15:14:27 BST 2007  Olly Betts <olly@survex.com>
 
 	* matcher/selectpostlist.cc: Explicitly qualify next() as

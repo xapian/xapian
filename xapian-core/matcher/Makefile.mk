@@ -11,6 +11,7 @@ noinst_HEADERS +=\
 	matcher/mergepostlist.h\
 	matcher/msetcmp.h\
 	matcher/msetpostlist.h\
+	matcher/multiandpostlist.h\
 	matcher/scaleweightpostlist.h\
 	matcher/orpostlist.h\
 	matcher/phrasepostlist.h\
@@ -44,6 +45,7 @@ libxapian_la_SOURCES +=\
 	matcher/mergepostlist.cc\
 	matcher/msetcmp.cc\
 	matcher/msetpostlist.cc\
+	matcher/multiandpostlist.cc\
 	matcher/multimatch.cc\
 	matcher/scaleweightpostlist.cc\
 	matcher/orpostlist.cc\

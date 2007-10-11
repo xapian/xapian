@@ -65,15 +65,15 @@ class LocalSubMatch : public SubMatch {
 
 
     /// Build an optimised AndPostList tree from a vector of PostLists.
-    PostList * build_and_tree(std::vector<PostList *> &PostLists,
+    PostList * build_and_tree(const std::vector<PostList *> &PostLists,
 			      MultiMatch *matcher);
 
     /// Build an optimised OrPostList tree from a vector of PostLists.
-    PostList * build_or_tree(std::vector<PostList *> &PostLists,
+    PostList * build_or_tree(const std::vector<PostList *> &PostLists,
 			     MultiMatch *matcher);
 
     /// Build an optimised XorPostList tree from a vector of PostLists.
-    PostList * build_xor_tree(std::vector<PostList *> &postlists,
+    PostList * build_xor_tree(const std::vector<PostList *> &postlists,
 			      MultiMatch *matcher);
 
     /** Convert the sub-queries of a Query into an optimised PostList tree.
