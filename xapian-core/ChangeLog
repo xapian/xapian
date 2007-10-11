@@ -1,3 +1,7 @@
+Thu Oct 11 22:58:36 BST 2007  Olly Betts <olly@survex.com>
+
+	* tests/: svn:ignore: Add termgentest and termgentest.exe.
+
 Thu Oct 11 16:18:03 BST 2007  Olly Betts <olly@survex.com>
 
 	* configure.ac: If rst2html isn't found, also look for rst2html.py,
