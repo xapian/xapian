@@ -1,3 +1,8 @@
+Thu Oct 11 16:18:03 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: If rst2html isn't found, also look for rst2html.py,
+	  which archlinux reportedly installs it as.
+
 Thu Oct 11 16:09:20 BST 2007  Olly Betts <olly@survex.com>
 
 	* matcher/: Round the result of all get_termfreq_est() calculations to
