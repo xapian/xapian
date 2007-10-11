@@ -9,23 +9,6 @@ See the file "INSTALL" for information on building and installing Xapian.
 If you're wanting to modify Xapian itself or build sources from SVN, the
 contents of the file "HACKING" are recommended reading.
 
-Xapian is partly derived from software originally developed by BrightStation
-plc under the GPL as a replacement for their proprietary Muscat 3.6 Information
-Retrieval library (which was written almost entirely in BCPL, and becoming hard
-to extend in the ways they wanted).  The project was originally known as
-OpenMuscat and then was renamed Omsee.  Shortly after renaming it, they sadly
-decided to take development closed-source.
-
-A number of developers (including some former BrightStation employees) took the
-last GPLed version and have been continuing development under the GPL.  This
-project was initially known as OmSeek, but BrightStation complained this was
-too close to their (untrademarked and unpublicised) name Omsee.  It was simpler
-to change it than to argue, and the name Xapian was chosen.
-
-The last numbered BrightStation release was OpenMuscat 0.4.1, although there
-was extensive development in CVS after that.  The first official Xapian release
-was 0.5.0.
-
 You can find downloads, mailing lists, SVN access, and other useful resources
 on the Xapian website:
 

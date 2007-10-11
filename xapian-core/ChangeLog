@@ -1,3 +1,8 @@
+Thu Oct 11 13:04:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* README: Remove the ancient history lesson - this material is better
+	  left to the history page on the website.
+
 Thu Oct 11 00:33:34 BST 2007  Olly Betts <olly@survex.com>
 
 	* matcher/branchpostlist.h: Fix comment typo.
