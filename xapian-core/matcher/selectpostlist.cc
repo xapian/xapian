@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -46,7 +46,8 @@ SelectPostList::skip_to(Xapian::docid did, Xapian::weight w_min)
 	PostList *p = source->skip_to(did, w_min);
 	(void)p;
 	Assert(p == NULL); // AND should never prune
-        if (!source->at_end() && !test_doc()) this->next(w_min);
+        if (!source->at_end() && !test_doc())
+	    RETURN(SelectPostList::next(w_min));
     }
     RETURN(NULL);
 }
