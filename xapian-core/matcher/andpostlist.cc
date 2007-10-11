@@ -144,7 +144,7 @@ AndPostList::get_termfreq_est() const
     // P(l and r) = P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
     double rest = static_cast<double>(r->get_termfreq_est());
-    RETURN(static_cast<Xapian::doccount> (lest * rest / dbsize));
+    RETURN(static_cast<Xapian::doccount>(lest * rest / dbsize + 0.5));
 }
 
 Xapian::docid

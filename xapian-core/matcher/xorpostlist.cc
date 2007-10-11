@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2003,2004 Olly Betts
+ * Copyright 2003,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -228,7 +228,8 @@ XorPostList::get_termfreq_est() const
     // P(l xor r) = P(l) + P(r) - 2 . P(l) . P(r)
     double lest = static_cast<double>(l->get_termfreq_est());
     double rest = static_cast<double>(r->get_termfreq_est());
-    return static_cast<Xapian::doccount> (lest + rest - 2.0 * lest * rest / dbsize);
+    double est = lest + rest - (2.0 * lest * rest / dbsize);
+    RETURN(static_cast<Xapian::doccount>(est + 0.5));
 }
 
 Xapian::docid
