@@ -401,9 +401,9 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 				      db->get_doccount());
 #else
 	    return new AndPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
-				      postlist_from_query(query->subqs[1], matcher, true),
-				      matcher,
-				      db->get_doccount());
+				   postlist_from_query(query->subqs[1], matcher, true),
+				   matcher,
+				   db->get_doccount());
 #endif
 	case Xapian::Query::OP_AND_NOT:
 	    Assert(query->subqs.size() == 2);
@@ -425,10 +425,9 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	    if (is_bool || query->dbl_parameter == 0.0) {
 		// Return as a boolean query.
 		RETURN(postlist_from_query(query->subqs[0], matcher, true));
-	    } else {
-		RETURN(new ScaleWeightPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
-					       query->dbl_parameter, matcher));
 	    }
+	    RETURN(new ScaleWeightPostList(postlist_from_query(query->subqs[0], matcher, false),
+					   query->dbl_parameter, matcher));
     }
     Assert(false);
     RETURN(NULL);
