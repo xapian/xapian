@@ -27,6 +27,7 @@ OBJS= \
                  $(INTDIR)\bm25weight.obj \
                  $(INTDIR)\tradweight.obj \
                  $(INTDIR)\localmatch.obj \
+                 $(INTDIR)\multiandpostlist.obj \
                  $(INTDIR)\multimatch.obj \
                  $(INTDIR)\stats.obj \
                  $(INTDIR)\mergepostlist.obj \
@@ -53,6 +54,7 @@ SRCS= \
                  $(INTDIR)\bm25weight.cc \
                  $(INTDIR)\tradweight.cc \
                  $(INTDIR)\localmatch.cc \
+                 $(INTDIR)\multiandpostlist.cc \
                  $(INTDIR)\multimatch.cc \
                  $(INTDIR)\stats.cc \
                  $(INTDIR)\mergepostlist.cc \
