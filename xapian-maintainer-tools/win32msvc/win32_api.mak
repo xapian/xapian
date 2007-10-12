@@ -19,6 +19,7 @@ OBJS= \
              $(INTDIR)\error.obj \
              $(INTDIR)\errorhandler.obj \
              $(INTDIR)\expanddecider.obj \
+             $(INTDIR)\leafpostlist.obj \
              $(INTDIR)\omenquire.obj  \
              $(INTDIR)\omquery.obj  \
              $(INTDIR)\omqueryinternal.obj  \
@@ -28,6 +29,7 @@ OBJS= \
              $(INTDIR)\ompositionlistiterator.obj  \
              $(INTDIR)\omtermlistiterator.obj  \
              $(INTDIR)\omvalueiterator.obj \
+             $(INTDIR)\postlist.obj \
              $(INTDIR)\termlist.obj \
              $(INTDIR)\valuerangeproc.obj \
 	     $(INTDIR)\version.obj \
@@ -39,6 +41,7 @@ SRCS= \
              $(INTDIR)\error.cc \
              $(INTDIR)\errorhandler.cc \
              $(INTDIR)\expanddecider.cc \
+             $(INTDIR)\leafpostlist.cc \
              $(INTDIR)\omenquire.cc  \
              $(INTDIR)\omquery.cc  \
              $(INTDIR)\omqueryinternal.cc  \
@@ -48,6 +51,7 @@ SRCS= \
              $(INTDIR)\ompositionlistiterator.cc  \
              $(INTDIR)\omtermlistiterator.cc  \
              $(INTDIR)\omvalueiterator.cc \
+             $(INTDIR)\postlist.cc \
              $(INTDIR)\termlist.cc \
              $(INTDIR)\valuerangeproc.cc \
 	     $(INTDIR)\version.cc \
