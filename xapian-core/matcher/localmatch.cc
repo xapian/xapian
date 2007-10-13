@@ -400,10 +400,10 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 				      matcher,
 				      db->get_doccount());
 #else
-	    return new AndPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
-				   postlist_from_query(query->subqs[1], matcher, true),
-				   matcher,
-				   db->get_doccount());
+	    PostList * pl[2];
+	    pl[0] = postlist_from_query(query->subqs[0], matcher, is_bool);
+	    pl[1] = postlist_from_query(query->subqs[1], matcher, true);
+	    return new MultiAndPostList(pl, pl + 2, matcher, db->get_doccount());
 #endif
 	case Xapian::Query::OP_AND_NOT:
 	    Assert(query->subqs.size() == 2);

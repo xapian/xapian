@@ -26,6 +26,8 @@
 #include "utils.h"
 #include "valuerangepostlist.h"
 
+using namespace std;
+
 Xapian::doccount
 ValueRangePostList::get_termfreq_min() const
 {
@@ -35,17 +37,17 @@ ValueRangePostList::get_termfreq_min() const
 Xapian::doccount
 ValueRangePostList::get_termfreq_est() const
 {
-    Assert(db);
+    AssertParanoid(db_size == db->get_doccount());
     // FIXME: It's hard to estimate well - perhaps consider the values of
     // begin and end?
-    return db->get_doccount() / 2;
+    return db_size / 2;
 }
 
 Xapian::doccount
 ValueRangePostList::get_termfreq_max() const
 {
-    Assert(db);
-    return db->get_doccount();
+    AssertParanoid(db_size == db->get_doccount());
+    return db_size;
 }
 
 Xapian::weight
@@ -101,7 +103,7 @@ PostList *
 ValueRangePostList::next(Xapian::weight)
 {
     Assert(db);
-    Xapian::docid lastdocid = db->get_lastdocid();
+    AssertParanoid(lastdocid == db->get_lastdocid());
     while (current < lastdocid) {
 	try {
 	    if (++current == 0) break;
@@ -124,6 +126,36 @@ ValueRangePostList::skip_to(Xapian::docid did, Xapian::weight w_min)
     if (did <= current) return NULL;
     current = did - 1;
     return ValueRangePostList::next(w_min);
+}
+
+PostList *
+ValueRangePostList::check(Xapian::docid did, Xapian::weight, bool &valid)
+{
+    Assert(db);
+    if (did <= current) {
+	valid = true;
+	return NULL;
+    }
+    AssertParanoid(lastdocid == db->get_lastdocid());
+    if (did > lastdocid) {
+	db = NULL;
+	valid = true;
+	return NULL;
+    }
+    try {
+	current = did;
+	AutoPtr<Xapian::Document::Internal> doc(db->open_document(current, true));
+	string v = doc->get_value(valno);
+	if (v >= begin && v <= end) {
+	    valid = true;
+	    return NULL;
+	}
+    } catch (const Xapian::DocNotFoundError &) {
+	// That document doesn't exist.
+	// FIXME: this could throw and catch a lot of exceptions!
+    }
+    valid = false;
+    return NULL;
 }
 
 bool

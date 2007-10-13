@@ -21,6 +21,7 @@
 #include <config.h>
 
 #include "multiandpostlist.h"
+#include "omassert.h"
 
 MultiAndPostList::~MultiAndPostList()
 {
@@ -138,22 +139,30 @@ MultiAndPostList::recalc_maxweight()
 PostList *
 MultiAndPostList::find_next_match(Xapian::weight w_min)
 {
-advance_plist0:
+    if (n_kids >= 2) {
+	Assert(plist[0]->get_termfreq_est() <= plist[1]->get_termfreq_est());
+    }
+advanced_plist0:
     if (plist[0]->at_end()) {
 	did = 0;
 	return NULL;
     }
     did = plist[0]->get_docid();
     for (size_t i = 1; i < n_kids; ++i) {
-	skip_to_helper(i, did, w_min);
+	bool valid;
+	check_helper(i, did, w_min, valid);
 	if (plist[i]->at_end()) {
 	    did = 0;
 	    return NULL;
 	}
+	if (!valid) {
+	    next_helper(0, w_min);
+	    goto advanced_plist0;
+	}
 	Xapian::docid new_did = plist[i]->get_docid();
 	if (new_did != did) {
 	    skip_to_helper(0, new_did, w_min);
-	    goto advance_plist0;
+	    goto advanced_plist0;
 	}
     }
     return NULL;
@@ -162,12 +171,7 @@ advance_plist0:
 PostList *
 MultiAndPostList::next(Xapian::weight w_min)
 {
-    PostList * res = plist[0]->next(new_min(w_min, 0));
-    if (res) {
-	delete plist[0];
-	plist[0] = res;
-	matcher->recalc_maxweight();
-    }
+    next_helper(0, w_min);
     return find_next_match(w_min);
 }
 

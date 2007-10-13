@@ -124,7 +124,7 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
      *		delete us.  This "pruning" can only happen for a non-leaf
      *		subclass of this class.
      */
-    virtual Internal *next(Xapian::weight w_min) = 0;
+    virtual Internal * next(Xapian::weight w_min) = 0;
 
     /** Skip forward to the specified docid.
      *
@@ -139,19 +139,38 @@ class Xapian::PostingIterator::Internal : public Xapian::Internal::RefCntBase {
      *		delete us.  This "pruning" can only happen for a non-leaf
      *		subclass of this class.
      */
-    virtual Internal *skip_to(Xapian::docid, Xapian::weight w_min) = 0;
+    virtual Internal * skip_to(Xapian::docid, Xapian::weight w_min) = 0;
+
+    /** Check if the specified docid occurs in this postlist.
+     *
+     *  This method acts like skip_to() if that can be done at little extra
+     *  cost, and @a valid is set to true.
+     *
+     *  Otherwise it simply checks if a particular docid is present.  If it
+     *  is, @a valid is set to true.  If it isn't, it sets @a valid to
+     *  false, and leaves the position unspecified (and hence the result of
+     *  calling methods which depends on the current position, such as
+     *  get_docid(), are also unspecified).  In this state, next() will
+     *  advance to the first matching position after @a docid, and skip_to()
+     *  will act as it would if the position was the first matching position
+     *  after @a docid.
+     *
+     *  The default implementation calls skip_to().
+     */
+    virtual Internal * check(Xapian::docid did, Xapian::weight w_min,
+			     bool &valid);
 
     /** Advance the current position to the next document in the postlist.
      *
      *  Any weight contribution is acceptable.
      */
-    Internal *next() { return next(0.0); }
+    Internal * next() { return next(0.0); }
 
     /** Skip forward to the specified docid.
      *
      *  Any weight contribution is acceptable.
      */
-    Internal *skip_to(Xapian::docid did) { return skip_to(did, 0.0); }
+    Internal * skip_to(Xapian::docid did) { return skip_to(did, 0.0); }
 
     /// Return a string description of this object.
     virtual std::string get_description() const = 0;

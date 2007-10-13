@@ -54,4 +54,11 @@ PostList::open_position_list() const
     throw Xapian::InvalidOperationError("open_position_list() not meaningful for this PostingIterator");
 }
 
+PostList *
+PostList::check(Xapian::docid did, Xapian::weight w_min, bool &valid)
+{
+    valid = true;
+    return skip_to(did, w_min);
+}
+
 }

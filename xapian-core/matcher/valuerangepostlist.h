@@ -33,6 +33,10 @@ class ValueRangePostList : public PostList {
 
     Xapian::docid current;
 
+    Xapian::doccount lastdocid;
+
+    Xapian::doccount db_size;
+
     /// Disallow copying.
     ValueRangePostList(const ValueRangePostList &);
 
@@ -43,7 +47,8 @@ class ValueRangePostList : public PostList {
     ValueRangePostList(const Xapian::Database::Internal *db_,
 		       Xapian::valueno valno_,
 		       const std::string &begin_, const std::string &end_)
-	: db(db_), valno(valno_), begin(begin_), end(end_), current(0) { }
+	: db(db_), valno(valno_), begin(begin_), end(end_), current(0),
+	  lastdocid(db->get_lastdocid()), db_size(db->get_doccount()) { }
 
     Xapian::doccount get_termfreq_min() const;
 
@@ -68,6 +73,8 @@ class ValueRangePostList : public PostList {
     PostList * next(Xapian::weight w_min);
 
     PostList * skip_to(Xapian::docid, Xapian::weight w_min);
+
+    PostList * check(Xapian::docid did, Xapian::weight w_min, bool &valid);
 
     bool at_end() const;
 

@@ -1,3 +1,12 @@
+Sat Oct 13 16:42:26 BST 2007  Olly Betts <olly@survex.com>
+
+	* api/postlist.cc,common/postlist.h,matcher/: Implement a variant of
+	  PostList::skip_to() called PostList::check() which isn't required
+	  to leave the PostList on a particular docid.  This allows queries
+	  filtered by a ValueRangePostList to run around 3.5 times faster.
+	  Fixes buf#164, though there's probably scope for at least some
+	  further improvement.
+
 Sat Oct 13 16:08:07 BST 2007  Olly Betts <olly@survex.com>
 
 	* matcher/multiandpostlist.cc: Fix typo bug (get_termfreq_min

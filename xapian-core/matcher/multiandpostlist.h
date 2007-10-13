@@ -67,9 +67,30 @@ class MultiAndPostList : public PostList {
 	return w_min - (max_total - max_wt[n]);
     }
 
+    /// Call next on a sub-postlist n, and handle any pruning.
+    void next_helper(size_t n, Xapian::weight w_min) {
+	PostList * res = plist[n]->next(new_min(w_min, n));
+	if (res) {
+	    delete plist[n];
+	    plist[n] = res;
+	    matcher->recalc_maxweight();
+	}
+    }
+
     /// Call skip_to on a sub-postlist n, and handle any pruning.
     void skip_to_helper(size_t n, Xapian::docid did_min, Xapian::weight w_min) {
 	PostList * res = plist[n]->skip_to(did_min, new_min(w_min, n));
+	if (res) {
+	    delete plist[n];
+	    plist[n] = res;
+	    matcher->recalc_maxweight();
+	}
+    }
+
+    /// Call check on a sub-postlist n, and handle any pruning.
+    void check_helper(size_t n, Xapian::docid did_min, Xapian::weight w_min,
+		      bool &valid) {
+	PostList * res = plist[n]->check(did_min, new_min(w_min, n), valid);
 	if (res) {
 	    delete plist[n];
 	    plist[n] = res;
