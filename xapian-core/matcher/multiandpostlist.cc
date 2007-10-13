@@ -64,7 +64,7 @@ MultiAndPostList::get_termfreq_max() const
     // We can't match more documents than the least of our sub-postlists.
     Xapian::doccount result = plist[0]->get_termfreq_max();
     for (size_t i = 1; i < n_kids; ++i) {
-	Xapian::doccount tf = plist[i]->get_termfreq_min();
+	Xapian::doccount tf = plist[i]->get_termfreq_max();
 	if (tf < result) result = tf;
     }
     return result;
