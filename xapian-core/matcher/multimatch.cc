@@ -404,28 +404,30 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
     bool is_heap = false;
 
     while (true) {
-	if (recalculate_w_max) {
-	    if (min_weight > 0.0 && getorrecalc_maxweight(pl) < min_weight) {
-		DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
-		break;
+	if (rare(recalculate_w_max)) {
+	    if (min_weight > 0.0) {
+		if (rare(getorrecalc_maxweight(pl) < min_weight)) {
+		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (1)");
+		    break;
+		}
 	    }
 	}
 
-	if (next_handling_prune(pl, min_weight, this)) {
+	if (rare(next_handling_prune(pl, min_weight, this))) {
 	    DEBUGLINE(MATCH, "*** REPLACING ROOT");
 
 	    if (min_weight > 0.0) {
 		// No need for a full recalc (unless we've got to do one
 		// because of a prune elsewhere) - we're just switching to a
 		// subtree.
-		if (getorrecalc_maxweight(pl) < min_weight) {
+		if (rare(getorrecalc_maxweight(pl) < min_weight)) {
 		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (2)");
 		    break;
 		}
 	    }
 	}
 
-	if (pl->at_end()) {
+	if (rare(pl->at_end())) {
 	    DEBUGLINE(MATCH, "Reached end of potential matches");
 	    break;
 	}
@@ -611,7 +613,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 			}
 		    }
 		}
-		if (getorrecalc_maxweight(pl) < min_weight) {
+		if (rare(getorrecalc_maxweight(pl) < min_weight)) {
 		    DEBUGLINE(MATCH, "*** TERMINATING EARLY (3)");
 		    break;
 		}
@@ -621,7 +623,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		if (sort_by == REL && items.size() == max_msize) {
 		    // We're done if this is a forward boolean match
 		    // (bodgetastic, FIXME better if we can)
-		    if (max_weight == 0 && sort_forward) break;
+		    if (rare(max_weight == 0 && sort_forward)) break;
 		}
 	    }
 	}
