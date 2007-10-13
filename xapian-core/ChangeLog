@@ -1,3 +1,7 @@
+Sat Oct 13 22:37:32 BST 2007  Olly Betts <olly@survex.com>
+
+	* HACKING: Improve wording.
+
 Sat Oct 13 16:42:26 BST 2007  Olly Betts <olly@survex.com>
 
 	* api/postlist.cc,common/postlist.h,matcher/: Implement a variant of
