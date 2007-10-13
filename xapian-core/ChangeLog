@@ -1,3 +1,10 @@
+Sun Oct 14 00:30:46 BST 2007  Olly Betts <olly@survex.com>
+
+	* configure.ac: Add rare() and usual() macros to config.h which allow
+	  branch prediction hints to be given for compilers which support this
+	  (currently GCC and Intel C++).
+	* HACKING: Document rare() and usual().
+
 Sat Oct 13 22:37:32 BST 2007  Olly Betts <olly@survex.com>
 
 	* HACKING: Improve wording.

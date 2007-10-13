@@ -514,6 +514,33 @@ With Intel's C++ compiler, --enable-maintainer-mode also enables -Werror.
 If you know the equivalent of -Werror for other compilers, please add a note
 here, or tell us so that we can add a note.
 
+Branch Prediction Hints
+=======================
+
+GCC 3.0 and newer and Intel's C++ compiler both provide a mechanism for giving
+the compiler hints to assist branch prediction (using __builtin_expect()).
+Within the xapian-core library code, you can mark the expressions in ``if`` and
+``while`` statements as ``rare`` (if the condition is rarely true) or ``usual``
+(if the condition is usually true).
+
+For example::
+
+    if (rare(something_unusual())) deal_with_it();
+
+    while (usual(!end_condition()) keep_going();
+
+It's easy to make incorrect assumptions about where hotspots are and which
+branches are usually taken or not, so except for really obvious cases (such
+as ``if (!consistency_check()) throw_exception();``) you should benchmark
+that new ``rare`` and ``usual`` hints help rather than hinder before committing
+them to the repository.  It's also likely to be a waste of effort to add them
+outside of areas of code which are executed very frequently.
+
+Don't expect miracles - the first 15 uses added saved approximately 1%.
+
+If you know how to implement the ``rare`` and ``usual`` macros for other
+compilers, please let us know.
+
 Configure Options
 =================
 

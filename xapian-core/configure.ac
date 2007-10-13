@@ -1011,7 +1011,24 @@ AH_BOTTOM(
  */
 #if defined __GNUC__ && !defined _FORTIFY_SOURCE
 # define _FORTIFY_SOURCE 2
-#endif])
+#endif
+
+/* For GCC >= 3.0 (and Intel's C++ compiler, which also defines __GNUC__),
+ * we can use __builtin_expect to give the compiler hints about branch
+ * prediction.  See HACKING for how to use these.
+ */
+#if defined __GNUC__ && __GNUC__ >= 3
+/* The arguments of __builtin_expect() are both long, so use !! to ensure that
+ * the first argument is always an integer expression, and always 0 or 1, but
+ * still has the same truth value for the if or while it is used in.
+ */
+# define rare(COND) __builtin_expect(!!(COND), 0)
+# define usual(COND) __builtin_expect(!!(COND), 1)
+#else
+# define rare(COND) (COND)
+# define usual(COND) (COND)
+#endif
+])
 
 dnl modify flags for building with stlport
 STLPORT_CXXFLAGS=
