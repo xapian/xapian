@@ -20,6 +20,8 @@
 
 #include <config.h>
 
+#include <xapian/error.h>
+
 #include "safeerrno.h"
 #include "safefcntl.h"
 
@@ -34,6 +36,8 @@
 #ifndef __WIN32__
 # include "safesysselect.h"
 #endif
+
+using namespace std;
 
 #ifdef __WIN32__
 // __STDC_SECURE_LIB__ doesn't appear to be publicly documented, but appears

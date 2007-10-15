@@ -34,6 +34,8 @@
 #include "quartz_types.h"
 #include "quartz_utils.h"
 
+#include "safesysstat.h"
+
 using namespace std;
 
 #define PROG_NAME "quartzcheck"

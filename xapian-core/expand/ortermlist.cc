@@ -27,6 +27,8 @@
 
 #include <xapian/positioniterator.h>
 
+using namespace std;
+
 void
 OrTermList::check_started() const
 {

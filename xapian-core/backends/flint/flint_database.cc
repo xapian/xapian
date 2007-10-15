@@ -24,6 +24,8 @@
 
 #include <config.h>
 
+#include <xapian/error.h>
+
 #include "safeerrno.h"
 
 #include "flint_database.h"
@@ -46,6 +48,7 @@
 #include "flint_alltermslist.h"
 #include "flint_lock.h"
 #include "flint_spellingwordslist.h"
+#include "stringutils.h"
 
 #include <sys/types.h>
 #include "safesysstat.h"

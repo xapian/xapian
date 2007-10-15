@@ -25,6 +25,14 @@
 #include <string>
 #include <string.h>
 
+/** Helper macro for STRINGIZE - the nested call is required because of how
+ *  # works in macros.
+ */
+#define STRINGIZE_(X) #X
+
+/// The STRINGIZE macro converts its parameter into a string constant.
+#define STRINGIZE(X) STRINGIZE_(X)
+
 inline bool
 startswith(const std::string & s, char pfx)
 {

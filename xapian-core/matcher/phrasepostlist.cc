@@ -2,7 +2,7 @@
  *
  * Copyright 1999,2000,2001 BrightStation PLC
  * Copyright 2002 Ananova Ltd
- * Copyright 2002,2003,2004 Olly Betts
+ * Copyright 2002,2003,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,6 +26,7 @@
 #include "positionlist.h"
 #include "omassert.h"
 #include "omdebug.h"
+#include "utils.h"
 
 #include <algorithm>
 
@@ -213,7 +214,7 @@ PhrasePostList::do_test(std::vector<PositionList *> &plists, Xapian::termcount i
 	    DEBUGLINE(MATCH, "ABOVE " << tmp);
 	    if (tmp < mymax) mymax = tmp;
 	} else {
-	    Assert(idxi != idxj);
+	    AssertRel(idxi, !=, idxj);
 	    Xapian::termpos tmp = plists[j]->get_position() + idxi - idxj;
 	    DEBUGLINE(MATCH, "BELOW " << tmp);
 	    if (tmp > mymin) mymin = tmp;

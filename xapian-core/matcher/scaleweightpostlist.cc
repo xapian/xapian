@@ -22,6 +22,7 @@
 
 #include "omassert.h"
 #include "scaleweightpostlist.h"
+#include "utils.h"
 
 // Include branchpostlist for utility functions "next_handling_prune" and
 // "skip_to_handling_prune"

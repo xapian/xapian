@@ -22,6 +22,8 @@
 
 #include <config.h>
 
+#include <xapian/error.h>
+
 #include <string>
 
 #include "quartz_metafile.h"
@@ -29,6 +31,7 @@
 #include "omassert.h"
 #include "omdebug.h"
 #include "stringutils.h"
+#include "utils.h"
 
 using std::string;
 

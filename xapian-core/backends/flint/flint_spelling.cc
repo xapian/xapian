@@ -20,6 +20,7 @@
 
 #include <config.h>
 
+#include <xapian/error.h>
 #include <xapian/types.h>
 
 #include "expandweight.h"

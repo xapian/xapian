@@ -29,7 +29,7 @@
 #include <stdio.h> // for rename()
 #include <string.h>
 #include <sys/types.h>
-#include "safesysstat.h"
+#include "utils.h"
 
 #include "flint_table.h"
 #include "flint_cursor.h"

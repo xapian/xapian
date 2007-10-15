@@ -29,6 +29,7 @@
 #include "omassert.h"
 #include "omdebug.h"
 #include "stringutils.h"
+#include "utils.h"
 
 #include <string>
 

@@ -25,6 +25,8 @@
 #include "flint_database.h"
 #include "flint_alldocspostlist.h"
 
+#include "utils.h"
+
 using namespace std;
 
 FlintAllDocsPostList::~FlintAllDocsPostList()

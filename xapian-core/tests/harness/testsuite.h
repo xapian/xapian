@@ -24,6 +24,7 @@
 
 #include "noreturn.h"
 #include "omstringstream.h"
+#include "stringutils.h" // For STRINGIZE().
 
 #include <map>
 #include <string>
@@ -203,12 +204,6 @@ class test_driver {
 	// really makes sense if the output is a tty)
 	static bool use_cr;
 };
-
-#ifndef STRINGIZE
-/// STRINGIZE converts a piece of code to a string, so it can be displayed.
-#define STRINGIZE(N) _STRINGIZE(N)
-#define _STRINGIZE(N) #N
-#endif
 
 /// Display the location at which a testcase occurred, with an explanation.
 #define TESTCASE_LOCN(a) __FILE__":"STRINGIZE(__LINE__)": "STRINGIZE(a)

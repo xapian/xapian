@@ -22,7 +22,9 @@
 
 #include <config.h>
 
+#include <xapian/error.h>
 #include <xapian/types.h>
+
 #include "flint_spellingwordslist.h"
 #include "flint_utils.h"
 #include "stringutils.h"

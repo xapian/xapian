@@ -741,17 +741,30 @@ a corrupted database or a malformed input file in a non-debug build too.
 
 There are several variants of Assert:
 
-- Assert(P) -- asserts that expression P is true
-- AssertEq(a,b) -- asserts that expressions a and b are equal [message reports
-  values of a and b, so is more informative than Assert((a)==(b))]
-- AssertNe(a,b) -- asserts a and b are not equal
+- Assert(P) -- asserts that expression P is true.
+
+- AssertRel(a,rel,b) -- asserts that (a rel b) is true - rel can be a boolean
+  relational operator, i.e. one of ``==``, ``!=``, ``>``, ``>=``, ``<``,
+  ``<=``.  The message given if the assertion fails reports the values of
+  a and b, so ``AssertRel(a,<,b);`` is more helpful than ``Assert(a < b);``
+
+- AssertEq(a,b) -- shorthand for AssertRel(a,==,b).
+
 - AssertEqDouble(a,b) -- asserts a and b differ by less than DBL_EPSILON
 
 - AssertParanoid(P) -- a particularly expensive assertion.  If you want a build
   with Asserts enabled, but without a great performance overhead, then
   passing --enable-assertions=partial to configure and AssertParanoids
-  won't be checked, but Asserts will.  You can also use AssertEqParanoid
-  and AssertNeParanoid.
+  won't be checked, but Asserts will.  You can also use AssertRelParanoid
+  and AssertEqParanoid.
+
+- CompileTimeAssert(P) -- if P is a constant expression, CompileTimeAssert
+  can be used to assert it is non-zero at compile-time - the P evaluates
+  to zero, then the compilation will fail with an error.  CompileTimeAssert
+  can only be used inside a function body.  There should be no runtime
+  overhead for using CompileTimeAssert(), so CompileTimeAssert() is always
+  enabled, regardless of whether --enable-assertions is passed to configure
+  or not.
 
 Marking Features as Deprecated
 ==============================

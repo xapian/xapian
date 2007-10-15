@@ -26,7 +26,7 @@
 
 #include "flint_io.h"
 #include "flint_version.h"
-#include "omassert.h" // For STRINGIZE()
+#include "stringutils.h" // For STRINGIZE().
 #include "utils.h"
 
 #ifdef __WIN32__

@@ -25,6 +25,7 @@
 #include "omassert.h"
 #include "omdebug.h"
 #include "multi_postlist.h"
+#include "utils.h"
 
 #ifdef XAPIAN_DEBUG_PARANOID
 #include "xapian/database.h"

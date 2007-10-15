@@ -22,6 +22,8 @@
 
 #include <config.h>
 
+#include <xapian/error.h>
+
 #include "safeerrno.h"
 #include "safefcntl.h"
 

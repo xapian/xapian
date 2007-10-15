@@ -1,8 +1,7 @@
 /* btree_util.h: common macros/functions in the Btree implementation.
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2004 Olly Betts
+ * Copyright 2002,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_BTREE_UTIL_H
@@ -28,6 +26,7 @@
 #include "omassert.h"
 
 #include <string.h>  /* memset */
+#include <string>
 
 /* The unit of access into the DB files is an unsigned char, which is defined
    as 'byte' with a typedef.
@@ -98,17 +97,17 @@ set_int4(byte *p, int c, int x)
     p[c + 3] = x;
 }
 
-int sys_open_to_read(const string & name);
-int sys_open_to_read_no_except(const string & name);
-int sys_open_to_write(const string & name);
-void sys_unlink_if_exists(const string &filename);
+int sys_open_to_read(const std::string & name);
+int sys_open_to_read_no_except(const std::string & name);
+int sys_open_to_write(const std::string & name);
+void sys_unlink_if_exists(const std::string &filename);
 // Return true on success
 inline bool sys_close(int h) {
     return close(h) == 0;
 }
 
-string sys_read_all_bytes(int h, size_t max);
-void sys_write_string(int h, const string &s);
+std::string sys_read_all_bytes(int h, size_t max);
+void sys_write_string(int h, const std::string &s);
 int sys_flush(int h);
 
 inline byte *zeroed_new(size_t size)

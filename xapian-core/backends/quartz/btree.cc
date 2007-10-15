@@ -22,11 +22,15 @@
 
 #include <config.h>
 
+#include <xapian/error.h>
+
 #include "safeerrno.h"
 #include "safefcntl.h"
 #ifdef __WIN32__
 # include "msvc_posix_wrapper.h"
 #endif
+
+#include "stringutils.h" // For STRINGIZE().
 
 // Define to use "dangerous" mode - in this mode we write modified btree
 // blocks back in place.  This is somewhat faster (especially once we're

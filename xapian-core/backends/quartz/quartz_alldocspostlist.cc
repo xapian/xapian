@@ -28,6 +28,8 @@
 #include "quartz_utils.h"
 #include "bcursor.h"
 #include "database.h"
+#include "utils.h"
+
 #include <map>
 
 QuartzDocIdListIterator::QuartzDocIdListIterator()

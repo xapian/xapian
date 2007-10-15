@@ -1,7 +1,7 @@
 /* btree_base.h: Btree base file implementation
  *
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2004 Olly Betts
+ * Copyright 2002,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -21,6 +21,8 @@
 
 #ifndef OM_HGUARD_FLINT_BTREEBASE_H
 #define OM_HGUARD_FLINT_BTREEBASE_H
+
+#include <string>
 
 #include <xapian/visibility.h>
 
@@ -49,7 +51,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	 *
 	 *  @return	true if the read succeeded, or false otherwise.
 	 */
-	bool read(const string &name, char ch, string &err_msg);
+	bool read(const std::string &name, char ch, std::string &err_msg);
 
 	uint4 get_revision() const { return revision; }
 	uint4 get_block_size() const { return block_size; }
@@ -84,7 +86,7 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 	}
 
 	/** Write the btree base file to disk. */
-	void write_to_file(const string &filename);
+	void write_to_file(const std::string &filename);
 
 	/* Methods dealing with the bitmap */
 	/** true iff block n was free at the start of the transaction on
@@ -118,8 +120,8 @@ class XAPIAN_VISIBILITY_DEFAULT FlintTable_base {
 
 	/** Do most of the error handling from unpack_uint() */
 	bool do_unpack_uint(const char **start, const char *end,
-			    uint4 *dest, string &err_msg,
-			    const string &basename,
+			    uint4 *dest, std::string &err_msg,
+			    const std::string &basename,
 			    const char *varname);
 
 	/* Decoded values from the base file follow */

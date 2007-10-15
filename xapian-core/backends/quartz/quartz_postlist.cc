@@ -25,6 +25,7 @@
 #include "quartz_utils.h"
 #include "bcursor.h"
 #include "database.h"
+#include "utils.h"
 
 /// Make a key for accessing the postlist.
 static void

@@ -36,6 +36,7 @@
 #include "serialise.h"
 #include "serialise-double.h"
 #include "stats.h"
+#include "stringutils.h" // For STRINGIZE().
 #include "utils.h"
 
 #include <string>

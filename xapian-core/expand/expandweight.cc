@@ -30,6 +30,8 @@
 #include "omassert.h"
 #include "omdebug.h"
 
+using namespace std;
+
 namespace Xapian {
 namespace Internal {
 
@@ -46,7 +48,7 @@ ExpandWeight::ExpandWeight(const Xapian::Database &db_,
 }
 
 Xapian::weight
-ExpandWeight::get_weight(TermList * merger, const string &tname) const
+ExpandWeight::get_weight(TermList * merger, const std::string &tname) const
 {
     DEBUGCALL(MATCH, Xapian::weight, "ExpandWeight::get_weight", "[merger], " << tname);
     ExpandStats stats(db.get_avlength(), expand_k);

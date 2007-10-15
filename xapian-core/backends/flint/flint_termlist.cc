@@ -29,6 +29,7 @@
 #include "flint_termlist.h"
 #include "flint_utils.h"
 #include "omassert.h"
+#include "utils.h"
 
 using namespace std;
 

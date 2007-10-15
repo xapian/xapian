@@ -1,3 +1,29 @@
+Mon Oct 15 05:26:35 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/omassert.h: Rewritten from scratch.  The new version only
+	  includes headers if assertions are enabled, which should help
+	  to speed up non-assertion builds by reducing unnecessary header
+	  inclusion.  Also, float.h and math.h are never now pulled in -
+	  instead we use the new within_DBL_EPSILON() function.  AssertNe()
+	  and AssertNeParanoid() are never actually used, so replace them with
+	  AssertRel() and AssertRelParanoid which allow the user to assert any
+	  binary relation, not just inequality.  Also, we now use rare() to
+	  give branch prediction hints for assertion tests (since the failure
+	  branch should never be taken).
+	* common/omdebug.h,common/stringutils.h,tests/harness/testsuite.h:
+	  Replace several definitions of the STRINGIZE macro with a single
+	  version in common/stringutils.h.
+	* backends/flint/,backends/inmemory/inmemory_database.cc,
+	  backends/multi/multi_postlist.cc,backends/quartz/,
+	  backends/remote/remote-database.cc,bin/quartzcheck.cc,
+	  bin/xapian-compact.cc,common/stringutils.h,expand/expandweight.cc,
+	  expand/ortermlist.cc,matcher/phrasepostlist.cc,
+	  matcher/scaleweightpostlist.cc,net/remoteconnection.cc,
+	  net/tcpserver.cc: Explicitly include headers which were previously
+	  being pulled in implicitly by omassert.h.
+	* HACKING: Update the documentation for assertion calls, and document
+	  CompileTimeAssert() (which previously wasn't documented here).
+
 Mon Oct 15 05:09:15 BST 2007  Olly Betts <olly@survex.com>
 
 	* common/utils.cc,common/utils.h: Add within_DBL_EPSILON() function

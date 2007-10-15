@@ -20,11 +20,13 @@
  */
 
 #include <config.h>
+
 #include "omdebug.h"
 #include "flint_postlist.h"
 #include "flint_utils.h"
 #include "flint_cursor.h"
 #include "flint_database.h"
+#include "utils.h"
 
 Xapian::doccount
 FlintPostListTable::get_termfreq(const string & term) const

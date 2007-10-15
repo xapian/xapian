@@ -1,8 +1,7 @@
 /* btree_base.h: Btree base file implementation
  *
- * ----START-LICENCE----
  * Copyright 1999,2000,2001 BrightStation PLC
- * Copyright 2002,2004 Olly Betts
+ * Copyright 2002,2004,2007 Olly Betts
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,9 +15,8 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
- * -----END-LICENCE-----
  */
 
 #ifndef OM_HGUARD_BTREE_BASE_H
@@ -40,7 +38,7 @@ class XAPIAN_VISIBILITY_DEFAULT Btree_base {
 	 *  @param name			The base filename name
 	 *  @param ch			The suffix
 	 */
-	Btree_base(const string &name_, char ch);
+	Btree_base(const std::string &name_, char ch);
 
 	/** Copy constructor */
 	Btree_base(const Btree_base &other);
@@ -58,7 +56,7 @@ class XAPIAN_VISIBILITY_DEFAULT Btree_base {
 	 *
 	 *  @return	true if the read succeeded, or false otherwise.
 	 */
-	bool read(const string &name, char ch, string &err_msg);
+	bool read(const std::string &name, char ch, std::string &err_msg);
 
 	uint4 get_revision() const { return revision; }
 	uint4 get_block_size() const { return block_size; }
@@ -93,7 +91,7 @@ class XAPIAN_VISIBILITY_DEFAULT Btree_base {
 	}
 
 	/** Write the btree base file to disk. */
-	void write_to_file(const string &filename);
+	void write_to_file(const std::string &filename);
 
 	/* Methods dealing with the bitmap */
 	/** true iff block n was free at the start of the transaction on
@@ -127,8 +125,8 @@ class XAPIAN_VISIBILITY_DEFAULT Btree_base {
 
 	/** Do most of the error handling from unpack_uint() */
 	bool do_unpack_uint(const char **start, const char *end,
-			    uint4 *dest, string &err_msg,
-			    const string &basename,
+			    uint4 *dest, std::string &err_msg,
+			    const std::string &basename,
 			    const char *varname);
 
 	/* Decoded values from the base file follow */

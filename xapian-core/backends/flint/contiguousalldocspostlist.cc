@@ -25,6 +25,7 @@
 #include "contiguousalldocspostlist.h"
 
 #include "omassert.h"
+#include "utils.h"
 
 using namespace std;
 

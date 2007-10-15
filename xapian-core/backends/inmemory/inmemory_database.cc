@@ -31,6 +31,7 @@
 #include "inmemory_database.h"
 #include "inmemory_document.h"
 #include "inmemory_alltermslist.h"
+#include "utils.h"
 
 #include <string>
 #include <vector>
