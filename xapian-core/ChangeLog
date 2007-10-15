@@ -1,3 +1,9 @@
+Mon Oct 15 05:09:15 BST 2007  Olly Betts <olly@survex.com>
+
+	* common/utils.cc,common/utils.h: Add within_DBL_EPSILON() function
+	  which returns true if its two double arguments differ by less
+	  than DBL_EPSILON (currently not used anywhere).
+
 Mon Oct 15 05:03:50 BST 2007  Olly Betts <olly@survex.com>
 
 	* matcher/multiandpostlist.cc: If check sets valid to true, we can't
