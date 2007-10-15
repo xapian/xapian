@@ -32,7 +32,6 @@
 #include "emptypostlist.h"
 #include "exactphrasepostlist.h"
 #include "extraweightpostlist.h"
-#include "filterpostlist.h"
 #include "leafpostlist.h"
 #include "mergepostlist.h"
 #include "multiandpostlist.h"
@@ -384,27 +383,13 @@ LocalSubMatch::postlist_from_query(const Xapian::Query::Internal *query,
 	    // Build a tree of postlists for AND, OR, XOR, PHRASE, NEAR, or
 	    // ELITE_SET.
 	    return postlist_from_queries(op, query, matcher, is_bool);
-	case Xapian::Query::OP_FILTER:
+	case Xapian::Query::OP_FILTER: {
 	    Assert(query->subqs.size() == 2);
-	    // FIXME:
-	    // AndPostList works, but FilterPostList doesn't - tracing suggests
-	    // that the left hand postlist behaves differently despite
-	    // receiving the same sequence of calls, so this may be a quartz
-	    // and/or btree problem and slightly different use of the RHS
-	    // is making a difference.  I suspect that using AndPostList just
-	    // masks the problem, so must get back to investigating this...
-	    // -- Olly
-#if 0
-	    return new FilterPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
-				      postlist_from_query(query->subqs[1], matcher, true),
-				      matcher,
-				      db->get_doccount());
-#else
 	    PostList * pl[2];
 	    pl[0] = postlist_from_query(query->subqs[0], matcher, is_bool);
 	    pl[1] = postlist_from_query(query->subqs[1], matcher, true);
 	    return new MultiAndPostList(pl, pl + 2, matcher, db->get_doccount());
-#endif
+	}
 	case Xapian::Query::OP_AND_NOT:
 	    Assert(query->subqs.size() == 2);
 	    return new AndNotPostList(postlist_from_query(query->subqs[0], matcher, is_bool),
