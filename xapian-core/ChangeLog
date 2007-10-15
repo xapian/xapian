@@ -1,3 +1,8 @@
+Mon Oct 15 15:39:26 BST 2007  Olly Betts <olly@survex.com>
+
+	* backends/quartz/btree_util.h: Need "safeunistd.h" for close().
+	  Fixes build errors on mingw and with SGI's CC on IRIX.
+
 Mon Oct 15 05:30:23 BST 2007  Olly Betts <olly@survex.com>
 
 	* matcher/localmatch.cc: Fix typo in comment.

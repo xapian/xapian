@@ -26,6 +26,8 @@
 #include "omassert.h"
 
 #include <string.h>  /* memset */
+#include "safeunistd.h" /* for close() */
+
 #include <string>
 
 /* The unit of access into the DB files is an unsigned char, which is defined
