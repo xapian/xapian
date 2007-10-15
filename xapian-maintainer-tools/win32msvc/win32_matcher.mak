@@ -22,7 +22,6 @@ OBJS= \
                  $(INTDIR)\xorpostlist.obj \
                  $(INTDIR)\phrasepostlist.obj \
                  $(INTDIR)\selectpostlist.obj \
-                 $(INTDIR)\filterpostlist.obj \
                  $(INTDIR)\rset.obj \
                  $(INTDIR)\bm25weight.obj \
                  $(INTDIR)\tradweight.obj \
@@ -49,7 +48,6 @@ SRCS= \
                  $(INTDIR)\xorpostlist.cc \
                  $(INTDIR)\phrasepostlist.cc \
                  $(INTDIR)\selectpostlist.cc \
-                 $(INTDIR)\filterpostlist.cc \
                  $(INTDIR)\rset.cc \
                  $(INTDIR)\bm25weight.cc \
                  $(INTDIR)\tradweight.cc \
