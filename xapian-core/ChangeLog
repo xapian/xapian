@@ -1,3 +1,8 @@
+Mon Oct 15 05:03:50 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/multiandpostlist.cc: If check sets valid to true, we can't
+	  be at_end(), so check valid first as at_end() is a rare event.
+
 Mon Oct 15 05:00:18 BST 2007  Olly Betts <olly@survex.com>
 
 	* matcher/: Remove code for FilterPostList, which has been unused for

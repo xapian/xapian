@@ -151,13 +151,13 @@ advanced_plist0:
     for (size_t i = 1; i < n_kids; ++i) {
 	bool valid;
 	check_helper(i, did, w_min, valid);
-	if (plist[i]->at_end()) {
-	    did = 0;
-	    return NULL;
-	}
 	if (!valid) {
 	    next_helper(0, w_min);
 	    goto advanced_plist0;
+	}
+	if (plist[i]->at_end()) {
+	    did = 0;
+	    return NULL;
 	}
 	Xapian::docid new_did = plist[i]->get_docid();
 	if (new_did != did) {
