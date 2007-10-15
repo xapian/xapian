@@ -159,7 +159,7 @@ LocalSubMatch::build_and_tree(const std::vector<PostList *> &postlists,
 {
     DEBUGCALL(MATCH, PostList *, "LocalSubMatch::build_and_tree", "[postlists], " << matcher);
     // We can't check for a zero frequency postlist here and just return
-    // EmptyPostList() becuase max_weight would come out lower...
+    // EmptyPostList() because max_weight would come out lower...
     if (postlists.empty()) RETURN(new EmptyPostList());
     if (postlists.size() == 1) RETURN(postlists[0]);
     RETURN(new MultiAndPostList(postlists.begin(), postlists.end(), matcher,
