@@ -15,6 +15,8 @@ Packaging:
 
 Portability:
 
+* Fix warnings when compiling with GCC 4.2.
+
 CSharp:
 
 * SmokeTest.cs: Add test for OP_SCALE_WEIGHT query constructor.
@@ -41,6 +43,10 @@ PHP:
 * smoketest.php: Add test for OP_SCALE_WEIGHT query constructor.
 
 Python:
+
+* Fix some problems with threaded use by updating to using a newer SWIG SVN
+  snapshot (SWIG was using PyThread_free_lock(mutex_) instead of
+  PyThread_release_lock(mutex_)).
 
 * Add workaround for MultipleMatchDecider to ensure that a reference to the
   Python object corresponding to any match deciders added to the

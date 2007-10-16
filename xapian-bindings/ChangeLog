@@ -1,3 +1,7 @@
+Wed Oct 17 00:49:39 BST 2007  Olly Betts <olly@survex.com>
+
+	* NEWS: Update with changes due to using a newer SWIG SVN snapshot.
+
 Tue Oct 09 22:14:03 BST 2007  Olly Betts <olly@survex.com>
 
 	* NEWS: Update.
