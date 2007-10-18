@@ -1,4 +1,4 @@
-/* Stemmer for Turkish 
+/* Stemmer for Turkish
 	* author: Evren (Kapusuz) Çilden
 	* email: evren.kapusuz at gmail.com
 	* version: 1.0 (15.01.2007)
@@ -11,7 +11,7 @@
 	* vowel harmony check
 	* last consonent check and conversion (b, c, d, ğ to p, ç, t, k)
 	
-	* The stemming algorithm is based on the paper "An Affix Stripping 
+	* The stemming algorithm is based on the paper "An Affix Stripping
 	* Morphological Analyzer for Turkish" by Gülşen Eryiğit and
 	* Eşref Adalı (Proceedings of the IAESTED International Conference
 	* ARTIFICIAL INTELLIGENCE AND APPLICATIONS, February 16-18,2004,
@@ -20,12 +20,12 @@
 	* Turkish is an agglutinative language and has a very rich morphological
 	* structure. In Turkish, you can form many different words from a single stem
 	* by appending a sequence of suffixes. Eg. The word "doktoruymuşsunuz" means
-	* "You had been the doctor of him". The stem of the word is "doktor" and it 
+	* "You had been the doctor of him". The stem of the word is "doktor" and it
 	* takes three different suffixes -sU, -ymUs, and -sUnUz. The rules about
-	* the append order of suffixes can be clearly described as FSMs. 
+	* the append order of suffixes can be clearly described as FSMs.
 	* The paper referenced above defines some FSMs for right to left
 	* morphological analysis. I generated a method for constructing snowball
-	* expressions from right to left FSMs for stemming suffixes. 
+	* expressions from right to left FSMs for stemming suffixes.
 */
 
 routines (
@@ -105,7 +105,7 @@ define vowel6  	'{o"}{u"}' 		// vowels that can end with suffixes containing 'o"
 externals 	( stem )
 
 backwardmode (
-	// checks vowel harmony for possible suffixes, 
+	// checks vowel harmony for possible suffixes,
 	// helps to detect whether the candidate for suffix applies to vowel harmony
 	// this rule is added to prevent over stemming
 	define check_vowel_harmony as (
@@ -164,7 +164,7 @@ backwardmode (
 	)
 	
 	define mark_possessives as (
-		among ('m{i'}z' 'miz' 'muz' 'm{u"}z' 
+		among ('m{i'}z' 'miz' 'muz' 'm{u"}z'
 		       'n{i'}z' 'niz' 'nuz' 'n{u"}z' 'm' 'n')
 		(mark_suffix_with_optional_U_vowel)
 	)
@@ -251,7 +251,7 @@ backwardmode (
 	
 	define mark_sUn as (
 		check_vowel_harmony
-		among ('s{i'}n' 'sin' 'sun' 's{u"}n' ) 
+		among ('s{i'}n' 'sin' 'sun' 's{u"}n' )
 	)
 	
 	define mark_yUz as (
@@ -261,17 +261,17 @@ backwardmode (
 	)
 	
 	define mark_sUnUz as (
-		among ('s{i'}n{i'}z' 'siniz' 'sunuz' 's{u"}n{u"}z') 
+		among ('s{i'}n{i'}z' 'siniz' 'sunuz' 's{u"}n{u"}z')
 	)
 	
 	define mark_lAr as (
 		check_vowel_harmony
-		among ('ler' 'lar') 
+		among ('ler' 'lar')
 	)
 	
 	define mark_nUz as (
 		check_vowel_harmony
-		among ('n{i'}z' 'niz' 'nuz' 'n{u"}z') 
+		among ('n{i'}z' 'niz' 'nuz' 'n{u"}z')
 	)
 	
 	define mark_DUr as (
@@ -280,7 +280,7 @@ backwardmode (
 	)
 	
 	define mark_cAsInA as (
-		among ('cas{i'}na' 'cesine') 
+		among ('cas{i'}na' 'cesine')
 	)
 	
 	define mark_yDU as (
@@ -300,7 +300,7 @@ backwardmode (
 	
 	define mark_ymUs_ as (
 		check_vowel_harmony
-		among ('m{i'}{s.}' 'mi{s.}' 'mu{s.}' 'm{u"}{s.}') 
+		among ('m{i'}{s.}' 'mi{s.}' 'mu{s.}' 'm{u"}{s.}')
 		(mark_suffix_with_optional_y_consonant)
 	)
 	
@@ -317,13 +317,13 @@ backwardmode (
 			or
 			(
 				mark_lAr ] delete try([(mark_DUr or mark_yDU or mark_ysA or mark_ymUs_))
-				unset continue_stemming_noun_suffixes 
+				unset continue_stemming_noun_suffixes
 			)
-			or 
+			or
 			(mark_nUz (mark_yDU or mark_ysA))
 			or
 			((mark_sUnUz or mark_yUz or mark_sUn or mark_yUm) ] delete try([ mark_ymUs_))
-			or 
+			or
 			(mark_DUr ] delete try([ (mark_sUnUz or mark_lAr or mark_yUm or mark_sUn or mark_yUz or true) mark_ymUs_))
 		]delete
 	)
@@ -332,7 +332,7 @@ backwardmode (
 	define stem_suffix_chain_before_ki as (
 		[
 			mark_ki
-			( 
+			(
 				(mark_DA] delete try([
 					(mark_lAr] delete try(stem_suffix_chain_before_ki))
 					or
@@ -350,7 +350,7 @@ backwardmode (
 				or
 				(mark_ndA (	
 					(mark_lArI] delete)
-					or 
+					or
 					((mark_sU] delete try([mark_lAr]delete stem_suffix_chain_before_ki)))
 					or
 					(stem_suffix_chain_before_ki)
@@ -361,7 +361,7 @@ backwardmode (
 	define stem_noun_suffixes as (
 		([mark_lAr] delete try(stem_suffix_chain_before_ki))
 		or
-		([mark_ncA] delete 
+		([mark_ncA] delete
 			try(
 				([mark_lArI] delete)
 				or
@@ -371,7 +371,7 @@ backwardmode (
 			)
 		)
 		or
-		([(mark_ndA or mark_nA) 
+		([(mark_ndA or mark_nA)
 			(
 		  		(mark_lArI] delete)
 		  		or
@@ -380,29 +380,29 @@ backwardmode (
 		  		(stem_suffix_chain_before_ki)
 		  	)
 		)
-		or   
+		or
 		([(mark_ndAn or mark_nU) ((mark_sU ] delete try([mark_lAr] delete stem_suffix_chain_before_ki)) or (mark_lArI)))
 		or
-		( [mark_DAn] delete try ([ 
+		( [mark_DAn] delete try ([
 			(
 		 		(mark_possessives ] delete try([mark_lAr] delete stem_suffix_chain_before_ki))
-		 		or 
+		 		or
 		 		(mark_lAr] delete try(stem_suffix_chain_before_ki))
-		 		or 
+		 		or
 		 		(stem_suffix_chain_before_ki)
 		 	))
 		)
 		or
-		([mark_nUn or mark_ylA] delete 
-			try( 
+		([mark_nUn or mark_ylA] delete
+			try(
 				([mark_lAr] delete stem_suffix_chain_before_ki)
 				or
 				([mark_possessives or mark_sU] delete try([mark_lAr] delete stem_suffix_chain_before_ki))
 				or
-				stem_suffix_chain_before_ki 
+				stem_suffix_chain_before_ki
 			)
 		)
-		or 
+		or
 		([mark_lArI] delete)
 		or	
 		(stem_suffix_chain_before_ki)
@@ -462,7 +462,7 @@ define postlude as (
 )
 
 define stem as (
-	(more_than_one_syllable_word) 
+	(more_than_one_syllable_word)
 	(
 		backwards (
 			do stem_nominal_verb_suffixes
