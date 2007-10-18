@@ -1,3 +1,10 @@
+Thu Oct 18 18:11:07 BST 2007  Olly Betts <olly@survex.com>
+
+	* stemming/turkish.st,stemming/turkish.voc: Append new Snowball
+	  turkish data.
+	* stemming/README: Note that most data here is from Snowball, but
+	  some may not be.
+
 Thu Mar 29 17:55:54 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* stemming/romanian.st: Oops - also remove corresponding word from the
