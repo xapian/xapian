@@ -131,95 +131,106 @@ Features currently marked for deprecation
 Native C++ API
 --------------
 
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| **Deprecation** | **Removal**    | **Feature name**                        | **Upgrade suggestion and comments**                                           |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0          | xapian_version_string()                 | Use version_string() instead.                                                 |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0          | xapian_major_version()                  | Use major_version() instead.                                                  |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0          | xapian_minor_version()                  | Use minor_version() instead.                                                  |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0          | xapian_revision()                       | Use revision() instead.                                                       |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | Enquire::include_query_terms            | Use Enquire::INCLUDE_QUERY_TERMS instead.                                     |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | Enquire::use_exact_termfreq             | Use Enquire::USE_EXACT_TERMFREQ instead.                                      |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | Error::get_errno()                      | Use Error::get_error_string() instead.                                        |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | The Quartz backend                      | Use the Flint backend instead.                                                |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | Quartz::open()                          | Use Flint::open() instead.                                                    |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | quartzcheck                             | Use xapian-check instead.                                                     |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0          | quartzcompact                           | Use xapian-compact instead.                                                   |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.3           | 1.2.0?         | Enquire::register_match_decider()       | This method didn't do anything, so just remove calls to it!                   |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.3           | 1.2.0?         | Database::positionlist_begin()          | This check is quite expensive, and often you don't care.  If you do, it's     |
-|                 |                | throwing RangeError if the term         | easy to check - just open a TermListIterator for the document and use         |
-|                 |                | specified doesn't index the             | skip_to() to check if the term is there.                                      |
-|                 |                | document specified.                     |                                                                               |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.3           | 1.2.0?         | Database::positionlist_begin()          | This check is quite expensive, and often you don't care.  If you do, it's     |
-|                 |                | throwing DocNotFoundError if the        | easy to check - just open a Document with the specified document ID.          |
-|                 |                | document specified doesn't exist        |                                                                               |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.4           | 1.2.0          | QueryParser::add_prefix(f, p)           | Use add_prefix(f, p, PREFIX_INLINE) instead.                                  |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
-| 1.0.4           | 1.2.0          | QueryParser::add_boolean_prefix(f, p)   | Use add_prefix(f, p, PREFIX_FILTER) instead.                                  |
-+-----------------+----------------+-----------------------------------------+-------------------------------------------------------------------------------+
+.. Keep table width to <= 126 columns.
+
+========== ====== =================================== ========================================================================
+Deprecated Remove Feature name                        Upgrade suggestion and comments
+========== ====== =================================== ========================================================================
+0.9.6      1.1.0  xapian_version_string()             Use ``version_string()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+0.9.6      1.1.0  xapian_major_version()              Use ``major_version()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+0.9.6      1.1.0  xapian_minor_version()              Use ``minor_version()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+0.9.6      1.1.0  xapian_revision()                   Use ``revision()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  Enquire::include_query_terms        Use ``Enquire::INCLUDE_QUERY_TERMS`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  Enquire::use_exact_termfreq         Use ``Enquire::USE_EXACT_TERMFREQ`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  Error::get_errno()                  Use ``Error::get_error_string()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  The Quartz backend                  Use ``the Flint backend`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  Quartz::open()                      Use ``Flint::open()`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  quartzcheck                         Use ``xapian-check`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.0      1.1.0  quartzcompact                       Use ``xapian-compact`` instead.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.3      1.2.0? Enquire::register_match_decider()   This method didn't do anything, so just remove calls to it!
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.3      1.2.0? ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
+                  throwing ``RangeError`` if the      do it's easy to check - just open a ``TermListIterator`` for the
+                  term specified doesn't index the    document and use ``skip_to()`` to check if the term is there.
+                  document specified.
+---------- ------ ----------------------------------- ------------------------------------------------------------------------
+1.0.3      1.2.0? ``Database::positionlist_begin()``  This check is quite expensive, and often you don't care.  If you
+                  throwing ``DocNotFoundError`` if    do, it's easy to check - just call ``Database::get_document()`` with the
+                  the document specified doesn't      specified document ID.
+                  exist.
+========== ====== =================================== ========================================================================
 
 
 Bindings
 --------
 
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| **Deprecation** | **Removal** | **Language**   | **Feature name**            | **Upgrade suggestions and comments**                                          |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0       | SWIG [#swig]_  | xapian_version_string()     | Use version_string() instead.                                                 |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0       | SWIG [#swig]_  | xapian_major_version()      | Use major_version() instead.                                                  |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0       | SWIG [#swig]_  | xapian_minor_version()      | Use minor_version() instead.                                                  |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0       | SWIG [#swig]_  | xapian_revision()           | Use revision() instead.                                                       |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0       | SWIG [#swig]_  | ESet::get_termname()        | Use ESet::get_term() instead.  This change is intended to bring the           |
-|                 |             |                |                             | ESet iterators in line with other term iterators, which all support           |
-|                 |             |                |                             | get_term() instead of get_termname()                                          |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0       | Python         | get_description()           | All get_description() methods have been renamed to __str__(), so the normal   |
-|                 |             |                |                             | python str() function can be used.                                            |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0       | Python         | MSetItem.get_*()            | All these methods are deprecated, in favour of properties.  To convert,       |
-|                 |             |                |                             | just change msetitem.get_FOO() to msetitem.FOO                                |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0       | Python         | Enquire.get_matching_terms  | Replaced by Enquire.matching_terms, for consistency with rest of Python API.  |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0           | 1.1.0       | SWIG [#swig]_  | Error::get_errno()          | Use Error::get_error_string() instead.                                        |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.9.6           | 1.1.0       | SWIG [#swig2]_ | MSet::get_document_id()     | Use MSet::get_docid() instead.                                                |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 0.9.0           | 1.0.0       | SWIG [#swig]_  | Stem::stem_word(word)       | Use Stem::operator()(word) instead. [#callable]_                              |
-+-----------------+-------------+----------------+-----------------------------+-------------------------------------------------------------------------------+
+.. Keep table width to <= 126 columns.
 
-.. [#swig] This affects all swig generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
+========== ====== ======== ============================ ======================================================================
+Deprecated Remove Language Feature name                 Upgrade suggestion and comments
+========== ====== ======== ============================ ======================================================================
+0.9.6      1.1.0  SWIG     xapian_version_string()      Use ``version_string()`` instead.
+                  [#swig]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+0.9.6      1.1.0  SWIG     xapian_major_version()       Use ``major_version()`` instead.
+                  [#swig]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+0.9.6      1.1.0  SWIG     xapian_minor_version()       Use ``minor_version()`` instead.
+                  [#swig]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+0.9.6      1.1.0  SWIG     xapian_revision()            Use ``revision()`` instead.
+                  [#swig]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.0.0      1.1.0  SWIG     ESet::get_termname()         Use ``ESet::get_term()`` instead.  This change is intended to bring
+                  [#swig]_                              the ESet iterators in line with other term iterators, which all
+                                                        support ``get_term()`` instead of ``get_termname()``.
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.0.0      1.1.0  Python   get_description()            All ``get_description()`` methods have been renamed to ``__str__()``,
+                                                        so the normal python ``str()`` function can be used.
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.0.0      1.1.0  Python   MSetItem.get_*()             All these methods are deprecated, in favour of properties.
+                                                        To convert, just change ``msetitem.get_FOO()`` to ``msetitem.FOO``
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.0.0      1.1.0  Python   Enquire.get_matching_terms   Replaced by ``Enquire.matching_terms``, for consistency with
+                                                        rest of Python API.
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+1.0.0      1.1.0  SWIG     Error::get_errno()           Use ``Error::get_error_string()`` instead.
+                  [#swig]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+0.9.6      1.1.0  SWIG     MSet::get_document_id()      Use ``MSet::get_docid()`` instead.
+                  [#swg2]_
+---------- ------ -------- ---------------------------- ----------------------------------------------------------------------
+0.9.0      1.0.0  SWIG     Stem::stem_word(word)        Use ``Stem::operator()(word)`` instead. [#callable]_
+                  [#swig]_
+========== ====== ======== ============================ ======================================================================
 
-.. [#swig2] This affects all swig generated bindings except those for Ruby, support for which was added after the function was deprecated in Xapian-core.
+.. [#swig] This affects all SWIG-generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
+
+.. [#swg2] This affects all SWIG-generated bindings except those for Ruby, support for which was added after the function waan-core.
 
 .. [#callable] Python handles this like C++.  Ruby renames it to 'call' (idiomatic Ruby).  PHP renames it to 'apply'.  CSharp to 'Apply' (delegates could probably be used to provide C++-like functor syntax, but that's effort and it seems debatable if it would actually be more natural to a C# programmer).  Tcl8 renames it to 'apply' - need to ask a Tcl type if that's the best solution.
 
 Omega
 -----
 
-+-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| **Deprecation** | **Removal**    | **Feature name**              | **Upgrade suggestion and comments**                                           |
-+-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
-| 0.9.5           | 1.1.0          | scriptindex index=nopos       | Use indexnopos instead.                                                       |
-+-----------------+----------------+-------------------------------+-------------------------------------------------------------------------------+
+.. Keep table width to <= 126 columns.
+
+========== ====== =================================== ========================================================================
+Deprecated Remove Feature name                        Upgrade suggestion and comments
+========== ====== =================================== ========================================================================
+0.9.5      1.1.0  scriptindex index=nopos             Use ``indexnopos`` instead.
+========== ====== =================================== ========================================================================
 
 Features removed from Xapian
 ============================
@@ -227,127 +238,149 @@ Features removed from Xapian
 Native C++ API
 --------------
 
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| **Removal** | **Feature name**                    | **Upgrade suggestion and comments**                                                     |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | QueryParser::set_stemming_options() | Use set_stemming_strategy() instead.                                                    |
-|             |                                     | Use set_stemmer(), set_stemming_strategy() and/or set_stopper() instead.                |
-|             |                                     |                                                                                         |
-|             |                                     | - set_stemming_options("") becomes:                                                     |
-|             |                                     |   set_stemming_strategy(Xapian::QueryParser::STEM_NONE)                                 |
-|             |                                     | - set_stemming_options("none") becomes:                                                 |
-|             |                                     |   set_stemming_strategy(Xapian::QueryParser::STEM_NONE)                                 |
-|             |                                     | - set_stemming_options(LANG) becomes:                                                   |
-|             |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_SOME) |
-|             |                                     |                                                                                         |
-|             |                                     | - set_stemming_options(LANG, false) becomes:                                            |
-|             |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_SOME) |
-|             |                                     |                                                                                         |
-|             |                                     | - set_stemming_options(LANG, true) becomes:                                             |
-|             |                                     |   set_stemmer(Xapian::Stem(LANG); set_stemming_strategy(Xapian::QueryParser::STEM_ALL)  |
-|             |                                     |                                                                                         |
-|             |                                     | If a third parameter is passed, set_stopper(PARAM3) and treat the first two             |
-|             |                                     | parameters as above.                                                                    |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | Enquire::set_sort_forward()         | Use Enquire::set_docid_order() instead:                                                 |
-|             |                                     |                                                                                         |
-|             |                                     |  - set_sort_forward(true) becomes set_docid_order(ASCENDING),                           |
-|             |                                     |  - set_sort_forward(false) becomes set_docid_order(DESCENDING).                         |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | Enquire::set_sorting()              | Use Enquire::set_sort_by_relevance(), Enquire::set_sort_by_value(), or                  |
-|             |                                     | Enquire::set_sort_by_value_then_relevance() instead.                                    |
-|             |                                     |                                                                                         |
-|             |                                     |  - set_sorting(KEY, 1) becomes set_sort_by_value(KEY)                                   |
-|             |                                     |  - set_sorting(KEY, 1, false) becomes set_sort_by_value(KEY)                            |
-|             |                                     |  - set_sorting(KEY, 1, true) becomes set_sort_by_value_then_relevance(KEY)              |
-|             |                                     |  - set_sorting(ANYTHING, 0) becomes set_sort_by_relevance()                             |
-|             |                                     |  - set_sorting(Xapian::BAD_VALUENO, ANYTHING) becomes set_sort_by_relevance()           |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | Stem::stem_word(word)               | Use Stem::operator()(word) instead.                                                     |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | Auto::open(path)                    | Use the Database(path) constructor instead.                                             |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | Auto::open(path, action)            | Use the WritableDatabase(path, action) constructor instead.                             |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | Query::is_empty()                   | Use Query::empty() instead.                                                             |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | Document::add_term_nopos()          | Use Document::add_term() instead.                                                       |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | Enquire::set_bias()                 | No replacement yet implemented.                                                         |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | ExpandDecider::operator()           | Return type is now ``bool`` not ``int``.                                                |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | MatchDecider::operator()            | Return type is now ``bool`` not ``int``.                                                |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | Error::get_type()                   | Return type is now ``const char *`` not ``std::string``.  Most existing code won't need |
-|             |                                     | changes, but if it does the simplest fix is to write ``std::string(e.get_type())``      |
-|             |                                     | instead of ``e.get_type()``.                                                            |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | <xapian/output.h>                   | Use ``cout << obj.get_description();`` instead of ``cout << obj;``                      |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | Several constructors marked explicit| Explicitly create the object type required, for example use                             |
-|             |                                     | ``Xapian::Enquire enq(Xapian::Database(path));`` instead of                             |
-|             |                                     | ``Xapian::Enquire enq(path);``                                                          |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0       | QueryParser::parse_query() throwing | Catch ``Xapian::QueryParserError`` instead of ``const char *``, and call get_msg() on   |
-|             | ``const char *`` exception.         | the caught object.  If you need to build with either version, catch both (you'll need   |
-|             |                                     | to compile the part which catches QueryParserError conditionally, since this isn't      |
-|             |                                     | present in the 0.9 release series).                                                     |
-+-------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+.. Keep table width to <= 126 columns.
+
+======= =================================== ==================================================================================
+Removed Feature name                        Upgrade suggestion and comments
+======= =================================== ==================================================================================
+1.0.0   QueryParser::set_stemming_options() Use ``set_stemmer()``, ``set_stemming_strategy()`` and/or ``set_stopper()``
+                                            instead:
+
+                                            - ``set_stemming_options("")`` becomes
+                                              ``set_stemming_strategy(Xapian::QueryParser::STEM_NONE)``
+
+                                            - ``set_stemming_options("none")`` becomes
+                                              ``set_stemming_strategy(Xapian::QueryParser::STEM_NONE)``
+
+                                            - ``set_stemming_options(LANG)`` becomes
+                                              ``set_stemmer(Xapian::Stem(LANG)`` and
+                                              ``set_stemming_strategy(Xapian::QueryParser::STEM_SOME)``
+
+                                            - ``set_stemming_options(LANG, false)`` becomes
+                                              ``set_stemmer(Xapian::Stem(LANG)`` and
+                                              ``set_stemming_strategy(Xapian::QueryParser::STEM_SOME)``
+
+                                            - ``set_stemming_options(LANG, true)`` becomes
+                                              ``set_stemmer(Xapian::Stem(LANG)`` and
+                                              ``set_stemming_strategy(Xapian::QueryParser::STEM_ALL)``
+
+                                            If a third parameter is passed, ``set_stopper(PARAM3)`` and treat the first two
+                                            parameters as above.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   Enquire::set_sort_forward()         Use ``Enquire::set_docid_order()`` instead:
+
+                                             - ``set_sort_forward(true)`` becomes ``set_docid_order(ASCENDING)``
+                                             - ``set_sort_forward(false)`` becomes ``set_docid_order(DESCENDING)``
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   Enquire::set_sorting()              Use ``Enquire::set_sort_by_relevance()``, ``Enquire::set_sort_by_value()``, or
+                                            ``Enquire::set_sort_by_value_then_relevance()`` instead.
+
+                                             - ``set_sorting(KEY, 1)`` becomes ``set_sort_by_value(KEY)``
+                                             - ``set_sorting(KEY, 1, false)`` becomes ``set_sort_by_value(KEY)``
+                                             - ``set_sorting(KEY, 1, true)`` becomes ``set_sort_by_value_then_relevance(KEY)``
+                                             - ``set_sorting(ANYTHING, 0)`` becomes ``set_sort_by_relevance()``
+                                             - ``set_sorting(Xapian::BAD_VALUENO, ANYTHING)`` becomes
+                                               ``set_sort_by_relevance()``
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   Stem::stem_word(word)               Use ``Stem::operator()(word)`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   Auto::open(path)                    Use the ``Database(path)`` constructor instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   Auto::open(path, action)            Use the ``WritableDatabase(path, action)`` constructor instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   Query::is_empty()                   Use ``Query::empty()`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   Document::add_term_nopos()          Use ``Document::add_term()`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   Enquire::set_bias()                 No replacement yet implemented.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   ExpandDecider::operator()           Return type is now ``bool`` not ``int``.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   MatchDecider::operator()            Return type is now ``bool`` not ``int``.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   Error::get_type()                   Return type is now ``const char *`` not ``std::string``.  Most existing code
+                                            won't need changes, but if it does the simplest fix is to write
+                                            ``std::string(e.get_type())`` instead of ``e.get_type()``.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   <xapian/output.h>                   Use ``cout << obj.get_description();`` instead of ``cout << obj;``
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   Several constructors marked         Explicitly create the object type required, for example use
+        as explicit.                        ``Xapian::Enquire enq(Xapian::Database(path));`` instead of
+                                            ``Xapian::Enquire enq(path);``
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   QueryParser::parse_query() throwing Catch ``Xapian::QueryParserError`` instead of ``const char *``, and call
+        ``const char *`` exception.         ``get_msg()`` on the caught object.  If you need to build with either version,
+                                            catch both (you'll need to compile the part which catches ``QueryParserError``
+                                            conditionally, since this exception isn't present in the 0.9 release series).
+======= =================================== ==================================================================================
 
 
 Bindings
 --------
 
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| **Removal** | **Language**    | **Feature name**            | **Upgrade suggestions and comments**                                          |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | SWIG [#rswig]_  | Enquire::set_sort_forward() | Use Enquire::set_docid_order() instead.                                       |
-|             |                 |                             |                                                                               |
-|             |                 |                             |  - set_sort_forward(true) becomes set_docid_order(ASCENDING),                 |
-|             |                 |                             |  - set_sort_forward(false) becomes set_docid_order(DESCENDING).               |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | SWIG [#rswig]_  | Enquire::set_sorting()      | Use Enquire::set_sort_by_relevance(), Enquire::set_sort_by_value(),           |
-|             |                 |                             | or Enquire::set_sort_by_value_then_relevance() instead.                       |
-|             |                 |                             |                                                                               |
-|             |                 |                             |  - set_sorting(KEY, 1) becomes set_sort_by_value(KEY)                         |
-|             |                 |                             |  - set_sorting(KEY, 1, false) becomes set_sort_by_value(KEY)                  |
-|             |                 |                             |  - set_sorting(KEY, 1, true) becomes set_sort_by_value_then_relevance(KEY)    |
-|             |                 |                             |  - set_sorting(ANYTHING, 0) becomes set_sort_by_relevance()                   |
-|             |                 |                             |  - set_sorting(Xapian::BAD_VALUENO, ANYTHING) becomes set_sort_by_relevance() |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | SWIG [#rswig]_  | Auto::open(path)            | Use the Database(path) constructor instead.                                   |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | SWIG [#rswig]_  | Auto::open(path, action)    | Use the WritableDatabase(path, action) constructor instead.                   |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | SWIG [#rswig3]_ | MSet::is_empty()            | Use MSet::empty() instead.                                                    |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | SWIG [#rswig3]_ | ESet::is_empty()            | Use ESet::empty() instead.                                                    |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | SWIG [#rswig3]_ | RSet::is_empty()            | Use RSet::empty() instead.                                                    |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | SWIG [#rswig3]_ | Query::is_empty()           | Use Query::empty() instead.                                                   |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | SWIG [#rswig]_  | Document::add_term_nopos()  | Use Document::add_term() instead.                                             |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | CSharp          | ExpandDecider::Apply()      | Return type is now bool instead of int.                                       |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
-| 1.0.0       | CSharp          | MatchDecider::Apply()       | Return type is now bool instead of int.                                       |
-+-------------+-----------------+-----------------------------+-------------------------------------------------------------------------------+
+.. Keep table width to <= 126 columns.
 
-.. [#rswig] This affects all swig generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
+======= ======== ============================ ================================================================================
+Removed Language Feature name                 Upgrade suggestion and comments
+======= ======== ============================ ================================================================================
+1.0.0   SWIG     Enquire::set_sort_forward()  Use ``Enquire::set_docid_order()`` instead.
+        [#rswg]_
+                                                - ``set_sort_forward(true)`` becomes ``set_docid_order(ASCENDING)``
+                                                - ``set_sort_forward(false)`` becomes ``set_docid_order(DESCENDING)``
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.0.0   SWIG     Enquire::set_sorting()       Use ``Enquire::set_sort_by_relevance()``, ``Enquire::set_sort_by_value()``
+        [#rswg]_                              or ``Enquire::set_sort_by_value_then_relevance()`` instead.
 
-.. [#rswig3] This affects all swig generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word (and therefore, the method remains "is_empty").
+                                               - ``set_sorting(KEY, 1)`` becomes ``set_sort_by_value(KEY)``
+                                               - ``set_sorting(KEY, 1, false) becomes ``set_sort_by_value(KEY)``
+                                               - ``set_sorting(KEY, 1, true)`` becomes
+                                                 ``set_sort_by_value_then_relevance(KEY)``
+                                               - ``set_sorting(ANYTHING, 0) becomes set_sort_by_relevance()``
+                                               - ``set_sorting(Xapian::BAD_VALUENO, ANYTHING)`` becomes
+                                                 ``set_sort_by_relevance()``
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.0.0   SWIG     Auto::open(path)             Use the ``Database(path)`` constructor instead.
+        [#rswg]_
+
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.0.0   SWIG     Auto::open(path, action)     Use the ``WritableDatabase(path, action)`` constructor instead.
+        [#rswg]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.0.0   SWIG     MSet::is_empty()             Use ``MSet::empty()`` instead.
+        [#rsw3]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.0.0   SWIG     ESet::is_empty()             Use ``ESet::empty()`` instead.
+        [#rsw3]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.0.0   SWIG     RSet::is_empty()             Use ``RSet::empty()`` instead.
+        [#rsw3]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.0.0   SWIG     Query::is_empty()            Use ``Query::empty()`` instead.
+        [#rsw3]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.0.0   SWIG     Document::add_term_nopos()   Use ``Document::add_term()`` instead.
+        [#rswg]_
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.0.0   CSharp   ExpandDecider::Apply()       Return type is now ``bool`` instead of ``int``.
+------- -------- ---------------------------- --------------------------------------------------------------------------------
+1.0.0   CSharp   MatchDecider::Apply()        Return type is now ``bool`` instead of ``int``.
+======= ======== ============================ ================================================================================
+
+.. [#rswg] This affects all SWIG generated bindings (currently: Python, PHP, Ruby, Tcl8 and CSharp)
+
+.. [#rsw3] This affects all SWIG generated bindings except those for Ruby, which was added after the function was deprecated in Xapian-core, and PHP, where empty is a reserved word (and therefore, the method remains "is_empty").
 
 Omega
 -----
 
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| **Removal**    | **Feature name**                    | **Upgrade suggestion and comments**                                                     |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | $freqs                              | $map{$queryterms,$_:&nbsp;$nice{$freq{$_}}}                                             |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | scriptindex -u                      | -u was ignored for compatibility with 0.7.5 and earlier.                                |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
-| 1.0.0          | scriptindex -q                      | -q was ignored for compatibility with 0.6.1 and earlier.                                |
-+----------------+-------------------------------------+-----------------------------------------------------------------------------------------+
+.. Keep table width to <= 126 columns.
+
+======= =================================== ==================================================================================
+Removed Feature name                        Upgrade suggestion and comments
+======= =================================== ==================================================================================
+1.0.0   $freqs                              Use ``$map{$queryterms,$_:&nbsp;$nice{$freq{$_}}}`` instead.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   scriptindex -u                      ``-u`` was ignored for compatibility with 0.7.5 and earlier, so just remove it.
+------- ----------------------------------- ----------------------------------------------------------------------------------
+1.0.0   scriptindex -q                      ``-q`` was ignored for compatibility with 0.6.1 and earlier, so just remove it.
+======= =================================== ==================================================================================

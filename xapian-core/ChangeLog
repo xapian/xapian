@@ -1,3 +1,11 @@
+Fri Oct 19 03:52:17 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/deprecation.rst: Remove deprecation of
+	  QueryParser::add_prefix() and QueryParser::add_boolean_prefix().
+	  Reformat the tables to use the "simple table" style, and to all be
+	  126 columns wide, since that fits in a maximised terminal window
+	  without wrapping (at least on my machine!)
+
 Fri Oct 19 03:44:33 BST 2007  Olly Betts <olly@survex.com>
 
 	* include/xapian/queryparser.h,queryparser/queryparser.cc,
