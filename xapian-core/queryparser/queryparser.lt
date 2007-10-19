@@ -137,6 +137,10 @@ static const YYCODETYPE yyFallback[] = {
 **      It is sometimes called the "minor" token.
 */
 struct yyStackEntry {
+  yyStackEntry() {
+    stateno = 0;
+    major = 0;
+  }
   yyStackEntry(int stateno_, int major_, YYMINORTYPE minor_)
   {
     stateno = stateno_;
@@ -506,7 +510,7 @@ static void Parse(
   /* (re)initialize the parser, if necessary */
   if( yypParser->yystack.empty() ){
     if( yymajor==0 ) return;
-    yypParser->yystack.push_back(yyStackEntry(0, 0, 0));
+    yypParser->yystack.push_back(yyStackEntry());
     yypParser->yyerrcnt = -1;
   }
   yyminorunion.yy0 = yyminor;
