@@ -226,16 +226,21 @@ set_probabilistic(const string &oldp)
     map<string, string>::const_iterator pfx = option.lower_bound("prefix,");
     for (; pfx != option.end() && startswith(pfx->first, "prefix,"); ++pfx) {
 	string user_prefix = pfx->first.substr(7);
-	qp.add_prefix(user_prefix, pfx->second, qp.PREFIX_INLINE);
+	qp.add_prefix(user_prefix, pfx->second);
 	termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
     }
     pfx = option.lower_bound("boolprefix,");
     for (; pfx != option.end() && startswith(pfx->first, "boolprefix,"); ++pfx) {
 	string user_prefix = pfx->first.substr(11);
-	// Don't add a prefix which has already been set as a non-boolean
-	// prefix - doing so will cause an exception.
+	// As of 1.0.4, adding the same prefix as both booleana and
+	// probabilistic will cause an exception.  Some buggy existing
+	// templates may do this, and we probably don't want to break them.
+	//
+	// FIXME: However, in the longer term an error for this case is
+	// desirable (for the same reasons that the C++ API gives an exception
+	// here!) so we should deprecate this special case handling.
 	if (option.find("prefix," + user_prefix) == option.end()) {
-	    qp.add_prefix(user_prefix, pfx->second, qp.PREFIX_FILTER);
+	    qp.add_boolean_prefix(user_prefix, pfx->second);
 	    termprefix_to_userprefix.insert(make_pair(pfx->second, user_prefix));
 	}
     }
