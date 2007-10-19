@@ -1,3 +1,11 @@
+Fri Oct 19 03:28:37 BST 2007  Olly Betts <olly@survex.com>
+
+	* docs/Makefile.am: We're still getting "info" messages in the
+	  generated HTML.  It seems to be impossible to get rst2html to
+	  report "info" messages to stdout without adding them to the
+	  generated document, so just drop "--verbose" to disable them
+	  completely.
+
 Thu Oct 18 18:27:28 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lt: Use std::vector<> for the stack in the
