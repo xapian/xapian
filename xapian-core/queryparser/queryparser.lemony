@@ -23,6 +23,7 @@
 
 #include "omassert.h"
 #include "queryparser_internal.h"
+#include <xapian/error.h>
 #include <xapian/unicode.h>
 #include "autoptr.h"
 #include "utils.h"
@@ -441,6 +442,22 @@ static yyParser *ParseAlloc();
 static void ParseFree(yyParser *);
 static void Parse(yyParser *, int, Term *, State *);
 
+void
+QueryParser::Internal::add_prefix(const string &field, const string &prefix,
+				  bool filter)
+{
+    map<string, PrefixInfo>::iterator p = prefixes.find(field);
+    if (p == prefixes.end()) {
+       prefixes.insert(make_pair(field, PrefixInfo(filter, prefix)));
+    } else {
+       // Check that this is the same type of filter as the existing one(s).
+       if (p->second.filter != filter) {
+           throw Xapian::InvalidOperationError("Can't use add_prefix() and add_bool_prefix() on the same field name");
+       }
+       p->second.prefixes.push_back(prefix);
+    }
+}
+
 string
 QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 				  bool &was_acronym)
@@ -546,31 +563,22 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
     int correction_offset = 0;
     corrected_query.resize(0);
 
-    // The default list of prefixes to apply to terms.
-    PrefixInfo default_prefixinfo(QueryParser::PREFIX_INLINE, default_prefix);
-
-    {
-	map<string, PrefixInfo>::const_iterator f;
-	f = prefixes.find("");
-	if (f != prefixes.end()) {
-	    if (default_prefix.empty()) {
-	        default_prefixinfo.prefixes.clear();
-	    }
-	    const PrefixInfo * prefixinfo = &(f->second);
-	    list<string>::const_iterator prefixiter;
-	    for (prefixiter = prefixinfo->prefixes.begin();
-		 prefixiter != prefixinfo->prefixes.end();
-		 ++prefixiter) {
-		default_prefixinfo.prefixes.push_back(*prefixiter);
-	    }
-	}
-    }
-
     // Stack of prefixes, used for phrases and subexpressions.
     list<const PrefixInfo *> prefix_stack;
 
-    // We always have the current prefix on the top of the stack.
-    prefix_stack.push_back(&default_prefixinfo);
+    // If default_prefix is specified, use it.  Otherwise, use any list
+    // that has been set for the empty prefix.
+    const PrefixInfo def_pfx(false, default_prefix);
+    {
+	const PrefixInfo * default_prefixinfo = &def_pfx;
+	if (default_prefix.empty()) {
+	    map<string, PrefixInfo>::const_iterator f = prefixes.find("");
+	    if (f != prefixes.end()) default_prefixinfo = &(f->second);
+	}
+
+	// We always have the current prefix on the top of the stack.
+	prefix_stack.push_back(default_prefixinfo);
+    }
 
     unsigned newprev = ' ';
 main_lex_loop:
@@ -771,7 +779,7 @@ just_had_operator:
 		    unsigned ch = *++p;
 		    prefixinfo = &(f->second);
 
-		    if (prefixinfo->type == QueryParser::PREFIX_FILTER) {
+		    if (prefixinfo->filter) {
 			// Can't filter prefix a subexpression or phrase;
 			// just use anything following the boolean prefix
 			// until the next space or ')' as part of the filter
@@ -788,8 +796,6 @@ just_had_operator:
 				       field), &state);
 			continue;
 		    }
-
-		    Assert(prefixinfo->type == QueryParser::PREFIX_INLINE);
 
 		    if (ch == '"' && (flags & FLAG_PHRASE)) {
 			// Prefixed phrase, e.g.: subject:"space flight"
@@ -903,7 +909,7 @@ phrased_term:
 	    // Get the default prefix.
 	    prefixinfo = prefix_stack.back();
 	}
-	Assert(prefixinfo->type == QueryParser::PREFIX_INLINE);
+	Assert(!prefixinfo->filter);
 
 	{
 	    string unstemmed_term(term);

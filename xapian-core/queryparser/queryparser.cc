@@ -128,47 +128,19 @@ QueryParser::parse_query(const string &query_string, unsigned flags,
 void
 QueryParser::add_prefix(const string &field, const string &prefix)
 {
-    // This behaviour is for backwards compatibility: override previous
-    // settings for the field specified, and have no effect if called with an
-    // empty string for "field".
-    if (!field.empty()) {
-	internal->prefixes.insert(make_pair(field,
-	    PrefixInfo(QueryParser::PREFIX_INLINE, prefix)));
-    }
+    Assert(internal);
+    internal->add_prefix(field, prefix, false);
 }
 
 void
 QueryParser::add_boolean_prefix(const string &field, const string &prefix)
 {
-    // This behaviour is for backwards compatibility: override previous
-    // settings for the field specified, and have no effect if called with an
-    // empty string for "field".
-    if (!field.empty()) {
-	internal->prefixes.insert(make_pair(field,
-	    PrefixInfo(QueryParser::PREFIX_FILTER, prefix)));
-    }
-}
-
-void
-QueryParser::add_prefix(const string &field, const string &prefix, prefix_type type)
-{
-    map<string, PrefixInfo>::iterator p = internal->prefixes.find(field);
-    if (p == internal->prefixes.end()) {
-	// Don't allow the empty prefix to be used for PREFIX_FILTER queries
-	// (mainly because it's not clear what that would really mean, and it
-	// would require a lot of testing to check that it behaved
-	// consistently).
-	if (field.empty() && type != QueryParser::PREFIX_INLINE) {
-	    throw Xapian::UnimplementedError("Can't set the empty prefix to use PREFIX_FILTER");
-	}
-	internal->prefixes.insert(make_pair(field, PrefixInfo(type, prefix)));
-    } else {
-	// Check that type is compatible.
-	if (p->second.type != type) {
-	    throw Xapian::UnimplementedError("Can't use different prefix types for a single field");
-	}
-	p->second.prefixes.push_back(prefix);
-    }
+    Assert(internal);
+    // Don't allow the empty prefix to be set as boolean as it doesn't
+    // really make sense.
+    if (field.empty())
+	throw Xapian::UnimplementedError("Can't set the empty prefix to be a boolean filter");
+    internal->add_prefix(field, prefix, true);
 }
 
 TermIterator

@@ -1,3 +1,20 @@
+Fri Oct 19 03:44:33 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/queryparser.h,queryparser/queryparser.cc,
+	  queryparser/queryparser.lemony,queryparser/queryparser_internal.h,
+	  tests/queryparsertest.cc: Since calling QueryParser::add_prefix()
+	  or QueryParser::add_boolean_prefix() a second time with the same
+	  field name was ignored before (rather than overriding as we had
+	  thought) it seems reasonable to change this behaviour.  This
+	  also avoids the need to deprecate these methods which will force all
+	  users to update their code.  Change the semantics of default_prefix
+	  - it's more useful if this overrides any default prefixes set with
+	  add_prefix(), since this allows the same QueryParser object to
+	  parse both a "general" search input which searches several fields
+	  and also a "title" search input.  Trying to set the same field
+	  as probabilistic and boolean now throws InvalidOperationError
+	  rather than UnimplementedError.
+
 Fri Oct 19 03:29:53 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lt: Fix compilation.

@@ -35,21 +35,18 @@ using namespace std;
 
 class State;
 
-/** Information about how to handle a prefix in the query string.
- */
+/** Information about how to handle a prefix in the query string. */
 struct PrefixInfo {
-    /** Type of handling for the prefix; free text, or boolean.
-     */
-    Xapian::QueryParser::prefix_type type;
+    /// Is this a boolean filter prefix?
+    bool filter;
 
-    /** Prefix string.
-     */
+    /// Prefix strings.
     list<string> prefixes;
 
-    PrefixInfo(Xapian::QueryParser::prefix_type t, const string &s)
-	    : type(t), prefixes()
+    PrefixInfo(bool filter_, const string & prefix)
+	: filter(filter_)
     {
-	prefixes.push_back(s);
+	prefixes.push_back(prefix);
     }
 };
 
@@ -70,12 +67,14 @@ class QueryParser::Internal : public Xapian::Internal::RefCntBase {
     multimap<string, string> unstem;
 
     // Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
-    // "foobar" -> "XFOO"
+    // "foobar" -> "XFOO". FIXME: it does more than this now!
     map<string, PrefixInfo> prefixes;
 
     list<ValueRangeProcessor *> valrangeprocs;
 
     string corrected_query;
+
+    void add_prefix(const string &field, const string &prefix, bool filter);
 
     std::string parse_term(Utf8Iterator &it, const Utf8Iterator &end,
 			   bool &was_acronym);
