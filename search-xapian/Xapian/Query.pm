@@ -21,6 +21,9 @@ our @EXPORT = qw( );
 
 # Preloaded methods go here.
 
+# In a new thread, copy objects of this class to unblessed, undef values.
+sub CLONE_SKIP { 1 }
+
 use overload '""' => sub { $_[0]->get_description() }, # FIXME: perhaps unwise?
              'fallback' => 1;
 

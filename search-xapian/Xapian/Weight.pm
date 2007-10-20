@@ -1,5 +1,8 @@
 package Search::Xapian::Weight;
 
+# In a new thread, copy objects of this class to unblessed, undef values.
+sub CLONE_SKIP { 1 }
+
 =head1 NAME
 
 Search::Xapian::Weight - base class for Weighting schemes.

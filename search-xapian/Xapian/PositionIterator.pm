@@ -76,6 +76,9 @@ as stringification.
 
 # Preloaded methods go here.
 
+# In a new thread, copy objects of this class to unblessed, undef values.
+sub CLONE_SKIP { 1 }
+
 use overload '++' => sub { $_[0]->inc() },
              '='  => sub { $_[0]->clone() },
 	     'eq' => sub { $_[0]->equal($_[1]) },

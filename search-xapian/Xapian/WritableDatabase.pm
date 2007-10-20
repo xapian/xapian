@@ -146,6 +146,9 @@ Re-open the database. makes sure you have a fresh db handle.
 
 # Preloaded methods go here.
 
+# In a new thread, copy objects of this class to unblessed, undef values.
+sub CLONE_SKIP { 1 }
+
 use overload '='  => sub { $_[0]->clone() },
              'fallback' => 1;
 
