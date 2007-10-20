@@ -1,5 +1,12 @@
 Revision history for Perl extension Search::Xapian.
 
+1.0.4.0  ??? ??? ?? ??:??:?? BST 2007
+	[Changes contributed by Ron Kass]
+	- Make Search::Xapian work with 'use threads;' by adding 'sub
+	  CLONE_SKIP { 1 }' to all the classes.  This means that Xapian objects
+	  aren't copied to subthreads, so the wrapped C++ objects don't get
+	  destroyed more than once.
+
 1.0.3.0  Sat Sep 29 13:26:32 BST 2007
 	[Changes contributed by Olly Betts]
 	- Wrap Database::get_metadata() and WritableDatabase::set_metadata().

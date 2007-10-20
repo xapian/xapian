@@ -145,6 +145,9 @@ Get the number of elements indexed by a certain term.
 
 =cut
 
+# In a new thread, copy objects of this class to unblessed, undef values.
+sub CLONE_SKIP { 1 }
+
 # Preloaded methods go here.
 
 use overload '='  => sub { $_[0]->clone() },

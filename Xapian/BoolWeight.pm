@@ -11,6 +11,9 @@ require DynaLoader;
 
 our @ISA = qw( DynaLoader Search::Xapian::Weight);
 
+# In a new thread, copy objects of this class to unblessed, undef values.
+sub CLONE_SKIP { 1 }
+
 1;
 
 =head1 NAME
