@@ -1836,15 +1836,13 @@ static bool test_scaleweight1() {
 	tout << "query1: " << query1.get_description() << endl;
 	for (double *multp = multipliers; multp[0] != multp[1]; ++multp) {
 	    double mult = *multp;
-		Xapian::Query query2;
 	    if (mult < 0) {
-		TEST_EXCEPTION(Xapian::InvalidArgumentError, 
+		TEST_EXCEPTION(Xapian::InvalidArgumentError,
 			       Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT,
 					     query1, mult));
 		continue;
-	    } else {
-		query2 = Xapian::Query(Xapian::Query::OP_SCALE_WEIGHT, query1, mult);
 	    }
+	    Xapian::Query query2(Xapian::Query::OP_SCALE_WEIGHT, query1, mult);
 	    tout << "query2: " << query2.get_description() << endl;
 
 	    enq.set_query(query1);
@@ -1898,7 +1896,8 @@ static bool test_scaleweight2() {
     // of query1, in ascending docid order.  We test that this happens.
 
     // First, build a vector of docids matching the first part of the query,
-    // and append the non-duplicate docids matching the second part of the query.
+    // and append the non-duplicate docids matching the second part of the
+    // query.
     vector<Xapian::docid> ids1;
     set<Xapian::docid> idsin1;
     vector<Xapian::docid> ids3;
