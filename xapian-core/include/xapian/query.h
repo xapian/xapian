@@ -96,15 +96,20 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	    /** Filter by a range test on a document value. */
 	    OP_VALUE_RANGE,
 
-	    /** Scale the weight of a subquery by applying a multiplier.  Only
-	     * positive multiplers are supported - negative multipliers will be
-	     * clipped to 0. */
+	    /** Scale the weight of a subquery by the specified factor.
+	     *
+	     *  A factor of 0 means this subquery will contribute no weight to
+	     *  the query - it will act as a purely boolean subquery.
+	     *
+	     *  If the factor is negative, Xapian::InvalidArgumentError will
+	     *  be thrown.
+	     */
 	    OP_SCALE_WEIGHT,
 
 	    /** Select an elite set from the subqueries, and perform
 	     *  a query with these combined as an OR query.
 	     */
-	    OP_ELITE_SET = 10
+	    OP_ELITE_SET
 	} op;
 
 	/** Copy constructor. */
@@ -159,7 +164,9 @@ class XAPIAN_VISIBILITY_DEFAULT Query {
 	/** Apply the specified operator to a single Xapian::Query object. */
 	Query(Query::op op_, Xapian::Query q);
 
-	/** Apply the specified operator to a single Xapian::Query object, with a parameter. */
+	/** Apply the specified operator to a single Xapian::Query object, with
+	 *  a double parameter.
+	 */
 	Query(Query::op op_, Xapian::Query q, double parameter);
 
 	/** Construct a value range query on a document value.

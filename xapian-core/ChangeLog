@@ -1,3 +1,11 @@
+Sun Oct 21 23:46:11 BST 2007  Olly Betts <olly@survex.com>
+
+	* include/xapian/query.h: Fix documentation of OP_SCALE_WEIGHT.
+	  Negative scaling factors aren't now clipped to 0, instead we
+	  throw Xapian::InvalidArgumentError.  Remove the explicit setting of
+	  OP_ELITE_SET to 10 which is no longer required.  Wrap a long comment
+	  line.
+
 Sun Oct 21 23:20:23 BST 2007  Olly Betts <olly@survex.com>
 
 	* tests/api_anydb.cc: Tweak code and wrap comment.
