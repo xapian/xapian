@@ -1,3 +1,9 @@
+Sun Oct 21 04:53:40 BST 2007  Olly Betts <olly@survex.com>
+
+	* matcher/extraweightpostlist.h: Add missing '#include "multimatch.h"'
+	  which is pulled in implicitly by some other header which always
+	  happens to be included before this one.
+
 Fri Oct 19 03:52:17 BST 2007  Olly Betts <olly@survex.com>
 
 	* docs/deprecation.rst: Remove deprecation of
