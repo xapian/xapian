@@ -593,8 +593,7 @@ MultiMatch::get_mset(Xapian::doccount first, Xapian::doccount maxitems,
 		items.push_back(new_item);
 		if (!is_heap) {
 		    is_heap = true;
-		    make_heap<vector<Xapian::Internal::MSetItem>::iterator,
-			      MSetCmp>(items.begin(), items.end(), mcmp);
+		    make_heap(items.begin(), items.end(), mcmp);
 		} else {
 		    push_heap<vector<Xapian::Internal::MSetItem>::iterator,
 			      MSetCmp>(items.begin(), items.end(), mcmp);

@@ -1016,6 +1016,7 @@ class XAPIAN_VISIBILITY_DEFAULT Enquire {
 }
 
 class RemoteServer;
+class ScaleWeight;
 
 namespace Xapian {
 
@@ -1023,6 +1024,7 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT Weight {
     friend class Enquire; // So Enquire can clone us
     friend class ::RemoteServer; // So RemoteServer can clone us - FIXME
+    friend class ::ScaleWeight;
     public:
 	class Internal;
     protected:

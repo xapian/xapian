@@ -63,48 +63,6 @@ class LocalSubMatch : public SubMatch {
     /// The termfreqs and weights of terms used in orig_query.
     std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> term_info;
 
-
-    /// Build an optimised AndPostList tree from a vector of PostLists.
-    PostList * build_and_tree(const std::vector<PostList *> &PostLists,
-			      MultiMatch *matcher);
-
-    /// Build an optimised OrPostList tree from a vector of PostLists.
-    PostList * build_or_tree(const std::vector<PostList *> &PostLists,
-			     MultiMatch *matcher);
-
-    /// Build an optimised XorPostList tree from a vector of PostLists.
-    PostList * build_xor_tree(const std::vector<PostList *> &postlists,
-			      MultiMatch *matcher);
-
-    /** Convert the sub-queries of a Query into an optimised PostList tree.
-     *
-     *  We take the sub-queries from @a query, but use @op instead of
-     *  query->op (this allows us to convert OP_PHRASE and OP_NEAR to OP_AND
-     *  if there's no positional information.
-     *
-     *  @param op	@a op must be either OP_AND, OP_OR, OP_XOR,
-     *			OP_PHRASE, OP_NEAR, or OP_ELITE_SET.
-     *  @param query	Pointer to the query to process.
-     *  @param matcher	Pointer to the matcher.
-     *  @param is_bool	Is this a boolean part of the query?  E.g. the right
-     *			branch of an AND_NOT or FILTER.
-     *  @return		The root of the PostList tree.
-     */
-    PostList *postlist_from_queries(Xapian::Query::Internal::op_t op,
-				    const Xapian::Query::Internal *query,
-				    MultiMatch *matcher, bool is_bool);
-
-    /** Convert a Query into an optimised PostList tree.
-     *
-     *  @param query	Pointer to the query to process.
-     *  @param matcher	Pointer to the matcher.
-     *  @param is_bool	Is this a boolean part of the query?  E.g. the right
-     *			branch of an AND_NOT or FILTER.
-     *  @return		The root of the PostList tree.
-     */
-    PostList *postlist_from_query(const Xapian::Query::Internal * query,
-				  MultiMatch *matcher, bool is_bool);
-
     /// Register term @a tname with the StatsSource.
     void register_term(const string &tname);
 
@@ -127,6 +85,13 @@ class LocalSubMatch : public SubMatch {
     /// Get PostList and term info.
     PostList * get_postlist_and_term_info(MultiMatch *matcher,
 	std::map<string, Xapian::MSet::Internal::TermFreqAndWeight> *termfreqandwts);
+
+    /** Convert an OP_LEAF query to a PostList.
+     *
+     *  This is called by QueryOptimiser when it reaches an OP_LEAF query.
+     */
+    PostList * postlist_from_op_leaf_query(const Xapian::Query::Internal *query,
+					   double factor);
 };
 
 #endif /* XAPIAN_INCLUDED_LOCALMATCH_H */

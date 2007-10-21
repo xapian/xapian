@@ -218,6 +218,9 @@ class MSet::Internal : public Xapian::Internal::RefCntBase {
 	 *  given query term.
 	 */
 	struct TermFreqAndWeight {
+	    TermFreqAndWeight() { }
+	    TermFreqAndWeight(Xapian::doccount tf, Xapian::weight wt)
+		: termfreq(tf), termweight(wt) { }
 	    Xapian::doccount termfreq;
 	    Xapian::weight termweight;
 	};

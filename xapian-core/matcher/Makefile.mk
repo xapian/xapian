@@ -11,10 +11,11 @@ noinst_HEADERS +=\
 	matcher/msetcmp.h\
 	matcher/msetpostlist.h\
 	matcher/multiandpostlist.h\
-	matcher/scaleweightpostlist.h\
 	matcher/orpostlist.h\
 	matcher/phrasepostlist.h\
+	matcher/queryoptimiser.h\
 	matcher/remotesubmatch.h\
+	matcher/scaleweight.h\
 	matcher/selectpostlist.h\
 	matcher/valuerangepostlist.h\
 	matcher/xorpostlist.h
@@ -45,10 +46,11 @@ libxapian_la_SOURCES +=\
 	matcher/msetpostlist.cc\
 	matcher/multiandpostlist.cc\
 	matcher/multimatch.cc\
-	matcher/scaleweightpostlist.cc\
 	matcher/orpostlist.cc\
 	matcher/phrasepostlist.cc\
+	matcher/queryoptimiser.cc\
 	matcher/rset.cc\
+	matcher/scaleweight.cc\
 	matcher/selectpostlist.cc\
 	matcher/stats.cc\
 	matcher/tradweight.cc\

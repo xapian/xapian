@@ -36,8 +36,9 @@
 // FIXME: sort this out so we avoid exposing Xapian::Query::Internal
 // - we need to at present so that the Xapian::Query's template ctors
 // compile.
-class MultiMatch;
 class LocalSubMatch;
+class MultiMatch;
+class QueryOptimiser;
 struct SortPosName;
 
 namespace Xapian {
@@ -252,8 +253,9 @@ Query::Query(Query::op op_, Iterator qbegin, Iterator qend, termcount parameter)
 
 /// @internal Internal class, implementing most of Xapian::Query.
 class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCntBase {
-    friend class ::MultiMatch;
     friend class ::LocalSubMatch;
+    friend class ::MultiMatch;
+    friend class ::QueryOptimiser;
     friend struct ::SortPosName;
     public:
         static const int OP_LEAF = -1;
@@ -266,7 +268,7 @@ class XAPIAN_VISIBILITY_DEFAULT Query::Internal : public Xapian::Internal::RefCn
 
     private:
 	/// Operation to be performed at this node
-	op_t op;
+	Xapian::Query::Internal::op_t op;
 
 	/// Sub queries on which to perform operation
 	subquery_list subqs;
