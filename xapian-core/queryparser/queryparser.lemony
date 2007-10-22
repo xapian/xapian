@@ -323,7 +323,7 @@ Term::as_query() const
     Query * q = NULL;
     list<string>::const_iterator piter;
     for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-    	add_to_query(q, Query::OP_OR, Query(make_term(*piter), 1, pos));
+	add_to_query(q, Query::OP_OR, Query(make_term(*piter), 1, pos));
     }
     return q;
 }
@@ -446,9 +446,9 @@ void
 QueryParser::Internal::add_prefix(const string &field, const string &prefix,
 				  bool filter)
 {
-    map<string, PrefixInfo>::iterator p = prefixes.find(field);
-    if (p == prefixes.end()) {
-       prefixes.insert(make_pair(field, PrefixInfo(filter, prefix)));
+    map<string, PrefixInfo>::iterator p = prefixmap.find(field);
+    if (p == prefixmap.end()) {
+       prefixmap.insert(make_pair(field, PrefixInfo(filter, prefix)));
     } else {
        // Check that this is the same type of filter as the existing one(s).
        if (p->second.filter != filter) {
@@ -572,8 +572,8 @@ QueryParser::Internal::parse_query(const string &qs, unsigned flags,
     {
 	const PrefixInfo * default_prefixinfo = &def_pfx;
 	if (default_prefix.empty()) {
-	    map<string, PrefixInfo>::const_iterator f = prefixes.find("");
-	    if (f != prefixes.end()) default_prefixinfo = &(f->second);
+	    map<string, PrefixInfo>::const_iterator f = prefixmap.find("");
+	    if (f != prefixmap.end()) default_prefixinfo = &(f->second);
 	}
 
 	// We always have the current prefix on the top of the stack.
@@ -759,10 +759,9 @@ just_had_operator:
 	newprev = 'A'; // Any letter will do...
 
 	// A term, a prefix, or a boolean operator.
-	const PrefixInfo * prefixinfo = prefix_stack.back();
-	bool have_prefix = false;
-	if ((mode == DEFAULT || mode == IN_GROUP) && !prefixes.empty()) {
-	    // Check for fieldname prefixes (e.g. title:historical).
+	const PrefixInfo * prefixinfo = NULL;
+	if ((mode == DEFAULT || mode == IN_GROUP) && !prefixmap.empty()) {
+	    // Check for a fieldname prefix (e.g. title:historical).
 	    Utf8Iterator p = find_if(it, end, is_not_wordchar);
 	    if (p != end && *p == ':' && ++p != end && *p > ' ' && *p != ')') {
 		string field;
@@ -770,20 +769,18 @@ just_had_operator:
 		while (*p != ':')
 		    Unicode::append_utf8(field, *p++);
 		map<string, PrefixInfo>::const_iterator f;
-		f = prefixes.find(field);
-		if (f != prefixes.end()) {
-		    have_prefix = true;
-
+		f = prefixmap.find(field);
+		if (f != prefixmap.end()) {
 		    // Special handling for prefixed fields, depending on the
 		    // type of the prefix.
 		    unsigned ch = *++p;
 		    prefixinfo = &(f->second);
 
 		    if (prefixinfo->filter) {
-			// Can't filter prefix a subexpression or phrase;
-			// just use anything following the boolean prefix
-			// until the next space or ')' as part of the filter
-			// term.
+			// Can't boolean filter prefix a subexpression or
+			// phrase; just use anything following the prefix
+			// until the next space or ')' as part of the boolean
+			// filter term.
 			it = p;
 			string name;
 			while (it != end && *it > ' ' && *it != ')')
@@ -791,9 +788,9 @@ just_had_operator:
 			// Build the unstemmed form in field.
 			field += ':';
 			field += name;
-			Parse(pParser, BOOLEAN_FILTER,
-			      new Term(&state, name, prefixinfo->prefixes,
-				       field), &state);
+			const list<string> & prefixes = prefixinfo->prefixes;
+			Term * token = new Term(&state, name, prefixes, field);
+			Parse(pParser, BOOLEAN_FILTER, token, &state);
 			continue;
 		    }
 
@@ -825,7 +822,7 @@ just_had_operator:
 		    } else {
 			// It looks like a prefix but isn't, so parse it as
 			// text instead.
-			have_prefix = false;
+			prefixinfo = NULL;
 		    }
 		}
 	    }
@@ -840,7 +837,7 @@ phrased_term:
 	    (flags & FLAG_BOOLEAN) &&
 	    // Don't want to interpret A.N.D. as an AND operator.
 	    !was_acronym &&
-	    !have_prefix &&
+	    !prefixinfo &&
 	    term.size() >= 2 && term.size() <= 4 && U_isalpha(term[0])) {
 
 	    string op = term;
@@ -905,10 +902,9 @@ phrased_term:
 	    }
 	}
 
-	if (!have_prefix) {
-	    // Get the default prefix.
-	    prefixinfo = prefix_stack.back();
-	}
+	// If no prefix is set, use the default one.
+	if (!prefixinfo) prefixinfo = prefix_stack.back();
+
 	Assert(!prefixinfo->filter);
 
 	{
@@ -1238,7 +1234,7 @@ class TermList {
 
     /// Convert to a Xapian::Query * using adjacent OP_PHRASE.
     Query * as_phrase_query() const {
-    	return as_opwindow_query(Query::OP_PHRASE, terms.size());
+	return as_opwindow_query(Query::OP_PHRASE, terms.size());
     }
 
     /// Convert to a Xapian::Query * using OP_NEAR.
@@ -1248,7 +1244,7 @@ class TermList {
 	// to the window size for each extra term.
 	size_t w = window;
 	if (w == 0) w = 10;
-    	return as_opwindow_query(Query::OP_NEAR, terms.size() + w - 1);
+	return as_opwindow_query(Query::OP_NEAR, terms.size() + w - 1);
     }
 
     /// Convert to a Xapian::Query * using OP_PHRASE to implement ADJ.

@@ -68,7 +68,7 @@ class QueryParser::Internal : public Xapian::Internal::RefCntBase {
 
     // Map "from" -> "A" ; "subject" -> "C" ; "newsgroups" -> "G" ;
     // "foobar" -> "XFOO". FIXME: it does more than this now!
-    map<string, PrefixInfo> prefixes;
+    map<string, PrefixInfo> prefixmap;
 
     list<ValueRangeProcessor *> valrangeprocs;
 
