@@ -25,7 +25,6 @@
 #include "queryparser_internal.h"
 #include <xapian/error.h>
 #include <xapian/unicode.h>
-#include "autoptr.h"
 #include "utils.h"
 
 // Include the list of token values lemon generates.
@@ -316,16 +315,22 @@ add_to_query(Query *& q, Query::op op, const Query & term)
     }
 }
 
+Query
+Term::as_query_object() const
+{
+    Assert(prefixes.size() >= 1);
+    list<string>::const_iterator piter = prefixes.begin();
+    Query q(make_term(*piter), 1, pos);
+    while (++piter != prefixes.end()) {
+	q = Query(Query::OP_OR, q, Query(make_term(*piter), 1, pos));
+    }
+    return q;
+}
+
 Query *
 Term::as_query() const
 {
-    Assert(prefixes.size() >= 1);
-    Query * q = NULL;
-    list<string>::const_iterator piter;
-    for (piter = prefixes.begin(); piter != prefixes.end(); ++piter) {
-	add_to_query(q, Query::OP_OR, Query(make_term(*piter), 1, pos));
-    }
-    return q;
+    return new Query(as_query_object());
 }
 
 Query *
@@ -366,13 +371,6 @@ Term::as_partial_query(State * state_) const
     }
     delete this;
     return q;
-}
-
-Query
-Term::as_query_object() const
-{
-    AutoPtr<Query> q(as_query());
-    return Query(*q);
 }
 
 inline bool
@@ -1140,7 +1138,7 @@ TermGroup::as_group(State *state) const
 		if (state->is_stopword(*j)) {
 		    state->add_to_stoplist(*j);
 		} else {
-		    add_to_query(q, default_op, (*j)->as_query());
+		    add_to_query(q, default_op, (*j)->as_query_object());
 		}
 	    }
 
