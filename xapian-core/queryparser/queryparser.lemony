@@ -362,7 +362,7 @@ Term::as_partial_query(State * state_) const
 	    ++t;
 	}
 	// Add the term, as it would normally be handled, as an alternative.
-	add_to_query(q, Query::OP_OR, as_query());
+	add_to_query(q, Query::OP_OR, Query(make_term(*piter), 1, pos));
     }
     delete this;
     return q;

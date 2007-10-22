@@ -905,6 +905,8 @@ static bool test_qp_flag_partial1()
     qp.set_stemmer(stemmer);
     qp.set_stemming_strategy(Xapian::QueryParser::STEM_SOME);
     qp.add_prefix("title", "XT");
+    qp.add_prefix("double", "XONE");
+    qp.add_prefix("double", "XTWO");
 
     // Check behaviour with unstemmed terms
     Xapian::Query qobj = qp.parse_query("a", Xapian::QueryParser::FLAG_PARTIAL);
@@ -967,6 +969,12 @@ static bool test_qp_flag_partial1()
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((XTcowl:(pos=1) OR XTcows:(pos=1) OR XTcow:(pos=1)))");
     qobj = qp.parse_query("title:Cows", Xapian::QueryParser::FLAG_PARTIAL);
     TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query(XTcows:(pos=1,wqf=2))");
+
+    // Regression test - the initial version of the multi-prefix code would
+    // inflate the wqf of the "parsed as normal" version of a partial term
+    // by multiplying it by the number of prefixes mapped to.
+    qobj = qp.parse_query("double:vision", Xapian::QueryParser::FLAG_PARTIAL);
+    TEST_STRINGS_EQUAL(qobj.get_description(), "Xapian::Query((ZXONEvision:(pos=1) OR ZXTWOvision:(pos=1)))");
 
     return true;
 }
