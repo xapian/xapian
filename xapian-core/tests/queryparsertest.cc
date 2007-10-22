@@ -71,6 +71,9 @@ static test test_or_queries[] = {
     { "author:/path/name", "(author:(pos=1) PHRASE 3 path:(pos=2) PHRASE 3 name:(pos=3))" },
     // Regression test for bug introduced into (and fixed in) SVN prior to 1.0.0.
     { "author:(title::case)", "(Atitle:(pos=1) PHRASE 2 Acase:(pos=2))" },
+    // Regression test for bug fixed in 1.0.4 - the '+' would be ignored there
+    // because the whitespace after the '"' wasn't noticed.
+    { "\"hello world\" +python", "(Zpython:(pos=3) AND_MAYBE (hello:(pos=1) PHRASE 2 world:(pos=2)))" },
     { "unmatched\"", "unmatched:(pos=1)" },
     { "unmatched \" \" ", "Zunmatch:(pos=1)" },
     { "hyphen-ated\" ", "(hyphen:(pos=1) PHRASE 2 ated:(pos=2))" },
@@ -585,6 +588,9 @@ static test test_and_queries[] = {
     // (two:(pos=2) AND_MAYBE (one:(pos=1) AND three:(pos=3)))
     { "one +two three", "(Zone:(pos=1) AND Ztwo:(pos=2) AND Zthree:(pos=3))" },
     { "hello -title:\"hello world\"", "(Zhello:(pos=1) AND_NOT (XThello:(pos=2) PHRASE 2 XTworld:(pos=3)))" },
+    // Regression test for bug fixed in 1.0.4 - the '-' would be ignored there
+    // because the whitespace after the '"' wasn't noticed.
+    { "\"hello world\" -C++", "((hello:(pos=1) PHRASE 2 world:(pos=2)) AND_NOT c++:(pos=3))" },
     { NULL, NULL }
 };
 

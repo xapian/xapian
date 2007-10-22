@@ -1,3 +1,9 @@
+Mon Oct 22 21:00:05 BST 2007  Olly Betts <olly@survex.com>
+
+	* queryparser/queryparser.lemony: Fix handling of LOVE and HATE
+	  following a quoted phrase.
+	* tests/queryparsertest.cc: Add regression test.
+
 Mon Oct 22 05:23:23 BST 2007  Olly Betts <olly@survex.com>
 
 	* queryparser/queryparser.lemony: Refactor so Term::as_query() calls

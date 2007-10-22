@@ -643,9 +643,9 @@ just_had_operator:
 	    if (mode == IN_GROUP) mode = DEFAULT;
 	    switch (ch) {
 	      case '"': // Quoted phrase.
-		// Skip whitespace.
-		it = find_if(it, end, is_not_whitespace);
 		if (mode == DEFAULT) {
+		    // Skip whitespace.
+		    it = find_if(it, end, is_not_whitespace);
 		    if (it == end) {
 			// Ignore an unmatched " at the end of the query to
 			// avoid generating an empty pair of QUOTEs which will
