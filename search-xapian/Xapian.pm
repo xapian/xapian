@@ -155,9 +155,9 @@ can read the Xapian C++ API documentation at
 L<http://www.xapian.org/docs/apidoc/html/annotated.html> for details of
 these.  Alternatively, take a look at the code in the examples and tests.
 
-If you encounter problems, email either me or preferably the
-Xapian-discuss mailing list (which I am on - subscription details can
-be found on the Xapian web site L<http://www.xapian.org/lists.php>).
+If you encounter problems, or have any comments, suggestions, patches, etc
+please email the Xapian-discuss mailing list (details of which can be found at
+L<http://www.xapian.org/lists.php>).
 
 =head2 EXPORT
 
@@ -370,6 +370,22 @@ Alex Bowley E<lt>kilinrax@cpan.orgE<gt>
 
 =head1 SEE ALSO
 
-L<perl>. L<xapian>.
+L<Xapian::BM25Weight>,
+L<Xapian::BoolWeight>,
+L<Xapian::Database>,
+L<Xapian::Document>,
+L<Xapian::Enquire>,
+L<Xapian::PositionIterator>,
+L<Xapian::PostingIterator>,
+L<Xapian::QueryParser>,
+L<Xapian::Stem>,
+L<Xapian::TermGenerator>,
+L<Xapian::TermIterator>,
+L<Xapian::TradWeight>,
+L<Xapian::ValueIterator>,
+L<Xapian::Weight>,
+L<Xapian::WritableDatabase>,
+and
+L<http://www.xapian.org/>.
 
 =cut
