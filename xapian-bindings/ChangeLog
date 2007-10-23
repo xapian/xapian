@@ -1,3 +1,9 @@
+Tue Oct 23 16:19:15 BST 2007  Olly Betts <olly@survex.com>
+
+	* csharp/docs/Makefile.am,php/docs/Makefile.am,python/docs/Makefile.am,
+	  ruby/docs/Makefile.am,tcl8/docs/Makefile.am: Update for the
+	  bindings.html -> index.html change.
+
 Tue Oct 23 16:18:09 BST 2007  Olly Betts <olly@survex.com>
 
 	* python/util.i: Fix warning with Python <= 2.4 and GCC >= 4.2.

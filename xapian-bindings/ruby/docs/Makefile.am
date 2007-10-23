@@ -7,4 +7,4 @@ dist_exampledata_DATA = examples/simpleexpand.rb examples/simpleindex.rb \
 # Not implemented yet: examples/simplematchdecider.rb
 
 docdatadir = $(docdir)/ruby
-dist_docdata_DATA = bindings.html
+dist_docdata_DATA = index.html

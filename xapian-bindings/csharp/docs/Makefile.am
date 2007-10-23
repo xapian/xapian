@@ -7,4 +7,4 @@ dist_exampledata_DATA =\
 	examples/SimpleExpand.cs
 
 docdatadir = $(docdir)/csharp
-dist_docdata_DATA = bindings.html
+dist_docdata_DATA = index.html

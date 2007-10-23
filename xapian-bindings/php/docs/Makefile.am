@@ -10,4 +10,4 @@ dist_exampledata_DATA =\
        	examples/simpleexpand.php5
 
 docdatadir = $(docdir)/php
-dist_docdata_DATA = bindings.html
+dist_docdata_DATA = index.html
