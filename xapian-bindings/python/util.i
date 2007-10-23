@@ -4,7 +4,7 @@
  * Copyright (C) 1999,2000,2001 BrightStation PLC
  * Copyright (C) 2002 Ananova Ltd
  * Copyright (C) 2002,2003 James Aylett
- * Copyright (C) 2002,2003,2004,2005,2006 Olly Betts
+ * Copyright (C) 2002,2003,2004,2005,2006,2007 Olly Betts
  * Copyright (C) 2007 Lemur Consulting Ltd
  *
  * This program is free software; you can redistribute it and/or
@@ -69,7 +69,14 @@ namespace Xapian {
 namespace Xapian {
     class PythonProblem {};
     Query *get_py_query(PyObject *obj) {
+#if PY_VERSION_HEX < 0x02050000
+	// In Python 2.4 (and presumably earlier), PyObject_GetAttrString()
+	// takes a char* parameter which causes a warning with GCC >= 4.2.
+	// This is fixed in Python 2.5.
+	PyObject * mythis = PyObject_GetAttrString(obj, (char *)"this");
+#else
 	PyObject * mythis = PyObject_GetAttrString(obj, "this");
+#endif
 	Query * retval = 0;
 	if (!mythis || SWIG_ConvertPtr(mythis, (void **)&retval,
 				       SWIGTYPE_p_Xapian__Query, 0) < 0) {
